@@ -50,16 +50,16 @@ public class TransformManager implements ConfigManager {
      */
     public JSONArray getTransforms(String sourceEntity, ID user) {
         JSONArray data = new JSONArray();
-        for (ConfigBean c : getRawTransforms(sourceEntity)) {
-            JSONObject config = (JSONObject) c.getJSON("config");
+        for (ConfigBean cb : getRawTransforms(sourceEntity)) {
+            JSONObject config = (JSONObject) cb.getJSON("config");
             // 过滤尚未配置或禁用的
-            if (config == null || c.getBoolean("disabled")) continue;
+            if (config == null || cb.getBoolean("disabled")) continue;
 
             // 无字段映射
             JSONObject fieldsMapping = config.getJSONObject("fieldsMapping");
             if (fieldsMapping == null || fieldsMapping.isEmpty()) continue;
 
-            String target = c.getString("target");
+            String target = cb.getString("target");
             Entity targetEntity = MetadataHelper.getEntity(target);
 
             if (targetEntity.getMainEntity() == null) {
@@ -74,8 +74,8 @@ public class TransformManager implements ConfigManager {
             }
 
             JSONObject item = EasyMetaFactory.toJSON(targetEntity);
-            item.put("transid", c.getID("id"));
-            item.put("transName", c.getString("name"));  // v3.6 重启用
+            item.put("transid", cb.getID("id"));
+            item.put("transName", cb.getString("name"));  // v3.6 重启用
             item.put("previewMode", config.getIntValue("transformMode") == 2);
             data.add(item);
         }
