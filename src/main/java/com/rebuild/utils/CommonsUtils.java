@@ -306,8 +306,7 @@ public class CommonsUtils {
      */
     public static void checkFilePathAttack(String filepath) throws SecurityException {
         if (filepath == null) return;
-        if (filepath.contains(".rebuild") || filepath.contains("../")
-                || filepath.contains("<") || filepath.contains(">")) {
+        if (filepath.contains("../") || filepath.contains("<") || filepath.contains(">")) {
             throw new SecurityException("Attack path detected : " + filepath);
         }
     }
