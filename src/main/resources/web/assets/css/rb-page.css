@@ -3359,7 +3359,7 @@ form {
     border-radius: 0;
     border-bottom: 1px solid #ebebeb;
   }
-  .rb-icons-nav > li.dropdown.global-create2 > a:after {
+  .rb-icons-nav > li.dropdown.global-create2 > a::after {
     bottom: 0;
   }
 }
@@ -4707,7 +4707,7 @@ pre.unstyle {
   border-width: 2px;
 }
 
-.custom-checkbox.ptask:hover .custom-control-input:not(:disabled) ~ .custom-control-label:before {
+.custom-checkbox.ptask:hover .custom-control-input:not(:disabled) ~ .custom-control-label::before {
   border-color: #4285f4;
 }
 
@@ -5030,7 +5030,7 @@ pre.unstyle {
   text-align: left;
 }
 
-.switch-button.switch-button-xs label:before {
+.switch-button.switch-button-xs label::before {
   font-size: 12px;
   transform: scale(0.8333);
   font-weight: normal;
