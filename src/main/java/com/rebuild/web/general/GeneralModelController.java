@@ -33,7 +33,6 @@ import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,12 +42,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -156,12 +152,6 @@ public class GeneralModelController extends EntityController {
             if (modelEntity.getDetailEntity() != null) {
                 List<ConfigBean> imports = TransformManager.instance.getDetailImports(modelEntity.getDetailEntity().getName());
                 if (!imports.isEmpty()) {
-                    // v3.6 排序
-                    Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);
-                    imports.sort((o1, o2) -> comparator.compare(
-                            ObjectUtils.defaultIfNull(o1.getString("name"), ""),
-                            ObjectUtils.defaultIfNull(o2.getString("name"), "")));
-                    
                     List<Object> detailImports = new ArrayList<>();
                     for (ConfigBean cb : imports) {
                         JSONObject trans = (JSONObject) EasyMetaFactory.valueOf(cb.getString("source")).toJSON();
