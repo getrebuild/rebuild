@@ -5483,8 +5483,8 @@ span.icon-append .icon {
   text-align: center;
 }
 
-.media-capture.md video,
-.media-capture.md canvas {
+.media-capture.media-capture-md video,
+.media-capture.media-capture-md canvas {
   width: 768px;
   height: 576px;
 }

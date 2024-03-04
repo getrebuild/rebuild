@@ -5,7 +5,6 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-// css width
 const _VIDEO_WIDTH = 1000
 
 // eslint-disable-next-line no-unused-vars
@@ -130,7 +129,7 @@ class MediaCapturer extends RbModal {
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
-    const ps = { video: true, audio: true }
+    const ps = { video: true, audio: this.props.recordAudio || false }
     if (deviceId) ps.video = { deviceId: deviceId }
     navigator.mediaDevices
       .getUserMedia(ps)
