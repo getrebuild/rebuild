@@ -1590,7 +1590,7 @@ class RbFormImage extends RbFormElement {
       // NOOP
     } else {
       if (!this._fieldValue__input) {
-        console.warn('No element `_fieldValue__input` defined')
+        console.log('No element `_fieldValue__input` defined :', this.props.field)
         return
       }
 
