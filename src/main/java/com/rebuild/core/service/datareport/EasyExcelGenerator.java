@@ -81,7 +81,8 @@ import static com.rebuild.core.service.datareport.TemplateExtractor33.NROW_PREFI
 @Slf4j
 public class EasyExcelGenerator extends SetUser {
 
-    final protected static String MDATA_KEY = ".";
+    final protected static String DKEY_RECORD_MAIN = ".";
+    final protected static String DKEY_LIST = DKEY_RECORD_MAIN + "36LIST";
 
     protected File templateFile;
     protected Integer writeSheetAt = null;
@@ -110,10 +111,11 @@ public class EasyExcelGenerator extends SetUser {
         Map<String, List<Map<String, Object>>> datas = buildData();
         if (datas.isEmpty()) throw new DefinedException(Language.L("暂无数据"));
 
+        // 记录模板-主记录
         Map<String, Object> main = null;
-        if (datas.containsKey(MDATA_KEY)) {
-            main = datas.get(MDATA_KEY).get(0);
-            datas.remove(MDATA_KEY);
+        if (datas.containsKey(DKEY_RECORD_MAIN)) {
+            main = datas.get(DKEY_RECORD_MAIN).get(0);
+            datas.remove(DKEY_RECORD_MAIN);
         }
 
         FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
@@ -124,10 +126,10 @@ public class EasyExcelGenerator extends SetUser {
                     .registerWriteHandler(new FormulaCellWriteHandler())
                     .build();
 
-            // 一个列表
+            // 一个列表/列表模板
             if (datas.size() == 1) {
-                Object o = datas.values().iterator().next();
-                excelWriter.fill(o, fillConfig, writeSheet);
+                Object datas35 = datas.values().iterator().next();
+                excelWriter.fill(datas35, fillConfig, writeSheet);
             }
             // fix: v3.6 多个列表
             else if (datas.size() > 1) {
@@ -253,7 +255,7 @@ public class EasyExcelGenerator extends SetUser {
             Assert.notNull(record, "No record found : " + recordId);
 
             Map<String, Object> d = buildData(record, varsMapOfMain);
-            datas.put(MDATA_KEY, Collections.singletonList(d));
+            datas.put(DKEY_RECORD_MAIN, Collections.singletonList(d));
         }
 
         // 明细
@@ -274,7 +276,7 @@ public class EasyExcelGenerator extends SetUser {
                 detailList.add(buildData(c, varsMapOfDetail));
                 phNumber++;
             }
-            datas.put(MDATA_KEY + "detail", detailList);
+            datas.put(DKEY_RECORD_MAIN + "detail", detailList);
         }
 
         // 审批
@@ -293,7 +295,7 @@ public class EasyExcelGenerator extends SetUser {
                 approvalList.add(buildData(c, varsMapOfApproval));
                 phNumber++;
             }
-            datas.put(MDATA_KEY + "approval", approvalList);
+            datas.put(DKEY_RECORD_MAIN + "approval", approvalList);
         }
 
         return datas;

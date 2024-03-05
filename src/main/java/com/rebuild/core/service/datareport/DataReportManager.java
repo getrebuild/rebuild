@@ -217,6 +217,7 @@ public class DataReportManager implements ConfigManager {
                 else if (fileName.endsWith(".doc")) name += ".doc";
                 else if (fileName.endsWith(".xlsx")) name += ".xlsx";
                 else if (fileName.endsWith(".xls")) name += ".xls";
+                else if (fileName.endsWith(".csv")) name += ".csv";
                 break;
             }
         }

@@ -155,7 +155,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             Assert.notNull(record, "No record found : " + recordId);
 
             Map<String, Object> d = buildData(record, varsMapOfMain);
-            datas.put(MDATA_KEY, Collections.singletonList(d));
+            datas.put(DKEY_RECORD_MAIN, Collections.singletonList(d));
             mdataHolder = d;
         }
 
