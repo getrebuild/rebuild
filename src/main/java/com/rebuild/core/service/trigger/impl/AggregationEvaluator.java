@@ -218,7 +218,7 @@ public class AggregationEvaluator {
         Map<Object, Integer> countList = null;
         if (mode == 2 || mode == 3) {
             nvList = new LinkedHashSet<>();
-            if (mode == 3) countList = new HashMap<>();  // 针对文本
+            if (mode == 3) countList = new HashMap<>();  // 仅文本有效 *N
         } else {
             nvList = new ArrayList<>();
         }
