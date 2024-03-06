@@ -99,11 +99,29 @@ public class CommonsUtils {
 
         // https://www.php.net/htmlspecialchars
         return text.toString()
-//                .replace("&", "&amp;")
                 .replace("\"", "&quot;")
                 .replace("'", "&apos;")
                 .replace(">", "&gt;")
                 .replace("<", "&lt;");
+    }
+
+    /**
+     * @param text
+     * @return
+     * @see #escapeHtml(Object)
+     */
+    public static String sanitizeHtml(Object text) {
+        if (text == null || StringUtils.isBlank(text.toString())) {
+            return StringUtils.EMPTY;
+        }
+
+        // TODO 更好的 sanitizeHtml
+        return text.toString()
+                .replace("<script", "")
+                .replace("</script>", "")
+                .replace("<style", "")
+                .replace("</style>", "")
+                .replace("<img", "");
     }
 
     /**
