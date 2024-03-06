@@ -325,7 +325,7 @@ public class CommonsUtils {
     public static void checkSafeFilePath(String filepath) throws SecurityException {
         if (filepath == null) return;
         if (filepath.contains("../") || filepath.contains("<") || filepath.contains(">")) {
-            throw new SecurityException("Attack path detected : " + filepath);
+            throw new SecurityException("Attack path detected : " + escapeHtml(filepath));
         }
     }
 }

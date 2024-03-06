@@ -271,7 +271,7 @@ public class FileDownloader extends BaseController {
         CommonsUtils.checkSafeFilePath(filepath);
         if (filepath.startsWith("_log/") || filepath.contains("/_log/")
                 || filepath.startsWith("_backups/") || filepath.contains("/_backups/")) {
-            throw new SecurityException("Attack path detected : " + filepath);
+            throw new SecurityException("Attack path detected : " + CommonsUtils.escapeHtml(filepath));
         }
         return filepath;
     }
