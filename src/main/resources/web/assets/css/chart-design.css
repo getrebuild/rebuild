@@ -298,8 +298,8 @@ a.ui-draggable.ui-draggable-dragging {
 
 .data-info ul li i.icon,
 .data-info ul.fields li a::before {
-  width: 18px;
   display: inline-block;
+  width: 15px;
   color: #4285f4;
 }
 
