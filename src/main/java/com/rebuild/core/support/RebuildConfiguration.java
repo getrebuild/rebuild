@@ -41,7 +41,7 @@ public class RebuildConfiguration extends KVStorage {
      * @return
      */
     public static File getFileOfData(String filepath) {
-        CommonsUtils.checkFilePathAttack(filepath);
+        CommonsUtils.checkSafeFilePath(filepath);
 
         String d = get(ConfigurationItem.DataDirectory);
         File datadir = null;
@@ -76,7 +76,7 @@ public class RebuildConfiguration extends KVStorage {
      * @see PerHourJob#doCleanTempFiles()
      */
     public static File getFileOfTemp(String filepath) {
-        CommonsUtils.checkFilePathAttack(filepath);
+        CommonsUtils.checkSafeFilePath(filepath);
 
         File temp = getFileOfData("temp");
         if (!temp.exists()) {

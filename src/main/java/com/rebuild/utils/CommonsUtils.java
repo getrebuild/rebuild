@@ -183,6 +183,19 @@ public class CommonsUtils {
     }
 
     /**
+     * 指定范围的随机数
+     *
+     * @param s
+     * @param e
+     * @return
+     * @see RandomUtils#nextInt(int)
+     */
+    public static int randomInt(int s, int e) {
+        int rnd = RandomUtils.nextInt(e);
+        return rnd < s ? rnd + s : rnd;
+    }
+
+    /**
      * 转整数（四舍五入）
      *
      * @param number
@@ -304,25 +317,12 @@ public class CommonsUtils {
         // FIXME 完善不同值类型的比较
         return StringUtils.equals(a.toString(), b.toString());
     }
-    
-    /**
-     * 指定范围的随机数
-     *
-     * @param s
-     * @param e
-     * @return
-     * @see RandomUtils#nextInt(int)
-     */
-    public static int randomInt(int s, int e) {
-        int rnd = RandomUtils.nextInt(e);
-        return rnd < s ? rnd + s : rnd;
-    }
 
     /**
      * @param filepath
      * @throws SecurityException
      */
-    public static void checkFilePathAttack(String filepath) throws SecurityException {
+    public static void checkSafeFilePath(String filepath) throws SecurityException {
         if (filepath == null) return;
         if (filepath.contains("../") || filepath.contains("<") || filepath.contains(">")) {
             throw new SecurityException("Attack path detected : " + filepath);
