@@ -81,7 +81,8 @@ import static com.rebuild.core.service.datareport.TemplateExtractor33.NROW_PREFI
 @Slf4j
 public class EasyExcelGenerator extends SetUser {
 
-    final protected static String MDATA_KEY = ".";
+    final protected static String REFKEY_RECORD_MAIN = ".";
+    final protected static String REFKEY_LIST = REFKEY_RECORD_MAIN + "36LIST";
 
     protected File templateFile;
     protected Integer writeSheetAt = null;
@@ -110,10 +111,11 @@ public class EasyExcelGenerator extends SetUser {
         Map<String, List<Map<String, Object>>> datas = buildData();
         if (datas.isEmpty()) throw new DefinedException(Language.L("暂无数据"));
 
+        // 记录模板-主记录
         Map<String, Object> main = null;
-        if (datas.containsKey(MDATA_KEY)) {
-            main = datas.get(MDATA_KEY).get(0);
-            datas.remove(MDATA_KEY);
+        if (datas.containsKey(REFKEY_RECORD_MAIN)) {
+            main = datas.get(REFKEY_RECORD_MAIN).get(0);
+            datas.remove(REFKEY_RECORD_MAIN);
         }
 
         FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
@@ -124,18 +126,20 @@ public class EasyExcelGenerator extends SetUser {
                     .registerWriteHandler(new FormulaCellWriteHandler())
                     .build();
 
-            // 一个列表
-            if (datas.size() == 1) {
-                Object o = datas.values().iterator().next();
-                excelWriter.fill(o, fillConfig, writeSheet);
+            int datasLen = datas.size();
+            boolean useRefKeys = datasLen > 1;
+            if (datasLen == 1) {
+                String refKey = datas.keySet().iterator().next();
+                useRefKeys = refKey.startsWith("$");
             }
-            // fix: v3.6 多个列表
-            else if (datas.size() > 1) {
+
+            // fix: v3.6 多个列表 $前缀
+            if (useRefKeys) {
                 for (Map.Entry<String, List<Map<String, Object>>> e : datas.entrySet()) {
                     final String refKey = NROW_PREFIX2 + e.getKey().substring(1);
                     final List<Map<String, Object>> refDatas = e.getValue();
 
-                    List<Map<String, Object>> refDatasNew = new ArrayList<>();
+                    List<Map<String, Object>> refDatas2New = new ArrayList<>();
                     for (Map<String, Object> map : refDatas) {
                         Map<String, Object> mapNew = new HashMap<>();
                         for (Map.Entry<String, Object> ee : map.entrySet()) {
@@ -143,11 +147,16 @@ public class EasyExcelGenerator extends SetUser {
                             if (keyNew.startsWith("$") || keyNew.startsWith(".")) keyNew = keyNew.substring(1);
                             mapNew.put(keyNew, ee.getValue());
                         }
-                        refDatasNew.add(mapNew);
+                        refDatas2New.add(mapNew);
                     }
 
-                    excelWriter.fill(new FillWrapper(refKey, refDatasNew), fillConfig, writeSheet);
+                    excelWriter.fill(new FillWrapper(refKey, refDatas2New), fillConfig, writeSheet);
                 }
+            }
+            // 一个列表/列表模板
+            else if (datasLen == 1) {
+                Object datas35 = datas.values().iterator().next();
+                excelWriter.fill(datas35, fillConfig, writeSheet);
             }
 
             // 主记录
@@ -253,7 +262,7 @@ public class EasyExcelGenerator extends SetUser {
             Assert.notNull(record, "No record found : " + recordId);
 
             Map<String, Object> d = buildData(record, varsMapOfMain);
-            datas.put(MDATA_KEY, Collections.singletonList(d));
+            datas.put(REFKEY_RECORD_MAIN, Collections.singletonList(d));
         }
 
         // 明细
@@ -274,7 +283,7 @@ public class EasyExcelGenerator extends SetUser {
                 detailList.add(buildData(c, varsMapOfDetail));
                 phNumber++;
             }
-            datas.put(MDATA_KEY + "detail", detailList);
+            datas.put(REFKEY_RECORD_MAIN + "detail", detailList);
         }
 
         // 审批
@@ -293,7 +302,7 @@ public class EasyExcelGenerator extends SetUser {
                 approvalList.add(buildData(c, varsMapOfApproval));
                 phNumber++;
             }
-            datas.put(MDATA_KEY + "approval", approvalList);
+            datas.put(REFKEY_RECORD_MAIN + "approval", approvalList);
         }
 
         return datas;

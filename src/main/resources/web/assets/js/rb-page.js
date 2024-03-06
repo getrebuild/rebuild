@@ -139,6 +139,9 @@ $(function () {
         typeof window.bosskeyTrigger === 'function' && window.bosskeyTrigger()
         window.__BOSSKEY = true
       }
+      setTimeout(function () {
+        --bosskey
+      }, 50000) // clean
     }
   })
 

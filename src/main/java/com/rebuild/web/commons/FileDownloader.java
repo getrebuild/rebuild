@@ -268,8 +268,8 @@ public class FileDownloader extends BaseController {
         filepath = CodecUtils.urlDecode(filepath);
         filepath = filepath.replace("\\", "/");
 
-        if (filepath.contains("../")
-                || filepath.startsWith("_log/") || filepath.contains("/_log/")
+        CommonsUtils.checkFilePathAttack(filepath);
+        if (filepath.startsWith("_log/") || filepath.contains("/_log/")
                 || filepath.startsWith("_backups/") || filepath.contains("/_backups/")) {
             throw new SecurityException("Attack path detected : " + filepath);
         }

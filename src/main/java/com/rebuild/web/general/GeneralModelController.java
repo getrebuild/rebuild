@@ -159,7 +159,7 @@ public class GeneralModelController extends EntityController {
                         trans.put("transName", cb.getString("name"));
                         detailImports.add(trans);
                     }
-                    
+
                     ((JSONObject) model).put("detailImports", detailImports);
                 }
             }

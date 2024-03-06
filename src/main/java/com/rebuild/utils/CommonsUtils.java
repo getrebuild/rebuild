@@ -299,4 +299,15 @@ public class CommonsUtils {
         int rnd = RandomUtils.nextInt(e);
         return rnd < s ? rnd + s : rnd;
     }
+
+    /**
+     * @param filepath
+     * @throws SecurityException
+     */
+    public static void checkFilePathAttack(String filepath) throws SecurityException {
+        if (filepath == null) return;
+        if (filepath.contains("../") || filepath.contains("<") || filepath.contains(">")) {
+            throw new SecurityException("Attack path detected : " + filepath);
+        }
+    }
 }

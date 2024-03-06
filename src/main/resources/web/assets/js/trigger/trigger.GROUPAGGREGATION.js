@@ -10,7 +10,7 @@ const CALC_MODES2 = {
   ...FormulaAggregation.CALC_MODES,
   RBJOIN: $L('连接'),
   RBJOIN2: $L('去重连接'),
-  // RBJOIN3: $L('去重连接*N'),
+  RBJOIN3: $L('去重连接*N'),
 }
 
 // ~~ 分组聚合
@@ -380,7 +380,7 @@ class ContentGroupAggregation extends ActionContentSpec {
               if ('RBJOIN' === cm || 'RBJOIN2' === cm || 'RBJOIN3' === cm) {
                 tfAllow = this.__targetFieldsCache.filter((x) => {
                   if ('NTEXT' === x.type) return true
-                  if ('N2NREFERENCE' === x.type) return x.ref[0] === sf.ref[0]
+                  if ('N2NREFERENCE' === x.type) return sf.ref && sf.ref[0] === x.ref[0]
                   if ('FILE' === x.type) return true
                   return false
                 })

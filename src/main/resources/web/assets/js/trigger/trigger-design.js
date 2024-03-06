@@ -497,6 +497,9 @@ class EditorWithFieldVars extends React.Component {
         </a>
         <div className="dropdown-menu auto-scroller dropdown-menu-right" ref={(c) => (this._$fieldVars = c)}>
           {(this.state.fieldVars || []).map((item) => {
+            let typeMark = 'T'
+            if (['DATE', 'DATETIME', 'TIME'].includes(item.type)) typeMark = 'D'
+            else if (['NUMBER', 'DECIMAL'].includes(item.type)) typeMark = 'N'
             return (
               <a
                 className="dropdown-item"
@@ -504,6 +507,7 @@ class EditorWithFieldVars extends React.Component {
                 onClick={() => {
                   $(this._$content).insertAtCursor(`{${item.name}}`)
                 }}>
+                <em>{typeMark}</em>
                 {item.label}
               </a>
             )

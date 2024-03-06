@@ -21,9 +21,12 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import org.apache.commons.lang3.StringUtils;
 
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -50,16 +53,16 @@ public class TransformManager implements ConfigManager {
      */
     public JSONArray getTransforms(String sourceEntity, ID user) {
         JSONArray data = new JSONArray();
-        for (ConfigBean c : getRawTransforms(sourceEntity)) {
-            JSONObject config = (JSONObject) c.getJSON("config");
+        for (ConfigBean cb : getRawTransforms(sourceEntity)) {
+            JSONObject config = (JSONObject) cb.getJSON("config");
             // 过滤尚未配置或禁用的
-            if (config == null || c.getBoolean("disabled")) continue;
+            if (config == null || cb.getBoolean("disabled")) continue;
 
             // 无字段映射
             JSONObject fieldsMapping = config.getJSONObject("fieldsMapping");
             if (fieldsMapping == null || fieldsMapping.isEmpty()) continue;
 
-            String target = c.getString("target");
+            String target = cb.getString("target");
             Entity targetEntity = MetadataHelper.getEntity(target);
 
             if (targetEntity.getMainEntity() == null) {
@@ -74,8 +77,8 @@ public class TransformManager implements ConfigManager {
             }
 
             JSONObject item = EasyMetaFactory.toJSON(targetEntity);
-            item.put("transid", c.getID("id"));
-            item.put("transName", c.getString("name"));  // v3.6 重启用
+            item.put("transid", cb.getID("id"));
+            item.put("transName", cb.getString("name"));
             item.put("previewMode", config.getIntValue("transformMode") == 2);
             data.add(item);
         }
@@ -104,9 +107,7 @@ public class TransformManager implements ConfigManager {
     public List<ConfigBean> getRawTransforms(String sourceEntity) {
         final String cKey = "TransformManager31-" + sourceEntity;
         Object cached = Application.getCommonsCache().getx(cKey);
-        if (cached != null) {
-            return (List<ConfigBean>) cached;
-        }
+        if (cached != null) return (List<ConfigBean>) cached;
 
         Object[][] array = Application.createQueryNoFilter(
                 "select belongEntity,targetEntity,configId,config,isDisabled,name from TransformConfig where belongEntity = ?")
@@ -131,6 +132,7 @@ public class TransformManager implements ConfigManager {
             entries.add(entry);
         }
 
+        sortByName(entries);
         Application.getCommonsCache().putx(cKey, entries);
         return entries;
     }
@@ -184,8 +186,19 @@ public class TransformManager implements ConfigManager {
             }
         }
 
+        sortByName(imports);
         WEAK_CACHED.put(targetEntity, imports);
         return imports;
+    }
+
+    // v3.6 排序
+    private void sortByName(List<ConfigBean> list) {
+        if (list == null || list.isEmpty()) return;
+
+        Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);
+        list.sort((o1, o2) -> comparator.compare(
+                org.apache.commons.lang3.ObjectUtils.defaultIfNull(o1.getString("name"), ""),
+                org.apache.commons.lang3.ObjectUtils.defaultIfNull(o2.getString("name"), "")));
     }
 
     @Override

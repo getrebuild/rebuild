@@ -216,6 +216,7 @@ public abstract class BaseController extends Controller {
      * @return
      */
     protected ModelAndView createModelAndView(String view) {
+        view = view.replaceAll("[^a-zA-Z0-9_/\\-]", "");
         return new ModelAndView(view);
     }
 
