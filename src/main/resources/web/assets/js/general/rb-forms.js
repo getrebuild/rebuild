@@ -1507,7 +1507,7 @@ class RbFormImage extends RbFormElement {
     }
 
     return (
-      <div className="img-field">
+      <div className="img-field" ref={(c) => (this._$dropArea = c)}>
         {value.map((item, idx) => {
           return (
             <span key={item}>
@@ -1620,6 +1620,31 @@ class RbFormImage extends RbFormElement {
         },
         () => mp_end()
       )
+
+      // 拖拽上传
+      if (this._$dropArea_) {
+        const that = this
+        const $da = $(this._$dropArea)
+          .on('dragenter', (e) => {
+            e.preventDefault()
+          })
+          .on('dragover dragleave', (e) => {
+            e.preventDefault()
+            $da.addClass('drop-area-active')
+          })
+          .on('dragleave', (e) => {
+            e.preventDefault()
+            $da.removeClass('drop-area-active')
+          })
+          .on('drop', function (e) {
+            e.preventDefault()
+            const files = e.originalEvent.dataTransfer.files
+            if (!files || files.length === 0) return false
+            that._fieldValue__input.files = files
+            $(that._fieldValue__input).trigger('change')
+            $da.removeClass('drop-area-active')
+          })
+      }
     }
   }
 
@@ -1666,7 +1691,7 @@ class RbFormFile extends RbFormImage {
     }
 
     return (
-      <div className="file-field">
+      <div className="file-field" ref={(c) => (this._$dropArea = c)}>
         {value.map((item) => {
           const fileName = $fileCutName(item)
           return (
@@ -1724,6 +1749,7 @@ class RbFormFile extends RbFormImage {
     )
   }
 }
+
 class RbFormPickList extends RbFormElement {
   constructor(props) {
     super(props)
