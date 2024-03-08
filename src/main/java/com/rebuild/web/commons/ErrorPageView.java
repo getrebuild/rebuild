@@ -75,7 +75,7 @@ public class ErrorPageView extends BaseController {
         StringBuilder disksDesc = new StringBuilder();
         for (Object[] d : OshiUtils.getDisksUsed()) {
             //noinspection MalformedFormatString
-            disksDesc.append(String.format(" $%s:%.1fGB:%.1fGB:%.1f%%", d[3], d[0], d[1], d[2]));
+            disksDesc.append(String.format(" $%s:%.1f%%:%.1fGB", d[2], d[1], d[0]));
         }
         mv.getModelMap().put("DisksDesc", disksDesc.toString().trim());
 
@@ -103,7 +103,6 @@ public class ErrorPageView extends BaseController {
         for (Object[] d : disksUsed) {
             d[0] = ObjectUtils.round((double) d[0], 1);
             d[1] = ObjectUtils.round((double) d[1], 1);
-            d[2] = ObjectUtils.round((double) d[2], 1);
         }
         status.put("DisksUsed", disksUsed);
 

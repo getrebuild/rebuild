@@ -52,8 +52,8 @@ public final class ServerStatus {
      * @return
      */
     public static List<Status> getLastStatus(boolean realtime) {
-        // 60 秒缓存
-        if (realtime || System.currentTimeMillis() - LastCheckTime > 60 * 1000) {
+        // 30 秒缓存
+        if (realtime || System.currentTimeMillis() - LastCheckTime > 30 * 1000) {
             checkAll();
         }
 
