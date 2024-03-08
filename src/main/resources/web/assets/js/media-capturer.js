@@ -57,8 +57,8 @@ class MediaCapturer extends RbModal {
               <div className="dropdown-menu dropdown-menu-right">
                 {this.state.webcamList.map((c) => {
                   return (
-                    <a className="dropdown-item" key={c[0]} onClick={() => this.initDevice(null, c[0])}>
-                      {c[1]}
+                    <a className="dropdown-item" key={c.deviceId} onClick={() => this.initDevice(null, c.deviceId)}>
+                      {c.label || '0'}
                     </a>
                   )
                 })}
@@ -83,12 +83,8 @@ class MediaCapturer extends RbModal {
     navigator.mediaDevices
       .enumerateDevices()
       .then((devices) => {
-        const devices2 = devices.filter((device) => device.kind === 'videoinput')
-        const devices3 = []
-        devices2.forEach((device, idx) => {
-          devices3.push([device.deviceId, device.label || idx])
-        })
-        this.setState({ webcamList: devices3 })
+        const vidDevices = devices.filter((device) => device.kind === 'videoinput')
+        this.setState({ webcamList: vidDevices })
       })
       .catch((err) => {
         console.log(err)
