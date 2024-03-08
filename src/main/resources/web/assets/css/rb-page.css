@@ -1188,7 +1188,7 @@ a.link.link-icon::after {
 .file-field.drop-area-active {
   background-color: #fff7c5;
   background-color: #fff;
-  opacity: 0.8;
+  opacity: 0.6;
   cursor: copy;
 }
 

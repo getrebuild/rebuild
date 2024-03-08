@@ -1595,7 +1595,10 @@ class RbFormImage extends RbFormElement {
       }
 
       let mp
+      let mpCount = 0
       const mp_end = function () {
+        if (--mpCount > 0) return
+        mpCount = 0
         setTimeout(() => {
           if (mp) mp.end()
           mp = null
@@ -1605,6 +1608,7 @@ class RbFormImage extends RbFormElement {
       $createUploader(
         this._fieldValue__input,
         (res) => {
+          mpCount++
           if (!mp) mp = new Mprogress({ template: 2, start: true })
           mp.set(res.percent / 100) // 0.x
         },
@@ -1612,10 +1616,14 @@ class RbFormImage extends RbFormElement {
           mp_end()
           const paths = this.state.value || []
           // 最多上传，多余忽略
-          // FIXME 多选时进度条有点不好看
           if (paths.length < this.__maxUpload) {
-            paths.push(res.key)
-            this.handleChange({ target: { value: paths } }, true)
+            let hasByName = $fileCutName(res.key)
+            hasByName = paths.find((x) => $fileCutName(x) === hasByName)
+            console.log(hasByName)
+            if (!hasByName) {
+              paths.push(res.key)
+              this.handleChange({ target: { value: paths } }, true)
+            }
           }
         },
         () => mp_end()
