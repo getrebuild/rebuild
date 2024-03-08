@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.commons;
 
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -18,7 +19,6 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.OshiUtils;
 import com.rebuild.web.BaseController;
-import com.rebuild.web.RebuildWebInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -29,6 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author Zixin (RB)
@@ -70,6 +71,14 @@ public class ErrorPageView extends BaseController {
         mv.getModel().put("SystemLoad", OshiUtils.getSystemLoad());
         mv.getModelMap().put("isAdminVerified", AppUtils.isAdminVerified(request));
         mv.getModelMap().put("SN", License.SN() + "/" + OshiUtils.getLocalIp() + "/" + ServerStatus.STARTUP_ONCE);
+
+        StringBuilder disksDesc = new StringBuilder();
+        for (Object[] d : OshiUtils.getDisksUsed()) {
+            //noinspection MalformedFormatString
+            disksDesc.append(String.format(" $%s:%.1fGB:%.1fGB:%.1f%%", d[3], d[0], d[1], d[2]));
+        }
+        mv.getModelMap().put("DisksDesc", disksDesc.toString().trim());
+
         return mv;
     }
 
@@ -89,6 +98,14 @@ public class ErrorPageView extends BaseController {
         status.put("MemoryUsageJvm", OshiUtils.getJvmMemoryUsed()[1]);
         status.put("MemoryUsage", OshiUtils.getOsMemoryUsed()[1]);
         status.put("SystemLoad", OshiUtils.getSystemLoad());
+
+        List<Object[]> disksUsed = OshiUtils.getDisksUsed();
+        for (Object[] d : disksUsed) {
+            d[0] = ObjectUtils.round((double) d[0], 1);
+            d[1] = ObjectUtils.round((double) d[1], 1);
+            d[2] = ObjectUtils.round((double) d[2], 1);
+        }
+        status.put("DisksUsed", disksUsed);
 
         ServletUtils.writeJson(response, s.toJSONString());
     }
