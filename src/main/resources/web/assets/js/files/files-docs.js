@@ -314,6 +314,7 @@ class FileUploadDlg extends RbFormHandler {
       })
       .on('dragover', (e) => {
         e.preventDefault()
+        if (e.originalEvent.dataTransfer) e.originalEvent.dataTransfer.dropEffect = 'copy'
         $da.find('.upload-box').addClass('active')
       })
       .on('dragleave', (e) => {
@@ -322,7 +323,7 @@ class FileUploadDlg extends RbFormHandler {
       })
       .on('drop', function (e) {
         e.preventDefault()
-        const files = e.originalEvent.dataTransfer.files
+        const files = e.originalEvent.dataTransfer ? e.originalEvent.dataTransfer.files : null
         if (!files || files.length === 0) return false
         that._$upload.files = files
         $(that._$upload).trigger('change')

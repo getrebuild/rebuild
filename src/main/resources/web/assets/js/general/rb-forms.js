@@ -1622,23 +1622,24 @@ class RbFormImage extends RbFormElement {
       )
 
       // 拖拽上传
-      if (this._$dropArea_) {
+      if (this._$dropArea && !this.props.imageCapture) {
         const that = this
         const $da = $(this._$dropArea)
           .on('dragenter', (e) => {
             e.preventDefault()
           })
-          .on('dragover dragleave', (e) => {
+          .on('dragover', (e) => {
             e.preventDefault()
+            if (e.originalEvent.dataTransfer) e.originalEvent.dataTransfer.dropEffect = 'copy'
             $da.addClass('drop-area-active')
           })
           .on('dragleave', (e) => {
             e.preventDefault()
             $da.removeClass('drop-area-active')
           })
-          .on('drop', function (e) {
+          .on('drop dragdrop', function (e) {
             e.preventDefault()
-            const files = e.originalEvent.dataTransfer.files
+            const files = e.originalEvent.dataTransfer ? e.originalEvent.dataTransfer.files : null
             if (!files || files.length === 0) return false
             that._fieldValue__input.files = files
             $(that._fieldValue__input).trigger('change')
