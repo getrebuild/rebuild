@@ -453,7 +453,7 @@ public class GeneralOperatingController extends BaseController {
     private ID[] parseIdList(HttpServletRequest request) {
         ID[] idList = getIdArrayParameter(request, "id");
         if (idList.length == 0) return idList;
-        
+
         int mustSameEntityCode = idList[0].getEntityCode();
         for (ID id : idList) {
             if (mustSameEntityCode != id.getEntityCode()) {
@@ -474,9 +474,7 @@ public class GeneralOperatingController extends BaseController {
     // 级联操作实体
     private String[] parseCascades(HttpServletRequest request) {
         String cascades = getParameter(request, "cascades");
-        if (StringUtils.isBlank(cascades)) {
-            return ArrayUtils.EMPTY_STRING_ARRAY;
-        }
+        if (StringUtils.isBlank(cascades)) return ArrayUtils.EMPTY_STRING_ARRAY;
 
         List<String> casList = new ArrayList<>();
         for (String c : cascades.split(",")) {
