@@ -451,24 +451,16 @@ public class GeneralOperatingController extends BaseController {
 
     // 操作 ID 列表
     private ID[] parseIdList(HttpServletRequest request) {
-        String ids = getParameterNotNull(request, "id");
-
-        Set<ID> idList = new HashSet<>();
-        int sameEntityCode = 0;
-        for (String id : ids.split(",")) {
-            if (!ID.isId(id)) {
-                continue;
-            }
-            ID id0 = ID.valueOf(id);
-            if (sameEntityCode == 0) {
-                sameEntityCode = id0.getEntityCode();
-            }
-            if (sameEntityCode != id0.getEntityCode()) {
+        ID[] idList = getIdArrayParameter(request, "id");
+        if (idList.length == 0) return idList;
+        
+        int mustSameEntityCode = idList[0].getEntityCode();
+        for (ID id : idList) {
+            if (mustSameEntityCode != id.getEntityCode()) {
                 throw new InvalidParameterException(Language.L("只能批量处理同一实体的记录"));
             }
-            idList.add(ID.valueOf(id));
         }
-        return idList.toArray(new ID[0]);
+        return idList;
     }
 
     // 用户列表
