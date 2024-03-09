@@ -100,11 +100,14 @@ public class ErrorPageView extends BaseController {
         status.put("SystemLoad", OshiUtils.getSystemLoad());
 
         List<Object[]> disksUsed = OshiUtils.getDisksUsed();
+        double diskWarning = 0;
         for (Object[] d : disksUsed) {
             d[0] = ObjectUtils.round((double) d[0], 1);
             d[1] = ObjectUtils.round((double) d[1], 1);
+            if ((double) d[1] >= 80) diskWarning = (double) d[1];
         }
-        status.put("DisksUsed", disksUsed);
+        status.put("DisksUsage", disksUsed);
+        if (diskWarning >= 80) s.put("warning", true);
 
         ServletUtils.writeJson(response, s.toJSONString());
     }

@@ -160,7 +160,7 @@ public class OshiUtils {
     /**
      * 磁盘用量获取
      *
-     * @return
+     * @return [统计, 占用%, 磁盘]
      */
     public static List<Object[]> getDisksUsed() {
         List<Object[]> disks = new ArrayList<>();
