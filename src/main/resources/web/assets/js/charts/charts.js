@@ -45,7 +45,7 @@ class BaseChart extends React.Component {
             </a>
           )}
           <a className="dropdown-item" onClick={() => this.export()}>
-            {$L('导出')}
+            {$L('导出')} <sup className="rbv" />
           </a>
         </div>
       </div>
@@ -129,6 +129,11 @@ class BaseChart extends React.Component {
   }
 
   export() {
+    if (rb.commercial < 1) {
+      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
+
     if (this._echarts) {
       const base64 = this._echarts.getDataURL({
         type: 'png',

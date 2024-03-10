@@ -393,7 +393,7 @@ public class QiniuCloud {
     }
 
     /**
-     * 读取文件
+     * 读取本地存储文件 `$DATA/rb/`
      *
      * @param filepath
      * @return

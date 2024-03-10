@@ -1507,7 +1507,7 @@ class RbFormImage extends RbFormElement {
     }
 
     return (
-      <div className="img-field">
+      <div className="img-field" ref={(c) => (this._$dropArea = c)}>
         {value.map((item, idx) => {
           return (
             <span key={item}>
@@ -1595,7 +1595,10 @@ class RbFormImage extends RbFormElement {
       }
 
       let mp
+      let mpCount = 0
       const mp_end = function () {
+        if (--mpCount > 0) return
+        mpCount = 0
         setTimeout(() => {
           if (mp) mp.end()
           mp = null
@@ -1605,6 +1608,7 @@ class RbFormImage extends RbFormElement {
       $createUploader(
         this._fieldValue__input,
         (res) => {
+          mpCount++
           if (!mp) mp = new Mprogress({ template: 2, start: true })
           mp.set(res.percent / 100) // 0.x
         },
@@ -1612,14 +1616,44 @@ class RbFormImage extends RbFormElement {
           mp_end()
           const paths = this.state.value || []
           // 最多上传，多余忽略
-          // FIXME 多选时进度条有点不好看
           if (paths.length < this.__maxUpload) {
-            paths.push(res.key)
-            this.handleChange({ target: { value: paths } }, true)
+            let hasByName = $fileCutName(res.key)
+            hasByName = paths.find((x) => $fileCutName(x) === hasByName)
+            console.log(hasByName)
+            if (!hasByName) {
+              paths.push(res.key)
+              this.handleChange({ target: { value: paths } }, true)
+            }
           }
         },
         () => mp_end()
       )
+
+      // 拖拽上传
+      if (this._$dropArea && !this.props.imageCapture) {
+        const that = this
+        const $da = $(this._$dropArea)
+          .on('dragenter', (e) => {
+            e.preventDefault()
+          })
+          .on('dragover', (e) => {
+            e.preventDefault()
+            if (e.originalEvent.dataTransfer) e.originalEvent.dataTransfer.dropEffect = 'copy'
+            $da.addClass('drop-area-active')
+          })
+          .on('dragleave', (e) => {
+            e.preventDefault()
+            $da.removeClass('drop-area-active')
+          })
+          .on('drop dragdrop', function (e) {
+            e.preventDefault()
+            const files = e.originalEvent.dataTransfer ? e.originalEvent.dataTransfer.files : null
+            if (!files || files.length === 0) return false
+            that._fieldValue__input.files = files
+            $(that._fieldValue__input).trigger('change')
+            $da.removeClass('drop-area-active')
+          })
+      }
     }
   }
 
@@ -1666,7 +1700,7 @@ class RbFormFile extends RbFormImage {
     }
 
     return (
-      <div className="file-field">
+      <div className="file-field" ref={(c) => (this._$dropArea = c)}>
         {value.map((item) => {
           const fileName = $fileCutName(item)
           return (
@@ -1724,6 +1758,7 @@ class RbFormFile extends RbFormImage {
     )
   }
 }
+
 class RbFormPickList extends RbFormElement {
   constructor(props) {
     super(props)

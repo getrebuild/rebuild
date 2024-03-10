@@ -204,10 +204,10 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         if (StringUtils.isBlank(errorMsg)) errorMsg = Language.L("系统繁忙，请稍后重试");
 
         error.getModel().put("error_code", errorCode);
-        error.getModel().put("error_msg", CommonsUtils.escapeHtml(errorMsg));
+        error.getModel().put("error_msg", CommonsUtils.sanitizeHtml(errorMsg));
 
         if (ex != null && Application.devMode()) {
-            error.getModel().put("error_stack", CommonsUtils.escapeHtml(ThrowableUtils.extractStackTrace(ex)));
+            error.getModel().put("error_stack", ThrowableUtils.extractStackTrace(ex));
         }
 
         return error;

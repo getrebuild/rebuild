@@ -10,6 +10,7 @@ package com.rebuild.api.sdk;
 import cn.devezhao.commons.EncryptUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.utils.JSONUtils;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -159,7 +160,11 @@ public class OpenApiSDK {
 
         try (Response response = okHttpClient.newCall(request).execute()) {
             String resp = Objects.requireNonNull(response.body()).string();
-            return (JSON) JSON.parse(resp);
+            if (JSONUtils.wellFormat(resp)) {
+                return (JSON) JSON.parse(resp);
+            } else {
+                return JSONUtils.toJSONObject("__NOTJSON", resp);
+            }
         }
     }
 

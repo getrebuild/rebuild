@@ -76,6 +76,13 @@ class DataList extends React.Component {
     this._$recordName = $input
 
     $('.J_details').on('click', () => this.showDetails())
+    if (rb.commercial < 1) {
+      $('.J_details')
+        .off('click')
+        .on('click', () => {
+          RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+        })
+    }
   }
 
   queryList() {

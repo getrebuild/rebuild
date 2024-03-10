@@ -99,11 +99,29 @@ public class CommonsUtils {
 
         // https://www.php.net/htmlspecialchars
         return text.toString()
-//                .replace("&", "&amp;")
                 .replace("\"", "&quot;")
                 .replace("'", "&apos;")
                 .replace(">", "&gt;")
                 .replace("<", "&lt;");
+    }
+
+    /**
+     * @param text
+     * @return
+     * @see #escapeHtml(Object)
+     */
+    public static String sanitizeHtml(Object text) {
+        if (text == null || StringUtils.isBlank(text.toString())) {
+            return StringUtils.EMPTY;
+        }
+
+        // TODO 更好的 sanitizeHtml
+        return text.toString()
+                .replace("<script", "")
+                .replace("</script>", "")
+                .replace("<style", "")
+                .replace("</style>", "")
+                .replace("<img", "");
     }
 
     /**
@@ -162,6 +180,19 @@ public class CommonsUtils {
         String hex = UUID.randomUUID().toString();
         if (simple) hex = hex.replace("-", "");
         return hex;
+    }
+
+    /**
+     * 指定范围的随机数
+     *
+     * @param s
+     * @param e
+     * @return
+     * @see RandomUtils#nextInt(int)
+     */
+    public static int randomInt(int s, int e) {
+        int rnd = RandomUtils.nextInt(e);
+        return rnd < s ? rnd + s : rnd;
     }
 
     /**
@@ -286,28 +317,15 @@ public class CommonsUtils {
         // FIXME 完善不同值类型的比较
         return StringUtils.equals(a.toString(), b.toString());
     }
-    
-    /**
-     * 指定范围的随机数
-     *
-     * @param s
-     * @param e
-     * @return
-     * @see RandomUtils#nextInt(int)
-     */
-    public static int randomInt(int s, int e) {
-        int rnd = RandomUtils.nextInt(e);
-        return rnd < s ? rnd + s : rnd;
-    }
 
     /**
      * @param filepath
      * @throws SecurityException
      */
-    public static void checkFilePathAttack(String filepath) throws SecurityException {
+    public static void checkSafeFilePath(String filepath) throws SecurityException {
         if (filepath == null) return;
         if (filepath.contains("../") || filepath.contains("<") || filepath.contains(">")) {
-            throw new SecurityException("Attack path detected : " + filepath);
+            throw new SecurityException("Attack path detected : " + escapeHtml(filepath));
         }
     }
 }

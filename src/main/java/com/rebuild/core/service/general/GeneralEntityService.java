@@ -267,26 +267,26 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     }
 
     @Override
-    public int delete(ID record) {
-        return delete(record, null);
+    public int delete(ID recordId) {
+        return delete(recordId, null);
     }
 
     @Override
-    public int delete(ID record, String[] cascades) {
+    public int delete(ID recordId, String[] cascades) {
         final ID currentUser = UserContextHolder.getUser();
-        final RecycleStore recycleBin = useRecycleStore(record);
+        final RecycleStore recycleBin = useRecycleStore(recordId);
 
-        int affected = this.deleteInternal(record);
+        int affected = this.deleteInternal(recordId);
         if (affected == 0) return 0;
         affected = 1;
 
-        Map<String, Set<ID>> recordsOfCascaded = getCascadedRecords(record, cascades, BizzPermission.DELETE);
+        Map<String, Set<ID>> recordsOfCascaded = getCascadedRecords(recordId, cascades, BizzPermission.DELETE);
         for (Map.Entry<String, Set<ID>> e : recordsOfCascaded.entrySet()) {
             log.info("Cascading delete - {} > {} ", e.getKey(), e.getValue());
 
             for (ID id : e.getValue()) {
                 if (Application.getPrivilegesManager().allowDelete(currentUser, id)) {
-                    if (recycleBin != null) recycleBin.add(id, record);
+                    if (recycleBin != null) recycleBin.add(id, recordId);
 
                     int deleted = 0;
                     try {
@@ -312,39 +312,39 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     }
 
     /**
-     * @param record
+     * @param recordId
      * @return
      * @throws DataSpecificationException
      */
-    protected int deleteInternal(ID record) throws DataSpecificationException {
-        Record delete = EntityHelper.forUpdate(record, UserContextHolder.getUser());
+    protected int deleteInternal(ID recordId) throws DataSpecificationException {
+        Record delete = EntityHelper.forUpdate(recordId, UserContextHolder.getUser());
         if (!checkModifications(delete, BizzPermission.DELETE)) {
             return 0;
         }
 
         // 手动删除明细记录，以执行系统规则（如触发器、附件删除等）
-        Entity de = MetadataHelper.getEntity(record.getEntityCode()).getDetailEntity();
+        Entity de = MetadataHelper.getEntity(recordId.getEntityCode()).getDetailEntity();
         if (de != null) {
-            for (ID did : QueryHelper.detailIdsNoFilter(record)) {
+            for (ID did : QueryHelper.detailIdsNoFilter(recordId)) {
                 // 明细无约束检查 checkModifications
                 // 不使用明细实体 Service
                 super.delete(did);
             }
         }
 
-        return super.delete(record);
+        return super.delete(recordId);
     }
 
     @Override
-    public int assign(ID record, ID to, String[] cascades) {
-        final User toUser = Application.getUserStore().getUser(to);
-        final ID recordOrigin = record;
+    public int assign(ID recordId, ID toUserId, String[] cascades) {
+        final User toUser = Application.getUserStore().getUser(toUserId);
+        final ID recordOrigin = recordId;
         // v3.2.2 若为明细则转为主记录
-        if (MetadataHelper.getEntity(record.getEntityCode()).getMainEntity() != null) {
-            record = QueryHelper.getMainIdByDetail(record);
+        if (MetadataHelper.getEntity(recordId.getEntityCode()).getMainEntity() != null) {
+            recordId = QueryHelper.getMainIdByDetail(recordId);
         }
 
-        final Record assignAfter = EntityHelper.forUpdate(record, (ID) toUser.getIdentity(), Boolean.FALSE);
+        final Record assignAfter = EntityHelper.forUpdate(recordId, (ID) toUser.getIdentity(), Boolean.FALSE);
         assignAfter.setID(EntityHelper.OwningUser, (ID) toUser.getIdentity());
         assignAfter.setID(EntityHelper.OwningDept, (ID) toUser.getOwningDept().getIdentity());
 
@@ -352,15 +352,15 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         Record assignBefore = null;
 
         int affected;
-        if (to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
+        if (toUserId.equals(Application.getRecordOwningCache().getOwningUser(recordId))) {
             // No need to change
-            log.debug("The record owner has not changed, ignore : {}", record);
+            log.debug("The record owner has not changed, ignore : {}", recordId);
             affected = 1;
         } else {
             assignBefore = countObservers() > 0 ? recordSnap(assignAfter, false) : null;
 
             delegateService.update(assignAfter);
-            Application.getRecordOwningCache().cleanOwningUser(record);
+            Application.getRecordOwningCache().cleanOwningUser(recordId);
             affected = 1;
         }
 
@@ -369,7 +369,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             log.info("Cascading assign - {} > {}", e.getKey(), e.getValue());
 
             for (ID casid : e.getValue()) {
-                affected += assign(casid, to, null);
+                affected += assign(casid, toUserId, null);
             }
         }
 
@@ -380,38 +380,38 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     }
 
     @Override
-    public int share(ID record, ID to, String[] cascades, int rights) {
+    public int share(ID recordId, ID toUserId, String[] cascades, int rights) {
         final ID currentUser = UserContextHolder.getUser();
-        final ID recordOrigin = record;
+        final ID recordOrigin = recordId;
         // v3.2.2 若为明细则转为主记录
-        if (MetadataHelper.getEntity(record.getEntityCode()).getMainEntity() != null) {
-            record = QueryHelper.getMainIdByDetail(record);
+        if (MetadataHelper.getEntity(recordId.getEntityCode()).getMainEntity() != null) {
+            recordId = QueryHelper.getMainIdByDetail(recordId);
         }
 
         boolean fromTriggerNoDowngrade = GeneralEntityServiceContextHolder.isFromTrigger(false);
         if (!fromTriggerNoDowngrade) {
             // 如用户无更新权限，则降级为只读共享
             if ((rights & BizzPermission.UPDATE.getMask()) != 0) {
-                if (!Application.getPrivilegesManager().allowUpdate(to, record.getEntityCode()) /* 目标用户无基础更新权限 */
-                        || !Application.getPrivilegesManager().allow(currentUser, record, BizzPermission.UPDATE, true) /* 操作用户无记录更新权限 */) {
+                if (!Application.getPrivilegesManager().allowUpdate(toUserId, recordId.getEntityCode()) /* 目标用户无基础更新权限 */
+                        || !Application.getPrivilegesManager().allow(currentUser, recordId, BizzPermission.UPDATE, true) /* 操作用户无记录更新权限 */) {
                     rights = BizzPermission.READ.getMask();
-                    log.warn("Downgrade share rights to READ({}) : {}", BizzPermission.READ.getMask(), record);
+                    log.warn("Downgrade share rights to READ({}) : {}", BizzPermission.READ.getMask(), recordId);
                 }
             }
         }
 
-        final String entityName = MetadataHelper.getEntityName(record);
+        final String entityName = MetadataHelper.getEntityName(recordId);
         final Record sharedAfter = EntityHelper.forNew(EntityHelper.ShareAccess, currentUser);
-        sharedAfter.setID("recordId", record);
-        sharedAfter.setID("shareTo", to);
+        sharedAfter.setID("recordId", recordId);
+        sharedAfter.setID("shareTo", toUserId);
         sharedAfter.setString("belongEntity", entityName);
         sharedAfter.setInt("rights", rights);
 
         Object[] hasShared = ((BaseService) delegateService).getPersistManagerFactory().createQuery(
                 "select accessId,rights from ShareAccess where belongEntity = ? and recordId = ? and shareTo = ?")
                 .setParameter(1, entityName)
-                .setParameter(2, record)
-                .setParameter(3, to)
+                .setParameter(2, recordId)
+                .setParameter(3, toUserId)
                 .unique();
 
         int affected;
@@ -426,15 +426,15 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 sharedAfter.setID("accessId", (ID) hasShared[0]);
 
             } else {
-                log.debug("The record has been shared and has the same rights, ignore : {}", record);
+                log.debug("The record has been shared and has the same rights, ignore : {}", recordId);
                 affected = 1;
             }
 
         } else {
             // 可以共享给自己
             if (log.isDebugEnabled()
-                    && to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
-                log.debug("Share to the same user as the record, ignore : {}", record);
+                    && toUserId.equals(Application.getRecordOwningCache().getOwningUser(recordId))) {
+                log.debug("Share to the same user as the record, ignore : {}", recordId);
             }
 
             delegateService.create(sharedAfter);
@@ -447,7 +447,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             log.info("Cascading share - {} > {}", e.getKey(), e.getValue());
 
             for (ID casid : e.getValue()) {
-                affected += share(casid, to, null, rights);
+                affected += share(casid, toUserId, null, rights);
             }
         }
 
@@ -458,7 +458,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     }
 
     @Override
-    public int unshare(ID record, ID accessId) {
+    public int unshare(ID recordId, ID accessId) {
         final ID currentUser = UserContextHolder.getUser();
 
         Record unsharedBefore = null;
@@ -502,12 +502,12 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     /**
      * 获取级联操作记录
      *
-     * @param recordMain 主记录
+     * @param mainRecordId 主记录
      * @param cascadeEntities 级联实体
      * @param action 动作
      * @return
      */
-    protected Map<String, Set<ID>> getCascadedRecords(ID recordMain, String[] cascadeEntities, Permission action) {
+    protected Map<String, Set<ID>> getCascadedRecords(ID mainRecordId, String[] cascadeEntities, Permission action) {
         if (cascadeEntities == null || cascadeEntities.length == 0) {
             return Collections.emptyMap();
         }
@@ -515,7 +515,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         final boolean fromTriggerNoFilter = GeneralEntityServiceContextHolder.isFromTrigger(false);
 
         Map<String, Set<ID>> entityRecordsMap = new HashMap<>();
-        Entity mainEntity = MetadataHelper.getEntity(recordMain.getEntityCode());
+        Entity mainEntity = MetadataHelper.getEntity(mainRecordId.getEntityCode());
 
         for (String cas : cascadeEntities) {
             if (!MetadataHelper.containsEntity(cas)) {
@@ -532,7 +532,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
             List<String> or = new ArrayList<>();
             for (Field field : reftoFields) {
-                or.add(String.format("%s = '%s'", field.getName(), recordMain));
+                or.add(String.format("%s = '%s'", field.getName(), mainRecordId));
             }
 
             String sql = String.format("select %s from %s where ( %s )",
@@ -793,7 +793,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         if (approvalUser == null) {
             approvalUser = UserService.SYSTEM_USER;
-            log.warn("Use system user for approve");
+            log.warn("Use '{}' do approve : {}", approvalUser, recordId);
         }
 
         Record approvalRecord = EntityHelper.forUpdate(recordId, approvalUser, false);

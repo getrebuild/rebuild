@@ -10,8 +10,8 @@ package com.rebuild.utils;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.runtime.MemoryInformationBean;
-import com.esotericsoftware.minlog.Log;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import oshi.SystemInfo;
 import oshi.hardware.GlobalMemory;
@@ -22,6 +22,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
@@ -55,7 +56,7 @@ public class OshiUtils {
         double memoryUsage = (memoryTotal - memoryFree) * 1.0 / memoryTotal;
         return new double[]{
                 (int) (memoryTotal / MemoryInformationBean.MEGABYTES),
-                ObjectUtils.round(memoryUsage * 100, 2)
+                ObjectUtils.round(memoryUsage * 100, 1)
         };
     }
 
@@ -65,13 +66,12 @@ public class OshiUtils {
      * @return
      */
     public static double[] getJvmMemoryUsed() {
-//        double maxMemory = Runtime.getRuntime().maxMemory();
         double memoryTotal = Runtime.getRuntime().totalMemory();
         double memoryFree = Runtime.getRuntime().freeMemory();
         double memoryUsage = (memoryTotal - memoryFree) / memoryTotal;
         return new double[]{
                 (int) (memoryTotal / MemoryInformationBean.MEGABYTES),
-                ObjectUtils.round(memoryUsage * 100, 2)
+                ObjectUtils.round(memoryUsage * 100, 1)
         };
     }
 
@@ -82,7 +82,7 @@ public class OshiUtils {
      */
     public static double getSystemLoad() {
         double[] loadAverages = getSI().getHardware().getProcessor().getSystemLoadAverage(2);
-        return ObjectUtils.round(loadAverages[1], 2);
+        return ObjectUtils.round(loadAverages[1], 1);
     }
 
     /**
@@ -155,5 +155,26 @@ public class OshiUtils {
             }
         }
         return false;
+    }
+
+    /**
+     * 磁盘用量获取
+     *
+     * @return [统计, 占用%, 磁盘]
+     */
+    public static List<Object[]> getDisksUsed() {
+        List<Object[]> disks = new ArrayList<>();
+        try {
+            for (File root : File.listRoots()) {
+                String name = org.apache.commons.lang.StringUtils.defaultIfBlank(root.getName(), root.getAbsolutePath());
+                double total = root.getTotalSpace() * 1d / FileUtils.ONE_GB;
+                double used = total - (root.getFreeSpace() * 1d / FileUtils.ONE_GB);
+                double usedPercentage = used * 100d / total;
+                disks.add(new Object[] { total, usedPercentage, name });
+            }
+        } catch (Exception ex) {
+            log.warn("Cannot stats disks", ex);
+        }
+        return disks;
     }
 }
