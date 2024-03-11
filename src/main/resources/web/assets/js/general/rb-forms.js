@@ -690,10 +690,6 @@ class RbForm extends React.Component {
       console.log('FrontJS prevented save')
       return
     }
-    if (typeof this._postBefore === 'function' && this._postBefore(data, this) === false) {
-      console.log('_postBefore prevented save')
-      return
-    }
 
     const $$$parent = this.props.$$$parent
     const previewid = $$$parent.state.previewid
@@ -724,7 +720,9 @@ class RbForm extends React.Component {
           if (typeof this._postAfter === 'function') {
             this._postAfter(recordId, next, this)
             return
-          } else if (next === RbForm.NEXT_ADDDETAIL) {
+          }
+
+          if (next === RbForm.NEXT_ADDDETAIL) {
             const iv = $$$parent.props.initialValue
             const dm = this.props.rawModel.entityMeta
             RbFormModal.create({ title: $L('添加%s', dm.entityLabel), entity: dm.entity, icon: dm.icon, initialValue: iv })
@@ -767,7 +765,11 @@ class RbForm extends React.Component {
 
   // 保存前调用（返回 false 则不继续保存）
   // eslint-disable-next-line no-unused-vars
-  static postBefore(data, from) {
+  static postBefore(data, formObject) {
+    if (typeof formObject._postBefore === 'function') {
+      const ret = formObject._postBefore(data, formObject)
+      if (ret === false) return false
+    }
     if (window.FrontJS) {
       const ret = window.FrontJS.Form._trigger('saveBefore', [data])
       if (ret === false) return false
@@ -777,7 +779,7 @@ class RbForm extends React.Component {
 
   // 保存后调用
   // eslint-disable-next-line no-unused-vars
-  static postAfter(data, next, from) {
+  static postAfter(data, next, formObject) {
     if (window.FrontJS) {
       window.FrontJS.Form._trigger('saveAfter', [data, next])
     }
@@ -793,7 +795,7 @@ class RbForm extends React.Component {
 
   // 组件渲染后调用
   // eslint-disable-next-line no-unused-vars
-  static renderAfter(form) {}
+  static renderAfter(formObject) {}
 }
 
 // 表单元素基础类

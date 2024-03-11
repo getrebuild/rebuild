@@ -6,7 +6,21 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global RbForm */
 
-let RbForm_postAfter = RbForm.postAfter
+RbForm.renderAfter = function (formObject) {
+  formObject.onFieldValueChange(function (fieldValue) {
+    if (fieldValue.name === 'isDisabled' && $isTrue(fieldValue.value)) {
+      const c = formObject.getFieldComp('isDisabled')
+      c &&
+        c.setTip(
+          <span className="text-warning">
+            <i className="fs-14 mdi mdi-alert-circle-outline" /> {$L('禁用后子部门及其下用户将会同时禁用')}
+          </span>
+        )
+    }
+  })
+}
+
+const RbForm_postAfter = RbForm.postAfter
 RbForm.postAfter = function (data, next) {
   RbForm_postAfter(data, next)
   if (parent && parent.loadDeptTree) parent.loadDeptTree()
