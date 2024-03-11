@@ -83,13 +83,13 @@ class MediaCapturer extends RbModal {
     navigator.mediaDevices
       .enumerateDevices()
       .then((devices) => {
-        const vidDevices = devices.filter((device) => device.kind === 'videoinput')
+        const vidDevices = devices.filter((device) => device.deviceId && device.kind === 'videoinput')
         this.setState({ webcamList: vidDevices })
       })
       .catch((err) => {
         console.log(err)
       })
-
+    
     if (this.props.forceFile) {
       $initUploader(
         this._$fileinput,
