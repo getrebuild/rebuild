@@ -44,7 +44,6 @@ $(document).ready(function () {
   // 正则
   if (SHOW_ADVPATTERN.includes(dt)) {
     $('.J_advOpt').removeClass('hide')
-
     $('.J_advPattern .badge').on('click', function () {
       $('#advPattern').val($(this).data('patt'))
     })
