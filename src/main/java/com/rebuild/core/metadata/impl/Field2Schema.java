@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.Dialect;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.CascadeModel;
 import cn.devezhao.persist4j.metadata.impl.AnyEntity;
@@ -38,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.CharSet;
 import org.apache.commons.lang.StringUtils;
 
+import java.sql.DataTruncation;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
@@ -436,6 +438,9 @@ public class Field2Schema extends SetUser {
 
         Record meta = EntityHelper.forUpdate(metaRecordId, getUser(), false);
         meta.setString("displayType", toType.name());
+        if (toType.getMaxLength() != FieldType.NO_NEED_LENGTH) {
+            meta.setInt("maxLength", toType.getMaxLength());
+        }
         Application.getCommonsService().update(meta, false);
 
         // 类型生效
@@ -452,7 +457,7 @@ public class Field2Schema extends SetUser {
 
             alterTypeSql = String.format("alter table `%s` change column `%s` ",
                     field.getOwnEntity().getPhysicalName(), field.getPhysicalName());
-            alterTypeSql += ddl.toString().trim().replace("  ", "");
+            alterTypeSql += ddl.toString().trim().replace("  ", " ");
 
             Application.getSqlExecutor().executeBatch(new String[]{alterTypeSql}, DDL_TIMEOUT);
             log.info("Cast field type : {}", alterTypeSql);
@@ -463,7 +468,14 @@ public class Field2Schema extends SetUser {
             Application.getCommonsService().update(meta, false);
 
             log.error("DDL ERROR : \n" + alterTypeSql, ex);
-            throw new MetadataModificationException(ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+
+            Throwable cause = ThrowableUtils.getRootCause(ex);
+            String causeMsg = cause.getLocalizedMessage();
+            if (cause instanceof DataTruncation) {
+                causeMsg = Language.L("已有数据内容长度超出限制，无法完成转换");
+            }
+            throw new MetadataModificationException(causeMsg);
+
         } finally {
             MetadataHelper.getMetadataFactory().refresh();
             DynamicMetadataContextHolder.isSkipLanguageRefresh(true);
