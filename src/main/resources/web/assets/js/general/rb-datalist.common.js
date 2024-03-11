@@ -1204,6 +1204,8 @@ class RbList extends React.Component {
     // 分页组件
     if (this._Pagination) {
       this._Pagination.setState({ selectedTotal: chkSelected }, () => {
+        if (wpc.statsField !== true || rb.commercial < 10) return
+
         if (chkSelected > 1) {
           const ids = this.getSelectedIds(true)
           const qurey = {
@@ -1457,7 +1459,7 @@ class RbListPagination extends React.Component {
             </span>
           )
         })}
-        {rb.isAdminUser && wpc.statsField && (
+        {rb.isAdminUser && wpc.statsField && (wpc.type === 'RecordList' || wpc.type === 'DetailList') && (
           <a
             className="list-stats-settings"
             onClick={() => {
