@@ -303,18 +303,18 @@
         <index field-list="recordId,approvalId,node,isCanceled,isWaiting,isBacked,nodeBatch"/>
     </entity>
 
-    <entity name="RobotOperatingProcedureConfig" type-code="070" name-field="name" description="操作流程/业务进度" queryable="false">
+    <entity name="RobotSopConfig" type-code="070" name-field="name" description="操作流程/业务进度" queryable="false">
         <field name="configId" type="primary"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="应用实体"/>
         <field name="name" type="string" max-length="100" nullable="false" description="流程名称"/>
-        <field name="procedureDefinition" type="text" description="流程定义"/>
+        <field name="sopDefinition" type="text" description="流程定义"/>
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
     </entity>
 
-    <entity name="RobotOperatingProcedureStep" type-code="071" description="操作流程步骤" queryable="false">
+    <entity name="RobotSopStep" type-code="071" description="操作流程步骤" queryable="false">
         <field name="stepId" type="primary"/>
         <field name="recordId" type="any-reference" nullable="false" updatable="false" description="业务记录"/>
-        <field name="operatingProcedureId" type="reference" ref-entity="RobotApprovalConfig" nullable="false" updatable="false" description="操作流程"/>
+        <field name="sopId" type="reference" ref-entity="RobotApprovalConfig" nullable="false" updatable="false" description="操作流程"/>
         <field name="node" type="string" max-length="100" nullable="false" updatable="false" description="流程节点"/>
         <field name="prevNode" type="string" max-length="100" nullable="false" updatable="false" description="上一流程节点"/>
         <field name="operator" type="reference" ref-entity="User" nullable="false" updatable="false" description="操作人"/>
