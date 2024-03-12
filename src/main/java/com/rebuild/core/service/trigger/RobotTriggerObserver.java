@@ -39,6 +39,8 @@ public class RobotTriggerObserver extends OperatingObserver {
 
     private static final ThreadLocal<Boolean> SKIP_TRIGGERS = new NamedThreadLocal<>("Skip triggers");
 
+    private static final ThreadLocal<String> ALLOW_TRIGGERS_ONAPPROVED = new NamedThreadLocal<>("Allow triggers on approve-node");
+
     @Override
     public int getOrder() {
         return 4;
@@ -134,23 +136,6 @@ public class RobotTriggerObserver extends OperatingObserver {
             if (o != null) log.warn("Force clean last trigger-chain : {}", o);
 
         } else {
-
-//            // FIXME 20220811 此处的判断可能不需要，因为有 `trigger-chain`
-//
-//            // 是否自己触发自己，避免无限执行
-//            boolean isOriginRecord = primaryId.equals(triggerSource.getOriginRecord());
-//
-//            String lastKey = triggerSource.getLastSourceKey();
-//            triggerSource.addNext(context, when);
-//            String currentKey = triggerSource.getLastSourceKey();
-//
-//            if (isOriginRecord && lastKey.equals(currentKey)) {
-//                if (!triggerSource.isSkipOnce()) {
-//                    log.warn("Self trigger, ignore : {} < {}", currentKey, lastKey);
-//                    return;
-//                }
-//            }
-
             // v3.1-b5
             triggerSource.addNext(context, when);
         }
@@ -158,6 +143,16 @@ public class RobotTriggerObserver extends OperatingObserver {
         final String sourceId = triggerSource.getSourceId();
         try {
             for (TriggerAction action : beExecuted) {
+                // v3.7 审批节点触发
+                if (when == TriggerWhen.APPROVED) {
+                    String hasIds = ALLOW_TRIGGERS_ONAPPROVED.get();
+                    if (hasIds != null) {
+                        if (!hasIds.contains(action.actionContext.getConfigId().toString())) {
+                            continue;
+                        }
+                    }
+                }
+
                 final int t = triggerSource.incrTriggerTimes();
                 final String w = String.format("Trigger.%s.%d [ %s ] executing on record (%s) : %s",
                         sourceId, t, action, when, primaryId);
@@ -250,5 +245,20 @@ public class RobotTriggerObserver extends OperatingObserver {
         Boolean is = SKIP_TRIGGERS.get();
         if (is != null && once) SKIP_TRIGGERS.remove();
         return is != null && is;
+    }
+
+    /**
+     * 设置允许触发的触发器（ID）
+     *
+     * @param triggerIds
+     */
+    public static void setAllowTriggersOnApproved(String triggerIds) {
+        ALLOW_TRIGGERS_ONAPPROVED.set(triggerIds);
+    }
+
+    /**
+     */
+    public static void clearAllowTriggersOnApproved() {
+        ALLOW_TRIGGERS_ONAPPROVED.remove();
     }
 }

@@ -802,26 +802,27 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         // 触发器
 
-        RobotTriggerManual triggerManual = new RobotTriggerManual();
+        final RobotTriggerManual triggerManual = new RobotTriggerManual();
 
         // 传导给明细（若有）
-
-        TriggerAction[] hasTriggers = getSpecTriggers(approvalRecord.getEntity().getDetailEntity(), null,
-                state == ApprovalState.APPROVED ? TriggerWhen.APPROVED : TriggerWhen.REVOKED);
-        if (hasTriggers.length > 0) {
-            for (ID did : QueryHelper.detailIdsNoFilter(recordId)) {
-                Record dAfter = EntityHelper.forUpdate(did, approvalUser, false);
-
-                if (state == ApprovalState.REVOKED) {
-                    triggerManual.onRevoked(
-                            OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, dAfter));
-                } else {
-                    triggerManual.onApproved(
-                            OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, dAfter));
+        for (Entity de : approvalRecord.getEntity().getDetialEntities()) {
+            TriggerAction[] deHasTriggers = getSpecTriggers(de, null,
+                    state == ApprovalState.APPROVED ? TriggerWhen.APPROVED : TriggerWhen.REVOKED);
+            if (deHasTriggers.length > 0) {
+                for (ID did : QueryHelper.detailIdsNoFilter(recordId, de)) {
+                    Record dAfter = EntityHelper.forUpdate(did, approvalUser, false);
+                    if (state == ApprovalState.REVOKED) {
+                        triggerManual.onRevoked(
+                                OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, dAfter));
+                    } else {
+                        triggerManual.onApproved(
+                                OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, dAfter));
+                    }
                 }
             }
         }
 
+        // 主记录
         Record before = approvalRecord.clone();
         if (state == ApprovalState.REVOKED) {
             before.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
