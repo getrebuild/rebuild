@@ -524,3 +524,17 @@ var $isLight = function (color) {
   var brightness = (c_r * 299 + c_g * 587 + c_b * 114) / 1000
   return brightness > 155
 }
+
+// 清理数组
+var $cleanArray = function (array, isunique) {
+  if (!array) return []
+  var array2 = []
+  $(array).each(function () {
+    var n = $.trim(this)
+    if (n) {
+      if (isunique) array2.remove(n)
+      array2.push(n)
+    }
+  })
+  return array2
+}

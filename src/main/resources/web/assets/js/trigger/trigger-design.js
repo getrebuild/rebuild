@@ -6,8 +6,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 const wpc = window.__PageConfig
-var contentComp = null
-var whenUpdateFields
+const SHOW_SPEC_FIELDS = ['DATAVALIDATE', 'HOOKURL', 'SENDNOTIFICATION', 'FIELDWRITEBACK', 'FIELDAGGREGATION', 'GROUPAGGREGATION', 'CREATEFEED', 'PROXYTRIGGERACTION']
+
+let contentComp = null
+let whenUpdateFields
+let whenApproveNodes
 
 $(document).ready(() => {
   $.fn.select2.defaults.set('allowClear', false)
@@ -86,6 +89,7 @@ $(document).ready(() => {
   })
   saveFilter(wpc.whenFilter)
 
+  // 指定字段
   $('.when-update a').on('click', (e) => {
     $stopEvent(e, true)
     renderRbcomp(
@@ -100,6 +104,25 @@ $(document).ready(() => {
       />
     )
   })
+  DlgSpecFields.render(wpc.actionContent)
+  if (SHOW_SPEC_FIELDS.includes(wpc.actionType)) $('.when-update a.hide').removeClass('hide')
+
+  // 指定步骤
+  $('.when-approve a').on('click', (e) => {
+    $stopEvent(e, true)
+    renderRbcomp(
+      <DlgSpecApproveNodes
+        selected={whenApproveNodes}
+        onConfirm={(s) => {
+          whenApproveNodes = s
+          const $s = $('.when-approve .custom-control-label')
+          if (s.length > 0) $s.text(`${$s.text().split(' (')[0]} (${s.length})`)
+          else $s.text($s.text().split(' (')[0])
+        }}
+      />
+    )
+  })
+  DlgSpecApproveNodes.render(wpc.actionContent)
 
   renderContentComp({ sourceEntity: wpc.sourceEntity, content: wpc.actionContent })
 
@@ -121,6 +144,7 @@ $(document).ready(() => {
     if (content === false) return
 
     if (window.whenUpdateFields) content.whenUpdateFields = window.whenUpdateFields
+    if (window.whenApproveNodes) content.whenApproveNodes = window.whenApproveNodes
     const data = {
       when: when,
       whenTimer: whenTimer,
@@ -383,7 +407,6 @@ function useExecManual_checkState(taskid, mp, _alert) {
 class DlgSpecFields extends RbModalHandler {
   render() {
     const _selected = this.props.selected || []
-
     return (
       <RbModal
         title={
@@ -397,8 +420,7 @@ class DlgSpecFields extends RbModalHandler {
         width="780">
         <div className="p-2">
           <RbAlertBox message={$L('指定字段被更新时触发，默认为全部字段')} />
-
-          <div className="row " ref={(c) => (this._fields = c)}>
+          <div className="row" ref={(c) => (this._$fields = c)}>
             {(this.state.fields || []).map((item) => {
               if (item.type === 'BARCODE' || item.updatable === false) return null
               return (
@@ -432,7 +454,7 @@ class DlgSpecFields extends RbModalHandler {
     }
 
     const selected = []
-    $(this._fields)
+    $(this._$fields)
       .find('input:checked')
       .each(function () {
         selected.push(this.value)
@@ -451,6 +473,65 @@ class DlgSpecFields extends RbModalHandler {
       window.whenUpdateFields = content.whenUpdateFields
       const $s = $('.when-update .custom-control-label')
       $s.text(`${$s.text()} (${content.whenUpdateFields.length})`)
+    }
+  }
+}
+
+// ~ 指定审批步骤
+class DlgSpecApproveNodes extends RbModalHandler {
+  render() {
+    const _selected = this.props.selected || []
+    return (
+      <RbModal
+        title={
+          <RF>
+            {$L('指定步骤')}
+            <sup className="rbv" />
+          </RF>
+        }
+        ref={(c) => (this._dlg = c)}
+        disposeOnHide
+        width="780">
+        <div className="p-2">
+          <RbAlertBox message={$L('指定步骤 (名称) 审核通过时触发，默认仅为最终审核通过时')} />
+          <div className="row">
+            <div className="col-12" ref={(c) => (this._$set = c)}>
+              <label>{$L('填写步骤名称 (多个使用逗号分开)')}</label>
+              <textarea className="form-control form-control-sm row2x" defaultValue={_selected.join(', ')} placeholder={$L('无')} />
+            </div>
+          </div>
+        </div>
+
+        <div className="dialog-footer">
+          <button className="btn btn-secondary btn-space mr-2" type="button" onClick={this.hide}>
+            {$L('取消')}
+          </button>
+          <button className="btn btn-primary btn-space" type="button" onClick={() => this.handleConfirm()}>
+            {$L('确定')}
+          </button>
+        </div>
+      </RbModal>
+    )
+  }
+
+  handleConfirm() {
+    if (rb.commercial < 1) {
+      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
+
+    let selected = ($(this._$set).find('textarea').val() || '').split(/[,，;；\s]/)
+    selected = $cleanArray(selected, true)
+
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(selected)
+    this.hide()
+  }
+
+  static render(content) {
+    if (content.whenApproveNodes && content.whenApproveNodes.length > 0) {
+      window.whenApproveNodes = content.whenApproveNodes
+      const $s = $('.when-approve .custom-control-label')
+      $s.text(`${$s.text()} (${content.whenApproveNodes.length})`)
     }
   }
 }

@@ -137,5 +137,6 @@ module.exports = {
     $removeHtml: true,
     $openWindow: true,
     MediaCapturer: true,
+    $cleanArray: true,
   },
 }
