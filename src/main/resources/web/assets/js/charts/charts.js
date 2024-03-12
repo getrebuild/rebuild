@@ -279,6 +279,18 @@ class ChartTable extends BaseChart {
 // for ECharts
 const COLOR_AXIS = '#ddd'
 const COLOR_LABEL = '#555'
+const COLOR_PALETTES = {
+  shine: ['#c12e34', '#e6b600', '#0098d9', '#2b821d', '#005eaa', '#339ca8', '#cda819', '#32a487'],
+  techblue: ['#3a5897', '#007bb6', '#7094db', '#0080ff', '#b3b3ff', '#00bdec', '#33ccff', '#ccddff', '#eeeeee'],
+  mint: ['#8aedd5', '#93bc9e', '#cef1db', '#7fe579', '#a6d7c2', '#bef0bb', '#99e2vb', '#94f8a8', '#7de5b8', '#4dfb70'],
+  fruit: ['#ffcb6a', '#ffa850', '#ffe2c4', '#e5834e', '#ffb081', '#f7826e', '#faac9e', '#fcd5cf'],
+  sakura: ['#e52c3c', '#f7b1ab', '#fa506c', '#f59288', '#f8c4d8', '#e54f5c', '#f06d5c', '#e54f80', '#f29c9f', '#eeb5b7'],
+  jazz: ['#e9e0d1', '#91a398', '#33605a', '#070001', '#68462b', '#58a79c', '#abd3ce', '#eef6f5'],
+  wonderland: ['#4ea397', '#22c3aa', '#7bd9a5', '#d0648a', '#f58db2', '#f2b3c9'],
+  westeros: ['#516b91', '#59c4e6', '#edafda', '#93b7e3', '#a5e7f0', '#cbb0e3'],
+  infographic: ['#c1232b', '#27727b', '#fcce10', '#e87c25', '#b5c334', '#fe8463', '#9bca63', '#fad860', '#f3a43b', '#60c0dd', '#d7504b', '#c6e579', '#f4e001', '#f0805a', '#26c0c0'],
+  macarons: ['#2ec7c9', '#b6a2de', '#5ab1ef', '#ffb980', '#d87a80', '#8d98b3', '#e5cf0d', '#97b552', '#95706d', '#dc69aa', '#07a2a4', '#9a7fd1', '#588dd5', '#f5994e', '#c05050', '#59678c', '#c9ab00'],
+}
 
 const ECHART_BASE = {
   grid: { left: 60, right: 30, top: 30, bottom: 30 },
@@ -287,7 +299,7 @@ const ECHART_BASE = {
     trigger: 'item',
     textStyle: {
       fontSize: 12,
-      lineHeight: 1.3,
+      lineHeight: 1.2,
       color: '#333',
     },
     axisPointer: {
@@ -297,11 +309,13 @@ const ECHART_BASE = {
     extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2);',
     confine: true,
     position: 'top',
+    borderWidth: 0,
+    padding: [5, 10],
   },
   textStyle: {
     fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
   },
-  color: RBCOLORS,
+  color: COLOR_PALETTES[window.__LAB_CHARTCOLORS || 'x'] || RBCOLORS,
 }
 
 const ECHART_AXIS_LABEL = {

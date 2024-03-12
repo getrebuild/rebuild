@@ -69,10 +69,6 @@ public class SendNotification extends TriggerAction {
 
     @Override
     public Object execute(OperatingContext operatingContext) {
-        if (operatingContext.getAction() == BizzPermission.UPDATE && !hasUpdateFields(operatingContext)) {
-            return TriggerResult.noUpdateFields();
-        }
-
         final JSONObject content = (JSONObject) actionContext.getActionContent();
         final int msgType = content.getIntValue("type");
         final int userType = content.getIntValue("userType");

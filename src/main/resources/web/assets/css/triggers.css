@@ -22,7 +22,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .timeline.spare form.simple input.form-control-sm,
-.timeline.spare form.simple select.form-control-sm {
+.timeline.spare form.simple select.form-control-sm,
+.timeline.spare form.simple .select2 {
   max-width: 485px;
 }
 
@@ -379,7 +380,7 @@ textarea.formula-code + .fields-vars {
 }
 
 .J_when label.custom-control {
-  min-width: 120px;
+  min-width: 130px;
 }
 
 .on-timers {
@@ -486,16 +487,19 @@ textarea.formula-code + .fields-vars {
   display: block;
 }
 
-.when-update a {
+.when-update a,
+.when-approve a {
   color: #4285f4 !important;
   display: none;
 }
 
-.when-update:hover a {
+.when-update:hover a,
+.when-approve:hover a {
   display: inline-block;
 }
 
-.when-update a:hover {
+.when-update a:hover,
+.when-approve a:hover {
   color: #0d5bdd !important;
 }
 

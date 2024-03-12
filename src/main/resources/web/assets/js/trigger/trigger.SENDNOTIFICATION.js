@@ -181,9 +181,6 @@ class ContentSendNotification extends ActionContentSpec {
           this._content.val(content.content || '')
         }
       )
-
-      // eslint-disable-next-line no-undef
-      DlgSpecFields.render(content)
     }
   }
 
@@ -242,9 +239,6 @@ renderContentComp = function (props) {
     // eslint-disable-next-line no-undef
     contentComp = this
   })
-
-  // 指定字段
-  $('.when-update a.hide').removeClass('hide')
 }
 
 class AccountSelectorWithField extends UserSelector {
