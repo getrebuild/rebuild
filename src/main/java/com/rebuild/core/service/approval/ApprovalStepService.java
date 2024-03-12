@@ -759,7 +759,7 @@ public class ApprovalStepService extends InternalPersistService {
         FlowParser flowParser = RobotApprovalManager.instance
                 .getFlowDefinition(approvalRecord.getEntity(), approvalId).createFlowParser();
         FlowNode flowNode = flowParser.getNode(currentNode);
-        String specNodeName = flowNode.getDataMap().getString("nodeName");
+        String specNodeName = flowNode.getNodeName();
         if (StringUtils.isBlank(specNodeName)) return;
 
         List<ID> allowTriggers = new ArrayList<>();
@@ -790,7 +790,7 @@ public class ApprovalStepService extends InternalPersistService {
             for (TriggerAction t : hasTriggers) {
                 if (isSpecApproveNode(t, specNodeName)) allowTriggers.add(t.getActionContext().getConfigId());
             }
-            
+
             if (!allowTriggers.isEmpty()) {
                 RobotTriggerObserver.setAllowTriggersOnApproved(allowTriggers.toString());
                 triggerManual.onApproved(

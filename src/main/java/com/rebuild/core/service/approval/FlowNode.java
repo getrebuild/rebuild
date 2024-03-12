@@ -90,6 +90,13 @@ public class FlowNode {
     /**
      * @return
      */
+    public String getNodeName() {
+        return getDataMap().getString("nodeName");
+    }
+
+    /**
+     * @return
+     */
     public JSONObject getDataMap() {
         return dataMap == null ? JSONUtils.EMPTY_OBJECT : dataMap;
     }

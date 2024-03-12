@@ -550,7 +550,7 @@ public class ApprovalProcessor extends SetUser {
                     String nodeName = Language.L("提交人撤回");
                     s.put("nodeName", nodeName);
                 } else {
-                    String nodeName = flowNode == null ? null : flowNode.getDataMap().getString("nodeName");
+                    String nodeName = flowNode == null ? null : flowNode.getNodeName();
                     if (StringUtils.isBlank(nodeName)) {
                         nodeName = nodeIndexNames.get(nodeNo);
                         if (StringUtils.isBlank(nodeName)) {
@@ -636,7 +636,7 @@ public class ApprovalProcessor extends SetUser {
         while (currentNode != null) {
             FlowNode node = flowParser.getNode(currentNode);
             if (FlowNode.TYPE_APPROVER.equals(node.getType())) {
-                set.addFirst(new String[] { node.getNodeId(), node.getDataMap().getString("nodeName") });
+                set.addFirst(new String[] { node.getNodeId(), node.getNodeName() });
             }
 
             currentNode = node.prevNodes;
