@@ -22,7 +22,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .timeline.spare form.simple input.form-control-sm,
-.timeline.spare form.simple select.form-control-sm {
+.timeline.spare form.simple select.form-control-sm,
+.timeline.spare form.simple .select2 {
   max-width: 485px;
 }
 

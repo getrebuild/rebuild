@@ -51,9 +51,14 @@ class ContentAutoApproval extends ActionContentSpec {
 
     const content = this.props.content || {}
     $.get(`/admin/robot/trigger/auto-approval-alist?entity=${this.props.sourceEntity}`, (res) => {
-      this.setState({ approvalList: res.data }, () => {
+      this.setState({ approvalList: res.data || [] }, () => {
+        $(this._$useApproval).select2({
+          placeholder: $L('无'),
+          allowClear: false,
+        })
+
         if (content.useApproval) {
-          $(this._$useApproval).val(content.useApproval)
+          $(this._$useApproval).val(content.useApproval).trigger('change')
           content.submitMode && $(this._$submitMode).attr('checked', true)
         }
       })

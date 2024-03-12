@@ -6,7 +6,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 const wpc = window.__PageConfig
-const SHOW_SPEC_FIELDS = ['DATAVALIDATE', 'HOOKURL', 'SENDNOTIFICATION', 'FIELDWRITEBACK', 'FIELDAGGREGATION', 'GROUPAGGREGATION', 'CREATEFEED', 'PROXYTRIGGERACTION']
 
 let contentComp = null
 let whenUpdateFields
@@ -105,7 +104,6 @@ $(document).ready(() => {
     )
   })
   DlgSpecFields.render(wpc.actionContent)
-  if (SHOW_SPEC_FIELDS.includes(wpc.actionType)) $('.when-update a.hide').removeClass('hide')
 
   // 指定步骤
   $('.when-approve a').on('click', (e) => {
@@ -469,7 +467,7 @@ class DlgSpecFields extends RbModalHandler {
   }
 
   static render(content) {
-    if (content.whenUpdateFields && content.whenUpdateFields.length > 0) {
+    if (content && content.whenUpdateFields && content.whenUpdateFields.length > 0) {
       window.whenUpdateFields = content.whenUpdateFields
       const $s = $('.when-update .custom-control-label')
       $s.text(`${$s.text()} (${content.whenUpdateFields.length})`)
@@ -528,7 +526,7 @@ class DlgSpecApproveNodes extends RbModalHandler {
   }
 
   static render(content) {
-    if (content.whenApproveNodes && content.whenApproveNodes.length > 0) {
+    if (content && content.whenApproveNodes && content.whenApproveNodes.length > 0) {
       window.whenApproveNodes = content.whenApproveNodes
       const $s = $('.when-approve .custom-control-label')
       $s.text(`${$s.text()} (${content.whenApproveNodes.length})`)

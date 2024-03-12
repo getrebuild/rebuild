@@ -8,6 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.trigger;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.service.SafeObservable;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.OperatingObserver;
@@ -150,6 +152,21 @@ public class RobotTriggerObserver extends OperatingObserver {
                         if (!hasIds.contains(action.actionContext.getConfigId().toString())) {
                             continue;
                         }
+                    }
+                }
+                // v3.7 指定字段通用化
+                if (when == TriggerWhen.UPDATE) {
+                    JSONArray whenUpdateFields = ((JSONObject) action.getActionContext().getActionContent())
+                            .getJSONArray("whenUpdateFields");
+                    if (whenUpdateFields != null && !whenUpdateFields.isEmpty()) {
+                        boolean hasUpdated = false;
+                        for (String field : context.getAfterRecord().getAvailableFields()) {
+                            if (whenUpdateFields.contains(field)) {
+                                hasUpdated = true;
+                                break;
+                            }
+                        }
+                        if (!hasUpdated) continue;
                     }
                 }
 
