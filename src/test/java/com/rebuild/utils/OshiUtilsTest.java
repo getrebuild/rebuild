@@ -39,4 +39,11 @@ class OshiUtilsTest {
     void getNetworkDate() {
         System.out.println(OshiUtils.getNetworkDate());
     }
+
+    @Test
+    void getDiskUsed() {
+        for (Object[] d : OshiUtils.getDisksUsed()) {
+            System.out.println(Arrays.toString(d));
+        }
+    }
 }

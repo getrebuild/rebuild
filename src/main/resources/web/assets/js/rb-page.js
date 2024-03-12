@@ -132,13 +132,21 @@ $(function () {
   }
 
   var bosskey = 0
-  $(document.body).on('keydown', function (e) {
+  var bosskey_timer
+  $(document).on('keydown', function (e) {
     if (e.shiftKey) {
       if (++bosskey === 6) {
         $('.bosskey-show').removeClass('bosskey-show')
         typeof window.bosskeyTrigger === 'function' && window.bosskeyTrigger()
         window.__BOSSKEY = true
       }
+      if (bosskey_timer) {
+        clearTimeout(bosskey_timer)
+        bosskey_timer = null
+      }
+      bosskey_timer = setTimeout(function () {
+        bosskey = 0
+      }, 1000) // clean
     }
   })
 

@@ -63,9 +63,9 @@ public class FileListController extends BaseController {
             path = "attachment";
         } else {
             path = ServletUtils.readCookie(request, CK_LASTPATH);
-            if (path == null) path = "docs";
+            path = "attachment".equals(path) ? path : "docs";
         }
-
+        
         // 记住最后一次访问的文件类型
         ServletUtils.addCookie(response, CK_LASTPATH, path);
 

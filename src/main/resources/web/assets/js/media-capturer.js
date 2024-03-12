@@ -5,7 +5,6 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-// css width
 const _VIDEO_WIDTH = 1000
 
 // eslint-disable-next-line no-unused-vars
@@ -30,7 +29,7 @@ class MediaCapturer extends RbModal {
           <canvas ref={(c) => (this._$resImage = c)} className={this.state.recType === 'image' ? '' : 'hide'}></canvas>
         </div>
 
-        <div className="action" ref={(c) => (this._$btn = c)}>
+        <div className={`action ${this.state.unsupportted && 'hide'}`} ref={(c) => (this._$btn = c)}>
           <input type="file" className="hide" ref={(c) => (this._$fileinput = c)} />
           <button className="btn btn-primary J_used" type="button" onClick={() => this.handleConfirm()}>
             <i className="icon mdi mdi-check" /> {$L('使用')}
@@ -58,8 +57,8 @@ class MediaCapturer extends RbModal {
               <div className="dropdown-menu dropdown-menu-right">
                 {this.state.webcamList.map((c) => {
                   return (
-                    <a className="dropdown-item" key={c[0]} onClick={() => this.initDevice(null, c[0])}>
-                      {c[1]}
+                    <a className="dropdown-item" key={c.deviceId} onClick={() => this.initDevice(null, c.deviceId)}>
+                      {c.label || '0'}
                     </a>
                   )
                 })}
@@ -74,26 +73,23 @@ class MediaCapturer extends RbModal {
   componentDidMount() {
     super.componentDidMount()
 
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      this.initDevice(null, $storage.get('MediaCapturerDeviceId'))
-
-      navigator.mediaDevices
-        .enumerateDevices()
-        .then((devices) => {
-          const devices2 = devices.filter((device) => device.kind === 'videoinput')
-          const devices3 = []
-          devices2.forEach((device, idx) => {
-            devices3.push([device.deviceId, device.label || idx])
-          })
-          this.setState({ webcamList: devices3 })
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-    } else {
-      this.setState({ initMsg: $L('你的浏览器不支持此功能') })
+    if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
+      this.setState({ initMsg: $L('你的浏览器不支持此功能'), unsupportted: true })
+      return
     }
 
+    this.initDevice(null, $storage.get('MediaCapturerDeviceId'))
+
+    navigator.mediaDevices
+      .enumerateDevices()
+      .then((devices) => {
+        const vidDevices = devices.filter((device) => device.deviceId && device.kind === 'videoinput')
+        this.setState({ webcamList: vidDevices })
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    
     if (this.props.forceFile) {
       $initUploader(
         this._$fileinput,
@@ -129,7 +125,8 @@ class MediaCapturer extends RbModal {
       return
     }
 
-    const ps = { video: true }
+    // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+    const ps = { video: true, audio: this.props.recordAudio || false }
     if (deviceId) ps.video = { deviceId: deviceId }
     navigator.mediaDevices
       .getUserMedia(ps)
@@ -143,8 +140,7 @@ class MediaCapturer extends RbModal {
           })
           this._mediaRecorder.addEventListener('stop', () => {
             this._capturedData = new Blob(this._blobs, { type: 'video/mp4' })
-            const videoBlobURL = URL.createObjectURL(this._capturedData)
-            this._$resVideo.src = videoBlobURL
+            this._$resVideo.src = URL.createObjectURL(this._capturedData)
             this.setState({ captured: true, initMsg: null })
           })
         }

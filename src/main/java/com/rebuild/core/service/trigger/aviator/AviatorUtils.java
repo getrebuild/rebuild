@@ -14,10 +14,13 @@ import com.googlecode.aviator.exception.ExpressionSyntaxErrorException;
 import com.googlecode.aviator.lexer.token.OperatorType;
 import com.googlecode.aviator.runtime.function.system.AssertFunction;
 import com.googlecode.aviator.runtime.type.AviatorFunction;
+import com.googlecode.aviator.runtime.type.Sequence;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -137,5 +140,17 @@ public class AviatorUtils {
      */
     public static AviatorEvaluatorInstance getInstance() {
         return AVIATOR;
+    }
+
+    /**
+     * @param value
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public static Iterator<Object> toIterator(Object value) {
+        if (value instanceof Collection) return ((Collection<Object>) value).iterator();
+        if (value instanceof Sequence) return ((Sequence<Object>) value).iterator();
+
+        throw new UnsupportedOperationException("Unsupport type : " + value);
     }
 }

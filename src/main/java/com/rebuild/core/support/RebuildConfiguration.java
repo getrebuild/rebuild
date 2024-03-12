@@ -11,6 +11,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.service.PerHourJob;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -40,9 +41,7 @@ public class RebuildConfiguration extends KVStorage {
      * @return
      */
     public static File getFileOfData(String filepath) {
-        if (filepath != null && filepath.contains("../")) {
-            throw new SecurityException("Attack path detected : " + filepath);
-        }
+        CommonsUtils.checkSafeFilePath(filepath);
 
         String d = get(ConfigurationItem.DataDirectory);
         File datadir = null;
@@ -77,9 +76,7 @@ public class RebuildConfiguration extends KVStorage {
      * @see PerHourJob#doCleanTempFiles()
      */
     public static File getFileOfTemp(String filepath) {
-        if (filepath != null && filepath.contains("../")) {
-            throw new SecurityException("Attack path detected : " + filepath);
-        }
+        CommonsUtils.checkSafeFilePath(filepath);
 
         File temp = getFileOfData("temp");
         if (!temp.exists()) {

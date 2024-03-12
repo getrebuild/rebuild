@@ -65,7 +65,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
     final private List<ID> recordIdMultiple;
 
     private Set<String> inShapeVars;
-    private Map<String, Object> mdataHolder;
+    private Map<String, Object> recordMainHolder;
 
     protected EasyExcelGenerator33(File templateFile, ID recordId) {
         super(templateFile, recordId);
@@ -98,9 +98,9 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             String refKey = null;
             if (varName.startsWith(NROW_PREFIX) || varName.startsWith(NROW_PREFIX2)) {
                 if (varName.startsWith(APPROVAL_PREFIX) || varName.startsWith(APPROVAL_PREFIX2)) {
-                    refKey = APPROVAL_PREFIX;
+                    refKey = varName.startsWith(NROW_PREFIX) ? APPROVAL_PREFIX : APPROVAL_PREFIX2;
                 } else if (varName.startsWith(DETAIL_PREFIX) || varName.startsWith(DETAIL_PREFIX2)) {
-                    refKey = DETAIL_PREFIX;
+                    refKey = varName.startsWith(NROW_PREFIX) ? DETAIL_PREFIX : DETAIL_PREFIX2;
                 } else {
                     // 在客户中导出订单（下列 AccountId 为订单中引用客户的引用字段）
                     // .AccountId.SalesOrder.SalesOrderName or $AccountId$SalesOrder$SalesOrderName
@@ -120,7 +120,9 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             }
 
             // 占位字段
-            if (TemplateExtractor33.isPlaceholder(varName)) continue;
+            if (TemplateExtractor33.isPlaceholder(varName)) {
+                continue;
+            }
             // 无效字段
             if (fieldName == null) {
                 log.warn("Invalid field `{}` in template : {}", e.getKey(), templateFile);
@@ -155,14 +157,15 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             Assert.notNull(record, "No record found : " + recordId);
 
             Map<String, Object> d = buildData(record, varsMapOfMain);
-            datas.put(MDATA_KEY, Collections.singletonList(d));
-            mdataHolder = d;
+            datas.put(REFKEY_RECORD_MAIN, Collections.singletonList(d));
+            recordMainHolder = d;
         }
 
         // 相关记录（含明细、审批）
         for (Map.Entry<String, List<String>> e : fieldsOfRefs.entrySet()) {
             final String refKey = e.getKey();
-            final boolean isApproval = refKey.startsWith(APPROVAL_PREFIX);
+            final boolean isApproval = refKey.startsWith(APPROVAL_PREFIX) || refKey.startsWith(APPROVAL_PREFIX2);
+            final boolean isDetail = refKey.startsWith(DETAIL_PREFIX) || refKey.startsWith(DETAIL_PREFIX2);
 
             String querySql = baseSql;
             if (isApproval) {
@@ -170,12 +173,11 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
                         "createdOn,recordId,state,stepId", "RobotApprovalStep", "recordId");
 
-            } else if (refKey.startsWith(DETAIL_PREFIX)) {
-                Entity de = entity.getDetailEntity();
-
+            } else if (isDetail) {
                 String sortField = templateExtractor33.getSortField(DETAIL_PREFIX);
                 querySql += " order by " + StringUtils.defaultIfBlank(sortField, "createdOn asc");
 
+                Entity de = entity.getDetailEntity();
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
                         de.getPrimaryField().getName(), de.getName(), MetadataHelper.getDetailToMainField(de).getName());
 
@@ -312,7 +314,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
     private File superGenerate() {
         File file = super.generate();
-        if (inShapeVars.isEmpty() || mdataHolder == null) return file;
+        if (inShapeVars.isEmpty() || recordMainHolder == null) return file;
 
         // v3.6 提取文本框
         try (Workbook wb = WorkbookFactory.create(file)) {
@@ -324,7 +326,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 while (matcher.find()) {
                     String varName = matcher.group(1);
                     if (StringUtils.isNotBlank(varName)) {
-                        shapeText = shapeText.replace("{" + varName +"}", String.valueOf(mdataHolder.get(varName)));
+                        shapeText = shapeText.replace("{" + varName +"}", String.valueOf(recordMainHolder.get(varName)));
                     }
                 }
 

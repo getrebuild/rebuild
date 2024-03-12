@@ -690,10 +690,6 @@ class RbForm extends React.Component {
       console.log('FrontJS prevented save')
       return
     }
-    if (typeof this._postBefore === 'function' && this._postBefore(data, this) === false) {
-      console.log('_postBefore prevented save')
-      return
-    }
 
     const $$$parent = this.props.$$$parent
     const previewid = $$$parent.state.previewid
@@ -724,7 +720,9 @@ class RbForm extends React.Component {
           if (typeof this._postAfter === 'function') {
             this._postAfter(recordId, next, this)
             return
-          } else if (next === RbForm.NEXT_ADDDETAIL) {
+          }
+
+          if (next === RbForm.NEXT_ADDDETAIL) {
             const iv = $$$parent.props.initialValue
             const dm = this.props.rawModel.entityMeta
             RbFormModal.create({ title: $L('添加%s', dm.entityLabel), entity: dm.entity, icon: dm.icon, initialValue: iv })
@@ -767,7 +765,11 @@ class RbForm extends React.Component {
 
   // 保存前调用（返回 false 则不继续保存）
   // eslint-disable-next-line no-unused-vars
-  static postBefore(data, from) {
+  static postBefore(data, formObject) {
+    if (typeof formObject._postBefore === 'function') {
+      const ret = formObject._postBefore(data, formObject)
+      if (ret === false) return false
+    }
     if (window.FrontJS) {
       const ret = window.FrontJS.Form._trigger('saveBefore', [data])
       if (ret === false) return false
@@ -777,7 +779,7 @@ class RbForm extends React.Component {
 
   // 保存后调用
   // eslint-disable-next-line no-unused-vars
-  static postAfter(data, next, from) {
+  static postAfter(data, next, formObject) {
     if (window.FrontJS) {
       window.FrontJS.Form._trigger('saveAfter', [data, next])
     }
@@ -793,7 +795,7 @@ class RbForm extends React.Component {
 
   // 组件渲染后调用
   // eslint-disable-next-line no-unused-vars
-  static renderAfter(form) {}
+  static renderAfter(formObject) {}
 }
 
 // 表单元素基础类
@@ -1507,7 +1509,7 @@ class RbFormImage extends RbFormElement {
     }
 
     return (
-      <div className="img-field">
+      <div className="img-field" ref={(c) => (this._$dropArea = c)}>
         {value.map((item, idx) => {
           return (
             <span key={item}>
@@ -1590,12 +1592,15 @@ class RbFormImage extends RbFormElement {
       // NOOP
     } else {
       if (!this._fieldValue__input) {
-        console.warn('No element `_fieldValue__input` defined')
+        console.log('No element `_fieldValue__input` defined :', this.props.field)
         return
       }
 
       let mp
+      let mpCount = 0
       const mp_end = function () {
+        if (--mpCount > 0) return
+        mpCount = 0
         setTimeout(() => {
           if (mp) mp.end()
           mp = null
@@ -1605,6 +1610,7 @@ class RbFormImage extends RbFormElement {
       $createUploader(
         this._fieldValue__input,
         (res) => {
+          mpCount++
           if (!mp) mp = new Mprogress({ template: 2, start: true })
           mp.set(res.percent / 100) // 0.x
         },
@@ -1612,14 +1618,44 @@ class RbFormImage extends RbFormElement {
           mp_end()
           const paths = this.state.value || []
           // 最多上传，多余忽略
-          // FIXME 多选时进度条有点不好看
           if (paths.length < this.__maxUpload) {
-            paths.push(res.key)
-            this.handleChange({ target: { value: paths } }, true)
+            let hasByName = $fileCutName(res.key)
+            hasByName = paths.find((x) => $fileCutName(x) === hasByName)
+            console.log(hasByName)
+            if (!hasByName) {
+              paths.push(res.key)
+              this.handleChange({ target: { value: paths } }, true)
+            }
           }
         },
         () => mp_end()
       )
+
+      // 拖拽上传
+      if (this._$dropArea && !this.props.imageCapture) {
+        const that = this
+        const $da = $(this._$dropArea)
+          .on('dragenter', (e) => {
+            e.preventDefault()
+          })
+          .on('dragover', (e) => {
+            e.preventDefault()
+            if (e.originalEvent.dataTransfer) e.originalEvent.dataTransfer.dropEffect = 'copy'
+            $da.addClass('drop-area-active')
+          })
+          .on('dragleave', (e) => {
+            e.preventDefault()
+            $da.removeClass('drop-area-active')
+          })
+          .on('drop dragdrop', function (e) {
+            e.preventDefault()
+            const files = e.originalEvent.dataTransfer ? e.originalEvent.dataTransfer.files : null
+            if (!files || files.length === 0) return false
+            that._fieldValue__input.files = files
+            $(that._fieldValue__input).trigger('change')
+            $da.removeClass('drop-area-active')
+          })
+      }
     }
   }
 
@@ -1666,7 +1702,7 @@ class RbFormFile extends RbFormImage {
     }
 
     return (
-      <div className="file-field">
+      <div className="file-field" ref={(c) => (this._$dropArea = c)}>
         {value.map((item) => {
           const fileName = $fileCutName(item)
           return (
@@ -1724,6 +1760,7 @@ class RbFormFile extends RbFormImage {
     )
   }
 }
+
 class RbFormPickList extends RbFormElement {
   constructor(props) {
     super(props)

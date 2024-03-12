@@ -393,31 +393,31 @@ public class QiniuCloud {
     }
 
     /**
-     * 读取文件
+     * 读取本地存储文件 `$DATA/rb/`
      *
-     * @param filePath
+     * @param filepath
      * @return
      * @throws IOException
      * @throws RebuildException If cannot read/download
      */
-    public static File getStorageFile(String filePath) throws IOException, RebuildException {
-        File file;
-        if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
-            String name = filePath.split("\\?")[0];
+    public static File getStorageFile(String filepath) throws IOException, RebuildException {
+        File file = null;
+        if (filepath.startsWith("http://") || filepath.startsWith("https://")) {
+            String name = filepath.split("\\?")[0];
             name = name.substring(name.lastIndexOf("/") + 1);
             file = RebuildConfiguration.getFileOfTemp("down" + System.nanoTime() + "." + name);
-            OkHttpUtils.readBinary(filePath, file, null);
+            OkHttpUtils.readBinary(filepath, file, null);
 
         } else if (QiniuCloud.instance().available()) {
-            String name = parseFileName(filePath);
+            String name = parseFileName(filepath);
             file = RebuildConfiguration.getFileOfTemp("down" + System.nanoTime() + "." + name);
-            instance().download(filePath, file);
+            instance().download(filepath, file);
 
-        } else {
-            file = RebuildConfiguration.getFileOfData(filePath);
+        } else if (filepath.startsWith("rb/") || filepath.startsWith("/rb/")) {
+            file = RebuildConfiguration.getFileOfData(filepath);
         }
 
-        if (!file.exists()) throw new RebuildException("Cannot read file : " + filePath);
+        if (file == null || !file.exists()) throw new RebuildException("Cannot read file : " + filepath);
         return file;
     }
 }

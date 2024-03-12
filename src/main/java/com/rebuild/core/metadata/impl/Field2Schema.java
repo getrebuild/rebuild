@@ -438,27 +438,37 @@ public class Field2Schema extends SetUser {
         meta.setString("displayType", toType.name());
         Application.getCommonsService().update(meta, false);
 
-        Dialect dialect = Application.getPersistManagerFactory().getDialect();
-        final Table table = new Table(field.getOwnEntity(), dialect);
-        StringBuilder ddl = new StringBuilder();
-        table.generateFieldDDL(field, ddl);
+        // 类型生效
+        DynamicMetadataContextHolder.setSkipLanguageRefresh();
+        MetadataHelper.getMetadataFactory().refresh();
+        field = MetadataHelper.getField(field.getOwnEntity().getName(), field.getName());
 
-        String alterSql = String.format("alter table `%s` change column `%s` ",
-                field.getOwnEntity().getPhysicalName(), field.getPhysicalName());
-        alterSql += ddl.toString().trim();
-
+        String alterTypeSql = null;
         try {
-            Application.getSqlExecutor().executeBatch(new String[]{alterSql}, DDL_TIMEOUT);
+            Dialect dialect = Application.getPersistManagerFactory().getDialect();
+            final Table table = new Table(field.getOwnEntity(), dialect);
+            StringBuilder ddl = new StringBuilder();
+            table.generateFieldDDL(field, ddl);
+
+            alterTypeSql = String.format("alter table `%s` change column `%s` ",
+                    field.getOwnEntity().getPhysicalName(), field.getPhysicalName());
+            alterTypeSql += ddl.toString().trim().replace("  ", "");
+
+            Application.getSqlExecutor().executeBatch(new String[]{alterTypeSql}, DDL_TIMEOUT);
+            log.info("Cast field type : {}", alterTypeSql);
+
         } catch (Throwable ex) {
             // 还原
             meta.setString("displayType", EasyMetaFactory.getDisplayType(field).name());
             Application.getCommonsService().update(meta, false);
 
-            log.error("DDL ERROR : \n" + alterSql, ex);
+            log.error("DDL ERROR : \n" + alterTypeSql, ex);
             throw new MetadataModificationException(ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+        } finally {
+            MetadataHelper.getMetadataFactory().refresh();
+            DynamicMetadataContextHolder.isSkipLanguageRefresh(true);
         }
 
-        MetadataHelper.getMetadataFactory().refresh();
         return true;
     }
 }

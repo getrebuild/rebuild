@@ -60,12 +60,12 @@ public class FileDownloader extends BaseController {
     public void viewImg(HttpServletRequest request, HttpServletResponse response) throws IOException {
         RbAssert.isAllow(checkUser(request), "Unauthorized access");
 
-        String filePath = request.getRequestURI();
-        filePath = filePath.split("/filex/img/")[1];
-        filePath = CodecUtils.urlDecode(filePath);
+        String filepath = request.getRequestURI();
+        filepath = filepath.split("/filex/img/")[1];
+        filepath = CodecUtils.urlDecode(filepath);
 
-        if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
-            response.sendRedirect(filePath);
+        if (filepath.startsWith("http://") || filepath.startsWith("https://")) {
+            response.sendRedirect(filepath);
             return;
         }
 
@@ -77,7 +77,7 @@ public class FileDownloader extends BaseController {
             imageView2 = "imageView2/" + imageView2.split("imageView2/")[1].split("&")[0];
 
             // svg/webp does not support
-            if (filePath.toLowerCase().endsWith(".svg") || filePath.toLowerCase().endsWith(".webp")) {
+            if (filepath.toLowerCase().endsWith(".svg") || filepath.toLowerCase().endsWith(".webp")) {
                 imageView2 = null;
             }
         } else {
@@ -89,7 +89,7 @@ public class FileDownloader extends BaseController {
 
         // Local storage || temp || local
         if (!QiniuCloud.instance().available() || local) {
-            String fileName = QiniuCloud.parseFileName(filePath);
+            String fileName = QiniuCloud.parseFileName(filepath);
             String mimeType = request.getServletContext().getMimeType(fileName);
             if (mimeType != null) {
                 response.setContentType(mimeType);
@@ -99,12 +99,12 @@ public class FileDownloader extends BaseController {
 
             // 使用原图
             if (iv2 == null || iv2.getWidth() <= 0 || iv2.getWidth() >= ImageView2.ORIGIN_WIDTH) {
-                writeLocalFile(filePath, temp, response);
+                writeLocalFile(filepath, temp, response);
             }
             // 粗略图
             else {
-                filePath = checkFilePath(filePath);
-                File img = temp ? RebuildConfiguration.getFileOfTemp(filePath) : RebuildConfiguration.getFileOfData(filePath);
+                filepath = checkSafeFilePath(filepath);
+                File img = temp ? RebuildConfiguration.getFileOfTemp(filepath) : RebuildConfiguration.getFileOfData(filepath);
                 if (!img.exists()) {
                     response.setHeader("Content-Disposition", StringUtils.EMPTY);  // Clean download
                     response.sendError(HttpStatus.NOT_FOUND.value());
@@ -116,23 +116,23 @@ public class FileDownloader extends BaseController {
 
         } else {
             // 特殊字符文件名
-            String[] path = filePath.split("/");
+            String[] path = filepath.split("/");
             path[path.length - 1] = CodecUtils.urlEncode(path[path.length - 1]);
             path[path.length - 1] = path[path.length - 1].replace("+", "%20");
-            filePath = StringUtils.join(path, "/");
+            filepath = StringUtils.join(path, "/");
 
             if (imageView2 != null) {
-                filePath += "?" + imageView2;
+                filepath += "?" + imageView2;
             }
 
-            String privateUrl = QiniuCloud.instance().makeUrl(filePath, (int) (cacheTime * 60 * 1.2));
+            String privateUrl = QiniuCloud.instance().makeUrl(filepath, (int) (cacheTime * 60 * 1.2));
             response.sendRedirect(privateUrl);
         }
     }
 
     @GetMapping(value = {"download/**", "access/**"})
     public void download(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String filePath = request.getRequestURI();
+        String filepath = request.getRequestURI();
 
         // 共享查看
         if (request.getRequestURI().contains("/filex/access/")) {
@@ -142,15 +142,15 @@ public class FileDownloader extends BaseController {
                 return;
             }
 
-            filePath = filePath.split("/filex/access/")[1];
+            filepath = filepath.split("/filex/access/")[1];
         } else {
             RbAssert.isAllow(checkUser(request), "Unauthorized access");
-            filePath = filePath.split("/filex/download/")[1];
+            filepath = filepath.split("/filex/download/")[1];
         }
 
         String attname = getParameter(request, "attname");
         if (StringUtils.isBlank(attname)) {
-            attname = QiniuCloud.parseFileName(filePath);
+            attname = QiniuCloud.parseFileName(filepath);
             attname = CodecUtils.urlDecode(attname);
         }
 
@@ -159,28 +159,28 @@ public class FileDownloader extends BaseController {
         ServletUtils.setNoCacheHeaders(response);
 
         if (QiniuCloud.instance().available() && !temp) {
-            String privateUrl = QiniuCloud.instance().makeUrl(filePath);
+            String privateUrl = QiniuCloud.instance().makeUrl(filepath);
             if (!INLINE_FORCE.equals(attname)) privateUrl += "&attname=" + CodecUtils.urlEncode(attname);
             response.sendRedirect(privateUrl);
         } else {
 
             // V34 PDF/HTML 可直接预览
-            boolean inline = (filePath.toLowerCase().endsWith(".pdf") || filePath.toLowerCase().endsWith(".html"))
+            boolean inline = (filepath.toLowerCase().endsWith(".pdf") || filepath.toLowerCase().endsWith(".html"))
                     && (request.getRequestURI().contains("/filex/access/") || INLINE_FORCE.equals(attname));
 
             setDownloadHeaders(request, response, attname, inline);
-            writeLocalFile(filePath, temp, response);
+            writeLocalFile(filepath, temp, response);
         }
     }
 
     @GetMapping(value = "read-raw")
     public void readRawText(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String filePath = getParameterNotNull(request, "url");
+        String filepath = getParameterNotNull(request, "url");
         final String charset = getParameter(request, "charset", AppUtils.UTF8);
         final int cut = getIntParameter(request, "cut");  // MB
 
-        if (CommonsUtils.isExternalUrl(filePath)) {
-            String text = OkHttpUtils.get(filePath, null, charset);
+        if (CommonsUtils.isExternalUrl(filepath)) {
+            String text = OkHttpUtils.get(filepath, null, charset);
             ServletUtils.write(response, text);
             return;
         }
@@ -189,19 +189,19 @@ public class FileDownloader extends BaseController {
 
         String text;
         if (QiniuCloud.instance().available()) {
-            FileInfo fi = QiniuCloud.instance().stat(filePath);
+            FileInfo fi = QiniuCloud.instance().stat(filepath);
             if (fi == null) {
                 text = "ERROR:FILE_NOT_EXISTS";
             } else if (cut > 0 && fi.fsize / 1024 / 1024 > cut) {
                 text = "ERROR:FILE_TOO_LARGE";
             } else {
-                text = OkHttpUtils.get(QiniuCloud.instance().makeUrl(filePath), null, charset);
+                text = OkHttpUtils.get(QiniuCloud.instance().makeUrl(filepath), null, charset);
             }
 
         } else {
             // Local storage
-            filePath = checkFilePath(filePath);
-            File file = RebuildConfiguration.getFileOfData(filePath);
+            filepath = checkSafeFilePath(filepath);
+            File file = RebuildConfiguration.getFileOfData(filepath);
 
             if (!file.exists()) {
                 text = "ERROR:FILE_NOT_EXISTS";
@@ -264,21 +264,21 @@ public class FileDownloader extends BaseController {
         return "rb".equalsIgnoreCase(check);
     }
 
-    private static String checkFilePath(String filepath) {
+    private static String checkSafeFilePath(String filepath) {
         filepath = CodecUtils.urlDecode(filepath);
         filepath = filepath.replace("\\", "/");
 
-        if (filepath.contains("../")
-                || filepath.startsWith("_log/") || filepath.contains("/_log/")
+        CommonsUtils.checkSafeFilePath(filepath);
+        if (filepath.startsWith("_log/") || filepath.contains("/_log/")
                 || filepath.startsWith("_backups/") || filepath.contains("/_backups/")) {
-            throw new SecurityException("Attack path detected : " + filepath);
+            throw new SecurityException("Attack path detected : " + CommonsUtils.escapeHtml(filepath));
         }
         return filepath;
     }
 
-    private static boolean writeLocalFile(String filePath, boolean temp, HttpServletResponse response) throws IOException {
-        filePath = checkFilePath(filePath);
-        File file = temp ? RebuildConfiguration.getFileOfTemp(filePath) : RebuildConfiguration.getFileOfData(filePath);
+    private static boolean writeLocalFile(String filepath, boolean temp, HttpServletResponse response) throws IOException {
+        filepath = checkSafeFilePath(filepath);
+        File file = temp ? RebuildConfiguration.getFileOfTemp(filepath) : RebuildConfiguration.getFileOfData(filepath);
         return writeLocalFile(file, response);
     }
 

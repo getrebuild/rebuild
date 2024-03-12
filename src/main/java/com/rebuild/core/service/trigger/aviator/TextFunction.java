@@ -15,6 +15,7 @@ import com.googlecode.aviator.runtime.type.AviatorJavaType;
 import com.googlecode.aviator.runtime.type.AviatorNil;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 import com.googlecode.aviator.runtime.type.AviatorString;
+import com.googlecode.aviator.runtime.type.Sequence;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
@@ -24,11 +25,12 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Usage: TEXT($id|$id[], [$defaultValue], [$separator], [$fieldName])
+ * Usage: TEXT($id|$id[], [$defaultValue], [$separator], [$labelFieldName])
  * Return: String
  *
  * @author RB
@@ -78,16 +80,14 @@ public class TextFunction extends AbstractFunction {
         // 多引用 ID[]
 
         Object idArray = $id;
-        if ($id instanceof Collection) {
-            List<ID> list = null;
-            for (Object o : (Collection<?>) $id) {
-                if (o instanceof ID) {
-                    if (list == null) list = new ArrayList<>();
-                    list.add((ID) o);
-                }
+        if (idArray instanceof Collection || idArray instanceof Sequence) {
+            Iterator<?> iter = AviatorUtils.toIterator(idArray);
+            List<ID> list = new ArrayList<>();
+            while (iter.hasNext()) {
+                Object o = iter.next();
+                if (o instanceof ID) list.add((ID) o);
             }
-
-            if (list != null) idArray = list.toArray(new ID[0]);
+            if (!list.isEmpty()) idArray = list.toArray(new ID[0]);
         }
 
         if (idArray instanceof ID[]) {

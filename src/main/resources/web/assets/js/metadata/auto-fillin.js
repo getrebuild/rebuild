@@ -144,7 +144,7 @@ class DlgRuleEdit extends RbFormHandler {
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" checked={this.state.fillinBackend === true} data-id="fillinBackend" onChange={this.handleChange} />
                 <span className="custom-control-label">
-                  {$L('使用后端回填')} <sup className="rbv"></sup>
+                  {$L('使用后端回填')} <sup className="rbv" />
                 </span>
               </label>
             </div>

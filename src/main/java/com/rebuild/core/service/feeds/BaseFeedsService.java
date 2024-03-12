@@ -44,7 +44,7 @@ public abstract class BaseFeedsService extends ObservableService {
 
     @Override
     public Record create(Record record) {
-        record = super.create(converContent(record));
+        record = super.create(converContent4Mentions(record));
 
         awareMention(record, true);
         return record;
@@ -52,7 +52,7 @@ public abstract class BaseFeedsService extends ObservableService {
 
     @Override
     public Record update(Record record) {
-        record = super.update(converContent((record)));
+        record = super.update(converContent4Mentions((record)));
 
         awareMention(record, false);
         return record;
@@ -174,7 +174,7 @@ public abstract class BaseFeedsService extends ObservableService {
      * @param record
      * @return
      */
-    private Record converContent(Record record) {
+    private Record converContent4Mentions(Record record) {
         String content = record.getString("content");
         if (StringUtils.isBlank(content)) return record;
 

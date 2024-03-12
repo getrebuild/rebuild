@@ -21,6 +21,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.ClientAbortException;
@@ -203,7 +204,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         if (StringUtils.isBlank(errorMsg)) errorMsg = Language.L("系统繁忙，请稍后重试");
 
         error.getModel().put("error_code", errorCode);
-        error.getModel().put("error_msg", errorMsg);
+        error.getModel().put("error_msg", CommonsUtils.sanitizeHtml(errorMsg));
 
         if (ex != null && Application.devMode()) {
             error.getModel().put("error_stack", ThrowableUtils.extractStackTrace(ex));

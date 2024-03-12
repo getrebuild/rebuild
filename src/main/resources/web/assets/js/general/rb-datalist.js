@@ -203,6 +203,8 @@ class RbViewModal extends React.Component {
    * @param {Boolean} subView
    */
   static create(props, subView) {
+    if (props.id) props.id = props.id.toLowerCase()
+
     this.__HOLDERs = this.__HOLDERs || {}
     this.__HOLDERsStack = this.__HOLDERsStack || []
     const that = this

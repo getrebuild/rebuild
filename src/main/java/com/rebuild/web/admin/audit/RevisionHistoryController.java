@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -87,6 +88,7 @@ public class RevisionHistoryController extends EntityController {
 
     // 补充字段名称
     private void paddingFieldsName(JSONArray contents, Entity entity) {
+        final int entityCode = entity.getEntityCode();
         for (Iterator<Object> iter = contents.iterator(); iter.hasNext(); ) {
             JSONObject item = (JSONObject) iter.next();
             String fieldName = item.getString("field");
@@ -95,8 +97,12 @@ public class RevisionHistoryController extends EntityController {
                 EasyField easyField = EasyMetaFactory.valueOf(entity.getField(fieldName));
                 // 排除不可查询字段
                 if (!easyField.isQueryable()) {
-                    iter.remove();
-                    continue;
+                    if (fieldName.equalsIgnoreCase("contentMore") && entityCode == EntityHelper.Feeds) {
+                        // 保留
+                    } else {
+                        iter.remove();
+                        continue;
+                    }
                 }
 
                 fieldName = easyField.getLabel();

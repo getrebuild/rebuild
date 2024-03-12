@@ -24,14 +24,14 @@ public class NoRecordFoundException extends RebuildException {
         super();
     }
 
-    public NoRecordFoundException(ID record) {
-        this(record, Boolean.FALSE);
+    public NoRecordFoundException(ID recordId) {
+        this(recordId, Boolean.FALSE);
     }
 
-    public NoRecordFoundException(ID record, boolean i18n) {
+    public NoRecordFoundException(ID recordId, boolean i18n) {
         this(i18n
                 ? Language.L("无权读取此记录或记录已被删除")
-                : ("No Record found : " + record.toLiteral()));
+                : ("No Record found : " + recordId.toLiteral()));
     }
 
     public NoRecordFoundException(String msg, Throwable cause) {
