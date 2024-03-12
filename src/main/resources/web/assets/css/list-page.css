@@ -185,6 +185,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   overflow: auto;
 }
 
+.record-merge-table table > thead > tr > th {
+  border-bottom-color: #aaa;
+}
+
 .record-merge-table table th {
   min-width: 200px;
 }
@@ -195,25 +199,41 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .record-merge-table table td.active {
+  border: 1px double #34a853;
   background-color: #f5f8fd;
-  background-color: #dee2e6;
-}
-
-.record-merge-table table td.sysfield {
-  cursor: not-allowed;
 }
 
 .record-merge-table table td.active::after {
   font-family: 'Material Design Icons', serif;
   content: '\F012C';
   position: absolute;
-  right: 7px;
-  top: 5px;
+  right: 6px;
+  top: 6px;
   color: #34a853;
-  font-size: 1.12rem;
+  font-size: 1rem;
   font-weight: bold;
 }
 
+.record-merge-table table tbody tr:first-child td.active::before {
+  height: 1px;
+  line-height: 1;
+  font-size: 0;
+  content: '';
+  position: absolute;
+  background-color: #34a853;
+  top: -1px;
+  left: 0;
+  width: 100%;
+}
+
+.record-merge-table table td.sysfield {
+  cursor: not-allowed;
+}
+
 .record-merge-table table tr.bt2 {
-  border-top: 2px solid #dee2e6;
+  border-top: 2px solid #aaa;
+}
+
+.record-merge-table table tr.bt2 label {
+  margin-top: 2px;
 }

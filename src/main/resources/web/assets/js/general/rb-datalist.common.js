@@ -1842,6 +1842,7 @@ CellRenders.addRender('TAG', function (v, s, k) {
 class RecordMerger extends RbModalHandler {
   constructor(props) {
     super(props)
+    this.state.keepMain = props.ids[0]
   }
 
   render() {
@@ -1861,11 +1862,12 @@ class RecordMerger extends RbModalHandler {
                     idData.map((item, idx) => {
                       if (idx === 0) return null
                       return (
-                        <th key={idx} data-id={item[0]}>
-                          <strong>{item[1]}</strong>
+                        <th key={idx} data-id={item[0]} onClick={() => this.setState({ keepMain: item[0] })}>
                           <a href={`${rb.baseUrl}/app/redirect?id=${item[0]}&type=newtab`} target="_blank" title={$L('打开')}>
+                            <b className="fs-12">{item[1]}</b>
                             <i className="icon zmdi zmdi zmdi-open-in-new ml-1" />
                           </a>
+                          {this.state.keepMain === item[0] && <span className="badge badge-success badge-pill ml-1">{$L('主')}</span>}
                         </th>
                       )
                     })}
@@ -1991,7 +1993,6 @@ class RecordMerger extends RbModalHandler {
           merged[field] = id || null
         }
       })
-    console.log(merged)
 
     const details = []
     $(this._$mergeDetails)
@@ -1999,15 +2000,24 @@ class RecordMerger extends RbModalHandler {
       .each(function () {
         details.push($(this).val())
       })
-    const url = `/app/${this.props.entity}/record-merge/merge?ids=${this.props.ids.join(',')}&deleteAfter=${del || false}&mergeDetails=${details.join(',')}`
+
+    let ids = this.props.ids
+    ids.remove(this.state.keepMain)
+    ids = [this.state.keepMain, ...ids]
+
+    const url = `/app/${this.props.entity}/record-merge/merge?ids=${ids.join(',')}&deleteAfter=${del || false}&mergeDetails=${details.join(',')}`
     const $btn = $(this._$btn).find('.btn').button('loading')
     $.post(url, JSON.stringify(merged), (res) => {
       if (res.error_code === 0) {
         this.hide()
         RbHighbar.success($L('合并成功'))
         this.props.listRef.reload()
+
         setTimeout(() => {
-          CellRenders.clickView({ id: res.data, entity: this.props.entity })
+          window.RbViewModal.create({ id: res.data, entity: this.props.entity })
+          if (window.RbListPage) {
+            location.hash = `!/View/${this.props.entity}/${res.data}`
+          }
         }, 500)
       } else {
         RbHighbar.error(res.error_msg)
