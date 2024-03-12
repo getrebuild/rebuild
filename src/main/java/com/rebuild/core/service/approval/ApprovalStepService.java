@@ -805,6 +805,6 @@ public class ApprovalStepService extends InternalPersistService {
     private boolean isSpecApproveNode(TriggerAction triggerAction, String nodeName) {
         JSONObject actionContent = (JSONObject) triggerAction.getActionContext().getActionContent();
         JSONArray whenApproveNodes = actionContent.getJSONArray("whenApproveNodes");
-        return whenApproveNodes != null && whenApproveNodes.contains(nodeName);
+        return whenApproveNodes != null && (whenApproveNodes.contains(nodeName) || whenApproveNodes.contains("*"));
     }
 }

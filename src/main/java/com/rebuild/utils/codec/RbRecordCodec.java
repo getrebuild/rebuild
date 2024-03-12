@@ -47,10 +47,16 @@ public class RbRecordCodec implements ObjectSerializer {
             Object value = record.getObjectValue(field);
 
             // Join field
-            Field fieldForValue = field.contains(".")
-                    ? MetadataHelper.getLastJoinField(entity, field) : entity.getField(field);
+            Field fieldForValue = null;
+            if (field.contains(".")) {
+                fieldForValue = MetadataHelper.getLastJoinField(entity, field);
+            } else if (entity.containsField(field)) {
+                fieldForValue = entity.getField(field);
+            }
 
-            value = FieldValueHelper.wrapFieldValue(value, fieldForValue, false);
+            value = fieldForValue == null
+                    ? String.valueOf(value)
+                    : FieldValueHelper.wrapFieldValue(value, fieldForValue, false);
             map.put(field, value);
         }
         out.write(map.toJSONString());
