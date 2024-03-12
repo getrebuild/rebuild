@@ -143,7 +143,7 @@ public abstract class ObservableService extends SafeObservable implements Servic
 
     /**
      * 获取原始用户
-     * 
+     *
      * @return
      */
     protected ID getCurrentUser() {
