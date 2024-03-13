@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.core.support.general.ContentWithFieldVars;
+import com.rebuild.core.support.general.FieldValueHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -226,6 +227,11 @@ public class AggregationEvaluator {
         for (Object[] o : array) {
             Object n = o[0];
             if (n == null) continue;
+
+            // *N
+            if (n instanceof ID && mode == 3) {
+                n = FieldValueHelper.getLabel((ID) n, StringUtils.EMPTY);
+            }
 
             // 多引用
             if (n instanceof ID[]) {
