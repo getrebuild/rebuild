@@ -755,9 +755,7 @@ const __TYPE2TYPE = {
   'PHONE': ['TEXT'],
   'EMAIL': ['TEXT'],
   'URL': ['TEXT'],
-  'NTEXT': ['TEXT'],
   'IMAGE': ['FILE'],
-  'FILE': ['IMAGE'],
 }
 class FieldTypeCast extends RbFormHandler {
   render() {
