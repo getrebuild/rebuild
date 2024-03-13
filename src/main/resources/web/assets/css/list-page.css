@@ -198,6 +198,26 @@ See LICENSE and COMMERCIAL in the project root for license information.
   position: relative;
 }
 
+.record-merge-table table td > div,
+.record-merge-table table th > a {
+  max-width: 500px;
+  word-wrap: break-word;
+  display: inline-block;
+}
+
+.record-merge-table table td > div > a::after {
+  content: ', ';
+  color: #404040;
+}
+
+.record-merge-table table td > div > a:last-child::after {
+  content: '';
+}
+
+.record-merge-table table td > div > a:hover {
+  color: #4285f4 !important;
+}
+
 .record-merge-table table td.active {
   border: 1px double #34a853;
   background-color: #f5f8fd;

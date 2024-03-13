@@ -1881,11 +1881,21 @@ class RecordMerger extends RbModalHandler {
                   let chk
                   const data4field = []
                   for (let i = 1; i < item.length; i++) {
-                    let s = item[i]
+                    let v = item[i]
                     let activeClazz
-                    if ($empty(item[i])) {
-                      s = <span className="text-muted">{$L('空')}</span>
+                    if ($empty(v)) {
+                      v = <span className="text-muted">{$L('空')}</span>
                     } else {
+                      if ($.isArray(v)) {
+                        v = v.map(function (item) {
+                          return (
+                            <a key={item} onClick={() => RbPreview.create(item)}>
+                              {$fileCutName(item)}
+                            </a>
+                          )
+                        })
+                      }
+
                       activeClazz = 'active'
                       if (chk) activeClazz = null
                       if (activeClazz) chk = true
@@ -1895,8 +1905,8 @@ class RecordMerger extends RbModalHandler {
                     if (IS_COMMONS) activeClazz = 'sysfield'
 
                     data4field.push(
-                      <td key={`${idx}-${i}`} data-index={i} className={activeClazz} onClick={(e) => !IS_COMMONS && this._chkValue(e)}>
-                        {s}
+                      <td key={`${idx}-${i}`} data-index={i} className={activeClazz} onClick={(e) => !IS_COMMONS && this._selectValue(e)}>
+                        <div>{v}</div>
                       </td>
                     )
                   }
@@ -1954,8 +1964,8 @@ class RecordMerger extends RbModalHandler {
     })
   }
 
-  _chkValue(e) {
-    const $td = $(e.target)
+  _selectValue(e) {
+    const $td = $(e.currentTarget)
     $td.parent().find('td').removeClass('active')
     $td.addClass('active')
   }
@@ -2002,9 +2012,11 @@ class RecordMerger extends RbModalHandler {
         details.push($(this).val())
       })
 
-    let ids = this.props.ids
-    ids.remove(this.state.keepMain)
-    ids = [this.state.keepMain, ...ids]
+    // 主第一、排重
+    let ids = [this.state.keepMain]
+    this.props.ids.forEach(function (id) {
+      if (!ids.includes(id)) ids.push(id)
+    })
 
     const url = `/app/${this.props.entity}/record-merge/merge?ids=${ids.join(',')}&deleteAfter=${del || false}&mergeDetails=${details.join(',')}`
     const $btn = $(this._$btn).find('.btn').button('loading')
