@@ -276,8 +276,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   top: 0;
 }
 
+.chart-box.ApprovalList .progress-wrap .progress {
+  height: 26px;
+}
+
 .chart-box.ApprovalList .progress-wrap .progress-bar {
-  min-width: 20px;
+  min-width: 20%;
 }
 
 .chart-box.ApprovalList .progress-wrap .progress-bar:hover {

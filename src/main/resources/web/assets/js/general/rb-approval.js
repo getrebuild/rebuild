@@ -609,7 +609,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         RbHighbar.error(res.error_msg)
       } else {
         _alert && _alert.hide(true)
-        _reload(this, state === 10 ? $L('审批已同意') : $L('审批已驳回'))
+        _reload(this, state === 10 ? $L('审批已同意') : rejectNode ? $L('审批已退回') : $L('审批已驳回'))
         typeof this.props.call === 'function' && this.props.call()
       }
     })
