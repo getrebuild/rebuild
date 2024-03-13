@@ -1863,7 +1863,7 @@ class RecordMerger extends RbModalHandler {
                       if (idx === 0) return null
                       return (
                         <th key={idx} data-id={item[0]} onClick={() => this.setState({ keepMain: item[0] })}>
-                          <a href={`${rb.baseUrl}/app/redirect?id=${item[0]}&type=newtab`} target="_blank" title={$L('打开')}>
+                          <a href={`${rb.baseUrl}/app/redirect?id=${item[0]}&type=newtab`} target="_blank" title={$L('打开')} onClick={(e) => $stopEvent(e)}>
                             <b className="fs-12">{item[1]}</b>
                             <i className="icon zmdi zmdi zmdi-open-in-new ml-1" />
                           </a>
@@ -1876,6 +1876,7 @@ class RecordMerger extends RbModalHandler {
               <tbody ref={(c) => (this._$tbody = c)}>
                 {datas.map((item, idx) => {
                   if (idx === 0) return null
+                  if ($isSysMask(item[0][1])) return null
 
                   let chk
                   const data4field = []
