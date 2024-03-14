@@ -70,8 +70,8 @@ const AdvFilters = {
       const $menu = $('.adv-search .dropdown-menu')
       $(res.data).each(function () {
         const item = this
-        const $item = $(`<div class="dropdown-item J_custom" data-id="${item.id}"><a class="text-truncate">${item.name}</a></div>`).appendTo($menu)
-        $item.on('click', () => that._effectFilter($item, 'aside'))
+        const $item = $(`<div class="dropdown-item J_custom" data-id="${item.id}"><a class="text-truncate"></a></div>`).appendTo($menu)
+        $item.text(item.name).on('click', () => that._effectFilter($item, 'aside'))
 
         if (lastFilter === item.id) $defaultFilter = $item
 

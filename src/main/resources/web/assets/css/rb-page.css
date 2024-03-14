@@ -5558,3 +5558,7 @@ span.icon-append .icon {
   background-color: red;
   animation: blink 1s infinite;
 }
+
+.dropdown-menu.nott .dropdown-item {
+  text-transform: none;
+}
