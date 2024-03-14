@@ -119,7 +119,7 @@ public class FieldAggregation extends TriggerAction {
         List<String> tschain = TRIGGER_CHAIN.get();
         if (tschain == null) {
             tschain = new ArrayList<>();
-            System.out.println("[dev] New trigger-chain : " + this);
+            if (CommonsUtils.DEVLOG) System.out.println("[dev] New trigger-chain : " + this);
         } else {
             String w = String.format("Occured trigger-chain : %s > %s (current)", StringUtils.join(tschain, " > "), chainName);
 
