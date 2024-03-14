@@ -130,7 +130,10 @@ public class UserContextHolder {
     public static void replaceUser(ID user) {
         Assert.notNull(user, "[user] cannot be null");
 
-        ID e = getReplacedUser();
+        // Keep origin
+        ID e = CALLER_PREV.get();
+        if (e == null) e = getUser(Boolean.TRUE);
+
         if (e != null) CALLER_PREV.set(e);
         else CALLER_PREV.remove();
 
