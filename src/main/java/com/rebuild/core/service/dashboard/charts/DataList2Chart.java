@@ -60,15 +60,17 @@ public class DataList2Chart extends ChartData {
         }
 
         int pageSize = config.getJSONObject("option").getIntValue("pageSize");
-        if (pageSize == 0) pageSize = 40;
+        if (pageSize <= 0) pageSize = 40;
+        if (pageSize >= 2000) pageSize = 2000;
 
         JSONObject listConfig = new JSONObject();
         listConfig.put("pageNo", 1);
-        listConfig.put("pageSize", Math.max(pageSize, 1));
+        listConfig.put("pageSize", pageSize);
         listConfig.put("reload", false);
         listConfig.put("statsField", false);
         listConfig.put("entity", entity.getName());
         listConfig.put("fields", fields);
+        listConfig.put("filter", config.getJSONObject("filter"));
         if (sort != null) listConfig.put("sort", sort);
 
         DataListBuilder builder = new DataListBuilderImpl(listConfig, getUser());

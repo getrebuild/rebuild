@@ -145,9 +145,10 @@ public class AdvFilterParser extends SetUser {
             String quickFields = filterExpr.getString("quickFields");
             JSONArray quickItems = buildQuickFilterItems(quickFields, 1);
 
-            // v3.6-b4 值1|值2 UNTEST
+//            // v3.6-b4 值1|值2 UNTEST
+//            // 转义可输入 \|
 //            JSONObject values = filterExpr.getJSONObject("values");
-//            String[] valuesPlus = values.values().iterator().next().toString().split("\\|");
+//            String[] valuesPlus = values.values().iterator().next().toString().split("(?<!\\\\)\\|");
 //            if (valuesPlus.length > 1) {
 //                values.clear();
 //                values.put("1", valuesPlus[0].trim());
@@ -161,7 +162,6 @@ public class AdvFilterParser extends SetUser {
 //            }
 
             filterExpr.put("items", quickItems);
-            System.out.println(filterExpr);
         }
 
         JSONArray items = filterExpr.getJSONArray("items");
@@ -201,7 +201,7 @@ public class AdvFilterParser extends SetUser {
         } else if ("AND".equalsIgnoreCase(equation)) {
             return "( " + StringUtils.join(indexItemSqls.values(), " and ") + " )";
         } else {
-            // 高级表达式 eg. (1 AND 2) or (3 AND 4)
+            // 高级表达式 eg: (1 AND 2) or (3 AND 4)
             String[] tokens = equation.toLowerCase().split(" ");
             List<String> itemSqls = new ArrayList<>();
             for (String token : tokens) {
