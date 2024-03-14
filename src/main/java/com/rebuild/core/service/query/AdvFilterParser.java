@@ -142,8 +142,26 @@ public class AdvFilterParser extends SetUser {
 
         // 自动确定查询项
         if (MODE_QUICK.equalsIgnoreCase(filterExpr.getString("type"))) {
-            JSONArray quickItems = buildQuickFilterItems(filterExpr.getString("quickFields"));
-            this.filterExpr.put("items", quickItems);
+            String quickFields = filterExpr.getString("quickFields");
+            JSONArray quickItems = buildQuickFilterItems(quickFields, 1);
+
+            // v3.6-b4 值1|值2 UNTEST
+//            JSONObject values = filterExpr.getJSONObject("values");
+//            String[] valuesPlus = values.values().iterator().next().toString().split("\\|");
+//            if (valuesPlus.length > 1) {
+//                values.clear();
+//                values.put("1", valuesPlus[0].trim());
+//
+//                for (int i = 2; i <= valuesPlus.length; i++) {
+//                    JSONArray quickItemsPlus = buildQuickFilterItems(quickFields, i);
+//                    values.put(String.valueOf(i), valuesPlus[i - 1].trim());
+//                    quickItems.addAll(quickItemsPlus);
+//                }
+//                filterExpr.put("values", values);
+//            }
+
+            filterExpr.put("items", quickItems);
+            System.out.println(filterExpr);
         }
 
         JSONArray items = filterExpr.getJSONArray("items");
@@ -709,12 +727,12 @@ public class AdvFilterParser extends SetUser {
      * @param quickFields
      * @return
      */
-    private JSONArray buildQuickFilterItems(String quickFields) {
+    private JSONArray buildQuickFilterItems(String quickFields, int valueIndex) {
         Set<String> usesFields = ParseHelper.buildQuickFields(rootEntity, quickFields);
 
         JSONArray items = new JSONArray();
         for (String field : usesFields) {
-            items.add(JSON.parseObject("{ op:'LK', value:'{1}', field:'" + field + "' }"));
+            items.add(JSON.parseObject("{ op:'LK', value:'{" + valueIndex + "}', field:'" + field + "' }"));
         }
         return items;
     }
