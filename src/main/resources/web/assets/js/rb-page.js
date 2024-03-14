@@ -477,7 +477,7 @@ var _showStateMM = function (mm) {
       RbGritter.create(WrapHtml($mm.prop('outerHTML')), {
         timeout: (mm.time + 60) * 1000,
         type: 'danger',
-        icon: 'mdi-server-network',
+        icon: 'mdi-server-off',
         onCancel: function () {
           var expires = moment()
             .add(Math.min(mm.time - 30, 300), 'seconds')

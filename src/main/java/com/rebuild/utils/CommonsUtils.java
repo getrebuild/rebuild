@@ -11,6 +11,7 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.persist4j.engine.NullValue;
 import com.rebuild.core.Application;
+import com.rebuild.core.BootApplication;
 import com.rebuild.core.RebuildException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -41,6 +42,9 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 public class CommonsUtils {
+
+    // 打印开发级别日志
+    public static final boolean DEVLOG = BootApplication.devMode();
 
     // 通用分隔符
     public static final String COMM_SPLITER = "$$$$";

@@ -39,6 +39,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -141,8 +142,26 @@ public class AdvFilterParser extends SetUser {
 
         // 自动确定查询项
         if (MODE_QUICK.equalsIgnoreCase(filterExpr.getString("type"))) {
-            JSONArray quickItems = buildQuickFilterItems(filterExpr.getString("quickFields"));
-            this.filterExpr.put("items", quickItems);
+            String quickFields = filterExpr.getString("quickFields");
+            JSONArray quickItems = buildQuickFilterItems(quickFields, 1);
+
+//            // v3.6-b4 值1|值2 UNTEST
+//            // 转义可输入 \|
+//            JSONObject values = filterExpr.getJSONObject("values");
+//            String[] valuesPlus = values.values().iterator().next().toString().split("(?<!\\\\)\\|");
+//            if (valuesPlus.length > 1) {
+//                values.clear();
+//                values.put("1", valuesPlus[0].trim());
+//
+//                for (int i = 2; i <= valuesPlus.length; i++) {
+//                    JSONArray quickItemsPlus = buildQuickFilterItems(quickFields, i);
+//                    values.put(String.valueOf(i), valuesPlus[i - 1].trim());
+//                    quickItems.addAll(quickItemsPlus);
+//                }
+//                filterExpr.put("values", values);
+//            }
+
+            filterExpr.put("items", quickItems);
         }
 
         JSONArray items = filterExpr.getJSONArray("items");
@@ -167,7 +186,7 @@ public class AdvFilterParser extends SetUser {
                 indexItemSqls.put(index, itemSql.trim());
                 this.includeFields.add(item.getString("field"));
             }
-            if (Application.devMode()) System.out.println("[dev] Parse item : " + item + " >> " + itemSql);
+            if (CommonsUtils.DEVLOG) System.out.println("[dev] Parse item : " + item + " >> " + itemSql);
         }
 
         if (indexItemSqls.isEmpty()) return null;
@@ -182,7 +201,7 @@ public class AdvFilterParser extends SetUser {
         } else if ("AND".equalsIgnoreCase(equation)) {
             return "( " + StringUtils.join(indexItemSqls.values(), " and ") + " )";
         } else {
-            // 高级表达式 eg. (1 AND 2) or (3 AND 4)
+            // 高级表达式 eg: (1 AND 2) or (3 AND 4)
             String[] tokens = equation.toLowerCase().split(" ");
             List<String> itemSqls = new ArrayList<>();
             for (String token : tokens) {
@@ -530,10 +549,15 @@ public class AdvFilterParser extends SetUser {
             }
         } else if (ParseHelper.SFT.equalsIgnoreCase(op)) {
             if (value == null) value = "0";  // No any
-            // In Sql
+            // `in`
             value = String.format(
                     "( select userId from TeamMember where teamId in ('%s') )",
                     StringUtils.join(value.split("\\|"), "', '"));
+        } else if (ParseHelper.REP.equalsIgnoreCase(op)) {
+            // `in`
+            value = MessageFormat.format(
+                    "( select {0} from {1} group by {0} having (count({0}) > {2}) )",
+                    field, rootEntity.getName(), NumberUtils.toInt(value, 1));
         }
 
         if (StringUtils.isBlank(value)) {
@@ -564,7 +588,8 @@ public class AdvFilterParser extends SetUser {
 
         // IN
         if (op.equalsIgnoreCase(ParseHelper.IN) || op.equalsIgnoreCase(ParseHelper.NIN)
-                || op.equalsIgnoreCase(ParseHelper.SFD) || op.equalsIgnoreCase(ParseHelper.SFT)) {
+                || op.equalsIgnoreCase(ParseHelper.SFD) || op.equalsIgnoreCase(ParseHelper.SFT)
+                || op.equalsIgnoreCase(ParseHelper.REP)) {
             sb.append(value);
         } else {
             // LIKE
@@ -702,12 +727,12 @@ public class AdvFilterParser extends SetUser {
      * @param quickFields
      * @return
      */
-    private JSONArray buildQuickFilterItems(String quickFields) {
+    private JSONArray buildQuickFilterItems(String quickFields, int valueIndex) {
         Set<String> usesFields = ParseHelper.buildQuickFields(rootEntity, quickFields);
 
         JSONArray items = new JSONArray();
         for (String field : usesFields) {
-            items.add(JSON.parseObject("{ op:'LK', value:'{1}', field:'" + field + "' }"));
+            items.add(JSON.parseObject("{ op:'LK', value:'{" + valueIndex + "}', field:'" + field + "' }"));
         }
         return items;
     }

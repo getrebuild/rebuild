@@ -9,6 +9,7 @@ package com.rebuild.core.service.trigger;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.service.general.OperatingContext;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ public class TriggerSource {
     protected TriggerSource(OperatingContext origin, TriggerWhen originAction) {
         this.id = TSNO.incrementAndGet() + "-";
         addNext(origin, originAction);
-        System.out.println("[dev] New trigger-source : " + this);
+        if (CommonsUtils.DEVLOG) System.out.println("[dev] New trigger-source : " + this);
 
         // Clear
         if (this.id.length() > 4) TSNO.set(0);

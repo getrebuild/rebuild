@@ -690,7 +690,7 @@ class ApprovalList extends BaseChart {
             const s = APPROVAL_STATES[item[0]]
             if (!s || s[1] <= 0) return null
 
-            const p = ((item[1] * 100) / statsTotal).toFixed(2) + '%'
+            const p = ((item[1] * 100) / statsTotal).toFixed(1) + '%'
             return (
               <div
                 key={s[0]}
@@ -800,6 +800,7 @@ class ApprovalList extends BaseChart {
       // eslint-disable-next-line react/jsx-no-undef
       renderRbcomp(<ApprovalApproveForm id={record} approval={approval} entity={entity} call={close} />, null, function () {
         that.__approvalForms[record] = this
+        that._lastStats = null
       })
     }
   }

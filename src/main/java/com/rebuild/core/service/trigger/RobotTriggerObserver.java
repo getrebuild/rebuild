@@ -16,6 +16,7 @@ import com.rebuild.core.service.trigger.impl.FieldAggregation;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.KnownExceptionConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -167,7 +168,7 @@ public class RobotTriggerObserver extends OperatingObserver {
                     Object res = action.execute(context);
 
                     boolean hasAffected = res instanceof TriggerResult && ((TriggerResult) res).hasAffected();
-                    System.out.println("[dev] " + w + " > " + (res == null ? "N" : res) + (hasAffected ? " < REALLY AFFECTED" : ""));
+                    if (CommonsUtils.DEVLOG) System.out.println("[dev] " + w + " > " + (res == null ? "N" : res) + (hasAffected ? " < REALLY AFFECTED" : ""));
 
                     if (res instanceof TriggerResult) {
                         if (originTriggerSource) {

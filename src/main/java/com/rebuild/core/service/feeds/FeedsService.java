@@ -11,7 +11,6 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
-import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.OperationDeniedException;
 import com.rebuild.core.privileges.UserHelper;
@@ -43,7 +42,7 @@ public class FeedsService extends BaseFeedsService {
     public Record createOrUpdate(Record record) {
         Integer type = record.getInt("type");
         if (type != null && type == FeedsType.ANNOUNCEMENT.getMask()
-                && !UserHelper.isAdmin(UserContextHolder.getUser())) {
+                && !UserHelper.isAdmin(getCurrentUser())) {
             throw new OperationDeniedException(Language.L("仅管理员可发布公告"));
         }
 

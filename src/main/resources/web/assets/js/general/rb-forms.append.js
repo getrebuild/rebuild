@@ -736,17 +736,12 @@ class RepeatedViewer extends RbModalHandler {
           return <td key={`col-${idx}-${i}`}>{o || <span className="text-muted">{$L('无')}</span>}</td>
         })}
         <td className="actions">
-          <button type="button" className="btn btn-light btn-sm w-auto" onClick={() => this.openView(item[0])} title={$L('查看详情')}>
+          <a className="btn btn-light btn-sm w-auto" style={{ lineHeight: '28px' }} title={$L('打开')} href={`${rb.baseUrl}/app/redirect?id=${item[0]}&type=newtab`} target="_blank">
             <i className="zmdi zmdi-open-in-new fs-16 down-2" />
-          </button>
+          </a>
         </td>
       </tr>
     )
-  }
-
-  openView(id) {
-    if (window.RbViewModal) window.RbViewModal.create({ id: id, entity: this.props.entity })
-    else window.open(`${rb.baseUrl}/app/entity/view?id=${id}`)
   }
 }
 
