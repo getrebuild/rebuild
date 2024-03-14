@@ -594,7 +594,7 @@ const RbViewPage = {
 
     renderRbcomp(<RbViewForm entity={entity[0]} id={id} onViewEditable={ep && ep.U} />, 'tab-rbview', function () {
       RbViewPage._RbViewForm = this
-      setTimeout(() => $('.main-content>.row.hide').removeClass('hide'), 100)
+      setTimeout(() => $('.view-body.loading').removeClass('loading'), 100)
     })
 
     $('.J_close').on('click', () => this.hide())
