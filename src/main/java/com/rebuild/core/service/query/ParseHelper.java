@@ -99,6 +99,8 @@ public class ParseHelper {
     public static final String EVW = "EVW";  // 每周几
     public static final String EVM = "EVM";  // 每月几
 
+    public static final String REP = "REP";  // 重复的
+
     // 日期时间
 
     public static final String ZERO_TIME = " 00:00:00";
@@ -165,7 +167,7 @@ public class ParseHelper {
             return "=";
         } else if (SFB.equalsIgnoreCase(token)) {
             return "=";
-        } else if (SFD.equalsIgnoreCase(token) || SFT.equalsIgnoreCase(token)) {
+        } else if (SFD.equalsIgnoreCase(token) || SFT.equalsIgnoreCase(token) || REP.equalsIgnoreCase(token)) {
             return "in";
         } else if (YTA.equalsIgnoreCase(token)) {
             return "=";

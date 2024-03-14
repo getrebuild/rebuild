@@ -39,6 +39,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -530,10 +531,15 @@ public class AdvFilterParser extends SetUser {
             }
         } else if (ParseHelper.SFT.equalsIgnoreCase(op)) {
             if (value == null) value = "0";  // No any
-            // In Sql
+            // `in`
             value = String.format(
                     "( select userId from TeamMember where teamId in ('%s') )",
                     StringUtils.join(value.split("\\|"), "', '"));
+        } else if (ParseHelper.REP.equalsIgnoreCase(op)) {
+            // `in`
+            value = MessageFormat.format(
+                    "( select {0} from {1} group by {0} having (count({0}) > {2}) )",
+                    field, rootEntity.getName(), NumberUtils.toInt(value, 1));
         }
 
         if (StringUtils.isBlank(value)) {
@@ -564,7 +570,8 @@ public class AdvFilterParser extends SetUser {
 
         // IN
         if (op.equalsIgnoreCase(ParseHelper.IN) || op.equalsIgnoreCase(ParseHelper.NIN)
-                || op.equalsIgnoreCase(ParseHelper.SFD) || op.equalsIgnoreCase(ParseHelper.SFT)) {
+                || op.equalsIgnoreCase(ParseHelper.SFD) || op.equalsIgnoreCase(ParseHelper.SFT)
+                || op.equalsIgnoreCase(ParseHelper.REP)) {
             sb.append(value);
         } else {
             // LIKE
