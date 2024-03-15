@@ -18,6 +18,7 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
+import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -129,6 +130,8 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             // User
             request.setAttribute(WebConstants.$USER, Application.getUserStore().getUser(requestUser));
 
+            boolean isSecurityEnhanced = RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced);
+
             if (isHtmlRequest(requestUri, request)) {
                 // Last active
                 Application.getSessionStore().storeLastActive(request);
@@ -146,10 +149,15 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
                 request.setAttribute(ZeroEntry.AllowCustomNav.name(),
                         Application.getPrivilegesManager().allow(requestUser, ZeroEntry.AllowCustomNav));
-            }
 
+                // v3.6-b5
+                if (isSecurityEnhanced) {
+                    CommonsLog.createLog(CommonsLog.TYPE_ACCESS, requestUser, null, requestUri);
+                }
+            }
+            
             // 非增强安全超管可访问
-            if (RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced)) skipCheckSafeUse = false;
+            if (isSecurityEnhanced) skipCheckSafeUse = false;
             else skipCheckSafeUse = UserHelper.isSuperAdmin(requestUser);
 
         } else if (!isIgnoreAuth(requestUri)) {

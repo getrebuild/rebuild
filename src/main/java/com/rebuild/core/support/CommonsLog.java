@@ -31,6 +31,7 @@ public class CommonsLog {
 
     public static final String TYPE_TRIGGER = "TRIGGER";
     public static final String TYPE_EXPORT = "EXPORT";
+    public static final String TYPE_ACCESS = "ACCESS";
 
     /**
      * @param type

@@ -43,7 +43,8 @@ public class TaskExecutors extends DistributedJobLock {
             MAX_TASKS_NUMBER, MAX_TASKS_NUMBER, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(MAX_TASKS_NUMBER * 6));
 
-    private static final Map<String, HeavyTask<?>> TASKS = new ConcurrentHashMap<>();
+    // 异步任务
+    private static final Map<String, HeavyTask<?>> ASYNC_TASKS = new ConcurrentHashMap<>();
 
     // 队列执行
     private static final ExecutorService SINGLE_QUEUE = new ThreadPoolExecutor(
@@ -61,7 +62,7 @@ public class TaskExecutors extends DistributedJobLock {
         String taskid = task.getClass().getSimpleName() + "-" + CodecUtils.randomCode(20);
         task.setUser(execUser);
         EXEC.execute(task);
-        TASKS.put(taskid, task);
+        ASYNC_TASKS.put(taskid, task);
         return taskid;
     }
 
@@ -71,7 +72,7 @@ public class TaskExecutors extends DistributedJobLock {
      * @param taskid
      */
     public static boolean cancel(String taskid) {
-        HeavyTask<?> task = TASKS.get(taskid);
+        HeavyTask<?> task = ASYNC_TASKS.get(taskid);
         if (task == null) {
             log.warn("No task found : {}", taskid);
             return false;
@@ -98,7 +99,7 @@ public class TaskExecutors extends DistributedJobLock {
      * @return
      */
     public static HeavyTask<?> get(String taskid) {
-        return TASKS.get(taskid);
+        return ASYNC_TASKS.get(taskid);
     }
 
     /**
@@ -140,9 +141,9 @@ public class TaskExecutors extends DistributedJobLock {
     public void executeJob() {
         if (!tryLock()) return;
 
-        if (!TASKS.isEmpty()) {
+        if (!ASYNC_TASKS.isEmpty()) {
             int completed = 0;
-            for (Map.Entry<String, HeavyTask<?>> e : TASKS.entrySet()) {
+            for (Map.Entry<String, HeavyTask<?>> e : ASYNC_TASKS.entrySet()) {
                 HeavyTask<?> task = e.getValue();
                 if (task.getCompletedTime() == null || !task.isCompleted()) {
                     continue;
@@ -150,12 +151,12 @@ public class TaskExecutors extends DistributedJobLock {
 
                 long leftTime = (System.currentTimeMillis() - task.getCompletedTime().getTime()) / 1000;
                 if (leftTime > 60 * 120) {
-                    TASKS.remove(e.getKey());
+                    ASYNC_TASKS.remove(e.getKey());
                     log.info("HeavyTask clean-up : {}", e.getKey());
                 }
                 completed++;
             }
-            log.info("{} task(s) in the queue. {} are completed (will clean-up later)", TASKS.size(), completed);
+            log.info("{} task(s) in the queue. {} are completed (will clean-up later)", ASYNC_TASKS.size(), completed);
         }
         
         Queue<Runnable> queue = ((ThreadPoolExecutor) SINGLE_QUEUE).getQueue();
