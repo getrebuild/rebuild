@@ -439,7 +439,8 @@ var _showNotification = function (state) {
   if (_Notification) {
     if (_Notification.permission === 'granted') {
       var n = new _Notification($L('你有 %d 条未读消息', state), {
-        icon: rb.baseUrl + '/assets/img/favicon.png',
+        body: window.rb.appName,
+        icon: rb.baseUrl + '/assets/img/icon-192x192.png',
         tag: 'rbNotification',
         renotify: true,
         silent: false,
