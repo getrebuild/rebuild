@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.util.support.QueryHelper;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -23,6 +24,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.integration.QiniuCloud;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 
@@ -37,6 +39,7 @@ public class DatabaseFixer {
 
     private static final String KEY_41 = "DataMigratorV41";
     private static final String KEY_346 = "DatabaseFixerV346";
+    private static final String KEY_370 = "DatabaseFixerV370";
 
     /**
      * 辅助数据库升级
@@ -66,6 +69,19 @@ public class DatabaseFixer {
                     log.info("Database fixed `V346` all succeeded");
                 } catch (Exception ex) {
                     log.error("Database fixing `V346` failed : {}", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+                }
+            });
+        }
+
+        if (dbVer <= 55 && !BooleanUtils.toBoolean(KVStorage.getCustomValue(KEY_370))) {
+            log.info("Database fixing `V370` ...");
+            ThreadPool.exec(() -> {
+                try {
+                    fixV370();
+                    KVStorage.setCustomValue(KEY_370, "true");
+                    log.info("Database fixed `V370` all succeeded");
+                } catch (Exception ex) {
+                    log.error("Database fixing `V370` failed : {}", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
                 }
             });
         }
@@ -128,6 +144,18 @@ public class DatabaseFixer {
             if (count > 0) {
                 log.info("Database fixed `V346` : {} > {}", entity.getName(), count);
             }
+        }
+    }
+
+    // V370:补充附件文件名称
+    private static void fixV370() {
+        Object[][] atts = QueryHelper.readArray(
+                Application.createQueryNoFilter("select attachmentId,filePath from Attachment"));
+        for (Object[] o : atts) {
+            String fileName = QiniuCloud.parseFileName((String) o[1]);
+            Record record = EntityHelper.forUpdate((ID) o[0], UserService.SYSTEM_USER, false);
+            record.setString("fileName", fileName);
+            Application.getCommonsService().update(record, false);
         }
     }
 }

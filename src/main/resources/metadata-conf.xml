@@ -228,10 +228,11 @@
         <field name="filePath" type="string" max-length="191" nullable="false" description="文件路径"/>
         <field name="fileType" type="string" max-length="20" description="文件类型"/>
         <field name="fileSize" type="int" default-value="0" description="文件大小"/>
+        <field name="fileName" type="string" max-length="100" description="文件名称"/>
         <field name="inFolder" type="reference" ref-entity="AttachmentFolder" description="所在目录"/>
         <field name="isDeleted" type="bool" default-value="F" description="是否删除"/>
-        <index field-list="belongEntity,belongField,filePath,isDeleted"/>
-        <index field-list="inFolder,createdOn,filePath"/>
+        <index field-list="belongEntity,belongField,fileName,isDeleted"/>
+        <index field-list="inFolder,createdOn,fileName"/>
         <index field-list="relatedRecord"/>
     </entity>
 
