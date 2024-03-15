@@ -24,8 +24,16 @@ body {
   display: none;
 }
 
-.view-body.loading .view-header > .header-icon::before {
-  animation: flash 2s infinite;
+@keyframes spinAnimation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.view-body.loading .view-header .zmdi-refresh {
+  animation: spinAnimation 1s infinite linear;
 }
 
 .tab-container {
