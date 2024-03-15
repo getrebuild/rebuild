@@ -155,7 +155,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                     CommonsLog.createLog(CommonsLog.TYPE_ACCESS, requestUser, null, requestUri);
                 }
             }
-            
+
             // 非增强安全超管可访问
             if (isSecurityEnhanced) skipCheckSafeUse = false;
             else skipCheckSafeUse = UserHelper.isSuperAdmin(requestUser);
