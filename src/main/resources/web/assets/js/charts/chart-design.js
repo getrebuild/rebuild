@@ -405,7 +405,7 @@ const render_preview = (_color) => {
         return
       }
 
-      if (conf.type !== 'CNMAP') {
+      if (!(conf.type === 'CNMAP' || conf.type === 'DATALIST2')) {
         if ($('.J_axis-dim span[data-type="map"]')[0]) {
           render_preview_error($L('位置字段仅适用于“地图”图表'))
           return
