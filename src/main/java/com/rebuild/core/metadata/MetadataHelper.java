@@ -417,7 +417,6 @@ public class MetadataHelper {
 
     /**
      * 实体分类标签
-     * TODO 性能
      *
      * @return
      */

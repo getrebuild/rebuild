@@ -45,8 +45,7 @@ import java.nio.charset.StandardCharsets;
 public class BootConfiguration implements InstallState {
 
     /**
-     * Fake instance
-     * FIXME 直接 `==` 比较不安全 ???
+     * ghost instance
      */
     public static final JedisPool USE_EHCACHE = new JedisPool(
             KnownJedisPool.DEFAULT_CONFIG, "127.0.0.1", 6379);

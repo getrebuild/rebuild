@@ -85,10 +85,8 @@ public class DepartmentService extends BaseService {
     }
 
     /**
-     * TODO 删除后转移成员到其他部门
-     *
      * @param deptId
-     * @param transferTo
+     * @param transferTo 删除后转移成员到其他部门
      */
     public void deleteAndTransfer(ID deptId, ID transferTo) {
         if (ROOT_DEPT.equals(deptId)) {

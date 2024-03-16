@@ -110,8 +110,6 @@ public class TextFunction extends AbstractFunction {
             log.warn("Invalid value with type : {}", $id);
         }
 
-        // TODO 更多字段类型支持
-
         return arg2;
     }
 

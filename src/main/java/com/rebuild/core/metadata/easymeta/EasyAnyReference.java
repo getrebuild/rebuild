@@ -16,7 +16,7 @@ import com.rebuild.core.support.general.FieldValueHelper;
 import org.springframework.util.Assert;
 
 /**
- * TODO 暂不开放。开放应注意触发器/记录转换等处的填值
+ * 暂不开放（开放应注意触发器/记录转换等处的填值）
  *
  * @author devezhao
  * @since 2020/11/17

@@ -112,9 +112,7 @@ public class FeedsListController extends BaseController {
         if (pageNo == 1) {
             count = (Long) Application.createQueryNoFilter(
                     "select count(feedsId) from Feeds where " + sqlWhere).unique()[0];
-            if (count == 0) {
-                return RespBody.ok();
-            }
+            if (count == 0) return RespBody.ok();
         }
 
         String sql = ITEM_SQL + sqlWhere;

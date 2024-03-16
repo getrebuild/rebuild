@@ -66,10 +66,8 @@ public class RoleService extends BaseService implements AdminGuard {
     }
 
     /**
-     * TODO 删除后转移成员到其他角色
-     *
      * @param roleId
-     * @param transferTo
+     * @param transferTo 删除后转移成员到其他角色
      */
     public void deleteAndTransfer(ID roleId, ID transferTo) {
         if (roleId.equals(ADMIN_ROLE)) {
