@@ -196,7 +196,7 @@ $(document).ready(() => {
   }
 
   if (!wpc.chartId) {
-    $(`<h4 class="chart-undata must-center">${$L('当前图表无数据')}</h4>`).appendTo('#chart-preview')
+    render_preview_error($L('当前图表无数据'))
     typeof window.startTour === 'function' && window.startTour(500)
   }
 
@@ -372,7 +372,7 @@ const render_option = () => {
 
   // Sort
   const $sorts = $('.axis-editor .J_sort').removeClass('disabled')
-  if (ct === 'INDEX') {
+  if (['INDEX', 'CNMAP'].includes(ct)) {
     $sorts.addClass('disabled')
   } else if (ct === 'FUNNEL') {
     if (numsAxis >= 1 && dimsAxis >= 1) $('.J_numerical .J_sort').addClass('disabled')
@@ -385,11 +385,11 @@ const render_option = () => {
 // 生成预览
 let render_preview_chart = null
 const render_preview = (_color) => {
-  const $fs = $('a.J_filter > span:eq(1)')
+  const $filterLen = $('a.J_filter > span:eq(1)')
   if (dataFilter && (dataFilter.items || []).length > 0) {
-    $fs.text(`(${dataFilter.items.length})`)
+    $filterLen.text(`(${dataFilter.items.length})`)
   } else {
-    $fs.text('')
+    $filterLen.text('')
   }
 
   $setTimeout(
@@ -399,27 +399,38 @@ const render_preview = (_color) => {
         render_preview_chart = null
       }
 
-      const cfg = build_config()
-      if (!cfg) {
-        $('#chart-preview').html(`<h4 class="chart-undata must-center">${$L('当前图表无数据')}</h4>`)
+      const conf = build_config()
+      if (!conf) {
+        render_preview_error($L('当前图表无数据'))
         return
       }
-      if (cfg.option.useColor === '' && _color) cfg.option.useColor = _color
+
+      if (conf.type !== 'CNMAP') {
+        if ($('.J_axis-dim span[data-type="map"]')[0]) {
+          render_preview_error($L('位置字段仅适用于“地图”图表'))
+          return
+        }
+      }
+
+      if (conf.option.useColor === '' && _color) conf.option.useColor = _color
 
       $('#chart-preview').empty()
       // eslint-disable-next-line no-undef
-      const c = detectChart(cfg)
+      const c = detectChart(conf)
       if (c) {
         renderRbcomp(c, 'chart-preview', function () {
           render_preview_chart = this
         })
       } else {
-        $('#chart-preview').html(`<h4 class="chart-undata must-center">${$L('不支持的图表类型')}</h4>`)
+        render_preview_error($L('不支持的图表类型'))
       }
     },
     400,
     'chart-preview'
   )
+}
+const render_preview_error = (err) => {
+  $('#chart-preview').html(`<h4 class="chart-undata must-center">${err}</h4>`)
 }
 
 // 构造配置
