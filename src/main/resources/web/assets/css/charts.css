@@ -192,6 +192,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart.ctable .table.line-number thead th:first-child,
 .chart.ctable .table.line-number tbody th:first-child {
   width: 50px;
+  color: #888;
 }
 
 .chart.ctable .table.sums tbody tr:last-child td {

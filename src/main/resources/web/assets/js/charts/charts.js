@@ -1340,8 +1340,10 @@ class ChartCNMap extends BaseChart {
       const data4map = []
       data.data.forEach((item) => {
         let lnglat = item[1].split(',')
-        data4map.push([lnglat[0], lnglat[1], item[2], item[0]])
+        data4map.push([lnglat[0], lnglat[1], item[2] || null, item[0]])
       })
+
+      const hasNumAxis = data.name ? true : false
 
       // https://github.com/apache/echarts/tree/master/extension-src/bmap
       const option = {
@@ -1359,16 +1361,20 @@ class ChartCNMap extends BaseChart {
         },
         series: [
           {
-            type: 'scatter',
+            type: hasNumAxis ? 'effectScatter' : 'scatter',
             coordinateSystem: 'bmap',
             symbol: data.name ? 'circle' : 'pin',
             symbolSize: function (v) {
               console.log(v)
-              return data.name ? 14 : 18
+              return hasNumAxis ? 14 : 18
             },
             data: data4map,
             encode: {
               value: 2,
+            },
+            showEffectOn: 'emphasis',
+            rippleEffect: {
+              brushType: 'stroke',
             },
           },
         ],
