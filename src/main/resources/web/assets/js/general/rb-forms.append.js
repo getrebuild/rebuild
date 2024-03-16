@@ -310,6 +310,7 @@ class BaiduMap extends React.Component {
       const map = new _BMapGL.Map(that._mapid)
       map.addControl(new _BMapGL.ZoomControl())
       map.addControl(new _BMapGL.ScaleControl())
+      // map.addControl(new _BMapGL.LocationControl())
       // 滚动缩放
       if (that.props.disableScrollWheelZoom !== true) map.enableScrollWheelZoom()
 
