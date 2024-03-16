@@ -1192,7 +1192,7 @@ class DataList extends BaseChart {
       const $op = $(this._$box).find('.chart-oper')
       $op.find('.J_chart-edit').on('click', (e) => {
         $stopEvent(e, true)
-        RbHighbar.create('Deprecated')
+        RbHighbar.create('DEPRECATED')
       })
     }
   }
