@@ -322,6 +322,11 @@ a.ui-draggable.ui-draggable-dragging {
   content: 'N';
 }
 
+.data-info .fields li.map a::before {
+  content: 'M';
+  color: #fbbc05;
+}
+
 .chart-type > a {
   display: inline-block;
   width: 40px;

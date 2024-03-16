@@ -1009,13 +1009,14 @@ var _getLang = function (key) {
  * https://lbsyun.baidu.com/index.php?title=jspopularGL/guide/helloworld
  */
 var $useMap__Loaded
-var $useMap = function (onLoad) {
-  if ($useMap__Loaded === 2 && window.BMapGL) {
-    typeof onLoad === 'function' && onLoad()
+var $useMap = function (cb, v3) {
+  var _BMap = v3 ? window.BMap : window.BMapGL
+  if ($useMap__Loaded === 2 && _BMap) {
+    typeof cb === 'function' && cb()
   } else if ($useMap__Loaded === 1) {
     var _timer = setInterval(function () {
-      if ($useMap__Loaded === 2 && window.BMapGL) {
-        typeof onLoad === 'function' && onLoad()
+      if ($useMap__Loaded === 2 && _BMap) {
+        typeof cb === 'function' && cb()
         clearInterval(_timer)
       }
     }, 500)
@@ -1023,10 +1024,12 @@ var $useMap = function (onLoad) {
     $useMap__Loaded = 1
     window['$useMap__callback'] = function () {
       $useMap__Loaded = 2
-      typeof onLoad === 'function' && onLoad()
+      typeof cb === 'function' && cb()
     }
 
-    $getScript('https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'YQKHNmIcOgYccKepCkxetRDy8oTC28nD') + '&callback=$useMap__callback')
+    let apiUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'YQKHNmIcOgYccKepCkxetRDy8oTC28nD') + '&callback=$useMap__callback'
+    if (v3) apiUrl = apiUrl.replace('v=1.0&type=webgl&', 'v=3.0&')
+    $getScript(apiUrl)
   }
 }
 

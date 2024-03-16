@@ -19,14 +19,14 @@ class BaseChart extends React.Component {
     const opActions = (
       <div className="chart-oper">
         {!this.props.builtin && (
-          <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`} target="_blank">
+          <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`} target="_blank" className="J_source">
             <i className="zmdi zmdi-rss" />
           </a>
         )}
         <a title={$L('刷新')} onClick={() => this.loadChartData()}>
           <i className="zmdi zmdi-refresh" />
         </a>
-        <a className="d-none d-md-inline-block" title={$L('全屏')} onClick={() => this.toggleFullscreen()}>
+        <a className="d-none d-md-inline-block J_fullscreen" title={$L('全屏')} onClick={() => this.toggleFullscreen()}>
           <i className={`zmdi zmdi-${this.state.fullscreen ? 'fullscreen-exit' : 'fullscreen'}`} />
         </a>
 
@@ -44,7 +44,7 @@ class BaseChart extends React.Component {
               {$L('移除')}
             </a>
           )}
-          <a className="dropdown-item" onClick={() => this.export()}>
+          <a className="dropdown-item J_export" onClick={() => this.export()}>
             {$L('导出')} <sup className="rbv" />
           </a>
         </div>
@@ -95,8 +95,9 @@ class BaseChart extends React.Component {
   toggleFullscreen(forceFullscreen) {
     const use = forceFullscreen === true ? true : !this.state.fullscreen
     this.setState({ fullscreen: use }, () => {
-      const $box = $(this._$box).parents('.grid-stack-item')
       const $stack = $('.chart-grid>.grid-stack')
+      if (!$stack[0]) return
+      const $box = $(this._$box).parents('.grid-stack-item')
 
       if (this.state.fullscreen) {
         BaseChart.currentFullscreen = this
@@ -223,13 +224,6 @@ class ChartIndex extends BaseChart {
     const ch = $(this._$chart).height()
     const zoom = ch > 100 ? (ch > 330 ? 2 : 1.3) : 1
     $(this._$chart).find('strong').css('zoom', zoom)
-
-    // const $text = $(this._$chart).find('strong')
-    // zoom = $(this._$chart).width() / $text.width()
-    // console.log(this.props.id, zoom)
-    // if (zoom < 1 || ch < 120) zoom = 1
-    // if (zoom > 2 && ch < 200) zoom = 2
-    // $text.css('zoom', Math.min(zoom, 3))
   }
 }
 
@@ -441,7 +435,7 @@ class ChartLine extends BaseChart {
       }
 
       const option = {
-        ...ECHART_BASE,
+        ...cloneOption(ECHART_BASE),
         xAxis: {
           type: 'category',
           data: data.xAxis,
@@ -499,7 +493,7 @@ class ChartBar extends BaseChart {
       }
 
       const option = {
-        ...ECHART_BASE,
+        ...cloneOption(ECHART_BASE),
         xAxis: {
           type: 'category',
           data: data.xAxis,
@@ -1189,7 +1183,7 @@ class ProjectTasks extends BaseChart {
   }
 }
 
-// ~~ 通用数据列表
+// ~~ 数据列表
 class DataList extends BaseChart {
   componentDidMount() {
     super.componentDidMount()
@@ -1198,22 +1192,7 @@ class DataList extends BaseChart {
       const $op = $(this._$box).find('.chart-oper')
       $op.find('.J_chart-edit').on('click', (e) => {
         $stopEvent(e, true)
-
-        const config2 = this.state.config
-        renderRbcomp(
-          <DataListSettings
-            chart={config2.chart}
-            {...config2.extconfig}
-            onConfirm={(s) => {
-              if (typeof window.save_dashboard === 'function') {
-                config2.extconfig = s
-                this.setState({ config: config2 }, () => this.loadChartData())
-              } else {
-                console.log('No `save_dashboard` found :', s)
-              }
-            }}
-          />
-        )
+        RbHighbar.create('DEPRECATED')
       })
     }
   }
@@ -1348,268 +1327,95 @@ class DataList extends BaseChart {
   }
 }
 
-// ~~ 数据列表配置
-class DataListSettings extends RbModalHandler {
-  render() {
-    const state = this.state || {}
-    const filterLen = state.filterData ? (state.filterData.items || []).length : 0
-
-    return (
-      <RbModal title={$L('编辑数据列表')} disposeOnHide ref={(c) => (this._dlg = c)}>
-        <div className="form">
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('图表数据来源')}</label>
-            <div className="col-sm-7">
-              <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)}>
-                {(state.entities || []).map((item) => {
-                  return (
-                    <option key={item.name} value={item.name}>
-                      {item.entityLabel}
-                    </option>
-                  )
-                })}
-              </select>
-            </div>
-          </div>
-          <div className="form-group row pb-0 DataList-showfields">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示字段')}</label>
-            <div className="col-sm-7">
-              <div className="sortable-box rb-scroller h200" ref={(c) => (this._$showfields = c)}>
-                <ol className="dd-list" _title={$L('无')}></ol>
-              </div>
-              <div>
-                <select className="form-control form-control-sm" ref={(c) => (this._$afields = c)}>
-                  <option value=""></option>
-                  {(state.afields || []).map((item) => {
-                    return (
-                      <option key={item.field} value={item.field}>
-                        {item.label}
-                      </option>
-                    )
-                  })}
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className="form-group row pb-1">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('附加过滤条件')}</label>
-            <div className="col-sm-7">
-              <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={() => this._showFilter()}>
-                {filterLen > 0 ? $L('已设置条件') + ` (${filterLen})` : $L('点击设置')}
-              </a>
-            </div>
-          </div>
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('最大显示条数')}</label>
-            <div className="col-sm-7">
-              <input type="number" className="form-control form-control-sm" placeholder="20" ref={(c) => (this._$pageSize = c)} />
-            </div>
-          </div>
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('图表名称')}</label>
-            <div className="col-sm-7">
-              <input type="text" className="form-control form-control-sm" placeholder={$L('数据列表')} ref={(c) => (this._$chartTitle = c)} />
-            </div>
-          </div>
-          {rb.isAdminUser && (
-            <div className="form-group row pb-2 pt-1">
-              <label className="col-sm-3 col-form-label text-sm-right"></label>
-              <div className="col-sm-7">
-                <label className="custom-control custom-control-sm custom-checkbox mb-0">
-                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$shareChart = c)} />
-                  <span className="custom-control-label">
-                    {$L('共享此图表')}
-                    <i className="zmdi zmdi-help zicon" title={$L('共享后其他用户也可以使用 (不能修改)')} />
-                  </span>
-                </label>
-              </div>
-            </div>
-          )}
-
-          <div className="form-group row footer">
-            <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
-              <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
-                {$L('保存')}
-              </button>
-              <a className="btn btn-link" onClick={this.hide}>
-                {$L('取消')}
-              </a>
-            </div>
-          </div>
-        </div>
-      </RbModal>
-    )
-  }
-
-  componentDidMount() {
-    let $showfields = $(this._$showfields).perfectScrollbar()
-    $showfields = $showfields
-      .find('ol')
-      .sortable({
-        placeholder: 'dd-placeholder',
-        handle: '.dd3-handle',
-        axis: 'y',
-      })
-      .disableSelection()
-
-    const that = this
-    const props = this.props
-
-    let $afields2
-    function _loadFields() {
-      if (!that._entity) {
-        $(that._$afields).select2({
-          placeholder: $L('无可用字段'),
-        })
-        return
-      }
-
-      $.get(`/app/${that._entity}/list-fields`, (res) => {
-        // clear last
-        if ($afields2) {
-          $(that._$afields).select2('destroy')
-          $showfields.empty()
-          that.setState({ filterData: null })
-        }
-
-        that._afields = (res.data || {}).fieldList || []
-        that.setState({ afields: that._afields }, () => {
-          $afields2 = $(that._$afields)
-            .select2({
-              placeholder: $L('添加显示字段'),
-              allowClear: false,
-            })
-            .val('')
-            .on('change', (e) => {
-              let name = e.target.value
-              $showfields.find('li').each(function () {
-                if ($(this).data('key') === name) {
-                  name = null
-                }
-              })
-
-              const x = name ? that._afields.find((x) => x.field === name) : null
-              if (!x) return
-
-              const $item = $(
-                `<li class="dd-item dd3-item" data-key="${x.field}"><div class="dd-handle dd3-handle"></div><div class="dd3-content">${x.label}</div><div class="dd3-action"></div></li>`
-              ).appendTo($showfields)
-
-              // eslint-disable-next-line no-undef
-              if (!COLUMN_UNSORT.includes(x.type)) {
-                $(`<a title="${$L('默认排序')}"><i class="zmdi mdi mdi-sort-alphabetical-ascending sort"></i></a>`)
-                  .appendTo($item.find('.dd3-action'))
-                  .on('click', () => {
-                    const hasActive = $item.hasClass('active')
-                    $showfields.find('.dd-item').removeClass('active')
-                    $item.addClass('active')
-                    if (hasActive) $item.find('.sort').toggleClass('desc')
-                  })
-
-                // init
-                if (props.entity === that._entity && props.sort) {
-                  const s = props.sort.split(':')
-                  if (s[0] === name) {
-                    $item.addClass('active')
-                    if (s[1] === 'desc') $item.find('.sort').toggleClass('desc')
-                  }
-                }
-              }
-
-              $(`<a title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a>`)
-                .appendTo($item.find('.dd3-action'))
-                .on('click', () => $item.remove())
-            })
-
-          // init
-          if (props.entity === that._entity && props.fields) {
-            props.fields.forEach((name) => {
-              $afields2.val(name).trigger('change')
-            })
-            $afields2.val('').trigger('change')
-          }
-        })
-      })
+// 地图（点）
+class ChartCNMap extends BaseChart {
+  renderChart(data) {
+    if (data.data.length === 0) {
+      this.renderError($L('暂无数据'))
+      return
     }
 
-    $.get('/commons/metadata/entities?detail=yes', (res) => {
-      this.setState({ entities: res.data || [] }, () => {
-        const $s = $(this._$entity).select2({
-          allowClear: false,
-        })
-
-        if (props.entity && props.entity !== 'User') $s.val(props.entity || null)
-        $s.on('change', (e) => {
-          this._entity = e.target.value
-          _loadFields()
-        }).trigger('change')
+    const elid = `echarts-cnmap-${this.state.id || 'id'}`
+    this.setState({ chartdata: <div className="chart cnmap" id={elid} /> }, () => {
+      const data4map = []
+      data.data.forEach((item) => {
+        let lnglat = item[1].split(',')
+        data4map.push([lnglat[0], lnglat[1], item[2] || null, item[0]])
       })
-    })
 
-    // init
-    $(this._$pageSize).val(props.pageSize || null)
-    $(this._$chartTitle).val(props.title || null)
-    if (props.filter) this.setState({ filterData: props.filter })
-    if ((props.option || {}).shareChart) $(this._$shareChart).attr('checked', true)
-  }
+      const hasNumAxis = data.name ? true : false
 
-  _showFilter() {
-    renderRbcomp(
-      <AdvFilter
-        entity={this._entity}
-        filter={this.state.filterData || null}
-        title={$L('附加过滤条件')}
-        inModal
-        canNoFilters
-        onConfirm={(s) => {
-          this.setState({ filterData: s })
-        }}
-      />
-    )
-  }
+      // https://github.com/apache/echarts/tree/master/extension-src/bmap
+      const option = {
+        ...cloneOption(ECHART_BASE),
+        bmap: {
+          // center: [120.13066322374, 30.240018034923],
+          zoom: 5,
+          roam: true,
+          mapOptions: {
+            enableMapClick: false,
+          },
+          mapStyle: {
+            styleJson: MAP_STYLE2,
+          },
+        },
+        series: [
+          {
+            type: hasNumAxis ? 'effectScatter' : 'scatter',
+            coordinateSystem: 'bmap',
+            symbol: data.name ? 'circle' : 'pin',
+            symbolSize: function (v) {
+              console.log(v)
+              return hasNumAxis ? 14 : 18
+            },
+            data: data4map,
+            encode: {
+              value: 2,
+            },
+            showEffectOn: 'emphasis',
+            rippleEffect: {
+              brushType: 'stroke',
+            },
+          },
+        ],
+      }
 
-  handleConfirm() {
-    const fields = []
-    let sort = null
-    $(this._$showfields)
-      .find('li')
-      .each(function () {
-        const $this = $(this)
-        fields.push($this.data('key'))
-
-        if ($this.hasClass('active')) {
-          sort = $this.data('key') + `:${$this.find('.desc')[0] ? 'desc' : 'asc'}`
+      option.color = ['#ea4335', '#4285f4']
+      option.tooltip.trigger = 'item'
+      option.tooltip.formatter = function (a) {
+        if (data.name) {
+          return `<b>${a.data[3]}</b> <br/> ${a.marker} ${data.name} : ${formatThousands(a.data[2])}`
+        } else {
+          return `${a.data[3]}`
         }
-      })
+      }
 
-    const post = {
-      type: 'DataList',
-      entity: $(this._$entity).val(),
-      title: $(this._$chartTitle).val() || $L('数据列表'),
-      option: {
-        shareChart: $val(this._$shareChart) && rb.isAdminUser,
+      $useMap(() => {
+        // https://github.com/apache/echarts/tree/master/extension-src/bmap
+        $getScript('/assets/lib/charts/bmap.min.js', () => {
+          this.resize2()
+          this._echarts = renderEChart(option, elid)
+        })
+      }, true)
+    })
+  }
+
+  resize() {
+    $setTimeout(
+      () => {
+        this.resize2()
+        this._echarts && this._echarts.resize()
       },
-      fields: fields,
-      pageSize: $(this._$pageSize).val(),
-      filter: this.state.filterData || null,
-      sort: sort,
-    }
+      400,
+      `resize-chart-${this.state.id}`
+    )
+  }
 
-    if (!post.entity) return RbHighbar.create($L('请选择图表数据来源'))
-    if (post.fields.length === 0) return RbHighbar.create($L('请添加显示字段'))
-    if (post.pageSize && post.pageSize > 500) post.pageSize = 500
-
-    const $btn = $(this._$btn).find('.btn').button('loading')
-    $.post(`/dashboard/builtin-chart-save?id=${this.props.chart}`, JSON.stringify(post), (res) => {
-      $btn.button('reset')
-      if (res.error_code === 0) {
-        typeof this.props.onConfirm === 'function' && this.props.onConfirm(post)
-        this.hide()
-      } else {
-        RbHighbar.error(res.error_msg)
-      }
-    })
+  resize2() {
+    const height = $(this._$box).height()
+    $(this._$box)
+      .find('.chart-body')
+      .height(height - 40)
   }
 }
 
@@ -1646,6 +1452,8 @@ const detectChart = function (cfg, id) {
     return <ProjectTasks {...props} builtin={true} />
   } else if (cfg.type === 'DataList' || cfg.type === 'DATALIST2') {
     return <DataList {...props} builtin={false} />
+  } else if (cfg.type === 'CNMAP') {
+    return <ChartCNMap {...props} />
   } else {
     return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${cfg.type}]`}</h4>
   }
@@ -1768,3 +1576,248 @@ class ChartSelect extends RbModalHandler {
     this.setState({ tabActive: h }, () => this._loadCharts())
   }
 }
+
+const MAP_STYLE1 = [
+  {
+    featureType: 'water',
+    elementType: 'all',
+    stylers: {
+      color: '#d1d1d1',
+    },
+  },
+  {
+    featureType: 'land',
+    elementType: 'all',
+    stylers: {
+      color: '#f3f3f3',
+    },
+  },
+  {
+    featureType: 'railway',
+    elementType: 'all',
+    stylers: {
+      visibility: 'off',
+    },
+  },
+  {
+    featureType: 'highway',
+    elementType: 'all',
+    stylers: {
+      color: '#fdfdfd',
+    },
+  },
+  {
+    featureType: 'highway',
+    elementType: 'labels',
+    stylers: {
+      visibility: 'off',
+    },
+  },
+  {
+    featureType: 'arterial',
+    elementType: 'geometry',
+    stylers: {
+      color: '#fefefe',
+    },
+  },
+  {
+    featureType: 'arterial',
+    elementType: 'geometry.fill',
+    stylers: {
+      color: '#fefefe',
+    },
+  },
+  {
+    featureType: 'poi',
+    elementType: 'all',
+    stylers: {
+      visibility: 'off',
+    },
+  },
+  {
+    featureType: 'green',
+    elementType: 'all',
+    stylers: {
+      visibility: 'off',
+    },
+  },
+  {
+    featureType: 'subway',
+    elementType: 'all',
+    stylers: {
+      visibility: 'off',
+    },
+  },
+  {
+    featureType: 'manmade',
+    elementType: 'all',
+    stylers: {
+      color: '#d1d1d1',
+    },
+  },
+  {
+    featureType: 'local',
+    elementType: 'all',
+    stylers: {
+      color: '#d1d1d1',
+    },
+  },
+  {
+    featureType: 'arterial',
+    elementType: 'labels',
+    stylers: {
+      visibility: 'off',
+    },
+  },
+  {
+    featureType: 'boundary',
+    elementType: 'all',
+    stylers: {
+      color: '#fefefe',
+    },
+  },
+  {
+    featureType: 'building',
+    elementType: 'all',
+    stylers: {
+      color: '#d1d1d1',
+    },
+  },
+  {
+    featureType: 'label',
+    elementType: 'labels.text.fill',
+    stylers: {
+      color: '#999999',
+    },
+  },
+]
+const MAP_STYLE2 = [
+  {
+    featureType: 'water',
+    elementType: 'all',
+    stylers: {
+      color: '#044161',
+    },
+  },
+  {
+    featureType: 'land',
+    elementType: 'all',
+    stylers: {
+      color: '#004981',
+    },
+  },
+  {
+    featureType: 'boundary',
+    elementType: 'geometry',
+    stylers: {
+      color: '#064f85',
+    },
+  },
+  {
+    featureType: 'railway',
+    elementType: 'all',
+    stylers: {
+      visibility: 'off',
+    },
+  },
+  {
+    featureType: 'highway',
+    elementType: 'geometry',
+    stylers: {
+      color: '#004981',
+    },
+  },
+  {
+    featureType: 'highway',
+    elementType: 'geometry.fill',
+    stylers: {
+      color: '#005b96',
+      lightness: 1,
+    },
+  },
+  {
+    featureType: 'highway',
+    elementType: 'labels',
+    stylers: {
+      visibility: 'off',
+    },
+  },
+  {
+    featureType: 'arterial',
+    elementType: 'geometry',
+    stylers: {
+      color: '#004981',
+    },
+  },
+  {
+    featureType: 'arterial',
+    elementType: 'geometry.fill',
+    stylers: {
+      color: '#00508b',
+    },
+  },
+  {
+    featureType: 'poi',
+    elementType: 'all',
+    stylers: {
+      visibility: 'off',
+    },
+  },
+  {
+    featureType: 'green',
+    elementType: 'all',
+    stylers: {
+      color: '#056197',
+      visibility: 'off',
+    },
+  },
+  {
+    featureType: 'subway',
+    elementType: 'all',
+    stylers: {
+      visibility: 'off',
+    },
+  },
+  {
+    featureType: 'manmade',
+    elementType: 'all',
+    stylers: {
+      visibility: 'off',
+    },
+  },
+  {
+    featureType: 'local',
+    elementType: 'all',
+    stylers: {
+      visibility: 'off',
+    },
+  },
+  {
+    featureType: 'arterial',
+    elementType: 'labels',
+    stylers: {
+      visibility: 'off',
+    },
+  },
+  {
+    featureType: 'boundary',
+    elementType: 'geometry.fill',
+    stylers: {
+      color: '#029fd4',
+    },
+  },
+  {
+    featureType: 'building',
+    elementType: 'all',
+    stylers: {
+      color: '#1a5787',
+    },
+  },
+  {
+    featureType: 'label',
+    elementType: 'all',
+    stylers: {
+      visibility: 'off',
+    },
+  },
+]

@@ -133,7 +133,6 @@ public class ChartDesignController extends EntityController {
                     || dt == DisplayType.N2NREFERENCE
                     || dt == DisplayType.TAG
                     || dt == DisplayType.MULTISELECT
-                    || dt == DisplayType.LOCATION
                     || dt == DisplayType.SIGN) {
                 continue;
             }
@@ -147,6 +146,8 @@ public class ChartDesignController extends EntityController {
                 type = "num";
             } else if (dt == DisplayType.CLASSIFICATION) {
                 type = "clazz";
+            }  else if (dt == DisplayType.LOCATION) {
+                type = "map";
             }
 
             dest.add(new String[]{
