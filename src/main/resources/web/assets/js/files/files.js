@@ -144,7 +144,7 @@ class SharedFiles extends RbModalHandler {
                   this.state.data.map((item, idx) => {
                     return (
                       <tr key={idx}>
-                        <td width="26" style={{ paddingBottom: 3 }}>
+                        <td width="36" style={{ paddingBottom: 0, paddingTop: 5 }}>
                           <i className="file-icon" data-type={$fileExtName(item[1])} />
                         </td>
                         <td className="position-relative">

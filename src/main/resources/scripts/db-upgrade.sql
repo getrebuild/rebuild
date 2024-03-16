@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #56 (v3.7)
+alter table `attachment`
+  add column `FILE_NAME` varchar(100) comment '文件名称';
+
 -- #55 (v3.6)
 create table if not exists `feeds_status` (
   `STATUS_ID`          char(20) not null,

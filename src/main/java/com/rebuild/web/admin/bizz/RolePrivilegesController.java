@@ -21,7 +21,12 @@ import com.rebuild.core.privileges.RoleService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -115,9 +120,8 @@ public class RolePrivilegesController extends EntityController {
 
     @PostMapping("role-delete")
     public RespBody roleDelete(@IdParam ID roleId, HttpServletRequest request) {
-        ID transfer = getIdParameter(request, "transfer");  // TODO 转移到新角色
-
-        Application.getBean(RoleService.class).deleteAndTransfer(roleId, transfer);
+        ID transferTo = getIdParameter(request, "transfer");  // TODO 转移到新角色
+        Application.getBean(RoleService.class).deleteAndTransfer(roleId, transferTo);
         return RespBody.ok();
     }
 

@@ -39,9 +39,9 @@ public enum DisplayType {
     BOOL(EasyBool.class, "布尔", FieldType.BOOL, FieldType.NO_NEED_LENGTH, null),
     BARCODE(EasyBarCode.class, "二维码", FieldType.STRING, 300, null, false, true),
     N2NREFERENCE(EasyN2NReference.class, "多引用", FieldType.REFERENCE_LIST, -1, null),
-    LOCATION(EasyLocation.class, "位置", FieldType.STRING, 100, null),
+    LOCATION(EasyLocation.class, "位置", FieldType.STRING, 200, null),
     SIGN(EasySign.class, "签名", FieldType.TEXT, 32767, null, false, true),
-    TAG(EasyTag.class, "标签", FieldType.STRING, 100, null),
+    TAG(EasyTag.class, "标签", FieldType.STRING, 40, null),
 
     // 内部
 
