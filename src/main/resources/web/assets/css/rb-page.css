@@ -3854,13 +3854,25 @@ form {
   display: block;
 }
 
+#asideWidgets .chart-box:hover .chart-oper a.J_source,
 #asideWidgets .chart-box:hover .chart-oper a.J_fullscreen,
-#asideWidgets .chart-box:hover .chart-oper a.J_chart-edit {
+#asideWidgets .chart-box:hover .chart-oper a.J_chart-edit,
+#asideWidgets .chart-box:hover .chart-oper a.J_export {
   display: none !important;
 }
 
 #asideWidgets .charts-wrap > div {
-  margin-bottom: 25px;
+  margin-bottom: 20px;
+}
+
+#asideWidgets .charts-wrap > div.fullscreen {
+  position: fixed;
+  top: 60px !important;
+  left: 230px !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 9999;
+  background-color: #fff;
 }
 
 #asideWidgets .charts-wrap .ui-sortable-helper {

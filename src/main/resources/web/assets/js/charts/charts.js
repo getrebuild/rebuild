@@ -19,14 +19,14 @@ class BaseChart extends React.Component {
     const opActions = (
       <div className="chart-oper">
         {!this.props.builtin && (
-          <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`} target="_blank">
+          <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`} target="_blank" className="J_source">
             <i className="zmdi zmdi-rss" />
           </a>
         )}
         <a title={$L('刷新')} onClick={() => this.loadChartData()}>
           <i className="zmdi zmdi-refresh" />
         </a>
-        <a className="d-none d-md-inline-block" title={$L('全屏')} onClick={() => this.toggleFullscreen()}>
+        <a className="d-none d-md-inline-block J_fullscreen" title={$L('全屏')} onClick={() => this.toggleFullscreen()}>
           <i className={`zmdi zmdi-${this.state.fullscreen ? 'fullscreen-exit' : 'fullscreen'}`} />
         </a>
 
@@ -44,7 +44,7 @@ class BaseChart extends React.Component {
               {$L('移除')}
             </a>
           )}
-          <a className="dropdown-item" onClick={() => this.export()}>
+          <a className="dropdown-item J_export" onClick={() => this.export()}>
             {$L('导出')} <sup className="rbv" />
           </a>
         </div>
@@ -95,8 +95,9 @@ class BaseChart extends React.Component {
   toggleFullscreen(forceFullscreen) {
     const use = forceFullscreen === true ? true : !this.state.fullscreen
     this.setState({ fullscreen: use }, () => {
-      const $box = $(this._$box).parents('.grid-stack-item')
       const $stack = $('.chart-grid>.grid-stack')
+      if (!$stack[0]) return
+      const $box = $(this._$box).parents('.grid-stack-item')
 
       if (this.state.fullscreen) {
         BaseChart.currentFullscreen = this
