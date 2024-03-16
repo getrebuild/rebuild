@@ -186,6 +186,7 @@ body.rebuild-guide-body .rebuild-guide-progress {
   padding: 10px 20px;
   color: #fff;
   position: relative;
+  text-transform: uppercase;
 }
 
 .rebuild-guide .guide .header h5 small {

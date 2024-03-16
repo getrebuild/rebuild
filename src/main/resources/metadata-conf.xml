@@ -304,6 +304,7 @@
         <index field-list="recordId,approvalId,node,isCanceled,isWaiting,isBacked,nodeBatch"/>
     </entity>
 
+    <!--
     <entity name="RobotSopConfig" type-code="070" name-field="name" description="操作流程/业务进度" queryable="false">
         <field name="configId" type="primary"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="应用实体"/>
@@ -311,7 +312,6 @@
         <field name="sopDefinition" type="text" description="流程定义"/>
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
     </entity>
-
     <entity name="RobotSopStep" type-code="071" description="操作流程步骤" queryable="false">
         <field name="stepId" type="primary"/>
         <field name="recordId" type="any-reference" nullable="false" updatable="false" description="业务记录"/>
@@ -323,6 +323,7 @@
         <field name="operationContent" type="text" updatable="false" description="操作内容"/>
         <field name="state" type="small-int" default-value="1" description="状态"/>
     </entity>
+    -->
 
     <entity name="RebuildApi" type-code="030" description="API 密钥" queryable="false">
         <field name="uniqueId" type="primary"/>

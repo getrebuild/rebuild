@@ -489,7 +489,7 @@ create table if not exists `data_report_config` (
   `TEMPLATE_FILE`      varchar(200) comment '模板文件',
   `TEMPLATE_CONTENT`   text(65535) comment '模板内容',
   `TEMPLATE_TYPE`      smallint(6) default '1' comment '模板类型 (1=记录, 2=列表)',
-  `EXTRA_DEFINITION`   text(65535) comment '扩展配置(JSON Map)',
+  `EXTRA_DEFINITION`   text(65535) comment '扩展配置 (JSON Map)',
   `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
@@ -524,7 +524,7 @@ create table if not exists `revision_history` (
   `REVISION_ON`        timestamp not null default current_timestamp comment '操作时间',
   `CHANNEL_WITH`       char(20) comment '变更渠道 (空为直接, 否则为关联)',
   `IP_ADDR`            varchar(100) comment 'IP 地址',
-  `AUTO_ID`            bigint(20) not null auto_increment comment '保证顺序',
+  `AUTO_ID`            bigint(20) not null auto_increment comment '执行顺序',
   primary key  (`REVISION_ID`),
   unique index AIX0_revision_history (`AUTO_ID`),
   index IX1_revision_history (`BELONG_ENTITY`, `REVISION_TYPE`, `REVISION_BY`, `REVISION_ON`),
@@ -596,26 +596,12 @@ create table if not exists `nreference_item` (
   unique index UIX2_nreference_item (`BELONG_FIELD`, `RECORD_ID`, `REFERENCE_ID`)
 )Engine=InnoDB;
 
--- ************ Entity [TagItem] DDL ************
-create table if not exists `tag_item` (
-  `ITEM_ID`            char(20) not null,
-  `BELONG_ENTITY`      varchar(100) not null comment '哪个实体',
-  `BELONG_FIELD`       varchar(100) not null comment '哪个字段',
-  `RECORD_ID`          char(20) not null comment '记录 ID',
-  `TAG_NAME`           varchar(100) not null comment '标签名称',
-  `SEQ`                bigint(20) not null auto_increment comment '前后顺序',
-  primary key  (`ITEM_ID`),
-  unique index AIX0_tag_item (`SEQ`),
-  index IX1_tag_item (`BELONG_ENTITY`),
-  unique index UIX2_tag_item (`BELONG_FIELD`, `RECORD_ID`, `TAG_NAME`)
-)Engine=InnoDB;
-
 -- ************ Entity [Feeds] DDL ************
 create table if not exists `feeds` (
   `FEEDS_ID`           char(20) not null,
   `TYPE`               smallint(6) not null default '1' comment '类型',
   `CONTENT`            text(65535) not null comment '内容',
-  `CONTENT_MORE`       text(65535) comment '扩展内容 (JSON Map)',
+  `CONTENT_MORE`       text(65535) comment '附加内容',
   `IMAGES`             varchar(700) comment '图片',
   `ATTACHMENTS`        varchar(700) comment '附件',
   `RELATED_RECORD`     char(20) comment '相关记录',
@@ -807,12 +793,40 @@ create table if not exists `extform_config` (
   primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
+-- ************ Entity [TagItem] DDL ************
+create table if not exists `tag_item` (
+  `ITEM_ID`            char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '哪个实体',
+  `BELONG_FIELD`       varchar(100) not null comment '哪个字段',
+  `RECORD_ID`          char(20) not null comment '记录 ID',
+  `TAG_NAME`           varchar(100) not null comment '标签名称',
+  `SEQ`                bigint(20) not null auto_increment comment '前后顺序',
+  primary key  (`ITEM_ID`),
+  unique index AIX0_tag_item (`SEQ`),
+  index IX1_tag_item (`BELONG_ENTITY`),
+  unique index UIX2_tag_item (`BELONG_FIELD`, `RECORD_ID`, `TAG_NAME`)
+)Engine=InnoDB;
+
+-- ************ Entity [ShortUrl] DDL ************
+create table if not exists `short_url` (
+  `SHORT_ID`           char(20) not null,
+  `SHORT_KEY`          varchar(40) not null comment '短链ID',
+  `LONG_URL`           varchar(600) not null comment '对应长链/文件',
+  `EXPIRE_TIME`        timestamp null default null comment '到期时间',
+  `CHECK_PASSWD`       timestamp null default null comment '密码',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  primary key  (`SHORT_ID`),
+  index IX0_short_url (`CREATED_BY`, `CREATED_ON`, `EXPIRE_TIME`),
+  index IX1_short_url (`SHORT_KEY`)
+)Engine=InnoDB;
+
 -- ************ Entity [CommonsLock] DDL ************
 create table if not exists `commons_lock` (
   `LOCK_ID`            char(20) not null,
-  `SOURCE`             char(20) not null,
-  `LOCK_USER`          char(20) not null,
-  `LOCK_TIME`          timestamp not null default current_timestamp,
+  `SOURCE`             char(20) not null comment '锁定记录',
+  `LOCK_USER`          char(20) not null comment '锁定人',
+  `LOCK_TIME`          timestamp not null default current_timestamp comment '锁定时间',
   primary key  (`LOCK_ID`),
   index IX0_commons_lock (`LOCK_USER`, `LOCK_TIME`),
   unique index UIX1_commons_lock (`SOURCE`)
@@ -829,20 +843,6 @@ create table if not exists `commons_log` (
   `STATUS`             smallint(6) default '1',
   primary key  (`LOG_ID`),
   index IX0_commons_log (`TYPE`, `LOG_TIME`, `SOURCE`)
-)Engine=InnoDB;
-
--- ************ Entity [ShortUrl] DDL ************
-create table if not exists `short_url` (
-  `SHORT_ID`           char(20) not null,
-  `SHORT_KEY`          varchar(40) not null comment '短链ID',
-  `LONG_URL`           varchar(600) not null comment '对应长链/文件',
-  `EXPIRE_TIME`        timestamp null default null comment '到期时间',
-  `CHECK_PASSWD`       timestamp null default null comment '密码',
-  `CREATED_BY`         char(20) not null comment '创建人',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
-  primary key  (`SHORT_ID`),
-  index IX0_short_url (`CREATED_BY`, `CREATED_ON`, `EXPIRE_TIME`),
-  index IX1_short_url (`SHORT_KEY`)
 )Engine=InnoDB;
 
 -- #3 datas

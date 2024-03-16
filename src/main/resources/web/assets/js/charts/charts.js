@@ -1092,7 +1092,7 @@ class ProjectTasks extends BaseChart {
           <table className="table table-striped table-hover">
             <thead>
               <tr>
-                <th width="40" />
+                <th width="44" />
                 <th>{$L('任务')}</th>
                 <th style={{ minWidth: 150 }}>{$L('时间')}</th>
               </tr>
@@ -1112,7 +1112,7 @@ class ProjectTasks extends BaseChart {
 
                 return (
                   <tr key={item.id} className={`status-${item.status} priority-${item.priority}`}>
-                    <td className="align-text-top">
+                    <td className="align-text-top pr-0">
                       <label className="custom-control custom-control-sm custom-checkbox custom-control-inline ptask" title={$L('完成')}>
                         <input className="custom-control-input" type="checkbox" disabled={item.planFlow === 2} onClick={(e) => this._toggleStatus(item, e)} />
                         <span className="custom-control-label" />
@@ -1128,7 +1128,7 @@ class ProjectTasks extends BaseChart {
                         {item.projectName}
                       </p>
                     </td>
-                    <td className="text-muted">
+                    <td className="text-muted align-text-top">
                       <div>
                         <span className="mr-1">{$L('创建时间')}</span>
                         <DateShow date={item.createdOn} />
