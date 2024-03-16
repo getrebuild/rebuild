@@ -1325,7 +1325,7 @@ class RbList extends React.Component {
 
   _buildQuick(el) {
     el = $(el || '.input-search>input')
-    const q = $.trim(el.val())
+    const q = $trim(el.val())
     if (!q && !this.lastFilter) return null
 
     return {

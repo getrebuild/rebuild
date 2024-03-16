@@ -527,7 +527,8 @@ class RbForm extends React.Component {
             if (child.props.type === 'TAG') {
               // eg. 标签
               iv = iv.join('$$$$')
-            } else if ($.isArray(iv)) {
+            } else if (Array.isArray(iv)) {
+              debugger
               // eg. 文件/图片
             } else {
               // eg. {id:xxx, text:xxx}
@@ -1995,7 +1996,7 @@ class RbFormReference extends RbFormElement {
       }
     }
 
-    if (v && $.isArray(v)) v = v[0] // N2N
+    if (v && Array.isArray(v)) v = v[0] // N2N
     return v ? v.id || v : null
   }
 

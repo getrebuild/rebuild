@@ -485,7 +485,7 @@ class FormulaCalcWithCode extends FormulaCalc {
         <FormulaCode
           initCode={this.props.initCode}
           onConfirm={(code) => {
-            this.props.onConfirm(!$.trim(code) ? null : `{{{{${code}}}}}`)
+            this.props.onConfirm(!$trim(code) ? null : `{{{{${code}}}}}`)
             this.hide()
           }}
           verifyFormula
@@ -555,7 +555,7 @@ class FormulaCalcWithCode extends FormulaCalc {
 
       const $btn = $(`<a class="switch-code-btn" title="${$L('使用高级计算公式')}"><i class="icon mdi mdi-code-tags"></i></a>`)
       $(this._$formula).addClass('switch-code').after($btn)
-      $btn.click(() => this.setState({ useCode: true }))
+      $btn.on('click', () => this.setState({ useCode: true }))
     }
 
     super.componentDidMount()

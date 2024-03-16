@@ -48,7 +48,7 @@
         const $h4 = $('.card-header h4')
         $h4.html($h4.html().replace('%d', Math.max(~~$urlp('d') || 0, 0)))
 
-        const $btn = $('.J_change-btn').click(function () {
+        const $btn = $('.J_change-btn').on('click', function () {
           const newpasswd = $val('#newpasswd')
           const newpasswd2 = $val('#newpasswd2')
           if (!newpasswd) return RbHighbar.create($L('请输入新密码'))

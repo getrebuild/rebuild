@@ -70,7 +70,7 @@ class ConfigList extends React.Component {
     this.loadData()
 
     // 搜索
-    const $btn = $('.input-search .btn').click(() => this.loadData())
+    const $btn = $('.input-search .btn').on('click', () => this.loadData())
     $('.input-search .form-control').keydown((e) => {
       if (e.which === 13) $btn.trigger('click')
     })

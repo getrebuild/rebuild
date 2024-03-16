@@ -6,7 +6,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 $(document).ready(function () {
-  $('.J_add').click(() => renderRbcomp(<DlgEdit />))
+  $('.J_add').on('click', () => renderRbcomp(<DlgEdit />))
   renderRbcomp(<GridList />, 'list')
 })
 

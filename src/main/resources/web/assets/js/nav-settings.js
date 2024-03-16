@@ -212,7 +212,7 @@ const use_sortable = function (el) {
 
 const build_item = function (item) {
   const data = {
-    text: $.trim(item.find('.dd3-content').eq(0).text()),
+    text: $trim(item.find('.dd3-content').eq(0).text()),
     type: item.attr('attr-type'),
     value: item.attr('attr-value'),
     icon: item.attr('attr-icon'),

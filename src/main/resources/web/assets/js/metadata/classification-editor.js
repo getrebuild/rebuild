@@ -187,7 +187,7 @@ class LevelBox extends React.Component {
     $stopEvent(e, true)
     _data = _data || this.state
 
-    const name = $.trim(_data.itemName)
+    const name = $trim(_data.itemName)
     if (!name) return
     if (this.props.level >= 1 && !this.parentId) return RbHighbar.create($L('请先选择上级分类项'))
 
@@ -482,7 +482,7 @@ class DlgImports extends RbModalHandler {
   _checkState(taskid) {
     if (!this.__mp) {
       const mp_parent = $(this._dlg._element).find('.modal-body').attr('id', $random('node-'))
-      this.__mp = new Mprogress({ template: 1, start: true, parent: `#` + $(mp_parent).attr('id') })
+      this.__mp = new Mprogress({ template: 1, start: true, parent: '#' + $(mp_parent).attr('id') })
     }
 
     $.get(`/commons/task/state?taskid=${taskid}`, (res) => {

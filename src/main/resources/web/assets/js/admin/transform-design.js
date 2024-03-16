@@ -212,7 +212,8 @@ class FieldsMapping extends React.Component {
             else $this.parents('.row').removeClass('active')
           })
 
-        if ($.isArray(mapping[fieldName])) {
+        debugger
+        if (Array.isArray(mapping[fieldName])) {
           useVfixed[fieldName] = true
         } else {
           $s2.val(mapping[fieldName] || null).trigger('change')
@@ -222,7 +223,7 @@ class FieldsMapping extends React.Component {
     this.setState({ useVfixed })
 
     for (let fieldName in mapping) {
-      if ($.isArray(mapping[fieldName])) {
+      if (Array.isArray(mapping[fieldName])) {
         if (!this._FieldValueSet[fieldName]) continue
         this._FieldValueSet[fieldName].setValue(mapping[fieldName][0])
 

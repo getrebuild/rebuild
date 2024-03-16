@@ -127,7 +127,7 @@ class RbWelcome extends React.Component {
       confirm: function () {
         this.disabled(true)
 
-        const sn = $.trim($(this._dlg).find('input').val())
+        const sn = $trim($(this._dlg).find('input').val())
         const $btn = $(this._dlg)
           .find('.btn-danger')
           .text(sn ? $L('验证授权') : $L('请求授权'))

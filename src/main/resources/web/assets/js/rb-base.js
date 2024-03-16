@@ -256,7 +256,7 @@ var $val = function (el) {
   // 无 data-o 值
   var oVal = $el.data('o')
   if (oVal === undefined || !(oVal + '')) {
-    return isCheckbox ? nVal : $.trim(nVal) || null
+    return isCheckbox ? nVal : $trim(nVal) || null
   }
 
   if (isCheckbox) {
@@ -267,7 +267,7 @@ var $val = function (el) {
   // New value is empty
   if (oVal === 0) oVal = '0'
   if (!!oVal && !nVal) return ''
-  else return $.trim(nVal) || null
+  else return $trim(nVal) || null
 }
 
 /**
@@ -325,7 +325,7 @@ var $regex = {
     return this._Text.test(val)
   },
   isNotBlank: function (val) {
-    return !val || $.trim(val).length === 0
+    return !val || $trim(val).length === 0
   },
   isId: function (id) {
     return /^([0-9]{3}-[a-z0-9]{16})$/gi.test(id)
@@ -418,7 +418,7 @@ var $empty = function (a) {
   var atype = $.type(a)
   if (atype === 'array' && a.length === 0) return true
   if (atype === 'object' && Object.keys(a).length === 0) return true
-  return !$.trim(a + '')
+  return !$trim(a)
 }
 
 /**
@@ -426,7 +426,7 @@ var $empty = function (a) {
  */
 var $emptyNum = function (a) {
   if (typeof a === 'number') return false
-  return a === null || a === '' || typeof a === 'undefined' || $.trim(a + '') === ''
+  return a === null || a === '' || typeof a === 'undefined' || $trim(a) === ''
 }
 
 /**
@@ -530,11 +530,16 @@ var $cleanArray = function (array, isunique) {
   if (!array) return []
   var array2 = []
   $(array).each(function () {
-    var n = $.trim(this)
+    var n = $trim(this)
     if (n) {
       if (isunique) array2.remove(n)
       array2.push(n)
     }
   })
   return array2
+}
+
+// $.trim
+var $trim = function (a) {
+  return ((a || '') + '').trim()
 }

@@ -138,5 +138,6 @@ module.exports = {
     $openWindow: true,
     MediaCapturer: true,
     $cleanArray: true,
+    $trim: true,
   },
 }

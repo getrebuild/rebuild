@@ -110,7 +110,7 @@ $(document).ready(() => {
     const $s = $(`<div class="search-input"><input type="text" placeholder="${$L('筛选字段')}" /></div>`).appendTo($(this).parent())
     const $input = $s.find('input').on('input', (e) => {
       $setTimeout(() => {
-        const q = $.trim(e.target.value).toLowerCase()
+        const q = $trim(e.target.value).toLowerCase()
         $('.unset-list .dd-item').each(function () {
           const $item = $(this)
           if (!q || $item.text().toLowerCase().includes(q) || $item.data('key').toLowerCase().includes(q)) {
