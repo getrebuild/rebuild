@@ -274,7 +274,6 @@ var $val = function (el) {
  * 清理 Map 中的无效值（null、undefined）
  */
 var $cleanMap = function (map) {
-  if ($.type(map) !== 'object') throw Error('Unsupportted type ' + $.type(map))
   var newMap = {}
   for (var k in map) {
     var v = map[k]
@@ -393,8 +392,8 @@ var $random = function (prefix, alphabetic, maxLength) {
 var $same = function (a, b) {
   if (Object.is(a, b)) return true
   if (a && b) {
-    var aType = $.type(a)
-    var bType = $.type(b)
+    var aType = $type(a)
+    var bType = $type(b)
     if ((aType === 'object' && bType === 'object') || (aType === 'array' && bType === 'array')) {
       a = JSON.stringify(a)
       b = JSON.stringify(b)
@@ -415,10 +414,10 @@ var $is = $same
  */
 var $empty = function (a) {
   if (a === null || a === '' || typeof a === 'undefined') return true
-  var atype = $.type(a)
-  if (atype === 'array' && a.length === 0) return true
-  if (atype === 'object' && Object.keys(a).length === 0) return true
-  return !$trim(a)
+  var aType = $type(a)
+  if (aType === 'array' && a.length === 0) return true
+  if (aType === 'object' && Object.keys(a).length === 0) return true
+  return $trim(a) === ''
 }
 
 /**
@@ -541,5 +540,14 @@ var $cleanArray = function (array, isunique) {
 
 // $.trim
 var $trim = function (a) {
+  // debugger
+  if (a === null || typeof a === 'undefined' || a === '') return ''
   return ((a || '') + '').trim()
+}
+
+// $.type
+var $type = function (a) {
+  // debugger
+  if (Array.isArray(a)) return 'array'
+  return typeof a // string, object
 }

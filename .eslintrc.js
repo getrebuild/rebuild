@@ -139,5 +139,6 @@ module.exports = {
     MediaCapturer: true,
     $cleanArray: true,
     $trim: true,
+    $type: true,
   },
 }
