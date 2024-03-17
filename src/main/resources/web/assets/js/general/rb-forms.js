@@ -1005,7 +1005,7 @@ class RbFormElement extends React.Component {
   onEditModeChanged(destroy) {
     if (destroy) {
       if (this.__select2) {
-        if ($type(this.__select2) === 'array') {
+        if (Array.isArray(this.__select2)) {
           $(this.__select2).each(function () {
             this.select2('destroy')
           })

@@ -320,12 +320,6 @@ var $regex = {
   isTel: function (val) {
     return this._Tel.test(val) || this._Mobile.test(val)
   },
-  isValidText: function (val) {
-    return this._Text.test(val)
-  },
-  isNotBlank: function (val) {
-    return !val || $trim(val).length === 0
-  },
   isId: function (id) {
     return /^([0-9]{3}-[a-z0-9]{16})$/gi.test(id)
   },

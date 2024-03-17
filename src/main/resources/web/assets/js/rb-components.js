@@ -227,7 +227,7 @@ class RbFormHandler extends RbModalHandler {
   componentWillUnmount() {
     // destroy select2
     if (this.__select2) {
-      if ($type(this.__select2) === 'array') {
+      if (Array.isArray(this.__select2)) {
         this.__select2.forEach(function (s) {
           s.select2('destroy')
         })
