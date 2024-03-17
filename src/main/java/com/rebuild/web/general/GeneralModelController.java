@@ -44,9 +44,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * 表单/视图
@@ -148,19 +150,34 @@ public class GeneralModelController extends EntityController {
             }
 
             // v3.1 明细导入配置
-            // v3.4 FIXME 只有第一个实体支持转换
+            // v3.4 FIXME ND只有第一个实体支持转换
             if (modelEntity.getDetailEntity() != null) {
-                List<ConfigBean> imports = TransformManager.instance.getDetailImports(modelEntity.getDetailEntity().getName());
-                if (!imports.isEmpty()) {
-                    List<Object> detailImports = new ArrayList<>();
-                    for (ConfigBean cb : imports) {
-                        JSONObject trans = (JSONObject) EasyMetaFactory.valueOf(cb.getString("source")).toJSON();
-                        trans.put("transid", cb.getID("id"));
-                        trans.put("transName", cb.getString("name"));
-                        detailImports.add(trans);
+                List<ConfigBean> confImports = TransformManager.instance.getDetailImports(modelEntity.getDetailEntity().getName());
+                if (!confImports.isEmpty()) {
+                    List<Object> alist = new ArrayList<>();
+                    for (ConfigBean c : confImports) {
+                        JSONObject trans = (JSONObject) EasyMetaFactory.valueOf(c.getString("source")).toJSON();
+                        trans.put("transid", c.getID("id"));
+                        trans.put("transName", c.getString("name"));
+
+                        int ifAuto = ((JSONObject) c.getJSON("config")).getIntValue("importsMode2Auto");
+                        if (ifAuto > 0) {
+                            JSONArray importsFilter = ((JSONObject) c.getJSON("config")).getJSONArray("importsFilter");
+                            Set<String> autoFields = new HashSet<>();
+                            for (Object o : importsFilter) {
+                                String name = ((JSONArray) o).getString(0);
+                                autoFields.add(name.split("\\.")[1]);
+                            }
+
+                            if (!autoFields.isEmpty()) {
+                                trans.put("auto", ifAuto);
+                                trans.put("autoFields", autoFields);
+                            }
+                        }
+                        alist.add(trans);
                     }
 
-                    ((JSONObject) model).put("detailImports", detailImports);
+                    ((JSONObject) model).put("detailImports", alist);
                 }
             }
 

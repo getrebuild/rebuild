@@ -273,14 +273,13 @@ class RbForm extends React.Component {
     this._postBefore = props.postBefore || $$$props.postBefore
     this._postAfter = props.postAfter || $$$props.postAfter
     this._onProTableLineUpdated = props.onProTableLineUpdated || $$$props.onProTableLineUpdated
-
     this._dividerRefs = []
   }
 
   render() {
     return (
       <div className="rbform form-layout">
-        <div className="form row" ref={(c) => (this._form = c)}>
+        <div className="form row" ref={(c) => (this._$form = c)}>
           {this.props.children.map((fieldComp) => {
             const ref = fieldComp.props.field === TYPE_DIVIDER ? $random('divider-') : `fieldcomp-${fieldComp.props.field}`
             if (fieldComp.props.field === TYPE_DIVIDER && fieldComp.props.collapsed) {
@@ -313,7 +312,7 @@ class RbForm extends React.Component {
     // 记录转换:预览模式
     const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
 
-    // FIXME: 导入仅支持第一个
+    // FIXME ND导入仅支持第一个
     const detailImports = this.props.rawModel.detailImports
 
     this._ProTables = {}
@@ -321,13 +320,13 @@ class RbForm extends React.Component {
     return (
       <RF>
         {this.props.rawModel.detailMetas.map((item, idx) => {
-          return <RF key={idx}>{this._renderDetailForm(item, idx === 0 ? detailImports : null, previewid)}</RF>
+          return <RF key={idx}>{this.renderDetailsForm(item, idx === 0 ? detailImports : null, previewid)}</RF>
         })}
       </RF>
     )
   }
 
-  _renderDetailForm(detailMeta, detailImports, previewid) {
+  renderDetailsForm(detailMeta, detailImports, previewid) {
     let _ProTable
     if (window._CustomizedForms) {
       _ProTable = window._CustomizedForms.useProTable(detailMeta.entity, this)
@@ -340,7 +339,10 @@ class RbForm extends React.Component {
       }
     }
 
-    function _setLines(details) {
+    function _setLines(details, force) {
+      // v3.7 ifAuto
+      if (force) _ProTable.clear()
+
       if (_ProTable.isEmpty()) {
         _ProTable.setLines(details)
       } else {
@@ -363,24 +365,61 @@ class RbForm extends React.Component {
     // 记录转换:明细导入
     let _detailImports = []
     if (detailImports) {
+      let ifAutoReady = false
       detailImports.forEach((item) => {
-        _detailImports.push({
+        const diConf = {
           icon: item.icon,
           label: item.transName || item.entityLabel,
-          fetch: (form, cb) => {
+          fetch: (form, cb, autoFields) => {
             const formdata = form.getFormData()
-            const mainid = form.props.id || null
+            if (autoFields) {
+              // NOTE 全部字段有值才自动
+              let lackValue = false
+              autoFields.forEach((item) => {
+                if (lackValue) return
+                lackValue = !formdata[item]
+              })
+              if (lackValue) return
+            }
 
+            const mainid = form.props.id || null
             $.post(`/app/entity/extras/detail-imports?transid=${item.transid}&mainid=${mainid}`, JSON.stringify(formdata), (res) => {
               if (res.error_code === 0) {
-                if ((res.data || []).length === 0) RbHighbar.create($L('没有可导入的明细记录'))
-                else typeof cb === 'function' && cb(res.data)
+                if (autoFields) {
+                  typeof cb === 'function' && cb(res.data)
+                } else {
+                  if ((res.data || []).length === 0) RbHighbar.create($L('没有可导入的明细记录'))
+                  else typeof cb === 'function' && cb(res.data)
+                }
               } else {
                 RbHighbar.error(res.error_msg)
               }
             })
           },
-        })
+        }
+        _detailImports.push(diConf)
+
+        // v3.7 ifAuto
+        if ((this.isNew && (item.auto === 1 || item.auto === 3)) || (!this.isNew && (item.auto === 2 || item.auto === 3))) {
+          if (!ifAutoReady) {
+            ifAutoReady = true
+            let ifAutoReady_timer
+            this.onFieldValueChange((fv) => {
+              if (item.autoFields.includes(fv.name)) {
+                if (ifAutoReady_timer) {
+                  clearTimeout(ifAutoReady_timer)
+                  ifAutoReady_timer = null
+                }
+
+                if (fv.value) {
+                  ifAutoReady_timer = setTimeout(() => {
+                    diConf.fetch(this, (details) => _setLines(details, true), item.autoFields)
+                  }, 400)
+                }
+              }
+            })
+          }
+        }
       })
     }
 
@@ -528,7 +567,6 @@ class RbForm extends React.Component {
               // eg. 标签
               iv = iv.join('$$$$')
             } else if (Array.isArray(iv)) {
-              debugger
               // eg. 文件/图片
             } else {
               // eg. {id:xxx, text:xxx}
@@ -967,7 +1005,7 @@ class RbFormElement extends React.Component {
   onEditModeChanged(destroy) {
     if (destroy) {
       if (this.__select2) {
-        if ($.type(this.__select2) === 'array') {
+        if ($type(this.__select2) === 'array') {
           $(this.__select2).each(function () {
             this.select2('destroy')
           })

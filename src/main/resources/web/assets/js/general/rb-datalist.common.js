@@ -331,25 +331,27 @@ class DataExport extends BatchOperator {
     return (
       <div className="form-group">
         <label className="text-bold">{$L('选择导出格式')}</label>
-        <select className="form-control form-control-sm" style={{ width: 325 }} ref={(c) => (this._$report = c)} defaultValue="xls">
-          <option value="csv">CSV</option>
-          <option value="xls">Excel</option>
-          <optgroup label={$L('使用报表模板')}>
-            {reports.map((item) => {
-              const outputType = item.outputType || ''
-              return (
-                <RF key={item.id}>
-                  <option value={item.id}>
-                    {item.name}
-                    {`${outputType === 'pdf' ? ' (PDF)' : ''}`}
-                  </option>
-                  {outputType.includes('pdf,excel') && <option value={`${item.id}&output=pdf`}>{item.name} (PDF)</option>}
-                </RF>
-              )
-            })}
-            {reports.length === 0 && <option disabled>{$L('暂无')}</option>}
-          </optgroup>
-        </select>
+        <div style={{ width: 325 }}>
+          <select className="form-control form-control-sm" ref={(c) => (this._$report = c)} defaultValue="xls">
+            <option value="csv">CSV</option>
+            <option value="xls">Excel</option>
+            <optgroup label={$L('使用报表模板')}>
+              {reports.map((item) => {
+                const outputType = item.outputType || ''
+                return (
+                  <RF key={item.id}>
+                    <option value={item.id}>
+                      {item.name}
+                      {`${outputType === 'pdf' ? ' (PDF)' : ''}`}
+                    </option>
+                    {outputType.includes('pdf,excel') && <option value={`${item.id}&output=pdf`}>{item.name} (PDF)</option>}
+                  </RF>
+                )
+              })}
+              {reports.length === 0 && <option disabled>{$L('无')}</option>}
+            </optgroup>
+          </select>
+        </div>
       </div>
     )
   }
@@ -369,7 +371,11 @@ class DataExport extends BatchOperator {
   }
 
   componentDidMount() {
-    $.get(`/app/${this.props.entity}/report/available?type=2`, (res) => this.setState({ reports: res.data }))
+    $.get(`/app/${this.props.entity}/report/available?type=2`, (res) => {
+      this.setState({ reports: res.data }, () => {
+        this.__select2 = $(this._$report).select2({})
+      })
+    })
   }
 }
 
