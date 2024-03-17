@@ -337,14 +337,11 @@ class DataExport extends BatchOperator {
             <option value="xls">Excel</option>
             <optgroup label={$L('使用报表模板')}>
               {reports.map((item) => {
-                const outputType = item.outputType || ''
+                const outputType = item.outputType || 'excel'
                 return (
                   <RF key={item.id}>
-                    <option value={item.id}>
-                      {item.name}
-                      {`${outputType === 'pdf' ? ' (PDF)' : ''}`}
-                    </option>
-                    {outputType.includes('pdf,excel') && <option value={`${item.id}&output=pdf`}>{item.name} (PDF)</option>}
+                    {outputType.includes('excel') && <option value={`${item.id}`}>{item.name}</option>}
+                    {outputType.includes('pdf') && <option value={`${item.id}&output=pdf`}>{item.name} (PDF)</option>}
                   </RF>
                 )
               })}
@@ -373,7 +370,14 @@ class DataExport extends BatchOperator {
   componentDidMount() {
     $.get(`/app/${this.props.entity}/report/available?type=2`, (res) => {
       this.setState({ reports: res.data }, () => {
-        this.__select2 = $(this._$report).select2({})
+        this.__select2 = $(this._$report).select2({
+          templateResult: function (res) {
+            const text = res.text.split(' (PDF)')
+            const $span = $('<span></span>').text(text[0])
+            if (text.length > 1) $('<span class="badge badge-warning badge-pill pt-0 pb-0 ml-1">PDF</span>').appendTo($span)
+            return $span
+          },
+        })
       })
     })
   }
