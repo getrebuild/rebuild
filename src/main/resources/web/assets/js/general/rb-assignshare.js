@@ -113,7 +113,7 @@ class DlgAssign extends RbModalHandler {
   post() {
     let users = this._UserSelector.val()
     if (!users || users.length === 0) return RbHighbar.create($L('请选择%s给谁', this._Props[1]))
-    if ($.type(users) === 'array') users = users.join(',')
+    if (Array.isArray(users)) users = users.join(',')
     const cass = this.state.cascadesShow === true ? $(this._cascades).val().join(',') : ''
     const withUpdate = $(this._withUpdate).prop('checked')
 

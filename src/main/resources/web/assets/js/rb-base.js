@@ -256,7 +256,7 @@ var $val = function (el) {
   // 无 data-o 值
   var oVal = $el.data('o')
   if (oVal === undefined || !(oVal + '')) {
-    return isCheckbox ? nVal : $.trim(nVal) || null
+    return isCheckbox ? nVal : $trim(nVal) || null
   }
 
   if (isCheckbox) {
@@ -267,14 +267,13 @@ var $val = function (el) {
   // New value is empty
   if (oVal === 0) oVal = '0'
   if (!!oVal && !nVal) return ''
-  else return $.trim(nVal) || null
+  else return $trim(nVal) || null
 }
 
 /**
  * 清理 Map 中的无效值（null、undefined）
  */
 var $cleanMap = function (map) {
-  if ($.type(map) !== 'object') throw Error('Unsupportted type ' + $.type(map))
   var newMap = {}
   for (var k in map) {
     var v = map[k]
@@ -320,12 +319,6 @@ var $regex = {
   },
   isTel: function (val) {
     return this._Tel.test(val) || this._Mobile.test(val)
-  },
-  isValidText: function (val) {
-    return this._Text.test(val)
-  },
-  isNotBlank: function (val) {
-    return !val || $.trim(val).length === 0
   },
   isId: function (id) {
     return /^([0-9]{3}-[a-z0-9]{16})$/gi.test(id)
@@ -393,8 +386,8 @@ var $random = function (prefix, alphabetic, maxLength) {
 var $same = function (a, b) {
   if (Object.is(a, b)) return true
   if (a && b) {
-    var aType = $.type(a)
-    var bType = $.type(b)
+    var aType = $type(a)
+    var bType = $type(b)
     if ((aType === 'object' && bType === 'object') || (aType === 'array' && bType === 'array')) {
       a = JSON.stringify(a)
       b = JSON.stringify(b)
@@ -415,10 +408,10 @@ var $is = $same
  */
 var $empty = function (a) {
   if (a === null || a === '' || typeof a === 'undefined') return true
-  var atype = $.type(a)
-  if (atype === 'array' && a.length === 0) return true
-  if (atype === 'object' && Object.keys(a).length === 0) return true
-  return !$.trim(a + '')
+  var aType = $type(a)
+  if (aType === 'array' && a.length === 0) return true
+  if (aType === 'object' && Object.keys(a).length === 0) return true
+  return $trim(a) === ''
 }
 
 /**
@@ -426,7 +419,7 @@ var $empty = function (a) {
  */
 var $emptyNum = function (a) {
   if (typeof a === 'number') return false
-  return a === null || a === '' || typeof a === 'undefined' || $.trim(a + '') === ''
+  return a === null || a === '' || typeof a === 'undefined' || $trim(a) === ''
 }
 
 /**
@@ -530,11 +523,25 @@ var $cleanArray = function (array, isunique) {
   if (!array) return []
   var array2 = []
   $(array).each(function () {
-    var n = $.trim(this)
+    var n = $trim(this)
     if (n) {
       if (isunique) array2.remove(n)
       array2.push(n)
     }
   })
   return array2
+}
+
+// $.trim
+var $trim = function (a) {
+  // debugger
+  if (a === null || typeof a === 'undefined' || a === '') return ''
+  return ((a || '') + '').trim()
+}
+
+// $.type
+var $type = function (a) {
+  // debugger
+  if (Array.isArray(a)) return 'array'
+  return typeof a // string, object
 }

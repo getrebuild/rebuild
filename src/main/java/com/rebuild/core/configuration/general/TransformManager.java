@@ -154,6 +154,8 @@ public class TransformManager implements ConfigManager {
     }
 
     /**
+     * 明细记录导入配置
+     *
      * @param targetEntity
      * @return
      */

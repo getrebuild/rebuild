@@ -21,9 +21,9 @@ $(document).ready(function () {
     }
   )
 
-  $('.J_email').click(() => renderRbcomp(<DlgChangeEmail />))
-  $('.J_passwd').click(() => renderRbcomp(<DlgChangePasswd />))
-  $('.J_temp-auth').click(() => {
+  $('.J_email').on('click', () => renderRbcomp(<DlgChangeEmail />))
+  $('.J_passwd').on('click', () => renderRbcomp(<DlgChangePasswd />))
+  $('.J_temp-auth').on('click', () => {
     RbAlert.create(<strong>{$L('注意!!! 请勿向陌生人提供临时授权链接')}</strong>, $L('安全提示'), {
       type: 'danger',
       confirmText: $L('我知道了'),
@@ -37,7 +37,7 @@ $(document).ready(function () {
     })
   })
 
-  $('.J_save').click(function () {
+  $('.J_save').on('click', function () {
     const fullName = $val('#fullName'),
       avatarUrl = $('.avatar img').attr('data-src') || null,
       workphone = $val('#workphone')
@@ -143,7 +143,7 @@ $(document).ready(function () {
 
   // load log
 
-  $('a.nav-link[href="#logs"]').click(() => {
+  $('a.nav-link[href="#logs"]').on('click', () => {
     if ($('#logs tbody>tr').length > 0) return
 
     $.get('/settings/user/login-logs', (res) => {

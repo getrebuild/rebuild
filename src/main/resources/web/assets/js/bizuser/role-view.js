@@ -6,7 +6,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 $(document).ready(() => {
-  $('.J_delete-role').click(() => deleteRole(window.__PageConfig.recordId))
+  $('.J_delete-role').on('click', () => deleteRole(window.__PageConfig.recordId))
 })
 
 // 删除角色

@@ -781,7 +781,7 @@ var $initReferenceSelect2 = function (el, option) {
     },
     language: {
       noResults: function () {
-        return $.trim(search_input).length > 0 ? $L('未找到结果') : $L('输入关键词搜索')
+        return $trim(search_input).length > 0 ? $L('未找到结果') : $L('输入关键词搜索')
       },
       inputTooShort: function () {
         return $L('输入关键词搜索')
@@ -1070,7 +1070,7 @@ var $getScript = function (url, callback) {
 // 搜索 text/id
 // https://select2.org/searching#customizing-how-results-are-matched
 var $select2MatcherAll = function (params, data) {
-  if ($.trim(params.term) === '') {
+  if ($trim(params.term) === '') {
     return data
   }
   if (typeof data.text === 'undefined') {

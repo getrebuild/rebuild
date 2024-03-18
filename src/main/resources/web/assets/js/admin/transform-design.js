@@ -57,9 +57,8 @@ $(document).ready(() => {
   $('#importsMode').on('click', function () {
     if ($val(this)) {
       $('#filterFields').parents('.form-group').removeClass('hide')
-
       if (!_ImportsFilterMapping) {
-        renderRbcomp(<ImportsFilterMapping defaultValue={config.importsFilter} />, 'filterFields', function () {
+        renderRbcomp(<ImportsFilterMapping defaultValue={config.importsFilter} />, $('#filterFields>span'), function () {
           _ImportsFilterMapping = this
         })
       }
@@ -101,6 +100,7 @@ $(document).ready(() => {
         useFilter: advFilter_data,
         importsMode: $val('#importsMode'),
         importsFilter: importsFilter || null,
+        importsMode2Auto: ($val('#importsMode2Auto1') ? 1 : 0) + ($val('#importsMode2Auto2') ? 2 : 0),
       }
 
       const _data = {
@@ -157,15 +157,11 @@ $(document).ready(() => {
   setTimeout(() => {
     _saveFilter(config.useFilter)
 
-    if (config.fillbackField) {
-      $('#fillbackField').val(config.fillbackField).trigger('change')
-    }
-    if (config.transformMode === 2) {
-      $('#transformMode').attr('checked', true)
-    }
-    if (config.importsMode) {
-      $('#importsMode').trigger('click')
-    }
+    if (config.fillbackField) $('#fillbackField').val(config.fillbackField).trigger('change')
+    if (config.transformMode === 2) $('#transformMode').attr('checked', true)
+    if (config.importsMode) $('#importsMode').trigger('click')
+    if (config.importsMode2Auto === 1 || config.importsMode2Auto === 3) $('#importsMode2Auto1').prop('checked', true)
+    if (config.importsMode2Auto === 2 || config.importsMode2Auto === 3) $('#importsMode2Auto2').prop('checked', true)
   }, 100)
 })
 
@@ -212,7 +208,7 @@ class FieldsMapping extends React.Component {
             else $this.parents('.row').removeClass('active')
           })
 
-        if ($.isArray(mapping[fieldName])) {
+        if (Array.isArray(mapping[fieldName])) {
           useVfixed[fieldName] = true
         } else {
           $s2.val(mapping[fieldName] || null).trigger('change')
@@ -222,7 +218,7 @@ class FieldsMapping extends React.Component {
     this.setState({ useVfixed })
 
     for (let fieldName in mapping) {
-      if ($.isArray(mapping[fieldName])) {
+      if (Array.isArray(mapping[fieldName])) {
         if (!this._FieldValueSet[fieldName]) continue
         this._FieldValueSet[fieldName].setValue(mapping[fieldName][0])
 

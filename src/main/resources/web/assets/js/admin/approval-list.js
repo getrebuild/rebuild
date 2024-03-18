@@ -9,8 +9,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 $(document).ready(() => {
   renderRbcomp(<ApprovalList />, 'dataList')
 
-  $('.J_add').click(() => renderRbcomp(<ApprovalEdit />))
-  $('.J_referral').click(() => renderRbcomp(<ApprovalReferral />))
+  $('.J_add').on('click', () => renderRbcomp(<ApprovalEdit />))
+  $('.J_referral').on('click', () => renderRbcomp(<ApprovalReferral />))
 })
 
 class ApprovalList extends ConfigList {

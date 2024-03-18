@@ -13,10 +13,10 @@ class RbFeeds extends React.Component {
   render() {
     const s = $urlp('s', location.hash)
     return (
-      <React.Fragment>
+      <RF>
         <FeedsPost ref={(c) => (this._post = c)} call={this.search} />
         <FeedsList ref={(c) => (this._list = c)} focusFeed={s} />
-      </React.Fragment>
+      </RF>
     )
   }
 
@@ -88,8 +88,8 @@ let rbUserList
 
 // 构建搜索条件
 const execFilter = function () {
-  const group = rbGroupList.val()
-  const user = rbUserList.val()
+  const group = rbGroupList ? rbGroupList.val() : null
+  const user = rbUserList ? rbUserList.val() : null
   const key = $('.J_search-key').val()
   const date1 = $('.J_date-begin').val()
   const date2 = $('.J_date-end').val()
@@ -122,6 +122,7 @@ $(document).ready(function () {
 
   renderRbcomp(<RbFeeds />, 'rb-feeds', function () {
     rbFeeds = this
+    execFilter()
   })
   renderRbcomp(<GroupList hasAction={true} />, $('#collapseGroup .aside-tree'), function () {
     rbGroupList = this
@@ -149,7 +150,7 @@ $(document).ready(function () {
     $setTimeout(() => rbUserList.loadData(q), 300, 'headingUser-search')
   })
 
-  function __clear(el) {
+  function _clear(el) {
     $setTimeout(
       () => {
         const $clear = $(el).next().find('a')
@@ -163,12 +164,12 @@ $(document).ready(function () {
 
   $('#collapseSearch .append>a').on('click', function () {
     const $i = $(this).parent().prev().val('')
-    __clear($i)
+    _clear($i)
     setTimeout(execFilter, 100)
   })
 
   $('.J_search-key').on('keydown', function (e) {
-    __clear(this)
+    _clear(this)
     if (e.keyCode === 13) execFilter()
   })
 
@@ -180,7 +181,7 @@ $(document).ready(function () {
       endDate: new Date(),
     })
     .on('changeDate', function () {
-      __clear(this)
+      _clear(this)
       execFilter()
     })
 
@@ -196,6 +197,4 @@ $(document).ready(function () {
     }
     execFilter()
   })
-
-  execFilter()
 })

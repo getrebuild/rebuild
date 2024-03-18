@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global dlgActionAfter ShowEnable */
 
 $(document).ready(function () {
-  $('.J_add').click(() => renderRbcomp(<TriggerEdit />))
+  $('.J_add').on('click', () => renderRbcomp(<TriggerEdit />))
   renderRbcomp(<TriggerList />, 'dataList')
 })
 

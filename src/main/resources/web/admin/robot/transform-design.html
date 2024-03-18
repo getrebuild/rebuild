@@ -50,9 +50,11 @@
         border-bottom: 1px solid #dee2e6;
       }
       #filterFields {
-        padding: 5px 26px 15px;
-        border-radius: 2px;
-        border: 1px solid #eee;
+        background-color: #f7f7f7;
+        border-radius: 3px;
+        padding: 20px 25px;
+        padding-top: 10px;
+        max-width: 1000px;
       }
       #filterFields .badge {
         border-radius: 0;
@@ -151,8 +153,19 @@
                   <div class="form-group row hide">
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right"></label>
                     <div class="col-md-12 col-xl-9 col-lg-8">
-                      <h5 class="mt-0 text-bold">[[${bundle.L('明细记录导入条件')}]]</h5>
-                      <div id="filterFields" style="max-width: 1000px">HOLD</div>
+                      <div id="filterFields">
+                        <h5 class="mt-2 text-bold">[[${bundle.L('明细记录导入条件')}]]</h5>
+                        <span></span>
+                        <h5 class="mt-3 text-bold">[[${bundle.L('符合条件时自动导入')}]]</h5>
+                        <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                          <input class="custom-control-input" type="checkbox" id="importsMode2Auto1" value="1" />
+                          <span class="custom-control-label">[[${bundle.L('新建时')}]]</span>
+                        </label>
+                        <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                          <input class="custom-control-input" type="checkbox" id="importsMode2Auto2" value="2" />
+                          <span class="custom-control-label">[[${bundle.L('编辑时')}]]</span>
+                        </label>
+                      </div>
                     </div>
                   </div>
                 </th:block>

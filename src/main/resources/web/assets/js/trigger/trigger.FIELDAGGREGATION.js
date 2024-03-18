@@ -411,7 +411,7 @@ class ContentFieldAggregation extends ActionContentSpec {
       if (!badFormat) {
         try {
           badFormat = JSON.parse(content.targetEntityMatchFields)
-          badFormat = !$.isArray(badFormat)
+          badFormat = !Array.isArray(badFormat)
         } catch (err) {
           badFormat = true
         }

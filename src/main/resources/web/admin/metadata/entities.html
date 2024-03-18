@@ -169,7 +169,7 @@
             .addClass('new-entity')
             .find('a.card')
             .attr('href', 'javascript:;')
-            .click(function () {
+            .on('click', function () {
               if (window.__PageConfig.isSuperAdmin) {
                 if (_EntityNew2) {
                   _EntityNew2.show()

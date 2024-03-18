@@ -189,7 +189,7 @@ class RbModalHandler extends React.Component {
       if (dlg) dlg.show()
       typeof cb === 'function' && cb(this)
     }
-    if (state && $.type(state) === 'object') this.setState(state, callback)
+    if (state && $type(state) === 'object') this.setState(state, callback)
     else callback()
   }
 
@@ -227,11 +227,13 @@ class RbFormHandler extends RbModalHandler {
   componentWillUnmount() {
     // destroy select2
     if (this.__select2) {
-      if ($.type(this.__select2) === 'array')
-        $(this.__select2).each(function () {
-          this.select2('destroy')
+      if (Array.isArray(this.__select2)) {
+        this.__select2.forEach(function (s) {
+          s.select2('destroy')
         })
-      else this.__select2.select2('destroy')
+      } else {
+        this.__select2.select2('destroy')
+      }
       this.__select2 = null
     }
   }
@@ -634,7 +636,7 @@ class UserSelector extends React.Component {
 
     if (this.props.defaultValue) {
       let dv = this.props.defaultValue
-      if ($.type(this.props.defaultValue) === 'string') dv = dv.split(',')
+      if ($type(this.props.defaultValue) === 'string') dv = dv.split(',')
 
       $.post('/commons/search/user-selector', JSON.stringify(dv), (res) => {
         if (res.error_code === 0 && res.data.length > 0) {
@@ -804,13 +806,17 @@ const DateShow = function ({ date }) {
 // ~~ 任意记录选择
 // @see rb-page.js#$initReferenceSelect2
 class AnyRecordSelector extends React.Component {
-  state = { ...this.props }
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+    this.__select2 = []
+  }
 
   render() {
     return (
       <div className="row">
         <div className="col-4 pr-0">
-          <select className="form-control form-control-sm" ref={(c) => (this._entity = c)}>
+          <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)}>
             {(this.state.entities || []).map((item) => {
               if ($isSysMask(item.label)) return null
               return (
@@ -822,7 +828,7 @@ class AnyRecordSelector extends React.Component {
           </select>
         </div>
         <div className="col-8 pl-2">
-          <select className="form-control form-control-sm float-left" ref={(c) => (this._record = c)} />
+          <select className="form-control form-control-sm float-left" ref={(c) => (this._$record = c)} />
         </div>
       </div>
     )
@@ -830,31 +836,32 @@ class AnyRecordSelector extends React.Component {
 
   componentDidMount() {
     $.get('/commons/metadata/entities', (res) => {
-      if ((res.data || []).length === 0) $(this._record).attr('disabled', true)
+      if ((res.data || []).length === 0) $(this._$record).attr('disabled', true)
 
       this.setState({ entities: res.data || [] }, () => {
-        $(this._entity)
+        const s2 = $(this._$entity)
           .select2({
             placeholder: $L('无可用实体'),
             allowClear: false,
           })
           .on('change', () => {
-            $(this._record).val(null).trigger('change')
+            $(this._$record).val(null).trigger('change')
           })
+        this.__select2.push(s2)
 
         // 编辑时
         const iv = this.props.initValue
         if (iv) {
-          $(this._entity).val(iv.entity).trigger('change')
+          $(this._$entity).val(iv.entity).trigger('change')
           const option = new Option(iv.text, iv.id, true, true)
-          $(this._record).append(option)
+          $(this._$record).append(option)
         }
       })
     })
 
     const that = this
     let search_input = null
-    $(this._record)
+    const s2 = $(this._$record)
       .select2({
         placeholder: `${$L('选择记录')}`,
         minimumInputLength: 0,
@@ -865,7 +872,7 @@ class AnyRecordSelector extends React.Component {
           data: function (params) {
             search_input = params.term
             return {
-              entity: $(that._entity).val(),
+              entity: $(that._$entity).val(),
               q: params.term,
             }
           },
@@ -877,7 +884,7 @@ class AnyRecordSelector extends React.Component {
         },
         language: {
           noResults: () => {
-            return $.trim(search_input).length > 0 ? $L('未找到结果') : $L('输入关键词搜索')
+            return $trim(search_input).length > 0 ? $L('未找到结果') : $L('输入关键词搜索')
           },
           inputTooShort: () => {
             return $L('输入关键词搜索')
@@ -893,11 +900,12 @@ class AnyRecordSelector extends React.Component {
       .on('change', (e) => {
         typeof that.props.onSelect === 'function' && that.props.onSelect(e.target.value)
       })
+    this.__select2.push(s2)
   }
 
   // return `id`
   val() {
-    return $(this._record).val()
+    return $(this._$record).val()
   }
 
   // return `{ id:xx, text:xx, entity:xx }`
@@ -906,14 +914,20 @@ class AnyRecordSelector extends React.Component {
     if (!val) return null
 
     return {
-      entity: $(this._entity).val(),
+      entity: $(this._$entity).val(),
       id: val,
-      text: $(this._record).select2('data')[0].text,
+      text: $(this._$record).select2('data')[0].text,
     }
   }
 
   reset() {
-    $(this._record).val(null).trigger('change')
+    $(this._$record).val(null).trigger('change')
+  }
+
+  componentWillUnmount() {
+    this.__select2.forEach(function (s) {
+      s.select2('destroy')
+    })
   }
 }
 
@@ -1228,31 +1242,34 @@ class CodeViewport extends React.Component {
 /**
  * JSX 组件渲染
  *
- * @param {*} jsx
- * @param {*} target id or object of element (or function of callback)
+ * @param {*} JSX
+ * @param {*} container id or object of element (or function of callback)
  * @param {*} callback callback on mounted
  */
-const renderRbcomp = function (jsx, target, callback) {
-  if (typeof target === 'function') {
-    callback = target
-    target = null
+const renderRbcomp = function (JSX, container, callback) {
+  if (typeof container === 'function') {
+    callback = container
+    container = null
   }
 
-  target = target || $random('react-container-', true, 32)
-  if ($.type(target) === 'string') {
+  container = container || $random('react-container-', true, 32)
+  if (typeof container === 'string') {
     // element id
-    const container = document.getElementById(target)
-    if (!container) {
-      if (!target.startsWith('react-container-')) throw 'No element found : ' + target
-      else target = $(`<div id="${target}"></div>`).appendTo(document.body)[0]
+    const c = document.getElementById(container)
+    if (!c) {
+      if (!container.startsWith('react-container-')) throw 'No element found : ' + container
+      else container = $(`<div id="${container}"></div>`).appendTo(document.body)[0]
     } else {
-      target = container
+      container = c
     }
-  } else if (target instanceof $) {
-    target = target[0]
+  } else if (container instanceof $) {
+    container = container[0]
   }
 
-  // ReactDOM.render(<React.StrictMode>{jsx}</React.StrictMode>, target, callback)
-  ReactDOM.render(jsx, target, callback)
-  return target
+  // if (rb.env === 'dev') {
+  //   ReactDOM.render(<React.StrictMode>{JSX}</React.StrictMode>, container, callback)
+  // }
+
+  ReactDOM.render(JSX, container, callback)
+  return container
 }

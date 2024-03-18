@@ -507,7 +507,7 @@ class BaiduMapModal extends RbModal {
     }
 
     let q = $(this._$searchValue).val()
-    q = $.trim(q)
+    q = $trim(q)
 
     this._sugTimer = setTimeout(() => {
       if (!q || q.length < 3) {
