@@ -20,6 +20,22 @@ body {
   padding: 41px 0;
 }
 
+.view-body.loading .main-content {
+  display: none;
+}
+
+@keyframes spinAnimation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.view-body.loading .view-header .zmdi-refresh {
+  animation: spinAnimation 1s infinite linear;
+}
+
 .tab-container {
   margin-top: -8px;
   padding-right: 4px;

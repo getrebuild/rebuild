@@ -255,6 +255,8 @@ public class QueryParser {
         String[] sorts = sort.split("[,;]");
         for (String s : sorts) {
             String[] split = s.split(":");
+            if (StringUtils.isBlank(split[0])) return null;
+
             sb.append(split[0]);
             if (split.length > 1) sb.append("desc".equalsIgnoreCase(split[1]) ? " desc" : " asc");
             sb.append(", ");

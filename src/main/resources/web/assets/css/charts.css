@@ -277,8 +277,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   top: 0;
 }
 
+.chart-box.ApprovalList .progress-wrap .progress {
+  height: 26px;
+}
+
 .chart-box.ApprovalList .progress-wrap .progress-bar {
-  min-width: 20px;
+  min-width: 20%;
 }
 
 .chart-box.ApprovalList .progress-wrap .progress-bar:hover {
@@ -527,6 +531,22 @@ See LICENSE and COMMERCIAL in the project root for license information.
   overflow: hidden;
   clear: both;
   max-width: 400px;
+}
+
+.chart-box.DataList .table td.open-newtab {
+  padding-bottom: 0;
+  text-align: center;
+  padding: 8px;
+}
+
+.chart-box.DataList .table td.open-newtab .icon {
+  font-size: 15px;
+  width: 100%;
+  color: #404040;
+}
+
+.chart-box.DataList .table td.open-newtab a:hover .icon {
+  color: #4285f4;
 }
 
 .DataList-showfields .select2-container--default .select2-selection--single .select2-selection__arrow b::after {

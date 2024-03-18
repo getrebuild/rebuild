@@ -279,13 +279,18 @@ $(document).ready(() => {
   $('button.J_MobileAppPath').on('click', () => $input[0].click())
 
   const $del = $('button.J_MobileAppPath-del').on('click', () => {
-    $.post(location.href, JSON.stringify({ MobileAppPath: '' }), (res) => {
-      if (res.error_code === 0) {
-        $('a.J_MobileAppPath').removeAttr('href').text('')
-        $del.addClass('hide')
-      } else {
-        RbHighbar.error(res.error_msg)
-      }
+    RbAlert.create($L('确认删除 APP 安装包？'), {
+      onConfirm: function () {
+        this.hide()
+        $.post(location.href, JSON.stringify({ MobileAppPath: '' }), (res) => {
+          if (res.error_code === 0) {
+            $('a.J_MobileAppPath').removeAttr('href').text('')
+            $del.addClass('hide')
+          } else {
+            RbHighbar.error(res.error_msg)
+          }
+        })
+      },
     })
   })
 

@@ -112,7 +112,7 @@ class RbViewForm extends React.Component {
       if (res.error_code === 0) {
         if (res.data.lastModified !== this.__lastModified) {
           handle && handle.showLoading()
-          setTimeout(() => location.reload(), window.VIEW_LOAD_DELAY || 200)
+          setTimeout(() => location.reload(), 200)
         }
       } else if (res.error_msg === 'NO_EXISTS') {
         this.renderViewError($L('记录已经不存在，可能已被其他用户删除'))
@@ -594,6 +594,7 @@ const RbViewPage = {
 
     renderRbcomp(<RbViewForm entity={entity[0]} id={id} onViewEditable={ep && ep.U} />, 'tab-rbview', function () {
       RbViewPage._RbViewForm = this
+      setTimeout(() => $('.view-body.loading').removeClass('loading'), 100)
     })
 
     $('.J_close').on('click', () => this.hide())

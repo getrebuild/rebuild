@@ -70,8 +70,8 @@ const AdvFilters = {
       const $menu = $('.adv-search .dropdown-menu')
       $(res.data).each(function () {
         const item = this
-        const $item = $(`<div class="dropdown-item J_custom" data-id="${item.id}"><a class="text-truncate">${item.name}</a></div>`).appendTo($menu)
-        $item.on('click', () => that._effectFilter($item, 'aside'))
+        const $item = $(`<div class="dropdown-item J_custom" data-id="${item.id}"><a class="text-truncate"></a></div>`).appendTo($menu)
+        $item.text(item.name).on('click', () => that._effectFilter($item, 'aside'))
 
         if (lastFilter === item.id) $defaultFilter = $item
 
@@ -1852,6 +1852,7 @@ CellRenders.addRender('TAG', function (v, s, k) {
 class RecordMerger extends RbModalHandler {
   constructor(props) {
     super(props)
+    this.state.keepMain = props.ids[0]
   }
 
   render() {
@@ -1871,11 +1872,12 @@ class RecordMerger extends RbModalHandler {
                     idData.map((item, idx) => {
                       if (idx === 0) return null
                       return (
-                        <th key={idx} data-id={item[0]}>
-                          <strong>{item[1]}</strong>
-                          <a href={`${rb.baseUrl}/app/redirect?id=${item[0]}&type=newtab`} target="_blank" title={$L('打开')}>
+                        <th key={idx} data-id={item[0]} onClick={() => this.setState({ keepMain: item[0] })}>
+                          <a href={`${rb.baseUrl}/app/redirect?id=${item[0]}&type=newtab`} target="_blank" title={$L('打开')} onClick={(e) => $stopEvent(e)}>
+                            <b className="fs-12">{item[1]}</b>
                             <i className="icon zmdi zmdi zmdi-open-in-new ml-1" />
                           </a>
+                          {this.state.keepMain === item[0] && <span className="badge badge-success badge-pill ml-1">{$L('主')}</span>}
                         </th>
                       )
                     })}
@@ -1884,15 +1886,26 @@ class RecordMerger extends RbModalHandler {
               <tbody ref={(c) => (this._$tbody = c)}>
                 {datas.map((item, idx) => {
                   if (idx === 0) return null
+                  if ($isSysMask(item[0][1])) return null
 
                   let chk
                   const data4field = []
                   for (let i = 1; i < item.length; i++) {
-                    let s = item[i]
+                    let v = item[i]
                     let activeClazz
-                    if ($empty(item[i])) {
-                      s = <span className="text-muted">{$L('空')}</span>
+                    if ($empty(v)) {
+                      v = <span className="text-muted">{$L('空')}</span>
                     } else {
+                      if ($.isArray(v)) {
+                        v = v.map(function (item) {
+                          return (
+                            <a key={item} onClick={() => RbPreview.create(item)}>
+                              {$fileCutName(item)}
+                            </a>
+                          )
+                        })
+                      }
+
                       activeClazz = 'active'
                       if (chk) activeClazz = null
                       if (activeClazz) chk = true
@@ -1902,8 +1915,8 @@ class RecordMerger extends RbModalHandler {
                     if (IS_COMMONS) activeClazz = 'sysfield'
 
                     data4field.push(
-                      <td key={`${idx}-${i}`} data-index={i} className={activeClazz} onClick={(e) => !IS_COMMONS && this._chkValue(e)}>
-                        {s}
+                      <td key={`${idx}-${i}`} data-index={i} className={activeClazz} onClick={(e) => !IS_COMMONS && this._selectValue(e)}>
+                        <div>{v}</div>
                       </td>
                     )
                   }
@@ -1961,8 +1974,8 @@ class RecordMerger extends RbModalHandler {
     })
   }
 
-  _chkValue(e) {
-    const $td = $(e.target)
+  _selectValue(e) {
+    const $td = $(e.currentTarget)
     $td.parent().find('td').removeClass('active')
     $td.addClass('active')
   }
@@ -2001,7 +2014,6 @@ class RecordMerger extends RbModalHandler {
           merged[field] = id || null
         }
       })
-    console.log(merged)
 
     const details = []
     $(this._$mergeDetails)
@@ -2009,15 +2021,26 @@ class RecordMerger extends RbModalHandler {
       .each(function () {
         details.push($(this).val())
       })
-    const url = `/app/${this.props.entity}/record-merge/merge?ids=${this.props.ids.join(',')}&deleteAfter=${del || false}&mergeDetails=${details.join(',')}`
+
+    // 主第一、排重
+    let ids = [this.state.keepMain]
+    this.props.ids.forEach(function (id) {
+      if (!ids.includes(id)) ids.push(id)
+    })
+
+    const url = `/app/${this.props.entity}/record-merge/merge?ids=${ids.join(',')}&deleteAfter=${del || false}&mergeDetails=${details.join(',')}`
     const $btn = $(this._$btn).find('.btn').button('loading')
     $.post(url, JSON.stringify(merged), (res) => {
       if (res.error_code === 0) {
         this.hide()
         RbHighbar.success($L('合并成功'))
         this.props.listRef.reload()
+
         setTimeout(() => {
-          CellRenders.clickView({ id: res.data, entity: this.props.entity })
+          window.RbViewModal.create({ id: res.data, entity: this.props.entity })
+          if (window.RbListPage) {
+            location.hash = `!/View/${this.props.entity}/${res.data}`
+          }
         }, 500)
       } else {
         RbHighbar.error(res.error_msg)

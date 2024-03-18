@@ -44,7 +44,6 @@ $(document).ready(function () {
   // 正则
   if (SHOW_ADVPATTERN.includes(dt)) {
     $('.J_advOpt').removeClass('hide')
-
     $('.J_advPattern .badge').on('click', function () {
       $('#advPattern').val($(this).data('patt'))
     })
@@ -337,7 +336,9 @@ const _handlePicklist = function (dt) {
     }
     $('#picklist-items').empty()
     $(res.data).each(function () {
-      const $item = $(`<li class="dd-item" data-key="${this.id}"><div class="dd-handle" style="color:${this.color || 'inherit'} !important">${this.text}</div></li>`).appendTo('#picklist-items')
+      const $item = $(`<li class="dd-item" data-key="${this.mask || this.id}"><div class="dd-handle" style="color:${this.color || 'inherit'} !important">${this.text}</div></li>`).appendTo(
+        '#picklist-items'
+      )
       if ($isTrue(this['default'])) $item.addClass('default')
     })
     if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
@@ -754,9 +755,7 @@ const __TYPE2TYPE = {
   'PHONE': ['TEXT'],
   'EMAIL': ['TEXT'],
   'URL': ['TEXT'],
-  'NTEXT': ['TEXT'],
   'IMAGE': ['FILE'],
-  'FILE': ['IMAGE'],
 }
 class FieldTypeCast extends RbFormHandler {
   render() {
