@@ -1101,7 +1101,7 @@ class RbList extends React.Component {
     }, 400)
 
     if (query.filter && (query.filter.items || []).length > 0) {
-      console.log(`API Filter <Body> :\n %c${JSON.stringify(query.filter)}`, 'color:#e83e8c;font-size:16px')
+      console.log(`RBAPI ASSISTANT *Filter Body* :\n %c${JSON.stringify(query.filter)}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
     }
 
     $.post(`/app/${this._entity}/data-list`, JSON.stringify(RbList.queryBefore(query)), (res) => {

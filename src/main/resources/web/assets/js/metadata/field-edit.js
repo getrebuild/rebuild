@@ -334,14 +334,21 @@ const _handlePicklist = function (dt) {
       $('#picklist-items li').text($L('请添加选项'))
       return
     }
+
     $('#picklist-items').empty()
     $(res.data).each(function () {
-      const $item = $(`<li class="dd-item" data-key="${this.mask || this.id}"><div class="dd-handle" style="color:${this.color || 'inherit'} !important">${this.text}</div></li>`).appendTo(
-        '#picklist-items'
-      )
+      const $item = $(`<li class="dd-item" data-key="${this.mask || this.id}"><div class="dd-handle" style="color:${this.color || 'inherit'} !important"></div></li>`).appendTo('#picklist-items')
+      $item.find('div').text(this.text)
       if ($isTrue(this['default'])) $item.addClass('default')
     })
     if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
+
+    let rbapi = []
+    res.data &&
+      res.data.forEach((item) => {
+        rbapi.push([item.mask || item.id, item.text])
+      })
+    rbapi.length > 0 && console.log(`RBAPI ASSISTANT *Option* :\n %c${JSON.stringify(rbapi)}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
   })
 
   $('.J_picklist-edit').on('click', () => {

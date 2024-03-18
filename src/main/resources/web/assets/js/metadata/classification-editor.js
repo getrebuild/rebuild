@@ -150,6 +150,13 @@ class LevelBox extends React.Component {
     $.get(`/admin/metadata/classification/load-data-items?data_id=${wpc.id}&parent=${p || ''}`, (res) => {
       this.clear()
       this.setState({ items: res.data, activeId: null })
+
+      let rbapi = []
+      res.data &&
+        res.data.forEach((item) => {
+          rbapi.push([item[0], item[1]])
+        })
+      rbapi.length > 0 && console.log(`RBAPI ASSISTANT *Classification* :\n %c${JSON.stringify(rbapi)}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
     })
   }
 
