@@ -30,14 +30,23 @@ class ContentAutoApproval extends ActionContentSpec {
               <p className="form-text">{WrapHtml($L('需要先添加 [审批流程](../approvals) 才能在此处选择'))}</p>
             </div>
           </div>
-          <div className="form-group row">
-            <label className="col-12 col-lg-3 col-form-label text-lg-right" />
+          <div className="form-group row pt-1">
+            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('审批模式')}</label>
             <div className="col-12 col-lg-8">
-              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                <input className="custom-control-input" type="checkbox" ref={(c) => (this._$submitMode = c)} />
-                <span className="custom-control-label">{$L('提交模式')}</span>
-              </label>
-              <p className="form-text">{$L('仅提交不审批。选择的审批流程至少配置一个审批人，否则会提交失败')}</p>
+              <select className="form-control form-control-sm" ref={(c) => (this._$useMode = c)}>
+                <optgroup label={$L('未提交记录')}>
+                  <option value="1">{$L('直接通过')}</option>
+                  <option value="2">{$L('仅提交')}</option>
+                </optgroup>
+                <optgroup label={$L('审批中记录')}>
+                  <option value="11">{$L('通过')}</option>
+                  <option value="12">{$L('驳回')}</option>
+                  <option value="13">{$L('退回至上一步')}</option>
+                </optgroup>
+                <optgroup label={$L('已通过记录')}>
+                  <option value="21">{$L('撤销')}</option>
+                </optgroup>
+              </select>
             </div>
           </div>
         </form>
@@ -54,25 +63,29 @@ class ContentAutoApproval extends ActionContentSpec {
       this.setState({ approvalList: res.data || [] }, () => {
         $(this._$useApproval).select2({
           placeholder: $L('无'),
-          allowClear: false,
+          allowClear: true,
         })
 
         if (content.useApproval) {
           $(this._$useApproval).val(content.useApproval).trigger('change')
-          content.submitMode && $(this._$submitMode).attr('checked', true)
+          // comp: v3.7
+          if (content.submitMode) content.useMode = 2
+          $(this._$useMode).val(content.useMode).trigger('change')
         }
       })
     })
+
+    $(this._$useMode).select2({})
   }
 
   buildContent() {
     const s = {
       useApproval: $val(this._$useApproval) || null,
-      submitMode: $val(this._$submitMode),
+      useMode: $val(this._$useMode) || null,
     }
 
-    if (s.submitMode && !s.useApproval) {
-      RbHighbar.create($L('启用提交模式必须选择审批流程'))
+    if (!s.useApproval && ~~s.useMode !== 1) {
+      RbHighbar.create($L('仅“直接通过”模式才可以不使用审批流程'))
       return false
     } else {
       return s

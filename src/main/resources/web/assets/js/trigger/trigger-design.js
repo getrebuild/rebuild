@@ -91,7 +91,7 @@ $(document).ready(() => {
   // 指定字段
   $('.when-update a').on('click', (e) => {
     $stopEvent(e, true)
-    renderRbcomp(
+    renderDlgcomp(
       <DlgSpecFields
         selected={whenUpdateFields}
         onConfirm={(s) => {
@@ -100,7 +100,8 @@ $(document).ready(() => {
           if (s.length > 0) $s.text(`${$s.text().split(' (')[0]} (${s.length})`)
           else $s.text($s.text().split(' (')[0])
         }}
-      />
+      />,
+      'DlgSpecFields'
     )
   })
   DlgSpecFields.render(wpc.actionContent)
@@ -108,7 +109,7 @@ $(document).ready(() => {
   // 指定步骤
   $('.when-approve a').on('click', (e) => {
     $stopEvent(e, true)
-    renderRbcomp(
+    renderDlgcomp(
       <DlgSpecApproveNodes
         selected={whenApproveNodes}
         onConfirm={(s) => {
@@ -117,7 +118,8 @@ $(document).ready(() => {
           if (s.length > 0) $s.text(`${$s.text().split(' (')[0]} (${s.length})`)
           else $s.text($s.text().split(' (')[0])
         }}
-      />
+      />,
+      'DlgSpecApproveNodes'
     )
   })
   DlgSpecApproveNodes.render(wpc.actionContent)
@@ -414,7 +416,6 @@ class DlgSpecFields extends RbModalHandler {
           </RF>
         }
         ref={(c) => (this._dlg = c)}
-        disposeOnHide
         width="780">
         <div className="p-2">
           <RbAlertBox message={$L('指定字段被更新时触发，默认为全部字段')} />
@@ -488,7 +489,6 @@ class DlgSpecApproveNodes extends RbModalHandler {
           </RF>
         }
         ref={(c) => (this._dlg = c)}
-        disposeOnHide
         width="780">
         <div className="p-2">
           <RbAlertBox message={$L('指定步骤 (名称) 审核通过时触发，默认仅为最终审核通过时')} />
@@ -544,6 +544,10 @@ function disableWhen() {
       for (let i = 0; i < args.length; i++) {
         if (args[i] === when) {
           $(this).attr('disabled', true)
+          // 指定步骤/指定字段
+          if (when === 128 || when === 4) {
+            $(this).parent().find('>a').remove()
+          }
           break
         }
       }

@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger;
 
-import com.rebuild.core.service.trigger.impl.AutoApproval;
 import com.rebuild.core.service.trigger.impl.AutoAssign;
 import com.rebuild.core.service.trigger.impl.AutoShare;
 import com.rebuild.core.service.trigger.impl.FieldAggregation;
@@ -32,7 +31,7 @@ public enum ActionType {
     GROUPAGGREGATION("分组聚合", GroupAggregation.class),
     DATAVALIDATE("数据校验", "com.rebuild.rbv.trigger.DataValidate"),
     SENDNOTIFICATION("发送通知", SendNotification.class),
-    AUTOAPPROVAL("自动审批", AutoApproval.class),
+    AUTOAPPROVAL("自动审批", "com.rebuild.rbv.trigger.AutoApproval"),
     AUTOREVOKE("自动撤销审批", "com.rebuild.rbv.trigger.AutoRevoke"),
     AUTOASSIGN("自动分配", AutoAssign.class),
     AUTOSHARE("自动共享", AutoShare.class),

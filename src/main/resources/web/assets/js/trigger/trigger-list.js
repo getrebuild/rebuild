@@ -21,6 +21,7 @@ const RBV_TRIGGERS = {
   'AUTOUNSHARE': $L('自动取消共享'),
   'CREATEFEED': $L('新建动态'),
   'AUTOGENREPORT': $L('自动报表导出'),
+  'AUTOAPPROVAL': $L('自动审批'),
 }
 
 const WHENS = {

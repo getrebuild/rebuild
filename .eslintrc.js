@@ -65,6 +65,7 @@ module.exports = {
     $initReferenceSelect2: true,
     $keepModalOpen: true,
     renderRbcomp: true,
+    renderDlgcomp: true,
     RbSpinner: true,
     RbAlertBox: true,
     RbModal: true,
