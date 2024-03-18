@@ -167,6 +167,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   $.fn.select2.defaults.set('matcher', function (params, data) {
     return $select2MatcherAll(params, data)
   })
+  $.fn.select2.defaults.set('minimumResultsForSearch', 9)
 })(jQuery)
 
 // extends Array

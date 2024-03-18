@@ -253,4 +253,23 @@ public class ApprovalAdminController extends BaseController {
         }
         return RespBody.ok(res);
     }
+
+    @RequestMapping("approval/expires-auto-fields")
+    public RespBody expiresAutoFields(@EntityParam Entity entity, HttpServletRequest request) {
+        List<Object> dateFields = new ArrayList<>();
+        List<Object> urgeUsers = new ArrayList<>();
+
+        for (Field d : MetadataSorter.sortFields(entity, DisplayType.DATE, DisplayType.DATETIME)) {
+            if (!MetadataHelper.isCommonsField(d)) {
+                dateFields.add(EasyMetaFactory.toJSON(d));
+            }
+        }
+
+        urgeUsers.add(new String[] { ApprovalHelper.APPROVAL_APPROVER, Language.L("审批人") });
+        urgeUsers.add(new String[] { ApprovalHelper.APPROVAL_SUBMITOR, Language.L("提交人") });
+
+        Object res = JSONUtils.toJSONObject(
+                new String[] { "dateFields", "urgeUsers" }, new Object[] { dateFields, urgeUsers } );
+        return RespBody.ok(res);
+    }
 }

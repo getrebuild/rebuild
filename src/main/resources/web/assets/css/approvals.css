@@ -49,16 +49,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 1.23rem;
 }
 
-/*#config-side .header > input::after {*/
-/*  content: '\f158';*/
-/*  font-family: 'Material-Design-Iconic-Font';*/
-/*  width: 24px;*/
-/*  height: 32px;*/
-/*  display: inline-block;*/
-/*  position: absolute;*/
-/*  background-color: #ff0;*/
-/*}*/
-
 #config-side .header > input {
   background-color: rgba(255, 255, 255, 0.4);
   border-radius: 2px;
@@ -701,4 +691,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .fields-table td .close {
   font-size: 1.2rem;
+}
+
+.expires-by-time {
+  width: 180px;
+}
+
+.expires-notify-set {
+  background-color: #eee;
+  padding: 20px;
+  padding-top: 15px;
+  border-radius: 3px;
+}
+
+.expires-notify-set select {
+  width: 232px;
 }
