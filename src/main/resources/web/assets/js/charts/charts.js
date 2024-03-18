@@ -1272,6 +1272,7 @@ class DataList extends BaseChart {
                   </th>
                 )
               })}
+              <th width="40" />
             </tr>
           </thead>
           <tbody>
@@ -1279,17 +1280,17 @@ class DataList extends BaseChart {
               const lastCell = row[lastIndex]
               const rkey = `tr-${lastCell.id}`
               return (
-                <tr
-                  key={rkey}
-                  data-id={lastCell.id}
-                  onDoubleClick={(e) => {
-                    $stopEvent(e, true)
-                    window.open(`${rb.baseUrl}/app/redirect?id=${lastCell.id}&type=newtab`)
-                  }}>
+                <tr key={rkey} data-id={lastCell.id}>
                   {row.map((c, idx) => {
                     if (idx === lastIndex) return null // Last is ID
                     return this.renderCell(c, listFields[idx])
                   })}
+
+                  <td className="open-newtab">
+                    <a href={`${rb.baseUrl}/app/redirect?id=${lastCell.id}&type=newtab`} target="_blank" title={$L('打开')}>
+                      <i className="zmdi zmdi-open-in-new icon" />
+                    </a>
+                  </td>
                 </tr>
               )
             })}
@@ -1307,21 +1308,20 @@ class DataList extends BaseChart {
         .perfectScrollbar()
 
       let trActive
-      const $els = this._$tb.find('tbody tr').on('mousedown', function () {
+      const $trs = this._$tb.find('tbody tr').on('mousedown', function () {
         if (trActive === this) {
           $(this).toggleClass('highlight')
-          return
+        } else {
+          trActive = this
+          $trs.removeClass('highlight')
+          $(this).addClass('highlight')
         }
-        trActive = this
-        $els.removeClass('highlight')
-        $(this).addClass('highlight')
       })
     })
   }
 
   renderCell(cellVal, field) {
-    const c = CellRenders.render(cellVal, field.type, 'auto', `cell-${field.field}`)
-    return c
+    return CellRenders.render(cellVal, field.type, 'auto', `cell-${field.field}`)
   }
 
   resize() {
