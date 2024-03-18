@@ -10,6 +10,9 @@
       .support-plat2 {
         margin-left: -22px;
       }
+      .J_advOpt .custom-control-inline {
+        margin-bottom: 0.8rem;
+      }
     </style>
   </head>
   <body>
@@ -215,7 +218,7 @@
                   </div>
                 </div>
                 <div th:if="${fieldType == 'IMAGE'}" class="form-group row J_for-IMAGE">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('仅允许拍照上传')}]] </label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('仅允许拍照上传')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                       <input class="custom-control-input" type="checkbox" id="imageCapture" />
@@ -449,28 +452,34 @@
                 <div class="form-group row hide J_advOpt">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('高级选项')}]] <sup class="rbv"></sup></label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
-                    <label class="custom-control custom-control-sm custom-checkbox bosskey-show">
-                      <input class="custom-control-input" type="checkbox" id="fieldQueryable" th:data-o="${fieldQueryable}" />
-                      <span class="custom-control-label">
-                        [[${bundle.L('允许使用')}]]
-                        <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('不允许使用的字段对普通用户不可见')}"></i>
-                      </span>
-                    </label>
-                    <label class="custom-control custom-control-sm custom-checkbox">
-                      <input class="custom-control-input" type="checkbox" id="textScanCode" th:data-o="${textScanCode}" />
-                      <span class="custom-control-label">
-                        [[${bundle.L('启用扫码')}]]
-                        <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('仅可在手机版企业微信、钉钉中使用')}"></i>
-                      </span>
-                    </label>
-                    <label class="custom-control custom-control-sm custom-checkbox">
-                      <input class="custom-control-input" type="checkbox" id="advDesensitized" />
-                      <span class="custom-control-label">
-                        [[${bundle.L('信息脱敏')}]]
-                        <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('可在权限角色中启用“允许查看明文”选项')}"></i>
-                      </span>
-                    </label>
                     <div>
+                      <label class="custom-control custom-control-sm custom-checkbox custom-control-inline bosskey-show">
+                        <input class="custom-control-input" type="checkbox" id="fieldQueryable" th:data-o="${fieldQueryable}" />
+                        <span class="custom-control-label">
+                          [[${bundle.L('允许使用')}]]
+                          <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('不允许使用的字段对普通用户不可见')}"></i>
+                        </span>
+                      </label>
+                    </div>
+                    <div>
+                      <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                        <input class="custom-control-input" type="checkbox" id="textScanCode" th:data-o="${textScanCode}" />
+                        <span class="custom-control-label">
+                          [[${bundle.L('启用扫码')}]]
+                          <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('仅可在手机版企业微信、钉钉中使用')}"></i>
+                        </span>
+                      </label>
+                    </div>
+                    <div>
+                      <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                        <input class="custom-control-input" type="checkbox" id="advDesensitized" />
+                        <span class="custom-control-label">
+                          [[${bundle.L('信息脱敏')}]]
+                          <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('可在权限角色中启用“允许查看明文”选项')}"></i>
+                        </span>
+                      </label>
+                    </div>
+                    <div style="margin-top: 0.25rem">
                       <input
                         type="text"
                         class="form-control form-control-sm"
@@ -493,6 +502,7 @@
                     </div>
                   </div>
                 </div>
+
                 <div class="form-group row footer">
                   <div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
                     <div th:if="${!fieldBuildin}" class="J_action">

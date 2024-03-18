@@ -351,7 +351,7 @@ public class ApprovalProcessor extends SetUser {
 
         int bLength = nextNodes.size();
         for (FlowNode node : nextNodes) {
-            // 匹配最后一个
+            // 匹配最后一个分支
             if (--bLength == 0) {
                 return getNextNode(node.getNodeId());
             }

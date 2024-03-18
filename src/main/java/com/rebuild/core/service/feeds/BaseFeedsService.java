@@ -12,7 +12,6 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
-import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
@@ -121,7 +120,7 @@ public abstract class BaseFeedsService extends ObservableService {
 
         String atAllKey = "@" + Language.L("所有人");
         if (fakeContent.contains(atAllKey)
-                && Application.getPrivilegesManager().allow(UserContextHolder.getUser(), ZeroEntry.AllowAtAllUsers)) {
+                && Application.getPrivilegesManager().allow(getCurrentUser(), ZeroEntry.AllowAtAllUsers)) {
             fakeContent = fakeContent.replace(atAllKey, "@" + UserService.ALLUSERS);
         }
 

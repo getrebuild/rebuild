@@ -439,7 +439,8 @@ var _showNotification = function (state) {
   if (_Notification) {
     if (_Notification.permission === 'granted') {
       var n = new _Notification($L('你有 %d 条未读消息', state), {
-        icon: rb.baseUrl + '/assets/img/favicon.png',
+        body: window.rb.appName,
+        icon: rb.baseUrl + '/assets/img/icon-192x192.png',
         tag: 'rbNotification',
         renotify: true,
         silent: false,
@@ -477,7 +478,7 @@ var _showStateMM = function (mm) {
       RbGritter.create(WrapHtml($mm.prop('outerHTML')), {
         timeout: (mm.time + 60) * 1000,
         type: 'danger',
-        icon: 'mdi-server-network',
+        icon: 'mdi-server-off',
         onCancel: function () {
           var expires = moment()
             .add(Math.min(mm.time - 30, 300), 'seconds')

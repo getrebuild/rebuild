@@ -174,7 +174,7 @@ public class NotificationController extends BaseController {
         long time = (mm.getStartTime().getTime() - CalendarUtils.now().getTime()) / 1000;
         String note = mm.getNote() == null ? "" : String.format(" (%s)", mm.getNote());
         DateFormat df = CalendarUtils.getDateFormat("yyyy-MM-dd HH:mm");
-        String msg = Language.L("系统将于 %s (%d 分钟后) 进行维护%s，预计 %s 完成。在此期间系统将无法使用，请及时保存数据，以免造成数据丢失！[]如有重要操作正在进行，请联系系统管理员调整维护时间。",
+        String msg = Language.L("系统将于 %s (%d 分钟后) 进行维护%s，预计 %s 完成。[]维护期间系统无法使用，请及时保存数据。如有重要操作正在进行，请联系系统管理员调整维护时间。",
                 df.format(mm.getStartTime()), Math.max(time / 60, 1), note, df.format(mm.getEndTime()));
 
         return JSONUtils.toJSONObject(new String[] { "msg", "time" }, new Object[] { msg, time });

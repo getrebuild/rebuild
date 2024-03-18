@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.JSONable;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.util.Assert;
 
 import java.io.Serializable;
@@ -66,11 +67,11 @@ public class ConfigBean implements Serializable, Cloneable, JSONable {
     }
 
     public Integer getInteger(String name) {
-        return (Integer) data.get(name);
+        return ObjectUtils.defaultIfNull((Integer) data.get(name), 0);
     }
 
     public Long getLong(String name) {
-        return (Long) data.get(name);
+        return ObjectUtils.defaultIfNull((Long) data.get(name), 0L);
     }
 
     public JSON getJSON(String name) {

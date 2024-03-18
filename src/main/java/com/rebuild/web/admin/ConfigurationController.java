@@ -76,11 +76,12 @@ public class ConfigurationController extends BaseController {
         // Available langs
         mv.getModel().put("availableLangs", JSON.toJSON(Application.getLanguage().availableLocales()));
 
-        JSONObject auth = License.queryAuthority();
+        final JSONObject auth = License.queryAuthority();
         mv.getModel().put("LicenseType",
                 auth.getString("authType") + " (" + auth.getString("authObject") + ")");
         mv.getModel().put("Version", Application.VER);
-        mv.getModel().put("SN", "***" + License.SN().substring(12));
+        mv.getModel().put("SN", "***" + auth.getString("sn").substring(12));
+        mv.getModel().put("VN", auth.getString("vn"));
 
         return mv;
     }

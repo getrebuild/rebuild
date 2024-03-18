@@ -1275,6 +1275,7 @@ const renderRbcomp = function (JSX, container, callback, v18) {
   ReactDOM.render(JSX, container, callback)
   return container
 }
+
 // react v18
 const renderRbcomp18 = function (JSX, container) {
   return renderRbcomp(JSX, container, null, true)

@@ -103,4 +103,15 @@ public class AdvFilterParserTest extends TestSupport {
         items.add(JSON.parseObject("{ op:'FUD', field:'datetime', value:'1' }"));
         System.out.println(new AdvFilterParser(filterExp).toSqlWhere());
     }
+
+    @Test
+    void testRep() {
+        JSONObject filterExp = new JSONObject();
+        filterExp.put("entity", TestAllFields);
+        JSONArray items = new JSONArray();
+        filterExp.put("items", items);
+
+        items.add(JSON.parseObject("{ op:'REP', field:'TestAllFieldsName', value:2 }"));
+        System.out.println(new AdvFilterParser(filterExp).toSqlWhere());
+    }
 }

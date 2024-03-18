@@ -168,7 +168,7 @@ public class FieldWriteback extends FieldAggregation {
             List<String> tschainCurrentLoop = new ArrayList<>(tschain);
             tschainCurrentLoop.add(chainName);
             TRIGGER_CHAIN.set(tschainCurrentLoop);
-            System.out.println("[dev] Use current-loop tschain : " + tschainCurrentLoop);
+            if (CommonsUtils.DEVLOG) System.out.println("[dev] Use current-loop tschain : " + tschainCurrentLoop);
 
             try {
                 if (stopPropagation) {

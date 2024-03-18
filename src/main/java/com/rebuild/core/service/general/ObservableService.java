@@ -64,7 +64,7 @@ public abstract class ObservableService extends SafeObservable implements Servic
         record = delegateService.create(record);
 
         if (countObservers() > 0) {
-            notifyObservers(OperatingContext.create(UserContextHolder.getUser(), BizzPermission.CREATE, null, record));
+            notifyObservers(OperatingContext.create(getCurrentUser(), BizzPermission.CREATE, null, record));
         }
         return record;
     }
@@ -76,15 +76,14 @@ public abstract class ObservableService extends SafeObservable implements Servic
         record = delegateService.update(record);
 
         if (countObservers() > 0) {
-            notifyObservers(OperatingContext.create(UserContextHolder.getUser(), BizzPermission.UPDATE, before, record));
+            notifyObservers(OperatingContext.create(getCurrentUser(), BizzPermission.UPDATE, before, record));
         }
         return record;
     }
 
     @Override
     public int delete(ID recordId) {
-        ID currentUser = UserContextHolder.getRestoreUser();
-        if (currentUser == null) currentUser = UserContextHolder.getUser();
+        final ID currentUser = getCurrentUser();
 
         Record deleted = null;
         if (countObservers() > 0) {
@@ -126,7 +125,7 @@ public abstract class ObservableService extends SafeObservable implements Servic
      * @return 返回 null 表示没开启
      */
     protected RecycleStore useRecycleStore(ID recordId) {
-        final ID currentUser = UserContextHolder.getUser();
+        final ID currentUser = getCurrentUser();
 
         RecycleStore recycleBin = null;
         if (RecycleBinCleanerJob.isEnableRecycleBin()) {
@@ -140,5 +139,14 @@ public abstract class ObservableService extends SafeObservable implements Servic
         } else {
             return null;
         }
+    }
+
+    /**
+     * 获取原始用户
+     *
+     * @return
+     */
+    protected ID getCurrentUser() {
+        return UserContextHolder.getReplacedUser();
     }
 }

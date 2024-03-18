@@ -6,7 +6,7 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/view-page.css}" />
     <title th:text="${entityLabel}"></title>
   </head>
-  <body class="view-body">
+  <body class="view-body loading">
     <div class="view-header">
       <i class="header-icon zmdi" th:classappend="|zmdi-${entityIcon}|"></i>
       <h3 class="title" th:text="${bundle.L('%s详情', entityLabel)}"></h3>

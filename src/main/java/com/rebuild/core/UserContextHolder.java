@@ -44,8 +44,10 @@ public class UserContextHolder {
     }
 
     /**
+     * 设置当前用户
+     *
      * @param user
-     * @see #clearUser()
+     * @see #replaceUser(ID)
      */
     public static void setUser(ID user) {
         Assert.notNull(user, "[user] cannot be null");
@@ -119,18 +121,35 @@ public class UserContextHolder {
     }
 
     /**
+     * 设置当前用户，并保持原始用户（如有）
+     *
      * @param user
+     * @see #getReplacedUser()
      * @see #restoreUser()
-     * @see #setUser(ID)
      */
     public static void replaceUser(ID user) {
         Assert.notNull(user, "[user] cannot be null");
 
-        ID e = getUser(Boolean.TRUE);
+        // Keep origin
+        ID e = CALLER_PREV.get();
+        if (e == null) e = getUser(Boolean.TRUE);
+
         if (e != null) CALLER_PREV.set(e);
         else CALLER_PREV.remove();
 
         CALLER.set(user);
+    }
+
+    /**
+     * 获取原始用户
+     * 
+     * @return
+     * @see #replaceUser(ID)
+     */
+    public static ID getReplacedUser() {
+        ID prev = CALLER_PREV.get();
+        if (prev != null) return prev;
+        return getUser();
     }
 
     /**
@@ -145,16 +164,6 @@ public class UserContextHolder {
             return true;
         }
         return false;
-    }
-
-    /**
-     * @return
-     * @see #replaceUser(ID)
-     */
-    public static ID getRestoreUser() {
-        ID prev = CALLER_PREV.get();
-        if (prev != null) return prev;
-        return getUser();
     }
 
     // --
