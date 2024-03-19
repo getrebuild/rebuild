@@ -195,6 +195,9 @@ $(document).ready(() => {
       $('.J_last-logs').removeClass('hide')
     })
   }
+
+  // v3.7
+  $('.page-help>a').attr('href', $('.page-help>a').attr('href') + wpc.actionType.toLowerCase())
 })
 
 const saveFilter = function (res) {
