@@ -229,8 +229,10 @@ public class AggregationEvaluator {
             if (n == null) continue;
 
             // *N
+            boolean xN3 = false;
             if (n instanceof ID && mode == 3) {
                 n = FieldValueHelper.getLabel((ID) n, StringUtils.EMPTY);
+                xN3 = true;
             }
 
             // 多引用
@@ -243,7 +245,7 @@ public class AggregationEvaluator {
                     nvList.add(n);
                 }
             } else {
-                Object v = easyField.wrapValue(n);
+                Object v = xN3 ? n : easyField.wrapValue(n);
                 if (v == null) continue;
 
                 DisplayType dt = easyField.getDisplayType();
