@@ -132,7 +132,8 @@ class AdvFilter extends React.Component {
 
   componentDidMount() {
     const deep = this.props.deep3 || location.href.includes('/admin/') ? 3 : 2
-    $.get(`/commons/metadata/fields?deep=${deep}&entity=${this.props.entity}`, (res) => {
+    const referer = this.props.referer || ''
+    $.get(`/commons/metadata/fields?deep=${deep}&entity=${this.props.entity}&referer=${referer}`, (res) => {
       const validFs = []
       const fields = []
 

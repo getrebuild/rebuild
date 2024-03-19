@@ -81,7 +81,7 @@ $(document).ready(() => {
     if (advFilter) {
       advFilter.show()
     } else {
-      renderRbcomp(<AdvFilter entity={wpc.sourceEntity} filter={wpc.whenFilter} confirm={saveFilter} title={$L('附加过滤条件')} inModal canNoFilters />, null, function () {
+      renderRbcomp(<AdvFilter entity={wpc.sourceEntity} filter={wpc.whenFilter} confirm={saveFilter} title={$L('附加过滤条件')} referer="withasnode" inModal canNoFilters />, null, function () {
         advFilter = this
       })
     }

@@ -371,13 +371,9 @@ public class AdvFilterParser extends SetUser {
                 } else if (isHHH) {
                     int x = NumberUtils.toInt(value);
                     Date datetime = CalendarUtils.add(x, Calendar.HOUR_OF_DAY);
-                    if (x > 0) {
-                        value = CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
-                        valueEnd = CalendarUtils.getUTCDateTimeFormat().format(datetime);
-                    } else {
-                        valueEnd = CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
-                        value = CalendarUtils.getUTCDateTimeFormat().format(datetime);
-                    }
+                    value = CalendarUtils.getUTCDateTimeFormat().format(datetime);
+                    value = value.substring(0, 14) + "00:00";
+                    valueEnd = value.substring(0, 14) + "59:59";
                 } else if (ParseHelper.EVW.equalsIgnoreCase(op) || ParseHelper.EVM.equalsIgnoreCase(op)) {
                     final Calendar today = CalendarUtils.getInstance();
 
