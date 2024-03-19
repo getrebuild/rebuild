@@ -91,7 +91,7 @@ class NodeSpec extends React.Component {
     const call = function (d) {
       that.setState({ data: d, active: false })
     }
-    const props = { ...(this.state.data || {}), call: call, key: 'kns-' + this.props.nodeId }
+    const props = { ...(this.state.data || {}), call: call, key: `kns-${this.props.nodeId}` }
 
     if (this.nodeType === 'start') renderRbcomp(<StartNodeConfig {...props} />, 'config-side')
     else if (this.nodeType === 'approver') renderRbcomp(<ApproverNodeConfig {...props} />, 'config-side')
@@ -100,6 +100,8 @@ class NodeSpec extends React.Component {
     $(document.body).addClass('open-right-sidebar')
     this.setState({ active: true })
     activeNode = this
+
+    if (this.nodeType === 'approver') console.log(`RBAPI ASSISTANT *Approval Node* :\n %c${this.props.nodeId}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
   }
 
   serialize() {
@@ -370,7 +372,7 @@ class ConditionBranch extends NodeGroupSpec {
     }
     const props = { ...(this.state.data || {}), entity: wpc.applyEntity, call: call }
 
-    renderRbcomp(<ConditionBranchConfig key={'kcbc-' + this.props.nodeId} {...props} isLast={this.state.isLast} />, 'config-side')
+    renderRbcomp(<ConditionBranchConfig key={`kcbc-${this.props.nodeId}`} {...props} isLast={this.state.isLast} />, 'config-side')
 
     $(document.body).addClass('open-right-sidebar')
     this.setState({ active: true })
