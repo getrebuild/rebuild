@@ -79,7 +79,7 @@ public class MetaFormatter {
      * @param deep
      * @param filter
      * @return
-     * @see #buildFieldsWithRefs(Entity, int, boolean, boolean, Predicate)
+     * @see #buildFieldsWithRefs(Entity, int, boolean, int, Predicate)
      */
     public static JSONArray buildFieldsWithRefs(Entity entity, int deep, Predicate<BaseMeta> filter) {
         return buildFieldsWithRefs(entity, deep, false, filter);
@@ -91,10 +91,10 @@ public class MetaFormatter {
      * @param riching
      * @param filter
      * @return
-     * @see #buildFieldsWithRefs(Entity, int, boolean, boolean, Predicate)
+     * @see #buildFieldsWithRefs(Entity, int, boolean, int, Predicate)
      */
     public static JSONArray buildFieldsWithRefs(Entity entity, int deep, boolean riching, Predicate<BaseMeta> filter) {
-        return buildFieldsWithRefs(entity, deep, riching, false, filter);
+        return buildFieldsWithRefs(entity, deep, riching, 0, filter);
     }
 
     /**
@@ -103,21 +103,26 @@ public class MetaFormatter {
      * @param entity
      * @param deep 几级
      * @param riching
-     * @param forceWithId 带有主键ID
+     * @param forceWith 1=ID, 2=approvalStepNode
      * @param filter
      * @return
      */
-    public static JSONArray buildFieldsWithRefs(Entity entity, int deep, boolean riching, boolean forceWithId, Predicate<BaseMeta> filter) {
+    public static JSONArray buildFieldsWithRefs(Entity entity, int deep, boolean riching, int forceWith, Predicate<BaseMeta> filter) {
         JSONArray res = new JSONArray();
 
         // 一级
         for (Field field : MetadataSorter.sortFields(entity)) {
             EasyField easyField = EasyMetaFactory.valueOf(field);
             if (filter.test(easyField)) continue;
-
             res.add(buildField(easyField, null, riching));
+
+            // 审批步骤
+            if ((forceWith == 2 || forceWith == 3) && easyField.getName().equals(EntityHelper.ApprovalState)) {
+                res.add(buildField(EasyMetaFactory.valueOf(entity.getField(EntityHelper.ApprovalStepNode)), null, false));
+            }
         }
-        if (forceWithId) {
+        // ID
+        if (forceWith == 1 || forceWith == 3) {
             res.add(buildField(EasyMetaFactory.valueOf(entity.getPrimaryField()), null, false));
         }
 

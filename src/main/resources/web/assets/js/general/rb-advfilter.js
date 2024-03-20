@@ -132,7 +132,8 @@ class AdvFilter extends React.Component {
 
   componentDidMount() {
     const deep = this.props.deep3 || location.href.includes('/admin/') ? 3 : 2
-    $.get(`/commons/metadata/fields?deep=${deep}&entity=${this.props.entity}`, (res) => {
+    const referer = this.props.referer || ''
+    $.get(`/commons/metadata/fields?deep=${deep}&entity=${this.props.entity}&referer=${referer}`, (res) => {
       const validFs = []
       const fields = []
 
@@ -342,6 +343,7 @@ const OP_TYPE = {
   EVW: $L('本周..'),
   EVM: $L('本月..'),
   DDD: $L('指定..天'),
+  HHH: $L('指定..时'),
   REP: $L('重复') + ' (LAB)',
 }
 const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY']
@@ -376,6 +378,7 @@ const OP_DATE_NOPICKER = [
   'EVW',
   'EVM',
   'DDD',
+  'HHH',
   'REP',
 ]
 const REFENTITY_CACHE = {}
@@ -467,6 +470,7 @@ class FilterItem extends React.Component {
         'EVM',
         'DDD',
       ]
+      if (fieldType === 'DATETIME') op.push('HHH')
     } else if (fieldType === 'TIME') {
       op = ['GT', 'LT', 'EQ', 'BW']
     } else if (fieldType === 'FILE' || fieldType === 'IMAGE' || fieldType === 'AVATAR' || fieldType === 'SIGN' || fieldType === 'ANYREFERENCE') {

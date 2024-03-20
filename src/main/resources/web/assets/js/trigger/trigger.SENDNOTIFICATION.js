@@ -101,7 +101,7 @@ class ContentSendNotification extends ActionContentSpec {
               </div>
               <div className={state.userType === 4 ? '' : 'hide'}>
                 <input type="text" className="form-control form-control-sm w-100" ref={(c) => (this._$webhook = c)} style={{ maxWidth: '100%' }} placeholder={$L('群 Webhook 地址')} />
-                <p className="form-text">
+                <p className="form-text link">
                   <a href="https://getrebuild.com/docs/admin/trigger/sendnotification#%E8%8E%B7%E5%8F%96%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E7%BE%A4%20Webhook%20%E5%9C%B0%E5%9D%80" target="_blank">
                     {$L('如何获取群 Webhook 地址')}
                   </a>
@@ -109,7 +109,7 @@ class ContentSendNotification extends ActionContentSpec {
               </div>
               <div className={state.userType === 5 ? '' : 'hide'}>
                 <input type="text" className="form-control form-control-sm w-100" ref={(c) => (this._$groupId = c)} style={{ maxWidth: '100%' }} placeholder={$L('群号')} />
-                <p className="form-text">
+                <p className="form-text link">
                   <a href="https://getrebuild.com/docs/admin/trigger/sendnotification#%E8%8E%B7%E5%8F%96%E9%92%89%E9%92%89%E7%BE%A4%E5%8F%B7" target="_blank">
                     {$L('如何获取群号')}
                   </a>
@@ -268,11 +268,11 @@ class AccountSelectorWithField extends UserSelector {
 }
 
 // eslint-disable-next-line no-undef
-LastLogsViewer.renderLog = function (log) {
-  return log.level === 1 && log.message ? (
+LastLogsViewer.renderLog = function (L) {
+  return L.level === 1 && L.message ? (
     <div className="v36-logdesc">
-      {$L('已发送至')}
-      {log.message.split(',').map((a, idx) => {
+      {$L('发送至')}
+      {L.message.split(',').map((a, idx) => {
         return $regex.isId(a) ? (
           <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/redirect?id=${a}&type=newtab`} target="_blank">
             {a}
@@ -285,6 +285,6 @@ LastLogsViewer.renderLog = function (log) {
       })}
     </div>
   ) : (
-    <p className="m-0 text-muted text-uppercase">{log.message || 'N'}</p>
+    false
   )
 }

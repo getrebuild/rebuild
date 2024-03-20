@@ -357,16 +357,23 @@ public class AdvFilterParser extends SetUser {
             final boolean isREX = ParseHelper.RED.equalsIgnoreCase(op)
                     || ParseHelper.REM.equalsIgnoreCase(op)
                     || ParseHelper.REY.equalsIgnoreCase(op);
+            final boolean isHHH = ParseHelper.HHH.equalsIgnoreCase(op);
 
             if (ParseHelper.TDA.equalsIgnoreCase(op)
                     || ParseHelper.YTA.equalsIgnoreCase(op)
                     || ParseHelper.TTA.equalsIgnoreCase(op)
-                    || ParseHelper.DDD.equalsIgnoreCase(op)
+                    || ParseHelper.DDD.equalsIgnoreCase(op) || isHHH
                     || ParseHelper.EVW.equalsIgnoreCase(op) || ParseHelper.EVM.equalsIgnoreCase(op)) {
 
                 if (ParseHelper.DDD.equalsIgnoreCase(op)) {
                     int x = NumberUtils.toInt(value);
                     value = formatDate(addDay(x), 0);
+                } else if (isHHH) {
+                    int x = NumberUtils.toInt(value);
+                    Date datetime = CalendarUtils.add(x, Calendar.HOUR_OF_DAY);
+                    value = CalendarUtils.getUTCDateTimeFormat().format(datetime);
+                    value = value.substring(0, 14) + "00:00";
+                    valueEnd = value.substring(0, 14) + "59:59";
                 } else if (ParseHelper.EVW.equalsIgnoreCase(op) || ParseHelper.EVM.equalsIgnoreCase(op)) {
                     final Calendar today = CalendarUtils.getInstance();
 
@@ -405,7 +412,7 @@ public class AdvFilterParser extends SetUser {
 
                 if (isDatetime) {
                     op = ParseHelper.BW;
-                    valueEnd = parseValue(value, op, lastFieldMeta, true);
+                    if (!isHHH) valueEnd = parseValue(value, op, lastFieldMeta, true);
                 }
 
             } else if (ParseHelper.CUW.equalsIgnoreCase(op)

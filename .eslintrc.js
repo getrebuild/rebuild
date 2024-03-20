@@ -66,6 +66,7 @@ module.exports = {
     $keepModalOpen: true,
     renderRbcomp: true,
     renderRbcomp18: true,
+    renderDlgcomp: true,
     RbSpinner: true,
     RbAlertBox: true,
     RbModal: true,

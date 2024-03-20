@@ -4,17 +4,42 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global LastLogsViewer */
 
 // ~~ 自动审批
 // eslint-disable-next-line
 class ContentAutoApproval extends ActionContentSpec {
-  static = { ...this.props }
+  constructor(props) {
+    super(props)
+    this.state.useMode = 1
+  }
 
   render() {
     return (
       <div className="auto-approval">
         <form className="simple">
           <div className="form-group row pt-1">
+            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('审批模式')}</label>
+            <div className="col-12 col-lg-8">
+              <select className="form-control form-control-sm" ref={(c) => (this._$useMode = c)}>
+                <optgroup label={$L('未提交记录')}>
+                  <option value="1">{$L('直接通过')}</option>
+                  <option value="2">{$L('仅提交')}</option>
+                </optgroup>
+                <optgroup label={$L('审批中记录')}>
+                  <option value="11">{$L('通过')}</option>
+                  <option value="12">{$L('驳回')}</option>
+                  <option value="13">{$L('退回至上一步')}</option>
+                </optgroup>
+                <optgroup label={$L('已通过记录')}>
+                  <option value="21">{$L('撤销')}</option>
+                </optgroup>
+              </select>
+              <p className="form-text">{WrapHtml($L('针对不同的记录审批状态，可选择不同的审批模式'))}</p>
+            </div>
+          </div>
+
+          <div className={`form-group row pt-2 ${this.state.useMode <= 2 ? '' : 'hide'}`}>
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('使用审批流程')}</label>
             <div className="col-12 col-lg-8">
               <select className="form-control form-control-sm" ref={(c) => (this._$useApproval = c)}>
@@ -30,16 +55,6 @@ class ContentAutoApproval extends ActionContentSpec {
               <p className="form-text">{WrapHtml($L('需要先添加 [审批流程](../approvals) 才能在此处选择'))}</p>
             </div>
           </div>
-          <div className="form-group row">
-            <label className="col-12 col-lg-3 col-form-label text-lg-right" />
-            <div className="col-12 col-lg-8">
-              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                <input className="custom-control-input" type="checkbox" ref={(c) => (this._$submitMode = c)} />
-                <span className="custom-control-label">{$L('提交模式')}</span>
-              </label>
-              <p className="form-text">{$L('仅提交不审批。选择的审批流程至少配置一个审批人，否则会提交失败')}</p>
-            </div>
-          </div>
         </form>
       </div>
     )
@@ -49,30 +64,34 @@ class ContentAutoApproval extends ActionContentSpec {
     // eslint-disable-next-line no-undef
     disableWhen(2, 16, 32, 64, 128, 256, 1024, 2048)
 
+    $(this._$useMode)
+      .select2({})
+      .on('change', (e) => this.setState({ useMode: ~~e.target.value }))
+
     const content = this.props.content || {}
     $.get(`/admin/robot/trigger/auto-approval-alist?entity=${this.props.sourceEntity}`, (res) => {
       this.setState({ approvalList: res.data || [] }, () => {
         $(this._$useApproval).select2({
           placeholder: $L('无'),
-          allowClear: false,
+          allowClear: true,
         })
 
-        if (content.useApproval) {
-          $(this._$useApproval).val(content.useApproval).trigger('change')
-          content.submitMode && $(this._$submitMode).attr('checked', true)
-        }
+        // comp: v3.7
+        if (content.submitMode) content.useMode = 2
+        if (content.useMode) $(this._$useMode).val(content.useMode).trigger('change')
+        if (content.useApproval) $(this._$useApproval).val(content.useApproval).trigger('change')
       })
     })
   }
 
   buildContent() {
     const s = {
+      useMode: this.state.useMode,
       useApproval: $val(this._$useApproval) || null,
-      submitMode: $val(this._$submitMode),
     }
 
-    if (s.submitMode && !s.useApproval) {
-      RbHighbar.create($L('启用提交模式必须选择审批流程'))
+    if (s.useMode === 2 && !s.useApproval) {
+      RbHighbar.create($L('审批模式为“仅提交”时需要使用审批流程'))
       return false
     } else {
       return s
@@ -86,24 +105,6 @@ renderContentComp = function (props) {
     // eslint-disable-next-line no-undef
     contentComp = this
   })
-}
 
-// eslint-disable-next-line no-undef
-LastLogsViewer.renderLog = function (log) {
-  return log.level === 1 && log.affected ? (
-    <dl className="m-0">
-      <dt>{$L('审批记录')}</dt>
-      <dd className="mb-0">
-        {log.affected.map((a, idx) => {
-          return (
-            <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/redirect?id=${a}&type=newtab`} target="_blank">
-              {a}
-            </a>
-          )
-        })}
-      </dd>
-    </dl>
-  ) : (
-    <p className="m-0 text-muted text-uppercase">{log.message || 'N'}</p>
-  )
+  LastLogsViewer._Title = $L('审批记录')
 }

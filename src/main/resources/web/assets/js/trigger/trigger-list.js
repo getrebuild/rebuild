@@ -20,7 +20,8 @@ const RBV_TRIGGERS = {
   'PROXYTRIGGERACTION': $L('自定义触发器'),
   'AUTOUNSHARE': $L('自动取消共享'),
   'CREATEFEED': $L('新建动态'),
-  'AUTOGENREPORT': $L('自动报表导出'),
+  'AUTOGENREPORT': $L('导出报表'),
+  'AUTOAPPROVAL': $L('自动审批'),
 }
 
 const WHENS = {
@@ -194,7 +195,7 @@ class TriggerEdit extends ConfigFormDlg {
     $.get('/admin/robot/trigger/available-actions', (res) => {
       let actions = res.data || []
       if (!window.__BOSSKEY) {
-        actions = actions.filter((item) => !['PROXYTRIGGERACTION', 'AUTOGENREPORT'].includes(item[0]))
+        actions = actions.filter((item) => !['PROXYTRIGGERACTION', 'AUTOGENREPORT', 'AUTOREVOKE'].includes(item[0]))
       }
 
       this.setState({ actions }, () => {

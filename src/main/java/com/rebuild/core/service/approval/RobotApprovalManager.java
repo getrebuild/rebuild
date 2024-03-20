@@ -95,6 +95,17 @@ public class RobotApprovalManager implements ConfigManager {
     }
 
     /**
+     * @param approvalId
+     * @return
+     * @see #getFlowDefinition(Entity, ID)
+     */
+    public FlowDefinition getFlowDefinition(ID approvalId) {
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(approvalId, "belongEntity");
+        Entity entity = MetadataHelper.getEntity((String) o[0]);
+        return getFlowDefinition(entity, approvalId);
+    }
+
+    /**
      * @param entity
      * @param approvalId
      * @return

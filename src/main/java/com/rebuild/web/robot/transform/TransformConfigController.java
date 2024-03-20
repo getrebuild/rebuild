@@ -158,7 +158,7 @@ public class TransformConfigController extends BaseController {
         JSONArray fields;
         // 源
         if (sourceType) {
-            fields = MetaFormatter.buildFieldsWithRefs(entity, 3, true, true, field -> {
+            fields = MetaFormatter.buildFieldsWithRefs(entity, 3, true, 1, field -> {
                 if (field instanceof EasyField) {
                     EasyField easyField = (EasyField) field;
                     int c = easyField.getDisplayType() == DisplayType.REFERENCE

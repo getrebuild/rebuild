@@ -268,6 +268,8 @@ $(document).ready(function () {
     _handleTag(extConfig.tagList || [], extConfig.tagMaxSelect || null)
   } else if (dt === 'ANYREFERENCE') {
     _handleAnyReference(extConfig.anyreferenceEntities)
+  } else if (dt === 'TEXT') {
+    _handleText(extConfig.textCommon)
   }
 
   // 只读属性
@@ -334,14 +336,21 @@ const _handlePicklist = function (dt) {
       $('#picklist-items li').text($L('请添加选项'))
       return
     }
+
     $('#picklist-items').empty()
     $(res.data).each(function () {
-      const $item = $(`<li class="dd-item" data-key="${this.mask || this.id}"><div class="dd-handle" style="color:${this.color || 'inherit'} !important">${this.text}</div></li>`).appendTo(
-        '#picklist-items'
-      )
+      const $item = $(`<li class="dd-item" data-key="${this.mask || this.id}"><div class="dd-handle" style="color:${this.color || 'inherit'} !important"></div></li>`).appendTo('#picklist-items')
+      $item.find('div').text(this.text)
       if ($isTrue(this['default'])) $item.addClass('default')
     })
     if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
+
+    let rbapi = []
+    res.data &&
+      res.data.forEach((item) => {
+        rbapi.push([item.mask || item.id, item.text])
+      })
+    rbapi.length > 0 && console.log(`RBAPI ASSISTANT *Option* :\n %c${JSON.stringify(rbapi)}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
   })
 
   $('.J_picklist-edit').on('click', () => {
@@ -670,6 +679,27 @@ const _handleTag = function (tagList, tagMaxSelect) {
     .on('change', function (e) {
       $('.J_tagMaxSelect b').text(e.value.newValue)
     })
+}
+
+const _handleText = function (common) {
+  let s2data = common ? common.split(',') : []
+  s2data = s2data.map((item) => {
+    return { id: item, text: item, selected: true }
+  })
+  $('#textCommon').select2({
+    placeholder: $L('(选填)'),
+    data: s2data,
+    multiple: true,
+    maximumSelectionLength: 99,
+    language: {
+      noResults: function () {
+        return $L('请输入')
+      },
+    },
+    tags: true,
+    theme: 'default select2-tag',
+    allowClear: true,
+  })
 }
 
 class TagEditor extends RbAlert {

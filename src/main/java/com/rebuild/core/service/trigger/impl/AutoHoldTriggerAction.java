@@ -147,7 +147,7 @@ public abstract class AutoHoldTriggerAction extends TriggerAction {
     }
 
     /**
-     * 获取审核状态
+     * 获取审批状态
      *
      * @param recordId
      * @return
