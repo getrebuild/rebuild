@@ -316,11 +316,14 @@
             </div>
             <div class="col-lg-3 col-12 col-right-compact">
               <div class="card">
-                <div class="card-header card-header-divider">[[${bundle.L('关于')}]] REBUILD</div>
+                <div class="card-header card-header-divider">[[${bundle.L('关于')}]]</div>
                 <div class="card-body">
                   <p class="mb-1">[[${bundle.L('系统版本')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/download?v=${Version}|">[[${Version}]]</a></p>
                   <p class="mb-1">[[${bundle.L('授权类型')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/authority?sn=${SN}|">[[${LicenseType}]]</a></p>
-                  <p th:if="${VN != null}" class="mb-1">[[${bundle.L('服务支持码')}]] <a>[[${VN}]]</a></p>
+                  <p th:if="${VN != null}" class="mb-2">
+                    [[${bundle.L('服务支持码')}]] <span>[[${VN}]]</span>
+                    <a th:if="${VNExpires}" class="badge badge-danger up-2 badge-pill" href="https://getrebuild.com/buy-license?type=10fw" target="_blank">[[${bundle.L('服务支持已到期')}]]</a>
+                  </p>
                   <ul style="line-height: 2">
                     <li><a class="link" target="_blank" th:href="@{/error/server-status}">[[${bundle.L('系统状态')}]]</a></li>
                     <li><a class="link" target="_blank" href="https://getrebuild.com/docs/">[[${bundle.L('帮助文档')}]]</a></li>

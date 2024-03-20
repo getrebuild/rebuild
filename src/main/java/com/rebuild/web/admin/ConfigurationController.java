@@ -82,6 +82,7 @@ public class ConfigurationController extends BaseController {
         mv.getModel().put("Version", Application.VER);
         mv.getModel().put("SN", "***" + auth.getString("sn").substring(12));
         mv.getModel().put("VN", auth.getString("vn"));
+        mv.getModel().put("VNExpires", auth.getIntValue("vnExpiresLeft") < 0);
 
         return mv;
     }
