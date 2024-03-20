@@ -268,11 +268,11 @@ class AccountSelectorWithField extends UserSelector {
 }
 
 // eslint-disable-next-line no-undef
-LastLogsViewer.renderLog = function (log) {
-  return log.level === 1 && log.message ? (
+LastLogsViewer.renderLog = function (L) {
+  return L.level === 1 && L.message ? (
     <div className="v36-logdesc">
-      {$L('已发送至')}
-      {log.message.split(',').map((a, idx) => {
+      {$L('发送至')}
+      {L.message.split(',').map((a, idx) => {
         return $regex.isId(a) ? (
           <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/redirect?id=${a}&type=newtab`} target="_blank">
             {a}
@@ -285,6 +285,6 @@ LastLogsViewer.renderLog = function (log) {
       })}
     </div>
   ) : (
-    <p className="m-0 text-muted text-uppercase">{log.message || 'N'}</p>
+    false
   )
 }

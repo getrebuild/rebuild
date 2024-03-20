@@ -154,15 +154,6 @@ public class TriggerResult implements JSONAware {
     }
 
     /**
-     * 无更新字段
-     *
-     * @return
-     */
-    public static TriggerResult noUpdateFields() {
-        return wran("No update fields");
-    }
-
-    /**
      * 无效配置
      *
      * @return

@@ -217,7 +217,7 @@ class LastLogsViewer extends RbAlert {
   renderContent() {
     return (
       <RF>
-        <table className="table table-hover">
+        <table className="table table-hover table-logs">
           <thead>
             <tr>
               <th>{$L('执行内容/结果')}</th>
@@ -241,45 +241,37 @@ class LastLogsViewer extends RbAlert {
   }
 
   _renderLog(log) {
-    if (!log) return <p className="m-0 text-warning text-uppercase">Unknown</p>
+    if (!log) return <p className="text-warning">UNKNOW</p>
 
     try {
-      return LastLogsViewer.renderLog(JSON.parse(log))
+      const L = JSON.parse(log)
+      const LR = LastLogsViewer.renderLog(L)
+      if (LR === false) {
+        return <p className={`${L.level === 3 ? 'text-warning' : 'text-muted'}`}>{L.message || 'N'}</p>
+      }
+      return LR
     } catch (err) {
       console.debug(err)
-      return (
-        <p className="m-0 text-warning text-overflow text-uppercase" style={{ maxHeight: 295 }}>
-          {log || 'Unknown'}
-        </p>
-      )
+      return <p className="text-danger text-overflow">{log}</p>
     }
   }
 
   // 日志解析复写
-  static renderLog(log) {
-    if (log.level > 1) {
-      return <p className={`m-0 ${log.level === 2 ? 'text-muted' : 'text-warning'}`}>{(log.message || 'N').toUpperCase()}</p>
-    }
-
-    return (
-      <dl className="m-0">
-        {log.affected && (
+  static renderLog(L) {
+    L.level = L.level || 2
+    return L.level === 1 ? (
+      <div className="v36-logdesc">
+        {LastLogsViewer._Title || $L('影响记录')}
+        {L.affected.map((a, idx) => {
+          return (
+            <a key={idx} className="badge text-id ml-1" href={`${rb.baseUrl}/app/redirect?id=${a}&type=newtab`} target="_blank">
+              {a}
+            </a>
+          )
+        })}
+        {LastLogsViewer._Chain && L.chain && (
           <RF>
-            <dt>{$L('影响记录')}</dt>
-            <dd className="mb-0">
-              {log.affected.map((a, idx) => {
-                return (
-                  <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/redirect?id=${a}&type=newtab`} target="_blank">
-                    {a}
-                  </a>
-                )
-              })}
-            </dd>
-          </RF>
-        )}
-        {log.chain && (
-          <RF>
-            <dt className="mt-2 font-weight-normal">
+            <dt className="mt-1 font-weight-normal">
               <a
                 onClick={(e) => {
                   $(e.currentTarget).find('i.mdi').toggleClass('mdi-chevron-double-up')
@@ -290,11 +282,13 @@ class LastLogsViewer extends RbAlert {
               </a>
             </dt>
             <dd className="mb-0 hide">
-              <blockquote className="tech-details code">{log.chain}</blockquote>
+              <blockquote className="tech-details code">{L.chain}</blockquote>
             </dd>
           </RF>
         )}
-      </dl>
+      </div>
+    ) : (
+      false
     )
   }
 }
