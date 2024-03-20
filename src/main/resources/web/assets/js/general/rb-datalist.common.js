@@ -71,7 +71,10 @@ const AdvFilters = {
       $(res.data).each(function () {
         const item = this
         const $item = $(`<div class="dropdown-item J_custom" data-id="${item.id}"><a class="text-truncate"></a></div>`).appendTo($menu)
-        $item.text(item.name).on('click', () => that._effectFilter($item, 'aside'))
+        $item
+          .on('click', () => that._effectFilter($item, 'aside'))
+          .find('>a')
+          .text(item.name)
 
         if (lastFilter === item.id) $defaultFilter = $item
 
