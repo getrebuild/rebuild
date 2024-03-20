@@ -585,6 +585,7 @@ textarea.formula-code + .fields-vars {
   font-size: 12px;
   margin-left: 5px;
   margin-right: 5px;
+  margin-bottom: 1px;
 }
 
 .table.table-logs p {

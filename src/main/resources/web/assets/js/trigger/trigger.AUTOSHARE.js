@@ -111,6 +111,29 @@ renderContentComp = function (props) {
     // eslint-disable-next-line no-undef
     contentComp = this
   })
+}
 
-  LastLogsViewer._Title = $L('共享记录')
+// eslint-disable-next-line no-undef
+LastLogsViewer.renderLog = function (L) {
+  const aLen = L.affected ? L.affected.length : 0
+  const record = L.affected ? L.affected[aLen - 1] : null
+  return L.level === 1 && L.affected ? (
+    <div className="v36-logdesc">
+      {$L('共享记录')}
+      <a className="badge text-id" href={`${rb.baseUrl}/app/redirect?id=${record}&type=newtab`} target="_blank">
+        {record}
+      </a>
+      {$L('给')}
+      {L.affected.map((a, idx) => {
+        if (idx === aLen - 1) return null
+        return (
+          <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/redirect?id=${a}&type=newtab`} target="_blank">
+            {a}
+          </a>
+        )
+      })}
+    </div>
+  ) : (
+    false
+  )
 }
