@@ -1273,3 +1273,15 @@ const renderRbcomp = function (JSX, container, callback) {
   ReactDOM.render(JSX, container, callback)
   return container
 }
+
+const __DLGCOMPS = {}
+// 渲染可重用组件
+const renderDlgcomp = function (JSX, id) {
+  if (__DLGCOMPS[id]) {
+    __DLGCOMPS[id].show()
+  } else {
+    renderRbcomp(JSX, function () {
+      __DLGCOMPS[id] = this
+    })
+  }
+}

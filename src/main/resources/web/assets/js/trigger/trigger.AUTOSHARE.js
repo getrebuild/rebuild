@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global UserSelectorWithField */
+/* global UserSelectorWithField, LastLogsViewer */
 
 const wpc = window.__PageConfig
 
@@ -114,21 +114,26 @@ renderContentComp = function (props) {
 }
 
 // eslint-disable-next-line no-undef
-LastLogsViewer.renderLog = function (log) {
-  return log.level === 1 && log.affected ? (
-    <dl className="m-0">
-      <dt>{$L('共享记录')}</dt>
-      <dd className="mb-0">
-        {log.affected.map((a, idx) => {
-          return (
-            <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/redirect?id=${a}&type=newtab`} target="_blank">
-              {a}
-            </a>
-          )
-        })}
-      </dd>
-    </dl>
+LastLogsViewer.renderLog = function (L) {
+  const aLen = L.affected ? L.affected.length : 0
+  const record = L.affected ? L.affected[aLen - 1] : null
+  return L.level === 1 && L.affected ? (
+    <div className="v36-logdesc">
+      {$L('共享记录')}
+      <a className="badge text-id" href={`${rb.baseUrl}/app/redirect?id=${record}&type=newtab`} target="_blank">
+        {record}
+      </a>
+      {$L('给')}
+      {L.affected.map((a, idx) => {
+        if (idx === aLen - 1) return null
+        return (
+          <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/redirect?id=${a}&type=newtab`} target="_blank">
+            {a}
+          </a>
+        )
+      })}
+    </div>
   ) : (
-    <p className="m-0 text-muted text-uppercase">{log.message || 'N'}</p>
+    false
   )
 }

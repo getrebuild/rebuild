@@ -442,7 +442,7 @@ textarea.formula-code + .fields-vars {
 
 .fields ul li.flag-DATE > a::before,
 .fields ul li.flag-DATETIME > a::before,
-.fields ul li.flag-TIME > a::before{
+.fields ul li.flag-TIME > a::before {
   content: 'D';
 }
 
@@ -585,8 +585,14 @@ textarea.formula-code + .fields-vars {
   font-size: 12px;
   margin-left: 5px;
   margin-right: 5px;
+  margin-bottom: 1px;
 }
 
-.v36-logdesc > .badge + .badge {
-  margin-left: 0;
+.table.table-logs p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.table.table-logs p.text-overflow {
+  max-height: 295px;
 }

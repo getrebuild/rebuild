@@ -139,4 +139,19 @@ public class ApprovalHelper {
                 : (Entity) entityOrRecord;
         return Language.L("有一条 %s 记录请你审批", EasyMetaFactory.getLabel(be));
     }
+
+    /**
+     * 根据节点名称获取编号
+     *
+     * @param nodeName
+     * @return
+     */
+    public static String getNodeIdByName(String nodeName, ID approvalId) {
+        FlowDefinition flowDefinition = RobotApprovalManager.instance.getFlowDefinition(approvalId);
+        FlowParser flowParser = flowDefinition.createFlowParser();
+        for (FlowNode node : flowParser.getAllNodes()) {
+            if (nodeName.equals(node.getNodeName())) return node.getNodeId();
+        }
+        return null;
+    }
 }

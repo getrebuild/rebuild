@@ -374,7 +374,7 @@ class DataExport extends BatchOperator {
           templateResult: function (res) {
             const text = res.text.split(' (PDF)')
             const $span = $('<span></span>').text(text[0])
-            if (text.length > 1) $('<span class="badge badge-warning badge-pill pt-0 pb-0 ml-1">PDF</span>').appendTo($span)
+            if (text.length > 1) $('<span class="badge badge-default badge-pill pt-0 pb-0 ml-1">PDF</span>').appendTo($span)
             return $span
           },
         })
@@ -1101,7 +1101,7 @@ class RbList extends React.Component {
     }, 400)
 
     if (query.filter && (query.filter.items || []).length > 0) {
-      console.log(`API Filter <Body> :\n %c${JSON.stringify(query.filter)}`, 'color:#e83e8c;font-size:16px')
+      console.log(`RBAPI ASSISTANT *Filter Body* :\n %c${JSON.stringify(query.filter)}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
     }
 
     $.post(`/app/${this._entity}/data-list`, JSON.stringify(RbList.queryBefore(query)), (res) => {

@@ -176,7 +176,7 @@ class DlgRuleEdit extends RbFormHandler {
       this.__select2.push($s2target)
 
       // #2
-      $.get(`/commons/metadata/fields?entity=${this.props.sourceEntity}&deep=2&withid=true`, (res) => {
+      $.get(`/commons/metadata/fields?entity=${this.props.sourceEntity}&deep=2&referer=withid`, (res) => {
         this.__sourceFieldsCache = res.data
         this.setState({ sourceFields: res.data }, () => {
           const $s2source = $(this._sourceField)

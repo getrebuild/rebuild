@@ -64,10 +64,12 @@ public class MetadataGetting extends BaseController {
         Entity entity = MetadataHelper.getEntity(getParameterNotNull(request, "entity"));
         // 返回引用实体的字段层级
         int appendRefFields = getIntParameter(request, "deep", 0);
-        // 返回ID主键字段
-        boolean forceWithId = getBoolParameter(request, "withid");
+        // 根据不同的 referer 返回不同的字段列表
+        String referer = getParameter(request, "referer");
+        // 返回ID主键字段 + 返回当前审批节点
+        int forceWith = ("withid".equals(referer) ? 1 : 0) + ("withasnode".equals(referer) ? 2 : 0);
 
-        return MetaFormatter.buildFieldsWithRefs(entity, appendRefFields, true, forceWithId, field -> {
+        return MetaFormatter.buildFieldsWithRefs(entity, appendRefFields, true, forceWith, field -> {
             if (!field.isQueryable()) return true;
 
             if (field instanceof Field) {
