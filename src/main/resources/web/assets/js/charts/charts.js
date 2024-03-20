@@ -1338,6 +1338,8 @@ class ChartCNMap extends BaseChart {
 
     const elid = `echarts-cnmap-${this.state.id || 'id'}`
     this.setState({ chartdata: <div className="chart cnmap" id={elid} /> }, () => {
+      const mapTheme = data._renderOption && data._renderOption.mapTheme
+
       const data4map = []
       data.data.forEach((item) => {
         let lnglat = item[1].split(',')
@@ -1357,7 +1359,7 @@ class ChartCNMap extends BaseChart {
             enableMapClick: false,
           },
           mapStyle: {
-            styleJson: MAP_STYLE2,
+            styleJson: mapTheme === 'dark' ? MAP_STYLE2 : MAP_STYLE1,
           },
         },
         series: [

@@ -19,9 +19,16 @@ const startTour123 = function () {
   if (location.href.includes('/dashboard/home')) {
     stepName = 'TourEnd-Dashboard'
     steps = StepRebuild()
-    // StepDashboard().forEach((item) => steps.push(item))
+    // isEnd
+    if ($storage.get(stepName)) {
+      stepName = 'TourEnd-Dashboard2'
+      steps = StepDashboard()
+    }
   } else if (location.href.includes('/list') && wpc.type === 'RecordList') {
-    if ($('.datalist-mode2').length > 0) {
+    if ($('.datalist-mode3').length > 0) {
+      stepName = 'TourEnd-RecordList3'
+      steps = StepDataList3()
+    } else if ($('.datalist-mode2').length > 0) {
       stepName = 'TourEnd-RecordList2'
       steps = StepDataList2()
     } else {
@@ -302,6 +309,9 @@ const StepDataList2 = () => {
     },
   ]
 }
+
+// TODO
+const StepDataList3 = () => {}
 
 const StepView = () => {
   return [
