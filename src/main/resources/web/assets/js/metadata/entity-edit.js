@@ -148,19 +148,18 @@ $(document).ready(() => {
   })
 
   $.get('/admin/entity/entity-tags', (res) => {
-    let data = res.data || []
-    data = data.sort().map((item) => {
+    let s2data = res.data || []
+    s2data = s2data.map((item) => {
       return { id: item, text: item }
     })
-
     $('#tags').select2({
       placeholder: $L('无'),
-      data: data,
+      data: s2data,
       multiple: true,
-      maximumSelectionLength: 5,
+      maximumSelectionLength: 9,
       language: {
         noResults: function () {
-          return $L('输入标签')
+          return $L('请输入')
         },
       },
       tags: true,

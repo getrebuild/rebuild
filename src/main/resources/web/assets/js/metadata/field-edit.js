@@ -268,6 +268,8 @@ $(document).ready(function () {
     _handleTag(extConfig.tagList || [], extConfig.tagMaxSelect || null)
   } else if (dt === 'ANYREFERENCE') {
     _handleAnyReference(extConfig.anyreferenceEntities)
+  } else if (dt === 'TEXT') {
+    _handleText(extConfig.textCommon)
   }
 
   // 只读属性
@@ -677,6 +679,27 @@ const _handleTag = function (tagList, tagMaxSelect) {
     .on('change', function (e) {
       $('.J_tagMaxSelect b').text(e.value.newValue)
     })
+}
+
+const _handleText = function (common) {
+  let s2data = common ? common.split(',') : []
+  s2data = s2data.map((item) => {
+    return { id: item, text: item, selected: true }
+  })
+  $('#textCommon').select2({
+    placeholder: $L('(选填)'),
+    data: s2data,
+    multiple: true,
+    maximumSelectionLength: 99,
+    language: {
+      noResults: function () {
+        return $L('请输入')
+      },
+    },
+    tags: true,
+    theme: 'default select2-tag',
+    allowClear: true,
+  })
 }
 
 class TagEditor extends RbAlert {

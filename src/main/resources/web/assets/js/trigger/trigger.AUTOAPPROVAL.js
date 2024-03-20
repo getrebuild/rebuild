@@ -34,7 +34,7 @@ class ContentAutoApproval extends ActionContentSpec {
                   <option value="21">{$L('撤销')}</option>
                 </optgroup>
               </select>
-              <p className="form-text">{WrapHtml($L('根据不同的记录审批状态，选择不同的审批模式'))}</p>
+              <p className="form-text">{WrapHtml($L('针对不同的记录审批状态，可选择不同的审批模式'))}</p>
             </div>
           </div>
 

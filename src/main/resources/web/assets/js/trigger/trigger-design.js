@@ -482,7 +482,6 @@ class DlgSpecFields extends RbModalHandler {
 // ~ 指定审批步骤
 class DlgSpecApproveNodes extends RbModalHandler {
   render() {
-    const _selected = this.props.selected || []
     return (
       <RbModal
         title={
@@ -494,11 +493,13 @@ class DlgSpecApproveNodes extends RbModalHandler {
         ref={(c) => (this._dlg = c)}
         width="780">
         <div className="p-2">
-          <RbAlertBox message={$L('指定步骤 (名称) 审核通过时触发，默认仅为最终审核通过时')} />
+          <RbAlertBox message={$L('指定审批步骤 (名称) 通过时触发，默认为最终审批通过时')} />
           <div className="row">
-            <div className="col-12" ref={(c) => (this._$set = c)}>
-              <label>{$L('填写步骤名称 (多个使用逗号分开)')}</label>
-              <textarea className="form-control form-control-sm row2x" defaultValue={_selected.join(', ')} placeholder={$L('无')} />
+            <div className="col-12">
+              <label>{$L('填写步骤名称')}</label>
+              <div>
+                <select className="form-control form-control-sm" ref={(c) => (this._$set = c)}></select>
+              </div>
             </div>
           </div>
         </div>
@@ -515,15 +516,34 @@ class DlgSpecApproveNodes extends RbModalHandler {
     )
   }
 
+  componentDidMount() {
+    let s2data = this.props.selected || []
+    s2data = s2data.map((item) => {
+      return { id: item, text: item, selected: true }
+    })
+    this.__select2 = $(this._$set).select2({
+      placeholder: $L('无'),
+      data: s2data,
+      multiple: true,
+      maximumSelectionLength: 9,
+      language: {
+        noResults: function () {
+          return $L('请输入')
+        },
+      },
+      tags: true,
+      theme: 'default select2-tag',
+      allowClear: true,
+    })
+  }
+
   handleConfirm() {
     if (rb.commercial < 1) {
       RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return
     }
 
-    let selected = ($(this._$set).find('textarea').val() || '').split(/[,，;；\s]/)
-    selected = $cleanArray(selected, true)
-
+    const selected = $(this._$set).val()
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(selected)
     this.hide()
   }

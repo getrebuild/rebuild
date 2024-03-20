@@ -66,7 +66,7 @@ public class Message {
     public String getTitle4Type() {
         if (this.type == TYPE_ASSIGN) return Language.L("记录分配通知");
         else if (this.type == TYPE_SAHRE) return Language.L("记录共享通知");
-        else if (this.type == TYPE_APPROVAL) return Language.L("记录审核通知");
+        else if (this.type == TYPE_APPROVAL) return Language.L("记录审批通知");
         else if (this.type == TYPE_FEEDS) return Language.L("动态通知");
         else if (this.type == TYPE_PROJECT) return Language.L("项目任务通知");
         else return Language.L("新通知");
