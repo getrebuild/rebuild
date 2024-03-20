@@ -3117,6 +3117,7 @@ form {
   display: inline-block;
   padding: 0 3px;
   margin-right: 6px;
+  width: 20px;
 }
 
 .card-list .card-footer a:hover {
