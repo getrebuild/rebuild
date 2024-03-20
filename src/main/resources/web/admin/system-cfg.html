@@ -322,7 +322,9 @@
                   <p class="mb-1">[[${bundle.L('授权类型')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/authority?sn=${SN}|">[[${LicenseType}]]</a></p>
                   <p th:if="${VN != null}" class="mb-2">
                     [[${bundle.L('服务支持码')}]] <span>[[${VN}]]</span>
-                    <a th:if="${VNExpires}" class="badge badge-danger up-2 badge-pill" href="https://getrebuild.com/buy-license?type=10fw" target="_blank">[[${bundle.L('服务支持已到期')}]]</a>
+                    <a th:if="${VNExpires}" class="badge badge-danger up-2 badge-pill" th:href="'https://getrebuild.com/buy-license?type=10fw&vn=' + ${VN}" target="_blank">
+                      <i class="mdi mdi-information-variant"></i>[[${bundle.L('服务支持已到期')}]]
+                    </a>
                   </p>
                   <ul style="line-height: 2">
                     <li><a class="link" target="_blank" th:href="@{/error/server-status}">[[${bundle.L('系统状态')}]]</a></li>
