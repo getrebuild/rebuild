@@ -71,9 +71,8 @@ public class GeneralListController extends EntityController {
 
         String listPage = listEntity.getMainEntity() != null ? "/general/detail-list" : "/general/record-list";
         int listMode = ObjectUtils.toInt(easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_MODE), 1);
-        if (listMode == 2) {
-            listPage = "/general/record-list2";  // Mode2
-        }
+        if (listMode == 2) listPage = "/general/record-list2";  // Mode2
+        if (listMode == 3) listPage = "/general/record-list3";  // Mode3
 
         ModelAndView mv = createModelAndView(listPage, entity, user);
 
@@ -148,7 +147,10 @@ public class GeneralListController extends EntityController {
 
         } else if (listMode == 2) {
             listConfig = DataListManager.instance.getFieldsLayoutMode2(listEntity);
-
+            // 明细列表
+            if (listEntity.getMainEntity() != null) mv.getModel().put("DataListType", "DetailList");
+        } else if (listMode == 3) {
+            listConfig = DataListManager.instance.getFieldsLayoutMode3(listEntity);
             // 明细列表
             if (listEntity.getMainEntity() != null) mv.getModel().put("DataListType", "DetailList");
         }

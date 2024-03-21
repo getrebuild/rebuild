@@ -304,4 +304,21 @@ public class DataListManager extends BaseLayoutManager {
 
         return emptyConfig;
     }
+
+    /**
+     * TODO 自定义字段 MODE3
+     *
+     * @param entity
+     * @return
+     */
+    public JSON getFieldsLayoutMode3(Entity entity) {
+        JSONObject emptyConfig = (JSONObject) formatListFields(entity.getName(), null, true, null);
+        JSONArray fields = emptyConfig.getJSONArray("fields");
+
+        if (entity.containsField(EntityHelper.ApprovalState)) {
+            fields.add(formatField(entity.getField(EntityHelper.ApprovalState)));
+        }
+
+        return emptyConfig;
+    }
 }
