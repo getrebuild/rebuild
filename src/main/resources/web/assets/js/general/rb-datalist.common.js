@@ -1546,24 +1546,25 @@ const CellRenders = {
     this.__RENDERS[type] = func
   },
 
+  // 单元格渲染
   render(value, type, width, key) {
-    const style = { width: width || COLUMN_MIN_WIDTH }
-
+    const style2 = { width: width || COLUMN_MIN_WIDTH }
     if (window.FrontJS && wpc.entity) {
       let fieldKey = key.split('.').slice(1)
       fieldKey = `${wpc.entity[0]}.${fieldKey.join('.')}`
       const fn = window.FrontJS.DataList.__cellRenders[fieldKey]
       if (typeof fn === 'function') {
-        const fnRet = fn(value, style, key)
+        const fnRet = fn(value, style2, key)
         if (fnRet !== false) return fnRet
       }
     }
 
-    if (!value) return this.renderSimple(value, style, key)
-    else return (this.__RENDERS[type] || this.renderSimple)(value, style, key)
+    if (!value) return this.renderSimple(value, style2, key)
+    else return (this.__RENDERS[type] || this.renderSimple)(value, style2, key)
   },
 
   /**
+   * @see #render
    * @param {*} v 值
    * @param {*} s 样式
    * @param {*} k key of React (contains fieldName)
@@ -1581,10 +1582,19 @@ const CellRenders = {
       </td>
     )
   },
+
+  /**
+   * @param {*} v 值
+   */
+  formatSimple(v) {
+    if (typeof v === 'object') v = v.text // array
+    if (Array.isArray(v)) return v.join(', ')
+    else return v ? v : $empty(v) ? null : v
+  },
 }
 
 // 名称字段
-CellRenders.addRender('$NAME$', function (v, s, k) {
+CellRenders.addRender('$NAME$', (v, s, k) => {
   return (
     <td key={k}>
       <div style={s} title={v.text}>
@@ -1595,9 +1605,8 @@ CellRenders.addRender('$NAME$', function (v, s, k) {
     </td>
   )
 })
-
 // 无权访问字段
-CellRenders.addRender('$NOPRIVILEGES$', function (v, s, k) {
+CellRenders.addRender('$NOPRIVILEGES$', (v, s, k) => {
   return (
     <td key={k}>
       <div style={s} className="column-nopriv">
@@ -1606,8 +1615,8 @@ CellRenders.addRender('$NOPRIVILEGES$', function (v, s, k) {
     </td>
   )
 })
-
-CellRenders.addRender('IMAGE', function (v, s, k) {
+// ~~
+CellRenders.addRender('IMAGE', (v, s, k) => {
   v = v || []
   const vLen = v.length
   return (
@@ -1618,7 +1627,7 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
           const imgUrl = $isFullUrl(item) ? item : `${rb.baseUrl}/filex/img/${item}`
           return (
             <a key={item} title={imgName} onClick={(e) => CellRenders.clickPreview(v, idx, e)}>
-              <img alt="IMG" src={`${imgUrl}?imageView2/2/w/100/interlace/1/q/100`} />
+              <img src={`${imgUrl}?imageView2/2/w/100/interlace/1/q/100`} alt="IMG" />
             </a>
           )
         })}
@@ -1626,8 +1635,7 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
     </td>
   )
 })
-
-CellRenders.addRender('FILE', function (v, s, k) {
+CellRenders.addRender('FILE', (v, s, k) => {
   v = v || []
   const vLen = v.length
   return (
@@ -1645,8 +1653,7 @@ CellRenders.addRender('FILE', function (v, s, k) {
     </td>
   )
 })
-
-const renderReference = function (v, s, k) {
+const renderReference = (v, s, k) => {
   return (
     <td key={k}>
       <div style={s} title={v.text}>
@@ -1659,8 +1666,7 @@ const renderReference = function (v, s, k) {
 }
 CellRenders.addRender('REFERENCE', renderReference)
 CellRenders.addRender('ANYREFERENCE', renderReference)
-
-CellRenders.addRender('N2NREFERENCE', function (v, s, k) {
+CellRenders.addRender('N2NREFERENCE', (v, s, k) => {
   v = v || []
   const vLen = v.length
   return (
@@ -1677,8 +1683,7 @@ CellRenders.addRender('N2NREFERENCE', function (v, s, k) {
     </td>
   )
 })
-
-CellRenders.addRender('URL', function (v, s, k) {
+CellRenders.addRender('URL', (v, s, k) => {
   return (
     <td key={k}>
       <div style={s} title={v}>
@@ -1689,8 +1694,7 @@ CellRenders.addRender('URL', function (v, s, k) {
     </td>
   )
 })
-
-CellRenders.addRender('EMAIL', function (v, s, k) {
+CellRenders.addRender('EMAIL', (v, s, k) => {
   return (
     <td key={k}>
       <div style={s} title={v}>
@@ -1701,8 +1705,7 @@ CellRenders.addRender('EMAIL', function (v, s, k) {
     </td>
   )
 })
-
-CellRenders.addRender('PHONE', function (v, s, k) {
+CellRenders.addRender('PHONE', (v, s, k) => {
   return (
     <td key={k}>
       <div style={s} title={v}>
@@ -1713,13 +1716,12 @@ CellRenders.addRender('PHONE', function (v, s, k) {
     </td>
   )
 })
-
 const APPROVAL_STATE_CLAZZs = {
   [$L('审批中')]: 'warning',
   [$L('驳回')]: 'danger',
   [$L('通过')]: 'success',
 }
-CellRenders.addRender('STATE', function (v, s, k) {
+CellRenders.addRender('STATE', (v, s, k) => {
   if (k.endsWith('.approvalState')) {
     const badge = APPROVAL_STATE_CLAZZs[v]
     return (
@@ -1733,8 +1735,7 @@ CellRenders.addRender('STATE', function (v, s, k) {
     return CellRenders.renderSimple(v, s, k)
   }
 })
-
-const renderNumber = function (v, s, k) {
+const renderNumber = (v, s, k) => {
   // 负数
   if ((v + '').includes('-')) {
     return (
@@ -1750,8 +1751,7 @@ const renderNumber = function (v, s, k) {
 }
 CellRenders.addRender('DECIMAL', renderNumber)
 CellRenders.addRender('NUMBER', renderNumber)
-
-CellRenders.addRender('MULTISELECT', function (v, s, k) {
+CellRenders.addRender('MULTISELECT', (v, s, k) => {
   const vLen = (v.text || []).length
   return (
     <td key={k} className="td-sm" title={$L('共 %d 项', vLen)}>
@@ -1776,8 +1776,7 @@ CellRenders.addRender('MULTISELECT', function (v, s, k) {
     </td>
   )
 })
-
-CellRenders.addRender('AVATAR', function (v, s, k) {
+CellRenders.addRender('AVATAR', (v, s, k) => {
   const imgUrl = $isFullUrl(v) ? v : `${rb.baseUrl}/filex/img/${v}?imageView2/2/w/100/interlace/1/q/100`
   return (
     <td key={k} className="user-avatar">
@@ -1785,8 +1784,7 @@ CellRenders.addRender('AVATAR', function (v, s, k) {
     </td>
   )
 })
-
-CellRenders.addRender('LOCATION', function (v, s, k) {
+CellRenders.addRender('LOCATION', (v, s, k) => {
   return (
     <td key={k}>
       <div style={s} title={v.text}>
@@ -1802,16 +1800,14 @@ CellRenders.addRender('LOCATION', function (v, s, k) {
     </td>
   )
 })
-
-CellRenders.addRender('SIGN', function (v, s, k) {
+CellRenders.addRender('SIGN', (v, s, k) => {
   return (
     <td key={k} className="user-avatar sign">
       <img alt="SIGN" src={v} />
     </td>
   )
 })
-
-CellRenders.addRender('PICKLIST', function (v, s, k) {
+CellRenders.addRender('PICKLIST', (v, s, k) => {
   // Use badge
   if (typeof v === 'object') {
     const style2 = v.color ? { borderColor: v.color, backgroundColor: v.color, color: $isLight(v.color) ? '#444' : '#fff' } : null
@@ -1828,8 +1824,7 @@ CellRenders.addRender('PICKLIST', function (v, s, k) {
     return CellRenders.renderSimple(v, s, k)
   }
 })
-
-CellRenders.addRender('TAG', function (v, s, k) {
+CellRenders.addRender('TAG', (v, s, k) => {
   const vLen = (v || []).length
   return (
     <td key={k} className="td-sm" title={$L('共 %d 项', vLen)}>

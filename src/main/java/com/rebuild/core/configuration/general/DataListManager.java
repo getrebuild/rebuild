@@ -17,8 +17,11 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
@@ -306,19 +309,39 @@ public class DataListManager extends BaseLayoutManager {
     }
 
     /**
-     * TODO 自定义字段 MODE3
+     * 自定义字段 MODE3
      *
      * @param entity
      * @return
      */
     public JSON getFieldsLayoutMode3(Entity entity) {
-        JSONObject emptyConfig = (JSONObject) formatListFields(entity.getName(), null, true, null);
-        JSONArray fields = emptyConfig.getJSONArray("fields");
-
-        if (entity.containsField(EntityHelper.ApprovalState)) {
-            fields.add(formatField(entity.getField(EntityHelper.ApprovalState)));
+        String showFields = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE3_SHOWFIELDS);
+        JSONArray showFieldsConf;
+        if (JSONUtils.wellFormat(showFields)) {
+            showFieldsConf = JSON.parseArray(showFields);
+        } else {
+            // 5
+            showFieldsConf = JSON.parseArray("[null, null, null, null, null]");
         }
 
+        String imgField0 = showFieldsConf.getString(0);
+        if (imgField0 == null) {
+            Field[] x = MetadataSorter.sortFields(entity, DisplayType.IMAGE);
+            imgField0 = x.length > 0 ? x[0].getName() : entity.getPrimaryField().getName();
+            showFieldsConf.set(0, imgField0);
+        }
+        String nameField1 = showFieldsConf.getString(1);
+        if (nameField1 == null) {
+            nameField1 = entity.getNameField().getName();
+            showFieldsConf.set(1, nameField1);
+        }
+
+        JSONObject emptyConfig = (JSONObject) formatListFields(entity.getName(), null, true, null);
+        JSONArray fields = emptyConfig.getJSONArray("fields");
+        fields.clear();
+        for (Object name : showFieldsConf) {
+            if (name != null) fields.add(formatField(entity.getField((String) name)));
+        }
         return emptyConfig;
     }
 }
