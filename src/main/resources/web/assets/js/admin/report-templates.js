@@ -37,13 +37,13 @@ class ReportList extends ConfigList {
                 ) : (
                   item[3]
                 )}
-                {item[6] === 1 && <span className="badge badge-info badge-arrow3 badge-sm ml-1 excel">EXCEL</span>}
-                {item[6] === 2 && <span className="badge badge-info badge-arrow3 badge-sm ml-1 excel">{$L('EXCEL 列表')}</span>}
-                {isHtml5 && <span className="badge badge-info badge-arrow3 badge-sm ml-1 html5">{$L('在线模板')}</span>}
-                {item[6] === 4 && <span className="badge badge-info badge-arrow3 badge-sm ml-1 word">WORD</span>}
+                {item[6] === 1 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 excel">EXCEL</span>}
+                {item[6] === 2 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 excel">{$L('EXCEL 列表')}</span>}
+                {isHtml5 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 html5">{$L('在线模板')}</span>}
+                {item[6] === 4 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 word">WORD</span>}
 
-                {outputType.includes('pdf') && <span className="badge badge-secondary badge-sm ml-1">PDF</span>}
-                {outputType.includes('html') && <span className="badge badge-secondary badge-sm ml-1">HTML</span>}
+                {outputType.includes('pdf') && <span className="badge badge-secondary badge-pill ml-1">PDF</span>}
+                {outputType.includes('html') && <span className="badge badge-secondary badge-pill ml-1">HTML</span>}
               </td>
               <td>{item[2] || item[1]}</td>
               <td>

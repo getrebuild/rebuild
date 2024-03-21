@@ -225,6 +225,7 @@ code {
 .badge.badge-light,
 .badge.badge-secondary {
   line-height: 1.277rem;
+  line-height: 1.1586rem;
 }
 
 .badge.text-id {
@@ -232,17 +233,6 @@ code {
   font-size: 12px !important;
   text-transform: uppercase;
   line-height: 1.2 !important;
-}
-
-.badge-sm {
-  border-radius: 99px;
-  font-size: 12px;
-  padding: 1px 6px 0;
-  line-height: 17px;
-}
-
-.badge-sm.badge-light {
-  line-height: 15px;
 }
 
 a.badge.text-id {

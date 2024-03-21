@@ -337,12 +337,6 @@ class DlgMode2Option extends RbFormHandler {
                 <a data-toggle="dropdown" data-reference="toggle">
                   {$L('无')}
                 </a>
-                <a data-toggle="dropdown" data-reference="toggle">
-                  {$L('无')}
-                </a>
-                <a data-toggle="dropdown" data-reference="toggle">
-                  {$L('无')}
-                </a>
               </div>
             </div>
           </div>

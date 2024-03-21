@@ -292,20 +292,43 @@ public class DataListManager extends BaseLayoutManager {
     }
 
     /**
-     * TODO 自定义字段 MODE2
+     * 自定义字段 MODE2
      *
      * @param entity
      * @return
      */
     public JSON getFieldsLayoutMode2(Entity entity) {
-        JSONObject emptyConfig = (JSONObject) formatListFields(entity.getName(), null, true, null);
-        JSONArray fields = emptyConfig.getJSONArray("fields");
-
-        if (entity.containsField(EntityHelper.ApprovalState)) {
-            fields.add(formatField(entity.getField(EntityHelper.ApprovalState)));
+        String showFields = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE2_SHOWFIELDS);
+        JSONArray showFieldsConf;
+        if (JSONUtils.wellFormat(showFields)) {
+            showFieldsConf = JSON.parseArray(showFields);
+        } else {
+            showFieldsConf = JSON.parseArray("[null, null, null, null, null]");  // fix:5
         }
 
-        return emptyConfig;
+        String nameField0 = showFieldsConf.getString(0);
+        if (nameField0 == null) {
+            nameField0 = entity.getNameField().getName();
+            showFieldsConf.set(0, nameField0);
+        }
+        String approvalField1 = showFieldsConf.getString(1);
+        if (approvalField1 == null) {
+            if (MetadataHelper.hasApprovalField(entity)) {
+                showFieldsConf.set(1, EntityHelper.ApprovalState);
+            } else {
+                showFieldsConf.set(1, entity.getPrimaryField().getName());
+            }
+        }
+        String createdOnField2 = showFieldsConf.getString(2);
+        if (createdOnField2 == null) {
+            showFieldsConf.set(2, EntityHelper.CreatedOn);
+        }
+        String createdByField3 = showFieldsConf.getString(3);
+        if (createdByField3 == null) {
+            showFieldsConf.set(3, EntityHelper.CreatedBy);
+        }
+
+        return formatShowFields(entity, showFieldsConf);
     }
 
     /**
@@ -320,8 +343,7 @@ public class DataListManager extends BaseLayoutManager {
         if (JSONUtils.wellFormat(showFields)) {
             showFieldsConf = JSON.parseArray(showFields);
         } else {
-            // 5
-            showFieldsConf = JSON.parseArray("[null, null, null, null, null]");
+            showFieldsConf = JSON.parseArray("[null, null, null, null, null]");  // fix:5
         }
 
         String imgField0 = showFieldsConf.getString(0);
@@ -336,10 +358,14 @@ public class DataListManager extends BaseLayoutManager {
             showFieldsConf.set(1, nameField1);
         }
 
+        return formatShowFields(entity, showFieldsConf);
+    }
+
+    private JSON formatShowFields(Entity entity, JSONArray showFields) {
         JSONObject emptyConfig = (JSONObject) formatListFields(entity.getName(), null, true, null);
         JSONArray fields = emptyConfig.getJSONArray("fields");
         fields.clear();
-        for (Object name : showFieldsConf) {
+        for (Object name : showFields) {
             if (name != null) fields.add(formatField(entity.getField((String) name)));
         }
         return emptyConfig;

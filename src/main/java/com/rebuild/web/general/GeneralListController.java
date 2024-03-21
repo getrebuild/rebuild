@@ -149,13 +149,14 @@ public class GeneralListController extends EntityController {
             listConfig = DataListManager.instance.getFieldsLayoutMode2(listEntity);
             // 明细列表
             if (listEntity.getMainEntity() != null) mv.getModel().put("DataListType", "DetailList");
+
         } else if (listMode == 3) {
             listConfig = DataListManager.instance.getFieldsLayoutMode3(listEntity);
             // 明细列表
             if (listEntity.getMainEntity() != null) mv.getModel().put("DataListType", "DetailList");
-
             // 侧栏
             mv.getModel().put("hideAside", false);
+
         }
 
         mv.getModel().put("DataListConfig", JSON.toJSONString(listConfig));
