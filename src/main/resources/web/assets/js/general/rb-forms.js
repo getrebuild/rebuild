@@ -1598,10 +1598,11 @@ class RbFormImage extends RbFormElement {
       }
 
       let mp
-      let mpCount = 0
-      const mp_end = function () {
-        if (--mpCount > 0) return
-        mpCount = 0
+      let mp_inpro = []
+      const mp_end = function (name) {
+        if (mp_inpro === 0) mp_inpro = []
+        else mp_inpro.remove(name)
+        if (mp_inpro.length > 0) return
         setTimeout(() => {
           if (mp) mp.end()
           mp = null
@@ -1611,25 +1612,24 @@ class RbFormImage extends RbFormElement {
       $createUploader(
         this._fieldValue__input,
         (res) => {
-          mpCount++
+          if (!mp_inpro.includes(res.file.name)) mp_inpro.push(res.file.name)
           if (!mp) mp = new Mprogress({ template: 2, start: true })
           mp.set(res.percent / 100) // 0.x
         },
         (res) => {
-          mp_end()
+          mp_end(res.file.name)
           const paths = this.state.value || []
           // 最多上传，多余忽略
           if (paths.length < this.__maxUpload) {
             let hasByName = $fileCutName(res.key)
             hasByName = paths.find((x) => $fileCutName(x) === hasByName)
-            console.log(hasByName)
             if (!hasByName) {
               paths.push(res.key)
               this.handleChange({ target: { value: paths } }, true)
             }
           }
         },
-        () => mp_end()
+        () => mp_end(0)
       )
 
       // 拖拽上传
