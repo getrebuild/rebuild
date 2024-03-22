@@ -6,7 +6,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global dlgActionAfter ShowEnable */
 
-$(document).ready(function () {
+$(document).ready(() => {
   $('.J_add').on('click', () => renderRbcomp(<ReportEditor />))
   $('.J_add-html5').on('click', () => renderRbcomp(<ReportEditor isHtml5 />))
 
@@ -299,6 +299,8 @@ class ReportEditor extends ConfigFormDlg {
         }
       })
     }
+
+    this.props.id && console.log(`RBAPI ASSISTANT *Report* :\n %c${this.props.id}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
   }
 
   // 检查模板
