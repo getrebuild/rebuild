@@ -69,8 +69,10 @@ public class GeneralListController extends EntityController {
         final Entity listEntity = MetadataHelper.getEntity(entity);
         final EasyEntity easyEntity = EasyMetaFactory.valueOf(listEntity);
 
-        String listPage = listEntity.getMainEntity() != null ? "/general/detail-list" : "/general/record-list";
         int listMode = ObjectUtils.toInt(easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE), 1);
+        int listModeForce = getIntParameter(request, "mode");
+        if (listModeForce >= 1 && listModeForce <= 3) listMode = listModeForce;
+        String listPage = listEntity.getMainEntity() != null ? "/general/detail-list" : "/general/record-list";
         if (listMode == 2) listPage = "/general/record-list2";  // Mode2
         if (listMode == 3) listPage = "/general/record-list3";  // Mode3
 
@@ -155,7 +157,7 @@ public class GeneralListController extends EntityController {
             // 明细列表
             if (listEntity.getMainEntity() != null) mv.getModel().put("DataListType", "DetailList");
             // 侧栏
-            mv.getModel().put("hideAside", false);
+            mv.getModel().put("hideAside", true);
 
         }
 
