@@ -303,29 +303,33 @@ public class DataListManager extends BaseLayoutManager {
         if (JSONUtils.wellFormat(showFields)) {
             showFieldsConf = JSON.parseArray(showFields);
         } else {
-            showFieldsConf = JSON.parseArray("[null, null, null, null, null]");  // fix:5
+            showFieldsConf = JSON.parseArray("[null,null,null,null,null,null]");  // fix:6
         }
 
-        String nameField0 = showFieldsConf.getString(0);
-        if (nameField0 == null) {
-            nameField0 = entity.getNameField().getName();
-            showFieldsConf.set(0, nameField0);
+        String imgeField0 = showFieldsConf.getString(0);
+        if (imgeField0 == null) {
+            showFieldsConf.set(0, entity.getPrimaryField().getName());
         }
-        String approvalField1 = showFieldsConf.getString(1);
-        if (approvalField1 == null) {
+        String nameField1 = showFieldsConf.getString(1);
+        if (nameField1 == null) {
+            nameField1 = entity.getNameField().getName();
+            showFieldsConf.set(1, nameField1);
+        }
+        String approvalField2 = showFieldsConf.getString(2);
+        if (approvalField2 == null) {
             if (MetadataHelper.hasApprovalField(entity)) {
-                showFieldsConf.set(1, EntityHelper.ApprovalState);
+                showFieldsConf.set(2, EntityHelper.ApprovalState);
             } else {
-                showFieldsConf.set(1, entity.getPrimaryField().getName());
+                showFieldsConf.set(2, entity.getPrimaryField().getName());
             }
         }
-        String createdOnField2 = showFieldsConf.getString(2);
-        if (createdOnField2 == null) {
-            showFieldsConf.set(2, EntityHelper.CreatedOn);
+        String createdOnField3 = showFieldsConf.getString(3);
+        if (createdOnField3 == null) {
+            showFieldsConf.set(3, EntityHelper.CreatedOn);
         }
-        String createdByField3 = showFieldsConf.getString(3);
-        if (createdByField3 == null) {
-            showFieldsConf.set(3, EntityHelper.CreatedBy);
+        String createdByField4 = showFieldsConf.getString(4);
+        if (createdByField4 == null) {
+            showFieldsConf.set(4, EntityHelper.CreatedBy);
         }
 
         return formatShowFields(entity, showFieldsConf);

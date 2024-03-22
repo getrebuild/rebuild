@@ -1615,7 +1615,7 @@ CellRenders.addRender('$NOPRIVILEGES$', (v, s, k) => {
     </td>
   )
 })
-// ~~
+// 不同类型
 CellRenders.addRender('IMAGE', (v, s, k) => {
   v = v || []
   const vLen = v.length

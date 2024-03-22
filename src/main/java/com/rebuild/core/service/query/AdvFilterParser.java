@@ -145,21 +145,21 @@ public class AdvFilterParser extends SetUser {
             String quickFields = filterExpr.getString("quickFields");
             JSONArray quickItems = buildQuickFilterItems(quickFields, 1);
 
-//            // v3.6-b4 值1|值2 UNTEST
-//            // 转义可输入 \|
-//            JSONObject values = filterExpr.getJSONObject("values");
-//            String[] valuesPlus = values.values().iterator().next().toString().split("(?<!\\\\)\\|");
-//            if (valuesPlus.length > 1) {
-//                values.clear();
-//                values.put("1", valuesPlus[0].trim());
-//
-//                for (int i = 2; i <= valuesPlus.length; i++) {
-//                    JSONArray quickItemsPlus = buildQuickFilterItems(quickFields, i);
-//                    values.put(String.valueOf(i), valuesPlus[i - 1].trim());
-//                    quickItems.addAll(quickItemsPlus);
-//                }
-//                filterExpr.put("values", values);
-//            }
+            // TODO v3.6-b4,3.7 值1|值2 UNTEST
+            // 转义可输入 \|
+            JSONObject values = filterExpr.getJSONObject("values");
+            String[] valuesPlus = values.values().iterator().next().toString().split("(?<!\\\\)\\|");
+            if (valuesPlus.length > 1) {
+                values.clear();
+                values.put("1", valuesPlus[0].trim());
+
+                for (int i = 2; i <= valuesPlus.length; i++) {
+                    JSONArray quickItemsPlus = buildQuickFilterItems(quickFields, i);
+                    values.put(String.valueOf(i), valuesPlus[i - 1].trim());
+                    quickItems.addAll(quickItemsPlus);
+                }
+                filterExpr.put("values", values);
+            }
 
             filterExpr.put("items", quickItems);
         }

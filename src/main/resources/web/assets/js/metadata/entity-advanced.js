@@ -320,10 +320,13 @@ class DlgMode2Option extends RbFormHandler {
             <label className="col-sm-3 col-form-label text-sm-right">{$L('显示字段')}</label>
             <div className="col-sm-9">
               <div className="mode23-fields mode2-fields" ref={(c) => (this._$showFields = c)}>
-                <a data-toggle="dropdown" className="L1">
-                  <em>{$L('名称字段')}</em>
+                <a data-toggle="dropdown" className="L0">
+                  {$L('无')}
                 </a>
                 <div className="dropdown-menu auto-scroller" />
+                <a data-toggle="dropdown" data-reference="toggle" className="L1">
+                  <em>{$L('名称字段')}</em>
+                </a>
                 <a data-toggle="dropdown" data-reference="toggle" className="L1-2 float-right mr-0">
                   <em>{$L('审批状态')}</em>
                 </a>
@@ -365,7 +368,7 @@ class DlgMode2Option extends RbFormHandler {
       const fieldsLables = {}
       _data.forEach((item) => {
         fieldsLables[item.fieldName] = item.fieldLabel
-        if (['AVATAR', 'BARCODE', 'FILE', 'SIGN'].includes(item.displayTypeName)) return null
+        if (['BARCODE', 'FILE', 'SIGN'].includes(item.displayTypeName)) return null
 
         const item2 = item
         $(`<a class="dropdown-item" data-name="${item.fieldName}" data-type="${item.displayTypeName}"></a>`)
@@ -410,7 +413,15 @@ class DlgMode2Option extends RbFormHandler {
   }
 
   onFieldsMenuShow($item, $menu) {
-    $menu.find('a[data-type="IMAGE"]').addClass('hide')
+    if ($($item).hasClass('L0')) {
+      $menu.find('a').addClass('hide')
+      $menu.find('a[data-type="N"]').removeClass('hide')
+      $menu.find('a[data-type="IMAGE"]').removeClass('hide')
+      $menu.find('a[data-type="AVATAR"]').removeClass('hide')
+    } else {
+      $menu.find('a[data-type="IMAGE"]').addClass('hide')
+      $menu.find('a[data-type="AVATAR"]').addClass('hide')
+    }
   }
 
   save = () => {
@@ -490,8 +501,8 @@ class DlgMode3Option extends DlgMode2Option {
   onFieldsMenuShow($item, $menu) {
     if ($($item).hasClass('L1')) {
       $menu.find('a').addClass('hide')
-      $menu.find('a[data-type="IMAGE"]').removeClass('hide')
       $menu.find('a[data-type="N"]').removeClass('hide')
+      $menu.find('a[data-type="IMAGE"]').removeClass('hide')
     } else {
       $menu.find('a[data-type="IMAGE"]').addClass('hide')
     }

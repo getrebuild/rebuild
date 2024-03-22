@@ -68,7 +68,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .mode23-fields {
   background-color: #dee2e6;
-  width: 88%;
+  width: 96%;
   padding: 15px;
   padding-bottom: 10px;
 }
@@ -108,4 +108,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .mode3-fields > a.L2 {
   width: 100%;
+}
+
+.mode2-fields {
+  padding-left: 90px;
+}
+
+.mode2-fields > a.L0 {
+  float: left;
+  margin-left: -75px;
+  height: 65px;
+  line-height: 65px;
+  width: 65px;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+  border-radius: 99px;
 }
