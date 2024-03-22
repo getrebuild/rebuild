@@ -278,6 +278,7 @@ public class ModelExtrasController extends BaseController {
         } else if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
             if (evalVal instanceof Number) {
                 evalVal = easyField.wrapValue(evalVal);
+                evalVal = EasyDecimal.clearFlaged(evalVal);
                 return RespBody.ok(evalVal);
             }
         }

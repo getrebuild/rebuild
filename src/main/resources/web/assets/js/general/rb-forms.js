@@ -468,6 +468,7 @@ class RbForm extends React.Component {
     let moreActions = []
     // 添加明细
     if (props.rawModel.mainMeta) {
+      // in New
       if (props.$$$parent && props.$$$parent.props._nextAddDetail) {
         moreActions.push(
           <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADDDETAIL)}>
@@ -476,16 +477,16 @@ class RbForm extends React.Component {
         )
       }
     }
-    // 列表页添加
+    // 列表页保存并继续
     else if (window.RbViewModal && window.__PageConfig.type === 'RecordList') {
-      moreActions.push(
-        <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_VIEW)}>
-          {$L('保存并打开')}
-        </a>
-      )
       moreActions.push(
         <a key="Action105" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADD36)}>
           {$L('保存并继续新建')}
+        </a>
+      )
+      moreActions.push(
+        <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_VIEW)}>
+          {$L('保存并打开')}
         </a>
       )
     }
