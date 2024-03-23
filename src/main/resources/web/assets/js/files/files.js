@@ -52,7 +52,7 @@ class FilesList extends React.Component {
             </div>
           )
         })}
-        {this.state.currentLen >= PAGE_SIZE && (
+        {this.state.currentSize >= PAGE_SIZE && (
           <div className="text-center mt-3 pb-3">
             <a
               href="#"
@@ -64,7 +64,11 @@ class FilesList extends React.Component {
             </a>
           </div>
         )}
-        {this._pageNo > 1 && this.state.currentLen > 0 && this.state.currentLen < PAGE_SIZE && <div className="text-center mt-3 pb-3 text-muted">- {$L('已显示全部')} -</div>}
+        {this._pageNo > 1 && this.state.currentSize > 0 && this.state.currentSize < PAGE_SIZE && (
+          <div className="loadmore-line">
+            <span>{$L('已加载全部')}</span>
+          </div>
+        )}
         {this._pageNo === 1 && this.state.files && this.state.files.length === 0 && (
           <div className="list-nodata">
             <i className="zmdi zmdi-folder-outline" />
@@ -100,7 +104,7 @@ class FilesList extends React.Component {
       const current = res.data || []
       let files = this._pageNo === 1 ? [] : this.state.files
       files = [].concat(files, current)
-      this.setState({ files: files, currentLen: current.length, currentActive: [] })
+      this.setState({ files: files, currentSize: current.length, currentActive: [] })
     })
   }
 

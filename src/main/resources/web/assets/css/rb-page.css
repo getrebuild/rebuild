@@ -5566,3 +5566,20 @@ span.icon-append .icon {
 .btn.J_filterlist {
   text-transform: none;
 }
+
+.loadmore-line {
+  border-top: 1px solid #aaa;
+  width: 200px;
+  margin: 0 auto;
+  margin-top: 24px;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.loadmore-line > span {
+  position: relative;
+  top: -0.9em;
+  padding: 0 0.55em;
+  color: #999;
+  background-color: #eee;
+}
