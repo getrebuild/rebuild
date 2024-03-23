@@ -5562,6 +5562,7 @@ span.icon-append .icon {
   animation: blink 1s infinite;
 }
 
-.dropdown-menu.nott .dropdown-item {
+.dropdown-menu.nott .dropdown-item,
+.btn.J_filterlist {
   text-transform: none;
 }
