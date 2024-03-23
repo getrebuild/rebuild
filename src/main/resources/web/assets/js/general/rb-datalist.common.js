@@ -1523,10 +1523,9 @@ class RbListPagination extends React.Component {
 const CellRenders = {
   // 打开记录
   clickView(v, e) {
-    if (window.RbViewModal) {
-      window.RbViewModal.create({ id: v.id, entity: v.entity }, wpc.forceSubView)
-    } else if (parent && parent.RbViewModal) {
-      parent.RbViewModal.create({ id: v.id, entity: v.entity }, wpc.forceSubView)
+    const _RbViewModal = window.RbViewModal ? window.RbViewModal : parent && parent.RbViewModal ? parent.RbViewModal : null
+    if (_RbViewModal && wpc.forceOpenNewtab !== true) {
+      _RbViewModal.create({ id: v.id, entity: v.entity }, wpc.forceSubView)
     } else {
       window.open(`${rb.baseUrl}/app/redirect?id=${v.id}&type=newtab`)
     }

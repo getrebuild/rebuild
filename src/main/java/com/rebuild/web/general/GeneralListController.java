@@ -70,7 +70,7 @@ public class GeneralListController extends EntityController {
         final EasyEntity easyEntity = EasyMetaFactory.valueOf(listEntity);
 
         int listMode = ObjectUtils.toInt(easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE), 1);
-        int listModeForce = getIntParameter(request, "mode");
+        int listModeForce = getIntParameter(request, "mode", 1);
         if (listModeForce >= 1 && listModeForce <= 3) listMode = listModeForce;
         String listPage = listEntity.getMainEntity() != null ? "/general/detail-list" : "/general/record-list";
         if (listMode == 2) listPage = "/general/record-list2";  // Mode2
