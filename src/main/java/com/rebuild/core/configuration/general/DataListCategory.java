@@ -25,7 +25,11 @@ import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 列表字段分类（分组）数据
@@ -64,8 +68,8 @@ public class DataListCategory {
 
         } else {
 
-            String cf = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADV_LIST_SHOWCATEGORY);
-            String[] ff = cf.split(":");
+            String conf = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADVLIST_SHOWCATEGORY);
+            String[] ff = conf.split(":");
             String ffField = ff[0];
             String ffFormat = ff.length > 1 ? ff[1] : null;
 
@@ -133,7 +137,7 @@ public class DataListCategory {
      * @return
      */
     public Field getFieldOfCategory(Entity entity) {
-        String categoryField = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADV_LIST_SHOWCATEGORY);
+        String categoryField = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADVLIST_SHOWCATEGORY);
         if (categoryField != null) categoryField = categoryField.split(":")[0];
         if (categoryField != null && entity.containsField(categoryField)) return entity.getField(categoryField);
         return null;

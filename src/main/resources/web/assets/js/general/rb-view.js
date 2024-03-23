@@ -404,7 +404,7 @@ class EntityRelatedList extends RelatedList {
               </a>
             )}
 
-            {astate && <span className={`badge badge-sm badge-${astate[1]}`}>{astate[0]}</span>}
+            {astate && <span className={`badge badge-pill badge-${astate[1]}`}>{astate[0]}</span>}
 
             <span className="fs-12 text-muted" title={`${$L('修改时间')} ${item[2]}`}>
               {$fromNow(item[2])}

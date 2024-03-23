@@ -25,12 +25,12 @@ const startTour123 = function () {
       steps = StepDashboard()
     }
   } else if (location.href.includes('/list') && wpc.type === 'RecordList') {
-    if ($('.datalist-mode3').length > 0) {
-      stepName = 'TourEnd-RecordList3'
-      steps = StepDataList3()
-    } else if ($('.datalist-mode2').length > 0) {
+    if ($('.datalist-mode2')[0]) {
       stepName = 'TourEnd-RecordList2'
       steps = StepDataList2()
+    } else if ($('.datalist-mode3')[0]) {
+      stepName = 'TourEnd-RecordList3'
+      steps = StepDataList3()
     } else {
       stepName = 'TourEnd-RecordList'
       steps = StepDataList()
@@ -310,8 +310,46 @@ const StepDataList2 = () => {
   ]
 }
 
-// TODO
-const StepDataList3 = () => {}
+const StepDataList3 = () => {
+  return [
+    {
+      element: '.widgets',
+      title: $L('侧栏工具'),
+      intro: $L('侧栏工具帮助你快速切换常用查询'),
+      rbTop: 20,
+    },
+    {
+      element: '.J_switch-list',
+      title: $L('切换列表'),
+      intro: $L('点击切换主记录/明细记录数据列表'),
+      rbLeft: 5,
+    },
+    {
+      element: '.adv-search',
+      title: $L('高级查询'),
+      intro: $L('高级查询是强大数据检索工具，你可以将查询保存起来方便下次使用'),
+      rbLeft: 5,
+    },
+    {
+      element: '.input-search',
+      title: $L('快速查询'),
+      intro: $L('快速查询可以快速检索数据，并把结果展示在数据列表中'),
+      rbLeft: 5,
+    },
+    {
+      element: '.J_new',
+      title: $L('新建记录'),
+      intro: $L('新建一条业务记录'),
+      rbLeft: 5,
+    },
+    {
+      element: '.J_action',
+      title: $L('更多操作'),
+      intro: $L('你还可以导出数据报表、批量修改等操作'),
+      rbRight: 5,
+    },
+  ]
+}
 
 const StepView = () => {
   return [

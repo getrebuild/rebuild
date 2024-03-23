@@ -41,27 +41,27 @@ public class EasyEntityConfigProps {
     /**
      * 隐藏常用查询面板
      */
-    public static final String ADV_LIST_HIDE_FILTERS = "advListHideFilters";
+    public static final String ADVLIST_HIDE_FILTERS = "advListHideFilters";
     /**
      * 隐藏图表面板
      */
-    public static final String ADV_LIST_HIDE_CHARTS = "advListHideCharts";
+    public static final String ADVLIST_HIDE_CHARTS = "advListHideCharts";
     /**
      * 列表模式
      */
-    public static final String ADV_LIST_MODE = "advListMode";
+    public static final String ADVLIST_MODE = "advListMode";
     /**
      * 列表分类
      */
-    public static final String ADV_LIST_SHOWCATEGORY = "advListShowCategory";
+    public static final String ADVLIST_SHOWCATEGORY = "advListShowCategory";
     /**
      * 列表查询面板
      */
-    public static final String ADV_LIST_FILTERPANE = "advListFilterPane";
+    public static final String ADVLIST_FILTERPANE = "advListFilterPane";
     /**
      * 列表查询页签
      */
-    public static final String ADV_LIST_FILTERTABS = "advListFilterTabs";
+    public static final String ADVLIST_FILTERTABS = "advListFilterTabs";
     /**
      * 重复字段检查模式 (AND/OR)
      */
@@ -75,4 +75,18 @@ public class EasyEntityConfigProps {
      * 启用记录合并（还需配合权限）
      */
     public static final String ENABLE_RECORD_MERGER = "enableRecordMerger";
+
+    /**
+     * 列表模式
+     */
+    public static final String ADVLIST_MODE2_SHOWFIELDS = "mode2ShowFields";
+    public static final String ADVLIST_MODE3_SHOWFIELDS = "mode3ShowFields";
+    /**
+     * @see #ADVLIST_HIDE_FILTERS
+     */
+    public static final String ADVLIST_MODE3_SHOWFILTERS = "mode3ShowFilters";
+    /**
+     * @see #ADVLIST_SHOWCATEGORY TODO
+     */
+    public static final String ADVLIST_MODE3_SHOWCATEGORY = "mode3ShowCategory";
 }

@@ -10,9 +10,7 @@ $(document).ready(() => {
   if (!entity) return
 
   let href = location.href
-  if (href.includes('/field/')) {
-    href = href.split('/field/')[0] + '/fields'
-  }
+  if (href.includes('/field/')) href = href.split('/field/')[0] + '/fields'
 
   const $menu = $('<div class="dropdown-menu auto-scroller entity-switch"></div>').appendTo('.aside-header')
   function renderItem(item) {

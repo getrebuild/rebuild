@@ -107,18 +107,17 @@ class RbViewModal extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props, inLoad: true, isHide: true, destroy: false }
-    this.mcWidth = this.props.subView === true ? 1344 : 1404
-    if ($(window).width() < 1464) this.mcWidth -= 184
+
+    this._mcWidth = this.props.subView === true ? 1344 : 1404
+    if ($(window).width() < 1464) this._mcWidth -= 184
   }
 
   render() {
-    if (this.state.destroy) return null
-
-    return (
+    return this.state.destroy ? null : (
       <div className="modal-wrapper">
-        <div className="modal rbview" ref={(c) => (this._rbview = c)}>
+        <div className="modal rbview" ref={(c) => (this._$rbview = c)}>
           <div className="modal-dialog">
-            <div className="modal-content" style={{ width: this.mcWidth }}>
+            <div className="modal-content" style={{ width: this._mcWidth }}>
               <div className={`modal-body iframe rb-loading ${this.state.inLoad === true && 'rb-loading-active'}`}>
                 <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no" />
                 <RbSpinner />
@@ -131,13 +130,13 @@ class RbViewModal extends React.Component {
   }
 
   componentDidMount() {
-    const $root = $(this._rbview)
-    const rootWrap = $root.parent().parent()
-    const mc = $root.find('.modal-content')
+    const $root = $(this._$rbview)
+    const $rootp = $root.parent().parent()
+    const $mc = $root.find('.modal-content')
     const that = this
     $root
       .on('hidden.bs.modal', function () {
-        mc.css({ 'margin-right': -1500 })
+        $mc.css({ 'margin-right': -1500 })
         that.setState({ inLoad: true, isHide: true })
         if (!$keepModalOpen()) location.hash = '!/View/'
 
@@ -146,22 +145,22 @@ class RbViewModal extends React.Component {
           $root.modal('dispose')
           that.setState({ destroy: true }, () => {
             RbViewModal.holder(that.state.id, 'DISPOSE')
-            $unmount(rootWrap)
+            $unmount($rootp)
           })
         }
       })
       .on('shown.bs.modal', function () {
-        mc.css('margin-right', 0)
-        if (that.__urlChanged === false) {
-          const cw = mc.find('iframe')[0].contentWindow
-          if (cw.RbViewPage && cw.RbViewPage._RbViewForm) cw.RbViewPage._RbViewForm.showAgain(that)
-          this.__urlChanged = true
+        $mc.css('margin-right', 0)
+        if (that._urlChanged === false) {
+          const w = $mc.find('iframe')[0].contentWindow
+          // 检查数据
+          if (w.RbViewPage && w.RbViewPage._RbViewForm) w.RbViewPage._RbViewForm.showAgain(that)
         }
 
-        const mcs = $('body>.modal-backdrop.show')
-        if (mcs.length > 1) {
-          mcs.addClass('o')
-          mcs.eq(0).removeClass('o')
+        const $mcbd = $('body>.modal-backdrop.show')
+        if ($mcbd[0]) {
+          $mcbd.addClass('o')
+          $mcbd.eq(0).removeClass('o')
         }
       })
     this.show()
@@ -175,15 +174,15 @@ class RbViewModal extends React.Component {
     this.setState({ inLoad: true, isHide: true })
   }
 
-  show(url, ext) {
+  show(url, option) {
     let urlChanged = true
     if (url && url === this.state.url) urlChanged = false
-    ext = ext || {}
+    option = option || {}
     url = url || this.state.url
 
-    this.__urlChanged = urlChanged
-    this.setState({ ...ext, url: url, inLoad: urlChanged, isHide: urlChanged }, () => {
-      $(this._rbview).modal({ show: true, backdrop: true, keyboard: false })
+    this._urlChanged = urlChanged
+    this.setState({ ...option, url: url, inLoad: urlChanged, isHide: urlChanged }, () => {
+      $(this._$rbview).modal({ show: true, backdrop: true, keyboard: false })
       setTimeout(() => {
         this.setState({ showAfterUrl: this.state.url })
       }, 210) // 0.2s in rb-page.css '.rbview.show .modal-content'
@@ -191,7 +190,7 @@ class RbViewModal extends React.Component {
   }
 
   hide() {
-    $(this._rbview).modal('hide')
+    $(this._$rbview).modal('hide')
   }
 
   // -- Usage

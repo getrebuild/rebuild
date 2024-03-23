@@ -799,8 +799,8 @@ const UserShow = function (props) {
 }
 
 // ~~ 日期显示
-const DateShow = function ({ date }) {
-  return date ? <span title={date}>{$fromNow(date)}</span> : null
+const DateShow = function ({ date, title }) {
+  return date ? <span title={title || date}>{$fromNow(date)}</span> : null
 }
 
 // ~~ 任意记录选择
