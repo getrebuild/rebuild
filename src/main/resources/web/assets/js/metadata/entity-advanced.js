@@ -408,7 +408,7 @@ class DlgMode2Option extends RbFormHandler {
           })
         }
       }
-      this._loadAfter && this._loadAfter(res.data)
+      // this._loadAfter && this._loadAfter(res.data)
     })
   }
 
@@ -459,6 +459,21 @@ class DlgMode3Option extends DlgMode2Option {
       <RbModal title={$L('卡片模式选项')} ref={(c) => (this._dlg = c)}>
         <div className="form">
           <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('在侧栏显示')}</label>
+            <div className="col-sm-9">
+              <div>
+                <div className="switch-button switch-button-xs">
+                  <input type="checkbox" id="mode3ShowFilters" defaultChecked={wpc.extConfig && wpc.extConfig.mode3ShowFilters} />
+                  <span>
+                    <label htmlFor="mode3ShowFilters" />
+                  </span>
+                </div>
+                <span className="ml-2 down-5 d-inline-block">{$L('常用查询')}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('显示字段')}</label>
             <div className="col-sm-9">
               <div className="mode23-fields mode3-fields" ref={(c) => (this._$showFields = c)}>
@@ -483,6 +498,7 @@ class DlgMode3Option extends DlgMode2Option {
               </div>
             </div>
           </div>
+
           <div className="form-group row footer">
             <div className="col-sm-9 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this.save}>
@@ -506,5 +522,10 @@ class DlgMode3Option extends DlgMode2Option {
     } else {
       $menu.find('a[data-type="IMAGE"]').addClass('hide')
     }
+  }
+
+  _saveBefore(o) {
+    o.mode3ShowFilters = $val('#mode3ShowFilters')
+    return o
   }
 }

@@ -70,7 +70,7 @@ public class GeneralListController extends EntityController {
         final EasyEntity easyEntity = EasyMetaFactory.valueOf(listEntity);
 
         int listMode = ObjectUtils.toInt(easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE), 1);
-        int listModeForce = getIntParameter(request, "mode", 1);
+        int listModeForce = getIntParameter(request, "mode", 0);
         if (listModeForce >= 1 && listModeForce <= 3) listMode = listModeForce;
         String listPage = listEntity.getMainEntity() != null ? "/general/detail-list" : "/general/record-list";
         if (listMode == 2) listPage = "/general/record-list2";  // Mode2
@@ -149,16 +149,21 @@ public class GeneralListController extends EntityController {
 
         } else if (listMode == 2) {
             listConfig = DataListManager.instance.getFieldsLayoutMode2(listEntity);
-            // 明细列表
+            // 明细
             if (listEntity.getMainEntity() != null) mv.getModel().put("DataListType", "DetailList");
 
         } else if (listMode == 3) {
             listConfig = DataListManager.instance.getFieldsLayoutMode3(listEntity);
-            // 明细列表
+            // 明细
             if (listEntity.getMainEntity() != null) mv.getModel().put("DataListType", "DetailList");
-            // 侧栏
-            mv.getModel().put("hideAside", true);
 
+            // 侧栏
+            String advListShowFilters = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE3_SHOWFILTERS);
+            String advListShowCategory = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE3_SHOWCATEGORY);
+            mv.getModel().put(EasyEntityConfigProps.ADVLIST_MODE3_SHOWFILTERS, advListShowFilters);
+            mv.getModel().put(EasyEntityConfigProps.ADVLIST_MODE3_SHOWCATEGORY, advListShowCategory);
+            mv.getModel().put("hideAside",
+                    !(BooleanUtils.toBoolean(advListShowFilters) || BooleanUtils.toBoolean(advListShowCategory)));
         }
 
         mv.getModel().put("DataListConfig", JSON.toJSONString(listConfig));

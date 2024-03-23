@@ -92,6 +92,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
           else if (err.status === 401) err = $L('未授权访问')
           else err = $L('系统繁忙，请稍后重试')
         }
+        if (rb.env === 'dev') console.log('error on complete :', err)
         err && RbHighbar.error(err)
       } else {
         var res = xhr.responseJSON

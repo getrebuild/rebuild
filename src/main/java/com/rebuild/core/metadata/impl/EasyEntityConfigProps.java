@@ -81,4 +81,12 @@ public class EasyEntityConfigProps {
      */
     public static final String ADVLIST_MODE2_SHOWFIELDS = "mode2ShowFields";
     public static final String ADVLIST_MODE3_SHOWFIELDS = "mode3ShowFields";
+    /**
+     * @see #ADVLIST_HIDE_FILTERS
+     */
+    public static final String ADVLIST_MODE3_SHOWFILTERS = "mode3ShowFilters";
+    /**
+     * @see #ADVLIST_SHOWCATEGORY TODO
+     */
+    public static final String ADVLIST_MODE3_SHOWCATEGORY = "mode3ShowCategory";
 }
