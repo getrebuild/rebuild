@@ -52,8 +52,9 @@ class FilesList extends React.Component {
             </div>
           )
         })}
+
         {this.state.currentSize >= PAGE_SIZE && (
-          <div className="text-center mt-3 pb-3">
+          <div className="text-center mt-4 pb-4">
             <a
               href="#"
               onClick={(e) => {
@@ -65,8 +66,10 @@ class FilesList extends React.Component {
           </div>
         )}
         {this._pageNo > 1 && this.state.currentSize > 0 && this.state.currentSize < PAGE_SIZE && (
-          <div className="loadmore-line">
-            <span>{$L('已加载全部')}</span>
+          <div className="mt-6 pb-1">
+            <div className="loadmore-line">
+              <span>{$L('已加载全部')}</span>
+            </div>
           </div>
         )}
         {this._pageNo === 1 && this.state.files && this.state.files.length === 0 && (

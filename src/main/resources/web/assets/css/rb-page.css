@@ -5570,9 +5570,7 @@ span.icon-append .icon {
 .loadmore-line {
   border-top: 1px solid #aaa;
   width: 200px;
-  margin: 0 auto;
-  margin-top: 24px;
-  margin-bottom: 6px;
+  margin: 25px auto 0;
   text-align: center;
 }
 
@@ -5582,4 +5580,6 @@ span.icon-append .icon {
   padding: 0 0.55em;
   color: #999;
   background-color: #eee;
+  margin-bottom: 3px;
+  display: inline-block;
 }
