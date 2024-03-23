@@ -1343,14 +1343,13 @@ class ChartCNMap extends BaseChart {
 
     const elid = `echarts-cnmap-${this.state.id || 'id'}`
     this.setState({ chartdata: <div className="chart cnmap" id={elid} /> }, () => {
-      const mapTheme = data._renderOption && data._renderOption.mapTheme
-
       const data4map = []
       data.data.forEach((item) => {
         let lnglat = item[1].split(',')
         data4map.push([lnglat[0], lnglat[1], item[2] || null, item[0]])
       })
 
+      const mapTheme = data._renderOption && data._renderOption.themeStyle
       const hasNumAxis = data.name ? true : false
 
       // https://github.com/apache/echarts/tree/master/extension-src/bmap
@@ -1364,7 +1363,7 @@ class ChartCNMap extends BaseChart {
             enableMapClick: false,
           },
           mapStyle: {
-            styleJson: mapTheme === 'dark' ? MAP_STYLE2 : MAP_STYLE1,
+            styleJson: mapTheme === 'dark' ? MAP_STYLE2 : mapTheme === 'light' ? MAP_STYLE1 : [],
           },
         },
         series: [
@@ -1374,7 +1373,7 @@ class ChartCNMap extends BaseChart {
             symbol: data.name ? 'circle' : 'pin',
             symbolSize: function (v) {
               console.log(v)
-              return hasNumAxis ? 14 : 18
+              return hasNumAxis ? 14 : 20
             },
             data: data4map,
             encode: {
@@ -1394,7 +1393,7 @@ class ChartCNMap extends BaseChart {
         if (data.name) {
           return `<b>${a.data[3]}</b> <br/> ${a.marker} ${data.name} : ${formatThousands(a.data[2])}`
         } else {
-          return `${a.data[3]}`
+          return `<b>${a.data[3]}</b>`
         }
       }
 

@@ -1276,13 +1276,8 @@ const renderRbcomp = function (JSX, container, callback, v18) {
   return container
 }
 
-// for: React v18
-const renderRbcomp18 = function (JSX, container) {
-  return renderRbcomp(JSX, container, null, true)
-}
-
-const __DLGCOMPS = {}
 // 渲染可重用组件
+const __DLGCOMPS = {}
 const renderDlgcomp = function (JSX, id) {
   if (__DLGCOMPS[id]) {
     __DLGCOMPS[id].show()
@@ -1291,4 +1286,9 @@ const renderDlgcomp = function (JSX, id) {
       __DLGCOMPS[id] = this
     })
   }
+}
+
+// for: React v18
+const renderRbcomp18 = function (JSX, container) {
+  return renderRbcomp(JSX, container, null, true)
 }

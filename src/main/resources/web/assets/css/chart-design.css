@@ -486,17 +486,19 @@ a.ui-draggable.ui-draggable-dragging {
   margin-left: 5px;
 }
 
-.J_opt-DATALIST2 input {
+.J_opt-DATALIST2 input,
+.J_opt-CNMAP select {
   border: 0 none;
   outline: 0 none;
-  width: 50px;
+  width: 66px;
   border-bottom: 1px solid #ccc;
   padding: 2px;
   margin-left: 5px;
   text-align: center;
 }
 
-.J_opt-DATALIST2 input:focus {
+.J_opt-DATALIST2 input:focus,
+.J_opt-CNMAP select:focus {
   border-color: #4285f4;
 }
 
