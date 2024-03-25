@@ -1538,8 +1538,8 @@ const CellRenders = {
 
   // 打开预览
   clickPreview(v, idx, e) {
-    RbPreview.create(v, idx)
     e && $stopEvent(e)
+    RbPreview.create(v, idx)
     return false
   },
 
