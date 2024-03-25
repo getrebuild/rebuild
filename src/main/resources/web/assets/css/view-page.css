@@ -402,45 +402,6 @@ body {
   border-width: 0;
 }
 
-.load-mores {
-  border-top: 1px solid #eee;
-  height: 34px;
-  margin-top: 34px;
-}
-
-.load-mores .btn {
-  width: 160px;
-  line-height: 1.8rem;
-  min-height: 2.6rem;
-  border-radius: 99px;
-  font-size: 12px;
-}
-
-.load-mores > div {
-  width: 180px;
-  background-color: #fff;
-  margin: -1.4rem auto 0;
-}
-
-.load-mores > .btn {
-  display: inline-block;
-  margin-top: -1.4rem;
-}
-
-.load-mores.load-end {
-  border: 0 none;
-  margin: 15px 0;
-  height: auto;
-}
-
-.load-mores.load-end > div {
-  width: 10px;
-  height: 10px;
-  background-color: #ccc;
-  margin: 0 auto;
-  border-radius: 99px;
-}
-
 /* editable */
 
 .rbview-form .form-group.editable a.edit {

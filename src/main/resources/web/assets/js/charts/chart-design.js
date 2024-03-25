@@ -116,6 +116,7 @@ $(document).ready(() => {
 
   $('.chart-option .custom-control').on('click', () => render_option())
   $('.chart-option input[type="text"]').on('blur', () => render_option())
+  $('.chart-option select').on('change', () => render_option())
 
   // 保存按钮
   $('.rb-toggle-left-sidebar')
@@ -447,7 +448,7 @@ const build_config = () => {
   cfg.axis = { dimension: dims, numerical: nums }
 
   const option = {}
-  $('.chart-option input').each(function () {
+  $('.chart-option input, .chart-option select').each(function () {
     const name = $(this).data('name')
     if (name) option[name] = $val(this)
   })

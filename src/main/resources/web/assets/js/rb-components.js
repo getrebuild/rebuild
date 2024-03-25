@@ -92,7 +92,7 @@ class RbModal extends React.Component {
         $keepModalOpen()
         if (this.props.disposeOnHide === true) {
           $root.modal('dispose')
-          $unmount($root.parent())
+          $unmount($root.parent(), 0, null, this.props.__root18)
         }
       })
   }
@@ -1246,7 +1246,7 @@ class CodeViewport extends React.Component {
  * @param {*} container id or object of element (or function of callback)
  * @param {*} callback callback on mounted
  */
-const renderRbcomp = function (JSX, container, callback) {
+const renderRbcomp = function (JSX, container, callback, v18) {
   if (typeof container === 'function') {
     callback = container
     container = null
@@ -1254,28 +1254,30 @@ const renderRbcomp = function (JSX, container, callback) {
 
   container = container || $random('react-container-', true, 32)
   if (typeof container === 'string') {
-    // element id
     const c = document.getElementById(container)
-    if (!c) {
-      if (!container.startsWith('react-container-')) throw 'No element found : ' + container
-      else container = $(`<div id="${container}"></div>`).appendTo(document.body)[0]
-    } else {
+    if (c) {
       container = c
+    } else {
+      if (container.startsWith('react-container-')) container = $(`<div id="${container}"></div>`).appendTo(document.body)[0]
+      else throw 'No element found : ' + container
     }
   } else if (container instanceof $) {
     container = container[0]
   }
 
-  // if (rb.env === 'dev') {
-  //   ReactDOM.render(<React.StrictMode>{JSX}</React.StrictMode>, container, callback)
-  // }
+  if (v18) {
+    const root = ReactDOM.createRoot(container)
+    const JSX2 = React.cloneElement(JSX, { __root18: root })
+    root.render(JSX2)
+    return root
+  }
 
   ReactDOM.render(JSX, container, callback)
   return container
 }
 
-const __DLGCOMPS = {}
 // 渲染可重用组件
+const __DLGCOMPS = {}
 const renderDlgcomp = function (JSX, id) {
   if (__DLGCOMPS[id]) {
     __DLGCOMPS[id].show()
@@ -1284,4 +1286,9 @@ const renderDlgcomp = function (JSX, id) {
       __DLGCOMPS[id] = this
     })
   }
+}
+
+// for: React v18
+const renderRbcomp18 = function (JSX, container) {
+  return renderRbcomp(JSX, container, null, true)
 }

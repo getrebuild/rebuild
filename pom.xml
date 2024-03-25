@@ -318,6 +318,12 @@
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
             <version>3.3.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
@@ -373,6 +379,12 @@
             <groupId>com.vladsch.flexmark</groupId>
             <artifactId>flexmark</artifactId>
             <version>0.62.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.vladsch.flexmark</groupId>
@@ -535,6 +547,11 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
             <version>4.1.107.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>33.1.0-jre</version>
         </dependency>
     </dependencies>
 </project>

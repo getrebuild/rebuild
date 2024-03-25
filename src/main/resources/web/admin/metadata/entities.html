@@ -174,9 +174,13 @@
                 if (_EntityNew2) {
                   _EntityNew2.show()
                 } else {
-                  renderRbcomp(<EntityNew2 />, null, function () {
-                    _EntityNew2 = this
-                  })
+                  renderRbcomp18(
+                    <EntityNew2
+                      ref={function (o) {
+                        _EntityNew2 = o
+                      }}
+                    />
+                  )
                 }
               } else {
                 RbHighbar.error('仅超级管理员可添加实体')
