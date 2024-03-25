@@ -145,7 +145,7 @@ class AdvFilter extends React.Component {
 
         if (['REFERENCE', 'N2NREFERENCE'].includes(item.type)) {
           REFENTITY_CACHE[item.name] = item.ref
-          if ('N2NREFERENCE' === item.type) REFENTITY_CACHE[item.name]._n2n = true
+          if ('N2NREFERENCE' === item.type) REFENTITY_CACHE[item.name]._isN2N = true
 
           // NOTE: Use `NameField` field-type
           if (!BIZZ_ENTITIES.includes(item.ref[0])) {
@@ -585,6 +585,12 @@ class FilterItem extends React.Component {
     return fieldName === 'approvalState' || fieldName.endsWith('.approvalState')
   }
 
+  // TODO 当前审批人
+  isApprovalStepUsers() {
+    const fieldName = this.state.field || ''
+    return fieldName === 'approvalStepUsers' || fieldName.endsWith('.approvalStepUsers')
+  }
+
   componentDidMount() {
     this.props.onRef(this)
 
@@ -920,7 +926,9 @@ class FilterItem extends React.Component {
     const ifRefField = REFENTITY_CACHE[s.field]
     if (ifRefField && !(s.op === 'NL' || s.op === 'NT')) {
       if (BIZZ_ENTITIES.includes(ifRefField[0])) {
-        if (ifRefField._n2n) item.field = NAME_FLAG + item.field
+        if (ifRefField._isN2N) {
+          item.field = NAME_FLAG + item.field
+        }
       } else {
         item.field = NAME_FLAG + item.field
       }

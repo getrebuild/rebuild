@@ -28,8 +28,8 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
+import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationNoRollbackException;
-import com.rebuild.core.service.InternalPersistService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.notification.MessageBuilder;
@@ -64,7 +64,7 @@ import java.util.Set;
  */
 @Slf4j
 @Service
-public class ApprovalStepService extends InternalPersistService {
+public class ApprovalStepService extends BaseService {
 
     /**
      * 虚拟审批
