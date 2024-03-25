@@ -158,7 +158,7 @@ class AdvFilter extends React.Component {
           fields.push(item)
 
           if (item.type === 'REFERENCE' && item.name === 'approvalLastUser') {
-            const item2 = { ...item, name: VF_ACU, label: $L('当前审批人') }
+            const item2 = { ...item, name: VF_ACU, label: $L('当前审批人') + ' (废弃)' }
             validFs.push(item2.name)
             REFENTITY_CACHE[item2.name] = item2.ref
             fields.push(item2)

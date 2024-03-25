@@ -77,6 +77,7 @@ import static cn.devezhao.commons.CalendarUtils.addMonth;
 public class AdvFilterParser extends SetUser {
 
     // 虚拟字段:当前审批人
+    @Deprecated
     public static final String VF_ACU = "$APPROVALCURRENTUSER$";
 
     // 快速查询
