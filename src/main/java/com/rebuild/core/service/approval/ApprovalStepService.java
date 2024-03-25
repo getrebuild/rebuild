@@ -95,7 +95,7 @@ public class ApprovalStepService extends BaseService {
         cancelAliveSteps(recordId, null, null, null, false);
 
         setApprovalLastX(recordOfMain, null, null);
-        recordOfMain.setIDArray(EntityHelper.ApprovalStepUsers, nextApprovers.toArray(new ID[0]));
+        if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalStepUsers)) recordOfMain.setIDArray(EntityHelper.ApprovalStepUsers, nextApprovers.toArray(new ID[0]));
         super.update(recordOfMain);
 
         final String approveMsg = ApprovalHelper.buildApproveMsg(recordOfMain.getEntity());
@@ -208,14 +208,14 @@ public class ApprovalStepService extends BaseService {
                 ID[] backedApprovers = createBackedNodes(currentNode, nextNode, recordId, approvalId, approver, remark);
 
                 recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNode);
-                recordOfMain.setIDArray(EntityHelper.ApprovalStepUsers, backedApprovers);
+                if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalStepUsers)) recordOfMain.setIDArray(EntityHelper.ApprovalStepUsers, backedApprovers);
                 super.update(recordOfMain);
             }
             // 驳回
             else {
                 recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.REJECTED.getState());
                 recordOfMain.setNull(EntityHelper.ApprovalStepNode);
-                recordOfMain.setNull(EntityHelper.ApprovalStepUsers);
+                if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalStepUsers)) recordOfMain.setNull(EntityHelper.ApprovalStepUsers);
                 super.update(recordOfMain);
 
                 String rejectedMsg = Language.L("@%s 驳回了你的 %s 审批，请重新提交", approver, entityLabel);
@@ -272,7 +272,7 @@ public class ApprovalStepService extends BaseService {
         // 最终状态（审批通过）
         if (goNextNode && (nextApprovers == null || nextNode == null)) {
             recordOfMain.setNull(EntityHelper.ApprovalStepNode);
-            recordOfMain.setNull(EntityHelper.ApprovalStepUsers);
+            if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalStepUsers)) recordOfMain.setNull(EntityHelper.ApprovalStepUsers);
             super.update(recordOfMain);
 
             String approvedMsg = Language.L("你提交的 %s 已审批通过", entityLabel);
@@ -286,7 +286,7 @@ public class ApprovalStepService extends BaseService {
         // 进入下一步
         if (goNextNode) {
             recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNode);
-            recordOfMain.setIDArray(EntityHelper.ApprovalStepUsers, nextApprovers.toArray(new ID[0]));
+            if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalStepUsers)) recordOfMain.setIDArray(EntityHelper.ApprovalStepUsers, nextApprovers.toArray(new ID[0]));
             super.update(recordOfMain);
 
             // v3.7 触发器
@@ -350,7 +350,7 @@ public class ApprovalStepService extends BaseService {
             Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
             recordOfMain.setInt(EntityHelper.ApprovalState, useState.getState());
             recordOfMain.setNull(EntityHelper.ApprovalStepNode);
-            recordOfMain.setNull(EntityHelper.ApprovalStepUsers);
+            if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalStepUsers)) recordOfMain.setNull(EntityHelper.ApprovalStepUsers);
             super.update(recordOfMain);
 
             execTriggersWhenSE(recordOfMain, TriggerWhen.REJECTED);
@@ -460,7 +460,7 @@ public class ApprovalStepService extends BaseService {
         Record recordOfMain = EntityHelper.forUpdate(recordId, useApprover, false);
         recordOfMain.setID(EntityHelper.ApprovalId, useApproval);
         recordOfMain.setString(EntityHelper.ApprovalStepNode, FlowNode.NODE_AUTOAPPROVAL);
-        recordOfMain.setNull(EntityHelper.ApprovalStepUsers);
+        if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalStepUsers)) recordOfMain.setNull(EntityHelper.ApprovalStepUsers);
         setApprovalLastX(recordOfMain, useApprover, Language.L("自动审批"));
         super.update(recordOfMain);
 
