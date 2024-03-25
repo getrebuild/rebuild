@@ -702,3 +702,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .fields-table td .close {
   font-size: 1.2rem;
 }
+
+.fields-table tr.ui-sortable-helper {
+  background-color: #eee;
+  display: block;
+  width: 100%;
+}

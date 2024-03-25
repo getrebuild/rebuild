@@ -695,7 +695,7 @@ class ApproverNodeConfig extends StartNodeConfig {
             <label className="text-bold">{$L('可修改字段')}</label>
             <div style={{ position: 'relative' }}>
               <table className={`table table-sm fields-table ${(this.state.editableFields || []).length === 0 && 'hide'}`}>
-                <tbody ref={(c) => (this._editableFields = c)}>
+                <tbody ref={(c) => (this._$editableFields = c)}>
                   {(this.state.editableFields || []).map((item) => {
                     return (
                       <tr key={`field-${item.field}`}>
@@ -735,7 +735,7 @@ class ApproverNodeConfig extends StartNodeConfig {
     const h = $('#config-side').height() - 120
     $('#config-side .form.rb-scroller').height(h).perfectScrollbar()
 
-    $(this._editableFields)
+    $(this._$editableFields)
       .sortable({
         cursor: 'move',
         axis: 'y',
@@ -746,7 +746,7 @@ class ApproverNodeConfig extends StartNodeConfig {
 
   save = () => {
     const editableFields = []
-    $(this._editableFields)
+    $(this._$editableFields)
       .find('input')
       .each(function () {
         const $this = $(this)
@@ -787,7 +787,7 @@ class ApproverNodeConfig extends StartNodeConfig {
     const fsNew = fs.map((item) => {
       return { field: item, notNull: false }
     })
-    this.setState({ editableFields: fsNew })
+    this.setState({ editableFields: fsNew }, () => $(this._$editableFields).sortable('refresh'))
   }
 
   removeEditableField(field) {
