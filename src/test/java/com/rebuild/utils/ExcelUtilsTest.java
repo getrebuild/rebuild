@@ -11,6 +11,8 @@ import cn.devezhao.commons.excel.IRow;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.ResourceUtils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
@@ -28,5 +30,11 @@ class ExcelUtilsTest {
             System.out.println(row.getCell("G"));
             System.out.println(row.getCell("h"));
         }
+    }
+
+    @Test
+    void saveToCsv() throws FileNotFoundException {
+        File file = ResourceUtils.getFile("classpath:dataimports-test.xls");
+        System.out.println(ExcelUtils.saveToCsv(file.toPath(), null));
     }
 }
