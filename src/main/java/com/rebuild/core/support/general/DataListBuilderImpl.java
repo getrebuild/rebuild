@@ -141,7 +141,7 @@ public class DataListBuilderImpl implements DataListBuilder {
         List<Object[]> stats = new ArrayList<>();
 
         final Object[] count = Application.createQuery(queryParser.toCountSql(), user).unique();
-        stats.add(new Object[] {null, count[0]} );
+        stats.add(new Object[] {null, count[0]});
         if (count.length < 2) return stats;
 
         List<Map<String, Object>> statsFields = queryParser.getCountFields();
