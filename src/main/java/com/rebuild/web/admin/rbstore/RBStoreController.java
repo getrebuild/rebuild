@@ -36,8 +36,12 @@ public class RBStoreController extends BaseController {
             return RespBody.error();
         }
 
-        JSON index = RBStore.fetchRemoteJson(type + "/index.json");
-        return index == null ? RespBody.error() : index;
+        JSON index = null;
+        try {
+            index = RBStore.fetchRemoteJson(type + "/index.json");
+        } catch (Exception ignored) {
+        }
+        return index == null ? RespBody.error("CANNOT FETCH DATA FROM RB-STORE") : index;
     }
 
     @GetMapping({"/admin/rbstore/load-metaschemas", "/setup/init-models"})
