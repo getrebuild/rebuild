@@ -320,6 +320,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
         try (Workbook wb = WorkbookFactory.create(file)) {
             Sheet sheet = wb.getSheetAt(0);
             for (Object o : sheet.getDrawingPatriarch()) {
+                if (!(o instanceof XSSFSimpleShape)) continue;  // 仅文本
                 XSSFSimpleShape shape = (XSSFSimpleShape) o;
                 String shapeText = shape.getText();
                 Matcher matcher = TemplateExtractor33.PATT_V2.matcher(shapeText);
@@ -356,7 +357,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             }
 
         } catch (Exception ex) {
-            log.error("Cannot fill vars to shape", ex);
+            log.error("DEBUG:Cannot fill vars to shape", ex);
         }
 
         return file;
