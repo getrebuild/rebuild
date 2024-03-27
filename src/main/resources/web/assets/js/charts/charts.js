@@ -1356,7 +1356,6 @@ class ChartCNMap extends BaseChart {
       const option = {
         ...cloneOption(ECHART_BASE),
         bmap: {
-          // center: [120.13066322374, 30.240018034923],
           zoom: 5,
           roam: true,
           mapOptions: {
@@ -1400,7 +1399,7 @@ class ChartCNMap extends BaseChart {
       $useMap(() => {
         // https://github.com/apache/echarts/tree/master/extension-src/bmap
         $getScript('/assets/lib/charts/bmap.min.js', () => {
-          this.resize2()
+          this._resizeBody()
           this._echarts = renderEChart(option, elid)
         })
       }, true)
@@ -1410,7 +1409,7 @@ class ChartCNMap extends BaseChart {
   resize() {
     $setTimeout(
       () => {
-        this.resize2()
+        this._resizeBody()
         this._echarts && this._echarts.resize()
       },
       400,
@@ -1418,7 +1417,7 @@ class ChartCNMap extends BaseChart {
     )
   }
 
-  resize2() {
+  _resizeBody() {
     const height = $(this._$box).height()
     $(this._$box)
       .find('.chart-body')
