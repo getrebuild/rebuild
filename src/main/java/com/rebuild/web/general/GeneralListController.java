@@ -28,7 +28,6 @@ import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.general.DataListBuilder;
 import com.rebuild.core.support.general.DataListBuilderImpl;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.KnownExceptionConverter;
 import lombok.extern.slf4j.Slf4j;
@@ -123,10 +122,11 @@ public class GeneralListController extends EntityController {
                 JSONArray paneFields = new JSONArray();
                 for (String field : DataListManager.instance.getListFilterPaneFields(user, entity)) {
                     if (AdvFilterParser.VF_ACU.equals(field)) {
-                        JSONObject vf = (JSONObject) EasyMetaFactory.valueOf(listEntity.getField(EntityHelper.ApprovalLastUser)).toJSON();
-                        vf.put("name", AdvFilterParser.VF_ACU);
-                        vf.put("label", Language.L("当前审批人"));
-                        paneFields.add(vf);
+//                        JSONObject vf = (JSONObject) EasyMetaFactory.valueOf(listEntity.getField(EntityHelper.ApprovalLastUser)).toJSON();
+//                        vf.put("name", AdvFilterParser.VF_ACU);
+//                        vf.put("label", Language.L("当前审批人"));
+//                        paneFields.add(vf);
+                        log.warn("{} is deprecated", AdvFilterParser.VF_ACU);
                     } else {
                         paneFields.add(EasyMetaFactory.valueOf(listEntity.getField(field)).toJSON());
                     }

@@ -37,52 +37,56 @@ $(document).ready(() => {
   // 字段拖动
   let dragIsNum = false
   let dargOnSort = false
-  $('.fields>li>a')
-    .draggable({
-      helper: 'clone',
-      appendTo: 'body',
-      cursor: 'move',
-      cursorAt: { top: 14, left: 75 },
-      zIndex: 1999,
-      start: function () {
-        dragIsNum = $(this).data('type') === 'num'
-      },
-      stop: function () {
-        dragIsNum = false
-      },
-    })
-    .disableSelection()
-  $('.axis-target')
-    .droppable({
-      accept: function () {
-        if (dargOnSort === true) return false
-
-        const isdim = $(this).hasClass('J_axis-dim')
-        if (type_DATALIST2) return isdim
-        if (isdim) return !dragIsNum
-        return true
-      },
-      drop: function (e, ui) {
-        if (dargOnSort !== true) add_axis(this, $(ui.draggable[0]))
-      },
-    })
-    .disableSelection()
-  // 字段排序
-  $('.axis-target')
-    .sortable({
-      axis: 'x',
-      containment: 'parent',
-      cursor: 'move',
-      opacity: 0.8,
-      start: function () {
-        dargOnSort = true
-      },
-      stop: function () {
-        dargOnSort = false
-        render_preview()
-      },
-    })
-    .disableSelection()
+  setTimeout(() => {
+    $('.fields>li>a')
+      .draggable({
+        helper: 'clone',
+        appendTo: 'body',
+        cursor: 'move',
+        cursorAt: { top: 14, left: 75 },
+        zIndex: 1999,
+        start: function () {
+          dragIsNum = $(this).data('type') === 'num'
+        },
+        stop: function () {
+          dragIsNum = false
+        },
+      })
+      .disableSelection()
+    $('.axis-target')
+      .droppable({
+        accept: function () {
+          if (dargOnSort === true) return false
+          const isdim = $(this).hasClass('J_axis-dim')
+          if (type_DATALIST2) return isdim
+          if (isdim) return !dragIsNum
+          return true
+        },
+        drop: function (e, ui) {
+          if (dargOnSort !== true) {
+            add_axis(this, $(ui.draggable[0]))
+            $('.axis-target').sortable('refresh')
+          }
+        },
+      })
+      .disableSelection()
+    // 字段排序
+    $('.axis-target')
+      .sortable({
+        axis: 'x',
+        containment: 'parent',
+        cursor: 'move',
+        opacity: 0.8,
+        start: function () {
+          dargOnSort = true
+        },
+        stop: function () {
+          dargOnSort = false
+          render_preview()
+        },
+      })
+      .disableSelection()
+  }, 1000)
 
   const saveFilter = function (filter) {
     dataFilter = filter
@@ -101,10 +105,10 @@ $(document).ready(() => {
     }
   })
 
-  const $types = $('.chart-type > a').on('click', function () {
+  const $chTypes = $('.chart-type > a').on('click', function () {
     const $this = $(this)
     if ($this.hasClass('active') === false) return
-    $types.removeClass('select')
+    $chTypes.removeClass('select')
     $this.addClass('select')
 
     type_DATALIST2 = $this.data('type') === 'DATALIST2'

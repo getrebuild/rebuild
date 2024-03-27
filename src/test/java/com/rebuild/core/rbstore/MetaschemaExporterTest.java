@@ -17,24 +17,24 @@ import org.junit.jupiter.api.Test;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/28
  */
-public class MetaSchemaGeneratorTest extends TestSupport {
+public class MetaschemaExporterTest extends TestSupport {
 
     @Test
-    public void testGenerate() {
+    void testExport() {
         if (MetadataHelper.containsEntity(Account)) {
             Entity test = MetadataHelper.getEntity(Account);
-            MetaSchemaGenerator generator = new MetaSchemaGenerator(test, true);
-            JSON schema = generator.generate();
+            MetaschemaExporter generator = new MetaschemaExporter(test, true);
+            JSON schema = generator.export();
             System.out.println(JSON.toJSONString(schema, true));
         }
     }
 
     @Test
-    public void testGenerateHaveDetail() {
+    void testExportHaveDetail() {
         if (MetadataHelper.containsEntity(SalesOrder)) {
             Entity test = MetadataHelper.getEntity(SalesOrder);
-            MetaSchemaGenerator generator = new MetaSchemaGenerator(test, true);
-            JSON schema = generator.generate();
+            MetaschemaExporter generator = new MetaschemaExporter(test, true);
+            JSON schema = generator.export();
             System.out.println(JSON.toJSONString(schema, true));
         }
     }

@@ -1245,6 +1245,7 @@ class CodeViewport extends React.Component {
  * @param {*} JSX
  * @param {*} container id or object of element (or function of callback)
  * @param {*} callback callback on mounted
+ * @param {*} v18
  */
 const renderRbcomp = function (JSX, container, callback, v18) {
   if (typeof container === 'function') {
@@ -1265,10 +1266,10 @@ const renderRbcomp = function (JSX, container, callback, v18) {
     container = container[0]
   }
 
-  if (v18) {
+  if (v18 && !!ReactDOM.createRoot) {
     const root = ReactDOM.createRoot(container)
-    const JSX2 = React.cloneElement(JSX, { __root18: root })
-    root.render(JSX2)
+    const JSX18 = React.cloneElement(JSX, { __root18: root })
+    root.render(JSX18)
     return root
   }
 

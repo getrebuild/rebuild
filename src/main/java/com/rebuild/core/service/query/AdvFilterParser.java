@@ -77,6 +77,7 @@ import static cn.devezhao.commons.CalendarUtils.addMonth;
 public class AdvFilterParser extends SetUser {
 
     // 虚拟字段:当前审批人
+    @Deprecated
     public static final String VF_ACU = "$APPROVALCURRENTUSER$";
 
     // 快速查询
@@ -262,6 +263,8 @@ public class AdvFilterParser extends SetUser {
         final boolean hasNameFlag = field.startsWith(NAME_FIELD_PREFIX);
         if (hasNameFlag) field = field.substring(1);
 
+        final boolean isApprovalStepUsers = EntityHelper.ApprovalStepUsers.equals(field);
+
         Field lastFieldMeta = VF_ACU.equals(field)
                 ? specRootEntity.getField(EntityHelper.ApprovalLastUser)
                 : MetadataHelper.getLastJoinField(specRootEntity, field);
@@ -311,6 +314,18 @@ public class AdvFilterParser extends SetUser {
                 String realWhereSql = parseItem(fakeItem, null, refEntity);
                 inWhere = String.format("select %s from %s where %s",
                         refEntity.getPrimaryField().getName(), refEntity.getName(), realWhereSql);
+            }
+            else if (isApprovalStepUsers) {
+                if (ParseHelper.SFU.equalsIgnoreCase(op)) {
+                    op = ParseHelper.IN;
+                    value = getUser().toLiteral();
+                }
+
+                if (ParseHelper.IN.equals(op) || ParseHelper.NIN.equals(op)) {
+                    inWhere = parseValue(value, op, lastFieldMeta, false);
+                    if (inWhere != null) inWhere = inWhere.substring(1, inWhere.length() - 1);
+                    forceNot = ParseHelper.NIN.equals(op);
+                }
             }
             // 查询 ID，仅支持 IN
             else if (ParseHelper.IN.equals(op) && ID.isId(value)) {

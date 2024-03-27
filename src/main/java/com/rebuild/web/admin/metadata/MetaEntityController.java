@@ -34,7 +34,7 @@ import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.metadata.impl.ExcelEntity;
 import com.rebuild.core.metadata.impl.MetaEntityService;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.rbstore.MetaSchemaGenerator;
+import com.rebuild.core.rbstore.MetaschemaExporter;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.FieldValueHelper;
@@ -247,7 +247,7 @@ public class MetaEntityController extends EntityController {
         File dest = RebuildConfiguration.getFileOfTemp("schema-" + entity.getName() + ".json");
         if (dest.exists()) FileUtils.deleteQuietly(dest);
 
-        new MetaSchemaGenerator(entity, true).generate(dest);
+        new MetaschemaExporter(entity, true).export(dest);
 
         if (ServletUtils.isAjaxRequest(request)) {
             writeSuccess(response, JSONUtils.toJSONObject("file", dest.getName()));

@@ -10,6 +10,9 @@ package com.rebuild.core.support.integration;
 import com.rebuild.TestSupport;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.springframework.util.ResourceUtils;
+
+import java.io.File;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -20,15 +23,20 @@ public class SMSenderTest extends TestSupport {
 
     @Test
     public void testSendSMS() {
-        if (SMSender.availableSMS()) {
-            SMSender.sendSMS("17187472172", "SMSenderTest#testSendSMS");
-        }
+        if (!SMSender.availableSMS()) return;
+
+        SMSender.sendSMS("17187472172", "SMSenderTest#testSendSMS");
     }
 
     @Test
-    public void testSendMail() {
-        if (SMSender.availableMail()) {
-            SMSender.sendMail("getrebuild@sina.com", "SMSenderTest#testSendMail", "test content");
-        }
+    void testSendMail() throws Exception {
+        if (!SMSender.availableMail()) return;
+
+        SMSender.sendMail(
+                "getrebuild@sina.com", "SMSenderTest#testSendMail", "test content");
+
+        SMSender.sendMail(
+                "getrebuild@sina.com", "SMSenderTest#testSendMail", "test content with attach",
+                new File[]{ResourceUtils.getFile("classpath:logback.xml")});
     }
 }

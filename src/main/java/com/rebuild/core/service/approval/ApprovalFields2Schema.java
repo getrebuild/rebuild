@@ -57,6 +57,9 @@ public class ApprovalFields2Schema extends Field2Schema {
             if (!entity.containsField(EntityHelper.ApprovalLastRemark)) {
                 return schema2DatabaseInternal(entity, buildApporvalLastRemark(entity));
             }
+            if (!entity.containsField(EntityHelper.ApprovalStepUsers)) {
+                return schema2DatabaseInternal(entity, buildApprovalStepUsers(entity));
+            }
             return false;
         }
 
@@ -75,10 +78,11 @@ public class ApprovalFields2Schema extends Field2Schema {
         Field apporvalLastUser = buildApporvalLastUser(entity);
         Field apporvalLastTime = buildApporvalLastTime(entity);
         Field apporvalLastRemark = buildApporvalLastRemark(entity);
+        Field approvalStepUsers = buildApprovalStepUsers(entity);
 
         schema2DatabaseInternal(
                 entity, apporvalId, apporvalState, apporvalStepId,
-                apporvalLastUser, apporvalLastTime, apporvalLastRemark);
+                apporvalLastUser, apporvalLastTime, apporvalLastRemark, approvalStepUsers);
         return true;
     }
 
@@ -100,6 +104,12 @@ public class ApprovalFields2Schema extends Field2Schema {
                 DisplayType.DATETIME, true, false, false, true, true, null, null, null, null, null);
     }
 
+    // v3.7 当前审批人
+    private Field buildApprovalStepUsers(Entity entity) {
+        return createUnsafeField(entity, EntityHelper.ApprovalStepUsers, Language.L("当前审批人"),
+                DisplayType.N2NREFERENCE, true, false, false, true, true, null, "User", CascadeModel.Ignore, null, null);
+    }
+
     private boolean schema2DatabaseInternal(Entity entity, Field... fields) {
         boolean schemaReady = schema2Database(entity, fields);
 
@@ -119,7 +129,8 @@ public class ApprovalFields2Schema extends Field2Schema {
     public boolean dropFields(Entity entity) {
         final String[] approvalFields = new String[] {
                 EntityHelper.ApprovalId, EntityHelper.ApprovalState, EntityHelper.ApprovalStepNode,
-                EntityHelper.ApprovalLastUser, EntityHelper.ApprovalLastTime, EntityHelper.ApprovalLastRemark
+                EntityHelper.ApprovalLastUser, EntityHelper.ApprovalLastTime, EntityHelper.ApprovalLastRemark,
+                EntityHelper.ApprovalStepUsers
         };
 
         List<String> drops = new ArrayList<>();

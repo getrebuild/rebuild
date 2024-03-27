@@ -1538,8 +1538,8 @@ const CellRenders = {
 
   // 打开预览
   clickPreview(v, idx, e) {
-    RbPreview.create(v, idx)
     e && $stopEvent(e)
+    RbPreview.create(v, idx)
     return false
   },
 
@@ -1589,9 +1589,22 @@ const CellRenders = {
    * @param {*} v 值
    */
   formatSimple(v) {
-    if (typeof v === 'object') v = v.text // array
+    if (Array.isArray(v)) {
+      const array = []
+      v.forEach((item) => {
+        if (typeof item === 'object') array.push(item.text)
+        else array.push(item)
+      })
+      v = array
+    }
+
     if (Array.isArray(v)) return v.join(', ')
-    else return v ? v : $empty(v) ? null : v
+
+    if (typeof v === 'object') {
+      if (Array.isArray(v.text)) v = v.join(', ')
+      else v = v.text
+    }
+    return v ? v : $empty(v) ? null : v
   },
 }
 
