@@ -11,7 +11,7 @@ import cn.devezhao.commons.ObjectUtils;
 import org.apache.commons.lang.BooleanUtils;
 
 /**
- * 命令行参数
+ * 命令行保留参数
  *
  * @author RB
  * @since 2023/2/4
@@ -25,6 +25,11 @@ public class CommandArgs {
     public static final String _ForceTour = "_ForceTour";
     public static final String _HeavyStopWatcher = "_HeavyStopWatcher";
     public static final String _UniPush = "_UniPush";
+
+    public static final String _UseDbFullText = "_UseDbFullText";
+
+    public static final String _SmsDistributor = "_SmsDistributor";
+    public static final String _EmailDistributor = "_EmailDistributor";
 
     /**
      * @param name

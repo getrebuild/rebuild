@@ -10,6 +10,7 @@ package com.rebuild.core.service.notification;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.MarkdownUtils;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
@@ -20,6 +21,7 @@ import lombok.Setter;
  *
  * @author devezhao
  * @since 10/17/2018
+ * @see MessageBuilder
  */
 @Data
 @Setter(AccessLevel.NONE)
@@ -70,5 +72,15 @@ public class Message {
         else if (this.type == TYPE_FEEDS) return Language.L("动态通知");
         else if (this.type == TYPE_PROJECT) return Language.L("项目任务通知");
         else return Language.L("新通知");
+    }
+
+    /**
+     * 无格式内容
+     * @return
+     */
+    public String getPlainMessage() {
+        String plain = MessageBuilder.formatMessage(message, false);
+        plain = MarkdownUtils.cleanMarks(plain);
+        return plain;
     }
 }

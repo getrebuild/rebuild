@@ -121,7 +121,7 @@ public class SMSender {
         }
 
         if (Application.devMode()) {
-            log.info("[dev] Fake send email : {}, {}, {}", to, subject, content);
+            log.info("[dev] FAKE SEND EMAIL : {}, {}, {}", to, subject, content);
             return null;
         }
 
@@ -326,7 +326,7 @@ public class SMSender {
         }
 
         if (Application.devMode()) {
-            log.warn("[dev] Fake send sms : {}, {}", to, content);
+            log.warn("[dev] FAKE SEND SMS : {}, {}", to, content);
             return null;
         }
 
