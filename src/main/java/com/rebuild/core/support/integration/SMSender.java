@@ -77,7 +77,7 @@ public class SMSender {
             try {
                 sendMail(to, subject, content, attach);
             } catch (Exception ex) {
-                log.error("Email send fails : {}, {}", to, subject, ex);
+                log.error("Email send error : {}, {}", to, subject, ex);
             }
         });
     }
@@ -165,7 +165,7 @@ public class SMSender {
                 return emailId;
 
             } catch (EmailException ex) {
-                log.error("SMTP send fails : {}, {}, {}", to, subject, content, ex);
+                log.error("SMTP send error : {}, {}, {}", to, subject, content, ex);
                 return null;
             }
         }
@@ -212,7 +212,7 @@ public class SMSender {
             String r = OkHttpUtils.post("https://api-v4.mysubmail.com/mail/send.json", params);
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
-            log.error("Submail send fails : {}, {}, {}", to, subject, content, ex);
+            log.error("Submail send error : {}, {}, {}", to, subject, content, ex);
             return null;
         }
 
@@ -296,7 +296,7 @@ public class SMSender {
             try {
                 sendSMS(to, content);
             } catch (Exception ex) {
-                log.error("SMS send fails : {}, {}", to, content, ex);
+                log.error("SMS send error : {}, {}", to, content, ex);
             }
         });
     }
@@ -346,7 +346,7 @@ public class SMSender {
             String r = OkHttpUtils.post("https://api-v4.mysubmail.com/sms/send.json", params);
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
-            log.error("Subsms send fails : {}, {}", to, content, ex);
+            log.error("Subsms send error : {}, {}", to, content, ex);
             return null;
         } finally {
             HeavyStopWatcher.clean();
