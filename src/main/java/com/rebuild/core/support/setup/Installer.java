@@ -106,6 +106,7 @@ public class Installer implements InstallState {
         if (StringUtils.isNotBlank(dbPasswd)) {
             installProps.put("db.passwd", String.format("AES(%s)", AES.encrypt(dbPasswd)));
         }
+        if (isOceanBase) installProps.put("db.type", "OceanBase");
 
         // Redis
         JSONObject cacheProps = this.installProps.getJSONObject("cacheProps");
@@ -127,7 +128,7 @@ public class Installer implements InstallState {
         try {
             FileUtils.deleteQuietly(dest);
             try (OutputStream os = Files.newOutputStream(dest.toPath())) {
-                installProps.store(os, "REBUILD (v2) INSTALLER MAGIC !!! DO NOT EDIT !!!");
+                installProps.store(os, "REBUILD INSTALLER MAGIC !!! DO NOT EDIT !!!");
                 log.info("Saved installation file : " + dest);
             }
 
@@ -323,7 +324,7 @@ public class Installer implements InstallState {
     /**
      * @return
      */
-    protected String getDatabaseVersion() {
+    public String getDatabaseVersion() {
         try (Connection conn = getConnection("mysql")) {
             try (Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("select version()")) {
@@ -538,6 +539,16 @@ public class Installer implements InstallState {
     public static boolean isUseH2() {
         String dbUrl = BootEnvironmentPostProcessor.getProperty("db.url");
         return dbUrl != null && dbUrl.startsWith("jdbc:h2:");
+    }
+
+    /**
+     * 是否 OceanBase 数据库
+     *
+     * @return
+     */
+    public static boolean isUseOceanBase() {
+        String dbType = BootEnvironmentPostProcessor.getProperty("db.type");
+        return dbType != null && dbType.contains("OceanBase");
     }
 
     /**

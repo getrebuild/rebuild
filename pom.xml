@@ -15,7 +15,7 @@
     <description>Building your business-systems freely!</description>
     <url>https://getrebuild.com/</url>
     <!-- UNCOMMENT USE TOMCAT -->
-     <packaging>war</packaging>
+    <!-- <packaging>war</packaging> -->
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -217,7 +217,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <!-- UNCOMMENT USE TOMCAT -->
-             <scope>provided</scope>
+            <!-- <scope>provided</scope> -->
         </dependency>
         <!-- USE UNDERTOW -->
         <!--
