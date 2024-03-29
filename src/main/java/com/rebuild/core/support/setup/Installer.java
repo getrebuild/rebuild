@@ -60,9 +60,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 
-import static com.rebuild.core.support.ConfigurationItem.CacheHost;
-import static com.rebuild.core.support.ConfigurationItem.CachePassword;
-import static com.rebuild.core.support.ConfigurationItem.CachePort;
+import static com.rebuild.core.support.ConfigurationItem.*;
 
 /**
  * 系统安装
@@ -79,6 +77,8 @@ public class Installer implements InstallState {
     private boolean quickMode;
 
     private JSONObject installProps;
+
+    private boolean isOceanBase;
 
     private String EXISTS_SN;
 
@@ -297,6 +297,9 @@ public class Installer implements InstallState {
                     throw new SetupException(sqlex);
                 }
             }
+
+            String ver = getDatabaseVersion();
+            isOceanBase = ver != null && ver.contains("OceanBase");
         }
 
         // 初始化数据库
@@ -319,6 +322,21 @@ public class Installer implements InstallState {
 
     /**
      * @return
+     */
+    protected String getDatabaseVersion() {
+        try (Connection conn = getConnection("mysql")) {
+            try (Statement stmt = conn.createStatement()) {
+                try (ResultSet rs = stmt.executeQuery("select version()")) {
+                    if (rs.next()) return rs.getString(1);
+                }
+            }
+        } catch (SQLException ignored) {
+        }
+        return null;
+    }
+
+    /**
+     * @return
      * @throws IOException
      */
     protected String[] getDbInitScript() throws IOException {
@@ -333,12 +351,14 @@ public class Installer implements InstallState {
         for (Object L : LS) {
             String L2 = L.toString().trim();
 
-            // NOTE double 字段也不支持
+            // NOTE `double` 字段也不支持
             boolean H2Unsupported = quickMode
                     && (L2.startsWith("fulltext ") || L2.startsWith("unique ") || L2.startsWith("index "));
+            // v3.7 OceanBase
+            boolean OBUnsupported = isOceanBase && L2.startsWith("fulltext ");
 
             // Ignore comments and line of blank
-            if (StringUtils.isEmpty(L2) || L2.startsWith("--") || H2Unsupported) {
+            if (StringUtils.isEmpty(L2) || L2.startsWith("--") || H2Unsupported || OBUnsupported) {
                 continue;
             }
             if (L2.startsWith("/*") || L2.endsWith("*/")) {
@@ -476,6 +496,7 @@ public class Installer implements InstallState {
                             EXISTS_SN = value;
                         }
                     }
+
                     return true;
                 }
             }
