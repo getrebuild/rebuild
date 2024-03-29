@@ -165,7 +165,7 @@ public class ApprovalHelper {
         FlowDefinition flowDefinition = RobotApprovalManager.instance.getFlowDefinition(approvalId);
         FlowParser flowParser = flowDefinition.createFlowParser();
         for (FlowNode node : flowParser.getAllNodes()) {
-            if (nodeId.equals(node.getNodeId())) return String.format(node.getNodeName(), node.getNodeId());
+            if (nodeId.equals(node.getNodeId())) return node.getNodeName();
         }
         return null;
     }

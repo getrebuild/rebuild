@@ -697,7 +697,8 @@ public class ApprovalStepService extends BaseService {
         if (approvalId == null || approvalStepNode == null) {
             log.warn("No [approvalId] or [approvalStepNode] value found : {}", record.getPrimary());
         } else {
-            String name = ApprovalHelper.getNodeIdByName(approvalStepNode, approvalId);
+            String name = ApprovalHelper.getNodeNameById(approvalStepNode, approvalId);
+            if (name == null) name = "@" + approvalStepNode.toUpperCase();
             record.setString(EntityHelper.ApprovalStepNodeName, name);
         }
     }
