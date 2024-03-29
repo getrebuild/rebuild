@@ -154,4 +154,19 @@ public class ApprovalHelper {
         }
         return null;
     }
+
+    /**
+     * 根据节点编号获取名称
+     *
+     * @param nodeId
+     * @return
+     */
+    public static String getNodeNameById(String nodeId, ID approvalId) {
+        FlowDefinition flowDefinition = RobotApprovalManager.instance.getFlowDefinition(approvalId);
+        FlowParser flowParser = flowDefinition.createFlowParser();
+        for (FlowNode node : flowParser.getAllNodes()) {
+            if (nodeId.equals(node.getNodeId())) return String.format(node.getNodeName(), node.getNodeId());
+        }
+        return null;
+    }
 }

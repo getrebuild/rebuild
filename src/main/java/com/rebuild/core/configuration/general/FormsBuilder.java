@@ -501,7 +501,8 @@ public class FormsBuilder extends FormsManager {
                 if (el.get("value") == null) {
                     if (dt == DisplayType.SERIES
                             || EntityHelper.ApprovalLastTime.equals(fieldName) || EntityHelper.ApprovalLastRemark.equals(fieldName)
-                            || EntityHelper.ApprovalLastUser.equals(fieldName) || EntityHelper.ApprovalStepUsers.equals(fieldName)) {
+                            || EntityHelper.ApprovalLastUser.equals(fieldName) || EntityHelper.ApprovalStepUsers.equals(fieldName)
+                            || EntityHelper.ApprovalStepNodeName.equals(fieldName)) {
                         el.put("readonlyw", READONLYW_RO);
                     } else {
                         Object defaultValue = easyField.exprDefaultValue();

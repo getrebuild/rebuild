@@ -178,7 +178,7 @@ public class MetadataSorter {
         // v3.7 特殊排序
         final String[] specSortsApproval = new String[] {
                 EntityHelper.ApprovalId, EntityHelper.ApprovalState,
-                EntityHelper.ApprovalStepNode, EntityHelper.ApprovalStepUsers,
+                EntityHelper.ApprovalStepNodeName, EntityHelper.ApprovalStepUsers,
                 EntityHelper.ApprovalLastUser, EntityHelper.ApprovalLastTime, EntityHelper.ApprovalLastRemark
         };
         List<BaseMeta> approvalFields = new ArrayList<>();
