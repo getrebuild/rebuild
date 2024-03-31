@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import oshi.SystemInfo;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.NetworkIF;
+import oshi.software.os.OSFileStore;
 
 import java.io.File;
 import java.net.URL;
@@ -160,18 +161,19 @@ public class OshiUtils {
     /**
      * 磁盘用量获取
      *
-     * @return [统计, 占用%, 磁盘]
+     * @return [总大小, 占用%, 磁盘]
      */
     public static List<Object[]> getDisksUsed() {
         List<Object[]> disks = new ArrayList<>();
         try {
-            for (File root : File.listRoots()) {
-                String name = org.apache.commons.lang.StringUtils.defaultIfBlank(root.getName(), root.getAbsolutePath());
-                double total = root.getTotalSpace() * 1d / FileUtils.ONE_GB;
-                double used = total - (root.getFreeSpace() * 1d / FileUtils.ONE_GB);
+            for (OSFileStore store : getSI().getOperatingSystem().getFileSystem().getFileStores()) {
+                String name = store.getName();
+                long total = store.getTotalSpace() / FileUtils.ONE_GB;
+                long used = total - store.getUsableSpace() / FileUtils.ONE_GB;
                 double usedPercentage = used * 100d / total;
-                disks.add(new Object[] { total, usedPercentage, name });
+                disks.add(new Object[] { total, ObjectUtils.round(usedPercentage, 1), name });
             }
+
         } catch (Exception ex) {
             log.warn("Cannot stats disks", ex);
         }
