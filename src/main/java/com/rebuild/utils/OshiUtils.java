@@ -168,10 +168,10 @@ public class OshiUtils {
         try {
             for (OSFileStore store : getSI().getOperatingSystem().getFileSystem().getFileStores()) {
                 String name = store.getName();
-                long total = store.getTotalSpace() / FileUtils.ONE_GB;
-                long used = total - store.getUsableSpace() / FileUtils.ONE_GB;
+                double total = store.getTotalSpace() * 1d / FileUtils.ONE_GB;
+                double used = total - store.getUsableSpace() * 1d / FileUtils.ONE_GB;
                 double usedPercentage = used * 100d / total;
-                disks.add(new Object[] { total, ObjectUtils.round(usedPercentage, 1), name });
+                disks.add(new Object[] { ObjectUtils.round(total, 1), ObjectUtils.round(usedPercentage, 1), name });
             }
 
         } catch (Exception ex) {
