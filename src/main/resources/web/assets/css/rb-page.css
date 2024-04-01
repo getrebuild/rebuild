@@ -5583,3 +5583,27 @@ span.icon-append .icon {
   margin-bottom: 3px;
   display: inline-block;
 }
+
+.dropdown-menu .searchbox {
+  margin-bottom: 7px;
+  position: relative;
+}
+
+.dropdown-menu .searchbox > input {
+  outline: none;
+  border: 0 none;
+  border-bottom: 1px solid #d5d8de;
+  padding: 2px 20px;
+  padding-bottom: 6px;
+  width: 100%;
+}
+
+.dropdown-menu .searchbox::after {
+  font-family: 'Material-Design-Iconic-Font';
+  content: '\f1c3';
+  position: absolute;
+  right: 18px;
+  top: 1px;
+  color: #bbb;
+  font-size: 18px;
+}
