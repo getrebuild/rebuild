@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global SelectReport TransformRich */
+/* global SelectReport TransformRich, FeedEditorDlg, LightTaskDlg */
 
 const wpc = window.__PageConfig || {}
 
@@ -841,11 +841,25 @@ const RbViewPage = {
             type: 2,
             relatedRecord: { id: that.__id, entity: that.__entity[0], text: `@${that.__id.toUpperCase()}` },
           }
-          // eslint-disable-next-line react/jsx-no-undef
-          renderRbcomp(<FeedsEditDlg {...data} call={() => that.reload()} />)
+          renderRbcomp(
+            <FeedEditorDlg
+              {...data}
+              call={() => {
+                RbHighbar.success($L('保存成功'))
+                setTimeout(() => that.reload(), 100)
+              }}
+            />
+          )
         } else if (item.entity === 'ProjectTask.relatedRecord') {
-          // eslint-disable-next-line react/jsx-no-undef
-          renderRbcomp(<LightTaskDlg relatedRecord={that.__id} call={() => that.reload()} />)
+          renderRbcomp(
+            <LightTaskDlg
+              relatedRecord={that.__id}
+              call={() => {
+                RbHighbar.success($L('保存成功'))
+                setTimeout(() => that.reload(), 100)
+              }}
+            />
+          )
         } else {
           const iv = {}
           const entity = item.entity.split('.')

@@ -677,7 +677,7 @@ class ScheduleOptions extends React.Component {
 // ~~ 新建/编辑动态
 // 新建主要从记录视图新建相关
 // eslint-disable-next-line no-unused-vars
-class FeedsEditDlg extends RbModalHandler {
+class FeedEditorDlg extends RbModalHandler {
   constructor(props) {
     super(props)
     this.state = { type: props.type }

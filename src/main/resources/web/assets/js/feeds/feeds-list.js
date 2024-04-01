@@ -247,7 +247,7 @@ class FeedsList extends React.Component {
   }
 
   // eslint-disable-next-line react/jsx-no-undef
-  _handleEdit = (item) => renderRbcomp(<FeedsEditDlg {...item} call={() => this.fetchFeeds()} />)
+  _handleEdit = (item) => renderRbcomp(<FeedEditorDlg {...item} call={() => this.fetchFeeds()} />)
   _handleLike = (id) => _handleLike(id, this)
 
   _handleDelete(id) {
