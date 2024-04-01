@@ -126,7 +126,6 @@ public enum ConfigurationItem {
     TrustedAllUrl(false), // 可信外部地址
     LibreofficeBin,                 // Libreoffice 命令
     UnsafeImgAccess(false), // 不安全图片访问
-    UseDbFullText(false),   // 对支持的字段启用全文索引查询
 
     ;
 
@@ -135,6 +134,7 @@ public enum ConfigurationItem {
      *
      * @param name
      * @return
+     * @see CommandArgs
      */
     public static boolean inJvmArgs(String name) {
         return DataDirectory.name().equalsIgnoreCase(name)
@@ -146,7 +146,6 @@ public enum ConfigurationItem {
                 || TrustedAllUrl.name().equalsIgnoreCase(name)
                 || LibreofficeBin.name().equalsIgnoreCase(name)
                 || UnsafeImgAccess.name().equals(name)
-                || UseDbFullText.name().equals(name)
                 || SN.name().equalsIgnoreCase(name);
     }
 

@@ -48,6 +48,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -95,7 +96,7 @@ public class ApprovalStepService extends BaseService {
         cancelAliveSteps(recordId, null, null, null, false);
 
         setApprovalLastX(recordOfMain, null, null);
-        if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalStepUsers)) recordOfMain.setIDArray(EntityHelper.ApprovalStepUsers, nextApprovers.toArray(new ID[0]));
+        setApprovalStepX37(recordOfMain, nextApprovers);
         super.update(recordOfMain);
 
         final String approveMsg = ApprovalHelper.buildApproveMsg(recordOfMain.getEntity());
@@ -208,14 +209,14 @@ public class ApprovalStepService extends BaseService {
                 ID[] backedApprovers = createBackedNodes(currentNode, nextNode, recordId, approvalId, approver, remark);
 
                 recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNode);
-                if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalStepUsers)) recordOfMain.setIDArray(EntityHelper.ApprovalStepUsers, backedApprovers);
+                setApprovalStepX37(recordOfMain, backedApprovers);
                 super.update(recordOfMain);
             }
             // 驳回
             else {
                 recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.REJECTED.getState());
                 recordOfMain.setNull(EntityHelper.ApprovalStepNode);
-                if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalStepUsers)) recordOfMain.setNull(EntityHelper.ApprovalStepUsers);
+                setApprovalStepX37(recordOfMain, null);
                 super.update(recordOfMain);
 
                 String rejectedMsg = Language.L("@%s 驳回了你的 %s 审批，请重新提交", approver, entityLabel);
@@ -272,7 +273,7 @@ public class ApprovalStepService extends BaseService {
         // 最终状态（审批通过）
         if (goNextNode && (nextApprovers == null || nextNode == null)) {
             recordOfMain.setNull(EntityHelper.ApprovalStepNode);
-            if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalStepUsers)) recordOfMain.setNull(EntityHelper.ApprovalStepUsers);
+            setApprovalStepX37(recordOfMain, null);
             super.update(recordOfMain);
 
             String approvedMsg = Language.L("你提交的 %s 已审批通过", entityLabel);
@@ -286,7 +287,7 @@ public class ApprovalStepService extends BaseService {
         // 进入下一步
         if (goNextNode) {
             recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNode);
-            if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalStepUsers)) recordOfMain.setIDArray(EntityHelper.ApprovalStepUsers, nextApprovers.toArray(new ID[0]));
+            setApprovalStepX37(recordOfMain, nextApprovers);
             super.update(recordOfMain);
 
             // v3.7 触发器
@@ -350,7 +351,7 @@ public class ApprovalStepService extends BaseService {
             Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
             recordOfMain.setInt(EntityHelper.ApprovalState, useState.getState());
             recordOfMain.setNull(EntityHelper.ApprovalStepNode);
-            if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalStepUsers)) recordOfMain.setNull(EntityHelper.ApprovalStepUsers);
+            setApprovalStepX37(recordOfMain, null);
             super.update(recordOfMain);
 
             execTriggersWhenSE(recordOfMain, TriggerWhen.REJECTED);
@@ -460,7 +461,7 @@ public class ApprovalStepService extends BaseService {
         Record recordOfMain = EntityHelper.forUpdate(recordId, useApprover, false);
         recordOfMain.setID(EntityHelper.ApprovalId, useApproval);
         recordOfMain.setString(EntityHelper.ApprovalStepNode, FlowNode.NODE_AUTOAPPROVAL);
-        if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalStepUsers)) recordOfMain.setNull(EntityHelper.ApprovalStepUsers);
+        setApprovalStepX37(recordOfMain, null);
         setApprovalLastX(recordOfMain, useApprover, Language.L("自动审批"));
         super.update(recordOfMain);
 
@@ -651,7 +652,7 @@ public class ApprovalStepService extends BaseService {
         return String.format("%s-%d", node, (Long) o[0]);
     }
 
-    // Clear lastXXX
+    // Clear or set lastXXX
     private void setApprovalLastX(Record record, ID approver, String remark) {
         Entity entity = record.getEntity();
 
@@ -668,6 +669,37 @@ public class ApprovalStepService extends BaseService {
         if (entity.containsField(EntityHelper.ApprovalLastRemark)) {
             if (remark == null) record.setNull(EntityHelper.ApprovalLastRemark);
             else record.setString(EntityHelper.ApprovalLastRemark, remark);
+        }
+    }
+
+    // Clear or set stepXXX
+    private void setApprovalStepX37(Record record, Object nextApprovers) {
+        if (!record.getEntity().containsField(EntityHelper.ApprovalStepUsers)) return;
+
+        ID[] nextApproversFix = null;
+        if (nextApprovers instanceof ID[]) nextApproversFix = (ID[]) nextApprovers;
+        else if (nextApprovers instanceof Collection) //noinspection unchecked
+            nextApproversFix = ((Collection<ID>) nextApprovers).toArray(new ID[0]);
+
+        // clear
+        if (nextApproversFix == null) {
+            record.setNull(EntityHelper.ApprovalStepUsers);
+            record.setNull(EntityHelper.ApprovalStepNodeName);
+            return;
+        }
+
+        // v3.7-1
+        record.setIDArray(EntityHelper.ApprovalStepUsers, nextApproversFix);
+
+        // v3.7-2
+        ID approvalId = record.getID(EntityHelper.ApprovalId);
+        String approvalStepNode = record.getString(EntityHelper.ApprovalStepNode);
+        if (approvalId == null || approvalStepNode == null) {
+            log.warn("No [approvalId] or [approvalStepNode] value found : {}", record.getPrimary());
+        } else {
+            String name = ApprovalHelper.getNodeNameById(approvalStepNode, approvalId);
+            if (name == null) name = "@" + approvalStepNode.toUpperCase();
+            record.setString(EntityHelper.ApprovalStepNodeName, name);
         }
     }
 

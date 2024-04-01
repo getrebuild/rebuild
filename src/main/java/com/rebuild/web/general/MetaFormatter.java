@@ -115,14 +115,9 @@ public class MetaFormatter {
             EasyField easyField = EasyMetaFactory.valueOf(field);
             if (filter.test(easyField)) continue;
             res.add(buildField(easyField, null, riching));
-
-            // 审批步骤
-            if ((forceWith == 2 || forceWith == 3) && easyField.getName().equals(EntityHelper.ApprovalState)) {
-                res.add(buildField(EasyMetaFactory.valueOf(entity.getField(EntityHelper.ApprovalStepNode)), null, false));
-            }
         }
         // ID
-        if (forceWith == 1 || forceWith == 3) {
+        if (forceWith == 1) {
             res.add(buildField(EasyMetaFactory.valueOf(entity.getPrimaryField()), null, false));
         }
 

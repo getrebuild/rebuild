@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.commons;
 
 import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -102,8 +101,6 @@ public class ErrorPageView extends BaseController {
         List<Object[]> disksUsed = OshiUtils.getDisksUsed();
         double diskWarning = 0;
         for (Object[] d : disksUsed) {
-            d[0] = ObjectUtils.round((double) d[0], 1);
-            d[1] = ObjectUtils.round((double) d[1], 1);
             if ((double) d[1] >= 80) diskWarning = (double) d[1];
         }
         status.put("DisksUsage", disksUsed);
