@@ -293,12 +293,14 @@ public class AutoFillinManager implements ConfigManager {
             return newValue;  // Long
         }
 
-        if (sourceEasy instanceof MixValue) {
+        if (sourceEasy instanceof EasyID && targetEasy instanceof EasyN2NReference) {
+            newValue = FieldValueHelper.wrapFieldValue(newValue, targetEasy);
+        } else if (targetEasy instanceof EasyN2NReference) {
+            newValue = targetEasy.wrapValue(newValue);
+        } else if (sourceEasy instanceof MixValue) {
             if (!(newValue instanceof String) || sourceEasy instanceof EasyFile) {
                 newValue = sourceEasy.wrapValue(newValue);
             }
-        } else if (sourceEasy instanceof EasyID && targetEasy instanceof EasyN2NReference) {
-            newValue = FieldValueHelper.wrapFieldValue(newValue, targetEasy);
         }
 
         return newValue;
@@ -313,8 +315,22 @@ public class AutoFillinManager implements ConfigManager {
             value = ((JSONObject) value).getString("id");
             return ID.valueOf(value.toString());
         }
-        // FILE,IMAGE
+        // FILE,IMAGE,N2NREF
         if (value instanceof JSONArray) {
+            JSONArray array = (JSONArray) value;
+            if (array.isEmpty()) return null;
+
+            // N2NREF
+            Object type = array.get(0);
+            if (type instanceof JSONObject) {
+                List<ID> n2nValue = new ArrayList<>();
+                for (Object o : array) {
+                    String s = ((JSONObject) o).getString("id");
+                    n2nValue.add(ID.valueOf(s));
+                }
+                return n2nValue.toArray(new ID[0]);
+            }
+
             return ((JSONArray) value).toJSONString();
         }
         // Keep

@@ -180,6 +180,7 @@ public class TemplateExtractor33 extends TemplateExtractor {
                 Drawing<?> drawing = sheet.getDrawingPatriarch();
                 if (drawing != null) {
                     for (Object o : sheet.getDrawingPatriarch()) {
+                        if (!(o instanceof XSSFSimpleShape)) continue;  // 仅文本
                         XSSFSimpleShape shape = (XSSFSimpleShape) o;
                         String shapeText = shape.getText();
                         Matcher matcher = PATT_V2.matcher(shapeText);
@@ -194,7 +195,7 @@ public class TemplateExtractor33 extends TemplateExtractor {
                 }
 
             } catch (Exception ex) {
-                log.error("Cannot extract vars in shape", ex);
+                log.error("DEBUG:Cannot extract vars in shape", ex);
             }
         }
 
