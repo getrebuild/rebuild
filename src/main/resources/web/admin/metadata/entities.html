@@ -193,7 +193,7 @@
 
           const keys = Object.keys(groups).sort()
           keys.forEach((tag) => {
-            $(`<div class="tag"><h3><i class="icon zmdi zmdi-widgets text-primary mr-2"></i>${tag}</h3></div>`).appendTo('#entityList')
+            $(`<div class="tag"><h3><i class="icon mdi mdi-widgets-outline text-primary mr-2"></i>${tag}</h3></div>`).appendTo('#entityList')
             $(groups[tag]).each(function () {
               render_entity(this)
             })
