@@ -493,13 +493,6 @@
             <artifactId>hutool-core</artifactId>
             <version>5.8.26</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/cn.hutool/hutool-poi -->
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-poi</artifactId>
-            <version>5.8.26</version>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
