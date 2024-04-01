@@ -154,10 +154,14 @@ public class RoleService extends BaseService implements AdminGuard {
             Application.getSqlExecutor().execute(dsql);
 
             // 2.复制
+            Record base = EntityHelper.forNew(EntityHelper.RolePrivileges, UserContextHolder.getUser());
+            base.setID("roleId", to);
             for (Record p : fromPrivileges) {
-                Record clone = p.clone();
-                clone.setID("roleId", to);
-                pm.save(clone);
+                Record c = base.clone();
+                c.setString("definition", p.getString("definition"));
+                c.setInt("entity", p.getInt("entity"));
+                c.setString("zeroKey", p.getString("zeroKey"));
+                pm.save(c);
             }
 
             // 3.刷新
