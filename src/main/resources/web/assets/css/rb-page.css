@@ -1004,7 +1004,7 @@ a.link.link-icon::after {
 .rbform-alert {
   margin: -20px -15px 20px;
   text-align: center;
-  padding: 0.5rem;
+  padding: 10px 30px;
   border-radius: 0;
   color: #836203;
   font-weight: normal;
@@ -5582,4 +5582,28 @@ span.icon-append .icon {
   background-color: #eee;
   margin-bottom: 3px;
   display: inline-block;
+}
+
+.dropdown-menu .searchbox {
+  margin-bottom: 7px;
+  position: relative;
+}
+
+.dropdown-menu .searchbox > input {
+  outline: none;
+  border: 0 none;
+  border-bottom: 1px solid #d5d8de;
+  padding: 2px 20px;
+  padding-bottom: 6px;
+  width: 100%;
+}
+
+.dropdown-menu .searchbox::after {
+  font-family: 'Material-Design-Iconic-Font';
+  content: '\f1c3';
+  position: absolute;
+  right: 18px;
+  top: 1px;
+  color: #bbb;
+  font-size: 18px;
 }

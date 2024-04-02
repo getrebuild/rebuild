@@ -20,6 +20,7 @@ const RBV_TRIGGERS = {
   'PROXYTRIGGERACTION': $L('自定义触发器'),
   'AUTOUNSHARE': $L('自动取消共享'),
   'CREATEFEED': $L('新建动态'),
+  'CREATETASK': $L('新建任务'),
   'AUTOGENREPORT': $L('导出报表'),
   'AUTOAPPROVAL': $L('自动审批'),
 }
