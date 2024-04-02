@@ -487,10 +487,12 @@ class DlgSpecApproveNodes extends RbModalHandler {
         ref={(c) => (this._dlg = c)}
         width="780">
         <div className="p-2">
-          <RbAlertBox message={$L('指定审批步骤 (名称) 通过时触发，默认为最终审批通过时')} />
+          <RbAlertBox message={$L('指定审批步骤 (名称) 通过时触发，默认仅审批完成时触发')} />
           <div className="row">
             <div className="col-12">
-              <label>{$L('填写步骤名称')}</label>
+              <label>
+                {$L('填写步骤名称')} ({$L('* 表示所有')})
+              </label>
               <div>
                 <select className="form-control form-control-sm" ref={(c) => (this._$set = c)}></select>
               </div>
