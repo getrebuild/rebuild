@@ -344,7 +344,7 @@ const OP_TYPE = {
   EVM: $L('本月..'),
   DDD: $L('指定..天'),
   HHH: $L('指定..时'),
-  REP: $L('重复') + ' (LAB)',
+  REP: $L('重复'),
 }
 const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY']
 const OP_DATE_NOPICKER = [
@@ -499,8 +499,8 @@ class FilterItem extends React.Component {
       op = ['IN', 'NIN']
     }
 
-    // UNTEST
-    // if (['TEXT', 'PHONE', 'EMAIL', 'URL', 'DATE', 'PICKLIST', 'CLASSIFICATION'].includes(fieldType)) op.push('REP')
+    // v3.6-b4,v3.7
+    if (['TEXT', 'PHONE', 'EMAIL', 'URL', 'DATE', 'DATETIME', 'TIME', 'PICKLIST', 'CLASSIFICATION'].includes(fieldType)) op.push('REP')
 
     if (this.isApprovalState()) op = ['IN', 'NIN']
     else if (this.state.field === VF_ACU) op = ['IN', 'SFU', 'SFB', 'SFT']
@@ -662,7 +662,7 @@ class FilterItem extends React.Component {
       let ifRefField = REFENTITY_CACHE[state.field]
       ifRefField = state.op === 'SFT' ? 'Team' : ifRefField[0]
       this.renderBizzSearch(ifRefField)
-    } else if (lastType === 'REFERENCE') {
+    } else if (lastType === 'REFERENCE' || lastType === 'N2NREFERENCE') {
       this.removeBizzSearch()
     }
 
@@ -765,9 +765,7 @@ class FilterItem extends React.Component {
 
   renderBizzSearch(entity) {
     // BIZZ 实体变了
-    if (this.__lastBizzEntity && this.__lastBizzEntity !== entity) {
-      $(this._filterVal).select2('destroy').val(null)
-    }
+    const clearSelected = this.__lastBizzEntity && this.__lastBizzEntity !== entity
     this.__lastBizzEntity = entity
 
     const that = this
@@ -797,6 +795,8 @@ class FilterItem extends React.Component {
         const val = $s2val.val()
         that.setState({ value: val.join('|') })
       })
+
+    if (clearSelected) $s2val.val(null).trigger('change')
     this.__select2_BizzSearch = $s2val
 
     // Load
@@ -812,6 +812,7 @@ class FilterItem extends React.Component {
   }
 
   removeBizzSearch() {
+    console.log('removeBizzSearch...', this.__select2_BizzSearch)
     if (this.__select2_BizzSearch) {
       this.__select2_BizzSearch.select2('destroy')
       this.__select2_BizzSearch = null
