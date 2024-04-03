@@ -1386,7 +1386,7 @@ class ChartCNMap extends BaseChart {
             type: hasNumAxis ? 'effectScatter' : 'scatter',
             coordinateSystem: 'bmap',
             symbol: data.name ? 'circle' : 'pin',
-            symbolSize: function (v) {
+            symbolSize: function () {
               return hasNumAxis ? 14 : 20
             },
             data: data4map,
