@@ -283,6 +283,7 @@ class ChartTable extends BaseChart {
 // for ECharts
 const COLOR_AXIS = '#ddd'
 const COLOR_LABEL = '#555'
+// 可用调色板
 const COLOR_PALETTES = {
   shine: ['#c12e34', '#e6b600', '#0098d9', '#2b821d', '#005eaa', '#339ca8', '#cda819', '#32a487'],
   techblue: ['#3a5897', '#007bb6', '#7094db', '#0080ff', '#b3b3ff', '#00bdec', '#33ccff', '#ccddff', '#eeeeee'],
