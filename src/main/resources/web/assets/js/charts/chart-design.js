@@ -358,9 +358,9 @@ const render_option = () => {
   // FUNNEL
   if ((dimsAxis === 1 && numsAxis === 1) || (dimsAxis === 0 && numsAxis > 1));
   else $('.chart-type>a[data-type="FUNNEL"]').removeClass('active')
-  // LINE/BAR
+  // LINE/BAR/BAR2
   if ((dimsAxis === 2 && numsAxis === 1) || (dimsAxis === 1 && numsAxis >= 1));
-  else $('.chart-type>a[data-type="LINE"],.chart-type>a[data-type="BAR"]').removeClass('active')
+  else $('.chart-type>a[data-type="LINE"],.chart-type>a[data-type="BAR"],.chart-type>a[data-type="BAR2"]').removeClass('active')
 
   // Active
   let $select = $('.chart-type>a.select')

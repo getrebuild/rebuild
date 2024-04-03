@@ -487,7 +487,8 @@ class ChartBar extends BaseChart {
       const showGrid = data._renderOption && data._renderOption.showGrid
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
-      const dataFlags = data._renderOption.dataFlags || []
+      const showHorizontal = data._renderOption && data._renderOption.showHorizontal // v3.7
+      const dataFlags = data._renderOption.dataFlags || [] // 小数符号
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
@@ -501,15 +502,16 @@ class ChartBar extends BaseChart {
       const option = {
         ...cloneOption(ECHART_BASE),
         xAxis: {
-          type: 'category',
-          data: data.xAxis,
+          type: showHorizontal ? 'value' : 'category',
+          data: showHorizontal ? null : data.xAxis,
           axisLabel: ECHART_AXIS_LABEL,
           axisLine: {
             lineStyle: { color: COLOR_AXIS },
           },
         },
         yAxis: {
-          type: 'value',
+          type: showHorizontal ? 'category' : 'value',
+          data: showHorizontal ? data.xAxis : null,
           splitLine: { show: showGrid, lineStyle: { color: COLOR_AXIS } },
           axisLabel: {
             ...ECHART_AXIS_LABEL,
@@ -527,6 +529,8 @@ class ChartBar extends BaseChart {
         option.legend = ECHART_LEGEND_HOPT
         option.grid.top = 40
       }
+      // 加大左侧距离
+      if (showHorizontal) option.grid.left = 100
 
       this._echarts = renderEChart(option, elid)
     })
