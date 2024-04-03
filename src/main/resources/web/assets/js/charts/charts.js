@@ -1421,7 +1421,7 @@ class ChartCNMap extends BaseChart {
     const height = $(this._$box).height()
     $(this._$box)
       .find('.chart-body')
-      .height(height - 40)
+      .height(height - (window.render_preview_chart ? 0 : 40))
   }
 }
 

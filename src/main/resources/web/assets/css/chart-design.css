@@ -18,10 +18,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-top: 0;
 }
 
-.chart-box.TREEMAP {
-  padding-top: 25px;
-}
-
 #chart-preview {
   background-color: #fff;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1), 0 16px 24px 0 rgba(81, 129, 228, 0.1);
@@ -507,4 +503,12 @@ a.ui-draggable.ui-draggable-dragging {
 .rb-content.DATALIST2 .axis-target .dropdown-divider,
 .rb-content.DATALIST2 .axis-target .item > span > em {
   display: none;
+}
+
+.chart-box.TREEMAP {
+  padding-top: 25px;
+}
+
+.chart-box.CNMAP {
+  padding-top: 30px;
 }
