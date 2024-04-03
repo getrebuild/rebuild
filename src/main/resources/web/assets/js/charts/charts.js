@@ -528,8 +528,6 @@ class ChartBar extends BaseChart {
         option.grid.top = 40
       }
 
-      console.log(option)
-
       this._echarts = renderEChart(option, elid)
     })
   }
@@ -1389,7 +1387,6 @@ class ChartCNMap extends BaseChart {
             coordinateSystem: 'bmap',
             symbol: data.name ? 'circle' : 'pin',
             symbolSize: function (v) {
-              console.log(v)
               return hasNumAxis ? 14 : 20
             },
             data: data4map,
