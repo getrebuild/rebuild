@@ -494,6 +494,7 @@ class ChartBar extends BaseChart {
         yAxis.type = 'bar'
         if (showNumerical) yAxis.label = ECHART_VALUE_LABEL2(dataFlags)
         yAxis.cursor = 'default'
+        if (this._stack) yAxis.stack = 'a' // v3.7
         data.yyyAxis[i] = yAxis
       }
 
@@ -527,8 +528,22 @@ class ChartBar extends BaseChart {
         option.grid.top = 40
       }
 
+      console.log(option)
+
       this._echarts = renderEChart(option, elid)
     })
+  }
+}
+
+// 堆叠柱状图
+class ChartBar2 extends ChartBar {
+  constructor(props) {
+    super(props)
+    this._stack = true
+  }
+
+  renderChart(data) {
+    return super.renderChart(data)
   }
 }
 
@@ -1440,6 +1455,8 @@ const detectChart = function (cfg, id) {
     return <ChartLine {...props} />
   } else if (cfg.type === 'BAR') {
     return <ChartBar {...props} />
+  } else if (cfg.type === 'BAR2') {
+    return <ChartBar2 {...props} />
   } else if (cfg.type === 'PIE') {
     return <ChartPie {...props} />
   } else if (cfg.type === 'FUNNEL') {
