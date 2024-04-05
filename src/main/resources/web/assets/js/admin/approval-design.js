@@ -11,10 +11,10 @@ let activeNode
 let donotCloseSidebar
 
 const __EXPIRESAUTOTYPE = {
-  'URGE': $L('自动提醒'),
-  'PASS': $L('自动通过'),
-  'REJECT': $L('自动驳回'),
-  'BACK': $L('自动退回至上一步'),
+  'URGE': $L('发送提醒'),
+  'PASS': $L('通过'),
+  'REJECT': $L('驳回'),
+  'BACK': $L('退回至上一步'),
 }
 
 $(document).ready(() => {
@@ -213,10 +213,14 @@ class SimpleNode extends NodeSpec {
     if (data.selfSelecting && data.users.length > 0) descs.push($L('允许自选'))
     if (data.ccAutoShare) descs.push($L('自动共享'))
     if (data.accounts && data.accounts.length > 0) descs.push(`${$L('外部人员')}(${data.accounts.length})`)
-    if (data.allowReferral) descs.push($L('允许转审'))
-    if (data.allowCountersign) descs.push($L('允许加签'))
-    if (data.allowBatch) descs.push($L('允许批量'))
-    if (this.nodeType === 'approver') descs.push(data.signMode === 'AND' ? $L('会签') : data.signMode === 'ALL' ? $L('依次审批') : $L('或签'))
+    if (this.nodeType === 'approver') {
+      if (data.allowReferral) descs.push($L('允许转审'))
+      if (data.allowCountersign) descs.push($L('允许加签'))
+      if (data.allowBatch) descs.push($L('允许批量'))
+      descs.push(data.signMode === 'AND' ? $L('会签') : data.signMode === 'ALL' ? $L('依次审批') : $L('或签'))
+      if (data.expiresAuto && ~~data.expiresAuto.expiresAuto > 0) descs.push($L('限时审批'))
+      if (data.editableFields && data.editableFields.length > 0) descs.push($L('可修改字段'))
+    }
 
     return (
       <div className="node-wrap">
@@ -525,8 +529,8 @@ class StartNodeConfig extends RbFormHandler {
             <UserSelector ref={(c) => (this._UserSelector = c)} />
           </div>
 
-          <div className="form-group mt-4 mb-0">
-            <label className="text-bold mb-1">{$L('发起条件')}</label>
+          <div className="form-group mt-5 mb-0">
+            <label className="text-bold mb-0">{$L('发起条件')}</label>
             <div className="">
               <a className="btn btn-sm btn-link pl-0 text-left" onClick={() => this._handleFilter()}>
                 {hasFilters > 0 ? `${$L('已设置条件')} (${hasFilters})` : $L('点击设置')}
@@ -674,7 +678,7 @@ class ApproverNodeConfig extends StartNodeConfig {
             </label>
           </div>
 
-          <div className="form-group mt-4">
+          <div className="form-group mt-5">
             <label className="text-bold">{$L('当有多人审批时')}</label>
             <label className="custom-control custom-control-sm custom-radio mb-2 hide">
               <input className="custom-control-input" type="radio" name="signMode" value="ALL" onChange={this.handleChange} checked={this.state.signMode === 'ALL'} />
@@ -690,7 +694,7 @@ class ApproverNodeConfig extends StartNodeConfig {
             </label>
           </div>
 
-          <div className="form-group mt-4" ref={(c) => (this._$expiresAuto = c)}>
+          <div className="form-group mt-5" ref={(c) => (this._$expiresAuto = c)}>
             <label className="text-bold">
               {$L('限时审批')} <sup className="rbv" />
             </label>
@@ -754,7 +758,7 @@ class ApproverNodeConfig extends StartNodeConfig {
             </div>
           </div>
 
-          <div className="form-group mt-4">
+          <div className="form-group mt-5">
             <label className="text-bold">{$L('可修改字段')}</label>
             <div style={{ position: 'relative' }}>
               <table className={`table table-sm fields-table ${(this.state.editableFields || []).length === 0 && 'hide'}`}>
@@ -832,6 +836,20 @@ class ApproverNodeConfig extends StartNodeConfig {
     $(this._$expiresAuto)
       .find('select[name="expiresAutoUrgeUser"]')
       .select2({ placeholder: $L('审批人') })
+
+    // init
+    const eaConf = this.props.expiresAuto
+    if (eaConf && ~~eaConf.expiresAuto > 0) {
+      for (let name in eaConf) {
+        const $name = $(this._$expiresAuto).find(`[name="${name}"]`)
+        $name.val(eaConf[name])
+        if ($name.prop('tagName') === 'SELECT') $name.trigger('change')
+      }
+
+      setTimeout(() => {
+        $(this._$expiresAuto).find('[name="expiresAutoUrgeUser"]').val(eaConf.expiresAutoUrgeUser).trigger('change')
+      }, 500) // Wait fields loaded
+    }
   }
 
   save = () => {
@@ -868,13 +886,19 @@ class ApproverNodeConfig extends StartNodeConfig {
       return
     }
 
-    if (rb.commercial < 1 && (d.allowReferral || d.allowCountersign)) {
-      RbHighbar.error(WrapHtml($L('免费版不支持转审/加签功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-      return
-    }
-    if (rb.commercial < 1 && d.allowBatch) {
-      RbHighbar.error(WrapHtml($L('免费版不支持批量审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-      return
+    if (rb.commercial < 1) {
+      if (d.allowReferral || d.allowCountersign) {
+        RbHighbar.error(WrapHtml($L('免费版不支持转审/加签功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+        return
+      }
+      if (d.allowBatch) {
+        RbHighbar.error(WrapHtml($L('免费版不支持批量审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+        return
+      }
+      if (~~expiresAuto.expiresAuto > 0) {
+        RbHighbar.error(WrapHtml($L('免费版不支持限时审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+        return
+      }
     }
 
     typeof this.props.call === 'function' && this.props.call(d)
@@ -927,7 +951,7 @@ class CCNodeConfig extends StartNodeConfig {
             </label>
           </div>
 
-          <div className="form-group mt-3">
+          <div className="form-group mt-5">
             <label className="text-bold">
               {$L('抄送给外部人员')} <sup className="rbv" />
             </label>
