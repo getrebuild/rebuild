@@ -110,9 +110,6 @@ public class ApprovalProcessor extends SetUser {
         recordOfMain.setID(EntityHelper.ApprovalId, this.approval);
         recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
         recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNodes.getApprovalNode().getNodeId());
-        // Clear on submit
-        ApprovalStepService.setApprovalLastX(recordOfMain, null, null);
-
         Application.getBean(ApprovalStepService.class).txSubmit(recordOfMain, ccUsers, ccAccounts, nextApprovers);
 
         // 审批时共享

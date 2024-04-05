@@ -13,7 +13,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.rbstore.MetaSchemaGenerator;
+import com.rebuild.core.rbstore.MetaschemaExporter;
 import com.rebuild.core.rbstore.MetaschemaImporter;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
  * 复制实体
  *
  * @author devezhao
- * @see MetaSchemaGenerator
+ * @see MetaschemaExporter
  * @see MetaschemaImporter
  * @since 2021/12/17
  */
@@ -48,7 +48,7 @@ public class CopyEntity extends Entity2Schema {
 
         // 导出
 
-        JSONObject schemadata = (JSONObject) new MetaSchemaGenerator(sourceEntity, false).generate();
+        JSONObject schemadata = (JSONObject) new MetaschemaExporter(sourceEntity, false).export();
         String uniqueEntityName = clearConfig(schemadata, entityName);
 
         JSONObject detailSchema = schemadata.getJSONObject("detail");
@@ -75,10 +75,10 @@ public class CopyEntity extends Entity2Schema {
     }
 
     private String clearConfig(JSONObject schema, String entityName) {
-        schema.remove(MetaSchemaGenerator.CFG_TRANSFORMS);
-        schema.remove(MetaSchemaGenerator.CFG_APPROVALS);
-        schema.remove(MetaSchemaGenerator.CFG_TRIGGERS);
-        schema.remove(MetaSchemaGenerator.CFG_FILTERS);
+        schema.remove(MetaschemaExporter.CFG_TRANSFORMS);
+        schema.remove(MetaschemaExporter.CFG_APPROVALS);
+        schema.remove(MetaschemaExporter.CFG_TRIGGERS);
+        schema.remove(MetaschemaExporter.CFG_FILTERS);
 
         String uniqueEntityName = toPinyinName(entityName);
         for (int i = 0; i < 6; i++) {

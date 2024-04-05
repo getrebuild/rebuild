@@ -60,13 +60,17 @@ public class ListAndViewRedirection extends BaseController {
                 }
 
             } else if (entity.getEntityCode() == EntityHelper.User) {
-                url = MessageFormat.format("../admin/bizuser/users#!/View/{0}/{1}", entity.getName(), anyId);
+                url = "newtab".equalsIgnoreCase(type)
+                        ? String.format("User/view/%s", anyId)
+                        : String.format("../admin/bizuser/users#!/View/User/%s", anyId);
             } else if (entity.getEntityCode() == EntityHelper.Department) {
-                url = MessageFormat.format("../admin/bizuser/departments#!/View/{0}/{1}", entity.getName(), anyId);
+                url = "newtab".equalsIgnoreCase(type)
+                        ? String.format("Department/view/%s", anyId)
+                        : String.format("../admin/bizuser/departments#!/View/Department/%s", anyId);
             } else if (entity.getEntityCode() == EntityHelper.Team) {
-                url = MessageFormat.format("../admin/bizuser/teams#!/View/{0}/{1}", entity.getName(), anyId);
+                url = String.format("../admin/bizuser/teams#!/View/Team/%s", anyId);
             } else if (entity.getEntityCode() == EntityHelper.Role) {
-                url = MessageFormat.format("../admin/bizuser/role/{0}", anyId);
+                url = String.format("../admin/bizuser/role/%s", anyId);
 
             } else if (MetadataHelper.isBusinessEntity(entity)) {
                 if ("dock".equalsIgnoreCase(type)) {

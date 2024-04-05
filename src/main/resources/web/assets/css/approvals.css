@@ -693,6 +693,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 1.2rem;
 }
 
+.fields-table tr.ui-sortable-helper {
+  background-color: #eee;
+  display: block;
+  width: 100%;
+}
+
 .expires-by-time {
   width: 180px;
 }

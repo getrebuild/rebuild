@@ -221,10 +221,10 @@ class LightTaskList extends RelatedList {
 class LightTaskDlg extends RbModalHandler {
   render() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('新建任务')} icon="calendar-check" disposeOnHide>
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('新建任务')} icon="mdi-checkbox-marked-outline" disposeOnHide>
         <div className="m-2 ml-3 mr-3">
           <div className="row">
-            <div className="col-6">
+            <div className="col pr-2">
               <div className="form-group">
                 <label>{$L('项目')}</label>
                 <select className="form-control form-control-sm" ref={(c) => (this._$project = c)}>
@@ -239,7 +239,7 @@ class LightTaskDlg extends RbModalHandler {
                 </select>
               </div>
             </div>
-            <div className="col-6">
+            <div className="col pl-2">
               <div className="form-group">
                 <label>{$L('任务面板')}</label>
                 <select className="form-control form-control-sm" ref={(c) => (this._$plan = c)}>

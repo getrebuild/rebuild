@@ -77,6 +77,7 @@ import static cn.devezhao.commons.CalendarUtils.addMonth;
 public class AdvFilterParser extends SetUser {
 
     // 虚拟字段:当前审批人
+    @Deprecated
     public static final String VF_ACU = "$APPROVALCURRENTUSER$";
 
     // 快速查询
@@ -145,21 +146,21 @@ public class AdvFilterParser extends SetUser {
             String quickFields = filterExpr.getString("quickFields");
             JSONArray quickItems = buildQuickFilterItems(quickFields, 1);
 
-//            // v3.6-b4 值1|值2 UNTEST
-//            // 转义可输入 \|
-//            JSONObject values = filterExpr.getJSONObject("values");
-//            String[] valuesPlus = values.values().iterator().next().toString().split("(?<!\\\\)\\|");
-//            if (valuesPlus.length > 1) {
-//                values.clear();
-//                values.put("1", valuesPlus[0].trim());
-//
-//                for (int i = 2; i <= valuesPlus.length; i++) {
-//                    JSONArray quickItemsPlus = buildQuickFilterItems(quickFields, i);
-//                    values.put(String.valueOf(i), valuesPlus[i - 1].trim());
-//                    quickItems.addAll(quickItemsPlus);
-//                }
-//                filterExpr.put("values", values);
-//            }
+            // TODO v3.6-b4,3.7 值1|值2 UNTEST
+            // 转义可输入 \|
+            JSONObject values = filterExpr.getJSONObject("values");
+            String[] valuesPlus = values.values().iterator().next().toString().split("(?<!\\\\)\\|");
+            if (valuesPlus.length > 1) {
+                values.clear();
+                values.put("1", valuesPlus[0].trim());
+
+                for (int i = 2; i <= valuesPlus.length; i++) {
+                    JSONArray quickItemsPlus = buildQuickFilterItems(quickFields, i);
+                    values.put(String.valueOf(i), valuesPlus[i - 1].trim());
+                    quickItems.addAll(quickItemsPlus);
+                }
+                filterExpr.put("values", values);
+            }
 
             filterExpr.put("items", quickItems);
         }
@@ -262,6 +263,8 @@ public class AdvFilterParser extends SetUser {
         final boolean hasNameFlag = field.startsWith(NAME_FIELD_PREFIX);
         if (hasNameFlag) field = field.substring(1);
 
+        final boolean isApprovalStepUsers = EntityHelper.ApprovalStepUsers.equals(field);
+
         Field lastFieldMeta = VF_ACU.equals(field)
                 ? specRootEntity.getField(EntityHelper.ApprovalLastUser)
                 : MetadataHelper.getLastJoinField(specRootEntity, field);
@@ -312,6 +315,18 @@ public class AdvFilterParser extends SetUser {
                 inWhere = String.format("select %s from %s where %s",
                         refEntity.getPrimaryField().getName(), refEntity.getName(), realWhereSql);
             }
+            else if (isApprovalStepUsers) {
+                if (ParseHelper.SFU.equalsIgnoreCase(op)) {
+                    op = ParseHelper.IN;
+                    value = getUser().toLiteral();
+                }
+
+                if (ParseHelper.IN.equals(op) || ParseHelper.NIN.equals(op)) {
+                    inWhere = parseValue(value, op, lastFieldMeta, false);
+                    if (inWhere != null) inWhere = inWhere.substring(1, inWhere.length() - 1);
+                    forceNot = ParseHelper.NIN.equals(op);
+                }
+            }
             // 查询 ID，仅支持 IN
             else if (ParseHelper.IN.equals(op) && ID.isId(value)) {
                 inWhere = quoteValue(value, FieldType.STRING);
@@ -357,16 +372,23 @@ public class AdvFilterParser extends SetUser {
             final boolean isREX = ParseHelper.RED.equalsIgnoreCase(op)
                     || ParseHelper.REM.equalsIgnoreCase(op)
                     || ParseHelper.REY.equalsIgnoreCase(op);
+            final boolean isHHH = ParseHelper.HHH.equalsIgnoreCase(op);
 
             if (ParseHelper.TDA.equalsIgnoreCase(op)
                     || ParseHelper.YTA.equalsIgnoreCase(op)
                     || ParseHelper.TTA.equalsIgnoreCase(op)
-                    || ParseHelper.DDD.equalsIgnoreCase(op)
+                    || ParseHelper.DDD.equalsIgnoreCase(op) || isHHH
                     || ParseHelper.EVW.equalsIgnoreCase(op) || ParseHelper.EVM.equalsIgnoreCase(op)) {
 
                 if (ParseHelper.DDD.equalsIgnoreCase(op)) {
                     int x = NumberUtils.toInt(value);
                     value = formatDate(addDay(x), 0);
+                } else if (isHHH) {
+                    int x = NumberUtils.toInt(value);
+                    Date datetime = CalendarUtils.add(x, Calendar.HOUR_OF_DAY);
+                    value = CalendarUtils.getUTCDateTimeFormat().format(datetime);
+                    value = value.substring(0, 14) + "00:00";
+                    valueEnd = value.substring(0, 14) + "59:59";
                 } else if (ParseHelper.EVW.equalsIgnoreCase(op) || ParseHelper.EVM.equalsIgnoreCase(op)) {
                     final Calendar today = CalendarUtils.getInstance();
 
@@ -405,7 +427,7 @@ public class AdvFilterParser extends SetUser {
 
                 if (isDatetime) {
                     op = ParseHelper.BW;
-                    valueEnd = parseValue(value, op, lastFieldMeta, true);
+                    if (!isHHH) valueEnd = parseValue(value, op, lastFieldMeta, true);
                 }
 
             } else if (ParseHelper.CUW.equalsIgnoreCase(op)

@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global SelectReport TransformRich */
+/* global SelectReport TransformRich, FeedEditorDlg, LightTaskDlg */
 
 const wpc = window.__PageConfig || {}
 
@@ -404,7 +404,7 @@ class EntityRelatedList extends RelatedList {
               </a>
             )}
 
-            {astate && <span className={`badge badge-sm badge-${astate[1]}`}>{astate[0]}</span>}
+            {astate && <span className={`badge badge-pill badge-${astate[1]}`}>{astate[0]}</span>}
 
             <span className="fs-12 text-muted" title={`${$L('修改时间')} ${item[2]}`}>
               {$fromNow(item[2])}
@@ -841,11 +841,25 @@ const RbViewPage = {
             type: 2,
             relatedRecord: { id: that.__id, entity: that.__entity[0], text: `@${that.__id.toUpperCase()}` },
           }
-          // eslint-disable-next-line react/jsx-no-undef
-          renderRbcomp(<FeedsEditDlg {...data} call={() => that.reload()} />)
+          renderRbcomp(
+            <FeedEditorDlg
+              {...data}
+              call={() => {
+                RbHighbar.success($L('保存成功'))
+                setTimeout(() => that.reload(), 100)
+              }}
+            />
+          )
         } else if (item.entity === 'ProjectTask.relatedRecord') {
-          // eslint-disable-next-line react/jsx-no-undef
-          renderRbcomp(<LightTaskDlg relatedRecord={that.__id} call={() => that.reload()} />)
+          renderRbcomp(
+            <LightTaskDlg
+              relatedRecord={that.__id}
+              call={() => {
+                RbHighbar.success($L('保存成功'))
+                setTimeout(() => that.reload(), 100)
+              }}
+            />
+          )
         } else {
           const iv = {}
           const entity = item.entity.split('.')

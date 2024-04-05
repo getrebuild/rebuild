@@ -132,7 +132,8 @@ class AdvFilter extends React.Component {
 
   componentDidMount() {
     const deep = this.props.deep3 || location.href.includes('/admin/') ? 3 : 2
-    $.get(`/commons/metadata/fields?deep=${deep}&entity=${this.props.entity}`, (res) => {
+    const referer = this.props.referer || ''
+    $.get(`/commons/metadata/fields?deep=${deep}&entity=${this.props.entity}&referer=${referer}`, (res) => {
       const validFs = []
       const fields = []
 
@@ -144,7 +145,7 @@ class AdvFilter extends React.Component {
 
         if (['REFERENCE', 'N2NREFERENCE'].includes(item.type)) {
           REFENTITY_CACHE[item.name] = item.ref
-          if ('N2NREFERENCE' === item.type) REFENTITY_CACHE[item.name]._n2n = true
+          if ('N2NREFERENCE' === item.type) REFENTITY_CACHE[item.name]._isN2N = true
 
           // NOTE: Use `NameField` field-type
           if (!BIZZ_ENTITIES.includes(item.ref[0])) {
@@ -157,7 +158,7 @@ class AdvFilter extends React.Component {
           fields.push(item)
 
           if (item.type === 'REFERENCE' && item.name === 'approvalLastUser') {
-            const item2 = { ...item, name: VF_ACU, label: $L('当前审批人') }
+            const item2 = { ...item, name: VF_ACU, label: $L('当前审批人') + ' (废弃)' }
             validFs.push(item2.name)
             REFENTITY_CACHE[item2.name] = item2.ref
             fields.push(item2)
@@ -245,11 +246,11 @@ class AdvFilter extends React.Component {
     this.setState({ equationDef: expr.join(' OR ') })
   }
 
-  toFilterJson(canNoFilters) {
+  toFilterData(canNoFilters) {
     const filters = []
     let hasError = false
     for (let i = 0; i < this._itemsRef.length; i++) {
-      const item = this._itemsRef[i].getFilterJson()
+      const item = this._itemsRef[i].getFilterData()
       if (!item) hasError = true
       else filters.push(item)
     }
@@ -273,7 +274,7 @@ class AdvFilter extends React.Component {
   }
 
   confirm() {
-    const adv = this.toFilterJson(this.props.canNoFilters)
+    const adv = this.toFilterData(this.props.canNoFilters)
     if (!adv) return
 
     const _onConfirm = this.props.confirm || this.props.onConfirm
@@ -342,7 +343,8 @@ const OP_TYPE = {
   EVW: $L('本周..'),
   EVM: $L('本月..'),
   DDD: $L('指定..天'),
-  REP: $L('重复') + ' (LAB)',
+  HHH: $L('指定..时'),
+  REP: $L('重复'),
 }
 const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY']
 const OP_DATE_NOPICKER = [
@@ -376,6 +378,7 @@ const OP_DATE_NOPICKER = [
   'EVW',
   'EVM',
   'DDD',
+  'HHH',
   'REP',
 ]
 const REFENTITY_CACHE = {}
@@ -467,6 +470,7 @@ class FilterItem extends React.Component {
         'EVM',
         'DDD',
       ]
+      if (fieldType === 'DATETIME') op.push('HHH')
     } else if (fieldType === 'TIME') {
       op = ['GT', 'LT', 'EQ', 'BW']
     } else if (fieldType === 'FILE' || fieldType === 'IMAGE' || fieldType === 'AVATAR' || fieldType === 'SIGN' || fieldType === 'ANYREFERENCE') {
@@ -495,11 +499,12 @@ class FilterItem extends React.Component {
       op = ['IN', 'NIN']
     }
 
-    // UNTEST
-    // if (['TEXT', 'PHONE', 'EMAIL', 'URL', 'DATE', 'PICKLIST', 'CLASSIFICATION'].includes(fieldType)) op.push('REP')
+    // v3.6-b4,v3.7
+    if (['TEXT', 'PHONE', 'EMAIL', 'URL', 'DATE', 'DATETIME', 'TIME', 'PICKLIST', 'CLASSIFICATION'].includes(fieldType)) op.push('REP')
 
     if (this.isApprovalState()) op = ['IN', 'NIN']
     else if (this.state.field === VF_ACU) op = ['IN', 'SFU', 'SFB', 'SFT']
+    else if (this.isApprovalStepUsers()) op = ['IN', 'NIN', 'SFU']
     else op.push('NL', 'NT')
 
     this.__op = op
@@ -561,6 +566,8 @@ class FilterItem extends React.Component {
       const ifRefField = REFENTITY_CACHE[this.state.field]
       if (entity) return ifRefField[0] === entity
       else return BIZZ_ENTITIES.includes(ifRefField[0])
+    } else if (this.isApprovalStepUsers()) {
+      return true
     }
     return false
   }
@@ -579,6 +586,12 @@ class FilterItem extends React.Component {
   isApprovalState() {
     const fieldName = this.state.field || ''
     return fieldName === 'approvalState' || fieldName.endsWith('.approvalState')
+  }
+
+  // v3.7: 当前审批人
+  isApprovalStepUsers() {
+    const fieldName = this.state.field || ''
+    return fieldName === 'approvalStepUsers' || fieldName.endsWith('.approvalStepUsers')
   }
 
   componentDidMount() {
@@ -649,7 +662,7 @@ class FilterItem extends React.Component {
       let ifRefField = REFENTITY_CACHE[state.field]
       ifRefField = state.op === 'SFT' ? 'Team' : ifRefField[0]
       this.renderBizzSearch(ifRefField)
-    } else if (lastType === 'REFERENCE') {
+    } else if (lastType === 'REFERENCE' || lastType === 'N2NREFERENCE') {
       this.removeBizzSearch()
     }
 
@@ -752,9 +765,7 @@ class FilterItem extends React.Component {
 
   renderBizzSearch(entity) {
     // BIZZ 实体变了
-    if (this.__lastBizzEntity && this.__lastBizzEntity !== entity) {
-      $(this._filterVal).select2('destroy').val(null)
-    }
+    const clearSelected = this.__lastBizzEntity && this.__lastBizzEntity !== entity
     this.__lastBizzEntity = entity
 
     const that = this
@@ -784,6 +795,8 @@ class FilterItem extends React.Component {
         const val = $s2val.val()
         that.setState({ value: val.join('|') })
       })
+
+    if (clearSelected) $s2val.val(null).trigger('change')
     this.__select2_BizzSearch = $s2val
 
     // Load
@@ -799,6 +812,7 @@ class FilterItem extends React.Component {
   }
 
   removeBizzSearch() {
+    console.log('removeBizzSearch...', this.__select2_BizzSearch)
     if (this.__select2_BizzSearch) {
       this.__select2_BizzSearch.select2('destroy')
       this.__select2_BizzSearch = null
@@ -884,8 +898,9 @@ class FilterItem extends React.Component {
     this.setState({ index: idx })
   }
 
-  getFilterJson() {
-    const s = this.state
+  getFilterData() {
+    const s = this.state // DON'T CHANGES `state`!!!
+    let noValue = false
     if (!s.value) {
       if (OP_NOVALUE.includes(s.op)) {
         // 允许无值
@@ -893,7 +908,7 @@ class FilterItem extends React.Component {
         return
       }
     } else if (OP_NOVALUE.includes(s.op)) {
-      s.value = null
+      noValue = true
     }
 
     if (s.op === 'BW' && !s.value2) {
@@ -909,14 +924,19 @@ class FilterItem extends React.Component {
       field: s.field,
       op: s.op,
     }
-    if (s.value) item.value = s.value
-    if (s.value2) item.value2 = s.value2
+    if (noValue === false) {
+      if (s.value) item.value = s.value
+      if (s.value2) item.value2 = s.value2
+    }
 
     // 引用字段查询名称字段
     const ifRefField = REFENTITY_CACHE[s.field]
     if (ifRefField && !(s.op === 'NL' || s.op === 'NT')) {
       if (BIZZ_ENTITIES.includes(ifRefField[0])) {
-        if (ifRefField._n2n) item.field = NAME_FLAG + item.field
+        if (ifRefField._isN2N) {
+          if (this.isApprovalStepUsers());
+          else item.field = NAME_FLAG + item.field
+        }
       } else {
         item.field = NAME_FLAG + item.field
       }
@@ -1003,7 +1023,7 @@ class ListAdvFilter extends AdvFilter {
     if (reset) {
       RbListPage._RbList.search({ items: [] }, true)
     } else {
-      const adv = this.toFilterJson(true)
+      const adv = this.toFilterData(true)
       if (adv) {
         const storageKey = `CustomAdv-${this.props.entity}`
         localStorage.setItem(storageKey, JSON.stringify(adv))
@@ -1013,7 +1033,7 @@ class ListAdvFilter extends AdvFilter {
   }
 
   post(name, shareTo) {
-    const filter = this.toFilterJson(this.props.canNoFilters)
+    const filter = this.toFilterData(this.props.canNoFilters)
     if (!filter) return
 
     let url = `/app/${this.props.entity}/advfilter/post?id=${this.props.id || ''}`
@@ -1031,7 +1051,7 @@ class ListAdvFilter extends AdvFilter {
   }
 
   handleNew() {
-    const filter = this.toFilterJson(this.props.canNoFilters)
+    const filter = this.toFilterData(this.props.canNoFilters)
     if (!filter) return
 
     if (this._ListAdvFilterSave) {

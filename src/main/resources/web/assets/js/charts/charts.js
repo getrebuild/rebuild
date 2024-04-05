@@ -157,7 +157,7 @@ class BaseChart extends React.Component {
   }
 
   _exportTable(table) {
-    function reLinks(table, a, b) {
+    function _rmLinks(table, a, b) {
       $(table)
         .find('a')
         .each(function () {
@@ -167,16 +167,21 @@ class BaseChart extends React.Component {
         })
     }
 
-    // Remove
-    reLinks(table, '__href', 'href')
+    const name = `${this.state.title}.xls`
+    function _export() {
+      // remove
+      _rmLinks(table, '__href', 'href')
+      // export
+      // https://docs.sheetjs.com/docs/api/utilities/html#html-table-input
+      // https://docs.sheetjs.com/docs/api/write-options
+      const wb = window.XLSX.utils.table_to_book(table, { raw: true })
+      window.XLSX.writeFile(wb, name)
+      // restore
+      setTimeout(() => _rmLinks(table, 'href', '__href'), 500)
+    }
 
-    // https://docs.sheetjs.com/docs/api/utilities/html#html-table-input
-    // https://docs.sheetjs.com/docs/api/write-options
-    const wb = window.XLSX.utils.table_to_book(table, { raw: true })
-    window.XLSX.writeFile(wb, `${this.state.title}.xls`)
-
-    // Add
-    setTimeout(() => reLinks(table, 'href', '__href'), 500)
+    if (window.XLSX) _export()
+    else $getScript('/assets/lib/charts/xlsx.full.min.js', setTimeout(_export, 200))
   }
 
   renderError(msg, cb) {
@@ -278,6 +283,7 @@ class ChartTable extends BaseChart {
 // for ECharts
 const COLOR_AXIS = '#ddd'
 const COLOR_LABEL = '#555'
+// 可用调色板
 const COLOR_PALETTES = {
   shine: ['#c12e34', '#e6b600', '#0098d9', '#2b821d', '#005eaa', '#339ca8', '#cda819', '#32a487'],
   techblue: ['#3a5897', '#007bb6', '#7094db', '#0080ff', '#b3b3ff', '#00bdec', '#33ccff', '#ccddff', '#eeeeee'],
@@ -482,28 +488,31 @@ class ChartBar extends BaseChart {
       const showGrid = data._renderOption && data._renderOption.showGrid
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
-      const dataFlags = data._renderOption.dataFlags || []
+      const showHorizontal = data._renderOption && data._renderOption.showHorizontal // v3.7
+      const dataFlags = data._renderOption.dataFlags || [] // 小数符号
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
         yAxis.type = 'bar'
         if (showNumerical) yAxis.label = ECHART_VALUE_LABEL2(dataFlags)
         yAxis.cursor = 'default'
+        if (this._stack) yAxis.stack = 'a' // v3.7
         data.yyyAxis[i] = yAxis
       }
 
       const option = {
         ...cloneOption(ECHART_BASE),
         xAxis: {
-          type: 'category',
-          data: data.xAxis,
+          type: showHorizontal ? 'value' : 'category',
+          data: showHorizontal ? null : data.xAxis,
           axisLabel: ECHART_AXIS_LABEL,
           axisLine: {
             lineStyle: { color: COLOR_AXIS },
           },
         },
         yAxis: {
-          type: 'value',
+          type: showHorizontal ? 'category' : 'value',
+          data: showHorizontal ? data.xAxis : null,
           splitLine: { show: showGrid, lineStyle: { color: COLOR_AXIS } },
           axisLabel: {
             ...ECHART_AXIS_LABEL,
@@ -521,9 +530,19 @@ class ChartBar extends BaseChart {
         option.legend = ECHART_LEGEND_HOPT
         option.grid.top = 40
       }
+      // 加大左侧距离
+      if (showHorizontal) option.grid.left = 100
 
       this._echarts = renderEChart(option, elid)
     })
+  }
+}
+
+// 堆叠柱状图
+class ChartBar2 extends ChartBar {
+  constructor(props) {
+    super(props)
+    this._stack = true
   }
 }
 
@@ -1345,19 +1364,22 @@ class ChartCNMap extends BaseChart {
       })
 
       const hasNumAxis = data.name ? true : false
+      const mapTheme = data._renderOption && data._renderOption.themeStyle
+      let mapStyle = []
+      if (mapTheme === 'dark') mapStyle = window.MAP_STYLE_DARK
+      else if (mapTheme === 'light') mapStyle = window.MAP_STYLE_LIGHT
 
       // https://github.com/apache/echarts/tree/master/extension-src/bmap
       const option = {
         ...cloneOption(ECHART_BASE),
         bmap: {
-          // center: [120.13066322374, 30.240018034923],
           zoom: 5,
           roam: true,
           mapOptions: {
             enableMapClick: false,
           },
           mapStyle: {
-            styleJson: MAP_STYLE2,
+            styleJson: mapStyle || [],
           },
         },
         series: [
@@ -1365,9 +1387,8 @@ class ChartCNMap extends BaseChart {
             type: hasNumAxis ? 'effectScatter' : 'scatter',
             coordinateSystem: 'bmap',
             symbol: data.name ? 'circle' : 'pin',
-            symbolSize: function (v) {
-              console.log(v)
-              return hasNumAxis ? 14 : 18
+            symbolSize: function () {
+              return hasNumAxis ? 14 : 20
             },
             data: data4map,
             encode: {
@@ -1387,14 +1408,14 @@ class ChartCNMap extends BaseChart {
         if (data.name) {
           return `<b>${a.data[3]}</b> <br/> ${a.marker} ${data.name} : ${formatThousands(a.data[2])}`
         } else {
-          return `${a.data[3]}`
+          return `<b>${a.data[3]}</b>`
         }
       }
 
       $useMap(() => {
         // https://github.com/apache/echarts/tree/master/extension-src/bmap
         $getScript('/assets/lib/charts/bmap.min.js', () => {
-          this.resize2()
+          this._resizeBody()
           this._echarts = renderEChart(option, elid)
         })
       }, true)
@@ -1404,7 +1425,7 @@ class ChartCNMap extends BaseChart {
   resize() {
     $setTimeout(
       () => {
-        this.resize2()
+        this._resizeBody()
         this._echarts && this._echarts.resize()
       },
       400,
@@ -1412,11 +1433,11 @@ class ChartCNMap extends BaseChart {
     )
   }
 
-  resize2() {
+  _resizeBody() {
     const height = $(this._$box).height()
     $(this._$box)
       .find('.chart-body')
-      .height(height - 40)
+      .height(height - (window.render_preview_chart ? 0 : 40))
   }
 }
 
@@ -1435,6 +1456,8 @@ const detectChart = function (cfg, id) {
     return <ChartLine {...props} />
   } else if (cfg.type === 'BAR') {
     return <ChartBar {...props} />
+  } else if (cfg.type === 'BAR2') {
+    return <ChartBar2 {...props} />
   } else if (cfg.type === 'PIE') {
     return <ChartPie {...props} />
   } else if (cfg.type === 'FUNNEL') {
@@ -1577,248 +1600,3 @@ class ChartSelect extends RbModalHandler {
     this.setState({ tabActive: h }, () => this._loadCharts())
   }
 }
-
-const MAP_STYLE1 = [
-  {
-    featureType: 'water',
-    elementType: 'all',
-    stylers: {
-      color: '#d1d1d1',
-    },
-  },
-  {
-    featureType: 'land',
-    elementType: 'all',
-    stylers: {
-      color: '#f3f3f3',
-    },
-  },
-  {
-    featureType: 'railway',
-    elementType: 'all',
-    stylers: {
-      visibility: 'off',
-    },
-  },
-  {
-    featureType: 'highway',
-    elementType: 'all',
-    stylers: {
-      color: '#fdfdfd',
-    },
-  },
-  {
-    featureType: 'highway',
-    elementType: 'labels',
-    stylers: {
-      visibility: 'off',
-    },
-  },
-  {
-    featureType: 'arterial',
-    elementType: 'geometry',
-    stylers: {
-      color: '#fefefe',
-    },
-  },
-  {
-    featureType: 'arterial',
-    elementType: 'geometry.fill',
-    stylers: {
-      color: '#fefefe',
-    },
-  },
-  {
-    featureType: 'poi',
-    elementType: 'all',
-    stylers: {
-      visibility: 'off',
-    },
-  },
-  {
-    featureType: 'green',
-    elementType: 'all',
-    stylers: {
-      visibility: 'off',
-    },
-  },
-  {
-    featureType: 'subway',
-    elementType: 'all',
-    stylers: {
-      visibility: 'off',
-    },
-  },
-  {
-    featureType: 'manmade',
-    elementType: 'all',
-    stylers: {
-      color: '#d1d1d1',
-    },
-  },
-  {
-    featureType: 'local',
-    elementType: 'all',
-    stylers: {
-      color: '#d1d1d1',
-    },
-  },
-  {
-    featureType: 'arterial',
-    elementType: 'labels',
-    stylers: {
-      visibility: 'off',
-    },
-  },
-  {
-    featureType: 'boundary',
-    elementType: 'all',
-    stylers: {
-      color: '#fefefe',
-    },
-  },
-  {
-    featureType: 'building',
-    elementType: 'all',
-    stylers: {
-      color: '#d1d1d1',
-    },
-  },
-  {
-    featureType: 'label',
-    elementType: 'labels.text.fill',
-    stylers: {
-      color: '#999999',
-    },
-  },
-]
-const MAP_STYLE2 = [
-  {
-    featureType: 'water',
-    elementType: 'all',
-    stylers: {
-      color: '#044161',
-    },
-  },
-  {
-    featureType: 'land',
-    elementType: 'all',
-    stylers: {
-      color: '#004981',
-    },
-  },
-  {
-    featureType: 'boundary',
-    elementType: 'geometry',
-    stylers: {
-      color: '#064f85',
-    },
-  },
-  {
-    featureType: 'railway',
-    elementType: 'all',
-    stylers: {
-      visibility: 'off',
-    },
-  },
-  {
-    featureType: 'highway',
-    elementType: 'geometry',
-    stylers: {
-      color: '#004981',
-    },
-  },
-  {
-    featureType: 'highway',
-    elementType: 'geometry.fill',
-    stylers: {
-      color: '#005b96',
-      lightness: 1,
-    },
-  },
-  {
-    featureType: 'highway',
-    elementType: 'labels',
-    stylers: {
-      visibility: 'off',
-    },
-  },
-  {
-    featureType: 'arterial',
-    elementType: 'geometry',
-    stylers: {
-      color: '#004981',
-    },
-  },
-  {
-    featureType: 'arterial',
-    elementType: 'geometry.fill',
-    stylers: {
-      color: '#00508b',
-    },
-  },
-  {
-    featureType: 'poi',
-    elementType: 'all',
-    stylers: {
-      visibility: 'off',
-    },
-  },
-  {
-    featureType: 'green',
-    elementType: 'all',
-    stylers: {
-      color: '#056197',
-      visibility: 'off',
-    },
-  },
-  {
-    featureType: 'subway',
-    elementType: 'all',
-    stylers: {
-      visibility: 'off',
-    },
-  },
-  {
-    featureType: 'manmade',
-    elementType: 'all',
-    stylers: {
-      visibility: 'off',
-    },
-  },
-  {
-    featureType: 'local',
-    elementType: 'all',
-    stylers: {
-      visibility: 'off',
-    },
-  },
-  {
-    featureType: 'arterial',
-    elementType: 'labels',
-    stylers: {
-      visibility: 'off',
-    },
-  },
-  {
-    featureType: 'boundary',
-    elementType: 'geometry.fill',
-    stylers: {
-      color: '#029fd4',
-    },
-  },
-  {
-    featureType: 'building',
-    elementType: 'all',
-    stylers: {
-      color: '#1a5787',
-    },
-  },
-  {
-    featureType: 'label',
-    elementType: 'all',
-    stylers: {
-      visibility: 'off',
-    },
-  },
-]

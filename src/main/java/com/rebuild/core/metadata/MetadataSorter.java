@@ -160,33 +160,42 @@ public class MetadataSorter {
      * @param fields
      */
     static Field[] sortByLevel(List<BaseMeta> fields) {
-        List<BaseMeta> othersFields = new ArrayList<>();
-        List<BaseMeta> approvalFields = new ArrayList<>();
-        Map<String, BaseMeta> commonsFieldsMap = new HashMap<>();
+        List<BaseMeta> bizFields = new ArrayList<>();
+        Map<String, BaseMeta> comFieldsMap = new HashMap<>();
 
         for (BaseMeta field : fields) {
-            if (MetadataHelper.isApprovalField(field.getName())) {
-                approvalFields.add(field);
-            } else if (MetadataHelper.isCommonsField((Field) field)) {
-                commonsFieldsMap.put(field.getName(), field);
+            if (MetadataHelper.isApprovalField(field.getName())
+                    || MetadataHelper.isCommonsField((Field) field)) {
+                comFieldsMap.put(field.getName(), field);
             } else {
-                othersFields.add(field);
+                bizFields.add(field);
             }
         }
 
-        sortByLabel(othersFields);
-        List<BaseMeta> allFields = new ArrayList<>(othersFields);
+        sortByLabel(bizFields);
+        List<BaseMeta> allFields = new ArrayList<>(bizFields);
 
-        sortByLabel(approvalFields);
+        // v3.7 特殊排序
+        final String[] specSortsApproval = new String[] {
+                EntityHelper.ApprovalId, EntityHelper.ApprovalState,
+                EntityHelper.ApprovalStepNodeName, EntityHelper.ApprovalStepUsers,
+                EntityHelper.ApprovalLastUser, EntityHelper.ApprovalLastTime, EntityHelper.ApprovalLastRemark
+        };
+        List<BaseMeta> approvalFields = new ArrayList<>();
+        for (String s : specSortsApproval) {
+            BaseMeta b = comFieldsMap.get(s);
+            if (b != null) approvalFields.add(b);
+        }
         allFields.addAll(approvalFields);
 
-        // v35 特殊排序
-        final String[] SPEC_SORTS = new String[] {
-                EntityHelper.CreatedBy, EntityHelper.CreatedOn, EntityHelper.ModifiedBy, EntityHelper.ModifiedOn, EntityHelper.OwningUser, EntityHelper.OwningDept
+        // v3.5 特殊排序
+        final String[] specSortsCommon = new String[] {
+                EntityHelper.CreatedBy, EntityHelper.CreatedOn, EntityHelper.ModifiedBy, EntityHelper.ModifiedOn,
+                EntityHelper.OwningUser, EntityHelper.OwningDept
         };
         List<BaseMeta> commonsFields = new ArrayList<>();
-        for (String s : SPEC_SORTS) {
-            BaseMeta b = commonsFieldsMap.get(s);
+        for (String s : specSortsCommon) {
+            BaseMeta b = comFieldsMap.get(s);
             if (b != null) commonsFields.add(b);
         }
         allFields.addAll(commonsFields);

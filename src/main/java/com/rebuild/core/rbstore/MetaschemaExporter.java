@@ -31,13 +31,13 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * 元数据模型生成
+ * 元数据模型导出
  *
  * @author devezhao zhaofang123@gmail.com
- * @see MetaschemaImporter
  * @since 2019/04/28
+ * @see MetaschemaImporter
  */
-public class MetaSchemaGenerator {
+public class MetaschemaExporter {
 
     // 保持 ID
     public static final String KEEP_ID = "_id";
@@ -55,7 +55,7 @@ public class MetaSchemaGenerator {
     /**
      * @param entity
      */
-    public MetaSchemaGenerator(Entity entity, boolean keepId) {
+    public MetaschemaExporter(Entity entity, boolean keepId) {
         this.mainEntity = entity;
         this.keepId = keepId;
     }
@@ -64,15 +64,15 @@ public class MetaSchemaGenerator {
      * @param dest
      * @throws IOException
      */
-    public void generate(File dest) throws IOException {
-        JSON schema = generate();
+    public void export(File dest) throws IOException {
+        JSON schema = export();
         FileUtils.writeStringToFile(dest, JSON.toJSONString(schema, true), AppUtils.UTF8);
     }
 
     /**
      * @return
      */
-    public JSON generate() {
+    public JSON export() {
         JSONObject schema = (JSONObject) performEntity(mainEntity, false);
         if (mainEntity.getDetailEntity() != null) {
             JSON detail = performEntity(mainEntity.getDetailEntity(), true);

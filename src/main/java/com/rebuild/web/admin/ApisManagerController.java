@@ -17,8 +17,7 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.RebuildApiService;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BaseController;
@@ -92,7 +91,7 @@ public class ApisManagerController extends BaseController {
         if (StringUtils.isNotBlank(q)) {
             q = CommonsUtils.escapeSql(q);
             // https://zhuanlan.zhihu.com/p/35675553
-            if (RebuildConfiguration.getBool(ConfigurationItem.UseDbFullText)) {
+            if (CommandArgs.getBoolean(CommandArgs._UseDbFullText)) {
                 sql = sql.replace("(1=1)", String.format("(requestBody match '%s' or responseBody match '%s')", q, q));
             } else {
                 sql = sql.replace("(1=1)", String.format("(requestBody like '%%%s%%' or responseBody like '%%%s%%')", q, q));

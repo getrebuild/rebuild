@@ -37,52 +37,56 @@ $(document).ready(() => {
   // 字段拖动
   let dragIsNum = false
   let dargOnSort = false
-  $('.fields>li>a')
-    .draggable({
-      helper: 'clone',
-      appendTo: 'body',
-      cursor: 'move',
-      cursorAt: { top: 14, left: 75 },
-      zIndex: 1999,
-      start: function () {
-        dragIsNum = $(this).data('type') === 'num'
-      },
-      stop: function () {
-        dragIsNum = false
-      },
-    })
-    .disableSelection()
-  $('.axis-target')
-    .droppable({
-      accept: function () {
-        if (dargOnSort === true) return false
-
-        const isdim = $(this).hasClass('J_axis-dim')
-        if (type_DATALIST2) return isdim
-        if (isdim) return !dragIsNum
-        return true
-      },
-      drop: function (e, ui) {
-        if (dargOnSort !== true) add_axis(this, $(ui.draggable[0]))
-      },
-    })
-    .disableSelection()
-  // 字段排序
-  $('.axis-target')
-    .sortable({
-      axis: 'x',
-      containment: 'parent',
-      cursor: 'move',
-      opacity: 0.8,
-      start: function () {
-        dargOnSort = true
-      },
-      stop: function () {
-        dargOnSort = false
-        render_preview()
-      },
-    })
-    .disableSelection()
+  setTimeout(() => {
+    $('.fields>li>a')
+      .draggable({
+        helper: 'clone',
+        appendTo: 'body',
+        cursor: 'move',
+        cursorAt: { top: 14, left: 75 },
+        zIndex: 1999,
+        start: function () {
+          dragIsNum = $(this).data('type') === 'num'
+        },
+        stop: function () {
+          dragIsNum = false
+        },
+      })
+      .disableSelection()
+    $('.axis-target')
+      .droppable({
+        accept: function () {
+          if (dargOnSort === true) return false
+          const isdim = $(this).hasClass('J_axis-dim')
+          if (type_DATALIST2) return isdim
+          if (isdim) return !dragIsNum
+          return true
+        },
+        drop: function (e, ui) {
+          if (dargOnSort !== true) {
+            add_axis(this, $(ui.draggable[0]))
+            $('.axis-target').sortable('refresh')
+          }
+        },
+      })
+      .disableSelection()
+    // 字段排序
+    $('.axis-target')
+      .sortable({
+        axis: 'x',
+        containment: 'parent',
+        cursor: 'move',
+        opacity: 0.8,
+        start: function () {
+          dargOnSort = true
+        },
+        stop: function () {
+          dargOnSort = false
+          render_preview()
+        },
+      })
+      .disableSelection()
+  }, 1000)
 
   const saveFilter = function (filter) {
     dataFilter = filter
@@ -101,10 +105,10 @@ $(document).ready(() => {
     }
   })
 
-  const $types = $('.chart-type > a').on('click', function () {
+  const $chTypes = $('.chart-type > a').on('click', function () {
     const $this = $(this)
     if ($this.hasClass('active') === false) return
-    $types.removeClass('select')
+    $chTypes.removeClass('select')
     $this.addClass('select')
 
     type_DATALIST2 = $this.data('type') === 'DATALIST2'
@@ -116,6 +120,7 @@ $(document).ready(() => {
 
   $('.chart-option .custom-control').on('click', () => render_option())
   $('.chart-option input[type="text"]').on('blur', () => render_option())
+  $('.chart-option select').on('change', () => render_option())
 
   // 保存按钮
   $('.rb-toggle-left-sidebar')
@@ -353,9 +358,9 @@ const render_option = () => {
   // FUNNEL
   if ((dimsAxis === 1 && numsAxis === 1) || (dimsAxis === 0 && numsAxis > 1));
   else $('.chart-type>a[data-type="FUNNEL"]').removeClass('active')
-  // LINE/BAR
+  // LINE/BAR/BAR2
   if ((dimsAxis === 2 && numsAxis === 1) || (dimsAxis === 1 && numsAxis >= 1));
-  else $('.chart-type>a[data-type="LINE"],.chart-type>a[data-type="BAR"]').removeClass('active')
+  else $('.chart-type>a[data-type="LINE"],.chart-type>a[data-type="BAR"],.chart-type>a[data-type="BAR2"]').removeClass('active')
 
   // Active
   let $select = $('.chart-type>a.select')
@@ -407,7 +412,7 @@ const render_preview = (_color) => {
 
       if (!(conf.type === 'CNMAP' || conf.type === 'DATALIST2')) {
         if ($('.J_axis-dim span[data-type="map"]')[0]) {
-          render_preview_error($L('位置字段仅适用于“地图”图表'))
+          render_preview_error($L('位置字段仅适用于“地图”、“数据列表”图表'))
           return
         }
       }
@@ -447,7 +452,7 @@ const build_config = () => {
   cfg.axis = { dimension: dims, numerical: nums }
 
   const option = {}
-  $('.chart-option input').each(function () {
+  $('.chart-option input, .chart-option select').each(function () {
     const name = $(this).data('name')
     if (name) option[name] = $val(this)
   })

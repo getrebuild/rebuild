@@ -227,6 +227,7 @@ class ValueTaskName extends ValueComp {
         onBlur={(e) => this.handleChange(e)}
         onKeyDown={(e) => e.keyCode === 13 && e.target.blur()}
         disabled={!this.props.$$$parent.props.editable}
+        maxLength="190"
       />
     ) : (
       this.renderViewElement()

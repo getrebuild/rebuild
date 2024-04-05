@@ -28,6 +28,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.MarkdownUtils;
 import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
@@ -36,6 +37,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.util.Assert;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -60,11 +63,21 @@ public class SMSender {
      * @param content
      */
     public static void sendMailAsync(String to, String subject, String content) {
+        sendMailAsync(to, subject, content, null);
+    }
+
+    /**
+     * @param to
+     * @param subject
+     * @param content
+     * @param attach
+     */
+    public static void sendMailAsync(String to, String subject, String content, File[] attach) {
         ThreadPool.exec(() -> {
             try {
-                sendMail(to, subject, content);
+                sendMail(to, subject, content, attach);
             } catch (Exception ex) {
-                log.error("Email failed to send!", ex);
+                log.error("Email send error : {}, {}", to, subject, ex);
             }
         });
     }
@@ -76,19 +89,31 @@ public class SMSender {
      * @return
      */
     public static String sendMail(String to, String subject, String content) {
-        return sendMail(to, subject, content, true, RebuildConfiguration.getMailAccount());
+        return sendMail(to, subject, content, null);
     }
 
     /**
      * @param to
      * @param subject
      * @param content
+     * @param attach
+     * @return
+     */
+    public static String sendMail(String to, String subject, String content, File[] attach) {
+        return sendMail(to, subject, content, attach, true, RebuildConfiguration.getMailAccount());
+    }
+
+    /**
+     * @param to
+     * @param subject
+     * @param content
+     * @param attach
      * @param useTemplate
      * @param specAccount
-     * @return null if failed or SENDID
+     * @return returns null if failed or SENDID
      * @throws ConfigurationException If mail-account unset
      */
-    public static String sendMail(String to, String subject, String content, boolean useTemplate, String[] specAccount) throws ConfigurationException {
+    public static String sendMail(String to, String subject, String content, File[] attach, boolean useTemplate, String[] specAccount) throws ConfigurationException {
         if (specAccount == null || specAccount.length < 6
                 || StringUtils.isBlank(specAccount[0]) || StringUtils.isBlank(specAccount[1])
                 || StringUtils.isBlank(specAccount[2]) || StringUtils.isBlank(specAccount[3])) {
@@ -96,7 +121,7 @@ public class SMSender {
         }
 
         if (Application.devMode()) {
-            log.info("[dev] Fake send email to : {} / {} / {}", to, subject, content);
+            log.info("[dev] FAKE SEND EMAIL : {}, {}, {}", to, subject, content);
             return null;
         }
 
@@ -135,12 +160,12 @@ public class SMSender {
         // Use SMTP
         if (specAccount.length >= 7 && StringUtils.isNotBlank(specAccount[6])) {
             try {
-                String emailId = sendMailViaSmtp(to, subject, content, specAccount);
+                String emailId = sendMailViaSmtp(to, subject, content, attach, specAccount);
                 createLog(to, logContent, TYPE_EMAIL, emailId, null);
                 return emailId;
 
             } catch (EmailException ex) {
-                log.error("SMTP failed to send : {} / {} / {}", to, subject, content, ex);
+                log.error("SMTP send error : {}, {}, {}", to, subject, content, ex);
                 return null;
             }
         }
@@ -162,12 +187,32 @@ public class SMSender {
         params.put("asynchronous", "true");
         params.put("headers", JSONUtils.toJSONObject("X-User-Agent", OkHttpUtils.RB_UA));
 
+        // v3.7 附件
+        if (attach != null) {
+            JSONArray atta = new JSONArray();
+            for (File a : attach) {
+                String base64;
+                try {
+                    byte[] bs = FileUtils.readFileToByteArray(a);
+                    base64 = java.util.Base64.getEncoder().encodeToString(bs);
+                } catch (IOException ex) {
+                    continue;
+                }
+
+                Map<String, String> map = new HashMap<>(2);
+                map.put("name", a.getName());
+                map.put("data", base64);
+                atta.add(map);
+            }
+            if (!atta.isEmpty()) params.put("atta", atta);
+        }
+
         JSONObject rJson;
         try {
             String r = OkHttpUtils.post("https://api-v4.mysubmail.com/mail/send.json", params);
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
-            log.error("Submail failed to send : {} / {} / {}", to, subject, content, ex);
+            log.error("Submail send error : {}, {}, {}", to, subject, content, ex);
             return null;
         }
 
@@ -178,7 +223,7 @@ public class SMSender {
             return sendId;
         }
 
-        log.error("Submail failed to send : {} / {} / {}\nError : {}", to, subject, content, rJson);
+        log.error("Submail send fails : {}, {}, {}\nERROR : {}", to, subject, content, rJson);
         createLog(to, logContent, TYPE_EMAIL, null, rJson.getString("msg"));
         return null;
     }
@@ -189,11 +234,12 @@ public class SMSender {
      * @param to
      * @param subject
      * @param htmlContent
+     * @param attach
      * @param specAccount
      * @return
      * @throws ConfigurationException
      */
-    protected static String sendMailViaSmtp(String to, String subject, String htmlContent, String[] specAccount) throws EmailException {
+    protected static String sendMailViaSmtp(String to, String subject, String htmlContent, File[] attach, String[] specAccount) throws EmailException {
         HtmlEmail email = new HtmlEmail();
         email.addTo(to);
         if (StringUtils.isNotBlank(specAccount[4])) email.addCc(specAccount[4]);
@@ -215,6 +261,10 @@ public class SMSender {
                 email.setStartTLSEnabled(true);
                 email.setStartTLSRequired(true);
             }
+        }
+
+        if (attach != null) {
+            for (File a : attach) email.attach(a);
         }
 
         email.addHeader("X-User-Agent", OkHttpUtils.RB_UA);
@@ -246,7 +296,7 @@ public class SMSender {
             try {
                 sendSMS(to, content);
             } catch (Exception ex) {
-                log.error("SMS failed to send!", ex);
+                log.error("SMS send error : {}, {}", to, content, ex);
             }
         });
     }
@@ -276,7 +326,7 @@ public class SMSender {
         }
 
         if (Application.devMode()) {
-            log.warn("[dev] Fake send sms to : {} / {}", to, content);
+            log.warn("[dev] FAKE SEND SMS : {}, {}", to, content);
             return null;
         }
 
@@ -284,7 +334,7 @@ public class SMSender {
         params.put("appid", specAccount[0]);
         params.put("signature", specAccount[1]);
         params.put("to", to);
-        // Auto append the SMS-Sign
+        // 短信签名
         if (!content.startsWith("【")) {
             content = "【" + specAccount[2] + "】" + content;
         }
@@ -296,7 +346,7 @@ public class SMSender {
             String r = OkHttpUtils.post("https://api-v4.mysubmail.com/sms/send.json", params);
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
-            log.error("Subsms failed to send : {} / {}", to, content, ex);
+            log.error("Subsms send error : {}, {}", to, content, ex);
             return null;
         } finally {
             HeavyStopWatcher.clean();
@@ -308,7 +358,7 @@ public class SMSender {
             return sendId;
         }
 
-        log.error("Subsms failed to send : {} / {}\nError : {}", to, content, rJson);
+        log.error("Subsms send fails : {}, {}\nERROR : {}", to, content, rJson);
         createLog(to, content, TYPE_SMS, null, rJson.getString("msg"));
         return null;
     }

@@ -98,7 +98,7 @@ class NodeSpec extends React.Component {
     const call = function (d) {
       that.setState({ data: d, active: false })
     }
-    const props = { ...(this.state.data || {}), call: call, key: 'kns-' + this.props.nodeId }
+    const props = { ...(this.state.data || {}), call: call, key: `kns-${this.props.nodeId}` }
 
     if (this.nodeType === 'start') renderRbcomp(<StartNodeConfig {...props} />, 'config-side')
     else if (this.nodeType === 'approver') renderRbcomp(<ApproverNodeConfig {...props} />, 'config-side')
@@ -107,6 +107,8 @@ class NodeSpec extends React.Component {
     $(document.body).addClass('open-right-sidebar')
     this.setState({ active: true })
     activeNode = this
+
+    if (this.nodeType === 'approver') console.log(`RBAPI ASSISTANT *Approval Node* :\n %c${this.props.nodeId}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
   }
 
   serialize() {
@@ -377,7 +379,7 @@ class ConditionBranch extends NodeGroupSpec {
     }
     const props = { ...(this.state.data || {}), entity: wpc.applyEntity, call: call }
 
-    renderRbcomp(<ConditionBranchConfig key={'kcbc-' + this.props.nodeId} {...props} isLast={this.state.isLast} />, 'config-side')
+    renderRbcomp(<ConditionBranchConfig key={`kcbc-${this.props.nodeId}`} {...props} isLast={this.state.isLast} />, 'config-side')
 
     $(document.body).addClass('open-right-sidebar')
     this.setState({ active: true })
@@ -756,7 +758,7 @@ class ApproverNodeConfig extends StartNodeConfig {
             <label className="text-bold">{$L('可修改字段')}</label>
             <div style={{ position: 'relative' }}>
               <table className={`table table-sm fields-table ${(this.state.editableFields || []).length === 0 && 'hide'}`}>
-                <tbody ref={(c) => (this._editableFields = c)}>
+                <tbody ref={(c) => (this._$editableFields = c)}>
                   {(this.state.editableFields || []).map((item) => {
                     return (
                       <tr key={`field-${item.field}`}>
@@ -796,7 +798,7 @@ class ApproverNodeConfig extends StartNodeConfig {
     const ah = $('#config-side').height() - 120
     $('#config-side .form.rb-scroller').height(ah).perfectScrollbar()
 
-    $(this._editableFields)
+    $(this._$editableFields)
       .sortable({
         cursor: 'move',
         axis: 'y',
@@ -834,7 +836,7 @@ class ApproverNodeConfig extends StartNodeConfig {
 
   save = () => {
     const editableFields = []
-    $(this._editableFields)
+    $(this._$editableFields)
       .find('input')
       .each(function () {
         const $this = $(this)
@@ -883,7 +885,7 @@ class ApproverNodeConfig extends StartNodeConfig {
     const fsNew = fs.map((item) => {
       return { field: item, notNull: false }
     })
-    this.setState({ editableFields: fsNew })
+    this.setState({ editableFields: fsNew }, () => $(this._$editableFields).sortable('refresh'))
   }
 
   removeEditableField(field) {

@@ -38,7 +38,7 @@
             <div class="row rb-datatable-header">
               <div class="col-6">
                 <div class="dataTables_filter">
-                  <div class="input-group input-search">
+                  <div class="input-group input-search" style="width: 340px">
                     <input class="form-control" type="text" th:placeholder="${quickFieldsLabel ?:bundle.L('快速查询')}" th:title="${quickFieldsLabel}" maxlength="40" />
                     <span class="input-group-btn">
                       <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
@@ -70,30 +70,20 @@
         listConfig: [(${DataListConfig})],
         advFilter: false,
         protocolFilter: '[[${referenceFilter}]]',
+        forceOpenNewtab: true,
       }
     </script>
     <th:block th:replace="~{/_include/forms}" />
     <script th:src="@{/assets/js/general/rb-datalist.js}" type="text/babel"></script>
     <script type="text/babel">
-      CellRenders.clickView = function (v, e) {
-        if (parent && parent.RbViewModal && parent.RbViewModal.mode === 1) {
-          parent.RbViewModal.create({ id: v.id, entity: v.entity })
-        } else {
-          const openUrl = `${rb.baseUrl}/app/redirect?id=${v.id}&type=newtab`
-          window.open(openUrl, '_blank')
-        }
-        e && $stopEvent(e)
-        return false
-      }
-
       RbList.renderAfter = function () {
         parent && parent.referenceSearch__dlg && parent.referenceSearch__dlg.resize()
       }
 
       $(document).ready(() => {
         $('.J_select').on('click', () => {
-          const ss = RbListPage._RbList.getSelectedIds()
-          if (ss.length > 0 && parent && parent.referenceSearch__call) parent.referenceSearch__call(ss)
+          const ids = RbListPage._RbList.getSelectedIds()
+          if (ids.length > 0 && parent && parent.referenceSearch__call) parent.referenceSearch__call(ids)
         })
 
         // 新建后自动刷新

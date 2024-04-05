@@ -91,7 +91,7 @@ $(document).ready(() => {
   // 指定字段
   $('.when-update a').on('click', (e) => {
     $stopEvent(e, true)
-    renderRbcomp(
+    renderDlgcomp(
       <DlgSpecFields
         selected={whenUpdateFields}
         onConfirm={(s) => {
@@ -100,7 +100,8 @@ $(document).ready(() => {
           if (s.length > 0) $s.text(`${$s.text().split(' (')[0]} (${s.length})`)
           else $s.text($s.text().split(' (')[0])
         }}
-      />
+      />,
+      'DlgSpecFields'
     )
   })
   DlgSpecFields.render(wpc.actionContent)
@@ -108,7 +109,7 @@ $(document).ready(() => {
   // 指定步骤
   $('.when-approve a').on('click', (e) => {
     $stopEvent(e, true)
-    renderRbcomp(
+    renderDlgcomp(
       <DlgSpecApproveNodes
         selected={whenApproveNodes}
         onConfirm={(s) => {
@@ -117,7 +118,8 @@ $(document).ready(() => {
           if (s.length > 0) $s.text(`${$s.text().split(' (')[0]} (${s.length})`)
           else $s.text($s.text().split(' (')[0])
         }}
-      />
+      />,
+      'DlgSpecApproveNodes'
     )
   })
   DlgSpecApproveNodes.render(wpc.actionContent)
@@ -193,6 +195,9 @@ $(document).ready(() => {
       $('.J_last-logs').removeClass('hide')
     })
   }
+
+  // v3.7
+  $('.page-help>a').attr('href', $('.page-help>a').attr('href') + wpc.actionType.toLowerCase())
 })
 
 const saveFilter = function (res) {
@@ -212,7 +217,7 @@ class LastLogsViewer extends RbAlert {
   renderContent() {
     return (
       <RF>
-        <table className="table table-hover">
+        <table className="table table-hover table-logs">
           <thead>
             <tr>
               <th>{$L('执行内容/结果')}</th>
@@ -236,45 +241,37 @@ class LastLogsViewer extends RbAlert {
   }
 
   _renderLog(log) {
-    if (!log) return <p className="m-0 text-warning text-uppercase">Unknown</p>
+    if (!log) return <p className="text-warning">UNKNOW</p>
 
     try {
-      return LastLogsViewer.renderLog(JSON.parse(log))
+      const L = JSON.parse(log)
+      const LR = LastLogsViewer.renderLog(L)
+      if (LR === false) {
+        return <p className={`${L.level === 3 ? 'text-warning' : 'text-muted'}`}>{L.message || 'N'}</p>
+      }
+      return LR
     } catch (err) {
       console.debug(err)
-      return (
-        <p className="m-0 text-warning text-overflow text-uppercase" style={{ maxHeight: 295 }}>
-          {log || 'Unknown'}
-        </p>
-      )
+      return <p className="text-danger text-overflow">{log}</p>
     }
   }
 
   // 日志解析复写
-  static renderLog(log) {
-    if (log.level > 1) {
-      return <p className={`m-0 ${log.level === 2 ? 'text-muted' : 'text-warning'}`}>{(log.message || 'N').toUpperCase()}</p>
-    }
-
-    return (
-      <dl className="m-0">
-        {log.affected && (
+  static renderLog(L) {
+    L.level = L.level || 2
+    return L.level === 1 ? (
+      <div className="v36-logdesc">
+        {LastLogsViewer._Title || $L('影响记录')}
+        {L.affected.map((a, idx) => {
+          return (
+            <a key={idx} className="badge text-id ml-1" href={`${rb.baseUrl}/app/redirect?id=${a}&type=newtab`} target="_blank">
+              {a}
+            </a>
+          )
+        })}
+        {LastLogsViewer._Chain && L.chain && (
           <RF>
-            <dt>{$L('影响记录')}</dt>
-            <dd className="mb-0">
-              {log.affected.map((a, idx) => {
-                return (
-                  <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/redirect?id=${a}&type=newtab`} target="_blank">
-                    {a}
-                  </a>
-                )
-              })}
-            </dd>
-          </RF>
-        )}
-        {log.chain && (
-          <RF>
-            <dt className="mt-2 font-weight-normal">
+            <dt className="mt-1 font-weight-normal">
               <a
                 onClick={(e) => {
                   $(e.currentTarget).find('i.mdi').toggleClass('mdi-chevron-double-up')
@@ -285,11 +282,13 @@ class LastLogsViewer extends RbAlert {
               </a>
             </dt>
             <dd className="mb-0 hide">
-              <blockquote className="tech-details code">{log.chain}</blockquote>
+              <blockquote className="tech-details code">{L.chain}</blockquote>
             </dd>
           </RF>
         )}
-      </dl>
+      </div>
+    ) : (
+      false
     )
   }
 }
@@ -414,7 +413,6 @@ class DlgSpecFields extends RbModalHandler {
           </RF>
         }
         ref={(c) => (this._dlg = c)}
-        disposeOnHide
         width="780">
         <div className="p-2">
           <RbAlertBox message={$L('指定字段被更新时触发，默认为全部字段')} />
@@ -478,7 +476,6 @@ class DlgSpecFields extends RbModalHandler {
 // ~ 指定审批步骤
 class DlgSpecApproveNodes extends RbModalHandler {
   render() {
-    const _selected = this.props.selected || []
     return (
       <RbModal
         title={
@@ -488,14 +485,17 @@ class DlgSpecApproveNodes extends RbModalHandler {
           </RF>
         }
         ref={(c) => (this._dlg = c)}
-        disposeOnHide
         width="780">
         <div className="p-2">
-          <RbAlertBox message={$L('指定步骤 (名称) 审核通过时触发，默认仅为最终审核通过时')} />
+          <RbAlertBox message={$L('指定审批步骤 (名称) 通过时触发，默认仅审批完成时触发')} />
           <div className="row">
-            <div className="col-12" ref={(c) => (this._$set = c)}>
-              <label>{$L('填写步骤名称 (多个使用逗号分开)')}</label>
-              <textarea className="form-control form-control-sm row2x" defaultValue={_selected.join(', ')} placeholder={$L('无')} />
+            <div className="col-12">
+              <label>
+                {$L('填写步骤名称')} ({$L('* 表示所有')})
+              </label>
+              <div>
+                <select className="form-control form-control-sm" ref={(c) => (this._$set = c)}></select>
+              </div>
             </div>
           </div>
         </div>
@@ -512,15 +512,34 @@ class DlgSpecApproveNodes extends RbModalHandler {
     )
   }
 
+  componentDidMount() {
+    let s2data = this.props.selected || []
+    s2data = s2data.map((item) => {
+      return { id: item, text: item, selected: true }
+    })
+    this.__select2 = $(this._$set).select2({
+      placeholder: $L('无'),
+      data: s2data,
+      multiple: true,
+      maximumSelectionLength: 9,
+      language: {
+        noResults: function () {
+          return $L('请输入')
+        },
+      },
+      tags: true,
+      theme: 'default select2-tag',
+      allowClear: true,
+    })
+  }
+
   handleConfirm() {
     if (rb.commercial < 1) {
       RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return
     }
 
-    let selected = ($(this._$set).find('textarea').val() || '').split(/[,，;；\s]/)
-    selected = $cleanArray(selected, true)
-
+    const selected = $(this._$set).val()
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(selected)
     this.hide()
   }
@@ -544,6 +563,10 @@ function disableWhen() {
       for (let i = 0; i < args.length; i++) {
         if (args[i] === when) {
           $(this).attr('disabled', true)
+          // 指定步骤/指定字段
+          if (when === 128 || when === 4) {
+            $(this).parent().find('>a').remove()
+          }
           break
         }
       }

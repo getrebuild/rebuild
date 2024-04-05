@@ -92,7 +92,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
           else if (err.status === 401) err = $L('未授权访问')
           else err = $L('系统繁忙，请稍后重试')
         }
-        RbHighbar.error(err)
+        if (rb.env === 'dev') console.log('error on complete :', err)
+        err && RbHighbar.error(err)
       } else {
         var res = xhr.responseJSON
         if (res && res.error_code >= 500) console.error(JSON.stringify(res))
@@ -291,7 +292,7 @@ var $regex = {
   _Time: /^[0-9]{1,2}:[0-9]{1,2}(:[0-9]{1,2})?$/, // eg. 16:01:10, 10:1:9
   // eslint-disable-next-line no-useless-escape
   _Url: /^(http|https|ftp)\:\/\/[a-z0-9\-\.]+(:[0-9]*)?\/?([a-z0-9\-\._\?\,\'\/\\\+&amp;%\$#\=~!:])*$/i,
-  _Mail: /^[a-z0-9._-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i,
+  _Mail: /^[a-z0-9._-]+@[a-z0-9.-]+\.[a-z]{2,6}$/i,
   _Number: /^[-+]?[0-9]+$/, // 数字
   _Decimal: /^[-+]?\d*\.?\d+$/, // 包括小数点的数字
   _Mobile: /^(1[3456789])\d{9}$/, // CN Mobile

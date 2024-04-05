@@ -105,6 +105,12 @@ public class MessageBuilder {
         else return message;
     }
 
+    /**
+     * 处理 `@xxx`
+     *
+     * @param atid
+     * @return
+     */
     protected static String parseAtId(String atid) {
         if (!ID.isId(atid)) return atid;
 

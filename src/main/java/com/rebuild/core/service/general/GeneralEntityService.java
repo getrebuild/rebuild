@@ -44,7 +44,6 @@ import com.rebuild.core.service.trigger.RobotTriggerManual;
 import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerWhen;
-import com.rebuild.core.service.trigger.impl.AutoApproval;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
@@ -132,7 +131,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 lazyAutoApproval4Details = hasOnApprovedTriggers.length > 0;
             }
             // 自动审批延迟执行，因为明细尚未保存好
-            if (lazyAutoApproval4Details) AutoApproval.setLazy();
+            if (lazyAutoApproval4Details) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoApproval#setLazy");
 
             // 自动转换
 
@@ -207,7 +206,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return record;
 
         } finally {
-            if (lazyAutoApproval4Details) AutoApproval.executeLazy();
+            if (lazyAutoApproval4Details) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoApproval#executeLazy");
             if (lazyAutoTransform4Details) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoTransform#executeLazy");
             if (lazyHookUrl4Details) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.HookUrl#executeLazy");
         }

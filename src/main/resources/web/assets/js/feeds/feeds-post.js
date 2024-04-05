@@ -198,7 +198,7 @@ class FeedsEditor extends React.Component {
     const isFinish = this.state.type === 4 && this.props.contentMore && this.props.contentMore.finishTime
 
     return (
-      <React.Fragment>
+      <RF>
         {isFinish && <RbAlertBox message={$L('此日程已完成，修改后你需要重新将其完成')} />}
 
         <div className={`rich-editor ${this.state.focus ? 'active' : ''}`}>
@@ -302,7 +302,7 @@ class FeedsEditor extends React.Component {
             </div>
           </div>
         )}
-      </React.Fragment>
+      </RF>
     )
   }
 
@@ -360,6 +360,7 @@ class FeedsEditor extends React.Component {
     const text = this.__lastInputKey === '@' ? `${s.text} ` : `@${s.text} `
     $(this._$editor).insertAtCursor(text)
     this.setState({ showAtUser: false })
+    this.__lastInputKey = null
   }
 
   _handleInputAt(e) {
@@ -372,7 +373,9 @@ class FeedsEditor extends React.Component {
 
     if (e.key === '@') {
       this.__lastInputKey = '@'
-      this._handleInput__Timer = setTimeout(() => this._UserSelector.toggle('show'), 400)
+      this._handleInput__Timer = setTimeout(() => this._UserSelector.toggle('show'), 200)
+    } else {
+      this.__lastInputKey = null
     }
   }
 
@@ -677,7 +680,7 @@ class ScheduleOptions extends React.Component {
 // ~~ 新建/编辑动态
 // 新建主要从记录视图新建相关
 // eslint-disable-next-line no-unused-vars
-class FeedsEditDlg extends RbModalHandler {
+class FeedEditorDlg extends RbModalHandler {
   constructor(props) {
     super(props)
     this.state = { type: props.type }

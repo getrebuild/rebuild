@@ -48,14 +48,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.rebuild.core.rbstore.MetaSchemaGenerator.KEEP_ID;
+import static com.rebuild.core.rbstore.MetaschemaExporter.KEEP_ID;
 
 /**
  * 元数据模型导入
  *
  * @author devezhao-mbp zhaofang123@gmail.com
- * @see MetaSchemaGenerator
  * @since 2019/04/28
+ * @see MetaschemaExporter
  */
 @Slf4j
 public class MetaschemaImporter extends HeavyTask<String> {
@@ -264,7 +264,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
         MetadataHelper.getMetadataFactory().refresh();
 
         // 表单回填
-        JSONArray fillins = schema.getJSONArray(MetaSchemaGenerator.CFG_FILLINS);
+        JSONArray fillins = schema.getJSONArray(MetaschemaExporter.CFG_FILLINS);
         if (fillins != null) {
             for (Object o : fillins) {
                 performFillin(entityName, (JSONObject) o);
@@ -272,7 +272,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
         }
 
         // 布局
-        JSONObject layouts = schema.getJSONObject(MetaSchemaGenerator.CFG_LAYOUTS);
+        JSONObject layouts = schema.getJSONObject(MetaschemaExporter.CFG_LAYOUTS);
         if (layouts != null) {
             for (Map.Entry<String, Object> e : layouts.entrySet()) {
                 performLayout(entityName, e.getKey(), (JSON) e.getValue());
@@ -280,7 +280,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
         }
 
         // 高级查询
-        JSONArray filters = schema.getJSONArray(MetaSchemaGenerator.CFG_FILTERS);
+        JSONArray filters = schema.getJSONArray(MetaschemaExporter.CFG_FILTERS);
         if (filters != null) {
             for (Object o : filters) {
                 performFilter(entityName, (JSONObject) o);
@@ -288,7 +288,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
         }
 
         // 触发器
-        JSONArray triggers = schema.getJSONArray(MetaSchemaGenerator.CFG_TRIGGERS);
+        JSONArray triggers = schema.getJSONArray(MetaschemaExporter.CFG_TRIGGERS);
         if (triggers != null) {
             for (Object o : triggers) {
                 performTrigger(entityName, (JSONObject) o);
@@ -296,7 +296,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
         }
 
         // 审批流程
-        JSONArray approvals = schema.getJSONArray(MetaSchemaGenerator.CFG_APPROVALS);
+        JSONArray approvals = schema.getJSONArray(MetaschemaExporter.CFG_APPROVALS);
         if (approvals != null) {
             for (Object o : approvals) {
                 performApproval(entityName, (JSONObject) o);
@@ -304,7 +304,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
         }
 
         // 记录转换
-        JSONArray transforms = schema.getJSONArray(MetaSchemaGenerator.CFG_TRANSFORMS);
+        JSONArray transforms = schema.getJSONArray(MetaschemaExporter.CFG_TRANSFORMS);
         if (transforms != null) {
             for (Object o : transforms) {
                 performTransform(entityName, (JSONObject) o);

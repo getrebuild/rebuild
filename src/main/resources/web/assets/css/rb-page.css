@@ -225,6 +225,7 @@ code {
 .badge.badge-light,
 .badge.badge-secondary {
   line-height: 1.277rem;
+  line-height: 1.1586rem;
 }
 
 .badge.text-id {
@@ -232,17 +233,6 @@ code {
   font-size: 12px !important;
   text-transform: uppercase;
   line-height: 1.2 !important;
-}
-
-.badge-sm {
-  border-radius: 99px;
-  font-size: 12px;
-  padding: 1px 6px 0;
-  line-height: 17px;
-}
-
-.badge-sm.badge-light {
-  line-height: 15px;
 }
 
 a.badge.text-id {
@@ -1014,7 +1004,7 @@ a.link.link-icon::after {
 .rbform-alert {
   margin: -20px -15px 20px;
   text-align: center;
-  padding: 0.5rem;
+  padding: 10px 30px;
   border-radius: 0;
   color: #836203;
   font-weight: normal;
@@ -3117,6 +3107,7 @@ form {
   display: inline-block;
   padding: 0 3px;
   margin-right: 6px;
+  width: 20px;
 }
 
 .card-list .card-footer a:hover {
@@ -5571,6 +5562,48 @@ span.icon-append .icon {
   animation: blink 1s infinite;
 }
 
-.dropdown-menu.nott .dropdown-item {
+.dropdown-menu.nott .dropdown-item,
+.btn.J_filterlist {
   text-transform: none;
+}
+
+.loadmore-line {
+  border-top: 1px solid #ccc;
+  width: 200px;
+  margin: 25px auto 0;
+  text-align: center;
+}
+
+.loadmore-line > span {
+  position: relative;
+  top: -0.8em;
+  padding: 0 0.55em;
+  color: #999;
+  background-color: #eee;
+  margin-bottom: 3px;
+  display: inline-block;
+}
+
+.dropdown-menu .searchbox {
+  margin-bottom: 7px;
+  position: relative;
+}
+
+.dropdown-menu .searchbox > input {
+  outline: none;
+  border: 0 none;
+  border-bottom: 1px solid #d5d8de;
+  padding: 2px 20px;
+  padding-bottom: 6px;
+  width: 100%;
+}
+
+.dropdown-menu .searchbox::after {
+  font-family: 'Material-Design-Iconic-Font';
+  content: '\f1c3';
+  position: absolute;
+  right: 18px;
+  top: 1px;
+  color: #bbb;
+  font-size: 18px;
 }

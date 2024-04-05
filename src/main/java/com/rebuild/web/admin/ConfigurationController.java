@@ -82,6 +82,7 @@ public class ConfigurationController extends BaseController {
         mv.getModel().put("Version", Application.VER);
         mv.getModel().put("SN", "***" + auth.getString("sn").substring(12));
         mv.getModel().put("VN", auth.getString("vn"));
+        mv.getModel().put("VNExpires", auth.getIntValue("vnExpiresLeft") < 0);
 
         return mv;
     }
@@ -254,7 +255,7 @@ public class ConfigurationController extends BaseController {
             }
 
             String content = Language.L("收到此消息说明你的邮件服务配置正确");
-            sent = SMSender.sendMail(receiver, content, content, true, specAccount);
+            sent = SMSender.sendMail(receiver, content, content, null, true, specAccount);
         }
 
         if (sent != null) {

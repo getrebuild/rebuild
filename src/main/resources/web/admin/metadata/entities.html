@@ -174,9 +174,13 @@
                 if (_EntityNew2) {
                   _EntityNew2.show()
                 } else {
-                  renderRbcomp(<EntityNew2 />, null, function () {
-                    _EntityNew2 = this
-                  })
+                  renderRbcomp18(
+                    <EntityNew2
+                      ref={function (o) {
+                        _EntityNew2 = o
+                      }}
+                    />
+                  )
                 }
               } else {
                 RbHighbar.error('仅超级管理员可添加实体')
@@ -189,7 +193,7 @@
 
           const keys = Object.keys(groups).sort()
           keys.forEach((tag) => {
-            $(`<div class="tag"><h3><i class="icon zmdi zmdi-widgets text-primary mr-2"></i>${tag}</h3></div>`).appendTo('#entityList')
+            $(`<div class="tag"><h3><i class="icon mdi mdi-widgets-outline text-primary mr-2"></i>${tag}</h3></div>`).appendTo('#entityList')
             $(groups[tag]).each(function () {
               render_entity(this)
             })

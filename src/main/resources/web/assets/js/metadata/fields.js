@@ -16,7 +16,7 @@ $(document).ready(() => {
   })
   $('.J_new-field').on('click', () => {
     // eslint-disable-next-line react/jsx-no-undef
-    if (wpc.isSuperAdmin) renderRbcomp(<FieldNew2 entity={wpc.entityName} />)
+    if (wpc.isSuperAdmin) renderRbcomp18(<FieldNew2 entity={wpc.entityName} />)
     else RbHighbar.error($L('仅超级管理员可添加字段'))
   })
 
