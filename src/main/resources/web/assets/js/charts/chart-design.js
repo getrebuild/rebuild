@@ -358,9 +358,9 @@ const render_option = () => {
   // FUNNEL
   if ((dimsAxis === 1 && numsAxis === 1) || (dimsAxis === 0 && numsAxis > 1));
   else $('.chart-type>a[data-type="FUNNEL"]').removeClass('active')
-  // LINE/BAR
+  // LINE/BAR/BAR2
   if ((dimsAxis === 2 && numsAxis === 1) || (dimsAxis === 1 && numsAxis >= 1));
-  else $('.chart-type>a[data-type="LINE"],.chart-type>a[data-type="BAR"]').removeClass('active')
+  else $('.chart-type>a[data-type="LINE"],.chart-type>a[data-type="BAR"],.chart-type>a[data-type="BAR2"]').removeClass('active')
 
   // Active
   let $select = $('.chart-type>a.select')
@@ -412,7 +412,7 @@ const render_preview = (_color) => {
 
       if (!(conf.type === 'CNMAP' || conf.type === 'DATALIST2')) {
         if ($('.J_axis-dim span[data-type="map"]')[0]) {
-          render_preview_error($L('位置字段仅适用于“地图”图表'))
+          render_preview_error($L('位置字段仅适用于“地图”、“数据列表”图表'))
           return
         }
       }

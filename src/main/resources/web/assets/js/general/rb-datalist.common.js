@@ -1807,7 +1807,7 @@ CellRenders.addRender('LOCATION', (v, s, k) => {
           href={`#!/Map:${v.lng || ''},${v.lat || ''}`}
           onClick={(e) => {
             $stopEvent(e, true)
-            BaiduMapModal.view(v)
+            if (window.BaiduMapModal) BaiduMapModal.view(v)
           }}>
           {v.text}
         </a>
