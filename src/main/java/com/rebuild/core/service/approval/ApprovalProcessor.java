@@ -232,13 +232,13 @@ public class ApprovalProcessor extends SetUser {
         final ApprovalStatus status = checkApprovalState(ApprovalState.PROCESSING);
         this.approval = status.getApprovalId();
 
-        final String sentKey = String.format("URGE:%s-%s", this.approval, this.recordId);
+        final String sentKey = String.format("URGE:%s-%s", approval, recordId);
         if (Application.getCommonsCache().getx(sentKey) != null) {
             return -1;
         }
 
         int sent = 0;
-        String entityLabel = EasyMetaFactory.getLabel(MetadataHelper.getEntity(this.recordId.getEntityCode()));
+        String entityLabel = EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode()));
 
         JSONArray step = getCurrentStep(status);
         for (Object o : step) {
@@ -247,12 +247,12 @@ public class ApprovalProcessor extends SetUser {
 
             ID approver = ID.valueOf(s.getString("approver"));
             String urgeMsg = Language.L("有一条 %s 记录正在等待你审批，请尽快审批", entityLabel);
-            Application.getNotifications().send(MessageBuilder.createApproval(approver, urgeMsg, this.recordId));
+            Application.getNotifications().send(MessageBuilder.createApproval(approver, urgeMsg, recordId));
             sent++;
         }
 
-        // 5m
-        Application.getCommonsCache().putx(sentKey, CalendarUtils.now(), CacheTemplate.TS_MINTE * 5);
+        // 15m
+        Application.getCommonsCache().putx(sentKey, CalendarUtils.now(), CacheTemplate.TS_MINTE * 15);
         return sent;
     }
 

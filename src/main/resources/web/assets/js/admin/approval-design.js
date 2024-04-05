@@ -713,6 +713,7 @@ class ApproverNodeConfig extends StartNodeConfig {
                     <select className="form-control form-control-sm" name="expiresAuto1ValueType">
                       <option value="D">{$L('天后')}</option>
                       <option value="H">{$L('小时后')}</option>
+                      <option value="I">{$L('分钟后')}</option>
                     </select>
                   </div>
                 </div>
@@ -1064,7 +1065,7 @@ class RbFlowCanvas extends NodeGroupSpec {
     $('.box-scale').draggable({ cursor: 'move', axis: 'x', scroll: false })
     $('#rbflow').removeClass('rb-loading-active')
 
-    const $btns = $('.J_save').on('click', () => {
+    const $btn = $('.J_save').on('click', () => {
       const s = this.serialize()
       if (!s) return
 
@@ -1075,7 +1076,7 @@ class RbFlowCanvas extends NodeGroupSpec {
       data = JSON.stringify(data)
       const noApproverNode = !data.includes('"approver"')
 
-      $btns.button('loading')
+      $btn.button('loading')
       $.post('/app/entity/common-save', data, (res) => {
         if (res.error_code === 0) {
           const msg = (
@@ -1094,11 +1095,15 @@ class RbFlowCanvas extends NodeGroupSpec {
         } else {
           RbHighbar.error(res.error_msg)
         }
-        $btns.button('reset')
+        $btn.button('reset')
       })
     })
 
-    $('.J_copy').on('click', () => renderRbcomp(<DlgCopy father={wpc.configId} name={wpc.name + '(2)'} isDisabled />))
+    $('.J_copy').on('click', () => {
+      const s = this.serialize()
+      if (!s) return
+      renderRbcomp(<DlgCopy father={wpc.configId} name={wpc.name + '(2)'} isDisabled flowDefinition={s} />)
+    })
   }
 
   zoom(v) {
@@ -1203,7 +1208,8 @@ class DlgCopy extends ConfigFormDlg {
     }
 
     this.disabled(true)
-    $.post(`/admin/robot/approval/copy?father=${this.props.father}&disabled=${this.state.isDisabled}&name=${$encode(approvalName)}`, (res) => {
+    const url = `/admin/robot/approval/copy?father=${this.props.father}&disabled=${this.state.isDisabled}&name=${$encode(approvalName)}`
+    $.post(url, JSON.stringify(this.props.flowDefinition), (res) => {
       if (res.error_code === 0) {
         RbHighbar.success($L('另存为成功'))
         setTimeout(() => location.replace('./' + res.data.approvalId), 500)
