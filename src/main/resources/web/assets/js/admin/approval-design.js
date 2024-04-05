@@ -11,7 +11,7 @@ let activeNode
 let donotCloseSidebar
 
 const __EXPIRESAUTOTYPE = {
-  'URGE': $L('发送提醒'),
+  'URGE': $L('催审 (发送通知)'),
   'PASS': $L('通过'),
   'REJECT': $L('驳回'),
   'BACK': $L('退回至上一步'),
@@ -742,7 +742,7 @@ class ApproverNodeConfig extends StartNodeConfig {
                 })}
               </select>
               <div className={`${(this.state.expiresAutoType || 'URGE') === 'URGE' ? '' : 'hide'}`}>
-                <label className="mt-2 mb-1">{$L('提醒谁')}</label>
+                <label className="mt-2 mb-1">{$L('通知谁')}</label>
                 <select className="form-control form-control-sm" name="expiresAutoUrgeUser" multiple>
                   {(this.state.urgeUsers || []).map((item) => {
                     return (
@@ -752,7 +752,7 @@ class ApproverNodeConfig extends StartNodeConfig {
                     )
                   })}
                 </select>
-                <label className="mt-2 mb-1">{$L('提醒内容')}</label>
+                <label className="mt-2 mb-1">{$L('通知内容')}</label>
                 <textarea className="form-control form-control-sm row2x" placeholder={$L('有一条记录正在等待你审批，请及时处理')} name="expiresAutoUrgeMsg"></textarea>
               </div>
             </div>

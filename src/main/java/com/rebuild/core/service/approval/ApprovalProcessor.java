@@ -447,7 +447,7 @@ public class ApprovalProcessor extends SetUser {
                 .unique();
         String nodeBatch = lastNode == null || lastNode[0] == null ? null : (String) lastNode[0];
 
-        // 2.批次下的
+        // 2.同一批次的
         sql = "select approver,state,remark,approvedTime,createdOn from RobotApprovalStep"
                 + " where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F' and isBacked = 'F'";
         if (StringUtils.isNotBlank(nodeBatch)) sql += " and nodeBatch = '" + nodeBatch + "'";
