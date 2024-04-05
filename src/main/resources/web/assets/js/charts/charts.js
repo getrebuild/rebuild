@@ -544,10 +544,6 @@ class ChartBar2 extends ChartBar {
     super(props)
     this._stack = true
   }
-
-  renderChart(data) {
-    return super.renderChart(data)
-  }
 }
 
 // 饼图
