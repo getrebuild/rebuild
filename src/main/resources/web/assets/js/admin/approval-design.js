@@ -10,6 +10,13 @@ let fieldsCache
 let activeNode
 let donotCloseSidebar
 
+const __EXPIRESAUTOTYPE = {
+  'URGE': $L('催审 (发送通知)'),
+  'PASS': $L('通过'),
+  'REJECT': $L('驳回'),
+  'BACK': $L('退回至上一步'),
+}
+
 $(document).ready(() => {
   if (!wpc || !wpc.configId) return
   if (rb.env === 'dev') console.log(wpc.flowDefinition)
@@ -206,10 +213,14 @@ class SimpleNode extends NodeSpec {
     if (data.selfSelecting && data.users.length > 0) descs.push($L('允许自选'))
     if (data.ccAutoShare) descs.push($L('自动共享'))
     if (data.accounts && data.accounts.length > 0) descs.push(`${$L('外部人员')}(${data.accounts.length})`)
-    if (data.allowReferral) descs.push($L('允许转审'))
-    if (data.allowCountersign) descs.push($L('允许加签'))
-    if (data.allowBatch) descs.push($L('允许批量'))
-    if (this.nodeType === 'approver') descs.push(data.signMode === 'AND' ? $L('会签') : data.signMode === 'ALL' ? $L('依次审批') : $L('或签'))
+    if (this.nodeType === 'approver') {
+      if (data.allowReferral) descs.push($L('允许转审'))
+      if (data.allowCountersign) descs.push($L('允许加签'))
+      if (data.allowBatch) descs.push($L('允许批量'))
+      descs.push(data.signMode === 'AND' ? $L('会签') : data.signMode === 'ALL' ? $L('依次审批') : $L('或签'))
+      if (data.expiresAuto && ~~data.expiresAuto.expiresAuto > 0) descs.push($L('限时审批'))
+      if (data.editableFields && data.editableFields.length > 0) descs.push($L('可修改字段'))
+    }
 
     return (
       <div className="node-wrap">
@@ -518,8 +529,8 @@ class StartNodeConfig extends RbFormHandler {
             <UserSelector ref={(c) => (this._UserSelector = c)} />
           </div>
 
-          <div className="form-group mt-4 mb-0">
-            <label className="text-bold mb-1">{$L('发起条件')}</label>
+          <div className="form-group mt-5 mb-0">
+            <label className="text-bold mb-0">{$L('发起条件')}</label>
             <div className="">
               <a className="btn btn-sm btn-link pl-0 text-left" onClick={() => this._handleFilter()}>
                 {hasFilters > 0 ? `${$L('已设置条件')} (${hasFilters})` : $L('点击设置')}
@@ -667,7 +678,7 @@ class ApproverNodeConfig extends StartNodeConfig {
             </label>
           </div>
 
-          <div className="form-group mt-4">
+          <div className="form-group mt-5">
             <label className="text-bold">{$L('当有多人审批时')}</label>
             <label className="custom-control custom-control-sm custom-radio mb-2 hide">
               <input className="custom-control-input" type="radio" name="signMode" value="ALL" onChange={this.handleChange} checked={this.state.signMode === 'ALL'} />
@@ -683,15 +694,72 @@ class ApproverNodeConfig extends StartNodeConfig {
             </label>
           </div>
 
-          <div className="form-group mt-4 bosskey-show" title="FIXME 默认启用无需配置">
-            <label className="text-bold">{$L('驳回时')}</label>
-            <label className="custom-control custom-control-sm custom-checkbox">
-              <input className="custom-control-input" type="checkbox" name="rejectStep" checked={this.state.rejectStep !== false} onChange={this.handleChange} />
-              <span className="custom-control-label">{$L('允许退回到指定步骤 (否则为整体驳回)')}</span>
+          <div className="form-group mt-5" ref={(c) => (this._$expiresAuto = c)}>
+            <label className="text-bold">
+              {$L('限时审批')} <sup className="rbv" />
             </label>
+            <div className="row">
+              <div className="col">
+                <select className="form-control form-control-sm" name="expiresAuto">
+                  <option value="0">{$L('不启用')}</option>
+                  <option value="1">{$L('指定时间')}</option>
+                  <option value="2">{$L('使用字段')}</option>
+                </select>
+              </div>
+              <div className="col pl-0">
+                <div className={`expires-by-time ${~~this.state.expiresAuto === 1 ? '' : 'hide'}`}>
+                  <div className="input-group">
+                    <input type="text" className="form-control form-control-sm mr-1" placeholder="1" name="expiresAuto1Value" />
+                    <select className="form-control form-control-sm" name="expiresAuto1ValueType">
+                      <option value="D">{$L('天后')}</option>
+                      <option value="H">{$L('小时后')}</option>
+                      <option value="I">{$L('分钟后')}</option>
+                    </select>
+                  </div>
+                </div>
+                <div className={`expires-by-field ${~~this.state.expiresAuto === 2 ? '' : 'hide'}`}>
+                  <select className="form-control form-control-sm" name="expiresAuto2Value">
+                    {(this.state.dateFields || []).map((item) => {
+                      return (
+                        <option value={item.name} key={item.name}>
+                          {item.label}
+                        </option>
+                      )
+                    })}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className={`expires-notify-set mt-3 ${(this.state.expiresAuto || 0) > 0 ? '' : 'hide'}`}>
+              <label className="text-bold">{$L('到期后如何处理')}</label>
+              <select className="form-control form-control-sm" name="expiresAutoType">
+                {Object.keys(__EXPIRESAUTOTYPE).map((k) => {
+                  return (
+                    <option value={k} key={k}>
+                      {__EXPIRESAUTOTYPE[k]}
+                    </option>
+                  )
+                })}
+              </select>
+              <div className={`${(this.state.expiresAutoType || 'URGE') === 'URGE' ? '' : 'hide'}`}>
+                <label className="mt-2 mb-1">{$L('通知谁')}</label>
+                <select className="form-control form-control-sm" name="expiresAutoUrgeUser" multiple>
+                  {(this.state.urgeUsers || []).map((item) => {
+                    return (
+                      <option value={item[0]} key={item[0]}>
+                        {item[1]}
+                      </option>
+                    )
+                  })}
+                </select>
+                <label className="mt-2 mb-1">{$L('通知内容')}</label>
+                <textarea className="form-control form-control-sm row2x" placeholder={$L('有一条记录正在等待你审批，请及时处理')} name="expiresAutoUrgeMsg"></textarea>
+              </div>
+            </div>
           </div>
 
-          <div className="form-group mt-4">
+          <div className="form-group mt-5">
             <label className="text-bold">{$L('可修改字段')}</label>
             <div style={{ position: 'relative' }}>
               <table className={`table table-sm fields-table ${(this.state.editableFields || []).length === 0 && 'hide'}`}>
@@ -732,8 +800,8 @@ class ApproverNodeConfig extends StartNodeConfig {
   componentDidMount() {
     super.componentDidMount()
 
-    const h = $('#config-side').height() - 120
-    $('#config-side .form.rb-scroller').height(h).perfectScrollbar()
+    const ah = $('#config-side').height() - 120
+    $('#config-side .form.rb-scroller').height(ah).perfectScrollbar()
 
     $(this._$editableFields)
       .sortable({
@@ -742,6 +810,47 @@ class ApproverNodeConfig extends StartNodeConfig {
         width: '100%',
       })
       .disableSelection()
+
+    $(this._$expiresAuto)
+      .find('select')
+      .select2({
+        allowClear: false,
+      })
+      .on('change', (e) => {
+        const t = e.target
+        if (['expiresAuto', 'expiresAutoType'].includes(t.name)) {
+          this.setState({ [t.name]: t.value })
+        }
+
+        if (t.name === 'expiresAuto' && !this.__expiresAutoFields) {
+          $.get(`/admin/robot/approval/expires-auto-fields?entity=${wpc.applyEntity}`, (res) => {
+            if (res.error_code === 0) {
+              this.__expiresAutoFields = res.data
+              this.setState({ ...res.data })
+            }
+          })
+        }
+      })
+      .on('select2:open', () => (donotCloseSidebar = true))
+      .on('select2:close', () => (donotCloseSidebar = false))
+
+    $(this._$expiresAuto)
+      .find('select[name="expiresAutoUrgeUser"]')
+      .select2({ placeholder: $L('审批人') })
+
+    // init
+    const eaConf = this.props.expiresAuto
+    if (eaConf && ~~eaConf.expiresAuto > 0) {
+      for (let name in eaConf) {
+        const $name = $(this._$expiresAuto).find(`[name="${name}"]`)
+        $name.val(eaConf[name])
+        if ($name.prop('tagName') === 'SELECT') $name.trigger('change')
+      }
+
+      setTimeout(() => {
+        $(this._$expiresAuto).find('[name="expiresAutoUrgeUser"]').val(eaConf.expiresAutoUrgeUser).trigger('change')
+      }, 500) // Wait fields loaded
+    }
   }
 
   save = () => {
@@ -753,16 +862,24 @@ class ApproverNodeConfig extends StartNodeConfig {
         editableFields.push({ field: $this.data('field'), notNull: $this.prop('checked') })
       })
 
+    const expiresAuto = {}
+    $(this._$expiresAuto)
+      .find('input, select, textarea')
+      .each(function () {
+        if (this.name) expiresAuto[[this.name]] = $(this).val()
+      })
+    console.log(expiresAuto)
+
     const d = {
       nodeName: this.state.nodeName,
       users: this.state.users === 'SPEC' ? this._UserSelector.getSelected() : [this.state.users],
       signMode: this.state.signMode,
       selfSelecting: this.state.selfSelecting,
       editableFields: editableFields,
-      rejectStep: this.state.rejectStep,
       allowReferral: this.state.allowReferral,
       allowCountersign: this.state.allowCountersign,
       allowBatch: this.state.allowBatch,
+      expiresAuto: expiresAuto,
     }
 
     if (d.users.length === 0 && !d.selfSelecting) {
@@ -770,13 +887,19 @@ class ApproverNodeConfig extends StartNodeConfig {
       return
     }
 
-    if (rb.commercial < 1 && (d.allowReferral || d.allowCountersign)) {
-      RbHighbar.error(WrapHtml($L('免费版不支持转审/加签功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-      return
-    }
-    if (rb.commercial < 1 && d.allowBatch) {
-      RbHighbar.error(WrapHtml($L('免费版不支持批量审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-      return
+    if (rb.commercial < 1) {
+      if (d.allowReferral || d.allowCountersign) {
+        RbHighbar.error(WrapHtml($L('免费版不支持转审/加签功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+        return
+      }
+      if (d.allowBatch) {
+        RbHighbar.error(WrapHtml($L('免费版不支持批量审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+        return
+      }
+      if (~~expiresAuto.expiresAuto > 0) {
+        RbHighbar.error(WrapHtml($L('免费版不支持限时审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+        return
+      }
     }
 
     typeof this.props.call === 'function' && this.props.call(d)
@@ -829,7 +952,7 @@ class CCNodeConfig extends StartNodeConfig {
             </label>
           </div>
 
-          <div className="form-group mt-3">
+          <div className="form-group mt-5">
             <label className="text-bold">
               {$L('抄送给外部人员')} <sup className="rbv" />
             </label>
@@ -942,7 +1065,7 @@ class RbFlowCanvas extends NodeGroupSpec {
     $('.box-scale').draggable({ cursor: 'move', axis: 'x', scroll: false })
     $('#rbflow').removeClass('rb-loading-active')
 
-    const $btns = $('.J_save').on('click', () => {
+    const $btn = $('.J_save').on('click', () => {
       const s = this.serialize()
       if (!s) return
 
@@ -953,7 +1076,7 @@ class RbFlowCanvas extends NodeGroupSpec {
       data = JSON.stringify(data)
       const noApproverNode = !data.includes('"approver"')
 
-      $btns.button('loading')
+      $btn.button('loading')
       $.post('/app/entity/common-save', data, (res) => {
         if (res.error_code === 0) {
           const msg = (
@@ -972,11 +1095,15 @@ class RbFlowCanvas extends NodeGroupSpec {
         } else {
           RbHighbar.error(res.error_msg)
         }
-        $btns.button('reset')
+        $btn.button('reset')
       })
     })
 
-    $('.J_copy').on('click', () => renderRbcomp(<DlgCopy father={wpc.configId} name={wpc.name + '(2)'} isDisabled />))
+    $('.J_copy').on('click', () => {
+      const s = this.serialize()
+      if (!s) return
+      renderRbcomp(<DlgCopy father={wpc.configId} name={wpc.name + '(2)'} isDisabled flowDefinition={s} />)
+    })
   }
 
   zoom(v) {
@@ -1081,7 +1208,8 @@ class DlgCopy extends ConfigFormDlg {
     }
 
     this.disabled(true)
-    $.post(`/admin/robot/approval/copy?father=${this.props.father}&disabled=${this.state.isDisabled}&name=${$encode(approvalName)}`, (res) => {
+    const url = `/admin/robot/approval/copy?father=${this.props.father}&disabled=${this.state.isDisabled}&name=${$encode(approvalName)}`
+    $.post(url, JSON.stringify(this.props.flowDefinition), (res) => {
       if (res.error_code === 0) {
         RbHighbar.success($L('另存为成功'))
         setTimeout(() => location.replace('./' + res.data.approvalId), 500)

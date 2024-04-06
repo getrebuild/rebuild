@@ -23,7 +23,11 @@ import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 审批列表/统计
@@ -66,20 +70,20 @@ public class ApprovalList extends ChartData implements BuiltinChart {
                 .array();
 
         List<Object> rearray = new ArrayList<>();
-        int deleted = 0;
+        int removed = 0;
         for (Object[] o : array) {
             final ID recordId = (ID) o[2];
             String label;
             try {
                 label = FieldValueHelper.getLabel(recordId);
             } catch (NoRecordFoundException ignored) {
-                deleted++;
+                removed++;
                 continue;
             }
 
             final ApprovalState currentState = ApprovalHelper.getApprovalState(recordId);
             if (currentState == ApprovalState.CANCELED) {
-                deleted++;
+                removed++;
                 continue;
             }
 
@@ -103,10 +107,10 @@ public class ApprovalList extends ChartData implements BuiltinChart {
                 .setParameter(2, ApprovalState.CANCELED.getState())
                 .array();
         // FIXME 排除删除的（可能导致不同状态下数据不一致）
-        if (deleted > 0) {
+        if (removed > 0) {
             for (Object[] o : stats) {
                 if ((Integer) o[0] == viewState) {
-                    o[1] = ObjectUtils.toInt(o[1]) - deleted;
+                    o[1] = ObjectUtils.toInt(o[1]) - removed;
                     if ((Integer) o[1] < 0) {
                         o[1] = 0;
                     }

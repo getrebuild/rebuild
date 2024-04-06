@@ -45,6 +45,7 @@ import com.rebuild.web.commons.FileDownloader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -81,6 +82,14 @@ public class MetaEntityController extends EntityController {
 
     @GetMapping("entity/{entity}/base")
     public ModelAndView pageBase(@PathVariable String entity, HttpServletResponse response) throws IOException {
+        if (StringUtils.isNumeric(entity)) {
+            int entityCode = NumberUtils.toInt(entity);
+            if (MetadataHelper.containsEntity(entityCode)) {
+                response.sendRedirect("../" + MetadataHelper.getEntity(entityCode).getName() + "/base");
+                return null;
+            }
+        }
+
         Entity metaEntity = MetadataHelper.getEntity(entity);
 
         // 不允许访问
