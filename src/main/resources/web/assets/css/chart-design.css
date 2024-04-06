@@ -471,10 +471,10 @@ a.ui-draggable.ui-draggable-dragging {
 .chart-type > a > i.DATALIST2 {
   position: absolute;
   background: none;
-  font-size: 21px;
+  font-size: 27px;
   color: #ddd;
-  margin-top: 5px;
-  margin-left: 5.5px;
+  margin-top: 3px;
+  margin-left: 2px;
 }
 
 .chart-type > a.active > i.DATALIST2 {
