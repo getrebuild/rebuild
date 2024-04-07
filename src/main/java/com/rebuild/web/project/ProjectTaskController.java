@@ -102,7 +102,13 @@ public class ProjectTaskController extends BaseController {
         // 关键词搜索
         String search = getParameter(request, "search");
         if (StringUtils.isNotBlank(search)) {
-            queryWhere += " and taskName like '%" + CommonsUtils.escapeSql(search) + "%'";
+            queryWhere += " and (taskName like '%" + CommonsUtils.escapeSql(search) + "%'";
+
+            // 搜编号
+            if (search.matches("^([A-Za-z]{2,4}-)?[0-9]{1,9}")) {
+                queryWhere += " or taskNumber = " + search.split("-")[0];
+            }
+            queryWhere += ")";
         }
 
         // 高级查询
@@ -122,10 +128,7 @@ public class ProjectTaskController extends BaseController {
             String countSql = "select count(taskId) from ProjectTask where " + queryWhere;
             Object[] count2 = Application.createQueryNoFilter(countSql).unique();
             count = ObjectUtils.toInt(count2[0]);
-
-            if (count == 0) {
-                return NO_TASKS;
-            }
+            if (count == 0) return NO_TASKS;
         }
 
         queryWhere += " order by " +  buildQuerySort(request);
@@ -174,8 +177,7 @@ public class ProjectTaskController extends BaseController {
                 return baseSql + String.format("status = 0 and (deadline is null or deadline > '%s')",
                         dtf.format(CalendarUtils.addDay(7)));
             }
-        }
-        else if (planKey.startsWith(ProjectController.GROUP_MODIFIED)) {
+        } else if (planKey.startsWith(ProjectController.GROUP_MODIFIED)) {
             if ("1".equals(planValue)) {
                 return baseSql + MessageFormat.format("modifiedOn >= ''{0} 00:00:00'' and modifiedOn <= ''{0} 23:59:59''",
                         today.split(" ")[0]);
@@ -188,6 +190,8 @@ public class ProjectTaskController extends BaseController {
             } else if ("4".equals(planValue)) {
                 return baseSql + String.format("modifiedOn < '%s'", dtf.format(CalendarUtils.addDay(-14)));
             }
+        } else if (planKey.equals("0-0")) {
+            return "1=1";
         }
 
         throw new InvalidParameterException(Language.L("无效请求参数 (%s=%s)", "id", planKey));

@@ -292,7 +292,7 @@ class ValueExecutor extends ValueComp {
 
   renderElement() {
     return (
-      <React.Fragment>
+      <RF>
         {this.state.executor ? (
           <div className="executor-show">
             <UserSelector
@@ -334,7 +334,7 @@ class ValueExecutor extends ValueComp {
             />
           </div>
         )}
-      </React.Fragment>
+      </RF>
     )
   }
 
@@ -557,7 +557,7 @@ class ValueAttachments extends ValueComp {
 
   renderElement() {
     return (
-      <React.Fragment>
+      <RF>
         <div className="form-control-plaintext">
           <input type="file" className="inputfile" id="attachments" ref={(c) => (this._attachments = c)} />
           <label htmlFor="attachments" style={{ padding: 0, border: 0, lineHeight: 1, marginBottom: 0 }}>
@@ -565,7 +565,7 @@ class ValueAttachments extends ValueComp {
           </label>
         </div>
         {this._renderValue(true)}
-      </React.Fragment>
+      </RF>
     )
   }
 
@@ -640,7 +640,7 @@ class ValueTags extends ValueComp {
     const tags = this.state.tags || []
     return (
       <div className="form-control-plaintext task-tags">
-        <React.Fragment>
+        <RF>
           {tags.map((item) => {
             const colorStyle = { color: item.color, borderColor: item.color }
             return (
@@ -654,7 +654,7 @@ class ValueTags extends ValueComp {
               </span>
             )
           })}
-        </React.Fragment>
+        </RF>
         {editable ? (
           <span className="dropdown" ref={(c) => (this._dropdown = c)}>
             <a className="tag-add" title={$L('点击添加')} data-toggle="dropdown">
@@ -1098,7 +1098,7 @@ class RichTextEditor extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
+      <RF>
         <div className={`rich-editor ${this.state.focus ? 'active' : ''}`}>
           <textarea
             ref={(c) => (this._$editor = c)}
@@ -1167,7 +1167,7 @@ class RichTextEditor extends React.Component {
             </div>
           </div>
         )}
-      </React.Fragment>
+      </RF>
     )
   }
 
