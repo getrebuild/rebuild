@@ -907,8 +907,14 @@ class ApproverNodeConfig extends StartNodeConfig {
   }
 
   setEditableFields(fs) {
-    const fsNew = fs.map((item) => {
-      return { field: item, notNull: false }
+    const fsOld = this.state.editableFields || []
+    const fsNew = []
+    fsOld.forEach((item) => {
+      if (fs.includes(item.field)) fsNew.push(item)
+    })
+    fs.forEach((item) => {
+      const found = fsNew.find((x) => item === x.field)
+      if (!found) fsNew.push({ field: item, notNull: false })
     })
     this.setState({ editableFields: fsNew }, () => $(this._$editableFields).sortable('refresh'))
   }
