@@ -42,7 +42,10 @@ class OshiUtilsTest {
 
     @Test
     void getDiskUsed() {
-        for (Object[] d : OshiUtils.getDisksUsed()) {
+        for (Object[] d : OshiUtils.getDisksUsed(null)) {
+            System.out.println(Arrays.toString(d));
+        }
+        for (Object[] d : OshiUtils.getDisksUsed(new String[0])) {
             System.out.println(Arrays.toString(d));
         }
     }
