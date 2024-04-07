@@ -117,7 +117,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         try {
             if (hasDetails) {
-                RobotTriggerObserver.setSkipTriggers();
+                RobotTriggerObserver.setLazyTriggers();
                 record = record.getPrimary() == null ? create(record) : update(record);
             } else {
                 record = record.getPrimary() == null ? create(record) : update(record);
@@ -173,7 +173,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return record;
 
         } finally {
-            RobotTriggerObserver.execSkipTriggers(this);
+            RobotTriggerObserver.executeLazyTriggers(this);
         }
     }
 

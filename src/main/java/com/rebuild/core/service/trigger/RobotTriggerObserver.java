@@ -42,8 +42,8 @@ public class RobotTriggerObserver extends OperatingObserver {
 
     private static final ThreadLocal<TriggerSource> TRIGGER_SOURCE = new NamedThreadLocal<>("Trigger source");
 
-    private static final ThreadLocal<Boolean> SKIP_TRIGGERS = new NamedThreadLocal<>("Skip triggers");
-    private static final ThreadLocal<List<Object>> SKIP_TRIGGERS_CTX = new NamedThreadLocal<>("Skip triggers ctx");
+    private static final ThreadLocal<Boolean> LAZY_TRIGGERS = new NamedThreadLocal<>("Lazy triggers");
+    private static final ThreadLocal<List<Object>> LAZY_TRIGGERS_CTX = new NamedThreadLocal<>("Lazy triggers ctx");
 
     private static final ThreadLocal<String> ALLOW_TRIGGERS_ONAPPROVED = new NamedThreadLocal<>("Allow triggers on approve-node");
 
@@ -54,11 +54,12 @@ public class RobotTriggerObserver extends OperatingObserver {
 
     @Override
     public void update(final SafeObservable o, Object context) {
-        if (isSkipTriggers(false)) {
-            List<Object> ctx = SKIP_TRIGGERS_CTX.get();
+        if (isLazyTriggers(false)) {
+            List<Object> ctx = LAZY_TRIGGERS_CTX.get();
             if (ctx == null) ctx = new ArrayList<>();
             ctx.add(context);
-            SKIP_TRIGGERS_CTX.set(ctx);
+            LAZY_TRIGGERS_CTX.set(ctx);
+            if (CommonsUtils.DEVLOG) System.out.println("[dev] Lazy triggers : " + ctx);
         } else {
             super.update(o, context);
         }
@@ -181,8 +182,7 @@ public class RobotTriggerObserver extends OperatingObserver {
                 }
 
                 final int t = triggerSource.incrTriggerTimes();
-                final String w = String.format("Trigger.%s.%d [ %s ] executing on record (%s) : %s",
-                        sourceId, t, action, when, primaryId);
+                final String w = String.format("Trigger.%s.%d [ %s ] executing on record (%s) : %s", sourceId, t, action, when, primaryId);
                 log.info(w);
 
                 try {
@@ -257,21 +257,21 @@ public class RobotTriggerObserver extends OperatingObserver {
     }
 
     /**
-     * 跳过触发器的执行
+     * 延迟触发器的执行
      */
-    public static void setSkipTriggers() {
-        SKIP_TRIGGERS.set(true);
+    public static void setLazyTriggers() {
+        LAZY_TRIGGERS.set(true);
     }
 
     /**
-     * 是否跳过触发器执行
+     * 是否延迟触发器执行
      *
      * @param once
      * @return
      */
-    public static boolean isSkipTriggers(boolean once) {
-        Boolean is = SKIP_TRIGGERS.get();
-        if (is != null && once) SKIP_TRIGGERS.remove();
+    public static boolean isLazyTriggers(boolean once) {
+        Boolean is = LAZY_TRIGGERS.get();
+        if (is != null && once) LAZY_TRIGGERS.remove();
         return is != null && is;
     }
 
@@ -281,12 +281,14 @@ public class RobotTriggerObserver extends OperatingObserver {
      * @param o
      * @return
      */
-    public static int execSkipTriggers(final SafeObservable o) {
-        isSkipTriggers(true);
+    public static int executeLazyTriggers(final SafeObservable o) {
+        isLazyTriggers(true);
 
-        List<Object> ctx = SKIP_TRIGGERS_CTX.get();
+        List<Object> ctx = LAZY_TRIGGERS_CTX.get();
         if (ctx == null) return 0;
+        LAZY_TRIGGERS_CTX.remove();
 
+        log.info("Will execute lazy triggers : {}", ctx);
         RobotTriggerObserver observer = new RobotTriggerObserver();
         for (Object context : ctx) {
             observer.update(o, context);
