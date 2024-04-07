@@ -24,6 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.NamedThreadLocal;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -41,6 +43,7 @@ public class RobotTriggerObserver extends OperatingObserver {
     private static final ThreadLocal<TriggerSource> TRIGGER_SOURCE = new NamedThreadLocal<>("Trigger source");
 
     private static final ThreadLocal<Boolean> SKIP_TRIGGERS = new NamedThreadLocal<>("Skip triggers");
+    private static final ThreadLocal<List<Object>> SKIP_TRIGGERS_CTX = new NamedThreadLocal<>("Skip triggers ctx");
 
     private static final ThreadLocal<String> ALLOW_TRIGGERS_ONAPPROVED = new NamedThreadLocal<>("Allow triggers on approve-node");
 
@@ -50,9 +53,15 @@ public class RobotTriggerObserver extends OperatingObserver {
     }
 
     @Override
-    public void update(final SafeObservable o, Object arg) {
-        if (isSkipTriggers(false)) return;
-        super.update(o, arg);
+    public void update(final SafeObservable o, Object context) {
+        if (isSkipTriggers(false)) {
+            List<Object> ctx = SKIP_TRIGGERS_CTX.get();
+            if (ctx == null) ctx = new ArrayList<>();
+            ctx.add(context);
+            SKIP_TRIGGERS_CTX.set(ctx);
+        } else {
+            super.update(o, context);
+        }
     }
 
     @Override
@@ -255,14 +264,34 @@ public class RobotTriggerObserver extends OperatingObserver {
     }
 
     /**
+     * 是否跳过触发器执行
+     *
      * @param once
      * @return
-     * @see #setSkipTriggers()
      */
     public static boolean isSkipTriggers(boolean once) {
         Boolean is = SKIP_TRIGGERS.get();
         if (is != null && once) SKIP_TRIGGERS.remove();
         return is != null && is;
+    }
+
+    /**
+     * 延迟执行触发器
+     *
+     * @param o
+     * @return
+     */
+    public static int execSkipTriggers(final SafeObservable o) {
+        isSkipTriggers(true);
+
+        List<Object> ctx = SKIP_TRIGGERS_CTX.get();
+        if (ctx == null) return 0;
+
+        RobotTriggerObserver observer = new RobotTriggerObserver();
+        for (Object context : ctx) {
+            observer.update(o, context);
+        }
+        return ctx.size();
     }
 
     /**
