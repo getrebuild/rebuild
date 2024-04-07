@@ -46,7 +46,6 @@ import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerWhen;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
-import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -110,52 +109,20 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             }
         }
 
-        // 含明细
+        // 有明细
         final boolean hasDetails = details != null && !details.isEmpty();
-
-        // 延迟执行触发器，因为明细尚未保存好
-        boolean lazyAutoApproval4Details = false;
-        boolean lazyAutoTransform4Details = false;
-        boolean lazyHookUrl4Details = false;
-        if (hasDetails) {
-
-            // 自动审批 fix: v3.2.2
-
-            TriggerAction[] hasAutoApprovalTriggers = getSpecTriggers(
-                    record.getEntity(), ActionType.AUTOAPPROVAL, TriggerWhen.CREATE, TriggerWhen.UPDATE);
-            lazyAutoApproval4Details = hasAutoApprovalTriggers.length > 0;
-            // FIXME 此判断可能无意义，待进一步测试后确定是否保留
-            if (!lazyAutoApproval4Details) {
-                TriggerAction[] hasOnApprovedTriggers = getSpecTriggers(
-                        record.getEntity().getDetailEntity(), null, TriggerWhen.APPROVED);
-                lazyAutoApproval4Details = hasOnApprovedTriggers.length > 0;
-            }
-            // 自动审批延迟执行，因为明细尚未保存好
-            if (lazyAutoApproval4Details) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoApproval#setLazy");
-
-            // 自动转换
-
-            TriggerAction[] hasAutoTransformTriggers = getSpecTriggers(
-                    record.getEntity(), ActionType.AUTOTRANSFORM, TriggerWhen.CREATE, TriggerWhen.UPDATE);
-            lazyAutoTransform4Details = hasAutoTransformTriggers.length > 0;
-            // 记录转换延迟执行，因为明细尚未保存好
-            if (lazyAutoTransform4Details) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoTransform#setLazy");
-
-            // URL 回调 v3.5
-
-            TriggerAction[] hasHookUrlTriggers = getSpecTriggers(
-                    record.getEntity(), ActionType.HOOKURL, TriggerWhen.CREATE, TriggerWhen.UPDATE, TriggerWhen.DELETE);
-            lazyHookUrl4Details = hasHookUrlTriggers.length > 0;
-            // 对于全量推送，明细尚未保存好
-            if (lazyHookUrl4Details) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.HookUrl#setLazy");
-        }
 
         // 保证执行顺序
         Map<Integer, ID> detaileds = new TreeMap<>();
 
         try {
-            record = record.getPrimary() == null ? create(record) : update(record);
-            if (!hasDetails) return record;
+            if (hasDetails) {
+                RobotTriggerObserver.setLazyTriggers();
+                record = record.getPrimary() == null ? create(record) : update(record);
+            } else {
+                record = record.getPrimary() == null ? create(record) : update(record);
+                return record;
+            }
 
             // 明细记录处理
 
@@ -206,9 +173,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return record;
 
         } finally {
-            if (lazyAutoApproval4Details) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoApproval#executeLazy");
-            if (lazyAutoTransform4Details) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoTransform#executeLazy");
-            if (lazyHookUrl4Details) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.HookUrl#executeLazy");
+            RobotTriggerObserver.executeLazyTriggers(this);
         }
     }
 

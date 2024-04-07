@@ -437,6 +437,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-position: -1501px -1406px;
 }
 
+.chart-list > div .chart-icon > i.BAR2 {
+  background-position: -1437px -1406px;
+}
+
 .chart-list > div .chart-icon > i.PIE {
   background-position: -978px -1326px;
 }
@@ -475,13 +479,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chart-list > div .chart-icon > i.DATALIST2 {
   background: none;
+  margin-top: 5px;
 }
 
 .chart-list > div .chart-icon > i.DATALIST2::before {
   font-family: 'Material Design Icons', serif;
-  content: '\F04F1';
+  content: '\F148C';
   color: #4285f4;
-  font-size: 21px;
+  font-size: 27px;
   font-style: normal;
 }
 

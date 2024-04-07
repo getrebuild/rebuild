@@ -5,14 +5,17 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-.tools-bar {
-  height: 44px;
-  padding: 7px 20px 0;
-  padding-right: 15px;
+.ps-toolbar {
+  padding: 5px 20px;
+  padding-top: 7px;
+  background-color: #fff;
+  border-bottom: 1px solid #e6e6e6;
+  height: 52px;
 }
 
-.tools-bar h4 {
+.ps-toolbar h4 {
   margin: 10px 0;
+  line-height: 1;
 }
 
 .project-head {
@@ -53,25 +56,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-left: 0;
 }
 
-.project-toolbar > .btn-group {
-  margin-top: 7px;
-  margin-right: 3px;
-}
-
-.project-toolbar > .btn-group > .btn {
-  min-height: 24px;
-  line-height: 24px;
-  min-width: 0;
-  text-align: right;
-  padding-right: 0;
-}
-
-.project-toolbar > .btn-group .dropdown-item-text {
-  color: #b0b0b0;
-  text-transform: uppercase;
-  font-size: 0.8462rem;
-}
-
 #plan-boxes {
   white-space: nowrap;
   overflow: auto;
@@ -93,7 +77,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .plan-box .plan-header .plan-title {
   font-weight: bold;
-  margin: 10px 0;
+  margin: 15px 0;
 }
 
 .plan-box .plan-header .plan-title > small {
@@ -204,7 +188,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   cursor: default;
 }
 
-.task-content .task-extras > .avatar img {
+.task-content .task-extras > .avatar img,
+td.task-user > .avatar img {
   width: 24px;
   height: 24px;
 }
@@ -327,4 +312,128 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .modal.rbview.task .modal-dialog .modal-content {
   width: 888px;
   margin-right: -1000px;
+}
+
+/* v3.7 */
+
+.ps-toolbar {
+  position: sticky;
+  top: 61px;
+  background-color: #fff;
+  z-index: 1;
+}
+
+.ps-toolbar .input-search {
+  width: 267px;
+  margin-right: 0;
+}
+
+.ps-toolbar .input-search .input-group-btn {
+  right: 37px;
+}
+
+.ps-toolbar .input-search input + .btn-input-clear {
+  right: 70px;
+}
+
+.ps-toolbar .dropdown-item-text {
+  color: #b0b0b0;
+  text-transform: uppercase;
+  font-size: 0.8462rem;
+}
+
+.ps-toolbar .J_view > .btn,
+.ps-toolbar .J_sorts > .btn {
+  padding-left: 23px;
+  padding-right: 0;
+  width: auto;
+  min-width: auto;
+  margin-left: 20px;
+}
+
+.ps-toolbar .J_view > .btn > .icon,
+.ps-toolbar .J_sorts > .btn > .icon {
+  font-size: 19px;
+  top: 9px;
+  left: 0;
+  position: absolute;
+}
+
+.ps-toolbar .J_filter .icon {
+  font-size: 1.45rem !important;
+}
+
+.plan-list-wrapper {
+  width: 980px;
+  margin: 20px auto;
+  background-color: #fff;
+  border-radius: 4px;
+}
+
+.plan-list-wrapper table thead th {
+  border-top: 0 none;
+  border-width: 1px;
+}
+
+.plan-list-wrapper table tbody tr:hover {
+  background-color: #eee;
+  cursor: pointer;
+}
+
+.plan-list-wrapper table th {
+  padding-top: 15px;
+}
+
+.plan-list-wrapper table td {
+  vertical-align: top;
+}
+
+.plan-list-wrapper table > tbody > tr > td:first-child {
+  border-left: 3px solid transparent;
+}
+
+.plan-list-wrapper table > tbody > tr.priority-0 > td:first-child {
+  border-left-color: #aaa;
+}
+
+.plan-list-wrapper table > tbody > tr.priority-1 > td:first-child {
+  border-left-color: transparent;
+}
+
+.plan-list-wrapper table > tbody > tr.priority-2 > td:first-child {
+  border-left-color: #f7b904;
+}
+
+.plan-list-wrapper table > tbody > tr.priority-3 > td:first-child {
+  border-left-color: #ea3f30;
+}
+
+td.task-state {
+  padding-left: 20px;
+  padding-right: 0;
+  width: 45px;
+}
+
+td.task-title > div {
+  padding-top: 1px;
+}
+
+td.task-time {
+  font-size: 12px;
+  color: #999;
+}
+
+tr.status-1 {
+  color: #8c8c8c;
+  opacity: 0.6;
+}
+
+tr.status-1 .custom-control-input:checked ~ .custom-control-label::after {
+  color: #8c8c8c;
+  border-color: #fff !important;
+}
+
+tr.status-1 .custom-control-input ~ .custom-control-label::before {
+  border-color: #ccc;
+  background-color: #fff !important;
 }

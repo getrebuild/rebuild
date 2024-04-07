@@ -82,7 +82,7 @@ public class PerHourJob extends DistributedJobLock {
             new DatabaseBackup().backup(backups);
             SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, null);
         } catch (Exception e) {
-            log.error("Executing [DatabaseBackup] failed!", e);
+            log.error("Executing [DatabaseBackup] fails", e);
             SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, e.getLocalizedMessage());
         }
 
@@ -90,7 +90,7 @@ public class PerHourJob extends DistributedJobLock {
             new DatafileBackup().backup(backups);
             SysbaseHeartbeat.setItem(SysbaseHeartbeat.DataFileBackupFail, null);
         } catch (Exception e) {
-            log.error("Executing [DataFileBackup] failed!", e);
+            log.error("Executing [DataFileBackup] fails", e);
             SysbaseHeartbeat.setItem(SysbaseHeartbeat.DataFileBackupFail, e.getLocalizedMessage());
         }
 

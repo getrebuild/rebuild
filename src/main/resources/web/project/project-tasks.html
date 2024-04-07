@@ -15,7 +15,7 @@
       </div>
       <div class="rb-content">
         <div class="main-content container-fluid p-0">
-          <div class="tools-bar">
+          <div class="ps-toolbar">
             <div class="row">
               <div class="col-sm-6">
                 <div class="project-head">
@@ -33,30 +33,10 @@
                   </div>
                 </div>
               </div>
-              <div class="col-sm-6 text-right d-none d-md-block project-toolbar">
-                <div class="btn-group J_search">
+              <div class="col-sm-6 text-right d-none d-md-block">
+                <div class="btn-group J_sorts float-right">
                   <button type="button" class="btn btn-link" data-toggle="dropdown">
-                    <i class="zmdi zmdi-search icon"></i>
-                    <span>[[${bundle.L('搜索')}]]</span>
-                    <i class="indicator-primary bg-warning hide" style="top: 1px; right: -7px"></i>
-                  </button>
-                  <div class="dropdown-menu dropdown-menu-right">
-                    <div class="px-4 py-2">
-                      <div class="input-group input-search m-0">
-                        <input class="form-control" type="text" th:placeholder="${bundle.L('关键词')}" th:title="${bundle.L('输入关键词搜索')}" maxlength="40" />
-                        <button class="btn btn-input-clear" type="button"></button>
-                        <span class="input-group-btn">
-                          <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
-                        </span>
-                      </div>
-                    </div>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item J_filter"><i class="icon zmdi zmdi-filter-list"></i> [[${bundle.L('高级查询')}]]</a>
-                  </div>
-                </div>
-                <div class="btn-group J_views">
-                  <button type="button" class="btn btn-link" data-toggle="dropdown">
-                    <i class="mdi mdi-view-array-outline icon"></i>
+                    <i class="icon mdi mdi-view-carousel-outline"></i>
                     <span>[[${bundle.L('显示方式')}]]</span>
                   </button>
                   <div class="dropdown-menu dropdown-menu-right">
@@ -71,10 +51,43 @@
                     <a class="dropdown-item" data-group="modified" href="?group=modified">[[${bundle.L('按修改时间')}]]</a>
                   </div>
                 </div>
+                <div class="btn-group J_view float-right">
+                  <button type="button" class="btn btn-link" data-toggle="dropdown">
+                    <th:block th:if="${view == 1}">
+                      <i class="icon mdi mdi-view-week"></i>
+                      <span>[[${bundle.L('看板')}]]</span>
+                    </th:block>
+                    <th:block th:if="${view == 2}">
+                      <i class="icon mdi mdi-format-list-checkbox"></i>
+                      <span>[[${bundle.L('列表')}]]</span>
+                    </th:block>
+                  </button>
+                  <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" th:href="${view == 1 ? 'tasks' : '../tasks'}">
+                      <i class="icon mdi mdi-view-week"></i>
+                      [[${bundle.L('看板视图')}]]
+                    </a>
+                    <a class="dropdown-item" th:href="${view == 1 ? 'tasks/list' : '../tasks/list'}">
+                      <i class="icon mdi mdi-format-list-checkbox"></i>
+                      [[${bundle.L('列表视图')}]]
+                    </a>
+                  </div>
+                </div>
+                <div class="input-group input-search J_search float-right">
+                  <input class="form-control" type="text" th:placeholder="${bundle.L('搜索标题和 ID')}" maxlength="40" />
+                  <button class="btn btn-input-clear" type="button"></button>
+                  <span class="input-group-btn">
+                    <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
+                  </span>
+                  <span class="input-group-append">
+                    <button class="btn btn-secondary J_filter" type="button"><i class="icon zmdi zmdi-filter-list"></i></button>
+                    <i class="indicator-primary bg-warning hide" style="top: 4px; right: 5px; z-index: 2"></i>
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-          <div id="plan-boxes" data-fullcontent="105"></div>
+          <div id="plan-boxes" data-fullcontent="115"></div>
         </div>
       </div>
     </div>

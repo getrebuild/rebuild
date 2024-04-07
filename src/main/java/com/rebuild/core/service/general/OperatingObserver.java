@@ -36,7 +36,7 @@ public abstract class OperatingObserver implements SafeObserver {
                 try {
                     updateByAction(ctx);
                 } catch (Exception ex) {
-                    log.error("OperateContext : " + ctx, ex);
+                    log.error("OperateContext : {}", ctx, ex);
                 }
             });
         } else {
