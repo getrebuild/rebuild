@@ -27,8 +27,16 @@ class TransformList extends ConfigList {
               <td>
                 <a href={`transform/${item[0]}`}>{name}</a>
               </td>
-              <td>{item[2]}</td>
-              <td>{item[4]}</td>
+              <td>
+                <a href={`${rb.baseUrl}/admin/entity/${item[1]}/base`} className="light-link" target={`_${item[1]}`}>
+                  {item[2] || item[1]}
+                </a>
+              </td>
+              <td>
+                <a href={`${rb.baseUrl}/admin/entity/${item[3]}/base`} className="light-link" target={`_${item[3]}`}>
+                  {item[4] || item[3]}
+                </a>
+              </td>
               <td>{ShowEnable(item[7])}</td>
               <td>
                 <DateShow date={item[5]} />

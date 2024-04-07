@@ -126,7 +126,7 @@ public class TriggerAdminController extends BaseController {
         for (Object[] o : array) {
             o[7] = Language.L(ActionType.valueOf((String) o[7]));
             // 目标实体
-            o[9] = tryParseTargetEntity((String) o[9], (String) o[1], true);
+            o[9] = tryParseTargetEntity((String) o[9], (String) o[1]);
         }
         return array;
     }
@@ -136,10 +136,9 @@ public class TriggerAdminController extends BaseController {
      *
      * @param config
      * @param sourceEntity
-     * @param useLabel
      * @return
      */
-    public static String tryParseTargetEntity(String config, String sourceEntity, boolean useLabel) {
+    public static String[] tryParseTargetEntity(String config, String sourceEntity) {
         if (!JSONUtils.wellFormat(config)) return null;
 
         JSONObject configJson = JSON.parseObject(config);
@@ -150,9 +149,9 @@ public class TriggerAdminController extends BaseController {
             else if (targetEntity.contains(".")) targetEntity = targetEntity.split("\\.")[1];
 
             if (MetadataHelper.containsEntity(targetEntity)) {
-                return useLabel ? EasyMetaFactory.getLabel(targetEntity) : targetEntity;
+                return new String[]{ targetEntity, EasyMetaFactory.getLabel(targetEntity) };
             } else {
-                return useLabel ? String.format("[%s]", targetEntity.toUpperCase()) : null;
+                return new String[]{ null, String.format("[%s]", targetEntity.toUpperCase()) };
             }
         }
 
@@ -162,14 +161,14 @@ public class TriggerAdminController extends BaseController {
             try {
                 cb = TransformManager.instance.getTransformConfig(ID.valueOf(useTransform), sourceEntity);
             } catch (ConfigurationException ex) {
-                return String.format("[%s]", useTransform.toUpperCase());
+                return new String[] { String.format("[%s]", useTransform.toUpperCase()), null };
             }
 
             targetEntity = cb.getString("target");
             if (MetadataHelper.containsEntity(targetEntity)) {
-                return useLabel ? EasyMetaFactory.getLabel(targetEntity) : targetEntity;
+                return new String[]{ targetEntity, EasyMetaFactory.getLabel(targetEntity) };
             } else {
-                return useLabel ? String.format("[%s]", targetEntity.toUpperCase()) : null;
+                return new String[]{ null, String.format("[%s]", targetEntity.toUpperCase()) };
             }
         }
 

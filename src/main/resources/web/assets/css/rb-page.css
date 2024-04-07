@@ -5593,17 +5593,25 @@ span.icon-append .icon {
   outline: none;
   border: 0 none;
   border-bottom: 1px solid #d5d8de;
-  padding: 2px 20px;
-  padding-bottom: 6px;
+  padding: 2px 20px 6px;
   width: 100%;
 }
 
 .dropdown-menu .searchbox::after {
-  font-family: 'Material-Design-Iconic-Font';
+  font-family: 'Material-Design-Iconic-Font', serif;
   content: '\f1c3';
   position: absolute;
   right: 18px;
   top: 1px;
   color: #bbb;
   font-size: 18px;
+}
+
+.light-link {
+  color: #404040 !important;
+  border-bottom: 1px dotted #4285f4;
+}
+
+.light-link:hover {
+  border-bottom-style: solid;
 }

@@ -45,7 +45,11 @@ class ReportList extends ConfigList {
                 {outputType.includes('pdf') && <span className="badge badge-secondary badge-pill ml-1">PDF</span>}
                 {outputType.includes('html') && <span className="badge badge-secondary badge-pill ml-1">HTML</span>}
               </td>
-              <td>{item[2] || item[1]}</td>
+              <td>
+                <a href={`${rb.baseUrl}/admin/entity/${item[1]}/base`} className="light-link" target={`_${item[1]}`}>
+                  {item[2] || item[1]}
+                </a>
+              </td>
               <td>
                 <div className="text-break" style={{ maxWidth: 300 }}>
                   {item[8] || $L('所有用户')}

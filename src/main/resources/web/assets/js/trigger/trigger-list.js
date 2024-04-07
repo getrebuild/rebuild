@@ -68,12 +68,20 @@ class TriggerList extends ConfigList {
               <td>
                 <a href={`trigger/${item[0]}`}>{item[3] || item[2] + ' · ' + item[7]}</a>
               </td>
-              <td>{item[2] || item[1]}</td>
+              <td>
+                <a href={`${rb.baseUrl}/admin/entity/${item[1]}/base`} className="light-link" target={`_${item[1]}`}>
+                  {item[2] || item[1]}
+                </a>
+              </td>
               <td>
                 {item[7]}
                 {item[9] && (
                   <span title={$L('目标实体')} className="ml-1">
-                    ({item[9]})
+                    (
+                    <a href={`${rb.baseUrl}/admin/entity/${item[9][0]}/base`} className="light-link" target={`_${item[9][0]}`}>
+                      {item[9][1]}
+                    </a>
+                    )
                   </span>
                 )}
               </td>
