@@ -39,7 +39,7 @@ $(document).ready(() => {
     if (!targetEntity || !sourceEntity) return // Bad
 
     const $tab = $(
-      `<li class="nav-item"><a class="nav-link" href="#${key}" data-toggle="tab">${targetEntity.label}<span>${sourceEntity.label}</span><em title="${$L(
+      `<li class="nav-item"><a class="nav-link text-ellipsis" href="#${key}" data-toggle="tab">${targetEntity.label}<span>${sourceEntity.label}</span><em title="${$L(
         '移除'
       )}" class="icon mdi mdi-close"></em></a></li>`
     )

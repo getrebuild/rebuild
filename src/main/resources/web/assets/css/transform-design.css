@@ -12,6 +12,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .entities-mapping > li.nav-item a.nav-link {
   padding: 8px 15px;
+  max-width: 240px;
 }
 
 .fields-mapping .row > div {
