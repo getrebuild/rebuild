@@ -312,7 +312,7 @@ class RbForm extends React.Component {
     // 记录转换:预览模式
     const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
 
-    // FIXME ND导入仅支持第一个
+    // v3.7 ND
     const detailImports = this.props.rawModel.detailImports
 
     this._ProTables = {}
@@ -320,7 +320,7 @@ class RbForm extends React.Component {
     return (
       <RF>
         {this.props.rawModel.detailMetas.map((item, idx) => {
-          return <RF key={idx}>{this.renderDetailsForm(item, idx === 0 ? detailImports : null, previewid)}</RF>
+          return <RF key={idx}>{this.renderDetailsForm(item, detailImports, previewid)}</RF>
         })}
       </RF>
     )
@@ -367,6 +367,8 @@ class RbForm extends React.Component {
     if (detailImports) {
       let ifAutoReady = false
       detailImports.forEach((item) => {
+        if (item.detailName !== detailMeta.entity) return
+
         const diConf = {
           icon: item.icon,
           label: item.transName || item.entityLabel,
@@ -397,6 +399,7 @@ class RbForm extends React.Component {
             })
           },
         }
+
         _detailImports.push(diConf)
 
         // v3.7 ifAuto
