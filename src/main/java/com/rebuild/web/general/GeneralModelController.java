@@ -25,7 +25,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.service.general.transform.TransformerPreview;
+import com.rebuild.core.service.general.transform.TransformerPreview37;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
@@ -139,7 +139,7 @@ public class GeneralModelController extends EntityController {
         try {
             JSON model;
             if (StringUtils.isNotBlank(previewid)) {
-                model = new TransformerPreview(previewid, user).buildForm(false);
+                model = new TransformerPreview37(previewid, user).buildForm();
             } else {
                 model = FormsBuilder.instance.buildForm(entity, user, id);
             }
@@ -227,15 +227,15 @@ public class GeneralModelController extends EntityController {
         final ID user = getRequestUser(request);
 
         // 记录转换预览模式
-        final String previewid = request.getParameter("previewid");
+        String previewid = request.getParameter("previewid");
         if (StringUtils.isNotBlank(previewid)) {
-            return new TransformerPreview(previewid, user).buildForm(true);
+            return new TransformerPreview37(previewid, user).buildForm(entity);
         }
 
-        Entity metaEntity = MetadataHelper.getEntity(entity);
-        Field dtf = MetadataHelper.getDetailToMainField(metaEntity);
+        Entity entityMeta = MetadataHelper.getEntity(entity);
+        Field dtf = MetadataHelper.getDetailToMainField(entityMeta);
         String sql = String.format("select %s from %s where %s = ? order by autoId asc",
-                metaEntity.getPrimaryField().getName(), metaEntity.getName(), dtf.getName());
+                entityMeta.getPrimaryField().getName(), entityMeta.getName(), dtf.getName());
         Object[][] ids = Application.createQuery(sql).setParameter(1, id).array();
         
         JSONArray details = new JSONArray();

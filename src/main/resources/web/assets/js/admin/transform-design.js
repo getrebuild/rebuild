@@ -21,6 +21,7 @@ $(document).ready(() => {
   })
 
   const config = wpc.config || {}
+  console.log('[dev]', config)
 
   let _FieldsMapping
   let _FieldsMapping2_key
@@ -35,6 +36,7 @@ $(document).ready(() => {
 
     const targetEntity = wpc.targetDetailEntities.find((x) => x.entity === s.target)
     const sourceEntity = wpc.sourceDetailEntities.find((x) => x.entity === s.source)
+    if (!targetEntity || !sourceEntity) return // Bad
 
     const $tab = $(
       `<li class="nav-item"><a class="nav-link" href="#${key}" data-toggle="tab">${targetEntity.label}<span>${sourceEntity.label}</span><em title="${$L(
@@ -71,10 +73,10 @@ $(document).ready(() => {
       // init
       if (config.fieldsMappingDetails) {
         config.fieldsMappingDetails.forEach((fmd) => {
-          const key = fmd._[0] + '_' + fmd._[1]
+          const key = fmd._.target + '_' + fmd._.source
           if (key === _FieldsMapping2_key) return // default
 
-          _addDts({ target: fmd._[0], source: fmd._[1] }, fmd)
+          _addDts({ target: fmd._.target, source: fmd._.source }, fmd)
         })
       }
     })
@@ -402,7 +404,7 @@ class FieldsMapping extends React.Component {
     if (!hasMapping) return null
 
     // v3.7
-    mapping['_'] = [this.props.target.entity, this.props.source.entity]
+    mapping['_'] = { target: this.props.target.entity, source: this.props.source.entity, filter: null }
     return mapping
   }
 }
