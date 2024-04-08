@@ -23,16 +23,68 @@ $(document).ready(() => {
   const config = wpc.config || {}
 
   let _FieldsMapping
-  let _FieldsMapping2 // 明细
-  renderRbcomp(<FieldsMapping source={wpc.sourceEntity} target={wpc.targetEntity} data={config.fieldsMapping} />, 'EMAIN', function () {
-    _FieldsMapping = this
-  })
-  if (wpc.sourceDetailEntity) {
-    renderRbcomp(<FieldsMapping source={wpc.sourceDetailEntity} target={wpc.targetDetailEntity} data={config.fieldsMappingDetail} />, 'EDETAIL', function () {
-      _FieldsMapping2 = this
+  let _FieldsMapping2_key
+  let _FieldsMapping37 = {} // ND[key=T_S]
+
+  function _addDts(s, data) {
+    const key = s.target + '_' + s.source
+    if (_FieldsMapping37[key]) {
+      RbHighbar.createl('添加明细转换重复')
+      return false
+    }
+
+    const targetEntity = wpc.targetDetailEntities.find((x) => x.entity === s.target)
+    const sourceEntity = wpc.sourceDetailEntities.find((x) => x.entity === s.source)
+
+    const $tab = $(
+      `<li class="nav-item"><a class="nav-link" href="#${key}" data-toggle="tab">${targetEntity.label}<span>${sourceEntity.label}</span><em title="${$L(
+        '移除'
+      )}" class="icon mdi mdi-close"></em></a></li>`
+    )
+    $tab.insertBefore($('.J_add-dts').parent())
+    const $pane = $(`<div class="tab-pane" id="${key}"></div>`).appendTo('.fields-mapping')
+
+    $tab.find('em').on('click', (e) => {
+      $stopEvent(e, true)
+      $($tab, $pane).remove()
+      delete _FieldsMapping37[key]
+      $('.entities-mapping a:eq(0)')[0].click()
+    })
+
+    renderRbcomp(<FieldsMapping source={sourceEntity} target={targetEntity} data={data} />, key, function () {
+      _FieldsMapping37[key] = this
+      if (!data) $tab.find('a')[0].click()
     })
   }
 
+  // 主
+  renderRbcomp(<FieldsMapping source={wpc.sourceEntity} target={wpc.targetEntity} data={config.fieldsMapping} />, 'EMAIN', function () {
+    _FieldsMapping = this
+  })
+  // 明细
+  if (wpc.sourceDetailEntity) {
+    renderRbcomp(<FieldsMapping source={wpc.sourceDetailEntity} target={wpc.targetDetailEntity} data={config.fieldsMappingDetail} />, 'EDETAIL', function () {
+      // v3.7
+      _FieldsMapping2_key = wpc.targetDetailEntity.entity + '_' + wpc.sourceDetailEntity.entity
+      _FieldsMapping37[_FieldsMapping2_key] = this
+
+      // init
+      if (config.fieldsMappingDetails) {
+        config.fieldsMappingDetails.forEach((fmd) => {
+          const key = fmd._[0] + '_' + fmd._[1]
+          if (key === _FieldsMapping2_key) return // default
+
+          _addDts({ target: fmd._[0], source: fmd._[1] }, fmd)
+        })
+      }
+    })
+  }
+
+  $('.J_add-dts').on('click', function () {
+    renderRbcomp(<DlgAddDts source={wpc.sourceDetailEntities} target={wpc.targetDetailEntities} onConfirm={(s) => _addDts(s)} />)
+  })
+
+  // 回填
   const fillbackFields = []
   wpc.sourceEntity.fields.forEach((item) => {
     if (item.name.includes('.')) return
@@ -76,71 +128,49 @@ $(document).ready(() => {
 
     const fm = _FieldsMapping.buildMapping()
     if (fm === false) return
+
     if (!fm) {
       RbHighbar.create($L('请至少设置 1 个字段映射'))
       return
     }
 
-    const tips = []
+    // const fmd = _FieldsMapping2 ? _FieldsMapping2.buildMapping() : null
+    // if (fmd === false) return
+    // if (_FieldsMapping2 && !fmd) {
+    //   tips.push($L('明细实体未配置字段映射，因此明细记录不会转换'))
+    // }
 
-    const fmd = _FieldsMapping2 ? _FieldsMapping2.buildMapping() : null
-    if (fmd === false) return
-    if (_FieldsMapping2 && !fmd) {
-      tips.push($L('明细实体未配置字段映射，因此明细记录不会转换'))
+    let detailsUnmapping = false
+    let fmd36 = null
+    const fmdList37 = []
+    for (let key in _FieldsMapping37) {
+      const fmd = _FieldsMapping37[key].buildMapping()
+      if (fmd === false) return
+
+      if (fmd) {
+        fmdList37.push(fmd)
+        if (key === _FieldsMapping2_key) fmd36 = fmd
+      } else {
+        detailsUnmapping = true
+      }
     }
+
+    const tips = []
+    if (detailsUnmapping) tips.push($L('明细实体未配置字段映射，因此明细记录不会转换'))
 
     let importsFilter
 
-    function _save(_tips) {
-      const config = {
-        fieldsMapping: fm,
-        fieldsMappingDetail: fmd,
-        fillbackField: $('#fillbackField').val(),
-        transformMode: $('#transformMode').prop('checked') ? 2 : 1,
-        useFilter: advFilter_data,
-        importsMode: $val('#importsMode'),
-        importsFilter: importsFilter || null,
-        importsMode2Auto: ($val('#importsMode2Auto1') ? 1 : 0) + ($val('#importsMode2Auto2') ? 2 : 0),
-      }
-
-      const _data = {
-        config: config,
-        metadata: {
-          entity: 'TransformConfig',
-          id: wpc.configId,
-        },
-      }
-
-      $btn.button('loading')
-      $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
-        if (res.error_code === 0) {
-          const msg = (
-            <RF>
-              <strong>{$L('保存成功')}</strong>
-              {_tips.length > 0 && <p className="text-warning m-0 mt-1">{_tips.join(' / ')}</p>}
-            </RF>
-          )
-          RbAlert.create(msg, {
-            icon: 'info-outline',
-            cancelText: $L('返回列表'),
-            cancel: () => location.replace('../transforms'),
-            confirmText: $L('继续编辑'),
-            confirm: () => location.reload(),
-          })
-        } else {
-          RbHighbar.error(res.error_msg)
-        }
-        $btn.button('reset')
-      })
-    }
-
+    // 检查必填
     let unset = 0
     for (let k in fm) {
       if (fm[k] === null) unset++
     }
-    for (let k in fmd || {}) {
-      if (fmd[k] === null) unset++
-    }
+    fmdList37.forEach((fmd) => {
+      for (let k in fmd || {}) {
+        if (fmd[k] === null) unset++
+      }
+    })
+
     if (unset > 0) tips.push($L('部分必填字段未映射，可能导致转换失败'))
 
     if (importsMode) {
@@ -150,10 +180,51 @@ $(document).ready(() => {
       }
     }
 
-    _save(tips)
+    // save
+    const config = {
+      fieldsMapping: fm,
+      fieldsMappingDetail: fmd36,
+      fieldsMappingDetails: fmdList37,
+      fillbackField: $('#fillbackField').val(),
+      transformMode: $('#transformMode').prop('checked') ? 2 : 1,
+      useFilter: advFilter_data,
+      importsMode: $val('#importsMode'),
+      importsFilter: importsFilter || null,
+      importsMode2Auto: ($val('#importsMode2Auto1') ? 1 : 0) + ($val('#importsMode2Auto2') ? 2 : 0),
+    }
+
+    const _data = {
+      config: config,
+      metadata: {
+        entity: 'TransformConfig',
+        id: wpc.configId,
+      },
+    }
+
+    $btn.button('loading')
+    $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
+      if (res.error_code === 0) {
+        const msg = (
+          <RF>
+            <strong>{$L('保存成功')}</strong>
+            {tips.length > 0 && <p className="text-warning m-0 mt-1">{tips.join(' / ')}</p>}
+          </RF>
+        )
+        RbAlert.create(msg, {
+          icon: 'info-outline',
+          cancelText: $L('返回列表'),
+          cancel: () => location.replace('../transforms'),
+          confirmText: $L('继续编辑'),
+          confirm: () => location.reload(),
+        })
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+      $btn.button('reset')
+    })
   })
 
-  // Load
+  // init
   setTimeout(() => {
     _saveFilter(config.useFilter)
 
@@ -327,7 +398,12 @@ class FieldsMapping extends React.Component {
         }
       })
 
-    return mapping === false ? false : hasMapping ? mapping : null
+    if (mapping === false) return false
+    if (!hasMapping) return null
+
+    // v3.7
+    mapping['_'] = [this.props.target.entity, this.props.source.entity]
+    return mapping
   }
 }
 
@@ -419,5 +495,56 @@ class ImportsFilterMapping extends React.Component {
         if (s) filters.push([t, s])
       })
     return filters
+  }
+}
+
+// 明细转换
+class DlgAddDts extends RbAlert {
+  renderContent() {
+    return (
+      <form className="field-attr" ref={(c) => (this._$form = c)}>
+        <div className="form-group">
+          <label>{$L('选择源实体')}</label>
+          <select className="form-control form-control-sm">
+            {this.props.source.map((item) => {
+              return (
+                <option value={item.entity} key={item.entity}>
+                  {item.label}
+                </option>
+              )
+            })}
+          </select>
+        </div>
+        <div className="form-group">
+          <label>{$L('选择目标实体')}</label>
+          <select className="form-control form-control-sm">
+            {' '}
+            {this.props.target.map((item) => {
+              return (
+                <option value={item.entity} key={item.entity}>
+                  {item.label}
+                </option>
+              )
+            })}
+          </select>
+        </div>
+        <div className="form-group mb-2">
+          <button type="button" className="btn btn-primary" onClick={this._onConfirm}>
+            {$L('确定')}
+          </button>
+        </div>
+      </form>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    $(this._$form).find('select').select2({ allowClear: false })
+  }
+
+  _onConfirm = () => {
+    const s = { source: $(this._$form).find('select:eq(0)').val(), target: $(this._$form).find('select:eq(1)').val() }
+    const res = this.props.onConfirm(s)
+    if (res !== false) this.hide()
   }
 }

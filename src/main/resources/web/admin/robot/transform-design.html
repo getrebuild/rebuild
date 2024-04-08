@@ -4,82 +4,7 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/transforms" />
     <title>[[${bundle.L('记录转换')}]]</title>
-    <style>
-      .nav-tabs > li.nav-item a.nav-link {
-        padding: 8px 15px;
-      }
-      .fields-mapping .row > div {
-        margin-top: 6px;
-        margin-bottom: 6px;
-      }
-      .fields-mapping span.badge {
-        font-size: 1rem;
-        padding: 4px 10px;
-        font-weight: normal;
-        margin-top: 4px;
-      }
-      .fields-mapping span.badge.req {
-        border-left: 3px solid #ea4335;
-      }
-      .fields-mapping span.badge.readonly {
-        border-left: 3px solid #bbb;
-      }
-      .fields-mapping span.badge::before {
-        content: '\f2fd';
-        font-family: 'Material-Design-Iconic-Font', serif;
-        position: absolute;
-        right: 0;
-        color: #aaa;
-        transform: rotate(180deg);
-        font-size: 1.1rem;
-        font-weight: bold;
-        margin-top: -2px;
-      }
-      .fields-mapping .row.active span.badge::before {
-        color: #fbbc05;
-      }
-      .fields-mapping .row::after {
-        content: ' ';
-        height: 1px;
-        width: 100%;
-        border-bottom: 1px dotted #dee2e6;
-        margin-left: 15px;
-        margin-right: 15px;
-      }
-      .fields-mapping .row.title2::after {
-        border-bottom: 1px solid #dee2e6;
-      }
-      #filterFields {
-        background-color: #f7f7f7;
-        border-radius: 3px;
-        padding: 20px 25px;
-        padding-top: 10px;
-        max-width: 1000px;
-      }
-      #filterFields .badge {
-        border-radius: 0;
-        padding: 3px 10px;
-        position: relative;
-        font-size: 1rem;
-      }
-      #filterFields .badge::after {
-        position: absolute;
-        width: 0;
-        height: 0;
-        content: '';
-        transform: rotate(45deg);
-        border: 4px solid #fff;
-        top: -4px;
-        right: -4px;
-      }
-      #filterFields .mdi {
-        position: absolute;
-        right: -2px;
-        font-size: 1.25rem;
-        color: #aaa;
-        top: 10px;
-      }
-    </style>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/transform-design.css}" />
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -108,9 +33,12 @@
                 <div class="form-group row">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('转换字段映射')}]]</label>
                   <div class="col-md-12 col-xl-9 col-lg-8">
-                    <ul th:if="${sourceDetailEntity != null}" class="nav nav-tabs mb-2">
+                    <ul th:if="${sourceDetailEntity != null}" class="nav nav-tabs mb-2 entities-mapping">
                       <li class="nav-item"><a class="nav-link active" href="#EMAIN" data-toggle="tab">[[${bundle.L('主实体')}]]</a></li>
                       <li class="nav-item"><a class="nav-link" href="#EDETAIL" data-toggle="tab">[[${bundle.L('明细实体')}]]</a></li>
+                      <li class="nav-item" th:if="${sourceDetailEntities.size() > 1}">
+                        <a class="nav-link w-auto J_add-dts" th:title="${bundle.L('添加明细转换')}"><i class="icon mdi mdi-plus fs-19 up-2 m-0"></i></a>
+                      </li>
                     </ul>
                     <div class="tab-content m-0 p-0 fields-mapping">
                       <div class="tab-pane active" id="EMAIN">
@@ -188,8 +116,10 @@
         config: [(${config ?:'null'})],
         sourceEntity: [(${sourceEntity ?:'null'})],
         sourceDetailEntity: [(${sourceDetailEntity ?:'null'})],
+        sourceDetailEntities: [(${sourceDetailEntities ?:'null'})],
         targetEntity: [(${targetEntity ?:'null'})],
         targetDetailEntity: [(${targetDetailEntity ?:'null'})],
+        targetDetailEntities: [(${targetDetailEntities ?:'null'})],
       }
     </script>
     <script th:src="@{/assets/js/metadata/field-valueset.js}" type="text/babel"></script>
