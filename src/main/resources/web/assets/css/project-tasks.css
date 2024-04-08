@@ -329,11 +329,11 @@ td.task-user > .avatar img {
 }
 
 .ps-toolbar .input-search .input-group-btn {
-  right: 37px;
+  right: 36px;
 }
 
 .ps-toolbar .input-search input + .btn-input-clear {
-  right: 70px;
+  right: 69px;
 }
 
 .ps-toolbar .dropdown-item-text {
@@ -359,8 +359,8 @@ td.task-user > .avatar img {
   position: absolute;
 }
 
-.ps-toolbar .J_filter .icon {
-  font-size: 1.45rem !important;
+.ps-toolbar .J_filterbtn .icon {
+  font-size: 16px !important;
 }
 
 .plan-list-wrapper {

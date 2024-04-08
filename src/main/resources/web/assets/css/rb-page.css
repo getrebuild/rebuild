@@ -308,6 +308,12 @@ a.link.inline {
   min-width: 36px !important;
 }
 
+.btn.w-auto {
+  padding-left: 8px;
+  padding-right: 8px;
+  text-align: center;
+}
+
 a.btn {
   line-height: 2.68rem;
 }
@@ -667,8 +673,7 @@ div.dataTables_filter .filter-badge:hover .close {
 }
 
 .adv-search .J_filterbtn .icon {
-  margin-top: -3px;
-  font-size: 1.45rem !important;
+  font-size: 16px !important;
 }
 
 .adv-search .dropdown-menu.rb-scroller {

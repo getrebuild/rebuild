@@ -76,7 +76,7 @@ $(document).ready(() => {
 
   // 高级查询
 
-  $('.J_filter').on('click', () => {
+  $('.J_filterbtn').on('click', () => {
     if (__AdvFilter) {
       __AdvFilter.show()
     } else {
