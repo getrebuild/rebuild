@@ -8,14 +8,24 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const wpc = window.__PageConfig
 
+let _AdvFilter
+let _AdvFilter_data
+function _saveFilter(res) {
+  _AdvFilter_data = res
+  if (_AdvFilter_data && _AdvFilter_data.items && _AdvFilter_data.items.length > 0) {
+    $('#useFilter').text(`${$L('已设置条件')} (${_AdvFilter_data.items.length})`)
+  } else {
+    $('#useFilter').text($L('点击设置'))
+  }
+}
+
 $(document).ready(() => {
-  let advFilter
   $('#useFilter').on('click', () => {
-    if (advFilter) {
-      advFilter.show()
+    if (_AdvFilter) {
+      _AdvFilter.show()
     } else {
-      renderRbcomp(<AdvFilter title={$L('转换条件')} inModal canNoFilters entity={wpc.sourceEntity.entity} filter={advFilter_data} confirm={_saveFilter} />, null, function () {
-        advFilter = this
+      renderRbcomp(<AdvFilter title={$L('转换条件')} inModal canNoFilters entity={wpc.sourceEntity.entity} filter={_AdvFilter_data} confirm={_saveFilter} />, null, function () {
+        _AdvFilter = this
       })
     }
   })
@@ -53,7 +63,7 @@ $(document).ready(() => {
       $('.entities-mapping a:eq(0)')[0].click()
     })
 
-    renderRbcomp(<FieldsMapping source={sourceEntity} target={targetEntity} data={data} />, key, function () {
+    renderRbcomp(<FieldsMapping source={sourceEntity} target={targetEntity} data={data} isDetail />, key, function () {
       _FieldsMapping37[key] = this
       if (!data) $tab.find('a')[0].click()
     })
@@ -65,7 +75,7 @@ $(document).ready(() => {
   })
   // 明细
   if (wpc.sourceDetailEntity) {
-    renderRbcomp(<FieldsMapping source={wpc.sourceDetailEntity} target={wpc.targetDetailEntity} data={config.fieldsMappingDetail} />, 'EDETAIL', function () {
+    renderRbcomp(<FieldsMapping source={wpc.sourceDetailEntity} target={wpc.targetDetailEntity} data={config.fieldsMappingDetail} isDetail />, 'EDETAIL', function () {
       // v3.7
       _FieldsMapping2_key = wpc.targetDetailEntity.entity + '_' + wpc.sourceDetailEntity.entity
       _FieldsMapping37[_FieldsMapping2_key] = this
@@ -189,7 +199,7 @@ $(document).ready(() => {
       fieldsMappingDetails: fmdList37,
       fillbackField: $('#fillbackField').val(),
       transformMode: $('#transformMode').prop('checked') ? 2 : 1,
-      useFilter: advFilter_data,
+      useFilter: _AdvFilter_data,
       importsMode: $val('#importsMode'),
       importsFilter: importsFilter || null,
       importsMode2Auto: ($val('#importsMode2Auto1') ? 1 : 0) + ($val('#importsMode2Auto2') ? 2 : 0),
@@ -239,6 +249,7 @@ $(document).ready(() => {
 })
 
 const _VFIXED = 'VFIXED'
+const _AdvFilters = {}
 
 class FieldsMapping extends React.Component {
   constructor(props) {
@@ -248,7 +259,7 @@ class FieldsMapping extends React.Component {
   }
 
   componentDidMount() {
-    const mapping = this.props.data || {}
+    const data = this.props.data || {}
     const that = this
 
     let useVfixed = {}
@@ -281,19 +292,19 @@ class FieldsMapping extends React.Component {
             else $this.parents('.row').removeClass('active')
           })
 
-        if (Array.isArray(mapping[fieldName])) {
+        if (Array.isArray(data[fieldName])) {
           useVfixed[fieldName] = true
         } else {
-          $s2.val(mapping[fieldName] || null).trigger('change')
+          $s2.val(data[fieldName] || null).trigger('change')
         }
       })
 
     this.setState({ useVfixed })
 
-    for (let fieldName in mapping) {
-      if (Array.isArray(mapping[fieldName])) {
+    for (let fieldName in data) {
+      if (Array.isArray(data[fieldName])) {
         if (!this._FieldValueSet[fieldName]) continue
-        this._FieldValueSet[fieldName].setValue(mapping[fieldName][0])
+        this._FieldValueSet[fieldName].setValue(data[fieldName][0])
 
         const $this = $(this._$fieldsMapping).find(`.J_vfixed-${fieldName}`)
         $this.val(_VFIXED)
@@ -316,25 +327,35 @@ class FieldsMapping extends React.Component {
         if (useVfixed[fieldName]) $this.parents('.row').addClass('active')
         else $this.parents('.row').removeClass('active')
       })
+
+    if (data && data._ && data._.filter) {
+      this.setState({ filterData: data._.filter })
+    }
   }
 
   render() {
-    const _source = this.props.source
-    const _target = this.props.target
-
-    if (!_target.fields || _target.fields.length === 0) {
+    const se = this.props.source
+    const te = this.props.target
+    if (!te.fields || te.fields.length === 0) {
       return <RbAlertBox message={$L('无可用字段')} />
     }
 
     return (
       <div ref={(c) => (this._$fieldsMapping = c)}>
         <div className="row title2">
-          <div className="col-4 text-bold">{_target.label}</div>
+          <div className="col-4 text-bold">{te.label}</div>
           <div className="col-2"></div>
-          <div className="col-5 text-bold">{_source.label}</div>
+          <div className="col-5 text-bold">
+            {se.label}
+            {this.props.isDetail && (
+              <a className={`filter ${this.state.filterData && 'active'}`} title={$L('明细转换条件')} onClick={() => this._saveFilter()}>
+                <i className="icon mdi mdi-filter" />
+              </a>
+            )}
+          </div>
         </div>
 
-        {_target.fields.map((item, idx) => {
+        {te.fields.map((item, idx) => {
           const isCommon = item.name === 'owningUser' || item.readonly
           return (
             <div className="row" key={idx}>
@@ -352,7 +373,7 @@ class FieldsMapping extends React.Component {
                   <select className="form-control form-control-sm J_mapping" data-field={item.name} data-req={!item.nullable && !isCommon} />
                 </div>
                 <div className={this.state.useVfixed[item.name] ? '' : 'hide'}>
-                  <FieldValueSet entity={_target.entity} field={item} placeholder={$L('固定值')} defaultValue={null} ref={(c) => (this._FieldValueSet[item.name] = c)} />
+                  <FieldValueSet entity={te.entity} field={item} placeholder={$L('固定值')} defaultValue={null} ref={(c) => (this._FieldValueSet[item.name] = c)} />
                 </div>
               </div>
             </div>
@@ -404,18 +425,31 @@ class FieldsMapping extends React.Component {
     if (!hasMapping) return null
 
     // v3.7
-    mapping['_'] = { target: this.props.target.entity, source: this.props.source.entity, filter: null }
+    mapping['_'] = { target: this.props.target.entity, source: this.props.source.entity, filter: this.state.filterData }
     return mapping
   }
-}
 
-let advFilter_data
-function _saveFilter(res) {
-  advFilter_data = res
-  if (advFilter_data && advFilter_data.items && advFilter_data.items.length > 0) {
-    $('#useFilter').text(`${$L('已设置条件')} (${advFilter_data.items.length})`)
-  } else {
-    $('#useFilter').text($L('点击设置'))
+  _saveFilter() {
+    const key = this.props.target.entity + '_' + this.props.source.entity
+    if (_AdvFilters[key]) {
+      _AdvFilters[key].show()
+    } else {
+      renderRbcomp(
+        <AdvFilter
+          title={$L('明细转换条件')}
+          inModal
+          canNoFilters
+          entity={this.props.source.entity}
+          filter={this.state.filterData}
+          confirm={(res) => {
+            this.setState({ filterData: res && res.items.length > 0 ? res : null })
+          }}
+        />,
+        function () {
+          _AdvFilters[key] = this
+        }
+      )
+    }
   }
 }
 

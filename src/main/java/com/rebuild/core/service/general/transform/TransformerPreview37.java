@@ -73,9 +73,12 @@ public class TransformerPreview37 extends TransformerPreview {
             if (!detailName.equalsIgnoreCase(dTargetEntity.getName())) continue;
 
             String sql = String.format(
-                    "select %s from %s where %s = '%s' order by autoId asc",
+                    "select %s from %s where %s = '%s' and (1=1) order by autoId asc",
                     dSourceEntity.getPrimaryField().getName(), dSourceEntity.getName(),
                     MetadataHelper.getDetailToMainField(dSourceEntity).getName(), sourceId);
+            String filter = RecordTransfomer37.appendFilter(fmd);
+            if (filter != null) sql = sql.replace("(1=1)", filter);
+
             Object[][] dArray = Application.createQueryNoFilter(sql).array();
 
             ID fakeMainid = EntityHelper.newUnsavedId(sourceEntity.getEntityCode());

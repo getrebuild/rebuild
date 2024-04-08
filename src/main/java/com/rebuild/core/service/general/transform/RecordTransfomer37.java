@@ -17,6 +17,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.service.query.AdvFilterParser;
+import com.rebuild.core.service.query.ParseHelper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -73,9 +75,11 @@ public class RecordTransfomer37 extends RecordTransfomer {
                 Entity dTargetEntity = fmdEntity[0];
                 Entity dSourceEntity = fmdEntity[1];
                 String sql = String.format(
-                        "select %s from %s where %s = '%s' order by autoId asc",
+                        "select %s from %s where %s = '%s' and (1=1) order by autoId asc",
                         dSourceEntity.getPrimaryField().getName(), dSourceEntity.getName(),
                         MetadataHelper.getDetailToMainField(dSourceEntity).getName(), sourceRecordId);
+                String filter = appendFilter(fmd);
+                if (filter != null) sql = sql.replace("(1=1)", filter);
 
                 Object[][] dArray = Application.createQueryNoFilter(sql).array();
                 for (Object[] d : dArray) {
@@ -128,5 +132,19 @@ public class RecordTransfomer37 extends RecordTransfomer {
         }
 
         return new Entity[] { MetadataHelper.getEntity(dTargetEntity), MetadataHelper.getEntity(dSourceEntity) };
+    }
+
+    /**
+     * @param fmd
+     * @return
+     */
+    protected static String appendFilter(JSONObject fmd) {
+        JSONObject fmdMeta = fmd.getJSONObject("_");
+        JSONObject hasFilter = fmdMeta.getJSONObject("filter");
+
+        if (ParseHelper.validAdvFilter(hasFilter)) {
+            return new AdvFilterParser(hasFilter).toSqlWhere();
+        }
+        return null;
     }
 }
