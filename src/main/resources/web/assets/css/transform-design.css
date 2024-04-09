@@ -1,0 +1,150 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+.entities-mapping > li.nav-item a.nav-link,
+.entities-mapping > li.nav-item a.nav-link > span {
+  position: relative;
+}
+
+.entities-mapping > li.nav-item a.nav-link {
+  padding: 8px 15px;
+  max-width: 240px;
+}
+
+.fields-mapping .row > div {
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.fields-mapping span.badge {
+  font-size: 1rem;
+  padding: 4px 10px;
+  font-weight: normal;
+  margin-top: 4px;
+}
+
+.fields-mapping span.badge.req {
+  border-left: 3px solid #ea4335;
+}
+
+.fields-mapping span.badge.readonly {
+  border-left: 3px solid #bbb;
+}
+
+.fields-mapping span.badge::before,
+.entities-mapping > li.nav-item a > span::before {
+  content: '\f2fd';
+  font-family: 'Material-Design-Iconic-Font', serif;
+  position: absolute;
+  right: 0;
+  color: #aaa;
+  transform: rotate(180deg);
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-top: -2px;
+}
+
+.entities-mapping > li.nav-item a.nav-link > span {
+  margin-left: 20px;
+  margin-right: 5px;
+  line-height: 1;
+}
+
+.entities-mapping > li.nav-item a.nav-link > span::before {
+  right: auto;
+  left: -15px;
+  margin-top: 2.5px;
+  color: inherit;
+  font-size: 1rem;
+}
+
+.entities-mapping > li.nav-item a.nav-link > em {
+  position: absolute;
+  right: 0;
+  font-size: 17px !important;
+  margin: 0 !important;
+  margin-top: 1px !important;
+  display: none;
+}
+
+.entities-mapping > li.nav-item a.nav-link > em:hover {
+  opacity: 0.8;
+}
+
+.entities-mapping > li.nav-item a.nav-link:hover > em {
+  display: inline-block;
+}
+
+.fields-mapping .row.active span.badge::before {
+  color: #fbbc05;
+}
+
+.fields-mapping .row::after {
+  content: ' ';
+  height: 1px;
+  width: 100%;
+  border-bottom: 1px dotted #dee2e6;
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+.fields-mapping .row.title2::after {
+  border-bottom: 1px solid #dee2e6;
+}
+
+#filterFields {
+  background-color: #f7f7f7;
+  border-radius: 3px;
+  padding: 20px 25px;
+  padding-top: 10px;
+  max-width: 1000px;
+}
+
+#filterFields .badge {
+  border-radius: 0;
+  padding: 3px 10px;
+  position: relative;
+  font-size: 1rem;
+}
+
+#filterFields .badge::after {
+  position: absolute;
+  width: 0;
+  height: 0;
+  content: '';
+  transform: rotate(45deg);
+  border: 4px solid #fff;
+  top: -4px;
+  right: -4px;
+}
+
+#filterFields .mdi {
+  position: absolute;
+  right: -2px;
+  font-size: 1.25rem;
+  color: #aaa;
+  top: 10px;
+}
+
+form.field-attr {
+  width: 500px;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.row.title2 a.filter {
+  color: #999;
+  margin-left: 10px;
+  margin-top: -2px;
+  position: absolute;
+  font-size: 16px;
+}
+
+.row.title2 a.filter:hover,
+.row.title2 a.filter.active {
+  color: #4285f4;
+}

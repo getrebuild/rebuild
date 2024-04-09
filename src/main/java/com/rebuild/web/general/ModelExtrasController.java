@@ -32,6 +32,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.general.transform.RecordTransfomer;
+import com.rebuild.core.service.general.transform.RecordTransfomer37;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.i18n.I18nUtils;
@@ -83,7 +84,7 @@ public class ModelExtrasController extends BaseController {
         ID sourceRecord = getIdParameterNotNull(request, "source");
         ID mainid = getIdParameter(request, "mainid");
 
-        RecordTransfomer transfomer = new RecordTransfomer(transid);
+        RecordTransfomer transfomer = new RecordTransfomer37(transid);
         if (!transfomer.checkFilter(sourceRecord)) {
             return RespBody.error(Language.L("当前记录不符合转换条件"), 400);
         }

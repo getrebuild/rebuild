@@ -303,8 +303,15 @@ a.link.inline {
 }
 
 .btn-group.w-auto > .btn,
-.btn.w-auto {
+.btn.w-auto,
+.nav-link.w-auto {
   min-width: 36px !important;
+}
+
+.btn.w-auto {
+  padding-left: 8px;
+  padding-right: 8px;
+  text-align: center;
 }
 
 a.btn {
@@ -489,8 +496,8 @@ a.btn {
 }
 
 .adv-search button .indicator-primary {
-  top: 3px;
-  right: 3px;
+  top: 5px;
+  right: 5px;
 }
 
 .input-search .input-group-btn.plus {
@@ -666,8 +673,7 @@ div.dataTables_filter .filter-badge:hover .close {
 }
 
 .adv-search .J_filterbtn .icon {
-  margin-top: -3px;
-  font-size: 1.45rem !important;
+  font-size: 16px !important;
 }
 
 .adv-search .dropdown-menu.rb-scroller {
@@ -1654,7 +1660,7 @@ i.dividing.ui-draggable-dragging {
 
 .data-list .table td div .badge {
   font-weight: normal;
-  font-size: 13px;
+  font-size: 12px;
   padding: 1px 6px;
   line-height: 17px;
 }
@@ -5593,17 +5599,25 @@ span.icon-append .icon {
   outline: none;
   border: 0 none;
   border-bottom: 1px solid #d5d8de;
-  padding: 2px 20px;
-  padding-bottom: 6px;
+  padding: 2px 20px 6px;
   width: 100%;
 }
 
 .dropdown-menu .searchbox::after {
-  font-family: 'Material-Design-Iconic-Font';
+  font-family: 'Material-Design-Iconic-Font', serif;
   content: '\f1c3';
   position: absolute;
   right: 18px;
   top: 1px;
   color: #bbb;
   font-size: 18px;
+}
+
+.light-link {
+  color: #404040 !important;
+  border-bottom: 1px dotted #4285f4;
+}
+
+.light-link:hover {
+  border-bottom-style: solid;
 }

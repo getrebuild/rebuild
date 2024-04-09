@@ -7,8 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const wpc = window.__PageConfig
 
-let __PlanBoxes
-let __AdvFilter
+let _PlanBoxes
+let _AdvFilter
 
 $(document).ready(() => {
   let gs = $urlp('gs', location.hash)
@@ -39,13 +39,13 @@ $(document).ready(() => {
     $('.J_sorts .dropdown-item[data-group], .J_sorts .dropdown-item-text:eq(1)').remove()
 
     renderRbcomp(<PlanBoxesList readonly={readonly} search={gs} projectId={wpc.id} id="0-0" />, 'plan-boxes', function () {
-      __PlanBoxes = this
+      _PlanBoxes = this
       _renderAfter()
     })
   } else {
     $('.J_view .dropdown-item:eq(0)').addClass('check')
     renderRbcomp(<PlanBoxes plans={wpc.projectPlans} readonly={readonly} search={gs} projectId={wpc.id} sortable={viewGroup === 'plan'} />, 'plan-boxes', function () {
-      __PlanBoxes = this
+      _PlanBoxes = this
       __pageDraggable()
       _renderAfter()
     })
@@ -54,7 +54,7 @@ $(document).ready(() => {
   // 排序
   const $sorts = $('.J_sorts .dropdown-item[data-sort]').on('click', function () {
     const $this = $(this)
-    __PlanBoxes.setState({ sort: $this.data('sort') })
+    _PlanBoxes.setState({ sort: $this.data('sort') })
     $sorts.removeClass('check')
     $this.addClass('check')
   })
@@ -64,7 +64,7 @@ $(document).ready(() => {
 
   // 搜索
   const $btn2 = $('.J_search .btn:eq(1)').on('click', () => {
-    __PlanBoxes.setState({ search: $('.J_search input').val() || null })
+    _PlanBoxes.setState({ search: $('.J_search input').val() || null })
   })
   const $input2 = $('.J_search>input').on('keydown', (e) => {
     e.keyCode === 13 && $btn2.trigger('click')
@@ -76,9 +76,9 @@ $(document).ready(() => {
 
   // 高级查询
 
-  $('.J_filter').on('click', () => {
-    if (__AdvFilter) {
-      __AdvFilter.show()
+  $('.J_filterbtn').on('click', () => {
+    if (_AdvFilter) {
+      _AdvFilter.show()
     } else {
       renderRbcomp(
         <TasksAdvFilter
@@ -87,14 +87,14 @@ $(document).ready(() => {
           inModal
           canNoFilters
           onConfirm={(s) => {
-            __PlanBoxes.setState({ filter: s })
+            _PlanBoxes.setState({ filter: s })
             if (s && (s.items || []).length > 0) $('.J_search .indicator-primary').removeClass('hide')
             else $('.J_search .indicator-primary').addClass('hide')
           }}
         />,
         null,
         function () {
-          __AdvFilter = this
+          _AdvFilter = this
         }
       )
     }
@@ -150,11 +150,11 @@ class PlanBoxes extends React.Component {
         placeholder: 'task-card highlight',
         revert: false,
         delay: 200,
-        start: function (event, ui) {
+        start: function (e, ui) {
           ui.placeholder.height(ui.helper.height())
           startState = 1
         },
-        update: function (event, ui) {
+        update: function (e, ui) {
           if (startState !== 1) return
           startState = 0
 
@@ -346,11 +346,9 @@ class PlanBox extends React.Component {
       this.pageSize = Math.max((this.state.tasks || []).length + 1, __DEFAULT_PAGE_SIZE)
     }
 
-    const url = `/project/tasks/list?plan=${this.props.id}&sort=${this.state.sort || this.props.sort || ''}&search=${$encode(this.state.search || this.props.search || '')}&pageNo=${
-      this.pageNo
-    }&pageSize=${this.pageSize}&project=${this.props.projectId}`
-
-    $.post(url, JSON.stringify(this.props.filter), (res) => {
+    const ps = this._useState ? this.state : this.props
+    const url = `/project/tasks/list?plan=${this.props.id}&sort=${ps.sort || ''}&search=${$encode(ps.search)}&pageNo=${this.pageNo}&pageSize=${this.pageSize}&project=${this.props.projectId}`
+    $.post(url, JSON.stringify(ps.filter), (res) => {
       if (res.error_code === 0) {
         const ns = isAppend ? (this.state.tasks || []).concat(res.data.tasks) : res.data.tasks
         const _state = { tasks: ns }
@@ -612,9 +610,14 @@ const __pageDraggable = function () {
 // ~~ 列表模式
 
 class PlanBoxesList extends PlanBox {
+  constructor(props) {
+    super(props)
+    this._useState = true
+  }
+
   render() {
     return (
-      <div className="plan-list-wrapper shadow rounded">
+      <div className="plan-list-wrapper">
         <div className="rb-scroller" data-planid={this.props.id}>
           <table className="table m-0">
             <thead>

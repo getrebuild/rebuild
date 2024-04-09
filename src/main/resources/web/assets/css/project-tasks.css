@@ -329,11 +329,11 @@ td.task-user > .avatar img {
 }
 
 .ps-toolbar .input-search .input-group-btn {
-  right: 37px;
+  right: 36px;
 }
 
 .ps-toolbar .input-search input + .btn-input-clear {
-  right: 70px;
+  right: 69px;
 }
 
 .ps-toolbar .dropdown-item-text {
@@ -359,15 +359,18 @@ td.task-user > .avatar img {
   position: absolute;
 }
 
-.ps-toolbar .J_filter .icon {
-  font-size: 1.45rem !important;
+.ps-toolbar .J_filterbtn .icon {
+  font-size: 16px !important;
 }
 
 .plan-list-wrapper {
   width: 980px;
   margin: 20px auto;
+  margin-bottom: 7px;
   background-color: #fff;
   border-radius: 4px;
+  box-shadow: 0 18px 30px -16px rgba(157, 159, 169, 0.31);
+  border-radius: 6px;
 }
 
 .plan-list-wrapper table thead th {
@@ -378,6 +381,10 @@ td.task-user > .avatar img {
 .plan-list-wrapper table tbody tr:hover {
   background-color: #eee;
   cursor: pointer;
+}
+
+.plan-list-wrapper table tbody tr:last-child {
+  border: 1px solid #dee2e6;
 }
 
 .plan-list-wrapper table th {

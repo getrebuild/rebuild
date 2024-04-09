@@ -224,17 +224,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-bottom: 5px;
 }
 
-.attachment > .file-field .img-thumbnail,
-.rich-content > .file-field .img-thumbnail {
-  width: 49.5%;
-  margin-right: 1%;
-}
-
-.attachment > .file-field .img-thumbnail:nth-child(even),
-.rich-content > .file-field .img-thumbnail:nth-child(even) {
-  margin-right: 0;
-}
-
 .rich-content > .img-field .img-thumbnail:hover,
 .rich-content > .file-field .img-thumbnail:hover {
   opacity: 0.8;

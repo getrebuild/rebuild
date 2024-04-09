@@ -28,7 +28,11 @@ class ApprovalList extends ConfigList {
               <td>
                 <a href={`approval/${item[0]}`}>{item[3]}</a>
               </td>
-              <td>{item[2] || item[1]}</td>
+              <td>
+                <a href={`${rb.baseUrl}/admin/entity/${item[1]}/base`} className="light-link" target={`_${item[1]}`}>
+                  {item[2] || item[1]}
+                </a>
+              </td>
               <td className={`J_state-${item[0]}`}>..</td>
               <td>{ShowEnable(item[4])}</td>
               <td>

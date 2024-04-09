@@ -51,9 +51,9 @@ import java.util.Objects;
 @Slf4j
 public class RecordTransfomer extends SetUser {
 
-    final private Entity targetEntity;
-    final private JSONObject transConfig;
-    final private boolean skipGuard;
+    final protected Entity targetEntity;
+    final protected JSONObject transConfig;
+    final protected boolean skipGuard;
 
     /**
      * @param transid
@@ -77,6 +77,8 @@ public class RecordTransfomer extends SetUser {
     }
 
     /**
+     * 是否符合转换条件
+     *
      * @param sourceRecordId
      * @return
      * @see FilterRecordChecker
@@ -143,12 +145,13 @@ public class RecordTransfomer extends SetUser {
         // 为保持兼容性，此选项不启用，即入参保持为 false，如有需要可指定为 true
         final boolean checkNullable = transConfig.getBooleanValue("checkNullable35");
 
-        Record main = transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId, dvMap, false, false, checkNullable);
+        Record mainRecord = transformRecord(
+                sourceEntity, targetEntity, fieldsMapping, sourceRecordId, dvMap, false, false, checkNullable);
         ID theNewId;
 
         // v3.5 需要先回填
         // 因为可能以回填字段作为条件进行转换一次判断
-        final boolean fillbackFix = fillback(sourceRecordId, EntityHelper.newUnsavedId(main.getEntity().getEntityCode()));
+        final boolean fillbackFix = fillback(sourceRecordId, EntityHelper.newUnsavedId(mainRecord.getEntity().getEntityCode()));
 
         // 有多条（主+明细）
         if (sourceDetails != null && sourceDetails.length > 0) {
@@ -159,9 +162,9 @@ public class RecordTransfomer extends SetUser {
                         transformRecord(sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) d[0], null, false, false, checkNullable));
             }
 
-            theNewId = saveRecord(main, detailsList);
+            theNewId = saveRecord(mainRecord, detailsList);
         } else {
-            theNewId = saveRecord(main, null);
+            theNewId = saveRecord(mainRecord, null);
         }
 
         // 回填修正
@@ -170,10 +173,8 @@ public class RecordTransfomer extends SetUser {
         return theNewId;
     }
 
-    private ID saveRecord(Record record, List<Record> detailsList) {
-        if (this.skipGuard) {
-            PrivilegesGuardContextHolder.setSkipGuard(EntityHelper.UNSAVED_ID);
-        }
+    protected ID saveRecord(Record record, List<Record> detailsList) {
+        if (this.skipGuard) PrivilegesGuardContextHolder.setSkipGuard(EntityHelper.UNSAVED_ID);
 
         if (detailsList != null && !detailsList.isEmpty()) {
             record.setObjectValue(GeneralEntityService.HAS_DETAILS, detailsList);
@@ -239,6 +240,8 @@ public class RecordTransfomer extends SetUser {
     protected Record transformRecord(
             Entity sourceEntity, Entity targetEntity, JSONObject fieldsMapping,
             ID sourceRecordId, Map<String, Object> defaultValue, boolean ignoreUncreateable, boolean forceNullValue, boolean checkNullable) {
+        // v3.7 clean
+        fieldsMapping.remove("_");
 
         Record target = EntityHelper.forNew(targetEntity.getEntityCode(), getUser());
 
@@ -315,6 +318,7 @@ public class RecordTransfomer extends SetUser {
         for (Object field : fields) {
             if (field == null) continue;
             if (field instanceof JSONArray) continue;  // VFIXED
+            if (field instanceof JSONObject) continue;  // `_`
 
             if (MetadataHelper.getLastJoinField(entity, (String) field) != null) {
                 valid.add((String) field);

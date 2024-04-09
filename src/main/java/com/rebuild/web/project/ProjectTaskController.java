@@ -106,7 +106,8 @@ public class ProjectTaskController extends BaseController {
 
             // 搜编号
             if (search.matches("^([A-Za-z]{2,4}-)?[0-9]{1,9}")) {
-                queryWhere += " or taskNumber = " + search.split("-")[0];
+                String[] no = search.split("-");
+                queryWhere += " or taskNumber = " + (no.length > 1 ? no[1] : no[0]);
             }
             queryWhere += ")";
         }

@@ -559,7 +559,7 @@ class ValueAttachments extends ValueComp {
     return (
       <RF>
         <div className="form-control-plaintext">
-          <input type="file" className="inputfile" id="attachments" ref={(c) => (this._attachments = c)} />
+          <input type="file" className="inputfile" id="attachments" ref={(c) => (this._attachments = c)} multiple />
           <label htmlFor="attachments" style={{ padding: 0, border: 0, lineHeight: 1, marginBottom: 0 }}>
             <a className="tag-value upload hover">+ {$L('上传')}</a>
           </label>
@@ -611,16 +611,15 @@ class ValueAttachments extends ValueComp {
   }
 
   componentDidMount() {
-    $createUploader(
-      this._attachments,
-      () => $mp.start(),
-      (res) => {
-        $mp.end()
-        const s = (this.state.attachments || []).slice(0)
-        s.push(res.key)
-        this.handleChange({ target: { name: 'attachments', value: s } })
+    $multipleUploader(this._attachments, (res) => {
+      const fs = (this.state.attachments || []).slice(0)
+      let hasByName = $fileCutName(res.key)
+      hasByName = fs.find((x) => $fileCutName(x) === hasByName)
+      if (!hasByName) {
+        fs.push(res.key)
+        this.handleChange({ target: { name: 'attachments', value: fs } })
       }
-    )
+    })
   }
 }
 
@@ -1146,7 +1145,7 @@ class RichTextEditor extends React.Component {
           </div>
         </div>
         <span className="hide">
-          <input type="file" ref={(c) => (this._$fileInput = c)} />
+          <input type="file" ref={(c) => (this._$fileInput = c)} multiple />
         </span>
 
         {(this.state.files || []).length > 0 && (
@@ -1177,28 +1176,15 @@ class RichTextEditor extends React.Component {
     autosize(this._$editor)
     setTimeout(() => this.props.initValue && autosize.update(this._$editor), 200)
 
-    let mp
-    const mp_end = function () {
-      setTimeout(() => {
-        if (mp) mp.end()
-        mp = null
-      }, 510)
-    }
-
-    $createUploader(
-      this._$fileInput,
-      (res) => {
-        if (!mp) mp = new Mprogress({ template: 2, start: true })
-        mp.set(res.percent / 100)
-      },
-      (res) => {
-        mp_end()
-        const files = this.state.files || []
-        files.push(res.key)
-        this.setState({ files: files })
-      },
-      () => mp_end()
-    )
+    $multipleUploader(this._$fileInput, (res) => {
+      const fs = (this.state.files || []).slice(0)
+      let hasByName = $fileCutName(res.key)
+      hasByName = fs.find((x) => $fileCutName(x) === hasByName)
+      if (!hasByName) {
+        fs.push(res.key)
+        this.setState({ files: fs })
+      }
+    })
   }
 
   _selectEmoji(emoji) {

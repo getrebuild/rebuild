@@ -19,6 +19,7 @@ import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.OshiUtils;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -71,8 +72,9 @@ public class ErrorPageView extends BaseController {
         mv.getModelMap().put("isAdminVerified", AppUtils.isAdminVerified(request));
         mv.getModelMap().put("SN", License.SN() + "/" + OshiUtils.getLocalIp() + "/" + ServerStatus.STARTUP_ONCE);
 
+        String specDisks = StringUtils.defaultIfBlank(request.getParameter("disks"), null);
         StringBuilder disksDesc = new StringBuilder();
-        for (Object[] d : OshiUtils.getDisksUsed()) {
+        for (Object[] d : OshiUtils.getDisksUsed(specDisks == null ? ArrayUtils.EMPTY_STRING_ARRAY : specDisks.split(","))) {
             //noinspection MalformedFormatString
             disksDesc.append(String.format(" $%s:%.1f%%:%.1fGB", d[2], d[1], d[0]));
         }
@@ -98,7 +100,8 @@ public class ErrorPageView extends BaseController {
         status.put("MemoryUsage", OshiUtils.getOsMemoryUsed()[1]);
         status.put("SystemLoad", OshiUtils.getSystemLoad());
 
-        List<Object[]> disksUsed = OshiUtils.getDisksUsed();
+        String specDisks = StringUtils.defaultIfBlank(request.getParameter("disks"), null);
+        List<Object[]> disksUsed = OshiUtils.getDisksUsed(specDisks == null ? ArrayUtils.EMPTY_STRING_ARRAY : specDisks.split(","));
         double diskWarning = 0;
         for (Object[] d : disksUsed) {
             if ((double) d[1] >= 80) diskWarning = (double) d[1];

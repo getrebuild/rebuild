@@ -251,8 +251,8 @@ class FeedsEditor extends React.Component {
           </div>
         </div>
         <span className="hide">
-          <input type="file" ref={(c) => (this._$fileInput = c)} />
-          <input type="file" ref={(c) => (this._$imageInput = c)} accept="image/*" />
+          <input type="file" ref={(c) => (this._$fileInput = c)} multiple />
+          <input type="file" ref={(c) => (this._$imageInput = c)} multiple accept="image/*" />
         </span>
 
         {this.state.type === 4 && <ScheduleOptions ref={(c) => (this._scheduleOptions = c)} initValue={this.state.contentMore} contentMore={this.state.contentMore} />}
@@ -312,43 +312,19 @@ class FeedsEditor extends React.Component {
     autosize(this._$editor)
     setTimeout(() => this.props.initValue && autosize.update(this._$editor), 200)
 
-    let mp
-    const mp_end = function () {
-      setTimeout(() => {
-        if (mp) mp.end()
-        mp = null
-      }, 510)
+    const that = this
+    const _complete = function (res, name) {
+      const fs = that.state[name] || []
+      let hasByName = $fileCutName(res.key)
+      hasByName = fs.find((x) => $fileCutName(x) === hasByName)
+      if (!hasByName) {
+        fs.push(res.key)
+        that.setState({ [name]: fs })
+      }
     }
 
-    $createUploader(
-      this._$imageInput,
-      (res) => {
-        if (!mp) mp = new Mprogress({ template: 2, start: true })
-        mp.set(res.percent / 100)
-      },
-      (res) => {
-        mp_end()
-        const images = this.state.images || []
-        images.push(res.key)
-        this.setState({ images: images })
-      },
-      () => mp_end()
-    )
-
-    $createUploader(
-      this._$fileInput,
-      (res) => {
-        if (!mp) mp = new Mprogress({ template: 2, start: true })
-        mp.set(res.percent / 100)
-      },
-      (res) => {
-        mp_end()
-        const files = this.state.files || []
-        files.push(res.key)
-        this.setState({ files: files })
-      },
-      () => mp_end()
-    )
+    $multipleUploader(this._$imageInput, (res) => _complete(res, 'images'))
+    $multipleUploader(this._$fileInput, (res) => _complete(res, 'files'))
   }
 
   _selectEmoji(emoji) {

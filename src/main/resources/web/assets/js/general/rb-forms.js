@@ -312,7 +312,7 @@ class RbForm extends React.Component {
     // 记录转换:预览模式
     const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
 
-    // FIXME ND导入仅支持第一个
+    // v3.7 ND
     const detailImports = this.props.rawModel.detailImports
 
     this._ProTables = {}
@@ -320,7 +320,7 @@ class RbForm extends React.Component {
     return (
       <RF>
         {this.props.rawModel.detailMetas.map((item, idx) => {
-          return <RF key={idx}>{this.renderDetailsForm(item, idx === 0 ? detailImports : null, previewid)}</RF>
+          return <RF key={idx}>{this.renderDetailsForm(item, detailImports, previewid)}</RF>
         })}
       </RF>
     )
@@ -367,6 +367,8 @@ class RbForm extends React.Component {
     if (detailImports) {
       let ifAutoReady = false
       detailImports.forEach((item) => {
+        if (item.detailName !== detailMeta.entity) return
+
         const diConf = {
           icon: item.icon,
           label: item.transName || item.entityLabel,
@@ -397,10 +399,12 @@ class RbForm extends React.Component {
             })
           },
         }
+
         _detailImports.push(diConf)
 
         // v3.7 ifAuto
-        if ((this.isNew && (item.auto === 1 || item.auto === 3)) || (!this.isNew && (item.auto === 2 || item.auto === 3))) {
+        // 如果一个明细实体有多个配置，仅第一个生效
+        if (item.auto === 3 || (this.isNew && item.auto === 1) || (!this.isNew && item.auto === 2)) {
           if (!ifAutoReady) {
             ifAutoReady = true
             let ifAutoReady_timer
@@ -1636,40 +1640,18 @@ class RbFormImage extends RbFormElement {
         return
       }
 
-      let mp
-      let mp_inpro = []
-      const mp_end = function (name) {
-        if (mp_inpro === 0) mp_inpro = []
-        else mp_inpro.remove(name)
-        if (mp_inpro.length > 0) return
-        setTimeout(() => {
-          if (mp) mp.end()
-          mp = null
-        }, 510)
-      }
-
-      $createUploader(
-        this._fieldValue__input,
-        (res) => {
-          if (!mp_inpro.includes(res.file.name)) mp_inpro.push(res.file.name)
-          if (!mp) mp = new Mprogress({ template: 2, start: true })
-          mp.set(res.percent / 100) // 0.x
-        },
-        (res) => {
-          mp_end(res.file.name)
-          const paths = this.state.value || []
-          // 最多上传，多余忽略
-          if (paths.length < this.__maxUpload) {
-            let hasByName = $fileCutName(res.key)
-            hasByName = paths.find((x) => $fileCutName(x) === hasByName)
-            if (!hasByName) {
-              paths.push(res.key)
-              this.handleChange({ target: { value: paths } }, true)
-            }
+      $multipleUploader(this._fieldValue__input, (res) => {
+        const paths = this.state.value || []
+        // 最多上传，多余忽略
+        if (paths.length < this.__maxUpload) {
+          let hasByName = $fileCutName(res.key)
+          hasByName = paths.find((x) => $fileCutName(x) === hasByName)
+          if (!hasByName) {
+            paths.push(res.key)
+            this.handleChange({ target: { value: paths } }, true)
           }
-        },
-        () => mp_end(0)
-      )
+        }
+      })
 
       // 拖拽上传
       if (this._$dropArea && !this.props.imageCapture) {

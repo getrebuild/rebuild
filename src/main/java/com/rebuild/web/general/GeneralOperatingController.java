@@ -35,7 +35,7 @@ import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.RecordDifference;
 import com.rebuild.core.service.general.RepeatedRecordsException;
-import com.rebuild.core.service.general.transform.TransformerPreview;
+import com.rebuild.core.service.general.transform.TransformerPreview37;
 import com.rebuild.core.service.trigger.DataValidateException;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
@@ -179,7 +179,7 @@ public class GeneralOperatingController extends BaseController {
         String previewid = request.getParameter("previewid");
         if (isNew && StringUtils.isNotBlank(previewid)) {
             try {
-                new TransformerPreview(previewid, user).fillback(record.getPrimary());
+                new TransformerPreview37(previewid, user).fillback(record.getPrimary());
             } catch (Exception ex) {
                 log.error("Transformer fillback error!", ex);
             }
