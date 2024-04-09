@@ -735,7 +735,6 @@ class PlanBoxesList extends PlanBox {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log(prevState.sort, this.state.sort, prevState.search, this.state.search, prevState.filter, this.state.filter)
     if (prevState.sort !== this.state.sort || prevState.search !== this.state.search || !$same(prevState.filter, this.state.filter)) {
       this.refreshTasks()
     }
