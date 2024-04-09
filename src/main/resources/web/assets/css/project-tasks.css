@@ -366,8 +366,11 @@ td.task-user > .avatar img {
 .plan-list-wrapper {
   width: 980px;
   margin: 20px auto;
+  margin-bottom: 7px;
   background-color: #fff;
   border-radius: 4px;
+  box-shadow: 0 18px 30px -16px rgba(157, 159, 169, 0.31);
+  border-radius: 6px;
 }
 
 .plan-list-wrapper table thead th {
@@ -378,6 +381,10 @@ td.task-user > .avatar img {
 .plan-list-wrapper table tbody tr:hover {
   background-color: #eee;
   cursor: pointer;
+}
+
+.plan-list-wrapper table tbody tr:last-child {
+  border: 1px solid #dee2e6;
 }
 
 .plan-list-wrapper table th {
