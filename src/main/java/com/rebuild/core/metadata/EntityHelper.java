@@ -274,7 +274,7 @@ public class EntityHelper {
     public static final String ApprovalId = "approvalId";
     public static final String ApprovalState = "approvalState";
     public static final String ApprovalStepNode = "approvalStepNode";
-    public static final String ApprovalStepNodeName = "ApprovalStepNodeName";
+    public static final String ApprovalStepNodeName = "approvalStepNodeName";
     public static final String ApprovalStepUsers = "approvalStepUsers";
     public static final String ApprovalLastUser = "approvalLastUser";
     public static final String ApprovalLastTime = "approvalLastTime";
