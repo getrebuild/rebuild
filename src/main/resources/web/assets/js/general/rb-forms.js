@@ -403,7 +403,8 @@ class RbForm extends React.Component {
         _detailImports.push(diConf)
 
         // v3.7 ifAuto
-        if ((this.isNew && (item.auto === 1 || item.auto === 3)) || (!this.isNew && (item.auto === 2 || item.auto === 3))) {
+        // 如果一个明细实体有多个配置，仅第一个生效
+        if (item.auto === 3 || (this.isNew && item.auto === 1) || (!this.isNew && item.auto === 2)) {
           if (!ifAutoReady) {
             ifAutoReady = true
             let ifAutoReady_timer

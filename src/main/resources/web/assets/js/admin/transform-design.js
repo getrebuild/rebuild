@@ -188,7 +188,7 @@ $(document).ready(() => {
     if (importsMode) {
       importsFilter = _ImportsFilterMapping.buildFilter()
       if (importsFilter.length === 0) {
-        tips.push($L('明细记录导入条件未配置，将导入源实体的所有记录'))
+        tips.push($L('明细记录导入规则未配置，将导入源实体的所有记录'))
       }
     }
 
