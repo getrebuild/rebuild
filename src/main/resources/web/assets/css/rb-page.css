@@ -3162,17 +3162,17 @@ form {
   font-weight: normal;
 }
 
-.approval-pane .alert .message {
+.approval-toolbar .alert .message {
   padding: 10px 10px 10px 0;
 }
 
-.approval-pane .alert > .close {
+.approval-toolbar .alert > .close {
   top: 0;
   opacity: 1;
   padding: 0;
 }
 
-.approval-pane .alert > .close .btn {
+.approval-toolbar .alert > .close .btn {
   padding: 8px 0;
   font-size: 12px;
   line-height: 1.1;
@@ -3182,7 +3182,7 @@ form {
   border: 0 none;
 }
 
-.approval-pane .alert > .close > .btn + .btn {
+.approval-toolbar .alert > .close > .btn + .btn {
   margin-left: 10px;
 }
 
