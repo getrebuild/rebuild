@@ -334,7 +334,7 @@ create table if not exists `attachment` (
   `BELONG_ENTITY`      smallint(6) default '0' comment '所属实体',
   `BELONG_FIELD`       varchar(100) comment '所属字段',
   `RELATED_RECORD`     char(20) comment '相关记录',
-  `FILE_PATH`          varchar(191) not null comment '文件路径',
+  `FILE_PATH`          varchar(300) not null comment '文件路径',
   `FILE_TYPE`          varchar(20) comment '文件类型',
   `FILE_SIZE`          int(11) default '0' comment '文件大小',
   `FILE_NAME`          varchar(100) comment '文件名称',
