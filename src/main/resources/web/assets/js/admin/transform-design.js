@@ -538,7 +538,7 @@ class ImportsFilterMapping extends React.Component {
 class DlgAddDts extends RbAlert {
   renderContent() {
     return (
-      <form className="field-attr" ref={(c) => (this._$form = c)}>
+      <form className="rbalert-form-sm" ref={(c) => (this._$form = c)}>
         <div className="form-group">
           <label>{$L('选择源实体')}</label>
           <select className="form-control form-control-sm">

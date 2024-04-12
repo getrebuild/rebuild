@@ -793,6 +793,38 @@ create table if not exists `extform_config` (
   primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
+-- ************ Entity [RobotSopConfig] DDL ************
+create table if not exists `robot_sop_config` (
+  `CONFIG_ID`          char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '应用实体',
+  `NAME`               varchar(100) not null comment '流程名称',
+  `SOP_DEFINITION`     text(65535) comment '流程定义',
+  `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  primary key  (`CONFIG_ID`)
+)Engine=InnoDB;
+
+-- ************ Entity [RobotSopStep] DDL ************
+create table if not exists `robot_sop_step` (
+  `STEP_ID`            char(20) not null,
+  `RECORD_ID`          char(20) not null comment '业务记录',
+  `SOP_ID`             char(20) not null comment '操作流程',
+  `NODE`               varchar(100) not null comment '流程节点',
+  `PREV_NODE`          varchar(100) not null comment '上一流程节点',
+  `OPERATOR`           char(20) not null comment '操作人',
+  `OPERATION_TIME`     timestamp not null default current_timestamp comment '操作时间',
+  `OPERATION_CONTENT`  text(65535) comment '操作内容',
+  `STATE`              smallint(6) default '1' comment '状态',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  primary key  (`STEP_ID`)
+)Engine=InnoDB;
+
 -- ************ Entity [TagItem] DDL ************
 create table if not exists `tag_item` (
   `ITEM_ID`            char(20) not null,
@@ -900,4 +932,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 56);
+  values ('021-9000000000000001', 'DBVer', 57);

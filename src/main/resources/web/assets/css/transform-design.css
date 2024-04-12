@@ -130,12 +130,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   top: 10px;
 }
 
-form.field-attr {
-  width: 500px;
-  max-width: 440px;
-  margin: 0 auto;
-}
-
 .row.title2 a.filter {
   color: #999;
   margin-left: 10px;
