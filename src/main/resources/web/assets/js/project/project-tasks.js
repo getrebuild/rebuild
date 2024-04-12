@@ -37,6 +37,7 @@ $(document).ready(() => {
   if (listMode) {
     $('.J_view .dropdown-item:eq(1)').addClass('check')
     $('.J_sorts .dropdown-item[data-group], .J_sorts .dropdown-item-text:eq(1)').remove()
+    $('#plan-boxes').addClass('m-0')
 
     renderRbcomp(<PlanBoxesList readonly={readonly} search={gs} projectId={wpc.id} id="0-0" />, 'plan-boxes', function () {
       _PlanBoxes = this
@@ -626,6 +627,7 @@ class PlanBoxesList extends PlanBox {
                   {$L('共 %d 个任务', this.state.taskNum || 0)}
                 </th>
                 <th width="15%">{$L('时间')}</th>
+                <th width="10%">{$L('任务面板')}</th>
                 <th width="10%">{$L('用户')}</th>
               </tr>
             </thead>
@@ -685,6 +687,7 @@ class PlanBoxesList extends PlanBox {
                         )}
                       </RF>
                     </td>
+                    <td className="text-muted fs-12">{item.planName}</td>
                     <td className="task-user">
                       <RF>
                         {item.createdBy && (
