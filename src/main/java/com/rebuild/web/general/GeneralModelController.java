@@ -71,7 +71,7 @@ public class GeneralModelController extends EntityController {
         final Entity viewEntity = MetadataHelper.getEntity(entity);
 
         if (Application.devMode() && !Objects.equals(id.getEntityCode(), MetadataHelper.getEntity(entity).getEntityCode())) {
-            log.warn("Entity and ID do not match : " + request.getRequestURI());
+            log.warn("Entity and ID do not match : {}", request.getRequestURI());
         }
 
         boolean isDetail = viewEntity.getMainEntity() != null;

@@ -265,10 +265,13 @@ public class FormsBuilder extends FormsManager {
 
         if (readonlyMessage != null) model.set("readonlyMessage", readonlyMessage);
 
-        // v34
+        // v3.4
         String disabledViewEditable = EasyMetaFactory.valueOf(entityMeta)
                 .getExtraAttr(EasyEntityConfigProps.DISABLED_VIEW_EDITABLE);
         model.set("onViewEditable", !BooleanUtils.toBoolean(disabledViewEditable));
+        
+        // v3.7
+        model.set("hadSop", true);
 
         model.remove("id");  // Clean form's ID of config
         return model.toJSON();

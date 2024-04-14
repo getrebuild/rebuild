@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global SelectReport TransformRich, FeedEditorDlg, LightTaskDlg */
+/* global SelectReport TransformRich, FeedEditorDlg, LightTaskDlg, ApprovalProcessor, SopProcessor */
 
 const wpc = window.__PageConfig || {}
 
@@ -41,6 +41,7 @@ class RbViewForm extends React.Component {
 
       let hadApproval = res.data.hadApproval
       let hadAlert = null
+      let hadSop = res.data.hadSop || {}
       if (wpc.type === 'DetailView') {
         if (hadApproval === 2 || hadApproval === 10) {
           if (window.RbViewPage) window.RbViewPage.setReadonly()
@@ -59,6 +60,8 @@ class RbViewForm extends React.Component {
         <RF>
           {hadAlert}
           {hadApproval && <ApprovalProcessor id={this.props.id} entity={this.props.entity} />}
+          {hadSop && <SopProcessor id={this.props.id} entity={this.props.entity} />}
+
           <div className="row">
             {res.data.elements.map((item) => {
               if (![TYPE_DIVIDER, TYPE_REFFORM].includes(item.field)) this.__ViewData[item.field] = item.value

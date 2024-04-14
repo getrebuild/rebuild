@@ -1050,3 +1050,100 @@ body {
 .view-history.invisible2 {
   display: none;
 }
+
+.sop-toolbar {
+  position: relative;
+  margin-bottom: 18px;
+  background-color: #f7f7f7;
+  padding: 12px 18px;
+  border-radius: 2px;
+}
+
+.sop-steps {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  position: relative;
+}
+
+.sop-steps li {
+  z-index: 2;
+  text-align: center;
+}
+
+.sop-steps li > div {
+  width: 120px;
+}
+
+.sop-steps li > div > span {
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  display: inline-block;
+  background-color: #ddd;
+  border-radius: 50%;
+  text-align: center;
+  color: #777;
+}
+
+.sop-steps li > div > span:hover {
+  cursor: help;
+  opacity: 0.8;
+}
+
+.sop-steps li > div > span,
+.sop-steps li > div > p {
+  margin: 0;
+  padding: 0;
+}
+
+.sop-steps li > div > p {
+  margin-top: 5px;
+  line-height: 1;
+}
+
+.sop-steps::after {
+  content: '';
+  height: 4px;
+  line-height: 4px;
+  font-size: 0;
+  background-color: #ddd;
+  width: 100%;
+  position: absolute;
+  top: 12px;
+  z-index: 1;
+}
+
+.sop-steps li.state-1 > div > span {
+  font-size: 0;
+  background-color: #f7b904;
+}
+
+.sop-steps li.state-2 > div > span {
+  font-size: 0;
+  background-color: #33a451;
+}
+
+.sop-steps li.state-1 > div > span::before,
+.sop-steps li.state-2 > div > span::before {
+  font-size: 16px;
+  font-family: 'Material Design Icons', serif;
+  color: #fff;
+}
+
+.sop-steps li.state-1 > div > span::before {
+  content: '\F051A';
+  font-size: 20px;
+}
+
+.sop-steps li.state-2 > div > span::before {
+  content: '\F012C';
+}
+
+.sop-steps li:first-child > div {
+  text-align: left;
+}
+
+.sop-steps li:last-child > div {
+  text-align: right;
+}
