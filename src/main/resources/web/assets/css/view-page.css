@@ -1110,9 +1110,8 @@ body {
   z-index: 1;
 }
 
-.sop-steps li.state-1 > div > span:hover,
 .sop-steps li.state-2 > div > span:hover {
-  cursor: help;
+  cursor: pointer;
   opacity: 0.8;
 }
 
