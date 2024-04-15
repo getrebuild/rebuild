@@ -53,7 +53,7 @@ public class MetaEntityService extends InternalPersistService implements AdminGu
                 "MetaField", "PickList", "LayoutConfig", "FilterConfig", "ShareAccess", "ChartConfig",
                 "Attachment", "AutoFillinConfig", "RobotTriggerConfig", "RobotApprovalConfig",
                 "DataReportConfig", "TransformConfig", "ExtformConfig",
-                "NreferenceItem"
+                "NreferenceItem", "RobotSopConfig"
         };
 
         int del = 0;
