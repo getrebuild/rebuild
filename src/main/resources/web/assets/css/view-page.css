@@ -1076,19 +1076,15 @@ body {
 }
 
 .sop-steps li > div > span {
-  width: 28px;
-  height: 28px;
-  line-height: 28px;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
   display: inline-block;
   background-color: #ddd;
   border-radius: 50%;
   text-align: center;
   color: #777;
-}
-
-.sop-steps li > div > span:hover {
-  cursor: help;
-  opacity: 0.8;
+  cursor: default;
 }
 
 .sop-steps li > div > span,
@@ -1114,9 +1110,16 @@ body {
   z-index: 1;
 }
 
+.sop-steps li.state-1 > div > span:hover,
+.sop-steps li.state-2 > div > span:hover {
+  cursor: help;
+  opacity: 0.8;
+}
+
 .sop-steps li.state-1 > div > span {
-  font-size: 0;
   background-color: #f7b904;
+  border: 4px solid #fff;
+  font-size: 0;
 }
 
 .sop-steps li.state-2 > div > span {
@@ -1124,16 +1127,10 @@ body {
   background-color: #33a451;
 }
 
-.sop-steps li.state-1 > div > span::before,
 .sop-steps li.state-2 > div > span::before {
   font-size: 16px;
   font-family: 'Material Design Icons', serif;
   color: #fff;
-}
-
-.sop-steps li.state-1 > div > span::before {
-  content: '\F051A';
-  font-size: 20px;
 }
 
 .sop-steps li.state-2 > div > span::before {
