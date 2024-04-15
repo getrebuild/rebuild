@@ -1136,10 +1136,10 @@ body {
   content: '\F012C';
 }
 
-.sop-steps li:first-child > div {
-  text-align: left;
-}
-
 .sop-steps li:last-child > div {
   text-align: right;
+}
+
+.sop-steps li:first-child > div {
+  text-align: left;
 }

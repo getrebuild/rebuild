@@ -34,8 +34,7 @@ public class RobotSopObserver extends OperatingObserver  {
      * @param context
      */
     protected void onCreateOrUpdate(OperatingContext context) {
-        StepNode[] stepNodes = RobotSopManager.instance.findSteps(context.getAnyRecord().getEntity());
-
+        StepNode[] stepNodes = RobotSopManager.instance.findAliveSteps(context.getAnyRecord().getEntity());
         for (StepNode stepNode : stepNodes) {
             stepNode.recordIfAchieved(context);
         }
