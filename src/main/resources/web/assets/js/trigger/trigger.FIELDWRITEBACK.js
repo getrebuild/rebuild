@@ -633,7 +633,4 @@ renderContentComp = function (props) {
     contentComp = this
     $('#react-content [data-toggle="tooltip"]').tooltip()
   })
-
-  // eslint-disable-next-line no-undef
-  useExecManual()
 }

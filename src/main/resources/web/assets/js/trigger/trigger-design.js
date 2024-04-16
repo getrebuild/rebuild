@@ -124,6 +124,9 @@ $(document).ready(() => {
   })
   DlgSpecApproveNodes.render(wpc.actionContent)
 
+  // 立即执行
+  useExecManual()
+
   renderContentComp({ sourceEntity: wpc.sourceEntity, content: wpc.actionContent })
 
   const $btn = $('.J_save').on('click', () => {
@@ -362,7 +365,6 @@ function _handle512Change() {
 }
 
 // 立即执行
-// eslint-disable-next-line no-unused-vars
 function useExecManual() {
   $('.footer .btn-light').removeClass('hide')
   $(`<a class="dropdown-item">${$L('立即执行')} <sup class="rbv"></sup></a>`)
@@ -382,6 +384,7 @@ function useExecManual() {
             useExecManual_checkState(res.data, mp, this)
           })
         },
+        countdown: 5,
       })
     })
 }
