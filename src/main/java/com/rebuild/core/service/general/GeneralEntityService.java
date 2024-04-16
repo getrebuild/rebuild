@@ -32,13 +32,13 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.NoRecordFoundException;
+import com.rebuild.core.service.SafeObserver;
 import com.rebuild.core.service.approval.ApprovalHelper;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.service.notification.NotificationObserver;
 import com.rebuild.core.service.query.QueryHelper;
-import com.rebuild.core.service.sop.RobotSopObserver;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.RobotTriggerManager;
 import com.rebuild.core.service.trigger.RobotTriggerManual;
@@ -86,7 +86,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         addObserver(new NotificationObserver());
         addObserver(new RobotTriggerObserver());
-        addObserver(new RobotSopObserver());
+        try {
+            addObserver((SafeObserver) ReflectUtils.newObject("com.rebuild.rbv.sop.RobotSopObserver"));
+        } catch (Exception ignoredClassNotFound){}
     }
 
     @Override
