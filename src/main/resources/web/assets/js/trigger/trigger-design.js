@@ -366,27 +366,24 @@ function _handle512Change() {
 
 // 立即执行
 function useExecManual() {
-  $('.footer .btn-light').removeClass('hide')
-  $(`<a class="dropdown-item">${$L('立即执行')} <sup class="rbv"></sup></a>`)
-    .appendTo('.footer .dropdown-menu')
-    .on('click', () => {
-      if (rb.commercial < 10) {
-        RbHighbar.error(WrapHtml($L('免费版不支持立即执行功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-        return
-      }
+  $('.J_exec-manual').on('click', () => {
+    if (rb.commercial < 10) {
+      RbHighbar.error(WrapHtml($L('免费版不支持立即执行功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
 
-      RbAlert.create($L('将直接执行此触发器，数据过多耗时会较长，请耐心等待。是否继续？'), {
-        onConfirm: function () {
-          this.disabled(true, true)
-          $.post(`/admin/robot/trigger/exec-manual?id=${wpc.configId}`, (res) => {
-            const mp_parent = $(this._dlg).find('.modal-header').attr('id', $random('node-'))
-            const mp = new Mprogress({ template: 1, start: true, parent: '#' + $(mp_parent).attr('id') })
-            useExecManual_checkState(res.data, mp, this)
-          })
-        },
-        countdown: 5,
-      })
+    RbAlert.create($L('将直接执行此触发器，数据过多耗时会较长，请耐心等待。是否继续？'), {
+      onConfirm: function () {
+        this.disabled(true, true)
+        $.post(`/admin/robot/trigger/exec-manual?id=${wpc.configId}`, (res) => {
+          const mp_parent = $(this._dlg).find('.modal-header').attr('id', $random('node-'))
+          const mp = new Mprogress({ template: 1, start: true, parent: '#' + $(mp_parent).attr('id') })
+          useExecManual_checkState(res.data, mp, this)
+        })
+      },
+      countdown: 5,
     })
+  })
 }
 // 检查状态
 function useExecManual_checkState(taskid, mp, _alert) {
