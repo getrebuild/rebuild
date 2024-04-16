@@ -304,7 +304,7 @@ class RbAlert extends React.Component {
             <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={_onCancel}>
               {this.props.cancelText || $L('取消')}
             </button>
-            <button disabled={this.state.disable} className={`btn btn-space btn-${type}`} type="button" onClick={_onConfirm}>
+            <button disabled={this.state.disable} className={`btn btn-space btn-${type}`} type="button" onClick={_onConfirm} ref={(c) => (this._$btn = c)}>
               {this.props.confirmText || $L('确定')}
             </button>
           </div>
@@ -327,6 +327,10 @@ class RbAlert extends React.Component {
       const mb = $('.modal-backdrop.show')
       if (mb.length > 1) $(mb[mb.length - 1]).addClass('rbalert')
     }, 0)
+
+    if (this.props.countdown > 0) {
+      $countdownButton($(this._$btn), this.props.countdown)
+    }
   }
 
   hide(forceHide) {

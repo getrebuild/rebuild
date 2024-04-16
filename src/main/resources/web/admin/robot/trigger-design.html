@@ -22,7 +22,7 @@
         <div class="main-content container-fluid pt-0">
           <div class="card mb-0">
             <div class="card-body">
-              <ul class="timeline spare">
+              <ul class="timeline timeline-spare">
                 <li class="timeline-item">
                   <div class="timeline-date"><span>[[${bundle.L('当发生动作')}]]</span></div>
                   <div class="timeline-content">
@@ -163,11 +163,11 @@
                         <label class="col-12 col-lg-3 col-form-label text-lg-right"></label>
                         <div class="col-12 col-lg-9">
                           <button class="btn btn-primary btn-space J_save" type="button">[[${bundle.L('保存')}]]</button>
-                          <button class="btn btn-light btn-space w-auto dropdown-toggle hide" type="button" data-toggle="dropdown" th:title="${bundle.L('更多操作')}">
+                          <button class="btn btn-light btn-space w-auto dropdown-toggle" type="button" data-toggle="dropdown" th:title="${bundle.L('更多操作')}">
                             <i class="icon zmdi zmdi-more fs-18"></i>
                           </button>
                           <div class="dropdown-menu">
-                            <!-- ACTION IN HERE -->
+                            <a class="dropdown-item J_exec-manual">[[${bundle.L('立即执行')}]] <sup class="rbv"></sup></a>
                           </div>
                           <!-- LOCKED -->
                           <div class="alert alert-warning alert-icon mb-0 mt-3 hide" style="max-width: 485px">

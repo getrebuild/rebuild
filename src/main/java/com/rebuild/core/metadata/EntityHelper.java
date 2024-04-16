@@ -274,7 +274,7 @@ public class EntityHelper {
     public static final String ApprovalId = "approvalId";
     public static final String ApprovalState = "approvalState";
     public static final String ApprovalStepNode = "approvalStepNode";
-    public static final String ApprovalStepNodeName = "ApprovalStepNodeName";
+    public static final String ApprovalStepNodeName = "approvalStepNodeName";
     public static final String ApprovalStepUsers = "approvalStepUsers";
     public static final String ApprovalLastUser = "approvalLastUser";
     public static final String ApprovalLastTime = "approvalLastTime";
@@ -323,6 +323,8 @@ public class EntityHelper {
     public static final int FrontjsCode = 38;
     public static final int NreferenceItem = 39;
     public static final int TagItem = 80;
+    public static final int RobotSopConfig = 70;
+    public static final int RobotSopStep = 71;
 
     // 动态
 

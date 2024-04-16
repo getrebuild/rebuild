@@ -78,7 +78,7 @@ public class Installer implements InstallState {
 
     private JSONObject installProps;
 
-    private boolean isOceanBase;
+    private DbInfo dbInfo;
 
     private String EXISTS_SN;
 
@@ -106,7 +106,15 @@ public class Installer implements InstallState {
         if (StringUtils.isNotBlank(dbPasswd)) {
             installProps.put("db.passwd", String.format("AES(%s)", AES.encrypt(dbPasswd)));
         }
-        if (isOceanBase) installProps.put("db.type", "OceanBase");
+
+        if (dbInfo.isOceanBase()) {
+            installProps.put("db.type", "OceanBase");
+        } else if (dbInfo.isMySQL80()) {
+            // https://www.cnblogs.com/lusaisai/p/13372763.html
+            String dbUrl2 = installProps.getProperty("db.url");
+            if (!dbUrl2.contains("allowPublicKeyRetrieval")) dbUrl2 += "&allowPublicKeyRetrieval=true";
+            installProps.put("db.url", dbUrl2);
+        }
 
         // Redis
         JSONObject cacheProps = this.installProps.getJSONObject("cacheProps");
@@ -129,7 +137,7 @@ public class Installer implements InstallState {
             FileUtils.deleteQuietly(dest);
             try (OutputStream os = Files.newOutputStream(dest.toPath())) {
                 installProps.store(os, "REBUILD INSTALLER MAGIC !!! DO NOT EDIT !!!");
-                log.info("Saved installation file : " + dest);
+                log.info("Saved installation file : {}", dest);
             }
 
         } catch (IOException e) {
@@ -231,7 +239,7 @@ public class Installer implements InstallState {
             Properties props = new Properties();
             dbName = StringUtils.defaultIfBlank(dbName, "H2DB");
             File dbFile = RebuildConfiguration.getFileOfData(dbName);
-            log.warn("Use H2 database : " + dbFile);
+            log.warn("Use H2 database : {}", dbFile);
 
             props.put("db.url", String.format("jdbc:h2:file:%s;MODE=MYSQL;DATABASE_TO_LOWER=TRUE;IGNORECASE=TRUE",
                     dbFile.getAbsolutePath()));
@@ -248,9 +256,6 @@ public class Installer implements InstallState {
                 dbProps.getIntValue("dbPort"),
                 dbName,
                 getTimeZoneId());
-
-        // https://www.cnblogs.com/lusaisai/p/13372763.html
-        // allowPublicKeyRetrieval=true
 
         String dbUser = dbProps.getString("dbUser");
         String dbPassword = dbProps.getString("dbPassword");
@@ -269,6 +274,8 @@ public class Installer implements InstallState {
      * @return
      */
     protected boolean installDatabase() {
+        dbInfo = getDbInfo();
+
         // 本身就是 RB 数据库，无需创建
         if (isRbDatabase()) {
             log.warn("Use exists REBUILD database without create");
@@ -291,16 +298,13 @@ public class Installer implements InstallState {
                 try (Connection conn = getConnection("mysql")) {
                     try (Statement stmt = conn.createStatement()) {
                         stmt.executeUpdate(createDb);
-                        log.warn("Database created : " + createDb);
+                        log.warn("Database created : {}", createDb);
                     }
 
                 } catch (SQLException sqlex) {
                     throw new SetupException(sqlex);
                 }
             }
-
-            String ver = getDatabaseVersion();
-            isOceanBase = ver != null && ver.contains("OceanBase");
         }
 
         // 初始化数据库
@@ -312,7 +316,7 @@ public class Installer implements InstallState {
                     affetced++;
                 }
             }
-            log.info("Schemes of database created : " + affetced);
+            log.info("Database schemes init : {}", affetced);
 
         } catch (SQLException | IOException e) {
             throw new SetupException(e);
@@ -324,11 +328,13 @@ public class Installer implements InstallState {
     /**
      * @return
      */
-    public String getDatabaseVersion() {
+    public DbInfo getDbInfo() {
+        if (quickMode) return new DbInfo("H2");
+
         try (Connection conn = getConnection("mysql")) {
             try (Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("select version()")) {
-                    if (rs.next()) return rs.getString(1);
+                    if (rs.next()) return new DbInfo(rs.getString(1));
                 }
             }
         } catch (SQLException ignored) {
@@ -351,15 +357,8 @@ public class Installer implements InstallState {
         boolean ignoreTerms = false;
         for (Object L : LS) {
             String L2 = L.toString().trim();
-
-            // NOTE `double` 字段也不支持
-            boolean H2Unsupported = quickMode
-                    && (L2.startsWith("fulltext ") || L2.startsWith("unique ") || L2.startsWith("index "));
-            // v3.7 OceanBase
-            boolean OBUnsupported = isOceanBase && L2.startsWith("fulltext ");
-
-            // Ignore comments and line of blank
-            if (StringUtils.isEmpty(L2) || L2.startsWith("--") || H2Unsupported || OBUnsupported) {
+            // IGNORED
+            if (StringUtils.isEmpty(L2) || L2.startsWith("--") || dbInfo.isIgnoredSqlLine(L2)) {
                 continue;
             }
             if (L2.startsWith("/*") || L2.endsWith("*/")) {
@@ -417,7 +416,7 @@ public class Installer implements InstallState {
             }
 
         } catch (SQLException sqlex) {
-            log.error("Cannot execute SQL : " + sql, sqlex);
+            log.error("Cannot execute SQL : {}", sql, sqlex);
         }
     }
 
@@ -503,7 +502,7 @@ public class Installer implements InstallState {
             }
 
         } catch (SQLException ex) {
-            log.error("Check REBUILD database error : " + ex.getLocalizedMessage());
+            log.error("Check REBUILD database error : {}", ex.getLocalizedMessage());
         }
         return false;
     }

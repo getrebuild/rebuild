@@ -31,9 +31,7 @@ $(document).ready(function () {
         this.hide()
         renderRbcomp(<DlgTempAuth />)
       },
-      call: function () {
-        $countdownButton($(this._dlg).find('.btn-danger'))
-      },
+      countdown: 5,
     })
   })
 

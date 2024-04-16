@@ -7,31 +7,31 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 /* Editor  */
 
-.timeline.spare {
+.timeline.timeline-spare {
   max-width: 2000px;
   padding-bottom: 0;
   margin-bottom: 20px;
 }
 
-.timeline.spare form.simple {
+.timeline.timeline-spare form.simple {
   max-width: 2000px;
 }
 
-.timeline.spare form.simple .col-form-label {
+.timeline.timeline-spare form.simple .col-form-label {
   max-width: 180px;
 }
 
-.timeline.spare form.simple input.form-control-sm,
-.timeline.spare form.simple select.form-control-sm,
-.timeline.spare form.simple .select2 {
+.timeline.timeline-spare form.simple input.form-control-sm,
+.timeline.timeline-spare form.simple select.form-control-sm,
+.timeline.timeline-spare form.simple .select2 {
   max-width: 485px;
 }
 
-.timeline.spare .timeline-content {
+.timeline.timeline-spare .timeline-content {
   padding: 0;
 }
 
-.timeline.spare .timeline-content {
+.timeline.timeline-spare .timeline-content {
   box-shadow: 0 0 0 #fff;
 }
 
@@ -39,19 +39,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-top: 25px;
 }
 
-.timeline.spare .timeline-item {
+.timeline.timeline-spare .timeline-item {
   margin-bottom: 10px;
 }
 
-.timeline.spare .timeline-item {
+.timeline.timeline-spare .timeline-item {
   padding-left: 190px;
 }
 
-.timeline.spare .timeline-item.last {
+.timeline.timeline-spare .timeline-item.last {
   margin-bottom: 0;
 }
 
-.timeline.spare .timeline-item.last::before {
+.timeline.timeline-spare .timeline-item.last::before {
   display: none;
 }
 
@@ -516,7 +516,7 @@ textarea.formula-code + .fields-vars {
   .timeline-date {
     width: 95px;
   }
-  .timeline.spare .timeline-item {
+  .timeline.timeline-spare .timeline-item {
     padding-left: 140px;
   }
   .timeline::before {

@@ -628,7 +628,7 @@ class ApproverNodeConfig extends StartNodeConfig {
     return (
       <div>
         <div className="header">
-          <input type="text" placeholder={$L('审批人')} data-id="nodeName" value={this.state.nodeName || ''} onChange={this.handleChange} maxLength="20" />
+          <input type="text" placeholder={$L('审批人')} data-id="nodeName" value={this.state.nodeName || ''} onChange={this.handleChange} maxLength="40" />
           <i className="zmdi zmdi-edit icon" />
         </div>
         <div className="form rb-scroller">

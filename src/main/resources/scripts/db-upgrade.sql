@@ -1,6 +1,36 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #57 (v3.7)
+-- ************ Entity [RobotSopConfig] DDL ************
+create table if not exists `robot_sop_config` (
+  `CONFIG_ID`          char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '应用实体',
+  `NAME`               varchar(100) not null comment '进度名称',
+  `SOP_DEFINITION`     text(65535) comment '进度定义',
+  `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  primary key  (`CONFIG_ID`)
+)Engine=InnoDB;
+-- ************ Entity [RobotSopStep] DDL ************
+create table if not exists `robot_sop_step` (
+  `STEP_ID`            char(20) not null,
+  `RECORD_ID`          char(20) not null comment '业务记录',
+  `SOP_ID`             char(20) not null comment '业务进度',
+  `NODE`               varchar(100) not null comment '进度节点',
+  `OPERATOR`           char(20) not null comment '操作人',
+  `ACHIEVED_TIME`      timestamp not null default current_timestamp comment '达成时间',
+  `ACHIEVED_CONTENT`   text(65535) comment '达成内容',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  primary key  (`STEP_ID`)
+)Engine=InnoDB;
+
 -- #56 (v3.7)
 alter table `attachment`
   add column `FILE_NAME` varchar(100) comment '文件名称';

@@ -32,6 +32,7 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.NoRecordFoundException;
+import com.rebuild.core.service.SafeObserver;
 import com.rebuild.core.service.approval.ApprovalHelper;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
@@ -85,6 +86,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         addObserver(new NotificationObserver());
         addObserver(new RobotTriggerObserver());
+        try {
+            addObserver((SafeObserver) ReflectUtils.newObject("com.rebuild.rbv.sop.RobotSopObserver"));
+        } catch (Exception ignoredClassNotFound){}
     }
 
     @Override

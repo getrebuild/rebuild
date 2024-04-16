@@ -298,9 +298,7 @@ $(document).ready(function () {
           }
         })
       },
-      call: function () {
-        $countdownButton($(this._dlg).find('.btn-danger'))
-      },
+      countdown: 5,
     })
   })
 
@@ -311,6 +309,9 @@ $(document).ready(function () {
     }
     renderRbcomp(<FieldTypeCast entity={wpc.entityName} field={wpc.fieldName} fromType={wpc.fieldType} />)
   })
+
+  // v3.7
+  $('.page-help>a').attr('href', $('.page-help>a').attr('href') + `field-${wpc.fieldType.toLowerCase()}`)
 })
 
 // Check incorrect?

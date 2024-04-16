@@ -46,9 +46,7 @@ $(document).ready(() => {
           }
         })
       },
-      call: function () {
-        $countdownButton($(this._dlg).find('.btn-danger'))
-      },
+      countdown: 5,
     })
   })
 })

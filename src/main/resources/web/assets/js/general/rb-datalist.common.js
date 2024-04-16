@@ -500,9 +500,6 @@ class BatchUpdate extends BatchOperator {
           }
         })
       },
-      // onRendered: function () {
-      //   $countdownButton($(this._dlg).find('.btn-primary'))
-      // },
     })
   }
 

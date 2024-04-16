@@ -15,7 +15,7 @@ class ApprovalProcessor extends React.Component {
 
   render() {
     return (
-      <div className="approval-pane">
+      <div className="approval-toolbar">
         {this.state.state === 1 && this.renderStateDraft()}
         {this.state.state === 2 && this.renderStateProcessing()}
         {this.state.state === 10 && this.renderStateApproved()}

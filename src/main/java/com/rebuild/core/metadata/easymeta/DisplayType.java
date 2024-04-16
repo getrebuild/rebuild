@@ -26,7 +26,7 @@ public enum DisplayType {
     TEXT(EasyText.class, "文本", FieldType.STRING, 200, null),
     NTEXT(EasyNText.class, "多行文本", FieldType.TEXT, 32767, null),
     EMAIL(EasyEmail.class, "邮箱", FieldType.STRING, 100, null),
-    URL(EasyUrl.class, "链接", FieldType.STRING, 200, null),
+    URL(EasyUrl.class, "链接", FieldType.STRING, 300, null),
     PHONE(EasyPhone.class, "电话", FieldType.STRING, 40, null),
     SERIES(EasySeries.class, "自动编号", FieldType.STRING, 40, "{YYYYMMDD}-{0000}"),
     IMAGE(EasyImage.class, "图片", FieldType.STRING, 700, null, true, false),

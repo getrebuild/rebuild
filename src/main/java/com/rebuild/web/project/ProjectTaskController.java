@@ -243,7 +243,7 @@ public class ProjectTaskController extends BaseController {
 
         JSONArray alist = new JSONArray();
         for (Object[] o : tasks) {
-            JSONObject item = formatTask(o, user, fields2show.contains("_tag"));
+            JSONObject item = formatTask(o, user, fields2show.contains("_tag"), true);
 
             if (fields2show.contains("createdBy")) {
                 item.put("createdBy", new Object[] { o[12], UserHelper.getName((ID) o[12]) });
@@ -264,7 +264,6 @@ public class ProjectTaskController extends BaseController {
                 item.put("attachments", o[15] != null && ((String) o[15]).length() > 10);
             }
 
-            item.remove("planName");
             alist.add(item);
         }
         return alist;
@@ -280,7 +279,7 @@ public class ProjectTaskController extends BaseController {
                 .unique();
         if (task == null) throw new NoRecordFoundException(taskId, Boolean.TRUE);
 
-        JSONObject details = formatTask(task, user, true);
+        JSONObject details = formatTask(task, user, true, false);
 
         details.put("description", task[12]);
         String attachments = (String) task[13];
@@ -302,12 +301,13 @@ public class ProjectTaskController extends BaseController {
     /**
      * @param o
      * @param user
-     * @param putTags
+     * @param needTags
+     * @param needPlanName
      * @return
      * @throws ConfigurationException 如果指定用户无权限
      * @see #FMT_FIELDS11
      */
-    private JSONObject formatTask(Object[] o, ID user, boolean putTags) throws ConfigurationException {
+    private JSONObject formatTask(Object[] o, ID user, boolean needTags, boolean needPlanName) throws ConfigurationException {
         final ConfigBean project = ProjectManager.instance.getProject((ID) o[0], user);
 
         String taskNumber = String.format("%s-%s", project.getString("projectCode"), o[2]);
@@ -321,7 +321,7 @@ public class ProjectTaskController extends BaseController {
                 new Object[] { o[3], taskNumber, o[4], createdOn, deadline, executor, o[8], o[9], o[10], endTime, o[0], project.getInteger("status") });
 
         // 标签
-        if (putTags) {
+        if (needTags) {
             data.put("tags", TaskTagController.getTaskTags((ID) o[3]));
         }
 
@@ -334,8 +334,10 @@ public class ProjectTaskController extends BaseController {
             // 权限
             data.put("projectMember", project.get("members", Set.class).contains(user));
             data.put("isManageable", ProjectHelper.isManageable((ID) o[3], user));
-        }
 
+            // v3.7
+            if (needPlanName) data.put("planName", plan.getString("planName"));
+        }
         return data;
     }
 
@@ -401,7 +403,7 @@ public class ProjectTaskController extends BaseController {
         JSONArray array = new JSONArray();
         for (Object[] o : tasks) {
             try {
-                array.add(formatTask(o, user, false));
+                array.add(formatTask(o, user, false, false));
             } catch (ConfigurationException ex) {
                 // FIXME 无项目权限会报错（考虑任务在相关项中是否无权限也显示）
                 log.warn(ex.getLocalizedMessage());

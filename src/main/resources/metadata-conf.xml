@@ -225,7 +225,7 @@
         <field name="belongEntity" type="small-int" default-value="0" updatable="false" queryable="false" description="所属实体" />
         <field name="belongField" type="string" max-length="100" updatable="false" queryable="false" description="所属字段"/>
         <field name="relatedRecord" type="any-reference" updatable="false" description="相关记录" cascade="ignore"/>
-        <field name="filePath" type="string" max-length="191" nullable="false" description="文件路径"/>
+        <field name="filePath" type="string" max-length="300" nullable="false" description="文件路径"/>
         <field name="fileType" type="string" max-length="20" description="文件类型"/>
         <field name="fileSize" type="int" default-value="0" description="文件大小"/>
         <field name="fileName" type="string" max-length="100" description="文件名称"/>
@@ -304,26 +304,24 @@
         <index field-list="recordId,approvalId,node,isCanceled,isWaiting,isBacked,nodeBatch"/>
     </entity>
 
-    <!--
-    <entity name="RobotSopConfig" type-code="070" name-field="name" description="操作流程/业务进度" queryable="false">
+    <entity name="RobotSopConfig" type-code="070" name-field="name" description="业务进度" queryable="false">
         <field name="configId" type="primary"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="应用实体"/>
-        <field name="name" type="string" max-length="100" nullable="false" description="流程名称"/>
-        <field name="sopDefinition" type="text" description="流程定义"/>
+        <field name="name" type="string" max-length="100" nullable="false" description="进度名称"/>
+        <field name="sopDefinition" type="text" description="进度定义"/>
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
     </entity>
-    <entity name="RobotSopStep" type-code="071" description="操作流程步骤" queryable="false">
+
+    <entity name="RobotSopStep" type-code="071" description="业务进度记录" queryable="false">
         <field name="stepId" type="primary"/>
         <field name="recordId" type="any-reference" nullable="false" updatable="false" description="业务记录"/>
-        <field name="sopId" type="reference" ref-entity="RobotApprovalConfig" nullable="false" updatable="false" description="操作流程"/>
-        <field name="node" type="string" max-length="100" nullable="false" updatable="false" description="流程节点"/>
-        <field name="prevNode" type="string" max-length="100" nullable="false" updatable="false" description="上一流程节点"/>
+        <field name="sopId" type="reference" ref-entity="RobotSopConfig" nullable="false" updatable="false" description="业务进度"/>
+        <field name="node" type="string" max-length="100" nullable="false" updatable="false" description="进度节点"/>
         <field name="operator" type="reference" ref-entity="User" nullable="false" updatable="false" description="操作人"/>
-        <field name="operationTime" type="timestamp" nullable="false" updatable="false" description="操作时间"/>
-        <field name="operationContent" type="text" updatable="false" description="操作内容"/>
-        <field name="state" type="small-int" default-value="1" description="状态"/>
+        <field name="achievedTime" type="timestamp" nullable="false" updatable="false" description="达成时间"/>
+        <field name="achievedContent" type="text" updatable="false" description="达成内容"/>
+        <field name="prevStep" type="reference" updatable="false" ref-entity="RobotSopStep"/>
     </entity>
-    -->
 
     <entity name="RebuildApi" type-code="030" description="API 密钥" queryable="false">
         <field name="uniqueId" type="primary"/>

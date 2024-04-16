@@ -367,7 +367,7 @@ const StepView = () => {
       rbTop: 6,
     },
     {
-      element: '.approval-pane',
+      element: '.approval-toolbar',
       title: $L('审批状态'),
       intro: $L('当前记录的审批状态，及审批相关操作'),
       rbLeft: 5,
