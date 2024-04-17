@@ -432,6 +432,7 @@ class ReportEditor extends ConfigFormDlg {
         if (!post.templateFile) return RbHighbar.create($L('请上传模板文件'))
       }
       post.extraDefinition.templateVersion = 3
+      if (post.templateType === 2) post.extraDefinition.useFilter = null
     }
 
     post.metadata = {
