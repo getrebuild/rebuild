@@ -126,8 +126,9 @@ public class ErrorPageView extends BaseController {
         String tsid = null;
         try {
             tsid = new SysbaseSupport().submit();
-        } catch (Exception e) {
-            log.error(null, e);
+        } catch (Exception ex) {
+            log.error("Cannot submit TSID", ex);
+            tsid = "TSID";
         }
 
         String reason = request.getParameter("title");
