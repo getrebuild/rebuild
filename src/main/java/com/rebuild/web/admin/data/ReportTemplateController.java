@@ -17,7 +17,6 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.service.datareport.EasyExcelGenerator33;
@@ -38,7 +37,6 @@ import com.rebuild.web.IdParam;
 import com.rebuild.web.admin.ConfigCommons;
 import com.rebuild.web.commons.FileDownloader;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,9 +47,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -86,18 +82,6 @@ public class ReportTemplateController extends BaseController {
         for (Object[] o : list) {
             JSONObject extra = o[7] == null ? JSONUtils.EMPTY_OBJECT : JSON.parseObject((String) o[7]);
             o[7] = extra;
-            o[8] = null;
-
-            String vu = extra.getString("visibleUsers");
-            if (StringUtils.isNotBlank(vu)) {
-                List<String> vuNames = new ArrayList<>();
-                for (String id : vu.split(",")) {
-                    if (ID.isId(id)) {
-                        vuNames.add(UserHelper.getName(ID.valueOf(id)));
-                    }
-                }
-                o[8] = StringUtils.join(vuNames, ", ");
-            }
         }
 
         return RespBody.ok(list);

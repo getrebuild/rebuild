@@ -816,11 +816,13 @@ create table if not exists `robot_sop_step` (
   `OPERATOR`           char(20) not null comment '操作人',
   `ACHIEVED_TIME`      timestamp not null default current_timestamp comment '达成时间',
   `ACHIEVED_CONTENT`   text(65535) comment '达成内容',
+  `PREV_STEP`          char(20),
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
-  primary key  (`STEP_ID`)
+  primary key  (`STEP_ID`),
+  index IX0_robot_sop_step (`RECORD_ID`, `SOP_ID`, `NODE`, `PREV_STEP`)
 )Engine=InnoDB;
 
 -- ************ Entity [TagItem] DDL ************

@@ -514,7 +514,7 @@ class SelectReport extends React.Component {
   }
 
   componentDidMount() {
-    $.get(`/app/${this.props.entity}/report/available`, (res) => this.setState({ reports: res.data }))
+    $.get(`/app/${this.props.entity}/report/available?record=${this.props.id || ''}`, (res) => this.setState({ reports: res.data }))
     $(this._dlg).modal({ show: true, keyboard: true })
   }
 

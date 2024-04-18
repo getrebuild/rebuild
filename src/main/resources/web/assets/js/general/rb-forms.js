@@ -1571,7 +1571,7 @@ class RbFormImage extends RbFormElement {
         <span title={$L('上传图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={showUpload ? '' : 'hide'}>
           <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" multiple />
           <label htmlFor={this._htmlid} className="img-thumbnail img-upload" onClick={(e) => this._fileClick(e)}>
-            <span className="zmdi zmdi-image-alt down-2" />
+            {this._captureType ? <span className="mdi mdi-camera down-2" /> : <span className="zmdi zmdi-image-alt down-2" />}
           </label>
         </span>
         <input ref={(c) => (this._fieldValue = c)} type="hidden" value={value} />
@@ -1611,6 +1611,11 @@ class RbFormImage extends RbFormElement {
   _fileClick(e) {
     if (this._captureType) {
       $stopEvent(e, true)
+      if (rb.commercial < 1) {
+        RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+        return
+      }
+
       renderRbcomp(
         <MediaCapturer
           title={$L('拍摄')}

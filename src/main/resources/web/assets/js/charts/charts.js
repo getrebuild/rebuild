@@ -1284,7 +1284,7 @@ class DataList extends BaseChart {
                   </th>
                 )
               })}
-              <th width="40" />
+              <th width="40" className="no-sort" />
             </tr>
           </thead>
           <tbody>

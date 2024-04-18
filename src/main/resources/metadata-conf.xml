@@ -321,6 +321,7 @@
         <field name="achievedTime" type="timestamp" nullable="false" updatable="false" description="达成时间"/>
         <field name="achievedContent" type="text" updatable="false" description="达成内容"/>
         <field name="prevStep" type="reference" updatable="false" ref-entity="RobotSopStep"/>
+        <index field-list="recordId,sopId,node,prevStep"/>
     </entity>
 
     <entity name="RebuildApi" type-code="030" description="API 密钥" queryable="false">

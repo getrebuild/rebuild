@@ -529,6 +529,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #dee2e6;
 }
 
+.chart-box.DataList .chart.ctable thead th.no-sort:hover,
+.chart-box.DataList .chart.ctable thead th.no-sort:active {
+  cursor: default;
+  background-color: #eceff1;
+}
+
 .chart-box.DataList .table td,
 .chart-box.DataList .table td > div {
   white-space: nowrap;
