@@ -377,6 +377,7 @@ class ReportEditor extends ConfigFormDlg {
   _buildParams() {
     const type = ~~$(this._$listType).find('input:checked').val() || 1
     $(this._$useFilter).attr('disabled', type === 2)
+    if (type === 2) this.setState({ useFilter: null })
 
     const entity = this.__select2.val()
     const file = this.__lastFile
@@ -432,7 +433,6 @@ class ReportEditor extends ConfigFormDlg {
         if (!post.templateFile) return RbHighbar.create($L('请上传模板文件'))
       }
       post.extraDefinition.templateVersion = 3
-      if (post.templateType === 2) post.extraDefinition.useFilter = null
     }
 
     post.metadata = {
