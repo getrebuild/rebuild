@@ -38,7 +38,6 @@ public class LineChart extends ChartData {
         super(config);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public JSON build() {
         JSONObject renderOption = config.getJSONObject("option");
@@ -53,7 +52,7 @@ public class LineChart extends ChartData {
         final FormatCalc dim1Calc = dim1.getFormatCalc();
         boolean dateContinuous = renderOption.getBooleanValue("dateContinuous")
                 && (dim1Type == FieldType.DATE || dim1Type == FieldType.TIMESTAMP)
-                && (dim1Calc == FormatCalc.Y || dim1Calc == FormatCalc.M || dim1Calc == FormatCalc.D || dim1Calc == FormatCalc.Q);
+                && (dim1Calc == FormatCalc.Y || dim1Calc == FormatCalc.Q || dim1Calc == FormatCalc.M || dim1Calc == FormatCalc.W || dim1Calc == FormatCalc.D);
 
         List<String> dimAxis = new ArrayList<>();
         JSONArray yyyAxis = new JSONArray();
@@ -132,6 +131,7 @@ public class LineChart extends ChartData {
                 dimAxis.add(wrapAxisValue(dim1, o[0]));
 
                 for (int i = 0; i < nums.length; i++) {
+                    @SuppressWarnings("unchecked")
                     List<String> numAxis = (List<String>) numsAxis[i];
                     if (numAxis == null) {
                         numAxis = new ArrayList<>();
@@ -143,6 +143,7 @@ public class LineChart extends ChartData {
 
             for (int i = 0; i < nums.length; i++) {
                 Numerical axis = nums[i];
+                @SuppressWarnings("unchecked")
                 List<String> data = (List<String>) numsAxis[i];
 
                 JSONObject map = new JSONObject();
@@ -160,21 +161,36 @@ public class LineChart extends ChartData {
                 new Object[]{JSON.toJSON(dimAxis), JSON.toJSON(yyyAxis), renderOption});
     }
 
-    private Object[][] putFullDates2Data(Object[][] dataRaw, Dimension date1, int numStarts) {
+    private Object[][] putFullDates2Data(Object[][] dataRaw, Dimension date1, int numStartIndex) {
         Date min = null;
         Date max = null;
         for (Object[] o : dataRaw) {
             String date2str = o[0] == null ? null : o[0].toString();
             if (StringUtils.isBlank(date2str)) continue;
 
+            Date date = null;
+
+            // 2024 Q2
             String[] isQuarter = date2str.split(" Q");
             if (isQuarter.length == 2) {
                 int m = ObjectUtils.toInt(isQuarter[1]) * 3;
                 date2str = isQuarter[0] + "-" + StringUtils.leftPad(m + "", 2, "0");
+            } else {
+                // 2024 W04
+                String[] isWeek = date2str.split(" W");
+                if (isWeek.length == 2) {
+                    int m = ObjectUtils.toInt(isWeek[1]);
+                    Calendar cal = Calendar.getInstance();
+                    cal.set(Calendar.YEAR, ObjectUtils.toInt(isWeek[0]));
+                    cal.set(Calendar.WEEK_OF_YEAR, m);
+                    date = cal.getTime();
+                }
             }
 
-            String format = CalendarUtils.UTC_DATETIME_FORMAT.substring(0, date2str.length());
-            Date date = CalendarUtils.parse(date2str, format);
+            if (date == null) {
+                String format = CalendarUtils.UTC_DATETIME_FORMAT.substring(0, date2str.length());
+                date = CalendarUtils.parse(date2str, format);
+            }
 
             if (max == null || date.getTime() > max.getTime()) max = date;
             if (min == null || date.getTime() < min.getTime()) min = date;
@@ -184,11 +200,11 @@ public class LineChart extends ChartData {
 
         final List<Object> emptyRow = new ArrayList<>();
         emptyRow.add(null);
-        if (numStarts == 2) emptyRow.add(dataRaw[0][1]);  // dim2
-        for (int i = numStarts; i < 9; i++) emptyRow.add(0);
+        if (numStartIndex == 2) emptyRow.add(dataRaw[0][1]);  // dim2
+        for (int i = numStartIndex; i < 9; i++) emptyRow.add(0);
 
         List<String> fullDates = getFullDates(min, max, date1.getFormatCalc(), date1.getFormatSort());
-        List<Object[]> dataRaw2 = new ArrayList<>();
+        List<Object[]> dataRawFd = new ArrayList<>();
         boolean fullingNull = false;
         for (String date : fullDates) {
             boolean dateMiss = true;
@@ -196,11 +212,11 @@ public class LineChart extends ChartData {
                 if (o[0] == null) {
                     if (!fullingNull) {
                         fullingNull = true;
-                        dataRaw2.add(o);
+                        dataRawFd.add(o);
                         dateMiss = false;
                     }
                 } else if (o[0].equals(date)) {
-                    dataRaw2.add(o);
+                    dataRawFd.add(o);
                     dateMiss = false;
                 }
             }
@@ -208,15 +224,14 @@ public class LineChart extends ChartData {
             if (dateMiss) {
                 Object[] emptyRow2 = emptyRow.toArray(new Object[0]);
                 emptyRow2[0] = date;
-                dataRaw2.add(emptyRow2);
+                dataRawFd.add(emptyRow2);
             }
         }
 
-        dataRaw = dataRaw2.toArray(new Object[0][]);
+        dataRaw = dataRawFd.toArray(new Object[0][]);
         return dataRaw;
     }
 
-    @SuppressWarnings("deprecation")
     private List<String> getFullDates(Date min, Date max, FormatCalc calc, FormatSort sort) {
         List<Date> fullDates = new ArrayList<>();
         Date temp = min;
@@ -225,6 +240,8 @@ public class LineChart extends ChartData {
 
             if (calc == FormatCalc.D) {
                 temp = CalendarUtils.add(temp, 1, Calendar.DAY_OF_MONTH);
+            } else if (calc == FormatCalc.W) {
+                temp = CalendarUtils.add(temp, 1, Calendar.WEEK_OF_YEAR);
             } else {
                 temp = CalendarUtils.add(temp, 1, Calendar.MONTH);
             }
@@ -237,16 +254,21 @@ public class LineChart extends ChartData {
         List<String> fullDates2 = new ArrayList<>();
         for (Date date : fullDates) {
             String date2unit;
-            if (calc == FormatCalc.Y || calc == FormatCalc.Q) {
+            if (calc == FormatCalc.Y || calc == FormatCalc.Q || calc == FormatCalc.W) {
                 date2unit = CalendarUtils.getDateFormat("yyyy").format(date);
+                Calendar cal = CalendarUtils.getInstance(date);
 
                 if (calc == FormatCalc.Q) {
-                    int m = date.getMonth() + 1;
+                    int m = cal.get(Calendar.MONTH) + 1;
                     if (m <= 3) date2unit += " Q1";
                     else if (m <= 6) date2unit += " Q2";
                     else if (m <= 9) date2unit += " Q3";
                     else date2unit += " Q4";
+                } else if (calc == FormatCalc.W) {
+                    int m = cal.get(Calendar.WEEK_OF_YEAR);
+                    date2unit += " W" + (m < 10 ? "0" : "") + m;
                 }
+
             } else if (calc == FormatCalc.M) {
                 date2unit = CalendarUtils.getDateFormat("yyyy-MM").format(date);
             } else {
