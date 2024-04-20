@@ -1160,3 +1160,13 @@ body {
   line-height: 16px;
   text-align: center;
 }
+
+/* v3.7 */
+
+.view-body .view-header {
+  position: sticky;
+}
+
+.view-body .main-content {
+  margin-top: 0;
+}
