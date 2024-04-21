@@ -496,7 +496,14 @@ class ChartBar extends BaseChart {
         yAxis.type = 'bar'
         if (showNumerical) yAxis.label = ECHART_VALUE_LABEL2(dataFlags)
         yAxis.cursor = 'default'
-        if (this._stack) yAxis.stack = 'a' // v3.7
+        // v3.7
+        if (this._stack) {
+          yAxis.stack = 'a'
+        } else if (this._overLine && i > 0) {
+          yAxis.type = 'line'
+          yAxis.smooth = true
+          yAxis.lineStyle = { width: 3 }
+        }
         data.yyyAxis[i] = yAxis
       }
 
@@ -543,6 +550,14 @@ class ChartBar2 extends ChartBar {
   constructor(props) {
     super(props)
     this._stack = true
+  }
+}
+
+// 折线柱状图
+class ChartBar3 extends ChartBar {
+  constructor(props) {
+    super(props)
+    this._overLine = true
   }
 }
 
@@ -1458,6 +1473,8 @@ const detectChart = function (cfg, id) {
     return <ChartBar {...props} />
   } else if (cfg.type === 'BAR2') {
     return <ChartBar2 {...props} />
+  } else if (cfg.type === 'BAR3') {
+    return <ChartBar3 {...props} />
   } else if (cfg.type === 'PIE') {
     return <ChartPie {...props} />
   } else if (cfg.type === 'FUNNEL') {
