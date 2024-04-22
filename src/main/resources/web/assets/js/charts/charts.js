@@ -411,7 +411,8 @@ const recalcMutliYAxis = function (option) {
       c.position = 'right'
       c.offset = i * 45 - 45
     }
-    c.axisLabel.textStyle.color = option.color[i] || '#000000'
+    c.axisLabel.textStyle.color = option.color[i] || COLOR_AXIS
+    // c.axisLine = { show: true, lineStyle: { color: option.color[i] || COLOR_AXIS } }
     option.series[i].yAxisIndex = i
     yAxisMutli.push(c)
   }
