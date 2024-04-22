@@ -9,7 +9,8 @@ package com.rebuild.utils;
 
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.support.License;
-import org.apache.commons.lang.StringUtils;
+import com.rebuild.core.support.NeedRbvException;
+import com.rebuild.core.support.i18n.Language;
 
 /**
  * @author devezhao
@@ -22,7 +23,8 @@ public class RbAssert {
      */
     public static void isCommercial(String message) {
         if (!License.isCommercial()) {
-            throw new DefinedException(StringUtils.defaultString(message, "FEATURE REJECTION"));
+            if (message == null) message = Language.L("免费版不支持此功能");
+            throw new NeedRbvException(message);
         }
     }
     

@@ -7,7 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.dashboard.charts;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.RbAssert;
 
 /**
  * 柱状图
@@ -19,5 +22,11 @@ public class Bar2Chart extends LineChart {
 
     protected Bar2Chart(JSONObject config) {
         super(config);
+    }
+
+    @Override
+    public JSON build() {
+        RbAssert.isCommercial(Language.L("免费版不支持此图表"));
+        return super.build();
     }
 }

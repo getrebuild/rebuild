@@ -494,11 +494,11 @@ var $timechunk = function (array, fn, count) {
 }
 
 /**
- * 使用数据副本
+ * 对象深拷贝
  */
 var $clone = function (o) {
   if (!o) return o
-  return JSON.parse(JSON.stringify(o))
+  return $.extend(true, {}, o)
 }
 
 /**
