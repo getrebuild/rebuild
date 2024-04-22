@@ -18,9 +18,9 @@ import com.rebuild.utils.RbAssert;
  * @author devezhao
  * @since 4/3/2024
  */
-public class Bar2Chart extends LineChart {
+public class Bar3Chart extends LineChart {
 
-    protected Bar2Chart(JSONObject config) {
+    protected Bar3Chart(JSONObject config) {
         super(config);
     }
 

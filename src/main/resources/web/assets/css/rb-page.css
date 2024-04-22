@@ -5620,3 +5620,12 @@ span.icon-append .icon {
 .light-link:hover {
   border-bottom-style: solid;
 }
+
+.bg-light2 {
+  background-color: #f2f4f8;
+}
+
+.bg-light2:hover,
+.bg-light2.active {
+  background-color: #e9ecf1;
+}

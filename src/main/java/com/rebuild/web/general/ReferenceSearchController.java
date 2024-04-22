@@ -95,7 +95,7 @@ public class ReferenceSearchController extends EntityController {
             }
         }
 
-        int pageSize = getIntParameter(request, "pageSize", 10);
+        int pageSize = getIntParameter(request, "pageSize", 20);
         return buildResultSearch(
                 searchEntity, getParameter(request, "quickFields"), q, protocolFilter, pageSize, user);
     }
@@ -118,11 +118,11 @@ public class ReferenceSearchController extends EntityController {
                 if (forceResults);  // Nothings
                 else return JSONUtils.EMPTY_ARRAY;
             } else {
-                return RecentlyUsedSearchController.formatSelect2(recently, null);
+                return RecentlyUsedSearchController.formatSelect2(recently, Language.L("最近使用"));
             }
         }
 
-        int pageSize = getIntParameter(request, "pageSize", 10);
+        int pageSize = getIntParameter(request, "pageSize", 20);
         return buildResultSearch(
                 searchEntity, getParameter(request, "quickFields"), q, null, pageSize, user);
     }
@@ -191,7 +191,7 @@ public class ReferenceSearchController extends EntityController {
             if (used.length == 0) {
                 return JSONUtils.EMPTY_ARRAY;
             } else {
-                return RecentlyUsedSearchController.formatSelect2(used, null);
+                return RecentlyUsedSearchController.formatSelect2(used, Language.L("最近使用"));
             }
         }
 
@@ -203,7 +203,7 @@ public class ReferenceSearchController extends EntityController {
                 useClassification.toLiteral(), openLevel, q, q, q);
 
         List<Object> result = resultSearch(
-                sqlWhere, MetadataHelper.getEntity(EntityHelper.ClassificationData), 10);
+                sqlWhere, MetadataHelper.getEntity(EntityHelper.ClassificationData), 20);
         return (JSON) JSON.toJSON(result);
     }
 

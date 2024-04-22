@@ -603,7 +603,9 @@ const RbViewPage = {
     $('.J_close').on('click', () => this.hide())
     $('.J_reload').on('click', () => this.reload())
     $('.J_newpage').attr({ target: '_blank', href: location.href })
+
     if (parent && parent.RbListPage) $('.J_newpage').removeClass('hide')
+    if (parent && parent.RbViewModal && parent.RbViewModal.mode === 2) $('.J_close').remove()
 
     const that = this
 

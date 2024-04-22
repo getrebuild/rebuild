@@ -30,7 +30,6 @@ import java.util.Set;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/25
  */
-@SuppressWarnings("unchecked")
 public class RecentlyUsedHelper {
 
     // 最大缓存数量
@@ -45,7 +44,7 @@ public class RecentlyUsedHelper {
      * @return
      */
     public static ID[] gets(ID user, String entity, String type) {
-        return gets(user, entity, type, 10, null);
+        return gets(user, entity, type, 20, null);
     }
 
     /**
@@ -58,7 +57,7 @@ public class RecentlyUsedHelper {
      * @return
      */
     public static ID[] gets(ID user, String entity, String type, String checkFilter) {
-        return gets(user, entity, type, 10, checkFilter);
+        return gets(user, entity, type, 20, checkFilter);
     }
 
     /**
@@ -73,6 +72,7 @@ public class RecentlyUsedHelper {
      */
     protected static ID[] gets(ID user, String entity, String type, int limit, String checkFilter) {
         final String ckey = formatKey(user, entity, type);
+        @SuppressWarnings("unchecked")
         LinkedList<ID> cached = (LinkedList<ID>) Application.getCommonsCache().getx(ckey);
         if (cached == null || cached.isEmpty()) return ID.EMPTY_ID_ARRAY;
 
@@ -128,6 +128,7 @@ public class RecentlyUsedHelper {
      */
     public static void add(ID user, ID id, String type) {
         final String key = formatKey(user, MetadataHelper.getEntityName(id), type);
+        @SuppressWarnings("unchecked")
         LinkedList<ID> cached = (LinkedList<ID>) Application.getCommonsCache().getx(key);
         if (cached == null) {
             cached = new LinkedList<>();

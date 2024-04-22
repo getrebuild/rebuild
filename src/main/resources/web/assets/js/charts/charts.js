@@ -317,6 +317,9 @@ const ECHART_BASE = {
     borderWidth: 0,
     padding: [5, 10],
   },
+  toolbox: {
+    show: false,
+  },
   textStyle: {
     fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
   },
@@ -398,15 +401,30 @@ const formatThousands = function (num, flag) {
   return n
 }
 
-const cloneOption = function (opt) {
-  opt = JSON.stringify(opt)
-  return JSON.parse(opt)
+// 多轴显示
+const recalcMutliYAxis = function (option) {
+  const yAxisBase = option.yAxis
+  const yAxisMutli = []
+  for (let i = 0; i < option.series.length; i++) {
+    let c = $clone(yAxisBase)
+    if (i > 0) {
+      c.position = 'right'
+      c.offset = i * 45 - 45
+    }
+    c.axisLabel.textStyle.color = option.color[i] || COLOR_AXIS
+    // c.axisLine = { show: true, lineStyle: { color: option.color[i] || COLOR_AXIS } }
+    option.series[i].yAxisIndex = i
+    yAxisMutli.push(c)
+  }
+  option.yAxis = yAxisMutli
+  option.grid.right = 60 + (option.series.length - 2) * 45
 }
 
 const renderEChart = function (option, $target) {
   const c = echarts.init(document.getElementById($target), 'light', {
     renderer: navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i) ? 'svg' : 'canvas',
   })
+  if (rb.env === 'dev') console.log(option)
   c.setOption(option)
   return c
 }
@@ -424,6 +442,7 @@ class ChartLine extends BaseChart {
       const showGrid = data._renderOption && data._renderOption.showGrid
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
+      const showMutliYAxis = data._renderOption && data._renderOption.showMutliYAxis
       const dataFlags = data._renderOption.dataFlags || []
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
@@ -441,7 +460,7 @@ class ChartLine extends BaseChart {
       }
 
       const option = {
-        ...cloneOption(ECHART_BASE),
+        ...$clone(ECHART_BASE),
         xAxis: {
           type: 'category',
           data: data.xAxis,
@@ -469,6 +488,9 @@ class ChartLine extends BaseChart {
         option.legend = ECHART_LEGEND_HOPT
         option.grid.top = 40
       }
+      if (showMutliYAxis && option.series.length > 1) {
+        recalcMutliYAxis(option)
+      }
 
       this._echarts = renderEChart(option, elid)
     })
@@ -489,6 +511,7 @@ class ChartBar extends BaseChart {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
       const showHorizontal = data._renderOption && data._renderOption.showHorizontal // v3.7
+      const showMutliYAxis = data._renderOption && data._renderOption.showMutliYAxis // v3.7
       const dataFlags = data._renderOption.dataFlags || [] // 小数符号
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
@@ -496,12 +519,19 @@ class ChartBar extends BaseChart {
         yAxis.type = 'bar'
         if (showNumerical) yAxis.label = ECHART_VALUE_LABEL2(dataFlags)
         yAxis.cursor = 'default'
-        if (this._stack) yAxis.stack = 'a' // v3.7
+        // v3.7
+        if (this._stack) {
+          yAxis.stack = 'a'
+        } else if (this._overLine && i > 0) {
+          yAxis.type = 'line'
+          yAxis.smooth = true
+          yAxis.lineStyle = { width: 3 }
+        }
         data.yyyAxis[i] = yAxis
       }
 
       const option = {
-        ...cloneOption(ECHART_BASE),
+        ...$clone(ECHART_BASE),
         xAxis: {
           type: showHorizontal ? 'value' : 'category',
           data: showHorizontal ? null : data.xAxis,
@@ -531,7 +561,13 @@ class ChartBar extends BaseChart {
         option.grid.top = 40
       }
       // 加大左侧距离
-      if (showHorizontal) option.grid.left = 100
+      if (showHorizontal) {
+        option.grid.left = 100
+      }
+      // 排他
+      else if (showMutliYAxis && option.series.length > 1 && !this._stack) {
+        recalcMutliYAxis(option)
+      }
 
       this._echarts = renderEChart(option, elid)
     })
@@ -543,6 +579,14 @@ class ChartBar2 extends ChartBar {
   constructor(props) {
     super(props)
     this._stack = true
+  }
+}
+
+// 折线柱状图
+class ChartBar3 extends ChartBar {
+  constructor(props) {
+    super(props)
+    this._overLine = true
   }
 }
 
@@ -569,7 +613,7 @@ class ChartPie extends BaseChart {
         }
       }
       const option = {
-        ...cloneOption(ECHART_BASE),
+        ...$clone(ECHART_BASE),
         series: [data],
       }
       option.tooltip.trigger = 'item'
@@ -598,7 +642,7 @@ class ChartFunnel extends BaseChart {
       const dataFlags = data._renderOption.dataFlags || []
 
       const option = {
-        ...cloneOption(ECHART_BASE),
+        ...$clone(ECHART_BASE),
         series: [
           {
             type: 'funnel',
@@ -645,7 +689,7 @@ class ChartTreemap extends BaseChart {
       const dataFlags = data._renderOption.dataFlags || []
 
       const option = {
-        ...cloneOption(ECHART_BASE),
+        ...$clone(ECHART_BASE),
         series: [
           {
             data: data.data,
@@ -956,7 +1000,7 @@ class ChartRadar extends BaseChart {
       const dataFlags = data._renderOption.dataFlags || []
 
       const option = {
-        ...cloneOption(ECHART_BASE),
+        ...$clone(ECHART_BASE),
         radar: {
           indicator: data.indicator,
           name: {
@@ -1068,7 +1112,7 @@ class ChartScatter extends BaseChart {
       })
 
       const option = {
-        ...cloneOption(ECHART_BASE),
+        ...$clone(ECHART_BASE),
         xAxis: { ...axisOption },
         yAxis: { ...axisOption },
         series: seriesData,
@@ -1371,7 +1415,7 @@ class ChartCNMap extends BaseChart {
 
       // https://github.com/apache/echarts/tree/master/extension-src/bmap
       const option = {
-        ...cloneOption(ECHART_BASE),
+        ...$clone(ECHART_BASE),
         bmap: {
           zoom: 5,
           roam: true,
@@ -1458,6 +1502,8 @@ const detectChart = function (cfg, id) {
     return <ChartBar {...props} />
   } else if (cfg.type === 'BAR2') {
     return <ChartBar2 {...props} />
+  } else if (cfg.type === 'BAR3') {
+    return <ChartBar3 {...props} />
   } else if (cfg.type === 'PIE') {
     return <ChartPie {...props} />
   } else if (cfg.type === 'FUNNEL') {

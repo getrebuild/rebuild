@@ -7,8 +7,10 @@ import com.rebuild.core.DefinedException;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.RbAssert;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.MessageFormat;
@@ -29,6 +31,8 @@ public class CNMapChart extends ChartData {
 
     @Override
     public JSON build() {
+        RbAssert.isCommercial(Language.L("免费版不支持此图表"));
+
         Dimension[] dims = getDimensions();
         Dimension dim1 = dims[0];
         Numerical[] nums = getNumericals();

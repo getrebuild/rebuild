@@ -358,9 +358,9 @@ const render_option = () => {
   // FUNNEL
   if ((dimsAxis === 1 && numsAxis === 1) || (dimsAxis === 0 && numsAxis > 1));
   else $('.chart-type>a[data-type="FUNNEL"]').removeClass('active')
-  // LINE/BAR/BAR2
+  // LINE/BAR/BAR2/BAR3
   if ((dimsAxis === 2 && numsAxis === 1) || (dimsAxis === 1 && numsAxis >= 1));
-  else $('.chart-type>a[data-type="LINE"],.chart-type>a[data-type="BAR"],.chart-type>a[data-type="BAR2"]').removeClass('active')
+  else $('.chart-type>a[data-type="LINE"],.chart-type>a[data-type="BAR"],.chart-type>a[data-type="BAR2"],.chart-type>a[data-type="BAR3"]').removeClass('active')
 
   // Active
   let $select = $('.chart-type>a.select')
@@ -453,6 +453,7 @@ const build_config = () => {
 
   const option = {}
   $('.chart-option input, .chart-option select').each(function () {
+    if ($(this).parents('div').hasClass('hide')) return
     const name = $(this).data('name')
     if (name) option[name] = $val(this)
   })
@@ -463,8 +464,10 @@ const build_config = () => {
   option.useColor = color || ''
   cfg.option = option
 
+  // 排他
+  $('input[data-name="showMutliYAxis"]').attr('disabled', option.showHorizontal)
+
   if (dataFilter) cfg.filter = dataFilter
-  // eslint-disable-next-line no-console
   if (rb.env === 'dev') console.log(cfg)
   return cfg
 }
