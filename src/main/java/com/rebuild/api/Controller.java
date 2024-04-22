@@ -10,7 +10,14 @@ package com.rebuild.api;
 import com.alibaba.fastjson.JSON;
 
 /**
- * 请求控制器
+ * 请求控制器。请求返回规范格式：
+ * <pre>
+ *   {
+ *       error_code: 0,
+ *       error_msg: '调用成功',
+ *       data: XXXANY
+ *   }
+ * </pre>
  *
  * @author devezhao
  * @since 01/10/2019
