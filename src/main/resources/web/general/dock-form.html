@@ -2,25 +2,28 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-datalist2.css}" />
-    <title th:text="${entityLabel}"></title>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/list-page.css}" />
+    <title th:text="${title}"></title>
     <style>
       .form-wrap .modal {
         position: relative;
         display: block;
         z-index: 1;
+        border-radius: 6px;
+        border: 1px solid #e6e6e6;
+        margin-top: 44px;
       }
       .form-wrap .modal .modal-dialog,
       .form-wrap .modal .modal-dialog .modal-content {
         margin: 0;
         box-shadow: none;
       }
-      .form-wrap .modal .modal-header button.J_maximize,
+      .form-wrap .modal .modal-header,
       .form-wrap .modal .dialog-footer .btn-secondary {
         display: none;
       }
-      .form-wrap .modal .modal-header {
-        justify-content: unset;
+      .quick-filter-tabs .dropdown-item {
+        background-color: #f5f5f5;
       }
     </style>
   </head>
@@ -33,7 +36,12 @@
       </div>
       <div class="rb-content">
         <div class="main-content container-fluid">
-          <div class="form-wrap shadow"></div>
+          <div class="quick-filter-tabs">
+            <div>
+              <a class="dropdown-item" th:href="|../${entityName}/list|">[[${bundle.L('返回列表')}]]</a>
+            </div>
+          </div>
+          <div class="form-wrap"></div>
         </div>
       </div>
     </div>
@@ -74,7 +82,7 @@
                 const after = $urlp('after')
                 if (after === 'view') location.replace(`./view?id=${id}`)
                 else if (after === 'edit') location.replace(`./form?id=${id}`)
-                else if (after === 'list') location.replace(`./form?id=${id}`)
+                else if (after === 'list') location.replace(`../${wpc.entity}/list`)
                 else if (after === 'close') window.close()
                 else location.reload()
               }, 400)
