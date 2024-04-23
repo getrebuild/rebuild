@@ -388,6 +388,8 @@ class RbHighbar extends React.Component {
   constructor(props) {
     super(props)
     this.state = { animatedClass: 'slideInDown' }
+    const n = $('.rbhighbar').length
+    if (n > 0 && n < 5) this._offsetTop = n * 62
   }
 
   render() {
@@ -395,7 +397,7 @@ class RbHighbar extends React.Component {
     icon = this.props.type === 'danger' ? 'close-circle-o' : icon
 
     return (
-      <div ref={(c) => (this._element = c)} className={`rbhighbar animated faster ${this.state.animatedClass}`}>
+      <div ref={(c) => (this._element = c)} className={`rbhighbar animated faster ${this.state.animatedClass}`} style={{ top: this._offsetTop || 0 }}>
         <div className={`alert alert-dismissible alert-${this.props.type || 'warning'} mb-0`}>
           <button className="close" type="button" onClick={this.close} title={$L('关闭')}>
             <i className="zmdi zmdi-close" />
@@ -413,7 +415,10 @@ class RbHighbar extends React.Component {
     setTimeout(() => this.close(), this.props.timeout || 3000)
   }
 
-  close = () => this.setState({ animatedClass: 'fadeOut' }, () => $unmount($(this._element).parent()))
+  close = () => {
+    this.setState({ animatedClass: 'fadeOut' })
+    setTimeout(() => $unmount($(this._element).parent(), 20), 200)
+  }
 
   // -- Usage
   /**
