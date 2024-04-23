@@ -86,11 +86,6 @@ code {
   user-select: none;
 }
 
-.dropdown-menu .dropdown-item,
-.dropdown-menu .dropdown-item > a {
-  /*cursor: default;*/
-}
-
 .dropdown-menu.auto-scroller {
   max-height: 488px;
   overflow-x: auto;
