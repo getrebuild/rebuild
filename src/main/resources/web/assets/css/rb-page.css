@@ -970,11 +970,11 @@ a.link.link-icon::after {
   flex-shrink: 0;
 }
 
-@media (min-width: 1064px) {
+/* @media (min-width: 1064px) {
   .form-layout > .row .form-group.col-sm-3 > .col-form-label {
     width: 100px;
   }
-}
+} */
 
 .form-layout > .row .form-group > .col-form-control {
   flex: 1;
