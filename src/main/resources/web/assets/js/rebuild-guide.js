@@ -61,7 +61,7 @@ class RebuildGuide extends React.Component {
 
   _pcalc() {
     const t1 = $('.rebuild-guide .guide .items li').length
-    const t2 = $('.rebuild-guide .guide .items li.confirm').length || 0
+    const t2 = $('.rebuild-guide .guide .items li.confirm').length
     const cp = ~~((t2 * 100) / t1)
 
     let option = {
