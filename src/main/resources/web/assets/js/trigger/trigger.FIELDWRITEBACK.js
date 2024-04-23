@@ -88,7 +88,7 @@ class ContentFieldWriteback extends ActionContentSpec {
             <div className="col-md-12 col-lg-9">
               <div className="items">
                 {(this.state.items || []).length > 0 &&
-                  this.state.items.map((item) => {
+                  this.state.items.map((item, idx) => {
                     // fix: v2.2
                     if (!item.updateMode) item.updateMode = item.sourceField.includes('#') ? 'FORMULA' : 'FIELD'
 
@@ -107,9 +107,16 @@ class ContentFieldWriteback extends ActionContentSpec {
                             {item.updateMode === 'FIELD' && <span className="badge badge-warning">{_getFieldLabel(this.__sourceFieldsCache, item.sourceField)}</span>}
                             {item.updateMode === 'VFIXED' && <span className="badge badge-light text-break">{FieldValueSet.formatFieldText(item.sourceField, field)}</span>}
                             {item.updateMode === 'FORMULA' && <span className="badge badge-warning">{FieldFormula.formatText(item.sourceField, this.__sourceFieldsCache)}</span>}
-                            <a className="del" title={$L('移除')} onClick={() => this.delItem(item.targetField)}>
-                              <i className="zmdi zmdi-close" />
-                            </a>
+                            <RF>
+                              {item.updateMode === 'FORMULA' && FieldFormula.isCode(item.sourceField) && (
+                                <a className="edit-code" title={$L('编辑计算公式')} onClick={() => this._editCode(item, idx)}>
+                                  <i className="zmdi zmdi-edit" />
+                                </a>
+                              )}
+                              <a className="del" title={$L('移除')} onClick={() => this.delItem(item.targetField)}>
+                                <i className="zmdi zmdi-close" />
+                              </a>
+                            </RF>
                           </div>
                         </div>
                       </div>
@@ -322,27 +329,47 @@ class ContentFieldWriteback extends ActionContentSpec {
     })
   }
 
+  _editCode(item, idx) {
+    const initCode = item.sourceField.substr(4, item.sourceField.length - 8)
+    renderRbcomp(
+      <FormulaCalcWithCode
+        entity={this.props.sourceEntity}
+        fields={this.__sourceFieldsCache}
+        forceCode
+        initCode={initCode}
+        verifyFormula
+        onConfirm={(expr) => {
+          if (!expr) return
+          const itemsNew = this.state.items
+          item.sourceField = expr
+          itemsNew[idx] = item
+          this.setState({ items: itemsNew })
+        }}
+      />
+    )
+  }
+
   addItem() {
     const targetField = $(this._$targetField).val()
     const mode = $(this._$updateMode).val()
     if (!targetField) return RbHighbar.create($L('请选择目标字段'))
 
-    let sourceField = null
+    let sourceAny = null
     if (mode === 'FIELD') {
-      sourceField = $(this._$sourceField).val()
-      if (!sourceField) return RbHighbar.create('请选择源字段')
+      sourceAny = $(this._$sourceField).val()
+      if (!sourceAny) return RbHighbar.create('请选择源字段')
 
       // 目标字段=源字段
       const targetFieldFull = `${$(this._$targetEntity).val().split('.')[0]}.${targetField}`.replace('$PRIMARY$.', '')
-      if (targetFieldFull === sourceField) return RbHighbar.create($L('目标字段与源字段不能为同一字段'))
+      if (targetFieldFull === sourceAny) return RbHighbar.create($L('目标字段与源字段不能为同一字段'))
 
       // ...
     } else if (mode === 'FORMULA') {
-      sourceField = this._$sourceFormula.val()
-      if (!sourceField) return RbHighbar.create($L('请输入计算公式'))
+      sourceAny = this._$sourceFormula.val()
+      if (!sourceAny) return RbHighbar.create($L('请输入计算公式'))
     } else if (mode === 'VFIXED') {
-      sourceField = this._$sourceValue.val()
-      if (!sourceField) return
+      sourceAny = this._$sourceValue.val()
+      if (!sourceAny) return
     } else if (mode === 'VNULL') {
       // v3.6 不校验
       // const tf = this.state.targetFields.find((x) => x.name === targetField)
@@ -353,7 +380,7 @@ class ContentFieldWriteback extends ActionContentSpec {
     const exists = items.find((x) => x.targetField === targetField)
     if (exists) return RbHighbar.create($L('目标字段重复'))
 
-    items.push({ targetField: targetField, updateMode: mode, sourceField: sourceField })
+    items.push({ targetField: targetField, updateMode: mode, sourceField: sourceAny })
     this.setState({ items: items }, () => this._$sourceFormula && this._$sourceFormula.clear())
   }
 
@@ -457,11 +484,14 @@ class FieldFormula extends React.Component {
   }
 }
 
+FieldFormula.isCode = function (formula) {
+  return formula && formula.startsWith('{{{{')
+}
 FieldFormula.formatText = function (formula, fields) {
   if (!formula) return null
 
   // CODE
-  if (formula.startsWith('{{{{')) {
+  if (FieldFormula.isCode(formula)) {
     return FormulaCode.textCode(formula)
   }
   // compatible: DATE

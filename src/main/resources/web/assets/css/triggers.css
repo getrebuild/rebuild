@@ -126,23 +126,31 @@ See LICENSE and COMMERCIAL in the project root for license information.
   position: relative;
 }
 
-.field-aggregation .items .del-wrap a.del {
+.field-aggregation .items .del-wrap a.del,
+.field-aggregation .items .del-wrap a.edit-code {
   position: absolute;
   font-size: 1.2rem;
   padding: 3px 6px;
   color: #999;
   font-weight: bold;
-  display: none;
   top: 1px;
-  margin-right: -9px;
+  right: -5px;
+  display: none;
 }
 
-.field-aggregation .items .del-wrap a.del:hover {
+.field-aggregation .items .del-wrap a.del:hover,
+.field-aggregation .items .del-wrap a.edit-code:hover {
   color: #222;
 }
 
-.field-aggregation .items > div:hover a.del {
+.field-aggregation .items > div:hover a.del,
+.field-aggregation .items > div:hover a.edit-code {
   display: inline-block;
+}
+
+.field-aggregation .items .del-wrap a.edit-code {
+  right: 14px;
+  font-size: 1rem;
 }
 
 .group-aggregation .col-5 > .zmdi,
