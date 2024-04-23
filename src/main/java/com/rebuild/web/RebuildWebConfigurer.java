@@ -24,7 +24,6 @@ import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver;
@@ -188,7 +187,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         if (ex instanceof DefinedException) {
             errorCode = ((DefinedException) ex).getErrorCode();
             log.warn(errorLog, Application.devMode() ? ex : null);
-        } else if (ex instanceof ClientAbortException) {
+        } else if (ex != null && ex.getClass().getSimpleName().equals("ClientAbortException")) {
             log.warn("ClientAbortException : " + errorMsg, Application.devMode() ? ex : null);
         } else if (ex instanceof HttpRequestMethodNotSupportedException) {
             log.warn("HttpRequestMethodNotSupportedException : " + getRequestUrls(request), Application.devMode() ? ex : null);
