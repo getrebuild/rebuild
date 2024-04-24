@@ -1483,6 +1483,10 @@ class ChartCNMap extends BaseChart {
       .find('.chart-body')
       .height(height - (window.render_preview_chart ? 0 : 40))
   }
+
+  export() {
+    RbHighbar.createl('该图表暂不支持导出')
+  }
 }
 
 // 确定图表类型
