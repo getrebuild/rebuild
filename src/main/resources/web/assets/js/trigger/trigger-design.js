@@ -250,7 +250,7 @@ class LastLogsViewer extends RbAlert {
       const L = JSON.parse(log)
       const LR = LastLogsViewer.renderLog(L)
       if (LR === false) {
-        return <p className={`${L.level === 3 ? 'text-warning' : 'text-muted'}`}>{L.message || 'N'}</p>
+        return <p className={`text-uppercase ${L.level === 3 ? 'text-warning' : 'text-muted'}`}>{L.message || 'N'}</p>
       }
       return LR
     } catch (err) {

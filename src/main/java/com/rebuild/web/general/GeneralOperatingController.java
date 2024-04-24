@@ -150,25 +150,13 @@ public class GeneralOperatingController extends BaseController {
             return new RespBody(DefinedException.CODE_RECORDS_REPEATED, Language.L("存在重复记录"),
                     buildRepeatedData(know.getRepeatedRecords()));
 
-        } catch (AccessDeniedException | DataSpecificationException known) {
-            log.warn(">>>>> {}", known.getLocalizedMessage());
-
+        } catch (AccessDeniedException | DataSpecificationException | UnexpectedRollbackException | JdbcException known) {
             if (known instanceof DataValidateException && ((DataValidateException) known).isWeakMode()) {
+                log.warn(">>>>> {}", known.getLocalizedMessage());
                 return RespBody.error(known.getLocalizedMessage(), DefinedException.CODE_WEAK_VALIDATE);
             } else {
-                return RespBody.error(known.getLocalizedMessage());
+                return handleKnownException(known, "record-save");
             }
-
-        } catch (JdbcException ex) {
-            String known = KnownExceptionConverter.convert2ErrorMsg(ex);
-            if (known != null) return RespBody.error(known);
-
-            log.error(null, ex);
-            return RespBody.error(ex.getLocalizedMessage());
-
-        } catch (UnexpectedRollbackException rolledback) {
-            log.error("ROLLEDBACK", rolledback);
-            return RespBody.error("ROLLEDBACK OCCURED");
 
         } finally {
             // 确保清除
@@ -244,13 +232,8 @@ public class GeneralOperatingController extends BaseController {
                 affected = ies.bulk(context);
             }
 
-        } catch (AccessDeniedException | DataSpecificationException known) {
-            log.warn(">>>>> {}", known.getLocalizedMessage());
-            return RespBody.error(known.getLocalizedMessage());
-
-        } catch (UnexpectedRollbackException rolledback) {
-            log.error("ROLLEDBACK", rolledback);
-            return RespBody.error("ROLLEDBACK OCCURED");
+        } catch (AccessDeniedException | DataSpecificationException | UnexpectedRollbackException known) {
+            return handleKnownException(known, "record-delete");
         }
 
         return JSONUtils.toJSONObject(
@@ -283,9 +266,8 @@ public class GeneralOperatingController extends BaseController {
                 affected = ies.bulk(context);
             }
 
-        } catch (AccessDeniedException | DataSpecificationException known) {
-            log.warn(">>>>> {}", known.getLocalizedMessage());
-            return RespBody.error(known.getLocalizedMessage());
+        } catch (AccessDeniedException | DataSpecificationException | UnexpectedRollbackException known) {
+            return handleKnownException(known, "record-assign");
         }
 
         return JSONUtils.toJSONObject(
@@ -330,9 +312,8 @@ public class GeneralOperatingController extends BaseController {
                 }
             }
 
-        } catch (AccessDeniedException | DataSpecificationException known) {
-            log.warn(">>>>> {}", known.getLocalizedMessage());
-            return RespBody.error(known.getLocalizedMessage());
+        } catch (AccessDeniedException | DataSpecificationException | UnexpectedRollbackException known) {
+            return handleKnownException(known, "record-share");
         }
 
         return JSONUtils.toJSONObject(
@@ -360,9 +341,8 @@ public class GeneralOperatingController extends BaseController {
                 affected = ies.bulk(context);
             }
 
-        } catch (AccessDeniedException | DataSpecificationException known) {
-            log.warn(">>>>> {}", known.getLocalizedMessage());
-            return RespBody.error(known.getLocalizedMessage());
+        } catch (AccessDeniedException | DataSpecificationException | UnexpectedRollbackException known) {
+            return handleKnownException(known, "record-unshare");
         }
 
         return JSONUtils.toJSONObject(
@@ -421,9 +401,8 @@ public class GeneralOperatingController extends BaseController {
                 affected += ies.bulk(context);
             }
 
-        } catch (AccessDeniedException | DataSpecificationException known) {
-            log.warn(">>>>> {}", known.getLocalizedMessage());
-            return RespBody.error(known.getLocalizedMessage());
+        } catch (AccessDeniedException | DataSpecificationException | UnexpectedRollbackException known) {
+            return handleKnownException(known, "record-unshare-batch");
         }
 
         return JSONUtils.toJSONObject(
@@ -449,7 +428,11 @@ public class GeneralOperatingController extends BaseController {
         return array;
     }
 
-    // 操作 ID 列表
+    /**
+     * 解析操作 ID 列表
+     * @param request
+     * @return
+     */
     private ID[] parseIdList(HttpServletRequest request) {
         ID[] idList = getIdArrayParameter(request, "id");
         if (idList.length == 0) return idList;
@@ -463,31 +446,39 @@ public class GeneralOperatingController extends BaseController {
         return idList;
     }
 
-    // 用户列表
+    /**
+     * 解析用户列表
+     * @param request
+     * @return
+     */
     private ID[] parseUserList(HttpServletRequest request) {
         String to = getParameterNotNull(request, "to");
-
         Set<ID> users = UserHelper.parseUsers(Arrays.asList(to.split(",")), null, true);
         return users.toArray(new ID[0]);
     }
 
-    // 级联操作实体
+    /**
+     * 级联操作实体
+     * @param request
+     * @return
+     */
     private String[] parseCascades(HttpServletRequest request) {
         String cascades = getParameter(request, "cascades");
         if (StringUtils.isBlank(cascades)) return ArrayUtils.EMPTY_STRING_ARRAY;
 
         List<String> casList = new ArrayList<>();
         for (String c : cascades.split(",")) {
-            if (MetadataHelper.containsEntity(c)) {
-                casList.add(c);
-            } else {
-                log.warn("Unknown entity in cascades : " + c);
-            }
+            if (MetadataHelper.containsEntity(c)) casList.add(c);
+            else log.warn("Unknown entity in cascades : {}", c);
         }
         return casList.toArray(new String[0]);
     }
 
-    // 转成二维数组（首行为字段名，首列为ID）
+    /**
+     * 转成二维数组（首行为字段名，首列为ID）
+     * @param records
+     * @return
+     */
     private JSON buildRepeatedData(List<Record> records) {
         final Entity entity = records.get(0).getEntity();
 
@@ -497,9 +488,7 @@ public class GeneralOperatingController extends BaseController {
         for (Record r : records) {
             for (Iterator<String> iter = r.getAvailableFieldIterator(); iter.hasNext(); ) {
                 String field = iter.next();
-                if (!fields.contains(field)) {
-                    fields.add(field);
-                }
+                if (!fields.contains(field)) fields.add(field);
             }
         }
 
@@ -521,5 +510,33 @@ public class GeneralOperatingController extends BaseController {
             data.add(valuesJson);
         }
         return data;
+    }
+
+    /**
+     * 异常处理
+     * @param knownEx
+     * @param op
+     * @return
+     */
+    private RespBody handleKnownException(Exception knownEx, String op) {
+        if (knownEx instanceof AccessDeniedException || knownEx instanceof DataSpecificationException) {
+            log.warn(">>>>> {}:{}", op, knownEx.getLocalizedMessage());
+            return RespBody.error(knownEx.getLocalizedMessage());
+        }
+
+        if (knownEx instanceof UnexpectedRollbackException) {
+            log.error("{}:ROLLEDBACK", op, knownEx);
+            return RespBody.error("ROLLEDBACK OCCURED");
+        }
+
+        if (knownEx instanceof JdbcException) {
+            String knownMsg = KnownExceptionConverter.convert2ErrorMsg(knownEx);
+            if (knownMsg != null) return RespBody.error(knownMsg);
+
+            log.error(op, knownEx);
+            return RespBody.error(knownEx.getLocalizedMessage());
+        }
+
+        return RespBody.error();
     }
 }

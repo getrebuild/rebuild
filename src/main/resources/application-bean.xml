@@ -53,9 +53,9 @@
 
     <tx:advice id="txAdvice" transaction-manager="txManager">
         <tx:attributes>
-            <tx:method name="create*" no-rollback-for="DataSpecificationNoRollbackException"/>
-            <tx:method name="delete*" no-rollback-for="DataSpecificationNoRollbackException"/>
+            <tx:method name="create*" no-rollback-for="DataSpecificationNoRollbackException,RepeatedRecordsException"/>
             <tx:method name="update*" no-rollback-for="DataSpecificationNoRollbackException"/>
+            <tx:method name="delete*" no-rollback-for="DataSpecificationNoRollbackException"/>
             <tx:method name="assign*" no-rollback-for="DataSpecificationNoRollbackException"/>
             <tx:method name="share*" no-rollback-for="DataSpecificationNoRollbackException"/>
             <tx:method name="unshare*" no-rollback-for="DataSpecificationNoRollbackException"/>
