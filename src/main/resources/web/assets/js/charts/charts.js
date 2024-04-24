@@ -739,7 +739,7 @@ class ChartTreemap extends BaseChart {
 // ~ 审批列表
 const APPROVAL_STATES = {
   1: ['warning', $L('待审批')],
-  10: ['success', $L('通过')],
+  10: ['success', $L('已完成')],
   11: ['danger', $L('驳回')],
 }
 class ApprovalList extends BaseChart {
@@ -821,7 +821,7 @@ class ApprovalList extends BaseChart {
                           {$L('审批')}
                         </button>
                       )}
-                      {this.state.viewState === 10 && <span className="text-success">{$L('通过')}</span>}
+                      {this.state.viewState === 10 && <span className="text-success">{$L('已完成')}</span>}
                       {this.state.viewState === 11 && <span className="text-danger">{$L('驳回')}</span>}
                     </td>
                   </tr>
