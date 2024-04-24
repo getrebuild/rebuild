@@ -5665,7 +5665,7 @@ span.icon-append .icon {
 }
 
 .protable .table .col-index.action > a:hover {
-  color: gray;
+  color: #4285f4;
 }
 
 .modal-dialog.fullscreen .modal-body .rbform > div.detail-form-table.fullscreen .col-index.action > a > i::before {
