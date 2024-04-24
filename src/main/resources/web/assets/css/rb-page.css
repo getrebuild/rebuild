@@ -5624,3 +5624,50 @@ span.icon-append .icon {
 .bg-light2.active {
   background-color: #e9ecf1;
 }
+
+/* v3.7 */
+
+.detail-form-table.fullscreen {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 3;
+  background-color: #fff;
+  margin: 10px 0;
+}
+
+.modal-dialog.fullscreen .modal-content {
+  overflow: hidden;
+}
+
+.modal-dialog.fullscreen .modal-body {
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+.modal-dialog.fullscreen .modal-body .rbform > div {
+  display: none;
+}
+
+.modal-dialog.fullscreen .modal-body .rbform > div.detail-form-table.fullscreen {
+  display: block;
+}
+
+.protable .table .col-index.action {
+  padding: 0 6px 8px 0;
+}
+
+.protable .table .col-index.action > a {
+  color: #a1a1a1;
+  padding-right: 2px;
+  font-size: 15px;
+}
+
+.protable .table .col-index.action > a:hover {
+  color: gray;
+}
+
+.modal-dialog.fullscreen .modal-body .rbform > div.detail-form-table.fullscreen .col-index.action > a > i::before {
+  content: '\F0615';
+}
