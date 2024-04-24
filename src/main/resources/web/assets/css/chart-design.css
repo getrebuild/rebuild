@@ -323,6 +323,11 @@ a.ui-draggable.ui-draggable-dragging {
   color: #fbbc05;
 }
 
+.data-info .fields li.list a::before {
+  content: 'L';
+  color: #fbbc05;
+}
+
 .chart-type > a {
   display: inline-block;
   width: 40px;
