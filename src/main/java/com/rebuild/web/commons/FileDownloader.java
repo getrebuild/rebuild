@@ -181,6 +181,7 @@ public class FileDownloader extends BaseController {
 
         if (CommonsUtils.isExternalUrl(filepath)) {
             String text = OkHttpUtils.get(filepath, null, charset);
+            ServletUtils.setContentType(response, ServletUtils.CT_PLAIN);
             ServletUtils.write(response, text);
             return;
         }
@@ -212,6 +213,7 @@ public class FileDownloader extends BaseController {
             }
         }
 
+        ServletUtils.setContentType(response, ServletUtils.CT_PLAIN);
         ServletUtils.write(response, text);
     }
 
