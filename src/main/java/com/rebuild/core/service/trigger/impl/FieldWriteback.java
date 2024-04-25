@@ -47,6 +47,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -452,7 +453,7 @@ public class FieldWriteback extends FieldAggregation {
                             // 数字字段置 `0`
                             if (varField != null
                                     && (varField.getType() == FieldType.LONG || varField.getType() == FieldType.DECIMAL)) {
-                                value = 0;
+                                value = 0L;
                             } else if (fieldVarsN2NPath.contains(fieldName)
                                     || (isN2NField != null && isN2NField.getType() == FieldType.REFERENCE_LIST)) {
                                 // Keep NULL
@@ -472,6 +473,9 @@ public class FieldWriteback extends FieldAggregation {
                         } else if (value instanceof ID || forceUseQuote) {
                             value = value.toString();
                         }
+
+                        // v3.6.3 整数/小数强制使用 BigDecimal 高精度
+                        if (value instanceof Long) value = BigDecimal.valueOf((Long) value);
 
                         envMap.put(fieldName, value);
                     }

@@ -49,6 +49,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -248,8 +249,9 @@ public class ModelExtrasController extends BaseController {
             } else if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
                 fieldValue = EasyDecimal.clearFlaged(fieldValue2);
                 if (StringUtils.isNotBlank((String) fieldValue)) {
-                    if (dt == DisplayType.NUMBER) fieldValue = ObjectUtils.toLong(fieldValue);
-                    else fieldValue = ObjectUtils.toDouble(fieldValue);
+                    // v3.6.3 整数/小数强制使用 BigDecimal 高精度
+                    if (dt == DisplayType.NUMBER) fieldValue = BigDecimal.valueOf(ObjectUtils.toLong(fieldValue));
+                    else fieldValue = BigDecimal.valueOf(ObjectUtils.toDouble(fieldValue));
                 } else {
                     fieldValue = null;
                 }

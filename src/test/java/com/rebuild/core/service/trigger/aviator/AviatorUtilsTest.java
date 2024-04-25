@@ -119,4 +119,10 @@ class AviatorUtilsTest {
         Assertions.assertTrue((Boolean) AviatorUtils.eval("12.34560 == 12.3456", env));
         Assertions.assertTrue((Boolean) AviatorUtils.eval("1 != 2", env));
     }
+
+    @Test
+    void intdiv() {
+        System.out.println(AviatorUtils.eval("1/2.333"));
+        System.out.println(AviatorUtils.eval("1/3"));
+    }
 }
