@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global SimpleMDE, RepeatedViewer, ProTable, Md2Html */
+/* global SimpleMDE, RepeatedViewer, ProTable, Md2Html, ExcelClipboardData */
 
 /**
  * Callback API:
@@ -492,6 +492,17 @@ class RbForm extends React.Component {
                     </a>
                   )
                 })}
+                <a
+                  className="dropdown-item"
+                  onClick={() => {
+                    renderRbcomp(
+                      <RbModal title={$L('从 Excel 添加')} useWhite disposeOnHide>
+                        <ExcelClipboardData />
+                      </RbModal>
+                    )
+                  }}>
+                  {$L('从 Excel 添加')} <sup className="rbv" />
+                </a>
                 <div className="dropdown-divider" />
                 <a className="dropdown-item" onClick={() => _ProTable.clear()}>
                   {$L('清空')}

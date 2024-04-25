@@ -5671,3 +5671,12 @@ span.icon-append .icon {
 .modal-dialog.fullscreen .modal-body .rbform > div.detail-form-table.fullscreen .col-index.action > a > i::before {
   content: '\F0615';
 }
+
+.rsheetb-table {
+  margin: 0 -15px;
+  overflow: auto;
+}
+
+.rsheetb-table td > span {
+  padding: 4px 6px;
+}
