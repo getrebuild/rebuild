@@ -55,15 +55,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chart-box .chart-head .chart-oper > a {
-  color: #000;
-  opacity: 0.4;
+  color: rgba(0, 0, 0, 0.4);
   display: inline-block;
   height: 20px;
   margin-left: 5px;
 }
 
 .chart-box .chart-head .chart-oper > a:hover {
-  opacity: 0.7;
+  color: rgba(0, 0, 0, 0.7);
 }
 
 .chart-box .chart-head .chart-oper > a .zmdi {
@@ -545,7 +544,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chart-box.DataList .table td.open-newtab {
-  padding-bottom: 0;
   text-align: center;
   padding: 8px;
 }
@@ -553,7 +551,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart-box.DataList .table td.open-newtab .icon {
   font-size: 15px;
   width: 100%;
-  color: #404040;
+  color: rgba(0, 0, 0, 0.5);
 }
 
 .chart-box.DataList .table td.open-newtab a:hover .icon {
