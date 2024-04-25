@@ -5629,8 +5629,8 @@ span.icon-append .icon {
 
 .detail-form-table.fullscreen {
   position: absolute;
-  left: 0;
-  right: 0;
+  left: 15px;
+  right: 15px;
   top: 0;
   z-index: 3;
   background-color: #fff;
@@ -5672,11 +5672,45 @@ span.icon-append .icon {
   content: '\F0615';
 }
 
+.modal-dialog.modal-rsheetb .modal-body {
+  padding: 0 !important;
+}
+
 .rsheetb-table {
-  margin: 0 -15px;
   overflow: auto;
+  margin-bottom: 3px;
+}
+
+.rsheetb-table .head-action {
+  margin: 10px 0;
+}
+
+.rsheetb-table .head-action > span {
+  padding: 0 15px;
+}
+
+.rsheetb-table th {
+  font-weight: normal !important;
+}
+
+.rsheetb-table table {
+  margin: 0;
 }
 
 .rsheetb-table td > span {
-  padding: 4px 6px;
+  padding: 4px;
+  min-width: 120px;
+  display: block;
+  line-height: 1;
+  outline-color: #bdc0c7;
+}
+
+.rsheetb-table tr > th:first-child,
+.rsheetb-table tr > td:first-child {
+  padding-left: 15px;
+}
+
+.rsheetb-table tr > th:last-child,
+.rsheetb-table tr > td:last-child {
+  padding-right: 15px;
 }

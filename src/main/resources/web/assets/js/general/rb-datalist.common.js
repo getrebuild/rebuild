@@ -811,7 +811,7 @@ const RbListCommon = {
     $('.J_batch-update').on('click', () => renderRbcomp(<BatchUpdate listRef={_RbList()} entity={entity[0]} />))
     $('.J_batch-approve').on('click', () => renderRbcomp(<BatchApprove listRef={_RbList()} entity={entity[0]} />))
     $('.J_record-merge').on('click', () => {
-      const ids = _RbList().getSelectedIds()
+      const ids = _RbList().getSelectedIds(true)
       if (ids.length < 2) return RbHighbar.createl('请至少选择两条记录')
       renderRbcomp(<RecordMerger listRef={_RbList()} entity={entity[0]} hasDetails={!!$('.J_details')[0]} ids={ids} />)
     })
