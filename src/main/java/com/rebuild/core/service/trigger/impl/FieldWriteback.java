@@ -478,9 +478,8 @@ public class FieldWriteback extends FieldAggregation {
                             value = value.toString();
                         }
 
-                        // v3.6.3 强制使用 BigDecimal 高精度
+                        // v3.6.3 整数/小数强制使用 BigDecimal 高精度
                         if (value instanceof Long) value = BigDecimal.valueOf((Long) value);
-                        else if (value instanceof Integer) value = BigDecimal.valueOf((Integer) value);
 
                         envMap.put(fieldName, value);
                     }
