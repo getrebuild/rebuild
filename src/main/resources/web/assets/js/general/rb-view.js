@@ -1012,11 +1012,9 @@ $(document).ready(function () {
       .removeClass('hide')
       .on('click', () => history.back())
   }
-  // 返回列表
+  // Dock
   if (parent && parent.location.href.includes('/app/entity/view')) {
-    $('.J_list')
-      .removeClass('hide')
-      .on('click', () => (parent.location.href = '../list'))
+    $('.view-header').remove()
   }
 
   // iframe 点击穿透

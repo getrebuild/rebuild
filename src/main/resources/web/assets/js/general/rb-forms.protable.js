@@ -41,7 +41,21 @@ class ProTable extends React.Component {
         <table className={`table table-sm ${!fixed && 'table-fixed'}`}>
           <thead>
             <tr>
-              <th className="col-index" />
+              <th className="col-index action">
+                <a
+                  title={$L('全屏')}
+                  onClick={() => {
+                    const $d = $(this._$scroller).parents('.detail-form-table').toggleClass('fullscreen')
+                    const $modal = $(this._$scroller).parents('.rbmodal')
+                    $modal.find('.modal-dialog').toggleClass('fullscreen')
+                    // height
+                    const wh = $d.hasClass('fullscreen') ? $(window).height() - 165 : 'auto'
+                    $d.height(wh)
+                    $modal.find('.modal-body').height(wh)
+                  }}>
+                  <i className="mdi mdi-arrow-expand" />
+                </a>
+              </th>
               {formFields.map((item) => {
                 if (item.field === TYPE_DIVIDER) return null
 

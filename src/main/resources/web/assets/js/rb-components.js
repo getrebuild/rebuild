@@ -388,6 +388,8 @@ class RbHighbar extends React.Component {
   constructor(props) {
     super(props)
     this.state = { animatedClass: 'slideInDown' }
+    const n = $('.rbhighbar').length
+    if (n > 0 && n < 5) this._offsetTop = n * 62
   }
 
   render() {
@@ -395,7 +397,7 @@ class RbHighbar extends React.Component {
     icon = this.props.type === 'danger' ? 'close-circle-o' : icon
 
     return (
-      <div ref={(c) => (this._element = c)} className={`rbhighbar animated faster ${this.state.animatedClass}`}>
+      <div ref={(c) => (this._element = c)} className={`rbhighbar animated faster ${this.state.animatedClass}`} style={{ top: this._offsetTop || 0 }}>
         <div className={`alert alert-dismissible alert-${this.props.type || 'warning'} mb-0`}>
           <button className="close" type="button" onClick={this.close} title={$L('关闭')}>
             <i className="zmdi zmdi-close" />
@@ -413,7 +415,10 @@ class RbHighbar extends React.Component {
     setTimeout(() => this.close(), this.props.timeout || 3000)
   }
 
-  close = () => this.setState({ animatedClass: 'fadeOut' }, () => $unmount($(this._element).parent()))
+  close = () => {
+    this.setState({ animatedClass: 'fadeOut' })
+    setTimeout(() => $unmount($(this._element).parent(), 20), 200)
+  }
 
   // -- Usage
   /**
@@ -1208,7 +1213,7 @@ class RbGritter extends React.Component {
   }
 }
 
-// 代码
+// ~~ 代码查看
 class CodeViewport extends React.Component {
   render() {
     return (
@@ -1240,6 +1245,64 @@ class CodeViewport extends React.Component {
 
   UNSAFE_componentWillReceiveProps(newProps) {
     if (newProps.code) this._$code.innerHTML = $formattedCode(newProps.code)
+  }
+}
+
+// ~~ Excel 粘贴
+class ExcelClipboardData extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div className="must-center text-danger">{WrapHtml(this.state.data)}</div>
+    }
+
+    if (this.state.data) {
+      return (
+        <div className="rsheetb-table" ref={(c) => (this._$table = c)}>
+          {WrapHtml(this.state.data)}
+        </div>
+      )
+    } else {
+      let tips = $L('复制 Excel 单元格 Ctrl + V 粘贴')
+      if ($.browser.mac) tips = tips.replace('Ctrl', 'Command')
+      return <div className="must-center text-muted">{tips}</div>
+    }
+  }
+
+  componentDidMount() {
+    const that = this
+    function _init() {
+      document.onpaste = function (e) {
+        let data
+        try {
+          // https://docs.sheetjs.com/docs/demos/local/clipboard/
+          // https://docs.sheetjs.com/docs/api/utilities/html
+          const c = e.clipboardData.getData('text/html')
+          const wb = window.XLSX.read(c, { type: 'string' })
+          const ws = wb.Sheets[wb.SheetNames[0]]
+          data = window.XLSX.utils.sheet_to_html(ws, { id: 'rsheetb', header: '', footer: '', editable: true })
+        } catch (err) {
+          console.log('Cannot read csv-data from clipboardData', err)
+        }
+
+        if (data) {
+          that.setState({ data: data }, () => {
+            that._$table && $(that._$table).find('table').addClass('table table-sm')
+          })
+        }
+      }
+    }
+
+    if (window.XLSX) _init()
+    else $getScript('/assets/lib/charts/xlsx.full.min.js', setTimeout(_init, 200))
+  }
+
+  componentWillUnmount() {
+    document.onpaste = null
   }
 }
 

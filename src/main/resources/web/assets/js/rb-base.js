@@ -93,7 +93,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
           else err = $L('系统繁忙，请稍后重试')
         }
         if (rb.env === 'dev') console.log('error on complete :', err)
-        err && RbHighbar.error(err)
+        typeof err === 'string' && RbHighbar.error(err)
       } else {
         var res = xhr.responseJSON
         if (res && res.error_code >= 500) console.error(JSON.stringify(res))

@@ -250,7 +250,7 @@ class LastLogsViewer extends RbAlert {
       const L = JSON.parse(log)
       const LR = LastLogsViewer.renderLog(L)
       if (LR === false) {
-        return <p className={`${L.level === 3 ? 'text-warning' : 'text-muted'}`}>{L.message || 'N'}</p>
+        return <p className={`text-uppercase ${L.level === 3 ? 'text-warning' : 'text-muted'}`}>{L.message || 'N'}</p>
       }
       return LR
     } catch (err) {
@@ -593,7 +593,7 @@ class EditorWithFieldVars extends React.Component {
 
     return (
       <div className="textarea-wrap">
-        <textarea {...attrs} ref={(c) => (this._$content = c)} />
+        <textarea {...attrs} spellCheck="false" ref={(c) => (this._$content = c)} />
         <a className="fields-vars" title={$L('插入字段变量')} data-toggle="dropdown">
           <i className="mdi mdi-code-braces" />
         </a>

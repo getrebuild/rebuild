@@ -86,11 +86,6 @@ code {
   user-select: none;
 }
 
-.dropdown-menu .dropdown-item,
-.dropdown-menu .dropdown-item > a {
-  /*cursor: default;*/
-}
-
 .dropdown-menu.auto-scroller {
   max-height: 488px;
   overflow-x: auto;
@@ -975,11 +970,11 @@ a.link.link-icon::after {
   flex-shrink: 0;
 }
 
-@media (min-width: 1064px) {
+/* @media (min-width: 1064px) {
   .form-layout > .row .form-group.col-sm-3 > .col-form-label {
     width: 100px;
   }
-}
+} */
 
 .form-layout > .row .form-group > .col-form-control {
   flex: 1;
@@ -5628,4 +5623,60 @@ span.icon-append .icon {
 .bg-light2:hover,
 .bg-light2.active {
   background-color: #e9ecf1;
+}
+
+/* v3.7 */
+
+.detail-form-table.fullscreen {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 3;
+  background-color: #fff;
+  margin: 10px 0;
+}
+
+.modal-dialog.fullscreen .modal-content {
+  overflow: hidden;
+}
+
+.modal-dialog.fullscreen .modal-body {
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+.modal-dialog.fullscreen .modal-body .rbform > div {
+  display: none;
+}
+
+.modal-dialog.fullscreen .modal-body .rbform > div.detail-form-table.fullscreen {
+  display: block;
+}
+
+.protable .table .col-index.action {
+  padding: 0 6px 8px 0;
+}
+
+.protable .table .col-index.action > a {
+  color: #a1a1a1;
+  padding-right: 2px;
+  font-size: 15px;
+}
+
+.protable .table .col-index.action > a:hover {
+  color: #4285f4;
+}
+
+.modal-dialog.fullscreen .modal-body .rbform > div.detail-form-table.fullscreen .col-index.action > a > i::before {
+  content: '\F0615';
+}
+
+.rsheetb-table {
+  margin: 0 -15px;
+  overflow: auto;
+}
+
+.rsheetb-table td > span {
+  padding: 4px 6px;
 }

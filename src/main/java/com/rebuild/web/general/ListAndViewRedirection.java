@@ -14,6 +14,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import org.apache.commons.lang.StringUtils;
@@ -110,7 +111,10 @@ public class ListAndViewRedirection extends BaseController {
         String viewUrl = String.format("../%s/view/%s", entity.getName(), recordId);
         ModelAndView mv = createModelAndView("/general/dock-view");
 
+        mv.getModel().put("entityName", entity.getName());
         mv.getModel().put("entityLabel", EasyMetaFactory.getLabel(entity));
+        mv.getModel().put("id", recordId);
+        mv.getModel().put("title", Language.L("%s详情", EasyMetaFactory.getLabel(entity)));
         mv.getModel().put("viewUrl", viewUrl);
         return mv;
     }
@@ -135,6 +139,9 @@ public class ListAndViewRedirection extends BaseController {
         mv.getModel().put("entityLabel", easyMeta.getLabel());
         mv.getModel().put("entityIcon", easyMeta.getIcon());
         mv.getModel().put("id", id);
+        mv.getModel().put("title", id == null
+                ? Language.L("新建%s", easyMeta.getLabel())
+                : Language.L("编辑%s", easyMeta.getLabel()));
         return mv;
     }
 }

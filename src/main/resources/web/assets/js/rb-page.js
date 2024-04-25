@@ -1252,3 +1252,6 @@ function $openWindow(url) {
     RbAlert.create(WrapHtml(`<p class="text-bold pb-3">${$L('文件已就绪。')}<a class="link" href="${url}" target="_blank">${$L('点击下载')}</a></p>`), { type: 'clear' })
   }
 }
+
+// 不支持排序的字段（联系）
+const UNSORT_FIELDTYPES = ['N2NREFERENCE', 'ANYREFERENCE', 'MULTISELECT', 'TAG', 'FILE', 'IMAGE', 'AVATAR', 'SIGN']

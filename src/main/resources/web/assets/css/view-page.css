@@ -1041,7 +1041,6 @@ body {
   min-height: auto;
 }
 
-.view-header > span > .close.J_list,
 .view-header > span > .close.J_back {
   font-size: 1.6rem;
 }

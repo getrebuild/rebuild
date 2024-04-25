@@ -256,14 +256,11 @@ class ChartTable extends BaseChart {
       // selected
       $tb.find('table').tableCellsSelection()
 
-      if (window.render_preview_chart) {
-        $tb.find('tbody td>a').removeAttr('href')
-      } else {
-        $tb.find('tbody td>a').each(function () {
-          const $a = $(this)
-          $a.attr({ href: `${rb.baseUrl}${$a.attr('href')}`, target: '_blank' })
-        })
-      }
+      // a _blank
+      $tb.find('tbody td>a').each(function () {
+        const $a = $(this)
+        $a.attr({ href: `${rb.baseUrl}${$a.attr('href')}`, target: '_blank' })
+      })
 
       this._$tb = $tb
     })
@@ -739,7 +736,7 @@ class ChartTreemap extends BaseChart {
 // ~ 审批列表
 const APPROVAL_STATES = {
   1: ['warning', $L('待审批')],
-  10: ['success', $L('通过')],
+  10: ['success', $L('已完成')],
   11: ['danger', $L('驳回')],
 }
 class ApprovalList extends BaseChart {
@@ -821,7 +818,7 @@ class ApprovalList extends BaseChart {
                           {$L('审批')}
                         </button>
                       )}
-                      {this.state.viewState === 10 && <span className="text-success">{$L('通过')}</span>}
+                      {this.state.viewState === 10 && <span className="text-success">{$L('已完成')}</span>}
                       {this.state.viewState === 11 && <span className="text-danger">{$L('驳回')}</span>}
                     </td>
                   </tr>
@@ -1307,7 +1304,7 @@ class DataList extends BaseChart {
                     className={sortClazz}
                     onClick={(e) => {
                       // eslint-disable-next-line no-undef
-                      if (COLUMN_UNSORT.includes(item.type)) return
+                      if (UNSORT_FIELDTYPES.includes(item.type)) return
 
                       const $th = $(e.target)
                       const hasAsc = $th.hasClass('sort-asc'),
@@ -1482,6 +1479,10 @@ class ChartCNMap extends BaseChart {
     $(this._$box)
       .find('.chart-body')
       .height(height - (window.render_preview_chart ? 0 : 40))
+  }
+
+  export() {
+    RbHighbar.createl('该图表暂不支持导出')
   }
 }
 
