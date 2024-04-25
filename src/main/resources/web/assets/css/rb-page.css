@@ -2364,8 +2364,9 @@ th.column-fixed {
 }
 
 .aside-2tree ul li.active {
-  color: #fff !important;
-  background-color: #4285f4 !important;
+  color: #fff;
+  background-color: #4285f4;
+  background-color: var(--rb-theme-color);
 }
 
 .aside-2tree ul li > a {
@@ -3796,27 +3797,24 @@ form {
   display: none;
 }
 
-#asideFilters .dropdown-item,
-#asideCategory .dropdown-item {
+#asideFilters .dropdown-item {
   padding: 8px 10px;
   border-radius: 6px;
   font-size: 1rem;
   cursor: pointer;
   text-transform: none;
+  height: 34px;
 }
 
-#asideFilters .dropdown-item:hover,
-#asideCategory .dropdown-item:hover {
+#asideFilters .dropdown-item:hover {
   background-color: #eee;
 }
 
-#asideFilters .dropdown-item:active,
-#asideCategory .dropdown-item:active {
+#asideFilters .dropdown-item:active {
   color: #404040;
 }
 
-#asideFilters .dropdown-item.active,
-#asideCategory .dropdown-item.active {
+#asideFilters .dropdown-item.active {
   background-color: #4285f4;
   background-color: var(--rb-theme-color);
   color: #fff;
@@ -5138,6 +5136,10 @@ pre.unstyle {
 
 .main-content > .card.card-table.card-topcolor {
   border-top-color: var(--rb-theme-color);
+}
+
+.nav-tabs > li.nav-item a.nav-link.active {
+  border-color: var(--rb-theme-color);
 }
 
 .support-plat2 {

@@ -990,7 +990,7 @@ class ListAdvFilter extends AdvFilter {
                 {$L('保存')}
               </button>
               <button className="btn btn-primary btn-outline" type="button" onClick={() => this.searchNow()}>
-                <i className="icon zmdi zmdi-search" /> {$L('立即查询')}
+                <i className="icon zmdi zmdi-search" /> {$L('查询')}
               </button>
             </div>
           </RF>
@@ -998,7 +998,7 @@ class ListAdvFilter extends AdvFilter {
           <div className="float-right">
             <div className="btn-group">
               <button className="btn btn-primary btn-outline" type="button" onClick={() => this.searchNow()}>
-                <i className="icon zmdi zmdi-search" /> {$L('立即查询')}
+                <i className="icon zmdi zmdi-search" /> {$L('查询')}
               </button>
               <button className="btn btn-primary btn-outline dropdown-toggle w-auto" type="button" data-toggle="dropdown" style={{ marginLeft: -1 }}>
                 <i className="icon zmdi zmdi-chevron-down" />

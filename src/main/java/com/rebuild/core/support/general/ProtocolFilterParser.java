@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.AdvFilterManager;
+import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.DataListCategory;
 import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.EntityHelper;
@@ -243,23 +244,35 @@ public class ProtocolFilterParser {
 
         if (dt == DisplayType.MULTISELECT) {
             return String.format("%s && %d", categoryField.getName(), ObjectUtils.toInt(value));
+
         } else if (dt == DisplayType.N2NREFERENCE) {
             return String.format(
                     "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId = '%s')",
                     rootEntity.getPrimaryField().getName(), categoryField.getName(), value);
+
         } else if (dt == DisplayType.DATETIME || dt == DisplayType.DATE) {
             String s = value + "0000-01-01 00:00:00".substring(value.length());
             String e = value + "0000-12-31 23:59:59".substring(value.length());
             if (dt == DisplayType.DATE) {
-                s = s.split(" ")[0];
-                e = e.split(" ")[0];
+                s = s.substring(0, 10);
+                e = e.substring(0, 10);
             }
             return MessageFormat.format("({0} >= ''{1}'' and {0} <= ''{2}'')", categoryField.getName(), s, e);
-        }  else {
-            return String.format("%s = '%s'", categoryField.getName(), value);
+
+        } else if (dt == DisplayType.CLASSIFICATION) {
+            int level = ClassificationManager.instance.getOpenLevel(categoryField);
+            List<String> parentSql = new ArrayList<>();
+            parentSql.add(String.format("%s = '%s'", categoryField.getName(), value));
+            if (level > 0) parentSql.add(String.format("%s.parent = '%s'", categoryField.getName(), value));
+            if (level > 1) parentSql.add(String.format("%s.parent.parent = '%s'", categoryField.getName(), value));
+            if (level > 2) parentSql.add(String.format("%s.parent.parent.parent = '%s'", categoryField.getName(), value));
+
+            return "( " + StringUtils.join(parentSql, " or ") + " )";
         }
+
+        return String.format("%s = '%s'", categoryField.getName(), value);
     }
-    
+
     /**
      * @param relatedExpr
      * @param mainid
