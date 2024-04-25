@@ -9,7 +9,7 @@
 
 **_相较于同类产品，REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启动模板。_**
 
-「开放式设计」是 REBUILD 的重要设计理念！得益于研发团队成熟的 B 端产品经验，我们实现了对企业日常各类需求的可配置化管理，全图形化设计零代码搭建，所见即所得。
+「开放式设计」是 REBUILD 的重要设计理念！得益于团队成熟的企业管理系统经验，我们实现了对企业日常各类需求的可配置化管理，全图形化设计零代码搭建，所见即所得。
 
 更多详情介绍 [https://getrebuild.com/](https://getrebuild.com/)
 
@@ -39,7 +39,7 @@
 
 ## 使用
 
-开始使用 REBUILD 非常简单，不需要配置复杂的运行环境，零依赖快速部署，超简单！
+开始使用 REBUILD 非常简单，无需配置复杂的运行环境，零依赖快速部署！
 
 #### 1. 使用已发布版本
 
@@ -47,7 +47,7 @@ _生产环境强烈推荐使用此方式 !!!_
 
 首先 [下载](https://getrebuild.com/download) 安装包，我们同时提供 `standalone` 与 `boot` 两种安装包。`standalone` 为集成安装包（推荐），`boot` 为 SpringBoot 的 `jar` 包，两种安装包在功能上没有区别。
 
-下载后解压（集成安装包），通过 `start-rebuild.bat` 或 `start-rebuild.sh` 启动， 打开浏览器输入 [http://localhost:18080/](http://localhost:18080/) 开始体验。
+下载后解压（集成安装包），通过 `start-rebuild.bat` 或 `start-rebuild.sh` 启动，然后打开浏览器输入 [http://localhost:18080/](http://localhost:18080/) 开始体验。
 
 更多详情请参见 [安装文档](https://getrebuild.com/docs/admin/install)
 
@@ -66,7 +66,7 @@ mvn package
 java -jar target/rebuild.jar
 ```
 
-打开浏览器输入 [http://localhost:18080/](http://localhost:18080/) 开始体验。
+运行后打开浏览器输入 [http://localhost:18080/](http://localhost:18080/) 开始体验。
 
 ## 开发
 
