@@ -9,6 +9,7 @@ package com.rebuild.web.admin;
 
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.impl.TsetEntity;
 import com.rebuild.core.service.approval.ApprovalFields2Schema;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -36,6 +37,7 @@ public class AdminCli3 {
     private static final String C_BACKUP = "backup";
     private static final String C_AES = "aes";
     private static final String C_CLEAN_APPROVAL = "clean-approval";
+    private static final String C_ADD_TESTENTITY = "add-testentity";
 
     private static final String SUCCESS = "OK";
 
@@ -73,7 +75,8 @@ public class AdminCli3 {
                         " \nsyscfg clean-qiniu|clean-sms|clean-email|clean-wxwork|clean-dingtalk" +
                         " \nbackup [database|datafile]" +
                         " \naes [decrypt] VALUE" +
-                        " \nclean-approval ENTITY";
+                        " \nclean-approval ENTITY" +
+                        " \nadd-testentity [NAME]";
                 break;
             }
             case C_CACHE: {
@@ -94,6 +97,10 @@ public class AdminCli3 {
             }
             case C_CLEAN_APPROVAL : {
                 result = this.execCleanApproval();
+                break;
+            }
+            case C_ADD_TESTENTITY : {
+                result = this.execAddTestentity();
                 break;
             }
             default: {
@@ -238,5 +245,17 @@ public class AdminCli3 {
 
         boolean o = new ApprovalFields2Schema().dropFields(MetadataHelper.getEntity(entity));
         return o ? "OK" : "WRAN: Drop error";
+    }
+
+    /**
+     *
+     * @return
+     */
+    private String execAddTestentity() {
+        String name = commands.length > 1 ? commands[1] : "TestAllFields999";
+        String entityName = new TsetEntity().create(name);
+
+        if (entityName.startsWith("EXISTS:")) return "WRAN: " + entityName;
+        else return "OK: " + entityName;
     }
 }
