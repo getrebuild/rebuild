@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.configuration.general;
 
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Query;
@@ -23,14 +24,17 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.JSONUtils;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * 列表字段分类（分组）数据
@@ -42,10 +46,11 @@ public class DataListCategory {
 
     public static final DataListCategory instance = new DataListCategory();
 
-    private DataListCategory() {
-    }
+    private DataListCategory() {}
 
     /**
+     * FIXME 存在性能问题
+     *
      * @param entity
      * @param user
      * @return
@@ -62,41 +67,56 @@ public class DataListCategory {
         String ffField = ff[0];
         String ffFormat = ff.length > 1 ? ff[1] : null;
 
-        List<Object[]> dataList = new ArrayList<>();
+        // Set, Sorted
+        Collection<Item> dataList = new LinkedHashSet<>();
 
         // 使用全部
         if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST) {
-            ConfigBean[] entries = MultiSelectManager.instance.getPickListRaw(categoryField, true);
-            for (ConfigBean e : entries) {
-                Object id = e.getID("id");
-                if (dt == DisplayType.MULTISELECT) id = e.getLong("mask");
-                dataList.add(new Object[] { e.getString("text"), id });
+            ConfigBean[] cbs = MultiSelectManager.instance.getPickListRaw(categoryField, true);
+            for (ConfigBean cb : cbs) {
+                Object id = cb.getID("id");
+                if (dt == DisplayType.MULTISELECT) id = cb.getLong("mask");
+                dataList.add(new Item(id, cb.getString("text")));
             }
 
         } else if (dt == DisplayType.CLASSIFICATION) {
-            // 使用树
+            // 前端使用树桩组件
             ID classid = ClassificationManager.instance.getUseClassification(categoryField, false);
             int level = ClassificationManager.instance.getOpenLevel(categoryField);
+            int levelSpec = ffFormat == null ? level : ObjectUtils.toInt(ffFormat);
+            if (levelSpec < level) level = levelSpec;
 
-            List<ClassItem> items = new ArrayList<>();
             // L0
             Object[][] level0 = getClassificationItems(classid, null);
             for (Object[] L0 : level0) {
-                ClassItem item0 = new ClassItem(L0);
+                Item item0 = new Item(L0);
+                // L1
                 if (level > 0) {
-                    Object[][] level1 = getClassificationItems(classid, (ID) L0[1]);
+                    Object[][] level1 = getClassificationItems(classid, (ID) item0.id);
                     for (Object[] L1 : level1) {
-                        item0.addChild(L1);
+                        Item item1 = item0.addChild(L1);
+                        // L2
+                        if (level > 1) {
+                            Object[][] level2 = getClassificationItems(classid, (ID) item1.id);
+                            for (Object[] L2 : level2) {
+                                Item item2 = item1.addChild(L2);
+                                // L3
+                                if (level > 2) {
+                                    Object[][] level3 = getClassificationItems(classid, (ID) item2.id);
+                                    for (Object[] L3 : level3) {
+                                        item2.addChild(L3);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
-                items.add(item0);
+                dataList.add(item0);
             }
-            
-            JSONArray res = new JSONArray();
-            for (ClassItem i : items) res.add(i.toJSON());
-            return res;
 
         } else {
+
+            // 动态获取
 
             String sql;
             if (dt == DisplayType.N2NREFERENCE) {
@@ -115,16 +135,17 @@ public class DataListCategory {
                         wrapField, entity.getName(), categoryField.getName());
             }
 
+            final boolean isDate = dt == DisplayType.DATE || dt == DisplayType.DATETIME;
+
             Query query = user == null
                     ? Application.createQueryNoFilter(sql)
                     : Application.getQueryFactory().createQuery(sql, user);
             Object[][] array = query.array();
 
-            Set<Object> unique = new HashSet<>();
             for (Object[] o : array) {
                 Object id = o[0];
-                Object label;
-                if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
+                String label;
+                if (isDate) {
                     ffFormat = StringUtils.defaultIfBlank(ffFormat, CalendarUtils.UTC_DATE_FORMAT);
                     if (id instanceof Date) {
                         label = CalendarUtils.format(ffFormat, (Date) id);
@@ -132,20 +153,27 @@ public class DataListCategory {
                         label = id.toString().substring(0, ffFormat.length());
                     }
                     id = label;
-
                 } else {
+                    // REF
                     label = FieldValueHelper.getLabelNotry((ID) id);
                 }
 
-                if (!unique.contains(id)) {
-                    dataList.add(new Object[] { label, id });
-                    unique.add(id);
-                }
+                dataList.add(new Item(id, label));
             }
+
+            // 排序
+            List<Item> dataListSorted = new ArrayList<>(dataList);
+            if (isDate) {
+                // 日期倒序
+                dataListSorted.sort((o1, o2) -> o2.text.compareTo(o1.text));
+            } else {
+                dataListSorted.sort(Comparator.comparing(o -> o.text));
+            }
+            dataList = dataListSorted;
         }
 
         JSONArray res = new JSONArray();
-        for (Object[] o : dataList) res.add(toItem(o));
+        for (Item i : dataList) res.add(i.toJSON());
         return res;
     }
 
@@ -168,7 +196,7 @@ public class DataListCategory {
      * @return
      */
     private Object[][] getClassificationItems(ID classid, ID parent) {
-        String sql = "select name,itemId from ClassificationData where dataId = ? and parent";
+        String sql = "select itemId,name from ClassificationData where dataId = ? and parent";
         if (parent != null) sql += " = '" + parent + "'";
         else sql += " is null";
 
@@ -176,37 +204,38 @@ public class DataListCategory {
         return Application.createQueryNoFilter(sql).setParameter(1, classid).array();
     }
 
-    private JSONObject toItem(Object... o) {
-        JSONObject item = JSONUtils.toJSONObject(
-                new String[] { "text", "id" },
-                new Object[] { o[0], o[1] } );
-        if (o.length > 2) item.put("children", o[2]);
-        return item;
-    }
+    // Bean
+    @EqualsAndHashCode(of = {"id"})
+    static class Item implements Serializable {
+        private static final long serialVersionUID = 6317330509242709409L;
 
-    static class ClassItem {
-        ID id;
+        Object id;
         String text;
-        List<ClassItem> children;
+        List<Item> children;
 
-        ClassItem(Object[] o) {
-            this.id = (ID) o[1];
-            this.text = (String) o[0];
+        Item(Object id, String text) {
+            this.id = id;
+            this.text = text;
         }
 
-        protected void addChild(Object[] o) {
-            ClassItem c = new ClassItem(o);
+        Item(Object[] o) {
+            this(o[0], (String) o[1]);
+        }
+
+        Item addChild(Object[] o) {
+            Item c = new Item(o);
             if (children == null) children = new ArrayList<>();
             children.add(c);
+            return c;
         }
 
-        protected JSONObject toJSON() {
+        JSONObject toJSON() {
             JSONObject item = JSONUtils.toJSONObject(new String[] { "text", "id" }, new Object[] { text, id } );
-            if (children != null && !children.isEmpty()) {
-                JSONArray cs = new JSONArray();
-                for (ClassItem c : children) cs.add(c.toJSON());
-                item.put("children", cs);
-            }
+            if (children == null || children.isEmpty()) return item;
+
+            JSONArray cs = new JSONArray();
+            for (Item c : children) cs.add(c.toJSON());
+            item.put("children", cs);
             return item;
         }
     }

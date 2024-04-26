@@ -253,7 +253,6 @@ class DlgMode1Option extends RbFormHandler {
                     [2, $L('%d 级分类', 3)],
                     [3, $L('%d 级分类', 4)],
                   ]
-                  formats = null // FIXME 无法区分几级
                 } else if (found && (found.type === 'DATE' || found.type === 'DATETIME')) {
                   formats = [
                     ['yyyy', 'YYYY'],
