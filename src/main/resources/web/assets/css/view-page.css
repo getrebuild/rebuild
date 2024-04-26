@@ -205,6 +205,7 @@ body {
   font-size: 0.8462rem;
   font-weight: normal;
   line-height: 1.2;
+  background-color: var(--rb-theme-color);
 }
 
 .related-list {

@@ -5142,6 +5142,14 @@ pre.unstyle {
   border-color: var(--rb-theme-color);
 }
 
+.nav-tabs > li.nav-item a.nav-link:hover {
+  color: var(--rb-theme-color);
+}
+
+.colored-header-primary .modal-content .modal-header {
+  background-color: var(--rb-theme-color);
+}
+
 .support-plat2 {
   position: absolute;
   cursor: help;
@@ -5597,6 +5605,10 @@ span.icon-append .icon {
   border-bottom: 1px solid #d5d8de;
   padding: 2px 20px 6px;
   width: 100%;
+}
+
+.dropdown-menu .searchbox > input:focus {
+  border-color: #4285f4;
 }
 
 .dropdown-menu .searchbox::after {
