@@ -11,12 +11,12 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.cache.CacheTemplate;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
@@ -49,24 +49,24 @@ public class DataListCategory {
     private DataListCategory() {}
 
     /**
-     * FIXME 存在性能问题
-     *
      * @param entity
-     * @param user
      * @return
      */
-    public JSON datas(Entity entity, ID user) {
+    public JSON datas(Entity entity) {
         final Field categoryField = getFieldOfCategory(entity);
         if (categoryField == null) return null;
-
-        EasyField easyField = EasyMetaFactory.valueOf(categoryField);
-        DisplayType dt = easyField.getDisplayType();
 
         String conf = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADVLIST_SHOWCATEGORY);
         String[] ff = conf.split(":");
         String ffField = ff[0];
         String ffFormat = ff.length > 1 ? ff[1] : null;
 
+        final String ckey = "DataListCategory-" + conf;
+        Object cached = Application.getCommonsCache().getx(ckey);
+        if (cached != null) return (JSON) cached;
+
+        EasyField easyField = EasyMetaFactory.valueOf(categoryField);
+        DisplayType dt = easyField.getDisplayType();
         // Set, Sorted
         Collection<Item> dataList = new LinkedHashSet<>();
 
@@ -120,7 +120,6 @@ public class DataListCategory {
 
             String sql;
             if (dt == DisplayType.N2NREFERENCE) {
-                // FIXME 无权限查询
                 sql = MessageFormat.format(
                         "select distinct referenceId from NreferenceItem where belongEntity = ''{0}'' and belongField = ''{1}''",
                         entity.getName(), ffField);
@@ -135,17 +134,13 @@ public class DataListCategory {
                         wrapField, entity.getName(), categoryField.getName());
             }
 
-            final boolean isDate = dt == DisplayType.DATE || dt == DisplayType.DATETIME;
-
-            Query query = user == null
-                    ? Application.createQueryNoFilter(sql)
-                    : Application.getQueryFactory().createQuery(sql, user);
-            Object[][] array = query.array();
+            // FIXME 无权限查询，以便使用缓存
+            Object[][] array = Application.createQueryNoFilter(sql).array();
 
             for (Object[] o : array) {
                 Object id = o[0];
                 String label;
-                if (isDate) {
+                if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
                     ffFormat = StringUtils.defaultIfBlank(ffFormat, CalendarUtils.UTC_DATE_FORMAT);
                     if (id instanceof Date) {
                         label = CalendarUtils.format(ffFormat, (Date) id);
@@ -163,8 +158,8 @@ public class DataListCategory {
 
             // 排序
             List<Item> dataListSorted = new ArrayList<>(dataList);
-            if (isDate) {
-                // 日期倒序
+            // 日期倒序
+            if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
                 dataListSorted.sort((o1, o2) -> o2.text.compareTo(o1.text));
             } else {
                 dataListSorted.sort(Comparator.comparing(o -> o.text));
@@ -174,6 +169,9 @@ public class DataListCategory {
 
         JSONArray res = new JSONArray();
         for (Item i : dataList) res.add(i.toJSON());
+
+        // 15min
+        Application.getCommonsCache().putx(ckey, res, CacheTemplate.TS_MINTE * 15);
         return res;
     }
 

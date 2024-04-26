@@ -1249,6 +1249,7 @@ class CodeViewport extends React.Component {
 }
 
 // ~~ 树组件 v2.5 v3.7
+// TODO 子级延迟渲染
 class AsideTree extends React.Component {
   constructor(props) {
     super(props)
@@ -1317,11 +1318,12 @@ class AsideTree extends React.Component {
     this.setState({ data: data })
   }
 
+  // 获取所有子级 ID
   static findAllChildIds(item) {
-    function _find(x1, into) {
-      into.push(x1.id)
-      if (x1.children && x1.children.length > 0) {
-        x1.children.forEach((x2) => _find(x2, into))
+    function _find(x, into) {
+      into.push(x.id)
+      if (x.children && x.children.length > 0) {
+        x.children.forEach((xx) => _find(xx, into))
       }
     }
 
