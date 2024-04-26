@@ -495,6 +495,10 @@ class RbForm extends React.Component {
                 <a
                   className="dropdown-item"
                   onClick={() => {
+                    if (rb.commercial < 10) {
+                      return RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+                    }
+
                     const fields = []
                     _ProTable.state.formFields.forEach((item) => {
                       if (item.readonly === false && !['IMAGE', 'FILE', 'AVATAR', 'SIGN'].includes(item.type)) {
