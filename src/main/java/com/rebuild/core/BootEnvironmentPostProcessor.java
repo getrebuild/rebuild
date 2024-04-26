@@ -62,7 +62,7 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
         }
 
         if (installed != null && installed.exists()) {
-            log.info("Use installed file : {}", installed);
+            log.info("Use installation file : {}", installed);
 
             try {
                 Properties temp = PropertiesLoaderUtils.loadProperties(new FileSystemResource(installed));

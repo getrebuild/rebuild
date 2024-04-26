@@ -17,13 +17,17 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author devezhao
  * @since 12/24/2018
  */
-public class SeriesGeneratorTest extends TestSupport {
+class SeriesGeneratorTest extends TestSupport {
 
     @Test
     void testTimeVar() {

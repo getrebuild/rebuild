@@ -115,10 +115,10 @@ public class RecordCheckout {
      *
      * @param field
      * @param cell
-     * @param validate
+     * @param verifyFormat
      * @return
      */
-    protected Object checkoutFieldValue(Field field, Cell cell, boolean validate) {
+    protected Object checkoutFieldValue(Field field, Cell cell, boolean verifyFormat) {
         final DisplayType dt = EasyMetaFactory.getDisplayType(field);
 
         if (dt == DisplayType.NUMBER) {
@@ -153,7 +153,7 @@ public class RecordCheckout {
         if (text != null) text = text.trim();
 
         // 格式验证
-        if (validate) {
+        if (verifyFormat) {
             if (dt == DisplayType.EMAIL) {
                 return EasyEmail.isEmail(text) ? text : null;
             } else if (dt == DisplayType.URL || dt == DisplayType.AVATAR) {

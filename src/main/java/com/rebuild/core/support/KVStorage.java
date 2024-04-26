@@ -158,8 +158,8 @@ public class KVStorage {
         return value;
     }
 
-    // -- ASYNC
-
+    // -- ASYNC 同步K/V值到数据库。注意如果系统异常停止可能导致同步数据丢失
+    
     private static final Object THROTTLED_QUEUE_LOCK = new Object();
     private static final Map<String, Object> THROTTLED_QUEUE = new ConcurrentHashMap<>();
     private static final Timer THROTTLED_TIMER = new Timer("KVStorage-Timer");

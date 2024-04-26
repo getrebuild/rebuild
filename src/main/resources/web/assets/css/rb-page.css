@@ -2364,8 +2364,9 @@ th.column-fixed {
 }
 
 .aside-2tree ul li.active {
-  color: #fff !important;
-  background-color: #4285f4 !important;
+  color: #fff;
+  background-color: #4285f4;
+  background-color: var(--rb-theme-color);
 }
 
 .aside-2tree ul li > a {
@@ -3796,27 +3797,24 @@ form {
   display: none;
 }
 
-#asideFilters .dropdown-item,
-#asideCategory .dropdown-item {
+#asideFilters .dropdown-item {
   padding: 8px 10px;
   border-radius: 6px;
   font-size: 1rem;
   cursor: pointer;
   text-transform: none;
+  height: 34px;
 }
 
-#asideFilters .dropdown-item:hover,
-#asideCategory .dropdown-item:hover {
+#asideFilters .dropdown-item:hover {
   background-color: #eee;
 }
 
-#asideFilters .dropdown-item:active,
-#asideCategory .dropdown-item:active {
+#asideFilters .dropdown-item:active {
   color: #404040;
 }
 
-#asideFilters .dropdown-item.active,
-#asideCategory .dropdown-item.active {
+#asideFilters .dropdown-item.active {
   background-color: #4285f4;
   background-color: var(--rb-theme-color);
   color: #fff;
@@ -5140,6 +5138,10 @@ pre.unstyle {
   border-top-color: var(--rb-theme-color);
 }
 
+.nav-tabs > li.nav-item a.nav-link.active {
+  border-color: var(--rb-theme-color);
+}
+
 .support-plat2 {
   position: absolute;
   cursor: help;
@@ -5629,8 +5631,8 @@ span.icon-append .icon {
 
 .detail-form-table.fullscreen {
   position: absolute;
-  left: 0;
-  right: 0;
+  left: 15px;
+  right: 15px;
   top: 0;
   z-index: 3;
   background-color: #fff;
@@ -5672,11 +5674,45 @@ span.icon-append .icon {
   content: '\F0615';
 }
 
+.modal-dialog.modal-rsheetb .modal-body {
+  padding: 0 !important;
+}
+
 .rsheetb-table {
-  margin: 0 -15px;
   overflow: auto;
+  margin-bottom: 3px;
+}
+
+.rsheetb-table .head-action {
+  margin: 10px 0;
+}
+
+.rsheetb-table .head-action > span {
+  padding: 0 15px;
+}
+
+.rsheetb-table th {
+  font-weight: normal !important;
+}
+
+.rsheetb-table table {
+  margin: 0;
 }
 
 .rsheetb-table td > span {
-  padding: 4px 6px;
+  padding: 4px;
+  min-width: 120px;
+  display: block;
+  line-height: 1;
+  outline-color: #bdc0c7;
+}
+
+.rsheetb-table tr > th:first-child,
+.rsheetb-table tr > td:first-child {
+  padding-left: 15px;
+}
+
+.rsheetb-table tr > th:last-child,
+.rsheetb-table tr > td:last-child {
+  padding-right: 15px;
 }

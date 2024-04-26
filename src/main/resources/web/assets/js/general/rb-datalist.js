@@ -338,42 +338,6 @@ const ChartsWidget = {
   },
 }
 
-// 分类
-const CategoryWidget = {
-  init() {
-    $('.J_load-category').on('click', () => {
-      this._loaded !== true && this.loadCategory()
-    })
-
-    this._$wrap = $('<div></div>').appendTo('#asideCategory')
-    $(`<div class="dropdown-item active" data-id="$ALL$">${$L('全部数据')}</div>`).appendTo(this._$wrap)
-  },
-
-  loadCategory() {
-    this._loaded = true
-    $.get(`/app/${wpc.entity[0]}/widget-category-data`, (res) => {
-      res.data &&
-        res.data.forEach((item) => {
-          $(`<div class="dropdown-item" data-id="${item.id}">${item.label}</div>`).appendTo(this._$wrap)
-        })
-
-      const $items = this._$wrap.find('.dropdown-item').on('click', function () {
-        $items.removeClass('active')
-        $(this).addClass('active')
-
-        // Clean via
-        $('.J_via-filter').remove()
-
-        const v = $(this).data('id')
-        if (v === '$ALL$') wpc.protocolFilter = null
-        else wpc.protocolFilter = `category:${wpc.entity[0]}:${v}`
-
-        RbListPage.reload()
-      })
-    })
-  },
-}
-
 $(document).ready(() => {
   window.RbListCommon && window.RbListCommon.init(wpc)
 
@@ -396,6 +360,7 @@ $(document).ready(() => {
     })()
 
     if ($('#asideWidgets').length > 0) ChartsWidget.init()
+    // eslint-disable-next-line no-undef
     if ($('#asideCategory').length > 0) CategoryWidget.init()
   }
 

@@ -1248,61 +1248,88 @@ class CodeViewport extends React.Component {
   }
 }
 
-// ~~ Excel 粘贴
-class ExcelClipboardData extends React.Component {
+// ~~ 树组件 v2.5 v3.7
+// TODO 子级延迟渲染
+class AsideTree extends React.Component {
   constructor(props) {
     super(props)
-    this.state = {}
+    this.state = { ...props, expandItems: [] }
   }
 
   render() {
-    if (this.state.hasError) {
-      return <div className="must-center text-danger">{WrapHtml(this.state.data)}</div>
-    }
-
-    if (this.state.data) {
-      return (
-        <div className="rsheetb-table" ref={(c) => (this._$table = c)}>
-          {WrapHtml(this.state.data)}
-        </div>
-      )
-    } else {
-      let tips = $L('复制 Excel 单元格 Ctrl + V 粘贴')
-      if ($.browser.mac) tips = tips.replace('Ctrl', 'Command')
-      return <div className="must-center text-muted">{tips}</div>
-    }
+    return <div className={`aside-2tree ${this.props.hideCollapse ? 'hide-collapse' : ''}`}>{this.renderTree(this.props.data || [])}</div>
   }
 
-  componentDidMount() {
-    const that = this
-    function _init() {
-      document.onpaste = function (e) {
-        let data
-        try {
-          // https://docs.sheetjs.com/docs/demos/local/clipboard/
-          // https://docs.sheetjs.com/docs/api/utilities/html
-          const c = e.clipboardData.getData('text/html')
-          const wb = window.XLSX.read(c, { type: 'string' })
-          const ws = wb.Sheets[wb.SheetNames[0]]
-          data = window.XLSX.utils.sheet_to_html(ws, { id: 'rsheetb', header: '', footer: '', editable: true })
-        } catch (err) {
-          console.log('Cannot read csv-data from clipboardData', err)
-        }
+  renderTree(items, item) {
+    return (
+      <ul className={`list-unstyled m-0 ${item && !this.state.expandItems.contains(item.id) ? 'hide' : ''}`}>
+        {items.map((item) => {
+          let $children = null
+          if (item.children && item.children.length > 0) {
+            $children = this.renderTree(item.children, item)
+          }
+          const $item = this.renderItem(item, $children !== null)
+          return (
+            <RF key={item.id}>
+              {$item}
+              {$children}
+            </RF>
+          )
+        })}
+      </ul>
+    )
+  }
 
-        if (data) {
-          that.setState({ data: data }, () => {
-            that._$table && $(that._$table).find('table').addClass('table table-sm')
-          })
-        }
+  renderItem(item, hasChild) {
+    return (
+      <li className={this.state.activeItem === item.id ? 'active' : ''}>
+        <span
+          className={`collapse-icon ${hasChild ? '' : 'no-child'}`}
+          onClick={() => {
+            if (hasChild) {
+              const expandItemsNew = this.state.expandItems
+              expandItemsNew.toggle(item.id)
+              this.setState({ expandItems: expandItemsNew })
+            }
+          }}>
+          <i className={`zmdi zmdi-chevron-right ${this.state.expandItems.contains(item.id) ? 'open' : ''} `} />
+        </span>
+        <a
+          data-id={item.id}
+          className={`text-ellipsis ${item.disabled ? 'text-disabled' : ''}`}
+          title={item.disabled ? $L('已禁用') : null}
+          onClick={() => {
+            this.setState({ activeItem: item.id }, () => {
+              typeof this.props.onItemClick === 'function' && this.props.onItemClick(item)
+            })
+          }}>
+          {this.props.icon && <i className={`icon ${this.props.icon}`} />}
+          {item.text || item.name}
+
+          {item.private === true && <i className="icon flag zmdi zmdi-lock" title={$L('私有')} />}
+          {!!item.specUsers && <i className="icon flag zmdi zmdi-account" title={$L('指定用户')} />}
+        </a>
+        {typeof this.props.extrasAction === 'function' && this.props.extrasAction(item)}
+      </li>
+    )
+  }
+
+  refresh(data) {
+    this.setState({ data: data })
+  }
+
+  // 获取所有子级 ID
+  static findAllChildIds(item) {
+    function _find(x, into) {
+      into.push(x.id)
+      if (x.children && x.children.length > 0) {
+        x.children.forEach((xx) => _find(xx, into))
       }
     }
 
-    if (window.XLSX) _init()
-    else $getScript('/assets/lib/charts/xlsx.full.min.js', setTimeout(_init, 200))
-  }
-
-  componentWillUnmount() {
-    document.onpaste = null
+    const s = []
+    _find(item, s)
+    return s
   }
 }
 

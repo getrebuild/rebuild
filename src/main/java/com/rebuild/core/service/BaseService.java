@@ -31,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -162,6 +163,15 @@ public class BaseService extends InternalPersistService {
                     newValue = NullValue.is(maybeNull) ? ID.EMPTY_ID_ARRAY : (ID[]) maybeNull;
                 } else {
                     continue;
+                }
+            }
+
+            // v3.7
+            if (newValue.length > 1) {
+                Set<ID> newValueSet = new LinkedHashSet<>(Arrays.asList(newValue));
+                if (newValueSet.size() != newValue.length) {
+                    log.warn("Removed duplicate elements from : {}", Arrays.toString(newValue));
+                    newValue = newValueSet.toArray(new ID[0]);
                 }
             }
 
@@ -297,6 +307,15 @@ public class BaseService extends InternalPersistService {
                     newValue = cleanNameArray(record.getObjectValue(tagField.getName()));
                 } else {
                     continue;
+                }
+            }
+
+            // v3.7
+            if (newValue.length > 1) {
+                Set<String> newValueSet = new LinkedHashSet<>(Arrays.asList(newValue));
+                if (newValueSet.size() != newValue.length) {
+                    log.warn("Removed duplicate elements from : {}", Arrays.toString(newValue));
+                    newValue = newValueSet.toArray(new String[0]);
                 }
             }
 

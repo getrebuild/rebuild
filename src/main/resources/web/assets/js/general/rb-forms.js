@@ -446,7 +446,7 @@ class RbForm extends React.Component {
       <div className="detail-form-table">
         <div className="row">
           <div className="col">
-            <h5 className="mt-3 mb-0 text-bold fs-14">
+            <h5 className="mt-2 mb-0 text-bold fs-14">
               <i className={`icon zmdi zmdi-${detailMeta.icon} fs-15 mr-2`} />
               {detailMeta.entityLabel}
             </h5>
@@ -495,10 +495,21 @@ class RbForm extends React.Component {
                 <a
                   className="dropdown-item"
                   onClick={() => {
+                    if (rb.commercial < 10) {
+                      return RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+                    }
+
+                    const fields = []
+                    _ProTable.state.formFields.forEach((item) => {
+                      if (item.readonly === false && !['IMAGE', 'FILE', 'AVATAR', 'SIGN'].includes(item.type)) {
+                        fields.push({ field: item.field, label: item.label })
+                      }
+                    })
+
+                    const mainid = this.state.id || '000-0000000000000000'
                     renderRbcomp(
-                      <RbModal title={$L('从 Excel 添加')} useWhite disposeOnHide>
-                        <ExcelClipboardData />
-                      </RbModal>
+                      // eslint-disable-next-line react/jsx-no-undef
+                      <ExcelClipboardDataModal entity={detailMeta.entity} fields={fields} mainid={mainid} onConfirm={(data) => _setLines(data)} />
                     )
                   }}>
                   {$L('从 Excel 添加')} <sup className="rbv" />

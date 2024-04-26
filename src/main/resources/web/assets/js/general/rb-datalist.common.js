@@ -811,7 +811,7 @@ const RbListCommon = {
     $('.J_batch-update').on('click', () => renderRbcomp(<BatchUpdate listRef={_RbList()} entity={entity[0]} />))
     $('.J_batch-approve').on('click', () => renderRbcomp(<BatchApprove listRef={_RbList()} entity={entity[0]} />))
     $('.J_record-merge').on('click', () => {
-      const ids = _RbList().getSelectedIds()
+      const ids = _RbList().getSelectedIds(true)
       if (ids.length < 2) return RbHighbar.createl('请至少选择两条记录')
       renderRbcomp(<RecordMerger listRef={_RbList()} entity={entity[0]} hasDetails={!!$('.J_details')[0]} ids={ids} />)
     })
@@ -2055,4 +2055,47 @@ class RecordMerger extends RbModalHandler {
       }
     })
   }
+}
+
+// 分组
+// eslint-disable-next-line no-unused-vars
+const CategoryWidget = {
+  __ALL: '$ALL$',
+
+  init() {
+    $('.J_load-category').on('click', () => this.loadData())
+  },
+
+  loadData() {
+    if (this._inited === true) return
+    this._inited = true
+
+    $.get(`/app/${wpc.entity[0]}/widget-category-data`, (res) => {
+      const datas = [{ id: CategoryWidget.__ALL, text: $L('全部数据') }, ...res.data]
+
+      // 分类字段
+      let hideCollapse = true
+      for (let i = 0; i < datas.length; i++) {
+        if (datas[i].children) {
+          hideCollapse = false
+          break
+        }
+      }
+
+      renderRbcomp(
+        <AsideTree
+          data={datas}
+          activeItem={CategoryWidget.__ALL}
+          hideCollapse={hideCollapse}
+          onItemClick={(item) => {
+            const v = item.id
+            if (v === CategoryWidget.__ALL) wpc.protocolFilter = null
+            else wpc.protocolFilter = `category:${wpc.entity[0]}:${v}`
+            RbListPage.reload()
+          }}
+        />,
+        'asideCategory'
+      )
+    })
+  },
 }

@@ -57,16 +57,16 @@ public class SeriesZeroResetJob extends DistributedJobLock {
                     String zeroMode = easyField.getExtraAttr(EasyFieldConfigProps.SERIES_ZERO);
                     if ("D".equalsIgnoreCase(zeroMode)) {
                         SeriesGeneratorFactory.zero(field);
-                        log.info("Zero field by [D] : " + field);
+                        log.info("Zero field by [D] : {}", field);
                     } else if ("M".equalsIgnoreCase(zeroMode) && isFirstDayOfMonth) {
                         SeriesGeneratorFactory.zero(field);
-                        log.info("Zero field by [M] : " + field);
+                        log.info("Zero field by [M] : {}", field);
                     } else if ("Y".equalsIgnoreCase(zeroMode) && isFirstDayOfYear) {
                         SeriesGeneratorFactory.zero(field);
-                        log.info("Zero field by [Y] : " + field);
+                        log.info("Zero field by [Y] : {}", field);
                     } else if ("W".equalsIgnoreCase(zeroMode) && isFirstDayOfWeek) {
                         SeriesGeneratorFactory.zero(field);
-                        log.info("Zero field by [W] : " + field);
+                        log.info("Zero field by [W] : {}", field);
                     }
                 }
             }

@@ -9,6 +9,7 @@ package com.rebuild.core.service.general;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
@@ -27,15 +28,15 @@ import java.util.List;
  * @author devezhao
  * @since 01/04/2019
  */
-public class GeneralEntityServiceTest extends TestSupport {
+class GeneralEntityServiceTest extends TestSupport {
 
     @Test
-    public void getServiceSpec() {
+    void getServiceSpec() {
         ServiceSpec ss = Application.getService(EntityHelper.User);
-        Assertions.assertTrue(ss instanceof UserService);
+        Assertions.assertInstanceOf(UserService.class, ss);
 
         EntityService es = Application.getEntityService(MetadataHelper.getEntity(TestAllFields).getEntityCode());
-        Assertions.assertTrue(es instanceof GeneralEntityService);
+        Assertions.assertInstanceOf(GeneralEntityService.class, es);
 
         boolean exThrows = false;
         try {
@@ -47,7 +48,7 @@ public class GeneralEntityServiceTest extends TestSupport {
     }
 
     @Test
-    public void CRUD() {
+    void CRUD() {
         UserContextHolder.setUser(UserService.ADMIN_USER);
 
         int testEntityCode = MetadataHelper.getEntity(TestAllFields).getEntityCode();
@@ -73,7 +74,7 @@ public class GeneralEntityServiceTest extends TestSupport {
     }
 
     @Test
-    public void getRecordsOfCascaded() {
+    void getRecordsOfCascaded() {
         UserContextHolder.setUser(SIMPLE_USER);
 
         Application.getGeneralEntityService().getCascadedRecords(
@@ -83,11 +84,22 @@ public class GeneralEntityServiceTest extends TestSupport {
     }
 
     @Test
-    public void checkRepeated() {
+    void checkRepeated() {
         Record record = EntityHelper.forNew(MetadataHelper.getEntity(TestAllFields).getEntityCode(), SIMPLE_USER);
         record.setString("TESTALLFIELDSName", "123");
 
         List<Record> repeated = Application.getGeneralEntityService().getAndCheckRepeated(record, 100);
         System.out.println(JSON.toJSONString(repeated));
+    }
+
+    @Test
+    void processNVal() {
+        ID newId = addRecordOfTestAllFields(UserService.SYSTEM_USER);
+
+        Record record = EntityHelper.forNew(newId.getEntityCode());
+        // 测试重复值
+        record.setIDArray("N2NREFERENCE", new ID[] { newId, newId });
+        record.setObjectValue("TAG1", new String[] { "AA", "AA" });
+        Application.getGeneralEntityService().createOrUpdate(record);
     }
 }
