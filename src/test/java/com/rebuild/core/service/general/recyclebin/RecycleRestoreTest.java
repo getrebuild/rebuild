@@ -17,10 +17,10 @@ import org.junit.jupiter.api.Test;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/08/21
  */
-public class RecycleRestoreTest extends TestSupport {
+class RecycleRestoreTest extends TestSupport {
 
     @Test
-    public void restore() {
+    void restore() {
         ID testId = addRecordOfTestAllFields(SIMPLE_USER);
         Application.getGeneralEntityService().delete(testId);
 

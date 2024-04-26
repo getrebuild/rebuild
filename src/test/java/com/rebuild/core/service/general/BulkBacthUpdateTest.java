@@ -28,15 +28,15 @@ import java.util.Arrays;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/12/03
  */
-public class BulkBacthUpdateTest extends TestSupport {
+class BulkBacthUpdateTest extends TestSupport {
 
     @BeforeEach
-    public void setUpPerMethod() {
+    void setUpPerMethod() {
         UserContextHolder.setUser(UserService.ADMIN_USER);
     }
 
     @Test
-    public void exec() {
+    void exec() {
         ID recordId = addRecordOfTestAllFields(SIMPLE_USER);
         JSONObject customData = createCustomData();
         customData.getJSONObject("queryData").put("_selected", recordId.toLiteral());
@@ -54,7 +54,7 @@ public class BulkBacthUpdateTest extends TestSupport {
     }
 
     @Test
-    public void prepareRecords() {
+    void prepareRecords() {
         JSONObject customData = createCustomData();
 
         // SELECTED
