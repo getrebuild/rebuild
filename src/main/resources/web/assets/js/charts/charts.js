@@ -331,13 +331,6 @@ const ECHART_AXIS_LABEL = {
   },
 }
 
-// eslint-disable-next-line no-unused-vars
-const ECHART_VALUE_LABEL = {
-  show: true,
-  formatter: function (a) {
-    return formatThousands(a.data)
-  },
-}
 const ECHART_VALUE_LABEL2 = function (dataFlags = []) {
   return {
     show: true,
