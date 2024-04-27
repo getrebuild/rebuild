@@ -812,7 +812,6 @@ class FilterItem extends React.Component {
   }
 
   removeBizzSearch() {
-    console.log('removeBizzSearch...', this.__select2_BizzSearch)
     if (this.__select2_BizzSearch) {
       this.__select2_BizzSearch.select2('destroy')
       this.__select2_BizzSearch = null
