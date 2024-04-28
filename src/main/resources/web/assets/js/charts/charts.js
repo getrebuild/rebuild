@@ -1384,6 +1384,7 @@ class DataList extends BaseChart {
 // 地图（点）
 class ChartCNMap extends BaseChart {
   renderChart(data) {
+    this.__dataLast = data
     if (data.data.length === 0) {
       this.renderError($L('暂无数据'))
       return
@@ -1460,7 +1461,11 @@ class ChartCNMap extends BaseChart {
     $setTimeout(
       () => {
         this._resizeBody()
-        this._echarts && this._echarts.resize()
+        // force resize
+        if (this._echarts) {
+          this._echarts.dispose()
+          this.renderChart(this.__dataLast)
+        }
       },
       400,
       `resize-chart-${this.state.id}`
