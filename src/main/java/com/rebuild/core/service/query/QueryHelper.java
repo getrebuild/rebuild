@@ -128,7 +128,7 @@ public class QueryHelper {
     }
 
     /**
-     * 获取明细列表 ID
+     * 获取（默认）明细列表 ID
      *
      * @param mainId
      * @return
@@ -139,7 +139,7 @@ public class QueryHelper {
     }
 
     /**
-     * 获取明细列表 ID
+     * 获取（指定）明细列表 ID
      *
      * @param mainId
      * @param detailEntity

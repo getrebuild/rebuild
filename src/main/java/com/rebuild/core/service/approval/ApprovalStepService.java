@@ -677,9 +677,12 @@ public class ApprovalStepService extends BaseService {
         if (!record.getEntity().containsField(EntityHelper.ApprovalStepUsers)) return;
 
         ID[] nextApproversFix = null;
-        if (nextApprovers instanceof ID[]) nextApproversFix = (ID[]) nextApprovers;
-        else if (nextApprovers instanceof Collection) //noinspection unchecked
+        if (nextApprovers instanceof ID[]) {
+            nextApproversFix = (ID[]) nextApprovers;
+        } else if (nextApprovers instanceof Collection) {
+            //noinspection unchecked
             nextApproversFix = ((Collection<ID>) nextApprovers).toArray(new ID[0]);
+        }
 
         // clear
         if (nextApproversFix == null) {
@@ -692,8 +695,12 @@ public class ApprovalStepService extends BaseService {
         record.setIDArray(EntityHelper.ApprovalStepUsers, nextApproversFix);
 
         // v3.7-2
-        ID approvalId = record.getID(EntityHelper.ApprovalId);
         String approvalStepNode = record.getString(EntityHelper.ApprovalStepNode);
+        ID approvalId = record.getID(EntityHelper.ApprovalId);
+        if (approvalStepNode != null && approvalId == null) {
+            approvalId = (ID) QueryHelper.queryField(record.getPrimary(), EntityHelper.ApprovalId);
+        }
+
         if (approvalId == null || approvalStepNode == null) {
             log.warn("No [approvalId] or [approvalStepNode] value found : {}", record.getPrimary());
         } else {

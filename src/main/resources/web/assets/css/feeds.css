@@ -134,6 +134,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .types-bar .nav-tabs > li.nav-item a.nav-link.active {
   color: #4285f4;
+  color: var(--rb-theme-color);
 }
 
 .types-bar span.float-right {

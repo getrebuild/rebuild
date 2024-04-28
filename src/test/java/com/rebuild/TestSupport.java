@@ -137,7 +137,7 @@ public class TestSupport {
             Entity testEntity = MetadataHelper.getEntity(entityName);
 
             for (DisplayType dt : DisplayType.values()) {
-                if (dt == DisplayType.ID || dt == DisplayType.ANYREFERENCE) {
+                if (dt == DisplayType.ID) {
                     continue;
                 }
 

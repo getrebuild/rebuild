@@ -80,6 +80,7 @@ code {
 .dropdown-menu {
   box-shadow: 0 3px 0.3077rem rgba(0, 0, 0, 0.1);
   box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.1), 0 10px 12px 0 rgba(170, 182, 206, 0.36);
   border-width: 0;
   border-radius: 0;
   max-width: 300px;
@@ -99,6 +100,10 @@ code {
 
 .dropdown-menu.primary > .dropdown-item:hover .icon {
   color: #fff;
+}
+
+.dropdown-menu.dropdown-menu-sm {
+  min-width: 140px;
 }
 
 .dropdown-item.disabled .icon,
@@ -5142,6 +5147,14 @@ pre.unstyle {
   border-color: var(--rb-theme-color);
 }
 
+.nav-tabs > li.nav-item a.nav-link:hover {
+  color: var(--rb-theme-color);
+}
+
+.colored-header-primary .modal-content .modal-header {
+  background-color: var(--rb-theme-color);
+}
+
 .support-plat2 {
   position: absolute;
   cursor: help;
@@ -5597,6 +5610,10 @@ span.icon-append .icon {
   border-bottom: 1px solid #d5d8de;
   padding: 2px 20px 6px;
   width: 100%;
+}
+
+.dropdown-menu .searchbox > input:focus {
+  border-color: #4285f4;
 }
 
 .dropdown-menu .searchbox::after {
