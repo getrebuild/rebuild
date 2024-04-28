@@ -190,7 +190,7 @@
             <span></span>
             <a class="del" th:title="${bundle.L('移除')}"><i class="zmdi zmdi-close-circle"></i></a>
           </div>
-          <ul class="dropdown-menu">
+          <ul class="dropdown-menu dropdown-menu-sm">
             <li class="dropdown-item J_num" data-calc="SUM">[[${bundle.L('求和')}]]</li>
             <li class="dropdown-item J_num" data-calc="AVG">[[${bundle.L('平均值')}]]</li>
             <li class="dropdown-item J_num" data-calc="MAX">[[${bundle.L('最大值')}]]</li>
@@ -212,7 +212,7 @@
             <li class="dropdown-divider"></li>
             <li class="dropdown-submenu J_sort">
               <a class="dropdown-item">[[${bundle.L('排序')}]]</a>
-              <ul class="dropdown-menu">
+              <ul class="dropdown-menu dropdown-menu-sm">
                 <li class="dropdown-item" data-sort="NONE">[[${bundle.L('默认')}]]</li>
                 <li class="dropdown-item" data-sort="ASC">[[${bundle.L('升序')}]]</li>
                 <li class="dropdown-item" data-sort="DESC">[[${bundle.L('降序')}]]</li>

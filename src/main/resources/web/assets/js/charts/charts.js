@@ -33,7 +33,7 @@ class BaseChart extends React.Component {
         <a className="d-none d-md-inline-block" data-toggle="dropdown">
           <i className="icon zmdi zmdi-more-vert" style={{ width: 16 }} />
         </a>
-        <div className="dropdown-menu dropdown-menu-right">
+        <div className="dropdown-menu dropdown-menu-right dropdown-menu-sm">
           {this.props.isManageable && !this.props.builtin && (
             <a className="dropdown-item J_chart-edit" href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
               {$L('编辑')}

@@ -81,10 +81,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 1.43rem;
 }
 
-.chart-box .chart-head .chart-oper .dropdown-menu {
-  min-width: 140px;
-}
-
 .chart-undata {
   margin: 0;
   color: #999;
