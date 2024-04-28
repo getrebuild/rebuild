@@ -110,7 +110,7 @@ public class EasyDecimal extends EasyField {
     }
 
     /**
-     * 清除小数符号
+     * 清除数字符号（包括千分位分隔符）
      *
      * @param flagedValue
      * @return
