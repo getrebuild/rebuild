@@ -62,6 +62,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import static com.rebuild.core.service.approval.ApprovalHelper.getSpecTriggers;
+
 /**
  * 业务实体核心服务，所有业务实体都应该使用此类（或子类）
  * <br>- 有业务验证
@@ -121,7 +123,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         try {
             if (hasDetails) {
                 RobotTriggerObserver.setLazyTriggers();
-                record = record.getPrimary() == null ? create(record) : update(record);
+                record = record.getPrimary() == null ? create(record) : update(record, true);
             } else {
                 record = record.getPrimary() == null ? create(record) : update(record);
                 return record;
@@ -206,25 +208,37 @@ public class GeneralEntityService extends ObservableService implements EntitySer
      */
     @Override
     public Record update(Record record) {
+        return update(record, false);
+    }
+
+    /**
+     * @param record
+     * @param ignoreTriggers
+     * @return
+     */
+    private Record update(Record record, boolean ignoreTriggers) {
         if (!checkModifications(record, BizzPermission.UPDATE)) {
             return record;
         }
 
-        // 先更新
         record = super.update(record);
+        if (ignoreTriggers) return record;
 
-        // ND 主记录修改时传导给明细（若有），以便触发分组聚合触发器
-        // FIXME 此时明细可能尚未做好更新，因此是无意义的更新
+        // ND 主记录修改时传导给明细（若有），以便触发聚合触发器
+        // v3.7 只触发一个明细就够了
+
         for (Entity de : record.getEntity().getDetialEntities()) {
-            TriggerAction[] deHasTriggers = ApprovalHelper.getSpecTriggers(de, ActionType.GROUPAGGREGATION, TriggerWhen.UPDATE);
-            if (deHasTriggers.length > 0) {
+            TriggerAction[] deHasTriggersGG = getSpecTriggers(de, ActionType.GROUPAGGREGATION, TriggerWhen.UPDATE);
+            TriggerAction[] deHasTriggersFG = getSpecTriggers(de, ActionType.FIELDAGGREGATION, TriggerWhen.UPDATE);
+            if (deHasTriggersGG.length > 0 || deHasTriggersFG.length > 0) {
                 RobotTriggerManual triggerManual = new RobotTriggerManual();
                 ID opUser = UserService.SYSTEM_USER;
 
-                for (ID did : QueryHelper.detailIdsNoFilter(record.getPrimary())) {
+                for (ID did : QueryHelper.detailIdsNoFilter(record.getPrimary(), de)) {
                     Record dUpdate = EntityHelper.forUpdate(did, opUser, false);
                     triggerManual.onUpdate(
                             OperatingContext.create(opUser, BizzPermission.UPDATE, dUpdate, dUpdate));
+                    break;
                 }
             }
         }
@@ -288,8 +302,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return 0;
         }
 
-        // v3.7 ND
-        // 手动删除明细记录，以执行系统规则（如触发器、附件删除等）
+        // ND 手动删除。传导给明细触发器、附件删除等
         for (Entity de : MetadataHelper.getEntity(recordId.getEntityCode()).getDetialEntities()) {
             for (ID did : QueryHelper.detailIdsNoFilter(recordId, de)) {
                 // 明细无约束检查 checkModifications
@@ -770,9 +783,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         final RobotTriggerManual triggerManual = new RobotTriggerManual();
 
-        // ND 传导给明细（若有）
+        // ND 传导给明细触发器（若有）
         for (Entity de : approvalRecord.getEntity().getDetialEntities()) {
-            TriggerAction[] deHasTriggers = ApprovalHelper.getSpecTriggers(de, null,
+            TriggerAction[] deHasTriggers = getSpecTriggers(de, null,
                     state == ApprovalState.APPROVED ? TriggerWhen.APPROVED : TriggerWhen.REVOKED);
             if (deHasTriggers.length > 0) {
                 for (ID did : QueryHelper.detailIdsNoFilter(recordId, de)) {

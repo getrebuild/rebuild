@@ -429,7 +429,14 @@ class ExcelClipboardData extends React.Component {
     if (!this.state.data) {
       let tips = $L('复制 Excel 单元格 Ctrl + V 粘贴')
       if ($.browser.mac) tips = tips.replace('Ctrl', 'Command')
-      return <div className="must-center text-muted">{tips}</div>
+      return (
+        <div className="must-center text-muted">
+          <div className="mb-2">
+            <i className="mdi mdi-microsoft-excel" style={{ fontSize: 32 }} />
+          </div>
+          {tips}
+        </div>
+      )
     }
 
     return (
