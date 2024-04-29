@@ -647,15 +647,21 @@ class ChartFunnel extends BaseChart {
             data: data.data,
             cursor: 'default',
             label: {
+              html: true,
               show: true,
               position: 'inside',
               formatter: function (a) {
-                return showNumerical ? `${a.data.name} (${formatThousands(a.data.value, dataFlags[a.dataIndex])})` : a.data.name
+                let text = a.data.name
+                if (showNumerical) text += ` (${formatThousands(a.data.value, dataFlags[a.dataIndex])})`
+                if (a.data.cvr !== false) text += `\n${$L('转化率')} ${a.data.cvr}%`
+                return text
               },
+              lineHeight: 16,
             },
           },
         ],
       }
+      option.grid.right = 60
       option.tooltip.trigger = 'item'
       option.tooltip.formatter = function (a) {
         if (data.xLabel) return `<b>${a.name}</b> <br/> ${a.marker} ${data.xLabel} : ${formatThousands(a.value, dataFlags[a.dataIndex])}`

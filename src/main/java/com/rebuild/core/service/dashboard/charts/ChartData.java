@@ -501,6 +501,24 @@ public abstract class ChartData extends SetUser implements ChartSpec {
     }
 
     /**
+     * @param num
+     * @param withFilter
+     * @return
+     */
+    protected String buildSql(Numerical num, boolean withFilter) {
+        String sql = "select {0} from {1} where {2}";
+        String where = getFilterSql();
+
+        if (withFilter && ParseHelper.validAdvFilter(num.getFilter())) {
+            AdvFilterParser filterParser = new AdvFilterParser(num.getFilter());
+            String fieldWhere = filterParser.toSqlWhere();
+            if (fieldWhere != null) where = String.format("((%s) and (%s))", where, fieldWhere);
+        }
+
+        return MessageFormat.format(sql, num.getSqlName(), getSourceEntity().getName(), where);
+    }
+
+    /**
      * 添加排序 SQL
      *
      * @param sql

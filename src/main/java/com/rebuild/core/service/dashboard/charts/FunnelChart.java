@@ -7,9 +7,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.dashboard.charts;
 
+import cn.devezhao.commons.ObjectUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.metadata.easymeta.EasyDecimal;
 import com.rebuild.utils.JSONUtils;
 
 import java.util.ArrayList;
@@ -32,33 +34,37 @@ public class FunnelChart extends ChartData {
         Dimension[] dims = getDimensions();
         Numerical[] nums = getNumericals();
 
-        JSONArray dataJson = new JSONArray();
+        JSONArray dataArray = new JSONArray();
         List<String> dataFlags = new ArrayList<>();
 
+        // 0DIM + 2~9NUM
         if (nums.length > 1) {
-            Object[] dataRaw = createQuery(buildSql(nums)).unique();
-            for (int i = 0; i < nums.length; i++) {
+            Object last = null;
+            for (Numerical num : nums) {
+                Object[] dataRaw = createQuery(buildSql(num, true)).unique();
                 JSONObject d = JSONUtils.toJSONObject(
                         new String[]{"name", "value"},
-                        new Object[]{nums[i].getLabel(), wrapAxisValue(nums[i], dataRaw[i])});
-                dataJson.add(d);
-                dataFlags.add(getNumericalFlag(nums[i]));
+                        new Object[]{num.getLabel(), wrapAxisValue(num, dataRaw[0])});
+                dataArray.add(d);
+                dataFlags.add(getNumericalFlag(num));
             }
-
-        } else if (nums.length == 1 && dims.length >= 1) {
-            Dimension dim1 = dims[0];
-            Object[][] dataRaw = createQuery(buildSql(dim1, nums[0])).array();
-            final String valueFlag = getNumericalFlag(nums[0]);
+        }
+        // 1DIM + 1NUM
+        else if (nums.length == 1 && dims.length >= 1) {
+            Dimension dim1 = dims[0];  // 多余的不要
+            Numerical num1 = nums[0];
+            Object[][] dataRaw = createQuery(buildSql(dim1, num1)).array();
+            final String valueFlag = getNumericalFlag(num1);
             for (Object[] o : dataRaw) {
                 JSONObject d = JSONUtils.toJSONObject(
                         new String[]{"name", "value"},
-                        new Object[]{o[0] = wrapAxisValue(dim1, o[0]), wrapAxisValue(nums[0], o[1])});
-                dataJson.add(d);
+                        new Object[]{o[0] = wrapAxisValue(dim1, o[0]), wrapAxisValue(num1, o[1])});
+                dataArray.add(d);
                 dataFlags.add(valueFlag);
             }
 
             if (dim1.getFormatSort() != FormatSort.NONE) {
-                dataJson.sort((a, b) -> {
+                dataArray.sort((a, b) -> {
                     String aName = ((JSONObject) a).getString("name");
                     String bName = ((JSONObject) b).getString("name");
                     if (dim1.getFormatSort() == FormatSort.ASC) {
@@ -70,13 +76,27 @@ public class FunnelChart extends ChartData {
             }
         }
 
+        // 转化率
+        Double last = null;
+        for (Object o : dataArray) {
+            JSONObject d = (JSONObject) o;
+            String value = EasyDecimal.clearFlaged(d.getString("value"));
+            double n = ObjectUtils.toDouble(value);
+            if (last == null) {
+                d.put("cvr", false);
+            } else {
+                d.put("cvr", ObjectUtils.round(n * 100 / last, 1));
+            }
+            last = n;
+        }
+
         JSONObject renderOption = config.getJSONObject("option");
         if (renderOption == null) renderOption = new JSONObject();
         renderOption.put("dataFlags", dataFlags);
 
         JSONObject ret = JSONUtils.toJSONObject(
                 new String[]{"data", "_renderOption"},
-                new Object[]{dataJson, renderOption});
+                new Object[]{dataArray, renderOption});
         if (nums.length >= 1 && dims.length >= 1) {
             ret.put("xLabel", nums[0].getLabel());
         }

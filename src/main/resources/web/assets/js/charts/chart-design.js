@@ -28,7 +28,7 @@ $(document).ready(() => {
     if (['LINE', 'BAR', 'BAR2', 'BAR3'].includes($item.data('type'))) {
       title = $L('%s个维度 %s个数值', 2, 1) + '<br/>' + $L('%s个维度 %s个数值', 1, '1~9')
     } else if (['FUNNEL'].includes($item.data('type'))) {
-      title = $L('%s个维度 %s个数值', 1, 1) + '<br/>' + $L('%s个维度 %s个数值', 0, '1~9')
+      title = $L('%s个维度 %s个数值', 1, 1) + '<br/>' + $L('%s个维度 %s个数值', 0, '2~9')
     }
     $item.attr('title', $item.attr('title') + '<br/>' + title)
   })
