@@ -103,12 +103,13 @@ public class QiniuCloud {
      * 文件上传
      *
      * @param file
+     * @param fileName
      * @param fops
      * @return
      * @throws IOException
      */
-    public String upload(File file, String fops) throws IOException {
-        String fileKey = formatFileKey(file.getName());
+    public String upload(File file, String fileName, String fops) throws IOException {
+        String fileKey = formatFileKey(fileName == null ? file.getName() : fileName);
         Response resp = UPLOAD_MANAGER.put(file, fileKey, getUploadToken(fileKey, fops));
         if (resp.isOK()) {
             return fileKey;
@@ -116,6 +117,18 @@ public class QiniuCloud {
             log.error("Cannot upload file : {}. Resp: {}", file.getName(), resp);
             return null;
         }
+    }
+
+    /**
+     * 文件上传
+     *
+     * @param file
+     * @param fileName
+     * @return
+     * @throws IOException
+     */
+    public String upload(File file, String fileName) throws IOException {
+        return upload(file, fileName, null);
     }
 
     /**
@@ -412,7 +425,7 @@ public class QiniuCloud {
             String name = parseFileName(filepath);
             file = RebuildConfiguration.getFileOfTemp("dn" + System.nanoTime() + "." + name);
             instance().download(filepath, file);
-            
+
         } else if (filepath.startsWith("rb/") || filepath.startsWith("/rb/")) {
             file = RebuildConfiguration.getFileOfData(filepath);
         }
