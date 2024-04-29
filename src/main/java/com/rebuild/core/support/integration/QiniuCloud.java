@@ -405,14 +405,14 @@ public class QiniuCloud {
         if (filepath.startsWith("http://") || filepath.startsWith("https://")) {
             String name = filepath.split("\\?")[0];
             name = name.substring(name.lastIndexOf("/") + 1);
-            file = RebuildConfiguration.getFileOfTemp("down" + System.nanoTime() + "." + name);
+            file = RebuildConfiguration.getFileOfTemp("dn" + System.nanoTime() + "." + name);
             OkHttpUtils.readBinary(filepath, file, null);
 
         } else if (QiniuCloud.instance().available()) {
             String name = parseFileName(filepath);
-            file = RebuildConfiguration.getFileOfTemp("down" + System.nanoTime() + "." + name);
+            file = RebuildConfiguration.getFileOfTemp("dn" + System.nanoTime() + "." + name);
             instance().download(filepath, file);
-
+            
         } else if (filepath.startsWith("rb/") || filepath.startsWith("/rb/")) {
             file = RebuildConfiguration.getFileOfData(filepath);
         }

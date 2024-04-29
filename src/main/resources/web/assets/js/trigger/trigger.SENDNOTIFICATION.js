@@ -92,12 +92,12 @@ class ContentSendNotification extends ActionContentSpec {
                 <p className="form-text">{$L('选择内部接收用户')}</p>
               </div>
               <div className={state.userType === 2 ? '' : 'hide'}>
-                <AccountSelectorWithField ref={(c) => (this._sendTo2 = c)} hideUser hideDepartment hideRole hideTeam />
-                <p className="form-text">{$L('选择外部人员的电话 (手机) 或邮箱字段')}</p>
+                <SelectorWithField ref={(c) => (this._sendTo2 = c)} hideUser hideDepartment hideRole hideTeam />
+                <p className="form-text">{$L('选择外部人员的电话(手机)/邮箱字段')}</p>
               </div>
               <div className={state.userType === 20 ? '' : 'hide'}>
                 <input type="input" className="form-control form-control-sm w-100" ref={(c) => (this._sendTo20 = c)} style={{ maxWidth: '100%' }} />
-                <p className="form-text">{$L('输入手机或邮箱，多个请使用逗号分开')}</p>
+                <p className="form-text">{$L('输入手机/邮箱，多个请使用逗号分开')}</p>
               </div>
               <div className={state.userType === 4 ? '' : 'hide'}>
                 <input type="text" className="form-control form-control-sm w-100" ref={(c) => (this._$webhook = c)} style={{ maxWidth: '100%' }} placeholder={$L('群 Webhook 地址')} />
@@ -134,6 +134,15 @@ class ContentSendNotification extends ActionContentSpec {
                 <p className="form-text" dangerouslySetInnerHTML={{ __html: $L('内容 (及标题) 支持字段变量，字段变量如 `{createdOn}` (其中 createdOn 为源实体的字段内部标识)') }} />
               </div>
             </div>
+            {state.type === 2 && (
+              <div className="form-group row pb-1">
+                <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('邮件附件')}</label>
+                <div className="col-12 col-lg-8">
+                  <SelectorWithField ref={(c) => (this._attach = c)} hideUser hideDepartment hideRole hideTeam fieldTypes={['FILE', 'IMAGE']} />
+                  <p className="form-text">{$L('选择附件/图片字段')}</p>
+                </div>
+              </div>
+            )}
           </div>
         </form>
       </div>
@@ -179,6 +188,12 @@ class ContentSendNotification extends ActionContentSpec {
         () => {
           $(this._$title).val(content.title || '')
           this._content.val(content.content || '')
+          // lazy
+          if (this._attach && content.attach) {
+            $.post(`/commons/search/user-selector?entity=${this.props.sourceEntity}`, JSON.stringify(content.attach), (res) => {
+              this._attach.setState({ selected: res.data || [] })
+            })
+          }
         }
       )
     }
@@ -222,6 +237,7 @@ class ContentSendNotification extends ActionContentSpec {
       sendTo: sendTo,
       title: $(this._$title).val(),
       content: this._content.val(),
+      attach: this._attach ? this._attach.val() : null,
     }
 
     if (!_data.content) {
@@ -241,7 +257,7 @@ renderContentComp = function (props) {
   })
 }
 
-class AccountSelectorWithField extends UserSelector {
+class SelectorWithField extends UserSelector {
   constructor(props) {
     super(props)
     this._useTabs.push(['FIELDS', $L('使用字段')])
@@ -250,11 +266,12 @@ class AccountSelectorWithField extends UserSelector {
   componentDidMount() {
     super.componentDidMount()
 
+    const fieldTypes = this.props.fieldTypes || ['PHONE', 'EMAIL']
     this._fields = []
     $.get(`/commons/metadata/fields?deep=2&entity=${this.props.entity || wpc.sourceEntity}`, (res) => {
       res.data &&
         res.data.forEach((item) => {
-          if (item.type === 'PHONE' || item.type === 'EMAIL') {
+          if (fieldTypes.includes(item.type)) {
             this._fields.push({ id: item.name, text: item.label })
           }
         })

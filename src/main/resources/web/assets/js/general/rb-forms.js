@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global SimpleMDE, RepeatedViewer, ProTable, Md2Html, ExcelClipboardData */
+/* global SimpleMDE, RepeatedViewer, ProTable, Md2Html */
 
 /**
  * Callback API:
@@ -949,7 +949,6 @@ class RbFormElement extends React.Component {
         type="text"
         value={value || ''}
         onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
-        // onBlur={this.props.readonly ? null : () => this.checkValue()}
         readOnly={this.props.readonly}
         placeholder={this._placeholderw}
         maxLength={this.props.maxLength || 200}
@@ -1085,6 +1084,11 @@ class RbFormElement extends React.Component {
   // 可空/非空
   setNullable(nullable) {
     this.setState({ nullable: nullable === true })
+  }
+  // 只读/非只读
+  // 部分字段有效，且如字段属性为只读，即使填写值也无效
+  setReadonly(readonly) {
+    this.setState({ readonly: readonly === true })
   }
   // TIP 仅表单有效
   setTip(tip) {
@@ -1229,7 +1233,6 @@ class RbFormNumber extends RbFormText {
           type="text"
           value={this._removeComma(value)}
           onChange={(e) => this.handleChange(e, !this.props.readonly)}
-          // onBlur={this.props.readonly ? null : () => this.checkValue()}
           readOnly={this.props.readonly}
           placeholder={this._placeholderw}
           maxLength="29"
@@ -1309,7 +1312,6 @@ class RbFormNText extends RbFormElement {
           title={this.state.hasError}
           value={this.state.value || ''}
           onChange={(e) => this.handleChange(e, !this.props.readonly)}
-          // onBlur={this.props.readonly ? null : () => this.checkValue()}
           readOnly={this.props.readonly}
           placeholder={this._placeholderw}
           maxLength="6000"
@@ -1449,7 +1451,6 @@ class RbFormDateTime extends RbFormElement {
           type="text"
           value={this.state.value || ''}
           onChange={(e) => this.handleChange(e, !this.props.readonly)}
-          // onBlur={this.props.readonly ? null : () => this.checkValue()}
           placeholder={this._placeholderw}
           maxLength="20"
         />
