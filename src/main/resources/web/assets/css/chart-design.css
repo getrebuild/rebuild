@@ -173,7 +173,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .axis-target .dropdown-menu .dropdown-item {
   padding: 6px 14px;
-  cursor: default;
 }
 
 .axis-target.ui-droppable-active,
@@ -493,7 +492,7 @@ a.ui-draggable.ui-draggable-dragging {
 }
 
 .chart-option label {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .rbcolors > a + a,

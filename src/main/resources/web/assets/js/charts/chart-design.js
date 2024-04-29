@@ -22,10 +22,15 @@ $(document).ready(() => {
   }
   $('.chart-type>a').each((idx, item) => {
     const $item = $(item)
-    let dims = _clear2($item.data('allow-dims'))
-    let nums = _clear2($item.data('allow-nums'))
-    const title2 = $L('%s个维度 %s个数值', dims, nums)
-    $item.attr('title', $item.attr('title') + '<br/>' + title2)
+    const dims = _clear2($item.data('allow-dims'))
+    const nums = _clear2($item.data('allow-nums'))
+    let title = $L('%s个维度 %s个数值', dims, nums)
+    if (['LINE', 'BAR', 'BAR2', 'BAR3'].includes($item.data('type'))) {
+      title = $L('%s个维度 %s个数值', 2, 1) + '<br/>' + $L('%s个维度 %s个数值', 1, '1~9')
+    } else if (['FUNNEL'].includes($item.data('type'))) {
+      title = $L('%s个维度 %s个数值', 1, 1) + '<br/>' + $L('%s个维度 %s个数值', 0, '2~9')
+    }
+    $item.attr('title', $item.attr('title') + '<br/>' + title)
   })
   $('.chart-type>a, .chart-option .zicon').tooltip({ html: true, container: '.config-aside' })
 
@@ -88,20 +93,28 @@ $(document).ready(() => {
       .disableSelection()
   }, 1000)
 
-  const saveFilter = function (filter) {
-    dataFilter = filter
-    render_preview()
-  }
-
   let _AdvFilter
   $('.J_filter').on('click', (e) => {
     $stopEvent(e, true)
     if (_AdvFilter) {
       _AdvFilter.show()
     } else {
-      renderRbcomp(<AdvFilter title={$L('数据过滤条件')} entity={wpc.sourceEntity} filter={dataFilter} onConfirm={saveFilter} inModal canNoFilters />, null, function () {
-        _AdvFilter = this
-      })
+      renderRbcomp(
+        <AdvFilter
+          title={$L('附加筛选条件')}
+          entity={wpc.sourceEntity}
+          filter={dataFilter}
+          onConfirm={(s) => {
+            dataFilter = s
+            render_preview()
+          }}
+          inModal
+          canNoFilters
+        />,
+        function () {
+          _AdvFilter = this
+        }
+      )
     }
   })
 
@@ -152,7 +165,7 @@ $(document).ready(() => {
     .find('.zmdi')
     .addClass('zmdi-arrow-left')
 
-  // Colors
+  // 颜色
   const $cs = $('.rbcolors')
   RBCOLORS.forEach((c) => {
     $(`<a style="background-color:${c}" data-color="${c}"></a>`).appendTo($cs)
@@ -170,7 +183,7 @@ $(document).ready(() => {
       render_preview(e.target.value)
     })
 
-  // Load
+  // init
   if (wpc.chartConfig && wpc.chartConfig.axis) {
     $(wpc.chartConfig.axis.dimension).each((idx, item) => add_axis('.J_axis-dim', item))
     $(wpc.chartConfig.axis.numerical).each((idx, item) => add_axis('.J_axis-num', item))
@@ -236,28 +249,33 @@ const CTs = {
   L4: $L('4级'),
 }
 
-let dlgAxisProps
+let _dlgAxisProps
+let _axisAdvFilters = {}
+let _axisAdvFilters__data = {}
 // 添加维度
-const add_axis = (target, axis) => {
-  const $dropdown = $($('#axis-item').html()).appendTo($(target))
+function add_axis($target, axis) {
+  const $dd = $($('#axis-item').html()).appendTo($($target))
   let fieldName = null
   let fieldLabel = null
   let fieldType = null
   let calc = null
   let sort = 'NONE'
+  let fkey = null
 
-  const isNumAxis = $(target).hasClass('J_axis-num')
-  // Edit
+  const isNumAxis = $($target).hasClass('J_axis-num')
+  // exists
   if (axis.field) {
-    const field = $(`.fields [data-field="${axis.field}"]`)
+    const copyField = $(`.fields [data-field="${axis.field}"]`)
     fieldName = axis.field
-    fieldLabel = field.text()
-    fieldType = field.data('type')
-    sort = axis.sort
+    fieldLabel = copyField.text()
+    fieldType = copyField.data('type')
     calc = axis.calc
-    $dropdown.attr({ 'data-label': axis.label, 'data-scale': axis.scale })
+    sort = axis.sort
+    fkey = axis.fkey
+    if (axis.filter) _axisAdvFilters__data[axis.fkey] = axis.filter
+    $dd.attr({ 'data-label': axis.label, 'data-scale': axis.scale })
   }
-  // New adds
+  // New
   else {
     fieldName = axis.data('field')
     fieldLabel = axis.text()
@@ -272,79 +290,102 @@ const add_axis = (target, axis) => {
       calc = 'L1'
     }
   }
-  $dropdown.attr({ 'data-calc': calc, 'data-sort': sort })
+  if (!fkey) fkey = $random('AXIS')
+  $dd.attr({ 'data-calc': calc, 'data-sort': sort, 'data-fkey': fkey })
 
   fieldLabel = fieldLabel || `[${fieldName.toUpperCase()}]`
 
   if (isNumAxis) {
-    $dropdown.find('.J_date, .J_time, .J_clazz').remove()
-    if (fieldType === 'num') $dropdown.find('.J_text').remove()
-    else $dropdown.find('.J_num').remove()
+    $dd.find('.J_date, .J_time, .J_clazz').remove()
+    if (fieldType === 'num') $dd.find('.J_text').remove()
+    else $dd.find('.J_num').remove()
   } else {
-    $dropdown.find('.J_text, .J_num').remove()
-    if (fieldType !== 'date') $dropdown.find('.J_date').remove()
-    if (fieldType !== 'time') $dropdown.find('.J_time').remove()
-    if (fieldType !== 'clazz') $dropdown.find('.J_clazz').remove()
+    $dd.find('.J_text, .J_num, .J_filter').remove()
+    if (fieldType !== 'date') $dd.find('.J_date').remove()
+    if (fieldType !== 'time') $dd.find('.J_time').remove()
+    if (fieldType !== 'clazz') $dd.find('.J_clazz').remove()
   }
-  if ($dropdown.find('li:eq(0)').hasClass('dropdown-divider')) $dropdown.find('.dropdown-divider').remove()
+  if ($dd.find('li:eq(0)').hasClass('dropdown-divider')) $dd.find('.dropdown-divider').remove()
 
   // Click option
-  const aopts = $dropdown.find('.dropdown-menu .dropdown-item').on('click', function () {
+  const aopts = $dd.find('.dropdown-menu .dropdown-item').on('click', function () {
     const $this = $(this)
     if ($this.hasClass('disabled') || $this.parent().hasClass('disabled')) return false
 
     const calc = $this.data('calc')
     const sort = $this.data('sort')
     if (calc) {
-      $dropdown.find('span').text(`${fieldLabel} (${$this.text()})`)
-      $dropdown.attr('data-calc', calc)
+      $dd.find('span').text(`${fieldLabel} (${$this.text()})`)
+      $dd.attr('data-calc', calc)
       aopts.each(function () {
         if ($(this).data('calc')) $(this).removeClass('text-primary')
       })
       $this.addClass('text-primary')
       render_preview()
     } else if (sort) {
-      $dropdown.attr('data-sort', sort)
+      $dd.attr('data-sort', sort)
       aopts.each(function () {
         if ($(this).data('sort')) $(this).removeClass('text-primary')
       })
       $this.addClass('text-primary')
       render_preview()
+    } else if ($this.hasClass('J_filter')) {
+      // v3.7
+      if (_axisAdvFilters[fkey]) {
+        _axisAdvFilters[fkey].show()
+      } else {
+        renderRbcomp(
+          <AdvFilter
+            title={$L('筛选条件')}
+            entity={wpc.sourceEntity}
+            filter={_axisAdvFilters__data[fkey] || null}
+            onConfirm={(s) => {
+              _axisAdvFilters__data[fkey] = s
+              render_preview()
+            }}
+            inModal
+            canNoFilters
+          />,
+          function () {
+            _axisAdvFilters[fkey] = this
+          }
+        )
+      }
     } else {
       const state = {
         isNumAxis: isNumAxis,
-        label: $dropdown.attr('data-label'),
-        scale: $dropdown.attr('data-scale'),
+        label: $dd.attr('data-label'),
+        scale: $dd.attr('data-scale'),
       }
       state.callback = (s) => {
-        $dropdown.attr({ 'data-label': s.label, 'data-scale': s.scale })
+        $dd.attr({ 'data-label': s.label, 'data-scale': s.scale })
         render_preview()
       }
 
-      if (dlgAxisProps) {
-        dlgAxisProps.show(state)
+      if (_dlgAxisProps) {
+        _dlgAxisProps.show(state)
       } else {
-        renderRbcomp(<DlgAxisProps {...state} />, null, function () {
-          dlgAxisProps = this
+        renderRbcomp(<DlgAxisProps {...state} />, function () {
+          _dlgAxisProps = this
         })
       }
     }
   })
 
-  if (calc) $dropdown.find(`.dropdown-menu li[data-calc="${calc}"]`).addClass('text-primary')
-  if (sort) $dropdown.find(`.dropdown-menu li[data-sort="${sort}"]`).addClass('text-primary')
+  if (calc) $dd.find(`.dropdown-menu li[data-calc="${calc}"]`).addClass('text-primary')
+  if (sort) $dd.find(`.dropdown-menu li[data-sort="${sort}"]`).addClass('text-primary')
 
-  $dropdown.attr({ 'data-type': fieldType, 'data-field': fieldName })
-  $dropdown.find('span').html(fieldLabel + (calc ? `<em>(${CTs[calc]})</em>` : ''))
-  $dropdown.find('a.del').on('click', () => {
-    $dropdown.remove()
+  $dd.attr({ 'data-type': fieldType, 'data-field': fieldName })
+  $dd.find('span').html(fieldLabel + (calc ? `<em>(${CTs[calc]})</em>` : ''))
+  $dd.find('a.del').on('click', () => {
+    $dd.remove()
     render_option()
   })
   render_option()
 }
 
 // 图表选项
-const render_option = () => {
+function render_option() {
   const $types = $('.chart-type>a').removeClass('active')
   const dimsAxis = $('.J_axis-dim .item').length
   const numsAxis = $('.J_axis-num .item').length
@@ -376,20 +417,25 @@ const render_option = () => {
   else ctOpt.removeClass('hide')
 
   // Sort
-  const $sorts = $('.axis-editor .J_sort').removeClass('disabled')
+  const $sort = $('.axis-editor .J_sort').removeClass('disabled')
   if (['INDEX', 'CNMAP'].includes(ct)) {
-    $sorts.addClass('disabled')
+    $sort.addClass('disabled')
   } else if (ct === 'FUNNEL') {
     if (numsAxis >= 1 && dimsAxis >= 1) $('.J_numerical .J_sort').addClass('disabled')
-    else $sorts.addClass('disabled')
+    else $sort.addClass('disabled')
+  }
+  // v3.7 Filter
+  const $filter = $('.axis-editor .J_filter').addClass('disabled')
+  if (['INDEX', 'FUNNEL'].includes(ct)) {
+    $filter.removeClass('disabled')
   }
 
   render_preview()
 }
 
-// 生成预览
 let render_preview_chart = null
-const render_preview = (_color) => {
+// 生成预览
+function render_preview(_color) {
   const $filterLen = $('a.J_filter > span:eq(1)')
   if (dataFilter && (dataFilter.items || []).length > 0) {
     $filterLen.text(`(${dataFilter.items.length})`)
@@ -411,11 +457,11 @@ const render_preview = (_color) => {
       }
 
       if (!(conf.type === 'CNMAP' || conf.type === 'DATALIST2')) {
-        if ($('.J_axis-dim span[data-type="map"]')[0]) {
+        if ($('.axis-editor span[data-type="map"]')[0]) {
           render_preview_error($L('选择的字段仅适用于“地图”、“数据列表”图表'))
           return
         }
-        if ($('.J_axis-dim span[data-type="list"]')[0]) {
+        if ($('.axis-editor span[data-type="list"]')[0]) {
           render_preview_error($L('选择的字段仅适用于“数据列表”图表'))
           return
         }
@@ -438,20 +484,20 @@ const render_preview = (_color) => {
     'chart-preview'
   )
 }
-const render_preview_error = (err) => {
+function render_preview_error(err) {
   $('#chart-preview').html(`<h4 class="chart-undata must-center">${err}</h4>`)
 }
 
 // 构造配置
-const build_config = () => {
+function build_config() {
   const cfg = { entity: wpc.sourceEntity, title: $val('#chart-title') || $L('未命名图表') }
   cfg.type = $('.chart-type>a.select').data('type')
   if (!cfg.type) return
 
   const dims = []
   const nums = []
-  $('.J_axis-dim>span').each((idx, item) => dims.push(__buildAxisItem(item, false)))
-  $('.J_axis-num>span').each((idx, item) => nums.push(__buildAxisItem(item, true)))
+  $('.J_axis-dim>span').each((idx, item) => dims.push(_buildAxisItem(item, false)))
+  $('.J_axis-num>span').each((idx, item) => nums.push(_buildAxisItem(item, true)))
   if (dims.length === 0 && nums.length === 0) return
   cfg.axis = { dimension: dims, numerical: nums }
 
@@ -475,17 +521,18 @@ const build_config = () => {
   if (rb.env === 'dev') console.log(cfg)
   return cfg
 }
-
-const __buildAxisItem = (item, isNum) => {
+function _buildAxisItem(item, isNum) {
   item = $(item)
   const x = {
     field: item.data('field'),
     sort: item.attr('data-sort') || '',
     label: item.attr('data-label') || '',
+    fkey: item.attr('data-fkey'),
   }
   if (isNum) {
     x.calc = item.attr('data-calc')
     x.scale = item.attr('data-scale')
+    x.filter = _axisAdvFilters__data[x.fkey] || null
   } else if (['date', 'time', 'clazz'].includes(item.data('type'))) {
     x.calc = item.attr('data-calc')
   }

@@ -121,13 +121,40 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart.index > .data-item p {
   font-size: 1.1rem;
   margin-bottom: 1px;
-  opacity: 0.8;
+  opacity: 0.9;
   line-height: 1;
 }
 
 .chart.index > .data-item strong {
   font-size: 3.1rem;
   font-weight: 400;
+}
+
+.chart.index > .data-item .with p,
+.chart.index > .data-item .with strong {
+  display: inline-block;
+  font-size: 1.1rem;
+}
+
+.chart.index > .data-item .with strong {
+  margin-left: 5px;
+  margin-top: 3px;
+  font-size: 1.2rem;
+  color: green;
+}
+
+.chart.index > .data-item .with strong::before {
+  font-family: 'Material Design Icons';
+  content: '\F072E';
+  font-size: 0.9rem;
+}
+
+.chart.index > .data-item .with strong.ge {
+  color: red;
+}
+
+.chart.index > .data-item .with strong.ge::before {
+  content: '\F005E';
 }
 
 .grid-stack-item.fullscreen .chart.index > .data-item p {
@@ -137,14 +164,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .grid-stack-item.fullscreen .chart.index > .data-item strong {
   font-size: 8.8rem;
   zoom: 1 !important;
-}
-
-.chart.index > .data-item a {
-  color: #404040;
-}
-
-.chart.index > .data-item a:hover {
-  opacity: 0.9;
 }
 
 .chart.ctable {

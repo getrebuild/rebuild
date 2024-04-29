@@ -103,12 +103,13 @@ public class QiniuCloud {
      * 文件上传
      *
      * @param file
+     * @param fileName
      * @param fops
      * @return
      * @throws IOException
      */
-    public String upload(File file, String fops) throws IOException {
-        String fileKey = formatFileKey(file.getName());
+    public String upload(File file, String fileName, String fops) throws IOException {
+        String fileKey = formatFileKey(fileName == null ? file.getName() : fileName);
         Response resp = UPLOAD_MANAGER.put(file, fileKey, getUploadToken(fileKey, fops));
         if (resp.isOK()) {
             return fileKey;
@@ -116,6 +117,18 @@ public class QiniuCloud {
             log.error("Cannot upload file : {}. Resp: {}", file.getName(), resp);
             return null;
         }
+    }
+
+    /**
+     * 文件上传
+     *
+     * @param file
+     * @param fileName
+     * @return
+     * @throws IOException
+     */
+    public String upload(File file, String fileName) throws IOException {
+        return upload(file, fileName, null);
     }
 
     /**
@@ -405,12 +418,12 @@ public class QiniuCloud {
         if (filepath.startsWith("http://") || filepath.startsWith("https://")) {
             String name = filepath.split("\\?")[0];
             name = name.substring(name.lastIndexOf("/") + 1);
-            file = RebuildConfiguration.getFileOfTemp("down" + System.nanoTime() + "." + name);
+            file = RebuildConfiguration.getFileOfTemp("dn" + System.nanoTime() + "." + name);
             OkHttpUtils.readBinary(filepath, file, null);
 
         } else if (QiniuCloud.instance().available()) {
             String name = parseFileName(filepath);
-            file = RebuildConfiguration.getFileOfTemp("down" + System.nanoTime() + "." + name);
+            file = RebuildConfiguration.getFileOfTemp("dn" + System.nanoTime() + "." + name);
             instance().download(filepath, file);
 
         } else if (filepath.startsWith("rb/") || filepath.startsWith("/rb/")) {

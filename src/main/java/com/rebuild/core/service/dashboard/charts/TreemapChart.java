@@ -59,9 +59,9 @@ public class TreemapChart extends ChartData {
     public Numerical[] getNumericals() {
         Numerical[] nums = super.getNumericals();
         if (nums.length == 0) {
-            Numerical d = new Numerical(
-                    getSourceEntity().getPrimaryField(), FormatSort.NONE, FormatCalc.COUNT, null, 0, null);
-            return new Numerical[]{d};
+            Numerical n = new Numerical(
+                    getSourceEntity().getPrimaryField(), FormatSort.NONE, FormatCalc.COUNT, null, 0, null, null);
+            return new Numerical[]{n};
         }
         return nums;
     }

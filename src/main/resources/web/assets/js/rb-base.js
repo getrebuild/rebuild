@@ -524,8 +524,8 @@ var $isLight = function (color) {
 var $cleanArray = function (array, isunique) {
   if (!array) return []
   var array2 = []
-  $(array).each(function () {
-    var n = $trim(this)
+  $(array).each(function (i, item) {
+    var n = $trim(item)
     if (n) {
       if (isunique) array2.remove(n)
       array2.push(n)

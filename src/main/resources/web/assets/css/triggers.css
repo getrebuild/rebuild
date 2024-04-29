@@ -604,3 +604,8 @@ textarea.formula-code + .fields-vars {
 .table.table-logs p.text-overflow {
   max-height: 295px;
 }
+
+.send-notification select,
+.send-notification .select2 {
+  max-width: 100% !important;
+}

@@ -106,6 +106,10 @@ code {
   min-width: 140px;
 }
 
+.dropdown-item.disabled {
+  cursor: not-allowed;
+}
+
 .dropdown-item.disabled .icon,
 .dropdown-item:disabled .icon,
 .dropdown-item[disabled] .icon {

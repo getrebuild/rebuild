@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.dashboard.charts;
 
 import cn.devezhao.persist4j.Field;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import org.apache.commons.lang.StringUtils;
@@ -20,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class Numerical extends Axis {
 
+    private JSONObject filter;
     private int scale = 2;
 
     /**
@@ -28,18 +30,30 @@ public class Numerical extends Axis {
      * @param calc
      * @param label
      * @param scale
+     * @param filter
      * @param parentField
      */
     protected Numerical(Field field, FormatSort sort, FormatCalc calc, String label, Integer scale,
-                        Field parentField) {
+                        JSONObject filter, Field parentField) {
         super(field, sort, calc, label, parentField);
-        if (scale != null) {
-            this.scale = scale;
-        }
+        if (scale != null) this.scale = scale;
+        this.filter = filter;
     }
 
+    /**
+     * 小数位
+     * @return
+     */
     public int getScale() {
         return scale;
+    }
+
+    /**
+     * 字段筛选条件
+     * @return
+     */
+    public JSONObject getFilter() {
+        return filter;
     }
 
     @Override

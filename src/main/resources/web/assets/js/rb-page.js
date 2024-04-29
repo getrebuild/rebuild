@@ -1254,4 +1254,11 @@ function $openWindow(url) {
 }
 
 // 不支持排序的字段（联系）
-const UNSORT_FIELDTYPES = ['N2NREFERENCE', 'ANYREFERENCE', 'MULTISELECT', 'TAG', 'FILE', 'IMAGE', 'AVATAR', 'SIGN']
+var UNSORT_FIELDTYPES = ['N2NREFERENCE', 'ANYREFERENCE', 'MULTISELECT', 'TAG', 'FILE', 'IMAGE', 'AVATAR', 'SIGN']
+
+// 清理数字中的符号
+function $clearNumber(n) {
+  var nn = n.replace(/[^0-9]/gi, '')
+  if (nn && nn.indexOf('.')) return parseFloat(nn)
+  return parseInt(nn)
+}

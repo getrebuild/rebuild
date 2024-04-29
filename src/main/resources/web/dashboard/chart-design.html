@@ -46,7 +46,7 @@
               <h5>[[${bundle.L('图表类型')}]]</h5>
               <div class="chart-type">
                 <a th:title="${bundle.L('统计表')}" data-type="TABLE" data-allow-dims="0|5" data-allow-nums="0|9"><i class="C200"></i></a>
-                <a th:title="${bundle.L('指标卡')}" data-type="INDEX" data-allow-dims="0|0" data-allow-nums="1|1"><i class="C310"></i></a>
+                <a th:title="${bundle.L('指标卡')}" data-type="INDEX" data-allow-dims="0|0" data-allow-nums="1|2"><i class="C310"></i></a>
                 <a th:title="${bundle.L('折线图')}" data-type="LINE" data-allow-dims="1|2" data-allow-nums="1|9"><i class="C220"></i></a>
                 <a th:title="${bundle.L('柱状图')}" data-type="BAR" data-allow-dims="1|2" data-allow-nums="1|9"><i class="C210"></i></a>
                 <a th:title="${bundle.L('堆叠柱状图')}" data-type="BAR2" data-allow-dims="1|2" data-allow-nums="1|9"><i class="C240"></i></a>
@@ -73,7 +73,7 @@
                   <label>
                     <a class="J_filter" href="###">
                       <i class="mdi mdi-filter down-2" style="font-size: 17px; width: 22px; color: #999"></i>
-                      <span>[[${bundle.L('附加过滤条件')}]]</span>
+                      <span>[[${bundle.L('附加筛选条件')}]]</span>
                       <span></span>
                     </a>
                   </label>
@@ -116,10 +116,10 @@
                     <span class="custom-control-label">[[${bundle.L('显示参考线')}]]</span>
                   </label>
                 </div>
-                <div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PIE J_opt-FUNNEL J_opt-RADAR J_opt-SCATTER">
+                <div class="hide J_opt-FUNNEL">
                   <label class="custom-control custom-control-sm custom-checkbox">
-                    <input class="custom-control-input" type="checkbox" data-name="showLegend" />
-                    <span class="custom-control-label">[[${bundle.L('显示图例')}]]</span>
+                    <input class="custom-control-input" type="checkbox" data-name="showCvr" />
+                    <span class="custom-control-label">[[${bundle.L('显示转化率')}]]</span>
                   </label>
                 </div>
                 <div class="hide J_opt-BAR J_opt-BAR2 J_opt-BAR3">
@@ -132,6 +132,12 @@
                   <label class="custom-control custom-control-sm custom-checkbox">
                     <input class="custom-control-input" type="checkbox" data-name="showMutliYAxis" />
                     <span class="custom-control-label">[[${bundle.L('多轴显示')}]]</span>
+                  </label>
+                </div>
+                <div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PIE J_opt-RADAR J_opt-SCATTER">
+                  <label class="custom-control custom-control-sm custom-checkbox">
+                    <input class="custom-control-input" type="checkbox" data-name="showLegend" />
+                    <span class="custom-control-label">[[${bundle.L('显示图例')}]]</span>
                   </label>
                 </div>
                 <div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3">
@@ -210,6 +216,7 @@
             <li class="dropdown-item J_clazz" data-calc="L3">[[${bundle.L('3级')}]]</li>
             <li class="dropdown-item J_clazz" data-calc="L4">[[${bundle.L('4级')}]]</li>
             <li class="dropdown-divider"></li>
+            <li class="dropdown-item J_filter">[[${bundle.L('筛选条件')}]]</li>
             <li class="dropdown-submenu J_sort">
               <a class="dropdown-item">[[${bundle.L('排序')}]]</a>
               <ul class="dropdown-menu dropdown-menu-sm">

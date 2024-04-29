@@ -11,6 +11,7 @@ import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -27,12 +28,15 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -120,7 +124,7 @@ public class SendNotification extends TriggerAction {
                 String emailAddr = Application.getUserStore().getUser(user).getEmail();
                 if (RegexUtils.isEMail(emailAddr)) {
                     String mdHtml = MarkdownUtils.render(message[0], false, true);
-                    SMSender.sendMailAsync(emailAddr, message[1], mdHtml);
+                    SMSender.sendMailAsync(emailAddr, message[1], mdHtml, getMailAttach(content));
                     send.add(emailAddr);
                 }
             }
@@ -150,16 +154,8 @@ public class SendNotification extends TriggerAction {
         if (userType == UTYPE_ACCOUNT20) {
             to = content.getString("sendTo").split("[，,;；]");
         } else {
-            JSONArray fieldsDef = content.getJSONArray("sendTo");
-            if (fieldsDef == null || fieldsDef.isEmpty()) return null;
-
-            List<String> validFields = new ArrayList<>();
-            for (Object field : fieldsDef) {
-                if (MetadataHelper.getLastJoinField(actionContext.getSourceEntity(), field.toString()) != null) {
-                    validFields.add(field.toString());
-                }
-            }
-            if (validFields.isEmpty()) return null;
+            String[] validFields = getValidDefsFields(content.getJSONArray("sendTo"));
+            if (validFields == null) return null;
 
             // v3.4 删除就尝试从快照中取
             if (operatingContext.getAction() == BizzPermission.DELETE) {
@@ -173,8 +169,7 @@ public class SendNotification extends TriggerAction {
                     to = toList.toArray(new String[0]);
                 }
             } else {
-                to = Application.getQueryFactory().uniqueNoFilter(
-                        actionContext.getSourceRecord(), validFields.toArray(new String[0]));
+                to = Application.getQueryFactory().uniqueNoFilter(actionContext.getSourceRecord(), validFields);
             }
         }
         if (to == null) return null;
@@ -195,7 +190,7 @@ public class SendNotification extends TriggerAction {
 
             if (msgType == MTYPE_MAIL && RegexUtils.isEMail(mobileOrEmail)) {
                 String mdHtml = MarkdownUtils.render(message[0], false, true);
-                SMSender.sendMailAsync(mobileOrEmail, message[1], mdHtml);
+                SMSender.sendMailAsync(mobileOrEmail, message[1], mdHtml, getMailAttach(content));
                 send.add(mobileOrEmail);
             }
         }
@@ -214,6 +209,41 @@ public class SendNotification extends TriggerAction {
         Object resp = CommonsUtils.invokeMethod(
                 "com.rebuild.rbv.trigger.SendNotification2#sendToDingtalk", actionContext, operatingContext);
         return (Set<Object>) resp;
+    }
+
+    private File[] getMailAttach(final JSONObject content) {
+        String[] attachFields = getValidDefsFields(content.getJSONArray("attach"));
+        if (attachFields == null) return null;
+
+        Object[] o = Application.getQueryFactory().unique(actionContext.getSourceRecord(), attachFields);
+        if (o == null || o.length == 0) return null;
+
+        List<File> files = new ArrayList<>();
+        for (Object item : o) {
+            if (item == null || item instanceof ID) continue;
+
+            JSONArray paths = JSON.parseArray((String) item);
+            for (Object path : paths) {
+                try {
+                    files.add(QiniuCloud.getStorageFile((String) path));
+                } catch (IOException ex) {
+                    log.warn("Cannot get storage file : {}", path, ex);
+                }
+            }
+        }
+        return files.toArray(new File[0]);
+    }
+
+    private String[] getValidDefsFields(JSONArray defs) {
+        if (defs == null || defs.isEmpty()) return null;
+
+        List<String> validFields = new ArrayList<>();
+        for (Object field : defs) {
+            if (MetadataHelper.getLastJoinField(actionContext.getSourceEntity(), field.toString()) != null) {
+                validFields.add(field.toString());
+            }
+        }
+        return validFields.isEmpty() ? null : validFields.toArray(new String[0]);
     }
 
     // --
