@@ -39,7 +39,6 @@ public class FunnelChart extends ChartData {
 
         // 0DIM + 2~9NUM
         if (nums.length > 1) {
-            Object last = null;
             for (Numerical num : nums) {
                 Object[] dataRaw = createQuery(buildSql(num, true)).unique();
                 JSONObject d = JSONUtils.toJSONObject(
@@ -53,7 +52,7 @@ public class FunnelChart extends ChartData {
         else if (nums.length == 1 && dims.length >= 1) {
             Dimension dim1 = dims[0];  // 多余的不要
             Numerical num1 = nums[0];
-            Object[][] dataRaw = createQuery(buildSql(dim1, num1)).array();
+            Object[][] dataRaw = createQuery(buildSql(dim1, num1, true)).array();
             final String valueFlag = getNumericalFlag(num1);
             for (Object[] o : dataRaw) {
                 JSONObject d = JSONUtils.toJSONObject(
@@ -76,23 +75,25 @@ public class FunnelChart extends ChartData {
             }
         }
 
-        // 转化率
-        Double last = null;
-        for (Object o : dataArray) {
-            JSONObject d = (JSONObject) o;
-            String value = EasyDecimal.clearFlaged(d.getString("value"));
-            double n = ObjectUtils.toDouble(value);
-            if (last == null) {
-                d.put("cvr", false);
-            } else {
-                d.put("cvr", ObjectUtils.round(n * 100 / last, 1));
-            }
-            last = n;
-        }
-
         JSONObject renderOption = config.getJSONObject("option");
         if (renderOption == null) renderOption = new JSONObject();
         renderOption.put("dataFlags", dataFlags);
+
+        // 转化率
+        if (renderOption.getBooleanValue("showCvr")) {
+            Double last = null;
+            for (Object o : dataArray) {
+                JSONObject d = (JSONObject) o;
+                String value = EasyDecimal.clearFlaged(d.getString("value"));
+                double n = ObjectUtils.toDouble(value);
+                if (last == null) {
+                    d.put("cvr", false);
+                } else {
+                    d.put("cvr", ObjectUtils.round(n * 100 / last, 2));
+                }
+                last = n;
+            }
+        }
 
         JSONObject ret = JSONUtils.toJSONObject(
                 new String[]{"data", "_renderOption"},

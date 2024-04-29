@@ -653,7 +653,7 @@ class ChartFunnel extends BaseChart {
               formatter: function (a) {
                 let text = a.data.name
                 if (showNumerical) text += ` (${formatThousands(a.data.value, dataFlags[a.dataIndex])})`
-                if (a.data.cvr !== false) text += `\n${$L('转化率')} ${a.data.cvr}%`
+                if (a.data.cvr) text += `\n${$L('转化率')} ${a.data.cvr}%`
                 return text
               },
               lineHeight: 16,
