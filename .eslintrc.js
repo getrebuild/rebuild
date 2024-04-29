@@ -142,5 +142,6 @@ module.exports = {
     $cleanArray: true,
     $trim: true,
     $type: true,
+    $clearNumber: true,
   },
 }

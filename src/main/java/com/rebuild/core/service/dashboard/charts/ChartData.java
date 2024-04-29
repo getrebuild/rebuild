@@ -150,6 +150,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
                     validFields[0], getFormatSort(item), getFormatCalc(item),
                     item.getString("label"),
                     item.getInteger("scale"),
+                    item.getJSONObject("filter"),
                     validFields[1]);
             list.add(num);
         }
@@ -210,7 +211,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
         String previewFilter = StringUtils.EMPTY;
         // 限制预览数据量
         if (isFromPreview() && getSourceEntity().containsField(EntityHelper.AutoId)) {
-            String maxAidSql = String.format("select max(%s) from %s", EntityHelper.AutoId, getSourceEntity().getName());
+            String maxAidSql = String.format("select max(autoId) from %s", getSourceEntity().getName());
             Object[] o = Application.createQueryNoFilter(maxAidSql).unique();
             long maxAid = ObjectUtils.toLong(o[0]);
             if (maxAid > 5000) {

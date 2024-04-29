@@ -212,9 +212,13 @@ class ChartIndex extends BaseChart {
       <div className="chart index" ref={(c) => (this._$chart = c)}>
         <div className="data-item must-center text-truncate w-auto">
           <p style={style2}>{data.index.label || this.label}</p>
-          <a href={__PREVIEW ? null : `${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`}>
-            <strong style={style2}>{data.index.data}</strong>
-          </a>
+          <strong style={style2}>{data.index.data}</strong>
+          {data.index.label2 && (
+            <div className="with">
+              <p>{data.index.label2}</p>
+              <strong className={$clearNumber(data.index.data2) >= $clearNumber(data.index.data) && 'ge'}>{data.index.data2}</strong>
+            </div>
+          )}
         </div>
       </div>
     )
@@ -1460,9 +1464,9 @@ class ChartCNMap extends BaseChart {
   resize() {
     $setTimeout(
       () => {
-        this._resizeBody()
-        // force resize
-        if (this._echarts) {
+        const resize = this._resizeBody()
+        // resize
+        if (resize !== false && this._echarts) {
           this._echarts.dispose()
           this.renderChart(this.__dataLast)
         }
@@ -1473,10 +1477,15 @@ class ChartCNMap extends BaseChart {
   }
 
   _resizeBody() {
-    const height = $(this._$box).height()
+    const H = $(this._$box).height()
+    const W = $(this._$box).width()
+    if (this.__lastHW && this.__lastHW[0] === H && this.__lastHW[1] === W) return false
+
     $(this._$box)
       .find('.chart-body')
-      .height(height - (window.render_preview_chart ? 0 : 40))
+      .height(H - (window.render_preview_chart ? 0 : 40))
+    this.__lastHW = [H, W]
+    console.log(this.__lastHW)
   }
 
   export() {
