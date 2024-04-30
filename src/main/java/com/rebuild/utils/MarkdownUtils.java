@@ -13,10 +13,15 @@ import com.vladsch.flexmark.ext.toc.TocExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.parser.ParserEmulationProfile;
+import com.vladsch.flexmark.pdf.converter.PdfConverterExtension;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 import org.jsoup.Jsoup;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.Arrays;
 
 /**
@@ -32,6 +37,7 @@ public class MarkdownUtils {
 
     private static final Parser PARSER_RICH;
     private static final HtmlRenderer RENDERER_RICH;
+    private static final MutableDataSet OPTION_RICH;
 
     static {
         MutableDataSet option = new MutableDataSet();
@@ -46,6 +52,7 @@ public class MarkdownUtils {
                         MarkdownLinkAttrProvider.MarkdownLinkAttrExtension.create(), TocExtension.create()));
         PARSER_RICH = Parser.builder(option).build();
         RENDERER_RICH = HtmlRenderer.builder(option).build();
+        OPTION_RICH = option;
     }
 
     /**
@@ -91,5 +98,32 @@ public class MarkdownUtils {
     public static String cleanMarks(String md) {
         String html = render(md);
         return Jsoup.parse(html).body().text();
+    }
+
+    /**
+     * @param md
+     * @param dest
+     * @throws IOException
+     */
+    public static void md2Pdf(String md, File dest) throws IOException {
+        String html = render(md, true, true);
+        html = "<!DOCTYPE html>" +
+                "<html>" +
+                "<head><meta charset=\"utf-8\"/></head>" +
+                "<body>" + html + "</body>" +
+                "</html>";
+
+        html2Pdf(html, dest);
+    }
+
+    /**
+     * @param html
+     * @param dest
+     * @throws IOException
+     */
+    public static void html2Pdf(String html, File dest) throws IOException {
+        try (OutputStream fos = Files.newOutputStream(dest.toPath())) {
+            PdfConverterExtension.exportToPdf(fos, html, "", OPTION_RICH);
+        }
     }
 }
