@@ -285,6 +285,22 @@ var $cleanMap = function (map) {
 }
 
 /**
+ * 清理数组
+ */
+var $cleanArray = function (array, isunique) {
+  if (!array) return []
+  var newArray = []
+  $(array).each(function (i, item) {
+    var n = $trim(item)
+    if (n) {
+      if (isunique) newArray.remove(n)
+      newArray.push(n)
+    }
+  })
+  return newArray
+}
+
+/**
  * 常用正则
  */
 var $regex = {
@@ -518,20 +534,6 @@ var $isLight = function (color) {
   var c_b = parseInt(hex.substring(4, 4 + 2), 16)
   var brightness = (c_r * 299 + c_g * 587 + c_b * 114) / 1000
   return brightness > 155
-}
-
-// 清理数组
-var $cleanArray = function (array, isunique) {
-  if (!array) return []
-  var array2 = []
-  $(array).each(function (i, item) {
-    var n = $trim(item)
-    if (n) {
-      if (isunique) array2.remove(n)
-      array2.push(n)
-    }
-  })
-  return array2
 }
 
 // $.trim

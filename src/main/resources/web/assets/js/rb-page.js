@@ -117,7 +117,7 @@ $(function () {
     }
 
     $.get('/user/admin-dangers', function (res) {
-      if ((res.data || []).length > 0) {
+      if (res.data && res.data.length > 0) {
         $('.admin-danger').removeClass('hide')
         var dd = ['<div class="admin-danger-list">']
         $(res.data).each(function () {
@@ -216,25 +216,7 @@ $(function () {
   // }
 })
 
-var $addResizeHandler__cbs = []
-/**
- * 窗口 RESIZE 回调
- */
-var $addResizeHandler = function (callback) {
-  typeof callback === 'function' && $addResizeHandler__cbs && $addResizeHandler__cbs.push(callback)
-  return function () {
-    if (!$addResizeHandler__cbs || $addResizeHandler__cbs.length === 0) return
-    // eslint-disable-next-line no-console
-    if (rb.env === 'dev') console.log('Callbacks ' + $addResizeHandler__cbs.length + ' handlers of resize ...')
-    $addResizeHandler__cbs.forEach(function (cb) {
-      cb()
-    })
-  }
-}
-
-/**
- * 取消管理中心访问
- */
+// 取消管理中心访问
 var _cancelAdmin = function () {
   $.post('/user/admin-cancel', function (res) {
     if (res.error_code === 0) {
@@ -244,10 +226,7 @@ var _cancelAdmin = function () {
     }
   })
 }
-
-/**
- * 初始化导航菜单
- */
+// 初始化导航菜单
 var _initNav = function () {
   var isOffcanvas = $('.rb-offcanvas-menu').length > 0 // Float mode
 
@@ -378,11 +357,8 @@ var _initNav = function () {
     $('.navbar-collapse .nav-item[data-id="' + topnav + '"]').addClass('active')
   }
 }
-
 var _checkMessage__state = 0
-/**
- * 检查新消息
- */
+// 检查新消息
 var _checkMessage = function () {
   $.get('/notification/check-state', function (res) {
     if (res.error_code > 0) return
@@ -491,10 +467,7 @@ var _showStateMM = function (mm) {
     RbGritter.destory()
   }
 }
-
-/**
- * 全局搜索
- */
+// 全局搜索
 var _initGlobalSearch = function () {
   $('.global-search2>a').on('click', function () {
     _showGlobalSearch($storage.get('GlobalSearch-gs'))
@@ -549,9 +522,7 @@ var _showGlobalSearch = function (gs) {
   $('.search-container').removeClass('hide')
   gs && $('.search-container input').val($decode(gs))
 }
-/**
- * 全局新建
- */
+// 全局新建
 var _initGlobalCreate = function () {
   var entities = []
   $('.sidebar-elements li').each(function () {
@@ -571,6 +542,22 @@ var _initGlobalCreate = function () {
       })
     })
   })
+}
+
+var $addResizeHandler__cbs = []
+/**
+ * 窗口 RESIZE 回调
+ */
+var $addResizeHandler = function (callback) {
+  typeof callback === 'function' && $addResizeHandler__cbs && $addResizeHandler__cbs.push(callback)
+  return function () {
+    if (!$addResizeHandler__cbs || $addResizeHandler__cbs.length === 0) return
+    // eslint-disable-next-line no-console
+    if (rb.env === 'dev') console.log('Callbacks ' + $addResizeHandler__cbs.length + ' handlers of resize ...')
+    $addResizeHandler__cbs.forEach(function (cb) {
+      cb()
+    })
+  }
 }
 
 /**
