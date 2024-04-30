@@ -11,7 +11,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.service.datareport.ReportsException;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.setup.DatabaseBackup;
 import com.rebuild.utils.poi.ToHtml;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -127,7 +126,7 @@ public class PdfConverter {
         if (StringUtils.isBlank(soffice)) soffice = SystemUtils.IS_OS_WINDOWS ? "soffice.exe" : "libreoffice";
         String cmd = String.format("%s --headless --convert-to %s \"%s\" --outdir \"%s\"", soffice, type, path, outDir);
 
-        String echo = DatabaseBackup.execFor(cmd);
+        String echo = CommandUtils.execFor(cmd);
         if (!echo.isEmpty()) log.info(echo);
 
         if (dest.exists()) return dest.toPath();

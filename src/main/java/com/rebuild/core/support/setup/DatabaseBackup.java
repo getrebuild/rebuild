@@ -10,17 +10,15 @@ package com.rebuild.core.support.setup;
 import cn.devezhao.commons.CalendarUtils;
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.utils.CommandUtils;
 import com.rebuild.utils.CompressUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 /**
  * 数据库备份
@@ -85,7 +83,7 @@ public class DatabaseBackup {
             cmd = cmd.replaceFirst(" -R ", " -R" + ig + " ");
         }
 
-        String echo = execFor(cmd);
+        String echo = CommandUtils.execFor(cmd);
         boolean isGotError = echo.contains("Got error");
         if (isGotError) throw new RuntimeException(echo);
 
@@ -106,57 +104,5 @@ public class DatabaseBackup {
         // sed -r '/INSERT INTO `(revision_history|recycle_bin|rebuild_api_request)`/d' backup_database.20240326000045 > min.sql
 
         return dest;
-    }
-
-    /**
-     * 执行命令行
-     *
-     * @param cmd
-     * @return
-     * @throws IOException
-     */
-    public static String execFor(String cmd) throws IOException {
-        ProcessBuilder builder = new ProcessBuilder();
-        String encoding = "UTF-8";
-
-        log.info("CMD : {}", cmd);
-
-        if (SystemUtils.IS_OS_WINDOWS) {
-            builder.command("cmd.exe", "/c", cmd);
-            encoding = "GBK";
-        } else {
-            // for Linux/Unix
-            builder.command("/bin/sh", "-c", cmd);
-        }
-
-        builder.redirectErrorStream(true);
-        Process process = builder.start();
-
-        BufferedReader reader = null;
-        StringBuilder echo = new StringBuilder();
-        try {
-            reader = new BufferedReader(new InputStreamReader(process.getInputStream(), encoding));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                echo.append(line).append("\n");
-            }
-
-        } finally {
-            IOUtils.closeQuietly(reader);
-            process.destroy();
-        }
-
-        try {
-            int code = process.waitFor();
-            if (code != 0) {
-                throw new RuntimeException(code + "#" + echo);
-            }
-        } catch (InterruptedException ex) {
-            log.error("command interrupted");
-            throw new RuntimeException("COMMAND INTERRUPTED");
-        }
-
-        return echo.toString();
     }
 }
