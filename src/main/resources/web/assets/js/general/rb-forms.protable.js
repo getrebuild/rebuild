@@ -9,8 +9,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // ~~ 表格型表单
 
-const COL_WIDTH = 178 // 48
-const COL_WIDTH_PLUS = ['REFERENCE', 'N2NREFERENCE', 'CLASSIFICATION']
+const COLUMN_MIN_WIDTH = 30
+const COLUMN_MAX_WIDTH = 500
+const COLUMN_DEF_WIDTH = 178 // 48
+const COLUMN_WIDTH_PLUS = ['REFERENCE', 'N2NREFERENCE', 'CLASSIFICATION']
 
 class ProTable extends React.Component {
   constructor(props) {
@@ -34,7 +36,7 @@ class ProTable extends React.Component {
     // fixed 模式大概 5 个字段
     const ww = $(window).width()
     const fw = ww > 1064 ? 994 : ww - 70
-    const fixed = COL_WIDTH * formFields.length + (38 + 48) > fw
+    const fixed = COLUMN_DEF_WIDTH * formFields.length + (38 + 48) > fw
 
     return (
       <div className={`protable rb-scroller ${fixed && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
@@ -53,18 +55,23 @@ class ProTable extends React.Component {
                     $d.height(wh)
                     $modal.find('.modal-body').height(wh)
                   }}>
-                  <i className="mdi mdi-arrow-expand" />
+                  <i className="mdi mdi-arrow-expand hide" />
                 </a>
               </th>
               {formFields.map((item) => {
                 if (item.field === TYPE_DIVIDER) return null
 
-                let colStyle2 = { minWidth: COL_WIDTH }
+                let colStyle2 = { minWidth: COLUMN_DEF_WIDTH }
                 if (fixed) {
                   // v35
-                  if (item.colspan) colStyle2.minWidth = (COL_WIDTH / 2) * ~~item.colspan
-                  if (COL_WIDTH_PLUS.includes(item.type)) colStyle2.minWidth += 38 // btn
-                  if (colStyle2.minWidth > COL_WIDTH * 2) colStyle2.minWidth = COL_WIDTH * 2
+                  if (item.colspan) colStyle2.minWidth = (COLUMN_DEF_WIDTH / 2) * ~~item.colspan
+                  if (COLUMN_WIDTH_PLUS.includes(item.type)) colStyle2.minWidth += 38 // btn
+                  if (colStyle2.minWidth > COLUMN_DEF_WIDTH * 2) colStyle2.minWidth = COLUMN_DEF_WIDTH * 2
+                }
+                // v37 LAB
+                if (item.width) {
+                  colStyle2.width = item.width
+                  colStyle2.minWidth = 'auto'
                 }
 
                 return (
@@ -143,6 +150,34 @@ class ProTable extends React.Component {
           else RbHighbar.error($L('明细加载失败，请稍后重试'))
         })
       }
+
+      this._dividing37()
+    })
+  }
+
+  _dividing37() {
+    const $scroller = $(this._$scroller)
+    const that = this
+    $scroller.find('th .dividing').draggable({
+      containment: $scroller,
+      axis: 'x',
+      helper: 'clone',
+      stop: function (e, ui) {
+        const field = $(e.target).parents('th').data('field')
+        let left = ui.position.left - -10
+        if (left < COLUMN_MIN_WIDTH) left = COLUMN_MIN_WIDTH
+        else if (left > COLUMN_MAX_WIDTH) left = COLUMN_MAX_WIDTH
+
+        const fields = that.state.formFields
+        for (let i = 0; i < fields.length; i++) {
+          if (fields[i].field === field) {
+            fields[i].width = left
+            break
+          }
+        }
+
+        that.setState({ formFields: fields }, () => $scroller.perfectScrollbar('update'))
+      },
     })
   }
 
