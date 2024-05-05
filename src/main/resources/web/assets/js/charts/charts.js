@@ -216,13 +216,17 @@ class ChartIndex extends BaseChart {
           {data.index.label2 && (
             <div className="with">
               <p>{data.index.label2}</p>
-              <strong className={$cleanNumber(data.index.data2) >= $cleanNumber(data.index.data) && 'ge'}>{data.index.data2}</strong>
+              <strong className={this._num(data.index.data2) >= this._num(data.index.data) && 'ge'}>{data.index.data2}</strong>
             </div>
           )}
         </div>
       </div>
     )
     this.setState({ chartdata: chartdata }, () => this.resize(1))
+  }
+
+  _num(n) {
+    return parseFloat($cleanNumber(n))
   }
 
   resize(delay) {
@@ -649,7 +653,6 @@ class ChartFunnel extends BaseChart {
             data: data.data,
             cursor: 'default',
             label: {
-              html: true,
               show: true,
               position: 'inside',
               formatter: function (a) {
@@ -663,7 +666,7 @@ class ChartFunnel extends BaseChart {
           },
         ],
       }
-      option.grid.right = 60
+      // option.grid.right = 60
       option.tooltip.trigger = 'item'
       option.tooltip.formatter = function (a) {
         if (data.xLabel) return `<b>${a.name}</b> <br/> ${a.marker} ${data.xLabel} : ${formatThousands(a.value, dataFlags[a.dataIndex])}`
@@ -741,7 +744,7 @@ class ChartTreemap extends BaseChart {
 // ~ 审批列表
 const APPROVAL_STATES = {
   1: ['warning', $L('待审批')],
-  10: ['success', $L('已完成')],
+  10: ['success', $L('通过')],
   11: ['danger', $L('驳回')],
 }
 class ApprovalList extends BaseChart {
@@ -823,7 +826,7 @@ class ApprovalList extends BaseChart {
                           {$L('审批')}
                         </button>
                       )}
-                      {this.state.viewState === 10 && <span className="text-success">{$L('已完成')}</span>}
+                      {this.state.viewState === 10 && <span className="text-success">{$L('通过')}</span>}
                       {this.state.viewState === 11 && <span className="text-danger">{$L('驳回')}</span>}
                     </td>
                   </tr>
@@ -1365,12 +1368,12 @@ class DataList extends BaseChart {
         .css('height', this._$tb.height() - 20)
         .perfectScrollbar()
 
-      let trActive
+      let $trActive
       const $trs = this._$tb.find('tbody tr').on('mousedown', function () {
-        if (trActive === this) {
+        if ($trActive === this) {
           $(this).toggleClass('highlight')
         } else {
-          trActive = this
+          $trActive = this
           $trs.removeClass('highlight')
           $(this).addClass('highlight')
         }
