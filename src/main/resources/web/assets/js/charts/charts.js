@@ -771,7 +771,7 @@ class ApprovalList extends BaseChart {
               <div
                 key={s[0]}
                 className={`progress-bar bg-${s[0]} ${this.state.viewState === item[0] && 'active'}`}
-                title={`${s[1]} : ${item[1]} (${p})`}
+                // title={`${s[1]} : ${item[1]} (${p})`}
                 style={{ width: p }}
                 onClick={() => this._changeState(item[0])}>
                 {s[1]} ({item[1]})

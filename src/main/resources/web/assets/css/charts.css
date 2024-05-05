@@ -305,11 +305,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chart-box.ApprovalList .progress-wrap .progress-bar {
   min-width: 20%;
+  transition: opacity 0.2s;
 }
 
-.chart-box.ApprovalList .progress-wrap .progress-bar:hover {
+.chart-box.ApprovalList .progress-wrap .progress:hover > .progress-bar {
+  opacity: 0.4;
+}
+
+.chart-box.ApprovalList .progress-wrap .progress:hover > .progress-bar:hover {
   cursor: pointer;
-  opacity: 0.8;
+  opacity: 1;
 }
 
 .chart-box.ApprovalList .progress-wrap .progress-bar.active {
