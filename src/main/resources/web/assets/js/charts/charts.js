@@ -216,23 +216,25 @@ class ChartIndex extends BaseChart {
           {data.index.label2 && (
             <div className="with">
               <p>{data.index.label2}</p>
-              <strong className={$clearNumber(data.index.data2) >= $clearNumber(data.index.data) && 'ge'}>{data.index.data2}</strong>
+              <strong className={$cleanNumber(data.index.data2) >= $cleanNumber(data.index.data) && 'ge'}>{data.index.data2}</strong>
             </div>
           )}
         </div>
       </div>
     )
-    this.setState({ chartdata: chartdata }, () => this._resize())
+    this.setState({ chartdata: chartdata }, () => this.resize(1))
   }
 
-  resize() {
-    $setTimeout(() => this._resize(), 200, `resize-chart-${this.props.id}`)
-  }
-
-  _resize() {
-    const ch = $(this._$chart).height()
-    const zoom = ch > 100 ? (ch > 330 ? 2 : 1.3) : 1
-    $(this._$chart).find('strong').css('zoom', zoom)
+  resize(delay) {
+    $setTimeout(
+      () => {
+        const ch = $(this._$chart).height()
+        const zoom = ch > 100 ? (ch > 330 ? 2 : 1.3) : 1
+        $(this._$chart).find('strong').css('zoom', zoom)
+      },
+      delay || 200,
+      `resize-chart-${this.props.id}`
+    )
   }
 }
 
