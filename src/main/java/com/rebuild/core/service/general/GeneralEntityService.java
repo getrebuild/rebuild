@@ -16,6 +16,7 @@ import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
@@ -491,7 +492,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return Collections.emptyMap();
         }
 
-        final boolean fromTriggerNoFilter = GeneralEntityServiceContextHolder.isFromTrigger(false);
+        final boolean fromTriggerIgnorePrivileges = GeneralEntityServiceContextHolder.isFromTrigger(false);
 
         Map<String, Set<ID>> entityRecordsMap = new HashMap<>();
         Entity mainEntity = MetadataHelper.getEntity(mainRecordId.getEntityCode());
@@ -503,15 +504,24 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             }
 
             Entity casEntity = MetadataHelper.getEntity(cas);
-            Field[] reftoFields = MetadataHelper.getReferenceToFields(mainEntity, casEntity);
+            Field[] reftoFields = MetadataHelper.getReferenceToFields(mainEntity, casEntity, true);
             if (reftoFields.length == 0) {
                 log.warn("No any fields of refto found : {} << {}", cas, mainEntity.getName());
                 continue;
             }
 
             List<String> or = new ArrayList<>();
+            // 有多个字段引用会一并获取
             for (Field field : reftoFields) {
-                or.add(String.format("%s = '%s'", field.getName(), mainRecordId));
+                if (field.getType() == FieldType.REFERENCE) {
+                    or.add(String.format("%s = '%s'", field.getName(), mainRecordId));
+                } else {
+                    // N2N
+                    String exists = String.format(
+                            "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId = '%s')",
+                            field.getOwnEntity().getPrimaryField().getName(), field.getName(), mainRecordId);
+                    or.add(exists);
+                }
             }
 
             String sql = String.format("select %s from %s where ( %s )",
@@ -519,7 +529,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     StringUtils.join(or.iterator(), " or "));
 
             Object[][] array;
-            if (fromTriggerNoFilter) {
+            if (fromTriggerIgnorePrivileges) {
                 array = Application.createQueryNoFilter(sql).array();
             } else {
                 Filter filter = Application.getPrivilegesManager().createQueryFilter(getCurrentUser(), action);
