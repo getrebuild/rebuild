@@ -117,6 +117,8 @@ public class MarkdownUtils {
     }
 
     /**
+     * FIXME 不支持中文
+     *
      * @param html
      * @param dest
      * @throws IOException
