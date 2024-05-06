@@ -316,14 +316,14 @@
             </div>
             <div class="col-lg-3 col-12 col-right-compact">
               <div class="card">
-                <div class="card-header card-header-divider">[[${bundle.L('关于')}]]</div>
+                <div class="card-header card-header-divider">[[${bundle.L('版本与授权')}]]</div>
                 <div class="card-body">
-                  <p class="mb-1">[[${bundle.L('系统版本')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/download?v=${Version}|">[[${Version}]]</a></p>
-                  <p class="mb-1">[[${bundle.L('授权类型')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/authority?sn=${SN}|">[[${LicenseType}]]</a></p>
+                  <p class="mb-1">[[${bundle.L('系统版本')}]]<a class="link ml-1" target="_blank" th:href="|https://getrebuild.com/download?v=${Version}|">[[${Version}]]</a></p>
+                  <p class="mb-1">[[${bundle.L('授权类型')}]]<a class="link ml-1" target="_blank" th:href="|https://getrebuild.com/authority?sn=${SN}|">[[${LicenseType}]]</a></p>
                   <p th:if="${VN != null}" class="mb-2">
-                    [[${bundle.L('服务支持码')}]] <span>[[${VN}]]</span>
+                    [[${bundle.L('服务支持码')}]]<span class="ml-1">[[${VN}]]</span>
                     <a th:if="${VNExpires}" class="badge badge-danger up-2 badge-pill" th:href="'https://getrebuild.com/buy-license?type=10fw&vn=' + ${VN}" target="_blank">
-                      <i class="mdi mdi-information-variant"></i>[[${bundle.L('服务支持已到期')}]]
+                      <i class="mdi mdi-information-variant"></i>[[${bundle.L('已过期 [点击续费]')}]]
                     </a>
                   </p>
                   <ul style="line-height: 2">
