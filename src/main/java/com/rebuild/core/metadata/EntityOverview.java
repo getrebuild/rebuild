@@ -12,7 +12,6 @@ import cn.devezhao.persist4j.Field;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.TransformManager;
-import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 
 import java.util.ArrayList;
@@ -32,6 +31,9 @@ public class EntityOverview {
         this.entity = entity;
     }
 
+    /**
+     * @return
+     */
     public Map<String, Object> overview() {
         Map<String, Object> map = new HashMap<>();
 
@@ -86,32 +88,12 @@ public class EntityOverview {
                 .setParameter(1, entity.getName()).array();
         map.put("REPORTS", array);
 
-        return map;
-    }
+        // SOP
 
-    public Map<String, Object> graph() {
-        Map<String, Object> map = new HashMap<>();
-
-        List<Object> REFS = new ArrayList<>();
-        for (Field field : MetadataSorter.sortFields(entity, DisplayType.REFERENCE, DisplayType.ANYREFERENCE)) {
-            if (MetadataHelper.isCommonsField(field)) continue;
-
-            String name = field.getName();
-            String label = EasyMetaFactory.getLabel(field) + " (" + EasyMetaFactory.getLabel(field.getReferenceEntity()) + ")";
-            REFS.add(new Object[] { name, label });
-        }
-        map.put("REFS", REFS);
-
-        List<Object> REFTOS = new ArrayList<>();
-        for (Field field : entity.getReferenceToFields()) {
-            if (MetadataHelper.isCommonsField(field)) continue;
-            if (!MetadataHelper.isBusinessEntity(field.getOwnEntity())) continue;
-
-            String name = field.getOwnEntity().getName() + "." + field.getName();
-            String label = EasyMetaFactory.getLabel(field.getOwnEntity()) + "." + EasyMetaFactory.getLabel(field);
-            REFTOS.add(new Object[] { name, label });
-        }
-        map.put("REFTOS", REFTOS);
+        array = Application.createQuery(
+                "select configId,name from RobotSopConfig where belongEntity = ?")
+                .setParameter(1, entity.getName()).array();
+        map.put("SOPS", array);
 
         return map;
     }

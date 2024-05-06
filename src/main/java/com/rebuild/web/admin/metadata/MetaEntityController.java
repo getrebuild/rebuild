@@ -142,7 +142,6 @@ public class MetaEntityController extends EntityController {
 
         EntityOverview o = new EntityOverview(easyEntity.getRawMeta());
         mv.getModel().put("overview", JSON.toJSON(o.overview()));
-        mv.getModel().put("graph", JSON.toJSON(o.graph()));
 
         return mv;
     }
