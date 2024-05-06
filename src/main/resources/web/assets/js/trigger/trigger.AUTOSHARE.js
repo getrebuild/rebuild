@@ -31,7 +31,7 @@ class ContentAutoShare extends ActionContentSpec {
           </div>
 
           <div className="form-group row">
-            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('同时共享关联记录')}</label>
+            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('同时共享相关记录')}</label>
             <div className="col-12 col-lg-8">
               <div>
                 <select className="form-control form-control-sm" ref={(c) => (this._cascades = c)}>
@@ -79,7 +79,7 @@ class ContentAutoShare extends ActionContentSpec {
         this.__select2 = $(this._cascades)
           .select2({
             multiple: true,
-            placeholder: `${$L('选择关联实体')} ${$L('(可选)')}`,
+            placeholder: `${$L('选择相关实体')} ${$L('(可选)')}`,
           })
           .val(cascades.length === 0 ? null : cascades)
           .trigger('change')

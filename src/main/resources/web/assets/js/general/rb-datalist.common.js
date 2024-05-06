@@ -377,7 +377,7 @@ class DataExport extends BatchOperator {
           templateResult: function (res) {
             const text = res.text.split(' (PDF)')
             const $span = $('<span></span>').text(text[0])
-            if (text.length > 1) $('<span class="badge badge-default badge-pill pt-0 pb-0 ml-1">PDF</span>').appendTo($span)
+            if (text.length > 1) $('<span class="badge badge-default badge-pill">PDF</span>').appendTo($span)
             return $span
           },
         })
