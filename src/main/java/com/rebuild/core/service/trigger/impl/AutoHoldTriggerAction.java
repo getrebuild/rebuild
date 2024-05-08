@@ -84,6 +84,8 @@ public abstract class AutoHoldTriggerAction extends TriggerAction {
 
         Entity sourceEntity = actionContext.getSourceEntity();
         JSONArray fs = actionContent.getJSONArray("fields");
+        // for AutoApproval
+        if (fs == null) fs = actionContent.getJSONArray("revokeFields");
 
         List<String> fieldsSelf = new ArrayList<>();
         List<Field> fieldsRefto = new ArrayList<>();
