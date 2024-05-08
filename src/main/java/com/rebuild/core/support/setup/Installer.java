@@ -502,7 +502,7 @@ public class Installer implements InstallState {
             }
 
         } catch (SQLException ex) {
-            log.error("Check REBUILD database error : {}", ex.getLocalizedMessage());
+            log.info("Check REBUILD database error : {}", ex.getLocalizedMessage());
         }
         return false;
     }

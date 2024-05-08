@@ -47,7 +47,7 @@
         <div class="main-content container">
           <a class="logo-img" style="margin-top: 80px; margin-bottom: 20px"></a>
           <div class="error-container mt-0">
-            <div class="safe-tips">
+            <div class="safe-tips" th:data-nosafe="${nosafe}">
               <h3>[[${bundle.L('即将跳转到外部网站')}]]</h3>
               <p class="text-warning"><i class="mdi mdi-shield-alert-outline fs-14"></i> [[${bundle.L('请注意你的账户安全')}]]</p>
               <div class="url">

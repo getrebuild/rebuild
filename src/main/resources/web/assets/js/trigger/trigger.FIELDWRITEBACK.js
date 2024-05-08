@@ -228,7 +228,15 @@ class ContentFieldWriteback extends ActionContentSpec {
     $.get(`/admin/robot/trigger/field-writeback-entities?source=${this.props.sourceEntity}&matchfields=${__LAB_MATCHFIELDS}`, (res) => {
       this.setState({ targetEntities: res.data || [] }, () => {
         const $s2te = $(this._$targetEntity)
-          .select2({ placeholder: $L('选择目标实体') })
+          .select2({
+            placeholder: $L('选择目标实体'),
+            templateResult: function (res) {
+              const text = res.text.split(' (N)')
+              const $span = $('<span></span>').text(text[0])
+              if (text.length > 1) $('<span class="badge badge-default badge-pill">N</span>').appendTo($span)
+              return $span
+            },
+          })
           .on('change', () => this._changeTargetEntity())
 
         if (content && content.targetEntity) {

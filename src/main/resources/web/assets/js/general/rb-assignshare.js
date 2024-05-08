@@ -33,8 +33,8 @@ class DlgAssign extends RbModalHandler {
           {this.state.cascadesShow !== true ? (
             <div className="form-group row">
               <div className="col-sm-7 offset-sm-3">
-                <a href="#" onClick={this._showCascade}>
-                  {$L('同时%s关联记录', this._Props[1])}
+                <a href="#" onClick={(e) => this._showCascade(e)}>
+                  {$L('同时%s相关记录', this._Props[1])}
                 </a>
               </div>
             </div>
@@ -42,7 +42,7 @@ class DlgAssign extends RbModalHandler {
             <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('选择相关记录')}</label>
               <div className="col-sm-7">
-                <select className="form-control form-control-sm" ref={(c) => (this._cascades = c)}>
+                <select className="form-control form-control-sm" ref={(c) => (this._$cascades = c)}>
                   {(this.state.cascadesEntity || []).map((item) => {
                     if ($isSysMask(item[1])) return null
                     return (
@@ -81,17 +81,17 @@ class DlgAssign extends RbModalHandler {
     )
   }
 
-  _showCascade = () => {
-    event && event.preventDefault()
+  _showCascade(e) {
+    e && e.preventDefault()
     $.get(`/commons/metadata/references?entity=${this.props.entity}&permission=${this._Props[2]}`, (res) => {
       this.setState({ cascadesShow: true, cascadesEntity: res.data }, () => {
         const defaultSelected = []
         res.data.forEach((item) => defaultSelected.push(item[0]))
 
-        $(this._cascades)
+        $(this._$cascades)
           .select2({
             multiple: true,
-            placeholder: $L('选择关联实体 (可选)'),
+            placeholder: $L('选择相关实体 (可选)'),
           })
           .val(defaultSelected)
           .trigger('change')
@@ -106,7 +106,7 @@ class DlgAssign extends RbModalHandler {
   _reset() {
     this.setState({ cascadesShow: false })
     this._UserSelector.clearSelection()
-    $(this._cascades).val(null).trigger('change')
+    $(this._$cascades).val(null).trigger('change')
     $(this._withUpdate).prop('checked', false)
   }
 
@@ -114,11 +114,11 @@ class DlgAssign extends RbModalHandler {
     let users = this._UserSelector.val()
     if (!users || users.length === 0) return RbHighbar.create($L('请选择%s给谁', this._Props[1]))
     if (Array.isArray(users)) users = users.join(',')
-    const cass = this.state.cascadesShow === true ? $(this._cascades).val().join(',') : ''
+    const cas = this.state.cascadesShow === true ? $(this._$cascades).val().join(',') : ''
     const withUpdate = $(this._withUpdate).prop('checked')
 
     const $btn = $(this._btns).find('.btn').button('loading')
-    $.post(`/app/entity/record-${this._Props[0]}?id=${this.state.ids.join(',')}&cascades=${cass}&to=${users}&withUpdate=${withUpdate || ''}`, (res) => {
+    $.post(`/app/entity/record-${this._Props[0]}?id=${this.state.ids.join(',')}&cascades=${cas}&to=${users}&withUpdate=${withUpdate || ''}`, (res) => {
       if (res.error_code === 0) {
         const _data = res.data
         if (this._Props[0] === 'assign') {

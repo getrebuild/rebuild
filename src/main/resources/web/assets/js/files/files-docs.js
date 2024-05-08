@@ -36,8 +36,9 @@ const FolderTree = {
 
             const paths = []
             FolderTree._findPaths($('#navTree li.active'), paths)
+
             const $ol = $('.file-path ol').empty()
-            $(paths).each((idx, item) => {
+            paths.forEach((item) => {
               const $li = $('<li class="breadcrumb-item active"></li>').appendTo($ol)
               $li.text(item[0])
             })
@@ -430,8 +431,10 @@ class FileMoveDlg extends RbFormHandler {
 
 // eslint-disable-next-line no-undef
 class FilesList4Docs extends FilesList {
-  state = { ...this.props }
-  __lastEntry = __DEFAULT_ALL
+  constructor(props) {
+    super(props)
+    this._lastEntry = __DEFAULT_ALL
+  }
 
   renderExtras34(item) {
     return (
@@ -459,7 +462,6 @@ class FilesList4Docs extends FilesList {
 
 $(document).ready(() => {
   FolderTree.load()
-
   renderRbcomp(<FilesList4Docs />, $('.file-viewport'), function () {
     // eslint-disable-next-line no-global-assign
     filesList = this

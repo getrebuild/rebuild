@@ -705,7 +705,7 @@ public class ApprovalStepService extends BaseService {
             log.warn("No [approvalId] or [approvalStepNode] value found : {}", record.getPrimary());
         } else {
             String name = ApprovalHelper.getNodeNameById(approvalStepNode, approvalId);
-            if (name == null) name = "@" + approvalStepNode.toUpperCase();
+            if (name == null) name = Language.L("审批人") + "@" + approvalStepNode;
             record.setString(EntityHelper.ApprovalStepNodeName, name);
         }
     }

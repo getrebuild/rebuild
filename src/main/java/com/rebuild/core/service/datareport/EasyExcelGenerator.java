@@ -22,6 +22,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
+import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -432,10 +433,17 @@ public class EasyExcelGenerator extends SetUser {
         if (paths == null || paths.isEmpty()) return null;
 
         try {
+            // FIXME 仅取第一个
             for (Object path : paths) {
-                File temp = QiniuCloud.getStorageFile((String) path);
-                File img1000 = new ImageView2(1000).thumbQuietly(temp);
+                File temp;
+                try {
+                    temp = QiniuCloud.getStorageFile((String) path);
+                } catch (RebuildException ex) {
+                    log.warn(ex.getMessage());
+                    continue;
+                }
 
+                File img1000 = new ImageView2(1000).thumbQuietly(temp);
                 byte[] b = FileUtils.readFileToByteArray(img1000);
                 String base64 = Base64.encodeBase64String(b);
                 return buildSignData("base64," + base64);

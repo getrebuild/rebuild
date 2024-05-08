@@ -216,23 +216,29 @@ class ChartIndex extends BaseChart {
           {data.index.label2 && (
             <div className="with">
               <p>{data.index.label2}</p>
-              <strong className={$clearNumber(data.index.data2) >= $clearNumber(data.index.data) && 'ge'}>{data.index.data2}</strong>
+              <strong className={this._num(data.index.data2) >= this._num(data.index.data) && 'ge'}>{data.index.data2}</strong>
             </div>
           )}
         </div>
       </div>
     )
-    this.setState({ chartdata: chartdata }, () => this._resize())
+    this.setState({ chartdata: chartdata }, () => this.resize(1))
   }
 
-  resize() {
-    $setTimeout(() => this._resize(), 200, `resize-chart-${this.props.id}`)
+  _num(n) {
+    return parseFloat($cleanNumber(n))
   }
 
-  _resize() {
-    const ch = $(this._$chart).height()
-    const zoom = ch > 100 ? (ch > 330 ? 2 : 1.3) : 1
-    $(this._$chart).find('strong').css('zoom', zoom)
+  resize(delay) {
+    $setTimeout(
+      () => {
+        const ch = $(this._$chart).height()
+        const zoom = ch > 100 ? (ch > 330 ? 2 : 1.3) : 1
+        $(this._$chart).find('strong').css('zoom', zoom)
+      },
+      delay || 200,
+      `resize-chart-${this.props.id}`
+    )
   }
 }
 
@@ -647,7 +653,6 @@ class ChartFunnel extends BaseChart {
             data: data.data,
             cursor: 'default',
             label: {
-              html: true,
               show: true,
               position: 'inside',
               formatter: function (a) {
@@ -661,7 +666,7 @@ class ChartFunnel extends BaseChart {
           },
         ],
       }
-      option.grid.right = 60
+      // option.grid.right = 60
       option.tooltip.trigger = 'item'
       option.tooltip.formatter = function (a) {
         if (data.xLabel) return `<b>${a.name}</b> <br/> ${a.marker} ${data.xLabel} : ${formatThousands(a.value, dataFlags[a.dataIndex])}`
@@ -739,7 +744,7 @@ class ChartTreemap extends BaseChart {
 // ~ 审批列表
 const APPROVAL_STATES = {
   1: ['warning', $L('待审批')],
-  10: ['success', $L('已完成')],
+  10: ['success', $L('通过')],
   11: ['danger', $L('驳回')],
 }
 class ApprovalList extends BaseChart {
@@ -766,7 +771,7 @@ class ApprovalList extends BaseChart {
               <div
                 key={s[0]}
                 className={`progress-bar bg-${s[0]} ${this.state.viewState === item[0] && 'active'}`}
-                title={`${s[1]} : ${item[1]} (${p})`}
+                // title={`${s[1]} : ${item[1]} (${p})`}
                 style={{ width: p }}
                 onClick={() => this._changeState(item[0])}>
                 {s[1]} ({item[1]})
@@ -821,7 +826,7 @@ class ApprovalList extends BaseChart {
                           {$L('审批')}
                         </button>
                       )}
-                      {this.state.viewState === 10 && <span className="text-success">{$L('已完成')}</span>}
+                      {this.state.viewState === 10 && <span className="text-success">{$L('通过')}</span>}
                       {this.state.viewState === 11 && <span className="text-danger">{$L('驳回')}</span>}
                     </td>
                   </tr>
@@ -1363,12 +1368,12 @@ class DataList extends BaseChart {
         .css('height', this._$tb.height() - 20)
         .perfectScrollbar()
 
-      let trActive
+      let $trActive
       const $trs = this._$tb.find('tbody tr').on('mousedown', function () {
-        if (trActive === this) {
+        if ($trActive === this) {
           $(this).toggleClass('highlight')
         } else {
-          trActive = this
+          $trActive = this
           $trs.removeClass('highlight')
           $(this).addClass('highlight')
         }

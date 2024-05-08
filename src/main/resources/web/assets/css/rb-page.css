@@ -902,6 +902,11 @@ body.view-body {
   font-size: 1.2rem;
 }
 
+.select2-container--default .select2-results__option .badge {
+  line-height: 1.3;
+  margin: 0 0 0 5px;
+}
+
 textarea.row2x {
   height: 52px !important;
   resize: none;
@@ -2406,6 +2411,7 @@ th.column-fixed {
 
 .aside-2tree li span.collapse-icon:hover {
   color: #4285f4;
+  color: var(--rb-theme-color);
 }
 
 .aside-2tree li.active span.collapse-icon {
@@ -4995,6 +5001,15 @@ pre.unstyle {
   height: 18px;
   top: 8px;
   right: 0;
+  display: none;
+}
+
+.protable .table thead th i.dividing.ui-draggable-dragging {
+  margin-top: 0.5px;
+}
+
+.protable .table thead:hover th .dividing {
+  display: block;
 }
 
 .protable .table thead th .tipping {

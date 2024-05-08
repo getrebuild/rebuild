@@ -377,7 +377,7 @@ class DataExport extends BatchOperator {
           templateResult: function (res) {
             const text = res.text.split(' (PDF)')
             const $span = $('<span></span>').text(text[0])
-            if (text.length > 1) $('<span class="badge badge-default badge-pill pt-0 pb-0 ml-1">PDF</span>').appendTo($span)
+            if (text.length > 1) $('<span class="badge badge-default badge-pill">PDF</span>').appendTo($span)
             return $span
           },
         })
@@ -1589,7 +1589,7 @@ const CellRenders = {
     if (Array.isArray(v)) {
       const array = []
       v.forEach((item) => {
-        if (typeof item === 'object') array.push(item.text)
+        if (typeof item === 'object') array.push(item.text || item.name)
         else array.push(item)
       })
       v = array
@@ -1598,7 +1598,7 @@ const CellRenders = {
     if (Array.isArray(v)) return v.join(', ')
 
     if (typeof v === 'object') {
-      if (Array.isArray(v.text)) v = v.join(', ')
+      if (Array.isArray(v.text)) v = v.text.join(', ')
       else v = v.text
     }
     return v ? v : $empty(v) ? null : v

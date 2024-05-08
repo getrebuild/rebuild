@@ -285,6 +285,34 @@ var $cleanMap = function (map) {
 }
 
 /**
+ * 清理数组
+ */
+var $cleanArray = function (array, isunique) {
+  if (!array) return []
+  var newArray = []
+  $(array).each(function (i, item) {
+    var n = $trim(item)
+    if (n) {
+      if (isunique) newArray.remove(n)
+      newArray.push(n)
+    }
+  })
+  return newArray
+}
+
+/**
+ * 清理数字中的符号
+ */
+function $cleanNumber(n) {
+  var m = n.match(/-?\d+(,\d+)*(.\d+)?/g)
+  if (m && m[0]) {
+    m = m[0].replace(/,/g, '') // 千分位
+    return m
+  }
+  return NaN
+}
+
+/**
  * 常用正则
  */
 var $regex = {
@@ -322,11 +350,9 @@ var $regex = {
   isTel: function (val) {
     return this._Tel.test(val) || this._Mobile.test(val)
   },
+  // 是否 ID
   isId: function (id) {
     return /^([0-9]{3}-[a-z0-9]{16})$/gi.test(id)
-  },
-  clearNumber: function (n) {
-    return (n + '').replace(/[^\d|^\\.|^\\-]/g, '')
   },
 }
 
@@ -520,30 +546,14 @@ var $isLight = function (color) {
   return brightness > 155
 }
 
-// 清理数组
-var $cleanArray = function (array, isunique) {
-  if (!array) return []
-  var array2 = []
-  $(array).each(function (i, item) {
-    var n = $trim(item)
-    if (n) {
-      if (isunique) array2.remove(n)
-      array2.push(n)
-    }
-  })
-  return array2
-}
-
 // $.trim
 var $trim = function (a) {
-  // debugger
   if (a === null || typeof a === 'undefined' || a === '') return ''
   return ((a || '') + '').trim()
 }
 
 // $.type
 var $type = function (a) {
-  // debugger
   if (Array.isArray(a)) return 'array'
   return typeof a // string, object
 }

@@ -139,7 +139,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart.index > .data-item .with strong {
   margin-left: 5px;
   margin-top: 3px;
-  font-size: 1.2rem;
+  font-size: 1.55rem;
   color: green;
 }
 
@@ -164,6 +164,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .grid-stack-item.fullscreen .chart.index > .data-item strong {
   font-size: 8.8rem;
   zoom: 1 !important;
+}
+
+.grid-stack-item.fullscreen .chart.index > .data-item .with strong {
+  font-size: 4.4rem;
+}
+
+.grid-stack-item.fullscreen .chart.index > .data-item .with strong::before {
+  zoom: 2;
 }
 
 .chart.ctable {
@@ -297,11 +305,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chart-box.ApprovalList .progress-wrap .progress-bar {
   min-width: 20%;
+  transition: opacity 0.2s;
 }
 
-.chart-box.ApprovalList .progress-wrap .progress-bar:hover {
+.chart-box.ApprovalList .progress-wrap .progress:hover > .progress-bar {
+  opacity: 0.4;
+}
+
+.chart-box.ApprovalList .progress-wrap .progress:hover > .progress-bar:hover {
   cursor: pointer;
-  opacity: 0.8;
+  opacity: 1;
 }
 
 .chart-box.ApprovalList .progress-wrap .progress-bar.active {

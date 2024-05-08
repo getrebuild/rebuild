@@ -211,7 +211,7 @@ class DeleteConfirm extends RbAlert {
                   <div className="mt-2">
                     <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
                       <input className="custom-control-input" type="checkbox" checked={this.state.enableCascade === true} onChange={() => this.enableCascade()} />
-                      <span className="custom-control-label"> {$L('同时删除关联记录')}</span>
+                      <span className="custom-control-label"> {$L('同时删除相关记录')}</span>
                     </label>
                     <div className={this.state.enableCascade ? '' : 'hide'}>
                       <select className="form-control form-control-sm" ref={(c) => (this._cascades = c)} multiple>
@@ -250,7 +250,7 @@ class DeleteConfirm extends RbAlert {
         this.setState({ cascadesEntity: res.data }, () => {
           this.__select2 = $(this._cascades)
             .select2({
-              placeholder: $L('选择关联实体 (可选)'),
+              placeholder: $L('选择相关实体 (可选)'),
               width: '88%',
             })
             .val(null)

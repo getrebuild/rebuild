@@ -180,7 +180,9 @@ public class FileDownloader extends BaseController {
         final int cut = getIntParameter(request, "cut");  // MB
 
         if (CommonsUtils.isExternalUrl(filepath)) {
-            String text = OkHttpUtils.get(filepath, null, charset);
+            // v3.7 禁外部地址
+//            String text = OkHttpUtils.get(filepath, null, charset);
+            String text = "ERROR:URL_NOT_SUPPORTED";
             ServletUtils.setContentType(response, ServletUtils.CT_PLAIN);
             ServletUtils.write(response, text);
             return;

@@ -1262,10 +1262,10 @@ class RbFormNumber extends RbFormText {
 
   // 移除千分为位
   _removeComma(n) {
-    if (n === null || n === undefined) return ''
+    if (n === null || n === undefined || n === '') return ''
     if ((n + '').substring(0, 1) === '*') return n // 脱敏
-    if (n) n = $regex.clearNumber(n)
-    if (n === '-') return n
+    if (n === '-') return n // 输入负数
+    if (n) n = $cleanNumber(n)
     if (isNaN(n)) return ''
     return n // `0`
   }

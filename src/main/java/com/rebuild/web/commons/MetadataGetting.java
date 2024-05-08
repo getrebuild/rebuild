@@ -10,7 +10,6 @@ package com.rebuild.web.commons;
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -18,10 +17,12 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesManager;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.EntityParam;
 import com.rebuild.web.general.MetaFormatter;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -85,12 +86,10 @@ public class MetadataGetting extends BaseController {
         });
     }
 
-    // 哪些实体引用了指定实体
+    // 哪些实体引用了指定实体（即相关项）
     @GetMapping("references")
-    public List<String[]> references(HttpServletRequest request) {
+    public List<String[]> references(@EntityParam Entity entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
-
-        Entity entity = MetadataHelper.getEntity(getParameterNotNull(request, "entity"));
 
         String permission = getParameter(request, "permission");
         Permission checkPermission = null;
@@ -98,20 +97,29 @@ public class MetadataGetting extends BaseController {
             checkPermission = PrivilegesManager.parse(permission);
         }
 
-        Set<Entity> references = new HashSet<>();
-        for (Field field : entity.getReferenceToFields()) {
-            // FIXME N2N 支持 ???
-            if (field.getOwnEntity().getMainEntity() == null && field.getType() == FieldType.REFERENCE) {
-                references.add(field.getOwnEntity());
-            }
-        }
-
+        Set<String> unique = new HashSet<>();
         List<String[]> data = new ArrayList<>();
-        for (Entity e : references) {
-            if (checkPermission == null
-                    || Application.getPrivilegesManager().allow(user, e.getEntityCode(), checkPermission)) {
-                EasyEntity easy = EasyMetaFactory.valueOf(e);
-                data.add(new String[] { easy.getName(), easy.getLabel() });
+
+        for (Field field : entity.getReferenceToFields()) {
+            Entity ownEntity = field.getOwnEntity();
+            if (unique.contains(ownEntity.getName())) continue;
+            // 排除明细
+            if (ownEntity.getMainEntity() != null) continue;
+
+            EasyField easyField = EasyMetaFactory.valueOf(field);
+            boolean isN2N = easyField.getDisplayType() == DisplayType.N2NREFERENCE;
+            if (easyField.getDisplayType() == DisplayType.REFERENCE || isN2N) {
+                // 权限
+                if (checkPermission == null
+                        || Application.getPrivilegesManager().allow(user, ownEntity.getEntityCode(), checkPermission)) {
+
+                    // FIXME 可能有多个字段引用同一实体
+
+                    String label = EasyMetaFactory.getLabel(ownEntity);
+//                    if (isN2N) label += " (N)";
+                    data.add(new String[]{ ownEntity.getName(), label });
+                    unique.add(ownEntity.getName());
+                }
             }
         }
         return data;
