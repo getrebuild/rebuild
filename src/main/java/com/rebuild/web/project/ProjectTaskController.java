@@ -132,7 +132,12 @@ public class ProjectTaskController extends BaseController {
             if (count == 0) return NO_TASKS;
         }
 
-        queryWhere += " order by " +  buildQuerySort(request);
+        String sort = buildQuerySort(request);
+        // 未完成的优先显示
+        if (sort.contains("deadline") && "0-0".equals(planKey)) {
+            sort = "status asc, deadline desc";
+        }
+        queryWhere += " order by " + sort;
 
         ConfigBean project = ProjectManager.instance.getProject(projectId, user);
         JSONArray alist = queryCardDatas(project, user, queryWhere, new int[] { pageSize, pageNo * pageSize - pageSize });

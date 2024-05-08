@@ -344,7 +344,7 @@ td.task-user > .avatar img {
 
 .ps-toolbar .J_view > .btn,
 .ps-toolbar .J_sorts > .btn {
-  padding-left: 23px;
+  padding-left: 20px;
   padding-right: 0;
   width: auto;
   min-width: auto;
@@ -353,7 +353,7 @@ td.task-user > .avatar img {
 
 .ps-toolbar .J_view > .btn > .icon,
 .ps-toolbar .J_sorts > .btn > .icon {
-  font-size: 19px;
+  font-size: 16px;
   top: 10px;
   left: 0;
   position: absolute;
