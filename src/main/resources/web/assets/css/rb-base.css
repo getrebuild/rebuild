@@ -23194,6 +23194,7 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^='col-']:las
   min-height: 30px;
   height: 100%;
   width: auto;
+  border-radius: 2px;
 }
 
 /* BS v4.4 */
