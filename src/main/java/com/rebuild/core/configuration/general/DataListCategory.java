@@ -49,7 +49,7 @@ public class DataListCategory {
     private DataListCategory() {}
 
     /**
-     * NOTE 有 5m 缓存
+     * NOTE 有 15m 缓存
      *
      * @param entity
      * @return
@@ -60,8 +60,8 @@ public class DataListCategory {
 
         String conf = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADVLIST_SHOWCATEGORY);
         String[] ff = conf.split(":");
-        String ffField = ff[0];
-        String ffFormat = ff.length > 1 ? ff[1] : null;
+        final String ffField = ff[0];
+        final String ffFormat = ff.length > 1 ? ff[1] : null;
 
         final String ckey = "DataListCategory-" + conf;
         Object cached = Application.getCommonsCache().getx(ckey);
@@ -70,8 +70,10 @@ public class DataListCategory {
 
         EasyField easyField = EasyMetaFactory.valueOf(categoryField);
         DisplayType dt = easyField.getDisplayType();
+
         // Set, Sorted
         Collection<Item> dataList = new LinkedHashSet<>();
+        int dataListSort = 0;
 
         // 使用全部
         if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST) {
@@ -89,20 +91,21 @@ public class DataListCategory {
         } else if (dt == DisplayType.REFERENCE && ffFormat != null && categoryField.getReferenceEntity().containsField(ffFormat)) {
             // 引用-父级
             dataList = datasReference(categoryField, ffFormat);
+            dataListSort = 1;
 
         } else {
 
-            // 动态获取
-
+            dataListSort = 1;
             String sql;
             if (dt == DisplayType.N2NREFERENCE) {
-                sql = MessageFormat.format(
-                        "select distinct referenceId from NreferenceItem where belongEntity = ''{0}'' and belongField = ''{1}''",
+                sql = String.format(
+                        "select distinct referenceId from NreferenceItem where belongEntity = '%s' and belongField = '%s'",
                         entity.getName(), ffField);
             } else {
                 String wrapField = ffField;
                 if (dt == DisplayType.DATETIME) {
                     wrapField = String.format("DATE_FORMAT(%s, '%%Y-%%m-%%d')", wrapField);
+                    dataListSort = 2;
                 }
 
                 sql = MessageFormat.format(
@@ -110,18 +113,18 @@ public class DataListCategory {
                         wrapField, entity.getName(), categoryField.getName());
             }
 
-            // FIXME 无权限查询，以便使用缓存
+            // 无权限查询，以便使用缓存
             Object[][] array = Application.createQueryNoFilter(sql).array();
 
             for (Object[] o : array) {
                 Object id = o[0];
                 String label;
                 if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-                    ffFormat = StringUtils.defaultIfBlank(ffFormat, CalendarUtils.UTC_DATE_FORMAT);
+                    String ffFormat2 = StringUtils.defaultIfBlank(ffFormat, CalendarUtils.UTC_DATE_FORMAT);
                     if (id instanceof Date) {
-                        label = CalendarUtils.format(ffFormat, (Date) id);
+                        label = CalendarUtils.format(ffFormat2, (Date) id);
                     } else {
-                        label = id.toString().substring(0, ffFormat.length());
+                        label = id.toString().substring(0, ffFormat2.length());
                     }
                     id = label;
                 } else {
@@ -131,22 +134,22 @@ public class DataListCategory {
 
                 dataList.add(new Item(id, label));
             }
-
-            // 排序
-            List<Item> dataListSorted = new ArrayList<>(dataList);
-            // 日期倒序
-            if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-                dataListSorted.sort((o1, o2) -> o2.text.compareTo(o1.text));
-            } else {
-                dataListSorted.sort(Comparator.comparing(o -> o.text));
-            }
-            dataList = dataListSorted;
         }
 
         JSONArray res = new JSONArray();
-        for (Item i : dataList) res.add(i.toJSON());
+        for (Item i : dataList) res.add(i.toJSON(dataListSort));
 
-        Application.getCommonsCache().putx(ckey, res, CacheTemplate.TS_MINTE * 5);
+        // 排序
+        if (dataListSort == 2 || dataListSort == 1) {
+            final boolean isDesc = dataListSort == 2;
+            res.sort((o1, o2) -> {
+                String text1 = ((JSONObject) o1).getString("text");
+                String text2 = ((JSONObject) o2).getString("text");
+                return isDesc ? text2.compareTo(text1) : text1.compareTo(text2);
+            });
+        }
+
+        Application.getCommonsCache().putx(ckey, res, CacheTemplate.TS_MINTE * 15);
         return res;
     }
 
@@ -334,12 +337,19 @@ public class DataListCategory {
             return c;
         }
 
-        JSONObject toJSON() {
+        JSONObject toJSON(int sort) {
             JSONObject item = JSONUtils.toJSONObject(new String[] { "text", "id" }, new Object[] { text, id } );
             if (children == null || children.isEmpty()) return item;
 
+            // 排序
+            if (sort == 2) {
+                children.sort((o1, o2) -> o2.text.compareTo(o1.text));  // desc
+            } else if (sort == 1) {
+                children.sort(Comparator.comparing(o -> o.text));  // asc
+            }
+
             JSONArray cs = new JSONArray();
-            for (Item c : children) cs.add(c.toJSON());
+            for (Item c : children) cs.add(c.toJSON(sort));
             item.put("children", cs);
             return item;
         }
