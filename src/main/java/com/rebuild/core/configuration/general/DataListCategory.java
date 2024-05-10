@@ -49,6 +49,8 @@ public class DataListCategory {
     private DataListCategory() {}
 
     /**
+     * NOTE 有 15m 缓存
+     *
      * @param entity
      * @return
      */
@@ -58,17 +60,20 @@ public class DataListCategory {
 
         String conf = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADVLIST_SHOWCATEGORY);
         String[] ff = conf.split(":");
-        String ffField = ff[0];
-        String ffFormat = ff.length > 1 ? ff[1] : null;
+        final String ffField = ff[0];
+        final String ffFormat = ff.length > 1 ? ff[1] : null;
 
         final String ckey = "DataListCategory-" + conf;
         Object cached = Application.getCommonsCache().getx(ckey);
+        if (Application.devMode()) cached = null;
         if (cached != null) return (JSON) cached;
 
         EasyField easyField = EasyMetaFactory.valueOf(categoryField);
         DisplayType dt = easyField.getDisplayType();
+
         // Set, Sorted
         Collection<Item> dataList = new LinkedHashSet<>();
+        int dataListSort = 0;
 
         // 使用全部
         if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST) {
@@ -80,53 +85,27 @@ public class DataListCategory {
             }
 
         } else if (dt == DisplayType.CLASSIFICATION) {
-            // 前端使用树桩组件
-            ID classid = ClassificationManager.instance.getUseClassification(categoryField, false);
-            int level = ClassificationManager.instance.getOpenLevel(categoryField);
-            int levelSpec = ffFormat == null ? level : ObjectUtils.toInt(ffFormat);
-            if (levelSpec < level) level = levelSpec;
+            // 分类
+            dataList = datasClassification(categoryField, ffFormat);
 
-            // L0
-            Object[][] level0 = getClassificationItems(classid, null);
-            for (Object[] L0 : level0) {
-                Item item0 = new Item(L0);
-                // L1
-                if (level > 0) {
-                    Object[][] level1 = getClassificationItems(classid, (ID) item0.id);
-                    for (Object[] L1 : level1) {
-                        Item item1 = item0.addChild(L1);
-                        // L2
-                        if (level > 1) {
-                            Object[][] level2 = getClassificationItems(classid, (ID) item1.id);
-                            for (Object[] L2 : level2) {
-                                Item item2 = item1.addChild(L2);
-                                // L3
-                                if (level > 2) {
-                                    Object[][] level3 = getClassificationItems(classid, (ID) item2.id);
-                                    for (Object[] L3 : level3) {
-                                        item2.addChild(L3);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                dataList.add(item0);
-            }
+        } else if (dt == DisplayType.REFERENCE && ffFormat != null && categoryField.getReferenceEntity().containsField(ffFormat)) {
+            // 引用-父级
+            dataList = datasReference(categoryField, ffFormat);
+            dataListSort = 1;
 
         } else {
 
-            // 动态获取
-
+            dataListSort = 1;
             String sql;
             if (dt == DisplayType.N2NREFERENCE) {
-                sql = MessageFormat.format(
-                        "select distinct referenceId from NreferenceItem where belongEntity = ''{0}'' and belongField = ''{1}''",
+                sql = String.format(
+                        "select distinct referenceId from NreferenceItem where belongEntity = '%s' and belongField = '%s'",
                         entity.getName(), ffField);
             } else {
                 String wrapField = ffField;
                 if (dt == DisplayType.DATETIME) {
                     wrapField = String.format("DATE_FORMAT(%s, '%%Y-%%m-%%d')", wrapField);
+                    dataListSort = 2;
                 }
 
                 sql = MessageFormat.format(
@@ -134,18 +113,18 @@ public class DataListCategory {
                         wrapField, entity.getName(), categoryField.getName());
             }
 
-            // FIXME 无权限查询，以便使用缓存
+            // 无权限查询，以便使用缓存
             Object[][] array = Application.createQueryNoFilter(sql).array();
 
             for (Object[] o : array) {
                 Object id = o[0];
                 String label;
                 if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-                    ffFormat = StringUtils.defaultIfBlank(ffFormat, CalendarUtils.UTC_DATE_FORMAT);
+                    String ffFormat2 = StringUtils.defaultIfBlank(ffFormat, CalendarUtils.UTC_DATE_FORMAT);
                     if (id instanceof Date) {
-                        label = CalendarUtils.format(ffFormat, (Date) id);
+                        label = CalendarUtils.format(ffFormat2, (Date) id);
                     } else {
-                        label = id.toString().substring(0, ffFormat.length());
+                        label = id.toString().substring(0, ffFormat2.length());
                     }
                     id = label;
                 } else {
@@ -155,24 +134,161 @@ public class DataListCategory {
 
                 dataList.add(new Item(id, label));
             }
-
-            // 排序
-            List<Item> dataListSorted = new ArrayList<>(dataList);
-            // 日期倒序
-            if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-                dataListSorted.sort((o1, o2) -> o2.text.compareTo(o1.text));
-            } else {
-                dataListSorted.sort(Comparator.comparing(o -> o.text));
-            }
-            dataList = dataListSorted;
         }
 
         JSONArray res = new JSONArray();
-        for (Item i : dataList) res.add(i.toJSON());
+        for (Item i : dataList) res.add(i.toJSON(dataListSort));
 
-        // 15min
+        // 排序
+        if (dataListSort == 2 || dataListSort == 1) {
+            final boolean isDesc = dataListSort == 2;
+            res.sort((o1, o2) -> {
+                String text1 = ((JSONObject) o1).getString("text");
+                String text2 = ((JSONObject) o2).getString("text");
+                return isDesc ? text2.compareTo(text1) : text1.compareTo(text2);
+            });
+        }
+
         Application.getCommonsCache().putx(ckey, res, CacheTemplate.TS_MINTE * 15);
         return res;
+    }
+
+    /**
+     * Max. 4L
+     * @param field
+     * @param format
+     * @return
+     */
+    protected Collection<Item> datasClassification(Field field, String format) {
+        final ID classid = ClassificationManager.instance.getUseClassification(field, false);
+        int level = ClassificationManager.instance.getOpenLevel(field);
+        int levelSpec = format == null ? level : ObjectUtils.toInt(format);
+        if (levelSpec < level) level = levelSpec;
+
+        Collection<Item> dataList = new LinkedHashSet<>();
+
+        // L0-1
+        Object[][] level0 = getClassificationItems(classid, null);
+        for (Object[] L0 : level0) {
+            Item item0 = new Item(L0);
+
+            // L1-2
+            if (level > 0) {
+                Object[][] level1 = getClassificationItems(classid, (ID) item0.id);
+                for (Object[] L1 : level1) {
+                    Item item1 = item0.addChild(L1);
+
+                    // L2-3
+                    if (level > 1) {
+                        Object[][] level2 = getClassificationItems(classid, (ID) item1.id);
+                        for (Object[] L2 : level2) {
+                            Item item2 = item1.addChild(L2);
+
+                            // L3-4
+                            if (level > 2) {
+                                Object[][] level3 = getClassificationItems(classid, (ID) item2.id);
+                                for (Object[] L3 : level3) {
+                                    item2.addChild(L3);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            dataList.add(item0);
+        }
+        return dataList;
+    }
+
+    // 分类子级
+    private Object[][] getClassificationItems(ID classid, ID parent) {
+        String sql = "select itemId,name from ClassificationData where dataId = ? and parent";
+        if (parent != null) sql += " = '" + parent + "'";
+        else sql += " is null";
+
+        sql += " order by code,fullName";
+        return Application.createQueryNoFilter(sql).setParameter(1, classid).array();
+    }
+
+    /**
+     * Max. 9L
+     * @param field
+     * @param format
+     * @return
+     */
+    protected Collection<Item> datasReference(Field field, String format) {
+        final Field parentField = field.getReferenceEntity().getField(format);
+
+        Collection<Item> dataList = new LinkedHashSet<>();
+
+        // L0-1
+        Object[][] level0 = getReferenceItems(parentField, null);
+        for (Object[] L0 : level0) {
+            Item item0 = new Item(L0[0], null);
+
+            // L1-2
+            Object[][] level1 = getReferenceItems(parentField, (ID) L0[0]);
+            for (Object[] L1 : level1) {
+                Item item1 = item0.addChild(L1[0], null);
+
+                // L2-3
+                Object[][] level2 = getReferenceItems(parentField, (ID) L1[0]);
+                for (Object[] L2 : level2) {
+                    Item item2 = item1.addChild(L2[0], null);
+
+                    // L3-4
+                    Object[][] level3 = getReferenceItems(parentField, (ID) L2[0]);
+                    for (Object[] L3 : level3) {
+                        Item item3 = item2.addChild(L3[0], null);
+
+                        // L4-5
+                        Object[][] level4 = getReferenceItems(parentField, (ID) L3[0]);
+                        for (Object[] L4 : level4) {
+                            Item item4 = item3.addChild(L4[0], null);
+
+                            // L5-6
+                            Object[][] level5 = getReferenceItems(parentField, (ID) L4[0]);
+                            for (Object[] L5 : level5) {
+                                Item item5 = item4.addChild(L5[0], null);
+
+                                // L6-7
+                                Object[][] level6 = getReferenceItems(parentField, (ID) L5[0]);
+                                for (Object[] L6 : level6) {
+                                    Item item6 = item5.addChild(L6[0], null);
+
+                                    // L7-8
+                                    Object[][] level7 = getReferenceItems(parentField, (ID) L6[0]);
+                                    for (Object[] L7 : level7) {
+                                        Item item7 = item6.addChild(L7[0], null);
+
+                                        // L8-9
+                                        Object[][] level8 = getReferenceItems(parentField, (ID) L7[0]);
+                                        for (Object[] L8 : level8) {
+                                            item7.addChild(L8[0], null);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            dataList.add(item0);
+        }
+        return dataList;
+    }
+
+    // 引用的子级
+    private Object[][] getReferenceItems(Field parentField, ID parent) {
+        String sql = MessageFormat.format(
+                "select {0}Id from {0} where {1}",
+                parentField.getOwnEntity().getName(), parentField.getName());
+        if (parent == null) sql += " is null";
+        else sql += " = '" + parent + "'";
+
+        return Application.createQueryNoFilter(sql).array();
     }
 
     /**
@@ -188,23 +304,9 @@ public class DataListCategory {
         return null;
     }
 
-    /**
-     * @param classid
-     * @param parent
-     * @return
-     */
-    private Object[][] getClassificationItems(ID classid, ID parent) {
-        String sql = "select itemId,name from ClassificationData where dataId = ? and parent";
-        if (parent != null) sql += " = '" + parent + "'";
-        else sql += " is null";
-
-        sql += " order by code,fullName";
-        return Application.createQueryNoFilter(sql).setParameter(1, classid).array();
-    }
-
     // Bean
     @EqualsAndHashCode(of = {"id"})
-    static class Item implements Serializable {
+    protected static class Item implements Serializable {
         private static final long serialVersionUID = 6317330509242709409L;
 
         Object id;
@@ -214,6 +316,10 @@ public class DataListCategory {
         Item(Object id, String text) {
             this.id = id;
             this.text = text;
+            // 补充名称
+            if (text == null && id instanceof ID) {
+                this.text = FieldValueHelper.getLabelNotry((ID) id);
+            }
         }
 
         Item(Object[] o) {
@@ -221,18 +327,29 @@ public class DataListCategory {
         }
 
         Item addChild(Object[] o) {
-            Item c = new Item(o);
+            return this.addChild(o[0], (String) o[1]);
+        }
+
+        Item addChild(Object id, String text) {
+            Item c = new Item(id, text);
             if (children == null) children = new ArrayList<>();
             children.add(c);
             return c;
         }
 
-        JSONObject toJSON() {
+        JSONObject toJSON(int sort) {
             JSONObject item = JSONUtils.toJSONObject(new String[] { "text", "id" }, new Object[] { text, id } );
             if (children == null || children.isEmpty()) return item;
 
+            // 排序
+            if (sort == 2) {
+                children.sort((o1, o2) -> o2.text.compareTo(o1.text));  // desc
+            } else if (sort == 1) {
+                children.sort(Comparator.comparing(o -> o.text));  // asc
+            }
+
             JSONArray cs = new JSONArray();
-            for (Item c : children) cs.add(c.toJSON());
+            for (Item c : children) cs.add(c.toJSON(sort));
             item.put("children", cs);
             return item;
         }

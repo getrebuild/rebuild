@@ -61,12 +61,16 @@
             <td>[[${MemoryUsage[1]}]]% ([[${MemoryUsage[0]}]]MB)</td>
           </tr>
           <tr>
-            <th>Disk Usage</th>
-            <td>[[${DisksDesc ?:'n/a'}]]</td>
-          </tr>
-          <tr>
             <th>System Load</th>
             <td>[[${SystemLoad}]]</td>
+          </tr>
+          <tr th:if="${DisksDesc != null}">
+            <th>Disk Usage</th>
+            <td>[[${DisksDesc}]]</td>
+          </tr>
+          <tr th:if="${T(com.rebuild.utils.OshiUtils).isDockerEnv()}">
+            <th>Docker Env</th>
+            <td>Yes</td>
           </tr>
         </tbody>
       </table>

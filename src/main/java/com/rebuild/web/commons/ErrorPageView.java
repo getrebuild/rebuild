@@ -72,13 +72,16 @@ public class ErrorPageView extends BaseController {
         mv.getModelMap().put("isAdminVerified", AppUtils.isAdminVerified(request));
         mv.getModelMap().put("SN", License.SN() + "/" + OshiUtils.getLocalIp() + "/" + ServerStatus.STARTUP_ONCE);
 
-        String specDisks = StringUtils.defaultIfBlank(request.getParameter("disks"), null);
-        StringBuilder disksDesc = new StringBuilder();
-        for (Object[] d : OshiUtils.getDisksUsed(specDisks == null ? ArrayUtils.EMPTY_STRING_ARRAY : specDisks.split(","))) {
-            //noinspection MalformedFormatString
-            disksDesc.append(String.format(" $%s:%.1f%%:%.1fGB", d[2], d[1], d[0]));
+        final String specDisks = request.getParameter("disks");
+        if (specDisks != null) {
+            StringBuilder disksDesc = new StringBuilder();
+            for (Object[] d : OshiUtils.getDisksUsed(
+                    "/".equals(specDisks) ? ArrayUtils.EMPTY_STRING_ARRAY : specDisks.split("[,;]"))) {
+                //noinspection MalformedFormatString
+                disksDesc.append(String.format(" $%s:%.1f%%:%.1fGB", d[2], d[1], d[0]));
+            }
+            mv.getModelMap().put("DisksDesc", disksDesc.toString().trim());
         }
-        mv.getModelMap().put("DisksDesc", disksDesc.toString().trim());
 
         return mv;
     }
@@ -100,14 +103,17 @@ public class ErrorPageView extends BaseController {
         status.put("MemoryUsage", OshiUtils.getOsMemoryUsed()[1]);
         status.put("SystemLoad", OshiUtils.getSystemLoad());
 
-        String specDisks = StringUtils.defaultIfBlank(request.getParameter("disks"), null);
-        List<Object[]> disksUsed = OshiUtils.getDisksUsed(specDisks == null ? ArrayUtils.EMPTY_STRING_ARRAY : specDisks.split(","));
-        double diskWarning = 0;
-        for (Object[] d : disksUsed) {
-            if ((double) d[1] >= 80) diskWarning = (double) d[1];
+        final String specDisks = request.getParameter("disks");
+        if (specDisks != null) {
+            List<Object[]> disksUsed = OshiUtils.getDisksUsed(
+                    "/".equals(specDisks) ? ArrayUtils.EMPTY_STRING_ARRAY : specDisks.split("[,;]"));
+            double diskWarning = 0;
+            for (Object[] d : disksUsed) {
+                if ((double) d[1] >= 80) diskWarning = (double) d[1];
+            }
+            status.put("DisksUsage", disksUsed);
+            if (diskWarning >= 80) s.put("warning", true);
         }
-        status.put("DisksUsage", disksUsed);
-        if (diskWarning >= 80) s.put("warning", true);
 
         ServletUtils.writeJson(response, s.toJSONString());
     }

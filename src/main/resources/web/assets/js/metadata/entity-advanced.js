@@ -128,7 +128,7 @@ class DlgMode1Option extends RbFormHandler {
                 <div className="clearfix"></div>
                 <div className={`advListShowCategory-set ${this.state.advListShowCategory ? '' : 'hide'}`}>
                   <div className="row">
-                    <div className="col-8">
+                    <div className="col-7">
                       <label className="mb-1">{$L('分组字段')}</label>
                       <select className="form-control form-control-sm">
                         {this.state.advListShowCategoryFields &&
@@ -141,8 +141,8 @@ class DlgMode1Option extends RbFormHandler {
                           })}
                       </select>
                     </div>
-                    <div className={`col-4 pl-0 ${this.state.advListShowCategoryFormats ? '' : 'hide'}`}>
-                      <label className="mb-1">{$L('字段格式')}</label>
+                    <div className={`col-5 pl-0 ${this.state.advListShowCategoryFormats ? '' : 'hide'}`}>
+                      <label className="mb-1">{this.state._cfParent ? $L('使用父级字段') : $L('字段格式')}</label>
                       <select className="form-control form-control-sm">
                         {this.state.advListShowCategoryFormats &&
                           this.state.advListShowCategoryFormats.map((item) => {
@@ -238,7 +238,7 @@ class DlgMode1Option extends RbFormHandler {
           that.setState({ advListShowCategoryFields: _data }, () => {
             $catFields
               .select2({
-                placeholder: $L('选择分类字段'),
+                placeholder: $L('选择分组字段'),
                 allowClear: false,
               })
               .on('change', () => {
@@ -259,9 +259,24 @@ class DlgMode1Option extends RbFormHandler {
                     ['yyyy-MM', 'YYYY-MM'],
                     ['yyyy-MM-dd', 'YYYY-MM-DD'],
                   ]
+                } else if (found && found.type === 'REFERENCE') {
+                  formats = []
+                  $.get(`/commons/metadata/fields?entity=${found.ref[0]}`, (res) => {
+                    res.data &&
+                      res.data.forEach((item) => {
+                        if (item.type === 'REFERENCE' && item.ref[0] === found.ref[0]) {
+                          formats.push([item.name, item.label])
+                        }
+                      })
+
+                    // render
+                    that.setState({ advListShowCategoryFormats: formats, _cfParent: true }, () => {
+                      $catFormats.val(null).trigger('change')
+                    })
+                  })
                 }
 
-                that.setState({ advListShowCategoryFormats: formats }, () => {
+                that.setState({ advListShowCategoryFormats: formats, _cfParent: false }, () => {
                   $catFormats.val(null).trigger('change')
                 })
               })
@@ -272,7 +287,7 @@ class DlgMode1Option extends RbFormHandler {
               $catFields.val(set[0]).trigger('change')
               setTimeout(() => {
                 if (set[1]) $catFormats.val(set[1]).trigger('change')
-              }, 200)
+              }, 500)
             } else {
               $catFields.trigger('change')
             }

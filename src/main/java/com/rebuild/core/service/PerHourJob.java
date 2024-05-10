@@ -50,7 +50,7 @@ public class PerHourJob extends DistributedJobLock {
 
         final int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 
-        if (hour == 0 && RebuildConfiguration.getBool((ConfigurationItem.DBBackupsEnable))) {
+        if (hour == 0) {
             doBackups();
         } else if (hour == 1) {
             doCleanTempFiles();
@@ -68,6 +68,13 @@ public class PerHourJob extends DistributedJobLock {
      * 执行备份
      */
     protected void doBackups() {
+        // 未开启备份
+        if (!RebuildConfiguration.getBool((ConfigurationItem.DBBackupsEnable))) {
+            SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, null);
+            SysbaseHeartbeat.setItem(SysbaseHeartbeat.DataFileBackupFail, null);
+            return;
+        }
+
         File backups = RebuildConfiguration.getFileOfData("_backups");
         if (!backups.exists()) {
             try {
