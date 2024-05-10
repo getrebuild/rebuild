@@ -172,6 +172,7 @@ public class OshiUtils {
                 if (specRoots.length > 0) {
                     listRoots = new File[specRoots.length];
                     for (int i = 0; i < specRoots.length; i++) {
+                        CommonsUtils.checkSafeFilePath(specRoots[i]);
                         listRoots[i] = new File(specRoots[i]);
                     }
                 }
