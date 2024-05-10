@@ -35,9 +35,9 @@ public class MarkdownUtils {
     private static final Parser PARSER;
     private static final HtmlRenderer RENDERER;
 
-    private static final Parser PARSER_RICH;
-    private static final HtmlRenderer RENDERER_RICH;
-    private static final MutableDataSet OPTION_RICH;
+    private static final Parser PARSER2;
+    private static final HtmlRenderer RENDERER2;
+    private static final MutableDataSet OPTION2;
 
     static {
         MutableDataSet option = new MutableDataSet();
@@ -50,9 +50,9 @@ public class MarkdownUtils {
         option.setFrom(ParserEmulationProfile.MARKDOWN).set(Parser.EXTENSIONS,
                 Arrays.asList(TablesExtension.create(), TaskListExtension.create(),
                         MarkdownLinkAttrProvider.MarkdownLinkAttrExtension.create(), TocExtension.create()));
-        PARSER_RICH = Parser.builder(option).build();
-        RENDERER_RICH = HtmlRenderer.builder(option).build();
-        OPTION_RICH = option;
+        PARSER2 = Parser.builder(option).build();
+        RENDERER2 = HtmlRenderer.builder(option).build();
+        OPTION2 = option;
     }
 
     /**
@@ -81,8 +81,8 @@ public class MarkdownUtils {
         }
 
         if (targetBlank) {
-            Node document = PARSER_RICH.parse(md);
-            return RENDERER_RICH.render(document);
+            Node document = PARSER2.parse(md);
+            return RENDERER2.render(document);
         } else {
             Node document = PARSER.parse(md);
             return RENDERER.render(document);
@@ -125,7 +125,7 @@ public class MarkdownUtils {
      */
     public static void html2Pdf(String html, File dest) throws IOException {
         try (OutputStream fos = Files.newOutputStream(dest.toPath())) {
-            PdfConverterExtension.exportToPdf(fos, html, "", OPTION_RICH);
+            PdfConverterExtension.exportToPdf(fos, html, "", OPTION2);
         }
     }
 }
