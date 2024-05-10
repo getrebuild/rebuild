@@ -48,6 +48,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static cn.devezhao.commons.CalendarUtils.addDay;
@@ -263,8 +264,6 @@ public class AdvFilterParser extends SetUser {
         final boolean hasNameFlag = field.startsWith(NAME_FIELD_PREFIX);
         if (hasNameFlag) field = field.substring(1);
 
-        final boolean isApprovalStepUsers = EntityHelper.ApprovalStepUsers.equals(field);
-
         Field lastFieldMeta = VF_ACU.equals(field)
                 ? specRootEntity.getField(EntityHelper.ApprovalLastUser)
                 : MetadataHelper.getLastJoinField(specRootEntity, field);
@@ -274,7 +273,6 @@ public class AdvFilterParser extends SetUser {
         }
 
         DisplayType dt = EasyMetaFactory.getDisplayType(lastFieldMeta);
-
         if (dt == DisplayType.CLASSIFICATION || (dt == DisplayType.PICKLIST && hasNameFlag) /* 快速查询 */) {
             field = NAME_FIELD_PREFIX + field;
         } else if (hasNameFlag) {
@@ -290,6 +288,10 @@ public class AdvFilterParser extends SetUser {
                 field += "." + lastFieldMeta.getName();
             }
         }
+
+        // 多引用用户
+        final boolean isN2NUsers = dt == DisplayType.N2NREFERENCE
+                && lastFieldMeta.getReferenceEntity().getEntityCode() == EntityHelper.User;
 
         String op = item.getString("op");
         String value = useValueOfVarRecord(item.getString("value"), lastFieldMeta);
@@ -315,7 +317,7 @@ public class AdvFilterParser extends SetUser {
                 inWhere = String.format("select %s from %s where %s",
                         refEntity.getPrimaryField().getName(), refEntity.getName(), realWhereSql);
             }
-            else if (isApprovalStepUsers) {
+            else if (isN2NUsers) {
                 if (ParseHelper.SFU.equalsIgnoreCase(op)) {
                     op = ParseHelper.IN;
                     value = getUser().toLiteral();
@@ -325,6 +327,11 @@ public class AdvFilterParser extends SetUser {
                     inWhere = parseValue(value, op, lastFieldMeta, false);
                     if (inWhere != null) inWhere = inWhere.substring(1, inWhere.length() - 1);
                     forceNot = ParseHelper.NIN.equals(op);
+                }
+                else if (ParseHelper.SFB.equalsIgnoreCase(op)) {
+                    op = ParseHelper.IN;
+                    value = Objects.requireNonNull(UserHelper.getDepartment(getUser())).getIdentity().toString();
+                    inWhere = String.format("select userId from User where deptId = '%s'", value);
                 }
             }
             // 查询 ID，仅支持 IN
