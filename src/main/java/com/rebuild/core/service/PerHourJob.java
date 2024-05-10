@@ -50,7 +50,7 @@ public class PerHourJob extends DistributedJobLock {
 
         final int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 
-        if (hour == 0 && RebuildConfiguration.getBool((ConfigurationItem.DBBackupsEnable))) {
+        if (hour == 0) {
             doBackups();
         } else if (hour == 1) {
             doCleanTempFiles();
@@ -68,6 +68,13 @@ public class PerHourJob extends DistributedJobLock {
      * 执行备份
      */
     protected void doBackups() {
+        // 未开启备份
+        if (!RebuildConfiguration.getBool((ConfigurationItem.DBBackupsEnable))) {
+            SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, null);
+            SysbaseHeartbeat.setItem(SysbaseHeartbeat.DataFileBackupFail, null);
+            return;
+        }
+
         File backups = RebuildConfiguration.getFileOfData("_backups");
         if (!backups.exists()) {
             try {
@@ -82,7 +89,7 @@ public class PerHourJob extends DistributedJobLock {
             new DatabaseBackup().backup(backups);
             SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, null);
         } catch (Exception e) {
-            log.error("Executing [DatabaseBackup] failed!", e);
+            log.error("Executing [DatabaseBackup] fails", e);
             SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, e.getLocalizedMessage());
         }
 
@@ -90,7 +97,7 @@ public class PerHourJob extends DistributedJobLock {
             new DatafileBackup().backup(backups);
             SysbaseHeartbeat.setItem(SysbaseHeartbeat.DataFileBackupFail, null);
         } catch (Exception e) {
-            log.error("Executing [DataFileBackup] failed!", e);
+            log.error("Executing [DataFileBackup] fails", e);
             SysbaseHeartbeat.setItem(SysbaseHeartbeat.DataFileBackupFail, e.getLocalizedMessage());
         }
 
