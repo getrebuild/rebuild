@@ -89,7 +89,15 @@ class AdvFilter extends React.Component {
             </div>
             {this.state.useEquation === '9999' && (
               <div className="mb-3 equation-state">
-                <input className={'form-control form-control-sm text-uppercase' + (this.state.equationError ? ' is-invalid' : '')} title={this.state.equationError ? $L('无效高级表达式') : ''} value={this.state.equation || ''} placeholder={this.state.equationDef || ''} data-id="equation" onChange={this.handleChange} onBlur={(e) => this.checkEquation(e)} />
+                <input
+                  className={'form-control form-control-sm text-uppercase' + (this.state.equationError ? ' is-invalid' : '')}
+                  title={this.state.equationError ? $L('无效高级表达式') : ''}
+                  value={this.state.equation || ''}
+                  placeholder={this.state.equationDef || ''}
+                  data-id="equation"
+                  onChange={this.handleChange}
+                  onBlur={(e) => this.checkEquation(e)}
+                />
                 <i className={`zmdi ${this.state.equationError ? 'zmdi-alert-triangle text-danger' : 'zmdi-check text-success'}`} />
               </div>
             )}
@@ -137,7 +145,7 @@ class AdvFilter extends React.Component {
 
         if (['REFERENCE', 'N2NREFERENCE'].includes(item.type)) {
           REFENTITY_CACHE[item.name] = item.ref
-          if ('N2NREFERENCE' === item.type) REFENTITY_CACHE[item.name]._isN2N = true
+          if ('N2NREFERENCE' === item.type) REFENTITY_CACHE[item.name][2] = true // _isN2N
 
           // NOTE: Use `NameField` field-type
           if (!BIZZ_ENTITIES.includes(item.ref[0])) {
@@ -854,7 +862,7 @@ class FilterItem extends React.Component {
     const ifRefField = REFENTITY_CACHE[s.field]
     if (ifRefField && !(s.op === 'NL' || s.op === 'NT')) {
       if (BIZZ_ENTITIES.includes(ifRefField[0])) {
-        if (ifRefField._isN2N) {
+        if (ifRefField[2]) {
           if (!this.isN2NUsers()) item.field = NAME_FLAG + item.field
         }
       } else {
