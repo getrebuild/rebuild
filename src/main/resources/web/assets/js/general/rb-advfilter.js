@@ -145,7 +145,7 @@ class AdvFilter extends React.Component {
 
         if (['REFERENCE', 'N2NREFERENCE'].includes(item.type)) {
           REFENTITY_CACHE[item.name] = item.ref
-          if ('N2NREFERENCE' === item.type) REFENTITY_CACHE[item.name]._isN2N = true
+          if ('N2NREFERENCE' === item.type) REFENTITY_CACHE[item.name][2] = true // _isN2N
 
           // NOTE: Use `NameField` field-type
           if (!BIZZ_ENTITIES.includes(item.ref[0])) {
@@ -346,41 +346,10 @@ const OP_TYPE = {
   HHH: $L('指定..时'),
   REP: $L('重复'),
 }
+// prettier-ignore
 const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY']
-const OP_DATE_NOPICKER = [
-  'TDA',
-  'YTA',
-  'TTA',
-  'RED',
-  'REM',
-  'REY',
-  'FUD',
-  'FUM',
-  'FUY',
-  'BFD',
-  'BFM',
-  'BFY',
-  'AFD',
-  'AFM',
-  'AFY',
-  'PUW',
-  'CUW',
-  'NUW',
-  'PUM',
-  'CUM',
-  'NUM',
-  'PUQ',
-  'CUQ',
-  'NUQ',
-  'PUY',
-  'CUY',
-  'NUY',
-  'EVW',
-  'EVM',
-  'DDD',
-  'HHH',
-  'REP',
-]
+// prettier-ignore
+const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY', 'EVW', 'EVM', 'DDD', 'HHH', 'REP']
 const REFENTITY_CACHE = {}
 const PICKLIST_CACHE = {}
 
@@ -430,46 +399,14 @@ class FilterItem extends React.Component {
   selectOp() {
     const fieldType = this.state.type
 
+    // default
     let op = ['LK', 'NLK', 'EQ', 'NEQ']
+
     if (fieldType === 'NUMBER' || fieldType === 'DECIMAL') {
       op = ['GT', 'LT', 'EQ', 'BW', 'GE', 'LE']
     } else if (fieldType === 'DATE' || fieldType === 'DATETIME') {
-      op = [
-        'TDA',
-        'YTA',
-        'TTA',
-        'GT',
-        'LT',
-        'EQ',
-        'BW',
-        'RED',
-        'REM',
-        'REY',
-        'FUD',
-        'FUM',
-        'FUY',
-        'BFD',
-        'BFM',
-        'BFY',
-        'AFD',
-        'AFM',
-        'AFY',
-        'PUW',
-        'CUW',
-        'NUW',
-        'PUM',
-        'CUM',
-        'NUM',
-        'PUQ',
-        'CUQ',
-        'NUQ',
-        'PUY',
-        'CUY',
-        'NUY',
-        'EVW',
-        'EVM',
-        'DDD',
-      ]
+      // prettier-ignore
+      op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY', 'EVW', 'EVM', 'DDD']
       if (fieldType === 'DATETIME') op.push('HHH')
     } else if (fieldType === 'TIME') {
       op = ['GT', 'LT', 'EQ', 'BW']
@@ -485,12 +422,10 @@ class FilterItem extends React.Component {
         op = ['IN', 'NIN', 'SFU', 'SFB', 'SFT']
       } else if (this.isBizzField('Department')) {
         op = ['IN', 'NIN', 'SFB', 'SFD']
-      } else if (this.isBizzField('Role')) {
+      } else if (this.isBizzField('Role') || this.isBizzField('Team')) {
         op = ['IN', 'NIN']
-      } else {
-        // 引用字段作为名称字段
-        // op = []
       }
+      // else default
     } else if (fieldType === 'BOOL') {
       op = ['EQ']
     } else if (fieldType === 'LOCATION') {
@@ -503,8 +438,8 @@ class FilterItem extends React.Component {
     if (['TEXT', 'PHONE', 'EMAIL', 'URL', 'DATE', 'DATETIME', 'TIME', 'PICKLIST', 'CLASSIFICATION'].includes(fieldType)) op.push('REP')
 
     if (this.isApprovalState()) op = ['IN', 'NIN']
-    else if (this.state.field === VF_ACU) op = ['IN', 'SFU', 'SFB', 'SFT']
-    else if (this.isApprovalStepUsers()) op = ['IN', 'NIN', 'SFU']
+    else if (this.state.field === VF_ACU) op = ['IN', 'SFU', 'SFB', 'SFT'] // v3.7 准备废弃
+    else if (this.isN2NUsers()) op = ['IN', 'NIN', 'SFU', 'SFB', 'NL', 'NT']
     else op.push('NL', 'NT')
 
     this.__op = op
@@ -517,14 +452,7 @@ class FilterItem extends React.Component {
       valComp = (
         <div className="val-range">
           <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={(e) => this.valueHandle(e)} onBlur={(e) => this.valueCheck(e)} value={this.state.value || ''} />
-          <input
-            className="form-control form-control-sm"
-            ref={(c) => (this._filterVal2 = c)}
-            onChange={(e) => this.valueHandle(e)}
-            onBlur={(e) => this.valueCheck(e)}
-            value={this.state.value2 || ''}
-            data-at="2"
-          />
+          <input className="form-control form-control-sm" ref={(c) => (this._filterVal2 = c)} onChange={(e) => this.valueHandle(e)} onBlur={(e) => this.valueCheck(e)} value={this.state.value2 || ''} data-at="2" />
           <span>{$L('起')}</span>
           <span className="end">{$L('止')}</span>
         </div>
@@ -552,9 +480,7 @@ class FilterItem extends React.Component {
         </select>
       )
     } else {
-      valComp = (
-        <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={(e) => this.valueHandle(e)} onBlur={(e) => this.valueCheck(e)} value={this.state.value || ''} />
-      )
+      valComp = <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={(e) => this.valueHandle(e)} onBlur={(e) => this.valueCheck(e)} value={this.state.value || ''} />
     }
 
     return valComp
@@ -566,8 +492,18 @@ class FilterItem extends React.Component {
       const ifRefField = REFENTITY_CACHE[this.state.field]
       if (entity) return ifRefField[0] === entity
       else return BIZZ_ENTITIES.includes(ifRefField[0])
-    } else if (this.isApprovalStepUsers()) {
-      return true
+    }
+    // 多引用用户
+    return this.isN2NUsers()
+  }
+
+  // v3.7: 多引用用户|当前审批人
+  isN2NUsers() {
+    const fieldName = this.state.field || ''
+    if (fieldName === 'approvalStepUsers' || fieldName.endsWith('.approvalStepUsers')) return true
+    if (this.state.type === 'N2NREFERENCE') {
+      let ifRefField = REFENTITY_CACHE[fieldName]
+      return ifRefField[0] === 'User'
     }
     return false
   }
@@ -586,12 +522,6 @@ class FilterItem extends React.Component {
   isApprovalState() {
     const fieldName = this.state.field || ''
     return fieldName === 'approvalState' || fieldName.endsWith('.approvalState')
-  }
-
-  // v3.7: 当前审批人
-  isApprovalStepUsers() {
-    const fieldName = this.state.field || ''
-    return fieldName === 'approvalStepUsers' || fieldName.endsWith('.approvalStepUsers')
   }
 
   componentDidMount() {
@@ -932,9 +862,8 @@ class FilterItem extends React.Component {
     const ifRefField = REFENTITY_CACHE[s.field]
     if (ifRefField && !(s.op === 'NL' || s.op === 'NT')) {
       if (BIZZ_ENTITIES.includes(ifRefField[0])) {
-        if (ifRefField._isN2N) {
-          if (this.isApprovalStepUsers());
-          else item.field = NAME_FLAG + item.field
+        if (ifRefField[2]) {
+          if (!this.isN2NUsers()) item.field = NAME_FLAG + item.field
         }
       } else {
         item.field = NAME_FLAG + item.field
@@ -965,14 +894,7 @@ class ListAdvFilter extends AdvFilter {
                 <Share2 ref={(c) => (this._Share2 = c)} shareTo={this.props.shareTo} noSwitch hasName configName={this.props.filterName} />
               ) : (
                 <div className="float-left input">
-                  <input
-                    className="form-control form-control-sm text"
-                    maxLength="20"
-                    value={this.state.filterName || ''}
-                    data-id="filterName"
-                    onChange={this.handleChange}
-                    placeholder={$L('输入名称')}
-                  />
+                  <input className="form-control form-control-sm text" maxLength="20" value={this.state.filterName || ''} data-id="filterName" onChange={this.handleChange} placeholder={$L('输入名称')} />
                 </div>
               )}
             </div>

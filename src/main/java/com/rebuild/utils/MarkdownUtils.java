@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import com.rebuild.core.support.RebuildConfiguration;
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.ext.toc.TocExtension;
@@ -16,7 +17,9 @@ import com.vladsch.flexmark.parser.ParserEmulationProfile;
 import com.vladsch.flexmark.pdf.converter.PdfConverterExtension;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataSet;
+import org.apache.commons.lang3.SystemUtils;
 import org.jsoup.Jsoup;
+import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,9 +38,9 @@ public class MarkdownUtils {
     private static final Parser PARSER;
     private static final HtmlRenderer RENDERER;
 
-    private static final Parser PARSER_RICH;
-    private static final HtmlRenderer RENDERER_RICH;
-    private static final MutableDataSet OPTION_RICH;
+    private static final Parser PARSER2;
+    private static final HtmlRenderer RENDERER2;
+    private static final MutableDataSet OPTION2;
 
     static {
         MutableDataSet option = new MutableDataSet();
@@ -50,9 +53,9 @@ public class MarkdownUtils {
         option.setFrom(ParserEmulationProfile.MARKDOWN).set(Parser.EXTENSIONS,
                 Arrays.asList(TablesExtension.create(), TaskListExtension.create(),
                         MarkdownLinkAttrProvider.MarkdownLinkAttrExtension.create(), TocExtension.create()));
-        PARSER_RICH = Parser.builder(option).build();
-        RENDERER_RICH = HtmlRenderer.builder(option).build();
-        OPTION_RICH = option;
+        PARSER2 = Parser.builder(option).build();
+        RENDERER2 = HtmlRenderer.builder(option).build();
+        OPTION2 = option;
     }
 
     /**
@@ -81,8 +84,8 @@ public class MarkdownUtils {
         }
 
         if (targetBlank) {
-            Node document = PARSER_RICH.parse(md);
-            return RENDERER_RICH.render(document);
+            Node document = PARSER2.parse(md);
+            return RENDERER2.render(document);
         } else {
             Node document = PARSER.parse(md);
             return RENDERER.render(document);
@@ -106,14 +109,22 @@ public class MarkdownUtils {
      * @throws IOException
      */
     public static void md2Pdf(String md, File dest) throws IOException {
-        String html = render(md, true, true);
-        html = "<!DOCTYPE html>" +
-                "<html>" +
-                "<head><meta charset=\"utf-8\"/></head>" +
-                "<body>" + html + "</body>" +
-                "</html>";
+        String fullHtml = CommonsUtils.getStringOfRes("i18n/apiman.html");
+        Assert.notNull(fullHtml, "Cannot load template of apiman");
 
-        html2Pdf(html, dest);
+        File font = RebuildConfiguration.getFileOfData("SourceHanSansK-Regular.ttf");
+        if (font.exists()) {
+            String fontpath = RebuildConfiguration.getFileOfData("SourceHanSansK-Regular.ttf").getAbsolutePath();
+            if (SystemUtils.IS_OS_WINDOWS) fontpath = fontpath.replace("\\", "/");
+            fullHtml = fullHtml.replace("%FONTPATH%", fontpath);
+        } else {
+            fullHtml = fullHtml.replace("%FONTPATH%", "");
+        }
+
+        String content = render(md, true, true);
+        fullHtml = fullHtml.replace("%CONTENT%", content);
+
+        html2Pdf(fullHtml, dest);
     }
 
     /**
@@ -125,7 +136,7 @@ public class MarkdownUtils {
      */
     public static void html2Pdf(String html, File dest) throws IOException {
         try (OutputStream fos = Files.newOutputStream(dest.toPath())) {
-            PdfConverterExtension.exportToPdf(fos, html, "", OPTION_RICH);
+            PdfConverterExtension.exportToPdf(fos, html, "", OPTION2);
         }
     }
 }
