@@ -196,7 +196,7 @@ class MediaCapturer extends RbModal {
       const context = this._$resImage.getContext('2d')
       context.scale(ratio, ratio)
       context.drawImage(this._$camera, (canvasWidth - width) / 2, (canvasHeight - height) / 2, width, height)
-      this._capturedData = this._$resImage.toDataURL('image/jpeg')
+      this._capturedData = this._$resImage.toDataURL('image/jpeg', 1.0)
 
       this._stopTracks()
       this.setState({ captured: true, initMsg: null, recType: 'image' })
