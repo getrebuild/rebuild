@@ -93,6 +93,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                     if (!item.updateMode) item.updateMode = item.sourceField.includes('#') ? 'FORMULA' : 'FIELD'
 
                     const field = item.updateMode === 'VFIXED' ? this.state.targetFields.find((x) => x.name === item.targetField) : null
+                    const isFORMULACode = item.updateMode === 'FORMULA' && FieldFormula.isCode(item.sourceField)
                     return (
                       <div key={item.targetField}>
                         <div className="row">
@@ -106,9 +107,11 @@ class ContentFieldWriteback extends ActionContentSpec {
                           <div className="col-5 del-wrap">
                             {item.updateMode === 'FIELD' && <span className="badge badge-warning">{_getFieldLabel(this.__sourceFieldsCache, item.sourceField)}</span>}
                             {item.updateMode === 'VFIXED' && <span className="badge badge-light text-break">{FieldValueSet.formatFieldText(item.sourceField, field)}</span>}
-                            {item.updateMode === 'FORMULA' && <span className="badge badge-warning">{FieldFormula.formatText(item.sourceField, this.__sourceFieldsCache)}</span>}
+                            {item.updateMode === 'FORMULA' && (
+                              <span className={`badge badge-warning ${isFORMULACode && 'w-100'}`}>{FieldFormula.formatText(item.sourceField, this.__sourceFieldsCache)}</span>
+                            )}
                             <RF>
-                              {item.updateMode === 'FORMULA' && FieldFormula.isCode(item.sourceField) && (
+                              {isFORMULACode && (
                                 <a className="edit-code" title={$L('编辑计算公式')} onClick={() => this._editCode(item, idx)}>
                                   <i className="zmdi zmdi-edit" />
                                 </a>
