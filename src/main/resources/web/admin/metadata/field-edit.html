@@ -377,7 +377,7 @@
                     <div class="form-control-plaintext formula" id="calcFormula2" th:_title="${bundle.L('无')}">[[${calcFormula ?: calcFormula}]]</div>
                     <p
                       class="form-text"
-                      th:utext="${bundle.L('如公式中所用字段未布局/未显示，则无法进行计算。本公式适用前端简单计算，你可以通过 [触发器 (字段更新)](/admin/robot/triggers) 实现更强大的计算规则')}"
+                      th:utext="${bundle.L('如公式中所用字段未布局/未显示，则不会进行计算。如需后端计算或更复杂的计算逻辑请使用 [触发器 (字段更新)](/admin/robot/triggers)')}"
                     ></p>
                   </div>
                 </div>
