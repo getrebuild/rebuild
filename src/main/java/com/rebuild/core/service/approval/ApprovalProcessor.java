@@ -632,32 +632,43 @@ public class ApprovalProcessor extends SetUser {
         if (FlowNode.NODE_ROOT.equals(currentNode)) return JSONUtils.EMPTY_ARRAY;
 
         FlowParser flowParser = getFlowParser();
-        LinkedList<String[]> set = new LinkedList<>();
+        LinkedList<String[]> backedNodes = new LinkedList<>();
         while (currentNode != null) {
             FlowNode node = flowParser.getNode(currentNode);
             if (FlowNode.TYPE_APPROVER.equals(node.getType())) {
-                set.addFirst(new String[] { node.getNodeId(), node.getDataMap().getString("nodeName") });
+                backedNodes.addFirst(new String[]{node.getNodeId(), node.getNodeName()});
             }
 
             currentNode = node.prevNodes;
+            // 有多个节点（分支），取最近的那个
+            if (currentNode.contains("|")) {
+                String[] nodes = currentNode.split("\\|");
+                String recNodeSql = String.format(
+                        "select node from RobotApprovalStep where recordId = ? and isCanceled = 'F' and state = ?" +
+                                " and node in ('%s') order by createdOn desc", StringUtils.join(nodes, "','"));
+                Object[] recNode = Application.createQueryNoFilter(recNodeSql)
+                        .setParameter(1, this.recordId)
+                        .setParameter(2, ApprovalState.APPROVED.getState())
+                        .unique();
+
+                currentNode = recNode == null ? nodes[0] : (String) recNode[0];
+            }
+
             if (FlowNode.NODE_ROOT.equals(currentNode)) currentNode = null;
         }
-        if (set.size() < 2) return JSONUtils.EMPTY_ARRAY;
+        if (backedNodes.size() < 2) return JSONUtils.EMPTY_ARRAY;
 
         // 移除当前步骤
-        set.removeLast();
+        backedNodes.removeLast();
 
-        JSONArray back = new JSONArray();
+        JSONArray res = new JSONArray();
         int nodeIndex = 0;
-        for (String[] s : set) {
+        for (String[] s : backedNodes) {
             nodeIndex++;
-
-            if (StringUtils.isBlank(s[1])) {
-                s[1] = Language.L("审批人") + "#" + nodeIndex;
-            }
-            back.add(JSONUtils.toJSONObject(new String[] { "node", "nodeName" }, s ));
+            if (StringUtils.isBlank(s[1])) s[1] = Language.L("审批人") + "#" + nodeIndex;
+            res.add(JSONUtils.toJSONObject(new String[]{"node", "nodeName"}, s ));
         }
-        return back;
+        return res;
     }
 
     /**
