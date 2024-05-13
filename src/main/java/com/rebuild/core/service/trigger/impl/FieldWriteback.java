@@ -50,6 +50,7 @@ import org.apache.commons.lang.StringUtils;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -541,11 +542,21 @@ public class FieldWriteback extends FieldAggregation {
 
         } else if (dt == DisplayType.N2NREFERENCE) {
 
-            String[] ids = value.toString().split(",");
+            // v3.7 增强兼容
+            Object[] ids;
+            if (value instanceof Collection) {
+                //noinspection unchecked
+                ids = ((Collection<Object>) value).toArray(new Object[0]);
+            } else if (value instanceof Object[]) {
+                ids = (Object[]) value;
+            } else {
+                ids = value.toString().split(",");
+            }
+
             Set<ID> idsSet = new LinkedHashSet<>();
-            for (String id : ids) {
-                id = id.trim();
-                if (ID.isId(id)) idsSet.add(ID.valueOf(id));
+            for (Object id : ids) {
+                id = id.toString().trim();
+                if (ID.isId(id)) idsSet.add(ID.valueOf(id.toString()));
             }
             // v3.5.5: 目标值为多引用时保持 `ID[]`
             newValue = idsSet.toArray(new ID[0]);

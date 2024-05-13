@@ -913,9 +913,12 @@ const _reload = function (dlg, msg) {
   dlg && dlg.hide(true)
   msg && RbHighbar.success(msg)
 
+  // 保持当前视图
+  const keepViewId = dlg && parent && parent.RbViewModal && parent.RbViewModal.mode === 2 ? dlg.props.id : null
+
   setTimeout(() => {
     if (window.RbViewPage) window.RbViewPage.reload()
     if (window.RbListPage) window.RbListPage.reload()
-    else if (parent.RbListPage) parent.RbListPage.reload()
+    else if (parent.RbListPage) parent.RbListPage.reload(keepViewId)
   }, 1000)
 }

@@ -36,12 +36,12 @@ body {
   animation: spinAnimation 1s infinite linear;
 }
 
-.tab-container {
+.main-content .tab-container {
   margin-top: -8px;
   padding-right: 4px;
 }
 
-.tab-content {
+.main-content .tab-content {
   margin: 0;
   padding: 13px 0 0;
 }

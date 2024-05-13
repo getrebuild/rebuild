@@ -1649,10 +1649,11 @@ class RbFormImage extends RbFormElement {
         return
       }
 
+      const w = $(window).width() <= 1280 ? 768 : 1024
       renderRbcomp(
         <MediaCapturer
           title={$L('拍摄')}
-          width="1000"
+          width={w}
           useWhite
           disposeOnHide
           type={this._captureType}

@@ -781,7 +781,8 @@ public class ApprovalStepService extends BaseService {
                 .getFlowDefinition(approvalRecord.getEntity(), approvalId).createFlowParser();
         FlowNode flowNode = flowParser.getNode(currentNode);
         String specNodeName = flowNode.getNodeName();
-        if (StringUtils.isBlank(specNodeName)) return;
+        // 未填写名称
+        if (StringUtils.isBlank(specNodeName)) specNodeName = flowNode.getNodeId();
 
         List<ID> allowTriggers = new ArrayList<>();
 

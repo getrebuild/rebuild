@@ -1249,11 +1249,13 @@ a.link.link-icon::after {
 .img-field.barcode .img-thumbnail {
   padding: 0;
   margin: 0;
-  height: 80px;
+  max-height: 80px;
+  max-width: 80px;
   border: 0 none;
   width: auto;
   display: inline-block;
   cursor: default;
+  font-size: 0;
 }
 
 .img-field.barcode .img-thumbnail.w-auto {
@@ -5518,15 +5520,15 @@ span.icon-append .icon {
   position: relative;
   font-size: 0;
   line-height: 1;
+  background-color: #000;
 }
 
 .media-capture video,
 .media-capture canvas {
   margin: 0;
   padding: 0;
-  width: 1000px;
-  height: 750px;
-  background-color: #000;
+  width: 1024px;
+  height: 768px;
   text-align: center;
 }
 

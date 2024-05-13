@@ -5,8 +5,6 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-const _VIDEO_WIDTH = 1000
-
 // eslint-disable-next-line no-unused-vars
 class MediaCapturer extends RbModal {
   constructor(props) {
@@ -16,11 +14,14 @@ class MediaCapturer extends RbModal {
     this._recImage = props.type === 'image' || props.type === '*'
     this._mediaRecorder = null
     this._blobs = []
+
+    // 1024, 768
+    this._videoWidth = props.width || 1024
   }
 
   renderContent() {
     return (
-      <div className={`media-capture ${this.state.captured && 'captured'} ${this.state.recording && 'recording'}`}>
+      <div className={`media-capture ${this._videoWidth === 768 && 'media-capture-md'} ${this.state.captured && 'captured'} ${this.state.recording && 'recording'}`}>
         {this.state.initMsg && <div className="must-center text-muted fs-14">{this.state.initMsg}</div>}
 
         <video autoPlay ref={(c) => (this._$camera = c)} controls={false}></video>
@@ -41,17 +42,18 @@ class MediaCapturer extends RbModal {
           {this._recVideo && (
             <button className="btn btn-secondary J_capture-video" type="button" onClick={() => this.captureVideo()}>
               {this.state.recording ? $L('停止') : $L('录制')}
+              {this.state.recording && <span className="ml-1">{$sec2Time(this.state.recording)}</span>}
             </button>
           )}
           {this._recImage && (
-            <button className="btn btn-secondary J_capture-image" type="button" onClick={() => this.captureImage()} disabled={this.state.recording === true}>
+            <button className="btn btn-secondary J_capture-image" type="button" onClick={() => this.captureImage()} disabled={this.state.recording}>
               <i className="icon mdi mdi-camera" /> {$L('拍照')}
             </button>
           )}
 
           {this.state.webcamList && this.state.webcamList.length > 0 && (
             <span className="dropdown">
-              <button className="btn btn-secondary dropdown-toggle w-auto J_webcam" type="button" data-toggle="dropdown" title={$L('选择设备')} disabled={this.state.recording === true}>
+              <button className="btn btn-secondary dropdown-toggle w-auto J_webcam" type="button" data-toggle="dropdown" title={$L('选择设备')} disabled={this.state.recording}>
                 <i className="icon mdi mdi-webcam" />
               </button>
               <div className="dropdown-menu dropdown-menu-right">
@@ -89,7 +91,7 @@ class MediaCapturer extends RbModal {
       .catch((err) => {
         console.log(err)
       })
-    
+
     if (this.props.forceFile) {
       $initUploader(
         this._$fileinput,
@@ -126,12 +128,22 @@ class MediaCapturer extends RbModal {
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
-    const ps = { video: true, audio: this.props.recordAudio || false }
-    if (deviceId) ps.video = { deviceId: deviceId }
+    const constraints = {
+      video: true,
+      audio: this.props.recordAudio === true,
+    }
+    if (deviceId) constraints.video = { deviceId: deviceId }
+
     navigator.mediaDevices
-      .getUserMedia(ps)
+      .getUserMedia(constraints)
       .then((stream) => {
         this._$camera.srcObject = stream
+        try {
+          this._cameraSettings = stream.getVideoTracks()[0].getSettings()
+          console.log('Use CameraSettings :', this._cameraSettings)
+        } catch (err) {
+          // ihnored
+        }
 
         if (this._recVideo) {
           this._mediaRecorder = new MediaRecorder(stream)
@@ -161,16 +173,30 @@ class MediaCapturer extends RbModal {
 
   captureImage() {
     this.initDevice(() => {
-      const ratio = Math.max(window.devicePixelRatio || 1, 2)
-      this._$resImage.style.width = _VIDEO_WIDTH
-      this._$resImage.style.height = (_VIDEO_WIDTH / 4) * 3
-      this._$resImage.width = _VIDEO_WIDTH * ratio
-      this._$resImage.height = (_VIDEO_WIDTH / 4) * 3 * ratio
+      const canvasWidth = this._videoWidth
+      const canvasHeight = (canvasWidth / 4) * 3
+      this._$resImage.width = canvasWidth
+      this._$resImage.height = canvasHeight
+      this._$resImage.style.width = canvasWidth
+      this._$resImage.style.height = canvasHeight
+
+      let width = this._videoWidth
+      let height = (width / 4) * 3
+      if (this._cameraSettings) {
+        width = this._cameraSettings.width
+        height = this._cameraSettings.height
+      }
+
+      // const ratio = Math.max(window.devicePixelRatio || 1, 2)
+      const ratio = 1
+      const scale = canvasWidth / width
+      width = width * scale
+      height = height * scale
 
       const context = this._$resImage.getContext('2d')
       context.scale(ratio, ratio)
-      context.drawImage(this._$camera, 0, 0, _VIDEO_WIDTH, (_VIDEO_WIDTH / 4) * 3)
-      this._capturedData = this._$resImage.toDataURL('image/jpeg')
+      context.drawImage(this._$camera, (canvasWidth - width) / 2, (canvasHeight - height) / 2, width, height)
+      this._capturedData = this._$resImage.toDataURL('image/jpeg', 1.0)
 
       this._stopTracks()
       this.setState({ captured: true, initMsg: null, recType: 'image' })
@@ -178,16 +204,19 @@ class MediaCapturer extends RbModal {
   }
 
   captureVideo() {
-    console.log('MediaRecorder state :', this._mediaRecorder.state)
     this.initDevice(() => {
       if (this._mediaRecorder.state === 'inactive') {
         this._blobs = []
         this._mediaRecorder.start()
-        this.setState({ recording: true, initMsg: null, recType: 'video' })
+        this.setState({ recording: '0', initMsg: null, recType: 'video' })
+        this._recordingTimer = setInterval(() => {
+          this.setState({ recording: ~~this.state.recording + 1 })
+        }, 980)
       } else if (this._mediaRecorder.state === 'recording') {
         this._mediaRecorder.stop()
         this._stopTracks()
         this.setState({ recording: false })
+        clearInterval(this._recordingTimer)
         // @see stop event
       }
     })
@@ -200,6 +229,7 @@ class MediaCapturer extends RbModal {
         track.stop()
       })
     this._$camera.srcObject = null
+    this._cameraSettings = null
   }
 
   _dataurl2File(dataurl, filename) {
