@@ -128,10 +128,14 @@ class MediaCapturer extends RbModal {
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
-    const ps = { video: true, audio: this.props.recordAudio || false }
-    if (deviceId) ps.video = { deviceId: deviceId }
+    const constraints = {
+      video: true,
+      audio: this.props.recordAudio === true,
+    }
+    if (deviceId) constraints.video = { deviceId: deviceId }
+
     navigator.mediaDevices
-      .getUserMedia(ps)
+      .getUserMedia(constraints)
       .then((stream) => {
         this._$camera.srcObject = stream
         try {
