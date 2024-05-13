@@ -400,6 +400,7 @@ const _handleDatetime = function (dt) {
     clearBtn: true,
     format: dt === 'DATE' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss',
     minView: dt === 'DATE' ? 2 : 0,
+    forceParse: false,
   }
   if (dt === 'TIME') {
     dpOption.format = 'hh:ii:ss'
@@ -407,7 +408,7 @@ const _handleDatetime = function (dt) {
     dpOption.maxView = 1
     dpOption.startView = 1
   }
-  $('.J_defaultValue').datetimepicker(dpOption)
+  $('.J_defaultValue').attr('readonly', true).datetimepicker(dpOption)
 
   $(`<button class="btn btn-secondary" type="button" title="${$L('日期公式')}"><i class="icon zmdi zmdi-settings-square"></i></button>`)
     .appendTo('.J_defaultValue-append')

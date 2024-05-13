@@ -1249,11 +1249,13 @@ a.link.link-icon::after {
 .img-field.barcode .img-thumbnail {
   padding: 0;
   margin: 0;
-  height: 80px;
+  max-height: 80px;
+  max-width: 80px;
   border: 0 none;
   width: auto;
   display: inline-block;
   cursor: default;
+  font-size: 0;
 }
 
 .img-field.barcode .img-thumbnail.w-auto {
