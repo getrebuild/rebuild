@@ -484,12 +484,12 @@ public class FieldWriteback extends FieldAggregation {
                     Object newValue = AviatorUtils.eval(clearFormula, envMap, Boolean.FALSE);
 
                     if (newValue != null) {
-                        DisplayType dt = targetFieldEasy.getDisplayType();
-                        if (dt == DisplayType.NUMBER) {
+                        DisplayType targetType = targetFieldEasy.getDisplayType();
+                        if (targetType == DisplayType.NUMBER) {
                             targetRecord.setLong(targetField, CommonsUtils.toLongHalfUp(newValue));
-                        } else if (dt == DisplayType.DECIMAL) {
+                        } else if (targetType == DisplayType.DECIMAL) {
                             targetRecord.setDouble(targetField, ObjectUtils.toDouble(newValue));
-                        } else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
+                        } else if (targetType == DisplayType.DATE || targetType == DisplayType.DATETIME) {
                             if (newValue instanceof Date) {
                                 targetRecord.setDate(targetField, (Date) newValue);
                             } else {
