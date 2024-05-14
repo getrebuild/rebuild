@@ -321,7 +321,7 @@
                   <p class="mb-1">[[${bundle.L('系统版本')}]]<a class="link ml-1" target="_blank" th:href="|https://getrebuild.com/download?v=${Version}|">[[${Version}]]</a></p>
                   <p class="mb-1">[[${bundle.L('授权类型')}]]<a class="link ml-1" target="_blank" th:href="|https://getrebuild.com/authority?sn=${SN}|">[[${LicenseType}]]</a></p>
                   <p th:if="${VN != null}" class="mb-2">
-                    [[${bundle.L('服务支持码')}]]<span class="ml-1">[[${VN}]]</span>
+                    [[${bundle.L('支持服务码')}]]<span class="ml-1">[[${VN}]]</span>
                     <a th:if="${VNExpires}" class="badge badge-danger up-2 badge-pill" th:href="'https://getrebuild.com/buy-license?type=10fw&vn=' + ${VN}" target="_blank">
                       <i class="mdi mdi-information-variant"></i>[[${bundle.L('已过期 [点击续费]')}]]
                     </a>
