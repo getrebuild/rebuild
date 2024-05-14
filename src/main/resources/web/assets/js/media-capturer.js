@@ -20,6 +20,7 @@ class MediaCapturer extends RbModal {
 
     // 1024, 768
     this._videoWidth = props.width || _IDEAL_VIDW
+    this._imageCapture = false
   }
 
   renderContent() {
@@ -95,7 +96,7 @@ class MediaCapturer extends RbModal {
         this.setState({ webcamList: vidDevices })
       })
       .catch((err) => {
-        console.log(err)
+        console.log('enumerateDevices fails :', err)
       })
 
     if (this.props.forceFile) {
@@ -145,13 +146,12 @@ class MediaCapturer extends RbModal {
 
     navigator.mediaDevices
       .getUserMedia(constraints)
-      .then((stream) => {
-        this._$camera.srcObject = stream
-
-        debugger
+      .then((s) => {
+        this._$camera.srcObject = s
+        this._deviceId = s.id
 
         try {
-          const track = stream.getVideoTracks()[0]
+          const track = s.getVideoTracks()[0]
           this._cameraSettings = {
             width: track.getSettings().width || _IDEAL_VIDW,
             height: track.getSettings().height || _IDEAL_VIDH,
@@ -176,7 +176,7 @@ class MediaCapturer extends RbModal {
         }
 
         if (this._recVideo) {
-          this._mediaRecorder = new MediaRecorder(stream)
+          this._mediaRecorder = new MediaRecorder(s)
           this._mediaRecorder.addEventListener('dataavailable', (e) => {
             if (e.data && e.data.size > 0) this._blobs.push(e.data)
           })
@@ -191,7 +191,7 @@ class MediaCapturer extends RbModal {
         typeof cb === 'function' && cb()
       })
       .catch((err) => {
-        console.log(err)
+        console.log('getUserMedia fails :', err)
         this.setState({ initMsg: $L('无法访问摄像头') })
       })
   }
@@ -208,6 +208,7 @@ class MediaCapturer extends RbModal {
         this._takeImageUseImageCapture()
         return
       }
+      $(this._$resImage2).parent().remove()
 
       const canvasWidth = this._videoWidth
       const canvasHeight = (canvasWidth / 4) * 3
@@ -235,6 +236,13 @@ class MediaCapturer extends RbModal {
       const ctx2d = this._$resImage.getContext('2d')
       ctx2d.clearRect(0, 0, width, height)
       ctx2d.drawImage(this._$camera, x, y, width, height)
+      // 水印
+      if (this.props.watermark) {
+        ctx2d.font = '16px Arial'
+        ctx2d.fillStyle = 'white'
+        ctx2d.fillText(moment().format('YYYY-MM-DD HH:mm:ss'), 20, 30)
+        ctx2d.fillText('DeviceNo : ' + this._deviceId || '', 20, 30 + 20)
+      }
       this._capturedData = this._$resImage.toDataURL('image/jpeg', 1.0)
 
       this._stopTracks()
