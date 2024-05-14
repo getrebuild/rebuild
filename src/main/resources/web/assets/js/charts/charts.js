@@ -874,7 +874,7 @@ class ApprovalList extends BaseChart {
         that.loadChartData()
       }
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ApprovalApproveForm id={record} approval={approval} entity={entity} call={close} />, null, function () {
+      renderRbcomp(<ApprovalApproveForm id={record} approval={approval} entity={entity} call={close} />, function () {
         that.__approvalForms[record] = this
         that._lastStats = null
       })

@@ -149,7 +149,7 @@ class FeedsScope extends React.Component {
         if (this.__SelectGroup) {
           this.__SelectGroup.show()
         } else {
-          renderRbcomp(<SelectGroup call={this._renderGroupScope} />, null, function () {
+          renderRbcomp(<SelectGroup call={this._renderGroupScope} />, function () {
             that.__SelectGroup = this
           })
         }

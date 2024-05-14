@@ -24,7 +24,7 @@ $(document).ready(() => {
     if (_AdvFilter) {
       _AdvFilter.show()
     } else {
-      renderRbcomp(<AdvFilter title={$L('转换条件')} inModal canNoFilters entity={wpc.sourceEntity.entity} filter={_AdvFilter_data} confirm={_saveFilter} />, null, function () {
+      renderRbcomp(<AdvFilter title={$L('转换条件')} inModal canNoFilters entity={wpc.sourceEntity.entity} filter={_AdvFilter_data} confirm={_saveFilter} />, function () {
         _AdvFilter = this
       })
     }

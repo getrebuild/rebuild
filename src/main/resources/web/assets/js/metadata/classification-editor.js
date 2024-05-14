@@ -16,7 +16,7 @@ $(document).ready(function () {
     if (_dlgImports) {
       _dlgImports.show()
     } else {
-      renderRbcomp(<DlgImports id={wpc.id} />, null, function () {
+      renderRbcomp(<DlgImports id={wpc.id} />, function () {
         _dlgImports = this
       })
     }

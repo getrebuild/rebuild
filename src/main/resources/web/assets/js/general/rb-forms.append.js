@@ -581,7 +581,7 @@ class BaiduMapModal extends RbModal {
       BaiduMapModal._ViewModal.show()
       if (lnglat) BaiduMapModal._ViewModal._BaiduMap.center(lnglat)
     } else {
-      renderRbcomp(<BaiduMapModal lnglat={lnglat} title={$L('查看位置')} useWhite />, null, function () {
+      renderRbcomp(<BaiduMapModal lnglat={lnglat} title={$L('查看位置')} useWhite />, function () {
         BaiduMapModal._ViewModal = this
       })
     }

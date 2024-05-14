@@ -242,7 +242,7 @@ class RbFormModal extends React.Component {
     if (this.__HOLDER) {
       this.__HOLDER.show(props)
     } else {
-      renderRbcomp(<RbFormModal {...props} />, null, function () {
+      renderRbcomp(<RbFormModal {...props} />, function () {
         that.__HOLDER = this
         that.__CURRENT35 = this
       })
@@ -2751,7 +2751,7 @@ class RbFormSign extends RbFormElement {
       this._SignPad.show(true)
     } else {
       const that = this
-      renderRbcomp(<SignPad onConfirm={onConfirm} />, null, function () {
+      renderRbcomp(<SignPad onConfirm={onConfirm} />, function () {
         that._SignPad = this
       })
     }
