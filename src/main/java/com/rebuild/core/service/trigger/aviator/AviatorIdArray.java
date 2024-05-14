@@ -12,32 +12,32 @@ import com.googlecode.aviator.runtime.type.AviatorObject;
 import com.googlecode.aviator.runtime.type.AviatorType;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
- * Wrap {@link ID}
+ * Wrap {@link ID[]}
  *
  * @author devezhao
- * @since 2023/4/16
+ * @since 2024/5/14
  */
 @Slf4j
-public class AviatorId extends AviatorObject {
-    private static final long serialVersionUID = 7227725706972057446L;
+public class AviatorIdArray extends AviatorObject {
+    private static final long serialVersionUID = 7227725706972057447L;
 
-    final private ID idValue;
+    final private ID[] idArray;
 
-    public AviatorId(ID value) {
+    public AviatorIdArray(ID[] value) {
         super();
-        this.idValue = value;
+        this.idArray = value;
+    }
+
+    public AviatorIdArray(Collection<ID> value) {
+        this(value.toArray(new ID[0]));
     }
 
     @Override
     public int innerCompare(AviatorObject other, Map<String, Object> env) {
-        Object $id = other.getValue(env);
-        if (idValue.equals($id)) {
-            return 0;
-        }
-
         log.warn("Could not compare {} with {}", desc(env), other.desc(env));
         return -1;
     }
@@ -49,6 +49,6 @@ public class AviatorId extends AviatorObject {
 
     @Override
     public Object getValue(Map<String, Object> env) {
-        return this.idValue;
+        return this.idArray;
     }
 }
