@@ -942,19 +942,7 @@ class RbFormElement extends React.Component {
     const _readonly = this.state.readonly
     const value = arguments.length > 0 ? arguments[0] : this.state.value
 
-    return (
-      <input
-        ref={(c) => (this._fieldValue = c)}
-        className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`}
-        title={this.state.hasError}
-        type="text"
-        value={value || ''}
-        onChange={(e) => this.handleChange(e, !_readonly)}
-        readOnly={_readonly}
-        placeholder={this._placeholderw}
-        maxLength={this.props.maxLength || 200}
-      />
-    )
+    return <input ref={(c) => (this._fieldValue = c)} className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`} title={this.state.hasError} type="text" value={value || ''} onChange={(e) => this.handleChange(e, !_readonly)} readOnly={_readonly} placeholder={this._placeholderw} maxLength={this.props.maxLength || 200} />
   }
 
   /**
@@ -1228,17 +1216,7 @@ class RbFormNumber extends RbFormText {
 
     return (
       <RF>
-        <input
-          ref={(c) => (this._fieldValue = c)}
-          className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`}
-          title={this.state.hasError}
-          type="text"
-          value={this._removeComma(value)}
-          onChange={(e) => this.handleChange(e, !_readonly)}
-          readOnly={_readonly}
-          placeholder={this._placeholderw}
-          maxLength="29"
-        />
+        <input ref={(c) => (this._fieldValue = c)} className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`} title={this.state.hasError} type="text" value={this._removeComma(value)} onChange={(e) => this.handleChange(e, !_readonly)} readOnly={_readonly} placeholder={this._placeholderw} maxLength="29" />
         {this.__valueFlag && <em className="vflag">{this.__valueFlag}</em>}
       </RF>
     )
@@ -1449,16 +1427,7 @@ class RbFormDateTime extends RbFormElement {
 
     return (
       <div className="input-group has-append">
-        <input
-          ref={(c) => (this._fieldValue = c)}
-          className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')}
-          title={this.state.hasError}
-          type="text"
-          value={this.state.value || ''}
-          onChange={(e) => this.handleChange(e, !_readonly)}
-          placeholder={this._placeholderw}
-          maxLength="20"
-        />
+        <input ref={(c) => (this._fieldValue = c)} className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} type="text" value={this.state.value || ''} onChange={(e) => this.handleChange(e, !_readonly)} placeholder={this._placeholderw} maxLength="20" />
         <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={() => this.handleClear()} />
         <div className="input-group-append">
           <button className="btn btn-secondary" type="button" ref={(c) => (this._fieldValue__icon = c)}>
@@ -1492,7 +1461,7 @@ class RbFormDateTime extends RbFormElement {
           minView: minView,
           startView: startView,
           pickerPosition: this._getAutoPosition(),
-          minuteStep: window.__LAB_MINUTESTEP || 2,
+          minuteStep: window.__LAB_MINUTESTEP || 5,
         })
         .on('changeDate', function () {
           const val = $(this).val()
@@ -2374,15 +2343,7 @@ class RbFormMultiSelect extends RbFormElement {
         {(this.props.options || []).map((item) => {
           return (
             <label key={`mask-${item.mask}`} className="custom-control custom-checkbox custom-control-inline">
-              <input
-                className="custom-control-input"
-                name={`checkbox-${this.props.field}`}
-                type="checkbox"
-                checked={(maskValue & item.mask) !== 0}
-                value={item.mask}
-                onChange={this.changeValue}
-                disabled={_readonly || $isSysMask(item.text)}
-              />
+              <input className="custom-control-input" name={`checkbox-${this.props.field}`} type="checkbox" checked={(maskValue & item.mask) !== 0} value={item.mask} onChange={this.changeValue} disabled={_readonly || $isSysMask(item.text)} />
               <span className="custom-control-label">{item.text}</span>
             </label>
           )
@@ -2594,17 +2555,7 @@ class RbFormLocation extends RbFormElement {
 
     return (
       <div className="input-group has-append">
-        <input
-          type="text"
-          ref={(c) => (this._fieldValue = c)}
-          className={`form-control form-control-sm bg-white ${this.state.hasError ? 'is-invalid' : ''}`}
-          title={this.state.hasError}
-          value={lnglat ? lnglat.text || '' : ''}
-          onChange={(e) => this.handleChange(e)}
-          readOnly
-          placeholder={this._placeholderw}
-          onClick={() => this._showMap(lnglat)}
-        />
+        <input type="text" ref={(c) => (this._fieldValue = c)} className={`form-control form-control-sm bg-white ${this.state.hasError ? 'is-invalid' : ''}`} title={this.state.hasError} value={lnglat ? lnglat.text || '' : ''} onChange={(e) => this.handleChange(e)} readOnly placeholder={this._placeholderw} onClick={() => this._showMap(lnglat)} />
 
         <span className={`zmdi zmdi-close clean ${this.state.value ? '' : 'hide'}`} onClick={() => this.handleClear()} title={$L('清除')} />
         <div className="input-group-append">
