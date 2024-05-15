@@ -86,11 +86,14 @@ const _renderStats = function (data, $el) {
     series: [
       {
         data: series,
+        areaStyle: {
+          color: 'rgba(66,133,244,0.2)',
+        },
         itemStyle: {
           normal: {
-            color: '#4285f4',
+            color: 'rgba(66,133,244,1)',
             lineStyle: {
-              color: '#4285f4',
+              color: 'rgba(66,133,244,1)',
             },
           },
         },
