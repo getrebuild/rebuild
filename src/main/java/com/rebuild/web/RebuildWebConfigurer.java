@@ -23,9 +23,11 @@ import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.MarkdownUtils;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -60,13 +62,8 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
     @Resource(name = "thymeleafViewResolver")
     private ThymeleafViewResolver thymeleafViewResolver;
 
+    @Getter
     private static String pageFooterHtml;
-    /**
-     * @return
-     */
-    public static String getPageFooterHtml() {
-        return pageFooterHtml;
-    }
 
     @Override
     public void init() {
@@ -113,7 +110,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
     }
 
     @Override
-    public void configureViewResolvers(ViewResolverRegistry registry) {
+    public void configureViewResolvers(@NotNull ViewResolverRegistry registry) {
         WebMvcConfigurer.super.configureViewResolvers(registry);
     }
 
