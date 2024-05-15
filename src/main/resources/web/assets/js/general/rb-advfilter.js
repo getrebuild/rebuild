@@ -89,7 +89,15 @@ class AdvFilter extends React.Component {
             </div>
             {this.state.useEquation === '9999' && (
               <div className="mb-3 equation-state">
-                <input className={'form-control form-control-sm text-uppercase' + (this.state.equationError ? ' is-invalid' : '')} title={this.state.equationError ? $L('无效高级表达式') : ''} value={this.state.equation || ''} placeholder={this.state.equationDef || ''} data-id="equation" onChange={this.handleChange} onBlur={(e) => this.checkEquation(e)} />
+                <input
+                  className={'form-control form-control-sm text-uppercase' + (this.state.equationError ? ' is-invalid' : '')}
+                  title={this.state.equationError ? $L('无效高级表达式') : ''}
+                  value={this.state.equation || ''}
+                  placeholder={this.state.equationDef || ''}
+                  data-id="equation"
+                  onChange={this.handleChange}
+                  onBlur={(e) => this.checkEquation(e)}
+                />
                 <i className={`zmdi ${this.state.equationError ? 'zmdi-alert-triangle text-danger' : 'zmdi-check text-success'}`} />
               </div>
             )}
@@ -444,7 +452,14 @@ class FilterItem extends React.Component {
       valComp = (
         <div className="val-range">
           <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={(e) => this.valueHandle(e)} onBlur={(e) => this.valueCheck(e)} value={this.state.value || ''} />
-          <input className="form-control form-control-sm" ref={(c) => (this._filterVal2 = c)} onChange={(e) => this.valueHandle(e)} onBlur={(e) => this.valueCheck(e)} value={this.state.value2 || ''} data-at="2" />
+          <input
+            className="form-control form-control-sm"
+            ref={(c) => (this._filterVal2 = c)}
+            onChange={(e) => this.valueHandle(e)}
+            onBlur={(e) => this.valueCheck(e)}
+            value={this.state.value2 || ''}
+            data-at="2"
+          />
           <span>{$L('起')}</span>
           <span className="end">{$L('止')}</span>
         </div>
@@ -472,7 +487,9 @@ class FilterItem extends React.Component {
         </select>
       )
     } else {
-      valComp = <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={(e) => this.valueHandle(e)} onBlur={(e) => this.valueCheck(e)} value={this.state.value || ''} />
+      valComp = (
+        <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={(e) => this.valueHandle(e)} onBlur={(e) => this.valueCheck(e)} value={this.state.value || ''} />
+      )
     }
 
     return valComp
@@ -590,7 +607,11 @@ class FilterItem extends React.Component {
 
     if (state.type === 'BOOL') {
       this.removeBool()
-      if (!OP_NOVALUE.includes(state.op)) this.renderBool()
+      if (OP_NOVALUE.includes(state.op)) {
+        // 无需组件
+      } else {
+        this.renderBool()
+      }
     } else if (lastType === 'BOOL') {
       this.removeBool()
     }
@@ -886,7 +907,14 @@ class ListAdvFilter extends AdvFilter {
                 <Share2 ref={(c) => (this._Share2 = c)} shareTo={this.props.shareTo} noSwitch hasName configName={this.props.filterName} />
               ) : (
                 <div className="float-left input">
-                  <input className="form-control form-control-sm text" maxLength="20" value={this.state.filterName || ''} data-id="filterName" onChange={this.handleChange} placeholder={$L('输入名称')} />
+                  <input
+                    className="form-control form-control-sm text"
+                    maxLength="20"
+                    value={this.state.filterName || ''}
+                    data-id="filterName"
+                    onChange={this.handleChange}
+                    placeholder={$L('输入名称')}
+                  />
                 </div>
               )}
             </div>

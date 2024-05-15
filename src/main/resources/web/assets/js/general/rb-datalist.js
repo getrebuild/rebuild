@@ -342,7 +342,7 @@ $(document).ready(() => {
   window.RbListCommon && window.RbListCommon.init(wpc)
 
   const viewHash = (location.hash || '').split('/')
-  if ((wpc.type === 'RecordList' || wpc.type === 'DetailList') && viewHash.length === 4 && viewHash[1] === 'View' && viewHash[3].length === 20) {
+  if (['RecordList', 'DetailList'].includes(wpc.type) && viewHash.length === 4 && viewHash[1] === 'View' && $regex.isId(viewHash[3])) {
     setTimeout(() => RbViewModal.create({ entity: viewHash[2], id: viewHash[3] }), 500)
   }
 
