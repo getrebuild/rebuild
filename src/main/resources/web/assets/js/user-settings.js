@@ -12,7 +12,7 @@ $(document).ready(function () {
     '#avatar-input',
     function () {
       if (__cropper) return
-      renderRbcomp(<DlgCropper disposeOnHide={true} />, null, function () {
+      renderRbcomp(<DlgCropper disposeOnHide />, function () {
         __cropper = this
       })
     },

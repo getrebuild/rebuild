@@ -210,7 +210,7 @@ class RbViewModal extends React.Component {
     const viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
 
     if (subView) {
-      renderRbcomp(<RbViewModal url={viewUrl} id={props.id} disposeOnHide subView />, null, function () {
+      renderRbcomp(<RbViewModal url={viewUrl} id={props.id} disposeOnHide subView />, function () {
         that.__HOLDERs[props.id] = this
         that.__HOLDERsStack.push(this)
       })
@@ -219,7 +219,7 @@ class RbViewModal extends React.Component {
         this.__HOLDER.show(viewUrl)
         this.__HOLDERs[props.id] = this.__HOLDER
       } else {
-        renderRbcomp(<RbViewModal url={viewUrl} id={props.id} />, null, function () {
+        renderRbcomp(<RbViewModal url={viewUrl} id={props.id} />, function () {
           that.__HOLDERs[props.id] = this
           that.__HOLDERsStack.push(this)
           that.__HOLDER = this
@@ -297,7 +297,7 @@ const ChartsWidget = {
     }
 
     // eslint-disable-next-line react/jsx-no-undef
-    renderRbcomp(<ChartSelect select={(c) => this.renderChart(c, true)} entity={wpc.entity[0]} />, null, function () {
+    renderRbcomp(<ChartSelect select={(c) => this.renderChart(c, true)} entity={wpc.entity[0]} />, function () {
       ChartsWidget.__chartSelect = this
       this.setState({ appended: ChartsWidget.__currentCharts() })
     })
@@ -342,7 +342,7 @@ $(document).ready(() => {
   window.RbListCommon && window.RbListCommon.init(wpc)
 
   const viewHash = (location.hash || '').split('/')
-  if ((wpc.type === 'RecordList' || wpc.type === 'DetailList') && viewHash.length === 4 && viewHash[1] === 'View' && viewHash[3].length === 20) {
+  if (['RecordList', 'DetailList'].includes(wpc.type) && viewHash.length === 4 && viewHash[1] === 'View' && $regex.isId(viewHash[3])) {
     setTimeout(() => RbViewModal.create({ entity: viewHash[2], id: viewHash[3] }), 500)
   }
 

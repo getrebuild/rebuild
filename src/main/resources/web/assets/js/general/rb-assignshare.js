@@ -153,7 +153,7 @@ class DlgAssign extends RbModalHandler {
     const that = this
     if (that.__HOLDER) that.__HOLDER.show(props)
     else
-      renderRbcomp(<DlgAssign {...props} />, null, function () {
+      renderRbcomp(<DlgAssign {...props} />, function () {
         that.__HOLDER = this
       })
   }
@@ -178,7 +178,7 @@ class DlgShare extends DlgAssign {
     const that = this
     if (that.__HOLDER2) that.__HOLDER2.show(props)
     else
-      renderRbcomp(<DlgShare {...props} />, null, function () {
+      renderRbcomp(<DlgShare {...props} />, function () {
         that.__HOLDER2 = this
       })
   }
@@ -279,7 +279,7 @@ class DlgUnshare extends RbModalHandler {
     const that = this
     if (that.__HOLDER) that.__HOLDER.show(props)
     else
-      renderRbcomp(<DlgUnshare {...props} />, null, function () {
+      renderRbcomp(<DlgUnshare {...props} />, function () {
         that.__HOLDER = this
       })
   }
@@ -375,7 +375,7 @@ class DlgShareManager extends RbModalHandler {
     const that = this
     if (that.__HOLDER) that.__HOLDER.show(props)
     else
-      renderRbcomp(<DlgShareManager {...props} />, null, function () {
+      renderRbcomp(<DlgShareManager {...props} />, function () {
         that.__HOLDER = this
       })
   }

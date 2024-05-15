@@ -517,7 +517,7 @@ const _handleReference = function (isN2N) {
     if (advFilter) {
       advFilter.show()
     } else {
-      renderRbcomp(<AdvFilter title={$L('附加过滤条件')} inModal={true} canNoFilters={true} entity={referenceEntity} filter={dataFilter} confirm={saveFilter} />, null, function () {
+      renderRbcomp(<AdvFilter title={$L('附加过滤条件')} inModal={true} canNoFilters={true} entity={referenceEntity} filter={dataFilter} confirm={saveFilter} />, function () {
         advFilter = this
       })
     }

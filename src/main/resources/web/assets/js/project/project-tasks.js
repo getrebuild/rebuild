@@ -840,7 +840,7 @@ class TaskViewModal extends React.Component {
    * @param {*} id
    */
   static create(id) {
-    renderRbcomp(<TaskViewModal taskid={id} />, null, function () {
+    renderRbcomp(<TaskViewModal taskid={id} />, function () {
       TaskViewModal.__HOLDER = this
     })
   }

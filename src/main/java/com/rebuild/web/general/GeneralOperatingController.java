@@ -136,7 +136,7 @@ public class GeneralOperatingController extends BaseController {
             CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.DataValidate#setWeakOnce", recordId);
         }
 
-        // v3.4 单字段修改
+        // v3.4 TODO 单字段修改检查，有性能问题
         final boolean singleField = getBoolParameter(request, "singleField");
         Record beforeSnap = null;
         if (singleField) {

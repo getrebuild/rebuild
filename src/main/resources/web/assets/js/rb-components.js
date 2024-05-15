@@ -145,7 +145,7 @@ class RbModal extends React.Component {
       that.__HOLDER.show()
       that.__HOLDER.resize()
     } else {
-      renderRbcomp(<RbModal url={url} urlOpenInNew={option.urlOpenInNew} title={title} width={option.width} disposeOnHide={option.disposeOnHide} zIndex={option.zIndex} />, null, function () {
+      renderRbcomp(<RbModal url={url} urlOpenInNew={option.urlOpenInNew} title={title} width={option.width} disposeOnHide={option.disposeOnHide} zIndex={option.zIndex} />, function () {
         that.__HOLDER = this
         if (option.disposeOnHide === false) that.__HOLDERs[url] = this
       })
@@ -1197,7 +1197,7 @@ class RbGritter extends React.Component {
         this._RbGritter._addItem(message, options)
       } else {
         const that = this
-        renderRbcomp(<RbGritter />, null, function () {
+        renderRbcomp(<RbGritter />, function () {
           that._RbGritter = this
           that._RbGritter._addItem(message, options)
         })

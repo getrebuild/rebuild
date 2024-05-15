@@ -482,7 +482,7 @@ const showDlgAddNode = function (call) {
   if (__DlgAddNode) {
     __DlgAddNode.show(call)
   } else {
-    renderRbcomp(<DlgAddNode call={call} />, null, function () {
+    renderRbcomp(<DlgAddNode call={call} />, function () {
       __DlgAddNode = this
     })
   }

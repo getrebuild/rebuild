@@ -375,15 +375,12 @@
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <input type="hidden" class="form-control" id="calcFormula" />
                     <div class="form-control-plaintext formula" id="calcFormula2" th:_title="${bundle.L('无')}">[[${calcFormula ?: calcFormula}]]</div>
-                    <p
-                      class="form-text"
-                      th:utext="${bundle.L('如公式中所用字段未布局/未显示，则不会进行计算。如需后端计算或更复杂的计算逻辑请使用 [触发器 (字段更新)](/admin/robot/triggers)')}"
-                    ></p>
+                    <p class="form-text" th:utext="${bundle.L('如公式中所用字段未布局/未显示，则不会进行计算。如需后端计算或更复杂的计算逻辑请使用 [触发器 (字段更新)](/admin/robot/triggers)')}"></p>
                   </div>
                 </div>
                 <div th:if="${fieldType == 'NTEXT'}" class="form-group row J_for-NTEXT">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">
-                    <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('支持 PC')}"></i>
+                    <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i>
                     [[${bundle.L('启用富文本编辑器')}]]
                   </label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
@@ -415,7 +412,7 @@
                 </th:block>
                 <div th:if="${fieldType == 'TEXT'}" class="form-group row J_for-TEXT">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">
-                    <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('支持 PC')}"></i>
+                    <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i>
                     [[${bundle.L('常用值')}]]
                   </label>
                   <div class="col-md-12 col-xl-6 col-lg-8">

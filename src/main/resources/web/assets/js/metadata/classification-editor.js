@@ -16,7 +16,7 @@ $(document).ready(function () {
     if (_dlgImports) {
       _dlgImports.show()
     } else {
-      renderRbcomp(<DlgImports id={wpc.id} />, null, function () {
+      renderRbcomp(<DlgImports id={wpc.id} />, function () {
         _dlgImports = this
       })
     }
@@ -530,7 +530,7 @@ class DlgEditItem extends RbAlert {
         <div className="form-group">
           <label className="text-bold">{$L('编码')}</label>
           <input type="text" className="form-control form-control-sm" name="code" value={this.state.code || ''} onChange={this.handleChange} maxLength="50" placeholder={$L('无')} />
-          <p className="form-text">{$L('编码可用于排序和搜素')}</p>
+          <p className="form-text">{$L('编码可用于排序和搜索')}</p>
         </div>
         <div className="form-group">
           <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">

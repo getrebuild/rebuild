@@ -242,7 +242,7 @@ class RbFormModal extends React.Component {
     if (this.__HOLDER) {
       this.__HOLDER.show(props)
     } else {
-      renderRbcomp(<RbFormModal {...props} />, null, function () {
+      renderRbcomp(<RbFormModal {...props} />, function () {
         that.__HOLDER = this
         that.__CURRENT35 = this
       })
@@ -976,8 +976,16 @@ class RbFormElement extends React.Component {
   handleChange(e, checkValue) {
     const val = e.target.value
     this.setState({ value: val }, () => {
-      checkValue === true && this.checkValue()
-      typeof this.props.onValueChange === 'function' && typeof this.props.onValueChange(this)
+      // v3.7 lazy
+      if (this.__handleChangeTimer) {
+        clearTimeout(this.__handleChangeTimer)
+        this.__handleChangeTimer = null
+      }
+
+      this.__handleChangeTimer = setTimeout(() => {
+        checkValue === true && this.checkValue()
+        typeof this.props.onValueChange === 'function' && this.props.onValueChange(this)
+      }, 222)
     })
   }
 
@@ -1263,8 +1271,8 @@ class RbFormNumber extends RbFormText {
   // 移除千分为位
   _removeComma(n) {
     if (n === null || n === undefined || n === '') return ''
-    if ((n + '').substring(0, 1) === '*') return n // 脱敏
     if (n === '-') return n // 输入负数
+    if ((n + '').substring(0, 1) === '*') return n // 脱敏
     if (n) n = $cleanNumber(n)
     if (isNaN(n)) return ''
     return n // `0`
@@ -1492,7 +1500,7 @@ class RbFormDateTime extends RbFormElement {
           minView: minView,
           startView: startView,
           pickerPosition: this._getAutoPosition(),
-          minuteStep: window.__LAB_MINUTESTEP || 2,
+          minuteStep: window.__LAB_MINUTESTEP || 5,
         })
         .on('changeDate', function () {
           const val = $(this).val()
@@ -2206,7 +2214,7 @@ class RbFormN2NReference extends RbFormReference {
   handleChange(e, checkValue) {
     let val = e.target.value
     if (val && typeof val === 'object') val = val.join(',')
-    this.setState({ value: val }, () => checkValue === true && this.checkValue())
+    super.handleChange({ target: { value: val } }, checkValue)
   }
 
   // @append = 追加模式
@@ -2380,7 +2388,7 @@ class RbFormMultiSelect extends RbFormElement {
                 type="checkbox"
                 checked={(maskValue & item.mask) !== 0}
                 value={item.mask}
-                onChange={this.changeValue}
+                onChange={this._changeValue}
                 disabled={_readonly || $isSysMask(item.text)}
               />
               <span className="custom-control-label">{item.text}</span>
@@ -2398,7 +2406,7 @@ class RbFormMultiSelect extends RbFormElement {
     return <div className="form-control-plaintext multi-values">{__findMultiTexts(this.props.options, maskValue, true)}</div>
   }
 
-  changeValue = () => {
+  _changeValue = () => {
     let maskValue = 0
     $(this._fieldValue__wrap)
       .find('input:checked')
@@ -2433,11 +2441,11 @@ class RbFormBool extends RbFormElement {
     return (
       <div className="mt-1">
         <label className="custom-control custom-radio custom-control-inline mb-1">
-          <input className="custom-control-input" name={`${this._htmlid}T`} type="radio" checked={this.state.value === 'T'} data-value="T" onChange={this.changeValue} disabled={_readonly} />
+          <input className="custom-control-input" name={`${this._htmlid}T`} type="radio" checked={this.state.value === 'T'} data-value="T" onChange={this._changeValue} disabled={_readonly} />
           <span className="custom-control-label">{this._Options['T']}</span>
         </label>
         <label className="custom-control custom-radio custom-control-inline mb-1">
-          <input className="custom-control-input" name={`${this._htmlid}F`} type="radio" checked={this.state.value === 'F'} data-value="F" onChange={this.changeValue} disabled={_readonly} />
+          <input className="custom-control-input" name={`${this._htmlid}F`} type="radio" checked={this.state.value === 'F'} data-value="F" onChange={this._changeValue} disabled={_readonly} />
           <span className="custom-control-label">{this._Options['F']}</span>
         </label>
       </div>
@@ -2448,7 +2456,7 @@ class RbFormBool extends RbFormElement {
     return super.renderViewElement(this.state.value ? this._Options[this.state.value] : null)
   }
 
-  changeValue = (e) => {
+  _changeValue = (e) => {
     const val = e.target.dataset.value
     this.handleChange({ target: { value: val } }, true)
   }
@@ -2751,7 +2759,7 @@ class RbFormSign extends RbFormElement {
       this._SignPad.show(true)
     } else {
       const that = this
-      renderRbcomp(<SignPad onConfirm={onConfirm} />, null, function () {
+      renderRbcomp(<SignPad onConfirm={onConfirm} />, function () {
         that._SignPad = this
       })
     }

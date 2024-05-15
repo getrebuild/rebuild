@@ -531,7 +531,7 @@ class SelectReport extends React.Component {
       return
     }
     const that = this
-    renderRbcomp(<SelectReport entity={entity} id={id} />, null, function () {
+    renderRbcomp(<SelectReport entity={entity} id={id} />, function () {
       that.__cached = this
     })
   }

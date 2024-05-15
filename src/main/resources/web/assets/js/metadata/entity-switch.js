@@ -17,6 +17,7 @@ $(document).ready(() => {
   // v3.7 search
   $(`<div class="searchbox"><input placeholder="${$L('搜索')}" maxlength="40"/></div>`)
     .appendTo($menu)
+    .find('input')
     .on('input', function (e) {
       const s = $trim(e.target.value).toLowerCase()
       $setTimeout(
@@ -60,5 +61,8 @@ $(document).ready(() => {
   $toggle.addClass('dropdown-toggle').attr({
     'data-toggle': 'dropdown',
     'title': $L('切换'),
+  })
+  $toggle.parent().on('shown.bs.dropdown', () => {
+    setTimeout(() => $menu.find('input')[0].focus(), 100)
   })
 })

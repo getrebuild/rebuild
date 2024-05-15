@@ -93,22 +93,28 @@ class BaseChart extends React.Component {
   }
 
   toggleFullscreen(forceFullscreen) {
-    const use = forceFullscreen === true ? true : !this.state.fullscreen
-    this.setState({ fullscreen: use }, () => {
+    const is = forceFullscreen === true ? true : !this.state.fullscreen
+    this.setState({ fullscreen: is }, () => {
+      // in Dashboard
       const $stack = $('.chart-grid>.grid-stack')
-      if (!$stack[0]) return
-      const $box = $(this._$box).parents('.grid-stack-item')
+      if (!$stack[0]) {
+        // in DataList
+        // $(this._$box).parent().toggleClass('fullscreen')
+        return
+      }
+
+      const $boxParent = $(this._$box).parents('.grid-stack-item')
 
       if (this.state.fullscreen) {
         BaseChart.currentFullscreen = this
         if (!this.__chartStackHeight) this.__chartStackHeight = $stack.height()
 
-        $box.addClass('fullscreen')
+        $boxParent.addClass('fullscreen')
         let height = $(window).height() - ($(document.body).hasClass('fullscreen') ? 75 : 135)
         height -= $('.announcement-wrapper').height() || 0
         $stack.css({ height: Math.max(height, 300), overflow: 'hidden' })
       } else {
-        $box.removeClass('fullscreen')
+        $boxParent.removeClass('fullscreen')
         $stack.css({ height: this.__chartStackHeight, overflow: 'unset' })
 
         BaseChart.currentFullscreen = null
@@ -263,8 +269,11 @@ class ChartTable extends BaseChart {
         .css('height', $tb.height() - 20)
         .perfectScrollbar()
 
-      // selected
-      $tb.find('table').tableCellsSelection()
+      try {
+        $tb.find('table').tableCellsSelection()
+      } catch (ignored) {
+        // 未引入
+      }
 
       // a _blank
       $tb.find('tbody td>a').each(function () {
@@ -874,7 +883,7 @@ class ApprovalList extends BaseChart {
         that.loadChartData()
       }
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ApprovalApproveForm id={record} approval={approval} entity={entity} call={close} />, null, function () {
+      renderRbcomp(<ApprovalApproveForm id={record} approval={approval} entity={entity} call={close} />, function () {
         that.__approvalForms[record] = this
         that._lastStats = null
       })
