@@ -134,8 +134,8 @@ public class DataImportController extends BaseController {
                     || MetadataHelper.isApprovalField(fieldName)
                     || MetadataHelper.isSystemField(fieldName)) continue;
 
-            EasyField easyField = EasyMetaFactory.valueOf(field);
-            DisplayType dt = easyField.getDisplayType();
+            final EasyField easyField = EasyMetaFactory.valueOf(field);
+            final DisplayType dt = easyField.getDisplayType();
             if (!dt.isImportable()) continue;
 
             Map<String, Object> map = new HashMap<>();
@@ -152,7 +152,7 @@ public class DataImportController extends BaseController {
                     || EntityHelper.ModifiedBy.equals(fieldName)
                     || EntityHelper.OwningUser.equals(fieldName)) {
                 defaultValue = Language.L("当前用户");
-            } else if (easyField.getDisplayType() == DisplayType.SERIES) {
+            } else if (dt == DisplayType.SERIES) {
                 defaultValue = Language.L("自动编号");
             }
             // NOTE 240515 忽略字段设置的默认值
