@@ -118,14 +118,24 @@
                       <div class="mt-2">
                         <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                           <input class="custom-control-input" type="checkbox" id="repeatFieldsCheckMode" />
-                          <span class="custom-control-label">[[${bundle.L('“允许重复”检查全部字段')}]]</span>
+                          <span class="custom-control-label">
+                            [[${bundle.L('“允许重复”检查全部字段')}]]
+                            <a href="https://getrebuild.com/docs/admin/entity/opt-features#%E2%80%9C%E5%85%81%E8%AE%B8%E9%87%8D%E5%A4%8D%E2%80%9D%E6%A3%80%E6%9F%A5%E5%85%A8%E9%83%A8%E5%AD%97%E6%AE%B5" th:title="${bundle.L('查看帮助')}" target="_blank">
+                              <i class="zmdi zmdi-help zicon down-1 cursor-pointer"></i>
+                            </a>
+                          </span>
                         </label>
                       </div>
                       <th:block th:if="${currentEntity == detailEntity}">
                         <div class="mt-2">
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" id="detailsGlobalRepeat" />
-                            <span class="custom-control-label">[[${bundle.L('“允许重复”检查全部数据')}]]</span>
+                            <span class="custom-control-label">
+                              [[${bundle.L('“允许重复”检查全部数据')}]]
+                              <a href="https://getrebuild.com/docs/admin/entity/opt-features#%E2%80%9C%E5%85%81%E8%AE%B8%E9%87%8D%E5%A4%8D%E2%80%9D%E6%A3%80%E6%9F%A5%E5%85%A8%E9%83%A8%E6%95%B0%E6%8D%AE" th:title="${bundle.L('查看帮助')}" target="_blank">
+                                <i class="zmdi zmdi-help zicon down-1 cursor-pointer"></i>
+                              </a>
+                            </span>
                           </label>
                         </div>
                         <div class="mt-2">

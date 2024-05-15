@@ -81,23 +81,15 @@ class AdvFilter extends React.Component {
                 <input className="custom-control-input" type="radio" name={this._htmlid} data-id="useEquation" value="9999" checked={this.state.useEquation === '9999'} onChange={this.handleChange} />
                 <span className="custom-control-label pl-1">
                   {$L('高级表达式')}
-                  <a href="https://getrebuild.com/docs/manual/basic#%E9%AB%98%E7%BA%A7%E8%A1%A8%E8%BE%BE%E5%BC%8F" target="_blank">
-                    <i className="zmdi zmdi-help zicon down-1" style={{ cursor: 'pointer' }} />
+                  <a href="https://getrebuild.com/docs/manual/basic#%E9%AB%98%E7%BA%A7%E8%A1%A8%E8%BE%BE%E5%BC%8F" title={$L('查看帮助')} target="_blank">
+                    <i className="zmdi zmdi-help zicon down-1 cursor-pointer" />
                   </a>
                 </span>
               </label>
             </div>
             {this.state.useEquation === '9999' && (
               <div className="mb-3 equation-state">
-                <input
-                  className={'form-control form-control-sm text-uppercase' + (this.state.equationError ? ' is-invalid' : '')}
-                  title={this.state.equationError ? $L('无效高级表达式') : ''}
-                  value={this.state.equation || ''}
-                  placeholder={this.state.equationDef || ''}
-                  data-id="equation"
-                  onChange={this.handleChange}
-                  onBlur={(e) => this.checkEquation(e)}
-                />
+                <input className={'form-control form-control-sm text-uppercase' + (this.state.equationError ? ' is-invalid' : '')} title={this.state.equationError ? $L('无效高级表达式') : ''} value={this.state.equation || ''} placeholder={this.state.equationDef || ''} data-id="equation" onChange={this.handleChange} onBlur={(e) => this.checkEquation(e)} />
                 <i className={`zmdi ${this.state.equationError ? 'zmdi-alert-triangle text-danger' : 'zmdi-check text-success'}`} />
               </div>
             )}

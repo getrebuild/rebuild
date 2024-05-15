@@ -5505,11 +5505,15 @@ span.icon-append .icon {
 }
 
 .cursor-help {
-  cursor: help;
+  cursor: help !important;
 }
 
 .cursor-default {
-  cursor: default;
+  cursor: default !important;
+}
+
+.cursor-pointer {
+  cursor: pointer !important;
 }
 
 .table-bordered.table-sm > thead > tr > th {
