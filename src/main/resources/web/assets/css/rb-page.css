@@ -3879,6 +3879,7 @@ form {
   height: 100% !important;
   z-index: 9999;
   background-color: #fff;
+  padding: 20px;
 }
 
 #asideWidgets .charts-wrap .ui-sortable-helper {
@@ -3894,7 +3895,9 @@ form {
 }
 
 #asideWidgets .chart-box.LINE,
-#asideWidgets .chart-box.BAR {
+#asideWidgets .chart-box.BAR,
+#asideWidgets .chart-box.BAR2,
+#asideWidgets .chart-box.BAR3 {
   height: 160px;
 }
 
@@ -5780,4 +5783,10 @@ span.icon-append .icon {
 .rsheetb-table tr > th:last-child,
 .rsheetb-table tr > td:last-child {
   padding-right: 15px;
+}
+
+.input-search .input-group-btn,
+.input-group-append .btn,
+.input-group-prepend .btn {
+  z-index: unset;
 }
