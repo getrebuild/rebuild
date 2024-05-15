@@ -52,6 +52,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -218,7 +219,7 @@ public class ModelExtrasController extends BaseController {
         if (!entity.containsField(targetField)) return RespBody.error();
 
         JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
-        Map<String, Object> varsInFormula = post.getInnerMap();
+        Map<String, Object> varsInFormula = new HashMap<>(post.getInnerMap());
         for (Object value : varsInFormula.values()) {
             if (value == null || StringUtils.isBlank(value.toString())) {
                 return RespBody.ok();
