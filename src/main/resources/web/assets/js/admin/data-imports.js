@@ -296,14 +296,16 @@ const step3_import_cancel = () => {
 const _LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 // 渲染字段映射
 const _fieldsMapping = (columns, fields) => {
-  const canNullText = ` [${$L('必填')}]`
+  const requiredText = ` (${$L('必填')})`
+
+  console.log(fields)
 
   const fieldMap = {}
   const $fieldSelect = $(`<select><option value="">${$L('无')}</option></select>`)
-  $(fields).each((idx, item) => {
-    let canNull = item.nullable === false ? canNullText : ''
-    if (item.defaultValue) canNull = ''
-    $(`<option value="${item.name}">${item.label}${canNull}</option>`).appendTo($fieldSelect)
+  fields.forEach(function (item) {
+    let req = item.nullable === false ? requiredText : ''
+    if (item.defaultValue) req = ''
+    $(`<option value="${item.name}">${item.label}${req}</option>`).appendTo($fieldSelect)
     fieldMap[item.name] = item
   })
 
@@ -323,7 +325,7 @@ const _fieldsMapping = (columns, fields) => {
     let matchField
     $clone.find('option').each(function (i, o) {
       const name = o.value
-      const label = (o.text || '').replace(canNullText, '')
+      const label = (o.text || '').replace(requiredText, '')
       if ((name && name === item) || (label && label === (item || '').trim())) {
         matchField = name
         return false
@@ -335,6 +337,12 @@ const _fieldsMapping = (columns, fields) => {
   $('#fieldsMapping tbody select')
     .select2({
       placeholder: $L('无'),
+      templateResult: function (res) {
+        const text = res.text.split(requiredText)
+        const $span = $('<span></span>').text(text[0])
+        if (text.length > 1) $(`<span class="badge badge-danger badge-pill">${$L('必填')}</span>`).appendTo($span)
+        return $span
+      },
     })
     .on('change', function () {
       const val = $(this).val()

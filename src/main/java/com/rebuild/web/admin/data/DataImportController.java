@@ -37,6 +37,7 @@ import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -132,20 +133,16 @@ public class DataImportController extends BaseController {
             String fieldName = field.getName();
             if (EntityHelper.OwningDept.equals(fieldName)
                     || MetadataHelper.isApprovalField(fieldName)
-                    || MetadataHelper.isSystemField(fieldName)) {
-                continue;
-            }
+                    || MetadataHelper.isSystemField(fieldName)) continue;
 
-            EasyField easyMeta = EasyMetaFactory.valueOf(field);
-            DisplayType dt = easyMeta.getDisplayType();
-            if (!dt.isImportable()) {
-                continue;
-            }
+            EasyField easyField = EasyMetaFactory.valueOf(field);
+            DisplayType dt = easyField.getDisplayType();
+            if (!dt.isImportable()) continue;
 
             Map<String, Object> map = new HashMap<>();
             map.put("name", fieldName);
-            map.put("label", easyMeta.getLabel());
-            map.put("type", easyMeta.getDisplayType().name());
+            map.put("label", easyField.getLabel());
+            map.put("type", dt.name());
             map.put("nullable", field.isNullable());
 
             String defaultValue = null;
@@ -156,9 +153,10 @@ public class DataImportController extends BaseController {
                     || EntityHelper.ModifiedBy.equals(fieldName)
                     || EntityHelper.OwningUser.equals(fieldName)) {
                 defaultValue = Language.L("当前用户");
-            } else if (easyMeta.getDisplayType() == DisplayType.SERIES) {
+            } else if (easyField.getDisplayType() == DisplayType.SERIES) {
                 defaultValue = Language.L("自动编号");
             }
+            // NOTE 240515 忽略字段设置的默认值
 
             if (defaultValue != null) {
                 map.put("defaultValue", defaultValue);

@@ -22,9 +22,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .fields-mapping span.badge {
   font-size: 1rem;
-  padding: 4px 10px;
+  padding: 3px 10px;
   font-weight: normal;
-  margin-top: 4px;
+  margin-top: 5px;
 }
 
 .fields-mapping span.badge.req {
