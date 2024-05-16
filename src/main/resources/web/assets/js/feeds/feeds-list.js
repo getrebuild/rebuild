@@ -89,10 +89,10 @@ class FeedsList extends React.Component {
               <p>
                 {$L('暂无动态')}
                 {this.state.tabType === 11 && (
-                  <React.Fragment>
+                  <RF>
                     <br />
                     {$L('即使管理员也不能查看他人的私密动态')}
-                  </React.Fragment>
+                  </RF>
                 )}
               </p>
             </div>
@@ -160,7 +160,7 @@ class FeedsList extends React.Component {
               </a>
               <div className="dropdown-menu dropdown-menu-right">
                 {item.self && (
-                  <React.Fragment>
+                  <RF>
                     {this._renderMoreMenu(item)}
                     <a className="dropdown-item" onClick={() => this._handleEdit(item)}>
                       <i className="icon zmdi zmdi-edit" /> {$L('编辑')}
@@ -168,7 +168,7 @@ class FeedsList extends React.Component {
                     <a className="dropdown-item" onClick={() => this._handleDelete(item.id)}>
                       <i className="icon zmdi zmdi-delete" /> {$L('删除')}
                     </a>
-                  </React.Fragment>
+                  </RF>
                 )}
                 {item.usertop ? (
                   <a className="dropdown-item" onClick={() => this._handleTop(item.id)}>
@@ -282,12 +282,12 @@ class FeedsList extends React.Component {
   _renderMoreMenu(item) {
     if (item.type === 4 && item.contentMore && !item.contentMore.finishTime) {
       return (
-        <React.Fragment>
+        <RF>
           <a className="dropdown-item" onClick={() => this._handleFinish(item.id)}>
             <i className="icon zmdi zmdi-check" /> {$L('完成')}
           </a>
           <div className="dropdown-divider" />
-        </React.Fragment>
+        </RF>
       )
     }
     return null
@@ -675,6 +675,7 @@ function __renderRichContent(e) {
           </div>
         )}
       </div>
+
       {(e.images || []).length > 0 && (
         <div className="img-field">
           {e.images.map((item, idx) => {
@@ -688,13 +689,20 @@ function __renderRichContent(e) {
           })}
         </div>
       )}
+
       {(e.attachments || []).length > 0 && (
         <div className="file-field">
           {e.attachments.map((item) => {
             const fileName = $fileCutName(item)
+            const extName = $fileExtName(item)
+            // @see `file-preview.js`
+            const isImage = ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'jfif', 'svg', 'webp'].includes(extName)
+
             return (
               <a key={`file-${item}`} title={fileName} onClick={() => RbPreview.create(item)} className="img-thumbnail">
-                <i className="file-icon" data-type={$fileExtName(fileName)} />
+                <i className={`file-icon ${isImage && 'image'}`} data-type={extName}>
+                  {isImage && <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />}
+                </i>
                 <span>{fileName}</span>
               </a>
             )
