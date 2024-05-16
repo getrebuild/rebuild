@@ -62,26 +62,34 @@ public class RecordTransfomer37 extends RecordTransfomer {
         final boolean checkNullable = transConfig.getBooleanValue("checkNullable35");
 
         List<Record> detailsList = new ArrayList<>();
-        if (!fieldsMappingDetails.isEmpty()) {
-            for (Object o : fieldsMappingDetails) {
-                JSONObject fmd = (JSONObject) o;
-                Entity[] fmdEntity = checkEntity(fmd);
-                if (fmdEntity == null) continue;
+        for (Object o : fieldsMappingDetails) {
+            JSONObject fmd = (JSONObject) o;
+            Entity[] fmdEntity = checkEntity(fmd);
+            if (fmdEntity == null) continue;
 
-                Entity dTargetEntity = fmdEntity[0];
-                Entity dSourceEntity = fmdEntity[1];
-                String sql = String.format(
+            Entity dTargetEntity = fmdEntity[0];
+            Entity dSourceEntity = fmdEntity[1];
+
+            // 明细 > 明细
+            String sql = String.format(
+                    "select %s from %s where %s = '%s' and (1=1) order by autoId asc",
+                    dSourceEntity.getPrimaryField().getName(), dSourceEntity.getName(),
+                    MetadataHelper.getDetailToMainField(dSourceEntity).getName(), sourceRecordId);
+            // 明细 > 主+明细
+            if (dSourceEntity.getEntityCode().equals(sourceRecordId.getEntityCode())) {
+                sql = String.format(
                         "select %s from %s where %s = '%s' and (1=1) order by autoId asc",
                         dSourceEntity.getPrimaryField().getName(), dSourceEntity.getName(),
-                        MetadataHelper.getDetailToMainField(dSourceEntity).getName(), sourceRecordId);
-                String filter = appendFilter(fmd);
-                if (filter != null) sql = sql.replace("(1=1)", filter);
+                        dSourceEntity.getPrimaryField().getName(), sourceRecordId);
+            }
 
-                Object[][] dArray = Application.createQueryNoFilter(sql).array();
-                for (Object[] d : dArray) {
-                    detailsList.add(transformRecord(
-                            dSourceEntity, dTargetEntity, fmd, (ID) d[0], null, false, false, checkNullable));
-                }
+            String filter = appendFilter(fmd);
+            if (filter != null) sql = sql.replace("(1=1)", filter);
+
+            Object[][] dArray = Application.createQueryNoFilter(sql).array();
+            for (Object[] d : dArray) {
+                detailsList.add(transformRecord(
+                        dSourceEntity, dTargetEntity, fmd, (ID) d[0], null, false, false, checkNullable));
             }
         }
 
@@ -110,7 +118,7 @@ public class RecordTransfomer37 extends RecordTransfomer {
 
     /**
      * @param fmd
-     * @return
+     * @return Returns [Tatget, Source]
      */
     protected static Entity[] checkEntity(JSONObject fmd) {
         JSONObject fmdMeta = fmd.getJSONObject("_");
