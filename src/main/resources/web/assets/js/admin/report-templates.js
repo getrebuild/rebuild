@@ -211,8 +211,9 @@ class ReportEditor extends ConfigFormDlg {
           <div className="col-sm-7">
             <div className="form-control-plaintext">
               <a
-                href="javascript:;"
+                href="###"
                 onClick={(e) => {
+                  $stopEvent(e, true)
                   if ($(e.target).attr('disabled')) return
                   this._useFilter()
                 }}

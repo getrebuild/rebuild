@@ -358,7 +358,8 @@ public class Installer implements InstallState {
         for (Object L : LS) {
             String L2 = L.toString().trim();
             // IGNORED
-            if (StringUtils.isEmpty(L2) || L2.startsWith("--") || dbInfo.isIgnoredSqlLine(L2)) {
+            if (StringUtils.isEmpty(L2) || L2.startsWith("--")
+                    || (dbInfo != null && dbInfo.isIgnoredSqlLine(L2))) {
                 continue;
             }
             if (L2.startsWith("/*") || L2.endsWith("*/")) {

@@ -60,10 +60,7 @@ public class NotificationService extends InternalPersistService {
 
     // 清理缓存
     private void cleanCache(ID messageId) {
-        Object[] m = Application.createQueryNoFilter(
-                "select toUser from Notification where messageId = ?")
-                .setParameter(1, messageId)
-                .unique();
+        Object[] m = Application.getQueryFactory().uniqueNoFilter(messageId, "toUser");
         if (m != null) {
             final String ckey = "UnreadNotification-" + m[0];
             Application.getCommonsCache().evict(ckey);
