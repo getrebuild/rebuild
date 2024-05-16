@@ -452,6 +452,7 @@ class ChartLine extends BaseChart {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
       const showMutliYAxis = data._renderOption && data._renderOption.showMutliYAxis
+      const showAreaColor = data._renderOption && data._renderOption.showAreaColor
       const dataFlags = data._renderOption.dataFlags || []
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
@@ -463,6 +464,7 @@ class ChartLine extends BaseChart {
           normal: { borderWidth: 2 },
           emphasis: { borderWidth: 6 },
         }
+        if (showAreaColor) yAxis.areaStyle = { opacity: 0.2 }
         if (showNumerical) yAxis.label = ECHART_VALUE_LABEL2(dataFlags)
         yAxis.cursor = 'default'
         data.yyyAxis[i] = yAxis

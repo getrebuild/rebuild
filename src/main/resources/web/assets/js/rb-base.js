@@ -558,3 +558,21 @@ var $type = function (a) {
   if (Array.isArray(a)) return 'array'
   return typeof a // string, object
 }
+
+// Hex to RGB
+var $hex2rgb = function (hex, alpha) {
+  hex = hex.replace('#', '')
+  var bigint = parseInt(hex, 16)
+  var rgb = {
+    r: (bigint >> 16) & 255,
+    g: (bigint >> 8) & 255,
+    b: bigint & 255,
+  }
+  if (alpha) return 'rgba(' + [rgb.r, rgb.g, rgb.b, alpha].join(',') + ')'
+  return rgb
+}
+
+// RGB to Hex
+var $rgb2hex = function (r, g, b) {
+  return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
+}

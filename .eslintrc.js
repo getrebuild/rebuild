@@ -143,5 +143,6 @@ module.exports = {
     $trim: true,
     $type: true,
     $cleanNumber: true,
+    $hex2rgb: true,
   },
 }

@@ -515,7 +515,7 @@ function build_config() {
   cfg.option = option
 
   // 排他
-  $('input[data-name="showMutliYAxis"]').attr('disabled', option.showHorizontal)
+  $('input[data-name="showMutliYAxis"]').attr('disabled', option.showHorizontal === true)
 
   if (dataFilter) cfg.filter = dataFilter
   if (rb.env === 'dev') console.log(cfg)
