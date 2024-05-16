@@ -694,13 +694,10 @@ function __renderRichContent(e) {
         <div className="file-field">
           {e.attachments.map((item) => {
             const fileName = $fileCutName(item)
-            const extName = $fileExtName(item)
-            // @see `file-preview.js`
-            const isImage = ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'jfif', 'svg', 'webp'].includes(extName)
-
+            const isImage = $isImage(fileName)
             return (
               <a key={`file-${item}`} title={fileName} onClick={() => RbPreview.create(item)} className="img-thumbnail">
-                <i className={`file-icon ${isImage && 'image'}`} data-type={extName}>
+                <i className={`file-icon ${isImage && 'image'}`} data-type={$fileExtName(item)}>
                   {isImage && <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />}
                 </i>
                 <span>{fileName}</span>

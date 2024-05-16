@@ -144,5 +144,6 @@ module.exports = {
     $type: true,
     $cleanNumber: true,
     $hex2rgb: true,
+    $isImage: true,
   },
 }

@@ -1817,12 +1817,10 @@ class RbFormFile extends RbFormImage {
   }
 
   _renderFileIcon(fileName, file) {
-    const extName = $fileExtName(fileName)
-    // @see `file-preview.js`
-    const isImage = ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'jfif', 'svg', 'webp'].includes(extName)
+    const isImage = $isImage(fileName)
     return (
       <RF>
-        <i className={`file-icon ${isImage && 'image'}`} data-type={extName}>
+        <i className={`file-icon ${isImage && 'image'}`} data-type={$fileExtName(fileName)}>
           {isImage && <img src={this._formatUrl(file)} />}
         </i>
         <span>{fileName}</span>

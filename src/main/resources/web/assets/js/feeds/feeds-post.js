@@ -275,7 +275,7 @@ class FeedsEditor extends React.Component {
             <div className="img-field">
               {(this.state.images || []).map((item) => {
                 return (
-                  <span key={'img-' + item}>
+                  <span key={`img-${item}`}>
                     <a title={$fileCutName(item)} className="img-thumbnail img-upload">
                       <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/300/interlace/1/q/100`} />
                       <b title={$L('移除')} onClick={() => this._removeImage(item)}>
@@ -289,9 +289,12 @@ class FeedsEditor extends React.Component {
             <div className="file-field">
               {(this.state.files || []).map((item) => {
                 const fileName = $fileCutName(item)
+                const isImage = $isImage(fileName)
                 return (
-                  <div key={'file-' + item} className="img-thumbnail" title={fileName}>
-                    <i className="file-icon" data-type={$fileExtName(fileName)} />
+                  <div key={`file-${item}`} className="img-thumbnail" title={fileName}>
+                    <i className={`file-icon ${isImage && 'image'}`} data-type={$fileExtName(fileName)}>
+                      {isImage && <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />}
+                    </i>
                     <span>{fileName}</span>
                     <b title={$L('移除')} onClick={() => this._removeFile(item)}>
                       <span className="zmdi zmdi-close" />
@@ -429,7 +432,7 @@ class SelectGroup extends React.Component {
                 <ul className="list-unstyled">
                   {(this.state.groups || []).map((item) => {
                     return (
-                      <li key={'g-' + item.id}>
+                      <li key={`team-${item.id}`}>
                         <a className="text-truncate" onClick={() => this._handleClick(item)}>
                           {item.name}
                           <i className="zmdi zmdi-check" />
