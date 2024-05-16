@@ -165,20 +165,39 @@ public class AutoFillinManager implements ConfigManager {
                         value);
             }
 
+            final EasyField tfEasy = EasyMetaFactory.valueOf(targetFieldMeta);
+
+            // v3.7 附加过滤条件
+            if (value instanceof ID && tfEasy.getDisplayType() == DisplayType.REFERENCE) {
+                if (!FieldValueHelper.checkRefDataFilter(tfEasy, (ID) value)) {
+                    log.info("Mismatch `referenceDataFilter`, ignored : {}", value);
+                    continue;
+                }
+            } else if (value instanceof JSONArray && tfEasy.getDisplayType() == DisplayType.N2NREFERENCE) {
+                JSONArray value2 = new JSONArray();
+                for (Object o : (JSONArray) value) {
+                    JSONObject item = (JSONObject) o;
+                    String id = item.getString("id");
+                    if (FieldValueHelper.checkRefDataFilter(tfEasy, ID.valueOf(id))) {
+                        value2.add(item);
+                    } else {
+                        log.info("Mismatch `referenceDataFilter`, ignored : {}", value);
+                    }
+                }
+                value = value2.isEmpty() ? null : value2;
+            }
+
             // 空值
             if (NullValue.isNull(value) || StringUtils.isBlank(value.toString())) {
                 // v3.3 强制回填空值
-                if (BooleanUtils.isTrue(e.getBoolean("fillinForce"))) {
-                    value = null;
-                } else {
-                    continue;
-                }
+                if (BooleanUtils.isTrue(e.getBoolean("fillinForce"))) value = null;
+                else continue;
             }
 
             // 日期格式处理
             if (value instanceof Date
                     && (targetFieldMeta.getType() == FieldType.DATE || targetFieldMeta.getType() == FieldType.TIMESTAMP)) {
-                value = EasyMetaFactory.valueOf(targetFieldMeta).wrapValue(value);
+                value = tfEasy.wrapValue(value);
             }
 
             ConfigBean clone = e.clone().set("value", value);

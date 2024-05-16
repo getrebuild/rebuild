@@ -33,8 +33,6 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
-import com.rebuild.core.service.query.ParseHelper;
-import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
@@ -732,19 +730,11 @@ public class FormsBuilder extends FormsManager {
             else if (entity.containsField(field)) {
                 EasyField easyField = EasyMetaFactory.valueOf(entity.getField(field));
                 if (easyField.getDisplayType() == DisplayType.REFERENCE || easyField.getDisplayType() == DisplayType.N2NREFERENCE) {
-
                     // v3.4 如果字段设置了附加过滤条件，从相关项新建时要检查是否符合
-                    String dataFilter = easyField.getExtraAttr(EasyFieldConfigProps.REFERENCE_DATAFILTER);
-                    if (JSONUtils.wellFormat(dataFilter)) {
-                        JSONObject dataFilterJson = JSON.parseObject(dataFilter);
-                        if (ParseHelper.validAdvFilter(dataFilterJson)) {
-                            boolean m = QueryHelper.isMatchAdvFilter(ID.valueOf(value), dataFilterJson);
-                            if (!m) {
-                                ((JSONObject) formModel).put("alertMessage",
-                                        Language.L("%s不符合附加过滤条件，不能自动填写", Language.L(easyField)));
-                                continue;
-                            }
-                        }
+                    if (!FieldValueHelper.checkRefDataFilter(easyField, ID.valueOf(value))) {
+                        ((JSONObject) formModel).put("alertMessage",
+                                Language.L("%s不符合附加过滤条件，不能自动填写", Language.L(easyField)));
+                        continue;
                     }
 
                     Object mixValue = inFormFields.contains(field) ? getReferenceMixValue(value) : value;
@@ -760,7 +750,7 @@ public class FormsBuilder extends FormsManager {
                 }
 
             } else {
-                log.warn("Unknown value pair : " + field + " = " + value);
+                log.warn("Unknown value pair : {} = {}", field, value);
             }
         }
 
@@ -800,7 +790,7 @@ public class FormsBuilder extends FormsManager {
             String idLabel = FieldValueHelper.getLabel(ID.valueOf(idValue));
             return FieldValueHelper.wrapMixValue(ID.valueOf(idValue), idLabel);
         } catch (NoRecordFoundException ex) {
-            log.error("No record found : " + idValue);
+            log.error("No record found : {}", idValue);
             return null;
         }
     }
@@ -843,7 +833,7 @@ public class FormsBuilder extends FormsManager {
         }
 
         Object[] o = Application.getQueryFactory().uniqueNoFilter(record, fieldParent);
-        return o == null ? null : (ID) o[0];
+        return o != null && o[0] instanceof ID ? (ID) o[0] : null;
     }
 
     private boolean isNewMainId(Object id) {
