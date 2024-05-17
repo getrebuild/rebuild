@@ -228,7 +228,7 @@ public class AdvFilterParser extends SetUser {
                 } else if ("(".equals(token) || ")".equals(token) || "or".equals(token) || "and".equals(token)) {
                     itemSqls.add(token);
                 } else {
-                    log.warn("Invalid equation token : " + token);
+                    log.warn("Invalid equation token : {}", token);
                 }
 
                 if (hasRP) {
@@ -590,7 +590,7 @@ public class AdvFilterParser extends SetUser {
         }
 
         if (StringUtils.isBlank(value)) {
-            log.warn("No search value defined : " + item.toJSONString());
+            log.warn("No search value defined : {}", item.toJSONString());
             return null;
         }
 
@@ -685,6 +685,9 @@ public class AdvFilterParser extends SetUser {
                 String dateFormat = StringUtils.defaultIfBlank(
                         EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.DATE_FORMAT),
                         DisplayType.DATE.getDefaultFormat());
+
+                // v3.7 BW 无需修正，值由用户提供
+                if (ParseHelper.BW.equals(op)) dateFormat = "0";
 
                 if (dateFormat.length() == 4) {
                     value = value.substring(0, 4) + "-01-01";

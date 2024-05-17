@@ -1501,6 +1501,7 @@ class RbFormDateTime extends RbFormElement {
           startView: startView,
           pickerPosition: this._getAutoPosition(),
           minuteStep: window.__LAB_MINUTESTEP || 5,
+          // todayBtn: true,
         })
         .on('changeDate', function () {
           const val = $(this).val()
