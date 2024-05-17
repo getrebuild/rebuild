@@ -888,12 +888,8 @@ class ApproverNodeConfig extends StartNodeConfig {
     }
 
     if (rb.commercial < 1) {
-      if (d.allowReferral || d.allowCountersign) {
-        RbHighbar.error(WrapHtml($L('免费版不支持转审/加签功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-        return
-      }
-      if (d.allowBatch) {
-        RbHighbar.error(WrapHtml($L('免费版不支持批量审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      if (d.allowReferral || d.allowCountersign || d.allowBatch) {
+        RbHighbar.error(WrapHtml($L('免费版不支持转审/加签/批量审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
         return
       }
       if (~~expiresAuto.expiresAuto > 0) {
