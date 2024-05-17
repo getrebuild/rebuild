@@ -621,6 +621,7 @@ const _handleCalcFormula = function (formula) {
           fs.push(item)
         }
       })
+      fs.push({ name: '{NOW}', label: $L('当前日期'), type: 'NOW' })
 
       FIELDS_CACHE = fs
       if (formula) _call(formula)

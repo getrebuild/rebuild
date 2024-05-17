@@ -23,6 +23,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyDateTime;
 import com.rebuild.core.metadata.easymeta.EasyDecimal;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyField;
@@ -232,6 +233,11 @@ public class ModelExtrasController extends BaseController {
         boolean canCalc = true;
         Set<String> fieldVars = ContentWithFieldVars.matchsVars(formula);
         for (String field : fieldVars) {
+            if (EasyDateTime.VAR_NOW.equals(field) || "NOW".equals(field)) {
+                varsInFormula.put(field, CalendarUtils.now());
+                continue;
+            }
+
             if (!entity.containsField(field)) {
                 canCalc = false;
                 break;

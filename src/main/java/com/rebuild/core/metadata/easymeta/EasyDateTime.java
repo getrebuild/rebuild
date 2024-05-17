@@ -22,6 +22,9 @@ import java.util.Date;
 public class EasyDateTime extends EasyField {
     private static final long serialVersionUID = 3882003543084097603L;
 
+    // 此变量表示当前日期（时间）
+    public static final String VAR_NOW = "{NOW}";
+
     protected EasyDateTime(Field field, DisplayType displayType) {
         super(field, displayType);
     }
@@ -65,7 +68,7 @@ public class EasyDateTime extends EasyField {
         if (StringUtils.isBlank(valueExpr)) return null;
 
         // 表达式
-        if (valueExpr.contains("NOW")) {
+        if (valueExpr.contains(VAR_NOW) || valueExpr.contains("NOW")) {
             return FieldValueHelper.parseDateExpr(valueExpr, null);
         }
         // 具体的日期值

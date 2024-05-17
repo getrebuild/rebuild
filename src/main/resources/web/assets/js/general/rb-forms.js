@@ -3115,6 +3115,9 @@ const __calcFormula = function (_this) {
       const fieldComp = $$$parent.refs[`fieldcomp-${name}`]
       if (fieldComp && !$empty(fieldComp.state.value)) {
         calcFormulaValues[name] = fieldComp.state.value
+      } else if (item === '{NOW}') {
+        // v3.7
+        calcFormulaValues[name] = '{NOW}'
       }
     })
 
