@@ -26,7 +26,7 @@
 5. [新增] 表单设计支持“只读”选项
 6. [新增] 多个 FrontJS 函数
 7. [优化] 首页仪表盘暗黑模式
-8. [优化] 多项安全性更新 
+8. [优化] 多项安全性更新
 9. ...
 
 更多更新详情请参见 [更新日志](https://getrebuild.com/docs/dev/changelog)
@@ -49,7 +49,7 @@ _生产环境强烈推荐使用此方式 !!!_
 
 下载后解压（集成安装包），通过 `start-rebuild.bat` 或 `start-rebuild.sh` 启动，然后打开浏览器输入 [http://localhost:18080/](http://localhost:18080/) 开始体验。
 
-更多详情请参见 [安装文档](https://getrebuild.com/docs/admin/install)
+更多详情请参见 [安装文档](https://getrebuild.com/learn/install)
 
 #### 2. 通过源码编译
 

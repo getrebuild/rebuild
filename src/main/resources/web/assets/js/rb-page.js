@@ -966,7 +966,7 @@ var $converEmoji = function (text) {
   $(es).each(function () {
     var key = this.substr(1, this.length - 2)
     if (RBEMOJIS[key]) {
-      var img = '<img class="emoji" src="' + rb.baseUrl + '/assets/img/emoji/' + RBEMOJIS[key] + '" alt="' + key + '" />'
+      var img = '<img class="emoji" src="' + rb.baseUrl + '/assets/img/emoji/' + RBEMOJIS[key] + '" title="' + key + '" />'
       text = text.replace(this, img)
     }
   })

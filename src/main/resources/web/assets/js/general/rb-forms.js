@@ -939,7 +939,7 @@ class RbFormElement extends React.Component {
    * 渲染表单
    */
   renderElement() {
-    const _readonly = this.state.readonly
+    const _readonly37 = this.state.readonly
     const value = arguments.length > 0 ? arguments[0] : this.state.value
 
     return (
@@ -949,8 +949,8 @@ class RbFormElement extends React.Component {
         title={this.state.hasError}
         type="text"
         value={value || ''}
-        onChange={(e) => this.handleChange(e, !_readonly)}
-        readOnly={_readonly}
+        onChange={(e) => this.handleChange(e, !_readonly37)}
+        readOnly={_readonly37}
         placeholder={this._placeholderw}
         maxLength={this.props.maxLength || 200}
       />
@@ -1231,7 +1231,7 @@ class RbFormNumber extends RbFormText {
   }
 
   renderElement() {
-    const _readonly = this.state.readonly
+    const _readonly37 = this.state.readonly
     const value = arguments.length > 0 ? arguments[0] : this.state.value
 
     return (
@@ -1242,8 +1242,8 @@ class RbFormNumber extends RbFormText {
           title={this.state.hasError}
           type="text"
           value={this._removeComma(value)}
-          onChange={(e) => this.handleChange(e, !_readonly)}
-          readOnly={_readonly}
+          onChange={(e) => this.handleChange(e, !_readonly37)}
+          readOnly={_readonly37}
           placeholder={this._placeholderw}
           maxLength="29"
         />
@@ -1311,7 +1311,7 @@ class RbFormNText extends RbFormElement {
   }
 
   renderElement() {
-    const _readonly = this.state.readonly
+    const _readonly37 = this.state.readonly
 
     return (
       <RF>
@@ -1320,15 +1320,15 @@ class RbFormNText extends RbFormElement {
             this._fieldValue = c
             this._height > 0 && c && $(c).attr('style', `height:${this._height}px !important`)
           }}
-          className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''} ${this.props.useMdedit && _readonly ? 'cm-readonly' : ''}`}
+          className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''} ${this.props.useMdedit && _readonly37 ? 'cm-readonly' : ''}`}
           title={this.state.hasError}
           value={this.state.value || ''}
-          onChange={(e) => this.handleChange(e, !_readonly)}
-          readOnly={_readonly}
+          onChange={(e) => this.handleChange(e, !_readonly37)}
+          readOnly={_readonly37}
           placeholder={this._placeholderw}
           maxLength="6000"
         />
-        {this.props.useMdedit && !_readonly && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
+        {this.props.useMdedit && !_readonly37 && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
       </RF>
     )
   }
@@ -1412,17 +1412,19 @@ class RbFormNText extends RbFormElement {
   }
 
   _initMde() {
+    const _readonly37 = this.state.readonly
+
     const mde = new SimpleMDE({
       element: this._fieldValue,
       status: false,
       autoDownloadFontAwesome: false,
       spellChecker: false,
       // eslint-disable-next-line no-undef
-      toolbar: this.props.readonly ? false : DEFAULT_MDE_TOOLBAR(this),
+      toolbar: _readonly37 ? false : DEFAULT_MDE_TOOLBAR(this),
     })
     this._SimpleMDE = mde
 
-    if (this.props.readonly) {
+    if (_readonly37) {
       mde.codemirror.setOption('readOnly', true)
     } else {
       $createUploader(this._fieldValue__upload, null, (res) => {
@@ -1452,8 +1454,8 @@ class RbFormNText extends RbFormElement {
 
 class RbFormDateTime extends RbFormElement {
   renderElement() {
-    const _readonly = this.state.readonly
-    if (_readonly) return super.renderElement()
+    const _readonly37 = this.state.readonly
+    if (_readonly37) return super.renderElement()
 
     return (
       <div className="input-group has-append">
@@ -1463,7 +1465,7 @@ class RbFormDateTime extends RbFormElement {
           title={this.state.hasError}
           type="text"
           value={this.state.value || ''}
-          onChange={(e) => this.handleChange(e, !_readonly)}
+          onChange={(e) => this.handleChange(e, !_readonly37)}
           placeholder={this._placeholderw}
           maxLength="20"
         />
@@ -1478,14 +1480,14 @@ class RbFormDateTime extends RbFormElement {
   }
 
   onEditModeChanged(destroy) {
-    const _readonly = this.state.readonly
+    const _readonly37 = this.state.readonly
 
     if (destroy) {
       if (this.__datetimepicker) {
         this.__datetimepicker.datetimepicker('remove')
         this.__datetimepicker = null
       }
-    } else if (!_readonly) {
+    } else if (!_readonly37) {
       const format = (this.props.datetimeFormat || this.props.dateFormat).replace('mm', 'ii').toLowerCase()
       let minView = 0
       let startView = 'month'
@@ -1501,6 +1503,7 @@ class RbFormDateTime extends RbFormElement {
           startView: startView,
           pickerPosition: this._getAutoPosition(),
           minuteStep: window.__LAB_MINUTESTEP || 5,
+          // todayBtn: true,
         })
         .on('changeDate', function () {
           const val = $(this).val()
@@ -1532,11 +1535,11 @@ class RbFormTime extends RbFormDateTime {
   }
 
   onEditModeChanged(destroy) {
-    const _readonly = this.state.readonly
+    const _readonly37 = this.state.readonly
 
     if (destroy) {
       super.onEditModeChanged(destroy)
-    } else if (!_readonly) {
+    } else if (!_readonly37) {
       const format = (this.props.timeFormat || 'hh:ii:ss').replace('mm', 'ii').toLowerCase()
       const minView = format.length === 2 ? 1 : 0
 
@@ -1579,12 +1582,12 @@ class RbFormImage extends RbFormElement {
   }
 
   renderElement() {
-    const _readonly = this.state.readonly
+    const _readonly37 = this.state.readonly
     const value = this.state.value || []
-    const showUpload = value.length < this.__maxUpload && !_readonly
+    const showUpload = value.length < this.__maxUpload && !_readonly37
 
     if (value.length === 0) {
-      if (_readonly) {
+      if (_readonly37) {
         return (
           <div className="form-control-plaintext text-muted">
             <i className="mdi mdi-information-outline" /> {$L('只读')}
@@ -1600,7 +1603,7 @@ class RbFormImage extends RbFormElement {
             <span key={item}>
               <a title={$fileCutName(item)} className="img-thumbnail img-upload" onClick={() => this._filePreview(value, idx)}>
                 <img src={this._formatUrl(item)} alt="IMG" />
-                {!_readonly && (
+                {!_readonly37 && (
                   <b title={$L('移除')} onClick={(e) => this.removeItem(item, e)}>
                     <span className="zmdi zmdi-close" />
                   </b>
@@ -1759,11 +1762,11 @@ class RbFormFile extends RbFormImage {
   }
 
   renderElement() {
-    const _readonly = this.state.readonly
+    const _readonly37 = this.state.readonly
     const value = this.state.value || []
-    const showUpload = value.length < this.__maxUpload && !_readonly
+    const showUpload = value.length < this.__maxUpload && !_readonly37
 
-    if (value.length === 0 && _readonly) {
+    if (value.length === 0 && _readonly37) {
       return (
         <div className="form-control-plaintext text-muted">
           <i className="mdi mdi-information-outline" /> {$L('只读')}
@@ -1778,7 +1781,7 @@ class RbFormFile extends RbFormImage {
           return (
             <div key={item} className="img-thumbnail" title={fileName} onClick={() => this._filePreview(item)}>
               {this._renderFileIcon(fileName, item)}
-              {!_readonly && (
+              {!_readonly37 && (
                 <b title={$L('移除')} onClick={(e) => this.removeItem(item, e)}>
                   <span className="zmdi zmdi-close" />
                 </b>
@@ -1817,12 +1820,10 @@ class RbFormFile extends RbFormImage {
   }
 
   _renderFileIcon(fileName, file) {
-    const extName = $fileExtName(fileName)
-    // @see `file-preview.js`
-    const isImage = ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'jfif', 'svg', 'webp'].includes(extName)
+    const isImage = $isImage(fileName)
     return (
       <RF>
-        <i className={`file-icon ${isImage && 'image'}`} data-type={extName}>
+        <i className={`file-icon ${isImage && 'image'}`} data-type={$fileExtName(fileName)}>
           {isImage && <img src={this._formatUrl(file)} />}
         </i>
         <span>{fileName}</span>
@@ -1892,8 +1893,8 @@ class RbFormPickList extends RbFormElement {
         that.handleChange({ target: { value: val } }, true)
       })
 
-      const _readonly = this.state.readonly
-      if (_readonly) $(this._fieldValue).attr('disabled', true)
+      const _readonly37 = this.state.readonly
+      if (_readonly37) $(this._fieldValue).attr('disabled', true)
     }
   }
 
@@ -1915,13 +1916,13 @@ class RbFormReference extends RbFormElement {
   }
 
   renderElement() {
-    const _readonly = this.state.readonly
+    const _readonly37 = this.state.readonly
     const quickNew = this.props.referenceQuickNew && !this.props.onView
 
     return (
       <div className="input-group has-append">
         <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" title={this._hasDataFilter ? $L('当前字段已启用数据过滤') : null} multiple={this._multiple === true} />
-        {!_readonly && (
+        {!_readonly37 && (
           <div className="input-group-append">
             <button className="btn btn-secondary" type="button" onClick={() => this.showSearcher()}>
               <i className="icon zmdi zmdi-search" />
@@ -2011,8 +2012,8 @@ class RbFormReference extends RbFormElement {
         that.handleChange({ target: { value: v } }, true)
       })
 
-      const _readonly = this.state.readonly
-      if (_readonly) $(this._fieldValue).attr('disabled', true)
+      const _readonly37 = this.state.readonly
+      if (_readonly37) $(this._fieldValue).attr('disabled', true)
     }
   }
 
@@ -2276,12 +2277,12 @@ class RbFormAnyReference extends RbFormReference {}
 
 class RbFormClassification extends RbFormElement {
   renderElement() {
-    const _readonly = this.state.readonly
+    const _readonly37 = this.state.readonly
 
     return (
       <div className="input-group has-append">
         <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" />
-        {!_readonly && (
+        {!_readonly37 && (
           <div className="input-group-append">
             <button className="btn btn-secondary" type="button" onClick={this.showSelector}>
               <i className="icon zmdi zmdi-search" />
@@ -2321,8 +2322,8 @@ class RbFormClassification extends RbFormElement {
         this.handleChange({ target: { value: v } }, true)
       })
 
-      const _readonly = this.state.readonly
-      if (_readonly) $(this._fieldValue).attr('disabled', true)
+      const _readonly37 = this.state.readonly
+      if (_readonly37) $(this._fieldValue).attr('disabled', true)
     }
   }
 
@@ -2374,7 +2375,7 @@ class RbFormMultiSelect extends RbFormElement {
       return <div className="form-control-plaintext text-danger">{$L('未配置')}</div>
     }
 
-    const _readonly = this.state.readonly
+    const _readonly37 = this.state.readonly
     const maskValue = this._getMaskValue()
 
     return (
@@ -2389,7 +2390,7 @@ class RbFormMultiSelect extends RbFormElement {
                 checked={(maskValue & item.mask) !== 0}
                 value={item.mask}
                 onChange={this._changeValue}
-                disabled={_readonly || $isSysMask(item.text)}
+                disabled={_readonly37 || $isSysMask(item.text)}
               />
               <span className="custom-control-label">{item.text}</span>
             </label>
@@ -2436,16 +2437,16 @@ class RbFormBool extends RbFormElement {
   }
 
   renderElement() {
-    const _readonly = this.state.readonly
+    const _readonly37 = this.state.readonly
 
     return (
       <div className="mt-1">
         <label className="custom-control custom-radio custom-control-inline mb-1">
-          <input className="custom-control-input" name={`${this._htmlid}T`} type="radio" checked={this.state.value === 'T'} data-value="T" onChange={this._changeValue} disabled={_readonly} />
+          <input className="custom-control-input" name={`${this._htmlid}T`} type="radio" checked={this.state.value === 'T'} data-value="T" onChange={this._changeValue} disabled={_readonly37} />
           <span className="custom-control-label">{this._Options['T']}</span>
         </label>
         <label className="custom-control custom-radio custom-control-inline mb-1">
-          <input className="custom-control-input" name={`${this._htmlid}F`} type="radio" checked={this.state.value === 'F'} data-value="F" onChange={this._changeValue} disabled={_readonly} />
+          <input className="custom-control-input" name={`${this._htmlid}F`} type="radio" checked={this.state.value === 'F'} data-value="F" onChange={this._changeValue} disabled={_readonly37} />
           <span className="custom-control-label">{this._Options['F']}</span>
         </label>
       </div>
@@ -2510,15 +2511,15 @@ class RbFormAvatar extends RbFormElement {
   }
 
   renderElement() {
-    const _readonly = this.state.readonly
+    const _readonly37 = this.state.readonly
 
     return (
       <div className="img-field avatar">
-        <span title={_readonly ? null : $L('选择头像')}>
-          {!_readonly && <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" />}
-          <label htmlFor={this._htmlid} className="img-thumbnail img-upload" disabled={_readonly}>
+        <span title={_readonly37 ? null : $L('选择头像')}>
+          {!_readonly37 && <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" />}
+          <label htmlFor={this._htmlid} className="img-thumbnail img-upload" disabled={_readonly37}>
             <img src={this._formatUrl(this.state.value)} alt="Avatar" />
-            {!_readonly && this.state.value && (
+            {!_readonly37 && this.state.value && (
               <b
                 title={$L('移除')}
                 onClick={(e) => {
@@ -2584,10 +2585,10 @@ class RbFormLocation extends RbFormElement {
   }
 
   renderElement() {
-    const _readonly = this.state.readonly
+    const _readonly37 = this.state.readonly
     const lnglat = this._parseLnglat(this.state.value)
 
-    if (_readonly) {
+    if (_readonly37) {
       return (
         <RF>
           {super.renderElement(lnglat ? lnglat.text : null)}
@@ -2719,22 +2720,22 @@ class RbFormLocation extends RbFormElement {
 
 class RbFormSign extends RbFormElement {
   renderElement() {
-    const _readonly = this.state.readonly
+    const _readonly37 = this.state.readonly
     const value = this.state.value
 
     return (
       <div className="img-field sign sign-edit">
-        <span title={_readonly ? null : $L('签名')}>
+        <span title={_readonly37 ? null : $L('签名')}>
           <label
             className="img-thumbnail img-upload"
             onClick={() => {
-              if (!_readonly) {
+              if (!_readonly37) {
                 this._openSignPad((v) => {
                   this.handleChange({ target: { value: v || null } }, true)
                 })
               }
             }}
-            disabled={_readonly}>
+            disabled={_readonly37}>
             {value ? <img src={value} alt="SIGN" /> : <span className="mdi mdi-file-sign" />}
           </label>
         </span>
@@ -2841,8 +2842,8 @@ class RbFormTag extends RbFormElement {
         that.handleChange({ target: { value: mVal.join('$$$$') } }, true)
       })
 
-      const _readonly = this.state.readonly
-      if (_readonly) $(this._fieldValue).attr('disabled', true)
+      const _readonly37 = this.state.readonly
+      if (_readonly37) $(this._fieldValue).attr('disabled', true)
     }
   }
 
@@ -3117,6 +3118,9 @@ const __calcFormula = function (_this) {
       const fieldComp = $$$parent.refs[`fieldcomp-${name}`]
       if (fieldComp && !$empty(fieldComp.state.value)) {
         calcFormulaValues[name] = fieldComp.state.value
+      } else if (item === '{NOW}') {
+        // v3.7
+        calcFormulaValues[name] = '{NOW}'
       }
     })
 

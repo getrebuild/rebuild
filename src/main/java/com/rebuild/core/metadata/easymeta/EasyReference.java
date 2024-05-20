@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata.easymeta;
 
+import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.bizz.security.member.Team;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -31,6 +32,7 @@ import java.util.List;
 public class EasyReference extends EasyField implements MixValue {
     private static final long serialVersionUID = -5001745527956303569L;
 
+    // 此变量表示当前用户/部门/角色/团队
     protected static final String VAR_CURRENT = "{CURRENT}";
 
     protected EasyReference(Field field, DisplayType displayType) {
@@ -74,20 +76,24 @@ public class EasyReference extends EasyField implements MixValue {
      * @return returns ID or ID[]
      */
     protected Object exprCurrent() {
-        final ID cu = UserContextHolder.getUser(true);
-        if (cu == null) return null;
+        final ID currentUser = UserContextHolder.getUser(true);
+        if (currentUser == null) return null;
 
-        Entity ref = getRawMeta().getReferenceEntity();
-        if (ref.getEntityCode() == EntityHelper.User) return cu;
+        int refCode = getRawMeta().getReferenceEntity().getEntityCode();
+        if (refCode == EntityHelper.User) return currentUser;
 
-        User user = Application.getUserStore().getUser(cu);
-
-        if (ref.getEntityCode() == EntityHelper.Department) {
+        User user = Application.getUserStore().getUser(currentUser);
+        if (refCode == EntityHelper.Department) {
             Department dept = user.getOwningDept();
             return dept == null ? null : dept.getIdentity();
         }
+        if (refCode == EntityHelper.Role) {
+            Role role = user.getOwningRole();
+            return role == null ? null : role.getIdentity();
+        }
 
-        if (ref.getEntityCode() == EntityHelper.Team) {
+        // Returns ID[]
+        if (refCode == EntityHelper.Team) {
             List<ID> ts = new ArrayList<>();
             for (Team t : user.getOwningTeams()) {
                 ts.add((ID) t.getIdentity());

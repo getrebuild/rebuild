@@ -140,17 +140,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-left: 5px;
   margin-top: 3px;
   font-size: 1.55rem;
-  color: green;
+  color: green !important;
 }
 
 .chart.index > .data-item .with strong::before {
-  font-family: 'Material Design Icons';
+  font-family: 'Material Design Icons', serif;
   content: '\F072E';
   font-size: 0.9rem;
 }
 
 .chart.index > .data-item .with strong.ge {
-  color: red;
+  color: red !important;
 }
 
 .chart.index > .data-item .with strong.ge::before {

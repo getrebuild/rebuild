@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
  * @author devezhao
  * @since 02/04/2020
  */
-public class DatabaseBackupTest extends TestSupport {
+class DatabaseBackupTest extends TestSupport {
 
     @Test
     void backup() throws Exception {

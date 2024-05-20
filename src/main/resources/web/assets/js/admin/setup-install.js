@@ -124,6 +124,7 @@ class RbWelcome extends React.Component {
       type: 'danger',
       cancelText: $L('不同意'),
       confirmText: $L('同意'),
+      countdown: 5,
       onConfirm: function () {
         this.disabled(true)
 

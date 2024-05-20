@@ -39,7 +39,7 @@ public class CommonPageView extends BaseController {
 
     @GetMapping("/")
     public void index(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (AppUtils.isMobile(request) && License.isRbvAttached()) {
+        if (AppUtils.isMobile(request)) {
             response.sendRedirect(RebuildConfiguration.getMobileUrl("/"));
         } else {
             response.sendRedirect("user/login");

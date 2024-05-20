@@ -452,3 +452,9 @@ class FileShare extends RbModalHandler {
     })
   }
 }
+
+// 是否图片
+// eslint-disable-next-line no-unused-vars
+function $isImage(name) {
+  return TYPE_IMGS.includes('.' + $fileExtName(name.toLowerCase()))
+}

@@ -769,7 +769,7 @@ class FilterItem extends React.Component {
       format: 'yyyy-mm-dd',
       minView: 2,
       startView: 'month',
-      // todayBtn: true,
+      todayBtn: true,
       clearBtn: this.props.allowClear || false,
     }
 
@@ -845,7 +845,7 @@ class FilterItem extends React.Component {
     let noValue = false
     if (!s.value) {
       if (OP_NOVALUE.includes(s.op)) {
-        // 允许无值
+        noValue = true
       } else {
         return
       }
@@ -857,8 +857,12 @@ class FilterItem extends React.Component {
       return
     }
 
-    if (!!s.value && ($(this._filterVal).hasClass('is-invalid') || $(this._filterVal2).hasClass('is-invalid'))) {
-      return
+    // 允许无值
+    if (noValue === true);
+    else {
+      if (!!s.value && ($(this._filterVal).hasClass('is-invalid') || $(this._filterVal2).hasClass('is-invalid'))) {
+        return
+      }
     }
 
     const item = {

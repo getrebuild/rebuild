@@ -279,3 +279,34 @@ select.underline-sm:focus {
 .adv-options .custom-control:last-child {
   margin-bottom: 0;
 }
+
+/* via: triggers.css */
+
+.fields ul li.flag-DECIMAL > a::before,
+.fields ul li.flag-NUMBER > a::before,
+.fields ul li.flag-DATE > a::before,
+.fields ul li.flag-DATETIME > a::before,
+.fields ul li.flag-TIME > a::before,
+.fields ul li.flag-NOW > a::before {
+  content: '#';
+  width: 15px;
+  display: inline-block;
+  color: #4285f4;
+  font-size: 0.9rem;
+  font-style: normal;
+}
+
+.fields ul li.flag-DECIMAL > a::before,
+.fields ul li.flag-NUMBER > a::before {
+  content: 'N';
+}
+
+.fields ul li.flag-DATE > a::before,
+.fields ul li.flag-DATETIME > a::before,
+.fields ul li.flag-TIME > a::before {
+  content: 'D';
+}
+
+.fields ul li.flag-NOW > a::before {
+  color: #fbbc05;
+}

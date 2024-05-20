@@ -26,11 +26,14 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.MixValue;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.ApprovalStepService;
+import com.rebuild.core.service.query.ParseHelper;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -320,19 +323,37 @@ public class FieldValueHelper {
     /**
      * 字段值脱敏：复合值
      *
-     * @param easyField
+     * @param field
      * @param mixValue
      */
-    public static void desensitizedMixValue(EasyField easyField, JSON mixValue) {
+    public static void desensitizedMixValue(EasyField field, JSON mixValue) {
         if (mixValue instanceof JSONObject) {
             String text = ((JSONObject) mixValue).getString("text");
             if (text != null) {
-                ((JSONObject) mixValue).put("text", FieldValueHelper.desensitized(easyField, text));
+                ((JSONObject) mixValue).put("text", FieldValueHelper.desensitized(field, text));
             }
         }
         // N2N
         else if (mixValue instanceof JSONArray) {
-            for (Object o : (JSONArray) mixValue) desensitizedMixValue(easyField, (JSON) o);
+            for (Object o : (JSONArray) mixValue) desensitizedMixValue(field, (JSON) o);
         }
+    }
+
+    /**
+     * 引用,多引用 附加过滤条件
+     * TODO 快速新建时回填也应该检查 ???
+     *
+     * @param field
+     * @param value
+     * @return
+     */
+    public static boolean checkRefDataFilter(EasyField field, ID value) {
+        String dataFilter = field.getExtraAttr(EasyFieldConfigProps.REFERENCE_DATAFILTER);
+        if (!JSONUtils.wellFormat(dataFilter)) return true;
+
+        JSONObject dataFilterJson = JSON.parseObject(dataFilter);
+        if (!ParseHelper.validAdvFilter(dataFilterJson)) return true;
+
+        return QueryHelper.isMatchAdvFilter(value, dataFilterJson);
     }
 }
