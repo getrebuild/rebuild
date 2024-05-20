@@ -212,7 +212,7 @@ class ApprovalProcessor extends React.Component {
         this.disabled(true, true)
         $.post(`/app/entity/approval/cancel?record=${that.props.id}`, (res) => {
           if (res.error_code > 0) RbHighbar.error(res.error_msg)
-          else _reload(this, $L('审批已撤回'))
+          else _reloadAndTips(this, $L('审批已撤回'))
           this.disabled()
         })
       },
@@ -245,7 +245,7 @@ class ApprovalProcessor extends React.Component {
         this.disabled(true, true)
         $.post(`/app/entity/approval/revoke?record=${that.props.id}`, (res) => {
           if (res.error_code > 0) RbHighbar.error(res.error_msg)
-          else _reload(this, $L('审批已撤销'))
+          else _reloadAndTips(this, $L('审批已撤销'))
           this.disabled()
         })
       },
@@ -445,7 +445,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
     this.disabled(true)
     $.post(`/app/entity/approval/submit?record=${this.props.id}&approval=${this.state.useApproval}`, JSON.stringify(selectUsers), (res) => {
       if (res.error_code > 0) RbHighbar.error(res.error_msg)
-      else _reload(this, $L('审批已提交'))
+      else _reloadAndTips(this, $L('审批已提交'))
       this.disabled()
     })
   }
@@ -624,7 +624,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         RbHighbar.error(res.error_msg)
       } else {
         _alert && _alert.hide(true)
-        _reload(this, state === 10 ? $L('审批已同意') : rejectNode ? $L('审批已退回') : $L('审批已驳回'))
+        _reloadAndTips(this, state === 10 ? $L('审批已同意') : rejectNode ? $L('审批已退回') : $L('审批已驳回'))
         typeof this.props.call === 'function' && this.props.call()
       }
     })
@@ -642,7 +642,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
 
             if (res.error_code === 0) {
               _alert.hide()
-              _reload(this, $L('已转审'))
+              _reloadAndTips(this, $L('已转审'))
               typeof this.props.call === 'function' && this.props.call()
             } else {
               RbHighbar.error(res.error_msg)
@@ -666,7 +666,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
 
             if (res.error_code === 0) {
               _alert.hide()
-              _reload(this, $L('已加签'))
+              _reloadAndTips(this, $L('已加签'))
               typeof this.props.call === 'function' && this.props.call()
             } else {
               RbHighbar.error(res.error_msg)
@@ -928,7 +928,7 @@ class ApprovalStepViewer extends React.Component {
 }
 
 // 刷新页面
-const _reload = function (dlg, msg) {
+const _reloadAndTips = function (dlg, msg) {
   dlg && dlg.hide(true)
   msg && RbHighbar.success(msg)
 
