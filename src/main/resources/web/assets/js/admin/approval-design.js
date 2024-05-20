@@ -826,7 +826,7 @@ class ApproverNodeConfig extends StartNodeConfig {
           $.get(`/admin/robot/approval/expires-auto-fields?entity=${wpc.applyEntity}`, (res) => {
             if (res.error_code === 0) {
               this.__expiresAutoFields = res.data
-              this.setState({ ...res.data })
+              this.setState({ ...res.data }, () => this._initAfter())
             }
           })
         }
@@ -842,14 +842,24 @@ class ApproverNodeConfig extends StartNodeConfig {
     const eaConf = this.props.expiresAuto
     if (eaConf && ~~eaConf.expiresAuto > 0) {
       for (let name in eaConf) {
-        const $name = $(this._$expiresAuto).find(`[name="${name}"]`)
-        $name.val(eaConf[name])
-        if ($name.prop('tagName') === 'SELECT') $name.trigger('change')
+        const $opt = $(this._$expiresAuto).find(`[name="${name}"]`)
+        $opt.val(eaConf[name])
+        if ($opt.prop('tagName') === 'SELECT') $opt.trigger('change')
       }
+      setTimeout(() => this._initAfter(), 501) // Wait res loaded
+    }
+  }
 
-      setTimeout(() => {
-        $(this._$expiresAuto).find('[name="expiresAutoUrgeUser"]').val(eaConf.expiresAutoUrgeUser).trigger('change')
-      }, 500) // Wait fields loaded
+  _initAfter() {
+    if (this._initAfter__exec) return
+    this._initAfter__exec = true
+
+    const eaConf = this.props.expiresAuto
+    if (eaConf.expiresAuto2Value) {
+      $(this._$expiresAuto).find('[name="expiresAuto2Value"]').val(eaConf.expiresAuto2Value).trigger('change')
+    }
+    if (eaConf.expiresAutoUrgeUser) {
+      $(this._$expiresAuto).find('[name="expiresAutoUrgeUser"]').val(eaConf.expiresAutoUrgeUser).trigger('change')
     }
   }
 
