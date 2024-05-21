@@ -253,7 +253,13 @@ class FileUploadDlg extends RbFormHandler {
                 {Object.keys(files).map((file) => {
                   const state = files[file]
                   return (
-                    <div key={file} className="img-thumbnail" title={file}>
+                    <div
+                      key={file}
+                      className="img-thumbnail"
+                      title={file}
+                      onClick={() => {
+                        if (state.key) RbPreview.create(state.key)
+                      }}>
                       <i className="file-icon" data-type={$fileExtName(file)} />
                       <span>{file}</span>
                       <span className="status" style={{ width: `${state.key ? 100 : Math.max(state.percent, 0)}%` }}>

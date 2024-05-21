@@ -273,10 +273,10 @@ class FeedsEditor extends React.Component {
         {((this.state.images || []).length > 0 || (this.state.files || []).length > 0) && (
           <div className="attachment">
             <div className="img-field">
-              {(this.state.images || []).map((item) => {
+              {(this.state.images || []).map((item, idx) => {
                 return (
                   <span key={`img-${item}`}>
-                    <a title={$fileCutName(item)} className="img-thumbnail img-upload">
+                    <a title={$fileCutName(item)} className="img-thumbnail img-upload" onClick={() => this._filePreview(this.state.images, idx)}>
                       <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/300/interlace/1/q/100`} />
                       <b title={$L('移除')} onClick={() => this._removeImage(item)}>
                         <span className="zmdi zmdi-close" />
@@ -291,7 +291,7 @@ class FeedsEditor extends React.Component {
                 const fileName = $fileCutName(item)
                 const isImage = $isImage(fileName)
                 return (
-                  <div key={`file-${item}`} className="img-thumbnail" title={fileName}>
+                  <div key={`file-${item}`} className="img-thumbnail" title={fileName} onClick={() => this._filePreview(item)}>
                     <i className={`file-icon ${isImage && 'image'}`} data-type={$fileExtName(fileName)}>
                       {isImage && <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />}
                     </i>
@@ -347,6 +347,11 @@ class FeedsEditor extends React.Component {
   componentWillUnmount() {
     super.componentWillUnmount()
     $(this._$editor).off('paste.file')
+  }
+
+  _filePreview(urlKey, idx) {
+    const p = parent || window
+    p.RbPreview.create(urlKey, idx)
   }
 
   _selectEmoji(emoji) {
