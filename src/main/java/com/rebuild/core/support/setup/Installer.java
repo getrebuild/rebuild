@@ -60,7 +60,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 
-import static com.rebuild.core.support.ConfigurationItem.*;
+import static com.rebuild.core.support.ConfigurationItem.CacheHost;
+import static com.rebuild.core.support.ConfigurationItem.CachePassword;
+import static com.rebuild.core.support.ConfigurationItem.CachePort;
 
 /**
  * 系统安装
@@ -227,9 +229,10 @@ public class Installer implements InstallState {
         try {
             return DriverManager.getConnection(
                     props.getProperty("db.url"), props.getProperty("db.user"), props.getProperty("db.passwd"));
-
         } catch (SQLException ex) {
-            allowPublicKeyRetrieval = ex.getLocalizedMessage().contains("Public Key Retrieval is not allowed");
+
+            // Plugin 'mysql_native_password' is not loaded
+            allowPublicKeyRetrieval = ex.getMessage().contains("Public Key Retrieval is not allowed");
             if (allowPublicKeyRetrieval) {
                 props = buildConnectionProps(dbName);
                 return DriverManager.getConnection(
@@ -306,7 +309,7 @@ public class Installer implements InstallState {
             try (Connection ignored = getConnection(null)) {
                 // NOOP
             } catch (SQLException e) {
-                if (!e.getLocalizedMessage().contains("Unknown database")) {
+                if (!e.getMessage().contains("Unknown database")) {
                     throw new SetupException(e);
                 }
 
@@ -328,9 +331,9 @@ public class Installer implements InstallState {
         // 初始化数据库
         try (Connection conn = getConnection(null)) {
             int affetced = 0;
-            for (final String sql : getDbInitScript()) {
+            for (final String s : getDbInitScript()) {
                 try (Statement stmt = conn.createStatement()) {
-                    stmt.execute(sql);
+                    stmt.execute(s);
                     affetced++;
                 }
             }
