@@ -145,5 +145,6 @@ module.exports = {
     $cleanNumber: true,
     $hex2rgb: true,
     $isImage: true,
+    $dropUpload: true,
   },
 }

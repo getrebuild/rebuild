@@ -1189,12 +1189,9 @@ a.link.link-icon::after {
   line-height: 19px;
 }
 
-.img-field.drop-area-active,
-.file-field.drop-area-active {
+.img-field.drop .inputfile + label,
+.file-field.drop .inputfile + label {
   background-color: #fff7c5;
-  background-color: #fff;
-  opacity: 0.6;
-  cursor: copy;
 }
 
 .img-field.avatar label.img-upload b {

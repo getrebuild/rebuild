@@ -730,6 +730,7 @@ var $createUploader = function (input, next, complete, error) {
 var $initUploader = $createUploader
 
 // 多文件上传
+// FIXME 有并发上传问题
 var $multipleUploader = function (input, complete) {
   let mp
   let mp_inpro = []
@@ -756,6 +757,44 @@ var $multipleUploader = function (input, complete) {
     },
     () => mp_end(0)
   )
+}
+
+// 拖拽上传
+var $dropUpload = function (dropArea, pasteAreaOrCb, cb) {
+  if (typeof pasteAreaOrCb === 'function') {
+    cb = pasteAreaOrCb
+    pasteAreaOrCb = null
+  }
+
+  const $da = $(dropArea)
+    .on('dragenter', (e) => {
+      e.preventDefault()
+    })
+    .on('dragover', (e) => {
+      e.preventDefault()
+      if (e.originalEvent.dataTransfer) e.originalEvent.dataTransfer.dropEffect = 'copy'
+      $da.addClass('drop')
+    })
+    .on('dragleave', (e) => {
+      e.preventDefault()
+      $da.removeClass('drop')
+    })
+    .on('drop', function (e) {
+      e.preventDefault()
+      const files = e.originalEvent.dataTransfer ? e.originalEvent.dataTransfer.files : null
+      cb(files)
+      $da.removeClass('drop')
+    })
+
+  // Ctrl+V
+  if (pasteAreaOrCb) {
+    $(pasteAreaOrCb).on('paste.file', (e) => {
+      const data = e.originalEvent.clipboardData || window.clipboardData
+      if (data && data.items && data.files && data.files.length > 0) {
+        cb(data.files)
+      }
+    })
+  }
 }
 
 /**

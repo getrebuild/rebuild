@@ -1629,7 +1629,7 @@ class RbFormImage extends RbFormElement {
             </span>
           )
         })}
-        <span title={$L('上传图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={showUpload ? '' : 'hide'}>
+        <span title={$L('拖动或点击选择图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={showUpload ? '' : 'hide'}>
           <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" multiple />
           <label htmlFor={this._htmlid} className="img-thumbnail img-upload" onClick={(e) => this._fileClick(e)}>
             {this._captureType ? <span className="mdi mdi-camera down-2" /> : <span className="zmdi zmdi-image-alt down-2" />}
@@ -1723,31 +1723,14 @@ class RbFormImage extends RbFormElement {
       // 拖拽上传
       if (this._$dropArea && !this.props.imageCapture) {
         const that = this
-        const $da = $(this._$dropArea)
-          .on('dragenter', (e) => {
-            e.preventDefault()
-          })
-          .on('dragover', (e) => {
-            e.preventDefault()
-            if (e.originalEvent.dataTransfer) e.originalEvent.dataTransfer.dropEffect = 'copy'
-            $da.addClass('drop-area-active')
-          })
-          .on('dragleave', (e) => {
-            e.preventDefault()
-            $da.removeClass('drop-area-active')
-          })
-          .on('drop dragdrop', function (e) {
-            e.preventDefault()
-            const files = e.originalEvent.dataTransfer ? e.originalEvent.dataTransfer.files : null
-            if (!files || files.length === 0) return false
-            that._fieldValue__input.files = files
-            $(that._fieldValue__input).trigger('change')
-            $da.removeClass('drop-area-active')
-          })
+        $dropUpload(this._$dropArea, function (files) {
+          if (!files || files.length === 0) return false
+          that._fieldValue__input.files = files
+          $(that._fieldValue__input).trigger('change')
+        })
       }
     }
   }
-
   removeItem(item, e) {
     e && $stopEvent(e, true)
     const paths = this.state.value || []
@@ -1808,7 +1791,7 @@ class RbFormFile extends RbFormImage {
         })}
         <div className={`file-select ${showUpload ? '' : 'hide'}`}>
           <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={this._htmlid} accept={this.props.fileSuffix || null} multiple />
-          <label htmlFor={this._htmlid} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary" onClick={(e) => this._fileClick(e)}>
+          <label htmlFor={this._htmlid} title={$L('拖动或点击选择文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary" onClick={(e) => this._fileClick(e)}>
             <i className="zmdi zmdi-upload" />
             <span>{$L('上传文件')}</span>
           </label>

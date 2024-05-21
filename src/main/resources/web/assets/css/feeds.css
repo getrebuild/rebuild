@@ -41,6 +41,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 1px 4px 0;
 }
 
+.rich-editor.drop .action-btns {
+  background-color: #fff7c5;
+}
+
 .rich-editor .action-btns li > a,
 .rich-editor .action-btns li a.at-user {
   display: inline-block;

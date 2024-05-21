@@ -270,7 +270,7 @@ class FileUploadDlg extends RbFormHandler {
                 })}
               </div>
               <label className="upload-box">
-                {$L('点击选择或拖动文件至此')}
+                {$L('粘贴、拖动或点击选择文件')}
                 <input type="file" ref={(c) => (this._$upload = c)} className="hide" multiple />
               </label>
             </div>
@@ -308,37 +308,12 @@ class FileUploadDlg extends RbFormHandler {
       (res) => fn(res.file, { error: res.error })
     )
 
-    // 拖拽上传
-    const $da = $(this._$dropArea)
-      .on('dragenter', (e) => {
-        e.preventDefault()
-      })
-      .on('dragover', (e) => {
-        e.preventDefault()
-        if (e.originalEvent.dataTransfer) e.originalEvent.dataTransfer.dropEffect = 'copy'
-        $da.find('.upload-box').addClass('active')
-      })
-      .on('dragleave', (e) => {
-        e.preventDefault()
-        $da.find('.upload-box').removeClass('active')
-      })
-      .on('drop', function (e) {
-        e.preventDefault()
-        const files = e.originalEvent.dataTransfer ? e.originalEvent.dataTransfer.files : null
-        if (!files || files.length === 0) return false
-        that._$upload.files = files
-        $(that._$upload).trigger('change')
-        $da.find('.upload-box').removeClass('active')
-      })
-
-    // Ctrl+V 上传
-    $(document).on('paste.file', (e) => {
-      const data = e.originalEvent.clipboardData || window.clipboardData
-      if (data && data.items && data.files && data.files.length > 0) {
-        that._$upload.files = data.files
-        $(that._$upload).trigger('change')
-      }
-    })
+    function _dropUpload(files) {
+      if (!files || files.length === 0) return false
+      that._$upload.files = files
+      $(that._$upload).trigger('change')
+    }
+    $dropUpload(this._$dropArea, document, _dropUpload)
   }
 
   componentWillUnmount() {

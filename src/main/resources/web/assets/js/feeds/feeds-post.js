@@ -201,7 +201,7 @@ class FeedsEditor extends React.Component {
       <RF>
         {isFinish && <RbAlertBox message={$L('此日程已完成，修改后你需要重新将其完成')} />}
 
-        <div className={`rich-editor ${this.state.focus ? 'active' : ''}`}>
+        <div className={`rich-editor ${this.state.focus ? 'active' : ''}`} ref={(c) => (this._$dropArea = c)}>
           <textarea
             ref={(c) => (this._$editor = c)}
             placeholder={this.props.placeholder}
@@ -328,6 +328,25 @@ class FeedsEditor extends React.Component {
 
     $multipleUploader(this._$imageInput, (res) => _complete(res, 'images'))
     $multipleUploader(this._$fileInput, (res) => _complete(res, 'files'))
+
+    function _dropUpload(files) {
+      if (!files || files.length === 0) return false
+
+      let $imgOrFile = that._$imageInput
+      for (let file of files) {
+        if ($isImage(file.name));
+        else $imgOrFile = that._$fileInput
+      }
+
+      $imgOrFile.files = files
+      $($imgOrFile).trigger('change')
+    }
+    $dropUpload(this._$dropArea, this._$editor, _dropUpload)
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount()
+    $(this._$editor).off('paste.file')
   }
 
   _selectEmoji(emoji) {
