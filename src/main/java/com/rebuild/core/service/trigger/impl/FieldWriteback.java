@@ -230,13 +230,12 @@ public class FieldWriteback extends FieldAggregation {
                 }
 
                 // v3.3 修改/清空时修改前值
-                // TODO N2N 是否也需要???
                 boolean clearFields = ((JSONObject) actionContext.getActionContent()).getBooleanValue("clearFields");
                 if (clearFields) {
                     Record beforeRecord = operatingContext.getBeforeRecord();
                     Object beforeValue = beforeRecord == null ? null : beforeRecord.getObjectValue(targetFieldEntity[0]);
                     if (beforeValue != null && !beforeValue.equals(o)) {
-                        fieldWritebackRefresh = new FieldWritebackRefresh(this, (ID) beforeValue);
+                        fieldWritebackRefresh = new FieldWritebackRefresh(this, beforeValue);
                     }
                 }
 
