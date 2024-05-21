@@ -42,7 +42,7 @@ public class UserFilters {
     }
 
     /**
-     * 是否允许访问
+     * 指定用户是否允许访问
      *
      * @param user
      * @param bizzId
@@ -55,19 +55,31 @@ public class UserFilters {
         if (isEnableBizzPart(user)) {
             final User ub = Application.getUserStore().getUser(user);
 
-            if (bizzId.getEntityCode() == EntityHelper.Department) {
-                return ub.getOwningDept() != null && bizzId.equals(ub.getOwningDept().getIdentity());
+            // 本部门及子部门的用户
+            if (bizzId.getEntityCode() == EntityHelper.User) {
+                if (user.equals(bizzId)) return true;
+                if (ub.getOwningDept() == null) return false;
+
+                // 可访问部门就是可访问部门下的用户
+                Department dept = UserHelper.getDepartment(bizzId);
+                if (dept == null) return false;
+                bizzId = (ID) dept.getIdentity();
             }
 
+            // 本部门及子部门
+            if (bizzId.getEntityCode() == EntityHelper.Department) {
+                Department dept = ub.getOwningDept();
+                if (dept == null) return false;
+                if (bizzId.equals(dept.getIdentity())) return true;
+                return UserHelper.getAllChildren(dept).contains(bizzId);
+            }
+
+            // 所在团队
             if (bizzId.getEntityCode() == EntityHelper.Team) {
                 for (Team m : ub.getOwningTeams()) {
                     if (bizzId.equals(m.getIdentity())) return true;
                 }
                 return false;
-            }
-
-            if (bizzId.getEntityCode() == EntityHelper.User) {
-                return user.equals(bizzId);
             }
         }
 
