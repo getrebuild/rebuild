@@ -16,8 +16,9 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.Collections;
+import java.util.HashSet;
 
 /**
  * @author RB
@@ -27,9 +28,10 @@ import java.util.Collections;
 public class FieldWritebackRefresh {
 
     final private FieldWriteback parent;
-    final private ID beforeValue;
+    // ID or ID[]
+    final private Object beforeValue;
 
-    protected FieldWritebackRefresh(FieldWriteback parent, ID beforeValue) {
+    protected FieldWritebackRefresh(FieldWriteback parent, Object beforeValue) {
         this.parent = parent;
         this.beforeValue = beforeValue;
     }
@@ -37,6 +39,7 @@ public class FieldWritebackRefresh {
     /**
      */
     public void refresh() {
+        if (beforeValue instanceof ID[] && ((ID[]) beforeValue).length == 0) return;
         if (NullValue.isNull(beforeValue)) return;
 
         ID triggerUser = UserService.SYSTEM_USER;
@@ -48,7 +51,10 @@ public class FieldWritebackRefresh {
         FieldWriteback fa = new FieldWriteback(actionContext);
         fa.sourceEntity = parent.sourceEntity;
         fa.targetEntity = parent.targetEntity;
-        fa.targetRecordIds = Collections.singleton(beforeValue);
+
+        fa.targetRecordIds = new HashSet<>();
+        if (beforeValue instanceof ID[]) CollectionUtils.addAll(fa.targetRecordIds, (ID[]) beforeValue);
+        else fa.targetRecordIds.add((ID) beforeValue);
 
         ID fakeSourceId = EntityHelper.newUnsavedId(fa.sourceEntity.getEntityCode());
         Record fakeSourceRecord = EntityHelper.forUpdate(fakeSourceId, triggerUser, false);
