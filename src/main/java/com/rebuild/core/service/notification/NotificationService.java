@@ -93,8 +93,11 @@ public class NotificationService extends InternalPersistService {
         ThreadPool.exec(() -> {
             String[] distNames = Application.getContext().getBeanNamesForType(MessageDistributor.class);
             for (String name : distNames) {
+                MessageDistributor md = (MessageDistributor) Application.getContext().getBean(name);
+                if (!md.isEnable()) continue;
+
                 try {
-                    boolean sent = ((MessageDistributor) Application.getContext().getBean(name)).send(message, messageId);
+                    boolean sent = md.send(message, messageId);
                     log.info("Distribute message ({}) : {}", sent ? "success" : "fails", message);
                 } catch (Exception ex) {
                     log.error("Distribute message error : {}", message, ex);

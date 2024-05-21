@@ -723,7 +723,7 @@ class ApprovalStepViewer extends React.Component {
     const stateLast = this.state.steps ? this.state.steps[0].approvalState : 0
 
     return (
-      <div className="modal" ref={(c) => (this._dlg = c)}>
+      <div className="modal" ref={(c) => (this._dlg = c)} style={{ zIndex: 1051 }}>
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">

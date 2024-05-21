@@ -854,7 +854,7 @@ class ApproverNodeConfig extends StartNodeConfig {
     if (this._initAfter__exec) return
     this._initAfter__exec = true
 
-    const eaConf = this.props.expiresAuto
+    const eaConf = this.props.expiresAuto || {}
     if (eaConf.expiresAuto2Value) {
       $(this._$expiresAuto).find('[name="expiresAuto2Value"]').val(eaConf.expiresAuto2Value).trigger('change')
     }
