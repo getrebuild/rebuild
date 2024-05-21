@@ -273,7 +273,9 @@ public class FieldWriteback extends FieldAggregation {
             }
         }
 
-        if (!targetRecordIds.isEmpty()) {
+        if (targetRecordIds.isEmpty()) {
+            log.debug("Target record(s) are empty.");
+        } else {
             targetRecordData = buildTargetRecordData(operatingContext, false);
         }
     }
