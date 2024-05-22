@@ -267,7 +267,7 @@ class FileUploadDlg extends RbFormHandler {
                         {state.error && <i className="zmdi zmdi-close-circle-o text-danger" />}
                       </span>
                       {(state.key || state.error) && (
-                        <b title={$L('移除')} onClick={() => this._removeFile(file)}>
+                        <b title={$L('移除')} onClick={(e) => this._removeFile(file, e)}>
                           <span className="zmdi zmdi-close" />
                         </b>
                       )}
@@ -327,7 +327,8 @@ class FileUploadDlg extends RbFormHandler {
     $(document).off('paste.file')
   }
 
-  _removeFile(file) {
+  _removeFile(file, e) {
+    e && $stopEvent(e, true)
     const files = this.state.files || {}
     delete files[file]
     this.setState({ files: files })

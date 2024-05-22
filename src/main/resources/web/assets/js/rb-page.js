@@ -768,19 +768,19 @@ var $dropUpload = function (dropArea, pasteAreaOrCb, cb) {
 
   const $da = $(dropArea)
     .on('dragenter', (e) => {
-      e.preventDefault()
+      $stopEvent(e, true)
     })
     .on('dragover', (e) => {
-      e.preventDefault()
+      $stopEvent(e, true)
       if (e.originalEvent.dataTransfer) e.originalEvent.dataTransfer.dropEffect = 'copy'
       $da.addClass('drop')
     })
     .on('dragleave', (e) => {
-      e.preventDefault()
+      $stopEvent(e, true)
       $da.removeClass('drop')
     })
     .on('drop', function (e) {
-      e.preventDefault()
+      $stopEvent(e, true)
       const files = e.originalEvent.dataTransfer ? e.originalEvent.dataTransfer.files : null
       cb(files)
       $da.removeClass('drop')
@@ -789,6 +789,7 @@ var $dropUpload = function (dropArea, pasteAreaOrCb, cb) {
   // Ctrl+V
   if (pasteAreaOrCb) {
     $(pasteAreaOrCb).on('paste.file', (e) => {
+      $stopEvent(e, true)
       const data = e.clipboardData || e.originalEvent.clipboardData || window.clipboardData
       if (data && data.items && data.files && data.files.length > 0) {
         cb(data.files)

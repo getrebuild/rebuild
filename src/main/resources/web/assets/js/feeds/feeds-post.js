@@ -278,7 +278,7 @@ class FeedsEditor extends React.Component {
                   <span key={`img-${item}`}>
                     <a title={$fileCutName(item)} className="img-thumbnail img-upload" onClick={() => this._filePreview(this.state.images, idx)}>
                       <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/300/interlace/1/q/100`} />
-                      <b title={$L('移除')} onClick={() => this._removeImage(item)}>
+                      <b title={$L('移除')} onClick={(e) => this._removeImage(item, e)}>
                         <span className="zmdi zmdi-close" />
                       </b>
                     </a>
@@ -296,7 +296,7 @@ class FeedsEditor extends React.Component {
                       {isImage && <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />}
                     </i>
                     <span>{fileName}</span>
-                    <b title={$L('移除')} onClick={() => this._removeFile(item)}>
+                    <b title={$L('移除')} onClick={(e) => this._removeFile(item, e)}>
                       <span className="zmdi zmdi-close" />
                     </b>
                   </div>
@@ -382,13 +382,15 @@ class FeedsEditor extends React.Component {
     }
   }
 
-  _removeImage(image) {
+  _removeImage(image, e) {
+    e && $stopEvent(e, true)
     const images = this.state.images
     images.remove(image)
     this.setState({ images: images })
   }
 
-  _removeFile(file) {
+  _removeFile(file, e) {
+    e && $stopEvent(e, true)
     const files = this.state.files
     files.remove(file)
     this.setState({ files: files })

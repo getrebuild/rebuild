@@ -1469,7 +1469,7 @@ class RbFormNText extends RbFormElement {
         )
       })
       mde.codemirror.on('paste', (_mde, e) => {
-        e.preventDefault()
+        $stopEvent(e, true)
         const data = e.clipboardData || window.clipboardData
         if (data && data.items && data.files && data.files.length > 0) {
           this._fieldValue__upload.files = data.files
