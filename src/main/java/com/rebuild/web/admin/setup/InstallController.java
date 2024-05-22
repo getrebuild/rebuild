@@ -102,7 +102,7 @@ public class InstallController extends BaseController implements InstallState {
             return RespBody.ok(okMsg);
 
         } catch (SQLException ex) {
-            if (ex.getLocalizedMessage().contains("Unknown database")) {
+            if (ex.getMessage().contains("Unknown database")) {
                 String okMsg = Language.L("连接成功 : 数据库 **%s** 不存在，系统将自动创建", dbProps.getString("dbName"));
                 return RespBody.ok(okMsg);
             } else {
