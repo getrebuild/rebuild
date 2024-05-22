@@ -536,7 +536,7 @@ class RbForm extends React.Component {
       // in New
       if (props.$$$parent && props.$$$parent.props._nextAddDetail) {
         moreActions.push(
-          <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADDDETAIL)}>
+          <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_NEWDETAIL)}>
             {$L('保存并继续添加')}
           </a>
         )
@@ -544,11 +544,21 @@ class RbForm extends React.Component {
     }
     // 列表页保存并继续
     else if (window.RbViewModal && window.__PageConfig.type === 'RecordList') {
-      moreActions.push(
-        <a key="Action105" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADD36)}>
-          {$L('保存并继续新建')}
-        </a>
-      )
+      if (window.__LAB_FORMACTION_105) {
+        moreActions.push(
+          <a key="Action105" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADD36)}>
+            {$L('保存并继续新建')}
+          </a>
+        )
+      }
+      if (window.__LAB_FORMACTION_103 && props.rawModel.hadApproval && window.ApprovalSubmitForm) {
+        moreActions.push(
+          <a key="Action103" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_SUBMIT37)}>
+            {$L('保存并提交')}
+          </a>
+        )
+      }
+
       moreActions.push(
         <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_VIEW)}>
           {$L('保存并打开')}
@@ -699,11 +709,13 @@ class RbForm extends React.Component {
   }
 
   // 保存并添加明细
-  static NEXT_ADDDETAIL = 102
+  static NEXT_NEWDETAIL = 102
   // 保存并打开
   static NEXT_VIEW = 104
   // 保存并新建
   static NEXT_ADD36 = 105
+  // 保存并提交
+  static NEXT_SUBMIT37 = 103
   /**
    * @next {Number}
    */
@@ -788,27 +800,32 @@ class RbForm extends React.Component {
             return
           }
 
-          if (next === RbForm.NEXT_ADDDETAIL) {
+          if (next === RbForm.NEXT_NEWDETAIL) {
             const iv = $$$parent.props.initialValue
             const dm = this.props.rawModel.entityMeta
             RbFormModal.create({ title: $L('添加%s', dm.entityLabel), entity: dm.entity, icon: dm.icon, initialValue: iv })
+            // ~
           } else if (next === RbForm.NEXT_VIEW && window.RbViewModal) {
             window.RbViewModal.create({ id: recordId, entity: this.state.entity })
-            if (window.RbListPage) {
-              location.hash = `!/View/${this.state.entity}/${recordId}`
-            }
+            if (window.RbListPage) location.hash = `!/View/${this.state.entity}/${recordId}`
+            // ~
           } else if (next === RbForm.NEXT_ADD36) {
-            let title2 = $$$parent.state.title
-            if ($$$parent.props.id) title2 = title2.replace($L('编辑%s', ''), $L('新建%s', ''))
-            const copyProps = { entity: $$$parent.state.entity, icon: $$$parent.state.icon, title: title2 }
+            let titleNew = $$$parent.state.title
+            if ($$$parent.props.id) titleNew = titleNew.replace($L('编辑%s', ''), $L('新建%s', ''))
+            const copyProps = { entity: $$$parent.state.entity, icon: $$$parent.state.icon, title: titleNew }
             RbFormModal.create(copyProps, false)
+            // ~
+          } else if (next === RbForm.NEXT_SUBMIT37) {
+            renderRbcomp(<ApprovalSubmitForm id={recordId} />)
+            // ~
           } else if (previewid && window.RbViewPage) {
             window.RbViewPage.clickView(`#!/View/${this.state.entity}/${recordId}`)
+            // ~
           }
 
           RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next, this)
 
-          // ...
+          // ~
         }, 200)
       } else if (res.error_code === 499) {
         renderRbcomp(<RepeatedViewer entity={this.state.entity} data={res.data} />)
@@ -856,7 +873,7 @@ class RbForm extends React.Component {
     const rlp = window.RbListPage || parent.RbListPage
     if (rlp) rlp.reload(data.id)
     // 刷新视图
-    if (window.RbViewPage && next !== RbForm.NEXT_ADDDETAIL) window.RbViewPage.reload()
+    if (window.RbViewPage && next !== RbForm.NEXT_NEWDETAIL) window.RbViewPage.reload()
   }
 
   // 组件渲染后调用
@@ -1424,6 +1441,13 @@ class RbFormNText extends RbFormElement {
     })
     this._SimpleMDE = mde
 
+    function _mdeFocus() {
+      setTimeout(() => {
+        mde.codemirror.focus()
+        mde.codemirror.setCursor(mde.codemirror.lineCount(), 0) // cursor at end
+      }, 100)
+    }
+
     if (_readonly37) {
       mde.codemirror.setOption('readOnly', true)
     } else {
@@ -1431,13 +1455,9 @@ class RbFormNText extends RbFormElement {
         const pos = mde.codemirror.getCursor()
         mde.codemirror.setSelection(pos, pos)
         mde.codemirror.replaceSelection(`![${$L('图片')}](${rb.baseUrl}/filex/img/${res.key})`)
+        _mdeFocus()
       })
-      if (this.props.onView) {
-        setTimeout(() => {
-          mde.codemirror.focus()
-          mde.codemirror.setCursor(mde.codemirror.lineCount(), 0) // cursor at end
-        }, 100)
-      }
+      if (this.props.onView) _mdeFocus()
 
       mde.codemirror.on('changes', () => {
         $setTimeout(
@@ -1447,6 +1467,14 @@ class RbFormNText extends RbFormElement {
           200,
           'mde-update-event'
         )
+      })
+      mde.codemirror.on('paste', (_mde, e) => {
+        $stopEvent(e, true)
+        const data = e.clipboardData || window.clipboardData
+        if (data && data.items && data.files && data.files.length > 0) {
+          this._fieldValue__upload.files = data.files
+          $(this._fieldValue__upload).trigger('change')
+        }
       })
     }
   }
@@ -1551,7 +1579,7 @@ class RbFormTime extends RbFormDateTime {
           minView: minView,
           maxView: 1,
           pickerPosition: this._getAutoPosition(),
-          minuteStep: window.__LAB_MINUTESTEP || 2,
+          minuteStep: window.__LAB_MINUTESTEP || 5,
           title: $L('选择时间'),
         })
         .on('changeDate', function () {
@@ -1612,7 +1640,7 @@ class RbFormImage extends RbFormElement {
             </span>
           )
         })}
-        <span title={$L('上传图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={showUpload ? '' : 'hide'}>
+        <span title={$L('拖动或点击选择图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={showUpload ? '' : 'hide'}>
           <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" multiple />
           <label htmlFor={this._htmlid} className="img-thumbnail img-upload" onClick={(e) => this._fileClick(e)}>
             {this._captureType ? <span className="mdi mdi-camera down-2" /> : <span className="zmdi zmdi-image-alt down-2" />}
@@ -1706,31 +1734,14 @@ class RbFormImage extends RbFormElement {
       // 拖拽上传
       if (this._$dropArea && !this.props.imageCapture) {
         const that = this
-        const $da = $(this._$dropArea)
-          .on('dragenter', (e) => {
-            e.preventDefault()
-          })
-          .on('dragover', (e) => {
-            e.preventDefault()
-            if (e.originalEvent.dataTransfer) e.originalEvent.dataTransfer.dropEffect = 'copy'
-            $da.addClass('drop-area-active')
-          })
-          .on('dragleave', (e) => {
-            e.preventDefault()
-            $da.removeClass('drop-area-active')
-          })
-          .on('drop dragdrop', function (e) {
-            e.preventDefault()
-            const files = e.originalEvent.dataTransfer ? e.originalEvent.dataTransfer.files : null
-            if (!files || files.length === 0) return false
-            that._fieldValue__input.files = files
-            $(that._fieldValue__input).trigger('change')
-            $da.removeClass('drop-area-active')
-          })
+        $dropUpload(this._$dropArea, function (files) {
+          if (!files || files.length === 0) return false
+          that._fieldValue__input.files = files
+          $(that._fieldValue__input).trigger('change')
+        })
       }
     }
   }
-
   removeItem(item, e) {
     e && $stopEvent(e, true)
     const paths = this.state.value || []
@@ -1791,7 +1802,7 @@ class RbFormFile extends RbFormImage {
         })}
         <div className={`file-select ${showUpload ? '' : 'hide'}`}>
           <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={this._htmlid} accept={this.props.fileSuffix || null} multiple />
-          <label htmlFor={this._htmlid} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary" onClick={(e) => this._fileClick(e)}>
+          <label htmlFor={this._htmlid} title={$L('拖动或点击选择文件。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary" onClick={(e) => this._fileClick(e)}>
             <i className="zmdi zmdi-upload" />
             <span>{$L('上传文件')}</span>
           </label>

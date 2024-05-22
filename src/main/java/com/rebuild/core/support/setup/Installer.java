@@ -80,6 +80,9 @@ public class Installer implements InstallState {
 
     private DbInfo dbInfo;
 
+    // for MySQL8
+    private boolean allowPublicKeyRetrieval = false;
+
     private String EXISTS_SN;
 
     private Installer() { }
@@ -111,9 +114,9 @@ public class Installer implements InstallState {
             installProps.put("db.type", "OceanBase");
         } else if (dbInfo.isMySQL80()) {
             // https://www.cnblogs.com/lusaisai/p/13372763.html
-            String dbUrl2 = installProps.getProperty("db.url");
-            if (!dbUrl2.contains("allowPublicKeyRetrieval")) dbUrl2 += "&allowPublicKeyRetrieval=true";
-            installProps.put("db.url", dbUrl2);
+            String dbUrl8 = installProps.getProperty("db.url");
+            if (!dbUrl8.contains("allowPublicKeyRetrieval")) dbUrl8 += "&allowPublicKeyRetrieval=true";
+            installProps.put("db.url", dbUrl8);
         }
 
         // Redis
@@ -220,9 +223,21 @@ public class Installer implements InstallState {
      * @throws SQLException
      */
     public Connection getConnection(String dbName) throws SQLException {
-        Properties props = this.buildConnectionProps(dbName);
-        return DriverManager.getConnection(
-                props.getProperty("db.url"), props.getProperty("db.user"), props.getProperty("db.passwd"));
+        Properties props = buildConnectionProps(dbName);
+        try {
+            return DriverManager.getConnection(
+                    props.getProperty("db.url"), props.getProperty("db.user"), props.getProperty("db.passwd"));
+
+        } catch (SQLException ex) {
+            allowPublicKeyRetrieval = ex.getLocalizedMessage().contains("Public Key Retrieval is not allowed");
+            if (allowPublicKeyRetrieval) {
+                props = buildConnectionProps(dbName);
+                return DriverManager.getConnection(
+                        props.getProperty("db.url"), props.getProperty("db.user"), props.getProperty("db.passwd"));
+            }
+
+            throw ex;
+        }
     }
 
     /**
@@ -256,6 +271,9 @@ public class Installer implements InstallState {
                 dbProps.getIntValue("dbPort"),
                 dbName,
                 getTimeZoneId());
+
+        // https://www.cnblogs.com/lusaisai/p/13372763.html
+        if (allowPublicKeyRetrieval) dbUrl += "&allowPublicKeyRetrieval=true";
 
         String dbUser = dbProps.getString("dbUser");
         String dbPassword = dbProps.getString("dbPassword");

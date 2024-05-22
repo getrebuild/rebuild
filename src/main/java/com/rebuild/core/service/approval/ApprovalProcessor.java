@@ -200,7 +200,8 @@ public class ApprovalProcessor extends SetUser {
         Set<ID> ccUsers = nextNodes.getCcUsers(this.getUser(), this.recordId, selectNextUsers);
         Set<String> ccAccounts = nextNodes.getCcAccounts(this.recordId);
 
-        FlowNode currentNode = getFlowParser().getNode((String) stepApprover[2]);
+        FlowNode currentNode = getFlowNode((String) stepApprover[2]);
+        Assert.notNull(currentNode, "FlowNode is null");
         Application.getBean(ApprovalStepService.class)
                 .txApprove(approvedStep, currentNode.getSignMode(), ccUsers, ccAccounts, nextApprovers, nextNode, addedData, checkUseGroup);
 
@@ -318,7 +319,7 @@ public class ApprovalProcessor extends SetUser {
      * @return
      */
     public FlowNode getCurrentNode() {
-        return getFlowParser().getNode(getCurrentNodeId(null));
+        return getFlowNode(getCurrentNodeId(null));
     }
 
     /**
@@ -427,6 +428,19 @@ public class ApprovalProcessor extends SetUser {
     }
 
     /**
+     * @param nodeNo
+     * @return
+     */
+    private FlowNode getFlowNode(String nodeNo) {
+        try {
+            return getFlowParser().getNode(nodeNo);
+        } catch (ApprovalException | ConfigurationException ex) {
+            log.warn("Cannot parse node : {} with {}", nodeNo, approval, ex);
+        }
+        return null;
+    }
+
+    /**
      * 获取当前审批步骤
      *
      * @param useStatus
@@ -458,9 +472,10 @@ public class ApprovalProcessor extends SetUser {
                 .setParameter(3, currentNode)
                 .array();
 
+        FlowNode flowNode = getFlowNode(currentNode);
         JSONArray steps = new JSONArray();
         for (Object[] o : array) {
-            steps.add(this.formatStep(o, null));
+            steps.add(this.formatStep(o, flowNode == null ? null : flowNode.getSignMode()));
         }
         return steps;
     }
@@ -527,11 +542,7 @@ public class ApprovalProcessor extends SetUser {
             if (FlowNode.NODE_REVOKED.equals(nodeNo) || FlowNode.NODE_CANCELED.equals(nodeNo)) {
                 // 特殊节点
             } else {
-                try {
-                    flowNode = getFlowParser().getNode(nodeNo);
-                } catch (ApprovalException | ConfigurationException ex) {
-                    log.warn("Cannot parse node : {}", nodeNo, ex);
-                }
+                flowNode = getFlowNode(nodeNo);
             }
 
             JSONArray step = new JSONArray();

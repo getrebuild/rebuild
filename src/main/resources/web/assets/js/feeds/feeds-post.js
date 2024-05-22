@@ -201,7 +201,7 @@ class FeedsEditor extends React.Component {
       <RF>
         {isFinish && <RbAlertBox message={$L('此日程已完成，修改后你需要重新将其完成')} />}
 
-        <div className={`rich-editor ${this.state.focus ? 'active' : ''}`}>
+        <div className={`rich-editor ${this.state.focus ? 'active' : ''}`} ref={(c) => (this._$dropArea = c)}>
           <textarea
             ref={(c) => (this._$editor = c)}
             placeholder={this.props.placeholder}
@@ -273,12 +273,12 @@ class FeedsEditor extends React.Component {
         {((this.state.images || []).length > 0 || (this.state.files || []).length > 0) && (
           <div className="attachment">
             <div className="img-field">
-              {(this.state.images || []).map((item) => {
+              {(this.state.images || []).map((item, idx) => {
                 return (
                   <span key={`img-${item}`}>
-                    <a title={$fileCutName(item)} className="img-thumbnail img-upload">
+                    <a title={$fileCutName(item)} className="img-thumbnail img-upload" onClick={() => this._filePreview(this.state.images, idx)}>
                       <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/300/interlace/1/q/100`} />
-                      <b title={$L('移除')} onClick={() => this._removeImage(item)}>
+                      <b title={$L('移除')} onClick={(e) => this._removeImage(item, e)}>
                         <span className="zmdi zmdi-close" />
                       </b>
                     </a>
@@ -291,12 +291,12 @@ class FeedsEditor extends React.Component {
                 const fileName = $fileCutName(item)
                 const isImage = $isImage(fileName)
                 return (
-                  <div key={`file-${item}`} className="img-thumbnail" title={fileName}>
+                  <div key={`file-${item}`} className="img-thumbnail" title={fileName} onClick={() => this._filePreview(item)}>
                     <i className={`file-icon ${isImage && 'image'}`} data-type={$fileExtName(fileName)}>
                       {isImage && <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />}
                     </i>
                     <span>{fileName}</span>
-                    <b title={$L('移除')} onClick={() => this._removeFile(item)}>
+                    <b title={$L('移除')} onClick={(e) => this._removeFile(item, e)}>
                       <span className="zmdi zmdi-close" />
                     </b>
                   </div>
@@ -328,6 +328,30 @@ class FeedsEditor extends React.Component {
 
     $multipleUploader(this._$imageInput, (res) => _complete(res, 'images'))
     $multipleUploader(this._$fileInput, (res) => _complete(res, 'files'))
+
+    function _dropUpload(files) {
+      if (!files || files.length === 0) return false
+
+      let $imgOrFile = that._$imageInput
+      for (let file of files) {
+        if ($isImage(file.name));
+        else $imgOrFile = that._$fileInput
+      }
+
+      $imgOrFile.files = files
+      $($imgOrFile).trigger('change')
+    }
+    $dropUpload(this._$dropArea, this._$editor, _dropUpload)
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount()
+    $(this._$editor).off('paste.file')
+  }
+
+  _filePreview(urlKey, idx) {
+    const p = parent || window
+    p.RbPreview.create(urlKey, idx)
   }
 
   _selectEmoji(emoji) {
@@ -358,13 +382,15 @@ class FeedsEditor extends React.Component {
     }
   }
 
-  _removeImage(image) {
+  _removeImage(image, e) {
+    e && $stopEvent(e, true)
     const images = this.state.images
     images.remove(image)
     this.setState({ images: images })
   }
 
-  _removeFile(file) {
+  _removeFile(file, e) {
+    e && $stopEvent(e, true)
     const files = this.state.files
     files.remove(file)
     this.setState({ files: files })
