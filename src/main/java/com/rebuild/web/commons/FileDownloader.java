@@ -98,7 +98,7 @@ public class FileDownloader extends BaseController {
             final ImageView2 iv2 = imageView2 == null ? null : new ImageView2(imageView2);
 
             // 使用原图
-            if (iv2 == null || iv2.getWidth() <= 0 || iv2.getWidth() >= ImageView2.ORIGIN_WIDTH) {
+            if (iv2 == null || iv2.getWidth() <= 0 || iv2.getWidth() >= 2000) {
                 writeLocalFile(filepath, temp, response);
             }
             // 粗略图
