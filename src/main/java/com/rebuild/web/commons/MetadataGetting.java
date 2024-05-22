@@ -113,7 +113,7 @@ public class MetadataGetting extends BaseController {
                 if (checkPermission == null
                         || Application.getPrivilegesManager().allow(user, ownEntity.getEntityCode(), checkPermission)) {
 
-                    // FIXME 可能有多个字段引用同一实体
+                    // NOTE 是否需要显示到字段级别（目前是实体识别）??? 可能有多个字段引用同一实体
 
                     String label = EasyMetaFactory.getLabel(ownEntity);
 //                    if (isN2N) label += " (N)";

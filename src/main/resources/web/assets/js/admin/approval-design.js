@@ -878,7 +878,6 @@ class ApproverNodeConfig extends StartNodeConfig {
       .each(function () {
         if (this.name) expiresAuto[[this.name]] = $(this).val()
       })
-    console.log(expiresAuto)
 
     const d = {
       nodeName: this.state.nodeName,
