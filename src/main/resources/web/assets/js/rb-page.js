@@ -702,8 +702,11 @@ var $createUploader = function (input, next, complete, error) {
           return false
         }
       },
-      onClientLoad: function (e, file) {},
       onClientProgress: function (e, file) {
+        typeof next === 'function' && next({ percent: (e.loaded * 100) / e.total, file: file })
+      },
+      onServerProgress: function (e, file) {
+        // fix:v3.7 不触发 onClientProgress???
         typeof next === 'function' && next({ percent: (e.loaded * 100) / e.total, file: file })
       },
       onSuccess: function (e, file) {

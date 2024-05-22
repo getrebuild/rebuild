@@ -302,8 +302,10 @@ class FileUploadDlg extends RbFormHandler {
     let fixConcurrency = 0
     function fn(file, s) {
       if (fixConcurrency === 1) return
+
       const files = that.state.files || {}
       files[file.name] = s
+      fixConcurrency = 1
       that.setState({ files: files }, () => (fixConcurrency = 0))
     }
 
