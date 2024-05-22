@@ -1441,6 +1441,13 @@ class RbFormNText extends RbFormElement {
     })
     this._SimpleMDE = mde
 
+    function _mdeFocus() {
+      setTimeout(() => {
+        mde.codemirror.focus()
+        mde.codemirror.setCursor(mde.codemirror.lineCount(), 0) // cursor at end
+      }, 100)
+    }
+
     if (_readonly37) {
       mde.codemirror.setOption('readOnly', true)
     } else {
@@ -1448,13 +1455,9 @@ class RbFormNText extends RbFormElement {
         const pos = mde.codemirror.getCursor()
         mde.codemirror.setSelection(pos, pos)
         mde.codemirror.replaceSelection(`![${$L('图片')}](${rb.baseUrl}/filex/img/${res.key})`)
+        _mdeFocus()
       })
-      if (this.props.onView) {
-        setTimeout(() => {
-          mde.codemirror.focus()
-          mde.codemirror.setCursor(mde.codemirror.lineCount(), 0) // cursor at end
-        }, 100)
-      }
+      if (this.props.onView) _mdeFocus()
 
       mde.codemirror.on('changes', () => {
         $setTimeout(
@@ -1464,6 +1467,14 @@ class RbFormNText extends RbFormElement {
           200,
           'mde-update-event'
         )
+      })
+      mde.codemirror.on('paste', (_mde, e) => {
+        e.preventDefault()
+        const data = e.clipboardData || window.clipboardData
+        if (data && data.items && data.files && data.files.length > 0) {
+          this._fieldValue__upload.files = data.files
+          $(this._fieldValue__upload).trigger('change')
+        }
       })
     }
   }

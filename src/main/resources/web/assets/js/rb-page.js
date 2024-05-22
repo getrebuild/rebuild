@@ -789,7 +789,7 @@ var $dropUpload = function (dropArea, pasteAreaOrCb, cb) {
   // Ctrl+V
   if (pasteAreaOrCb) {
     $(pasteAreaOrCb).on('paste.file', (e) => {
-      const data = e.originalEvent.clipboardData || window.clipboardData
+      const data = e.clipboardData || e.originalEvent.clipboardData || window.clipboardData
       if (data && data.items && data.files && data.files.length > 0) {
         cb(data.files)
       }
