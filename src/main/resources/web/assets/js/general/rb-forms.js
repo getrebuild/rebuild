@@ -1249,7 +1249,9 @@ class RbFormNumber extends RbFormText {
 
   renderElement() {
     const _readonly37 = this.state.readonly
-    const value = arguments.length > 0 ? arguments[0] : this.state.value
+    let value = arguments.length > 0 ? arguments[0] : this.state.value
+    // `0`
+    if (value === undefined || value == null) value = ''
 
     return (
       <RF>
