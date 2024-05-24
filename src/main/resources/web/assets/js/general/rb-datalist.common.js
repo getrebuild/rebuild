@@ -30,7 +30,7 @@ const AdvFilters = {
     this.__$customAdvWrap = $('#dropdown-menu-advfilter')
     $(document.body).on('click', (e) => {
       if (!e.target) return
-      var $target = $(e.target)
+      const $target = $(e.target)
       if (
         $target.hasClass('J_filterbtn') ||
         $target.parent().hasClass('J_filterbtn') ||
@@ -38,7 +38,8 @@ const AdvFilters = {
         $target.parents('.dropdown-menu-advfilter')[0] ||
         $target.hasClass('modal') ||
         $target.parents('.modal')[0] ||
-        $target.parents('.select2-container')[0]
+        $target.parents('.select2-container')[0] ||
+        $target.hasClass('select2-selection__choice__remove')
       ) {
         return
       }
@@ -48,8 +49,8 @@ const AdvFilters = {
       }
     })
 
-    const $alldata = $('.adv-search .dropdown-item:eq(0)')
-    $alldata.on('click', () => this._effectFilter($alldata, 'aside'))
+    const $alld = $('.adv-search .dropdown-item:eq(0)')
+    $alld.on('click', () => this._effectFilter($alld, 'aside'))
 
     this.loadFilters()
 

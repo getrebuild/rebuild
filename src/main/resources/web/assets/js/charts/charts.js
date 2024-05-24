@@ -254,17 +254,17 @@ class ChartTable extends BaseChart {
         .css('height', $tb.height() - 20)
         .perfectScrollbar()
 
-      // selected
-      $tb.find('table').tableCellsSelection()
-
-      if (window.render_preview_chart) {
-        $tb.find('tbody td>a').removeAttr('href')
-      } else {
-        $tb.find('tbody td>a').each(function () {
-          const $a = $(this)
-          $a.attr({ href: `${rb.baseUrl}${$a.attr('href')}`, target: '_blank' })
-        })
+      try {
+        $tb.find('table').tableCellsSelection()
+      } catch (ignored) {
+        // 未引入
       }
+
+      // a _blank
+      $tb.find('tbody td>a').each(function () {
+        const $a = $(this)
+        $a.attr({ href: `${rb.baseUrl}${$a.attr('href')}`, target: '_blank' })
+      })
 
       this._$tb = $tb
     })
