@@ -138,8 +138,8 @@ class MediaCapturer extends RbModal {
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
     const constraints = {
       video: {
-        width: { ideal: _IDEAL_VIDW * 3 },
-        height: { ideal: _IDEAL_VIDH * 3 },
+        width: { ideal: _IDEAL_VIDW * 5 },
+        height: { ideal: _IDEAL_VIDH * 5 },
       },
       audio: this.props.recordAudio === true,
     }
