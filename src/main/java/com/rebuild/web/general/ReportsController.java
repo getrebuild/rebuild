@@ -106,7 +106,7 @@ public class ReportsController extends BaseController {
                 output = html5.generate();
 
             } else {
-                // 支持多个
+                // EXCEL 支持多个
                 output = EasyExcelGenerator.create(reportId, Arrays.asList(recordIds)).generate();
             }
 
@@ -128,8 +128,10 @@ public class ReportsController extends BaseController {
         final boolean isPdf = "PDF".equalsIgnoreCase(typeOutput);
         if (isPdf || isOnlyPdf(entity, reportId)) {
             output = PdfConverter.convertPdf(output.toPath()).toFile();
+            fileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".pdf";
         } else if (isHtml) {
             output = PdfConverter.convertHtml(output.toPath()).toFile();
+            fileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".html";
         }
 
         if (ServletUtils.isAjaxRequest(request)) {
