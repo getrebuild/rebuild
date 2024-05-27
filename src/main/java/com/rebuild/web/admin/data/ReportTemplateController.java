@@ -214,12 +214,13 @@ public class ReportTemplateController extends BaseController {
 
         attname += "." + FileNameUtil.getSuffix(output);
         String typeOutput = getParameter(request, "output");
+        boolean forceInline = false;
         if (PdfConverter.TYPE_PDF.equalsIgnoreCase(typeOutput) || PdfConverter.TYPE_HTML.equalsIgnoreCase(typeOutput)) {
             output = PdfConverter.convert(output.toPath(), typeOutput).toFile();
-            attname = FileDownloader.INLINE_FORCE;
+            forceInline = true;
         }
 
-        FileDownloader.downloadTempFile(response, output, attname);
+        FileDownloader.downloadTempFile(response, output, attname, forceInline);
         return null;
     }
 

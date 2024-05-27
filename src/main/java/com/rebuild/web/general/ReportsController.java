@@ -159,7 +159,7 @@ public class ReportsController extends BaseController {
         } else {
             // 直接预览
             boolean forcePreview = isHtml || isPdf || getBoolParameter(request, "preview");
-            FileDownloader.downloadTempFile(response, output, forcePreview ? FileDownloader.INLINE_FORCE : fileName);
+            FileDownloader.downloadTempFile(response, output, fileName, forcePreview);
         }
         return null;
     }
