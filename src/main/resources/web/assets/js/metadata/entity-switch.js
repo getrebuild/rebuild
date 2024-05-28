@@ -57,7 +57,7 @@ $(document).ready(() => {
   })
 
   const $toggle = $('.aside-header .title').addClass('pointer')
-  $('<i class="icon zmdi zmdi-caret-down ml-1 text-muted fs-18"></i>').appendTo($toggle)
+  $('<i class="icon zmdi zmdi-caret-down ml-1 text-muted fs-16"></i>').appendTo($toggle)
   $toggle.addClass('dropdown-toggle').attr({
     'data-toggle': 'dropdown',
     'title': $L('切换'),

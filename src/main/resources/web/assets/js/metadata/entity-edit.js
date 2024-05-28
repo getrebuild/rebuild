@@ -20,7 +20,7 @@ $(document).ready(() => {
   $(`.nav-tabs>li[data-name=${wpc.entity}]>a`).addClass('active')
   if ($('.J_details')[0]) {
     const $toggle = $('.J_for-details')
-    $('<i class="icon zmdi zmdi-caret-down ml-1 mr-0 text-muted fs-18"></i>').appendTo($toggle)
+    $('<i class="icon zmdi zmdi-caret-down ml-1 mr-0 text-muted fs-16"></i>').appendTo($toggle)
     $toggle.attr('data-toggle', 'dropdown')
     $toggle.next().find(`a[data-name=${wpc.entity}]`).addClass('text-primary')
   }
