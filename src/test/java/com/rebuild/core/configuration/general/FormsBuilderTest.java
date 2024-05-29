@@ -22,10 +22,10 @@ import org.junit.jupiter.api.Test;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/06/03
  */
-public class FormsBuilderTest extends TestSupport {
+class FormsBuilderTest extends TestSupport {
 
     @Test
-    public void testModel() {
+    void testModel() {
         JSON newModel = FormsBuilder.instance.buildForm(TestAllFields, UserService.ADMIN_USER, null);
         System.out.println(newModel);
 
@@ -34,13 +34,13 @@ public class FormsBuilderTest extends TestSupport {
     }
 
     @Test
-    public void testViewModel() {
+    void testViewModel() {
         JSON viewModel = FormsBuilder.instance.buildView("User", UserService.ADMIN_USER, UserService.SYSTEM_USER);
         System.out.println(viewModel);
     }
 
     @Test
-    public void testSetFormInitialValue() {
+    void testSetFormInitialValue() {
         Entity SalesOrder999 = MetadataHelper.getEntity(SalesOrder);
         Entity SalesOrderItem999 = MetadataHelper.getEntity(SalesOrderItem);
 

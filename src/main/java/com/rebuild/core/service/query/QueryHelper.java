@@ -128,7 +128,7 @@ public class QueryHelper {
     }
 
     /**
-     * 获取（默认）明细列表 ID
+     * 获取（默认明细）明细列表 ID
      *
      * @param mainId
      * @return

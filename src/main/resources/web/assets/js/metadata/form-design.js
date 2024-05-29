@@ -622,7 +622,9 @@ class DlgNForm extends RbModalHandler {
     super(props)
     this.state = { ...props }
 
-    if (typeof props.attrs === 'object') {
+    if (props.attrs === 'ALL' && !props.name) {
+      this.state.fallback = true
+    } else if (typeof props.attrs === 'object') {
       this.state.fallback = props.attrs.fallback
       this.state.useFilter = props.attrs.filter || null
     }
@@ -714,6 +716,9 @@ class DlgNForm extends RbModalHandler {
       filter: this.state.useFilter || null,
     }
     if (!ps.name) return RbHighbar.createl('请输入名称')
+    if (!ps.fallback) {
+      if (!ps.filter || ps.filter.items.length === 0) return RbHighbar.createl('非默认布局请设置使用条件')
+    }
 
     const $btn = $(this._$btns).button('loading')
     $.post(`form-attr-save?id=${this.props.id || ''}`, JSON.stringify(ps), (res) => {

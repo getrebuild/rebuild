@@ -45,21 +45,41 @@ public class FormsManager extends BaseLayoutManager {
      * @return
      */
     public ConfigBean getFormLayout(String entity, ID recordId) {
-        Object[][] cached = getAllConfig(entity, TYPE_FORM);
-        for (Object[] o : cached) {
-            ConfigBean cb = findConfigBean(cached, (ID) o[0]);
+        final Object[][] alls = getAllConfig(entity, TYPE_FORM);
+
+        ConfigBean use = null;
+        for (Object[] o : alls) {
+            ConfigBean cb = findConfigBean(alls, (ID) o[0]);
             ShareToAttr attr = new ShareToAttr(cb);
             if (recordId == null) {
                 if (attr.isFallback()) {
-                    return cb.remove("shareTo").remove("name");
+                    use = cb;
+                    break;
                 }
             } else {
                 if (attr.isMatchUseFilter(recordId)) {
-                    return cb.remove("shareTo").remove("name");
+                    use = cb;
+                    break;
                 }
             }
         }
 
+        // 默认布局
+        if (use == null && recordId != null) {
+            for (Object[] o : alls) {
+                ConfigBean cb = findConfigBean(alls, (ID) o[0]);
+                ShareToAttr attr = new ShareToAttr(cb);
+                if (attr.isFallback()) {
+                    use = cb;
+                    break;
+                }
+            }
+        }
+
+        if (use != null) {
+            use.remove("shareTo").remove("name");
+            return use;
+        }
         return useBlank(entity);
     }
 
@@ -78,14 +98,14 @@ public class FormsManager extends BaseLayoutManager {
      * @return
      */
     public ConfigBean getFormLayout(ID formConfigId, String entity) {
-        Object[][] cached = getAllConfig(entity, TYPE_FORM);
-        for (Object[] o : cached) {
+        final Object[][] alls = getAllConfig(entity, TYPE_FORM);
+        for (Object[] o : alls) {
             if (formConfigId == null) {
-                return findConfigBean(cached, (ID) o[0]);
+                return findConfigBean(alls, (ID) o[0]);
             }
 
             if (formConfigId.equals(o[0])) {
-                return findConfigBean(cached, formConfigId);
+                return findConfigBean(alls, formConfigId);
             }
         }
 
@@ -97,7 +117,7 @@ public class FormsManager extends BaseLayoutManager {
      * @return
      */
     public List<ConfigBean> getAllFormsAttr(String entity) {
-        Object[][] alls = getAllConfig(entity, TYPE_FORM);
+        final Object[][] alls = getAllConfig(entity, TYPE_FORM);
 
         List<ConfigBean> flist = new ArrayList<>();
         for (Object[] o : alls) {
@@ -155,7 +175,7 @@ public class FormsManager extends BaseLayoutManager {
             if (ParseHelper.validAdvFilter(filter)) {
                 return QueryHelper.isMatchAdvFilter(recordId, filter);
             }
-            return true;
+            return false;
         }
     }
 }
