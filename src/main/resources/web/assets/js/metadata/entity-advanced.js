@@ -265,7 +265,9 @@ class DlgMode1Option extends RbFormHandler {
                     res.data &&
                       res.data.forEach((item) => {
                         if (item.type === 'REFERENCE' && item.ref[0] === found.ref[0]) {
-                          formats.push([item.name, item.label])
+                          if (!['createdBy', 'modifiedBy'].includes(item.name)) {
+                            formats.push([item.name, item.label])
+                          }
                         }
                       })
 
