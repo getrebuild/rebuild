@@ -40,50 +40,55 @@ public class KnownExceptionConverter {
         }
 
         final Throwable cause = ex.getCause();
-        final String exMsg = cause == null ? null : cause.getLocalizedMessage();
+        final String exMsg = cause == null ? "" : cause.getLocalizedMessage();
+        log.error("DBERR: {}", exMsg);
 
         if (cause instanceof DataTruncation) {
-            log.error("DBERR: {}", exMsg);
-            // Data truncation: Incorrect datetime value: '0010-07-05 04:57:00' for column
-            if (exMsg.contains("Incorrect datetime")) return Language.L("日期超出数据库限制");
 
+            // Data truncation: Data too long for column 'NAME' at row 1
+            // Data truncation: Incorrect datetime value: '0010-04-01' for column 'D_A_T_E1' at row 1
             String s = Language.L("数据库字段长度超出限制");
-            String key = matchsDataTruncation(exMsg);
+            String key = matchsColumn(exMsg, PATT_FC);
             return key == null ? s : s + ":" + key;
 
         } else if (cause instanceof SQLException && StringUtils.countMatches(exMsg, "\\x") >= 4) {  // mb4
-            log.error("DBERR: {}", exMsg);
+
             return Language.L("数据库编码不支持 4 字节编码");
 
+        }  else if (cause instanceof SQLException && exMsg.contains(" doesn't have a default value")) {
+
+            // Field 'HEJISHULIANG' doesn't have a default value
+            String s = Language.L("数据库字段不允许为空");
+            String key = matchsColumn(exMsg, PATT_NN);
+            return key == null ? s : s + ":" + key;
+
         } else if (cause instanceof SQLTimeoutException) {
-            log.error("DBERR: {}", exMsg);
+
             return Language.L("数据库语句执行超时");
 
         } else if (ex instanceof ConstraintViolationException) {
-            log.error("DBERR: {}", exMsg);
+
             if (ex.getLocalizedMessage().contains("Duplicate entry")) {
                 String s = Language.L("数据库字段违反唯一性约束");
-                String key = matchsDuplicateEntry(exMsg);
+                String key = matchsColumn(exMsg, PATT_DE);
                 return key == null ? s : s + ":" + key;
             }
+
             return Language.L("数据库字段违反约束");
         }
 
         return null;
     }
 
-    static final Pattern PATT_DE = Pattern.compile("Duplicate entry (.*?) for key", Pattern.CASE_INSENSITIVE);
     // 提取重复 KEY
-    static String matchsDuplicateEntry(String s) {
-        Matcher m = PATT_DE.matcher(s);
-        if (m.find()) return m.group(1);
-        return null;
-    }
-
-    static final Pattern PATT_DT = Pattern.compile("Data too long for column (.*?) at row", Pattern.CASE_INSENSITIVE);
+    static final Pattern PATT_DE = Pattern.compile("Duplicate entry (.*?) for key", Pattern.CASE_INSENSITIVE);
     // 提取超长字段
-    static String matchsDataTruncation(String s) {
-        Matcher m = PATT_DT.matcher(s);
+    static final Pattern PATT_FC = Pattern.compile(" for column (.*?) at row", Pattern.CASE_INSENSITIVE);
+    // 提取不允许为空字段
+    static final Pattern PATT_NN = Pattern.compile("Field (.*?) doesn't have a default value", Pattern.CASE_INSENSITIVE);
+    // 匹配
+    static String matchsColumn(String s, Pattern pattern) {
+        Matcher m = pattern.matcher(s);
         if (m.find()) return m.group(1);
         return null;
     }
