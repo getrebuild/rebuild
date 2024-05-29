@@ -11,6 +11,7 @@ $(document).ready(() => {
 
   let href = location.href
   if (href.includes('/field/')) href = href.split('/field/')[0] + '/fields'
+  if (href.includes('?id=')) href = href.split('?id=')[0]
 
   const $menu = $('<div class="dropdown-menu auto-scroller entity-switch"></div>').appendTo('.aside-header')
 

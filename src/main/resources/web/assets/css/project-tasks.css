@@ -336,12 +336,6 @@ td.task-user > .avatar img {
   right: 69px;
 }
 
-.ps-toolbar .dropdown-item-text {
-  color: #b0b0b0;
-  text-transform: uppercase;
-  font-size: 0.8462rem;
-}
-
 .ps-toolbar .J_view > .btn,
 .ps-toolbar .J_sorts > .btn {
   padding-left: 20px;
