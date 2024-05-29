@@ -189,7 +189,7 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        ConfigBean model = getFormLayout(entity, user);
+        ConfigBean model = getFormLayout(entity, recordId);
         JSONArray elements = (JSONArray) model.getJSON("elements");
         if (elements == null || elements.isEmpty()) {
             return formatModelError(Language.L("此表单布局尚未配置，请配置后使用"));

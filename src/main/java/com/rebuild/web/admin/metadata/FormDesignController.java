@@ -28,6 +28,7 @@ import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
@@ -50,14 +51,17 @@ public class FormDesignController extends BaseController {
         MetaEntityController.setEntityBase(mv, entity);
         mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
 
-        ConfigBean config = FormsManager.instance.getFormLayout(entity, getRequestUser(request));
-        if (config != null) {
-            request.setAttribute("FormConfig", config.toJSON());
-        }
+        ID formConfigId37 = getIdParameter(request, "id");
+        ConfigBean config = FormsManager.instance.getFormLayout(formConfigId37, entity);
+        request.setAttribute("FormConfig", config.toJSON());
+
+        List<ConfigBean> attrs = FormsManager.instance.getAllFormsAttr(entity);
+        request.setAttribute("FormsAttr", JSON.toJSONString(attrs));
+
         return mv;
     }
 
-    @RequestMapping({"form-update"})
+    @PostMapping({"form-update"})
     public RespBody sets(@PathVariable String entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
         JSON formJson = ServletUtils.getRequestJson(request);
