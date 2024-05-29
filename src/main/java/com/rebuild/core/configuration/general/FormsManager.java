@@ -50,9 +50,13 @@ public class FormsManager extends BaseLayoutManager {
             ConfigBean cb = findConfigBean(cached, (ID) o[0]);
             ShareToAttr attr = new ShareToAttr(cb);
             if (recordId == null) {
-                if (attr.isFallback()) return cb;
+                if (attr.isFallback()) {
+                    return cb.remove("shareTo").remove("name");
+                }
             } else {
-                if (attr.isMatchUseFilter(recordId)) return cb;
+                if (attr.isMatchUseFilter(recordId)) {
+                    return cb.remove("shareTo").remove("name");
+                }
             }
         }
 
@@ -98,8 +102,7 @@ public class FormsManager extends BaseLayoutManager {
         List<ConfigBean> flist = new ArrayList<>();
         for (Object[] o : alls) {
             ConfigBean cb = findConfigBean(alls, (ID) o[0]).remove("config");
-            cb.remove("elements");
-            flist.add(cb);
+            flist.add(cb.remove("elements"));
         }
         return flist;
     }
