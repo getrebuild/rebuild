@@ -84,7 +84,8 @@ public class FormsManager extends BaseLayoutManager {
         }
 
         if (use != null) {
-            use.remove("shareTo").remove("name");
+            use.set("entity", entity)
+                    .remove("shareTo").remove("name");
             return use;
         }
         return useBlank(entity);
@@ -139,6 +140,7 @@ public class FormsManager extends BaseLayoutManager {
         ConfigBean cb = super.findConfigBean(uses, cfgid);
         if (cb == null) return null;
 
+        // 补充信息
         for (Object[] c : uses) {
             if (c[0].equals(cfgid)) {
                 cb.set("name", c[4]);
