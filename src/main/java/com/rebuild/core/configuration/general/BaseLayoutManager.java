@@ -59,6 +59,7 @@ public class BaseLayoutManager extends ShareToManager {
      * @param entity
      * @return
      */
+    @Deprecated
     public ConfigBean getLayoutOfForm(ID user, String entity) {
         return getLayout(user, entity, TYPE_FORM, null);
     }

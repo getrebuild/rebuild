@@ -20,7 +20,8 @@ class MediaCapturer extends RbModal {
 
     // 1024, 768
     this._videoWidth = props.width || _IDEAL_VIDW
-    this._imageCapture = false
+    // https://developer.mozilla.org/en-US/docs/Web/API/ImageCapture
+    this._useImageCapture = null
   }
 
   renderContent() {
@@ -122,11 +123,11 @@ class MediaCapturer extends RbModal {
     }
   }
 
-  initDevice(cb, deviceId) {
+  initDevice(cb, specDeviceId) {
     this.setState({ captured: false, initMsg: $L('请稍后') })
-    if (deviceId) {
+    if (specDeviceId) {
       this._stopTracks()
-      $storage.set('MediaCapturerDeviceId', deviceId)
+      $storage.set('MediaCapturerDeviceId', specDeviceId)
     }
 
     if (this._$camera && this._$camera.srcObject) {
@@ -137,40 +138,31 @@ class MediaCapturer extends RbModal {
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
     const constraints = {
       video: {
-        width: { ideal: _IDEAL_VIDW * 3 },
-        height: { ideal: _IDEAL_VIDH * 3 },
+        width: { ideal: _IDEAL_VIDW * 5 },
+        height: { ideal: _IDEAL_VIDH * 5 },
       },
       audio: this.props.recordAudio === true,
     }
-    if (deviceId) constraints.video = { deviceId: deviceId }
+    if (specDeviceId) constraints.video.deviceId = specDeviceId
 
     navigator.mediaDevices
       .getUserMedia(constraints)
       .then((s) => {
         this._$camera.srcObject = s
-        this._deviceId = s.id
+        this.__currentDeviceId = s.id
+
+        const track = s.getVideoTracks()[0]
+        const trackSettings = track.getSettings()
+        console.log('Use webcam settings :', trackSettings)
+        this._cameraSettings = {
+          width: trackSettings.width || _IDEAL_VIDW,
+          height: trackSettings.height || _IDEAL_VIDH,
+        }
 
         try {
-          const track = s.getVideoTracks()[0]
-          this._cameraSettings = {
-            width: track.getSettings().width || _IDEAL_VIDW,
-            height: track.getSettings().height || _IDEAL_VIDH,
+          if (this._useImageCapture !== false) {
+            this._useImageCapture = new ImageCapture(track)
           }
-
-          if (this._imageCapture !== false) {
-            this._imageCapture = new ImageCapture(track)
-            this._imageCapture.getPhotoCapabilities().then((c) => {
-              let { imageWidth, imageHeight } = c
-              if (imageWidth && imageWidth.max && imageHeight && imageHeight.max) {
-                this._cameraSettings = {
-                  width: imageWidth.max,
-                  height: imageHeight.max,
-                }
-              }
-            })
-          }
-
-          console.log('Use webcam size :', this._cameraSettings)
         } catch (err) {
           // ignored
         }
@@ -203,45 +195,30 @@ class MediaCapturer extends RbModal {
 
   takeImage() {
     this.initDevice(() => {
-      // https://developer.mozilla.org/en-US/docs/Web/API/ImageCapture
-      if (this._imageCapture) {
+      if (this._useImageCapture) {
         this._takeImageUseImageCapture()
         return
-      }
-      $(this._$resImage2).parent().remove()
-
-      const canvasWidth = this._videoWidth
-      const canvasHeight = (canvasWidth / 4) * 3
-      this._$resImage.width = canvasWidth
-      this._$resImage.height = canvasHeight
-      this._$resImage.style.width = canvasWidth
-      this._$resImage.style.height = canvasHeight
-
-      let width = this._videoWidth
-      let height = (width / 4) * 3
-      if (this._cameraSettings && this._cameraSettings.width && this._cameraSettings.height) {
-        width = this._cameraSettings.width
-        height = this._cameraSettings.height
+      } else {
+        $(this._$resImage2).parent().remove()
       }
 
-      // const ratio = Math.max(window.devicePixelRatio || 1, 2)
-      // scale
-      const scale = Math.min(canvasWidth / width, canvasHeight / height)
-      width = width * scale
-      height = height * scale
-      // center
-      const x = (canvasWidth - width) / 2
-      const y = (canvasHeight - height) / 2
+      let width = this._cameraSettings.width
+      let height = this._cameraSettings.height
+      this._$resImage.width = width
+      this._$resImage.height = height
+      this._$resImage.style.width = `${width}px !important`
+      this._$resImage.style.height = `${height}px !important`
+      this._$resImage.style.zoom = this._videoWidth / width
 
       const ctx2d = this._$resImage.getContext('2d')
       ctx2d.clearRect(0, 0, width, height)
-      ctx2d.drawImage(this._$camera, x, y, width, height)
+      ctx2d.drawImage(this._$camera, 0, 0, width, height)
       // 水印
       if (this.props.watermark) {
-        ctx2d.font = '16px Arial'
+        ctx2d.font = '24px Arial'
         ctx2d.fillStyle = 'white'
-        ctx2d.fillText(moment().format('YYYY-MM-DD HH:mm:ss'), 20, 30)
-        ctx2d.fillText('DeviceNo : ' + this._deviceId || '', 20, 30 + 20)
+        ctx2d.fillText(moment().format('YYYY-MM-DD HH:mm:ss'), 20, 40)
+        ctx2d.fillText('Device : ' + this.__currentDeviceId || '', 20, 40 + 30)
       }
       this._capturedData = this._$resImage.toDataURL('image/jpeg', 1.0)
 
@@ -252,7 +229,7 @@ class MediaCapturer extends RbModal {
 
   _takeImageUseImageCapture() {
     const that = this
-    this._imageCapture
+    this._useImageCapture
       .takePhoto({
         imageWidth: this._cameraSettings.width,
         imageHeight: this._cameraSettings.height,
@@ -273,7 +250,7 @@ class MediaCapturer extends RbModal {
 
         // Use canvas
         $(that._$resImage2).parent().remove()
-        that._imageCapture = false
+        that._useImageCapture = false
         that.takeImage()
       })
   }

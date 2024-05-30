@@ -91,6 +91,27 @@ $(document).ready(() => {
     if (!ft[2]) render_type({ name: k, label: ft[0], icon: ft[1] })
   }
 
+  // v3.7 LAB
+  $('.J_add-nform').on('click', () => renderRbcomp(<DlgNForm entity={wpc.entityName} />))
+  wpc.formsAttr &&
+    wpc.formsAttr.forEach((item) => {
+      const $item = $(`<a class="dropdown-item" href="?id=${item.id}"></a>`).appendTo('.form-action-menu')
+      const $title = $(`<span>${item.name || $L('默认')}</span>`).appendTo($item)
+      if (!item.name) $title.addClass('text-muted')
+
+      const $action = $(`<div class="action"><span title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></span></div>`).appendTo($item)
+      $action.find('span').on('click', (e) => {
+        $stopEvent(e, true)
+        renderRbcomp(<DlgNForm entity={wpc.entityName} id={item.id} name={item.name} attrs={item.shareTo} />)
+      })
+
+      if (wpc.formConfig.id === item.id) $item.addClass('check')
+    })
+  // 无
+  if (!wpc.formConfig.id) {
+    $(`<a class="dropdown-item text-disabled">${$L('无')}</a>`).appendTo('.form-action-menu')
+  }
+
   // SAVE
 
   const _handleSave = function (elements) {
@@ -593,4 +614,137 @@ const AdvControl = {
       item[$this.attr('name')] = $this.prop('checked')
     })
   },
+}
+
+// ~~ 新的表单布局
+class DlgNForm extends RbModalHandler {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+
+    if (props.attrs === 'ALL' && !props.name) {
+      this.state.fallback = true
+    } else if (typeof props.attrs === 'object') {
+      this.state.fallback = props.attrs.fallback
+      this.state.useFilter = props.attrs.filter || null
+    }
+  }
+
+  render() {
+    const title = this.props.id ? $L('修改表单布局') : $L('添加表单布局')
+    return (
+      <RbModal ref={(c) => (this._dlg = c)} title={title} disposeOnHide>
+        <div>
+          <form>
+            <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
+              <div className="col-sm-7">
+                <input className="form-control form-control-sm" type="text" maxLength="40" defaultValue={this.props.name} ref={(c) => (this._$name = c)} />
+              </div>
+            </div>
+            <div className="form-group row pt-1">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('使用条件')}</label>
+              <div className="col-sm-7">
+                <div className="form-control-plaintext">
+                  <a
+                    href="###"
+                    onClick={(e) => {
+                      $stopEvent(e, true)
+                      this._useFilter()
+                    }}
+                    ref={(c) => (this._$useFilter = c)}>
+                    {this.state.useFilter && this.state.useFilter.items.length > 0 ? $L('已设置条件') + ` (${this.state.useFilter.items.length})` : $L('点击设置')}
+                  </a>
+                  <p className="form-text m-0 mt-1">{$L('符合条件的表单将应用此布局')}</p>
+                </div>
+              </div>
+            </div>
+            <div className="form-group row pt-0">
+              <label className="col-sm-3 col-form-label text-sm-right"></label>
+              <div className="col-sm-7">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" defaultChecked={this.state.fallback} ref={(c) => (this._$fallback = c)} />
+                  <span className="custom-control-label">{$L('默认布局')}</span>
+                </label>
+              </div>
+            </div>
+            <div className="form-group row footer">
+              <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btns = c)}>
+                <button className="btn btn-primary" type="button" onClick={() => this.postAttr()}>
+                  {$L('确定')}
+                </button>
+                {this.props.id && (
+                  <button className="btn btn-danger btn-outline ml-2" type="button" onClick={() => this.delete()}>
+                    <i className="zmdi zmdi-delete icon" /> {$L('删除')}
+                  </button>
+                )}
+              </div>
+            </div>
+          </form>
+        </div>
+      </RbModal>
+    )
+  }
+
+  _useFilter() {
+    if (this._UseFilter) {
+      this._UseFilter.show()
+    } else {
+      const that = this
+      renderRbcomp(
+        <AdvFilter
+          title={$L('使用条件')}
+          inModal
+          canNoFilters
+          entity={this.props.entity}
+          filter={this.state.useFilter}
+          confirm={(s) => {
+            this.setState({ useFilter: s })
+          }}
+        />,
+        function () {
+          that._UseFilter = this
+        }
+      )
+    }
+  }
+
+  postAttr() {
+    const ps = {
+      name: $val(this._$name),
+      fallback: $val(this._$fallback),
+      filter: this.state.useFilter || null,
+    }
+    if (!ps.name) return RbHighbar.createl('请输入名称')
+    if (!ps.fallback) {
+      if (!ps.filter || ps.filter.items.length === 0) return RbHighbar.createl('非默认布局请设置使用条件')
+    }
+
+    const $btn = $(this._$btns).button('loading')
+    $.post(`form-attr-save?id=${this.props.id || ''}`, JSON.stringify(ps), (res) => {
+      if (res.error_code === 0) {
+        location.href = '?id=' + res.data
+      } else {
+        RbHighbar.error(res.error_msg)
+        $btn.button('reset')
+      }
+    })
+  }
+
+  delete() {
+    const _id = this.props.id
+    RbAlert.create($L('确认删除此表单布局？'), {
+      type: 'danger',
+      onConfirm: function () {
+        this.hide()
+        $.post('/app/entity/common-delete?id=' + _id, (res) => {
+          if (res.error_code === 0) {
+            location.href = './form-design'
+          } else {
+            RbHighbar.error(res.error_msg)
+          }
+        })
+      },
+    })
+  }
 }

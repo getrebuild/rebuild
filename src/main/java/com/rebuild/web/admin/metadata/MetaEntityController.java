@@ -260,7 +260,7 @@ public class MetaEntityController extends EntityController {
         if (ServletUtils.isAjaxRequest(request)) {
             writeSuccess(response, JSONUtils.toJSONObject("file", dest.getName()));
         } else {
-            FileDownloader.downloadTempFile(response, dest, null);
+            FileDownloader.downloadTempFile(response, dest);
         }
     }
 

@@ -1238,8 +1238,8 @@ class RbFormNumber extends RbFormText {
     const err = super.isValueError()
     if (err) return err
 
-    const value = this._removeComma(this.state.value)
-    if (!!value && $regex.isNumber(value) === false) return $L('格式不正确')
+    const value = this.state.value
+    if (!!value && $regex.isDecimal(value) === false) return $L('格式不正确')
     if (!!value && $isTrue(this.props.notNegative) && parseFloat(value) < 0) return $L('不能为负数')
     return null
   }
@@ -1249,7 +1249,9 @@ class RbFormNumber extends RbFormText {
 
   renderElement() {
     const _readonly37 = this.state.readonly
-    const value = arguments.length > 0 ? arguments[0] : this.state.value
+    let value = arguments.length > 0 ? arguments[0] : this.state.value
+    // `0`
+    if (value === undefined || value == null) value = ''
 
     return (
       <RF>
@@ -1258,7 +1260,7 @@ class RbFormNumber extends RbFormText {
           className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`}
           title={this.state.hasError}
           type="text"
-          value={this._removeComma(value)}
+          value={value}
           onChange={(e) => this.handleChange(e, !_readonly37)}
           readOnly={_readonly37}
           placeholder={this._placeholderw}
@@ -1285,6 +1287,13 @@ class RbFormNumber extends RbFormText {
     if (this.props.calcFormula && !this.props.onView) __calcFormula(this)
   }
 
+  onEditModeChanged(destroy) {
+    if (destroy);
+    else {
+      this.setState({ value: this._removeComma(this.state.value) })
+    }
+  }
+
   // 移除千分为位
   _removeComma(n) {
     if (n === null || n === undefined || n === '') return ''
@@ -1303,16 +1312,6 @@ class RbFormDecimal extends RbFormNumber {
     if (props.decimalType && props.decimalType !== '0') {
       this.__valueFlag = props.decimalType
     }
-  }
-
-  isValueError() {
-    const err = super._isValueError()
-    if (err) return err
-
-    const value = this._removeComma(this.state.value)
-    if (!!value && $regex.isDecimal(value) === false) return $L('格式不正确')
-    if (!!value && $isTrue(this.props.notNegative) && parseFloat(value) < 0) return $L('不能为负数')
-    return null
   }
 }
 

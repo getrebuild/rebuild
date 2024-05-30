@@ -59,8 +59,7 @@ const renderList = function () {
     let type = item.displayType
     if (item.displayTypeRef) type += ` (${item.displayTypeRef[1]})`
     $(`<td><div class="text-muted">${type}</div></td>`).appendTo($tr)
-    $(`<td><div class="text-none" _title="${$L('无')}">${item.comments || ''}</div></td>`).appendTo($tr)
-    $(`<td class="actions"><a class="icon J_edit" href="field/${item.fieldName}"><i class="zmdi zmdi-settings"></i></a></td>`).appendTo($tr)
+    $(`<td><div class="text-break" _title="${$L('无')}">${item.comments || ''}</div></td>`).appendTo($tr)
   })
 
   $('.dataTables_info').text($L('共 %d 个字段', $tbody.find('tr').length))

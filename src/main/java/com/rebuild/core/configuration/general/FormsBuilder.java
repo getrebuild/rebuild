@@ -33,6 +33,7 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
@@ -189,7 +190,25 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        ConfigBean model = getFormLayout(entity, user);
+        ID recordId4Layout = recordId;
+        // v3.7 明细使用指定记录布局
+        if (entityMeta.getMainEntity() != null) {
+            // for New
+            if (recordId == null) {
+                ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
+                if (mainid != null && !EntityHelper.isUnsavedId(mainid)) {
+                    List<ID> ids = QueryHelper.detailIdsNoFilter(mainid, entityMeta);
+                    if (!ids.isEmpty()) recordId4Layout = ids.get(0);
+                }
+            }
+            // for Update
+            else {
+                ID s = FormsBuilderContextHolder.getLayoutSpecRecord(false);
+                if (s != null) recordId4Layout = s;
+            }
+        }
+
+        ConfigBean model = getFormLayout(entity, recordId4Layout);
         JSONArray elements = (JSONArray) model.getJSON("elements");
         if (elements == null || elements.isEmpty()) {
             return formatModelError(Language.L("此表单布局尚未配置，请配置后使用"));

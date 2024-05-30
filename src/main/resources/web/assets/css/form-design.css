@@ -371,3 +371,35 @@ form.field-attr label > span {
 .dd-list .dd-item .dd-handle[data-breaked='true'] {
   border-style: dashed;
 }
+
+.form-action-menu .dropdown-item {
+  position: relative;
+}
+
+.form-action-menu .dropdown-item > div.action {
+  position: absolute;
+  right: 20px;
+  top: 0;
+  font-size: 0;
+  display: none;
+}
+
+.form-action-menu .dropdown-item:hover > div.action {
+  display: block;
+}
+
+.form-action-menu .dropdown-item > div.action > span {
+  height: 34px;
+  line-height: 34px;
+  color: #aaa !important;
+  border-radius: 0;
+  width: 22px;
+  text-align: right;
+  font-size: 1.2rem;
+  display: inline-block;
+  background-color: #eee;
+}
+
+.form-action-menu .dropdown-item > div.action > span:hover {
+  color: #4285f4 !important;
+}

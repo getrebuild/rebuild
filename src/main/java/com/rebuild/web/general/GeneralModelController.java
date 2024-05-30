@@ -10,7 +10,6 @@ package com.rebuild.web.general;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -26,9 +25,11 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.transform.TransformerPreview37;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
@@ -227,7 +228,7 @@ public class GeneralModelController extends EntityController {
 
     @RequestMapping("detail-models")
     public JSON entityFormDetails(
-            @PathVariable String entity, @IdParam(name = "mainid", required = false) ID id,
+            @PathVariable String entity, @IdParam(name = "mainid", required = false) ID mainid,
             HttpServletRequest request) {
         final ID user = getRequestUser(request);
 
@@ -237,17 +238,21 @@ public class GeneralModelController extends EntityController {
             return new TransformerPreview37(previewid, user).buildForm(entity);
         }
 
-        Entity entityMeta = MetadataHelper.getEntity(entity);
-        Field dtf = MetadataHelper.getDetailToMainField(entityMeta);
-        String sql = String.format("select %s from %s where %s = ? order by autoId asc",
-                entityMeta.getPrimaryField().getName(), entityMeta.getName(), dtf.getName());
-        Object[][] ids = Application.createQuery(sql).setParameter(1, id).array();
-        
+        Entity detailEntityMeta = MetadataHelper.getEntity(entity);
+        List<ID> ids = QueryHelper.detailIdsNoFilter(mainid, detailEntityMeta);
+        if (ids.isEmpty()) return JSONUtils.EMPTY_ARRAY;
+
         JSONArray details = new JSONArray();
-        for (Object[] o : ids) {
-            JSON model = FormsBuilder.instance.buildForm(entity, user, (ID) o[0]);
-            ((JSONObject) model).put("id", o[0]);
-            details.add(model);
+        // v3.7 使用指定记录布局
+        FormsBuilderContextHolder.setLayoutSpecRecord(ids.get(0));
+        try {
+            for (ID did : ids) {
+                JSON model = FormsBuilder.instance.buildForm(entity, user, did);
+                ((JSONObject) model).put("id", did);
+                details.add(model);
+            }
+        } finally {
+            FormsBuilderContextHolder.getLayoutSpecRecord(true);
         }
         return details;
     }

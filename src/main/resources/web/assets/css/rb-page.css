@@ -686,6 +686,7 @@ div.dataTables_filter .filter-badge:hover .close {
 
 .adv-search .dropdown-item {
   position: relative;
+  cursor: pointer;
 }
 
 .adv-search .dropdown-item a {
@@ -4546,17 +4547,20 @@ html.external-auth .auth-body.must-center .login {
 
 .user-popup .infos {
   margin-left: 90px;
-  padding: 10px 15px 0;
+  padding-top: 10px;
+  padding-left: 15px;
+  line-height: 1.2;
 }
 
 .user-popup .infos strong {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: normal;
 }
 
 .user-popup .infos p {
   margin: 0;
   line-height: 1.4;
+  max-width: 170px;
 }
 
 .user-popup .infos p.phone::after,
@@ -4934,6 +4938,12 @@ pre.unstyle {
 .dropdown-menu.entity-switch .dropdown-item.current,
 .dropdown-menu.entity-switch .dropdown-item.current .icon {
   color: #4285f4;
+}
+
+.dropdown-item-text {
+  color: #b0b0b0;
+  text-transform: uppercase;
+  font-size: 0.8462rem;
 }
 
 .rbalert .widget-sm {
@@ -5407,7 +5417,8 @@ span.icon-append .icon {
 }
 
 .media-capture video,
-.media-capture canvas {
+.media-capture canvas,
+.media-capture canvas + div {
   margin: 0;
   padding: 0;
   width: 1024px;
@@ -5416,17 +5427,22 @@ span.icon-append .icon {
 }
 
 .media-capture.media-capture-md video,
-.media-capture.media-capture-md canvas {
+.media-capture.media-capture-md canvas,
+.media-capture.media-capture-md canvas + div {
   width: 768px;
   height: 576px;
+}
+
+.media-capture canvas,
+.media-capture.media-capture-md canvas {
+  width: auto;
+  height: auto;
 }
 
 .media-capture canvas + div {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
   background-color: #000;
   text-align: center;
   font-size: 0;

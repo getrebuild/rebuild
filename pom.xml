@@ -298,7 +298,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>persist4j</artifactId>
-            <version>1.7.9</version>
+            <version>9646d534c7</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.alibaba</groupId>
@@ -400,11 +400,6 @@
         <dependency>
             <groupId>com.vladsch.flexmark</groupId>
             <artifactId>flexmark-ext-toc</artifactId>
-            <version>0.62.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.vladsch.flexmark</groupId>
-            <artifactId>flexmark-pdf-converter</artifactId>
             <version>0.62.2</version>
         </dependency>
         <dependency>

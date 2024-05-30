@@ -20,6 +20,8 @@ public class FormsBuilderContextHolder {
 
     private static final ThreadLocal<ID> MAINID_OF_DETAIL = new NamedThreadLocal<>("MainId from details");
 
+    private static final ThreadLocal<ID> LAYOUT_SPEC_RECORD = new NamedThreadLocal<>("Layout using specified record");
+
     /**
      * @param mainid
      */
@@ -35,5 +37,22 @@ public class FormsBuilderContextHolder {
         ID mainid = MAINID_OF_DETAIL.get();
         if (mainid != null && once) MAINID_OF_DETAIL.remove();
         return mainid;
+    }
+
+    /**
+     * @param specRecordId
+     */
+    public static void setLayoutSpecRecord(ID specRecordId) {
+        LAYOUT_SPEC_RECORD.set(specRecordId);
+    }
+
+    /**
+     * @param once
+     * @return
+     */
+    public static ID getLayoutSpecRecord(boolean once) {
+        ID specRecordId = LAYOUT_SPEC_RECORD.get();
+        if (specRecordId != null && once) LAYOUT_SPEC_RECORD.remove();
+        return specRecordId;
     }
 }

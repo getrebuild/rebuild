@@ -49,7 +49,7 @@ public class DataListCategory {
     private DataListCategory() {}
 
     /**
-     * NOTE 有 15m 缓存
+     * NOTE 有 5m 缓存
      *
      * @param entity
      * @return
@@ -149,7 +149,7 @@ public class DataListCategory {
             });
         }
 
-        Application.getCommonsCache().putx(ckey, res, CacheTemplate.TS_MINTE * 15);
+        Application.getCommonsCache().putx(ckey, res, CacheTemplate.TS_MINTE * 5);
         return res;
     }
 
@@ -283,8 +283,10 @@ public class DataListCategory {
     // 引用的子级
     private Object[][] getReferenceItems(Field parentField, ID parent) {
         String sql = MessageFormat.format(
-                "select {0}Id from {0} where {1}",
-                parentField.getOwnEntity().getName(), parentField.getName());
+                "select {0} from {1} where {2}",
+                parentField.getOwnEntity().getPrimaryField().getName(),
+                parentField.getOwnEntity().getName(),
+                parentField.getName());
         if (parent == null) sql += " is null";
         else sql += " = '" + parent + "'";
 

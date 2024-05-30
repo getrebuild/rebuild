@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.files;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -151,7 +150,7 @@ public class FileManagerController extends BaseController {
 
         File zipName = bd.getDestZip();
         if (zipName != null && zipName.exists()) {
-            FileDownloader.downloadTempFile(resp, zipName, null);
+            FileDownloader.downloadTempFile(resp, zipName);
         } else {
             resp.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), Language.L("无法下载文件"));
         }

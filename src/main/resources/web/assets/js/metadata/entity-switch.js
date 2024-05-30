@@ -11,6 +11,7 @@ $(document).ready(() => {
 
   let href = location.href
   if (href.includes('/field/')) href = href.split('/field/')[0] + '/fields'
+  if (href.includes('?id=')) href = href.split('?id=')[0]
 
   const $menu = $('<div class="dropdown-menu auto-scroller entity-switch"></div>').appendTo('.aside-header')
 
@@ -57,7 +58,7 @@ $(document).ready(() => {
   })
 
   const $toggle = $('.aside-header .title').addClass('pointer')
-  $('<i class="icon zmdi zmdi-caret-down ml-1 text-muted fs-18"></i>').appendTo($toggle)
+  $('<i class="icon zmdi zmdi-caret-down ml-1 text-muted fs-16"></i>').appendTo($toggle)
   $toggle.addClass('dropdown-toggle').attr({
     'data-toggle': 'dropdown',
     'title': $L('切换'),

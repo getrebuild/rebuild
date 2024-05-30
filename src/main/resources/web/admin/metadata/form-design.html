@@ -61,19 +61,24 @@
             <div class="float-right">
               <div class="btn-group">
                 <button class="btn btn-light w-auto dropdown-toggle mr-1" type="button" data-toggle="dropdown">[[${bundle.L('添加')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
-                <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-menu dropdown-menu-right form-action-menu">
+                  <div class="dropdown-item-text">[[${bundle.L('添加')}]]</div>
                   <a class="dropdown-item J_add-divider">[[${bundle.L('分栏')}]]</a>
                   <a class="dropdown-item J_add-refform">[[${bundle.L('表单引用')}]] <sup class="rbv"></sup></a>
-                  <div class="dropdown-divider bosskey-show"></div>
+                  <a class="dropdown-item J_add-nform">[[${bundle.L('表单布局')}]] <sup class="rbv"></sup></a>
+                  <div class="dropdown-item-text bosskey-show">[[${bundle.L('快捷操作')}]]</div>
                   <a class="dropdown-item J_resize-fields bosskey-show">[[${bundle.L('重置布局')}]]</a>
                   <a class="dropdown-item J_del-unlayout-fields bosskey-show">[[${bundle.L('删除未布局字段')}]]</a>
+                  <div class="dropdown-item-text">[[${bundle.L('切换布局')}]]</div>
                 </div>
               </div>
               <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
             </div>
             <div class="tab-container">
               <ul class="nav nav-tabs nav-tabs-classic">
-                <li class="nav-item"><a class="nav-link active" href="#form-design" data-toggle="tab">[[${bundle.L('表单布局')}]]</a></li>
+                <li class="nav-item">
+                  <a class="nav-link active" href="#form-design" data-toggle="tab"> [[${bundle.L('表单布局')}]] </a>
+                </li>
                 <li class="nav-item">
                   <a class="nav-link" href="#adv-control" data-toggle="tab">[[${bundle.L('高级控制')}]] <sup class="rbv"></sup></a>
                 </li>
@@ -148,9 +153,11 @@
         formConfig: [(${FormConfig ?:'null'})],
         entityName: '[[${entityName}]]',
         isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
+        formsAttr: [(${FormsAttr ?:'null'})],
       }
     </script>
     <script th:src="@{/assets/js/metadata/entity-switch.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/general/rb-advfilter.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/form-design.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-type.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-new2.js}" type="text/babel"></script>
