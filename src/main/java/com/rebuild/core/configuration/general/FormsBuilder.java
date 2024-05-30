@@ -208,10 +208,13 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        ConfigBean model = getFormLayout(entity, recordId4Layout);
+        int applyType = recordId == null ? FormsManager.APPLY_ONNEW : FormsManager.APPLY_ONEDIT;
+        if (viewMode) applyType = FormsManager.APPLY_ONVIEW;
+
+        ConfigBean model = getFormLayout(entity, recordId4Layout, applyType);
         JSONArray elements = (JSONArray) model.getJSON("elements");
         if (elements == null || elements.isEmpty()) {
-            return formatModelError(Language.L("此表单布局尚未配置，请配置后使用"));
+            return formatModelError(Language.L("表单布局尚未配置，请配置后使用"));
         }
 
         Record recordData = null;

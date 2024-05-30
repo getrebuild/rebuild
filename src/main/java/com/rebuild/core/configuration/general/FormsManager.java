@@ -28,24 +28,31 @@ public class FormsManager extends BaseLayoutManager {
 
     public static final FormsManager instance = new FormsManager();
 
-    protected FormsManager() {
-    }
+    protected FormsManager() {}
+
+    // 表单布局适用于
+    public static int APPLY_ONNEW = 1;
+    public static int APPLY_ONEDIT = 2;
+    public static int APPLY_ONVIEW = 4;
 
     /**
      * @param entity
      * @return
      */
     public ConfigBean getNewFormLayout(String entity) {
-        return getFormLayout(entity, null);
+        return getFormLayout(entity, null, APPLY_ONNEW);
     }
 
     /**
      * @param entity
      * @param recordId
+     * @param applyType
      * @return
      */
-    public ConfigBean getFormLayout(String entity, ID recordId) {
+    public ConfigBean getFormLayout(String entity, ID recordId, int applyType) {
         final Object[][] alls = getAllConfig(entity, TYPE_FORM);
+
+        // TODO `applyType` 暂未用
 
         ConfigBean use = null;
         for (Object[] o : alls) {
