@@ -103,6 +103,7 @@ $(document).ready(() => {
       $action.find('span').on('click', (e) => {
         $stopEvent(e, true)
         renderRbcomp(<DlgNForm entity={wpc.entityName} id={item.id} name={item.name} attrs={item.shareTo} />)
+        $('.form-action-menu').dropdown('toggle')
       })
 
       if (wpc.formConfig.id === item.id) $item.addClass('check')
@@ -624,6 +625,7 @@ class DlgNForm extends RbModalHandler {
 
     if (props.attrs === 'ALL' && !props.name) {
       this.state.fallback = true
+      this._name = $L('默认')
     } else if (typeof props.attrs === 'object') {
       this.state.fallback = props.attrs.fallback
       this.state.useFilter = props.attrs.filter || null
@@ -639,10 +641,10 @@ class DlgNForm extends RbModalHandler {
             <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
               <div className="col-sm-7">
-                <input className="form-control form-control-sm" type="text" maxLength="40" defaultValue={this.props.name} ref={(c) => (this._$name = c)} />
+                <input className="form-control form-control-sm" type="text" maxLength="40" defaultValue={this.props.name} placeholder={this._name || ''} ref={(c) => (this._$name = c)} />
               </div>
             </div>
-            <div className="form-group row pt-1">
+            <div className="form-group row pt-1 pb-1">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('使用条件')}</label>
               <div className="col-sm-7">
                 <div className="form-control-plaintext">

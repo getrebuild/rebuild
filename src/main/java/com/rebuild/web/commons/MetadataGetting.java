@@ -18,12 +18,14 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesManager;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.general.MetaFormatter;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -123,5 +125,24 @@ public class MetadataGetting extends BaseController {
             }
         }
         return data;
+    }
+
+    @GetMapping("meta-info")
+    public JSON metaInfo(HttpServletRequest request) {
+        // Entity:Name,Code, or Field
+        final String name = getParameterNotNull(request, "name");
+
+        // Field: X.X
+        if (name.contains(".")) {
+            String[] ss = name.split("\\.");
+            Field foundField = MetadataHelper.getField(ss[0], ss[1]);
+            return EasyMetaFactory.valueOf(foundField).toJSON();
+        }
+
+        Entity foundEntity;
+        if (NumberUtils.isDigits(name)) foundEntity = MetadataHelper.getEntity(Integer.parseInt(name));
+        else foundEntity = MetadataHelper.getEntity(name);
+
+        return EasyMetaFactory.valueOf(foundEntity).toJSON();
     }
 }
