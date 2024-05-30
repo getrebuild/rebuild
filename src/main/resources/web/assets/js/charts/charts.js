@@ -324,7 +324,14 @@ const ECHART_BASE = {
       color: '#333',
     },
     axisPointer: {
+      type: 'line', // line, cross, shadow
       lineStyle: { color: COLOR_AXIS },
+      crossStyle: { color: COLOR_AXIS },
+      label: {
+        color: '#222',
+        backgroundColor: COLOR_AXIS,
+        padding: [7, 7, 5, 7],
+      },
     },
     backgroundColor: '#fff',
     extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2);',
