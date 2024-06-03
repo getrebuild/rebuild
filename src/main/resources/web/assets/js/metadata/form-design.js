@@ -24,7 +24,7 @@ const _FieldNullableChanged = {}
 const _ValidFields = {}
 
 $(document).ready(() => {
-  $.get(`../list-field?entity=${wpc.entityName}`, function (res) {
+  $.get(`../list-field?refname=true&entity=${wpc.entityName}`, function (res) {
     const configFields = []
     $(wpc.formConfig.elements).each(function () {
       configFields.push(this.field)
@@ -42,7 +42,7 @@ $(document).ready(() => {
       if (this.field === DIVIDER_LINE) {
         render_item({ fieldName: this.field, fieldLabel: this.label || '', colspan: 4, collapsed: this.collapsed, breaked: this.breaked })
       } else if (this.field === REFFORM_LINE) {
-        render_item({ fieldName: this.field, fieldLabel: this.label || '', colspan: 4, reffield: this.reffield })
+        render_item({ fieldName: this.field, fieldLabel: this.label || '', colspan: 4, reffield: this.reffield, speclayout: this.speclayout })
       } else if (!field) {
         const $item = $(`<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[${this.field.toUpperCase()}] ${$L('字段已删除')}</span></div></div>`).appendTo(
           '.form-preview'
@@ -152,6 +152,7 @@ $(document).ready(() => {
         item.colspan = 4
         item.label = $this.find('span').text() || ''
         item.reffield = $this.attr('data-reffield') || ''
+        item.speclayout = $this.attr('data-speclayout') || ''
       } else {
         item.colspan = 2 // default
         if ($this.parent().hasClass('w-100')) item.colspan = 4
@@ -376,6 +377,7 @@ const render_item = function (data) {
     $item.addClass('refform')
     const $handle = $item.find('.dd-handle').attr({
       'data-reffield': data.reffield,
+      'data-speclayout': data.speclayout,
     })
 
     $(`<a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a>`)
@@ -384,10 +386,12 @@ const render_item = function (data) {
         const _onConfirm = function (nv) {
           $item.find('.dd-handle span').text(nv.reffield ? _ValidFields[nv.reffield].fieldLabel : '')
           $handle.attr('data-reffield', nv.reffield || '')
+          $handle.attr('data-speclayout', nv.speclayout || '')
         }
 
         const ov = {
           reffield: $handle.attr('data-reffield'),
+          speclayout: $handle.attr('data-speclayout'),
         }
         renderRbcomp(<DlgEditRefform onConfirm={_onConfirm} {...ov} />)
       })
@@ -528,12 +532,26 @@ class DlgEditDivider extends DlgEditField {
 
 // 引用属性
 class DlgEditRefform extends DlgEditField {
+  constructor(props) {
+    super(props)
+
+    this.__FormsAttr = {}
+    this.state.formsAttr = [{ id: null }]
+  }
+
   renderContent() {
     return (
       <form className="field-attr">
         <div className="form-group">
           <label>{$L('引用字段')}</label>
-          <select className="form-control form-control-sm" name="reffield" onChange={this.handleChange} defaultValue={this.props.reffield || null}>
+          <select
+            className="form-control form-control-sm"
+            name="reffield"
+            onChange={(e) => {
+              this.handleChange(e)
+              setTimeout(() => this._loadFormsAttr(), 200)
+            }}
+            defaultValue={this.props.reffield || null}>
             <option value="">{$L('无')}</option>
             {Object.keys(_ValidFields).map((k) => {
               const field = _ValidFields[k]
@@ -548,6 +566,19 @@ class DlgEditRefform extends DlgEditField {
             })}
           </select>
         </div>
+        <div className="form-group">
+          <label>{$L('使用布局')}</label>
+          <select className="form-control form-control-sm" name="speclayout" onChange={this.handleChange} ref={(c) => (this._$speclayout = c)}>
+            {this.state.formsAttr &&
+              this.state.formsAttr.map((item) => {
+                return (
+                  <option key={item.id || 'N'} value={item.id || null}>
+                    {item.name || $L('默认')}
+                  </option>
+                )
+              })}
+          </select>
+        </div>
         <div className="form-group mb-2">
           <button type="button" className="btn btn-primary" onClick={this._onConfirm}>
             {$L('确定')}
@@ -555,6 +586,34 @@ class DlgEditRefform extends DlgEditField {
         </div>
       </form>
     )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    this._loadFormsAttr(true)
+  }
+
+  _loadFormsAttr(init) {
+    const f = init ? this.props.reffield : this.state.reffield
+    if (f) {
+      const e = _ValidFields[f].displayTypeRef[0]
+      if (this.__FormsAttr[e]) {
+        this.setState({ formsAttr: this.__FormsAttr[e] })
+      } else {
+        $.get(`/admin/entity/${e}/get-forms-attr`, (res) => {
+          this.__FormsAttr[e] = res.data || []
+          if (this.__FormsAttr[e].length === 0) {
+            this.__FormsAttr[e] = [{ id: null }]
+          }
+          this.setState({ formsAttr: this.__FormsAttr[e] }, () => {
+            // init
+            if (init && this.props.speclayout) {
+              $(this._$speclayout).val(this.props.speclayout)
+            }
+          })
+        })
+      }
+    }
   }
 }
 

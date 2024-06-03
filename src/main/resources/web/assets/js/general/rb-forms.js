@@ -2949,7 +2949,7 @@ class RbFormRefform extends React.Component {
   }
 
   _renderViewFrom(props) {
-    $.get(`/app/${props.entity}/view-model?id=${props.id}`, (res) => {
+    $.get(`/app/${props.entity}/view-model?id=${props.id}&layout=${this.props.speclayout || ''}`, (res) => {
       // 有错误
       if (res.error_code > 0 || !!res.data.error) {
         const err = res.data.error || res.error_msg
