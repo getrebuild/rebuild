@@ -88,7 +88,7 @@ public class ApprovalProcessor extends SetUser {
     public boolean submit(JSONObject selectNextUsers) throws ApprovalException {
         final ApprovalState currentState = ApprovalHelper.getApprovalState(this.recordId);
         if (currentState == ApprovalState.PROCESSING || currentState == ApprovalState.APPROVED) {
-            throw new ApprovalException(Language.L("无效审批状态 (%s) ，请刷新后重试", currentState));
+            throw new ApprovalException(Language.L("无效审批状态 (%s)，请刷新后重试", currentState));
         }
 
         FlowNodeGroup nextNodes = getNextNodes(FlowNode.NODE_ROOT);
@@ -729,7 +729,7 @@ public class ApprovalProcessor extends SetUser {
     private ApprovalStatus checkApprovalState(ApprovalState mustbe) {
         final ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.recordId);
         if (status.getCurrentState() != mustbe) {
-            throw new ApprovalException(Language.L("无效审批状态 (%s) ，请刷新后重试", status.getCurrentState()));
+            throw new ApprovalException(Language.L("无效审批状态 (%s)，请刷新后重试", status.getCurrentState()));
         }
         return status;
     }
