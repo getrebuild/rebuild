@@ -1251,7 +1251,7 @@ class RbFormNumber extends RbFormText {
     const _readonly37 = this.state.readonly
     let value = arguments.length > 0 ? arguments[0] : this.state.value
     // `0`
-    if (value === undefined || value == null) value = ''
+    if (value === undefined || value === null) value = ''
 
     return (
       <RF>
