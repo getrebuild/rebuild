@@ -92,7 +92,6 @@ $(document).ready(() => {
 
     item_currentid = null
     $('.J_config li').removeClass('active')
-    $('.J_edit-tips').removeClass('hide')
     $('.J_edit-menu').addClass('hide')
     $('#defaultOpen').attr('checked', false)
   })
@@ -290,7 +289,6 @@ const render_item = function (data, isNew, append2) {
     $('.J_config li').removeClass('active')
     $item.addClass('active')
 
-    $('.J_edit-tips').addClass('hide')
     $('.J_edit-menu').removeClass('hide')
 
     $('.J_menuName').val(data.text)

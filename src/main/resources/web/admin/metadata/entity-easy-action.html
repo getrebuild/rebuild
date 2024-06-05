@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/entity/layout#%E5%88%97%E8%A1%A8%E9%A1%B5%E9%9D%A2" />
+    <title>[[${bundle.L('自定义操作')}]]</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/entity-advanced.css}" />
+    <style>
+      .dd3-content > .zmdi {
+        position: absolute;
+        margin-left: -22px;
+        font-size: 1.45rem;
+        margin-top: 1px;
+      }
+      .dd3-content > .mdi {
+        font-size: 1.385rem;
+        margin-top: 0;
+        margin-left: -24px;
+      }
+      .dd3-content {
+        padding-left: 64px !important;
+        cursor: default;
+      }
+      .dd-item > ul {
+        margin-left: 17px;
+        padding-left: 0;
+        position: relative;
+      }
+      form.simple input,
+      form.simple select,
+      form.simple .input-group {
+        max-width: 485px;
+      }
+      form.simple .form-group > label {
+        font-weight: bold;
+      }
+      .J_edit-menu:empty::after {
+        content: attr(_title);
+        color: #777;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='entities')}" />
+      <div class="rb-content">
+        <aside class="page-aside">
+          <div class="rb-scroller-aside rb-scroller">
+            <div class="aside-content">
+              <div class="content">
+                <div class="aside-header">
+                  <button class="navbar-toggle collapsed" type="button"><span class="icon zmdi zmdi-caret-down"></span></button>
+                  <span class="title">[[${entityLabel}]]</span>
+                  <p class="description">[[${comments}]]</p>
+                </div>
+              </div>
+              <div class="aside-nav collapse">
+                <ul class="nav">
+                  <li><a href="base">[[${bundle.L('基本信息')}]]</a></li>
+                  <li><a href="form-design">[[${bundle.L('表单设计')}]]</a></li>
+                  <li><a href="fields">[[${bundle.L('字段管理')}]]</a></li>
+                  <li><a href="advanced">[[${bundle.L('高级配置')}]]</a></li>
+                  <li class="active"><a href="easy-action">[[${bundle.L('自定义操作')}]]</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </aside>
+        <div class="page-head">
+          <div class="float-left">
+            <div class="page-head-title">[[${bundle.L('自定义操作')}]]</div>
+          </div>
+          <div class="float-right pt-1">
+            <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+        <div class="main-content container-fluid pt-0">
+          <div class="card m-0">
+            <div class="card-body pt-5">
+              <div class="row">
+                <div class="col-3">
+                  <div class="sortable-box rb-scroller">
+                    <ol class="dd-list J_config" th:_title="${bundle.L('无')}"></ol>
+                  </div>
+                  <div class="actions">
+                    <button type="button" class="btn btn-secondary btn-sm J_add-menu">+ [[${bundle.L('添加操作项')}]]</button>
+                  </div>
+                </div>
+                <div class="col-9">
+                  <div class="J_edit-menu" th:_title="${bundle.L('点击左侧操作项进行编辑')}"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        id: '[[${entityMetaId}]]',
+        entityName: '[[${entityName}]]',
+        configId: '[[${configId ?:""}]]',
+        config: [(${config ?:'null'})],
+      }
+    </script>
+    <script th:src="@{/assets/js/metadata/entity-switch.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/entity-easy-action.js}" type="text/babel"></script>
+  </body>
+</html>

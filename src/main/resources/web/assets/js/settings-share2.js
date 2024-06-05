@@ -113,7 +113,7 @@ class Share2 extends _ChangeHandler {
       if ((this.state.shareTo || '').length >= 20) st = this.state.shareTo
       else st = SHARE_ALL
     }
-    return { configName: this.state.configName, shareTo: st }
+    return { configName: this.state.configName || null, shareTo: st }
   }
 }
 
