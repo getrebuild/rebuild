@@ -797,9 +797,8 @@ public class AdvFilterParser extends SetUser {
                     Department dept = UserHelper.getDepartment(UserContextHolder.getUser());
                     if (dept != null) useValue = dept.getIdentity();
                 }
-
             } else {
-                log.warn("Cannot use `CURRENT` in `{}` (None date fields)", queryField);
+                log.warn("Cannot use `{}` in `{}` (None date fields)", value, queryField);
                 return StringUtils.EMPTY;
             }
         }
@@ -807,8 +806,12 @@ public class AdvFilterParser extends SetUser {
         if (fieldName.startsWith(CURRENT_ANY + ".")) {
             String userField = fieldName.substring(CURRENT_ANY.length() + 1);
             Object[] o = Application.getQueryFactory().uniqueNoFilter(getUser(), userField);
-            if (o == null || o[0] == null) return StringUtils.EMPTY;
-            else useValue = o[0];
+            if (o == null || o[0] == null) {
+                log.warn("Cannot use `{}` in `{}` (No value found)", value, queryField);
+                return StringUtils.EMPTY;
+            } else {
+                useValue = o[0];
+            }
         }
 
         if (useValue == null) {
