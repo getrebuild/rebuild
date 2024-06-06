@@ -784,7 +784,7 @@ public class AdvFilterParser extends SetUser {
 
         Object useValue = null;
 
-        // {@CURRENT} DATE
+        // {@CURRENT} for DATE
         if (CURRENT_ANY.equals(fieldName) || CURRENT_DATE.equals(fieldName)) {
             DisplayType dt = EasyMetaFactory.getDisplayType(queryField);
             if (dt == DisplayType.DATE || dt == DisplayType.DATETIME || dt == DisplayType.TIME) {
@@ -803,7 +803,7 @@ public class AdvFilterParser extends SetUser {
                 return StringUtils.EMPTY;
             }
         }
-        // {@CURRENT.} USER
+        // {@CURRENT.} for USER
         if (fieldName.startsWith(CURRENT_ANY + ".")) {
             String userField = fieldName.substring(CURRENT_ANY.length() + 1);
             Object[] o = Application.getQueryFactory().uniqueNoFilter(getUser(), userField);

@@ -197,14 +197,6 @@ const use_sortable = function (el) {
       placeholder: 'dd-placeholder',
       handle: '>.dd3-handle',
       axis: 'y',
-      // change: function (e, ui) {
-      //   const $sb = $('.sortable-box')
-      //   console.log(ui.offset, ui.position, $sb.scrollTop())
-      //   if ($sb.scrollTop() > 0 && ui.offset.top <= 36) {
-      //     $sb.scrollTop(Math.max($sb.scrollTop() - 36, 0))
-      //     $sb.perfectScrollbar('update')
-      //   }
-      // },
     })
     .disableSelection()
 }
