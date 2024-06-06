@@ -586,7 +586,7 @@ public class AdvFilterParser extends SetUser {
             // `in`
             value = MessageFormat.format(
                     "( select {0} from {1} group by {0} having (count({0}) > {2}) )",
-                    field, rootEntity.getName(), NumberUtils.toInt(value, 1));
+                    field, rootEntity.getName(), String.valueOf(NumberUtils.toInt(value, 1)));
         }
 
         if (StringUtils.isBlank(value)) {
