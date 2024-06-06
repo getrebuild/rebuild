@@ -361,22 +361,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #fff;
 }
 
-textarea.formula-code {
-  font-family: Consolas, Menlo, Monaco, 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', monospace, serif;
-  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', Menlo, Monaco, Consolas, monospace;
-  font-size: 13px;
-  background-color: #212121;
-  color: #f07178;
-  border: 0 none;
-  height: 223px;
-  width: 100%;
-  resize: none;
-  outline: none;
-  border-radius: 0;
-  line-height: 1.6;
-  padding: 4px 10px;
-}
-
 textarea.formula-code + .fields-vars {
   bottom: 21px;
 }

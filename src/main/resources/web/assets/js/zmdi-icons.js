@@ -997,7 +997,6 @@ const ZMDI_ICONS_IGNORE = [
   'fast-forward',
   'fast-rewind',
   'pause',
-  'play',
   'replay-10',
   'replay-30',
   'replay-5',
@@ -1049,4 +1048,5 @@ const ZMDI_ICONS_IGNORE = [
   'format-indent-increase',
   'format-list-bulleted',
   'attachment',
+  'local-taxi',
 ]

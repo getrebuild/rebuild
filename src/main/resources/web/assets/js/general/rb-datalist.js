@@ -369,4 +369,7 @@ $(document).ready(() => {
     $('.page-aside.widgets .ph-item.rb').remove()
     $wtab.trigger('click')
   }
+
+  // eslint-disable-next-line no-undef
+  wpc.easyAction && window.EasyAction && window.EasyAction.init(wpc.easyAction)
 })

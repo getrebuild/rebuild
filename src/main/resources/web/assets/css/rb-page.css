@@ -5313,11 +5313,11 @@ div.dataTables_wrapper div.dataTables_oper .btn-space:last-child {
   margin-right: 5px;
 }
 
-div.dataTables_wrapper.compact div.dataTables_oper .btn {
+div.dataTables_wrapper div.dataTables_oper.compact .btn {
   min-width: 68px;
 }
 
-div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
+div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   margin-right: 5px;
 }
 

@@ -19,6 +19,7 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.ClassificationManager;
+import com.rebuild.core.configuration.general.EasyActionManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityOverview;
@@ -143,6 +144,19 @@ public class MetaEntityController extends EntityController {
         EntityOverview o = new EntityOverview(easyEntity.getRawMeta());
         mv.getModel().put("overview", JSON.toJSON(o.overview()));
 
+        return mv;
+    }
+
+    @GetMapping("entity/{entity}/easy-action")
+    public ModelAndView pageEasyAction(@PathVariable String entity) {
+        ModelAndView mv = createModelAndView("/admin/metadata/entity-easy-action");
+        setEntityBase(mv, entity);
+
+        ConfigBean cb = EasyActionManager.instance.getEasyActionRaw(entity);
+        if (cb != null) {
+            mv.getModelMap().put("configId", cb.getID("id"));
+            mv.getModelMap().put("config", cb.getJSON("config"));
+        }
         return mv;
     }
 
