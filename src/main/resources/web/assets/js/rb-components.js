@@ -1130,6 +1130,13 @@ class Md2Html extends React.Component {
             $stopEvent(e, false)
           })
         })
+      // FIXME
+      // $(this._$md2html)
+      //   .find('img')
+      //   .on('click', function () {
+      //     const p = parent || window
+      //     p.RbPreview.create($(this).attr('src'))
+      //   })
     })
   }
 }

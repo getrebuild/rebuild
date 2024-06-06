@@ -1328,6 +1328,7 @@ class RbFormNText extends RbFormElement {
 
   renderElement() {
     const _readonly37 = this.state.readonly
+    const props = this.props
 
     return (
       <RF>
@@ -1336,7 +1337,7 @@ class RbFormNText extends RbFormElement {
             this._fieldValue = c
             this._height > 0 && c && $(c).attr('style', `height:${this._height}px !important`)
           }}
-          className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''} ${this.props.useMdedit && _readonly37 ? 'cm-readonly' : ''}`}
+          className={`form-control form-control-sm row3x ${props.useCode && 'formula-code'} ${this.state.hasError && 'is-invalid'} ${props.useMdedit && _readonly37 ? 'cm-readonly' : ''}`}
           title={this.state.hasError}
           value={this.state.value || ''}
           onChange={(e) => this.handleChange(e, !_readonly37)}
@@ -1344,7 +1345,7 @@ class RbFormNText extends RbFormElement {
           placeholder={this._placeholderw}
           maxLength="6000"
         />
-        {this.props.useMdedit && !_readonly37 && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
+        {props.useMdedit && !_readonly37 && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
       </RF>
     )
   }
@@ -1362,12 +1363,13 @@ class RbFormNText extends RbFormElement {
         </div>
       )
     } else {
+      let text2 = this.state.value.replace(/</g, '&lt;').replace(/\n/g, '<br/>')
+      if (this.props.useCode) text2 = text2.replace(/\s/g, '&nbsp;')
+
       return (
         <RF>
-          <div className="form-control-plaintext" ref={(c) => (this._textarea = c)} style={style}>
-            {this.state.value.split('\n').map((line, idx) => {
-              return <p key={`line-${idx}`}>{line}</p>
-            })}
+          <div className={`form-control-plaintext ${this.props.useCode && 'formula-code'}`} ref={(c) => (this._textarea = c)} style={style}>
+            {WrapHtml(text2)}
           </div>
 
           <div className={`ntext-action ${window.__LAB_SHOWNTEXTACTION ? '' : 'hide'}`}>

@@ -5683,8 +5683,8 @@ textarea.formula-code,
 div.formula-code {
   font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', Menlo, Monaco, Consolas, monospace;
   font-size: 13px;
-  background-color: #212121;
-  color: #f07178;
+  background-color: #212121 !important;
+  color: #f07178 !important;
   border: 0 none;
   height: 223px;
   width: 100%;
