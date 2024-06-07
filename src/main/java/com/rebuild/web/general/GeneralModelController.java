@@ -18,6 +18,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.FormsBuilder;
 import com.rebuild.core.configuration.general.FormsBuilderContextHolder;
+import com.rebuild.core.configuration.general.FormsManager;
 import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.EntityHelper;
@@ -134,14 +135,17 @@ public class GeneralModelController extends EntityController {
             }
         }
 
-        // 转换预览模式
+        // 记录转换:预览模式
         final String previewid = request.getParameter("previewid");
+        // 指定布局
+        final ID specLayout = getIdParameter(request, "layout");
 
         try {
             JSON model;
             if (StringUtils.isNotBlank(previewid)) {
                 model = new TransformerPreview37(previewid, user).buildForm();
             } else {
+                if (specLayout != null) FormsBuilderContextHolder.setSpecLayout(specLayout);
                 model = FormsBuilder.instance.buildForm(entity, user, id);
             }
 
@@ -191,6 +195,7 @@ public class GeneralModelController extends EntityController {
 
         } finally {
             FormsBuilderContextHolder.getMainIdOfDetail(true);
+            FormsBuilderContextHolder.getSpecLayout(true);
         }
     }
 
@@ -198,7 +203,16 @@ public class GeneralModelController extends EntityController {
     public JSON entityView(@PathVariable String entity, @IdParam ID id,
                            HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        JSONObject model = (JSONObject) FormsBuilder.instance.buildView(entity, user, id);
+        // 指定布局
+        final ID forceLayout = getIdParameter(request, "layout");
+        if (forceLayout != null) FormsBuilderContextHolder.setSpecLayout(forceLayout);
+
+        JSONObject model;
+        try {
+            model = (JSONObject) FormsBuilder.instance.buildView(entity, user, id);
+        } finally {
+            if (forceLayout != null) FormsBuilderContextHolder.getSpecLayout(true);
+        }
 
         // 返回扩展
         if (getBoolParameter(request, "extras") && !model.containsKey("error")) {
@@ -243,8 +257,12 @@ public class GeneralModelController extends EntityController {
         if (ids.isEmpty()) return JSONUtils.EMPTY_ARRAY;
 
         JSONArray details = new JSONArray();
+
         // v3.7 使用指定记录布局
-        FormsBuilderContextHolder.setLayoutSpecRecord(ids.get(0));
+        ConfigBean forceLayout = FormsManager.instance
+                .getFormLayout(detailEntityMeta.getName(), ids.get(0), FormsManager.APPLY_ONEDIT);
+        FormsBuilderContextHolder.setSpecLayout(forceLayout.getID("id"));
+
         try {
             for (ID did : ids) {
                 JSON model = FormsBuilder.instance.buildForm(entity, user, did);
@@ -252,7 +270,7 @@ public class GeneralModelController extends EntityController {
                 details.add(model);
             }
         } finally {
-            FormsBuilderContextHolder.getLayoutSpecRecord(true);
+            FormsBuilderContextHolder.getSpecLayout(true);
         }
         return details;
     }

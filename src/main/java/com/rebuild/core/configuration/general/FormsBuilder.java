@@ -190,28 +190,25 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        ID recordId4Layout = recordId;
-        // v3.7 明细使用指定记录布局
-        if (entityMeta.getMainEntity() != null) {
-            // for New
-            if (recordId == null) {
-                ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
-                if (mainid != null && !EntityHelper.isUnsavedId(mainid)) {
-                    List<ID> ids = QueryHelper.detailIdsNoFilter(mainid, entityMeta);
-                    if (!ids.isEmpty()) recordId4Layout = ids.get(0);
-                }
-            }
-            // for Update
-            else {
-                ID s = FormsBuilderContextHolder.getLayoutSpecRecord(false);
-                if (s != null) recordId4Layout = s;
+        // v3.7 指定布局
+        ID recordOrLayoutId = recordId;
+
+        // 优先使用
+        ID forceLayout = FormsBuilderContextHolder.getSpecLayout(false);
+        if (forceLayout != null) recordOrLayoutId = forceLayout;
+        // 明细共同编辑
+        if (forceLayout == null && entityMeta.getMainEntity() != null && recordId == null) {
+            ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
+            if (mainid != null && !EntityHelper.isUnsavedId(mainid)) {
+                List<ID> ids = QueryHelper.detailIdsNoFilter(mainid, entityMeta);
+                if (!ids.isEmpty()) recordOrLayoutId = ids.get(0);
             }
         }
 
         int applyType = recordId == null ? FormsManager.APPLY_ONNEW : FormsManager.APPLY_ONEDIT;
         if (viewMode) applyType = FormsManager.APPLY_ONVIEW;
 
-        ConfigBean model = getFormLayout(entity, recordId4Layout, applyType);
+        ConfigBean model = getFormLayout(entity, recordOrLayoutId, applyType);
         JSONArray elements = (JSONArray) model.getJSON("elements");
         if (elements == null || elements.isEmpty()) {
             return formatModelError(Language.L("表单布局尚未配置，请配置后使用"));

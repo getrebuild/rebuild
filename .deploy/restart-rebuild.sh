@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JARFILE=rebuild-boot.jar
+JARFILE=/path/to/rebuild-boot.jar
 
 echo "Use jar file [ $JARFILE ]"
 

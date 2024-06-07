@@ -17,6 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.DataListManager;
+import com.rebuild.core.configuration.general.EasyActionManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
@@ -170,6 +171,9 @@ public class GeneralListController extends EntityController {
 
         // 快速查询
         mv.getModel().put("quickFieldsLabel", getQuickFieldsLabel(listEntity));
+
+        // EasyAction
+        mv.getModel().put("easyAction", EasyActionManager.instance.getEasyAction(listEntity.getName(), user));
 
         return mv;
     }

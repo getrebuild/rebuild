@@ -18,7 +18,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesManager;
@@ -78,10 +77,9 @@ public class MetadataGetting extends BaseController {
 
             if (field instanceof Field) {
                 int c = ((Field) field).getReferenceEntity().getEntityCode();
-                if (MetadataHelper.isBizzEntity(c) || c == EntityHelper.RobotApprovalConfig) {
-                    return !(field.getName().equals(EntityHelper.OwningUser)
-                            || field.getName().equals(EntityHelper.OwningDept)
-                            || field.getName().equals(EntityHelper.ApprovalLastUser));
+                if (c == EntityHelper.RobotApprovalConfig) return true;
+                if (c == EntityHelper.User || c == EntityHelper.Department) {
+                    return field.getName().equals(EntityHelper.CreatedBy) || field.getName().equals(EntityHelper.ModifiedBy);
                 }
             }
             return false;

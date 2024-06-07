@@ -1163,3 +1163,8 @@ body {
 .view-body .main-content {
   margin-top: 0;
 }
+
+.rbview-form div.formula-code {
+  padding-top: 7px;
+  padding-bottom: 7px;
+}

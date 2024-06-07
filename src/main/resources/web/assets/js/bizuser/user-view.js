@@ -47,10 +47,23 @@ $(document).ready(function () {
 
   $('.J_resetpwd').on('click', () => {
     const newpwd = $random(null, true, 6) + 'Rb!8'
-    RbAlert.create(WrapHtml($L('密码将重置为 **%s** 是否确认？', newpwd)), {
+    const msg = (
+      <RF>
+        <div>{WrapHtml($L('密码将重置为 **%s** 是否确认？', newpwd))}</div>
+        <div className="mt-2">
+          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
+            <input className="custom-control-input" type="checkbox" defaultChecked />
+            <span className="custom-control-label"> {$L('发送邮件通知')}</span>
+          </label>
+        </div>
+      </RF>
+    )
+
+    RbAlert.create(msg, {
       onConfirm: function () {
+        const email = $val($(this._element).find('.modal-body input'))
         this.disabled(true)
-        $.post(`/admin/bizuser/user-resetpwd?id=${userId}&newp=${$decode(newpwd)}`, (res) => {
+        $.post(`/admin/bizuser/user-resetpwd?id=${userId}&newp=${$decode(newpwd)}&email=${email}`, (res) => {
           if (res.error_code === 0) {
             RbHighbar.success($L('重置密码成功'))
             this.hide()

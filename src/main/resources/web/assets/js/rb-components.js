@@ -1111,18 +1111,33 @@ class Md2Html extends React.Component {
   }
 
   componentDidMount() {
-    $(this._$md2html)
-      .find('a')
-      .each(function () {
-        const $this = $(this)
-        $this.attr({
-          href: `${rb.baseUrl}/commons/url-safe?url=${encodeURIComponent($this.attr('href'))}`,
-          target: '_blank',
+    let cHtml = SimpleMDE.prototype.markdown(this.props.markdown)
+    cHtml = cHtml.replace(/<img src="([^"]+)"/g, function (s, src) {
+      let srcNew = src + (src.includes('?') ? '&' : '?') + 'imageView2/2/w/1000/interlace/1/q/100'
+      return s.replace(src, srcNew)
+    })
+
+    this.setState({ md2html: cHtml }, () => {
+      $(this._$md2html)
+        .find('a')
+        .each(function () {
+          const $this = $(this)
+          $this.attr({
+            href: `${rb.baseUrl}/commons/url-safe?url=${encodeURIComponent($this.attr('href'))}`,
+            target: '_blank',
+          })
+          $this.on('click', (e) => {
+            $stopEvent(e, false)
+          })
         })
-        $this.on('click', (e) => {
-          $stopEvent(e, false)
-        })
-      })
+      // FIXME
+      // $(this._$md2html)
+      //   .find('img')
+      //   .on('click', function () {
+      //     const p = parent || window
+      //     p.RbPreview.create($(this).attr('src'))
+      //   })
+    })
   }
 }
 

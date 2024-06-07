@@ -21,6 +21,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.i18n.I18nUtils;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
@@ -196,6 +197,15 @@ public class UserController extends EntityController {
         Record record = EntityHelper.forUpdate(userId, userId);
         record.setString("password", newp);
         Application.getBean(UserService.class).update(record);
+
+        if (getBoolParameter(request, "email")) {
+            String email = Application.getUserStore().getUser(userId).getEmail();
+            if (email != null && SMSender.availableMail()) {
+                String subject = Language.L("密码已被管理员重置");
+                String content = Language.L("你的密码已被管理员重置，请使用新密码登录。[][] 新密码：**%s**", newp);
+                SMSender.sendMailAsync(email, subject, content);
+            }
+        }
 
         return RespBody.ok();
     }

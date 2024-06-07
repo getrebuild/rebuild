@@ -11,12 +11,15 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.utils.JSONUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 表单布局管理
@@ -24,6 +27,7 @@ import java.util.List;
  * @author Zixin (RB)
  * @since 08/30/2018
  */
+@Slf4j
 public class FormsManager extends BaseLayoutManager {
 
     public static final FormsManager instance = new FormsManager();
@@ -45,34 +49,53 @@ public class FormsManager extends BaseLayoutManager {
 
     /**
      * @param entity
-     * @param recordId
+     * @param recordOrLayoutId 指定布局
      * @param applyType
      * @return
      */
-    public ConfigBean getFormLayout(String entity, ID recordId, int applyType) {
+    public ConfigBean getFormLayout(String entity, ID recordOrLayoutId, int applyType) {
         final Object[][] alls = getAllConfig(entity, TYPE_FORM);
 
         // TODO `applyType` 暂未用
 
         ConfigBean use = null;
-        for (Object[] o : alls) {
-            ConfigBean cb = findConfigBean(alls, (ID) o[0]);
-            ShareToAttr attr = new ShareToAttr(cb);
-            if (recordId == null) {
-                if (attr.isFallback()) {
-                    use = cb;
+
+        // 1.指定布局
+        if (recordOrLayoutId != null && recordOrLayoutId.getEntityCode() == EntityHelper.LayoutConfig) {
+            for (Object[] o : alls) {
+                if (recordOrLayoutId.equals(o[0])) {
+                    use = findConfigBean(alls, (ID) o[0]);;
                     break;
                 }
-            } else {
-                if (attr.isMatchUseFilter(recordId)) {
-                    use = cb;
-                    break;
+            }
+
+            if (use == null) {
+                log.warn("Spec layout not longer exists : {}", recordOrLayoutId);
+                recordOrLayoutId = null;
+            }
+        }
+
+        // 2.使用布局
+        if (use == null) {
+            for (Object[] o : alls) {
+                ConfigBean cb = findConfigBean(alls, (ID) o[0]);
+                ShareToAttr attr = new ShareToAttr(cb);
+                if (recordOrLayoutId == null) {
+                    if (attr.isFallback()) {
+                        use = cb;
+                        break;
+                    }
+                } else {
+                    if (attr.isMatchUseFilter(recordOrLayoutId)) {
+                        use = cb;
+                        break;
+                    }
                 }
             }
         }
 
-        // 默认布局
-        if (use == null && recordId != null) {
+        // 3.默认布局（fallback）
+        if (use == null && recordOrLayoutId != null) {
             for (Object[] o : alls) {
                 ConfigBean cb = findConfigBean(alls, (ID) o[0]);
                 ShareToAttr attr = new ShareToAttr(cb);
@@ -132,6 +155,14 @@ public class FormsManager extends BaseLayoutManager {
             ConfigBean cb = findConfigBean(alls, (ID) o[0]).remove("config");
             flist.add(cb.remove("elements"));
         }
+
+        // A-Z
+        flist.sort((o1, o2) -> {
+            String name1 = Objects.toString(o1.getString("name"), "0");
+            String name2 = Objects.toString(o2.getString("name"), "0");
+            return name1.compareTo(name2);
+        });
+
         return flist;
     }
 

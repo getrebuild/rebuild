@@ -586,7 +586,7 @@ public class AdvFilterParser extends SetUser {
             // `in`
             value = MessageFormat.format(
                     "( select {0} from {1} group by {0} having (count({0}) > {2}) )",
-                    field, rootEntity.getName(), NumberUtils.toInt(value, 1));
+                    field, rootEntity.getName(), String.valueOf(NumberUtils.toInt(value, 1)));
         }
 
         if (StringUtils.isBlank(value)) {
@@ -784,7 +784,7 @@ public class AdvFilterParser extends SetUser {
 
         Object useValue = null;
 
-        // {@CURRENT} DATE
+        // {@CURRENT} for DATE
         if (CURRENT_ANY.equals(fieldName) || CURRENT_DATE.equals(fieldName)) {
             DisplayType dt = EasyMetaFactory.getDisplayType(queryField);
             if (dt == DisplayType.DATE || dt == DisplayType.DATETIME || dt == DisplayType.TIME) {
@@ -797,18 +797,21 @@ public class AdvFilterParser extends SetUser {
                     Department dept = UserHelper.getDepartment(UserContextHolder.getUser());
                     if (dept != null) useValue = dept.getIdentity();
                 }
-
             } else {
-                log.warn("Cannot use `CURRENT` in `{}` (None date fields)", queryField);
+                log.warn("Cannot use `{}` in `{}` (None date fields)", value, queryField);
                 return StringUtils.EMPTY;
             }
         }
-        // {@CURRENT.} USER
+        // {@CURRENT.} for USER
         if (fieldName.startsWith(CURRENT_ANY + ".")) {
             String userField = fieldName.substring(CURRENT_ANY.length() + 1);
             Object[] o = Application.getQueryFactory().uniqueNoFilter(getUser(), userField);
-            if (o == null || o[0] == null) return StringUtils.EMPTY;
-            else useValue = o[0];
+            if (o == null || o[0] == null) {
+                log.warn("Cannot use `{}` in `{}` (No value found)", value, queryField);
+                return StringUtils.EMPTY;
+            } else {
+                useValue = o[0];
+            }
         }
 
         if (useValue == null) {

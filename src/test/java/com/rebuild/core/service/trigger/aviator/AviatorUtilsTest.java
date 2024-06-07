@@ -125,4 +125,10 @@ class AviatorUtilsTest {
         System.out.println(AviatorUtils.eval("1/2.333"));
         System.out.println(AviatorUtils.eval("1/3"));
     }
+
+    @Test
+    void testArray() {
+        String code = "let array = tuple(tuple(1,2,3), tuple(4,5,6)); print(array[1]); ";
+        AviatorUtils.eval(code);
+    }
 }

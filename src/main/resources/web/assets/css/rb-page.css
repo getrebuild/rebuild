@@ -5313,11 +5313,11 @@ div.dataTables_wrapper div.dataTables_oper .btn-space:last-child {
   margin-right: 5px;
 }
 
-div.dataTables_wrapper.compact div.dataTables_oper .btn {
+div.dataTables_wrapper div.dataTables_oper.compact .btn {
   min-width: 68px;
 }
 
-div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
+div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   margin-right: 5px;
 }
 
@@ -5677,4 +5677,20 @@ span.icon-append .icon {
 .input-group-append .btn,
 .input-group-prepend .btn {
   z-index: unset;
+}
+
+textarea.formula-code,
+div.formula-code {
+  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  background-color: #212121 !important;
+  color: #f07178 !important;
+  border: 0 none;
+  height: 223px;
+  width: 100%;
+  resize: none;
+  outline: none;
+  border-radius: 0;
+  line-height: 1.6;
+  padding: 4px 10px;
 }

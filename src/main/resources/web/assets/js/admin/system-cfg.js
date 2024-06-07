@@ -288,17 +288,24 @@ $(document).ready(() => {
   }
 
   const $input = $('input.J_MobileAppPath')
-  $initUploader($input, null, (res) => {
-    const fileKey = res.key
-    $.post(location.href, JSON.stringify({ MobileAppPath: fileKey }), (res) => {
-      if (res.error_code === 0) {
-        renderMobileAppPath(fileKey)
-        RbHighbar.success($L('上传成功'))
-      } else {
-        RbHighbar.error(res.error_msg)
-      }
-    })
-  })
+  $initUploader(
+    $input,
+    (res) => {
+      $('button.J_MobileAppPath span').text(` (${res.percent.toFixed(1)}%)`)
+    },
+    (res) => {
+      const fileKey = res.key
+      $.post(location.href, JSON.stringify({ MobileAppPath: fileKey }), (res) => {
+        if (res.error_code === 0) {
+          renderMobileAppPath(fileKey)
+          RbHighbar.success($L('上传成功'))
+        } else {
+          RbHighbar.error(res.error_msg)
+        }
+        $('button.J_MobileAppPath span').text('')
+      })
+    }
+  )
   $('button.J_MobileAppPath').on('click', () => $input[0].click())
 
   const $del = $('button.J_MobileAppPath-del').on('click', () => {

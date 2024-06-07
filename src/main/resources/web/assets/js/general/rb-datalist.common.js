@@ -2100,3 +2100,82 @@ const CategoryWidget = {
     })
   },
 }
+
+const _FrontJS = window.FrontJS
+const EasyAction = {
+  init(items) {
+    const _List = _FrontJS.DataList
+
+    items.forEach((item) => {
+      if (~~item.showType === 1) {
+        item.text = ''
+        if (!item.icon) item.icon = 'texture'
+      }
+      if (~~item.showType === 2) item.icon = null
+      // L2
+      if (item.items && item.items.length === 0) item.items = null
+      // Event
+      item.onClick = () => EasyAction.handleOp(item)
+      item.items &&
+        item.items.forEach((itemL2) => {
+          itemL2.onClick = () => EasyAction.handleOp(itemL2)
+        })
+
+      _List.addButton(item)
+    })
+    // Min btn
+    if ($('.dataTables_oper > .btn').length > 6) $('.dataTables_oper').addClass('compact')
+  },
+
+  handleOp(item) {
+    if (item.opType === 1) EasyAction.handleOp1(item)
+    if (item.opType === 2) EasyAction.handleOp2(item)
+    if (item.opType === 3) EasyAction.handleOp3(item)
+    if (item.opType === 10) EasyAction.handleOp10(item)
+  },
+
+  handleOp1(item) {
+    _FrontJS.openForm(item.op1Value || wpc.entity[0], null, item.op1Value2 || null)
+  },
+
+  handleOp2(item) {
+    const _List = _FrontJS.DataList
+    const ids = _List.getSelectedIds()
+    if (!ids[0]) return RbHighbar.create($L('请选择一条记录'))
+
+    _FrontJS.openLiteForm(ids[0], item.op2Value)
+  },
+
+  handleOp3(item) {
+    const _List = _FrontJS.DataList
+    const ids = _List.getSelectedIds()
+    if (!ids[0]) return RbHighbar.create($L('请至少选择一条记录'))
+
+    if (!confirm(item.op3Value3 || $L('确认操作？'))) return
+
+    const data = {
+      [item.op3Value]: item.op3Value2,
+    }
+
+    let idsLen = ids.length
+    ids.forEach((id) => {
+      data.metadata = { id: id }
+      $.post('/app/entity/record-save', JSON.stringify(data), () => {
+        idsLen--
+        if (idsLen === 0) {
+          RbHighbar.success('操作成功')
+          _List.reload()
+        }
+      })
+    })
+  },
+
+  handleOp10(item) {
+    try {
+      const FN = Function
+      FN(item.op10Value)() // eval
+    } catch (err) {
+      console.log(err)
+    }
+  },
+}
