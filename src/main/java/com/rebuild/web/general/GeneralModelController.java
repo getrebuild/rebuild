@@ -135,14 +135,17 @@ public class GeneralModelController extends EntityController {
             }
         }
 
-        // 转换预览模式
+        // 记录转换:预览模式
         final String previewid = request.getParameter("previewid");
+        // 指定布局
+        final ID specLayout = getIdParameter(request, "layout");
 
         try {
             JSON model;
             if (StringUtils.isNotBlank(previewid)) {
                 model = new TransformerPreview37(previewid, user).buildForm();
             } else {
+                if (specLayout != null) FormsBuilderContextHolder.setSpecLayout(specLayout);
                 model = FormsBuilder.instance.buildForm(entity, user, id);
             }
 
@@ -192,6 +195,7 @@ public class GeneralModelController extends EntityController {
 
         } finally {
             FormsBuilderContextHolder.getMainIdOfDetail(true);
+            FormsBuilderContextHolder.getSpecLayout(true);
         }
     }
 

@@ -2134,8 +2134,8 @@ const EasyAction = {
     if (item.opType === 10) EasyAction.handleOp10(item)
   },
 
-  handleOp1() {
-    _FrontJS.openForm(wpc.entity[0])
+  handleOp1(item) {
+    _FrontJS.openForm(item.op1Value || wpc.entity[0], null, item.op1Value2 || null)
   },
 
   handleOp2(item) {

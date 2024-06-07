@@ -109,6 +109,8 @@ class RbFormModal extends React.Component {
 
     let url = `/app/${entity}/form-model?id=${id}`
     if (this.state.previewid) url += `&previewid=${this.state.previewid}`
+    else if (this.state.specLayout) url += `&layout=${this.state.specLayout}`
+
     $.post(url, JSON.stringify(initialValue), (res) => {
       // 包含错误
       if (res.error_code > 0 || !!res.data.error) {
