@@ -92,25 +92,29 @@ $(document).ready(() => {
   }
 
   // v3.7 LAB
-  $('.J_add-nform').on('click', () => renderRbcomp(<DlgNForm entity={wpc.entityName} />))
-  wpc.formsAttr &&
-    wpc.formsAttr.forEach((item) => {
-      const $item = $(`<a class="dropdown-item" href="?id=${item.id}"></a>`).appendTo('.form-action-menu')
-      const $title = $(`<span>${item.name || $L('默认')}</span>`).appendTo($item)
-      if (!item.name) $title.addClass('text-muted')
+  if (location.href.includes('bosskey-show')) {
+    $('.J_add-nform').on('click', () => renderRbcomp(<DlgNForm entity={wpc.entityName} />))
+    wpc.formsAttr &&
+      wpc.formsAttr.forEach((item) => {
+        const $item = $(`<a class="dropdown-item" href="?id=${item.id}"></a>`).appendTo('.form-action-menu')
+        const $title = $(`<span>${item.name || $L('默认')}</span>`).appendTo($item)
+        if (!item.name) $title.addClass('text-muted')
 
-      const $action = $(`<div class="action"><span title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></span></div>`).appendTo($item)
-      $action.find('span').on('click', (e) => {
-        $stopEvent(e, true)
-        renderRbcomp(<DlgNForm entity={wpc.entityName} id={item.id} name={item.name} attrs={item.shareTo} />)
-        $('.form-action-menu').dropdown('toggle')
+        const $action = $(`<div class="action"><span title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></span></div>`).appendTo($item)
+        $action.find('span').on('click', (e) => {
+          $stopEvent(e, true)
+          renderRbcomp(<DlgNForm entity={wpc.entityName} id={item.id} name={item.name} attrs={item.shareTo} />)
+          $('.form-action-menu').dropdown('toggle')
+        })
+
+        if (wpc.formConfig.id === item.id) $item.addClass('check')
       })
-
-      if (wpc.formConfig.id === item.id) $item.addClass('check')
-    })
-  // 无
-  if (!wpc.formConfig.id) {
-    $(`<a class="dropdown-item text-disabled">${$L('无')}</a>`).appendTo('.form-action-menu')
+    // 无
+    if (!wpc.formConfig.id) {
+      $(`<a class="dropdown-item text-disabled">${$L('无')}</a>`).appendTo('.form-action-menu')
+    }
+  } else {
+    $('.J_hide').addClass('hide')
   }
 
   // SAVE
@@ -566,7 +570,7 @@ class DlgEditRefform extends DlgEditField {
             })}
           </select>
         </div>
-        <div className="form-group">
+        <div className="form-group bosskey-show">
           <label>{$L('使用布局')}</label>
           <select className="form-control form-control-sm" name="speclayout" onChange={this.handleChange} ref={(c) => (this._$speclayout = c)}>
             {this.state.formsAttr &&
@@ -594,6 +598,7 @@ class DlgEditRefform extends DlgEditField {
   }
 
   _loadFormsAttr(init) {
+    if (rb.commercial < 1) return
     const f = init ? this.props.reffield : this.state.reffield
     if (f) {
       const e = _ValidFields[f].displayTypeRef[0]
