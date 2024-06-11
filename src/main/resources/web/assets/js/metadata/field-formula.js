@@ -367,7 +367,7 @@ class MatchFields extends React.Component {
                 )
               })}
             </select>
-            <p>{$L('目标字段')}</p>
+            <p>{$L('目标匹配字段')}</p>
           </div>
           <div className="col-5">
             <i className="zmdi mdi mdi-arrow-left-right" />
@@ -380,7 +380,7 @@ class MatchFields extends React.Component {
                 )
               })}
             </select>
-            <p>{$L('源字段')}</p>
+            <p>{$L('源匹配字段')}</p>
           </div>
         </div>
         <div className="mt-1">
@@ -394,11 +394,11 @@ class MatchFields extends React.Component {
 
   componentDidMount() {
     $(this._$sourceField)
-      .select2({ placeholder: $L('选择源字段') })
+      .select2({ placeholder: $L('选择源匹配字段') })
       .on('change', () => {})
 
     $(this._$targetField)
-      .select2({ placeholder: $L('选择目标字段') })
+      .select2({ placeholder: $L('选择目标匹配字段') })
       .on('change', (e) => {
         let TF = e.target.value
         if (!TF) return
@@ -422,14 +422,14 @@ class MatchFields extends React.Component {
 
   _addGroupField() {
     const item = { targetField: $(this._$targetField).val(), sourceField: $(this._$sourceField).val() }
-    if (!item.targetField) return RbHighbar.create($L('请选择目标字段'))
-    if (!item.sourceField) return RbHighbar.create($L('请选择源字段'))
+    if (!item.targetField) return RbHighbar.create($L('请选择目标匹配字段'))
+    if (!item.sourceField) return RbHighbar.create($L('请选择源匹配字段'))
 
     const groupFields = this.state.groupFields || []
     let exists = groupFields.find((x) => item.targetField === x.targetField)
-    if (exists) return RbHighbar.create($L('目标字段已添加'))
+    if (exists) return RbHighbar.create($L('目标匹配字段已添加'))
     exists = groupFields.find((x) => item.sourceField === x.sourceField)
-    if (exists) return RbHighbar.create($L('源字段已添加'))
+    if (exists) return RbHighbar.create($L('源匹配字段已添加'))
 
     groupFields.push(item)
     this.setState({ groupFields })
@@ -444,6 +444,7 @@ class MatchFields extends React.Component {
     this.__targetFields = props.targetFields || []
     this.__sourceFields = props.sourceFields || []
 
+    // TODO 开放更多匹配字段
     const targetFields = []
     this.__targetFields.forEach((item) => {
       if (['TEXT', 'DATE', 'DATETIME', 'CLASSIFICATION', 'REFERENCE'].includes(item.type)) targetFields.push(item)

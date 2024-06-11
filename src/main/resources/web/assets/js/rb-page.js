@@ -146,9 +146,10 @@ $(function () {
       }
       bosskey_timer = setTimeout(function () {
         bosskey = 0
-      }, 1000) // clean
+      }, 500) // clean
     }
   })
+  window.__BOSSKEY = location.href.includes('bosskey=show')
 
   // Trigger on window.onresize
   $(window).on('resize', function () {

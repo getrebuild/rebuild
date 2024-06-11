@@ -92,7 +92,7 @@ $(document).ready(() => {
   }
 
   // v3.7 LAB
-  if (location.href.includes('bosskey-show')) {
+  if (window.__BOSSKEY) {
     $('.J_add-nform').on('click', () => renderRbcomp(<DlgNForm entity={wpc.entityName} />))
     wpc.formsAttr &&
       wpc.formsAttr.forEach((item) => {
