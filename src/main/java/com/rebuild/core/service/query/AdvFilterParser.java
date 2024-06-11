@@ -112,9 +112,9 @@ public class AdvFilterParser extends SetUser {
         this.varRecord = null;
 
         String entityName = filterExpr.getString("entity");
-        if (entityName != null) {
+        if (entityName != null && !entityName.equalsIgnoreCase(this.rootEntity.getName())) {
             Assert.isTrue(entityName.equalsIgnoreCase(this.rootEntity.getName()),
-                    "Filter#2 uses different entities : " + entityName + "/" + this.rootEntity.getName());
+                    "Filter(2) uses different entities : " + entityName + ", " + this.rootEntity.getName());
         }
     }
 
@@ -130,7 +130,7 @@ public class AdvFilterParser extends SetUser {
         String entityName = filterExpr.getString("entity");
         if (entityName != null) {
             Assert.isTrue(entityName.equalsIgnoreCase(this.rootEntity.getName()),
-                    "Filter#3 uses different entities : " + entityName + "/" + this.rootEntity.getName());
+                    "Filter(3) uses different entities : " + entityName + ", " + this.rootEntity.getName() + ", " + varRecord);
         }
     }
 
