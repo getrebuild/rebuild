@@ -43,6 +43,8 @@ public class BaseLayoutManager extends ShareToManager {
     public static final String TYPE_TAB = "TAB";
     // 视图-新建相关
     public static final String TYPE_ADD = "ADD";
+    // 列表-自定义操作
+    public static final String TYPE_EASYACTION = "EASYACTION";
 
     @Override
     protected String getConfigEntity() {
@@ -59,6 +61,7 @@ public class BaseLayoutManager extends ShareToManager {
      * @param entity
      * @return
      */
+    @Deprecated
     public ConfigBean getLayoutOfForm(ID user, String entity) {
         return getLayout(user, entity, TYPE_FORM, null);
     }

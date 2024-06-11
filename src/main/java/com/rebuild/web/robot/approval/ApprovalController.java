@@ -262,7 +262,7 @@ public class ApprovalController extends BaseController {
         int s = new ApprovalProcessor(recordId).urge();
 
         if (s == -1) {
-            return RespBody.errorl("5 分钟内仅可催审一次");
+            return RespBody.errorl("15 分钟内仅可催审一次");
         } else {
             return s > 0 ? RespBody.ok() : RespBody.errorl("无法发送催审通知");
         }

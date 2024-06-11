@@ -42,12 +42,7 @@
         <div class="main-content container-fluid pt-1">
           <ul th:if="${detailEntity != null}" class="nav nav-tabs nav-tabs-classic">
             <li th:class="nav-item" th:data-name="${mainEntity}"><a th:href="|../${mainEntity}/base|" class="nav-link">[[${bundle.L('主实体')}]]</a></li>
-            <li th:class="nav-item" th:data-name="${detailEntity}">
-              <a th:href="|../${detailEntity}/base|" class="nav-link J_for-details">[[${bundle.L('明细实体')}]]</a>
-              <div th:if="${detailEntities.length > 1}" class="dropdown-menu J_details">
-                <a th:each="e : ${detailEntities}" th:href="|../${e[1]}/base|" th:data-name="${e[1]}" class="dropdown-item"><i th:class="|icon zmdi zmdi-${e[3]}|"></i> [[${e[2]}]]</a>
-              </div>
-            </li>
+            <li th:class="nav-item" th:data-name="${detailEntity}"><a th:href="|../${detailEntity}/base|" class="nav-link J_for-details">[[${bundle.L('明细实体')}]]</a></li>
           </ul>
           <div class="card mb-0">
             <div class="card-body pt-4">
@@ -111,21 +106,39 @@
                         <div class="mt-2">
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" id="enableRecordMerger" />
-                            <span class="custom-control-label">[[${bundle.L('启用记录合并功能')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('支持 PC')}"></i></span>
+                            <span class="custom-control-label">[[${bundle.L('启用记录合并功能')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
                           </label>
                         </div>
                       </th:block>
                       <div class="mt-2">
                         <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                           <input class="custom-control-input" type="checkbox" id="repeatFieldsCheckMode" />
-                          <span class="custom-control-label">[[${bundle.L('“允许重复”检查全部字段')}]]</span>
+                          <span class="custom-control-label">
+                            [[${bundle.L('“允许重复”检查全部字段')}]]
+                            <a
+                              href="https://getrebuild.com/docs/admin/entity/opt-features#%E2%80%9C%E5%85%81%E8%AE%B8%E9%87%8D%E5%A4%8D%E2%80%9D%E6%A3%80%E6%9F%A5%E5%85%A8%E9%83%A8%E5%AD%97%E6%AE%B5"
+                              th:title="${bundle.L('查看帮助')}"
+                              target="_blank"
+                            >
+                              <i class="zmdi zmdi-help zicon down-1 cursor-pointer"></i>
+                            </a>
+                          </span>
                         </label>
                       </div>
                       <th:block th:if="${currentEntity == detailEntity}">
                         <div class="mt-2">
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" id="detailsGlobalRepeat" />
-                            <span class="custom-control-label">[[${bundle.L('“允许重复”检查全部数据')}]]</span>
+                            <span class="custom-control-label">
+                              [[${bundle.L('“允许重复”检查全部数据')}]]
+                              <a
+                                href="https://getrebuild.com/docs/admin/entity/opt-features#%E2%80%9C%E5%85%81%E8%AE%B8%E9%87%8D%E5%A4%8D%E2%80%9D%E6%A3%80%E6%9F%A5%E5%85%A8%E9%83%A8%E6%95%B0%E6%8D%AE"
+                                th:title="${bundle.L('查看帮助')}"
+                                target="_blank"
+                              >
+                                <i class="zmdi zmdi-help zicon down-1 cursor-pointer"></i>
+                              </a>
+                            </span>
                           </label>
                         </div>
                         <div class="mt-2">
@@ -137,13 +150,13 @@
                         <div class="mt-2">
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" id="detailsShowAt2" />
-                            <span class="custom-control-label">[[${bundle.L('明细显示在详情页下方')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('支持 PC')}"></i></span>
+                            <span class="custom-control-label">[[${bundle.L('明细显示在详情页下方')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
                           </label>
                         </div>
                         <div class="mt-2">
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" id="detailsCopiable" />
-                            <span class="custom-control-label">[[${bundle.L('明细启用复制功能')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('支持 PC')}"></i></span>
+                            <span class="custom-control-label">[[${bundle.L('明细启用复制功能')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
                           </label>
                         </div>
                       </th:block>

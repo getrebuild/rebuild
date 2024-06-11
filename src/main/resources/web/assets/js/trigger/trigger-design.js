@@ -6,8 +6,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 const wpc = window.__PageConfig
-var contentComp = null
-var whenUpdateFields
+
+let contentComp = null
+let whenUpdateFields
+let whenApproveNodes
 
 $(document).ready(() => {
   $.fn.select2.defaults.set('allowClear', false)
@@ -79,16 +81,17 @@ $(document).ready(() => {
     if (advFilter) {
       advFilter.show()
     } else {
-      renderRbcomp(<AdvFilter entity={wpc.sourceEntity} filter={wpc.whenFilter} confirm={saveFilter} title={$L('附加过滤条件')} inModal canNoFilters />, null, function () {
+      renderRbcomp(<AdvFilter entity={wpc.sourceEntity} filter={wpc.whenFilter} confirm={saveFilter} title={$L('附加过滤条件')} inModal canNoFilters />, function () {
         advFilter = this
       })
     }
   })
   saveFilter(wpc.whenFilter)
 
+  // 指定字段
   $('.when-update a').on('click', (e) => {
     $stopEvent(e, true)
-    renderRbcomp(
+    renderDlgcomp(
       <DlgSpecFields
         selected={whenUpdateFields}
         onConfirm={(s) => {
@@ -97,9 +100,32 @@ $(document).ready(() => {
           if (s.length > 0) $s.text(`${$s.text().split(' (')[0]} (${s.length})`)
           else $s.text($s.text().split(' (')[0])
         }}
-      />
+      />,
+      'DlgSpecFields'
     )
   })
+  DlgSpecFields.render(wpc.actionContent)
+
+  // 指定步骤
+  $('.when-approve a').on('click', (e) => {
+    $stopEvent(e, true)
+    renderDlgcomp(
+      <DlgSpecApproveNodes
+        selected={whenApproveNodes}
+        onConfirm={(s) => {
+          whenApproveNodes = s
+          const $s = $('.when-approve .custom-control-label')
+          if (s.length > 0) $s.text(`${$s.text().split(' (')[0]} (${s.length})`)
+          else $s.text($s.text().split(' (')[0])
+        }}
+      />,
+      'DlgSpecApproveNodes'
+    )
+  })
+  DlgSpecApproveNodes.render(wpc.actionContent)
+
+  // 立即执行
+  useExecManual()
 
   renderContentComp({ sourceEntity: wpc.sourceEntity, content: wpc.actionContent })
 
@@ -121,6 +147,7 @@ $(document).ready(() => {
     if (content === false) return
 
     if (window.whenUpdateFields) content.whenUpdateFields = window.whenUpdateFields
+    if (window.whenApproveNodes) content.whenApproveNodes = window.whenApproveNodes
     const data = {
       when: when,
       whenTimer: whenTimer,
@@ -171,6 +198,9 @@ $(document).ready(() => {
       $('.J_last-logs').removeClass('hide')
     })
   }
+
+  // v3.7
+  $('.page-help>a').attr('href', $('.page-help>a').attr('href') + wpc.actionType.toLowerCase())
 })
 
 const saveFilter = function (res) {
@@ -190,7 +220,7 @@ class LastLogsViewer extends RbAlert {
   renderContent() {
     return (
       <RF>
-        <table className="table table-hover">
+        <table className="table table-hover table-logs">
           <thead>
             <tr>
               <th>{$L('执行内容/结果')}</th>
@@ -214,45 +244,37 @@ class LastLogsViewer extends RbAlert {
   }
 
   _renderLog(log) {
-    if (!log) return <p className="m-0 text-warning text-uppercase">Unknown</p>
+    if (!log) return <p className="text-warning">UNKNOW</p>
 
     try {
-      return LastLogsViewer.renderLog(JSON.parse(log))
+      const L = JSON.parse(log)
+      const LR = LastLogsViewer.renderLog(L)
+      if (LR === false) {
+        return <p className={`text-uppercase ${L.level === 3 ? 'text-warning' : 'text-muted'}`}>{L.message || 'N'}</p>
+      }
+      return LR
     } catch (err) {
       console.debug(err)
-      return (
-        <p className="m-0 text-warning text-overflow text-uppercase" style={{ maxHeight: 295 }}>
-          {log || 'Unknown'}
-        </p>
-      )
+      return <p className="text-danger text-overflow">{log}</p>
     }
   }
 
   // 日志解析复写
-  static renderLog(log) {
-    if (log.level > 1) {
-      return <p className={`m-0 ${log.level === 2 ? 'text-muted' : 'text-warning'}`}>{(log.message || 'N').toUpperCase()}</p>
-    }
-
-    return (
-      <dl className="m-0">
-        {log.affected && (
+  static renderLog(L) {
+    L.level = L.level || 2
+    return L.level === 1 ? (
+      <div className="v36-logdesc">
+        {LastLogsViewer._Title || $L('影响记录')}
+        {L.affected.map((a, idx) => {
+          return (
+            <a key={idx} className="badge text-id ml-1" href={`${rb.baseUrl}/app/redirect?id=${a}&type=newtab`} target="_blank">
+              {a}
+            </a>
+          )
+        })}
+        {LastLogsViewer._Chain && L.chain && (
           <RF>
-            <dt>{$L('影响记录')}</dt>
-            <dd className="mb-0">
-              {log.affected.map((a, idx) => {
-                return (
-                  <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/redirect?id=${a}&type=newtab`} target="_blank">
-                    {a}
-                  </a>
-                )
-              })}
-            </dd>
-          </RF>
-        )}
-        {log.chain && (
-          <RF>
-            <dt className="mt-2 font-weight-normal">
+            <dt className="mt-1 font-weight-normal">
               <a
                 onClick={(e) => {
                   $(e.currentTarget).find('i.mdi').toggleClass('mdi-chevron-double-up')
@@ -263,11 +285,13 @@ class LastLogsViewer extends RbAlert {
               </a>
             </dt>
             <dd className="mb-0 hide">
-              <blockquote className="tech-details code">{log.chain}</blockquote>
+              <blockquote className="tech-details code">{L.chain}</blockquote>
             </dd>
           </RF>
         )}
-      </dl>
+      </div>
+    ) : (
+      false
     )
   }
 }
@@ -341,28 +365,25 @@ function _handle512Change() {
 }
 
 // 立即执行
-// eslint-disable-next-line no-unused-vars
 function useExecManual() {
-  $('.footer .btn-light').removeClass('hide')
-  $(`<a class="dropdown-item">${$L('立即执行')} <sup class="rbv"></sup></a>`)
-    .appendTo('.footer .dropdown-menu')
-    .on('click', () => {
-      if (rb.commercial < 10) {
-        RbHighbar.error(WrapHtml($L('免费版不支持立即执行功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-        return
-      }
+  $('.J_exec-manual').on('click', () => {
+    if (rb.commercial < 10) {
+      RbHighbar.error(WrapHtml($L('免费版不支持立即执行功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
 
-      RbAlert.create($L('将直接执行此触发器，数据过多耗时会较长，请耐心等待。是否继续？'), {
-        onConfirm: function () {
-          this.disabled(true, true)
-          $.post(`/admin/robot/trigger/exec-manual?id=${wpc.configId}`, (res) => {
-            const mp_parent = $(this._dlg).find('.modal-header').attr('id', $random('node-'))
-            const mp = new Mprogress({ template: 1, start: true, parent: '#' + $(mp_parent).attr('id') })
-            useExecManual_checkState(res.data, mp, this)
-          })
-        },
-      })
+    RbAlert.create($L('将直接执行此触发器，数据过多耗时会较长，请耐心等待。是否继续？'), {
+      onConfirm: function () {
+        this.disabled(true, true)
+        $.post(`/admin/robot/trigger/exec-manual?id=${wpc.configId}`, (res) => {
+          const mp_parent = $(this._dlg).find('.modal-header').attr('id', $random('node-'))
+          const mp = new Mprogress({ template: 1, start: true, parent: '#' + $(mp_parent).attr('id') })
+          useExecManual_checkState(res.data, mp, this)
+        })
+      },
+      countdown: 5,
     })
+  })
 }
 // 检查状态
 function useExecManual_checkState(taskid, mp, _alert) {
@@ -383,7 +404,6 @@ function useExecManual_checkState(taskid, mp, _alert) {
 class DlgSpecFields extends RbModalHandler {
   render() {
     const _selected = this.props.selected || []
-
     return (
       <RbModal
         title={
@@ -393,12 +413,10 @@ class DlgSpecFields extends RbModalHandler {
           </RF>
         }
         ref={(c) => (this._dlg = c)}
-        disposeOnHide
         width="780">
         <div className="p-2">
           <RbAlertBox message={$L('指定字段被更新时触发，默认为全部字段')} />
-
-          <div className="row " ref={(c) => (this._fields = c)}>
+          <div className="row" ref={(c) => (this._$fields = c)}>
             {(this.state.fields || []).map((item) => {
               if (item.type === 'BARCODE' || item.updatable === false) return null
               return (
@@ -432,7 +450,7 @@ class DlgSpecFields extends RbModalHandler {
     }
 
     const selected = []
-    $(this._fields)
+    $(this._$fields)
       .find('input:checked')
       .each(function () {
         selected.push(this.value)
@@ -447,10 +465,90 @@ class DlgSpecFields extends RbModalHandler {
   }
 
   static render(content) {
-    if (content.whenUpdateFields && content.whenUpdateFields.length > 0) {
+    if (content && content.whenUpdateFields && content.whenUpdateFields.length > 0) {
       window.whenUpdateFields = content.whenUpdateFields
       const $s = $('.when-update .custom-control-label')
       $s.text(`${$s.text()} (${content.whenUpdateFields.length})`)
+    }
+  }
+}
+
+// ~ 指定审批步骤
+class DlgSpecApproveNodes extends RbModalHandler {
+  render() {
+    return (
+      <RbModal
+        title={
+          <RF>
+            {$L('指定步骤')}
+            <sup className="rbv" />
+          </RF>
+        }
+        ref={(c) => (this._dlg = c)}
+        width="780">
+        <div className="p-2">
+          <RbAlertBox message={$L('指定审批步骤 (名称) 通过时触发，默认仅审批完成时触发')} />
+          <div className="row">
+            <div className="col-12">
+              <label>
+                {$L('填写步骤名称')} ({$L('* 表示所有')})
+              </label>
+              <div>
+                <select className="form-control form-control-sm" ref={(c) => (this._$set = c)}></select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="dialog-footer">
+          <button className="btn btn-secondary btn-space mr-2" type="button" onClick={this.hide}>
+            {$L('取消')}
+          </button>
+          <button className="btn btn-primary btn-space" type="button" onClick={() => this.handleConfirm()}>
+            {$L('确定')}
+          </button>
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    let s2data = this.props.selected || []
+    s2data = s2data.map((item) => {
+      return { id: item, text: item, selected: true }
+    })
+    this.__select2 = $(this._$set).select2({
+      placeholder: $L('无'),
+      data: s2data,
+      multiple: true,
+      maximumSelectionLength: 9,
+      language: {
+        noResults: function () {
+          return $L('请输入')
+        },
+      },
+      tags: true,
+      theme: 'default select2-tag',
+      allowClear: true,
+    })
+  }
+
+  handleConfirm() {
+    if (rb.commercial < 1) {
+      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
+
+    const selected = $(this._$set).val()
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(selected)
+    this.hide()
+  }
+
+  static render(content) {
+    if (content && content.whenApproveNodes && content.whenApproveNodes.length > 0) {
+      window.whenApproveNodes = content.whenApproveNodes
+      const $s = $('.when-approve .custom-control-label')
+      $s.text(`${$s.text()} (${content.whenApproveNodes.length})`)
     }
   }
 }
@@ -465,6 +563,10 @@ function disableWhen() {
       for (let i = 0; i < args.length; i++) {
         if (args[i] === when) {
           $(this).attr('disabled', true)
+          // 指定步骤/指定字段
+          if (when === 128 || when === 4) {
+            $(this).parent().find('>a').remove()
+          }
           break
         }
       }
@@ -491,7 +593,7 @@ class EditorWithFieldVars extends React.Component {
 
     return (
       <div className="textarea-wrap">
-        <textarea {...attrs} ref={(c) => (this._$content = c)} />
+        <textarea {...attrs} spellCheck="false" ref={(c) => (this._$content = c)} />
         <a className="fields-vars" title={$L('插入字段变量')} data-toggle="dropdown">
           <i className="mdi mdi-code-braces" />
         </a>

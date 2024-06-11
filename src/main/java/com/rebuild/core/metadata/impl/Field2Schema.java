@@ -386,6 +386,7 @@ public class Field2Schema extends SetUser {
      *
      * @param text
      * @return
+     * @see StringHelper#hyphenate(String)
      */
     protected String toPinyinName(final String text) {
         String identifier = text;

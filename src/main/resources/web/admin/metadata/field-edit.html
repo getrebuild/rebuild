@@ -3,7 +3,7 @@
   <head>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/bootstrap-slider.min.css}" />
     <th:block th:replace="~{/_include/header}" />
-    <meta name="page-help" content="https://getrebuild.com/docs/admin/entity/#%E5%AD%97%E6%AE%B5%E7%AE%A1%E7%90%86" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/entity/" />
     <title>[[${bundle.L('字段信息')}]]</title>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/meta-edit.css}" />
     <style>
@@ -218,7 +218,7 @@
                   </div>
                 </div>
                 <div th:if="${fieldType == 'IMAGE'}" class="form-group row J_for-IMAGE">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('仅允许拍照上传')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('仅允许拍照上传')}]] <sup class="rbv"></sup></label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                       <input class="custom-control-input" type="checkbox" id="imageCapture" />
@@ -375,20 +375,29 @@
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <input type="hidden" class="form-control" id="calcFormula" />
                     <div class="form-control-plaintext formula" id="calcFormula2" th:_title="${bundle.L('无')}">[[${calcFormula ?: calcFormula}]]</div>
-                    <p
-                      class="form-text"
-                      th:utext="${bundle.L('如公式中所用字段未布局/未显示，则无法进行计算。本公式适用前端简单计算，你可以通过 [触发器 (字段更新)](/admin/robot/triggers) 实现更强大的计算规则')}"
-                    ></p>
+                    <p class="form-text" th:utext="${bundle.L('如公式中所用字段未布局/未显示，则不会进行计算。如需后端计算或更复杂的计算逻辑请使用 [触发器 (字段更新)](/admin/robot/triggers)')}"></p>
                   </div>
                 </div>
                 <div th:if="${fieldType == 'NTEXT'}" class="form-group row J_for-NTEXT">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">
-                    <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('支持 PC')}"></i>
+                    <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i>
                     [[${bundle.L('启用富文本编辑器')}]]
                   </label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                       <input class="custom-control-input" type="checkbox" id="useMdedit" />
+                      <span class="custom-control-label">[[${bundle.L('是')}]]</span>
+                    </label>
+                  </div>
+                </div>
+                <div th:if="${fieldType == 'NTEXT'}" class="form-group row J_for-NTEXT bosskey-show">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">
+                    <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i>
+                    [[${bundle.L('启用代码编辑器')}]]
+                  </label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                      <input class="custom-control-input" type="checkbox" id="useCode" />
                       <span class="custom-control-label">[[${bundle.L('是')}]]</span>
                     </label>
                   </div>
@@ -415,12 +424,11 @@
                 </th:block>
                 <div th:if="${fieldType == 'TEXT'}" class="form-group row J_for-TEXT">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">
-                    <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('支持 PC')}"></i>
+                    <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i>
                     [[${bundle.L('常用值')}]]
                   </label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
-                    <textarea class="form-control form-control-sm row2x" id="textCommon" th:placeholder="${bundle.L('(选填)')}"></textarea>
-                    <div class="form-text" th:utext="${bundle.L('如有多个常用值请使用逗号分开')}"></div>
+                    <select class="form-control form-control-sm" id="textCommon"></select>
                   </div>
                 </div>
                 <div class="form-group row">

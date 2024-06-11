@@ -14,10 +14,10 @@ import org.junit.jupiter.api.Test;
  * @author devezhao
  * @since 2020/2/23
  */
-public class RecycleBinCleanerJobTest extends TestSupport {
+class RecycleBinCleanerJobTest extends TestSupport {
 
     @Test
-    public void executeInternal() {
+    void executeInternal() {
         new RecycleBinCleanerJob().executeJob();
     }
 }

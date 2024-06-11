@@ -10,7 +10,6 @@ package com.rebuild.web.general;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -19,16 +18,19 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.FormsBuilder;
 import com.rebuild.core.configuration.general.FormsBuilderContextHolder;
+import com.rebuild.core.configuration.general.FormsManager;
 import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.service.general.transform.TransformerPreview;
+import com.rebuild.core.service.general.transform.TransformerPreview37;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
@@ -44,9 +46,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * 表单/视图
@@ -69,7 +73,7 @@ public class GeneralModelController extends EntityController {
         final Entity viewEntity = MetadataHelper.getEntity(entity);
 
         if (Application.devMode() && !Objects.equals(id.getEntityCode(), MetadataHelper.getEntity(entity).getEntityCode())) {
-            log.warn("Entity and ID do not match : " + request.getRequestURI());
+            log.warn("Entity and ID do not match : {}", request.getRequestURI());
         }
 
         boolean isDetail = viewEntity.getMainEntity() != null;
@@ -131,14 +135,17 @@ public class GeneralModelController extends EntityController {
             }
         }
 
-        // 转换预览模式
+        // 记录转换:预览模式
         final String previewid = request.getParameter("previewid");
+        // 指定布局
+        final ID specLayout = getIdParameter(request, "layout");
 
         try {
             JSON model;
             if (StringUtils.isNotBlank(previewid)) {
-                model = new TransformerPreview(previewid, user).buildForm(false);
+                model = new TransformerPreview37(previewid, user).buildForm();
             } else {
+                if (specLayout != null) FormsBuilderContextHolder.setSpecLayout(specLayout);
                 model = FormsBuilder.instance.buildForm(entity, user, id);
             }
 
@@ -148,19 +155,39 @@ public class GeneralModelController extends EntityController {
             }
 
             // v3.1 明细导入配置
-            // v3.4 FIXME 只有第一个实体支持转换
+            // v3.4 FIXME ND只有第一个实体支持转换
+            // v3.7 ND
             if (modelEntity.getDetailEntity() != null) {
-                List<ConfigBean> imports = TransformManager.instance.getDetailImports(modelEntity.getDetailEntity().getName());
-                if (!imports.isEmpty()) {
-                    List<Object> detailImports = new ArrayList<>();
-                    for (ConfigBean cb : imports) {
-                        JSONObject trans = (JSONObject) EasyMetaFactory.valueOf(cb.getString("source")).toJSON();
-                        trans.put("transid", cb.getID("id"));
-                        trans.put("transName", cb.getString("name"));
-                        detailImports.add(trans);
-                    }
+                List<Object> alist = new ArrayList<>();
+                for (Entity de : modelEntity.getDetialEntities()) {
+                    List<ConfigBean> confImports = TransformManager.instance.getDetailImports(de.getName());
+                    if (!confImports.isEmpty()) {
+                        for (ConfigBean c : confImports) {
+                            JSONObject trans = (JSONObject) EasyMetaFactory.valueOf(c.getString("source")).toJSON();
+                            trans.put("transid", c.getID("id"));
+                            trans.put("transName", c.getString("name"));
 
-                    ((JSONObject) model).put("detailImports", detailImports);
+                            int ifAuto = ((JSONObject) c.getJSON("config")).getIntValue("importsMode2Auto");
+                            if (ifAuto > 0) {
+                                JSONArray importsFilter = ((JSONObject) c.getJSON("config")).getJSONArray("importsFilter");
+                                Set<String> autoFields = new HashSet<>();
+                                for (Object o : importsFilter) {
+                                    String name = ((JSONArray) o).getString(0);
+                                    autoFields.add(name.split("\\.")[1]);
+                                }
+
+                                if (!autoFields.isEmpty()) {
+                                    trans.put("auto", ifAuto);
+                                    trans.put("autoFields", autoFields);
+                                }
+                            }
+
+                            trans.put("detailName", de.getName());
+                            alist.add(trans);
+                        }
+
+                    }
+                    ((JSONObject) model).put("detailImports", alist);
                 }
             }
 
@@ -168,6 +195,7 @@ public class GeneralModelController extends EntityController {
 
         } finally {
             FormsBuilderContextHolder.getMainIdOfDetail(true);
+            FormsBuilderContextHolder.getSpecLayout(true);
         }
     }
 
@@ -175,7 +203,16 @@ public class GeneralModelController extends EntityController {
     public JSON entityView(@PathVariable String entity, @IdParam ID id,
                            HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        JSONObject model = (JSONObject) FormsBuilder.instance.buildView(entity, user, id);
+        // 指定布局
+        final ID forceLayout = getIdParameter(request, "layout");
+        if (forceLayout != null) FormsBuilderContextHolder.setSpecLayout(forceLayout);
+
+        JSONObject model;
+        try {
+            model = (JSONObject) FormsBuilder.instance.buildView(entity, user, id);
+        } finally {
+            if (forceLayout != null) FormsBuilderContextHolder.getSpecLayout(true);
+        }
 
         // 返回扩展
         if (getBoolParameter(request, "extras") && !model.containsKey("error")) {
@@ -205,27 +242,35 @@ public class GeneralModelController extends EntityController {
 
     @RequestMapping("detail-models")
     public JSON entityFormDetails(
-            @PathVariable String entity, @IdParam(name = "mainid", required = false) ID id,
+            @PathVariable String entity, @IdParam(name = "mainid", required = false) ID mainid,
             HttpServletRequest request) {
         final ID user = getRequestUser(request);
 
         // 记录转换预览模式
-        final String previewid = request.getParameter("previewid");
+        String previewid = request.getParameter("previewid");
         if (StringUtils.isNotBlank(previewid)) {
-            return new TransformerPreview(previewid, user).buildForm(true);
+            return new TransformerPreview37(previewid, user).buildForm(entity);
         }
 
-        Entity metaEntity = MetadataHelper.getEntity(entity);
-        Field dtf = MetadataHelper.getDetailToMainField(metaEntity);
-        String sql = String.format("select %s from %s where %s = ? order by autoId asc",
-                metaEntity.getPrimaryField().getName(), metaEntity.getName(), dtf.getName());
-        Object[][] ids = Application.createQuery(sql).setParameter(1, id).array();
-        
+        Entity detailEntityMeta = MetadataHelper.getEntity(entity);
+        List<ID> ids = QueryHelper.detailIdsNoFilter(mainid, detailEntityMeta);
+        if (ids.isEmpty()) return JSONUtils.EMPTY_ARRAY;
+
         JSONArray details = new JSONArray();
-        for (Object[] o : ids) {
-            JSON model = FormsBuilder.instance.buildForm(entity, user, (ID) o[0]);
-            ((JSONObject) model).put("id", o[0]);
-            details.add(model);
+
+        // v3.7 使用指定记录布局
+        ConfigBean forceLayout = FormsManager.instance
+                .getFormLayout(detailEntityMeta.getName(), ids.get(0), FormsManager.APPLY_ONEDIT);
+        FormsBuilderContextHolder.setSpecLayout(forceLayout.getID("id"));
+
+        try {
+            for (ID did : ids) {
+                JSON model = FormsBuilder.instance.buildForm(entity, user, did);
+                ((JSONObject) model).put("id", did);
+                details.add(model);
+            }
+        } finally {
+            FormsBuilderContextHolder.getSpecLayout(true);
         }
         return details;
     }

@@ -225,13 +225,14 @@
         <field name="belongEntity" type="small-int" default-value="0" updatable="false" queryable="false" description="所属实体" />
         <field name="belongField" type="string" max-length="100" updatable="false" queryable="false" description="所属字段"/>
         <field name="relatedRecord" type="any-reference" updatable="false" description="相关记录" cascade="ignore"/>
-        <field name="filePath" type="string" max-length="191" nullable="false" description="文件路径"/>
+        <field name="filePath" type="string" max-length="300" nullable="false" description="文件路径"/>
         <field name="fileType" type="string" max-length="20" description="文件类型"/>
         <field name="fileSize" type="int" default-value="0" description="文件大小"/>
+        <field name="fileName" type="string" max-length="100" description="文件名称"/>
         <field name="inFolder" type="reference" ref-entity="AttachmentFolder" description="所在目录"/>
         <field name="isDeleted" type="bool" default-value="F" description="是否删除"/>
-        <index field-list="belongEntity,belongField,filePath,isDeleted"/>
-        <index field-list="inFolder,createdOn,filePath"/>
+        <index field-list="belongEntity,belongField,fileName,isDeleted"/>
+        <index field-list="inFolder,createdOn,fileName"/>
         <index field-list="relatedRecord"/>
     </entity>
 
@@ -283,7 +284,7 @@
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
     </entity>
 
-    <entity name="RobotApprovalStep" type-code="029" description="审批步骤" queryable="false">
+    <entity name="RobotApprovalStep" type-code="029" description="审批流程步骤" queryable="false">
         <field name="stepId" type="primary"/>
         <field name="recordId" type="any-reference" nullable="false" updatable="false" description="审批记录"/>
         <field name="approvalId" type="reference" ref-entity="RobotApprovalConfig" nullable="false" updatable="false" description="审批流程"/>
@@ -301,6 +302,26 @@
         <field name="ccAccounts" type="string" max-length="500" updatable="false" description="抄送外部人员"/>
         <field name="attrMore" type="string" max-length="700" updatable="false" description="扩展属性 (JSON Map)"/>
         <index field-list="recordId,approvalId,node,isCanceled,isWaiting,isBacked,nodeBatch"/>
+    </entity>
+
+    <entity name="RobotSopConfig" type-code="070" name-field="name" description="业务进度" queryable="false">
+        <field name="configId" type="primary"/>
+        <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="应用实体"/>
+        <field name="name" type="string" max-length="100" nullable="false" description="进度名称"/>
+        <field name="sopDefinition" type="text" description="进度定义"/>
+        <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
+    </entity>
+
+    <entity name="RobotSopStep" type-code="071" description="业务进度记录" queryable="false">
+        <field name="stepId" type="primary"/>
+        <field name="recordId" type="any-reference" nullable="false" updatable="false" description="业务记录"/>
+        <field name="sopId" type="reference" ref-entity="RobotSopConfig" nullable="false" updatable="false" description="业务进度"/>
+        <field name="node" type="string" max-length="100" nullable="false" updatable="false" description="进度节点"/>
+        <field name="operator" type="reference" ref-entity="User" nullable="false" updatable="false" description="操作人"/>
+        <field name="achievedTime" type="timestamp" nullable="false" updatable="false" description="达成时间"/>
+        <field name="achievedContent" type="text" updatable="false" description="达成内容"/>
+        <field name="prevStep" type="reference" updatable="false" ref-entity="RobotSopStep"/>
+        <index field-list="recordId,sopId,node,prevStep"/>
     </entity>
 
     <entity name="RebuildApi" type-code="030" description="API 密钥" queryable="false">
@@ -499,7 +520,7 @@
         <index field-list="projectId,seq"/>
     </entity>
 
-    <entity name="ProjectTask" type-code="052" description="任务" name-field="taskName" extra-attrs="{icon:'calendar-check'}">
+    <entity name="ProjectTask" type-code="052" description="任务" name-field="taskName" extra-attrs="{icon:'mdi-checkbox-marked-outline'}">
         <field name="taskId" type="primary"/>
         <field name="projectId" type="reference" ref-entity="ProjectConfig" nullable="false" updatable="false" description="项目" queryable="false"/>
         <field name="projectPlanId" type="reference" ref-entity="ProjectPlanConfig" nullable="false" description="任务面板" queryable="false"/>

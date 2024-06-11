@@ -7,30 +7,31 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 /* Editor  */
 
-.timeline.spare {
+.timeline.timeline-spare {
   max-width: 2000px;
   padding-bottom: 0;
   margin-bottom: 20px;
 }
 
-.timeline.spare form.simple {
+.timeline.timeline-spare form.simple {
   max-width: 2000px;
 }
 
-.timeline.spare form.simple .col-form-label {
+.timeline.timeline-spare form.simple .col-form-label {
   max-width: 180px;
 }
 
-.timeline.spare form.simple input.form-control-sm,
-.timeline.spare form.simple select.form-control-sm {
+.timeline.timeline-spare form.simple input.form-control-sm,
+.timeline.timeline-spare form.simple select.form-control-sm,
+.timeline.timeline-spare form.simple .select2 {
   max-width: 485px;
 }
 
-.timeline.spare .timeline-content {
+.timeline.timeline-spare .timeline-content {
   padding: 0;
 }
 
-.timeline.spare .timeline-content {
+.timeline.timeline-spare .timeline-content {
   box-shadow: 0 0 0 #fff;
 }
 
@@ -38,19 +39,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-top: 25px;
 }
 
-.timeline.spare .timeline-item {
+.timeline.timeline-spare .timeline-item {
   margin-bottom: 10px;
 }
 
-.timeline.spare .timeline-item {
+.timeline.timeline-spare .timeline-item {
   padding-left: 190px;
 }
 
-.timeline.spare .timeline-item.last {
+.timeline.timeline-spare .timeline-item.last {
   margin-bottom: 0;
 }
 
-.timeline.spare .timeline-item.last::before {
+.timeline.timeline-spare .timeline-item.last::before {
   display: none;
 }
 
@@ -114,7 +115,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .field-aggregation .items > div .badge.badge-light {
-  padding: 4px 10px;
+  line-height: 1.396;
 }
 
 .field-aggregation .items > div .col-2 > .zmdi {
@@ -125,23 +126,31 @@ See LICENSE and COMMERCIAL in the project root for license information.
   position: relative;
 }
 
-.field-aggregation .items .del-wrap a.del {
+.field-aggregation .items .del-wrap a.del,
+.field-aggregation .items .del-wrap a.edit-code {
   position: absolute;
   font-size: 1.2rem;
   padding: 3px 6px;
   color: #999;
   font-weight: bold;
-  display: none;
   top: 1px;
-  margin-right: -9px;
+  right: -5px;
+  display: none;
 }
 
-.field-aggregation .items .del-wrap a.del:hover {
-  color: #222;
+.field-aggregation .items .del-wrap a.del:hover,
+.field-aggregation .items .del-wrap a.edit-code:hover {
+  opacity: 0.8;
 }
 
-.field-aggregation .items > div:hover a.del {
+.field-aggregation .items > div:hover a.del,
+.field-aggregation .items > div:hover a.edit-code {
   display: inline-block;
+}
+
+.field-aggregation .items .del-wrap a.edit-code {
+  right: 14px;
+  font-size: 1rem;
 }
 
 .group-aggregation .col-5 > .zmdi,
@@ -352,22 +361,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #fff;
 }
 
-textarea.formula-code {
-  font-family: Consolas, Menlo, Monaco, 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', monospace, serif;
-  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', Menlo, Monaco, Consolas, monospace;
-  font-size: 13px;
-  background-color: #212121;
-  color: #f07178;
-  border: 0 none;
-  height: 223px;
-  width: 100%;
-  resize: none;
-  outline: none;
-  border-radius: 0;
-  line-height: 1.6;
-  padding: 4px 10px;
-}
-
 textarea.formula-code + .fields-vars {
   bottom: 21px;
 }
@@ -379,7 +372,7 @@ textarea.formula-code + .fields-vars {
 }
 
 .J_when label.custom-control {
-  min-width: 120px;
+  min-width: 130px;
 }
 
 .on-timers {
@@ -441,7 +434,7 @@ textarea.formula-code + .fields-vars {
 
 .fields ul li.flag-DATE > a::before,
 .fields ul li.flag-DATETIME > a::before,
-.fields ul li.flag-TIME > a::before{
+.fields ul li.flag-TIME > a::before {
   content: 'D';
 }
 
@@ -495,16 +488,19 @@ textarea.formula-code + .fields-vars {
   display: block;
 }
 
-.when-update a {
+.when-update a,
+.when-approve a {
   color: #4285f4 !important;
   display: none;
 }
 
-.when-update:hover a {
+.when-update:hover a,
+.when-approve:hover a {
   display: inline-block;
 }
 
-.when-update a:hover {
+.when-update a:hover,
+.when-approve a:hover {
   color: #0d5bdd !important;
 }
 
@@ -512,7 +508,7 @@ textarea.formula-code + .fields-vars {
   .timeline-date {
     width: 95px;
   }
-  .timeline.spare .timeline-item {
+  .timeline.timeline-spare .timeline-item {
     padding-left: 140px;
   }
   .timeline::before {
@@ -581,8 +577,19 @@ textarea.formula-code + .fields-vars {
   font-size: 12px;
   margin-left: 5px;
   margin-right: 5px;
+  margin-bottom: 1px;
 }
 
-.v36-logdesc > .badge + .badge {
-  margin-left: 0;
+.table.table-logs p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.table.table-logs p.text-overflow {
+  max-height: 295px;
+}
+
+.send-notification select,
+.send-notification .select2 {
+  max-width: 100% !important;
 }

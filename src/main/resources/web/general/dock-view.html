@@ -2,9 +2,15 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-datalist2.css}" />
-    <title th:text="${entityLabel}"></title>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/list-page.css}" />
+    <title th:text="${title}"></title>
     <style>
+      .iframe-wrap {
+        border-radius: 6px;
+        border: 1px solid #e6e6e6;
+        margin-top: 44px;
+        overflow: hidden;
+      }
       .iframe-wrap iframe {
         position: relative;
         overflow: hidden;
@@ -14,6 +20,9 @@
         padding: 0;
         font-size: 0;
         line-height: 1;
+      }
+      .quick-filter-tabs .dropdown-item {
+        background-color: #f5f5f5;
       }
     </style>
   </head>
@@ -26,8 +35,13 @@
       </div>
       <div class="rb-content">
         <div class="main-content container-fluid">
-          <div class="iframe-wrap shadow hide">
-            <iframe frameborder="0" scrolling="no"></iframe>
+          <div class="quick-filter-tabs">
+            <div>
+              <a class="dropdown-item" th:href="|../${entityName}/list|">[[${bundle.L('返回列表')}]]</a>
+            </div>
+          </div>
+          <div class="iframe-wrap hide">
+            <iframe frameborder="0" scrolling="auto"></iframe>
           </div>
         </div>
       </div>
@@ -57,12 +71,12 @@
 
       $(document).ready(() => {
         $addResizeHandler(() => {
-          const mh = $(window).height() - 61 - 40
+          const mh = $(window).height() - 61 - 40 - 44
           $('.iframe-wrap').css({ height: mh })
         })()
 
         const wpc = window.__PageConfig
-        setTimeout(() => $('.iframe-wrap iframe').attr('src', wpc.viewUrl), 40)
+        setTimeout(() => $('.iframe-wrap iframe').attr('src', wpc.viewUrl), 0)
         setTimeout(() => $('.iframe-wrap').removeClass('hide'), 100)
       })
     </script>

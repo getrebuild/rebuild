@@ -57,6 +57,10 @@ public class ApprovalFields2Schema extends Field2Schema {
             if (!entity.containsField(EntityHelper.ApprovalLastRemark)) {
                 return schema2DatabaseInternal(entity, buildApporvalLastRemark(entity));
             }
+            if (!entity.containsField(EntityHelper.ApprovalStepUsers)) {
+                return schema2DatabaseInternal(entity,
+                        buildApprovalStepUsers(entity), buildApprovalStepNodeName(entity));
+            }
             return false;
         }
 
@@ -69,16 +73,18 @@ public class ApprovalFields2Schema extends Field2Schema {
                 DisplayType.REFERENCE, true, false, false, true, true, null, "RobotApprovalConfig", CascadeModel.Ignore, null, null);
         Field apporvalState = createUnsafeField(entity, EntityHelper.ApprovalState, Language.L("审批状态"),
                 DisplayType.STATE, true, false, false, true, true, null, null, null, null, ApprovalState.DRAFT.getState());
-        Field apporvalStepId = createUnsafeField(entity, EntityHelper.ApprovalStepNode, Language.L("审批步骤"),
+        Field apporvalStepNode = createUnsafeField(entity, EntityHelper.ApprovalStepNode, Language.L("审批步骤"),
                 DisplayType.TEXT, true, false, false, true, false, null, null, null, null, null);
 
         Field apporvalLastUser = buildApporvalLastUser(entity);
         Field apporvalLastTime = buildApporvalLastTime(entity);
         Field apporvalLastRemark = buildApporvalLastRemark(entity);
+        Field approvalStepUsers = buildApprovalStepUsers(entity);
+        Field approvalStepNodeName = buildApprovalStepNodeName(entity);
 
         schema2DatabaseInternal(
-                entity, apporvalId, apporvalState, apporvalStepId,
-                apporvalLastUser, apporvalLastTime, apporvalLastRemark);
+                entity, apporvalId, apporvalState, apporvalStepNode,
+                apporvalLastUser, apporvalLastTime, apporvalLastRemark, approvalStepUsers, approvalStepNodeName);
         return true;
     }
 
@@ -100,6 +106,18 @@ public class ApprovalFields2Schema extends Field2Schema {
                 DisplayType.DATETIME, true, false, false, true, true, null, null, null, null, null);
     }
 
+    // v3.7 当前审批人
+    private Field buildApprovalStepUsers(Entity entity) {
+        return createUnsafeField(entity, EntityHelper.ApprovalStepUsers, Language.L("当前审批人"),
+                DisplayType.N2NREFERENCE, true, false, false, true, true, null, "User", CascadeModel.Ignore, null, null);
+    }
+
+    // v3.7 当前审批步骤
+    private Field buildApprovalStepNodeName(Entity entity) {
+        return createUnsafeField(entity, EntityHelper.ApprovalStepNodeName, Language.L("审批步骤"),
+                DisplayType.TEXT, true, false, false, true, true, null, null, null, null, null);
+    }
+
     private boolean schema2DatabaseInternal(Entity entity, Field... fields) {
         boolean schemaReady = schema2Database(entity, fields);
 
@@ -119,7 +137,8 @@ public class ApprovalFields2Schema extends Field2Schema {
     public boolean dropFields(Entity entity) {
         final String[] approvalFields = new String[] {
                 EntityHelper.ApprovalId, EntityHelper.ApprovalState, EntityHelper.ApprovalStepNode,
-                EntityHelper.ApprovalLastUser, EntityHelper.ApprovalLastTime, EntityHelper.ApprovalLastRemark
+                EntityHelper.ApprovalLastUser, EntityHelper.ApprovalLastTime, EntityHelper.ApprovalLastRemark,
+                EntityHelper.ApprovalStepUsers, EntityHelper.ApprovalStepNodeName
         };
 
         List<String> drops = new ArrayList<>();

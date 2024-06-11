@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global FormulaAggregation, ActionContentSpec */
+/* global FormulaAggregation, ActionContentSpec, MatchFields */
 
 const CALC_MODES2 = {
   ...FormulaAggregation.CALC_MODES,
@@ -13,7 +13,7 @@ const CALC_MODES2 = {
   RBJOIN3: $L('去重连接*N'),
 }
 
-const __LAB_MATCHFIELDS = false
+let __LAB_MATCHFIELDS = false
 
 // ~~ 字段聚合
 class ContentFieldAggregation extends ActionContentSpec {
@@ -42,7 +42,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                     })}
 
                     {targetEntities2.length > 0 && (
-                      <optgroup label={$L('通过规则匹配')}>
+                      <optgroup label={$L('通过字段匹配')}>
                         {targetEntities2.map((item) => {
                           const val = `${item[2]}.${item[0]}`
                           return (
@@ -65,14 +65,12 @@ class ContentFieldAggregation extends ActionContentSpec {
             </div>
           </div>
 
-          {__LAB_MATCHFIELDS && (
-            <div className={`form-group row ${this.state.showMatchFields ? '' : 'hide'}`}>
+          {this.state.showMatchFields && (
+            <div className="form-group row">
               <label className="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
               <div className="col-md-12 col-lg-9">
-                <div>
-                  <h5 className="mt-0 text-bold">{$L('目标实体/记录匹配规则')} (LAB)</h5>
-                  <textarea className="formula-code" style={{ height: 72 }} ref={(c) => (this._$matchFields = c)} placeholder="## [{ sourceField:XXX, targetField:XXX }]" />
-                </div>
+                <h5 className="mt-0 text-bold">{$L('字段匹配规则')} (LAB)</h5>
+                <MatchFields targetFields={this.state.targetFields2} sourceFields={this.__sourceFieldsCache} ref={(c) => (this._MatchFields = c)} />
               </div>
             </div>
           )}
@@ -230,9 +228,6 @@ class ContentFieldAggregation extends ActionContentSpec {
       if (content.stopPropagation === true) $(this._$stopPropagation).attr('checked', true).parents('.bosskey-show').removeClass('bosskey-show')
       this.saveAdvFilter(content.dataFilter)
       $(this._$matchFields).val(content.targetEntityMatchFields || null)
-
-      // eslint-disable-next-line no-undef
-      DlgSpecFields.render(content)
     }
   }
 
@@ -241,8 +236,9 @@ class ContentFieldAggregation extends ActionContentSpec {
     if (!teSplit || !teSplit[1]) return
     // 清空现有规则
     this.setState({ items: [] })
-
-    if (__LAB_MATCHFIELDS) this.setState({ showMatchFields: teSplit[0] === '$' })
+    if (__LAB_MATCHFIELDS) {
+      this.setState({ showMatchFields: teSplit[0] === '$' })
+    }
 
     $.get(`/admin/robot/trigger/field-aggregation-fields?source=${this.props.sourceEntity}&target=${teSplit[1]}`, (res) => {
       this.setState({ hasWarning: res.data.hadApproval ? $L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)，建议启用“允许强制更新”') : null })
@@ -319,9 +315,18 @@ class ContentFieldAggregation extends ActionContentSpec {
           this.__select2.push($s2tf)
         })
 
-        if (this.props.content) {
-          this.setState({ items: this.props.content.items || [] })
+        const content = this.props.content
+        if (content) {
+          this.setState({ items: content.items || [] })
+
+          if (content.targetEntityMatchFields) {
+            setTimeout(() => this._MatchFields && this._MatchFields.setState({ groupFields: content.targetEntityMatchFields }), 200)
+          }
         }
+        // v3.7
+        const targetFields2 = res.data.target2
+        this.setState({ targetFields2: targetFields2 })
+        this._MatchFields && this._MatchFields.reset({ targetFields: targetFields2, sourceFields: this.__sourceFieldsCache })
       }
     })
   }
@@ -392,7 +397,7 @@ class ContentFieldAggregation extends ActionContentSpec {
   buildContent() {
     const content = {
       targetEntity: $(this._$targetEntity).val(),
-      targetEntityMatchFields: $(this._$matchFields).val() || null,
+      targetEntityMatchFields: null,
       items: this.state.items || [],
       readonlyFields: $(this._$readonlyFields).prop('checked'),
       forceUpdate: $(this._$forceUpdate).prop('checked'),
@@ -404,25 +409,19 @@ class ContentFieldAggregation extends ActionContentSpec {
       RbHighbar.create($L('请选择目标实体'))
       return false
     }
+
+    if (this.state.showMatchFields) {
+      const v = this._MatchFields.val()
+      if (v.length === 0) {
+        RbHighbar.create($L('请添加字段匹配规则'))
+        return false
+      }
+      content.targetEntityMatchFields = v
+    }
+
     if (content.items.length === 0) {
       RbHighbar.create($L('请至少添加 1 个聚合规则'))
       return false
-    }
-
-    if (this.state.showMatchFields) {
-      let badFormat = !content.targetEntityMatchFields
-      if (!badFormat) {
-        try {
-          badFormat = JSON.parse(content.targetEntityMatchFields)
-          badFormat = !$.isArray(badFormat)
-        } catch (err) {
-          badFormat = true
-        }
-      }
-      if (badFormat) {
-        RbHighbar.create($L('请正确填写目标实体/记录匹配规则'))
-        return false
-      }
     }
 
     return content
@@ -431,15 +430,10 @@ class ContentFieldAggregation extends ActionContentSpec {
 
 // eslint-disable-next-line no-undef
 renderContentComp = function (props) {
+  __LAB_MATCHFIELDS = window.__BOSSKEY || !!(props.content && props.content.targetEntityMatchFields)
   renderRbcomp(<ContentFieldAggregation {...props} />, 'react-content', function () {
     // eslint-disable-next-line no-undef
     contentComp = this
     $('#react-content [data-toggle="tooltip"]').tooltip()
   })
-
-  // 指定字段
-  $('.when-update a.hide').removeClass('hide')
-
-  // eslint-disable-next-line no-undef
-  useExecManual()
 }

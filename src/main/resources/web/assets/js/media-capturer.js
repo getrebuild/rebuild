@@ -5,7 +5,8 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-const _VIDEO_WIDTH = 1000
+const _IDEAL_VIDW = 1024
+const _IDEAL_VIDH = 768
 
 // eslint-disable-next-line no-unused-vars
 class MediaCapturer extends RbModal {
@@ -16,17 +17,25 @@ class MediaCapturer extends RbModal {
     this._recImage = props.type === 'image' || props.type === '*'
     this._mediaRecorder = null
     this._blobs = []
+
+    // 1024, 768
+    this._videoWidth = props.width || _IDEAL_VIDW
+    // https://developer.mozilla.org/en-US/docs/Web/API/ImageCapture
+    this._useImageCapture = null
   }
 
   renderContent() {
     return (
-      <div className={`media-capture ${this.state.captured && 'captured'} ${this.state.recording && 'recording'}`}>
+      <div className={`media-capture ${this._videoWidth < _IDEAL_VIDW && 'media-capture-md'} ${this.state.captured && 'captured'} ${this.state.recording && 'recording'}`}>
         {this.state.initMsg && <div className="must-center text-muted fs-14">{this.state.initMsg}</div>}
 
         <video autoPlay ref={(c) => (this._$camera = c)} controls={false}></video>
         <div className="results">
           <video controls controlsList="nodownload" ref={(c) => (this._$resVideo = c)} className={this.state.recType === 'video' ? '' : 'hide'}></video>
           <canvas ref={(c) => (this._$resImage = c)} className={this.state.recType === 'image' ? '' : 'hide'}></canvas>
+          <div className={this.state.recType === 'image' ? '' : 'hide'}>
+            <img ref={(c) => (this._$resImage2 = c)} />
+          </div>
         </div>
 
         <div className={`action ${this.state.unsupportted && 'hide'}`} ref={(c) => (this._$btn = c)}>
@@ -39,19 +48,20 @@ class MediaCapturer extends RbModal {
           </button>
 
           {this._recVideo && (
-            <button className="btn btn-secondary J_capture-video" type="button" onClick={() => this.captureVideo()}>
+            <button className="btn btn-secondary J_capture-video" type="button" onClick={() => this.takeVideo()}>
               {this.state.recording ? $L('停止') : $L('录制')}
+              {this.state.recording && <span className="ml-1">{$sec2Time(this.state.recording)}</span>}
             </button>
           )}
           {this._recImage && (
-            <button className="btn btn-secondary J_capture-image" type="button" onClick={() => this.captureImage()} disabled={this.state.recording === true}>
+            <button className="btn btn-secondary J_capture-image" type="button" onClick={() => this.takeImage()} disabled={this.state.recording}>
               <i className="icon mdi mdi-camera" /> {$L('拍照')}
             </button>
           )}
 
           {this.state.webcamList && this.state.webcamList.length > 0 && (
             <span className="dropdown">
-              <button className="btn btn-secondary dropdown-toggle w-auto J_webcam" type="button" data-toggle="dropdown" title={$L('选择设备')} disabled={this.state.recording === true}>
+              <button className="btn btn-secondary dropdown-toggle w-auto J_webcam" type="button" data-toggle="dropdown" title={$L('选择设备')} disabled={this.state.recording}>
                 <i className="icon mdi mdi-webcam" />
               </button>
               <div className="dropdown-menu dropdown-menu-right">
@@ -87,9 +97,9 @@ class MediaCapturer extends RbModal {
         this.setState({ webcamList: vidDevices })
       })
       .catch((err) => {
-        console.log(err)
+        console.log('enumerateDevices fails :', err)
       })
-    
+
     if (this.props.forceFile) {
       $initUploader(
         this._$fileinput,
@@ -113,11 +123,11 @@ class MediaCapturer extends RbModal {
     }
   }
 
-  initDevice(cb, deviceId) {
+  initDevice(cb, specDeviceId) {
     this.setState({ captured: false, initMsg: $L('请稍后') })
-    if (deviceId) {
+    if (specDeviceId) {
       this._stopTracks()
-      $storage.set('MediaCapturerDeviceId', deviceId)
+      $storage.set('MediaCapturerDeviceId', specDeviceId)
     }
 
     if (this._$camera && this._$camera.srcObject) {
@@ -126,15 +136,39 @@ class MediaCapturer extends RbModal {
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
-    const ps = { video: true, audio: this.props.recordAudio || false }
-    if (deviceId) ps.video = { deviceId: deviceId }
+    const constraints = {
+      video: {
+        width: { ideal: _IDEAL_VIDW * 5 },
+        height: { ideal: _IDEAL_VIDH * 5 },
+      },
+      audio: this.props.recordAudio === true,
+    }
+    if (specDeviceId) constraints.video.deviceId = specDeviceId
+
     navigator.mediaDevices
-      .getUserMedia(ps)
-      .then((stream) => {
-        this._$camera.srcObject = stream
+      .getUserMedia(constraints)
+      .then((s) => {
+        this._$camera.srcObject = s
+        this.__currentDeviceId = s.id
+
+        const track = s.getVideoTracks()[0]
+        const trackSettings = track.getSettings()
+        console.log('Use webcam settings :', trackSettings)
+        this._cameraSettings = {
+          width: trackSettings.width || _IDEAL_VIDW,
+          height: trackSettings.height || _IDEAL_VIDH,
+        }
+
+        try {
+          if (this._useImageCapture !== false) {
+            this._useImageCapture = new ImageCapture(track)
+          }
+        } catch (err) {
+          // ignored
+        }
 
         if (this._recVideo) {
-          this._mediaRecorder = new MediaRecorder(stream)
+          this._mediaRecorder = new MediaRecorder(s)
           this._mediaRecorder.addEventListener('dataavailable', (e) => {
             if (e.data && e.data.size > 0) this._blobs.push(e.data)
           })
@@ -149,7 +183,7 @@ class MediaCapturer extends RbModal {
         typeof cb === 'function' && cb()
       })
       .catch((err) => {
-        console.log(err)
+        console.log('getUserMedia fails :', err)
         this.setState({ initMsg: $L('无法访问摄像头') })
       })
   }
@@ -159,35 +193,85 @@ class MediaCapturer extends RbModal {
     this._stopTracks()
   }
 
-  captureImage() {
+  takeImage() {
     this.initDevice(() => {
-      const ratio = Math.max(window.devicePixelRatio || 1, 2)
-      this._$resImage.style.width = _VIDEO_WIDTH
-      this._$resImage.style.height = (_VIDEO_WIDTH / 4) * 3
-      this._$resImage.width = _VIDEO_WIDTH * ratio
-      this._$resImage.height = (_VIDEO_WIDTH / 4) * 3 * ratio
+      if (this._useImageCapture) {
+        this._takeImageUseImageCapture()
+        return
+      } else {
+        $(this._$resImage2).parent().remove()
+      }
 
-      const context = this._$resImage.getContext('2d')
-      context.scale(ratio, ratio)
-      context.drawImage(this._$camera, 0, 0, _VIDEO_WIDTH, (_VIDEO_WIDTH / 4) * 3)
-      this._capturedData = this._$resImage.toDataURL('image/jpeg')
+      let width = this._cameraSettings.width
+      let height = this._cameraSettings.height
+      this._$resImage.width = width
+      this._$resImage.height = height
+      this._$resImage.style.width = `${width}px !important`
+      this._$resImage.style.height = `${height}px !important`
+      this._$resImage.style.zoom = this._videoWidth / width
+
+      const ctx2d = this._$resImage.getContext('2d')
+      ctx2d.clearRect(0, 0, width, height)
+      ctx2d.drawImage(this._$camera, 0, 0, width, height)
+      // 水印
+      if (this.props.watermark) {
+        ctx2d.font = '24px Arial'
+        ctx2d.fillStyle = 'white'
+        ctx2d.fillText(moment().format('YYYY-MM-DD HH:mm:ss'), 20, 40)
+        ctx2d.fillText('Device : ' + this.__currentDeviceId || '', 20, 40 + 30)
+      }
+      this._capturedData = this._$resImage.toDataURL('image/jpeg', 1.0)
 
       this._stopTracks()
       this.setState({ captured: true, initMsg: null, recType: 'image' })
     })
   }
 
-  captureVideo() {
-    console.log('MediaRecorder state :', this._mediaRecorder.state)
+  _takeImageUseImageCapture() {
+    const that = this
+    this._useImageCapture
+      .takePhoto({
+        imageWidth: this._cameraSettings.width,
+        imageHeight: this._cameraSettings.height,
+      })
+      .then((blob) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(blob)
+        reader.onloadend = function () {
+          that._$resImage2.src = reader.result // base64
+          that._capturedData = reader.result
+
+          that._stopTracks()
+          that.setState({ captured: true, initMsg: null, recType: 'image' })
+        }
+      })
+      .catch((err) => {
+        console.log('takePhoto fails :', err)
+
+        // Use canvas
+        $(that._$resImage2).parent().remove()
+        that._useImageCapture = false
+        that.takeImage()
+      })
+  }
+
+  takeVideo() {
     this.initDevice(() => {
       if (this._mediaRecorder.state === 'inactive') {
         this._blobs = []
         this._mediaRecorder.start()
-        this.setState({ recording: true, initMsg: null, recType: 'video' })
+        this.setState({ recording: '0', initMsg: null, recType: 'video' })
+        this._recordingTimer = setInterval(() => {
+          this.setState({ recording: ~~this.state.recording + 1 })
+        }, 980)
       } else if (this._mediaRecorder.state === 'recording') {
         this._mediaRecorder.stop()
         this._stopTracks()
         this.setState({ recording: false })
+        if (this._recordingTimer) {
+          clearInterval(this._recordingTimer)
+          this._recordingTimer = null
+        }
         // @see stop event
       }
     })

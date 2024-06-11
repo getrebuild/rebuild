@@ -9,18 +9,17 @@ package com.rebuild.core.configuration.general;
 
 import com.rebuild.TestSupport;
 import com.rebuild.core.configuration.ConfigBean;
-import com.rebuild.core.privileges.UserService;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao
  * @since 01/04/2019
  */
-public class FormsManagerTest extends TestSupport {
+class FormsManagerTest extends TestSupport {
 
     @Test
-    public void testGet() {
-        ConfigBean entry = FormsManager.instance.getFormLayout("User", UserService.ADMIN_USER);
-        System.out.println(entry.toJSON());
+    void testGet() {
+        ConfigBean f = FormsManager.instance.getNewFormLayout("User");
+        System.out.println(f.toJSON());
     }
 }

@@ -19,21 +19,21 @@ class BaseChart extends React.Component {
     const opActions = (
       <div className="chart-oper">
         {!this.props.builtin && (
-          <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`} target="_blank">
+          <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`} target="_blank" className="J_source">
             <i className="zmdi zmdi-rss" />
           </a>
         )}
         <a title={$L('刷新')} onClick={() => this.loadChartData()}>
           <i className="zmdi zmdi-refresh" />
         </a>
-        <a className="d-none d-md-inline-block" title={$L('全屏')} onClick={() => this.toggleFullscreen()}>
+        <a className="d-none d-md-inline-block J_fullscreen" title={$L('全屏')} onClick={() => this.toggleFullscreen()}>
           <i className={`zmdi zmdi-${this.state.fullscreen ? 'fullscreen-exit' : 'fullscreen'}`} />
         </a>
 
         <a className="d-none d-md-inline-block" data-toggle="dropdown">
           <i className="icon zmdi zmdi-more-vert" style={{ width: 16 }} />
         </a>
-        <div className="dropdown-menu dropdown-menu-right">
+        <div className="dropdown-menu dropdown-menu-right dropdown-menu-sm">
           {this.props.isManageable && !this.props.builtin && (
             <a className="dropdown-item J_chart-edit" href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
               {$L('编辑')}
@@ -44,7 +44,7 @@ class BaseChart extends React.Component {
               {$L('移除')}
             </a>
           )}
-          <a className="dropdown-item" onClick={() => this.export()}>
+          <a className="dropdown-item J_export" onClick={() => this.export()}>
             {$L('导出')} <sup className="rbv" />
           </a>
         </div>
@@ -93,21 +93,28 @@ class BaseChart extends React.Component {
   }
 
   toggleFullscreen(forceFullscreen) {
-    const use = forceFullscreen === true ? true : !this.state.fullscreen
-    this.setState({ fullscreen: use }, () => {
-      const $box = $(this._$box).parents('.grid-stack-item')
+    const is = forceFullscreen === true ? true : !this.state.fullscreen
+    this.setState({ fullscreen: is }, () => {
+      // in Dashboard
       const $stack = $('.chart-grid>.grid-stack')
+      if (!$stack[0]) {
+        // in DataList
+        // $(this._$box).parent().toggleClass('fullscreen')
+        return
+      }
+
+      const $boxParent = $(this._$box).parents('.grid-stack-item')
 
       if (this.state.fullscreen) {
         BaseChart.currentFullscreen = this
         if (!this.__chartStackHeight) this.__chartStackHeight = $stack.height()
 
-        $box.addClass('fullscreen')
+        $boxParent.addClass('fullscreen')
         let height = $(window).height() - ($(document.body).hasClass('fullscreen') ? 75 : 135)
         height -= $('.announcement-wrapper').height() || 0
         $stack.css({ height: Math.max(height, 300), overflow: 'hidden' })
       } else {
-        $box.removeClass('fullscreen')
+        $boxParent.removeClass('fullscreen')
         $stack.css({ height: this.__chartStackHeight, overflow: 'unset' })
 
         BaseChart.currentFullscreen = null
@@ -156,7 +163,7 @@ class BaseChart extends React.Component {
   }
 
   _exportTable(table) {
-    function reLinks(table, a, b) {
+    function _rmLinks(table, a, b) {
       $(table)
         .find('a')
         .each(function () {
@@ -166,16 +173,21 @@ class BaseChart extends React.Component {
         })
     }
 
-    // Remove
-    reLinks(table, '__href', 'href')
+    const name = `${this.state.title}.xls`
+    function _export() {
+      // remove
+      _rmLinks(table, '__href', 'href')
+      // export
+      // https://docs.sheetjs.com/docs/api/utilities/html#html-table-input
+      // https://docs.sheetjs.com/docs/api/write-options
+      const wb = window.XLSX.utils.table_to_book(table, { raw: true })
+      window.XLSX.writeFile(wb, name)
+      // restore
+      setTimeout(() => _rmLinks(table, 'href', '__href'), 500)
+    }
 
-    // https://docs.sheetjs.com/docs/api/utilities/html#html-table-input
-    // https://docs.sheetjs.com/docs/api/write-options
-    const wb = window.XLSX.utils.table_to_book(table, { raw: true })
-    window.XLSX.writeFile(wb, `${this.state.title}.xls`)
-
-    // Add
-    setTimeout(() => reLinks(table, 'href', '__href'), 500)
+    if (window.XLSX) _export()
+    else $getScript('/assets/lib/charts/xlsx.full.min.js', setTimeout(_export, 200))
   }
 
   renderError(msg, cb) {
@@ -206,30 +218,33 @@ class ChartIndex extends BaseChart {
       <div className="chart index" ref={(c) => (this._$chart = c)}>
         <div className="data-item must-center text-truncate w-auto">
           <p style={style2}>{data.index.label || this.label}</p>
-          <a href={__PREVIEW ? null : `${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`}>
-            <strong style={style2}>{data.index.data}</strong>
-          </a>
+          <strong style={style2}>{data.index.data}</strong>
+          {data.index.label2 && (
+            <div className="with">
+              <p>{data.index.label2}</p>
+              <strong className={this._num(data.index.data2) >= this._num(data.index.data) && 'ge'}>{data.index.data2}</strong>
+            </div>
+          )}
         </div>
       </div>
     )
-    this.setState({ chartdata: chartdata }, () => this._resize())
+    this.setState({ chartdata: chartdata }, () => this.resize(1))
   }
 
-  resize() {
-    $setTimeout(() => this._resize(), 200, `resize-chart-${this.props.id}`)
+  _num(n) {
+    return parseFloat($cleanNumber(n))
   }
 
-  _resize() {
-    const ch = $(this._$chart).height()
-    const zoom = ch > 100 ? (ch > 330 ? 2 : 1.3) : 1
-    $(this._$chart).find('strong').css('zoom', zoom)
-
-    // const $text = $(this._$chart).find('strong')
-    // zoom = $(this._$chart).width() / $text.width()
-    // console.log(this.props.id, zoom)
-    // if (zoom < 1 || ch < 120) zoom = 1
-    // if (zoom > 2 && ch < 200) zoom = 2
-    // $text.css('zoom', Math.min(zoom, 3))
+  resize(delay) {
+    $setTimeout(
+      () => {
+        const ch = $(this._$chart).height()
+        const zoom = ch > 100 ? (ch > 330 ? 2 : 1.3) : 1
+        $(this._$chart).find('strong').css('zoom', zoom)
+      },
+      delay || 200,
+      `resize-chart-${this.props.id}`
+    )
   }
 }
 
@@ -284,6 +299,19 @@ class ChartTable extends BaseChart {
 // for ECharts
 const COLOR_AXIS = '#ddd'
 const COLOR_LABEL = '#555'
+// 可用调色板
+const COLOR_PALETTES = {
+  shine: ['#c12e34', '#e6b600', '#0098d9', '#2b821d', '#005eaa', '#339ca8', '#cda819', '#32a487'],
+  techblue: ['#3a5897', '#007bb6', '#7094db', '#0080ff', '#b3b3ff', '#00bdec', '#33ccff', '#ccddff', '#eeeeee'],
+  mint: ['#8aedd5', '#93bc9e', '#cef1db', '#7fe579', '#a6d7c2', '#bef0bb', '#99e2vb', '#94f8a8', '#7de5b8', '#4dfb70'],
+  fruit: ['#ffcb6a', '#ffa850', '#ffe2c4', '#e5834e', '#ffb081', '#f7826e', '#faac9e', '#fcd5cf'],
+  sakura: ['#e52c3c', '#f7b1ab', '#fa506c', '#f59288', '#f8c4d8', '#e54f5c', '#f06d5c', '#e54f80', '#f29c9f', '#eeb5b7'],
+  jazz: ['#e9e0d1', '#91a398', '#33605a', '#070001', '#68462b', '#58a79c', '#abd3ce', '#eef6f5'],
+  wonderland: ['#4ea397', '#22c3aa', '#7bd9a5', '#d0648a', '#f58db2', '#f2b3c9'],
+  westeros: ['#516b91', '#59c4e6', '#edafda', '#93b7e3', '#a5e7f0', '#cbb0e3'],
+  infographic: ['#c1232b', '#27727b', '#fcce10', '#e87c25', '#b5c334', '#fe8463', '#9bca63', '#fad860', '#f3a43b', '#60c0dd', '#d7504b', '#c6e579', '#f4e001', '#f0805a', '#26c0c0'],
+  macarons: ['#2ec7c9', '#b6a2de', '#5ab1ef', '#ffb980', '#d87a80', '#8d98b3', '#e5cf0d', '#97b552', '#95706d', '#dc69aa', '#07a2a4', '#9a7fd1', '#588dd5', '#f5994e', '#c05050', '#59678c', '#c9ab00'],
+}
 
 const ECHART_BASE = {
   grid: { left: 60, right: 30, top: 30, bottom: 30 },
@@ -292,21 +320,33 @@ const ECHART_BASE = {
     trigger: 'item',
     textStyle: {
       fontSize: 12,
-      lineHeight: 1.3,
+      lineHeight: 1.2,
       color: '#333',
     },
     axisPointer: {
+      type: 'line', // line, cross, shadow
       lineStyle: { color: COLOR_AXIS },
+      crossStyle: { color: COLOR_AXIS },
+      label: {
+        color: '#222',
+        backgroundColor: COLOR_AXIS,
+        padding: [7, 7, 5, 7],
+      },
     },
     backgroundColor: '#fff',
     extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2);',
     confine: true,
     position: 'top',
+    borderWidth: 0,
+    padding: [5, 10],
+  },
+  toolbox: {
+    show: false,
   },
   textStyle: {
     fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
   },
-  color: RBCOLORS,
+  color: COLOR_PALETTES[window.__LAB_CHARTCOLORS || 'x'] || RBCOLORS,
 }
 
 const ECHART_AXIS_LABEL = {
@@ -317,13 +357,6 @@ const ECHART_AXIS_LABEL = {
   },
 }
 
-// eslint-disable-next-line no-unused-vars
-const ECHART_VALUE_LABEL = {
-  show: true,
-  formatter: function (a) {
-    return formatThousands(a.data)
-  },
-}
 const ECHART_VALUE_LABEL2 = function (dataFlags = []) {
   return {
     show: true,
@@ -384,15 +417,30 @@ const formatThousands = function (num, flag) {
   return n
 }
 
-const cloneOption = function (opt) {
-  opt = JSON.stringify(opt)
-  return JSON.parse(opt)
+// 多轴显示
+const recalcMutliYAxis = function (option) {
+  const yAxisBase = option.yAxis
+  const yAxisMutli = []
+  for (let i = 0; i < option.series.length; i++) {
+    let c = $clone(yAxisBase)
+    if (i > 0) {
+      c.position = 'right'
+      c.offset = i * 45 - 45
+    }
+    c.axisLabel.textStyle.color = option.color[i] || COLOR_AXIS
+    // c.axisLine = { show: true, lineStyle: { color: option.color[i] || COLOR_AXIS } }
+    option.series[i].yAxisIndex = i
+    yAxisMutli.push(c)
+  }
+  option.yAxis = yAxisMutli
+  option.grid.right = 60 + (option.series.length - 2) * 45
 }
 
 const renderEChart = function (option, $target) {
   const c = echarts.init(document.getElementById($target), 'light', {
     renderer: navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i) ? 'svg' : 'canvas',
   })
+  if (rb.env === 'dev') console.log(option)
   c.setOption(option)
   return c
 }
@@ -410,6 +458,8 @@ class ChartLine extends BaseChart {
       const showGrid = data._renderOption && data._renderOption.showGrid
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
+      const showMutliYAxis = data._renderOption && data._renderOption.showMutliYAxis
+      const showAreaColor = data._renderOption && data._renderOption.showAreaColor
       const dataFlags = data._renderOption.dataFlags || []
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
@@ -421,13 +471,14 @@ class ChartLine extends BaseChart {
           normal: { borderWidth: 2 },
           emphasis: { borderWidth: 6 },
         }
+        if (showAreaColor) yAxis.areaStyle = { opacity: 0.2 }
         if (showNumerical) yAxis.label = ECHART_VALUE_LABEL2(dataFlags)
         yAxis.cursor = 'default'
         data.yyyAxis[i] = yAxis
       }
 
       const option = {
-        ...ECHART_BASE,
+        ...$clone(ECHART_BASE),
         xAxis: {
           type: 'category',
           data: data.xAxis,
@@ -454,6 +505,9 @@ class ChartLine extends BaseChart {
       if (showLegend) {
         option.legend = ECHART_LEGEND_HOPT
         option.grid.top = 40
+      }
+      if (showMutliYAxis && option.series.length > 1) {
+        recalcMutliYAxis(option)
       }
 
       this._echarts = renderEChart(option, elid)
@@ -474,28 +528,39 @@ class ChartBar extends BaseChart {
       const showGrid = data._renderOption && data._renderOption.showGrid
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
-      const dataFlags = data._renderOption.dataFlags || []
+      const showHorizontal = data._renderOption && data._renderOption.showHorizontal // v3.7
+      const showMutliYAxis = data._renderOption && data._renderOption.showMutliYAxis // v3.7
+      const dataFlags = data._renderOption.dataFlags || [] // 小数符号
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
         yAxis.type = 'bar'
         if (showNumerical) yAxis.label = ECHART_VALUE_LABEL2(dataFlags)
         yAxis.cursor = 'default'
+        // v3.7
+        if (this._stack) {
+          yAxis.stack = 'a'
+        } else if (this._overLine && i > 0) {
+          yAxis.type = 'line'
+          yAxis.smooth = true
+          yAxis.lineStyle = { width: 3 }
+        }
         data.yyyAxis[i] = yAxis
       }
 
       const option = {
-        ...ECHART_BASE,
+        ...$clone(ECHART_BASE),
         xAxis: {
-          type: 'category',
-          data: data.xAxis,
+          type: showHorizontal ? 'value' : 'category',
+          data: showHorizontal ? null : data.xAxis,
           axisLabel: ECHART_AXIS_LABEL,
           axisLine: {
             lineStyle: { color: COLOR_AXIS },
           },
         },
         yAxis: {
-          type: 'value',
+          type: showHorizontal ? 'category' : 'value',
+          data: showHorizontal ? data.xAxis : null,
           splitLine: { show: showGrid, lineStyle: { color: COLOR_AXIS } },
           axisLabel: {
             ...ECHART_AXIS_LABEL,
@@ -513,9 +578,33 @@ class ChartBar extends BaseChart {
         option.legend = ECHART_LEGEND_HOPT
         option.grid.top = 40
       }
+      // 加大左侧距离
+      if (showHorizontal) {
+        option.grid.left = 100
+      }
+      // 排他
+      else if (showMutliYAxis && option.series.length > 1 && !this._stack) {
+        recalcMutliYAxis(option)
+      }
 
       this._echarts = renderEChart(option, elid)
     })
+  }
+}
+
+// 堆叠柱状图
+class ChartBar2 extends ChartBar {
+  constructor(props) {
+    super(props)
+    this._stack = true
+  }
+}
+
+// 折线柱状图
+class ChartBar3 extends ChartBar {
+  constructor(props) {
+    super(props)
+    this._overLine = true
   }
 }
 
@@ -542,7 +631,7 @@ class ChartPie extends BaseChart {
         }
       }
       const option = {
-        ...cloneOption(ECHART_BASE),
+        ...$clone(ECHART_BASE),
         series: [data],
       }
       option.tooltip.trigger = 'item'
@@ -571,7 +660,7 @@ class ChartFunnel extends BaseChart {
       const dataFlags = data._renderOption.dataFlags || []
 
       const option = {
-        ...cloneOption(ECHART_BASE),
+        ...$clone(ECHART_BASE),
         series: [
           {
             type: 'funnel',
@@ -585,12 +674,17 @@ class ChartFunnel extends BaseChart {
               show: true,
               position: 'inside',
               formatter: function (a) {
-                return showNumerical ? `${a.data.name} (${formatThousands(a.data.value, dataFlags[a.dataIndex])})` : a.data.name
+                let text = a.data.name
+                if (showNumerical) text += ` (${formatThousands(a.data.value, dataFlags[a.dataIndex])})`
+                if (a.data.cvr) text += `\n${$L('转化率')} ${a.data.cvr}%`
+                return text
               },
+              lineHeight: 16,
             },
           },
         ],
       }
+      // option.grid.right = 60
       option.tooltip.trigger = 'item'
       option.tooltip.formatter = function (a) {
         if (data.xLabel) return `<b>${a.name}</b> <br/> ${a.marker} ${data.xLabel} : ${formatThousands(a.value, dataFlags[a.dataIndex])}`
@@ -618,7 +712,7 @@ class ChartTreemap extends BaseChart {
       const dataFlags = data._renderOption.dataFlags || []
 
       const option = {
-        ...cloneOption(ECHART_BASE),
+        ...$clone(ECHART_BASE),
         series: [
           {
             data: data.data,
@@ -695,7 +789,7 @@ class ApprovalList extends BaseChart {
               <div
                 key={s[0]}
                 className={`progress-bar bg-${s[0]} ${this.state.viewState === item[0] && 'active'}`}
-                title={`${s[1]} : ${item[1]} (${p})`}
+                // title={`${s[1]} : ${item[1]} (${p})`}
                 style={{ width: p }}
                 onClick={() => this._changeState(item[0])}>
                 {s[1]} ({item[1]})
@@ -798,7 +892,7 @@ class ApprovalList extends BaseChart {
         that.loadChartData()
       }
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ApprovalApproveForm id={record} approval={approval} entity={entity} call={close} />, null, function () {
+      renderRbcomp(<ApprovalApproveForm id={record} approval={approval} entity={entity} call={close} />, function () {
         that.__approvalForms[record] = this
         that._lastStats = null
       })
@@ -929,7 +1023,7 @@ class ChartRadar extends BaseChart {
       const dataFlags = data._renderOption.dataFlags || []
 
       const option = {
-        ...cloneOption(ECHART_BASE),
+        ...$clone(ECHART_BASE),
         radar: {
           indicator: data.indicator,
           name: {
@@ -1041,7 +1135,7 @@ class ChartScatter extends BaseChart {
       })
 
       const option = {
-        ...cloneOption(ECHART_BASE),
+        ...$clone(ECHART_BASE),
         xAxis: { ...axisOption },
         yAxis: { ...axisOption },
         series: seriesData,
@@ -1079,7 +1173,7 @@ class ProjectTasks extends BaseChart {
           <table className="table table-striped table-hover">
             <thead>
               <tr>
-                <th width="40" />
+                <th width="44" />
                 <th>{$L('任务')}</th>
                 <th style={{ minWidth: 150 }}>{$L('时间')}</th>
               </tr>
@@ -1099,7 +1193,7 @@ class ProjectTasks extends BaseChart {
 
                 return (
                   <tr key={item.id} className={`status-${item.status} priority-${item.priority}`}>
-                    <td className="align-text-top">
+                    <td className="align-text-top pr-0">
                       <label className="custom-control custom-control-sm custom-checkbox custom-control-inline ptask" title={$L('完成')}>
                         <input className="custom-control-input" type="checkbox" disabled={item.planFlow === 2} onClick={(e) => this._toggleStatus(item, e)} />
                         <span className="custom-control-label" />
@@ -1115,7 +1209,7 @@ class ProjectTasks extends BaseChart {
                         {item.projectName}
                       </p>
                     </td>
-                    <td className="text-muted">
+                    <td className="text-muted align-text-top">
                       <div>
                         <span className="mr-1">{$L('创建时间')}</span>
                         <DateShow date={item.createdOn} />
@@ -1176,7 +1270,7 @@ class ProjectTasks extends BaseChart {
   }
 }
 
-// ~~ 通用数据列表
+// ~~ 数据列表
 class DataList extends BaseChart {
   componentDidMount() {
     super.componentDidMount()
@@ -1185,22 +1279,7 @@ class DataList extends BaseChart {
       const $op = $(this._$box).find('.chart-oper')
       $op.find('.J_chart-edit').on('click', (e) => {
         $stopEvent(e, true)
-
-        const config2 = this.state.config
-        renderRbcomp(
-          <DataListSettings
-            chart={config2.chart}
-            {...config2.extconfig}
-            onConfirm={(s) => {
-              if (typeof window.save_dashboard === 'function') {
-                config2.extconfig = s
-                this.setState({ config: config2 }, () => this.loadChartData())
-              } else {
-                console.log('No `save_dashboard` found :', s)
-              }
-            }}
-          />
-        )
+        RbHighbar.create('[DEPRECATED] 该功能将在下一版本禁用')
       })
     }
   }
@@ -1251,7 +1330,7 @@ class DataList extends BaseChart {
                     className={sortClazz}
                     onClick={(e) => {
                       // eslint-disable-next-line no-undef
-                      if (COLUMN_UNSORT.includes(item.type)) return
+                      if (UNSORT_FIELDTYPES.includes(item.type)) return
 
                       const $th = $(e.target)
                       const hasAsc = $th.hasClass('sort-asc'),
@@ -1272,7 +1351,7 @@ class DataList extends BaseChart {
                   </th>
                 )
               })}
-              <th width="40" />
+              <th width="40" className="no-sort" />
             </tr>
           </thead>
           <tbody>
@@ -1307,12 +1386,12 @@ class DataList extends BaseChart {
         .css('height', this._$tb.height() - 20)
         .perfectScrollbar()
 
-      let trActive
+      let $trActive
       const $trs = this._$tb.find('tbody tr').on('mousedown', function () {
-        if (trActive === this) {
+        if ($trActive === this) {
           $(this).toggleClass('highlight')
         } else {
-          trActive = this
+          $trActive = this
           $trs.removeClass('highlight')
           $(this).addClass('highlight')
         }
@@ -1335,268 +1414,111 @@ class DataList extends BaseChart {
   }
 }
 
-// ~~ 数据列表配置
-class DataListSettings extends RbModalHandler {
-  render() {
-    const state = this.state || {}
-    const filterLen = state.filterData ? (state.filterData.items || []).length : 0
-
-    return (
-      <RbModal title={$L('编辑数据列表')} disposeOnHide ref={(c) => (this._dlg = c)}>
-        <div className="form">
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('图表数据来源')}</label>
-            <div className="col-sm-7">
-              <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)}>
-                {(state.entities || []).map((item) => {
-                  return (
-                    <option key={item.name} value={item.name}>
-                      {item.entityLabel}
-                    </option>
-                  )
-                })}
-              </select>
-            </div>
-          </div>
-          <div className="form-group row pb-0 DataList-showfields">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示字段')}</label>
-            <div className="col-sm-7">
-              <div className="sortable-box rb-scroller h200" ref={(c) => (this._$showfields = c)}>
-                <ol className="dd-list" _title={$L('无')}></ol>
-              </div>
-              <div>
-                <select className="form-control form-control-sm" ref={(c) => (this._$afields = c)}>
-                  <option value=""></option>
-                  {(state.afields || []).map((item) => {
-                    return (
-                      <option key={item.field} value={item.field}>
-                        {item.label}
-                      </option>
-                    )
-                  })}
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className="form-group row pb-1">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('附加过滤条件')}</label>
-            <div className="col-sm-7">
-              <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={() => this._showFilter()}>
-                {filterLen > 0 ? $L('已设置条件') + ` (${filterLen})` : $L('点击设置')}
-              </a>
-            </div>
-          </div>
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('最大显示条数')}</label>
-            <div className="col-sm-7">
-              <input type="number" className="form-control form-control-sm" placeholder="20" ref={(c) => (this._$pageSize = c)} />
-            </div>
-          </div>
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('图表名称')}</label>
-            <div className="col-sm-7">
-              <input type="text" className="form-control form-control-sm" placeholder={$L('数据列表')} ref={(c) => (this._$chartTitle = c)} />
-            </div>
-          </div>
-          {rb.isAdminUser && (
-            <div className="form-group row pb-2 pt-1">
-              <label className="col-sm-3 col-form-label text-sm-right"></label>
-              <div className="col-sm-7">
-                <label className="custom-control custom-control-sm custom-checkbox mb-0">
-                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$shareChart = c)} />
-                  <span className="custom-control-label">
-                    {$L('共享此图表')}
-                    <i className="zmdi zmdi-help zicon" title={$L('共享后其他用户也可以使用 (不能修改)')} />
-                  </span>
-                </label>
-              </div>
-            </div>
-          )}
-
-          <div className="form-group row footer">
-            <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
-              <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
-                {$L('保存')}
-              </button>
-              <a className="btn btn-link" onClick={this.hide}>
-                {$L('取消')}
-              </a>
-            </div>
-          </div>
-        </div>
-      </RbModal>
-    )
-  }
-
-  componentDidMount() {
-    let $showfields = $(this._$showfields).perfectScrollbar()
-    $showfields = $showfields
-      .find('ol')
-      .sortable({
-        placeholder: 'dd-placeholder',
-        handle: '.dd3-handle',
-        axis: 'y',
-      })
-      .disableSelection()
-
-    const that = this
-    const props = this.props
-
-    let $afields2
-    function _loadFields() {
-      if (!that._entity) {
-        $(that._$afields).select2({
-          placeholder: $L('无可用字段'),
-        })
-        return
-      }
-
-      $.get(`/app/${that._entity}/list-fields`, (res) => {
-        // clear last
-        if ($afields2) {
-          $(that._$afields).select2('destroy')
-          $showfields.empty()
-          that.setState({ filterData: null })
-        }
-
-        that._afields = (res.data || {}).fieldList || []
-        that.setState({ afields: that._afields }, () => {
-          $afields2 = $(that._$afields)
-            .select2({
-              placeholder: $L('添加显示字段'),
-              allowClear: false,
-            })
-            .val('')
-            .on('change', (e) => {
-              let name = e.target.value
-              $showfields.find('li').each(function () {
-                if ($(this).data('key') === name) {
-                  name = null
-                }
-              })
-
-              const x = name ? that._afields.find((x) => x.field === name) : null
-              if (!x) return
-
-              const $item = $(
-                `<li class="dd-item dd3-item" data-key="${x.field}"><div class="dd-handle dd3-handle"></div><div class="dd3-content">${x.label}</div><div class="dd3-action"></div></li>`
-              ).appendTo($showfields)
-
-              // eslint-disable-next-line no-undef
-              if (!COLUMN_UNSORT.includes(x.type)) {
-                $(`<a title="${$L('默认排序')}"><i class="zmdi mdi mdi-sort-alphabetical-ascending sort"></i></a>`)
-                  .appendTo($item.find('.dd3-action'))
-                  .on('click', () => {
-                    const hasActive = $item.hasClass('active')
-                    $showfields.find('.dd-item').removeClass('active')
-                    $item.addClass('active')
-                    if (hasActive) $item.find('.sort').toggleClass('desc')
-                  })
-
-                // init
-                if (props.entity === that._entity && props.sort) {
-                  const s = props.sort.split(':')
-                  if (s[0] === name) {
-                    $item.addClass('active')
-                    if (s[1] === 'desc') $item.find('.sort').toggleClass('desc')
-                  }
-                }
-              }
-
-              $(`<a title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a>`)
-                .appendTo($item.find('.dd3-action'))
-                .on('click', () => $item.remove())
-            })
-
-          // init
-          if (props.entity === that._entity && props.fields) {
-            props.fields.forEach((name) => {
-              $afields2.val(name).trigger('change')
-            })
-            $afields2.val('').trigger('change')
-          }
-        })
-      })
+// 地图（点）
+class ChartCNMap extends BaseChart {
+  renderChart(data) {
+    this.__dataLast = data
+    if (data.data.length === 0) {
+      this.renderError($L('暂无数据'))
+      return
     }
 
-    $.get('/commons/metadata/entities?detail=yes', (res) => {
-      this.setState({ entities: res.data || [] }, () => {
-        const $s = $(this._$entity).select2({
-          allowClear: false,
-        })
-
-        if (props.entity && props.entity !== 'User') $s.val(props.entity || null)
-        $s.on('change', (e) => {
-          this._entity = e.target.value
-          _loadFields()
-        }).trigger('change')
+    const elid = `echarts-cnmap-${this.state.id || 'id'}`
+    this.setState({ chartdata: <div className="chart cnmap" id={elid} /> }, () => {
+      const data4map = []
+      data.data.forEach((item) => {
+        let lnglat = item[1].split(',')
+        data4map.push([lnglat[0], lnglat[1], item[2] || null, item[0]])
       })
-    })
 
-    // init
-    $(this._$pageSize).val(props.pageSize || null)
-    $(this._$chartTitle).val(props.title || null)
-    if (props.filter) this.setState({ filterData: props.filter })
-    if ((props.option || {}).shareChart) $(this._$shareChart).attr('checked', true)
-  }
+      const hasNumAxis = data.name ? true : false
+      const mapTheme = data._renderOption && data._renderOption.themeStyle
+      let mapStyle = []
+      if (mapTheme === 'dark') mapStyle = window.MAP_STYLE_DARK
+      else if (mapTheme === 'light') mapStyle = window.MAP_STYLE_LIGHT
 
-  _showFilter() {
-    renderRbcomp(
-      <AdvFilter
-        entity={this._entity}
-        filter={this.state.filterData || null}
-        title={$L('附加过滤条件')}
-        inModal
-        canNoFilters
-        onConfirm={(s) => {
-          this.setState({ filterData: s })
-        }}
-      />
-    )
-  }
+      // https://github.com/apache/echarts/tree/master/extension-src/bmap
+      const option = {
+        ...$clone(ECHART_BASE),
+        bmap: {
+          zoom: 5,
+          roam: true,
+          mapOptions: {
+            enableMapClick: false,
+          },
+          mapStyle: {
+            styleJson: mapStyle || [],
+          },
+        },
+        series: [
+          {
+            type: hasNumAxis ? 'effectScatter' : 'scatter',
+            coordinateSystem: 'bmap',
+            symbol: data.name ? 'circle' : 'pin',
+            symbolSize: function () {
+              return hasNumAxis ? 14 : 20
+            },
+            data: data4map,
+            encode: {
+              value: 2,
+            },
+            showEffectOn: 'emphasis',
+            rippleEffect: {
+              brushType: 'stroke',
+            },
+          },
+        ],
+      }
 
-  handleConfirm() {
-    const fields = []
-    let sort = null
-    $(this._$showfields)
-      .find('li')
-      .each(function () {
-        const $this = $(this)
-        fields.push($this.data('key'))
-
-        if ($this.hasClass('active')) {
-          sort = $this.data('key') + `:${$this.find('.desc')[0] ? 'desc' : 'asc'}`
+      option.color = ['#ea4335', '#4285f4']
+      option.tooltip.trigger = 'item'
+      option.tooltip.formatter = function (a) {
+        if (data.name) {
+          return `<b>${a.data[3]}</b> <br/> ${a.marker} ${data.name} : ${formatThousands(a.data[2])}`
+        } else {
+          return `<b>${a.data[3]}</b>`
         }
-      })
+      }
 
-    const post = {
-      type: 'DataList',
-      entity: $(this._$entity).val(),
-      title: $(this._$chartTitle).val() || $L('数据列表'),
-      option: {
-        shareChart: $val(this._$shareChart) && rb.isAdminUser,
+      $useMap(() => {
+        // https://github.com/apache/echarts/tree/master/extension-src/bmap
+        $getScript('/assets/lib/charts/bmap.min.js', () => {
+          this._resizeBody()
+          this._echarts = renderEChart(option, elid)
+        })
+      }, true)
+    })
+  }
+
+  resize() {
+    $setTimeout(
+      () => {
+        const resize = this._resizeBody()
+        // resize
+        if (resize !== false && this._echarts) {
+          this._echarts.dispose()
+          this.renderChart(this.__dataLast)
+        }
       },
-      fields: fields,
-      pageSize: $(this._$pageSize).val(),
-      filter: this.state.filterData || null,
-      sort: sort,
-    }
+      400,
+      `resize-chart-${this.state.id}`
+    )
+  }
 
-    if (!post.entity) return RbHighbar.create($L('请选择图表数据来源'))
-    if (post.fields.length === 0) return RbHighbar.create($L('请添加显示字段'))
-    if (post.pageSize && post.pageSize > 500) post.pageSize = 500
+  _resizeBody() {
+    const H = $(this._$box).height()
+    const W = $(this._$box).width()
+    if (this.__lastHW && this.__lastHW[0] === H && this.__lastHW[1] === W) return false
 
-    const $btn = $(this._$btn).find('.btn').button('loading')
-    $.post(`/dashboard/builtin-chart-save?id=${this.props.chart}`, JSON.stringify(post), (res) => {
-      $btn.button('reset')
-      if (res.error_code === 0) {
-        typeof this.props.onConfirm === 'function' && this.props.onConfirm(post)
-        this.hide()
-      } else {
-        RbHighbar.error(res.error_msg)
-      }
-    })
+    $(this._$box)
+      .find('.chart-body')
+      .height(H - (window.render_preview_chart ? 0 : 40))
+    this.__lastHW = [H, W]
+    console.log(this.__lastHW)
+  }
+
+  export() {
+    RbHighbar.createl('该图表暂不支持导出')
   }
 }
 
@@ -1615,6 +1537,10 @@ const detectChart = function (cfg, id) {
     return <ChartLine {...props} />
   } else if (cfg.type === 'BAR') {
     return <ChartBar {...props} />
+  } else if (cfg.type === 'BAR2') {
+    return <ChartBar2 {...props} />
+  } else if (cfg.type === 'BAR3') {
+    return <ChartBar3 {...props} />
   } else if (cfg.type === 'PIE') {
     return <ChartPie {...props} />
   } else if (cfg.type === 'FUNNEL') {
@@ -1633,6 +1559,8 @@ const detectChart = function (cfg, id) {
     return <ProjectTasks {...props} builtin={true} />
   } else if (cfg.type === 'DataList' || cfg.type === 'DATALIST2') {
     return <DataList {...props} builtin={false} />
+  } else if (cfg.type === 'CNMAP') {
+    return <ChartCNMap {...props} />
   } else {
     return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${cfg.type}]`}</h4>
   }

@@ -18,10 +18,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-top: 0;
 }
 
-.chart-box.TREEMAP {
-  padding-top: 25px;
-}
-
 #chart-preview {
   background-color: #fff;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1), 0 16px 24px 0 rgba(81, 129, 228, 0.1);
@@ -166,8 +162,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .axis-target .dropdown-menu {
-  min-width: 140px;
-  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.1), 0 10px 12px 0 rgba(170, 182, 206, 0.36);
   border-width: 0;
   border-radius: 0;
   padding: 4px 0;
@@ -179,7 +173,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .axis-target .dropdown-menu .dropdown-item {
   padding: 6px 14px;
-  cursor: default;
 }
 
 .axis-target.ui-droppable-active,
@@ -322,6 +315,16 @@ a.ui-draggable.ui-draggable-dragging {
   content: 'N';
 }
 
+.data-info .fields li.map a::before {
+  content: 'M';
+  color: #fbbc05;
+}
+
+.data-info .fields li.list a::before {
+  content: 'L';
+  color: #fbbc05;
+}
+
 .chart-type > a {
   display: inline-block;
   width: 40px;
@@ -381,6 +384,22 @@ a.ui-draggable.ui-draggable-dragging {
 
 .chart-type > a.active > i.C210 {
   background-position: -1501px -1406px;
+}
+
+.chart-type > a > i.C240 {
+  background-position: -1469px -1406px;
+}
+
+.chart-type > a.active > i.C240 {
+  background-position: -1437px -1406px;
+}
+
+.chart-type > a > i.C250 {
+  background-position: -1258px -1288px;
+}
+
+.chart-type > a.active > i.C250 {
+  background-position: -1226px -1288px;
 }
 
 .chart-type > a > i.C230 {
@@ -462,10 +481,10 @@ a.ui-draggable.ui-draggable-dragging {
 .chart-type > a > i.DATALIST2 {
   position: absolute;
   background: none;
-  font-size: 21px;
+  font-size: 27px;
   color: #ddd;
-  margin-top: 5px;
-  margin-left: 5.5px;
+  margin-top: 3px;
+  margin-left: 2px;
 }
 
 .chart-type > a.active > i.DATALIST2 {
@@ -473,7 +492,7 @@ a.ui-draggable.ui-draggable-dragging {
 }
 
 .chart-option label {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .rbcolors > a + a,
@@ -481,17 +500,19 @@ a.ui-draggable.ui-draggable-dragging {
   margin-left: 5px;
 }
 
-.J_opt-DATALIST2 input {
+.J_opt-DATALIST2 input,
+.J_opt-CNMAP select {
   border: 0 none;
   outline: 0 none;
-  width: 50px;
+  width: 77px;
   border-bottom: 1px solid #ccc;
   padding: 2px;
   margin-left: 5px;
   text-align: center;
 }
 
-.J_opt-DATALIST2 input:focus {
+.J_opt-DATALIST2 input:focus,
+.J_opt-CNMAP select:focus {
   border-color: #4285f4;
 }
 
@@ -500,4 +521,12 @@ a.ui-draggable.ui-draggable-dragging {
 .rb-content.DATALIST2 .axis-target .dropdown-divider,
 .rb-content.DATALIST2 .axis-target .item > span > em {
   display: none;
+}
+
+.chart-box.TREEMAP {
+  padding-top: 25px;
+}
+
+.chart-box.CNMAP {
+  padding-top: 30px;
 }

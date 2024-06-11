@@ -48,6 +48,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static cn.devezhao.commons.CalendarUtils.addDay;
@@ -77,6 +78,7 @@ import static cn.devezhao.commons.CalendarUtils.addMonth;
 public class AdvFilterParser extends SetUser {
 
     // 虚拟字段:当前审批人
+    @Deprecated
     public static final String VF_ACU = "$APPROVALCURRENTUSER$";
 
     // 快速查询
@@ -110,9 +112,9 @@ public class AdvFilterParser extends SetUser {
         this.varRecord = null;
 
         String entityName = filterExpr.getString("entity");
-        if (entityName != null) {
+        if (entityName != null && !entityName.equalsIgnoreCase(this.rootEntity.getName())) {
             Assert.isTrue(entityName.equalsIgnoreCase(this.rootEntity.getName()),
-                    "Filter#2 uses different entities : " + entityName + "/" + this.rootEntity.getName());
+                    "Filter(2) uses different entities : " + entityName + ", " + this.rootEntity.getName());
         }
     }
 
@@ -128,7 +130,7 @@ public class AdvFilterParser extends SetUser {
         String entityName = filterExpr.getString("entity");
         if (entityName != null) {
             Assert.isTrue(entityName.equalsIgnoreCase(this.rootEntity.getName()),
-                    "Filter#3 uses different entities : " + entityName + "/" + this.rootEntity.getName());
+                    "Filter(3) uses different entities : " + entityName + ", " + this.rootEntity.getName() + ", " + varRecord);
         }
     }
 
@@ -145,21 +147,21 @@ public class AdvFilterParser extends SetUser {
             String quickFields = filterExpr.getString("quickFields");
             JSONArray quickItems = buildQuickFilterItems(quickFields, 1);
 
-//            // v3.6-b4 值1|值2 UNTEST
-//            // 转义可输入 \|
-//            JSONObject values = filterExpr.getJSONObject("values");
-//            String[] valuesPlus = values.values().iterator().next().toString().split("(?<!\\\\)\\|");
-//            if (valuesPlus.length > 1) {
-//                values.clear();
-//                values.put("1", valuesPlus[0].trim());
-//
-//                for (int i = 2; i <= valuesPlus.length; i++) {
-//                    JSONArray quickItemsPlus = buildQuickFilterItems(quickFields, i);
-//                    values.put(String.valueOf(i), valuesPlus[i - 1].trim());
-//                    quickItems.addAll(quickItemsPlus);
-//                }
-//                filterExpr.put("values", values);
-//            }
+            // TODO v3.6-b4,3.7 值1|值2 UNTEST
+            // 转义可输入 \|
+            JSONObject values = filterExpr.getJSONObject("values");
+            String[] valuesPlus = values.values().iterator().next().toString().split("(?<!\\\\)\\|");
+            if (valuesPlus.length > 1) {
+                values.clear();
+                values.put("1", valuesPlus[0].trim());
+
+                for (int i = 2; i <= valuesPlus.length; i++) {
+                    JSONArray quickItemsPlus = buildQuickFilterItems(quickFields, i);
+                    values.put(String.valueOf(i), valuesPlus[i - 1].trim());
+                    quickItems.addAll(quickItemsPlus);
+                }
+                filterExpr.put("values", values);
+            }
 
             filterExpr.put("items", quickItems);
         }
@@ -226,7 +228,7 @@ public class AdvFilterParser extends SetUser {
                 } else if ("(".equals(token) || ")".equals(token) || "or".equals(token) || "and".equals(token)) {
                     itemSqls.add(token);
                 } else {
-                    log.warn("Invalid equation token : " + token);
+                    log.warn("Invalid equation token : {}", token);
                 }
 
                 if (hasRP) {
@@ -271,7 +273,6 @@ public class AdvFilterParser extends SetUser {
         }
 
         DisplayType dt = EasyMetaFactory.getDisplayType(lastFieldMeta);
-
         if (dt == DisplayType.CLASSIFICATION || (dt == DisplayType.PICKLIST && hasNameFlag) /* 快速查询 */) {
             field = NAME_FIELD_PREFIX + field;
         } else if (hasNameFlag) {
@@ -287,6 +288,10 @@ public class AdvFilterParser extends SetUser {
                 field += "." + lastFieldMeta.getName();
             }
         }
+
+        // 多引用用户
+        final boolean isN2NUsers = dt == DisplayType.N2NREFERENCE
+                && lastFieldMeta.getReferenceEntity().getEntityCode() == EntityHelper.User;
 
         String op = item.getString("op");
         String value = useValueOfVarRecord(item.getString("value"), lastFieldMeta);
@@ -311,6 +316,23 @@ public class AdvFilterParser extends SetUser {
                 String realWhereSql = parseItem(fakeItem, null, refEntity);
                 inWhere = String.format("select %s from %s where %s",
                         refEntity.getPrimaryField().getName(), refEntity.getName(), realWhereSql);
+            }
+            else if (isN2NUsers) {
+                if (ParseHelper.SFU.equalsIgnoreCase(op)) {
+                    op = ParseHelper.IN;
+                    value = getUser().toLiteral();
+                }
+
+                if (ParseHelper.IN.equals(op) || ParseHelper.NIN.equals(op)) {
+                    inWhere = parseValue(value, op, lastFieldMeta, false);
+                    if (inWhere != null) inWhere = inWhere.substring(1, inWhere.length() - 1);
+                    forceNot = ParseHelper.NIN.equals(op);
+                }
+                else if (ParseHelper.SFB.equalsIgnoreCase(op)) {
+                    op = ParseHelper.IN;
+                    value = Objects.requireNonNull(UserHelper.getDepartment(getUser())).getIdentity().toString();
+                    inWhere = String.format("select userId from User where deptId = '%s'", value);
+                }
             }
             // 查询 ID，仅支持 IN
             else if (ParseHelper.IN.equals(op) && ID.isId(value)) {
@@ -357,16 +379,23 @@ public class AdvFilterParser extends SetUser {
             final boolean isREX = ParseHelper.RED.equalsIgnoreCase(op)
                     || ParseHelper.REM.equalsIgnoreCase(op)
                     || ParseHelper.REY.equalsIgnoreCase(op);
+            final boolean isHHH = ParseHelper.HHH.equalsIgnoreCase(op);
 
             if (ParseHelper.TDA.equalsIgnoreCase(op)
                     || ParseHelper.YTA.equalsIgnoreCase(op)
                     || ParseHelper.TTA.equalsIgnoreCase(op)
-                    || ParseHelper.DDD.equalsIgnoreCase(op)
+                    || ParseHelper.DDD.equalsIgnoreCase(op) || isHHH
                     || ParseHelper.EVW.equalsIgnoreCase(op) || ParseHelper.EVM.equalsIgnoreCase(op)) {
 
                 if (ParseHelper.DDD.equalsIgnoreCase(op)) {
                     int x = NumberUtils.toInt(value);
                     value = formatDate(addDay(x), 0);
+                } else if (isHHH) {
+                    int x = NumberUtils.toInt(value);
+                    Date datetime = CalendarUtils.add(x, Calendar.HOUR_OF_DAY);
+                    value = CalendarUtils.getUTCDateTimeFormat().format(datetime);
+                    value = value.substring(0, 14) + "00:00";
+                    valueEnd = value.substring(0, 14) + "59:59";
                 } else if (ParseHelper.EVW.equalsIgnoreCase(op) || ParseHelper.EVM.equalsIgnoreCase(op)) {
                     final Calendar today = CalendarUtils.getInstance();
 
@@ -405,7 +434,7 @@ public class AdvFilterParser extends SetUser {
 
                 if (isDatetime) {
                     op = ParseHelper.BW;
-                    valueEnd = parseValue(value, op, lastFieldMeta, true);
+                    if (!isHHH) valueEnd = parseValue(value, op, lastFieldMeta, true);
                 }
 
             } else if (ParseHelper.CUW.equalsIgnoreCase(op)
@@ -557,11 +586,11 @@ public class AdvFilterParser extends SetUser {
             // `in`
             value = MessageFormat.format(
                     "( select {0} from {1} group by {0} having (count({0}) > {2}) )",
-                    field, rootEntity.getName(), NumberUtils.toInt(value, 1));
+                    field, rootEntity.getName(), String.valueOf(NumberUtils.toInt(value, 1)));
         }
 
         if (StringUtils.isBlank(value)) {
-            log.warn("No search value defined : " + item.toJSONString());
+            log.warn("No search value defined : {}", item.toJSONString());
             return null;
         }
 
@@ -755,7 +784,7 @@ public class AdvFilterParser extends SetUser {
 
         Object useValue = null;
 
-        // {@CURRENT} DATE
+        // {@CURRENT} for DATE
         if (CURRENT_ANY.equals(fieldName) || CURRENT_DATE.equals(fieldName)) {
             DisplayType dt = EasyMetaFactory.getDisplayType(queryField);
             if (dt == DisplayType.DATE || dt == DisplayType.DATETIME || dt == DisplayType.TIME) {
@@ -768,18 +797,21 @@ public class AdvFilterParser extends SetUser {
                     Department dept = UserHelper.getDepartment(UserContextHolder.getUser());
                     if (dept != null) useValue = dept.getIdentity();
                 }
-
             } else {
-                log.warn("Cannot use `CURRENT` in `{}` (None date fields)", queryField);
+                log.warn("Cannot use `{}` in `{}` (None date fields)", value, queryField);
                 return StringUtils.EMPTY;
             }
         }
-        // {@CURRENT.} USER
+        // {@CURRENT.} for USER
         if (fieldName.startsWith(CURRENT_ANY + ".")) {
             String userField = fieldName.substring(CURRENT_ANY.length() + 1);
             Object[] o = Application.getQueryFactory().uniqueNoFilter(getUser(), userField);
-            if (o == null || o[0] == null) return StringUtils.EMPTY;
-            else useValue = o[0];
+            if (o == null || o[0] == null) {
+                log.warn("Cannot use `{}` in `{}` (No value found)", value, queryField);
+                return StringUtils.EMPTY;
+            } else {
+                useValue = o[0];
+            }
         }
 
         if (useValue == null) {

@@ -260,6 +260,8 @@ public class MetadataHelper {
         return EntityHelper.ApprovalId.equalsIgnoreCase(fieldName)
                 || EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)
                 || EntityHelper.ApprovalStepNode.equalsIgnoreCase(fieldName)
+                || EntityHelper.ApprovalStepUsers.equalsIgnoreCase(fieldName)
+                || EntityHelper.ApprovalStepNodeName.equalsIgnoreCase(fieldName)
                 || EntityHelper.ApprovalLastUser.equalsIgnoreCase(fieldName)
                 || EntityHelper.ApprovalLastTime.equalsIgnoreCase(fieldName)
                 || EntityHelper.ApprovalLastRemark.equalsIgnoreCase(fieldName);
@@ -417,7 +419,6 @@ public class MetadataHelper {
 
     /**
      * 实体分类标签
-     * TODO 性能
      *
      * @return
      */

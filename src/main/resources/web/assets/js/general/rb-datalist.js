@@ -107,18 +107,17 @@ class RbViewModal extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props, inLoad: true, isHide: true, destroy: false }
-    this.mcWidth = this.props.subView === true ? 1344 : 1404
-    if ($(window).width() < 1464) this.mcWidth -= 184
+
+    this._mcWidth = this.props.subView === true ? 1344 : 1404
+    if ($(window).width() < 1464) this._mcWidth -= 184
   }
 
   render() {
-    if (this.state.destroy) return null
-
-    return (
+    return this.state.destroy ? null : (
       <div className="modal-wrapper">
-        <div className="modal rbview" ref={(c) => (this._rbview = c)}>
+        <div className="modal rbview" ref={(c) => (this._$rbview = c)}>
           <div className="modal-dialog">
-            <div className="modal-content" style={{ width: this.mcWidth }}>
+            <div className="modal-content" style={{ width: this._mcWidth }}>
               <div className={`modal-body iframe rb-loading ${this.state.inLoad === true && 'rb-loading-active'}`}>
                 <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no" />
                 <RbSpinner />
@@ -131,13 +130,13 @@ class RbViewModal extends React.Component {
   }
 
   componentDidMount() {
-    const $root = $(this._rbview)
-    const rootWrap = $root.parent().parent()
-    const mc = $root.find('.modal-content')
+    const $root = $(this._$rbview)
+    const $rootp = $root.parent().parent()
+    const $mc = $root.find('.modal-content')
     const that = this
     $root
       .on('hidden.bs.modal', function () {
-        mc.css({ 'margin-right': -1500 })
+        $mc.css({ 'margin-right': -1500 })
         that.setState({ inLoad: true, isHide: true })
         if (!$keepModalOpen()) location.hash = '!/View/'
 
@@ -146,22 +145,22 @@ class RbViewModal extends React.Component {
           $root.modal('dispose')
           that.setState({ destroy: true }, () => {
             RbViewModal.holder(that.state.id, 'DISPOSE')
-            $unmount(rootWrap)
+            $unmount($rootp)
           })
         }
       })
       .on('shown.bs.modal', function () {
-        mc.css('margin-right', 0)
-        if (that.__urlChanged === false) {
-          const cw = mc.find('iframe')[0].contentWindow
-          if (cw.RbViewPage && cw.RbViewPage._RbViewForm) cw.RbViewPage._RbViewForm.showAgain(that)
-          this.__urlChanged = true
+        $mc.css('margin-right', 0)
+        if (that._urlChanged === false) {
+          const w = $mc.find('iframe')[0].contentWindow
+          // 检查数据
+          if (w.RbViewPage && w.RbViewPage._RbViewForm) w.RbViewPage._RbViewForm.showAgain(that)
         }
 
-        const mcs = $('body>.modal-backdrop.show')
-        if (mcs.length > 1) {
-          mcs.addClass('o')
-          mcs.eq(0).removeClass('o')
+        const $mcbd = $('body>.modal-backdrop.show')
+        if ($mcbd[0]) {
+          $mcbd.addClass('o')
+          $mcbd.eq(0).removeClass('o')
         }
       })
     this.show()
@@ -175,15 +174,15 @@ class RbViewModal extends React.Component {
     this.setState({ inLoad: true, isHide: true })
   }
 
-  show(url, ext) {
+  show(url, option) {
     let urlChanged = true
     if (url && url === this.state.url) urlChanged = false
-    ext = ext || {}
+    option = option || {}
     url = url || this.state.url
 
-    this.__urlChanged = urlChanged
-    this.setState({ ...ext, url: url, inLoad: urlChanged, isHide: urlChanged }, () => {
-      $(this._rbview).modal({ show: true, backdrop: true, keyboard: false })
+    this._urlChanged = urlChanged
+    this.setState({ ...option, url: url, inLoad: urlChanged, isHide: urlChanged }, () => {
+      $(this._$rbview).modal({ show: true, backdrop: true, keyboard: false })
       setTimeout(() => {
         this.setState({ showAfterUrl: this.state.url })
       }, 210) // 0.2s in rb-page.css '.rbview.show .modal-content'
@@ -191,7 +190,7 @@ class RbViewModal extends React.Component {
   }
 
   hide() {
-    $(this._rbview).modal('hide')
+    $(this._$rbview).modal('hide')
   }
 
   // -- Usage
@@ -211,7 +210,7 @@ class RbViewModal extends React.Component {
     const viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
 
     if (subView) {
-      renderRbcomp(<RbViewModal url={viewUrl} id={props.id} disposeOnHide subView />, null, function () {
+      renderRbcomp(<RbViewModal url={viewUrl} id={props.id} disposeOnHide subView />, function () {
         that.__HOLDERs[props.id] = this
         that.__HOLDERsStack.push(this)
       })
@@ -220,7 +219,7 @@ class RbViewModal extends React.Component {
         this.__HOLDER.show(viewUrl)
         this.__HOLDERs[props.id] = this.__HOLDER
       } else {
-        renderRbcomp(<RbViewModal url={viewUrl} id={props.id} />, null, function () {
+        renderRbcomp(<RbViewModal url={viewUrl} id={props.id} />, function () {
           that.__HOLDERs[props.id] = this
           that.__HOLDERsStack.push(this)
           that.__HOLDER = this
@@ -298,7 +297,7 @@ const ChartsWidget = {
     }
 
     // eslint-disable-next-line react/jsx-no-undef
-    renderRbcomp(<ChartSelect select={(c) => this.renderChart(c, true)} entity={wpc.entity[0]} />, null, function () {
+    renderRbcomp(<ChartSelect select={(c) => this.renderChart(c, true)} entity={wpc.entity[0]} />, function () {
       ChartsWidget.__chartSelect = this
       this.setState({ appended: ChartsWidget.__currentCharts() })
     })
@@ -339,47 +338,11 @@ const ChartsWidget = {
   },
 }
 
-// 分类
-const CategoryWidget = {
-  init() {
-    $('.J_load-category').on('click', () => {
-      this._loaded !== true && this.loadCategory()
-    })
-
-    this._$wrap = $('<div></div>').appendTo('#asideCategory')
-    $(`<div class="dropdown-item active" data-id="$ALL$">${$L('全部数据')}</div>`).appendTo(this._$wrap)
-  },
-
-  loadCategory() {
-    this._loaded = true
-    $.get(`/app/${wpc.entity[0]}/widget-category-data`, (res) => {
-      res.data &&
-        res.data.forEach((item) => {
-          $(`<div class="dropdown-item" data-id="${item.id}">${item.label}</div>`).appendTo(this._$wrap)
-        })
-
-      const $items = this._$wrap.find('.dropdown-item').on('click', function () {
-        $items.removeClass('active')
-        $(this).addClass('active')
-
-        // Clean via
-        $('.J_via-filter').remove()
-
-        const v = $(this).data('id')
-        if (v === '$ALL$') wpc.protocolFilter = null
-        else wpc.protocolFilter = `category:${wpc.entity[0]}:${v}`
-
-        RbListPage.reload()
-      })
-    })
-  },
-}
-
 $(document).ready(() => {
   window.RbListCommon && window.RbListCommon.init(wpc)
 
   const viewHash = (location.hash || '').split('/')
-  if ((wpc.type === 'RecordList' || wpc.type === 'DetailList') && viewHash.length === 4 && viewHash[1] === 'View' && viewHash[3].length === 20) {
+  if (['RecordList', 'DetailList'].includes(wpc.type) && viewHash.length === 4 && viewHash[1] === 'View' && $regex.isId(viewHash[3])) {
     setTimeout(() => RbViewModal.create({ entity: viewHash[2], id: viewHash[3] }), 500)
   }
 
@@ -397,6 +360,7 @@ $(document).ready(() => {
     })()
 
     if ($('#asideWidgets').length > 0) ChartsWidget.init()
+    // eslint-disable-next-line no-undef
     if ($('#asideCategory').length > 0) CategoryWidget.init()
   }
 
@@ -405,4 +369,7 @@ $(document).ready(() => {
     $('.page-aside.widgets .ph-item.rb').remove()
     $wtab.trigger('click')
   }
+
+  // eslint-disable-next-line no-undef
+  wpc.easyAction && window.EasyAction && window.EasyAction.init(wpc.easyAction)
 })

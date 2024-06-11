@@ -205,7 +205,7 @@ function html5Uploader_checkAccept(file, accept) {
   fileExt = ('.' + fileExt[fileExt.length - 1]).toLowerCase()
   var isAccept = false
   $(accept.split(',')).each(function () {
-    if (fileExt === $.trim(this).toLowerCase()) {
+    if (fileExt === $trim(this).toLowerCase()) {
       isAccept = true
       return false
     }

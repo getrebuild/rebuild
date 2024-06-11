@@ -66,6 +66,7 @@ public class FieldAggregationTest extends TestSupport {
 
         JSONObject configUseFormula = JSON.parseObject(
                 "{ targetField:'totalAmount', calcMode:'FORMULA', sourceFormula:'{totalAmount$$$$SUM}*1.35' }");
+        // SQL: 1140/42000/this is incompatible with sql_mode=only_full_group_by
         new AggregationEvaluator(configUseFormula, sourceEntity, filterSql)
                 .eval();
 

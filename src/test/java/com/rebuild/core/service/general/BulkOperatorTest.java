@@ -18,10 +18,10 @@ import org.junit.jupiter.api.Test;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/06/04
  */
-public class BulkOperatorTest extends TestSupport {
+class BulkOperatorTest extends TestSupport {
 
     @Test
-    public void share() {
+    void share() {
         // 测试记录
         ID recordNew = addRecordOfTestAllFields(SIMPLE_USER);
 
@@ -35,7 +35,7 @@ public class BulkOperatorTest extends TestSupport {
     }
 
     @Test
-    public void assign() {
+    void assign() {
         // 测试记录
         ID recordNew = addRecordOfTestAllFields(SIMPLE_USER);
 

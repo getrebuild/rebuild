@@ -36,8 +36,9 @@ const FolderTree = {
 
             const paths = []
             FolderTree._findPaths($('#navTree li.active'), paths)
+
             const $ol = $('.file-path ol').empty()
-            $(paths).each((idx, item) => {
+            paths.forEach((item) => {
               const $li = $('<li class="breadcrumb-item active"></li>').appendTo($ol)
               $li.text(item[0])
             })
@@ -252,7 +253,13 @@ class FileUploadDlg extends RbFormHandler {
                 {Object.keys(files).map((file) => {
                   const state = files[file]
                   return (
-                    <div key={file} className="img-thumbnail" title={file}>
+                    <div
+                      key={file}
+                      className="img-thumbnail"
+                      title={file}
+                      onClick={() => {
+                        if (state.key) RbPreview.create(state.key)
+                      }}>
                       <i className="file-icon" data-type={$fileExtName(file)} />
                       <span>{file}</span>
                       <span className="status" style={{ width: `${state.key ? 100 : Math.max(state.percent, 0)}%` }}>
@@ -260,7 +267,7 @@ class FileUploadDlg extends RbFormHandler {
                         {state.error && <i className="zmdi zmdi-close-circle-o text-danger" />}
                       </span>
                       {(state.key || state.error) && (
-                        <b title={$L('移除')} onClick={() => this._removeFile(file)}>
+                        <b title={$L('移除')} onClick={(e) => this._removeFile(file, e)}>
                           <span className="zmdi zmdi-close" />
                         </b>
                       )}
@@ -269,7 +276,7 @@ class FileUploadDlg extends RbFormHandler {
                 })}
               </div>
               <label className="upload-box">
-                {$L('点击选择或拖动文件至此')}
+                {$L('粘贴、拖动或点击选择文件')}
                 <input type="file" ref={(c) => (this._$upload = c)} className="hide" multiple />
               </label>
             </div>
@@ -295,8 +302,10 @@ class FileUploadDlg extends RbFormHandler {
     let fixConcurrency = 0
     function fn(file, s) {
       if (fixConcurrency === 1) return
+
       const files = that.state.files || {}
       files[file.name] = s
+      fixConcurrency = 1
       that.setState({ files: files }, () => (fixConcurrency = 0))
     }
 
@@ -307,37 +316,12 @@ class FileUploadDlg extends RbFormHandler {
       (res) => fn(res.file, { error: res.error })
     )
 
-    // 拖拽上传
-    const $da = $(this._$dropArea)
-      .on('dragenter', (e) => {
-        e.preventDefault()
-      })
-      .on('dragover', (e) => {
-        e.preventDefault()
-        if (e.originalEvent.dataTransfer) e.originalEvent.dataTransfer.dropEffect = 'copy'
-        $da.find('.upload-box').addClass('active')
-      })
-      .on('dragleave', (e) => {
-        e.preventDefault()
-        $da.find('.upload-box').removeClass('active')
-      })
-      .on('drop', function (e) {
-        e.preventDefault()
-        const files = e.originalEvent.dataTransfer ? e.originalEvent.dataTransfer.files : null
-        if (!files || files.length === 0) return false
-        that._$upload.files = files
-        $(that._$upload).trigger('change')
-        $da.find('.upload-box').removeClass('active')
-      })
-
-    // Ctrl+V 上传
-    $(document).on('paste.file', (e) => {
-      const data = e.originalEvent.clipboardData || window.clipboardData
-      if (data && data.items && data.files && data.files.length > 0) {
-        that._$upload.files = data.files
-        $(that._$upload).trigger('change')
-      }
-    })
+    function _dropUpload(files) {
+      if (!files || files.length === 0) return false
+      that._$upload.files = files
+      $(that._$upload).trigger('change')
+    }
+    $dropUpload(this._$dropArea, document, _dropUpload)
   }
 
   componentWillUnmount() {
@@ -345,7 +329,8 @@ class FileUploadDlg extends RbFormHandler {
     $(document).off('paste.file')
   }
 
-  _removeFile(file) {
+  _removeFile(file, e) {
+    e && $stopEvent(e, true)
     const files = this.state.files || {}
     delete files[file]
     this.setState({ files: files })
@@ -430,8 +415,10 @@ class FileMoveDlg extends RbFormHandler {
 
 // eslint-disable-next-line no-undef
 class FilesList4Docs extends FilesList {
-  state = { ...this.props }
-  __lastEntry = __DEFAULT_ALL
+  constructor(props) {
+    super(props)
+    this._lastEntry = __DEFAULT_ALL
+  }
 
   renderExtras34(item) {
     return (
@@ -459,7 +446,6 @@ class FilesList4Docs extends FilesList {
 
 $(document).ready(() => {
   FolderTree.load()
-
   renderRbcomp(<FilesList4Docs />, $('.file-viewport'), function () {
     // eslint-disable-next-line no-global-assign
     filesList = this

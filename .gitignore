@@ -46,3 +46,4 @@ test.*
 # Build
 
 /.deploy/build/
+package-lock.json

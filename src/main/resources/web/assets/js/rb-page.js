@@ -117,7 +117,7 @@ $(function () {
     }
 
     $.get('/user/admin-dangers', function (res) {
-      if ((res.data || []).length > 0) {
+      if (res.data && res.data.length > 0) {
         $('.admin-danger').removeClass('hide')
         var dd = ['<div class="admin-danger-list">']
         $(res.data).each(function () {
@@ -146,9 +146,10 @@ $(function () {
       }
       bosskey_timer = setTimeout(function () {
         bosskey = 0
-      }, 1000) // clean
+      }, 500) // clean
     }
   })
+  window.__BOSSKEY = location.href.includes('bosskey=show')
 
   // Trigger on window.onresize
   $(window).on('resize', function () {
@@ -216,25 +217,7 @@ $(function () {
   // }
 })
 
-var $addResizeHandler__cbs = []
-/**
- * 窗口 RESIZE 回调
- */
-var $addResizeHandler = function (callback) {
-  typeof callback === 'function' && $addResizeHandler__cbs && $addResizeHandler__cbs.push(callback)
-  return function () {
-    if (!$addResizeHandler__cbs || $addResizeHandler__cbs.length === 0) return
-    // eslint-disable-next-line no-console
-    if (rb.env === 'dev') console.log('Callbacks ' + $addResizeHandler__cbs.length + ' handlers of resize ...')
-    $addResizeHandler__cbs.forEach(function (cb) {
-      cb()
-    })
-  }
-}
-
-/**
- * 取消管理中心访问
- */
+// 取消管理中心访问
 var _cancelAdmin = function () {
   $.post('/user/admin-cancel', function (res) {
     if (res.error_code === 0) {
@@ -244,10 +227,7 @@ var _cancelAdmin = function () {
     }
   })
 }
-
-/**
- * 初始化导航菜单
- */
+// 初始化导航菜单
 var _initNav = function () {
   var isOffcanvas = $('.rb-offcanvas-menu').length > 0 // Float mode
 
@@ -378,11 +358,8 @@ var _initNav = function () {
     $('.navbar-collapse .nav-item[data-id="' + topnav + '"]').addClass('active')
   }
 }
-
 var _checkMessage__state = 0
-/**
- * 检查新消息
- */
+// 检查新消息
 var _checkMessage = function () {
   $.get('/notification/check-state', function (res) {
     if (res.error_code > 0) return
@@ -491,10 +468,7 @@ var _showStateMM = function (mm) {
     RbGritter.destory()
   }
 }
-
-/**
- * 全局搜索
- */
+// 全局搜索
 var _initGlobalSearch = function () {
   $('.global-search2>a').on('click', function () {
     _showGlobalSearch($storage.get('GlobalSearch-gs'))
@@ -549,9 +523,7 @@ var _showGlobalSearch = function (gs) {
   $('.search-container').removeClass('hide')
   gs && $('.search-container input').val($decode(gs))
 }
-/**
- * 全局新建
- */
+// 全局新建
 var _initGlobalCreate = function () {
   var entities = []
   $('.sidebar-elements li').each(function () {
@@ -571,6 +543,22 @@ var _initGlobalCreate = function () {
       })
     })
   })
+}
+
+var $addResizeHandler__cbs = []
+/**
+ * 窗口 RESIZE 回调
+ */
+var $addResizeHandler = function (callback) {
+  typeof callback === 'function' && $addResizeHandler__cbs && $addResizeHandler__cbs.push(callback)
+  return function () {
+    if (!$addResizeHandler__cbs || $addResizeHandler__cbs.length === 0) return
+    // eslint-disable-next-line no-console
+    if (rb.env === 'dev') console.log('Callbacks ' + $addResizeHandler__cbs.length + ' handlers of resize ...')
+    $addResizeHandler__cbs.forEach(function (cb) {
+      cb()
+    })
+  }
 }
 
 /**
@@ -715,8 +703,11 @@ var $createUploader = function (input, next, complete, error) {
           return false
         }
       },
-      onClientLoad: function (e, file) {},
       onClientProgress: function (e, file) {
+        typeof next === 'function' && next({ percent: (e.loaded * 100) / e.total, file: file })
+      },
+      onServerProgress: function (e, file) {
+        // fix:v3.7 不触发 onClientProgress???
         typeof next === 'function' && next({ percent: (e.loaded * 100) / e.total, file: file })
       },
       onSuccess: function (e, file) {
@@ -742,14 +733,85 @@ var $createUploader = function (input, next, complete, error) {
 }
 var $initUploader = $createUploader
 
+// 多文件上传
+// FIXME 有并发上传问题
+var $multipleUploader = function (input, complete) {
+  let mp
+  let mp_inpro = []
+  const mp_end = function (name) {
+    if (mp_inpro === 0) mp_inpro = []
+    else mp_inpro.remove(name)
+    if (mp_inpro.length > 0) return
+    setTimeout(() => {
+      if (mp) mp.end()
+      mp = null
+    }, 510)
+  }
+
+  $createUploader(
+    input,
+    (res) => {
+      if (!mp_inpro.includes(res.file.name)) mp_inpro.push(res.file.name)
+      if (!mp) mp = new Mprogress({ template: 2, start: true })
+      mp.set(res.percent / 100) // 0.x
+    },
+    (res) => {
+      mp_end(res.file.name)
+      complete(res)
+    },
+    () => mp_end(0)
+  )
+}
+
+// 拖拽上传
+var $dropUpload = function (dropArea, pasteAreaOrCb, cb) {
+  if (typeof pasteAreaOrCb === 'function') {
+    cb = pasteAreaOrCb
+    pasteAreaOrCb = null
+  }
+
+  const $da = $(dropArea)
+    .on('dragenter', (e) => {
+      $stopEvent(e, true)
+    })
+    .on('dragover', (e) => {
+      $stopEvent(e, true)
+      if (e.originalEvent.dataTransfer) e.originalEvent.dataTransfer.dropEffect = 'copy'
+      $da.addClass('drop')
+    })
+    .on('dragleave', (e) => {
+      $stopEvent(e, true)
+      $da.removeClass('drop')
+    })
+    .on('drop', function (e) {
+      $stopEvent(e, true)
+      const files = e.originalEvent.dataTransfer ? e.originalEvent.dataTransfer.files : null
+      cb(files)
+      $da.removeClass('drop')
+    })
+
+  // Ctrl+V
+  if (pasteAreaOrCb) {
+    $(pasteAreaOrCb).on('paste.file', (e) => {
+      const data = e.clipboardData || e.originalEvent.clipboardData || window.clipboardData
+      if (data && data.items && data.files && data.files.length > 0) {
+        $stopEvent(e, true)
+        cb(data.files)
+      }
+    })
+  }
+}
+
 /**
  * 卸载 React 组件（顶级组件才能卸载）
  */
-var $unmount = function (container, delay, keepContainer) {
+var $unmount = function (container, delay, keepContainer, root18) {
   if (!container) return
   var $c = $(container)
   setTimeout(function () {
-    ReactDOM.unmountComponentAtNode($c[0]) // return is unmounted
+    if (root18) root18.unmount()
+    else ReactDOM.unmountComponentAtNode($c[0]) // return is unmounted
+
     if (keepContainer !== true && $c.prop('tagName') !== 'BODY') $c.remove()
   }, delay || 1000)
 }
@@ -782,7 +844,7 @@ var $initReferenceSelect2 = function (el, option) {
     },
     language: {
       noResults: function () {
-        return $.trim(search_input).length > 0 ? $L('未找到结果') : $L('输入关键词搜索')
+        return $trim(search_input).length > 0 ? $L('未找到结果') : $L('输入关键词搜索')
       },
       inputTooShort: function () {
         return $L('输入关键词搜索')
@@ -948,7 +1010,7 @@ var $converEmoji = function (text) {
   $(es).each(function () {
     var key = this.substr(1, this.length - 2)
     if (RBEMOJIS[key]) {
-      var img = '<img class="emoji" src="' + rb.baseUrl + '/assets/img/emoji/' + RBEMOJIS[key] + '" alt="' + key + '" />'
+      var img = '<img class="emoji" src="' + rb.baseUrl + '/assets/img/emoji/' + RBEMOJIS[key] + '" title="' + key + '" />'
       text = text.replace(this, img)
     }
   })
@@ -1010,13 +1072,14 @@ var _getLang = function (key) {
  * https://lbsyun.baidu.com/index.php?title=jspopularGL/guide/helloworld
  */
 var $useMap__Loaded
-var $useMap = function (onLoad) {
-  if ($useMap__Loaded === 2 && window.BMapGL) {
-    typeof onLoad === 'function' && onLoad()
+var $useMap = function (cb, v3) {
+  var _BMap = v3 ? window.BMap : window.BMapGL
+  if ($useMap__Loaded === 2 && _BMap) {
+    typeof cb === 'function' && cb()
   } else if ($useMap__Loaded === 1) {
     var _timer = setInterval(function () {
-      if ($useMap__Loaded === 2 && window.BMapGL) {
-        typeof onLoad === 'function' && onLoad()
+      if ($useMap__Loaded === 2 && _BMap) {
+        typeof cb === 'function' && cb()
         clearInterval(_timer)
       }
     }, 500)
@@ -1024,10 +1087,12 @@ var $useMap = function (onLoad) {
     $useMap__Loaded = 1
     window['$useMap__callback'] = function () {
       $useMap__Loaded = 2
-      typeof onLoad === 'function' && onLoad()
+      typeof cb === 'function' && cb()
     }
 
-    $getScript('https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'YQKHNmIcOgYccKepCkxetRDy8oTC28nD') + '&callback=$useMap__callback')
+    let apiUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'YQKHNmIcOgYccKepCkxetRDy8oTC28nD') + '&callback=$useMap__callback'
+    if (v3) apiUrl = apiUrl.replace('v=1.0&type=webgl&', 'v=3.0&')
+    $getScript(apiUrl)
   }
 }
 
@@ -1068,7 +1133,7 @@ var $getScript = function (url, callback) {
 // 搜索 text/id
 // https://select2.org/searching#customizing-how-results-are-matched
 var $select2MatcherAll = function (params, data) {
-  if ($.trim(params.term) === '') {
+  if ($trim(params.term) === '') {
     return data
   }
   if (typeof data.text === 'undefined') {
@@ -1218,3 +1283,6 @@ function $openWindow(url) {
     RbAlert.create(WrapHtml(`<p class="text-bold pb-3">${$L('文件已就绪。')}<a class="link" href="${url}" target="_blank">${$L('点击下载')}</a></p>`), { type: 'clear' })
   }
 }
+
+// 不支持排序的字段（联系）
+var UNSORT_FIELDTYPES = ['N2NREFERENCE', 'ANYREFERENCE', 'MULTISELECT', 'TAG', 'FILE', 'IMAGE', 'AVATAR', 'SIGN']

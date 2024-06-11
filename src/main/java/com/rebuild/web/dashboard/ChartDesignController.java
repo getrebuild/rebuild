@@ -128,16 +128,10 @@ public class ChartDesignController extends EntityController {
                     || dt == DisplayType.FILE
                     || dt == DisplayType.AVATAR
                     || dt == DisplayType.BARCODE
-                    || dt == DisplayType.NTEXT
-                    || dt == DisplayType.ANYREFERENCE
-                    || dt == DisplayType.N2NREFERENCE
-                    || dt == DisplayType.TAG
-                    || dt == DisplayType.MULTISELECT
-                    || dt == DisplayType.LOCATION
                     || dt == DisplayType.SIGN) {
                 continue;
             }
-            
+
             String type = "text";
             if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
                 type = "date";
@@ -147,6 +141,14 @@ public class ChartDesignController extends EntityController {
                 type = "num";
             } else if (dt == DisplayType.CLASSIFICATION) {
                 type = "clazz";
+            } else if (dt == DisplayType.LOCATION) {
+                type = "map";
+            } else if (dt == DisplayType.ANYREFERENCE
+                    || dt == DisplayType.N2NREFERENCE
+                    || dt == DisplayType.TAG
+                    || dt == DisplayType.MULTISELECT
+                    || dt == DisplayType.NTEXT) {
+                type = "list";
             }
 
             dest.add(new String[]{

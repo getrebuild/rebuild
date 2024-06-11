@@ -44,7 +44,7 @@
                     <i class="zmdi zmdi-time-countdown icon"></i>
                     <span>[[${bundle.L('自动刷新')}]]</span>
                   </button>
-                  <div class="dropdown-menu dropdown-menu-right" style="min-width: 140px">
+                  <div class="dropdown-menu dropdown-menu-right dropdown-menu-sm">
                     <a class="dropdown-item" data-time="30">30 [[${bundle.L('秒')}]]</a>
                     <a class="dropdown-item" data-time="60">1 [[${bundle.L('分钟')}]]</a>
                     <a class="dropdown-item" data-time="300">5 [[${bundle.L('分钟')}]]</a>
@@ -71,9 +71,9 @@
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/lib/charts/lodash.min.js}"></script>
     <script th:src="@{/assets/lib/charts/gridstack.all.js}"></script>
-    <script th:src="@{/assets/lib/charts/echarts.min.js}"></script>
+    <script th:src="@{/assets/lib/charts/echarts.min.js?v=5.5.0}"></script>
     <script th:src="@{/assets/lib/charts/tablecellsselection.js}"></script>
-    <script th:src="@{/assets/lib/charts/xlsx.full.min.js}"></script>
+    <script th:src="@{/assets/js/charts/charts.mapstyle.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/charts/charts.js}" type="text/babel"></script>
     <th:block th:replace="~{/_include/forms}" />
     <script th:src="@{/assets/js/charts/dashboard.js}" type="text/babel"></script>

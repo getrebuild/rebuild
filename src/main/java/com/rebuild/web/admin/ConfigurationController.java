@@ -77,8 +77,9 @@ public class ConfigurationController extends BaseController {
         mv.getModel().put("availableLangs", JSON.toJSON(Application.getLanguage().availableLocales()));
 
         final JSONObject auth = License.queryAuthority();
-        mv.getModel().put("LicenseType",
-                auth.getString("authType") + " (" + auth.getString("authObject") + ")");
+        String authType = auth.getString("authType");
+        if (auth.getIntValue("authTypeInt") > 0) authType += " (" + auth.getString("authObject") + ")";
+        mv.getModel().put("LicenseType", authType);
         mv.getModel().put("Version", Application.VER);
         mv.getModel().put("SN", "***" + auth.getString("sn").substring(12));
         mv.getModel().put("VN", auth.getString("vn"));
@@ -255,7 +256,7 @@ public class ConfigurationController extends BaseController {
             }
 
             String content = Language.L("收到此消息说明你的邮件服务配置正确");
-            sent = SMSender.sendMail(receiver, content, content, true, specAccount);
+            sent = SMSender.sendMail(receiver, content, content, null, true, specAccount);
         }
 
         if (sent != null) {

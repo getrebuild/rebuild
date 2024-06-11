@@ -201,16 +201,6 @@ body.fullscreen .announcement-wrapper {
   display: none !important;
 }
 
-body.fullscreen.darkmode .chart-title {
-  color: rgba(255, 255, 255, 0.68);
-}
-
-body.fullscreen.darkmode .chart.index > .data-item p,
-body.fullscreen.darkmode .chart.index > .data-item strong,
-body.fullscreen.darkmode .tools-bar h4 {
-  color: #fff;
-}
-
 body.fullscreen .tools-bar h4 {
   font-weight: bold;
 }
@@ -236,16 +226,23 @@ body.fullscreen.darkmode {
   background: #191a2c;
 }
 
-body.fullscreen.darkmode .grid-stack .grid-stack-item .grid-stack-item-content,
-body.fullscreen.darkmode .chart-box.ApprovalList .progress-wrap,
-body.fullscreen.darkmode .table-striped tbody tr:nth-of-type(odd) {
-  background-color: #24273e;
+body.fullscreen.darkmode .chart-title,
+body.fullscreen.darkmode .chart.index > .data-item p,
+body.fullscreen.darkmode .chart.index > .data-item strong,
+body.fullscreen.darkmode .tools-bar h4 {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 body.fullscreen.darkmode .chart .table,
 body.fullscreen.darkmode .chart .table td > a {
   background-color: transparent;
-  color: #fff;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+body.fullscreen.darkmode .grid-stack .grid-stack-item .grid-stack-item-content,
+body.fullscreen.darkmode .chart-box.ApprovalList .progress-wrap,
+body.fullscreen.darkmode .table-striped tbody tr:nth-of-type(odd) {
+  background-color: #24273e;
 }
 
 body.fullscreen.darkmode .chart .table th {

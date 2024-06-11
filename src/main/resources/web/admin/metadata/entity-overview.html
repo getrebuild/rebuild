@@ -8,7 +8,11 @@
       #overview,
       #graph {
         width: 100%;
-        height: 500px;
+        height: 600px;
+        background-color: #fff;
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: 0 18px 30px -16px rgba(157, 160, 170, 0.31);
       }
     </style>
   </head>
@@ -45,12 +49,14 @@
         <div class="main-content container-fluid pt-1">
           <div class="row">
             <div class="col">
-              <h4>[[${bundle.L('实体构成')}]]</h4>
+              <h4 class="text-bold">[[${bundle.L('实体构成')}]]</h4>
               <div id="overview"></div>
             </div>
             <div class="col">
-              <h4>[[${bundle.L('引用关系')}]]</h4>
-              <div id="graph"></div>
+              <h4 class="text-bold">[[${bundle.L('引用关系')}]]</h4>
+              <div id="graph">
+                <iframe frameborder="0" scrolling="no" style="width: 100%; height: 100%"></iframe>
+              </div>
             </div>
           </div>
         </div>
@@ -63,14 +69,15 @@
         entityName: '[[${entityName}]]',
         entityLabel: '[[${entityLabel}]]',
         overview: [(${overview})],
-        graph: [(${graph})],
       }
     </script>
-    <script th:src="@{/assets/lib/charts/echarts.min-5.js?v=5.4.3}"></script>
+    <script th:src="@{/assets/lib/charts/echarts.min.js?v=5.5.0}"></script>
+    <script th:src="@{/assets/js/charts/charts.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/entity-switch.js}" type="text/babel"></script>
     <script type="text/babel">
       const wpc = window.__PageConfig
       $(document).ready(() => {
+        // #1
         const LABELS = {
           'FIELDS': [$L('字段'), location.href.replace('/overview', '/fields')],
           'AUTOFILLINS': [$L('字段回填')],
@@ -79,84 +86,54 @@
           'TRIGGERS': [$L('触发器'), `${rb.baseUrl}/admin/robot/triggers#entity=${wpc.entityName}`],
           'EXTFORMS': [$L('外部表单'), `${rb.baseUrl}/admin/extforms#entity=${wpc.entityName}`],
           'REPORTS': [$L('报表模板'), `${rb.baseUrl}/admin/data/report-templates#entity=${wpc.entityName}`],
+          'SOPS': [$L('业务进度'), `${rb.baseUrl}/admin/robot/sops#entity=${wpc.entityName}`],
         }
 
-        const odata = []
+        const ovData = []
         for (let name in wpc.overview) {
           const value = wpc.overview[name].length
           if (value === 0) continue
           const L = LABELS[name]
-          odata.push({ name: `${value} ${L[0]}`, value: value, link: L[1] ? L[1] : null })
+          ovData.push({ name: L[0] || name, value: value, link: L[1] ? L[1] : null })
         }
 
-        const chart1 = echarts.init(document.getElementById('overview'))
-        chart1.setOption({
-          textStyle: {
-            fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
-          },
+        const ovChart = echarts.init(document.getElementById('overview'))
+        const ovOption = {
+          ...$clone(ECHART_BASE),
           series: [
             {
-              name: wpc.entityLabel,
               type: 'treemap',
               width: '100%',
               height: '100%',
               top: 0,
               breadcrumb: { show: false },
-              label: {
-                color: '#fff',
-              },
               nodeClick: 'link',
-              data: odata,
+              data: ovData,
+              roam: false, // Disabled drag and mouse wheel
+              levels: [
+                {
+                  itemStyle: {
+                    gapWidth: 1,
+                  },
+                },
+                {
+                  itemStyle: {
+                    gapWidth: 0,
+                  },
+                },
+                {
+                  itemStyle: {
+                    gapWidth: 0,
+                  },
+                },
+              ],
             },
           ],
-        })
+        }
+        ovChart.setOption(ovOption)
 
-        const gdata = [{ name: wpc.entityLabel }]
-        const glinks = []
-        wpc.graph['REFS'].forEach((r) => {
-          gdata.push({ name: r[1] })
-          glinks.push({ target: r[1], source: wpc.entityLabel, value: 1 })
-        })
-        wpc.graph['REFTOS'].forEach((r) => {
-          gdata.push({ name: r[1] })
-          glinks.push({ source: r[1], target: wpc.entityLabel, value: 1 })
-        })
-
-        console.log(gdata)
-
-        const chart2 = echarts.init(document.getElementById('graph'))
-        chart2.setOption({
-          textStyle: {
-            fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
-          },
-          series: [
-            {
-              type: 'sankey',
-              layout: 'none',
-              emphasis: {
-                focus: 'adjacency',
-              },
-              lineStyle: {
-                color: 'gradient',
-                curveness: 0.5,
-              },
-              label: {
-                color: '#000',
-              },
-              // orient: 'vertical',
-              top: 0,
-              bottom: 0,
-              left: 0,
-              data: gdata,
-              links: glinks,
-            },
-          ],
-        })
-
-        $addResizeHandler(() => {
-          chart1.resize()
-          chart2.resize()
-        })
+        // #2
+        $('#graph iframe').attr('src', `../../entities/er?s=${wpc.entityName}`)
       })
     </script>
   </body>

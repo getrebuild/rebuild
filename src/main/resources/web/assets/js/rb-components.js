@@ -92,7 +92,7 @@ class RbModal extends React.Component {
         $keepModalOpen()
         if (this.props.disposeOnHide === true) {
           $root.modal('dispose')
-          $unmount($root.parent())
+          $unmount($root.parent(), 0, null, this.props.__root18)
         }
       })
   }
@@ -145,7 +145,7 @@ class RbModal extends React.Component {
       that.__HOLDER.show()
       that.__HOLDER.resize()
     } else {
-      renderRbcomp(<RbModal url={url} urlOpenInNew={option.urlOpenInNew} title={title} width={option.width} disposeOnHide={option.disposeOnHide} zIndex={option.zIndex} />, null, function () {
+      renderRbcomp(<RbModal url={url} urlOpenInNew={option.urlOpenInNew} title={title} width={option.width} disposeOnHide={option.disposeOnHide} zIndex={option.zIndex} />, function () {
         that.__HOLDER = this
         if (option.disposeOnHide === false) that.__HOLDERs[url] = this
       })
@@ -189,7 +189,7 @@ class RbModalHandler extends React.Component {
       if (dlg) dlg.show()
       typeof cb === 'function' && cb(this)
     }
-    if (state && $.type(state) === 'object') this.setState(state, callback)
+    if (state && $type(state) === 'object') this.setState(state, callback)
     else callback()
   }
 
@@ -227,11 +227,13 @@ class RbFormHandler extends RbModalHandler {
   componentWillUnmount() {
     // destroy select2
     if (this.__select2) {
-      if ($.type(this.__select2) === 'array')
-        $(this.__select2).each(function () {
-          this.select2('destroy')
+      if (Array.isArray(this.__select2)) {
+        this.__select2.forEach(function (s) {
+          s.select2('destroy')
         })
-      else this.__select2.select2('destroy')
+      } else {
+        this.__select2.select2('destroy')
+      }
       this.__select2 = null
     }
   }
@@ -302,7 +304,7 @@ class RbAlert extends React.Component {
             <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={_onCancel}>
               {this.props.cancelText || $L('取消')}
             </button>
-            <button disabled={this.state.disable} className={`btn btn-space btn-${type}`} type="button" onClick={_onConfirm}>
+            <button disabled={this.state.disable} className={`btn btn-space btn-${type}`} type="button" onClick={_onConfirm} ref={(c) => (this._$btn = c)}>
               {this.props.confirmText || $L('确定')}
             </button>
           </div>
@@ -325,6 +327,10 @@ class RbAlert extends React.Component {
       const mb = $('.modal-backdrop.show')
       if (mb.length > 1) $(mb[mb.length - 1]).addClass('rbalert')
     }, 0)
+
+    if (this.props.countdown > 0) {
+      $countdownButton($(this._$btn), this.props.countdown)
+    }
   }
 
   hide(forceHide) {
@@ -382,6 +388,8 @@ class RbHighbar extends React.Component {
   constructor(props) {
     super(props)
     this.state = { animatedClass: 'slideInDown' }
+    const n = $('.rbhighbar').length
+    if (n > 0 && n < 5) this._offsetTop = n * 62
   }
 
   render() {
@@ -389,7 +397,7 @@ class RbHighbar extends React.Component {
     icon = this.props.type === 'danger' ? 'close-circle-o' : icon
 
     return (
-      <div ref={(c) => (this._element = c)} className={`rbhighbar animated faster ${this.state.animatedClass}`}>
+      <div ref={(c) => (this._element = c)} className={`rbhighbar animated faster ${this.state.animatedClass}`} style={{ top: this._offsetTop || 0 }}>
         <div className={`alert alert-dismissible alert-${this.props.type || 'warning'} mb-0`}>
           <button className="close" type="button" onClick={this.close} title={$L('关闭')}>
             <i className="zmdi zmdi-close" />
@@ -407,7 +415,10 @@ class RbHighbar extends React.Component {
     setTimeout(() => this.close(), this.props.timeout || 3000)
   }
 
-  close = () => this.setState({ animatedClass: 'fadeOut' }, () => $unmount($(this._element).parent()))
+  close = () => {
+    this.setState({ animatedClass: 'fadeOut' })
+    setTimeout(() => $unmount($(this._element).parent(), 20), 200)
+  }
 
   // -- Usage
   /**
@@ -634,7 +645,7 @@ class UserSelector extends React.Component {
 
     if (this.props.defaultValue) {
       let dv = this.props.defaultValue
-      if ($.type(this.props.defaultValue) === 'string') dv = dv.split(',')
+      if ($type(this.props.defaultValue) === 'string') dv = dv.split(',')
 
       $.post('/commons/search/user-selector', JSON.stringify(dv), (res) => {
         if (res.error_code === 0 && res.data.length > 0) {
@@ -797,20 +808,24 @@ const UserShow = function (props) {
 }
 
 // ~~ 日期显示
-const DateShow = function ({ date }) {
-  return date ? <span title={date}>{$fromNow(date)}</span> : null
+const DateShow = function ({ date, title }) {
+  return date ? <span title={title || date}>{$fromNow(date)}</span> : null
 }
 
 // ~~ 任意记录选择
 // @see rb-page.js#$initReferenceSelect2
 class AnyRecordSelector extends React.Component {
-  state = { ...this.props }
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+    this.__select2 = []
+  }
 
   render() {
     return (
       <div className="row">
         <div className="col-4 pr-0">
-          <select className="form-control form-control-sm" ref={(c) => (this._entity = c)}>
+          <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)}>
             {(this.state.entities || []).map((item) => {
               if ($isSysMask(item.label)) return null
               return (
@@ -822,7 +837,7 @@ class AnyRecordSelector extends React.Component {
           </select>
         </div>
         <div className="col-8 pl-2">
-          <select className="form-control form-control-sm float-left" ref={(c) => (this._record = c)} />
+          <select className="form-control form-control-sm float-left" ref={(c) => (this._$record = c)} />
         </div>
       </div>
     )
@@ -830,31 +845,32 @@ class AnyRecordSelector extends React.Component {
 
   componentDidMount() {
     $.get('/commons/metadata/entities', (res) => {
-      if ((res.data || []).length === 0) $(this._record).attr('disabled', true)
+      if ((res.data || []).length === 0) $(this._$record).attr('disabled', true)
 
       this.setState({ entities: res.data || [] }, () => {
-        $(this._entity)
+        const s2 = $(this._$entity)
           .select2({
             placeholder: $L('无可用实体'),
             allowClear: false,
           })
           .on('change', () => {
-            $(this._record).val(null).trigger('change')
+            $(this._$record).val(null).trigger('change')
           })
+        this.__select2.push(s2)
 
         // 编辑时
         const iv = this.props.initValue
         if (iv) {
-          $(this._entity).val(iv.entity).trigger('change')
+          $(this._$entity).val(iv.entity).trigger('change')
           const option = new Option(iv.text, iv.id, true, true)
-          $(this._record).append(option)
+          $(this._$record).append(option)
         }
       })
     })
 
     const that = this
     let search_input = null
-    $(this._record)
+    const s2 = $(this._$record)
       .select2({
         placeholder: `${$L('选择记录')}`,
         minimumInputLength: 0,
@@ -865,7 +881,7 @@ class AnyRecordSelector extends React.Component {
           data: function (params) {
             search_input = params.term
             return {
-              entity: $(that._entity).val(),
+              entity: $(that._$entity).val(),
               q: params.term,
             }
           },
@@ -877,7 +893,7 @@ class AnyRecordSelector extends React.Component {
         },
         language: {
           noResults: () => {
-            return $.trim(search_input).length > 0 ? $L('未找到结果') : $L('输入关键词搜索')
+            return $trim(search_input).length > 0 ? $L('未找到结果') : $L('输入关键词搜索')
           },
           inputTooShort: () => {
             return $L('输入关键词搜索')
@@ -893,11 +909,12 @@ class AnyRecordSelector extends React.Component {
       .on('change', (e) => {
         typeof that.props.onSelect === 'function' && that.props.onSelect(e.target.value)
       })
+    this.__select2.push(s2)
   }
 
   // return `id`
   val() {
-    return $(this._record).val()
+    return $(this._$record).val()
   }
 
   // return `{ id:xx, text:xx, entity:xx }`
@@ -906,14 +923,20 @@ class AnyRecordSelector extends React.Component {
     if (!val) return null
 
     return {
-      entity: $(this._entity).val(),
+      entity: $(this._$entity).val(),
       id: val,
-      text: $(this._record).select2('data')[0].text,
+      text: $(this._$record).select2('data')[0].text,
     }
   }
 
   reset() {
-    $(this._record).val(null).trigger('change')
+    $(this._$record).val(null).trigger('change')
+  }
+
+  componentWillUnmount() {
+    this.__select2.forEach(function (s) {
+      s.select2('destroy')
+    })
   }
 }
 
@@ -1004,9 +1027,17 @@ function UserPopup({ info }) {
       </div>
       <div className="infos">
         <strong>{info.name}</strong>
-        {info.dept && <p className="text-muted fs-12 up-2">{info.dept}</p>}
-        {info.email && <p className="email">{info.email}</p>}
-        {info.phone && <p className="phone">{info.phone}</p>}
+        {info.dept && <p className="text-muted fs-12">{info.dept}</p>}
+        {info.email && (
+          <p className="email text-ellipsis" title={info.email}>
+            {info.email}
+          </p>
+        )}
+        {info.phone && (
+          <p className="phone text-ellipsis" title={info.phone}>
+            {info.phone}
+          </p>
+        )}
       </div>
     </div>
   )
@@ -1026,7 +1057,7 @@ UserPopup.create = function (el) {
     }
   }
 
-  function _leave() {
+  function _evtLeave() {
     _clear()
     UserPopup.__timer2 = setTimeout(() => {
       if (UserPopup.__$target) {
@@ -1055,13 +1086,13 @@ UserPopup.create = function (el) {
                   UserPopup.__timer2 = null
                 }
               },
-              mouseleave: _leave,
+              mouseleave: _evtLeave,
             })
           }
         })
       }, 400)
     },
-    mouseleave: _leave,
+    mouseleave: _evtLeave,
   })
 }
 
@@ -1080,18 +1111,33 @@ class Md2Html extends React.Component {
   }
 
   componentDidMount() {
-    $(this._$md2html)
-      .find('a')
-      .each(function () {
-        const $this = $(this)
-        $this.attr({
-          href: `${rb.baseUrl}/commons/url-safe?url=${encodeURIComponent($this.attr('href'))}`,
-          target: '_blank',
+    let cHtml = SimpleMDE.prototype.markdown(this.props.markdown)
+    cHtml = cHtml.replace(/<img src="([^"]+)"/g, function (s, src) {
+      let srcNew = src + (src.includes('?') ? '&' : '?') + 'imageView2/2/w/1000/interlace/1/q/100'
+      return s.replace(src, srcNew)
+    })
+
+    this.setState({ md2html: cHtml }, () => {
+      $(this._$md2html)
+        .find('a')
+        .each(function () {
+          const $this = $(this)
+          $this.attr({
+            href: `${rb.baseUrl}/commons/url-safe?url=${encodeURIComponent($this.attr('href'))}`,
+            target: '_blank',
+          })
+          $this.on('click', (e) => {
+            $stopEvent(e, false)
+          })
         })
-        $this.on('click', (e) => {
-          $stopEvent(e, false)
-        })
-      })
+      // FIXME
+      // $(this._$md2html)
+      //   .find('img')
+      //   .on('click', function () {
+      //     const p = parent || window
+      //     p.RbPreview.create($(this).attr('src'))
+      //   })
+    })
   }
 }
 
@@ -1174,7 +1220,7 @@ class RbGritter extends React.Component {
         this._RbGritter._addItem(message, options)
       } else {
         const that = this
-        renderRbcomp(<RbGritter />, null, function () {
+        renderRbcomp(<RbGritter />, function () {
           that._RbGritter = this
           that._RbGritter._addItem(message, options)
         })
@@ -1190,7 +1236,7 @@ class RbGritter extends React.Component {
   }
 }
 
-// 代码
+// ~~ 代码查看
 class CodeViewport extends React.Component {
   render() {
     return (
@@ -1225,34 +1271,142 @@ class CodeViewport extends React.Component {
   }
 }
 
+// ~~ 树组件 v2.5 v3.7
+// TODO 子级延迟渲染
+class AsideTree extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props, expandItems: [] }
+  }
+
+  render() {
+    return <div className={`aside-2tree ${this.props.hideCollapse ? 'hide-collapse' : ''}`}>{this.renderTree(this.props.data || [])}</div>
+  }
+
+  renderTree(items, item) {
+    return (
+      <ul className={`list-unstyled m-0 ${item && !this.state.expandItems.contains(item.id) ? 'hide' : ''}`}>
+        {items.map((item) => {
+          let $children = null
+          if (item.children && item.children.length > 0) {
+            $children = this.renderTree(item.children, item)
+          }
+          const $item = this.renderItem(item, $children !== null)
+          return (
+            <RF key={item.id}>
+              {$item}
+              {$children}
+            </RF>
+          )
+        })}
+      </ul>
+    )
+  }
+
+  renderItem(item, hasChild) {
+    return (
+      <li className={this.state.activeItem === item.id ? 'active' : ''}>
+        <span
+          className={`collapse-icon ${hasChild ? '' : 'no-child'}`}
+          onClick={() => {
+            if (hasChild) {
+              const expandItemsNew = this.state.expandItems
+              expandItemsNew.toggle(item.id)
+              this.setState({ expandItems: expandItemsNew })
+            }
+          }}>
+          <i className={`zmdi zmdi-chevron-right ${this.state.expandItems.contains(item.id) ? 'open' : ''} `} />
+        </span>
+        <a
+          data-id={item.id}
+          className={`text-ellipsis ${item.disabled ? 'text-disabled' : ''}`}
+          title={item.disabled ? $L('已禁用') : null}
+          onClick={() => {
+            this.setState({ activeItem: item.id }, () => {
+              typeof this.props.onItemClick === 'function' && this.props.onItemClick(item)
+            })
+          }}>
+          {this.props.icon && <i className={`icon ${this.props.icon}`} />}
+          {item.text || item.name}
+
+          {item.private === true && <i className="icon flag zmdi zmdi-lock" title={$L('私有')} />}
+          {!!item.specUsers && <i className="icon flag zmdi zmdi-account" title={$L('指定用户')} />}
+        </a>
+        {typeof this.props.extrasAction === 'function' && this.props.extrasAction(item)}
+      </li>
+    )
+  }
+
+  refresh(data) {
+    this.setState({ data: data })
+  }
+
+  // 获取所有子级 ID
+  static findAllChildIds(item) {
+    function _find(x, into) {
+      into.push(x.id)
+      if (x.children && x.children.length > 0) {
+        x.children.forEach((xx) => _find(xx, into))
+      }
+    }
+
+    const s = []
+    _find(item, s)
+    return s
+  }
+}
+
 /**
  * JSX 组件渲染
  *
- * @param {*} jsx
- * @param {*} target id or object of element (or function of callback)
+ * @param {*} JSX
+ * @param {*} container id or object of element (or function of callback)
  * @param {*} callback callback on mounted
+ * @param {*} v18
  */
-const renderRbcomp = function (jsx, target, callback) {
-  if (typeof target === 'function') {
-    callback = target
-    target = null
+const renderRbcomp = function (JSX, container, callback, v18) {
+  if (typeof container === 'function') {
+    callback = container
+    container = null
   }
 
-  target = target || $random('react-container-', true, 32)
-  if ($.type(target) === 'string') {
-    // element id
-    const container = document.getElementById(target)
-    if (!container) {
-      if (!target.startsWith('react-container-')) throw 'No element found : ' + target
-      else target = $(`<div id="${target}"></div>`).appendTo(document.body)[0]
+  container = container || $random('react-container-', true, 32)
+  if (typeof container === 'string') {
+    const c = document.getElementById(container)
+    if (c) {
+      container = c
     } else {
-      target = container
+      if (container.startsWith('react-container-')) container = $(`<div id="${container}"></div>`).appendTo(document.body)[0]
+      else throw 'No element found : ' + container
     }
-  } else if (target instanceof $) {
-    target = target[0]
+  } else if (container instanceof $) {
+    container = container[0]
   }
 
-  // ReactDOM.render(<React.StrictMode>{jsx}</React.StrictMode>, target, callback)
-  ReactDOM.render(jsx, target, callback)
-  return target
+  if (v18 && !!ReactDOM.createRoot) {
+    const root = ReactDOM.createRoot(container)
+    const JSX18 = React.cloneElement(JSX, { __root18: root })
+    root.render(JSX18)
+    return root
+  }
+
+  ReactDOM.render(JSX, container, callback)
+  return container
+}
+
+// 渲染可重用组件
+const __DLGCOMPS = {}
+const renderDlgcomp = function (JSX, id) {
+  if (__DLGCOMPS[id]) {
+    __DLGCOMPS[id].show()
+  } else {
+    renderRbcomp(JSX, function () {
+      __DLGCOMPS[id] = this
+    })
+  }
+}
+
+// for: React v18
+const renderRbcomp18 = function (JSX, container) {
+  return renderRbcomp(JSX, container, null, true)
 }

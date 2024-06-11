@@ -54,8 +54,6 @@ import java.nio.file.Files;
 @RequestMapping("/filex/")
 public class FileDownloader extends BaseController {
 
-    public static final String INLINE_FORCE = "0";
-
     @GetMapping("img/**")
     public void viewImg(HttpServletRequest request, HttpServletResponse response) throws IOException {
         RbAssert.isAllow(checkUser(request), "Unauthorized access");
@@ -98,7 +96,7 @@ public class FileDownloader extends BaseController {
             final ImageView2 iv2 = imageView2 == null ? null : new ImageView2(imageView2);
 
             // 使用原图
-            if (iv2 == null || iv2.getWidth() <= 0 || iv2.getWidth() >= ImageView2.ORIGIN_WIDTH) {
+            if (iv2 == null || iv2.getWidth() <= 0 || iv2.getWidth() >= 2000) {
                 writeLocalFile(filepath, temp, response);
             }
             // 粗略图
@@ -155,18 +153,19 @@ public class FileDownloader extends BaseController {
         }
 
         boolean temp = getBoolParameter(request, "temp");
+        boolean inline = getBoolParameter(request, "inline");
 
         ServletUtils.setNoCacheHeaders(response);
 
         if (QiniuCloud.instance().available() && !temp) {
             String privateUrl = QiniuCloud.instance().makeUrl(filepath);
-            if (!INLINE_FORCE.equals(attname)) privateUrl += "&attname=" + CodecUtils.urlEncode(attname);
+            if (!inline) privateUrl += "&attname=" + CodecUtils.urlEncode(attname);
             response.sendRedirect(privateUrl);
         } else {
 
             // V34 PDF/HTML 可直接预览
-            boolean inline = (filepath.toLowerCase().endsWith(".pdf") || filepath.toLowerCase().endsWith(".html"))
-                    && (request.getRequestURI().contains("/filex/access/") || INLINE_FORCE.equals(attname));
+            inline = (filepath.toLowerCase().endsWith(".pdf") || filepath.toLowerCase().endsWith(".html"))
+                    && (request.getRequestURI().contains("/filex/access/") || inline);
 
             setDownloadHeaders(request, response, attname, inline);
             writeLocalFile(filepath, temp, response);
@@ -180,7 +179,9 @@ public class FileDownloader extends BaseController {
         final int cut = getIntParameter(request, "cut");  // MB
 
         if (CommonsUtils.isExternalUrl(filepath)) {
-            String text = OkHttpUtils.get(filepath, null, charset);
+            // v3.7 禁外部地址
+//            String text = OkHttpUtils.get(filepath, null, charset);
+            String text = "ERROR:URL_NOT_SUPPORTED";
             ServletUtils.setContentType(response, ServletUtils.CT_PLAIN);
             ServletUtils.write(response, text);
             return;
@@ -357,11 +358,22 @@ public class FileDownloader extends BaseController {
     /**
      * @param resp
      * @param file
-     * @param attname
      * @throws IOException
      */
-    public static void downloadTempFile(HttpServletResponse resp, File file, String attname) throws IOException {
+    public static void downloadTempFile(HttpServletResponse resp, File file) throws IOException {
+        downloadTempFile(resp, file, null, false);
+    }
+
+    /**
+     * @param resp
+     * @param file
+     * @param attname
+     * @param forceInline
+     * @throws IOException
+     */
+    public static void downloadTempFile(HttpServletResponse resp, File file, String attname, boolean forceInline) throws IOException {
         String url = String.format("/filex/download/%s?temp=yes", CodecUtils.urlEncode(file.getName()));
+        if (forceInline) url += "&inline=yes";
         if (attname != null) url += "&attname=" + CodecUtils.urlEncode(attname);
         resp.sendRedirect(AppUtils.getContextPath(url));
     }

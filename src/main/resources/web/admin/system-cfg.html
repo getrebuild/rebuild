@@ -139,14 +139,14 @@
                       <tr>
                         <td>
                           [[${bundle.L('登录页每日一图')}]]
-                          <i class="support-plat2 mdi mdi-monitor mt-0" th:title="${bundle.L('支持 PC')}"></i>
+                          <i class="support-plat2 mdi mdi-monitor mt-0" th:title="${bundle.L('PC 端适用')}"></i>
                         </td>
                         <td data-id="LiveWallpaper" th:data-value="${LiveWallpaper}">[[${LiveWallpaper ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
                         <td>
                           [[${bundle.L('自定义登录页图')}]]
-                          <i class="support-plat2 mdi mdi-monitor mt-0" th:title="${bundle.L('支持 PC')}"></i>
+                          <i class="support-plat2 mdi mdi-monitor mt-0" th:title="${bundle.L('PC 端适用')}"></i>
                         </td>
                         <td class="fs-0 bgimg">
                           <a class="img-thumbnail p-0 border-0" data-id="CustomWallpaper">
@@ -299,7 +299,7 @@
                         <td class="td-MobileAppPath">
                           <a class="J_MobileAppPath hide-empty mr-1 link" target="_blank" href="../h5app-download">[[${MobileAppPath}]]</a>
                           <input type="file" class="hide J_MobileAppPath" accept=".apk" />
-                          <button class="btn btn-light btn-sm J_MobileAppPath" type="button"><i class="icon zmdi zmdi-upload"></i> [[${bundle.L('上传')}]]</button>
+                          <button class="btn btn-light btn-sm J_MobileAppPath" type="button"><i class="icon zmdi zmdi-upload"></i> [[${bundle.L('上传')}]]<span></span></button>
                           <button class="btn btn-light w-auto btn-sm J_MobileAppPath-del hide" type="button" th:title="${bundle.L('删除')}"><i class="icon zmdi zmdi-delete"></i></button>
                         </td>
                       </tr>
@@ -316,14 +316,14 @@
             </div>
             <div class="col-lg-3 col-12 col-right-compact">
               <div class="card">
-                <div class="card-header card-header-divider">[[${bundle.L('关于')}]]</div>
+                <div class="card-header card-header-divider">[[${bundle.L('版本与授权')}]]</div>
                 <div class="card-body">
-                  <p class="mb-1">[[${bundle.L('系统版本')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/download?v=${Version}|">[[${Version}]]</a></p>
-                  <p class="mb-1">[[${bundle.L('授权类型')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/authority?sn=${SN}|">[[${LicenseType}]]</a></p>
+                  <p class="mb-1">[[${bundle.L('系统版本')}]]<a class="link ml-1" target="_blank" th:href="|https://getrebuild.com/download?v=${Version}|">[[${Version}]]</a></p>
+                  <p class="mb-1">[[${bundle.L('授权类型')}]]<a class="link ml-1" target="_blank" th:href="|https://getrebuild.com/authority?sn=${SN}|">[[${LicenseType}]]</a></p>
                   <p th:if="${VN != null}" class="mb-2">
-                    [[${bundle.L('服务支持码')}]] <span>[[${VN}]]</span>
+                    [[${bundle.L('支持服务码')}]]<span class="ml-1">[[${VN}]]</span>
                     <a th:if="${VNExpires}" class="badge badge-danger up-2 badge-pill" th:href="'https://getrebuild.com/buy-license?type=10fw&vn=' + ${VN}" target="_blank">
-                      <i class="mdi mdi-information-variant"></i>[[${bundle.L('服务支持已到期')}]]
+                      <i class="mdi mdi-information-variant"></i>[[${bundle.L('已过期 [点击续费]')}]]
                     </a>
                   </p>
                   <ul style="line-height: 2">
@@ -384,5 +384,7 @@
     <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/admin/system-cfg.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rebuild-ucenter.js}" type="text/babel"></script>
+    <script th:src="@{/assets/lib/widget/flatpickr.min.js}"></script>
+    <script th:src="@{/assets/lib/widget/flatpickr.i10n-zh.js}"></script>
   </body>
 </html>

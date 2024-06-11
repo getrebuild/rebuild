@@ -88,7 +88,7 @@ public class ApprovalProcessor extends SetUser {
     public boolean submit(JSONObject selectNextUsers) throws ApprovalException {
         final ApprovalState currentState = ApprovalHelper.getApprovalState(this.recordId);
         if (currentState == ApprovalState.PROCESSING || currentState == ApprovalState.APPROVED) {
-            throw new ApprovalException(Language.L("无效审批状态 (%s) ，请刷新后重试", currentState));
+            throw new ApprovalException(Language.L("无效审批状态 (%s)，请刷新后重试", currentState));
         }
 
         FlowNodeGroup nextNodes = getNextNodes(FlowNode.NODE_ROOT);
@@ -110,9 +110,6 @@ public class ApprovalProcessor extends SetUser {
         recordOfMain.setID(EntityHelper.ApprovalId, this.approval);
         recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
         recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNodes.getApprovalNode().getNodeId());
-        // Clear on submit
-        ApprovalStepService.setApprovalLastX(recordOfMain, null, null);
-
         Application.getBean(ApprovalStepService.class).txSubmit(recordOfMain, ccUsers, ccAccounts, nextApprovers);
 
         // 审批时共享
@@ -203,7 +200,8 @@ public class ApprovalProcessor extends SetUser {
         Set<ID> ccUsers = nextNodes.getCcUsers(this.getUser(), this.recordId, selectNextUsers);
         Set<String> ccAccounts = nextNodes.getCcAccounts(this.recordId);
 
-        FlowNode currentNode = getFlowParser().getNode((String) stepApprover[2]);
+        FlowNode currentNode = getFlowNode((String) stepApprover[2]);
+        Assert.notNull(currentNode, "FlowNode is null");
         Application.getBean(ApprovalStepService.class)
                 .txApprove(approvedStep, currentNode.getSignMode(), ccUsers, ccAccounts, nextApprovers, nextNode, addedData, checkUseGroup);
 
@@ -235,13 +233,13 @@ public class ApprovalProcessor extends SetUser {
         final ApprovalStatus status = checkApprovalState(ApprovalState.PROCESSING);
         this.approval = status.getApprovalId();
 
-        final String sentKey = String.format("URGE:%s-%s", this.approval, this.recordId);
+        final String sentKey = String.format("URGE:%s-%s", approval, recordId);
         if (Application.getCommonsCache().getx(sentKey) != null) {
             return -1;
         }
 
         int sent = 0;
-        String entityLabel = EasyMetaFactory.getLabel(MetadataHelper.getEntity(this.recordId.getEntityCode()));
+        String entityLabel = EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode()));
 
         JSONArray step = getCurrentStep(status);
         for (Object o : step) {
@@ -250,12 +248,12 @@ public class ApprovalProcessor extends SetUser {
 
             ID approver = ID.valueOf(s.getString("approver"));
             String urgeMsg = Language.L("有一条 %s 记录正在等待你审批，请尽快审批", entityLabel);
-            Application.getNotifications().send(MessageBuilder.createApproval(approver, urgeMsg, this.recordId));
+            Application.getNotifications().send(MessageBuilder.createApproval(approver, urgeMsg, recordId));
             sent++;
         }
 
-        // 5m
-        Application.getCommonsCache().putx(sentKey, CalendarUtils.now(), CacheTemplate.TS_MINTE * 5);
+        // 15m
+        Application.getCommonsCache().putx(sentKey, CalendarUtils.now(), CacheTemplate.TS_MINTE * 15);
         return sent;
     }
 
@@ -321,7 +319,7 @@ public class ApprovalProcessor extends SetUser {
      * @return
      */
     public FlowNode getCurrentNode() {
-        return getFlowParser().getNode(getCurrentNodeId(null));
+        return getFlowNode(getCurrentNodeId(null));
     }
 
     /**
@@ -430,6 +428,19 @@ public class ApprovalProcessor extends SetUser {
     }
 
     /**
+     * @param nodeNo
+     * @return
+     */
+    private FlowNode getFlowNode(String nodeNo) {
+        try {
+            return getFlowParser().getNode(nodeNo);
+        } catch (ApprovalException | ConfigurationException ex) {
+            log.warn("Cannot parse node : {} with {}", nodeNo, approval, ex);
+        }
+        return null;
+    }
+
+    /**
      * 获取当前审批步骤
      *
      * @param useStatus
@@ -450,7 +461,7 @@ public class ApprovalProcessor extends SetUser {
                 .unique();
         String nodeBatch = lastNode == null || lastNode[0] == null ? null : (String) lastNode[0];
 
-        // 2.批次下的
+        // 2.同一批次的
         sql = "select approver,state,remark,approvedTime,createdOn from RobotApprovalStep"
                 + " where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F' and isBacked = 'F'";
         if (StringUtils.isNotBlank(nodeBatch)) sql += " and nodeBatch = '" + nodeBatch + "'";
@@ -461,9 +472,10 @@ public class ApprovalProcessor extends SetUser {
                 .setParameter(3, currentNode)
                 .array();
 
+        FlowNode flowNode = getFlowNode(currentNode);
         JSONArray steps = new JSONArray();
         for (Object[] o : array) {
-            steps.add(this.formatStep(o, null));
+            steps.add(this.formatStep(o, flowNode == null ? null : flowNode.getSignMode()));
         }
         return steps;
     }
@@ -530,11 +542,7 @@ public class ApprovalProcessor extends SetUser {
             if (FlowNode.NODE_REVOKED.equals(nodeNo) || FlowNode.NODE_CANCELED.equals(nodeNo)) {
                 // 特殊节点
             } else {
-                try {
-                    flowNode = getFlowParser().getNode(nodeNo);
-                } catch (ApprovalException | ConfigurationException ex) {
-                    log.warn("Cannot parse node : {}", nodeNo, ex);
-                }
+                flowNode = getFlowNode(nodeNo);
             }
 
             JSONArray step = new JSONArray();
@@ -550,7 +558,7 @@ public class ApprovalProcessor extends SetUser {
                     String nodeName = Language.L("提交人撤回");
                     s.put("nodeName", nodeName);
                 } else {
-                    String nodeName = flowNode == null ? null : flowNode.getDataMap().getString("nodeName");
+                    String nodeName = flowNode == null ? null : flowNode.getNodeName();
                     if (StringUtils.isBlank(nodeName)) {
                         nodeName = nodeIndexNames.get(nodeNo);
                         if (StringUtils.isBlank(nodeName)) {
@@ -721,7 +729,7 @@ public class ApprovalProcessor extends SetUser {
     private ApprovalStatus checkApprovalState(ApprovalState mustbe) {
         final ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.recordId);
         if (status.getCurrentState() != mustbe) {
-            throw new ApprovalException(Language.L("无效审批状态 (%s) ，请刷新后重试", status.getCurrentState()));
+            throw new ApprovalException(Language.L("无效审批状态 (%s)，请刷新后重试", status.getCurrentState()));
         }
         return status;
     }

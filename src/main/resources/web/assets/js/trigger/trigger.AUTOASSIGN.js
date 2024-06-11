@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global UserSelectorWithField */
+/* global UserSelectorWithField, LastLogsViewer */
 
 const wpc = window.__PageConfig
 
@@ -44,8 +44,8 @@ class ContentAutoAssign extends ActionContentSpec {
             </div>
           </div>
 
-          <div className="form-group row">
-            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('同时分配关联记录')}</label>
+          <div className="form-group row pt-1">
+            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('同时分配相关记录')}</label>
             <div className="col-12 col-lg-8">
               <div className="entity-select">
                 <select className="form-control form-control-sm" ref={(c) => (this._cascades = c)}>
@@ -87,7 +87,7 @@ class ContentAutoAssign extends ActionContentSpec {
         this.__select2 = $(this._cascades)
           .select2({
             multiple: true,
-            placeholder: `${$L('选择关联实体')} ${$L('(可选)')}`,
+            placeholder: `${$L('选择相关实体')} ${$L('(可选)')}`,
           })
           .val(cascades.length === 0 ? null : cascades)
           .trigger('change')
@@ -121,24 +121,6 @@ renderContentComp = function (props) {
     // eslint-disable-next-line no-undef
     contentComp = this
   })
-}
 
-// eslint-disable-next-line no-undef
-LastLogsViewer.renderLog = function (log) {
-  return log.level === 1 && log.affected ? (
-    <dl className="m-0">
-      <dt>{$L('分配记录')}</dt>
-      <dd className="mb-0">
-        {log.affected.map((a, idx) => {
-          return (
-            <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/redirect?id=${a}&type=newtab`} target="_blank">
-              {a}
-            </a>
-          )
-        })}
-      </dd>
-    </dl>
-  ) : (
-    <p className="m-0 text-muted text-uppercase">{log.message || 'N'}</p>
-  )
+  LastLogsViewer._Title = $L('分配记录')
 }

@@ -48,9 +48,8 @@ public class DepartmentController extends EntityController {
 
     @PostMapping("dept-delete")
     public RespBody deptDelete(@IdParam ID deptId, HttpServletRequest request) {
-        ID transfer = getIdParameter(request, "transfer");  // TODO 转移到新部门
-
-        Application.getBean(DepartmentService.class).deleteAndTransfer(deptId, transfer);
+        ID transferTo = getIdParameter(request, "transfer");  // TODO 转移到新部门
+        Application.getBean(DepartmentService.class).deleteAndTransfer(deptId, transferTo);
         return RespBody.ok();
     }
 

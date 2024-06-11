@@ -41,6 +41,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 1px 4px 0;
 }
 
+.rich-editor.drop .action-btns {
+  background-color: #fff7c5;
+}
+
 .rich-editor .action-btns li > a,
 .rich-editor .action-btns li a.at-user {
   display: inline-block;
@@ -134,6 +138,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .types-bar .nav-tabs > li.nav-item a.nav-link.active {
   color: #4285f4;
+  color: var(--rb-theme-color);
 }
 
 .types-bar span.float-right {
@@ -224,26 +229,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-bottom: 5px;
 }
 
-.attachment > .file-field .img-thumbnail,
-.rich-content > .file-field .img-thumbnail {
-  width: 49.5%;
-  margin-right: 1%;
-}
-
-.attachment > .file-field .img-thumbnail:nth-child(even),
-.rich-content > .file-field .img-thumbnail:nth-child(even) {
-  margin-right: 0;
-}
-
 .rich-content > .img-field .img-thumbnail:hover,
 .rich-content > .file-field .img-thumbnail:hover {
   opacity: 0.8;
 }
 
 .rich-content > .img-field .img-thumbnail {
-  width: 123px;
-  height: 123px;
+  width: 124px;
+  height: 124px;
   border-radius: 4px;
+}
+
+.comment-list .rich-content > .img-field .img-thumbnail {
+  width: 114px;
+  height: 114px;
 }
 
 .rich-content > .img-field > span:nth-child(5n) {

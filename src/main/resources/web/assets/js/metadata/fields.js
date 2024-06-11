@@ -16,7 +16,7 @@ $(document).ready(() => {
   })
   $('.J_new-field').on('click', () => {
     // eslint-disable-next-line react/jsx-no-undef
-    if (wpc.isSuperAdmin) renderRbcomp(<FieldNew2 entity={wpc.entityName} />)
+    if (wpc.isSuperAdmin) renderRbcomp18(<FieldNew2 entity={wpc.entityName} />)
     else RbHighbar.error($L('仅超级管理员可添加字段'))
   })
 
@@ -59,8 +59,7 @@ const renderList = function () {
     let type = item.displayType
     if (item.displayTypeRef) type += ` (${item.displayTypeRef[1]})`
     $(`<td><div class="text-muted">${type}</div></td>`).appendTo($tr)
-    $(`<td><div class="text-none" _title="${$L('无')}">${item.comments || ''}</div></td>`).appendTo($tr)
-    $(`<td class="actions"><a class="icon J_edit" href="field/${item.fieldName}"><i class="zmdi zmdi-settings"></i></a></td>`).appendTo($tr)
+    $(`<td><div class="text-break" _title="${$L('无')}">${item.comments || ''}</div></td>`).appendTo($tr)
   })
 
   $('.dataTables_info').text($L('共 %d 个字段', $tbody.find('tr').length))

@@ -81,8 +81,8 @@ class AdvFilter extends React.Component {
                 <input className="custom-control-input" type="radio" name={this._htmlid} data-id="useEquation" value="9999" checked={this.state.useEquation === '9999'} onChange={this.handleChange} />
                 <span className="custom-control-label pl-1">
                   {$L('高级表达式')}
-                  <a href="https://getrebuild.com/docs/manual/basic#%E9%AB%98%E7%BA%A7%E8%A1%A8%E8%BE%BE%E5%BC%8F" target="_blank">
-                    <i className="zmdi zmdi-help zicon down-1" style={{ cursor: 'pointer' }} />
+                  <a href="https://getrebuild.com/docs/manual/basic#%E9%AB%98%E7%BA%A7%E8%A1%A8%E8%BE%BE%E5%BC%8F" title={$L('查看帮助')} target="_blank">
+                    <i className="zmdi zmdi-help zicon down-1 cursor-pointer" />
                   </a>
                 </span>
               </label>
@@ -132,7 +132,8 @@ class AdvFilter extends React.Component {
 
   componentDidMount() {
     const deep = this.props.deep3 || location.href.includes('/admin/') ? 3 : 2
-    $.get(`/commons/metadata/fields?deep=${deep}&entity=${this.props.entity}`, (res) => {
+    const referer = this.props.referer || ''
+    $.get(`/commons/metadata/fields?deep=${deep}&entity=${this.props.entity}&referer=${referer}`, (res) => {
       const validFs = []
       const fields = []
 
@@ -144,7 +145,7 @@ class AdvFilter extends React.Component {
 
         if (['REFERENCE', 'N2NREFERENCE'].includes(item.type)) {
           REFENTITY_CACHE[item.name] = item.ref
-          if ('N2NREFERENCE' === item.type) REFENTITY_CACHE[item.name]._n2n = true
+          if ('N2NREFERENCE' === item.type) REFENTITY_CACHE[item.name][2] = true // _isN2N
 
           // NOTE: Use `NameField` field-type
           if (!BIZZ_ENTITIES.includes(item.ref[0])) {
@@ -157,7 +158,7 @@ class AdvFilter extends React.Component {
           fields.push(item)
 
           if (item.type === 'REFERENCE' && item.name === 'approvalLastUser') {
-            const item2 = { ...item, name: VF_ACU, label: $L('当前审批人') }
+            const item2 = { ...item, name: VF_ACU, label: $L('当前审批人') + ' (废弃)' }
             validFs.push(item2.name)
             REFENTITY_CACHE[item2.name] = item2.ref
             fields.push(item2)
@@ -245,11 +246,11 @@ class AdvFilter extends React.Component {
     this.setState({ equationDef: expr.join(' OR ') })
   }
 
-  toFilterJson(canNoFilters) {
+  toFilterData(canNoFilters) {
     const filters = []
     let hasError = false
     for (let i = 0; i < this._itemsRef.length; i++) {
-      const item = this._itemsRef[i].getFilterJson()
+      const item = this._itemsRef[i].getFilterData()
       if (!item) hasError = true
       else filters.push(item)
     }
@@ -273,7 +274,7 @@ class AdvFilter extends React.Component {
   }
 
   confirm() {
-    const adv = this.toFilterJson(this.props.canNoFilters)
+    const adv = this.toFilterData(this.props.canNoFilters)
     if (!adv) return
 
     const _onConfirm = this.props.confirm || this.props.onConfirm
@@ -342,42 +343,13 @@ const OP_TYPE = {
   EVW: $L('本周..'),
   EVM: $L('本月..'),
   DDD: $L('指定..天'),
-  REP: $L('重复') + ' (LAB)',
+  HHH: $L('指定..时'),
+  REP: $L('重复'),
 }
+// prettier-ignore
 const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY']
-const OP_DATE_NOPICKER = [
-  'TDA',
-  'YTA',
-  'TTA',
-  'RED',
-  'REM',
-  'REY',
-  'FUD',
-  'FUM',
-  'FUY',
-  'BFD',
-  'BFM',
-  'BFY',
-  'AFD',
-  'AFM',
-  'AFY',
-  'PUW',
-  'CUW',
-  'NUW',
-  'PUM',
-  'CUM',
-  'NUM',
-  'PUQ',
-  'CUQ',
-  'NUQ',
-  'PUY',
-  'CUY',
-  'NUY',
-  'EVW',
-  'EVM',
-  'DDD',
-  'REP',
-]
+// prettier-ignore
+const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY', 'EVW', 'EVM', 'DDD', 'HHH', 'REP']
 const REFENTITY_CACHE = {}
 const PICKLIST_CACHE = {}
 
@@ -427,46 +399,15 @@ class FilterItem extends React.Component {
   selectOp() {
     const fieldType = this.state.type
 
+    // default
     let op = ['LK', 'NLK', 'EQ', 'NEQ']
+
     if (fieldType === 'NUMBER' || fieldType === 'DECIMAL') {
       op = ['GT', 'LT', 'EQ', 'BW', 'GE', 'LE']
     } else if (fieldType === 'DATE' || fieldType === 'DATETIME') {
-      op = [
-        'TDA',
-        'YTA',
-        'TTA',
-        'GT',
-        'LT',
-        'EQ',
-        'BW',
-        'RED',
-        'REM',
-        'REY',
-        'FUD',
-        'FUM',
-        'FUY',
-        'BFD',
-        'BFM',
-        'BFY',
-        'AFD',
-        'AFM',
-        'AFY',
-        'PUW',
-        'CUW',
-        'NUW',
-        'PUM',
-        'CUM',
-        'NUM',
-        'PUQ',
-        'CUQ',
-        'NUQ',
-        'PUY',
-        'CUY',
-        'NUY',
-        'EVW',
-        'EVM',
-        'DDD',
-      ]
+      // prettier-ignore
+      op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY', 'EVW', 'EVM', 'DDD']
+      if (fieldType === 'DATETIME') op.push('HHH')
     } else if (fieldType === 'TIME') {
       op = ['GT', 'LT', 'EQ', 'BW']
     } else if (fieldType === 'FILE' || fieldType === 'IMAGE' || fieldType === 'AVATAR' || fieldType === 'SIGN' || fieldType === 'ANYREFERENCE') {
@@ -481,12 +422,10 @@ class FilterItem extends React.Component {
         op = ['IN', 'NIN', 'SFU', 'SFB', 'SFT']
       } else if (this.isBizzField('Department')) {
         op = ['IN', 'NIN', 'SFB', 'SFD']
-      } else if (this.isBizzField('Role')) {
+      } else if (this.isBizzField('Role') || this.isBizzField('Team')) {
         op = ['IN', 'NIN']
-      } else {
-        // 引用字段作为名称字段
-        // op = []
       }
+      // else default
     } else if (fieldType === 'BOOL') {
       op = ['EQ']
     } else if (fieldType === 'LOCATION') {
@@ -495,11 +434,12 @@ class FilterItem extends React.Component {
       op = ['IN', 'NIN']
     }
 
-    // UNTEST
-    // if (['TEXT', 'PHONE', 'EMAIL', 'URL', 'DATE', 'PICKLIST', 'CLASSIFICATION'].includes(fieldType)) op.push('REP')
+    // v3.6-b4,v3.7
+    if (['TEXT', 'PHONE', 'EMAIL', 'URL', 'DATE', 'DATETIME', 'TIME', 'PICKLIST', 'CLASSIFICATION'].includes(fieldType)) op.push('REP')
 
     if (this.isApprovalState()) op = ['IN', 'NIN']
-    else if (this.state.field === VF_ACU) op = ['IN', 'SFU', 'SFB', 'SFT']
+    else if (this.state.field === VF_ACU) op = ['IN', 'SFU', 'SFB', 'SFT'] // v3.7 准备废弃
+    else if (this.isN2NUsers()) op = ['IN', 'NIN', 'SFU', 'SFB', 'NL', 'NT']
     else op.push('NL', 'NT')
 
     this.__op = op
@@ -561,6 +501,18 @@ class FilterItem extends React.Component {
       const ifRefField = REFENTITY_CACHE[this.state.field]
       if (entity) return ifRefField[0] === entity
       else return BIZZ_ENTITIES.includes(ifRefField[0])
+    }
+    // 多引用用户
+    return this.isN2NUsers()
+  }
+
+  // v3.7: 多引用用户|当前审批人
+  isN2NUsers() {
+    const fieldName = this.state.field || ''
+    if (fieldName === 'approvalStepUsers' || fieldName.endsWith('.approvalStepUsers')) return true
+    if (this.state.type === 'N2NREFERENCE') {
+      let ifRefField = REFENTITY_CACHE[fieldName]
+      return ifRefField[0] === 'User'
     }
     return false
   }
@@ -649,13 +601,17 @@ class FilterItem extends React.Component {
       let ifRefField = REFENTITY_CACHE[state.field]
       ifRefField = state.op === 'SFT' ? 'Team' : ifRefField[0]
       this.renderBizzSearch(ifRefField)
-    } else if (lastType === 'REFERENCE') {
+    } else if (lastType === 'REFERENCE' || lastType === 'N2NREFERENCE') {
       this.removeBizzSearch()
     }
 
     if (state.type === 'BOOL') {
       this.removeBool()
-      if (!OP_NOVALUE.includes(state.op)) this.renderBool()
+      if (OP_NOVALUE.includes(state.op)) {
+        // 无需组件
+      } else {
+        this.renderBool()
+      }
     } else if (lastType === 'BOOL') {
       this.removeBool()
     }
@@ -752,9 +708,7 @@ class FilterItem extends React.Component {
 
   renderBizzSearch(entity) {
     // BIZZ 实体变了
-    if (this.__lastBizzEntity && this.__lastBizzEntity !== entity) {
-      $(this._filterVal).select2('destroy').val(null)
-    }
+    const clearSelected = this.__lastBizzEntity && this.__lastBizzEntity !== entity
     this.__lastBizzEntity = entity
 
     const that = this
@@ -784,6 +738,8 @@ class FilterItem extends React.Component {
         const val = $s2val.val()
         that.setState({ value: val.join('|') })
       })
+
+    if (clearSelected) $s2val.val(null).trigger('change')
     this.__select2_BizzSearch = $s2val
 
     // Load
@@ -813,7 +769,7 @@ class FilterItem extends React.Component {
       format: 'yyyy-mm-dd',
       minView: 2,
       startView: 'month',
-      // todayBtn: true,
+      todayBtn: true,
       clearBtn: this.props.allowClear || false,
     }
 
@@ -884,24 +840,29 @@ class FilterItem extends React.Component {
     this.setState({ index: idx })
   }
 
-  getFilterJson() {
-    const s = this.state
+  getFilterData() {
+    const s = this.state // DON'T CHANGES `state`!!!
+    let noValue = false
     if (!s.value) {
       if (OP_NOVALUE.includes(s.op)) {
-        // 允许无值
+        noValue = true
       } else {
         return
       }
     } else if (OP_NOVALUE.includes(s.op)) {
-      s.value = null
+      noValue = true
     }
 
     if (s.op === 'BW' && !s.value2) {
       return
     }
 
-    if (!!s.value && ($(this._filterVal).hasClass('is-invalid') || $(this._filterVal2).hasClass('is-invalid'))) {
-      return
+    // 允许无值
+    if (noValue === true);
+    else {
+      if (!!s.value && ($(this._filterVal).hasClass('is-invalid') || $(this._filterVal2).hasClass('is-invalid'))) {
+        return
+      }
     }
 
     const item = {
@@ -909,14 +870,18 @@ class FilterItem extends React.Component {
       field: s.field,
       op: s.op,
     }
-    if (s.value) item.value = s.value
-    if (s.value2) item.value2 = s.value2
+    if (noValue === false) {
+      if (s.value) item.value = s.value
+      if (s.value2) item.value2 = s.value2
+    }
 
     // 引用字段查询名称字段
     const ifRefField = REFENTITY_CACHE[s.field]
     if (ifRefField && !(s.op === 'NL' || s.op === 'NT')) {
       if (BIZZ_ENTITIES.includes(ifRefField[0])) {
-        if (ifRefField._n2n) item.field = NAME_FLAG + item.field
+        if (ifRefField[2]) {
+          if (!this.isN2NUsers()) item.field = NAME_FLAG + item.field
+        }
       } else {
         item.field = NAME_FLAG + item.field
       }
@@ -970,7 +935,7 @@ class ListAdvFilter extends AdvFilter {
                 {$L('保存')}
               </button>
               <button className="btn btn-primary btn-outline" type="button" onClick={() => this.searchNow()}>
-                <i className="icon zmdi zmdi-search" /> {$L('立即查询')}
+                <i className="icon zmdi zmdi-search" /> {$L('查询')}
               </button>
             </div>
           </RF>
@@ -978,7 +943,7 @@ class ListAdvFilter extends AdvFilter {
           <div className="float-right">
             <div className="btn-group">
               <button className="btn btn-primary btn-outline" type="button" onClick={() => this.searchNow()}>
-                <i className="icon zmdi zmdi-search" /> {$L('立即查询')}
+                <i className="icon zmdi zmdi-search" /> {$L('查询')}
               </button>
               <button className="btn btn-primary btn-outline dropdown-toggle w-auto" type="button" data-toggle="dropdown" style={{ marginLeft: -1 }}>
                 <i className="icon zmdi zmdi-chevron-down" />
@@ -1003,7 +968,7 @@ class ListAdvFilter extends AdvFilter {
     if (reset) {
       RbListPage._RbList.search({ items: [] }, true)
     } else {
-      const adv = this.toFilterJson(true)
+      const adv = this.toFilterData(true)
       if (adv) {
         const storageKey = `CustomAdv-${this.props.entity}`
         localStorage.setItem(storageKey, JSON.stringify(adv))
@@ -1013,7 +978,7 @@ class ListAdvFilter extends AdvFilter {
   }
 
   post(name, shareTo) {
-    const filter = this.toFilterJson(this.props.canNoFilters)
+    const filter = this.toFilterData(this.props.canNoFilters)
     if (!filter) return
 
     let url = `/app/${this.props.entity}/advfilter/post?id=${this.props.id || ''}`
@@ -1031,7 +996,7 @@ class ListAdvFilter extends AdvFilter {
   }
 
   handleNew() {
-    const filter = this.toFilterJson(this.props.canNoFilters)
+    const filter = this.toFilterData(this.props.canNoFilters)
     if (!filter) return
 
     if (this._ListAdvFilterSave) {

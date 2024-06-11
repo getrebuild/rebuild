@@ -53,7 +53,7 @@ public class ProjectController extends BaseController {
     protected static final String GROUP_DEADLINE = "deadline";
     protected static final String GROUP_MODIFIED = "modified";
 
-    @GetMapping("{projectId}/tasks")
+    @GetMapping({ "{projectId}/tasks", "{projectId}/tasks/list" })
     public ModelAndView pageProject(@PathVariable String projectId,
                                     HttpServletRequest request, HttpServletResponse response) throws IOException {
         final ID projectId2 = ID.isId(projectId) ? ID.valueOf(projectId) : null;
@@ -81,36 +81,42 @@ public class ProjectController extends BaseController {
         mv.getModel().put("scope", p.getInteger("scope"));
         mv.getModel().put("status", p.getInteger("status"));
 
+        boolean viewList = request.getRequestURI().contains("/tasks/list");
+        if (viewList) {
+            mv.getModel().put("view", 2);
+        }
         // 分组显示
-        JSONArray plansList = new JSONArray();
-
-        String group = getParameter(request, "group");
-        if (GROUP_PRIORITY.equalsIgnoreCase(group)) {
-            plansList.add(newCustomPlan(GROUP_PRIORITY + "-3", Language.L("非常紧急")));
-            plansList.add(newCustomPlan(GROUP_PRIORITY + "-2", Language.L("紧急")));
-            plansList.add(newCustomPlan(GROUP_PRIORITY + "-1", Language.L("普通")));
-            plansList.add(newCustomPlan(GROUP_PRIORITY + "-0", Language.L("较低")));
-        }
-        else if (GROUP_DEADLINE.equalsIgnoreCase(group)) {
-            plansList.add(newCustomPlan(GROUP_DEADLINE + "-1", Language.L("已逾期")));
-            plansList.add(newCustomPlan(GROUP_DEADLINE + "-2", Language.L("今天")));
-            plansList.add(newCustomPlan(GROUP_DEADLINE + "-3", Language.L("7 天内")));
-            plansList.add(newCustomPlan(GROUP_DEADLINE + "-4", Language.L("以后或未安排")));
-        }
-        else if (GROUP_MODIFIED.equalsIgnoreCase(group)) {
-            plansList.add(newCustomPlan(GROUP_MODIFIED + "-1", Language.L("今天")));
-            plansList.add(newCustomPlan(GROUP_MODIFIED + "-2", Language.L("7 天内")));
-            plansList.add(newCustomPlan(GROUP_MODIFIED + "-3", Language.L("14 天内")));
-            plansList.add(newCustomPlan(GROUP_MODIFIED + "-4", Language.L("更早")));
-        }
         else {
-            final ConfigBean[] plans = ProjectManager.instance.getPlansOfProject(projectId2);
-            for (ConfigBean e : plans) {
-                plansList.add(e.toJSON());
-            }
-        }
+            JSONArray plansList = new JSONArray();
 
-        mv.getModel().put("projectPlans", plansList.toJSONString());
+            String group = getParameter(request, "group");
+            if (GROUP_PRIORITY.equalsIgnoreCase(group)) {
+                plansList.add(newCustomPlan(GROUP_PRIORITY + "-3", Language.L("非常紧急")));
+                plansList.add(newCustomPlan(GROUP_PRIORITY + "-2", Language.L("紧急")));
+                plansList.add(newCustomPlan(GROUP_PRIORITY + "-1", Language.L("普通")));
+                plansList.add(newCustomPlan(GROUP_PRIORITY + "-0", Language.L("较低")));
+            }
+            else if (GROUP_DEADLINE.equalsIgnoreCase(group)) {
+                plansList.add(newCustomPlan(GROUP_DEADLINE + "-1", Language.L("已逾期")));
+                plansList.add(newCustomPlan(GROUP_DEADLINE + "-2", Language.L("今天")));
+                plansList.add(newCustomPlan(GROUP_DEADLINE + "-3", Language.L("7 天内")));
+                plansList.add(newCustomPlan(GROUP_DEADLINE + "-4", Language.L("以后或未安排")));
+            }
+            else if (GROUP_MODIFIED.equalsIgnoreCase(group)) {
+                plansList.add(newCustomPlan(GROUP_MODIFIED + "-1", Language.L("今天")));
+                plansList.add(newCustomPlan(GROUP_MODIFIED + "-2", Language.L("7 天内")));
+                plansList.add(newCustomPlan(GROUP_MODIFIED + "-3", Language.L("14 天内")));
+                plansList.add(newCustomPlan(GROUP_MODIFIED + "-4", Language.L("更早")));
+            }
+            else {
+                final ConfigBean[] plans = ProjectManager.instance.getPlansOfProject(projectId2);
+                for (ConfigBean e : plans) {
+                    plansList.add(e.toJSON());
+                }
+            }
+            mv.getModel().put("projectPlans", plansList.toJSONString());
+            mv.getModel().put("view", 1);
+        }
 
         return mv;
     }
@@ -122,7 +128,7 @@ public class ProjectController extends BaseController {
     }
 
     @GetMapping("{projectId}/details")
-    public RespBody getPlans(@PathVariable String projectId, HttpServletRequest request) throws IOException {
+    public RespBody getPlans(@PathVariable String projectId, HttpServletRequest request) {
         final ID user = getRequestUser(request);
         
         JSONObject details;

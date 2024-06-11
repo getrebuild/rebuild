@@ -9,8 +9,8 @@ package com.rebuild.core.service.dashboard.charts;
 
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.configuration.general.ClassificationManager;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 
 import java.text.MessageFormat;
 
@@ -44,6 +44,8 @@ public class Dimension extends Axis {
                     return MessageFormat.format("CONCAT(YEAR({0}),'' Q'',QUARTER({0}))", super.getSqlName());
                 case M:
                     return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m");
+                case W:
+                    return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y W%u");
                 case H:
                     return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d %HH");
                 default:

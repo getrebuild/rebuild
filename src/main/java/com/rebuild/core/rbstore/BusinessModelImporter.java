@@ -16,13 +16,20 @@ import com.rebuild.core.support.task.HeavyTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 批量导入业务模块
  *
  * @author devezhao
  * @since 2020/9/29
+ * @see MetaschemaExporter
+ * @see MetaschemaImporter
  */
 @Slf4j
 public class BusinessModelImporter extends HeavyTask<Integer> {
@@ -53,7 +60,7 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
 
                 String created = new MetaschemaImporter(data).exec();
                 createdEntity.add(created);
-                log.info("Entity imported : " + created);
+                log.info("Entity imported : {}", created);
                 this.addSucceeded();
 
             } catch (Exception ex) {
@@ -82,7 +89,6 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
 
         MetadataHelper.getMetadataFactory().refresh();
     }
-
 
     /**
      * 获取所有依赖实体

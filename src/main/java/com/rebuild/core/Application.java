@@ -15,6 +15,7 @@ import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.query.QueryedRecord;
+import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -74,11 +75,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "3.6.5";
+    public static final String VER = "3.7.0-beta";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 3060511;
+    public static final int BUILD = 3070001;
 
     static {
         // Driver for DB
@@ -86,7 +87,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
             Class.forName(com.mysql.cj.jdbc.Driver.class.getName());
             Class.forName(org.h2.Driver.class.getName());
 
-            // fix https://github.com/alibaba/druid/issues/3991
+            // fix:druid https://github.com/alibaba/druid/issues/3991
             System.setProperty("druid.mysql.usePingMethod", "false");
         } catch (ClassNotFoundException ex) {
             throw new RebuildException(ex);
@@ -209,6 +210,9 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
             return false;
         }
 
+        // H2 no filters
+        if (Installer.isUseH2()) _CONTEXT.getBean(DruidDataSource.class).clearFilters();
+        
         // 升级数据库
         new UpgradeDatabase().upgradeQuietly();
 

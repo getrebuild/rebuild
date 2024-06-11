@@ -16,6 +16,7 @@ import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
@@ -32,6 +33,7 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.NoRecordFoundException;
+import com.rebuild.core.service.SafeObserver;
 import com.rebuild.core.service.approval.ApprovalHelper;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
@@ -39,15 +41,12 @@ import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.service.notification.NotificationObserver;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.ActionType;
-import com.rebuild.core.service.trigger.RobotTriggerManager;
 import com.rebuild.core.service.trigger.RobotTriggerManual;
 import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerWhen;
-import com.rebuild.core.service.trigger.impl.AutoApproval;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
-import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -63,6 +62,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+
+import static com.rebuild.core.service.approval.ApprovalHelper.getSpecTriggers;
 
 /**
  * 业务实体核心服务，所有业务实体都应该使用此类（或子类）
@@ -87,6 +88,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         addObserver(new NotificationObserver());
         addObserver(new RobotTriggerObserver());
+        try {
+            addObserver((SafeObserver) ReflectUtils.newObject("com.rebuild.rbv.sop.RobotSopObserver"));
+        } catch (Exception ignoredClassNotFound){}
     }
 
     @Override
@@ -111,52 +115,20 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             }
         }
 
-        // 含明细
+        // 有明细
         final boolean hasDetails = details != null && !details.isEmpty();
-
-        // 延迟执行触发器，因为明细尚未保存好
-        boolean lazyAutoApproval4Details = false;
-        boolean lazyAutoTransform4Details = false;
-        boolean lazyHookUrl4Details = false;
-        if (hasDetails) {
-
-            // 自动审批 fix: v3.2.2
-
-            TriggerAction[] hasAutoApprovalTriggers = getSpecTriggers(
-                    record.getEntity(), ActionType.AUTOAPPROVAL, TriggerWhen.CREATE, TriggerWhen.UPDATE);
-            lazyAutoApproval4Details = hasAutoApprovalTriggers.length > 0;
-            // FIXME 此判断可能无意义，待进一步测试后确定是否保留
-            if (!lazyAutoApproval4Details) {
-                TriggerAction[] hasOnApprovedTriggers = getSpecTriggers(
-                        record.getEntity().getDetailEntity(), null, TriggerWhen.APPROVED);
-                lazyAutoApproval4Details = hasOnApprovedTriggers.length > 0;
-            }
-            // 自动审批延迟执行，因为明细尚未保存好
-            if (lazyAutoApproval4Details) AutoApproval.setLazy();
-
-            // 自动转换
-
-            TriggerAction[] hasAutoTransformTriggers = getSpecTriggers(
-                    record.getEntity(), ActionType.AUTOTRANSFORM, TriggerWhen.CREATE, TriggerWhen.UPDATE);
-            lazyAutoTransform4Details = hasAutoTransformTriggers.length > 0;
-            // 记录转换延迟执行，因为明细尚未保存好
-            if (lazyAutoTransform4Details) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoTransform#setLazy");
-
-            // URL 回调 v3.5
-
-            TriggerAction[] hasHookUrlTriggers = getSpecTriggers(
-                    record.getEntity(), ActionType.HOOKURL, TriggerWhen.CREATE, TriggerWhen.UPDATE, TriggerWhen.DELETE);
-            lazyHookUrl4Details = hasHookUrlTriggers.length > 0;
-            // 对于全量推送，明细尚未保存好
-            if (lazyHookUrl4Details) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.HookUrl#setLazy");
-        }
 
         // 保证执行顺序
         Map<Integer, ID> detaileds = new TreeMap<>();
 
         try {
-            record = record.getPrimary() == null ? create(record) : update(record);
-            if (!hasDetails) return record;
+            if (hasDetails) {
+                RobotTriggerObserver.setLazyTriggers();
+                record = record.getPrimary() == null ? create(record) : update(record, true);
+            } else {
+                record = record.getPrimary() == null ? create(record) : update(record);
+                return record;
+            }
 
             // 明细记录处理
 
@@ -207,9 +179,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return record;
 
         } finally {
-            if (lazyAutoApproval4Details) AutoApproval.executeLazy();
-            if (lazyAutoTransform4Details) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoTransform#executeLazy");
-            if (lazyHookUrl4Details) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.HookUrl#executeLazy");
+            RobotTriggerObserver.executeLazyTriggers(this);
         }
     }
 
@@ -239,26 +209,38 @@ public class GeneralEntityService extends ObservableService implements EntitySer
      */
     @Override
     public Record update(Record record) {
+        return update(record, false);
+    }
+
+    /**
+     * @param record
+     * @param ignoreTriggers
+     * @return
+     */
+    private Record update(Record record, boolean ignoreTriggers) {
         if (!checkModifications(record, BizzPermission.UPDATE)) {
             return record;
         }
 
-        // 先更新
         record = super.update(record);
+        if (ignoreTriggers) return record;
 
-        // 主记录修改时传导给明细（若有），以便触发分组聚合触发器
-        // FIXME 此时明细可能尚未做好更新，因此是无意义的更新
+        // ND 主记录修改时传导给明细（若有），以便触发聚合触发器
+        // v3.7 只触发一个明细就够了
 
-        TriggerAction[] hasTriggers = getSpecTriggers(record.getEntity().getDetailEntity(),
-                ActionType.GROUPAGGREGATION, TriggerWhen.UPDATE);
-        if (hasTriggers.length > 0) {
-            RobotTriggerManual triggerManual = new RobotTriggerManual();
-            ID opUser = UserService.SYSTEM_USER;
+        for (Entity de : record.getEntity().getDetialEntities()) {
+            TriggerAction[] deHasTriggersGG = getSpecTriggers(de, ActionType.GROUPAGGREGATION, TriggerWhen.UPDATE);
+            TriggerAction[] deHasTriggersFG = getSpecTriggers(de, ActionType.FIELDAGGREGATION, TriggerWhen.UPDATE);
+            if (deHasTriggersGG.length > 0 || deHasTriggersFG.length > 0) {
+                RobotTriggerManual triggerManual = new RobotTriggerManual();
+                ID opUser = UserService.SYSTEM_USER;
 
-            for (ID did : QueryHelper.detailIdsNoFilter(record.getPrimary())) {
-                Record dUpdate = EntityHelper.forUpdate(did, opUser, false);
-                triggerManual.onUpdate(
-                        OperatingContext.create(opUser, BizzPermission.UPDATE, dUpdate, dUpdate));
+                for (ID did : QueryHelper.detailIdsNoFilter(record.getPrimary(), de)) {
+                    Record dUpdate = EntityHelper.forUpdate(did, opUser, false);
+                    triggerManual.onUpdate(
+                            OperatingContext.create(opUser, BizzPermission.UPDATE, dUpdate, dUpdate));
+                    break;
+                }
             }
         }
 
@@ -321,10 +303,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return 0;
         }
 
-        // 手动删除明细记录，以执行系统规则（如触发器、附件删除等）
-        Entity de = MetadataHelper.getEntity(recordId.getEntityCode()).getDetailEntity();
-        if (de != null) {
-            for (ID did : QueryHelper.detailIdsNoFilter(recordId)) {
+        // ND 手动删除。传导给明细触发器、附件删除等
+        for (Entity de : MetadataHelper.getEntity(recordId.getEntityCode()).getDetialEntities()) {
+            for (ID did : QueryHelper.detailIdsNoFilter(recordId, de)) {
                 // 明细无约束检查 checkModifications
                 // 不使用明细实体 Service
                 super.delete(did);
@@ -511,7 +492,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return Collections.emptyMap();
         }
 
-        final boolean fromTriggerNoFilter = GeneralEntityServiceContextHolder.isFromTrigger(false);
+        final boolean fromTriggerIgnorePrivileges = GeneralEntityServiceContextHolder.isFromTrigger(false);
 
         Map<String, Set<ID>> entityRecordsMap = new HashMap<>();
         Entity mainEntity = MetadataHelper.getEntity(mainRecordId.getEntityCode());
@@ -523,15 +504,24 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             }
 
             Entity casEntity = MetadataHelper.getEntity(cas);
-            Field[] reftoFields = MetadataHelper.getReferenceToFields(mainEntity, casEntity);
+            Field[] reftoFields = MetadataHelper.getReferenceToFields(mainEntity, casEntity, true);
             if (reftoFields.length == 0) {
                 log.warn("No any fields of refto found : {} << {}", cas, mainEntity.getName());
                 continue;
             }
 
             List<String> or = new ArrayList<>();
+            // 有多个字段引用会一并获取
             for (Field field : reftoFields) {
-                or.add(String.format("%s = '%s'", field.getName(), mainRecordId));
+                if (field.getType() == FieldType.REFERENCE) {
+                    or.add(String.format("%s = '%s'", field.getName(), mainRecordId));
+                } else {
+                    // N2N
+                    String exists = String.format(
+                            "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId = '%s')",
+                            field.getOwnEntity().getPrimaryField().getName(), field.getName(), mainRecordId);
+                    or.add(exists);
+                }
             }
 
             String sql = String.format("select %s from %s where ( %s )",
@@ -539,7 +529,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     StringUtils.join(or.iterator(), " or "));
 
             Object[][] array;
-            if (fromTriggerNoFilter) {
+            if (fromTriggerIgnorePrivileges) {
                 array = Application.createQueryNoFilter(sql).array();
             } else {
                 Filter filter = Application.getPrivilegesManager().createQueryFilter(getCurrentUser(), action);
@@ -801,26 +791,27 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         // 触发器
 
-        RobotTriggerManual triggerManual = new RobotTriggerManual();
+        final RobotTriggerManual triggerManual = new RobotTriggerManual();
 
-        // 传导给明细（若有）
-
-        TriggerAction[] hasTriggers = getSpecTriggers(approvalRecord.getEntity().getDetailEntity(), null,
-                state == ApprovalState.APPROVED ? TriggerWhen.APPROVED : TriggerWhen.REVOKED);
-        if (hasTriggers.length > 0) {
-            for (ID did : QueryHelper.detailIdsNoFilter(recordId)) {
-                Record dAfter = EntityHelper.forUpdate(did, approvalUser, false);
-
-                if (state == ApprovalState.REVOKED) {
-                    triggerManual.onRevoked(
-                            OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, dAfter));
-                } else {
-                    triggerManual.onApproved(
-                            OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, dAfter));
+        // ND 传导给明细触发器（若有）
+        for (Entity de : approvalRecord.getEntity().getDetialEntities()) {
+            TriggerAction[] deHasTriggers = getSpecTriggers(de, null,
+                    state == ApprovalState.APPROVED ? TriggerWhen.APPROVED : TriggerWhen.REVOKED);
+            if (deHasTriggers.length > 0) {
+                for (ID did : QueryHelper.detailIdsNoFilter(recordId, de)) {
+                    Record dAfter = EntityHelper.forUpdate(did, approvalUser, false);
+                    if (state == ApprovalState.REVOKED) {
+                        triggerManual.onRevoked(
+                                OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, dAfter));
+                    } else {
+                        triggerManual.onApproved(
+                                OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, dAfter));
+                    }
                 }
             }
         }
 
+        // 主记录
         Record before = approvalRecord.clone();
         if (state == ApprovalState.REVOKED) {
             before.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
@@ -835,20 +826,6 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         // 手动记录历史
         new RevisionHistoryObserver().onApprovalManual(
                 OperatingContext.create(approvalUser, InternalPermission.APPROVAL, before, approvalRecord));
-    }
-
-    // 获取指定的触发器
-    private TriggerAction[] getSpecTriggers(Entity entity, ActionType specType, TriggerWhen... when) {
-        if (entity == null || when.length == 0) return new TriggerAction[0];
-
-        TriggerAction[] triggers = RobotTriggerManager.instance.getActions(entity, when);
-        if (triggers.length == 0 || specType == null) return triggers;
-
-        List<TriggerAction> specTriggers = new ArrayList<>();
-        for (TriggerAction t : triggers) {
-            if (t.getType() == specType) specTriggers.add(t);
-        }
-        return specTriggers.toArray(new TriggerAction[0]);
     }
 
     @Override

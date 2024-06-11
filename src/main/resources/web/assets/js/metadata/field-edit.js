@@ -108,7 +108,7 @@ $(document).ready(function () {
     if (dt === 'FILE' && extConfigNew['fileSuffix']) {
       const fix = []
       extConfigNew['fileSuffix'].split(/[,，;；\s]/).forEach((n) => {
-        n = $.trim(n)
+        n = $trim(n)
         if (n) {
           if (n.substring(0, 1) !== '.' && !n.includes('/*')) n = `.${n.trim()}`
           fix.push(n.trim())
@@ -268,6 +268,8 @@ $(document).ready(function () {
     _handleTag(extConfig.tagList || [], extConfig.tagMaxSelect || null)
   } else if (dt === 'ANYREFERENCE') {
     _handleAnyReference(extConfig.anyreferenceEntities)
+  } else if (dt === 'TEXT') {
+    _handleText(extConfig.textCommon)
   }
 
   // 只读属性
@@ -296,9 +298,7 @@ $(document).ready(function () {
           }
         })
       },
-      call: function () {
-        $countdownButton($(this._dlg).find('.btn-danger'))
-      },
+      countdown: 5,
     })
   })
 
@@ -309,6 +309,9 @@ $(document).ready(function () {
     }
     renderRbcomp(<FieldTypeCast entity={wpc.entityName} field={wpc.fieldName} fromType={wpc.fieldType} />)
   })
+
+  // v3.7
+  $('.page-help>a').attr('href', $('.page-help>a').attr('href') + `field-${wpc.fieldType.toLowerCase()}`)
 })
 
 // Check incorrect?
@@ -334,14 +337,21 @@ const _handlePicklist = function (dt) {
       $('#picklist-items li').text($L('请添加选项'))
       return
     }
+
     $('#picklist-items').empty()
     $(res.data).each(function () {
-      const $item = $(`<li class="dd-item" data-key="${this.mask || this.id}"><div class="dd-handle" style="color:${this.color || 'inherit'} !important">${this.text}</div></li>`).appendTo(
-        '#picklist-items'
-      )
+      const $item = $(`<li class="dd-item" data-key="${this.mask || this.id}"><div class="dd-handle" style="color:${this.color || 'inherit'} !important"></div></li>`).appendTo('#picklist-items')
+      $item.find('div').text(this.text)
       if ($isTrue(this['default'])) $item.addClass('default')
     })
     if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
+
+    let rbapi = []
+    res.data &&
+      res.data.forEach((item) => {
+        rbapi.push([item.mask || item.id, item.text])
+      })
+    rbapi.length > 0 && console.log(`RBAPI ASSISTANT *Option* :\n %c${JSON.stringify(rbapi)}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
   })
 
   $('.J_picklist-edit').on('click', () => {
@@ -390,6 +400,7 @@ const _handleDatetime = function (dt) {
     clearBtn: true,
     format: dt === 'DATE' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss',
     minView: dt === 'DATE' ? 2 : 0,
+    forceParse: false,
   }
   if (dt === 'TIME') {
     dpOption.format = 'hh:ii:ss'
@@ -397,7 +408,7 @@ const _handleDatetime = function (dt) {
     dpOption.maxView = 1
     dpOption.startView = 1
   }
-  $('.J_defaultValue').datetimepicker(dpOption)
+  $('.J_defaultValue').attr('readonly', true).datetimepicker(dpOption)
 
   $(`<button class="btn btn-secondary" type="button" title="${$L('日期公式')}"><i class="icon zmdi zmdi-settings-square"></i></button>`)
     .appendTo('.J_defaultValue-append')
@@ -506,7 +517,7 @@ const _handleReference = function (isN2N) {
     if (advFilter) {
       advFilter.show()
     } else {
-      renderRbcomp(<AdvFilter title={$L('附加过滤条件')} inModal={true} canNoFilters={true} entity={referenceEntity} filter={dataFilter} confirm={saveFilter} />, null, function () {
+      renderRbcomp(<AdvFilter title={$L('附加过滤条件')} inModal={true} canNoFilters={true} entity={referenceEntity} filter={dataFilter} confirm={saveFilter} />, function () {
         advFilter = this
       })
     }
@@ -610,6 +621,7 @@ const _handleCalcFormula = function (formula) {
           fs.push(item)
         }
       })
+      fs.push({ name: '{NOW}', label: $L('当前日期'), type: 'NOW' })
 
       FIELDS_CACHE = fs
       if (formula) _call(formula)
@@ -670,6 +682,27 @@ const _handleTag = function (tagList, tagMaxSelect) {
     .on('change', function (e) {
       $('.J_tagMaxSelect b').text(e.value.newValue)
     })
+}
+
+const _handleText = function (common) {
+  let s2data = common ? common.split(',') : []
+  s2data = s2data.map((item) => {
+    return { id: item, text: item, selected: true }
+  })
+  $('#textCommon').select2({
+    placeholder: $L('(选填)'),
+    data: s2data,
+    multiple: true,
+    maximumSelectionLength: 99,
+    language: {
+      noResults: function () {
+        return $L('请输入')
+      },
+    },
+    tags: true,
+    theme: 'default select2-tag',
+    allowClear: true,
+  })
 }
 
 class TagEditor extends RbAlert {

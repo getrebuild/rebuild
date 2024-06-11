@@ -10,9 +10,13 @@ const PAGE_SIZE = 40
 
 // ~ 文件列表
 class FilesList extends React.Component {
-  state = { ...this.props }
-  __lastEntry = 1
-  __pageNo = 1
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+
+    this._lastEntry = 1
+    this._pageNo = 1
+  }
 
   render() {
     const currentActive = this.state.currentActive || []
@@ -48,20 +52,27 @@ class FilesList extends React.Component {
             </div>
           )
         })}
-        {this.state.currentLen >= PAGE_SIZE && (
-          <div className="text-center mt-3 pb-3">
+
+        {this.state.currentSize >= PAGE_SIZE && (
+          <div className="text-center mt-4 pb-4">
             <a
               href="#"
               onClick={(e) => {
-                this.loadData(null, this.__pageNo + 1)
+                this.loadData(null, this._pageNo + 1)
                 e.preventDefault()
               }}>
               {$L('显示更多')}
             </a>
           </div>
         )}
-        {this.__pageNo > 1 && this.state.currentLen > 0 && this.state.currentLen < PAGE_SIZE && <div className="text-center mt-3 pb-3 text-muted">{$L('已显示全部')}</div>}
-        {this.__pageNo === 1 && this.state.files && this.state.files.length === 0 && (
+        {this._pageNo > 1 && this.state.currentSize > 0 && this.state.currentSize < PAGE_SIZE && (
+          <div className="mt-6 pb-1">
+            <div className="loadmore-line">
+              <span>{$L('已加载全部')}</span>
+            </div>
+          </div>
+        )}
+        {this._pageNo === 1 && this.state.files && this.state.files.length === 0 && (
           <div className="list-nodata">
             <i className="zmdi zmdi-folder-outline" />
             <p>{$L('暂无数据')}</p>
@@ -89,14 +100,14 @@ class FilesList extends React.Component {
   componentDidMount = () => this.loadData()
 
   loadData(entry, pageNo) {
-    this.__lastEntry = entry || this.__lastEntry
-    this.__pageNo = pageNo || 1
-    const url = `/files/list-file?entry=${this.__lastEntry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}&pageNo=${this.__pageNo}&pageSize=${PAGE_SIZE}`
+    this._lastEntry = entry || this._lastEntry
+    this._pageNo = pageNo || 1
+    const url = `/files/list-file?entry=${this._lastEntry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}&pageNo=${this._pageNo}&pageSize=${PAGE_SIZE}`
     $.get(url, (res) => {
       const current = res.data || []
-      let files = this.__pageNo === 1 ? [] : this.state.files
+      let files = this._pageNo === 1 ? [] : this.state.files
       files = [].concat(files, current)
-      this.setState({ files: files, currentLen: current.length, currentActive: [] })
+      this.setState({ files: files, currentSize: current.length, currentActive: [] })
     })
   }
 
@@ -144,7 +155,7 @@ class SharedFiles extends RbModalHandler {
                   this.state.data.map((item, idx) => {
                     return (
                       <tr key={idx}>
-                        <td width="26" style={{ paddingBottom: 3 }}>
+                        <td width="36" style={{ paddingBottom: 0, paddingTop: 5 }}>
                           <i className="file-icon" data-type={$fileExtName(item[1])} />
                         </td>
                         <td className="position-relative">

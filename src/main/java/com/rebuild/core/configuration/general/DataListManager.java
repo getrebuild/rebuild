@@ -17,10 +17,12 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.service.dashboard.ChartManager;
-import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -262,7 +264,7 @@ public class DataListManager extends BaseLayoutManager {
             for (Object o : configJson.getJSONArray("items")) {
                 JSONObject item = (JSONObject) o;
                 String field = item.getString("field");
-                if (entityMeta.containsField(field) || AdvFilterParser.VF_ACU.equals(field)) {
+                if (entityMeta.containsField(field) /* v3.7 || AdvFilterParser.VF_ACU.equals(field)*/) {
                     paneFields.add(field);
                 }
             }
@@ -289,19 +291,86 @@ public class DataListManager extends BaseLayoutManager {
     }
 
     /**
-     * TODO 自定义字段 MODE2
+     * 自定义字段 MODE2
      *
      * @param entity
      * @return
      */
     public JSON getFieldsLayoutMode2(Entity entity) {
-        JSONObject emptyConfig = (JSONObject) formatListFields(entity.getName(), null, true, null);
-        JSONArray fields = emptyConfig.getJSONArray("fields");
-
-        if (entity.containsField(EntityHelper.ApprovalState)) {
-            fields.add(formatField(entity.getField(EntityHelper.ApprovalState)));
+        String showFields = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE2_SHOWFIELDS);
+        JSONArray showFieldsConf;
+        if (JSONUtils.wellFormat(showFields)) {
+            showFieldsConf = JSON.parseArray(showFields);
+        } else {
+            showFieldsConf = JSON.parseArray("[null,null,null,null,null,null]");  // fix:6
         }
 
+        String imgeField0 = showFieldsConf.getString(0);
+        if (imgeField0 == null) {
+            showFieldsConf.set(0, entity.getPrimaryField().getName());
+        }
+        String nameField1 = showFieldsConf.getString(1);
+        if (nameField1 == null) {
+            nameField1 = entity.getNameField().getName();
+            showFieldsConf.set(1, nameField1);
+        }
+        String approvalField2 = showFieldsConf.getString(2);
+        if (approvalField2 == null) {
+            if (MetadataHelper.hasApprovalField(entity)) {
+                showFieldsConf.set(2, EntityHelper.ApprovalState);
+            } else {
+                showFieldsConf.set(2, entity.getPrimaryField().getName());
+            }
+        }
+        String createdOnField3 = showFieldsConf.getString(3);
+        if (createdOnField3 == null) {
+            showFieldsConf.set(3, EntityHelper.CreatedOn);
+        }
+        String createdByField4 = showFieldsConf.getString(4);
+        if (createdByField4 == null) {
+            showFieldsConf.set(4, EntityHelper.CreatedBy);
+        }
+
+        return formatShowFields(entity, showFieldsConf);
+    }
+
+    /**
+     * 自定义字段 MODE3
+     *
+     * @param entity
+     * @return
+     */
+    public JSON getFieldsLayoutMode3(Entity entity) {
+        String showFields = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE3_SHOWFIELDS);
+        JSONArray showFieldsConf;
+        if (JSONUtils.wellFormat(showFields)) {
+            showFieldsConf = JSON.parseArray(showFields);
+        } else {
+            showFieldsConf = JSON.parseArray("[null, null, null, null, null]");  // fix:5
+        }
+
+        String imgField0 = showFieldsConf.getString(0);
+        if (imgField0 == null) {
+            Field[] x = MetadataSorter.sortFields(entity, DisplayType.IMAGE);
+            imgField0 = x.length > 0 ? x[0].getName() : entity.getPrimaryField().getName();
+            showFieldsConf.set(0, imgField0);
+        }
+        String nameField1 = showFieldsConf.getString(1);
+        if (nameField1 == null) {
+            nameField1 = entity.getNameField().getName();
+            showFieldsConf.set(1, nameField1);
+        }
+
+        return formatShowFields(entity, showFieldsConf);
+    }
+
+    private JSON formatShowFields(Entity entity, JSONArray showFields) {
+        JSONObject emptyConfig = (JSONObject) formatListFields(entity.getName(), null, true, null);
+        JSONArray fields = emptyConfig.getJSONArray("fields");
+        fields.clear();
+        for (Object name : showFields) {
+            if (name != null) fields.add(formatField(entity.getField((String) name)));
+        }
         return emptyConfig;
     }
 }

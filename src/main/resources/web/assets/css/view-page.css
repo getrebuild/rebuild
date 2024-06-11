@@ -36,12 +36,12 @@ body {
   animation: spinAnimation 1s infinite linear;
 }
 
-.tab-container {
+.main-content .tab-container {
   margin-top: -8px;
   padding-right: 4px;
 }
 
-.tab-content {
+.main-content .tab-content {
   margin: 0;
   padding: 13px 0 0;
 }
@@ -56,9 +56,9 @@ body {
   width: 100%;
   z-index: 1001;
   background-color: #fff;
-  background-color: rgba(255, 255, 255, 0.9);
   background-color: rgba(230, 230, 230, 0.8);
   border-bottom-color: rgba(230, 230, 230, 1);
+  /* background: linear-gradient(to bottom, rgba(230, 230, 230, 1), rgba(230, 230, 230, 0.7)); */
 }
 
 .view-header .header-icon {
@@ -100,17 +100,6 @@ body {
   min-height: 37px;
 }
 
-/* .rbview-form .img-field .img-thumbnail:hover,
-.rbview-form .file-field .img-thumbnail:hover {
-  opacity: 0.8;
-} 
-
-.rbview-form .file-field .img-thumbnail {
-  width: 100%;
-  margin: 0;
-}
-*/
-
 .rbview-form .type-NTEXT .form-control-plaintext {
   max-height: 72px;
   position: relative;
@@ -120,6 +109,10 @@ body {
 .rbview-form .type-NTEXT .form-control-plaintext > p {
   margin: 0;
   line-height: 1.428571;
+}
+
+.rbview-form .type-NTEXT .form-control-plaintext > p:empty {
+  height: 18.56px;
 }
 
 .rbview-form .type-NTEXT.col-sm-12 .form-control-plaintext {
@@ -205,6 +198,7 @@ body {
   font-size: 0.8462rem;
   font-weight: normal;
   line-height: 1.2;
+  background-color: var(--rb-theme-color);
 }
 
 .related-list {
@@ -400,45 +394,6 @@ body {
 .shares-list .table > tbody td {
   padding: 8px 10px;
   border-width: 0;
-}
-
-.load-mores {
-  border-top: 1px solid #eee;
-  height: 34px;
-  margin-top: 34px;
-}
-
-.load-mores .btn {
-  width: 160px;
-  line-height: 1.8rem;
-  min-height: 2.6rem;
-  border-radius: 99px;
-  font-size: 12px;
-}
-
-.load-mores > div {
-  width: 180px;
-  background-color: #fff;
-  margin: -1.4rem auto 0;
-}
-
-.load-mores > .btn {
-  display: inline-block;
-  margin-top: -1.4rem;
-}
-
-.load-mores.load-end {
-  border: 0 none;
-  margin: 15px 0;
-  height: auto;
-}
-
-.load-mores.load-end > div {
-  width: 10px;
-  height: 10px;
-  background-color: #ccc;
-  margin: 0 auto;
-  border-radius: 99px;
 }
 
 /* editable */
@@ -1080,7 +1035,6 @@ body {
   min-height: auto;
 }
 
-.view-header > span > .close.J_list,
 .view-header > span > .close.J_back {
   font-size: 1.6rem;
 }
@@ -1088,4 +1042,129 @@ body {
 .view-action.invisible2,
 .view-history.invisible2 {
   display: none;
+}
+
+.sop-toolbar {
+  position: relative;
+  margin-bottom: 18px;
+  background-color: #f7f7f7;
+  padding: 12px 18px;
+  border-radius: 2px;
+}
+
+.sop-steps {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  position: relative;
+}
+
+.sop-steps::after {
+  content: '';
+  height: 4px;
+  line-height: 4px;
+  font-size: 0;
+  background-color: #ddd;
+  width: 100%;
+  position: absolute;
+  top: 12px;
+  z-index: 1;
+}
+
+.sop-steps li {
+  z-index: 2;
+  text-align: center;
+}
+
+.sop-steps li > div {
+  width: 120px;
+}
+
+.sop-steps li > div > span {
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  display: inline-block;
+  background-color: #ddd;
+  border-radius: 50%;
+  text-align: center;
+  color: #777;
+  cursor: default;
+  position: relative;
+}
+
+.sop-steps li > div > span,
+.sop-steps li > div > p {
+  margin: 0;
+  padding: 0;
+}
+
+.sop-steps li > div > p {
+  margin-top: 5px;
+  line-height: 1;
+}
+
+.sop-steps li.state-2 > div > span:hover {
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.sop-steps li.state-1 > div > span {
+  background-color: #f7b904;
+  border: 5px solid #fff;
+  font-size: 0;
+}
+
+.sop-steps li.state-2 > div > span {
+  font-size: 0;
+  background-color: #33a451;
+}
+
+.sop-steps li.state-2 > div > span::before {
+  font-size: 16px;
+  font-family: 'Material Design Icons', serif;
+  color: #fff;
+}
+
+.sop-steps li.state-2 > div > span::before {
+  content: '\F012C';
+}
+
+.sop-steps li:last-child > div {
+  text-align: right;
+}
+
+.sop-steps li:first-child > div {
+  text-align: left;
+}
+
+.sop-steps li.state-2 > div > span > em {
+  background-color: #fff;
+  color: #000;
+  position: absolute;
+  right: -9px;
+  top: -8px;
+  font-size: 0.8462rem;
+  border-radius: 50%;
+  font-style: normal;
+  font-weight: normal;
+  min-width: 16px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* v3.7 */
+
+.view-body .view-header {
+  position: sticky;
+}
+
+.view-body .main-content {
+  margin-top: 0;
+}
+
+.rbview-form div.formula-code {
+  padding-top: 7px;
+  padding-bottom: 7px;
 }

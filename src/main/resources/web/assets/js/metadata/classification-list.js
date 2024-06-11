@@ -6,11 +6,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 $(document).ready(function () {
-  $('.J_add').click(() => renderRbcomp(<DlgEdit />))
-  renderRbcomp(<GridList />, 'list')
+  $('.J_add').on('click', () => renderRbcomp(<DlgEdit />))
+  renderRbcomp(<CardList />, 'list')
 })
 
-class GridList extends React.Component {
+class CardList extends React.Component {
   constructor(props) {
     super(props)
     this.state = {}
@@ -45,13 +45,13 @@ class GridList extends React.Component {
             </div>
           )
         })}
-        {(!this.state.list || this.state.list.length === 0) && <div className="text-muted">{$L('暂无分类数据')}</div>}
+        {this.state.list && this.state.list.length === 0 && <div className="text-muted">{$L('暂无分类数据')}</div>}
       </div>
     )
   }
 
   componentDidMount() {
-    $.get('/admin/metadata/classification/list', (res) => this.setState({ list: res.data }))
+    $.get('/admin/metadata/classification/list', (res) => this.setState({ list: res.data || [] }))
   }
 
   _handleEdit(item) {

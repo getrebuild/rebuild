@@ -16,9 +16,16 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.NoRecordFoundException;
+import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.core.service.trigger.RobotTriggerManager;
+import com.rebuild.core.service.trigger.TriggerAction;
+import com.rebuild.core.service.trigger.TriggerWhen;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author devezhao
@@ -138,5 +145,56 @@ public class ApprovalHelper {
                 ? MetadataHelper.getEntity(((ID) entityOrRecord).getEntityCode())
                 : (Entity) entityOrRecord;
         return Language.L("有一条 %s 记录请你审批", EasyMetaFactory.getLabel(be));
+    }
+
+    /**
+     * 根据节点名称获取编号
+     *
+     * @param nodeName
+     * @return
+     */
+    public static String getNodeIdByName(String nodeName, ID approvalId) {
+        FlowDefinition flowDefinition = RobotApprovalManager.instance.getFlowDefinition(approvalId);
+        FlowParser flowParser = flowDefinition.createFlowParser();
+        for (FlowNode node : flowParser.getAllNodes()) {
+            if (nodeName.equals(node.getNodeName())) return node.getNodeId();
+        }
+        return null;
+    }
+
+    /**
+     * 根据节点编号获取名称
+     *
+     * @param nodeId
+     * @return
+     */
+    public static String getNodeNameById(String nodeId, ID approvalId) {
+        FlowDefinition flowDefinition = RobotApprovalManager.instance.getFlowDefinition(approvalId);
+        FlowParser flowParser = flowDefinition.createFlowParser();
+        for (FlowNode node : flowParser.getAllNodes()) {
+            if (nodeId.equals(node.getNodeId())) return node.getNodeName();
+        }
+        return null;
+    }
+
+    /**
+     * 获取指定的触发器
+     *
+     * @param entity
+     * @param specType
+     * @param when
+     * @return
+     */
+    public static TriggerAction[] getSpecTriggers(Entity entity, ActionType specType, TriggerWhen... when) {
+        if (when.length == 0) return new TriggerAction[0];
+
+        TriggerAction[] triggers = RobotTriggerManager.instance.getActions(entity, when);
+        if (triggers.length == 0 || specType == null) return triggers;
+
+        List<TriggerAction> specTriggers = new ArrayList<>();
+        for (TriggerAction t : triggers) {
+            if (t.getType() == specType) specTriggers.add(t);
+        }
+        return specTriggers.toArray(new TriggerAction[0]);
     }
 }

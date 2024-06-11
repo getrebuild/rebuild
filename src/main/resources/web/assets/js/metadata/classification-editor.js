@@ -16,7 +16,7 @@ $(document).ready(function () {
     if (_dlgImports) {
       _dlgImports.show()
     } else {
-      renderRbcomp(<DlgImports id={wpc.id} />, null, function () {
+      renderRbcomp(<DlgImports id={wpc.id} />, function () {
         _dlgImports = this
       })
     }
@@ -150,6 +150,13 @@ class LevelBox extends React.Component {
     $.get(`/admin/metadata/classification/load-data-items?data_id=${wpc.id}&parent=${p || ''}`, (res) => {
       this.clear()
       this.setState({ items: res.data, activeId: null })
+
+      let rbapi = []
+      res.data &&
+        res.data.forEach((item) => {
+          rbapi.push([item[0], item[1]])
+        })
+      rbapi.length > 0 && console.log(`RBAPI ASSISTANT *Classification* :\n %c${JSON.stringify(rbapi)}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
     })
   }
 
@@ -187,7 +194,7 @@ class LevelBox extends React.Component {
     $stopEvent(e, true)
     _data = _data || this.state
 
-    const name = $.trim(_data.itemName)
+    const name = $trim(_data.itemName)
     if (!name) return
     if (this.props.level >= 1 && !this.parentId) return RbHighbar.create($L('请先选择上级分类项'))
 
@@ -482,7 +489,7 @@ class DlgImports extends RbModalHandler {
   _checkState(taskid) {
     if (!this.__mp) {
       const mp_parent = $(this._dlg._element).find('.modal-body').attr('id', $random('node-'))
-      this.__mp = new Mprogress({ template: 1, start: true, parent: `#` + $(mp_parent).attr('id') })
+      this.__mp = new Mprogress({ template: 1, start: true, parent: '#' + $(mp_parent).attr('id') })
     }
 
     $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
@@ -523,7 +530,7 @@ class DlgEditItem extends RbAlert {
         <div className="form-group">
           <label className="text-bold">{$L('编码')}</label>
           <input type="text" className="form-control form-control-sm" name="code" value={this.state.code || ''} onChange={this.handleChange} maxLength="50" placeholder={$L('无')} />
-          <p className="form-text">{$L('编码可用于排序和搜素')}</p>
+          <p className="form-text">{$L('编码可用于排序和搜索')}</p>
         </div>
         <div className="form-group">
           <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">

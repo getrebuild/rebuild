@@ -10,6 +10,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const _configLabels = {}
 const _configWidths = {}
 let _configSorts = {}
+let _fieldCached = []
 
 $(document).ready(() => {
   const entity = $urlp('entity')
@@ -25,6 +26,7 @@ $(document).ready(() => {
   $.get(`${settingsUrl}?id=${cfgid || ''}`, (res) => {
     const _data = res.data || {}
     cfgid = _data.configId || ''
+    _fieldCached = [..._data.fieldList, ..._data.configList]
 
     $(_data.fieldList).each(function () {
       // eslint-disable-next-line no-undef
@@ -110,7 +112,7 @@ $(document).ready(() => {
     const $s = $(`<div class="search-input"><input type="text" placeholder="${$L('筛选字段')}" /></div>`).appendTo($(this).parent())
     const $input = $s.find('input').on('input', (e) => {
       $setTimeout(() => {
-        const q = $.trim(e.target.value).toLowerCase()
+        const q = $trim(e.target.value).toLowerCase()
         $('.unset-list .dd-item').each(function () {
           const $item = $(this)
           if (!q || $item.text().toLowerCase().includes(q) || $item.data('key').toLowerCase().includes(q)) {
@@ -149,11 +151,13 @@ render_item_after = function ($item) {
     if (ShowStyles_Comps[fkey]) {
       ShowStyles_Comps[fkey].show()
     } else {
+      const found = _fieldCached.find((x) => x.field === fkey)
       renderRbcomp(
         <ShowStyles2
           label={_configLabels[fkey]}
           width={_configWidths[fkey]}
           sort={_configSorts[fkey]}
+          type={found ? found.type : null}
           onConfirm={(s) => {
             _configLabels[fkey] = s.label
             _configWidths[fkey] = s.width
@@ -181,6 +185,8 @@ class ShowStyles2 extends ShowStyles {
   }
 
   renderExtras() {
+    // eslint-disable-next-line no-undef
+    const cansort = !UNSORT_FIELDTYPES.includes(this.props.type)
     return (
       <RF>
         <div className="form-group row">
@@ -190,21 +196,23 @@ class ShowStyles2 extends ShowStyles {
             <div className="form-text mt-0">{$L('默认')}</div>
           </div>
         </div>
-        <div className="form-group row pt-1 pb-1">
-          <label className="col-sm-3 col-form-label text-sm-right">{$L('默认排序')}</label>
-          <div className="col-sm-7" ref={(c) => (this._$sort = c)}>
-            <a
-              className="btn btn-link btn-sm pl-0 text-left mt-1 up-1"
-              onClick={() => {
-                if (this.state.sortActive === 'asc') this.setState({ sortActive: 'desc' })
-                else if (this.state.sortActive === 'desc') this.setState({ sortActive: null })
-                else this.setState({ sortActive: 'asc' })
-              }}
-              title={$L('正序/倒序')}>
-              <i className={`mdi mdi-sort-alphabetical-ascending ${this.state.sortActive || ''}`} />
-            </a>
+        {cansort && (
+          <div className="form-group row pt-1 pb-1">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('默认排序')}</label>
+            <div className="col-sm-7" ref={(c) => (this._$sort = c)}>
+              <a
+                className="btn btn-link btn-sm pl-0 text-left mt-1 up-1"
+                onClick={() => {
+                  if (this.state.sortActive === 'asc') this.setState({ sortActive: 'desc' })
+                  else if (this.state.sortActive === 'desc') this.setState({ sortActive: null })
+                  else this.setState({ sortActive: 'asc' })
+                }}
+                title={$L('正序/倒序')}>
+                <i className={`mdi mdi-sort-alphabetical-ascending ${this.state.sortActive || ''}`} />
+              </a>
+            </div>
           </div>
-        </div>
+        )}
       </RF>
     )
   }

@@ -25,6 +25,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.ApplicationPidFileWriter;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.management.MBeanServer;
@@ -55,6 +56,7 @@ import java.util.Set;
         H2ConsoleAutoConfiguration.class})
 @ImportResource("classpath:application-bean.xml")
 @EnableScheduling
+@EnableAsync
 @Slf4j
 public class BootApplication extends SpringBootServletInitializer {
 

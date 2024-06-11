@@ -15,7 +15,7 @@ const UPDATE_MODES = {
   FORMULA: $L('计算公式'),
 }
 
-const __LAB_MATCHFIELDS = false
+let __LAB_MATCHFIELDS = false
 
 // ~~ 字段更新
 // eslint-disable-next-line no-undef
@@ -88,11 +88,12 @@ class ContentFieldWriteback extends ActionContentSpec {
             <div className="col-md-12 col-lg-9">
               <div className="items">
                 {(this.state.items || []).length > 0 &&
-                  this.state.items.map((item) => {
+                  this.state.items.map((item, idx) => {
                     // fix: v2.2
                     if (!item.updateMode) item.updateMode = item.sourceField.includes('#') ? 'FORMULA' : 'FIELD'
 
                     const field = item.updateMode === 'VFIXED' ? this.state.targetFields.find((x) => x.name === item.targetField) : null
+                    const isFORMULACode = item.updateMode === 'FORMULA' && FieldFormula.isCode(item.sourceField)
                     return (
                       <div key={item.targetField}>
                         <div className="row">
@@ -106,10 +107,19 @@ class ContentFieldWriteback extends ActionContentSpec {
                           <div className="col-5 del-wrap">
                             {item.updateMode === 'FIELD' && <span className="badge badge-warning">{_getFieldLabel(this.__sourceFieldsCache, item.sourceField)}</span>}
                             {item.updateMode === 'VFIXED' && <span className="badge badge-light text-break">{FieldValueSet.formatFieldText(item.sourceField, field)}</span>}
-                            {item.updateMode === 'FORMULA' && <span className="badge badge-warning">{FieldFormula.formatText(item.sourceField, this.__sourceFieldsCache)}</span>}
-                            <a className="del" title={$L('移除')} onClick={() => this.delItem(item.targetField)}>
-                              <i className="zmdi zmdi-close" />
-                            </a>
+                            {item.updateMode === 'FORMULA' && (
+                              <span className={`badge badge-warning ${isFORMULACode && 'w-100'}`}>{FieldFormula.formatText(item.sourceField, this.__sourceFieldsCache)}</span>
+                            )}
+                            <RF>
+                              {isFORMULACode && (
+                                <a className="edit-code" title={$L('编辑计算公式')} onClick={() => this._editCode(item, idx)}>
+                                  <i className="zmdi zmdi-edit" />
+                                </a>
+                              )}
+                              <a className="del" title={$L('移除')} onClick={() => this.delItem(item.targetField)}>
+                                <i className="zmdi zmdi-close" />
+                              </a>
+                            </RF>
                           </div>
                         </div>
                       </div>
@@ -221,7 +231,15 @@ class ContentFieldWriteback extends ActionContentSpec {
     $.get(`/admin/robot/trigger/field-writeback-entities?source=${this.props.sourceEntity}&matchfields=${__LAB_MATCHFIELDS}`, (res) => {
       this.setState({ targetEntities: res.data || [] }, () => {
         const $s2te = $(this._$targetEntity)
-          .select2({ placeholder: $L('选择目标实体') })
+          .select2({
+            placeholder: $L('选择目标实体'),
+            templateResult: function (res) {
+              const text = res.text.split(' (N)')
+              const $span = $('<span></span>').text(text[0])
+              if (text.length > 1) $('<span class="badge badge-default badge-pill">N</span>').appendTo($span)
+              return $span
+            },
+          })
           .on('change', () => this._changeTargetEntity())
 
         if (content && content.targetEntity) {
@@ -241,9 +259,6 @@ class ContentFieldWriteback extends ActionContentSpec {
       $(this._$clearFields).attr('checked', content.clearFields === true)
       $(this._$stopPropagation).attr('checked', content.stopPropagation === true)
       if (content.stopPropagation === true) $(this._$stopPropagation).parents('.bosskey-show').removeClass('bosskey-show')
-
-      // eslint-disable-next-line no-undef
-      DlgSpecFields.render(content)
     }
   }
 
@@ -325,27 +340,47 @@ class ContentFieldWriteback extends ActionContentSpec {
     })
   }
 
+  _editCode(item, idx) {
+    const initCode = item.sourceField.substr(4, item.sourceField.length - 8)
+    renderRbcomp(
+      <FormulaCalcWithCode
+        entity={this.props.sourceEntity}
+        fields={this.__sourceFieldsCache}
+        forceCode
+        initCode={initCode}
+        verifyFormula
+        onConfirm={(expr) => {
+          if (!expr) return
+          const itemsNew = this.state.items
+          item.sourceField = expr
+          itemsNew[idx] = item
+          this.setState({ items: itemsNew })
+        }}
+      />
+    )
+  }
+
   addItem() {
     const targetField = $(this._$targetField).val()
     const mode = $(this._$updateMode).val()
     if (!targetField) return RbHighbar.create($L('请选择目标字段'))
 
-    let sourceField = null
+    let sourceAny = null
     if (mode === 'FIELD') {
-      sourceField = $(this._$sourceField).val()
-      if (!sourceField) return RbHighbar.create('请选择源字段')
+      sourceAny = $(this._$sourceField).val()
+      if (!sourceAny) return RbHighbar.create('请选择源字段')
 
       // 目标字段=源字段
       const targetFieldFull = `${$(this._$targetEntity).val().split('.')[0]}.${targetField}`.replace('$PRIMARY$.', '')
-      if (targetFieldFull === sourceField) return RbHighbar.create($L('目标字段与源字段不能为同一字段'))
+      if (targetFieldFull === sourceAny) return RbHighbar.create($L('目标字段与源字段不能为同一字段'))
 
       // ...
     } else if (mode === 'FORMULA') {
-      sourceField = this._$sourceFormula.val()
-      if (!sourceField) return RbHighbar.create($L('请输入计算公式'))
+      sourceAny = this._$sourceFormula.val()
+      if (!sourceAny) return RbHighbar.create($L('请输入计算公式'))
     } else if (mode === 'VFIXED') {
-      sourceField = this._$sourceValue.val()
-      if (!sourceField) return
+      sourceAny = this._$sourceValue.val()
+      if (!sourceAny) return
     } else if (mode === 'VNULL') {
       // v3.6 不校验
       // const tf = this.state.targetFields.find((x) => x.name === targetField)
@@ -356,7 +391,7 @@ class ContentFieldWriteback extends ActionContentSpec {
     const exists = items.find((x) => x.targetField === targetField)
     if (exists) return RbHighbar.create($L('目标字段重复'))
 
-    items.push({ targetField: targetField, updateMode: mode, sourceField: sourceField })
+    items.push({ targetField: targetField, updateMode: mode, sourceField: sourceAny })
     this.setState({ items: items }, () => this._$sourceFormula && this._$sourceFormula.clear())
   }
 
@@ -460,11 +495,14 @@ class FieldFormula extends React.Component {
   }
 }
 
+FieldFormula.isCode = function (formula) {
+  return formula && formula.startsWith('{{{{')
+}
 FieldFormula.formatText = function (formula, fields) {
   if (!formula) return null
 
   // CODE
-  if (formula.startsWith('{{{{')) {
+  if (FieldFormula.isCode(formula)) {
     return FormulaCode.textCode(formula)
   }
   // compatible: DATE
@@ -488,7 +526,7 @@ class FormulaCalcWithCode extends FormulaCalc {
         <FormulaCode
           initCode={this.props.initCode}
           onConfirm={(code) => {
-            this.props.onConfirm(!$.trim(code) ? null : `{{{{${code}}}}}`)
+            this.props.onConfirm(!$trim(code) ? null : `{{{{${code}}}}}`)
             this.hide()
           }}
           verifyFormula
@@ -558,7 +596,7 @@ class FormulaCalcWithCode extends FormulaCalc {
 
       const $btn = $(`<a class="switch-code-btn" title="${$L('使用高级计算公式')}"><i class="icon mdi mdi-code-tags"></i></a>`)
       $(this._$formula).addClass('switch-code').after($btn)
-      $btn.click(() => this.setState({ useCode: true }))
+      $btn.on('click', () => this.setState({ useCode: true }))
     }
 
     super.componentDidMount()
@@ -631,15 +669,10 @@ class FormulaCode extends React.Component {
 
 // eslint-disable-next-line no-undef
 renderContentComp = function (props) {
+  __LAB_MATCHFIELDS = window.__BOSSKEY || !!(props.content && props.content.targetEntityMatchFields)
   renderRbcomp(<ContentFieldWriteback {...props} />, 'react-content', function () {
     // eslint-disable-next-line no-undef
     contentComp = this
     $('#react-content [data-toggle="tooltip"]').tooltip()
   })
-
-  // 指定字段
-  $('.when-update a.hide').removeClass('hide')
-
-  // eslint-disable-next-line no-undef
-  useExecManual()
 }

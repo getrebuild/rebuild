@@ -173,7 +173,7 @@ public class RelatedListController extends BaseController {
     }
 
     @GetMapping("related-list-config")
-    public RespBody getDataListConfig(HttpServletRequest req, @EntityParam Entity listEntity) {
+    public RespBody relatedListConfig(HttpServletRequest req, @EntityParam Entity listEntity) {
         JSON config = DataListManager.instance.getListFields(
                 listEntity.getName(), getRequestUser(req), DataListManager.SYS_RELATED);
         return RespBody.ok(config);

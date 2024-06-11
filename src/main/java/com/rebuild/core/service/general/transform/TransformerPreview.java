@@ -41,11 +41,11 @@ import java.util.List;
  */
 public class TransformerPreview {
 
-    final private ID configId;
-    final private ID sourceId;
-    final private ID user;
+    final protected ID configId;
+    final protected ID sourceId;
+    final protected ID user;
 
-    final private ID mainid;
+    final protected ID mainid;
 
     /**
      * @param previewid TRANSID.SOURCEID.[MAINID]
@@ -60,10 +60,17 @@ public class TransformerPreview {
     }
 
     /**
-     * @param isDetails [是否明细转换]
      * @return
      */
-    public JSON buildForm(boolean isDetails) {
+    public JSON buildForm() {
+        return buildForm(null);
+    }
+
+    /**
+     * @param detailName [获取明细]
+     * @return
+     */
+    public JSON buildForm(String detailName) {
         Entity mainOrDetailEntity = MetadataHelper.getEntity(sourceId.getEntityCode());
         ConfigBean config = TransformManager.instance.getTransformConfig(configId, mainOrDetailEntity.getName());
         JSONObject transConfig = (JSONObject) config.getJSON("config");
@@ -71,11 +78,11 @@ public class TransformerPreview {
         Entity targetEntity = MetadataHelper.getEntity(config.getString("target"));
         Entity sourceEntity = mainOrDetailEntity;
 
-        RecordTransfomer transfomer = new RecordTransfomer(targetEntity, transConfig, false);
+        RecordTransfomer transfomer = new RecordTransfomer37(targetEntity, transConfig, false);
         transfomer.setUser(this.user);
 
         // 获取明细
-        if (isDetails) {
+        if (detailName != null) {
             JSONObject fieldsMapping = transConfig.getJSONObject("fieldsMappingDetail");
             if (fieldsMapping == null || fieldsMapping.isEmpty()) {
                 return JSONUtils.EMPTY_ARRAY;
@@ -95,8 +102,6 @@ public class TransformerPreview {
 
             sourceEntity = sourceEntity.getMainEntity() != null ? sourceEntity : sourceEntity.getDetailEntity();
             targetEntity = targetEntity.getMainEntity() != null ? targetEntity : targetEntity.getDetailEntity();
-
-            JSONObject initialVal = JSONUtils.toJSONObject(FormsBuilder.DV_MAINID, FormsBuilder.DV_MAINID);
 
             JSONArray detailModels = new JSONArray();
             FormsBuilderContextHolder.setMainIdOfDetail(fakeMainid);
@@ -124,7 +129,7 @@ public class TransformerPreview {
 
         JSONObject fieldsMapping = transConfig.getJSONObject("fieldsMapping");
         if (fieldsMapping == null || fieldsMapping.isEmpty()) {
-            throw new ConfigurationException("Invalid config of transform : " + transConfig);
+            throw new ConfigurationException("INVALID TRANSFORM CONFIG");
         }
 
         Record targetRecord = transfomer.transformRecord(
@@ -145,7 +150,7 @@ public class TransformerPreview {
         }
     }
 
-    private void fillLabelOfReference(Record record) {
+    protected void fillLabelOfReference(Record record) {
         Entity entity = record.getEntity();
         for (String field : record.getAvailableFields()) {
             DisplayType dt = EasyMetaFactory.getDisplayType(entity.getField(field));
@@ -165,6 +170,6 @@ public class TransformerPreview {
      * @return
      */
     public boolean fillback(ID newId) {
-        return new RecordTransfomer(this.configId).fillback(this.sourceId, newId);
+        return new RecordTransfomer37(this.configId).fillback(this.sourceId, newId);
     }
 }

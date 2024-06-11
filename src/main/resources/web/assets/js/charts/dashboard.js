@@ -188,22 +188,22 @@ const dlgShow = (t, props) => {
     dlgRefs[t].show()
   } else if (t === 'DlgAddChart') {
     if (dash_editable) {
-      renderRbcomp(<DlgAddChart {...props} />, null, function () {
+      renderRbcomp(<DlgAddChart {...props} />, function () {
         dlgRefs[t] = this
       })
     } else {
       RbHighbar.create($L('你无权添加图表到此仪表盘'))
     }
   } else if (t === 'DlgDashAdd') {
-    renderRbcomp(<DlgDashAdd {...props} />, null, function () {
+    renderRbcomp(<DlgDashAdd {...props} />, function () {
       dlgRefs[t] = this
     })
   } else if (t === 'DlgDashSettings') {
-    renderRbcomp(<DlgDashSettings {...props} />, null, function () {
+    renderRbcomp(<DlgDashSettings {...props} />, function () {
       dlgRefs[t] = this
     })
   } else if (t === 'DashSelect') {
-    renderRbcomp(<DashSelect {...props} />, null, function () {
+    renderRbcomp(<DashSelect {...props} />, function () {
       dlgRefs[t] = this
     })
   }

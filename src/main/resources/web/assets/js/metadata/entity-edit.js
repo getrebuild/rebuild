@@ -20,7 +20,7 @@ $(document).ready(() => {
   $(`.nav-tabs>li[data-name=${wpc.entity}]>a`).addClass('active')
   if ($('.J_details')[0]) {
     const $toggle = $('.J_for-details')
-    $('<i class="icon zmdi zmdi-caret-down ml-1 mr-0 text-muted fs-18"></i>').appendTo($toggle)
+    $('<i class="icon zmdi zmdi-caret-down ml-1 mr-0 text-muted fs-16"></i>').appendTo($toggle)
     $toggle.attr('data-toggle', 'dropdown')
     $toggle.next().find(`a[data-name=${wpc.entity}]`).addClass('text-primary')
   }
@@ -148,19 +148,18 @@ $(document).ready(() => {
   })
 
   $.get('/admin/entity/entity-tags', (res) => {
-    let data = res.data || []
-    data = data.sort().map((item) => {
+    let s2data = res.data || []
+    s2data = s2data.map((item) => {
       return { id: item, text: item }
     })
-
     $('#tags').select2({
       placeholder: $L('无'),
-      data: data,
+      data: s2data,
       multiple: true,
-      maximumSelectionLength: 5,
+      maximumSelectionLength: 9,
       language: {
         noResults: function () {
-          return $L('输入标签')
+          return $L('请输入')
         },
       },
       tags: true,

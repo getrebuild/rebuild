@@ -17,6 +17,8 @@ import org.apache.commons.lang.math.NumberUtils;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author devezhao
@@ -84,7 +86,11 @@ public class EasyDecimal extends EasyField {
         return format.substring(dotIndex).length() - 1;
     }
 
+    // --
+
     /**
+     * 设置小数精度
+     *
      * @param decimalValue
      * @param decimalField
      * @return
@@ -94,6 +100,8 @@ public class EasyDecimal extends EasyField {
     }
 
     /**
+     * 设置小数精度
+     *
      * @param decimalValue
      * @param decimalField
      * @return
@@ -109,14 +117,17 @@ public class EasyDecimal extends EasyField {
         }
     }
 
+    private static final Pattern PATT_CF = Pattern.compile("-?\\d+(,\\d+)*(.\\d+)?");
     /**
-     * 清除小数符号
+     * 清除数字符号（包括千分位分隔符）
      *
      * @param flagedValue
      * @return
      */
     public static String clearFlaged(Object flagedValue) {
         if (flagedValue == null) return null;
-        return flagedValue.toString().replaceAll("[^\\d.-]", "");
+        Matcher m = PATT_CF.matcher(flagedValue.toString());
+        if (m.find()) return m.group().replaceAll(",", "");
+        return null;
     }
 }

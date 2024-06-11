@@ -31,13 +31,23 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.admin.ConfigCommons;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -90,9 +100,11 @@ public class ApprovalAdminController extends BaseController {
     @RequestMapping("approval/copy")
     public JSON copyApproval(HttpServletRequest request) {
         final ID user = getRequestUser(request);
+
         String approvalName = getParameterNotNull(request, "name");
         ID father = getIdParameterNotNull(request, "father");
         boolean disableFather = getBoolParameter(request, "disabled", true);
+        JSON flowDefinition = ServletUtils.getRequestJson(request);
 
         Object[] copy = Application.createQueryNoFilter(
                 "select belongEntity,flowDefinition,isDisabled from RobotApprovalConfig where configId = ?")
@@ -102,6 +114,7 @@ public class ApprovalAdminController extends BaseController {
         Record record = EntityHelper.forNew(EntityHelper.RobotApprovalConfig, user);
         record.setString("belongEntity", (String) copy[0]);
         record.setString("flowDefinition", (String) copy[1]);
+        if (flowDefinition != null) record.setString("flowDefinition", flowDefinition.toString());
         record.setString("name", approvalName);
         record = Application.getBean(RobotApprovalConfigService.class).create(record);
 
@@ -251,6 +264,25 @@ public class ApprovalAdminController extends BaseController {
             int state10 = ApprovalHelper.checkUsed(aid, ApprovalState.APPROVED);
             res.put(id, new Object[] { state2, state10 });
         }
+        return RespBody.ok(res);
+    }
+
+    @RequestMapping("approval/expires-auto-fields")
+    public RespBody expiresAutoFields(@EntityParam Entity entity) {
+        List<Object> dateFields = new ArrayList<>();
+        List<Object> urgeUsers = new ArrayList<>();
+
+        for (Field d : MetadataSorter.sortFields(entity, DisplayType.DATE, DisplayType.DATETIME)) {
+            if (!MetadataHelper.isCommonsField(d)) {
+                dateFields.add(EasyMetaFactory.toJSON(d));
+            }
+        }
+
+        urgeUsers.add(new String[] { ApprovalHelper.APPROVAL_APPROVER, Language.L("审批人") });
+        urgeUsers.add(new String[] { ApprovalHelper.APPROVAL_SUBMITOR, Language.L("提交人") });
+
+        Object res = JSONUtils.toJSONObject(
+                new String[] { "dateFields", "urgeUsers" }, new Object[] { dateFields, urgeUsers } );
         return RespBody.ok(res);
     }
 }

@@ -131,7 +131,7 @@ public class DataListWrapper {
                 }
 
                 // At last
-                if (fieldMeta.getType() == FieldType.PRIMARY) {
+                if (colIndex + 1 == selectFieldsLen && fieldMeta.getType() == FieldType.PRIMARY) {
                     // 如无名称字段值则补充
                     if (nameValue == null) {
                         nameValue = FieldValueHelper.getLabel((ID) value, StringUtils.EMPTY);

@@ -37,8 +37,8 @@ public class AviatorId extends AviatorObject {
         if (idValue.equals($id)) {
             return 0;
         }
-        
-        log.warn("Could not compare " + desc(env) + " with " + other.desc(env));
+
+        log.warn("Could not compare {} with {}", desc(env), other.desc(env));
         return -1;
     }
 

@@ -9,8 +9,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // ~~ 表格型表单
 
-const COL_WIDTH = 178 // 48
-const COL_WIDTH_PLUS = ['REFERENCE', 'N2NREFERENCE', 'CLASSIFICATION']
+const COLUMN_MIN_WIDTH = 30
+const COLUMN_MAX_WIDTH = 500
+const COLUMN_DEF_WIDTH = 178 // 48
+const COLUMN_WIDTH_PLUS = ['REFERENCE', 'N2NREFERENCE', 'CLASSIFICATION']
 
 class ProTable extends React.Component {
   constructor(props) {
@@ -34,23 +36,42 @@ class ProTable extends React.Component {
     // fixed 模式大概 5 个字段
     const ww = $(window).width()
     const fw = ww > 1064 ? 994 : ww - 70
-    const fixed = COL_WIDTH * formFields.length + (38 + 48) > fw
+    const fixed = COLUMN_DEF_WIDTH * formFields.length + (38 + 48) > fw
 
     return (
       <div className={`protable rb-scroller ${fixed && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
         <table className={`table table-sm ${!fixed && 'table-fixed'}`}>
           <thead>
             <tr>
-              <th className="col-index" />
+              <th className="col-index action">
+                <a
+                  title={$L('全屏')}
+                  onClick={() => {
+                    const $d = $(this._$scroller).parents('.detail-form-table').toggleClass('fullscreen')
+                    const $modal = $(this._$scroller).parents('.rbmodal')
+                    $modal.find('.modal-dialog').toggleClass('fullscreen')
+                    // height
+                    const wh = $d.hasClass('fullscreen') ? $(window).height() - 165 : 'auto'
+                    $d.height(wh)
+                    $modal.find('.modal-body').height(wh)
+                  }}>
+                  <i className="mdi mdi-arrow-expand hide" />
+                </a>
+              </th>
               {formFields.map((item) => {
                 if (item.field === TYPE_DIVIDER) return null
 
-                let colStyle2 = { minWidth: COL_WIDTH }
+                let colStyle2 = { minWidth: COLUMN_DEF_WIDTH }
                 if (fixed) {
                   // v35
-                  if (item.colspan) colStyle2.minWidth = (COL_WIDTH / 2) * ~~item.colspan
-                  if (COL_WIDTH_PLUS.includes(item.type)) colStyle2.minWidth += 38 // btn
-                  if (colStyle2.minWidth > COL_WIDTH * 2) colStyle2.minWidth = COL_WIDTH * 2
+                  if (item.colspan) colStyle2.minWidth = (COLUMN_DEF_WIDTH / 2) * ~~item.colspan
+                  if (COLUMN_WIDTH_PLUS.includes(item.type)) colStyle2.minWidth += 38 // btn
+                  if (colStyle2.minWidth > COLUMN_DEF_WIDTH * 2) colStyle2.minWidth = COLUMN_DEF_WIDTH * 2
+                }
+                // v37 LAB
+                if (item.width) {
+                  colStyle2.width = item.width
+                  colStyle2.minWidth = 'auto'
                 }
 
                 return (
@@ -129,6 +150,34 @@ class ProTable extends React.Component {
           else RbHighbar.error($L('明细加载失败，请稍后重试'))
         })
       }
+
+      this._dividing37()
+    })
+  }
+
+  _dividing37() {
+    const $scroller = $(this._$scroller)
+    const that = this
+    $scroller.find('th .dividing').draggable({
+      containment: $scroller,
+      axis: 'x',
+      helper: 'clone',
+      stop: function (e, ui) {
+        const field = $(e.target).parents('th').data('field')
+        let left = ui.position.left - -10
+        if (left < COLUMN_MIN_WIDTH) left = COLUMN_MIN_WIDTH
+        else if (left > COLUMN_MAX_WIDTH) left = COLUMN_MAX_WIDTH
+
+        const fields = that.state.formFields
+        for (let i = 0; i < fields.length; i++) {
+          if (fields[i].field === field) {
+            fields[i].width = left
+            break
+          }
+        }
+
+        that.setState({ formFields: fields }, () => $scroller.perfectScrollbar('update'))
+      },
     })
   }
 
@@ -398,5 +447,169 @@ class InlineForm extends RbForm {
       id: this.state.id || null,
     }
     return data
+  }
+}
+
+// Excel 粘贴数据
+class ExcelClipboardData extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div className="must-center text-danger">{this.state.hasError}</div>
+    }
+    if (!this.state.data) {
+      let tips = $L('复制 Excel 单元格 Ctrl + V 粘贴')
+      if ($.browser.mac) tips = tips.replace('Ctrl', 'Command')
+      return (
+        <div className="must-center text-muted">
+          <div className="mb-2">
+            <i className="mdi mdi-microsoft-excel" style={{ fontSize: 32 }} />
+          </div>
+          {tips}
+        </div>
+      )
+    }
+
+    return (
+      <div className="rsheetb-table" ref={(c) => (this._$table = c)}>
+        <div className="head-action">
+          <span className="float-left">
+            <h5 className="text-bold m-0 mt-3">{$L('选择列字段')}</h5>
+          </span>
+          <span className="float-right">
+            <button className="btn btn-primary" onClick={() => this._handleConfirm()} ref={(c) => (this._$btn = c)}>
+              {$L('确定')}
+            </button>
+          </span>
+          <div className="clearfix" />
+        </div>
+        {WrapHtml(this.state.data)}
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    const that = this
+    function _init() {
+      $(document).on('paste.csv-data', (e) => {
+        let data
+        try {
+          // https://docs.sheetjs.com/docs/demos/local/clipboard/
+          // https://docs.sheetjs.com/docs/api/utilities/html
+          const c = e.originalEvent.clipboardData.getData('text/html')
+          const wb = window.XLSX.read(c, { type: 'string' })
+          const ws = wb.Sheets[wb.SheetNames[0]]
+          data = window.XLSX.utils.sheet_to_html(ws, { id: 'rsheetb', header: '', footer: '', editable: true })
+
+          // No content
+          if (data && !$(data).text()) data = null
+        } catch (err) {
+          console.log('Cannot read csv-data from clipboardData', err)
+        }
+
+        if (data) {
+          if (rb.env === 'dev') console.log(data)
+          that.setState({ data: data, hasError: null }, () => that._tableAfter())
+        } else {
+          RbHighbar.createl('未识别到有效数据')
+        }
+      })
+    }
+
+    if (window.XLSX) _init()
+    else $getScript('/assets/lib/charts/xlsx.full.min.js', setTimeout(_init, 200))
+  }
+
+  _tableAfter() {
+    if (!this._$table) return
+
+    const $table = $(this._$table).find('table').addClass('table table-sm')
+
+    const fields = this.props.fields
+    if (fields) {
+      const len = $table.find('tbody>tr:eq(0)').find('td').length
+      const $tr = $('<thead><tr></tr></thead>').appendTo($table).find('tr')
+      for (let i = 0; i < len; i++) {
+        const $th = $('<th><select></select></th>').appendTo($tr)
+        fields.forEach((item) => {
+          $(`<option value="${item.field}">${item.label}</option>`).appendTo($th.find('select'))
+        })
+        $th
+          .find('select')
+          .select2({
+            placeholder: $L('无'),
+          })
+          .val(fields[i] ? fields[i].field : null)
+          .trigger('change')
+      }
+    }
+  }
+
+  _handleConfirm() {
+    const fields = []
+    $(this._$table)
+      .find('thead select')
+      .each(function () {
+        let fm = $(this).val() || null
+        if (fm && fields.includes(fm)) fm = null
+        fields.push(fm)
+      })
+
+    let noAnyFields = true
+    for (let i = 0; i < fields.length; i++) {
+      if (fields[i]) {
+        noAnyFields = false
+        break
+      }
+    }
+    if (noAnyFields) return RbHighbar.createl('请至少选择一个列字段')
+
+    const dataWithFields = []
+    $(this._$table)
+      .find('tbody tr')
+      .each(function () {
+        const L = {}
+        $(this)
+          .find('td')
+          .each(function (idx) {
+            const name = fields[idx]
+            if (name) L[name] = $(this).text() || null
+          })
+        dataWithFields.push(L)
+      })
+
+    const $btn = $(this._$btn).button('loading')
+    $.post(`/app/entity/extras/csvdata-rebuild?entity=${this.props.entity}&mainid=${this.props.mainid}`, JSON.stringify(dataWithFields), (res) => {
+      if (res.error_code === 0) {
+        this.props.onConfirm && this.props.onConfirm(res.data)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+      $btn.button('reset')
+    })
+  }
+
+  componentWillUnmount() {
+    $(document).off('paste.csv-data')
+  }
+}
+
+class ExcelClipboardDataModal extends RbModalHandler {
+  render() {
+    return (
+      <RbModal title={$L('从 Excel 添加')} width="1000" className="modal-rsheetb" disposeOnHide ref={(c) => (this._dlg = c)}>
+        <ExcelClipboardData
+          {...this.props}
+          onConfirm={(data) => {
+            this.props.onConfirm && this.props.onConfirm(data)
+            this.hide()
+          }}
+        />
+      </RbModal>
+    )
   }
 }

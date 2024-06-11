@@ -101,6 +101,7 @@ public class FieldAggregationController extends BaseController {
 
         JSONArray targetFields = new JSONArray();
         if (targetEntity != null) {
+            // 可用于聚合的字段
             for (Field field : MetadataSorter.sortFields(targetEntity,
                     DisplayType.NUMBER, DisplayType.DECIMAL, DisplayType.DATE, DisplayType.DATETIME,
                     DisplayType.N2NREFERENCE, DisplayType.NTEXT, DisplayType.FILE)) {
@@ -118,13 +119,24 @@ public class FieldAggregationController extends BaseController {
             }
         }
 
+        // 目标匹配字段
+        JSONArray targetFields2 = new JSONArray();
+        if (targetEntity != null) {
+            targetFields2 = MetaFormatter.buildFieldsWithRefs(targetEntity, 1, true, field -> {
+                EasyField easyField = (EasyField) field;
+                return easyField.getDisplayType() == DisplayType.SERIES
+                        || easyField.getDisplayType() == DisplayType.BARCODE
+                        || easyField.isBuiltin();
+            });
+        }
+
         // 审批流程启用
         boolean hadApproval = targetEntity != null && RobotApprovalManager.instance.hadApproval(
                 ObjectUtils.defaultIfNull(targetEntity.getMainEntity(), targetEntity), null) != null;
 
         return JSONUtils.toJSONObject(
-                new String[] { "source", "target", "hadApproval" },
-                new Object[] { sourceFields, targetFields, hadApproval });
+                new String[] { "source", "target", "hadApproval", "target2" },
+                new Object[] { sourceFields, targetFields, hadApproval, targetFields2 });
     }
 
     /**

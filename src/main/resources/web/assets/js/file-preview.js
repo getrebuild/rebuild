@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // ~~ 图片/文档预览
 
-const TYPE_TEXTS = ['.txt', '.xml', '.json', '.md', '.yml', '.css', '.js', '.htm', '.html', '.log', '.sql', '.conf', '.sh', '.bat']
+const TYPE_TEXTS = ['.txt', '.xml', '.json', '.md', '.yml', '.css', '.js', '.htm', '.html', '.log', '.sql', '.conf', '.sh', '.bat', '.java', '.ini']
 const TYPE_DOCS = ['.doc', '.docx', '.rtf', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf']
 const TYPE_IMGS = ['.jpg', '.jpeg', '.gif', '.png', '.bmp', '.jfif', '.svg', '.webp']
 const TYPE_AUDIOS = ['.mp3', '.wma', '.m4a', '.flac', '.ogg', '.acc']
@@ -451,4 +451,10 @@ class FileShare extends RbModalHandler {
       })
     })
   }
+}
+
+// 是否图片
+// eslint-disable-next-line no-unused-vars
+function $isImage(name) {
+  return TYPE_IMGS.includes('.' + $fileExtName(name.toLowerCase()))
 }

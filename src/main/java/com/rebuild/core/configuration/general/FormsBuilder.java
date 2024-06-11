@@ -33,7 +33,6 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
-import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
@@ -191,10 +190,28 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        ConfigBean model = getFormLayout(entity, user);
+        // v3.7 指定布局
+        ID recordOrLayoutId = recordId;
+
+        // 优先使用
+        ID forceLayout = FormsBuilderContextHolder.getSpecLayout(false);
+        if (forceLayout != null) recordOrLayoutId = forceLayout;
+        // 明细共同编辑
+        if (forceLayout == null && entityMeta.getMainEntity() != null && recordId == null) {
+            ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
+            if (mainid != null && !EntityHelper.isUnsavedId(mainid)) {
+                List<ID> ids = QueryHelper.detailIdsNoFilter(mainid, entityMeta);
+                if (!ids.isEmpty()) recordOrLayoutId = ids.get(0);
+            }
+        }
+
+        int applyType = recordId == null ? FormsManager.APPLY_ONNEW : FormsManager.APPLY_ONEDIT;
+        if (viewMode) applyType = FormsManager.APPLY_ONVIEW;
+
+        ConfigBean model = getFormLayout(entity, recordOrLayoutId, applyType);
         JSONArray elements = (JSONArray) model.getJSON("elements");
         if (elements == null || elements.isEmpty()) {
-            return formatModelError(Language.L("此表单布局尚未配置，请配置后使用"));
+            return formatModelError(Language.L("表单布局尚未配置，请配置后使用"));
         }
 
         Record recordData = null;
@@ -265,10 +282,13 @@ public class FormsBuilder extends FormsManager {
 
         if (readonlyMessage != null) model.set("readonlyMessage", readonlyMessage);
 
-        // v34
+        // v3.4
         String disabledViewEditable = EasyMetaFactory.valueOf(entityMeta)
                 .getExtraAttr(EasyEntityConfigProps.DISABLED_VIEW_EDITABLE);
         model.set("onViewEditable", !BooleanUtils.toBoolean(disabledViewEditable));
+        
+        // v3.7
+        model.set("hadSop", true);
 
         model.remove("id");  // Clean form's ID of config
         return model.toJSON();
@@ -499,8 +519,10 @@ public class FormsBuilder extends FormsManager {
 
                 // 默认值
                 if (el.get("value") == null) {
-                    if (dt == DisplayType.SERIES || EntityHelper.ApprovalLastTime.equals(fieldName)
-                            || EntityHelper.ApprovalLastRemark.equals(fieldName) || EntityHelper.ApprovalLastUser.equals(fieldName)) {
+                    if (dt == DisplayType.SERIES
+                            || EntityHelper.ApprovalLastTime.equals(fieldName) || EntityHelper.ApprovalLastRemark.equals(fieldName)
+                            || EntityHelper.ApprovalLastUser.equals(fieldName) || EntityHelper.ApprovalStepUsers.equals(fieldName)
+                            || EntityHelper.ApprovalStepNodeName.equals(fieldName)) {
                         el.put("readonlyw", READONLYW_RO);
                     } else {
                         Object defaultValue = easyField.exprDefaultValue();
@@ -727,19 +749,11 @@ public class FormsBuilder extends FormsManager {
             else if (entity.containsField(field)) {
                 EasyField easyField = EasyMetaFactory.valueOf(entity.getField(field));
                 if (easyField.getDisplayType() == DisplayType.REFERENCE || easyField.getDisplayType() == DisplayType.N2NREFERENCE) {
-
                     // v3.4 如果字段设置了附加过滤条件，从相关项新建时要检查是否符合
-                    String dataFilter = easyField.getExtraAttr(EasyFieldConfigProps.REFERENCE_DATAFILTER);
-                    if (JSONUtils.wellFormat(dataFilter)) {
-                        JSONObject dataFilterJson = JSON.parseObject(dataFilter);
-                        if (ParseHelper.validAdvFilter(dataFilterJson)) {
-                            boolean m = QueryHelper.isMatchAdvFilter(ID.valueOf(value), dataFilterJson);
-                            if (!m) {
-                                ((JSONObject) formModel).put("alertMessage",
-                                        Language.L("%s不符合附加过滤条件，不能自动填写", Language.L(easyField)));
-                                continue;
-                            }
-                        }
+                    if (!FieldValueHelper.checkRefDataFilter(easyField, ID.valueOf(value))) {
+                        ((JSONObject) formModel).put("alertMessage",
+                                Language.L("%s不符合附加过滤条件，不能自动填写", Language.L(easyField)));
+                        continue;
                     }
 
                     Object mixValue = inFormFields.contains(field) ? getReferenceMixValue(value) : value;
@@ -755,7 +769,7 @@ public class FormsBuilder extends FormsManager {
                 }
 
             } else {
-                log.warn("Unknown value pair : " + field + " = " + value);
+                log.warn("Unknown value pair : {} = {}", field, value);
             }
         }
 
@@ -795,7 +809,7 @@ public class FormsBuilder extends FormsManager {
             String idLabel = FieldValueHelper.getLabel(ID.valueOf(idValue));
             return FieldValueHelper.wrapMixValue(ID.valueOf(idValue), idLabel);
         } catch (NoRecordFoundException ex) {
-            log.error("No record found : " + idValue);
+            log.error("No record found : {}", idValue);
             return null;
         }
     }
@@ -838,7 +852,7 @@ public class FormsBuilder extends FormsManager {
         }
 
         Object[] o = Application.getQueryFactory().uniqueNoFilter(record, fieldParent);
-        return o == null ? null : (ID) o[0];
+        return o != null && o[0] instanceof ID ? (ID) o[0] : null;
     }
 
     private boolean isNewMainId(Object id) {

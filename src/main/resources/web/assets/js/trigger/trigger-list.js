@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global dlgActionAfter ShowEnable */
 
 $(document).ready(function () {
-  $('.J_add').click(() => renderRbcomp(<TriggerEdit />))
+  $('.J_add').on('click', () => renderRbcomp(<TriggerEdit />))
   renderRbcomp(<TriggerList />, 'dataList')
 })
 
@@ -20,7 +20,9 @@ const RBV_TRIGGERS = {
   'PROXYTRIGGERACTION': $L('自定义触发器'),
   'AUTOUNSHARE': $L('自动取消共享'),
   'CREATEFEED': $L('新建动态'),
-  'AUTOGENREPORT': $L('自动报表导出'),
+  'CREATETASK': $L('新建任务'),
+  'AUTOGENREPORT': $L('导出报表'),
+  'AUTOAPPROVAL': $L('自动审批'),
 }
 
 const WHENS = {
@@ -66,12 +68,20 @@ class TriggerList extends ConfigList {
               <td>
                 <a href={`trigger/${item[0]}`}>{item[3] || item[2] + ' · ' + item[7]}</a>
               </td>
-              <td>{item[2] || item[1]}</td>
+              <td>
+                <a href={`${rb.baseUrl}/admin/entity/${item[1]}/base`} className="light-link" target={`_${item[1]}`}>
+                  {item[2] || item[1]}
+                </a>
+              </td>
               <td>
                 {item[7]}
                 {item[9] && (
                   <span title={$L('目标实体')} className="ml-1">
-                    ({item[9]})
+                    (
+                    <a href={`${rb.baseUrl}/admin/entity/${item[9][0]}/base`} className="light-link" target={`_${item[9][0]}`}>
+                      {item[9][1]}
+                    </a>
+                    )
                   </span>
                 )}
               </td>
@@ -194,7 +204,7 @@ class TriggerEdit extends ConfigFormDlg {
     $.get('/admin/robot/trigger/available-actions', (res) => {
       let actions = res.data || []
       if (!window.__BOSSKEY) {
-        actions = actions.filter((item) => !['PROXYTRIGGERACTION', 'AUTOGENREPORT'].includes(item[0]))
+        actions = actions.filter((item) => !['PROXYTRIGGERACTION', 'AUTOGENREPORT', 'AUTOREVOKE'].includes(item[0]))
       }
 
       this.setState({ actions }, () => {

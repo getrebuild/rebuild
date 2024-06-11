@@ -101,8 +101,8 @@ class RbWelcome extends React.Component {
   _next(type) {
     const commercialTip = (
       <div className="text-left link" style={{ lineHeight: 2 }}>
-        <div dangerouslySetInnerHTML={{ __html: $('.license').html() }} />
-        <div dangerouslySetInnerHTML={{ __html: $L('如果用于商业用途，请注意使用目的。访问 [REBUILD 官网](https://getrebuild.com/#pricing-plans) 了解更多信息。') }} className="text-bold" />
+        <div>{WrapHtml($('.license').html())}</div>
+        <div className="text-bold">{WrapHtml($L('如果用于商业用途，请注意使用目的。访问 [REBUILD 官网](https://getrebuild.com/#pricing-plans) 了解更多信息。'))}</div>
 
         <div className="input-sn">
           <a
@@ -124,16 +124,17 @@ class RbWelcome extends React.Component {
       type: 'danger',
       cancelText: $L('不同意'),
       confirmText: $L('同意'),
-      confirm: function () {
+      countdown: 5,
+      onConfirm: function () {
         this.disabled(true)
 
-        const sn = $.trim($(this._dlg).find('input').val())
+        const SN = $trim($(this._dlg).find('input').val())
         const $btn = $(this._dlg)
           .find('.btn-danger')
-          .text(sn ? $L('验证授权') : $L('请求授权'))
+          .text(SN ? $L('验证授权') : $L('请求授权'))
 
         let s = new Date().getTime()
-        $.get(`request-sn?sn=${$encode(sn)}`, (res) => {
+        $.get(`request-sn?sn=${$encode(SN)}`, (res) => {
           s = new Date().getTime() - s
           setTimeout(
             () => {

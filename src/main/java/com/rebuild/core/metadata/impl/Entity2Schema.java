@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.Dialect;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.CascadeModel;
+import cn.devezhao.persist4j.metadata.MetadataException;
 import cn.devezhao.persist4j.util.support.Table;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
@@ -22,6 +23,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.NeedRbvException;
 import com.rebuild.core.support.i18n.Language;
@@ -38,12 +40,21 @@ import org.apache.commons.lang.StringUtils;
 @Slf4j
 public class Entity2Schema extends Field2Schema {
 
+    private final int specEntityCode;
+
     public Entity2Schema() {
         super();
+        this.specEntityCode = 0;
     }
 
     public Entity2Schema(ID user) {
+        this(user, 0);
+    }
+
+    public Entity2Schema(ID user, int specEntityCode) {
+        super();
         super.setUser(user);
+        this.specEntityCode = specEntityCode;
     }
 
     /**
@@ -83,12 +94,8 @@ public class Entity2Schema extends Field2Schema {
             throw new MetadataModificationException(Language.L("无效主实体 : %s", mainEntity));
         }
 
-        String physicalName = "T__" + entityName.toUpperCase();
-
-        Object[] maxTypeCode = Application.createQueryNoFilter(
-                "select min(typeCode) from MetaEntity").unique();
-        int typeCode = maxTypeCode == null || ObjectUtils.toInt(maxTypeCode[0]) == 0
-                ? 999 : (ObjectUtils.toInt(maxTypeCode[0]) - 1);
+        final int typeCode = genEntityTypeCode();
+        final String physicalName = "T__" + entityName.toUpperCase();
 
         // 名称字段
         String nameFiled = EntityHelper.CreatedOn;
@@ -234,7 +241,7 @@ public class Entity2Schema extends Field2Schema {
         try {
             Application.getSqlExecutor().execute(ddl, DDL_TIMEOUT);
         } catch (Throwable ex) {
-            log.error("DDL ERROR : \n" + ddl, ex);
+            log.error("DDL ERROR : \n{}", ddl, ex);
             return false;
         }
 
@@ -270,9 +277,35 @@ public class Entity2Schema extends Field2Schema {
         try {
             Application.getSqlExecutor().executeBatch(ddls, DDL_TIMEOUT);
         } catch (Throwable ex) {
-            log.error("DDL Error : \n" + StringUtils.join(ddls, "\n"), ex);
+            log.error("DDL Error : \n{}", StringUtils.join(ddls, "\n"), ex);
             return false;
         }
         return true;
+    }
+
+    /**
+     * @return
+     */
+    private int genEntityTypeCode() {
+        final int starts = 100;
+
+        if (specEntityCode > starts) {
+            if (MetadataHelper.containsEntity(specEntityCode)) {
+                throw new MetadataException("The `specEntityCode` already exists : " + specEntityCode);
+            }
+            return specEntityCode;
+        }
+
+        int s = CommandArgs.getInt(CommandArgs._StartEntityTypeCode);
+        if (s > starts) {
+            for (int typeCode = s; typeCode < 999; typeCode++) {
+                if (!MetadataHelper.containsEntity(typeCode)) return typeCode;
+            }
+        }
+
+        Object[] mTypeCode = Application.createQueryNoFilter(
+                "select min(typeCode) from MetaEntity").unique();
+        return mTypeCode == null || ObjectUtils.toInt(mTypeCode[0]) == 0
+                ? 999 : (ObjectUtils.toInt(mTypeCode[0]) - 1);
     }
 }

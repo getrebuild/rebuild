@@ -68,7 +68,7 @@
         let lastTimer
         $('#search-box input').on('input', (e) => {
           if (lastKey === e.target.value) return
-          lastKey = $.trim(e.target.value)
+          lastKey = $trim(e.target.value)
 
           if (lastTimer) {
             clearTimeout(lastTimer)
@@ -92,7 +92,7 @@
         $(ZMDI_ICONS).each(function () {
           if (!ZMDI_ICONS_IGNORE.contains(this + '')) {
             const $a = $(`<a data-icon="${this}" title="${this.toUpperCase()}"><i class="zmdi zmdi-${this}"></a>`).appendTo('#icons')
-            $a.click(function () {
+            $a.on('click', function () {
               cb($(this).data('icon'))
             })
           }
@@ -103,7 +103,7 @@
         for (let i = 0; i < MDI7_ICONS.length; i++) {
           const icon = MDI7_ICONS[i]
           const $a = $(`<a data-icon="${icon}" title="${icon.toUpperCase()}"><i class="mdi ${icon}"></a>`).appendTo('#icons')
-          $a.click(function () {
+          $a.on('click', function () {
             cb($(this).data('icon'))
           })
         }

@@ -19,7 +19,7 @@ import java.io.FileFilter;
  */
 public class FileFilterByLastModified implements FileFilter {
 
-    private long lessThisTime;
+    private final long lessThisTime;
 
     /**
      * @param exceedDays 小于此时间的将被返回
@@ -41,13 +41,13 @@ public class FileFilterByLastModified implements FileFilter {
     /**
      * 删除指定目录下的文件
      *
-     * @param indir
+     * @param dir
      * @param keepDays 保留最近N天
      */
-    public static void deletes(File indir, int keepDays) {
-        File[] ds = indir.listFiles(new FileFilterByLastModified(keepDays));
+    public static void deletes(File dir, int keepDays) {
+        File[] ds = dir.listFiles(new FileFilterByLastModified(keepDays));
         if (ds == null) return;
-
+        
         for (File d : ds) {
             if (d.isFile()) FileUtils.deleteQuietly(d);
         }

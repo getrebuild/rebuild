@@ -60,9 +60,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 
-import static com.rebuild.core.support.ConfigurationItem.CacheHost;
-import static com.rebuild.core.support.ConfigurationItem.CachePassword;
-import static com.rebuild.core.support.ConfigurationItem.CachePort;
+import static com.rebuild.core.support.ConfigurationItem.*;
 
 /**
  * 系统安装

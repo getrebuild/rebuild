@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.rebuild</groupId>
     <artifactId>rebuild</artifactId>
-    <version>3.6.5</version>
+    <version>3.7.0-beta</version>
     <name>rebuild</name>
     <description>Building your business-systems freely!</description>
     <url>https://getrebuild.com/</url>
@@ -213,6 +213,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- USE UNDERTOW -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
@@ -297,7 +298,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>persist4j</artifactId>
-            <version>1.7.7</version>
+            <version>1.7.10</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.alibaba</groupId>
@@ -318,6 +319,12 @@
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
             <version>3.3.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
@@ -327,7 +334,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
-            <version>1.2.21</version>
+            <version>1.2.22</version>
         </dependency>
         <dependency>
             <groupId>com.mysql</groupId>
@@ -342,7 +349,7 @@
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-            <version>4.4.6</version>
+            <version>4.4.7</version>
         </dependency>
         <dependency>
             <groupId>com.qiniu</groupId>
@@ -357,7 +364,7 @@
         <dependency>
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
-            <version>6.4.12</version>
+            <version>6.5.0</version>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
@@ -373,6 +380,12 @@
             <groupId>com.vladsch.flexmark</groupId>
             <artifactId>flexmark</artifactId>
             <version>0.62.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.vladsch.flexmark</groupId>
@@ -382,6 +395,11 @@
         <dependency>
             <groupId>com.vladsch.flexmark</groupId>
             <artifactId>flexmark-ext-gfm-tasklist</artifactId>
+            <version>0.62.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>flexmark-ext-toc</artifactId>
             <version>0.62.2</version>
         </dependency>
         <dependency>
@@ -397,7 +415,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>easyexcel</artifactId>
-            <version>3.3.3</version>
+            <version>3.3.4</version>
             <exclusions>
                 <exclusion>
                     <artifactId>ehcache</artifactId>
@@ -452,7 +470,7 @@
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson</artifactId>
-            <version>3.26.1</version>
+            <version>3.27.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -501,24 +519,24 @@
         <dependency>
             <groupId>org.zwobble.mammoth</groupId>
             <artifactId>mammoth</artifactId>
-            <version>1.5.0</version>
+            <version>1.7.0</version>
         </dependency>
         <dependency>
             <groupId>com.getui.push</groupId>
             <artifactId>restful-sdk</artifactId>
-            <version>1.0.0.16</version>
+            <version>1.0.0.17</version>
         </dependency>
 
         <!-- fix: CVEs -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.15.1</version>
+            <version>2.16.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.26.0</version>
+            <version>1.26.1</version>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
@@ -528,12 +546,17 @@
         <dependency>
             <groupId>com.fasterxml.woodstox</groupId>
             <artifactId>woodstox-core</artifactId>
-            <version>6.6.0</version>
+            <version>6.6.1</version>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
-            <version>4.1.107.Final</version>
+            <version>4.1.108.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>33.1.0-jre</version>
         </dependency>
     </dependencies>
 </project>

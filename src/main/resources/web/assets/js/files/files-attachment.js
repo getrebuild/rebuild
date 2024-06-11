@@ -33,7 +33,10 @@ const EntityTree = {
 
 // eslint-disable-next-line no-undef
 class FilesList4Atts extends FilesList {
-  state = { ...this.props }
+  constructor(props) {
+    super(props)
+    this._lastEntry = __DEFAULT_ALL
+  }
 
   renderExtras(item) {
     return item.relatedRecord ? (
@@ -48,7 +51,6 @@ class FilesList4Atts extends FilesList {
 
 $(document).ready(() => {
   EntityTree.load()
-
   renderRbcomp(<FilesList4Atts />, $('.file-viewport'), function () {
     // eslint-disable-next-line no-global-assign
     filesList = this

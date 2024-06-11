@@ -17,6 +17,7 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.RebuildApiService;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BaseController;
@@ -89,9 +90,12 @@ public class ApisManagerController extends BaseController {
                 " where appId = ? and requestTime > ? and (1=1) order by requestTime desc";
         if (StringUtils.isNotBlank(q)) {
             q = CommonsUtils.escapeSql(q);
-            sql = sql.replace("(1=1)", String.format("(requestBody like '%%%s%%' or responseBody like '%%%s%%')", q, q));
-//            // TODO 使用全文索引搜索
-//            sql = sql.replace("(1=1)", String.format("(requestBody match '%s' or responseBody match '%s')", q, q));
+            // https://zhuanlan.zhihu.com/p/35675553
+            if (CommandArgs.getBoolean(CommandArgs._UseDbFullText)) {
+                sql = sql.replace("(1=1)", String.format("(requestBody match '%s' or responseBody match '%s')", q, q));
+            } else {
+                sql = sql.replace("(1=1)", String.format("(requestBody like '%%%s%%' or responseBody like '%%%s%%')", q, q));
+            }
         }
 
         Object[][] array = Application.createQueryNoFilter(sql)

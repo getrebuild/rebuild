@@ -8,8 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const wpc = window.__PageConfig
 
-$(document).ready(function () {
-  modeAction()
+$(document).ready(() => {
+  _listmodeAction()
 
   const metaid = wpc.id
   if (!metaid) {
@@ -46,21 +46,17 @@ $(document).ready(function () {
           }
         })
       },
-      call: function () {
-        $countdownButton($(this._dlg).find('.btn-danger'))
-      },
+      countdown: 5,
     })
   })
 })
 
-function modeAction() {
+// 列表模式
+function _listmodeAction() {
   if (rb.commercial < 10) {
-    $('.mode-select .btn').on('click', () => {
-      RbHighbar.error(WrapHtml($L('免费版不支持列表模式功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-    })
+    $('.mode-select .btn').on('click', () => RbHighbar.error(WrapHtml($L('免费版不支持列表模式功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))))
     return
   }
-
   if (!wpc.id) {
     $('.mode-select .btn').on('click', () => RbHighbar.create($L('系统内置实体暂不支持')))
     return
@@ -83,9 +79,10 @@ function modeAction() {
     })
   })
 
-  // Mode-1 Option
-  $('.mode-select .J_mode1-option').on('click', () => renderRbcomp(<DlgMode1Option />))
-  $('.mode-select .J_mode2-option').on('click', () => renderRbcomp(<DlgMode2Option />))
+  // Mode's Option
+  $('.mode-select .J_mode1-option').on('click', () => renderDlgcomp(<DlgMode1Option />, '_DlgMode1Option'))
+  $('.mode-select .J_mode2-option').on('click', () => renderDlgcomp(<DlgMode2Option />, '_DlgMode2Option'))
+  $('.mode-select .J_mode3-option').on('click', () => renderDlgcomp(<DlgMode3Option />, '_DlgMode3Option'))
 }
 
 function modeSave(newOption, next) {
@@ -101,13 +98,12 @@ function modeSave(newOption, next) {
   })
 }
 
-const CATE_TYPES = ['PICKLIST', 'MULTISELECT', 'CLASSIFICATION', 'DATE', 'DATETIME', 'REFERENCE', 'N2NREFERENCE']
-
+const CAT_TYPES = ['PICKLIST', 'MULTISELECT', 'CLASSIFICATION', 'DATE', 'DATETIME', 'REFERENCE', 'N2NREFERENCE']
 // 模式选项
 class DlgMode1Option extends RbFormHandler {
   render() {
     return (
-      <RbModal title={$L('标准模式选项')} ref="dlg" disposeOnHide>
+      <RbModal title={$L('标准模式选项')} ref={(c) => (this._dlg = c)}>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('在侧栏显示')}</label>
@@ -132,7 +128,7 @@ class DlgMode1Option extends RbFormHandler {
                 <div className="clearfix"></div>
                 <div className={`advListShowCategory-set ${this.state.advListShowCategory ? '' : 'hide'}`}>
                   <div className="row">
-                    <div className="col-8">
+                    <div className="col-7">
                       <label className="mb-1">{$L('分组字段')}</label>
                       <select className="form-control form-control-sm">
                         {this.state.advListShowCategoryFields &&
@@ -145,8 +141,8 @@ class DlgMode1Option extends RbFormHandler {
                           })}
                       </select>
                     </div>
-                    <div className={`col-4 pl-0 ${this.state.advListShowCategoryFormats ? '' : 'hide'}`}>
-                      <label className="mb-1">{$L('字段格式')}</label>
+                    <div className={`col-5 pl-0 ${this.state.advListShowCategoryFormats ? '' : 'hide'} ${this.state._cfParent && 'bosskey-show'}`}>
+                      <label className="mb-1">{this.state._cfParent ? $L('使用父级字段') : $L('字段格式')}</label>
                       <select className="form-control form-control-sm">
                         {this.state.advListShowCategoryFormats &&
                           this.state.advListShowCategoryFormats.map((item) => {
@@ -174,7 +170,7 @@ class DlgMode1Option extends RbFormHandler {
           </div>
 
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('在顶部显示')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('在顶栏显示')}</label>
             <div className="col-sm-9">
               <div className="bosskey-show mb-2">
                 <div className="switch-button switch-button-xs">
@@ -214,7 +210,6 @@ class DlgMode1Option extends RbFormHandler {
 
   componentDidMount() {
     let $catFields, $catFormats
-
     const that = this
     $('#advListShowCategory').on('change', function () {
       if ($val(this)) {
@@ -231,7 +226,7 @@ class DlgMode1Option extends RbFormHandler {
           const _data = []
           res.data &&
             res.data.forEach((item) => {
-              if (CATE_TYPES.includes(item.type)) {
+              if (CAT_TYPES.includes(item.type)) {
                 _data.push(item)
               }
             })
@@ -243,7 +238,7 @@ class DlgMode1Option extends RbFormHandler {
           that.setState({ advListShowCategoryFields: _data }, () => {
             $catFields
               .select2({
-                placeholder: $L('选择分类字段'),
+                placeholder: $L('选择分组字段'),
                 allowClear: false,
               })
               .on('change', () => {
@@ -258,16 +253,32 @@ class DlgMode1Option extends RbFormHandler {
                     [2, $L('%d 级分类', 3)],
                     [3, $L('%d 级分类', 4)],
                   ]
-                  formats = null // FIXME 无法区分几级
                 } else if (found && (found.type === 'DATE' || found.type === 'DATETIME')) {
                   formats = [
                     ['yyyy', 'YYYY'],
                     ['yyyy-MM', 'YYYY-MM'],
                     ['yyyy-MM-dd', 'YYYY-MM-DD'],
                   ]
+                } else if (found && found.type === 'REFERENCE') {
+                  formats = []
+                  $.get(`/commons/metadata/fields?entity=${found.ref[0]}`, (res) => {
+                    res.data &&
+                      res.data.forEach((item) => {
+                        if (item.type === 'REFERENCE' && item.ref[0] === found.ref[0]) {
+                          if (!['createdBy', 'modifiedBy'].includes(item.name)) {
+                            formats.push([item.name, item.label])
+                          }
+                        }
+                      })
+
+                    // render
+                    that.setState({ advListShowCategoryFormats: formats, _cfParent: true }, () => {
+                      $catFormats.val(null).trigger('change')
+                    })
+                  })
                 }
 
-                that.setState({ advListShowCategoryFormats: formats }, () => {
+                that.setState({ advListShowCategoryFormats: formats, _cfParent: false }, () => {
                   $catFormats.val(null).trigger('change')
                 })
               })
@@ -278,7 +289,7 @@ class DlgMode1Option extends RbFormHandler {
               $catFields.val(set[0]).trigger('change')
               setTimeout(() => {
                 if (set[1]) $catFormats.val(set[1]).trigger('change')
-              }, 200)
+              }, 500)
             } else {
               $catFields.trigger('change')
             }
@@ -314,18 +325,190 @@ class DlgMode1Option extends RbFormHandler {
   }
 }
 
-class DlgMode2Option extends DlgMode1Option {
+class DlgMode2Option extends RbFormHandler {
   render() {
     return (
-      <RbModal title={$L('详情模式选项')} ref="dlg" disposeOnHide>
+      <RbModal title={$L('详情模式选项')} ref={(c) => (this._dlg = c)}>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('副字段显示')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示字段')}</label>
+            <div className="col-sm-9">
+              <div className="mode23-fields mode2-fields" ref={(c) => (this._$showFields = c)}>
+                <a data-toggle="dropdown" className="L0">
+                  {$L('无')}
+                </a>
+                <div className="dropdown-menu auto-scroller" />
+                <a data-toggle="dropdown" data-reference="toggle" className="L1">
+                  <em>{$L('名称字段')}</em>
+                </a>
+                <a data-toggle="dropdown" data-reference="toggle" className="L1-2 float-right mr-0">
+                  <em>{$L('审批状态')}</em>
+                </a>
+                <div className="mt-1"></div>
+                <a data-toggle="dropdown" data-reference="toggle">
+                  {$L('创建时间')}
+                </a>
+                <a data-toggle="dropdown" data-reference="toggle">
+                  {$L('创建人')}
+                </a>
+                <a data-toggle="dropdown" data-reference="toggle">
+                  {$L('无')}
+                </a>
+              </div>
+            </div>
+          </div>
+          <div className="form-group row footer">
+            <div className="col-sm-9 offset-sm-3" ref={(c) => (this._btns = c)}>
+              <button className="btn btn-primary" type="button" onClick={this.save}>
+                {$L('确定')}
+              </button>
+              <a className="btn btn-link" onClick={this.hide}>
+                {$L('取消')}
+              </a>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    let $clickItem
+    const $menu = $(this._$showFields).find('.dropdown-menu')
+    $.get(`../list-field?entity=${wpc.entityName}`, (res) => {
+      const _data = [{ fieldName: null, fieldLabel: $L('默认'), displayTypeName: 'N' }]
+      _data.push(...res.data)
+
+      const fieldsLables = {}
+      _data.forEach((item) => {
+        fieldsLables[item.fieldName] = item.fieldLabel
+        if (['BARCODE', 'FILE', 'SIGN'].includes(item.displayTypeName)) return null
+
+        const item2 = item
+        $(`<a class="dropdown-item" data-name="${item.fieldName}" data-type="${item.displayTypeName}"></a>`)
+          .text(item.fieldLabel)
+          .appendTo($menu)
+          .on('click', function () {
+            $($clickItem).attr('data-name', item2.fieldName).text(item2.fieldLabel)
+          })
+      })
+      $menu.perfectScrollbar()
+
+      const $showFields = $(this._$showFields)
+        .find('>a')
+        .attr('title', $L('选择显示字段'))
+        .on('click', function () {
+          $clickItem = this
+        })
+
+      $(this._$showFields)
+        .on('show.bs.dropdown', () => {
+          this.onFieldsMenuShow($clickItem, $menu)
+        })
+        .on('hide.bs.dropdown', () => {
+          $menu.find('.dropdown-item').removeClass('hide')
+        })
+
+      if (wpc.extConfig) {
+        const showFields = this.__mode3 ? wpc.extConfig.mode3ShowFields : wpc.extConfig.mode2ShowFields
+        if (showFields) {
+          showFields.forEach((item, idx) => {
+            if (item) {
+              $showFields
+                .eq(idx)
+                .attr({ 'data-name': item })
+                .text(fieldsLables[item] || `[${item.toUpperCase()}]`)
+            }
+          })
+        }
+      }
+      // this._loadAfter && this._loadAfter(res.data)
+    })
+  }
+
+  onFieldsMenuShow($item, $menu) {
+    if ($($item).hasClass('L0')) {
+      $menu.find('a').addClass('hide')
+      $menu.find('a[data-type="N"]').removeClass('hide')
+      $menu.find('a[data-type="IMAGE"]').removeClass('hide')
+      $menu.find('a[data-type="AVATAR"]').removeClass('hide')
+    } else {
+      $menu.find('a[data-type="IMAGE"]').addClass('hide')
+      $menu.find('a[data-type="AVATAR"]').addClass('hide')
+    }
+  }
+
+  save = () => {
+    const modeShowFields = []
+    $(this._$showFields)
+      .find('>a')
+      .each(function () {
+        modeShowFields.push($(this).attr('data-name') || null)
+      })
+
+    let o = {
+      [this.__mode3 ? 'mode3ShowFields' : 'mode2ShowFields']: modeShowFields,
+    }
+    if (this._saveBefore) {
+      o = this._saveBefore(o)
+      if (o === false) return
+    }
+
+    this.disabled(true)
+    modeSave(o, () => {
+      this.hide()
+      location.reload()
+    })
+  }
+}
+
+class DlgMode3Option extends DlgMode2Option {
+  constructor(props) {
+    super(props)
+    this.__mode3 = true
+  }
+
+  render() {
+    return (
+      <RbModal title={$L('卡片模式选项')} ref={(c) => (this._dlg = c)}>
+        <div className="form">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('在侧栏显示')}</label>
             <div className="col-sm-9">
               <div>
-                {(this.state.appendFields || []).map((item) => {
-                  return item
-                })}
+                <div className="switch-button switch-button-xs">
+                  <input type="checkbox" id="mode3ShowFilters" defaultChecked={wpc.extConfig && wpc.extConfig.mode3ShowFilters} />
+                  <span>
+                    <label htmlFor="mode3ShowFilters" />
+                  </span>
+                </div>
+                <span className="ml-2 down-5 d-inline-block">{$L('常用查询')}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示字段')}</label>
+            <div className="col-sm-9">
+              <div className="mode23-fields mode3-fields" ref={(c) => (this._$showFields = c)}>
+                <a data-toggle="dropdown" className="L1">
+                  <em>{$L('图片字段')}</em>
+                </a>
+                <div className="dropdown-menu auto-scroller" />
+                <div className="mt-1"></div>
+                <a data-toggle="dropdown" data-reference="toggle" className="L2">
+                  <em>{$L('名称字段')}</em>
+                </a>
+                <div className="mt-1"></div>
+                <a data-toggle="dropdown" data-reference="toggle">
+                  {$L('无')}
+                </a>
+                <a data-toggle="dropdown" data-reference="toggle">
+                  {$L('无')}
+                </a>
+                <a data-toggle="dropdown" data-reference="toggle">
+                  {$L('无')}
+                </a>
               </div>
             </div>
           </div>
@@ -343,5 +526,20 @@ class DlgMode2Option extends DlgMode1Option {
         </div>
       </RbModal>
     )
+  }
+
+  onFieldsMenuShow($item, $menu) {
+    if ($($item).hasClass('L1')) {
+      $menu.find('a').addClass('hide')
+      $menu.find('a[data-type="N"]').removeClass('hide')
+      $menu.find('a[data-type="IMAGE"]').removeClass('hide')
+    } else {
+      $menu.find('a[data-type="IMAGE"]').addClass('hide')
+    }
+  }
+
+  _saveBefore(o) {
+    o.mode3ShowFilters = $val('#mode3ShowFilters')
+    return o
   }
 }

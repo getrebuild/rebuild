@@ -14081,7 +14081,7 @@ a.avatar.x48 img {
 
   .rb-mega-menu-section.parent > .nav-link::after {
     position: absolute;
-    content: '飲�';
+    content: '\f2f2';
     font-family: 'Material-Design-Iconic-Font';
     font-size: 1.615rem;
     vertical-align: middle;
@@ -14095,7 +14095,7 @@ a.avatar.x48 img {
   }
 
   .rb-mega-menu-section.open > .nav-link::after {
-    content: '飲�';
+    content: '\f2f2';
     color: #4285f4;
   }
 }
@@ -14369,7 +14369,7 @@ a.avatar.x48 img {
 @media (max-width: 767.98px) {
   .rb-sub-header .navbar-nav > .nav-item.parent > .nav-link::after {
     position: absolute;
-    content: '飲�';
+    content: '\f2f2';
     font-family: 'Material-Design-Iconic-Font';
     font-size: 1.615rem;
     vertical-align: middle;
@@ -14378,7 +14378,7 @@ a.avatar.x48 img {
   }
 
   .rb-sub-header .navbar-nav > .nav-item.parent.open > .nav-link::after {
-    content: '飲�';
+    content: '\f2f2';
   }
 }
 
@@ -14515,7 +14515,7 @@ a.avatar.x48 img {
 
 .rb-nav-tabs-sub > .nav-item.parent > .nav-link::after {
   position: absolute;
-  content: '飲�';
+  content: '\f2f2';
   font-family: 'Material-Design-Iconic-Font';
   font-size: 1.615rem;
   vertical-align: middle;
@@ -14534,7 +14534,7 @@ a.avatar.x48 img {
 
 @media (max-width: 767.98px) {
   .rb-nav-tabs-sub > .nav-item.parent.open > .nav-link::after {
-    content: '飲�';
+    content: '\f2f2';
     color: #4285f4;
   }
 }
@@ -23194,6 +23194,8 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^='col-']:las
   min-height: 30px;
   height: 100%;
   width: auto;
+  max-width: 50px;
+  border-radius: 2px;
 }
 
 /* BS v4.4 */

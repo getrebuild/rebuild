@@ -10,6 +10,7 @@ package com.rebuild;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.exception.jdbc.ConstraintViolationException;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
@@ -136,7 +137,7 @@ public class TestSupport {
             Entity testEntity = MetadataHelper.getEntity(entityName);
 
             for (DisplayType dt : DisplayType.values()) {
-                if (dt == DisplayType.ID || dt == DisplayType.ANYREFERENCE) {
+                if (dt == DisplayType.ID) {
                     continue;
                 }
 
@@ -207,6 +208,17 @@ public class TestSupport {
         Record record = EntityHelper.forNew(testEntity.getEntityCode(), user);
         record.setString("TestAllFieldsName", "TestAllFieldsName-" + RandomUtils.nextLong());
         record.setString("text", "TEXT-" + RandomUtils.nextLong());
-        return Application.getGeneralEntityService().create(record).getPrimary();
+
+        // v3.7 自动修复自动编号重复问题
+        while (true) {
+            record.removeValue("SERIES");
+            try {
+                Application.getGeneralEntityService().create(record);
+                break;
+            } catch (ConstraintViolationException ex) {
+                _log.warn("ConstraintViolationException : {}", ex.getLocalizedMessage());
+            }
+        }
+        return record.getPrimary();
     }
 }

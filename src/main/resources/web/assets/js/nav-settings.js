@@ -92,7 +92,6 @@ $(document).ready(() => {
 
     item_currentid = null
     $('.J_config li').removeClass('active')
-    $('.J_edit-tips').removeClass('hide')
     $('.J_edit-menu').addClass('hide')
     $('#defaultOpen').attr('checked', false)
   })
@@ -198,21 +197,13 @@ const use_sortable = function (el) {
       placeholder: 'dd-placeholder',
       handle: '>.dd3-handle',
       axis: 'y',
-      // change: function (e, ui) {
-      //   const $sb = $('.sortable-box')
-      //   console.log(ui.offset, ui.position, $sb.scrollTop())
-      //   if ($sb.scrollTop() > 0 && ui.offset.top <= 36) {
-      //     $sb.scrollTop(Math.max($sb.scrollTop() - 36, 0))
-      //     $sb.perfectScrollbar('update')
-      //   }
-      // },
     })
     .disableSelection()
 }
 
 const build_item = function (item) {
   const data = {
-    text: $.trim(item.find('.dd3-content').eq(0).text()),
+    text: $trim(item.find('.dd3-content').eq(0).text()),
     type: item.attr('attr-type'),
     value: item.attr('attr-value'),
     icon: item.attr('attr-icon'),
@@ -290,7 +281,6 @@ const render_item = function (data, isNew, append2) {
     $('.J_config li').removeClass('active')
     $item.addClass('active')
 
-    $('.J_edit-tips').addClass('hide')
     $('.J_edit-menu').removeClass('hide')
 
     $('.J_menuName').val(data.text)

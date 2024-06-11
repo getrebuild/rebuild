@@ -55,15 +55,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chart-box .chart-head .chart-oper > a {
-  color: #000;
-  opacity: 0.4;
+  color: rgba(0, 0, 0, 0.4);
   display: inline-block;
   height: 20px;
   margin-left: 5px;
 }
 
 .chart-box .chart-head .chart-oper > a:hover {
-  opacity: 0.7;
+  color: rgba(0, 0, 0, 0.7);
 }
 
 .chart-box .chart-head .chart-oper > a .zmdi {
@@ -80,10 +79,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart-box .chart-head .chart-oper > a .zmdi-fullscreen,
 .chart-box .chart-head .chart-oper > a .zmdi-fullscreen-exit {
   font-size: 1.43rem;
-}
-
-.chart-box .chart-head .chart-oper .dropdown-menu {
-  min-width: 140px;
 }
 
 .chart-undata {
@@ -126,13 +121,40 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart.index > .data-item p {
   font-size: 1.1rem;
   margin-bottom: 1px;
-  opacity: 0.8;
+  opacity: 0.9;
   line-height: 1;
 }
 
 .chart.index > .data-item strong {
   font-size: 3.1rem;
   font-weight: 400;
+}
+
+.chart.index > .data-item .with p,
+.chart.index > .data-item .with strong {
+  display: inline-block;
+  font-size: 1.1rem;
+}
+
+.chart.index > .data-item .with strong {
+  margin-left: 5px;
+  margin-top: 3px;
+  font-size: 1.55rem;
+  color: green !important;
+}
+
+.chart.index > .data-item .with strong::before {
+  font-family: 'Material Design Icons', serif;
+  content: '\F072E';
+  font-size: 0.9rem;
+}
+
+.chart.index > .data-item .with strong.ge {
+  color: red !important;
+}
+
+.chart.index > .data-item .with strong.ge::before {
+  content: '\F005E';
 }
 
 .grid-stack-item.fullscreen .chart.index > .data-item p {
@@ -144,12 +166,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   zoom: 1 !important;
 }
 
-.chart.index > .data-item a {
-  color: #404040;
+.grid-stack-item.fullscreen .chart.index > .data-item .with strong {
+  font-size: 4.4rem;
 }
 
-.chart.index > .data-item a:hover {
-  opacity: 0.9;
+.grid-stack-item.fullscreen .chart.index > .data-item .with strong::before {
+  zoom: 2;
 }
 
 .chart.ctable {
@@ -192,6 +214,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart.ctable .table.line-number thead th:first-child,
 .chart.ctable .table.line-number tbody th:first-child {
   width: 50px;
+  color: #888;
 }
 
 .chart.ctable .table.sums tbody tr:last-child td {
@@ -282,11 +305,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chart-box.ApprovalList .progress-wrap .progress-bar {
   min-width: 20%;
+  transition: opacity 0.2s;
 }
 
-.chart-box.ApprovalList .progress-wrap .progress-bar:hover {
+.chart-box.ApprovalList .progress-wrap .progress:hover > .progress-bar {
+  opacity: 0.4;
+}
+
+.chart-box.ApprovalList .progress-wrap .progress:hover > .progress-bar:hover {
   cursor: pointer;
-  opacity: 0.8;
+  opacity: 1;
 }
 
 .chart-box.ApprovalList .progress-wrap .progress-bar.active {
@@ -436,6 +464,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-position: -1501px -1406px;
 }
 
+.chart-list > div .chart-icon > i.BAR2 {
+  background-position: -1437px -1406px;
+}
+
 .chart-list > div .chart-icon > i.PIE {
   background-position: -978px -1326px;
 }
@@ -474,13 +506,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chart-list > div .chart-icon > i.DATALIST2 {
   background: none;
+  margin-top: 5px;
 }
 
 .chart-list > div .chart-icon > i.DATALIST2::before {
   font-family: 'Material Design Icons', serif;
-  content: '\F04F1';
+  content: '\F148C';
   color: #4285f4;
-  font-size: 21px;
+  font-size: 27px;
   font-style: normal;
 }
 
@@ -523,6 +556,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #dee2e6;
 }
 
+.chart-box.DataList .chart.ctable thead th.no-sort:hover,
+.chart-box.DataList .chart.ctable thead th.no-sort:active {
+  cursor: default;
+  background-color: #eceff1;
+}
+
 .chart-box.DataList .table td,
 .chart-box.DataList .table td > div {
   white-space: nowrap;
@@ -533,7 +572,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chart-box.DataList .table td.open-newtab {
-  padding-bottom: 0;
   text-align: center;
   padding: 8px;
 }
@@ -541,7 +579,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart-box.DataList .table td.open-newtab .icon {
   font-size: 15px;
   width: 100%;
-  color: #404040;
+  color: rgba(0, 0, 0, 0.5);
 }
 
 .chart-box.DataList .table td.open-newtab a:hover .icon {
@@ -600,4 +638,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   /*background-color: rgba(51, 122, 183, 0.2) !important;*/
   border: 1px double #4285f4;
   background-color: #f5f8fd;
+}
+
+.chart-box.CNMAP .chart-body {
+  margin-top: -5px;
 }

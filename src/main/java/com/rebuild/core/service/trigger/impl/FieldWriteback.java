@@ -50,6 +50,7 @@ import org.apache.commons.lang.StringUtils;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -108,10 +109,6 @@ public class FieldWriteback extends FieldAggregation {
 
     @Override
     public Object execute(OperatingContext operatingContext) throws TriggerException {
-        if (operatingContext.getAction() == BizzPermission.UPDATE && !hasUpdateFields(operatingContext)) {
-            return TriggerResult.noUpdateFields();
-        }
-
         final String chainName = String.format("%s:%s:%s", actionContext.getConfigId(),
                 operatingContext.getFixedRecordId(), operatingContext.getAction().getName());
         final List<String> tschain = checkTriggerChain(chainName);
@@ -275,7 +272,9 @@ public class FieldWriteback extends FieldAggregation {
             }
         }
 
-        if (!targetRecordIds.isEmpty()) {
+        if (targetRecordIds.isEmpty()) {
+            log.debug("Target record(s) are empty.");
+        } else {
             targetRecordData = buildTargetRecordData(operatingContext, false);
         }
     }
@@ -486,12 +485,12 @@ public class FieldWriteback extends FieldAggregation {
                     Object newValue = AviatorUtils.eval(clearFormula, envMap, Boolean.FALSE);
 
                     if (newValue != null) {
-                        DisplayType dt = targetFieldEasy.getDisplayType();
-                        if (dt == DisplayType.NUMBER) {
+                        DisplayType targetType = targetFieldEasy.getDisplayType();
+                        if (targetType == DisplayType.NUMBER) {
                             targetRecord.setLong(targetField, CommonsUtils.toLongHalfUp(newValue));
-                        } else if (dt == DisplayType.DECIMAL) {
+                        } else if (targetType == DisplayType.DECIMAL) {
                             targetRecord.setDouble(targetField, ObjectUtils.toDouble(newValue));
-                        } else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
+                        } else if (targetType == DisplayType.DATE || targetType == DisplayType.DATETIME) {
                             if (newValue instanceof Date) {
                                 targetRecord.setDate(targetField, (Date) newValue);
                             } else {
@@ -544,11 +543,21 @@ public class FieldWriteback extends FieldAggregation {
 
         } else if (dt == DisplayType.N2NREFERENCE) {
 
-            String[] ids = value.toString().split(",");
+            // v3.7 增强兼容
+            Object[] ids;
+            if (value instanceof Collection) {
+                //noinspection unchecked
+                ids = ((Collection<Object>) value).toArray(new Object[0]);
+            } else if (value instanceof Object[]) {
+                ids = (Object[]) value;
+            } else {
+                ids = value.toString().split(",");
+            }
+
             Set<ID> idsSet = new LinkedHashSet<>();
-            for (String id : ids) {
-                id = id.trim();
-                if (ID.isId(id)) idsSet.add(ID.valueOf(id));
+            for (Object id : ids) {
+                id = id.toString().trim();
+                if (ID.isId(id)) idsSet.add(ID.valueOf(id.toString()));
             }
             // v3.5.5: 目标值为多引用时保持 `ID[]`
             newValue = idsSet.toArray(new ID[0]);

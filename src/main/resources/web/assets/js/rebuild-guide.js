@@ -62,45 +62,27 @@ class RebuildGuide extends React.Component {
   _pcalc() {
     const t1 = $('.rebuild-guide .guide .items li').length
     const t2 = $('.rebuild-guide .guide .items li.confirm').length
-    const p = ~~((t2 * 100) / t1)
+    const cp = ~~((t2 * 100) / t1)
 
     let option = {
       animation: true,
-      series: {
-        type: 'pie',
-        radius: ['80%', '100%'],
-        center: ['50%', '50%'],
-        hoverAnimation: false,
-        silent: false,
-        label: {
-          show: true,
-          position: 'center',
-          formatter: '{d}%',
-          fontSize: 18,
-        },
-        color: ['#eeeeee', '#34a853'],
-        emphasis: {
-          scale: false,
-        },
-        labelLine: {
-          show: true,
-        },
-        data: [
-          {
-            value: 100 - p,
-            name: '',
-            emphasis: {
-              label: {
-                show: false,
-              },
-            },
+      series: [
+        {
+          type: 'pie',
+          radius: ['75%', '100%'],
+          avoidLabelOverlap: false,
+          label: {
+            show: true,
+            position: 'center',
+            formatter: `${cp}%`,
+            fontSize: 17,
           },
-          {
-            value: p,
-            name: '',
-          },
-        ],
-      },
+          data: [
+            { value: cp, name: '', itemStyle: { color: '#34a853' } },
+            { value: 100 - cp, name: '', itemStyle: { color: '#e5e5e5' } },
+          ],
+        },
+      ],
     }
 
     // eslint-disable-next-line no-undef

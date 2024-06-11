@@ -8,6 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.trigger;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.service.SafeObservable;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.OperatingObserver;
@@ -22,6 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.NamedThreadLocal;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -38,7 +42,10 @@ public class RobotTriggerObserver extends OperatingObserver {
 
     private static final ThreadLocal<TriggerSource> TRIGGER_SOURCE = new NamedThreadLocal<>("Trigger source");
 
-    private static final ThreadLocal<Boolean> SKIP_TRIGGERS = new NamedThreadLocal<>("Skip triggers");
+    private static final ThreadLocal<Boolean> LAZY_TRIGGERS = new NamedThreadLocal<>("Lazy triggers");
+    private static final ThreadLocal<List<Object>> LAZY_TRIGGERS_CTX = new NamedThreadLocal<>("Lazy triggers ctx");
+
+    private static final ThreadLocal<String> ALLOW_TRIGGERS_ONAPPROVED = new NamedThreadLocal<>("Allow triggers on approve-node");
 
     @Override
     public int getOrder() {
@@ -46,9 +53,16 @@ public class RobotTriggerObserver extends OperatingObserver {
     }
 
     @Override
-    public void update(final SafeObservable o, Object arg) {
-        if (isSkipTriggers(false)) return;
-        super.update(o, arg);
+    public void update(final SafeObservable o, Object context) {
+        if (isLazyTriggers(false)) {
+            List<Object> ctx = LAZY_TRIGGERS_CTX.get();
+            if (ctx == null) ctx = new ArrayList<>();
+            ctx.add(context);
+            LAZY_TRIGGERS_CTX.set(ctx);
+            if (CommonsUtils.DEVLOG) System.out.println("[dev] Lazy triggers : " + ctx);
+        } else {
+            super.update(o, context);
+        }
     }
 
     @Override
@@ -135,23 +149,6 @@ public class RobotTriggerObserver extends OperatingObserver {
             if (o != null) log.warn("Force clean last trigger-chain : {}", o);
 
         } else {
-
-//            // FIXME 20220811 此处的判断可能不需要，因为有 `trigger-chain`
-//
-//            // 是否自己触发自己，避免无限执行
-//            boolean isOriginRecord = primaryId.equals(triggerSource.getOriginRecord());
-//
-//            String lastKey = triggerSource.getLastSourceKey();
-//            triggerSource.addNext(context, when);
-//            String currentKey = triggerSource.getLastSourceKey();
-//
-//            if (isOriginRecord && lastKey.equals(currentKey)) {
-//                if (!triggerSource.isSkipOnce()) {
-//                    log.warn("Self trigger, ignore : {} < {}", currentKey, lastKey);
-//                    return;
-//                }
-//            }
-
             // v3.1-b5
             triggerSource.addNext(context, when);
         }
@@ -159,9 +156,33 @@ public class RobotTriggerObserver extends OperatingObserver {
         final String sourceId = triggerSource.getSourceId();
         try {
             for (TriggerAction action : beExecuted) {
+                // v3.7 审批节点触发
+                if (when == TriggerWhen.APPROVED) {
+                    String hasIds = ALLOW_TRIGGERS_ONAPPROVED.get();
+                    if (hasIds != null) {
+                        if (!hasIds.contains(action.actionContext.getConfigId().toString())) {
+                            continue;
+                        }
+                    }
+                }
+                // v3.7 指定字段通用化
+                if (when == TriggerWhen.UPDATE) {
+                    JSONArray whenUpdateFields = ((JSONObject) action.getActionContext().getActionContent())
+                            .getJSONArray("whenUpdateFields");
+                    if (whenUpdateFields != null && !whenUpdateFields.isEmpty()) {
+                        boolean hasUpdated = false;
+                        for (String field : context.getAfterRecord().getAvailableFields()) {
+                            if (whenUpdateFields.contains(field)) {
+                                hasUpdated = true;
+                                break;
+                            }
+                        }
+                        if (!hasUpdated) continue;
+                    }
+                }
+
                 final int t = triggerSource.incrTriggerTimes();
-                final String w = String.format("Trigger.%s.%d [ %s ] executing on record (%s) : %s",
-                        sourceId, t, action, when, primaryId);
+                final String w = String.format("Trigger.%s.%d [ %s ] executing on record (%s) : %s", sourceId, t, action, when, primaryId);
                 log.info(w);
 
                 try {
@@ -236,20 +257,57 @@ public class RobotTriggerObserver extends OperatingObserver {
     }
 
     /**
-     * 跳过触发器的执行
+     * 延迟触发器的执行
      */
-    public static void setSkipTriggers() {
-        SKIP_TRIGGERS.set(true);
+    public static void setLazyTriggers() {
+        LAZY_TRIGGERS.set(true);
     }
 
     /**
+     * 是否延迟触发器执行
+     *
      * @param once
      * @return
-     * @see #setSkipTriggers()
      */
-    public static boolean isSkipTriggers(boolean once) {
-        Boolean is = SKIP_TRIGGERS.get();
-        if (is != null && once) SKIP_TRIGGERS.remove();
+    public static boolean isLazyTriggers(boolean once) {
+        Boolean is = LAZY_TRIGGERS.get();
+        if (is != null && once) LAZY_TRIGGERS.remove();
         return is != null && is;
+    }
+
+    /**
+     * 延迟执行触发器
+     *
+     * @param o
+     * @return
+     */
+    public static int executeLazyTriggers(final SafeObservable o) {
+        isLazyTriggers(true);
+
+        List<Object> ctx = LAZY_TRIGGERS_CTX.get();
+        if (ctx == null) return 0;
+        LAZY_TRIGGERS_CTX.remove();
+
+        log.info("Will execute lazy triggers : {}", ctx);
+        RobotTriggerObserver observer = new RobotTriggerObserver();
+        for (Object context : ctx) {
+            observer.update(o, context);
+        }
+        return ctx.size();
+    }
+
+    /**
+     * 设置允许触发的触发器（ID）
+     *
+     * @param triggerIds
+     */
+    public static void setAllowTriggersOnApproved(String triggerIds) {
+        ALLOW_TRIGGERS_ONAPPROVED.set(triggerIds);
+    }
+
+    /**
+     */
+    public static void clearAllowTriggersOnApproved() {
+        ALLOW_TRIGGERS_ONAPPROVED.remove();
     }
 }

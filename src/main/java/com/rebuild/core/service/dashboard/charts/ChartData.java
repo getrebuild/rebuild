@@ -150,6 +150,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
                     validFields[0], getFormatSort(item), getFormatCalc(item),
                     item.getString("label"),
                     item.getInteger("scale"),
+                    item.getJSONObject("filter"),
                     validFields[1]);
             list.add(num);
         }
@@ -206,11 +207,26 @@ public abstract class ChartData extends SetUser implements ChartSpec {
      *
      * @return
      */
+    protected String getFilterSql(Numerical withAxisFilter) {
+        String where = getFilterSql();
+        if (withAxisFilter != null && ParseHelper.validAdvFilter(withAxisFilter.getFilter())) {
+            AdvFilterParser filterParser = new AdvFilterParser(withAxisFilter.getFilter());
+            String fieldWhere = filterParser.toSqlWhere();
+            if (fieldWhere != null) where = String.format("((%s) and (%s))", where, fieldWhere);
+        }
+        return where;
+    }
+
+    /**
+     * 获取过滤 SQL
+     *
+     * @return
+     */
     protected String getFilterSql() {
         String previewFilter = StringUtils.EMPTY;
         // 限制预览数据量
         if (isFromPreview() && getSourceEntity().containsField(EntityHelper.AutoId)) {
-            String maxAidSql = String.format("select max(%s) from %s", EntityHelper.AutoId, getSourceEntity().getName());
+            String maxAidSql = String.format("select max(autoId) from %s", getSourceEntity().getName());
             Object[] o = Application.createQueryNoFilter(maxAidSql).unique();
             long maxAid = ObjectUtils.toLong(o[0]);
             if (maxAid > 5000) {
@@ -435,7 +451,6 @@ public abstract class ChartData extends SetUser implements ChartSpec {
                 dim.getSqlName(),
                 StringUtils.join(numSqlItems, ", "),
                 getSourceEntity().getName(), getFilterSql());
-
         return appendSqlSort(sql);
     }
 
@@ -458,7 +473,6 @@ public abstract class ChartData extends SetUser implements ChartSpec {
                 num.getSqlName(),
                 getSourceEntity().getName(),
                 getFilterSql());
-
         return appendSqlSort(sql);
     }
 
@@ -467,15 +481,17 @@ public abstract class ChartData extends SetUser implements ChartSpec {
      *
      * @param dim
      * @param num
+     * @param withFilter
      * @return
      */
-    protected String buildSql(Dimension dim, Numerical num) {
+    protected String buildSql(Dimension dim, Numerical num, boolean withFilter) {
         String sql = "select {0},{1} from {2} where {3} group by {0}";
+        String where = getFilterSql(withFilter ? num : null);
+
         sql = MessageFormat.format(sql,
                 dim.getSqlName(),
                 num.getSqlName(),
-                getSourceEntity().getName(), getFilterSql());
-
+                getSourceEntity().getName(), where);
         return appendSqlSort(sql);
     }
 
@@ -495,7 +511,19 @@ public abstract class ChartData extends SetUser implements ChartSpec {
         sql = MessageFormat.format(sql,
                 StringUtils.join(numSqlItems, ", "),
                 getSourceEntity().getName(), getFilterSql());
+        return appendSqlSort(sql);
+    }
 
+    /**
+     * @param num
+     * @param withFilter
+     * @return
+     */
+    protected String buildSql(Numerical num, boolean withFilter) {
+        String sql = "select {0} from {1} where {2}";
+        String where = getFilterSql(withFilter ? num : null);
+
+        sql = MessageFormat.format(sql, num.getSqlName(), getSourceEntity().getName(), where);
         return appendSqlSort(sql);
     }
 
@@ -507,9 +535,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
      */
     protected String appendSqlSort(String sql) {
         String sorts = getSortSql();
-        if (sorts != null) {
-            sql += " order by " + sorts;
-        }
+        if (sorts != null) sql += " order by " + sorts;
         return sql;
     }
 }

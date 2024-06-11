@@ -73,10 +73,10 @@ public class RecentlyUsedSearchController extends BaseController {
      * 格式化成前端 `select2` 组件数据格式
      *
      * @param idLabels
-     * @param groupName select2 分组 null 表示无分组
+     * @param useGroupName select2 分组 null 表示无分组
      * @return
      */
-    static JSONArray formatSelect2(ID[] idLabels, String groupName) {
+    static JSONArray formatSelect2(ID[] idLabels, String useGroupName) {
         JSONArray data = new JSONArray();
         for (ID id : idLabels) {
             String label = id.getLabel();
@@ -89,9 +89,9 @@ public class RecentlyUsedSearchController extends BaseController {
                     new String[] { id.toLiteral(), label }));
         }
 
-        if (groupName != null) {
+        if (useGroupName != null) {
             JSONObject group = new JSONObject();
-            group.put("text", groupName);
+            group.put("text", useGroupName);
             group.put("children", data);
 
             JSONArray array = new JSONArray();

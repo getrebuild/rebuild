@@ -82,6 +82,12 @@
       .topnav-list > div .nav-name-text > a:hover {
         opacity: 1;
       }
+      .J_edit-tips {
+        display: none;
+      }
+      .J_edit-menu.hide + .J_edit-tips {
+        display: block;
+      }
     </style>
   </head>
   <body class="dialog">
@@ -96,8 +102,7 @@
           </div>
         </div>
         <div class="col-7 mt-2 pl-5 pr-2">
-          <div class="text-muted J_edit-tips">[[${bundle.L('点击左侧菜单项进行编辑')}]]</div>
-          <div class="J_edit-menu hide" style="margin-top: -6px">
+          <div class="J_edit-menu hide">
             <div class="tab-container">
               <ul class="nav nav-tabs">
                 <li class="nav-item"><a class="nav-link J_menuType active" href="#ENTITY" data-toggle="tab">[[${bundle.L('关联项')}]]</a></li>
@@ -140,6 +145,7 @@
               <button type="button" class="btn btn-primary btn-outline J_menuConfirm">[[${bundle.L('确定')}]]</button>
             </div>
           </div>
+          <div class="text-muted J_edit-tips">[[${bundle.L('点击左侧菜单项进行编辑')}]]</div>
         </div>
       </div>
       <div class="dialog-footer">

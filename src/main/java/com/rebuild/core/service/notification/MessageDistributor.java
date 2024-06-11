@@ -23,4 +23,10 @@ public interface MessageDistributor {
      * @return
      */
     boolean send(Message message, ID messageId);
+
+    /**
+     * 激活?
+     * @return
+     */
+    boolean isEnable();
 }

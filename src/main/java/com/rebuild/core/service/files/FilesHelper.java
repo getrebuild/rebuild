@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.LRUMap;
@@ -61,6 +62,7 @@ public class FilesHelper {
     public static Record createAttachment(String filePath, ID user) {
         Record attach = EntityHelper.forNew(EntityHelper.Attachment, user);
         attach.setString("filePath", filePath);
+        attach.setString("fileName", QiniuCloud.parseFileName(filePath));
 
         String ext = FilenameUtils.getExtension(filePath);
         if (StringUtils.isNotBlank(ext)) {
@@ -69,7 +71,7 @@ public class FilesHelper {
         }
 
         if (FILESIZES.containsKey(filePath)) {
-            attach.setInt("fileSize", FILESIZES.remove(filePath));
+            attach.setInt("fileSize", FILESIZES.get(filePath));
         } else {
             Object[] db = Application.createQueryNoFilter(
                     "select fileSize from Attachment where filePath = ?")

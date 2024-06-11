@@ -335,25 +335,24 @@ class DataExport extends BatchOperator {
     return (
       <div className="form-group">
         <label className="text-bold">{$L('选择导出格式')}</label>
-        <select className="form-control form-control-sm" style={{ width: 325 }} ref={(c) => (this._$report = c)} defaultValue="xls">
-          <option value="csv">CSV</option>
-          <option value="xls">Excel</option>
-          <optgroup label={$L('使用报表模板')}>
-            {reports.map((item) => {
-              const outputType = item.outputType || ''
-              return (
-                <RF key={item.id}>
-                  <option value={item.id}>
-                    {item.name}
-                    {`${outputType === 'pdf' ? ' (PDF)' : ''}`}
-                  </option>
-                  {outputType.includes('pdf,excel') && <option value={`${item.id}&output=pdf`}>{item.name} (PDF)</option>}
-                </RF>
-              )
-            })}
-            {reports.length === 0 && <option disabled>{$L('暂无')}</option>}
-          </optgroup>
-        </select>
+        <div style={{ width: 325 }}>
+          <select className="form-control form-control-sm" ref={(c) => (this._$report = c)} defaultValue="xls">
+            <option value="csv">CSV</option>
+            <option value="xls">Excel</option>
+            <optgroup label={$L('使用报表模板')}>
+              {reports.map((item) => {
+                const outputType = item.outputType || 'excel'
+                return (
+                  <RF key={item.id}>
+                    {outputType.includes('excel') && <option value={`${item.id}`}>{item.name}</option>}
+                    {outputType.includes('pdf') && <option value={`${item.id}&output=pdf`}>{item.name} (PDF)</option>}
+                  </RF>
+                )
+              })}
+              {reports.length === 0 && <option disabled>{$L('无')}</option>}
+            </optgroup>
+          </select>
+        </div>
       </div>
     )
   }
@@ -373,7 +372,18 @@ class DataExport extends BatchOperator {
   }
 
   componentDidMount() {
-    $.get(`/app/${this.props.entity}/report/available?type=2`, (res) => this.setState({ reports: res.data }))
+    $.get(`/app/${this.props.entity}/report/available?type=2`, (res) => {
+      this.setState({ reports: res.data }, () => {
+        this.__select2 = $(this._$report).select2({
+          templateResult: function (res) {
+            const text = res.text.split(' (PDF)')
+            const $span = $('<span></span>').text(text[0])
+            if (text.length > 1) $('<span class="badge badge-default badge-pill">PDF</span>').appendTo($span)
+            return $span
+          },
+        })
+      })
+    })
   }
 }
 
@@ -491,9 +501,6 @@ class BatchUpdate extends BatchOperator {
           }
         })
       },
-      // onRendered: function () {
-      //   $countdownButton($(this._dlg).find('.btn-primary'))
-      // },
     })
   }
 
@@ -805,7 +812,7 @@ const RbListCommon = {
     $('.J_batch-update').on('click', () => renderRbcomp(<BatchUpdate listRef={_RbList()} entity={entity[0]} />))
     $('.J_batch-approve').on('click', () => renderRbcomp(<BatchApprove listRef={_RbList()} entity={entity[0]} />))
     $('.J_record-merge').on('click', () => {
-      const ids = _RbList().getSelectedIds()
+      const ids = _RbList().getSelectedIds(true)
       if (ids.length < 2) return RbHighbar.createl('请至少选择两条记录')
       renderRbcomp(<RecordMerger listRef={_RbList()} entity={entity[0]} hasDetails={!!$('.J_details')[0]} ids={ids} />)
     })
@@ -824,7 +831,6 @@ const wpc = window.__PageConfig || {}
 const COLUMN_MIN_WIDTH = 30
 const COLUMN_MAX_WIDTH = 800
 const COLUMN_DEF_WIDTH = 130
-const COLUMN_UNSORT = ['SIGN', 'N2NREFERENCE', 'MULTISELECT', 'FILE', 'IMAGE', 'AVATAR', 'TAG']
 
 // IE/Edge 不支持首/列固定
 const supportFixedColumns = !($.browser.msie || $.browser.msedge)
@@ -870,7 +876,8 @@ class RbList extends React.Component {
 
       if (sort && sort[0] === fields[i].field) fields[i].sort = sort[1]
       else fields[i].sort = null
-      if (COLUMN_UNSORT.includes(fields[i].type)) fields[i].unsort = true
+      // eslint-disable-next-line no-undef
+      if (UNSORT_FIELDTYPES.includes(fields[i].type)) fields[i].unsort = true
     }
 
     delete props.config.fields
@@ -1008,8 +1015,8 @@ class RbList extends React.Component {
       $addResizeHandler(() => {
         let mh = $(window).height() - (61 + 20 + 61 + 60 + 2) /* Nav, MarginTop20, TableHeader, TableFooter */
         if ($('.main-content>.nav-tabs-classic')[0]) mh -= 38 // Has detail-tab
-        if ($('.main-content .quick-filter-pane')[0]) mh -= 75 // Has query-pane
-        if ($('.main-content .quick-filter-tabs')[0]) mh -= 44 // Has query-tabs
+        if ($('.main-content .quick-filter-pane')[0]) mh -= 92 // Has filter-pane
+        if ($('.main-content .quick-filter-tabs')[0]) mh -= 44 // Has list-view
 
         $scroller.css({ maxHeight: mh })
         $scroller.perfectScrollbar('update')
@@ -1095,7 +1102,7 @@ class RbList extends React.Component {
     }, 400)
 
     if (query.filter && (query.filter.items || []).length > 0) {
-      console.log(`API Filter <Body> :\n %c${JSON.stringify(query.filter)}`, 'color:#e83e8c;font-size:16px')
+      console.log(`RBAPI ASSISTANT *Filter Body* :\n %c${JSON.stringify(query.filter)}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
     }
 
     $.post(`/app/${this._entity}/data-list`, JSON.stringify(RbList.queryBefore(query)), (res) => {
@@ -1329,7 +1336,7 @@ class RbList extends React.Component {
 
   _buildQuick(el) {
     el = $(el || '.input-search>input')
-    const q = $.trim(el.val())
+    const q = $trim(el.val())
     if (!q && !this.lastFilter) return null
 
     return {
@@ -1517,10 +1524,9 @@ class RbListPagination extends React.Component {
 const CellRenders = {
   // 打开记录
   clickView(v, e) {
-    if (window.RbViewModal) {
-      window.RbViewModal.create({ id: v.id, entity: v.entity }, wpc.forceSubView)
-    } else if (parent && parent.RbViewModal) {
-      parent.RbViewModal.create({ id: v.id, entity: v.entity }, wpc.forceSubView)
+    const _RbViewModal = window.RbViewModal ? window.RbViewModal : parent && parent.RbViewModal ? parent.RbViewModal : null
+    if (_RbViewModal && wpc.forceOpenNewtab !== true) {
+      _RbViewModal.create({ id: v.id, entity: v.entity }, wpc.forceSubView)
     } else {
       window.open(`${rb.baseUrl}/app/redirect?id=${v.id}&type=newtab`)
     }
@@ -1530,8 +1536,8 @@ const CellRenders = {
 
   // 打开预览
   clickPreview(v, idx, e) {
-    RbPreview.create(v, idx)
     e && $stopEvent(e)
+    RbPreview.create(v, idx)
     return false
   },
 
@@ -1540,24 +1546,25 @@ const CellRenders = {
     this.__RENDERS[type] = func
   },
 
+  // 单元格渲染
   render(value, type, width, key) {
-    const style = { width: width || COLUMN_MIN_WIDTH }
-
+    const style2 = { width: width || COLUMN_MIN_WIDTH }
     if (window.FrontJS && wpc.entity) {
       let fieldKey = key.split('.').slice(1)
       fieldKey = `${wpc.entity[0]}.${fieldKey.join('.')}`
       const fn = window.FrontJS.DataList.__cellRenders[fieldKey]
       if (typeof fn === 'function') {
-        const fnRet = fn(value, style, key)
+        const fnRet = fn(value, style2, key)
         if (fnRet !== false) return fnRet
       }
     }
 
-    if (!value) return this.renderSimple(value, style, key)
-    else return (this.__RENDERS[type] || this.renderSimple)(value, style, key)
+    if (!value) return this.renderSimple(value, style2, key)
+    else return (this.__RENDERS[type] || this.renderSimple)(value, style2, key)
   },
 
   /**
+   * @see #render
    * @param {*} v 值
    * @param {*} s 样式
    * @param {*} k key of React (contains fieldName)
@@ -1575,10 +1582,32 @@ const CellRenders = {
       </td>
     )
   },
+
+  /**
+   * @param {*} v 值
+   */
+  formatSimple(v) {
+    if (Array.isArray(v)) {
+      const array = []
+      v.forEach((item) => {
+        if (typeof item === 'object') array.push(item.text || item.name)
+        else array.push(item)
+      })
+      v = array
+    }
+
+    if (Array.isArray(v)) return v.join(', ')
+
+    if (typeof v === 'object') {
+      if (Array.isArray(v.text)) v = v.text.join(', ')
+      else v = v.text
+    }
+    return v ? v : $empty(v) ? null : v
+  },
 }
 
 // 名称字段
-CellRenders.addRender('$NAME$', function (v, s, k) {
+CellRenders.addRender('$NAME$', (v, s, k) => {
   return (
     <td key={k}>
       <div style={s} title={v.text}>
@@ -1589,9 +1618,8 @@ CellRenders.addRender('$NAME$', function (v, s, k) {
     </td>
   )
 })
-
 // 无权访问字段
-CellRenders.addRender('$NOPRIVILEGES$', function (v, s, k) {
+CellRenders.addRender('$NOPRIVILEGES$', (v, s, k) => {
   return (
     <td key={k}>
       <div style={s} className="column-nopriv">
@@ -1600,8 +1628,8 @@ CellRenders.addRender('$NOPRIVILEGES$', function (v, s, k) {
     </td>
   )
 })
-
-CellRenders.addRender('IMAGE', function (v, s, k) {
+// 不同类型
+CellRenders.addRender('IMAGE', (v, s, k) => {
   v = v || []
   const vLen = v.length
   return (
@@ -1612,7 +1640,7 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
           const imgUrl = $isFullUrl(item) ? item : `${rb.baseUrl}/filex/img/${item}`
           return (
             <a key={item} title={imgName} onClick={(e) => CellRenders.clickPreview(v, idx, e)}>
-              <img alt="IMG" src={`${imgUrl}?imageView2/2/w/100/interlace/1/q/100`} />
+              <img src={`${imgUrl}?imageView2/2/w/100/interlace/1/q/100`} alt="IMG" />
             </a>
           )
         })}
@@ -1620,8 +1648,7 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
     </td>
   )
 })
-
-CellRenders.addRender('FILE', function (v, s, k) {
+CellRenders.addRender('FILE', (v, s, k) => {
   v = v || []
   const vLen = v.length
   return (
@@ -1639,8 +1666,7 @@ CellRenders.addRender('FILE', function (v, s, k) {
     </td>
   )
 })
-
-const renderReference = function (v, s, k) {
+const renderReference = (v, s, k) => {
   return (
     <td key={k}>
       <div style={s} title={v.text}>
@@ -1653,8 +1679,7 @@ const renderReference = function (v, s, k) {
 }
 CellRenders.addRender('REFERENCE', renderReference)
 CellRenders.addRender('ANYREFERENCE', renderReference)
-
-CellRenders.addRender('N2NREFERENCE', function (v, s, k) {
+CellRenders.addRender('N2NREFERENCE', (v, s, k) => {
   v = v || []
   const vLen = v.length
   return (
@@ -1671,8 +1696,7 @@ CellRenders.addRender('N2NREFERENCE', function (v, s, k) {
     </td>
   )
 })
-
-CellRenders.addRender('URL', function (v, s, k) {
+CellRenders.addRender('URL', (v, s, k) => {
   return (
     <td key={k}>
       <div style={s} title={v}>
@@ -1683,8 +1707,7 @@ CellRenders.addRender('URL', function (v, s, k) {
     </td>
   )
 })
-
-CellRenders.addRender('EMAIL', function (v, s, k) {
+CellRenders.addRender('EMAIL', (v, s, k) => {
   return (
     <td key={k}>
       <div style={s} title={v}>
@@ -1695,8 +1718,7 @@ CellRenders.addRender('EMAIL', function (v, s, k) {
     </td>
   )
 })
-
-CellRenders.addRender('PHONE', function (v, s, k) {
+CellRenders.addRender('PHONE', (v, s, k) => {
   return (
     <td key={k}>
       <div style={s} title={v}>
@@ -1707,13 +1729,12 @@ CellRenders.addRender('PHONE', function (v, s, k) {
     </td>
   )
 })
-
 const APPROVAL_STATE_CLAZZs = {
   [$L('审批中')]: 'warning',
   [$L('驳回')]: 'danger',
   [$L('通过')]: 'success',
 }
-CellRenders.addRender('STATE', function (v, s, k) {
+CellRenders.addRender('STATE', (v, s, k) => {
   if (k.endsWith('.approvalState')) {
     const badge = APPROVAL_STATE_CLAZZs[v]
     return (
@@ -1727,8 +1748,7 @@ CellRenders.addRender('STATE', function (v, s, k) {
     return CellRenders.renderSimple(v, s, k)
   }
 })
-
-const renderNumber = function (v, s, k) {
+const renderNumber = (v, s, k) => {
   // 负数
   if ((v + '').includes('-')) {
     return (
@@ -1744,8 +1764,7 @@ const renderNumber = function (v, s, k) {
 }
 CellRenders.addRender('DECIMAL', renderNumber)
 CellRenders.addRender('NUMBER', renderNumber)
-
-CellRenders.addRender('MULTISELECT', function (v, s, k) {
+CellRenders.addRender('MULTISELECT', (v, s, k) => {
   const vLen = (v.text || []).length
   return (
     <td key={k} className="td-sm" title={$L('共 %d 项', vLen)}>
@@ -1770,8 +1789,7 @@ CellRenders.addRender('MULTISELECT', function (v, s, k) {
     </td>
   )
 })
-
-CellRenders.addRender('AVATAR', function (v, s, k) {
+CellRenders.addRender('AVATAR', (v, s, k) => {
   const imgUrl = $isFullUrl(v) ? v : `${rb.baseUrl}/filex/img/${v}?imageView2/2/w/100/interlace/1/q/100`
   return (
     <td key={k} className="user-avatar">
@@ -1779,8 +1797,7 @@ CellRenders.addRender('AVATAR', function (v, s, k) {
     </td>
   )
 })
-
-CellRenders.addRender('LOCATION', function (v, s, k) {
+CellRenders.addRender('LOCATION', (v, s, k) => {
   return (
     <td key={k}>
       <div style={s} title={v.text}>
@@ -1788,7 +1805,7 @@ CellRenders.addRender('LOCATION', function (v, s, k) {
           href={`#!/Map:${v.lng || ''},${v.lat || ''}`}
           onClick={(e) => {
             $stopEvent(e, true)
-            BaiduMapModal.view(v)
+            if (window.BaiduMapModal) BaiduMapModal.view(v)
           }}>
           {v.text}
         </a>
@@ -1796,16 +1813,14 @@ CellRenders.addRender('LOCATION', function (v, s, k) {
     </td>
   )
 })
-
-CellRenders.addRender('SIGN', function (v, s, k) {
+CellRenders.addRender('SIGN', (v, s, k) => {
   return (
     <td key={k} className="user-avatar sign">
       <img alt="SIGN" src={v} />
     </td>
   )
 })
-
-CellRenders.addRender('PICKLIST', function (v, s, k) {
+CellRenders.addRender('PICKLIST', (v, s, k) => {
   // Use badge
   if (typeof v === 'object') {
     const style2 = v.color ? { borderColor: v.color, backgroundColor: v.color, color: $isLight(v.color) ? '#444' : '#fff' } : null
@@ -1822,8 +1837,7 @@ CellRenders.addRender('PICKLIST', function (v, s, k) {
     return CellRenders.renderSimple(v, s, k)
   }
 })
-
-CellRenders.addRender('TAG', function (v, s, k) {
+CellRenders.addRender('TAG', (v, s, k) => {
   const vLen = (v || []).length
   return (
     <td key={k} className="td-sm" title={$L('共 %d 项', vLen)}>
@@ -2042,4 +2056,126 @@ class RecordMerger extends RbModalHandler {
       }
     })
   }
+}
+
+// 分组
+// eslint-disable-next-line no-unused-vars
+const CategoryWidget = {
+  __ALL: '$ALL$',
+
+  init() {
+    $('.J_load-category').on('click', () => this.loadData())
+  },
+
+  loadData() {
+    if (this._inited === true) return
+    this._inited = true
+
+    $.get(`/app/${wpc.entity[0]}/widget-category-data`, (res) => {
+      const datas = [{ id: CategoryWidget.__ALL, text: $L('全部数据') }, ...res.data]
+
+      // 分类字段
+      let hideCollapse = true
+      for (let i = 0; i < datas.length; i++) {
+        if (datas[i].children) {
+          hideCollapse = false
+          break
+        }
+      }
+
+      renderRbcomp(
+        <AsideTree
+          data={datas}
+          activeItem={CategoryWidget.__ALL}
+          hideCollapse={hideCollapse}
+          onItemClick={(item) => {
+            const v = item.id
+            if (v === CategoryWidget.__ALL) wpc.protocolFilter = null
+            else wpc.protocolFilter = `category:${wpc.entity[0]}:${v}`
+            RbListPage.reload()
+          }}
+        />,
+        'asideCategory'
+      )
+    })
+  },
+}
+
+const _FrontJS = window.FrontJS
+const EasyAction = {
+  init(items) {
+    const _List = _FrontJS.DataList
+
+    items.forEach((item) => {
+      if (~~item.showType === 1) {
+        item.text = ''
+        if (!item.icon) item.icon = 'texture'
+      }
+      if (~~item.showType === 2) item.icon = null
+      // L2
+      if (item.items && item.items.length === 0) item.items = null
+      // Event
+      item.onClick = () => EasyAction.handleOp(item)
+      item.items &&
+        item.items.forEach((itemL2) => {
+          itemL2.onClick = () => EasyAction.handleOp(itemL2)
+        })
+
+      _List.addButton(item)
+    })
+    // Min btn
+    if ($('.dataTables_oper > .btn').length > 6) $('.dataTables_oper').addClass('compact')
+  },
+
+  handleOp(item) {
+    if (item.opType === 1) EasyAction.handleOp1(item)
+    if (item.opType === 2) EasyAction.handleOp2(item)
+    if (item.opType === 3) EasyAction.handleOp3(item)
+    if (item.opType === 10) EasyAction.handleOp10(item)
+  },
+
+  handleOp1(item) {
+    _FrontJS.openForm(item.op1Value || wpc.entity[0], null, item.op1Value2 || null)
+  },
+
+  handleOp2(item) {
+    const _List = _FrontJS.DataList
+    const ids = _List.getSelectedIds()
+    if (!ids[0]) return RbHighbar.create($L('请选择一条记录'))
+
+    _FrontJS.openLiteForm(ids[0], item.op2Value)
+  },
+
+  handleOp3(item) {
+    const _List = _FrontJS.DataList
+    const ids = _List.getSelectedIds()
+    if (!ids[0]) return RbHighbar.create($L('请至少选择一条记录'))
+
+    if (!confirm(item.op3Value3 || $L('确认操作？'))) return
+
+    const data = {
+      [item.op3Value]: item.op3Value2,
+    }
+
+    let idsLen = ids.length
+    ids.forEach((id) => {
+      data.metadata = { id: id }
+      $.post('/app/entity/record-save', JSON.stringify(data), () => {
+        idsLen--
+        if (idsLen === 0) {
+          RbHighbar.success('操作成功')
+          _List.reload()
+        }
+      })
+    })
+  },
+
+  handleOp10(item) {
+    try {
+      const FN = Function
+      FN(item.op10Value)() // eval
+    } catch (err) {
+      console.log(err)
+    }
+  },
 }

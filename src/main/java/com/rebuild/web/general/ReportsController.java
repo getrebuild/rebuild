@@ -71,18 +71,18 @@ public class ReportsController extends BaseController {
 
     @GetMapping("report/available")
     public JSON availableReports(@PathVariable String entity, HttpServletRequest request) {
-        final ID user = getRequestUser(request);
-        JSONArray res = DataReportManager.instance.getReportTemplates(
+        JSONArray alist = DataReportManager.instance.getReportTemplates(
                 MetadataHelper.getEntity(entity),
-                getIntParameter(request, "type", DataReportManager.TYPE_RECORD), user);
+                getIntParameter(request, "type", DataReportManager.TYPE_RECORD),
+                getIdParameter(request, "record"));
 
         // 名称排序
-        res.sort((o1, o2) -> {
+        alist.sort((o1, o2) -> {
             JSONObject j1 = (JSONObject) o1;
             JSONObject j2 = (JSONObject) o2;
             return j1.getString("name").compareTo(j2.getString("name"));
         });
-        return res;
+        return alist;
     }
 
     @RequestMapping({"report/generate", "report/export"})
@@ -106,7 +106,7 @@ public class ReportsController extends BaseController {
                 output = html5.generate();
 
             } else {
-                // 支持多个
+                // EXCEL 支持多个
                 output = EasyExcelGenerator.create(reportId, Arrays.asList(recordIds)).generate();
             }
 
@@ -128,8 +128,10 @@ public class ReportsController extends BaseController {
         final boolean isPdf = "PDF".equalsIgnoreCase(typeOutput);
         if (isPdf || isOnlyPdf(entity, reportId)) {
             output = PdfConverter.convertPdf(output.toPath()).toFile();
+            fileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".pdf";
         } else if (isHtml) {
             output = PdfConverter.convertHtml(output.toPath()).toFile();
+            fileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".html";
         }
 
         if (ServletUtils.isAjaxRequest(request)) {
@@ -159,7 +161,7 @@ public class ReportsController extends BaseController {
         } else {
             // 直接预览
             boolean forcePreview = isHtml || isPdf || getBoolParameter(request, "preview");
-            FileDownloader.downloadTempFile(response, output, forcePreview ? FileDownloader.INLINE_FORCE : fileName);
+            FileDownloader.downloadTempFile(response, output, fileName, forcePreview);
         }
         return null;
     }

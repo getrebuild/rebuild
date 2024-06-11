@@ -19,6 +19,7 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.ClassificationManager;
+import com.rebuild.core.configuration.general.EasyActionManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityOverview;
@@ -34,7 +35,7 @@ import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.metadata.impl.ExcelEntity;
 import com.rebuild.core.metadata.impl.MetaEntityService;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.rbstore.MetaSchemaGenerator;
+import com.rebuild.core.rbstore.MetaschemaExporter;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.FieldValueHelper;
@@ -45,6 +46,7 @@ import com.rebuild.web.commons.FileDownloader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -81,6 +83,14 @@ public class MetaEntityController extends EntityController {
 
     @GetMapping("entity/{entity}/base")
     public ModelAndView pageBase(@PathVariable String entity, HttpServletResponse response) throws IOException {
+        if (StringUtils.isNumeric(entity)) {
+            int entityCode = NumberUtils.toInt(entity);
+            if (MetadataHelper.containsEntity(entityCode)) {
+                response.sendRedirect("../" + MetadataHelper.getEntity(entityCode).getName() + "/base");
+                return null;
+            }
+        }
+
         Entity metaEntity = MetadataHelper.getEntity(entity);
 
         // 不允许访问
@@ -133,8 +143,20 @@ public class MetaEntityController extends EntityController {
 
         EntityOverview o = new EntityOverview(easyEntity.getRawMeta());
         mv.getModel().put("overview", JSON.toJSON(o.overview()));
-        mv.getModel().put("graph", JSON.toJSON(o.graph()));
 
+        return mv;
+    }
+
+    @GetMapping("entity/{entity}/easy-action")
+    public ModelAndView pageEasyAction(@PathVariable String entity) {
+        ModelAndView mv = createModelAndView("/admin/metadata/entity-easy-action");
+        setEntityBase(mv, entity);
+
+        ConfigBean cb = EasyActionManager.instance.getEasyActionRaw(entity);
+        if (cb != null) {
+            mv.getModelMap().put("configId", cb.getID("id"));
+            mv.getModelMap().put("config", cb.getJSON("config"));
+        }
         return mv;
     }
 
@@ -247,12 +269,12 @@ public class MetaEntityController extends EntityController {
         File dest = RebuildConfiguration.getFileOfTemp("schema-" + entity.getName() + ".json");
         if (dest.exists()) FileUtils.deleteQuietly(dest);
 
-        new MetaSchemaGenerator(entity, true).generate(dest);
+        new MetaschemaExporter(entity, true).export(dest);
 
         if (ServletUtils.isAjaxRequest(request)) {
             writeSuccess(response, JSONUtils.toJSONObject("file", dest.getName()));
         } else {
-            FileDownloader.downloadTempFile(response, dest, null);
+            FileDownloader.downloadTempFile(response, dest);
         }
     }
 

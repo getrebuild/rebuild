@@ -9,6 +9,7 @@ package com.rebuild.utils;
 
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
+import com.vladsch.flexmark.ext.toc.TocExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.parser.ParserEmulationProfile;
@@ -41,7 +42,8 @@ public class MarkdownUtils {
 
         option = new MutableDataSet();
         option.setFrom(ParserEmulationProfile.MARKDOWN).set(Parser.EXTENSIONS,
-                Arrays.asList(TablesExtension.create(), TaskListExtension.create(), MarkdownLinkAttrProvider.MarkdownLinkAttrExtension.create()));
+                Arrays.asList(TablesExtension.create(), TaskListExtension.create(),
+                        MarkdownLinkAttrProvider.MarkdownLinkAttrExtension.create(), TocExtension.create()));
         PARSER2 = Parser.builder(option).build();
         RENDERER2 = HtmlRenderer.builder(option).build();
     }

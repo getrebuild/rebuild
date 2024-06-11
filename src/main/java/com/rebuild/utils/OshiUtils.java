@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import oshi.SystemInfo;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.NetworkIF;
+import oshi.software.os.OSFileStore;
 
 import java.io.File;
 import java.net.URL;
@@ -160,17 +161,38 @@ public class OshiUtils {
     /**
      * 磁盘用量获取
      *
-     * @return [统计, 占用%, 磁盘]
+     * @param specRoots
+     * @return [总大小, 占用%, 磁盘]
      */
-    public static List<Object[]> getDisksUsed() {
+    public static List<Object[]> getDisksUsed(String[] specRoots) {
         List<Object[]> disks = new ArrayList<>();
         try {
-            for (File root : File.listRoots()) {
-                String name = org.apache.commons.lang.StringUtils.defaultIfBlank(root.getName(), root.getAbsolutePath());
-                double total = root.getTotalSpace() * 1d / FileUtils.ONE_GB;
-                double used = total - (root.getFreeSpace() * 1d / FileUtils.ONE_GB);
-                double usedPercentage = used * 100d / total;
-                disks.add(new Object[] { total, usedPercentage, name });
+            if (specRoots != null) {
+                File[] listRoots = File.listRoots();
+                if (specRoots.length > 0) {
+                    listRoots = new File[specRoots.length];
+                    for (int i = 0; i < specRoots.length; i++) {
+                        CommonsUtils.checkSafeFilePath(specRoots[i]);
+                        listRoots[i] = new File(specRoots[i]);
+                    }
+                }
+
+                for (File root : listRoots) {
+                    if (!root.exists()) continue;
+                    String name = StringUtils.defaultIfBlank(root.getName(), root.getPath());
+                    double total = (double) root.getTotalSpace() / FileUtils.ONE_GB;
+                    double used = total - ((double) root.getFreeSpace() / FileUtils.ONE_GB);
+                    double usedPercentage = used * 100d / total;
+                    disks.add(new Object[] { ObjectUtils.round(total, 1), ObjectUtils.round(usedPercentage, 1), name });
+                }
+            } else {
+                for (OSFileStore store : getSI().getOperatingSystem().getFileSystem().getFileStores()) {
+                    String name = store.getName();
+                    double total = store.getTotalSpace() * 1d / FileUtils.ONE_GB;
+                    double used = total - store.getUsableSpace() * 1d / FileUtils.ONE_GB;
+                    double usedPercentage = used * 100d / total;
+                    disks.add(new Object[] { ObjectUtils.round(total, 1), ObjectUtils.round(usedPercentage, 1), name });
+                }
             }
         } catch (Exception ex) {
             log.warn("Cannot stats disks", ex);

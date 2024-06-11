@@ -16,17 +16,17 @@ import org.junit.jupiter.api.Test;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/08/21
  */
-public class RecycleStoreTest extends TestSupport {
+class RecycleStoreTest extends TestSupport {
 
     @Test
-    public void serialize() {
+    void serialize() {
         ID test = addRecordOfTestAllFields(SIMPLE_USER);
         JSON s = new RecycleBean(test).serialize();
         System.out.println(s);
     }
 
     @Test
-    public void store() {
+    void store() {
         ID test1 = addRecordOfTestAllFields(SIMPLE_USER);
         ID test2 = addRecordOfTestAllFields(SIMPLE_USER);
 

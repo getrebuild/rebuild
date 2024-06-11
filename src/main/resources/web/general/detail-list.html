@@ -29,7 +29,7 @@
                 </div>
               </div>
               <div class="tab-pane" id="asideFilters"></div>
-              <div class="tab-pane" id="asideCategory"></div>
+              <div class="tab-pane" id="asideCategory"><p class="text-center text-muted">[[${bundle.L('加载中')}]]</p></div>
               <div class="tab-pane" id="asideWidgets">
                 <div class="charts-wrap"></div>
                 <div class="text-center">
@@ -46,6 +46,7 @@
             </div>
           </div>
           <div class="quick-filter-pane" th:if="${advListFilterPane == 'true'}">
+            <div class="ph-item rb"></div>
             <div class="ph-item rb"></div>
             <span></span>
           </div>
@@ -74,7 +75,7 @@
                             <div class="dropdown-item" data-id="$ALL$"><a>[[${bundle.L('全部数据')}]]</a></div>
                           </div>
                           <div class="input-group-append">
-                            <button th:title="${bundle.L('高级查询')}" class="btn btn-secondary J_filterbtn" type="button"><i class="icon zmdi zmdi-filter-list"></i></button>
+                            <button th:title="${bundle.L('高级查询')}" class="btn btn-secondary w-auto J_filterbtn" type="button"><i class="icon mdi mdi-filter"></i></button>
                           </div>
                         </div>
                       </div>
@@ -90,7 +91,7 @@
                   </div>
                   <div class="col-12 col-md-6">
                     <div class="dataTables_oper invisible2">
-                      <button class="btn btn-space btn-secondary J_view" type="button" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> [[${bundle.L('打开')}]]</button>
+                      <button class="btn btn-space btn-secondary J_view" type="button" disabled="disabled"><i class="icon mdi mdi-folder-open"></i> [[${bundle.L('打开')}]]</button>
                       <button class="btn btn-space btn-secondary J_edit" type="button" disabled="disabled"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('编辑')}]]</button>
                       <div class="btn-group btn-space J_action">
                         <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.L('更多')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
@@ -129,7 +130,7 @@
         paneFields: [(${paneFields ?:'null'})],
       }
     </script>
-    <script th:src="@{/assets/lib/charts/echarts.min.js}"></script>
+    <script th:src="@{/assets/lib/charts/echarts.min.js?v=5.5.0}"></script>
     <script th:src="@{/assets/js/charts/charts.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-compatible.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-valueset.js}" type="text/babel"></script>

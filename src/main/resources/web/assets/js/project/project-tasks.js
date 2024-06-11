@@ -7,28 +7,22 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const wpc = window.__PageConfig
 
-let __PlanBoxes
-let __AdvFilter
+let _PlanBoxes
+let _AdvFilter
 
 $(document).ready(() => {
   let gs = $urlp('gs', location.hash)
   if (gs) {
-    // eslint-disable-next-line no-undef
-    // _showGlobalSearch(gs)
     gs = $decode(gs)
-    $('.J_search .input-search input').val(gs)
-    $('.J_search .indicator-primary').removeClass('hide')
+    $('.J_search input').val(gs)
   }
 
   const viewGroup = $urlp('group') || 'plan'
-
+  const listMode = location.href.includes('tasks/list')
   const readonly = !wpc.isMember || ~~wpc.status === 2
-  renderRbcomp(<PlanBoxes plans={wpc.projectPlans} readonly={readonly} search={gs} projectId={wpc.id} sortable={viewGroup === 'plan'} />, 'plan-boxes', function () {
-    __PlanBoxes = this
-    __pageDraggable()
-    $('.J_project-load').remove()
 
-    // 自动打开
+  function _renderAfter() {
+    $('.J_project-load').remove()
     let viewHash = location.hash
     if (viewHash && viewHash.startsWith('#!/View/ProjectTask/')) {
       viewHash = viewHash.split('/')
@@ -38,63 +32,70 @@ $(document).ready(() => {
     } else {
       typeof window.startTour === 'function' && window.startTour(1000)
     }
-  })
+  }
+
+  if (listMode) {
+    $('.J_view .dropdown-item:eq(1)').addClass('check')
+    $('.J_sorts .dropdown-item[data-group], .J_sorts .dropdown-item-text:eq(1)').remove()
+    $('#plan-boxes').addClass('m-0')
+
+    renderRbcomp(<PlanBoxesList readonly={readonly} search={gs} projectId={wpc.id} id="0-0" />, 'plan-boxes', function () {
+      _PlanBoxes = this
+      _renderAfter()
+    })
+  } else {
+    $('.J_view .dropdown-item:eq(0)').addClass('check')
+    renderRbcomp(<PlanBoxes plans={wpc.projectPlans} readonly={readonly} search={gs} projectId={wpc.id} sortable={viewGroup === 'plan'} />, 'plan-boxes', function () {
+      _PlanBoxes = this
+      __pageDraggable()
+      _renderAfter()
+    })
+  }
 
   // 排序
-  const $sorts = $('.J_views .dropdown-item[data-sort]').on('click', function () {
+  const $sorts = $('.J_sorts .dropdown-item[data-sort]').on('click', function () {
     const $this = $(this)
-    $('.J_sorts .btn span').text($this.text())
-    __PlanBoxes.setState({ sort: $this.data('sort') })
-
+    _PlanBoxes.setState({ sort: $this.data('sort') })
     $sorts.removeClass('check')
     $this.addClass('check')
   })
   // 分组
-  const $d = $(`.J_views .dropdown-item[data-group="${viewGroup}"]`)
-  if ($d.length > 0) {
-    $('.J_groups .btn span').text($d.text())
-    $d.addClass('check')
-  }
+  const $g = $(`.J_sorts .dropdown-item[data-group="${viewGroup}"]`)
+  if ($g.length > 0) $g.addClass('check')
 
   // 搜索
-  const $search = $('.J_search .input-search')
-  const $btn2 = $search.find('.input-group-btn .btn').on('click', () => {
-    __PlanBoxes.setState({ search: $search.find('input').val() || null })
+  const $btn2 = $('.J_search .btn:eq(1)').on('click', () => {
+    _PlanBoxes.setState({ search: $('.J_search input').val() || null })
   })
-  const $input2 = $search.find('input').on('keydown', (e) => {
+  const $input2 = $('.J_search>input').on('keydown', (e) => {
     e.keyCode === 13 && $btn2.trigger('click')
   })
-  $search.find('.btn-input-clear').on('click', () => {
+  $('.J_search .btn-input-clear').on('click', () => {
     $input2.val('')
     $btn2.trigger('click')
   })
 
-  $unhideDropdown('.J_search').on({
-    'shown.bs.dropdown': function () {
-      $search.find('input')[0].focus()
-    },
-  })
-
   // 高级查询
 
-  $('.J_filter').on('click', () => {
-    if (__AdvFilter) {
-      __AdvFilter.show()
+  $('.J_filterbtn').on('click', () => {
+    if (_AdvFilter) {
+      _AdvFilter.show()
     } else {
       renderRbcomp(
-        <AdvFilter
+        <TasksAdvFilter
           title={$L('高级查询')}
           entity="ProjectTask"
           inModal
           canNoFilters
-          confirmText={$L('查询')}
           onConfirm={(s) => {
-            __PlanBoxes.setState({ filter: s })
+            _PlanBoxes.setState({ filter: s })
+            if (s && (s.items || []).length > 0) $('.J_search .indicator-primary').removeClass('hide')
+            else $('.J_search .indicator-primary').addClass('hide')
           }}
         />,
         null,
         function () {
-          __AdvFilter = this
+          _AdvFilter = this
         }
       )
     }
@@ -150,11 +151,11 @@ class PlanBoxes extends React.Component {
         placeholder: 'task-card highlight',
         revert: false,
         delay: 200,
-        start: function (event, ui) {
+        start: function (e, ui) {
           ui.placeholder.height(ui.helper.height())
           startState = 1
         },
-        update: function (event, ui) {
+        update: function (e, ui) {
           if (startState !== 1) return
           startState = 0
 
@@ -220,12 +221,6 @@ class PlanBoxes extends React.Component {
         // ignored
       }
     }
-
-    if (this.state.search || (this.state.filter && this.state.filter.items.length > 0)) {
-      $('.J_search .indicator-primary').removeClass('hide')
-    } else {
-      $('.J_search .indicator-primary').addClass('hide')
-    }
   }
 }
 
@@ -252,7 +247,7 @@ class PlanBox extends React.Component {
               <small> · {this.state.taskNum || 0}</small>
             </h5>
           </div>
-          <div className="task-list rb-scroller" ref={(c) => (this._scroller = c)} data-planid={this.props.id}>
+          <div className="task-list rb-scroller" ref={(c) => (this._$scroller = c)} data-planid={this.props.id}>
             {(this.state.tasks || []).map((item) => {
               return <Task key={`task-${item.id}`} planid={this.props.id} $$$parent={this} {...item} />
             })}
@@ -314,7 +309,7 @@ class PlanBox extends React.Component {
     __PlanRefs[this.props.id] = this
     this.refreshTasks()
 
-    const $scroller = $(this._scroller).perfectScrollbar()
+    const $scroller = $(this._$scroller).perfectScrollbar()
     // 滚动加载
     $scroller.on('ps-scroll-down', () => {
       // 全部已加载
@@ -329,7 +324,7 @@ class PlanBox extends React.Component {
 
     const $boxes = document.getElementById('plan-boxes')
     $addResizeHandler(() => {
-      let mh = $(window).height() - 210 + (this.creatableTask ? 0 : 44)
+      let mh = $(window).height() - 225 + (this.creatableTask ? 0 : 44)
       if ($boxes.scrollWidth > $boxes.clientWidth) mh -= 13 // 横向滚动条高度
 
       $scroller.css({ 'max-height': mh })
@@ -338,11 +333,13 @@ class PlanBox extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.sort !== this.props.sort || prevProps.search !== this.props.search || !$same(prevProps.filter, this.props.filter)) this.refreshTasks()
+    if (prevProps.sort !== this.props.sort || prevProps.search !== this.props.search || !$same(prevProps.filter, this.props.filter)) {
+      this.refreshTasks()
+    }
   }
 
   // 加载任务列表
-  refreshTasks(isAppend, scrollBtm) {
+  refreshTasks(isAppend, scroll2Bottom) {
     if (isAppend) {
       this.pageNo++
     } else {
@@ -350,32 +347,28 @@ class PlanBox extends React.Component {
       this.pageSize = Math.max((this.state.tasks || []).length + 1, __DEFAULT_PAGE_SIZE)
     }
 
-    $.post(
-      `/project/tasks/list?plan=${this.props.id}&sort=${this.props.sort || ''}&search=${$encode(this.props.search || '')}&pageNo=${this.pageNo}&pageSize=${this.pageSize}&project=${
-        this.props.projectId
-      }`,
-      JSON.stringify(this.props.filter),
-      (res) => {
-        if (res.error_code === 0) {
-          const ns = isAppend ? (this.state.tasks || []).concat(res.data.tasks) : res.data.tasks
-          const _state = { tasks: ns }
-          if (res.data.count > -1) _state.taskNum = res.data.count
+    const ps = this._useState ? this.state : this.props
+    const url = `/project/tasks/list?plan=${this.props.id}&sort=${ps.sort || ''}&search=${$encode(ps.search)}&pageNo=${this.pageNo}&pageSize=${this.pageSize}&project=${this.props.projectId}`
+    $.post(url, JSON.stringify(ps.filter), (res) => {
+      if (res.error_code === 0) {
+        const ns = isAppend ? (this.state.tasks || []).concat(res.data.tasks) : res.data.tasks
+        const _state = { tasks: ns }
+        if (res.data.count > -1) _state.taskNum = res.data.count
 
-          this.setState(_state, () => {
-            $(this._scroller).perfectScrollbar('update')
-            if (scrollBtm) this._scroller.scrollTop = 99999
-          })
-        } else {
-          RbHighbar.error(res.error_msg)
-        }
+        this.setState(_state, () => {
+          $(this._$scroller).perfectScrollbar('update')
+          if (scroll2Bottom) this._$scroller.scrollTop = 99999
+        })
+      } else {
+        RbHighbar.error(res.error_msg)
       }
-    )
+    })
   }
 
   removeTask(taskid) {
     const removedTask = this.state.tasks.find((item) => item.id === taskid)
     const ns = this.state.tasks.filter((item) => item.id !== taskid)
-    this.setState({ tasks: ns, taskNum: this.state.taskNum - 1 }, () => $(this._scroller).perfectScrollbar('update'))
+    this.setState({ tasks: ns, taskNum: this.state.taskNum - 1 }, () => $(this._$scroller).perfectScrollbar('update'))
     return removedTask
   }
 
@@ -395,7 +388,7 @@ class PlanBox extends React.Component {
     this.setState({ tasks: ns, taskNum: this.state.taskNum + 1 }, () => {
       $itemholder && $itemholder.remove()
       __TaskRefs[taskData.id].refresh()
-      $(this._scroller).perfectScrollbar('update')
+      $(this._$scroller).perfectScrollbar('update')
     })
   }
 
@@ -615,6 +608,160 @@ const __pageDraggable = function () {
   })
 }
 
+// ~~ 列表模式
+
+class PlanBoxesList extends PlanBox {
+  constructor(props) {
+    super(props)
+    this._useState = true
+  }
+
+  render() {
+    return (
+      <div className="plan-list-wrapper">
+        <div className="rb-scroller" data-planid={this.props.id}>
+          <table className="table m-0">
+            <thead>
+              <tr>
+                <th colSpan="2" className="pl-4">
+                  {$L('共 %d 个任务', this.state.taskNum || 0)}
+                </th>
+                <th width="15%">{$L('时间')}</th>
+                <th width="10%">{$L('任务面板')}</th>
+                <th width="10%">{$L('用户')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(this.state.tasks || []).map((item, idx) => {
+                // fake
+                __TaskRefs[item.id] = {
+                  refresh: () => {
+                    this.refresh(item)
+                  },
+                }
+
+                let deadlineState = -1
+                // 未完成且设置了到期时间
+                if (item.status !== 1 && item.deadline) {
+                  if ($expired(item.deadline)) deadlineState = 2
+                  else if ($expired(item.deadline, -60 * 60 * 24 * 3)) deadlineState = 1
+                  else deadlineState = 0
+                }
+
+                return (
+                  <tr className={`status-${item.status} priority-${item.priority}`} key={idx} onClick={() => TaskViewModal.create(item.id)}>
+                    <td className="task-state">
+                      <label className="custom-control custom-control-sm custom-checkbox custom-control-inline ptask" onClick={(e) => $stopEvent(e)}>
+                        <input className="custom-control-input" type="checkbox" checked={item.status === 1} onChange={(e) => this._toggleStatus(item, e)} />
+                        <span className="custom-control-label" />
+                      </label>
+                    </td>
+                    <td className="task-title">
+                      <div className="text-wrap">
+                        [{item.taskNumber}] {item.taskName}
+                      </div>
+                    </td>
+                    <td className="task-time">
+                      <RF>
+                        {item.endTime && (
+                          <div>
+                            {$L('完成时间')} <DateShow date={item.endTime} />
+                          </div>
+                        )}
+                        {item.modifiedOn && (
+                          <div>
+                            {$L('更新时间')} <DateShow date={item.modifiedOn} />
+                          </div>
+                        )}
+                        {item.createdOn && (
+                          <div>
+                            {$L('创建时间')} <DateShow date={item.createdOn} />
+                          </div>
+                        )}
+                        {deadlineState > -1 && (
+                          <div>
+                            <span className={`badge badge-${deadlineState === 2 ? 'danger' : deadlineState === 1 ? 'warning' : 'primary'}`}>
+                              {$L('到期时间')} <DateShow date={item.deadline} />
+                            </span>
+                          </div>
+                        )}
+                      </RF>
+                    </td>
+                    <td className="text-muted fs-12">{item.planName}</td>
+                    <td className="task-user">
+                      <RF>
+                        {item.createdBy && (
+                          <a className="avatar mr-1" title={`${$L('创建人')} ${item.createdBy[1]}`}>
+                            <img src={`${rb.baseUrl}/account/user-avatar/${item.createdBy[0]}`} alt="Avatar" />
+                          </a>
+                        )}
+                        {item.executor && (
+                          <a className="avatar" title={`${$L('执行人')} ${item.executor[1]}`}>
+                            <img src={`${rb.baseUrl}/account/user-avatar/${item.executor[0]}`} alt="Avatar" />
+                          </a>
+                        )}
+                      </RF>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {this.state.taskNum === 0 && <div className="no-tasks must-center">{$L('暂无任务')}</div>}
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    __PlanRefs[this.props.id] = this
+    __PlanRefs['DELETE'] = this
+    this.refreshTasks()
+
+    // 滚动加载
+    let _timer,
+      _lastTop = 0
+    const $w = $(window).on('scroll', () => {
+      const top = $w.scrollTop()
+      if (top < _lastTop) return
+
+      _lastTop = top
+      if (_lastTop + $w.height() > $(document).height() - 300) {
+        if (_timer) {
+          clearTimeout(_timer)
+          _timer = null
+        }
+        _timer = setTimeout(() => this.refreshTasks(true), 200)
+      }
+    })
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.sort !== this.state.sort || prevState.search !== this.state.search || !$same(prevState.filter, this.state.filter)) {
+      this.refreshTasks()
+    }
+  }
+
+  refresh(item) {
+    $.get(`/project/tasks/get?task=${item.id}`, (res) => {
+      const ns = []
+      this.state.tasks.forEach((item) => {
+        if (item.id === res.data.id) ns.push(res.data)
+        else ns.push(item)
+      })
+      this.setState({ tasks: ns })
+    })
+  }
+
+  _toggleStatus(item, e) {
+    const status = e.currentTarget.checked ? 1 : 0
+    __saveTask(item.id, { status: status }, () => {
+      this.refresh(item)
+    })
+  }
+}
+
 // --
 
 // 与实体视图兼容（提供给 TaskView 用）
@@ -678,7 +825,7 @@ class TaskViewModal extends React.Component {
     const ref = __TaskRefs[this.state.taskid]
     if (!ref) return
     if (planChanged) {
-      ref.props.$$$parent.refreshTasks()
+      ref.props && ref.props.$$$parent.refreshTasks()
       __PlanRefs[planChanged] && __PlanRefs[planChanged].refreshTasks()
     } else {
       ref.refresh()
@@ -693,8 +840,28 @@ class TaskViewModal extends React.Component {
    * @param {*} id
    */
   static create(id) {
-    renderRbcomp(<TaskViewModal taskid={id} />, null, function () {
+    renderRbcomp(<TaskViewModal taskid={id} />, function () {
       TaskViewModal.__HOLDER = this
     })
+  }
+}
+
+class TasksAdvFilter extends AdvFilter {
+  renderAction() {
+    return (
+      <div className="item">
+        <button className="btn btn-primary" type="button" onClick={() => this.confirm()}>
+          {$L('查询')}
+        </button>
+        <button className="btn btn-secondary" type="button" onClick={() => this._handleHide()}>
+          {$L('重置')}
+        </button>
+      </div>
+    )
+  }
+
+  _handleHide() {
+    this.props.onConfirm({})
+    setTimeout(() => this.hide(), 20)
   }
 }

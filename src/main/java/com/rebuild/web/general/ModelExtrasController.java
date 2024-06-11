@@ -23,6 +23,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyDateTime;
 import com.rebuild.core.metadata.easymeta.EasyDecimal;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyField;
@@ -32,6 +33,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.general.transform.RecordTransfomer;
+import com.rebuild.core.service.general.transform.RecordTransfomer37;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.i18n.I18nUtils;
@@ -51,6 +53,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -84,7 +87,7 @@ public class ModelExtrasController extends BaseController {
         ID sourceRecord = getIdParameterNotNull(request, "source");
         ID mainid = getIdParameter(request, "mainid");
 
-        RecordTransfomer transfomer = new RecordTransfomer(transid);
+        RecordTransfomer transfomer = new RecordTransfomer37(transid);
         if (!transfomer.checkFilter(sourceRecord)) {
             return RespBody.error(Language.L("当前记录不符合转换条件"), 400);
         }
@@ -217,7 +220,7 @@ public class ModelExtrasController extends BaseController {
         if (!entity.containsField(targetField)) return RespBody.error();
 
         JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
-        Map<String, Object> varsInFormula = post.getInnerMap();
+        Map<String, Object> varsInFormula = new HashMap<>(post.getInnerMap());
         for (Object value : varsInFormula.values()) {
             if (value == null || StringUtils.isBlank(value.toString())) {
                 return RespBody.ok();
@@ -230,6 +233,11 @@ public class ModelExtrasController extends BaseController {
         boolean canCalc = true;
         Set<String> fieldVars = ContentWithFieldVars.matchsVars(formula);
         for (String field : fieldVars) {
+            if (EasyDateTime.VAR_NOW.equals(field) || "NOW".equals(field)) {
+                varsInFormula.put(field, CalendarUtils.now());
+                continue;
+            }
+
             if (!entity.containsField(field)) {
                 canCalc = false;
                 break;

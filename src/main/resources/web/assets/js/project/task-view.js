@@ -227,6 +227,7 @@ class ValueTaskName extends ValueComp {
         onBlur={(e) => this.handleChange(e)}
         onKeyDown={(e) => e.keyCode === 13 && e.target.blur()}
         disabled={!this.props.$$$parent.props.editable}
+        maxLength="190"
       />
     ) : (
       this.renderViewElement()
@@ -291,7 +292,7 @@ class ValueExecutor extends ValueComp {
 
   renderElement() {
     return (
-      <React.Fragment>
+      <RF>
         {this.state.executor ? (
           <div className="executor-show">
             <UserSelector
@@ -333,7 +334,7 @@ class ValueExecutor extends ValueComp {
             />
           </div>
         )}
-      </React.Fragment>
+      </RF>
     )
   }
 
@@ -556,15 +557,15 @@ class ValueAttachments extends ValueComp {
 
   renderElement() {
     return (
-      <React.Fragment>
+      <RF>
         <div className="form-control-plaintext">
-          <input type="file" className="inputfile" id="attachments" ref={(c) => (this._attachments = c)} />
+          <input type="file" className="inputfile" id="attachments" ref={(c) => (this._attachments = c)} multiple />
           <label htmlFor="attachments" style={{ padding: 0, border: 0, lineHeight: 1, marginBottom: 0 }}>
             <a className="tag-value upload hover">+ {$L('上传')}</a>
           </label>
         </div>
         {this._renderValue(true)}
-      </React.Fragment>
+      </RF>
     )
   }
 
@@ -610,16 +611,15 @@ class ValueAttachments extends ValueComp {
   }
 
   componentDidMount() {
-    $createUploader(
-      this._attachments,
-      () => $mp.start(),
-      (res) => {
-        $mp.end()
-        const s = (this.state.attachments || []).slice(0)
-        s.push(res.key)
-        this.handleChange({ target: { name: 'attachments', value: s } })
+    $multipleUploader(this._attachments, (res) => {
+      const fs = (this.state.attachments || []).slice(0)
+      let hasByName = $fileCutName(res.key)
+      hasByName = fs.find((x) => $fileCutName(x) === hasByName)
+      if (!hasByName) {
+        fs.push(res.key)
+        this.handleChange({ target: { name: 'attachments', value: fs } })
       }
-    )
+    })
   }
 }
 
@@ -639,7 +639,7 @@ class ValueTags extends ValueComp {
     const tags = this.state.tags || []
     return (
       <div className="form-control-plaintext task-tags">
-        <React.Fragment>
+        <RF>
           {tags.map((item) => {
             const colorStyle = { color: item.color, borderColor: item.color }
             return (
@@ -653,7 +653,7 @@ class ValueTags extends ValueComp {
               </span>
             )
           })}
-        </React.Fragment>
+        </RF>
         {editable ? (
           <span className="dropdown" ref={(c) => (this._dropdown = c)}>
             <a className="tag-add" title={$L('点击添加')} data-toggle="dropdown">
@@ -1097,7 +1097,7 @@ class RichTextEditor extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
+      <RF>
         <div className={`rich-editor ${this.state.focus ? 'active' : ''}`}>
           <textarea
             ref={(c) => (this._$editor = c)}
@@ -1145,7 +1145,7 @@ class RichTextEditor extends React.Component {
           </div>
         </div>
         <span className="hide">
-          <input type="file" ref={(c) => (this._$fileInput = c)} />
+          <input type="file" ref={(c) => (this._$fileInput = c)} multiple />
         </span>
 
         {(this.state.files || []).length > 0 && (
@@ -1166,7 +1166,7 @@ class RichTextEditor extends React.Component {
             </div>
           </div>
         )}
-      </React.Fragment>
+      </RF>
     )
   }
 
@@ -1176,28 +1176,15 @@ class RichTextEditor extends React.Component {
     autosize(this._$editor)
     setTimeout(() => this.props.initValue && autosize.update(this._$editor), 200)
 
-    let mp
-    const mp_end = function () {
-      setTimeout(() => {
-        if (mp) mp.end()
-        mp = null
-      }, 510)
-    }
-
-    $createUploader(
-      this._$fileInput,
-      (res) => {
-        if (!mp) mp = new Mprogress({ template: 2, start: true })
-        mp.set(res.percent / 100)
-      },
-      (res) => {
-        mp_end()
-        const files = this.state.files || []
-        files.push(res.key)
-        this.setState({ files: files })
-      },
-      () => mp_end()
-    )
+    $multipleUploader(this._$fileInput, (res) => {
+      const fs = (this.state.files || []).slice(0)
+      let hasByName = $fileCutName(res.key)
+      hasByName = fs.find((x) => $fileCutName(x) === hasByName)
+      if (!hasByName) {
+        fs.push(res.key)
+        this.setState({ files: fs })
+      }
+    })
   }
 
   _selectEmoji(emoji) {

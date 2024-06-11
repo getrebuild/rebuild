@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global SelectReport TransformRich */
+/* global SelectReport TransformRich, FeedEditorDlg, LightTaskDlg, ApprovalProcessor, SopProcessor */
 
 const wpc = window.__PageConfig || {}
 
@@ -41,6 +41,7 @@ class RbViewForm extends React.Component {
 
       let hadApproval = res.data.hadApproval
       let hadAlert = null
+      let hadSop = res.data.hadSop && rb.commercial > 1
       if (wpc.type === 'DetailView') {
         if (hadApproval === 2 || hadApproval === 10) {
           if (window.RbViewPage) window.RbViewPage.setReadonly()
@@ -59,6 +60,8 @@ class RbViewForm extends React.Component {
         <RF>
           {hadAlert}
           {hadApproval && <ApprovalProcessor id={this.props.id} entity={this.props.entity} />}
+          {hadSop && <SopProcessor id={this.props.id} entity={this.props.entity} />}
+
           <div className="row">
             {res.data.elements.map((item) => {
               if (![TYPE_DIVIDER, TYPE_REFFORM].includes(item.field)) this.__ViewData[item.field] = item.value
@@ -404,7 +407,7 @@ class EntityRelatedList extends RelatedList {
               </a>
             )}
 
-            {astate && <span className={`badge badge-sm badge-${astate[1]}`}>{astate[0]}</span>}
+            {astate && <span className={`badge badge-pill badge-${astate[1]}`}>{astate[0]}</span>}
 
             <span className="fs-12 text-muted" title={`${$L('修改时间')} ${item[2]}`}>
               {$fromNow(item[2])}
@@ -600,7 +603,9 @@ const RbViewPage = {
     $('.J_close').on('click', () => this.hide())
     $('.J_reload').on('click', () => this.reload())
     $('.J_newpage').attr({ target: '_blank', href: location.href })
+
     if (parent && parent.RbListPage) $('.J_newpage').removeClass('hide')
+    if (parent && parent.RbViewModal && parent.RbViewModal.mode === 2) $('.J_close').remove()
 
     const that = this
 
@@ -841,11 +846,25 @@ const RbViewPage = {
             type: 2,
             relatedRecord: { id: that.__id, entity: that.__entity[0], text: `@${that.__id.toUpperCase()}` },
           }
-          // eslint-disable-next-line react/jsx-no-undef
-          renderRbcomp(<FeedsEditDlg {...data} call={() => that.reload()} />)
+          renderRbcomp(
+            <FeedEditorDlg
+              {...data}
+              call={() => {
+                RbHighbar.success($L('保存成功'))
+                setTimeout(() => that.reload(), 100)
+              }}
+            />
+          )
         } else if (item.entity === 'ProjectTask.relatedRecord') {
-          // eslint-disable-next-line react/jsx-no-undef
-          renderRbcomp(<LightTaskDlg relatedRecord={that.__id} call={() => that.reload()} />)
+          renderRbcomp(
+            <LightTaskDlg
+              relatedRecord={that.__id}
+              call={() => {
+                RbHighbar.success($L('保存成功'))
+                setTimeout(() => that.reload(), 100)
+              }}
+            />
+          )
         } else {
           const iv = {}
           const entity = item.entity.split('.')
@@ -993,11 +1012,9 @@ $(document).ready(function () {
       .removeClass('hide')
       .on('click', () => history.back())
   }
-  // 返回列表
+  // Dock
   if (parent && parent.location.href.includes('/app/entity/view')) {
-    $('.J_list')
-      .removeClass('hide')
-      .on('click', () => (parent.location.href = '../list'))
+    $('.view-header').remove()
   }
 
   // iframe 点击穿透

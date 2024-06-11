@@ -6,7 +6,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global dlgActionAfter ShowEnable */
 
-$(document).ready(function () {
+$(document).ready(() => {
   $('.J_add').on('click', () => renderRbcomp(<ReportEditor />))
   $('.J_add-html5').on('click', () => renderRbcomp(<ReportEditor isHtml5 />))
 
@@ -37,18 +37,22 @@ class ReportList extends ConfigList {
                 ) : (
                   item[3]
                 )}
-                {item[6] === 1 && <span className="badge badge-info badge-arrow3 badge-sm ml-1 excel">EXCEL</span>}
-                {item[6] === 2 && <span className="badge badge-info badge-arrow3 badge-sm ml-1 excel">{$L('EXCEL 列表')}</span>}
-                {isHtml5 && <span className="badge badge-info badge-arrow3 badge-sm ml-1 html5">{$L('在线模板')}</span>}
-                {item[6] === 4 && <span className="badge badge-info badge-arrow3 badge-sm ml-1 word">WORD</span>}
+                {item[6] === 1 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 excel">EXCEL</span>}
+                {item[6] === 2 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 excel">{$L('EXCEL 列表')}</span>}
+                {isHtml5 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 html5">{$L('在线模板')}</span>}
+                {item[6] === 4 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 word">WORD</span>}
 
-                {outputType.includes('pdf') && <span className="badge badge-secondary badge-sm ml-1">PDF</span>}
-                {outputType.includes('html') && <span className="badge badge-secondary badge-sm ml-1">HTML</span>}
+                {outputType.includes('pdf') && <span className="badge badge-secondary badge-pill ml-1">PDF</span>}
+                {outputType.includes('html') && <span className="badge badge-secondary badge-pill ml-1">HTML</span>}
               </td>
-              <td>{item[2] || item[1]}</td>
+              <td>
+                <a href={`${rb.baseUrl}/admin/entity/${item[1]}/base`} className="light-link" target={`_${item[1]}`}>
+                  {item[2] || item[1]}
+                </a>
+              </td>
               <td>
                 <div className="text-break" style={{ maxWidth: 300 }}>
-                  {item[8] || $L('所有用户')}
+                  {item[7] && item[7].useFilter && item[7].useFilter.items.length > 0 ? $L('已设置条件') : <span className="text-muted">{$L('无')}</span>}
                 </div>
               </td>
               <td>{ShowEnable(item[4])}</td>
@@ -77,7 +81,7 @@ class ReportList extends ConfigList {
   }
 
   handleEdit(item) {
-    renderRbcomp(<ReportEditor id={item[0]} name={item[3]} isDisabled={item[4]} extraDefinition={item[7]} isHtml5={item[6] === 3} />)
+    renderRbcomp(<ReportEditor id={item[0]} name={item[3]} isDisabled={item[4]} extraDefinition={item[7]} isHtml5={item[6] === 3} entity={item[1]} type={item[6]} />)
   }
 
   handleDelete(id) {
@@ -184,7 +188,7 @@ class ReportEditor extends ConfigFormDlg {
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
               <input className="custom-control-input" type="checkbox" value="pdf" />
               <span className="custom-control-label">PDF</span>
-              <a title={$L('查看如何使用')} target="_blank" href="https://getrebuild.com/docs/admin/excel-admin#%E6%8A%A5%E8%A1%A8%E5%AF%BC%E5%87%BA%E6%A0%BC%E5%BC%8F">
+              <a href="https://getrebuild.com/docs/admin/excel-admin#%E6%8A%A5%E8%A1%A8%E5%AF%BC%E5%87%BA%E6%A0%BC%E5%BC%8F" title={$L('查看帮助')} target="_blank">
                 <i className="zmdi zmdi-help zicon down-1" />
               </a>
             </label>
@@ -200,16 +204,23 @@ class ReportEditor extends ConfigFormDlg {
             <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
           </div>
         </div>
-        <div className="form-group row bosskey-show">
+        <div className="form-group row pt-1 pb-1">
           <label className="col-sm-3 col-form-label text-sm-right">
-            {$L('谁能使用这个报表')} <sup className="rbv" />
+            {$L('使用条件')} <sup className="rbv" />
           </label>
           <div className="col-sm-7">
-            <UserSelector
-              ref={(c) => (this._UserSelector = c)}
-              defaultValue={this.props.extraDefinition && this.props.extraDefinition.visibleUsers ? this.props.extraDefinition.visibleUsers.split(',') : null}
-            />
-            <p className="form-text">{$L('留空表示所有用户均可使用')}</p>
+            <div className="form-control-plaintext">
+              <a
+                href="###"
+                onClick={(e) => {
+                  $stopEvent(e, true)
+                  if ($(e.target).attr('disabled')) return
+                  this._useFilter()
+                }}
+                ref={(c) => (this._$useFilter = c)}>
+                {this.state.useFilter && this.state.useFilter.items.length > 0 ? $L('已设置条件') + ` (${this.state.useFilter.items.length})` : $L('点击设置')}
+              </a>
+            </div>
           </div>
         </div>
 
@@ -230,7 +241,13 @@ class ReportEditor extends ConfigFormDlg {
   componentDidMount() {
     super.componentDidMount()
     setTimeout(() => {
-      if (this.__select2) this.__select2.on('change', () => this.checkTemplate())
+      if (this.__select2)
+        this.__select2.on('change', () => {
+          this.checkTemplate()
+
+          this._UseFilter = null
+          this.setState({ useFilter: null })
+        })
     }, 500)
 
     const that = this
@@ -277,6 +294,10 @@ class ReportEditor extends ConfigFormDlg {
       if (outputType.includes('excel')) $(this._$outputType).find('input:eq(0)').attr('checked', true)
       if (outputType.includes('pdf')) $(this._$outputType).find('input:eq(1)').attr('checked', true)
       if (outputType.includes('html')) $(this._$outputType).find('input:eq(2)').attr('checked', true)
+
+      const useFilter = (this.props.extraDefinition || {}).useFilter
+      this.setState({ useFilter })
+      if (this.props.type === 2) $(this._$useFilter).attr('disabled', true)
     } else {
       if (this.props.isHtml5) return
 
@@ -299,6 +320,8 @@ class ReportEditor extends ConfigFormDlg {
         }
       })
     }
+
+    this.props.id && console.log(`RBAPI ASSISTANT *Report* :\n %c${this.props.id}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
   }
 
   // 检查模板
@@ -328,13 +351,40 @@ class ReportEditor extends ConfigFormDlg {
     })
   }
 
+  _useFilter() {
+    if (this._UseFilter) {
+      this._UseFilter.show()
+    } else {
+      const entity = this.__select2 ? this.__select2.val() : this.props.entity
+      const that = this
+      renderRbcomp(
+        <AdvFilter
+          title={$L('使用条件')}
+          inModal
+          canNoFilters
+          entity={entity}
+          filter={this.state.useFilter}
+          confirm={(s) => {
+            this.setState({ useFilter: s })
+          }}
+        />,
+        function () {
+          that._UseFilter = this
+        }
+      )
+    }
+  }
+
   _buildParams() {
+    const type = ~~$(this._$listType).find('input:checked').val() || 1
+    $(this._$useFilter).attr('disabled', type === 2)
+    if (type === 2) this.setState({ useFilter: null })
+
     const entity = this.__select2.val()
     const file = this.__lastFile
     if (!file || !entity) return false
 
-    const type = $(this._$listType).find('input:checked').val() || 1
-    if (~~type === 4 && rb.commercial < 10) {
+    if (type === 4 && rb.commercial < 10) {
       RbHighbar.error(WrapHtml($L('免费版不支持 WORD 模板功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       this._clearParams()
       return false
@@ -366,8 +416,8 @@ class ReportEditor extends ConfigFormDlg {
     post.extraDefinition = {
       outputType: output.length === 0 ? 'excel' : output.join(','),
       templateVersion: (this.props.extraDefinition || {}).templateVersion || 2,
-      // v3.5
-      visibleUsers: rb.commercial < 1 ? null : this._UserSelector.val().join(','),
+      // v3.7
+      useFilter: rb.commercial < 1 ? null : this.state.useFilter,
     }
 
     if (this.props.id) {

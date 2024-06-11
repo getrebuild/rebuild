@@ -85,8 +85,8 @@ public class InstallController extends BaseController implements InstallState {
             // 查询表
             try (ResultSet rs = dmd.getTables(conn.getCatalog(), conn.getSchema(), null, new String[]{"TABLE"})) {
                 if (rs.next()) {
-                    String hasTable = rs.getString("TABLE_NAME");
-                    if (hasTable != null) {
+                    String rbTable = rs.getString("TABLE_NAME");
+                    if (rbTable != null) {
                         // 挂载模式
                         if (checker.isRbDatabase()) {
                             okMsg += " " + Language.L("已发现 **%s** 为 REBUILD 数据库，系统将自动挂载", dbProps.getString("dbName"));

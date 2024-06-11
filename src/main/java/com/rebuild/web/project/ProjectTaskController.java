@@ -102,7 +102,14 @@ public class ProjectTaskController extends BaseController {
         // 关键词搜索
         String search = getParameter(request, "search");
         if (StringUtils.isNotBlank(search)) {
-            queryWhere += " and taskName like '%" + CommonsUtils.escapeSql(search) + "%'";
+            queryWhere += " and (taskName like '%" + CommonsUtils.escapeSql(search) + "%'";
+
+            // 搜编号
+            if (search.matches("^([A-Za-z]{2,4}-)?[0-9]{1,9}")) {
+                String[] no = search.split("-");
+                queryWhere += " or taskNumber = " + (no.length > 1 ? no[1] : no[0]);
+            }
+            queryWhere += ")";
         }
 
         // 高级查询
@@ -122,13 +129,15 @@ public class ProjectTaskController extends BaseController {
             String countSql = "select count(taskId) from ProjectTask where " + queryWhere;
             Object[] count2 = Application.createQueryNoFilter(countSql).unique();
             count = ObjectUtils.toInt(count2[0]);
-
-            if (count == 0) {
-                return NO_TASKS;
-            }
+            if (count == 0) return NO_TASKS;
         }
 
-        queryWhere += " order by " +  buildQuerySort(request);
+        String sort = buildQuerySort(request);
+        // 未完成的优先显示
+        if (sort.contains("deadline") && "0-0".equals(planKey)) {
+            sort = "status asc, deadline desc";
+        }
+        queryWhere += " order by " + sort;
 
         ConfigBean project = ProjectManager.instance.getProject(projectId, user);
         JSONArray alist = queryCardDatas(project, user, queryWhere, new int[] { pageSize, pageNo * pageSize - pageSize });
@@ -174,8 +183,7 @@ public class ProjectTaskController extends BaseController {
                 return baseSql + String.format("status = 0 and (deadline is null or deadline > '%s')",
                         dtf.format(CalendarUtils.addDay(7)));
             }
-        }
-        else if (planKey.startsWith(ProjectController.GROUP_MODIFIED)) {
+        } else if (planKey.startsWith(ProjectController.GROUP_MODIFIED)) {
             if ("1".equals(planValue)) {
                 return baseSql + MessageFormat.format("modifiedOn >= ''{0} 00:00:00'' and modifiedOn <= ''{0} 23:59:59''",
                         today.split(" ")[0]);
@@ -188,6 +196,8 @@ public class ProjectTaskController extends BaseController {
             } else if ("4".equals(planValue)) {
                 return baseSql + String.format("modifiedOn < '%s'", dtf.format(CalendarUtils.addDay(-14)));
             }
+        } else if (planKey.equals("0-0")) {
+            return "1=1";
         }
 
         throw new InvalidParameterException(Language.L("无效请求参数 (%s=%s)", "id", planKey));
@@ -238,7 +248,7 @@ public class ProjectTaskController extends BaseController {
 
         JSONArray alist = new JSONArray();
         for (Object[] o : tasks) {
-            JSONObject item = formatTask(o, user, fields2show.contains("_tag"));
+            JSONObject item = formatTask(o, user, fields2show.contains("_tag"), true);
 
             if (fields2show.contains("createdBy")) {
                 item.put("createdBy", new Object[] { o[12], UserHelper.getName((ID) o[12]) });
@@ -259,7 +269,6 @@ public class ProjectTaskController extends BaseController {
                 item.put("attachments", o[15] != null && ((String) o[15]).length() > 10);
             }
 
-            item.remove("planName");
             alist.add(item);
         }
         return alist;
@@ -275,7 +284,7 @@ public class ProjectTaskController extends BaseController {
                 .unique();
         if (task == null) throw new NoRecordFoundException(taskId, Boolean.TRUE);
 
-        JSONObject details = formatTask(task, user, true);
+        JSONObject details = formatTask(task, user, true, false);
 
         details.put("description", task[12]);
         String attachments = (String) task[13];
@@ -297,12 +306,13 @@ public class ProjectTaskController extends BaseController {
     /**
      * @param o
      * @param user
-     * @param putTags
+     * @param needTags
+     * @param needPlanName
      * @return
      * @throws ConfigurationException 如果指定用户无权限
      * @see #FMT_FIELDS11
      */
-    private JSONObject formatTask(Object[] o, ID user, boolean putTags) throws ConfigurationException {
+    private JSONObject formatTask(Object[] o, ID user, boolean needTags, boolean needPlanName) throws ConfigurationException {
         final ConfigBean project = ProjectManager.instance.getProject((ID) o[0], user);
 
         String taskNumber = String.format("%s-%s", project.getString("projectCode"), o[2]);
@@ -316,7 +326,7 @@ public class ProjectTaskController extends BaseController {
                 new Object[] { o[3], taskNumber, o[4], createdOn, deadline, executor, o[8], o[9], o[10], endTime, o[0], project.getInteger("status") });
 
         // 标签
-        if (putTags) {
+        if (needTags) {
             data.put("tags", TaskTagController.getTaskTags((ID) o[3]));
         }
 
@@ -329,8 +339,10 @@ public class ProjectTaskController extends BaseController {
             // 权限
             data.put("projectMember", project.get("members", Set.class).contains(user));
             data.put("isManageable", ProjectHelper.isManageable((ID) o[3], user));
-        }
 
+            // v3.7
+            if (needPlanName) data.put("planName", plan.getString("planName"));
+        }
         return data;
     }
 
@@ -396,7 +408,7 @@ public class ProjectTaskController extends BaseController {
         JSONArray array = new JSONArray();
         for (Object[] o : tasks) {
             try {
-                array.add(formatTask(o, user, false));
+                array.add(formatTask(o, user, false, false));
             } catch (ConfigurationException ex) {
                 // FIXME 无项目权限会报错（考虑任务在相关项中是否无权限也显示）
                 log.warn(ex.getLocalizedMessage());

@@ -9,24 +9,24 @@
 
 **_相较于同类产品，REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启动模板。_**
 
-「开放式设计」是 REBUILD 的重要设计理念！得益于研发团队成熟的 B 端产品经验，我们实现了对企业日常各类需求的可配置化管理，全图形化设计零代码搭建，所见即所得。
+「开放式设计」是 REBUILD 的重要设计理念！得益于团队成熟的企业管理系统经验，我们实现了对企业日常各类需求的可配置化管理，全图形化设计零代码搭建，所见即所得。
 
 更多详情介绍 [https://getrebuild.com/](https://getrebuild.com/)
 
 > **福利：加入 REBUILD VIP 用户 QQ 交流群 819865721 1013051587 GET 使用技能**
 
-## V3.6 新特性
+## V3.7 新特性
 
 本次更新为你带来众多功能增强与优化。
 
-1. [新增] 记录合并功能
-2. [新增] 明细复制功能
-3. [新增] 从 Excel 数据表导入实体和数据
-4. [新增] 字段类型支持转换
-5. [新增] 表单设计支持“只读”选项
+1. [新增] 限时审批
+2. [新增] 新建任务（触发器）
+3. [新增] 地图图表
+4. [新增] 自动明细记录导入（记录转换）
+5. [新增] 数据列表之卡片模式
 6. [新增] 多个 FrontJS 函数
-7. [优化] 首页仪表盘暗黑模式
-8. [优化] 多项安全性更新 
+7. [优化] 图表支持多轴显示、横向显示、显示背景
+8. [优化] 手机版全新列表搜索组件
 9. ...
 
 更多更新详情请参见 [更新日志](https://getrebuild.com/docs/dev/changelog)
@@ -39,7 +39,7 @@
 
 ## 使用
 
-开始使用 REBUILD 非常简单，不需要配置复杂的运行环境，零依赖快速部署，超简单！
+开始使用 REBUILD 非常简单，无需配置复杂的运行环境，零依赖快速部署！
 
 #### 1. 使用已发布版本
 
@@ -47,9 +47,9 @@ _生产环境强烈推荐使用此方式 !!!_
 
 首先 [下载](https://getrebuild.com/download) 安装包，我们同时提供 `standalone` 与 `boot` 两种安装包。`standalone` 为集成安装包（推荐），`boot` 为 SpringBoot 的 `jar` 包，两种安装包在功能上没有区别。
 
-下载后解压（集成安装包），通过 `start-rebuild.bat` 或 `start-rebuild.sh` 启动， 打开浏览器输入 [http://localhost:18080/](http://localhost:18080/) 开始体验。
+下载后解压（集成安装包），通过 `start-rebuild.bat` 或 `start-rebuild.sh` 启动，然后打开浏览器输入 [http://localhost:18080/](http://localhost:18080/) 开始体验。
 
-更多详情请参见 [安装文档](https://getrebuild.com/docs/admin/install)
+更多详情请参见 [安装文档](https://getrebuild.com/learn/install)
 
 #### 2. 通过源码编译
 
@@ -66,7 +66,7 @@ mvn package
 java -jar target/rebuild.jar
 ```
 
-打开浏览器输入 [http://localhost:18080/](http://localhost:18080/) 开始体验。
+运行后打开浏览器输入 [http://localhost:18080/](http://localhost:18080/) 开始体验。
 
 ## 开发
 

@@ -210,19 +210,42 @@ class DlgMM extends RbAlert {
       }
     }
 
-    $([this._$startTime, this._$endTime])
-      .datetimepicker({
-        startDate: new Date(),
-      })
-      .on('changeDate', (e) => {
-        if ($(e.target).hasClass('J_start')) {
-          if ($val(this._$startTime) && !$val(this._$endTime)) {
-            const autoEnd = moment($val(this._$startTime)).add('minute', 10).format('YYYY-MM-DD HH:mm')
-            $(this._$endTime).val(autoEnd)
-          }
+    // $([this._$startTime, this._$endTime])
+    //   .datetimepicker({
+    //     startDate: new Date(),
+    //   })
+    //   .on('changeDate', (e) => {
+    //     if ($(e.target).hasClass('J_start')) {
+    //       if ($val(this._$startTime) && !$val(this._$endTime)) {
+    //         const autoEnd = moment($val(this._$startTime)).add('minute', 10).format('YYYY-MM-DD HH:mm')
+    //         $(this._$endTime).val(autoEnd)
+    //       }
+    //     }
+    //     calcTakeTime()
+    //   })
+
+    // https://flatpickr.js.org/options/
+    $([this._$startTime, this._$endTime]).flatpickr({
+      enableTime: true,
+      enableSeconds: false,
+      time_24hr: true,
+      minuteIncrement: 5,
+      // defaultDate: new Date(),
+      minDate: new Date(),
+      dateFormat: 'Y-m-d H:i', // :S
+      prevArrow: '<i class="mdi mdi-chevron-left"></i>',
+      nextArrow: '<i class="mdi mdi-chevron-right"></i>',
+      locale: rb.locale.split('_')[0], // zh, en
+      onClose: function (s, d, inst) {
+        const st = $val(that._$startTime)
+        if ($(inst.element).hasClass('J_start') && st && !$val(that._$endTime)) {
+          const endd = moment(st).add('minute', 10).format('YYYY-MM-DD HH:mm')
+          $(that._$endTime).val(endd)
         }
+
         calcTakeTime()
-      })
+      },
+    })
   }
 
   _buildPost() {
@@ -265,17 +288,24 @@ $(document).ready(() => {
   }
 
   const $input = $('input.J_MobileAppPath')
-  $initUploader($input, null, (res) => {
-    const fileKey = res.key
-    $.post(location.href, JSON.stringify({ MobileAppPath: fileKey }), (res) => {
-      if (res.error_code === 0) {
-        renderMobileAppPath(fileKey)
-        RbHighbar.success($L('上传成功'))
-      } else {
-        RbHighbar.error(res.error_msg)
-      }
-    })
-  })
+  $initUploader(
+    $input,
+    (res) => {
+      $('button.J_MobileAppPath span').text(` (${res.percent.toFixed(1)}%)`)
+    },
+    (res) => {
+      const fileKey = res.key
+      $.post(location.href, JSON.stringify({ MobileAppPath: fileKey }), (res) => {
+        if (res.error_code === 0) {
+          renderMobileAppPath(fileKey)
+          RbHighbar.success($L('上传成功'))
+        } else {
+          RbHighbar.error(res.error_msg)
+        }
+        $('button.J_MobileAppPath span').text('')
+      })
+    }
+  )
   $('button.J_MobileAppPath').on('click', () => $input[0].click())
 
   const $del = $('button.J_MobileAppPath-del').on('click', () => {

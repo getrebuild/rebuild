@@ -19,7 +19,7 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.utils.JSONUtils;
@@ -27,9 +27,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 /**
  * 数据报表
@@ -53,10 +51,10 @@ public class DataReportManager implements ConfigManager {
      *
      * @param entity
      * @param type 指定类型
-     * @param user
+     * @param recordId
      * @return
      */
-    public JSONArray getReportTemplates(Entity entity, int type, ID user) {
+    public JSONArray getReportTemplates(Entity entity, int type, ID recordId) {
         JSONArray alist = new JSONArray();
         for (ConfigBean e : getReportsRaw(entity)) {
             if (e.getBoolean("disabled")) continue;
@@ -71,15 +69,14 @@ public class DataReportManager implements ConfigManager {
             }
 
             if (can) {
-                // v3.5
-                String vuDef = e.getString("visibleUsers");
-                if (StringUtils.isNotBlank(vuDef)) {
-                    Set<ID> users = UserHelper.parseUsers(Arrays.asList(vuDef.split(",")), null);
-                    if (!users.contains(user)) continue;
+                // v3.7
+                String useFilter = e.getString("useFilter");
+                if (JSONUtils.wellFormat(useFilter) && recordId != null) {
+                    can = QueryHelper.isMatchAdvFilter(recordId, JSON.parseObject(useFilter));
                 }
-
-                alist.add(e.toJSON("id", "name", "outputType"));
             }
+
+            if (can) alist.add(e.toJSON("id", "name", "outputType"));
         }
         return alist;
     }
@@ -105,7 +102,7 @@ public class DataReportManager implements ConfigManager {
             JSONObject extra = o[5] == null ? JSONUtils.EMPTY_OBJECT : JSON.parseObject((String) o[5]);
             String outputType = StringUtils.defaultIfBlank(extra.getString("outputType"), "excel");
             int templateVersion = extra.containsKey("templateVersion") ? extra.getInteger("templateVersion") : 2;
-            String visibleUsersDef = extra.getString("visibleUsers");
+            String useFilter = extra.getString("useFilter");
 
             int type = ObjectUtils.toInt(o[4], TYPE_RECORD);
             if (type == TYPE_WORD && outputType.contains("excel")) outputType += ",word";
@@ -118,7 +115,7 @@ public class DataReportManager implements ConfigManager {
                     .set("type", type)
                     .set("outputType", outputType)
                     .set("templateVersion", templateVersion)
-                    .set("visibleUsers", visibleUsersDef)
+                    .set("useFilter", useFilter)
                     .set("templateContent", o[6]);
             alist.add(cb);
         }

@@ -102,7 +102,7 @@ const $showAnnouncement = function () {
     renderRbcomp(<RF>{shows}</RF>, $aw, function () {
       $(this)
         .find('p>a[href]')
-        .click((e) => e.stopPropagation())
+        .on('click', (e) => e.stopPropagation())
     })
   })
 }

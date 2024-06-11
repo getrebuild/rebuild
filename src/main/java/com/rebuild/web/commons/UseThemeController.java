@@ -56,7 +56,7 @@ public class UseThemeController extends BaseController {
 
         String referer = ServletUtils.getReferer(request);
         if (StringUtils.isBlank(referer)
-                || referer.contains("/admin/") || referer.contains("/admin-")) {
+                || referer.contains("/admin/") || referer.contains("/admin-") || referer.contains("/apiman/")) {
             // No theme provided. Use default
 
         } else {

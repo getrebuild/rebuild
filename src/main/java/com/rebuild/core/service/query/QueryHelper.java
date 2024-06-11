@@ -128,13 +128,24 @@ public class QueryHelper {
     }
 
     /**
-     * 获取明细列表 ID
+     * 获取（默认明细）明细列表 ID
      *
      * @param mainId
      * @return
      */
     public static List<ID> detailIdsNoFilter(ID mainId) {
         Entity detailEntity = MetadataHelper.getEntity(mainId.getEntityCode()).getDetailEntity();
+        return detailIdsNoFilter(mainId, detailEntity);
+    }
+
+    /**
+     * 获取（指定）明细列表 ID
+     *
+     * @param mainId
+     * @param detailEntity
+     * @return
+     */
+    public static List<ID> detailIdsNoFilter(ID mainId, Entity detailEntity) {
         String sql = String.format("select %s from %s where %s = ? order by autoId asc",
                 detailEntity.getPrimaryField().getName(),
                 detailEntity.getName(),

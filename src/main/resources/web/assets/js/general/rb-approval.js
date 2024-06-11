@@ -15,7 +15,7 @@ class ApprovalProcessor extends React.Component {
 
   render() {
     return (
-      <div className="approval-pane">
+      <div className="approval-toolbar">
         {this.state.state === 1 && this.renderStateDraft()}
         {this.state.state === 2 && this.renderStateProcessing()}
         {this.state.state === 10 && this.renderStateApproved()}
@@ -185,9 +185,10 @@ class ApprovalProcessor extends React.Component {
   submit = () => {
     const that = this
     if (this._SubmitForm) {
-      this._SubmitForm.show(null, () => that._SubmitForm.reload())
+      // this._SubmitForm.show(null, () => that._SubmitForm.reload())
+      this._SubmitForm.show()
     } else {
-      renderRbcomp(<ApprovalSubmitForm id={this.props.id} />, null, function () {
+      renderRbcomp(<ApprovalSubmitForm id={this.props.id} />, function () {
         that._SubmitForm = this
       })
     }
@@ -198,7 +199,7 @@ class ApprovalProcessor extends React.Component {
     if (this._ApproveForm) {
       this._ApproveForm.show()
     } else {
-      renderRbcomp(<ApprovalApproveForm id={this.props.id} approval={this.state.approvalId} entity={this.props.entity} />, null, function () {
+      renderRbcomp(<ApprovalApproveForm id={this.props.id} approval={this.state.approvalId} entity={this.props.entity} $$$parent={this} />, function () {
         that._ApproveForm = this
       })
     }
@@ -211,7 +212,7 @@ class ApprovalProcessor extends React.Component {
         this.disabled(true, true)
         $.post(`/app/entity/approval/cancel?record=${that.props.id}`, (res) => {
           if (res.error_code > 0) RbHighbar.error(res.error_msg)
-          else _reload(this, $L('审批已撤回'))
+          else _reloadAndTips(this, $L('审批已撤回'))
           this.disabled()
         })
       },
@@ -244,7 +245,7 @@ class ApprovalProcessor extends React.Component {
         this.disabled(true, true)
         $.post(`/app/entity/approval/revoke?record=${that.props.id}`, (res) => {
           if (res.error_code > 0) RbHighbar.error(res.error_msg)
-          else _reload(this, $L('审批已撤销'))
+          else _reloadAndTips(this, $L('审批已撤销'))
           this.disabled()
         })
       },
@@ -256,7 +257,7 @@ class ApprovalProcessor extends React.Component {
     if (this._ApprovalStepViewer) {
       this._ApprovalStepViewer.show()
     } else {
-      renderRbcomp(<ApprovalStepViewer id={this.props.id} approval={this.state.approvalId} $$$parent={this} />, null, function () {
+      renderRbcomp(<ApprovalStepViewer id={this.props.id} approval={this.state.approvalId} $$$parent={this} />, function () {
         that._ApprovalStepViewer = this
       })
     }
@@ -280,7 +281,7 @@ class ApprovalUsersForm extends RbFormHandler {
     const ccHas = (this.state.nextCcs || []).length > 0 || this.state.ccSelfSelecting
 
     return (
-      <React.Fragment>
+      <RF>
         {approverHas ? (
           <div className="form-group">
             <label>
@@ -330,7 +331,7 @@ class ApprovalUsersForm extends RbFormHandler {
             )}
           </div>
         )}
-      </React.Fragment>
+      </RF>
     )
   }
 
@@ -374,7 +375,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
     const approvals = this.state.approvals || []
 
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('提交审批')} width="600" disposeOnHide={this.props.disposeOnHide === true}>
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('提交审批')}>
         <div className="form approval-form">
           <div className="form-group">
             <label>{$L('选择审批流程')}</label>
@@ -397,7 +398,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
                       <span className="custom-control-label">{item.name}</span>
                     </label>
                     <a href={`${rb.baseUrl}/app/RobotApprovalConfig/view/${item.id}`} target="_blank">
-                      <i className="icon mdi mdi-progress-check fs-14" /> {$L('审批流程')}
+                      <i className="icon mdi mdi-progress-check fs-14" /> {$L('流程详情')}
                     </a>
                   </div>
                 )
@@ -444,7 +445,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
     this.disabled(true)
     $.post(`/app/entity/approval/submit?record=${this.props.id}&approval=${this.state.useApproval}`, JSON.stringify(selectUsers), (res) => {
       if (res.error_code > 0) RbHighbar.error(res.error_msg)
-      else _reload(this, $L('审批已提交'))
+      else _reloadAndTips(this, $L('审批已提交'))
       this.disabled()
     })
   }
@@ -454,7 +455,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
 class ApprovalApproveForm extends ApprovalUsersForm {
   render() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('审批')} width="600">
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('审批')}>
         <div className="form approval-form">
           {this.state.bizMessage && (
             <div className="form-group">
@@ -473,6 +474,20 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         </div>
 
         <div className="dialog-footer" ref={(c) => (this._btns = c)}>
+          {this.props.$$$parent && (
+            <div className="float-left">
+              <button
+                className="btn btn-link btn-sm pl-1"
+                onClick={() => {
+                  this.props.$$$parent.viewSteps()
+                  // this.hide()
+                }}>
+                <i className="zmdi zmdi-time mr-1" />
+                {$L('审批详情')}
+              </button>
+            </div>
+          )}
+
           {(this.state.allowReferral || this.state.allowCountersign) && (
             <div className="btn-group btn-space mr-2">
               <button className="btn btn-secondary dropdown-toggle w-auto" data-toggle="dropdown" title={$L('更多操作')}>
@@ -609,7 +624,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         RbHighbar.error(res.error_msg)
       } else {
         _alert && _alert.hide(true)
-        _reload(this, state === 10 ? $L('审批已同意') : rejectNode ? $L('审批已退回') : $L('审批已驳回'))
+        _reloadAndTips(this, state === 10 ? $L('审批已同意') : rejectNode ? $L('审批已退回') : $L('审批已驳回'))
         typeof this.props.call === 'function' && this.props.call()
       }
     })
@@ -627,7 +642,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
 
             if (res.error_code === 0) {
               _alert.hide()
-              _reload(this, $L('已转审'))
+              _reloadAndTips(this, $L('已转审'))
               typeof this.props.call === 'function' && this.props.call()
             } else {
               RbHighbar.error(res.error_msg)
@@ -651,7 +666,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
 
             if (res.error_code === 0) {
               _alert.hide()
-              _reload(this, $L('已加签'))
+              _reloadAndTips(this, $L('已加签'))
               typeof this.props.call === 'function' && this.props.call()
             } else {
               RbHighbar.error(res.error_msg)
@@ -708,7 +723,7 @@ class ApprovalStepViewer extends React.Component {
     const stateLast = this.state.steps ? this.state.steps[0].approvalState : 0
 
     return (
-      <div className="modal" ref={(c) => (this._dlg = c)}>
+      <div className="modal" ref={(c) => (this._dlg = c)} style={{ zIndex: 1051 }}>
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
@@ -775,9 +790,25 @@ class ApprovalStepViewer extends React.Component {
       if (item.state >= 10) aMsg = $L('由 %s %s', approverName, STATE_NAMES[item.state] || item.state)
       if ((nodeState >= 10 || stateLast >= 10) && item.state < 10) aMsg = `${approverName} ${$L('未进行审批')}`
 
-      // TODO 验证是否有 BUG
-      let approveAction = item.approver === rb.currentUser && item.state === 1 && stateLast === 2
-      approveAction = false
+      // 待我审批
+      if (item.approver === rb.currentUser && item.state === 1 && stateLast === 2) {
+        aMsg = (
+          <RF>
+            {$L('等待 你 ')}
+            <a
+              href="###"
+              onClick={(e) => {
+                $stopEvent(e, true)
+                if (this.props.$$$parent) {
+                  this.props.$$$parent.approve()
+                  this.hide()
+                }
+              }}>
+              {$L('审批')}
+            </a>
+          </RF>
+        )
+      }
 
       sss.push(
         <li className={`timeline-item state${item.state}`} key={`step-${$random()}`}>
@@ -803,18 +834,6 @@ class ApprovalStepViewer extends React.Component {
                   <span className="badge badge-warning" title={$L('批量审批')}>
                     {$L('批量')}
                   </span>
-                )}
-                {approveAction && (
-                  <a
-                    href="###"
-                    className="action"
-                    onClick={(e) => {
-                      $stopEvent(e, true)
-                      this.props.$$$parent && this.props.$$$parent.approve()
-                      this.hide()
-                    }}>
-                    {$L('审批')}
-                  </a>
                 )}
               </p>
               {(item.druation || item.druation === 0) && (
@@ -909,13 +928,16 @@ class ApprovalStepViewer extends React.Component {
 }
 
 // 刷新页面
-const _reload = function (dlg, msg) {
+const _reloadAndTips = function (dlg, msg) {
   dlg && dlg.hide(true)
   msg && RbHighbar.success(msg)
+
+  // 保持当前视图
+  const keepViewId = dlg && parent && parent.RbViewModal && parent.RbViewModal.mode === 2 ? dlg.props.id : null
 
   setTimeout(() => {
     if (window.RbViewPage) window.RbViewPage.reload()
     if (window.RbListPage) window.RbListPage.reload()
-    else if (parent.RbListPage) parent.RbListPage.reload()
+    else if (parent.RbListPage) parent.RbListPage.reload(keepViewId)
   }, 1000)
 }

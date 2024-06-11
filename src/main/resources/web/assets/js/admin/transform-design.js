@@ -8,31 +8,95 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const wpc = window.__PageConfig
 
+let _AdvFilter
+let _AdvFilter_data
+function _saveFilter(res) {
+  _AdvFilter_data = res
+  if (_AdvFilter_data && _AdvFilter_data.items && _AdvFilter_data.items.length > 0) {
+    $('#useFilter').text(`${$L('已设置条件')} (${_AdvFilter_data.items.length})`)
+  } else {
+    $('#useFilter').text($L('点击设置'))
+  }
+}
+
 $(document).ready(() => {
-  let advFilter
   $('#useFilter').on('click', () => {
-    if (advFilter) {
-      advFilter.show()
+    if (_AdvFilter) {
+      _AdvFilter.show()
     } else {
-      renderRbcomp(<AdvFilter title={$L('转换条件')} inModal canNoFilters entity={wpc.sourceEntity.entity} filter={advFilter_data} confirm={_saveFilter} />, null, function () {
-        advFilter = this
+      renderRbcomp(<AdvFilter title={$L('转换条件')} inModal canNoFilters entity={wpc.sourceEntity.entity} filter={_AdvFilter_data} confirm={_saveFilter} />, function () {
+        _AdvFilter = this
       })
     }
   })
 
   const config = wpc.config || {}
+  console.log('[dev]', config)
 
   let _FieldsMapping
-  let _FieldsMapping2 // 明细
-  renderRbcomp(<FieldsMapping source={wpc.sourceEntity} target={wpc.targetEntity} data={config.fieldsMapping} />, 'EMAIN', function () {
-    _FieldsMapping = this
-  })
-  if (wpc.sourceDetailEntity) {
-    renderRbcomp(<FieldsMapping source={wpc.sourceDetailEntity} target={wpc.targetDetailEntity} data={config.fieldsMappingDetail} />, 'EDETAIL', function () {
-      _FieldsMapping2 = this
+  let _FieldsMapping2_key
+  let _FieldsMapping37 = {} // ND[key=T_S]
+
+  function _addDts(s, data) {
+    const key = s.target + '_' + s.source
+    if (_FieldsMapping37[key]) {
+      RbHighbar.createl('添加明细转换重复')
+      return false
+    }
+
+    const targetEntity = wpc.targetDetailEntities.find((x) => x.entity === s.target)
+    const sourceEntity = wpc.sourceDetailEntities.find((x) => x.entity === s.source)
+    if (!targetEntity || !sourceEntity) return // Bad
+
+    const $tab = $(
+      `<li class="nav-item"><a class="nav-link text-ellipsis" href="#${key}" data-toggle="tab">${targetEntity.label}<span>${sourceEntity.label}</span><em title="${$L(
+        '移除'
+      )}" class="icon mdi mdi-close"></em></a></li>`
+    )
+    $tab.insertBefore($('.J_add-dts').parent())
+    const $pane = $(`<div class="tab-pane" id="${key}"></div>`).appendTo('.fields-mapping')
+
+    $tab.find('em').on('click', (e) => {
+      $stopEvent(e, true)
+      $($tab, $pane).remove()
+      delete _FieldsMapping37[key]
+      $('.entities-mapping a:eq(0)')[0].click()
+    })
+
+    renderRbcomp(<FieldsMapping source={sourceEntity} target={targetEntity} data={data} isDetail />, key, function () {
+      _FieldsMapping37[key] = this
+      if (!data) $tab.find('a')[0].click()
     })
   }
 
+  // 主
+  renderRbcomp(<FieldsMapping source={wpc.sourceEntity} target={wpc.targetEntity} data={config.fieldsMapping} />, 'EMAIN', function () {
+    _FieldsMapping = this
+  })
+  // 明细
+  if (wpc.sourceDetailEntity) {
+    renderRbcomp(<FieldsMapping source={wpc.sourceDetailEntity} target={wpc.targetDetailEntity} data={config.fieldsMappingDetail} isDetail />, 'EDETAIL', function () {
+      // v3.7
+      _FieldsMapping2_key = wpc.targetDetailEntity.entity + '_' + wpc.sourceDetailEntity.entity
+      _FieldsMapping37[_FieldsMapping2_key] = this
+
+      // init
+      if (config.fieldsMappingDetails) {
+        config.fieldsMappingDetails.forEach((fmd) => {
+          const key = fmd._.target + '_' + fmd._.source
+          if (key === _FieldsMapping2_key) return // default
+
+          _addDts({ target: fmd._.target, source: fmd._.source }, fmd)
+        })
+      }
+    })
+  }
+
+  $('.J_add-dts').on('click', function () {
+    renderRbcomp(<DlgAddDts source={wpc.sourceDetailEntities} target={wpc.targetDetailEntities} onConfirm={(s) => _addDts(s)} />)
+  })
+
+  // 回填
   const fillbackFields = []
   wpc.sourceEntity.fields.forEach((item) => {
     if (item.name.includes('.')) return
@@ -57,9 +121,8 @@ $(document).ready(() => {
   $('#importsMode').on('click', function () {
     if ($val(this)) {
       $('#filterFields').parents('.form-group').removeClass('hide')
-
       if (!_ImportsFilterMapping) {
-        renderRbcomp(<ImportsFilterMapping defaultValue={config.importsFilter} />, 'filterFields', function () {
+        renderRbcomp(<ImportsFilterMapping defaultValue={config.importsFilter} />, $('#filterFields>span'), function () {
           _ImportsFilterMapping = this
         })
       }
@@ -77,99 +140,116 @@ $(document).ready(() => {
 
     const fm = _FieldsMapping.buildMapping()
     if (fm === false) return
+
     if (!fm) {
       RbHighbar.create($L('请至少设置 1 个字段映射'))
       return
     }
 
-    const tips = []
+    // const fmd = _FieldsMapping2 ? _FieldsMapping2.buildMapping() : null
+    // if (fmd === false) return
+    // if (_FieldsMapping2 && !fmd) {
+    //   tips.push($L('明细实体未配置字段映射，因此明细记录不会转换'))
+    // }
 
-    const fmd = _FieldsMapping2 ? _FieldsMapping2.buildMapping() : null
-    if (fmd === false) return
-    if (_FieldsMapping2 && !fmd) {
-      tips.push($L('明细实体未配置字段映射，因此明细记录不会转换'))
+    let detailsUnmapping = false
+    let fmd36 = null
+    const fmdList37 = []
+    for (let key in _FieldsMapping37) {
+      const fmd = _FieldsMapping37[key].buildMapping()
+      if (fmd === false) return
+
+      if (fmd) {
+        fmdList37.push(fmd)
+        if (key === _FieldsMapping2_key) fmd36 = fmd
+      } else {
+        detailsUnmapping = true
+      }
     }
+
+    const tips = []
+    if (detailsUnmapping) tips.push($L('明细实体未配置字段映射，因此明细记录不会转换'))
 
     let importsFilter
 
-    function _save(_tips) {
-      const config = {
-        fieldsMapping: fm,
-        fieldsMappingDetail: fmd,
-        fillbackField: $('#fillbackField').val(),
-        transformMode: $('#transformMode').prop('checked') ? 2 : 1,
-        useFilter: advFilter_data,
-        importsMode: $val('#importsMode'),
-        importsFilter: importsFilter || null,
-      }
-
-      const _data = {
-        config: config,
-        metadata: {
-          entity: 'TransformConfig',
-          id: wpc.configId,
-        },
-      }
-
-      $btn.button('loading')
-      $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
-        if (res.error_code === 0) {
-          const msg = (
-            <RF>
-              <strong>{$L('保存成功')}</strong>
-              {_tips.length > 0 && <p className="text-warning m-0 mt-1">{_tips.join(' / ')}</p>}
-            </RF>
-          )
-          RbAlert.create(msg, {
-            icon: 'info-outline',
-            cancelText: $L('返回列表'),
-            cancel: () => location.replace('../transforms'),
-            confirmText: $L('继续编辑'),
-            confirm: () => location.reload(),
-          })
-        } else {
-          RbHighbar.error(res.error_msg)
-        }
-        $btn.button('reset')
-      })
-    }
-
+    // 检查必填
     let unset = 0
     for (let k in fm) {
       if (fm[k] === null) unset++
     }
-    for (let k in fmd || {}) {
-      if (fmd[k] === null) unset++
-    }
+    fmdList37.forEach((fmd) => {
+      for (let k in fmd || {}) {
+        if (fmd[k] === null) unset++
+      }
+    })
+
     if (unset > 0) tips.push($L('部分必填字段未映射，可能导致转换失败'))
 
     if (importsMode) {
       importsFilter = _ImportsFilterMapping.buildFilter()
       if (importsFilter.length === 0) {
-        tips.push($L('明细记录导入条件未配置，将导入源实体的所有记录'))
+        tips.push($L('明细记录导入规则未配置，将导入源实体的所有记录'))
       }
     }
 
-    _save(tips)
+    // save
+    const config = {
+      fieldsMapping: fm,
+      fieldsMappingDetail: fmd36,
+      fieldsMappingDetails: fmdList37,
+      fillbackField: $('#fillbackField').val(),
+      transformMode: $('#transformMode').prop('checked') ? 2 : 1,
+      useFilter: _AdvFilter_data,
+      importsMode: $val('#importsMode'),
+      importsFilter: importsFilter || null,
+      importsMode2Auto: ($val('#importsMode2Auto1') ? 1 : 0) + ($val('#importsMode2Auto2') ? 2 : 0),
+    }
+
+    const _data = {
+      config: config,
+      metadata: {
+        entity: 'TransformConfig',
+        id: wpc.configId,
+      },
+    }
+
+    $btn.button('loading')
+    $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
+      if (res.error_code === 0) {
+        const msg = (
+          <RF>
+            <strong>{$L('保存成功')}</strong>
+            {tips.length > 0 && <p className="text-warning m-0 mt-1">{tips.join(' / ')}</p>}
+          </RF>
+        )
+        RbAlert.create(msg, {
+          icon: 'info-outline',
+          cancelText: $L('返回列表'),
+          cancel: () => location.replace('../transforms'),
+          confirmText: $L('继续编辑'),
+          confirm: () => location.reload(),
+        })
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+      $btn.button('reset')
+    })
   })
 
-  // Load
+  // init
   setTimeout(() => {
     _saveFilter(config.useFilter)
 
-    if (config.fillbackField) {
-      $('#fillbackField').val(config.fillbackField).trigger('change')
-    }
-    if (config.transformMode === 2) {
-      $('#transformMode').attr('checked', true)
-    }
-    if (config.importsMode) {
-      $('#importsMode').trigger('click')
-    }
+    if (config.fillbackField) $('#fillbackField').val(config.fillbackField).trigger('change')
+    if (config.transformMode === 2) $('#transformMode').attr('checked', true)
+    if (config.importsMode) $('#importsMode').trigger('click')
+    if (config.importsMode2Auto === 1 || config.importsMode2Auto === 3) $('#importsMode2Auto1').prop('checked', true)
+    if (config.importsMode2Auto === 2 || config.importsMode2Auto === 3) $('#importsMode2Auto2').prop('checked', true)
   }, 100)
 })
 
 const _VFIXED = 'VFIXED'
+const _AdvFilters = {}
 
 class FieldsMapping extends React.Component {
   constructor(props) {
@@ -179,7 +259,7 @@ class FieldsMapping extends React.Component {
   }
 
   componentDidMount() {
-    const mapping = this.props.data || {}
+    const data = this.props.data || {}
     const that = this
 
     let useVfixed = {}
@@ -212,19 +292,19 @@ class FieldsMapping extends React.Component {
             else $this.parents('.row').removeClass('active')
           })
 
-        if ($.isArray(mapping[fieldName])) {
+        if (Array.isArray(data[fieldName])) {
           useVfixed[fieldName] = true
         } else {
-          $s2.val(mapping[fieldName] || null).trigger('change')
+          $s2.val(data[fieldName] || null).trigger('change')
         }
       })
 
     this.setState({ useVfixed })
 
-    for (let fieldName in mapping) {
-      if ($.isArray(mapping[fieldName])) {
+    for (let fieldName in data) {
+      if (Array.isArray(data[fieldName])) {
         if (!this._FieldValueSet[fieldName]) continue
-        this._FieldValueSet[fieldName].setValue(mapping[fieldName][0])
+        this._FieldValueSet[fieldName].setValue(data[fieldName][0])
 
         const $this = $(this._$fieldsMapping).find(`.J_vfixed-${fieldName}`)
         $this.val(_VFIXED)
@@ -247,25 +327,35 @@ class FieldsMapping extends React.Component {
         if (useVfixed[fieldName]) $this.parents('.row').addClass('active')
         else $this.parents('.row').removeClass('active')
       })
+
+    if (data && data._ && data._.filter) {
+      this.setState({ filterData: data._.filter })
+    }
   }
 
   render() {
-    const _source = this.props.source
-    const _target = this.props.target
-
-    if (!_target.fields || _target.fields.length === 0) {
+    const se = this.props.source
+    const te = this.props.target
+    if (!te.fields || te.fields.length === 0) {
       return <RbAlertBox message={$L('无可用字段')} />
     }
 
     return (
       <div ref={(c) => (this._$fieldsMapping = c)}>
         <div className="row title2">
-          <div className="col-4 text-bold">{_target.label}</div>
+          <div className="col-4 text-bold">{te.label}</div>
           <div className="col-2"></div>
-          <div className="col-5 text-bold">{_source.label}</div>
+          <div className="col-5 text-bold">
+            {se.label}
+            {this.props.isDetail && (
+              <a className={`filter ${this.state.filterData && 'active'}`} title={$L('明细转换条件')} onClick={() => this._saveFilter()}>
+                <i className="icon mdi mdi-filter" />
+              </a>
+            )}
+          </div>
         </div>
 
-        {_target.fields.map((item, idx) => {
+        {te.fields.map((item, idx) => {
           const isCommon = item.name === 'owningUser' || item.readonly
           return (
             <div className="row" key={idx}>
@@ -283,7 +373,7 @@ class FieldsMapping extends React.Component {
                   <select className="form-control form-control-sm J_mapping" data-field={item.name} data-req={!item.nullable && !isCommon} />
                 </div>
                 <div className={this.state.useVfixed[item.name] ? '' : 'hide'}>
-                  <FieldValueSet entity={_target.entity} field={item} placeholder={$L('固定值')} defaultValue={null} ref={(c) => (this._FieldValueSet[item.name] = c)} />
+                  <FieldValueSet entity={te.entity} field={item} placeholder={$L('固定值')} defaultValue={null} ref={(c) => (this._FieldValueSet[item.name] = c)} />
                 </div>
               </div>
             </div>
@@ -331,17 +421,35 @@ class FieldsMapping extends React.Component {
         }
       })
 
-    return mapping === false ? false : hasMapping ? mapping : null
-  }
-}
+    if (mapping === false) return false
+    if (!hasMapping) return null
 
-let advFilter_data
-function _saveFilter(res) {
-  advFilter_data = res
-  if (advFilter_data && advFilter_data.items && advFilter_data.items.length > 0) {
-    $('#useFilter').text(`${$L('已设置条件')} (${advFilter_data.items.length})`)
-  } else {
-    $('#useFilter').text($L('点击设置'))
+    // v3.7
+    mapping['_'] = { target: this.props.target.entity, source: this.props.source.entity, filter: this.state.filterData }
+    return mapping
+  }
+
+  _saveFilter() {
+    const key = this.props.target.entity + '_' + this.props.source.entity
+    if (_AdvFilters[key]) {
+      _AdvFilters[key].show()
+    } else {
+      renderRbcomp(
+        <AdvFilter
+          title={$L('明细转换条件')}
+          inModal
+          canNoFilters
+          entity={this.props.source.entity}
+          filter={this.state.filterData}
+          confirm={(res) => {
+            this.setState({ filterData: res && res.items.length > 0 ? res : null })
+          }}
+        />,
+        function () {
+          _AdvFilters[key] = this
+        }
+      )
+    }
   }
 }
 
@@ -423,5 +531,56 @@ class ImportsFilterMapping extends React.Component {
         if (s) filters.push([t, s])
       })
     return filters
+  }
+}
+
+// 明细转换
+class DlgAddDts extends RbAlert {
+  renderContent() {
+    return (
+      <form className="rbalert-form-sm" ref={(c) => (this._$form = c)}>
+        <div className="form-group">
+          <label>{$L('选择源实体')}</label>
+          <select className="form-control form-control-sm">
+            {this.props.source.map((item) => {
+              return (
+                <option value={item.entity} key={item.entity}>
+                  {item.label}
+                </option>
+              )
+            })}
+          </select>
+        </div>
+        <div className="form-group">
+          <label>{$L('选择目标实体')}</label>
+          <select className="form-control form-control-sm">
+            {' '}
+            {this.props.target.map((item) => {
+              return (
+                <option value={item.entity} key={item.entity}>
+                  {item.label}
+                </option>
+              )
+            })}
+          </select>
+        </div>
+        <div className="form-group mb-2">
+          <button type="button" className="btn btn-primary" onClick={this._onConfirm}>
+            {$L('确定')}
+          </button>
+        </div>
+      </form>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    $(this._$form).find('select').select2({ allowClear: false })
+  }
+
+  _onConfirm = () => {
+    const s = { source: $(this._$form).find('select:eq(0)').val(), target: $(this._$form).find('select:eq(1)').val() }
+    const res = this.props.onConfirm(s)
+    if (res !== false) this.hide()
   }
 }

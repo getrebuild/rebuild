@@ -302,9 +302,7 @@ public class FlowNode {
      */
     public JSONArray getEditableFields() {
         JSONArray editableFields = dataMap == null ? null : dataMap.getJSONArray("editableFields");
-        if (editableFields == null) {
-            return null;
-        }
+        if (editableFields == null) return null;
 
         editableFields = (JSONArray) JSONUtils.clone(editableFields);
         for (Object o : editableFields) {
@@ -312,6 +310,18 @@ public class FlowNode {
             field.put("nullable", !((Boolean) field.remove("notNull")));
         }
         return editableFields;
+    }
+
+    /**
+     * 限时审批
+     *
+     * @return
+     */
+    public JSONObject getExpiresAuto() {
+        JSONObject expiresAuto = dataMap == null ? null : dataMap.getJSONObject("expiresAuto");
+        if (expiresAuto == null) return null;
+        if (expiresAuto.getIntValue("expiresAuto") <= 0) return null;
+        return expiresAuto;
     }
 
     // --

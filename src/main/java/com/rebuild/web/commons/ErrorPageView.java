@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.commons;
 
 import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -20,6 +19,7 @@ import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.OshiUtils;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -72,12 +72,16 @@ public class ErrorPageView extends BaseController {
         mv.getModelMap().put("isAdminVerified", AppUtils.isAdminVerified(request));
         mv.getModelMap().put("SN", License.SN() + "/" + OshiUtils.getLocalIp() + "/" + ServerStatus.STARTUP_ONCE);
 
-        StringBuilder disksDesc = new StringBuilder();
-        for (Object[] d : OshiUtils.getDisksUsed()) {
-            //noinspection MalformedFormatString
-            disksDesc.append(String.format(" $%s:%.1f%%:%.1fGB", d[2], d[1], d[0]));
+        final String specDisks = request.getParameter("disks");
+        if (specDisks != null) {
+            StringBuilder disksDesc = new StringBuilder();
+            for (Object[] d : OshiUtils.getDisksUsed(
+                    "/".equals(specDisks) ? ArrayUtils.EMPTY_STRING_ARRAY : specDisks.split("[,;]"))) {
+                //noinspection MalformedFormatString
+                disksDesc.append(String.format(" $%s:%.1f%%:%.1fGB", d[2], d[1], d[0]));
+            }
+            mv.getModelMap().put("DisksDesc", disksDesc.toString().trim());
         }
-        mv.getModelMap().put("DisksDesc", disksDesc.toString().trim());
 
         return mv;
     }
@@ -99,15 +103,17 @@ public class ErrorPageView extends BaseController {
         status.put("MemoryUsage", OshiUtils.getOsMemoryUsed()[1]);
         status.put("SystemLoad", OshiUtils.getSystemLoad());
 
-        List<Object[]> disksUsed = OshiUtils.getDisksUsed();
-        double diskWarning = 0;
-        for (Object[] d : disksUsed) {
-            d[0] = ObjectUtils.round((double) d[0], 1);
-            d[1] = ObjectUtils.round((double) d[1], 1);
-            if ((double) d[1] >= 80) diskWarning = (double) d[1];
+        final String specDisks = request.getParameter("disks");
+        if (specDisks != null) {
+            List<Object[]> disksUsed = OshiUtils.getDisksUsed(
+                    "/".equals(specDisks) ? ArrayUtils.EMPTY_STRING_ARRAY : specDisks.split("[,;]"));
+            double diskWarning = 0;
+            for (Object[] d : disksUsed) {
+                if ((double) d[1] >= 80) diskWarning = (double) d[1];
+            }
+            status.put("DisksUsage", disksUsed);
+            if (diskWarning >= 80) s.put("warning", true);
         }
-        status.put("DisksUsage", disksUsed);
-        if (diskWarning >= 80) s.put("warning", true);
 
         ServletUtils.writeJson(response, s.toJSONString());
     }
@@ -126,8 +132,9 @@ public class ErrorPageView extends BaseController {
         String tsid = null;
         try {
             tsid = new SysbaseSupport().submit();
-        } catch (Exception e) {
-            log.error(null, e);
+        } catch (Exception ex) {
+            log.error("Cannot submit TSID", ex);
+            tsid = "TSID";
         }
 
         String reason = request.getParameter("title");

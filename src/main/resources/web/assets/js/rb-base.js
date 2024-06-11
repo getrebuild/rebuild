@@ -8,17 +8,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 /*! https://github.com/carhartl/jquery-cookie */
-// eslint-disable-next-line
-!(function(factory){if(typeof define==="function"&&define.amd){define(["jquery"],factory)}else{if(typeof exports==="object"){factory(require("jquery"))}else{factory(jQuery)}}})(function($){var pluses=/\+/g;function encode(s){return config.raw?s:encodeURIComponent(s)}function decode(s){return config.raw?s:decodeURIComponent(s)}function stringifyCookieValue(value){return encode(config.json?JSON.stringify(value):String(value))}function parseCookieValue(s){if(s.indexOf('"')===0){s=s.slice(1,-1).replace(/\\"/g,'"').replace(/\\\\/g,"\\")}try{s=decodeURIComponent(s.replace(pluses," "));return config.json?JSON.parse(s):s}catch(e){}}function read(s,converter){var value=config.raw?s:parseCookieValue(s);return $.isFunction(converter)?converter(value):value}var config=($.cookie=function(key,value,options){if(value!==undefined&&!$.isFunction(value)){options=$.extend({},config.defaults,options);if(typeof options.expires==="number"){var days=options.expires,t=(options.expires=new Date());t.setTime(+t+days*86400000)}return(document.cookie=[encode(key),"=",stringifyCookieValue(value),options.expires?"; expires="+options.expires.toUTCString():"",options.path?"; path="+options.path:"",options.domain?"; domain="+options.domain:"",options.secure?"; secure":"",].join(""))}var result=key?undefined:{};var cookies=document.cookie?document.cookie.split("; "):[];for(var i=0,l=cookies.length;i<l;i++){var parts=cookies[i].split("=");var name=decode(parts.shift());var cookie=parts.join("=");if(key&&key===name){result=read(cookie,value);break}if(!key&&(cookie=read(cookie))!==undefined){result[name]=cookie}}return result});config.defaults={};$.removeCookie=function(key,options){if($.cookie(key)===undefined){return false}$.cookie(key,"",$.extend({},options,{expires:-1}));return !$.cookie(key)}});
+// prettier-ignore
+!(function(factory){if(typeof define==='function'&&define.amd){define(['jquery'],factory)}else{if(typeof exports==='object'){factory(require('jquery'))}else{factory(jQuery)}}})(function($){var pluses=/\+/g;function encode(s){return config.raw?s:encodeURIComponent(s)}function decode(s){return config.raw?s:decodeURIComponent(s)}function stringifyCookieValue(value){return encode(config.json?JSON.stringify(value):String(value))}function parseCookieValue(s){if(s.indexOf('"')===0){s=s.slice(1,-1).replace(/\\"/g,'"').replace(/\\\\/g,'\\')}try{s=decodeURIComponent(s.replace(pluses,' '));return config.json?JSON.parse(s):s}catch(e){}}function read(s,converter){var value=config.raw?s:parseCookieValue(s);return $.isFunction(converter)?converter(value):value}var config=($.cookie=function(key,value,options){if(value!==undefined&&!$.isFunction(value)){options=$.extend({},config.defaults,options);if(typeof options.expires==='number'){var days=options.expires,t=(options.expires=new Date());t.setTime(+t+days*86400000)}return(document.cookie=[encode(key),'=',stringifyCookieValue(value),options.expires?'; expires='+options.expires.toUTCString():'',options.path?'; path='+options.path:'',options.domain?'; domain='+options.domain:'',options.secure?'; secure':'',].join(''))}var result=key?undefined:{};var cookies=document.cookie?document.cookie.split('; '):[];for(var i=0,l=cookies.length;i<l;i++){var parts=cookies[i].split('=');var name=decode(parts.shift());var cookie=parts.join('=');if(key&&key===name){result=read(cookie,value);break}if(!key&&(cookie=read(cookie))!==undefined){result[name]=cookie}}return result});config.defaults={};$.removeCookie=function(key,options){if($.cookie(key)===undefined){return false}$.cookie(key,'',$.extend({},options,{expires:-1}));return !$.cookie(key)}})
 /*! https://github.com/gabceb/jquery-browser-plugin */
-// eslint-disable-next-line
-!(function(a){"function"===typeof define&&define.amd?define(["jquery"],function(b){return a(b)}):"object"===typeof module&&"object"===typeof module.exports?(module.exports=a(require("jquery"))):a(window.jQuery)})(function(a){function b(a){void 0===a&&(a=window.navigator.userAgent),(a=a.toLowerCase());var b=/(edge)\/([\w.]+)/.exec(a)||/(opr)[\/]([\w.]+)/.exec(a)||/(chrome)[ \/]([\w.]+)/.exec(a)||/(iemobile)[\/]([\w.]+)/.exec(a)||/(version)(applewebkit)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(a)||/(webkit)[ \/]([\w.]+).*(version)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(a)||/(webkit)[ \/]([\w.]+)/.exec(a)||/(opera)(?:.*version|)[ \/]([\w.]+)/.exec(a)||/(msie) ([\w.]+)/.exec(a)||(a.indexOf("trident")>=0&&/(rv)(?::| )([\w.]+)/.exec(a))||(a.indexOf("compatible")<0&&/(mozilla)(?:.*? rv:([\w.]+)|)/.exec(a))||[],c=/(ipad)/.exec(a)||/(ipod)/.exec(a)||/(windows phone)/.exec(a)||/(iphone)/.exec(a)||/(kindle)/.exec(a)||/(silk)/.exec(a)||/(android)/.exec(a)||/(win)/.exec(a)||/(mac)/.exec(a)||/(linux)/.exec(a)||/(cros)/.exec(a)||/(playbook)/.exec(a)||/(bb)/.exec(a)||/(blackberry)/.exec(a)||[],d={},e={browser:b[5]||b[3]||b[1]||"",version:b[2]||b[4]||"0",versionNumber:b[4]||b[2]||"0",platform:c[0]||"",};if((e.browser&&((d[e.browser]=!0),(d.version=e.version),(d.versionNumber=parseInt(e.versionNumber,10))),e.platform&&(d[e.platform]=!0),(d.android||d.bb||d.blackberry||d.ipad||d.iphone||d.ipod||d.kindle||d.playbook||d.silk||d["windows phone"])&&(d.mobile=!0),(d.cros||d.mac||d.linux||d.win)&&(d.desktop=!0),(d.chrome||d.opr||d.safari)&&(d.webkit=!0),d.rv||d.iemobile)){var f="msie";(e.browser=f),(d[f]=!0)}if(d.edge){delete d.edge;var g="msedge";(e.browser=g),(d[g]=!0)}if(d.safari&&d.blackberry){var h="blackberry";(e.browser=h),(d[h]=!0)}if(d.safari&&d.playbook){var i="playbook";(e.browser=i),(d[i]=!0)}if(d.bb){var j="blackberry";(e.browser=j),(d[j]=!0)}if(d.opr){var k="opera";(e.browser=k),(d[k]=!0)}if(d.safari&&d.android){var l="android";(e.browser=l),(d[l]=!0)}if(d.safari&&d.kindle){var m="kindle";(e.browser=m),(d[m]=!0)}if(d.safari&&d.silk){var n="silk";(e.browser=n),(d[n]=!0)}return(d.name=e.browser),(d.platform=e.platform),d}return((window.jQBrowser=b(window.navigator.userAgent)),(window.jQBrowser.uaMatch=b),a&&(a.browser=window.jQBrowser),window.jQBrowser)});
+// prettier-ignore
+!(function(a){'function'===typeof define&&define.amd?define(['jquery'],function(b){return a(b)}):'object'===typeof module&&'object'===typeof module.exports?(module.exports=a(require('jquery'))):a(window.jQuery)})(function(a){function b(a){void 0===a&&(a=window.navigator.userAgent),(a=a.toLowerCase());var b=/(edge)\/([\w.]+)/.exec(a)||/(opr)[\/]([\w.]+)/.exec(a)||/(chrome)[ \/]([\w.]+)/.exec(a)||/(iemobile)[\/]([\w.]+)/.exec(a)||/(version)(applewebkit)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(a)||/(webkit)[ \/]([\w.]+).*(version)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(a)||/(webkit)[ \/]([\w.]+)/.exec(a)||/(opera)(?:.*version|)[ \/]([\w.]+)/.exec(a)||/(msie) ([\w.]+)/.exec(a)||(a.indexOf('trident')>=0&&/(rv)(?::| )([\w.]+)/.exec(a))||(a.indexOf('compatible')<0&&/(mozilla)(?:.*? rv:([\w.]+)|)/.exec(a))||[],c=/(ipad)/.exec(a)||/(ipod)/.exec(a)||/(windows phone)/.exec(a)||/(iphone)/.exec(a)||/(kindle)/.exec(a)||/(silk)/.exec(a)||/(android)/.exec(a)||/(win)/.exec(a)||/(mac)/.exec(a)||/(linux)/.exec(a)||/(cros)/.exec(a)||/(playbook)/.exec(a)||/(bb)/.exec(a)||/(blackberry)/.exec(a)||[],d={},e={browser:b[5]||b[3]||b[1]||'',version:b[2]||b[4]||'0',versionNumber:b[4]||b[2]||'0',platform:c[0]||'',};if((e.browser&&((d[e.browser]=!0),(d.version=e.version),(d.versionNumber=parseInt(e.versionNumber,10))),e.platform&&(d[e.platform]=!0),(d.android||d.bb||d.blackberry||d.ipad||d.iphone||d.ipod||d.kindle||d.playbook||d.silk||d['windows phone'])&&(d.mobile=!0),(d.cros||d.mac||d.linux||d.win)&&(d.desktop=!0),(d.chrome||d.opr||d.safari)&&(d.webkit=!0),d.rv||d.iemobile)){var f='msie';(e.browser=f),(d[f]=!0)}if(d.edge){delete d.edge;var g='msedge';(e.browser=g),(d[g]=!0)}if(d.safari&&d.blackberry){var h='blackberry';(e.browser=h),(d[h]=!0)}if(d.safari&&d.playbook){var i='playbook';(e.browser=i),(d[i]=!0)}if(d.bb){var j='blackberry';(e.browser=j),(d[j]=!0)}if(d.opr){var k='opera';(e.browser=k),(d[k]=!0)}if(d.safari&&d.android){var l='android';(e.browser=l),(d[l]=!0)}if(d.safari&&d.kindle){var m='kindle';(e.browser=m),(d[m]=!0)}if(d.safari&&d.silk){var n='silk';(e.browser=n),(d[n]=!0)}return(d.name=e.browser),(d.platform=e.platform),d}return((window.jQBrowser=b(window.navigator.userAgent)),(window.jQBrowser.uaMatch=b),a&&(a.browser=window.jQBrowser),window.jQBrowser)})
 // select2.zh-CN
-// eslint-disable-next-line
-!(function(){if(jQuery&&jQuery.fn&&jQuery.fn.select2&&jQuery.fn.select2.amd){var e=jQuery.fn.select2.amd}return(e.define("select2/i18n/zh_CN",[],function(){return{errorLoading:function(){return"无法加载结果"},inputTooLong:function(e){var t=e.input.length-e.maximum,n="请删除"+t+"个字符";return n},inputTooShort:function(e){var t=e.minimum-e.input.length,n="请再输入至少"+t+"个字符";n="输入关键词搜索";return n},loadingMore:function(){return"加载更多结果"},maximumSelected:function(e){var t="最多只能选择"+e.maximum+"项";return t},noResults:function(){return"未找到结果"},searching:function(){return"搜索中..."},removeAllItems:function(){return"清除"}}}),{define:e.define,require:e.require})})();
+// prettier-ignore
+!(function(){if(jQuery&&jQuery.fn&&jQuery.fn.select2&&jQuery.fn.select2.amd){var e=jQuery.fn.select2.amd}return(e.define('select2/i18n/zh_CN',[],function(){return{errorLoading:function(){return'无法加载结果'},inputTooLong:function(e){var t=e.input.length-e.maximum,n='请删除'+t+'个字符';return n},inputTooShort:function(e){var t=e.minimum-e.input.length,n='请再输入至少'+t+'个字符';n='输入关键词搜索';return n},loadingMore:function(){return'加载更多结果'},maximumSelected:function(e){var t='最多只能选择'+e.maximum+'项';return t},noResults:function(){return'未找到结果'},searching:function(){return'搜索中...'},removeAllItems:function(){return'清除'}}}),{define:e.define,require:e.require})})()
 // select2.zh-TW
-// eslint-disable-next-line
-!(function(){if(jQuery&&jQuery.fn&&jQuery.fn.select2&&jQuery.fn.select2.amd){var e=jQuery.fn.select2.amd}return(e.define("select2/i18n/zh_TW",[],function(){return{errorLoading:function(){return"無法載入結果"},inputTooLong:function(e){var t=e.input.length-e.maximum,n="請刪除"+t+"個字符";return n},inputTooShort:function(e){var t=e.minimum-e.input.length,n="请再输入至少"+t+"个字符";n="輸入關鍵詞搜索";return n},loadingMore:function(){return"載入更多結果"},maximumSelected:function(e){var t="最多只能選擇"+e.maximum+"項";return t},noResults:function(){return"未找到結果"},searching:function(){return"搜索中..."},removeAllItems:function(){return"清除"}}}),{define:e.define,require:e.require})})();
+// prettier-ignore
+!(function(){if(jQuery&&jQuery.fn&&jQuery.fn.select2&&jQuery.fn.select2.amd){var e=jQuery.fn.select2.amd}return(e.define('select2/i18n/zh_TW',[],function(){return{errorLoading:function(){return'無法載入結果'},inputTooLong:function(e){var t=e.input.length-e.maximum,n='請刪除'+t+'個字符';return n},inputTooShort:function(e){var t=e.minimum-e.input.length,n='请再输入至少'+t+'个字符';n='輸入關鍵詞搜索';return n},loadingMore:function(){return'載入更多結果'},maximumSelected:function(e){var t='最多只能選擇'+e.maximum+'項';return t},noResults:function(){return'未找到結果'},searching:function(){return'搜索中...'},removeAllItems:function(){return'清除'}}}),{define:e.define,require:e.require})})()
 
 // extends jQuery
 !(function ($) {
@@ -92,7 +92,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
           else if (err.status === 401) err = $L('未授权访问')
           else err = $L('系统繁忙，请稍后重试')
         }
-        RbHighbar.error(err)
+        if (rb.env === 'dev') console.log('error on complete :', err)
+        typeof err === 'string' && RbHighbar.error(err)
       } else {
         var res = xhr.responseJSON
         if (res && res.error_code >= 500) console.error(JSON.stringify(res))
@@ -167,6 +168,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   $.fn.select2.defaults.set('matcher', function (params, data) {
     return $select2MatcherAll(params, data)
   })
+  // $.fn.select2.defaults.set('minimumResultsForSearch', 9)
 })(jQuery)
 
 // extends Array
@@ -256,7 +258,7 @@ var $val = function (el) {
   // 无 data-o 值
   var oVal = $el.data('o')
   if (oVal === undefined || !(oVal + '')) {
-    return isCheckbox ? nVal : $.trim(nVal) || null
+    return isCheckbox ? nVal : $trim(nVal) || null
   }
 
   if (isCheckbox) {
@@ -267,20 +269,48 @@ var $val = function (el) {
   // New value is empty
   if (oVal === 0) oVal = '0'
   if (!!oVal && !nVal) return ''
-  else return $.trim(nVal) || null
+  else return $trim(nVal) || null
 }
 
 /**
  * 清理 Map 中的无效值（null、undefined）
  */
 var $cleanMap = function (map) {
-  if ($.type(map) !== 'object') throw Error('Unsupportted type ' + $.type(map))
   var newMap = {}
   for (var k in map) {
     var v = map[k]
     if (!(v === null || v === undefined)) newMap[k] = v
   }
   return newMap
+}
+
+/**
+ * 清理数组
+ */
+var $cleanArray = function (array, isunique) {
+  if (!array) return []
+  var newArray = []
+  $(array).each(function (i, item) {
+    var n = $trim(item)
+    if (n) {
+      if (isunique) newArray.remove(n)
+      newArray.push(n)
+    }
+  })
+  return newArray
+}
+
+/**
+ * 清理数字中的符号
+ */
+function $cleanNumber(n) {
+  if (typeof n === 'number') return n
+  var m = (n + '').match(/-?\d+(,\d+)*(.\d+)?/g)
+  if (m && m[0]) {
+    m = m[0].replace(/,/g, '') // 千分位
+    return m
+  }
+  return NaN
 }
 
 /**
@@ -321,17 +351,9 @@ var $regex = {
   isTel: function (val) {
     return this._Tel.test(val) || this._Mobile.test(val)
   },
-  isValidText: function (val) {
-    return this._Text.test(val)
-  },
-  isNotBlank: function (val) {
-    return !val || $.trim(val).length === 0
-  },
+  // 是否 ID
   isId: function (id) {
     return /^([0-9]{3}-[a-z0-9]{16})$/gi.test(id)
-  },
-  clearNumber: function (n) {
-    return (n + '').replace(/[^\d|^\\.|^\\-]/g, '')
   },
 }
 
@@ -393,8 +415,8 @@ var $random = function (prefix, alphabetic, maxLength) {
 var $same = function (a, b) {
   if (Object.is(a, b)) return true
   if (a && b) {
-    var aType = $.type(a)
-    var bType = $.type(b)
+    var aType = $type(a)
+    var bType = $type(b)
     if ((aType === 'object' && bType === 'object') || (aType === 'array' && bType === 'array')) {
       a = JSON.stringify(a)
       b = JSON.stringify(b)
@@ -415,18 +437,11 @@ var $is = $same
  */
 var $empty = function (a) {
   if (a === null || a === '' || typeof a === 'undefined') return true
-  var atype = $.type(a)
-  if (atype === 'array' && a.length === 0) return true
-  if (atype === 'object' && Object.keys(a).length === 0) return true
-  return !$.trim(a + '')
-}
-
-/**
- * 数字是否为空
- */
-var $emptyNum = function (a) {
-  if (typeof a === 'number') return false
-  return a === null || a === '' || typeof a === 'undefined' || $.trim(a + '') === ''
+  var aType = $type(a)
+  if (aType === 'number') return false
+  if (aType === 'array' && a.length === 0) return true
+  if (aType === 'object' && Object.keys(a).length === 0) return true
+  return $trim(a) === ''
 }
 
 /**
@@ -499,11 +514,11 @@ var $timechunk = function (array, fn, count) {
 }
 
 /**
- * 使用数据副本
+ * 对象深拷贝
  */
 var $clone = function (o) {
   if (!o) return o
-  return JSON.parse(JSON.stringify(o))
+  return $.extend(true, {}, o)
 }
 
 /**
@@ -523,4 +538,34 @@ var $isLight = function (color) {
   var c_b = parseInt(hex.substring(4, 4 + 2), 16)
   var brightness = (c_r * 299 + c_g * 587 + c_b * 114) / 1000
   return brightness > 155
+}
+
+// $.trim
+var $trim = function (a) {
+  if (a === null || typeof a === 'undefined' || a === '') return ''
+  return ((a || '') + '').trim()
+}
+
+// $.type
+var $type = function (a) {
+  if (Array.isArray(a)) return 'array'
+  return typeof a // string, object
+}
+
+// Hex to RGB
+var $hex2rgb = function (hex, alpha) {
+  hex = hex.replace('#', '')
+  var bigint = parseInt(hex, 16)
+  var rgb = {
+    r: (bigint >> 16) & 255,
+    g: (bigint >> 8) & 255,
+    b: bigint & 255,
+  }
+  if (alpha) return 'rgba(' + [rgb.r, rgb.g, rgb.b, alpha].join(',') + ')'
+  return rgb
+}
+
+// RGB to Hex
+var $rgb2hex = function (r, g, b) {
+  return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
 }

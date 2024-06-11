@@ -46,10 +46,7 @@
         </aside>
         <div class="page-head">
           <div class="float-left">
-            <div class="page-head-title">
-              [[${bundle.L('报表模板')}]]
-              <i class="support-plat2 mdi mdi-monitor mt-2" th:title="${bundle.L('支持 PC')}"></i>
-            </div>
+            <div class="page-head-title">[[${bundle.L('报表模板')}]]</div>
           </div>
           <div class="float-right pt-1">
             <button class="btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
@@ -76,7 +73,7 @@
                           <tr>
                             <th>[[${bundle.L('名称')}]]</th>
                             <th width="20%">[[${bundle.L('应用实体')}]]</th>
-                            <th>[[${bundle.L('使用用户')}]]</th>
+                            <th class="no-sort">[[${bundle.L('使用条件')}]]</th>
                             <th width="80" class="no-sort">[[${bundle.L('启用')}]]</th>
                             <th width="120" class="no-sort">[[${bundle.L('修改时间')}]]</th>
                             <th width="150" class="no-sort"></th>
@@ -105,6 +102,7 @@
     </div>
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/lib/jquery.tablesort.min.js}"></script>
+    <script th:src="@{/assets/js/general/rb-advfilter.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/admin/config-comps.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/admin/report-templates.js}" type="text/babel"></script>
   </body>

@@ -4,53 +4,7 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/entity/layout#%E5%88%97%E8%A1%A8%E9%A1%B5%E9%9D%A2" />
     <title>[[${bundle.L('高级配置')}]]</title>
-    <style>
-      .card-body {
-        padding-bottom: 25px;
-      }
-      .row.ph {
-        width: 195px;
-        height: 130px;
-        border: 1px solid #eee;
-        padding: 2px;
-        margin-left: auto;
-        margin-right: auto;
-      }
-      .row.ph .block {
-        background-color: #eee;
-        height: 100%;
-        border: 1px solid #fff;
-      }
-      .row.ph .block .block-item,
-      .row.ph .block .block-item2 {
-        background-color: #dee2e6;
-        height: 6px;
-        margin: 2px 5px;
-        font-size: 0;
-      }
-      .row.ph .block .block-item2 {
-        width: 21%;
-        height: 40px;
-        margin: 5px 0 0 1%;
-        display: inline-block;
-        text-align: center;
-      }
-      .row.ph .block .block-item2 i.mdi {
-        color: #eee;
-        font-size: 35px;
-        display: inline-block;
-        transform: translateX(-1px) translateY(-1px);
-      }
-      .form-group .switch-button-xs {
-        margin-top: 7px;
-      }
-      .advListShowCategory-set {
-        border-radius: 2px;
-        border: 1px solid #eee;
-        padding: 15px;
-        margin-top: 10px;
-      }
-    </style>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/entity-advanced.css}" />
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -86,7 +40,7 @@
             <div class="card-header">
               [[${bundle.L('列表模式')}]]
               <sup class="rbv"></sup>
-              <i class="support-plat2 mdi mdi-monitor mt-1" th:title="${bundle.L('支持 PC')}"></i>
+              <i class="support-plat2 mdi mdi-monitor mt-1" th:title="${bundle.L('PC 端适用')}"></i>
             </div>
             <div class="card-body mode-select">
               <div class="row">
@@ -129,29 +83,37 @@
                     <h5 class="font-weight-bold">[[${bundle.L('详情模式')}]]</h5>
                     <div class="btn-group">
                       <button class="btn btn-secondary J_mode-select" type="button" data-mode="2">[[${bundle.L('使用')}]]</button>
-                      <button class="btn btn-secondary J_mode2-option w-auto hide" type="button"><i class="icon zmdi zmdi-settings"></i></button>
+                      <button class="btn btn-secondary J_mode2-option w-auto" type="button"><i class="icon zmdi zmdi-settings"></i></button>
                     </div>
                   </div>
                 </div>
                 <div class="col">
-                  <div class="row ph hide">
+                  <div class="row ph">
                     <div class="col-2 p-0">
                       <div class="block"></div>
                     </div>
                     <div class="col-10 p-0">
                       <div class="block">
-                        <div class="block-item2" style="margin-left: 3%"><i class="mdi mdi-image"></i></div>
-                        <div class="block-item2"><i class="mdi mdi-image"></i></div>
-                        <div class="block-item2"><i class="mdi mdi-image"></i></div>
-                        <div class="block-item2"><i class="mdi mdi-image"></i></div>
+                        <div class="block-item3" style="margin-left: 3%">
+                          <i class="mdi mdi-image-outline"></i>
+                          <div class="block-item"></div>
+                        </div>
+                        <div class="block-item3">
+                          <i class="mdi mdi-image-outline"></i>
+                          <div class="block-item"></div>
+                        </div>
+                        <div class="block-item3">
+                          <i class="mdi mdi-image-outline"></i>
+                          <div class="block-item"></div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div class="text-center hide">
+                  <div class="text-center">
                     <h5 class="font-weight-bold">[[${bundle.L('卡片模式')}]]</h5>
                     <div class="btn-group">
                       <button class="btn btn-secondary J_mode-select" type="button" data-mode="3">[[${bundle.L('使用')}]]</button>
-                      <button class="btn btn-secondary J_mode1-option3 w-auto" type="button"><i class="icon zmdi zmdi-settings"></i></button>
+                      <button class="btn btn-secondary J_mode3-option w-auto" type="button"><i class="icon zmdi zmdi-settings"></i></button>
                     </div>
                   </div>
                 </div>

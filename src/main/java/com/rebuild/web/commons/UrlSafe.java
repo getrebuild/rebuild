@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.commons;
 
+import cn.devezhao.commons.RegexUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.support.ConfigurationItem;
@@ -22,7 +23,8 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 外部 URL 监测跳转
@@ -40,11 +42,24 @@ public class UrlSafe extends BaseController {
             url = "http://" + url;
         }
 
+        boolean nosafe = !RegexUtils.isUrl(url);
+        if (url.contains(">")) {
+            url = url.replace(">", "&gt;");
+            nosafe = true;
+        }
+        if (url.contains("<")) {
+            url = url.replace("<", "&lt;");
+            nosafe = true;
+        }
+
         if (isTrusted(url)) {
             response.sendRedirect(url);
             return null;
         } else {
-            return createModelAndView("/common/url-safe", Collections.singletonMap("outerUrl", url));
+            Map<String, Object> map = new HashMap<>();
+            map.put("outerUrl", url);
+            map.put("nosafe", nosafe);
+            return createModelAndView("/common/url-safe", map);
         }
     }
 

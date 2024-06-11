@@ -170,17 +170,16 @@ public class ClassificationManager implements ConfigManager {
     }
 
     // Bean
-    public static class Item implements Serializable {
+    static class Item implements Serializable {
         private static final long serialVersionUID = -1903227875771376652L;
-
         Item(String name, String fullName, String code) {
             this.Name = name;
             this.FullName = fullName;
             this.Code = code;
         }
 
-        final public String Name;
-        final public String FullName;
-        final public String Code;
+        final String Name;
+        final String FullName;
+        final String Code;
     }
 }
