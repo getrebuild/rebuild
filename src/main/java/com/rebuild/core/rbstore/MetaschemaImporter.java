@@ -201,10 +201,11 @@ public class MetaschemaImporter extends HeavyTask<String> {
      * @throws MetadataModificationException
      */
     private String performEntity(JSONObject schema, String mainEntity) throws MetadataModificationException {
+        final int entityCode = schema.getIntValue("entityCode");
         final String entityName = schema.getString("entity");
         final String entityLabel = schema.getString("entityLabel");
 
-        Entity2Schema entity2Schema = new Entity2Schema(this.getUser());
+        Entity2Schema entity2Schema = new Entity2Schema(this.getUser(), entityCode);
         entity2Schema.createEntity(
                 entityName, entityLabel, schema.getString("comments"), mainEntity, Boolean.FALSE, Boolean.FALSE);
 

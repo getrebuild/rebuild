@@ -31,6 +31,8 @@ public class CommandArgs {
     public static final String _SmsDistributor = "_SmsDistributor";
     public static final String _EmailDistributor = "_EmailDistributor";
 
+    public static final String _StartEntityTypeCode = "_StartEntityTypeCode";
+
     /**
      * @param name
      * @return default false
@@ -43,7 +45,7 @@ public class CommandArgs {
      * @param name
      * @return default -1
      */
-    public static int getInteger(String name) {
+    public static int getInt(String name) {
         return ObjectUtils.toInt(System.getProperty(name), -1);
     }
 

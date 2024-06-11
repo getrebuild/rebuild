@@ -60,7 +60,7 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
 
                 String created = new MetaschemaImporter(data).exec();
                 createdEntity.add(created);
-                log.info("Entity imported : " + created);
+                log.info("Entity imported : {}", created);
                 this.addSucceeded();
 
             } catch (Exception ex) {
@@ -89,7 +89,6 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
 
         MetadataHelper.getMetadataFactory().refresh();
     }
-
 
     /**
      * 获取所有依赖实体
