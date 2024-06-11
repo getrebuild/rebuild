@@ -102,7 +102,6 @@ module.exports = {
     $stopEvent: true,
     $addResizeHandler: true,
     $empty: true,
-    $emptyNum: true,
     $mp: true,
     $converEmoji: true,
     $throttle: true,

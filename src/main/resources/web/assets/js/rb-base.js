@@ -438,17 +438,10 @@ var $is = $same
 var $empty = function (a) {
   if (a === null || a === '' || typeof a === 'undefined') return true
   var aType = $type(a)
+  if (aType === 'number') return false
   if (aType === 'array' && a.length === 0) return true
   if (aType === 'object' && Object.keys(a).length === 0) return true
   return $trim(a) === ''
-}
-
-/**
- * 数字是否为空
- */
-var $emptyNum = function (a) {
-  if (typeof a === 'number') return false
-  return a === null || a === '' || typeof a === 'undefined' || $trim(a) === ''
 }
 
 /**

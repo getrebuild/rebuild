@@ -15,7 +15,7 @@ const UPDATE_MODES = {
   FORMULA: $L('计算公式'),
 }
 
-const __LAB_MATCHFIELDS = false
+let __LAB_MATCHFIELDS = false
 
 // ~~ 字段更新
 // eslint-disable-next-line no-undef
@@ -669,6 +669,7 @@ class FormulaCode extends React.Component {
 
 // eslint-disable-next-line no-undef
 renderContentComp = function (props) {
+  __LAB_MATCHFIELDS = window.__BOSSKEY || !!(props.content && props.content.targetEntityMatchFields)
   renderRbcomp(<ContentFieldWriteback {...props} />, 'react-content', function () {
     // eslint-disable-next-line no-undef
     contentComp = this

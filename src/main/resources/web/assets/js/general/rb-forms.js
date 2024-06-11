@@ -495,7 +495,7 @@ class RbForm extends React.Component {
                   )
                 })}
                 <a
-                  className="dropdown-item"
+                  className="dropdown-item bosskey-show"
                   onClick={() => {
                     if (rb.commercial < 10) {
                       return RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))

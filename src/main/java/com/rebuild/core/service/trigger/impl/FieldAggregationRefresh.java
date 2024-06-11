@@ -68,7 +68,7 @@ public class FieldAggregationRefresh {
         fa.targetRecordId = beforeValue;
         fa.followSourceWhere = String.format("%s = '%s'", followSourceField, beforeValue);
 
-        Record fakeSourceRecord = EntityHelper.forUpdate(beforeValue, triggerUser, false);
+        Record fakeSourceRecord = EntityHelper.forUpdate(operatingContext.getFixedRecordId(), triggerUser, false);
         OperatingContext oCtx = OperatingContext.create(triggerUser, BizzPermission.NONE, fakeSourceRecord, fakeSourceRecord);
 
         try {
