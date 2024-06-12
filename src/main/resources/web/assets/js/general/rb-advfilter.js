@@ -435,7 +435,7 @@ class FilterItem extends React.Component {
     }
 
     // v3.6-b4,v3.7
-    if (['TEXT', 'PHONE', 'EMAIL', 'URL', 'DATE', 'DATETIME', 'TIME', 'PICKLIST', 'CLASSIFICATION'].includes(fieldType)) op.push('REP')
+    if (['TEXT', 'PHONE', 'EMAIL', 'URL', 'DATE', 'DATETIME', 'TIME'].includes(fieldType)) op.push('REP')
 
     if (this.isApprovalState()) op = ['IN', 'NIN']
     else if (this.state.field === VF_ACU) op = ['IN', 'SFU', 'SFB', 'SFT'] // v3.7 准备废弃
