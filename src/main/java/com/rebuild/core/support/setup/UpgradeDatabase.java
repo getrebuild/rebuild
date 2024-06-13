@@ -20,6 +20,7 @@ import java.util.Map;
  *
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/22
+ * @see DatabaseFixer
  */
 @Slf4j
 public final class UpgradeDatabase {
@@ -47,7 +48,8 @@ public final class UpgradeDatabase {
 
                 upgradeVer++;
                 if (sql.length > 0) {
-                    log.info("\n>> UPGRADE SQL (#" + upgradeVer + ") >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n" + StringUtils.join(sql, "\n"));
+                    log.info("\n>> UPGRADE SQL (#{}) >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n{}",
+                            upgradeVer, StringUtils.join(sql, "\n"));
                     Application.getSqlExecutor().executeBatch(sql, 180);
                 }
             }
@@ -55,7 +57,7 @@ public final class UpgradeDatabase {
         } finally {
             if (currentVer != upgradeVer) {
                 RebuildConfiguration.set(ConfigurationItem.DBVer, upgradeVer);
-                log.info("Upgraded database version : " + upgradeVer);
+                log.info("Upgraded database version : {}", upgradeVer);
             }
         }
     }
