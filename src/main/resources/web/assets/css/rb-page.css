@@ -5673,7 +5673,7 @@ span.icon-append .icon {
   padding-right: 15px;
 }
 
-.input-search .input-group-btn,
+/*.input-search .input-group-btn,*/
 .input-group-append .btn,
 .input-group-prepend .btn {
   z-index: unset;
