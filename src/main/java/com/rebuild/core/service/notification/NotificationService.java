@@ -98,7 +98,7 @@ public class NotificationService extends InternalPersistService {
 
                 try {
                     boolean sent = md.send(message, messageId);
-                    log.info("Distribute message ({}) : {}", sent ? "success" : "fails", message);
+                    log.info("Distribute message ({}) with {} : {}", sent ? "success" : "fails", md.getClass().getSimpleName(), message);
                 } catch (Exception ex) {
                     log.error("Distribute message error : {}", message, ex);
                 }
