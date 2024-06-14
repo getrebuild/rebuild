@@ -323,11 +323,12 @@ class ContentFieldAggregation extends ActionContentSpec {
             setTimeout(() => this._MatchFields && this._MatchFields.setState({ groupFields: content.targetEntityMatchFields }), 200)
           }
         }
-        // v3.7
-        const targetFields2 = res.data.target2
-        this.setState({ targetFields2: targetFields2 })
-        this._MatchFields && this._MatchFields.reset({ targetFields: targetFields2, sourceFields: this.__sourceFieldsCache })
       }
+
+      // v3.7
+      const targetFields2 = res.data.target2 || []
+      this.setState({ targetFields2: targetFields2 })
+      this._MatchFields && this._MatchFields.reset({ targetFields: targetFields2, sourceFields: this.__sourceFieldsCache })
     })
   }
 

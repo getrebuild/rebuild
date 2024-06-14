@@ -45,6 +45,7 @@ public class DatabaseFixer {
      * 辅助数据库升级
      */
     public static void fixIfNeed() {
+        // 最新升级过的
         final int dbVer = RebuildConfiguration.getInt(ConfigurationItem.DBVer);
 
         if (dbVer == 41 && !BooleanUtils.toBoolean(KVStorage.getCustomValue(KEY_41))) {
@@ -73,7 +74,7 @@ public class DatabaseFixer {
             });
         }
 
-        if (dbVer <= 55 && !BooleanUtils.toBoolean(KVStorage.getCustomValue(KEY_370))) {
+        if (dbVer <= 57 && !BooleanUtils.toBoolean(KVStorage.getCustomValue(KEY_370))) {
             log.info("Database fixing `V370` ...");
             ThreadPool.exec(() -> {
                 try {
@@ -149,9 +150,9 @@ public class DatabaseFixer {
 
     // V370:补充附件文件名称
     private static void fixV370() {
-        Object[][] atts = QueryHelper.readArray(
-                Application.createQueryNoFilter("select attachmentId,filePath from Attachment"));
-        for (Object[] o : atts) {
+        Object[][] attachs = QueryHelper.readArray(
+                Application.createQueryNoFilter("select attachmentId,filePath from Attachment where fileName is null"));
+        for (Object[] o : attachs) {
             String fileName = QiniuCloud.parseFileName((String) o[1]);
             Record record = EntityHelper.forUpdate((ID) o[0], UserService.SYSTEM_USER, false);
             record.setString("fileName", fileName);

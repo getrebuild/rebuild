@@ -286,7 +286,7 @@ public class Entity2Schema extends Field2Schema {
     /**
      * @return
      */
-    private int genEntityTypeCode() {
+    protected int genEntityTypeCode() {
         final int starts = 100;
 
         if (specEntityCode > starts) {
@@ -296,6 +296,7 @@ public class Entity2Schema extends Field2Schema {
             return specEntityCode;
         }
 
+        // etc. 100,200,300
         int s = CommandArgs.getInt(CommandArgs._StartEntityTypeCode);
         if (s > starts) {
             for (int typeCode = s; typeCode < 999; typeCode++) {
@@ -305,7 +306,18 @@ public class Entity2Schema extends Field2Schema {
 
         Object[] mTypeCode = Application.createQueryNoFilter(
                 "select min(typeCode) from MetaEntity").unique();
-        return mTypeCode == null || ObjectUtils.toInt(mTypeCode[0]) == 0
+        int typeCode = mTypeCode == null || ObjectUtils.toInt(mTypeCode[0]) == 0
                 ? 999 : (ObjectUtils.toInt(mTypeCode[0]) - 1);
+
+        // 从 999 开始继续利用
+        if (typeCode < starts * 2) {
+            for (int c = 999; c > starts * 2; c--) {
+                if (!MetadataHelper.containsEntity(c)) {
+                    log.warn("Recycling and reuse type-code : {}", c);
+                    return c;
+                }
+            }
+        }
+        return typeCode;
     }
 }
