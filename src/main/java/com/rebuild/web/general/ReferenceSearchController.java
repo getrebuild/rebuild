@@ -138,7 +138,8 @@ public class ReferenceSearchController extends EntityController {
                 return JSONUtils.EMPTY_ARRAY;
             }
 
-            String like = " like '%" + CommonsUtils.escapeSql(q) + "%'";
+            q = CommonsUtils.escapeSql(q);
+            String like = " like '%" + q + "%'";
             searchWhere = StringUtils.join(searchFields.iterator(), like + " or ") + like;
         }
 
@@ -196,7 +197,6 @@ public class ReferenceSearchController extends EntityController {
         }
 
         q = CommonsUtils.escapeSql(q);
-
         int openLevel = ClassificationManager.instance.getOpenLevel(fieldMeta);
         String sqlWhere = String.format(
                 "dataId = '%s' and level = %d and (fullName like '%%%s%%' or quickCode like '%%%s%%' or code like '%s%%') order by code,fullName",

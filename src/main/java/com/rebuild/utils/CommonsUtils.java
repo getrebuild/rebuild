@@ -136,6 +136,8 @@ public class CommonsUtils {
     public static String escapeSql(Object text) {
         // https://github.com/getrebuild/rebuild/issues/594
         text = text.toString().replace("\\'", "'");
+        // https://gitee.com/getrebuild/rebuild/issues/IA5G7U
+        text = text.toString().replace("\\", "\\\\");
         return StringEscapeUtils.escapeSql((String) text);
     }
 
