@@ -593,3 +593,8 @@ textarea.formula-code + .fields-vars {
 .send-notification .select2 {
   max-width: 100% !important;
 }
+
+.create-task .user-selector,
+.create-task .form-control {
+  max-width: 100% !important;
+}

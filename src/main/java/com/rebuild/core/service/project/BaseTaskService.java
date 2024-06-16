@@ -9,8 +9,10 @@ package com.rebuild.core.service.project;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.general.ObservableService;
 import com.rebuild.core.support.i18n.Language;
@@ -43,7 +45,8 @@ public abstract class BaseTaskService extends ObservableService {
                 ? ProjectManager.instance.getProjectByX(taskOrProject, null)
                 : ProjectManager.instance.getProject(taskOrProject, null);
 
-        if (c == null || !c.get("members", Set.class).contains(user)) {
+        if (c == null ||
+                !(c.get("members", Set.class).contains(user) || UserService.SYSTEM_USER.equals(user))) {
             throw new DataSpecificationException(Language.L("非项目成员禁止操作"));
         }
 
@@ -52,5 +55,11 @@ public abstract class BaseTaskService extends ObservableService {
         }
 
         return true;
+    }
+
+    @Override
+    protected ID getCurrentUser() {
+        // 注意父级的方法含义
+        return UserContextHolder.getUser();
     }
 }
