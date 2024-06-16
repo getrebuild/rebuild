@@ -713,7 +713,7 @@ class ApproverNodeConfig extends StartNodeConfig {
                     <select className="form-control form-control-sm" name="expiresAuto1ValueType">
                       <option value="D">{$L('天后')}</option>
                       <option value="H">{$L('小时后')}</option>
-                      <option value="I">{$L('分钟后')}</option>
+                      {/*<option value="I">{$L('分钟后')}</option>*/}
                     </select>
                   </div>
                 </div>
