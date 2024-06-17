@@ -130,11 +130,13 @@ public class OshiUtils {
         for (String u : FROMURLS) {
             try {
                 URLConnection conn = new URL(u).openConnection();
-                long l = conn.getDate();
+                final long L = conn.getDate();
 
-                Calendar c = CalendarUtils.getInstance();
-                c.setTimeInMillis(l);
-                return c.getTime();
+                if (L > 0) {
+                    Calendar c = CalendarUtils.getInstance();
+                    c.setTimeInMillis(L);
+                    return c.getTime();
+                }
             } catch (Exception ex) {
                 log.warn("Cannot fetch date from : {}", u, ex);
             }
