@@ -79,7 +79,8 @@ class UserImport extends RbModalHandler {
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" ref={(c) => (this._$notify = c)} />
                 <span className="custom-control-label">
-                  {$L('导入成功后发送邮件通知用户')} {window.__PageConfig.serviceMail !== 'true' && <span>({$L('不可用')})</span>}
+                  {$L('导入成功后发送邮件通知用户')}
+                  {!$isTrue(window.__PageConfig.serviceMail) && <span className="fs-12 text-danger ml-1">({$L('不可用')})</span>}
                 </span>
               </label>
             </div>

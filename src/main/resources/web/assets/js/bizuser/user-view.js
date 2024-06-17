@@ -53,7 +53,10 @@ $(document).ready(function () {
         <div className="mt-2">
           <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
             <input className="custom-control-input" type="checkbox" defaultChecked />
-            <span className="custom-control-label"> {$L('发送邮件通知')}</span>
+            <span className="custom-control-label">
+              {$L('发送邮件通知')}
+              {!$isTrue(window.__PageConfig.serviceMail) && <span className="fs-12 text-danger ml-1">({$L('不可用')})</span>}
+            </span>
           </label>
         </div>
       </RF>

@@ -602,8 +602,7 @@ class ScheduleOptions extends React.Component {
   state = { ...this.props }
 
   render() {
-    const email = window.__USER_EMAIL
-    const mobile = window.__USER_MOBILE
+    const wpc = window.__PageConfig
     return (
       <div className="feed-options schedule">
         <dl className="row">
@@ -619,18 +618,18 @@ class ScheduleOptions extends React.Component {
               <input className="custom-control-input" name="remindOn" type="checkbox" value={1} disabled={this.props.readonly} />
               <span className="custom-control-label">{$L('通知')}</span>
             </label>
-            <label className="custom-control custom-checkbox custom-control-inline" title={email}>
+            <label className="custom-control custom-checkbox custom-control-inline">
               <input className="custom-control-input" name="remindOn" type="checkbox" value={2} disabled={this.props.readonly} />
               <span className="custom-control-label">
                 {$L('邮件')}
-                {!email && <span className="text-danger fs-12"> ({$L('不可用')})</span>}
+                {!$isTrue(wpc.serviceMail) && <span className="text-danger fs-12"> ({$L('不可用')})</span>}
               </span>
             </label>
-            <label className="custom-control custom-checkbox custom-control-inline" title={mobile}>
+            <label className="custom-control custom-checkbox custom-control-inline">
               <input className="custom-control-input" name="remindOn" type="checkbox" value={4} disabled={this.props.readonly} />
               <span className="custom-control-label">
                 {$L('短信')}
-                {!mobile && <span className="text-danger fs-12"> ({$L('不可用')})</span>}
+                {!$isTrue(wpc.serviceSms) && <span className="text-danger fs-12"> ({$L('不可用')})</span>}
               </span>
             </label>
           </dd>
