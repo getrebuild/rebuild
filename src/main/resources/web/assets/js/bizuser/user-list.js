@@ -16,9 +16,29 @@ RbForm.postAfter = function (data, next) {
 }
 
 RbList.queryBefore = function (query) {
-  if (!$val('#showAllUsers')) {
+  const filter = ~~$('.ufilters span').attr('data-filter')
+  if (filter === 1) {
     query.filterAnd = {
-      items: [{ field: 'isDisabled', op: 'EQ', value: 'F' }],
+      items: [
+        { field: 'isDisabled', op: 'EQ', value: 'F' },
+        { field: 'deptId.isDisabled', op: 'EQ', value: 'F' },
+        { field: 'roleId.isDisabled', op: 'EQ', value: 'F' },
+      ],
+      equation: 'AND',
+    }
+  } else if (filter === 2) {
+    query.filterAnd = {
+      items: [
+        { field: 'isDisabled', op: 'EQ', value: 'T' },
+        { field: 'deptId.isDisabled', op: 'EQ', value: 'T' },
+        { field: 'roleId.isDisabled', op: 'EQ', value: 'T' },
+        { field: 'deptId', op: 'NL' },
+        { field: 'roleId', op: 'NL' },
+      ],
+    }
+  } else if (filter === 3) {
+    query.filterAnd = {
+      items: [{ field: 'isDisabled', op: 'EQ', value: 'T' }],
     }
   }
   return query
@@ -36,9 +56,14 @@ $(document).ready(() => {
   $('.J_imports').on('click', () => renderRbcomp(<UserImport />))
   $('.J_resign').on('click', () => renderRbcomp(<UserResigntion />))
 
-  $('#showAllUsers').on('change', () => {
-    RbListPage._RbList.reload()
-  })
+  $('.ufilters')
+    .next()
+    .find('a[data-filter]')
+    .on('click', function () {
+      const $f = $(this)
+      $('.ufilters span').text($f.text()).attr('data-filter', $f.data('filter'))
+      RbListPage._RbList.reload()
+    })
 })
 
 // 用户导入

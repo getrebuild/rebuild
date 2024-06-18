@@ -18,6 +18,11 @@
         border-color: #38adff;
         color: #38adff;
       }
+      .ufilters {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 2px 0;
+      }
     </style>
   </head>
   <body>
@@ -60,11 +65,17 @@
                           <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
                         </span>
                       </div>
-                      <div class="float-left ml-2" style="margin-top: 8px">
-                        <label class="custom-control custom-checkbox custom-control-inline custom-control-sm">
-                          <input class="custom-control-input" type="checkbox" id="showAllUsers" />
-                          <span class="custom-control-label">[[${bundle.L('显示全部用户')}]]</span>
-                        </label>
+                      <div class="float-left ml-2">
+                        <a class="ufilters" href="###filters" data-toggle="dropdown">
+                          <i class="icon mdi mdi-account-filter fs-15"></i>
+                          <span>[[${bundle.L('全部用户')}]]</span>
+                        </a>
+                        <div class="dropdown-menu">
+                          <a class="dropdown-item" data-filter="0">[[${bundle.L('全部用户')}]]</a>
+                          <a class="dropdown-item" data-filter="1">[[${bundle.L('可用用户')}]]</a>
+                          <a class="dropdown-item" data-filter="2">[[${bundle.L('未激活的')}]]</a>
+                          <a class="dropdown-item" data-filter="3">[[${bundle.L('已禁用的')}]]</a>
+                        </div>
                       </div>
                     </div>
                   </div>
