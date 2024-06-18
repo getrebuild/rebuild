@@ -40,8 +40,8 @@ public class PicklistDataController extends BaseController {
     // for PickList/MultiSelect/State
     @GetMapping({"picklist", "field-options"})
     public JSON fetchOptions(HttpServletRequest request) {
-        String entity = getParameterNotNull(request, "entity");
-        String field = getParameterNotNull(request, "field");
+        final String entity = getParameterNotNull(request, "entity");
+        final String field = getParameterNotNull(request, "field");
 
         Field fieldMeta = getRealField(entity, field);
         DisplayType dt = EasyMetaFactory.getDisplayType(fieldMeta);
