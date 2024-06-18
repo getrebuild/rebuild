@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 @RestController
 @RequestMapping("/commons/metadata/")
-public class PicklistDataController extends BaseController {
+public class PickListDataController extends BaseController {
 
     // for PickList/MultiSelect/State
     @GetMapping({"picklist", "field-options"})

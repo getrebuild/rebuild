@@ -171,7 +171,7 @@ public class ReferenceSearchController extends EntityController {
 
     /**
      * 搜索分类字段
-     * @see PicklistDataController#fetchClassification(HttpServletRequest)
+     * @see PickListDataController#fetchClassification(HttpServletRequest)
      */
     @GetMapping("classification")
     public JSON searchClassification(@EntityParam Entity entity, HttpServletRequest request) {
