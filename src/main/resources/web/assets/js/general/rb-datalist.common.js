@@ -2123,8 +2123,6 @@ const EasyAction = {
 
       _List.addButton(item)
     })
-    // Min btn
-    if ($('.dataTables_oper > .btn').length > 6) $('.dataTables_oper').addClass('compact')
   },
 
   handleOp(item) {
