@@ -24,6 +24,7 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
@@ -129,8 +130,13 @@ public class OshiUtils {
         for (String u : FROMURLS) {
             try {
                 URLConnection conn = new URL(u).openConnection();
-                long l = conn.getDate();
-                return new Date(l);
+                final long L = conn.getDate();
+
+                if (L > 0) {
+                    Calendar c = CalendarUtils.getInstance();
+                    c.setTimeInMillis(L);
+                    return c.getTime();
+                }
             } catch (Exception ex) {
                 log.warn("Cannot fetch date from : {}", u, ex);
             }

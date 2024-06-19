@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.admin.bizz;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.web.EntityController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,6 +33,7 @@ public class BizzPageView extends EntityController {
         ModelAndView mv = createModelAndView(
                 "/admin/bizuser/user-view", "User", getRequestUser(request));
         mv.getModel().put("id", id);
+        mv.getModel().put("serviceMail", SMSender.availableMail());
         return mv;
     }
 

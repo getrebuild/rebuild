@@ -128,7 +128,6 @@ body {
   top: 5px;
   right: 5px;
   opacity: 0;
-  transition: opacity 0.4s;
 }
 
 .rbview-form .type-NTEXT.editable .ntext-action {
@@ -154,7 +153,8 @@ body {
 }
 
 .rbview-form .type-NTEXT .ps-container.ntext-expand {
-  max-height: unset !important;
+  max-height: 1000px !important;
+  height: auto;
 }
 
 .rbview-form .type-NTEXT .ps-container.ntext-expand + .ntext-action .mdi-arrow-expand::before {

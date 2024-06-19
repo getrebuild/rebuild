@@ -27,6 +27,7 @@ import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
@@ -61,11 +62,8 @@ public class FeedsListController extends BaseController {
     public ModelAndView pageIndex(@PathVariable String type, HttpServletRequest request) {
         ModelAndView mv = createModelAndView("/feeds/home");
         mv.getModel().put("feedsType", type);
-
-        User user = Application.getUserStore().getUser(getRequestUser(request));
-        mv.getModel().put("UserEmail", user.getEmail());
-        mv.getModel().put("UserMobile", StringUtils.defaultIfBlank(user.getWorkphone(), ""));
-
+        mv.getModel().put("serviceMail", SMSender.availableMail());
+        mv.getModel().put("serviceSms", SMSender.availableSMS());
         return mv;
     }
 

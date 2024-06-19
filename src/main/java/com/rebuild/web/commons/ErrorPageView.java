@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.commons;
 
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.identifier.ComputerIdentifier;
 import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -70,7 +71,7 @@ public class ErrorPageView extends BaseController {
         mv.getModel().put("MemoryUsageJvm", OshiUtils.getJvmMemoryUsed());
         mv.getModel().put("SystemLoad", OshiUtils.getSystemLoad());
         mv.getModelMap().put("isAdminVerified", AppUtils.isAdminVerified(request));
-        mv.getModelMap().put("SN", License.SN() + "/" + OshiUtils.getLocalIp() + "/" + ServerStatus.STARTUP_ONCE);
+        mv.getModelMap().put("SN", License.SN() + "/" + ComputerIdentifier.generateIdentifierKey() + "/" + OshiUtils.getLocalIp() + "/" + ServerStatus.STARTUP_ONCE);
 
         final String specDisks = request.getParameter("disks");
         if (specDisks != null) {

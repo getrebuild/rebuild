@@ -134,7 +134,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #999;
   font-weight: bold;
   top: 1px;
-  right: -5px;
   display: none;
 }
 
@@ -591,5 +590,10 @@ textarea.formula-code + .fields-vars {
 
 .send-notification select,
 .send-notification .select2 {
+  max-width: 100% !important;
+}
+
+.create-task .user-selector,
+.create-task .form-control {
   max-width: 100% !important;
 }

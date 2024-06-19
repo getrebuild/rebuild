@@ -128,6 +128,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart.index > .data-item strong {
   font-size: 3.1rem;
   font-weight: 400;
+  color: #000;
 }
 
 .chart.index > .data-item .with p,

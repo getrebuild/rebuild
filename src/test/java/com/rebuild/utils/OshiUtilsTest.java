@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import cn.devezhao.commons.CalendarUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -38,6 +39,7 @@ class OshiUtilsTest {
     @Test
     void getNetworkDate() {
         System.out.println(OshiUtils.getNetworkDate());
+        System.out.println(CalendarUtils.now());
     }
 
     @Test

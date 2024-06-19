@@ -108,7 +108,7 @@ public class UserImporter extends HeavyTask<Integer> {
                 }
 
             } catch (Exception ex) {
-                log.error("Cannot create new user : " + loginName, ex);
+                log.error("Cannot create new user : {}", loginName, ex);
             } finally {
                 this.addCompleted();
             }

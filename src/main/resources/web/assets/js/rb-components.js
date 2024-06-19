@@ -643,16 +643,18 @@ class UserSelector extends React.Component {
       },
     })
 
-    if (this.props.defaultValue) {
-      let dv = this.props.defaultValue
-      if ($type(this.props.defaultValue) === 'string') dv = dv.split(',')
+    this.props.defaultValue && this._renderValue(this.props.defaultValue)
+  }
 
-      $.post('/commons/search/user-selector', JSON.stringify(dv), (res) => {
-        if (res.error_code === 0 && res.data.length > 0) {
-          this.setState({ selected: res.data })
-        }
-      })
-    }
+  _renderValue(value) {
+    let s = value
+    if ($type(s) === 'string') s = s.split(',')
+
+    $.post('/commons/search/user-selector', JSON.stringify(s), (res) => {
+      if (res.error_code === 0 && res.data.length > 0) {
+        this.setState({ selected: res.data })
+      }
+    })
   }
 
   componentWillUnmount() {
@@ -780,6 +782,11 @@ class UserSelector extends React.Component {
   }
 
   val() {
+    // v3.7 set
+    if (arguments[0]) {
+      this._renderValue(arguments[0])
+      return
+    }
     return this.getSelected()
   }
 

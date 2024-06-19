@@ -101,8 +101,10 @@
     </div>
     <th:block th:replace="~{/_include/footer}" />
     <script>
-      __USER_EMAIL = '[[${UserEmail}]]'
-      __USER_MOBILE = '[[${UserMobile}]]'
+      window.__PageConfig = {
+        serviceMail: '[[${serviceMail}]]',
+        serviceSms: '[[${serviceSms}]]',
+      }
     </script>
     <script th:src="@{/assets/js/feeds/announcement.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/feeds/feeds-post.js}" type="text/babel"></script>

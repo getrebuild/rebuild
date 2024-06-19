@@ -861,7 +861,6 @@ var $initReferenceSelect2 = function (el, option) {
     },
     theme: 'default ' + (option.appendClass || ''),
   })
-
   return $el
 }
 
