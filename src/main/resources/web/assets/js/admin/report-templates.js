@@ -61,7 +61,7 @@ class ReportList extends ConfigList {
               </td>
               <td className="actions">
                 <a className="icon" title={$L('预览')} href={`${rb.baseUrl}/admin/data/report-templates/preview?id=${item[0]}`} target="_blank">
-                  <i className="zmdi zmdi-eye" />
+                  <i className="zmdi mdi mdi-file-eye-outline" />
                 </a>
                 <a className="icon" title={$L('下载模板')} href={`${rb.baseUrl}/admin/data/report-templates/download?id=${item[0]}`} target="_blank">
                   <i className="zmdi zmdi-download" />
@@ -303,7 +303,7 @@ class ReportEditor extends ConfigFormDlg {
 
       $(this._$outputType).find('input:eq(0)').attr('checked', true)
 
-      const $pw = $(`<a class="btn btn-secondary ml-2"><i class="icon zmdi zmdi-eye mr-1"></i>${$L('预览')}</a>`)
+      const $pw = $(`<a class="btn btn-secondary ml-2"><i class="icon mdi mdi-file-eye-outline mr-1"></i>${$L('预览')}</a>`)
       $(this._btns).find('.btn-primary').after($pw)
       $pw.on('click', () => {
         if (this.props.id) {
