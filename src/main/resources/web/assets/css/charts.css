@@ -141,21 +141,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-left: 5px;
   margin-top: 3px;
   font-size: 1.55rem;
-  color: green !important;
 }
 
-.chart.index > .data-item .with strong::before {
+.chart.index > .data-item > strong.ge::after,
+.chart.index > .data-item > strong.le::after {
   font-family: 'Material Design Icons', serif;
-  content: '\F072E';
-  font-size: 0.9rem;
-}
-
-.chart.index > .data-item .with strong.ge {
-  color: red !important;
-}
-
-.chart.index > .data-item .with strong.ge::before {
   content: '\F005E';
+  font-size: 1.25rem;
+  color: red;
+}
+
+.chart.index > .data-item > strong.le::after {
+  content: '\F072E';
+  color: green !important;
 }
 
 .grid-stack-item.fullscreen .chart.index > .data-item p {

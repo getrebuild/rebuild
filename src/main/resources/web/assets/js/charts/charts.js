@@ -213,16 +213,27 @@ class ChartIndex extends BaseChart {
   renderChart(data) {
     const color = __PREVIEW ? this.props.config.option.useColor : this.props.config.color
     const style2 = { color: color || null }
+    let clazz2, title2
+    if (data.index.label2) {
+      const N1 = this._num(data.index.data)
+      const N2 = this._num(data.index.data2)
+      clazz2 = N1 >= N2 ? 'ge' : 'le'
+      title2 = (((N1 - N2) * 1.0) / N2) * 100
+      if (title2 >= 0) title2 = `+ ${title2.toFixed(2)}%`
+      else title2 = `- ${Math.abs(title2).toFixed(2)}%`
+    }
 
     const chartdata = (
       <div className="chart index" ref={(c) => (this._$chart = c)}>
         <div className="data-item must-center text-truncate w-auto">
           <p style={style2}>{data.index.label || this.label}</p>
-          <strong style={style2}>{data.index.data}</strong>
+          <strong style={style2} className={clazz2} title={title2}>
+            {data.index.data}
+          </strong>
           {data.index.label2 && (
             <div className="with">
               <p>{data.index.label2}</p>
-              <strong className={this._num(data.index.data2) >= this._num(data.index.data) && 'ge'}>{data.index.data2}</strong>
+              <strong>{data.index.data2}</strong>
             </div>
           )}
         </div>
