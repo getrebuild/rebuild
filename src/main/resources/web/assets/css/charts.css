@@ -143,15 +143,25 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 1.55rem;
 }
 
-.chart.index > .data-item > strong.ge::after,
-.chart.index > .data-item > strong.le::after {
+.chart.index > .data-item span {
+  font-size: 1.15rem;
+  margin-left: 2px;
+  color: red;
+}
+
+.chart.index > .data-item span.ge::before,
+.chart.index > .data-item span.le::before {
   font-family: 'Material Design Icons', serif;
-  content: '\F005E';
+  content: '\F0737';
   font-size: 1.25rem;
   color: red;
 }
 
-.chart.index > .data-item > strong.le::after {
+.chart.index > .data-item span.le {
+  color: green !important;
+}
+
+.chart.index > .data-item span.le::before {
   content: '\F072E';
   color: green !important;
 }

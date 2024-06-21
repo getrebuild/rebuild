@@ -154,6 +154,12 @@
                   </label>
                 </div>
                 <div class="hide J_opt-INDEX">
+                  <label class="custom-control custom-control-sm custom-checkbox">
+                    <input class="custom-control-input" type="checkbox" data-name="showGrowthRate" />
+                    <span class="custom-control-label">[[${bundle.L('显示增长率')}]] <i class="zmdi zmdi-help zicon" th:title="${bundle.L('有多个数值时可用')}"></i></span>
+                  </label>
+                </div>
+                <div class="hide J_opt-INDEX">
                   <label style="color: #444">[[${bundle.L('配色')}]]</label>
                   <div id="useColor" class="rbcolors">
                     <a class="default" th:title="${bundle.L('默认')}"></a>

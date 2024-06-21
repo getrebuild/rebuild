@@ -41,6 +41,11 @@ public class IndexChart extends ChartData {
             index.put("label2", num.getLabel());
         }
 
-        return JSONUtils.toJSONObject("index", index);
+        JSONObject renderOption = config.getJSONObject("option");
+        if (renderOption == null) renderOption = new JSONObject();
+
+        return JSONUtils.toJSONObject(
+                new String[]{"index", "_renderOption"},
+                new Object[]{index, renderOption});
     }
 }
