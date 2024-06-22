@@ -18,7 +18,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -36,7 +35,7 @@ import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.core.service.trigger.TriggerResult;
-import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -62,10 +61,8 @@ public class FieldAggregation extends TriggerAction {
 
     /**
      * 最大触发链深度
-     * @see ConfigurationItem#TriggerMaxDepth
      */
-    public static final int MAX_TRIGGER_DEPTH = ObjectUtils.toInt(
-            BootEnvironmentPostProcessor.getProperty(ConfigurationItem.TriggerMaxDepth.name(), "256"));
+    protected static final int MAX_TRIGGER_DEPTH = CommandArgs.getInt(CommandArgs._TriggerMaxDepth, 256);
 
     // 此触发器可能产生连锁反应
     // 如触发器 A 调用 B，而 B 又调用了 C ... 以此类推。此处记录其深度
