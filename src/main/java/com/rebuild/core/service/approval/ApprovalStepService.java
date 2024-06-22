@@ -698,7 +698,7 @@ public class ApprovalStepService extends BaseService {
         String approvalStepNode = record.getString(EntityHelper.ApprovalStepNode);
         ID approvalId = record.getID(EntityHelper.ApprovalId);
         if (approvalStepNode != null && approvalId == null) {
-            approvalId = (ID) QueryHelper.queryField(record.getPrimary(), EntityHelper.ApprovalId);
+            approvalId = (ID) QueryHelper.queryFieldValue(record.getPrimary(), EntityHelper.ApprovalId);
         }
 
         if (approvalId == null || approvalStepNode == null) {

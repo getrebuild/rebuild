@@ -105,7 +105,7 @@ public abstract class BaseConfigurationService extends InternalPersistService {
         if (!cfgRecord.hasValue("shareTo")) return cfgRecord;
 
         if (cfgRecord.getPrimary() != null) {
-            Object createBy = QueryHelper.queryField(cfgRecord.getPrimary(), EntityHelper.CreatedBy);
+            Object createBy = QueryHelper.queryFieldValue(cfgRecord.getPrimary(), EntityHelper.CreatedBy);
             if (UserService.ADMIN_USER.equals(createBy)) return cfgRecord;
         }
 
