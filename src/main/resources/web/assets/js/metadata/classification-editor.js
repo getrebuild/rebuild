@@ -156,7 +156,7 @@ class LevelBox extends React.Component {
         res.data.forEach((item) => {
           rbapi.push([item[0], item[1]])
         })
-      rbapi.length > 0 && console.log(`RBAPI ASSISTANT *Classification* :\n %c${JSON.stringify(rbapi)}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
+      rbapi.length > 0 && console.log(`RBAPI ASSISTANT *Classification* :\n%c${this.parentId || '-'}\n${JSON.stringify(rbapi)}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
     })
   }
 

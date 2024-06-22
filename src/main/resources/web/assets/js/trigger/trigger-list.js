@@ -95,7 +95,7 @@ class TriggerList extends ConfigList {
               </td>
               <td className="actions">
                 <a className="icon" title={$L('触发过程')} onClick={() => this.handleShowChain(item[0])}>
-                  <i className="zmdi mdi mdi-vector-polyline mdi-rotate-180" />
+                  <i className="zmdi mdi mdi-vector-polyline" />
                 </a>
                 <a className="icon" title={$L('修改')} onClick={() => this.handleEdit(item)}>
                   <i className="zmdi zmdi-edit" />

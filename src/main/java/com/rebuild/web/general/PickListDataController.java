@@ -35,16 +35,24 @@ import javax.servlet.http.HttpServletRequest;
  */
 @RestController
 @RequestMapping("/commons/metadata/")
-public class PicklistDataController extends BaseController {
+public class PickListDataController extends BaseController {
 
     // for PickList/MultiSelect/State
     @GetMapping({"picklist", "field-options"})
     public JSON fetchOptions(HttpServletRequest request) {
-        String entity = getParameterNotNull(request, "entity");
-        String field = getParameterNotNull(request, "field");
+        final String entity = getParameterNotNull(request, "entity");
+        final String field = getParameterNotNull(request, "field");
 
         Field fieldMeta = getRealField(entity, field);
         DisplayType dt = EasyMetaFactory.getDisplayType(fieldMeta);
+
+        // fix3.7: 下拉列表作为引用实体的名称字段
+        if (dt == DisplayType.REFERENCE) {
+            Field useNameField = fieldMeta.getReferenceEntity().getNameField();
+            if (EasyMetaFactory.getDisplayType(useNameField) == DisplayType.PICKLIST) {
+                fieldMeta = useNameField;
+            }
+        }
 
         JSON options;
         if (dt == DisplayType.STATE) {

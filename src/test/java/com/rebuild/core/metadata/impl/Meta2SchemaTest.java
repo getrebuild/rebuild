@@ -56,4 +56,9 @@ class Meta2SchemaTest extends TestSupport {
         drop = new Entity2Schema(UserService.ADMIN_USER).dropEntity(newEntity);
         System.out.println("New Entity (for Field) is dropped : " + newEntityName + " > " + drop);
     }
+
+    @Test
+    void genEntityTypeCode() {
+        new Entity2Schema(UserService.SYSTEM_USER).genEntityTypeCode();
+    }
 }

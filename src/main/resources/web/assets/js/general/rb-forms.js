@@ -1374,7 +1374,7 @@ class RbFormNText extends RbFormElement {
             {WrapHtml(text2)}
           </div>
 
-          <div className={`ntext-action ${window.__LAB_SHOWNTEXTACTION ? '' : 'hide'}`}>
+          <div className={`ntext-action ${window.__LAB_SHOWNTEXTACTION || this.props.useCode ? '' : 'hide'}`}>
             <a title={$L('展开/收起')} onClick={() => $(this._textarea).toggleClass('ntext-expand')}>
               <i className="mdi mdi-arrow-expand" />
             </a>
@@ -1390,18 +1390,6 @@ class RbFormNText extends RbFormElement {
   componentDidMount() {
     super.componentDidMount()
     this.props.onView && this.onEditModeChanged(true)
-
-    if (this._actionCopy) {
-      const that = this
-      const initCopy = function () {
-        $clipboard($(that._actionCopy), that.state.value)
-      }
-      if (window.ClipboardJS) {
-        initCopy()
-      } else {
-        $getScript('/assets/lib/clipboard.min.js', initCopy)
-      }
-    }
   }
 
   UNSAFE_componentWillUpdate(nextProps, nextState) {
@@ -1424,6 +1412,18 @@ class RbFormNText extends RbFormElement {
     }
 
     if (this.props.useMdedit && !destroy) this._initMde()
+
+    if (this._actionCopy) {
+      const that = this
+      const initCopy = function () {
+        $clipboard($(that._actionCopy), that.state.value)
+      }
+      if (window.ClipboardJS) {
+        initCopy()
+      } else {
+        $getScript('/assets/lib/clipboard.min.js', initCopy)
+      }
+    }
   }
 
   setValue(val) {
@@ -1472,9 +1472,9 @@ class RbFormNText extends RbFormElement {
         )
       })
       mde.codemirror.on('paste', (_mde, e) => {
-        $stopEvent(e, true)
         const data = e.clipboardData || window.clipboardData
         if (data && data.items && data.files && data.files.length > 0) {
+          $stopEvent(e, true)
           this._fieldValue__upload.files = data.files
           $(this._fieldValue__upload).trigger('change')
         }

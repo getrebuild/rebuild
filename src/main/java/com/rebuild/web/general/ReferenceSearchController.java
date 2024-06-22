@@ -138,7 +138,8 @@ public class ReferenceSearchController extends EntityController {
                 return JSONUtils.EMPTY_ARRAY;
             }
 
-            String like = " like '%" + CommonsUtils.escapeSql(q) + "%'";
+            q = CommonsUtils.escapeSql(q);
+            String like = " like '%" + q + "%'";
             searchWhere = StringUtils.join(searchFields.iterator(), like + " or ") + like;
         }
 
@@ -170,7 +171,7 @@ public class ReferenceSearchController extends EntityController {
 
     /**
      * 搜索分类字段
-     * @see PicklistDataController#fetchClassification(HttpServletRequest)
+     * @see PickListDataController#fetchClassification(HttpServletRequest)
      */
     @GetMapping("classification")
     public JSON searchClassification(@EntityParam Entity entity, HttpServletRequest request) {
@@ -182,9 +183,12 @@ public class ReferenceSearchController extends EntityController {
         if (useClassification == null) return JSONUtils.EMPTY_ARRAY;
 
         String q = StringUtils.trim(getParameter(request, "q"));
+        int openLevel = ClassificationManager.instance.getOpenLevel(fieldMeta);
+        // 直接显示
+        boolean useSimple37 = StringUtils.isBlank(q) && openLevel == 0;
 
         // 为空则加载最近使用的
-        if (StringUtils.isBlank(q)) {
+        if (StringUtils.isBlank(q) && !useSimple37) {
             String type = "d" + useClassification + ":" + ClassificationManager.instance.getOpenLevel(fieldMeta);
             ID[] used = RecentlyUsedHelper.gets(user, "ClassificationData", type);
 
@@ -195,15 +199,19 @@ public class ReferenceSearchController extends EntityController {
             }
         }
 
-        q = CommonsUtils.escapeSql(q);
-
-        int openLevel = ClassificationManager.instance.getOpenLevel(fieldMeta);
-        String sqlWhere = String.format(
-                "dataId = '%s' and level = %d and (fullName like '%%%s%%' or quickCode like '%%%s%%' or code like '%s%%') order by code,fullName",
-                useClassification.toLiteral(), openLevel, q, q, q);
+        String sqlWhere;
+        if (useSimple37) {
+            sqlWhere = String.format("dataId = '%s' and parent is null order by code,fullName",
+                    useClassification.toLiteral());
+        } else {
+            q = CommonsUtils.escapeSql(q);
+            sqlWhere = String.format(
+                    "dataId = '%s' and level = %d and (fullName like '%%%s%%' or quickCode like '%%%s%%' or code like '%s%%') order by code,fullName",
+                    useClassification.toLiteral(), openLevel, q, q, q);
+        }
 
         List<Object> result = resultSearch(
-                sqlWhere, MetadataHelper.getEntity(EntityHelper.ClassificationData), 20);
+                sqlWhere, MetadataHelper.getEntity(EntityHelper.ClassificationData), useSimple37 ? 2000 : 20);
         return (JSON) JSON.toJSON(result);
     }
 
