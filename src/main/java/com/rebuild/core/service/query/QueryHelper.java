@@ -190,17 +190,17 @@ public class QueryHelper {
     /**
      * @param queryFields
      * @param queryValue
-     * @param forceName
+     * @param forceQueryName
      * @return
      */
-    public static ID queryIdValue(Field[] queryFields, String queryValue, boolean forceName) {
+    public static ID queryIdValue(Field[] queryFields, String queryValue, boolean forceQueryName) {
         Entity entity = queryFields[0].getOwnEntity();
 
         StringBuilder sql = new StringBuilder(
                 String.format("select %s from %s where ", entity.getPrimaryField().getName(), entity.getName()));
         for (Field qf : queryFields) {
             String qfName = qf.getName();
-            if (forceName && qf.getType() == FieldType.REFERENCE) qfName = "&" + qfName;
+            if (forceQueryName && qf.getType() == FieldType.REFERENCE) qfName = "&" + qfName;
             sql.append(String.format("%s = '%s' or ", qfName, CommonsUtils.escapeSql(queryValue)));
         }
         sql = new StringBuilder(sql.substring(0, sql.length() - 4));
