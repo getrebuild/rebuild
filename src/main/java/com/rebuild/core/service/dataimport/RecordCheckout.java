@@ -15,9 +15,6 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.record.FieldValueException;
 import cn.devezhao.persist4j.record.RecordVisitor;
-import cn.hutool.core.date.DateException;
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationManager;
@@ -273,20 +270,7 @@ public class RecordCheckout {
     protected Date checkoutDateValue(Cell cell) {
         Date date = cell.asDate();
         if (date != null) return date;
-
-        String date2str = cell.asString();
-
-        try {
-            DateTime dt = DateUtil.parse(date2str);
-            if (dt != null) date = dt.toJdkDate();
-        } catch (DateException ignored) {
-        }
-
-        // 2017/11/19 11:07
-        if (date == null && date2str.contains("/")) {
-            date = cell.asDate(new String[]{"yyyy/M/d H:m:s", "yyyy/M/d H:m", "yyyy/M/d"});
-        }
-        return date;
+        return CommonsUtils.parseDate(cell.asString());
     }
 
     protected LocalTime checkoutTimeValue(Cell cell) {

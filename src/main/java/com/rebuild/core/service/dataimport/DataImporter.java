@@ -217,7 +217,7 @@ public class DataImporter extends HeavyTask<Integer> {
             }
         }
 
-        log.info("Checking repeated : " + wheres);
+        log.info("Checking repeated : {}", wheres);
         if (wheres.isEmpty()) return null;
 
         Entity entity = data.getEntity();

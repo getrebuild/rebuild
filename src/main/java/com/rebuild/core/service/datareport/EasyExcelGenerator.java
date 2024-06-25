@@ -341,24 +341,17 @@ public class EasyExcelGenerator extends SetUser {
             }
         }
 
-        for (final String fieldName : varsMap.values()) {
+        for (Map.Entry<String, String> e : varsMap.entrySet()) {
+            final String fieldName = e.getValue();
             if (fieldName == null) continue;
 
-            EasyField easyField = EasyMetaFactory.valueOf(MetadataHelper.getLastJoinField(entity, fieldName));
-            DisplayType dt = easyField.getDisplayType();
-
-            // 替换成变量名
-            String varName = fieldName;
-            for (Map.Entry<String, String> e : varsMap.entrySet()) {
-                if (fieldName.equalsIgnoreCase(e.getValue())) {
-                    varName = e.getKey();
-                    break;
-                }
-            }
-
+            String varName = e.getKey();
             if (varName.startsWith(NROW_PREFIX)) {
                 varName = varName.substring(1);
             }
+
+            EasyField easyField = EasyMetaFactory.valueOf(MetadataHelper.getLastJoinField(entity, fieldName));
+            DisplayType dt = easyField.getDisplayType();
 
             // FIXME v3.2 图片仅支持导出第一张
             if (!dt.isExportable() && dt != DisplayType.IMAGE) {
@@ -386,9 +379,7 @@ public class EasyExcelGenerator extends SetUser {
                         String format = easyField.getExtraAttr(EasyFieldConfigProps.DECIMAL_FORMAT);
                         int scale = StringUtils.isBlank(format) ? 2 : format.split("\\.")[1].length();
                         // Keep Type
-//                        fieldValue = ObjectUtils.round(((BigDecimal) fieldValue).doubleValue(), scale);
                         fieldValue = ((BigDecimal) fieldValue).setScale(scale, RoundingMode.HALF_UP);
-
                     } else {
                         fieldValue = FieldValueHelper.wrapFieldValue(fieldValue, easyField, Boolean.TRUE);
                     }
@@ -420,6 +411,9 @@ public class EasyExcelGenerator extends SetUser {
                             }
                         }
                     }
+
+                    // v3.7.0
+                    fieldValue = ValueConvertFunc.convert(easyField, fieldValue, varName);
                 }
 
                 data.put(varName, fieldValue);
