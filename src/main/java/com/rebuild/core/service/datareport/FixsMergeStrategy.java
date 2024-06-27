@@ -10,6 +10,7 @@ package com.rebuild.core.service.datareport;
 import com.alibaba.excel.metadata.Head;
 import com.alibaba.excel.write.merge.AbstractMergeStrategy;
 import com.esotericsoftware.minlog.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -23,6 +24,7 @@ import java.util.List;
  * @author devezhao
  * @since 2021/4/3
  */
+@Slf4j
 public class FixsMergeStrategy extends AbstractMergeStrategy {
 
     @Override
@@ -61,7 +63,7 @@ public class FixsMergeStrategy extends AbstractMergeStrategy {
         try {
             merge37(sheet, cell, head, relativeRowIndex);
         } catch (Exception ex) {
-            Log.warn("Cannot merge cell", ex);
+            log.warn("Cannot merge cell", ex);
         }
     }
 
