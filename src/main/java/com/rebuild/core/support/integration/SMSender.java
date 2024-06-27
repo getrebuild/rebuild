@@ -110,8 +110,8 @@ public class SMSender {
      * @param attach
      * @param useTemplate
      * @param specAccount
-     * @return returns null if failed or SENDID
-     * @throws ConfigurationException If mail-account unset
+     * @return
+     * @throws ConfigurationException
      */
     public static String sendMail(String to, String subject, String content, File[] attach, boolean useTemplate, String[] specAccount) throws ConfigurationException {
         if (specAccount == null || specAccount.length < 6
@@ -121,7 +121,7 @@ public class SMSender {
         }
 
         if (Application.devMode()) {
-            log.info("[dev] FAKE SEND EMAIL : {}, {}, {}", to, subject, content);
+            log.info("[dev] FAKE SEND EMAIL. T:{}, S:{}, M:{}, F:{}", to, subject, content, attach);
             return null;
         }
 
@@ -326,7 +326,7 @@ public class SMSender {
         }
 
         if (Application.devMode()) {
-            log.warn("[dev] FAKE SEND SMS : {}, {}", to, content);
+            log.warn("[dev] FAKE SEND SMS. T:{}, M:{}", to, content);
             return null;
         }
 

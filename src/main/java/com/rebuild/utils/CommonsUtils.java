@@ -7,9 +7,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.persist4j.engine.NullValue;
+import cn.hutool.core.date.DateException;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
 import com.rebuild.core.RebuildException;
@@ -30,6 +34,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -333,5 +338,37 @@ public class CommonsUtils {
         if (filepath.contains("../") || filepath.contains("<") || filepath.contains(">")) {
             throw new SecurityException("Attack path detected : " + escapeHtml(filepath));
         }
+    }
+
+    /**
+     * 日期转换
+     *
+     * @param source
+     * @return
+     */
+    public static Date parseDate(String source) {
+        if ("yyyy".length() == source.length()) {
+            return CalendarUtils.parse(source, "yyyy");
+        }
+        if ("yyyy-MM".length() == source.length()) {
+            return CalendarUtils.parse(source, "yyyy-MM");
+        }
+
+        try {
+            DateTime dt = DateUtil.parse(source);
+            if (dt != null) return dt.toJdkDate();
+        } catch (DateException ignored) {
+        }
+
+        // 2017/11/19 11:07
+        if (source.contains("/")) {
+            String[] fs = new String[]{"yyyy/M/d H:m:s", "yyyy/M/d H:m", "yyyy/M/d"};
+            for (String format : fs) {
+                Date d = CalendarUtils.parse(source, format);
+                if (d != null) return d;
+            }
+        }
+
+        return null;
     }
 }

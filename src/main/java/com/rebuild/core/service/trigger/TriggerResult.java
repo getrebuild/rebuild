@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
+import lombok.Getter;
 
 import java.util.Collection;
 
@@ -20,6 +21,7 @@ import java.util.Collection;
  * @author RB
  * @since 2022/09/26
  */
+@Getter
 public class TriggerResult implements JSONAware {
 
     // 状态 1=成功, 2=警告, 3=错误
@@ -30,6 +32,7 @@ public class TriggerResult implements JSONAware {
     final private Collection<ID> affected;
 
     private TriggerSource chain;
+    private boolean breakNext;
 
     protected TriggerResult(int level, String message, Collection<ID> affected) {
         this.level = level;
@@ -37,28 +40,25 @@ public class TriggerResult implements JSONAware {
         this.affected = affected;
     }
 
-    protected void setChain(TriggerSource chain) {
+    public void setChain(TriggerSource chain) {
         this.chain = chain;
+    }
+
+    public void setBreakNext(boolean breakNext) {
+        this.breakNext = breakNext;
     }
 
     public boolean hasAffected() {
         return affected != null && !affected.isEmpty();
     }
 
-    public int getLevel() {
-        return level;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-    
     @Override
     public String toJSONString() {
         JSONObject res = JSONUtils.toJSONObject("level", level);
         if (message != null) res.put("message", message);
         if (affected != null) res.put("affected", affected);
         if (chain != null) res.put("chain", chain.toString());
+        if (breakNext) res.put("break", true);
         return res.toJSONString();
     }
 
@@ -66,6 +66,8 @@ public class TriggerResult implements JSONAware {
     public String toString() {
         return toJSONString();
     }
+
+    // --
 
     /**
      * @param affected

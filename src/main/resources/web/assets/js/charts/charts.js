@@ -219,8 +219,13 @@ class ChartIndex extends BaseChart {
       const N1 = this._num(data.index.data)
       const N2 = this._num(data.index.data2)
       clazz2 = N1 >= N2 ? 'ge' : 'le'
-      rate2 = (((N1 - N2) * 1.0) / N2) * 100
-      rate2 = `${Math.abs(rate2).toFixed(2)}%`
+      // eslint-disable-next-line eqeqeq
+      if (N2 == 0) {
+        rate2 = '100.00%'
+      } else {
+        rate2 = (((N1 - N2) * 1.0) / N2) * 100
+        rate2 = `${Math.abs(rate2).toFixed(2)}%`
+      }
     }
 
     const chartdata = (
