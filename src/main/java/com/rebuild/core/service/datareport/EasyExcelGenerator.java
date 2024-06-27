@@ -32,6 +32,7 @@ import com.rebuild.core.metadata.easymeta.MultiValue;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.approval.ApprovalState;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.BarCodeSupport;
@@ -484,22 +485,27 @@ public class EasyExcelGenerator extends SetUser {
             return phName.length() > PH__KEEP.length()
                     ? phName.substring(PH__KEEP.length() + 1) : "";
         }
-        // 列表序号
-        if (phName.equals(PH__NUMBER)) {
-            return phNumber;
+
+        switch (phName) {
+            case PH__NUMBER:
+                return phNumber;
+            case PH__CURRENTUSER:
+                return UserHelper.getName(getUser());
+            case PH__CURRENTBIZUNIT:
+                return Objects.requireNonNull(UserHelper.getDepartment(getUser())).getName();
+            case PH__CURRENTDATE:
+                return CalendarUtils.getUTCDateFormat().format(CalendarUtils.now());
+            case PH__CURRENTDATETIME:
+                return CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
         }
-        if (phName.equals(PH__CURRENTUSER)) {
-            return UserHelper.getName(getUser());
+
+        // v3.7
+        if (phName.startsWith(PH__CURRENTUSER)) {
+            String useField = phName.substring(PH__CURRENTUSER.length() + 1);
+            Object useValue = QueryHelper.queryFieldValue(getUser(), useField);
+            return useValue == null ? null : useValue.toString();
         }
-        if (phName.equals(PH__CURRENTBIZUNIT)) {
-            return Objects.requireNonNull(UserHelper.getDepartment(getUser())).getName();
-        }
-        if (phName.equals(PH__CURRENTDATE)) {
-            return CalendarUtils.getUTCDateFormat().format(CalendarUtils.now());
-        }
-        if (phName.equals(PH__CURRENTDATETIME)) {
-            return CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
-        }
+
         return null;
     }
 
