@@ -137,6 +137,9 @@ public class GroupAggregation extends FieldAggregation {
         for (Map.Entry<String, String> e : groupFieldsMapping.entrySet()) {
             String sourceField = e.getKey();
             String targetField = e.getValue();
+            // @see Dimension#getSqlName
+            EasyField sourceFieldEasy = EasyMetaFactory.valueOf(MetadataHelper.getLastJoinField(sourceEntity, sourceField));
+            EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
 
             if (isGroupUpdate) {
                 Object beforeValue = operatingContext.getBeforeRecord() == null
@@ -149,62 +152,60 @@ public class GroupAggregation extends FieldAggregation {
                 }
             }
 
+            // fix: 3.7.1
+            boolean isDateField = sourceFieldEasy.getDisplayType() == DisplayType.DATE
+                    || sourceFieldEasy.getDisplayType() == DisplayType.DATETIME;
+            int targetFieldLength = 0;
+            String dateFormat = null;
+            if (isDateField) {
+                targetFieldLength = StringUtils.defaultIfBlank(
+                        targetFieldEasy.getExtraAttr(EasyFieldConfigProps.DATE_FORMAT), targetFieldEasy.getDisplayType().getDefaultFormat()).length();
+
+                if (targetFieldLength == 4) dateFormat = "%Y";
+                else if (targetFieldLength == 7) dateFormat = "%Y-%m";
+                else dateFormat = "%Y-%m-%d";
+            }
+
             Object val = sourceRecord.getObjectValue(sourceField);
             if (val == null) {
                 qFields.add(String.format("%s is null", targetField));
                 qFieldsFollow.add(String.format("%s is null", sourceField));
-            } else {
-                //noinspection ConstantConditions
-                EasyField sourceFieldEasy = EasyMetaFactory.valueOf(
-                        MetadataHelper.getLastJoinField(sourceEntity, sourceField));
-                //noinspection ConstantConditions
-                EasyField targetFieldEasy = EasyMetaFactory.valueOf(
-                        MetadataHelper.getLastJoinField(targetEntity, targetField));
 
-                // @see Dimension#getSqlName
+                // for Refresh
+                if (isDateField) {
+                    sourceField = String.format("DATE_FORMAT(%s,'%s')", sourceField, dateFormat);
+                    targetField = String.format("DATE_FORMAT(%s,'%s')", targetField, dateFormat);
+                }
+
+            } else {
 
                 // 日期分组
-                if (sourceFieldEasy.getDisplayType() == DisplayType.DATE
-                        || sourceFieldEasy.getDisplayType() == DisplayType.DATETIME) {
-
+                if (isDateField) {
                     String formatKey = sourceFieldEasy.getDisplayType() == DisplayType.DATE
                             ? EasyFieldConfigProps.DATE_FORMAT
                             : EasyFieldConfigProps.DATETIME_FORMAT;
                     int sourceFieldLength = StringUtils.defaultIfBlank(
-                            sourceFieldEasy.getExtraAttr(formatKey), sourceFieldEasy.getDisplayType().getDefaultFormat())
-                            .length();
-
-                    // 目标字段仅日期
-                    int targetFieldLength = StringUtils.defaultIfBlank(
-                            targetFieldEasy.getExtraAttr(EasyFieldConfigProps.DATE_FORMAT), targetFieldEasy.getDisplayType().getDefaultFormat())
-                            .length();
+                            sourceFieldEasy.getExtraAttr(formatKey), sourceFieldEasy.getDisplayType().getDefaultFormat()).length();
 
                     // 目标格式（长度）必须小于等于源格式
                     Assert.isTrue(targetFieldLength <= sourceFieldLength,
                             Language.L("日期字段格式不兼容") + String.format(" (%d,%d)", targetFieldLength, sourceFieldLength));
 
+                    sourceField = String.format("DATE_FORMAT(%s,'%s')", sourceField, dateFormat);
+                    targetField = String.format("DATE_FORMAT(%s,'%s')", targetField, dateFormat);
                     if (targetFieldLength == 4) {  // 'Y'
-                        sourceField = String.format("DATE_FORMAT(%s,'%s')", sourceField, "%Y");
-                        targetField = String.format("DATE_FORMAT(%s,'%s')", targetField, "%Y");
                         val = CalendarUtils.format("yyyy", (Date) val);
                     } else if (targetFieldLength == 7) {  // 'M'
-                        sourceField = String.format("DATE_FORMAT(%s,'%s')", sourceField, "%Y-%m");
-                        targetField = String.format("DATE_FORMAT(%s,'%s')", targetField, "%Y-%m");
                         val = CalendarUtils.format("yyyy-MM", (Date) val);
                     } else {  // 'D' is default
-                        sourceField = String.format("DATE_FORMAT(%s,'%s')", sourceField, "%Y-%m-%d");
-                        targetField = String.format("DATE_FORMAT(%s,'%s')", targetField, "%Y-%m-%d");
                         val = CalendarUtils.format("yyyy-MM-dd", (Date) val);
                     }
                 }
 
                 // 分类分组
                 else if (sourceFieldEasy.getDisplayType() == DisplayType.CLASSIFICATION) {
-
-                    int sourceFieldLevel = ClassificationManager.instance.getOpenLevel(
-                            MetadataHelper.getLastJoinField(sourceEntity, sourceField));
-                    int targetFieldLevel = ClassificationManager.instance.getOpenLevel(
-                            MetadataHelper.getLastJoinField(targetEntity, targetField));
+                    int sourceFieldLevel = ClassificationManager.instance.getOpenLevel(sourceFieldEasy.getRawMeta());
+                    int targetFieldLevel = ClassificationManager.instance.getOpenLevel(targetFieldEasy.getRawMeta());
 
                     // 目标等级必须小于等于源等级
                     Assert.isTrue(targetFieldLevel <= sourceFieldLevel,
