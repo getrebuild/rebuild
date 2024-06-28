@@ -633,8 +633,9 @@ var $createUploader = function (input, next, complete, error) {
   var putExtra = imageType ? { mimeType: ['image/*'] } : null
 
   function _qiniuUpload(file) {
+    const over200M = file.size / 1048576 >= 200
     $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + '&noname=' + noname + useToken, function (res) {
-      var o = qiniu.upload(file, res.data.key, res.data.token, putExtra, { forceDirect: true })
+      var o = qiniu.upload(file, res.data.key, res.data.token, putExtra, { forceDirect: !over200M })
       o.subscribe({
         next: function (res) {
           typeof next === 'function' && next({ percent: res.total.percent, file: file })
@@ -646,7 +647,7 @@ var $createUploader = function (input, next, complete, error) {
           } else if (msg.contains('EXCEED FSIZELIMIT')) {
             RbHighbar.create($L('超出文件大小限制'))
           } else {
-            RbHighbar.error($L('上传失败，请稍后重试' + ': ' + msg))
+            RbHighbar.error($L('上传失败，请稍后重试') + ': ' + msg)
           }
           console.log('Upload error :', err)
           typeof error === 'function' && error({ error: msg, file: file })
