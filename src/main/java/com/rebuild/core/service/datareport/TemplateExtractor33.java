@@ -37,16 +37,15 @@ public class TemplateExtractor33 extends TemplateExtractor {
 
     // 明细字段
     public static final String DETAIL_PREFIX = NROW_PREFIX + "detail";
-    // $
+    // $ 前缀
     public static final String NROW_PREFIX2 = "$";
     public static final String DETAIL_PREFIX2 = NROW_PREFIX2 + "detail";
     public static final String APPROVAL_PREFIX2 = NROW_PREFIX2 + "approval";
-
     // 排序
     private static final String SORT_ASC = ":asc";
     private static final String SORT_DESC = ":desc";
-    private Map<String, String> sortFields = new HashMap<>();
 
+    private Map<String, String> sortFields = new HashMap<>();
     private Set<String> inShapeVars = new HashSet<>();
 
     /**
@@ -66,16 +65,18 @@ public class TemplateExtractor33 extends TemplateExtractor {
 
         Map<String, String> map = new HashMap<>();
         for (final String varName : vars) {
+            String thatName = ValueConvertFunc.splitName(varName);
+
             // 列表型字段
-            if (varName.startsWith(NROW_PREFIX) || varName.startsWith(NROW_PREFIX2)) {
-                final String listField = varName.substring(1).replace("$", ".");
+            if (thatName.startsWith(NROW_PREFIX) || thatName.startsWith(NROW_PREFIX2)) {
+                final String listField = thatName.substring(1).replace("$", ".");
 
                 // 占位
                 if (isPlaceholder(listField)) {
                     map.put(varName, null);
                 }
                 // 审批流程
-                else if (varName.startsWith(APPROVAL_PREFIX) || varName.startsWith(APPROVAL_PREFIX2)) {
+                else if (thatName.startsWith(APPROVAL_PREFIX) || thatName.startsWith(APPROVAL_PREFIX2)) {
                     String stepNodeField = listField.substring(APPROVAL_PREFIX.length());
                     if (approvalEntity != null && MetadataHelper.getLastJoinField(approvalEntity, stepNodeField) != null) {
                         map.put(varName, stepNodeField);
@@ -84,7 +85,7 @@ public class TemplateExtractor33 extends TemplateExtractor {
                     }
                 }
                 // 明细实体
-                else if (varName.startsWith(DETAIL_PREFIX) || varName.startsWith(DETAIL_PREFIX2)) {
+                else if (thatName.startsWith(DETAIL_PREFIX) || thatName.startsWith(DETAIL_PREFIX2)) {
                     String detailField = listField.substring(DETAIL_PREFIX.length());
                     detailField = getFieldNameWithSort(DETAIL_PREFIX, detailField);
 
@@ -117,10 +118,10 @@ public class TemplateExtractor33 extends TemplateExtractor {
                     }
                 }
 
-            } else if (MetadataHelper.getLastJoinField(entity, varName) != null) {
-                map.put(varName, varName);
+            } else if (MetadataHelper.getLastJoinField(entity, thatName) != null) {
+                map.put(varName, thatName);
             } else {
-                map.put(varName, transformRealField(entity, varName));
+                map.put(varName, transformRealField(entity, thatName));
             }
         }
         return map;

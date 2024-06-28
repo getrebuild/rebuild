@@ -121,7 +121,6 @@ public enum ConfigurationItem {
     RedisDatabase(0),     // Redis DB
     MobileUrl,                      // 移动端地址
     RbStoreUrl,                     // 在线仓库地址
-    TriggerMaxDepth,                // 触发器最大执行深度
     SecurityEnhanced(false), // 安全增强
     TrustedAllUrl(false), // 可信外部地址
     LibreofficeBin,                 // Libreoffice 命令
@@ -141,7 +140,6 @@ public enum ConfigurationItem {
                 || RedisDatabase.name().equalsIgnoreCase(name)
                 || MobileUrl.name().equalsIgnoreCase(name)
                 || RbStoreUrl.name().equalsIgnoreCase(name)
-                || TriggerMaxDepth.name().equalsIgnoreCase(name)
                 || SecurityEnhanced.name().equalsIgnoreCase(name)
                 || TrustedAllUrl.name().equalsIgnoreCase(name)
                 || LibreofficeBin.name().equalsIgnoreCase(name)

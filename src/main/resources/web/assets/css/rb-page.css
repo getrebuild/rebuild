@@ -50,6 +50,8 @@ html.mourning-mode {
 html,
 body {
   min-width: 360px;
+  /*min-width: 1001px;*/
+  /*overflow: auto !important;*/
 }
 
 a,
@@ -78,8 +80,6 @@ code {
 }
 
 .dropdown-menu {
-  box-shadow: 0 3px 0.3077rem rgba(0, 0, 0, 0.1);
-  box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);
   box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.1), 0 10px 12px 0 rgba(170, 182, 206, 0.36);
   border-width: 0;
   border-radius: 0;
@@ -228,7 +228,6 @@ code {
 
 .badge.badge-light,
 .badge.badge-secondary {
-  line-height: 1.277rem;
   line-height: 1.1586rem;
 }
 
@@ -1373,7 +1372,6 @@ a.link.link-icon::after {
   top: 4px;
   font-size: 1.25rem;
   padding: 5px;
-  display: inline-block;
   z-index: 1;
   display: none;
 }
@@ -1798,7 +1796,6 @@ th.column-fixed {
   content: '';
   pointer-events: none;
   transform: translateX(100%);
-  box-shadow: inset 10px 0 8px -8px rgba(0, 0, 0, 0.15);
   box-shadow: inset 5px 0 4px -4px rgba(0, 0, 0, 0.15);
   /*width: 20px;*/
   /* fix: Safari */
@@ -1825,7 +1822,6 @@ th.column-fixed {
 .column-fixed.col-action::after {
   right: auto !important;
   left: -48px !important;
-  box-shadow: inset -10px 0 8px -8px rgb(0 0 0 / 15%) !important;
   box-shadow: inset -5px 0 4px -4px rgb(0 0 0 / 15%) !important;
 }
 
@@ -4634,7 +4630,6 @@ pre.unstyle {
 }
 
 .bg-market {
-  background-image: linear-gradient(135deg, #2973d7 0%, #26acb9 100%);
   background-image: linear-gradient(45deg, rgb(0, 84, 70), rgb(57, 0, 63), rgb(89, 0, 0)), linear-gradient(45deg, rgb(0, 122, 101), rgb(127, 14, 127), rgb(255, 137, 131));
 }
 
@@ -4962,7 +4957,6 @@ pre.unstyle {
 /* nav v2.10 */
 
 .rb-left-sidebar .sidebar-elements > li ul {
-  background-color: #f5f5f5;
   background-color: #eee;
   padding: 6px 0;
 }

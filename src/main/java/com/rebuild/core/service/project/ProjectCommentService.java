@@ -73,7 +73,7 @@ public class ProjectCommentService extends BaseTaskService {
 
         final String msgContent = Language.L("@%s 在任务中提到了你", record.getEditor()) + " \n> " + content;
         ID related = record.getID("taskId");
-        if (related == null) related = (ID) QueryHelper.queryField(record.getPrimary(), "taskId");
+        if (related == null) related = (ID) QueryHelper.queryFieldValue(record.getPrimary(), "taskId");
 
         ID[] atUsers = FeedsHelper.findMentions(content);
         int send = 0;
