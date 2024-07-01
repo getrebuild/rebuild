@@ -179,7 +179,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 4.4rem;
 }
 
-.grid-stack-item.fullscreen .chart.index > .data-item .with strong::before {
+.grid-stack-item.fullscreen .chart.index > .data-item span {
   zoom: 2;
 }
 
