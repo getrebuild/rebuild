@@ -142,6 +142,11 @@ public class DataReportManager implements ConfigManager {
                 templateContent = e.getString("templateContent");
                 type = e.getInteger("type");
                 isV33 = e.getInteger("templateVersion") == 3;
+                if (type == TYPE_HTML5) {
+                    if (templateContent == null) templateContent = "";
+                } else {
+                    templateContent = null;
+                }
                 break;
             }
         }

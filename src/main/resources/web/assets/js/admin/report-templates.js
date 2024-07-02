@@ -8,8 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 $(document).ready(() => {
   $('.J_add').on('click', () => renderRbcomp(<ReportEditor />))
-  $('.J_add-html5').on('click', () => renderRbcomp(<ReportEditor isHtml5 />))
-
   renderRbcomp(<ReportList />, 'dataList')
 })
 
@@ -31,7 +29,7 @@ class ReportList extends ConfigList {
             <tr key={item[0]}>
               <td>
                 {isHtml5 ? (
-                  <a title={$L('在线模板编辑')} href={`report-template/design?id=${item[0]}`}>
+                  <a title={$L('网页模版设计器')} href={`report-template/design?id=${item[0]}`}>
                     {item[3]}
                   </a>
                 ) : (
@@ -39,7 +37,7 @@ class ReportList extends ConfigList {
                 )}
                 {item[6] === 1 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 excel">EXCEL</span>}
                 {item[6] === 2 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 excel">{$L('EXCEL 列表')}</span>}
-                {isHtml5 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 html5">{$L('在线模板')}</span>}
+                {isHtml5 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 html5">{$L('网页模板')}</span>}
                 {item[6] === 4 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 word">WORD</span>}
 
                 {outputType.includes('pdf') && <span className="badge badge-secondary badge-pill ml-1">PDF</span>}
@@ -101,13 +99,11 @@ class ReportEditor extends ConfigFormDlg {
   constructor(props) {
     super(props)
     this.subtitle = $L('报表模板')
-    this.confirmText = this.props.isHtml5 && !this.props.id ? $L('下一步') : null
     this.hasDetail = true
   }
 
   renderFrom() {
-    const isHtml5Style = this.props.isHtml5 ? { display: 'none' } : {}
-
+    const isHtml5Style = this.state.reportType === 3 ? { display: 'none' } : {}
     return (
       <RF>
         {!this.props.id && (
@@ -126,21 +122,27 @@ class ReportEditor extends ConfigFormDlg {
                 </select>
               </div>
             </div>
-            <div className="form-group row" style={isHtml5Style}>
+            <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('模板类型')}</label>
-              <div className="col-sm-7 pt-1" ref={(c) => (this._$listType = c)}>
-                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
-                  <input className="custom-control-input" type="radio" value="1" name="reportType" defaultChecked onChange={() => this.checkTemplate()} />
+              <div className="col-sm-8 pt-1" ref={(c) => (this._$listType = c)}>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
+                  <input className="custom-control-input" type="radio" value="1" name="reportType" defaultChecked onChange={(e) => this.checkTemplate(e)} />
                   <span className="custom-control-label">EXCEL</span>
                 </label>
-                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
-                  <input className="custom-control-input" type="radio" value="2" name="reportType" onChange={() => this.checkTemplate()} />
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
+                  <input className="custom-control-input" type="radio" value="2" name="reportType" onChange={(e) => this.checkTemplate(e)} />
                   <span className="custom-control-label">{$L('EXCEL 列表')}</span>
                 </label>
-                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
-                  <input className="custom-control-input J_word4" type="radio" value="4" name="reportType" onChange={() => this.checkTemplate()} />
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
+                  <input className="custom-control-input J_word4" type="radio" value="4" name="reportType" onChange={(e) => this.checkTemplate(e)} />
                   <span className="custom-control-label">
                     WORD <sup className="rbv" />
+                  </span>
+                </label>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
+                  <input className="custom-control-input J_word4" type="radio" value="3" name="reportType" onChange={(e) => this.checkTemplate(e)} />
+                  <span className="custom-control-label">
+                    网页 <sup className="rbv" />
                   </span>
                 </label>
               </div>
@@ -178,21 +180,21 @@ class ReportEditor extends ConfigFormDlg {
           </div>
         </div>
 
-        <div className="form-group row" style={isHtml5Style}>
+        <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">{$L('导出格式')}</label>
           <div className="col-sm-7 pt-1" ref={(c) => (this._$outputType = c)}>
-            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-1">
               <input className="custom-control-input" type="checkbox" value="excel" />
               <span className="custom-control-label">{$L('默认')}</span>
             </label>
-            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-1">
               <input className="custom-control-input" type="checkbox" value="pdf" />
               <span className="custom-control-label">PDF</span>
               <a href="https://getrebuild.com/docs/admin/excel-admin#%E6%8A%A5%E8%A1%A8%E5%AF%BC%E5%87%BA%E6%A0%BC%E5%BC%8F" title={$L('查看帮助')} target="_blank">
                 <i className="zmdi zmdi-help zicon down-1" />
               </a>
             </label>
-            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 bosskey-show">
+            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-1 bosskey-show">
               <input className="custom-control-input" type="checkbox" value="html" />
               <span className="custom-control-label">HTML</span>
             </label>
@@ -204,7 +206,7 @@ class ReportEditor extends ConfigFormDlg {
             <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
           </div>
         </div>
-        <div className="form-group row pt-1 pb-1">
+        <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">
             {$L('使用条件')} <sup className="rbv" />
           </label>
@@ -212,6 +214,7 @@ class ReportEditor extends ConfigFormDlg {
             <div className="form-control-plaintext">
               <a
                 href="###"
+                disabled={this.state.reportType === 2}
                 onClick={(e) => {
                   $stopEvent(e, true)
                   if ($(e.target).attr('disabled')) return
@@ -225,7 +228,7 @@ class ReportEditor extends ConfigFormDlg {
         </div>
 
         {this.props.id && (
-          <div className="form-group row">
+          <div className="form-group row pt-0">
             <div className="col-sm-7 offset-sm-3">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
@@ -287,8 +290,6 @@ class ReportEditor extends ConfigFormDlg {
       setTimeout(() => $(this._entity).val(e).trigger('change'), 300)
     }
 
-    $(this._$outputType).find('[data-toggle="tooltip"]').tooltip()
-
     if (this.props.id) {
       const outputType = (this.props.extraDefinition || {}).outputType || 'excel'
       if (outputType.includes('excel')) $(this._$outputType).find('input:eq(0)').attr('checked', true)
@@ -299,11 +300,9 @@ class ReportEditor extends ConfigFormDlg {
       this.setState({ useFilter })
       if (this.props.type === 2) $(this._$useFilter).attr('disabled', true)
     } else {
-      if (this.props.isHtml5) return
-
       $(this._$outputType).find('input:eq(0)').attr('checked', true)
 
-      const $pw = $(`<a class="btn btn-secondary ml-2"><i class="icon mdi mdi-file-eye-outline mr-1"></i>${$L('预览')}</a>`)
+      const $pw = $(`<button type="button" class="btn btn-secondary ml-2 J_pw3"><i class="icon mdi mdi-file-eye-outline mr-1"></i>${$L('预览')}</button>`)
       $(this._btns).find('.btn-primary').after($pw)
       $pw.on('click', () => {
         if (this.props.id) {
@@ -312,7 +311,7 @@ class ReportEditor extends ConfigFormDlg {
           const ps = this._buildParams()
           if (ps === false) return RbHighbar.create($L('请选择应用实体并上传模板文件'))
 
-          let output // excel
+          let output // default
           if ($val($(this._$outputType).find('input:eq(1)'))) output = 'pdf'
           else if ($val($(this._$outputType).find('input:eq(2)'))) output = 'html'
 
@@ -325,7 +324,13 @@ class ReportEditor extends ConfigFormDlg {
   }
 
   // 检查模板
-  checkTemplate() {
+  checkTemplate(e) {
+    if (e) {
+      this.setState({ reportType: ~~e.target.value }, () => {
+        $('.J_pw3').attr('disabled', this.state.reportType === 3)
+      })
+    }
+
     const ps = this._buildParams()
     if (ps === false) return
 
@@ -376,16 +381,15 @@ class ReportEditor extends ConfigFormDlg {
   }
 
   _buildParams() {
-    const type = ~~$(this._$listType).find('input:checked').val() || 1
-    $(this._$useFilter).attr('disabled', type === 2)
+    const type = this.state.reportType
     if (type === 2) this.setState({ useFilter: null })
 
     const entity = this.__select2.val()
     const file = this.__lastFile
     if (!file || !entity) return false
 
-    if (type === 4 && rb.commercial < 10) {
-      RbHighbar.error(WrapHtml($L('免费版不支持 WORD 模板功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+    if ((type === 4 || type === 3) && rb.commercial < 10) {
+      RbHighbar.error(WrapHtml($L('免费版不支持 WORD 和网页模板功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       this._clearParams()
       return false
     }
@@ -426,11 +430,9 @@ class ReportEditor extends ConfigFormDlg {
     } else {
       post.belongEntity = this.__select2.val()
       post.templateFile = this.state.templateFile
-      post.templateType = $(this._$listType).find('input:checked').val() || 1
+      post.templateType = this.state.reportType
       if (!post.belongEntity) return RbHighbar.create($L('请选择应用实体'))
-      if (this.props.isHtml5) {
-        post.templateType = 3
-      } else {
+      if (post.templateType !== 3) {
         if (!post.templateFile) return RbHighbar.create($L('请上传模板文件'))
       }
       post.extraDefinition.templateVersion = 3
@@ -444,7 +446,7 @@ class ReportEditor extends ConfigFormDlg {
     this.disabled(true)
     $.post('/app/entity/common-save', JSON.stringify(post), (res) => {
       if (res.error_code === 0) {
-        if (this.props.isHtml5 && !this.props.id) location.href = `report-template/design?id=${res.data.id}`
+        if (post.templateType === 3 && !this.props.id) location.href = `report-template/design?id=${res.data.id}`
         else dlgActionAfter(this)
       } else {
         RbHighbar.error(res.error_msg)
