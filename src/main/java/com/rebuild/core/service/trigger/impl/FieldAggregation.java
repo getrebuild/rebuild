@@ -333,6 +333,7 @@ public class FieldAggregation extends TriggerAction {
             }
         }
 
+        if (targetRecordId == null) log.warn("Cannot found [targetRecordId]: {}", operatingContext);
         this.followSourceWhere = String.format("%s = '%s'", followSourceField, targetRecordId);
     }
 

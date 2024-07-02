@@ -10,6 +10,7 @@ package com.rebuild.core.service.trigger;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.SafeObservable;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.OperatingObserver;
@@ -54,6 +55,13 @@ public class RobotTriggerObserver extends OperatingObserver {
 
     @Override
     public void update(final SafeObservable o, Object context) {
+        // fix: v3.7.1 预处理不要延迟
+        if (context instanceof OperatingContext
+                && ((OperatingContext) context).getAction() == InternalPermission.DELETE_BEFORE) {
+            super.update(o, context);
+            return;
+        }
+
         if (isLazyTriggers(false)) {
             List<Object> ctx = LAZY_TRIGGERS_CTX.get();
             if (ctx == null) ctx = new ArrayList<>();
@@ -106,7 +114,7 @@ public class RobotTriggerObserver extends OperatingObserver {
                 // DataValidate 直接抛出
                 if (ex instanceof DataValidateException) throw ex;
 
-                log.error("Preparing context of trigger failed : {}", action, ex);
+                log.error("Preparing context of trigger fails : {}", action, ex);
             }
         }
         DELETE_BEFORE_HOLD.put(primary, deleteActions);
