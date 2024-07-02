@@ -187,9 +187,9 @@
 
     <repositories>
         <repository>
-            <id>alimaven</id>
+            <id>alimaven2</id>
             <name>public</name>
-            <url>https://maven.aliyun.com/nexus/content/groups/public/</url>
+            <url>https://maven.aliyun.com/repository/public</url>
         </repository>
         <!-- Unpublished libs can be found on https://github.com/devezhao/ -->
         <repository>
@@ -334,12 +334,12 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
-            <version>1.2.22</version>
+            <version>1.2.23</version>
         </dependency>
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
-            <version>8.3.0</version>
+            <version>8.4.0</version>
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
@@ -349,12 +349,12 @@
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-            <version>4.4.7</version>
+            <version>4.4.8</version>
         </dependency>
         <dependency>
             <groupId>com.qiniu</groupId>
             <artifactId>qiniu-java-sdk</artifactId>
-            <version>7.15.0</version>
+            <version>7.15.1</version>
         </dependency>
         <dependency>
             <groupId>com.github.whvcse</groupId>
@@ -364,7 +364,7 @@
         <dependency>
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
-            <version>6.5.0</version>
+            <version>6.6.1</version>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
@@ -470,7 +470,7 @@
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson</artifactId>
-            <version>3.27.2</version>
+            <version>3.32.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -496,7 +496,7 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
-            <version>5.8.26</version>
+            <version>5.8.28</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -524,7 +524,7 @@
         <dependency>
             <groupId>com.getui.push</groupId>
             <artifactId>restful-sdk</artifactId>
-            <version>1.0.0.17</version>
+            <version>1.0.3.0</version>
         </dependency>
 
         <!-- fix: CVEs -->
@@ -536,7 +536,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.26.1</version>
+            <version>1.26.2</version>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
@@ -546,17 +546,17 @@
         <dependency>
             <groupId>com.fasterxml.woodstox</groupId>
             <artifactId>woodstox-core</artifactId>
-            <version>6.6.1</version>
+            <version>6.6.2</version>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
-            <version>4.1.108.Final</version>
+            <version>4.1.111.Final</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>33.1.0-jre</version>
+            <version>33.2.1-jre</version>
         </dependency>
     </dependencies>
 </project>
