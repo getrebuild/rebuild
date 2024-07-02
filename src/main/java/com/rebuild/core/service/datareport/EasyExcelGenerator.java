@@ -503,7 +503,7 @@ public class EasyExcelGenerator extends SetUser {
         if (phName.startsWith(PH__CURRENTUSER)) {
             String useField = phName.substring(PH__CURRENTUSER.length() + 1);
             Object useValue = QueryHelper.queryFieldValue(getUser(), useField);
-            return useValue == null ? null : useValue.toString();
+            return useValue == null ? "" : useValue.toString();
         }
 
         return null;

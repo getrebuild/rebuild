@@ -2129,6 +2129,7 @@ const EasyAction = {
     if (item.opType === 1) EasyAction.handleOp1(item)
     if (item.opType === 2) EasyAction.handleOp2(item)
     if (item.opType === 3) EasyAction.handleOp3(item)
+    if (item.opType === 4) EasyAction.handleOp4(item)
     if (item.opType === 10) EasyAction.handleOp10(item)
   },
 
@@ -2141,7 +2142,15 @@ const EasyAction = {
     const ids = _List.getSelectedIds()
     if (!ids[0]) return RbHighbar.create($L('请选择一条记录'))
 
-    _FrontJS.openLiteForm(ids[0], item.op2Value)
+    let fields = []
+    item.op2Value.forEach((item) => {
+      let o = { field: item.field }
+      if (item.tip2) o.tip = item.tip2
+      if (item.readonly2) o.readonly = true
+      if (item.required2) o.nullable = false
+      fields.push(o)
+    })
+    _FrontJS.openLiteForm(ids[0], fields)
   },
 
   handleOp3(item) {
@@ -2166,6 +2175,15 @@ const EasyAction = {
         }
       })
     })
+  },
+
+  handleOp4(item) {
+    const _List = _FrontJS.DataList
+    const ids = _List.getSelectedIds()
+    if (!ids[0]) return RbHighbar.create($L('请至少选择一条记录'))
+
+    let rr = item.op4Value.split(':')
+    _List.exportReport(rr[0], ~~rr[1] === 2, null, null, true)
   },
 
   handleOp10(item) {
