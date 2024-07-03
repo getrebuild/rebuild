@@ -5688,3 +5688,24 @@ div.formula-code {
   line-height: 1.6;
   padding: 4px 10px;
 }
+
+.flatpickr-time input::selection {
+  background-color: var(--rb-theme-color);
+  color: #fff;
+}
+
+.shortcut-buttons-flatpickr-buttons > button {
+  appearance: none;
+  width: 100%;
+  padding: 5px;
+  border-radius: 0;
+  border: 0 none;
+  outline: none;
+  font-size: 12px;
+  background-color: #fff;
+}
+
+.shortcut-buttons-flatpickr-buttons > button:hover {
+  background-color: #e6e6e6;
+
+}
