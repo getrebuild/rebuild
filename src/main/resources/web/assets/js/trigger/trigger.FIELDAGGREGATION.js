@@ -188,10 +188,10 @@ class ContentFieldAggregation extends ActionContentSpec {
                   </span>
                 </label>
               </div>
-              <div className="mt-2 bosskey-show">
+              <div className="mt-2">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._$stopPropagation = c)} />
-                  <span className="custom-control-label">{$L('禁用传播')} (LAB)</span>
+                  <span className="custom-control-label">{$L('快速模式')}</span>
                 </label>
               </div>
             </div>

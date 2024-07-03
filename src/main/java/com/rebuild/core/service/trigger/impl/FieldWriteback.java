@@ -148,6 +148,7 @@ public class FieldWriteback extends FieldAggregation {
             Record targetRecord = targetRecordData.clone();
             targetRecord.setID(targetEntity.getPrimaryField().getName(), targetRecordId);
             targetRecord.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
+            targetRecord.setID(EntityHelper.ModifiedBy, UserService.SYSTEM_USER);
 
             // 相等则不更新
             if (isCurrentSame(targetRecord)) {
