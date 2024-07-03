@@ -40,6 +40,8 @@ import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -788,7 +790,7 @@ public class AdvFilterParser extends SetUser {
         if (CURRENT_ANY.equals(fieldName) || CURRENT_DATE.equals(fieldName)) {
             DisplayType dt = EasyMetaFactory.getDisplayType(queryField);
             if (dt == DisplayType.DATE || dt == DisplayType.DATETIME || dt == DisplayType.TIME) {
-                useValue = CalendarUtils.now();
+                useValue = dt == DisplayType.TIME ? LocalTime.now() : CalendarUtils.now();
 
             } else if (dt == DisplayType.REFERENCE) {
                 if (queryField.getReferenceEntity().getEntityCode() == EntityHelper.User) {
@@ -831,7 +833,7 @@ public class AdvFilterParser extends SetUser {
         if (useValue instanceof Date) {
             useValue = CalendarUtils.getUTCDateFormat().format(useValue);
         } else if (useValue instanceof TemporalAccessor) {
-            useValue = CalendarUtils.getDateFormat("HH:mm").format(CalendarUtils.now());
+            useValue = DateTimeFormatter.ofPattern(DisplayType.TIME.getDefaultFormat()).format((TemporalAccessor) useValue);
         } else if (useValue instanceof BigDecimal) {
             useValue = String.valueOf(((BigDecimal) useValue).doubleValue());
         } else {

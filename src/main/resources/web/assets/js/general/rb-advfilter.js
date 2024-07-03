@@ -771,6 +771,7 @@ class FilterItem extends React.Component {
       startView: 'month',
       todayBtn: true,
       clearBtn: this.props.allowClear || false,
+      forceParse: false,
     }
 
     // 仅时间
@@ -781,6 +782,9 @@ class FilterItem extends React.Component {
         maxView: 1,
         startView: 1,
         title: $L('选择时间'),
+        todayBtn: true,
+        clearBtn: this.props.allowClear || false,
+        forceParse: false,
       }
     }
 
