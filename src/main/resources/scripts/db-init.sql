@@ -336,7 +336,7 @@ create table if not exists `attachment` (
   `RELATED_RECORD`     char(20) comment '相关记录',
   `FILE_PATH`          varchar(300) not null comment '文件路径',
   `FILE_TYPE`          varchar(20) comment '文件类型',
-  `FILE_SIZE`          int(11) default '0' comment '文件大小',
+  `FILE_SIZE`          bigint(20) default '0' comment '执行顺序',
   `FILE_NAME`          varchar(100) comment '文件名称',
   `IN_FOLDER`          char(20) comment '所在目录',
   `IS_DELETED`         char(1) default 'F' comment '是否删除',
