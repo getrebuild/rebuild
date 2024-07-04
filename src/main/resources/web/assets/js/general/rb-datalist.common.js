@@ -1748,7 +1748,7 @@ CellRenders.addRender('STATE', (v, s, k) => {
     return CellRenders.renderSimple(v, s, k)
   }
 })
-const renderNumber = (v, s, k) => {
+const _renderNumber = (v, s, k) => {
   // 负数
   if ((v + '').includes('-')) {
     return (
@@ -1762,8 +1762,8 @@ const renderNumber = (v, s, k) => {
     return CellRenders.renderSimple(v, s, k)
   }
 }
-CellRenders.addRender('DECIMAL', renderNumber)
-CellRenders.addRender('NUMBER', renderNumber)
+CellRenders.addRender('DECIMAL', _renderNumber)
+CellRenders.addRender('NUMBER', _renderNumber)
 CellRenders.addRender('MULTISELECT', (v, s, k) => {
   const vLen = (v.text || []).length
   return (
@@ -1820,7 +1820,7 @@ CellRenders.addRender('SIGN', (v, s, k) => {
     </td>
   )
 })
-CellRenders.addRender('PICKLIST', (v, s, k) => {
+const _renderOption = (v, s, k) => {
   // Use badge
   if (typeof v === 'object') {
     const style2 = v.color ? { borderColor: v.color, backgroundColor: v.color, color: $isLight(v.color) ? '#444' : '#fff' } : null
@@ -1836,7 +1836,9 @@ CellRenders.addRender('PICKLIST', (v, s, k) => {
   } else {
     return CellRenders.renderSimple(v, s, k)
   }
-})
+}
+CellRenders.addRender('PICKLIST', _renderOption)
+CellRenders.addRender('CLASSIFICATION', _renderOption)
 CellRenders.addRender('TAG', (v, s, k) => {
   const vLen = (v || []).length
   return (

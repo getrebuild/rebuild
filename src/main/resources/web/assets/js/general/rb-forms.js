@@ -1870,10 +1870,6 @@ class RbFormPickList extends RbFormElement {
   }
 
   renderElement() {
-    // if ((this.state.options || []).length === 0) {
-    //   return <div className="form-control-plaintext text-danger">{$L('未配置')}</div>
-    // }
-
     const keyName = `${this.state.field}-option-`
     return (
       <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" defaultValue={this.state.value || ''}>
@@ -2308,7 +2304,18 @@ class RbFormClassification extends RbFormElement {
   }
 
   renderViewElement() {
-    return super.renderViewElement(this.state.value ? this.state.value.text : null)
+    let text = this.state.value
+    if (text && text.color) {
+      const style2 = { borderColor: text.color, backgroundColor: text.color, color: $isLight(text.color) ? '#444' : '#fff' }
+      text = (
+        <span className="badge" style={style2}>
+          {text.text}
+        </span>
+      )
+    } else {
+      text = <span className="badge text-dark">{text.text}</span>
+    }
+    return super.renderViewElement(text)
   }
 
   onEditModeChanged(destroy) {
@@ -3066,7 +3073,7 @@ const __findOptionText = function (options, value, useColor) {
         </span>
       )
     } else {
-      text = <span className="badge text-dark pl-0">{text}</span>
+      text = <span className="badge text-dark">{text}</span>
     }
   }
   return text

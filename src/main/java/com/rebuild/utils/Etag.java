@@ -22,10 +22,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class Etag {
 
-    private static final String DIRECTIVE_NO_STORE = "no-store";
-
-    private String responseETag;
-    transient private HttpServletResponse response;
+    final private String responseEtag;
+    transient final private HttpServletResponse response;
 
     /**
      * @param etag
@@ -34,10 +32,10 @@ public class Etag {
     public Etag(String etag, HttpServletResponse response) {
         // whether the generated ETag should be weak
         // SPEC: length of W/ + " + 0 + 32bits md5 hash + "
-        String responseETag = String.format("W/\"0%s\"", etag);
-        response.setHeader(HttpHeaders.ETAG, responseETag);
+        String responseEtag = String.format("W/\"0%s\"", etag);
+        response.setHeader(HttpHeaders.ETAG, responseEtag);
 
-        this.responseETag = responseETag;
+        this.responseEtag = responseEtag;
         this.response = response;
     }
 
@@ -48,7 +46,7 @@ public class Etag {
      */
     protected boolean isForceNoCache() {
         String cacheControl = response.getHeader(HttpHeaders.CACHE_CONTROL);
-        return cacheControl != null && cacheControl.contains(DIRECTIVE_NO_STORE);
+        return cacheControl != null && cacheControl.contains("no-store");
     }
 
     /**
@@ -59,14 +57,11 @@ public class Etag {
      * @return
      */
     protected boolean isMatchEtag(HttpServletRequest request, boolean writeStatusIfMatch) {
-        String requestETag = request.getHeader(HttpHeaders.IF_NONE_MATCH);
-        if (requestETag != null &&
-                ("*".equals(requestETag) || responseETag.equals(requestETag) ||
-                        responseETag.replaceFirst("^W/", "").equals(requestETag.replaceFirst("^W/", "")))) {
-            if (writeStatusIfMatch) {
-                response.setStatus(HttpStatus.NOT_MODIFIED.value());
-            }
-
+        String requestEtag = request.getHeader(HttpHeaders.IF_NONE_MATCH);
+        if (requestEtag != null &&
+                ("*".equals(requestEtag) || responseEtag.equals(requestEtag) ||
+                        responseEtag.replaceFirst("^W/", "").equals(requestEtag.replaceFirst("^W/", "")))) {
+            if (writeStatusIfMatch) response.setStatus(HttpStatus.NOT_MODIFIED.value());
             return true;
         } else {
             return false;

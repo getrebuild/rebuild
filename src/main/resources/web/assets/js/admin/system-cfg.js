@@ -229,7 +229,7 @@ class DlgMM extends RbAlert {
       enableTime: true,
       enableSeconds: false,
       time_24hr: true,
-      minuteIncrement: 5,
+      minuteIncrement: 1,
       // defaultDate: new Date(),
       minDate: new Date(),
       dateFormat: 'Y-m-d H:i', // :S
@@ -242,9 +242,17 @@ class DlgMM extends RbAlert {
           const endd = moment(st).add('minute', 10).format('YYYY-MM-DD HH:mm')
           $(that._$endTime).val(endd)
         }
-
         calcTakeTime()
       },
+      plugins: [
+        new ShortcutButtonsPlugin({
+          button: [{ label: $L('今天') }],
+          onClick(index, fp) {
+            fp.setDate(new Date())
+            fp.close()
+          },
+        }),
+      ],
     })
   }
 

@@ -17,6 +17,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -232,6 +233,13 @@ public class DataListWrapper {
                             new String[]{ "name", "color" }, new Object[]{ name, colorNames.get(name) }));
                 }
                 value = colorValue;
+
+            } else  if (easyField.getDisplayType() == DisplayType.CLASSIFICATION) {
+                String color = ClassificationManager.instance.getColor((ID) originValue);
+                if (StringUtils.isNotBlank(color)) {
+                    value = JSONUtils.toJSONObject(
+                            new String[]{ "text", "color" }, new Object[]{ value, color });
+                }
             }
         }
 

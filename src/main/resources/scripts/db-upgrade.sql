@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #58 (v3.8)
+alter table `classification_data`
+  add column `COLOR` varchar(10);
+
 -- #57 (v3.7)
 -- ************ Entity [RobotSopConfig] DDL ************
 create table if not exists `robot_sop_config` (

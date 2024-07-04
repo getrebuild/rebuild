@@ -137,13 +137,7 @@ public class ReportsController extends BaseController {
         if (ServletUtils.isAjaxRequest(request)) {
             JSONObject data = JSONUtils.toJSONObject(
                     new String[] { "fileKey", "fileName" }, new Object[] { output.getName(), fileName });
-
-            if (AppUtils.isMobile(request)) {
-                String fileUrl = String.format(
-                        "/filex/download/%s?temp=yes&_csrfToken=%s&attname=%s",
-                        CodecUtils.urlEncode(output.getName()), AuthTokenManager.generateCsrfToken(90), CodecUtils.urlEncode(fileName));
-                data.put("fileUrl", fileUrl);
-            }
+            if (AppUtils.isMobile(request)) putFileUrl(data);
             writeSuccess(response, data);
 
         } else if ("preview".equalsIgnoreCase(typeOutput)) {
@@ -216,8 +210,10 @@ public class ReportsController extends BaseController {
             CommonsLog.createLog(CommonsLog.TYPE_EXPORT, user, null,
                     String.format("%s:%d", entity, exporter.getExportCount()));
 
-            JSON data = JSONUtils.toJSONObject(
+            JSONObject data = JSONUtils.toJSONObject(
                     new String[] { "fileKey", "fileName" }, new Object[] { output.getName(), fileName });
+            if (AppUtils.isMobile(request)) putFileUrl(data);
+
             return RespBody.ok(data);
 
         } catch (Exception ex) {
@@ -234,5 +230,13 @@ public class ReportsController extends BaseController {
             }
         }
         return false;
+    }
+
+    private void putFileUrl(JSONObject data) {
+        String fileUrl = String.format("/filex/download/%s?temp=yes&_csrfToken=%s&attname=%s",
+                CodecUtils.urlEncode(data.getString("fileKey")),
+                AuthTokenManager.generateCsrfToken(90),
+                CodecUtils.urlEncode(data.getString("fileName")));
+        data.put("fileUrl", fileUrl);
     }
 }

@@ -8,8 +8,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 
 /**
@@ -26,7 +28,11 @@ public class EasyClassification extends EasyReference {
     @Override
     public Object wrapValue(Object value) {
         JSONObject map = (JSONObject) super.wrapValue(value);
-        if (map != null) map.remove("entity");
+        if (map != null) {
+            map.remove("entity");
+            String color = ClassificationManager.instance.getColor((ID) value);
+            if (color != null) map.put("color", color);
+        }
         return map;
     }
 

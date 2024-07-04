@@ -255,6 +255,7 @@ public class FieldAggregation extends TriggerAction {
         TRIGGER_CHAIN.set(tschain);
 
         targetRecord.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
+        targetRecord.setID(EntityHelper.ModifiedBy, UserService.SYSTEM_USER);
 
         try {
             if (stopPropagation) {

@@ -716,7 +716,8 @@ body {
 }
 
 .type-PICKLIST .form-control-plaintext .badge,
-.type-STATE .form-control-plaintext .badge {
+.type-STATE .form-control-plaintext .badge,
+.type-CLASSIFICATION .form-control-plaintext .badge {
   font-size: 13px;
   line-height: 17px;
   border: 0 none;
@@ -726,8 +727,16 @@ body {
   padding: 3px 6px;
 }
 
+.type-PICKLIST .form-control-plaintext .badge.text-dark,
+.type-STATE .form-control-plaintext .badge.text-dark,
+.type-CLASSIFICATION .form-control-plaintext .badge.text-dark {
+  padding-left: 0;
+  color: #404040;
+}
+
 .type-PICKLIST .form-control-plaintext,
-.type-STATE .form-control-plaintext {
+.type-STATE .form-control-plaintext,
+.type-CLASSIFICATION .form-control-plaintext {
   padding-top: 5px;
   padding-bottom: 5px;
 }
@@ -1167,4 +1176,9 @@ body {
 .rbview-form div.formula-code {
   padding-top: 7px;
   padding-bottom: 7px;
+}
+
+.rbview-form .type-PICKLIST .form-control-plaintext > span.text-muted {
+  display: inline-block;
+  padding-top: 3px;
 }
