@@ -102,3 +102,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 7px;
   display: block;
 }
+
+.dd-handle.text-disabled {
+  font-style: italic;
+}

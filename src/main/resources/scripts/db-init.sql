@@ -277,6 +277,7 @@ create table if not exists `classification_data` (
   `LEVEL`              smallint(6) default '0',
   `IS_HIDE`            char(1) default 'F',
   `QUICK_CODE`         varchar(50),
+  `COLOR`              varchar(10),
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -932,4 +933,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 57);
+  values ('021-9000000000000001', 'DBVer', 58);

@@ -130,7 +130,6 @@ public class FieldValueHelper {
         } catch (JSONException ex) {
             log.error("Bad JSONArray format : {} < {}", value, field.getRawMeta());
             return JSONUtils.EMPTY_ARRAY;
-//            throw new RebuildException("BAD VALUE FORMAT:" + value);
         }
     }
 

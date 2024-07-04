@@ -39,7 +39,7 @@ public class EasyPickList extends EasyField implements MixValue {
 
         ID itemId = PickListManager.instance.findItemByLabel(text, targetField.getRawMeta());
         if (itemId == null) {
-            log.warn("Cannot find value in PickList : " + text + " << " + targetField);
+            log.warn("Cannot find value in PickList : {} << {}", text, targetField);
         }
         return itemId;
     }

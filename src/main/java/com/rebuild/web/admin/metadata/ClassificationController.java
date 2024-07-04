@@ -106,8 +106,8 @@ public class ClassificationController extends BaseController {
         } else {
             String name = getParameter(request, "name");
             if (StringUtils.isNotBlank(name)) item.setString("name", name);
-            String code = getParameter(request, "code");
-            item.setString("code", StringUtils.defaultString(code, StringUtils.EMPTY));
+            item.setString("code", getParameter(request, "code", StringUtils.EMPTY));
+            item.setString("color", getParameter(request, "color", StringUtils.EMPTY));
         }
 
         item.setBoolean("isHide", BooleanUtils.toBooleanObject(hide));
@@ -126,15 +126,14 @@ public class ClassificationController extends BaseController {
     public RespBody loadDataItems(@IdParam(name = "data_id", required = false) ID dataId,
                                   @IdParam(name = "parent", required = false) ID parentId) {
         Object[][] child;
+        String baseSql = "select itemId,name,code,isHide,color from ClassificationData where dataId = ? and ";
         if (parentId != null) {
-            child = Application.createQuery(
-                    "select itemId,name,code,isHide from ClassificationData where dataId = ? and parent = ? order by code,name")
+            child = Application.createQuery(baseSql + "parent = ? order by code,name")
                     .setParameter(1, dataId)
                     .setParameter(2, parentId)
                     .array();
         } else if (dataId != null) {
-            child = Application.createQuery(
-                    "select itemId,name,code,isHide from ClassificationData where dataId = ? and parent is null order by code,name")
+            child = Application.createQuery(baseSql + "parent is null order by code,name")
                     .setParameter(1, dataId)
                     .array();
         } else {

@@ -188,6 +188,7 @@
         <field name="level" type="small-int" default-value="0" updatable="false"/>
         <field name="isHide" type="bool" default-value="F"/>
         <field name="quickCode" type="string" max-length="50" queryable="false"/>
+        <field name="color" type="string" max-length="10"/>
         <index field-list="dataId,parent,code"/>
         <index field-list="dataId,fullName,quickCode,code"/>
     </entity>
