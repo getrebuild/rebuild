@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-;(function () {
+(function () {
   var gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -705,10 +705,6 @@ var $createUploader = function (input, next, complete, error) {
         }
       },
       onClientProgress: function (e, file) {
-        typeof next === 'function' && next({ percent: (e.loaded * 100) / e.total, file: file })
-      },
-      onServerProgress: function (e, file) {
-        // fix:v3.7 不触发 onClientProgress???
         typeof next === 'function' && next({ percent: (e.loaded * 100) / e.total, file: file })
       },
       onSuccess: function (e, file) {
