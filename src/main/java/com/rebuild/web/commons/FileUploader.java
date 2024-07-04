@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.commons;
 
+import cn.devezhao.commons.ObjectUtils;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -95,12 +96,12 @@ public class FileUploader extends BaseController {
     }
 
     /**
-     * @see FilesHelper#storeFileSize(String, int)
+     * @see FilesHelper#storeFileSize(String, long)
      */
     @RequestMapping("store-filesize")
     @ResponseBody
     public RespBody storeFilesize(HttpServletRequest request) {
-        int fileSize = getIntParameter(request, "fs");
+        long fileSize = ObjectUtils.toLong(getParameter(request, "fs"));
         if (fileSize < 1) {
             return RespBody.error();
         }

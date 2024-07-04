@@ -227,7 +227,7 @@
         <field name="relatedRecord" type="any-reference" updatable="false" description="相关记录" cascade="ignore"/>
         <field name="filePath" type="string" max-length="300" nullable="false" description="文件路径"/>
         <field name="fileType" type="string" max-length="20" description="文件类型"/>
-        <field name="fileSize" type="int" default-value="0" description="文件大小"/>
+        <field name="fileSize" type="long" default-value="0" description="文件大小"/>
         <field name="fileName" type="string" max-length="100" description="文件名称"/>
         <field name="inFolder" type="reference" ref-entity="AttachmentFolder" description="所在目录"/>
         <field name="isDeleted" type="bool" default-value="F" description="是否删除"/>
