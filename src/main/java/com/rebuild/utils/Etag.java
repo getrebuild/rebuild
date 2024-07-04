@@ -34,7 +34,6 @@ public class Etag {
         // SPEC: length of W/ + " + 0 + 32bits md5 hash + "
         String responseEtag = String.format("W/\"0%s\"", etag);
         response.setHeader(HttpHeaders.ETAG, responseEtag);
-        response.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache, must-revalidate");
 
         this.responseEtag = responseEtag;
         this.response = response;
