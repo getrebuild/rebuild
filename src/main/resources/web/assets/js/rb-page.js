@@ -704,7 +704,7 @@ var $createUploader = function (input, next, complete, error) {
           return false
         }
       },
-      onClientProgress: function (e, file) {
+      onServerProgress: function (e, file) {
         typeof next === 'function' && next({ percent: (e.loaded * 100) / e.total, file: file })
       },
       onSuccess: function (e, file) {
