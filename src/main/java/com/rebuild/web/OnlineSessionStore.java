@@ -10,6 +10,7 @@ package com.rebuild.web;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +21,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,7 +42,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class OnlineSessionStore implements HttpSessionListener {
 
     private static final Set<HttpSession> ONLINE_SESSIONS = new CopyOnWriteArraySet<>();
-    private static final Map<ID, HttpSession> ONLINE_USERS = new ConcurrentHashMap<>();
+    private static final List<HttpSession> ONLINE_USERS = new ArrayList<>();
+    private static final Map<String, Object[]> ONLINE_USERS_H5 = new ConcurrentHashMap<>();
 
     /**
      * 最近访问 [时间, 路径]
@@ -60,12 +65,8 @@ public class OnlineSessionStore implements HttpSessionListener {
 
         HttpSession s = event.getSession();
         ONLINE_SESSIONS.remove(s);
-
-        for (Map.Entry<ID, HttpSession> e : ONLINE_USERS.entrySet()) {
-            if (s.equals(e.getValue())) {
-                ONLINE_USERS.remove(e.getKey());
-                break;
-            }
+        synchronized (ONLINE_USERS) {
+            ONLINE_USERS.remove(s);
         }
     }
 
@@ -75,10 +76,10 @@ public class OnlineSessionStore implements HttpSessionListener {
      * @return
      */
     public Set<HttpSession> getAllSession() {
-        Set<HttpSession> all = new HashSet<>();
-        all.addAll(ONLINE_SESSIONS);
-        all.addAll(ONLINE_USERS.values());
-        return Collections.unmodifiableSet(all);
+        Set<HttpSession> alls = new HashSet<>();
+        alls.addAll(ONLINE_SESSIONS);
+        alls.addAll(ONLINE_USERS);
+        return Collections.unmodifiableSet(alls);
     }
 
     /**
@@ -88,21 +89,11 @@ public class OnlineSessionStore implements HttpSessionListener {
      * @return
      */
     public HttpSession getSession(ID user) {
-        return ONLINE_USERS.get(user);
-    }
-
-    /**
-     * @param request
-     */
-    public void storeLastActive(HttpServletRequest request) {
-        final String requestUri = request.getRequestURI();
-        if (requestUri.contains("/filex/access/")) {
-            return;
+        for (HttpSession s : ONLINE_SESSIONS) {
+            Object inSession = s.getAttribute(WebUtils.CURRENT_USER);
+            if (user.equals(inSession)) return s;
         }
-        
-        HttpSession s = request.getSession();
-        s.setAttribute(SK_LASTACTIVE,
-                new Object[]{System.currentTimeMillis(), requestUri, ServletUtils.getRemoteAddr(request)});
+        return null;
     }
 
     /**
@@ -126,7 +117,23 @@ public class OnlineSessionStore implements HttpSessionListener {
             }
         }
 
-        ONLINE_USERS.put((ID) loginUser, s);
+        synchronized (ONLINE_USERS) {
+            ONLINE_USERS.add(s);
+        }
+    }
+
+    /**
+     * @param request
+     */
+    public void storeLastActive(HttpServletRequest request) {
+        final String requestUri = request.getRequestURI();
+        if (requestUri.contains("/filex/access/")) {
+            return;
+        }
+
+        HttpSession s = request.getSession();
+        s.setAttribute(SK_LASTACTIVE,
+                new Object[]{System.currentTimeMillis(), requestUri, ServletUtils.getRemoteAddr(request)});
     }
 
     /**
@@ -139,12 +146,23 @@ public class OnlineSessionStore implements HttpSessionListener {
         if (sessionOrUser instanceof ID) {
             found = getSession((ID) sessionOrUser);
         }
-        // SessionID
+        // SessionID or AuthToken
         else {
             for (HttpSession s : getAllSession()) {
                 if (s.getId().equals(sessionOrUser)) {
                     found = s;
                     break;
+                }
+            }
+
+            // H5 AuthToken
+            if (found == null) {
+                for (Object[] s : getAllSessionH5(false)) {
+                    if (sessionOrUser.equals(s[3])) {
+                        AuthTokenManager.verifyToken((String) s[3], true, false);
+                        getAllSessionH5(true);
+                        return true;
+                    }
                 }
             }
         }
@@ -155,7 +173,46 @@ public class OnlineSessionStore implements HttpSessionListener {
                 log.warn("Kill session with {}", sessionOrUser);
             }
         } catch (Exception ignored) {}
-
         return found != null;
+    }
+
+    // for Mobile
+
+    /**
+     * @param authToken
+     * @param user
+     * @param activeUrl
+     * @param request
+     */
+    public void storeLastActiveH5(String authToken, ID user, String activeUrl, HttpServletRequest request) {
+        ONLINE_USERS_H5.put(authToken,
+                new Object[]{System.currentTimeMillis(), activeUrl, ServletUtils.getRemoteAddr(request), authToken, user});
+    }
+
+    /**
+     * @param user
+     * @return
+     */
+    public String getSessionH5(ID user) {
+        for (Object[] s : ONLINE_USERS_H5.values()) {
+            if (user.equals(s[4])) return (String) s[3];
+        }
+        return null;
+    }
+
+    /**
+     * @param clearInvalid
+     * @return
+     */
+    public Collection<Object[]> getAllSessionH5(boolean clearInvalid) {
+        if (clearInvalid) {
+            for (String token : ONLINE_USERS_H5.keySet()) {
+                ID valid = AuthTokenManager.verifyToken(token);
+                if (valid == null) ONLINE_USERS_H5.remove(token);
+            }
+            log.info("Clean H5 sessions. Current : {}", ONLINE_USERS_H5.size());
+        }
+
+        return ONLINE_USERS_H5.values();
     }
 }

@@ -114,7 +114,7 @@ class OnlineUserViewer extends RbAlert {
   }
 
   _load() {
-    $.get('/admin/audit/online-users', (res) => {
+    $.get('/admin/audit/online-users?h5=yes', (res) => {
       if (res.error_code === 0) {
         this.setState({ users: res.data })
         this._loadTimer = setTimeout(() => this._load(), 60 * 1000)

@@ -146,28 +146,30 @@ public class LoginAction extends BaseController {
      * @param user
      */
     private void createLoginLog(HttpServletRequest request, ID user) {
-        final String ua = request.getHeader("user-agent");
-        String uaClear;
+        final String userAgent = request.getHeader("user-agent");
+        String uaSimple;
         try {
-            UserAgent uas = UserAgent.parseUserAgentString(ua);
+            final UserAgent UA = UserAgent.parseUserAgentString(userAgent);
 
-            uaClear = uas.getBrowser().name();
-            if (uas.getBrowserVersion() != null) {
-                String mv = uas.getBrowserVersion().getMajorVersion();
-                if (!uaClear.endsWith(mv)) uaClear += "-" + mv;
+            uaSimple = UA.getBrowser().name();
+            if (UA.getBrowserVersion() != null) {
+                String mv = UA.getBrowserVersion().getMajorVersion();
+                if (!uaSimple.endsWith(mv)) uaSimple += "-" + mv;
             }
 
-            OperatingSystem os = uas.getOperatingSystem();
+            OperatingSystem os = UA.getOperatingSystem();
             if (os != null) {
-                uaClear += " (" + os + ")";
-                if (os.getDeviceType() != null && os.getDeviceType() == DeviceType.MOBILE) uaClear += " [Mobile]";
+                uaSimple += " (" + os + ")";
+                if (os.getDeviceType() != null && os.getDeviceType() == DeviceType.MOBILE) uaSimple += " [Mobile]";
             }
 
-            if (request.getAttribute(SK_TEMP_AUTH) != null) uaClear += " [TempAuth]";
+            if (request.getAttribute(SK_TEMP_AUTH) != null) uaSimple += " [TempAuth]";
+            if (userAgent.contains("DingTalk")) uaSimple += " [DingTalk]";
+            if (userAgent.contains("wxwork")) uaSimple += " [WeCom]";
 
         } catch (Exception ex) {
-            log.warn("Unknown user-agent : {}", ua);
-            uaClear = "UNKNOW";
+            log.warn("Unknown User-Agent : {}", userAgent);
+            uaSimple = "UNKNOW";
         }
 
         String ipAddr = StringUtils.defaultString(ServletUtils.getRemoteAddr(request), "127.0.0.1");
@@ -175,7 +177,7 @@ public class LoginAction extends BaseController {
         final Record llog = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
         llog.setID("user", user);
         llog.setString("ipAddr", ipAddr);
-        llog.setString("userAgent", uaClear);
+        llog.setString("userAgent", uaSimple);
         llog.setDate("loginTime", CalendarUtils.now());
 
         TaskExecutors.queue(() -> {
@@ -186,7 +188,7 @@ public class LoginAction extends BaseController {
             if (uid == null) uid = user.toLiteral();
             
             String uaUrl = String.format("api/authority/user/echo?user=%s&ip=%s&ua=%s",
-                    CodecUtils.base64UrlEncode(uid), ipAddr, CodecUtils.urlEncode(ua));
+                    CodecUtils.base64UrlEncode(uid), ipAddr, CodecUtils.urlEncode(userAgent));
             License.siteApiNoCache(uaUrl);
         });
     }

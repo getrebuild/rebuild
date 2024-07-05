@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.audit;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -59,36 +58,45 @@ public class LoginLogController extends EntityController {
             ID user = (ID) s.getAttribute(WebUtils.CURRENT_USER);
             if (user == null) continue;
 
-            Object[] active = (Object[]) s.getAttribute(OnlineSessionStore.SK_LASTACTIVE);
-            if (active == null) {
-                active = new Object[]{ null, "/dashboard/home", null };
-            } else {
-                active = active.clone();
-                active[0] = I18nUtils.formatDate(new Date((Long) active[0]));
-            }
+            Object[] act = (Object[]) s.getAttribute(OnlineSessionStore.SK_LASTACTIVE);
+            if (act == null) continue;
 
             String fullName = UserHelper.getName(user);
             if (currentSid.equals(s.getId())) fullName += " [" + Language.L("当前") + "]";
 
             JSONObject item = JSONUtils.toJSONObject(
                     new String[] { "user", "fullName", "activeTime", "activeUrl", "activeIp", "sid" },
-                    new Object[] { user, fullName, active[0], active[1], active[2], s.getId() });
+                    new Object[] { user, fullName, act[0], act[1], act[2], s.getId() });
             online.add(item);
+        }
+        // H5
+        if (getBoolParameter(request, "h5")) {
+            for (Object[] act : Application.getSessionStore().getAllSessionH5(false)) {
+                ID user = (ID) act[4];
+                JSONObject item = JSONUtils.toJSONObject(
+                        new String[] { "user", "fullName", "activeTime", "activeUrl", "activeIp", "sid", "h5" },
+                        new Object[] { user, UserHelper.getName(user), act[0], act[1], act[2], act[3], true });
+                online.add(item);
+            }
         }
 
         online.sort((o1, o2) -> {
-            Date d1 = CalendarUtils.parse(((JSONObject) o1).getString("activeTime").substring(0, 19));
-            Date d2 = CalendarUtils.parse(((JSONObject) o2).getString("activeTime").substring(0, 19));
-            return d2.compareTo(d1);
+            long d1 = ((JSONObject) o1).getLong("activeTime");
+            long d2 = ((JSONObject) o2).getLong("activeTime");
+            return Long.compare(d2, d1);
         });
+        for (Object o : online) {
+            long activeTime = ((JSONObject) o).getLong("activeTime");
+            ((JSONObject) o).put("activeTime", I18nUtils.formatDate(new Date(activeTime)));
+        }
 
         return online;
     }
 
     @RequestMapping("/admin/audit/kill-session")
     public RespBody killSession(HttpServletRequest request) {
-        String sessionId = getParameterNotNull(request, "user");
-        Application.getSessionStore().killSession(sessionId);
+        String sid = getParameterNotNull(request, "user");
+        Application.getSessionStore().killSession(sid);
         return RespBody.ok();
     }
 
