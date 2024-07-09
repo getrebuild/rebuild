@@ -18,6 +18,7 @@ import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.engine.NullValue;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.DeleteRecord;
@@ -57,7 +58,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -715,16 +716,28 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     public List<Record> getAndCheckRepeated(Record checkRecord, int limit) {
         final Entity entity = checkRecord.getEntity();
 
-        List<String> checkFields = new ArrayList<>();
-        for (Iterator<String> iter = checkRecord.getAvailableFieldIterator(); iter.hasNext(); ) {
-            Field field = entity.getField(iter.next());
+        Record existingRecord = null;
+        Map<String, Object> checkFields = new LinkedHashMap<>();
+        for (Field field : entity.getFields()) {
             if (field.isRepeatable()
-                    || !checkRecord.hasValue(field.getName(), false)
                     || MetadataHelper.isCommonsField(field)
                     || EasyMetaFactory.getDisplayType(field) == DisplayType.SERIES) {
                 continue;
             }
-            checkFields.add(field.getName());
+
+            Object checkValue = checkRecord.getObjectValue(field.getName());
+            if (checkValue == null) {
+                // 从数据库补充完整的字段值
+                if (existingRecord == null) {
+                    if (checkRecord.getPrimary() == null) {
+                        existingRecord = EntityHelper.forNew(entity.getEntityCode(), UserService.SYSTEM_USER, false);
+                    } else {
+                        existingRecord = Application.getQueryFactory().recordNoFilter(checkRecord.getPrimary());
+                    }
+                }
+                checkValue = existingRecord.getObjectValue(field.getName());
+            }
+            checkFields.put(field.getName(), checkValue);
         }
 
         if (checkFields.isEmpty()) return Collections.emptyList();
@@ -735,14 +748,17 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         StringBuilder checkSql = new StringBuilder("select ")
                 .append(entity.getPrimaryField().getName()).append(", ")  // 增加一个主键列
-                .append(StringUtils.join(checkFields.iterator(), ", "))
+                .append(StringUtils.join(checkFields.keySet().iterator(), ", "))
                 .append(" from ")
                 .append(entity.getName())
                 .append(" where ( ");
-        for (String field : checkFields) {
-            checkSql.append(field).append(" = ? ").append(orAnd).append(" ");
+        for (Map.Entry<String, Object> e : checkFields.entrySet()) {
+            checkSql.append(e.getKey());
+            if (NullValue.isNull(e.getValue())) checkSql.append(" is null ");
+            else checkSql.append(" = ? ");
+            checkSql.append(orAnd).append(" ");
         }
-        checkSql.delete(checkSql.lastIndexOf("?") + 1, checkSql.length()).append(" )");
+        checkSql.delete(checkSql.length() - 4, checkSql.length()).append(" )");
 
         // 排除自己
         if (checkRecord.getPrimary() != null) {
@@ -755,12 +771,20 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             String globalRepeat = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.DETAILS_GLOBALREPEAT);
             // v3.4
             if (!BooleanUtils.toBoolean(globalRepeat)) {
-                String dtf = MetadataHelper.getDetailToMainField(entity).getName();
-                ID mainid = checkRecord.getID(dtf);
+                String dtfName = MetadataHelper.getDetailToMainField(entity).getName();
+                ID mainid = checkRecord.getID(dtfName);
+                // 3.7.2 增强兼容
+                if (mainid == null && existingRecord != null) {
+                    mainid = existingRecord.getID(dtfName);
+                }
+                if (mainid == null && checkRecord.getPrimary() != null) {
+                    mainid = QueryHelper.getMainIdByDetail(checkRecord.getPrimary());
+                }
+
                 if (mainid == null) {
                     log.warn("Check all records of detail for repeatable");
                 } else {
-                    checkSql.append(String.format(" and (%s = '%s')", dtf, mainid));
+                    checkSql.append(String.format(" and (%s = '%s')", dtfName, mainid));
                 }
             }
         }
@@ -768,8 +792,10 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         Query query = ((BaseService) delegateService).getPersistManagerFactory().createQuery(checkSql.toString());
 
         int index = 1;
-        for (String field : checkFields) {
-            query.setParameter(index++, checkRecord.getObjectValue(field));
+        for (Map.Entry<String, Object> e : checkFields.entrySet()) {
+            if (!NullValue.isNull(e.getValue())) {
+                query.setParameter(index++, e.getValue());
+            }
         }
         return query.setLimit(limit).list();
     }
