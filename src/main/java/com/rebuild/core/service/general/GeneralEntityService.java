@@ -726,8 +726,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             }
 
             Object checkValue = checkRecord.getObjectValue(field.getName());
-            // 如更新则从数据库取值
             if (checkValue == null) {
+                // 从数据库补充完整的字段值
                 if (existingRecord == null) {
                     if (checkRecord.getPrimary() == null) {
                         existingRecord = EntityHelper.forNew(entity.getEntityCode(), UserService.SYSTEM_USER, false);
@@ -771,12 +771,20 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             String globalRepeat = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.DETAILS_GLOBALREPEAT);
             // v3.4
             if (!BooleanUtils.toBoolean(globalRepeat)) {
-                String dtf = MetadataHelper.getDetailToMainField(entity).getName();
-                ID mainid = checkRecord.getID(dtf);
+                String dtfName = MetadataHelper.getDetailToMainField(entity).getName();
+                ID mainid = checkRecord.getID(dtfName);
+                // 3.7.2 增强兼容
+                if (mainid == null && existingRecord != null) {
+                    mainid = existingRecord.getID(dtfName);
+                }
+                if (mainid == null && checkRecord.getPrimary() != null) {
+                    mainid = QueryHelper.getMainIdByDetail(checkRecord.getPrimary());
+                }
+
                 if (mainid == null) {
                     log.warn("Check all records of detail for repeatable");
                 } else {
-                    checkSql.append(String.format(" and (%s = '%s')", dtf, mainid));
+                    checkSql.append(String.format(" and (%s = '%s')", dtfName, mainid));
                 }
             }
         }
