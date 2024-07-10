@@ -1178,7 +1178,8 @@ body {
   padding-bottom: 7px;
 }
 
-.rbview-form .type-PICKLIST .form-control-plaintext > span.text-muted {
+.rbview-form .type-PICKLIST .form-control-plaintext > span.text-muted,
+.rbview-form .type-CLASSIFICATION .form-control-plaintext > span.text-muted {
   display: inline-block;
   padding-top: 3px;
 }

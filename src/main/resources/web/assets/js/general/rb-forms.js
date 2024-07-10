@@ -2312,7 +2312,7 @@ class RbFormClassification extends RbFormElement {
           {text.text}
         </span>
       )
-    } else {
+    } else if (text) {
       text = <span className="badge text-dark">{text.text}</span>
     }
     return super.renderViewElement(text)
