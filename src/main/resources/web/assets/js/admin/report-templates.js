@@ -140,7 +140,7 @@ class ReportEditor extends ConfigFormDlg {
                   </span>
                 </label>
                 <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                  <input className="custom-control-input J_word4" type="radio" value="3" name="reportType" onChange={(e) => this.checkTemplate(e)} />
+                  <input className="custom-control-input" type="radio" value="3" name="reportType" onChange={(e) => this.checkTemplate(e)} />
                   <span className="custom-control-label">
                     网页 <sup className="rbv" />
                   </span>
@@ -266,8 +266,11 @@ class ReportEditor extends ConfigFormDlg {
           that.__lastFile = res.key
           if (this.__select2) {
             // 自动选择 WORD
-            if (that.__lastFile.toLowerCase().endsWith('.docx')) $('.J_word4').attr('checked', true)
-            that.checkTemplate()
+            if (that.__lastFile.toLowerCase().endsWith('.docx') && that.state.reportType !== 4) {
+              $('.J_word4')[0].click()
+            } else {
+              that.checkTemplate()
+            }
           } else {
             const fileName = $fileCutName(this.__lastFile)
             this.setState(
@@ -331,29 +334,31 @@ class ReportEditor extends ConfigFormDlg {
       })
     }
 
-    const ps = this._buildParams()
-    if (ps === false) return
+    setTimeout(() => {
+      const ps = this._buildParams()
+      if (ps === false) return
 
-    $.get(`/admin/data/report-templates/check-template?${ps}`, (res) => {
-      if (res.error_code === 0) {
-        const fileName = $fileCutName(this.__lastFile)
-        this.setState(
-          {
-            templateFile: this.__lastFile,
-            uploadFileName: fileName,
-            name: this.state.name || fileName,
-            invalidVars: res.data.invalidVars,
-            invalidMsg: res.data.invalidMsg,
-          },
-          () => {
-            // ...
-          }
-        )
-      } else {
-        this._clearParams()
-        RbHighbar.error(res.error_msg)
-      }
-    })
+      $.get(`/admin/data/report-templates/check-template?${ps}`, (res) => {
+        if (res.error_code === 0) {
+          const fileName = $fileCutName(this.__lastFile)
+          this.setState(
+            {
+              templateFile: this.__lastFile,
+              uploadFileName: fileName,
+              name: this.state.name || fileName,
+              invalidVars: res.data.invalidVars,
+              invalidMsg: res.data.invalidMsg,
+            },
+            () => {
+              // ...
+            }
+          )
+        } else {
+          this._clearParams()
+          RbHighbar.error(res.error_msg)
+        }
+      })
+    }, 200)
   }
 
   _useFilter() {
