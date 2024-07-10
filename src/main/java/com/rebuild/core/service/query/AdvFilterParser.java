@@ -325,7 +325,7 @@ public class AdvFilterParser extends SetUser {
             else if (isN2NUsers) {
                 if (ParseHelper.SFU.equalsIgnoreCase(op)) {
                     op = ParseHelper.IN;
-                    value = getUser().toLiteral();
+                    value = UserContextHolder.getReplacedUser().toLiteral();
                 }
 
                 if (ParseHelper.IN.equals(op) || ParseHelper.NIN.equals(op)) {
@@ -335,7 +335,7 @@ public class AdvFilterParser extends SetUser {
                 }
                 else if (ParseHelper.SFB.equalsIgnoreCase(op)) {
                     op = ParseHelper.IN;
-                    value = Objects.requireNonNull(UserHelper.getDepartment(getUser())).getIdentity().toString();
+                    value = Objects.requireNonNull(UserHelper.getDepartment(UserContextHolder.getReplacedUser())).getIdentity().toString();
                     inWhere = String.format("select userId from User where deptId = '%s'", value);
                 }
             }
@@ -559,9 +559,9 @@ public class AdvFilterParser extends SetUser {
         }
         // 部门/用户
         else if (ParseHelper.SFU.equalsIgnoreCase(op)) {
-            value = getUser().toLiteral();
+            value = UserContextHolder.getReplacedUser().toLiteral();
         } else if (ParseHelper.SFB.equalsIgnoreCase(op)) {
-            Department dept = UserHelper.getDepartment(getUser());
+            Department dept = UserHelper.getDepartment(UserContextHolder.getReplacedUser());
             if (dept != null) {
                 value = dept.getIdentity().toString();
                 int ref = lastFieldMeta.getReferenceEntity().getEntityCode();
@@ -574,7 +574,7 @@ public class AdvFilterParser extends SetUser {
                 }
             }
         } else if (ParseHelper.SFD.equalsIgnoreCase(op)) {
-            Department dept = UserHelper.getDepartment(getUser());
+            Department dept = UserHelper.getDepartment(UserContextHolder.getReplacedUser());
             if (dept != null) {
                 int refe = lastFieldMeta.getReferenceEntity().getEntityCode();
                 if (refe == EntityHelper.Department) {
@@ -806,9 +806,9 @@ public class AdvFilterParser extends SetUser {
 
             } else if (dt == DisplayType.REFERENCE) {
                 if (queryField.getReferenceEntity().getEntityCode() == EntityHelper.User) {
-                    useValue = UserContextHolder.getUser();
+                    useValue = UserContextHolder.getReplacedUser();
                 } else if (queryField.getReferenceEntity().getEntityCode() == EntityHelper.Department) {
-                    Department dept = UserHelper.getDepartment(UserContextHolder.getUser());
+                    Department dept = UserHelper.getDepartment(UserContextHolder.getReplacedUser());
                     if (dept != null) useValue = dept.getIdentity();
                 }
             } else {
@@ -819,7 +819,7 @@ public class AdvFilterParser extends SetUser {
         // {@CURRENT.} for USER
         if (fieldName.startsWith(CURRENT_ANY + ".")) {
             String userField = fieldName.substring(CURRENT_ANY.length() + 1);
-            Object[] o = Application.getQueryFactory().uniqueNoFilter(getUser(), userField);
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(UserContextHolder.getReplacedUser(), userField);
             if (o == null || o[0] == null) {
                 log.warn("Cannot use `{}` in `{}` (No value found)", value, queryField);
                 return new VarFieldNoValue37(value);
