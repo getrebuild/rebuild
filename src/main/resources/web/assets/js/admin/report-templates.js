@@ -142,7 +142,7 @@ class ReportEditor extends ConfigFormDlg {
                 <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
                   <input className="custom-control-input" type="radio" value="3" name="reportType" onChange={(e) => this.checkTemplate(e)} />
                   <span className="custom-control-label">
-                    网页 <sup className="rbv" />
+                    {$L('网页')} <sup className="rbv" />
                   </span>
                 </label>
               </div>
