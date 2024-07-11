@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationManager;
@@ -115,7 +116,7 @@ public class ReferenceSearchController extends EntityController {
             ID[] recently = RecentlyUsedHelper.gets(user, searchEntity.getName(), type);
 
             if (recently.length == 0) {
-                if (forceResults);  // Nothings
+                if (forceResults);  // NOOP
                 else return JSONUtils.EMPTY_ARRAY;
             } else {
                 return RecentlyUsedSearchController.formatSelect2(recently, Language.L("最近使用"));
@@ -218,9 +219,11 @@ public class ReferenceSearchController extends EntityController {
     // 查询结果
     private List<Object> resultSearch(String sqlWhere, Entity entity, int maxResults) {
         Field nameField = entity.getNameField();
+        boolean classCode = entity.getEntityCode() == EntityHelper.ClassificationData;
 
         String sql = MessageFormat.format("select {0},{1} from {2} where {3}",
                 entity.getPrimaryField().getName(), nameField.getName(), entity.getName(), sqlWhere);
+        if (classCode) sql = sql.replace(" from ", ",code,quickCode from ");
 
         if (!sqlWhere.contains(" order by ")) {
             DisplayType dt = EasyMetaFactory.getDisplayType(nameField);
@@ -231,18 +234,22 @@ public class ReferenceSearchController extends EntityController {
             }
         }
 
+        if (Application.devMode()) log.info("[DEV] Reference search : {}", sql);
         Object[][] array = QueryHelper.createQuery(sql, entity).setLimit(maxResults).array();
 
-        List<Object> result = new ArrayList<>();
+        List<Object> res = new ArrayList<>();
         for (Object[] o : array) {
-            ID recordId = (ID) o[0];
+            ID id = (ID) o[0];
             String label = (String) FieldValueHelper.wrapFieldValue(o[1], nameField, true);
             if (StringUtils.isBlank(label)) {
-                label = FieldValueHelper.NO_LABEL_PREFIX + recordId.toLiteral().toUpperCase();
+                label = FieldValueHelper.NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
             }
-            result.add(FieldValueHelper.wrapMixValue(recordId, label));
+
+            JSONObject item = FieldValueHelper.wrapMixValue(id, label);
+            if (classCode) item.put("code", StringUtils.defaultIfBlank((String) o[2], (String) o[3]));
+            res.add(item);
         }
-        return result;
+        return res;
     }
 
     // 获取记录的名称字段值

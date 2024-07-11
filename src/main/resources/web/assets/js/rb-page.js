@@ -822,7 +822,7 @@ var $unmount = function (container, delay, keepContainer, root18) {
  */
 var $initReferenceSelect2 = function (el, option) {
   var search_input = null
-  var $el = $(el).select2({
+  var select2Option = {
     placeholder: option.placeholder || $L('选择%s', option.label),
     minimumInputLength: 0,
     maximumSelectionLength: $(el).attr('multiple') ? 999 : 2,
@@ -861,8 +861,9 @@ var $initReferenceSelect2 = function (el, option) {
       },
     },
     theme: 'default ' + (option.appendClass || ''),
-  })
-  return $el
+  }
+  if (option.templateResult) select2Option.templateResult = option.templateResult
+  return $(el).select2(select2Option)
 }
 
 /**

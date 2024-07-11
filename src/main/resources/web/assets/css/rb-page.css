@@ -1954,6 +1954,13 @@ th.column-fixed {
   position: relative;
 }
 
+.sortable-box-title > a {
+  position: absolute;
+  font-size: 1.231rem;
+  margin-top: -2px;
+  margin-left: 5px;
+}
+
 .sortable-swap {
   position: relative;
 }
@@ -5383,6 +5390,16 @@ span.icon-append .icon {
   padding-top: 2px;
 }
 
+span.code-append > em {
+  float: right;
+  width: 50px;
+  overflow: hidden;
+  color: rgba(0, 0, 0, 0.4);
+  font-style: normal;
+  font-size: 12px;
+  text-align: right;
+}
+
 .tooltip {
   z-index: 1100;
 }
@@ -5707,5 +5724,4 @@ div.formula-code {
 
 .shortcut-buttons-flatpickr-buttons > button:hover {
   background-color: #e6e6e6;
-
 }
