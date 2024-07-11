@@ -742,23 +742,29 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         if (checkFields.isEmpty()) return Collections.emptyList();
 
+        boolean allNull = true;
         // OR AND
         final String orAnd = StringUtils.defaultString(
-                EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.REPEAT_FIELDS_CHECK_MODE), "or");
+                EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.REPEAT_FIELDS_CHECK_MODE), "or").toLowerCase();
 
         StringBuilder checkSql = new StringBuilder("select ")
                 .append(entity.getPrimaryField().getName()).append(", ")  // 增加一个主键列
                 .append(StringUtils.join(checkFields.keySet().iterator(), ", "))
                 .append(" from ")
-                .append(entity.getName())
-                .append(" where ( ");
+                .append(entity.getName());
+        List<String> checkSqlWhere = new ArrayList<>();
         for (Map.Entry<String, Object> e : checkFields.entrySet()) {
-            checkSql.append(e.getKey());
-            if (NullValue.isNull(e.getValue())) checkSql.append(" is null ");
-            else checkSql.append(" = ? ");
-            checkSql.append(orAnd).append(" ");
+            if (NullValue.isNull(e.getValue())) {
+                if ("and".equals(orAnd)) checkSqlWhere.add(String.format(" %s is null ", e.getKey()));
+            } else {
+                checkSqlWhere.add(String.format(" %s = ? ", e.getKey()));
+                allNull = false;
+            }
         }
-        checkSql.delete(checkSql.length() - 4, checkSql.length()).append(" )");
+        // 全空值则不检查
+        if (allNull) return Collections.emptyList();
+
+        checkSql.append(" where (").append(StringUtils.join(checkSqlWhere, orAnd)).append(")");
 
         // 排除自己
         if (checkRecord.getPrimary() != null) {

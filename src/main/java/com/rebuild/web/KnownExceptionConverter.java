@@ -39,9 +39,14 @@ public class KnownExceptionConverter {
             return ex.getLocalizedMessage();
         }
 
-        final Throwable cause = ex.getCause();
-        final String exMsg = cause == null ? "" : cause.getLocalizedMessage();
-        log.error("DBERR: {}", exMsg);
+        String dbMsg = convert2DbErrorMsg(ex);
+        if (dbMsg != null) log.error("DBERR: {}", ex.getCause() == null ? ex : ex.getCause().getLocalizedMessage());
+        return dbMsg;
+    }
+
+    static String convert2DbErrorMsg(Throwable ex) {
+        Throwable cause = ex.getCause();
+        String exMsg = cause == null ? "" : cause.getLocalizedMessage();
 
         if (cause instanceof DataTruncation) {
 

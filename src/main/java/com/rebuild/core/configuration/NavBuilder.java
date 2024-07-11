@@ -162,7 +162,7 @@ public class NavBuilder extends NavManager {
             } else if (NAV_FEEDS.equals(value) || NAV_FILEMRG.equals(value) || NAV_PROJECT.equals(value)) {
                 return false;
             } else if (!MetadataHelper.containsEntity(value)) {
-                log.warn("Unknown entity in nav : " + value);
+                log.warn("Unknown entity in nav : {}", value);
                 return true;
             }
 
