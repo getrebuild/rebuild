@@ -742,9 +742,10 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         if (checkFields.isEmpty()) return Collections.emptyList();
 
+        boolean allNull = true;
         // OR AND
         final String orAnd = StringUtils.defaultString(
-                EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.REPEAT_FIELDS_CHECK_MODE), "or");
+                EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.REPEAT_FIELDS_CHECK_MODE), "or").toLowerCase();
 
         StringBuilder checkSql = new StringBuilder("select ")
                 .append(entity.getPrimaryField().getName()).append(", ")  // 增加一个主键列
@@ -754,11 +755,21 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 .append(" where ( ");
         for (Map.Entry<String, Object> e : checkFields.entrySet()) {
             checkSql.append(e.getKey());
-            if (NullValue.isNull(e.getValue())) checkSql.append(" is null ");
-            else checkSql.append(" = ? ");
+            if (NullValue.isNull(e.getValue())) {
+                if ("and".equals(orAnd)) checkSql.append(" is null ");
+            } else {
+                checkSql.append(" = ? ");
+                allNull = false;
+            }
             checkSql.append(orAnd).append(" ");
         }
-        checkSql.delete(checkSql.length() - 4, checkSql.length()).append(" )");
+
+        // 全空值则不检查
+        if (allNull) return Collections.emptyList();
+
+        if (checkSql.toString().endsWith(" or ")) checkSql.delete(checkSql.length() - 4, checkSql.length());
+        else if (checkSql.toString().endsWith(" and ")) checkSql.delete(checkSql.length() - 5, checkSql.length());
+        checkSql.append(" )");
 
         // 排除自己
         if (checkRecord.getPrimary() != null) {
