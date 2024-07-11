@@ -751,25 +751,20 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 .append(entity.getPrimaryField().getName()).append(", ")  // 增加一个主键列
                 .append(StringUtils.join(checkFields.keySet().iterator(), ", "))
                 .append(" from ")
-                .append(entity.getName())
-                .append(" where ( ");
+                .append(entity.getName());
+        List<String> checkSqlWhere = new ArrayList<>();
         for (Map.Entry<String, Object> e : checkFields.entrySet()) {
-            checkSql.append(e.getKey());
             if (NullValue.isNull(e.getValue())) {
-                if ("and".equals(orAnd)) checkSql.append(" is null ");
+                if ("and".equals(orAnd)) checkSqlWhere.add(String.format(" %s is null ", e.getKey()));
             } else {
-                checkSql.append(" = ? ");
+                checkSqlWhere.add(String.format(" %s = ? ", e.getKey()));
                 allNull = false;
             }
-            checkSql.append(orAnd).append(" ");
         }
-
         // 全空值则不检查
         if (allNull) return Collections.emptyList();
 
-        if (checkSql.toString().endsWith(" or ")) checkSql.delete(checkSql.length() - 4, checkSql.length());
-        else if (checkSql.toString().endsWith(" and ")) checkSql.delete(checkSql.length() - 5, checkSql.length());
-        checkSql.append(" )");
+        checkSql.append(" where ").append(StringUtils.join(checkSqlWhere, orAnd));
 
         // 排除自己
         if (checkRecord.getPrimary() != null) {
