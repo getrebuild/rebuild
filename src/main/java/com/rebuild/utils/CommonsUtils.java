@@ -381,7 +381,7 @@ public class CommonsUtils {
      * @return
      */
     public static Object[] toArray(Object o) {
-        if (o == null) return null;
+        if (o == null) return new Object[0];
         if (o instanceof Object[]) return (Object[]) o;
         if (o instanceof Collection) return ((Collection<?>) o).toArray();
 
