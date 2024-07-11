@@ -1505,8 +1505,9 @@ a.link.link-icon::after {
   min-width: 100%;
 }
 
-.rblist-scroller > div {
-  overflow: hidden;
+.rb-datatable-body .rb-scroller .ps-scrollbar-x-rail,
+.rb-datatable-body .rb-scroller .ps-scrollbar-y-rail {
+  z-index: 2;
 }
 
 .list-nodata {
@@ -1739,6 +1740,7 @@ i.dividing.ui-draggable-dragging {
 
 .column-empty {
   padding: 8px !important;
+  width: 100%;
 }
 
 .column-nopriv {
@@ -1833,6 +1835,10 @@ th.column-fixed {
 
 .column-fixed.col-action .btn.btn-sm {
   line-height: 28px;
+}
+
+.column-fixed.col-action .btn.btn-sm:active {
+  background-color: #e3e3e3;
 }
 
 .table.table-header-fixed thead > tr > th {
