@@ -39,7 +39,7 @@ public class FilesHelper {
     // 私有
     public static final String SCOPE_SELF = "SELF";
 
-    private static final LRUMap<String, Integer> FILESIZES = new LRUMap<>(2000);
+    private static final LRUMap<String, Long> FILESIZES = new LRUMap<>(2000);
 
     /**
      * 暂存文件大小，以便在创建文件记录时使用
@@ -48,7 +48,7 @@ public class FilesHelper {
      * @param fileSize in bytes
      * @see #createAttachment(String, ID)
      */
-    public static void storeFileSize(String filePath, int fileSize) {
+    public static void storeFileSize(String filePath, long fileSize) {
         FILESIZES.put(filePath, fileSize);
     }
 
@@ -71,14 +71,14 @@ public class FilesHelper {
         }
 
         if (FILESIZES.containsKey(filePath)) {
-            attach.setInt("fileSize", FILESIZES.get(filePath));
+            attach.setLong("fileSize", FILESIZES.get(filePath));
         } else {
             Object[] db = Application.createQueryNoFilter(
                     "select fileSize from Attachment where filePath = ?")
                     .setParameter(1, filePath)
                     .unique();
             if (db != null) {
-                attach.setInt("fileSize", (Integer) db[0]);
+                attach.setLong("fileSize", (Long) db[0]);
             }
         }
 

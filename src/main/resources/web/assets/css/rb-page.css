@@ -3726,6 +3726,13 @@ form {
   display: none;
 }
 
+.modal.select-list .modal-body li > a > .mdi,
+.modal.select-list .modal-body li > a > .zmdi {
+  position: absolute;
+  right: 6px;
+  margin-top: 1px;
+}
+
 .modal.select-list .modal-body li a > .mdi {
   font-size: 1.231rem;
 }

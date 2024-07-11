@@ -23253,13 +23253,3 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^='col-']:las
   opacity: 0;
   animation: spinner-grow 0.75s linear infinite;
 }
-
-/* EXT */
-
-.rb-error.v35 .error-container {
-  background: #fff url(../img/browser-bar.png) 0 0 no-repeat;
-  max-width: 888px;
-  margin: 60px auto;
-  padding: 80px 20px 35px;
-  border-radius: 6px 6px 0 0;
-}
