@@ -1831,6 +1831,7 @@ th.column-fixed {
   left: unset;
   right: 0;
   padding: 3px 10px !important;
+  padding-right: 18px !important;
 }
 
 .column-fixed.col-action .btn.btn-sm {
