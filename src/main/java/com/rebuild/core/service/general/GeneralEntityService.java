@@ -764,7 +764,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         // 全空值则不检查
         if (allNull) return Collections.emptyList();
 
-        checkSql.append(" where ").append(StringUtils.join(checkSqlWhere, orAnd));
+        checkSql.append(" where (").append(StringUtils.join(checkSqlWhere, orAnd)).append(")");
 
         // 排除自己
         if (checkRecord.getPrimary() != null) {
