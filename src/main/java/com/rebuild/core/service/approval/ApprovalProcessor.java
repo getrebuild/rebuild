@@ -539,7 +539,8 @@ public class ApprovalProcessor extends SetUser {
 
             String nodeNo = (String) group.get(0)[6];
             FlowNode flowNode = null;
-            if (FlowNode.NODE_REVOKED.equals(nodeNo) || FlowNode.NODE_CANCELED.equals(nodeNo)) {
+            if (FlowNode.NODE_REVOKED.equals(nodeNo) || FlowNode.NODE_CANCELED.equals(nodeNo)
+                    || FlowNode.NODE_AUTOAPPROVAL.equals(nodeNo)) {
                 // 特殊节点
             } else {
                 flowNode = getFlowNode(nodeNo);
