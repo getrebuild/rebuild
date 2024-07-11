@@ -2312,7 +2312,7 @@ class RbFormClassification extends RbFormElement {
           {text.text}
         </span>
       )
-    } else {
+    } else if (text) {
       text = <span className="badge text-dark">{text.text}</span>
     }
     return super.renderViewElement(text)
@@ -2332,6 +2332,11 @@ class RbFormClassification extends RbFormElement {
         label: this.props.label,
         entity: this.props.$$$parent.props.entity,
         searchType: 'classification',
+        templateResult: function (res) {
+          const $span = $('<span class="code-append"></span>').attr('title', res.text).text(res.text)
+          res.code && $(`<em>${res.code}</em>`).appendTo($span)
+          return $span
+        },
       })
 
       const value = this.state.value

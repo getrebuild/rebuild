@@ -968,8 +968,8 @@ class RbList extends React.Component {
                                   type="button"
                                   className="btn btn-sm btn-link w-auto"
                                   title={btn.title || null}
-                                  onClick={() => {
-                                    typeof btn.onClick === 'function' && btn.onClick(primaryKey.id)
+                                  onClick={(e) => {
+                                    typeof btn.onClick === 'function' && btn.onClick(primaryKey.id, e)
                                   }}>
                                   {btn.icon && <i className={`icon zmdi zmdi-${btn.icon}`} />}
                                   {btn.text}

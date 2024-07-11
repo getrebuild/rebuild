@@ -404,7 +404,7 @@ class MatchFields extends React.Component {
         if (!TF) return
         TF = this.__targetFields.find((x) => x.name === TF)
 
-        // 仅同类型的字段（DATE DATETIME 兼容）
+        // 仅同类型的字段（DATE/DATETIME 兼容）
         const SF = this.__sourceFields.filter((x) => {
           if (TF.type === 'DATE' && x.type === 'DATETIME') return true
           if (TF.type === 'DATETIME' && x.type === 'DATE') return true
@@ -413,6 +413,9 @@ class MatchFields extends React.Component {
             if (x.type === 'CLASSIFICATION') return TF.classification === x.classification
             return true
           }
+          // 文本兼容
+          if (['TEXT', 'PHONE'].includes(TF.type) && ['TEXT', 'PHONE'].includes(x.type)) return true
+          if (['TEXT', 'EMAIL'].includes(TF.type) && ['TEXT', 'EMAIL'].includes(x.type)) return true
           return false
         })
         this.setState({ sourceFields: SF })
@@ -447,7 +450,7 @@ class MatchFields extends React.Component {
     // TODO 开放更多匹配字段
     const targetFields = []
     this.__targetFields.forEach((item) => {
-      if (['TEXT', 'DATE', 'DATETIME', 'CLASSIFICATION', 'REFERENCE'].includes(item.type)) targetFields.push(item)
+      if (['TEXT', 'PHONE', 'EMAIL', 'DATE', 'DATETIME', 'CLASSIFICATION', 'REFERENCE'].includes(item.type)) targetFields.push(item)
     })
 
     if (init) {

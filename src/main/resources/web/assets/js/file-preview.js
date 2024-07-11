@@ -249,19 +249,25 @@ class RbPreview extends React.Component {
 
     $(document).on('keyup.esc-hide', function (e) {
       if (e.keyCode === 27) that.hide() // ESC
+      // for image
+      if (e.keyCode === 37 || e.keyCode === 39) {
+        if (that.props.urls.length > 1) {
+          e.keyCode === 37 ? that._prevImage() : that._nextImage()
+        }
+      }
     })
 
-    $(that._previewBody)
-      .find('>div.fp-content')
-      .height($(window).height() - 60)
     $addResizeHandler(function () {
       $(that._previewBody)
         .find('>div.fp-content')
         .height($(window).height() - 60)
-    })
+    })()
 
-    // in `/s/`
-    setTimeout(() => $('.sharebox.must-center').remove(), 400)
+    setTimeout(() => {
+      // in `/s/`
+      $('.sharebox.must-center').remove()
+      window.focus()
+    }, 400)
   }
 
   componentWillUnmount() {

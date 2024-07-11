@@ -92,29 +92,25 @@ $(document).ready(() => {
   }
 
   // v3.7 LAB
-  if (window.__BOSSKEY) {
-    $('.J_add-nform').on('click', () => renderRbcomp(<DlgNForm entity={wpc.entityName} />))
-    wpc.formsAttr &&
-      wpc.formsAttr.forEach((item) => {
-        const $item = $(`<a class="dropdown-item" href="?id=${item.id}"></a>`).appendTo('.form-action-menu')
-        const $title = $(`<span>${item.name || $L('默认')}</span>`).appendTo($item)
-        if (!item.name) $title.addClass('text-muted')
+  $('.J_add-nform').on('click', () => renderRbcomp(<DlgNForm entity={wpc.entityName} />))
+  wpc.formsAttr &&
+    wpc.formsAttr.forEach((item) => {
+      const $item = $(`<a class="dropdown-item" href="?id=${item.id}"></a>`).appendTo('.form-action-menu')
+      const $title = $(`<span>${item.name || $L('默认')}</span>`).appendTo($item)
+      if (!item.name) $title.addClass('text-muted')
 
-        const $action = $(`<div class="action"><span title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></span></div>`).appendTo($item)
-        $action.find('span').on('click', (e) => {
-          $stopEvent(e, true)
-          renderRbcomp(<DlgNForm entity={wpc.entityName} id={item.id} name={item.name} attrs={item.shareTo} />)
-          $('.form-action-menu').dropdown('toggle')
-        })
-
-        if (wpc.formConfig.id === item.id) $item.addClass('check')
+      const $action = $(`<div class="action"><span title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></span></div>`).appendTo($item)
+      $action.find('span').on('click', (e) => {
+        $stopEvent(e, true)
+        renderRbcomp(<DlgNForm entity={wpc.entityName} id={item.id} name={item.name} attrs={item.shareTo} />)
+        $('.form-action-menu').dropdown('toggle')
       })
-    // 无
-    if (!wpc.formConfig.id) {
-      $(`<a class="dropdown-item text-disabled">${$L('无')}</a>`).appendTo('.form-action-menu')
-    }
-  } else {
-    $('.J_hide').addClass('hide')
+
+      if (wpc.formConfig.id === item.id) $item.addClass('check')
+    })
+  // 无
+  if (!wpc.formConfig.id) {
+    $(`<a class="dropdown-item text-disabled">${$L('无')}</a>`).appendTo('.form-action-menu')
   }
 
   // SAVE
@@ -742,6 +738,11 @@ class DlgNForm extends RbModalHandler {
                 {this.props.id && (
                   <button className="btn btn-danger btn-outline ml-2" type="button" onClick={() => this.delete()}>
                     <i className="zmdi zmdi-delete icon" /> {$L('删除')}
+                  </button>
+                )}
+                {!this.props.id && (
+                  <button className="btn btn-link" type="button" onClick={() => this.hide()}>
+                    {$L('取消')}
                   </button>
                 )}
               </div>

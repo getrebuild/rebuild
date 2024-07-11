@@ -1505,8 +1505,9 @@ a.link.link-icon::after {
   min-width: 100%;
 }
 
-.rblist-scroller > div {
-  overflow: hidden;
+.rb-datatable-body .rb-scroller .ps-scrollbar-x-rail,
+.rb-datatable-body .rb-scroller .ps-scrollbar-y-rail {
+  z-index: 2;
 }
 
 .list-nodata {
@@ -1739,6 +1740,7 @@ i.dividing.ui-draggable-dragging {
 
 .column-empty {
   padding: 8px !important;
+  width: 100%;
 }
 
 .column-nopriv {
@@ -1833,6 +1835,10 @@ th.column-fixed {
 
 .column-fixed.col-action .btn.btn-sm {
   line-height: 28px;
+}
+
+.column-fixed.col-action .btn.btn-sm:active {
+  background-color: #e3e3e3;
 }
 
 .table.table-header-fixed thead > tr > th {
@@ -1952,6 +1958,13 @@ th.column-fixed {
 .sortable-box-title {
   margin-top: 9px;
   position: relative;
+}
+
+.sortable-box-title > a {
+  position: absolute;
+  font-size: 1.231rem;
+  margin-top: -2px;
+  margin-left: 5px;
 }
 
 .sortable-swap {
@@ -5383,6 +5396,16 @@ span.icon-append .icon {
   padding-top: 2px;
 }
 
+span.code-append > em {
+  float: right;
+  width: 50px;
+  overflow: hidden;
+  color: rgba(0, 0, 0, 0.4);
+  font-style: normal;
+  font-size: 12px;
+  text-align: right;
+}
+
 .tooltip {
   z-index: 1100;
 }
@@ -5707,5 +5730,4 @@ div.formula-code {
 
 .shortcut-buttons-flatpickr-buttons > button:hover {
   background-color: #e6e6e6;
-
 }
