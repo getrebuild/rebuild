@@ -32,9 +32,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -370,5 +372,24 @@ public class CommonsUtils {
         }
 
         return null;
+    }
+
+    /**
+     * 转为数组
+     *
+     * @param o
+     * @return
+     */
+    public static Object[] toArray(Object o) {
+        if (o == null) return null;
+        if (o instanceof Object[]) return (Object[]) o;
+        if (o instanceof Collection) return ((Collection<?>) o).toArray();
+
+        if (o instanceof Iterable) {
+            List<Object> c = new ArrayList<>();
+            for (Object item : (Iterable<?>) o) c.add(item);
+            return c.toArray();
+        }
+        return new Object[]{o};
     }
 }

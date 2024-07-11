@@ -453,7 +453,7 @@ class FieldFormula extends React.Component {
   render() {
     const toFieldType = this.state.targetField.type
     // @see DisplayType.java
-    if (['AVATAR', 'IMAGE', 'FILE', 'SIGN'].includes(toFieldType)) {
+    if (['AVATAR', 'SIGN'].includes(toFieldType)) {
       return <div className="form-control-plaintext text-danger">{$L('暂不支持')}</div>
     } else {
       return (
