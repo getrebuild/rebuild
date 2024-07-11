@@ -47,6 +47,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.DATETIME_CALCFORMULA;
+import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.DATETIME_FORMAT;
+import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.DATE_CALCFORMULA;
+import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.DATE_FORMAT;
 import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.NUMBER_CALCFORMULA;
 import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.NUMBER_NOTNEGATIVE;
 
@@ -450,6 +454,8 @@ public class Field2Schema extends SetUser {
         // 保留部分扩展配置，其余移除避免冲突
         JSONObject extraAttrs = fieldEasy.getExtraAttrs();
         if (!extraAttrs.isEmpty()) {
+            extraAttrs.remove(DATE_FORMAT);
+            extraAttrs.remove(DATETIME_FORMAT);
             Object notNegative = extraAttrs.remove(NUMBER_NOTNEGATIVE);
             Object calcFormula = extraAttrs.remove(NUMBER_CALCFORMULA);
 
@@ -467,6 +473,17 @@ public class Field2Schema extends SetUser {
         DynamicMetadataContextHolder.setSkipLanguageRefresh();
         MetadataHelper.getMetadataFactory().refresh();
         field = MetadataHelper.getField(field.getOwnEntity().getName(), field.getName());
+
+        // 去除默认值
+        try {
+            java.lang.reflect.Field defaultValueOfField = field.getClass().getDeclaredField("defaultValue");
+            defaultValueOfField.setAccessible(true);
+            defaultValueOfField.set(field, null);
+            java.lang.reflect.Field nullableOfField = field.getClass().getDeclaredField("nullable");
+            nullableOfField.setAccessible(true);
+            nullableOfField.set(field, true);
+        } catch (ReflectiveOperationException ignored) {
+        }
 
         String alterTypeSql = null;
         try {
@@ -487,7 +504,7 @@ public class Field2Schema extends SetUser {
             fieldMeta.setString("displayType", EasyMetaFactory.getDisplayType(field).name());
             Application.getCommonsService().update(fieldMeta, false);
 
-            log.error("DDL ERROR : \n" + alterTypeSql, ex);
+            log.error("DDL ERROR : \n{}", alterTypeSql, ex);
 
             Throwable cause = ThrowableUtils.getRootCause(ex);
             String causeMsg = cause.getLocalizedMessage();
