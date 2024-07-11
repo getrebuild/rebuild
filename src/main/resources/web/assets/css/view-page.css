@@ -1115,13 +1115,14 @@ body {
 
 .sop-steps li.state-2 > div > span:hover {
   cursor: pointer;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .sop-steps li.state-1 > div > span {
-  background-color: #f7b904;
-  border: 5px solid #fff;
   font-size: 0;
+  background-color: #f7b904;
+  border: 4px solid #fff;
+  /* animation: vab-dot 2s ease-in-out infinite; */
 }
 
 .sop-steps li.state-2 > div > span {
@@ -1182,4 +1183,19 @@ body {
 .rbview-form .type-CLASSIFICATION .form-control-plaintext > span.text-muted {
   display: inline-block;
   padding-top: 3px;
+}
+
+@keyframes vab-dot {
+  0% {
+    opacity: 1;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(0.9);
+  }
 }
