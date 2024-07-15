@@ -19,7 +19,7 @@ import org.springframework.util.Assert;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 数字自增系列
@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class IncreasingVar extends SeriesVar {
 
     private static final Object INCREASINGS_LOCK = new Object();
-    private static final Map<String, AtomicInteger> INCREASINGS = new ConcurrentHashMap<>();
+    private static final Map<String, AtomicLong> INCREASINGS = new ConcurrentHashMap<>();
 
     private Field field;
     private String zeroFlag;
@@ -55,6 +55,11 @@ public class IncreasingVar extends SeriesVar {
         this.field = field;
     }
 
+    private String getNameKey() {
+        Assert.notNull(this.field, "[this.field] cannot be null");
+        return String.format("Series-%s.%s", field.getOwnEntity().getName(), field.getName());
+    }
+
     @Override
     public String generate() {
         // Preview mode
@@ -62,19 +67,18 @@ public class IncreasingVar extends SeriesVar {
             return StringUtils.leftPad("1", getSymbols().length(), '0');
         }
 
-        final String nameKey = String.format("Series-%s.%s", field.getOwnEntity().getName(), field.getName());
-
+        final String nameKey = getNameKey();
         synchronized (INCREASINGS_LOCK) {
-            AtomicInteger incr = INCREASINGS.get(nameKey);
+            AtomicLong incr = INCREASINGS.get(nameKey);
             if (incr == null) {
                 String val = KVStorage.getCustomValue(nameKey);
-                int init = val == null ? countFromDb() : ObjectUtils.toInt(val);
+                long init = val == null ? countFromDb() : ObjectUtils.toLong(val);
 
-                incr = new AtomicInteger(init);
+                incr = new AtomicLong(init);
                 INCREASINGS.put(nameKey, incr);
             }
 
-            int nextValue = incr.incrementAndGet();
+            long nextValue = incr.incrementAndGet();
             RebuildConfiguration.setCustomValue(nameKey, nextValue, Boolean.TRUE);
 
             return StringUtils.leftPad(nextValue + "", getSymbols().length(), '0');
@@ -83,15 +87,25 @@ public class IncreasingVar extends SeriesVar {
 
     /**
      * 清空序号缓存
+     *
+     * @param starts
      */
-    protected void clean() {
-        Assert.notNull(this.field, "[this.field] cannot be null");
-
-        final String nameKey = String.format("Series-%s.%s", field.getOwnEntity().getName(), field.getName());
-
+    protected void clean(long starts) {
+        final String nameKey = getNameKey();
         synchronized (INCREASINGS_LOCK) {
             INCREASINGS.remove(nameKey);
-            RebuildConfiguration.setCustomValue(nameKey, 0, Boolean.TRUE);
+            RebuildConfiguration.setCustomValue(nameKey, starts, Boolean.TRUE);
+        }
+    }
+
+    /**
+     * @return
+     */
+    public long getCurrentStarts() {
+        final String nameKey = getNameKey();
+        synchronized (INCREASINGS_LOCK) {
+            String val = KVStorage.getCustomValue(nameKey);
+            return val == null ? 0L : ObjectUtils.toLong(val);
         }
     }
 
@@ -102,7 +116,7 @@ public class IncreasingVar extends SeriesVar {
      *
      * @return
      */
-    private int countFromDb() {
+    private long countFromDb() {
         String dateLimit = null;
         if ("Y".equals(zeroFlag)) {
             dateLimit = CalendarUtils.format("yyyy", CalendarUtils.now()) + "-01-01";
@@ -121,6 +135,6 @@ public class IncreasingVar extends SeriesVar {
         String sql = String.format("select count(%s) from %s where %s",
                 field.getName(), field.getOwnEntity().getName(), dateLimit);
         Object[] count = Application.createQueryNoFilter(sql).unique();
-        return ObjectUtils.toInt(count[0]);
+        return ObjectUtils.toLong(count[0]);
     }
 }

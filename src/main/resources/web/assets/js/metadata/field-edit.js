@@ -382,13 +382,30 @@ const _handleSeries = function () {
   $(`<a class="dropdown-item">${$L('自增数字归零')}</a>`)
     .appendTo('.J_action .dropdown-menu')
     .on('click', () => {
-      RbAlert.create($L('此操作将立即执行自增数字归零，归零后可能导致编号重复，请谨慎执行。是否继续？'), {
+      const M = (
+        <RF>
+          <p>{$L('此操作将立即执行自增数字归零，归零后可能导致编号重复，请谨慎执行。是否继续？')}</p>
+          <div className="series-starts bosskey-show">
+            <input type="text" className="form-control form-control-sm text-center" />
+          </div>
+        </RF>
+      )
+
+      RbAlert.create(M, {
         type: 'danger',
         onConfirm: function () {
           this.disabled(true)
-          $.post(`/admin/field/series-reset?entity=${wpc.entityName}&field=${wpc.fieldName}`, () => {
+          let s = $(this._element).find('input').val() || 0
+          $.post(`/admin/field/series-reset?entity=${wpc.entityName}&field=${wpc.fieldName}&s=${s}`, () => {
             this.hide()
             RbHighbar.success($L('自增数字归零成功'))
+          })
+        },
+        onRendered: function () {
+          $.get(`/admin/field/series-current?entity=${wpc.entityName}&field=${wpc.fieldName}`, (res) => {
+            $(this._element)
+              .find('input')
+              .attr('placeholder', `Current is ${res.data || 0}`)
           })
         },
       })
