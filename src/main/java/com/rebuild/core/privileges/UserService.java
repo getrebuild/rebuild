@@ -311,7 +311,9 @@ public class UserService extends BaseService {
             super.update(record);
         }
 
-        if (changed || updateRoleAppends(user, roleAppends)) {
+        if (updateRoleAppends(user, roleAppends)) changed = true;
+
+        if (changed) {
             Application.getUserStore().refreshUser(user);
         }
 
