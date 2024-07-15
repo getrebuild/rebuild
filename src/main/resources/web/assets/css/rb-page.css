@@ -1605,11 +1605,17 @@ a.link.link-icon::after {
 
 .data-list .table thead th > div > i.dividing {
   width: 10px;
-  border-right: 2px dotted #aaa;
+  border-right: 1px solid #ddd;
   cursor: col-resize;
 }
 
+.data-list .table thead th > div > i.dividing:hover,
+.data-list .table thead th > div > i.dividing:active {
+  border-right-width: 3px;
+}
+
 i.dividing.ui-draggable-dragging {
+  border-right-width: 3px !important;
   border-right-color: #4285f4 !important;
   z-index: 101;
   cursor: col-resize;
@@ -4858,7 +4864,6 @@ pre.unstyle {
   background-color: #eceff1;
   font-weight: normal;
   border-bottom-width: 1px;
-  width: auto;
 }
 
 .protable .table .col-index {
@@ -4892,21 +4897,25 @@ pre.unstyle {
 
 .protable .table thead th .dividing {
   width: 10px;
-  border-right: 2px dotted #aaa;
+  border-right: 1px solid #dee2e6;
+  border-right: 1px solid #ddd;
   cursor: col-resize;
   position: absolute;
   height: 18px;
-  top: 8px;
+  top: 9px;
   right: 0;
-  display: none;
+}
+
+.protable .table thead th .dividing:hover,
+.protable .table thead th .dividing:active {
+  border-right-width: 3px;
 }
 
 .protable .table thead th i.dividing.ui-draggable-dragging {
-  margin-top: 0.5px;
-}
-
-.protable .table thead:hover th .dividing {
-  display: block;
+  border-right-width: 3px !important;
+  border-bottom-color: #4285f4 !important;
+  z-index: 101;
+  cursor: col-resize;
 }
 
 .protable .table thead th .tipping {
