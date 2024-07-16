@@ -72,10 +72,10 @@ public class SeriesGeneratorFactory {
      * 重置序号
      *
      * @param field
-     * @param startsWith
+     * @param reset
      */
-    public static void zero(Field field, long startsWith) {
-        new IncreasingVar(field).clean(startsWith);
+    public static void zero(Field field, long reset) {
+        new IncreasingVar(field).clean(reset);
     }
 
     /**
@@ -83,7 +83,7 @@ public class SeriesGeneratorFactory {
      *
      * @param field
      */
-    public static long getCurrentStarts(Field field) {
-        return new IncreasingVar(field).getCurrentStarts();
+    public static long getCurrentIncreasingVarValue(Field field) {
+        return new IncreasingVar(field).getCurrentValue();
     }
 }

@@ -86,22 +86,23 @@ public class IncreasingVar extends SeriesVar {
     }
 
     /**
-     * 清空序号缓存
+     * 重置序号
      *
-     * @param starts
+     * @param reset
      */
-    protected void clean(long starts) {
+    protected void clean(long reset) {
+        Assert.isTrue(reset > 0, "[reset] must be greater than 0");
         final String nameKey = getNameKey();
         synchronized (INCREASINGS_LOCK) {
             INCREASINGS.remove(nameKey);
-            RebuildConfiguration.setCustomValue(nameKey, starts, Boolean.TRUE);
+            RebuildConfiguration.setCustomValue(nameKey, reset, Boolean.TRUE);
         }
     }
 
     /**
      * @return
      */
-    public long getCurrentStarts() {
+    public long getCurrentValue() {
         final String nameKey = getNameKey();
         synchronized (INCREASINGS_LOCK) {
             String val = KVStorage.getCustomValue(nameKey);

@@ -59,7 +59,7 @@ public class SeriesController extends BaseController {
         String field = getParameterNotNull(request, "field");
         Field metaField = entity.getField(field);
 
-        long s = SeriesGeneratorFactory.getCurrentStarts(metaField);
+        long s = SeriesGeneratorFactory.getCurrentIncreasingVarValue(metaField);
         return RespBody.ok(s);
     }
 }
