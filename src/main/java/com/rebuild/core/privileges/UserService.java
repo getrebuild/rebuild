@@ -311,11 +311,16 @@ public class UserService extends BaseService {
             super.update(record);
         }
 
-        if (changed || updateRoleAppends(user, roleAppends)) {
+        if (roleAppends != null) {
+            if (updateRoleAppends(user, roleAppends)) changed = true;
+        }
+
+        if (changed) {
             Application.getUserStore().refreshUser(user);
         }
 
         // 改变记录的所属部门
+        // 并发修改可能导致数据紊乱
         if (deptOld != null) {
             TaskExecutors.submit(new ChangeOwningDeptTask(user, deptNew), UserContextHolder.getUser());
         }
@@ -370,15 +375,17 @@ public class UserService extends BaseService {
      * @return
      */
     protected boolean updateRoleAppends(ID user, ID[] roleAppends) {
+        if (roleAppends == null) return false;
+
         Object[][] exists = Application.createQueryNoFilter(
                 "select memberId,roleId from RoleMember where userId = ?")
                 .setParameter(1, user)
                 .array();
-        if (exists.length == 0 && (roleAppends == null || roleAppends.length == 0)) {
+        if (exists.length == 0 && roleAppends.length == 0) {
             return false;
         }
 
-        if (roleAppends == null || roleAppends.length == 0) {
+        if (roleAppends.length == 0) {
             for (Object[] o : exists) {
                 super.delete((ID) o[0]);
             }

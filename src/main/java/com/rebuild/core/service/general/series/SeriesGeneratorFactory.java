@@ -65,6 +65,25 @@ public class SeriesGeneratorFactory {
      * @param field
      */
     public static void zero(Field field) {
-        new IncreasingVar(field).clean();
+        zero(field, 0);
+    }
+
+    /**
+     * 重置序号
+     *
+     * @param field
+     * @param reset
+     */
+    public static void zero(Field field, long reset) {
+        new IncreasingVar(field).clean(reset);
+    }
+
+    /**
+     * 当前序号
+     *
+     * @param field
+     */
+    public static long getCurrentIncreasingVarValue(Field field) {
+        return new IncreasingVar(field).getCurrentValue();
     }
 }

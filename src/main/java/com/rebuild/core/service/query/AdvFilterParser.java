@@ -29,6 +29,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
@@ -301,6 +302,9 @@ public class AdvFilterParser extends SetUser {
         if (checkValue instanceof VarFieldNoValue37) return "(1=2)";
         String value = (String) checkValue;
         String valueEnd = null;
+
+        // v3.8
+        if (useFulltextOp(field) && "LK".equals(op)) op = "FT";
 
         if (dt == DisplayType.N2NREFERENCE) {
             String inWhere = null;
@@ -774,6 +778,22 @@ public class AdvFilterParser extends SetUser {
             items.add(JSON.parseObject("{ op:'LK', value:'{" + valueIndex + "}', field:'" + field + "' }"));
         }
         return items;
+    }
+
+    /**
+     * 使用全文索引查詢
+     *
+     * @param fieldName
+     * @return
+     */
+    private boolean useFulltextOp(String fieldName) {
+        if (!CommandArgs.getBoolean(CommandArgs._UseDbFullText)) return false;
+
+        Set<String> canFulltexts = new HashSet<>();
+        canFulltexts.add("40#content");
+
+        String key = rootEntity.getEntityCode() + "#" + fieldName;
+        return canFulltexts.contains(key);
     }
 
     // 字段变量 {@FIELD}

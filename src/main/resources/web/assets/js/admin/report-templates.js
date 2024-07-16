@@ -79,7 +79,7 @@ class ReportList extends ConfigList {
   }
 
   handleEdit(item) {
-    renderRbcomp(<ReportEditor id={item[0]} name={item[3]} isDisabled={item[4]} extraDefinition={item[7]} isHtml5={item[6] === 3} entity={item[1]} type={item[6]} />)
+    renderRbcomp(<ReportEditor id={item[0]} name={item[3]} isDisabled={item[4]} extraDefinition={item[7]} entity={item[1]} reportType={item[6]} />)
   }
 
   handleDelete(id) {
@@ -103,7 +103,7 @@ class ReportEditor extends ConfigFormDlg {
   }
 
   renderFrom() {
-    const isHtml5Style = this.state.reportType === 3 ? { display: 'none' } : {}
+    const isHtml5 = this.props.reportType === 3 || this.state.reportType === 3
     return (
       <RF>
         {!this.props.id && (
@@ -130,10 +130,6 @@ class ReportEditor extends ConfigFormDlg {
                   <span className="custom-control-label">EXCEL</span>
                 </label>
                 <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                  <input className="custom-control-input" type="radio" value="2" name="reportType" onChange={(e) => this.checkTemplate(e)} />
-                  <span className="custom-control-label">{$L('EXCEL 列表')}</span>
-                </label>
-                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
                   <input className="custom-control-input J_word4" type="radio" value="4" name="reportType" onChange={(e) => this.checkTemplate(e)} />
                   <span className="custom-control-label">
                     WORD <sup className="rbv" />
@@ -145,11 +141,15 @@ class ReportEditor extends ConfigFormDlg {
                     {$L('网页')} <sup className="rbv" />
                   </span>
                 </label>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
+                  <input className="custom-control-input" type="radio" value="2" name="reportType" onChange={(e) => this.checkTemplate(e)} />
+                  <span className="custom-control-label">{$L('EXCEL 列表')}</span>
+                </label>
               </div>
             </div>
           </RF>
         )}
-        <div className={`form-group row ${this.props.id ? 'bosskey-show' : ''}`} style={isHtml5Style}>
+        <div className={`form-group row ${this.props.id ? 'bosskey-show' : ''} ${isHtml5 && 'hide'}`}>
           <label className="col-sm-3 col-form-label text-sm-right">{$L('模板文件')}</label>
           <div className="col-sm-9">
             <div className="float-left">
@@ -179,7 +179,6 @@ class ReportEditor extends ConfigFormDlg {
             )}
           </div>
         </div>
-
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">{$L('导出格式')}</label>
           <div className="col-sm-7 pt-1" ref={(c) => (this._$outputType = c)}>
@@ -188,7 +187,7 @@ class ReportEditor extends ConfigFormDlg {
               <span className="custom-control-label">{$L('默认')}</span>
             </label>
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-1">
-              <input className="custom-control-input" type="checkbox" value="pdf" />
+              <input className="custom-control-input" type="checkbox" value="pdf" disabled={isHtml5} />
               <span className="custom-control-label">PDF</span>
               <a href="https://getrebuild.com/docs/admin/excel-admin#%E6%8A%A5%E8%A1%A8%E5%AF%BC%E5%87%BA%E6%A0%BC%E5%BC%8F" title={$L('查看帮助')} target="_blank">
                 <i className="zmdi zmdi-help zicon down-1" />
@@ -301,7 +300,7 @@ class ReportEditor extends ConfigFormDlg {
 
       const useFilter = (this.props.extraDefinition || {}).useFilter
       this.setState({ useFilter })
-      if (this.props.type === 2) $(this._$useFilter).attr('disabled', true)
+      if (this.props.reportType === 2) $(this._$useFilter).attr('disabled', true)
     } else {
       $(this._$outputType).find('input:eq(0)').attr('checked', true)
 
@@ -416,10 +415,12 @@ class ReportEditor extends ConfigFormDlg {
     const post = { name: this.state['name'] }
     if (!post.name) return RbHighbar.create($L('请输入名称'))
 
-    const output = []
+    let output = []
     if ($val($(this._$outputType).find('input:eq(0)'))) output.push('excel')
     if ($val($(this._$outputType).find('input:eq(1)'))) output.push('pdf')
     if ($val($(this._$outputType).find('input:eq(2)'))) output.push('html')
+    // default
+    if (this.state.reportType === 3) output = ['excel']
 
     // v3.3
     post.extraDefinition = {

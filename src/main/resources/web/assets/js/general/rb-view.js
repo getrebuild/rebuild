@@ -24,9 +24,12 @@ class RbViewForm extends React.Component {
 
   render() {
     return (
-      <div className="rbview-form form-layout" ref={(c) => (this._viewForm = c)}>
-        {this.state.formComponent}
-      </div>
+      <RF>
+        {this.state.fjsAlertMessage}
+        <div className="rbview-form form-layout" ref={(c) => (this._viewForm = c)}>
+          {this.state.formComponent}
+        </div>
+      </RF>
     )
   }
 
@@ -749,6 +752,8 @@ const RbViewPage = {
           $into.find('li.hide').removeClass('hide')
           $(this).addClass('hide')
         })
+      } else if (res.data.length === 0) {
+        $(`<li>${$L('无')}</li>`).appendTo($into)
       }
 
       // v3.6

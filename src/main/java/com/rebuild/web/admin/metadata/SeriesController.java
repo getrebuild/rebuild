@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.metadata;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
@@ -16,6 +17,7 @@ import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -45,8 +47,19 @@ public class SeriesController extends BaseController {
     public RespBody seriesReset(@EntityParam Entity entity, HttpServletRequest request) {
         String field = getParameterNotNull(request, "field");
         Field metaField = entity.getField(field);
+        // 指定开始序号
+        long s = ObjectUtils.toLong(getParameter(request, "s"));
 
-        SeriesGeneratorFactory.zero(metaField);
+        SeriesGeneratorFactory.zero(metaField, s);
         return RespBody.ok();
+    }
+
+    @GetMapping("series-current")
+    public RespBody seriesCurrent(@EntityParam Entity entity, HttpServletRequest request) {
+        String field = getParameterNotNull(request, "field");
+        Field metaField = entity.getField(field);
+
+        long s = SeriesGeneratorFactory.getCurrentIncreasingVarValue(metaField);
+        return RespBody.ok(s);
     }
 }
