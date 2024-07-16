@@ -2950,7 +2950,7 @@ class RbFormRefform extends React.Component {
     if (!this.state.formComponent) return null
     return (
       <div className="rbview-form form-layout refform" ref={(c) => (this._viewForm = c)}>
-        {this.state.formComponent || 'Loading'}
+        {this.state.formComponent || 'LOADING'}
       </div>
     )
   }

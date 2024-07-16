@@ -749,6 +749,8 @@ const RbViewPage = {
           $into.find('li.hide').removeClass('hide')
           $(this).addClass('hide')
         })
+      } else if (res.data.length === 0) {
+        $(`<li>${$L('无')}</li>`).appendTo($into)
       }
 
       // v3.6
