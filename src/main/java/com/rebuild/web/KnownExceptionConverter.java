@@ -73,7 +73,7 @@ public class KnownExceptionConverter {
 
         } else if (ex instanceof ConstraintViolationException) {
 
-            if (ex.getLocalizedMessage().contains("Duplicate entry")) {
+            if (exMsg.contains("Duplicate entry")) {
                 String s = Language.L("数据库字段违反唯一性约束");
                 String key = matchsColumn(exMsg, PATT_DE);
                 return key == null ? s : s + ":" + key;
