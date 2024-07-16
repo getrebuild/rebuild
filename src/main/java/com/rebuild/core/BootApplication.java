@@ -127,7 +127,7 @@ public class BootApplication extends SpringBootServletInitializer {
         try {
             initTomcatPort();
         } catch (Exception ex) {
-            log.debug("Cannot to get Tomcat port : " + ex.getLocalizedMessage());
+            log.debug("Cannot to get Tomcat port : {}", ex.getLocalizedMessage());
         }
 
         log.info("Initializing SpringBoot context {}...", devMode() ? "(dev) " : "");
