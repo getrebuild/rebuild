@@ -365,7 +365,12 @@ public class EasyExcelGenerator extends SetUser {
             if (dt == DisplayType.BARCODE) {
                 data.put(varName, buildBarcodeData(easyField.getRawMeta(), record.getPrimary()));
             } else if (fieldValue == null) {
-                data.put(varName, StringUtils.EMPTY);
+                if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST) {
+                    Object funcValue = ValueConvertFunc.convert(easyField, null, varName);
+                    data.put(varName, funcValue == null ? StringUtils.EMPTY : funcValue);
+                } else {
+                    data.put(varName, StringUtils.EMPTY);
+                }
             } else {
 
                 if (dt == DisplayType.SIGN) {
