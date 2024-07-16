@@ -68,6 +68,8 @@ class RbFormModal extends React.Component {
                     {this.state.alertMessage}
                   </div>
                 )}
+                {this.state.fjsAlertMessage}
+
                 {this.state.formComponent}
                 {this.state.inLoad && <RbSpinner />}
               </div>
