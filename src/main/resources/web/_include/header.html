@@ -6,7 +6,7 @@
   <link rel="manifest" th:href="@{/assets/manifest.json}" />
   <link rel="shortcut icon" th:href="@{/assets/img/favicon.png}" />
   <link rel="apple-touch-icon" th:href="@{/assets/img/favicon.png}" />
-  <th:block th:if="${noCss == null}">
+  <th:block th:if="${css != 'none'}">
     <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/material-design-iconic-font.min.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/mdi7/css/materialdesignicons.min-rb.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/perfect-scrollbar.min.css}" />
