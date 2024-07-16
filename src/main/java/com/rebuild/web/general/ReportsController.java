@@ -87,8 +87,8 @@ public class ReportsController extends BaseController {
 
     @RequestMapping({"report/generate", "report/export"})
     public ModelAndView reportGenerate(@PathVariable String entity,
-                               @IdParam(name = "report") ID reportId,
-                               HttpServletRequest request, HttpServletResponse response) throws IOException {
+                                       @IdParam(name = "report") ID reportId,
+                                       HttpServletRequest request, HttpServletResponse response) throws IOException {
         final ID[] recordIds = getIdArrayParameterNotNull(request, "record");
         final ID recordId = recordIds[0];
         final TemplateFile tt = DataReportManager.instance.getTemplateFile(reportId);
@@ -116,16 +116,17 @@ public class ReportsController extends BaseController {
 
         RbAssert.is(output != null, Language.L("无法输出报表，请检查报表模板是否有误"));
 
+        String typeOutput = getParameter(request, "output");
+        boolean isHtml = "HTML".equalsIgnoreCase(typeOutput);
+        boolean isPdf = "PDF".equalsIgnoreCase(typeOutput);
         String fileName = DataReportManager.getReportName(reportId, recordId, output.getName());
 
         // v3.6
         if (tt.type == DataReportManager.TYPE_HTML5) {
+            // TODO PDF
             return ReportTemplateController.buildHtml5ModelAndView(output, fileName);
         }
 
-        final String typeOutput = getParameter(request, "output");
-        final boolean isHtml = "HTML".equalsIgnoreCase(typeOutput);
-        final boolean isPdf = "PDF".equalsIgnoreCase(typeOutput);
         if (isPdf || isOnlyPdf(entity, reportId)) {
             output = PdfConverter.convertPdf(output.toPath()).toFile();
             fileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".pdf";
