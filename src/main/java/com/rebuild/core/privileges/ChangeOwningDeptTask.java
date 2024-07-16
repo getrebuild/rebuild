@@ -41,7 +41,7 @@ public class ChangeOwningDeptTask extends HeavyTask<Integer> {
 
     @Override
     protected Integer exec() {
-        log.info("Start modifying the `OwningDept` ... {}", this.user);
+        log.info("Start modifying the `OwningDept` ... {}:{}", this.user, this.deptNew);
         this.setTotal(MetadataHelper.getEntities().length);
 
         final StopWatch sw = new StopWatch("ChangeOwningDeptTask");
@@ -68,7 +68,7 @@ public class ChangeOwningDeptTask extends HeavyTask<Integer> {
             sw.stop();
         }
 
-        log.info("Modify the `OwningDept` to complete : {} > {}\n{}", this.user, changed, sw.prettyPrint());
+        log.info("Modify the `OwningDept` to complete : {}:{} : {}\n{}", this.user, deptNew, changed, sw.prettyPrint());
         return changed;
     }
 }

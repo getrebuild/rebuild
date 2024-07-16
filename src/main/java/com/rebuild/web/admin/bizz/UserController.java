@@ -121,7 +121,6 @@ public class UserController extends EntityController {
                 roleNew = null;
             }
         }
-
         if (data.containsKey("roleAppends")) {
             String appends = data.getString("roleAppends");
             Set<ID> set = new HashSet<>();
