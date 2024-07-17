@@ -15,7 +15,7 @@ postBefore = function (data) {
       return false
     }
   } else {
-    data['MailSmtpServer'] = ''
+    if (typeof data['MailSmtpServer'] !== 'undefined') data['MailSmtpServer'] = ''
   }
   return data
 }

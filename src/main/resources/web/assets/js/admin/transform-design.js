@@ -93,7 +93,8 @@ $(document).ready(() => {
   }
 
   $('.J_add-dts').on('click', function () {
-    renderRbcomp(<DlgAddDts source={wpc.sourceDetailEntities} target={wpc.targetDetailEntities} onConfirm={(s) => _addDts(s)} />)
+    const _sourceDetailEntities = wpc.sourceDetailEntities
+    renderRbcomp(<DlgAddDts source={_sourceDetailEntities} target={wpc.targetDetailEntities} onConfirm={(s) => _addDts(s)} />)
   })
 
   // 回填

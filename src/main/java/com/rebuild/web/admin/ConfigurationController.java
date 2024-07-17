@@ -209,7 +209,7 @@ public class ConfigurationController extends BaseController {
     @PostMapping("integration/submail")
     public RespBody postIntegrationSubmail(@RequestBody JSONObject data) {
         String dMailAddr = defaultIfBlank(data, ConfigurationItem.MailAddr);
-        if (!RegexUtils.isEMail(dMailAddr)) {
+        if (dMailAddr != null && !RegexUtils.isEMail(dMailAddr)) {
             return RespBody.errorl("无效发件人地址");
         }
 
