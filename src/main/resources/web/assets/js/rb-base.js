@@ -169,6 +169,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
     return $select2MatcherAll(params, data)
   })
   // $.fn.select2.defaults.set('minimumResultsForSearch', 9)
+
+  // fix:backspace https://github.com/select2/select2/issues/3335
+  var AllowClear = $.fn.select2.amd.require('select2/selection/allowClear')
+  var _handleKeyboardClearOriginal = AllowClear.prototype._handleKeyboardClear
+  AllowClear.prototype._handleKeyboardClear = function (_, e, container) {
+    if (this.$element.prop('multiple')) return
+    _handleKeyboardClearOriginal.call(this, _, e, container)
+  }
 })(jQuery)
 
 // extends Array
