@@ -141,7 +141,7 @@ class DlgMode1Option extends RbFormHandler {
                           })}
                       </select>
                     </div>
-                    <div className={`col-5 pl-0 ${this.state.advListShowCategoryFormats ? '' : 'hide'} ${this.state._cfParent && 'bosskey-show'}`}>
+                    <div className={`col-5 pl-0 ${this.state.advListShowCategoryFormats ? '' : 'hide'}`}>
                       <label className="mb-1">{this.state._cfParent ? $L('使用父级字段') : $L('字段格式')}</label>
                       <select className="form-control form-control-sm">
                         {this.state.advListShowCategoryFormats &&
