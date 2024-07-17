@@ -1687,7 +1687,7 @@ CellRenders.addRender('N2NREFERENCE', (v, s, k) => {
       <div className="column-multi" style={s}>
         {v.map((item) => {
           return (
-            <a key={item.id} title={item.text} className="badge hover-color" href={`#!/View/${item.entity}/${item.id}`} onClick={(e) => CellRenders.clickView(item, e)}>
+            <a key={item.id} title={item.text} className="badge" href={`#!/View/${item.entity}/${item.id}`} onClick={(e) => CellRenders.clickView(item, e)}>
               {item.text}
             </a>
           )
