@@ -2109,6 +2109,11 @@ const EasyAction = {
     const _List = _FrontJS.DataList
 
     items.forEach((item) => {
+      if (!item.icon && !item.text) {
+        console.log('Bad button of EasyAction :', item)
+        return
+      }
+
       if (~~item.showType === 1) {
         item.text = ''
         if (!item.icon) item.icon = 'texture'
