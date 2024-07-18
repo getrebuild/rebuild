@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.datareport;
 
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.hutool.core.convert.Convert;
 import com.deepoove.poi.data.PictureRenderData;
 import com.deepoove.poi.data.Pictures;
@@ -18,7 +19,6 @@ import com.rebuild.core.metadata.easymeta.EasyDecimal;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -30,8 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -101,6 +99,17 @@ public class ValueConvertFunc {
 
                 return StringUtils.join(chk, " ");
             }
+
+        } else if (type == DisplayType.CLASSIFICATION) {
+            if (thatFunc.startsWith("CUTS")) {
+                int cutsIndex = ObjectUtils.toInt(thatFunc.substring(4), 4) - 1;
+                String[] m = value.toString().split("\\.");
+
+                if (cutsIndex < 0) return m[m.length - 1];
+                if (m.length > cutsIndex) return m[cutsIndex];
+                return m[m.length - 1];  // last
+            }
+
         }
 
         return value;
@@ -142,8 +151,7 @@ public class ValueConvertFunc {
                 height = NumberUtils.toInt(wh[1]);
             }
 
-            if (height < 0) height = width;
-            builder = Pictures.ofBytes(value).size(width, height);
+            builder = Pictures.ofBytes(value).size(width, height > 0 ? height : width);
         }
 
         return builder.create();
