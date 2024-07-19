@@ -702,6 +702,12 @@ body {
   line-height: 21px;
 }
 
+.form-control-plaintext.multi-values > a,
+.form-control-plaintext.multi-values > span {
+  border-color: #f2f2f2;
+  background-color: #f2f2f2;
+}
+
 .file-list.inview {
   border-top: 1px solid #eee;
 }

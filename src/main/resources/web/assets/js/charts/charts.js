@@ -963,6 +963,14 @@ class FeedsSchedule extends BaseChart {
                   <tr key={`schedule-${idx}`}>
                     <td>
                       <a href={`${rb.baseUrl}/app/redirect?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
+                      {item.relatedRecord && (
+                        <div>
+                          <span className="text-muted">{$L('关联记录')} : </span>
+                          <a href={`${rb.baseUrl}/app/redirect?id=${item.relatedRecord.id}&type=newtab`} target="_blank" title={$L('查看记录')}>
+                            {item.relatedRecord.text}
+                          </a>
+                        </div>
+                      )}
                     </td>
                     <td className="cell-detail">
                       <div>{item.scheduleTime.substr(0, 16)}</div>

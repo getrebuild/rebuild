@@ -1687,7 +1687,7 @@ CellRenders.addRender('N2NREFERENCE', (v, s, k) => {
       <div className="column-multi" style={s}>
         {v.map((item) => {
           return (
-            <a key={item.id} title={item.text} className="badge hover-color" href={`#!/View/${item.entity}/${item.id}`} onClick={(e) => CellRenders.clickView(item, e)}>
+            <a key={item.id} title={item.text} className="badge" href={`#!/View/${item.entity}/${item.id}`} onClick={(e) => CellRenders.clickView(item, e)}>
               {item.text}
             </a>
           )
@@ -2109,6 +2109,11 @@ const EasyAction = {
     const _List = _FrontJS.DataList
 
     items.forEach((item) => {
+      if (!item.icon && !item.text) {
+        console.log('Bad button of EasyAction :', item)
+        return
+      }
+
       if (~~item.showType === 1) {
         item.text = ''
         if (!item.icon) item.icon = 'texture'

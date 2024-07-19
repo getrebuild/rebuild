@@ -77,4 +77,11 @@ public class EasyActionManager extends BaseLayoutManager {
     public ConfigBean getEasyActionRaw(String entity) {
         return getLayout(UserService.SYSTEM_USER, entity, TYPE_EASYACTION, null);
     }
+
+    @Override
+    public void clean(Object layoutId) {
+        super.clean(layoutId);
+
+        // TODO JS 支持 ES6 > ES5
+    }
 }

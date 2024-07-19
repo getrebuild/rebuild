@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-(function () {
+;(function () {
   var gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -132,7 +132,6 @@ $(function () {
   }
 
   var bosskey = 0
-  var bosskey_timer
   $(document).on('keydown', function (e) {
     if (e.shiftKey) {
       if (++bosskey === 6) {
@@ -140,13 +139,8 @@ $(function () {
         typeof window.bosskeyTrigger === 'function' && window.bosskeyTrigger()
         window.__BOSSKEY = true
       }
-      if (bosskey_timer) {
-        clearTimeout(bosskey_timer)
-        bosskey_timer = null
-      }
-      bosskey_timer = setTimeout(function () {
-        bosskey = 0
-      }, 500) // clean
+    } else {
+      bosskey = 0
     }
   })
   window.__BOSSKEY = location.href.includes('bosskey=show')
