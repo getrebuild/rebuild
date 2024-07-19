@@ -170,7 +170,7 @@ public class AutoFillinManager implements ConfigManager {
             // v3.7 附加过滤条件
             if (value instanceof ID && tfEasy.getDisplayType() == DisplayType.REFERENCE) {
                 if (!FieldValueHelper.checkRefDataFilter(tfEasy, (ID) value)) {
-                    log.info("Mismatch `referenceDataFilter`, ignored : {}", value);
+                    log.info("Not meeting the `referenceDataFilter`, ignored : {}", value);
                     continue;
                 }
             } else if (value instanceof JSONArray && tfEasy.getDisplayType() == DisplayType.N2NREFERENCE) {
@@ -181,7 +181,7 @@ public class AutoFillinManager implements ConfigManager {
                     if (FieldValueHelper.checkRefDataFilter(tfEasy, ID.valueOf(id))) {
                         value2.add(item);
                     } else {
-                        log.info("Mismatch `referenceDataFilter`, ignored : {}", value);
+                        log.info("Not meeting the `referenceDataFilter`, ignored : {}", value);
                     }
                 }
                 value = value2.isEmpty() ? null : value2;
