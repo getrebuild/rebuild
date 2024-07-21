@@ -138,7 +138,7 @@ public class SMSender {
             htmlContent = htmlContent.replace("%TIME%", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
             htmlContent = htmlContent.replace("%APPURL%", RebuildConfiguration.getHomeUrl());
             htmlContent = htmlContent.replace("%APPLOGO%", RebuildConfiguration.getHomeUrl("commons/theme/use-logo"));
-            if (License.isCommercial()) {
+            if (License.isRbvAttached()) {
                 htmlContent = htmlContent.replace("%APPNAME%", RebuildConfiguration.get(ConfigurationItem.AppName));
             } else {
                 htmlContent = htmlContent.replace("%APPNAME%", "REBUILD");
