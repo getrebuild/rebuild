@@ -961,15 +961,15 @@ class FeedsSchedule extends BaseChart {
 
                 return (
                   <tr key={`schedule-${idx}`}>
-                    <td>
+                    <td className="cell-detail">
                       <a href={`${rb.baseUrl}/app/redirect?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
                       {item.relatedRecord && (
-                        <div>
-                          <span className="text-muted">{$L('关联记录')} : </span>
+                        <span className="cell-detail-description fs-12">
+                          {$L('关联记录')} :&nbsp;
                           <a href={`${rb.baseUrl}/app/redirect?id=${item.relatedRecord.id}&type=newtab`} target="_blank" title={$L('查看记录')}>
                             {item.relatedRecord.text}
                           </a>
-                        </div>
+                        </span>
                       )}
                     </td>
                     <td className="cell-detail">
@@ -1225,15 +1225,13 @@ class ProjectTasks extends BaseChart {
                         <span className="custom-control-label" />
                       </label>
                     </td>
-                    <td>
+                    <td className="cell-detail">
                       <a title={item.taskName} href={`${rb.baseUrl}/app/redirect?id=${item.id}`} className="content">
                         <p className="text-break">
                           [{item.taskNumber}] {item.taskName}
                         </p>
                       </a>
-                      <p className="text-muted fs-12 m-0" style={{ lineHeight: 1 }}>
-                        {item.projectName}
-                      </p>
+                      <span className="cell-detail-description">{item.projectName}</span>
                     </td>
                     <td className="text-muted align-text-top">
                       <div>
