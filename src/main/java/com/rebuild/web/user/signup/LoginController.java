@@ -123,7 +123,7 @@ public class LoginController extends LoginAction {
             mv.getModel().put("mobileUrl", RebuildConfiguration.getHomeUrl("h5app-download"));
         }
 
-        if (License.isCommercial()) {
+        if (License.isRbvAttached()) {
             // DingTalk
             mv.getModel().put("ssoDingtalk", RebuildConfiguration.get(ConfigurationItem.DingtalkAppkey));
             // WxWork

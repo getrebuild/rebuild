@@ -63,6 +63,7 @@ public class TransformerPreview37 extends TransformerPreview {
 
         JSONArray detailModels = new JSONArray();
 
+        // 明细
         for (Object o : fieldsMappingDetails) {
             JSONObject fmd = (JSONObject) o;
             Entity[] fmdEntity = RecordTransfomer37.checkEntity(fmd);
@@ -74,18 +75,7 @@ public class TransformerPreview37 extends TransformerPreview {
             // ND 指定明细的
             if (!detailName.equalsIgnoreCase(dTargetEntity.getName())) continue;
 
-            String querySourceSql = "select %s from %s where %s = '%s' and (1=1) order by autoId asc";
-            // 源=明细 && 目标=主
-            if (dSourceEntity.getMainEntity() != null && dTargetEntity.getDetailEntity() != null) {
-                querySourceSql = String.format(querySourceSql,
-                        dSourceEntity.getPrimaryField().getName(), dSourceEntity.getName(),
-                        MetadataHelper.getDetailToMainField(dSourceEntity).getName(), sourceId);
-            } else {
-                querySourceSql = String.format(querySourceSql,
-                        dSourceEntity.getPrimaryField().getName(), dSourceEntity.getName(),
-                        dSourceEntity.getPrimaryField().getName(), sourceId);
-            }
-
+            String querySourceSql = RecordTransfomer37.buildDetailsSourceSql(dSourceEntity, sourceId);
             String filter = RecordTransfomer37.appendFilter(fmd);
             if (filter != null) querySourceSql = querySourceSql.replace("(1=1)", filter);
 

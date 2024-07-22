@@ -70,23 +70,11 @@ public class RecordTransfomer37 extends RecordTransfomer {
             Entity dTargetEntity = fmdEntity[0];
             Entity dSourceEntity = fmdEntity[1];
 
-            // 明细 > 明细
-            String sql = String.format(
-                    "select %s from %s where %s = '%s' and (1=1) order by autoId asc",
-                    dSourceEntity.getPrimaryField().getName(), dSourceEntity.getName(),
-                    MetadataHelper.getDetailToMainField(dSourceEntity).getName(), sourceRecordId);
-            // 明细 > 主+明细
-            if (dSourceEntity.getEntityCode().equals(sourceRecordId.getEntityCode())) {
-                sql = String.format(
-                        "select %s from %s where %s = '%s' and (1=1) order by autoId asc",
-                        dSourceEntity.getPrimaryField().getName(), dSourceEntity.getName(),
-                        dSourceEntity.getPrimaryField().getName(), sourceRecordId);
-            }
-
+            String querySourceSql = buildDetailsSourceSql(dSourceEntity, sourceRecordId);
             String filter = appendFilter(fmd);
-            if (filter != null) sql = sql.replace("(1=1)", filter);
+            if (filter != null) querySourceSql = querySourceSql.replace("(1=1)", filter);
 
-            Object[][] dArray = Application.createQueryNoFilter(sql).array();
+            Object[][] dArray = Application.createQueryNoFilter(querySourceSql).array();
             for (Object[] d : dArray) {
                 detailsList.add(transformRecord(
                         dSourceEntity, dTargetEntity, fmd, (ID) d[0], null, false, false, checkNullable));
@@ -150,5 +138,30 @@ public class RecordTransfomer37 extends RecordTransfomer {
             return new AdvFilterParser(hasFilter).toSqlWhere();
         }
         return null;
+    }
+
+    /**
+     * @param sourceEntity
+     * @param sourceId
+     * @return
+     */
+    protected static String buildDetailsSourceSql(Entity sourceEntity, ID sourceId) {
+        String querySourceSql = null;
+        if (sourceEntity.getMainEntity() != null) {
+            querySourceSql = String.format(
+                    "select %s from %s where %s = '%s' and (1=1) order by autoId asc",
+                    sourceEntity.getPrimaryField().getName(), sourceEntity.getName(),
+                    MetadataHelper.getDetailToMainField(sourceEntity).getName(), sourceId);
+        }
+
+        // 明细 > 主+明细
+        if (querySourceSql == null || sourceEntity.getEntityCode().equals(sourceId.getEntityCode())) {
+            querySourceSql = String.format(
+                    "select %s from %s where %s = '%s' and (1=1) order by autoId asc",
+                    sourceEntity.getPrimaryField().getName(), sourceEntity.getName(),
+                    sourceEntity.getPrimaryField().getName(), sourceId);
+        }
+
+        return querySourceSql;
     }
 }

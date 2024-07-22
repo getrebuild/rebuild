@@ -67,7 +67,7 @@ public class TriggerAdminController extends BaseController {
 
         Entity sourceEntity = MetadataHelper.getEntity((String) config[0]);
         ActionType actionType = ActionType.valueOf((String) config[1]);
-        if (!License.isCommercial() && actionType.getActionClass().contains(".rbv.")) {
+        if (!License.isRbvAttached() && actionType.getActionClass().contains(".rbv.")) {
             response.sendError(404,
                     Language.L("免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
             return null;

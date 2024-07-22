@@ -60,7 +60,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 
-import static com.rebuild.core.support.ConfigurationItem.*;
+import static com.rebuild.core.support.ConfigurationItem.CacheHost;
+import static com.rebuild.core.support.ConfigurationItem.CachePassword;
+import static com.rebuild.core.support.ConfigurationItem.CachePort;
 
 /**
  * 系统安装
@@ -211,6 +213,7 @@ public class Installer implements InstallState {
             License.siteApiNoCache("api/authority/query");
         }
 
+        // 初始化
         Application.init();
 
         System.setProperty("SN", StringUtils.EMPTY);
