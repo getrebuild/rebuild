@@ -132,7 +132,7 @@ public class AviatorUtils {
      * @param function
      */
     public static void addCustomFunction(final AviatorFunction function) {
-        log.info("Add custom function : {}", function);
+        log.info("Add custom function : {}", function.getName());
         AVIATOR.addFunction(function);
     }
 
