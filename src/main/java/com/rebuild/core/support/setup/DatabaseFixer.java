@@ -48,7 +48,7 @@ public class DatabaseFixer {
         // 最新升级过的
         final int dbVer = RebuildConfiguration.getInt(ConfigurationItem.DBVer);
 
-        if (dbVer == 41 && !BooleanUtils.toBoolean(KVStorage.getCustomValue(KEY_41))) {
+        if (dbVer <= 41 && !BooleanUtils.toBoolean(KVStorage.getCustomValue(KEY_41))) {
             log.info("Database fixing `#41` ...");
             ThreadPool.exec(() -> {
                 try {
