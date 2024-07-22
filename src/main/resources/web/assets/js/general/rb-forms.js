@@ -1611,7 +1611,12 @@ class RbFormImage extends RbFormElement {
       this.__minUpload = 0
       this.__maxUpload = 9
     }
-    this._captureType = props.imageCapture ? 'image' : false
+
+    // 1=默认, 2=拍摄, 3=1+2
+    this._captureType = 0
+    if (props.imageCapture) this._captureType += 2
+    if (props.imageCaptureDef) this._captureType += 1
+    if (this._captureType === 0) this._captureType = 1
   }
 
   renderElement() {
@@ -1648,8 +1653,20 @@ class RbFormImage extends RbFormElement {
         <span title={$L('拖动或点击选择图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={showUpload ? '' : 'hide'}>
           <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" multiple />
           <label htmlFor={this._htmlid} className="img-thumbnail img-upload" onClick={(e) => this._fileClick(e)}>
-            {this._captureType ? <span className="mdi mdi-camera down-2" /> : <span className="zmdi zmdi-image-alt down-2" />}
+            {this._captureType === 2 ? <span className="mdi mdi-camera down-2" /> : <span className="zmdi zmdi-image-alt down-2" />}
           </label>
+          {this._captureType === 3 && (
+            <RF>
+              <label className="dropdown-toggle" data-toggle="dropdown">
+                <i className="icon zmdi zmdi-chevron-down" />
+              </label>
+              <div className="dropdown-menu dropdown-menu-sm">
+                <a className="dropdown-item" onClick={() => this._fileClick(null, 2)}>
+                  <i className="icon mdi mdi-camera" /> {$L('拍摄')}
+                </a>
+              </div>
+            </RF>
+          )}
         </span>
         <input ref={(c) => (this._fieldValue = c)} type="hidden" value={value} />
       </div>
@@ -1685,9 +1702,9 @@ class RbFormImage extends RbFormElement {
     p.RbPreview.create(urlKey, idx)
   }
 
-  _fileClick(e) {
-    if (this._captureType) {
-      $stopEvent(e, true)
+  _fileClick(e, forceType) {
+    if (this._captureType === 2 || forceType === 2) {
+      e && $stopEvent(e, true)
       if (rb.commercial < 1) {
         RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
         return
@@ -1700,7 +1717,7 @@ class RbFormImage extends RbFormElement {
           width={w}
           useWhite
           disposeOnHide
-          type={this._captureType}
+          type={this._captureTypeMedia || 'image'}
           forceFile
           callback={(fileKey) => {
             const paths = this.state.value || []
@@ -1712,6 +1729,7 @@ class RbFormImage extends RbFormElement {
         />
       )
     }
+    // else: this._captureType=1
   }
 
   onEditModeChanged(destroy) {
@@ -1737,7 +1755,7 @@ class RbFormImage extends RbFormElement {
       })
 
       // 拖拽上传
-      if (this._$dropArea && !this.props.imageCapture) {
+      if (this._$dropArea && (this.props.imageCapture === 1 || this.props.imageCapture === 3)) {
         const that = this
         $dropUpload(this._$dropArea, function (files) {
           if (!files || files.length === 0) return false
@@ -1767,13 +1785,14 @@ class RbFormFile extends RbFormImage {
   constructor(props) {
     super(props)
 
-    this._captureType = false
-    if (props.fileSuffix) {
-      const img = props.fileSuffix.includes('image/*')
-      const vid = props.fileSuffix.includes('video/*')
-      if (img && vid) this._captureType = '*'
-      else if (img) this._captureType = 'image'
-      else if (vid) this._captureType = 'video'
+    // 照片, 视频
+    if (this._captureType >= 2) {
+      let _fileSuffix = props.fileSuffix || 'image/*; video/*'
+      const img = _fileSuffix.includes('image/*')
+      const vid = _fileSuffix.includes('video/*')
+      if (img && vid) this._captureTypeMedia = '*'
+      else if (img) this._captureTypeMedia = 'image'
+      else if (vid) this._captureTypeMedia = 'video'
     }
   }
 
@@ -1808,9 +1827,21 @@ class RbFormFile extends RbFormImage {
         <div className={`file-select ${showUpload ? '' : 'hide'}`}>
           <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={this._htmlid} accept={this.props.fileSuffix || null} multiple />
           <label htmlFor={this._htmlid} title={$L('拖动或点击选择文件。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary" onClick={(e) => this._fileClick(e)}>
-            <i className="zmdi zmdi-upload" />
-            <span>{$L('上传文件')}</span>
+            {this._captureType === 2 ? <span className="mdi mdi-camera" /> : <span className="zmdi zmdi-upload" />}
+            <span className="ml-1">{$L('上传文件')}</span>
           </label>
+          {this._captureType === 3 && (
+            <RF>
+              <label className="dropdown-toggle btn-secondary" data-toggle="dropdown">
+                <i className="icon zmdi zmdi-chevron-down" />
+              </label>
+              <div className="dropdown-menu dropdown-menu-sm">
+                <a className="dropdown-item" onClick={() => this._fileClick(null, 2)}>
+                  <i className="icon mdi mdi-camera" /> {$L('拍摄')}
+                </a>
+              </div>
+            </RF>
+          )}
         </div>
         <input ref={(c) => (this._fieldValue = c)} type="hidden" value={value} />
       </div>
