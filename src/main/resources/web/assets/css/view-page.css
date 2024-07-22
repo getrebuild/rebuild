@@ -197,7 +197,7 @@ body {
   right: -4px;
   font-size: 0.8462rem;
   font-weight: normal;
-  line-height: 1.2;
+  line-height: 1.3;
   background-color: var(--rb-theme-color);
 }
 
@@ -731,6 +731,7 @@ body {
   color: #fff;
   border-radius: 99px;
   padding: 3px 6px;
+  min-width: 23px;
 }
 
 .type-PICKLIST .form-control-plaintext .badge.text-dark,
