@@ -676,9 +676,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         Assert.isNull(recordOfNew.getPrimary(), "Must be new record");
 
         Entity entity = recordOfNew.getEntity();
-        if (MetadataHelper.isBizzEntity(entity) || !MetadataHelper.hasPrivilegesField(entity)) {
-            return;
-        }
+        // fix: 3.7.5
+        if (!MetadataHelper.isBusinessEntity(entity)) return;
 
         for (Field field : entity.getFields()) {
             if (MetadataHelper.isCommonsField(field)

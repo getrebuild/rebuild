@@ -81,7 +81,7 @@ public class UserService extends BaseService {
      * @return
      */
     private Record create(Record record, boolean notifyUser) {
-        if (!License.isCommercial() && Application.getUserStore().getAllUsers().length >= 100) {
+        if (!License.isRbvAttached() && Application.getUserStore().getAllUsers().length >= 100) {
             throw new NeedRbvException(Language.L("用户数量超出免费版限制"));
         }
 

@@ -100,7 +100,15 @@ public class NavBuilder extends NavManager {
             ID useNavId;
             if ((useNavId = MetadataHelper.checkSpecEntityId(useNav, EntityHelper.LayoutConfig)) != null) {
                 Object[][] cached = getAllConfig(null, TYPE_NAV);
-                config = findConfigBean(cached, useNavId);
+                // fix: 3.7.5 原本可见现在不可见了
+                for (Object[] c : cached) {
+                    if (c[0].equals(useNavId)) {
+                        if (!isShareTo((String) c[1], user))  useNavId = null;
+                        break;
+                    }
+                }
+
+                if (useNavId != null) config = findConfigBean(cached, useNavId);
             }
         }
 
@@ -343,7 +351,7 @@ public class NavBuilder extends NavManager {
 
         ID user = AppUtils.getRequestUser(request);
         String useNav = ServletUtils.readCookie(request, "AppHome.Nav");
-        JSONArray navs = License.isCommercial()
+        JSONArray navs = License.isRbvAttached()
                 ? NavBuilder.instance.getUserNav(user, useNav)
                 : NavBuilder.instance.getUserNav(user);
 
