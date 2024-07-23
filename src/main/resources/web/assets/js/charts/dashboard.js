@@ -375,7 +375,7 @@ class DlgDashSettings extends RbFormHandler {
               <label className="col-sm-3 col-form-label text-sm-right" />
               <div className="col-sm-7">
                 <div className="shareTo--wrap">
-                  <Share2 ref={(c) => (this._Share2 = c)} noSwitch={true} shareTo={this.props.shareTo} />
+                  <Share2 ref={(c) => (this._Share2 = c)} shareTo={this.props.shareTo} noSwitch />
                 </div>
               </div>
             </div>

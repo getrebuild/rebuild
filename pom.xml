@@ -470,7 +470,7 @@
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson</artifactId>
-            <version>3.32.0</version>
+            <version>3.33.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -496,7 +496,7 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
-            <version>5.8.28</version>
+            <version>5.8.29</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -544,14 +544,19 @@
             <version>6.6.2</version>
         </dependency>
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-handler</artifactId>
-            <version>4.1.111.Final</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>33.2.1-jre</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+            <version>4.1.112.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-resolver-dns</artifactId>
+            <version>4.1.112.Final</version>
         </dependency>
     </dependencies>
 </project>

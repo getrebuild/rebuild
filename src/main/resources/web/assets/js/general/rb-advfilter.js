@@ -912,7 +912,7 @@ class ListAdvFilter extends AdvFilter {
           <RF>
             <div className="float-left" style={{ marginTop: -1 }}>
               {rb.isAdminUser ? (
-                <Share2 ref={(c) => (this._Share2 = c)} shareTo={this.props.shareTo} noSwitch hasName configName={this.props.filterName} />
+                <Share2 ref={(c) => (this._Share2 = c)} shareTo={this.props.shareTo} configName={this.props.filterName} noSwitch hasName />
               ) : (
                 <div className="float-left input">
                   <input

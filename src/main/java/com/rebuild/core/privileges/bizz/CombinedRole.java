@@ -173,7 +173,7 @@ public class CombinedRole extends Role {
 
         // 实体自定义权限
 
-        final Map<String, JSON> customFilters = new HashMap<>();
+        Map<String, JSON> useCustomFilters = new HashMap<>();
 
         for (Permission action : CustomEntityPrivileges.PERMISSION_DEFS) {
             JSONObject aCustom = ((CustomEntityPrivileges) a).getCustomFilter(action);
@@ -182,15 +182,22 @@ public class CombinedRole extends Role {
 
             int gt = isGreaterThan(action.getMask(), aDefMap, bDefMap);
             if (gt == 1) {
-                if (aCustom != null) customFilters.put(action.getName(), aCustom);
+                if (aCustom != null) useCustomFilters.put(action.getName(), aCustom);
             } else if (gt == 2) {
-                if (bCustom != null) customFilters.put(action.getName(), bCustom);
+                if (bCustom != null) useCustomFilters.put(action.getName(), bCustom);
             }
             // gt == 0 无自定义权限
         }
 
+        // 字段权限
+        Map<String, Object> useFpDefinition;
+        Map<String, Object> aFpDefinition = ((CustomEntityPrivileges) a).getFpDefinition();
+        Map<String, Object> bFpDefinition = ((CustomEntityPrivileges) b).getFpDefinition();
+        if (aFpDefinition == null || bFpDefinition == null) useFpDefinition = null;
+        else useFpDefinition = aFpDefinition;
+
         String definition = StringUtils.join(defs.iterator(), ",");
-        return new CustomEntityPrivileges(((EntityPrivileges) a).getEntity(), definition, customFilters);
+        return new CustomEntityPrivileges(((EntityPrivileges) a).getEntity(), definition, useCustomFilters, useFpDefinition);
     }
 
     private Map<String, Integer> parseDefinitionMasks(String d) {

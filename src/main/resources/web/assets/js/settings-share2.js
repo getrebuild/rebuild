@@ -56,6 +56,9 @@ class Share2 extends _ChangeHandler {
                 <a className="dropdown-item" onClick={this.showSwitch}>
                   {$L('切换%s', this.props.title || $L('配置'))}
                 </a>
+                <a className="dropdown-item" onClick={this.showSettings}>
+                  {$L('编辑%s', this.props.title || $L('配置'))}
+                </a>
               </div>
             </div>
           </div>
@@ -95,7 +98,7 @@ class Share2 extends _ChangeHandler {
   }
 
   showSettings = (e) => {
-    $stopEvent(e, true)
+    e && $stopEvent(e, true)
     if (this._Share2Settings) {
       this._Share2Settings.show()
     } else {

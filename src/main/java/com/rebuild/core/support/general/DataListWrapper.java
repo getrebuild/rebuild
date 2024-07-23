@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.MultiSelectManager;
@@ -112,6 +113,10 @@ public class DataListWrapper {
 
             Object nameValue = null;
             for (int colIndex = 0; colIndex < selectFieldsLen; colIndex++) {
+                if (!checkHasFieldPrivileges(selectFields[colIndex])) {
+                    row[colIndex] = FieldValueHelper.NO_READ_PRIVILEGES;
+                    continue;
+                }
                 if (!checkHasJoinFieldPrivileges(selectFields[colIndex], raw)) {
                     row[colIndex] = FieldValueHelper.NO_READ_PRIVILEGES;
                     continue;
@@ -259,6 +264,7 @@ public class DataListWrapper {
      * @param field
      * @param original
      * @return
+     * @see #checkHasFieldPrivileges(SelectItem)
      */
     protected boolean checkHasJoinFieldPrivileges(SelectItem field, Object[] original) {
         if (this.queryJoinFields == null || UserHelper.isAdmin(user)) {
@@ -273,6 +279,15 @@ public class DataListWrapper {
         int fieldIndex = queryJoinFields.get(fieldPath[0]);
         Object check = original[fieldIndex];
         return check == null || Application.getPrivilegesManager().allowRead(user, (ID) check);
+    }
+
+    /**
+     * @param field
+     * @return
+     */
+    protected boolean checkHasFieldPrivileges(SelectItem field) {
+        ID u = user == null ? UserContextHolder.getUser() : user;
+        return Application.getPrivilegesManager().getFieldPrivileges().isReadble(field.getField(), u);
     }
 
     /**

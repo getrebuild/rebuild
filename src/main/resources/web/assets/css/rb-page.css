@@ -1674,8 +1674,10 @@ i.dividing.ui-draggable-dragging {
 
 .data-list .table td div .badge {
   font-weight: normal;
-  font-size: 12px;
-  padding: 1px 6px;
+  font-size: 13px;
+  padding: 3px 6px;
+  min-width: 21px;
+  line-height: 1;
 }
 
 .data-list .table td div .badge.badge-default {
@@ -5753,4 +5755,39 @@ div.formula-code {
 
 .shortcut-buttons-flatpickr-buttons > button:hover {
   background-color: #e6e6e6;
+}
+
+.img-field label.img-upload + label.dropdown-toggle,
+.file-field label.btn-secondary + label.dropdown-toggle {
+  position: absolute;
+  margin: 0;
+  top: 0;
+  height: 60px;
+  width: 18px;
+  margin-left: 58px;
+  background-color: #eee;
+  border-left: 1px solid #d5d8de;
+  text-align: center;
+  padding-top: 23px;
+  font-size: 1.231rem;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+  cursor: pointer;
+}
+
+.img-field label.img-upload + label.dropdown-toggle:hover {
+  opacity: 0.8;
+}
+
+.file-field label.btn-secondary + label.dropdown-toggle {
+  border: 1px solid #d5d8de;
+  background-color: #fff;
+  height: 37px;
+  padding: 0;
+  margin-left: -2px;
+  top: auto;
+}
+
+.file-field label.btn-secondary + label.dropdown-toggle:hover {
+  border-color: #bababa;
 }

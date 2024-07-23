@@ -98,7 +98,7 @@ class LightTaskList extends RelatedList {
     this.__listClass = 'tasks-list inview'
     this.__listNoData = (
       <div className="list-nodata">
-        <span className="zmdi zmdi-shape" />
+        <span className="zmdi zmdi-mdi-checkbox-marked-outline" />
         <p>
           {$L('暂无数据')}
           <br />

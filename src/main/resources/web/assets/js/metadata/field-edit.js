@@ -238,7 +238,7 @@ $(document).ready(function () {
     if (dt === 'DATE' || dt === 'DATETIME') _handleCalcFormula(extConfig.calcFormula)
     _handleDatetime(dt)
   } else if (dt === 'FILE' || dt === 'IMAGE') {
-    _handleFile(extConfig.uploadNumber)
+    _handleFile(extConfig.uploadNumber, extConfig)
   } else if (dt === 'CLASSIFICATION') {
     _handleClassification(extConfig.classification)
   } else if (dt === 'REFERENCE') {
@@ -436,7 +436,7 @@ const _handleDatetime = function (dt) {
     .on('click', () => renderRbcomp(<FormulaDate type={dt} onConfirm={(expr) => $('.J_defaultValue').val(expr)} />))
 }
 
-const _handleFile = function (uploadNumber) {
+const _handleFile = function (uploadNumber, config) {
   if (uploadNumber) {
     uploadNumber = uploadNumber.split(',')
     uploadNumber[0] = ~~uploadNumber[0]
@@ -462,6 +462,13 @@ const _handleFile = function (uploadNumber) {
       )
     })
   $('#fieldNullable').attr('disabled', true)
+
+  // v3.8
+  if (config) {
+    if (config.imageCaptureDef) $('#imageCaptureDef').attr('checked', true)
+    if (config.imageCapture) $('#imageCapture').attr('checked', true)
+    if (!config.imageCaptureDef && !config.imageCapture) $('#imageCaptureDef').attr('checked', true)
+  }
 }
 
 const _handleClassification = function (useClassification) {
@@ -810,6 +817,7 @@ const __TYPE2TYPE = {
   'EMAIL': ['TEXT'],
   'URL': ['TEXT'],
   'IMAGE': ['FILE'],
+  'FILE': ['IMAGE'],
 }
 class FieldTypeCast extends RbFormHandler {
   render() {
