@@ -178,7 +178,7 @@
                     <tr th:each="entity : ${Entities}">
                       <td class="name">
                         <a th:data-entity="${entity[1]}" th:data-name="${entity[0]}" th:title="${bundle.L('批量选择')}">[[${entity[2]}]]</a>
-                        <span class="bosskey-show">
+                        <span class="-bosskey-show">
                           <a th:data-entity="${entity[1]}" th:title="${bundle.L('字段权限')}"><i class="mdi mdi-playlist-check"></i></a>
                         </span>
                       </td>

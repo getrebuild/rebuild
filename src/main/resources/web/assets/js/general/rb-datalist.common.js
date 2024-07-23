@@ -1137,11 +1137,11 @@ class RbList extends React.Component {
     const cellKey = `row-${primaryKey.id}-${index}`
     const width = this.state.fields[index].width || this.__defaultColumnWidth
     let type = field.type
-    if (field.field === this.props.config.nameField) {
+    if (cellVal === '$NOPRIVILEGES$') {
+      type = cellVal
+    } else if (field.field === this.props.config.nameField) {
       cellVal = primaryKey
       type = '$NAME$'
-    } else if (cellVal === '$NOPRIVILEGES$') {
-      type = cellVal
     }
 
     // @see rb-datalist.common.js
