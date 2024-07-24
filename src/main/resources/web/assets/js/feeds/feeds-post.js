@@ -345,7 +345,7 @@ class FeedsEditor extends React.Component {
   }
 
   componentWillUnmount() {
-    super.componentWillUnmount()
+    // super.componentWillUnmount()
     $(this._$editor).off('paste.file')
   }
 

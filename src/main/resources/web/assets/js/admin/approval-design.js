@@ -878,6 +878,13 @@ class ApproverNodeConfig extends StartNodeConfig {
       .each(function () {
         if (this.name) expiresAuto[[this.name]] = $(this).val()
       })
+    if (~~expiresAuto.expiresAuto === 1 && !expiresAuto.expiresAuto1Value) {
+      expiresAuto.expiresAuto1Value = '1'
+    }
+    if (~~expiresAuto.expiresAuto === 2 && !expiresAuto.expiresAuto2Value) {
+      RbHighbar.create($L('请选择限时审批使用字段'))
+      return
+    }
 
     const d = {
       nodeName: this.state.nodeName,
