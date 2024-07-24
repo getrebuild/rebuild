@@ -100,10 +100,11 @@ public class NavBuilder extends NavManager {
             ID useNavId;
             if ((useNavId = MetadataHelper.checkSpecEntityId(useNav, EntityHelper.LayoutConfig)) != null) {
                 Object[][] cached = getAllConfig(null, TYPE_NAV);
-                // fix: 3.7.5 原本可见现在不可见了
+                // fix: 3.7.5 原本共享为可见现在不共享了
                 for (Object[] c : cached) {
                     if (c[0].equals(useNavId)) {
-                        if (!isShareTo((String) c[1], user))  useNavId = null;
+                        boolean allowUse = UserHelper.isAdmin(user) || isShareTo((String) c[1], user);
+                        if (!allowUse) useNavId = null;
                         break;
                     }
                 }
