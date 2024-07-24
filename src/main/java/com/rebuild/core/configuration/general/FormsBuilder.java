@@ -130,8 +130,9 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        // 明细实体有主实体
+        // 明细实体
         final Entity hasMainEntity = entityMeta.getMainEntity();
+        ID hasMainEntityUseMainid;
         // 审批流程（状态）
         ApprovalState approvalState;
         // 提示
@@ -144,6 +145,7 @@ public class FormsBuilder extends FormsManager {
             if (hasMainEntity != null) {
                 ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
                 Assert.notNull(mainid, "Call `FormBuilderContextHolder#setMainIdOfDetail` first!");
+                hasMainEntityUseMainid = mainid;
 
                 approvalState = EntityHelper.isUnsavedId(mainid) ? null : getHadApproval(hasMainEntity, mainid);
                 if ((approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED)) {

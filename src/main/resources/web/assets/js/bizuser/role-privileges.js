@@ -15,6 +15,7 @@ const roleId = window.__PageConfig.recordId
 // 自定义
 let advFilters = {}
 let advFilterSettings = {}
+// 字段
 let fieldpModals = {}
 let fieldpSettings = {}
 
@@ -59,21 +60,23 @@ $(document).ready(() => {
   $('#priv-entity tbody .name>span>a').on('click', function () {
     const $this = $(this)
     const entity = $this.data('entity')
-    const fieldpKey = entity + ':FP'
-    if (fieldpModals[fieldpKey]) {
-      fieldpModals[fieldpKey].show()
+    if (fieldpModals[entity]) {
+      fieldpModals[entity].show()
     } else {
       renderRbcomp(
         <FieldsPrivileges
           entity={entity}
-          selected={fieldpSettings[fieldpKey]}
+          selected={fieldpSettings[entity]}
           onConfirm={(res) => {
-            fieldpSettings[fieldpKey] = res
+            fieldpSettings[entity] = res
             // active
             if (res) $this.addClass('active')
             else $this.removeClass('active')
           }}
-        />
+        />,
+        function () {
+          fieldpModals[entity] = this
+        }
       )
     }
   })
@@ -238,7 +241,7 @@ const loadPrivileges = function () {
               $tr.find(`a[data-action="${k}"]`).addClass('active')
             }
           } else if (k === 'FP') {
-            fieldpSettings[entity + ':FP'] = defs[k]
+            fieldpSettings[entity] = defs[k]
             $name.parent().find('span>a').addClass('active')
           } else {
             $tr.find(`i.priv[data-action="${k}"]`).removeClass('R0 R1 R2 R3 R4').addClass(`R${defs[k]}`)
@@ -276,7 +279,7 @@ const updatePrivileges = function () {
       if (filter) definition[`${action}9`] = filter
     })
     // v3.8
-    const fieldp = fieldpSettings[entity + ':FP']
+    const fieldp = fieldpSettings[entity]
     if (fieldp) definition['FP'] = fieldp
 
     privEntity[name] = definition
@@ -413,7 +416,13 @@ class MemberList extends React.Component {
 }
 
 class FieldsPrivileges extends RbModalHandler {
+  constructor(props) {
+    super(props)
+    this._Panes = []
+  }
+
   render() {
+    const _selected = this.props.selected || {}
     return (
       <RbModal
         title={
@@ -423,45 +432,28 @@ class FieldsPrivileges extends RbModalHandler {
           </RF>
         }
         ref={(c) => (this._dlg = c)}>
-        <div className="p-2">
-          <div className="form-group">
-            <label>{$L('不可新建字段')}</label>
-            <select className="form-control form-control-sm" multiple ref={(c) => (this._$create = c)}>
-              {this.state.fields &&
-                this.state.fields.map((item) => {
-                  return (
-                    <option key={item.name} value={item.name} disabled={item.creatable === false}>
-                      {item.label}
-                    </option>
-                  )
-                })}
-            </select>
-          </div>
-          <div className="form-group">
-            <label>{$L('不可读取字段')}</label>
-            <select className="form-control form-control-sm" multiple ref={(c) => (this._$read = c)}>
-              {this.state.fields &&
-                this.state.fields.map((item) => {
-                  return (
-                    <option key={item.name} value={item.name}>
-                      {item.label}
-                    </option>
-                  )
-                })}
-            </select>
-          </div>
-          <div className="form-group mb-1">
-            <label>{$L('不可编辑字段')}</label>
-            <select className="form-control form-control-sm" multiple ref={(c) => (this._$update = c)}>
-              {this.state.fields &&
-                this.state.fields.map((item) => {
-                  return (
-                    <option key={item.name} value={item.name} disabled={item.updatable === false}>
-                      {item.label}
-                    </option>
-                  )
-                })}
-            </select>
+        <div className="tab-container" ref={(c) => (this._$container = c)}>
+          <ul className="nav nav-tabs">
+            {this.state.entityAndDetails &&
+              this.state.entityAndDetails.map((item, idx) => {
+                return (
+                  <li className="nav-item" key={`fp-${item.entity}`}>
+                    <a className={`nav-link ${idx === 0 && 'active'}`} href={`#fp-${item.entity}`} data-toggle="tab">
+                      {item.entityLabel}
+                    </a>
+                  </li>
+                )
+              })}
+          </ul>
+          <div className="tab-content m-0 pb-0">
+            {this.state.entityAndDetails &&
+              this.state.entityAndDetails.map((item, idx) => {
+                return (
+                  <div className={`tab-pane ${idx === 0 && 'active'}`} id={`fp-${item.entity}`} key={`fp-${item.entity}`}>
+                    <FieldsPrivilegesPane entity={item.entity} selected={_selected[item.entity]} ref={(c) => this._Panes.push(c)} />
+                  </div>
+                )
+              })}
           </div>
         </div>
 
@@ -483,13 +475,76 @@ class FieldsPrivileges extends RbModalHandler {
       return
     }
 
-    const selected = {
-      create: $(this._$create).val(),
-      read: $(this._$read).val(),
-      update: $(this._$update).val(),
-    }
+    let selected = {}
+    this._Panes.forEach((p) => {
+      let val = p.val()
+      if (val) selected[p.props.entity] = val
+    })
+    if ($empty(selected)) selected = null
+
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(selected)
     this.hide()
+  }
+
+  componentDidMount() {
+    $.get(`/commons/metadata/entity-and-details?entity=${this.props.entity}`, (res) => {
+      this.setState({ entityAndDetails: res.data }, () => {
+        // $(this._$container).find('.nav-tabs .nav-link:eq(0)')[0].click()
+      })
+    })
+  }
+}
+
+class FieldsPrivilegesPane extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  render() {
+    return (
+      <div className="mb-5">
+        <div className="form-group">
+          <label>{$L('不可新建字段')}</label>
+          <select className="form-control form-control-sm J_create" multiple ref={(c) => (this._$create = c)}>
+            {this.state.fields &&
+              this.state.fields.map((item) => {
+                return (
+                  <option key={item.name} value={item.name} disabled={item.creatable === false}>
+                    {item.label}
+                  </option>
+                )
+              })}
+          </select>
+        </div>
+        <div className="form-group">
+          <label>{$L('不可读取字段')}</label>
+          <select className="form-control form-control-sm J_read" multiple ref={(c) => (this._$read = c)}>
+            {this.state.fields &&
+              this.state.fields.map((item) => {
+                return (
+                  <option key={item.name} value={item.name}>
+                    {item.label}
+                  </option>
+                )
+              })}
+          </select>
+        </div>
+        <div className="form-group">
+          <label>{$L('不可编辑字段')}</label>
+          <select className="form-control form-control-sm J_update" multiple ref={(c) => (this._$update = c)}>
+            {this.state.fields &&
+              this.state.fields.map((item) => {
+                return (
+                  <option key={item.name} value={item.name} disabled={item.updatable === false}>
+                    {item.label}
+                  </option>
+                )
+              })}
+          </select>
+        </div>
+      </div>
+    )
   }
 
   componentDidMount() {
@@ -501,12 +556,30 @@ class FieldsPrivileges extends RbModalHandler {
         })
 
         // init
-        if (this.props.selected) {
-          if (this.props.selected.create) $(this._$create).val(this.props.selected.create).trigger('change')
-          if (this.props.selected.read) $(this._$read).val(this.props.selected.read).trigger('change')
-          if (this.props.selected.update) $(this._$update).val(this.props.selected.update).trigger('change')
-        }
+        setTimeout(() => {
+          const _selected = this.props.selected || {}
+          $(this._$create)
+            .val(_selected.create || null)
+            .trigger('change')
+          $(this._$read)
+            .val(_selected.read || null)
+            .trigger('change')
+          $(this._$update)
+            .val(_selected.update || null)
+            .trigger('change')
+        }, 10)
       })
     })
+  }
+
+  val() {
+    const d = {
+      create: $(this._$create).val(),
+      read: $(this._$read).val(),
+      update: $(this._$update).val(),
+    }
+
+    if (d.create.length + d.read.length + d.update.length === 0) return null
+    return d
   }
 }
