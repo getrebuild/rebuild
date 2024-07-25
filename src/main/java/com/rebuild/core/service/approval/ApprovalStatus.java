@@ -9,7 +9,6 @@ package com.rebuild.core.service.approval;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -51,23 +50,17 @@ public class ApprovalStatus {
         return currentStepNode;
     }
 
-    public String getLastComment() {
-        if (currentStepNode == null || lastComment != null) {
-            return StringUtils.defaultIfBlank(lastComment, null);
-        }
+    /**
+     * @return
+     */
+    public String getPrevStepNode() {
+        if (currentStepNode == null) return null;
 
-        Object[] last = Application.createQueryNoFilter(
-                "select remark from RobotApprovalStep where recordId = ? and node = ? order by modifiedOn desc")
+        Object[] o = Application.createQueryNoFilter(
+                "select prevNode from RobotApprovalStep where recordId = ? and node = ? order by modifiedOn desc")
                 .setParameter(1, this.recordId)
                 .setParameter(2, this.currentStepNode)
                 .unique();
-
-        if (last == null) {
-            lastComment = StringUtils.EMPTY;
-        } else {
-            lastComment = StringUtils.defaultIfBlank((String) last[0], StringUtils.EMPTY);
-        }
-
-        return StringUtils.defaultIfBlank(lastComment, null);
+        return o == null ? null : (String) o[0];
     }
 }
