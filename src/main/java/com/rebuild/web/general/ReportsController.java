@@ -33,7 +33,6 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.rbv.data.Html5ReportGenerator;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
@@ -102,9 +101,8 @@ public class ReportsController extends BaseController {
                         "com.rebuild.rbv.data.WordReportGenerator#create", reportId, recordId);
             } else if (tt.type == DataReportManager.TYPE_HTML5) {
                 // HTML5 支持多个
-                try {
-                    reportGenerator = Html5ReportGenerator.create(reportId, Arrays.asList(recordIds));
-                } catch (Exception ignoredRbvClassMiss) {}
+                reportGenerator = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
+                        "com.rebuild.rbv.data.Html5ReportGenerator#create", reportId, recordIds);
             } else {
                 // EXCEL 支持多个
                 reportGenerator = EasyExcelGenerator.create(reportId, Arrays.asList(recordIds));

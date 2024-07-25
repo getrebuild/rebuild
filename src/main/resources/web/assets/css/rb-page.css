@@ -985,12 +985,6 @@ a.link.link-icon::after {
   flex-shrink: 0;
 }
 
-/* @media (min-width: 1064px) {
-  .form-layout > .row .form-group.col-sm-3 > .col-form-label {
-    width: 100px;
-  }
-} */
-
 .form-layout > .row .form-group > .col-form-control {
   flex: 1;
   position: relative;
@@ -1422,7 +1416,7 @@ a.link.link-icon::after {
   color: #878787;
   line-height: 1.41;
   margin-top: 6px;
-  margin-bottom: -5px;
+  margin-bottom: -4px;
 }
 
 .rbform .type-IMAGE .form-text,
@@ -5791,4 +5785,15 @@ div.formula-code {
 
 .file-field label.btn-secondary + label.dropdown-toggle:hover {
   border-color: #bababa;
+}
+
+.form-layout.vertical38 > .row .form-group {
+  display: block;
+}
+
+.form-layout.vertical38 > .row .form-group > .col-form-label {
+  text-align: left;
+  margin-bottom: 10px;
+  padding-top: 5px;
+  width: auto;
 }

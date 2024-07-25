@@ -26,7 +26,7 @@ class RbViewForm extends React.Component {
     return (
       <RF>
         {this.state.fjsAlertMessage}
-        <div className="rbview-form form-layout" ref={(c) => (this._viewForm = c)}>
+        <div className={`rbview-form form-layout ${window.__LAB_VERTICALLAYOUT && 'vertical38'}`} ref={(c) => (this._viewForm = c)}>
           {this.state.formComponent}
         </div>
       </RF>
@@ -417,7 +417,7 @@ class EntityRelatedList extends RelatedList {
             </span>
           </div>
         </div>
-        <div className="rbview-form form-layout inside">{this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}</div>
+        <div className={`rbview-form form-layout inside ${window.__LAB_VERTICALLAYOUT && 'vertical38'}`}>{this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}</div>
       </div>
     )
   }
