@@ -104,7 +104,7 @@ public class ReportsController extends BaseController {
                 // HTML5 支持多个
                 try {
                     reportGenerator = Html5ReportGenerator.create(reportId, Arrays.asList(recordIds));
-                } catch (Exception ignoreRbvClass) {}
+                } catch (Exception ignoredRbvClassMiss) {}
             } else {
                 // EXCEL 支持多个
                 reportGenerator = EasyExcelGenerator.create(reportId, Arrays.asList(recordIds));

@@ -91,7 +91,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         addObserver(new RobotTriggerObserver());
         try {
             addObserver((SafeObserver) ReflectUtils.newObject("com.rebuild.rbv.sop.RobotSopObserver"));
-        } catch (Exception ignoredClassNotFound){}
+        } catch (Exception ignoredRbvClassMiss){}
     }
 
     @Override
