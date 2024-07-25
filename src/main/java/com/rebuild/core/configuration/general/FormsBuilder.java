@@ -132,7 +132,6 @@ public class FormsBuilder extends FormsManager {
 
         // 明细实体
         final Entity hasMainEntity = entityMeta.getMainEntity();
-        ID hasMainEntityUseMainid;
         // 审批流程（状态）
         ApprovalState approvalState;
         // 提示
@@ -145,7 +144,6 @@ public class FormsBuilder extends FormsManager {
             if (hasMainEntity != null) {
                 ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
                 Assert.notNull(mainid, "Call `FormBuilderContextHolder#setMainIdOfDetail` first!");
-                hasMainEntityUseMainid = mainid;
 
                 approvalState = EntityHelper.isUnsavedId(mainid) ? null : getHadApproval(hasMainEntity, mainid);
                 if ((approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED)) {
@@ -357,6 +355,8 @@ public class FormsBuilder extends FormsManager {
                 || EntityHelper.isUnsavedId(recordData.getPrimary());
 
         final FieldPrivileges fp = Application.getPrivilegesManager().getFieldPrivileges();
+        // 在共同编辑时，对于明细应该是编辑而非新建
+        final boolean isProTableLayout = FormsBuilderContextHolder.getMainIdOfDetail(false) != null;
 
         // Check and clean
         for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
@@ -602,7 +602,7 @@ public class FormsBuilder extends FormsManager {
             }
 
             // v3.8
-            if (isNew) {
+            if (isNew && !isProTableLayout) {
                 if (!fp.isCreatable(fieldMeta, user)) el.put("readonly", true);
             } else {
                 if (!fp.isReadble(fieldMeta, user)) iter.remove();

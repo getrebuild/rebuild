@@ -488,9 +488,7 @@ class FieldsPrivileges extends RbModalHandler {
 
   componentDidMount() {
     $.get(`/commons/metadata/entity-and-details?entity=${this.props.entity}`, (res) => {
-      this.setState({ entityAndDetails: res.data }, () => {
-        // $(this._$container).find('.nav-tabs .nav-link:eq(0)')[0].click()
-      })
+      this.setState({ entityAndDetails: res.data }, () => {})
     })
   }
 }
@@ -502,45 +500,43 @@ class FieldsPrivilegesPane extends React.Component {
   }
 
   render() {
+    const _fields = this.state.fields || []
     return (
       <div className="mb-5">
         <div className="form-group">
           <label>{$L('不可新建字段')}</label>
-          <select className="form-control form-control-sm J_create" multiple ref={(c) => (this._$create = c)}>
-            {this.state.fields &&
-              this.state.fields.map((item) => {
-                return (
-                  <option key={item.name} value={item.name} disabled={item.creatable === false}>
-                    {item.label}
-                  </option>
-                )
-              })}
+          <select className="form-control form-control-sm" multiple ref={(c) => (this._$create = c)}>
+            {_fields.map((item) => {
+              return (
+                <option key={item.name} value={item.name} disabled={item.creatable === false}>
+                  {item.label}
+                </option>
+              )
+            })}
           </select>
         </div>
         <div className="form-group">
           <label>{$L('不可读取字段')}</label>
-          <select className="form-control form-control-sm J_read" multiple ref={(c) => (this._$read = c)}>
-            {this.state.fields &&
-              this.state.fields.map((item) => {
-                return (
-                  <option key={item.name} value={item.name}>
-                    {item.label}
-                  </option>
-                )
-              })}
+          <select className="form-control form-control-sm" multiple ref={(c) => (this._$read = c)}>
+            {_fields.map((item) => {
+              return (
+                <option key={item.name} value={item.name}>
+                  {item.label}
+                </option>
+              )
+            })}
           </select>
         </div>
         <div className="form-group">
           <label>{$L('不可编辑字段')}</label>
-          <select className="form-control form-control-sm J_update" multiple ref={(c) => (this._$update = c)}>
-            {this.state.fields &&
-              this.state.fields.map((item) => {
-                return (
-                  <option key={item.name} value={item.name} disabled={item.updatable === false}>
-                    {item.label}
-                  </option>
-                )
-              })}
+          <select className="form-control form-control-sm" multiple ref={(c) => (this._$update = c)}>
+            {_fields.map((item) => {
+              return (
+                <option key={item.name} value={item.name} disabled={item.updatable === false}>
+                  {item.label}
+                </option>
+              )
+            })}
           </select>
         </div>
       </div>
@@ -556,18 +552,10 @@ class FieldsPrivilegesPane extends React.Component {
         })
 
         // init
-        setTimeout(() => {
-          const _selected = this.props.selected || {}
-          $(this._$create)
-            .val(_selected.create || null)
-            .trigger('change')
-          $(this._$read)
-            .val(_selected.read || null)
-            .trigger('change')
-          $(this._$update)
-            .val(_selected.update || null)
-            .trigger('change')
-        }, 10)
+        const _selected = this.props.selected || {}
+        if (_selected.create) $(this._$create).val(_selected.create).trigger('change')
+        if (_selected.read) $(this._$read).val(_selected.read).trigger('change')
+        if (_selected.update) $(this._$update).val(_selected.update).trigger('change')
       })
     })
   }
