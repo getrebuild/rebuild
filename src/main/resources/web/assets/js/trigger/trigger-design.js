@@ -310,7 +310,7 @@ class UserSelectorWithField extends UserSelector {
     super.componentDidMount()
 
     this._fields = []
-    $.get(`/commons/metadata/fields?deep=2&entity=${this.props.entity || wpc.sourceEntity}`, (res) => {
+    $.get(`/commons/metadata/fields?deep=3&entity=${this.props.entity || wpc.sourceEntity}`, (res) => {
       $(res.data).each((idx, item) => {
         if ((item.type === 'REFERENCE' || item.type === 'N2NREFERENCE') && item.ref && BIZZ_ENTITIES.includes(item.ref[0])) {
           this._fields.push({ id: item.name, text: item.label })
@@ -620,7 +620,7 @@ class EditorWithFieldVars extends React.Component {
   }
 
   componentDidMount() {
-    $.get(`/commons/metadata/fields?entity=${this.props.entity}&deep=2`, (res) => {
+    $.get(`/commons/metadata/fields?entity=${this.props.entity}&deep=3`, (res) => {
       this.setState({ fieldVars: res.data || [] }, () => {
         $(this._$fieldVars).perfectScrollbar()
       })

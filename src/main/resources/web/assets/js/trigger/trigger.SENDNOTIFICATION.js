@@ -268,7 +268,7 @@ class SelectorWithField extends UserSelector {
 
     const fieldTypes = this.props.fieldTypes || ['PHONE', 'EMAIL']
     this._fields = []
-    $.get(`/commons/metadata/fields?deep=2&entity=${this.props.entity || wpc.sourceEntity}`, (res) => {
+    $.get(`/commons/metadata/fields?deep=3&entity=${this.props.entity || wpc.sourceEntity}`, (res) => {
       res.data &&
         res.data.forEach((item) => {
           if (fieldTypes.includes(item.type)) {

@@ -1253,7 +1253,7 @@ class UserSelectorWithField extends UserSelector {
 
     // 外部人员
     if (this.props.userType === 2) {
-      $.get(`/commons/metadata/fields?deep=2&entity=${this.props.entity || wpc.applyEntity}`, (res) => {
+      $.get(`/commons/metadata/fields?deep=3&entity=${this.props.entity || wpc.applyEntity}`, (res) => {
         res.data &&
           res.data.forEach((item) => {
             if (item.type === 'PHONE' || item.type === 'EMAIL') {
