@@ -33,6 +33,7 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.rbv.data.Html5ReportGenerator;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
@@ -95,20 +96,21 @@ public class ReportsController extends BaseController {
 
         File output = null;
         try {
+            EasyExcelGenerator reportGenerator = null;
             if (tt.type == DataReportManager.TYPE_WORD) {
-                EasyExcelGenerator33 word = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
+                reportGenerator = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
                         "com.rebuild.rbv.data.WordReportGenerator#create", reportId, recordId);
-                output = word.generate();
-
             } else if (tt.type == DataReportManager.TYPE_HTML5) {
-                EasyExcelGenerator33 html5 = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
-                        "com.rebuild.rbv.data.Html5ReportGenerator#create", reportId, recordId);
-                output = html5.generate();
-
+                // HTML5 支持多个
+                try {
+                    reportGenerator = Html5ReportGenerator.create(reportId, Arrays.asList(recordIds));
+                } catch (Exception ignoreRbvClass) {}
             } else {
                 // EXCEL 支持多个
-                output = EasyExcelGenerator.create(reportId, Arrays.asList(recordIds)).generate();
+                reportGenerator = EasyExcelGenerator.create(reportId, Arrays.asList(recordIds));
             }
+
+            if (reportGenerator != null) output = reportGenerator.generate();
 
         } catch (ExcelRuntimeException ex) {
             log.error(null, ex);
