@@ -73,8 +73,8 @@ public class ConfigurationController extends BaseController {
             mv.getModel().put(item.name(), RebuildConfiguration.get(item));
         }
 
-        // Available langs
-        mv.getModel().put("availableLangs", JSON.toJSON(Application.getLanguage().availableLocales()));
+        mv.getModel().put("availableLangs",
+                JSON.toJSON(Application.getLanguage().availableLocales()));
 
         final JSONObject auth = License.queryAuthority();
         String authType = auth.getString("authType");
