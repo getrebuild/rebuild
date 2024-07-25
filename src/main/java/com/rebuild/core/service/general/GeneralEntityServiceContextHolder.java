@@ -24,6 +24,8 @@ public class GeneralEntityServiceContextHolder {
 
     private static final ThreadLocal<ID> FROM_TRIGGERS = new NamedThreadLocal<>("From triggers");
 
+    private static final ThreadLocal<Boolean> QUICK_MODE = new NamedThreadLocal<>("Quick mode");
+
     /**
      * 新建记录时允许跳过自动编号字段
      */
@@ -104,5 +106,23 @@ public class GeneralEntityServiceContextHolder {
         Integer mode = REPEATED_CHECK_MODE.get();
         if (mode != null) REPEATED_CHECK_MODE.remove();
         return mode == null ? 0 : mode;
+    }
+
+    /**
+     * 忽略一些操作/触发器的执行，达到快速操作的目的
+     */
+    public static void setQuickMode() {
+        QUICK_MODE.set(true);
+    }
+
+    /**
+     * @param once
+     * @return
+     * @see #setQuickMode()
+     */
+    public static boolean isQuickMode(boolean once) {
+        Boolean is = QUICK_MODE.get();
+        if (is != null && once) QUICK_MODE.remove();
+        return is != null && is;
     }
 }

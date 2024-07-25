@@ -878,6 +878,13 @@ class ApproverNodeConfig extends StartNodeConfig {
       .each(function () {
         if (this.name) expiresAuto[[this.name]] = $(this).val()
       })
+    if (~~expiresAuto.expiresAuto === 1 && !expiresAuto.expiresAuto1Value) {
+      expiresAuto.expiresAuto1Value = '1'
+    }
+    if (~~expiresAuto.expiresAuto === 2 && !expiresAuto.expiresAuto2Value) {
+      RbHighbar.create($L('请选择限时审批使用字段'))
+      return
+    }
 
     const d = {
       nodeName: this.state.nodeName,
@@ -1246,7 +1253,7 @@ class UserSelectorWithField extends UserSelector {
 
     // 外部人员
     if (this.props.userType === 2) {
-      $.get(`/commons/metadata/fields?deep=2&entity=${this.props.entity || wpc.applyEntity}`, (res) => {
+      $.get(`/commons/metadata/fields?deep=3&entity=${this.props.entity || wpc.applyEntity}`, (res) => {
         res.data &&
           res.data.forEach((item) => {
             if (item.type === 'PHONE' || item.type === 'EMAIL') {

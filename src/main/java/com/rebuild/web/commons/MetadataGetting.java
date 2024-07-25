@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
@@ -46,19 +47,19 @@ import java.util.Set;
 public class MetadataGetting extends BaseController {
 
     @GetMapping("entities")
-    public List<JSON> entities(HttpServletRequest request) {
+    public JSON entities(HttpServletRequest request) {
         final ID user = getRequestUser(request);
         boolean usesBizz = getBoolParameter(request, "bizz", false);
         boolean usesDetail = getBoolParameter(request, "detail", false);
 
-        List<JSON> data = new ArrayList<>();
+        JSONArray res = new JSONArray();
         for (Entity e : MetadataSorter.sortEntities(user, usesBizz, usesDetail)) {
             JSONObject item = (JSONObject) EasyMetaFactory.valueOf(e).toJSON();
             item.put("name", item.getString("entity"));
             item.put("label", item.getString("entityLabel"));
-            data.add(item);
+            res.add(item);
         }
-        return data;
+        return res;
     }
 
     @GetMapping("fields")
@@ -142,5 +143,20 @@ public class MetadataGetting extends BaseController {
         else foundEntity = MetadataHelper.getEntity(name);
 
         return EasyMetaFactory.valueOf(foundEntity).toJSON();
+    }
+
+    @GetMapping("entity-and-details")
+    public JSON entityAndDetails(HttpServletRequest request) {
+        Entity entity = MetadataHelper.getEntity(getParameterNotNull(request, "entity"));
+
+        JSONArray res = new JSONArray();
+        res.add(EasyMetaFactory.valueOf(entity).toJSON());
+
+        if (entity.getDetailEntity() != null) {
+            for (Entity de : MetadataSorter.sortDetailEntities(entity)) {
+                res.add(EasyMetaFactory.valueOf(de).toJSON());
+            }
+        }
+        return res;
     }
 }

@@ -163,6 +163,10 @@ public class FieldWriteback extends FieldAggregation {
             if (forceUpdate) {
                 GeneralEntityServiceContextHolder.setAllowForceUpdate(targetRecordId);
             }
+            // 快速模式 (v3.8)
+            if (stopPropagation) {
+                GeneralEntityServiceContextHolder.setQuickMode();
+            }
 
             // 重复检查模式
             GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_MAIN);
@@ -173,16 +177,13 @@ public class FieldWriteback extends FieldAggregation {
             if (CommonsUtils.DEVLOG) System.out.println("[dev] Use current-loop tschain : " + tschainCurrentLoop);
 
             try {
-                if (stopPropagation) {
-                    Application.getCommonsService().update(targetRecord, false);
-                } else {
-                    Application.getBestService(targetEntity).createOrUpdate(targetRecord);
-                }
+                Application.getBestService(targetEntity).createOrUpdate(targetRecord);
                 affected.add(targetRecord.getPrimary());
 
             } finally {
                 PrivilegesGuardContextHolder.getSkipGuardOnce();
                 if (forceUpdate) GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+                if (stopPropagation) GeneralEntityServiceContextHolder.isQuickMode(true);
                 GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
             }
         }
