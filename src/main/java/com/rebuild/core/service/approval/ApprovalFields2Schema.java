@@ -49,25 +49,24 @@ public class ApprovalFields2Schema extends Field2Schema {
     public boolean createFields(Entity entity) throws MetadataModificationException {
         // 补充后加字段
         if (MetadataHelper.hasApprovalField(entity)) {
-            boolean complement = false;
+            List<Field> complement = new ArrayList<>();
             if (!entity.containsField(EntityHelper.ApprovalLastUser)) {
-                schema2DatabaseInternal(entity, buildApporvalLastUser(entity));
-                complement = true;
+                complement.add(buildApporvalLastUser(entity));
             }
             if (!entity.containsField(EntityHelper.ApprovalLastTime)) {
-                schema2DatabaseInternal(entity, buildApporvalLastTime(entity));
-                complement = true;
+                complement.add(buildApporvalLastTime(entity));
             }
             if (!entity.containsField(EntityHelper.ApprovalLastRemark)) {
-                schema2DatabaseInternal(entity, buildApporvalLastRemark(entity));
-                complement = true;
+                complement.add(buildApporvalLastRemark(entity));
             }
             if (!entity.containsField(EntityHelper.ApprovalStepUsers)) {
-                schema2DatabaseInternal(entity,
-                        buildApprovalStepUsers(entity), buildApprovalStepNodeName(entity));
-                complement = true;
+                complement.add(buildApprovalStepUsers(entity));
+                complement.add(buildApprovalStepNodeName(entity));
             }
-            return complement;
+
+            if (complement.isEmpty()) return false;
+            schema2DatabaseInternal(entity, complement.toArray(new Field[0]));
+            return true;
         }
 
         if (!(MetadataHelper.hasPrivilegesField(entity)
