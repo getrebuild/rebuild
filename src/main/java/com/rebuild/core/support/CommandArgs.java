@@ -32,6 +32,7 @@ public class CommandArgs {
     public static final String _StartEntityTypeCode = "_StartEntityTypeCode";
     public static final String _UseFrontJSAnywhere = "_UseFrontJSAnywhere";
     public static final String _TriggerMaxDepth = "_TriggerMaxDepth";
+    public static final String _ProtectedAdmin = "_ProtectedAdmin";
 
     /**
      * @param name
