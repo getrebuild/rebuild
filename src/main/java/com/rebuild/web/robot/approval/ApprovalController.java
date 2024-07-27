@@ -121,6 +121,10 @@ public class ApprovalController extends BaseController {
                     // v3.1 管理员也可撤回
                     data.put("canCancel", true);
                 }
+
+                // v3.8 自己审批的自己可以取消（退回）
+                Set<ID> us = new ApprovalProcessor(recordId, useApproval).getPrevApprovedUsers();
+                if (us.contains(user)) data.put("canCancel38", true);
             }
 
             if (stateVal == ApprovalState.APPROVED.getState()) {
@@ -250,6 +254,17 @@ public class ApprovalController extends BaseController {
     public RespBody doCancel(@IdParam(name = "record") ID recordId) {
         try {
             new ApprovalProcessor(recordId).cancel();
+            return RespBody.ok();
+
+        } catch (ApprovalException ex) {
+            return RespBody.error(ex.getMessage());
+        }
+    }
+
+    @RequestMapping("cancel38")
+    public RespBody doCancel38(@IdParam(name = "record") ID recordId, HttpServletRequest request) {
+        try {
+            new ApprovalProcessor(recordId).cancel38(getRequestUser(request));
             return RespBody.ok();
 
         } catch (ApprovalException ex) {

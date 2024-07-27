@@ -174,12 +174,9 @@ public class MetaEntityController extends EntityController {
             map.put("comments", easyMeta.getComments());
             map.put("icon", easyMeta.getIcon());
             map.put("builtin", easyMeta.isBuiltin());
-            if (entity.getDetailEntity() != null) {
-                map.put("detailEntity", entity.getDetailEntity().getName());
-            }
-            if (entity.getMainEntity() != null) {
-                map.put("mainEntity", entity.getMainEntity().getName());
-            }
+            if (entity.getDetailEntity() != null) map.put("detailEntity", entity.getDetailEntity().getName());
+            if (entity.getMainEntity() != null) map.put("mainEntity", entity.getMainEntity().getName());
+            map.put("hadApproval", MetadataHelper.hasApprovalField(entity));
             map.put("tags", easyMeta.getExtraAttr(EasyEntityConfigProps.TAGS));
             data.add(map);
         }

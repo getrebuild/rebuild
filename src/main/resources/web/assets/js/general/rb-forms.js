@@ -282,7 +282,7 @@ class RbForm extends React.Component {
 
   render() {
     return (
-      <div className="rbform form-layout">
+      <div className={`rbform form-layout ${window.__LAB_VERTICALLAYOUT && 'vertical38'}`}>
         <div className="form row" ref={(c) => (this._$form = c)}>
           {this.props.children.map((fieldComp) => {
             const ref = fieldComp.props.field === TYPE_DIVIDER ? $random('divider-') : `fieldcomp-${fieldComp.props.field}`
@@ -2982,7 +2982,7 @@ class RbFormRefform extends React.Component {
   render() {
     if (!this.state.formComponent) return null
     return (
-      <div className="rbview-form form-layout refform" ref={(c) => (this._viewForm = c)}>
+      <div className={`rbview-form form-layout refform ${window.__LAB_VERTICALLAYOUT && 'vertical38'}`} ref={(c) => (this._viewForm = c)}>
         {this.state.formComponent || 'LOADING'}
       </div>
     )

@@ -7,10 +7,10 @@
           <div class="left-sidebar-content">
             <ul class="sidebar-elements">
               <li class="divider">[[${bundle.L('系统')}]]</li>
-              <li th:class="${active == 'systems'} ? 'active'">
+              <li th:class="${active == 'systems'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('SYS', #request)}">
                 <a th:href="@{/admin/systems}"><i class="icon mdi mdi-cog"></i><span>[[${bundle.L('通用配置')}]]</span></a>
               </li>
-              <li class="parent">
+              <li class="parent" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('SSI', #request)}">
                 <a><i class="icon mdi mdi-integrated-circuit-chip"></i><span>[[${bundle.L('服务集成')}]]</span></a>
                 <ul class="sub-menu">
                   <li class="title">[[${bundle.L('服务集成')}]]</li>
@@ -36,62 +36,62 @@
                   </li>
                 </ul>
               </li>
-              <li th:class="${active == 'apis-manager'} ? 'active'">
+              <li th:class="${active == 'apis-manager'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('API', #request)}">
                 <a th:href="@{/admin/apis-manager}"><i class="icon mdi mdi-api"></i><span>[[${bundle.L('API 密钥')}]]</span></a>
               </li>
               <li class="divider">[[${bundle.L('业务实体')}]]</li>
-              <li th:class="${active == 'entities'} ? 'active'">
+              <li th:class="${active == 'entities'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('ENT', #request)}">
                 <a th:href="@{/admin/entities}"><i class="icon mdi mdi-widgets-outline"></i><span>[[${bundle.L('实体管理')}]]</span></a>
               </li>
-              <li th:class="${active == 'classifications'} ? 'active'">
+              <li th:class="${active == 'classifications'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('ENT', #request)}">
                 <a th:href="@{/admin/metadata/classifications}"><i class="icon mdi mdi-form-dropdown"></i><span>[[${bundle.L('分类数据')}]]</span></a>
               </li>
-              <li th:class="${active == 'robot-approval'} ? 'active'">
+              <li th:class="${active == 'robot-approval'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('APR', #request)}">
                 <a th:href="@{/admin/robot/approvals}"><i class="icon mdi mdi-progress-check"></i><span>[[${bundle.L('审批流程')}]]</span></a>
               </li>
-              <li th:class="${active == 'robot-transforms'} ? 'active'">
+              <li th:class="${active == 'robot-transforms'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('TRA', #request)}">
                 <a th:href="@{/admin/robot/transforms}"><i class="icon mdi mdi-transfer"></i><span>[[${bundle.L('记录转换')}]]</span></a>
               </li>
-              <li th:class="${active == 'robot-trigger'} ? 'active'">
+              <li th:class="${active == 'robot-trigger'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('TRI', #request)}">
                 <a th:href="@{/admin/robot/triggers}"><i class="icon mdi mdi-cogs"></i><span>[[${bundle.L('触发器')}]]</span></a>
               </li>
-              <li th:class="${active == 'robot-sop'} ? 'active'" th:classappend="bosskey-show">
+              <li th:class="${active == 'robot-sop'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('SOP', #request)}" th:classappend="-bosskey-show">
                 <a th:href="@{/admin/robot/sops}"><i class="icon mdi mdi-timelapse"></i><span>[[${bundle.L('业务进度')}]]</span> <sup class="rbv"></sup></a>
               </li>
-              <li th:class="${active == 'report-templates'} ? 'active'">
+              <li th:class="${active == 'report-templates'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('REP', #request)}">
                 <a th:href="@{/admin/data/report-templates}"><i class="icon mdi mdi-microsoft-excel"></i><span>[[${bundle.L('报表模板')}]]</span></a>
               </li>
-              <li th:class="${active == 'data-imports'} ? 'active'">
+              <li th:class="${active == 'data-imports'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('IMP', #request)}">
                 <a th:href="@{/admin/data/data-imports}"><i class="icon mdi mdi-database-import"></i><span>[[${bundle.L('数据导入')}]]</span></a>
               </li>
-              <li th:class="${active == 'extforms'} ? 'active'">
+              <li th:class="${active == 'extforms'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('EXF', #request)}">
                 <a th:href="@{/admin/extforms}"><i class="icon mdi mdi-format-list-group-plus"></i><span>[[${bundle.L('外部表单')}]]</span> <sup class="rbv"></sup></a>
               </li>
               <li class="divider">[[${bundle.L('更多功能')}]]</li>
-              <li th:class="${active == 'projects'} ? 'active'">
+              <li th:class="${active == 'projects'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('PRO', #request)}">
                 <a th:href="@{/admin/projects}"><i class="icon mdi mdi-shape-outline"></i><span>[[${bundle.L('项目')}]]</span></a>
               </li>
-              <li th:class="${active == 'frontjs-code'} ? 'active'">
+              <li th:class="${active == 'frontjs-code'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('FJS', #request)}">
                 <a th:href="@{/admin/frontjs-code}"><i class="icon mdi mdi-language-javascript"></i><span>FrontJS</span> <sup class="rbv"></sup></a>
               </li>
               <li class="divider">[[${bundle.L('用户')}]]</li>
-              <li th:class="${active == 'users'} ? 'active'">
+              <li th:class="${active == 'users'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('USR', #request)}">
                 <a th:href="@{/admin/bizuser/users}"><i class="icon mdi mdi-account-multiple"></i><span>[[${bundle.L('部门用户')}]]</span></a>
               </li>
-              <li th:class="${active == 'role-privileges'} ? 'active'">
+              <li th:class="${active == 'role-privileges'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('ROL', #request)}">
                 <a th:href="@{/admin/bizuser/role-privileges}"><i class="icon mdi mdi-account-lock"></i><span>[[${bundle.L('角色权限')}]]</span></a>
               </li>
-              <li th:class="${active == 'teams'} ? 'active'">
+              <li th:class="${active == 'teams'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('TEM', #request)}">
                 <a th:href="@{/admin/bizuser/teams}"><i class="icon mdi mdi-briefcase-account"></i><span>[[${bundle.L('团队')}]]</span></a>
               </li>
               <li class="divider">[[${bundle.L('审计')}]]</li>
-              <li th:class="${active == 'login-logs'} ? 'active'">
+              <li th:class="${active == 'login-logs'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('LLG', #request)}">
                 <a th:href="@{/admin/audit/login-logs}"><i class="icon mdi mdi-login"></i><span>[[${bundle.L('登录日志')}]]</span></a>
               </li>
-              <li th:class="${active == 'revision-history'} ? 'active'">
+              <li th:class="${active == 'revision-history'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('REV', #request)}">
                 <a th:href="@{/admin/audit/revision-history}"><i class="icon mdi mdi-clock-edit-outline"></i><span>[[${bundle.L('变更历史')}]]</span></a>
               </li>
-              <li th:class="${active == 'recycle-bin'} ? 'active'">
+              <li th:class="${active == 'recycle-bin'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('RCY', #request)}">
                 <a th:href="@{/admin/audit/recycle-bin}"><i class="icon mdi mdi-recycle-variant"></i><span>[[${bundle.L('回收站')}]]</span></a>
               </li>
             </ul>

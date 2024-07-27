@@ -26,6 +26,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.web.admin.ProtectedAdmin;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -90,7 +91,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
             // 已安装
             if (checkInstalled()) {
-                log.error("Server Unavailable : " + requestEntry);
+                log.error("Server Unavailable : {}", requestEntry);
 
                 if (isError) {
                     return true;
@@ -116,13 +117,20 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         if (requestUser != null) {
 
             // 管理中心二次验证
-            if (requestUri.contains("/admin/") && !AppUtils.isAdminVerified(request)) {
-                if (isHtmlRequest(requestUri, request)) {
-                    sendRedirect(response, "/user/admin-verify", requestEntry.getRequestUriWithQuery());
+            if (requestUri.contains("/admin/")) {
+                if (AppUtils.isAdminVerified(request)) {
+                    if (isHtmlRequest(requestUri, request) && !ProtectedAdmin.allow(requestUri, requestUser)) {
+                        response.sendError(HttpStatus.FORBIDDEN.value());
+                        return false;
+                    }
                 } else {
-                    response.sendError(HttpStatus.FORBIDDEN.value());
+                    if (isHtmlRequest(requestUri, request)) {
+                        sendRedirect(response, "/user/admin-verify", requestEntry.getRequestUriWithQuery());
+                    } else {
+                        response.sendError(HttpStatus.FORBIDDEN.value());
+                    }
+                    return false;
                 }
-                return false;
             }
 
             UserContextHolder.setUser(requestUser);
