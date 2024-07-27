@@ -10,12 +10,15 @@ package com.rebuild.web.admin;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.CommandArgs;
+import com.rebuild.core.support.License;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * -D_ProtectedAdmin=USR;ROL
+ *
  * @author Zixin
  * @since 07/27/2024
  */
@@ -29,6 +32,7 @@ public class ProtectedAdmin {
      * @return
      */
     public static boolean allow(String uriOrKey, ID adminUser) {
+        if (!License.isRbvAttached()) return true;
         if (UserService.ADMIN_USER.equals(adminUser)) return true;
 
         if (PA == null) {
@@ -50,7 +54,7 @@ public class ProtectedAdmin {
         return false;
     }
 
-    // TODO
+    // 功能
     enum PaEntry {
         // 通用配置
         SYS("/systems"),
@@ -59,35 +63,35 @@ public class ProtectedAdmin {
         // 实体管理* (含分类)
         ENT("/entities;/entity/;/metadata/"),
         // 审批流程
-        APR(""),
+        APR("/robot/approval"),
         // 记录转换
-        TRA(""),
+        TRA("/robot/transform"),
         // 触发器
-        TRI(""),
+        TRI("/robot/trigger"),
         // 业务进度
-        SOP(""),
+        SOP("/robot/sop"),
         // 报表设计
-        REP(""),
+        REP("/data/report-template"),
         // 数据导入
-        IMP(""),
+        IMP("/data/data-imports"),
         // 外部表单
-        EXF(""),
+        EXF("/extform"),
         // 项目
-        PRO(""),
+        PRO("/project"),
         // FrontJS
-        FJS(""),
+        FJS("/frontjs-code"),
         // 用户*
-        USR(""),
+        USR("/bizuser/users;bizuser/departments"),
         // 角色
-        ROL(""),
+        ROL("/bizuser/role-privileges"),
         // 团队
-        TEM(""),
+        TEM("/bizuser/teams"),
         // 登录日志
-        LLG(""),
+        LLG("/audit/login-logs"),
         // 变更历史
-        REV(""),
+        REV("/audit/revision-history"),
         // 回收站
-        RCY(""),
+        RCY("/audit/recycle-bin"),
 
         ;
 
@@ -102,9 +106,13 @@ public class ProtectedAdmin {
          */
         public boolean matches(String uriOrKey) {
             if (name().equals(uriOrKey)) return true;
+
             // URL
+            if (!uriOrKey.contains("/admin/")) return true;
+            uriOrKey = "/" + uriOrKey.split("/admin/")[1];
+
             for (String p : paths) {
-                if (uriOrKey.contains(p)) return true;
+                if (uriOrKey.startsWith(p)) return true;
             }
             return false;
         }
