@@ -8,11 +8,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.admin;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.License;
+import com.rebuild.utils.AppUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +28,16 @@ import java.util.List;
 public class ProtectedAdmin {
 
     private static PaEntry[] PA;
+
+    /**
+     * @param uriOrKey
+     * @param request
+     * @return
+     */
+    public static boolean allow(String uriOrKey, HttpServletRequest request) {
+        if (Application.devMode()) PaEntry.valueOf(uriOrKey);  // check
+        return allow(uriOrKey, AppUtils.getRequestUser(request));
+    }
 
     /**
      * @param uriOrKey
@@ -60,6 +73,8 @@ public class ProtectedAdmin {
         SYS("/systems"),
         // 服务集成*
         SSI("/integration/"),
+        // API
+        API("/apis-manager"),
         // 实体管理* (含分类)
         ENT("/entities;/entity/;/metadata/"),
         // 审批流程
@@ -106,11 +121,10 @@ public class ProtectedAdmin {
          */
         public boolean matches(String uriOrKey) {
             if (name().equals(uriOrKey)) return true;
+            if (!uriOrKey.contains("/admin/")) return false;
 
             // URL
-            if (!uriOrKey.contains("/admin/")) return true;
             uriOrKey = "/" + uriOrKey.split("/admin/")[1];
-
             for (String p : paths) {
                 if (uriOrKey.startsWith(p)) return true;
             }
