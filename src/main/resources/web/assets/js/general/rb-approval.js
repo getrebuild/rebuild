@@ -76,7 +76,7 @@ class ApprovalProcessor extends React.Component {
             </RF>
           )}
           {this.state.canCancel38 && (
-            <button className="btn btn-secondary bosskey-show" onClick={this.cancel38}>
+            <button className="btn btn-secondary -bosskey-show" onClick={this.cancel38}>
               {$L('退回')} (LAB)
             </button>
           )}
