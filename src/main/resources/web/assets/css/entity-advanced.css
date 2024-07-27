@@ -62,8 +62,24 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .advListShowCategory-set {
   border-radius: 2px;
   border: 1px solid #eee;
-  padding: 15px;
+  padding: 10px;
   margin-top: 10px;
+}
+
+.advListShowCategory-set .row.item {
+  padding-right: 10px;
+  margin-bottom: 10px;
+}
+
+.advListShowCategory-set .row.item a.remove {
+  position: absolute;
+  right: 0;
+  top: 10px;
+  display: none;
+}
+
+.advListShowCategory-set .row.item:hover a.remove {
+  display: inline-block;
 }
 
 .mode23-fields {

@@ -98,7 +98,7 @@ function modeSave(newOption, next) {
   })
 }
 
-const CAT_TYPES = ['PICKLIST', 'MULTISELECT', 'CLASSIFICATION', 'DATE', 'DATETIME', 'REFERENCE', 'N2NREFERENCE']
+const _CATEGORY_TYPES = ['PICKLIST', 'MULTISELECT', 'CLASSIFICATION', 'DATE', 'DATETIME', 'REFERENCE', 'N2NREFERENCE']
 // 模式选项
 class DlgMode1Option extends RbFormHandler {
   render() {
@@ -130,29 +130,43 @@ class DlgMode1Option extends RbFormHandler {
                   <div className="row">
                     <div className="col-7">
                       <label className="mb-1">{$L('分组字段')}</label>
-                      <select className="form-control form-control-sm">
-                        {this.state.advListShowCategoryFields &&
-                          this.state.advListShowCategoryFields.map((item) => {
-                            return (
-                              <option key={item.name} value={item.name}>
-                                {item.label}
-                              </option>
-                            )
-                          })}
-                      </select>
                     </div>
-                    <div className={`col-5 pl-0 ${this.state.advListShowCategoryFormats ? '' : 'hide'}`}>
-                      <label className="mb-1">{this.state._cfParent ? $L('使用父级字段') : $L('字段格式')}</label>
-                      <select className="form-control form-control-sm">
-                        {this.state.advListShowCategoryFormats &&
-                          this.state.advListShowCategoryFormats.map((item) => {
-                            return (
-                              <option key={item[0]} value={item[0]}>
-                                {item[1]}
-                              </option>
-                            )
-                          })}
-                      </select>
+                    <div className="col-5 pl-0">
+                      <label className="mb-1">{$L('字段格式')}</label>
+                    </div>
+                  </div>
+                  {this.state.advListShowCategoryFields &&
+                    this.state.categoryFields &&
+                    this.state.categoryFields.map((item) => {
+                      return (
+                        <RF key={item.key}>
+                          <DlgMode1OptionCategoryItem
+                            {...item}
+                            fields={this.state.advListShowCategoryFields}
+                            handleRemove={(key2) => {
+                              const categoryFields = []
+                              this.state.categoryFields.forEach((item) => {
+                                if (key2 !== item.key) categoryFields.push(item)
+                              })
+                              this.setState({ categoryFields })
+                            }}
+                            key2={item.key}
+                          />
+                        </RF>
+                      )
+                    })}
+                  <div className="row">
+                    <div className="col-7">
+                      <a
+                        href="###"
+                        onClick={(e) => {
+                          $stopEvent(e, true)
+                          const categoryFields = this.state.categoryFields || []
+                          categoryFields.push({ key: $random('item-') })
+                          this.setState({ categoryFields })
+                        }}>
+                        <i className="zmdi zmdi-plus-circle icon" /> {$L('添加')}
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -209,98 +223,38 @@ class DlgMode1Option extends RbFormHandler {
   }
 
   componentDidMount() {
-    let $catFields, $catFormats
     const that = this
+
+    // 分组
     $('#advListShowCategory').on('change', function () {
-      if ($val(this)) {
-        that.setState({ advListShowCategory: true })
-      } else {
-        that.setState({ advListShowCategory: null })
-      }
+      that.setState({ advListShowCategory: $val(this) ? true : null })
 
-      if (!$catFields) {
-        $catFields = $('.advListShowCategory-set select:eq(0)')
-        $catFormats = $('.advListShowCategory-set select:eq(1)')
-
+      // fields
+      if (!that.state.advListShowCategoryFields) {
         $.get(`/commons/metadata/fields?entity=${wpc.entityName}`, (res) => {
-          const _data = []
+          const fs = []
           res.data &&
             res.data.forEach((item) => {
-              if (CAT_TYPES.includes(item.type)) {
-                _data.push(item)
-              }
+              if (_CATEGORY_TYPES.includes(item.type)) fs.push(item)
             })
-
-          // FIELD:[FORMAT]
-          let set = wpc.extConfig && wpc.extConfig.advListShowCategory ? wpc.extConfig.advListShowCategory : null
-          if (set) set = set.split(':')
-
-          that.setState({ advListShowCategoryFields: _data }, () => {
-            $catFields
-              .select2({
-                placeholder: $L('选择分组字段'),
-                allowClear: false,
-              })
-              .on('change', () => {
-                const s = $catFields.val()
-                const found = _data.find((x) => x.name === s)
-
-                let formats
-                if (found && found.type === 'CLASSIFICATION') {
-                  formats = [
-                    [0, $L('%d 级分类', 1)],
-                    [1, $L('%d 级分类', 2)],
-                    [2, $L('%d 级分类', 3)],
-                    [3, $L('%d 级分类', 4)],
-                  ]
-                } else if (found && (found.type === 'DATE' || found.type === 'DATETIME')) {
-                  formats = [
-                    ['yyyy', 'YYYY'],
-                    ['yyyy-MM', 'YYYY-MM'],
-                    ['yyyy-MM-dd', 'YYYY-MM-DD'],
-                  ]
-                } else if (found && found.type === 'REFERENCE') {
-                  formats = []
-                  $.get(`/commons/metadata/fields?entity=${found.ref[0]}`, (res) => {
-                    res.data &&
-                      res.data.forEach((item) => {
-                        if (item.type === 'REFERENCE' && item.ref[0] === found.ref[0]) {
-                          if (!['createdBy', 'modifiedBy'].includes(item.name)) {
-                            formats.push([item.name, item.label])
-                          }
-                        }
-                      })
-
-                    // render
-                    that.setState({ advListShowCategoryFormats: formats, _cfParent: true }, () => {
-                      $catFormats.val(null).trigger('change')
-                    })
-                  })
-                }
-
-                that.setState({ advListShowCategoryFormats: formats, _cfParent: false }, () => {
-                  $catFormats.val(null).trigger('change')
-                })
-              })
-
-            $catFormats.select2({ placeholder: $L('默认') })
-
-            if (set) {
-              $catFields.val(set[0]).trigger('change')
-              setTimeout(() => {
-                if (set[1]) $catFormats.val(set[1]).trigger('change')
-              }, 500)
-            } else {
-              $catFields.trigger('change')
-            }
-          })
+          that.setState({ advListShowCategoryFields: fs })
         })
       }
     })
 
+    // init
+    let categoryFields = []
     if (wpc.extConfig && wpc.extConfig.advListShowCategory) {
       $('#advListShowCategory').trigger('change')
+      wpc.extConfig.advListShowCategory.split(';').forEach((item) => {
+        let ff = item.split(':')
+        categoryFields.push({ key: $random('item-'), field: ff[0], format: ff[1] })
+      })
+    } else {
+      categoryFields.push({ key: $random('item-') })
     }
+    this.setState({ categoryFields })
+    console.log(categoryFields)
   }
 
   save = () => {
@@ -312,7 +266,11 @@ class DlgMode1Option extends RbFormHandler {
     }
 
     if (this.state.advListShowCategory) {
-      o.advListShowCategory = `${$val('.advListShowCategory-set select:eq(0)')}:${$val('.advListShowCategory-set select:eq(1)') || ''}`
+      let set = []
+      $('.advListShowCategory-set .row.item').each(function () {
+        set.push($(this).find('select:eq(0)').val() + ':' + $(this).find('select:eq(1)').val() || '')
+      })
+      o.advListShowCategory = set.length > 0 ? set.join(';') : null
     } else {
       o.advListShowCategory = null
     }
@@ -541,5 +499,108 @@ class DlgMode3Option extends DlgMode2Option {
   _saveBefore(o) {
     o.mode3ShowFilters = $val('#mode3ShowFilters')
     return o
+  }
+}
+
+// 分組
+class DlgMode1OptionCategoryItem extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+
+  render() {
+    return (
+      <div className="row item">
+        <div className="col-7">
+          <select className="form-control form-control-sm" ref={(c) => (this._$field = c)}>
+            {this.props.fields.map((item) => {
+              return (
+                <option key={item.name} value={item.name}>
+                  {item.label}
+                </option>
+              )
+            })}
+          </select>
+        </div>
+        <div className="col-5 pl-0">
+          <select className="form-control form-control-sm" ref={(c) => (this._$format = c)}>
+            {this.state.fieldFormats &&
+              this.state.fieldFormats.map((item) => {
+                return (
+                  <option key={item[0]} value={item[0]}>
+                    {item[1]}
+                  </option>
+                )
+              })}
+          </select>
+
+          <a className="remove" href="###" onClick={() => this.props.handleRemove(this.props.key2)} title={$L('移除')}>
+            <i className="zmdi zmdi-minus-circle" />
+          </a>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    const $field = $(this._$field).select2({
+      allowClear: false,
+    })
+    const $format = $(this._$format).select2({
+      allowClear: true,
+      placeholder: $L('默认'),
+    })
+
+    $field.on('change', (e) => {
+      const s = e.target.value
+      const found = this.props.fields.find((x) => x.name === s)
+
+      let formats = []
+      let formatInit = this.props.format
+      if (found && found.type === 'CLASSIFICATION') {
+        formats = [
+          [0, $L('%d 级分类', 1)],
+          [1, $L('%d 级分类', 2)],
+          [2, $L('%d 级分类', 3)],
+          [3, $L('%d 级分类', 4)],
+        ]
+      } else if (found && (found.type === 'DATE' || found.type === 'DATETIME')) {
+        formats = [
+          ['yyyy', 'YYYY'],
+          ['yyyy-MM', 'YYYY-MM'],
+          ['yyyy-MM-dd', 'YYYY-MM-DD'],
+        ]
+      } else if (found && found.type === 'REFERENCE') {
+        formats = null
+        $.get(`/commons/metadata/fields?entity=${found.ref[0]}`, (res) => {
+          formats = []
+          res.data &&
+            res.data.forEach((item) => {
+              if (item.type === 'REFERENCE' && item.ref[0] === found.ref[0]) {
+                if (!['createdBy', 'modifiedBy'].includes(item.name)) {
+                  formats.push([item.name, item.label])
+                }
+              }
+            })
+          this.setState({ fieldFormats: formats, _mode: 2 }, () => {
+            $format.val(formatInit || null).trigger('change')
+            formatInit = null
+          })
+        })
+      }
+
+      if (formats) {
+        this.setState({ fieldFormats: formats, _mode: 1 }, () => {
+          $format.val(formatInit || null).trigger('change')
+          formatInit = null
+        })
+      }
+    })
+
+    // init
+    if (this.props.field) {
+      $(this._$field).val(this.props.field).trigger('change')
+    }
   }
 }
