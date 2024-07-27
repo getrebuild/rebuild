@@ -2066,30 +2066,13 @@ const CategoryWidget = {
   __ALL: '$ALL$',
 
   init() {
-    $('.J_load-category').on('click', () => this.loadData())
-  },
-
-  loadData() {
-    if (this._inited === true) return
-    this._inited = true
-
-    $.get(`/app/${wpc.entity[0]}/widget-category-data`, (res) => {
-      const datas = [{ id: CategoryWidget.__ALL, text: $L('全部数据') }, ...res.data]
-
-      // 分类字段
-      let hideCollapse = true
-      for (let i = 0; i < datas.length; i++) {
-        if (datas[i].children) {
-          hideCollapse = false
-          break
-        }
-      }
+    let _init = false
+    $('.J_load-category').on('click', () => {
+      if (_init) return
 
       renderRbcomp(
-        <AsideTree
-          data={datas}
-          activeItem={CategoryWidget.__ALL}
-          hideCollapse={hideCollapse}
+        <AsideTree4Category
+          entity={wpc.entity[0]}
           onItemClick={(item) => {
             const v = item.id
             if (v === CategoryWidget.__ALL) wpc.protocolFilter = null
@@ -2099,6 +2082,7 @@ const CategoryWidget = {
         />,
         'asideCategory'
       )
+      _init = true
     })
   },
 }
@@ -2201,4 +2185,103 @@ const EasyAction = {
       console.log(err)
     }
   },
+}
+
+class AsideTree4Category extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  render() {
+    return (
+      <div className={`aside-2tree ${!this.state._allowChild && 'hide-collapse'}`}>
+        <ul className="list-unstyled m-0 ">
+          {this.state.datas &&
+            this.state.datas.map((item) => {
+              let hasChild = item.hasChild
+              if (typeof hasChild === 'undefined') {
+                hasChild = this.state._allowChild
+              }
+              return <TreeNode key={item.id} {...item} hasChild={hasChild} entity={this.props.entity} $$$parent={this} />
+            })}
+        </ul>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    $.get(`/app/${this.props.entity}/widget-category-data`, (res) => {
+      const _data = res.data || {}
+      const datas = [{ id: CategoryWidget.__ALL, text: $L('全部数据'), hasChild: false }, ..._data.data]
+      this.setState({ datas: datas, _allowChild: _data.hasChild })
+    })
+  }
+
+  queryList(q) {
+    console.log('query ... ', q)
+  }
+}
+
+class TreeNode extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props, _expand: false }
+  }
+
+  render() {
+    const props = this.props
+    const hasChild = this.state.hasChild === true
+
+    return (
+      <RF>
+        <li data-id={props.id} ref={(c) => (this._$node = c)}>
+          <span className={`collapse-icon ${!hasChild && 'no-child'}`} onClick={() => hasChild && this.handleExpand()}>
+            <i className={`zmdi zmdi-chevron-right ${this.state._expand && 'open'} `} />
+          </span>
+          <a onClick={() => this.handleClick()}>{props.text}</a>
+        </li>
+
+        {this.state.children && (
+          <ul className={`list-unstyled m-0 ${!this.state._expand && 'hide'}`}>
+            {this.state.children.map((item) => {
+              let hasChild = this.state._allowChild
+              return <TreeNode key={item.id} {...item} hasChild={hasChild} entity={this.props.entity} $$$parent={this} />
+            })}
+          </ul>
+        )}
+      </RF>
+    )
+  }
+
+  handleExpand() {
+    this.setState({ _expand: !this.state._expand })
+    if (this.state.children) return
+
+    const url = `/app/${this.props.entity}/widget-category-data?filterVal=${$encode(this.filterVal().join('$$$$'))}`
+    $.get(url, (res) => {
+      const _data = res.data || {}
+      const datas = [..._data.data]
+      this.setState({ children: datas, _allowChild: _data.hasChild })
+    })
+  }
+
+  handleClick() {
+    $('#asideCategory ul>li').removeClass('active')
+    $(this._$node).addClass('active')
+    this.queryList(this.filterVal())
+  }
+
+  filterVal() {
+    if (typeof this.props.$$$parent.filterVal === 'function') {
+      let vv = this.props.$$$parent.filterVal() || []
+      vv.push(this.props.id)
+      return vv
+    }
+    return [this.props.id]
+  }
+
+  queryList(q) {
+    typeof this.props.$$$parent.queryList === 'function' && this.props.$$$parent.queryList(q)
+  }
 }
