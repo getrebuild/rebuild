@@ -1820,7 +1820,7 @@ CellRenders.addRender('SIGN', (v, s, k) => {
     </td>
   )
 })
-const _renderOption = (v, s, k) => {
+const _renderOptionField = (v, s, k) => {
   // Use badge
   if (typeof v === 'object') {
     const style2 = v.color ? { borderColor: v.color, backgroundColor: v.color, color: $isLight(v.color) ? '#444' : '#fff' } : null
@@ -1837,8 +1837,8 @@ const _renderOption = (v, s, k) => {
     return CellRenders.renderSimple(v, s, k)
   }
 }
-CellRenders.addRender('PICKLIST', _renderOption)
-CellRenders.addRender('CLASSIFICATION', _renderOption)
+CellRenders.addRender('PICKLIST', _renderOptionField)
+CellRenders.addRender('CLASSIFICATION', _renderOptionField)
 CellRenders.addRender('TAG', (v, s, k) => {
   const vLen = (v || []).length
   return (
