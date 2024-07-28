@@ -101,12 +101,18 @@ public class DataListCategory38 {
         int sortMode = 0;
 
         // 单字段适用:选项类的
-        if ((dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST) && isSingleLevel) {
+        if ((dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST)) {
             dataList = DataListCategory.instance.datasOptions(useFieldMeta, dt);
+            hasChild = categoryFields.size() > fieldIndex + 1;
         }
         // 单字段适用:分类字段
         else if (dt == DisplayType.CLASSIFICATION && isSingleLevel) {
             dataList = DataListCategory.instance.datasClassification(useFieldMeta, useFormat);
+            // 开放了几级
+            int level = ClassificationManager.instance.getOpenLevel(useFieldMeta);
+            int levelSpec = useFormat == null ? level : ObjectUtils.toInt(useFormat);
+            if (levelSpec < level) level = levelSpec;
+            if (level > 0) hasChild = true;
         }
         // 单字段适用:引用字段父级
         else if (dt == DisplayType.REFERENCE && useFormat != null) {

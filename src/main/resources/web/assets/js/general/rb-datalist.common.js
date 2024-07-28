@@ -2213,7 +2213,7 @@ class AsideTree4Category extends React.Component {
   componentDidMount() {
     $.get(`/app/${this.props.entity}/widget-category-data`, (res) => {
       const _data = res.data || {}
-      const datas = [{ id: CategoryWidget.__ALL, text: $L('全部数据'), hasChild: false }, ..._data.data]
+      const datas = [{ id: CategoryWidget.__ALL, text: $L('全部数据'), hasChild: false }, ...(_data.data || [])]
       this.setState({ datas: datas, _allowChild: _data.hasChild })
     })
   }
@@ -2264,7 +2264,7 @@ class TreeNode extends React.Component {
     const url = `/app/${this.props.entity}/widget-category-data?filterVal=${$encode(this.filterVal().join('$$$$'))}`
     $.get(url, (res) => {
       const _data = res.data || {}
-      const datas = [..._data.data]
+      const datas = [...(_data.data || [])]
       this.setState({ children: datas, _allowChild: _data.hasChild })
     })
   }
