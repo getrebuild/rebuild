@@ -15,7 +15,7 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.BaseLayoutManager;
-import com.rebuild.core.configuration.general.DataListCategory2;
+import com.rebuild.core.configuration.general.DataListCategory38;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.configuration.general.LayoutConfigService;
 import com.rebuild.core.metadata.EntityHelper;
@@ -78,7 +78,7 @@ public class WidgetController extends BaseController implements ShareTo {
         Object[] filterValArray = null;
         if (filterVal != null) filterValArray = filterVal.split(CommonsUtils.COMM_SPLITER_RE);
 
-        JSON data = DataListCategory2.instance.datas(MetadataHelper.getEntity(entity), filterValArray);
+        JSON data = DataListCategory38.instance.datas(MetadataHelper.getEntity(entity), filterValArray);
         return RespBody.ok(data);
     }
 }

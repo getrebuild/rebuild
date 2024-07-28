@@ -2231,7 +2231,9 @@ class TreeNode extends React.Component {
 
   render() {
     const props = this.props
-    const hasChild = this.state.hasChild === true
+    let hasChild = this.state.hasChild === true
+    // 不显示
+    if (hasChild && this.state.children && this.state.children.length === 0) hasChild = false
 
     return (
       <RF>
@@ -2239,11 +2241,12 @@ class TreeNode extends React.Component {
           <span className={`collapse-icon ${!hasChild && 'no-child'}`} onClick={() => hasChild && this.handleExpand()}>
             <i className={`zmdi zmdi-chevron-right ${this.state._expand && 'open'} `} />
           </span>
-          <a onClick={() => this.handleClick()}>{props.text}</a>
+          <a onClick={() => this.handleClick()} title={props.text}>
+            {props.text}
+          </a>
         </li>
-
         {this.state.children && (
-          <ul className={`list-unstyled m-0 ${!this.state._expand && 'hide'}`}>
+          <ul className={`list-unstyled m-0 ${!this.state._expand && 'hide'}`} _title2={$L('无')}>
             {this.state.children.map((item) => {
               let hasChild = this.state._allowChild
               return <TreeNode key={item.id} {...item} hasChild={hasChild} entity={this.props.entity} $$$parent={this} />

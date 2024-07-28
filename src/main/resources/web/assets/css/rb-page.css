@@ -2388,6 +2388,11 @@ th.column-fixed {
   padding-left: 17px !important;
 }
 
+.aside-2tree ul > ul:empty::after {
+  content: attr(_title);
+  color: #777;
+}
+
 .aside-2tree ul li {
   display: flex;
 }
@@ -2400,6 +2405,10 @@ th.column-fixed {
   color: #fff;
   background-color: #4285f4;
   background-color: var(--rb-theme-color);
+}
+
+.aside-2tree ul li.active > .text-disabled {
+  color: rgba(255, 255, 255, 0.4) !important;
 }
 
 .aside-2tree ul li > a {

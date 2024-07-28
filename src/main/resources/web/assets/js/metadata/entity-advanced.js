@@ -268,7 +268,8 @@ class DlgMode1Option extends RbFormHandler {
     if (this.state.advListShowCategory) {
       let set = []
       $('.advListShowCategory-set .row.item').each(function () {
-        set.push($(this).find('select:eq(0)').val() + ':' + $(this).find('select:eq(1)').val() || '')
+        let $item = $(this)
+        set.push($item.find('select:eq(0)').val() + ':' + ($item.find('select:eq(1)').val() || ''))
       })
       o.advListShowCategory = set.length > 0 ? set.join(';') : null
     } else {

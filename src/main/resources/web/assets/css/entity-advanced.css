@@ -66,8 +66,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-top: 10px;
 }
 
-.advListShowCategory-set .row.item {
+.advListShowCategory-set .row {
   padding-right: 10px;
+}
+
+.advListShowCategory-set .row.item {
   margin-bottom: 10px;
 }
 
