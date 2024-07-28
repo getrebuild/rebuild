@@ -52,8 +52,8 @@ public class DataListCategory38 {
      * @return
      */
     public JSON datas(Entity entity, Object[] parentValues) {
-        String categoryField = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADVLIST_SHOWCATEGORY);
-        if (StringUtils.isBlank(categoryField)) return null;
+        final String categoryField = getSettings(entity);
+        if (categoryField == null) return null;
 
         // 查第几个字段
         int fieldIndex = parentValues == null ? 0 : parentValues.length;
@@ -232,10 +232,27 @@ public class DataListCategory38 {
         for (int i = 0; i < parentValues.length; i++) {
             String[] ff = categoryFields.get(i);
             String fieldName = ff[0];
-            String format = ff.length > 1 ? ff[1] : null;
             String fieldValue = parentValues[i].toString();
             Field fieldMeta = entity.getField(fieldName);
             DisplayType dt = EasyMetaFactory.getDisplayType(fieldMeta);
+
+            // 一级树:引用
+            if (categoryFields.size() == 1 && dt == DisplayType.REFERENCE) {
+                fieldValue = parentValues[parentValues.length - 1].toString();
+                return String.format("%s = '%s'", fieldName, fieldValue);
+            }
+            // 一级树:分类
+            if (categoryFields.size() == 1 && dt == DisplayType.CLASSIFICATION) {
+                fieldValue = parentValues[parentValues.length - 1].toString();
+                int level = ClassificationManager.instance.getOpenLevel(fieldMeta);
+                // 用 or 提高数据兼容性
+                List<String> parentSql = new ArrayList<>();
+                parentSql.add(String.format("%s = '%s'", fieldName, fieldValue));
+                if (level > 0) parentSql.add(String.format("%s.parent = '%s'", fieldName, fieldValue));
+                if (level > 1) parentSql.add(String.format("%s.parent.parent = '%s'", fieldName, fieldValue));
+                if (level > 2) parentSql.add(String.format("%s.parent.parent.parent = '%s'", fieldName, fieldValue));
+                return "( " + StringUtils.join(parentSql, " or ") + " )";
+            }
 
             if (dt == DisplayType.DATETIME || dt == DisplayType.DATE) {
                 String s = fieldValue + "0000-01-01 00:00:00".substring(fieldValue.length());
@@ -276,14 +293,25 @@ public class DataListCategory38 {
      * @return
      */
     public String buildParentFilters(Entity entity, Object[] parentValues) {
-        String categoryField = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADVLIST_SHOWCATEGORY);
-        if (StringUtils.isBlank(categoryField)) return null;
+        final String categoryField = getSettings(entity);
+        if (categoryField == null) return null;
 
-        final List<String[]> categoryFields = new ArrayList<>();
+        List<String[]> categoryFields = new ArrayList<>();
         for (String ff : categoryField.split(";")) {
             categoryFields.add(ff.split(":"));
         }
 
         return buildParentFilters(entity, categoryFields, parentValues);
+    }
+
+    private String getSettings(Entity entity) {
+        int listMode = ObjectUtils.toInt(EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE), 1);
+        String categoryField;
+        if (listMode == 3) {
+            categoryField = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE3_SHOWCATEGORY);
+        } else {
+            categoryField = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADVLIST_SHOWCATEGORY);
+        }
+        return StringUtils.isBlank(categoryField) ? null : categoryField;
     }
 }

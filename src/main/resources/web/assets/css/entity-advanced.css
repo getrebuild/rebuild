@@ -77,8 +77,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .advListShowCategory-set .row.item a.remove {
   position: absolute;
   right: 0;
-  top: 10px;
+  top: 9px;
   display: none;
+  font-size: 1.2rem;
+  color: #999;
+  padding-right: 1px;
+}
+
+.advListShowCategory-set .row.item a.remove:hover {
+  opacity: 0.8;
 }
 
 .advListShowCategory-set .row.item:hover a.remove {

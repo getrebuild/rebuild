@@ -77,16 +77,19 @@ public class EasyEntityConfigProps {
     public static final String ENABLE_RECORD_MERGER = "enableRecordMerger";
 
     /**
-     * 列表模式
+     * 详情模式:字段
      */
     public static final String ADVLIST_MODE2_SHOWFIELDS = "mode2ShowFields";
+    /**
+     * 卡片模式:字段
+     */
     public static final String ADVLIST_MODE3_SHOWFIELDS = "mode3ShowFields";
     /**
      * @see #ADVLIST_HIDE_FILTERS
      */
     public static final String ADVLIST_MODE3_SHOWFILTERS = "mode3ShowFilters";
     /**
-     * @see #ADVLIST_SHOWCATEGORY TODO
+     * @see #ADVLIST_SHOWCATEGORY
      */
     public static final String ADVLIST_MODE3_SHOWCATEGORY = "mode3ShowCategory";
 }

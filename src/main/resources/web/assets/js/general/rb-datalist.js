@@ -355,13 +355,13 @@ $(document).ready(() => {
 
     const $content = $('.page-aside .tab-content')
     $addResizeHandler(() => {
-      $content.height($(window).height() - 147)
+      $content.height($(window).height() - 135)
       $content.perfectScrollbar('update')
     })()
 
-    if ($('#asideWidgets').length > 0) ChartsWidget.init()
+    if ($('#asideWidgets')[0]) ChartsWidget.init()
     // eslint-disable-next-line no-undef
-    if ($('#asideCategory').length > 0) CategoryWidget.init()
+    if ($('#asideCategory')[0]) CategoryWidget.init()
   }
 
   const $wtab = $('.page-aside.widgets .nav a:eq(0)')
