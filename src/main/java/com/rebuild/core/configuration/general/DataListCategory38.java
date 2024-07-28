@@ -128,6 +128,14 @@ public class DataListCategory38 {
                 sql = String.format(
                         "select distinct referenceId from NreferenceItem where belongEntity = '%s' and belongField = '%s'",
                         entity.getName(), useField);
+                // N级
+                if (parentValues != null) {
+                    String nestSql = String.format("select %s from %s where %s",
+                            entity.getPrimaryField().getName(), entity.getName(),
+                            buildParentFilters(entity, categoryFields, parentValues));
+                    sql += String.format(" and recordId in ( %s )", nestSql);
+                }
+
             } else {
                 String wrapField = useField;
                 // 日期格式
@@ -244,6 +252,14 @@ public class DataListCategory38 {
 
             if (dt == DisplayType.MULTISELECT) {
                 String filter = String.format("%s && %d", fieldName, ObjectUtils.toInt(fieldValue));
+                and.add(filter);
+                continue;
+            }
+
+            if (dt == DisplayType.N2NREFERENCE) {
+                String filter = String.format(
+                        "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId = '%s')",
+                        entity.getPrimaryField().getName(), fieldMeta.getName(), fieldValue);
                 and.add(filter);
                 continue;
             }

@@ -2073,10 +2073,9 @@ const CategoryWidget = {
       renderRbcomp(
         <AsideTree4Category
           entity={wpc.entity[0]}
-          onItemClick={(item) => {
-            const v = item.id
-            if (v === CategoryWidget.__ALL) wpc.protocolFilter = null
-            else wpc.protocolFilter = `category:${wpc.entity[0]}:${v}`
+          onItemClick={(query) => {
+            if (!query || query[0] === CategoryWidget.__ALL) wpc.protocolFilter = null
+            else wpc.protocolFilter = `category:${wpc.entity[0]}:${query.join('$$$$')}`
             RbListPage.reload()
           }}
         />,
@@ -2218,8 +2217,8 @@ class AsideTree4Category extends React.Component {
     })
   }
 
-  queryList(q) {
-    console.log('query ... ', q)
+  queryList(query) {
+    typeof this.props.onItemClick === 'function' && this.props.onItemClick(query)
   }
 }
 
@@ -2241,7 +2240,7 @@ class TreeNode extends React.Component {
           <span className={`collapse-icon ${!hasChild && 'no-child'}`} onClick={() => hasChild && this.handleExpand()}>
             <i className={`zmdi zmdi-chevron-right ${this.state._expand && 'open'} `} />
           </span>
-          <a onClick={() => this.handleClick()} title={props.text}>
+          <a className="text-ellipsis" onClick={() => this.handleClick()} title={props.text}>
             {props.text}
           </a>
         </li>
