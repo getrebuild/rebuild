@@ -4787,6 +4787,24 @@ pre.unstyle {
   padding-left: 41px;
 }
 
+.rb-left-sidebar.v2 .sidebar-elements li > a[target='_blank']::after {
+  position: absolute;
+  content: '\F0339';
+  right: 12px;
+  margin-top: 12px;
+  font: normal normal normal 14px/1 "Material Design Icons";
+  color: #aaa;
+  display: none;
+}
+
+.rb-left-sidebar.v2 .sidebar-elements li > a[target='_blank']:hover::after {
+  display: inline-block;
+}
+
+.rb-collapsible-sidebar-collapsed .rb-left-sidebar.v2 .sidebar-elements li > a[target='_blank']::after {
+  display: none !important;
+}
+
 @media (min-width: 768px) {
   .rb-collapsible-sidebar-collapsed .rb-left-sidebar.v2 .sidebar-elements > li ul.visible .nav-items .content > ul > li > a {
     padding-left: 19px;
