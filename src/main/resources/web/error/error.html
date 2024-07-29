@@ -40,7 +40,7 @@
     </style>
   </head>
   <body class="rb-splash-screen">
-    <div class="rb-wrapper rb-error v35">
+    <div class="rb-wrapper rb-error">
       <div class="rb-content m-0">
         <div class="main-content container">
           <div class="error-container">
@@ -67,10 +67,13 @@
           try {
             // Check#1
             parent.RbViewModal.currentHolder().hideLoading()
-            // Check#2
-            var stack = parent.RbViewModal.__HOLDERsStack
-            stack[stack.length - 1].hideLoading()
-          } catch (ignore) {}
+          } catch (ignore) {
+            try {
+              // Check#2
+              var stack = parent.RbViewModal.__HOLDERsStack
+              stack[stack.length - 1].hideLoading()
+            } catch (ignore2) {}
+          }
         }
       } else if (location.href.indexOf('/f/') > -1 || location.href.indexOf('/s/') > -1) {
         $btn.parentNode.removeChild($btn)

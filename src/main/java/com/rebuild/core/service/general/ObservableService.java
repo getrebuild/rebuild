@@ -50,7 +50,7 @@ public abstract class ObservableService extends SafeObservable implements Servic
 
     @Override
     public void addObserver(SafeObserver o) {
-        log.info("Add observer : {} for [ {} ] ", o, getEntityCode());
+        log.info("Add observer : {} for [ {} ] ", o, getEntityCode() == 0 ? "*" : getEntityCode());
         super.addObserver(o);
     }
 

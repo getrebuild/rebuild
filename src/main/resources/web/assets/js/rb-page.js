@@ -37,7 +37,7 @@ $(function () {
   // tooltip
   $('[data-toggle="tooltip"]').tooltip()
 
-  // In top-frame
+  // top-frame
   if ($('.rb-left-sidebar').length > 0) {
     $('.sidebar-elements>li>a').each(function () {
       var $this = $(this)
@@ -132,7 +132,6 @@ $(function () {
   }
 
   var bosskey = 0
-  var bosskey_timer
   $(document).on('keydown', function (e) {
     if (e.shiftKey) {
       if (++bosskey === 6) {
@@ -140,18 +139,13 @@ $(function () {
         typeof window.bosskeyTrigger === 'function' && window.bosskeyTrigger()
         window.__BOSSKEY = true
       }
-      if (bosskey_timer) {
-        clearTimeout(bosskey_timer)
-        bosskey_timer = null
-      }
-      bosskey_timer = setTimeout(function () {
-        bosskey = 0
-      }, 500) // clean
+    } else {
+      bosskey = 0
     }
   })
   window.__BOSSKEY = location.href.includes('bosskey=show')
 
-  // Trigger on window.onresize
+  // on window.onresize
   $(window).on('resize', function () {
     $setTimeout(
       function () {
@@ -162,7 +156,7 @@ $(function () {
     )
   })
 
-  // Help link in page
+  // help-link
   var helpLink = $('meta[name="page-help"]').attr('content')
   if (helpLink) $('.page-help>a').attr('href', helpLink)
   else if (location.href.indexOf('/admin/') === -1) $('.page-help>a').attr('href', 'https://getrebuild.com/docs/manual/')
@@ -178,7 +172,7 @@ $(function () {
     }
   })
 
-  // Theme
+  // theme
   $('.use-theme a').on('click', function () {
     if (rb.commercial < 10) {
       RbHighbar.error(WrapHtml($L('免费版不支持选择主题功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
@@ -356,6 +350,13 @@ var _initNav = function () {
   var topnav = $.cookie('AppHome.Nav')
   if (topnav) {
     $('.navbar-collapse .nav-item[data-id="' + topnav + '"]').addClass('active')
+  }
+
+  // `/admin/` empty divider
+  if (location.href.includes('/admin/')) {
+    $('.sidebar-elements .divider').each(function () {
+      if (!$(this).next().find('>a')[0]) $(this).remove()
+    })
   }
 }
 var _checkMessage__state = 0
@@ -704,11 +705,7 @@ var $createUploader = function (input, next, complete, error) {
           return false
         }
       },
-      onClientProgress: function (e, file) {
-        typeof next === 'function' && next({ percent: (e.loaded * 100) / e.total, file: file })
-      },
       onServerProgress: function (e, file) {
-        // fix:v3.7 不触发 onClientProgress???
         typeof next === 'function' && next({ percent: (e.loaded * 100) / e.total, file: file })
       },
       onSuccess: function (e, file) {
@@ -822,7 +819,7 @@ var $unmount = function (container, delay, keepContainer, root18) {
  */
 var $initReferenceSelect2 = function (el, option) {
   var search_input = null
-  var $el = $(el).select2({
+  var select2Option = {
     placeholder: option.placeholder || $L('选择%s', option.label),
     minimumInputLength: 0,
     maximumSelectionLength: $(el).attr('multiple') ? 999 : 2,
@@ -861,8 +858,9 @@ var $initReferenceSelect2 = function (el, option) {
       },
     },
     theme: 'default ' + (option.appendClass || ''),
-  })
-  return $el
+  }
+  if (option.templateResult) select2Option.templateResult = option.templateResult
+  return $(el).select2(select2Option)
 }
 
 /**

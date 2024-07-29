@@ -56,6 +56,51 @@ $(document).ready(() => {
   $('.J_imports').on('click', () => renderRbcomp(<UserImport />))
   $('.J_resign').on('click', () => renderRbcomp(<UserResigntion />))
 
+  $('.J_batch2').on('click', () => {
+    const L = RbListPage._RbList.getSelectedIds()
+    if (L.length > 0) renderRbcomp(<DlgBatchUser users={L} />)
+  })
+  $('.J_delete2').on('click', () => {
+    const L = RbListPage._RbList.getSelectedIds()
+    if (L.length > 0) {
+      RbAlert.create(
+        <RF>
+          <b>{$L('确认删除选中的 %d 个用户？', L.length)}</b>
+          <p>{$L('只有可以安全删除的用户才能被删除')}</p>
+        </RF>,
+        {
+          type: 'danger',
+          onConfirm: function () {
+            this.disabled(true)
+            const data = { users: L }
+            $.post('/admin/bizuser/users-delete', JSON.stringify(data), (res) => {
+              if (res.error_code === 0) {
+                if (res.data === 0) {
+                  RbHighbar.createl('选中的用户不能被删除')
+                } else {
+                  RbHighbar.success($L('成功删除 %d 个用户', res.data || 0))
+                  setTimeout(() => {
+                    RbListPage.reload()
+                    this.hide()
+                  }, 200)
+                }
+              } else {
+                RbHighbar.error(res.error_msg)
+              }
+              this.disabled()
+            })
+          },
+          countdown: 5,
+        }
+      )
+    }
+  })
+  if (rb.commercial < 1) {
+    $('.J_batch2, .J_delete2')
+      .off('click')
+      .on('click', () => RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))))
+  }
+
   $('.ufilters')
     .next()
     .find('a[data-filter]')
@@ -257,4 +302,84 @@ class UserResigntion extends RbModalHandler {
   }
 
   _checkState() {}
+}
+
+class DlgBatchUser extends RbModalHandler {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    return (
+      <RbModal title={$L('批量修改用户')} ref={(c) => (this._dlg = c)} disposeOnHide>
+        <div className="form">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('修改范围')}</label>
+            <div className="col-sm-7">
+              <div className="form-control-plaintext text-bold">
+                {$L('选中的用户')} ({$L('%d 个', this.props.users.length)})
+              </div>
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('所属部门')}</label>
+            <div className="col-sm-7">
+              <UserSelector hideUser={true} hideRole={true} hideTeam={true} multiple={false} defaultValue={this.props.dept} ref={(c) => (this._deptNew = c)} />
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('角色')}</label>
+            <div className="col-sm-7">
+              <UserSelector hideUser={true} hideDepartment={true} hideTeam={true} multiple={false} defaultValue={this.props.role} ref={(c) => (this._roleNew = c)} />
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('附加角色')}</label>
+            <div className="col-sm-7">
+              <UserSelector hideUser={true} hideDepartment={true} hideTeam={true} defaultValue={this.props.roleAppends} ref={(c) => (this._roleAppends = c)} />
+            </div>
+          </div>
+
+          <div className="form-group row footer">
+            <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
+              <RbAlertBox message={$L('选择要修改的值，无需修改的无需选择')} />
+
+              <button className="btn btn-primary" type="button" onClick={() => this.post()}>
+                {$L('确定')}
+              </button>
+              <a className="btn btn-link" onClick={() => this.hide()}>
+                {$L('取消')}
+              </a>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  post() {
+    const data = {
+      users: this.props.users,
+      dept: this._deptNew.val()[0] || null,
+      role: this._roleNew.val()[0] || null,
+      roleAppend: this._roleAppends.val(),
+    }
+    if (!data.dept && !data.role && data.roleAppend.length === 0) {
+      return RbHighbar.createl('请至少选择一个修改值')
+    }
+
+    const $btn = $(this._btns).find('.btn').button('loading')
+    $.post('/admin/bizuser/users-batch', JSON.stringify(data), (res) => {
+      if (res.error_code === 0) {
+        RbHighbar.success($L('修改完成'))
+        setTimeout(() => {
+          RbListPage.reload()
+          this.hide()
+        }, 200)
+      } else {
+        $btn.button('reset')
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
 }

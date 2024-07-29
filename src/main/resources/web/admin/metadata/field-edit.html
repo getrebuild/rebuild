@@ -13,6 +13,18 @@
       .J_advOpt .custom-control-inline {
         margin-bottom: 0.8rem;
       }
+      div.series-starts {
+        max-width: 278px;
+        margin: 0 auto;
+      }
+      div.series-starts input {
+        border-radius: 0;
+        border-top-width: 0;
+        border-left-width: 0;
+        border-right-width: 0;
+        padding: 0;
+        height: 30px !important;
+      }
     </style>
   </head>
   <body>
@@ -213,16 +225,21 @@
                       <a class="badge" data-suff=".docx,.doc">Word</a>
                       <a class="badge" data-suff=".xlsx,.xls">Excel</a>
                       <a class="badge" data-suff=".pdf">PDF</a>
+                      <a class="badge" data-suff="image/*,video/*">[[${bundle.L('图片/视频')}]]</a>
                     </div>
                     <div class="form-text" th:utext="${bundle.L('如有多个类型请使用逗号分开')}"></div>
                   </div>
                 </div>
-                <div th:if="${fieldType == 'IMAGE'}" class="form-group row J_for-IMAGE">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('仅允许拍照上传')}]] <sup class="rbv"></sup></label>
+                <div th:if="${fieldType == 'IMAGE' || fieldType == 'FILE'}" class="form-group row J_for-IMAGE J_for-FILE">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('上传方式')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                      <input class="custom-control-input" type="checkbox" id="imageCaptureDef" checked />
+                      <span class="custom-control-label">[[${bundle.L('默认')}]]</span>
+                    </label>
+                    <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                       <input class="custom-control-input" type="checkbox" id="imageCapture" />
-                      <span class="custom-control-label">[[${bundle.L('是')}]]</span>
+                      <span class="custom-control-label">[[${bundle.L('摄像头拍摄')}]] <sup class="rbv"></sup></span>
                     </label>
                   </div>
                 </div>

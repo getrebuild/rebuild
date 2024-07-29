@@ -39,9 +39,14 @@ public class KnownExceptionConverter {
             return ex.getLocalizedMessage();
         }
 
-        final Throwable cause = ex.getCause();
-        final String exMsg = cause == null ? "" : cause.getLocalizedMessage();
-        log.error("DBERR: {}", exMsg);
+        String dbMsg = convert2DbErrorMsg(ex);
+        if (dbMsg != null) log.error("DBERR: {}", ex.getCause() == null ? ex : ex.getCause().getLocalizedMessage());
+        return dbMsg;
+    }
+
+    static String convert2DbErrorMsg(Throwable ex) {
+        Throwable cause = ex.getCause();
+        String exMsg = cause == null ? "" : cause.getLocalizedMessage();
 
         if (cause instanceof DataTruncation) {
 
@@ -68,7 +73,7 @@ public class KnownExceptionConverter {
 
         } else if (ex instanceof ConstraintViolationException) {
 
-            if (ex.getLocalizedMessage().contains("Duplicate entry")) {
+            if (exMsg.contains("Duplicate entry")) {
                 String s = Language.L("数据库字段违反唯一性约束");
                 String key = matchsColumn(exMsg, PATT_DE);
                 return key == null ? s : s + ":" + key;

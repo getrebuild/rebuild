@@ -1248,7 +1248,7 @@ class CodeViewport extends React.Component {
   render() {
     return (
       <div className="code-viewport">
-        <pre ref={(c) => (this._$code = c)}>Loading</pre>
+        <pre ref={(c) => (this._$code = c)}>LOADING</pre>
         {window.ClipboardJS && (
           <a className="copy" title={$L('复制')} ref={(c) => (this._$copy = c)}>
             <i className="icon zmdi zmdi-copy" />

@@ -159,11 +159,10 @@ $(document).ready(() => {
 
           const $menu = $(this._$switch).find('.dropdown-menu')
 
+          // TODO copy
           $(`<a class="dropdown-item bosskey-show" ${c ? '' : 'disabled'}>${$L('复制导航菜单')}</a>`)
             .prependTo($menu)
-            .on('click', () => {
-              if (c) renderRbcomp(<CopyNavTo list={alist} current={c[0]} />)
-            })
+            .on('click', () => c && renderRbcomp(<CopyNavTo list={alist} current={c[0]} />))
 
           $('<div class="dropdown-divider"></div>').prependTo($menu)
           $(`<a class="dropdown-item">${$L('配置顶部菜单')} <sup class="rbv"></sup></a>`)

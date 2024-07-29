@@ -49,11 +49,13 @@ public class TransformerPreview37 extends TransformerPreview {
         // 兼容
         if (detailName == null) return super.buildForm(null);
         if (fieldsMapping.get("_") == null) return super.buildForm(detailName);
-        // 源为明细
-        if (sourceEntity.getMainEntity() != null) return super.buildForm(detailName);
 
         JSONArray fieldsMappingDetails = transConfig.getJSONArray("fieldsMappingDetails");
-        if (fieldsMappingDetails == null || fieldsMappingDetails.isEmpty()) return JSONUtils.EMPTY_ARRAY;
+        if (fieldsMappingDetails == null || fieldsMappingDetails.isEmpty()) {
+            // 兼容:源为明细
+            if (sourceEntity.getMainEntity() != null) return super.buildForm(detailName);
+            else return JSONUtils.EMPTY_ARRAY;
+        }
 
         Entity targetEntity = MetadataHelper.getEntity(config.getString("target"));
         RecordTransfomer transfomer = new RecordTransfomer37(targetEntity, transConfig, false);
@@ -61,6 +63,7 @@ public class TransformerPreview37 extends TransformerPreview {
 
         JSONArray detailModels = new JSONArray();
 
+        // 明细
         for (Object o : fieldsMappingDetails) {
             JSONObject fmd = (JSONObject) o;
             Entity[] fmdEntity = RecordTransfomer37.checkEntity(fmd);
@@ -69,17 +72,14 @@ public class TransformerPreview37 extends TransformerPreview {
             Entity dTargetEntity = fmdEntity[0];
             Entity dSourceEntity = fmdEntity[1];
 
-            // 指定明细的
+            // ND 指定明细的
             if (!detailName.equalsIgnoreCase(dTargetEntity.getName())) continue;
 
-            String sql = String.format(
-                    "select %s from %s where %s = '%s' and (1=1) order by autoId asc",
-                    dSourceEntity.getPrimaryField().getName(), dSourceEntity.getName(),
-                    MetadataHelper.getDetailToMainField(dSourceEntity).getName(), sourceId);
+            String querySourceSql = RecordTransfomer37.buildDetailsSourceSql(dSourceEntity, sourceId);
             String filter = RecordTransfomer37.appendFilter(fmd);
-            if (filter != null) sql = sql.replace("(1=1)", filter);
+            if (filter != null) querySourceSql = querySourceSql.replace("(1=1)", filter);
 
-            Object[][] dArray = Application.createQueryNoFilter(sql).array();
+            Object[][] dArray = Application.createQueryNoFilter(querySourceSql).array();
 
             ID fakeMainid = EntityHelper.newUnsavedId(sourceEntity.getEntityCode());
             FormsBuilderContextHolder.setMainIdOfDetail(fakeMainid);

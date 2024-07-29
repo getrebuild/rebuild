@@ -27,6 +27,7 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.privileges.FieldPrivileges;
 import com.rebuild.core.privileges.UserFilters;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
@@ -129,7 +130,7 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        // 明细实体有主实体
+        // 明细实体
         final Entity hasMainEntity = entityMeta.getMainEntity();
         // 审批流程（状态）
         ApprovalState approvalState;
@@ -352,6 +353,10 @@ public class FormsBuilder extends FormsManager {
         // 新建
         final boolean isNew = recordData == null || recordData.getPrimary() == null
                 || EntityHelper.isUnsavedId(recordData.getPrimary());
+
+        final FieldPrivileges fp = Application.getPrivilegesManager().getFieldPrivileges();
+        // 在共同编辑时，对于明细应该是编辑而非新建
+        final boolean isProTableLayout = FormsBuilderContextHolder.getMainIdOfDetail(false) != null;
 
         // Check and clean
         for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
@@ -594,6 +599,14 @@ public class FormsBuilder extends FormsManager {
             String decimalType = el.getString("decimalType");
             if (decimalType != null && decimalType.contains("%s")) {
                 el.put("decimalType", decimalType.replace("%s", ""));
+            }
+
+            // v3.8
+            if (isNew && !isProTableLayout) {
+                if (!fp.isCreatable(fieldMeta, user)) el.put("readonly", true);
+            } else {
+                if (!fp.isReadble(fieldMeta, user)) iter.remove();
+                else if (!fp.isUpdatable(fieldMeta, user)) el.put("readonly", true);
             }
         }
     }

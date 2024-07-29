@@ -43,7 +43,7 @@ body {
 
 .main-content .tab-content {
   margin: 0;
-  padding: 13px 0 0;
+  padding: 18px 0 0;
 }
 
 .view-header {
@@ -197,7 +197,7 @@ body {
   right: -4px;
   font-size: 0.8462rem;
   font-weight: normal;
-  line-height: 1.2;
+  line-height: 1.3;
   background-color: var(--rb-theme-color);
 }
 
@@ -702,6 +702,12 @@ body {
   line-height: 21px;
 }
 
+.form-control-plaintext.multi-values > a,
+.form-control-plaintext.multi-values > span {
+  border-color: #f2f2f2;
+  background-color: #f2f2f2;
+}
+
 .file-list.inview {
   border-top: 1px solid #eee;
 }
@@ -725,6 +731,7 @@ body {
   color: #fff;
   border-radius: 99px;
   padding: 3px 6px;
+  min-width: 23px;
 }
 
 .type-PICKLIST .form-control-plaintext .badge.text-dark,
@@ -1068,7 +1075,8 @@ body {
   position: relative;
 }
 
-.sop-steps::after {
+.sop-steps::after,
+.sop-steps::before {
   content: '';
   height: 4px;
   line-height: 4px;
@@ -1080,8 +1088,14 @@ body {
   z-index: 1;
 }
 
-.sop-steps li {
+.sop-steps::before {
+  background-color: #33a451;
   z-index: 2;
+  width: var(--before-width, 0);
+}
+
+.sop-steps li {
+  z-index: 3;
   text-align: center;
 }
 
@@ -1090,9 +1104,9 @@ body {
 }
 
 .sop-steps li > div > span {
-  width: 24px;
-  height: 24px;
-  line-height: 24px;
+  width: 26px;
+  height: 26px;
+  line-height: 23px;
   display: inline-block;
   background-color: #ddd;
   border-radius: 50%;
@@ -1100,6 +1114,9 @@ body {
   color: #777;
   cursor: default;
   position: relative;
+  border: 2px solid #f7f7f7;
+  font-size: 12px;
+  font-weight: bold;
 }
 
 .sop-steps li > div > span,
@@ -1115,13 +1132,13 @@ body {
 
 .sop-steps li.state-2 > div > span:hover {
   cursor: pointer;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .sop-steps li.state-1 > div > span {
-  background-color: #f7b904;
-  border: 5px solid #fff;
   font-size: 0;
+  background-color: #f7b904;
+  border: 4px solid #fff;
 }
 
 .sop-steps li.state-2 > div > span {
@@ -1178,7 +1195,8 @@ body {
   padding-bottom: 7px;
 }
 
-.rbview-form .type-PICKLIST .form-control-plaintext > span.text-muted {
+.rbview-form .type-PICKLIST .form-control-plaintext > span.text-muted,
+.rbview-form .type-CLASSIFICATION .form-control-plaintext > span.text-muted {
   display: inline-block;
   padding-top: 3px;
 }

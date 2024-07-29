@@ -100,7 +100,16 @@ public class NavBuilder extends NavManager {
             ID useNavId;
             if ((useNavId = MetadataHelper.checkSpecEntityId(useNav, EntityHelper.LayoutConfig)) != null) {
                 Object[][] cached = getAllConfig(null, TYPE_NAV);
-                config = findConfigBean(cached, useNavId);
+                // fix: 3.7.5 原本共享为可见现在不共享了
+                for (Object[] c : cached) {
+                    if (c[0].equals(useNavId)) {
+                        boolean allowUse = UserHelper.isAdmin(user) || isShareTo((String) c[1], user);
+                        if (!allowUse) useNavId = null;
+                        break;
+                    }
+                }
+
+                if (useNavId != null) config = findConfigBean(cached, useNavId);
             }
         }
 
@@ -162,7 +171,7 @@ public class NavBuilder extends NavManager {
             } else if (NAV_FEEDS.equals(value) || NAV_FILEMRG.equals(value) || NAV_PROJECT.equals(value)) {
                 return false;
             } else if (!MetadataHelper.containsEntity(value)) {
-                log.warn("Unknown entity in nav : " + value);
+                log.warn("Unknown entity in nav : {}", value);
                 return true;
             }
 
@@ -343,7 +352,7 @@ public class NavBuilder extends NavManager {
 
         ID user = AppUtils.getRequestUser(request);
         String useNav = ServletUtils.readCookie(request, "AppHome.Nav");
-        JSONArray navs = License.isCommercial()
+        JSONArray navs = License.isRbvAttached()
                 ? NavBuilder.instance.getUserNav(user, useNav)
                 : NavBuilder.instance.getUserNav(user);
 
@@ -507,8 +516,10 @@ public class NavBuilder extends NavManager {
         for (Object[] nd : topNav) {
             String url = AppUtils.getContextPath("/app/home?def=" + nd[0]);
             if (nd[1] != null) url += ":" + nd[1];
+
             topNavHtml.append(String.format(
-                    "<li class=\"nav-item\" data-id=\"%s\"><a class=\"nav-link text-ellipsis\" href=\"%s\">%s</a></li>", nd[0], url, nd[2]));
+                    "<li class=\"nav-item\" data-id=\"%s\"><a class=\"nav-link text-ellipsis\" href=\"%s\">%s</a></li>",
+                    nd[0], url, CommonsUtils.escapeHtml(nd[2])));
         }
         return topNavHtml.toString();
     }

@@ -75,6 +75,12 @@ class ApprovalProcessor extends React.Component {
               )}
             </RF>
           )}
+          {this.state.canCancel38 && (
+            <button className="btn btn-secondary -bosskey-show" onClick={this.cancel38}>
+              {$L('退回')} (LAB)
+            </button>
+          )}
+
           <button className="btn btn-secondary" onClick={this.viewSteps}>
             {$L('详情')}
           </button>
@@ -213,6 +219,20 @@ class ApprovalProcessor extends React.Component {
         $.post(`/app/entity/approval/cancel?record=${that.props.id}`, (res) => {
           if (res.error_code > 0) RbHighbar.error(res.error_msg)
           else _reloadAndTips(this, $L('审批已撤回'))
+          this.disabled()
+        })
+      },
+    })
+  }
+
+  cancel38 = () => {
+    const that = this
+    RbAlert.create($L('将退回你的审批，退回后可重审。是否继续？'), {
+      confirm: function () {
+        this.disabled(true, true)
+        $.post(`/app/entity/approval/cancel38?record=${that.props.id}`, (res) => {
+          if (res.error_code > 0) RbHighbar.error(res.error_msg)
+          else _reloadAndTips(this, $L('审批已退回'))
           this.disabled()
         })
       },

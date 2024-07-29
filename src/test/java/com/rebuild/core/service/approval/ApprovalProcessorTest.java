@@ -63,9 +63,6 @@ public class ApprovalProcessorTest extends TestSupport {
         // 撤回
         processor.cancel();
 
-        // Last status
-        System.out.println("LastComment : " + ApprovalHelper.getApprovalStatus(recordNew).getLastComment());
-
         Application.getBean(RobotApprovalConfigService.class).delete(approvalId);
     }
 

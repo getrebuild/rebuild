@@ -15,6 +15,9 @@ const roleId = window.__PageConfig.recordId
 // 自定义
 let advFilters = {}
 let advFilterSettings = {}
+// 字段
+let fieldpModals = {}
+let fieldpSettings = {}
 
 $(document).ready(() => {
   loadRoles()
@@ -53,6 +56,30 @@ $(document).ready(() => {
     const clz = $items.eq(0).hasClass('R0') ? 'R4' : 'R0'
     $items.removeClass('R0 R1 R2 R3 R4').addClass(clz)
   })
+  // v3.8 字段权限
+  $('#priv-entity tbody .name>span>a').on('click', function () {
+    const $this = $(this)
+    const entity = $this.data('entity')
+    if (fieldpModals[entity]) {
+      fieldpModals[entity].show()
+    } else {
+      renderRbcomp(
+        <FieldsPrivileges
+          entity={entity}
+          selected={fieldpSettings[entity]}
+          onConfirm={(res) => {
+            fieldpSettings[entity] = res
+            // active
+            if (res) $this.addClass('active')
+            else $this.removeClass('active')
+          }}
+        />,
+        function () {
+          fieldpModals[entity] = this
+        }
+      )
+    }
+  })
 
   // ZERO
 
@@ -72,7 +99,7 @@ $(document).ready(() => {
 
   const ACTION_NAMES = {
     'R': $L('读取'),
-    'U': $L('更新'),
+    'U': $L('编辑'),
     'D': $L('删除'),
     'A': $L('分配'),
     'S': $L('共享'),
@@ -105,7 +132,7 @@ $(document).ready(() => {
           canNoFilters
           confirm={(set) => {
             advFilterSettings[filterKey] = set
-
+            // active
             const $active = $(`.table-priv tbody td.name>a[data-entity="${entity}"]`).parent().parent().find(`a[data-action="${action}9"]`)
             if (set && set.items && set.items.length > 0) $active.addClass('active')
             else $active.removeClass('active')
@@ -200,9 +227,9 @@ const loadPrivileges = function () {
           // NOOP
         }
 
-        let $tr = $(`.table-priv tbody td.name>a[data-name="${this.name}"]`)
-        const entity = $tr.data('entity')
-        $tr = $tr.parent().parent()
+        const $name = $(`.table-priv tbody td.name>a[data-name="${this.name}"]`)
+        const $tr = $name.parent().parent()
+        const entity = $name.data('entity')
 
         for (let k in defs) {
           // filter
@@ -213,6 +240,9 @@ const loadPrivileges = function () {
               advFilterSettings[filterKey] = defs[k]
               $tr.find(`a[data-action="${k}"]`).addClass('active')
             }
+          } else if (k === 'FP') {
+            fieldpSettings[entity] = defs[k]
+            $name.parent().find('span>a').addClass('active')
           } else {
             $tr.find(`i.priv[data-action="${k}"]`).removeClass('R0 R1 R2 R3 R4').addClass(`R${defs[k]}`)
           }
@@ -248,6 +278,10 @@ const updatePrivileges = function () {
       const filter = advFilterSettings[filterKey]
       if (filter) definition[`${action}9`] = filter
     })
+    // v3.8
+    const fieldp = fieldpSettings[entity]
+    if (fieldp) definition['FP'] = fieldp
+
     privEntity[name] = definition
   })
 
@@ -378,5 +412,162 @@ class MemberList extends React.Component {
         $(`<span class="badge badge-pill badge-primary">${data.length}</span>`).appendTo($('.nav-tabs a:eq(2)'))
       }
     })
+  }
+}
+
+class FieldsPrivileges extends RbModalHandler {
+  constructor(props) {
+    super(props)
+    this._Panes = []
+  }
+
+  render() {
+    const _selected = this.props.selected || {}
+    return (
+      <RbModal
+        title={
+          <RF>
+            {$L('字段权限')} (LAB)
+            <sup className="rbv" />
+          </RF>
+        }
+        ref={(c) => (this._dlg = c)}>
+        <div className="tab-container" ref={(c) => (this._$container = c)}>
+          <ul className="nav nav-tabs">
+            {this.state.entityAndDetails &&
+              this.state.entityAndDetails.map((item, idx) => {
+                return (
+                  <li className="nav-item" key={`fp-${item.entity}`}>
+                    <a className={`nav-link ${idx === 0 && 'active'}`} href={`#fp-${item.entity}`} data-toggle="tab">
+                      {item.entityLabel}
+                    </a>
+                  </li>
+                )
+              })}
+          </ul>
+          <div className="tab-content m-0 pb-0">
+            {this.state.entityAndDetails &&
+              this.state.entityAndDetails.map((item, idx) => {
+                return (
+                  <div className={`tab-pane ${idx === 0 && 'active'}`} id={`fp-${item.entity}`} key={`fp-${item.entity}`}>
+                    <FieldsPrivilegesPane entity={item.entity} selected={_selected[item.entity]} ref={(c) => this._Panes.push(c)} />
+                  </div>
+                )
+              })}
+          </div>
+        </div>
+
+        <div className="dialog-footer">
+          <button className="btn btn-secondary btn-space mr-2" type="button" onClick={this.hide}>
+            {$L('取消')}
+          </button>
+          <button className="btn btn-primary btn-space" type="button" onClick={() => this.handleConfirm()}>
+            {$L('确定')}
+          </button>
+        </div>
+      </RbModal>
+    )
+  }
+
+  handleConfirm() {
+    if (rb.commercial < 1) {
+      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
+
+    let selected = {}
+    this._Panes.forEach((p) => {
+      let val = p.val()
+      if (val) selected[p.props.entity] = val
+    })
+    if ($empty(selected)) selected = null
+
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(selected)
+    this.hide()
+  }
+
+  componentDidMount() {
+    $.get(`/commons/metadata/entity-and-details?entity=${this.props.entity}`, (res) => {
+      this.setState({ entityAndDetails: res.data }, () => {})
+    })
+  }
+}
+
+class FieldsPrivilegesPane extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  render() {
+    const _fields = this.state.fields || []
+    return (
+      <div className="mb-5">
+        <div className="form-group">
+          <label>{$L('不可新建字段')}</label>
+          <select className="form-control form-control-sm" multiple ref={(c) => (this._$create = c)}>
+            {_fields.map((item) => {
+              return (
+                <option key={item.name} value={item.name} disabled={item.creatable === false}>
+                  {item.label}
+                </option>
+              )
+            })}
+          </select>
+        </div>
+        <div className="form-group">
+          <label>{$L('不可读取字段')}</label>
+          <select className="form-control form-control-sm" multiple ref={(c) => (this._$read = c)}>
+            {_fields.map((item) => {
+              return (
+                <option key={item.name} value={item.name}>
+                  {item.label}
+                </option>
+              )
+            })}
+          </select>
+        </div>
+        <div className="form-group">
+          <label>{$L('不可编辑字段')}</label>
+          <select className="form-control form-control-sm" multiple ref={(c) => (this._$update = c)}>
+            {_fields.map((item) => {
+              return (
+                <option key={item.name} value={item.name} disabled={item.updatable === false}>
+                  {item.label}
+                </option>
+              )
+            })}
+          </select>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    $.get(`/commons/metadata/fields?entity=${this.props.entity}`, (res) => {
+      this.setState({ fields: res.data }, () => {
+        $([this._$create, this._$read, this._$update]).select2({
+          placeholder: $L('无'),
+          allowClear: true,
+        })
+
+        // init
+        const _selected = this.props.selected || {}
+        if (_selected.create) $(this._$create).val(_selected.create).trigger('change')
+        if (_selected.read) $(this._$read).val(_selected.read).trigger('change')
+        if (_selected.update) $(this._$update).val(_selected.update).trigger('change')
+      })
+    })
+  }
+
+  val() {
+    const d = {
+      create: $(this._$create).val(),
+      read: $(this._$read).val(),
+      update: $(this._$update).val(),
+    }
+
+    if (d.create.length + d.read.length + d.update.length === 0) return null
+    return d
   }
 }

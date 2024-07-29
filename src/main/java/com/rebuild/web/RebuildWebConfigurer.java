@@ -162,7 +162,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         if (request.getRequestURI().contains("/assets/")) return null;
 
         ModelAndView error;
-        if (ServletUtils.isAjaxRequest(request)) {
+        if (ServletUtils.isAjaxRequest(request) || request.getRequestURI().contains("/filex/upload")) {
             error = new ModelAndView(new FastJsonJsonView());
         } else {
             error = new ModelAndView("/error/error");

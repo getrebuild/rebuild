@@ -11,6 +11,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
@@ -120,7 +121,6 @@ public class UserController extends EntityController {
                 roleNew = null;
             }
         }
-
         if (data.containsKey("roleAppends")) {
             String appends = data.getString("roleAppends");
             Set<ID> set = new HashSet<>();
@@ -135,9 +135,7 @@ public class UserController extends EntityController {
                 set.remove(enUser.getOwningRole().getIdentity());
             }
 
-            if (!set.isEmpty()) {
-                roleAppends = set.toArray(new ID[0]);
-            }
+            roleAppends = set.toArray(new ID[0]);
         }
 
         Boolean enableNew = null;
@@ -224,5 +222,50 @@ public class UserController extends EntityController {
             if (o != null && o[0] != null) resMap.put(id, o[0]);
         }
         return resMap;
+    }
+
+    @PostMapping("users-delete")
+    public RespBody usersDelete(HttpServletRequest request) {
+        JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
+        JSONArray users = post.getJSONArray("users");
+
+        int del = 0;
+        for (Object o : users) {
+            ID user = ID.valueOf(o.toString());
+            if (UserService.ADMIN_USER.equals(user)) continue;
+
+            if (!UserService.checkHasUsed(user)) {
+                Application.getBean(UserService.class).delete(user);
+                del++;
+            }
+        }
+        return RespBody.ok(del);
+    }
+
+    @PostMapping("users-batch")
+    public RespBody usersBatch(HttpServletRequest request) {
+        JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
+        JSONArray users = post.getJSONArray("users");
+        String deptNew = post.getString("dept");
+        String roleNew = post.getString("role");
+        JSONArray roleAppendNew = post.getJSONArray("roleAppend");
+
+        ID deptNew2 = ID.isId(deptNew) ? ID.valueOf(deptNew) : null;
+        ID roleNew2 = ID.isId(roleNew) ? ID.valueOf(roleNew) : null;
+        Set<ID> roleAppendNew2 = new HashSet<>();
+        if (roleAppendNew != null && !roleAppendNew.isEmpty()) {
+            for (Object o : roleAppendNew) roleAppendNew2.add(ID.valueOf(o.toString()));
+        }
+
+        int op = 0;
+        for (Object o : users) {
+            ID user = ID.valueOf(o.toString());
+            if (UserService.ADMIN_USER.equals(user)) continue;
+
+            Application.getBean(UserService.class).updateEnableUser(
+                    user, deptNew2, roleNew2, roleAppendNew2.isEmpty() ? null : roleAppendNew2.toArray(new ID[0]), null);
+            op++;
+        }
+        return RespBody.ok(op);
     }
 }

@@ -238,7 +238,7 @@ $(document).ready(function () {
     if (dt === 'DATE' || dt === 'DATETIME') _handleCalcFormula(extConfig.calcFormula)
     _handleDatetime(dt)
   } else if (dt === 'FILE' || dt === 'IMAGE') {
-    _handleFile(extConfig.uploadNumber)
+    _handleFile(extConfig.uploadNumber, extConfig)
   } else if (dt === 'CLASSIFICATION') {
     _handleClassification(extConfig.classification)
   } else if (dt === 'REFERENCE') {
@@ -372,23 +372,44 @@ const _handleSeries = function () {
       RbAlert.create($L('此操作将为空字段补充编号，空字段过多耗时会较长，请耐心等待。是否继续？'), {
         onConfirm: function () {
           this.disabled(true)
-          $.post(`/admin/field/series-reindex?entity=${wpc.entityName}&field=${wpc.fieldName}`, () => {
+          $.post(`/admin/field/series-reindex?entity=${wpc.entityName}&field=${wpc.fieldName}`, (res) => {
+            if (res.error_code === 0) RbHighbar.success($L('补充编号成功'))
+            else RbHighbar.error(res.error_msg)
             this.hide()
-            RbHighbar.success($L('补充编号成功'))
           })
         },
       })
     })
-  $(`<a class="dropdown-item">${$L('自增数字归零')}</a>`)
+  $(`<a class="dropdown-item">${$L('重置自增数字')}</a>`)
     .appendTo('.J_action .dropdown-menu')
     .on('click', () => {
-      RbAlert.create($L('此操作将立即执行自增数字归零，归零后可能导致编号重复，请谨慎执行。是否继续？'), {
+      const M = (
+        <RF>
+          <p>{$L('此操作将重置自增数字，可能导致编号重复因而新建记录失败，请谨慎执行。是否继续？')}</p>
+          <div className="series-starts">
+            <input type="text" className="form-control form-control-sm text-center" />
+          </div>
+        </RF>
+      )
+
+      RbAlert.create(M, {
         type: 'danger',
         onConfirm: function () {
           this.disabled(true)
-          $.post(`/admin/field/series-reset?entity=${wpc.entityName}&field=${wpc.fieldName}`, () => {
-            this.hide()
-            RbHighbar.success($L('自增数字归零成功'))
+          let s = $(this._element).find('input').val() || 0
+          $.post(`/admin/field/series-reset?entity=${wpc.entityName}&field=${wpc.fieldName}&s=${s}`, (res) => {
+            setTimeout(() => {
+              if (res.error_code === 0) RbHighbar.success($L('自增数字重置成功'))
+              else RbHighbar.error(res.error_msg)
+              this.hide()
+            }, 1001)
+          })
+        },
+        onRendered: function () {
+          $.get(`/admin/field/series-current?entity=${wpc.entityName}&field=${wpc.fieldName}`, (res) => {
+            $(this._element)
+              .find('input')
+              .attr('placeholder', $L('留空则重置为 0 (当前值 %s)', res.data || 0))
           })
         },
       })
@@ -415,7 +436,7 @@ const _handleDatetime = function (dt) {
     .on('click', () => renderRbcomp(<FormulaDate type={dt} onConfirm={(expr) => $('.J_defaultValue').val(expr)} />))
 }
 
-const _handleFile = function (uploadNumber) {
+const _handleFile = function (uploadNumber, config) {
   if (uploadNumber) {
     uploadNumber = uploadNumber.split(',')
     uploadNumber[0] = ~~uploadNumber[0]
@@ -441,6 +462,13 @@ const _handleFile = function (uploadNumber) {
       )
     })
   $('#fieldNullable').attr('disabled', true)
+
+  // v3.8
+  if (config) {
+    if (config.imageCaptureDef) $('#imageCaptureDef').attr('checked', true)
+    if (config.imageCapture) $('#imageCapture').attr('checked', true)
+    if (!config.imageCaptureDef && !config.imageCapture) $('#imageCaptureDef').attr('checked', true)
+  }
 }
 
 const _handleClassification = function (useClassification) {
@@ -789,6 +817,7 @@ const __TYPE2TYPE = {
   'EMAIL': ['TEXT'],
   'URL': ['TEXT'],
   'IMAGE': ['FILE'],
+  'FILE': ['IMAGE'],
 }
 class FieldTypeCast extends RbFormHandler {
   render() {

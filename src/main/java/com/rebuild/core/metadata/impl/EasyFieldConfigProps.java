@@ -102,9 +102,13 @@ public class EasyFieldConfigProps {
     public static final String IMAGE_UPLOADNUMBER = FILE_UPLOADNUMBER;
 
     /**
-     * 图片获取方式（仅H5）
+     * 图片获取方式（兼容附件）
      */
     public static final String IMAGE_CAPTURE = "imageCapture";
+    /**
+     * 图片获取方式（兼容附件）
+     */
+    public static final String IMAGE_CAPTURE_DEF = "imageCaptureDef";
 
     /**
      * 自动编号规则

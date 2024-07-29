@@ -258,7 +258,6 @@ class ContentFieldWriteback extends ActionContentSpec {
       $(this._$forceUpdate).attr('checked', content.forceUpdate === true)
       $(this._$clearFields).attr('checked', content.clearFields === true)
       $(this._$stopPropagation).attr('checked', content.stopPropagation === true)
-      if (content.stopPropagation === true) $(this._$stopPropagation).parents('.bosskey-show').removeClass('bosskey-show')
     }
   }
 
@@ -454,7 +453,7 @@ class FieldFormula extends React.Component {
   render() {
     const toFieldType = this.state.targetField.type
     // @see DisplayType.java
-    if (['AVATAR', 'IMAGE', 'FILE', 'SIGN'].includes(toFieldType)) {
+    if (['AVATAR', 'SIGN'].includes(toFieldType)) {
       return <div className="form-control-plaintext text-danger">{$L('暂不支持')}</div>
     } else {
       return (
@@ -670,6 +669,7 @@ class FormulaCode extends React.Component {
 // eslint-disable-next-line no-undef
 renderContentComp = function (props) {
   __LAB_MATCHFIELDS = window.__BOSSKEY || !!(props.content && props.content.targetEntityMatchFields)
+  __LAB_MATCHFIELDS = true // v3.8
   renderRbcomp(<ContentFieldWriteback {...props} />, 'react-content', function () {
     // eslint-disable-next-line no-undef
     contentComp = this

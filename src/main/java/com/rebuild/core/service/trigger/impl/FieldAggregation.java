@@ -250,6 +250,10 @@ public class FieldAggregation extends TriggerAction {
         if (forceUpdate) {
             GeneralEntityServiceContextHolder.setAllowForceUpdate(targetRecordId);
         }
+        // 快速模式 (v3.8)
+        if (stopPropagation) {
+            GeneralEntityServiceContextHolder.setQuickMode();
+        }
 
         tschain.add(chainName);
         TRIGGER_CHAIN.set(tschain);
@@ -258,15 +262,12 @@ public class FieldAggregation extends TriggerAction {
         targetRecord.setID(EntityHelper.ModifiedBy, UserService.SYSTEM_USER);
 
         try {
-            if (stopPropagation) {
-                Application.getCommonsService().update(targetRecord, false);
-            } else {
-                Application.getBestService(targetEntity).update(targetRecord);
-            }
+            Application.getBestService(targetEntity).update(targetRecord);
 
         } finally {
             PrivilegesGuardContextHolder.getSkipGuardOnce();
             if (forceUpdate) GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+            if (stopPropagation) GeneralEntityServiceContextHolder.isQuickMode(true);
         }
 
         if (operatingContext.getAction() == BizzPermission.UPDATE && this.getClass() == FieldAggregation.class) {

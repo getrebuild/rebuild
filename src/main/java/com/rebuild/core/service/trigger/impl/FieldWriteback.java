@@ -50,7 +50,6 @@ import org.apache.commons.lang.StringUtils;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -164,6 +163,10 @@ public class FieldWriteback extends FieldAggregation {
             if (forceUpdate) {
                 GeneralEntityServiceContextHolder.setAllowForceUpdate(targetRecordId);
             }
+            // 快速模式 (v3.8)
+            if (stopPropagation) {
+                GeneralEntityServiceContextHolder.setQuickMode();
+            }
 
             // 重复检查模式
             GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_MAIN);
@@ -174,16 +177,13 @@ public class FieldWriteback extends FieldAggregation {
             if (CommonsUtils.DEVLOG) System.out.println("[dev] Use current-loop tschain : " + tschainCurrentLoop);
 
             try {
-                if (stopPropagation) {
-                    Application.getCommonsService().update(targetRecord, false);
-                } else {
-                    Application.getBestService(targetEntity).createOrUpdate(targetRecord);
-                }
+                Application.getBestService(targetEntity).createOrUpdate(targetRecord);
                 affected.add(targetRecord.getPrimary());
 
             } finally {
                 PrivilegesGuardContextHolder.getSkipGuardOnce();
                 if (forceUpdate) GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+                if (stopPropagation) GeneralEntityServiceContextHolder.isQuickMode(true);
                 GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
             }
         }
@@ -546,19 +546,16 @@ public class FieldWriteback extends FieldAggregation {
 
             // v3.7 增强兼容
             Object[] ids;
-            if (value instanceof Collection) {
-                //noinspection unchecked
-                ids = ((Collection<Object>) value).toArray(new Object[0]);
-            } else if (value instanceof Object[]) {
-                ids = (Object[]) value;
-            } else {
-                ids = value.toString().split(",");
-            }
+            if (value instanceof String) ids = value.toString().split(",");
+            else ids = CommonsUtils.toArray(value);
 
             Set<ID> idsSet = new LinkedHashSet<>();
             for (Object id : ids) {
-                id = id.toString().trim();
-                if (ID.isId(id)) idsSet.add(ID.valueOf(id.toString()));
+                if (id instanceof ID) idsSet.add((ID) id);
+                else {
+                    id = id.toString().trim();
+                    if (ID.isId(id)) idsSet.add(ID.valueOf(id.toString()));
+                }
             }
             // v3.5.5: 目标值为多引用时保持 `ID[]`
             newValue = idsSet.toArray(new ID[0]);

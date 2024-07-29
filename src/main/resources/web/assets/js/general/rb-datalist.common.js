@@ -968,8 +968,8 @@ class RbList extends React.Component {
                                   type="button"
                                   className="btn btn-sm btn-link w-auto"
                                   title={btn.title || null}
-                                  onClick={() => {
-                                    typeof btn.onClick === 'function' && btn.onClick(primaryKey.id)
+                                  onClick={(e) => {
+                                    typeof btn.onClick === 'function' && btn.onClick(primaryKey.id, e)
                                   }}>
                                   {btn.icon && <i className={`icon zmdi zmdi-${btn.icon}`} />}
                                   {btn.text}
@@ -1137,11 +1137,11 @@ class RbList extends React.Component {
     const cellKey = `row-${primaryKey.id}-${index}`
     const width = this.state.fields[index].width || this.__defaultColumnWidth
     let type = field.type
-    if (field.field === this.props.config.nameField) {
+    if (cellVal === '$NOPRIVILEGES$') {
+      type = cellVal
+    } else if (field.field === this.props.config.nameField) {
       cellVal = primaryKey
       type = '$NAME$'
-    } else if (cellVal === '$NOPRIVILEGES$') {
-      type = cellVal
     }
 
     // @see rb-datalist.common.js
@@ -1687,7 +1687,7 @@ CellRenders.addRender('N2NREFERENCE', (v, s, k) => {
       <div className="column-multi" style={s}>
         {v.map((item) => {
           return (
-            <a key={item.id} title={item.text} className="badge hover-color" href={`#!/View/${item.entity}/${item.id}`} onClick={(e) => CellRenders.clickView(item, e)}>
+            <a key={item.id} title={item.text} className="badge" href={`#!/View/${item.entity}/${item.id}`} onClick={(e) => CellRenders.clickView(item, e)}>
               {item.text}
             </a>
           )
@@ -2109,6 +2109,11 @@ const EasyAction = {
     const _List = _FrontJS.DataList
 
     items.forEach((item) => {
+      if (!item.icon && !item.text) {
+        console.log('Bad button of EasyAction :', item)
+        return
+      }
+
       if (~~item.showType === 1) {
         item.text = ''
         if (!item.icon) item.icon = 'texture'

@@ -92,7 +92,12 @@ public class TransformConfigController extends BaseController {
                 mv.getModelMap().put("sourceDetailEntities", sourceDetailEntities);
             } else {
                 // self
-                mv.getModelMap().put("sourceDetailEntity", buildEntity(sourceEntity, true));
+                JSONObject self = buildEntity(sourceEntity, true);
+                mv.getModelMap().put("sourceDetailEntity", self);
+
+                JSONArray sourceDetailEntities = new JSONArray();
+                sourceDetailEntities.add(self);
+                mv.getModelMap().put("sourceDetailEntities", sourceDetailEntities);
             }
 
             mv.getModelMap().put("targetDetailEntity", buildEntity(targetEntity.getDetailEntity(), false));

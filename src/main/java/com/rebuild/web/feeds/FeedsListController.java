@@ -18,7 +18,6 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.feeds.FeedsScope;
@@ -59,7 +58,7 @@ public class FeedsListController extends BaseController {
      * @see FeedsType
      */
     @GetMapping("/feeds/{type}")
-    public ModelAndView pageIndex(@PathVariable String type, HttpServletRequest request) {
+    public ModelAndView pageIndex(@PathVariable String type) {
         ModelAndView mv = createModelAndView("/feeds/home");
         mv.getModel().put("feedsType", type);
         mv.getModel().put("serviceMail", SMSender.availableMail());

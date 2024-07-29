@@ -7,6 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service;
 
+import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
+import com.rebuild.core.service.trigger.RobotTriggerObserver;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -34,7 +37,12 @@ public class SafeObservable {
     }
 
     public void notifyObservers(Object arg) {
+        boolean quickMode = GeneralEntityServiceContextHolder.isQuickMode(false);
         for (SafeObserver o : obs) {
+            if (quickMode) {
+                if (o instanceof RobotTriggerObserver) continue;
+            }
+
             o.update(this, arg);
         }
     }

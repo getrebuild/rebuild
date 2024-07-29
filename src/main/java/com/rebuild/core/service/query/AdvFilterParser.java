@@ -15,6 +15,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import cn.devezhao.persist4j.query.compiler.QueryCompiler;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -28,6 +29,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
@@ -296,8 +298,13 @@ public class AdvFilterParser extends SetUser {
                 && lastFieldMeta.getReferenceEntity().getEntityCode() == EntityHelper.User;
 
         String op = item.getString("op");
-        String value = useValueOfVarRecord(item.getString("value"), lastFieldMeta);
+        Object checkValue = useValueOfVarField(item.getString("value"), lastFieldMeta);
+        if (checkValue instanceof VarFieldNoValue37) return "(1=2)";
+        String value = (String) checkValue;
         String valueEnd = null;
+
+        // v3.8
+        if (useFulltextOp(field) && "LK".equals(op)) op = "FT";
 
         if (dt == DisplayType.N2NREFERENCE) {
             String inWhere = null;
@@ -322,7 +329,7 @@ public class AdvFilterParser extends SetUser {
             else if (isN2NUsers) {
                 if (ParseHelper.SFU.equalsIgnoreCase(op)) {
                     op = ParseHelper.IN;
-                    value = getUser().toLiteral();
+                    value = UserContextHolder.getReplacedUser().toLiteral();
                 }
 
                 if (ParseHelper.IN.equals(op) || ParseHelper.NIN.equals(op)) {
@@ -332,7 +339,7 @@ public class AdvFilterParser extends SetUser {
                 }
                 else if (ParseHelper.SFB.equalsIgnoreCase(op)) {
                     op = ParseHelper.IN;
-                    value = Objects.requireNonNull(UserHelper.getDepartment(getUser())).getIdentity().toString();
+                    value = Objects.requireNonNull(UserHelper.getDepartment(UserContextHolder.getReplacedUser())).getIdentity().toString();
                     inWhere = String.format("select userId from User where deptId = '%s'", value);
                 }
             }
@@ -556,9 +563,9 @@ public class AdvFilterParser extends SetUser {
         }
         // 部门/用户
         else if (ParseHelper.SFU.equalsIgnoreCase(op)) {
-            value = getUser().toLiteral();
+            value = UserContextHolder.getReplacedUser().toLiteral();
         } else if (ParseHelper.SFB.equalsIgnoreCase(op)) {
-            Department dept = UserHelper.getDepartment(getUser());
+            Department dept = UserHelper.getDepartment(UserContextHolder.getReplacedUser());
             if (dept != null) {
                 value = dept.getIdentity().toString();
                 int ref = lastFieldMeta.getReferenceEntity().getEntityCode();
@@ -571,7 +578,7 @@ public class AdvFilterParser extends SetUser {
                 }
             }
         } else if (ParseHelper.SFD.equalsIgnoreCase(op)) {
-            Department dept = UserHelper.getDepartment(getUser());
+            Department dept = UserHelper.getDepartment(UserContextHolder.getReplacedUser());
             if (dept != null) {
                 int refe = lastFieldMeta.getReferenceEntity().getEntityCode();
                 if (refe == EntityHelper.Department) {
@@ -612,7 +619,9 @@ public class AdvFilterParser extends SetUser {
         // 区间
         final boolean isBetween = op.equalsIgnoreCase(ParseHelper.BW);
         if (isBetween && valueEnd == null) {
-            valueEnd = useValueOfVarRecord(item.getString("value2"), lastFieldMeta);
+            Object checkValueEnd = useValueOfVarField(item.getString("value2"), lastFieldMeta);
+            if (checkValueEnd instanceof VarFieldNoValue37) return "(1=2)";
+            valueEnd = (String) checkValueEnd;
             valueEnd = parseValue(valueEnd, op, lastFieldMeta, true);
             if (valueEnd == null) valueEnd = value;
         }
@@ -771,22 +780,45 @@ public class AdvFilterParser extends SetUser {
         return items;
     }
 
+    /**
+     * 使用全文索引查詢
+     *
+     * @param fieldName
+     * @return
+     */
+    private boolean useFulltextOp(String fieldName) {
+        if (!CommandArgs.getBoolean(CommandArgs._UseDbFullText)) return false;
+
+        Set<String> canFulltexts = new HashSet<>();
+        canFulltexts.add("40#content");
+
+        String key = rootEntity.getEntityCode() + "#" + fieldName;
+        return canFulltexts.contains(key);
+    }
+
     // 字段变量 {@FIELD}
     private static final String PATT_FIELDVAR = "\\{@([\\w.]+)}";
     // `当前`变量（当前日期、时间、用户）
     private static final String CURRENT_ANY = "CURRENT";
     private static final String CURRENT_DATE = "NOW";
 
-    // 获取字段变量值
-    private String useValueOfVarRecord(String value, Field queryField) {
+    /**
+     * 获取字段变量值
+     * fix 3.7.2 获取不到原样返回
+     *
+     * @param value
+     * @param queryField
+     * @return
+     */
+    protected Object useValueOfVarField(final String value, Field queryField) {
         if (StringUtils.isBlank(value) || !value.matches(PATT_FIELDVAR)) return value;
 
-        // {@FIELD}
+        // {@FIELD} > FIELD
         final String fieldName = value.substring(2, value.length() - 1);
 
         Object useValue = null;
 
-        // {@CURRENT} for DATE
+        // {@CURRENT} for DATE,TIME and Ref:User,Department
         if (CURRENT_ANY.equals(fieldName) || CURRENT_DATE.equals(fieldName)) {
             DisplayType dt = EasyMetaFactory.getDisplayType(queryField);
             if (dt == DisplayType.DATE || dt == DisplayType.DATETIME || dt == DisplayType.TIME) {
@@ -794,23 +826,23 @@ public class AdvFilterParser extends SetUser {
 
             } else if (dt == DisplayType.REFERENCE) {
                 if (queryField.getReferenceEntity().getEntityCode() == EntityHelper.User) {
-                    useValue = UserContextHolder.getUser();
+                    useValue = UserContextHolder.getReplacedUser();
                 } else if (queryField.getReferenceEntity().getEntityCode() == EntityHelper.Department) {
-                    Department dept = UserHelper.getDepartment(UserContextHolder.getUser());
+                    Department dept = UserHelper.getDepartment(UserContextHolder.getReplacedUser());
                     if (dept != null) useValue = dept.getIdentity();
                 }
             } else {
-                log.warn("Cannot use `{}` in `{}` (None date fields)", value, queryField);
-                return StringUtils.EMPTY;
+                log.warn("Cannot use `{}` in `{}` (None date/ref fields)", value, queryField);
+                return new VarFieldNoValue37(value);
             }
         }
         // {@CURRENT.} for USER
         if (fieldName.startsWith(CURRENT_ANY + ".")) {
             String userField = fieldName.substring(CURRENT_ANY.length() + 1);
-            Object[] o = Application.getQueryFactory().uniqueNoFilter(getUser(), userField);
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(UserContextHolder.getReplacedUser(), userField);
             if (o == null || o[0] == null) {
                 log.warn("Cannot use `{}` in `{}` (No value found)", value, queryField);
-                return StringUtils.EMPTY;
+                return new VarFieldNoValue37(value);
             } else {
                 useValue = o[0];
             }
@@ -821,13 +853,15 @@ public class AdvFilterParser extends SetUser {
 
             Field valueField = MetadataHelper.getLastJoinField(rootEntity, fieldName);
             if (valueField == null) {
-                log.warn("Invalid var-field : {} in {}", value, rootEntity.getName());
-                return StringUtils.EMPTY;
+                throw new MissingMetaExcetion(fieldName, rootEntity.getName());
             }
 
             Object[] o = Application.getQueryFactory().uniqueNoFilter(varRecord, fieldName);
-            if (o == null || o[0] == null) return StringUtils.EMPTY;
-            else useValue = o[0];
+            if (o == null || o[0] == null) {
+                log.warn("Cannot use `{}` in `{}` (None value found)", value, queryField);
+                return new VarFieldNoValue37(value);
+            }
+            useValue = o[0];
         }
 
         if (useValue instanceof Date) {
@@ -839,7 +873,7 @@ public class AdvFilterParser extends SetUser {
         } else {
             useValue = String.valueOf(useValue);
         }
-        return (String) useValue;
+        return useValue;
     }
 
     /**
@@ -901,13 +935,13 @@ public class AdvFilterParser extends SetUser {
     }
 
     /**
-     * 是否含有字段变量 `{@FIELD}`
+     * 是否含有变量字段 `{@FIELD}`
      *
      * @param filterExpr
      * @return
-     * @see #useValueOfVarRecord(String, Field)
+     * @see #useValueOfVarField(String, Field)
      */
-    public static boolean hasFieldVars(JSONObject filterExpr) {
+    public static boolean hasVarFields(JSONObject filterExpr) {
         for (Object o : filterExpr.getJSONArray("items")) {
             JSONObject item = (JSONObject) o;
             String value = item.getString("value");
@@ -916,5 +950,15 @@ public class AdvFilterParser extends SetUser {
             if (value2 != null && value2.matches(PATT_FIELDVAR)) return true;
         }
         return false;
+    }
+
+    /**
+     * 变量字段无值
+     */
+    static class VarFieldNoValue37 {
+        String varField;
+        VarFieldNoValue37(String varField) {
+            this.varField = varField;
+        }
     }
 }
