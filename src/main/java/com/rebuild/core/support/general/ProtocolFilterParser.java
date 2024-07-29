@@ -7,21 +7,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.general;
 
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.AdvFilterManager;
-import com.rebuild.core.configuration.general.ClassificationManager;
-import com.rebuild.core.configuration.general.DataListCategory;
+import com.rebuild.core.configuration.general.DataListCategory38;
 import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.service.dashboard.ChartManager;
@@ -33,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -232,45 +229,13 @@ public class ProtocolFilterParser {
      * @param value
      * @return
      * @see #P_CATEGORY
-     * @see DataListCategory
+     * @see DataListCategory38#buildParentFilters(Entity, Object[])
      */
     protected String parseCategory(String entity, String value) {
-        Entity rootEntity = MetadataHelper.getEntity(entity);
-        Field categoryField = DataListCategory.instance.getFieldOfCategory(rootEntity);
-        if (categoryField == null || StringUtils.isBlank(value)) return "(9=9)";
-
-        DisplayType dt = EasyMetaFactory.getDisplayType(categoryField);
-        value = CommonsUtils.escapeSql(value);
-
-        if (dt == DisplayType.MULTISELECT) {
-            return String.format("%s && %d", categoryField.getName(), ObjectUtils.toInt(value));
-
-        } else if (dt == DisplayType.N2NREFERENCE) {
-            return String.format(
-                    "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId = '%s')",
-                    rootEntity.getPrimaryField().getName(), categoryField.getName(), value);
-
-        } else if (dt == DisplayType.DATETIME || dt == DisplayType.DATE) {
-            String s = value + "0000-01-01 00:00:00".substring(value.length());
-            String e = value + "0000-12-31 23:59:59".substring(value.length());
-            if (dt == DisplayType.DATE) {
-                s = s.substring(0, 10);
-                e = e.substring(0, 10);
-            }
-            return MessageFormat.format("({0} >= ''{1}'' and {0} <= ''{2}'')", categoryField.getName(), s, e);
-
-        } else if (dt == DisplayType.CLASSIFICATION) {
-            int level = ClassificationManager.instance.getOpenLevel(categoryField);
-            List<String> parentSql = new ArrayList<>();
-            parentSql.add(String.format("%s = '%s'", categoryField.getName(), value));
-            if (level > 0) parentSql.add(String.format("%s.parent = '%s'", categoryField.getName(), value));
-            if (level > 1) parentSql.add(String.format("%s.parent.parent = '%s'", categoryField.getName(), value));
-            if (level > 2) parentSql.add(String.format("%s.parent.parent.parent = '%s'", categoryField.getName(), value));
-
-            return "( " + StringUtils.join(parentSql, " or ") + " )";
-        }
-
-        return String.format("%s = '%s'", categoryField.getName(), value);
+        String[] filterValues = value.split(CommonsUtils.COMM_SPLITER_RE);
+        String where = DataListCategory38.instance.buildParentFilters(MetadataHelper.getEntity(entity), filterValues);
+        if (Application.devMode()) log.info("[dev] Parse category : {} >> {}", value, where);
+        return where;
     }
 
     /**
@@ -278,7 +243,6 @@ public class ProtocolFilterParser {
      * @param mainid
      * @return
      * @see #P_RELATED
-     * @see com.rebuild.web.general.RelatedListController#buildBaseSql(ID, String, String, boolean, ID)
      */
     public String parseRelated(String relatedExpr, ID mainid) {
         // format: Entity.Field

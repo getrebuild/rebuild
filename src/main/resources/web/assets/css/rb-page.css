@@ -2388,6 +2388,11 @@ th.column-fixed {
   padding-left: 17px !important;
 }
 
+.aside-2tree ul > ul:empty::after {
+  content: attr(_title);
+  color: #777;
+}
+
 .aside-2tree ul li {
   display: flex;
 }
@@ -2400,6 +2405,10 @@ th.column-fixed {
   color: #fff;
   background-color: #4285f4;
   background-color: var(--rb-theme-color);
+}
+
+.aside-2tree ul li.active > .text-disabled {
+  color: rgba(255, 255, 255, 0.4) !important;
 }
 
 .aside-2tree ul li > a {
@@ -3772,6 +3781,7 @@ form {
 
 .page-aside.widgets .tab-container .tab-content {
   padding: 20px 18px;
+  padding: 15px;
   margin: 0;
   border-radius: 0;
   position: relative;
@@ -4775,6 +4785,24 @@ pre.unstyle {
 
 .rb-left-sidebar.v2 .sidebar-elements > li ul li > a {
   padding-left: 41px;
+}
+
+.rb-left-sidebar.v2 .sidebar-elements li > a[target='_blank']::after {
+  position: absolute;
+  content: '\F0339';
+  right: 12px;
+  margin-top: 12px;
+  font: normal normal normal 14px/1 "Material Design Icons";
+  color: #aaa;
+  display: none;
+}
+
+.rb-left-sidebar.v2 .sidebar-elements li > a[target='_blank']:hover::after {
+  display: inline-block;
+}
+
+.rb-collapsible-sidebar-collapsed .rb-left-sidebar.v2 .sidebar-elements li > a[target='_blank']::after {
+  display: none !important;
 }
 
 @media (min-width: 768px) {

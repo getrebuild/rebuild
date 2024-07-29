@@ -65,8 +65,6 @@ $(document).ready(() => {
       else RbHighbar.error(res.error_msg)
     })
   })
-
-  $('.J_tips').on('closed.bs.alert', () => parent.RbModal.resize())
 })
 
 // 支持的计算类型
@@ -81,9 +79,8 @@ const ShowStyles_Comps = {}
 
 const render_set = function (item) {
   const len = $('.set-items > span').length
-  if (len >= 3) $('.J_tips').removeClass('hide')
   if (len >= 9) {
-    RbHighbar.create($L('最多可添加 9 项'))
+    RbHighbar.create($L('最多可添加 9 个'))
     return
   }
 

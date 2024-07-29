@@ -1820,7 +1820,7 @@ CellRenders.addRender('SIGN', (v, s, k) => {
     </td>
   )
 })
-const _renderOption = (v, s, k) => {
+const _renderOptionField = (v, s, k) => {
   // Use badge
   if (typeof v === 'object') {
     const style2 = v.color ? { borderColor: v.color, backgroundColor: v.color, color: $isLight(v.color) ? '#444' : '#fff' } : null
@@ -1837,8 +1837,8 @@ const _renderOption = (v, s, k) => {
     return CellRenders.renderSimple(v, s, k)
   }
 }
-CellRenders.addRender('PICKLIST', _renderOption)
-CellRenders.addRender('CLASSIFICATION', _renderOption)
+CellRenders.addRender('PICKLIST', _renderOptionField)
+CellRenders.addRender('CLASSIFICATION', _renderOptionField)
 CellRenders.addRender('TAG', (v, s, k) => {
   const vLen = (v || []).length
   return (
@@ -2060,45 +2060,104 @@ class RecordMerger extends RbModalHandler {
   }
 }
 
+// 列表图表部件
+const ChartsWidget = {
+  init: function () {
+    // 复写
+    window.chart_remove = function (box) {
+      box.parent().animate({ opacity: 0 }, function () {
+        box.parent().remove()
+        ChartsWidget.saveWidget()
+      })
+    }
+
+    // eslint-disable-next-line no-undef
+    ECHART_BASE.grid = { left: 40, right: 20, top: 30, bottom: 20 }
+
+    $('.J_load-charts').on('click', () => {
+      this._chartLoaded !== true && this.loadWidget()
+    })
+    $('.J_add-chart').on('click', () => this.showChartSelect())
+
+    $('.charts-wrap')
+      .sortable({
+        handle: '.chart-title',
+        axis: 'y',
+        update: () => ChartsWidget.saveWidget(),
+      })
+      .disableSelection()
+  },
+
+  showChartSelect: function () {
+    if (this.__chartSelect) {
+      this.__chartSelect.show()
+      this.__chartSelect.setState({ appended: ChartsWidget.__currentCharts() })
+      return
+    }
+
+    // eslint-disable-next-line react/jsx-no-undef
+    renderRbcomp(<ChartSelect select={(c) => this.renderChart(c, true)} entity={wpc.entity[0]} />, function () {
+      ChartsWidget.__chartSelect = this
+      this.setState({ appended: ChartsWidget.__currentCharts() })
+    })
+  },
+
+  renderChart: function (chart, append) {
+    const $w = $(`<div id="chart-${chart.chart}"></div>`).appendTo('.charts-wrap')
+    // eslint-disable-next-line no-undef
+    renderRbcomp(detectChart({ ...chart, editable: true }, chart.chart), $w, function () {
+      if (append) ChartsWidget.saveWidget()
+    })
+  },
+
+  loadWidget: function () {
+    $.get(`/app/${wpc.entity[0]}/widget-charts`, (res) => {
+      this._chartLoaded = true
+      this.__config = res.data || {}
+      res.data && $(res.data.config).each((idx, chart) => this.renderChart(chart))
+    })
+  },
+
+  saveWidget: function () {
+    const charts = this.__currentCharts(true)
+    $.post(`/app/${wpc.entity[0]}/widget-charts?id=${this.__config.id || ''}`, JSON.stringify(charts), (res) => {
+      ChartsWidget.__config.id = res.data
+      $('.page-aside .tab-content').perfectScrollbar('update')
+    })
+  },
+
+  __currentCharts: function (o) {
+    const charts = []
+    $('.charts-wrap>div').each(function () {
+      const id = $(this).attr('id').substr(6)
+      if (o) charts.push({ chart: id })
+      else charts.push(id)
+    })
+    return charts
+  },
+}
+
 // 分组
-// eslint-disable-next-line no-unused-vars
 const CategoryWidget = {
   __ALL: '$ALL$',
 
   init() {
-    $('.J_load-category').on('click', () => this.loadData())
-  },
-
-  loadData() {
-    if (this._inited === true) return
-    this._inited = true
-
-    $.get(`/app/${wpc.entity[0]}/widget-category-data`, (res) => {
-      const datas = [{ id: CategoryWidget.__ALL, text: $L('全部数据') }, ...res.data]
-
-      // 分类字段
-      let hideCollapse = true
-      for (let i = 0; i < datas.length; i++) {
-        if (datas[i].children) {
-          hideCollapse = false
-          break
-        }
-      }
+    let _init = false
+    $('.J_load-category').on('click', () => {
+      if (_init) return
 
       renderRbcomp(
-        <AsideTree
-          data={datas}
-          activeItem={CategoryWidget.__ALL}
-          hideCollapse={hideCollapse}
-          onItemClick={(item) => {
-            const v = item.id
-            if (v === CategoryWidget.__ALL) wpc.protocolFilter = null
-            else wpc.protocolFilter = `category:${wpc.entity[0]}:${v}`
+        <AsideTree4Category
+          entity={wpc.entity[0]}
+          onItemClick={(query) => {
+            if (!query || query[0] === CategoryWidget.__ALL) wpc.protocolFilter = null
+            else wpc.protocolFilter = `category:${wpc.entity[0]}:${query.join('$$$$')}`
             RbListPage.reload()
           }}
         />,
         'asideCategory'
       )
+      _init = true
     })
   },
 }
@@ -2201,4 +2260,106 @@ const EasyAction = {
       console.log(err)
     }
   },
+}
+
+class AsideTree4Category extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  render() {
+    return (
+      <div className={`aside-2tree ${!this.state._allowChild && 'hide-collapse'}`}>
+        <ul className="list-unstyled m-0 ">
+          {this.state.datas &&
+            this.state.datas.map((item) => {
+              let hasChild = item.hasChild
+              if (typeof hasChild === 'undefined') {
+                hasChild = this.state._allowChild
+              }
+              return <TreeNode key={item.id} {...item} hasChild={hasChild} entity={this.props.entity} $$$parent={this} />
+            })}
+        </ul>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    $.get(`/app/${this.props.entity}/widget-category-data`, (res) => {
+      const _data = res.data || {}
+      const datas = [{ id: CategoryWidget.__ALL, text: $L('全部数据'), hasChild: false }, ...(_data.data || [])]
+      this.setState({ datas: datas, _allowChild: _data.hasChild })
+    })
+  }
+
+  queryList(query) {
+    typeof this.props.onItemClick === 'function' && this.props.onItemClick(query)
+  }
+}
+
+class TreeNode extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props, _expand: false }
+  }
+
+  render() {
+    const props = this.props
+    let hasChild = this.state.hasChild === true
+    // 不显示
+    if (hasChild && this.state.children && this.state.children.length === 0) hasChild = false
+
+    return (
+      <RF>
+        <li data-id={props.id} ref={(c) => (this._$node = c)}>
+          <span className={`collapse-icon ${!hasChild && 'no-child'}`} onClick={() => hasChild && this.handleExpand()}>
+            <i className={`zmdi zmdi-chevron-right ${this.state._expand && 'open'} `} />
+          </span>
+          <a className="text-ellipsis" onClick={() => this.handleClick()} title={props.text}>
+            {props.text}
+          </a>
+        </li>
+        {this.state.children && (
+          <ul className={`list-unstyled m-0 ${!this.state._expand && 'hide'}`} _title2={$L('无')}>
+            {this.state.children.map((item) => {
+              let hasChild = this.state._allowChild
+              return <TreeNode key={item.id} {...item} hasChild={hasChild} entity={this.props.entity} $$$parent={this} />
+            })}
+          </ul>
+        )}
+      </RF>
+    )
+  }
+
+  handleExpand() {
+    this.setState({ _expand: !this.state._expand })
+    if (this.state.children) return
+
+    const url = `/app/${this.props.entity}/widget-category-data?filterVal=${$encode(this.filterVal().join('$$$$'))}`
+    $.get(url, (res) => {
+      const _data = res.data || {}
+      const datas = [...(_data.data || [])]
+      this.setState({ children: datas, _allowChild: _data.hasChild })
+    })
+  }
+
+  handleClick() {
+    $('#asideCategory ul>li').removeClass('active')
+    $(this._$node).addClass('active')
+    this.queryList(this.filterVal())
+  }
+
+  filterVal() {
+    if (typeof this.props.$$$parent.filterVal === 'function') {
+      let vv = this.props.$$$parent.filterVal() || []
+      vv.push(this.props.id)
+      return vv
+    }
+    return [this.props.id]
+  }
+
+  queryList(q) {
+    typeof this.props.$$$parent.queryList === 'function' && this.props.$$$parent.queryList(q)
+  }
 }

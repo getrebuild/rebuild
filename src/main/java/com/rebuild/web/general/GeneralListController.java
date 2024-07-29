@@ -104,12 +104,12 @@ public class GeneralListController extends EntityController {
 
             // 侧栏
 
+            String advListShowCategory = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_SHOWCATEGORY);
             String advListHideFilters = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_HIDE_FILTERS);
             String advListHideCharts = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_HIDE_CHARTS);
-            String advListShowCategory = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_SHOWCATEGORY);
+            mv.getModel().put(EasyEntityConfigProps.ADVLIST_SHOWCATEGORY, StringUtils.isNotBlank(advListShowCategory));
             mv.getModel().put(EasyEntityConfigProps.ADVLIST_HIDE_FILTERS, advListHideFilters);
             mv.getModel().put(EasyEntityConfigProps.ADVLIST_HIDE_CHARTS, advListHideCharts);
-            mv.getModel().put(EasyEntityConfigProps.ADVLIST_SHOWCATEGORY, StringUtils.isNotBlank(advListShowCategory));
 
             mv.getModel().put("hideAside",
                     BooleanUtils.toBoolean(advListHideFilters) && BooleanUtils.toBoolean(advListHideCharts) && StringUtils.isBlank(advListShowCategory));
@@ -159,12 +159,12 @@ public class GeneralListController extends EntityController {
             if (listEntity.getMainEntity() != null) mv.getModel().put("DataListType", "DetailList");
 
             // 侧栏
-            String advListShowFilters = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE3_SHOWFILTERS);
-            String advListShowCategory = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE3_SHOWCATEGORY);
-            mv.getModel().put(EasyEntityConfigProps.ADVLIST_MODE3_SHOWFILTERS, advListShowFilters);
-            mv.getModel().put(EasyEntityConfigProps.ADVLIST_MODE3_SHOWCATEGORY, advListShowCategory);
+            String mode3ShowCategory = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE3_SHOWCATEGORY);
+            String mode3ShowFilters = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE3_SHOWFILTERS);
+            mv.getModel().put(EasyEntityConfigProps.ADVLIST_MODE3_SHOWCATEGORY, StringUtils.isNotBlank(mode3ShowCategory));
+            mv.getModel().put(EasyEntityConfigProps.ADVLIST_MODE3_SHOWFILTERS, mode3ShowFilters);
             mv.getModel().put("hideAside",
-                    !(BooleanUtils.toBoolean(advListShowFilters) || BooleanUtils.toBoolean(advListShowCategory)));
+                    !(BooleanUtils.toBoolean(mode3ShowFilters) || StringUtils.isNotBlank(mode3ShowCategory)));
         }
 
         mv.getModel().put("DataListConfig", JSON.toJSONString(listConfig));

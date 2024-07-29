@@ -63,7 +63,7 @@ $(document).ready(() => {
 const render_set = function (item) {
   const len = $('.set-items > span').length
   if (len >= 9) {
-    RbHighbar.create($L('最多可添加 9 项'))
+    RbHighbar.create($L('最多可添加 9 个'))
     return false
   }
 

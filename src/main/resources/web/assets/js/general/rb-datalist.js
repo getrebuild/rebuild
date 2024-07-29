@@ -261,83 +261,6 @@ class RbViewModal extends React.Component {
   }
 }
 
-// 复写
-window.chart_remove = function (box) {
-  box.parent().animate({ opacity: 0 }, function () {
-    box.parent().remove()
-    ChartsWidget.saveWidget()
-  })
-}
-
-// 列表图表部件
-const ChartsWidget = {
-  init: function () {
-    // eslint-disable-next-line no-undef
-    ECHART_BASE.grid = { left: 40, right: 20, top: 30, bottom: 20 }
-
-    $('.J_load-charts').on('click', () => {
-      this._chartLoaded !== true && this.loadWidget()
-    })
-    $('.J_add-chart').on('click', () => this.showChartSelect())
-
-    $('.charts-wrap')
-      .sortable({
-        handle: '.chart-title',
-        axis: 'y',
-        update: () => ChartsWidget.saveWidget(),
-      })
-      .disableSelection()
-  },
-
-  showChartSelect: function () {
-    if (this.__chartSelect) {
-      this.__chartSelect.show()
-      this.__chartSelect.setState({ appended: ChartsWidget.__currentCharts() })
-      return
-    }
-
-    // eslint-disable-next-line react/jsx-no-undef
-    renderRbcomp(<ChartSelect select={(c) => this.renderChart(c, true)} entity={wpc.entity[0]} />, function () {
-      ChartsWidget.__chartSelect = this
-      this.setState({ appended: ChartsWidget.__currentCharts() })
-    })
-  },
-
-  renderChart: function (chart, append) {
-    const $w = $(`<div id="chart-${chart.chart}"></div>`).appendTo('.charts-wrap')
-    // eslint-disable-next-line no-undef
-    renderRbcomp(detectChart({ ...chart, editable: true }, chart.chart), $w, function () {
-      if (append) ChartsWidget.saveWidget()
-    })
-  },
-
-  loadWidget: function () {
-    $.get(`/app/${wpc.entity[0]}/widget-charts`, (res) => {
-      this._chartLoaded = true
-      this.__config = res.data || {}
-      res.data && $(res.data.config).each((idx, chart) => this.renderChart(chart))
-    })
-  },
-
-  saveWidget: function () {
-    const charts = this.__currentCharts(true)
-    $.post(`/app/${wpc.entity[0]}/widget-charts?id=${this.__config.id || ''}`, JSON.stringify(charts), (res) => {
-      ChartsWidget.__config.id = res.data
-      $('.page-aside .tab-content').perfectScrollbar('update')
-    })
-  },
-
-  __currentCharts: function (o) {
-    const charts = []
-    $('.charts-wrap>div').each(function () {
-      const id = $(this).attr('id').substr(6)
-      if (o) charts.push({ chart: id })
-      else charts.push(id)
-    })
-    return charts
-  },
-}
-
 $(document).ready(() => {
   window.RbListCommon && window.RbListCommon.init(wpc)
 
@@ -355,13 +278,14 @@ $(document).ready(() => {
 
     const $content = $('.page-aside .tab-content')
     $addResizeHandler(() => {
-      $content.height($(window).height() - 147)
+      $content.height($(window).height() - 135)
       $content.perfectScrollbar('update')
     })()
 
-    if ($('#asideWidgets').length > 0) ChartsWidget.init()
     // eslint-disable-next-line no-undef
-    if ($('#asideCategory').length > 0) CategoryWidget.init()
+    if ($('#asideWidgets')[0]) ChartsWidget.init()
+    // eslint-disable-next-line no-undef
+    if ($('#asideCategory')[0]) CategoryWidget.init()
   }
 
   const $wtab = $('.page-aside.widgets .nav a:eq(0)')

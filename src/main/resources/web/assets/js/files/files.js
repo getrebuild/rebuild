@@ -233,7 +233,7 @@ $(document).ready(() => {
 
   const $content = $('.page-aside .tab-content')
   $addResizeHandler(() => {
-    $content.height($(window).height() - 147)
+    $content.height($(window).height() - 135)
     $content.perfectScrollbar('update')
   })()
 
