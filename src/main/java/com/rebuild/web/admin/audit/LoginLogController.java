@@ -71,7 +71,7 @@ public class LoginLogController extends EntityController {
 
         // H5
         if (getBoolParameter(request, "h5")) {
-            for (Object[] s : Application.getSessionStore().getAllH5Session(false)) {
+            for (Object[] s : Application.getSessionStore().getAllH5Session(true)) {
                 ID user = (ID) s[4];
                 JSONObject item = JSONUtils.toJSONObject(
                         new String[] { "user", "fullName", "activeTime", "activeUrl", "activeIp", "sid", "h5" },
