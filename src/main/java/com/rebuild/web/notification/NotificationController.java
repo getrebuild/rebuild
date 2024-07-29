@@ -18,9 +18,11 @@ import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.admin.ConfigurationController;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,12 +55,21 @@ public class NotificationController extends BaseController {
 
     @GetMapping("/notification/check-state")
     public JSON checkMessage(HttpServletRequest request) {
-        int unread = Application.getNotifications().getUnreadMessage(getRequestUser(request));
+        final ID user = getRequestUser(request);
+        int unread = Application.getNotifications().getUnreadMessage(user);
         JSONObject state = JSONUtils.toJSONObject("unread", unread);
 
         JSON mm = buildMM();
         if (mm != null) state.put("mm", mm);
 
+        // v3.8
+        String h5referer = getParameter(request, "h5referer");
+        if (StringUtils.isNotBlank(h5referer)) {
+            String authToken = request.getHeader(AppUtils.HF_AUTHTOKEN);
+            if (authToken != null) {
+                Application.getSessionStore().storeH5LastActive(authToken, user, h5referer, request);
+            }
+        }
         return state;
     }
 

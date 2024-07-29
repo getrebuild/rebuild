@@ -141,25 +141,4 @@ public class AuthTokenManager {
 
         return ID.valueOf(descs[1]);
     }
-
-    /**
-     * 刷新 AccessToken 延长有效期
-     *
-     * @param token
-     * @return
-     * @see #verifyToken(String, boolean, boolean)
-     * @deprecated Use {@link #verifyToken(String, boolean, boolean)}
-     */
-    @Deprecated
-    public static ID refreshAccessToken(String token) {
-        Assert.notNull(token, "[token] cannot be null");
-        String desc = Application.getCommonsCache().get(TOKEN_PREFIX + token);
-        if (desc == null) return null;
-
-        String[] descs = desc.split(",");
-        Assert.isTrue(TYPE_ACCESS_TOKEN.equals(descs[0]), "Cannot refresh none access token");
-
-        Application.getCommonsCache().put(TOKEN_PREFIX + token, desc, ACCESSTOKEN_EXPIRES);
-        return ID.valueOf(descs[1]);
-    }
 }

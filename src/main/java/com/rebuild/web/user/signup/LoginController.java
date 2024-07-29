@@ -209,7 +209,6 @@ public class LoginController extends LoginAction {
                     request, response, loginUser.getId(), getBoolParameter(request, "autoLogin", false));
             if (ed != null) resMap.put("passwdExpiredDays", ed);
         }
-
         return RespBody.ok(resMap);
     }
 

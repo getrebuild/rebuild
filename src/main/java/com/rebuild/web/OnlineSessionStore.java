@@ -10,6 +10,7 @@ package com.rebuild.web;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -39,6 +41,8 @@ public class OnlineSessionStore implements HttpSessionListener {
 
     private static final Set<HttpSession> ONLINE_SESSIONS = new CopyOnWriteArraySet<>();
     private static final Map<ID, HttpSession> ONLINE_USERS = new ConcurrentHashMap<>();
+    // v3.8
+    private static final Map<String, Object[]> ONLINE_USERS_H5 = new ConcurrentHashMap<>();
 
     /**
      * 最近访问 [时间, 路径]
@@ -99,7 +103,7 @@ public class OnlineSessionStore implements HttpSessionListener {
         if (requestUri.contains("/filex/access/")) {
             return;
         }
-        
+
         HttpSession s = request.getSession();
         s.setAttribute(SK_LASTACTIVE,
                 new Object[]{System.currentTimeMillis(), requestUri, ServletUtils.getRemoteAddr(request)});
@@ -147,6 +151,17 @@ public class OnlineSessionStore implements HttpSessionListener {
                     break;
                 }
             }
+
+            // for H5
+            if (found == null) {
+                String token = sessionOrUser.toString();
+                ID d = AuthTokenManager.verifyToken(token, true, false);
+                if (d != null) {
+                    ONLINE_USERS_H5.remove(token);
+                    return true;
+                }
+                return false;
+            }
         }
 
         try {
@@ -157,5 +172,45 @@ public class OnlineSessionStore implements HttpSessionListener {
         } catch (Exception ignored) {}
 
         return found != null;
+    }
+
+    // for H5/Mobile
+
+    /**
+     * @param authToken
+     * @param user
+     * @param activeUrl
+     * @param request
+     */
+    public void storeH5LastActive(String authToken, ID user, String activeUrl, HttpServletRequest request) {
+        ONLINE_USERS_H5.put(authToken,
+                new Object[]{System.currentTimeMillis(), activeUrl, ServletUtils.getRemoteAddr(request), authToken, user});
+    }
+
+    /**
+     * @param user
+     * @return
+     */
+    public String getH5Session(ID user) {
+        for (Object[] s : ONLINE_USERS_H5.values()) {
+            if (user.equals(s[4])) return (String) s[3];
+        }
+        return null;
+    }
+
+    /**
+     * @param clearInvalid
+     * @return
+     */
+    public Collection<Object[]> getAllH5Session(boolean clearInvalid) {
+        if (clearInvalid) {
+            for (String token : ONLINE_USERS_H5.keySet()) {
+                ID valid = AuthTokenManager.verifyToken(token);
+                if (valid == null) ONLINE_USERS_H5.remove(token);
+            }
+            log.info("Clean H5 sessions. Current valid : {}", ONLINE_USERS_H5.size());
+        }
+
+        return ONLINE_USERS_H5.values();
     }
 }

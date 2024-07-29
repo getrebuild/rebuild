@@ -17,6 +17,7 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.LanguageBundle;
 import com.rebuild.web.admin.AdminVerfiyController;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Zixin (RB)
  * @since 05/19/2018
  */
+@Slf4j
 public class AppUtils {
 
     // Token 认证
@@ -91,7 +93,13 @@ public class AppUtils {
      * @see #getRequestUserViaToken(HttpServletRequest, boolean)
      */
     public static ID getRequestUser(HttpServletRequest request, boolean refreshToken) {
-        Object user = request.getSession().getAttribute(WebUtils.CURRENT_USER);
+        Object user = null;
+        try {
+            user = request.getSession().getAttribute(WebUtils.CURRENT_USER);
+        } catch (Exception resHasBeenCommitted) {
+            log.warn("resHasBeenCommitted", resHasBeenCommitted);
+        }
+
         if (user == null) user = getRequestUserViaToken(request, refreshToken);
         return user == null ? null : (ID) user;
     }

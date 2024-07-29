@@ -111,27 +111,30 @@ public class LoginAction extends BaseController {
 
         createLoginLog(request, user);
 
-        ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
-        ServletUtils.setSessionAttribute(request, SK_USER_THEME, KVStorage.getCustomValue("THEME." + user));
-        Application.getSessionStore().storeLoginSuccessed(request, fromH5);
+        // TODO H5
+        if (!fromH5) {
+            ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
+            ServletUtils.setSessionAttribute(request, SK_USER_THEME, KVStorage.getCustomValue("THEME." + user));
+            Application.getSessionStore().storeLoginSuccessed(request, fromH5);
 
-        // 头像缓存
-        ServletUtils.setSessionAttribute(request, UserAvatar.SK_DAVATAR, System.currentTimeMillis());
+            // 头像缓存
+            ServletUtils.setSessionAttribute(request, UserAvatar.SK_DAVATAR, System.currentTimeMillis());
 
-        // v3.2 GUIDE 显示规则
-        if (UserHelper.isSuperAdmin(user)) {
-            Object GuideShowNaver = KVStorage.getCustomValue("GuideShowNaver");
-            if (!ObjectUtils.toBool(GuideShowNaver) || CommandArgs.getBoolean(CommandArgs._ForceTour)) {
-                ServletUtils.setSessionAttribute(request, SK_SHOW_GUIDE, Boolean.TRUE);
+            // v3.2 GUIDE 显示规则
+            if (UserHelper.isSuperAdmin(user)) {
+                Object GuideShowNaver = KVStorage.getCustomValue("GuideShowNaver");
+                if (!ObjectUtils.toBool(GuideShowNaver) || CommandArgs.getBoolean(CommandArgs._ForceTour)) {
+                    ServletUtils.setSessionAttribute(request, SK_SHOW_GUIDE, Boolean.TRUE);
+                }
             }
-        }
-        // TOUR 显示规则
-        Object[] initLoginTimes = Application.createQueryNoFilter(
-                "select count(loginTime) from LoginLog where user = ? and loginTime > '2022-01-01'")
-                .setParameter(1, user)
-                .unique();
-        if (ObjectUtils.toLong(initLoginTimes[0]) <= 10 || CommandArgs.getBoolean(CommandArgs._ForceTour)) {
-            ServletUtils.setSessionAttribute(request, SK_SHOW_TOUR, Boolean.TRUE);
+            // TOUR 显示规则
+            Object[] initLoginTimes = Application.createQueryNoFilter(
+                            "select count(loginTime) from LoginLog where user = ? and loginTime > '2022-01-01'")
+                    .setParameter(1, user)
+                    .unique();
+            if (ObjectUtils.toLong(initLoginTimes[0]) <= 10 || CommandArgs.getBoolean(CommandArgs._ForceTour)) {
+                ServletUtils.setSessionAttribute(request, SK_SHOW_TOUR, Boolean.TRUE);
+            }
         }
 
         // 密码过期剩余时间
@@ -146,28 +149,30 @@ public class LoginAction extends BaseController {
      * @param user
      */
     private void createLoginLog(HttpServletRequest request, ID user) {
-        final String ua = request.getHeader("user-agent");
-        String uaClear;
+        final String userAgent = request.getHeader("user-agent");
+        String uaSimple;
         try {
-            UserAgent uas = UserAgent.parseUserAgentString(ua);
+            final UserAgent UA = UserAgent.parseUserAgentString(userAgent);
 
-            uaClear = uas.getBrowser().name();
-            if (uas.getBrowserVersion() != null) {
-                String mv = uas.getBrowserVersion().getMajorVersion();
-                if (!uaClear.endsWith(mv)) uaClear += "-" + mv;
+            uaSimple = UA.getBrowser().name();
+            if (UA.getBrowserVersion() != null) {
+                String mv = UA.getBrowserVersion().getMajorVersion();
+                if (!uaSimple.endsWith(mv)) uaSimple += "-" + mv;
             }
 
-            OperatingSystem os = uas.getOperatingSystem();
+            OperatingSystem os = UA.getOperatingSystem();
             if (os != null) {
-                uaClear += " (" + os + ")";
-                if (os.getDeviceType() != null && os.getDeviceType() == DeviceType.MOBILE) uaClear += " [Mobile]";
+                uaSimple += " (" + os + ")";
+                if (os.getDeviceType() != null && os.getDeviceType() == DeviceType.MOBILE) uaSimple += " [Mobile]";
             }
 
-            if (request.getAttribute(SK_TEMP_AUTH) != null) uaClear += " [TempAuth]";
+            if (request.getAttribute(SK_TEMP_AUTH) != null) uaSimple += " [TempAuth]";
+            if (userAgent.contains("DingTalk")) uaSimple += " [DingTalk]";
+            if (userAgent.contains("wxwork")) uaSimple += " [WeCom]";
 
         } catch (Exception ex) {
-            log.warn("Unknown user-agent : {}", ua);
-            uaClear = "UNKNOW";
+            log.warn("Unknown User-Agent : {}", userAgent);
+            uaSimple = "UNKNOW";
         }
 
         String ipAddr = StringUtils.defaultString(ServletUtils.getRemoteAddr(request), "127.0.0.1");
@@ -175,7 +180,7 @@ public class LoginAction extends BaseController {
         final Record llog = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
         llog.setID("user", user);
         llog.setString("ipAddr", ipAddr);
-        llog.setString("userAgent", uaClear);
+        llog.setString("userAgent", uaSimple);
         llog.setDate("loginTime", CalendarUtils.now());
 
         TaskExecutors.queue(() -> {
@@ -186,7 +191,7 @@ public class LoginAction extends BaseController {
             if (uid == null) uid = user.toLiteral();
             
             String uaUrl = String.format("api/authority/user/echo?user=%s&ip=%s&ua=%s",
-                    CodecUtils.base64UrlEncode(uid), ipAddr, CodecUtils.urlEncode(ua));
+                    CodecUtils.base64UrlEncode(uid), ipAddr, CodecUtils.urlEncode(userAgent));
             License.siteApiNoCache(uaUrl);
         });
     }

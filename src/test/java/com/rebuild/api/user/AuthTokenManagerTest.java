@@ -15,9 +15,8 @@ import org.junit.jupiter.api.Test;
  * @author devezhao
  * @since 2020/3/11
  */
-public class AuthTokenManagerTest extends TestSupport {
+class AuthTokenManagerTest extends TestSupport {
 
-    @SuppressWarnings("deprecation")
     @Test
     void accessToken() {
         // Generate
@@ -26,9 +25,6 @@ public class AuthTokenManagerTest extends TestSupport {
         // Verify
         Assertions.assertNotNull(AuthTokenManager.verifyToken(accessToken));
         Assertions.assertNotNull(AuthTokenManager.verifyToken(accessToken));
-
-        // Refresh
-        AuthTokenManager.refreshAccessToken(accessToken);
 
         // Destroy
         AuthTokenManager.verifyToken(accessToken, true, true);
