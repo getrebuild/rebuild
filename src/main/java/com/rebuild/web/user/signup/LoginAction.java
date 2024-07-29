@@ -111,27 +111,30 @@ public class LoginAction extends BaseController {
 
         createLoginLog(request, user);
 
-        ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
-        ServletUtils.setSessionAttribute(request, SK_USER_THEME, KVStorage.getCustomValue("THEME." + user));
-        Application.getSessionStore().storeLoginSuccessed(request, fromH5);
+        // TODO H5
+        if (!fromH5) {
+            ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
+            ServletUtils.setSessionAttribute(request, SK_USER_THEME, KVStorage.getCustomValue("THEME." + user));
+            Application.getSessionStore().storeLoginSuccessed(request, fromH5);
 
-        // 头像缓存
-        ServletUtils.setSessionAttribute(request, UserAvatar.SK_DAVATAR, System.currentTimeMillis());
+            // 头像缓存
+            ServletUtils.setSessionAttribute(request, UserAvatar.SK_DAVATAR, System.currentTimeMillis());
 
-        // v3.2 GUIDE 显示规则
-        if (UserHelper.isSuperAdmin(user)) {
-            Object GuideShowNaver = KVStorage.getCustomValue("GuideShowNaver");
-            if (!ObjectUtils.toBool(GuideShowNaver) || CommandArgs.getBoolean(CommandArgs._ForceTour)) {
-                ServletUtils.setSessionAttribute(request, SK_SHOW_GUIDE, Boolean.TRUE);
+            // v3.2 GUIDE 显示规则
+            if (UserHelper.isSuperAdmin(user)) {
+                Object GuideShowNaver = KVStorage.getCustomValue("GuideShowNaver");
+                if (!ObjectUtils.toBool(GuideShowNaver) || CommandArgs.getBoolean(CommandArgs._ForceTour)) {
+                    ServletUtils.setSessionAttribute(request, SK_SHOW_GUIDE, Boolean.TRUE);
+                }
             }
-        }
-        // TOUR 显示规则
-        Object[] initLoginTimes = Application.createQueryNoFilter(
-                "select count(loginTime) from LoginLog where user = ? and loginTime > '2022-01-01'")
-                .setParameter(1, user)
-                .unique();
-        if (ObjectUtils.toLong(initLoginTimes[0]) <= 10 || CommandArgs.getBoolean(CommandArgs._ForceTour)) {
-            ServletUtils.setSessionAttribute(request, SK_SHOW_TOUR, Boolean.TRUE);
+            // TOUR 显示规则
+            Object[] initLoginTimes = Application.createQueryNoFilter(
+                            "select count(loginTime) from LoginLog where user = ? and loginTime > '2022-01-01'")
+                    .setParameter(1, user)
+                    .unique();
+            if (ObjectUtils.toLong(initLoginTimes[0]) <= 10 || CommandArgs.getBoolean(CommandArgs._ForceTour)) {
+                ServletUtils.setSessionAttribute(request, SK_SHOW_TOUR, Boolean.TRUE);
+            }
         }
 
         // 密码过期剩余时间
