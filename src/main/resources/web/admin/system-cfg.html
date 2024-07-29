@@ -236,7 +236,7 @@
                           <pre class="unstyle">[[${AllowUsesIp ?:bundle.L('不限')}]]</pre>
                         </td>
                       </tr>
-                      <tr>
+                      <tr class="-bosskey-show">
                         <td>[[${bundle.L('同一用户允许多地登录')}]] <sup class="rbv"></sup></td>
                         <td th:data-id="${commercial > 0 ? 'MultipleSessions' : ''}" th:data-value="${MultipleSessions}">[[${MultipleSessions ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>

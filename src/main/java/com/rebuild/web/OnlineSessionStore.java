@@ -157,10 +157,10 @@ public class OnlineSessionStore implements HttpSessionListener {
 
             // H5 AuthToken
             if (found == null) {
-                for (Object[] s : getAllSessionH5(false)) {
+                for (Object[] s : getAllH5Session(false)) {
                     if (sessionOrUser.equals(s[3])) {
                         AuthTokenManager.verifyToken((String) s[3], true, false);
-                        getAllSessionH5(true);
+                        getAllH5Session(true);
                         return true;
                     }
                 }
@@ -176,7 +176,7 @@ public class OnlineSessionStore implements HttpSessionListener {
         return found != null;
     }
 
-    // for Mobile
+    // for Mobile/H5
 
     /**
      * @param authToken
@@ -184,7 +184,7 @@ public class OnlineSessionStore implements HttpSessionListener {
      * @param activeUrl
      * @param request
      */
-    public void storeLastActiveH5(String authToken, ID user, String activeUrl, HttpServletRequest request) {
+    public void storeH5LastActive(String authToken, ID user, String activeUrl, HttpServletRequest request) {
         ONLINE_USERS_H5.put(authToken,
                 new Object[]{System.currentTimeMillis(), activeUrl, ServletUtils.getRemoteAddr(request), authToken, user});
     }
@@ -193,7 +193,7 @@ public class OnlineSessionStore implements HttpSessionListener {
      * @param user
      * @return
      */
-    public String getSessionH5(ID user) {
+    public String getH5Session(ID user) {
         for (Object[] s : ONLINE_USERS_H5.values()) {
             if (user.equals(s[4])) return (String) s[3];
         }
@@ -204,7 +204,7 @@ public class OnlineSessionStore implements HttpSessionListener {
      * @param clearInvalid
      * @return
      */
-    public Collection<Object[]> getAllSessionH5(boolean clearInvalid) {
+    public Collection<Object[]> getAllH5Session(boolean clearInvalid) {
         if (clearInvalid) {
             for (String token : ONLINE_USERS_H5.keySet()) {
                 ID valid = AuthTokenManager.verifyToken(token);

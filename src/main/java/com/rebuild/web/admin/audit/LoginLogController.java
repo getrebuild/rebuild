@@ -57,25 +57,25 @@ public class LoginLogController extends EntityController {
         for (HttpSession s : Application.getSessionStore().getAllSession()) {
             ID user = (ID) s.getAttribute(WebUtils.CURRENT_USER);
             if (user == null) continue;
-
-            Object[] act = (Object[]) s.getAttribute(OnlineSessionStore.SK_LASTACTIVE);
-            if (act == null) continue;
+            Object[] active = (Object[]) s.getAttribute(OnlineSessionStore.SK_LASTACTIVE);
+            if (active == null) continue;
 
             String fullName = UserHelper.getName(user);
             if (currentSid.equals(s.getId())) fullName += " [" + Language.L("当前") + "]";
 
             JSONObject item = JSONUtils.toJSONObject(
                     new String[] { "user", "fullName", "activeTime", "activeUrl", "activeIp", "sid" },
-                    new Object[] { user, fullName, act[0], act[1], act[2], s.getId() });
+                    new Object[] { user, fullName, active[0], active[1], active[2], s.getId() });
             online.add(item);
         }
+
         // H5
         if (getBoolParameter(request, "h5")) {
-            for (Object[] act : Application.getSessionStore().getAllSessionH5(false)) {
-                ID user = (ID) act[4];
+            for (Object[] s : Application.getSessionStore().getAllH5Session(false)) {
+                ID user = (ID) s[4];
                 JSONObject item = JSONUtils.toJSONObject(
                         new String[] { "user", "fullName", "activeTime", "activeUrl", "activeIp", "sid", "h5" },
-                        new Object[] { user, UserHelper.getName(user), act[0], act[1], act[2], act[3], true });
+                        new Object[] { user, UserHelper.getName(user), s[0], s[1], s[2], s[3], true });
                 online.add(item);
             }
         }
@@ -95,8 +95,8 @@ public class LoginLogController extends EntityController {
 
     @RequestMapping("/admin/audit/kill-session")
     public RespBody killSession(HttpServletRequest request) {
-        String sid = getParameterNotNull(request, "user");
-        Application.getSessionStore().killSession(sid);
+        String sessionIdOrToken = getParameterNotNull(request, "user");
+        Application.getSessionStore().killSession(sessionIdOrToken);
         return RespBody.ok();
     }
 

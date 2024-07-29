@@ -67,7 +67,7 @@ public class NotificationController extends BaseController {
         if (StringUtils.isNotBlank(h5referer)) {
             String authToken = request.getHeader(AppUtils.HF_AUTHTOKEN);
             if (authToken != null) {
-                Application.getSessionStore().storeLastActiveH5(authToken, user, h5referer, request);
+                Application.getSessionStore().storeH5LastActive(authToken, user, h5referer, request);
             }
         }
         return state;
