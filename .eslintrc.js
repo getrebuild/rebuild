@@ -145,5 +145,6 @@ module.exports = {
     $hex2rgb: true,
     $isImage: true,
     $dropUpload: true,
+    $tagStyle2: true,
   },
 }

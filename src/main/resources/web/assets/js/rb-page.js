@@ -1284,3 +1284,9 @@ function $openWindow(url) {
 
 // 不支持排序的字段（联系）
 var UNSORT_FIELDTYPES = ['N2NREFERENCE', 'ANYREFERENCE', 'MULTISELECT', 'TAG', 'FILE', 'IMAGE', 'AVATAR', 'SIGN']
+
+// 字段颜色
+function $tagStyle2(color) {
+  if (!color) return null
+  return { backgroundColor: color, borderColor: color, color: $isLight(color) ? '#444' : '#fff' }
+}
