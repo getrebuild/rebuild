@@ -477,7 +477,7 @@ class SelectReport extends React.Component {
                     rb._officePreviewUrl = 111
                     const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}`
                     const showPdf = (item.outputType || '').includes('pdf')
-                    const showHtml = (item.outputType || '').includes('html')
+                    const showHtml = item.outputType !== 'html5' && (item.outputType || '').includes('html')
                     return (
                       <li key={item.id} className={`${rb._officePreviewUrl && 'has-preview'} ${showPdf && 'has-pdf'} ${showHtml && 'has-html'}`}>
                         <a target="_blank" href={reportUrl} className="text-truncate" title={$L('下载')}>
