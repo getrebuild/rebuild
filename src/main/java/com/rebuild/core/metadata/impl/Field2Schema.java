@@ -47,9 +47,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.DATETIME_CALCFORMULA;
 import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.DATETIME_FORMAT;
-import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.DATE_CALCFORMULA;
 import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.DATE_FORMAT;
 import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.NUMBER_CALCFORMULA;
 import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.NUMBER_NOTNEGATIVE;
