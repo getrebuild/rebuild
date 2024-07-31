@@ -253,9 +253,8 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
     }
 
     private boolean isIgnoreAuth(String requestUri) {
-        if (requestUri.contains("/user/") && !requestUri.contains("/user/admin")) {
-            return true;
-        }
+        if (requestUri.contains("..")) return false;
+        if (requestUri.contains("/user/") && !requestUri.contains("/user/admin")) return true;
 
         requestUri = requestUri.replaceFirst(AppUtils.getContextPath(), "");
 

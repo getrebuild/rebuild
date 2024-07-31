@@ -106,6 +106,7 @@ public class DataReportManager implements ConfigManager {
 
             int type = ObjectUtils.toInt(o[4], TYPE_RECORD);
             if (type == TYPE_WORD && outputType.contains("excel")) outputType += ",word";
+            else if (type == TYPE_HTML5) outputType = "html5";
 
             ConfigBean cb = new ConfigBean()
                     .set("id", o[0])

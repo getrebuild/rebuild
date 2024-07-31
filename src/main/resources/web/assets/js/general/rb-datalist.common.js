@@ -1771,9 +1771,8 @@ CellRenders.addRender('MULTISELECT', (v, s, k) => {
       <div className="column-multi" style={s}>
         {(v.text || []).map((item) => {
           if (typeof item === 'object') {
-            const style2 = item.color ? { borderColor: item.color, backgroundColor: item.color, color: $isLight(item.color) ? '#444' : '#fff' } : null
             return (
-              <span key={item.text} className="badge" title={item.text} style={style2}>
+              <span key={item.text} className="badge" title={item.text} style={$tagStyle2(item.color)}>
                 {item.text}
               </span>
             )
@@ -1823,11 +1822,10 @@ CellRenders.addRender('SIGN', (v, s, k) => {
 const _renderOptionField = (v, s, k) => {
   // Use badge
   if (typeof v === 'object') {
-    const style2 = v.color ? { borderColor: v.color, backgroundColor: v.color, color: $isLight(v.color) ? '#444' : '#fff' } : null
     return (
       <td key={k} className="td-sm column-state">
         <div style={s} title={v.text}>
-          <span className="badge" style={style2}>
+          <span className="badge" style={$tagStyle2(v.color)}>
             {v.text}
           </span>
         </div>
@@ -1845,9 +1843,8 @@ CellRenders.addRender('TAG', (v, s, k) => {
     <td key={k} className="td-sm" title={$L('共 %d 项', vLen)}>
       <div className="column-multi" style={s}>
         {(v || []).map((item) => {
-          const style2 = item.color ? { color: item.color, borderColor: item.color } : null
           return (
-            <span key={item.name} className="badge" title={item.name} style={style2}>
+            <span key={item.name} className="badge" title={item.name} style={$tagStyle2(item.color)}>
               {item.name}
             </span>
           )

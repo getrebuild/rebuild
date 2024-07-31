@@ -2339,9 +2339,8 @@ class RbFormClassification extends RbFormElement {
   renderViewElement() {
     let text = this.state.value
     if (text && text.color) {
-      const style2 = { borderColor: text.color, backgroundColor: text.color, color: $isLight(text.color) ? '#444' : '#fff' }
       text = (
-        <span className="badge" style={style2}>
+        <span className="badge" style={$tagStyle2(text.color)}>
           {text.text}
         </span>
       )
@@ -3104,9 +3103,8 @@ const __findOptionText = function (options, value, useColor) {
   let text = (o || {}).text || `[${value.toUpperCase()}]`
   if (useColor) {
     if (o && o.color) {
-      const style2 = { borderColor: o.color, backgroundColor: o.color, color: $isLight(o.color) ? '#444' : '#fff' }
       text = (
-        <span className="badge" style={style2}>
+        <span className="badge" style={$tagStyle2(o.color)}>
           {text}
         </span>
       )
@@ -3143,9 +3141,8 @@ const __findTagTexts = function (options, value) {
     let item = options.find((x) => x.name === name)
     if (!item) item = { name: name }
 
-    const style2 = item.color ? { borderColor: item.color, color: item.color } : null
     const text = (
-      <span key={`tag-${item.name}`} style={style2}>
+      <span key={`tag-${item.name}`} style={$tagStyle2(item.color)}>
         {item.name}
       </span>
     )

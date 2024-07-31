@@ -95,7 +95,7 @@ public class ReportsController extends BaseController {
 
         File output = null;
         try {
-            EasyExcelGenerator reportGenerator = null;
+            EasyExcelGenerator reportGenerator;
             if (tt.type == DataReportManager.TYPE_WORD) {
                 reportGenerator = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
                         "com.rebuild.rbv.data.WordReportGenerator#create", reportId, recordId);

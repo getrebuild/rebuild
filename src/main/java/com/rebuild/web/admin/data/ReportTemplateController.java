@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.data;
 
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import cn.hutool.core.io.file.FileNameUtil;
@@ -95,11 +96,12 @@ public class ReportTemplateController extends BaseController {
         boolean isDocx = file.toLowerCase().endsWith(".docx");
         if (type == DataReportManager.TYPE_WORD) {
             if (!isDocx) return RespBody.errorl("上传 WORD 文件请选择 WORD 模板类型");
-        } else {
+        } else if (type != DataReportManager.TYPE_HTML5) {
             if (isDocx) return RespBody.errorl("上传 EXCEL 文件请选择 EXCEL 模板类型");
         }
 
-        File template = RebuildConfiguration.getFileOfData(file);
+        File template = type == DataReportManager.TYPE_HTML5
+                ? null : RebuildConfiguration.getFileOfData(file);
         Map<String, String> vars = null;
         try {
             if (type == DataReportManager.TYPE_RECORD) {
@@ -110,6 +112,11 @@ public class ReportTemplateController extends BaseController {
                 //noinspection unchecked
                 vars = (Map<String, String>) CommonsUtils.invokeMethod(
                         "com.rebuild.rbv.data.WordTemplateExtractor#transformVars", template, entity.getName());
+            } else if (type == DataReportManager.TYPE_HTML5) {
+                String templateContent = ServletUtils.getRequestString(request);
+                //noinspection unchecked
+                vars = (Map<String, String>) CommonsUtils.invokeMethod(
+                        "com.rebuild.rbv.data.Html5TemplateExtractor#transformVars", templateContent, entity.getName());
             }
 
         } catch (Exception ex) {
@@ -233,6 +240,9 @@ public class ReportTemplateController extends BaseController {
         FileDownloader.writeLocalFile(template, response);
     }
 
+    // --
+
+    private static String HTML5_INLINE_STYLE;
     /**
      * @param html5
      * @param title
@@ -244,6 +254,10 @@ public class ReportTemplateController extends BaseController {
         ModelAndView mv = new ModelAndView("/admin/data/template5-view");
         mv.getModelMap().put("reportName", title);
         mv.getModelMap().put("reportContent", content);
+        if (HTML5_INLINE_STYLE == null) {
+            HTML5_INLINE_STYLE = CommonsUtils.getStringOfRes("/web/assets/css/template5-design-content.css");
+        }
+        mv.getModelMap().put("inlineStyle", HTML5_INLINE_STYLE);
         return mv;
     }
 }
