@@ -482,7 +482,7 @@ class BatchUpdate extends BatchOperator {
     if (rb.env === 'dev') console.log(JSON.stringify(_data))
 
     const that = this
-    RbAlert.create(<b>{$L('请再次确认修改数据范围和修改内容。开始修改吗？')}</b>, {
+    RbAlert.create($L('请再次确认修改数据范围和修改内容。开始修改吗？'), {
       onConfirm: function () {
         this.hide()
         that.disabled(true, true)
@@ -501,6 +501,7 @@ class BatchUpdate extends BatchOperator {
           }
         })
       },
+      countdown: 5,
     })
   }
 

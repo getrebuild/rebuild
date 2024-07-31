@@ -91,7 +91,7 @@ class DlgAssign extends RbModalHandler {
         $(this._$cascades)
           .select2({
             multiple: true,
-            placeholder: $L('选择相关实体 (可选)'),
+            placeholder: $L('选择'),
           })
           .val(defaultSelected)
           .trigger('change')
