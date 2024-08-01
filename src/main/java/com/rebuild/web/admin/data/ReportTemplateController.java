@@ -254,7 +254,7 @@ public class ReportTemplateController extends BaseController {
         ModelAndView mv = new ModelAndView("/admin/data/template5-view");
         mv.getModelMap().put("reportName", title);
         mv.getModelMap().put("reportContent", content);
-        if (HTML5_INLINE_STYLE == null) {
+        if (HTML5_INLINE_STYLE == null || Application.devMode()) {
             HTML5_INLINE_STYLE = CommonsUtils.getStringOfRes("/web/assets/css/template5-design-content.css");
         }
         mv.getModelMap().put("inlineStyle", HTML5_INLINE_STYLE);
