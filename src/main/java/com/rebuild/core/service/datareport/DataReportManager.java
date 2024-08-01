@@ -88,7 +88,7 @@ public class DataReportManager implements ConfigManager {
      * @return
      */
     public ConfigBean[] getReportsRaw(Entity entity) {
-        final String cKey = "DataReportManager35-" + entity.getName();
+        final String cKey = "DataReportManager38-" + entity.getName();
         ConfigBean[] cached = (ConfigBean[]) Application.getCommonsCache().getx(cKey);
         if (cached != null) return cached;
 
@@ -117,7 +117,8 @@ public class DataReportManager implements ConfigManager {
                     .set("outputType", outputType)
                     .set("templateVersion", templateVersion)
                     .set("useFilter", useFilter)
-                    .set("templateContent", o[6]);
+                    .set("templateContent", o[6])
+                    .set("entity", entity.getName());
             alist.add(cb);
         }
 
@@ -142,6 +143,8 @@ public class DataReportManager implements ConfigManager {
         } else {
             templateContent = null;
         }
+
+        if (entity == null) entity = MetadataHelper.getEntity(conf.getString("entity"));
 
         // v35 HTML5
         if (templateContent != null) {
@@ -202,7 +205,7 @@ public class DataReportManager implements ConfigManager {
 
     @Override
     public void clean(Object entity) {
-        final String cKey = "DataReportManager35-" + ((Entity) entity).getName();
+        final String cKey = "DataReportManager38-" + ((Entity) entity).getName();
         Application.getCommonsCache().evict(cKey);
     }
 
