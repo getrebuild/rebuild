@@ -91,7 +91,7 @@ public class ReportsController extends BaseController {
                                        HttpServletRequest request, HttpServletResponse response) throws IOException {
         final ID[] recordIds = getIdArrayParameterNotNull(request, "record");
         final ID recordId = recordIds[0];
-        final TemplateFile tt = DataReportManager.instance.getTemplateFile(reportId);
+        final TemplateFile tt = DataReportManager.instance.buildTemplateFile(reportId);
 
         File output = null;
         try {
@@ -119,7 +119,7 @@ public class ReportsController extends BaseController {
         String typeOutput = getParameter(request, "output");
         boolean isHtml = "HTML".equalsIgnoreCase(typeOutput);
         boolean isPdf = "PDF".equalsIgnoreCase(typeOutput);
-        String fileName = DataReportManager.getReportName(reportId, recordId, output.getName());
+        String fileName = DataReportManager.getPrettyReportName(reportId, recordId, output.getName());
 
         // v3.6
         if (tt.type == DataReportManager.TYPE_HTML5) {
@@ -205,7 +205,7 @@ public class ReportsController extends BaseController {
                         CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()),
                         FileUtil.getSuffix(output));
             } else {
-                fileName = DataReportManager.getReportName(useReport, entity, output.getName());
+                fileName = DataReportManager.getPrettyReportName(useReport, entity, output.getName());
             }
 
             CommonsLog.createLog(CommonsLog.TYPE_EXPORT, user, null,

@@ -127,29 +127,20 @@ public class DataReportManager implements ConfigManager {
     }
 
     /**
-     * @param entity
      * @param reportId
+     * @param entity
      * @return
      */
-    public TemplateFile getTemplateFile(Entity entity, ID reportId) {
-        String templateFile = null;
-        String templateContent = null;
-        int type = DataReportManager.TYPE_RECORD;
-        boolean isV33 = false;
-
-        for (ConfigBean e : getReportsRaw(entity)) {
-            if (e.getID("id").equals(reportId)) {
-                templateFile = e.getString("template");
-                templateContent = e.getString("templateContent");
-                type = e.getInteger("type");
-                isV33 = e.getInteger("templateVersion") == 3;
-                if (type == TYPE_HTML5) {
-                    if (templateContent == null) templateContent = "";
-                } else {
-                    templateContent = null;
-                }
-                break;
-            }
+    public TemplateFile buildTemplateFile(ID reportId, Entity entity) {
+        final ConfigBean conf = getReportRaw(reportId, entity);
+        String templateFile = conf.getString("template");
+        String templateContent = conf.getString("templateContent");
+        int type = conf.getInteger("type");
+        boolean isV33 = conf.getInteger("templateVersion") == 3;
+        if (type == TYPE_HTML5) {
+            if (templateContent == null) templateContent = "";
+        } else {
+            templateContent = null;
         }
 
         // v35 HTML5
@@ -172,15 +163,41 @@ public class DataReportManager implements ConfigManager {
     /**
      * @param reportId
      * @return
-     * @see #getTemplateFile(Entity, ID) 性能好
+     * @see #buildTemplateFile(ID, Entity)
      */
-    public TemplateFile getTemplateFile(ID reportId) {
-        Object[] o = Application.getQueryFactory().uniqueNoFilter(reportId, "belongEntity");
-        if (o == null || !MetadataHelper.containsEntity((String) o[0])) {
-            throw new ConfigurationException("No config of report found : " + reportId);
+    public TemplateFile buildTemplateFile(ID reportId) {
+        return buildTemplateFile(reportId, null);
+    }
+
+    /**
+     * 获取报表配置
+     *
+     * @param reportId
+     * @return
+     */
+    public ConfigBean getReportRaw(ID reportId) {
+        return getReportRaw(reportId, null);
+    }
+
+    /**
+     * @param reportId
+     * @return
+     * @see #getReportsRaw(Entity)
+     */
+    private ConfigBean getReportRaw(ID reportId, Entity entity) {
+        if (entity == null) {
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(reportId, "belongEntity");
+            if (o == null || !MetadataHelper.containsEntity((String) o[0])) {
+                throw new ConfigurationException("No config of report found : " + reportId);
+            }
+            entity = MetadataHelper.getEntity((String) o[0]);
         }
 
-        return getTemplateFile(MetadataHelper.getEntity((String) o[0]), reportId);
+        ConfigBean[] cbs = getReportsRaw(entity);
+        for (ConfigBean cb : cbs) {
+            if (reportId.equals(cb.getID("id"))) return cb;
+        }
+        throw new ConfigurationException("No config of report found : " + reportId);
     }
 
     @Override
@@ -199,7 +216,7 @@ public class DataReportManager implements ConfigManager {
      * @param fileName
      * @return
      */
-    public static String getReportName(ID reportId, Object idOrEntity, String fileName) {
+    public static String getPrettyReportName(ID reportId, Object idOrEntity, String fileName) {
         final Entity be = idOrEntity instanceof ID
                 ? MetadataHelper.getEntity(((ID) idOrEntity).getEntityCode())
                 : MetadataHelper.getEntity((String) idOrEntity);

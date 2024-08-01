@@ -168,7 +168,7 @@ public class ReportTemplateController extends BaseController {
             tt = new TemplateFile(RebuildConfiguration.getFileOfData(template), MetadataHelper.getEntity(entity), type, true, null);
         } else {
             // 使用配置
-            tt = DataReportManager.instance.getTemplateFile(reportId);
+            tt = DataReportManager.instance.buildTemplateFile(reportId);
         }
 
         String sql = String.format("select %s from %s order by modifiedOn desc",
@@ -233,7 +233,7 @@ public class ReportTemplateController extends BaseController {
 
     @GetMapping("/report-templates/download")
     public void download(@IdParam ID reportId, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        File template = DataReportManager.instance.getTemplateFile(reportId).templateFile;
+        File template = DataReportManager.instance.buildTemplateFile(reportId).templateFile;
         String attname = QiniuCloud.parseFileName(template.getName());
 
         FileDownloader.setDownloadHeaders(request, response, attname, false);

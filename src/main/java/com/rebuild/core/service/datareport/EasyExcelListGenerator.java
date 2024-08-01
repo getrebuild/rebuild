@@ -113,9 +113,9 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
      * @return
      */
     public static EasyExcelListGenerator create(ID reportId, JSONObject queryData) {
-        TemplateFile tb = DataReportManager.instance.getTemplateFile(
-                MetadataHelper.getEntity(queryData.getString("entity")), reportId);
-        return create(tb.templateFile, queryData);
+        TemplateFile tt = DataReportManager.instance.buildTemplateFile(
+                reportId, MetadataHelper.getEntity(queryData.getString("entity")));
+        return create(tt.templateFile, queryData);
     }
 
     /**
