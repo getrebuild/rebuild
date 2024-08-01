@@ -507,6 +507,7 @@ class FieldsPrivilegesPane extends React.Component {
           <label>{$L('不可新建字段')}</label>
           <select className="form-control form-control-sm" multiple ref={(c) => (this._$create = c)}>
             {_fields.map((item) => {
+              if (item.creatable === false) return null
               return (
                 <option key={item.name} value={item.name} disabled={item.creatable === false}>
                   {item.label}
@@ -531,6 +532,7 @@ class FieldsPrivilegesPane extends React.Component {
           <label>{$L('不可编辑字段')}</label>
           <select className="form-control form-control-sm" multiple ref={(c) => (this._$update = c)}>
             {_fields.map((item) => {
+              if (item.updatable === false) return null
               return (
                 <option key={item.name} value={item.name} disabled={item.updatable === false}>
                   {item.label}
