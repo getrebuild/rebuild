@@ -1719,6 +1719,7 @@ class RbFormImage extends RbFormElement {
           disposeOnHide
           type={this._captureTypeMedia || 'image'}
           forceFile
+          watermark={window.__LAB_CAPTUREWATERMARK}
           callback={(fileKey) => {
             const paths = this.state.value || []
             if (paths.length < this.__maxUpload) {
