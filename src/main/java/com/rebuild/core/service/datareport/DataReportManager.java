@@ -129,6 +129,37 @@ public class DataReportManager implements ConfigManager {
 
     /**
      * @param reportId
+     * @return
+     * @see #getReportsRaw(Entity)
+     */
+    private ConfigBean getReportRaw(ID reportId, Entity entity) {
+        if (entity == null) {
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(reportId, "belongEntity");
+            if (o == null || !MetadataHelper.containsEntity((String) o[0])) {
+                throw new ConfigurationException("No config of report found : " + reportId);
+            }
+            entity = MetadataHelper.getEntity((String) o[0]);
+        }
+
+        ConfigBean[] cbs = getReportsRaw(entity);
+        for (ConfigBean cb : cbs) {
+            if (reportId.equals(cb.getID("id"))) return cb;
+        }
+        throw new ConfigurationException("No config of report found : " + reportId);
+    }
+
+    /**
+     * 获取报表配置
+     *
+     * @param reportId
+     * @return
+     */
+    public ConfigBean getReportRaw(ID reportId) {
+        return getReportRaw(reportId, null);
+    }
+
+    /**
+     * @param reportId
      * @param entity
      * @return
      */
@@ -172,37 +203,6 @@ public class DataReportManager implements ConfigManager {
         return buildTemplateFile(reportId, null);
     }
 
-    /**
-     * 获取报表配置
-     *
-     * @param reportId
-     * @return
-     */
-    public ConfigBean getReportRaw(ID reportId) {
-        return getReportRaw(reportId, null);
-    }
-
-    /**
-     * @param reportId
-     * @return
-     * @see #getReportsRaw(Entity)
-     */
-    private ConfigBean getReportRaw(ID reportId, Entity entity) {
-        if (entity == null) {
-            Object[] o = Application.getQueryFactory().uniqueNoFilter(reportId, "belongEntity");
-            if (o == null || !MetadataHelper.containsEntity((String) o[0])) {
-                throw new ConfigurationException("No config of report found : " + reportId);
-            }
-            entity = MetadataHelper.getEntity((String) o[0]);
-        }
-
-        ConfigBean[] cbs = getReportsRaw(entity);
-        for (ConfigBean cb : cbs) {
-            if (reportId.equals(cb.getID("id"))) return cb;
-        }
-        throw new ConfigurationException("No config of report found : " + reportId);
-    }
-
     @Override
     public void clean(Object entity) {
         final String cKey = "DataReportManager38-" + ((Entity) entity).getName();
@@ -224,26 +224,20 @@ public class DataReportManager implements ConfigManager {
                 ? MetadataHelper.getEntity(((ID) idOrEntity).getEntityCode())
                 : MetadataHelper.getEntity((String) idOrEntity);
 
-        String name = null;
-        for (ConfigBean cb : DataReportManager.instance.getReportsRaw(be)) {
-            if (cb.getID("id").equals(reportId)) {
-                name = cb.getString("name");
-                if (ContentWithFieldVars.matchsVars(name).isEmpty()) {
-                    name = String.format("%s-%s", name, CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()));
-                } else if (idOrEntity instanceof ID) {
-                    name = ContentWithFieldVars.replaceWithRecord(name, (ID) idOrEntity);
-                }
-
-                // Suffix
-                if (fileName.endsWith(".pdf")) name += ".pdf";
-                else if (fileName.endsWith(".docx")) name += ".docx";
-                else if (fileName.endsWith(".doc")) name += ".doc";
-                else if (fileName.endsWith(".xlsx")) name += ".xlsx";
-                else if (fileName.endsWith(".xls")) name += ".xls";
-                else if (fileName.endsWith(".csv")) name += ".csv";
-                break;
-            }
+        ConfigBean conf = DataReportManager.instance.getReportRaw(reportId, be);
+        String name = conf.getString("name");
+        if (ContentWithFieldVars.matchsVars(name).isEmpty()) {
+            name = String.format("%s-%s", name, CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()));
+        } else if (idOrEntity instanceof ID) {
+            name = ContentWithFieldVars.replaceWithRecord(name, (ID) idOrEntity);
         }
+        // Suffix
+        if (fileName.endsWith(".pdf")) name += ".pdf";
+        else if (fileName.endsWith(".docx")) name += ".docx";
+        else if (fileName.endsWith(".doc")) name += ".doc";
+        else if (fileName.endsWith(".xlsx")) name += ".xlsx";
+        else if (fileName.endsWith(".xls")) name += ".xls";
+        else if (fileName.endsWith(".csv")) name += ".csv";
 
         return StringUtils.defaultIfBlank(name, "UNTITLE");
     }
