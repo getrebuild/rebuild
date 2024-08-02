@@ -143,8 +143,8 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         }
 
         if (!allowed) {
-            log.warn("User [ {} ] not allowed execute action [ {} ]. "
-                    + (recordId == null ? "Entity : " + entity : "Record : " + recordId), caller, action);
+            log.warn("User [ {} ] not allowed execute action [ {} ]. {}",
+                    caller, action, recordId == null ? "Entity : " + entity : "Record : " + recordId);
 
             if (errorMsg == null) errorMsg = formatHumanMessage(action, entity, recordId);
             throw new AccessDeniedException(errorMsg);
