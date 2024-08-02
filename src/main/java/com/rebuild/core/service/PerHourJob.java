@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.ServerStatus;
+import com.rebuild.core.service.general.recyclebin.RecycleBinCleanerJob;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -128,6 +129,7 @@ public class PerHourJob extends DistributedJobLock {
 
     /**
      * TODO 清理系统级引用
+     * @see RecycleBinCleanerJob
      */
     protected void doCleanSystemRefs() {
     }

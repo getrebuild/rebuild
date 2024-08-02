@@ -286,7 +286,7 @@
 
     <entity name="RobotApprovalStep" type-code="029" description="审批流程步骤" queryable="false">
         <field name="stepId" type="primary"/>
-        <field name="recordId" type="any-reference" nullable="false" updatable="false" description="审批记录"/>
+        <field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="审批记录"/>
         <field name="approvalId" type="reference" ref-entity="RobotApprovalConfig" nullable="false" updatable="false" description="审批流程"/>
         <field name="node" type="string" max-length="100" nullable="false" updatable="false" description="审批节点"/>
         <field name="approver" type="reference" ref-entity="User" nullable="false" updatable="false" description="审批人"/>
@@ -314,7 +314,7 @@
 
     <entity name="RobotSopStep" type-code="071" description="业务进度记录" queryable="false">
         <field name="stepId" type="primary"/>
-        <field name="recordId" type="any-reference" nullable="false" updatable="false" description="业务记录"/>
+        <field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="业务记录"/>
         <field name="sopId" type="reference" ref-entity="RobotSopConfig" nullable="false" updatable="false" description="业务进度"/>
         <field name="node" type="string" max-length="100" nullable="false" updatable="false" description="进度节点"/>
         <field name="operator" type="reference" ref-entity="User" nullable="false" updatable="false" description="操作人"/>
@@ -361,12 +361,12 @@
     <entity name="RecycleBin" type-code="033" name-field="recordName" description="回收站" queryable="false" parent="false">
         <field name="recycleId" type="primary"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="所属实体"/>
-        <field name="recordId" type="any-reference" nullable="false" updatable="false" description="ID 字段值" cascade="ignore"/>
+        <field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="ID 字段值"/>
         <field name="recordName" type="string" max-length="191" nullable="false" updatable="false" description="名称字段值"/>
         <field name="recordContent" type="ntext" nullable="false" updatable="false" description="数据"/>
         <field name="deletedBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="删除人"/>
         <field name="deletedOn" type="timestamp" nullable="false" updatable="false" description="删除时间"/>
-        <field name="channelWith" type="any-reference" updatable="false" description="删除渠道 (空为直接删除, 否则为关联删除)" cascade="ignore"/>
+        <field name="channelWith" type="any-reference" updatable="false" cascade="ignore" description="删除渠道 (空为直接删除, 否则为关联删除)"/>
         <index field-list="belongEntity,recordName,deletedBy,deletedOn"/>
         <index field-list="recordId,channelWith"/>
     </entity>
@@ -451,7 +451,7 @@
         <field name="contentMore" type="text" description="附加内容" queryable="false"/>
         <field name="images" type="string" max-length="700" description="图片" extra-attrs="{displayType:'IMAGE'}"/>
         <field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}"/>
-        <field name="relatedRecord" type="any-reference" description="相关记录" cascade="ignore"/>
+        <field name="relatedRecord" type="any-reference" cascade="ignore" description="相关记录"/>
         <field name="scheduleTime" type="timestamp" description="日程时间"/>
         <field name="scope" type="string" max-length="20" default-value="ALL" description="可见范围 (ALL/SELF/$TeamID)" queryable="false"/>
         <field name="autoLocation" type="string" max-length="100" description="发布位置" extra-attrs="{displayType:'LOCATION'}"/>
@@ -472,7 +472,7 @@
 
     <entity name="FeedsLike" type-code="042" description="动态点赞" parent="false" queryable="false">
         <field name="likeId" type="primary"/>
-        <field name="source" type="any-reference" ref-entity="Feeds,FeedsComment" nullable="false" updatable="false" description="哪个动态/评论" cascade="delete"/>
+        <field name="source" type="any-reference" ref-entity="Feeds,FeedsComment" nullable="false" updatable="false" cascade="delete" description="哪个动态/评论"/>
         <field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人"/>
         <field name="createdOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="创建时间"/>
         <index field-list="source,createdBy"/>
@@ -536,7 +536,7 @@
         <field name="description" type="text" description="备注" queryable="false"/>
         <field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}"/>
         <field name="parentTaskId" type="reference" ref-entity="ProjectTask" description="父级任务" queryable="false"/>
-        <field name="relatedRecord" type="any-reference" description="相关记录" cascade="ignore"/>
+        <field name="relatedRecord" type="any-reference" cascade="ignore" description="相关记录"/>
         <field name="seq" type="int" default-value="0" description="排序 (小到大)" queryable="false"/>
         <index field-list="projectId,projectPlanId,seq"/>
         <index field-list="projectId,taskNumber,taskName,status"/>

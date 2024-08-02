@@ -149,6 +149,9 @@ public class BarCodeSupport {
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);
         hints.put(EncodeHintType.MARGIN, 1);
 
+        if (width > 1200) width = 1200;
+        if (height > 1200) height = 1200;
+
         try {
             if (format == BarcodeFormat.QR_CODE) {
                 width = height = Math.max(width, height);
