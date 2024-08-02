@@ -738,21 +738,39 @@ const RbViewPage = {
     $.get(`/app/entity/extras/record-history?id=${this.__id}`, (res) => {
       if (res.error_code !== 0) return
 
+      // v3.8 合并显示
+      let _data = []
+      let prev
+      res.data.forEach((item) => {
+        // 同样的合并
+        if (prev && prev.revisionType === item.revisionType && prev.revisionBy[0] === item.revisionBy[0]) {
+          let diff = $moment(item.revisionOn).diff($moment(prev.revisionOn), 'seconds')
+          if (Math.abs(diff) < 30) {
+            prev._merged = (prev._merged || 1) + 1
+            return
+          }
+        }
+        _data.push(item)
+        prev = item
+      })
+
       $into.empty()
-      res.data.forEach((item, idx) => {
-        const content = $L('**%s** 由 %s %s', $fromNow(item.revisionOn), item.revisionBy[1], item.revisionType)
+      _data.forEach((item, idx) => {
+        let content = $L('**%s** 由 %s %s', $fromNow(item.revisionOn), item.revisionBy[1], item.revisionType)
+        if (item._merged > 1) content += ` <sup>${item._merged}</sup>`
+
         const $item = $(`<li>${content}</li>`).appendTo($into)
         $item.find('b:eq(0)').attr('title', item.revisionOn)
         if (idx > 9) $item.addClass('hide')
       })
 
-      if (res.data.length > 10) {
+      if (_data.length > 10) {
         $into.after(`<a href="javascript:;" class="J_mores">${$L('显示更多')}</a>`)
         $('.view-history .J_mores').on('click', function () {
           $into.find('li.hide').removeClass('hide')
           $(this).addClass('hide')
         })
-      } else if (res.data.length === 0) {
+      } else if (_data.length === 0) {
         $(`<li>${$L('无')}</li>`).appendTo($into)
       }
 
