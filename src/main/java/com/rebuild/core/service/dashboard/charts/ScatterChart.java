@@ -11,7 +11,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +52,7 @@ public class ScatterChart extends ChartData {
 
         } else {
             for (Dimension dim : dims) {
-                Object[][] dataRaw = createQuery(buildSql(dim, nums)).array();
+                Object[][] dataRaw = createQuery(buildSql(dim, nums, false)).array();
                 for (Object[] item : dataRaw) {
                     String label = wrapAxisValue(dim, item[0]);
                     for (int i = 1; i < item.length; i++) {
@@ -79,5 +81,18 @@ public class ScatterChart extends ChartData {
         return JSONUtils.toJSONObject(
                 new String[]{"series", "dataLabel", "_renderOption"},
                 new Object[]{series, dataLabel, renderOption});
+    }
+
+    private String buildSql(Numerical[] nums) {
+        List<String> numSqlItems = new ArrayList<>();
+        for (Numerical num : nums) {
+            numSqlItems.add(num.getSqlName());
+        }
+
+        String sql = "select {0} from {1} where {2}";
+        sql = MessageFormat.format(sql,
+                StringUtils.join(numSqlItems, ", "),
+                getSourceEntity().getName(), getFilterSql());
+        return appendSqlSort(sql);
     }
 }

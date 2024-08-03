@@ -47,7 +47,7 @@ public class LineChart extends ChartData {
         Numerical[] nums = getNumericals();
         final Dimension dim1 = dims[0];
 
-        // 部分支持
+        // 日期连续仅部分支持
         final Type dim1Type = dim1.getField().getType();
         final FormatCalc dim1Calc = dim1.getFormatCalc();
         boolean dateContinuous = renderOption.getBooleanValue("dateContinuous")
@@ -58,14 +58,14 @@ public class LineChart extends ChartData {
         JSONArray yyyAxis = new JSONArray();
         List<String> dataFlags = new ArrayList<>();
 
-        // 2DIM + 1NUM
+        // 模式1: 2-DIM + 1-NUM
         // FIXME 多余AXIS会舍弃
         if (dims.length > 1) {
             Numerical num1 = nums[0];
             Object[][] dataRaw = createQuery(buildSql(dims, num1)).array();
             // 连续日期
             if (dateContinuous && dataRaw.length > 0) {
-                dataRaw = putFullDates2Data(dataRaw, dim1, 2);
+                dataRaw = putContinuousDate2Data(dataRaw, dim1, 2);
             }
 
             List<Object> dim1Set = new ArrayList<>();
@@ -118,12 +118,27 @@ public class LineChart extends ChartData {
                 dataFlags.add(num1Flag);
             }
         }
-        // 1DIM + 多NUM
+        // 模式2: 1-DIM + N-NUM
         else {
-            Object[][] dataRaw = createQuery(buildSql(dim1, nums)).array();
+            Object[][] dataRaw;
+            if (nums.length > 1 && hasNumericalFilter(nums)) {
+                // 1.分别查询
+                List<AxisEntry> axisValues = new ArrayList<>();
+                int indexAndSize = 0;
+                for (Numerical num : nums) {
+                    Object[][] array = createQuery(buildSql(dim1, new Numerical[]{num}, true)).array();
+                    for (Object[] o : array) axisValues.add(new AxisEntry(o, indexAndSize));
+                    indexAndSize++;
+                }
+
+                dataRaw = mergeAxisEntry2Data(axisValues, indexAndSize);
+            } else {
+                dataRaw = createQuery(buildSql(dim1, nums, false)).array();
+            }
+
             // 连续日期
             if (dateContinuous && dataRaw.length > 0) {
-                dataRaw = putFullDates2Data(dataRaw, dim1, 1);
+                dataRaw = putContinuousDate2Data(dataRaw, dim1, 1);
             }
 
             Object[] numsAxis = new Object[nums.length];
@@ -161,7 +176,7 @@ public class LineChart extends ChartData {
                 new Object[]{JSON.toJSON(dimAxis), JSON.toJSON(yyyAxis), renderOption});
     }
 
-    private Object[][] putFullDates2Data(Object[][] dataRaw, Dimension date1, int numStartIndex) {
+    private Object[][] putContinuousDate2Data(Object[][] dataRaw, Dimension date1, int numStartIndex) {
         Date min = null;
         Date max = null;
         for (Object[] o : dataRaw) {

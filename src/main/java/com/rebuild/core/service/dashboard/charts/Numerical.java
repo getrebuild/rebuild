@@ -9,8 +9,9 @@ package com.rebuild.core.service.dashboard.charts;
 
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.service.query.ParseHelper;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -21,7 +22,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class Numerical extends Axis {
 
-    private JSONObject filter;
+    private JSONObject filter = null;
     private int scale = 2;
 
     /**
@@ -37,7 +38,7 @@ public class Numerical extends Axis {
                         JSONObject filter, Field parentField) {
         super(field, sort, calc, label, parentField);
         if (scale != null) this.scale = scale;
-        this.filter = filter;
+        if (ParseHelper.validAdvFilter(filter)) this.filter = filter;
     }
 
     /**
