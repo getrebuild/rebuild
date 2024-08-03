@@ -2040,6 +2040,7 @@ class RbFormReference extends RbFormElement {
           }
           return $span
         },
+        appendClass: 'select2-option-relative',
       })
 
       const val = this.state.value
@@ -2382,6 +2383,7 @@ class RbFormClassification extends RbFormElement {
           res.code && $(`<em>${res.code}</em>`).appendTo($span)
           return $span
         },
+        appendClass: 'select2-option-relative',
       })
 
       const value = this.state.value

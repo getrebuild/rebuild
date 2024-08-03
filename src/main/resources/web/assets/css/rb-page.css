@@ -5444,14 +5444,14 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   padding-top: 2px;
 }
 
-.select2-container--default .select2-results__option {
+.select2-container--default.select2-option-relative .select2-results__option {
   position: relative;
 }
 
 .select2-results span.code-append > em,
 .select2-results span.code-append > a {
   position: absolute;
-  right: 10px;
+  right: 9px;
   width: 41px;
   overflow: hidden;
   color: rgba(0, 0, 0, 0.4) !important;
@@ -5463,7 +5463,7 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
 .select2-results span.code-append > a {
   width: 27px;
   right: 1px;
-  padding-right: 10px;
+  padding-right: 9px;
   font-size: 1rem;
 }
 
