@@ -13,8 +13,9 @@ class ClassificationSelector extends React.Component {
   constructor(props) {
     super(props)
 
-    this._select = []
-    this._select2 = []
+    this._$select = []
+    this._$select2 = []
+    this._codes = []
     this.state = { openLevel: props.openLevel || 0, datas: [] }
   }
 
@@ -31,10 +32,10 @@ class ClassificationSelector extends React.Component {
             <div className="modal-body">
               <h5 className="mt-0 text-bold">{$L('选择%s', this.props.label)}</h5>
               <div>
-                <select ref={(c) => this._select.push(c)} className="form-control form-control-sm">
+                <select ref={(c) => this._$select.push(c)} className="form-control form-control-sm">
                   {(this.state.datas[0] || []).map((item) => {
                     return (
-                      <option key={'item-' + item[0]} value={item[0]}>
+                      <option key={`item0-${item[0]}`} value={item[0]}>
                         {item[1]}
                       </option>
                     )
@@ -43,10 +44,10 @@ class ClassificationSelector extends React.Component {
               </div>
               {this.state.openLevel >= 1 && (
                 <div>
-                  <select ref={(c) => this._select.push(c)} className="form-control form-control-sm">
+                  <select ref={(c) => this._$select.push(c)} className="form-control form-control-sm">
                     {(this.state.datas[1] || []).map((item) => {
                       return (
-                        <option key={'item-' + item[0]} value={item[0]}>
+                        <option key={`item1-${item[0]}`} value={item[0]}>
                           {item[1]}
                         </option>
                       )
@@ -56,10 +57,10 @@ class ClassificationSelector extends React.Component {
               )}
               {this.state.openLevel >= 2 && (
                 <div>
-                  <select ref={(c) => this._select.push(c)} className="form-control form-control-sm">
+                  <select ref={(c) => this._$select.push(c)} className="form-control form-control-sm">
                     {(this.state.datas[2] || []).map((item) => {
                       return (
-                        <option key={'item-' + item[0]} value={item[0]}>
+                        <option key={`item2-${item[0]}`} value={item[0]}>
                           {item[1]}
                         </option>
                       )
@@ -69,10 +70,10 @@ class ClassificationSelector extends React.Component {
               )}
               {this.state.openLevel >= 3 && (
                 <div>
-                  <select ref={(c) => this._select.push(c)} className="form-control form-control-sm">
+                  <select ref={(c) => this._$select.push(c)} className="form-control form-control-sm">
                     {(this.state.datas[3] || []).map((item) => {
                       return (
-                        <option key={'item-' + item[0]} value={item[0]}>
+                        <option key={`item3-${item[0]}`} value={item[0]}>
                           {item[1]}
                         </option>
                       )
@@ -104,42 +105,53 @@ class ClassificationSelector extends React.Component {
     })
 
     const that = this
-    $(this._select).each(function (idx) {
+    $(this._$select).each(function (idx) {
       const s = $(this)
         .select2({
           placeholder: $L('选择 %d 级分类', idx + 1),
           allowClear: false,
+          templateResult: function (res) {
+            const $span = $('<span class="code-append"></span>').attr('title', res.text).text(res.text)
+            that._codes[res.id] && $(`<em>${that._codes[res.id]}</em>`).appendTo($span)
+            return $span
+          },
         })
         .on('change', () => {
           const p = $(s).val()
-          if (p) {
-            if (s.__level < that.state.openLevel) {
-              that._loadData(s.__level + 1, p) // Load next-level
-            }
+          if (p && s.__level < that.state.openLevel) {
+            that._loadData(s.__level + 1, p) // Load next-level
           }
         })
+
       s.__level = idx
-      that._select2.push(s)
+      that._$select2.push(s)
     })
+
+    // init
     this._loadData(0)
   }
 
   _loadData(level, p) {
     $.get(`/commons/metadata/classification?entity=${this.props.entity}&field=${this.props.field}&parent=${p || ''}`, (res) => {
+      res.data &&
+        res.data.forEach((item) => {
+          this._codes[item[0]] = item[2]
+        })
+
       const s = this.state.datas
       s[level] = res.data
-      this.setState({ datas: s }, () => this._select2[level].trigger('change'))
+      this.setState({ datas: s }, () => this._$select2[level].trigger('change'))
     })
   }
 
   confirm() {
-    const last = this._select2[this.state.openLevel]
+    const last = this._$select2[this.state.openLevel]
     const v = last.val()
     if (!v) {
       RbHighbar.create($L('请选择%s', this.props.label))
     } else {
       const text = []
-      $(this._select2).each(function () {
+      $(this._$select2).each(function () {
         text.push(this.select2('data')[0].text)
       })
 

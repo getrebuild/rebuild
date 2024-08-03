@@ -70,6 +70,15 @@ public class ClassificationManager implements ConfigManager {
      * @param itemId
      * @return
      */
+    public String getCode(ID itemId) {
+        Item item = getItem(itemId);
+        return item == null ? null : item.Code;
+    }
+
+    /**
+     * @param itemId
+     * @return
+     */
     private Item getItem(ID itemId) {
         final String ckey = "ClassificationITEM38-" + itemId;
         Item ditem = (Item) Application.getCommonsCache().getx(ckey);
