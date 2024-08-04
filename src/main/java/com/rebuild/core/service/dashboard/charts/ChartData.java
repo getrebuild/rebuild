@@ -37,8 +37,10 @@ import org.apache.commons.lang.StringUtils;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -205,16 +207,16 @@ public abstract class ChartData extends SetUser implements ChartSpec {
     /**
      * 获取过滤 SQL
      *
+     * @param withNumericalFilter
      * @return
      */
-    protected String getFilterSql(Numerical withAxisFilter) {
-        String where = getFilterSql();
-        if (withAxisFilter != null && ParseHelper.validAdvFilter(withAxisFilter.getFilter())) {
-            AdvFilterParser filterParser = new AdvFilterParser(withAxisFilter.getFilter());
-            String fieldWhere = filterParser.toSqlWhere();
-            if (fieldWhere != null) where = String.format("((%s) and (%s))", where, fieldWhere);
+    protected String getFilterSql(Numerical withNumericalFilter) {
+        String filterSql = getFilterSql();
+        if (withNumericalFilter != null && withNumericalFilter.getFilter() != null) {
+            String filter = new AdvFilterParser(withNumericalFilter.getFilter()).toSqlWhere();
+            if (filter != null) filterSql = String.format("((%s) and (%s))", filterSql, filter);
         }
-        return where;
+        return filterSql;
     }
 
     /**
@@ -438,9 +440,10 @@ public abstract class ChartData extends SetUser implements ChartSpec {
      *
      * @param dim
      * @param nums
+     * @param withFilter
      * @return
      */
-    protected String buildSql(Dimension dim, Numerical[] nums) {
+    protected String buildSql(Dimension dim, Numerical[] nums, boolean withFilter) {
         List<String> numSqlItems = new ArrayList<>();
         for (Numerical num : nums) {
             numSqlItems.add(num.getSqlName());
@@ -450,7 +453,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
         sql = MessageFormat.format(sql,
                 dim.getSqlName(),
                 StringUtils.join(numSqlItems, ", "),
-                getSourceEntity().getName(), getFilterSql());
+                getSourceEntity().getName(), getFilterSql(withFilter ? nums[0] : null));
         return appendSqlSort(sql);
     }
 
@@ -496,25 +499,6 @@ public abstract class ChartData extends SetUser implements ChartSpec {
     }
 
     /**
-     * [1-9]N
-     *
-     * @param nums
-     * @return
-     */
-    protected String buildSql(Numerical[] nums) {
-        List<String> numSqlItems = new ArrayList<>();
-        for (Numerical num : nums) {
-            numSqlItems.add(num.getSqlName());
-        }
-
-        String sql = "select {0} from {1} where {2}";
-        sql = MessageFormat.format(sql,
-                StringUtils.join(numSqlItems, ", "),
-                getSourceEntity().getName(), getFilterSql());
-        return appendSqlSort(sql);
-    }
-
-    /**
      * @param num
      * @param withFilter
      * @return
@@ -537,5 +521,54 @@ public abstract class ChartData extends SetUser implements ChartSpec {
         String sorts = getSortSql();
         if (sorts != null) sql += " order by " + sorts;
         return sql;
+    }
+
+    /**
+     * @param nums
+     * @return
+     * @see Numerical#getFilter()
+     */
+    protected boolean hasNumericalFilter(Numerical[] nums) {
+        for (Numerical num : nums) {
+            if (num.getFilter() != null) return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param axisValues
+     * @param indexAndSize
+     * @return
+     */
+    protected Object[][] mergeAxisEntry2Data(List<AxisEntry> axisValues, int indexAndSize) {
+        // 1.同组合并
+        Map<String, AxisEntry[]> merged = new LinkedHashMap<>();
+        for (AxisEntry e : axisValues) {
+            AxisEntry[] eee = merged.computeIfAbsent(e.getKey(), k -> new AxisEntry[indexAndSize]);
+            eee[e.getIndex()] = e;
+        }
+
+        // 2.数据合并
+        int startIndex = getDimensions().length;
+        List<Object[]> dataRawList = new ArrayList<>();
+        for (AxisEntry[] group : merged.values()) {
+            AxisEntry keyItem = group[0];
+            for (AxisEntry item : group) {
+                if (keyItem != null) break;
+                keyItem = item;
+            }
+
+            Object[] data = keyItem.getKeyRaw();
+            data = Arrays.copyOf(data, startIndex + indexAndSize);
+
+            for (AxisEntry item : group) {
+                if (item != null) {
+                    data[startIndex + item.getIndex()] = item.getValue();
+                }
+            }
+            dataRawList.add(data);
+        }
+
+        return dataRawList.toArray(new Object[0][]);
     }
 }

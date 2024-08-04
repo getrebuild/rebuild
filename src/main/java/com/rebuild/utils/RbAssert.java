@@ -22,10 +22,9 @@ public class RbAssert {
      * @param message
      */
     public static void isCommercial(String message) {
-        if (!License.isCommercial()) {
-            if (message == null) message = Language.L("免费版不支持此功能");
-            throw new NeedRbvException(message);
-        }
+        if (License.isRbvAttached()) return;
+        if (message == null) message = Language.L("免费版不支持此功能");
+        throw new NeedRbvException(message);
     }
     
     /**

@@ -412,6 +412,7 @@ const _handleSeries = function () {
               .attr('placeholder', $L('留空则重置为 0 (当前值 %s)', res.data || 0))
           })
         },
+        countdown: 0,
       })
     })
 }

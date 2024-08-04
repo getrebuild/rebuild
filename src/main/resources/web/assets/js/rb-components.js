@@ -254,12 +254,15 @@ class RbAlert extends React.Component {
   }
 
   render() {
+    const style1 = {}
     const style2 = {}
+    if (this.props.zIndex) style1.zIndex = this.props.zIndex
     if (this.props.width) style2.maxWidth = ~~this.props.width
 
     return (
       <div
         className="modal rbalert"
+        style={style1}
         ref={(c) => {
           this._dlg = c
           this._element = c

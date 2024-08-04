@@ -261,7 +261,7 @@ public class ProtocolFilterParser {
                     relatedField.getOwnEntity().getPrimaryField().getName(), relatedField.getName(), mainid);
         }
 
-        // 附件过滤条件
+        // 附加过滤条件
 
         Map<String, JSONObject> vtabFilters = ViewAddonsManager.instance.getViewTabFilters(
                 MetadataHelper.getEntity(mainid.getEntityCode()).getName());

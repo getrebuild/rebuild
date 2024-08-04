@@ -1416,7 +1416,7 @@ a.link.link-icon::after {
   color: #878787;
   line-height: 1.41;
   margin-top: 6px;
-  margin-bottom: -4px;
+  margin-bottom: -3px;
 }
 
 .rbform .type-IMAGE .form-text,
@@ -4792,7 +4792,7 @@ pre.unstyle {
   content: '\F0339';
   right: 12px;
   margin-top: 12px;
-  font: normal normal normal 14px/1 "Material Design Icons";
+  font: normal normal normal 14px/1 'Material Design Icons';
   color: #aaa;
   display: none;
 }
@@ -5437,21 +5437,38 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   display: inline-block;
 }
 
-span.icon-append .icon {
+.select2-results span.icon-append .icon {
   float: left;
   width: 22px;
   font-size: 1.2rem;
   padding-top: 2px;
 }
 
-span.code-append > em {
-  float: right;
-  width: 50px;
+.select2-container--default.select2-option-relative .select2-results__option {
+  position: relative;
+}
+
+.select2-results span.code-append > em,
+.select2-results span.code-append > a {
+  position: absolute;
+  right: 9px;
+  width: 41px;
   overflow: hidden;
-  color: rgba(0, 0, 0, 0.4);
+  color: rgba(0, 0, 0, 0.4) !important;
   font-style: normal;
   font-size: 12px;
   text-align: right;
+}
+
+.select2-results span.code-append > a {
+  width: 27px;
+  right: 1px;
+  padding-right: 9px;
+  font-size: 1rem;
+}
+
+.select2-results span.code-append > a:hover {
+  color: rgba(255, 255, 255, 0.8) !important;
 }
 
 .tooltip {

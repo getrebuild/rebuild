@@ -21,7 +21,7 @@ class MediaCapturer extends RbModal {
     // 1024, 768
     this._videoWidth = props.width || _IDEAL_VIDW
     // https://developer.mozilla.org/en-US/docs/Web/API/ImageCapture
-    this._useImageCapture = null
+    this._useImageCapture = props.watermark ? false : null
   }
 
   renderContent() {

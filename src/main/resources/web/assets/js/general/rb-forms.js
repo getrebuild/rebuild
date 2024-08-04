@@ -1719,6 +1719,7 @@ class RbFormImage extends RbFormElement {
           disposeOnHide
           type={this._captureTypeMedia || 'image'}
           forceFile
+          watermark={window.__LAB_CAPTUREWATERMARK}
           callback={(fileKey) => {
             const paths = this.state.value || []
             if (paths.length < this.__maxUpload) {
@@ -2027,6 +2028,19 @@ class RbFormReference extends RbFormElement {
           return cascadingValue ? { cascadingValue, ...query } : query
         },
         placeholder: this._placeholderw,
+        templateResult: function (res) {
+          const $span = $('<span class="code-append"></span>').attr('title', res.text).text(res.text)
+          if (res.id) {
+            $(`<a title="${$L('在新页面打开')}"><i class="zmdi zmdi-open-in-new"></i></a>`)
+              .appendTo($span)
+              .on('mousedown', (e) => {
+                $stopEvent(e, true)
+                window.open(`${rb.baseUrl}/app/redirect?id=${res.id}&type=newtab`)
+              })
+          }
+          return $span
+        },
+        appendClass: 'select2-option-relative',
       })
 
       const val = this.state.value
@@ -2369,6 +2383,7 @@ class RbFormClassification extends RbFormElement {
           res.code && $(`<em>${res.code}</em>`).appendTo($span)
           return $span
         },
+        appendClass: 'select2-option-relative',
       })
 
       const value = this.state.value

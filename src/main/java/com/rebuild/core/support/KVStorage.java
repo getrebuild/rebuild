@@ -119,6 +119,10 @@ public class KVStorage {
      */
     protected static String getValue(final String key, boolean noCache, Object defaultValue) {
         String value = null;
+        // be:v3.8
+        if (ConfigurationItem.inJvmArgs(key)) {
+            return BootEnvironmentPostProcessor.getProperty(key);
+        }
 
         if (Application.isReady()) {
             // 0. 从缓存

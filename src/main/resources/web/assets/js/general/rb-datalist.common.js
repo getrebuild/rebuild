@@ -2267,7 +2267,7 @@ class AsideTree4Category extends React.Component {
 
   render() {
     return (
-      <div className={`aside-2tree ${!this.state._allowChild && 'hide-collapse'}`}>
+      <div className={`aside-2tree ${!this.state._allowChild && 'hide-collapse'}`} ref={(c) => (this._$element = c)}>
         <ul className="list-unstyled m-0 ">
           {this.state.datas &&
             this.state.datas.map((item) => {
@@ -2286,7 +2286,9 @@ class AsideTree4Category extends React.Component {
     $.get(`/app/${this.props.entity}/widget-category-data`, (res) => {
       const _data = res.data || {}
       const datas = [{ id: CategoryWidget.__ALL, text: $L('全部数据'), hasChild: false }, ...(_data.data || [])]
-      this.setState({ datas: datas, _allowChild: _data.hasChild })
+      this.setState({ datas: datas, _allowChild: _data.hasChild }, () => {
+        $(this._$element).find('li:eq(0)').addClass('active')
+      })
     })
   }
 

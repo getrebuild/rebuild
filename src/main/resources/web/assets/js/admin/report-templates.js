@@ -329,7 +329,13 @@ class ReportEditor extends ConfigFormDlg {
   checkTemplate(e) {
     if (e) {
       this.setState({ reportType: ~~e.target.value }, () => {
-        $('.J_pw3').attr('disabled', this.state.reportType === 3)
+        if (this.state.reportType === 3) {
+          $('.J_pw3').addClass('hide')
+          $(this._btns).find('.btn-primary').text($L('下一步'))
+        } else {
+          $('.J_pw3').removeClass('hide')
+          $(this._btns).find('.btn-primary').text($L('确定'))
+        }
       })
     }
 

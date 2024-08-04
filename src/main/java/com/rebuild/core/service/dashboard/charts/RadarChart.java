@@ -36,7 +36,7 @@ public class RadarChart extends ChartData {
         Numerical[] nums = getNumericals();
 
         Dimension dim1 = dims[0];
-        Object[][] dataRaw = createQuery(buildSql(dim1, nums)).array();
+        Object[][] dataRaw = createQuery(buildSql(dim1, nums, false)).array();
 
         JSONArray indicator = new JSONArray();
 

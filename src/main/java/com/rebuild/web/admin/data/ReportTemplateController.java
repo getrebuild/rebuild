@@ -156,7 +156,7 @@ public class ReportTemplateController extends BaseController {
         return RespBody.ok(res);
     }
 
-    @GetMapping("/report-templates/preview")
+    @RequestMapping("/report-templates/preview")
     public ModelAndView preview(@IdParam(required = false) ID reportId,
                         HttpServletRequest request, HttpServletResponse response) throws IOException {
         final TemplateFile tt;
@@ -168,7 +168,7 @@ public class ReportTemplateController extends BaseController {
             tt = new TemplateFile(RebuildConfiguration.getFileOfData(template), MetadataHelper.getEntity(entity), type, true, null);
         } else {
             // 使用配置
-            tt = DataReportManager.instance.getTemplateFile(reportId);
+            tt = DataReportManager.instance.buildTemplateFile(reportId);
         }
 
         String sql = String.format("select %s from %s order by modifiedOn desc",
@@ -196,8 +196,10 @@ public class ReportTemplateController extends BaseController {
             }
             // HTML5
             else if (tt.type == DataReportManager.TYPE_HTML5) {
+                // 实时内容
+                String templateContent = request.getParameter("templateContent");
                 EasyExcelGenerator33 html5 = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
-                        "com.rebuild.rbv.data.Html5ReportGenerator#create", tt.templateContent, random[0]);
+                        "com.rebuild.rbv.data.Html5ReportGenerator#create", templateContent, random[0]);
                 output = html5.generate();
             }
             // EXCEL
@@ -233,7 +235,7 @@ public class ReportTemplateController extends BaseController {
 
     @GetMapping("/report-templates/download")
     public void download(@IdParam ID reportId, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        File template = DataReportManager.instance.getTemplateFile(reportId).templateFile;
+        File template = DataReportManager.instance.buildTemplateFile(reportId).templateFile;
         String attname = QiniuCloud.parseFileName(template.getName());
 
         FileDownloader.setDownloadHeaders(request, response, attname, false);
@@ -254,7 +256,7 @@ public class ReportTemplateController extends BaseController {
         ModelAndView mv = new ModelAndView("/admin/data/template5-view");
         mv.getModelMap().put("reportName", title);
         mv.getModelMap().put("reportContent", content);
-        if (HTML5_INLINE_STYLE == null) {
+        if (HTML5_INLINE_STYLE == null || Application.devMode()) {
             HTML5_INLINE_STYLE = CommonsUtils.getStringOfRes("/web/assets/css/template5-design-content.css");
         }
         mv.getModelMap().put("inlineStyle", HTML5_INLINE_STYLE);

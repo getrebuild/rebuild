@@ -114,7 +114,7 @@ public final class ServerStatus {
      * @return
      */
     static Status checkCreateFile() {
-        String name = "Create File";
+        String name = "CreateFile";
         FileWriter fw = null;
         try {
             File test = new File(FileUtils.getTempDirectory(), "ServerStatus.test");
@@ -184,9 +184,9 @@ public final class ServerStatus {
             this.error = error;
 
             if (success) {
-                log.debug("Checking " + this);
+                log.debug("Checking {}", this);
             } else {
-                log.error("Checking " + this);
+                log.error("Checking {}", this);
             }
         }
 

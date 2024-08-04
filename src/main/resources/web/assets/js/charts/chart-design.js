@@ -101,7 +101,7 @@ $(document).ready(() => {
     } else {
       renderRbcomp(
         <AdvFilter
-          title={$L('附加筛选条件')}
+          title={$L('附加过滤条件')}
           entity={wpc.sourceEntity}
           filter={dataFilter}
           onConfirm={(s) => {
@@ -336,7 +336,7 @@ function add_axis($target, axis) {
       } else {
         renderRbcomp(
           <AdvFilter
-            title={$L('筛选条件')}
+            title={$L('过滤条件')}
             entity={wpc.sourceEntity}
             filter={_axisAdvFilters__data[fkey] || null}
             onConfirm={(s) => {
@@ -426,7 +426,7 @@ function render_option() {
   }
   // v3.7 Filter
   const $filter = $('.axis-editor .J_filter').addClass('disabled')
-  if (['INDEX', 'FUNNEL'].includes(ct)) {
+  if (['INDEX', 'FUNNEL', 'TABLE', 'LINE', 'BAR', 'BAR2', 'BAR3'].includes(ct)) {
     $filter.removeClass('disabled')
   }
 

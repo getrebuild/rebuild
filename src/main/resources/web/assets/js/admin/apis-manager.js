@@ -172,6 +172,7 @@ class AppLogsViewer extends RbModal {
               <div className="search-logs position-relative">
                 <input
                   type="text"
+                  title={$L('输入关键词回车搜索')}
                   placeholder={$L('搜索')}
                   onKeyDown={(e) => {
                     if (e.keyCode === 13) {
@@ -181,6 +182,7 @@ class AppLogsViewer extends RbModal {
                   }}
                   maxLength="40"
                 />
+                <em className={`icon zmdi zmdi-search ${this.state._search && 'animated flash infinite'}`} />
               </div>
               <div className="list-group list-group-flush" ref={(c) => (this._$list = c)}>
                 {this.state.dataLogs.map((item) => {
@@ -254,12 +256,13 @@ class AppLogsViewer extends RbModal {
   }
 
   _loadNext(reset, q) {
-    if (this.__inLoading) return
+    if (this.state._search) return
+    this.setState({ _search: true })
+
     this.__pageNo = (this.__pageNo || 0) + 1
     this.__q = q || this.__q
     if (reset) this.__pageNo = 1
 
-    this.__inLoading = true
     $.get(`/admin/apis-manager/request-logs?appid=${this.props.appid}&pn=${this.__pageNo}&q=${$encode(this.__q)}`, (res) => {
       const _data = res.data || []
       const dataLogs = reset ? _data : (this.state.dataLogs || []).concat(_data)
@@ -271,7 +274,7 @@ class AppLogsViewer extends RbModal {
         },
         () => {}
       )
-      this.__inLoading = false
+      this.setState({ _search: false })
     })
   }
 
