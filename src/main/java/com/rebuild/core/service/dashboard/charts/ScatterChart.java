@@ -37,6 +37,7 @@ public class ScatterChart extends ChartData {
         JSONArray series = new JSONArray();
         List<String> dataFlags = new ArrayList<>();
 
+        // 模式1: 0-DMI + N-NUM
         if (dims.length == 0) {
             Object[][] dataRaw = createQuery(buildSql(nums)).array();
             for (Object[] item : dataRaw) {
@@ -49,8 +50,9 @@ public class ScatterChart extends ChartData {
                     new String[]{"data"},
                     new Object[]{dataRaw});
             series.add(item);
-
-        } else {
+        }
+        // 模式2: N-DMI + N-NUM
+        else {
             for (Dimension dim : dims) {
                 Object[][] dataRaw = createQuery(buildSql(dim, nums, false)).array();
                 for (Object[] item : dataRaw) {

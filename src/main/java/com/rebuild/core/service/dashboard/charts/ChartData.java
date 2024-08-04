@@ -541,14 +541,14 @@ public abstract class ChartData extends SetUser implements ChartSpec {
      * @return
      */
     protected Object[][] mergeAxisEntry2Data(List<AxisEntry> axisValues, int indexAndSize) {
-        // 2.同组合并
+        // 1.同组合并
         Map<String, AxisEntry[]> merged = new LinkedHashMap<>();
         for (AxisEntry e : axisValues) {
             AxisEntry[] eee = merged.computeIfAbsent(e.getKey(), k -> new AxisEntry[indexAndSize]);
             eee[e.getIndex()] = e;
         }
 
-        // 3.合并
+        // 2.数据合并
         int startIndex = getDimensions().length;
         List<Object[]> dataRawList = new ArrayList<>();
         for (AxisEntry[] group : merged.values()) {

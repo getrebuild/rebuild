@@ -122,7 +122,7 @@ public class LineChart extends ChartData {
         else {
             Object[][] dataRaw;
             if (nums.length > 1 && hasNumericalFilter(nums)) {
-                // 1.分别查询
+                // 分别查询
                 List<AxisEntry> axisValues = new ArrayList<>();
                 int indexAndSize = 0;
                 for (Numerical num : nums) {
