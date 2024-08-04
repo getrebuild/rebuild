@@ -148,7 +148,7 @@ public class TableChart extends ChartData {
         sql = MessageFormat.format(sql,
                 StringUtils.join(dimSqlItems, ", "),
                 StringUtils.join(numSqlItems, ", "),
-                getSourceEntity().getName(), getFilterSql(nums[0]));
+                getSourceEntity().getName(), getFilterSql(nums.length > 0 ? nums[0] : null));
         System.out.println(sql);
 
         return appendSqlSort(sql);

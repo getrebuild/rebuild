@@ -123,7 +123,7 @@ public class FieldAggregation extends TriggerAction {
             // 在整个触发链上只触发1次，避免循环调用
             // FIXME 20220804 某些场景是否允许2次，而非1次???
             if (tschain.contains(chainName)) {
-                log.warn(w + "!!! TRIGGER ONCE ONLY");
+                log.warn("{}!!! TRIGGER ONCE ONLY", w);
                 return null;
             } else {
                 log.info(w);
