@@ -190,8 +190,9 @@ public class LoginAction extends BaseController {
             String uid = StringUtils.defaultString(u.getEmail(), u.getName());
             if (uid == null) uid = user.toLiteral();
             
-            String uaUrl = String.format("api/authority/user/echo?user=%s&ip=%s&ua=%s",
-                    CodecUtils.base64UrlEncode(uid), ipAddr, CodecUtils.urlEncode(userAgent));
+            String uaUrl = String.format("api/authority/user/echo?user=%s&ip=%s&ua=%s&source=%s",
+                    CodecUtils.base64UrlEncode(uid), ipAddr, CodecUtils.urlEncode(userAgent),
+                    CodecUtils.base64UrlEncode(request.getRequestURL().toString()));
             License.siteApiNoCache(uaUrl);
         });
     }
