@@ -156,7 +156,7 @@ public class ReportTemplateController extends BaseController {
         return RespBody.ok(res);
     }
 
-    @GetMapping("/report-templates/preview")
+    @RequestMapping("/report-templates/preview")
     public ModelAndView preview(@IdParam(required = false) ID reportId,
                         HttpServletRequest request, HttpServletResponse response) throws IOException {
         final TemplateFile tt;
@@ -196,8 +196,10 @@ public class ReportTemplateController extends BaseController {
             }
             // HTML5
             else if (tt.type == DataReportManager.TYPE_HTML5) {
+                // 实时内容
+                String templateContent = request.getParameter("templateContent");
                 EasyExcelGenerator33 html5 = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
-                        "com.rebuild.rbv.data.Html5ReportGenerator#create", tt.templateContent, random[0]);
+                        "com.rebuild.rbv.data.Html5ReportGenerator#create", templateContent, random[0]);
                 output = html5.generate();
             }
             // EXCEL
