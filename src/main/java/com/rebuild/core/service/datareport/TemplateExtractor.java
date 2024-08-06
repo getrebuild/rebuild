@@ -92,12 +92,15 @@ public class TemplateExtractor {
 
         Map<String, String> map = new HashMap<>();
         for (final String varName : vars) {
+            // v3.8
+            String thatName = ValueConvertFunc.splitName(varName);
+
             // 列表型字段
-            if (varName.startsWith(NROW_PREFIX)) {
-                String listField = varName.substring(1);
+            if (thatName.startsWith(NROW_PREFIX)) {
+                String listField = thatName.substring(1);
 
                 // 审批流程
-                if (varName.startsWith(APPROVAL_PREFIX)) {
+                if (thatName.startsWith(APPROVAL_PREFIX)) {
                     String stepNodeField = listField.substring(APPROVAL_PREFIX.length());
                     if (approvalEntity != null && MetadataHelper.getLastJoinField(approvalEntity, stepNodeField) != null) {
                         map.put(varName, stepNodeField);
@@ -120,10 +123,10 @@ public class TemplateExtractor {
                     map.put(varName, transformRealField(entity, listField));
                 }
 
-            } else if (MetadataHelper.getLastJoinField(entity, varName) != null) {
-                map.put(varName, varName);
+            } else if (MetadataHelper.getLastJoinField(entity, thatName) != null) {
+                map.put(varName, thatName);
             } else {
-                map.put(varName, transformRealField(entity, varName));
+                map.put(varName, transformRealField(entity, thatName));
             }
         }
         return map;

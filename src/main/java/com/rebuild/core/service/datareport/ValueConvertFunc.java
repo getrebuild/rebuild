@@ -133,7 +133,7 @@ public class ValueConvertFunc {
     }
 
     /**
-     * 转换图片
+     * 转换图片（WORD 格式）
      *
      * @param value
      * @param varName
