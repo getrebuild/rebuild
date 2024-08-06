@@ -6,6 +6,8 @@ package com.rebuild.core.privileges;
 
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
+import org.springframework.stereotype.Component;
 
 /**
  * 字段权限
@@ -14,6 +16,8 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 2024/7/23
  * @see PrivilegesManager
  */
+@ConditionalOnMissingClass("com.rebuild.Rbv")
+@Component
 public class FieldPrivileges {
 
     /**
