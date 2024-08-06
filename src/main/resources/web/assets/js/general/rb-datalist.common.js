@@ -1572,8 +1572,9 @@ const CellRenders = {
    */
   renderSimple(v, s, k) {
     if (typeof v === 'string' && v.length > 300) v = v.substr(0, 300)
-    else if (k.endsWith('.approvalId') && !v) v = $L('未提交')
-    else if (k.endsWith('.approvalState') && !v) v = $L('草稿')
+    // v3.8 引用字段无值的情况下审批相关字段也应无值
+    // else if (k.endsWith('.approvalId') && !v) v = $L('未提交')
+    // else if (k.endsWith('.approvalState') && !v) v = $L('草稿')
 
     return (
       <td key={k}>

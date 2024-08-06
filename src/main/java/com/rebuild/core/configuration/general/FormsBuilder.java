@@ -177,7 +177,7 @@ public class FormsBuilder extends FormsManager {
         // 编辑
         else {
             if (!Application.getPrivilegesManager().allowUpdate(user, recordId)) {
-                return formatModelError(Language.L("你没有修改此记录的权限"));
+                return formatModelError(Language.L("你没有编辑此记录的权限"));
             }
 
             approvalState = getHadApproval(entityMeta, recordId);
