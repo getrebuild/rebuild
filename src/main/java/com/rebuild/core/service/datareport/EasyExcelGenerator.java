@@ -20,7 +20,6 @@ import com.alibaba.excel.write.metadata.fill.FillConfig;
 import com.alibaba.excel.write.metadata.fill.FillWrapper;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.deepoove.poi.data.PictureRenderData;
 import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.RebuildException;
@@ -375,7 +374,7 @@ public class EasyExcelGenerator extends SetUser {
                     fieldValue = buildSignData((String) fieldValue);
                 } else if (dt == DisplayType.IMAGE) {
                     fieldValue = buildImageData((String) fieldValue);
-                    // TODO Excel 指定图片大小
+                    // TODO Excel 指定图片大小（可通过 Excel 单元格大小控制?）
 
                 } else {
 
