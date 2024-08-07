@@ -131,4 +131,11 @@ class AviatorUtilsTest {
         String code = "let array = tuple(tuple(1,2,3), tuple(4,5,6)); print(array[1]); ";
         AviatorUtils.eval(code);
     }
+
+    @Test
+    void testEquals() {
+        System.out.println(AviatorUtils.eval("'张三' == '张三'"));
+        System.out.println(AviatorUtils.eval("1 == 1"));
+        System.out.println(AviatorUtils.eval("0.0001 == 0.0001"));
+    }
 }
