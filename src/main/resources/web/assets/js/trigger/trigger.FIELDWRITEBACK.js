@@ -302,6 +302,12 @@ class ContentFieldWriteback extends ActionContentSpec {
         if (content) {
           this.setState({ items: content.items || [] })
           if (content.targetEntityMatchFields) {
+            // v3.8 兼容
+            if (typeof content.targetEntityMatchFields === 'string') {
+              try {
+                eval(`content.targetEntityMatchFields = ${content.targetEntityMatchFields}`)
+              } catch (err) {}
+            }
             setTimeout(() => this._MatchFields && this._MatchFields.setState({ groupFields: content.targetEntityMatchFields }), 200)
           }
         }

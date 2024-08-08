@@ -100,7 +100,7 @@ public class TemplateExtractor {
                 String listField = thatName.substring(1);
 
                 // 审批流程
-                if (thatName.startsWith(APPROVAL_PREFIX)) {
+                if (!this.isListType && thatName.startsWith(APPROVAL_PREFIX)) {
                     String stepNodeField = listField.substring(APPROVAL_PREFIX.length());
                     if (approvalEntity != null && MetadataHelper.getLastJoinField(approvalEntity, stepNodeField) != null) {
                         map.put(varName, stepNodeField);
