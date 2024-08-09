@@ -22,7 +22,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
@@ -244,7 +243,7 @@ public class FieldAggregation extends TriggerAction {
         final boolean stopPropagation = ((JSONObject) actionContext.getActionContent()).getBooleanValue("stopPropagation");
 
         // 跳过权限
-        PrivilegesGuardContextHolder.setSkipGuard(targetRecordId);
+        GeneralEntityServiceContextHolder.setSkipGuard(targetRecordId);
 
         // 强制更新 (v2.9)
         if (forceUpdate) {
@@ -265,7 +264,7 @@ public class FieldAggregation extends TriggerAction {
             Application.getBestService(targetEntity).update(targetRecord);
 
         } finally {
-            PrivilegesGuardContextHolder.getSkipGuardOnce();
+            GeneralEntityServiceContextHolder.isSkipGuardOnce();
             if (forceUpdate) GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
             if (stopPropagation) GeneralEntityServiceContextHolder.isQuickMode(true);
         }

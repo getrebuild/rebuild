@@ -8,12 +8,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.general;
 
 import cn.devezhao.persist4j.engine.ID;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.NamedThreadLocal;
+import org.springframework.util.Assert;
 
 /**
  * @author devezhao
  * @since 2020/9/29
  */
+@Slf4j
 public class GeneralEntityServiceContextHolder {
 
     private static final ThreadLocal<Boolean> SKIP_SERIES_VALUE = new NamedThreadLocal<>("Skip series value");
@@ -25,6 +28,8 @@ public class GeneralEntityServiceContextHolder {
     private static final ThreadLocal<ID> FROM_TRIGGERS = new NamedThreadLocal<>("From triggers");
 
     private static final ThreadLocal<Boolean> QUICK_MODE = new NamedThreadLocal<>("Quick mode");
+
+    private static final ThreadLocal<ID> SKIP_GUARD = new NamedThreadLocal<>("Skip some check once");
 
     /**
      * 新建记录时允许跳过自动编号字段
@@ -124,5 +129,31 @@ public class GeneralEntityServiceContextHolder {
         Boolean is = QUICK_MODE.get();
         if (is != null && once) QUICK_MODE.remove();
         return is != null && is;
+    }
+
+    /**
+     * 允许无权限操作一次
+     *
+     * @param recordId
+     */
+    public static void setSkipGuard(ID recordId) {
+        Assert.notNull(recordId, "[recordId] cannot be null");
+
+        ID existsWarn = SKIP_GUARD.get();
+        if (existsWarn != null) {
+            log.warn("Not removed skip record : {}", existsWarn);
+            SKIP_GUARD.remove();
+        }
+        SKIP_GUARD.set(recordId);
+    }
+
+    /**
+     * @return
+     * @see #setSkipGuard(ID)
+     */
+    public static ID isSkipGuardOnce() {
+        ID recordId = SKIP_GUARD.get();
+        if (recordId != null) SKIP_GUARD.remove();
+        return recordId;
     }
 }

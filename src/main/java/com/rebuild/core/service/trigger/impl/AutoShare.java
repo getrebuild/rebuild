@@ -14,7 +14,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
@@ -78,13 +77,13 @@ public class AutoShare extends TriggerAction {
         
         final EntityService es = Application.getEntityService(actionContext.getSourceEntity().getEntityCode());
         for (ID toUser : toUsers) {
-            PrivilegesGuardContextHolder.setSkipGuard(recordId);
+            GeneralEntityServiceContextHolder.setSkipGuard(recordId);
             GeneralEntityServiceContextHolder.setFromTrigger(recordId);
 
             try {
                 es.share(recordId, toUser, cascades, shareRights);
             } finally {
-                PrivilegesGuardContextHolder.getSkipGuardOnce();
+                GeneralEntityServiceContextHolder.isSkipGuardOnce();
                 GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
             }
         }

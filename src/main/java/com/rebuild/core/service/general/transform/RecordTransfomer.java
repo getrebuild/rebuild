@@ -23,7 +23,6 @@ import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
@@ -174,7 +173,7 @@ public class RecordTransfomer extends SetUser {
     }
 
     protected ID saveRecord(Record record, List<Record> detailsList) {
-        if (this.skipGuard) PrivilegesGuardContextHolder.setSkipGuard(EntityHelper.UNSAVED_ID);
+        if (this.skipGuard) GeneralEntityServiceContextHolder.setSkipGuard(EntityHelper.UNSAVED_ID);
 
         if (detailsList != null && !detailsList.isEmpty()) {
             record.setObjectValue(GeneralEntityService.HAS_DETAILS, detailsList);
@@ -187,8 +186,8 @@ public class RecordTransfomer extends SetUser {
             record = Application.getEntityService(targetEntity.getEntityCode()).createOrUpdate(record);
             return record.getPrimary();
         } finally {
+            if (this.skipGuard) GeneralEntityServiceContextHolder.isSkipGuardOnce();
             GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
-            if (this.skipGuard) PrivilegesGuardContextHolder.getSkipGuardOnce();
         }
     }
 

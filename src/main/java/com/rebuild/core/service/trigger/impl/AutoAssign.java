@@ -13,7 +13,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
@@ -103,7 +102,7 @@ public class AutoAssign extends TriggerAction {
             cascades = hasCascades.split(",");
         }
 
-        PrivilegesGuardContextHolder.setSkipGuard(recordId);
+        GeneralEntityServiceContextHolder.setSkipGuard(recordId);
         GeneralEntityServiceContextHolder.setFromTrigger(recordId);
 
         try {
@@ -116,7 +115,7 @@ public class AutoAssign extends TriggerAction {
             }
 
         } finally {
-            PrivilegesGuardContextHolder.getSkipGuardOnce();
+            GeneralEntityServiceContextHolder.isSkipGuardOnce();
             GeneralEntityServiceContextHolder.isFromTrigger(true);
         }
 
