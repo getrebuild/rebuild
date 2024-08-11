@@ -440,10 +440,13 @@ class RbForm extends React.Component {
           ref={(c) => {
             _ProTable = c // ref
             this._ProTables[detailMeta.entity] = c
+            this._ProTable = c // comp:v3.8
           }}
           $$$main={this}
         />
       )
+    } else {
+      this._ProTable = _ProTable // comp:v3.8
     }
 
     return (
@@ -853,7 +856,7 @@ class RbForm extends React.Component {
   // 保存前调用（返回 false 则不继续保存）
   // eslint-disable-next-line no-unused-vars
   static postBefore(data, formObject) {
-    if (typeof formObject._postBefore === 'function') {
+    if (formObject && typeof formObject._postBefore === 'function') {
       const ret = formObject._postBefore(data, formObject)
       if (ret === false) return false
     }
