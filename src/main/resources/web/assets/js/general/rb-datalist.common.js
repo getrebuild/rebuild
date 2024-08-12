@@ -806,9 +806,23 @@ const RbListCommon = {
     RbListPage.init(wpc.listConfig, entity, wpc.privileges)
     if (wpc.advFilter !== false) AdvFilters.init('.adv-search', entity[0])
 
-    $('.J_new')
+    const newProps = { title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }
+    const $new = $('.J_new')
       .attr('disabled', false)
-      .on('click', () => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
+      .on('click', () => RbFormModal.create(newProps))
+    if (wpc.formsAttr) {
+      $new.next().removeClass('hide')
+      const $nn = $new.next().next()
+      wpc.formsAttr.map((n) => {
+        $(`<a class="dropdown-item" data-id="${n.id}">${n.name || $L('默认')}</a>`)
+          .appendTo($nn)
+          .on('click', () => RbFormModal.create({ ...newProps, specLayout: n.id }, true))
+      })
+    } else {
+      $new.next().remove()
+      $new.next().remove()
+    }
+
     $('.J_export').on('click', () => renderRbcomp(<DataExport listRef={_RbList()} entity={entity[0]} />))
     $('.J_batch-update').on('click', () => renderRbcomp(<BatchUpdate listRef={_RbList()} entity={entity[0]} />))
     $('.J_batch-approve').on('click', () => renderRbcomp(<BatchApprove listRef={_RbList()} entity={entity[0]} />))

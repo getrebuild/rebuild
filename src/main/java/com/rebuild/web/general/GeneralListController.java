@@ -16,8 +16,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.configuration.general.EasyActionManager;
+import com.rebuild.core.configuration.general.FormsManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
@@ -167,13 +169,15 @@ public class GeneralListController extends EntityController {
                     !(BooleanUtils.toBoolean(mode3ShowFilters) || StringUtils.isNotBlank(mode3ShowCategory)));
         }
 
+        // 列表配置
         mv.getModel().put("DataListConfig", JSON.toJSONString(listConfig));
-
         // 快速查询
         mv.getModel().put("quickFieldsLabel", getQuickFieldsLabel(listEntity));
-
         // EasyAction
         mv.getModel().put("easyAction", EasyActionManager.instance.getEasyAction(listEntity.getName(), user));
+        // 多表单-新建
+        List<ConfigBean> formsAttr = FormsManager.instance.getAllFormsAttr(entity, true);
+        if (formsAttr.size() > 1) mv.getModel().put("formsAttr", JSON.toJSONString(formsAttr));
 
         return mv;
     }

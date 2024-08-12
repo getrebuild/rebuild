@@ -93,7 +93,11 @@
                     <div class="dataTables_oper invisible2">
                       <button class="btn btn-space btn-secondary J_view" type="button" disabled="disabled"><i class="icon mdi mdi-folder-open"></i> [[${bundle.L('打开')}]]</button>
                       <button class="btn btn-space btn-secondary J_edit" type="button" disabled="disabled"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('编辑')}]]</button>
-                      <button class="btn btn-space btn-primary J_new" type="button" disabled="disabled"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('新建')}]]</button>
+                      <div class="btn-group btn-space">
+                        <button class="btn btn-primary J_new" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('新建')}]]</button>
+                        <button class="btn btn-primary dropdown-toggle w-auto hide" type="button" data-toggle="dropdown"><span class="icon zmdi zmdi-chevron-down"></span></button>
+                        <div class="dropdown-menu dropdown-menu-primary dropdown-menu-right"></div>
+                      </div>
                       <div class="btn-group btn-space J_action">
                         <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.L('更多')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
                         <div class="dropdown-menu dropdown-menu-right">
@@ -135,6 +139,7 @@
         statsField: true,
         paneFields: [(${paneFields ?:'null'})],
         easyAction: [(${easyAction ?:'null'})],
+        formsAttr: [(${formsAttr ?:'null'})],
       }
     </script>
     <script th:src="@{/assets/lib/charts/echarts.min.js?v=5.5.0}"></script>
