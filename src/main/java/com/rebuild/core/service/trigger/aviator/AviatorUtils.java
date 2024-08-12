@@ -7,19 +7,24 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.aviator;
 
+import cn.devezhao.persist4j.engine.ID;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Options;
 import com.googlecode.aviator.exception.ExpressionSyntaxErrorException;
 import com.googlecode.aviator.lexer.token.OperatorType;
+import com.googlecode.aviator.runtime.function.FunctionUtils;
 import com.googlecode.aviator.runtime.function.system.AssertFunction;
 import com.googlecode.aviator.runtime.type.AviatorFunction;
+import com.googlecode.aviator.runtime.type.AviatorNil;
+import com.googlecode.aviator.runtime.type.AviatorObject;
 import com.googlecode.aviator.runtime.type.Sequence;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -153,5 +158,17 @@ public class AviatorUtils {
         if (value instanceof Sequence) return ((Sequence<Object>) value).iterator();
 
         throw new UnsupportedOperationException("Unsupport type : " + value);
+    }
+
+    /**
+     * @param ret
+     * @return
+     * @see FunctionUtils#wrapReturn(Object)
+     */
+    public static AviatorObject wrapReturn(final Object ret) {
+        if (ret == null) return AviatorNil.NIL;
+        if (ret instanceof Date) return new AviatorDate((Date) ret);
+        if (ret instanceof ID) return new AviatorId((ID) ret);
+        return FunctionUtils.wrapReturn(ret);
     }
 }
