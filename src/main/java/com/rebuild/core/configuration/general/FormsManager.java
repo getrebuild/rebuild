@@ -148,12 +148,26 @@ public class FormsManager extends BaseLayoutManager {
      * @return
      */
     public List<ConfigBean> getAllFormsAttr(String entity) {
+        return getAllFormsAttr(entity, false);
+    }
+
+    /**
+     * @param entity
+     * @param onlyNew 仅默认布局
+     * @return
+     */
+    public List<ConfigBean> getAllFormsAttr(String entity, boolean onlyNew) {
         final Object[][] alls = getAllConfig(entity, TYPE_FORM);
 
         List<ConfigBean> flist = new ArrayList<>();
         for (Object[] o : alls) {
             ConfigBean cb = findConfigBean(alls, (ID) o[0]).remove("config");
-            flist.add(cb.remove("elements"));
+            cb.remove("elements");
+            if (onlyNew) {
+                if (new ShareToAttr(cb).isFallback()) flist.add(cb);
+            } else {
+                flist.add(cb);
+            }
         }
 
         // A-Z

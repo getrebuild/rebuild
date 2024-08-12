@@ -308,7 +308,7 @@ a.link.inline {
 .btn-group.w-auto > .btn,
 .btn.w-auto,
 .nav-link.w-auto {
-  min-width: 36px !important;
+  min-width: 34px !important;
 }
 
 .btn.w-auto {

@@ -40,8 +40,18 @@ import java.util.List;
 @Slf4j
 public class ValueConvertFunc {
 
-    // # 函数
-    protected static final String FUNC_SPLITER = "#";
+    // # 函数分隔符
+    private static final String FUNC_SPLITER = "#";
+    private static final String FVAL_SPLITER = ":";
+    // 支持的函数
+    private static final String DECIMAL_CHINESEYUAN = "CHINESEYUAN";
+    private static final String DECIMAL_THOUSANDS = "THOUSANDS";
+    private static final String DATE_CHINESEDATE = "CHINESEDATE";
+    private static final String OPTION_CHECKBOX = "CHECKBOX";
+    private static final String OPTION_CHECKBOX2 = "CHECKBOX" + FVAL_SPLITER + "2";
+    private static final String CLASS_PICK = "PICK";
+    private static final String IMAGE_SIZE = "SIZE";
+    private static final String ALL_EMPTY = "EMPTY";
 
     /**
      * @param field
@@ -53,12 +63,19 @@ public class ValueConvertFunc {
         String thatFunc = splitFunc(varName);
         if (thatFunc == null) return value;
 
+        // 默认值
+        if (thatFunc.startsWith(ALL_EMPTY)) {
+            if (value == null || StringUtils.isBlank(value.toString())) {
+                return extractFuncValue(thatFunc);
+            }
+        }
+
         final DisplayType type = field.getDisplayType();
         if (type == DisplayType.NUMBER || type == DisplayType.DECIMAL) {
-            if ("CHINESEYUAN".equals(thatFunc)) {
+            if (DECIMAL_CHINESEYUAN.equals(thatFunc)) {
                 return Convert.digitToChinese((Number) value);
             }
-            if ("THOUSANDS".equals(thatFunc)) {
+            if (DECIMAL_THOUSANDS.equals(thatFunc)) {
                 String format = "##,##0";
                 if (type == DisplayType.DECIMAL) {
                     int scale = ((EasyDecimal) field).getScale();
@@ -70,7 +87,7 @@ public class ValueConvertFunc {
             }
 
         } else if (type == DisplayType.DATE || type == DisplayType.DATETIME) {
-            if ("CHINESEDATE".equals(thatFunc)) {
+            if (DATE_CHINESEDATE.equals(thatFunc)) {
                 Date d = CommonsUtils.parseDate(value.toString());
                 if (d == null) return value;
 
@@ -83,12 +100,12 @@ public class ValueConvertFunc {
             }
 
         } else if (type == DisplayType.MULTISELECT || type == DisplayType.PICKLIST) {
-            if ("CHECKBOX".equals(thatFunc) || "CHECKBOX2".equals(thatFunc)) {
+            if (OPTION_CHECKBOX.equals(thatFunc) || OPTION_CHECKBOX2.equals(thatFunc)) {
                 String[] m = value == null ? new String[0] : value.toString().split(", ");
                 ConfigBean[] items = MultiSelectManager.instance.getPickListRaw(field.getRawMeta(), false);
 
                 String[] flags = new String[]{ "■", "□" };
-                if ("CHECKBOX2".equals(thatFunc)) flags = new String[]{ "●", "○" };
+                if (OPTION_CHECKBOX2.equals(thatFunc)) flags = new String[]{ "●", "○" };
 
                 List<String> chk = new ArrayList<>();
                 for (ConfigBean item : items) {
@@ -101,12 +118,12 @@ public class ValueConvertFunc {
             }
 
         } else if (type == DisplayType.CLASSIFICATION) {
-            if (thatFunc.startsWith("CUTS")) {
-                int cutsIndex = ObjectUtils.toInt(thatFunc.substring(4), 4) - 1;
+            if (thatFunc.startsWith(CLASS_PICK)) {
+                int pickIndex = ObjectUtils.toInt(extractFuncValue(thatFunc)) - 1;
                 String[] m = value.toString().split("\\.");
 
-                if (cutsIndex < 0) return m[m.length - 1];
-                if (m.length > cutsIndex) return m[cutsIndex];
+                if (pickIndex < 0) return m[m.length - 1];
+                if (m.length > pickIndex) return m[pickIndex];
                 return m[m.length - 1];  // last
             }
 
@@ -116,7 +133,7 @@ public class ValueConvertFunc {
     }
 
     /**
-     * 转换图片
+     * 转换图片（WORD 格式）
      *
      * @param value
      * @param varName
@@ -128,8 +145,8 @@ public class ValueConvertFunc {
         String thatFunc = splitFunc(varName);
         if (thatFunc == null) return builder.create();
 
-        if (thatFunc.startsWith("SIZE") && thatFunc.length() > 4) {
-            String[] wh = thatFunc.substring(4).split("\\*");
+        if (thatFunc.startsWith(IMAGE_SIZE)) {
+            String[] wh = extractFuncValue(thatFunc).split("\\*");
             int width = NumberUtils.toInt(wh[0]);
             int height = -1;
 
@@ -157,12 +174,24 @@ public class ValueConvertFunc {
         return builder.create();
     }
 
+    // 提取函数附加值
+    private static String extractFuncValue(String func) {
+        // v3.7 兼容
+        if (func.startsWith(IMAGE_SIZE) && !func.startsWith(IMAGE_SIZE + FVAL_SPLITER)) {
+            func = IMAGE_SIZE + FVAL_SPLITER + func.substring(4);
+        }
+
+        String[] nn = func.split(FVAL_SPLITER);
+        if (nn.length == 2) return nn[1];
+        return StringUtils.EMPTY;
+    }
+
     /**
      * @param varName
      * @return
      */
     public static String splitName(String varName) {
-        return varName.split("#")[0].trim();
+        return varName.split(FUNC_SPLITER)[0].trim();
     }
 
     /**
@@ -170,6 +199,6 @@ public class ValueConvertFunc {
      * @return
      */
     public static String splitFunc(String varName) {
-        return varName.contains(FUNC_SPLITER) ? varName.split("#")[1].trim() : null;
+        return varName.contains(FUNC_SPLITER) ? varName.split(FUNC_SPLITER)[1].trim() : null;
     }
 }

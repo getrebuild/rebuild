@@ -263,7 +263,7 @@ class DeleteConfirm extends RbAlert {
         this.setState({ cascadesEntity: res.data }, () => {
           this.__select2 = $(this._cascades)
             .select2({
-              placeholder: $L('选择要同时删除的相关记录'),
+              placeholder: $L('选择'),
               width: '88%',
             })
             .val(null)

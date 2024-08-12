@@ -20,9 +20,9 @@ import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.EntityService;
+import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
@@ -779,12 +779,11 @@ public class ApprovalProcessor extends SetUser {
         final EntityService es = Application.getEntityService(recordId.getEntityCode());
         for (ID user : shareTo) {
             if (!Application.getPrivilegesManager().allowRead(user, recordId)) {
-                // force share
-                PrivilegesGuardContextHolder.setSkipGuard(recordId);
+                GeneralEntityServiceContextHolder.setSkipGuard(recordId);
                 try {
                     es.share(recordId, user, null);
                 } finally {
-                    PrivilegesGuardContextHolder.getSkipGuardOnce();
+                    GeneralEntityServiceContextHolder.isSkipGuardOnce();
                 }
             }
         }

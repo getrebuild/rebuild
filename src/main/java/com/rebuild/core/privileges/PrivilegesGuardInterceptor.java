@@ -23,6 +23,7 @@ import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.CommonsService;
 import com.rebuild.core.service.general.BulkContext;
 import com.rebuild.core.service.general.EntityService;
+import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -110,7 +111,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 
         // 跳过
         ID skipGuardId;
-        if ((skipGuardId = PrivilegesGuardContextHolder.getSkipGuardOnce()) != null) {
+        if ((skipGuardId = GeneralEntityServiceContextHolder.isSkipGuardOnce()) != null) {
             log.debug("Allow no permission({}) passed once : {}", action.getName(), skipGuardId);
             return;
         }

@@ -22,8 +22,8 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
-import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
@@ -281,12 +281,12 @@ public class GroupAggregation extends FieldAggregation {
             }
         }
 
-        PrivilegesGuardContextHolder.setSkipGuard(EntityHelper.UNSAVED_ID);
+        GeneralEntityServiceContextHolder.setSkipGuard(EntityHelper.UNSAVED_ID);
 
         try {
             Application.getBestService(targetEntity).create(newTargetRecord);
         } finally {
-            PrivilegesGuardContextHolder.getSkipGuardOnce();
+            GeneralEntityServiceContextHolder.isSkipGuardOnce();
         }
 
         targetRecordId = newTargetRecord.getPrimary();

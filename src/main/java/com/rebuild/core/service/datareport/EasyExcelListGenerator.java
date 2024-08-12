@@ -61,9 +61,7 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
 
         for (Map.Entry<String, String> e : varsMap.entrySet()) {
             String varName = e.getKey();
-            if (varName.startsWith(NROW_PREFIX + PLACEHOLDER)) {
-                continue;
-            }
+            if (varName.startsWith(NROW_PREFIX + PLACEHOLDER)) continue;
 
             String validField = e.getValue();
             if (validField != null && e.getKey().startsWith(NROW_PREFIX)) {
