@@ -394,7 +394,7 @@ public class Field2Schema extends SetUser {
         String identifier = text;
 
         // 全英文直接返回
-        if (identifier.length() >= 4 && identifier.matches("[a-zA-Z0-9]+")) {
+        if (identifier.length() >= 4 && identifier.matches("[a-zA-Z0-9_]+")) {
             if (!CharSet.ASCII_ALPHA.contains(identifier.charAt(0)) || BlockList.isBlock(identifier)) {
                 identifier = "rb" + identifier;
             }

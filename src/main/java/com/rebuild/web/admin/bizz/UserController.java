@@ -197,11 +197,11 @@ public class UserController extends EntityController {
         Application.getBean(UserService.class).update(record);
 
         if (getBoolParameter(request, "email")) {
-            String email = Application.getUserStore().getUser(userId).getEmail();
-            if (email != null && SMSender.availableMail()) {
+            User ub = Application.getUserStore().getUser(userId);
+            if (ub.getEmail() != null && SMSender.availableMail()) {
                 String subject = Language.L("密码已被管理员重置");
-                String content = Language.L("你的密码已被管理员重置，请使用新密码登录。[][] 新密码：**%s**", newp);
-                SMSender.sendMailAsync(email, subject, content);
+                String content = Language.L("你的密码已被管理员重置，请使用新密码登录。[][] 新密码 : **%s** [] 登录账号 : **%s**", newp, ub.getName());
+                SMSender.sendMailAsync(ub.getEmail(), subject, content);
             }
         }
 
