@@ -467,7 +467,7 @@ class ExcelClipboardData extends React.Component {
       return (
         <div className="must-center text-muted">
           <div className="mb-2">
-            <i className="mdi mdi-microsoft-excel" style={{ fontSize: 32 }} />
+            <i className="mdi mdi-microsoft-excel" style={{ fontSize: 48 }} />
           </div>
           {tips}
         </div>
@@ -478,7 +478,9 @@ class ExcelClipboardData extends React.Component {
       <div className="rsheetb-table" ref={(c) => (this._$table = c)}>
         <div className="head-action">
           <span className="float-left">
-            <h5 className="text-bold m-0 mt-3">{$L('选择列字段')}</h5>
+            <h5 className="text-bold fs-14 m-0" style={{ paddingTop: 11 }}>
+              {$L('请选择列字段')}
+            </h5>
           </span>
           <span className="float-right">
             <button className="btn btn-primary" onClick={() => this._handleConfirm()} ref={(c) => (this._$btn = c)}>
@@ -527,7 +529,7 @@ class ExcelClipboardData extends React.Component {
   _tableAfter() {
     if (!this._$table) return
 
-    const $table = $(this._$table).find('table').addClass('table table-sm')
+    const $table = $(this._$table).find('table').addClass('table table-sm table-bordered table-fixed')
 
     const fields = this.props.fields
     if (fields) {
@@ -601,7 +603,7 @@ class ExcelClipboardData extends React.Component {
 class ExcelClipboardDataModal extends RbModalHandler {
   render() {
     return (
-      <RbModal title={$L('从 Excel 添加')} width="1000" className="modal-rsheetb" disposeOnHide ref={(c) => (this._dlg = c)}>
+      <RbModal title={$L('从 Excel 添加')} width="1000" className="modal-rsheetb" disposeOnHide maximize ref={(c) => (this._dlg = c)}>
         <ExcelClipboardData
           {...this.props}
           onConfirm={(data) => {
