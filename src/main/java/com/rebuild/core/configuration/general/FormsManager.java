@@ -153,18 +153,18 @@ public class FormsManager extends BaseLayoutManager {
 
     /**
      * @param entity
-     * @param onlyNew 仅默认布局
+     * @param forNew 仅新建布局
      * @return
      */
-    public List<ConfigBean> getAllFormsAttr(String entity, boolean onlyNew) {
+    public List<ConfigBean> getAllFormsAttr(String entity, boolean forNew) {
         final Object[][] alls = getAllConfig(entity, TYPE_FORM);
 
         List<ConfigBean> flist = new ArrayList<>();
         for (Object[] o : alls) {
             ConfigBean cb = findConfigBean(alls, (ID) o[0]).remove("config");
             cb.remove("elements");
-            if (onlyNew) {
-                if (new ShareToAttr(cb).isFallback()) flist.add(cb);
+            if (forNew) {
+                if (new ShareToAttr(cb).isForNew()) flist.add(cb);
             } else {
                 flist.add(cb);
             }
@@ -221,6 +221,11 @@ public class FormsManager extends BaseLayoutManager {
         // 默认
         boolean isFallback() {
             return this.attrs.getBooleanValue("fallback");
+        }
+
+        // 新建
+        boolean isForNew() {
+            return this.attrs.getBooleanValue("fornew");
         }
 
         // 符合使用条件

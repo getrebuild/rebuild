@@ -49,9 +49,9 @@ public class ValueConvertFunc {
     private static final String DATE_CHINESEDATE = "CHINESEDATE";
     private static final String OPTION_CHECKBOX = "CHECKBOX";
     private static final String OPTION_CHECKBOX2 = "CHECKBOX" + FVAL_SPLITER + "2";
-    private static final String CLASS_PICK = "PICK";
-    private static final String IMAGE_SIZE = "SIZE";
-    private static final String ALL_EMPTY = "EMPTY";
+    private static final String CLASS_PICK = "PICK";  // eg. PICK:2
+    private static final String IMAGE_SIZE = "SIZE";  // eg. SIZE:100*200, SIZE:100
+    private static final String ALL_EMPTY = "EMPTY";  // eg. EMPTY:无
 
     /**
      * @param field
