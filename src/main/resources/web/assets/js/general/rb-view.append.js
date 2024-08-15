@@ -20,6 +20,7 @@ class LightFeedsList extends RelatedList {
     this.__FeedsList = new FeedsList()
     this.__FeedsList.setState = (s) => this.setState(s)
     this.__FeedsList.fetchFeeds = () => this.fetchData(false)
+    this.__FeedsList._inView = true
 
     this.__listClass = 'feeds-list inview'
     this.__listNoData = (
@@ -79,12 +80,7 @@ class LightFeedsList extends RelatedList {
       const data = (res.data || {}).data || []
       const list = append ? (this.state.dataList || []).concat(data) : data
       this.__FeedsList.state = { data: list }
-      this.setState({ dataList: list, showMore: data.length >= pageSize }, () => {
-        $('.feeds-list.inview .J_relatedRecord a').attr({
-          href: 'javascript:;',
-          title: '',
-        })
-      })
+      this.setState({ dataList: list, showMore: data.length >= pageSize })
     })
   }
 }
