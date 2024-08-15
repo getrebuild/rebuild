@@ -91,7 +91,7 @@ public class IncreasingVar extends SeriesVar {
      * @param reset
      */
     protected void clean(long reset) {
-        Assert.isTrue(reset > 0, "[reset] must be greater than 0");
+        Assert.isTrue(reset >= 0, "[reset] must be greater than 0");
         final String nameKey = getNameKey();
         synchronized (INCREASINGS_LOCK) {
             INCREASINGS.remove(nameKey);
