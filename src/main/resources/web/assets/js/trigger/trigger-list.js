@@ -63,6 +63,29 @@ class TriggerList extends ConfigList {
     return (
       <RF>
         {(this.state.data || []).map((item) => {
+          let targetRef = item[9]
+          if (targetRef) {
+            if (targetRef[0] && targetRef[0].startsWith('028-')) {
+              targetRef = (
+                <a href={`${rb.baseUrl}/admin/robot/approval/${targetRef[0]}`} className="light-link" target={`_${targetRef[0]}`}>
+                  {targetRef[1]}
+                </a>
+              )
+            } else if (targetRef[0] && targetRef[0].startsWith('037-')) {
+              targetRef = (
+                <a href={`${rb.baseUrl}/admin/robot/transform/${targetRef[0]}`} className="light-link" target={`_${targetRef[0]}`}>
+                  {targetRef[1]}
+                </a>
+              )
+            } else {
+              targetRef = (
+                <a href={`${rb.baseUrl}/admin/entity/${targetRef[0]}/base`} className="light-link" target={`_${targetRef[0]}`}>
+                  {targetRef[1]}
+                </a>
+              )
+            }
+          }
+
           return (
             <tr key={item[0]}>
               <td>
@@ -75,15 +98,7 @@ class TriggerList extends ConfigList {
               </td>
               <td>
                 {item[7]}
-                {item[9] && (
-                  <span title={$L('目标实体')} className="ml-1">
-                    (
-                    <a href={`${rb.baseUrl}/admin/entity/${item[9][0]}/base`} className="light-link" target={`_${item[9][0]}`}>
-                      {item[9][1]}
-                    </a>
-                    )
-                  </span>
-                )}
+                {targetRef && <span className="ml-1">({targetRef})</span>}
               </td>
               <td className="text-wrap">{item[6] > 0 ? $L('当 %s 时', formatWhen(item[6])) : <span className="text-warning">({$L('无触发动作')})</span>}</td>
               <td>
