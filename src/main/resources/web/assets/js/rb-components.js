@@ -421,6 +421,12 @@ class RbHighbar extends React.Component {
   close = () => {
     this.setState({ animatedClass: 'fadeOut' })
     setTimeout(() => $unmount($(this._element).parent(), 20), 200)
+    setTimeout(() => {
+      $('.rbhighbar').each(function () {
+        const top = ~~($(this).css('top') || '0').replace('px', '')
+        if (top >= 62) $(this).animate({ top: top - 62 }, 100)
+      })
+    }, 100)
   }
 
   // -- Usage
