@@ -206,8 +206,8 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        int applyType = recordId == null ? FormsManager.APPLY_ONNEW : FormsManager.APPLY_ONEDIT;
-        if (viewMode) applyType = FormsManager.APPLY_ONVIEW;
+        int applyType = recordId == null ? FormsManager.APPLY_NEW : FormsManager.APPLY_EDIT;
+        if (viewMode) applyType = FormsManager.APPLY_VIEW;
 
         ConfigBean model = getFormLayout(entity, recordOrLayoutId, applyType);
         JSONArray elements = (JSONArray) model.getJSON("elements");

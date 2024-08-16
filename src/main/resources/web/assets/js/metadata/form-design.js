@@ -685,9 +685,11 @@ class DlgNForm extends RbModalHandler {
 
     if (props.attrs === 'ALL' && !props.name) {
       this.state.fallback = true
+      this.state.fornew = true
       this._name = $L('默认')
     } else if (typeof props.attrs === 'object') {
       this.state.fallback = props.attrs.fallback
+      this.state.fornew = props.attrs.fornew
       this.state.useFilter = props.attrs.filter || null
     }
   }
@@ -717,7 +719,7 @@ class DlgNForm extends RbModalHandler {
                     ref={(c) => (this._$useFilter = c)}>
                     {this.state.useFilter && this.state.useFilter.items.length > 0 ? $L('已设置条件') + ` (${this.state.useFilter.items.length})` : $L('点击设置')}
                   </a>
-                  <p className="form-text m-0 mt-1">{$L('符合条件的表单将应用此布局')}</p>
+                  <p className="form-text m-0 mt-1">{$L('符合条件的表单将使用此布局')}</p>
                 </div>
               </div>
             </div>
@@ -727,6 +729,10 @@ class DlgNForm extends RbModalHandler {
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" defaultChecked={this.state.fallback} ref={(c) => (this._$fallback = c)} />
                   <span className="custom-control-label">{$L('默认布局')}</span>
+                </label>
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" defaultChecked={this.state.fornew} ref={(c) => (this._$fornew = c)} />
+                  <span className="custom-control-label">{$L('可用于新建')}</span>
                 </label>
               </div>
             </div>
@@ -780,6 +786,7 @@ class DlgNForm extends RbModalHandler {
     const ps = {
       name: $val(this._$name),
       fallback: $val(this._$fallback),
+      fornew: $val(this._$fornew),
       filter: this.state.useFilter || null,
     }
     if (!ps.name) return RbHighbar.createl('请输入名称')

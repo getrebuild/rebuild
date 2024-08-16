@@ -35,16 +35,16 @@ public class FormsManager extends BaseLayoutManager {
     protected FormsManager() {}
 
     // 表单布局适用于
-    public static int APPLY_ONNEW = 1;
-    public static int APPLY_ONEDIT = 2;
-    public static int APPLY_ONVIEW = 4;
+    public static int APPLY_NEW = 1;
+    public static int APPLY_EDIT = 2;
+    public static int APPLY_VIEW = 4;
 
     /**
      * @param entity
      * @return
      */
     public ConfigBean getNewFormLayout(String entity) {
-        return getFormLayout(entity, null, APPLY_ONNEW);
+        return getFormLayout(entity, null, APPLY_NEW);
     }
 
     /**
@@ -62,12 +62,7 @@ public class FormsManager extends BaseLayoutManager {
 
         // 1.指定布局
         if (recordOrLayoutId != null && recordOrLayoutId.getEntityCode() == EntityHelper.LayoutConfig) {
-            for (Object[] o : alls) {
-                if (recordOrLayoutId.equals(o[0])) {
-                    use = findConfigBean(alls, (ID) o[0]);;
-                    break;
-                }
-            }
+            use = findConfigBean(alls, recordOrLayoutId);
 
             if (use == null) {
                 log.warn("Spec layout not longer exists : {}", recordOrLayoutId);
@@ -81,7 +76,7 @@ public class FormsManager extends BaseLayoutManager {
                 ConfigBean cb = findConfigBean(alls, (ID) o[0]);
                 ShareToAttr attr = new ShareToAttr(cb);
                 if (recordOrLayoutId == null) {
-                    if (attr.isFallback()) {
+                    if (attr.isFallback() || attr.isForNew()) {
                         use = cb;
                         break;
                     }
@@ -105,6 +100,11 @@ public class FormsManager extends BaseLayoutManager {
                 }
             }
         }
+
+//        // 4.只有一个直接用，不管条件了
+//        if (use == null && alls.length == 1) {
+//            use = findConfigBean(alls, (ID) alls[0][0]);
+//        }
 
         if (use != null) {
             use.set("entity", entity)
@@ -153,18 +153,18 @@ public class FormsManager extends BaseLayoutManager {
 
     /**
      * @param entity
-     * @param onlyNew 仅默认布局
+     * @param forNew 仅新建布局
      * @return
      */
-    public List<ConfigBean> getAllFormsAttr(String entity, boolean onlyNew) {
+    public List<ConfigBean> getAllFormsAttr(String entity, boolean forNew) {
         final Object[][] alls = getAllConfig(entity, TYPE_FORM);
 
         List<ConfigBean> flist = new ArrayList<>();
         for (Object[] o : alls) {
             ConfigBean cb = findConfigBean(alls, (ID) o[0]).remove("config");
             cb.remove("elements");
-            if (onlyNew) {
-                if (new ShareToAttr(cb).isFallback()) flist.add(cb);
+            if (forNew) {
+                if (new ShareToAttr(cb).isForNew()) flist.add(cb.remove("shareTo"));
             } else {
                 flist.add(cb);
             }
@@ -221,6 +221,11 @@ public class FormsManager extends BaseLayoutManager {
         // 默认
         boolean isFallback() {
             return this.attrs.getBooleanValue("fallback");
+        }
+
+        // 新建
+        boolean isForNew() {
+            return this.attrs.getBooleanValue("fornew");
         }
 
         // 符合使用条件

@@ -281,17 +281,17 @@ select.underline-sm:focus {
 }
 
 div.series-starts {
-  max-width: 250px;
+  max-width: 300px;
   margin: 0 auto;
 }
 
 div.series-starts > input {
-  border-radius: 0;
-  border-top-width: 0;
-  border-left-width: 0;
-  border-right-width: 0;
-  padding: 0;
-  height: 30px !important;
+  border-width: 0;
+  background-color: #eee;
+}
+
+div.series-starts > input:focus {
+  background-color: #ccc;
 }
 
 /* via: triggers.css */

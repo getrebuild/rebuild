@@ -97,10 +97,6 @@ public class RobotTriggerManager implements ConfigManager {
                     recordId, StringUtils.join(TRIGGERS_CHAIN_4DEBUG.get(), "\n  > "));
         }
 
-//        ActionContext ctx = new ActionContext(recordId, entity,
-//                JSONUtils.EMPTY_OBJECT, EntityHelper.newUnsavedId(EntityHelper.RobotTriggerConfig));
-//        actions.add(new GeneralTriggerAction(ctx));
-
         return actions.toArray(new TriggerAction[0]);
     }
 

@@ -120,7 +120,9 @@ public class KVStorage {
     protected static String getValue(final String key, boolean noCache, Object defaultValue) {
         String value = null;
         // be:v3.8
-        if (ConfigurationItem.inJvmArgs(key)) {
+        if (ConfigurationItem.SN.name().equals(key)) {
+            value = BootEnvironmentPostProcessor.getProperty(key);
+        } else if (ConfigurationItem.inJvmArgs(key)) {
             return BootEnvironmentPostProcessor.getProperty(key);
         }
 

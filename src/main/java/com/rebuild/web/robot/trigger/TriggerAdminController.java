@@ -18,6 +18,7 @@ import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.trigger.ActionFactory;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
@@ -155,21 +156,27 @@ public class TriggerAdminController extends BaseController {
             }
         }
 
+        // 自动记录转换
         String useTransform = configJson.getString("useTransform");
         if (ID.isId(useTransform)) {
             ConfigBean cb;
             try {
                 cb = TransformManager.instance.getTransformConfig(ID.valueOf(useTransform), sourceEntity);
-            } catch (ConfigurationException ex) {
-                return new String[] { String.format("[%s]", useTransform.toUpperCase()), null };
+            } catch (ConfigurationException ignored) {
+                return null;
             }
-
-            targetEntity = cb.getString("target");
-            if (MetadataHelper.containsEntity(targetEntity)) {
-                return new String[]{ targetEntity, EasyMetaFactory.getLabel(targetEntity) };
-            } else {
-                return new String[]{ null, String.format("[%s]", targetEntity.toUpperCase()) };
+            return new String[]{ useTransform, cb.getString("name") };
+        }
+        // 自动审批
+        String useApproval = configJson.getString("useApproval");
+        if (ID.isId(useApproval)) {
+            ConfigBean cb;
+            try {
+                cb = RobotApprovalManager.instance.getFlowDefinition(ID.valueOf(useApproval));
+            } catch (ConfigurationException ignored) {
+                return null;
             }
+            return new String[]{ useApproval, cb.getString("name") };
         }
 
         return null;

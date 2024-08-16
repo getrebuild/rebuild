@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
+import com.rebuild.core.DefinedException;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.utils.JSONUtils;
@@ -59,6 +60,10 @@ public class LiteFormBuilder {
      * @return
      */
     public JSONArray build(JSONArray fieldElements) {
+        if (fieldElements == null || fieldElements.isEmpty()) {
+            throw new DefinedException("No field elements");
+        }
+
         Record recordData = null;
         if (recordId != null) {
             recordData = FormsBuilder.instance.findRecord(recordId, user, fieldElements);

@@ -143,7 +143,8 @@ public enum ConfigurationItem {
                 || SecurityEnhanced.name().equalsIgnoreCase(name)
                 || TrustedAllUrl.name().equalsIgnoreCase(name)
                 || LibreofficeBin.name().equalsIgnoreCase(name)
-                || UnsafeImgAccess.name().equals(name);
+                || UnsafeImgAccess.name().equals(name)
+                || SN.name().equals(name);
     }
 
     private Object defaultVal;

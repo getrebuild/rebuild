@@ -884,7 +884,7 @@ class AnyRecordSelector extends React.Component {
       .select2({
         placeholder: `${$L('选择记录')}`,
         minimumInputLength: 0,
-        maximumSelectionLength: 1,
+        maximumSelectionLength: 2,
         ajax: {
           url: '/commons/search/search',
           delay: 300,
@@ -915,6 +915,19 @@ class AnyRecordSelector extends React.Component {
             return $L('只能选择 1 项')
           },
         },
+        templateResult: function (res) {
+          const $span = $('<span class="code-append"></span>').attr('title', res.text).text(res.text)
+          if (res.id) {
+            $(`<a title="${$L('在新页面打开')}"><i class="zmdi zmdi-open-in-new"></i></a>`)
+              .appendTo($span)
+              .on('mousedown', (e) => {
+                $stopEvent(e, true)
+                window.open(`${rb.baseUrl}/app/redirect?id=${res.id}&type=newtab`)
+              })
+          }
+          return $span
+        },
+        theme: 'default select2-option-relative',
       })
       .on('change', (e) => {
         typeof that.props.onSelect === 'function' && that.props.onSelect(e.target.value)
