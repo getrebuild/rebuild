@@ -133,7 +133,7 @@ $(function () {
 
   var bosskey = 0
   $(document).on('keydown', function (e) {
-    if (e.shiftKey) {
+    if (e.keyCode === 16) {
       if (++bosskey === 6) {
         $('.bosskey-show').removeClass('bosskey-show')
         typeof window.bosskeyTrigger === 'function' && window.bosskeyTrigger()
