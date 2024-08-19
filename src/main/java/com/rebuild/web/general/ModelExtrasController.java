@@ -8,8 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.general;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
-import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -22,20 +20,14 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.easymeta.EasyDateTime;
-import com.rebuild.core.metadata.easymeta.EasyDecimal;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
-import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.general.transform.RecordTransfomer;
 import com.rebuild.core.service.general.transform.RecordTransfomer37;
-import com.rebuild.core.service.trigger.aviator.AviatorUtils;
-import com.rebuild.core.support.general.ContentWithFieldVars;
+import com.rebuild.core.support.general.CalcFormulaSupport;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -50,14 +42,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * 表单/视图 功能扩展
@@ -227,73 +217,7 @@ public class ModelExtrasController extends BaseController {
             }
         }
 
-        EasyField easyField = EasyMetaFactory.valueOf(entity.getField(targetField));
-        String formula = easyField.getExtraAttr(EasyFieldConfigProps.DATE_CALCFORMULA);
-
-        boolean canCalc = true;
-        Set<String> fieldVars = ContentWithFieldVars.matchsVars(formula);
-        for (String field : fieldVars) {
-            if (EasyDateTime.VAR_NOW.equals(field) || "NOW".equals(field)) {
-                varsInFormula.put(field, CalendarUtils.now());
-                continue;
-            }
-
-            if (!entity.containsField(field)) {
-                canCalc = false;
-                break;
-            }
-
-            Object fieldValue = varsInFormula.get(field);
-            if (fieldValue == null) {
-                canCalc = false;
-                break;
-            }
-
-            String fieldValue2 = fieldValue.toString();
-            DisplayType dt = EasyMetaFactory.valueOf(entity.getField(field)).getDisplayType();
-            if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-                fieldValue = CalendarUtils.parse(fieldValue2, CalendarUtils.UTC_DATETIME_FORMAT.substring(0, fieldValue2.length()));
-            } else if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
-                fieldValue = EasyDecimal.clearFlaged(fieldValue2);
-                if (StringUtils.isNotBlank((String) fieldValue)) {
-                    // v3.6.3 整数/小数强制使用 BigDecimal 高精度
-                    if (dt == DisplayType.NUMBER) fieldValue = BigDecimal.valueOf(ObjectUtils.toLong(fieldValue));
-                    else fieldValue = BigDecimal.valueOf(ObjectUtils.toDouble(fieldValue));
-                } else {
-                    fieldValue = null;
-                }
-            }
-
-            if (fieldValue == null) {
-                canCalc = false;
-                break;
-            }
-            varsInFormula.put(field, fieldValue);
-        }
-        if (!canCalc) return RespBody.ok();
-
-        formula = formula
-                .replace("{", "").replace("}", "")
-                .replace("×", "*").replace("÷", "/");
-
-        Object evalVal = AviatorUtils.eval(formula, varsInFormula, true);
-        if (evalVal == null) return RespBody.ok();
-
-        DisplayType dt = easyField.getDisplayType();
-        if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-            if (evalVal instanceof Date) {
-                evalVal = easyField.wrapValue(evalVal);
-                return RespBody.ok(evalVal);
-            }
-        } else if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
-            if (evalVal instanceof Number) {
-                evalVal = easyField.wrapValue(evalVal);
-                evalVal = EasyDecimal.clearFlaged(evalVal);
-                return RespBody.ok(evalVal);
-            }
-        }
-
-        log.warn("Bad eval value `{}` for field : {}", evalVal, easyField.getRawMeta());
-        return RespBody.ok();
+        Object evalVal = CalcFormulaSupport.evalCalcFormula(entity.getField(targetField), varsInFormula);
+        return evalVal == null ? RespBody.ok() : RespBody.ok(evalVal);
     }
 }
