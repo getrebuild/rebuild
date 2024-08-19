@@ -706,6 +706,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .expires-by-time {
   width: 180px;
+  width: 100%;
 }
 
 .expires-notify-set {
