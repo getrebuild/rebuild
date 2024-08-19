@@ -416,6 +416,7 @@ class MatchFields extends React.Component {
           // 文本兼容
           if (['TEXT', 'PHONE'].includes(TF.type) && ['TEXT', 'PHONE'].includes(x.type)) return true
           if (['TEXT', 'EMAIL'].includes(TF.type) && ['TEXT', 'EMAIL'].includes(x.type)) return true
+          if (['TEXT', 'SERIES'].includes(TF.type) && ['TEXT', 'SERIES'].includes(x.type)) return true
           return false
         })
         this.setState({ sourceFields: SF })
@@ -450,7 +451,7 @@ class MatchFields extends React.Component {
     // TODO 开放更多匹配字段
     const targetFields = []
     this.__targetFields.forEach((item) => {
-      if (['TEXT', 'PHONE', 'EMAIL', 'DATE', 'DATETIME', 'CLASSIFICATION', 'REFERENCE'].includes(item.type)) targetFields.push(item)
+      if (['SERIES', 'TEXT', 'PHONE', 'EMAIL', 'DATE', 'DATETIME', 'CLASSIFICATION', 'REFERENCE'].includes(item.type)) targetFields.push(item)
     })
 
     if (init) {

@@ -225,15 +225,8 @@ class RbFormHandler extends RbModalHandler {
   }
 
   componentWillUnmount() {
-    // destroy select2
     if (this.__select2) {
-      if (Array.isArray(this.__select2)) {
-        this.__select2.forEach(function (s) {
-          s.select2('destroy')
-        })
-      } else {
-        this.__select2.select2('destroy')
-      }
+      __destroySelect2(this.__select2)
       this.__select2 = null
     }
   }
@@ -333,6 +326,13 @@ class RbAlert extends React.Component {
 
     if (this.props.countdown > 0) {
       $countdownButton($(this._$btn), this.props.countdown)
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.__select2) {
+      __destroySelect2(this.__select2)
+      this.__select2 = null
     }
   }
 
@@ -1438,4 +1438,15 @@ const renderDlgcomp = function (JSX, id) {
 // for: React v18
 const renderRbcomp18 = function (JSX, container) {
   return renderRbcomp(JSX, container, null, true)
+}
+
+// destroy select2
+function __destroySelect2(__select2) {
+  if (__select2) {
+    if (Array.isArray(__select2)) {
+      __select2.forEach((s) => s.select2('destroy'))
+    } else {
+      __select2.select2('destroy')
+    }
+  }
 }
