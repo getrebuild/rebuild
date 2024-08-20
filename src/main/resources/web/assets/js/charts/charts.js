@@ -386,8 +386,8 @@ const ECHART_VALUE_LABEL2 = function (dataFlags = []) {
 const ECHART_TOOLTIP_FORMATTER = function (i, dataFlags = []) {
   if (!Array.isArray(i)) i = [i] // Object > Array
   const tooltip = [`<b>${i[0].name}</b>`]
-  i.forEach((a, idx) => {
-    tooltip.push(`${a.marker} ${a.seriesName} : ${formatThousands(a.value, dataFlags[idx])}`)
+  i.forEach((a) => {
+    tooltip.push(`${a.marker} ${a.seriesName} : ${formatThousands(a.value, dataFlags[a.seriesIndex])}`)
   })
   return tooltip.join('<br>')
 }
@@ -1538,7 +1538,6 @@ class ChartCNMap extends BaseChart {
       .find('.chart-body')
       .height(H - (window.render_preview_chart ? 0 : 40))
     this.__lastHW = [H, W]
-    console.log(this.__lastHW)
   }
 
   export() {
