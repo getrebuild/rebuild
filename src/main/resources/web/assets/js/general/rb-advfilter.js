@@ -540,7 +540,7 @@ class FilterItem extends React.Component {
     let op4init = this.props.op
     const that = this
     $s2field = $(this._filterField)
-      .select2({ allowClear: false })
+      .select2({ allowClear: false, theme: 'default select2-option-advfilter' })
       .on('change', function (e) {
         const fieldAndType = e.target.value.split(NT_SPLIT)
         that.setState({ field: fieldAndType[0], type: fieldAndType[1] }, () => {
@@ -553,7 +553,7 @@ class FilterItem extends React.Component {
         })
       })
     $s2op = $(this._filterOp)
-      .select2({ allowClear: false })
+      .select2({ allowClear: false, theme: 'default select2-option-advfilter' })
       .on('change', function (e) {
         that.setState({ op: e.target.value }, () => that._componentDidUpdate())
       })
@@ -682,6 +682,7 @@ class FilterItem extends React.Component {
       .select2({
         width: this.props.select2Width,
         placeholder: this.props.select2Placeholder,
+        theme: 'default select2-option-advfilter',
       })
       .on('change.select2', function () {
         that.setState({ value: $s2val.val().join('|') })
@@ -733,6 +734,7 @@ class FilterItem extends React.Component {
             return { results: rs }
           },
         },
+        theme: 'default select2-option-advfilter',
       })
       .on('change.select2', function () {
         const val = $s2val.val()
@@ -824,6 +826,7 @@ class FilterItem extends React.Component {
         width: this.props.select2Width,
         placeholder: this.props.select2Placeholder,
         allowClear: this.props.allowClear === true,
+        theme: 'default select2-option-advfilter',
       })
       .on('change.select2', function () {
         that.setState({ value: $s2val.val() })

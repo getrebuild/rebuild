@@ -2624,6 +2624,19 @@ th.column-fixed {
   padding-right: 8px;
 }
 
+.adv-filter .item .field {
+  padding-right: 10px;
+}
+
+.adv-filter .item .val {
+  padding-left: 10px;
+}
+
+.select2-container--default.select2-option-advfilter .select2-results__option {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
 .adv-filter .btn + .btn,
 .adv-filter .btn-group + .btn {
   margin-left: 10px;
