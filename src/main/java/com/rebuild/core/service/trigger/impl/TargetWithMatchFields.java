@@ -54,7 +54,7 @@ public class TargetWithMatchFields {
     @Getter
     private Object targetRecordId;
 
-    protected TargetWithMatchFields() {
+    public TargetWithMatchFields() {
         super();
     }
 
@@ -70,7 +70,7 @@ public class TargetWithMatchFields {
      * @param actionContext
      * @return
      */
-    public ID[] matchMulti(ActionContext actionContext) {
+    public ID[] matchMultiple(ActionContext actionContext) {
         Object o = match(actionContext, true);
         return o == null ? new ID[0] : (ID[]) o;
     }

@@ -1100,7 +1100,7 @@ body {
 }
 
 .sop-steps li > div {
-  width: 120px;
+  width: 150px;
 }
 
 .sop-steps li > div > span {
@@ -1125,9 +1125,18 @@ body {
   padding: 0;
 }
 
-.sop-steps li > div > p {
-  margin-top: 5px;
-  line-height: 1;
+.sop-steps li > div > p,
+.sop-steps li > div > div.tip-content {
+  margin-top: 4px;
+  line-height: 1.2;
+}
+
+.sop-steps li > div > div.tip-content {
+  background-color: #eee;
+  background-color: rgba(232, 240, 254, 0.5);
+  padding: 2px 4px;
+  font-size: 12px;
+  border-radius: 3px;
 }
 
 .sop-steps li.state-2 > div > span:hover {

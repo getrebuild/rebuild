@@ -46,7 +46,10 @@ public class EasyFieldConfigProps {
      * 表单公式
      */
     public static final String NUMBER_CALCFORMULA = "calcFormula";
-
+    /**
+     * 表单公式
+     */
+    public static final String NUMBER_CALCFORMULABACKEND = "calcFormulaBackend";
     /**
      * 是否允许负数
      */

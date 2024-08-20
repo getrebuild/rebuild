@@ -99,6 +99,7 @@ public class FieldWritebackController extends BaseController {
         // v35 字段匹配
         if (getBoolParameter(request, "matchfields")) {
             for (Entity entity : MetadataSorter.sortEntities(null, false, true)) {
+                if (sourceEntity.equals(entity)) continue;
                 temp.add(new String[] { entity.getName(), EasyMetaFactory.getLabel(entity), "$" });
             }
 

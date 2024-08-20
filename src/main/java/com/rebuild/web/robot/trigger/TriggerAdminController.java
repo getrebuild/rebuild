@@ -13,7 +13,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
-import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
@@ -162,7 +161,7 @@ public class TriggerAdminController extends BaseController {
             ConfigBean cb;
             try {
                 cb = TransformManager.instance.getTransformConfig(ID.valueOf(useTransform), sourceEntity);
-            } catch (ConfigurationException ignored) {
+            } catch (Exception ignored) {
                 return null;
             }
             return new String[]{ useTransform, cb.getString("name") };
@@ -173,7 +172,7 @@ public class TriggerAdminController extends BaseController {
             ConfigBean cb;
             try {
                 cb = RobotApprovalManager.instance.getFlowDefinition(ID.valueOf(useApproval));
-            } catch (ConfigurationException ignored) {
+            } catch (Exception ignored) {
                 return null;
             }
             return new String[]{ useApproval, cb.getString("name") };

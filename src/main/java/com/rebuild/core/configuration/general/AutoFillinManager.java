@@ -30,6 +30,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.EasyN2NReference;
 import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.support.general.CalcFormulaSupport;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +48,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 表单自动回填
+ * 表单自动回填。
+ * 请注意此功能的优先级：回填实在构建 Record 时发生，因此相对触发器，其优先级较低
  *
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/17
@@ -237,6 +239,10 @@ public class AutoFillinManager implements ConfigManager {
 
             fillin += fillinRecordItem(easyField.getRawMeta(), record.getObjectValue(fieldName), isNew, fillinForce, record);
         }
+
+        // v3.8 借用贵宝地
+        CalcFormulaSupport.calcFormulaBackend(record);
+
         return fillin;
     }
 

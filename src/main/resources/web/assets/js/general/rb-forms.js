@@ -782,9 +782,9 @@ class RbForm extends React.Component {
     const $btn = $(this._$formAction).find('.btn').button('loading')
     let url = '/app/entity/record-save'
     if (previewid) url += `?previewid=${previewid}`
-    if (weakMode === true) {
-      if (url.includes('?')) url += '&weakMode=true'
-      else url += '?weakMode=true'
+    if (weakMode) {
+      url += url.includes('?') ? '&' : '?'
+      url += 'weakMode=' + weakMode
     }
 
     $.post(url, JSON.stringify(data), (res) => {
@@ -835,13 +835,16 @@ class RbForm extends React.Component {
           // ~
         }, 200)
       } else if (res.error_code === 499) {
+        // 重复记录
         renderRbcomp(<RepeatedViewer entity={this.state.entity} data={res.data} />)
       } else if (res.error_code === 497) {
+        // 弱校验
         const that = this
-        RbAlert.create(res.error_msg, {
+        const msg_id = res.error_msg.split('$$$$')
+        RbAlert.create(msg_id[0], {
           onConfirm: function () {
             this.hide()
-            that._post(next, true)
+            that._post(next, msg_id[1])
           },
         })
       } else {

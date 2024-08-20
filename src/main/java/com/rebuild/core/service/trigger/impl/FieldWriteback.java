@@ -208,7 +208,7 @@ public class FieldWriteback extends FieldAggregation {
         // v35
         if (TARGET_ANY.equals(targetFieldEntity[0])) {
             TargetWithMatchFields targetWithMatchFields = new TargetWithMatchFields();
-            ID[] ids = targetWithMatchFields.matchMulti(actionContext);
+            ID[] ids = targetWithMatchFields.matchMultiple(actionContext);
             CollectionUtils.addAll(targetRecordIds, ids);
         }
         // 自己更新自己

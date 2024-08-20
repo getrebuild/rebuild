@@ -146,7 +146,7 @@ class RbViewForm extends React.Component {
     setTimeout(() => this._saveSingleFieldValue(fieldComp), 30)
   }
 
-  _saveSingleFieldValue(fieldComp) {
+  _saveSingleFieldValue(fieldComp, weakMode) {
     const fieldName = fieldComp.props.field
     const fieldValue = this.__FormData[fieldName]
     // Unchanged
@@ -162,7 +162,9 @@ class RbViewForm extends React.Component {
     }
 
     const $btn = $(fieldComp._fieldText).find('.edit-oper .btn').button('loading')
-    $.post('/app/entity/record-save?singleField=true', JSON.stringify(data), (res) => {
+    let url = '/app/entity/record-save?singleField=true'
+    if (weakMode) url += '&weakMode=' + weakMode
+    $.post(url, JSON.stringify(data), (res) => {
       $btn.button('reset')
 
       if (res.error_code === 0) {
@@ -178,9 +180,19 @@ class RbViewForm extends React.Component {
           setTimeout(() => RbViewPage.reload(), 200)
         }
       } else if (res.error_code === 499) {
-        // 有重复
+        // 重复记录
         // eslint-disable-next-line react/jsx-no-undef
         renderRbcomp(<RepeatedViewer entity={this.props.entity} data={res.data} />)
+      } else if (res.error_code === 497) {
+        // 弱校验
+        const that = this
+        const msg_id = res.error_msg.split('$$$$')
+        RbAlert.create(msg_id[0], {
+          onConfirm: function () {
+            this.hide()
+            that._saveSingleFieldValue(fieldComp, msg_id[1])
+          },
+        })
       } else {
         RbHighbar.error(res.error_msg)
       }

@@ -225,15 +225,8 @@ class RbFormHandler extends RbModalHandler {
   }
 
   componentWillUnmount() {
-    // destroy select2
     if (this.__select2) {
-      if (Array.isArray(this.__select2)) {
-        this.__select2.forEach(function (s) {
-          s.select2('destroy')
-        })
-      } else {
-        this.__select2.select2('destroy')
-      }
+      __destroySelect2(this.__select2)
       this.__select2 = null
     }
   }
@@ -336,6 +329,13 @@ class RbAlert extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    if (this.__select2) {
+      __destroySelect2(this.__select2)
+      this.__select2 = null
+    }
+  }
+
   hide(forceHide) {
     if (forceHide) $(this._dlg).off('hide.bs.modal')
     $(this._dlg).modal('hide')
@@ -421,6 +421,12 @@ class RbHighbar extends React.Component {
   close = () => {
     this.setState({ animatedClass: 'fadeOut' })
     setTimeout(() => $unmount($(this._element).parent(), 20), 200)
+    setTimeout(() => {
+      $('.rbhighbar').each(function () {
+        const top = ~~($(this).css('top') || '0').replace('px', '')
+        if (top >= 62) $(this).animate({ top: top - 62 }, 100)
+      })
+    }, 100)
   }
 
   // -- Usage
@@ -1432,4 +1438,15 @@ const renderDlgcomp = function (JSX, id) {
 // for: React v18
 const renderRbcomp18 = function (JSX, container) {
   return renderRbcomp(JSX, container, null, true)
+}
+
+// destroy select2
+function __destroySelect2(__select2) {
+  if (__select2) {
+    if (Array.isArray(__select2)) {
+      __select2.forEach((s) => s.select2('destroy'))
+    } else {
+      __select2.select2('destroy')
+    }
+  }
 }
