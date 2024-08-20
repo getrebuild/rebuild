@@ -75,7 +75,7 @@ public class ReportTemplateController extends BaseController {
         String entity = getParameter(request, "entity");
         String q = getParameter(request, "q");
 
-        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,templateType,extraDefinition,configId from DataReportConfig" +
+        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,templateType,extraDefinition,configId,templateFile from DataReportConfig" +
                 " where (1=1) and (2=2)" +
                 " order by modifiedOn desc, name";
 
@@ -234,8 +234,16 @@ public class ReportTemplateController extends BaseController {
     }
 
     @GetMapping("/report-templates/download")
-    public void download(@IdParam ID reportId, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        File template = DataReportManager.instance.buildTemplateFile(reportId).templateFile;
+    public void download(@IdParam(required = false) ID reportId, HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        File template;
+        if (reportId != null) {
+            template = DataReportManager.instance.buildTemplateFile(reportId).templateFile;
+        } else {
+            String path = getParameterNotNull(request, "file");
+            template = RebuildConfiguration.getFileOfData(path);
+        }
+
         String attname = QiniuCloud.parseFileName(template.getName());
 
         FileDownloader.setDownloadHeaders(request, response, attname, false);

@@ -61,9 +61,6 @@ class ReportList extends ConfigList {
                 <a className="icon" title={$L('预览')} href={`${rb.baseUrl}/admin/data/report-templates/preview?id=${item[0]}`} target="_blank">
                   <i className="zmdi mdi mdi-file-eye-outline" />
                 </a>
-                <a className="icon" title={$L('下载模板')} href={`${rb.baseUrl}/admin/data/report-templates/download?id=${item[0]}`} target="_blank">
-                  <i className="zmdi zmdi-download" />
-                </a>
                 <a className="icon" title={$L('修改')} onClick={() => this.handleEdit(item)}>
                   <i className="zmdi zmdi-edit" />
                 </a>
@@ -79,7 +76,7 @@ class ReportList extends ConfigList {
   }
 
   handleEdit(item) {
-    renderRbcomp(<ReportEditor id={item[0]} name={item[3]} isDisabled={item[4]} extraDefinition={item[7]} entity={item[1]} reportType={item[6]} />)
+    renderRbcomp(<ReportEditor id={item[0]} name={item[3]} isDisabled={item[4]} extraDefinition={item[7]} entity={item[1]} reportType={item[6]} templateFile={item[9]} />)
   }
 
   handleDelete(id) {
@@ -104,6 +101,8 @@ class ReportEditor extends ConfigFormDlg {
 
   renderFrom() {
     const isHtml5 = this.props.reportType === 3 || this.state.reportType === 3
+    const templateFile = this.state.templateFile || this.props.templateFile
+
     return (
       <RF>
         {!this.props.id && (
@@ -149,7 +148,7 @@ class ReportEditor extends ConfigFormDlg {
             </div>
           </RF>
         )}
-        <div className={`form-group row ${this.props.id ? 'bosskey-show' : ''} ${isHtml5 && 'hide'}`}>
+        <div className={`form-group row ${isHtml5 && 'hide'}`}>
           <label className="col-sm-3 col-form-label text-sm-right">{$L('模板文件')}</label>
           <div className="col-sm-9">
             <div className="float-left">
@@ -157,12 +156,16 @@ class ReportEditor extends ConfigFormDlg {
                 <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls,.docx" data-local="true" ref={(c) => (this._$upload = c)} />
                 <label htmlFor="upload-input" className="btn-secondary">
                   <i className="zmdi zmdi-upload" />
-                  <span>{$L('选择文件')}</span>
+                  <span>{this.props.id ? $L('重新上传') : $L('选择文件')}</span>
                 </label>
               </div>
             </div>
             <div className="float-left ml-2" style={{ paddingTop: 8 }}>
-              {this.state.uploadFileName && <u className="text-bold">{this.state.uploadFileName}</u>}
+              {templateFile && (
+                <a href={`${rb.baseUrl}/admin/data/report-templates/download?file=${$encode(templateFile)}`} target="_blank" title={$L('下载模版')} className="text-bold text-dark text-underline">
+                  {$fileCutName(templateFile)}
+                </a>
+              )}
             </div>
             <div className="clearfix" />
             <p className="form-text mt-0 mb-0 link" dangerouslySetInnerHTML={{ __html: $L('[如何编写模板文件](https://getrebuild.com/docs/admin/excel-admin)') }} />
@@ -257,12 +260,13 @@ class ReportEditor extends ConfigFormDlg {
       $createUploader(
         this._$upload,
         () => {
-          that.setState({ uploadFileName: null })
+          that.setState({ templateFile: null })
           $mp.start()
         },
         (res) => {
           $mp.end()
           that.__lastFile = res.key
+          // 新建时
           if (this.__select2) {
             // 自动选择 WORD
             if (that.__lastFile.toLowerCase().endsWith('.docx') && that.state.reportType !== 4) {
@@ -271,16 +275,8 @@ class ReportEditor extends ConfigFormDlg {
               that.checkTemplate()
             }
           } else {
-            const fileName = $fileCutName(this.__lastFile)
-            this.setState(
-              {
-                templateFile: this.__lastFile,
-                uploadFileName: fileName,
-              },
-              () => {
-                // ...
-              }
-            )
+            // v3.8
+            that.checkTemplate()
           }
         }
       )
@@ -303,24 +299,20 @@ class ReportEditor extends ConfigFormDlg {
       if (this.props.reportType === 2) $(this._$useFilter).attr('disabled', true)
     } else {
       $(this._$outputType).find('input:eq(0)').attr('checked', true)
-
-      const $pw = $(`<button type="button" class="btn btn-secondary ml-2 J_pw3"><i class="icon mdi mdi-file-eye-outline mr-1"></i>${$L('预览')}</button>`)
-      $(this._btns).find('.btn-primary').after($pw)
-      $pw.on('click', () => {
-        if (this.props.id) {
-          window.open(`./report-templates/preview?id=${this.props.id}`)
-        } else {
-          const ps = this._buildParams()
-          if (ps === false) return RbHighbar.create($L('请选择应用实体并上传模板文件'))
-
-          let output // default
-          if ($val($(this._$outputType).find('input:eq(1)'))) output = 'pdf'
-          else if ($val($(this._$outputType).find('input:eq(2)'))) output = 'html'
-
-          window.open(`./report-templates/preview?${ps}&output=${output || ''}`)
-        }
-      })
     }
+
+    const $p = $(`<button type="button" class="btn btn-secondary ml-2 J_pw3"><i class="icon mdi mdi-file-eye-outline mr-1"></i>${$L('预览')}</button>`)
+    $(this._btns).find('.btn-primary').after($p)
+    $p.on('click', () => {
+      const ps = this._buildParams()
+      if (ps === false) return RbHighbar.create($L('请选择应用实体并上传模板文件'))
+
+      let output // default
+      // if ($val($(this._$outputType).find('input:eq(1)'))) output = 'pdf'
+      // else if ($val($(this._$outputType).find('input:eq(2)'))) output = 'html'
+
+      window.open(`./report-templates/preview?${ps}&output=${output || ''}`)
+    })
 
     this.props.id && console.log(`RBAPI ASSISTANT *Report* :\n %c${this.props.id}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
   }
@@ -345,12 +337,10 @@ class ReportEditor extends ConfigFormDlg {
 
       $.get(`/admin/data/report-templates/check-template?${ps}`, (res) => {
         if (res.error_code === 0) {
-          const fileName = $fileCutName(this.__lastFile)
           this.setState(
             {
               templateFile: this.__lastFile,
-              uploadFileName: fileName,
-              name: this.state.name || fileName,
+              name: this.state.name || $fileCutName(this.__lastFile),
               invalidVars: res.data.invalidVars,
               invalidMsg: res.data.invalidMsg,
             },
@@ -394,8 +384,8 @@ class ReportEditor extends ConfigFormDlg {
     const type = this.state.reportType
     if (type === 2) this.setState({ useFilter: null })
 
-    const entity = this.__select2.val()
-    const file = this.__lastFile
+    const entity = this.__select2 ? this.__select2.val() : this.props.entity
+    const file = this.__lastFile || this.props.templateFile
     if (!file || !entity) return false
 
     if ((type === 4 || type === 3) && rb.commercial < 10) {
@@ -410,7 +400,6 @@ class ReportEditor extends ConfigFormDlg {
   _clearParams() {
     this.setState({
       templateFile: null,
-      uploadFileName: null,
       invalidVars: null,
       invalidMsg: null,
     })
@@ -438,7 +427,7 @@ class ReportEditor extends ConfigFormDlg {
 
     if (this.props.id) {
       post.isDisabled = this.state.isDisabled === true
-      if (this.state.templateFile) post.templateFile = this.state.templateFile
+      if (this.__lastFile) post.templateFile = this.__lastFile
     } else {
       post.belongEntity = this.__select2.val()
       post.templateFile = this.state.templateFile
