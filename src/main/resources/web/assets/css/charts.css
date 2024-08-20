@@ -609,6 +609,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #4285f4 !important;
 }
 
+.chart-box.DataList .table td .badge {
+  padding: 3px 6px;
+  line-height: 1;
+  font-size: 13px;
+}
+
 /* for tablecellsselection.js */
 
 .tcs::selection {
