@@ -86,6 +86,11 @@
                 <configuration>
                     <nodeVersion>v10.22.0</nodeVersion>
                     <workingDirectory>.deploy</workingDirectory>
+                    <!-- UNCOMMENT USE NODE MIRROR -->
+                    <!--
+                    <nodeDownloadRoot>https://mirrors.tuna.tsinghua.edu.cn/nodejs-release/</nodeDownloadRoot>
+                    <npmRegistryURL>https://registry.npmmirror.com</npmRegistryURL>
+                    -->
                 </configuration>
             </plugin>
             <!-- USE COMMERCIAL MODULES IF EXISTS -->
