@@ -138,9 +138,7 @@ public class FieldWritebackController extends BaseController {
         if (targetEntity != null) {
             targetFields = MetaFormatter.buildFieldsWithRefs(targetEntity, 1, true, field -> {
                 EasyField easyField = (EasyField) field;
-                return easyField.getDisplayType() == DisplayType.SERIES
-                        || easyField.getDisplayType() == DisplayType.BARCODE
-                        || easyField.isBuiltin();
+                return easyField.getDisplayType() == DisplayType.BARCODE || easyField.isBuiltin();
             });
         }
 
