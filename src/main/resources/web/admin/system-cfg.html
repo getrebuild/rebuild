@@ -162,8 +162,8 @@
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">[[${bundle.L('显示页面水印')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 1 ? 'MarkWatermark' : ''}" th:data-value="${MarkWatermark}">[[${MarkWatermark ? bundle.L('是') : bundle.L('否')}]]</td>
+                        <td width="40%">[[${bundle.L('显示页面水印')}]]</td>
+                        <td th:data-id="MarkWatermark" th:data-value="${MarkWatermark}">[[${MarkWatermark ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('允许分享文件')}]]</td>
