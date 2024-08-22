@@ -124,6 +124,7 @@ public enum ConfigurationItem {
     SecurityEnhanced(false), // 安全增强
     TrustedAllUrl(false), // 可信外部地址
     LibreofficeBin,                 // Libreoffice 命令
+    MysqldumpBin,                   // mysqldump 命令
     UnsafeImgAccess(false), // 不安全图片访问
 
     ;
@@ -143,6 +144,7 @@ public enum ConfigurationItem {
                 || SecurityEnhanced.name().equalsIgnoreCase(name)
                 || TrustedAllUrl.name().equalsIgnoreCase(name)
                 || LibreofficeBin.name().equalsIgnoreCase(name)
+                || MysqldumpBin.name().equalsIgnoreCase(name)
                 || UnsafeImgAccess.name().equals(name)
                 || SN.name().equals(name);
     }

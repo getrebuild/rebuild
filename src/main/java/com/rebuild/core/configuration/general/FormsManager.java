@@ -72,18 +72,25 @@ public class FormsManager extends BaseLayoutManager {
 
         // 2.使用布局
         if (use == null) {
-            for (Object[] o : alls) {
-                ConfigBean cb = findConfigBean(alls, (ID) o[0]);
-                ShareToAttr attr = new ShareToAttr(cb);
-                if (recordOrLayoutId == null) {
-                    if (attr.isFallback() || attr.isForNew()) {
-                        use = cb;
-                        break;
-                    }
-                } else {
-                    if (attr.isMatchUseFilter(recordOrLayoutId)) {
-                        use = cb;
-                        break;
+            // 2.1.高优先级
+            if (recordOrLayoutId == null) {
+                use = findBest(alls);
+            }
+            // 2.2.次优先级
+            if (use == null) {
+                for (Object[] o : alls) {
+                    ConfigBean cb = findConfigBean(alls, (ID) o[0]);
+                    ShareToAttr attr = new ShareToAttr(cb);
+                    if (recordOrLayoutId == null) {
+                        if (attr.isFallback() || attr.isForNew()) {
+                            use = cb;
+                            break;
+                        }
+                    } else {
+                        if (attr.isMatchUseFilter(recordOrLayoutId)) {
+                            use = cb;
+                            break;
+                        }
                     }
                 }
             }
@@ -121,6 +128,16 @@ public class FormsManager extends BaseLayoutManager {
                 .set("elements", JSONUtils.EMPTY_ARRAY);
     }
 
+    // 找最高优先级的那个
+    private ConfigBean findBest(Object[][] alls) {
+        for (Object[] o : alls) {
+            ConfigBean cb = findConfigBean(alls, (ID) o[0]);
+            ShareToAttr attr = new ShareToAttr(cb);
+            if (attr.isFallback() && attr.isForNew()) return cb;
+        }
+        return null;
+    }
+
     // -- ADMIN
 
     /**
@@ -130,6 +147,13 @@ public class FormsManager extends BaseLayoutManager {
      */
     public ConfigBean getFormLayout(ID formConfigId, String entity) {
         final Object[][] alls = getAllConfig(entity, TYPE_FORM);
+
+        // 高优先级
+        if (formConfigId == null) {
+            ConfigBean best = findBest(alls);
+            if (best != null) return best;
+        }
+        // 次优先级
         for (Object[] o : alls) {
             if (formConfigId == null) {
                 return findConfigBean(alls, (ID) o[0]);
@@ -208,6 +232,7 @@ public class FormsManager extends BaseLayoutManager {
     static class ShareToAttr {
 
         private final JSONObject attrs;
+        private final boolean sysDefault;
         protected ShareToAttr(ConfigBean cb) {
             Object s = cb.getObject("shareTo");
             if (s instanceof JSON) {
@@ -216,16 +241,17 @@ public class FormsManager extends BaseLayoutManager {
                 // shareTo=ALL
                 this.attrs = JSONUtils.toJSONObject("fallback", true);
             }
+            this.sysDefault = cb.getString("name") == null;  // 系统默认的
         }
 
         // 默认
         boolean isFallback() {
-            return this.attrs.getBooleanValue("fallback");
+            return this.sysDefault || this.attrs.getBooleanValue("fallback");
         }
 
         // 新建
         boolean isForNew() {
-            return this.attrs.getBooleanValue("fornew");
+            return this.sysDefault || this.attrs.getBooleanValue("fornew");
         }
 
         // 符合使用条件

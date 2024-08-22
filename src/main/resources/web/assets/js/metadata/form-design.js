@@ -103,7 +103,7 @@ $(document).ready(() => {
       $action.find('span').on('click', (e) => {
         $stopEvent(e, true)
         renderRbcomp(<DlgNForm entity={wpc.entityName} id={item.id} name={item.name} attrs={item.shareTo} />)
-        $('.form-action-menu').dropdown('toggle')
+        $('.form-action-menu').prev().dropdown('toggle') // hide
       })
 
       if (wpc.formConfig.id === item.id) $item.addClass('check')

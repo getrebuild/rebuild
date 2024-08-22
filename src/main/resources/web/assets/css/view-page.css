@@ -1078,13 +1078,13 @@ body {
 .sop-steps::after,
 .sop-steps::before {
   content: '';
-  height: 4px;
-  line-height: 4px;
+  height: 2px;
+  line-height: 2px;
   font-size: 0;
   background-color: #ddd;
   width: 100%;
   position: absolute;
-  top: 12px;
+  top: 13px;
   z-index: 1;
 }
 
@@ -1092,6 +1092,7 @@ body {
   background-color: #33a451;
   z-index: 2;
   width: var(--before-width, 0);
+  transition: width 0.4s;
 }
 
 .sop-steps li {
@@ -1187,6 +1188,16 @@ body {
   height: 16px;
   line-height: 16px;
   text-align: center;
+}
+
+.sop-table p.blockquote {
+  font-size: 1rem;
+  border-left: 3px solid #ccc;
+  padding-left: 6px;
+  color: #444;
+  margin: 0;
+  margin-top: 2px;
+  display: inline-block;
 }
 
 /* v3.7 */

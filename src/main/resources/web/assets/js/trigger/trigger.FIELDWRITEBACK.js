@@ -130,6 +130,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                 <div className="col-5">
                   <select className="form-control form-control-sm" ref={(c) => (this._$targetField = c)}>
                     {(this.state.targetFields || []).map((item) => {
+                      if (item.type === 'SERIES') return null
                       return (
                         <option key={item.name} value={item.name}>
                           {item.label}
@@ -306,7 +307,9 @@ class ContentFieldWriteback extends ActionContentSpec {
             if (typeof content.targetEntityMatchFields === 'string') {
               try {
                 eval(`content.targetEntityMatchFields = ${content.targetEntityMatchFields}`)
-              } catch (err) {}
+              } catch (err) {
+                // NOOP
+              }
             }
             setTimeout(() => this._MatchFields && this._MatchFields.setState({ groupFields: content.targetEntityMatchFields }), 200)
           }
