@@ -95,6 +95,8 @@ public class ParseHelper {
     public static final String PUY = "PUY";  // 本年-
     public static final String CUY = "CUY";  // 本年
     public static final String NUY = "NUY";  // 本年+
+    public static final String YYY = "YYY";  // 指定年+-
+    public static final String MMM = "MMM";  // 指定月+-
     public static final String DDD = "DDD";  // 指定天+-
     public static final String HHH = "HHH";  // 指定时+-
     public static final String EVW = "EVW";  // 每周几
@@ -185,7 +187,8 @@ public class ParseHelper {
         } else if (
                 CUW.equalsIgnoreCase(token) || CUM.equalsIgnoreCase(token) || CUQ.equalsIgnoreCase(token) || CUY.equalsIgnoreCase(token) ||
                 PUW.equalsIgnoreCase(token) || PUM.equalsIgnoreCase(token) || PUQ.equalsIgnoreCase(token) || PUY.equalsIgnoreCase(token) ||
-                NUW.equalsIgnoreCase(token) || NUM.equalsIgnoreCase(token) || NUQ.equalsIgnoreCase(token) || NUY.equalsIgnoreCase(token)) {
+                NUW.equalsIgnoreCase(token) || NUM.equalsIgnoreCase(token) || NUQ.equalsIgnoreCase(token) || NUY.equalsIgnoreCase(token) ||
+                YYY.equalsIgnoreCase(token) || MMM.equalsIgnoreCase(token)) {
             return "between";
         } else if (DDD.equalsIgnoreCase(token) || HHH.equalsIgnoreCase(token)
                 || EVW.equalsIgnoreCase(token) || EVM.equalsIgnoreCase(token)) {

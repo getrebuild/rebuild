@@ -508,6 +508,25 @@ public class AdvFilterParser extends SetUser {
                 }
                 op = ParseHelper.BW;
 
+            } else if (ParseHelper.YYY.equalsIgnoreCase(op)
+                    || ParseHelper.MMM.equalsIgnoreCase(op)) {
+
+                int xValue = NumberUtils.toInt(value);
+                Calendar now = CalendarUtils.getInstance();
+
+                if (ParseHelper.YYY.equalsIgnoreCase(op)) {
+                    now.add(Calendar.YEAR, xValue);
+                    value = now.get(Calendar.YEAR) + "-01-01";
+                    valueEnd = now.get(Calendar.YEAR) + "-12-31";
+                } else {
+                    now.set(Calendar.DAY_OF_MONTH, 1);
+                    now.add(Calendar.MONTH, xValue);
+
+                    value = CalendarUtils.getUTCDateFormat().format(now.getTime());
+                    Moment last = Moment.moment(now.getTime()).endOf(Moment.UNIT_MONTH);
+                    valueEnd = CalendarUtils.getUTCDateFormat().format(last.date());
+                }
+                op = ParseHelper.BW;
             }
 
         } else if (dt == DisplayType.TIME) {
