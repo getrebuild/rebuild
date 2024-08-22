@@ -102,7 +102,7 @@ public class PdfConverter {
         if (StringUtils.isBlank(soffice)) soffice = SystemUtils.IS_OS_WINDOWS ? "soffice.exe" : "libreoffice";
         String cmd = String.format("%s --headless --convert-to %s \"%s\" --outdir \"%s\"", soffice, type, path, outDir);
 
-        String echo = CommandUtils.execFor(cmd);
+        String echo = CommandUtils.execFor(cmd, false);
         if (!echo.isEmpty()) log.info(echo);
 
         if (dest.exists()) {
