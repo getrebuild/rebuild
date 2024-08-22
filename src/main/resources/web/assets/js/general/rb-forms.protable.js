@@ -9,10 +9,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // ~~ 表格型表单
 
-const COLUMN_MIN_WIDTH = 30
-const COLUMN_MAX_WIDTH = 500
-const COLUMN_DEF_WIDTH = 178 // 48
-const COLUMN_WIDTH_PLUS = ['REFERENCE', 'N2NREFERENCE', 'CLASSIFICATION']
+const _PT_COLUMN_MIN_WIDTH = 30
+const _PT_COLUMN_MAX_WIDTH = 500
+const _PT_COLUMN_DEF_WIDTH = 200
+const _PT_COLUMN_WIDTH_PLUS = ['REFERENCE', 'N2NREFERENCE', 'CLASSIFICATION']
 
 class ProTable extends React.Component {
   constructor(props) {
@@ -32,15 +32,11 @@ class ProTable extends React.Component {
 
     const formFields = this.state.formFields
     const details = this.state.details || [] // 编辑时有
-
-    // fixed 模式大概 5 个字段
-    const ww = $(window).width()
-    const fw = ww > 1064 ? 994 : ww - 70
-    const fixed = COLUMN_DEF_WIDTH * formFields.length + (38 + 48) > fw
+    const fixedWidth = formFields.length <= 5
 
     return (
-      <div className={`protable rb-scroller ${fixed && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
-        <table className={`table table-sm ${!fixed && 'table-fixed'}`}>
+      <div className={`protable rb-scroller ${!fixedWidth && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
+        <table className={`table table-sm ${fixedWidth && 'table-fixed'}`}>
           <thead>
             <tr>
               <th className="col-index action">
@@ -61,12 +57,14 @@ class ProTable extends React.Component {
               {formFields.map((item) => {
                 if (item.field === TYPE_DIVIDER) return null
 
-                let colStyle2 = { minWidth: COLUMN_DEF_WIDTH }
-                if (fixed) {
-                  // v35
-                  if (item.colspan) colStyle2.minWidth = (COLUMN_DEF_WIDTH / 2) * ~~item.colspan
-                  if (COLUMN_WIDTH_PLUS.includes(item.type)) colStyle2.minWidth += 38 // btn
-                  if (colStyle2.minWidth > COLUMN_DEF_WIDTH * 2) colStyle2.minWidth = COLUMN_DEF_WIDTH * 2
+                let colStyle2 = { minWidth: _PT_COLUMN_DEF_WIDTH }
+                if (!fixedWidth) {
+                  // v35, v38
+                  let _colspan = ~~(item.colspan || 2)
+                  if (_colspan === 9) _colspan = 1.5
+                  if (_colspan === 8) _colspan = 2.5
+                  colStyle2.minWidth = (_PT_COLUMN_DEF_WIDTH / 2) * _colspan
+                  if (_PT_COLUMN_WIDTH_PLUS.includes(item.type)) colStyle2.minWidth += 38 // btn
                 }
                 // v37 LAB
                 if (item.width) {
@@ -82,7 +80,7 @@ class ProTable extends React.Component {
                   </th>
                 )
               })}
-              <td className={`col-action ${this._initModel.detailsCopiable && 'has-copy-btn'} ${fixed && 'column-fixed'}`} />
+              <td className={`col-action ${this._initModel.detailsCopiable && 'has-copy-btn'} ${!fixedWidth && 'column-fixed'}`} />
             </tr>
           </thead>
           <tbody>
@@ -93,7 +91,7 @@ class ProTable extends React.Component {
                   <th className="col-index">{details.length + idx + 1}</th>
                   {FORM}
 
-                  <td className={`col-action ${fixed && 'column-fixed'}`}>
+                  <td className={`col-action ${!fixedWidth && 'column-fixed'}`}>
                     {this._initModel.detailsCopiable && (
                       <button className="btn btn-light" title={$L('复制')} onClick={() => this.copyLine(key)} disabled={this._isReadonly}>
                         <i className="icon zmdi zmdi-copy fs-14" />
@@ -165,8 +163,8 @@ class ProTable extends React.Component {
       stop: function (e, ui) {
         const field = $(e.target).parents('th').data('field')
         let left = ui.position.left - -10
-        if (left < COLUMN_MIN_WIDTH) left = COLUMN_MIN_WIDTH
-        else if (left > COLUMN_MAX_WIDTH) left = COLUMN_MAX_WIDTH
+        if (left < _PT_COLUMN_MIN_WIDTH) left = _PT_COLUMN_MIN_WIDTH
+        else if (left > _PT_COLUMN_MAX_WIDTH) left = _PT_COLUMN_MAX_WIDTH
 
         const fields = that.state.formFields
         for (let i = 0; i < fields.length; i++) {
