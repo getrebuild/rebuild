@@ -53,4 +53,12 @@ public class RbvMissingController extends BaseController {
         mv.getModelMap().put(WebConstants.$BUNDLE, Language.getCurrentBundle());
         return mv;
     }
+
+    @GetMapping("/admin/extforms")
+    public ModelAndView extformList() {
+        ModelAndView mv = ErrorPageView.createErrorPage(
+                Language.L("免费版不支持外部表单功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+        mv.getModelMap().put(WebConstants.$BUNDLE, Language.getCurrentBundle());
+        return mv;
+    }
 }
