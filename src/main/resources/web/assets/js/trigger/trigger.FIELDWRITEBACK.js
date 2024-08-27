@@ -77,7 +77,7 @@ class ContentFieldWriteback extends ActionContentSpec {
             <div className="form-group row">
               <label className="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
               <div className="col-md-12 col-lg-9">
-                <h5 className="mt-0 text-bold">{$L('字段匹配规则')} (LAB)</h5>
+                <h5 className="mt-0 text-bold">{$L('字段匹配规则')}</h5>
                 <MatchFields targetFields={this.state.targetFields} sourceFields={this.__sourceFieldsCache} ref={(c) => (this._MatchFields = c)} />
               </div>
             </div>
@@ -238,6 +238,7 @@ class ContentFieldWriteback extends ActionContentSpec {
               const text = res.text.split(' (N)')
               const $span = $('<span></span>').text(text[0])
               if (text.length > 1) $('<span class="badge badge-default badge-pill">N</span>').appendTo($span)
+              else if (res.children && res.children.length > 0) $('<sup class="rbv ml-1"></sup>').appendTo($span)
               return $span
             },
           })
@@ -430,6 +431,11 @@ class ContentFieldWriteback extends ActionContentSpec {
       if (v.length === 0) {
         RbHighbar.create($L('请添加字段匹配规则'))
         return false
+      } else {
+        if (rb.commercial < 1) {
+          RbHighbar.error(WrapHtml($L('免费版不支持%s功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)', $L('通过字段匹配'))))
+          return false
+        }
       }
       content.targetEntityMatchFields = v
     }
