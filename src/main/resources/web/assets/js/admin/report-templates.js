@@ -334,6 +334,7 @@ class ReportEditor extends ConfigFormDlg {
     setTimeout(() => {
       const ps = this._buildParams()
       if (ps === false) return
+      if (this.state.reportType === 3) return
 
       $.get(`/admin/data/report-templates/check-template?${ps}`, (res) => {
         if (res.error_code === 0) {

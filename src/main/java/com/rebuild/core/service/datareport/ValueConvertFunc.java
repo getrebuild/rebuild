@@ -29,6 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -109,17 +110,28 @@ public class ValueConvertFunc {
                 return new DecimalFormat(format).format(value);
             }
 
-        } else if (type == DisplayType.DATE || type == DisplayType.DATETIME) {
+        } else if (type == DisplayType.DATE || type == DisplayType.DATETIME || type == DisplayType.TIME) {
             if (DATE_CHINESEDATE.equals(thatFunc)) {
-                Date d = CommonsUtils.parseDate(value.toString());
-                if (d == null) return value;
+                if (type == DisplayType.TIME) {
+                    String s = "2024-01-01 " + value;
+                    if (s.length() == 13) s += ":00";
+                    Date d = CommonsUtils.parseDate(s);
+                    if (d == null) return value;
 
-                int len = field.wrapValue(CalendarUtils.now()).toString().length();
-                if (len <= 10) len += 1;  // yyyy-MM-dd
-                else len += 2;
+                    int len = field.wrapValue(LocalTime.now()).toString().length() + 1;
+                    String format = CalendarUtils.CN_TIME_FORMAT.substring(0, len);
+                    return CalendarUtils.getDateFormat(format).format(d);
+                } else {
+                    Date d = CommonsUtils.parseDate(value.toString());
+                    if (d == null) return value;
 
-                String format = CalendarUtils.CN_DATETIME_FORMAT.substring(0, len);
-                return CalendarUtils.getDateFormat(format).format(d);
+                    int len = field.wrapValue(CalendarUtils.now()).toString().length();
+                    if (len <= 10) len += 1;  // yyyy-MM-dd
+                    else len += 2;
+
+                    String format = CalendarUtils.CN_DATETIME_FORMAT.substring(0, len);
+                    return CalendarUtils.getDateFormat(format).format(d);
+                }
             }
 
         } else if (type == DisplayType.CLASSIFICATION) {
