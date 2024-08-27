@@ -45,9 +45,9 @@ public class ValueConvertFunc {
     private static final String FUNC_SPLITER = "#";
     private static final String FVAL_SPLITER = ":";
     // 支持的函数
+    private static final String DATE_NUMBER_CHINESE = "CHINESE";
     private static final String DECIMAL_CHINESEYUAN = "CHINESEYUAN";
     private static final String DECIMAL_THOUSANDS = "THOUSANDS";
-    private static final String DATE_CHINESEDATE = "CHINESEDATE";
     private static final String OPTION_CHECKBOX = "CHECKBOX";
     private static final String OPTION_CHECKBOX2 = "CHECKBOX" + FVAL_SPLITER + "2";
     private static final String CLASS_PICK = "PICK";  // eg. PICK:2
@@ -96,22 +96,24 @@ public class ValueConvertFunc {
         if (value == null) return null;
 
         if (type == DisplayType.NUMBER || type == DisplayType.DECIMAL) {
-            if (DECIMAL_CHINESEYUAN.equals(thatFunc)) {
-                return Convert.digitToChinese((Number) value);
-            }
-            if (DECIMAL_THOUSANDS.equals(thatFunc)) {
-                String format = "##,##0";
-                if (type == DisplayType.DECIMAL) {
-                    int scale = ((EasyDecimal) field).getScale();
-                    if (scale > 0) {
-                        format += "." + StringUtils.leftPad("", scale, "0");
+            switch (thatFunc) {
+                case DECIMAL_CHINESEYUAN:
+                    return Convert.digitToChinese((Number) value);
+                case DATE_NUMBER_CHINESE:
+                    return Convert.numberToChinese(((Number) value).doubleValue(), true);
+                case DECIMAL_THOUSANDS:
+                    String format = "##,##0";
+                    if (type == DisplayType.DECIMAL) {
+                        int scale = ((EasyDecimal) field).getScale();
+                        if (scale > 0) {
+                            format += "." + StringUtils.leftPad("", scale, "0");
+                        }
                     }
-                }
-                return new DecimalFormat(format).format(value);
+                    return new DecimalFormat(format).format(value);
             }
 
         } else if (type == DisplayType.DATE || type == DisplayType.DATETIME || type == DisplayType.TIME) {
-            if (DATE_CHINESEDATE.equals(thatFunc)) {
+            if (DATE_NUMBER_CHINESE.equals(thatFunc)) {
                 if (type == DisplayType.TIME) {
                     String s = "2024-01-01 " + value;
                     if (s.length() == 13) s += ":00";
