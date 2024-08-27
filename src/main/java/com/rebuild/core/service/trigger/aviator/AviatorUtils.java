@@ -73,7 +73,6 @@ public class AviatorUtils {
         addCustomFunction(new ChineseYuanFunction());
         addCustomFunction(new TextFunction());
         addCustomFunction(new IsNullFunction());
-        addCustomFunction(new RoundFunction());
     }
 
     /**

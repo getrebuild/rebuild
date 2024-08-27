@@ -818,9 +818,6 @@ const RbListCommon = {
           .appendTo($nn)
           .on('click', () => RbFormModal.create({ ...newProps, specLayout: n.id }, true))
       })
-    } else {
-      $new.next().remove()
-      $new.next().remove()
     }
 
     $('.J_export').on('click', () => renderRbcomp(<DataExport listRef={_RbList()} entity={entity[0]} />))
@@ -2322,8 +2319,8 @@ class TreeNode extends React.Component {
   render() {
     const props = this.props
     let hasChild = this.state.hasChild === true
-    // 不显示
     if (hasChild && this.state.children && this.state.children.length === 0) hasChild = false
+    if (this.state.children && this.state.children.length > 0) hasChild = true
 
     return (
       <RF>

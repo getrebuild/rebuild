@@ -66,6 +66,10 @@ public class EasyFieldConfigProps {
      * 表单公式
      */
     public static final String DECIMAL_CALCFORMULA = NUMBER_CALCFORMULA;
+    /**
+     * 进位模式（默认四舍五入）
+     */
+    public static final String DECIMAL_ROUNDING = "decimalRounding";
 
     /**
      * 日期格式

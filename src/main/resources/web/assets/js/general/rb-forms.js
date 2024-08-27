@@ -1530,9 +1530,10 @@ class RbFormDateTime extends RbFormElement {
       const format = (this.props.datetimeFormat || this.props.dateFormat).replace('mm', 'ii').toLowerCase()
       let minView = 0
       let startView = 'month'
-      if (format.length === 4) minView = startView = 'decade'
-      else if (format.length === 7) minView = startView = 'year'
-      else if (format.length === 10) minView = 'month'
+      if (format.length === 4) minView = startView = 'decade' // 年
+      else if (format.length === 7) minView = startView = 'year' // 年-月
+      else if (format.length === 10) minView = 'month' // 年-月-日
+      else if (format.length === 13) minView = 'day' // 年-月-日-时
 
       const that = this
       this.__datetimepicker = $(this._fieldValue)
