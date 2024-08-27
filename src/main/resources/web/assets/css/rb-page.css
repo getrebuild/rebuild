@@ -5457,7 +5457,7 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   padding-top: 2px;
 }
 
-.select2-container--default.select2-option-relative .select2-results__option {
+.select2-container--default .select2-results__option {
   position: relative;
 }
 

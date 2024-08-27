@@ -115,7 +115,6 @@ class ClassificationSelector extends React.Component {
             that._codes[res.id] && $(`<em>${that._codes[res.id]}</em>`).appendTo($span)
             return $span
           },
-          appendClass: 'select2-option-relative',
         })
         .on('change', () => {
           const p = $(s).val()

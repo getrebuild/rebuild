@@ -933,7 +933,6 @@ class AnyRecordSelector extends React.Component {
           }
           return $span
         },
-        theme: 'default select2-option-relative',
       })
       .on('change', (e) => {
         typeof that.props.onSelect === 'function' && that.props.onSelect(e.target.value)
