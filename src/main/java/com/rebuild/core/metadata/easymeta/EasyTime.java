@@ -7,14 +7,18 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata.easymeta;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.record.RecordVisitor;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.support.general.FieldValueHelper;
 import org.apache.commons.lang.StringUtils;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * @author devezhao
@@ -44,9 +48,15 @@ public class EasyTime extends EasyDateTime {
         String valueExpr = (String) getRawMeta().getDefaultValue();
         if (StringUtils.isBlank(valueExpr)) return null;
 
-        if (valueExpr.contains("NOW")) {  // {NOW}
-            return LocalTime.now();
-        } else {
+        // 表达式
+        if (valueExpr.contains(VAR_NOW) || valueExpr.contains("NOW")) {
+            Date d = FieldValueHelper.parseDateExpr(valueExpr, null);
+            if (d == null) return null;
+            Calendar c = CalendarUtils.getInstance(d);
+            return LocalTime.of(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND));
+        }
+        // 具体的时间值
+        else {
             return RecordVisitor.tryParseTime(valueExpr);
         }
     }

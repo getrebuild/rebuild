@@ -342,6 +342,8 @@ const OP_TYPE = {
   NUY: $L('明年'),
   EVW: $L('本周..'),
   EVM: $L('本月..'),
+  YYY: $L('指定..年'),
+  MMM: $L('指定..月'),
   DDD: $L('指定..天'),
   HHH: $L('指定..时'),
   REP: $L('重复'),
@@ -349,7 +351,7 @@ const OP_TYPE = {
 // prettier-ignore
 const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY']
 // prettier-ignore
-const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY', 'EVW', 'EVM', 'DDD', 'HHH', 'REP']
+const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY', 'EVW', 'EVM', 'YYY', 'MMM', 'DDD', 'HHH', 'REP']
 const REFENTITY_CACHE = {}
 const PICKLIST_CACHE = {}
 
@@ -406,7 +408,7 @@ class FilterItem extends React.Component {
       op = ['GT', 'LT', 'EQ', 'BW', 'GE', 'LE']
     } else if (fieldType === 'DATE' || fieldType === 'DATETIME') {
       // prettier-ignore
-      op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY', 'EVW', 'EVM', 'DDD']
+      op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY', 'EVW', 'EVM', 'YYY', 'MMM', 'DDD']
       if (fieldType === 'DATETIME') op.push('HHH')
     } else if (fieldType === 'TIME') {
       op = ['GT', 'LT', 'EQ', 'BW']

@@ -26,7 +26,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.support.CommandArgs;
@@ -509,6 +508,25 @@ public class AdvFilterParser extends SetUser {
                 }
                 op = ParseHelper.BW;
 
+            } else if (ParseHelper.YYY.equalsIgnoreCase(op)
+                    || ParseHelper.MMM.equalsIgnoreCase(op)) {
+
+                int xValue = NumberUtils.toInt(value);
+                Calendar now = CalendarUtils.getInstance();
+
+                if (ParseHelper.YYY.equalsIgnoreCase(op)) {
+                    now.add(Calendar.YEAR, xValue);
+                    value = now.get(Calendar.YEAR) + "-01-01";
+                    valueEnd = now.get(Calendar.YEAR) + "-12-31";
+                } else {
+                    now.set(Calendar.DAY_OF_MONTH, 1);
+                    now.add(Calendar.MONTH, xValue);
+
+                    value = CalendarUtils.getUTCDateFormat().format(now.getTime());
+                    Moment last = Moment.moment(now.getTime()).endOf(Moment.UNIT_MONTH);
+                    valueEnd = CalendarUtils.getUTCDateFormat().format(last.date());
+                }
+                op = ParseHelper.BW;
             }
 
         } else if (dt == DisplayType.TIME) {
@@ -691,21 +709,18 @@ public class AdvFilterParser extends SetUser {
                     value += (fullTime ? ParseHelper.FULL_TIME : ParseHelper.ZERO_TIME);  // 含当日
                 }
             }
-            // 修正月、日
-            else if (field.getType() == FieldType.DATE && valueLen == 10) {
-                String dateFormat = StringUtils.defaultIfBlank(
-                        EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.DATE_FORMAT),
-                        DisplayType.DATE.getDefaultFormat());
-
-                // v3.7 BW 无需修正，值由用户提供
-                if (ParseHelper.BW.equals(op)) dateFormat = "0";
-
-                if (dateFormat.length() == 4) {
-                    value = value.substring(0, 4) + "-01-01";
-                } else if (dateFormat.length() == 7) {
-                    value = value.substring(0, 7) + "-01";
-                }
-            }
+            // v3.8 不修正了，否则因为格式问题（如日期带日、不带日）就带来不同的查询结果，这很怪异
+//            // 修正月、日
+//            else if (field.getType() == FieldType.DATE && valueLen == 10) {
+//                String dateFormat = StringUtils.defaultIfBlank(
+//                        EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.DATE_FORMAT),
+//                        DisplayType.DATE.getDefaultFormat());
+//                if (dateFormat.length() == 4) {
+//                    value = value.substring(0, 4) + "-01-01";
+//                } else if (dateFormat.length() == 7) {
+//                    value = value.substring(0, 7) + "-01";
+//                }
+//            }
 
             // 多个值的情况下，兼容 | 号分割
             if (op.equalsIgnoreCase(ParseHelper.IN) || op.equalsIgnoreCase(ParseHelper.NIN)
@@ -754,13 +769,13 @@ public class AdvFilterParser extends SetUser {
 
     /**
      * @param date
-     * @param paddingType 0=无, 1=FULLTIME, 2=ZEROTIME
+     * @param paddingTimeType 0=无, 1=FULLTIME, 2=ZEROTIME
      * @return
      */
-    private String formatDate(Date date, int paddingType) {
+    private String formatDate(Date date, int paddingTimeType) {
         String s = CalendarUtils.getUTCDateFormat().format(date);
-        if (paddingType == 1) s += ParseHelper.FULL_TIME;
-        else if (paddingType == 2) s += ParseHelper.ZERO_TIME;
+        if (paddingTimeType == 1) s += ParseHelper.FULL_TIME;
+        else if (paddingTimeType == 2) s += ParseHelper.ZERO_TIME;
         return s;
     }
 

@@ -71,6 +71,29 @@ public class ValueConvertFunc {
         }
 
         final DisplayType type = field.getDisplayType();
+
+        // 空值也处理
+        if (type == DisplayType.MULTISELECT || type == DisplayType.PICKLIST) {
+            if (OPTION_CHECKBOX.equals(thatFunc) || OPTION_CHECKBOX2.equals(thatFunc)) {
+                String[] m = value == null ? new String[0] : value.toString().split(", ");
+                ConfigBean[] items = MultiSelectManager.instance.getPickListRaw(field.getRawMeta(), false);
+
+                String[] flags = new String[]{"■", "□"};
+                if (OPTION_CHECKBOX2.equals(thatFunc)) flags = new String[]{"●", "○"};
+
+                List<String> chk = new ArrayList<>();
+                for (ConfigBean item : items) {
+                    String itemText = item.getString("text");
+                    if (ArrayUtils.contains(m, itemText)) chk.add(flags[0] + itemText);
+                    else chk.add(flags[1] + itemText);
+                }
+
+                return StringUtils.join(chk, " ");
+            }
+        }
+
+        if (value == null) return null;
+
         if (type == DisplayType.NUMBER || type == DisplayType.DECIMAL) {
             if (DECIMAL_CHINESEYUAN.equals(thatFunc)) {
                 return Convert.digitToChinese((Number) value);
@@ -97,24 +120,6 @@ public class ValueConvertFunc {
 
                 String format = CalendarUtils.CN_DATETIME_FORMAT.substring(0, len);
                 return CalendarUtils.getDateFormat(format).format(d);
-            }
-
-        } else if (type == DisplayType.MULTISELECT || type == DisplayType.PICKLIST) {
-            if (OPTION_CHECKBOX.equals(thatFunc) || OPTION_CHECKBOX2.equals(thatFunc)) {
-                String[] m = value == null ? new String[0] : value.toString().split(", ");
-                ConfigBean[] items = MultiSelectManager.instance.getPickListRaw(field.getRawMeta(), false);
-
-                String[] flags = new String[]{ "■", "□" };
-                if (OPTION_CHECKBOX2.equals(thatFunc)) flags = new String[]{ "●", "○" };
-
-                List<String> chk = new ArrayList<>();
-                for (ConfigBean item : items) {
-                    String itemText = item.getString("text");
-                    if (ArrayUtils.contains(m, itemText)) chk.add(flags[0] + itemText);
-                    else chk.add(flags[1] + itemText);
-                }
-
-                return StringUtils.join(chk, " ");
             }
 
         } else if (type == DisplayType.CLASSIFICATION) {

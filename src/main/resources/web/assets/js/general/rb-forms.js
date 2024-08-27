@@ -500,7 +500,7 @@ class RbForm extends React.Component {
                   )
                 })}
                 <a
-                  className="dropdown-item -bosskey-show"
+                  className="dropdown-item"
                   onClick={() => {
                     if (rb.commercial < 10) {
                       return RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
@@ -2046,7 +2046,6 @@ class RbFormReference extends RbFormElement {
           }
           return $span
         },
-        appendClass: 'select2-option-relative',
       })
 
       const val = this.state.value
@@ -2389,7 +2388,6 @@ class RbFormClassification extends RbFormElement {
           res.code && $(`<em>${res.code}</em>`).appendTo($span)
           return $span
         },
-        appendClass: 'select2-option-relative',
       })
 
       const value = this.state.value

@@ -36,6 +36,7 @@ import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.RecordDifference;
 import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.general.transform.TransformerPreview37;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.DataValidateException;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
@@ -184,10 +185,14 @@ public class GeneralOperatingController extends BaseController {
                 Field fieldMeta = record.getEntity().getField(field);
                 if (MetadataHelper.isCommonsField(fieldMeta)) continue;
 
-                Object newValue = FormsBuilder.instance.wrapFieldValue(
-                        record, EasyMetaFactory.valueOf(fieldMeta), user);
-                res.put(field, newValue);
+                Object newlyValue = QueryHelper.queryFieldValue(record.getPrimary(), field);
+                if (newlyValue != null) {
+                    record.setObjectValue(field, newlyValue);
+                    newlyValue = FormsBuilder.instance.wrapFieldValue(record, EasyMetaFactory.valueOf(fieldMeta), user);
+                }
+                res.put(field, newlyValue);
                 singleFieldName = field;
+                break;
             }
 
             // 不一致时前端整体刷新

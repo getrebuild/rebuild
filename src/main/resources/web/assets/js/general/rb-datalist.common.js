@@ -843,9 +843,9 @@ const RbListCommon = {
 
 const wpc = window.__PageConfig || {}
 
-const COLUMN_MIN_WIDTH = 30
-const COLUMN_MAX_WIDTH = 800
-const COLUMN_DEF_WIDTH = 130
+const _DL_COLUMN_MIN_WIDTH = 30
+const _DL_COLUMN_MAX_WIDTH = 500
+const _DL_COLUMN_DEF_WIDTH = 130
 
 // IE/Edge 不支持首/列固定
 const supportFixedColumns = !($.browser.msie || $.browser.msedge)
@@ -887,7 +887,7 @@ class RbList extends React.Component {
 
     for (let i = 0; i < fields.length; i++) {
       const cw = $storage.get(this.__columnWidthKey + fields[i].field)
-      if (!!cw && ~~cw >= COLUMN_MIN_WIDTH) fields[i].width = ~~cw
+      if (!!cw && ~~cw >= _DL_COLUMN_MIN_WIDTH) fields[i].width = ~~cw
 
       if (sort && sort[0] === fields[i].field) fields[i].sort = sort[1]
       else fields[i].sort = null
@@ -899,7 +899,7 @@ class RbList extends React.Component {
     this.state = { ...props, fields: fields, rowsData: [], pageNo: 1, pageSize: 20, inLoad: true }
 
     this.__defaultColumnWidth = this._$wrapper.width() / 10
-    if (this.__defaultColumnWidth < COLUMN_DEF_WIDTH) this.__defaultColumnWidth = COLUMN_DEF_WIDTH
+    if (this.__defaultColumnWidth < _DL_COLUMN_DEF_WIDTH) this.__defaultColumnWidth = _DL_COLUMN_DEF_WIDTH
 
     this.pageNo = 1
     this.pageSize = $storage.get('ListPageSize') || 20
@@ -1062,8 +1062,8 @@ class RbList extends React.Component {
       stop: function (event, ui) {
         const field = $(event.target).parents('th').data('field')
         let left = ui.position.left - 0
-        if (left < COLUMN_MIN_WIDTH) left = COLUMN_MIN_WIDTH
-        else if (left > COLUMN_MAX_WIDTH) left = COLUMN_MAX_WIDTH
+        if (left < _DL_COLUMN_MIN_WIDTH) left = _DL_COLUMN_MIN_WIDTH
+        else if (left > _DL_COLUMN_MAX_WIDTH) left = _DL_COLUMN_MAX_WIDTH
         const fields = that.state.fields
         for (let i = 0; i < fields.length; i++) {
           if (fields[i].field === field) {
@@ -1563,7 +1563,7 @@ const CellRenders = {
 
   // 单元格渲染
   render(value, type, width, key) {
-    const style2 = { width: width || COLUMN_MIN_WIDTH }
+    const style2 = { width: width || _DL_COLUMN_MIN_WIDTH }
     if (window.FrontJS && wpc.entity) {
       let fieldKey = key.split('.').slice(1)
       fieldKey = `${wpc.entity[0]}.${fieldKey.join('.')}`
