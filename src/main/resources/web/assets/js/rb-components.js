@@ -1186,11 +1186,10 @@ class RbGritter extends React.Component {
     )
   }
 
-  _addItem(message, options) {
-    const itemid = `gritter-item-${$random()}`
-
-    const type = options.type || 'success'
-    const icon = options.icon || (type === 'success' ? 'check' : type === 'danger' ? 'close-circle-o' : 'info-outline')
+  _addItem(message, option) {
+    const itemid = `gritter-item-${option.id || $random()}`
+    const type = option.type || 'success'
+    const icon = option.icon || (type === 'success' ? 'check' : type === 'danger' ? 'close-circle-o' : 'info-outline')
 
     const item = (
       <div key={itemid} id={itemid} className={`gritter-item-wrapper color ${type} animated faster fadeInRight`}>
@@ -1206,11 +1205,11 @@ class RbGritter extends React.Component {
               onClick={(e) => {
                 $stopEvent(e, true)
                 this._removeItem(itemid)
-                typeof options.onCancel === 'function' && options.onCancel()
+                typeof option.onCancel === 'function' && option.onCancel()
               }}
               title={$L('关闭')}
             />
-            {options.title && <span className="gritter-title">{options.title}</span>}
+            {option.title && <span className="gritter-title">{option.title}</span>}
             <p>{message}</p>
           </div>
         </div>
@@ -1220,7 +1219,7 @@ class RbGritter extends React.Component {
     const itemsNew = this.state.items || []
     itemsNew.push(item)
     this.setState({ items: itemsNew }, () => {
-      setTimeout(() => this._removeItem(itemid), options.timeout || 6000)
+      setTimeout(() => this._removeItem(itemid), option.timeout || 6000)
     })
   }
 
@@ -1229,37 +1228,34 @@ class RbGritter extends React.Component {
     this.setState({ items: itemsNew })
   }
 
-  destory() {
-    this.setState({ items: [] }, () => {
-      $('#gritter-notice-wrapper').remove()
-    })
-  }
-
   // -- Usage
   /**
    * @param {*} message
-   * @param {*} options
+   * @param {*} option
    */
-  static create(message, options = {}) {
+  static create(message, option = {}) {
     if (top !== self && parent.RbGritter) {
-      parent.RbGritter.create(message, options)
+      parent.RbGritter.create(message, option)
     } else {
       if (this._RbGritter) {
-        this._RbGritter._addItem(message, options)
+        this._RbGritter._addItem(message, option)
       } else {
         const that = this
         renderRbcomp(<RbGritter />, function () {
           that._RbGritter = this
-          that._RbGritter._addItem(message, options)
+          that._RbGritter._addItem(message, option)
         })
       }
     }
   }
 
-  static destory() {
+  /**
+   * @param {*} id
+   */
+  static remove(id) {
     if (this._RbGritter) {
-      this._RbGritter.destory()
-      this._RbGritter = null
+      if (id) id = 'gritter-item-' + id
+      this._RbGritter._removeItem(id)
     }
   }
 }

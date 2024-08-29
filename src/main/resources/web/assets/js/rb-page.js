@@ -463,10 +463,11 @@ var _showStateMM = function (mm) {
             .toDate()
           $.cookie('mm_gritter_cancel', mm.time, { expires: expires })
         },
+        id: 'mm_gritter',
       })
     }
   } else {
-    RbGritter.destory()
+    RbGritter.remove('mm_gritter')
   }
 }
 // 全局搜索
