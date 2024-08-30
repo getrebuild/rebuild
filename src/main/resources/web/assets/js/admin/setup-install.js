@@ -49,6 +49,10 @@ class Setup extends React.Component {
                   <div className="message">{this.state.installError}</div>
                 </div>
               )}
+
+              {(this.state.installState === 10 || this.state.installState === 11) && (
+                <div className="protips text-dark animated fadeIn delay-1s link mt-4">{WrapHtml($L('首次使用？强烈建议阅读 [5分钟快速上手](https://getrebuild.com/learn/quick-start)'))}</div>
+              )}
             </div>
           </div>
         )}

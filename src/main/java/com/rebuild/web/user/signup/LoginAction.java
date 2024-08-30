@@ -125,11 +125,13 @@ public class LoginAction extends BaseController {
                 Object GuideShowNaver = KVStorage.getCustomValue("GuideShowNaver");
                 if (!ObjectUtils.toBool(GuideShowNaver) || CommandArgs.getBoolean(CommandArgs._ForceTour)) {
                     ServletUtils.setSessionAttribute(request, SK_SHOW_GUIDE, Boolean.TRUE);
+                    // v3.8 禁用
+                    ServletUtils.setSessionAttribute(request, SK_SHOW_GUIDE, Boolean.FALSE);
                 }
             }
             // TOUR 显示规则
             Object[] initLoginTimes = Application.createQueryNoFilter(
-                            "select count(loginTime) from LoginLog where user = ? and loginTime > '2022-01-01'")
+                    "select count(loginTime) from LoginLog where user = ? and loginTime > '2022-01-01'")
                     .setParameter(1, user)
                     .unique();
             if (ObjectUtils.toLong(initLoginTimes[0]) <= 10 || CommandArgs.getBoolean(CommandArgs._ForceTour)) {
