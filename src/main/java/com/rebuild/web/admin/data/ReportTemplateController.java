@@ -267,6 +267,7 @@ public class ReportTemplateController extends BaseController {
         mv.getModelMap().put("reportContent", content);
         if (HTML5_INLINE_STYLE == null || Application.devMode()) {
             HTML5_INLINE_STYLE = CommonsUtils.getStringOfRes("/web/assets/css/template5-design-content.css");
+            HTML5_INLINE_STYLE = "<style>" + HTML5_INLINE_STYLE + "</style>";
         }
         mv.getModelMap().put("inlineStyle", HTML5_INLINE_STYLE);
         return mv;
