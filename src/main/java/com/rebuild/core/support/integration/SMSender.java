@@ -277,6 +277,7 @@ public class SMSender {
      * @return
      */
     protected static Element getMailTemplate() {
+        if (Application.devMode()) MT_CACHE = null;
         if (MT_CACHE != null) return MT_CACHE.clone();
 
         String content = CommonsUtils.getStringOfRes("i18n/email.zh_CN.html");

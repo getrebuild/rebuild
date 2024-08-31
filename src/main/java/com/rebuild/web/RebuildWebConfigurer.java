@@ -101,7 +101,10 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
     }
 
     private void setStaticVariable(ConfigurationItem item) {
-        String value = RebuildConfiguration.get(item);
+        String value;
+        if (item == ConfigurationItem.AppBuild) value = Application.VER;
+        else value = RebuildConfiguration.get(item);
+
         if (StringUtils.isBlank(value)) {
             thymeleafViewResolver.addStaticVariable(item.name(), null);
         } else {

@@ -21,6 +21,7 @@ import com.rebuild.core.configuration.general.DataListCategory.Item;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -140,11 +141,14 @@ public class DataListCategory38 {
                 String wrapField = useField;
                 // 日期格式
                 if (dt == DisplayType.DATETIME || dt == DisplayType.DATE) {
-                    if ("yyyy".equals(useFormat)) wrapField = String.format("DATE_FORMAT(%s, '%%Y')", useField);
-                    if ("yyyy-MM".equals(useFormat)) wrapField = String.format("DATE_FORMAT(%s, '%%Y-%%m')", useField);
-                    if (dt == DisplayType.DATETIME) {
-                        if ("yyyy-MM-dd".equals(useFormat)) wrapField = String.format("DATE_FORMAT(%s, '%%Y-%%m-%%d')", useField);
+                    // DATE 使用字段设置的
+                    if (useFormat == null) {
+                        useFormat = EasyMetaFactory.valueOf(useFieldMeta).getExtraAttr(EasyFieldConfigProps.DATE_FORMAT);
                     }
+                    if ("yyyy".equalsIgnoreCase(useFormat)) wrapField = String.format("DATE_FORMAT(%s, '%%Y')", useField);
+                    else if ("yyyy-MM".equalsIgnoreCase(useFormat)) wrapField = String.format("DATE_FORMAT(%s, '%%Y-%%m')", useField);
+                    else wrapField = String.format("DATE_FORMAT(%s, '%%Y-%%m-%%d')", useField);
+
                     sortMode = 2;
                 }
 

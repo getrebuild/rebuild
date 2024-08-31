@@ -303,7 +303,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>persist4j</artifactId>
-            <version>971286c595</version>
+            <version>1.7.11</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.alibaba</groupId>

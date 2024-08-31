@@ -179,8 +179,8 @@ class DlgMM extends RbAlert {
           {this.state.takeTime1 ? <div className="form-text text-warning">{$L('将在 %s 分钟后开始，维护时间 %s 分钟', this.state.takeTime1, this.state.takeTime2)}</div> : null}
         </div>
         <div className="form-group">
-          <label>{$L('维护原因')}</label>
-          <textarea className="form-control form-control-sm row2x" ref={(c) => (this._$note = c)} placeholder={$L('例行维护')} />
+          <label>{$L('弹窗附加内容')}</label>
+          <textarea className="form-control form-control-sm row2x" ref={(c) => (this._$note = c)} placeholder={$L('维护期间系统将无法使用，请及时保存数据！')} />
         </div>
         <div className="form-group mb-2">
           <button type="button" className="btn btn-danger" onClick={this._onConfirm}>

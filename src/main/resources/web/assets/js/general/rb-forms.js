@@ -1763,7 +1763,7 @@ class RbFormImage extends RbFormElement {
       })
 
       // 拖拽上传
-      if (this._$dropArea && (this.props.imageCapture === 1 || this.props.imageCapture === 3)) {
+      if (this._$dropArea && (this._captureType === 1 || this._captureType === 3)) {
         const that = this
         $dropUpload(this._$dropArea, function (files) {
           if (!files || files.length === 0) return false

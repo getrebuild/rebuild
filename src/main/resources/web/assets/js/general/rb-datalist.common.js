@@ -818,6 +818,12 @@ const RbListCommon = {
           .appendTo($nn)
           .on('click', () => RbFormModal.create({ ...newProps, specLayout: n.id }, true))
       })
+    } else {
+      const $next = $new.next()
+      if ($next.hasClass('hide') && $next.hasClass('dropdown-toggle')) {
+        $next.next().remove()
+        $next.remove()
+      }
     }
 
     $('.J_export').on('click', () => renderRbcomp(<DataExport listRef={_RbList()} entity={entity[0]} />))

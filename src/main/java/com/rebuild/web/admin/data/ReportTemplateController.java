@@ -198,6 +198,7 @@ public class ReportTemplateController extends BaseController {
             else if (tt.type == DataReportManager.TYPE_HTML5) {
                 // 实时内容
                 String templateContent = request.getParameter("templateContent");
+                if (templateContent == null) templateContent = tt.templateContent;
                 EasyExcelGenerator33 html5 = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
                         "com.rebuild.rbv.data.Html5ReportGenerator#create", templateContent, random[0]);
                 output = html5.generate();
