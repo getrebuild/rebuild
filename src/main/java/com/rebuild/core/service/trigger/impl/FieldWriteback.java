@@ -58,6 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 字段更新，场景 1>1 1>N
@@ -69,6 +70,8 @@ import java.util.Set;
  */
 @Slf4j
 public class FieldWriteback extends FieldAggregation {
+
+    private static final ReentrantLock LOCK = new ReentrantLock();
 
     private FieldWritebackRefresh fieldWritebackRefresh;
 
@@ -107,6 +110,26 @@ public class FieldWriteback extends FieldAggregation {
 
     @Override
     public Object execute(OperatingContext operatingContext) throws TriggerException {
+        boolean lockMode38 = ((JSONObject) actionContext.getActionContent()).getBooleanValue("lockMode");
+        if (lockMode38) {
+            long s = System.currentTimeMillis();
+            log.info("Lock resources for {}", actionContext.getConfigId());
+            LOCK.lock();
+
+            s = System.currentTimeMillis() - s;
+            if (s > 1000) log.warn("Lock acquired use {}ms. {}", s, actionContext.getConfigId());
+
+            try {
+                return this.execute38(operatingContext);
+            } finally {
+                LOCK.unlock();
+            }
+        } else {
+            return this.execute38(operatingContext);
+        }
+    }
+
+    private Object execute38(OperatingContext operatingContext) throws TriggerException {
         final String chainName = String.format("%s:%s:%s", actionContext.getConfigId(),
                 operatingContext.getFixedRecordId(), operatingContext.getAction().getName());
         final List<String> tschain = checkTriggerChain(chainName);
