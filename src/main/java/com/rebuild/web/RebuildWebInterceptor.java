@@ -27,7 +27,7 @@ import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.admin.ProtectedAdmin;
-import lombok.Data;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -59,6 +59,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
     private static final int CODE_STARTING = 600;
     private static final int CODE_MAINTAIN = 602;
     private static final int CODE_UNSAFE_USE = 603;
+    private static final int CODE_BLOCK = 604;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -71,12 +72,10 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
         final String ipAddr = ServletUtils.getRemoteAddr(request);
         UserContextHolder.setReqip(ipAddr);
-
-        // Locale
         final String locale = detectLocale(request, response);
         UserContextHolder.setLocale(locale);
 
-        final RequestEntry requestEntry = new RequestEntry(request, locale);
+        final RequestEntry requestEntry = new RequestEntry(request, locale, ipAddr);
         REQUEST_ENTRY.set(requestEntry);
 
         // Lang
@@ -253,6 +252,8 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
     }
 
     private boolean isIgnoreAuth(String requestUri) {
+        System.out.println(">>>>>>>>>>>>>>" + requestUri);
+
         if (requestUri.contains("..")) return false;
         if (requestUri.contains("/user/") && !requestUri.contains("/user/admin")) return true;
 
@@ -328,20 +329,22 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         }
     }
 
-    @Data
-    private static class RequestEntry {
+    @Getter
+    static class RequestEntry {
         final long requestTime;
         final String requestUri;
         final String requestUriWithQuery;
         final ID requestUser;
         final String locale;
+        final String ipAddr;
 
-        RequestEntry(HttpServletRequest request, String locale) {
+        RequestEntry(HttpServletRequest request, String locale, String ipAddr) {
             this.requestTime = System.currentTimeMillis();
-            this.requestUri = request.getRequestURI();
+            this.requestUri = CodecUtils.urlDecode(request.getRequestURI());
             this.requestUriWithQuery = this.requestUri + (request.getQueryString() == null ? "" : "?" + request.getQueryString());
             this.requestUser = AppUtils.getRequestUser(request, true);
             this.locale = locale;
+            this.ipAddr = ipAddr;
         }
 
         @Override

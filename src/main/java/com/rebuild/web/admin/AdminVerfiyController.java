@@ -99,10 +99,10 @@ public class AdminVerfiyController extends BaseController {
 
     @RequestMapping("/admin/admin-cli/exec")
     public RespBody adminCliExec(HttpServletRequest request) {
+        RbAssert.isAllow(UserService.ADMIN_USER.equals(getRequestUser(request)), "ONLY FOR SUPER ADMIN");
+
         String command = ServletUtils.getRequestString(request);
-        if (StringUtils.isBlank(command)) {
-            return RespBody.error();
-        }
+        if (StringUtils.isBlank(command)) return RespBody.error();
 
         String result = new AdminCli3(command).exec();
         return RespBody.ok(result);
