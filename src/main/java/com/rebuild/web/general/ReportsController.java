@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -44,6 +45,7 @@ import com.rebuild.web.admin.data.ReportTemplateController;
 import com.rebuild.web.commons.FileDownloader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -85,10 +87,17 @@ public class ReportsController extends BaseController {
         return alist;
     }
 
-    @RequestMapping({"report/generate", "report/export"})
+    @RequestMapping({"report/generate", "report/export", "report/generate-html5"})
     public ModelAndView reportGenerate(@PathVariable String entity,
                                        @IdParam(name = "report") ID reportId,
                                        HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (request.getRequestURI().contains("generate-html5")) {
+            String accessToken = request.getParameter(AppUtils.URL_AUTHTOKEN);
+            ID h5User = accessToken == null ? null : AuthTokenManager.verifyToken(accessToken);
+            Assert.notNull(h5User, "Access Forbidden");
+            UserContextHolder.setUser(h5User);
+        }
+
         final ID[] recordIds = getIdArrayParameterNotNull(request, "record");
         final ID recordId = recordIds[0];
         final TemplateFile tt = DataReportManager.instance.buildTemplateFile(reportId);
