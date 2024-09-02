@@ -224,7 +224,7 @@ class ContentGroupAggregation extends ActionContentSpec {
               <div className="mt-2">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._$stopPropagation = c)} />
-                  <span className="custom-control-label">{$L('快速模式')}</span>
+                  <span className="custom-control-label">{$L('禁用级联执行')}</span>
                 </label>
               </div>
             </div>

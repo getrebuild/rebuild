@@ -216,7 +216,13 @@ class ContentFieldWriteback extends ActionContentSpec {
               <div className="mt-2">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._$stopPropagation = c)} />
-                  <span className="custom-control-label">{$L('快速模式')}</span>
+                  <span className="custom-control-label">{$L('禁用级联执行')}</span>
+                </label>
+              </div>
+              <div className="mt-2 bosskey-show">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$lockMode = c)} />
+                  <span className="custom-control-label">{$L('启用加锁模式')} (LAB)</span>
                 </label>
               </div>
             </div>
@@ -260,6 +266,9 @@ class ContentFieldWriteback extends ActionContentSpec {
       $(this._$forceUpdate).attr('checked', content.forceUpdate === true)
       $(this._$clearFields).attr('checked', content.clearFields === true)
       $(this._$stopPropagation).attr('checked', content.stopPropagation === true)
+      if (content.lockMode === true) {
+        $(this._$lockMode).attr('checked', true).parents('.mt-2').removeClass('bosskey-show')
+      }
     }
   }
 
@@ -420,6 +429,7 @@ class ContentFieldWriteback extends ActionContentSpec {
       forceUpdate: $(this._$forceUpdate).prop('checked'),
       clearFields: $(this._$clearFields).prop('checked'),
       stopPropagation: $(this._$stopPropagation).prop('checked'),
+      lockMode: $(this._$lockMode).prop('checked'),
     }
     if (!content.targetEntity) {
       RbHighbar.create($L('请选择目标实体'))
