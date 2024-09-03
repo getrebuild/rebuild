@@ -566,14 +566,15 @@ class DlgEditRefform extends DlgEditField {
             })}
           </select>
         </div>
-        <div className="form-group bosskey-show">
+        <div className="form-group -bosskey-show">
           <label>{$L('使用布局')}</label>
           <select className="form-control form-control-sm" name="speclayout" onChange={this.handleChange} ref={(c) => (this._$speclayout = c)}>
+            <option value="">{$L('自动选择')}</option>
             {this.state.formsAttr &&
               this.state.formsAttr.map((item) => {
                 return (
-                  <option key={item.id || 'N'} value={item.id || null}>
-                    {item.name || $L('默认')}
+                  <option key={item.id || 'N'} value={item.id || ''}>
+                    {item.name || $L('默认布局')}
                   </option>
                 )
               })}
@@ -603,9 +604,6 @@ class DlgEditRefform extends DlgEditField {
       } else {
         $.get(`/admin/entity/${e}/get-forms-attr`, (res) => {
           this.__FormsAttr[e] = res.data || []
-          if (this.__FormsAttr[e].length === 0) {
-            this.__FormsAttr[e] = [{ id: null }]
-          }
           this.setState({ formsAttr: this.__FormsAttr[e] }, () => {
             // init
             if (init && this.props.speclayout) {
