@@ -113,35 +113,44 @@ class RbFormModal extends React.Component {
     if (this.state.previewid) url += `&previewid=${this.state.previewid}`
     else if (this.state.specLayout) url += `&layout=${this.state.specLayout}`
 
-    $.post(url, JSON.stringify(initialValue), (res) => {
-      // 包含错误
-      if (res.error_code > 0 || !!res.data.error) {
-        const error = (res.data || {}).error || res.error_msg
-        this.renderFromError(error)
-        return
-      }
-
-      const formModel = res.data
+    const that = this
+    function _FN2(formModel) {
       const FORM = (
-        <RbForm entity={entity} id={id} rawModel={formModel} $$$parent={this} readonly={!!formModel.readonlyMessage} ref={(c) => (this._formComponentRef = c)}>
+        <RbForm entity={entity} id={id} rawModel={formModel} $$$parent={that} readonly={!!formModel.readonlyMessage} ref={(c) => (that._formComponentRef = c)}>
           {formModel.elements.map((item) => {
             return detectElement(item, entity)
           })}
         </RbForm>
       )
 
-      this.setState({ formComponent: FORM, alertMessage: formModel.readonlyMessage || null }, () => {
-        this.setState({ inLoad: false })
+      that.setState({ formComponent: FORM, alertMessage: formModel.readonlyMessage || null }, () => {
+        that.setState({ inLoad: false })
         if (window.FrontJS) {
-          window.FrontJS.Form._trigger('open', [res.data])
+          window.FrontJS.Form._trigger('open', [formModel])
         }
       })
 
-      this.__lastModified = res.data.lastModified || 0
+      that.__lastModified = formModel.lastModified || 0
 
-      setTimeout(() => {
-        formModel.alertMessage && RbHighbar.create(formModel.alertMessage)
-      }, 1000)
+      if (formModel.alertMessage) {
+        setTimeout(() => RbHighbar.create(formModel.alertMessage), 1000)
+      }
+    }
+
+    // v3.8
+    if (this.props.initialFormModel) {
+      _FN2(this.props.initialFormModel)
+      return
+    }
+
+    $.post(url, JSON.stringify(initialValue), (res) => {
+      // 包含错误
+      if (res.error_code > 0 || !!res.data.error) {
+        const error = (res.data || {}).error || res.error_msg
+        this.renderFromError(error)
+      } else {
+        _FN2(res.data)
+      }
     })
   }
 
@@ -576,15 +585,20 @@ class RbForm extends React.Component {
     // Clean others action
     if (this._postAfter) moreActions = []
 
+    // v3.8
+    const $$$props = props.$$$parent && props.$$$parent.props ? props.$$$parent.props : {}
+    const confirmText = props.confirmText || $$$props.confirmText
+    const cancelText = props.cancelText || $$$props.cancelText
+
     return (
       <div className="dialog-footer" ref={(c) => (this._$formAction = c)}>
         <button className="btn btn-secondary btn-space" type="button" onClick={() => props.$$$parent.hide()}>
-          {$L('取消')}
+          {cancelText || $L('取消')}
         </button>
         {!props.readonly && (
           <div className="btn-group dropup btn-space ml-1">
             <button className="btn btn-primary" type="button" onClick={() => this.post()}>
-              {$L('保存')}
+              {confirmText || $L('保存')}
             </button>
             {moreActions.length > 0 && (
               <RF>
