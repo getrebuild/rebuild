@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: https://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/5/LICENSE
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -330,6 +330,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     cx.state.context = new Context(cx.state.context, cx.state.localVars, true)
     cx.state.localVars = null
   }
+  pushcontext.lex = pushblockcontext.lex = true
   function popcontext() {
     cx.state.localVars = cx.state.context.vars
     cx.state.context = cx.state.context.prev
@@ -482,7 +483,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function quasi(type, value) {
     if (type != "quasi") return pass();
     if (value.slice(value.length - 2) != "${") return cont(quasi);
-    return cont(expression, continueQuasi);
+    return cont(maybeexpression, continueQuasi);
   }
   function continueQuasi(type) {
     if (type == "}") {
@@ -778,7 +779,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "async" ||
         (type == "variable" &&
          (value == "static" || value == "get" || value == "set" || (isTS && isModifier(value))) &&
-         cx.stream.match(/^\s+[\w$\xa1-\uffff]/, false))) {
+         cx.stream.match(/^\s+#?[\w$\xa1-\uffff]/, false))) {
       cx.marked = "keyword";
       return cont(classBody);
     }

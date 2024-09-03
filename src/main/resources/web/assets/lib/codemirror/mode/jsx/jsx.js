@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: https://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/5/LICENSE
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -103,7 +103,8 @@
     }
 
     function jsToken(stream, state, cx) {
-      if (stream.peek() == "<" && jsMode.expressionAllowed(stream, cx.state)) {
+      if (stream.peek() == "<" && !stream.match(/^<([^<>]|<[^>]*>)+,\s*>/, false) &&
+          jsMode.expressionAllowed(stream, cx.state)) {
         state.context = new Context(CodeMirror.startState(xmlMode, jsMode.indent(cx.state, "", "")),
                                     xmlMode, 0, state.context)
         jsMode.skipExpression(cx.state)
