@@ -18,7 +18,6 @@ class ProTable extends React.Component {
   constructor(props) {
     super(props)
     this.state = {}
-    this._isReadonly = props.$$$main.props.readonly
   }
 
   render() {
@@ -30,6 +29,7 @@ class ProTable extends React.Component {
     // 等待初始化
     if (!this.state.formFields) return null
 
+    const _readonly = this.props.$$$main.props.readonly
     const formFields = this.state.formFields
     const details = this.state.details || [] // 编辑时有
     const fixedWidth = formFields.length <= 5
@@ -39,21 +39,7 @@ class ProTable extends React.Component {
         <table className={`table table-sm ${fixedWidth && 'table-fixed'}`}>
           <thead>
             <tr>
-              <th className="col-index action">
-                <a
-                  title={$L('全屏')}
-                  onClick={() => {
-                    const $d = $(this._$scroller).parents('.detail-form-table').toggleClass('fullscreen')
-                    const $modal = $(this._$scroller).parents('.rbmodal')
-                    $modal.find('.modal-dialog').toggleClass('fullscreen')
-                    // height
-                    const wh = $d.hasClass('fullscreen') ? $(window).height() - 165 : 'auto'
-                    $d.height(wh)
-                    $modal.find('.modal-body').height(wh)
-                  }}>
-                  <i className="mdi mdi-arrow-expand hide" />
-                </a>
-              </th>
+              <th className="col-index" />
               {formFields.map((item) => {
                 if (item.field === TYPE_DIVIDER) return null
 
@@ -88,16 +74,22 @@ class ProTable extends React.Component {
               const key = FORM.key
               return (
                 <tr key={`inline-${key}`}>
-                  <th className="col-index">{details.length + idx + 1}</th>
+                  <th className={`col-index ${!_readonly && 'action'}`}>
+                    <span>{details.length + idx + 1}</span>
+                    {!_readonly && (
+                      <a title={$L('展开编辑')} onClick={() => this._expandLineForm(key)}>
+                        <i className="mdi mdi-arrow-expand" />
+                      </a>
+                    )}
+                  </th>
                   {FORM}
-
                   <td className={`col-action ${!fixedWidth && 'column-fixed'}`}>
                     {this._initModel.detailsCopiable && (
-                      <button className="btn btn-light" title={$L('复制')} onClick={() => this.copyLine(key)} disabled={this._isReadonly}>
+                      <button className="btn btn-light" title={$L('复制')} onClick={() => this.copyLine(key)} disabled={_readonly}>
                         <i className="icon zmdi zmdi-copy fs-14" />
                       </button>
                     )}
-                    <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={this._isReadonly}>
+                    <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={_readonly}>
                       <i className="icon zmdi zmdi-close fs-16 text-bold" />
                     </button>
                   </td>
@@ -179,6 +171,52 @@ class ProTable extends React.Component {
     })
   }
 
+  _expandLineForm(lineKey) {
+    const F = this.getLineForm(lineKey)
+    if (!F) return
+
+    const that = this
+    const props = {
+      title: $L('编辑'),
+      confirmText: $L('确定'),
+      icon: this.props.entity.icon,
+      entity: F.props.entity,
+      id: F.props.id || null,
+      initialFormModel: null,
+      postBefore: function (data) {
+        that._formdataRebuild(data, (res) => {
+          const dataBuild = res.data.elements
+          const dataUpdated = {}
+          for (let name in data) {
+            const c = dataBuild.find((x) => x.field === name)
+            if (c && c.readonly !== true) dataUpdated[name] = c.value
+          }
+          F.updatetFormData(dataUpdated)
+
+          // hide
+          if (RbFormModal.__CURRENT35) RbFormModal.__CURRENT35.hide(true)
+        })
+        return false
+      },
+    }
+
+    this._formdataRebuild(F.getFormData(), (res) => {
+      props.initialFormModel = res.data
+      RbFormModal.create(props, true)
+    })
+  }
+
+  _formdataRebuild(data, cb) {
+    const mainid = this.props.$$$main.props.id || '000-0000000000000000'
+    $.post(`/app/entity/extras/formdata-rebuild?mainid=${mainid}`, JSON.stringify(data), (res) => {
+      if (res.error_code === 0) {
+        typeof cb === 'function' && cb(res)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+
   addNew(specFieldValues) {
     const model = $clone(this._initModel)
     if (specFieldValues) {
@@ -218,17 +256,15 @@ class ProTable extends React.Component {
   }
 
   copyLine(lineKey) {
-    const f = this.getLineForm(lineKey)
-    const data = f ? f.getFormData() : null
+    const F = this.getLineForm(lineKey)
+    const data = F ? F.getFormData() : null
     if (!data) return
 
-    // New
+    // force New
     delete data.metadata.id
 
-    const mainid = this.props.$$$main.props.id || '000-0000000000000000'
-    $.post(`/app/entity/extras/formdata-rebuild?mainid=${mainid}`, JSON.stringify(data), (res) => {
-      if (res.error_code === 0) this._addLine(res.data)
-      else RbHighbar.error(res.error_msg)
+    this._formdataRebuild(data, (res) => {
+      this._addLine(res.data)
     })
   }
 
@@ -293,8 +329,8 @@ class ProTable extends React.Component {
    */
   getLineForm(lineKey) {
     if (!this.state.inlineForms) return null
-    const f = this.state.inlineForms.find((c) => c.key === lineKey)
-    return f ? f.ref.current || null : null
+    const F = this.state.inlineForms.find((c) => c.key === lineKey)
+    return F ? F.ref.current || null : null
   }
 
   /**
@@ -386,20 +422,30 @@ class InlineForm extends RbForm {
     )
   }
 
-  buildFormData(retAll) {
-    const $idx = $(this._$ref).parent().find('th.col-index').removeAttr('title')
-
+  _baseFormData() {
     const data = {}
-    if (retAll) {
-      this.props.rawModel.elements.forEach((item) => {
-        let val = item.value
-        if (val) {
+    this.props.rawModel.elements.forEach((item) => {
+      let val = item.value
+      if (val) {
+        if (item.type === 'N2NREFERENCE') {
+          let ids = item.value.map((n) => {
+            return n.id ? n.id : n
+          })
+          val = ids.join(',')
+        } else {
           val = typeof val === 'object' ? val.id || val : val
-          data[item.field] = val || null
         }
-      })
-    }
 
+        data[item.field] = val || null
+      }
+    })
+    return data
+  }
+
+  buildFormData(retAll) {
+    const data = retAll ? this._baseFormData() : {}
+
+    const $idx = $(this._$ref).parent().find('th.col-index').removeAttr('title')
     let error = null
     for (let k in this.__FormData) {
       const err = this.__FormData[k].error
@@ -425,14 +471,7 @@ class InlineForm extends RbForm {
   }
 
   getFormData() {
-    const data = {}
-    this.props.rawModel.elements.forEach((item) => {
-      let val = item.value
-      if (val) {
-        val = typeof val === 'object' ? val.id || val : val
-        data[item.field] = val || null
-      }
-    })
+    const data = this._baseFormData()
     // updated
     for (let k in this.__FormData) {
       const err = this.__FormData[k].error
@@ -445,6 +484,14 @@ class InlineForm extends RbForm {
       id: this.state.id || null,
     }
     return data
+  }
+
+  updatetFormData(data) {
+    if (rb.env === 'dev') console.log('InlineForm update :', data)
+    for (let name in data) {
+      const c = this.getFieldComp(name)
+      if (c) c.setValue(data[name])
+    }
   }
 }
 

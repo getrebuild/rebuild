@@ -143,7 +143,7 @@ public class FormsBuilder extends FormsManager {
         if (recordId == null) {
             if (hasMainEntity != null) {
                 ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
-                Assert.notNull(mainid, "Call `FormBuilderContextHolder#setMainIdOfDetail` first!");
+                Assert.notNull(mainid, "CALL `FormBuilderContextHolder#setMainIdOfDetail` FIRST!");
 
                 approvalState = EntityHelper.isUnsavedId(mainid) ? null : getHadApproval(hasMainEntity, mainid);
                 if ((approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED)) {
@@ -467,18 +467,15 @@ public class FormsBuilder extends FormsManager {
                 el.put("options", ObjectUtils.defaultIfNull(el.remove("tagList"), JSONUtils.EMPTY_ARRAY));
             } else if (dt == DisplayType.DATETIME) {
                 String format = StringUtils.defaultIfBlank(
-                        easyField.getExtraAttr(EasyFieldConfigProps.DATETIME_FORMAT),
-                        easyField.getDisplayType().getDefaultFormat());
+                        easyField.getExtraAttr(EasyFieldConfigProps.DATETIME_FORMAT), dt.getDefaultFormat());
                 el.put(EasyFieldConfigProps.DATETIME_FORMAT, format);
             } else if (dt == DisplayType.DATE) {
                 String format = StringUtils.defaultIfBlank(
-                        easyField.getExtraAttr(EasyFieldConfigProps.DATE_FORMAT),
-                        easyField.getDisplayType().getDefaultFormat());
+                        easyField.getExtraAttr(EasyFieldConfigProps.DATE_FORMAT), dt.getDefaultFormat());
                 el.put(EasyFieldConfigProps.DATE_FORMAT, format);
             } else if (dt == DisplayType.TIME) {
                 String format = StringUtils.defaultIfBlank(
-                        easyField.getExtraAttr(EasyFieldConfigProps.TIME_FORMAT),
-                        easyField.getDisplayType().getDefaultFormat());
+                        easyField.getExtraAttr(EasyFieldConfigProps.TIME_FORMAT), dt.getDefaultFormat());
                 el.put(EasyFieldConfigProps.TIME_FORMAT, format);
             } else if (dt == DisplayType.CLASSIFICATION) {
                 el.put("openLevel", ClassificationManager.instance.getOpenLevel(fieldMeta));
@@ -534,7 +531,7 @@ public class FormsBuilder extends FormsManager {
                         if (defaultValue != null) {
                             defaultValue = easyField.wrapValue(defaultValue);
                             // `wrapValue` 会添加格式符号
-                            if (easyField.getDisplayType() == DisplayType.DECIMAL) {
+                            if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {
                                 defaultValue = EasyDecimal.clearFlaged(defaultValue);
                             }
                             el.put("value", defaultValue);
@@ -575,7 +572,7 @@ public class FormsBuilder extends FormsManager {
                 Object value = wrapFieldValue(recordData, easyField, user);
                 if (value != null) {
                     // `wrapValue` 会添加格式符号
-                    if (!viewModel && easyField.getDisplayType() == DisplayType.DECIMAL) {
+                    if (!viewModel && (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER)) {
                         value = EasyDecimal.clearFlaged(value);
                     }
                     el.put("value", value);
@@ -760,8 +757,9 @@ public class FormsBuilder extends FormsManager {
             }
             // 其他
             else if (entity.containsField(field)) {
-                EasyField easyField = EasyMetaFactory.valueOf(entity.getField(field));
-                if (easyField.getDisplayType() == DisplayType.REFERENCE || easyField.getDisplayType() == DisplayType.N2NREFERENCE) {
+                final EasyField easyField = EasyMetaFactory.valueOf(entity.getField(field));
+                final DisplayType dt = easyField.getDisplayType();
+                if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
                     // v3.4 如果字段设置了附加过滤条件，从相关项新建时要检查是否符合
                     if (!FieldValueHelper.checkRefDataFilter(easyField, ID.valueOf(value))) {
                         ((JSONObject) formModel).put("alertMessage",
@@ -771,7 +769,7 @@ public class FormsBuilder extends FormsManager {
 
                     Object mixValue = inFormFields.contains(field) ? getReferenceMixValue(value) : value;
                     if (mixValue != null) {
-                        if (easyField.getDisplayType() == DisplayType.REFERENCE) {
+                        if (dt == DisplayType.REFERENCE) {
                             initialValReady.put(field, mixValue);
                         } else {
                             // N2N 是数组

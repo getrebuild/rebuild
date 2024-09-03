@@ -935,7 +935,15 @@ class RbFormElement extends React.Component {
                 <button type="button" className="btn btn-secondary" onClick={() => this.handleEditConfirm()} title={$L('确定')}>
                   <i className="icon zmdi zmdi-check" />
                 </button>
-                <button type="button" className="btn btn-secondary" onClick={() => this.toggleEditMode(false)} title={$L('取消')}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    this.toggleEditMode(false)
+                    // fix: v3.8
+                    props.$$$parent && props.$$$parent.setFieldUnchanged && props.$$$parent.setFieldUnchanged(props.field)
+                  }}
+                  title={$L('取消')}>
                   <i className="icon zmdi zmdi-close" />
                 </button>
               </div>
@@ -1100,7 +1108,8 @@ class RbFormElement extends React.Component {
    * 视图编辑-确认
    */
   handleEditConfirm() {
-    this.props.$$$parent.saveSingleFieldValue && this.props.$$$parent.saveSingleFieldValue(this)
+    const $$$parent = this.props.$$$parent
+    $$$parent && $$$parent.saveSingleFieldValue && $$$parent.saveSingleFieldValue(this)
   }
 
   // Setter

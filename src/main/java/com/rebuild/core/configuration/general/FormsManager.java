@@ -63,7 +63,6 @@ public class FormsManager extends BaseLayoutManager {
         // 1.指定布局
         if (recordOrLayoutId != null && recordOrLayoutId.getEntityCode() == EntityHelper.LayoutConfig) {
             use = findConfigBean(alls, recordOrLayoutId);
-
             if (use == null) {
                 log.warn("Spec layout not longer exists : {}", recordOrLayoutId);
                 recordOrLayoutId = null;
@@ -260,7 +259,7 @@ public class FormsManager extends BaseLayoutManager {
             if (ParseHelper.validAdvFilter(filter)) {
                 return QueryHelper.isMatchAdvFilter(recordId, filter);
             }
-            return false;
+            return true;
         }
     }
 }
