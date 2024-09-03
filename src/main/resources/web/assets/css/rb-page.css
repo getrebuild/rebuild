@@ -33,16 +33,6 @@ html.commercial .rbv {
   display: none !important;
 }
 
-html.mourning-mode {
-  -webkit-filter: grayscale(100%);
-  -moz-filter: grayscale(100%);
-  -ms-filter: gray(100%);
-  -o-filter: grayscale(100%);
-  filter: grayscale(100%);
-  filter: gray;
-  filter: progid:DXImageTransform.Microsoft.BasicImage(grayscale=1);
-}
-
 .dev-show {
   display: none;
 }
@@ -1594,7 +1584,7 @@ a.link.link-icon::after {
 .data-list .table thead th > div > i {
   position: absolute;
   height: 18px;
-  top: -1.5px;
+  top: -1px;
   right: -10px;
 }
 
@@ -1620,7 +1610,6 @@ i.dividing.ui-draggable-dragging {
   font-size: 18px;
   right: 0;
   color: #4285f4;
-  padding-top: 1px;
   font-weight: 500;
 }
 
@@ -5678,51 +5667,25 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   background-color: #e9ecf1;
 }
 
-/* v3.7 */
-
-.detail-form-table.fullscreen {
-  position: absolute;
-  left: 15px;
-  right: 15px;
-  top: 0;
-  z-index: 3;
-  background-color: #fff;
-  margin: 10px 0;
-}
-
-.modal-dialog.fullscreen .modal-content {
-  overflow: hidden;
-}
-
-.modal-dialog.fullscreen .modal-body {
-  overflow: hidden;
-  overflow-y: auto;
-}
-
-.modal-dialog.fullscreen .modal-body .rbform > div {
-  display: none;
-}
-
-.modal-dialog.fullscreen .modal-body .rbform > div.detail-form-table.fullscreen {
-  display: block;
-}
-
-.protable .table .col-index.action {
-  padding: 0 6px 8px 0;
-}
-
 .protable .table .col-index.action > a {
   color: #a1a1a1;
   padding-right: 2px;
-  font-size: 15px;
+  font-size: 16px;
+  width: 100%;
+  height: 100%;
+  display: none;
 }
 
 .protable .table .col-index.action > a:hover {
   color: #4285f4;
 }
 
-.modal-dialog.fullscreen .modal-body .rbform > div.detail-form-table.fullscreen .col-index.action > a > i::before {
-  content: '\F0615';
+.protable .table .col-index.action:hover > span {
+  display: none;
+}
+
+.protable .table .col-index.action:hover > a {
+  display: inline-block;
 }
 
 .modal-dialog.modal-rsheetb .modal-body {
