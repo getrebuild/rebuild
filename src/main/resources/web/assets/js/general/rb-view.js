@@ -19,6 +19,7 @@ class RbViewForm extends React.Component {
 
     this.onViewEditable = this.props.onViewEditable
     if (this.onViewEditable) this.onViewEditable = wpc.onViewEditable !== false
+    // temp for `saveSingleFieldValue`
     this.__FormData = {}
   }
 
