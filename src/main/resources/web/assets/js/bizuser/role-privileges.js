@@ -5,11 +5,6 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-// eslint-disable-next-line no-undef
-RbForm.postAfter = function (data) {
-  location.href = `${rb.baseUrl}/admin/bizuser/role/${data.id}`
-}
-
 const roleId = window.__PageConfig.recordId
 
 // 自定义
@@ -22,15 +17,22 @@ let fieldpSettings = {}
 $(document).ready(() => {
   loadRoles()
 
-  $('.J_new-role').on('click', () => RbFormModal.create({ title: $L('新建角色'), entity: 'Role', icon: 'lock' }))
+  $('.J_new-role').on('click', () =>
+    RbFormModal.create({
+      title: $L('新建角色'),
+      entity: 'Role',
+      icon: 'lock',
+      postAfter: function (id) {
+        if (roleId) location.href = `${rb.baseUrl}/admin/bizuser/role/${id}`
+        else updatePrivileges(id) // 新的
+      },
+    })
+  )
 
   if (roleId) {
-    $('.J_save').attr('disabled', false)
-    $('.J_save').next().attr('disabled', false)
-
     loadPrivileges()
 
-    $('.J_save').on('click', updatePrivileges)
+    $('.J_save').on('click', () => updatePrivileges())
     $('.J_copy-role').on('click', () => renderRbcomp(<CopyRoleTo roleId={roleId} />))
 
     $('.nav-tabs li:eq(2)').removeClass('hide')
@@ -256,7 +258,7 @@ const loadPrivileges = function () {
   })
 }
 
-const updatePrivileges = function () {
+const updatePrivileges = function (newId) {
   const privEntity = {}
   $('#priv-entity tbody>tr').each(function () {
     const $tr = $(this)
@@ -297,9 +299,13 @@ const updatePrivileges = function () {
     zero: privZero,
   }
 
-  $.post(`/admin/bizuser/privileges-update?role=${roleId}`, JSON.stringify(_data), (res) => {
-    if (res.error_code === 0) location.reload()
-    else RbHighbar.error(res.error_msg)
+  $.post(`/admin/bizuser/privileges-update?role=${newId || roleId}`, JSON.stringify(_data), (res) => {
+    if (res.error_code === 0) {
+      if (newId) location.href = `${rb.baseUrl}/admin/bizuser/role/${newId}`
+      else location.reload()
+    } else {
+      RbHighbar.error(res.error_msg)
+    }
   })
 }
 

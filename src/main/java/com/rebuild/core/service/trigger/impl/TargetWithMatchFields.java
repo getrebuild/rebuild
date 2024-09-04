@@ -103,7 +103,7 @@ public class TargetWithMatchFields {
             if (MetadataHelper.getLastJoinField(sourceEntity, sourceField) == null) {
                 throw new MissingMetaExcetion(sourceField, sourceEntity.getName());
             }
-            if (!targetEntity.containsField(targetField)) {
+            if (MetadataHelper.getLastJoinField(targetEntity, targetField) == null) {
                 throw new MissingMetaExcetion(targetField, targetEntity.getName());
             }
             matchFieldsMapping.put(sourceField, targetField);
@@ -136,7 +136,7 @@ public class TargetWithMatchFields {
             String targetField = e.getValue();
             // @see Dimension#getSqlName
             EasyField sourceFieldEasy = EasyMetaFactory.valueOf(MetadataHelper.getLastJoinField(sourceEntity, sourceField));
-            EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
+            EasyField targetFieldEasy = EasyMetaFactory.valueOf(MetadataHelper.getLastJoinField(targetEntity, targetField));
 
             // fix: 3.7.1
             boolean isDateField = sourceFieldEasy.getDisplayType() == DisplayType.DATE

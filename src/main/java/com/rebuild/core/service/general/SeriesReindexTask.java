@@ -48,6 +48,8 @@ public class SeriesReindexTask extends HeavyTask<Integer> {
         if (ONLY_REINDEX_BLANK) {
             sql += String.format(" where %s is null or %s = ''", field.getName(), field.getName());
         }
+        if (field.getOwnEntity().containsField(EntityHelper.AutoId)) sql += " order by autoId asc";
+
         Query query = Application.createQueryNoFilter(sql);
         Object[][] array = QueryHelper.readArray(query);
 

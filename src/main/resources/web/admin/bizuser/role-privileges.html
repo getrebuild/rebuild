@@ -145,10 +145,10 @@
             </div>
           </div>
           <div class="float-right">
-            <button class="btn btn-secondary btn-space J_new-role" type="button"><i class="icon mdi mdi-lock-plus"></i> [[${bundle.L('新建角色')}]]</button>
-            <div class="btn-group btn-space">
-              <button class="btn btn-primary J_save" type="button" disabled="disabled">[[${bundle.L('保存')}]]</button>
-              <button class="btn btn-primary dropdown-toggle w-auto" type="button" data-toggle="dropdown" disabled="disabled"><i class="icon zmdi zmdi-chevron-down"></i></button>
+            <button class="btn btn-secondary btn-space J_new-role mr-0" type="button"><i class="icon mdi mdi-lock-plus"></i> [[${bundle.L('新建角色')}]]</button>
+            <div class="btn-group btn-space ml-1" th:if="${id != null}">
+              <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+              <button class="btn btn-primary dropdown-toggle w-auto" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-chevron-down"></i></button>
               <div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
                 <a class="dropdown-item J_copy-role"><i class="icon zmdi zmdi-copy"></i> [[${bundle.L('复制角色')}]]</a>
               </div>
