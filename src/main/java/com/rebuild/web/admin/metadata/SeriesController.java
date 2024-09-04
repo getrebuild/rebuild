@@ -49,6 +49,7 @@ public class SeriesController extends BaseController {
         Field metaField = entity.getField(field);
         // 指定开始序号
         long s = ObjectUtils.toLong(getParameter(request, "s"));
+        if (s < 0) s = 0;
 
         SeriesGeneratorFactory.zero(metaField, s);
         return RespBody.ok();
