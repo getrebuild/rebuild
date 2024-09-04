@@ -78,7 +78,7 @@ class ContentFieldWriteback extends ActionContentSpec {
               <label className="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
               <div className="col-md-12 col-lg-9">
                 <h5 className="mt-0 text-bold">{$L('字段匹配规则')}</h5>
-                <MatchFields targetFields={this.state.targetFields} sourceFields={this.__sourceFieldsCache} ref={(c) => (this._MatchFields = c)} />
+                <MatchFields targetFields={this.state.targetFields4Group} sourceFields={this.__sourceFieldsCache} ref={(c) => (this._MatchFields = c)} />
               </div>
             </div>
           )}
@@ -282,17 +282,22 @@ class ContentFieldWriteback extends ActionContentSpec {
     }
 
     $.get(`/admin/robot/trigger/field-writeback-fields?source=${this.props.sourceEntity}&target=${teSplit[1]}`, (res) => {
-      this.setState({ hasWarning: res.data.hadApproval ? $L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)，建议启用“允许强制更新”') : null })
+      const _data = res.data || {}
+      this.setState({ hasWarning: _data.hadApproval ? $L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)，建议启用“允许强制更新”') : null })
 
-      this.__sourceFieldsCache = res.data.source
+      this.__sourceFieldsCache = _data.source
+      let fieldsProps = {
+        targetFields: _data.target,
+        targetFields4Group: _data.target4Group,
+      }
 
       if (this.state.targetFields) {
-        this.setState({ targetFields: res.data.target }, () => {
+        this.setState({ ...fieldsProps }, () => {
           $(this._$targetField).trigger('change')
         })
       } else {
         // init
-        this.setState({ sourceFields: res.data.source, targetFields: res.data.target }, () => {
+        this.setState({ sourceFields: _data.source, ...fieldsProps }, () => {
           const $s2tf = $(this._$targetField)
             .select2({ placeholder: $L('选择目标字段') })
             .on('change', () => this._changeTargetField())
@@ -326,7 +331,7 @@ class ContentFieldWriteback extends ActionContentSpec {
         }
       }
 
-      this._MatchFields && this._MatchFields.reset({ targetFields: this.state.targetFields, sourceFields: this.__sourceFieldsCache })
+      this._MatchFields && this._MatchFields.reset({ targetFields: this.state.targetFields4Group, sourceFields: this.__sourceFieldsCache })
     })
   }
 
