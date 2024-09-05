@@ -624,6 +624,8 @@ class RbForm extends React.Component {
             if (child.props.type === 'TAG') {
               // eg. 标签
               iv = iv.join('$$$$')
+            } else if (child.props.type === 'LOCATION') {
+              // eg.位置
             } else if (Array.isArray(iv)) {
               // eg. 文件/图片
             } else {
@@ -2523,6 +2525,12 @@ class RbFormMultiSelect extends RbFormElement {
     const val = this.state.value
     if (!val) return 0
     return typeof val === 'object' ? val.id : val
+  }
+
+  setValue(val) {
+    // eg. {id:3, text:["A", "B"]}
+    if (typeof val === 'object') val = val.id || val
+    super.setValue(val)
   }
 }
 

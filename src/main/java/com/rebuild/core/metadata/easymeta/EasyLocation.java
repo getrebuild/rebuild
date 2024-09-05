@@ -39,8 +39,12 @@ public class EasyLocation extends EasyField implements MixValue {
     @Override
     public Object wrapValue(Object value) {
         if (value == null) return null;
-        String[] vals = value.toString().split(MetadataHelper.SPLITER_RE);
 
+        // be: v3.8
+        String val2str = value.toString();
+        if (JSONUtils.wellFormat(val2str)) return JSONObject.parse(val2str);
+
+        String[] vals = value.toString().split(MetadataHelper.SPLITER_RE);
         JSONObject mixVal = JSONUtils.toJSONObject("text", vals[0]);
         if (vals.length >= 2) {
             String[] lnglat = vals[vals.length - 1].split(",");
