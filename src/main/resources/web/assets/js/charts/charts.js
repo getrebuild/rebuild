@@ -163,7 +163,7 @@ class BaseChart extends React.Component {
   }
 
   _exportTable(table) {
-    function _rmLinks(table, a, b) {
+    const _rmLinks = function (table, a, b) {
       $(table)
         .find('a')
         .each(function () {
@@ -174,20 +174,24 @@ class BaseChart extends React.Component {
     }
 
     const name = `${this.state.title}.xls`
-    function _export() {
+    const _export = function () {
       // remove
       _rmLinks(table, '__href', 'href')
       // export
       // https://docs.sheetjs.com/docs/api/utilities/html#html-table-input
       // https://docs.sheetjs.com/docs/api/write-options
-      const wb = window.XLSX.utils.table_to_book(table, { raw: true })
+      const wb = window.XLSX.utils.table_to_book(table, { raw: true, wrapText: true })
       window.XLSX.writeFile(wb, name)
       // restore
       setTimeout(() => _rmLinks(table, 'href', '__href'), 500)
     }
 
-    if (window.XLSX) _export()
-    else $getScript('/assets/lib/charts/xlsx.full.min.js', setTimeout(_export, 200))
+    if (window.XLSX && window.XLSX.utils) _export()
+    else {
+      $getScript('/assets/lib/charts/xlsx.full.min.js', () => {
+        setTimeout(_export, 1000)
+      })
+    }
   }
 
   renderError(msg, cb) {
