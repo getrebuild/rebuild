@@ -552,7 +552,6 @@ class DlgEditRefform extends DlgEditField {
               setTimeout(() => this._loadFormsAttr(), 200)
             }}
             defaultValue={this.props.reffield || null}>
-            <option value="">{$L('无')}</option>
             {Object.keys(_ValidFields).map((k) => {
               const field = _ValidFields[k]
               if (['REFERENCE', 'ANYREFERENCE'].includes(field.displayTypeName) && field.fieldName !== 'approvalId') {
@@ -566,10 +565,10 @@ class DlgEditRefform extends DlgEditField {
             })}
           </select>
         </div>
-        <div className="form-group -bosskey-show">
-          <label>{$L('使用布局')}</label>
+        <div className="form-group">
+          <label>{$L('指定布局')}</label>
           <select className="form-control form-control-sm" name="speclayout" onChange={this.handleChange} ref={(c) => (this._$speclayout = c)}>
-            <option value="">{$L('自动选择')}</option>
+            <option value="">{$L('无')}</option>
             {this.state.formsAttr &&
               this.state.formsAttr.map((item) => {
                 return (

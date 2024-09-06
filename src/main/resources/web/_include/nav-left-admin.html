@@ -55,8 +55,8 @@
               <li th:class="${active == 'robot-trigger'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('TRI', #request)}">
                 <a th:href="@{/admin/robot/triggers}"><i class="icon mdi mdi-cogs"></i><span>[[${bundle.L('触发器')}]]</span></a>
               </li>
-              <li th:class="${active == 'robot-sop'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('SOP', #request)}" th:classappend="-bosskey-show">
-                <a th:href="@{/admin/robot/sops}"><i class="icon mdi mdi-timelapse"></i><span>[[${bundle.L('业务进度')}]]</span> <sup class="rbv"></sup></a>
+              <li th:class="${active == 'robot-sop'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('SOP', #request)}" th:classappend="bosskey-show">
+                <a th:href="@{/admin/robot/sops}"><i class="icon mdi mdi-timelapse"></i><span>[[${bundle.L('业务进度')}]]</span> (LAB) <sup class="rbv"></sup></a>
               </li>
               <li th:class="${active == 'report-templates'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('REP', #request)}">
                 <a th:href="@{/admin/data/report-templates}"><i class="icon mdi mdi-microsoft-excel"></i><span>[[${bundle.L('报表模板')}]]</span></a>
