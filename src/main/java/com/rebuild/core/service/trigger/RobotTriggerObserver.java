@@ -49,7 +49,8 @@ public class RobotTriggerObserver extends OperatingObserver {
 
     private static final ThreadLocal<String> ALLOW_TRIGGERS_ONAPPROVED = new NamedThreadLocal<>("Allow triggers on approve-node");
 
-    private static final boolean _TriggerLessLog = CommandArgs.getBoolean(CommandArgs._TriggerLessLog);
+    // 少量触发器日志
+    public static final boolean _TriggerLessLog = CommandArgs.getBoolean(CommandArgs._TriggerLessLog);
 
     @Override
     public int getOrder() {

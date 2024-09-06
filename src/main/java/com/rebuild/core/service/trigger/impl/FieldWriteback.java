@@ -35,6 +35,7 @@ import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.core.service.trigger.TriggerResult;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
@@ -143,7 +144,7 @@ public class FieldWriteback extends FieldAggregation {
         }
 
         if (targetRecordData.isEmpty()) {
-            log.info("No data of target record : {}", targetRecordIds);
+            if (!RobotTriggerObserver._TriggerLessLog) log.info("No data of target record : {}", targetRecordIds);
             return TriggerResult.targetEmpty();
         }
 
@@ -173,7 +174,7 @@ public class FieldWriteback extends FieldAggregation {
 
             // 相等则不更新
             if (isCurrentSame(targetRecord)) {
-                log.info("Ignore execution because the record are same : {}", targetRecordId);
+                if (!RobotTriggerObserver._TriggerLessLog) log.info("Ignore execution because the record are same : {}", targetRecordId);
                 targetSame = true;
                 continue;
             }
