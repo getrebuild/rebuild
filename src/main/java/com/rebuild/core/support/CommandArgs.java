@@ -33,6 +33,7 @@ public class CommandArgs {
     public static final String _UseFrontJSAnywhere = "_UseFrontJSAnywhere";
     public static final String _TriggerMaxDepth = "_TriggerMaxDepth";
     public static final String _ProtectedAdmin = "_ProtectedAdmin";
+    public static final String _TriggerLessLog = "_TriggerLessLog";
 
     /**
      * @param name
