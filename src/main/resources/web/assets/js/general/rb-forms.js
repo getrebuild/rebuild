@@ -845,7 +845,7 @@ class RbForm extends React.Component {
             // ~
           }
 
-          RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next, this)
+          this._postAfterExec({ ...res.data, isNew: !this.state.id }, next)
 
           // ~
         }, 200)
