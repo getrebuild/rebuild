@@ -33,6 +33,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,6 +58,8 @@ public class DataListWrapper {
     protected boolean useDesensitized = false;
 
     private boolean mixWrapper = true;
+
+    private Map<ID, Object> cacheRefValue = new HashMap<>();
 
     /**
      * @param total
@@ -175,6 +178,11 @@ public class DataListWrapper {
 
         final DisplayType dt = easyField.getDisplayType();
         final Object originValue = value;
+        final boolean isCacheRefValue = dt == DisplayType.REFERENCE && value instanceof ID;
+
+        if (isCacheRefValue) {
+            if (cacheRefValue.containsKey((ID) value)) return cacheRefValue.get(value);
+        }
 
         boolean unpack = dt == DisplayType.CLASSIFICATION || dt == DisplayType.PICKLIST
                 || dt == DisplayType.STATE || dt == DisplayType.BOOL;
@@ -248,6 +256,7 @@ public class DataListWrapper {
             }
         }
 
+        if (isCacheRefValue) cacheRefValue.put((ID) originValue, value);
         return value;
     }
 

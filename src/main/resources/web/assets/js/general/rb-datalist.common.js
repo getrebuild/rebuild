@@ -989,8 +989,10 @@ class RbList extends React.Component {
                                   onClick={(e) => {
                                     typeof btn.onClick === 'function' && btn.onClick(primaryKey.id, e)
                                   }}>
-                                  {btn.icon && <i className={`icon zmdi zmdi-${btn.icon}`} />}
-                                  {btn.text}
+                                  <span className={`text-${btn.type || ''}`}>
+                                    {btn.icon && <i className={`icon zmdi zmdi-${btn.icon}`} />}
+                                    {btn.text || null}
+                                  </span>
                                 </button>
                               )
                             })}

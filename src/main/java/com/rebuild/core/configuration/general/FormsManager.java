@@ -69,33 +69,32 @@ public class FormsManager extends BaseLayoutManager {
             }
         }
 
-        // 2.使用布局
+        // 2.查找布局
         if (use == null) {
-            // 2.1.高优先级
-            if (recordOrLayoutId == null) {
-                use = findBest(alls);
-            }
-            // 2.2.次优先级
-            if (use == null) {
-                for (Object[] o : alls) {
-                    ConfigBean cb = findConfigBean(alls, (ID) o[0]);
-                    ShareToAttr attr = new ShareToAttr(cb);
-                    if (recordOrLayoutId == null) {
-                        if (attr.isFallback() || attr.isForNew()) {
-                            use = cb;
-                            break;
-                        }
-                    } else {
-                        if (attr.isMatchUseFilter(recordOrLayoutId)) {
-                            use = cb;
-                            break;
-                        }
+            // 优先使用条件匹配的
+            for (Object[] o : alls) {
+                ConfigBean cb = findConfigBean(alls, (ID) o[0]);
+                ShareToAttr attr = new ShareToAttr(cb);
+                if (recordOrLayoutId == null) {
+                    if (attr.isFallback() || attr.isForNew()) {
+                        use = cb;
+                        break;
+                    }
+                } else {
+                    if (attr.isMatchUseFilter(recordOrLayoutId)) {
+                        use = cb;
+                        break;
                     }
                 }
             }
+
+            // 默认优先级
+            if (recordOrLayoutId == null) {
+                use = findDefault(alls);
+            }
         }
 
-        // 3.默认布局（fallback）
+        // 3.默认布局
         if (use == null && recordOrLayoutId != null) {
             for (Object[] o : alls) {
                 ConfigBean cb = findConfigBean(alls, (ID) o[0]);
@@ -106,11 +105,6 @@ public class FormsManager extends BaseLayoutManager {
                 }
             }
         }
-
-//        // 4.只有一个直接用，不管条件了
-//        if (use == null && alls.length == 1) {
-//            use = findConfigBean(alls, (ID) alls[0][0]);
-//        }
 
         if (use != null) {
             use.set("entity", entity)
@@ -127,8 +121,8 @@ public class FormsManager extends BaseLayoutManager {
                 .set("elements", JSONUtils.EMPTY_ARRAY);
     }
 
-    // 找最高优先级的那个
-    private ConfigBean findBest(Object[][] alls) {
+    // 默认优先级布局
+    private ConfigBean findDefault(Object[][] alls) {
         for (Object[] o : alls) {
             ConfigBean cb = findConfigBean(alls, (ID) o[0]);
             ShareToAttr attr = new ShareToAttr(cb);
@@ -149,9 +143,10 @@ public class FormsManager extends BaseLayoutManager {
 
         // 高优先级
         if (formConfigId == null) {
-            ConfigBean best = findBest(alls);
+            ConfigBean best = findDefault(alls);
             if (best != null) return best;
         }
+
         // 次优先级
         for (Object[] o : alls) {
             if (formConfigId == null) {
@@ -259,7 +254,7 @@ public class FormsManager extends BaseLayoutManager {
             if (ParseHelper.validAdvFilter(filter)) {
                 return QueryHelper.isMatchAdvFilter(recordId, filter);
             }
-            return true;
+            return false;
         }
     }
 }

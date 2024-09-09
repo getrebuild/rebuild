@@ -113,7 +113,7 @@ public class ValueConvertFunc {
             }
 
         } else if (type == DisplayType.DATE || type == DisplayType.DATETIME || type == DisplayType.TIME) {
-            if (CHINESE_4DATE_NUM.equals(thatFunc)) {
+            if (CHINESE_4DATE_NUM.equals(thatFunc) || "CHINESEDATE".equals(thatFunc)) {
                 if (type == DisplayType.TIME) {
                     String s = "2024-01-01 " + value;
                     if (s.length() == 13) s += ":00";

@@ -31,6 +31,7 @@ import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.core.service.trigger.TriggerResult;
@@ -229,13 +230,13 @@ public class FieldAggregation extends TriggerAction {
 
         // 有需要才执行
         if (targetRecord.isEmpty()) {
-            log.info("No data of target record : {}", targetRecordId);
+            if (!RobotTriggerObserver._TriggerLessLog) log.info("No data of target record : {}", targetRecordId);
             return TriggerResult.targetEmpty();
         }
 
         // 相等则不更新
         if (isCurrentSame(targetRecord)) {
-            log.info("Ignore execution because the record are same : {}", targetRecordId);
+            if (!RobotTriggerObserver._TriggerLessLog) log.info("Ignore execution because the record are same : {}", targetRecordId);
             return TriggerResult.targetSame();
         }
 

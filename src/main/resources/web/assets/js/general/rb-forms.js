@@ -582,8 +582,8 @@ class RbForm extends React.Component {
       )
     }
 
-    // Clean others action
-    if (this._postAfter) moreActions = []
+    // @see #_postAfterExec
+    if (typeof this._postAfter === 'function') moreActions = []
 
     // v3.8
     const $$$props = props.$$$parent && props.$$$parent.props ? props.$$$parent.props : {}
@@ -787,10 +787,8 @@ class RbForm extends React.Component {
       id: this.state.id,
     }
 
-    if (RbForm.postBefore(data, this) === false) {
-      console.log('FrontJS prevented save')
-      return
-    }
+    // 提交前
+    if (this._postBeforeExec(data) === false) return
 
     const $$$parent = this.props.$$$parent
     const previewid = $$$parent.state.previewid
@@ -818,6 +816,7 @@ class RbForm extends React.Component {
 
           const recordId = res.data.id
 
+          // 提交后:如有提交后回调则仅执行此
           if (typeof this._postAfter === 'function') {
             this._postAfter(recordId, next, this)
             return
@@ -846,7 +845,7 @@ class RbForm extends React.Component {
             // ~
           }
 
-          RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next, this)
+          this._postAfterExec({ ...res.data, isNew: !this.state.id }, next)
 
           // ~
         }, 200)
@@ -870,30 +869,27 @@ class RbForm extends React.Component {
     return true
   }
 
-  // -- HOOK
+  // 提交前调用
+  _postBeforeExec(data) {
+    if (typeof this._postBefore === 'function') {
+      let ret = this._postBefore(data, this)
+      if (ret === false) return false
+    }
 
-  // 保存前调用（返回 false 则不继续保存）
-  // eslint-disable-next-line no-unused-vars
-  static postBefore(data, formObject) {
-    if (formObject && typeof formObject._postBefore === 'function') {
-      const ret = formObject._postBefore(data, formObject)
-      if (ret === false) return false
-    }
     if (window.FrontJS) {
-      const ret = window.FrontJS.Form._trigger('saveBefore', [data])
+      let ret = window.FrontJS.Form._trigger('saveBefore', [data, this])
       if (ret === false) return false
     }
-    return true
+
+    let ret = RbForm.postBefore(data, this)
+    if (ret === false) return false
   }
 
-  // 保存后调用
-  // eslint-disable-next-line no-unused-vars
-  static postAfter(data, next, formObject) {
+  // 提交后调用
+  _postAfterExec(data, next) {
     if (window.FrontJS) {
-      window.FrontJS.Form._trigger('saveAfter', [data, next])
+      window.FrontJS.Form._trigger('saveAfter', [data, next, this])
     }
-
-    // TODO 本实体才刷新?
 
     // 刷新列表
     const rlp = window.RbListPage || parent.RbListPage
@@ -902,6 +898,14 @@ class RbForm extends React.Component {
     if (window.RbViewPage && next !== RbForm.NEXT_NEWDETAIL) window.RbViewPage.reload()
   }
 
+  // -- HOOK 复写
+
+  // 保存前调用（返回 false 则不继续保存）
+  // eslint-disable-next-line no-unused-vars
+  static postBefore(data, formObject) {}
+  // 保存后调用
+  // eslint-disable-next-line no-unused-vars
+  static postAfter(data, next, formObject) {}
   // 组件渲染后调用
   // eslint-disable-next-line no-unused-vars
   static renderAfter(formObject) {}

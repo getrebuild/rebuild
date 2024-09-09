@@ -1834,10 +1834,16 @@ th.column-fixed {
 
 .column-fixed.col-action .btn.btn-sm {
   line-height: 28px;
+  min-width: 32px;
+}
+
+.column-fixed.col-action .btn.btn-sm:hover,
+.column-fixed.col-action .btn.btn-sm:active {
+  background-color: #e3e3e3;
 }
 
 .column-fixed.col-action .btn.btn-sm:active {
-  background-color: #e3e3e3;
+  background-color: #ddd;
 }
 
 .table.table-header-fixed thead > tr > th {
