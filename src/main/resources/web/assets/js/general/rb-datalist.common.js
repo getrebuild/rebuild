@@ -984,7 +984,7 @@ class RbList extends React.Component {
                                 <button
                                   key={idx}
                                   type="button"
-                                  className={'btn btn-sm btn-link w-auto '}
+                                  className="btn btn-sm btn-link w-auto"
                                   title={btn.title || null}
                                   onClick={(e) => {
                                     typeof btn.onClick === 'function' && btn.onClick(primaryKey.id, e)
