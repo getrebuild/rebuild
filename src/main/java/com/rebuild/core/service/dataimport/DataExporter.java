@@ -108,7 +108,7 @@ public class DataExporter extends SetUser {
         // xlsx: 无 65535 行数限制
         if ("xls".equalsIgnoreCase(csvOrExcel) || "xlsx".equalsIgnoreCase(csvOrExcel)) {
             File file = RebuildConfiguration.getFileOfTemp(
-                    String.format("RBEXPORT-%d." + csvOrExcel.toLowerCase(), System.currentTimeMillis()));
+                    String.format("RBEXPORT-%d.%s", System.currentTimeMillis(), csvOrExcel.toLowerCase()));
 
             List<List<String>> head4Excel = new ArrayList<>();
             for (String h : head) {
