@@ -177,7 +177,8 @@ public class LoginAction extends BaseController {
             uaSimple = "UNKNOW";
         }
 
-        String ipAddr = StringUtils.defaultString(ServletUtils.getRemoteAddr(request), "127.0.0.1");
+        final String ipAddr = StringUtils.defaultString(ServletUtils.getRemoteAddr(request), "127.0.0.1");
+        final String reqUrl = request.getRequestURL() == null ? "" : request.getRequestURL().toString();
 
         final Record llog = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
         llog.setID("user", user);
@@ -191,10 +192,10 @@ public class LoginAction extends BaseController {
             User u = Application.getUserStore().getUser(user);
             String uid = StringUtils.defaultString(u.getEmail(), u.getName());
             if (uid == null) uid = user.toLiteral();
-            
+
             String uaUrl = String.format("api/authority/user/echo?user=%s&ip=%s&ua=%s&source=%s",
                     CodecUtils.base64UrlEncode(uid), ipAddr, CodecUtils.urlEncode(userAgent),
-                    CodecUtils.base64UrlEncode(request.getRequestURL().toString()));
+                    CodecUtils.base64UrlEncode(reqUrl));
             License.siteApiNoCache(uaUrl);
         });
     }
