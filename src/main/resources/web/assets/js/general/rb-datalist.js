@@ -76,7 +76,7 @@ const RbListPage = {
 
     // Privileges
     if (ep) {
-      if (ep.C === false) $('.J_new').remove()
+      if (ep.C === false) $('.J_new, .J_new_group').remove()
       if (ep.D === false) $('.J_delete').remove()
       if (ep.U === false) $('.J_edit, .J_batch-update').remove()
       if (ep.A !== true) $('.J_assign').remove()
