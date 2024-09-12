@@ -1149,6 +1149,7 @@ body {
   font-size: 0;
   background-color: #f7b904;
   border: 4px solid #fff;
+  border: 6px double #fff;
 }
 
 .sop-steps li.state-2 > div > span {
