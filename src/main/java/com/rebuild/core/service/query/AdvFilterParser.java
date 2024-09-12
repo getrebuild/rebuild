@@ -775,7 +775,8 @@ public class AdvFilterParser extends SetUser {
         final String quickValue = values.values().iterator().next().toString();
 
         // eg: =完全相等, *后匹配, 前匹配*
-        if (quickValue.startsWith("=") || quickValue.startsWith("*") || quickValue.endsWith("*")) {
+        if (quickValue.length() > 2
+                && (quickValue.startsWith("=") || quickValue.startsWith("*") || quickValue.endsWith("*"))) {
             String op2 = ParseHelper.EQ;
             String value2;
             if (quickValue.startsWith("*")) op2 = ParseHelper.LK1;
