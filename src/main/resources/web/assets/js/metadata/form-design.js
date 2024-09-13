@@ -76,10 +76,9 @@ $(document).ready(() => {
 
   $('.J_add-refform').on('click', () => {
     if (rb.commercial < 1) {
-      RbHighbar.error(WrapHtml($L('免费版不支持引用表单功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-      return
+      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return false
     }
-
     $('.nav-tabs-classic a[href="#form-design"]').tab('show')
     render_item({ fieldName: REFFORM_LINE, fieldLabel: '', colspan: 4 })
   })
@@ -91,8 +90,14 @@ $(document).ready(() => {
     if (!ft[2]) render_type({ name: k, label: ft[0], icon: ft[1] })
   }
 
-  // v3.7 LAB
-  $('.J_add-nform').on('click', () => renderRbcomp(<DlgNForm entity={wpc.entityName} />))
+  // v3.7, v3.8
+  $('.J_add-nform').on('click', () => {
+    if (rb.commercial < 1) {
+      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return false
+    }
+    renderRbcomp(<DlgNForm entity={wpc.entityName} />)
+  })
   wpc.formsAttr &&
     wpc.formsAttr.forEach((item) => {
       const $item = $(`<a class="dropdown-item" href="?id=${item.id}"></a>`).appendTo('.form-action-menu')
@@ -106,6 +111,7 @@ $(document).ready(() => {
         $('.form-action-menu').prev().dropdown('toggle') // hide
       })
 
+      if (rb.commercial < 1) $action.find('span').remove()
       if (wpc.formConfig.id === item.id) $item.addClass('check')
     })
   // 无
@@ -197,7 +203,7 @@ $(document).ready(() => {
   $('.nav-tabs-classic a[href="#adv-control"]').on('click', (e) => {
     if (rb.commercial < 1) {
       e.preventDefault()
-      RbHighbar.error(WrapHtml($L('免费版不支持高级控制功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return false
     }
 
