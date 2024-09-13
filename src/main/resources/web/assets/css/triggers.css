@@ -597,3 +597,10 @@ textarea.formula-code + .fields-vars {
 .create-task .form-control {
   max-width: 100% !important;
 }
+
+.dest-tips {
+  background-color: #eee;
+  padding: 20px;
+  border-radius: 3px;
+  margin-top: 10px;
+}
