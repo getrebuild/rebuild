@@ -18,7 +18,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.RandomAccessFile;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.ArrayList;
@@ -115,21 +115,22 @@ public final class ServerStatus {
      */
     static Status checkCreateFile() {
         String name = "CreateFile";
-        FileWriter fw = null;
+        File test = null;
+        RandomAccessFile raf = null;
         try {
-            File test = new File(FileUtils.getTempDirectory(), "ServerStatus.test");
-            fw = new FileWriter(test);
-            IOUtils.write(CodecUtils.randomCode(1024), fw);
+            test = new File(FileUtils.getTempDirectory(), "ServerStatus.test");
+            raf = new RandomAccessFile(test, "rw");
+            raf.setLength(1024 * 1024 * 5);  // 5M
+
             if (!test.exists()) {
                 return Status.error(name, "Cannot create file in temp-directory");
-            } else {
-                FileUtils.deleteQuietly(test);
             }
 
         } catch (Exception ex) {
             return Status.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
         } finally {
-            IOUtils.closeQuietly(fw);
+            if (raf != null) IOUtils.closeQuietly(raf);
+            if (test != null) FileUtils.deleteQuietly(test);
         }
         return Status.success(name);
     }
