@@ -1061,48 +1061,54 @@ body {
   display: none;
 }
 
-.sop-toolbar {
-  position: relative;
-  margin-bottom: 18px;
-  background-color: #f7f7f7;
+.sop-toolbar-wrap {
   padding: 12px 18px;
+  padding-top: 6px;
+  background-color: #f7f7f7;
+  margin-bottom: 18px;
   border-radius: 2px;
 }
 
-.sop-steps {
-  display: flex;
-  justify-content: space-between;
-  margin: 0;
+.sop-toolbar {
   position: relative;
+  padding-top: 6px;
 }
 
-.sop-steps::after,
-.sop-steps::before {
-  content: '';
-  height: 2px;
-  line-height: 2px;
-  font-size: 0;
-  background-color: #ddd;
+.sop-steps {
+  display: table;
+  margin: 0;
   width: 100%;
-  position: absolute;
-  top: 13px;
-  z-index: 1;
-}
-
-.sop-steps::before {
-  background-color: #33a451;
-  z-index: 2;
-  width: var(--before-width, 0);
-  transition: width 0.4s;
 }
 
 .sop-steps li {
-  z-index: 3;
+  display: table-cell;
+  position: relative;
   text-align: center;
 }
 
+.sop-steps li::before {
+  position: absolute;
+  content: '';
+  height: 0;
+  line-height: 0;
+  font-size: 0;
+  border-bottom: 2px solid #ccc;
+  top: 12px;
+  left: 0;
+  width: 100%;
+}
+
+.sop-steps li.state-1::before {
+  border-bottom: 2px dotted #f7b904;
+}
+
+.sop-steps li.state-2::before {
+  border-bottom: 2px solid #33a451;
+}
+
 .sop-steps li > div {
-  width: 150px;
+  width: 160px;
+  margin: 0 auto;
 }
 
 .sop-steps li > div > span {
@@ -1115,16 +1121,17 @@ body {
   text-align: center;
   color: #777;
   cursor: default;
-  position: relative;
   border: 2px solid #f7f7f7;
   font-size: 12px;
   font-weight: bold;
+  position: relative;
 }
 
 .sop-steps li > div > span,
 .sop-steps li > div > p {
   margin: 0;
   padding: 0;
+  word-break: break-all;
 }
 
 .sop-steps li > div > p,
@@ -1134,11 +1141,8 @@ body {
 }
 
 .sop-steps li > div > div.tip-content {
-  background-color: #eee;
-  background-color: rgba(232, 240, 254, 0.5);
-  padding: 2px 4px;
   font-size: 12px;
-  border-radius: 3px;
+  font-weight: bold;
 }
 
 .sop-steps li.state-2 > div > span:hover {
@@ -1147,36 +1151,34 @@ body {
 }
 
 .sop-steps li.state-1 > div > span {
-  font-size: 0;
   background-color: #f7b904;
-  border: 4px solid #fff;
-  border: 6px double #fff;
+  color: transparent;
 }
 
 .sop-steps li.state-2 > div > span {
-  font-size: 0;
   background-color: #33a451;
+  color: transparent;
 }
 
-.sop-steps li.state-2 > div > span::before {
-  font-size: 16px;
-  font-family: 'Material Design Icons', serif;
+.sop-steps li.state-2 > div > span > i.mdi {
   color: #fff;
+  position: absolute;
+  font-size: 15px;
+  top: 4px;
+  left: 3px;
 }
 
-.sop-steps li.state-2 > div > span::before {
-  content: '\F012C';
+.sop-steps li.state-1 > div > span > i.mdi {
+  width: 18px;
+  height: 18px;
+  border: 3px solid #fff;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  border-radius: 50%;
 }
 
-.sop-steps li:last-child > div {
-  text-align: right;
-}
-
-.sop-steps li:first-child > div {
-  text-align: left;
-}
-
-.sop-steps li.state-2 > div > span > em {
+.sop-steps li > div > span > em {
   background-color: #fff;
   color: #000;
   position: absolute;
