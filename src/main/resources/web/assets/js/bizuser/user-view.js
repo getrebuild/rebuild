@@ -5,9 +5,10 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-const userId = window.__PageConfig.recordId
+const wpc = window.__PageConfig || {}
+const userId = wpc.recordId
 
-$(document).ready(function () {
+$(document).ready(() => {
   $('.J_delete')
     .off('click')
     .on('click', () => {
@@ -153,6 +154,22 @@ $(document).ready(function () {
         })
       }
     })
+  }
+
+  // v3.8
+  if (userId === '001-0000000000000001') {
+    const RbForm_renderAfter = RbForm.renderAfter
+    RbForm.renderAfter = function (formObject) {
+      typeof RbForm_renderAfter === 'function' && RbForm_renderAfter()
+
+      formObject.onFieldValueChange((nv) => {
+        if (nv.name === 'isDisabled') {
+          let c = formObject.getFieldComp('isDisabled') || {}
+          if (nv.value === 'T') c.setTip(<span className="text-warning">{$L('禁用将导致超级管理员无法登录')}</span>)
+          else c.setTip(null)
+        }
+      })
+    }
   }
 })
 

@@ -59,6 +59,7 @@ public enum ZeroEntry {
 
     /**
      * 允许撤销审批
+     * v3.8 起添加撤回权限
      */
     AllowRevokeApproval(false),
 

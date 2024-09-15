@@ -1148,7 +1148,10 @@ class RbFormElement extends React.Component {
   }
   // 可空/非空
   setNullable(nullable) {
-    this.setState({ nullable: nullable === true })
+    this.setState({ nullable: nullable === true }, () => {
+      // fix:v3.8 通过此方法强制检查非空属性
+      this.setValue(this.state.value || null)
+    })
   }
   // 只读/非只读
   // 部分字段有效，且如字段属性为只读，即使填写值也无效

@@ -46,6 +46,8 @@ $(document).ready(() => {
           // v2.9
           if (wt[2]) $('.J_startHour1').val(wt[2])
           if (wt[3]) $('.J_startHour2').val(wt[3])
+          // v3.8
+          if (wt[4]) $('.J_whenTimer4').val(wt[4]).parents('.bosskey-show').removeClass('bosskey-show')
 
           $('.J_whenTimer1').trigger('change')
         }
@@ -55,7 +57,7 @@ $(document).ready(() => {
 
   // 评估具体执行时间
   function evalTriggerTimes() {
-    const whenTimer = `${$('.J_whenTimer1').val() || 'D'}:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}`
+    const whenTimer = `${$('.J_whenTimer1').val() || 'D'}:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}:${$('.J_whenTimer4').val() || ''}`
     $.get(`/admin/robot/trigger/eval-trigger-times?whenTimer=${whenTimer}`, (res) => {
       renderRbcomp(
         <RbAlertBox
@@ -141,7 +143,7 @@ $(document).ready(() => {
       return
     }
 
-    const whenTimer = `${$('.J_whenTimer1').val() || 'D'}:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}`
+    const whenTimer = `${$('.J_whenTimer1').val() || 'D'}:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}:${$('.J_whenTimer4').val() || ''}`
 
     const content = contentComp.buildContent()
     if (content === false) return

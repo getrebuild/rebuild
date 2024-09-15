@@ -147,26 +147,7 @@ public class AdvFilterParser extends SetUser {
 
         // 自动确定查询项
         if (MODE_QUICK.equalsIgnoreCase(filterExpr.getString("type"))) {
-            String quickFields = filterExpr.getString("quickFields");
-            JSONArray quickItems = buildQuickFilterItems(quickFields, 1);
-
-            // TODO v3.6-b4,3.7 值1|值2 UNTEST
-            // 转义可输入 \|
-            JSONObject values = filterExpr.getJSONObject("values");
-            String[] valuesPlus = values.values().iterator().next().toString().split("(?<!\\\\)\\|");
-            if (valuesPlus.length > 1) {
-                values.clear();
-                values.put("1", valuesPlus[0].trim());
-
-                for (int i = 2; i <= valuesPlus.length; i++) {
-                    JSONArray quickItemsPlus = buildQuickFilterItems(quickFields, i);
-                    values.put(String.valueOf(i), valuesPlus[i - 1].trim());
-                    quickItems.addAll(quickItemsPlus);
-                }
-                filterExpr.put("values", values);
-            }
-
-            filterExpr.put("items", quickItems);
+            rebuildQuickFilter38();
         }
 
         JSONArray items = filterExpr.getJSONArray("items");
@@ -653,6 +634,10 @@ public class AdvFilterParser extends SetUser {
             // LIKE
             if (op.equalsIgnoreCase(ParseHelper.LK) || op.equalsIgnoreCase(ParseHelper.NLK)) {
                 value = '%' + value + '%';
+            } else if (op.equalsIgnoreCase(ParseHelper.LK1)) {
+                value = '%' + value;
+            } else if (op.equalsIgnoreCase(ParseHelper.LK2)) {
+                value = value + '%';
             }
             sb.append(quoteValue(value, lastFieldMeta.getType()));
         }
@@ -781,13 +766,57 @@ public class AdvFilterParser extends SetUser {
 
     /**
      * 快速查询
-     *
+     */
+    private void rebuildQuickFilter38() {
+        String quickFields = filterExpr.getString("quickFields");
+        JSONArray quickItems = buildQuickFilterItems(quickFields, 1);
+
+        JSONObject values = filterExpr.getJSONObject("values");
+        final String quickValue = values.values().iterator().next().toString();
+
+        // eg: =完全相等, *后匹配, 前匹配*
+        if (quickValue.length() > 2
+                && (quickValue.startsWith("=") || quickValue.startsWith("*") || quickValue.endsWith("*"))) {
+            String op2 = ParseHelper.EQ;
+            String value2;
+            if (quickValue.startsWith("*")) op2 = ParseHelper.LK1;
+            else if (quickValue.endsWith("*")) op2 = ParseHelper.LK2;
+            if (quickValue.endsWith("*")) value2 = quickValue.substring(0, quickValue.length() - 1);
+            else value2 = quickValue.substring(1);
+
+            for (Object o : quickItems) {
+                JSONObject item = (JSONObject) o;
+                item.put("op", op2);
+                item.put("value", value2);
+            }
+
+        } else {
+            // v3.6-b4,3.7: 多值查询（转义可输入 \|）。eg: 值1|值2
+            String[] m = quickValue.split("(?<!\\\\)\\|");
+            if (m.length > 1) {
+                values.clear();
+                values.put("1", m[0].trim());
+
+                for (int i = 2; i <= m.length; i++) {
+                    JSONArray quickItemsPlus = buildQuickFilterItems(quickFields, i);
+                    values.put(String.valueOf(i), m[i - 1].trim());
+                    quickItems.addAll(quickItemsPlus);
+                }
+                filterExpr.put("values", values);
+            }
+        }
+
+        // 覆盖
+        filterExpr.put("items", quickItems);
+    }
+
+    /**
      * @param quickFields
+     * @param valueIndex
      * @return
      */
     private JSONArray buildQuickFilterItems(String quickFields, int valueIndex) {
         Set<String> usesFields = ParseHelper.buildQuickFields(rootEntity, quickFields);
-
         JSONArray items = new JSONArray();
         for (String field : usesFields) {
             items.add(JSON.parseObject("{ op:'LK', value:'{" + valueIndex + "}', field:'" + field + "' }"));

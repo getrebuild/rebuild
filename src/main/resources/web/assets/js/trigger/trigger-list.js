@@ -9,6 +9,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 $(document).ready(function () {
   $('.J_add').on('click', () => renderRbcomp(<TriggerEdit />))
   renderRbcomp(<TriggerList />, 'dataList')
+
+  if (rb.commercial >= 10) {
+    $.get('../robot/trigger/trigger-incomplete', (res) => {
+      if (res && res.data) console.log('Timer incomplete :', res.data)
+    })
+  }
 })
 
 const RBV_TRIGGERS = {

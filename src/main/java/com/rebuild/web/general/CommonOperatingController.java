@@ -97,7 +97,8 @@ public class CommonOperatingController extends BaseController {
         Entity entityMate = MetadataHelper.getEntity(entity);
         if (StringUtils.isBlank(fields)) fields = getAllFields(entityMate);
 
-        String sql = String.format("select %s from %s", fields, entityMate.getName());
+        String sql = String.format("select %s from %s",
+                StringUtils.join(fields.split("[,;]"), ","), entityMate.getName());
         if (ParseHelper.validAdvFilter(filter)) {
             String filterWhere = new AdvFilterParser(filter, entityMate).toSqlWhere();
             if (filterWhere != null) sql += " where " + filterWhere;
@@ -112,14 +113,16 @@ public class CommonOperatingController extends BaseController {
 
     // 获取全部字段
     private String getAllFields(Entity entity) {
-        List<String> ss = new ArrayList<>();
+        List<String> fs = new ArrayList<>();
         for (Field field : entity.getFields()) {
-            if (!MetadataHelper.isSystemField(field.getName())) ss.add(field.getName());
+            if (!MetadataHelper.isSystemField(field.getName())) fs.add(field.getName());
         }
-        return StringUtils.join(ss, ",");
+        return StringUtils.join(fs, ",");
     }
 
     /**
+     * 保存记录
+     *
      * @param record
      * @return
      */
@@ -134,6 +137,8 @@ public class CommonOperatingController extends BaseController {
     }
 
     /**
+     * 删除记录
+     *
      * @param recordId
      * @return
      */

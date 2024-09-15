@@ -43,6 +43,8 @@ public class ParseHelper {
     public static final String NL = "NL";
     public static final String NT = "NT";
     public static final String LK = "LK";
+    public static final String LK1 = "LK1";  // *后匹配
+    public static final String LK2 = "LK2";  // 前匹配*
     public static final String NLK = "NLK";
     public static final String IN = "IN";
     public static final String NIN = "NIN";
@@ -132,7 +134,7 @@ public class ParseHelper {
             return "is null";
         } else if (NT.equalsIgnoreCase(token)) {
             return "is not null";
-        } else if (LK.equalsIgnoreCase(token)) {
+        } else if (LK.equalsIgnoreCase(token) || LK1.equalsIgnoreCase(token) || LK2.equalsIgnoreCase(token)) {
             return "like";
         } else if (NLK.equalsIgnoreCase(token)) {
             return "not like";
@@ -214,7 +216,7 @@ public class ParseHelper {
         if (dt == DisplayType.REFERENCE) {
             Field nameField = field.getReferenceEntity().getNameField();
             if (nameField.getType() == FieldType.REFERENCE) {
-                log.warn("Quick field cannot be circular-reference : " + nameField);
+                log.warn("Quick field cannot be circular-reference : {}", nameField);
                 return null;
             }
 
@@ -269,7 +271,7 @@ public class ParseHelper {
                     if (can != null) usesFields.add(can);
 
                 } else {
-                    log.warn("No field found in `quickFields` : " + field + " in " + entity.getName());
+                    log.warn("No field found in `quickFields` : {} in {}", field, entity.getName());
                 }
             }
         }
@@ -302,7 +304,7 @@ public class ParseHelper {
         }
 
         if (usesFields.isEmpty()) {
-            log.warn("No fields of search found : " + usesFields);
+            log.warn("No fields of search found : {}", usesFields);
         }
         return usesFields;
     }

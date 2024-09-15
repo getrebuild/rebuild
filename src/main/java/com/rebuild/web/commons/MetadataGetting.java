@@ -51,9 +51,11 @@ public class MetadataGetting extends BaseController {
         final ID user = getRequestUser(request);
         boolean usesBizz = getBoolParameter(request, "bizz", false);
         boolean usesDetail = getBoolParameter(request, "detail", false);
+        // v3.8 返回全部，否则只返回有权限的
+        boolean usesNopriv = getBoolParameter(request, "nopriv", false);
 
         JSONArray res = new JSONArray();
-        for (Entity e : MetadataSorter.sortEntities(user, usesBizz, usesDetail)) {
+        for (Entity e : MetadataSorter.sortEntities(usesNopriv ? null : user, usesBizz, usesDetail)) {
             JSONObject item = (JSONObject) EasyMetaFactory.valueOf(e).toJSON();
             item.put("name", item.getString("entity"));
             item.put("label", item.getString("entityLabel"));

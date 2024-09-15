@@ -27,7 +27,6 @@ import com.rebuild.core.privileges.OperationDeniedException;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.InternalPermission;
-import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationNoRollbackException;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
@@ -53,6 +52,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowRevokeApproval;
 
 /**
  * 审批流程。此类所有方法不应直接调用，而是通过 ApprovalProcessor 封装类
@@ -324,13 +325,14 @@ public class ApprovalStepService extends BaseService {
         final boolean isAdmin = UserHelper.isAdmin(opUser);
 
         if (isRevoke) {
-            boolean canRevoke = Application.getPrivilegesManager().allow(opUser, ZeroEntry.AllowRevokeApproval);
+            boolean canRevoke = Application.getPrivilegesManager().allow(opUser, AllowRevokeApproval);
             if (!(isAdmin || canRevoke)) {
                 throw new OperationDeniedException(Language.L("你无权撤销审批"));
             }
         } else {
+            boolean canRevoke = Application.getPrivilegesManager().allow(opUser, AllowRevokeApproval);
             ID s = ApprovalHelper.getSubmitter(recordId, approvalId);
-            if (!(isAdmin || opUser.equals(s))) {
+            if (!(canRevoke || opUser.equals(s))) {
                 throw new OperationDeniedException(Language.L("你无权撤回审批"));
             }
         }

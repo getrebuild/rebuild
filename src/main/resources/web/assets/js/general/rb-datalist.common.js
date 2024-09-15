@@ -912,7 +912,8 @@ class RbList extends React.Component {
 
   render() {
     const lastIndex = this.state.fields.length
-    const rowActions = window.FrontJS ? window.FrontJS.DataList.__rowActions : []
+    let rowActions = window.FrontJS ? window.FrontJS.DataList.__rowActions : []
+    if (wpc.type !== 'RecordList') rowActions = []
 
     return (
       <RF>

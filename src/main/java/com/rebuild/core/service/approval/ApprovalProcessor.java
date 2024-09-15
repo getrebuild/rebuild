@@ -583,10 +583,10 @@ public class ApprovalProcessor extends SetUser {
                 if (FlowNode.NODE_AUTOAPPROVAL.equals(nodeNo)) {
                     // No name
                 } else if (FlowNode.NODE_REVOKED.equals(nodeNo)) {
-                    String nodeName = Language.L("管理员撤销");
+                    String nodeName = Language.L("撤销");
                     s.put("nodeName", nodeName);
                 } else if (FlowNode.NODE_CANCELED.equals(nodeNo)) {
-                    String nodeName = Language.L("提交人撤回");
+                    String nodeName = Language.L("撤回");
                     s.put("nodeName", nodeName);
                 } else {
                     String nodeName = flowNode == null ? null : flowNode.getNodeName();
