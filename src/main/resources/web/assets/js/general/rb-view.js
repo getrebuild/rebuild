@@ -19,14 +19,19 @@ class RbViewForm extends React.Component {
 
     this.onViewEditable = this.props.onViewEditable
     if (this.onViewEditable) this.onViewEditable = wpc.onViewEditable !== false
+    if (window.__LAB_VIEWEDITABLE === false) this.onViewEditable = false
+    // temp for `saveSingleFieldValue`
     this.__FormData = {}
   }
 
   render() {
     return (
-      <div className="rbview-form form-layout" ref={(c) => (this._viewForm = c)}>
-        {this.state.formComponent}
-      </div>
+      <RF>
+        {this.state.fjsAlertMessage}
+        <div className={`rbview-form form-layout ${window.__LAB_VERTICALLAYOUT && 'vertical38'}`} ref={(c) => (this._viewForm = c)}>
+          {this.state.formComponent}
+        </div>
+      </RF>
     )
   }
 
@@ -143,7 +148,7 @@ class RbViewForm extends React.Component {
     setTimeout(() => this._saveSingleFieldValue(fieldComp), 30)
   }
 
-  _saveSingleFieldValue(fieldComp) {
+  _saveSingleFieldValue(fieldComp, weakMode) {
     const fieldName = fieldComp.props.field
     const fieldValue = this.__FormData[fieldName]
     // Unchanged
@@ -159,7 +164,9 @@ class RbViewForm extends React.Component {
     }
 
     const $btn = $(fieldComp._fieldText).find('.edit-oper .btn').button('loading')
-    $.post('/app/entity/record-save?singleField=true', JSON.stringify(data), (res) => {
+    let url = '/app/entity/record-save?singleField=true'
+    if (weakMode) url += '&weakMode=' + weakMode
+    $.post(url, JSON.stringify(data), (res) => {
       $btn.button('reset')
 
       if (res.error_code === 0) {
@@ -175,9 +182,19 @@ class RbViewForm extends React.Component {
           setTimeout(() => RbViewPage.reload(), 200)
         }
       } else if (res.error_code === 499) {
-        // 有重复
+        // 重复记录
         // eslint-disable-next-line react/jsx-no-undef
         renderRbcomp(<RepeatedViewer entity={this.props.entity} data={res.data} />)
+      } else if (res.error_code === 497) {
+        // 弱校验
+        const that = this
+        const msg_id = res.error_msg.split('$$$$')
+        RbAlert.create(msg_id[0], {
+          onConfirm: function () {
+            this.hide()
+            that._saveSingleFieldValue(fieldComp, msg_id[1])
+          },
+        })
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -414,7 +431,7 @@ class EntityRelatedList extends RelatedList {
             </span>
           </div>
         </div>
-        <div className="rbview-form form-layout inside">{this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}</div>
+        <div className={`rbview-form form-layout inside ${window.__LAB_VERTICALLAYOUT && 'vertical38'}`}>{this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}</div>
       </div>
     )
   }
@@ -735,20 +752,40 @@ const RbViewPage = {
     $.get(`/app/entity/extras/record-history?id=${this.__id}`, (res) => {
       if (res.error_code !== 0) return
 
+      // v3.8 合并显示
+      let _data = []
+      let prev
+      res.data.forEach((item) => {
+        // 同样的合并
+        if (prev && prev.revisionType === item.revisionType && prev.revisionBy[0] === item.revisionBy[0]) {
+          let diff = $moment(item.revisionOn).diff($moment(prev.revisionOn), 'seconds')
+          if (Math.abs(diff) < 30) {
+            prev._merged = (prev._merged || 1) + 1
+            return
+          }
+        }
+        _data.push(item)
+        prev = item
+      })
+
       $into.empty()
-      res.data.forEach((item, idx) => {
-        const content = $L('**%s** 由 %s %s', $fromNow(item.revisionOn), item.revisionBy[1], item.revisionType)
+      _data.forEach((item, idx) => {
+        let content = $L('**%s** 由 %s %s', $fromNow(item.revisionOn), item.revisionBy[1], item.revisionType)
+        if (item._merged > 1) content += ` <sup>${item._merged}</sup>`
+
         const $item = $(`<li>${content}</li>`).appendTo($into)
         $item.find('b:eq(0)').attr('title', item.revisionOn)
         if (idx > 9) $item.addClass('hide')
       })
 
-      if (res.data.length > 10) {
+      if (_data.length > 10) {
         $into.after(`<a href="javascript:;" class="J_mores">${$L('显示更多')}</a>`)
         $('.view-history .J_mores').on('click', function () {
           $into.find('li.hide').removeClass('hide')
           $(this).addClass('hide')
         })
+      } else if (_data.length === 0) {
+        $(`<li>${$L('无')}</li>`).appendTo($into)
       }
 
       // v3.6

@@ -16,7 +16,7 @@ $(document).ready(() => {
   const $menu = $('<div class="dropdown-menu auto-scroller entity-switch"></div>').appendTo('.aside-header')
 
   // v3.7 search
-  $(`<div class="searchbox"><input placeholder="${$L('搜索')}" maxlength="40"/></div>`)
+  $(`<div class="searchbox"><input placeholder="${$L('搜索')}" /></div>`)
     .appendTo($menu)
     .find('input')
     .on('input', function (e) {

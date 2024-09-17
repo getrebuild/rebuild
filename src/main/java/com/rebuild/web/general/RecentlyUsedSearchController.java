@@ -12,6 +12,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
+import com.rebuild.core.configuration.general.ClassificationManager;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.general.RecentlyUsedHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
@@ -78,15 +80,17 @@ public class RecentlyUsedSearchController extends BaseController {
      */
     static JSONArray formatSelect2(ID[] idLabels, String useGroupName) {
         JSONArray data = new JSONArray();
+        boolean isClazz = idLabels.length > 0 && idLabels[0].getEntityCode() == EntityHelper.ClassificationData;
         for (ID id : idLabels) {
             String label = id.getLabel();
             if (StringUtils.isBlank(label)) {
                 label = FieldValueHelper.NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
             }
 
+            String code = isClazz ? ClassificationManager.instance.getCode(id) : null;
             data.add(JSONUtils.toJSONObject(
-                    new String[] { "id", "text" },
-                    new String[] { id.toLiteral(), label }));
+                    new String[] { "id", "text", "code" },
+                    new Object[] { id, label, code }));
         }
 
         if (useGroupName != null) {

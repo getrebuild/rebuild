@@ -98,7 +98,7 @@ function modeSave(newOption, next) {
   })
 }
 
-const CAT_TYPES = ['PICKLIST', 'MULTISELECT', 'CLASSIFICATION', 'DATE', 'DATETIME', 'REFERENCE', 'N2NREFERENCE']
+const _CATEGORY_TYPES = ['PICKLIST', 'MULTISELECT', 'CLASSIFICATION', 'DATE', 'DATETIME', 'REFERENCE', 'N2NREFERENCE']
 // 模式选项
 class DlgMode1Option extends RbFormHandler {
   render() {
@@ -117,46 +117,7 @@ class DlgMode1Option extends RbFormHandler {
                 </div>
                 <span className="ml-2 down-5 d-inline-block">{$L('常用查询')}</span>
               </div>
-              <div className="mt-2">
-                <div className="switch-button switch-button-xs">
-                  <input type="checkbox" id="advListShowCategory" defaultChecked={wpc.extConfig && wpc.extConfig.advListShowCategory} />
-                  <span>
-                    <label htmlFor="advListShowCategory" />
-                  </span>
-                </div>
-                <span className="ml-2 down-5 d-inline-block">{$L('分组')}</span>
-                <div className="clearfix"></div>
-                <div className={`advListShowCategory-set ${this.state.advListShowCategory ? '' : 'hide'}`}>
-                  <div className="row">
-                    <div className="col-7">
-                      <label className="mb-1">{$L('分组字段')}</label>
-                      <select className="form-control form-control-sm">
-                        {this.state.advListShowCategoryFields &&
-                          this.state.advListShowCategoryFields.map((item) => {
-                            return (
-                              <option key={item.name} value={item.name}>
-                                {item.label}
-                              </option>
-                            )
-                          })}
-                      </select>
-                    </div>
-                    <div className={`col-5 pl-0 ${this.state.advListShowCategoryFormats ? '' : 'hide'} ${this.state._cfParent && 'bosskey-show'}`}>
-                      <label className="mb-1">{this.state._cfParent ? $L('使用父级字段') : $L('字段格式')}</label>
-                      <select className="form-control form-control-sm">
-                        {this.state.advListShowCategoryFormats &&
-                          this.state.advListShowCategoryFormats.map((item) => {
-                            return (
-                              <option key={item[0]} value={item[0]}>
-                                {item[1]}
-                              </option>
-                            )
-                          })}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {CompCategory(this)}
               <div className="mt-2">
                 <div className="switch-button switch-button-xs">
                   <input type="checkbox" id="advListHideCharts" defaultChecked={wpc.extConfig && !wpc.extConfig.advListHideCharts} />
@@ -209,98 +170,7 @@ class DlgMode1Option extends RbFormHandler {
   }
 
   componentDidMount() {
-    let $catFields, $catFormats
-    const that = this
-    $('#advListShowCategory').on('change', function () {
-      if ($val(this)) {
-        that.setState({ advListShowCategory: true })
-      } else {
-        that.setState({ advListShowCategory: null })
-      }
-
-      if (!$catFields) {
-        $catFields = $('.advListShowCategory-set select:eq(0)')
-        $catFormats = $('.advListShowCategory-set select:eq(1)')
-
-        $.get(`/commons/metadata/fields?entity=${wpc.entityName}`, (res) => {
-          const _data = []
-          res.data &&
-            res.data.forEach((item) => {
-              if (CAT_TYPES.includes(item.type)) {
-                _data.push(item)
-              }
-            })
-
-          // FIELD:[FORMAT]
-          let set = wpc.extConfig && wpc.extConfig.advListShowCategory ? wpc.extConfig.advListShowCategory : null
-          if (set) set = set.split(':')
-
-          that.setState({ advListShowCategoryFields: _data }, () => {
-            $catFields
-              .select2({
-                placeholder: $L('选择分组字段'),
-                allowClear: false,
-              })
-              .on('change', () => {
-                const s = $catFields.val()
-                const found = _data.find((x) => x.name === s)
-
-                let formats
-                if (found && found.type === 'CLASSIFICATION') {
-                  formats = [
-                    [0, $L('%d 级分类', 1)],
-                    [1, $L('%d 级分类', 2)],
-                    [2, $L('%d 级分类', 3)],
-                    [3, $L('%d 级分类', 4)],
-                  ]
-                } else if (found && (found.type === 'DATE' || found.type === 'DATETIME')) {
-                  formats = [
-                    ['yyyy', 'YYYY'],
-                    ['yyyy-MM', 'YYYY-MM'],
-                    ['yyyy-MM-dd', 'YYYY-MM-DD'],
-                  ]
-                } else if (found && found.type === 'REFERENCE') {
-                  formats = []
-                  $.get(`/commons/metadata/fields?entity=${found.ref[0]}`, (res) => {
-                    res.data &&
-                      res.data.forEach((item) => {
-                        if (item.type === 'REFERENCE' && item.ref[0] === found.ref[0]) {
-                          if (!['createdBy', 'modifiedBy'].includes(item.name)) {
-                            formats.push([item.name, item.label])
-                          }
-                        }
-                      })
-
-                    // render
-                    that.setState({ advListShowCategoryFormats: formats, _cfParent: true }, () => {
-                      $catFormats.val(null).trigger('change')
-                    })
-                  })
-                }
-
-                that.setState({ advListShowCategoryFormats: formats, _cfParent: false }, () => {
-                  $catFormats.val(null).trigger('change')
-                })
-              })
-
-            $catFormats.select2({ placeholder: $L('默认') })
-
-            if (set) {
-              $catFields.val(set[0]).trigger('change')
-              setTimeout(() => {
-                if (set[1]) $catFormats.val(set[1]).trigger('change')
-              }, 500)
-            } else {
-              $catFields.trigger('change')
-            }
-          })
-        })
-      }
-    })
-
-    if (wpc.extConfig && wpc.extConfig.advListShowCategory) {
-      $('#advListShowCategory').trigger('change')
-    }
+    CompCategory_componentDidMount(this)
   }
 
   save = () => {
@@ -312,7 +182,14 @@ class DlgMode1Option extends RbFormHandler {
     }
 
     if (this.state.advListShowCategory) {
-      o.advListShowCategory = `${$val('.advListShowCategory-set select:eq(0)')}:${$val('.advListShowCategory-set select:eq(1)') || ''}`
+      let set = []
+      $(this._$category)
+        .find('.advListShowCategory-set .row.item')
+        .each(function () {
+          let $item = $(this)
+          set.push($item.find('select:eq(0)').val() + ':' + ($item.find('select:eq(1)').val() || ''))
+        })
+      o.advListShowCategory = set.length > 0 ? set.join(';') : null
     } else {
       o.advListShowCategory = null
     }
@@ -332,7 +209,7 @@ class DlgMode2Option extends RbFormHandler {
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('显示字段')}</label>
-            <div className="col-sm-9">
+            <div className="col-sm-9 pt-1">
               <div className="mode23-fields mode2-fields" ref={(c) => (this._$showFields = c)}>
                 <a data-toggle="dropdown" className="L0">
                   {$L('无')}
@@ -484,12 +361,21 @@ class DlgMode3Option extends DlgMode2Option {
                 </div>
                 <span className="ml-2 down-5 d-inline-block">{$L('常用查询')}</span>
               </div>
+              {CompCategory(this, 'mode3ShowCategory')}
+              <div className="mt-2">
+                <div className="switch-button switch-button-xs">
+                  <input type="checkbox" id="mode3ShowCharts" defaultChecked={wpc.extConfig && wpc.extConfig.mode3ShowCharts} />
+                  <span>
+                    <label htmlFor="mode3ShowCharts" />
+                  </span>
+                </div>
+                <span className="ml-2 down-5 d-inline-block">{$L('图表')}</span>
+              </div>
             </div>
           </div>
-
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('显示字段')}</label>
-            <div className="col-sm-9">
+            <div className="col-sm-9 pt-1">
               <div className="mode23-fields mode3-fields" ref={(c) => (this._$showFields = c)}>
                 <a data-toggle="dropdown" className="L1">
                   <em>{$L('图片字段')}</em>
@@ -528,6 +414,11 @@ class DlgMode3Option extends DlgMode2Option {
     )
   }
 
+  componentDidMount() {
+    super.componentDidMount()
+    CompCategory_componentDidMount(this, 'mode3ShowCategory')
+  }
+
   onFieldsMenuShow($item, $menu) {
     if ($($item).hasClass('L1')) {
       $menu.find('a').addClass('hide')
@@ -540,6 +431,215 @@ class DlgMode3Option extends DlgMode2Option {
 
   _saveBefore(o) {
     o.mode3ShowFilters = $val('#mode3ShowFilters')
+    o.mode3ShowCharts = $val('#mode3ShowCharts')
+    if (this.state.advListShowCategory) {
+      let set = []
+      $(this._$category)
+        .find('.advListShowCategory-set .row.item')
+        .each(function () {
+          let $item = $(this)
+          set.push($item.find('select:eq(0)').val() + ':' + ($item.find('select:eq(1)').val() || ''))
+        })
+      o.mode3ShowCategory = set.length > 0 ? set.join(';') : null
+    } else {
+      o.mode3ShowCategory = null
+    }
     return o
+  }
+}
+
+const CompCategory = (_this, name = 'advListShowCategory') => {
+  return (
+    <div ref={(c) => (_this._$category = c)} className="mt-2">
+      <div className="switch-button switch-button-xs">
+        <input type="checkbox" id={name} defaultChecked={wpc.extConfig && wpc.extConfig[name]} />
+        <span>
+          <label htmlFor={name} />
+        </span>
+      </div>
+      <span className="ml-2 down-5 d-inline-block">{$L('分组')}</span>
+      <div className="clearfix"></div>
+      <div className={`advListShowCategory-set ${_this.state.advListShowCategory ? '' : 'hide'}`}>
+        <div className="row">
+          <div className="col-7">
+            <label className="mb-1">{$L('分组字段')}</label>
+          </div>
+          <div className="col-5 pl-0">
+            <label className="mb-1">{$L('字段格式')}</label>
+          </div>
+        </div>
+        {_this.state.advListShowCategoryFields &&
+          _this.state.categoryFields &&
+          _this.state.categoryFields.map((item) => {
+            return (
+              <RF key={item.key}>
+                <CompCategoryItem
+                  {...item}
+                  fields={_this.state.advListShowCategoryFields}
+                  handleRemove={(key2) => {
+                    const categoryFields = []
+                    _this.state.categoryFields.forEach((item) => {
+                      if (key2 !== item.key) categoryFields.push(item)
+                    })
+                    _this.setState({ categoryFields })
+                  }}
+                  key2={item.key}
+                />
+              </RF>
+            )
+          })}
+        <div className="row">
+          <div className="col-7">
+            <a
+              href="###"
+              onClick={(e) => {
+                $stopEvent(e, true)
+                const categoryFields = _this.state.categoryFields || []
+                if (categoryFields.length >= 9) {
+                  RbHighbar.create($L('最多可添加 9 个'))
+                  return false
+                }
+                categoryFields.push({ key: $random('item-') })
+                _this.setState({ categoryFields })
+              }}>
+              <i className="zmdi zmdi-plus-circle icon" /> {$L('添加')}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+const CompCategory_componentDidMount = (_this, name = 'advListShowCategory') => {
+  const $el = $('#' + name).on('change', function () {
+    _this.setState({ advListShowCategory: $val(this) ? true : null })
+    // fields
+    if (!_this.state.advListShowCategoryFields) {
+      $.get(`/commons/metadata/fields?entity=${wpc.entityName}`, (res) => {
+        const fs = []
+        res.data &&
+          res.data.forEach((item) => {
+            if (_CATEGORY_TYPES.includes(item.type)) fs.push(item)
+          })
+        _this.setState({ advListShowCategoryFields: fs })
+      })
+    }
+  })
+
+  // init
+  let categoryFields = []
+  if (wpc.extConfig && wpc.extConfig[name]) {
+    $el.trigger('change')
+    wpc.extConfig[name].split(';').forEach((item) => {
+      const ff = item.split(':')
+      categoryFields.push({ key: $random('item-'), field: ff[0], format: ff[1] })
+    })
+  } else {
+    categoryFields.push({ key: $random('item-') })
+  }
+  _this.setState({ categoryFields })
+}
+
+// 分組
+class CompCategoryItem extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+
+  render() {
+    return (
+      <div className="row item">
+        <div className="col-7">
+          <select className="form-control form-control-sm" ref={(c) => (this._$field = c)}>
+            {this.props.fields.map((item) => {
+              return (
+                <option key={item.name} value={item.name}>
+                  {item.label}
+                </option>
+              )
+            })}
+          </select>
+        </div>
+        <div className="col-5 pl-0">
+          <select className="form-control form-control-sm" ref={(c) => (this._$format = c)}>
+            {this.state.fieldFormats &&
+              this.state.fieldFormats.map((item) => {
+                return (
+                  <option key={item[0]} value={item[0]}>
+                    {item[1]}
+                  </option>
+                )
+              })}
+          </select>
+
+          <a className="remove" href="###" onClick={() => this.props.handleRemove(this.props.key2)} title={$L('移除')}>
+            <i className="zmdi zmdi-close" />
+          </a>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    const $field = $(this._$field).select2({
+      allowClear: false,
+    })
+    const $format = $(this._$format).select2({
+      allowClear: true,
+      placeholder: $L('默认'),
+    })
+
+    $field.on('change', (e) => {
+      const s = e.target.value
+      const found = this.props.fields.find((x) => x.name === s)
+
+      let formats = []
+      let formatInit = this.props.format
+      if (found && found.type === 'CLASSIFICATION') {
+        formats = [
+          [0, $L('%d 级分类', 1)],
+          [1, $L('%d 级分类', 2)],
+          [2, $L('%d 级分类', 3)],
+          [3, $L('%d 级分类', 4)],
+        ]
+      } else if (found && (found.type === 'DATE' || found.type === 'DATETIME')) {
+        formats = [
+          ['yyyy', 'YYYY'],
+          ['yyyy-MM', 'YYYY-MM'],
+          ['yyyy-MM-dd', 'YYYY-MM-DD'],
+        ]
+      } else if (found && found.type === 'REFERENCE') {
+        formats = null
+        $.get(`/commons/metadata/fields?entity=${found.ref[0]}`, (res) => {
+          formats = []
+          res.data &&
+            res.data.forEach((item) => {
+              if (item.type === 'REFERENCE' && item.ref[0] === found.ref[0]) {
+                if (!['createdBy', 'modifiedBy'].includes(item.name)) {
+                  formats.push([item.name, item.label])
+                }
+              }
+            })
+          this.setState({ fieldFormats: formats, _mode: 2 }, () => {
+            $format.val(formatInit || null).trigger('change')
+            formatInit = null
+          })
+        })
+      }
+
+      if (formats) {
+        this.setState({ fieldFormats: formats, _mode: 1 }, () => {
+          $format.val(formatInit || null).trigger('change')
+          formatInit = null
+        })
+      }
+    })
+
+    // init
+    if (this.props.field) {
+      $(this._$field).val(this.props.field)
+    }
+    $(this._$field).trigger('change')
   }
 }

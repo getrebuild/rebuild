@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.data;
 
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import cn.hutool.core.io.file.FileNameUtil;
@@ -74,7 +75,7 @@ public class ReportTemplateController extends BaseController {
         String entity = getParameter(request, "entity");
         String q = getParameter(request, "q");
 
-        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,templateType,extraDefinition,configId from DataReportConfig" +
+        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,templateType,extraDefinition,configId,templateFile from DataReportConfig" +
                 " where (1=1) and (2=2)" +
                 " order by modifiedOn desc, name";
 
@@ -95,11 +96,12 @@ public class ReportTemplateController extends BaseController {
         boolean isDocx = file.toLowerCase().endsWith(".docx");
         if (type == DataReportManager.TYPE_WORD) {
             if (!isDocx) return RespBody.errorl("上传 WORD 文件请选择 WORD 模板类型");
-        } else {
+        } else if (type != DataReportManager.TYPE_HTML5) {
             if (isDocx) return RespBody.errorl("上传 EXCEL 文件请选择 EXCEL 模板类型");
         }
 
-        File template = RebuildConfiguration.getFileOfData(file);
+        File template = type == DataReportManager.TYPE_HTML5
+                ? null : RebuildConfiguration.getFileOfData(file);
         Map<String, String> vars = null;
         try {
             if (type == DataReportManager.TYPE_RECORD) {
@@ -110,6 +112,11 @@ public class ReportTemplateController extends BaseController {
                 //noinspection unchecked
                 vars = (Map<String, String>) CommonsUtils.invokeMethod(
                         "com.rebuild.rbv.data.WordTemplateExtractor#transformVars", template, entity.getName());
+            } else if (type == DataReportManager.TYPE_HTML5) {
+                String templateContent = ServletUtils.getRequestString(request);
+                //noinspection unchecked
+                vars = (Map<String, String>) CommonsUtils.invokeMethod(
+                        "com.rebuild.rbv.data.Html5TemplateExtractor#transformVars", templateContent, entity.getName());
             }
 
         } catch (Exception ex) {
@@ -149,7 +156,7 @@ public class ReportTemplateController extends BaseController {
         return RespBody.ok(res);
     }
 
-    @GetMapping("/report-templates/preview")
+    @RequestMapping("/report-templates/preview")
     public ModelAndView preview(@IdParam(required = false) ID reportId,
                         HttpServletRequest request, HttpServletResponse response) throws IOException {
         final TemplateFile tt;
@@ -161,7 +168,7 @@ public class ReportTemplateController extends BaseController {
             tt = new TemplateFile(RebuildConfiguration.getFileOfData(template), MetadataHelper.getEntity(entity), type, true, null);
         } else {
             // 使用配置
-            tt = DataReportManager.instance.getTemplateFile(reportId);
+            tt = DataReportManager.instance.buildTemplateFile(reportId);
         }
 
         String sql = String.format("select %s from %s order by modifiedOn desc",
@@ -189,8 +196,11 @@ public class ReportTemplateController extends BaseController {
             }
             // HTML5
             else if (tt.type == DataReportManager.TYPE_HTML5) {
+                // 实时内容
+                String templateContent = request.getParameter("templateContent");
+                if (templateContent == null) templateContent = tt.templateContent;
                 EasyExcelGenerator33 html5 = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
-                        "com.rebuild.rbv.data.Html5ReportGenerator#create", tt.templateContent, random[0]);
+                        "com.rebuild.rbv.data.Html5ReportGenerator#create", templateContent, random[0]);
                 output = html5.generate();
             }
             // EXCEL
@@ -225,14 +235,25 @@ public class ReportTemplateController extends BaseController {
     }
 
     @GetMapping("/report-templates/download")
-    public void download(@IdParam ID reportId, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        File template = DataReportManager.instance.getTemplateFile(reportId).templateFile;
+    public void download(@IdParam(required = false) ID reportId, HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        File template;
+        if (reportId != null) {
+            template = DataReportManager.instance.buildTemplateFile(reportId).templateFile;
+        } else {
+            String path = getParameterNotNull(request, "file");
+            template = RebuildConfiguration.getFileOfData(path);
+        }
+
         String attname = QiniuCloud.parseFileName(template.getName());
 
         FileDownloader.setDownloadHeaders(request, response, attname, false);
         FileDownloader.writeLocalFile(template, response);
     }
 
+    // --
+
+    private static String HTML5_INLINE_STYLE;
     /**
      * @param html5
      * @param title
@@ -244,6 +265,11 @@ public class ReportTemplateController extends BaseController {
         ModelAndView mv = new ModelAndView("/admin/data/template5-view");
         mv.getModelMap().put("reportName", title);
         mv.getModelMap().put("reportContent", content);
+        if (HTML5_INLINE_STYLE == null || Application.devMode()) {
+            HTML5_INLINE_STYLE = CommonsUtils.getStringOfRes("/web/assets/css/template5-design-content.css");
+            HTML5_INLINE_STYLE = "<style>" + HTML5_INLINE_STYLE + "</style>";
+        }
+        mv.getModelMap().put("inlineStyle", HTML5_INLINE_STYLE);
         return mv;
     }
 }

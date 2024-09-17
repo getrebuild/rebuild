@@ -51,7 +51,7 @@ public abstract class BaseFeedsService extends ObservableService {
 
     @Override
     public Record update(Record record) {
-        record = super.update(converContent4Mentions((record)));
+        record = super.update(converContent4Mentions(record));
 
         awareMention(record, false);
         return record;

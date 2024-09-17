@@ -53,4 +53,15 @@ public class EasyNumber extends EasyField {
                 getExtraAttr(EasyFieldConfigProps.NUMBER_FORMAT), getDisplayType().getDefaultFormat());
         return new DecimalFormat(format).format(value);
     }
+
+    // --
+
+    /**
+     * @param flagedValue
+     * @return
+     * @see EasyDecimal#clearFlaged(Object)
+     */
+    public static String clearFlaged(Object flagedValue) {
+        return EasyDecimal.clearFlaged(flagedValue);
+    }
 }

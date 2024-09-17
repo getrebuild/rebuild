@@ -158,6 +158,22 @@ $(document).ready(() => {
   })
 
   $('.J_darkmode button').on('click', () => $(document.body).toggleClass('darkmode'))
+
+  // check AppBuild
+  if (window.localStorage && rb.isAdminUser) {
+    const last = window.localStorage.getItem('LastAppBuild') || rb.build
+    // eslint-disable-next-line eqeqeq
+    if (last != rb.build) {
+      setTimeout(() => {
+        RbGritter.create(<RF>{$L('REBUILD 已成功更新至 %s 版本', rb.build)}</RF>, {
+          timeout: 15 * 1000,
+          type: 'success',
+          icon: 'mdi-shimmer',
+        })
+        window.localStorage.setItem('LastAppBuild', rb.build)
+      }, 1500)
+    }
+  }
 })
 
 // 全屏工具
@@ -375,7 +391,7 @@ class DlgDashSettings extends RbFormHandler {
               <label className="col-sm-3 col-form-label text-sm-right" />
               <div className="col-sm-7">
                 <div className="shareTo--wrap">
-                  <Share2 ref={(c) => (this._Share2 = c)} noSwitch={true} shareTo={this.props.shareTo} />
+                  <Share2 ref={(c) => (this._Share2 = c)} shareTo={this.props.shareTo} noSwitch />
                 </div>
               </div>
             </div>

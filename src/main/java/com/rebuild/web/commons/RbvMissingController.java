@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 
 /**
  * When none RBV
@@ -37,12 +36,28 @@ public class RbvMissingController extends BaseController {
     }
 
     @GetMapping("/user/login/sso")
-    public ModelAndView ssoLogin(HttpServletRequest request) throws IOException {
+    public ModelAndView ssoLogin(HttpServletRequest request) {
         String error = "dingtalk".equalsIgnoreCase(getParameterNotNull(request, "protocol"))
                 ? Language.L("免费版不支持钉钉集成 [(查看详情)](https://getrebuild.com/docs/rbv-features)")
                 : Language.L("免费版不支持企业微信集成 [(查看详情)](https://getrebuild.com/docs/rbv-features)");
 
         ModelAndView mv = ErrorPageView.createErrorPage(error);
+        mv.getModelMap().put(WebConstants.$BUNDLE, Language.getCurrentBundle());
+        return mv;
+    }
+
+    @GetMapping("/admin/robot/sops")
+    public ModelAndView sopList() {
+        ModelAndView mv = ErrorPageView.createErrorPage(
+                Language.L("免费版不支持业务进度功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+        mv.getModelMap().put(WebConstants.$BUNDLE, Language.getCurrentBundle());
+        return mv;
+    }
+
+    @GetMapping("/admin/extforms")
+    public ModelAndView extformList() {
+        ModelAndView mv = ErrorPageView.createErrorPage(
+                Language.L("免费版不支持外部表单功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
         mv.getModelMap().put(WebConstants.$BUNDLE, Language.getCurrentBundle());
         return mv;
     }

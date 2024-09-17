@@ -9,9 +9,11 @@ package com.rebuild.core.service.trigger.aviator;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.googlecode.aviator.runtime.function.AbstractFunction;
+import com.googlecode.aviator.runtime.type.AviatorNil;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.privileges.bizz.User;
 
 import java.util.Map;
 
@@ -27,9 +29,10 @@ public class CurrentBizunitFunction extends AbstractFunction {
 
     @Override
     public AviatorObject call(Map<String, Object> env) {
-        ID user = UserContextHolder.getUser();
-        ID bizunit = (ID) Application.getUserStore().getUser(user).getOwningBizUnit().getIdentity();
-        return new AviatorId(bizunit);
+        ID user = UserContextHolder.getReplacedUser();
+        User ub = Application.getUserStore().getUser(user);
+        if (ub.getOwningDept() == null) return AviatorNil.NIL;
+        return AviatorUtils.wrapReturn(ub.getOwningDept().getIdentity());
     }
 
     @Override

@@ -163,7 +163,7 @@ class BaseChart extends React.Component {
   }
 
   _exportTable(table) {
-    function _rmLinks(table, a, b) {
+    const _rmLinks = function (table, a, b) {
       $(table)
         .find('a')
         .each(function () {
@@ -174,20 +174,24 @@ class BaseChart extends React.Component {
     }
 
     const name = `${this.state.title}.xls`
-    function _export() {
+    const _export = function () {
       // remove
       _rmLinks(table, '__href', 'href')
       // export
       // https://docs.sheetjs.com/docs/api/utilities/html#html-table-input
       // https://docs.sheetjs.com/docs/api/write-options
-      const wb = window.XLSX.utils.table_to_book(table, { raw: true })
+      const wb = window.XLSX.utils.table_to_book(table, { raw: true, wrapText: true })
       window.XLSX.writeFile(wb, name)
       // restore
       setTimeout(() => _rmLinks(table, 'href', '__href'), 500)
     }
 
-    if (window.XLSX) _export()
-    else $getScript('/assets/lib/charts/xlsx.full.min.js', setTimeout(_export, 200))
+    if (window.XLSX && window.XLSX.utils) _export()
+    else {
+      $getScript('/assets/lib/charts/xlsx.full.min.js', () => {
+        setTimeout(_export, 1000)
+      })
+    }
   }
 
   renderError(msg, cb) {
@@ -386,8 +390,8 @@ const ECHART_VALUE_LABEL2 = function (dataFlags = []) {
 const ECHART_TOOLTIP_FORMATTER = function (i, dataFlags = []) {
   if (!Array.isArray(i)) i = [i] // Object > Array
   const tooltip = [`<b>${i[0].name}</b>`]
-  i.forEach((a, idx) => {
-    tooltip.push(`${a.marker} ${a.seriesName} : ${formatThousands(a.value, dataFlags[idx])}`)
+  i.forEach((a) => {
+    tooltip.push(`${a.marker} ${a.seriesName} : ${formatThousands(a.value, dataFlags[a.seriesIndex])}`)
   })
   return tooltip.join('<br>')
 }
@@ -961,8 +965,16 @@ class FeedsSchedule extends BaseChart {
 
                 return (
                   <tr key={`schedule-${idx}`}>
-                    <td>
+                    <td className="cell-detail">
                       <a href={`${rb.baseUrl}/app/redirect?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
+                      {item.relatedRecord && (
+                        <span className="cell-detail-description fs-12">
+                          {$L('关联记录')} :&nbsp;
+                          <a href={`${rb.baseUrl}/app/redirect?id=${item.relatedRecord.id}&type=newtab`} target="_blank" title={$L('查看记录')}>
+                            {item.relatedRecord.text}
+                          </a>
+                        </span>
+                      )}
                     </td>
                     <td className="cell-detail">
                       <div>{item.scheduleTime.substr(0, 16)}</div>
@@ -1217,15 +1229,13 @@ class ProjectTasks extends BaseChart {
                         <span className="custom-control-label" />
                       </label>
                     </td>
-                    <td>
+                    <td className="cell-detail">
                       <a title={item.taskName} href={`${rb.baseUrl}/app/redirect?id=${item.id}`} className="content">
                         <p className="text-break">
                           [{item.taskNumber}] {item.taskName}
                         </p>
                       </a>
-                      <p className="text-muted fs-12 m-0" style={{ lineHeight: 1 }}>
-                        {item.projectName}
-                      </p>
+                      <span className="cell-detail-description">{item.projectName}</span>
                     </td>
                     <td className="text-muted align-text-top">
                       <div>
@@ -1532,7 +1542,6 @@ class ChartCNMap extends BaseChart {
       .find('.chart-body')
       .height(H - (window.render_preview_chart ? 0 : 40))
     this.__lastHW = [H, W]
-    console.log(this.__lastHW)
   }
 
   export() {

@@ -8,12 +8,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.general;
 
 import cn.devezhao.persist4j.engine.ID;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.NamedThreadLocal;
+import org.springframework.util.Assert;
 
 /**
  * @author devezhao
  * @since 2020/9/29
  */
+@Slf4j
 public class GeneralEntityServiceContextHolder {
 
     private static final ThreadLocal<Boolean> SKIP_SERIES_VALUE = new NamedThreadLocal<>("Skip series value");
@@ -23,6 +26,10 @@ public class GeneralEntityServiceContextHolder {
     private static final ThreadLocal<Integer> REPEATED_CHECK_MODE = new NamedThreadLocal<>("Repeated check mode");
 
     private static final ThreadLocal<ID> FROM_TRIGGERS = new NamedThreadLocal<>("From triggers");
+
+    private static final ThreadLocal<Boolean> QUICK_MODE = new NamedThreadLocal<>("Quick mode");
+
+    private static final ThreadLocal<ID> SKIP_GUARD = new NamedThreadLocal<>("Skip some check once");
 
     /**
      * 新建记录时允许跳过自动编号字段
@@ -104,5 +111,49 @@ public class GeneralEntityServiceContextHolder {
         Integer mode = REPEATED_CHECK_MODE.get();
         if (mode != null) REPEATED_CHECK_MODE.remove();
         return mode == null ? 0 : mode;
+    }
+
+    /**
+     * 忽略一些操作/触发器的执行，达到快速操作的目的
+     */
+    public static void setQuickMode() {
+        QUICK_MODE.set(true);
+    }
+
+    /**
+     * @param once
+     * @return
+     * @see #setQuickMode()
+     */
+    public static boolean isQuickMode(boolean once) {
+        Boolean is = QUICK_MODE.get();
+        if (is != null && once) QUICK_MODE.remove();
+        return is != null && is;
+    }
+
+    /**
+     * 允许无权限操作一次
+     *
+     * @param recordId
+     */
+    public static void setSkipGuard(ID recordId) {
+        Assert.notNull(recordId, "[recordId] cannot be null");
+
+        ID existsWarn = SKIP_GUARD.get();
+        if (existsWarn != null) {
+            log.warn("Not removed skip record : {}", existsWarn);
+            SKIP_GUARD.remove();
+        }
+        SKIP_GUARD.set(recordId);
+    }
+
+    /**
+     * @return
+     * @see #setSkipGuard(ID)
+     */
+    public static ID isSkipGuardOnce() {
+        ID recordId = SKIP_GUARD.get();
+        if (recordId != null) SKIP_GUARD.remove();
+        return recordId;
     }
 }

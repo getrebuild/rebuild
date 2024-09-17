@@ -127,6 +127,8 @@ public class RecentlyUsedHelper {
      * @param type
      */
     public static void add(ID user, ID id, String type) {
+        if (EntityHelper.isUnsavedId(id)) return;
+
         final String key = formatKey(user, MetadataHelper.getEntityName(id), type);
         @SuppressWarnings("unchecked")
         LinkedList<ID> cached = (LinkedList<ID>) Application.getCommonsCache().getx(key);

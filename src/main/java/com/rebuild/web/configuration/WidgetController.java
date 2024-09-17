@@ -15,14 +15,19 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.BaseLayoutManager;
-import com.rebuild.core.configuration.general.DataListCategory;
+import com.rebuild.core.configuration.general.DataListCategory38;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.configuration.general.LayoutConfigService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BaseController;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -68,8 +73,12 @@ public class WidgetController extends BaseController implements ShareTo {
     }
 
     @GetMapping("widget-category-data")
-    public RespBody getCategoryData(@PathVariable String entity) {
-        JSON data = DataListCategory.instance.datas(MetadataHelper.getEntity(entity));
+    public RespBody getCategoryData(@PathVariable String entity, HttpServletRequest request) {
+        String filterVal = request.getParameter("filterVal");
+        Object[] filterValArray = null;
+        if (filterVal != null) filterValArray = filterVal.split(CommonsUtils.COMM_SPLITER_RE);
+
+        JSON data = DataListCategory38.instance.datas(MetadataHelper.getEntity(entity), filterValArray);
         return RespBody.ok(data);
     }
 }

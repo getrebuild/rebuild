@@ -46,7 +46,21 @@ public class TableChart extends ChartData {
         Dimension[] dims = getDimensions();
         Numerical[] nums = getNumericals();
 
-        Object[][] dataRaw = createQuery(buildSql(dims, nums)).array();
+        Object[][] dataRaw;
+        if (nums.length > 1 && hasNumericalFilter(nums)) {
+            // 分别查询
+            List<AxisEntry> axisValues = new ArrayList<>();
+            int indexAndSize = 0;
+            for (Numerical num : nums) {
+                Object[][] array = createQuery(buildSql(dims, new Numerical[]{num})).array();
+                for (Object[] o : array) axisValues.add(new AxisEntry(o, indexAndSize));
+                indexAndSize++;
+            }
+
+            dataRaw = mergeAxisEntry2Data(axisValues, indexAndSize);
+        } else {
+            dataRaw = createQuery(buildSql(dims, nums)).array();
+        }
 
         // 行号
         if (this.showLineNumber && dataRaw.length > 0) {
@@ -130,10 +144,12 @@ public class TableChart extends ChartData {
         } else if (numSqlItems.isEmpty()) {
             sql = "select {0} from {2} where {3} group by {0}";
         }
+
         sql = MessageFormat.format(sql,
                 StringUtils.join(dimSqlItems, ", "),
                 StringUtils.join(numSqlItems, ", "),
-                getSourceEntity().getName(), getFilterSql());
+                getSourceEntity().getName(), getFilterSql(nums.length > 0 ? nums[0] : null));
+        System.out.println(sql);
 
         return appendSqlSort(sql);
     }

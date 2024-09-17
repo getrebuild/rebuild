@@ -26,9 +26,9 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
@@ -147,26 +147,7 @@ public class AdvFilterParser extends SetUser {
 
         // 自动确定查询项
         if (MODE_QUICK.equalsIgnoreCase(filterExpr.getString("type"))) {
-            String quickFields = filterExpr.getString("quickFields");
-            JSONArray quickItems = buildQuickFilterItems(quickFields, 1);
-
-            // TODO v3.6-b4,3.7 值1|值2 UNTEST
-            // 转义可输入 \|
-            JSONObject values = filterExpr.getJSONObject("values");
-            String[] valuesPlus = values.values().iterator().next().toString().split("(?<!\\\\)\\|");
-            if (valuesPlus.length > 1) {
-                values.clear();
-                values.put("1", valuesPlus[0].trim());
-
-                for (int i = 2; i <= valuesPlus.length; i++) {
-                    JSONArray quickItemsPlus = buildQuickFilterItems(quickFields, i);
-                    values.put(String.valueOf(i), valuesPlus[i - 1].trim());
-                    quickItems.addAll(quickItemsPlus);
-                }
-                filterExpr.put("values", values);
-            }
-
-            filterExpr.put("items", quickItems);
+            rebuildQuickFilter38();
         }
 
         JSONArray items = filterExpr.getJSONArray("items");
@@ -301,6 +282,9 @@ public class AdvFilterParser extends SetUser {
         if (checkValue instanceof VarFieldNoValue37) return "(1=2)";
         String value = (String) checkValue;
         String valueEnd = null;
+
+        // v3.8
+        if (useFulltextOp(field) && "LK".equals(op)) op = "FT";
 
         if (dt == DisplayType.N2NREFERENCE) {
             String inWhere = null;
@@ -505,6 +489,25 @@ public class AdvFilterParser extends SetUser {
                 }
                 op = ParseHelper.BW;
 
+            } else if (ParseHelper.YYY.equalsIgnoreCase(op)
+                    || ParseHelper.MMM.equalsIgnoreCase(op)) {
+
+                int xValue = NumberUtils.toInt(value);
+                Calendar now = CalendarUtils.getInstance();
+
+                if (ParseHelper.YYY.equalsIgnoreCase(op)) {
+                    now.add(Calendar.YEAR, xValue);
+                    value = now.get(Calendar.YEAR) + "-01-01";
+                    valueEnd = now.get(Calendar.YEAR) + "-12-31";
+                } else {
+                    now.set(Calendar.DAY_OF_MONTH, 1);
+                    now.add(Calendar.MONTH, xValue);
+
+                    value = CalendarUtils.getUTCDateFormat().format(now.getTime());
+                    Moment last = Moment.moment(now.getTime()).endOf(Moment.UNIT_MONTH);
+                    valueEnd = CalendarUtils.getUTCDateFormat().format(last.date());
+                }
+                op = ParseHelper.BW;
             }
 
         } else if (dt == DisplayType.TIME) {
@@ -631,6 +634,10 @@ public class AdvFilterParser extends SetUser {
             // LIKE
             if (op.equalsIgnoreCase(ParseHelper.LK) || op.equalsIgnoreCase(ParseHelper.NLK)) {
                 value = '%' + value + '%';
+            } else if (op.equalsIgnoreCase(ParseHelper.LK1)) {
+                value = '%' + value;
+            } else if (op.equalsIgnoreCase(ParseHelper.LK2)) {
+                value = value + '%';
             }
             sb.append(quoteValue(value, lastFieldMeta.getType()));
         }
@@ -687,21 +694,18 @@ public class AdvFilterParser extends SetUser {
                     value += (fullTime ? ParseHelper.FULL_TIME : ParseHelper.ZERO_TIME);  // 含当日
                 }
             }
-            // 修正月、日
-            else if (field.getType() == FieldType.DATE && valueLen == 10) {
-                String dateFormat = StringUtils.defaultIfBlank(
-                        EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.DATE_FORMAT),
-                        DisplayType.DATE.getDefaultFormat());
-
-                // v3.7 BW 无需修正，值由用户提供
-                if (ParseHelper.BW.equals(op)) dateFormat = "0";
-
-                if (dateFormat.length() == 4) {
-                    value = value.substring(0, 4) + "-01-01";
-                } else if (dateFormat.length() == 7) {
-                    value = value.substring(0, 7) + "-01";
-                }
-            }
+            // v3.8 不修正了，否则因为格式问题（如日期带日、不带日）就带来不同的查询结果，这很怪异
+//            // 修正月、日
+//            else if (field.getType() == FieldType.DATE && valueLen == 10) {
+//                String dateFormat = StringUtils.defaultIfBlank(
+//                        EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.DATE_FORMAT),
+//                        DisplayType.DATE.getDefaultFormat());
+//                if (dateFormat.length() == 4) {
+//                    value = value.substring(0, 4) + "-01-01";
+//                } else if (dateFormat.length() == 7) {
+//                    value = value.substring(0, 7) + "-01";
+//                }
+//            }
 
             // 多个值的情况下，兼容 | 号分割
             if (op.equalsIgnoreCase(ParseHelper.IN) || op.equalsIgnoreCase(ParseHelper.NIN)
@@ -750,30 +754,90 @@ public class AdvFilterParser extends SetUser {
 
     /**
      * @param date
-     * @param paddingType 0=无, 1=FULLTIME, 2=ZEROTIME
+     * @param paddingTimeType 0=无, 1=FULLTIME, 2=ZEROTIME
      * @return
      */
-    private String formatDate(Date date, int paddingType) {
+    private String formatDate(Date date, int paddingTimeType) {
         String s = CalendarUtils.getUTCDateFormat().format(date);
-        if (paddingType == 1) s += ParseHelper.FULL_TIME;
-        else if (paddingType == 2) s += ParseHelper.ZERO_TIME;
+        if (paddingTimeType == 1) s += ParseHelper.FULL_TIME;
+        else if (paddingTimeType == 2) s += ParseHelper.ZERO_TIME;
         return s;
     }
 
     /**
      * 快速查询
-     *
+     */
+    private void rebuildQuickFilter38() {
+        String quickFields = filterExpr.getString("quickFields");
+        JSONArray quickItems = buildQuickFilterItems(quickFields, 1);
+
+        JSONObject values = filterExpr.getJSONObject("values");
+        final String quickValue = values.values().iterator().next().toString();
+
+        // eg: =完全相等, *后匹配, 前匹配*
+        if (quickValue.length() > 2
+                && (quickValue.startsWith("=") || quickValue.startsWith("*") || quickValue.endsWith("*"))) {
+            String op2 = ParseHelper.EQ;
+            String value2;
+            if (quickValue.startsWith("*")) op2 = ParseHelper.LK1;
+            else if (quickValue.endsWith("*")) op2 = ParseHelper.LK2;
+            if (quickValue.endsWith("*")) value2 = quickValue.substring(0, quickValue.length() - 1);
+            else value2 = quickValue.substring(1);
+
+            for (Object o : quickItems) {
+                JSONObject item = (JSONObject) o;
+                item.put("op", op2);
+                item.put("value", value2);
+            }
+
+        } else {
+            // v3.6-b4,3.7: 多值查询（转义可输入 \|）。eg: 值1|值2
+            String[] m = quickValue.split("(?<!\\\\)\\|");
+            if (m.length > 1) {
+                values.clear();
+                values.put("1", m[0].trim());
+
+                for (int i = 2; i <= m.length; i++) {
+                    JSONArray quickItemsPlus = buildQuickFilterItems(quickFields, i);
+                    values.put(String.valueOf(i), m[i - 1].trim());
+                    quickItems.addAll(quickItemsPlus);
+                }
+                filterExpr.put("values", values);
+            }
+        }
+
+        // 覆盖
+        filterExpr.put("items", quickItems);
+    }
+
+    /**
      * @param quickFields
+     * @param valueIndex
      * @return
      */
     private JSONArray buildQuickFilterItems(String quickFields, int valueIndex) {
         Set<String> usesFields = ParseHelper.buildQuickFields(rootEntity, quickFields);
-
         JSONArray items = new JSONArray();
         for (String field : usesFields) {
             items.add(JSON.parseObject("{ op:'LK', value:'{" + valueIndex + "}', field:'" + field + "' }"));
         }
         return items;
+    }
+
+    /**
+     * 使用全文索引查詢
+     *
+     * @param fieldName
+     * @return
+     */
+    private boolean useFulltextOp(String fieldName) {
+        if (!CommandArgs.getBoolean(CommandArgs._UseDbFullText)) return false;
+
+        Set<String> canFulltexts = new HashSet<>();
+        canFulltexts.add("40#content");
+
+        String key = rootEntity.getEntityCode() + "#" + fieldName;
+        return canFulltexts.contains(key);
     }
 
     // 字段变量 {@FIELD}

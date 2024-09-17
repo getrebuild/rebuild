@@ -22,7 +22,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
@@ -32,6 +31,7 @@ import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.core.service.trigger.TriggerResult;
@@ -123,7 +123,7 @@ public class FieldAggregation extends TriggerAction {
             // 在整个触发链上只触发1次，避免循环调用
             // FIXME 20220804 某些场景是否允许2次，而非1次???
             if (tschain.contains(chainName)) {
-                log.warn(w + "!!! TRIGGER ONCE ONLY");
+                log.warn("{}!!! TRIGGER ONCE ONLY", w);
                 return null;
             } else {
                 log.info(w);
@@ -230,13 +230,13 @@ public class FieldAggregation extends TriggerAction {
 
         // 有需要才执行
         if (targetRecord.isEmpty()) {
-            log.info("No data of target record : {}", targetRecordId);
+            if (!RobotTriggerObserver._TriggerLessLog) log.info("No data of target record : {}", targetRecordId);
             return TriggerResult.targetEmpty();
         }
 
         // 相等则不更新
         if (isCurrentSame(targetRecord)) {
-            log.info("Ignore execution because the record are same : {}", targetRecordId);
+            if (!RobotTriggerObserver._TriggerLessLog) log.info("Ignore execution because the record are same : {}", targetRecordId);
             return TriggerResult.targetSame();
         }
 
@@ -244,28 +244,30 @@ public class FieldAggregation extends TriggerAction {
         final boolean stopPropagation = ((JSONObject) actionContext.getActionContent()).getBooleanValue("stopPropagation");
 
         // 跳过权限
-        PrivilegesGuardContextHolder.setSkipGuard(targetRecordId);
+        GeneralEntityServiceContextHolder.setSkipGuard(targetRecordId);
 
         // 强制更新 (v2.9)
         if (forceUpdate) {
             GeneralEntityServiceContextHolder.setAllowForceUpdate(targetRecordId);
+        }
+        // 快速模式 (v3.8)
+        if (stopPropagation) {
+            GeneralEntityServiceContextHolder.setQuickMode();
         }
 
         tschain.add(chainName);
         TRIGGER_CHAIN.set(tschain);
 
         targetRecord.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
+        targetRecord.setID(EntityHelper.ModifiedBy, UserService.SYSTEM_USER);
 
         try {
-            if (stopPropagation) {
-                Application.getCommonsService().update(targetRecord, false);
-            } else {
-                Application.getBestService(targetEntity).update(targetRecord);
-            }
+            Application.getBestService(targetEntity).update(targetRecord);
 
         } finally {
-            PrivilegesGuardContextHolder.getSkipGuardOnce();
+            GeneralEntityServiceContextHolder.isSkipGuardOnce();
             if (forceUpdate) GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+            if (stopPropagation) GeneralEntityServiceContextHolder.isQuickMode(true);
         }
 
         if (operatingContext.getAction() == BizzPermission.UPDATE && this.getClass() == FieldAggregation.class) {

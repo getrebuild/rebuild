@@ -6,10 +6,10 @@
     <title th:text="${title}"></title>
     <style>
       .iframe-wrap {
-        border-radius: 6px;
-        border: 1px solid #e6e6e6;
         margin-top: 44px;
         overflow: hidden;
+        border-radius: 0 0 3px 3px;
+        border: 1px solid #ddd;
       }
       .iframe-wrap iframe {
         position: relative;
@@ -21,8 +21,12 @@
         font-size: 0;
         line-height: 1;
       }
-      .quick-filter-tabs .dropdown-item {
+      .quick-filter-tabs a.dropdown-item {
         background-color: #f5f5f5;
+        border-radius: 2px !important;
+      }
+      .quick-filter-tabs a.dropdown-item:hover {
+        background-color: #ddd;
       }
     </style>
   </head>

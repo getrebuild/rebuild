@@ -10,11 +10,16 @@ package com.rebuild.core.support.general;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.google.zxing.BarcodeFormat;
+import com.google.zxing.BinaryBitmap;
 import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatReader;
 import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.Result;
 import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.oned.Code128Writer;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.rebuild.core.RebuildException;
@@ -25,6 +30,7 @@ import com.rebuild.utils.AppUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -249,5 +255,27 @@ public class BarCodeSupport {
         fm = g2d.getFontMetrics();
 
         return fm;
+    }
+
+    /**
+     * 识别。支持条码与二维码
+     *
+     * @param image
+     * @return
+     */
+    public static String decode(File image) {
+        try {
+            BufferedImage bufferedImage = ImageIO.read(image);
+            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(new BufferedImageLuminanceSource(bufferedImage)));
+            MultiFormatReader reader = new MultiFormatReader();
+
+            Result result = reader.decode(bitmap);
+            bufferedImage.flush();
+            return result.getText();
+
+        } catch (Exception e) {
+            log.error("Cannot decode image : {}", image);
+            return null;
+        }
     }
 }

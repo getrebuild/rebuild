@@ -77,8 +77,8 @@ class ContentFieldWriteback extends ActionContentSpec {
             <div className="form-group row">
               <label className="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
               <div className="col-md-12 col-lg-9">
-                <h5 className="mt-0 text-bold">{$L('字段匹配规则')} (LAB)</h5>
-                <MatchFields targetFields={this.state.targetFields} sourceFields={this.__sourceFieldsCache} ref={(c) => (this._MatchFields = c)} />
+                <h5 className="mt-0 text-bold">{$L('字段匹配规则')}</h5>
+                <MatchFields targetFields={this.state.targetFields4Group} sourceFields={this.__sourceFieldsCache} ref={(c) => (this._MatchFields = c)} />
               </div>
             </div>
           )}
@@ -130,6 +130,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                 <div className="col-5">
                   <select className="form-control form-control-sm" ref={(c) => (this._$targetField = c)}>
                     {(this.state.targetFields || []).map((item) => {
+                      if (item.type === 'SERIES') return null
                       return (
                         <option key={item.name} value={item.name}>
                           {item.label}
@@ -212,10 +213,16 @@ class ContentFieldWriteback extends ActionContentSpec {
                   <span className="custom-control-label">{$L('源字段为空时置空目标字段')}</span>
                 </label>
               </div>
-              <div className="mt-2 bosskey-show">
+              <div className="mt-2">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._$stopPropagation = c)} />
-                  <span className="custom-control-label">{$L('禁用传播')} (LAB)</span>
+                  <span className="custom-control-label">{$L('禁用级联执行')}</span>
+                </label>
+              </div>
+              <div className="mt-2 bosskey-show">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$lockMode = c)} />
+                  <span className="custom-control-label">{$L('启用加锁模式')} (LAB)</span>
                 </label>
               </div>
             </div>
@@ -237,6 +244,7 @@ class ContentFieldWriteback extends ActionContentSpec {
               const text = res.text.split(' (N)')
               const $span = $('<span></span>').text(text[0])
               if (text.length > 1) $('<span class="badge badge-default badge-pill">N</span>').appendTo($span)
+              else if (res.children && res.children.length > 0) $('<sup class="rbv ml-1"></sup>').appendTo($span)
               return $span
             },
           })
@@ -258,7 +266,9 @@ class ContentFieldWriteback extends ActionContentSpec {
       $(this._$forceUpdate).attr('checked', content.forceUpdate === true)
       $(this._$clearFields).attr('checked', content.clearFields === true)
       $(this._$stopPropagation).attr('checked', content.stopPropagation === true)
-      if (content.stopPropagation === true) $(this._$stopPropagation).parents('.bosskey-show').removeClass('bosskey-show')
+      if (content.lockMode === true) {
+        $(this._$lockMode).attr('checked', true).parents('.mt-2').removeClass('bosskey-show')
+      }
     }
   }
 
@@ -272,17 +282,22 @@ class ContentFieldWriteback extends ActionContentSpec {
     }
 
     $.get(`/admin/robot/trigger/field-writeback-fields?source=${this.props.sourceEntity}&target=${teSplit[1]}`, (res) => {
-      this.setState({ hasWarning: res.data.hadApproval ? $L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)，建议启用“允许强制更新”') : null })
+      const _data = res.data || {}
+      this.setState({ hasWarning: _data.hadApproval ? $L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)，建议启用“允许强制更新”') : null })
 
-      this.__sourceFieldsCache = res.data.source
+      this.__sourceFieldsCache = _data.source
+      let fieldsProps = {
+        targetFields: _data.target,
+        targetFields4Group: _data.target4Group,
+      }
 
       if (this.state.targetFields) {
-        this.setState({ targetFields: res.data.target }, () => {
+        this.setState({ ...fieldsProps }, () => {
           $(this._$targetField).trigger('change')
         })
       } else {
         // init
-        this.setState({ sourceFields: res.data.source, targetFields: res.data.target }, () => {
+        this.setState({ sourceFields: _data.source, ...fieldsProps }, () => {
           const $s2tf = $(this._$targetField)
             .select2({ placeholder: $L('选择目标字段') })
             .on('change', () => this._changeTargetField())
@@ -303,12 +318,20 @@ class ContentFieldWriteback extends ActionContentSpec {
         if (content) {
           this.setState({ items: content.items || [] })
           if (content.targetEntityMatchFields) {
+            // v3.8 兼容
+            if (typeof content.targetEntityMatchFields === 'string') {
+              try {
+                eval(`content.targetEntityMatchFields = ${content.targetEntityMatchFields}`)
+              } catch (err) {
+                // NOOP
+              }
+            }
             setTimeout(() => this._MatchFields && this._MatchFields.setState({ groupFields: content.targetEntityMatchFields }), 200)
           }
         }
       }
 
-      this._MatchFields && this._MatchFields.reset({ targetFields: this.state.targetFields, sourceFields: this.__sourceFieldsCache })
+      this._MatchFields && this._MatchFields.reset({ targetFields: this.state.targetFields4Group, sourceFields: this.__sourceFieldsCache })
     })
   }
 
@@ -411,6 +434,7 @@ class ContentFieldWriteback extends ActionContentSpec {
       forceUpdate: $(this._$forceUpdate).prop('checked'),
       clearFields: $(this._$clearFields).prop('checked'),
       stopPropagation: $(this._$stopPropagation).prop('checked'),
+      lockMode: $(this._$lockMode).prop('checked'),
     }
     if (!content.targetEntity) {
       RbHighbar.create($L('请选择目标实体'))
@@ -422,6 +446,11 @@ class ContentFieldWriteback extends ActionContentSpec {
       if (v.length === 0) {
         RbHighbar.create($L('请添加字段匹配规则'))
         return false
+      } else {
+        if (rb.commercial < 1) {
+          RbHighbar.error(WrapHtml($L('免费版不支持%s功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)', $L('通过字段匹配'))))
+          return false
+        }
       }
       content.targetEntityMatchFields = v
     }
@@ -454,7 +483,7 @@ class FieldFormula extends React.Component {
   render() {
     const toFieldType = this.state.targetField.type
     // @see DisplayType.java
-    if (['AVATAR', 'IMAGE', 'FILE', 'SIGN'].includes(toFieldType)) {
+    if (['AVATAR', 'SIGN'].includes(toFieldType)) {
       return <div className="form-control-plaintext text-danger">{$L('暂不支持')}</div>
     } else {
       return (
@@ -670,6 +699,7 @@ class FormulaCode extends React.Component {
 // eslint-disable-next-line no-undef
 renderContentComp = function (props) {
   __LAB_MATCHFIELDS = window.__BOSSKEY || !!(props.content && props.content.targetEntityMatchFields)
+  __LAB_MATCHFIELDS = true // v3.8
   renderRbcomp(<ContentFieldWriteback {...props} />, 'react-content', function () {
     // eslint-disable-next-line no-undef
     contentComp = this

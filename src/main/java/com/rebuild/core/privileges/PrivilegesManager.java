@@ -554,4 +554,11 @@ public class PrivilegesManager {
         }
         throw new BizzException("Unknown Permission : " + name);
     }
+
+    /**
+     * @return
+     */
+    public FieldPrivileges getFieldPrivileges() {
+        return Application.getBean(FieldPrivileges.class);
+    }
 }

@@ -68,6 +68,8 @@ class RbFormModal extends React.Component {
                     {this.state.alertMessage}
                   </div>
                 )}
+                {this.state.fjsAlertMessage}
+
                 {this.state.formComponent}
                 {this.state.inLoad && <RbSpinner />}
               </div>
@@ -111,35 +113,44 @@ class RbFormModal extends React.Component {
     if (this.state.previewid) url += `&previewid=${this.state.previewid}`
     else if (this.state.specLayout) url += `&layout=${this.state.specLayout}`
 
-    $.post(url, JSON.stringify(initialValue), (res) => {
-      // 包含错误
-      if (res.error_code > 0 || !!res.data.error) {
-        const error = (res.data || {}).error || res.error_msg
-        this.renderFromError(error)
-        return
-      }
-
-      const formModel = res.data
+    const that = this
+    function _FN2(formModel) {
       const FORM = (
-        <RbForm entity={entity} id={id} rawModel={formModel} $$$parent={this} readonly={!!formModel.readonlyMessage} ref={(c) => (this._formComponentRef = c)}>
+        <RbForm entity={entity} id={id} rawModel={formModel} $$$parent={that} readonly={!!formModel.readonlyMessage} ref={(c) => (that._formComponentRef = c)}>
           {formModel.elements.map((item) => {
             return detectElement(item, entity)
           })}
         </RbForm>
       )
 
-      this.setState({ formComponent: FORM, alertMessage: formModel.readonlyMessage || null }, () => {
-        this.setState({ inLoad: false })
+      that.setState({ formComponent: FORM, alertMessage: formModel.readonlyMessage || null }, () => {
+        that.setState({ inLoad: false })
         if (window.FrontJS) {
-          window.FrontJS.Form._trigger('open', [res.data])
+          window.FrontJS.Form._trigger('open', [formModel])
         }
       })
 
-      this.__lastModified = res.data.lastModified || 0
+      that.__lastModified = formModel.lastModified || 0
 
-      setTimeout(() => {
-        formModel.alertMessage && RbHighbar.create(formModel.alertMessage)
-      }, 1000)
+      if (formModel.alertMessage) {
+        setTimeout(() => RbHighbar.create(formModel.alertMessage), 1000)
+      }
+    }
+
+    // v3.8
+    if (this.props.initialFormModel) {
+      _FN2(this.props.initialFormModel)
+      return
+    }
+
+    $.post(url, JSON.stringify(initialValue), (res) => {
+      // 包含错误
+      if (res.error_code > 0 || !!res.data.error) {
+        const error = (res.data || {}).error || res.error_msg
+        this.renderFromError(error)
+      } else {
+        _FN2(res.data)
+      }
     })
   }
 
@@ -280,7 +291,7 @@ class RbForm extends React.Component {
 
   render() {
     return (
-      <div className="rbform form-layout">
+      <div className={`rbform form-layout ${window.__LAB_VERTICALLAYOUT && 'vertical38'}`}>
         <div className="form row" ref={(c) => (this._$form = c)}>
           {this.props.children.map((fieldComp) => {
             const ref = fieldComp.props.field === TYPE_DIVIDER ? $random('divider-') : `fieldcomp-${fieldComp.props.field}`
@@ -438,10 +449,13 @@ class RbForm extends React.Component {
           ref={(c) => {
             _ProTable = c // ref
             this._ProTables[detailMeta.entity] = c
+            this._ProTable = c // comp:v3.8
           }}
           $$$main={this}
         />
       )
+    } else {
+      this._ProTable = _ProTable // comp:v3.8
     }
 
     return (
@@ -495,7 +509,7 @@ class RbForm extends React.Component {
                   )
                 })}
                 <a
-                  className="dropdown-item bosskey-show"
+                  className="dropdown-item"
                   onClick={() => {
                     if (rb.commercial < 10) {
                       return RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
@@ -568,18 +582,23 @@ class RbForm extends React.Component {
       )
     }
 
-    // Clean others action
-    if (this._postAfter) moreActions = []
+    // @see #_postAfterExec
+    if (typeof this._postAfter === 'function') moreActions = []
+
+    // v3.8
+    const $$$props = props.$$$parent && props.$$$parent.props ? props.$$$parent.props : {}
+    const confirmText = props.confirmText || $$$props.confirmText
+    const cancelText = props.cancelText || $$$props.cancelText
 
     return (
       <div className="dialog-footer" ref={(c) => (this._$formAction = c)}>
         <button className="btn btn-secondary btn-space" type="button" onClick={() => props.$$$parent.hide()}>
-          {$L('取消')}
+          {cancelText || $L('取消')}
         </button>
         {!props.readonly && (
           <div className="btn-group dropup btn-space ml-1">
             <button className="btn btn-primary" type="button" onClick={() => this.post()}>
-              {$L('保存')}
+              {confirmText || $L('保存')}
             </button>
             {moreActions.length > 0 && (
               <RF>
@@ -605,6 +624,8 @@ class RbForm extends React.Component {
             if (child.props.type === 'TAG') {
               // eg. 标签
               iv = iv.join('$$$$')
+            } else if (child.props.type === 'LOCATION') {
+              // eg.位置
             } else if (Array.isArray(iv)) {
               // eg. 文件/图片
             } else {
@@ -766,10 +787,8 @@ class RbForm extends React.Component {
       id: this.state.id,
     }
 
-    if (RbForm.postBefore(data, this) === false) {
-      console.log('FrontJS prevented save')
-      return
-    }
+    // 提交前
+    if (this._postBeforeExec(data) === false) return
 
     const $$$parent = this.props.$$$parent
     const previewid = $$$parent.state.previewid
@@ -777,9 +796,9 @@ class RbForm extends React.Component {
     const $btn = $(this._$formAction).find('.btn').button('loading')
     let url = '/app/entity/record-save'
     if (previewid) url += `?previewid=${previewid}`
-    if (weakMode === true) {
-      if (url.includes('?')) url += '&weakMode=true'
-      else url += '?weakMode=true'
+    if (weakMode) {
+      url += url.includes('?') ? '&' : '?'
+      url += 'weakMode=' + weakMode
     }
 
     $.post(url, JSON.stringify(data), (res) => {
@@ -797,6 +816,7 @@ class RbForm extends React.Component {
 
           const recordId = res.data.id
 
+          // 提交后:如有提交后回调则仅执行此
           if (typeof this._postAfter === 'function') {
             this._postAfter(recordId, next, this)
             return
@@ -825,18 +845,21 @@ class RbForm extends React.Component {
             // ~
           }
 
-          RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next, this)
+          this._postAfterExec({ ...res.data, isNew: !this.state.id }, next)
 
           // ~
         }, 200)
       } else if (res.error_code === 499) {
+        // 重复记录
         renderRbcomp(<RepeatedViewer entity={this.state.entity} data={res.data} />)
       } else if (res.error_code === 497) {
+        // 弱校验
         const that = this
-        RbAlert.create(res.error_msg, {
+        const msg_id = res.error_msg.split('$$$$')
+        RbAlert.create(msg_id[0], {
           onConfirm: function () {
             this.hide()
-            that._post(next, true)
+            that._post(next, msg_id[1])
           },
         })
       } else {
@@ -846,30 +869,27 @@ class RbForm extends React.Component {
     return true
   }
 
-  // -- HOOK
+  // 提交前调用
+  _postBeforeExec(data) {
+    if (typeof this._postBefore === 'function') {
+      let ret = this._postBefore(data, this)
+      if (ret === false) return false
+    }
 
-  // 保存前调用（返回 false 则不继续保存）
-  // eslint-disable-next-line no-unused-vars
-  static postBefore(data, formObject) {
-    if (typeof formObject._postBefore === 'function') {
-      const ret = formObject._postBefore(data, formObject)
-      if (ret === false) return false
-    }
     if (window.FrontJS) {
-      const ret = window.FrontJS.Form._trigger('saveBefore', [data])
+      let ret = window.FrontJS.Form._trigger('saveBefore', [data, this])
       if (ret === false) return false
     }
-    return true
+
+    let ret = RbForm.postBefore(data, this)
+    if (ret === false) return false
   }
 
-  // 保存后调用
-  // eslint-disable-next-line no-unused-vars
-  static postAfter(data, next, formObject) {
+  // 提交后调用
+  _postAfterExec(data, next) {
     if (window.FrontJS) {
-      window.FrontJS.Form._trigger('saveAfter', [data, next])
+      window.FrontJS.Form._trigger('saveAfter', [data, next, this])
     }
-
-    // TODO 本实体才刷新?
 
     // 刷新列表
     const rlp = window.RbListPage || parent.RbListPage
@@ -878,6 +898,14 @@ class RbForm extends React.Component {
     if (window.RbViewPage && next !== RbForm.NEXT_NEWDETAIL) window.RbViewPage.reload()
   }
 
+  // -- HOOK 复写
+
+  // 保存前调用（返回 false 则不继续保存）
+  // eslint-disable-next-line no-unused-vars
+  static postBefore(data, formObject) {}
+  // 保存后调用
+  // eslint-disable-next-line no-unused-vars
+  static postAfter(data, next, formObject) {}
   // 组件渲染后调用
   // eslint-disable-next-line no-unused-vars
   static renderAfter(formObject) {}
@@ -927,7 +955,15 @@ class RbFormElement extends React.Component {
                 <button type="button" className="btn btn-secondary" onClick={() => this.handleEditConfirm()} title={$L('确定')}>
                   <i className="icon zmdi zmdi-check" />
                 </button>
-                <button type="button" className="btn btn-secondary" onClick={() => this.toggleEditMode(false)} title={$L('取消')}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    this.toggleEditMode(false)
+                    // fix: v3.8
+                    props.$$$parent && props.$$$parent.setFieldUnchanged && props.$$$parent.setFieldUnchanged(props.field)
+                  }}
+                  title={$L('取消')}>
                   <i className="icon zmdi zmdi-close" />
                 </button>
               </div>
@@ -1092,7 +1128,8 @@ class RbFormElement extends React.Component {
    * 视图编辑-确认
    */
   handleEditConfirm() {
-    this.props.$$$parent.saveSingleFieldValue && this.props.$$$parent.saveSingleFieldValue(this)
+    const $$$parent = this.props.$$$parent
+    $$$parent && $$$parent.saveSingleFieldValue && $$$parent.saveSingleFieldValue(this)
   }
 
   // Setter
@@ -1111,7 +1148,10 @@ class RbFormElement extends React.Component {
   }
   // 可空/非空
   setNullable(nullable) {
-    this.setState({ nullable: nullable === true })
+    this.setState({ nullable: nullable === true }, () => {
+      // fix:v3.8 通过此方法强制检查非空属性
+      this.setValue(this.state.value || null)
+    })
   }
   // 只读/非只读
   // 部分字段有效，且如字段属性为只读，即使填写值也无效
@@ -1522,9 +1562,10 @@ class RbFormDateTime extends RbFormElement {
       const format = (this.props.datetimeFormat || this.props.dateFormat).replace('mm', 'ii').toLowerCase()
       let minView = 0
       let startView = 'month'
-      if (format.length === 4) minView = startView = 'decade'
-      else if (format.length === 7) minView = startView = 'year'
-      else if (format.length === 10) minView = 'month'
+      if (format.length === 4) minView = startView = 'decade' // 年
+      else if (format.length === 7) minView = startView = 'year' // 年-月
+      else if (format.length === 10) minView = 'month' // 年-月-日
+      else if (format.length === 13) minView = 'day' // 年-月-日-时
 
       const that = this
       this.__datetimepicker = $(this._fieldValue)
@@ -1609,7 +1650,12 @@ class RbFormImage extends RbFormElement {
       this.__minUpload = 0
       this.__maxUpload = 9
     }
-    this._captureType = props.imageCapture ? 'image' : false
+
+    // 1=默认, 2=拍摄, 3=1+2
+    this._captureType = 0
+    if (props.imageCapture) this._captureType += 2
+    if (props.imageCaptureDef) this._captureType += 1
+    if (this._captureType === 0) this._captureType = 1
   }
 
   renderElement() {
@@ -1643,11 +1689,23 @@ class RbFormImage extends RbFormElement {
             </span>
           )
         })}
-        <span title={$L('拖动或点击选择图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={showUpload ? '' : 'hide'}>
+        <span title={$L('拖动或点击选择图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={`position-relative ${!showUpload && 'hide'}`}>
           <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" multiple />
           <label htmlFor={this._htmlid} className="img-thumbnail img-upload" onClick={(e) => this._fileClick(e)}>
-            {this._captureType ? <span className="mdi mdi-camera down-2" /> : <span className="zmdi zmdi-image-alt down-2" />}
+            {this._captureType === 2 ? <span className="mdi mdi-camera down-2" /> : <span className="zmdi zmdi-image-alt down-2" />}
           </label>
+          {this._captureType === 3 && (
+            <RF>
+              <label className="dropdown-toggle" data-toggle="dropdown">
+                <i className="icon zmdi zmdi-chevron-down" />
+              </label>
+              <div className="dropdown-menu dropdown-menu-sm">
+                <a className="dropdown-item" onClick={() => this._fileClick(null, 2)}>
+                  <i className="icon mdi mdi-camera" /> {$L('拍摄')}
+                </a>
+              </div>
+            </RF>
+          )}
         </span>
         <input ref={(c) => (this._fieldValue = c)} type="hidden" value={value} />
       </div>
@@ -1683,9 +1741,9 @@ class RbFormImage extends RbFormElement {
     p.RbPreview.create(urlKey, idx)
   }
 
-  _fileClick(e) {
-    if (this._captureType) {
-      $stopEvent(e, true)
+  _fileClick(e, forceType) {
+    if (this._captureType === 2 || forceType === 2) {
+      e && $stopEvent(e, true)
       if (rb.commercial < 1) {
         RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
         return
@@ -1698,8 +1756,9 @@ class RbFormImage extends RbFormElement {
           width={w}
           useWhite
           disposeOnHide
-          type={this._captureType}
+          type={this._captureTypeMedia || 'image'}
           forceFile
+          watermark={window.__LAB_CAPTUREWATERMARK}
           callback={(fileKey) => {
             const paths = this.state.value || []
             if (paths.length < this.__maxUpload) {
@@ -1710,6 +1769,7 @@ class RbFormImage extends RbFormElement {
         />
       )
     }
+    // else: this._captureType=1
   }
 
   onEditModeChanged(destroy) {
@@ -1735,7 +1795,7 @@ class RbFormImage extends RbFormElement {
       })
 
       // 拖拽上传
-      if (this._$dropArea && !this.props.imageCapture) {
+      if (this._$dropArea && (this._captureType === 1 || this._captureType === 3)) {
         const that = this
         $dropUpload(this._$dropArea, function (files) {
           if (!files || files.length === 0) return false
@@ -1765,13 +1825,14 @@ class RbFormFile extends RbFormImage {
   constructor(props) {
     super(props)
 
-    this._captureType = false
-    if (props.fileSuffix) {
-      const img = props.fileSuffix.includes('image/*')
-      const vid = props.fileSuffix.includes('video/*')
-      if (img && vid) this._captureType = '*'
-      else if (img) this._captureType = 'image'
-      else if (vid) this._captureType = 'video'
+    // 照片, 视频
+    if (this._captureType >= 2) {
+      let _fileSuffix = props.fileSuffix || 'image/*; video/*'
+      const img = _fileSuffix.includes('image/*')
+      const vid = _fileSuffix.includes('video/*')
+      if (img && vid) this._captureTypeMedia = '*'
+      else if (img) this._captureTypeMedia = 'image'
+      else if (vid) this._captureTypeMedia = 'video'
     }
   }
 
@@ -1806,9 +1867,21 @@ class RbFormFile extends RbFormImage {
         <div className={`file-select ${showUpload ? '' : 'hide'}`}>
           <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={this._htmlid} accept={this.props.fileSuffix || null} multiple />
           <label htmlFor={this._htmlid} title={$L('拖动或点击选择文件。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary" onClick={(e) => this._fileClick(e)}>
-            <i className="zmdi zmdi-upload" />
-            <span>{$L('上传文件')}</span>
+            {this._captureType === 2 ? <span className="mdi mdi-camera" /> : <span className="zmdi zmdi-upload" />}
+            <span className="ml-1">{$L('上传文件')}</span>
           </label>
+          {this._captureType === 3 && (
+            <RF>
+              <label className="dropdown-toggle btn-secondary" data-toggle="dropdown">
+                <i className="icon zmdi zmdi-chevron-down" />
+              </label>
+              <div className="dropdown-menu dropdown-menu-sm">
+                <a className="dropdown-item" onClick={() => this._fileClick(null, 2)}>
+                  <i className="icon mdi mdi-camera" /> {$L('拍摄')}
+                </a>
+              </div>
+            </RF>
+          )}
         </div>
         <input ref={(c) => (this._fieldValue = c)} type="hidden" value={value} />
       </div>
@@ -1870,10 +1943,6 @@ class RbFormPickList extends RbFormElement {
   }
 
   renderElement() {
-    // if ((this.state.options || []).length === 0) {
-    //   return <div className="form-control-plaintext text-danger">{$L('未配置')}</div>
-    // }
-
     const keyName = `${this.state.field}-option-`
     return (
       <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" defaultValue={this.state.value || ''}>
@@ -1998,6 +2067,18 @@ class RbFormReference extends RbFormElement {
           return cascadingValue ? { cascadingValue, ...query } : query
         },
         placeholder: this._placeholderw,
+        templateResult: function (res) {
+          const $span = $('<span class="code-append"></span>').attr('title', res.text).text(res.text)
+          if (res.id) {
+            $(`<a title="${$L('在新页面打开')}"><i class="zmdi zmdi-open-in-new"></i></a>`)
+              .appendTo($span)
+              .on('mousedown', (e) => {
+                $stopEvent(e, true)
+                window.open(`${rb.baseUrl}/app/redirect?id=${res.id}&type=newtab`)
+              })
+          }
+          return $span
+        },
       })
 
       const val = this.state.value
@@ -2210,7 +2291,7 @@ class RbFormN2NReference extends RbFormReference {
       <div className="form-control-plaintext multi-values">
         {value.map((item) => {
           return (
-            <a key={item.id} className="hover-color" href={`#!/View/${item.entity}/${item.id}`} onClick={this._clickView}>
+            <a key={item.id} href={`#!/View/${item.entity}/${item.id}`} onClick={this._clickView}>
               {item.text}
             </a>
           )
@@ -2308,7 +2389,17 @@ class RbFormClassification extends RbFormElement {
   }
 
   renderViewElement() {
-    return super.renderViewElement(this.state.value ? this.state.value.text : null)
+    let text = this.state.value
+    if (text && text.color) {
+      text = (
+        <span className="badge" style={$tagStyle2(text.color)}>
+          {text.text}
+        </span>
+      )
+    } else if (text) {
+      text = <span className="badge text-dark">{text.text}</span>
+    }
+    return super.renderViewElement(text)
   }
 
   onEditModeChanged(destroy) {
@@ -2325,6 +2416,11 @@ class RbFormClassification extends RbFormElement {
         label: this.props.label,
         entity: this.props.$$$parent.props.entity,
         searchType: 'classification',
+        templateResult: function (res) {
+          const $span = $('<span class="code-append"></span>').attr('title', res.text).text(res.text)
+          res.code && $(`<em>${res.code}</em>`).appendTo($span)
+          return $span
+        },
       })
 
       const value = this.state.value
@@ -2436,6 +2532,12 @@ class RbFormMultiSelect extends RbFormElement {
     const val = this.state.value
     if (!val) return 0
     return typeof val === 'object' ? val.id : val
+  }
+
+  setValue(val) {
+    // eg. {id:3, text:["A", "B"]}
+    if (typeof val === 'object') val = val.id || val
+    super.setValue(val)
   }
 }
 
@@ -2937,8 +3039,8 @@ class RbFormRefform extends React.Component {
   render() {
     if (!this.state.formComponent) return null
     return (
-      <div className="rbview-form form-layout refform" ref={(c) => (this._viewForm = c)}>
-        {this.state.formComponent || 'Loading'}
+      <div className={`rbview-form form-layout refform ${window.__LAB_VERTICALLAYOUT && 'vertical38'}`} ref={(c) => (this._viewForm = c)}>
+        {this.state.formComponent || 'LOADING'}
       </div>
     )
   }
@@ -3059,14 +3161,13 @@ const __findOptionText = function (options, value, useColor) {
   let text = (o || {}).text || `[${value.toUpperCase()}]`
   if (useColor) {
     if (o && o.color) {
-      const style2 = { borderColor: o.color, backgroundColor: o.color, color: $isLight(o.color) ? '#444' : '#fff' }
       text = (
-        <span className="badge" style={style2}>
+        <span className="badge" style={$tagStyle2(o.color)}>
           {text}
         </span>
       )
     } else {
-      text = <span className="badge text-dark pl-0">{text}</span>
+      text = <span className="badge text-dark">{text}</span>
     }
   }
   return text
@@ -3098,9 +3199,8 @@ const __findTagTexts = function (options, value) {
     let item = options.find((x) => x.name === name)
     if (!item) item = { name: name }
 
-    const style2 = item.color ? { borderColor: item.color, color: item.color } : null
     const text = (
-      <span key={`tag-${item.name}`} style={style2}>
+      <span key={`tag-${item.name}`} style={$tagStyle2(item.color)}>
         {item.name}
       </span>
     )

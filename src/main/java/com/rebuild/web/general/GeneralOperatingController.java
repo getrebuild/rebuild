@@ -36,6 +36,7 @@ import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.RecordDifference;
 import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.general.transform.TransformerPreview37;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.DataValidateException;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
@@ -128,13 +129,7 @@ public class GeneralOperatingController extends BaseController {
             GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS);
         }
 
-        boolean isNew = record.getPrimary() == null;
-
-        // v3.2 弱校验
-        if (getBoolParameter(request, "weakMode")) {
-            ID recordId = isNew ? EntityHelper.UNSAVED_ID : record.getPrimary();
-            CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.DataValidate#setWeakOnce", recordId);
-        }
+        final boolean isNew = record.getPrimary() == null;
 
         // v3.4 TODO 单字段修改检查，有性能问题
         final boolean singleField = getBoolParameter(request, "singleField");
@@ -142,6 +137,10 @@ public class GeneralOperatingController extends BaseController {
         if (singleField) {
             beforeSnap = Application.getQueryFactory().recordNoFilter(record.getPrimary());
         }
+
+        // v3.2,3.8 弱校验
+        final ID weakMode = getIdParameter(request, "weakMode");
+        if (weakMode != null) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.DataValidate#setWeakMode", weakMode);
 
         try {
             record = ies.createOrUpdate(record);
@@ -152,8 +151,9 @@ public class GeneralOperatingController extends BaseController {
 
         } catch (AccessDeniedException | DataSpecificationException | UnexpectedRollbackException | JdbcException known) {
             if (known instanceof DataValidateException && ((DataValidateException) known).isWeakMode()) {
-                log.warn(">>>>> {}", known.getLocalizedMessage());
-                return RespBody.error(known.getLocalizedMessage(), DefinedException.CODE_WEAK_VALIDATE);
+                String msg = known.getLocalizedMessage() + "$$$$" + ((DataValidateException) known).getWeakModeTriggerId();
+                log.warn(">>>>> {}", msg);
+                return RespBody.error(msg, DefinedException.CODE_WEAK_VALIDATE);
             } else {
                 return handleKnownException(known, "record-save");
             }
@@ -161,10 +161,11 @@ public class GeneralOperatingController extends BaseController {
         } finally {
             // 确保清除
             GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
+            if (weakMode != null) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.DataValidate#getWeakMode", true);
         }
 
         // 转换后回填
-        String previewid = request.getParameter("previewid");
+        final String previewid = request.getParameter("previewid");
         if (isNew && StringUtils.isNotBlank(previewid)) {
             try {
                 new TransformerPreview37(previewid, user).fillback(record.getPrimary());
@@ -184,10 +185,14 @@ public class GeneralOperatingController extends BaseController {
                 Field fieldMeta = record.getEntity().getField(field);
                 if (MetadataHelper.isCommonsField(fieldMeta)) continue;
 
-                Object newValue = FormsBuilder.instance.wrapFieldValue(
-                        record, EasyMetaFactory.valueOf(fieldMeta), user);
-                res.put(field, newValue);
+                Object newlyValue = QueryHelper.queryFieldValue(record.getPrimary(), field);
+                if (newlyValue != null) {
+                    record.setObjectValue(field, newlyValue);
+                    newlyValue = FormsBuilder.instance.wrapFieldValue(record, EasyMetaFactory.valueOf(fieldMeta), user);
+                }
+                res.put(field, newlyValue);
                 singleFieldName = field;
+                break;
             }
 
             // 不一致时前端整体刷新
@@ -518,7 +523,7 @@ public class GeneralOperatingController extends BaseController {
      * @param op
      * @return
      */
-    private RespBody handleKnownException(Exception knownEx, String op) {
+    public static RespBody handleKnownException(Exception knownEx, String op) {
         if (knownEx instanceof AccessDeniedException || knownEx instanceof DataSpecificationException) {
             log.warn(">>>>> {}:{}", op, knownEx.getLocalizedMessage());
             return RespBody.error(knownEx.getLocalizedMessage());

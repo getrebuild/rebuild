@@ -342,6 +342,8 @@ const OP_TYPE = {
   NUY: $L('明年'),
   EVW: $L('本周..'),
   EVM: $L('本月..'),
+  YYY: $L('指定..年'),
+  MMM: $L('指定..月'),
   DDD: $L('指定..天'),
   HHH: $L('指定..时'),
   REP: $L('重复'),
@@ -349,7 +351,7 @@ const OP_TYPE = {
 // prettier-ignore
 const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY']
 // prettier-ignore
-const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY', 'EVW', 'EVM', 'DDD', 'HHH', 'REP']
+const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY', 'EVW', 'EVM', 'YYY', 'MMM', 'DDD', 'HHH', 'REP']
 const REFENTITY_CACHE = {}
 const PICKLIST_CACHE = {}
 
@@ -406,7 +408,7 @@ class FilterItem extends React.Component {
       op = ['GT', 'LT', 'EQ', 'BW', 'GE', 'LE']
     } else if (fieldType === 'DATE' || fieldType === 'DATETIME') {
       // prettier-ignore
-      op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY', 'EVW', 'EVM', 'DDD']
+      op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY', 'EVW', 'EVM', 'YYY', 'MMM', 'DDD']
       if (fieldType === 'DATETIME') op.push('HHH')
     } else if (fieldType === 'TIME') {
       op = ['GT', 'LT', 'EQ', 'BW']
@@ -540,7 +542,7 @@ class FilterItem extends React.Component {
     let op4init = this.props.op
     const that = this
     $s2field = $(this._filterField)
-      .select2({ allowClear: false })
+      .select2({ allowClear: false, theme: 'default select2-option-advfilter' })
       .on('change', function (e) {
         const fieldAndType = e.target.value.split(NT_SPLIT)
         that.setState({ field: fieldAndType[0], type: fieldAndType[1] }, () => {
@@ -553,7 +555,7 @@ class FilterItem extends React.Component {
         })
       })
     $s2op = $(this._filterOp)
-      .select2({ allowClear: false })
+      .select2({ allowClear: false, theme: 'default select2-option-advfilter' })
       .on('change', function (e) {
         that.setState({ op: e.target.value }, () => that._componentDidUpdate())
       })
@@ -682,6 +684,7 @@ class FilterItem extends React.Component {
       .select2({
         width: this.props.select2Width,
         placeholder: this.props.select2Placeholder,
+        theme: 'default select2-option-advfilter',
       })
       .on('change.select2', function () {
         that.setState({ value: $s2val.val().join('|') })
@@ -733,6 +736,7 @@ class FilterItem extends React.Component {
             return { results: rs }
           },
         },
+        theme: 'default select2-option-advfilter',
       })
       .on('change.select2', function () {
         const val = $s2val.val()
@@ -824,6 +828,7 @@ class FilterItem extends React.Component {
         width: this.props.select2Width,
         placeholder: this.props.select2Placeholder,
         allowClear: this.props.allowClear === true,
+        theme: 'default select2-option-advfilter',
       })
       .on('change.select2', function () {
         that.setState({ value: $s2val.val() })
@@ -912,7 +917,7 @@ class ListAdvFilter extends AdvFilter {
           <RF>
             <div className="float-left" style={{ marginTop: -1 }}>
               {rb.isAdminUser ? (
-                <Share2 ref={(c) => (this._Share2 = c)} shareTo={this.props.shareTo} noSwitch hasName configName={this.props.filterName} />
+                <Share2 ref={(c) => (this._Share2 = c)} shareTo={this.props.shareTo} configName={this.props.filterName} noSwitch hasName />
               ) : (
                 <div className="float-left input">
                   <input

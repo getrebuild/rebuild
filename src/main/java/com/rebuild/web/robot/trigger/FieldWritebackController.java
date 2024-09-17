@@ -99,6 +99,7 @@ public class FieldWritebackController extends BaseController {
         // v35 字段匹配
         if (getBoolParameter(request, "matchfields")) {
             for (Entity entity : MetadataSorter.sortEntities(null, false, true)) {
+                if (sourceEntity.equals(entity)) continue;
                 temp.add(new String[] { entity.getName(), EasyMetaFactory.getLabel(entity), "$" });
             }
 
@@ -115,8 +116,7 @@ public class FieldWritebackController extends BaseController {
         String target = getParameter(request, "target");
         Entity targetEntity = StringUtils.isBlank(target) ? null : MetadataHelper.getEntity(target);
 
-        // 源字段
-
+        // 源实体字段
         JSONArray sourceFields = MetaFormatter.buildFieldsWithRefs(sourceEntity, 3, true, field -> {
             if (field instanceof EasyField) {
                 EasyField easyField = (EasyField) field;
@@ -125,21 +125,25 @@ public class FieldWritebackController extends BaseController {
             }
             return false;
         });
+        // ID
+        sourceFields.fluentAdd(0, EasyMetaFactory.toJSON(sourceEntity.getPrimaryField()));
 
-        JSONArray tmp = new JSONArray();
-        tmp.add(EasyMetaFactory.toJSON(sourceEntity.getPrimaryField()));
-        tmp.addAll(sourceFields);
-        sourceFields = tmp;
-
-        // 目标字段
-
+        // 目标实体字段
         JSONArray targetFields = new JSONArray();
+        JSONArray targetFields4Group = new JSONArray();
         if (targetEntity != null) {
             targetFields = MetaFormatter.buildFieldsWithRefs(targetEntity, 1, true, field -> {
                 EasyField easyField = (EasyField) field;
-                return easyField.getDisplayType() == DisplayType.SERIES
-                        || easyField.getDisplayType() == DisplayType.BARCODE
-                        || easyField.isBuiltin();
+                return easyField.getDisplayType() == DisplayType.BARCODE || easyField.isBuiltin();
+            });
+
+            targetFields4Group = MetaFormatter.buildFieldsWithRefs(targetEntity, 2, false, field -> {
+                if (field instanceof EasyField) {
+                    EasyField easyField = (EasyField) field;
+                    return easyField.getDisplayType() == DisplayType.BARCODE
+                            || MetaFormatter.isSystemField4Hide(easyField.getRawMeta());
+                }
+                return false;
             });
         }
 
@@ -148,8 +152,8 @@ public class FieldWritebackController extends BaseController {
                 ObjectUtils.defaultIfNull(targetEntity.getMainEntity(), targetEntity), null) != null;
 
         return JSONUtils.toJSONObject(
-                new String[]{"source", "target", "hadApproval"},
-                new Object[]{sourceFields, targetFields, hadApproval});
+                new String[]{"source", "target", "hadApproval", "target4Group"},
+                new Object[]{sourceFields, targetFields, hadApproval, targetFields4Group});
     }
 
     // 验证公式

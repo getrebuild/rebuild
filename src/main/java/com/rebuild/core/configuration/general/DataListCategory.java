@@ -77,12 +77,7 @@ public class DataListCategory {
 
         // 使用全部
         if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST) {
-            ConfigBean[] cbs = MultiSelectManager.instance.getPickListRaw(categoryField, true);
-            for (ConfigBean cb : cbs) {
-                Object id = cb.getID("id");
-                if (dt == DisplayType.MULTISELECT) id = cb.getLong("mask");
-                dataList.add(new Item(id, cb.getString("text")));
-            }
+            dataList = datasOptions(categoryField, dt);
 
         } else if (dt == DisplayType.CLASSIFICATION) {
             // 分类
@@ -151,6 +146,24 @@ public class DataListCategory {
 
         Application.getCommonsCache().putx(ckey, res, CacheTemplate.TS_MINTE * 5);
         return res;
+    }
+
+    /**
+     * for PICKLIST, MULTISELECT
+     *
+     * @param field
+     * @param dt
+     * @return
+     */
+    protected Collection<Item> datasOptions(Field field, DisplayType dt) {
+        Collection<Item> dataList = new LinkedHashSet<>();
+        ConfigBean[] cbs = MultiSelectManager.instance.getPickListRaw(field, true);
+        for (ConfigBean cb : cbs) {
+            Object id = cb.getID("id");
+            if (dt == DisplayType.MULTISELECT) id = cb.getLong("mask");
+            dataList.add(new Item(id, cb.getString("text")));
+        }
+        return dataList;
     }
 
     /**

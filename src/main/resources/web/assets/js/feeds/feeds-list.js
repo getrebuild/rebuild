@@ -147,7 +147,7 @@ class FeedsList extends React.Component {
                 )}
               </p>
             </div>
-            {__renderRichContent(item)}
+            {__renderRichContent(item, this._inView)}
           </div>
         </div>
 
@@ -573,7 +573,7 @@ class Pagination extends React.Component {
 }
 
 // 渲染动态内容
-function __renderRichContent(e) {
+function __renderRichContent(e, _inView) {
   // 表情和换行不在后台转换，因为不同客户端所需的格式不同
   const contentHtml = $converEmoji(e.content.replace(/\n/g, '<br />'))
   const contentMore = e.contentMore || {}
@@ -643,9 +643,13 @@ function __renderRichContent(e) {
               <i className={`icon zmdi zmdi-${e.relatedRecord.icon}`} />
               {` ${e.relatedRecord.entityLabel} : `}
             </span>
-            <a href={`${rb.baseUrl}/app/redirect?id=${e.relatedRecord.id}&type=newtab`} target="_blank" title={$L('查看记录')}>
-              {e.relatedRecord.text}
-            </a>
+            {_inView ? (
+              <a>{e.relatedRecord.text}</a>
+            ) : (
+              <a href={`${rb.baseUrl}/app/redirect?id=${e.relatedRecord.id}&type=newtab`} target="_blank" title={$L('查看记录')}>
+                {e.relatedRecord.text}
+              </a>
+            )}
           </div>
         )}
         {e.type === 3 && (

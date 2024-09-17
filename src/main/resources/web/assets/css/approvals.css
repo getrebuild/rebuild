@@ -435,6 +435,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   cursor: pointer;
 }
 
+.node-wrap-box .aclose:hover,
+.auto-judge .aclose:hover {
+  opacity: 0.8;
+}
+
 .auto-judge .aclose {
   color: #aaa;
   top: -2px;
@@ -701,6 +706,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .expires-by-time {
   width: 180px;
+  width: 100%;
 }
 
 .expires-notify-set {

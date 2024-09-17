@@ -46,7 +46,7 @@ public class AviatorDate extends AviatorObject {
             return dateValue.compareTo((Date) $date);
         }
 
-        log.warn("Could not compare " + desc(env) + " with " + other.desc(env));
+        log.warn("Could not compare {} with {}", desc(env), other.desc(env));
         return -1;
     }
 

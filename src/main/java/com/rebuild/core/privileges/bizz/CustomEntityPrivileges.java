@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.service.query.ParseHelper;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +36,8 @@ public class CustomEntityPrivileges extends EntityPrivileges {
 
     // 自定义权限 <Action, Filter>
     private final Map<String, JSON> customFilters = new HashMap<>();
+    // 字段权限
+    private final Map<String, Object> fpDefinition;
 
     /**
      * @param entity
@@ -52,17 +55,21 @@ public class CustomEntityPrivileges extends EntityPrivileges {
                 }
             }
         }
+
+        fpDefinition = rawDefinition.getJSONObject("FP");
     }
 
     /**
      * @param entity
      * @param definition
      * @param customFilters
+     * @param fpDefinition
      */
-    protected CustomEntityPrivileges(Integer entity, String definition, Map<String, JSON> customFilters) {
+    protected CustomEntityPrivileges(Integer entity, String definition, Map<String, JSON> customFilters, Map<String, Object> fpDefinition) {
         super(entity, definition);
         this.customFilters.clear();
         this.customFilters.putAll(customFilters);
+        this.fpDefinition = fpDefinition;
     }
 
     /**
@@ -169,13 +176,22 @@ public class CustomEntityPrivileges extends EntityPrivileges {
     }
 
     /**
-     * 获取自定义权限
+     * 获取自定义权限定义
      *
      * @param action
      * @return
      */
     public JSONObject getCustomFilter(Permission action) {
         return (JSONObject) customFilters.getOrDefault(action.getName(), null);
+    }
+
+    /**
+     * 获取字段权限定义
+     *
+     * @return
+     */
+    public Map<String, Object> getFpDefinition() {
+        return fpDefinition == null ? null : Collections.unmodifiableMap(fpDefinition);
     }
 
     @Override

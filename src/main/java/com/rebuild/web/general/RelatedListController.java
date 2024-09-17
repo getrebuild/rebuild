@@ -122,6 +122,14 @@ public class RelatedListController extends BaseController {
         return  countMap;
     }
 
+    /**
+     * @param mainid
+     * @param relatedExpr
+     * @param q
+     * @param count
+     * @param user
+     * @return
+     */
     private String buildBaseSql(ID mainid, String relatedExpr, String q, boolean count, ID user) {
         // format: Entity.Field
         Entity relatedEntity = MetadataHelper.getEntity(relatedExpr.split("\\.")[0]);

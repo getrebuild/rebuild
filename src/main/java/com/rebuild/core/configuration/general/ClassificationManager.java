@@ -61,21 +61,39 @@ public class ClassificationManager implements ConfigManager {
      * @param itemId
      * @return
      */
+    public String getColor(ID itemId) {
+        Item item = getItem(itemId);
+        return item == null ? null : item.Color;
+    }
+
+    /**
+     * @param itemId
+     * @return
+     */
+    public String getCode(ID itemId) {
+        Item item = getItem(itemId);
+        return item == null ? null : item.Code;
+    }
+
+    /**
+     * @param itemId
+     * @return
+     */
     private Item getItem(ID itemId) {
-        final String ckey = "ClassificationITEM31-" + itemId;
+        final String ckey = "ClassificationITEM38-" + itemId;
         Item ditem = (Item) Application.getCommonsCache().getx(ckey);
         if (ditem != null) {
             return DELETED_ITEM.equals(ditem.Name) ? null : ditem;
         }
 
         Object[] o = Application.createQueryNoFilter(
-                "select name,fullName,code from ClassificationData where itemId = ?")
+                "select name,fullName,code,color from ClassificationData where itemId = ?")
                 .setParameter(1, itemId)
                 .unique();
-        if (o != null) ditem = new Item((String) o[0], (String) o[1], (String) o[2]);
+        if (o != null) ditem = new Item((String) o[0], (String) o[1], (String) o[2], (String) o[3]);
 
         // 可能已删除
-        if (ditem == null) ditem = new Item(DELETED_ITEM, null, null);
+        if (ditem == null) ditem = new Item(DELETED_ITEM, null, null, null);
 
         Application.getCommonsCache().putx(ckey, ditem);
         return DELETED_ITEM.equals(ditem.Name) ? null : ditem;
@@ -163,7 +181,7 @@ public class ClassificationManager implements ConfigManager {
     public void clean(Object cid) {
         ID id2 = (ID) cid;
         if (id2.getEntityCode() == EntityHelper.ClassificationData) {
-            Application.getCommonsCache().evict("ClassificationITEM31-" + cid);
+            Application.getCommonsCache().evict("ClassificationITEM38-" + cid);
         } else if (id2.getEntityCode() == EntityHelper.Classification) {
             Application.getCommonsCache().evict("ClassificationLEVEL-" + cid);
         }
@@ -172,14 +190,16 @@ public class ClassificationManager implements ConfigManager {
     // Bean
     static class Item implements Serializable {
         private static final long serialVersionUID = -1903227875771376652L;
-        Item(String name, String fullName, String code) {
+        Item(String name, String fullName, String code, String color) {
             this.Name = name;
             this.FullName = fullName;
             this.Code = code;
+            this.Color = color;
         }
 
         final String Name;
         final String FullName;
         final String Code;
+        final String Color;
     }
 }

@@ -16,6 +16,7 @@ import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.OperatingObserver;
 import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.trigger.impl.FieldAggregation;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
@@ -47,6 +48,9 @@ public class RobotTriggerObserver extends OperatingObserver {
     private static final ThreadLocal<List<Object>> LAZY_TRIGGERS_CTX = new NamedThreadLocal<>("Lazy triggers ctx");
 
     private static final ThreadLocal<String> ALLOW_TRIGGERS_ONAPPROVED = new NamedThreadLocal<>("Allow triggers on approve-node");
+
+    // 少量触发器日志
+    public static final boolean _TriggerLessLog = CommandArgs.getBoolean(CommandArgs._TriggerLessLog);
 
     @Override
     public int getOrder() {
@@ -191,7 +195,7 @@ public class RobotTriggerObserver extends OperatingObserver {
 
                 final int t = triggerSource.incrTriggerTimes();
                 final String w = String.format("Trigger.%s.%d [ %s ] executing on record (%s) : %s", sourceId, t, action, when, primaryId);
-                log.info(w);
+                if (!_TriggerLessLog) log.info(w);
 
                 try {
                     Object res = action.execute(context);
@@ -247,7 +251,7 @@ public class RobotTriggerObserver extends OperatingObserver {
 
         } finally {
             if (originTriggerSource) {
-                log.info("Clear trigger-source : {}", getTriggerSource());
+                if (!_TriggerLessLog) log.info("Clear trigger-source : {}", getTriggerSource());
                 TRIGGER_SOURCE.remove();
             }
         }
@@ -296,7 +300,7 @@ public class RobotTriggerObserver extends OperatingObserver {
         if (ctx == null) return 0;
         LAZY_TRIGGERS_CTX.remove();
 
-        log.info("Will execute lazy triggers : {}", ctx);
+        if (!_TriggerLessLog) log.info("Will execute lazy triggers : {}", ctx);
         RobotTriggerObserver observer = new RobotTriggerObserver();
         for (Object context : ctx) {
             observer.update(o, context);

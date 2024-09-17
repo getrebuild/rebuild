@@ -18,9 +18,11 @@ import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.admin.ConfigurationController;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,12 +55,21 @@ public class NotificationController extends BaseController {
 
     @GetMapping("/notification/check-state")
     public JSON checkMessage(HttpServletRequest request) {
-        int unread = Application.getNotifications().getUnreadMessage(getRequestUser(request));
+        final ID user = getRequestUser(request);
+        int unread = Application.getNotifications().getUnreadMessage(user);
         JSONObject state = JSONUtils.toJSONObject("unread", unread);
 
         JSON mm = buildMM();
         if (mm != null) state.put("mm", mm);
 
+        // v3.8
+        String h5referer = getParameter(request, "h5referer");
+        if (StringUtils.isNotBlank(h5referer)) {
+            String authToken = request.getHeader(AppUtils.HF_AUTHTOKEN);
+            if (authToken != null) {
+                Application.getSessionStore().storeH5LastActive(authToken, user, h5referer, request);
+            }
+        }
         return state;
     }
 
@@ -172,10 +183,11 @@ public class NotificationController extends BaseController {
         if (mm == null) return null;
 
         long time = (mm.getStartTime().getTime() - CalendarUtils.now().getTime()) / 1000;
-        String note = mm.getNote() == null ? "" : String.format(" (%s)", mm.getNote());
+        String note = mm.getNote();
+        if (StringUtils.isBlank(note)) note = Language.L("维护期间系统将无法使用，请及时保存数据！");
         DateFormat df = CalendarUtils.getDateFormat("yyyy-MM-dd HH:mm");
-        String msg = Language.L("系统将于 %s (%d 分钟后) 进行维护%s，预计 %s 完成。[]维护期间系统无法使用，请及时保存数据。如有重要操作正在进行，请联系系统管理员调整维护时间。",
-                df.format(mm.getStartTime()), Math.max(time / 60, 1), note, df.format(mm.getEndTime()));
+        String msg = Language.L("系统将于 %s (%d 分钟后) 进行维护，预计 %s 完成。[]%s",
+                df.format(mm.getStartTime()), Math.max(time / 60, 1), df.format(mm.getEndTime()), note);
 
         return JSONUtils.toJSONObject(new String[] { "msg", "time" }, new Object[] { msg, time });
     }

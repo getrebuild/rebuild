@@ -28,7 +28,6 @@ import com.rebuild.core.metadata.easymeta.EasyDateTime;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.MultiValue;
-import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
@@ -36,6 +35,7 @@ import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.core.service.trigger.TriggerResult;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
@@ -50,7 +50,6 @@ import org.apache.commons.lang.StringUtils;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -60,6 +59,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 字段更新，场景 1>1 1>N
@@ -71,6 +71,8 @@ import java.util.Set;
  */
 @Slf4j
 public class FieldWriteback extends FieldAggregation {
+
+    private static final ReentrantLock LOCK = new ReentrantLock();
 
     private FieldWritebackRefresh fieldWritebackRefresh;
 
@@ -109,6 +111,26 @@ public class FieldWriteback extends FieldAggregation {
 
     @Override
     public Object execute(OperatingContext operatingContext) throws TriggerException {
+        boolean lockMode38 = ((JSONObject) actionContext.getActionContent()).getBooleanValue("lockMode");
+        if (lockMode38) {
+            long s = System.currentTimeMillis();
+            log.info("Lock resources for {}", actionContext.getConfigId());
+            LOCK.lock();
+
+            s = System.currentTimeMillis() - s;
+            if (s > 1000) log.warn("Lock acquired use {}ms. {}", s, actionContext.getConfigId());
+
+            try {
+                return this.execute38(operatingContext);
+            } finally {
+                LOCK.unlock();
+            }
+        } else {
+            return this.execute38(operatingContext);
+        }
+    }
+
+    private Object execute38(OperatingContext operatingContext) throws TriggerException {
         final String chainName = String.format("%s:%s:%s", actionContext.getConfigId(),
                 operatingContext.getFixedRecordId(), operatingContext.getAction().getName());
         final List<String> tschain = checkTriggerChain(chainName);
@@ -122,7 +144,7 @@ public class FieldWriteback extends FieldAggregation {
         }
 
         if (targetRecordData.isEmpty()) {
-            log.info("No data of target record : {}", targetRecordIds);
+            if (!RobotTriggerObserver._TriggerLessLog) log.info("No data of target record : {}", targetRecordIds);
             return TriggerResult.targetEmpty();
         }
 
@@ -148,20 +170,25 @@ public class FieldWriteback extends FieldAggregation {
             Record targetRecord = targetRecordData.clone();
             targetRecord.setID(targetEntity.getPrimaryField().getName(), targetRecordId);
             targetRecord.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
+            targetRecord.setID(EntityHelper.ModifiedBy, UserService.SYSTEM_USER);
 
             // 相等则不更新
             if (isCurrentSame(targetRecord)) {
-                log.info("Ignore execution because the record are same : {}", targetRecordId);
+                if (!RobotTriggerObserver._TriggerLessLog) log.info("Ignore execution because the record are same : {}", targetRecordId);
                 targetSame = true;
                 continue;
             }
 
             // 跳过权限
-            PrivilegesGuardContextHolder.setSkipGuard(targetRecordId);
+            GeneralEntityServiceContextHolder.setSkipGuard(targetRecordId);
 
             // 强制更新 (v2.9)
             if (forceUpdate) {
                 GeneralEntityServiceContextHolder.setAllowForceUpdate(targetRecordId);
+            }
+            // 快速模式 (v3.8)
+            if (stopPropagation) {
+                GeneralEntityServiceContextHolder.setQuickMode();
             }
 
             // 重复检查模式
@@ -173,16 +200,13 @@ public class FieldWriteback extends FieldAggregation {
             if (CommonsUtils.DEVLOG) System.out.println("[dev] Use current-loop tschain : " + tschainCurrentLoop);
 
             try {
-                if (stopPropagation) {
-                    Application.getCommonsService().update(targetRecord, false);
-                } else {
-                    Application.getBestService(targetEntity).createOrUpdate(targetRecord);
-                }
+                Application.getBestService(targetEntity).createOrUpdate(targetRecord);
                 affected.add(targetRecord.getPrimary());
 
             } finally {
-                PrivilegesGuardContextHolder.getSkipGuardOnce();
+                GeneralEntityServiceContextHolder.isSkipGuardOnce();
                 if (forceUpdate) GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+                if (stopPropagation) GeneralEntityServiceContextHolder.isQuickMode(true);
                 GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
             }
         }
@@ -208,7 +232,7 @@ public class FieldWriteback extends FieldAggregation {
         // v35
         if (TARGET_ANY.equals(targetFieldEntity[0])) {
             TargetWithMatchFields targetWithMatchFields = new TargetWithMatchFields();
-            ID[] ids = targetWithMatchFields.matchMulti(actionContext);
+            ID[] ids = targetWithMatchFields.matchMultiple(actionContext);
             CollectionUtils.addAll(targetRecordIds, ids);
         }
         // 自己更新自己
@@ -545,19 +569,16 @@ public class FieldWriteback extends FieldAggregation {
 
             // v3.7 增强兼容
             Object[] ids;
-            if (value instanceof Collection) {
-                //noinspection unchecked
-                ids = ((Collection<Object>) value).toArray(new Object[0]);
-            } else if (value instanceof Object[]) {
-                ids = (Object[]) value;
-            } else {
-                ids = value.toString().split(",");
-            }
+            if (value instanceof String) ids = value.toString().split(",");
+            else ids = CommonsUtils.toArray(value);
 
             Set<ID> idsSet = new LinkedHashSet<>();
             for (Object id : ids) {
-                id = id.toString().trim();
-                if (ID.isId(id)) idsSet.add(ID.valueOf(id.toString()));
+                if (id instanceof ID) idsSet.add((ID) id);
+                else {
+                    id = id.toString().trim();
+                    if (ID.isId(id)) idsSet.add(ID.valueOf(id.toString()));
+                }
             }
             // v3.5.5: 目标值为多引用时保持 `ID[]`
             newValue = idsSet.toArray(new ID[0]);

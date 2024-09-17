@@ -13,8 +13,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.dashboard.charts.ChartData;
 import com.rebuild.core.service.notification.MessageBuilder;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -50,28 +54,32 @@ public class FeedsSchedule extends ChartData implements BuiltinChart {
     @Override
     public JSON build() {
         Object[][] array = Application.createQueryNoFilter(
-                "select feedsId,scheduleTime,content,contentMore from Feeds" +
+                "select feedsId,scheduleTime,content,contentMore,relatedRecord from Feeds" +
                         " where createdBy = ? and type = 4 and scheduleTime > ? order by scheduleTime")
                 .setParameter(1, getUser())
                 .setParameter(2, CalendarUtils.addDay(-30))  // 忽略30天前的
                 .setLimit(200)
                 .array();
 
+        final EasyField relatedRecordMeta = EasyMetaFactory.valueOf(
+                MetadataHelper.getField("Feeds", "relatedRecord"));
+
         JSONArray list = new JSONArray();
         for (Object[] o : array) {
             // 有完成时间表示已完成
             JSONObject state = JSON.parseObject((String) o[3]);
-            if (state.getString("finishTime") != null) {
-                continue;
-            }
+            if (state.getString("finishTime") != null) continue;
 
             String scheduleTime = I18nUtils.formatDate((Date) o[1]);
             String content = (String) o[2];
             content = MessageBuilder.formatMessage(content);
 
+            Object relatedRecord = o[4] == null
+                    ? null : FieldValueHelper.wrapFieldValue(o[4], relatedRecordMeta);
+
             JSONObject item = JSONUtils.toJSONObject(
-                    new String[]{"id", "scheduleTime", "content"},
-                    new Object[]{o[0], scheduleTime, content});
+                    new String[]{"id", "scheduleTime", "content", "relatedRecord"},
+                    new Object[]{o[0], scheduleTime, content, relatedRecord});
             list.add(item);
         }
 

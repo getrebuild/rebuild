@@ -87,28 +87,28 @@ public class ReportsController extends BaseController {
 
     @RequestMapping({"report/generate", "report/export"})
     public ModelAndView reportGenerate(@PathVariable String entity,
-                               @IdParam(name = "report") ID reportId,
-                               HttpServletRequest request, HttpServletResponse response) throws IOException {
+                                       @IdParam(name = "report") ID reportId,
+                                       HttpServletRequest request, HttpServletResponse response) throws IOException {
         final ID[] recordIds = getIdArrayParameterNotNull(request, "record");
         final ID recordId = recordIds[0];
-        final TemplateFile tt = DataReportManager.instance.getTemplateFile(reportId);
+        final TemplateFile tt = DataReportManager.instance.buildTemplateFile(reportId);
 
         File output = null;
         try {
+            EasyExcelGenerator reportGenerator;
             if (tt.type == DataReportManager.TYPE_WORD) {
-                EasyExcelGenerator33 word = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
+                reportGenerator = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
                         "com.rebuild.rbv.data.WordReportGenerator#create", reportId, recordId);
-                output = word.generate();
-
             } else if (tt.type == DataReportManager.TYPE_HTML5) {
-                EasyExcelGenerator33 html5 = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
-                        "com.rebuild.rbv.data.Html5ReportGenerator#create", reportId, recordId);
-                output = html5.generate();
-
+                // HTML5 支持多个
+                reportGenerator = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
+                        "com.rebuild.rbv.data.Html5ReportGenerator#create", reportId, recordIds);
             } else {
                 // EXCEL 支持多个
-                output = EasyExcelGenerator.create(reportId, Arrays.asList(recordIds)).generate();
+                reportGenerator = EasyExcelGenerator.create(reportId, Arrays.asList(recordIds));
             }
+
+            if (reportGenerator != null) output = reportGenerator.generate();
 
         } catch (ExcelRuntimeException ex) {
             log.error(null, ex);
@@ -116,16 +116,17 @@ public class ReportsController extends BaseController {
 
         RbAssert.is(output != null, Language.L("无法输出报表，请检查报表模板是否有误"));
 
-        String fileName = DataReportManager.getReportName(reportId, recordId, output.getName());
+        String typeOutput = getParameter(request, "output");
+        boolean isHtml = "HTML".equalsIgnoreCase(typeOutput);
+        boolean isPdf = "PDF".equalsIgnoreCase(typeOutput);
+        String fileName = DataReportManager.getPrettyReportName(reportId, recordId, output.getName());
 
         // v3.6
         if (tt.type == DataReportManager.TYPE_HTML5) {
+            // TODO PDF
             return ReportTemplateController.buildHtml5ModelAndView(output, fileName);
         }
 
-        final String typeOutput = getParameter(request, "output");
-        final boolean isHtml = "HTML".equalsIgnoreCase(typeOutput);
-        final boolean isPdf = "PDF".equalsIgnoreCase(typeOutput);
         if (isPdf || isOnlyPdf(entity, reportId)) {
             output = PdfConverter.convertPdf(output.toPath()).toFile();
             fileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".pdf";
@@ -137,13 +138,7 @@ public class ReportsController extends BaseController {
         if (ServletUtils.isAjaxRequest(request)) {
             JSONObject data = JSONUtils.toJSONObject(
                     new String[] { "fileKey", "fileName" }, new Object[] { output.getName(), fileName });
-
-            if (AppUtils.isMobile(request)) {
-                String fileUrl = String.format(
-                        "/filex/download/%s?temp=yes&_csrfToken=%s&attname=%s",
-                        CodecUtils.urlEncode(output.getName()), AuthTokenManager.generateCsrfToken(90), CodecUtils.urlEncode(fileName));
-                data.put("fileUrl", fileUrl);
-            }
+            if (AppUtils.isMobile(request)) putFileUrl(data);
             writeSuccess(response, data);
 
         } else if ("preview".equalsIgnoreCase(typeOutput)) {
@@ -210,14 +205,16 @@ public class ReportsController extends BaseController {
                         CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()),
                         FileUtil.getSuffix(output));
             } else {
-                fileName = DataReportManager.getReportName(useReport, entity, output.getName());
+                fileName = DataReportManager.getPrettyReportName(useReport, entity, output.getName());
             }
 
             CommonsLog.createLog(CommonsLog.TYPE_EXPORT, user, null,
                     String.format("%s:%d", entity, exporter.getExportCount()));
 
-            JSON data = JSONUtils.toJSONObject(
+            JSONObject data = JSONUtils.toJSONObject(
                     new String[] { "fileKey", "fileName" }, new Object[] { output.getName(), fileName });
+            if (AppUtils.isMobile(request)) putFileUrl(data);
+
             return RespBody.ok(data);
 
         } catch (Exception ex) {
@@ -234,5 +231,13 @@ public class ReportsController extends BaseController {
             }
         }
         return false;
+    }
+
+    private void putFileUrl(JSONObject data) {
+        String fileUrl = String.format("/filex/download/%s?temp=yes&_csrfToken=%s&attname=%s",
+                CodecUtils.urlEncode(data.getString("fileKey")),
+                AuthTokenManager.generateCsrfToken(90),
+                CodecUtils.urlEncode(data.getString("fileName")));
+        data.put("fileUrl", fileUrl);
     }
 }

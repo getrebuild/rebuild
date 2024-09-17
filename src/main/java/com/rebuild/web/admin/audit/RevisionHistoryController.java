@@ -68,6 +68,7 @@ public class RevisionHistoryController extends EntityController {
         Object[][] array = Application.createQueryNoFilter(
                 "select revisionContent,revisionType,revisionOn,revisionBy.fullName from RevisionHistory where recordId = ? order by autoId desc")
                 .setParameter(1, o[0])
+                .setLimit(500)
                 .array();
 
         List<Object> list = new ArrayList<>();

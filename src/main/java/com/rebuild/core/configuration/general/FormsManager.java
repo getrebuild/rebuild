@@ -35,16 +35,16 @@ public class FormsManager extends BaseLayoutManager {
     protected FormsManager() {}
 
     // 表单布局适用于
-    public static int APPLY_ONNEW = 1;
-    public static int APPLY_ONEDIT = 2;
-    public static int APPLY_ONVIEW = 4;
+    public static int APPLY_NEW = 1;
+    public static int APPLY_EDIT = 2;
+    public static int APPLY_VIEW = 4;
 
     /**
      * @param entity
      * @return
      */
     public ConfigBean getNewFormLayout(String entity) {
-        return getFormLayout(entity, null, APPLY_ONNEW);
+        return getFormLayout(entity, null, APPLY_NEW);
     }
 
     /**
@@ -62,26 +62,21 @@ public class FormsManager extends BaseLayoutManager {
 
         // 1.指定布局
         if (recordOrLayoutId != null && recordOrLayoutId.getEntityCode() == EntityHelper.LayoutConfig) {
-            for (Object[] o : alls) {
-                if (recordOrLayoutId.equals(o[0])) {
-                    use = findConfigBean(alls, (ID) o[0]);;
-                    break;
-                }
-            }
-
+            use = findConfigBean(alls, recordOrLayoutId);
             if (use == null) {
                 log.warn("Spec layout not longer exists : {}", recordOrLayoutId);
                 recordOrLayoutId = null;
             }
         }
 
-        // 2.使用布局
+        // 2.查找布局
         if (use == null) {
+            // 优先使用条件匹配的
             for (Object[] o : alls) {
                 ConfigBean cb = findConfigBean(alls, (ID) o[0]);
                 ShareToAttr attr = new ShareToAttr(cb);
                 if (recordOrLayoutId == null) {
-                    if (attr.isFallback()) {
+                    if (attr.isFallback() || attr.isForNew()) {
                         use = cb;
                         break;
                     }
@@ -92,9 +87,14 @@ public class FormsManager extends BaseLayoutManager {
                     }
                 }
             }
+
+            // 默认优先级
+            if (recordOrLayoutId == null) {
+                use = findDefault(alls);
+            }
         }
 
-        // 3.默认布局（fallback）
+        // 3.默认布局
         if (use == null && recordOrLayoutId != null) {
             for (Object[] o : alls) {
                 ConfigBean cb = findConfigBean(alls, (ID) o[0]);
@@ -121,6 +121,16 @@ public class FormsManager extends BaseLayoutManager {
                 .set("elements", JSONUtils.EMPTY_ARRAY);
     }
 
+    // 默认优先级布局
+    private ConfigBean findDefault(Object[][] alls) {
+        for (Object[] o : alls) {
+            ConfigBean cb = findConfigBean(alls, (ID) o[0]);
+            ShareToAttr attr = new ShareToAttr(cb);
+            if (attr.isFallback() && attr.isForNew()) return cb;
+        }
+        return null;
+    }
+
     // -- ADMIN
 
     /**
@@ -130,6 +140,14 @@ public class FormsManager extends BaseLayoutManager {
      */
     public ConfigBean getFormLayout(ID formConfigId, String entity) {
         final Object[][] alls = getAllConfig(entity, TYPE_FORM);
+
+        // 高优先级
+        if (formConfigId == null) {
+            ConfigBean best = findDefault(alls);
+            if (best != null) return best;
+        }
+
+        // 次优先级
         for (Object[] o : alls) {
             if (formConfigId == null) {
                 return findConfigBean(alls, (ID) o[0]);
@@ -148,12 +166,26 @@ public class FormsManager extends BaseLayoutManager {
      * @return
      */
     public List<ConfigBean> getAllFormsAttr(String entity) {
+        return getAllFormsAttr(entity, false);
+    }
+
+    /**
+     * @param entity
+     * @param forNew 仅新建布局
+     * @return
+     */
+    public List<ConfigBean> getAllFormsAttr(String entity, boolean forNew) {
         final Object[][] alls = getAllConfig(entity, TYPE_FORM);
 
         List<ConfigBean> flist = new ArrayList<>();
         for (Object[] o : alls) {
             ConfigBean cb = findConfigBean(alls, (ID) o[0]).remove("config");
-            flist.add(cb.remove("elements"));
+            cb.remove("elements");
+            if (forNew) {
+                if (new ShareToAttr(cb).isForNew()) flist.add(cb.remove("shareTo"));
+            } else {
+                flist.add(cb);
+            }
         }
 
         // A-Z
@@ -194,6 +226,7 @@ public class FormsManager extends BaseLayoutManager {
     static class ShareToAttr {
 
         private final JSONObject attrs;
+        private final boolean sysDefault;
         protected ShareToAttr(ConfigBean cb) {
             Object s = cb.getObject("shareTo");
             if (s instanceof JSON) {
@@ -202,11 +235,17 @@ public class FormsManager extends BaseLayoutManager {
                 // shareTo=ALL
                 this.attrs = JSONUtils.toJSONObject("fallback", true);
             }
+            this.sysDefault = cb.getString("name") == null;  // 系统默认的
         }
 
         // 默认
         boolean isFallback() {
-            return this.attrs.getBooleanValue("fallback");
+            return this.sysDefault || this.attrs.getBooleanValue("fallback");
+        }
+
+        // 新建
+        boolean isForNew() {
+            return this.sysDefault || this.attrs.getBooleanValue("fornew");
         }
 
         // 符合使用条件

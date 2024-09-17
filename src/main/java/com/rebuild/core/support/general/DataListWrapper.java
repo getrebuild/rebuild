@@ -16,7 +16,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -31,6 +33,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,6 +58,8 @@ public class DataListWrapper {
     protected boolean useDesensitized = false;
 
     private boolean mixWrapper = true;
+
+    private Map<ID, Object> cacheRefValue = new HashMap<>();
 
     /**
      * @param total
@@ -111,6 +116,10 @@ public class DataListWrapper {
 
             Object nameValue = null;
             for (int colIndex = 0; colIndex < selectFieldsLen; colIndex++) {
+                if (!checkHasFieldPrivileges(selectFields[colIndex])) {
+                    row[colIndex] = FieldValueHelper.NO_READ_PRIVILEGES;
+                    continue;
+                }
                 if (!checkHasJoinFieldPrivileges(selectFields[colIndex], raw)) {
                     row[colIndex] = FieldValueHelper.NO_READ_PRIVILEGES;
                     continue;
@@ -169,6 +178,11 @@ public class DataListWrapper {
 
         final DisplayType dt = easyField.getDisplayType();
         final Object originValue = value;
+        final boolean isCacheRefValue = dt == DisplayType.REFERENCE && value instanceof ID;
+
+        if (isCacheRefValue) {
+            if (cacheRefValue.containsKey((ID) value)) return cacheRefValue.get(value);
+        }
 
         boolean unpack = dt == DisplayType.CLASSIFICATION || dt == DisplayType.PICKLIST
                 || dt == DisplayType.STATE || dt == DisplayType.BOOL;
@@ -232,9 +246,17 @@ public class DataListWrapper {
                             new String[]{ "name", "color" }, new Object[]{ name, colorNames.get(name) }));
                 }
                 value = colorValue;
+
+            } else  if (easyField.getDisplayType() == DisplayType.CLASSIFICATION) {
+                String color = ClassificationManager.instance.getColor((ID) originValue);
+                if (StringUtils.isNotBlank(color)) {
+                    value = JSONUtils.toJSONObject(
+                            new String[]{ "text", "color" }, new Object[]{ value, color });
+                }
             }
         }
 
+        if (isCacheRefValue) cacheRefValue.put((ID) originValue, value);
         return value;
     }
 
@@ -251,6 +273,7 @@ public class DataListWrapper {
      * @param field
      * @param original
      * @return
+     * @see #checkHasFieldPrivileges(SelectItem)
      */
     protected boolean checkHasJoinFieldPrivileges(SelectItem field, Object[] original) {
         if (this.queryJoinFields == null || UserHelper.isAdmin(user)) {
@@ -265,6 +288,15 @@ public class DataListWrapper {
         int fieldIndex = queryJoinFields.get(fieldPath[0]);
         Object check = original[fieldIndex];
         return check == null || Application.getPrivilegesManager().allowRead(user, (ID) check);
+    }
+
+    /**
+     * @param field
+     * @return
+     */
+    protected boolean checkHasFieldPrivileges(SelectItem field) {
+        ID u = user == null ? UserContextHolder.getUser() : user;
+        return Application.getPrivilegesManager().getFieldPrivileges().isReadble(field.getField(), u);
     }
 
     /**

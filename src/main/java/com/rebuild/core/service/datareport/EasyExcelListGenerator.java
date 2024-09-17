@@ -61,9 +61,7 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
 
         for (Map.Entry<String, String> e : varsMap.entrySet()) {
             String varName = e.getKey();
-            if (varName.startsWith(NROW_PREFIX + PLACEHOLDER)) {
-                continue;
-            }
+            if (varName.startsWith(NROW_PREFIX + PLACEHOLDER)) continue;
 
             String validField = e.getValue();
             if (validField != null && e.getKey().startsWith(NROW_PREFIX)) {
@@ -113,9 +111,9 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
      * @return
      */
     public static EasyExcelListGenerator create(ID reportId, JSONObject queryData) {
-        TemplateFile tb = DataReportManager.instance.getTemplateFile(
-                MetadataHelper.getEntity(queryData.getString("entity")), reportId);
-        return create(tb.templateFile, queryData);
+        TemplateFile tt = DataReportManager.instance.buildTemplateFile(
+                reportId, MetadataHelper.getEntity(queryData.getString("entity")));
+        return create(tt.templateFile, queryData);
     }
 
     /**

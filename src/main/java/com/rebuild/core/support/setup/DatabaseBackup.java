@@ -9,6 +9,7 @@ package com.rebuild.core.support.setup;
 
 import cn.devezhao.commons.CalendarUtils;
 import com.rebuild.core.BootEnvironmentPostProcessor;
+import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.CommandUtils;
 import com.rebuild.utils.CompressUtils;
@@ -70,12 +71,13 @@ public class DatabaseBackup {
         String destName = "backup_database." + CalendarUtils.getPlainDateTimeFormat().format(CalendarUtils.now());
         File dest = new File(backups, destName);
 
+        String mysqldump = RebuildConfiguration.get(ConfigurationItem.MysqldumpBin);
+        if (StringUtils.isBlank(mysqldump)) mysqldump = SystemUtils.IS_OS_WINDOWS ? "mysqldump.exe" : "mysqldump";
         // https://blog.csdn.net/liaowenxiong/article/details/120587358
         // --master-data --flush-logs
         String cmd = String.format(
-                "%s -u%s -p\"%s\" -h%s -P%s --default-character-set=utf8 --opt --extended-insert=true --triggers --hex-blob --single-transaction -R %s>%s",
-                SystemUtils.IS_OS_WINDOWS ? "mysqldump.exe" : "mysqldump",
-                user, passwd, host, port, dbname, dest.getAbsolutePath());
+                "%s -u%s -p\"%s\" -h%s -P%s --default-character-set=utf8 --opt --extended-insert=true --triggers --hex-blob --single-transaction -R %s>\"%s\"",
+                mysqldump, user, passwd, host, port, dbname, dest.getAbsolutePath());
 
         if (ignoreTables != null) {
             String igPrefix = " --ignore-table=" + dbname + ".";
@@ -83,7 +85,7 @@ public class DatabaseBackup {
             cmd = cmd.replaceFirst(" -R ", " -R" + ig + " ");
         }
 
-        String echo = CommandUtils.execFor(cmd);
+        String echo = CommandUtils.execFor(cmd, true);
         boolean isGotError = echo.contains("Got error");
         if (isGotError) throw new RuntimeException(echo);
 

@@ -604,10 +604,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .feed-options {
   margin-top: 10px;
-  border-radius: 2px;
+  border-radius: 3px;
   padding-top: 18px;
   padding-right: 10px;
-  border: 1px solid #eee;
+  border: 1px solid #f5f5f5;
+  background-color: #f5f5f5;
 }
 
 .feed-options dt {
@@ -628,7 +629,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .feed-options + .feed-options {
   margin-top: -20px;
   border-top: 0 none;
-  background-color: #fff;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
@@ -644,7 +644,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .rich-content > .appends span {
-  color: #666;
+  color: #777;
 }
 
 .rich-content > .appends span.badge {

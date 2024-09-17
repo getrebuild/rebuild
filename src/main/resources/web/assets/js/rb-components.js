@@ -225,15 +225,8 @@ class RbFormHandler extends RbModalHandler {
   }
 
   componentWillUnmount() {
-    // destroy select2
     if (this.__select2) {
-      if (Array.isArray(this.__select2)) {
-        this.__select2.forEach(function (s) {
-          s.select2('destroy')
-        })
-      } else {
-        this.__select2.select2('destroy')
-      }
+      __destroySelect2(this.__select2)
       this.__select2 = null
     }
   }
@@ -254,12 +247,15 @@ class RbAlert extends React.Component {
   }
 
   render() {
+    const style1 = {}
     const style2 = {}
+    if (this.props.zIndex) style1.zIndex = this.props.zIndex
     if (this.props.width) style2.maxWidth = ~~this.props.width
 
     return (
       <div
         className="modal rbalert"
+        style={style1}
         ref={(c) => {
           this._dlg = c
           this._element = c
@@ -330,6 +326,13 @@ class RbAlert extends React.Component {
 
     if (this.props.countdown > 0) {
       $countdownButton($(this._$btn), this.props.countdown)
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.__select2) {
+      __destroySelect2(this.__select2)
+      this.__select2 = null
     }
   }
 
@@ -418,6 +421,12 @@ class RbHighbar extends React.Component {
   close = () => {
     this.setState({ animatedClass: 'fadeOut' })
     setTimeout(() => $unmount($(this._element).parent(), 20), 200)
+    setTimeout(() => {
+      $('.rbhighbar').each(function () {
+        const top = ~~($(this).css('top') || '0').replace('px', '')
+        if (top >= 62) $(this).animate({ top: top - 62 }, 100)
+      })
+    }, 100)
   }
 
   // -- Usage
@@ -881,7 +890,7 @@ class AnyRecordSelector extends React.Component {
       .select2({
         placeholder: `${$L('选择记录')}`,
         minimumInputLength: 0,
-        maximumSelectionLength: 1,
+        maximumSelectionLength: 2,
         ajax: {
           url: '/commons/search/search',
           delay: 300,
@@ -911,6 +920,18 @@ class AnyRecordSelector extends React.Component {
           maximumSelected: () => {
             return $L('只能选择 1 项')
           },
+        },
+        templateResult: function (res) {
+          const $span = $('<span class="code-append"></span>').attr('title', res.text).text(res.text)
+          if (res.id) {
+            $(`<a title="${$L('在新页面打开')}"><i class="zmdi zmdi-open-in-new"></i></a>`)
+              .appendTo($span)
+              .on('mousedown', (e) => {
+                $stopEvent(e, true)
+                window.open(`${rb.baseUrl}/app/redirect?id=${res.id}&type=newtab`)
+              })
+          }
+          return $span
         },
       })
       .on('change', (e) => {
@@ -1165,11 +1186,10 @@ class RbGritter extends React.Component {
     )
   }
 
-  _addItem(message, options) {
-    const itemid = `gritter-item-${$random()}`
-
-    const type = options.type || 'success'
-    const icon = options.icon || (type === 'success' ? 'check' : type === 'danger' ? 'close-circle-o' : 'info-outline')
+  _addItem(message, option) {
+    const itemid = `gritter-item-${option.id || $random()}`
+    const type = option.type || 'success'
+    const icon = option.icon || (type === 'success' ? 'check' : type === 'danger' ? 'close-circle-o' : 'info-outline')
 
     const item = (
       <div key={itemid} id={itemid} className={`gritter-item-wrapper color ${type} animated faster fadeInRight`}>
@@ -1185,11 +1205,11 @@ class RbGritter extends React.Component {
               onClick={(e) => {
                 $stopEvent(e, true)
                 this._removeItem(itemid)
-                typeof options.onCancel === 'function' && options.onCancel()
+                typeof option.onCancel === 'function' && option.onCancel()
               }}
               title={$L('关闭')}
             />
-            {options.title && <span className="gritter-title">{options.title}</span>}
+            {option.title && <span className="gritter-title">{option.title}</span>}
             <p>{message}</p>
           </div>
         </div>
@@ -1199,7 +1219,7 @@ class RbGritter extends React.Component {
     const itemsNew = this.state.items || []
     itemsNew.push(item)
     this.setState({ items: itemsNew }, () => {
-      setTimeout(() => this._removeItem(itemid), options.timeout || 6000)
+      setTimeout(() => this._removeItem(itemid), option.timeout || 6000)
     })
   }
 
@@ -1208,37 +1228,34 @@ class RbGritter extends React.Component {
     this.setState({ items: itemsNew })
   }
 
-  destory() {
-    this.setState({ items: [] }, () => {
-      $('#gritter-notice-wrapper').remove()
-    })
-  }
-
   // -- Usage
   /**
    * @param {*} message
-   * @param {*} options
+   * @param {*} option
    */
-  static create(message, options = {}) {
+  static create(message, option = {}) {
     if (top !== self && parent.RbGritter) {
-      parent.RbGritter.create(message, options)
+      parent.RbGritter.create(message, option)
     } else {
       if (this._RbGritter) {
-        this._RbGritter._addItem(message, options)
+        this._RbGritter._addItem(message, option)
       } else {
         const that = this
         renderRbcomp(<RbGritter />, function () {
           that._RbGritter = this
-          that._RbGritter._addItem(message, options)
+          that._RbGritter._addItem(message, option)
         })
       }
     }
   }
 
-  static destory() {
+  /**
+   * @param {*} id
+   */
+  static remove(id) {
     if (this._RbGritter) {
-      this._RbGritter.destory()
-      this._RbGritter = null
+      if (id) id = 'gritter-item-' + id
+      this._RbGritter._removeItem(id)
     }
   }
 }
@@ -1248,7 +1265,7 @@ class CodeViewport extends React.Component {
   render() {
     return (
       <div className="code-viewport">
-        <pre ref={(c) => (this._$code = c)}>Loading</pre>
+        <pre ref={(c) => (this._$code = c)}>LOADING</pre>
         {window.ClipboardJS && (
           <a className="copy" title={$L('复制')} ref={(c) => (this._$copy = c)}>
             <i className="icon zmdi zmdi-copy" />
@@ -1416,4 +1433,15 @@ const renderDlgcomp = function (JSX, id) {
 // for: React v18
 const renderRbcomp18 = function (JSX, container) {
   return renderRbcomp(JSX, container, null, true)
+}
+
+// destroy select2
+function __destroySelect2(__select2) {
+  if (__select2) {
+    if (Array.isArray(__select2)) {
+      __select2.forEach((s) => s.select2('destroy'))
+    } else {
+      __select2.select2('destroy')
+    }
+  }
 }

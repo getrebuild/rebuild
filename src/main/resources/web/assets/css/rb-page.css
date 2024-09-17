@@ -33,16 +33,6 @@ html.commercial .rbv {
   display: none !important;
 }
 
-html.mourning-mode {
-  -webkit-filter: grayscale(100%);
-  -moz-filter: grayscale(100%);
-  -ms-filter: gray(100%);
-  -o-filter: grayscale(100%);
-  filter: grayscale(100%);
-  filter: gray;
-  filter: progid:DXImageTransform.Microsoft.BasicImage(grayscale=1);
-}
-
 .dev-show {
   display: none;
 }
@@ -308,7 +298,7 @@ a.link.inline {
 .btn-group.w-auto > .btn,
 .btn.w-auto,
 .nav-link.w-auto {
-  min-width: 36px !important;
+  min-width: 34px !important;
 }
 
 .btn.w-auto {
@@ -888,6 +878,7 @@ body.view-body {
 
 .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
   max-width: 100%;
+  min-width: 21px;
 }
 
 .select2-container--default.select2-container--focus .select2-selection.select2-selection--multiple {
@@ -983,12 +974,6 @@ a.link.link-icon::after {
   text-align: right;
   flex-shrink: 0;
 }
-
-/* @media (min-width: 1064px) {
-  .form-layout > .row .form-group.col-sm-3 > .col-form-label {
-    width: 100px;
-  }
-} */
 
 .form-layout > .row .form-group > .col-form-control {
   flex: 1;
@@ -1421,7 +1406,7 @@ a.link.link-icon::after {
   color: #878787;
   line-height: 1.41;
   margin-top: 6px;
-  margin-bottom: -5px;
+  margin-bottom: -3px;
 }
 
 .rbform .type-IMAGE .form-text,
@@ -1505,8 +1490,9 @@ a.link.link-icon::after {
   min-width: 100%;
 }
 
-.rblist-scroller > div {
-  overflow: hidden;
+.rb-datatable-body .rb-scroller .ps-scrollbar-x-rail,
+.rb-datatable-body .rb-scroller .ps-scrollbar-y-rail {
+  z-index: 2;
 }
 
 .list-nodata {
@@ -1598,17 +1584,23 @@ a.link.link-icon::after {
 .data-list .table thead th > div > i {
   position: absolute;
   height: 18px;
-  top: -1.5px;
+  top: -1px;
   right: -10px;
 }
 
 .data-list .table thead th > div > i.dividing {
   width: 10px;
-  border-right: 2px dotted #aaa;
+  border-right: 1px solid #ddd;
   cursor: col-resize;
 }
 
+.data-list .table thead th > div > i.dividing:hover,
+.data-list .table thead th > div > i.dividing:active {
+  border-right-width: 3px;
+}
+
 i.dividing.ui-draggable-dragging {
+  border-right-width: 3px !important;
   border-right-color: #4285f4 !important;
   z-index: 101;
   cursor: col-resize;
@@ -1618,7 +1610,6 @@ i.dividing.ui-draggable-dragging {
   font-size: 18px;
   right: 0;
   color: #4285f4;
-  padding-top: 1px;
   font-weight: 500;
 }
 
@@ -1667,8 +1658,10 @@ i.dividing.ui-draggable-dragging {
 
 .data-list .table td div .badge {
   font-weight: normal;
-  font-size: 12px;
-  padding: 1px 6px;
+  font-size: 13px;
+  padding: 3px 6px;
+  min-width: 21px;
+  line-height: 1;
 }
 
 .data-list .table td div .badge.badge-default {
@@ -1739,6 +1732,7 @@ i.dividing.ui-draggable-dragging {
 
 .column-empty {
   padding: 8px !important;
+  width: 100%;
 }
 
 .column-nopriv {
@@ -1754,6 +1748,12 @@ i.dividing.ui-draggable-dragging {
   border-radius: 3px;
   border: 1px solid #ccc;
   background-color: #fff;
+}
+
+.column-multi a.badge,
+.column-multi span.badge {
+  background-color: #f2f2f2;
+  border-color: #f2f2f2;
 }
 
 .column-fixed {
@@ -1829,10 +1829,21 @@ th.column-fixed {
   left: unset;
   right: 0;
   padding: 3px 10px !important;
+  padding-right: 18px !important;
 }
 
 .column-fixed.col-action .btn.btn-sm {
-  line-height: 28px;
+  line-height: 26px;
+  min-width: 32px;
+}
+
+.column-fixed.col-action .btn.btn-sm:hover,
+.column-fixed.col-action .btn.btn-sm:active {
+  background-color: #e3e3e3;
+}
+
+.column-fixed.col-action .btn.btn-sm:active {
+  background-color: #ddd;
 }
 
 .table.table-header-fixed thead > tr > th {
@@ -1952,6 +1963,13 @@ th.column-fixed {
 .sortable-box-title {
   margin-top: 9px;
   position: relative;
+}
+
+.sortable-box-title > a {
+  position: absolute;
+  font-size: 1.231rem;
+  margin-top: -2px;
+  margin-left: 5px;
 }
 
 .sortable-swap {
@@ -2365,6 +2383,11 @@ th.column-fixed {
   padding-left: 17px !important;
 }
 
+.aside-2tree ul > ul:empty::after {
+  content: attr(_title);
+  color: #777;
+}
+
 .aside-2tree ul li {
   display: flex;
 }
@@ -2377,6 +2400,10 @@ th.column-fixed {
   color: #fff;
   background-color: #4285f4;
   background-color: var(--rb-theme-color);
+}
+
+.aside-2tree ul li.active > .text-disabled {
+  color: rgba(255, 255, 255, 0.4) !important;
 }
 
 .aside-2tree ul li > a {
@@ -2588,6 +2615,19 @@ th.column-fixed {
 .adv-filter .form-control-sm,
 .adv-filter .select2-container--default .select2-selection--single .select2-selection__rendered,
 .adv-filter .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.adv-filter .item .field {
+  padding-right: 10px;
+}
+
+.adv-filter .item .val {
+  padding-left: 10px;
+}
+
+.select2-container--default.select2-option-advfilter .select2-results__option {
   padding-left: 8px;
   padding-right: 8px;
 }
@@ -3749,6 +3789,7 @@ form {
 
 .page-aside.widgets .tab-container .tab-content {
   padding: 20px 18px;
+  padding: 15px;
   margin: 0;
   border-radius: 0;
   position: relative;
@@ -4754,6 +4795,24 @@ pre.unstyle {
   padding-left: 41px;
 }
 
+.rb-left-sidebar.v2 .sidebar-elements li > a[target='_blank']::after {
+  position: absolute;
+  content: '\F0339';
+  right: 12px;
+  margin-top: 12px;
+  font: normal normal normal 14px/1 'Material Design Icons';
+  color: #aaa;
+  display: none;
+}
+
+.rb-left-sidebar.v2 .sidebar-elements li > a[target='_blank']:hover::after {
+  display: inline-block;
+}
+
+.rb-collapsible-sidebar-collapsed .rb-left-sidebar.v2 .sidebar-elements li > a[target='_blank']::after {
+  display: none !important;
+}
+
 @media (min-width: 768px) {
   .rb-collapsible-sidebar-collapsed .rb-left-sidebar.v2 .sidebar-elements > li ul.visible .nav-items .content > ul > li > a {
     padding-left: 19px;
@@ -4844,7 +4903,6 @@ pre.unstyle {
   background-color: #eceff1;
   font-weight: normal;
   border-bottom-width: 1px;
-  width: auto;
 }
 
 .protable .table .col-index {
@@ -4878,21 +4936,25 @@ pre.unstyle {
 
 .protable .table thead th .dividing {
   width: 10px;
-  border-right: 2px dotted #aaa;
+  border-right: 1px solid #dee2e6;
+  border-right: 1px solid #ddd;
   cursor: col-resize;
   position: absolute;
   height: 18px;
-  top: 8px;
+  top: 9px;
   right: 0;
-  display: none;
+}
+
+.protable .table thead th .dividing:hover,
+.protable .table thead th .dividing:active {
+  border-right-width: 3px;
 }
 
 .protable .table thead th i.dividing.ui-draggable-dragging {
-  margin-top: 0.5px;
-}
-
-.protable .table thead:hover th .dividing {
-  display: block;
+  border-right-width: 3px !important;
+  border-bottom-color: #4285f4 !important;
+  z-index: 101;
+  cursor: col-resize;
 }
 
 .protable .table thead th .tipping {
@@ -5383,11 +5445,38 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   display: inline-block;
 }
 
-span.icon-append .icon {
+.select2-results span.icon-append .icon {
   float: left;
   width: 22px;
   font-size: 1.2rem;
   padding-top: 2px;
+}
+
+.select2-container--default .select2-results__option {
+  position: relative;
+}
+
+.select2-results span.code-append > em,
+.select2-results span.code-append > a {
+  position: absolute;
+  right: 9px;
+  width: 41px;
+  overflow: hidden;
+  color: rgba(0, 0, 0, 0.4) !important;
+  font-style: normal;
+  font-size: 12px;
+  text-align: right;
+}
+
+.select2-results span.code-append > a {
+  width: 27px;
+  right: 1px;
+  padding-right: 9px;
+  font-size: 1rem;
+}
+
+.select2-results span.code-append > a:hover {
+  color: rgba(255, 255, 255, 0.8) !important;
 }
 
 .tooltip {
@@ -5584,51 +5673,25 @@ span.icon-append .icon {
   background-color: #e9ecf1;
 }
 
-/* v3.7 */
-
-.detail-form-table.fullscreen {
-  position: absolute;
-  left: 15px;
-  right: 15px;
-  top: 0;
-  z-index: 3;
-  background-color: #fff;
-  margin: 10px 0;
-}
-
-.modal-dialog.fullscreen .modal-content {
-  overflow: hidden;
-}
-
-.modal-dialog.fullscreen .modal-body {
-  overflow: hidden;
-  overflow-y: auto;
-}
-
-.modal-dialog.fullscreen .modal-body .rbform > div {
-  display: none;
-}
-
-.modal-dialog.fullscreen .modal-body .rbform > div.detail-form-table.fullscreen {
-  display: block;
-}
-
-.protable .table .col-index.action {
-  padding: 0 6px 8px 0;
-}
-
 .protable .table .col-index.action > a {
   color: #a1a1a1;
   padding-right: 2px;
-  font-size: 15px;
+  font-size: 16px;
+  width: 100%;
+  height: 100%;
+  display: none;
 }
 
 .protable .table .col-index.action > a:hover {
   color: #4285f4;
 }
 
-.modal-dialog.fullscreen .modal-body .rbform > div.detail-form-table.fullscreen .col-index.action > a > i::before {
-  content: '\F0615';
+.protable .table .col-index.action:hover > span {
+  display: none;
+}
+
+.protable .table .col-index.action:hover > a {
+  display: inline-block;
 }
 
 .modal-dialog.modal-rsheetb .modal-body {
@@ -5637,7 +5700,6 @@ span.icon-append .icon {
 
 .rsheetb-table {
   overflow: auto;
-  margin-bottom: 3px;
 }
 
 .rsheetb-table .head-action {
@@ -5694,4 +5756,70 @@ div.formula-code {
   border-radius: 0;
   line-height: 1.6;
   padding: 4px 10px;
+}
+
+.flatpickr-time input::selection {
+  background-color: var(--rb-theme-color);
+  color: #fff;
+}
+
+.shortcut-buttons-flatpickr-buttons > button {
+  appearance: none;
+  width: 100%;
+  padding: 5px;
+  border-radius: 0;
+  border: 0 none;
+  outline: none;
+  font-size: 12px;
+  background-color: #fff;
+}
+
+.shortcut-buttons-flatpickr-buttons > button:hover {
+  background-color: #e6e6e6;
+}
+
+.img-field label.img-upload + label.dropdown-toggle,
+.file-field label.btn-secondary + label.dropdown-toggle {
+  position: absolute;
+  margin: 0;
+  top: 0;
+  height: 60px;
+  width: 18px;
+  margin-left: 58px;
+  background-color: #eee;
+  border-left: 1px solid #d5d8de;
+  text-align: center;
+  padding-top: 23px;
+  font-size: 1.231rem;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+  cursor: pointer;
+}
+
+.img-field label.img-upload + label.dropdown-toggle:hover {
+  opacity: 0.8;
+}
+
+.file-field label.btn-secondary + label.dropdown-toggle {
+  border: 1px solid #d5d8de;
+  background-color: #fff;
+  height: 37px;
+  padding: 0;
+  margin-left: -2px;
+  top: auto;
+}
+
+.file-field label.btn-secondary + label.dropdown-toggle:hover {
+  border-color: #bababa;
+}
+
+.form-layout.vertical38 > .row .form-group {
+  display: block;
+}
+
+.form-layout.vertical38 > .row .form-group > .col-form-label {
+  text-align: left;
+  margin-bottom: 10px;
+  padding-top: 5px;
+  width: auto;
 }

@@ -62,6 +62,7 @@ import static com.rebuild.core.service.datareport.TemplateExtractor33.NROW_PREFI
 @Slf4j
 public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
+    // 支持多记录导出，会合并到一个 Excel 文件
     final private List<ID> recordIdMultiple;
 
     private Set<String> inShapeVars;

@@ -83,7 +83,7 @@
         <field name="userId" type="primary"/>
         <field name="appUser" type="string" max-length="100" nullable="false" updatable="false"/>
         <field name="appId" type="string" max-length="100" nullable="false" updatable="false" />
-        <field name="bindUser" type="reference" ref-entity="User" cascade="delete" nullable="false" updatable="false"/>
+        <field name="bindUser" type="reference" ref-entity="User" nullable="false" updatable="false" cascade="delete"/>
         <index field-list="appUser,appId" type="unique"/>
     </entity>
 
@@ -188,6 +188,7 @@
         <field name="level" type="small-int" default-value="0" updatable="false"/>
         <field name="isHide" type="bool" default-value="F"/>
         <field name="quickCode" type="string" max-length="50" queryable="false"/>
+        <field name="color" type="string" max-length="10"/>
         <index field-list="dataId,parent,code"/>
         <index field-list="dataId,fullName,quickCode,code"/>
     </entity>
@@ -211,7 +212,7 @@
     <entity name="Notification" type-code="022" description="消息通知" queryable="false">
         <field name="messageId" type="primary"/>
         <field name="fromUser" type="reference" ref-entity="User" nullable="false" updatable="false" description="发送人"/>
-        <field name="toUser" type="reference" ref-entity="User" nullable="false" updatable="false" description="接收人"/>
+        <field name="toUser" type="reference" ref-entity="User" nullable="false" updatable="false" description="接收人" cascade="delete"/>
         <field name="message" type="string" max-length="3000" updatable="false" description="内容" />
         <field name="unread" type="bool" default-value="T" description="是否未读"/>
         <field name="type" type="small-int" updatable="false" default-value="0" description="消息分类"/>
@@ -246,7 +247,7 @@
 
     <entity name="LoginLog" type-code="025" description="登陆日志" parent="false">
         <field name="logId" type="primary"/>
-        <field name="user" type="reference" ref-entity="User" nullable="false" updatable="false" description="登陆用户"/>
+        <field name="user" type="reference" ref-entity="User" nullable="false" updatable="false" description="登陆用户" cascade="ignore"/>
         <field name="ipAddr" type="string" max-length="100" description="IP 地址"/>
         <field name="userAgent" type="string" max-length="200" description="客户端"/>
         <field name="loginTime" type="timestamp" nullable="false" updatable="false" description="登陆时间"/>
@@ -364,7 +365,7 @@
         <field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="ID 字段值"/>
         <field name="recordName" type="string" max-length="191" nullable="false" updatable="false" description="名称字段值"/>
         <field name="recordContent" type="ntext" nullable="false" updatable="false" description="数据"/>
-        <field name="deletedBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="删除人"/>
+        <field name="deletedBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="删除人" cascade="ignore"/>
         <field name="deletedOn" type="timestamp" nullable="false" updatable="false" description="删除时间"/>
         <field name="channelWith" type="any-reference" updatable="false" cascade="ignore" description="删除渠道 (空为直接删除, 否则为关联删除)"/>
         <index field-list="belongEntity,recordName,deletedBy,deletedOn"/>
@@ -377,7 +378,7 @@
         <field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="记录 ID"/>
         <field name="revisionType" type="small-int" default-value="1" description="变更类型"/>
         <field name="revisionContent" type="ntext" nullable="false" updatable="false" description="变更数据"/>
-        <field name="revisionBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="操作人"/>
+        <field name="revisionBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="操作人" cascade="ignore"/>
         <field name="revisionOn" type="timestamp" nullable="false" updatable="false" description="操作时间"/>
         <field name="channelWith" type="any-reference" updatable="false" cascade="ignore" description="变更渠道 (空为直接, 否则为关联)"/>
         <field name="ipAddr" type="string" max-length="100" description="IP 地址"/>
@@ -451,7 +452,7 @@
         <field name="contentMore" type="text" description="附加内容" queryable="false"/>
         <field name="images" type="string" max-length="700" description="图片" extra-attrs="{displayType:'IMAGE'}"/>
         <field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}"/>
-        <field name="relatedRecord" type="any-reference" cascade="ignore" description="相关记录"/>
+        <field name="relatedRecord" type="any-reference" description="相关记录" cascade="ignore"/>
         <field name="scheduleTime" type="timestamp" description="日程时间"/>
         <field name="scope" type="string" max-length="20" default-value="ALL" description="可见范围 (ALL/SELF/$TeamID)" queryable="false"/>
         <field name="autoLocation" type="string" max-length="100" description="发布位置" extra-attrs="{displayType:'LOCATION'}"/>
@@ -490,7 +491,7 @@
         <field name="statusId" type="primary"/>
         <field name="feedsId" type="reference" ref-entity="Feeds" nullable="false" updatable="false" description="哪个动态" cascade="delete"/>
         <field name="content" type="text" description="扩展内容"/>
-        <field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人"/>
+        <field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人" cascade="delete"/>
         <field name="createdOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="创建时间"/>
         <index field-list="feedsId,createdBy,createdOn"/>
     </entity>
@@ -615,7 +616,7 @@
     <entity name="CommonsLog" type-code="099" description="通用日志" queryable="false" parent="false">
         <field name="logId" type="primary"/>
         <field name="type" type="string" max-length="20" nullable="false"/>
-        <field name="user" type="reference" ref-entity="User" cascade="ignore" nullable="false"/>
+        <field name="user" type="reference" ref-entity="User" nullable="false" cascade="ignore"/>
         <field name="source" type="any-reference" ref-entity="*" nullable="false" cascade="ignore"/>
         <field name="logContent" type="text"/>
         <field name="logTime" type="timestamp" nullable="false"/>

@@ -47,21 +47,26 @@ public class ApprovalFields2Schema extends Field2Schema {
      * @throws MetadataModificationException
      */
     public boolean createFields(Entity entity) throws MetadataModificationException {
+        // 补充后加字段
         if (MetadataHelper.hasApprovalField(entity)) {
+            List<Field> complement = new ArrayList<>();
             if (!entity.containsField(EntityHelper.ApprovalLastUser)) {
-                return schema2DatabaseInternal(entity, buildApporvalLastUser(entity));
+                complement.add(buildApporvalLastUser(entity));
             }
             if (!entity.containsField(EntityHelper.ApprovalLastTime)) {
-                return schema2DatabaseInternal(entity, buildApporvalLastTime(entity));
+                complement.add(buildApporvalLastTime(entity));
             }
             if (!entity.containsField(EntityHelper.ApprovalLastRemark)) {
-                return schema2DatabaseInternal(entity, buildApporvalLastRemark(entity));
+                complement.add(buildApporvalLastRemark(entity));
             }
             if (!entity.containsField(EntityHelper.ApprovalStepUsers)) {
-                return schema2DatabaseInternal(entity,
-                        buildApprovalStepUsers(entity), buildApprovalStepNodeName(entity));
+                complement.add(buildApprovalStepUsers(entity));
+                complement.add(buildApprovalStepNodeName(entity));
             }
-            return false;
+
+            if (complement.isEmpty()) return false;
+            schema2DatabaseInternal(entity, complement.toArray(new Field[0]));
+            return true;
         }
 
         if (!(MetadataHelper.hasPrivilegesField(entity)
@@ -157,7 +162,7 @@ public class ApprovalFields2Schema extends Field2Schema {
         try {
             Application.getSqlExecutor().execute(ddl, DDL_TIMEOUT);
         } catch (Throwable ex) {
-            log.error("DDL ERROR : \n" + ddl, ex);
+            log.error("DDL ERROR : \n{}", ddl, ex);
             return false;
         }
 

@@ -117,10 +117,11 @@ class LevelBox extends React.Component {
           <ol className="dd-list unset-list" _title={$L('暂无分类项')}>
             {(this.state.items || []).map((item) => {
               const active = this.state.activeId === item[0]
+              let style2 = { color: item[4] || null }
               return (
                 <li className={`dd-item ${active && 'active'}`} key={item[0]} onClick={() => this.clickItem(item[0])} data-key={item[0]}>
                   <div className={`dd-handle ${item[3] && 'text-disabled'}`} title={item[3] ? $L('已禁用') : null}>
-                    {item[1]}
+                    <span style={style2}>{item[1]}</span>
                     {item[3] && <small />}
                   </div>
                   <div className="dd-action">
@@ -209,6 +210,7 @@ class LevelBox extends React.Component {
 
     // 修改时
     if (typeof _data.itemCode !== 'undefined') url += `&code=${$encode(_data.itemCode || '')}`
+    if (typeof _data.itemColor !== 'undefined') url += `&color=${$encode(_data.itemColor || '')}`
 
     this.setState({ inSave: true })
     $.post(url, (res) => {
@@ -219,11 +221,12 @@ class LevelBox extends React.Component {
             if (x[0] === _data.itemId) {
               x[1] = name
               if (typeof _data.itemCode !== 'undefined') x[2] = _data.itemCode
+              if (typeof _data.itemColor !== 'undefined') x[4] = _data.itemColor
               x[3] = _data.itemHide || false
             }
           })
         } else {
-          items.insert(0, [res.data, name, null, false])
+          items.insert(0, [res.data, name, null, false, null])
         }
 
         this.setState({ items: items, itemName: null, itemId: null, inSave: false })
@@ -235,17 +238,7 @@ class LevelBox extends React.Component {
 
   editItem(item, e) {
     $stopEvent(e, true)
-    renderRbcomp(
-      <DlgEditItem
-        id={item[0]}
-        name={item[1]}
-        code={item[2]}
-        hide={item[3]}
-        onConfirm={(s) => {
-          this.saveItem(null, s)
-        }}
-      />
-    )
+    renderRbcomp(<DlgEditItem id={item[0]} name={item[1]} code={item[2]} hide={item[3]} color={item[4]} onConfirm={(s) => this.saveItem(null, s)} />)
   }
 
   delItem(item, e) {
@@ -533,6 +526,15 @@ class DlgEditItem extends RbAlert {
           <p className="form-text">{$L('编码可用于排序和搜索')}</p>
         </div>
         <div className="form-group">
+          <label className="text-bold">{$L('颜色')}</label>
+          <div className="rbcolors" ref={(c) => (this._$color = c)}>
+            <a className="default" title={$L('默认')} />
+            {RBCOLORS.map((c) => {
+              return <a style={{ backgroundColor: c }} data-color={c} key={c} />
+            })}
+          </div>
+        </div>
+        <div className="form-group">
           <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
             <input className="custom-control-input" type="checkbox" name="hide" defaultChecked={this.props.hide} onChange={this.handleChange} />
             <span className="custom-control-label">{$L('是否禁用')}</span>
@@ -545,6 +547,29 @@ class DlgEditItem extends RbAlert {
         </div>
       </form>
     )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    const $cs = $(this._$color)
+    const that = this
+    $cs.find('>a').on('click', function () {
+      $cs.find('>a .zmdi').remove()
+      $('<i class="zmdi zmdi-check"></i>').appendTo(this)
+      that.handleChange({ target: { name: 'color', value: $(this).data('color') || null } })
+    })
+    $('<input type="color" />')
+      .appendTo($cs)
+      .on('change', (e) => {
+        $cs.find('>a .zmdi').remove()
+        that.handleChange({ target: { name: 'color', value: e.target.value } })
+      })
+
+    if (this.props.color) {
+      $cs.find(`>a[data-color="${this.props.color}"]`).trigger('click')
+      $cs.find('>input').val(this.props.color)
+    }
   }
 
   handleChange = (e) => {
@@ -560,6 +585,7 @@ class DlgEditItem extends RbAlert {
       itemName: this.state.name,
       itemCode: this.state.code,
       itemHide: this.state.hide,
+      itemColor: this.state.color,
     }
     if (!_data.itemName) {
       RbHighbar.create($L('请输入名称'))

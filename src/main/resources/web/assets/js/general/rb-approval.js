@@ -47,9 +47,12 @@ class ApprovalProcessor extends React.Component {
     window.RbViewPage && window.RbViewPage.setReadonly(true)
 
     let aMsg = $L('当前记录正在审批中')
+    let imApproverCurrent = false
     if (this.state.imApprover) {
-      if (this.state.imApproveSatate === 1) aMsg = $L('当前记录正在等待你审批')
-      else if (this.state.imApproveSatate === 10) aMsg = $L('你已审批同意，正在等待其他人审批')
+      if (this.state.imApproveSatate === 1) {
+        aMsg = $L('当前记录正在等待你审批')
+        imApproverCurrent = true
+      } else if (this.state.imApproveSatate === 10) aMsg = $L('你已审批同意，正在等待其他人审批')
       else if (this.state.imApproveSatate === 11) aMsg = $L('你已驳回审批')
     }
 
@@ -61,20 +64,22 @@ class ApprovalProcessor extends React.Component {
               {$L('审批')}
             </button>
           )}
-          {(this.state.canCancel || this.state.canUrge) && (
-            <RF>
-              {this.state.canUrge && (
-                <button className="btn btn-secondary" onClick={this.urge}>
-                  {$L('催审')}
-                </button>
-              )}
-              {this.state.canCancel && (
-                <button className="btn btn-secondary" onClick={this.cancel}>
-                  {$L('撤回')}
-                </button>
-              )}
-            </RF>
+          {this.state.canUrge && imApproverCurrent === false && (
+            <button className="btn btn-secondary" onClick={this.urge}>
+              {$L('催审')}
+            </button>
           )}
+          {this.state.canCancel && (
+            <button className="btn btn-secondary" onClick={this.cancel}>
+              {$L('撤回')}
+            </button>
+          )}
+          {this.state.canCancel38 && (
+            <button className="btn btn-secondary bosskey-show" onClick={this.cancel38}>
+              {$L('退回')} (LAB)
+            </button>
+          )}
+
           <button className="btn btn-secondary" onClick={this.viewSteps}>
             {$L('详情')}
           </button>
@@ -213,6 +218,20 @@ class ApprovalProcessor extends React.Component {
         $.post(`/app/entity/approval/cancel?record=${that.props.id}`, (res) => {
           if (res.error_code > 0) RbHighbar.error(res.error_msg)
           else _reloadAndTips(this, $L('审批已撤回'))
+          this.disabled()
+        })
+      },
+    })
+  }
+
+  cancel38 = () => {
+    const that = this
+    RbAlert.create($L('将退回你的审批，退回后可重审。是否继续？'), {
+      confirm: function () {
+        this.disabled(true, true)
+        $.post(`/app/entity/approval/cancel38?record=${that.props.id}`, (res) => {
+          if (res.error_code > 0) RbHighbar.error(res.error_msg)
+          else _reloadAndTips(this, $L('审批已退回'))
           this.disabled()
         })
       },

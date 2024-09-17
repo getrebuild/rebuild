@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ExpiresMap;
 import cn.devezhao.commons.identifier.ComputerIdentifier;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -53,11 +55,12 @@ public final class License {
         }
 
         if (SN == null) {
-            SN = String.format("RB%s%s-%s-%s",
+            SN = String.format("RB%s%s-%s%s%s",
                     Application.VER.charAt(0),
                     Locale.getDefault().getCountry().substring(0, 2),
                     ComputerIdentifier.generateIdentifierKey(),
-                    CodecUtils.randomCode(9)).toUpperCase();
+                    CalendarUtils.format("wwyy", new Date()),
+                    CodecUtils.randomCode(6)).toUpperCase();
             RebuildConfiguration.setValue(ConfigurationItem.SN.name(), SN);
             siteApiNoCache("api/authority/query");
         }
@@ -160,4 +163,5 @@ public final class License {
             return JSONUtils.toJSONObject("error", "Call site api failed");
         }
     }
+
 }

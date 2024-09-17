@@ -26,14 +26,15 @@ public class CommandUtils {
      * 执行命令行
      *
      * @param cmd
+     * @param secure
      * @return
      * @throws IOException
      */
-    public static String execFor(String cmd) throws IOException {
+    public static String execFor(String cmd, boolean secure) throws IOException {
         ProcessBuilder builder = new ProcessBuilder();
         String encoding = "UTF-8";
 
-        log.info("CMD : {}", cmd);
+        if (!secure) log.info("CMD : {}", cmd);
 
         if (SystemUtils.IS_OS_WINDOWS) {
             builder.command("cmd.exe", "/c", cmd);

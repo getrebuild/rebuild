@@ -280,6 +280,20 @@ select.underline-sm:focus {
   margin-bottom: 0;
 }
 
+div.series-starts {
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+div.series-starts > input {
+  border-width: 0;
+  background-color: #eee;
+}
+
+div.series-starts > input:focus {
+  background-color: #ccc;
+}
+
 /* via: triggers.css */
 
 .fields ul li.flag-DECIMAL > a::before,

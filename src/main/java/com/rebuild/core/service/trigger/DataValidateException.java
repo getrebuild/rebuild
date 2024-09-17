@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger;
 
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.service.DataSpecificationException;
 
 /**
@@ -19,18 +20,28 @@ import com.rebuild.core.service.DataSpecificationException;
 public class DataValidateException extends DataSpecificationException {
     private static final long serialVersionUID = 4178910284594338317L;
 
-    private boolean weakMode = false;
+    final private boolean weakMode;
+    final private ID weakModeTriggerId;
 
     public DataValidateException(String msg) {
-        super(msg);
+        this(msg, false, null);
     }
 
     public DataValidateException(String msg, boolean weakMode) {
+        this(msg, weakMode, null);
+    }
+
+    public DataValidateException(String msg, boolean weakMode, ID triggerId) {
         super(msg);
         this.weakMode = weakMode;
+        this.weakModeTriggerId = triggerId;
     }
 
     public boolean isWeakMode() {
         return weakMode;
+    }
+
+    public ID getWeakModeTriggerId() {
+        return weakModeTriggerId;
     }
 }

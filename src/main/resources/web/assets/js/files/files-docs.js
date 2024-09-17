@@ -27,7 +27,7 @@ const FolderTree = {
 
       renderRbcomp(
         <AsideTree
-          icon="mdi mdi-folder"
+          icon="mdi mdi-folder down-1"
           data={__FolderData}
           activeItem={__DEFAULT_ALL}
           onItemClick={(item) => {
@@ -110,13 +110,13 @@ const FolderTree = {
 }
 
 // 渲染目录
-const _renderOption = function (item, idx, disabledItem) {
+const _renderFolderOption = function (item, idx, disabledItem) {
   idx = idx || 0
   if (item.id === __DEFAULT_ALL) item = { text: $L('无') }
 
   let options = [
     <option
-      key={`opt-${item.id}`}
+      key={`opt-${item.id || '0'}`}
       value={item.id || ''}
       disabled={disabledItem && item.id === disabledItem}
       dangerouslySetInnerHTML={{ __html: idx === 0 ? item.text : `${'&nbsp;'.repeat(idx * 3)}${item.text}` }}
@@ -125,9 +125,11 @@ const _renderOption = function (item, idx, disabledItem) {
 
   if (item.children) {
     item.children.forEach((item) => {
-      options = options.concat(_renderOption(item, idx + 1, disabledItem))
+      options = options.concat(_renderFolderOption(item, idx + 1, disabledItem))
     })
   }
+
+  console.log(options)
   return options
 }
 
@@ -145,7 +147,7 @@ class FolderEditDlg extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={this.props.id ? $L('修改目录') : $L('新建目录')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={this.props.id ? $L('修改目录') : $L('新建目录')} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('目录名称')}</label>
@@ -180,7 +182,7 @@ class FolderEditDlg extends RbFormHandler {
             <div className="col-sm-7">
               <select className="form-control form-control-sm" name="parent" defaultValue={this.props.parent || null} onChange={this.handleChange}>
                 {__FolderData.map((item) => {
-                  return _renderOption(item, 0, this.props.id)
+                  return _renderFolderOption(item)
                 })}
               </select>
             </div>
@@ -241,7 +243,7 @@ class FileUploadDlg extends RbFormHandler {
             <div className="col-sm-7">
               <select className="form-control form-control-sm" name="inFolder" defaultValue={this.props.inFolder} onChange={this.handleChange}>
                 {__FolderData.map((item) => {
-                  return _renderOption(item)
+                  return _renderFolderOption(item)
                 })}
               </select>
             </div>
@@ -379,7 +381,7 @@ class FileMoveDlg extends RbFormHandler {
             <div className="col-sm-7">
               <select className="form-control form-control-sm" name="inFolder" onChange={this.handleChange}>
                 {__FolderData.map((item) => {
-                  return _renderOption(item)
+                  return _renderFolderOption(item)
                 })}
               </select>
             </div>

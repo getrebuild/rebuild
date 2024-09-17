@@ -54,7 +54,7 @@
       .J_cloudAccount .icon {
         font-size: 24px;
         float: left;
-        color: #4285f4;
+        color: #34a853;
         margin-right: 6px;
       }
       .unstyle.text-break {
@@ -162,8 +162,8 @@
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">[[${bundle.L('显示页面水印')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 1 ? 'MarkWatermark' : ''}" th:data-value="${MarkWatermark}">[[${MarkWatermark ? bundle.L('是') : bundle.L('否')}]]</td>
+                        <td width="40%">[[${bundle.L('显示页面水印')}]]</td>
+                        <td th:data-id="MarkWatermark" th:data-value="${MarkWatermark}">[[${MarkWatermark ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('允许分享文件')}]]</td>
@@ -237,7 +237,7 @@
                         </td>
                       </tr>
                       <tr class="bosskey-show">
-                        <td>[[${bundle.L('同一用户允许多地登录')}]] <sup class="rbv"></sup></td>
+                        <td>[[${bundle.L('同一用户允许多地登录')}]] (LAB) <sup class="rbv"></sup></td>
                         <td th:data-id="${commercial > 0 ? 'MultipleSessions' : ''}" th:data-value="${MultipleSessions}">[[${MultipleSessions ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                     </tbody>
@@ -385,6 +385,5 @@
     <script th:src="@{/assets/js/admin/system-cfg.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rebuild-ucenter.js}" type="text/babel"></script>
     <script th:src="@{/assets/lib/widget/flatpickr.min.js}"></script>
-    <script th:src="@{/assets/lib/widget/flatpickr.i10n-zh.js}"></script>
   </body>
 </html>

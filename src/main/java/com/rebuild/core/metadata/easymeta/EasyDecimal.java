@@ -86,6 +86,18 @@ public class EasyDecimal extends EasyField {
         return format.substring(dotIndex).length() - 1;
     }
 
+    /**
+     * 进位模式
+     *
+     * @return
+     */
+    public RoundingMode getRoundingMode() {
+        String rounding = getExtraAttr(EasyFieldConfigProps.DECIMAL_ROUNDING);
+        if ("2".equals(rounding)) return RoundingMode.CEILING;
+        else if ("1".equals(rounding)) return RoundingMode.DOWN;
+        return RoundingMode.HALF_UP;
+    }
+
     // --
 
     /**
@@ -108,12 +120,13 @@ public class EasyDecimal extends EasyField {
      */
     public static BigDecimal fixedDecimalScale(Object decimalValue, EasyField decimalField) {
         int scale = ((EasyDecimal) decimalField).getScale();
+        RoundingMode roundingMode = ((EasyDecimal) decimalField).getRoundingMode();
 
         if (decimalValue instanceof BigDecimal) {
-            return ((BigDecimal) decimalValue).setScale(scale, RoundingMode.HALF_UP);
+            return ((BigDecimal) decimalValue).setScale(scale, roundingMode);
         } else {
-            double d = ObjectUtils.round(ObjectUtils.toDouble(decimalValue), scale);
-            return BigDecimal.valueOf(d);
+            BigDecimal v = BigDecimal.valueOf(ObjectUtils.toDouble(decimalValue));
+            return v.setScale(scale, roundingMode);
         }
     }
 

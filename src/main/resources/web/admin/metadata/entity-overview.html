@@ -37,6 +37,7 @@
                   <li><a href="form-design">[[${bundle.L('表单设计')}]]</a></li>
                   <li><a href="fields">[[${bundle.L('字段管理')}]]</a></li>
                   <li><a href="advanced">[[${bundle.L('高级配置')}]]</a></li>
+                  <li><a href="easy-action">[[${bundle.L('自定义操作')}]]</a></li>
                   <li class="active"><a href="overview">[[${bundle.L('技术全览')}]]</a></li>
                 </ul>
               </div>
@@ -53,7 +54,10 @@
               <div id="overview"></div>
             </div>
             <div class="col">
-              <h4 class="text-bold">[[${bundle.L('引用关系')}]]</h4>
+              <h4 class="text-bold">
+                [[${bundle.L('引用关系')}]]
+                <a class="J_graph-open" th:title="${bundle.L('在新页面打开')}" target="_blank"><i class="zmdi zmdi-open-in-new fs-14"></i></a>
+              </h4>
               <div id="graph">
                 <iframe frameborder="0" scrolling="no" style="width: 100%; height: 100%"></iframe>
               </div>
@@ -133,7 +137,9 @@
         ovChart.setOption(ovOption)
 
         // #2
-        $('#graph iframe').attr('src', `../../entities/er?s=${wpc.entityName}`)
+        const graphUrl = `../../entities/er?s=${wpc.entityName}`
+        $('#graph iframe').attr('src', graphUrl)
+        $('.J_graph-open').attr('href', graphUrl)
       })
     </script>
   </body>

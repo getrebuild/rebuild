@@ -47,11 +47,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.DATETIME_CALCFORMULA;
 import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.DATETIME_FORMAT;
-import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.DATE_CALCFORMULA;
 import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.DATE_FORMAT;
 import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.NUMBER_CALCFORMULA;
+import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.NUMBER_CALCFORMULABACKEND;
 import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.NUMBER_NOTNEGATIVE;
 
 /**
@@ -396,7 +395,7 @@ public class Field2Schema extends SetUser {
         String identifier = text;
 
         // 全英文直接返回
-        if (identifier.length() >= 4 && identifier.matches("[a-zA-Z0-9]+")) {
+        if (identifier.length() >= 4 && identifier.matches("[a-zA-Z0-9_]+")) {
             if (!CharSet.ASCII_ALPHA.contains(identifier.charAt(0)) || BlockList.isBlock(identifier)) {
                 identifier = "rb" + identifier;
             }
@@ -458,14 +457,15 @@ public class Field2Schema extends SetUser {
             extraAttrs.remove(DATETIME_FORMAT);
             Object notNegative = extraAttrs.remove(NUMBER_NOTNEGATIVE);
             Object calcFormula = extraAttrs.remove(NUMBER_CALCFORMULA);
+            Object calcFormulaBackend = extraAttrs.remove(NUMBER_CALCFORMULABACKEND);
 
             extraAttrs.clear();
             if (notNegative != null) extraAttrs.put(NUMBER_NOTNEGATIVE, notNegative);
             if (calcFormula != null) extraAttrs.put(NUMBER_CALCFORMULA, calcFormula);
+            if (calcFormulaBackend instanceof Boolean && (Boolean) calcFormulaBackend) extraAttrs.put(NUMBER_CALCFORMULABACKEND, true);
 
-            if (!extraAttrs.isEmpty()) {
-                fieldMeta.setString("extConfig", extraAttrs.toJSONString());
-            }
+            if (extraAttrs.isEmpty()) fieldMeta.setNull("extConfig");
+            else fieldMeta.setString("extConfig", extraAttrs.toJSONString());
         }
         Application.getCommonsService().update(fieldMeta, false);
 

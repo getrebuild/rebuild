@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web;
 
+import cn.devezhao.persist4j.exception.JdbcException;
 import cn.devezhao.persist4j.exception.jdbc.ConstraintViolationException;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.i18n.Language;
@@ -80,8 +81,12 @@ public class KnownExceptionConverter {
             }
 
             return Language.L("数据库字段违反约束");
-        }
 
+        } else if (ex instanceof JdbcException && exMsg != null) {
+
+            return Language.L("数据库错误") + ":" + exMsg;
+
+        }
         return null;
     }
 

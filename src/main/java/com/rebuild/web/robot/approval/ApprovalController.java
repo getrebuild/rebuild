@@ -50,6 +50,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.Set;
 
+import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowRevokeApproval;
+
 /**
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/07/05
@@ -117,15 +119,20 @@ public class ApprovalController extends BaseController {
                 if (user.equals(ApprovalHelper.getSubmitter(recordId, useApproval))) {
                     data.put("canUrge", true);
                     data.put("canCancel", true);
-                } else if (UserHelper.isAdmin(user)) {
-                    // v3.1 管理员也可撤回
+                } else if (Application.getPrivilegesManager().allow(user, AllowRevokeApproval)) {
+                    // v3.1 管理员可撤回
+                    // v3.8 有权限的可撤回
                     data.put("canCancel", true);
                 }
+
+                // v3.8 自己审批的自己可以取消（退回）
+                Set<ID> us = new ApprovalProcessor(recordId, useApproval).getPrevApprovedUsers();
+                if (us.contains(user)) data.put("canCancel38", true);
             }
 
             if (stateVal == ApprovalState.APPROVED.getState()) {
-                // v3.4
-                data.put("canRevoke", Application.getPrivilegesManager().allow(user, ZeroEntry.AllowRevokeApproval));
+                // v3.4 有权限的可撤销
+                data.put("canRevoke", Application.getPrivilegesManager().allow(user, AllowRevokeApproval));
             }
         }
 
@@ -250,6 +257,17 @@ public class ApprovalController extends BaseController {
     public RespBody doCancel(@IdParam(name = "record") ID recordId) {
         try {
             new ApprovalProcessor(recordId).cancel();
+            return RespBody.ok();
+
+        } catch (ApprovalException ex) {
+            return RespBody.error(ex.getMessage());
+        }
+    }
+
+    @RequestMapping("cancel38")
+    public RespBody doCancel38(@IdParam(name = "record") ID recordId, HttpServletRequest request) {
+        try {
+            new ApprovalProcessor(recordId).cancel38(getRequestUser(request));
             return RespBody.ok();
 
         } catch (ApprovalException ex) {

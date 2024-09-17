@@ -46,6 +46,8 @@ $(document).ready(() => {
           // v2.9
           if (wt[2]) $('.J_startHour1').val(wt[2])
           if (wt[3]) $('.J_startHour2').val(wt[3])
+          // v3.8
+          if (wt[4]) $('.J_whenTimer4').val(wt[4]).parents('.bosskey-show').removeClass('bosskey-show')
 
           $('.J_whenTimer1').trigger('change')
         }
@@ -55,7 +57,7 @@ $(document).ready(() => {
 
   // 评估具体执行时间
   function evalTriggerTimes() {
-    const whenTimer = `${$('.J_whenTimer1').val() || 'D'}:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}`
+    const whenTimer = `${$('.J_whenTimer1').val() || 'D'}:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}:${$('.J_whenTimer4').val() || ''}`
     $.get(`/admin/robot/trigger/eval-trigger-times?whenTimer=${whenTimer}`, (res) => {
       renderRbcomp(
         <RbAlertBox
@@ -141,7 +143,7 @@ $(document).ready(() => {
       return
     }
 
-    const whenTimer = `${$('.J_whenTimer1').val() || 'D'}:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}`
+    const whenTimer = `${$('.J_whenTimer1').val() || 'D'}:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}:${$('.J_whenTimer4').val() || ''}`
 
     const content = contentComp.buildContent()
     if (content === false) return
@@ -310,7 +312,7 @@ class UserSelectorWithField extends UserSelector {
     super.componentDidMount()
 
     this._fields = []
-    $.get(`/commons/metadata/fields?deep=2&entity=${this.props.entity || wpc.sourceEntity}`, (res) => {
+    $.get(`/commons/metadata/fields?deep=3&entity=${this.props.entity || wpc.sourceEntity}`, (res) => {
       $(res.data).each((idx, item) => {
         if ((item.type === 'REFERENCE' || item.type === 'N2NREFERENCE') && item.ref && BIZZ_ENTITIES.includes(item.ref[0])) {
           this._fields.push({ id: item.name, text: item.label })
@@ -571,76 +573,4 @@ function disableWhen() {
         }
       }
     })
-}
-
-// eslint-disable-next-line no-unused-vars
-class EditorWithFieldVars extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {}
-  }
-
-  render() {
-    let attrs = {
-      className: 'form-control',
-      maxLength: 2000,
-      placeholder: this.props.placeholder || null,
-    }
-
-    if (this.props.isCode) {
-      attrs = { ...attrs, className: 'formula-code', maxLength: 6000, autoFocus: true }
-    }
-
-    return (
-      <div className="textarea-wrap">
-        <textarea {...attrs} spellCheck="false" ref={(c) => (this._$content = c)} />
-        <a className="fields-vars" title={$L('插入字段变量')} data-toggle="dropdown">
-          <i className="mdi mdi-code-braces" />
-        </a>
-        <div className="dropdown-menu auto-scroller dropdown-menu-right" ref={(c) => (this._$fieldVars = c)}>
-          {(this.state.fieldVars || []).map((item) => {
-            let typeMark = 'T'
-            if (['DATE', 'DATETIME', 'TIME'].includes(item.type)) typeMark = 'D'
-            else if (['NUMBER', 'DECIMAL'].includes(item.type)) typeMark = 'N'
-            return (
-              <a
-                className="dropdown-item"
-                key={item.name}
-                onClick={() => {
-                  $(this._$content).insertAtCursor(`{${item.name}}`)
-                }}>
-                <em>{typeMark}</em>
-                {item.label}
-              </a>
-            )
-          })}
-        </div>
-      </div>
-    )
-  }
-
-  componentDidMount() {
-    $.get(`/commons/metadata/fields?entity=${this.props.entity}&deep=2`, (res) => {
-      this.setState({ fieldVars: res.data || [] }, () => {
-        $(this._$fieldVars).perfectScrollbar()
-      })
-    })
-
-    // eslint-disable-next-line no-undef
-    autosize(this._$content)
-  }
-
-  val() {
-    if (arguments.length > 0) {
-      $(this._$content).val(arguments[0])
-      // eslint-disable-next-line no-undef
-      autosize.update(this._$content)
-    } else {
-      return $(this._$content).val()
-    }
-  }
-
-  focus() {
-    setTimeout(() => this._$content.focus(), 20)
-  }
 }

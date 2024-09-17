@@ -46,7 +46,10 @@ public class EasyFieldConfigProps {
      * 表单公式
      */
     public static final String NUMBER_CALCFORMULA = "calcFormula";
-
+    /**
+     * 表单公式
+     */
+    public static final String NUMBER_CALCFORMULABACKEND = "calcFormulaBackend";
     /**
      * 是否允许负数
      */
@@ -63,6 +66,10 @@ public class EasyFieldConfigProps {
      * 表单公式
      */
     public static final String DECIMAL_CALCFORMULA = NUMBER_CALCFORMULA;
+    /**
+     * 进位模式（默认四舍五入）
+     */
+    public static final String DECIMAL_ROUNDING = "decimalRounding";
 
     /**
      * 日期格式
@@ -102,9 +109,13 @@ public class EasyFieldConfigProps {
     public static final String IMAGE_UPLOADNUMBER = FILE_UPLOADNUMBER;
 
     /**
-     * 图片获取方式（仅H5）
+     * 图片获取方式（兼容附件）
      */
     public static final String IMAGE_CAPTURE = "imageCapture";
+    /**
+     * 图片获取方式（兼容附件）
+     */
+    public static final String IMAGE_CAPTURE_DEF = "imageCaptureDef";
 
     /**
      * 自动编号规则

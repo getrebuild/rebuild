@@ -221,10 +221,10 @@ class ContentGroupAggregation extends ActionContentSpec {
                   </span>
                 </label>
               </div>
-              <div className="mt-2 bosskey-show">
+              <div className="mt-2">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._$stopPropagation = c)} />
-                  <span className="custom-control-label">{$L('禁用传播')} (LAB)</span>
+                  <span className="custom-control-label">{$L('禁用级联执行')}</span>
                 </label>
               </div>
             </div>
@@ -280,9 +280,7 @@ class ContentGroupAggregation extends ActionContentSpec {
       $(this._$autoCreate).attr('checked', content.autoCreate === true)
       $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
       $(this._$forceUpdate).attr('checked', content.forceUpdate === true)
-      if (content.stopPropagation === true) {
-        $(this._$stopPropagation).attr('checked', true).parents('.bosskey-show').removeClass('bosskey-show')
-      }
+      $(this._$stopPropagation).attr('checked', content.stopPropagation === true)
       this.saveAdvFilter(content.dataFilter)
     } else {
       $(this._$autoCreate).attr('checked', true)

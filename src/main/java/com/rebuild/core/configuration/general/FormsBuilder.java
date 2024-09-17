@@ -27,6 +27,7 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.privileges.FieldPrivileges;
 import com.rebuild.core.privileges.UserFilters;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
@@ -129,7 +130,7 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        // 明细实体有主实体
+        // 明细实体
         final Entity hasMainEntity = entityMeta.getMainEntity();
         // 审批流程（状态）
         ApprovalState approvalState;
@@ -142,7 +143,7 @@ public class FormsBuilder extends FormsManager {
         if (recordId == null) {
             if (hasMainEntity != null) {
                 ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
-                Assert.notNull(mainid, "Call `FormBuilderContextHolder#setMainIdOfDetail` first!");
+                Assert.notNull(mainid, "CALL `FormBuilderContextHolder#setMainIdOfDetail` FIRST!");
 
                 approvalState = EntityHelper.isUnsavedId(mainid) ? null : getHadApproval(hasMainEntity, mainid);
                 if ((approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED)) {
@@ -176,7 +177,7 @@ public class FormsBuilder extends FormsManager {
         // 编辑
         else {
             if (!Application.getPrivilegesManager().allowUpdate(user, recordId)) {
-                return formatModelError(Language.L("你没有修改此记录的权限"));
+                return formatModelError(Language.L("你没有编辑此记录的权限"));
             }
 
             approvalState = getHadApproval(entityMeta, recordId);
@@ -205,8 +206,8 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        int applyType = recordId == null ? FormsManager.APPLY_ONNEW : FormsManager.APPLY_ONEDIT;
-        if (viewMode) applyType = FormsManager.APPLY_ONVIEW;
+        int applyType = recordId == null ? FormsManager.APPLY_NEW : FormsManager.APPLY_EDIT;
+        if (viewMode) applyType = FormsManager.APPLY_VIEW;
 
         ConfigBean model = getFormLayout(entity, recordOrLayoutId, applyType);
         JSONArray elements = (JSONArray) model.getJSON("elements");
@@ -353,6 +354,10 @@ public class FormsBuilder extends FormsManager {
         final boolean isNew = recordData == null || recordData.getPrimary() == null
                 || EntityHelper.isUnsavedId(recordData.getPrimary());
 
+        final FieldPrivileges fp = Application.getPrivilegesManager().getFieldPrivileges();
+        // 在共同编辑时，对于明细应该是编辑而非新建
+        final boolean isProTableLayout = FormsBuilderContextHolder.getMainIdOfDetail(false) != null;
+
         // Check and clean
         for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
             JSONObject el = (JSONObject) iter.next();
@@ -462,18 +467,15 @@ public class FormsBuilder extends FormsManager {
                 el.put("options", ObjectUtils.defaultIfNull(el.remove("tagList"), JSONUtils.EMPTY_ARRAY));
             } else if (dt == DisplayType.DATETIME) {
                 String format = StringUtils.defaultIfBlank(
-                        easyField.getExtraAttr(EasyFieldConfigProps.DATETIME_FORMAT),
-                        easyField.getDisplayType().getDefaultFormat());
+                        easyField.getExtraAttr(EasyFieldConfigProps.DATETIME_FORMAT), dt.getDefaultFormat());
                 el.put(EasyFieldConfigProps.DATETIME_FORMAT, format);
             } else if (dt == DisplayType.DATE) {
                 String format = StringUtils.defaultIfBlank(
-                        easyField.getExtraAttr(EasyFieldConfigProps.DATE_FORMAT),
-                        easyField.getDisplayType().getDefaultFormat());
+                        easyField.getExtraAttr(EasyFieldConfigProps.DATE_FORMAT), dt.getDefaultFormat());
                 el.put(EasyFieldConfigProps.DATE_FORMAT, format);
             } else if (dt == DisplayType.TIME) {
                 String format = StringUtils.defaultIfBlank(
-                        easyField.getExtraAttr(EasyFieldConfigProps.TIME_FORMAT),
-                        easyField.getDisplayType().getDefaultFormat());
+                        easyField.getExtraAttr(EasyFieldConfigProps.TIME_FORMAT), dt.getDefaultFormat());
                 el.put(EasyFieldConfigProps.TIME_FORMAT, format);
             } else if (dt == DisplayType.CLASSIFICATION) {
                 el.put("openLevel", ClassificationManager.instance.getOpenLevel(fieldMeta));
@@ -529,7 +531,7 @@ public class FormsBuilder extends FormsManager {
                         if (defaultValue != null) {
                             defaultValue = easyField.wrapValue(defaultValue);
                             // `wrapValue` 会添加格式符号
-                            if (easyField.getDisplayType() == DisplayType.DECIMAL) {
+                            if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {
                                 defaultValue = EasyDecimal.clearFlaged(defaultValue);
                             }
                             el.put("value", defaultValue);
@@ -570,7 +572,7 @@ public class FormsBuilder extends FormsManager {
                 Object value = wrapFieldValue(recordData, easyField, user);
                 if (value != null) {
                     // `wrapValue` 会添加格式符号
-                    if (!viewModel && easyField.getDisplayType() == DisplayType.DECIMAL) {
+                    if (!viewModel && (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER)) {
                         value = EasyDecimal.clearFlaged(value);
                     }
                     el.put("value", value);
@@ -594,6 +596,14 @@ public class FormsBuilder extends FormsManager {
             String decimalType = el.getString("decimalType");
             if (decimalType != null && decimalType.contains("%s")) {
                 el.put("decimalType", decimalType.replace("%s", ""));
+            }
+
+            // v3.8
+            if (isNew && !isProTableLayout) {
+                if (!fp.isCreatable(fieldMeta, user)) el.put("readonly", true);
+            } else {
+                if (!fp.isReadble(fieldMeta, user)) iter.remove();
+                else if (!fp.isUpdatable(fieldMeta, user)) el.put("readonly", true);
             }
         }
     }
@@ -747,8 +757,9 @@ public class FormsBuilder extends FormsManager {
             }
             // 其他
             else if (entity.containsField(field)) {
-                EasyField easyField = EasyMetaFactory.valueOf(entity.getField(field));
-                if (easyField.getDisplayType() == DisplayType.REFERENCE || easyField.getDisplayType() == DisplayType.N2NREFERENCE) {
+                final EasyField easyField = EasyMetaFactory.valueOf(entity.getField(field));
+                final DisplayType dt = easyField.getDisplayType();
+                if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
                     // v3.4 如果字段设置了附加过滤条件，从相关项新建时要检查是否符合
                     if (!FieldValueHelper.checkRefDataFilter(easyField, ID.valueOf(value))) {
                         ((JSONObject) formModel).put("alertMessage",
@@ -758,7 +769,7 @@ public class FormsBuilder extends FormsManager {
 
                     Object mixValue = inFormFields.contains(field) ? getReferenceMixValue(value) : value;
                     if (mixValue != null) {
-                        if (easyField.getDisplayType() == DisplayType.REFERENCE) {
+                        if (dt == DisplayType.REFERENCE) {
                             initialValReady.put(field, mixValue);
                         } else {
                             // N2N 是数组

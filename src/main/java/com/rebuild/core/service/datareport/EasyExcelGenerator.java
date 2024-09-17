@@ -365,13 +365,17 @@ public class EasyExcelGenerator extends SetUser {
             if (dt == DisplayType.BARCODE) {
                 data.put(varName, buildBarcodeData(easyField.getRawMeta(), record.getPrimary()));
             } else if (fieldValue == null) {
-                data.put(varName, StringUtils.EMPTY);
+                // v3.8
+                Object funcValue = ValueConvertFunc.convert(easyField, null, varName);
+                data.put(varName, funcValue == null ? StringUtils.EMPTY : funcValue);
             } else {
 
                 if (dt == DisplayType.SIGN) {
                     fieldValue = buildSignData((String) fieldValue);
                 } else if (dt == DisplayType.IMAGE) {
                     fieldValue = buildImageData((String) fieldValue);
+                    // TODO Excel 指定图片大小（可通过 Excel 单元格大小控制?）
+
                 } else {
 
                     if (dt == DisplayType.NUMBER) {
@@ -522,7 +526,7 @@ public class EasyExcelGenerator extends SetUser {
             return create(reportId, recordId);
         } else {
             TemplateFile tt = DataReportManager.instance
-                    .getTemplateFile(MetadataHelper.getEntity(recordId.getEntityCode()), reportId);
+                    .buildTemplateFile(reportId, MetadataHelper.getEntity(recordId.getEntityCode()));
             return new EasyExcelGenerator33(tt.templateFile, recordIds);
         }
     }
@@ -534,7 +538,7 @@ public class EasyExcelGenerator extends SetUser {
      */
     public static EasyExcelGenerator create(ID reportId, ID recordId) {
         TemplateFile tt = DataReportManager.instance
-                .getTemplateFile(MetadataHelper.getEntity(recordId.getEntityCode()), reportId);
+                .buildTemplateFile(reportId, MetadataHelper.getEntity(recordId.getEntityCode()));
         return create(tt.templateFile, recordId, tt.isV33);
     }
 

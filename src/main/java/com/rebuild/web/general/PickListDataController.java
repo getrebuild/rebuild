@@ -79,7 +79,7 @@ public class PickListDataController extends BaseController {
         }
 
         ID parent = getIdParameter(request, "parent");
-        String sql = "select itemId,name from ClassificationData where dataId = ? and isHide = 'F' and ";
+        String sql = "select itemId,name,code from ClassificationData where dataId = ? and isHide = 'F' and ";
         if (parent != null) sql += "parent = '" + parent + "'";
         else sql += "parent is null";
 

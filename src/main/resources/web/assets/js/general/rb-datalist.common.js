@@ -806,9 +806,26 @@ const RbListCommon = {
     RbListPage.init(wpc.listConfig, entity, wpc.privileges)
     if (wpc.advFilter !== false) AdvFilters.init('.adv-search', entity[0])
 
-    $('.J_new')
+    const newProps = { title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }
+    const $new = $('.J_new')
       .attr('disabled', false)
-      .on('click', () => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
+      .on('click', () => RbFormModal.create(newProps))
+    if (wpc.formsAttr) {
+      $new.next().removeClass('hide')
+      const $nn = $new.next().next()
+      wpc.formsAttr.map((n) => {
+        $(`<a class="dropdown-item" data-id="${n.id}">${n.name || $L('默认')}</a>`)
+          .appendTo($nn)
+          .on('click', () => RbFormModal.create({ ...newProps, specLayout: n.id }, true))
+      })
+    } else {
+      const $next = $new.next()
+      if ($next.hasClass('hide') && $next.hasClass('dropdown-toggle')) {
+        $next.next().remove()
+        $next.remove()
+      }
+    }
+
     $('.J_export').on('click', () => renderRbcomp(<DataExport listRef={_RbList()} entity={entity[0]} />))
     $('.J_batch-update').on('click', () => renderRbcomp(<BatchUpdate listRef={_RbList()} entity={entity[0]} />))
     $('.J_batch-approve').on('click', () => renderRbcomp(<BatchApprove listRef={_RbList()} entity={entity[0]} />))
@@ -829,9 +846,9 @@ const RbListCommon = {
 
 const wpc = window.__PageConfig || {}
 
-const COLUMN_MIN_WIDTH = 30
-const COLUMN_MAX_WIDTH = 800
-const COLUMN_DEF_WIDTH = 130
+const _DL_COLUMN_MIN_WIDTH = 30
+const _DL_COLUMN_MAX_WIDTH = 500
+const _DL_COLUMN_DEF_WIDTH = 130
 
 // IE/Edge 不支持首/列固定
 const supportFixedColumns = !($.browser.msie || $.browser.msedge)
@@ -873,7 +890,7 @@ class RbList extends React.Component {
 
     for (let i = 0; i < fields.length; i++) {
       const cw = $storage.get(this.__columnWidthKey + fields[i].field)
-      if (!!cw && ~~cw >= COLUMN_MIN_WIDTH) fields[i].width = ~~cw
+      if (!!cw && ~~cw >= _DL_COLUMN_MIN_WIDTH) fields[i].width = ~~cw
 
       if (sort && sort[0] === fields[i].field) fields[i].sort = sort[1]
       else fields[i].sort = null
@@ -885,7 +902,7 @@ class RbList extends React.Component {
     this.state = { ...props, fields: fields, rowsData: [], pageNo: 1, pageSize: 20, inLoad: true }
 
     this.__defaultColumnWidth = this._$wrapper.width() / 10
-    if (this.__defaultColumnWidth < COLUMN_DEF_WIDTH) this.__defaultColumnWidth = COLUMN_DEF_WIDTH
+    if (this.__defaultColumnWidth < _DL_COLUMN_DEF_WIDTH) this.__defaultColumnWidth = _DL_COLUMN_DEF_WIDTH
 
     this.pageNo = 1
     this.pageSize = $storage.get('ListPageSize') || 20
@@ -895,7 +912,8 @@ class RbList extends React.Component {
 
   render() {
     const lastIndex = this.state.fields.length
-    const rowActions = window.FrontJS ? window.FrontJS.DataList.__rowActions : []
+    let rowActions = window.FrontJS ? window.FrontJS.DataList.__rowActions : []
+    if (wpc.type !== 'RecordList') rowActions = []
 
     return (
       <RF>
@@ -969,11 +987,13 @@ class RbList extends React.Component {
                                   type="button"
                                   className="btn btn-sm btn-link w-auto"
                                   title={btn.title || null}
-                                  onClick={() => {
-                                    typeof btn.onClick === 'function' && btn.onClick(primaryKey.id)
+                                  onClick={(e) => {
+                                    typeof btn.onClick === 'function' && btn.onClick(primaryKey.id, e)
                                   }}>
-                                  {btn.icon && <i className={`icon zmdi zmdi-${btn.icon}`} />}
-                                  {btn.text}
+                                  <span className={`text-${btn.type || ''}`}>
+                                    {btn.icon && <i className={`icon zmdi zmdi-${btn.icon}`} />}
+                                    {btn.text || null}
+                                  </span>
                                 </button>
                               )
                             })}
@@ -1048,8 +1068,8 @@ class RbList extends React.Component {
       stop: function (event, ui) {
         const field = $(event.target).parents('th').data('field')
         let left = ui.position.left - 0
-        if (left < COLUMN_MIN_WIDTH) left = COLUMN_MIN_WIDTH
-        else if (left > COLUMN_MAX_WIDTH) left = COLUMN_MAX_WIDTH
+        if (left < _DL_COLUMN_MIN_WIDTH) left = _DL_COLUMN_MIN_WIDTH
+        else if (left > _DL_COLUMN_MAX_WIDTH) left = _DL_COLUMN_MAX_WIDTH
         const fields = that.state.fields
         for (let i = 0; i < fields.length; i++) {
           if (fields[i].field === field) {
@@ -1138,11 +1158,11 @@ class RbList extends React.Component {
     const cellKey = `row-${primaryKey.id}-${index}`
     const width = this.state.fields[index].width || this.__defaultColumnWidth
     let type = field.type
-    if (field.field === this.props.config.nameField) {
+    if (cellVal === '$NOPRIVILEGES$') {
+      type = cellVal
+    } else if (field.field === this.props.config.nameField) {
       cellVal = primaryKey
       type = '$NAME$'
-    } else if (cellVal === '$NOPRIVILEGES$') {
-      type = cellVal
     }
 
     // @see rb-datalist.common.js
@@ -1549,7 +1569,7 @@ const CellRenders = {
 
   // 单元格渲染
   render(value, type, width, key) {
-    const style2 = { width: width || COLUMN_MIN_WIDTH }
+    const style2 = { width: width || _DL_COLUMN_MIN_WIDTH }
     if (window.FrontJS && wpc.entity) {
       let fieldKey = key.split('.').slice(1)
       fieldKey = `${wpc.entity[0]}.${fieldKey.join('.')}`
@@ -1572,8 +1592,9 @@ const CellRenders = {
    */
   renderSimple(v, s, k) {
     if (typeof v === 'string' && v.length > 300) v = v.substr(0, 300)
-    else if (k.endsWith('.approvalId') && !v) v = $L('未提交')
-    else if (k.endsWith('.approvalState') && !v) v = $L('草稿')
+    // v3.8 引用字段无值的情况下审批相关字段也应无值
+    // else if (k.endsWith('.approvalId') && !v) v = $L('未提交')
+    // else if (k.endsWith('.approvalState') && !v) v = $L('草稿')
 
     return (
       <td key={k}>
@@ -1688,7 +1709,7 @@ CellRenders.addRender('N2NREFERENCE', (v, s, k) => {
       <div className="column-multi" style={s}>
         {v.map((item) => {
           return (
-            <a key={item.id} title={item.text} className="badge hover-color" href={`#!/View/${item.entity}/${item.id}`} onClick={(e) => CellRenders.clickView(item, e)}>
+            <a key={item.id} title={item.text} className="badge" href={`#!/View/${item.entity}/${item.id}`} onClick={(e) => CellRenders.clickView(item, e)}>
               {item.text}
             </a>
           )
@@ -1749,7 +1770,7 @@ CellRenders.addRender('STATE', (v, s, k) => {
     return CellRenders.renderSimple(v, s, k)
   }
 })
-const renderNumber = (v, s, k) => {
+const _renderNumber = (v, s, k) => {
   // 负数
   if ((v + '').includes('-')) {
     return (
@@ -1763,8 +1784,8 @@ const renderNumber = (v, s, k) => {
     return CellRenders.renderSimple(v, s, k)
   }
 }
-CellRenders.addRender('DECIMAL', renderNumber)
-CellRenders.addRender('NUMBER', renderNumber)
+CellRenders.addRender('DECIMAL', _renderNumber)
+CellRenders.addRender('NUMBER', _renderNumber)
 CellRenders.addRender('MULTISELECT', (v, s, k) => {
   const vLen = (v.text || []).length
   return (
@@ -1772,9 +1793,8 @@ CellRenders.addRender('MULTISELECT', (v, s, k) => {
       <div className="column-multi" style={s}>
         {(v.text || []).map((item) => {
           if (typeof item === 'object') {
-            const style2 = item.color ? { borderColor: item.color, backgroundColor: item.color, color: $isLight(item.color) ? '#444' : '#fff' } : null
             return (
-              <span key={item.text} className="badge" title={item.text} style={style2}>
+              <span key={item.text} className="badge" title={item.text} style={$tagStyle2(item.color)}>
                 {item.text}
               </span>
             )
@@ -1821,14 +1841,13 @@ CellRenders.addRender('SIGN', (v, s, k) => {
     </td>
   )
 })
-CellRenders.addRender('PICKLIST', (v, s, k) => {
+const _renderOptionField = (v, s, k) => {
   // Use badge
   if (typeof v === 'object') {
-    const style2 = v.color ? { borderColor: v.color, backgroundColor: v.color, color: $isLight(v.color) ? '#444' : '#fff' } : null
     return (
       <td key={k} className="td-sm column-state">
         <div style={s} title={v.text}>
-          <span className="badge" style={style2}>
+          <span className="badge" style={$tagStyle2(v.color)}>
             {v.text}
           </span>
         </div>
@@ -1837,16 +1856,17 @@ CellRenders.addRender('PICKLIST', (v, s, k) => {
   } else {
     return CellRenders.renderSimple(v, s, k)
   }
-})
+}
+CellRenders.addRender('PICKLIST', _renderOptionField)
+CellRenders.addRender('CLASSIFICATION', _renderOptionField)
 CellRenders.addRender('TAG', (v, s, k) => {
   const vLen = (v || []).length
   return (
     <td key={k} className="td-sm" title={$L('共 %d 项', vLen)}>
       <div className="column-multi" style={s}>
         {(v || []).map((item) => {
-          const style2 = item.color ? { color: item.color, borderColor: item.color } : null
           return (
-            <span key={item.name} className="badge" title={item.name} style={style2}>
+            <span key={item.name} className="badge" title={item.name} style={$tagStyle2(item.color)}>
               {item.name}
             </span>
           )
@@ -1872,7 +1892,7 @@ class RecordMerger extends RbModalHandler {
       <RbModal title={$L('记录合并')} ref={(c) => (this._dlg = c)} disposeOnHide width="1000" maximize>
         <div style={{ padding: 10 }}>
           <div className="record-merge-table">
-            <label className="mb-2 text-bold">{$L('选择需要保留的值')}</label>
+            <h5 className="text-bold fs-14 m-0 mb-2">{$L('请选择需要保留的值')}</h5>
             <table className="table table-bordered table-hover table-sm m-0">
               <thead ref={(c) => (this._$thead = c)}>
                 <tr>
@@ -2059,45 +2079,104 @@ class RecordMerger extends RbModalHandler {
   }
 }
 
+// 列表图表部件
+const ChartsWidget = {
+  init: function () {
+    // 复写
+    window.chart_remove = function (box) {
+      box.parent().animate({ opacity: 0 }, function () {
+        box.parent().remove()
+        ChartsWidget.saveWidget()
+      })
+    }
+
+    // eslint-disable-next-line no-undef
+    ECHART_BASE.grid = { left: 40, right: 20, top: 30, bottom: 20 }
+
+    $('.J_load-charts').on('click', () => {
+      this._chartLoaded !== true && this.loadWidget()
+    })
+    $('.J_add-chart').on('click', () => this.showChartSelect())
+
+    $('.charts-wrap')
+      .sortable({
+        handle: '.chart-title',
+        axis: 'y',
+        update: () => ChartsWidget.saveWidget(),
+      })
+      .disableSelection()
+  },
+
+  showChartSelect: function () {
+    if (this.__chartSelect) {
+      this.__chartSelect.show()
+      this.__chartSelect.setState({ appended: ChartsWidget.__currentCharts() })
+      return
+    }
+
+    // eslint-disable-next-line react/jsx-no-undef
+    renderRbcomp(<ChartSelect select={(c) => this.renderChart(c, true)} entity={wpc.entity[0]} />, function () {
+      ChartsWidget.__chartSelect = this
+      this.setState({ appended: ChartsWidget.__currentCharts() })
+    })
+  },
+
+  renderChart: function (chart, append) {
+    const $w = $(`<div id="chart-${chart.chart}"></div>`).appendTo('.charts-wrap')
+    // eslint-disable-next-line no-undef
+    renderRbcomp(detectChart({ ...chart, editable: true }, chart.chart), $w, function () {
+      if (append) ChartsWidget.saveWidget()
+    })
+  },
+
+  loadWidget: function () {
+    $.get(`/app/${wpc.entity[0]}/widget-charts`, (res) => {
+      this._chartLoaded = true
+      this.__config = res.data || {}
+      res.data && $(res.data.config).each((idx, chart) => this.renderChart(chart))
+    })
+  },
+
+  saveWidget: function () {
+    const charts = this.__currentCharts(true)
+    $.post(`/app/${wpc.entity[0]}/widget-charts?id=${this.__config.id || ''}`, JSON.stringify(charts), (res) => {
+      ChartsWidget.__config.id = res.data
+      $('.page-aside .tab-content').perfectScrollbar('update')
+    })
+  },
+
+  __currentCharts: function (o) {
+    const charts = []
+    $('.charts-wrap>div').each(function () {
+      const id = $(this).attr('id').substr(6)
+      if (o) charts.push({ chart: id })
+      else charts.push(id)
+    })
+    return charts
+  },
+}
+
 // 分组
-// eslint-disable-next-line no-unused-vars
 const CategoryWidget = {
   __ALL: '$ALL$',
 
   init() {
-    $('.J_load-category').on('click', () => this.loadData())
-  },
-
-  loadData() {
-    if (this._inited === true) return
-    this._inited = true
-
-    $.get(`/app/${wpc.entity[0]}/widget-category-data`, (res) => {
-      const datas = [{ id: CategoryWidget.__ALL, text: $L('全部数据') }, ...res.data]
-
-      // 分类字段
-      let hideCollapse = true
-      for (let i = 0; i < datas.length; i++) {
-        if (datas[i].children) {
-          hideCollapse = false
-          break
-        }
-      }
+    let _init = false
+    $('.J_load-category').on('click', () => {
+      if (_init) return
 
       renderRbcomp(
-        <AsideTree
-          data={datas}
-          activeItem={CategoryWidget.__ALL}
-          hideCollapse={hideCollapse}
-          onItemClick={(item) => {
-            const v = item.id
-            if (v === CategoryWidget.__ALL) wpc.protocolFilter = null
-            else wpc.protocolFilter = `category:${wpc.entity[0]}:${v}`
+        <AsideTree4Category
+          entity={wpc.entity[0]}
+          onItemClick={(query) => {
+            if (!query || query[0] === CategoryWidget.__ALL) wpc.protocolFilter = null
+            else wpc.protocolFilter = `category:${wpc.entity[0]}:${query.join('$$$$')}`
             RbListPage.reload()
           }}
         />,
         'asideCategory'
       )
+      _init = true
     })
   },
 }
@@ -2108,6 +2187,11 @@ const EasyAction = {
     const _List = _FrontJS.DataList
 
     items.forEach((item) => {
+      if (!item.icon && !item.text) {
+        console.log('Bad button of EasyAction :', item)
+        return
+      }
+
       if (~~item.showType === 1) {
         item.text = ''
         if (!item.icon) item.icon = 'texture'
@@ -2195,4 +2279,108 @@ const EasyAction = {
       console.log(err)
     }
   },
+}
+
+class AsideTree4Category extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  render() {
+    return (
+      <div className={`aside-2tree ${!this.state._allowChild && 'hide-collapse'}`} ref={(c) => (this._$element = c)}>
+        <ul className="list-unstyled m-0 ">
+          {this.state.datas &&
+            this.state.datas.map((item) => {
+              let hasChild = item.hasChild
+              if (typeof hasChild === 'undefined') {
+                hasChild = this.state._allowChild
+              }
+              return <TreeNode key={item.id} {...item} hasChild={hasChild} entity={this.props.entity} $$$parent={this} />
+            })}
+        </ul>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    $.get(`/app/${this.props.entity}/widget-category-data`, (res) => {
+      const _data = res.data || {}
+      const datas = [{ id: CategoryWidget.__ALL, text: $L('全部数据'), hasChild: false }, ...(_data.data || [])]
+      this.setState({ datas: datas, _allowChild: _data.hasChild }, () => {
+        $(this._$element).find('li:eq(0)').addClass('active')
+      })
+    })
+  }
+
+  queryList(query) {
+    typeof this.props.onItemClick === 'function' && this.props.onItemClick(query)
+  }
+}
+
+class TreeNode extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props, _expand: false }
+  }
+
+  render() {
+    const props = this.props
+    let hasChild = this.state.hasChild === true
+    if (hasChild && this.state.children && this.state.children.length === 0) hasChild = false
+    if (this.state.children && this.state.children.length > 0) hasChild = true
+
+    return (
+      <RF>
+        <li data-id={props.id} ref={(c) => (this._$node = c)}>
+          <span className={`collapse-icon ${!hasChild && 'no-child'}`} onClick={() => hasChild && this.handleExpand()}>
+            <i className={`zmdi zmdi-chevron-right ${this.state._expand && 'open'} `} />
+          </span>
+          <a className="text-ellipsis" onClick={() => this.handleClick()} title={props.text}>
+            {props.text}
+          </a>
+        </li>
+        {this.state.children && (
+          <ul className={`list-unstyled m-0 ${!this.state._expand && 'hide'}`} _title2={$L('无')}>
+            {this.state.children.map((item) => {
+              let hasChild = this.state._allowChild
+              return <TreeNode key={item.id} {...item} hasChild={hasChild} entity={this.props.entity} $$$parent={this} />
+            })}
+          </ul>
+        )}
+      </RF>
+    )
+  }
+
+  handleExpand() {
+    this.setState({ _expand: !this.state._expand })
+    if (this.state.children) return
+
+    const url = `/app/${this.props.entity}/widget-category-data?filterVal=${$encode(this.filterVal().join('$$$$'))}`
+    $.get(url, (res) => {
+      const _data = res.data || {}
+      const datas = [...(_data.data || [])]
+      this.setState({ children: datas, _allowChild: _data.hasChild })
+    })
+  }
+
+  handleClick() {
+    $('#asideCategory ul>li').removeClass('active')
+    $(this._$node).addClass('active')
+    this.queryList(this.filterVal())
+  }
+
+  filterVal() {
+    if (typeof this.props.$$$parent.filterVal === 'function') {
+      let vv = this.props.$$$parent.filterVal() || []
+      vv.push(this.props.id)
+      return vv
+    }
+    return [this.props.id]
+  }
+
+  queryList(q) {
+    typeof this.props.$$$parent.queryList === 'function' && this.props.$$$parent.queryList(q)
+  }
 }

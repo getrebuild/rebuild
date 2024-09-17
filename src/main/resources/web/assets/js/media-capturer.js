@@ -21,7 +21,7 @@ class MediaCapturer extends RbModal {
     // 1024, 768
     this._videoWidth = props.width || _IDEAL_VIDW
     // https://developer.mozilla.org/en-US/docs/Web/API/ImageCapture
-    this._useImageCapture = null
+    this._useImageCapture = props.watermark ? false : null
   }
 
   renderContent() {
@@ -219,6 +219,7 @@ class MediaCapturer extends RbModal {
         ctx2d.fillStyle = 'white'
         ctx2d.fillText(moment().format('YYYY-MM-DD HH:mm:ss'), 20, 40)
         ctx2d.fillText('Device : ' + this.__currentDeviceId || '', 20, 40 + 30)
+        ctx2d.fillText('User : ***' + rb.currentUser.substr(7), 20, 40 + 30 + 30)
       }
       this._capturedData = this._$resImage.toDataURL('image/jpeg', 1.0)
 

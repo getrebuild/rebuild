@@ -20,6 +20,7 @@ class LightFeedsList extends RelatedList {
     this.__FeedsList = new FeedsList()
     this.__FeedsList.setState = (s) => this.setState(s)
     this.__FeedsList.fetchFeeds = () => this.fetchData(false)
+    this.__FeedsList._inView = true
 
     this.__listClass = 'feeds-list inview'
     this.__listNoData = (
@@ -79,12 +80,7 @@ class LightFeedsList extends RelatedList {
       const data = (res.data || {}).data || []
       const list = append ? (this.state.dataList || []).concat(data) : data
       this.__FeedsList.state = { data: list }
-      this.setState({ dataList: list, showMore: data.length >= pageSize }, () => {
-        $('.feeds-list.inview .J_relatedRecord a').attr({
-          href: 'javascript:;',
-          title: '',
-        })
-      })
+      this.setState({ dataList: list, showMore: data.length >= pageSize })
     })
   }
 }
@@ -98,7 +94,7 @@ class LightTaskList extends RelatedList {
     this.__listClass = 'tasks-list inview'
     this.__listNoData = (
       <div className="list-nodata">
-        <span className="zmdi zmdi-shape" />
+        <span className="zmdi zmdi-mdi-checkbox-marked-outline" />
         <p>
           {$L('暂无数据')}
           <br />
@@ -477,7 +473,7 @@ class SelectReport extends React.Component {
                     rb._officePreviewUrl = 111
                     const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}`
                     const showPdf = (item.outputType || '').includes('pdf')
-                    const showHtml = (item.outputType || '').includes('html')
+                    const showHtml = item.outputType !== 'html5' && (item.outputType || '').includes('html')
                     return (
                       <li key={item.id} className={`${rb._officePreviewUrl && 'has-preview'} ${showPdf && 'has-pdf'} ${showHtml && 'has-html'}`}>
                         <a target="_blank" href={reportUrl} className="text-truncate" title={$L('下载')}>

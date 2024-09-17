@@ -143,13 +143,13 @@ const StepRebuild = () => {
       element: '.global-search2',
       title: $L('全局搜索'),
       intro: $L('全局搜索可以帮助你快速查询需要的数据'),
-      rbLeft: 5,
+      rbLeft: 12,
     },
     {
       element: '.global-create2',
       title: $L('快速新建'),
       intro: $L('点击此处快速新建业务记录'),
-      rbLeft: 5,
+      rbLeft: 6,
     },
     {
       element: '.admin-settings',
@@ -161,13 +161,13 @@ const StepRebuild = () => {
       element: '.page-help',
       title: $L('帮助中心'),
       intro: $L('使用遇到问题可以查阅帮助文档，你也可以通过阅读文档 GET 更多技能'),
-      rbLeft: 6,
+      rbLeft: 4,
     },
     {
       element: '.J_top-notifications',
       title: $L('通知'),
       intro: $L('与你相关的通知消息都在这里'),
-      rbRight: 9,
+      rbRight: 10,
     },
     {
       element: '.J_top-user',

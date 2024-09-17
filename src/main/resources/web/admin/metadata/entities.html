@@ -13,7 +13,7 @@
         background-color: rgba(255, 255, 255, 0.7);
       }
       .card.entity .card-body {
-        padding: 12px 20px;
+        padding: 12px 14px;
         color: #333;
       }
       .card.entity .card-body .float-left {
@@ -24,10 +24,12 @@
         font-size: 32px;
         color: #4285f4;
       }
-      .card.entity i.badge {
+      .card.entity div.badge-wrap {
         position: absolute;
         top: 11px;
         right: 11px;
+      }
+      .card.entity div.badge-wrap .badge {
         text-transform: uppercase;
       }
       .card.entity span {
@@ -74,7 +76,6 @@
         margin: 15px -35px 10px;
         padding-top: 25px;
       }
-
       .entity-new2 .init-models {
         margin-left: -10px;
         margin-right: -10px;
@@ -123,6 +124,7 @@
       			<div class="ml-7"><span class="text-truncate"></span><p class="text-muted text-truncate m-0"></p></div>
       			<div class="clearfix"></div>
       		</div>
+          <div class="badge-wrap"></div>
       	</a>
       </div>
     </script>
@@ -212,8 +214,9 @@
         if (item.comments) $t.find('p').text(item.comments)
         else $t.find('p').html('&nbsp;')
 
-        if (item.builtin) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('内置')}</i>`).appendTo($t.find('a.card'))
-        if (item.detailEntity) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('明细')}</i>`).appendTo($t.find('a.card'))
+        if (item.builtin) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('内置')}</i>`).appendTo($t.find('a.card .badge-wrap'))
+        if (item.hadApproval) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('审批')}</i>`).appendTo($t.find('a.card .badge-wrap'))
+        if (item.detailEntity) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('明细')}</i>`).appendTo($t.find('a.card .badge-wrap'))
         return $t
       }
     </script>

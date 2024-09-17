@@ -9,16 +9,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // ~~ 表格型表单
 
-const COLUMN_MIN_WIDTH = 30
-const COLUMN_MAX_WIDTH = 500
-const COLUMN_DEF_WIDTH = 178 // 48
-const COLUMN_WIDTH_PLUS = ['REFERENCE', 'N2NREFERENCE', 'CLASSIFICATION']
+const _PT_COLUMN_MIN_WIDTH = 30
+const _PT_COLUMN_MAX_WIDTH = 500
+const _PT_COLUMN_DEF_WIDTH = 200
+const _PT_COLUMN_WIDTH_PLUS = ['REFERENCE', 'N2NREFERENCE', 'CLASSIFICATION']
 
 class ProTable extends React.Component {
   constructor(props) {
     super(props)
     this.state = {}
-    this._isReadonly = props.$$$main.props.readonly
   }
 
   render() {
@@ -30,43 +29,28 @@ class ProTable extends React.Component {
     // 等待初始化
     if (!this.state.formFields) return null
 
+    const _readonly = this.props.$$$main.props.readonly
     const formFields = this.state.formFields
     const details = this.state.details || [] // 编辑时有
-
-    // fixed 模式大概 5 个字段
-    const ww = $(window).width()
-    const fw = ww > 1064 ? 994 : ww - 70
-    const fixed = COLUMN_DEF_WIDTH * formFields.length + (38 + 48) > fw
+    const fixedWidth = formFields.length <= 5
 
     return (
-      <div className={`protable rb-scroller ${fixed && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
-        <table className={`table table-sm ${!fixed && 'table-fixed'}`}>
+      <div className={`protable rb-scroller ${!fixedWidth && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
+        <table className={`table table-sm ${fixedWidth && 'table-fixed'}`}>
           <thead>
             <tr>
-              <th className="col-index action">
-                <a
-                  title={$L('全屏')}
-                  onClick={() => {
-                    const $d = $(this._$scroller).parents('.detail-form-table').toggleClass('fullscreen')
-                    const $modal = $(this._$scroller).parents('.rbmodal')
-                    $modal.find('.modal-dialog').toggleClass('fullscreen')
-                    // height
-                    const wh = $d.hasClass('fullscreen') ? $(window).height() - 165 : 'auto'
-                    $d.height(wh)
-                    $modal.find('.modal-body').height(wh)
-                  }}>
-                  <i className="mdi mdi-arrow-expand hide" />
-                </a>
-              </th>
+              <th className="col-index" />
               {formFields.map((item) => {
                 if (item.field === TYPE_DIVIDER) return null
 
-                let colStyle2 = { minWidth: COLUMN_DEF_WIDTH }
-                if (fixed) {
-                  // v35
-                  if (item.colspan) colStyle2.minWidth = (COLUMN_DEF_WIDTH / 2) * ~~item.colspan
-                  if (COLUMN_WIDTH_PLUS.includes(item.type)) colStyle2.minWidth += 38 // btn
-                  if (colStyle2.minWidth > COLUMN_DEF_WIDTH * 2) colStyle2.minWidth = COLUMN_DEF_WIDTH * 2
+                let colStyle2 = { minWidth: _PT_COLUMN_DEF_WIDTH }
+                if (!fixedWidth) {
+                  // v35, v38
+                  let _colspan = ~~(item.colspan || 2)
+                  if (_colspan === 9) _colspan = 1.5
+                  if (_colspan === 8) _colspan = 2.5
+                  colStyle2.minWidth = (_PT_COLUMN_DEF_WIDTH / 2) * _colspan
+                  if (_PT_COLUMN_WIDTH_PLUS.includes(item.type)) colStyle2.minWidth += 38 // btn
                 }
                 // v37 LAB
                 if (item.width) {
@@ -82,7 +66,7 @@ class ProTable extends React.Component {
                   </th>
                 )
               })}
-              <td className={`col-action ${this._initModel.detailsCopiable && 'has-copy-btn'} ${fixed && 'column-fixed'}`} />
+              <td className={`col-action ${this._initModel.detailsCopiable && 'has-copy-btn'} ${!fixedWidth && 'column-fixed'}`} />
             </tr>
           </thead>
           <tbody>
@@ -90,16 +74,22 @@ class ProTable extends React.Component {
               const key = FORM.key
               return (
                 <tr key={`inline-${key}`}>
-                  <th className="col-index">{details.length + idx + 1}</th>
+                  <th className={`col-index ${!_readonly && 'action'}`}>
+                    <span>{details.length + idx + 1}</span>
+                    {!_readonly && (
+                      <a title={$L('展开编辑')} onClick={() => this._expandLineForm(key)}>
+                        <i className="mdi mdi-arrow-expand" />
+                      </a>
+                    )}
+                  </th>
                   {FORM}
-
-                  <td className={`col-action ${fixed && 'column-fixed'}`}>
+                  <td className={`col-action ${!fixedWidth && 'column-fixed'}`}>
                     {this._initModel.detailsCopiable && (
-                      <button className="btn btn-light" title={$L('复制')} onClick={() => this.copyLine(key)} disabled={this._isReadonly}>
+                      <button className="btn btn-light" title={$L('复制')} onClick={() => this.copyLine(key)} disabled={_readonly}>
                         <i className="icon zmdi zmdi-copy fs-14" />
                       </button>
                     )}
-                    <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={this._isReadonly}>
+                    <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={_readonly}>
                       <i className="icon zmdi zmdi-close fs-16 text-bold" />
                     </button>
                   </td>
@@ -165,8 +155,8 @@ class ProTable extends React.Component {
       stop: function (e, ui) {
         const field = $(e.target).parents('th').data('field')
         let left = ui.position.left - -10
-        if (left < COLUMN_MIN_WIDTH) left = COLUMN_MIN_WIDTH
-        else if (left > COLUMN_MAX_WIDTH) left = COLUMN_MAX_WIDTH
+        if (left < _PT_COLUMN_MIN_WIDTH) left = _PT_COLUMN_MIN_WIDTH
+        else if (left > _PT_COLUMN_MAX_WIDTH) left = _PT_COLUMN_MAX_WIDTH
 
         const fields = that.state.formFields
         for (let i = 0; i < fields.length; i++) {
@@ -178,6 +168,52 @@ class ProTable extends React.Component {
 
         that.setState({ formFields: fields }, () => $scroller.perfectScrollbar('update'))
       },
+    })
+  }
+
+  _expandLineForm(lineKey) {
+    const F = this.getLineForm(lineKey)
+    if (!F) return
+
+    const that = this
+    const props = {
+      title: $L('编辑'),
+      confirmText: $L('确定'),
+      icon: this.props.entity.icon,
+      entity: F.props.entity,
+      id: F.props.id || null,
+      initialFormModel: null,
+      postBefore: function (data) {
+        that._formdataRebuild(data, (res) => {
+          const dataBuild = res.data.elements
+          const dataUpdated = {}
+          for (let name in data) {
+            const c = dataBuild.find((x) => x.field === name)
+            if (c && c.readonly !== true) dataUpdated[name] = c.value
+          }
+          F.updatetFormData(dataUpdated)
+
+          // hide
+          if (RbFormModal.__CURRENT35) RbFormModal.__CURRENT35.hide(true)
+        })
+        return false
+      },
+    }
+
+    this._formdataRebuild(F.getFormData(), (res) => {
+      props.initialFormModel = res.data
+      RbFormModal.create(props, true)
+    })
+  }
+
+  _formdataRebuild(data, cb) {
+    const mainid = this.props.$$$main.props.id || '000-0000000000000000'
+    $.post(`/app/entity/extras/formdata-rebuild?mainid=${mainid}`, JSON.stringify(data), (res) => {
+      if (res.error_code === 0) {
+        typeof cb === 'function' && cb(res)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
     })
   }
 
@@ -220,17 +256,15 @@ class ProTable extends React.Component {
   }
 
   copyLine(lineKey) {
-    const f = this.getLineForm(lineKey)
-    const data = f ? f.getFormData() : null
+    const F = this.getLineForm(lineKey)
+    const data = F ? F.getFormData() : null
     if (!data) return
 
-    // New
+    // force New
     delete data.metadata.id
 
-    const mainid = this.props.$$$main.props.id || '000-0000000000000000'
-    $.post(`/app/entity/extras/formdata-rebuild?mainid=${mainid}`, JSON.stringify(data), (res) => {
-      if (res.error_code === 0) this._addLine(res.data)
-      else RbHighbar.error(res.error_msg)
+    this._formdataRebuild(data, (res) => {
+      this._addLine(res.data)
     })
   }
 
@@ -295,8 +329,8 @@ class ProTable extends React.Component {
    */
   getLineForm(lineKey) {
     if (!this.state.inlineForms) return null
-    const f = this.state.inlineForms.find((c) => c.key === lineKey)
-    return f ? f.ref.current || null : null
+    const F = this.state.inlineForms.find((c) => c.key === lineKey)
+    return F ? F.ref.current || null : null
   }
 
   /**
@@ -388,20 +422,30 @@ class InlineForm extends RbForm {
     )
   }
 
-  buildFormData(retAll) {
-    const $idx = $(this._$ref).parent().find('th.col-index').removeAttr('title')
-
+  _baseFormData() {
     const data = {}
-    if (retAll) {
-      this.props.rawModel.elements.forEach((item) => {
-        let val = item.value
-        if (val) {
+    this.props.rawModel.elements.forEach((item) => {
+      let val = item.value
+      if (val) {
+        if (item.type === 'N2NREFERENCE') {
+          let ids = item.value.map((n) => {
+            return n.id ? n.id : n
+          })
+          val = ids.join(',')
+        } else {
           val = typeof val === 'object' ? val.id || val : val
-          data[item.field] = val || null
         }
-      })
-    }
 
+        data[item.field] = val || null
+      }
+    })
+    return data
+  }
+
+  buildFormData(retAll) {
+    const data = retAll ? this._baseFormData() : {}
+
+    const $idx = $(this._$ref).parent().find('th.col-index').removeAttr('title')
     let error = null
     for (let k in this.__FormData) {
       const err = this.__FormData[k].error
@@ -427,14 +471,7 @@ class InlineForm extends RbForm {
   }
 
   getFormData() {
-    const data = {}
-    this.props.rawModel.elements.forEach((item) => {
-      let val = item.value
-      if (val) {
-        val = typeof val === 'object' ? val.id || val : val
-        data[item.field] = val || null
-      }
-    })
+    const data = this._baseFormData()
     // updated
     for (let k in this.__FormData) {
       const err = this.__FormData[k].error
@@ -447,6 +484,14 @@ class InlineForm extends RbForm {
       id: this.state.id || null,
     }
     return data
+  }
+
+  updatetFormData(data) {
+    if (rb.env === 'dev') console.log('InlineForm update :', data)
+    for (let name in data) {
+      const c = this.getFieldComp(name)
+      if (c) c.setValue(data[name])
+    }
   }
 }
 
@@ -467,7 +512,7 @@ class ExcelClipboardData extends React.Component {
       return (
         <div className="must-center text-muted">
           <div className="mb-2">
-            <i className="mdi mdi-microsoft-excel" style={{ fontSize: 32 }} />
+            <i className="mdi mdi-microsoft-excel" style={{ fontSize: 48 }} />
           </div>
           {tips}
         </div>
@@ -478,7 +523,9 @@ class ExcelClipboardData extends React.Component {
       <div className="rsheetb-table" ref={(c) => (this._$table = c)}>
         <div className="head-action">
           <span className="float-left">
-            <h5 className="text-bold m-0 mt-3">{$L('选择列字段')}</h5>
+            <h5 className="text-bold fs-14 m-0" style={{ paddingTop: 11 }}>
+              {$L('请选择列字段')}
+            </h5>
           </span>
           <span className="float-right">
             <button className="btn btn-primary" onClick={() => this._handleConfirm()} ref={(c) => (this._$btn = c)}>
@@ -527,7 +574,7 @@ class ExcelClipboardData extends React.Component {
   _tableAfter() {
     if (!this._$table) return
 
-    const $table = $(this._$table).find('table').addClass('table table-sm')
+    const $table = $(this._$table).find('table').addClass('table table-sm table-bordered table-fixed')
 
     const fields = this.props.fields
     if (fields) {
@@ -601,7 +648,7 @@ class ExcelClipboardData extends React.Component {
 class ExcelClipboardDataModal extends RbModalHandler {
   render() {
     return (
-      <RbModal title={$L('从 Excel 添加')} width="1000" className="modal-rsheetb" disposeOnHide ref={(c) => (this._dlg = c)}>
+      <RbModal title={$L('从 Excel 添加')} width="1000" className="modal-rsheetb" disposeOnHide maximize ref={(c) => (this._dlg = c)}>
         <ExcelClipboardData
           {...this.props}
           onConfirm={(data) => {

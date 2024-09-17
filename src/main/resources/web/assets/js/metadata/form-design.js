@@ -76,10 +76,9 @@ $(document).ready(() => {
 
   $('.J_add-refform').on('click', () => {
     if (rb.commercial < 1) {
-      RbHighbar.error(WrapHtml($L('免费版不支持引用表单功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-      return
+      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return false
     }
-
     $('.nav-tabs-classic a[href="#form-design"]').tab('show')
     render_item({ fieldName: REFFORM_LINE, fieldLabel: '', colspan: 4 })
   })
@@ -91,30 +90,33 @@ $(document).ready(() => {
     if (!ft[2]) render_type({ name: k, label: ft[0], icon: ft[1] })
   }
 
-  // v3.7 LAB
-  if (window.__BOSSKEY) {
-    $('.J_add-nform').on('click', () => renderRbcomp(<DlgNForm entity={wpc.entityName} />))
-    wpc.formsAttr &&
-      wpc.formsAttr.forEach((item) => {
-        const $item = $(`<a class="dropdown-item" href="?id=${item.id}"></a>`).appendTo('.form-action-menu')
-        const $title = $(`<span>${item.name || $L('默认')}</span>`).appendTo($item)
-        if (!item.name) $title.addClass('text-muted')
-
-        const $action = $(`<div class="action"><span title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></span></div>`).appendTo($item)
-        $action.find('span').on('click', (e) => {
-          $stopEvent(e, true)
-          renderRbcomp(<DlgNForm entity={wpc.entityName} id={item.id} name={item.name} attrs={item.shareTo} />)
-          $('.form-action-menu').dropdown('toggle')
-        })
-
-        if (wpc.formConfig.id === item.id) $item.addClass('check')
-      })
-    // 无
-    if (!wpc.formConfig.id) {
-      $(`<a class="dropdown-item text-disabled">${$L('无')}</a>`).appendTo('.form-action-menu')
+  // v3.7, v3.8
+  $('.J_add-nform').on('click', () => {
+    if (rb.commercial < 1) {
+      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return false
     }
-  } else {
-    $('.J_hide').addClass('hide')
+    renderRbcomp(<DlgNForm entity={wpc.entityName} />)
+  })
+  wpc.formsAttr &&
+    wpc.formsAttr.forEach((item) => {
+      const $item = $(`<a class="dropdown-item" href="?id=${item.id}"></a>`).appendTo('.form-action-menu')
+      const $title = $(`<span>${item.name || $L('默认')}</span>`).appendTo($item)
+      if (!item.name) $title.addClass('text-muted')
+
+      const $action = $(`<div class="action"><span title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></span></div>`).appendTo($item)
+      $action.find('span').on('click', (e) => {
+        $stopEvent(e, true)
+        renderRbcomp(<DlgNForm entity={wpc.entityName} id={item.id} name={item.name} attrs={item.shareTo} />)
+        $('.form-action-menu').prev().dropdown('toggle') // hide
+      })
+
+      if (rb.commercial < 1) $action.find('span').remove()
+      if (wpc.formConfig.id === item.id) $item.addClass('check')
+    })
+  // 无
+  if (!wpc.formConfig.id) {
+    $(`<a class="dropdown-item text-disabled">${$L('无')}</a>`).appendTo('.form-action-menu')
   }
 
   // SAVE
@@ -201,7 +203,7 @@ $(document).ready(() => {
   $('.nav-tabs-classic a[href="#adv-control"]').on('click', (e) => {
     if (rb.commercial < 1) {
       e.preventDefault()
-      RbHighbar.error(WrapHtml($L('免费版不支持高级控制功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return false
     }
 
@@ -556,7 +558,6 @@ class DlgEditRefform extends DlgEditField {
               setTimeout(() => this._loadFormsAttr(), 200)
             }}
             defaultValue={this.props.reffield || null}>
-            <option value="">{$L('无')}</option>
             {Object.keys(_ValidFields).map((k) => {
               const field = _ValidFields[k]
               if (['REFERENCE', 'ANYREFERENCE'].includes(field.displayTypeName) && field.fieldName !== 'approvalId') {
@@ -570,14 +571,15 @@ class DlgEditRefform extends DlgEditField {
             })}
           </select>
         </div>
-        <div className="form-group bosskey-show">
-          <label>{$L('使用布局')}</label>
+        <div className="form-group">
+          <label>{$L('指定布局')}</label>
           <select className="form-control form-control-sm" name="speclayout" onChange={this.handleChange} ref={(c) => (this._$speclayout = c)}>
+            <option value="">{$L('无')}</option>
             {this.state.formsAttr &&
               this.state.formsAttr.map((item) => {
                 return (
-                  <option key={item.id || 'N'} value={item.id || null}>
-                    {item.name || $L('默认')}
+                  <option key={item.id || 'N'} value={item.id || ''}>
+                    {item.name || $L('默认布局')}
                   </option>
                 )
               })}
@@ -607,9 +609,6 @@ class DlgEditRefform extends DlgEditField {
       } else {
         $.get(`/admin/entity/${e}/get-forms-attr`, (res) => {
           this.__FormsAttr[e] = res.data || []
-          if (this.__FormsAttr[e].length === 0) {
-            this.__FormsAttr[e] = [{ id: null }]
-          }
           this.setState({ formsAttr: this.__FormsAttr[e] }, () => {
             // init
             if (init && this.props.speclayout) {
@@ -689,9 +688,11 @@ class DlgNForm extends RbModalHandler {
 
     if (props.attrs === 'ALL' && !props.name) {
       this.state.fallback = true
+      this.state.fornew = true
       this._name = $L('默认')
     } else if (typeof props.attrs === 'object') {
       this.state.fallback = props.attrs.fallback
+      this.state.fornew = props.attrs.fornew
       this.state.useFilter = props.attrs.filter || null
     }
   }
@@ -721,7 +722,7 @@ class DlgNForm extends RbModalHandler {
                     ref={(c) => (this._$useFilter = c)}>
                     {this.state.useFilter && this.state.useFilter.items.length > 0 ? $L('已设置条件') + ` (${this.state.useFilter.items.length})` : $L('点击设置')}
                   </a>
-                  <p className="form-text m-0 mt-1">{$L('符合条件的表单将应用此布局')}</p>
+                  <p className="form-text m-0 mt-1">{$L('符合条件的表单将使用此布局')}</p>
                 </div>
               </div>
             </div>
@@ -731,6 +732,10 @@ class DlgNForm extends RbModalHandler {
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" defaultChecked={this.state.fallback} ref={(c) => (this._$fallback = c)} />
                   <span className="custom-control-label">{$L('默认布局')}</span>
+                </label>
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" defaultChecked={this.state.fornew} ref={(c) => (this._$fornew = c)} />
+                  <span className="custom-control-label">{$L('可用于新建')}</span>
                 </label>
               </div>
             </div>
@@ -742,6 +747,11 @@ class DlgNForm extends RbModalHandler {
                 {this.props.id && (
                   <button className="btn btn-danger btn-outline ml-2" type="button" onClick={() => this.delete()}>
                     <i className="zmdi zmdi-delete icon" /> {$L('删除')}
+                  </button>
+                )}
+                {!this.props.id && (
+                  <button className="btn btn-link" type="button" onClick={() => this.hide()}>
+                    {$L('取消')}
                   </button>
                 )}
               </div>
@@ -779,6 +789,7 @@ class DlgNForm extends RbModalHandler {
     const ps = {
       name: $val(this._$name),
       fallback: $val(this._$fallback),
+      fornew: $val(this._$fornew),
       filter: this.state.useFilter || null,
     }
     if (!ps.name) return RbHighbar.createl('请输入名称')

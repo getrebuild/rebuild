@@ -2,27 +2,28 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EMAIL TEMPLATE</title>
+    <title>EMAIL-TEMPLATE</title>
   </head>
-
   <body>
-    <div style="background-color: #f5f5f5; margin: 0; font-size: 0.9rem; padding: 20px; color: #333; font-family: Roboto, Helvetica, 'Microsoft YaHei', '宋体', sans-serif; line-height: 1.5">
-      <div>
-        <a href="%APPURL%" target="_blank">
-          <img src="%APPLOGO%" alt="%APPNAME%" style="height: 27px; display: inline-block; font-size: 0" />
-        </a>
-      </div>
-      <div style="border: 1px solid #eee; padding: 30px 20px; background-color: #fff; border-radius: 3px; border-top: 3px solid #4285f4; max-width: 720px; margin: 10px 0">
-        <h2 class="rb-title" style="font-size: 1.5rem; margin: 0; font-weight: 400">%TITLE%</h2>
-        <div class="rb-content" style="margin-top: 10px; font-size: 1rem">%CONTETN%</div>
-      </div>
-      <div>
-        <div class="rb-footer" style="margin: 0; color: #888; font-size: 0.85rem; max-width: 760px">
-          本消息由 %APPNAME% 系统自动发送，请不要直接回复。
-          <br />
-          <em>This email was sent to %TO% at %TIME%</em>
-          <br />
-          %PAGE_FOOTER%
+    <div style="text-align: center; background-color: #f5f5f5; padding: 10px">
+      <div style="background-color: #f5f5f5; margin: 0; font-size: 0.9rem; padding: 20px; color: #222; font-family: Roboto, Helvetica, 'Microsoft YaHei', '宋体', sans-serif; line-height: 1.5">
+        <div style="text-align: center; padding: 15px 0">
+          <a href="%APPURL%" target="_blank">
+            <img src="%APPLOGO%" alt="%APPNAME%" style="height: 30px; max-height: 30px; display: inline-block; font-size: 0" />
+          </a>
+        </div>
+        <div style="border: 1px solid #eee; border-top: 6px solid #4285f4; padding: 30px 20px; background-color: #fff; border-radius: 6px; max-width: 666px; margin: 0 auto; text-align: left">
+          <h2 class="rb-title" style="font-size: 1.5rem; margin: 0; font-weight: 400">%TITLE%</h2>
+          <div class="rb-content" style="margin-top: 10px; font-size: 1rem">%CONTETN%</div>
+        </div>
+        <div style="text-align: center; padding: 15px 0">
+          <div style="color: #888; font-size: 0.85rem">
+            本消息由 %APPNAME% 系统自动发送，请不要直接回复。
+            <br />
+            <em>This email was sent to %TO% at %TIME%</em>
+            <br />
+            %PAGE_FOOTER%
+          </div>
         </div>
       </div>
     </div>

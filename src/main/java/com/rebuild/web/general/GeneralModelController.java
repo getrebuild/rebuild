@@ -260,7 +260,7 @@ public class GeneralModelController extends EntityController {
 
         // v3.7 使用指定记录布局
         ConfigBean forceLayout = FormsManager.instance
-                .getFormLayout(detailEntityMeta.getName(), ids.get(0), FormsManager.APPLY_ONEDIT);
+                .getFormLayout(detailEntityMeta.getName(), ids.get(0), FormsManager.APPLY_EDIT);
         FormsBuilderContextHolder.setSpecLayout(forceLayout.getID("id"));
 
         try {

@@ -45,14 +45,17 @@ public class SysbaseSupport {
         }
         log.warn(confLog.append("----------").toString());
 
-        StringBuilder osLog = new StringBuilder("OS/VM Info :\n----------\n");
+        StringBuilder osLog = new StringBuilder("OS/VM INFO :\n----------\n");
         osLog.append(StringUtils.rightPad("OS", 31)).append(" : ").append(SystemUtils.OS_NAME).append("/").append(SystemUtils.OS_VERSION).append("\n");
         osLog.append(StringUtils.rightPad("VM", 31)).append(" : ").append(SystemUtils.JAVA_VM_NAME).append("/").append(SystemUtils.JAVA_VERSION).append(SystemUtils.OS_VERSION).append("\n");
         osLog.append(StringUtils.rightPad("TimeZone", 31)).append(" : ").append(CalendarUtils.DEFAULT_TIME_ZONE).append("\n");
         osLog.append(StringUtils.rightPad("Date", 31)).append(" : ").append(CalendarUtils.now()).append("\n");
         osLog.append(StringUtils.rightPad("Headless", 31)).append(" : ").append(SystemUtils.isJavaAwtHeadless()).append("\n");
-
         log.warn(osLog.append("----------").toString());
+
+        StringBuilder vmLog = new StringBuilder("VM ARGUMENTS :\n----------\n");
+        vmLog.append(System.getProperties());
+        log.warn(vmLog.append("----------").toString());
 
         File logFile = SysbaseHeartbeat.getLogbackFile();
 

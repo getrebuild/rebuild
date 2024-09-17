@@ -404,7 +404,7 @@ class MatchFields extends React.Component {
         if (!TF) return
         TF = this.__targetFields.find((x) => x.name === TF)
 
-        // 仅同类型的字段（DATE DATETIME 兼容）
+        // 仅同类型的字段（DATE/DATETIME 兼容）
         const SF = this.__sourceFields.filter((x) => {
           if (TF.type === 'DATE' && x.type === 'DATETIME') return true
           if (TF.type === 'DATETIME' && x.type === 'DATE') return true
@@ -413,6 +413,10 @@ class MatchFields extends React.Component {
             if (x.type === 'CLASSIFICATION') return TF.classification === x.classification
             return true
           }
+          // 文本兼容
+          if (['TEXT', 'PHONE'].includes(TF.type) && ['TEXT', 'PHONE'].includes(x.type)) return true
+          if (['TEXT', 'EMAIL'].includes(TF.type) && ['TEXT', 'EMAIL'].includes(x.type)) return true
+          if (['TEXT', 'SERIES'].includes(TF.type) && ['TEXT', 'SERIES'].includes(x.type)) return true
           return false
         })
         this.setState({ sourceFields: SF })
@@ -447,7 +451,7 @@ class MatchFields extends React.Component {
     // TODO 开放更多匹配字段
     const targetFields = []
     this.__targetFields.forEach((item) => {
-      if (['TEXT', 'DATE', 'DATETIME', 'CLASSIFICATION', 'REFERENCE'].includes(item.type)) targetFields.push(item)
+      if (['SERIES', 'TEXT', 'PHONE', 'EMAIL', 'DATE', 'DATETIME', 'CLASSIFICATION', 'REFERENCE'].includes(item.type)) targetFields.push(item)
     })
 
     if (init) {
@@ -459,5 +463,78 @@ class MatchFields extends React.Component {
 
   val() {
     return this.state.groupFields || []
+  }
+}
+
+// ~ 带字段的文本域
+// eslint-disable-next-line no-unused-vars
+class EditorWithFieldVars extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  render() {
+    let attrs = {
+      className: 'form-control',
+      maxLength: 2000,
+      placeholder: this.props.placeholder || null,
+    }
+
+    if (this.props.isCode) {
+      attrs = { ...attrs, className: 'formula-code', maxLength: 6000, autoFocus: true }
+    }
+
+    return (
+      <div className="textarea-wrap">
+        <textarea {...attrs} spellCheck="false" ref={(c) => (this._$content = c)} />
+        <a className="fields-vars" title={$L('插入字段变量')} data-toggle="dropdown">
+          <i className="mdi mdi-code-braces" />
+        </a>
+        <div className="dropdown-menu auto-scroller dropdown-menu-right" ref={(c) => (this._$fieldVars = c)}>
+          {(this.state.fieldVars || []).map((item) => {
+            let typeMark = 'T'
+            if (['DATE', 'DATETIME', 'TIME'].includes(item.type)) typeMark = 'D'
+            else if (['NUMBER', 'DECIMAL'].includes(item.type)) typeMark = 'N'
+            return (
+              <a
+                className="dropdown-item"
+                key={item.name}
+                onClick={() => {
+                  $(this._$content).insertAtCursor(`{${item.name}}`)
+                }}>
+                <em>{typeMark}</em>
+                {item.label}
+              </a>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    $.get(`/commons/metadata/fields?entity=${this.props.entity}&deep=3`, (res) => {
+      this.setState({ fieldVars: res.data || [] }, () => {
+        $(this._$fieldVars).perfectScrollbar()
+      })
+    })
+
+    // eslint-disable-next-line no-undef
+    autosize(this._$content)
+  }
+
+  val() {
+    if (arguments.length > 0) {
+      $(this._$content).val(arguments[0])
+      // eslint-disable-next-line no-undef
+      autosize.update(this._$content)
+    } else {
+      return $(this._$content).val()
+    }
+  }
+
+  focus() {
+    setTimeout(() => this._$content.focus(), 20)
   }
 }
