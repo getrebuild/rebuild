@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,8 @@ import java.util.regex.Pattern;
  * @since 12/24/2018
  */
 public class SeriesGenerator {
+
+    final private static String CHECKSUM = "{X}";
 
     final private Field field;
     final private JSONObject config;
@@ -68,6 +71,10 @@ public class SeriesGenerator {
         for (SeriesVar var : vars) {
             seriesFormat = seriesFormat.replace("{" + var.getSymbols() + "}", var.generate());
         }
+
+        if (seriesFormat.contains(CHECKSUM)) {
+            seriesFormat = seriesFormat.replace(CHECKSUM, String.valueOf(mod10(seriesFormat)));
+        }
         return seriesFormat;
     }
 
@@ -84,6 +91,7 @@ public class SeriesGenerator {
         Matcher varMatcher = VAR_PATTERN.matcher(format);
         while (varMatcher.find()) {
             String s = varMatcher.group(1);
+            if ("X".equals(s)) continue;
             if ("0".equals(s.substring(0, 1))) {
                 vars.add(new IncreasingVar(s, field, config.getString("seriesZero")));
             } else if (s.startsWith(FieldVar.PREFIX)) {
@@ -94,5 +102,19 @@ public class SeriesGenerator {
             }
         }
         return vars;
+    }
+
+    /**
+     * {X} 校验位。数字位相加 mod 10
+     *
+     * @param series
+     * @return
+     */
+    private int mod10(String series) {
+        int sum = 0;
+        for (String ch : series.split("")) {
+            if (NumberUtils.isDigits(ch)) sum += NumberUtils.toByte(ch);
+        }
+        return sum % 10;
     }
 }
