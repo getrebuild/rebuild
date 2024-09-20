@@ -50,7 +50,7 @@ public final class UpgradeDatabase {
                 if (sql.length > 0) {
                     log.info("\n>> UPGRADE SQL (#{}) >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n{}",
                             upgradeVer, StringUtils.join(sql, "\n"));
-                    Application.getSqlExecutor().executeBatch(sql, 180);
+                    Application.getSqlExecutor().executeBatch(sql, 60 * 15);  // 15m
                 }
             }
 
