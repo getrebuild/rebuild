@@ -356,6 +356,9 @@ public class QiniuCloud {
         if (fileName.contains("__")) {
             fileName = fileName.substring(fileName.indexOf("__") + 2);
         }
+        if (fileName.contains("?")) {
+            fileName = fileName.split("\\?")[0];
+        }
         return fileName;
     }
 

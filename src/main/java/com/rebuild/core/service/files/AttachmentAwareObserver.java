@@ -89,8 +89,8 @@ public class AttachmentAwareObserver extends OperatingObserver {
                 }
 
                 if (log.isDebugEnabled()) {
-                    log.debug("Remove ... " + beforeFiles);
-                    log.debug("Add ... " + afterFiles);
+                    log.debug("Remove ... {}", beforeFiles);
+                    log.debug("Add ... {}", afterFiles);
                 }
 
                 for (Object o : beforeFiles) {
