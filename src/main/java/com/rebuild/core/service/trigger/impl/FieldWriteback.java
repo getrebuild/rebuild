@@ -471,10 +471,11 @@ public class FieldWriteback extends FieldAggregation {
                         EasyField easyVarField = varField == null ? null : EasyMetaFactory.valueOf(varField);
                         boolean isMultiField = easyVarField != null && (easyVarField.getDisplayType() == DisplayType.MULTISELECT
                                 || easyVarField.getDisplayType() == DisplayType.TAG || easyVarField.getDisplayType() == DisplayType.N2NREFERENCE);
+                        // fix: 3.8
                         boolean isStateField = easyVarField != null && easyVarField.getDisplayType() == DisplayType.STATE;
 
                         if (isStateField) {
-                            value = StateHelper.getLabel(varField, (Integer) value);
+                            value = value == null ? "" : StateHelper.getLabel(varField, (Integer) value);
                         } else if (value instanceof Date) {
                             value = CalendarUtils.getUTCDateTimeFormat().format(value);
                         } else if (value == null) {
