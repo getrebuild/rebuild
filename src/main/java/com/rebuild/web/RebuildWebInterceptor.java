@@ -275,7 +275,8 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 || requestUri.startsWith("/account/user-avatar/")
                 || requestUri.startsWith("/rbmob/env")
                 || requestUri.startsWith("/h5app-download")
-                || requestUri.startsWith("/apiman/");
+                || requestUri.startsWith("/apiman/")
+                || requestUri.startsWith("/commons/frontjs/use-frontjs");
     }
 
     private boolean isHtmlRequest(String requestUri, HttpServletRequest request) {
