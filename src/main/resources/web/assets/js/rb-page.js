@@ -192,12 +192,12 @@ $(function () {
 
       var active = $('.navbar .navbar-collapse>.navbar-nav li.active>a').attr('href')
       if (active) {
-        active = active.split('?')[1].split('&')
-        $(active).each(function () {
-          var nv = this.split('=')
-          if (nv[0] === 'n') $.cookie('AppHome.Nav', nv[1], { expires: 30 })
-          if (nv[0] === 'd') $.cookie('AppHome.Dash', nv[1], { expires: 30 })
-        })
+        active = $urlp('def', '?' + active.split('?')[1])
+        if (active) {
+          active = active.split(':')
+          $.cookie('AppHome.Nav', active[0], { expires: 30 })
+          $.cookie('AppHome.Dash', active[1] || '', { expires: 30 })
+        }
       }
       console.log('Switch on visibilityState ...', $.cookie('AppHome.Nav'), $.cookie('AppHome.Dash'))
     }
