@@ -635,7 +635,7 @@ var $createUploader = function (input, next, complete, error) {
   var putExtra = imageType ? { mimeType: ['image/*'] } : null
 
   function _qiniuUpload(file) {
-    const over200M = file.size / 1048576 >= 200
+    var over200M = file.size / 1048576 >= 200
     $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + '&noname=' + noname + useToken, function (res) {
       var o = qiniu.upload(file, res.data.key, res.data.token, putExtra, { forceDirect: !over200M })
       o.subscribe({
@@ -735,9 +735,9 @@ var $initUploader = $createUploader
 // 多文件上传
 // FIXME 有并发上传问题
 var $multipleUploader = function (input, complete) {
-  let mp
-  let mp_inpro = []
-  const mp_end = function (name) {
+  var mp
+  var mp_inpro = []
+  var mp_end = function (name) {
     if (mp_inpro === 0) mp_inpro = []
     else mp_inpro.remove(name)
     if (mp_inpro.length > 0) return
@@ -769,7 +769,7 @@ var $dropUpload = function (dropArea, pasteAreaOrCb, cb) {
     pasteAreaOrCb = null
   }
 
-  const $da = $(dropArea)
+  var $da = $(dropArea)
     .on('dragenter', (e) => {
       $stopEvent(e, true)
     })
@@ -784,7 +784,7 @@ var $dropUpload = function (dropArea, pasteAreaOrCb, cb) {
     })
     .on('drop', function (e) {
       $stopEvent(e, true)
-      const files = e.originalEvent.dataTransfer ? e.originalEvent.dataTransfer.files : null
+      var files = e.originalEvent.dataTransfer ? e.originalEvent.dataTransfer.files : null
       cb(files)
       $da.removeClass('drop')
     })
@@ -792,7 +792,7 @@ var $dropUpload = function (dropArea, pasteAreaOrCb, cb) {
   // Ctrl+V
   if (pasteAreaOrCb) {
     $(pasteAreaOrCb).on('paste.file', (e) => {
-      const data = e.clipboardData || e.originalEvent.clipboardData || window.clipboardData
+      var data = e.clipboardData || e.originalEvent.clipboardData || window.clipboardData
       if (data && data.items && data.files && data.files.length > 0) {
         $stopEvent(e, true)
         cb(data.files)
@@ -1089,7 +1089,7 @@ var $useMap = function (cb, v3) {
       typeof cb === 'function' && cb()
     }
 
-    let apiUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'YQKHNmIcOgYccKepCkxetRDy8oTC28nD') + '&callback=$useMap__callback'
+    var apiUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'YQKHNmIcOgYccKepCkxetRDy8oTC28nD') + '&callback=$useMap__callback'
     if (v3) apiUrl = apiUrl.replace('v=1.0&type=webgl&', 'v=3.0&')
     $getScript(apiUrl)
   }
@@ -1263,7 +1263,7 @@ function $sec2Time(s) {
   if (mm < 10) mm = '0' + mm
   if (ss < 10) ss = '0' + ss
 
-  var time = `${hh}:${mm}:${ss}`
+  var time = [hh, mm, ss].join(':')
   if (days) return $L('%d天', days) + ' ' + time
   else if (hh === '00') return time.substr(3)
   return time
@@ -1279,7 +1279,23 @@ function $openWindow(url) {
   var handle = window.open(url)
   if (!handle) {
     // 不允许/被阻止
-    RbAlert.create(WrapHtml(`<p class="text-bold pb-3">${$L('文件已就绪。')}<a class="link" href="${url}" target="_blank">${$L('点击下载')}</a></p>`), { type: 'clear' })
+    RbAlert.create(null, {
+      onRendered: function () {
+        $(this._element)
+          .find('.modal-dialog')
+          .css('max-width', 400)
+          .find('.text-center')
+          .html(
+            '<div class="mb-2"><h4 class="m-0 mb-2">' +
+              $L('文件已准备就绪') +
+              '</h4><a class="link" href="' +
+              url +
+              '" target="_blank"><i class="zmdi zmdi-download icon mr-1"></i>' +
+              $L('点击下载') +
+              '</a></div>'
+          )
+      },
+    })
   }
 }
 

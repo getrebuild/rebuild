@@ -39,7 +39,7 @@ class RbPreview extends React.Component {
     if (this.state.errorMsg || !previewContent) {
       previewContent = (
         <div className="unsupports shadow-lg rounded bg-light">
-          <h4 className="mt-0">{this.state.errorMsg || $L('暂不支持此类型文件的预览')}</h4>
+          <h4 className="mt-1">{this.state.errorMsg || $L('暂不支持此类型文件的预览')}</h4>
           <a className="link" target="_blank" rel="noopener noreferrer" href={downloadUrl}>
             <i className="zmdi zmdi-download icon mr-1" />
             {$L('下载文件')}
