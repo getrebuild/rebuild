@@ -134,7 +134,7 @@ public class ContentWithFieldVars {
                         StringBuilder value4Files = new StringBuilder();
                         for (Object file : JSON.parseArray(value)) {
                             String fileName = QiniuCloud.parseFileName(file.toString());
-                            value4Files.append(String.format("[%s] %s; ", Language.L(dt.getDisplayName()), fileName));
+                            value4Files.append(String.format("[%s]%s; ", Language.L(dt.getDisplayName()), fileName));
                         }
                         value = value4Files.toString().trim();
                     }
