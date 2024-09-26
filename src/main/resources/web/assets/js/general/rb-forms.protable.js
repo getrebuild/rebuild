@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global detectElement, TYPE_DIVIDER */
+/* global detectElement, TYPE_DIVIDER, TYPE_REFFORM */
 /* eslint-disable no-unused-vars */
 
 // ~~ 表格型表单
@@ -41,7 +41,7 @@ class ProTable extends React.Component {
             <tr>
               <th className="col-index" />
               {formFields.map((item) => {
-                if (item.field === TYPE_DIVIDER) return null
+                if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
 
                 let colStyle2 = { minWidth: _PT_COLUMN_DEF_WIDTH }
                 if (!fixedWidth) {
@@ -410,7 +410,7 @@ class InlineForm extends RbForm {
     return (
       <RF>
         {this.props.children.map((fieldComp) => {
-          if (fieldComp.props.field === TYPE_DIVIDER) return null
+          if (fieldComp.props.field === TYPE_DIVIDER || fieldComp.props.field === TYPE_REFFORM) return null
           const refid = `fieldcomp-${fieldComp.props.field}`
           return (
             <td key={`td-${refid}`} ref={(c) => (this._$ref = c)}>
