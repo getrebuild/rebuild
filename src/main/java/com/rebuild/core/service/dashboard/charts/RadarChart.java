@@ -47,12 +47,20 @@ public class RadarChart extends ChartData {
             dataFlags.add(getNumericalFlag(n));
         }
 
+        JSONObject renderOption = config.getJSONObject("option");
+        if (renderOption == null) renderOption = new JSONObject();
+
+        // v3.8 以绝对比例显示
+        boolean absoluteScale = renderOption.getBooleanValue("absoluteScale");
+        long useMax = 0;
         for (int i = 0; i < dataRaw.length; i++) {
             Object[] item = dataRaw[i];
+            long v = calcMax(item, absoluteScale ? useMax : null);
+            if (v > useMax) useMax = v;
 
             indicator.add(JSONUtils.toJSONObject(
                     new String[]{"name", "max"},
-                    new Object[]{wrapAxisValue(dim1, item[0]), calcMax(item)}));
+                    new Object[]{wrapAxisValue(dim1, item[0]), v}));
 
             for (int j = 0; j < nums.length; j++) {
                 Object[] data = seriesRotate.get(nums[j]);
@@ -67,8 +75,6 @@ public class RadarChart extends ChartData {
                     new Object[]{e.getKey().getLabel(), e.getValue()}));
         }
 
-        JSONObject renderOption = config.getJSONObject("option");
-        if (renderOption == null) renderOption = new JSONObject();
         renderOption.put("dataFlags", dataFlags);
 
         return JSONUtils.toJSONObject(
@@ -76,14 +82,15 @@ public class RadarChart extends ChartData {
                 new Object[]{indicator, series, renderOption});
     }
 
-    private long calcMax(Object[] items) {
-        long max = 0;
+    private long calcMax(Object[] items, Long maxLast) {
+        long max = maxLast == null ? 0 : maxLast;
         for (int i = 1; i < items.length; i++) {
             long value = ObjectUtils.toLong(items[i]);
             if (value > max) {
                 max = value;
             }
         }
-        return (long) (max * 1.2d) + 1;
+        if (maxLast == null) return (long) (max * 1.2d) + 1;
+        return max;
     }
 }
