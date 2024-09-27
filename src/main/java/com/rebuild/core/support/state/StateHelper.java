@@ -8,10 +8,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support.state;
 
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.service.approval.ApprovalState;
+import com.rebuild.core.support.general.FieldValueHelper;
 import org.apache.commons.lang.ClassUtils;
 import org.springframework.util.Assert;
 
@@ -104,5 +106,20 @@ public class StateHelper {
             }
         }
         throw new IllegalArgumentException("state=" + state);
+    }
+
+    /**
+     * @param field
+     * @param state
+     * @return
+     * @see com.rebuild.core.support.general.FieldValueHelper#getLabel(ID)
+     */
+    public static String getLabel(Field field, int state) {
+        Class<?> stateClass = StateHelper.getSatetClass(field);
+        try {
+            return valueOf(stateClass, state).getName();
+        } catch (IllegalArgumentException ex) {
+            return FieldValueHelper.MISS_REF_PLACE;
+        }
     }
 }

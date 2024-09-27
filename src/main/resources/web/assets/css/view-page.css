@@ -1062,8 +1062,8 @@ body {
 }
 
 .sop-toolbar-wrap {
-  padding: 12px 18px;
-  padding-top: 6px;
+  padding: 10px 18px;
+  padding-top: 5px;
   background-color: #f7f7f7;
   margin-bottom: 18px;
   border-radius: 2px;
@@ -1071,7 +1071,7 @@ body {
 
 .sop-toolbar {
   position: relative;
-  padding-top: 6px;
+  padding-top: 5px;
 }
 
 .sop-steps {

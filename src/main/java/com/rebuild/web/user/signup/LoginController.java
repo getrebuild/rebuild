@@ -58,21 +58,21 @@ public class LoginController extends LoginAction {
     @GetMapping("login")
     public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String homeUrl = "../dashboard/home";
+        String nexturl = getParameter(request, "nexturl", homeUrl);
+        if (nexturl.startsWith("http")) nexturl = homeUrl;
+
+        // 直接登录
         if (AppUtils.getRequestUser(request) != null) {
-            response.sendRedirect(homeUrl);
+            response.sendRedirect(nexturl);
             return null;
         }
 
-        // Token 登录
+        // TOKEN 登录
         final String useToken = getParameter(request, "token");
         if (StringUtils.isNotBlank(useToken)) {
             ID tokenUser = AuthTokenManager.verifyToken(useToken, true, false);
             if (tokenUser != null) {
                 loginSuccessed(request, response, tokenUser, false);
-
-                String nexturl = getParameter(request, "nexturl", homeUrl);
-                if (nexturl.startsWith("http")) nexturl = homeUrl;
-
                 response.sendRedirect(CodecUtils.urlDecode(nexturl));
                 return null;
             } else {
@@ -88,13 +88,7 @@ public class LoginController extends LoginAction {
 
             if (altUser != null && UserHelper.isActive(altUser)) {
                 Integer ed = loginSuccessed(request, response, altUser, true);
-
-                String nexturl = getParameter(request, "nexturl", homeUrl);
-                if (nexturl.startsWith("http")) nexturl = homeUrl;
-
-                if (ed != null) {
-                    nexturl = "../settings/passwd-expired?d=" + ed;
-                }
+                if (ed != null) nexturl = "../settings/passwd-expired?d=" + ed;
 
                 response.sendRedirect(CodecUtils.urlDecode(nexturl));
                 return null;

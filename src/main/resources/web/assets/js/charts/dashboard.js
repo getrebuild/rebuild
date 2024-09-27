@@ -378,7 +378,7 @@ class DlgAddChart extends RbFormHandler {
 class DlgDashSettings extends RbFormHandler {
   render() {
     return (
-      <RbModal title={$L('设置')} ref="dlg">
+      <RbModal title={$L('设置仪表盘')} ref="dlg">
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
@@ -391,7 +391,7 @@ class DlgDashSettings extends RbFormHandler {
               <label className="col-sm-3 col-form-label text-sm-right" />
               <div className="col-sm-7">
                 <div className="shareTo--wrap">
-                  <Share2 ref={(c) => (this._Share2 = c)} shareTo={this.props.shareTo} noSwitch />
+                  <Share2 ref={(c) => (this._Share2 = c)} shareTo={this.props.shareTo} id={this.props.dashid} noSwitch />
                 </div>
               </div>
             </div>
@@ -413,12 +413,12 @@ class DlgDashSettings extends RbFormHandler {
 
   save() {
     const _data = {
-      shareTo: this._Share2 ? this._Share2.getData().shareTo : 'SELF',
       title: this.state.title || $L('默认仪表盘'),
-    }
-    _data.metadata = {
-      id: this.props.dashid,
-      entity: 'DashboardConfig',
+      shareTo: this._Share2 ? this._Share2.getData().shareTo : 'SELF',
+      metadata: {
+        id: this.props.dashid,
+        entity: 'DashboardConfig',
+      },
     }
 
     $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
@@ -452,6 +452,11 @@ class DlgDashSettings extends RbFormHandler {
 
 // 添加仪表盘
 class DlgDashAdd extends RbFormHandler {
+  constructor(props) {
+    super(props)
+    this._defaultName = rb.isAdminUser ? $L('默认仪表盘') : $L('我的仪表盘')
+  }
+
   render() {
     return (
       <RbModal title={$L('添加仪表盘')} ref="dlg">
@@ -459,10 +464,20 @@ class DlgDashAdd extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
             <div className="col-sm-7">
-              <input className="form-control form-control-sm" value={this.state.title || ''} placeholder={$L('我的仪表盘')} data-id="title" onChange={this.handleChange} maxLength="40" />
+              <input className="form-control form-control-sm" value={this.state.title || ''} placeholder={this._defaultName} data-id="title" onChange={this.handleChange} maxLength="40" />
             </div>
           </div>
-          <div className="form-group row">
+          {rb.isAdminUser && (
+            <div className="form-group row pt-0">
+              <label className="col-sm-3 col-form-label text-sm-right" />
+              <div className="col-sm-7">
+                <div className="shareTo--wrap">
+                  <Share2 ref={(c) => (this._Share2 = c)} noSwitch />
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="form-group row pt-1">
             <label className="col-sm-3 col-form-label text-sm-right" />
             <div className="col-sm-7">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
@@ -488,8 +503,11 @@ class DlgDashAdd extends RbFormHandler {
 
   save = () => {
     const _data = {
-      title: this.state.title || $L('我的仪表盘'),
-      metadata: { entity: 'DashboardConfig' },
+      title: this.state.title || this._defaultName,
+      shareTo: this._Share2 ? this._Share2.getData().shareTo : 'SELF',
+      metadata: {
+        entity: 'DashboardConfig',
+      },
     }
     if (this.state.copy === true) _data.__copy = gridstack_serialize
 

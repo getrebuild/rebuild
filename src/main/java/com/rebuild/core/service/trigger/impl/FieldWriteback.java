@@ -41,6 +41,7 @@ import com.rebuild.core.service.trigger.TriggerResult;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.general.N2NReferenceSupport;
+import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -470,8 +471,12 @@ public class FieldWriteback extends FieldAggregation {
                         EasyField easyVarField = varField == null ? null : EasyMetaFactory.valueOf(varField);
                         boolean isMultiField = easyVarField != null && (easyVarField.getDisplayType() == DisplayType.MULTISELECT
                                 || easyVarField.getDisplayType() == DisplayType.TAG || easyVarField.getDisplayType() == DisplayType.N2NREFERENCE);
+                        // fix: 3.8
+                        boolean isStateField = easyVarField != null && easyVarField.getDisplayType() == DisplayType.STATE;
 
-                        if (value instanceof Date) {
+                        if (isStateField) {
+                            value = value == null ? "" : StateHelper.getLabel(varField, (Integer) value);
+                        } else if (value instanceof Date) {
                             value = CalendarUtils.getUTCDateTimeFormat().format(value);
                         } else if (value == null) {
                             // N2N 保持 `NULL`

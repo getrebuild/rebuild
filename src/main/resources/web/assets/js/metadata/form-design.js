@@ -574,7 +574,7 @@ class DlgEditRefform extends DlgEditField {
         <div className="form-group">
           <label>{$L('指定布局')}</label>
           <select className="form-control form-control-sm" name="speclayout" onChange={this.handleChange} ref={(c) => (this._$speclayout = c)}>
-            <option value="">{$L('无')}</option>
+            <option value="N">{$L('自动')}</option>
             {this.state.formsAttr &&
               this.state.formsAttr.map((item) => {
                 return (

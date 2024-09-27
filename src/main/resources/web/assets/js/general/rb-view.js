@@ -1049,9 +1049,14 @@ $(document).ready(function () {
       .removeClass('hide')
       .on('click', () => history.back())
   }
-  // Dock
+  // for Dock
   if (parent && parent.location.href.includes('/app/entity/view')) {
     $('.view-header').remove()
+  }
+  // for WxWork
+  const ua = navigator.userAgent || ''
+  if (ua.includes('wxwork') && ua.includes('MicroMessenger') && $.browser.desktop) {
+    $('.J_home').removeClass('hide')
   }
 
   // iframe 点击穿透

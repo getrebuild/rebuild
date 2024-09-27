@@ -198,7 +198,7 @@ class ReportEditor extends ConfigFormDlg {
             </label>
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-1 bosskey-show">
               <input className="custom-control-input" type="checkbox" value="html" />
-              <span className="custom-control-label">HTML</span>
+              <span className="custom-control-label">HTML (LAB)</span>
             </label>
           </div>
         </div>
