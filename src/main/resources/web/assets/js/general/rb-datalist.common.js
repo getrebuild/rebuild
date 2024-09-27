@@ -2267,8 +2267,24 @@ const EasyAction = {
     const ids = _List.getSelectedIds()
     if (!ids[0]) return RbHighbar.create($L('请至少选择一条记录'))
 
-    let rr = item.op4Value.split(':')
-    _List.exportReport(rr[0], ~~rr[1] === 2, null, null, true)
+    // ID[:DETAIL_NAME]
+    const rr = item.op4Value.split(':')
+    // 明细实体的
+    if (rr[1]) {
+      $.get(`/commons/frontjs/get-detailids?ids=${ids.join(',')}`, (res) => {
+        if (res.error_code === 0) {
+          if (res.data && res.data.length > 0) {
+            _List.exportReport(rr[0], { isMerge: true, recordId: res.data })
+          } else {
+            RbHighbar.createl('选择的记录暂无明细数据')
+          }
+        } else {
+          RbHighbar.error(res.error_msg)
+        }
+      })
+    } else {
+      _List.exportReport(rr[0], { isMerge: true })
+    }
   },
 
   handleOp10(item) {
