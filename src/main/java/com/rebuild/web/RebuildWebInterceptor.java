@@ -59,7 +59,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
     private static final int CODE_STARTING = 600;
     private static final int CODE_MAINTAIN = 602;
     private static final int CODE_UNSAFE_USE = 603;
-    private static final int CODE_BLOCK = 604;
+    private static final int CODE_BLOCKED = 604;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)

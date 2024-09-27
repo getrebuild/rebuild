@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-// FrontJS 演示
+// FrontJS API 功能演示
 // 建议将上方匹配路径设置为 `/` 以便观察效果
 
 const demoEntityName = 'Account' // TODO 修改为你要测试的实体

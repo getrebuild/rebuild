@@ -5823,3 +5823,17 @@ div.formula-code {
   padding-top: 5px;
   width: auto;
 }
+
+/* fjs style */
+
+.rbform-fjsalert {
+  margin: 5px;
+  margin-bottom: 0;
+}
+
+.rbform-fjsalert .alert {
+  margin-bottom: 10px;
+}
+
+.rbview-fjsalert {
+}

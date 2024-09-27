@@ -548,7 +548,9 @@
                     <div th:if="${!fieldBuildin}" class="J_action">
                       <button class="btn btn-primary btn-space J_save" type="button">[[${bundle.L('保存')}]]</button>
                       <button class="btn btn-danger btn-outline btn-space J_del" type="button"><i class="zmdi zmdi-delete icon"></i> [[${bundle.L('删除')}]]</button>
-                      <button class="btn btn-light btn-space w-auto dropdown-toggle hide" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-more fs-18"></i></button>
+                      <button class="btn btn-light btn-space w-auto dropdown-toggle hide" type="button" data-toggle="dropdown" th:title="${bundle.L('更多操作')}">
+                        <i class="icon zmdi zmdi-more fs-18"></i>
+                      </button>
                       <div class="dropdown-menu">
                         <!-- ACTION IN HERE -->
                       </div>
