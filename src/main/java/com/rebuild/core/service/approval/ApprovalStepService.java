@@ -40,6 +40,7 @@ import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerWhen;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
+import com.rebuild.rbv.sop.RobotSopObserver;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -126,6 +127,7 @@ public class ApprovalStepService extends BaseService {
         Application.getCommonsCache().evict(ckey);
 
         execTriggersWhenSE(recordOfMain, TriggerWhen.SUBMIT);
+        this.execSopSteps38(recordOfMain);
     }
 
     /**
@@ -282,6 +284,7 @@ public class ApprovalStepService extends BaseService {
             sendNotification(submitter, approvedMsg, recordId);
 
             Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED, approver);
+            this.execSopSteps38(recordOfMain);
             return;
         }
 
@@ -308,6 +311,8 @@ public class ApprovalStepService extends BaseService {
                 }
             }
         }
+
+        this.execSopSteps38(recordOfMain);
     }
 
     /**
@@ -773,6 +778,9 @@ public class ApprovalStepService extends BaseService {
     }
 
     /**
+     * @param approvalRecord
+     * @param approvalId
+     * @param currentNode
      * @see com.rebuild.core.service.general.GeneralEntityService#approve(ID, ApprovalState, ID)
      */
     private void execTriggersByNode(Record approvalRecord, ID approvalId, String currentNode) {
@@ -830,5 +838,17 @@ public class ApprovalStepService extends BaseService {
         JSONObject actionContent = (JSONObject) triggerAction.getActionContext().getActionContent();
         JSONArray whenApproveNodes = actionContent.getJSONArray("whenApproveNodes");
         return whenApproveNodes != null && (whenApproveNodes.contains(nodeName) || whenApproveNodes.contains("*"));
+    }
+
+    /**
+     * @param approvalRecord
+     * @see RobotSopObserver#onApproveManual(Record)
+     */
+    private void execSopSteps38(Record approvalRecord) {
+        try {
+            CommonsUtils.invokeMethod("com.rebuild.rbv.sop.RobotSopObserver#onApproveManual", approvalRecord);
+        } catch (Exception ignored) {
+            ignored.printStackTrace();
+        }
     }
 }
