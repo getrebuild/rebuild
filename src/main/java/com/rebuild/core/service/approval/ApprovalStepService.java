@@ -847,8 +847,8 @@ public class ApprovalStepService extends BaseService {
     private void execSopSteps38(Record approvalRecord) {
         try {
             CommonsUtils.invokeMethod("com.rebuild.rbv.sop.RobotSopObserver#onApproveManual", approvalRecord);
-        } catch (Exception ignored) {
-            ignored.printStackTrace();
+        } catch (Throwable ignored) {
+            log.debug("Unsupportted class [RobotSopObserver]");
         }
     }
 }
