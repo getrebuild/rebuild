@@ -1137,7 +1137,6 @@ class RbFormElement extends React.Component {
     this.handleChange({ target: { value: val } }, true)
   }
   // Getter
-  // @return string or object
   getValue() {
     return this.state.value
   }
@@ -3217,11 +3216,11 @@ const __addRecentlyUse = function (id) {
 }
 
 // 表单计算（视图下无效）
-const __calcFormula = function (_this) {
-  const watchFields = _this.props.calcFormula.match(/\{([a-z0-9]+)}/gi) || []
-  const $$$parent = _this.props.$$$parent
+const __calcFormula = function (fieldComp) {
+  const watchFields = fieldComp.props.calcFormula.match(/\{([a-z0-9]+)}/gi) || []
+  const $$$parent = fieldComp.props.$$$parent
 
-  const evalUrl = `/app/entity/extras/eval-calc-formula?entity=${$$$parent.props.entity}&field=${_this.props.field}`
+  const evalUrl = `/app/entity/extras/eval-calc-formula?entity=${$$$parent.props.entity}&field=${fieldComp.props.field}`
   setTimeout(() => {
     const calcFormulaValues = {}
     let _timer
@@ -3229,9 +3228,9 @@ const __calcFormula = function (_this) {
     // init
     watchFields.forEach((item) => {
       const name = item.substr(1, item.length - 2)
-      const fieldComp = $$$parent.refs[`fieldcomp-${name}`]
-      if (fieldComp && !$empty(fieldComp.state.value)) {
-        calcFormulaValues[name] = fieldComp.state.value
+      const c = $$$parent.refs[`fieldcomp-${name}`]
+      if (c && !$empty(c.state.value)) {
+        calcFormulaValues[name] = c.state.value
       } else if (item === '{NOW}') {
         // v3.7
         calcFormulaValues[name] = '{NOW}'
@@ -3240,12 +3239,8 @@ const __calcFormula = function (_this) {
 
     // onchange
     $$$parent.onFieldValueChange((s) => {
-      if (!watchFields.includes(`{${s.name}}`)) {
-        if (rb.env === 'dev') console.log('onFieldValueChange ignored :', s, _this.props.field)
-        return false
-      } else if (rb.env === 'dev') {
-        console.log('onFieldValueChange for calcFormula :', s, _this.props.field)
-      }
+      if (!watchFields.includes(`{${s.name}}`)) return false
+      if (rb.env === 'dev') console.log('onFieldValueChange for calcFormula :', s, fieldComp.props.field)
 
       if ($empty(s.value)) delete calcFormulaValues[s.name]
       else calcFormulaValues[s.name] = s.value
@@ -3258,19 +3253,30 @@ const __calcFormula = function (_this) {
       // v36
       _timer = setTimeout(() => {
         $.post(evalUrl, JSON.stringify(calcFormulaValues), (res) => {
-          if (res.data) _this.setValue(res.data)
-          else _this.setValue(null)
+          if (__isSameValue38(fieldComp.getValue(), res.data)) return false
+          if (res.data) fieldComp.setValue(res.data)
+          else fieldComp.setValue(null)
         })
       }, 300)
       return true
     })
 
     // 新建时
-    if (_this._isNew) {
+    if (fieldComp._isNew) {
       $.post(evalUrl, JSON.stringify(calcFormulaValues), (res) => {
-        if (res.data) _this.setValue(res.data)
-        else _this.setValue(null)
+        if (__isSameValue38(fieldComp.getValue(), res.data)) return false
+        if (res.data) fieldComp.setValue(res.data)
+        else fieldComp.setValue(null)
       })
     }
   }, 600) // delay for init
+}
+function __isSameValue38(a, b) {
+  if ($same(a, b)) return true
+  try {
+    // eslint-disable-next-line eqeqeq
+    return parseFloat(a) == parseFloat(b)
+  } catch (err) {
+    // ignored
+  }
 }

@@ -814,7 +814,7 @@ const RbListCommon = {
       $new.next().removeClass('hide')
       const $nn = $new.next().next()
       wpc.formsAttr.map((n) => {
-        $(`<a class="dropdown-item" data-id="${n.id}">${n.name || $L('默认')}</a>`)
+        $(`<a class="dropdown-item" data-id="${n.id}">${n.name || $L('默认布局')}</a>`)
           .appendTo($nn)
           .on('click', () => RbFormModal.create({ ...newProps, specLayout: n.id }, true))
       })

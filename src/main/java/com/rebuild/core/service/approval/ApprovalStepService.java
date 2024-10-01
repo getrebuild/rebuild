@@ -126,6 +126,7 @@ public class ApprovalStepService extends BaseService {
         Application.getCommonsCache().evict(ckey);
 
         execTriggersWhenSE(recordOfMain, TriggerWhen.SUBMIT);
+        this.execSopSteps38(recordOfMain);
     }
 
     /**
@@ -282,6 +283,7 @@ public class ApprovalStepService extends BaseService {
             sendNotification(submitter, approvedMsg, recordId);
 
             Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED, approver);
+            this.execSopSteps38(recordOfMain);
             return;
         }
 
@@ -308,6 +310,8 @@ public class ApprovalStepService extends BaseService {
                 }
             }
         }
+
+        this.execSopSteps38(recordOfMain);
     }
 
     /**
@@ -773,6 +777,9 @@ public class ApprovalStepService extends BaseService {
     }
 
     /**
+     * @param approvalRecord
+     * @param approvalId
+     * @param currentNode
      * @see com.rebuild.core.service.general.GeneralEntityService#approve(ID, ApprovalState, ID)
      */
     private void execTriggersByNode(Record approvalRecord, ID approvalId, String currentNode) {
@@ -830,5 +837,16 @@ public class ApprovalStepService extends BaseService {
         JSONObject actionContent = (JSONObject) triggerAction.getActionContext().getActionContent();
         JSONArray whenApproveNodes = actionContent.getJSONArray("whenApproveNodes");
         return whenApproveNodes != null && (whenApproveNodes.contains(nodeName) || whenApproveNodes.contains("*"));
+    }
+
+    /**
+     * @param approvalRecord
+     */
+    private void execSopSteps38(Record approvalRecord) {
+        try {
+            CommonsUtils.invokeMethod("com.rebuild.rbv.sop.RobotSopObserver#onApproveManual", approvalRecord);
+        } catch (Throwable ignored) {
+            log.debug("Unsupportted class [RobotSopObserver]");
+        }
     }
 }

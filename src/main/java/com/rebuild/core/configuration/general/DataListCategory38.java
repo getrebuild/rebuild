@@ -30,9 +30,12 @@ import org.apache.commons.lang.StringUtils;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 数据列表分组查询
@@ -243,7 +246,21 @@ public class DataListCategory38 {
             // 一级树:引用
             if (categoryFields.size() == 1 && dt == DisplayType.REFERENCE) {
                 fieldValue = parentValues[parentValues.length - 1].toString();
-                return String.format("%s = '%s'", fieldName, fieldValue);
+                // v3.8-b4 包括子级
+                Set<ID> thisAndChild = new HashSet<>();
+                Collection<Item> parent = Collections.singletonList(new Item(ID.valueOf(fieldValue), null));
+                while (true) {
+                    Collection<Item> parentNew = new HashSet<>();
+                    for (Item item : parent) {
+                        thisAndChild.add((ID) item.id);
+                        parentNew.addAll(datasReference(fieldMeta, ff[1], item.id));
+                    }
+
+                    if (parentNew.isEmpty()) break;
+                    parent = parentNew;
+                }
+
+                return String.format("%s in ('%s')", fieldName, StringUtils.join(thisAndChild, "','"));
             }
             // 一级树:分类
             if (categoryFields.size() == 1 && dt == DisplayType.CLASSIFICATION) {
