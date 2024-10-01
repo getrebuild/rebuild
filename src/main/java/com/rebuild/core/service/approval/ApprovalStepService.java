@@ -40,7 +40,6 @@ import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerWhen;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
-import com.rebuild.rbv.sop.RobotSopObserver;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -842,7 +841,6 @@ public class ApprovalStepService extends BaseService {
 
     /**
      * @param approvalRecord
-     * @see RobotSopObserver#onApproveManual(Record)
      */
     private void execSopSteps38(Record approvalRecord) {
         try {
