@@ -23,4 +23,8 @@ public class ReportsException extends RebuildException {
     public ReportsException(Throwable cause) {
         super(cause);
     }
+
+    public ReportsException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }
