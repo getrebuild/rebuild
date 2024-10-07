@@ -3293,6 +3293,7 @@ form {
 
 .form.approval-form .cc-accounts a {
   color: #404040;
+  font-weight: bold;
 }
 
 .form.approval-form .cc-accounts a + a::before {

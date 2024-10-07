@@ -263,8 +263,9 @@ public class FlowNode {
 
         Set<String> mobileOrEmail = new HashSet<>();
         for (Object me : o) {
-            if (RegexUtils.isCNMobile((String) me) || RegexUtils.isEMail((String) me)) {
-                mobileOrEmail.add((String) me);
+            String me2 = me == null ? null : me.toString();
+            if (RegexUtils.isCNMobile(me2) || RegexUtils.isEMail(me2)) {
+                mobileOrEmail.add(me2);
             }
         }
         return mobileOrEmail;
