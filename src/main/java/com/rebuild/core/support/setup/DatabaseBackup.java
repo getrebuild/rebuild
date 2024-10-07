@@ -91,8 +91,8 @@ public class DatabaseBackup {
 
         File zip = new File(backups, destName + ".zip");
         try {
-            CompressUtils.forceZip(dest, zip, null);
-            
+            CompressUtils.forceZip(zip, dest, null);
+
             FileUtils.deleteQuietly(dest);
             dest = zip;
         } catch (Exception e) {

@@ -97,9 +97,8 @@ public class ReportsController extends BaseController {
         try {
             EasyExcelGenerator reportGenerator;
             if (tt.type == DataReportManager.TYPE_WORD) {
-                // 暂不支持多个
                 reportGenerator = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
-                        "com.rebuild.rbv.data.WordReportGenerator#create", reportId, recordId);
+                        "com.rebuild.rbv.data.WordReportGenerator#create", reportId, recordIds);
             } else if (tt.type == DataReportManager.TYPE_HTML5) {
                 reportGenerator = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
                         "com.rebuild.rbv.data.Html5ReportGenerator#create", reportId, recordIds);

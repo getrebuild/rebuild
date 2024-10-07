@@ -31,29 +31,29 @@ import java.nio.file.Files;
 public class CompressUtils {
 
     /**
+     * @param destZip
      * @param fileOrDir
-     * @param destZip delete after create
      * @param filter
      * @throws IOException
      */
-    public static void forceZip(File fileOrDir, File destZip, FileFilter filter) throws IOException {
+    public static void forceZip(File destZip, File fileOrDir, FileFilter filter) throws IOException {
         if (destZip.exists()) {
             log.warn("delete exists after create : {}", destZip);
             FileUtils.deleteQuietly(destZip);
         }
 
-        zip(fileOrDir, Files.newOutputStream(destZip.toPath()), filter);
+        zip(Files.newOutputStream(destZip.toPath()), fileOrDir, filter);
     }
 
     /**
      * Creates a zip output stream at the specified path with the contents of the specified directory.
      *
-     * @param fileOrDir
      * @param zipOutputStream
+     * @param fileOrDir
      * @param filter
      * @throws IOException
      */
-    public static void zip(File fileOrDir, OutputStream zipOutputStream, FileFilter filter) throws IOException {
+    public static void zip(OutputStream zipOutputStream, File fileOrDir, FileFilter filter) throws IOException {
         BufferedOutputStream bufferedOutputStream = null;
         ZipArchiveOutputStream zipArchiveOutputStream = null;
 
@@ -72,6 +72,41 @@ public class CompressUtils {
             IOUtils.closeQuietly(bufferedOutputStream);
             IOUtils.closeQuietly(zipOutputStream);
         }
+    }
+
+    /**
+     * @param destZip
+     * @param files
+     * @throws IOException
+     */
+    public static void forceZip(File destZip, File... files) throws IOException {
+        if (destZip.exists()) {
+            log.warn("delete exists after create : {}", destZip);
+            FileUtils.deleteQuietly(destZip);
+        }
+
+        OutputStream zipOutputStream = Files.newOutputStream(destZip.toPath());
+        BufferedOutputStream bufferedOutputStream = null;
+        ZipArchiveOutputStream zipArchiveOutputStream = null;
+
+        try {
+            bufferedOutputStream = new BufferedOutputStream(zipOutputStream);
+            zipArchiveOutputStream = new ZipArchiveOutputStream(bufferedOutputStream);
+
+            for (File file : files) {
+                addFileToZip(zipArchiveOutputStream, file, null, null);
+            }
+
+        } finally {
+            if (zipArchiveOutputStream != null) {
+                zipArchiveOutputStream.finish();
+                zipArchiveOutputStream.close();
+            }
+
+            IOUtils.closeQuietly(bufferedOutputStream);
+            IOUtils.closeQuietly(zipOutputStream);
+        }
+
     }
 
     private static void addFileToZip(ZipArchiveOutputStream zipArchiveOutputStream, File file, String path, FileFilter filter) throws IOException {

@@ -101,7 +101,7 @@ $(document).ready(() => {
   wpc.formsAttr &&
     wpc.formsAttr.forEach((item) => {
       const $item = $(`<a class="dropdown-item" href="?id=${item.id}"></a>`).appendTo('.form-action-menu')
-      const $title = $(`<span>${item.name || $L('默认')}</span>`).appendTo($item)
+      const $title = $(`<span>${item.name || $L('默认布局')}</span>`).appendTo($item)
       if (!item.name) $title.addClass('text-muted')
 
       const $action = $(`<div class="action"><span title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></span></div>`).appendTo($item)
@@ -689,7 +689,7 @@ class DlgNForm extends RbModalHandler {
     if (props.attrs === 'ALL' && !props.name) {
       this.state.fallback = true
       this.state.fornew = true
-      this._name = $L('默认')
+      this._name = $L('默认布局')
     } else if (typeof props.attrs === 'object') {
       this.state.fallback = props.attrs.fallback
       this.state.fornew = props.attrs.fornew

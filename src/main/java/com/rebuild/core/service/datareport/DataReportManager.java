@@ -238,6 +238,7 @@ public class DataReportManager implements ConfigManager {
         else if (fileName.endsWith(".xlsx")) name += ".xlsx";
         else if (fileName.endsWith(".xls")) name += ".xls";
         else if (fileName.endsWith(".csv")) name += ".csv";
+        else if (fileName.endsWith(".zip")) name += ".zip";
 
         return StringUtils.defaultIfBlank(name, "UNTITLE");
     }
