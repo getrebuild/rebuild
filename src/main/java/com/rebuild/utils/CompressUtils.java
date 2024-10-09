@@ -48,17 +48,17 @@ public class CompressUtils {
     /**
      * Creates a zip output stream at the specified path with the contents of the specified directory.
      *
-     * @param zipOutputStream
+     * @param destZipOutputStream
      * @param fileOrDir
      * @param filter
      * @throws IOException
      */
-    public static void zip(OutputStream zipOutputStream, File fileOrDir, FileFilter filter) throws IOException {
+    public static void zip(OutputStream destZipOutputStream, File fileOrDir, FileFilter filter) throws IOException {
         BufferedOutputStream bufferedOutputStream = null;
         ZipArchiveOutputStream zipArchiveOutputStream = null;
 
         try {
-            bufferedOutputStream = new BufferedOutputStream(zipOutputStream);
+            bufferedOutputStream = new BufferedOutputStream(destZipOutputStream);
             zipArchiveOutputStream = new ZipArchiveOutputStream(bufferedOutputStream);
 
             addFileToZip(zipArchiveOutputStream, fileOrDir, null, filter);
@@ -70,7 +70,7 @@ public class CompressUtils {
             }
 
             IOUtils.closeQuietly(bufferedOutputStream);
-            IOUtils.closeQuietly(zipOutputStream);
+            IOUtils.closeQuietly(destZipOutputStream);
         }
     }
 
@@ -85,12 +85,12 @@ public class CompressUtils {
             FileUtils.deleteQuietly(destZip);
         }
 
-        OutputStream zipOutputStream = Files.newOutputStream(destZip.toPath());
+        OutputStream destZipOutputStream = Files.newOutputStream(destZip.toPath());
         BufferedOutputStream bufferedOutputStream = null;
         ZipArchiveOutputStream zipArchiveOutputStream = null;
 
         try {
-            bufferedOutputStream = new BufferedOutputStream(zipOutputStream);
+            bufferedOutputStream = new BufferedOutputStream(destZipOutputStream);
             zipArchiveOutputStream = new ZipArchiveOutputStream(bufferedOutputStream);
 
             for (File file : files) {
@@ -104,7 +104,7 @@ public class CompressUtils {
             }
 
             IOUtils.closeQuietly(bufferedOutputStream);
-            IOUtils.closeQuietly(zipOutputStream);
+            IOUtils.closeQuietly(destZipOutputStream);
         }
 
     }
