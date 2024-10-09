@@ -831,7 +831,7 @@ class LiteFormModal extends RbModalHandler {
     )
   }
 
-  _handleSave() {
+  _handleSave(weakMode) {
     const data = this._LiteForm.buildFormData()
     if (data === false) return
 
@@ -850,7 +850,9 @@ class LiteFormModal extends RbModalHandler {
     }
 
     this.disabled(true)
-    $.post('/app/entity/liteform/record-save', JSON.stringify(data2), (res) => {
+    let url = '/app/entity/liteform/record-save'
+    if (weakMode) url += '?weakMode=' + weakMode
+    $.post(url, JSON.stringify(data2), (res) => {
       this.disabled()
       if (res.error_code === 0) {
         RbHighbar.success($L('保存成功'))
@@ -862,6 +864,16 @@ class LiteFormModal extends RbModalHandler {
         if (window.RbViewPage) window.RbViewPage.reload()
         // 关闭
         this.hide()
+      } else if (res.error_code === 497) {
+        // 弱校验
+        const that = this
+        const msg_id = res.error_msg.split('$$$$')
+        RbAlert.create(msg_id[0], {
+          onConfirm: function () {
+            this.hide()
+            that._handleSave(msg_id[1])
+          },
+        })
       } else {
         RbHighbar.error(res.error_msg)
       }

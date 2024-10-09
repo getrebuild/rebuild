@@ -1070,4 +1070,7 @@ $(document).ready(function () {
     if (wpc.viewTabs) RbViewPage.initVTabs(wpc.viewTabs)
     if (wpc.viewAdds) RbViewPage.initVAdds(wpc.viewAdds)
   }
+
+  // v3.8, v3.9
+  wpc.easyAction && window.EasyAction4View && window.EasyAction4View.init(wpc.easyAction)
 })

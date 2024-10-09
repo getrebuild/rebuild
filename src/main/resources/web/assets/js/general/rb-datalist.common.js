@@ -2182,118 +2182,34 @@ const CategoryWidget = {
 }
 
 const _FrontJS = window.FrontJS
-const EasyAction = {
+const _EasyAction = window.EasyAction
+// eslint-disable-next-line no-unused-vars
+const EasyAction4List = {
   init(items) {
+    if (!(_FrontJS && _EasyAction && items)) return
     const _List = _FrontJS.DataList
 
-    items.forEach((item) => {
-      if (!item.icon && !item.text) {
-        console.log('Bad button of EasyAction :', item)
-        return
-      }
+    items['datalist'] &&
+      items['datalist'].forEach((item) => {
+        item = _EasyAction.fixItem(item)
+        if (!item) return
 
-      if (~~item.showType === 1) {
-        item.text = ''
-        if (!item.icon) item.icon = 'texture'
-      }
-      if (~~item.showType === 2) item.icon = null
-      // L2
-      if (item.items && item.items.length === 0) item.items = null
-      // Event
-      item.onClick = () => EasyAction.handleOp(item)
-      item.items &&
-        item.items.forEach((itemL2) => {
-          itemL2.onClick = () => EasyAction.handleOp(itemL2)
-        })
-
-      _List.addButton(item)
-    })
-  },
-
-  handleOp(item) {
-    if (item.opType === 1) EasyAction.handleOp1(item)
-    if (item.opType === 2) EasyAction.handleOp2(item)
-    if (item.opType === 3) EasyAction.handleOp3(item)
-    if (item.opType === 4) EasyAction.handleOp4(item)
-    if (item.opType === 10) EasyAction.handleOp10(item)
-  },
-
-  handleOp1(item) {
-    _FrontJS.openForm(item.op1Value || wpc.entity[0], null, item.op1Value2 || null)
-  },
-
-  handleOp2(item) {
-    const _List = _FrontJS.DataList
-    const ids = _List.getSelectedIds()
-    if (!ids[0]) return RbHighbar.create($L('请选择一条记录'))
-
-    let fields = []
-    item.op2Value.forEach((item) => {
-      let o = { field: item.field }
-      if (item.tip2) o.tip = item.tip2
-      if (item.readonly2) o.readonly = true
-      if (item.required2) o.nullable = false
-      fields.push(o)
-    })
-    _FrontJS.openLiteForm(ids[0], fields)
-  },
-
-  handleOp3(item) {
-    const _List = _FrontJS.DataList
-    const ids = _List.getSelectedIds()
-    if (!ids[0]) return RbHighbar.create($L('请至少选择一条记录'))
-
-    if (!confirm(item.op3Value3 || $L('确认操作？'))) return
-
-    const data = {
-      [item.op3Value]: item.op3Value2,
-    }
-
-    let idsLen = ids.length
-    ids.forEach((id) => {
-      data.metadata = { id: id }
-      $.post('/app/entity/record-save', JSON.stringify(data), () => {
-        idsLen--
-        if (idsLen === 0) {
-          RbHighbar.success('操作成功')
-          _List.reload()
-        }
+        item.onClick = () => _EasyAction.handleOp(item)
+        item.items &&
+          item.items.forEach((itemL2) => {
+            itemL2.onClick = () => _EasyAction.handleOp(itemL2)
+          })
+        _List.addButton(item)
       })
-    })
-  },
 
-  handleOp4(item) {
-    const _List = _FrontJS.DataList
-    const ids = _List.getSelectedIds()
-    if (!ids[0]) return RbHighbar.create($L('请至少选择一条记录'))
+    items['datarow'] &&
+      items['datarow'].forEach((item) => {
+        item = _EasyAction.fixItem(item)
+        if (!item) return
 
-    // ID[:DETAIL_NAME]
-    const rr = item.op4Value.split(':')
-    // 明细实体的
-    if (rr[1]) {
-      $.get(`/commons/frontjs/get-detailids?ids=${ids.join(',')}`, (res) => {
-        if (res.error_code === 0) {
-          if (res.data && res.data.length > 0) {
-            _List.exportReport(rr[0], { isMerge: true, recordId: res.data })
-          } else {
-            RbHighbar.createl('选择的记录暂无明细数据')
-          }
-        } else {
-          RbHighbar.error(res.error_msg)
-        }
+        item.onClick = (id) => _EasyAction.handleOp(item, id)
+        _List.regRowButton(item)
       })
-    } else {
-      _List.exportReport(rr[0], { isMerge: true })
-    }
-  },
-
-  handleOp10(item) {
-    try {
-      const FN = Function
-      FN(item.op10Value)() // eval
-    } catch (err) {
-      console.log(err)
-    }
   },
 }
 

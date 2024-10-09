@@ -294,6 +294,6 @@ $(document).ready(() => {
     $wtab.trigger('click')
   }
 
-  // eslint-disable-next-line no-undef
-  wpc.easyAction && window.EasyAction && window.EasyAction.init(wpc.easyAction)
+  // v3.8, v3.9
+  wpc.easyAction && window.EasyAction4List && window.EasyAction4List.init(wpc.easyAction)
 })
