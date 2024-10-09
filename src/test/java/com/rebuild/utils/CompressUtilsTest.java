@@ -19,8 +19,8 @@ class CompressUtilsTest {
     @Test
     void zip() throws IOException {
         CompressUtils.forceZip(
-                new File("D:\\GitHub\\rebuild\\rebuild"),
                 new File("D:\\GitHub\\rebuild.zip"),
+                new File("D:\\GitHub\\rebuild\\rebuild"),
                 pathname -> !pathname.getName().contains("node_modules")
         );
     }
