@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.general.EasyActionManager;
 import com.rebuild.core.configuration.general.FormsBuilder;
 import com.rebuild.core.configuration.general.FormsBuilderContextHolder;
 import com.rebuild.core.configuration.general.FormsManager;
@@ -87,6 +88,8 @@ public class GeneralModelController extends EntityController {
         mv.getModel().putAll(getViewExtras(user, entity, isDetail));
         // 显示历史
         mv.getModel().put("ShowViewHistory", RebuildConfiguration.getBool(ConfigurationItem.ShowViewHistory));
+        // EasyAction
+        mv.getModel().put("easyAction", EasyActionManager.instance.getEasyAction(entity, user));
 
         mv.getModel().put("id", id);
         return mv;
@@ -272,6 +275,7 @@ public class GeneralModelController extends EntityController {
         } finally {
             FormsBuilderContextHolder.getSpecLayout(true);
         }
+
         return details;
     }
 }

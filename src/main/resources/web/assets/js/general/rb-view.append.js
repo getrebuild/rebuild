@@ -572,3 +572,26 @@ class TransformRich extends React.Component {
     return true
   }
 }
+
+const _FrontJS = window.FrontJS
+const _EasyAction = window.EasyAction
+// eslint-disable-next-line no-unused-vars
+const EasyAction4View = {
+  init(items) {
+    if (!(_FrontJS && items)) return
+    const _View = _FrontJS.View
+
+    items['view'] &&
+      items['view'].forEach((item) => {
+        item = _EasyAction.fixItem(item)
+        if (!item) return
+
+        item.onClick = () => _EasyAction.handleOp(item, _View.getCurrentId())
+        item.items &&
+          item.items.forEach((itemL2) => {
+            itemL2.onClick = () => _EasyAction.handleOp(itemL2, _View.getCurrentId())
+          })
+        _View.addButton(item)
+      })
+  },
+}
