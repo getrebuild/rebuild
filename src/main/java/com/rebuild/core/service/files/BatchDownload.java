@@ -59,7 +59,7 @@ public class BatchDownload extends HeavyTask<File> {
             }
         }
 
-        CompressUtils.forceZip(tmp, tmpZip, null);
+        CompressUtils.forceZip(tmpZip, tmp, null);
         destZip = tmpZip.exists() ? tmpZip : null;
 
         return destZip;

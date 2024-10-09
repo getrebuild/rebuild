@@ -34,15 +34,15 @@ public class DatafileBackup extends DatabaseBackup {
         File rbdata = RebuildConfiguration.getFileOfData("");
 
         String destName = "backup_datafile." + CalendarUtils.getPlainDateTimeFormat().format(CalendarUtils.now()) + ".zip";
-        File dest = new File(backups, destName);
+        File destZip = new File(backups, destName);
 
-        CompressUtils.forceZip(rbdata, dest, pathname -> {
+        CompressUtils.forceZip(destZip, rbdata, pathname -> {
             String name = pathname.getName();
             return !("_backups".equals(name) || "_log".equals(name) || "temp".equals(name) || "rebuild.pid".equals(name));
         });
 
-        log.info("Backup succeeded : {} ({})", dest, FileUtils.byteCountToDisplaySize(dest.length()));
+        log.info("Backup succeeded : {} ({})", destZip, FileUtils.byteCountToDisplaySize(destZip.length()));
 
-        return dest;
+        return destZip;
     }
 }
