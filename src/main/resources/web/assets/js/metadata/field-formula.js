@@ -333,12 +333,22 @@ class MatchFields extends React.Component {
     this.state.targetFields = this.reset(props, true)
   }
 
+  // fix:3.8.2
+  _groupFields38() {
+    let groupFields = this.state.groupFields
+    if (groupFields && typeof groupFields === 'string') {
+      eval(`groupFields = ${groupFields}`)
+    }
+    return groupFields
+  }
+
   render() {
+    const groupFields = this._groupFields38()
     return (
       <div className="group-fields">
-        {this.state.groupFields && this.state.groupFields.length > 0 && (
+        {groupFields && groupFields.length > 0 && (
           <div className="mb-1">
-            {this.state.groupFields.map((item) => {
+            {groupFields.map((item) => {
               return (
                 <span className="d-inline-block mb-1" key={item.targetField}>
                   <span className="badge badge-primary badge-close m-0 mr-1">
@@ -429,7 +439,7 @@ class MatchFields extends React.Component {
     if (!item.targetField) return RbHighbar.create($L('请选择目标匹配字段'))
     if (!item.sourceField) return RbHighbar.create($L('请选择源匹配字段'))
 
-    const groupFields = this.state.groupFields || []
+    const groupFields = this._groupFields38()
     let exists = groupFields.find((x) => item.targetField === x.targetField)
     if (exists) return RbHighbar.create($L('目标匹配字段已添加'))
     exists = groupFields.find((x) => item.sourceField === x.sourceField)
@@ -440,7 +450,7 @@ class MatchFields extends React.Component {
   }
 
   _delGroupField(TF) {
-    const groupFields = this.state.groupFields.filter((x) => x.targetField !== TF)
+    const groupFields = this._groupFields38().filter((x) => x.targetField !== TF)
     this.setState({ groupFields })
   }
 
@@ -462,7 +472,7 @@ class MatchFields extends React.Component {
   }
 
   val() {
-    return this.state.groupFields || []
+    return this._groupFields38() || []
   }
 }
 

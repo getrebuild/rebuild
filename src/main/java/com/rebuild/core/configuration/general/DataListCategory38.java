@@ -249,11 +249,14 @@ public class DataListCategory38 {
                 // v3.8-b4 包括子级
                 Set<ID> thisAndChild = new HashSet<>();
                 Collection<Item> parent = Collections.singletonList(new Item(ID.valueOf(fieldValue), null));
+                boolean hasParentField = ff.length > 1 && StringUtils.isNotBlank(ff[1]);
                 while (true) {
                     Collection<Item> parentNew = new HashSet<>();
                     for (Item item : parent) {
                         thisAndChild.add((ID) item.id);
-                        parentNew.addAll(datasReference(fieldMeta, ff[1], item.id));
+                        if (hasParentField) {
+                            parentNew.addAll(datasReference(fieldMeta, ff[1], item.id));
+                        }
                     }
 
                     if (parentNew.isEmpty()) break;

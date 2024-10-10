@@ -594,7 +594,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             onConfirm: function () {
               this.disabled(true, true)
               const node = $(this._element).find('select').val()
-              that.post2(state, node === '0' ? null : node, this)
+              that._post(state, node === '0' ? null : node, this)
             },
             onRendered: function () {
               $(this._element).find('select').select2({
@@ -605,11 +605,11 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         )
       })
     } else {
-      this.post2(state, null)
+      this._post(state, null)
     }
   }
 
-  post2(state, rejectNode, _alert) {
+  _post(state, rejectNode, _alert, weakMode) {
     let aformData = {}
     if (this.state.aform && state === 10) {
       aformData = this._LiteForm.buildFormData()
@@ -632,13 +632,25 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     _alert && _alert.disabled(true, true)
     this.disabled(true)
 
-    $.post(`/app/entity/approval/approve?record=${this.props.id}&state=${state}&rejectNode=${rejectNode || ''}`, JSON.stringify(data), (res) => {
+    let url = `/app/entity/approval/approve?record=${this.props.id}&state=${state}&rejectNode=${rejectNode || ''}`
+    if (weakMode) url += '&weakMode=' + weakMode
+    $.post(url, JSON.stringify(data), (res) => {
       _alert && _alert.disabled()
       this.disabled()
 
       if (res.error_code === 498) {
         this.setState({ bizMessage: res.error_msg })
         this.getNextStep()
+      } else if (res.error_code === 497) {
+        // 弱校验
+        const that = this
+        const msg_id = res.error_msg.split('$$$$')
+        RbAlert.create(msg_id[0], {
+          onConfirm: function () {
+            this.hide()
+            that._post(state, rejectNode, _alert, msg_id[1])
+          },
+        })
       } else if (res.error_code > 0) {
         RbHighbar.error(res.error_msg)
       } else {
