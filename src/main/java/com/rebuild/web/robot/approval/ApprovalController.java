@@ -21,7 +21,6 @@ import com.rebuild.core.configuration.general.LiteFormBuilder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.DataSpecificationNoRollbackException;
 import com.rebuild.core.service.approval.ApprovalException;
@@ -34,6 +33,8 @@ import com.rebuild.core.service.approval.FlowDefinition;
 import com.rebuild.core.service.approval.FlowNode;
 import com.rebuild.core.service.approval.FlowNodeGroup;
 import com.rebuild.core.service.approval.RobotApprovalManager;
+import com.rebuild.core.service.trigger.DataValidateException;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
@@ -228,7 +229,8 @@ public class ApprovalController extends BaseController {
         // 可编辑字段
         JSONObject aformData = post.getJSONObject("aformData");
         Record addedRecord = null;
-        // 没有或无更新
+        // v3.9 弱校验
+        final ID weakMode = getIdParameter(request, "weakMode");
         if (aformData != null && aformData.size() > 1) {
             try {
                 addedRecord = EntityHelper.parse(aformData, getRequestUser(request));
@@ -236,6 +238,11 @@ public class ApprovalController extends BaseController {
                 log.warn(">>>>> {}", known.getLocalizedMessage());
                 return RespBody.error(known.getLocalizedMessage());
             }
+
+            if (!Application.getEntityService(addedRecord.getEntity().getEntityCode()).getAndCheckRepeated(addedRecord, 1).isEmpty()) {
+                return RespBody.errorl("存在重复记录");
+            }
+            if (weakMode != null) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.DataValidate#setWeakMode", weakMode);
         }
 
         try {
@@ -247,9 +254,17 @@ public class ApprovalController extends BaseController {
             return RespBody.error(ex.getLocalizedMessage(), DefinedException.CODE_APPROVE_WARN);
         } catch (ApprovalException ex) {
             return RespBody.error(ex.getLocalizedMessage());
+        } catch (DataValidateException known) {
+            if (known.isWeakMode()) {
+                String msg = known.getLocalizedMessage() + "$$$$" + known.getWeakModeTriggerId();
+                return RespBody.error(msg, DefinedException.CODE_WEAK_VALIDATE);
+            }
+            return RespBody.error(known.getLocalizedMessage());
         } catch (UnexpectedRollbackException rolledback) {
             log.error("ROLLEDBACK", rolledback);
             return RespBody.error("ROLLEDBACK OCCURED");
+        } finally {
+            if (weakMode != null) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.DataValidate#getWeakMode", true);
         }
     }
 
