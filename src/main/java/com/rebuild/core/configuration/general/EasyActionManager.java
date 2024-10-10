@@ -34,7 +34,12 @@ public class EasyActionManager extends BaseLayoutManager {
         ConfigBean cb = getLayout(UserService.SYSTEM_USER, entity, TYPE_EASYACTION, null);
         if (cb == null) return null;
 
-        JSONArray items = (JSONArray) cb.getJSON("config");
+        JSONArray items;
+        try {
+            items = (JSONArray) cb.getJSON("config");
+        } catch (Exception ignored) {
+            return null;
+        }
         if (items == null || items.isEmpty()) return null;
 
         JSONArray items4User = new JSONArray();
