@@ -196,7 +196,7 @@ public class ProtocolFilterParser {
                     parentAndChind.add(String.format("%s = '%s'", fs[1], cascadingValueId));
                 }
             }
-            
+
             if (StringUtils.isNotBlank(cascadingFieldChild)) {
                 String[] fs = cascadingFieldChild.split(MetadataHelper.SPLITER_RE);
                 Entity refEntity;

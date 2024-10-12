@@ -199,7 +199,7 @@ class AdvFilter extends React.Component {
     if (!this._fields) return
 
     const items = [...this.state.items]
-    if (items.length >= 9) {
+    if (items.length >= (window.__LAB_ADVFILTER_LIMIT || 9)) {
       RbHighbar.create($L('最多可添加 9 个条件'))
       return
     }
