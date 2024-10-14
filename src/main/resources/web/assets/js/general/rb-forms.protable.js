@@ -322,15 +322,33 @@ class ProTable extends React.Component {
       })
   }
 
+  // @Deprecated
+  getLineForm(lineKey) {
+    console.warn('@Deprecated : getLineForm')
+    return this.getInlineForm(lineKey)
+  }
+
   /**
    * 获取指定 InlineForm
    * @param {string} lineKey
    * @returns
    */
-  getLineForm(lineKey) {
+  getInlineForm(lineKey) {
     if (!this.state.inlineForms) return null
     const F = this.state.inlineForms.find((c) => c.key === lineKey)
     return F ? F.ref.current || null : null
+  }
+
+  /**
+   * @returns
+   */
+  getInlineForms() {
+    if (!this.state.inlineForms) return null
+    let ff = []
+    this.state.inlineForms.forEach((F) => {
+      if (F && F.ref.current) ff.push(F.ref.current)
+    })
+    return ff
   }
 
   /**

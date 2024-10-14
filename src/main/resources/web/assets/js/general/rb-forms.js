@@ -2092,15 +2092,16 @@ class RbFormReference extends RbFormElement {
 
           // v2.10 FIXME 父级改变后清除明细
           // v3.1 因为父级无法获取到明细的级联值，且级联值有多个（逻辑上存在多个父级值）
-          const _cascadingFieldChild = that.props._cascadingFieldChild || ''
-          if ($$$form._ProTables && !$$$form._inAutoFillin && _cascadingFieldChild.includes('.')) {
-            const _ProTable = $$$form._ProTables[_cascadingFieldChild.split('.')[0]]
-            if (_ProTable) {
-              const field = _cascadingFieldChild.split('$$$$')[0].split('.')[1]
-              _ProTable.setFieldNull(field)
-              console.log('Clean details ...', field)
-            }
-          }
+          // v3.9 不清除明细
+          // const _cascadingFieldChild = that.props._cascadingFieldChild || ''
+          // if ($$$form._ProTables && !$$$form._inAutoFillin && _cascadingFieldChild.includes('.')) {
+          //   const _ProTable = $$$form._ProTables[_cascadingFieldChild.split('.')[0]]
+          //   if (_ProTable) {
+          //     const field = _cascadingFieldChild.split('$$$$')[0].split('.')[1]
+          //     _ProTable.setFieldNull(field)
+          //     console.log('Clean details ...', field)
+          //   }
+          // }
         }
 
         that.handleChange({ target: { value: v } }, true)
@@ -2126,6 +2127,8 @@ class RbFormReference extends RbFormElement {
       return props.getCascadingFieldValue(this)
     }
 
+    let $$$parent = props.$$$parent
+
     // v3.3.2 在多级级联中会同时存在父子级
     let cascadingField
     if (props._cascadingFieldParent) {
@@ -2133,11 +2136,25 @@ class RbFormReference extends RbFormElement {
     } else if (props._cascadingFieldChild) {
       cascadingField = props._cascadingFieldChild.split('$$$$')[0]
       // v3.3.3 明细作为子级时不控制，因为选择后明细关联字段会清空
-      if (cascadingField && cascadingField.includes('.')) return null
+      // v3.9 开始控制，同时主记录修改时不再清空明细（视图中还不能控制）
+      if (cascadingField && cascadingField.includes('.') && $$$parent._ProTables) {
+        const ef = cascadingField.split('.')
+        const pt = $$$parent._ProTables[ef[0]]
+
+        let vvv = []
+        const ptForms = pt.getInlineForms()
+        ptForms &&
+          ptForms.forEach((F) => {
+            const fieldComp = F.getFieldComp(ef[1])
+            let v = fieldComp ? fieldComp.getValue() : null
+            if (v && Array.isArray(v)) v = v[0] // N2N
+            v = v ? v.id || v : null
+            if (v) vvv.push(v)
+          })
+        return vvv.length > 0 ? vvv.join(',') : null
+      }
     }
     if (!cascadingField) return null
-
-    let $$$parent = props.$$$parent
 
     // v2.10 明细中使用主表单
     if ($$$parent._InlineForm && (props._cascadingFieldParent || '').includes('.')) {
