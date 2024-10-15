@@ -532,6 +532,10 @@ class EditorWithFieldVars extends React.Component {
 
     // eslint-disable-next-line no-undef
     autosize(this._$content)
+    setTimeout(() => {
+      const evt = new Event('input')
+      this._$content.dispatchEvent(evt)
+    }, 20)
   }
 
   val() {
