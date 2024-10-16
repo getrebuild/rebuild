@@ -816,13 +816,14 @@ body {
 }
 
 .timeline.approved-steps .timeline-item.state11::before,
-.timeline.approved-steps .timeline-item.state21::before {
+.timeline.approved-steps .timeline-item.state21::before,
+.timeline.approved-steps .timeline-item.state12::before,
+.timeline.approved-steps .timeline-item.state13::before {
   border-color: #fff;
   background-color: #ea3f30;
 }
 
-.timeline.approved-steps .timeline-item.state12::before,
-.timeline.approved-steps .timeline-item.state13::before {
+.timeline.approved-steps .timeline-item.state21::before {
   border-color: #fff;
   background-color: #f7b904;
 }
