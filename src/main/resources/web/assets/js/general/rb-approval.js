@@ -768,9 +768,7 @@ class ApprovalStepViewer extends React.Component {
 
               <ul className="timeline approved-steps">
                 {(this.state.steps || []).map((item, idx) => {
-                  if (item.submitter) {
-                    stateLast = item.approvalState
-                  }
+                  if (item.submitter) stateLast = item.approvalState
                   return idx === 0 || item.submitter ? this.renderSubmitter(item, idx) : this.renderApprover(item, stateLast)
                 })}
 
@@ -782,14 +780,15 @@ class ApprovalStepViewer extends React.Component {
               </ul>
 
               {this.state.steps && (
-                <div className="text-center" ref={(c) => (this._$his = c)}>
+                <div className="text-center mt-4" ref={(c) => (this._$his = c)}>
                   <a
                     className="text-primary"
                     onClick={() => {
                       this._load(true)
-                      setTimeout(() => $(this._$his).remove(), 500)
+                      setTimeout(() => $(this._$his).remove(), 200)
                     }}>
-                    {$L('查看全部')}
+                    {$L('查看全部')}&nbsp;
+                    <i className="mdi mdi-dots-horizontal-circle-outline fs-15" />
                   </a>
                 </div>
               )}

@@ -146,7 +146,7 @@ class DlgDetails extends RbAlert {
     }
 
     return (
-      <table className="table table-fixed">
+      <table className="table table-fixed mb-0">
         <thead>
           <tr>
             <th width="25%">{$L('字段')}</th>
@@ -158,9 +158,12 @@ class DlgDetails extends RbAlert {
           <ContentsGroup contents={this.state.data} />
           <tr>
             <td colSpan="3" className="text-center pb-0">
-              <a className="text-primary" onClick={() => this.setState({ viewAll: true })}>
-                {$L('查看全部')}
-              </a>
+              <div className="mt-1">
+                <a className="text-primary" onClick={() => this.setState({ viewAll: true })}>
+                  {$L('查看全部')}&nbsp;
+                  <i className="mdi mdi-dots-horizontal-circle-outline fs-15" />
+                </a>
+              </div>
             </td>
           </tr>
         </tbody>
