@@ -2136,7 +2136,7 @@ class RbFormReference extends RbFormElement {
     } else if (props._cascadingFieldChild) {
       cascadingField = props._cascadingFieldChild.split('$$$$')[0]
       // v3.3.3 明细作为子级时不控制，因为选择后明细关联字段会清空
-      // v3.9 开始控制，同时主记录修改时不再清空明细（视图中还不能控制）
+      // v3.9 开始控制，同时主记录中父级字段修改时不再清空明细（视图中还不能控制）
       if (cascadingField && cascadingField.includes('.') && $$$parent._ProTables) {
         const ef = cascadingField.split('.')
         const pt = $$$parent._ProTables[ef[0]]
@@ -2147,7 +2147,15 @@ class RbFormReference extends RbFormElement {
           ptForms.forEach((F) => {
             const fieldComp = F.getFieldComp(ef[1])
             let v = fieldComp ? fieldComp.getValue() : null
-            if (v && Array.isArray(v)) v = v[0] // N2N
+            // N2N
+            if (v && Array.isArray(v)) {
+              let temp = []
+              v.forEach((item) => {
+                if (item.id) temp.push(item.id)
+                else temp.push(item)
+              })
+              v = temp.join(',')
+            }
             v = v ? v.id || v : null
             if (v) vvv.push(v)
           })
@@ -2180,7 +2188,15 @@ class RbFormReference extends RbFormElement {
       }
     }
 
-    if (v && Array.isArray(v)) v = v[0] // N2N
+    // N2N
+    if (v && Array.isArray(v)) {
+      let temp = []
+      v.forEach((item) => {
+        if (item.id) temp.push(item.id)
+        else temp.push(item)
+      })
+      v = temp.join(',')
+    }
     return v ? v.id || v : null
   }
 

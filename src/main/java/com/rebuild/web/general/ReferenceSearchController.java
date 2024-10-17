@@ -72,9 +72,7 @@ public class ReferenceSearchController extends EntityController {
         Entity searchEntity = referenceField.getReferenceEntity();
 
         // 引用字段数据过滤
-        String cascadingValue = getParameter(request, "cascadingValue", StringUtils.EMPTY);
-        if (cascadingValue.contains(",")) cascadingValue = cascadingValue.split(",")[0];  // N2N
-
+        String cascadingValue = getParameter(request, "cascadingValue");
         String protocolFilter = new ProtocolFilterParser()
                 .parseRef(referenceField.getName() + "." + entity.getName(), cascadingValue);
 
