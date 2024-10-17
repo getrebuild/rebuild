@@ -496,7 +496,16 @@ class DlgSpecApproveNodes extends RbModalHandler {
                 {$L('填写步骤名称')} ({$L('* 表示所有')})
               </label>
               <div>
-                <select className="form-control form-control-sm" ref={(c) => (this._$set = c)}></select>
+                <select className="form-control form-control-sm" ref={(c) => (this._$set = c)}>
+                  {this.state.stepNames &&
+                    this.state.stepNames.map((item) => {
+                      return (
+                        <option key={item} value={item}>
+                          {item}
+                        </option>
+                      )
+                    })}
+                </select>
               </div>
             </div>
           </div>
@@ -532,6 +541,10 @@ class DlgSpecApproveNodes extends RbModalHandler {
       tags: true,
       theme: 'default select2-tag',
       allowClear: true,
+    })
+
+    $.get(`/admin/robot/trigger/approval-steps?entity=${wpc.sourceEntity}`, (res) => {
+      this.setState({ stepNames: res.data || [] })
     })
   }
 

@@ -751,7 +751,8 @@ class ApprovalStepViewer extends React.Component {
   }
 
   render() {
-    const stateLast = this.state.steps ? this.state.steps[0].approvalState : 0
+    // const stateLast = this.state.steps ? this.state.steps[0].approvalState : 0
+    let stateLast = 0
 
     return (
       <div className="modal" ref={(c) => (this._dlg = c)} style={{ zIndex: 1051 }}>
@@ -764,16 +765,33 @@ class ApprovalStepViewer extends React.Component {
             </div>
             <div className="modal-body approved-steps-body">
               {!this.state.steps && <RbSpinner fully />}
+
               <ul className="timeline approved-steps">
                 {(this.state.steps || []).map((item, idx) => {
-                  return idx === 0 ? this.renderSubmitter(item) : this.renderApprover(item, stateLast)
+                  if (item.submitter) stateLast = item.approvalState
+                  return idx === 0 || item.submitter ? this.renderSubmitter(item, idx) : this.renderApprover(item, stateLast)
                 })}
+
                 {stateLast >= 10 && (
                   <li className="timeline-item last" key="step-last">
                     <span>{stateLast === 13 || stateLast === 12 ? $L('重审') : $L('结束')}</span>
                   </li>
                 )}
               </ul>
+
+              {this.state.steps && (
+                <div className="text-center mt-4" ref={(c) => (this._$his = c)}>
+                  <a
+                    className="text-primary"
+                    onClick={() => {
+                      this._load(true)
+                      setTimeout(() => $(this._$his).remove(), 200)
+                    }}>
+                    {$L('查看全部')}&nbsp;
+                    <i className="mdi mdi-dots-horizontal-circle-outline fs-15" />
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -781,28 +799,31 @@ class ApprovalStepViewer extends React.Component {
     )
   }
 
-  renderSubmitter(s) {
+  renderSubmitter(s, idx) {
     return (
-      <li className="timeline-item state0" key="step-submit">
-        {this._formatTime(s.createdOn)}
-        <div className="timeline-content">
-          <div className="timeline-avatar">
-            <img src={`${rb.baseUrl}/account/user-avatar/${s.submitter}`} alt="Avatar" />
+      <RF>
+        {idx > 0 && <strong className="mb-1">{$L('再次提交')}</strong>}
+        <li className="timeline-item state0" key="step-submit">
+          {this._formatTime(s.createdOn)}
+          <div className="timeline-content">
+            <div className="timeline-avatar">
+              <img src={`${rb.baseUrl}/account/user-avatar/${s.submitter}`} alt="Avatar" />
+            </div>
+            <div className="timeline-header">
+              <p className="timeline-activity">{$L('由 %s 提交审批', s.submitter === rb.currentUser ? $L('你') : s.submitterName)}</p>
+              {s.approvalName && (
+                <blockquote className="blockquote timeline-blockquote mb-0">
+                  <p>
+                    <a target="_blank" href={`${rb.baseUrl}/app/RobotApprovalConfig/view/${s.approvalId}`}>
+                      <i className="mdi mdi-progress-check" /> {s.approvalName}
+                    </a>
+                  </p>
+                </blockquote>
+              )}
+            </div>
           </div>
-          <div className="timeline-header">
-            <p className="timeline-activity">{$L('由 %s 提交审批', s.submitter === rb.currentUser ? $L('你') : s.submitterName)}</p>
-            {s.approvalName && (
-              <blockquote className="blockquote timeline-blockquote mb-0">
-                <p>
-                  <a target="_blank" href={`${rb.baseUrl}/app/RobotApprovalConfig/view/${s.approvalId}`}>
-                    <i className="mdi mdi-progress-check" /> {s.approvalName}
-                  </a>
-                </p>
-              </blockquote>
-            )}
-          </div>
-        </div>
-      </li>
+        </li>
+      </RF>
     )
   }
 
@@ -936,7 +957,11 @@ class ApprovalStepViewer extends React.Component {
 
   componentDidMount() {
     this.show()
-    $.get(`/app/entity/approval/fetch-workedsteps?record=${this.props.id}`, (res) => {
+    this._load()
+  }
+
+  _load(his) {
+    $.get(`/app/entity/approval/fetch-workedsteps?record=${this.props.id}&his=${!!his}`, (res) => {
       if (!res.data || res.data.length === 0) {
         RbHighbar.create($L('未查询到流程详情'))
         this.hide()

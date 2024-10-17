@@ -152,7 +152,7 @@ public class FlowParser {
     /**
      * @return
      */
-    protected Collection<FlowNode> getAllNodes() {
+    public Collection<FlowNode> getAllNodes() {
         return nodeMap.values();
     }
 

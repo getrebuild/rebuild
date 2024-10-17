@@ -710,8 +710,7 @@ public class ApprovalStepService extends BaseService {
         if (approvalId == null || approvalStepNode == null) {
             log.warn("No [approvalId] or [approvalStepNode] value found : {}", record.getPrimary());
         } else {
-            String name = ApprovalHelper.getNodeNameById(approvalStepNode, approvalId);
-            if (name == null) name = Language.L("审批人") + "@" + approvalStepNode;
+            String name = ApprovalHelper.getNodeNameById(approvalStepNode, approvalId, true);
             record.setString(EntityHelper.ApprovalStepNodeName, name);
         }
     }
@@ -791,7 +790,7 @@ public class ApprovalStepService extends BaseService {
         FlowNode flowNode = flowParser.getNode(currentNode);
         String specNodeName = flowNode.getNodeName();
         // 未填写名称
-        if (StringUtils.isBlank(specNodeName)) specNodeName = flowNode.getNodeId();
+        if (StringUtils.isBlank(specNodeName)) specNodeName = "@" + flowNode.getNodeId();
 
         List<ID> allowTriggers = new ArrayList<>();
 

@@ -25,6 +25,7 @@ import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.SetUser;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
@@ -513,19 +514,53 @@ public class ApprovalProcessor extends SetUser {
     /**
      * 获取已审批节点
      *
+     * @param allHis 包括历史审批
      * @return returns [ [S,S], [S], [SSS], [S] ]
      */
-    public JSONArray getWorkedSteps() {
+    public JSONArray getWorkedSteps(final boolean allHis) {
         final ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.recordId);
         this.approvalId = status.getApprovalId();
 
-        Object[][] array = Application.createQueryNoFilter(
-                "select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode,nodeBatch,ccUsers,ccAccounts,attrMore from RobotApprovalStep" +
-                        " where recordId = ? and isWaiting = 'F' and isCanceled = 'F' order by createdOn")
+        String sql = "select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode,nodeBatch,ccUsers,ccAccounts,attrMore,approvalId,isBacked from RobotApprovalStep" +
+                " where recordId = ? and isWaiting = 'F' and isCanceled = 'F' order by createdOn";
+        if (allHis) sql = sql.replace("and isCanceled = 'F' ", "");
+        Object[][] array = Application.createQueryNoFilter(sql)
                 .setParameter(1, this.recordId)
                 .array();
         if (array.length == 0) return JSONUtils.EMPTY_ARRAY;
+        if (!allHis) return getWorkedSteps1Batch(array, status);
 
+        JSONArray batchs = new JSONArray();
+        List<Object[]> batch = new ArrayList<>();
+        for (Object[] o : array) {
+            String node = (String) o[6];
+            batch.add(o);
+
+            // 撤销了:新批次
+            if (FlowNode.NODE_REVOKED.equals(node) || (FlowNode.NODE_CANCELED.equals(node) && !(Boolean) o[13])) {
+                Object[] bLast = batch.get(batch.size() - 2);
+                ID bLastApprovalId = (ID) bLast[12];
+                String bLastApprovalName = FieldValueHelper.getLabelNotry(bLastApprovalId);
+                ApprovalStatus bLastStatus = new ApprovalStatus(
+                        bLastApprovalId, bLastApprovalName, ApprovalState.REVOKED.getState(), (String) bLast[6], this.recordId);
+
+                this.approvalId = bLastApprovalId;
+                this.flowParser = null;
+                batchs.addAll(getWorkedSteps1Batch(batch.toArray(new Object[0][]), bLastStatus));
+                batch.clear();
+            }
+        }
+        // current
+        this.approvalId = status.getApprovalId();
+        this.flowParser = null;
+        if (!batch.isEmpty()) {
+            batchs.addAll(getWorkedSteps1Batch(batch.toArray(new Object[0][]), status));
+        }
+
+        return batchs;
+    }
+
+    private JSONArray getWorkedSteps1Batch(Object[][] array, ApprovalStatus status) {
         Object[] firstStep = null;
         Map<String, List<Object[]>> stepBatchMap = new LinkedHashMap<>();
         for (Object[] o : array) {

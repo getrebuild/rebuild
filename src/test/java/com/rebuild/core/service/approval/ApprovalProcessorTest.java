@@ -58,7 +58,7 @@ public class ApprovalProcessorTest extends TestSupport {
         System.out.println("CurrentStep : " + processor.getCurrentStep(null));
 
         // 已审批节点
-        System.out.println("WorkedSteps : " + processor.getWorkedSteps());
+        System.out.println("WorkedSteps : " + processor.getWorkedSteps(true));
 
         // 撤回
         processor.cancel();

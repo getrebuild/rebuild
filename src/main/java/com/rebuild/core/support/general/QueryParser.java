@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
+import com.rebuild.utils.CommonsUtils;
 import lombok.Getter;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -190,7 +191,10 @@ public class QueryParser {
         String protocolFilter = queryExpr.getString("protocolFilter");
         if (StringUtils.isNotBlank(protocolFilter)) {
             String where = new ProtocolFilterParser(protocolFilter).toSqlWhere();
-            if (StringUtils.isNotBlank(where)) wheres.add(where);
+            if (StringUtils.isNotBlank(where)) {
+                if (CommonsUtils.DEVLOG) System.out.println("[dev] Parse protocolFilter : " + protocolFilter + " >> " + where);
+                wheres.add(where);
+            }
         }
 
         // append: AdvFilter
