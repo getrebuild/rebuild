@@ -81,6 +81,21 @@ public class CommonOperatingController extends BaseController {
         return RespBody.ok(record);
     }
 
+    @RequestMapping("common-find")
+    public RespBody find(HttpServletRequest request) {
+        String k = getParameterNotNull(request, "k");
+        String id = getParameterNotNull(request, "id");
+
+        String[] ef = k.split("\\.");
+        Entity entity = MetadataHelper.getEntity(ef[0]);
+        String sql = String.format("select %s from %s where %s = ?",
+                entity.getPrimaryField().getName(), entity.getName(), ef[1]);
+        Object[] found = Application.createQueryNoFilter(sql).setParameter(1, id).unique();
+
+        if (found != null) return RespBody.ok(JSONUtils.toJSONObject("id", found[0]));
+        return RespBody.ok(JSONUtils.toJSONObject("entity", entity.getName()));
+    }
+
     @RequestMapping("common-list")
     public RespBody list(HttpServletRequest request) {
         JSONObject queryBody = (JSONObject) ServletUtils.getRequestJson(request);

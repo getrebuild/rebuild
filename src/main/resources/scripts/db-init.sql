@@ -337,7 +337,7 @@ create table if not exists `attachment` (
   `RELATED_RECORD`     char(20) comment '相关记录',
   `FILE_PATH`          varchar(300) not null comment '文件路径',
   `FILE_TYPE`          varchar(20) comment '文件类型',
-  `FILE_SIZE`          bigint(20) default '0' comment '执行顺序',
+  `FILE_SIZE`          bigint(20) default '0' comment '文件大小',
   `FILE_NAME`          varchar(100) comment '文件名称',
   `IN_FOLDER`          char(20) comment '所在目录',
   `IS_DELETED`         char(1) default 'F' comment '是否删除',
@@ -838,6 +838,14 @@ create table if not exists `tag_item` (
   unique index AIX0_tag_item (`SEQ`),
   index IX1_tag_item (`BELONG_ENTITY`),
   unique index UIX2_tag_item (`BELONG_FIELD`, `RECORD_ID`, `TAG_NAME`)
+)Engine=InnoDB;
+
+-- ************ Entity [EasyScanConfig] DDL ************
+create table if not exists `easy_scan_config` (
+  `CONFIG_ID`          char(20) not null,
+  `NAME`               varchar(100) not null comment '名称',
+  `SCAN_CONFIG`        text(65535) comment '扫码配置 (JSON Map)',
+  primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
 -- ************ Entity [ShortUrl] DDL ************

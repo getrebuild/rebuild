@@ -74,6 +74,9 @@
               <li th:class="${active == 'frontjs-code'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('FJS', #request)}">
                 <a th:href="@{/admin/frontjs-code}"><i class="icon mdi mdi-language-javascript"></i><span>FrontJS</span> <sup class="rbv"></sup></a>
               </li>
+              <li th:class="${active == 'easy-scan'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('SCA', #request)}">
+                <a th:href="@{/admin/easy-scans}"><i class="icon mdi mdi-cube-scan"></i><span>[[${bundle.L('智能扫码')}]]</span> (LAB) <sup class="rbv"></sup></a>
+              </li>
               <li class="divider">[[${bundle.L('用户')}]]</li>
               <li th:class="${active == 'users'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('USR', #request)}">
                 <a th:href="@{/admin/bizuser/users}"><i class="icon mdi mdi-account-multiple"></i><span>[[${bundle.L('部门用户')}]]</span></a>
