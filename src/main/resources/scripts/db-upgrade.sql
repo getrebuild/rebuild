@@ -7,6 +7,9 @@ create table if not exists `easy_scan_config` (
   `CONFIG_ID`          char(20) not null,
   `NAME`               varchar(100) not null comment '名称',
   `SCAN_CONFIG`        text(65535) comment '扫码配置 (JSON Map)',
+  `SHARE_TO`           varchar(420) default 'SELF' comment '共享给谁 (ALL/SELF/$MemberID)',
+  `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
+  `SEQ`                int(11) default '0' comment '排序 (小到大)',
   primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
