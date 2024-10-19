@@ -596,7 +596,6 @@
         <field name="name" type="string" max-length="100" nullable="false" description="名称"/>
         <field name="scanConfig" type="text" description="扫码配置 (JSON Map)"/>
         <field name="shareTo" type="string" max-length="420" default-value="SELF" description="共享给谁 (ALL/SELF/$MemberID)"/>
-        <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
         <field name="seq" type="int" default-value="0" description="排序 (小到大)"/>
     </entity>
 
