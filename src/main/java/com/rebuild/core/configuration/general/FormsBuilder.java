@@ -777,6 +777,10 @@ public class FormsBuilder extends FormsManager {
                                     inFormFields.contains(field) ? new Object[] { mixValue } : value);
                         }
                     }
+
+                } else {
+                    // v3.9 其他类型，需要限制字段类型???
+                    initialValReady.put(field, value);
                 }
 
             } else {
