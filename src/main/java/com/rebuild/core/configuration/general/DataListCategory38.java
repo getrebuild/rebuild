@@ -12,7 +12,6 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -22,11 +21,14 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.service.query.AdvFilterParser;
+import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
+import java.text.Collator;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,6 +37,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -56,35 +59,27 @@ public class DataListCategory38 {
      * @return
      */
     public JSON datas(Entity entity, Object[] parentValues) {
-        final String categoryField = getSettings(entity);
-        if (categoryField == null) return null;
+        final JSONArray categoryFields = getSettings(entity);
+        if (categoryFields == null || categoryFields.isEmpty()) return null;
 
         // 查第几个字段
         int fieldIndex = parentValues == null ? 0 : parentValues.length;
         // 特殊处理:引用字段父级
-        if (fieldIndex > 0 && categoryField.split(";").length == 1) {
-            String[] ff = categoryField.split(":");
-            Field fieldMeta = entity.getField(ff[0]);
-            if (ff.length == 2
-                    && entity.containsField(ff[0]) && fieldMeta.getReferenceEntity().containsField(ff[1])) {
+        if (fieldIndex > 0 && categoryFields.size() == 1) {
+            JSONObject ff = (JSONObject) categoryFields.get(0);
+            String field = ff.getString("field");
+            String format = ff.getString("format");
+            Field fieldMeta = entity.getField(field);
+            if (format != null && fieldMeta.getReferenceEntity().containsField(format)) {
                 fieldIndex = 0;
             }
-        }
-
-        final List<String[]> categoryFields = new ArrayList<>();
-        for (String ff : categoryField.split(";")) {
-            String[] fieldAndFormat = ff.split(":");
-            if (!entity.containsField(fieldAndFormat[0])) {
-                throw new MissingMetaExcetion(entity.getName(), fieldAndFormat[0]);
-            }
-            categoryFields.add(fieldAndFormat);
         }
         if (fieldIndex + 1 > categoryFields.size()) return null;
 
         // 使用配置
-        String[] ff = categoryFields.get(fieldIndex);
-        final String useField = ff[0];
-        String useFormat = ff.length > 1 ? ff[1] : null;
+        final JSONObject ff = (JSONObject) categoryFields.get(fieldIndex);
+        final String useField = ff.getString("field");
+        String useFormat = ff.getString("format");
         final Field useFieldMeta = entity.getField(useField);
         final DisplayType dt = EasyMetaFactory.getDisplayType(useFieldMeta);
 
@@ -93,7 +88,7 @@ public class DataListCategory38 {
         // 分类,引用（父级）支持树状
         if (!isSingleLevel && useFormat != null) {
             if (dt == DisplayType.CLASSIFICATION || dt == DisplayType.REFERENCE) {
-                log.warn("When multiple category fields, the format is disabled : {}", categoryField);
+                log.warn("When multiple category fields, the format is disabled : {}", categoryFields);
                 useFormat = null;
             }
         }
@@ -121,9 +116,10 @@ public class DataListCategory38 {
         // 单字段适用:引用字段父级
         else if (dt == DisplayType.REFERENCE && useFormat != null) {
             dataList = datasReference(useFieldMeta, useFormat,
-                    parentValues == null ? null : parentValues[parentValues.length - 1]);
+                    parentValues == null ? null : parentValues[parentValues.length - 1], ff.getJSONObject("filter"));
             hasChild = true;
             sortMode = 1;
+            if (ff.getIntValue("sort") > 0) sortMode = ff.getIntValue("sort");
         }
         else {
             sortMode = 1;
@@ -162,6 +158,10 @@ public class DataListCategory38 {
                 if (parentValues != null) {
                     sql += " and " + buildParentFilters(entity, categoryFields, parentValues);
                 }
+                if (ParseHelper.validAdvFilter(ff.getJSONObject("filter"))) {
+                    String where = new AdvFilterParser(ff.getJSONObject("filter")).toSqlWhere();
+                    if (where != null) sql += " and " + where;
+                }
             }
 
             Object[][] array = Application.createQuery(sql).array();
@@ -183,6 +183,7 @@ public class DataListCategory38 {
             }
 
             hasChild = categoryFields.size() > fieldIndex + 1;
+            if (ff.getIntValue("sort") > 0) sortMode = ff.getIntValue("sort");
         }
 
         JSONArray res = new JSONArray();
@@ -190,10 +191,11 @@ public class DataListCategory38 {
         // 排序
         if (sortMode == 2 || sortMode == 1) {
             final boolean isDesc = sortMode == 2;
+            final Collator zhc = Collator.getInstance(Locale.CHINESE);
             res.sort((o1, o2) -> {
                 String text1 = ((JSONObject) o1).getString("text");
                 String text2 = ((JSONObject) o2).getString("text");
-                return isDesc ? text2.compareTo(text1) : text1.compareTo(text2);
+                return isDesc ? zhc.compare(text2, text1) : zhc.compare(text1, text2);
             });
         }
 
@@ -206,9 +208,10 @@ public class DataListCategory38 {
      * @param field
      * @param parentField
      * @param parentValue
+     * @param appendFilter
      * @return
      */
-    protected Collection<Item> datasReference(Field field, String parentField, Object parentValue) {
+    protected Collection<Item> datasReference(Field field, String parentField, Object parentValue, JSONObject appendFilter) {
         Field parentFieldMeta = field.getReferenceEntity().getField(parentField);
         String sql = MessageFormat.format(
                 "select {0} from {1} where {2}",
@@ -217,6 +220,11 @@ public class DataListCategory38 {
                 parentFieldMeta.getName());
         if (parentValue == null) sql += " is null";
         else sql += " = '" + parentValue + "'";
+
+        if (ParseHelper.validAdvFilter(appendFilter)) {
+            String where = new AdvFilterParser(appendFilter).toSqlWhere();
+            if (where != null) sql += " and " + where;
+        }
 
         Object[][] array = Application.createQuery(sql).array();
 
@@ -230,15 +238,16 @@ public class DataListCategory38 {
     }
 
     /**
+     * @param entity
      * @param categoryFields
      * @param parentValues
      * @return
      */
-    protected String buildParentFilters(Entity entity, List<String[]> categoryFields, Object[] parentValues) {
+    protected String buildParentFilters(Entity entity, JSONArray categoryFields, Object[] parentValues) {
         List<String> and = new ArrayList<>();
         for (int i = 0; i < parentValues.length; i++) {
-            String[] ff = categoryFields.get(i);
-            String fieldName = ff[0];
+            JSONObject ff = (JSONObject) categoryFields.get(i);
+            String fieldName = ff.getString("field");
             String fieldValue = parentValues[i].toString();
             Field fieldMeta = entity.getField(fieldName);
             DisplayType dt = EasyMetaFactory.getDisplayType(fieldMeta);
@@ -249,13 +258,13 @@ public class DataListCategory38 {
                 // v3.8-b4 包括子级
                 Set<ID> thisAndChild = new HashSet<>();
                 Collection<Item> parent = Collections.singletonList(new Item(ID.valueOf(fieldValue), null));
-                boolean hasParentField = ff.length > 1 && StringUtils.isNotBlank(ff[1]);
+                boolean hasParentField = ff.getString("format") != null;
                 while (true) {
                     Collection<Item> parentNew = new HashSet<>();
                     for (Item item : parent) {
                         thisAndChild.add((ID) item.id);
                         if (hasParentField) {
-                            parentNew.addAll(datasReference(fieldMeta, ff[1], item.id));
+                            parentNew.addAll(datasReference(fieldMeta, ff.getString("format"), item.id, ff.getJSONObject("filter")));
                         }
                     }
 
@@ -317,18 +326,12 @@ public class DataListCategory38 {
      * @return
      */
     public String buildParentFilters(Entity entity, Object[] parentValues) {
-        final String categoryField = getSettings(entity);
-        if (categoryField == null) return null;
-
-        List<String[]> categoryFields = new ArrayList<>();
-        for (String ff : categoryField.split(";")) {
-            categoryFields.add(ff.split(":"));
-        }
-
+        final JSONArray categoryFields = getSettings(entity);
+        if (categoryFields == null || categoryFields.isEmpty()) return null;
         return buildParentFilters(entity, categoryFields, parentValues);
     }
 
-    private String getSettings(Entity entity) {
+    private JSONArray getSettings(Entity entity) {
         int listMode = ObjectUtils.toInt(EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE), 1);
         String categoryField;
         if (listMode == 3) {
@@ -336,6 +339,19 @@ public class DataListCategory38 {
         } else {
             categoryField = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADVLIST_SHOWCATEGORY);
         }
-        return StringUtils.isBlank(categoryField) ? null : categoryField;
+        if (StringUtils.isBlank(categoryField)) return null;
+
+        if (JSONUtils.wellFormat(categoryField)) {
+            return JSON.parseArray(categoryField);
+        }
+        // comp:v3.9
+        JSONArray items = new JSONArray();
+        for (String ff : categoryField.split(";")) {
+            String[] ff2 = ff.split(":");
+            JSONObject item = JSONUtils.toJSONObject("field", ff2[0]);
+            if (ff2.length > 1) item.put("format", ff2[1]);
+            items.add(item);
+        }
+        return items;
     }
 }
