@@ -221,9 +221,14 @@ public class DataListCategory38 {
         if (parentValue == null) sql += " is null";
         else sql += " = '" + parentValue + "'";
 
+        // FIXME 应该使用父级字段的时候作为查询条件
         if (ParseHelper.validAdvFilter(appendFilter)) {
             String where = new AdvFilterParser(appendFilter).toSqlWhere();
-            if (where != null) sql += " and " + where;
+            if (where != null) {
+                sql += String.format(" and %s in (select %s from %s where %s)",
+                        parentFieldMeta.getOwnEntity().getPrimaryField().getName(),
+                        field.getName(), field.getOwnEntity().getName(), where);
+            }
         }
 
         Object[][] array = Application.createQuery(sql).array();
