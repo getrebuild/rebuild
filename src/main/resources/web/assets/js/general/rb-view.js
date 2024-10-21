@@ -61,6 +61,7 @@ class RbViewForm extends React.Component {
       this.__lastModified = res.data.lastModified || 0
       if (res.data.onViewEditable === false) this.onViewEditable = false
 
+      let _dividerRefs = []
       const VFORM = (
         <RF>
           {hadAlert}
@@ -71,7 +72,11 @@ class RbViewForm extends React.Component {
             {res.data.elements.map((item) => {
               if (![TYPE_DIVIDER, TYPE_REFFORM].includes(item.field)) this.__ViewData[item.field] = item.value
               if (item.field === TYPE_REFFORM) this.__hasRefform = true
+
               item.$$$parent = this
+              if (item.field === TYPE_DIVIDER && item.collapsed) {
+                item.ref = (c) => _dividerRefs.push(c)
+              }
               return detectViewElement(item, this.props.entity)
             })}
           </div>
@@ -81,6 +86,9 @@ class RbViewForm extends React.Component {
       )
 
       this.setState({ formComponent: VFORM }, () => {
+        // v3.9 默认收起
+        _dividerRefs.forEach((d) => d._toggle())
+
         this.hideLoading()
         if (window.FrontJS) {
           window.FrontJS.View._trigger('open', [res.data])
