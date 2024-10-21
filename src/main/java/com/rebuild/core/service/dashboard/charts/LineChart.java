@@ -53,6 +53,8 @@ public class LineChart extends ChartData {
         boolean dateContinuous = renderOption.getBooleanValue("dateContinuous")
                 && (dim1Type == FieldType.DATE || dim1Type == FieldType.TIMESTAMP)
                 && (dim1Calc == FormatCalc.Y || dim1Calc == FormatCalc.Q || dim1Calc == FormatCalc.M || dim1Calc == FormatCalc.W || dim1Calc == FormatCalc.D);
+        // v3.8.3
+        boolean useComparison = renderOption.getBooleanValue("useComparison");
 
         List<String> dimAxis = new ArrayList<>();
         JSONArray yyyAxis = new JSONArray();
@@ -126,7 +128,13 @@ public class LineChart extends ChartData {
                 List<AxisEntry> axisValues = new ArrayList<>();
                 int indexAndSize = 0;
                 for (Numerical num : nums) {
-                    Object[][] array = createQuery(buildSql(dim1, new Numerical[]{num}, true)).array();
+                    String sql = buildSql(dim1, new Numerical[]{num}, true);
+                    Object[][] array = createQuery(sql).array();
+                    // 连续日期
+                    if (dateContinuous && array.length > 0) {
+                        array = putContinuousDate2Data(array, dim1, 1);
+                    }
+
                     for (Object[] o : array) axisValues.add(new AxisEntry(o, indexAndSize));
                     indexAndSize++;
                 }
@@ -134,11 +142,10 @@ public class LineChart extends ChartData {
                 dataRaw = mergeAxisEntry2Data(axisValues, indexAndSize);
             } else {
                 dataRaw = createQuery(buildSql(dim1, nums, false)).array();
-            }
-
-            // 连续日期
-            if (dateContinuous && dataRaw.length > 0) {
-                dataRaw = putContinuousDate2Data(dataRaw, dim1, 1);
+                // 连续日期
+                if (dateContinuous && dataRaw.length > 0) {
+                    dataRaw = putContinuousDate2Data(dataRaw, dim1, 1);
+                }
             }
 
             Object[] numsAxis = new Object[nums.length];
