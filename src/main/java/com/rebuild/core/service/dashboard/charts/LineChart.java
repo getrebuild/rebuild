@@ -53,7 +53,7 @@ public class LineChart extends ChartData {
         boolean dateContinuous = renderOption.getBooleanValue("dateContinuous")
                 && (dim1Type == FieldType.DATE || dim1Type == FieldType.TIMESTAMP)
                 && (dim1Calc == FormatCalc.Y || dim1Calc == FormatCalc.Q || dim1Calc == FormatCalc.M || dim1Calc == FormatCalc.W || dim1Calc == FormatCalc.D);
-        // v3.8.3
+        // v3.8.3 使用对比
         boolean useComparison = renderOption.getBooleanValue("useComparison");
 
         List<String> dimAxis = new ArrayList<>();
@@ -139,7 +139,7 @@ public class LineChart extends ChartData {
                     indexAndSize++;
                 }
 
-                dataRaw = mergeAxisEntry2Data(axisValues, indexAndSize);
+                dataRaw = mergeAxisEntry2Data(axisValues, indexAndSize, useComparison);
             } else {
                 dataRaw = createQuery(buildSql(dim1, nums, false)).array();
                 // 连续日期
@@ -225,10 +225,10 @@ public class LineChart extends ChartData {
         if (numStartIndex == 2) emptyRow.add(dataRaw[0][1]);  // dim2
         for (int i = numStartIndex; i < 9; i++) emptyRow.add(0);
 
-        List<String> fullDates = getFullDates(min, max, date1.getFormatCalc(), date1.getFormatSort());
+        List<String> dates = getContinuousDate(min, max, date1.getFormatCalc(), date1.getFormatSort());
         List<Object[]> dataRawFd = new ArrayList<>();
         boolean fullingNull = false;
-        for (String date : fullDates) {
+        for (String date : dates) {
             boolean dateMiss = true;
             for (Object[] o : dataRaw) {
                 if (o[0] == null) {
@@ -254,11 +254,11 @@ public class LineChart extends ChartData {
         return dataRaw;
     }
 
-    private List<String> getFullDates(Date min, Date max, FormatCalc calc, FormatSort sort) {
-        List<Date> fullDates = new ArrayList<>();
+    private List<String> getContinuousDate(Date min, Date max, FormatCalc calc, FormatSort sort) {
+        List<Date> dates = new ArrayList<>();
         Date temp = min;
         while (temp.getTime() < max.getTime()) {
-            fullDates.add(temp);
+            dates.add(temp);
 
             if (calc == FormatCalc.D) {
                 temp = CalendarUtils.add(temp, 1, Calendar.DAY_OF_MONTH);
@@ -268,13 +268,13 @@ public class LineChart extends ChartData {
                 temp = CalendarUtils.add(temp, 1, Calendar.MONTH);
             }
         }
-        fullDates.add(max);
+        dates.add(max);
 
         // 降序
-        if (sort == FormatSort.DESC) Collections.reverse(fullDates);
+        if (sort == FormatSort.DESC) Collections.reverse(dates);
 
-        List<String> fullDates2 = new ArrayList<>();
-        for (Date date : fullDates) {
+        List<String> dates2 = new ArrayList<>();
+        for (Date date : dates) {
             String date2unit;
             if (calc == FormatCalc.Y || calc == FormatCalc.Q || calc == FormatCalc.W) {
                 date2unit = CalendarUtils.getDateFormat("yyyy").format(date);
@@ -297,8 +297,8 @@ public class LineChart extends ChartData {
                 date2unit = CalendarUtils.getDateFormat("yyyy-MM-dd").format(date);
             }
 
-            if (!fullDates2.contains(date2unit)) fullDates2.add(date2unit);
+            if (!dates2.contains(date2unit)) dates2.add(date2unit);
         }
-        return fullDates2;
+        return dates2;
     }
 }
