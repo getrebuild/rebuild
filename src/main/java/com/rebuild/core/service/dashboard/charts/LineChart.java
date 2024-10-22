@@ -50,11 +50,11 @@ public class LineChart extends ChartData {
         // 日期连续仅部分支持
         final Type dim1Type = dim1.getField().getType();
         final FormatCalc dim1Calc = dim1.getFormatCalc();
-        boolean dateContinuous = renderOption.getBooleanValue("dateContinuous")
-                && (dim1Type == FieldType.DATE || dim1Type == FieldType.TIMESTAMP)
+        boolean is4Date = (dim1Type == FieldType.DATE || dim1Type == FieldType.TIMESTAMP)
                 && (dim1Calc == FormatCalc.Y || dim1Calc == FormatCalc.Q || dim1Calc == FormatCalc.M || dim1Calc == FormatCalc.W || dim1Calc == FormatCalc.D);
-        // v3.8.3 使用对比
-        boolean useComparison = renderOption.getBooleanValue("useComparison");
+        boolean dateContinuous = renderOption.getBooleanValue("dateContinuous") && is4Date;
+        // v3.8.3 使用日期对比
+        boolean useComparison = renderOption.getBooleanValue("useComparison") && is4Date;
 
         List<String> dimAxis = new ArrayList<>();
         JSONArray yyyAxis = new JSONArray();

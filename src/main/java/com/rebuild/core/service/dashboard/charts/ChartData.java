@@ -568,7 +568,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
             for (AxisEntry[] group : merged) {
                 List<String> keyName = new ArrayList<>();
                 for (AxisEntry e : group) {
-                    if (e == null) keyName.add(nullLang);
+                    if (e == null || e.getKeyRaw() == null || e.getKeyRaw()[0] == null) keyName.add(nullLang);
                     else keyName.add(e.getKeyRaw()[0].toString());
                 }
 
