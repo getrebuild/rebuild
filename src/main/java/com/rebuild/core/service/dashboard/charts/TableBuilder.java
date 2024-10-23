@@ -14,6 +14,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * HTML 表格构建
@@ -59,7 +60,7 @@ public class TableBuilder {
         TR ths = new TR();
         thead.addChild(ths);
         for (Axis axis : axes) {
-            TD th = new TD(axis.getLabel(), "th");
+            TD th = new TD(axis.getLabel(), "th", null);
             ths.addChild(th);
         }
 
@@ -70,11 +71,12 @@ public class TableBuilder {
             TR tds = new TR();
             tbody.addChild(tds);
 
+            TD prev = null;
             for (int i = 0; i < row.length; i++) {
                 Axis axis = axes.get(i);
                 TD td;
                 if (axis == LN_REF) {
-                    td = new TD(String.valueOf(row[i]), "th");
+                    td = new TD(String.valueOf(row[i]), "th", null);
                 } else {
                     String text;
                     if (isLast == 0) {
@@ -84,7 +86,8 @@ public class TableBuilder {
                     } else {
                         text = chart.wrapAxisValue((Dimension) axis, row[i], true);
                     }
-                    td = new TD(text);
+                    td = new TD(text, prev);
+                    prev = td;
                 }
                 tds.addChild(td);
             }
@@ -93,7 +96,7 @@ public class TableBuilder {
         // 合并纬度单元格
         if (chart.isMergeCell()) {
             for (int i = 0; i < chart.getDimensions().length; i++) {
-                // 行号
+                // 行号无需合并
                 if (chart.isShowLineNumber() && i == 0) continue;
 
                 TD last = null;
@@ -106,7 +109,8 @@ public class TableBuilder {
                         continue;
                     }
 
-                    if (last.content.equals(current.content)) {
+                    System.out.println(last.prev + " <> " + current.prev);
+                    if (last.content.equals(current.content) && Objects.equals(last.prev, current.prev)) {
                         last.rowspan++;
                         current.rowspan = 0;
                         sumMinus++;
@@ -183,14 +187,16 @@ public class TableBuilder {
         private String tag;
         private String content;
         private int rowspan = 1;
+        final protected TD prev;
 
-        private TD(String content) {
-            this(content, null);
+        private TD(String content, TD prev) {
+            this(content, null, prev);
         }
 
-        private TD(String content, String tag) {
+        private TD(String content, String tag, TD prev) {
             this.content = StringUtils.defaultIfBlank(content, "");
             this.tag = StringUtils.defaultIfBlank(tag, "td");
+            this.prev = prev;
         }
 
         @Override

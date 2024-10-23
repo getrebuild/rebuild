@@ -57,7 +57,8 @@ public class TableChart extends ChartData {
                 indexAndSize++;
             }
 
-            dataRaw = mergeAxisEntry2Data(axisValues, indexAndSize);
+            // TODO Table 支持 `useComparison`
+            dataRaw = mergeAxisEntry2Data(axisValues, indexAndSize, false);
         } else {
             dataRaw = createQuery(buildSql(dims, nums)).array();
         }

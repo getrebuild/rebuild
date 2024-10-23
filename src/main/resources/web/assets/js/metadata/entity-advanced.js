@@ -101,6 +101,11 @@ function modeSave(newOption, next) {
 const _CATEGORY_TYPES = ['PICKLIST', 'MULTISELECT', 'CLASSIFICATION', 'DATE', 'DATETIME', 'REFERENCE', 'N2NREFERENCE']
 // 模式选项
 class DlgMode1Option extends RbFormHandler {
+  constructor(props) {
+    super(props)
+    this._categoryFields = []
+  }
+
   render() {
     return (
       <RbModal title={$L('标准模式选项')} ref={(c) => (this._dlg = c)}>
@@ -180,16 +185,12 @@ class DlgMode1Option extends RbFormHandler {
       advListFilterPane: $val('#advListFilterPane'),
       advListFilterTabs: $val('#advListFilterTabs'),
     }
-
     if (this.state.advListShowCategory) {
-      let set = []
-      $(this._$category)
-        .find('.advListShowCategory-set .row.item')
-        .each(function () {
-          let $item = $(this)
-          set.push($item.find('select:eq(0)').val() + ':' + ($item.find('select:eq(1)').val() || ''))
-        })
-      o.advListShowCategory = set.length > 0 ? set.join(';') : null
+      o.advListShowCategory = []
+      this._categoryFields.forEach((refid) => {
+        let c = this.refs[refid]
+        c && o.advListShowCategory.push(c.val())
+      })
     } else {
       o.advListShowCategory = null
     }
@@ -343,6 +344,7 @@ class DlgMode3Option extends DlgMode2Option {
   constructor(props) {
     super(props)
     this.__mode3 = true
+    this._categoryFields = []
   }
 
   render() {
@@ -433,14 +435,11 @@ class DlgMode3Option extends DlgMode2Option {
     o.mode3ShowFilters = $val('#mode3ShowFilters')
     o.mode3ShowCharts = $val('#mode3ShowCharts')
     if (this.state.advListShowCategory) {
-      let set = []
-      $(this._$category)
-        .find('.advListShowCategory-set .row.item')
-        .each(function () {
-          let $item = $(this)
-          set.push($item.find('select:eq(0)').val() + ':' + ($item.find('select:eq(1)').val() || ''))
-        })
-      o.mode3ShowCategory = set.length > 0 ? set.join(';') : null
+      o.mode3ShowCategory = []
+      this._categoryFields.forEach((refid) => {
+        let c = this.refs[refid]
+        c && o.mode3ShowCategory.push(c.val())
+      })
     } else {
       o.mode3ShowCategory = null
     }
@@ -461,16 +460,18 @@ const CompCategory = (_this, name = 'advListShowCategory') => {
       <div className="clearfix"></div>
       <div className={`advListShowCategory-set ${_this.state.advListShowCategory ? '' : 'hide'}`}>
         <div className="row">
-          <div className="col-7">
+          <div className="col-6 pr-0">
             <label className="mb-1">{$L('分组字段')}</label>
           </div>
-          <div className="col-5 pl-0">
+          <div className="col-5 pr-0">
             <label className="mb-1">{$L('字段格式')}</label>
           </div>
         </div>
         {_this.state.advListShowCategoryFields &&
           _this.state.categoryFields &&
           _this.state.categoryFields.map((item) => {
+            const refid = $random('item-')
+            _this._categoryFields.push(refid)
             return (
               <RF key={item.key}>
                 <CompCategoryItem
@@ -484,6 +485,7 @@ const CompCategory = (_this, name = 'advListShowCategory') => {
                     _this.setState({ categoryFields })
                   }}
                   key2={item.key}
+                  ref={refid}
                 />
               </RF>
             )
@@ -530,10 +532,18 @@ const CompCategory_componentDidMount = (_this, name = 'advListShowCategory') => 
   let categoryFields = []
   if (wpc.extConfig && wpc.extConfig[name]) {
     $el.trigger('change')
-    wpc.extConfig[name].split(';').forEach((item) => {
-      const ff = item.split(':')
-      categoryFields.push({ key: $random('item-'), field: ff[0], format: ff[1] })
-    })
+    // comp:v3.9
+    let set = wpc.extConfig[name]
+    if (set && typeof set === 'string') {
+      wpc.extConfig[name].split(';').forEach((item) => {
+        const ff = item.split(':')
+        categoryFields.push({ key: $random('item-'), field: ff[0], format: ff[1] })
+      })
+    } else {
+      wpc.extConfig[name].forEach((item) => {
+        categoryFields.push({ key: $random('item-'), ...item })
+      })
+    }
   } else {
     categoryFields.push({ key: $random('item-') })
   }
@@ -548,9 +558,10 @@ class CompCategoryItem extends React.Component {
   }
 
   render() {
+    const hasFilter = this.state.filter && this.state.filter.items ? this.state.filter.items.length : 0
     return (
       <div className="row item">
-        <div className="col-7">
+        <div className="col-6 pr-0">
           <select className="form-control form-control-sm" ref={(c) => (this._$field = c)}>
             {this.props.fields.map((item) => {
               return (
@@ -561,7 +572,7 @@ class CompCategoryItem extends React.Component {
             })}
           </select>
         </div>
-        <div className="col-5 pl-0">
+        <div className="col-5 pr-0">
           <select className="form-control form-control-sm" ref={(c) => (this._$format = c)}>
             {this.state.fieldFormats &&
               this.state.fieldFormats.map((item) => {
@@ -572,10 +583,43 @@ class CompCategoryItem extends React.Component {
                 )
               })}
           </select>
-
-          <a className="remove" href="###" onClick={() => this.props.handleRemove(this.props.key2)} title={$L('移除')}>
-            <i className="zmdi zmdi-close" />
-          </a>
+        </div>
+        <div className="col-1 pl-0 pr-0 text-right">
+          <button className="btn btn-light w-auto dropdown-toggle" type="button" data-toggle="dropdown" title={$L('更多选项')}>
+            <i className="icon zmdi zmdi-more fs-18" />
+          </button>
+          <div className="dropdown-menu dropdown-menu-sm">
+            <a className="dropdown-item" onClick={() => this.props.handleRemove(this.props.key2)}>
+              {$L('移除')}
+            </a>
+            <span className="dropdown-item-text">{$L('排序')}</span>
+            <a
+              className="dropdown-item"
+              data-sort={this.state.sort || 0}
+              onClick={(e) => {
+                $stopEvent(e, true)
+                if (this.state.sort === 1) this.setState({ sort: 2 })
+                else if (this.state.sort === 0) this.setState({ sort: 1 })
+                else if (this.state.sort === 2) this.setState({ sort: 0 })
+                else this.setState({ sort: 1 })
+              }}>
+              {
+                [
+                  $L('默认'),
+                  <RF key="asc">
+                    {$L('正序')} <i className="mdi mdi-sort-alphabetical-ascending" />
+                  </RF>,
+                  <RF key="desc">
+                    {$L('倒序')} <i className="mdi mdi-sort-alphabetical-descending" />
+                  </RF>,
+                ][this.state.sort || 0]
+              }
+            </a>
+            <span className="dropdown-item-text">{$L('过滤条件')}</span>
+            <a className="dropdown-item" onClick={() => this._showAdvFilter()}>
+              {hasFilter > 0 ? $L('已设置条件') + ` (${hasFilter})` : $L('无')}
+            </a>
+          </div>
         </div>
       </div>
     )
@@ -641,5 +685,25 @@ class CompCategoryItem extends React.Component {
       $(this._$field).val(this.props.field)
     }
     $(this._$field).trigger('change')
+  }
+
+  _showAdvFilter() {
+    if (this._AdvFilter) {
+      this._AdvFilter.show()
+    } else {
+      const that = this
+      renderRbcomp(<AdvFilter entity={wpc.entityName} filter={that.state.filter} onConfirm={(filter) => that.setState({ filter })} canNoFilters inModal title={$L('过滤条件')} />, function () {
+        that._AdvFilter = this
+      })
+    }
+  }
+
+  val() {
+    return {
+      field: $(this._$field).val(),
+      format: $(this._$format).val() || null,
+      sort: this.state.sort || 0,
+      filter: this.state.filter || null,
+    }
   }
 }
