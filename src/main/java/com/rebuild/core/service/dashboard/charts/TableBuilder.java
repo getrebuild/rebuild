@@ -109,7 +109,6 @@ public class TableBuilder {
                         continue;
                     }
 
-                    System.out.println(last.prev + " <> " + current.prev);
                     if (last.content.equals(current.content) && Objects.equals(last.prev, current.prev)) {
                         last.rowspan++;
                         current.rowspan = 0;
