@@ -603,7 +603,17 @@ class CompCategoryItem extends React.Component {
                 else if (this.state.sort === 2) this.setState({ sort: 0 })
                 else this.setState({ sort: 1 })
               }}>
-              {[$L('默认'), $L('正序'), $L('倒序')][this.state.sort || 0]}
+              {
+                [
+                  $L('默认'),
+                  <RF key="asc">
+                    {$L('正序')} <i className="mdi mdi-sort-alphabetical-ascending" />
+                  </RF>,
+                  <RF key="desc">
+                    {$L('倒序')} <i className="mdi mdi-sort-alphabetical-descending" />
+                  </RF>,
+                ][this.state.sort || 0]
+              }
             </a>
             <span className="dropdown-item-text">{$L('过滤条件')}</span>
             <a className="dropdown-item" onClick={() => this._showAdvFilter()}>

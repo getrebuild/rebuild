@@ -538,9 +538,51 @@ public abstract class ChartData extends SetUser implements ChartSpec {
     /**
      * @param axisValues
      * @param indexAndSize
+     * @param useComparison
      * @return
      */
-    protected Object[][] mergeAxisEntry2Data(List<AxisEntry> axisValues, int indexAndSize) {
+    protected Object[][] mergeAxisEntry2Data(List<AxisEntry> axisValues, int indexAndSize, boolean useComparison) {
+        if (useComparison) {
+            // 1.同组合并
+            List<AxisEntry[]> merged = new ArrayList<>();
+            for (int i = 0; i < indexAndSize; i++) {
+                int irow = 0;
+                for (AxisEntry e : axisValues) {
+                    if (e.getIndex() == i) {
+                        AxisEntry[] ee = null;
+                        try {
+                            ee = merged.get(irow++);
+                        } catch (IndexOutOfBoundsException ignored){}
+                        if (ee == null) {
+                            ee = new AxisEntry[indexAndSize];
+                            merged.add(ee);
+                        }
+                        ee[i] = e;
+                    }
+                }
+            }
+
+            // 2.数据合并
+            List<Object[]> dataRawList = new ArrayList<>();
+            String nullLang = Language.L("无");
+            for (AxisEntry[] group : merged) {
+                List<String> keyName = new ArrayList<>();
+                for (AxisEntry e : group) {
+                    if (e == null || e.getKeyRaw() == null || e.getKeyRaw()[0] == null) keyName.add(nullLang);
+                    else keyName.add(e.getKeyRaw()[0].toString());
+                }
+
+                Object[] d = new Object[indexAndSize + 1];
+                d[0] = StringUtils.join(keyName, " - ");
+                for (int i = 0; i < group.length; i++) {
+                    d[i + 1] = group[i] == null ? 0 : group[i].getValue();
+                }
+                dataRawList.add(d);
+            }
+
+            return dataRawList.toArray(new Object[0][]);
+        }
+
         // 1.同组合并
         Map<String, AxisEntry[]> merged = new LinkedHashMap<>();
         for (AxisEntry e : axisValues) {

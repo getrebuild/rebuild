@@ -411,7 +411,7 @@ var _loadMessages = function () {
 }
 var _showNotification = function (state) {
   if (location.href.indexOf('/admin/') > -1 || location.href.indexOf('/notifications') > -1) return
-  if ($.cookie('rb.NotificationShow')) return
+  if (~~($.cookie('rb.NotificationShow') || 0) === state) return
 
   var _Notification = window.Notification || window.mozNotification || window.webkitNotification
   if (_Notification) {
@@ -425,13 +425,7 @@ var _showNotification = function (state) {
         requireInteraction: true,
       })
       n.onshow = function () {
-        // 30m
-        var expires = moment()
-          .add(30 * 60, 'seconds')
-          .toDate()
-        $.cookie('rb.NotificationShow', 1, {
-          expires: expires,
-        })
+        $.cookie('rb.NotificationShow', state, { expires: null }) // session
       }
       n.onclick = function () {
         location.href = rb.baseUrl + '/notifications'
