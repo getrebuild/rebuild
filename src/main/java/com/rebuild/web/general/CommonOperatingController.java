@@ -48,7 +48,7 @@ import java.util.Set;
  *
  * @author devezhao
  * @since 2020/11/6
- * @see com.rebuild.core.Application#getService(int)
+ * @see Application#getService(int)
  * @see GeneralOperatingController
  */
 @Slf4j

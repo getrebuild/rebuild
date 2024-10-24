@@ -150,7 +150,6 @@ public class TableChart extends ChartData {
                 StringUtils.join(dimSqlItems, ", "),
                 StringUtils.join(numSqlItems, ", "),
                 getSourceEntity().getName(), getFilterSql(nums.length > 0 ? nums[0] : null));
-        System.out.println(sql);
 
         return appendSqlSort(sql);
     }
