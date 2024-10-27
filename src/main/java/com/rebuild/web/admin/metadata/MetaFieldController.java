@@ -143,6 +143,7 @@ public class MetaFieldController extends BaseController {
             Entity refEntity = fieldMeta.getReferenceEntity();
             mv.getModel().put("fieldRefentity", refEntity.getName());
             mv.getModel().put("fieldRefentityLabel", EasyMetaFactory.getLabel(refEntity));
+            mv.getModel().put("fieldRefentityIsDetail", refEntity.getMainEntity() != null);
         }
 
         if (ft == FieldType.REFERENCE && !easyField.isBuiltin()) {

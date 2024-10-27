@@ -62,6 +62,11 @@ $(document).ready(function () {
       $('#fileSuffix').val($(this).data('suff'))
     })
   }
+  // fix:v3.8.4
+  if ($('#referenceQuickNew').attr('disabled')) {
+    console.log($('#referenceQuickNew').attr('disabled'))
+    $('#referenceQuickNew')[0].checked = false
+  }
 
   const $btn = $('.J_save').on('click', function () {
     if (!wpc.metaId) return
