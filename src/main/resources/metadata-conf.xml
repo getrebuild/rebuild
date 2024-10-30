@@ -591,14 +591,6 @@
         <field name="hookSecret" type="string" max-length="300" description="回调安全码"/>
     </entity>
 
-    <entity name="EasyScanConfig" type-code="096" description="智能扫码" queryable="false" parent="false">
-        <field name="configId" type="primary"/>
-        <field name="name" type="string" max-length="100" nullable="false" description="名称"/>
-        <field name="scanConfig" type="text" description="扫码配置 (JSON Map)"/>
-        <field name="shareTo" type="string" max-length="420" default-value="SELF" description="共享给谁 (ALL/SELF/$MemberID)"/>
-        <field name="seq" type="int" default-value="0" description="排序 (小到大)"/>
-    </entity>
-
     <entity name="ShortUrl" type-code="097" description="短链共享" queryable="false" parent="false">
         <field name="shortId" type="primary"/>
         <field name="shortKey" type="string" max-length="40" nullable="false" updatable="false" description="短链ID"/>

@@ -95,8 +95,6 @@ public class ProtectedAdmin {
         PRO("/project"),
         // FrontJS
         FJS("/frontjs-code"),
-        // 智能扫码
-        SCA("/easy-scan"),
         // 用户*
         USR("/bizuser/users;bizuser/departments"),
         // 角色
