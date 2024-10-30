@@ -69,8 +69,8 @@ class ContentFieldAggregation extends ActionContentSpec {
             <div className="form-group row">
               <label className="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
               <div className="col-md-12 col-lg-9">
-                <h5 className="mt-0 text-bold">{$L('字段匹配规则')} (LAB)</h5>
-                <MatchFields targetFields={this.state.targetFields2} sourceFields={this.__sourceFieldsCache} ref={(c) => (this._MatchFields = c)} />
+                <h5 className="mt-0 text-bold">{$L('字段匹配规则')}</h5>
+                <MatchFields targetFields={this.state.targetFields4Group} sourceFields={this.__sourceFieldsCache} ref={(c) => (this._MatchFields = c)} />
               </div>
             </div>
           )}
@@ -326,9 +326,9 @@ class ContentFieldAggregation extends ActionContentSpec {
       }
 
       // v3.7
-      const targetFields2 = res.data.target2 || []
-      this.setState({ targetFields2: targetFields2 })
-      this._MatchFields && this._MatchFields.reset({ targetFields: targetFields2, sourceFields: this.__sourceFieldsCache })
+      const target4Group = res.data.target4Group || []
+      this.setState({ targetFields4Group: target4Group })
+      this._MatchFields && this._MatchFields.reset({ targetFields: target4Group, sourceFields: this.__sourceFieldsCache })
     })
   }
 
@@ -432,6 +432,7 @@ class ContentFieldAggregation extends ActionContentSpec {
 // eslint-disable-next-line no-undef
 renderContentComp = function (props) {
   __LAB_MATCHFIELDS = window.__BOSSKEY || !!(props.content && props.content.targetEntityMatchFields)
+  __LAB_MATCHFIELDS = true // v3.9
   renderRbcomp(<ContentFieldAggregation {...props} />, 'react-content', function () {
     // eslint-disable-next-line no-undef
     contentComp = this
