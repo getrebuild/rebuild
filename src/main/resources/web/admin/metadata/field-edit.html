@@ -192,6 +192,19 @@
                     <button class="btn btn-secondary btn-sm J_picklist-edit" type="button"><i class="zmdi zmdi-settings"></i> [[${bundle.L('配置选项')}]]</button>
                   </div>
                 </div>
+                <div th:if="${fieldType == 'PICKLIST'}" class="form-group row J_for-PICKLIST">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('显示样式')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8 pt-1">
+                    <label class="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                      <input class="custom-control-input" type="radio" name="showStyle" value="0" checked />
+                      <span class="custom-control-label">[[${bundle.L('默认')}]]</span>
+                    </label>
+                    <label class="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                      <input class="custom-control-input" type="radio" name="showStyle" value="10" />
+                      <span class="custom-control-label">[[${bundle.L('单选框')}]]</span>
+                    </label>
+                  </div>
+                </div>
                 <th:block th:if="${fieldType == 'TAG'}">
                   <div class="form-group row J_for-TAG">
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('常用标签')}]]</label>
@@ -298,7 +311,7 @@
                     </div>
                   </div>
                   <div class="form-group row J_for-DECIMAL">
-                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('格式')}]]</label>
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('显示格式')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8 pt-1">
                       <label class="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
                         <input class="custom-control-input" type="radio" name="decimalType" value="0" checked />

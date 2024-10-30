@@ -1939,16 +1939,33 @@ class RbFormPickList extends RbFormElement {
       }
     }
     this._options = options
+    this._isShowRadio39 = props.showStyle === '10'
+    this._htmlid = `${props.field}-${$random()}-`
   }
 
   renderElement() {
-    const keyName = `${this.state.field}-option-`
+    if (this._isShowRadio39) {
+      const _readonly37 = this.state.readonly
+      return (
+        <div ref={(c) => (this._fieldValue = c)} className="mt-1">
+          {this._options.map((item) => {
+            return (
+              <label className="custom-control custom-radio custom-control-inline mb-1" key={`${this._htmlid}-${item.id}`}>
+                <input className="custom-control-input" name={this._htmlid} type="radio" checked={this.state.value === item.id} onChange={() => this.setValue(item.id)} disabled={_readonly37} />
+                <span className="custom-control-label">{item.text}</span>
+              </label>
+            )
+          })}
+        </div>
+      )
+    }
+
     return (
       <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" defaultValue={this.state.value || ''}>
         <option value="" />
         {this._options.map((item) => {
           return (
-            <option key={`${keyName}${item.id}`} value={item.id} disabled={$isSysMask(item.text)}>
+            <option key={`${this._htmlid}${item.id}`} value={item.id} disabled={$isSysMask(item.text)}>
               {item.text}
             </option>
           )
@@ -1965,18 +1982,22 @@ class RbFormPickList extends RbFormElement {
     if (destroy) {
       super.onEditModeChanged(destroy)
     } else {
-      this.__select2 = $(this._fieldValue).select2({
-        placeholder: $L('选择%s', this.props.label),
-      })
+      if (this._isShowRadio39) {
+        // TODO
+      } else {
+        this.__select2 = $(this._fieldValue).select2({
+          placeholder: $L('选择%s', this.props.label),
+        })
 
-      const that = this
-      this.__select2.on('change', function (e) {
-        const val = e.target.value
-        that.handleChange({ target: { value: val } }, true)
-      })
+        const that = this
+        this.__select2.on('change', function (e) {
+          const val = e.target.value
+          that.handleChange({ target: { value: val } }, true)
+        })
 
-      const _readonly37 = this.state.readonly
-      if (_readonly37) $(this._fieldValue).attr('disabled', true)
+        const _readonly37 = this.state.readonly
+        if (_readonly37) $(this._fieldValue).attr('disabled', true)
+      }
     }
   }
 
@@ -1987,7 +2008,11 @@ class RbFormPickList extends RbFormElement {
 
   setValue(val) {
     if (val && typeof val === 'object') val = val.id
-    this.__select2.val(val).trigger('change')
+    if (this._isShowRadio39) {
+      this.handleChange({ target: { value: val } }, true)
+    } else {
+      this.__select2.val(val).trigger('change')
+    }
   }
 }
 
