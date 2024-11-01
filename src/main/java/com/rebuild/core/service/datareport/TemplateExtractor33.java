@@ -42,8 +42,8 @@ public class TemplateExtractor33 extends TemplateExtractor {
     public static final String DETAIL_PREFIX2 = NROW_PREFIX2 + "detail";
     public static final String APPROVAL_PREFIX2 = NROW_PREFIX2 + "approval";
     // 排序
-    private static final String SORT_ASC = ":asc";
-    private static final String SORT_DESC = ":desc";
+    protected static final String SORT_ASC = ":asc";
+    protected static final String SORT_DESC = ":desc";
 
     private Map<String, String> sortFields = new HashMap<>();
     private Set<String> inShapeVars = new HashSet<>();
