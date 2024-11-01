@@ -11,6 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ThrowableUtils;
 import com.rebuild.core.cache.CommonsCache;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.Installer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -18,7 +19,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.ArrayList;
@@ -42,7 +45,7 @@ public final class ServerStatus {
     /**
      * 启动实例标识
      */
-    public static final String STARTUP_ONCE = CodecUtils.randomCode(40);
+    public static final String STARTUP_ONCE = genStartupOnce();
 
     private static long LastCheckTime = 0;
     private static final List<Status> LAST_STATUS = new ArrayList<>();
@@ -162,6 +165,21 @@ public final class ServerStatus {
             return Status.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
         }
         return Status.success(name);
+    }
+
+    private static String genStartupOnce() {
+        File once = RebuildConfiguration.getFileOfTemp(".startup");
+        String onceToken = null;
+        try {
+            if (once.exists()) {
+                onceToken = FileUtils.readFileToString(once, StandardCharsets.UTF_8);
+            } else {
+                onceToken = CodecUtils.randomCode(36);
+                FileUtils.writeStringToFile(once, onceToken, StandardCharsets.UTF_8);
+            }
+        } catch (IOException ignored) {}
+        // 36+4
+        return onceToken + CodecUtils.randomCode(4);
     }
 
     // 状态
