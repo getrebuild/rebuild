@@ -74,6 +74,8 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
         if (validFields.isEmpty()) return Collections.emptyMap();
 
         queryData.put("fields", validFields);  // 使用模板字段
+        // v3.8.4 优先使用模版中指定的排序
+        if (varsExtractor.getListTypeSortFields() != null) queryData.put("sort", varsExtractor.getListTypeSortFields());
 
         QueryParser queryParser = new QueryParser(queryData);
         int[] limits = queryParser.getSqlLimit();

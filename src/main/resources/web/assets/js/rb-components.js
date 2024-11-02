@@ -267,7 +267,7 @@ class RbAlert extends React.Component {
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
-            <div className="modal-body">{this.renderContent()}</div>
+            <div className="modal-body">{this.props.type === 'clear' ? this.props.message : this.renderContent()}</div>
           </div>
         </div>
       </div>

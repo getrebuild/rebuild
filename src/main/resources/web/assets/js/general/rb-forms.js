@@ -2603,9 +2603,9 @@ class RbFormBarcode extends RbFormElement {
           title={this.state.value}
           onClick={() => {
             RbAlert.create(
-              <div className="mb-4">
+              <div className="mb-3 text-center">
                 <img src={`${codeUrl}&w=${isbar ? 64 * 2 : 80 * 3}`} alt={this.state.value} style={{ maxWidth: '100%' }} />
-                {!isbar && <div className="text-muted mt-3 mb-1 text-break">{this.state.value}</div>}
+                {!isbar && <div className="text-muted mt-2 mb-1 text-break text-bold">{this.state.value}</div>}
               </div>,
               {
                 type: 'clear',
