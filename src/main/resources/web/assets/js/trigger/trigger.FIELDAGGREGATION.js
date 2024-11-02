@@ -199,7 +199,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._$autoCreate = c)} />
                   <span className="custom-control-label">
                     {$L('目标记录不存在时自动新建')}
-                    <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('仅使用“字段匹配规则”时有效')} />
+                    <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('仅使用“通过字段匹配”时有效')} />
                   </span>
                 </label>
               </div>

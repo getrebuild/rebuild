@@ -313,7 +313,7 @@ public class FieldAggregation extends TriggerAction {
             targetWithMatchFields = new TargetWithMatchFields();
             targetRecordId = targetWithMatchFields.match(actionContext);
             if (targetRecordId == null && actionContent.getBooleanValue("autoCreate")) {
-                targetRecordId = this.aotuCreateTargetRecord(targetWithMatchFields);
+                targetRecordId = this.aotuCreateTargetRecord39(targetWithMatchFields);
             }
             followSourceWhere = StringUtils.join(targetWithMatchFields.getQFieldsFollow(), " and ");
             return;
@@ -365,7 +365,7 @@ public class FieldAggregation extends TriggerAction {
      * @param twmf
      * @return
      */
-    protected ID aotuCreateTargetRecord(TargetWithMatchFields twmf) {
+    protected ID aotuCreateTargetRecord39(TargetWithMatchFields twmf) {
         if (twmf.getSourceRecord() == null) return null;
 
         Record newTargetRecord = EntityHelper.forNew(targetEntity.getEntityCode(), UserService.SYSTEM_USER);
