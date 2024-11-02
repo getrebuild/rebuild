@@ -45,7 +45,9 @@ import java.util.Map;
  *
  * @author devezhao
  * @since 2021/6/28
+ * @deprecated Use {@link FieldAggregation}
  */
+@Deprecated
 @Slf4j
 public class GroupAggregation extends FieldAggregation {
 

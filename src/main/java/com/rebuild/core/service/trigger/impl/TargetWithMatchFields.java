@@ -54,6 +54,11 @@ public class TargetWithMatchFields {
     @Getter
     private Object targetRecordId;
 
+    @Getter
+    private Record sourceRecord;
+    @Getter
+    private Map<String, String> matchFieldsMapping;
+
     public TargetWithMatchFields() {
         super();
     }
@@ -113,6 +118,7 @@ public class TargetWithMatchFields {
             log.warn("No match-fields specified");
             return null;
         }
+        this.matchFieldsMapping = matchFieldsMapping;
 
         // 1.源记录数据
 
@@ -123,6 +129,7 @@ public class TargetWithMatchFields {
         final Record sourceRecord = Application.createQueryNoFilter(aSql)
                 .setParameter(1, actionContext.getSourceRecord())
                 .record();
+        this.sourceRecord = sourceRecord;
 
         // 2.找到目标记录
 
