@@ -169,17 +169,19 @@ public final class ServerStatus {
 
     private static String genStartupOnce() {
         File once = RebuildConfiguration.getFileOfTemp(".startup");
-        String onceToken = null;
+        String onceToken;
         try {
             if (once.exists()) {
                 onceToken = FileUtils.readFileToString(once, StandardCharsets.UTF_8);
             } else {
-                onceToken = CodecUtils.randomCode(36);
+                onceToken = CodecUtils.randomCode(32);
                 FileUtils.writeStringToFile(once, onceToken, StandardCharsets.UTF_8);
             }
-        } catch (IOException ignored) {}
-        // 36+4
-        return onceToken + CodecUtils.randomCode(4);
+        } catch (Exception ignored) {
+            onceToken = CodecUtils.randomCode(32);
+        }
+        // 32+8
+        return onceToken + CodecUtils.randomCode(8);
     }
 
     // 状态
