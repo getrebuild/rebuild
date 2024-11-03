@@ -152,8 +152,10 @@ $(document).ready(function () {
         $(`<td>${this[1]}</td>`).appendTo($tr)
 
         const uaRich = this[2]
-          .replace(/\[Mobile]/i, `<i class="support-plat2 mdi mdi-cellphone-marker fs-16" title="${$L('手机登录')}"></i>`)
-          .replace(/\[TempAuth]/i, `<i class="support-plat2 mdi mdi-account-alert text-danger fs-18" title="${$L('临时授权')}"></i>`)
+          .replace(/\[Mobile]/i, `<span class="badge badge-info">${$L('手机版')}</span>`)
+          .replace(/\[WeCom]/i, `<span class="badge badge-info">${$L('企业微信')}</span>`)
+          .replace(/\[DingTalk]/i, `<span class="badge badge-info">${$L('钉钉')}</span>`)
+          .replace(/\[TempAuth]/i, `<span class="badge badge-danger">${$L('临时授权')}</span>`)
         $(`<td>${uaRich}</td>`).appendTo($tr)
       })
 
