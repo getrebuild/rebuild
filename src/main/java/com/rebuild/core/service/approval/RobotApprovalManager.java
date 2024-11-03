@@ -173,9 +173,7 @@ public class RobotApprovalManager implements ConfigManager {
     public FlowDefinition[] getFlowDefinitions(Entity entity) {
         final String cKey = CKEY_PREFIX + entity.getName();
         FlowDefinition[] defs = (FlowDefinition[]) Application.getCommonsCache().getx(cKey);
-        if (defs != null) {
-            return defs;
-        }
+        if (defs != null) return defs;
 
         Object[][] array = Application.createQueryNoFilter(
                 "select flowDefinition,isDisabled,name,configId,modifiedOn from RobotApprovalConfig where belongEntity = ?")

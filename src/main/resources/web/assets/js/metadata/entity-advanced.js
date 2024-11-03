@@ -112,8 +112,8 @@ class DlgMode1Option extends RbFormHandler {
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('在侧栏显示')}</label>
-            <div className="col-sm-9">
-              <div>
+            <div className="col-sm-9 aside-show" ref={(c) => (this._$asideShow = c)}>
+              <div className="aside-item">
                 <div className="switch-button switch-button-xs">
                   <input type="checkbox" id="advListHideFilters" defaultChecked={wpc.extConfig && !wpc.extConfig.advListHideFilters} />
                   <span>
@@ -123,7 +123,7 @@ class DlgMode1Option extends RbFormHandler {
                 <span className="ml-2 down-5 d-inline-block">{$L('常用查询')}</span>
               </div>
               {CompCategory(this)}
-              <div className="mt-2">
+              <div className="aside-item">
                 <div className="switch-button switch-button-xs">
                   <input type="checkbox" id="advListHideCharts" defaultChecked={wpc.extConfig && !wpc.extConfig.advListHideCharts} />
                   <span>
@@ -353,7 +353,7 @@ class DlgMode3Option extends DlgMode2Option {
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('在侧栏显示')}</label>
-            <div className="col-sm-9">
+            <div className="col-sm-9 aside-show">
               <div>
                 <div className="switch-button switch-button-xs">
                   <input type="checkbox" id="mode3ShowFilters" defaultChecked={wpc.extConfig && wpc.extConfig.mode3ShowFilters} />
@@ -364,7 +364,7 @@ class DlgMode3Option extends DlgMode2Option {
                 <span className="ml-2 down-5 d-inline-block">{$L('常用查询')}</span>
               </div>
               {CompCategory(this, 'mode3ShowCategory')}
-              <div className="mt-2">
+              <div>
                 <div className="switch-button switch-button-xs">
                   <input type="checkbox" id="mode3ShowCharts" defaultChecked={wpc.extConfig && wpc.extConfig.mode3ShowCharts} />
                   <span>
@@ -449,7 +449,7 @@ class DlgMode3Option extends DlgMode2Option {
 
 const CompCategory = (_this, name = 'advListShowCategory') => {
   return (
-    <div ref={(c) => (_this._$category = c)} className="mt-2">
+    <div className="aside-item" ref={(c) => (_this._$category = c)}>
       <div className="switch-button switch-button-xs">
         <input type="checkbox" id={name} defaultChecked={wpc.extConfig && wpc.extConfig[name]} />
         <span>
