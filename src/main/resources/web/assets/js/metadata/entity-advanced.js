@@ -354,7 +354,7 @@ class DlgMode3Option extends DlgMode2Option {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('在侧栏显示')}</label>
             <div className="col-sm-9 aside-show">
-              <div>
+              <div className="aside-item">
                 <div className="switch-button switch-button-xs">
                   <input type="checkbox" id="mode3ShowFilters" defaultChecked={wpc.extConfig && wpc.extConfig.mode3ShowFilters} />
                   <span>
@@ -364,7 +364,7 @@ class DlgMode3Option extends DlgMode2Option {
                 <span className="ml-2 down-5 d-inline-block">{$L('常用查询')}</span>
               </div>
               {CompCategory(this, 'mode3ShowCategory')}
-              <div>
+              <div className="aside-item">
                 <div className="switch-button switch-button-xs">
                   <input type="checkbox" id="mode3ShowCharts" defaultChecked={wpc.extConfig && wpc.extConfig.mode3ShowCharts} />
                   <span>
