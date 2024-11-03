@@ -61,6 +61,8 @@ public class TemplateExtractor {
     final protected File templateFile;
     final private boolean isListType;
 
+    private Set<String> listTypeSortFields = new LinkedHashSet<>();
+
     /**
      * @param template
      */
@@ -98,6 +100,17 @@ public class TemplateExtractor {
             // 列表型字段
             if (thatName.startsWith(NROW_PREFIX)) {
                 String listField = thatName.substring(1);
+
+                // v3.8.4
+                if (isListType) {
+                    if (listField.endsWith(TemplateExtractor33.SORT_ASC)) {
+                        listTypeSortFields.add(listField);
+                        listField = listField.substring(0, listField.length() - 4);
+                    } else if (listField.endsWith(TemplateExtractor33.SORT_DESC)) {
+                        listTypeSortFields.add(listField);
+                        listField = listField.substring(0, listField.length() - 5);
+                    }
+                }
 
                 // 审批流程
                 if (!this.isListType && thatName.startsWith(APPROVAL_PREFIX)) {
@@ -205,5 +218,14 @@ public class TemplateExtractor {
             }
         }
         return null;
+    }
+
+    /**
+     * 列表模版指定排序
+     *
+     * @return
+     */
+    protected String getListTypeSortFields() {
+        return listTypeSortFields.isEmpty() ? null : StringUtils.join(listTypeSortFields, ";");
     }
 }

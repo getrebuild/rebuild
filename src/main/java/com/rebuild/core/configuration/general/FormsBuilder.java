@@ -241,7 +241,7 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        buildModelElements(elements, entityMeta, recordData, user, viewMode, !viewMode);
+        buildModelElements(elements, entityMeta, recordData, user, viewMode, true);
 
         if (elements.isEmpty()) {
             return formatModelError(Language.L("此表单布局尚未配置，请配置后使用"));
@@ -343,8 +343,8 @@ public class FormsBuilder extends FormsManager {
      * @param entity
      * @param recordData
      * @param user
-     * @param viewModel
-     * @param useAdvControl
+     * @param viewModel 是否视图
+     * @param useAdvControl 是否使用表单高级控制
      */
     protected void buildModelElements(JSONArray elements, Entity entity, Record recordData, ID user, boolean viewModel, boolean useAdvControl) {
         final User formUser = Application.getUserStore().getUser(user);
@@ -385,15 +385,14 @@ public class FormsBuilder extends FormsManager {
             }
 
             // v2.2 高级控制
-            if (viewModel) useAdvControl = false;
+            // v3.8.4 视图下也有效（单字段编辑也算编辑）
             if (useAdvControl) {
-                final Object displayOnCreate = el.remove("displayOnCreate");
-                final Object displayOnUpdate = el.remove("displayOnUpdate");
+                Object displayOnCreate = el.remove("displayOnCreate");
+                Object displayOnUpdate = el.remove("displayOnUpdate");
                 final Object requiredOnCreate = el.remove("requiredOnCreate");
                 final Object requiredOnUpdate = el.remove("requiredOnUpdate");
                 final Object readonlyOnCreate = el.remove("readonlyOnCreate");
                 final Object readonlyOnUpdate = el.remove("readonlyOnUpdate");
-
                 // fix v3.3.4 跟随主记录新建/更新
                 boolean isNew2 = isNew;
                 if (entity.getMainEntity() != null) {
@@ -401,6 +400,11 @@ public class FormsBuilder extends FormsManager {
                     isNew2 = EntityHelper.isUnsavedId(fromMain);
                 }
 
+                // 视图下忽略此选项
+                if (viewModel) {
+                    displayOnCreate = true;
+                    displayOnUpdate = true;
+                }
                 // 显示
                 if (displayOnCreate != null && !(Boolean) displayOnCreate && isNew2) {
                     iter.remove();
@@ -410,7 +414,6 @@ public class FormsBuilder extends FormsManager {
                     iter.remove();
                     continue;
                 }
-
                 // 必填
                 if (requiredOnCreate != null && (Boolean) requiredOnCreate && isNew2) {
                     el.put("nullable", false);
@@ -418,7 +421,6 @@ public class FormsBuilder extends FormsManager {
                 if (requiredOnUpdate != null && (Boolean) requiredOnUpdate && !isNew2) {
                     el.put("nullable", false);
                 }
-
                 // 只读 v3.6
                 if (readonlyOnCreate != null && (Boolean) readonlyOnCreate && isNew2) {
                     el.put("readonly", true);
