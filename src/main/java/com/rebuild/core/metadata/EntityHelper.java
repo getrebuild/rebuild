@@ -348,10 +348,6 @@ public class EntityHelper {
 
     public static final int ExtformConfig = 60;
 
-    // 智能扫码
-
-    public static final int EasyScanConfig = 96;
-
     // 锁/日志/短链
 
     public static final int ShortUrl = 97;

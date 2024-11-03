@@ -38,6 +38,7 @@ import java.util.Set;
  * @author RB
  * @since 2022/7/8
  */
+@Deprecated
 @Slf4j
 public class GroupAggregationRefresh {
 

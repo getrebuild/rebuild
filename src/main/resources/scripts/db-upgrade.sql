@@ -1,17 +1,6 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
--- #59 (v3.9)
--- ************ Entity [EasyScanConfig] DDL ************
-create table if not exists `easy_scan_config` (
-  `CONFIG_ID`          char(20) not null,
-  `NAME`               varchar(100) not null comment '名称',
-  `SCAN_CONFIG`        text(65535) comment '扫码配置 (JSON Map)',
-  `SHARE_TO`           varchar(420) default 'SELF' comment '共享给谁 (ALL/SELF/$MemberID)',
-  `SEQ`                int(11) default '0' comment '排序 (小到大)',
-  primary key  (`CONFIG_ID`)
-)Engine=InnoDB;
-
 -- #58 (v3.8)
 alter table `classification_data`
   add column `COLOR` varchar(10);

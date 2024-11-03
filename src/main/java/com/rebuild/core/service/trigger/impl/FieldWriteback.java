@@ -220,6 +220,8 @@ public class FieldWriteback extends FieldAggregation {
     public void prepare(OperatingContext operatingContext) throws TriggerException {
         if (targetRecordIds != null) return;
 
+        final JSONObject actionContent = (JSONObject) actionContext.getActionContent();
+
         // FIELD.ENTITY
         String[] targetFieldEntity = ((JSONObject) actionContext.getActionContent()).getString("targetEntity").split("\\.");
         sourceEntity = actionContext.getSourceEntity();
@@ -234,6 +236,10 @@ public class FieldWriteback extends FieldAggregation {
         if (TARGET_ANY.equals(targetFieldEntity[0])) {
             TargetWithMatchFields targetWithMatchFields = new TargetWithMatchFields();
             ID[] ids = targetWithMatchFields.matchMultiple(actionContext);
+            if (ids.length == 0 && actionContent.getBooleanValue("autoCreate")) {
+                ID n = this.aotuCreateTargetRecord39(targetWithMatchFields);
+                targetRecordIds.add(n);
+            }
             CollectionUtils.addAll(targetRecordIds, ids);
         }
         // 自己更新自己

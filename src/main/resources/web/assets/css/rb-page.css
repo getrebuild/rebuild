@@ -1073,7 +1073,8 @@ a.link.link-icon::after {
   margin-top: 0.25rem !important;
 }
 
-.type-MULTISELECT .custom-checkbox {
+.type-MULTISELECT .custom-checkbox,
+.type-PICKLIST .custom-radio {
   margin-bottom: 0.61rem;
   margin-right: 2%;
   min-width: 23%;
@@ -1081,12 +1082,14 @@ a.link.link-icon::after {
   overflow: hidden;
 }
 
-.col-sm-3.type-MULTISELECT .custom-checkbox {
+.col-sm-3.type-MULTISELECT .custom-checkbox,
+.col-sm-3.type-PICKLIST .custom-radio {
   margin-right: 0;
   min-width: 100%;
 }
 
-.col-sm-4.type-MULTISELECT .custom-checkbox {
+.col-sm-4.type-MULTISELECT .custom-checkbox,
+.col-sm-4.type-PICKLIST .custom-radio {
   min-width: 48%;
 }
 
