@@ -7,7 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.audit;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.WebUtils;
+import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -72,6 +74,10 @@ public class LoginLogController extends EntityController {
         // H5
         if (getBoolParameter(request, "h5")) {
             for (Object[] s : Application.getSessionStore().getAllH5Session(true)) {
+                long activeTime = (long) s[0];
+                long diff = (System.currentTimeMillis() - activeTime) / 1000 / 60;  // minte
+                if (diff > 60 * 2) continue;  // 2h 不显示
+
                 ID user = (ID) s[4];
                 JSONObject item = JSONUtils.toJSONObject(
                         new String[] { "user", "fullName", "activeTime", "activeUrl", "activeIp", "sid", "h5" },

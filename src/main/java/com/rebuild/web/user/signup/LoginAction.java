@@ -111,11 +111,12 @@ public class LoginAction extends BaseController {
 
         createLoginLog(request, user);
 
-        // TODO H5
-        if (!fromH5) {
+        if (fromH5) {
+            // TODO H5 #loginSuccessed
+        } else {
             ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
             ServletUtils.setSessionAttribute(request, SK_USER_THEME, KVStorage.getCustomValue("THEME." + user));
-            Application.getSessionStore().storeLoginSuccessed(request, fromH5);
+            Application.getSessionStore().storeLoginSuccessed(request, false);
 
             // 头像缓存
             ServletUtils.setSessionAttribute(request, UserAvatar.SK_DAVATAR, System.currentTimeMillis());
