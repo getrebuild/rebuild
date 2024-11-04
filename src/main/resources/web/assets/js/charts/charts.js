@@ -217,11 +217,13 @@ class ChartIndex extends BaseChart {
   renderChart(data) {
     const showGrowthRate = data._renderOption && data._renderOption.showGrowthRate
     const color = __PREVIEW ? this.props.config.option.useColor : this.props.config.color
+    const index = data.index
+
     const style2 = { color: color || null }
     let clazz2, rate2
-    if (data.index.label2) {
-      const N1 = this._num(data.index.data)
-      const N2 = this._num(data.index.data2)
+    if (index.label2) {
+      const N1 = parseFloat(index.data)
+      const N2 = parseFloat(index.data2)
       clazz2 = N1 >= N2 ? 'ge' : 'le'
       // eslint-disable-next-line eqeqeq
       if (N2 == 0) {
@@ -235,25 +237,21 @@ class ChartIndex extends BaseChart {
     const chartdata = (
       <div className="chart index" ref={(c) => (this._$chart = c)}>
         <div className="data-item must-center text-truncate w-auto">
-          <p style={style2}>{data.index.label || this.label}</p>
+          <p style={style2}>{index.label || this.label}</p>
           <strong style={style2}>
-            {data.index.data}
+            {formatThousands(index.data, index.dataFlag)}
             {clazz2 && <span className={clazz2}>{showGrowthRate ? rate2 : null}</span>}
           </strong>
-          {data.index.label2 && (
+          {index.label2 && (
             <div className="with">
-              <p>{data.index.label2}</p>
-              <strong>{data.index.data2}</strong>
+              <p>{index.label2}</p>
+              <strong>{formatThousands(index.data2, index.dataFlag2)}</strong>
             </div>
           )}
         </div>
       </div>
     )
     this.setState({ chartdata: chartdata }, () => this.resize(1))
-  }
-
-  _num(n) {
-    return parseFloat($cleanNumber(n))
   }
 
   resize(delay) {
@@ -426,6 +424,20 @@ const shortNumber = function (num) {
 // 千分位
 const formatThousands = function (num, flag) {
   let n = num
+  // v3.9 unit
+  let flagUnit = ''
+  if (flag && flag !== '0:0') {
+    const flags = flag.split(':')
+    flag = flags[0] === '0' ? null : flags[0]
+
+    let unit = ~~flags[1]
+    if (unit && unit > 0) {
+      let scale = (num.split('.')[1] || '').length || 0
+      n = (parseFloat(n) / unit).toFixed(scale)
+      flagUnit = _FLAG_UNITS()[unit + ''] || ''
+    }
+  }
+
   if (Math.abs(~~n) > 1000) {
     const nd = (n + '').split('.')
     nd[0] = nd[0].replace(/\d{1,3}(?=(\d{3})+$)/g, '$&,')
@@ -433,10 +445,21 @@ const formatThousands = function (num, flag) {
   }
 
   // v3.2.1
-  if (flag === '%') n += '%'
-  else if (flag && flag.includes('%s')) n = flag.replace('%s', n)
-  else if (flag) n = `${flag} ${n}`
+  if (flag === '%') n += '%' + flagUnit
+  else if (flag && flag.includes('%s')) n = flag.replace('%s', n) + flagUnit
+  else if (flag) n = `${flag} ${n}` + flagUnit
+  else if (flagUnit) n += flagUnit
   return n
+}
+const _FLAG_UNITS = () => {
+  return {
+    '1000': $L('千'),
+    '10000': $L('万'),
+    '100000': $L('十万'),
+    '1000000': $L('百万'),
+    '10000000': $L('千万'),
+    '100000000': $L('亿'),
+  }
 }
 
 // 多轴显示
