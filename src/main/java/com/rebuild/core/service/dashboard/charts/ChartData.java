@@ -313,7 +313,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
     /**
      * @see com.rebuild.core.metadata.easymeta.EasyDecimal#wrapValue(Object)
      */
-    protected String formatAxisValue(Numerical numerical, String value) {
+    private String formatAxisValue(Numerical numerical, String value) {
         String type = getNumericalFlag(numerical);
         if (type == null) return value;
         type = type.split(":")[0];
