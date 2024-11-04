@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #59 (v3.9)
+alter table `extform_config`
+  add column `NO_RATE_LIMITER` char(1) default 'F' comment '关闭限流';
+
 -- #58 (v3.8)
 alter table `classification_data`
   add column `COLOR` varchar(10);
