@@ -10,6 +10,7 @@ package com.rebuild.web.commons;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
+import com.google.zxing.BarcodeFormat;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.general.BarCodeSupport;
 import com.rebuild.utils.AppUtils;
@@ -58,7 +59,20 @@ public class BarCodeGeneratorController extends BaseController {
             bi = BarCodeSupport.createQRCode(content, w);
         } else {
             boolean showText = getBoolParameter(request, "b", true);
-            bi = BarCodeSupport.createBarCode(content, w, showText);
+            String showFormat = getParameter(request, "format");
+            BarcodeFormat specFormat = null;
+            if (showFormat != null) {
+                try {
+                    specFormat = BarcodeFormat.valueOf(showFormat);
+                } catch (Exception ignored) {
+                }
+            }
+
+            if (specFormat != null) {
+                bi = BarCodeSupport.createBarCode(content, 0, w, showText, specFormat);
+            } else {
+                bi = BarCodeSupport.createBarCode(content, w, showText);
+            }
         }
 
         // 6小时缓存
