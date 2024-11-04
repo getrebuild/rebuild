@@ -97,7 +97,7 @@ public class AppUtils {
         try {
             user = request.getSession().getAttribute(WebUtils.CURRENT_USER);
         } catch (Exception resHasBeenCommitted) {
-            log.warn("resHasBeenCommitted", resHasBeenCommitted);
+            log.debug("resHasBeenCommitted", resHasBeenCommitted);
         }
 
         if (user == null) user = getRequestUserViaToken(request, refreshToken);

@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.dashboard.charts;
 
 import cn.devezhao.commons.ObjectUtils;
-import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -29,8 +28,8 @@ public class TableBuilder {
      */
     protected static final Axis LN_REF = new Axis(null, null, null, "#", null);
 
-    private TableChart chart;
-    private Object[][] rows;
+    final private TableChart chart;
+    final private Object[][] rows;
 
     /**
      * @param chart

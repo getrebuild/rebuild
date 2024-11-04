@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.query.ParseHelper;
+import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -22,8 +23,12 @@ import org.apache.commons.lang.StringUtils;
  */
 public class Numerical extends Axis {
 
+    @Getter
     private JSONObject filter = null;
+    @Getter
     private int scale = 2;
+    @Getter
+    private int unit = 0;
 
     /**
      * @param field
@@ -31,30 +36,16 @@ public class Numerical extends Axis {
      * @param calc
      * @param label
      * @param scale
+     * @param unit
      * @param filter
      * @param parentField
      */
-    protected Numerical(Field field, FormatSort sort, FormatCalc calc, String label, Integer scale,
+    protected Numerical(Field field, FormatSort sort, FormatCalc calc, String label, Integer scale, Integer unit,
                         JSONObject filter, Field parentField) {
         super(field, sort, calc, label, parentField);
         if (scale != null) this.scale = scale;
+        if (unit != null) this.unit = unit;
         if (ParseHelper.validAdvFilter(filter)) this.filter = filter;
-    }
-
-    /**
-     * 小数位
-     * @return
-     */
-    public int getScale() {
-        return scale;
-    }
-
-    /**
-     * 字段筛选条件
-     * @return
-     */
-    public JSONObject getFilter() {
-        return filter;
     }
 
     @Override

@@ -152,6 +152,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
                     validFields[0], getFormatSort(item), getFormatCalc(item),
                     item.getString("label"),
                     item.getInteger("scale"),
+                    item.getInteger("unit"),
                     item.getJSONObject("filter"),
                     validFields[1]);
             list.add(num);
@@ -294,19 +295,15 @@ public abstract class ChartData extends SetUser implements ChartSpec {
      * @return
      */
     protected String wrapAxisValue(Numerical numerical, Object value, boolean useThousands) {
-        if (ChartsHelper.isZero(value)) {
-            return ChartsHelper.VALUE_ZERO;
-        }
+        if (ChartsHelper.isZero(value)) return ChartsHelper.VALUE_ZERO;
+        if (ID.isId(value)) value = 1;
 
         String format = "###";
         if (numerical.getScale() > 0) {
             format = "##0.";
             format = StringUtils.rightPad(format, format.length() + numerical.getScale(), "0");
         }
-
         if (useThousands) format = "#," + format;
-
-        if (ID.isId(value)) value = 1;
 
         String n = new DecimalFormat(format).format(value);
         if (useThousands) n = formatAxisValue(numerical, n);
@@ -319,6 +316,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
     private String formatAxisValue(Numerical numerical, String value) {
         String type = getNumericalFlag(numerical);
         if (type == null) return value;
+        type = type.split(":")[0];
 
         if ("%".equals(type)) value += "%";
         else if (type.contains("%s")) value = String.format(type, value);
@@ -340,8 +338,8 @@ public abstract class ChartData extends SetUser implements ChartSpec {
         }
 
         String type = EasyMetaFactory.valueOf(numerical.getField()).getExtraAttr(EasyFieldConfigProps.DECIMAL_TYPE);
-        if (type == null || "0".equalsIgnoreCase(type)) return null;
-        else return type;
+        if (type == null) type = "0";
+        return type + ":" + numerical.getUnit();
     }
 
     /**

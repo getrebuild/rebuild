@@ -129,6 +129,7 @@ class PlanList extends React.Component {
       this.setState({ plans: res.data }, () => {
         $('#plans')
           .sortable({
+            containment: '.plan-boxes',
             handle: '.card-body',
             axis: 'x',
             update: function (event, ui) {

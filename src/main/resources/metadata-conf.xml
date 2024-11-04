@@ -589,6 +589,7 @@
         <field name="bindUser" type="reference" ref-entity="User" description="数据绑定用户"/>
         <field name="hookUrl" type="string" max-length="300" description="回调地址"/>
         <field name="hookSecret" type="string" max-length="300" description="回调安全码"/>
+        <field name="noRateLimiter" type="bool" default-value="F" description="关闭限流"/>
     </entity>
 
     <entity name="ShortUrl" type-code="097" description="短链共享" queryable="false" parent="false">

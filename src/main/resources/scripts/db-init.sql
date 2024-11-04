@@ -787,6 +787,7 @@ create table if not exists `extform_config` (
   `BIND_USER`          char(20) comment '数据绑定用户',
   `HOOK_URL`           varchar(300) comment '回调地址',
   `HOOK_SECRET`        varchar(300) comment '回调安全码',
+  `NO_RATE_LIMITER`    char(1) default 'F' comment '关闭限流',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
@@ -933,4 +934,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 58);
+  values ('021-9000000000000001', 'DBVer', 59);

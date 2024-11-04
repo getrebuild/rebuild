@@ -63,6 +63,7 @@ RbList.renderAfter = function () {
 // ~ 在线用户
 class OnlineUserViewer extends RbAlert {
   renderContent() {
+    const Ldq = $L('当前')
     return (
       <table className="table table-hover">
         <thead>
@@ -78,7 +79,13 @@ class OnlineUserViewer extends RbAlert {
               <tr key={item.sid}>
                 <td className="user-avatar cell-detail user-info">
                   <img src={`${rb.baseUrl}/account/user-avatar/${item.user}`} alt="Avatar" />
-                  <span className="pt-1">{item.fullName}</span>
+                  <span className="pt-1">
+                    {item.fullName.replace(`[${Ldq}]`, '')}
+                    <div>
+                      {item.activeUrl && item.activeUrl.includes('/h5app/') && <span className="badge badge-info">{$L('手机版')}</span>}
+                      {item.fullName.includes(Ldq) && <span className="badge badge-success">{Ldq}</span>}
+                    </div>
+                  </span>
                 </td>
                 <td className="cell-detail">
                   <span className="cell-detail-description">
