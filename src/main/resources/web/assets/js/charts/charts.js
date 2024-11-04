@@ -217,13 +217,13 @@ class ChartIndex extends BaseChart {
   renderChart(data) {
     const showGrowthRate = data._renderOption && data._renderOption.showGrowthRate
     const color = __PREVIEW ? this.props.config.option.useColor : this.props.config.color
-    const index = data.index
-
     const style2 = { color: color || null }
+    const _index = data.index
+
     let clazz2, rate2
-    if (index.label2) {
-      const N1 = parseFloat(index.data)
-      const N2 = parseFloat(index.data2)
+    if (_index.label2) {
+      const N1 = parseFloat(_index.data)
+      const N2 = parseFloat(_index.data2)
       clazz2 = N1 >= N2 ? 'ge' : 'le'
       // eslint-disable-next-line eqeqeq
       if (N2 == 0) {
@@ -237,15 +237,15 @@ class ChartIndex extends BaseChart {
     const chartdata = (
       <div className="chart index" ref={(c) => (this._$chart = c)}>
         <div className="data-item must-center text-truncate w-auto">
-          <p style={style2}>{index.label || this.label}</p>
+          <p style={style2}>{_index.label || this.label}</p>
           <strong style={style2}>
-            {formatThousands(index.data, index.dataFlag)}
+            {formatThousands(_index.data, _index.dataFlag)}
             {clazz2 && <span className={clazz2}>{showGrowthRate ? rate2 : null}</span>}
           </strong>
-          {index.label2 && (
+          {_index.label2 && (
             <div className="with">
-              <p>{index.label2}</p>
-              <strong>{formatThousands(index.data2, index.dataFlag2)}</strong>
+              <p>{_index.label2}</p>
+              <strong>{formatThousands(_index.data2, _index.dataFlag2)}</strong>
             </div>
           )}
         </div>
@@ -451,8 +451,10 @@ const formatThousands = function (num, flag) {
   else if (flagUnit) n += flagUnit
   return n
 }
+let _FLAG_UNITS_c
 const _FLAG_UNITS = () => {
-  return {
+  if (_FLAG_UNITS_c) return _FLAG_UNITS_c
+  let c = {
     '1000': $L('千'),
     '10000': $L('万'),
     '100000': $L('十万'),
@@ -460,6 +462,8 @@ const _FLAG_UNITS = () => {
     '10000000': $L('千万'),
     '100000000': $L('亿'),
   }
+  _FLAG_UNITS_c = c
+  return c
 }
 
 // 多轴显示
