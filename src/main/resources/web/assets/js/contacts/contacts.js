@@ -4,7 +4,6 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* eslint-disable no-unused-vars */
 
 class ContactList extends React.Component {
   constructor(props) {
@@ -39,11 +38,27 @@ class ContactList extends React.Component {
                       </tr>
                       <tr>
                         <td>{$L('邮箱')}</td>
-                        <td>{item.email || <span className="text-muted">{$L('无')}</span>}</td>
+                        <td>
+                          {item.email ? (
+                            <a href={`mailto:${item.email}`} className="link">
+                              {item.email}
+                            </a>
+                          ) : (
+                            <span className="text-muted">{$L('无')}</span>
+                          )}
+                        </td>
                       </tr>
                       <tr>
                         <td>{$L('电话')}</td>
-                        <td>{item.workphone || <span className="text-muted">{$L('无')}</span>}</td>
+                        <td>
+                          {item.workphone ? (
+                            <a href={`tel:${item.workphone}`} className="link">
+                              {item.workphone}
+                            </a>
+                          ) : (
+                            <span className="text-muted">{$L('无')}</span>
+                          )}
+                        </td>
                       </tr>
                     </tbody>
                   </table>
