@@ -40,16 +40,22 @@
             </div>
             <div class="contact-operator">
               <div class="row">
-                <div class="col-5">
-                  <div class="input-group input-search">
-                    <input class="form-control" type="text" th:placeholder="${bundle.L('搜索')}" />
-                    <button class="btn btn-input-clear" type="button"></button>
-                    <span class="input-group-btn">
-                      <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
-                    </span>
+                <div class="col-9">
+                  <div class="float-left">
+                    <div class="input-group input-search">
+                      <input class="form-control" type="text" th:placeholder="${bundle.L('搜索')}" />
+                      <button class="btn btn-input-clear" type="button"></button>
+                      <span class="input-group-btn">
+                        <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
+                      </span>
+                    </div>
                   </div>
+                  <div class="float-left">
+                    <div class="az-search"></div>
+                  </div>
+                  <div class="clearfix"></div>
                 </div>
-                <div class="col-7 text-right">
+                <div class="col-3 text-right">
                   <div class="btn-group btn-space mb-0 J_sort">
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                       <span>[[${bundle.L('默认排序')}]]</span>

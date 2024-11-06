@@ -55,7 +55,7 @@ class ContactList extends React.Component {
 
         {this._page === 1 && this.state.data && this.state.data.length === 0 && (
           <div className="list-nodata">
-            <i className="icon mdi mdi-account-multiple" />
+            <i className="icon zmdi zmdi-account-box-phone" />
             <p>{$L('暂无数据')}</p>
           </div>
         )}
@@ -111,6 +111,14 @@ $(document).ready(() => {
   const $input = $('.input-search input').on('keydown', (e) => (e.which === 13 ? $btn.trigger('click') : true))
   $('.input-search .btn-input-clear').on('click', () => {
     $input.val('')
+    $btn.trigger('click')
+  })
+
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach((i) => {
+    $(`<a>${i}</a>`).appendTo('.az-search')
+  })
+  $('.az-search>a').click(function () {
+    $input.val($(this).text() + '*')
     $btn.trigger('click')
   })
 

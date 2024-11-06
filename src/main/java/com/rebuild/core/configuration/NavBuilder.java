@@ -70,7 +70,7 @@ public class NavBuilder extends NavManager {
                     new Object[] { "chart-donut", "动态", "BUILTIN", NAV_FEEDS },
                     new Object[] { "shape", "项目", "BUILTIN", NAV_PROJECT },
                     new Object[] { "folder", "文件", "BUILTIN", NAV_FILEMRG },
-                    new Object[] { "accounts-list", "通讯录", "BUILTIN", NAV_CONTACT },
+                    new Object[] { "account-box-phone", "通讯录", "BUILTIN", NAV_CONTACT },
             });
 
     // 新建项目

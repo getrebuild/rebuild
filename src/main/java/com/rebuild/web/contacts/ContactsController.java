@@ -8,18 +8,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.contacts;
 
 import cn.devezhao.bizz.security.member.BusinessUnit;
+import cn.devezhao.bizz.security.member.Member;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.hankcs.hanlp.HanLP;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserFilters;
-import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
@@ -47,14 +49,19 @@ public class ContactsController extends BaseController {
     @GetMapping("/contacts/list-depts")
     public RespBody listDepts(HttpServletRequest request) {
         final ID user = getRequestUser(request);
+        Department[] ds;
+        if (UserFilters.isEnableBizzPart(user)) {
+            User ub = Application.getUserStore().getUser(user);
+            ds = new Department[]{ub.getOwningDept()};
+        } else {
+            ds = Application.getUserStore().getTopDepartments();
+            Arrays.sort(ds);
+        }
 
         JSONArray dtree = new JSONArray();
-        Department[] ds = Application.getUserStore().getTopDepartments();
-        Arrays.sort(ds);
-
-        for (Department root : ds) {
-            if (root.isDisabled()) continue;
-            dtree.add(recursiveDeptTree(root));
+        for (Department d : ds) {
+            if (d.isDisabled()) continue;
+            dtree.add(recursiveDeptTree(d));
         }
         return RespBody.ok(dtree);
     }
@@ -81,39 +88,61 @@ public class ContactsController extends BaseController {
     @GetMapping("/contacts/list-users")
     public RespBody listUsers(HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        ID dept = getIdParameter(request, "dept");
+        final ID dept = getIdParameter(request, "dept");
         String q = getParameter(request, "q");
         if (q != null) q = q.toUpperCase().trim();
 
         User[] users = Application.getUserStore().getAllUsers();
-        users = (User[]) UserFilters.filterMembers32(users, user);
+        Member[] usersMembers = UserFilters.filterMembers32(users, user);
 
-        Set<ID> deptIn = null;
+        Set<ID> deptAndChild = null;
         if (dept != null) {
-            deptIn = new HashSet<>();
-            deptIn.add(dept);
+            deptAndChild = new HashSet<>();
+            deptAndChild.add(dept);
 
-            Department deptBu = UserHelper.getDepartment(dept);
-            if (deptBu != null) {
-                for (BusinessUnit bu : deptBu.getAllChildren()) {
-                    deptIn.add((ID) bu.getIdentity());
+            Department deptObj = Application.getUserStore().getDepartment(dept);
+            if (deptObj != null) {
+                for (BusinessUnit bu : deptObj.getAllChildren()) {
+                    deptAndChild.add((ID) bu.getIdentity());
                 }
             }
         }
 
         JSONArray array = new JSONArray();
-        for (User u : users) {
+        for (Member m : usersMembers) {
+            User u = (User) m;
             if (UserService.SYSTEM_USER.equals(u.getId())) continue;
+            if (u.isDisabled()) continue;
+
             Department d = u.getOwningDept();
-            if (deptIn != null) {
+            if (deptAndChild != null) {
                 if (d == null) continue;
-                if (!deptIn.contains((ID) d.getIdentity())) continue;
+                if (!deptAndChild.contains((ID) d.getIdentity())) continue;
             }
+
             if (q != null) {
-                if (u.getFullName().toUpperCase().contains(q)
-                        || (u.getEmail() != null && u.getEmail().contains(q))
-                        || (u.getWorkphone() != null && u.getWorkphone().contains(q)));
-                else continue;
+                if (q.endsWith("*")) {
+                    String prefix = q.substring(0, q.length() - 1);
+                    // A-Z
+                    if (prefix.length() == 1 && Character.isUpperCase(prefix.charAt(0))) {
+                        String piny = HanLP.convertToPinyinString(u.getFullName(), "", false);
+                        if (!piny.toUpperCase().startsWith(prefix)) {
+                            continue;
+                        }
+                    }
+                    // prefix
+                    else if (!(StringUtils.startsWithIgnoreCase(u.getFullName(), q)
+                            || StringUtils.startsWithIgnoreCase(u.getEmail(), q)
+                            || StringUtils.startsWithIgnoreCase(u.getWorkphone(), q))) {
+                        continue;
+                    }
+                }
+                // includes
+                else if (!(StringUtils.containsIgnoreCase(u.getFullName(), q)
+                        || StringUtils.containsIgnoreCase(u.getEmail(), q)
+                        || StringUtils.containsIgnoreCase(u.getWorkphone(), q))) {
+                    continue;
+                }
             }
 
             JSONObject item = JSONUtils.toJSONObject(
