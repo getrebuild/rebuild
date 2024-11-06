@@ -147,7 +147,7 @@ public class ContactsController extends BaseController {
 
             JSONObject item = JSONUtils.toJSONObject(
                     new String[]{"id", "fullName", "email", "workphone", "deptName"},
-                    new Object[]{u.getId(), u.getFullName(), u.getEmail(), u.getWorkphone(), d.getName()});
+                    new Object[]{u.getId(), u.getFullName(), u.getEmail(), u.getWorkphone(), d.getName() });
             array.add(item);
         }
         return RespBody.ok(array);
