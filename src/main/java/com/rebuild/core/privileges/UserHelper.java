@@ -116,7 +116,7 @@ public class UserHelper {
             User u = Application.getUserStore().getUser(userId);
             return u.getOwningDept();
         } catch (NoMemberFoundException ex) {
-            log.error("No User found : " + userId);
+            log.error("No User found : {}", userId);
         }
         return null;
     }

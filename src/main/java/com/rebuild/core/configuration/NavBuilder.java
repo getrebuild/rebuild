@@ -69,7 +69,8 @@ public class NavBuilder extends NavManager {
             new Object[][] {
                     new Object[] { "chart-donut", "动态", "BUILTIN", NAV_FEEDS },
                     new Object[] { "shape", "项目", "BUILTIN", NAV_PROJECT },
-                    new Object[] { "folder", "文件", "BUILTIN", NAV_FILEMRG }
+                    new Object[] { "folder", "文件", "BUILTIN", NAV_FILEMRG },
+                    new Object[] { "accounts-list", "通讯录", "BUILTIN", NAV_CONTACT },
             });
 
     // 新建项目
@@ -168,7 +169,8 @@ public class NavBuilder extends NavManager {
         if ("ENTITY".equalsIgnoreCase(type)) {
             if (NAV_PARENT.equals(value)) {
                 return true;
-            } else if (NAV_FEEDS.equals(value) || NAV_FILEMRG.equals(value) || NAV_PROJECT.equals(value)) {
+            } else if (NAV_FEEDS.equals(value) || NAV_FILEMRG.equals(value)
+                    || NAV_PROJECT.equals(value) || NAV_CONTACT.equals(value)) {
                 return false;
             } else if (!MetadataHelper.containsEntity(value)) {
                 log.warn("Unknown entity in nav : {}", value);
@@ -388,6 +390,10 @@ public class NavBuilder extends NavManager {
         } else if (NAV_FILEMRG.equals(navName)) {
             navName = "nav_entity-ATTACHMENT";
             navUrl = AppUtils.getContextPath("/files/home");
+
+        } else if (NAV_CONTACT.equals(navName)) {
+            navName = "nav_entity-CONTACT";
+            navUrl = AppUtils.getContextPath("/contacts/home");
 
         } else if (NAV_PROJECT.equals(navName)) {
             navName = "nav_entity-PROJECT";
