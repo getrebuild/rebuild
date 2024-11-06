@@ -1,6 +1,12 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #60 (v3.9)
+alter table `user`
+  add column `SEQ` int(11) default '0' comment '排序 (小到大)';
+alter table `department`
+  add column `SEQ` int(11) default '0' comment '排序 (小到大)';
+
 -- #59 (v3.9)
 alter table `extform_config`
   add column `NO_RATE_LIMITER` char(1) default 'F' comment '关闭限流';

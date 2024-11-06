@@ -380,8 +380,8 @@ public class UserHelper {
             return new Member[0];
         }
 
-        if (members[0] instanceof User) {
-            Arrays.sort(members, Comparator.comparing(o -> ((User) o).getFullName()));
+        if (members[0] instanceof Comparable) {
+            Arrays.sort(members);
         } else {
             Arrays.sort(members, Comparator.comparing(Member::getName));
         }
