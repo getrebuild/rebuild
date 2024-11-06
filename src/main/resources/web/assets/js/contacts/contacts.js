@@ -66,7 +66,7 @@ class ContactList extends React.Component {
   componentDidMount = () => this.search()
 
   _fetch() {
-    const url = `/contacts/list-users?page=${this._page}&dept=${this._dept || '$ALL$'}&q=${encodeURIComponent(this._q || '')}`
+    const url = `/contacts/list-users?page=${this._page}&dept=${this._dept || 'ALL'}&q=${encodeURIComponent(this._q || '')}`
     $.get(url, (res) => {
       const current = res.data || []
       let data = this._page === 1 ? [] : this.state.data
@@ -136,8 +136,8 @@ var loadDeptTree = function () {
       ReactDOM.unmountComponentAtNode(document.getElementById('navTree'))
     }
 
-    const activeItem = _AsideTree ? _AsideTree.state.activeItem || '$ALL$' : '$ALL$'
-    const data = [{ id: '$ALL$', name: $L('全部部门') }, ...res.data]
+    const activeItem = _AsideTree ? _AsideTree.state.activeItem || 'ALL' : 'ALL'
+    const data = [{ id: 'ALL', name: $L('全部部门') }, ...res.data]
     renderRbcomp(
       <AsideTree
         data={data}
