@@ -62,7 +62,7 @@ public class FileDownloader extends BaseController {
         filepath = filepath.split("/filex/img/")[1];
         filepath = CodecUtils.urlDecode(filepath);
 
-        if (filepath.startsWith("http://") || filepath.startsWith("https://")) {
+        if (CommonsUtils.isExternalUrl(filepath)) {
             response.sendRedirect(filepath);
             return;
         }

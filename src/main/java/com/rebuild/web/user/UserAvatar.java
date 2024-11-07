@@ -19,6 +19,7 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.commons.FileDownloader;
 import lombok.extern.slf4j.Slf4j;
@@ -93,7 +94,7 @@ public class UserAvatar extends BaseController {
         String avatarUrl = realUser.getAvatarUrl();
 
         // 外部地址
-        if (avatarUrl != null && (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://"))) {
+        if (CommonsUtils.isExternalUrl(avatarUrl)) {
             response.sendRedirect(avatarUrl);
             return;
         }
