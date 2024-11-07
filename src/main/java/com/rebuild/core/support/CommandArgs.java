@@ -8,7 +8,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support;
 
 import cn.devezhao.commons.ObjectUtils;
+import com.rebuild.core.BootEnvironmentPostProcessor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Properties;
 
 /**
  * 命令行保留参数
@@ -17,6 +25,7 @@ import org.apache.commons.lang.BooleanUtils;
  * @since 2023/2/4
  * @see ConfigurationItem
  */
+@Slf4j
 public class CommandArgs {
 
     public static final String rbdev = "rbdev";
@@ -40,7 +49,7 @@ public class CommandArgs {
      * @return default `false`
      */
     public static boolean getBoolean(String name) {
-        return BooleanUtils.toBoolean(System.getProperty(name));
+        return BooleanUtils.toBoolean(getProperty39(name));
     }
 
     /**
@@ -48,7 +57,7 @@ public class CommandArgs {
      * @return default `-1`
      */
     public static int getInt(String name) {
-        return ObjectUtils.toInt(System.getProperty(name), -1);
+        return ObjectUtils.toInt(getProperty39(name), -1);
     }
 
     /**
@@ -66,6 +75,39 @@ public class CommandArgs {
      * @return
      */
     public static String getString(String name) {
+        return getProperty39(name);
+    }
+
+    /**
+     * @param name
+     * @return
+     */
+    protected static String getStringWithBootEnvironmentPostProcessor(String name) {
+        String s = getProperty39(name);
+        if (StringUtils.isEmpty(s)) s = BootEnvironmentPostProcessor.getProperty(name);
+        return s;
+    }
+
+    // --
+
+    // 引入外部配置文件
+    private static Properties CONF39;
+    private static String getProperty39(String name) {
+        if (CONF39 == null) {
+            File rebuildConf = RebuildConfiguration.getFileOfData("rebuild.conf");
+            if (rebuildConf.exists()) {
+                Properties conf = new Properties();
+                try {
+                    conf.load(Files.newInputStream(rebuildConf.toPath()));
+                    CONF39 = conf;
+                } catch (IOException e) {
+                    log.warn("Cannot load `rebuild.conf` : {}", rebuildConf);
+                }
+            }
+        }
+
+        String s = CONF39.getProperty(name);
+        if (StringUtils.isNotBlank(s)) return s;
         return System.getProperty(name);
     }
 }
