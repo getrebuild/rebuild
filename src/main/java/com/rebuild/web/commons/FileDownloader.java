@@ -242,6 +242,10 @@ public class FileDownloader extends BaseController {
         if (user == null) {
             String onceToken = request.getParameter(AppUtils.URL_ONCETOKEN);
             user = onceToken == null ? null : AuthTokenManager.verifyToken(onceToken);
+
+            // v3.8.5 留存10s
+            if (user == null) user = (ID) Application.getCommonsCache().getx("TOKEN4FILE:" + onceToken);
+            if (user != null) Application.getCommonsCache().putx("TOKEN4FILE:" + onceToken, user, 10);
         }
         // 5. UnsafeImgAccess
         if (user == null && RebuildConfiguration.getBool(ConfigurationItem.UnsafeImgAccess)) {
