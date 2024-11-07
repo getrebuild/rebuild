@@ -326,6 +326,7 @@ public class QiniuCloud {
                 fileName = fileName.replace("__", "_");
             }
             // 去除特殊符号
+            fileName = fileName.replace("  ", " ").replace(" ", "-");
             fileName = fileName.replaceAll("[?&#+%/\\s]", "");
 
             // 文件名长度控制
