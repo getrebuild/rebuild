@@ -218,15 +218,6 @@ public class FileDownloader extends BaseController {
         ServletUtils.write(response, text);
     }
 
-    @GetMapping(value = "proxy-download")
-    public void proxyDownload(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String fileUrl = request.getParameter("url");
-        fileUrl = CodecUtils.urlDecode(fileUrl);
-
-        File tmp = QiniuCloud.getStorageFile(fileUrl);
-        writeLocalFile(tmp, response);
-    }
-
     /**
      * 独立认证检测
      *
