@@ -334,6 +334,7 @@ public class FileDownloader extends BaseController {
         // 特殊字符处理
         attname = attname.replace(" ", "-");
         attname = attname.replace("%", "-");
+        attname = attname.replaceAll("[,;]", "-");
 
         // 火狐 Safari 中文名乱码问题
         String UA = StringUtils.defaultIfBlank(request.getHeader("user-agent"), "").toUpperCase();
