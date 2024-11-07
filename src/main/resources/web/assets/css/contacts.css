@@ -1,0 +1,99 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+.contact-header {
+  z-index: 1;
+}
+
+.contact-header .dept-path {
+  height: 44px;
+  padding: 8px 0;
+  background-color: #eee;
+}
+
+.contact-header .dept-path .breadcrumb {
+  font-size: 1rem;
+  margin: 0;
+  background-color: #eee;
+  cursor: default;
+}
+
+.contact-header .dept-path .breadcrumb > .active {
+  color: #888;
+}
+
+.contact-header .dept-path .breadcrumb-item + .breadcrumb-item::before {
+  color: #aaa;
+}
+
+.contact-header .contact-operator {
+  padding: 13px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #eee;
+}
+
+.contact-viewport {
+  margin: 0;
+  padding: 20px;
+}
+
+.contact-list > div.card {
+  display: inline-block;
+  width: 300px;
+  margin-right: 15px;
+  margin-bottom: 11px;
+}
+
+.contact-list > div.card .card-body {
+  padding: 15px;
+}
+
+.contact-list > div.card .img {
+  width: 60px;
+}
+
+.contact-list > div.card .img .user-show {
+  cursor: default !important;
+  opacity: 1 !important;
+}
+
+.contact-list > div.card .img .avatar {
+  width: 60px;
+  height: 60px;
+}
+
+.contact-list > div.card .info {
+  margin-left: 71px;
+}
+
+.contact-list > div.card .info td {
+  padding: 1px 4px;
+}
+
+.contact-list > div.card .info td strong,
+.contact-list > div.card .info td p {
+  line-height: 1.2;
+}
+
+.az-search {
+  display: inline-block;
+  margin-top: 1px;
+  margin-left: 8px;
+}
+
+.az-search > a {
+  display: inline-block;
+  padding: 7px 3px;
+  font-size: 14px;
+}
+
+.az-search > a:hover {
+  color: #4285f4 !important;
+  color: var(--rb-theme-color) !important;
+  text-decoration: underline !important;
+  font-weight: bold;
+}

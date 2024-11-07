@@ -58,8 +58,8 @@ class FilesList extends React.Component {
             <a
               href="#"
               onClick={(e) => {
+                $stopEvent(e, true)
                 this.loadData(null, this._pageNo + 1)
-                e.preventDefault()
               }}>
               {$L('显示更多')}
             </a>

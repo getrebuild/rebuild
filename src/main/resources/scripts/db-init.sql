@@ -32,6 +32,7 @@ create table if not exists `user` (
   `ROLE_ID`            char(20) comment '角色',
   `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
   `QUICK_CODE`         varchar(50),
+  `SEQ`                int(11) default '0' comment '排序 (小到大)',
   `EXTERNAL_ID`        varchar(100) comment '外部用户ID',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
@@ -52,6 +53,7 @@ create table if not exists `department` (
   `PRINCIPAL_ID`       char(20) comment '负责人',
   `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
   `QUICK_CODE`         varchar(50),
+  `SEQ`                int(11) default '0' comment '排序 (小到大)',
   `EXTERNAL_ID`        varchar(100) comment '外部部门ID',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
@@ -934,4 +936,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 59);
+  values ('021-9000000000000001', 'DBVer', 60);

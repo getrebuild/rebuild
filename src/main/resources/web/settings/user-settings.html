@@ -58,10 +58,6 @@
         padding: 8px 0;
         border-bottom: 1px dotted #e6e9f0;
       }
-      .split-span > span + span::before {
-        content: ' / ';
-        color: #aaa;
-      }
       #logs thead th {
         font-weight: normal;
         color: #777;
@@ -110,7 +106,7 @@
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-4 col-form-label">[[${bundle.L('所属部门')}]]</label>
+                            <label class="col-4 col-form-label">[[${bundle.L('所在部门')}]]</label>
                             <div class="col-8">
                               <div class="form-control-plaintext" th:text="${user.getOwningBizUnit().getName()}"></div>
                             </div>
@@ -118,9 +114,9 @@
                           <div class="form-group row">
                             <label class="col-4 col-form-label">[[${bundle.L('加入团队')}]]</label>
                             <div class="col-8">
-                              <div class="form-control-plaintext split-span">
+                              <div class="form-control-plaintext">
                                 <th:block th:each="team : ${user.getOwningTeams()}">
-                                  <span th:text="${team.getName()}"></span>
+                                  <span class="badge badge-light fs-12" th:text="${team.getName()}"></span>
                                 </th:block>
                                 <em class="text-muted" th:if="${user.getOwningTeams().isEmpty()}">[[${bundle.L('你未加入任何团队')}]]</em>
                               </div>

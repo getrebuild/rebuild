@@ -255,7 +255,7 @@ public class UserStore implements Initialization {
                 .setParameter(1, userId)
                 .unique();
         final User newUser = new User(
-                userId, (String) o[1], (String) o[2], (String) o[8], (String) o[3], (String) o[4], (Boolean) o[5]);
+                userId, (String) o[1], (String) o[2], (String) o[8], (String) o[3], (String) o[4], (Boolean) o[5], (Integer) o[9]);
         final ID deptId = (ID) o[6];
         final ID roleId = (ID) o[7];
 
@@ -398,10 +398,10 @@ public class UserStore implements Initialization {
             }
         }
 
-        Object[] o = aPMFactory.createQuery("select name,isDisabled,parentDept from Department where deptId = ?")
+        Object[] o = aPMFactory.createQuery("select name,isDisabled,parentDept,seq from Department where deptId = ?")
                 .setParameter(1, deptId)
                 .unique();
-        final Department newDept = new Department(deptId, (String) o[0], (Boolean) o[1]);
+        final Department newDept = new Department(deptId, (String) o[0], (Boolean) o[1], (Integer) o[3]);
 
         // Members
         Object[][] array = aPMFactory.createQuery("select userId from User where deptId = ?")
@@ -549,7 +549,7 @@ public class UserStore implements Initialization {
         }
     }
 
-    private static final String USER_FS = "userId,loginName,email,fullName,avatarUrl,isDisabled,deptId,roleId,workphone";
+    private static final String USER_FS = "userId,loginName,email,fullName,avatarUrl,isDisabled,deptId,roleId,workphone,seq";
 
     @Override
     public void init() {
@@ -559,7 +559,7 @@ public class UserStore implements Initialization {
         for (Object[] o : array) {
             ID userId = (ID) o[0];
             User user = new User(
-                    userId, (String) o[1], (String) o[2], (String) o[8], (String) o[3], (String) o[4], (Boolean) o[5]);
+                    userId, (String) o[1], (String) o[2], (String) o[8], (String) o[3], (String) o[4], (Boolean) o[5], (Integer) o[9]);
             store(user);
         }
         log.info("Loaded [ " + USERS.size() + " ] users.");

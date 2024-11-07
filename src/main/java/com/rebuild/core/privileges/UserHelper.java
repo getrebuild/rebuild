@@ -116,7 +116,7 @@ public class UserHelper {
             User u = Application.getUserStore().getUser(userId);
             return u.getOwningDept();
         } catch (NoMemberFoundException ex) {
-            log.error("No User found : " + userId);
+            log.error("No User found : {}", userId);
         }
         return null;
     }
@@ -380,8 +380,8 @@ public class UserHelper {
             return new Member[0];
         }
 
-        if (members[0] instanceof User) {
-            Arrays.sort(members, Comparator.comparing(o -> ((User) o).getFullName()));
+        if (members[0] instanceof Comparable) {
+            Arrays.sort(members);
         } else {
             Arrays.sort(members, Comparator.comparing(Member::getName));
         }

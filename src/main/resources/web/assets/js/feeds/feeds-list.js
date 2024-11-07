@@ -218,8 +218,9 @@ class FeedsList extends React.Component {
       this.setState({ data: _data.data, focusFeed: firstFetch ? s.focusFeed : null }, () => {
         $(this._$feedsList)
           .find('.rich-content .texts a[data-uid]')
-          // eslint-disable-next-line no-undef
-          .each((idx, item) => UserPopup.create(item))
+          .on('click', function () {
+            window.open(`${rb.baseUrl}/contacts/home#gs=${encodeURIComponent($(this).text().substr(1))}`)
+          })
       })
     })
   }
@@ -423,8 +424,9 @@ class FeedsComments extends React.Component {
       this.setState({ data: _data.data }, () => {
         $(this._$commentsList)
           .find('.rich-content .texts a[data-uid]')
-          // eslint-disable-next-line no-undef
-          .each((idx, item) => UserPopup.create(item))
+          .on('click', function () {
+            window.open(`${rb.baseUrl}/contacts/home#gs=${encodeURIComponent($(this).text().substr(1))}`)
+          })
       })
     })
   }
