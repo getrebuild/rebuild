@@ -34,14 +34,32 @@ public class CommandArgs {
     public static final String _ForceTour = "_ForceTour";
     public static final String _HeavyStopWatcher = "_HeavyStopWatcher";
     public static final String _UniPush = "_UniPush";
-
     public static final String _UseDbFullText = "_UseDbFullText";
-    public static final String _SmsDistributor = "_SmsDistributor";
-    public static final String _EmailDistributor = "_EmailDistributor";
     public static final String _StartEntityTypeCode = "_StartEntityTypeCode";
+
+    /**
+     * 内部消息同步发送短信
+     */
+    public static final String _SmsDistributor = "_SmsDistributor";
+    /**
+     * 内部消息同步发送邮件
+     */
+    public static final String _EmailDistributor = "_EmailDistributor";
+    /**
+     * FrontJS在所有页面生效
+     */
     public static final String _UseFrontJSAnywhere = "_UseFrontJSAnywhere";
+    /**
+     * 触发器级联执行深度
+     */
     public static final String _TriggerMaxDepth = "_TriggerMaxDepth";
+    /**
+     * @see com.rebuild.web.admin.ProtectedAdmin
+     */
     public static final String _ProtectedAdmin = "_ProtectedAdmin";
+    /**
+     * 更少的触发器日志输出
+     */
     public static final String _TriggerLessLog = "_TriggerLessLog";
 
     /**
