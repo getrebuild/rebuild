@@ -15,6 +15,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 
@@ -66,6 +67,7 @@ public class DashboardManager extends ShareToManager {
         // 没有就初始化一个
         if (detected == null) {
             if (!autoCreate) return null;
+            if (!Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomChart)) return null;
 
             Record record = EntityHelper.forNew(EntityHelper.DashboardConfig, user);
             record.setString("config", JSONUtils.EMPTY_ARRAY_STR);
