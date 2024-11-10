@@ -66,11 +66,11 @@ public class NavBuilder extends NavManager {
     // 默认导航
     private static final JSONArray NAVS_DEFAULT = JSONUtils.toJSONObjectArray(
             NAV_ITEM_PROPS,
-            new Object[][] {
-                    new Object[] { "chart-donut", "动态", "BUILTIN", NAV_FEEDS },
-                    new Object[] { "shape", "项目", "BUILTIN", NAV_PROJECT },
-                    new Object[] { "folder", "文件", "BUILTIN", NAV_FILEMRG },
-                    new Object[] { "account-box-phone", "通讯录", "BUILTIN", NAV_CONTACT },
+            new Object[][]{
+                    new Object[]{"chart-donut", "动态", "BUILTIN", NAV_FEEDS},
+                    new Object[]{"folder", "文件", "BUILTIN", NAV_FILEMRG},
+                    new Object[]{"account-box-phone", "通讯录", "BUILTIN", NAV_CONTACT},
+                    new Object[]{"shape", "项目", "BUILTIN", NAV_PROJECT},
             });
 
     // 新建项目
@@ -120,7 +120,7 @@ public class NavBuilder extends NavManager {
 
         if (config == null) {
             JSONArray useDefault = replaceLang(NAVS_DEFAULT);
-            ((JSONObject) useDefault.get(1)).put("sub", buildAvailableProjects(user));
+            ((JSONObject) useDefault.get(3)).put("sub", buildAvailableProjects(user));
             return useDefault;
         }
 

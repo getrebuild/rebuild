@@ -79,7 +79,9 @@ public class CommonOperatingController extends BaseController {
     @RequestMapping("common-get")
     public RespBody get(@IdParam ID recordId, HttpServletRequest request) {
         String fields = getParameter(request, "fields");
-        if (StringUtils.isEmpty(fields)) fields = getAllFields(MetadataHelper.getEntity(recordId.getEntityCode()));
+        if (StringUtils.isEmpty(fields)) {
+            fields = getAllFields(MetadataHelper.getEntity(recordId.getEntityCode()));
+        }
 
         Record record = Application.getQueryFactory().record(recordId, fields.split("[,;]"));
         if (record == null) {

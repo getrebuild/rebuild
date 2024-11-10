@@ -39,7 +39,7 @@ const FolderTree = {
 
             const $ol = $('.file-path ol').empty()
             paths.forEach((item) => {
-              const $li = $('<li class="breadcrumb-item active"></li>').appendTo($ol)
+              const $li = $('<li class="breadcrumb-item"></li>').appendTo($ol)
               $li.text(item[0])
             })
             location.hash = `!/Folder/${item.id}`
