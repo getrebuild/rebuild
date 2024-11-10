@@ -529,15 +529,17 @@ var _initGlobalCreate = function () {
   if (entities.length === 0) return
 
   $.get('/app/entity/extras/check-creates?entity=' + entities.join(','), function (res) {
-    var $gc = $('.global-create2 .dropdown-menu')
-    $gc.perfectScrollbar()
-    $(res.data || []).each(function () {
-      var $item = $('<a class="dropdown-item"><i class="icon zmdi zmdi-' + this.icon + '"></i>' + this.entityLabel + '</a>').appendTo($gc)
-      var _this = this
-      $item.on('click', function () {
-        RbFormModal.create({ title: $L('新建%s', _this.entityLabel), entity: _this.entity, icon: _this.icon })
+    if (res.data && res.data.length > 0) {
+      var $gc = $('.global-create2 .dropdown-menu')
+      $gc.perfectScrollbar()
+      res.data.each(function () {
+        var $item = $('<a class="dropdown-item"><i class="icon zmdi zmdi-' + this.icon + '"></i>' + this.entityLabel + '</a>').appendTo($gc)
+        var _this = this
+        $item.on('click', function () {
+          RbFormModal.create({ title: $L('新建%s', _this.entityLabel), entity: _this.entity, icon: _this.icon })
+        })
       })
-    })
+    }
   })
 }
 

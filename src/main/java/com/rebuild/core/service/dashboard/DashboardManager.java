@@ -51,9 +51,22 @@ public class DashboardManager extends ShareToManager {
      * @return
      */
     public JSON getAvailable(ID user) {
+        return getAvailable(user, true);
+    }
+
+    /**
+     * 获取可用面板
+     *
+     * @param user
+     * @param autoCreate
+     * @return
+     */
+    public JSON getAvailable(ID user, boolean autoCreate) {
         ID detected = detectUseConfig(user, null, null);
         // 没有就初始化一个
         if (detected == null) {
+            if (!autoCreate) return null;
+
             Record record = EntityHelper.forNew(EntityHelper.DashboardConfig, user);
             record.setString("config", JSONUtils.EMPTY_ARRAY_STR);
             record.setString("title", UserHelper.isAdmin(user) ? Language.L("默认仪表盘") : Language.L("我的仪表盘"));
