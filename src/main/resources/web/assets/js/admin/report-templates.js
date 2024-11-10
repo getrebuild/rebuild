@@ -153,7 +153,7 @@ class ReportEditor extends ConfigFormDlg {
           <div className="col-sm-9">
             <div className="float-left">
               <div className="file-select">
-                <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls,.docx" data-local="true" ref={(c) => (this._$upload = c)} />
+                <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls,.docx" data-local="true" data-updir="REPORT_TEMPLATES" ref={(c) => (this._$upload = c)} />
                 <label htmlFor="upload-input" className="btn-secondary">
                   <i className="zmdi zmdi-upload" />
                   <span>{this.props.id ? $L('重新上传') : $L('选择文件')}</span>
@@ -404,7 +404,7 @@ class ReportEditor extends ConfigFormDlg {
       return false
     }
 
-    return `file=${$encode(file)}&entity=${entity}&type=${type}`
+    return `file=${$encode(file)}&entity=${entity}&type=${type || ''}`
   }
 
   _clearParams() {

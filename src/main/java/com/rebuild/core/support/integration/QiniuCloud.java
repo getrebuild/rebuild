@@ -310,16 +310,17 @@ public class QiniuCloud {
      * @see #parseFileName(String)
      */
     public static String formatFileKey(String fileName) {
-        return formatFileKey(fileName, true);
+        return formatFileKey(fileName, true, null);
     }
 
     /**
      * @param fileName
      * @param keepName
+     * @param updir
      * @return
      * @see #parseFileName(String)
      */
-    public static String formatFileKey(String fileName, boolean keepName) {
+    public static String formatFileKey(String fileName, boolean keepName, String updir) {
         if (keepName) {
             while (fileName.contains("__")) {
                 fileName = fileName.replace("__", "_");
@@ -338,9 +339,13 @@ public class QiniuCloud {
             if (StringUtils.isNotBlank(fileExt)) fileName += "." + fileExt;
         }
 
-        String datetime = CalendarUtils.getDateFormat("yyyyMMddHHmmssSSS").format(CalendarUtils.now());
-        fileName = String.format("rb/%s/%s__%s", datetime.substring(0, 8), datetime.substring(8), fileName);
-        return fileName;
+        String dt = CalendarUtils.getDateFormat("yyyyMMddHHmmssSSS").format(CalendarUtils.now());
+        String subdir = dt.substring(0, 8);
+        String filePrefix = dt.substring(8);
+        // remove unsafe /\.
+        if (StringUtils.isNotBlank(updir)) subdir = updir.replaceAll("[./\\\\\\s]", "");
+
+        return String.format("rb/%s/%s__%s", subdir, filePrefix, fileName);
     }
 
     /**
