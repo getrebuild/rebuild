@@ -194,6 +194,7 @@ public class MetaFormatter {
                 if (name.endsWith(".roleId.createdOn")) continue;
                 if (name.endsWith(".roleId.modifiedBy")) continue;
                 if (name.endsWith(".roleId.modifiedOn")) continue;
+                if (name.endsWith(".seq")) continue;
 
                 res.add(item);
             }
