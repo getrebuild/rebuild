@@ -851,6 +851,19 @@ class FilterItem extends React.Component {
 
   getFilterData() {
     const s = this.state // DON'T CHANGES `state`!!!
+
+    // v3.9
+    if (this._inFilterPane && s.op === 'BW' && (s.value || s.value2)) {
+      const item = {
+        index: s.index,
+        field: s.field,
+        op: s.op,
+      }
+      if (s.value) item.value = s.value
+      if (s.value2) item.value2 = s.value2
+      return item
+    }
+
     let noValue = false
     if (!s.value) {
       if (OP_NOVALUE.includes(s.op)) {

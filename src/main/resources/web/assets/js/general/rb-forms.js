@@ -1649,6 +1649,7 @@ class RbFormImage extends RbFormElement {
       this.__minUpload = 0
       this.__maxUpload = 9
     }
+    if (window.__LAB_FILE_MAXUPLOAD > 9) this.__maxUpload = window.__LAB_FILE_MAXUPLOAD
 
     // 1=默认, 2=拍摄, 3=1+2
     this._captureType = 0
