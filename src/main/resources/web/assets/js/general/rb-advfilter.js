@@ -862,6 +862,13 @@ class FilterItem extends React.Component {
       if (s.value) item.value = s.value
       if (s.value2) item.value2 = s.value2
       return item
+    } else if (this._inFilterPane && s.op === 'BW' && s.op4) {
+      const item = {
+        index: s.index,
+        field: s.field,
+        op: s.op4,
+      }
+      return item
     }
 
     let noValue = false

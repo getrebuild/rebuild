@@ -539,7 +539,7 @@ var _initGlobalCreate = function () {
     if (res.data && res.data.length > 0) {
       var $gc = $('.global-create2 .dropdown-menu')
       $gc.perfectScrollbar()
-      res.data.each(function () {
+      $(res.data).each(function () {
         var $item = $('<a class="dropdown-item"><i class="icon zmdi zmdi-' + this.icon + '"></i>' + this.entityLabel + '</a>').appendTo($gc)
         var _this = this
         $item.on('click', function () {

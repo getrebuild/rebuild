@@ -150,6 +150,45 @@ See LICENSE and COMMERCIAL in the project root for license information.
   display: none;
 }
 
+.quick-filter-pane .datetime-filter .quick-op .list-inline-item:not(:last-child) {
+  margin-right: 5px;
+}
+
+.quick-filter-pane .datetime-filter .quick-op li a {
+  display: inline-block;
+  padding: 4px 5px;
+  border-radius: 2px;
+  text-align: center;
+  background-color: #f5f5f5;
+}
+
+.quick-filter-pane .datetime-filter .quick-op li a:hover {
+  background-color: #eee;
+}
+
+.quick-filter-pane .datetime-filter .quick-op li.active a {
+  background-color: #4285f4;
+  background-color: var(--rb-theme-color);
+  color: #fff;
+}
+
+.quick-filter-pane .datetime-filter {
+  height: 37px;
+}
+
+.quick-filter-pane .datetime-filter .quick-op {
+  padding-top: 5px;
+}
+
+.quick-filter-pane .datetime-filter .val-range,
+.quick-filter-pane .datetime-filter.show-range .quick-op {
+  display: none;
+}
+
+.quick-filter-pane .datetime-filter.show-range .val-range {
+  display: block;
+}
+
 /* filter tabs */
 
 .quick-filter-tabs {
