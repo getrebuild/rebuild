@@ -203,12 +203,13 @@ $(function () {
     }
   }
 
-  // if (rb.commercial === 11) {
-  //   $('a[target="_blank"]').each(function () {
-  //     if (($(this).attr('href') || '').indexOf('getrebuild.com') > -1) $(this).removeAttr('href')
-  //   })
-  //   $('.commercial11').addClass('hide')
-  // }
+  setTimeout(function () {
+    if (window.__LAB_COMMERCIAL11_NORB) {
+      $('a[target="_blank"]').each(function () {
+        if (($(this).attr('href') || '').indexOf('getrebuild.com') > -1) $(this).removeAttr('href')
+      })
+    }
+  }, 500)
 })
 
 // 取消管理中心访问
