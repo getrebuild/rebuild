@@ -98,6 +98,9 @@
           </div>
         </div>
       </div>
+      <div th:if="${IsSuperAdmin}" class="bottom-widget">
+        <a class="nav-settings-admin" th:title="${bundle.L('配置管理中心功能')}"><i class="icon zmdi zmdi-apps"></i></a>
+      </div>
     </div>
   </div>
 </th:block>

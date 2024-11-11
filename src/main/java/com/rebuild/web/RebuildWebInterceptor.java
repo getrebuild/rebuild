@@ -17,6 +17,7 @@ import com.rebuild.core.ServerStatus;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
@@ -130,6 +131,9 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                     }
                     return false;
                 }
+
+                // v3.9
+                if (UserService.ADMIN_USER.equals(requestUser)) request.setAttribute("IsSuperAdmin", true);
             }
 
             UserContextHolder.setUser(requestUser);

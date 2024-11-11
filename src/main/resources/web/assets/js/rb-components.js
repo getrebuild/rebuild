@@ -1268,6 +1268,13 @@ class AsideTree extends React.Component {
             this.setState({ activeItem: item.id }, () => {
               typeof this.props.onItemClick === 'function' && this.props.onItemClick(item)
             })
+          }}
+          onDoubleClick={() => {
+            if (hasChild) {
+              const expandItemsNew = this.state.expandItems
+              expandItemsNew.toggle(item.id)
+              this.setState({ expandItems: expandItemsNew }, () => $clearSelection())
+            }
           }}>
           {this.props.icon && <i className={`icon ${this.props.icon}`} />}
           {item.text || item.name}

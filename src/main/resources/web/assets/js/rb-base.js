@@ -577,3 +577,12 @@ var $hex2rgb = function (hex, alpha) {
 var $rgb2hex = function (r, g, b) {
   return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
 }
+
+// 取消选中
+var $clearSelection = function () {
+  if (window.getSelection) {
+    window.getSelection().removeAllRanges()
+  } else if (document.selection) {
+    document.selection.empty()
+  }
+}

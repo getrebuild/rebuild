@@ -32,8 +32,8 @@ public class QiniuCloudTest extends TestSupport {
 
         System.out.println("File2 key ... " + QiniuCloud.formatFileKey("_____1123++545#e+++?&&f  d  fefe.txt"));
         System.out.println("File2 key ... " + QiniuCloud.formatFileKey("1123++545#e+++?&&f  d / fefe%=.txt"));
-        System.out.println("File3 key ... " + QiniuCloud.formatFileKey("_____1123++545#e+++?&&f  d  fefe.txt", false));
-        System.out.println("File4 key ... " + QiniuCloud.formatFileKey("_____1123++545#e+++?&&f  d  fefe", false));
+        System.out.println("File3 key ... " + QiniuCloud.formatFileKey("_____1123++545#e+++?&&f  d  fefe.txt", false, null));
+        System.out.println("File4 key ... " + QiniuCloud.formatFileKey("_____1123++545#e+++?&&f  d  fefe", false, null));
     }
 
     @Test

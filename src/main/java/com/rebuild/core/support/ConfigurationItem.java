@@ -116,6 +116,11 @@ public enum ConfigurationItem {
     MobileNavStyle(34),
     PageMourningMode(false),
 
+    /**
+     * @see com.rebuild.web.admin.ProtectedAdmin
+     */
+    ProtectedAdmin,
+
     // !!! 命令行适用
     DataDirectory,                  // 数据目录
     RedisDatabase(0),     // Redis DB

@@ -124,6 +124,53 @@ See LICENSE and COMMERCIAL in the project root for license information.
   min-width: 114px;
 }
 
+.quick-filter-pane .val-range {
+  width: 227px;
+}
+
+.quick-filter-pane .val-range > input.form-control {
+  width: 50%;
+  display: inline-block;
+  margin-top: 0 !important;
+}
+
+.quick-filter-pane .val-range > input.form-control:first-child {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-right-color: #eee;
+}
+
+.quick-filter-pane .val-range > input.form-control + input {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-left-width: 0 !important;
+}
+
+.quick-filter-pane .val-range > span {
+  display: none;
+}
+
+.quick-filter-pane .datetime-filter .btn-group .btn {
+  width: 20%;
+  min-width: auto;
+  padding: 0 3px;
+  min-height: 37px;
+}
+
+.quick-filter-pane .datetime-filter .btn-group .btn + .btn {
+  margin-left: -1px !important;
+  width: 20%;
+}
+
+.quick-filter-pane .datetime-filter .val-range,
+.quick-filter-pane .datetime-filter.show-range .btn-group {
+  display: none;
+}
+
+.quick-filter-pane .datetime-filter.show-range .val-range {
+  display: block;
+}
+
 /* filter tabs */
 
 .quick-filter-tabs {

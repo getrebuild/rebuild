@@ -131,7 +131,7 @@ class AdvFilter extends React.Component {
   }
 
   componentDidMount() {
-    const deep = this.props.deep3 || location.href.includes('/admin/') ? 3 : 2
+    const deep = this.props.deep3 || location.href.includes('/admin/') || window.__LAB_ADVFILTER_FSDEEP3 ? 3 : 2
     const referer = this.props.referer || ''
     $.get(`/commons/metadata/fields?deep=${deep}&entity=${this.props.entity}&referer=${referer}`, (res) => {
       const validFs = []
@@ -851,6 +851,26 @@ class FilterItem extends React.Component {
 
   getFilterData() {
     const s = this.state // DON'T CHANGES `state`!!!
+
+    // v3.9
+    if (this._inFilterPane && s.op === 'BW' && (s.value || s.value2)) {
+      const item = {
+        index: s.index,
+        field: s.field,
+        op: s.op,
+      }
+      if (s.value) item.value = s.value
+      if (s.value2) item.value2 = s.value2
+      return item
+    } else if (this._inFilterPane && s.op === 'BW' && s.op4) {
+      const item = {
+        index: s.index,
+        field: s.field,
+        op: s.op4,
+      }
+      return item
+    }
+
     let noValue = false
     if (!s.value) {
       if (OP_NOVALUE.includes(s.op)) {

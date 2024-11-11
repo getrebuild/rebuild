@@ -1,0 +1,14 @@
+<th:block xmlns:th="http://www.thymeleaf.org">
+  <div class="aside-nav collapse">
+    <ul class="nav">
+      <li th:class="${active == 'base'} ? 'active'"><a th:href="${((urlPrefix?:'')) + 'base'}">[[${bundle.L('基本信息')}]]</a></li>
+      <li th:class="${active == 'fields'} ? 'active'"><a th:href="${(urlPrefix?:'') + 'fields'}">[[${bundle.L('字段管理')}]]</a></li>
+      <li th:class="${active == 'form-design'} ? 'active'"><a th:href="${(urlPrefix?:'') + 'form-design'}">[[${bundle.L('表单设计')}]]</a></li>
+      <li th:class="${active == 'easy-action'} ? 'active'">
+        <a th:href="${(urlPrefix?:'') + 'easy-action'}">[[${bundle.L('自定义操作')}]] <sup class="rbv"></sup></a>
+      </li>
+      <li th:class="${active == 'advanced'} ? 'active'"><a th:href="${(urlPrefix?:'') + 'advanced'}">[[${bundle.L('高级配置')}]]</a></li>
+      <li th:class="${active == 'overview'} ? 'active'" th:classappend="bosskey-show"><a th:href="${(urlPrefix?:'') + 'overview'}">[[${bundle.L('技术全览')}]] (LAB)</a></li>
+    </ul>
+  </div>
+</th:block>

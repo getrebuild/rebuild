@@ -146,5 +146,6 @@ module.exports = {
     $isImage: true,
     $dropUpload: true,
     $tagStyle2: true,
+    $clearSelection: true,
   },
 }

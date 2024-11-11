@@ -278,6 +278,18 @@ public class AdvFilterParser extends SetUser {
                 && lastFieldMeta.getReferenceEntity().getEntityCode() == EntityHelper.User;
 
         String op = item.getString("op");
+        // v3.9 区间兼容
+        if (ParseHelper.BW.equals(op)) {
+            String valueBegin = item.getString("value");
+            String valueEnd = item.getString("value2");
+            if (valueBegin == null) {
+                op = ParseHelper.LE;
+                item.put("value", valueEnd);
+            } else if (valueEnd == null) {
+                op = ParseHelper.GE;
+            }
+        }
+
         Object checkValue = useValueOfVarField(item.getString("value"), lastFieldMeta);
         if (checkValue instanceof VarFieldNoValue37) return "(1=2)";
         String value = (String) checkValue;

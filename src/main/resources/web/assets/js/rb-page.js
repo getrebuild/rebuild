@@ -202,13 +202,13 @@ $(function () {
       console.log('Switch on visibilityState ...', $.cookie('AppHome.Nav'), $.cookie('AppHome.Dash'))
     }
   }
-
-  // if (rb.commercial === 11) {
-  //   $('a[target="_blank"]').each(function () {
-  //     if (($(this).attr('href') || '').indexOf('getrebuild.com') > -1) $(this).removeAttr('href')
-  //   })
-  //   $('.commercial11').addClass('hide')
-  // }
+})
+$(window).on('load', () => {
+  if (window.__LAB_COMMERCIAL11_NORB) {
+    $('a[target="_blank"]').each(function () {
+      if (($(this).attr('href') || '').indexOf('getrebuild.com') > -1) $(this).removeAttr('href')
+    })
+  }
 })
 
 // 取消管理中心访问
@@ -309,6 +309,13 @@ var _initNav = function () {
 
   $('.nav-settings').on('click', function () {
     RbModal.create('/p/settings/nav-settings', $L('设置导航菜单'))
+  })
+  $('.nav-settings-admin').on('click', function () {
+    if (rb.commercial < 10) {
+      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+    } else {
+      RbModal.create('/p/settings/nav-settings-admin', $L('配置管理中心功能'))
+    }
   })
 
   // WHEN SMALL-WIDTH
@@ -529,15 +536,17 @@ var _initGlobalCreate = function () {
   if (entities.length === 0) return
 
   $.get('/app/entity/extras/check-creates?entity=' + entities.join(','), function (res) {
-    var $gc = $('.global-create2 .dropdown-menu')
-    $gc.perfectScrollbar()
-    $(res.data || []).each(function () {
-      var $item = $('<a class="dropdown-item"><i class="icon zmdi zmdi-' + this.icon + '"></i>' + this.entityLabel + '</a>').appendTo($gc)
-      var _this = this
-      $item.on('click', function () {
-        RbFormModal.create({ title: $L('新建%s', _this.entityLabel), entity: _this.entity, icon: _this.icon })
+    if (res.data && res.data.length > 0) {
+      var $gc = $('.global-create2 .dropdown-menu')
+      $gc.perfectScrollbar()
+      $(res.data).each(function () {
+        var $item = $('<a class="dropdown-item"><i class="icon zmdi zmdi-' + this.icon + '"></i>' + this.entityLabel + '</a>').appendTo($gc)
+        var _this = this
+        $item.on('click', function () {
+          RbFormModal.create({ title: $L('新建%s', _this.entityLabel), entity: _this.entity, icon: _this.icon })
+        })
       })
-    })
+    }
   })
 }
 
@@ -623,6 +632,7 @@ var $createUploader = function (input, next, complete, error) {
   var imageType = $input.attr('accept') === 'image/*' // 仅图片
   var upLocal = $input.data('local') // 上传本地
   var noname = $input.data('noname') || false // 不保持名称
+  var updir = $encode($input.data('updir')) // 指定目录
   if (!$input.attr('data-maxsize')) $input.attr('data-maxsize', 1048576 * (rb._uploadMaxSize || 200)) // default 200MB
 
   var useToken = rb.csrfToken ? '&_csrfToken=' + rb.csrfToken : ''
@@ -630,7 +640,7 @@ var $createUploader = function (input, next, complete, error) {
 
   function _qiniuUpload(file) {
     var over200M = file.size / 1048576 >= 200
-    $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + '&noname=' + noname + useToken, function (res) {
+    $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + '&noname=' + noname + '&updir' + updir + useToken, function (res) {
       var o = qiniu.upload(file, res.data.key, res.data.token, putExtra, { forceDirect: !over200M })
       o.subscribe({
         next: function (res) {
@@ -690,7 +700,7 @@ var $createUploader = function (input, next, complete, error) {
     var idname = $input.attr('id') || $input.attr('name') || $random('H5UP-')
     $input.html5Uploader({
       name: idname,
-      postUrl: rb.baseUrl + '/filex/upload?temp=' + (upLocal === 'temp') + '&noname=' + noname + useToken,
+      postUrl: rb.baseUrl + '/filex/upload?temp=' + (upLocal === 'temp') + '&noname=' + noname + '&updir=' + updir + useToken,
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
           RbHighbar.create(imageType ? $L('请上传图片') : $L('上传文件类型错误'))

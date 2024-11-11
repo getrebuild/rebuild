@@ -5039,6 +5039,12 @@ pre.unstyle {
   background-color: rgba(0, 0, 0, 0.03);
 }
 
+.rb-left-sidebar .sidebar-elements > li ul li > a.text-muted {
+  background-color: unset !important;
+  font-style: italic;
+  cursor: default;
+}
+
 .rb-left-sidebar.v2 .sidebar-elements li.active > a {
   background-color: rgba(0, 0, 0, 0.08);
 }
