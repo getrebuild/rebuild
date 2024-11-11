@@ -27,6 +27,7 @@ import com.rebuild.core.RebuildException;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -325,6 +326,7 @@ public class QiniuCloud {
                 fileName = fileName.replace("__", "_");
             }
             // 去除特殊符号
+            fileName = fileName.replace("  ", " ").replace(" ", "-");
             fileName = fileName.replaceAll("[?&#+%/\\s]", "");
 
             // 文件名长度控制
@@ -418,7 +420,7 @@ public class QiniuCloud {
      */
     public static File getStorageFile(String filepath) throws IOException, RebuildException {
         File file = null;
-        if (filepath.startsWith("http://") || filepath.startsWith("https://")) {
+        if (CommonsUtils.isExternalUrl(filepath)) {
             String name = filepath.split("\\?")[0];
             name = name.substring(name.lastIndexOf("/") + 1);
             file = RebuildConfiguration.getFileOfTemp("dn" + System.nanoTime() + "." + name);

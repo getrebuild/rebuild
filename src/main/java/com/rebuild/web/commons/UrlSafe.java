@@ -38,9 +38,7 @@ public class UrlSafe extends BaseController {
     @GetMapping("/commons/url-safe")
     public ModelAndView safeRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String url = getParameterNotNull(request, "url");
-        if (!(url.startsWith("http://") || url.startsWith("https://"))) {
-            url = "http://" + url;
-        }
+        if (!CommonsUtils.isExternalUrl(url)) url = "http://" + url;
 
         boolean nosafe = !RegexUtils.isUrl(url);
         if (url.contains(">")) {

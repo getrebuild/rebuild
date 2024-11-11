@@ -43,8 +43,7 @@ public class MarkdownLinkAttrProvider {
         public void setAttributes(Node node, AttributablePart part, MutableAttributes attributes) {
             if (node instanceof Link && part == AttributablePart.LINK) {
                 Link link = (Link) node;
-                String url = link.getUrl().toString();
-                if (url.startsWith("http://") || url.startsWith("https://")) {
+                if (CommonsUtils.isExternalUrl(link.getUrl().toString())) {
                     attributes.replaceValue("target", "_blank");
                 }
             }
