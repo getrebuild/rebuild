@@ -202,14 +202,13 @@ $(function () {
       console.log('Switch on visibilityState ...', $.cookie('AppHome.Nav'), $.cookie('AppHome.Dash'))
     }
   }
-
-  setTimeout(function () {
-    if (window.__LAB_COMMERCIAL11_NORB) {
-      $('a[target="_blank"]').each(function () {
-        if (($(this).attr('href') || '').indexOf('getrebuild.com') > -1) $(this).removeAttr('href')
-      })
-    }
-  }, 500)
+})
+$(window).on('load', () => {
+  if (window.__LAB_COMMERCIAL11_NORB) {
+    $('a[target="_blank"]').each(function () {
+      if (($(this).attr('href') || '').indexOf('getrebuild.com') > -1) $(this).removeAttr('href')
+    })
+  }
 })
 
 // 取消管理中心访问
