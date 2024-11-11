@@ -54,10 +54,6 @@ public class CommandArgs {
      */
     public static final String _TriggerMaxDepth = "_TriggerMaxDepth";
     /**
-     * @see com.rebuild.web.admin.ProtectedAdmin
-     */
-    public static final String _ProtectedAdmin = "_ProtectedAdmin";
-    /**
      * 更少的触发器日志输出
      */
     public static final String _TriggerLessLog = "_TriggerLessLog";
