@@ -27,6 +27,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.integration.SMSender;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
@@ -160,7 +161,7 @@ public class ConfigurationController extends BaseController {
                 data.put(ConfigurationItem.StorageURL.name(), dStorageUrl);  // fix
             }
 
-            if (dStorageUrl.startsWith("http://") || dStorageUrl.startsWith("https://")) {
+            if (CommonsUtils.isExternalUrl(dStorageUrl)) {
                 // OK
             } else {
                 if (dStorageUrl.startsWith("//")) {

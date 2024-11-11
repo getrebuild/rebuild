@@ -381,8 +381,8 @@ public class EasyExcelGenerator extends SetUser {
                         // Keep Type
                     } else if (dt == DisplayType.DECIMAL) {
                         String format = easyField.getExtraAttr(EasyFieldConfigProps.DECIMAL_FORMAT);
-                        int scale = format.split("\\.").length == 1 ? 0
-                                : StringUtils.isBlank(format) ? 2 : format.split("\\.")[1].length();
+                        int scale = StringUtils.isBlank(format) ? 2 :
+                                format.split("\\.").length == 1 ? 0 : format.split("\\.")[1].length();
                         // Keep Type
                         fieldValue = ((BigDecimal) fieldValue).setScale(scale, RoundingMode.HALF_UP);
                     } else {

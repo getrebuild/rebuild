@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.easymeta.EasyText;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -225,10 +226,10 @@ public class EntityRecordCreator extends JsonRecordCreator {
                         || field.getDisplayType() == DisplayType.AVATAR) {
 
                     String s = value.toString().toLowerCase();
-                    boolean unsafe = s.contains("http://") || s.contains("https://");
+                    boolean unsafe = CommonsUtils.isExternalUrl(s);
                     if (!unsafe) {
                         s = CodecUtils.urlDecode(s);
-                        unsafe = s.contains("http://") || s.contains("https://");
+                        unsafe = CommonsUtils.isExternalUrl(s);
                     }
 
                     if (unsafe) {
