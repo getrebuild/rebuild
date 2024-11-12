@@ -27,6 +27,7 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.general.transform.RecordTransfomer;
 import com.rebuild.core.service.general.transform.RecordTransfomer37;
+import com.rebuild.core.service.general.transform.RecordTransfomer39;
 import com.rebuild.core.support.general.CalcFormulaSupport;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
@@ -95,6 +96,43 @@ public class ModelExtrasController extends BaseController {
 
             return RespBody.errorl("记录转换失败 (%s)",
                     Objects.toString(error, ex.getClass().getSimpleName()));
+        }
+    }
+
+    // 记录转换
+    @PostMapping("transform39")
+    public RespBody transform39(HttpServletRequest request) {
+        final JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
+        final ID transid = ID.valueOf(post.getString("transid"));
+        final ID sourceRecord = ID.valueOf(post.getString("sourceRecord"));
+
+        RecordTransfomer39 transfomer39 = new RecordTransfomer39(transid);
+        if (!transfomer39.checkFilter(sourceRecord)) {
+            return RespBody.error(Language.L("当前记录不符合转换条件"), 400);
+        }
+
+        ID mainRecord = ID.isId(post.getString("mainRecord")) ? ID.valueOf(post.getString("mainRecord")) : null;
+        ID existsRecord = ID.isId(post.getString("existsRecord")) ? ID.valueOf(post.getString("existsRecord")) : null;
+
+        try {
+            Object res;
+            if (post.getBooleanValue("preview")) {
+                res = transfomer39.preview(sourceRecord, mainRecord, existsRecord);
+            } else {
+                res = transfomer39.transform(sourceRecord, mainRecord, existsRecord);
+            }
+            return RespBody.ok(res);
+
+        } catch (Exception ex) {
+            log.warn(">>>>> {}", ex.getLocalizedMessage());
+
+            String error = ex.getLocalizedMessage();
+            if (ex instanceof RepeatedRecordsException) {
+                error = Language.L("存在重复记录");
+            }
+
+            return RespBody.errorl("记录转换失败 (%s)",
+                    Objects.toString(error, ex.getClass().getSimpleName().toUpperCase()));
         }
     }
 

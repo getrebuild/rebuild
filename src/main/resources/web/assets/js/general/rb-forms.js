@@ -2092,18 +2092,7 @@ class RbFormReference extends RbFormElement {
           return cascadingValue ? { cascadingValue, ...query } : query
         },
         placeholder: this._placeholderw,
-        templateResult: function (res) {
-          const $span = $('<span class="code-append"></span>').attr('title', res.text).text(res.text)
-          if (res.id) {
-            $(`<a title="${$L('在新页面打开')}"><i class="zmdi zmdi-open-in-new"></i></a>`)
-              .appendTo($span)
-              .on('mousedown', (e) => {
-                $stopEvent(e, true)
-                window.open(`${rb.baseUrl}/app/redirect?id=${res.id}&type=newtab`)
-              })
-          }
-          return $span
-        },
+        templateResult: $select2OpenTemplateResult,
       })
 
       const val = this.state.value

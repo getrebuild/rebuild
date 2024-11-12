@@ -17,6 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigurationException;
+import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityRecordCreator;
@@ -172,6 +173,11 @@ public class RecordTransfomer extends SetUser {
         return theNewId;
     }
 
+    /**
+     * @param record
+     * @param detailsList
+     * @return
+     */
     protected ID saveRecord(Record record, List<Record> detailsList) {
         if (this.skipGuard) GeneralEntityServiceContextHolder.setSkipGuard(EntityHelper.UNSAVED_ID);
 
@@ -242,11 +248,11 @@ public class RecordTransfomer extends SetUser {
         // v3.7 clean
         fieldsMapping.remove("_");
 
-        Record target = EntityHelper.forNew(targetEntity.getEntityCode(), getUser());
+        Record targetRecord = EntityHelper.forNew(targetEntity.getEntityCode(), getUser());
 
         if (defaultValue != null) {
             for (Map.Entry<String, Object> e : defaultValue.entrySet()) {
-                target.setObjectValue(e.getKey(), e.getValue());
+                targetRecord.setObjectValue(e.getKey(), e.getValue());
             }
         }
 
@@ -257,7 +263,7 @@ public class RecordTransfomer extends SetUser {
         }
 
         validFields.add(sourceEntity.getPrimaryField().getName());
-        Record source = Application.getQueryFactory().recordNoFilter(sourceRecordId, validFields.toArray(new String[0]));
+        Record sourceRecord = Application.getQueryFactory().recordNoFilter(sourceRecordId, validFields.toArray(new String[0]));
 
         // 所属用户
         ID specOwningUser = null;
@@ -266,7 +272,7 @@ public class RecordTransfomer extends SetUser {
             final String targetField = e.getKey();
 
             if (e.getValue() == null) {
-                if (forceNullValue) target.setNull(targetField);
+                if (forceNullValue) targetRecord.setNull(targetField);
                 continue;
             }
 
@@ -277,39 +283,40 @@ public class RecordTransfomer extends SetUser {
 
             if (sourceAny instanceof JSONArray) {
                 Object sourceValue = ((JSONArray) sourceAny).get(0);
-                RecordVisitor.setValueByLiteral(targetField, sourceValue.toString(), target);
+                RecordVisitor.setValueByLiteral(targetField, sourceValue.toString(), targetRecord);
 
             } else {
                 String sourceField = (String) sourceAny;
-                Object sourceValue = source.getObjectValue(sourceField);
+                Object sourceValue = sourceRecord.getObjectValue(sourceField);
 
                 if (sourceValue != null) {
                     EasyField sourceFieldEasy = EasyMetaFactory.valueOf(
                             Objects.requireNonNull(MetadataHelper.getLastJoinField(sourceEntity, sourceField)));
 
                     Object targetValue = sourceFieldEasy.convertCompatibleValue(sourceValue, targetFieldEasy);
-                    target.setObjectValue(targetField, targetValue);
+                    targetRecord.setObjectValue(targetField, targetValue);
 
                 } else if (forceNullValue) {
-                    target.setNull(targetField);
+                    targetRecord.setNull(targetField);
                 }
             }
 
             if (EntityHelper.OwningUser.equals(targetField)) {
-                specOwningUser = target.getID(EntityHelper.OwningUser);
+                specOwningUser = targetRecord.getID(EntityHelper.OwningUser);
             }
         }
 
         if (specOwningUser != null) {
-            target.setID(EntityHelper.OwningDept,
+            targetRecord.setID(EntityHelper.OwningDept,
                     (ID) Application.getUserStore().getUser(specOwningUser).getOwningDept().getIdentity());
         }
 
         if (checkNullable) {
-            new EntityRecordCreator(targetEntity, JSONUtils.EMPTY_OBJECT, getUser()).verify(target);
+            new EntityRecordCreator(targetEntity, JSONUtils.EMPTY_OBJECT, getUser()).verify(targetRecord);
         }
 
-        return target;
+        AutoFillinManager.instance.fillinRecord(targetRecord);
+        return targetRecord;
     }
 
     private List<String> checkAndWarnFields(Entity entity, Collection<?> fields) {

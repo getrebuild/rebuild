@@ -150,7 +150,10 @@ public class TransformerPreview {
         }
     }
 
-    protected void fillLabelOfReference(Record record) {
+    /**
+     * @param record
+     */
+    protected static void fillLabelOfReference(Record record) {
         Entity entity = record.getEntity();
         for (String field : record.getAvailableFields()) {
             DisplayType dt = EasyMetaFactory.getDisplayType(entity.getField(field));

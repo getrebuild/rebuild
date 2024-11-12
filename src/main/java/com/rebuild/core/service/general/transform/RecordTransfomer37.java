@@ -81,15 +81,15 @@ public class RecordTransfomer37 extends RecordTransfomer {
             }
         }
 
-        Map<String, Object> dvMap4Detail = null;
+        Map<String, Object> dvMap4DetailTarget = null;
         if (specMainId != null) {
             Field dtf = MetadataHelper.getDetailToMainField(targetEntity);
-            dvMap4Detail = Collections.singletonMap(dtf.getName(), specMainId);
+            dvMap4DetailTarget = Collections.singletonMap(dtf.getName(), specMainId);
         }
 
         Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
         Record targetRecord = transformRecord(
-                sourceEntity, targetEntity, fieldsMapping, sourceRecordId, dvMap4Detail, false, false, checkNullable);
+                sourceEntity, targetEntity, fieldsMapping, sourceRecordId, dvMap4DetailTarget, false, false, checkNullable);
 
         // v3.5 需要先回填
         // 因为可能以回填字段作为条件进行转换一次判断
