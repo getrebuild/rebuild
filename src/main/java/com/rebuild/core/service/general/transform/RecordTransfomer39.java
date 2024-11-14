@@ -56,6 +56,8 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
         this.targetRecordId = targetRecordId;
         // 直接转换做非空检查
         this.transConfig.put("checkNullable35", true);
+        // 指定目标是明细
+        if (targetRecordId != null) specMainId = forceGetSpecMainId(targetRecordId);
 
         ID theNewId = super.transform(sourceRecordId, specMainId);
         TransfomerTrace.trace(sourceRecordId, theNewId, transid, getUser());
@@ -95,6 +97,8 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
         this.targetRecordId = targetRecordId;
         // 预览不做非空检查
         this.transConfig.put("checkNullable35", false);
+        // 指定目标是明细
+        if (targetRecordId != null) specMainId = forceGetSpecMainId(targetRecordId);
 
         Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
         ConfigBean config = TransformManager.instance.getTransformConfig(transid, sourceEntity.getName());
@@ -185,5 +189,13 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
         }
 
         // FIXME 有空值问题，例如源纪录的A字段无值，对应目标字段有值，此时会出现问题（空值应更新到目标中）
+    }
+
+    private ID forceGetSpecMainId(ID targetRecordId) {
+        Entity targetEntity = MetadataHelper.getEntity(targetRecordId.getEntityCode());
+        if (targetEntity.getMainEntity() != null) {
+            return QueryHelper.getMainIdByDetail(targetRecordId);
+        }
+        return null;
     }
 }

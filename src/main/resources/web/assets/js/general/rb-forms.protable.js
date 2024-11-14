@@ -126,7 +126,7 @@ class ProTable extends React.Component {
         $(this._$scroller).find('thead .tipping').tooltip()
       })
 
-      // 记录转换
+      // v3.9 记录转换
       if (this.props.transDetails) {
         this.setLines(this.props.transDetails)
         this._deletesQuietly = this.props.transDetailsDelete

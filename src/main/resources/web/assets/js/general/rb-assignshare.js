@@ -390,7 +390,7 @@ class DlgTransform extends RbModalHandler {
 
   render() {
     return (
-      <RbModal title={$L('记录转换')} className="sm-height" ref={(c) => (this._dlg = c)} disposeOnHide>
+      <RbModal title={$L('转换记录')} className="sm-height" ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form">
           <div className="form-group row pb-1">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('转换为')}</label>
@@ -473,7 +473,7 @@ class DlgTransform extends RbModalHandler {
       transid: props.transid,
       sourceRecord: props.sourceRecord,
       existsRecord: this.state.transType === 1 ? $(this._$existsRecord).val() || null : null,
-      mainRecord: $(this._$mainRecord).val() || null,
+      mainRecord: this.state.transType === 0 ? $(this._$mainRecord).val() || null : null,
       preview: preview || false,
     }
 
