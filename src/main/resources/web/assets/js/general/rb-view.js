@@ -928,7 +928,7 @@ const RbViewPage = {
   initTransform(config) {
     config.forEach((item) => {
       const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.transName || item.entityLabel}</a>`)
-      $item.on('click', () => DlgTransform.create({ ...item, sourceRecord: this.__id }))
+      $item.on('click', () => renderRbcomp(<DlgTransform {...item} sourceRecord={this.__id} />))
       $('.J_transform .dropdown-divider').before($item)
     })
   },

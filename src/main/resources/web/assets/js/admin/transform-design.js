@@ -199,7 +199,6 @@ $(document).ready(() => {
       fieldsMappingDetail: fmd36,
       fieldsMappingDetails: fmdList37,
       fillbackField: $('#fillbackField').val(),
-      transformMode: $('#transformMode').prop('checked') ? 2 : 1,
       useFilter: _AdvFilter_data,
       importsMode: $val('#importsMode'),
       importsFilter: importsFilter || null,
@@ -242,7 +241,6 @@ $(document).ready(() => {
     _saveFilter(config.useFilter)
 
     if (config.fillbackField) $('#fillbackField').val(config.fillbackField).trigger('change')
-    if (config.transformMode === 2) $('#transformMode').attr('checked', true)
     if (config.importsMode) $('#importsMode').trigger('click')
     if (config.importsMode2Auto === 1 || config.importsMode2Auto === 3) $('#importsMode2Auto1').prop('checked', true)
     if (config.importsMode2Auto === 2 || config.importsMode2Auto === 3) $('#importsMode2Auto2').prop('checked', true)

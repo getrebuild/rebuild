@@ -390,7 +390,7 @@ class DlgTransform extends RbModalHandler {
 
   render() {
     return (
-      <RbModal title={$L('记录转换')} className="sm-height" ref={(c) => (this._dlg = c)}>
+      <RbModal title={$L('记录转换')} className="sm-height" ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form">
           <div className="form-group row pb-1">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('转换为')}</label>
@@ -444,6 +444,13 @@ class DlgTransform extends RbModalHandler {
       entity: this.props.entity,
       searchType: 'search',
     })
+    if (this.props.existsRecord) {
+      $.get(`/commons/frontjs/ref-label?id=${this.props.existsRecord}`, (res) => {
+        const o = new Option(res.data, this.props.existsRecord, true, true)
+        $(this._$existsRecord).append(o).trigger('change')
+        this.setState({ transType: 1 })
+      })
+    }
 
     if (this.props.mainEntity) {
       $initReferenceSelect2(this._$mainRecord, {
@@ -451,6 +458,12 @@ class DlgTransform extends RbModalHandler {
         entity: this.props.entity,
         name: `${this.props.mainEntity}Id`,
       })
+      if (this.props.mainRecord) {
+        $.get(`/commons/frontjs/ref-label?id=${this.props.mainRecord}`, (res) => {
+          const o = new Option(res.data, this.props.mainRecord, true, true)
+          $(this._$mainRecord).append(o).trigger('change')
+        })
+      }
     }
   }
 
@@ -507,18 +520,5 @@ class DlgTransform extends RbModalHandler {
     this.setState({ transType: 0 })
     this._$existsRecord && $(this._$existsRecord).val(null).trigger('change')
     this._$mainRecord && $(this._$mainRecord).val(null).trigger('change')
-  }
-
-  // -- Usage
-  /**
-   * @param {*} props
-   */
-  static create(props) {
-    const that = this
-    if (that.__HOLDER2) that.__HOLDER2.show(props)
-    else
-      renderRbcomp(<DlgTransform {...props} />, function () {
-        that.__HOLDER2 = this
-      })
   }
 }
