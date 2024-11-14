@@ -114,9 +114,16 @@ class RbFormModal extends React.Component {
     else if (this.state.specLayout) url += `&layout=${this.state.specLayout}`
 
     const that = this
-    function _FN2(formModel) {
+    function _FN2(formModel, forceInitFieldValue) {
       const FORM = (
-        <RbForm entity={entity} id={id} rawModel={formModel} $$$parent={that} readonly={!!formModel.readonlyMessage} ref={(c) => (that._formComponentRef = c)}>
+        <RbForm
+          entity={entity}
+          id={id}
+          rawModel={formModel}
+          forceInitFieldValue={forceInitFieldValue}
+          $$$parent={that}
+          readonly={!!formModel.readonlyMessage}
+          ref={(c) => (that._formComponentRef = c)}>
           {formModel.elements.map((item) => {
             return detectElement(item, entity)
           })}
@@ -139,7 +146,7 @@ class RbFormModal extends React.Component {
 
     // v3.8
     if (this.props.initialFormModel) {
-      _FN2(this.props.initialFormModel)
+      _FN2(this.props.initialFormModel, true)
       return
     }
 
@@ -616,7 +623,7 @@ class RbForm extends React.Component {
 
   componentDidMount() {
     // 新纪录初始值
-    if (this.isNew) {
+    if (this.isNew || this.props.forceInitFieldValue) {
       this.props.children.map((child) => {
         let iv = child.props.value
         if (!$empty(iv) && (!this.props.readonly || (this.props.readonly && this.props.readonlyw === 3))) {

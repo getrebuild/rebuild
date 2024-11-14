@@ -383,6 +383,11 @@ class DlgShareManager extends RbModalHandler {
 
 // ~~ 记录转换
 class DlgTransform extends RbModalHandler {
+  constructor(props) {
+    super(props)
+    this.state.transType = 0
+  }
+
   render() {
     return (
       <RbModal title={$L('记录转换')} className="sm-height" ref={(c) => (this._dlg = c)}>
@@ -391,11 +396,11 @@ class DlgTransform extends RbModalHandler {
             <label className="col-sm-3 col-form-label text-sm-right">{$L('转换为')}</label>
             <div className="col-sm-7" style={{ paddingTop: 6 }}>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input" type="radio" name="transType" defaultChecked onClick={(e) => this.setState({ transType: 0 })} />
+                <input className="custom-control-input" type="radio" name="transType" checked={this.state.transType === 0} onChange={() => this.setState({ transType: 0 })} />
                 <span className="custom-control-label">{$L('新纪录')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input J_word4" type="radio" name="transType" onClick={(e) => this.setState({ transType: 1 })} />
+                <input className="custom-control-input J_word4" type="radio" name="transType" checked={this.state.transType === 1} onChange={() => this.setState({ transType: 1 })} />
                 <span className="custom-control-label">{$L('已有纪录')}</span>
               </label>
             </div>
@@ -472,6 +477,7 @@ class DlgTransform extends RbModalHandler {
     $.post('/app/entity/extras/transform39', JSON.stringify(_post), (res) => {
       $btn.button('reset')
       if (res.error_code === 0) {
+        this.reset()
         this.hide(true)
 
         if (_post.preview) {
@@ -492,6 +498,12 @@ class DlgTransform extends RbModalHandler {
         res.error_code === 400 ? RbHighbar.create(res.error_msg) : RbHighbar.error(res.error_msg)
       }
     })
+  }
+
+  reset() {
+    this.setState({ transType: 0 })
+    this._$existsRecord && $(this._$existsRecord).val(null).trigger('change')
+    this._$mainRecord && $(this._$mainRecord).val(null).trigger('change')
   }
 
   // -- Usage

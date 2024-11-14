@@ -258,7 +258,7 @@ public class RecordTransfomer extends SetUser {
 
         List<String> validFields = checkAndWarnFields(sourceEntity, fieldsMapping.values());
         if (validFields.isEmpty()) {
-            // Fixed https://github.com/getrebuild/rebuild/issues/633
+            // fix: https://github.com/getrebuild/rebuild/issues/633
             log.warn("No fields (var) for transform : {}", fieldsMapping);
         }
 
@@ -312,10 +312,10 @@ public class RecordTransfomer extends SetUser {
         }
 
         if (checkNullable) {
+            AutoFillinManager.instance.fillinRecord(targetRecord);
             new EntityRecordCreator(targetEntity, JSONUtils.EMPTY_OBJECT, getUser()).verify(targetRecord);
         }
 
-        AutoFillinManager.instance.fillinRecord(targetRecord);
         return targetRecord;
     }
 
