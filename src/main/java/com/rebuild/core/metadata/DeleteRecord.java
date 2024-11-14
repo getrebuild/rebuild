@@ -9,6 +9,7 @@ package com.rebuild.core.metadata;
 
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.StandardRecord;
+import lombok.Getter;
 
 /**
  * 删除专用
@@ -19,8 +20,16 @@ import cn.devezhao.persist4j.engine.StandardRecord;
 public class DeleteRecord extends StandardRecord {
     private static final long serialVersionUID = -7098132591224439549L;
 
+    @Getter
+    private boolean quietly;
+
     public DeleteRecord(ID primaryid, ID editor) {
+        this(primaryid, editor, false);
+    }
+
+    public DeleteRecord(ID primaryid, ID editor, boolean quietly) {
         super(MetadataHelper.getEntity(primaryid.getEntityCode()), editor);
         this.setID(getEntity().getPrimaryField().getName(), primaryid);
+        this.quietly = quietly;
     }
 }

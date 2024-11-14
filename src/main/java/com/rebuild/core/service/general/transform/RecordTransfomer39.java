@@ -76,7 +76,7 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
         if (hasDetailsConf != null && !hasDetailsConf.isEmpty()) {
             List<ID> detailIds = QueryHelper.detailIdsNoFilter(targetRecordId);
             if (!detailIds.isEmpty()) {
-                Application.getCommonsService().delete(detailIds.toArray(new ID[0]), true);
+                Application.getCommonsService().delete(detailIds.toArray(new ID[0]), false);
             }
         }
 
@@ -126,7 +126,7 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
 
         // 有明细
         ID fakeMainId = EntityHelper.newUnsavedId(sourceEntity.getEntityCode());
-        Map<String, JSONArray> formModelDetailsMap = new HashMap<>();
+        Map<String, Object> formModelDetailsMap = new HashMap<>();
         for (Object o : fieldsMappingDetails) {
             JSONObject fmd = (JSONObject) o;
             Entity[] fmdEntity = checkEntity(fmd);
@@ -157,6 +157,14 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
             } finally {
                 FormsBuilderContextHolder.getMainIdOfDetail(true);
             }
+
+            // 删除已有的
+            if (targetRecordId != null) {
+                List<ID> detailIds = QueryHelper.detailIdsNoFilter(targetRecordId);
+                if (!detailIds.isEmpty()) {
+                    formModelDetailsMap.put(dTargetEntity.getName() + "$DELETED", detailIds);
+                }
+            }
         }
 
         ((JSONObject) formModel).put(GeneralEntityService.HAS_DETAILS, formModelDetailsMap);
@@ -175,5 +183,7 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
             targetRecord.removeValue(EntityHelper.OwningUser);
             targetRecord.removeValue(EntityHelper.OwningDept);
         }
+
+        // FIXME 有空值问题，例如源纪录的A字段无值，对应目标字段有值，此时会出现问题（空值应更新到目标中）
     }
 }

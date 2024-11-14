@@ -95,6 +95,10 @@ public class EntityHelper {
             String id = metadata.getString("id");
             return new DeleteRecord(ID.valueOf(id), user);
         }
+        if (metadata.getBooleanValue("deleteQuietly")) {
+            String id = metadata.getString("id");
+            return new DeleteRecord(ID.valueOf(id), user, true);
+        }
 
         Record record = new EntityRecordCreator(MetadataHelper.getEntity(entityName), data, user, safetyUrl)
                 .create(false);

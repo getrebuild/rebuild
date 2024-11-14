@@ -329,19 +329,21 @@ class RbForm extends React.Component {
 
     // v3.7 ND
     const detailImports = this.props.rawModel.detailImports
+    // v3.9 记录转换
+    const transDetails = this.props.rawModel.$DETAILS$
 
     this._ProTables = {}
 
     return (
       <RF>
         {this.props.rawModel.detailMetas.map((item, idx) => {
-          return <RF key={idx}>{this.renderDetailsForm(item, detailImports)}</RF>
+          return <RF key={idx}>{this.renderDetailsForm(item, detailImports, transDetails)}</RF>
         })}
       </RF>
     )
   }
 
-  renderDetailsForm(detailMeta, detailImports) {
+  renderDetailsForm(detailMeta, detailImports, transDetails) {
     let _ProTable
     if (window._CustomizedForms) {
       _ProTable = window._CustomizedForms.useProTable(detailMeta.entity, this)
@@ -453,6 +455,8 @@ class RbForm extends React.Component {
             this._ProTable = c // comp:v3.8
           }}
           $$$main={this}
+          transDetails={transDetails ? transDetails[detailMeta.entity] : null}
+          transDetailsDelete={transDetails ? transDetails[detailMeta.entity + '$DELETED'] : null}
         />
       )
     } else {

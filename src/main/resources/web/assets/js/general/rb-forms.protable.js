@@ -126,8 +126,13 @@ class ProTable extends React.Component {
         $(this._$scroller).find('thead .tipping').tooltip()
       })
 
+      // 记录转换
+      if (this.props.transDetails) {
+        this.setLines(this.props.transDetails)
+        this._deletesQuietly = this.props.transDetailsDelete
+      }
       // 正常编辑
-      if (this.props.mainid) {
+      else if (this.props.mainid) {
         $.get(`/app/${entity.entity}/detail-models?mainid=${this.props.mainid}`, (res) => {
           if (res.error_code === 0) this.setLines(res.data)
           else RbHighbar.error($L('明细加载失败，请稍后重试'))
@@ -370,19 +375,28 @@ class ProTable extends React.Component {
       return null
     }
 
-    // 删除
-    if (this._deletes) {
+    // 删除的
+    this._deletes &&
       this._deletes.forEach((item) => {
-        const d = {
+        datas.push({
           metadata: {
             entity: this.props.entity.entity,
             id: item,
             delete: true,
           },
-        }
-        datas.push(d)
+        })
       })
-    }
+    // 记录转换删除的
+    this._deletesQuietly &&
+      this._deletesQuietly.forEach((item) => {
+        datas.push({
+          metadata: {
+            entity: this.props.entity.entity,
+            id: item,
+            deleteQuietly: true,
+          },
+        })
+      })
 
     return datas
   }

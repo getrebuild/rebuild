@@ -472,6 +472,9 @@ class DlgTransform extends RbModalHandler {
         return RbHighbar.createl('请选择主记录')
       }
     }
+    if (_post.sourceRecord === _post.existsRecord) {
+      return RbHighbar.createl('已有记录不能是当前记录')
+    }
 
     const $btn = $(this._$btn).find('.btn').button('loading')
     $.post('/app/entity/extras/transform39', JSON.stringify(_post), (res) => {

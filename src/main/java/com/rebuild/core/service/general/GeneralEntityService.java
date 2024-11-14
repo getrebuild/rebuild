@@ -148,8 +148,13 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             for (int i = 0; i < details.size(); i++) {
                 Record d = details.get(i);
                 if (d instanceof DeleteRecord) {
-                    des.delete(d.getPrimary());
-                    detaileds.put(i, d.getPrimary());
+                    // 安静删除，不触发任何系统逻辑
+                    if (((DeleteRecord) d).isQuietly()) {
+                        Application.getCommonsService().delete(d.getPrimary(), false);
+                    } else {
+                        des.delete(d.getPrimary());
+                        detaileds.put(i, d.getPrimary());
+                    }
                 }
             }
 
