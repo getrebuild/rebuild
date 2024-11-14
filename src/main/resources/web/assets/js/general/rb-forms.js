@@ -110,8 +110,7 @@ class RbFormModal extends React.Component {
     const initialValue = this.state.initialValue || {} // 默认值填充（仅新建有效）
 
     let url = `/app/${entity}/form-model?id=${id}`
-    if (this.state.previewid) url += `&previewid=${this.state.previewid}`
-    else if (this.state.specLayout) url += `&layout=${this.state.specLayout}`
+    if (this.state.specLayout) url += `&layout=${this.state.specLayout}`
 
     const that = this
     function _FN2(formModel, forceInitFieldValue) {
@@ -180,13 +179,13 @@ class RbFormModal extends React.Component {
     let reset = this.state.reset === true
     if (!reset) {
       // 比较初始参数决定是否可复用
-      const stateNew = [state.id, state.entity, state.initialValue, state.previewid]
-      const stateOld = [this.state.id, this.state.entity, this.state.initialValue, this.state.previewid]
+      const stateNew = [state.id, state.entity, state.initialValue]
+      const stateOld = [this.state.id, this.state.entity, this.state.initialValue]
       reset = !$same(stateNew, stateOld)
     }
 
     if (reset) {
-      state = { formComponent: null, initialValue: null, previewid: null, alertMessage: null, inLoad: true, ...state }
+      state = { formComponent: null, initialValue: null, alertMessage: null, inLoad: true, ...state }
       this.setState(state, () => this._showAfter({ reset: false }, true))
     } else {
       this._showAfter({ ...state, reset: false })
@@ -234,7 +233,6 @@ class RbFormModal extends React.Component {
     const state = { reset: reset === true }
     if (state.reset) {
       state.id = null
-      state.previewid = null
     }
     this.setState(state)
   }
@@ -329,9 +327,6 @@ class RbForm extends React.Component {
   renderDetailForms() {
     if (!window.ProTable || !this.props.rawModel.detailMeta) return null
 
-    // 记录转换:预览模式
-    const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
-
     // v3.7 ND
     const detailImports = this.props.rawModel.detailImports
 
@@ -340,13 +335,13 @@ class RbForm extends React.Component {
     return (
       <RF>
         {this.props.rawModel.detailMetas.map((item, idx) => {
-          return <RF key={idx}>{this.renderDetailsForm(item, detailImports, previewid)}</RF>
+          return <RF key={idx}>{this.renderDetailsForm(item, detailImports)}</RF>
         })}
       </RF>
     )
   }
 
-  renderDetailsForm(detailMeta, detailImports, previewid) {
+  renderDetailsForm(detailMeta, detailImports) {
     let _ProTable
     if (window._CustomizedForms) {
       _ProTable = window._CustomizedForms.useProTable(detailMeta.entity, this)
@@ -452,7 +447,6 @@ class RbForm extends React.Component {
         <ProTable
           entity={detailMeta}
           mainid={this.state.id}
-          previewid={previewid}
           ref={(c) => {
             _ProTable = c // ref
             this._ProTables[detailMeta.entity] = c
@@ -798,11 +792,9 @@ class RbForm extends React.Component {
     if (this._postBeforeExec(data) === false) return
 
     const $$$parent = this.props.$$$parent
-    const previewid = $$$parent.state.previewid
 
     const $btn = $(this._$formAction).find('.btn').button('loading')
     let url = '/app/entity/record-save'
-    if (previewid) url += `?previewid=${previewid}`
     if (weakMode) {
       url += url.includes('?') ? '&' : '?'
       url += 'weakMode=' + weakMode
@@ -846,9 +838,6 @@ class RbForm extends React.Component {
             // ~
           } else if (next === RbForm.NEXT_SUBMIT37) {
             renderRbcomp(<ApprovalSubmitForm id={recordId} />)
-            // ~
-          } else if (previewid && window.RbViewPage) {
-            window.RbViewPage.clickView(`#!/View/${this.state.entity}/${recordId}`)
             // ~
           }
 

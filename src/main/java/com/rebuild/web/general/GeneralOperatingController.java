@@ -164,16 +164,6 @@ public class GeneralOperatingController extends BaseController {
             if (weakMode != null) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.DataValidate#getWeakMode", true);
         }
 
-        // 转换后回填
-        final String previewid = request.getParameter("previewid");
-        if (isNew && StringUtils.isNotBlank(previewid)) {
-            try {
-                new TransformerPreview37(previewid, user).fillback(record.getPrimary());
-            } catch (Exception ex) {
-                log.error("Transformer fillback error!", ex);
-            }
-        }
-
         JSONObject res = new JSONObject();
         res.put("id", record.getPrimary());
 
