@@ -1,18 +1,6 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
--- #61 (v3.9)
--- ************ Entity [TransformTrace] DDL ************
-create table if not exists `transform_trace` (
-  `TRACE_ID`           char(20) not null,
-  `TRANSFORM_CONFIG_ID` char(20) not null comment '记录转换',
-  `SOURCE_RECORD_ID`   char(20) not null comment '源记录',
-  `TARGET_RECORD_ID`   char(20) not null comment '目标记录',
-  `CREATED_BY`         char(20) not null comment '创建人',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
-  primary key  (`TRACE_ID`)
-)Engine=InnoDB;
-
 -- #60 (v3.9)
 alter table `user`
   add column `SEQ` int(11) default '0' comment '排序 (小到大)';

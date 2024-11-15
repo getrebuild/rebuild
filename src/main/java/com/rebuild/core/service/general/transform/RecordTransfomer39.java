@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.support.CommonsLog;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -61,7 +62,7 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
         if (targetExistsRecordId != null) specMainId = forceGetSpecMainId(targetExistsRecordId);
 
         ID theNewId = super.transform(sourceRecordId, specMainId);
-        TransfomerTrace.trace(sourceRecordId, theNewId, transid, getUser());
+        CommonsLog.createTransformLog(getUser(), sourceRecordId, theNewId, transid);
         return theNewId;
     }
 

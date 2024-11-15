@@ -416,16 +416,6 @@
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
     </entity>
 
-    <entity name="TransformTrace" type-code="096" description="记录转换跟踪" queryable="false" parent="false">
-        <field name="traceId" type="primary"/>
-        <field name="transformConfigId" type="reference" ref-entity="TransformConfig" nullable="false" updatable="false" description="记录转换"/>
-        <field name="sourceRecordId" type="any-reference" nullable="false" updatable="false" description="源记录"/>
-        <field name="targetRecordId" type="any-reference" nullable="false" updatable="false" description="目标记录"/>
-        <field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人"/>
-        <field name="createdOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="创建时间"/>
-        <index field-list="sourceRecordId,targetRecordId,transformConfigId"/>
-    </entity>
-
     <entity name="FrontjsCode" type-code="038" description="FrontJS 代码" queryable="false">
         <field name="codeId" type="primary"/>
         <field name="name" type="string" max-length="100" nullable="false" description="名称"/>
