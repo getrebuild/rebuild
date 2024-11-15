@@ -138,19 +138,12 @@ public class GeneralModelController extends EntityController {
             }
         }
 
-        // 记录转换:预览模式
-        final String previewid = request.getParameter("previewid");
         // 指定布局
         final ID specLayout = getIdParameter(request, "layout");
 
         try {
-            JSON model;
-            if (StringUtils.isNotBlank(previewid)) {
-                model = new TransformerPreview37(previewid, user).buildForm();
-            } else {
-                if (specLayout != null) FormsBuilderContextHolder.setSpecLayout(specLayout);
-                model = FormsBuilder.instance.buildForm(entity, user, id);
-            }
+            if (specLayout != null) FormsBuilderContextHolder.setSpecLayout(specLayout);
+            JSON model = FormsBuilder.instance.buildForm(entity, user, id);
 
             // 填充前端设定的初始值
             if (id == null && initialVal != null) {
@@ -248,12 +241,6 @@ public class GeneralModelController extends EntityController {
             @PathVariable String entity, @IdParam(name = "mainid", required = false) ID mainid,
             HttpServletRequest request) {
         final ID user = getRequestUser(request);
-
-        // 记录转换预览模式
-        String previewid = request.getParameter("previewid");
-        if (StringUtils.isNotBlank(previewid)) {
-            return new TransformerPreview37(previewid, user).buildForm(entity);
-        }
 
         Entity detailEntityMeta = MetadataHelper.getEntity(entity);
         List<ID> ids = QueryHelper.detailIdsNoFilter(mainid, detailEntityMeta);

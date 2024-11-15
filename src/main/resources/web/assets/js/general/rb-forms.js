@@ -110,13 +110,19 @@ class RbFormModal extends React.Component {
     const initialValue = this.state.initialValue || {} // 默认值填充（仅新建有效）
 
     let url = `/app/${entity}/form-model?id=${id}`
-    if (this.state.previewid) url += `&previewid=${this.state.previewid}`
-    else if (this.state.specLayout) url += `&layout=${this.state.specLayout}`
+    if (this.state.specLayout) url += `&layout=${this.state.specLayout}`
 
     const that = this
-    function _FN2(formModel) {
+    function _FN2(formModel, forceInitFieldValue) {
       const FORM = (
-        <RbForm entity={entity} id={id} rawModel={formModel} $$$parent={that} readonly={!!formModel.readonlyMessage} ref={(c) => (that._formComponentRef = c)}>
+        <RbForm
+          entity={entity}
+          id={id}
+          rawModel={formModel}
+          forceInitFieldValue={forceInitFieldValue}
+          $$$parent={that}
+          readonly={!!formModel.readonlyMessage}
+          ref={(c) => (that._formComponentRef = c)}>
           {formModel.elements.map((item) => {
             return detectElement(item, entity)
           })}
@@ -139,7 +145,7 @@ class RbFormModal extends React.Component {
 
     // v3.8
     if (this.props.initialFormModel) {
-      _FN2(this.props.initialFormModel)
+      _FN2(this.props.initialFormModel, true)
       return
     }
 
@@ -173,13 +179,13 @@ class RbFormModal extends React.Component {
     let reset = this.state.reset === true
     if (!reset) {
       // 比较初始参数决定是否可复用
-      const stateNew = [state.id, state.entity, state.initialValue, state.previewid]
-      const stateOld = [this.state.id, this.state.entity, this.state.initialValue, this.state.previewid]
+      const stateNew = [state.id, state.entity, state.initialValue]
+      const stateOld = [this.state.id, this.state.entity, this.state.initialValue]
       reset = !$same(stateNew, stateOld)
     }
 
     if (reset) {
-      state = { formComponent: null, initialValue: null, previewid: null, alertMessage: null, inLoad: true, ...state }
+      state = { formComponent: null, initialValue: null, alertMessage: null, inLoad: true, ...state }
       this.setState(state, () => this._showAfter({ reset: false }, true))
     } else {
       this._showAfter({ ...state, reset: false })
@@ -227,7 +233,6 @@ class RbFormModal extends React.Component {
     const state = { reset: reset === true }
     if (state.reset) {
       state.id = null
-      state.previewid = null
     }
     this.setState(state)
   }
@@ -322,24 +327,23 @@ class RbForm extends React.Component {
   renderDetailForms() {
     if (!window.ProTable || !this.props.rawModel.detailMeta) return null
 
-    // 记录转换:预览模式
-    const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
-
     // v3.7 ND
     const detailImports = this.props.rawModel.detailImports
+    // v3.9 记录转换
+    const transDetails = this.props.rawModel.$DETAILS$
 
     this._ProTables = {}
 
     return (
       <RF>
         {this.props.rawModel.detailMetas.map((item, idx) => {
-          return <RF key={idx}>{this.renderDetailsForm(item, detailImports, previewid)}</RF>
+          return <RF key={idx}>{this.renderDetailsForm(item, detailImports, transDetails)}</RF>
         })}
       </RF>
     )
   }
 
-  renderDetailsForm(detailMeta, detailImports, previewid) {
+  renderDetailsForm(detailMeta, detailImports, transDetails) {
     let _ProTable
     if (window._CustomizedForms) {
       _ProTable = window._CustomizedForms.useProTable(detailMeta.entity, this)
@@ -445,13 +449,14 @@ class RbForm extends React.Component {
         <ProTable
           entity={detailMeta}
           mainid={this.state.id}
-          previewid={previewid}
           ref={(c) => {
             _ProTable = c // ref
             this._ProTables[detailMeta.entity] = c
             this._ProTable = c // comp:v3.8
           }}
           $$$main={this}
+          transDetails={transDetails ? transDetails[detailMeta.entity] : null}
+          transDetailsDelete={transDetails ? transDetails[detailMeta.entity + '$DELETED'] : null}
         />
       )
     } else {
@@ -616,7 +621,7 @@ class RbForm extends React.Component {
 
   componentDidMount() {
     // 新纪录初始值
-    if (this.isNew) {
+    if (this.isNew || this.props.forceInitFieldValue) {
       this.props.children.map((child) => {
         let iv = child.props.value
         if (!$empty(iv) && (!this.props.readonly || (this.props.readonly && this.props.readonlyw === 3))) {
@@ -791,11 +796,9 @@ class RbForm extends React.Component {
     if (this._postBeforeExec(data) === false) return
 
     const $$$parent = this.props.$$$parent
-    const previewid = $$$parent.state.previewid
 
     const $btn = $(this._$formAction).find('.btn').button('loading')
     let url = '/app/entity/record-save'
-    if (previewid) url += `?previewid=${previewid}`
     if (weakMode) {
       url += url.includes('?') ? '&' : '?'
       url += 'weakMode=' + weakMode
@@ -839,9 +842,6 @@ class RbForm extends React.Component {
             // ~
           } else if (next === RbForm.NEXT_SUBMIT37) {
             renderRbcomp(<ApprovalSubmitForm id={recordId} />)
-            // ~
-          } else if (previewid && window.RbViewPage) {
-            window.RbViewPage.clickView(`#!/View/${this.state.entity}/${recordId}`)
             // ~
           }
 
@@ -2092,18 +2092,7 @@ class RbFormReference extends RbFormElement {
           return cascadingValue ? { cascadingValue, ...query } : query
         },
         placeholder: this._placeholderw,
-        templateResult: function (res) {
-          const $span = $('<span class="code-append"></span>').attr('title', res.text).text(res.text)
-          if (res.id) {
-            $(`<a title="${$L('在新页面打开')}"><i class="zmdi zmdi-open-in-new"></i></a>`)
-              .appendTo($span)
-              .on('mousedown', (e) => {
-                $stopEvent(e, true)
-                window.open(`${rb.baseUrl}/app/redirect?id=${res.id}&type=newtab`)
-              })
-          }
-          return $span
-        },
+        templateResult: $select2OpenTemplateResult,
       })
 
       const val = this.state.value

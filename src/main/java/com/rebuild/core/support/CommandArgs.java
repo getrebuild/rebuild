@@ -119,6 +119,7 @@ public class CommandArgs {
                 }
             }
         }
+        if (CONF39 == null) CONF39 = new Properties();
 
         String s = CONF39.getProperty(name);
         if (StringUtils.isNotBlank(s)) return s;

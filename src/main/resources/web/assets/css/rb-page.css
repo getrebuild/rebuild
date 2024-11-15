@@ -5310,6 +5310,10 @@ pre.unstyle {
   padding: 15px 15px 18px;
 }
 
+.modal.rbmodal .modal-dialog.sm-height .modal-body {
+  min-height: auto;
+}
+
 .page-head {
   padding: 12px 20px 10px;
 }

@@ -863,8 +863,8 @@ var $initReferenceSelect2 = function (el, option) {
       },
     },
     theme: 'default ' + (option.appendClass || ''),
+    templateResult: option.templateResult || $select2OpenTemplateResult,
   }
-  if (option.templateResult) select2Option.templateResult = option.templateResult
   return $(el).select2(select2Option)
 }
 
@@ -1310,4 +1310,18 @@ var UNSORT_FIELDTYPES = ['N2NREFERENCE', 'ANYREFERENCE', 'MULTISELECT', 'TAG', '
 function $tagStyle2(color) {
   if (!color) return null
   return { backgroundColor: color, borderColor: color, color: $isLight(color) ? '#444' : '#fff' }
+}
+
+// select2
+function $select2OpenTemplateResult(res) {
+  const $span = $('<span class="code-append"></span>').attr('title', res.text).text(res.text)
+  if (res.id) {
+    $(`<a title="${$L('在新页面打开')}"><i class="zmdi zmdi-open-in-new"></i></a>`)
+      .appendTo($span)
+      .on('mousedown', (e) => {
+        $stopEvent(e, true)
+        window.open(`${rb.baseUrl}/app/redirect?id=${res.id}&type=newtab`)
+      })
+  }
+  return $span
 }

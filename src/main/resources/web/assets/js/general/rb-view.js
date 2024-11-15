@@ -924,56 +924,11 @@ const RbViewPage = {
     })
   },
 
-  // 转换
+  // 记录转换
   initTransform(config) {
-    const that = this
     config.forEach((item) => {
       const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.transName || item.entityLabel}</a>`)
-
-      const entity = item.entity.split('.')
-      $item.on('click', () => {
-        let _TransformRich
-
-        if (item.previewMode) {
-          const previewid = `${item.transid}.${that.__id}`
-          if (item.mainEntity) {
-            RbAlert.create(<TransformRich {...item} ref={(c) => (_TransformRich = c)} />, {
-              icon: 'info-outline',
-              onConfirm: function () {
-                const mainid = _TransformRich.getMainId()
-                if (mainid === false) return
-
-                this.hide()
-                RbFormModal.create({ title: $L('新建%s', item.entityLabel), entity: entity[0], icon: item.icon, previewid: `${previewid}.${mainid}` }, true)
-              },
-            })
-          } else {
-            RbFormModal.create({ title: $L('新建%s', item.entityLabel), entity: entity[0], icon: item.icon, previewid: previewid }, true)
-          }
-
-          // end: previewMode
-        } else {
-          RbAlert.create(<TransformRich {...item} ref={(c) => (_TransformRich = c)} />, {
-            tabIndex: 1,
-            onConfirm: function () {
-              const mainid = _TransformRich.getMainId()
-              if (mainid === false) return
-
-              this.disabled(true, true)
-              $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}&mainid=${mainid === true ? '' : mainid}`, (res) => {
-                if (res.error_code === 0) {
-                  this.hide(true)
-                  setTimeout(() => that.clickView(`#!/View/${item.entity}/${res.data}`), 200)
-                } else {
-                  this.disabled()
-                  res.error_code === 400 ? RbHighbar.create(res.error_msg) : RbHighbar.error(res.error_msg)
-                }
-              })
-            },
-          })
-        }
-      })
-
+      $item.on('click', () => renderRbcomp(<DlgTransform {...item} sourceRecord={this.__id} />))
       $('.J_transform .dropdown-divider').before($item)
     })
   },

@@ -240,7 +240,7 @@ class ChartIndex extends BaseChart {
           <p style={style2}>{_index.label || this.label}</p>
           <strong style={style2}>
             {formatThousands(_index.data, _index.dataFlag)}
-            {clazz2 && <span className={clazz2}>{showGrowthRate ? rate2 : null}</span>}
+            {showGrowthRate && clazz2 && <span className={clazz2}>{rate2}</span>}
           </strong>
           {_index.label2 && (
             <div className="with">

@@ -10,10 +10,12 @@ package com.rebuild.core.support;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -33,6 +35,7 @@ public class CommonsLog {
     public static final String TYPE_EXPORT = "EXPORT";
     public static final String TYPE_ACCESS = "ACCESS";
     public static final String TYPE_EXTFORM = "EXTFORM";
+    public static final String TYPE_TRANSFORM = "TRANSFORM";
 
     /**
      * @param type
@@ -62,14 +65,29 @@ public class CommonsLog {
      * @param status
      */
     public static void createLog(String type, ID user, ID source, String content, int status) {
-        Record clog = EntityHelper.forNew(EntityHelper.CommonsLog, user);
-        clog.setString("type", type);
-        clog.setID("user", user);
-        clog.setID("source", ObjectUtils.defaultIfNull(source, user));
-        clog.setInt("status", status);
-        clog.setDate("logTime", CalendarUtils.now());
-        if (content != null) clog.setString("logContent", CommonsUtils.maxstr(content, 32767));
+        Record comLog = EntityHelper.forNew(EntityHelper.CommonsLog, user);
+        comLog.setString("type", type);
+        comLog.setID("user", user);
+        comLog.setID("source", ObjectUtils.defaultIfNull(source, user));
+        comLog.setInt("status", status);
+        comLog.setDate("logTime", CalendarUtils.now());
+        if (content != null) comLog.setString("logContent", CommonsUtils.maxstr(content, 32767));
 
-        TaskExecutors.queue(() -> Application.getCommonsService().create(clog, false));
+        TaskExecutors.queue(() -> Application.getCommonsService().create(comLog, false));
+    }
+
+    /**
+     * 记录转换日志
+     *
+     * @param user
+     * @param sourceId
+     * @param targetId
+     * @param transformId
+     */
+    public static void createTransformLog(ID user, ID sourceId, ID targetId, ID transformId) {
+        JSON content = JSONUtils.toJSONObject(
+                new String[]{"transform", "source"},
+                new Object[]{transformId, sourceId});
+        createLog(TYPE_TRANSFORM, user, targetId, content.toJSONString(), STATUS_OK);
     }
 }

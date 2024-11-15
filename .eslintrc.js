@@ -147,5 +147,7 @@ module.exports = {
     $dropUpload: true,
     $tagStyle2: true,
     $clearSelection: true,
+    DlgTransform: true,
+    $select2OpenTemplateResult: true,
   },
 }
