@@ -25,8 +25,6 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.general.RepeatedRecordsException;
-import com.rebuild.core.service.general.transform.RecordTransfomer;
-import com.rebuild.core.service.general.transform.RecordTransfomer37;
 import com.rebuild.core.service.general.transform.RecordTransfomer39;
 import com.rebuild.core.support.general.CalcFormulaSupport;
 import com.rebuild.core.support.i18n.I18nUtils;
@@ -69,34 +67,6 @@ public class ModelExtrasController extends BaseController {
         Field useField = entity.getField(field);
 
         return AutoFillinManager.instance.getFillinValue(useField, sourceRecord);
-    }
-
-    // 记录转换
-    @RequestMapping("transform")
-    public RespBody transform(HttpServletRequest request) {
-        ID transid = getIdParameterNotNull(request, "transid");
-        ID sourceRecord = getIdParameterNotNull(request, "source");
-        ID mainid = getIdParameter(request, "mainid");
-
-        RecordTransfomer transfomer = new RecordTransfomer37(transid);
-        if (!transfomer.checkFilter(sourceRecord)) {
-            return RespBody.error(Language.L("当前记录不符合转换条件"), 400);
-        }
-
-        try {
-            ID theNewId = transfomer.transform(sourceRecord, mainid);
-            return RespBody.ok(theNewId);
-        } catch (Exception ex) {
-            log.warn(">>>>> {}", ex.getLocalizedMessage());
-
-            String error = ex.getLocalizedMessage();
-            if (ex instanceof RepeatedRecordsException) {
-                error = Language.L("存在重复记录");
-            }
-
-            return RespBody.errorl("记录转换失败 (%s)",
-                    Objects.toString(error, ex.getClass().getSimpleName()));
-        }
     }
 
     // 记录转换
