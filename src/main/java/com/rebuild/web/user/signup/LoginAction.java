@@ -166,12 +166,10 @@ public class LoginAction extends BaseController {
             OperatingSystem os = UA.getOperatingSystem();
             if (os != null) {
                 uaSimple += " (" + os + ")";
-                if (os.getDeviceType() != null && os.getDeviceType() == DeviceType.MOBILE) uaSimple += " [Mobile]";
             }
 
+            uaSimple += " [" + LoginChannel.parse(userAgent).name() + "]";
             if (request.getAttribute(SK_TEMP_AUTH) != null) uaSimple += " [TempAuth]";
-            if (userAgent.contains("DingTalk")) uaSimple += " [DingTalk]";
-            if (userAgent.contains("wxwork")) uaSimple += " [WeCom]";
 
         } catch (Exception ex) {
             log.warn("Unknown User-Agent : {}", userAgent);
@@ -181,14 +179,14 @@ public class LoginAction extends BaseController {
         final String ipAddr = StringUtils.defaultString(ServletUtils.getRemoteAddr(request), "127.0.0.1");
         final String reqUrl = request.getRequestURL() == null ? "" : request.getRequestURL().toString();
 
-        final Record llog = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
-        llog.setID("user", user);
-        llog.setString("ipAddr", ipAddr);
-        llog.setString("userAgent", uaSimple);
-        llog.setDate("loginTime", CalendarUtils.now());
+        final Record lgLog = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
+        lgLog.setID("user", user);
+        lgLog.setString("ipAddr", ipAddr);
+        lgLog.setString("userAgent", uaSimple);
+        lgLog.setDate("loginTime", CalendarUtils.now());
 
         TaskExecutors.queue(() -> {
-            Application.getCommonsService().create(llog);
+            Application.getCommonsService().create(lgLog);
 
             User u = Application.getUserStore().getUser(user);
             String uid = StringUtils.defaultString(u.getEmail(), u.getName());
