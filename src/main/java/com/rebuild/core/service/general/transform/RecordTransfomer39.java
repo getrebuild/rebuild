@@ -37,7 +37,8 @@ import java.util.Map;
 public class RecordTransfomer39 extends RecordTransfomer37 {
 
     private ID transid;
-    volatile private ID targetRecordId;
+    // 转换到已存在记录
+    volatile private ID targetExistsRecordId;
 
     public RecordTransfomer39(ID transid) {
         super(transid);
@@ -49,15 +50,15 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
      *
      * @param sourceRecordId
      * @param specMainId
-     * @param targetRecordId
+     * @param targetExistsRecordId
      * @return
      */
-    public ID transform(ID sourceRecordId, ID specMainId, ID targetRecordId) {
-        this.targetRecordId = targetRecordId;
+    public ID transform(ID sourceRecordId, ID specMainId, ID targetExistsRecordId) {
+        this.targetExistsRecordId = targetExistsRecordId;
         // 直接转换做非空检查
         this.transConfig.put("checkNullable35", true);
         // 指定目标是明细
-        if (targetRecordId != null) specMainId = forceGetSpecMainId(targetRecordId);
+        if (targetExistsRecordId != null) specMainId = forceGetSpecMainId(targetExistsRecordId);
 
         ID theNewId = super.transform(sourceRecordId, specMainId);
         TransfomerTrace.trace(sourceRecordId, theNewId, transid, getUser());
@@ -66,17 +67,17 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
 
     @Override
     protected ID saveRecord(Record record, List<Record> detailsList) {
-        if (targetRecordId == null) {
+        if (targetExistsRecordId == null) {
             return super.saveRecord(record, detailsList);
         }
 
-        this.merge2ExistsTarget(record);
+        this.mergeExistsAndTarget(record);
 
         // 其下明细记录直接清空新建，因为没法一一对应去更新
         // 注意这会导致触发器触发动作不准
         JSONArray hasDetailsConf = transConfig.getJSONArray("fieldsMappingDetails");
         if (hasDetailsConf != null && !hasDetailsConf.isEmpty()) {
-            List<ID> detailIds = QueryHelper.detailIdsNoFilter(targetRecordId);
+            List<ID> detailIds = QueryHelper.detailIdsNoFilter(targetExistsRecordId);
             if (!detailIds.isEmpty()) {
                 Application.getCommonsService().delete(detailIds.toArray(new ID[0]), false);
             }
@@ -90,15 +91,15 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
      *
      * @param sourceRecordId
      * @param specMainId
-     * @param targetRecordId
+     * @param targetExistsRecordId
      * @return
      */
-    public JSON preview(ID sourceRecordId, ID specMainId, ID targetRecordId) {
-        this.targetRecordId = targetRecordId;
+    public JSON preview(ID sourceRecordId, ID specMainId, ID targetExistsRecordId) {
+        this.targetExistsRecordId = targetExistsRecordId;
         // 预览不做非空检查
         this.transConfig.put("checkNullable35", false);
         // 指定目标是明细
-        if (targetRecordId != null) specMainId = forceGetSpecMainId(targetRecordId);
+        if (targetExistsRecordId != null) specMainId = forceGetSpecMainId(targetExistsRecordId);
 
         Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
         ConfigBean config = TransformManager.instance.getTransformConfig(transid, sourceEntity.getName());
@@ -114,18 +115,18 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
         }
 
         Entity targetEntity = MetadataHelper.getEntity(config.getString("target"));
-        Record targetRecord = transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId,
+        Record tansTargetRecord = transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId,
                 null, false, false, false);
 
-        if (targetRecordId != null) {
-            this.merge2ExistsTarget(targetRecord);
+        if (targetExistsRecordId != null) {
+            this.mergeExistsAndTarget(tansTargetRecord);
             // 此处强制回填，因为编辑时前端不会回填
-            AutoFillinManager.instance.fillinRecord(targetRecord, true);
+            AutoFillinManager.instance.fillinRecord(tansTargetRecord, true);
         }
 
-        TransformerPreview37.fillLabelOfReference(targetRecord);
+        TransformerPreview37.fillLabelOfReference(tansTargetRecord);
 
-        JSON formModel = UseFormsBuilder.buildNewFormWithRecord(targetEntity, targetRecord, specMainId, getUser());
+        JSON formModel = UseFormsBuilder.instance.buildForm(targetEntity, tansTargetRecord, specMainId, getUser(), false);
         if (fieldsMappingDetails == null || fieldsMappingDetails.isEmpty()) return formModel;
 
         // 有明细
@@ -163,8 +164,8 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
             }
 
             // 删除已有的
-            if (targetRecordId != null) {
-                List<ID> detailIds = QueryHelper.detailIdsNoFilter(targetRecordId);
+            if (targetExistsRecordId != null) {
+                List<ID> detailIds = QueryHelper.detailIdsNoFilter(targetExistsRecordId);
                 if (!detailIds.isEmpty()) {
                     formModelDetailsMap.put(dTargetEntity.getName() + "$DELETED", detailIds);
                 }
@@ -176,21 +177,35 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
     }
 
     // 合并目标
-    private void merge2ExistsTarget(Record targetRecord) {
+    private void mergeExistsAndTarget(Record transTargetRecord) {
         JSONObject fieldsMapping = transConfig.getJSONObject("fieldsMapping");
-        Entity targetEntity = targetRecord.getEntity();
+        Entity targetEntity = transTargetRecord.getEntity();
 
-        targetRecord.setObjectValue(targetEntity.getPrimaryField().getName(), targetRecordId);
-        targetRecord.removeValue(EntityHelper.CreatedBy);
-        targetRecord.removeValue(EntityHelper.CreatedOn);
+        transTargetRecord.setObjectValue(targetEntity.getPrimaryField().getName(), targetExistsRecordId);
+        transTargetRecord.removeValue(EntityHelper.CreatedBy);
+        transTargetRecord.removeValue(EntityHelper.CreatedOn);
         if (!fieldsMapping.containsKey(EntityHelper.OwningUser)) {
-            targetRecord.removeValue(EntityHelper.OwningUser);
-            targetRecord.removeValue(EntityHelper.OwningDept);
+            transTargetRecord.removeValue(EntityHelper.OwningUser);
+            transTargetRecord.removeValue(EntityHelper.OwningDept);
         }
 
-        // FIXME 有空值问题，例如源纪录的A字段无值，对应目标字段有值，此时会出现问题（空值应更新到目标中）
+//        if (isPreview) {
+//            Record existsRecordSnap = Application.getQueryFactory().recordNoFilter(targetExistsRecordId);
+//            for (Field field : existsRecordSnap.getEntity().getFields()) {
+//                EasyField easyField = EasyMetaFactory.valueOf(field);
+//                if (MetadataHelper.isCommonsField(field) || easyField.getDisplayType() == DisplayType.SERIES) {
+//                    if (field.getType() == FieldType.PRIMARY) continue;
+//
+//                    String fieldName = field.getName();
+//                    if (EntityHelper.AutoId.equals(fieldName) || EntityHelper.QuickCode.equals(fieldName)) continue;
+//
+//                    transTargetRecord.setObjectValue(fieldName, existsRecordSnap.getObjectValue(fieldName));
+//                }
+//            }
+//        }
     }
 
+    // 获取主记录（如果是明细的话）
     private ID forceGetSpecMainId(ID targetRecordId) {
         Entity targetEntity = MetadataHelper.getEntity(targetRecordId.getEntityCode());
         if (targetEntity.getMainEntity() != null) {

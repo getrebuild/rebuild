@@ -22,6 +22,8 @@ public class UseFormsBuilder extends FormsBuilder {
     protected static final UseFormsBuilder instance = new UseFormsBuilder();
 
     /**
+     * 构建新表单，使用指定记录（数据）
+     *
      * @param entity
      * @param record
      * @param mainid
@@ -29,7 +31,19 @@ public class UseFormsBuilder extends FormsBuilder {
      * @return
      */
     public JSON buildNewForm(Entity entity, Record record, Object mainid, ID user) {
-        JSON model = buildForm(entity.getName(), user, null);
+        return buildForm(entity, record, mainid, user, false);
+    }
+
+    /**
+     * @param entity
+     * @param record
+     * @param mainid
+     * @param user
+     * @param isNew
+     * @return
+     */
+    public JSON buildForm(Entity entity, Record record, Object mainid, ID user, boolean isNew) {
+        JSON model = buildForm(entity.getName(), user, isNew ? null : record.getPrimary());
         String hasError = ((JSONObject) model).getString("error");
         if (hasError != null) throw new DataSpecificationException(hasError);
 
