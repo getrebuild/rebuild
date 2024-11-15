@@ -66,10 +66,22 @@ public class UseFormsBuilder extends FormsBuilder {
      * @return
      */
     public static JSON buildNewFormWithRecord(Entity entity, Record record, ID mainid, ID user) {
+        return buildFormWithRecord(entity, record, mainid, user, true);
+    }
+
+    /**
+     * @param entity
+     * @param record
+     * @param mainid 针对明细
+     * @param user
+     * @param isNew
+     * @return
+     */
+    public static JSON buildFormWithRecord(Entity entity, Record record, ID mainid, ID user, boolean isNew) {
         if (mainid != null) FormsBuilderContextHolder.setMainIdOfDetail(mainid);
 
         try {
-            return instance.buildNewForm(entity, record, mainid, user);
+            return instance.buildForm(entity, record, mainid, user, isNew);
         } finally {
             if (mainid != null) FormsBuilderContextHolder.getMainIdOfDetail(true);
         }

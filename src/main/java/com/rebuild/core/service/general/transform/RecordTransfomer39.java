@@ -62,6 +62,7 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
         if (targetExistsRecordId != null) specMainId = forceGetSpecMainId(targetExistsRecordId);
 
         ID theNewId = super.transform(sourceRecordId, specMainId);
+        // #saveRecord afetr
         CommonsLog.createTransformLog(getUser(), sourceRecordId, theNewId, transid);
         return theNewId;
     }
@@ -127,7 +128,7 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
 
         TransformerPreview37.fillLabelOfReference(tansTargetRecord);
 
-        JSON formModel = UseFormsBuilder.instance.buildForm(targetEntity, tansTargetRecord, specMainId, getUser(), false);
+        JSON formModel = UseFormsBuilder.buildFormWithRecord(targetEntity, tansTargetRecord, specMainId, getUser(), false);
         if (fieldsMappingDetails == null || fieldsMappingDetails.isEmpty()) return formModel;
 
         // 有明细
