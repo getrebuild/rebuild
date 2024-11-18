@@ -1854,6 +1854,18 @@ th.column-fixed {
   top: 0;
 }
 
+.data-list .table tr td .progress {
+  height: 16px;
+  font-size: 12px;
+  text-align: center;
+  background-color: #ccc;
+  display: block;
+}
+
+.data-list .table tr td .progress .progress-bar {
+  line-height: 16px;
+}
+
 .form.batch-form {
   padding: 10px 15px;
 }
