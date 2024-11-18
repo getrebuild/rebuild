@@ -596,9 +596,9 @@ class DlgAxisProps extends RbFormHandler {
               <button className="btn btn-primary" type="button" onClick={() => this.saveProps()}>
                 {$L('确定')}
               </button>
-              <a className="btn btn-link" onClick={() => this.hide()}>
+              <button type="button" className="btn btn-link" onClick={() => this.hide()}>
                 {$L('取消')}
-              </a>
+              </button>
             </div>
           </div>
         </div>

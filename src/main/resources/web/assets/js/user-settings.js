@@ -151,11 +151,7 @@ $(document).ready(function () {
         $(`<td>${this[0].split('UTC')[0]}</td>`).appendTo($tr)
         $(`<td>${this[1]}</td>`).appendTo($tr)
 
-        const uaRich = this[2]
-          .replace(/\[Mobile]/i, `<span class="badge badge-info">${$L('手机版')}</span>`)
-          .replace(/\[WeCom]/i, `<span class="badge badge-info">${$L('企业微信')}</span>`)
-          .replace(/\[DingTalk]/i, `<span class="badge badge-info">${$L('钉钉')}</span>`)
-          .replace(/\[TempAuth]/i, `<span class="badge badge-danger">${$L('临时授权')}</span>`)
+        const uaRich = this[2].replace(/\[TempAuth]/i, `<span class="badge badge-danger">${$L('临时授权')}</span>`)
         $(`<td>${uaRich}</td>`).appendTo($tr)
       })
 
@@ -180,7 +176,7 @@ $(document).ready(function () {
 class DlgChangePasswd extends RbFormHandler {
   render() {
     return (
-      <RbModal title={$L('修改密码')} ref="dlg" disposeOnHide>
+      <RbModal title={$L('修改密码')} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('原密码')}</label>
@@ -201,13 +197,13 @@ class DlgChangePasswd extends RbFormHandler {
             </div>
           </div>
           <div className="form-group row footer">
-            <div className="col-sm-7 offset-sm-3" ref="btns">
+            <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
               <button className="btn btn-primary" type="button" onClick={() => this.post()}>
                 {$L('确定')}
               </button>
-              <a className="btn btn-link" onClick={() => this.hide()}>
+              <button type="button" className="btn btn-link" onClick={() => this.hide()}>
                 {$L('取消')}
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -221,7 +217,7 @@ class DlgChangePasswd extends RbFormHandler {
     if (!s.newPasswd) return RbHighbar.create($L('请输入新密码'))
     if (s.newPasswd !== s.newPasswdAgain) return RbHighbar.create($L('两次输入的新密码不一致'))
 
-    const $btn = $(this.refs['btns']).find('.btn').button('loading')
+    const $btn = $(this._$btn).find('.btn').button('loading')
     $.post('/settings/user/save-passwd', JSON.stringify({ oldp: s.oldPasswd, newp: s.newPasswd }), (res) => {
       $btn.button('reset')
       if (res.error_code === 0) {
@@ -243,7 +239,7 @@ class DlgChangeEmail extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L('修改邮箱')} ref="dlg" disposeOnHide>
+      <RbModal title={$L('修改邮箱')} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('新邮箱')}</label>
@@ -263,13 +259,13 @@ class DlgChangeEmail extends RbFormHandler {
             </div>
           </div>
           <div className="form-group row footer">
-            <div className="col-sm-7 offset-sm-3" ref="btns">
+            <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
               <button className="btn btn-primary" type="button" onClick={() => this.post()}>
                 {$L('确定')}
               </button>
-              <a className="btn btn-link" onClick={() => this.hide()}>
+              <button type="button" className="btn btn-link" onClick={() => this.hide()}>
                 {$L('取消')}
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -310,9 +306,9 @@ class DlgChangeEmail extends RbFormHandler {
     if (!$regex.isMail(s.newEmail)) return RbHighbar.create($L('邮箱格式不正确'))
     if (!s.newEmail || !s.vcode) return RbHighbar.create($L('请输入验证码'))
 
-    const $btns = $(this.refs['btns']).find('.btn').button('loading')
+    const $btn = $(this._$btn).find('.btn').button('loading')
     $.post(`/settings/user/save-email?email=${$encode(s.newEmail)}&vcode=${$encode(s.vcode)}`, (res) => {
-      $btns.button('reset')
+      $btn.button('reset')
       if (res.error_code === 0) {
         this.hide()
         $('.J_email-account').text(s.newEmail)
@@ -328,7 +324,7 @@ class DlgChangeEmail extends RbFormHandler {
 class DlgTempAuth extends RbModalHandler {
   render() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('临时授权')} disposeOnHide>
+      <RbModal title={$L('临时授权')} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="file-share">
           <label className="text-dark">{$L('临时授权链接')}</label>
           <div className="input-group input-group-sm">
@@ -339,7 +335,7 @@ class DlgTempAuth extends RbModalHandler {
               </button>
             </span>
           </div>
-          <p className="form-text">{$L('通过临时授权链接可登录你的账号 (此链接 5 分钟内有效)')}</p>
+          <p className="form-text text-danger">{$L('通过临时授权链接可登录你的账号 (此链接 5 分钟内有效)')}</p>
         </div>
       </RbModal>
     )
