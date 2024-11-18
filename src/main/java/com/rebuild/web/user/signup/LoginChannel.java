@@ -48,6 +48,15 @@ public enum LoginChannel {
      * @return
      */
     public static LoginChannel parse(String userAgent) {
+        return parse(userAgent, false);
+    }
+
+    /**
+     * @param userAgent
+     * @param forceH5
+     * @return
+     */
+    public static LoginChannel parse(String userAgent, boolean forceH5) {
         userAgent = userAgent.toUpperCase();
         UserAgent UA = UserAgent.parseUserAgentString(userAgent);
         OperatingSystem OS = UA.getOperatingSystem();
@@ -57,7 +66,7 @@ public enum LoginChannel {
         boolean isWechat = !isWecom && userAgent.contains("MICROMESSENGER");
         boolean isH5PlusApp = userAgent.contains("HTML5PLUS");
 
-        if (OS != null && OS.getDeviceType() == DeviceType.MOBILE) {
+        if ((OS != null && OS.getDeviceType() == DeviceType.MOBILE) || forceH5) {
             if (isDingtalk) return MOB_DINGTALK;
             else if (isWecom) return MOB_WECOM;
             else if (isWechat) return MOB_WECHAT;

@@ -27,7 +27,6 @@ import com.rebuild.core.support.License;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.user.UserAvatar;
-import eu.bitwalker.useragentutils.DeviceType;
 import eu.bitwalker.useragentutils.OperatingSystem;
 import eu.bitwalker.useragentutils.UserAgent;
 import lombok.extern.slf4j.Slf4j;
@@ -109,14 +108,14 @@ public class LoginAction extends BaseController {
             ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
         }
 
-        createLoginLog(request, user);
+        LoginChannel loginChannel = createLoginLog(request, user, fromH5);
 
         if (fromH5) {
-            // TODO H5 #loginSuccessed
+            Application.getSessionStore().storeLoginSuccessed(user, request, loginChannel);
         } else {
             ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
             ServletUtils.setSessionAttribute(request, SK_USER_THEME, KVStorage.getCustomValue("THEME." + user));
-            Application.getSessionStore().storeLoginSuccessed(request, false);
+            Application.getSessionStore().storeLoginSuccessed(user, request, loginChannel);
 
             // 头像缓存
             ServletUtils.setSessionAttribute(request, UserAvatar.SK_DAVATAR, System.currentTimeMillis());
@@ -150,30 +149,36 @@ public class LoginAction extends BaseController {
      *
      * @param request
      * @param user
+     * @param fromH5
+     * @return
      */
-    private void createLoginLog(HttpServletRequest request, ID user) {
+    private LoginChannel createLoginLog(HttpServletRequest request, ID user, boolean fromH5) {
         final String userAgent = request.getHeader("user-agent");
-        String uaSimple;
-        try {
-            final UserAgent UA = UserAgent.parseUserAgentString(userAgent);
 
-            uaSimple = UA.getBrowser().name();
-            if (UA.getBrowserVersion() != null) {
-                String mv = UA.getBrowserVersion().getMajorVersion();
+        String uaSimple;
+        LoginChannel loginChannel;
+        try {
+            UserAgent uaObj = UserAgent.parseUserAgentString(userAgent);
+            uaSimple = uaObj.getBrowser().name();
+            if (uaObj.getBrowserVersion() != null) {
+                String mv = uaObj.getBrowserVersion().getMajorVersion();
                 if (!uaSimple.endsWith(mv)) uaSimple += "-" + mv;
             }
 
-            OperatingSystem os = UA.getOperatingSystem();
-            if (os != null) {
-                uaSimple += " (" + os + ")";
+            OperatingSystem osObj = uaObj.getOperatingSystem();
+            if (osObj != null) {
+                uaSimple += " (" + osObj + ")";
             }
 
-            uaSimple += " [" + LoginChannel.parse(userAgent).name() + "]";
+            loginChannel = LoginChannel.parse(userAgent, fromH5);
+            uaSimple += " [" + loginChannel.name() + "]";
             if (request.getAttribute(SK_TEMP_AUTH) != null) uaSimple += " [TempAuth]";
 
         } catch (Exception ex) {
-            log.warn("Unknown User-Agent : {}", userAgent);
+            log.warn("Unknown user-agent : {}", userAgent);
+
             uaSimple = "UNKNOW";
+            loginChannel = LoginChannel.PC_WEB;
         }
 
         final String ipAddr = StringUtils.defaultString(ServletUtils.getRemoteAddr(request), "127.0.0.1");
@@ -197,5 +202,7 @@ public class LoginAction extends BaseController {
                     CodecUtils.base64UrlEncode(reqUrl));
             License.siteApiNoCache(uaUrl);
         });
+
+        return loginChannel;
     }
 }

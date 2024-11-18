@@ -63,7 +63,6 @@ RbList.renderAfter = function () {
 // ~ 在线用户
 class OnlineUserViewer extends RbAlert {
   renderContent() {
-    const Ldq = $L('当前')
     return (
       <table className="table table-hover">
         <thead>
@@ -79,11 +78,11 @@ class OnlineUserViewer extends RbAlert {
               <tr key={item.sid}>
                 <td className="user-avatar cell-detail user-info">
                   <img src={`${rb.baseUrl}/account/user-avatar/${item.user}`} alt="Avatar" />
-                  <span className="pt-1">
-                    {item.fullName.replace(`[${Ldq}]`, '')}
+                  <span>
+                    {item.fullName.replace('[CURRENT]', '')}
                     <div>
-                      {item.activeUrl && item.activeUrl.includes('/h5app/') && <span className="badge badge-info">{$L('手机版')}</span>}
-                      {item.fullName.includes(Ldq) && <span className="badge badge-success">{Ldq}</span>}
+                      {item.channel && <span className="badge badge-info">{$L(item.channel)}</span>}
+                      {item.fullName.includes('[CURRENT]') && <span className="badge badge-warning">{$L('当前')}</span>}
                     </div>
                   </span>
                 </td>
@@ -99,7 +98,7 @@ class OnlineUserViewer extends RbAlert {
                   </a>
                 </td>
                 <td className="actions text-right">
-                  <button className="btn btn-danger btn-sm btn-outline" type="button" onClick={() => this._killSession(item.sid)}>
+                  <button className="btn btn-danger btn-sm btn-outline" type="button" onClick={() => this._killSession(item.token || item.sid)}>
                     {$L('强退')}
                   </button>
                 </td>

@@ -333,6 +333,7 @@ public class UserService extends BaseService {
         // Kill session
         if (enableNew != null && !enableNew) {
             Application.getSessionStore().killSession(user);
+            log.warn("FORCE DESTROY USER SESSIONS : {}", enUser.getId());
         }
     }
 
