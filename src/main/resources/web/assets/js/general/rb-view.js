@@ -337,10 +337,10 @@ class RelatedList extends React.Component {
         )}
 
         {this.state.showMore && (
-          <div className="text-center mt-2 pb-2">
-            <button type="button" className="btn btn-link" onClick={() => this.fetchData(1)}>
+          <div className="text-center mt-3 pb-3">
+            <a className="show-more-pill" onClick={() => this.fetchData(1)}>
               {$L('显示更多')}
-            </button>
+            </a>
           </div>
         )}
       </RF>

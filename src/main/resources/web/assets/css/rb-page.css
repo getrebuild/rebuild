@@ -5851,3 +5851,23 @@ div.formula-code {
 
 .rbview-fjsalert {
 }
+
+.show-more-pill {
+  color: #4285f4 !important;
+  border-radius: 99px;
+  border: 1px solid #dee2e6;
+  padding: 5px 10px;
+  display: inline-block;
+  line-height: 1;
+}
+
+.show-more-pill::after {
+  font: normal normal normal 14px/1 'Material Design Icons';
+  content: '\F0B8D';
+  margin-left: 5px;
+}
+
+.show-more-pill:hover {
+  border-color: #0d5bdd;
+  color: #0d5bdd;
+}

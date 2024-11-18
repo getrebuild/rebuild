@@ -159,9 +159,8 @@ class DlgDetails extends RbAlert {
           <tr>
             <td colSpan="3" className="text-center pb-0">
               <div className="mt-1">
-                <a className="text-primary" onClick={() => this.setState({ viewAll: true })}>
-                  {$L('查看全部')}&nbsp;
-                  <i className="mdi mdi-dots-horizontal-circle-outline fs-15" />
+                <a className="show-more-pill" onClick={() => this.setState({ viewAll: true })}>
+                  {$L('查看全部')}
                 </a>
               </div>
             </td>
