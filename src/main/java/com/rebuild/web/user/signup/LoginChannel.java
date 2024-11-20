@@ -38,9 +38,9 @@ public enum LoginChannel {
     ;
 
     @Getter
-    private final String name;
+    private final String displayName;
     LoginChannel(String name) {
-        this.name = name;
+        this.displayName = name;
     }
 
     /**

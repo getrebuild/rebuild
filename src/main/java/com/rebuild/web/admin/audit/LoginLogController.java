@@ -61,7 +61,7 @@ public class LoginLogController extends EntityController {
             ID user = ID.valueOf(keySplit[0]);
             String usName = UserHelper.getName(user);
             if (currentSid.equals(info.getSessionId())) usName += " [CURRENT]";
-            String chName = LoginChannel.valueOf(keySplit[1]).getName();
+            String chName = LoginChannel.valueOf(keySplit[1]).getDisplayName();
 
             JSONObject item = JSONUtils.toJSONObject(
                     new String[]{"user", "fullName", "activeTime", "activeUrl", "activeIp", "channel", "sid", "token"},
