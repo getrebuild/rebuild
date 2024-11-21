@@ -169,8 +169,7 @@ public class BarCodeSupport {
 
                 // 条形码宽度为自适应
                 if (width == 0 && height > base) {
-                    // 非整数倍数两边有白边
-                    width = (int) (((height + 0d) / base) * new Code128Writer().encode(content).length);
+                    width = (int) (((height + 0d) / base * 1.51) * new Code128Writer().encode(content).length);
                 }
             }
 
