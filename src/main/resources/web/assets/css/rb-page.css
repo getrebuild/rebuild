@@ -1930,7 +1930,7 @@ th.column-fixed {
   padding: 9px 8px;
   font-size: 15px;
   position: absolute;
-  top: -2px;
+  top: -1px;
   z-index: 1;
   display: none;
 }
