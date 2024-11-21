@@ -1864,6 +1864,8 @@ th.column-fixed {
 
 .data-list .table tr td .progress .progress-bar {
   line-height: 16px;
+  width: 0;
+  max-width: 100%;
 }
 
 .form.batch-form {
