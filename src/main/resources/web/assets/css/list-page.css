@@ -103,7 +103,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   align-items: center;
 }
 
-.quick-filter-pane .form-control:focus {
+.quick-filter-pane .form-control:focus,
+.quick-filter-pane .select2-container--default.select2-container--focus .select2-selection.select2-selection--multiple {
   border-color: #bababa;
 }
 
@@ -137,13 +138,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .quick-filter-pane .val-range > input.form-control:first-child {
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
-  border-right-color: #eee;
+  border-right-color: #eee !important;
 }
 
 .quick-filter-pane .val-range > input.form-control + input {
   border-top-left-radius: 0 !important;
   border-bottom-left-radius: 0 !important;
-  border-left-width: 0 !important;
+  border-left-color: #eee !important;
 }
 
 .quick-filter-pane .val-range > span {
