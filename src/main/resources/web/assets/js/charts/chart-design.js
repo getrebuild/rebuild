@@ -553,7 +553,7 @@ class DlgAxisProps extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L('显示样式')} ref={(c) => (this._dlg = c)}>
+      <RbModal title={$L('显示样式')} ref={(c) => (this._dlg = c)} className="sm-height">
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('别名')}</label>
