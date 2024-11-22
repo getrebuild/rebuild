@@ -14,10 +14,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -31,6 +33,7 @@ public class TableChart extends ChartData {
     private boolean showLineNumber = false;
     private boolean showSums = false;
     private boolean mergeCell = true;
+    private int pageSize = 0;
 
     protected TableChart(JSONObject config) {
         super(config);
@@ -40,6 +43,7 @@ public class TableChart extends ChartData {
             this.showLineNumber = option.getBooleanValue("showLineNumber");
             this.showSums = option.getBooleanValue("showSums");
             if (option.containsKey("mergeCell")) this.mergeCell = option.getBooleanValue("mergeCell");
+            if (option.containsKey("pageSize")) this.pageSize = option.getIntValue("pageSize");
         }
     }
 
@@ -63,6 +67,11 @@ public class TableChart extends ChartData {
             dataRaw = mergeAxisEntry2Data(axisValues, indexAndSize, false);
         } else {
             dataRaw = createQuery(buildSql(dims, nums)).array();
+        }
+
+        // v3.9
+        if (pageSize > 0 && dataRaw.length > pageSize) {
+            dataRaw = ArrayUtils.subarray(dataRaw, 0, pageSize);
         }
 
         // 行号
@@ -162,7 +171,7 @@ public class TableChart extends ChartData {
         if (ID.isId(value)) value = 1d;
 
         String flag = getNumericalFlag(numerical);
-        if ("0:0".equals(flag)) return super.wrapAxisValue(numerical, value, useThousands);
+        if (StringUtils.isBlank(flag) || "0:0".equals(flag)) return super.wrapAxisValue(numerical, value, useThousands);
 
         // v3.9
         String flagUnit = "";

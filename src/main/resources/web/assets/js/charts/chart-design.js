@@ -62,9 +62,9 @@ $(document).ready(() => {
       .droppable({
         accept: function () {
           if (dargOnSort === true) return false
-          const isdim = $(this).hasClass('J_axis-dim')
-          if (type_DATALIST2) return isdim
-          if (isdim) return !dragIsNum
+          const isDim = $(this).hasClass('J_axis-dim')
+          if (type_DATALIST2) return isDim
+          if (isDim) return !dragIsNum
           return true
         },
         drop: function (e, ui) {
@@ -200,12 +200,14 @@ $(document).ready(() => {
     const option = wpc.chartConfig.option || {}
     if (typeof option['mergeCell'] === undefined) option.mergeCell = true // fix: 3.1.3
     for (let k in option) {
-      const opt = $(`.chart-option input[data-name=${k}]`)
-      if (opt.length > 0) {
-        if (opt.attr('type') === 'checkbox') {
-          if ($isTrue(option[k])) opt.trigger('click')
+      let $o = $(`.chart-option input[data-name=${k}]`)
+      if (!$o[0]) $o = $(`.chart-option select[data-name=${k}]`)
+
+      if ($o.length > 0) {
+        if ($o.attr('type') === 'checkbox') {
+          if ($isTrue(option[k])) $o.trigger('click')
         } else {
-          opt.val(option[k])
+          $o.val(option[k])
         }
       }
 

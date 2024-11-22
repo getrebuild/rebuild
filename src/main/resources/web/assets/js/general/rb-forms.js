@@ -1179,7 +1179,7 @@ class RbFormText extends RbFormElement {
 
     if (this._textCommonMenuId) {
       const that = this
-      console.log('[dev] init dropdown-menu with text-common', this._textCommonMenuId)
+      if (rb.dev === 'env') console.log('[dev] init dropdown-menu with text-common', this._textCommonMenuId)
       renderRbcomp(
         <div id={this._textCommonMenuId}>
           <div className="dropdown-menu common-texts">
@@ -1207,7 +1207,7 @@ class RbFormText extends RbFormElement {
     super.componentWillUnmount()
 
     if (this._textCommonMenuId) {
-      console.log('[dev] unmount dropdown-menu with text-common:', this._textCommonMenuId)
+      if (rb.dev === 'env') console.log('[dev] unmount dropdown-menu with text-common:', this._textCommonMenuId)
       $unmount($(`#${this._textCommonMenuId}`).parent())
     }
   }

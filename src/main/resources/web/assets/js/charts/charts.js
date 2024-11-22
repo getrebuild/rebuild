@@ -510,6 +510,7 @@ class ChartLine extends BaseChart {
       const showMutliYAxis = data._renderOption && data._renderOption.showMutliYAxis
       const showAreaColor = data._renderOption && data._renderOption.showAreaColor
       const dataFlags = data._renderOption.dataFlags || []
+      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
@@ -555,9 +556,8 @@ class ChartLine extends BaseChart {
         option.legend = ECHART_LEGEND_HOPT
         option.grid.top = 40
       }
-      if (showMutliYAxis && option.series.length > 1) {
-        recalcMutliYAxis(option)
-      }
+      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
+      if (showMutliYAxis && option.series.length > 1) recalcMutliYAxis(option)
 
       this._echarts = renderEChart(option, elid)
     })
@@ -580,6 +580,7 @@ class ChartBar extends BaseChart {
       const showHorizontal = data._renderOption && data._renderOption.showHorizontal // v3.7
       const showMutliYAxis = data._renderOption && data._renderOption.showMutliYAxis // v3.7
       const dataFlags = data._renderOption.dataFlags || [] // 小数符号
+      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
@@ -627,6 +628,7 @@ class ChartBar extends BaseChart {
         option.legend = ECHART_LEGEND_HOPT
         option.grid.top = 40
       }
+      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
       // 加大左侧距离
       if (showHorizontal) {
         option.grid.left = 100
@@ -670,6 +672,7 @@ class ChartPie extends BaseChart {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
       const dataFlags = data._renderOption.dataFlags || []
+      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
 
       data = { ...data, type: 'pie', radius: '71%', cursor: 'default' }
       if (showNumerical) {
@@ -688,6 +691,7 @@ class ChartPie extends BaseChart {
         return `<b>${a.data.name}</b> <br/> ${a.marker} ${a.seriesName} : ${formatThousands(a.data.value, dataFlags[0])} (${a.percent}%)`
       }
       if (showLegend) option.legend = ECHART_LEGEND_VOPT
+      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       this._echarts = renderEChart(option, elid)
     })
@@ -707,6 +711,7 @@ class ChartFunnel extends BaseChart {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
       const dataFlags = data._renderOption.dataFlags || []
+      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
 
       const option = {
         ...$clone(ECHART_BASE),
@@ -740,6 +745,7 @@ class ChartFunnel extends BaseChart {
         else return `<b>${a.name}</b> <br/> ${a.marker} ${formatThousands(a.value, dataFlags[a.dataIndex])}`
       }
       if (showLegend) option.legend = ECHART_LEGEND_VOPT
+      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       this._echarts = renderEChart(option, elid)
     })
@@ -759,6 +765,7 @@ class ChartTreemap extends BaseChart {
     this.setState({ chartdata: <div className="chart treemap" id={elid} /> }, () => {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const dataFlags = data._renderOption.dataFlags || []
+      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
 
       const option = {
         ...$clone(ECHART_BASE),
@@ -802,6 +809,7 @@ class ChartTreemap extends BaseChart {
           return ns[ns.length - 1] + (showNumerical ? ` (${formatThousands(a.value, dataFlags[0])})` : '')
         },
       }
+      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       this._echarts = renderEChart(option, elid)
     })
@@ -1078,6 +1086,7 @@ class ChartRadar extends BaseChart {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
       const dataFlags = data._renderOption.dataFlags || []
+      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
 
       const option = {
         ...$clone(ECHART_BASE),
@@ -1136,6 +1145,7 @@ class ChartRadar extends BaseChart {
         return tooltip.join('<br/>')
       }
       if (showLegend) option.legend = ECHART_LEGEND_VOPT
+      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       this._echarts = renderEChart(option, elid)
     })
@@ -1156,6 +1166,7 @@ class ChartScatter extends BaseChart {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
       const dataFlags = data._renderOption.dataFlags || []
+      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
 
       const axisOption = {
         splitLine: {
@@ -1211,6 +1222,7 @@ class ChartScatter extends BaseChart {
         option.legend = ECHART_LEGEND_HOPT
         option.grid.top = 40
       }
+      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       this._echarts = renderEChart(option, elid)
     })
