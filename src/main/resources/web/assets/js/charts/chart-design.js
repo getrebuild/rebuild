@@ -118,7 +118,7 @@ $(document).ready(() => {
     }
   })
 
-  const $chTypes = $('.chart-type > a').on('click', function () {
+  const $chTypes = $('.chart-type>a').on('click', function () {
     const $this = $(this)
     if ($this.hasClass('active') === false) return
     $chTypes.removeClass('select')
