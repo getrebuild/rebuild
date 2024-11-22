@@ -62,9 +62,9 @@ $(document).ready(() => {
       .droppable({
         accept: function () {
           if (dargOnSort === true) return false
-          const isdim = $(this).hasClass('J_axis-dim')
-          if (type_DATALIST2) return isdim
-          if (isdim) return !dragIsNum
+          const isDim = $(this).hasClass('J_axis-dim')
+          if (type_DATALIST2) return isDim
+          if (isDim) return !dragIsNum
           return true
         },
         drop: function (e, ui) {
@@ -118,7 +118,7 @@ $(document).ready(() => {
     }
   })
 
-  const $chTypes = $('.chart-type > a').on('click', function () {
+  const $chTypes = $('.chart-type>a').on('click', function () {
     const $this = $(this)
     if ($this.hasClass('active') === false) return
     $chTypes.removeClass('select')
@@ -200,12 +200,14 @@ $(document).ready(() => {
     const option = wpc.chartConfig.option || {}
     if (typeof option['mergeCell'] === undefined) option.mergeCell = true // fix: 3.1.3
     for (let k in option) {
-      const opt = $(`.chart-option input[data-name=${k}]`)
-      if (opt.length > 0) {
-        if (opt.attr('type') === 'checkbox') {
-          if ($isTrue(option[k])) opt.trigger('click')
+      let $o = $(`.chart-option input[data-name=${k}]`)
+      if (!$o[0]) $o = $(`.chart-option select[data-name=${k}]`)
+
+      if ($o.length > 0) {
+        if ($o.attr('type') === 'checkbox') {
+          if ($isTrue(option[k])) $o.trigger('click')
         } else {
-          opt.val(option[k])
+          $o.val(option[k])
         }
       }
 
@@ -551,7 +553,7 @@ class DlgAxisProps extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L('显示样式')} ref={(c) => (this._dlg = c)}>
+      <RbModal title={$L('显示样式')} ref={(c) => (this._dlg = c)} className="sm-height">
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('别名')}</label>
@@ -596,9 +598,9 @@ class DlgAxisProps extends RbFormHandler {
               <button className="btn btn-primary" type="button" onClick={() => this.saveProps()}>
                 {$L('确定')}
               </button>
-              <a className="btn btn-link" onClick={() => this.hide()}>
+              <button type="button" className="btn btn-link" onClick={() => this.hide()}>
                 {$L('取消')}
-              </a>
+              </button>
             </div>
           </div>
         </div>

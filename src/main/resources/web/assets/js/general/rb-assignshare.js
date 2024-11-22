@@ -71,9 +71,9 @@ class DlgAssign extends RbModalHandler {
               <button className="btn btn-primary" type="button" onClick={() => this.post()}>
                 {$L('确定')}
               </button>
-              <a className="btn btn-link" onClick={() => this.hide()}>
+              <button type="button" className="btn btn-link" onClick={() => this.hide()}>
                 {$L('取消')}
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -224,9 +224,9 @@ class DlgUnshare extends RbModalHandler {
               <button className="btn btn-primary" type="button" onClick={() => this.post()}>
                 {$L('确定')}
               </button>
-              <a className="btn btn-link" onClick={() => this.hide()}>
+              <button type="button" className="btn btn-link" onClick={() => this.hide()}>
                 {$L('取消')}
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -428,9 +428,9 @@ class DlgTransform extends RbModalHandler {
               <button className="btn btn-primary btn-outline ml-2" type="button" onClick={() => this.post(true)}>
                 {$L('预览')}
               </button>
-              <a className="btn btn-link" onClick={() => this.hide()}>
+              <button type="button" className="btn btn-link" onClick={() => this.hide()}>
                 {$L('取消')}
-              </a>
+              </button>
             </div>
           </div>
         </div>

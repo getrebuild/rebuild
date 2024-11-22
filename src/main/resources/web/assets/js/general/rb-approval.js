@@ -782,13 +782,12 @@ class ApprovalStepViewer extends React.Component {
               {this.state.steps && (
                 <div className="text-center mt-4" ref={(c) => (this._$his = c)}>
                   <a
-                    className="text-primary"
+                    className="show-more-pill"
                     onClick={() => {
                       this._load(true)
                       setTimeout(() => $(this._$his).remove(), 200)
                     }}>
-                    {$L('查看全部')}&nbsp;
-                    <i className="mdi mdi-dots-horizontal-circle-outline fs-15" />
+                    {$L('查看全部')}
                   </a>
                 </div>
               )}

@@ -31,7 +31,7 @@ $(document).ready(() => {
   })
 
   const config = wpc.config || {}
-  console.log('[dev]', config)
+  if (rb.dev === 'env') console.log('[dev]', config)
 
   let _FieldsMapping
   let _FieldsMapping2_key

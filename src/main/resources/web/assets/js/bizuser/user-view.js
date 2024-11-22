@@ -219,7 +219,7 @@ class DlgEnableUser extends RbModalHandler {
 
   render() {
     return (
-      <RbModal title={this._title} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={this._title} ref={(c) => (this._dlg = c)} disposeOnHide className="sm-height">
         <div className="form">
           {this.props.deptSet && (
             <div className="form-group row">
@@ -253,9 +253,9 @@ class DlgEnableUser extends RbModalHandler {
               <button className="btn btn-primary" type="button" onClick={() => this.post()}>
                 {$L('确定')}
               </button>
-              <a className="btn btn-link" onClick={() => this.hide()}>
+              <button type="button" className="btn btn-link" onClick={() => this.hide()}>
                 {$L('取消')}
-              </a>
+              </button>
             </div>
           </div>
         </div>

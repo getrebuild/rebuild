@@ -459,9 +459,9 @@ class ImportsTraceViewer extends RbAlert {
         </table>
 
         <div className={`text-center mt-2 pb-2 ${!this.state.hasMore && 'hide'}`}>
-          <button type="button" className="btn btn-link" onClick={() => this.showData(1)}>
+          <a className="show-more-pill" onClick={() => this.showData(1)}>
             {$L('显示更多')}
-          </button>
+          </a>
         </div>
       </RF>
     )

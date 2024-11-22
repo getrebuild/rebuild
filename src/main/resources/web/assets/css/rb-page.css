@@ -1854,6 +1854,20 @@ th.column-fixed {
   top: 0;
 }
 
+.data-list .table tr td .progress {
+  height: 16px;
+  font-size: 12px;
+  text-align: center;
+  background-color: #ccc;
+  display: block;
+}
+
+.data-list .table tr td .progress .progress-bar {
+  line-height: 16px;
+  width: 0;
+  max-width: 100%;
+}
+
 .form.batch-form {
   padding: 10px 15px;
 }
@@ -1918,7 +1932,7 @@ th.column-fixed {
   padding: 9px 8px;
   font-size: 15px;
   position: absolute;
-  top: -2px;
+  top: -1px;
   z-index: 1;
   display: none;
 }
@@ -3344,7 +3358,7 @@ form {
 
 @media (max-width: 767.98px) {
   .rb-top-header .global-search2,
-  .rb-top-header .global-create2-- {
+  .rb-top-header .global-create2 {
     display: none !important;
   }
 }
@@ -5175,6 +5189,10 @@ pre.unstyle {
   margin-left: 6px;
 }
 
+.rbcolors input[type='color'] {
+  position: absolute;
+}
+
 .rbcolors > a > i {
   color: #fff !important;
 }
@@ -5850,4 +5868,24 @@ div.formula-code {
 }
 
 .rbview-fjsalert {
+}
+
+.show-more-pill {
+  color: #4285f4 !important;
+  border-radius: 99px;
+  border: 1px solid #dee2e6;
+  padding: 5px 10px;
+  display: inline-block;
+  line-height: 1;
+}
+
+.show-more-pill::after {
+  font: normal normal normal 14px/1 'Material Design Icons';
+  content: '\F0B8D';
+  margin-left: 5px;
+}
+
+.show-more-pill:hover {
+  border-color: #0d5bdd;
+  color: #0d5bdd;
 }

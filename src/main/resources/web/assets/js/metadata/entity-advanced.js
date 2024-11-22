@@ -513,7 +513,7 @@ const CompCategory = (_this, name = 'advListShowCategory') => {
   )
 }
 const CompCategory_componentDidMount = (_this, name = 'advListShowCategory') => {
-  const $el = $('#' + name).on('change', function () {
+  const $el = $(`#${name}`).on('change', function () {
     _this.setState({ advListShowCategory: $val(this) ? true : null })
     // fields
     if (!_this.state.advListShowCategoryFields) {
@@ -632,6 +632,11 @@ class CompCategoryItem extends React.Component {
     const $format = $(this._$format).select2({
       allowClear: true,
       placeholder: $L('默认'),
+      language: {
+        noResults: function () {
+          return $L('默认')
+        },
+      },
     })
 
     $field.on('change', (e) => {

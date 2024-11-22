@@ -93,7 +93,7 @@ class FieldNew2 extends RbModalHandler {
               </div>
             </div>
             <div className="form-group row footer">
-              <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btns = c)}>
+              <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
                 <button className="btn btn-primary" type="button" onClick={() => this.postNew()}>
                   {$L('确定')}
                 </button>
@@ -171,7 +171,31 @@ class FieldNew2 extends RbModalHandler {
       stateClass: stateClass,
     }
 
-    const $btn = $(this._$btns).find('.btn').button('loading')
+    const $btn = $(this._$btn).find('.btn').button('loading')
+    $.get(`/commons/metadata/fields?entity=${data.entity}`, (res) => {
+      let rename = false
+      res.data &&
+        res.data.forEach((item) => {
+          if (item.label === data.label) rename = true
+        })
+
+      if (rename) {
+        $btn.button('reset')
+        const that = this
+        RbAlert.create($L('存在同名字段，是否继续添加？'), {
+          onConfirm: function () {
+            this.hide()
+            that._postNew(data, $btn)
+          },
+        })
+      } else {
+        this._postNew(data, $btn)
+      }
+    })
+  }
+
+  _postNew(data, $btn) {
+    $btn.button('loading')
     $.post('/admin/entity/field-new', JSON.stringify(data), (res) => {
       $btn.button('reset')
 

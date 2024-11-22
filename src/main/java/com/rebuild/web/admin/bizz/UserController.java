@@ -36,7 +36,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -145,17 +144,6 @@ public class UserController extends EntityController {
 
         Application.getBean(UserService.class)
                 .updateEnableUser(userId, deptNew, roleNew, roleAppends, enableNew);
-
-        // 禁用后马上销毁会话
-        enUser = Application.getUserStore().getUser(enUser.getId());
-        if (!enUser.isActive()) {
-            HttpSession s = Application.getSessionStore().getSession(enUser.getId());
-            if (s != null) {
-                log.warn("FORCE DESTROY USER SESSION : {} < {}", enUser.getId(), s.getId());
-                s.invalidate();
-            }
-        }
-
         return RespBody.ok();
     }
 
