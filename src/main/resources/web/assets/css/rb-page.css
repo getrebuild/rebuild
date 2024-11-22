@@ -5189,6 +5189,10 @@ pre.unstyle {
   margin-left: 6px;
 }
 
+.rbcolors input[type='color'] {
+  position: absolute;
+}
+
 .rbcolors > a > i {
   color: #fff !important;
 }
