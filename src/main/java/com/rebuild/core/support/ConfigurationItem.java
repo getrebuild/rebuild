@@ -121,7 +121,7 @@ public enum ConfigurationItem {
      */
     ProtectedAdmin,
 
-    // !!! 命令行适用
+    // !!! 命令行适用 or `rebuild.conf`
     DataDirectory,                  // 数据目录
     RedisDatabase(0),     // Redis DB
     MobileUrl,                      // 移动端地址
