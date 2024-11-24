@@ -320,11 +320,13 @@ public abstract class ChartData extends SetUser implements ChartSpec {
 
         if ("%".equals(type)) value += "%";
         else if (type.contains("%s")) value = String.format(type, value);
-        else value = type + " " + value;
+        else if (!"0".equals(type)) value = type + " " + value;
         return value;
     }
 
     /**
+     * @param numerical
+     * @return returns FLAG:UNIT
      * @see com.rebuild.core.metadata.easymeta.EasyDecimal#wrapValue(Object)
      */
     protected String getNumericalFlag(Numerical numerical) {
@@ -338,7 +340,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
         }
 
         String type = EasyMetaFactory.valueOf(numerical.getField()).getExtraAttr(EasyFieldConfigProps.DECIMAL_TYPE);
-        if (type == null) type = "0";
+        if (StringUtils.isBlank(type)) type = "0";
         return type + ":" + numerical.getUnit();
     }
 

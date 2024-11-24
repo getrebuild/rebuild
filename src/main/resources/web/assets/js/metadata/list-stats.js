@@ -8,16 +8,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 $(document).ready(() => {
   const entity = $urlp('entity')
   const settingsUrl = `/admin/entity/${entity}/list-stats`
-
   $.get(settingsUrl, (res) => {
     const fields = res.data.fields || []
-
     const $to = $('.set-fields')
     fields.forEach((item) => {
       const $a = $(`<a class="item" data-field="${item.name}">${item.label} +</a>`).appendTo($to)
       $a.on('click', () => {
         render_set(item)
-        parent.RbModal.resize()
+        parent.RbModal && parent.RbModal.resize()
       })
     })
 
@@ -26,11 +24,10 @@ $(document).ready(() => {
         const field = fields.find((x) => x.name === item.field)
         render_set({ ...item, name: item.field, specLabel: item.label, label: field ? field.label : `[${item.field.toUpperCase()}]` })
       })
-
       refreshConfigStar()
     }
 
-    parent.RbModal.resize()
+    parent.RbModal && parent.RbModal.resize()
   })
 
   // 字段排序
@@ -49,7 +46,7 @@ $(document).ready(() => {
     }
 
     const config = { items: [] }
-    $('.set-items > span').each(function () {
+    $('.set-items>span').each(function () {
       const $this = $(this)
       config.items.push({
         field: $this.attr('data-field'),
@@ -78,7 +75,7 @@ const CALC_TYPES = {
 const ShowStyles_Comps = {}
 
 const render_set = function (item) {
-  const len = $('.set-items > span').length
+  const len = $('.set-items>span').length
   if (len >= 9) {
     RbHighbar.create($L('最多可添加 9 个'))
     return
@@ -88,10 +85,8 @@ const render_set = function (item) {
   if (!item.key2) item.key2 = $random('stat-')
 
   const $to = $('.set-items')
-
   const calc = item.calc || 'SUM'
   const $item = $(`<span data-field="${item.name}" data-calc="${calc}" data-label="${item.label2 || ''}"></span>`).appendTo($to)
-
   const $a = $(
     `<div class="item" data-toggle="dropdown"><a><i class="zmdi zmdi-chevron-down"></i></a><span>${item.label} (${CALC_TYPES[calc]})</span><a class="del"><i class="zmdi zmdi-close-circle"></i></a></div>`
   ).appendTo($item)
@@ -108,8 +103,8 @@ const render_set = function (item) {
   $(`<li class="dropdown-item" data-calc='_LABEL'>${$L('显示样式')}</li>`).appendTo($ul)
 
   $ul.find('.dropdown-item').on('click', function () {
-    const c = $(this).data('calc')
-    if (c === '_LABEL') {
+    const calc = $(this).data('calc')
+    if (calc === '_LABEL') {
       if (ShowStyles_Comps[item.key2]) {
         ShowStyles_Comps[item.key2].show()
       } else {
@@ -131,15 +126,16 @@ const render_set = function (item) {
         )
       }
     } else {
-      $item.attr('data-calc', c).find('.item > span').text(`${item.label} (${CALC_TYPES[c]})`)
+      $item.attr('data-calc', calc).find('.item>span').text(`${item.label} (${CALC_TYPES[calc]})`)
     }
   })
 }
 
 const refreshConfigStar = function () {
-  $('.set-items > span').each(function () {
+  $('.set-items>span').each(function () {
     const $this = $(this)
     if ($this.attr('data-label')) $this.find('.item').addClass('star')
     else $this.find('.item').removeClass('star')
   })
+  parent.RbModal && parent.RbModal.resize()
 }

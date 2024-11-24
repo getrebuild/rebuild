@@ -80,8 +80,6 @@ class RbViewForm extends React.Component {
               return detectViewElement(item, this.props.entity)
             })}
           </div>
-
-          {this.renderCustomizedFormArea()}
         </RF>
       )
 
@@ -100,15 +98,6 @@ class RbViewForm extends React.Component {
   renderViewError(message) {
     this.setState({ formComponent: _renderError(message) }, () => this.hideLoading())
     $('.view-operating .view-action').empty()
-  }
-
-  renderCustomizedFormArea() {
-    let _FormArea
-    if (window._CustomizedForms) {
-      _FormArea = window._CustomizedForms.useFormArea(this.props.entity, this)
-      if (_FormArea) _FormArea = <div className="row">{React.cloneElement(_FormArea, { $$$parent: this })}</div>
-    }
-    return _FormArea || null
   }
 
   hideLoading() {

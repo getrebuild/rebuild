@@ -15,6 +15,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.general.BarCodeSupport;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -30,6 +31,7 @@ import java.io.IOException;
  * @author devezhao
  * @since 2020/6/5
  */
+@Slf4j
 @Controller
 public class BarCodeGeneratorController extends BaseController {
 
@@ -64,7 +66,8 @@ public class BarCodeGeneratorController extends BaseController {
             if (showFormat != null) {
                 try {
                     specFormat = BarcodeFormat.valueOf(showFormat);
-                } catch (Exception ignored) {
+                } catch (Exception ex) {
+                    log.warn("Bad format for BarCode : {}", specFormat);
                 }
             }
 
@@ -75,8 +78,8 @@ public class BarCodeGeneratorController extends BaseController {
             }
         }
 
-        // 6小时缓存
-        ServletUtils.addCacheHead(response, 360);
+        // 24小时缓存
+        ServletUtils.addCacheHead(response, 60 * 24);
         writeTo(bi, response);
     }
 

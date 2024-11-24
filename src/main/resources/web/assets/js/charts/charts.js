@@ -623,7 +623,14 @@ class ChartBar extends BaseChart {
         series: data.yyyAxis,
       }
       option.tooltip.trigger = 'axis'
-      option.tooltip.formatter = (a) => ECHART_TOOLTIP_FORMATTER(a, dataFlags)
+      option.tooltip.formatter = (a) => {
+        if (this._stack) {
+          let clone = [...a]
+          clone.reverse()
+          a = clone
+        }
+        return ECHART_TOOLTIP_FORMATTER(a, dataFlags)
+      }
       if (showLegend) {
         option.legend = ECHART_LEGEND_HOPT
         option.grid.top = 40

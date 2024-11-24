@@ -765,11 +765,7 @@ class RepeatedViewer extends RbModalHandler {
 if (!window.RbForm) window.RbForm = function () {}
 // eslint-disable-next-line no-unused-vars
 class LiteForm extends RbForm {
-  renderCustomizedFormArea() {
-    return null
-  }
-
-  renderDetailsForm() {
+  renderDetailForms() {
     return null
   }
 

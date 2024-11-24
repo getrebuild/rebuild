@@ -305,8 +305,6 @@ class RbForm extends React.Component {
             }
             return React.cloneElement(fieldComp, { $$$parent: this, ref: ref })
           })}
-
-          {this.renderCustomizedFormArea()}
         </div>
 
         {this.renderDetailForms()}
@@ -315,35 +313,26 @@ class RbForm extends React.Component {
     )
   }
 
-  renderCustomizedFormArea() {
-    let _FormArea
-    if (window._CustomizedForms) {
-      _FormArea = window._CustomizedForms.useFormArea(this.props.entity, this)
-      if (_FormArea) _FormArea = React.cloneElement(_FormArea, { $$$parent: this })
-    }
-    return _FormArea || null
-  }
-
   renderDetailForms() {
     if (!window.ProTable || !this.props.rawModel.detailMeta) return null
 
     // v3.7 ND
     const detailImports = this.props.rawModel.detailImports
     // v3.9 记录转换
-    const transDetails = this.props.rawModel.$DETAILS$
+    const transDetails39 = this.props.rawModel['$DETAILS$']
 
     this._ProTables = {}
 
     return (
       <RF>
         {this.props.rawModel.detailMetas.map((item, idx) => {
-          return <RF key={idx}>{this.renderDetailsForm(item, detailImports, transDetails)}</RF>
+          return <RF key={idx}>{this._renderDetailForms(item, detailImports, transDetails39)}</RF>
         })}
       </RF>
     )
   }
 
-  renderDetailsForm(detailMeta, detailImports, transDetails) {
+  _renderDetailForms(detailMeta, detailImports, transDetails39) {
     let _ProTable
     if (window._CustomizedForms) {
       _ProTable = window._CustomizedForms.useProTable(detailMeta.entity, this)
@@ -455,8 +444,8 @@ class RbForm extends React.Component {
             this._ProTable = c // comp:v3.8
           }}
           $$$main={this}
-          transDetails={transDetails ? transDetails[detailMeta.entity] : null}
-          transDetailsDelete={transDetails ? transDetails[detailMeta.entity + '$DELETED'] : null}
+          transDetails={transDetails39 ? transDetails39[detailMeta.entity] : null}
+          transDetailsDelete={transDetails39 ? transDetails39[detailMeta.entity + '$DELETED'] : null}
         />
       )
     } else {

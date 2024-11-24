@@ -26,8 +26,8 @@ import java.lang.reflect.Constructor;
  */
 public enum ActionType {
 
-    FIELDWRITEBACK("数据更新", FieldWriteback.class),
-    FIELDAGGREGATION("数据聚合", FieldAggregation.class),
+    FIELDWRITEBACK("字段更新", FieldWriteback.class),
+    FIELDAGGREGATION("字段聚合", FieldAggregation.class),
     GROUPAGGREGATION("分组聚合", GroupAggregation.class),
     DATAVALIDATE("数据校验", "com.rebuild.rbv.trigger.DataValidate"),
     SENDNOTIFICATION("发送通知", SendNotification.class),
