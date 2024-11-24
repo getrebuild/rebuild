@@ -78,8 +78,8 @@ public class BarCodeGeneratorController extends BaseController {
             }
         }
 
-        // 6小时缓存
-        ServletUtils.addCacheHead(response, 360);
+        // 24小时缓存
+        ServletUtils.addCacheHead(response, 60 * 24);
         writeTo(bi, response);
     }
 
