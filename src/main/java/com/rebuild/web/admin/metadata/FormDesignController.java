@@ -21,6 +21,7 @@ import com.rebuild.core.configuration.general.FormsManager;
 import com.rebuild.core.configuration.general.LayoutConfigService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
@@ -48,7 +49,7 @@ public class FormDesignController extends BaseController {
     @GetMapping("form-design")
     public ModelAndView page(@PathVariable String entity, HttpServletRequest request) {
         ModelAndView mv = createModelAndView("/admin/metadata/form-design");
-        MetaEntityController.setEntityBase(mv, entity);
+        EasyEntity easyEntity = MetaEntityController.setEntityBase(mv, entity);
         mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
 
         ID formConfigId37 = getIdParameter(request, "id");
@@ -58,6 +59,7 @@ public class FormDesignController extends BaseController {
         List<ConfigBean> attrs = FormsManager.instance.getAllFormsAttr(entity);
         request.setAttribute("FormsAttr", JSON.toJSONString(attrs));
 
+        mv.getModel().put("isDetailEntity", easyEntity.getRawMeta().getMainEntity() != null);
         return mv;
     }
 

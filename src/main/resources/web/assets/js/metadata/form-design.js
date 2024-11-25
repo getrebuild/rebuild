@@ -739,7 +739,7 @@ class DlgNForm extends RbModalHandler {
                   <input className="custom-control-input" type="checkbox" defaultChecked={this.state.fornew} ref={(c) => (this._$fornew = c)} />
                   <span className="custom-control-label">{$L('可用于新建')}</span>
                 </label>
-                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                <label className={`custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 ${wpc.isDetailEntity && 'hide'}`}>
                   <input className="custom-control-input" type="checkbox" defaultChecked={this.state.extrasAction} ref={(c) => (this._$extrasAction = c)} />
                   <span className="custom-control-label">{$L('显示扩展按钮')}</span>
                 </label>

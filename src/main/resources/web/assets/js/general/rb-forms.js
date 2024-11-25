@@ -547,7 +547,7 @@ class RbForm extends React.Component {
       if (props.$$$parent && props.$$$parent.props._nextAddDetail) {
         moreActions.push(
           <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_NEWDETAIL)}>
-            {$L('保存并继续添加')}
+            {$L('保存并添加')}
           </a>
         )
       }
@@ -557,7 +557,7 @@ class RbForm extends React.Component {
       if (window.__LAB_FORMACTION_105 || props.rawModel.extrasAction) {
         moreActions.push(
           <a key="Action105" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADD36)}>
-            {$L('保存并继续新建')}
+            {$L('保存并新建')}
           </a>
         )
       }
