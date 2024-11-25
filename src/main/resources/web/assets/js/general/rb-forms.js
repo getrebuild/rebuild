@@ -554,14 +554,14 @@ class RbForm extends React.Component {
     }
     // 列表页保存并继续
     else if (window.RbViewModal && window.__PageConfig.type === 'RecordList') {
-      if (window.__LAB_FORMACTION_105) {
+      if (window.__LAB_FORMACTION_105 || props.rawModel.extrasAction) {
         moreActions.push(
           <a key="Action105" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADD36)}>
             {$L('保存并继续新建')}
           </a>
         )
       }
-      if (window.__LAB_FORMACTION_103 && props.rawModel.hadApproval && window.ApprovalSubmitForm) {
+      if ((window.__LAB_FORMACTION_103 || props.rawModel.extrasAction) && props.rawModel.hadApproval && window.ApprovalSubmitForm) {
         moreActions.push(
           <a key="Action103" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_SUBMIT37)}>
             {$L('保存并提交')}
