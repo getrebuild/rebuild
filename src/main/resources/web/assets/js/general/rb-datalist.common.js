@@ -1487,7 +1487,8 @@ class RbListPagination extends React.Component {
         {(this.state.rowsStats || []).map((item, idx) => {
           return (
             <span key={idx} className="stat-item">
-              {item.label} <strong className="text-warning">{item.value} </strong>
+              {item.label}
+              <strong style={{ color: item.color || '#fbbc05' }}>{item.value}</strong>
             </span>
           )
         })}

@@ -52,6 +52,7 @@ $(document).ready(() => {
         field: $this.attr('data-field'),
         calc: $this.attr('data-calc'),
         label2: $this.attr('data-label'),
+        color: $this.attr('data-color'),
       })
     })
 
@@ -76,17 +77,14 @@ const ShowStyles_Comps = {}
 
 const render_set = function (item) {
   const len = $('.set-items>span').length
-  if (len >= 9) {
-    RbHighbar.create($L('最多可添加 9 个'))
-    return
-  }
+  if (len >= 9) return RbHighbar.create($L('最多可添加 9 个'))
 
   // 唯一
   if (!item.key2) item.key2 = $random('stat-')
 
-  const $to = $('.set-items')
+  const $dest = $('.set-items')
   const calc = item.calc || 'SUM'
-  const $item = $(`<span data-field="${item.name}" data-calc="${calc}" data-label="${item.label2 || ''}"></span>`).appendTo($to)
+  const $item = $(`<span data-field="${item.name}" data-calc="${calc}" data-label="${item.label2 || ''}" data-color="${item.color || ''}"></span>`).appendTo($dest)
   const $a = $(
     `<div class="item" data-toggle="dropdown"><a><i class="zmdi zmdi-chevron-down"></i></a><span>${item.label} (${CALC_TYPES[calc]})</span><a class="del"><i class="zmdi zmdi-close-circle"></i></a></div>`
   ).appendTo($item)
@@ -109,17 +107,17 @@ const render_set = function (item) {
         ShowStyles_Comps[item.key2].show()
       } else {
         renderRbcomp(
-          // eslint-disable-next-line react/jsx-no-undef
-          <ShowStyles
+          <ShowStyles2
             label={item.label2}
+            color={item.color}
             onConfirm={(s) => {
               $item.attr({
                 'data-label': s.label || '',
+                'data-color': s.color || '',
               })
               refreshConfigStar()
             }}
           />,
-          null,
           function () {
             ShowStyles_Comps[item.key2] = this
           }
@@ -134,8 +132,61 @@ const render_set = function (item) {
 const refreshConfigStar = function () {
   $('.set-items>span').each(function () {
     const $this = $(this)
-    if ($this.attr('data-label')) $this.find('.item').addClass('star')
+    if ($this.attr('data-label') || $this.attr('data-color')) $this.find('.item').addClass('star')
     else $this.find('.item').removeClass('star')
   })
   parent.RbModal && parent.RbModal.resize()
+}
+
+// eslint-disable-next-line no-undef
+class ShowStyles2 extends ShowStyles {
+  renderExtras() {
+    return (
+      <div className="form-group row">
+        <label className="col-sm-3 col-form-label text-sm-right">{$L('颜色')}</label>
+        <div className="col-sm-7">
+          <div className="rbcolors mt-1">
+            <a className="default" title={$L('默认')} />
+            {RBCOLORS.map((c) => {
+              return <a style={{ backgroundColor: c }} data-color={c} key={c} />
+            })}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    const $cs = $('.rbcolors')
+    $cs.find('>a').on('click', function () {
+      $cs.find('>a .zmdi').remove()
+      $('<i class="zmdi zmdi-check"></i>').appendTo(this)
+    })
+    $('<input type="color" />')
+      .appendTo($cs)
+      .on('change', () => {
+        $cs.find('>a .zmdi').remove()
+      })
+
+    // init
+    if (this.props.color) {
+      $cs.find(`a[data-color="${this.props.color}"]`).trigger('click')
+      $('.rbcolors >input').val(this.props.color)
+    }
+  }
+
+  saveProps() {
+    let color = $('.rbcolors>a>i')
+    if (color[0]) color = color.parent().data('color') || ''
+    else color = $('.rbcolors>input').val() || ''
+
+    const data = {
+      label: $(this._$label).val() || '',
+      color: color,
+    }
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(data)
+    this.hide()
+  }
 }

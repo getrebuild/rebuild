@@ -178,7 +178,6 @@ $(document).ready(() => {
     $('<i class="zmdi zmdi-check"></i>').appendTo(this)
     render_preview()
   })
-
   $('<input type="color" />')
     .appendTo($cs)
     .on('change', (e) => {

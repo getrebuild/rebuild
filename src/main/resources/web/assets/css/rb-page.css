@@ -1952,6 +1952,10 @@ th.column-fixed {
   margin: 0 5px;
 }
 
+.dataTables_info .stat-item > strong {
+  margin-left: 4px;
+}
+
 /* DataList ends */
 
 .unselect {

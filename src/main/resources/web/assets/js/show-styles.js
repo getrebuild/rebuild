@@ -27,7 +27,6 @@ class ShowStyles extends React.Component {
                   </div>
                 </div>
                 {this.renderExtras()}
-
                 <div className="form-group row footer">
                   <div className="col-sm-7 offset-sm-3">
                     <button className="btn btn-primary" type="button" onClick={() => this.saveProps()}>
