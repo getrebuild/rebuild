@@ -54,7 +54,7 @@ public class FormsManager extends BaseLayoutManager {
      * @return
      */
     public ConfigBean getFormLayout(String entity, ID recordOrLayoutId, int applyType) {
-        final Object[][] alls = getAllConfig(entity, TYPE_FORM);
+        final Object[][] allConfs = getAllConfig(entity, TYPE_FORM);
 
         // TODO `applyType` 暂未用
 
@@ -62,7 +62,7 @@ public class FormsManager extends BaseLayoutManager {
 
         // 1.指定布局
         if (recordOrLayoutId != null && recordOrLayoutId.getEntityCode() == EntityHelper.LayoutConfig) {
-            use = findConfigBean(alls, recordOrLayoutId);
+            use = findConfigBean(allConfs, recordOrLayoutId);
             if (use == null) {
                 log.warn("Spec layout not longer exists : {}", recordOrLayoutId);
                 recordOrLayoutId = null;
@@ -72,8 +72,8 @@ public class FormsManager extends BaseLayoutManager {
         // 2.查找布局
         if (use == null) {
             // 优先使用条件匹配的
-            for (Object[] o : alls) {
-                ConfigBean cb = findConfigBean(alls, (ID) o[0]);
+            for (Object[] o : allConfs) {
+                ConfigBean cb = findConfigBean(allConfs, (ID) o[0]);
                 ShareToAttr attr = new ShareToAttr(cb);
                 if (recordOrLayoutId == null) {
                     if (attr.isFallback() || attr.isForNew()) {
@@ -90,14 +90,14 @@ public class FormsManager extends BaseLayoutManager {
 
             // 默认优先级
             if (recordOrLayoutId == null) {
-                use = findDefault(alls);
+                use = findDefault(allConfs);
             }
         }
 
         // 3.默认布局
         if (use == null && recordOrLayoutId != null) {
-            for (Object[] o : alls) {
-                ConfigBean cb = findConfigBean(alls, (ID) o[0]);
+            for (Object[] o : allConfs) {
+                ConfigBean cb = findConfigBean(allConfs, (ID) o[0]);
                 ShareToAttr attr = new ShareToAttr(cb);
                 if (attr.isFallback()) {
                     use = cb;
@@ -217,7 +217,12 @@ public class FormsManager extends BaseLayoutManager {
         // attrs
         String shareTo = cb.getString("shareTo");
         if (JSONUtils.wellFormat(shareTo)) {
-            cb.set("shareTo", JSON.parse(shareTo));
+            JSONObject shareTo2 = (JSONObject) JSON.parse(shareTo);
+            cb.set("shareTo", shareTo2);
+            // v3.9
+            if (shareTo2.getBooleanValue("extrasAction")) {
+                cb.set("extrasAction", true);
+            }
         }
         return cb;
     }

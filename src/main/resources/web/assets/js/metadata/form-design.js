@@ -689,10 +689,12 @@ class DlgNForm extends RbModalHandler {
     if (props.attrs === 'ALL' && !props.name) {
       this.state.fallback = true
       this.state.fornew = true
+      this.state.extrasAction = false
       this._name = $L('默认布局')
     } else if (typeof props.attrs === 'object') {
       this.state.fallback = props.attrs.fallback
       this.state.fornew = props.attrs.fornew
+      this.state.extrasAction = props.attrs.extrasAction
       this.state.useFilter = props.attrs.filter || null
     }
   }
@@ -736,6 +738,10 @@ class DlgNForm extends RbModalHandler {
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" defaultChecked={this.state.fornew} ref={(c) => (this._$fornew = c)} />
                   <span className="custom-control-label">{$L('可用于新建')}</span>
+                </label>
+                <label className={`custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 ${wpc.isDetailEntity && 'hide'}`}>
+                  <input className="custom-control-input" type="checkbox" defaultChecked={this.state.extrasAction} ref={(c) => (this._$extrasAction = c)} />
+                  <span className="custom-control-label">{$L('显示扩展按钮')}</span>
                 </label>
               </div>
             </div>
@@ -784,15 +790,17 @@ class DlgNForm extends RbModalHandler {
       )
     }
   }
-
   postAttr() {
     const ps = {
       name: $val(this._$name),
+      filter: this.state.useFilter || null,
       fallback: $val(this._$fallback),
       fornew: $val(this._$fornew),
-      filter: this.state.useFilter || null,
+      extrasAction: $val(this._$extrasAction),
     }
-    if (!ps.name) return RbHighbar.createl('请输入名称')
+    if (!ps.name) {
+      return RbHighbar.createl('请输入名称')
+    }
     if (!ps.fallback) {
       if (!ps.filter || ps.filter.items.length === 0) return RbHighbar.createl('非默认布局请设置使用条件')
     }
