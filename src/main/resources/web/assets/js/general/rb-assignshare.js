@@ -397,11 +397,11 @@ class DlgTransform extends RbModalHandler {
             <div className="col-sm-7" style={{ paddingTop: 6 }}>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
                 <input className="custom-control-input" type="radio" name="transType" checked={this.state.transType === 0} onChange={() => this.setState({ transType: 0 })} />
-                <span className="custom-control-label">{$L('新纪录')}</span>
+                <span className="custom-control-label">{$L('新记录')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
                 <input className="custom-control-input J_word4" type="radio" name="transType" checked={this.state.transType === 1} onChange={() => this.setState({ transType: 1 })} />
-                <span className="custom-control-label">{$L('已有纪录')}</span>
+                <span className="custom-control-label">{$L('已有记录')}</span>
               </label>
             </div>
           </div>

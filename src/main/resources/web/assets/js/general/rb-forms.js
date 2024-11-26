@@ -609,7 +609,7 @@ class RbForm extends React.Component {
   }
 
   componentDidMount() {
-    // 新纪录初始值
+    // 新记录初始值
     if (this.isNew || this.props.forceInitFieldValue) {
       this.props.children.map((child) => {
         let iv = child.props.value
