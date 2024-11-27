@@ -725,3 +725,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
   width: 24px;
   height: 24px;
 }
+
+.side-wrapper + .announcement-wrapper {
+  margin-top: 20px;
+}
+
+.side-wrapper + .announcement-wrapper > div + div {
+  margin-top: 5px;
+}
+
+.side-wrapper + .announcement-wrapper > div p {
+  white-space: unset !important;
+  max-height: 84px;
+}

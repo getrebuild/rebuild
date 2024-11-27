@@ -89,8 +89,10 @@ const $showAnnouncement = function () {
   $.get('/commons/announcements', (res) => {
     if (res.error_code !== 0 || !res.data || res.data.length === 0) return
 
-    const shows = res.data.map((item) => {
+    let popup39 = []
+    const anShows = res.data.map((item) => {
       const stateClazz = item.readState === 1 ? 'read-state1' : typeof item.readState === 'string' ? 'read-state2' : null
+      if (item.readState === 1) popup39.push(`anno-${item.id}`)
       return (
         <div key={item.id} id={`anno-${item.id}`} className={`bg-warning ${stateClazz}`} title={$L('查看详情')} onClick={() => renderRbcomp(<AnnouncementModal {...item} />)}>
           <i className="icon zmdi zmdi-notifications-active" />
@@ -99,10 +101,18 @@ const $showAnnouncement = function () {
       )
     })
 
-    renderRbcomp(<RF>{shows}</RF>, $aw, function () {
+    renderRbcomp(<RF>{anShows}</RF>, $aw, function () {
       $(this)
         .find('p>a[href]')
         .on('click', (e) => e.stopPropagation())
+
+      // v3.9 弹窗
+      // 登录页不弹、已读不弹
+      if (location.pathname.includes('/login')) popup39 = []
+      if (location.pathname.includes('/feeds/home')) $('.side-wrapper').css('position', 'static')
+      setTimeout(() => {
+        popup39.forEach((p) => $('#' + p)[0].click())
+      }, 600)
     })
   })
 }
