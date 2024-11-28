@@ -731,7 +731,24 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .side-wrapper + .announcement-wrapper > div + div {
-  margin-top: 5px;
+  margin-top: 10px;
+}
+
+.side-wrapper + .announcement-wrapper > div {
+  padding: 15px;
+  border: 1px solid #fbbc05;
+  background-color: #fff !important;
+  color: #404040;
+  box-shadow: 0.5px 0.9px 0 rgba(0, 0, 0, 0.07);
+  border-radius: 2px;
+}
+
+.side-wrapper + .announcement-wrapper > div::after {
+  right: 15px;
+}
+
+.side-wrapper + .announcement-wrapper > div .icon {
+  color: #fbbc05;
 }
 
 .side-wrapper + .announcement-wrapper > div p {
