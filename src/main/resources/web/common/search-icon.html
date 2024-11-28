@@ -100,13 +100,14 @@
       }
       // V2
       function renderMdi7() {
-        for (let i = 0; i < MDI7_ICONS.length; i++) {
-          const icon = MDI7_ICONS[i]
+        MDI7_ICONS.forEach((icon) => {
+          if (MDI7_ICONS_IGNORE.includes(icon)) return
           const $a = $(`<a data-icon="${icon}" title="${icon.toUpperCase()}"><i class="mdi ${icon}"></a>`).appendTo('#icons')
           $a.on('click', function () {
-            cb($(this).data('icon'))
+            // cb($(this).data('icon'))
+            console.log($(this).data('icon'))
           })
-        }
+        })
       }
     </script>
   </body>
