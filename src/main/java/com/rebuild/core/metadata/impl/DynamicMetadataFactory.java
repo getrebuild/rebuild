@@ -91,9 +91,9 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 
             // 实体扩展配置
             JSONObject extraAttrs = null;
-            if (StringUtils.isBlank((String) c[9])) {
+            if (JSONUtils.wellFormat((String) c[9])) {
                 try {
-                    extraAttrs = new JSONObject();
+                    extraAttrs = JSON.parseObject((String) c[9]);
                 } catch (Exception ignored){}
             }
             if (extraAttrs == null) extraAttrs = new JSONObject();
