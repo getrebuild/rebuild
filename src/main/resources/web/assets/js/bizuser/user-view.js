@@ -149,7 +149,11 @@ $(document).ready(() => {
         $.get(`/commons/search/read-labels?ids=${res.data.roleAppends.join(',')}`, (res) => {
           const $p = $('.J_roleAppends').empty()
           for (let k in res.data) {
-            $(`<span class="badge badge-info up-2"><i class="icon mdi mdi-account-lock"></i> ${res.data[k]}</span>`).appendTo($p)
+            $(
+              `<a class="badge badge-info fs-12 up-2" href="${rb.baseUrl}/admin/bizuser/role/${k}" target="_blank" title="${$L('查看角色权限')}"><i class="icon mdi mdi-account-lock"></i> ${
+                res.data[k]
+              }</a>`
+            ).appendTo($p)
           }
         })
       }
