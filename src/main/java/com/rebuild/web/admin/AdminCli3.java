@@ -10,13 +10,16 @@ package com.rebuild.web.admin;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.TsetEntity;
+import com.rebuild.core.rbstore.RbSystemImporter;
 import com.rebuild.core.service.approval.ApprovalFields2Schema;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.DatabaseBackup;
 import com.rebuild.core.support.setup.DatafileBackup;
 import com.rebuild.core.support.setup.Installer;
+import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.AES;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -29,6 +32,7 @@ import java.util.regex.Pattern;
  * @author devezhao
  * @since 2020/3/16
  */
+@Slf4j
 public class AdminCli3 {
 
     private static final String C_HELP = "help";
@@ -38,6 +42,7 @@ public class AdminCli3 {
     private static final String C_AES = "aes";
     private static final String C_CLEAN_APPROVAL = "clean-approval";
     private static final String C_ADD_TESTENTITY = "add-testentity";
+    private static final String C_RBSPKG = "rbspkg";
 
     private static final String SUCCESS = "OK";
 
@@ -76,7 +81,8 @@ public class AdminCli3 {
                         " \nbackup [database|datafile]" +
                         " \naes [decrypt] VALUE" +
                         " \nclean-approval ENTITY" +
-                        " \nadd-testentity [NAME]";
+                        " \nadd-testentity [NAME]" +
+                        " \nrbspkg URL";
                 break;
             }
             case C_CACHE: {
@@ -101,6 +107,10 @@ public class AdminCli3 {
             }
             case C_ADD_TESTENTITY : {
                 result = this.execAddTestentity();
+                break;
+            }
+            case C_RBSPKG: {
+                result = this.execRbspkg();
                 break;
             }
             default: {
@@ -257,5 +267,22 @@ public class AdminCli3 {
 
         if (entityName.startsWith("EXISTS:")) return "WRAN: " + entityName;
         else return "OK: " + entityName;
+    }
+
+    /**
+     * @return
+     */
+    private String execRbspkg() {
+        if (commands.length < 2) return "WRAN: Bad arguments";
+
+        String fileUrl = commands[1];
+        RbSystemImporter importer = new RbSystemImporter(fileUrl);
+        try {
+            TaskExecutors.run(importer);
+            return "OK";
+        } catch (Exception ex) {
+            log.error("RBSPKG", ex);
+            return "ERROR: " + ex.getLocalizedMessage();
+        }
     }
 }
