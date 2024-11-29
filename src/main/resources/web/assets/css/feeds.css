@@ -726,6 +726,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
   height: 24px;
 }
 
+.unread-status .user-show {
+  margin-right: 12px;
+  margin-left: 0;
+}
+
+.unread-status .user-show .name {
+  color: #404040;
+}
+
 .side-wrapper + .announcement-wrapper {
   margin-top: 20px;
 }

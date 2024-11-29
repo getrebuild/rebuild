@@ -147,7 +147,7 @@ class FeedsList extends React.Component {
                 )}
               </p>
             </div>
-            {__renderRichContent(item, this._inView)}
+            {_renderRichContent(item, this._inView)}
           </div>
         </div>
 
@@ -361,7 +361,7 @@ class FeedsComments extends React.Component {
                     <div className="meta">
                       <a>{item.createdBy[1]}</a>
                     </div>
-                    {__renderRichContent(item)}
+                    {_renderRichContent(item)}
                     <div className="actions">
                       <div className="float-left text-muted fs-12 time">
                         <DateShow date={item.createdOn} />
@@ -575,7 +575,7 @@ class Pagination extends React.Component {
 }
 
 // 渲染动态内容
-function __renderRichContent(e, _inView) {
+function _renderRichContent(e, _inView) {
   // 表情和换行不在后台转换，因为不同客户端所需的格式不同
   const contentHtml = $converEmoji(e.content.replace(/\n/g, '<br />'))
   const contentMore = e.contentMore || {}
@@ -675,6 +675,13 @@ function __renderRichContent(e, _inView) {
                   {e.readStatus.map((item) => {
                     return <UserShow key={item[0]} id={item[0]} name={item[1]} noLink />
                   })}
+                  {rb.isAdminUser && (
+                    <a className="user-show cursor-pointer" title={$L('查看未读用户')} onClick={() => renderRbcomp(<AnnouncementUnreadView id={e.id} />)}>
+                      <div className="avatar">
+                        <i className="zmdi zmdi-more" style={{ fontSize: '1.35rem' }} />
+                      </div>
+                    </a>
+                  )}
                 </div>
               </div>
             )}
@@ -766,4 +773,33 @@ function _updateCommentsNum(id, comp, num) {
     if (id === item.id) item.numComments = item.numComments + num
   })
   comp.setState({ data: _data })
+}
+
+// 公告未读用户
+class AnnouncementUnreadView extends RbAlert {
+  renderContent() {
+    if (!this.state.unread) return null
+
+    if (this.state.unread.length === 0) {
+      return <RbAlertBox message={$L('所有用户均已读')} type="info" />
+    }
+
+    return (
+      <div className="unread-status">
+        <h5 className="text-bold m-0 mb-2">
+          <u>{$L('还有 %d 人未读', this.state.unread.length)}</u>
+        </h5>
+        {this.state.unread.map((item) => {
+          return <UserShow key={item[0]} id={item[0]} name={item[1]} noLink showName />
+        })}
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    $.get('/feeds/announcement-read-status?id=' + this.props.id, (res) => {
+      this.setState({ ...res.data })
+    })
+  }
 }

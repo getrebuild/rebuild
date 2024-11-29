@@ -33,12 +33,12 @@ class AnnouncementModal extends React.Component {
                 {state.readState && (
                   <span className="float-right mr-2">
                     {state.readState === 1 && (
-                      <a className="text-primary" onClick={() => this._makeRead()}>
+                      <a className="text-primary" title={$L('本公告要求已读')} onClick={() => this._makeRead()}>
                         <i className="icon zmdi zmdi-check text-bold" /> {$L('点击已读')}
                       </a>
                     )}
                     {typeof state.readState === 'string' && (
-                      <a className="text-muted" title={state.readState}>
+                      <a className="text-muted" title={state.readState + ' ' + $L('已读')}>
                         <i className="icon zmdi zmdi-check text-bold" /> {$L('已读')}
                       </a>
                     )}

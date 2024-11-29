@@ -18,6 +18,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.feeds.FeedsScope;
@@ -40,9 +41,11 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -152,9 +155,10 @@ public class FeedsListController extends BaseController {
         array = add2Top(foucsFeed, array);
         if (userTopFeeds != null) {
             // 最多 3
-            if (userTopFeeds.size() > 2) array = add2Top(userTopFeeds.get(2), array);
-            if (userTopFeeds.size() > 1) array = add2Top(userTopFeeds.get(1), array);
-            if (userTopFeeds.size() > 0) array = add2Top(userTopFeeds.get(0), array);
+            int topSize = userTopFeeds.size();
+            if (topSize > 2) array = add2Top(userTopFeeds.get(2), array);
+            if (topSize > 1) array = add2Top(userTopFeeds.get(1), array);
+            if (topSize > 0) array = add2Top(userTopFeeds.get(0), array);
         }
 
         Set<ID> set = new HashSet<>();
@@ -248,13 +252,51 @@ public class FeedsListController extends BaseController {
                         .array();
                 List<Object> statusList = new ArrayList<>();
                 for (Object[] s : status) {
-                    statusList.add(new Object[] { s[0], UserHelper.getName((ID) s[0]), s[1] });
+                    statusList.add(new Object[]{s[0], UserHelper.getName((ID) s[0]), s[1]});
                 }
                 item.put("readStatus", statusList);
             }
         }
 
         return item;
+    }
+
+    private List<Object> getAnnouncementReadList(ID announcementId) {
+        Object[][] status = Application.createQueryNoFilter(
+                "select createdBy,createdOn from FeedsStatus where feedsId = ? order by createdOn")
+                .setParameter(1, announcementId)
+                .array();
+        List<Object> readList = new ArrayList<>();
+        for (Object[] s : status) {
+            readList.add(new Object[]{s[0], UserHelper.getName((ID) s[0]), s[1]});
+        }
+        return readList;
+    }
+
+    @GetMapping("/feeds/announcement-read-status")
+    public RespBody announcementReadStatus(@IdParam ID announcementId) {
+        Object[][] status = Application.createQueryNoFilter(
+                "select createdBy,createdOn from FeedsStatus where feedsId = ?")
+                .setParameter(1, announcementId)
+                .array();
+        final Map<ID, Date> readMap = new HashMap<>();
+        for (Object[] s : status) readMap.put((ID) s[0], (Date) s[1]);
+
+        List<Object> readList = new ArrayList<>();
+        List<Object> unreadList = new ArrayList<>();
+        for (User u : Application.getUserStore().getAllUsers()) {
+            // 未激活的不管
+            if (!u.isActive()) continue;
+
+            if (readMap.containsKey(u.getId())) {
+                readList.add(new Object[]{u.getIdentity(), u.getFullName(), readMap.get(u.getId())});
+            } else {
+                unreadList.add(new Object[]{u.getIdentity(), u.getFullName(), null});
+            }
+        }
+
+        JSON res = JSONUtils.toJSONObject(new String[]{"read", "unread"}, new Object[]{readList, unreadList});
+        return RespBody.ok(res);
     }
 
     @GetMapping("/feeds/comments-list")
