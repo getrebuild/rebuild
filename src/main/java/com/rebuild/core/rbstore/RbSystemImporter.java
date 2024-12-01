@@ -70,12 +70,12 @@ public class RbSystemImporter extends HeavyTask<Integer> {
         // #3 清空数据库
         this.forceEmptyDb();
         // #3.1 初始化数据库
-        this.initDb();
+        this.importDb();
 
         // #4 清空缓存
         Installer.clearAllCache();
 
-        // #5 重载
+        // #5 重载配置
         RebuildConfiguration.set(ConfigurationItem.SN, holdSN);
         RebuildConfiguration.set(ConfigurationItem.AppName, holdAppName);
         RebuildConfiguration.set(ConfigurationItem.LOGO, holdLOGO);
@@ -87,7 +87,7 @@ public class RbSystemImporter extends HeavyTask<Integer> {
         }
         // 加载自定义实体
         ((DynamicMetadataFactory) Application.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh();
-        // 状态还原
+        // 字段还原
         field_READY.set(null, true);
         field_READY.setAccessible(false);
 
@@ -99,7 +99,7 @@ public class RbSystemImporter extends HeavyTask<Integer> {
             FileUtils.copyDirectory(REPORT_TEMPLATES, dest);
         }
 
-        return 0;
+        return 1;
     }
 
     private void readyFiles() throws IOException {
@@ -110,7 +110,7 @@ public class RbSystemImporter extends HeavyTask<Integer> {
         FileUtils.forceMkdir(rbspkgDir);
 
         File rbspkg = OkHttpUtils.readBinary(RBStore.DATA_REPO + fileUrl);
-        if (rbspkg == null) throw new RebuildException("Cannot fetch respck : " + RBStore.DATA_REPO + fileUrl);
+        if (rbspkg == null) throw new RebuildException("Cannot fetch respkg : " + RBStore.DATA_REPO + fileUrl);
 
         ZipUtil.unzip(rbspkg, rbspkgDir);
         this.respkgDir = rbspkgDir;
@@ -141,7 +141,7 @@ public class RbSystemImporter extends HeavyTask<Integer> {
         }
     }
 
-    private void initDb() {
+    private void importDb() {
         File sqlFile = new File(this.respkgDir, "rebuild.sql");
 
         Connection conn = Application.getSqlExecutor().getConnection();
@@ -163,6 +163,7 @@ public class RbSystemImporter extends HeavyTask<Integer> {
                     sb.append("\n");
                 }
             }
+
         } catch (Exception ex) {
             throw new RebuildException(ex);
         } finally {
