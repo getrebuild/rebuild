@@ -11,8 +11,10 @@ import cn.devezhao.persist4j.DataAccessException;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.JdbcSupport;
 import cn.devezhao.persist4j.engine.StatementCallback;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Service;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -118,5 +120,21 @@ public class SqlExecutor {
             throw new DataAccessException("Batch SQL Error! #", ex);
         }
         return affected;
+    }
+
+    /**
+     * @return
+     * @see #closeConnection(Connection)
+     */
+    public Connection getConnection() {
+        return DataSourceUtils.getConnection(aPMFactory.getDataSource());
+    }
+
+    /**
+     * @param conn
+     */
+    public void closeConnection(Connection conn) {
+        if (conn == null) return;
+        DataSourceUtils.releaseConnection(conn, aPMFactory.getDataSource());
     }
 }

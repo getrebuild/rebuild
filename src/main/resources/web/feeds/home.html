@@ -11,7 +11,6 @@
       <th:block th:replace="~{/_include/nav-top}" />
       <th:block th:replace="~{/_include/nav-left(active='nav_entity-Feeds')}" />
       <div class="rb-content">
-        <div class="announcement-wrapper"></div>
         <div class="main-content container container-smart">
           <div class="row">
             <div class="col-lg-8 col-12">
@@ -36,14 +35,14 @@
                           </span>
                         </div>
                         <div class="input-group input-group-sm">
-                          <input type="text" class="form-control search J_date-begin" th:placeholder="${bundle.L('发布时间') + ' (' + bundle.L('起') + ')'}" />
+                          <input type="text" class="form-control search J_date-begin" th:placeholder="${bundle.L('发布日期') + ' (' + bundle.L('起') + ')'}" />
                           <span class="append">
                             <a><i class="icon zmdi zmdi-close"></i></a>
                             <i class="icon zmdi zmdi-calendar"></i>
                           </span>
                         </div>
                         <div class="input-group input-group-sm">
-                          <input type="text" class="form-control search J_date-end" th:placeholder="${bundle.L('发布时间') + ' (' + bundle.L('止') + ')'}" />
+                          <input type="text" class="form-control search J_date-end" th:placeholder="${bundle.L('发布日期') + ' (' + bundle.L('止') + ')'}" />
                           <span class="append">
                             <a><i class="icon zmdi zmdi-close"></i></a>
                             <i class="icon zmdi zmdi-calendar"></i>
@@ -94,6 +93,7 @@
                   </div>
                 </div>
               </div>
+              <div class="announcement-wrapper"></div>
             </div>
           </div>
         </div>

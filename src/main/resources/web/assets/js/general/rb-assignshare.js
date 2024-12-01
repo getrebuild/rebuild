@@ -386,6 +386,8 @@ class DlgTransform extends RbModalHandler {
   constructor(props) {
     super(props)
     this.state.transType = 0
+    // 支持多个
+    this._isMuilt = typeof Array.isArray(props.sourceRecord) && props.sourceRecord.length > 1
   }
 
   render() {
@@ -397,25 +399,33 @@ class DlgTransform extends RbModalHandler {
             <div className="col-sm-7" style={{ paddingTop: 6 }}>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
                 <input className="custom-control-input" type="radio" name="transType" checked={this.state.transType === 0} onChange={() => this.setState({ transType: 0 })} />
-                <span className="custom-control-label">{$L('新纪录')}</span>
+                <span className="custom-control-label">{$L('新记录')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input J_word4" type="radio" name="transType" checked={this.state.transType === 1} onChange={() => this.setState({ transType: 1 })} />
-                <span className="custom-control-label">{$L('已有纪录')}</span>
+                <input
+                  className="custom-control-input J_word4"
+                  type="radio"
+                  name="transType"
+                  checked={this.state.transType === 1}
+                  onChange={() => this.setState({ transType: 1 })}
+                  disabled={this._isMuilt}
+                />
+                <span className="custom-control-label">{$L('已有记录')}</span>
               </label>
+              {this._isMuilt && <RbAlertBox message={$L('本次将批量转换 %d 条记录', this.props.sourceRecord.length)} type="info" className="mt-1 mb-0" />}
             </div>
           </div>
           <div className={`form-group row ${this.state.transType !== 1 && 'hide'}`}>
             <label className="col-sm-3 col-form-label text-sm-right">{$L('选择已有记录')}</label>
             <div className="col-sm-7">
-              <select className="form-control form-control-sm" ref={(c) => (this._$existsRecord = c)}></select>
+              <select className="form-control form-control-sm" ref={(c) => (this._$existsRecord = c)} />
             </div>
           </div>
           {this.props.mainEntity && (
             <div className={`form-group row ${this.state.transType === 1 && 'hide'}`}>
               <label className="col-sm-3 col-form-label text-sm-right">{$L('选择主记录')}</label>
               <div className="col-sm-7">
-                <select className="form-control form-control-sm" ref={(c) => (this._$mainRecord = c)}></select>
+                <select className="form-control form-control-sm" ref={(c) => (this._$mainRecord = c)} />
                 <p className="form-text">{$L('转换新明细记录时需要选择主记录')}</p>
               </div>
             </div>
@@ -425,7 +435,7 @@ class DlgTransform extends RbModalHandler {
               <button className="btn btn-primary" type="button" onClick={() => this.post()}>
                 {$L('确定')}
               </button>
-              <button className="btn btn-primary btn-outline ml-2" type="button" onClick={() => this.post(true)}>
+              <button className={`btn btn-primary btn-outline ml-2 ${this._isMuilt && 'hide'}`} type="button" onClick={() => this.post(true)}>
                 {$L('预览')}
               </button>
               <button type="button" className="btn btn-link" onClick={() => this.hide()}>
@@ -476,6 +486,8 @@ class DlgTransform extends RbModalHandler {
       mainRecord: this.state.transType === 0 ? $(this._$mainRecord).val() || null : null,
       preview: preview || false,
     }
+    // 单条兼容
+    if (Array.isArray(_post.sourceRecord) && !this._isMuilt) _post.sourceRecord = _post.sourceRecord[0]
 
     if (this.state.transType === 1 && !_post.existsRecord) {
       return RbHighbar.createl('请选择已有记录')
@@ -505,6 +517,11 @@ class DlgTransform extends RbModalHandler {
           // form
           RbFormModal.create(modalProps, true)
         } else {
+          if (this._isMuilt) {
+            RbHighbar.success($L('成功转换 %d 条记录', (res.data || []).length))
+            return
+          }
+
           setTimeout(() => {
             if (window.RbViewPage) window.RbViewPage.clickView(`#!/View/${this.props.entity}/${res.data}`)
             else window.open(`${rb.baseUrl}/app/${this.props.entity}/view/${res.data}`)

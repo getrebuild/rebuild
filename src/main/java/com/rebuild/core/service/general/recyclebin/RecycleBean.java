@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.service.general.GeneralEntityService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
@@ -32,6 +33,7 @@ public class RecycleBean implements Serializable {
     private static final long serialVersionUID = -1058552856844427594L;
 
     public static final String NAME_DETAILLIST = "$SLAVELIST$";
+    public static final String NAME_DETAILLIST39 = GeneralEntityService.HAS_DETAILS;
 
     final private ID recordId;
 
@@ -79,7 +81,7 @@ public class RecycleBean implements Serializable {
                 detailList.add(item);
             }
         }
-        s.put(NAME_DETAILLIST, detailList);
+        s.put(NAME_DETAILLIST39, detailList);
 
         return s;
     }

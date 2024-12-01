@@ -66,7 +66,6 @@ public class InstallController extends BaseController implements InstallState {
 
         // 切换语言
         LoginController.putLocales(mv, AppUtils.getReuqestLocale(request));
-
         return mv;
     }
 

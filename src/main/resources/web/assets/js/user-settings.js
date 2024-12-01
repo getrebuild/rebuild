@@ -198,6 +198,7 @@ class DlgChangePasswd extends RbFormHandler {
           </div>
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
+              <RbAlertBox message={$L('密码修改后需要重新登录')} />
               <button className="btn btn-primary" type="button" onClick={() => this.post()}>
                 {$L('确定')}
               </button>
@@ -219,11 +220,14 @@ class DlgChangePasswd extends RbFormHandler {
 
     const $btn = $(this._$btn).find('.btn').button('loading')
     $.post('/settings/user/save-passwd', JSON.stringify({ oldp: s.oldPasswd, newp: s.newPasswd }), (res) => {
-      $btn.button('reset')
       if (res.error_code === 0) {
-        this.hide()
+        // this.hide()
         RbHighbar.success($L('修改成功'))
+        setTimeout(() => {
+          location.replace('../user/login')
+        }, 1000)
       } else {
+        $btn.button('reset')
         RbHighbar.create(res.error_msg)
       }
     })

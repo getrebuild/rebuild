@@ -83,7 +83,7 @@ public class OperatingContext {
 
     /**
      * NOTE!!! 请注意当共享时得到的是共享实体 Record
-     * 如果是为了获取源纪录 ID 推荐使用 {@link #getFixedRecordId()}
+     * 如果是为了获取源记录 ID 推荐使用 {@link #getFixedRecordId()}
      *
      * @return
      */

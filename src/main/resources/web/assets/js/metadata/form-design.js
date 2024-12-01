@@ -557,7 +557,8 @@ class DlgEditRefform extends DlgEditField {
               this.handleChange(e)
               setTimeout(() => this._loadFormsAttr(), 200)
             }}
-            defaultValue={this.props.reffield || null}>
+            defaultValue={this.props.reffield || null}
+            ref={(c) => (this._$reffield = c)}>
             {Object.keys(_ValidFields).map((k) => {
               const field = _ValidFields[k]
               if (['REFERENCE', 'ANYREFERENCE'].includes(field.displayTypeName) && field.fieldName !== 'approvalId') {
@@ -596,12 +597,16 @@ class DlgEditRefform extends DlgEditField {
 
   componentDidMount() {
     super.componentDidMount()
-    this._loadFormsAttr(true)
+    // init
+    if (this.props.reffield) {
+      this._loadFormsAttr(true)
+    } else {
+      this.setState({ reffield: $(this._$reffield).val() }, () => this._loadFormsAttr(true))
+    }
   }
 
   _loadFormsAttr(init) {
-    if (rb.commercial < 1) return
-    const f = init ? this.props.reffield : this.state.reffield
+    const f = init ? this.props.reffield || this.state.reffield : this.state.reffield
     if (f) {
       const e = _ValidFields[f].displayTypeRef[0]
       if (this.__FormsAttr[e]) {

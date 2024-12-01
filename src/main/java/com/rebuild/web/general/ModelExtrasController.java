@@ -74,7 +74,12 @@ public class ModelExtrasController extends BaseController {
     public RespBody transform39(HttpServletRequest request) {
         final JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
         final ID transid = ID.valueOf(post.getString("transid"));
-        final ID sourceRecord = ID.valueOf(post.getString("sourceRecord"));
+        final Object sourceRecordAny = post.get("sourceRecord");
+        if (sourceRecordAny instanceof JSONArray) {
+            return this.transform39Muilt(transid, (JSONArray) sourceRecordAny);
+        }
+        // 单个
+        ID sourceRecord = ID.valueOf(sourceRecordAny.toString());
 
         RecordTransfomer39 transfomer39 = new RecordTransfomer39(transid);
         if (!transfomer39.checkFilter(sourceRecord)) {
@@ -94,7 +99,7 @@ public class ModelExtrasController extends BaseController {
             return RespBody.ok(res);
 
         } catch (Exception ex) {
-            log.warn(">>>>> {}", ex.getLocalizedMessage());
+            log.warn(">>>>> {} : {}", sourceRecord, ex.getLocalizedMessage());
 
             String error = ex.getLocalizedMessage();
             if (ex instanceof RepeatedRecordsException) {
@@ -104,6 +109,24 @@ public class ModelExtrasController extends BaseController {
             return RespBody.errorl("记录转换失败 (%s)",
                     Objects.toString(error, ex.getClass().getSimpleName().toUpperCase()));
         }
+    }
+
+    // 批量转换
+    private RespBody transform39Muilt(ID transid, JSONArray sourceRecords) {
+        List<ID> newIds = new ArrayList<>();
+        RecordTransfomer39 transfomer39 = new RecordTransfomer39(transid);
+        for (Object o : sourceRecords) {
+            ID sourceRecord = ID.valueOf((String) o);
+            if (!transfomer39.checkFilter(sourceRecord)) continue;
+
+            try {
+                ID newId = transfomer39.transform(sourceRecord, null, null);
+                newIds.add(newId);
+            } catch (Exception ex) {
+                log.warn(">>>>> {} : {}", sourceRecord, ex.getLocalizedMessage());
+            }
+        }
+        return RespBody.ok(newIds);
     }
 
     @GetMapping("record-last-modified")

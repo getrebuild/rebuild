@@ -13,6 +13,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.Controller;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
@@ -27,6 +28,7 @@ import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.user.signup.LoginAction;
 import com.rebuild.web.user.signup.LoginController;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
 /**
@@ -122,7 +125,7 @@ public class UserSettingsController extends BaseController {
     }
 
     @PostMapping("/user/save-passwd")
-    public RespBody savePasswd(HttpServletRequest request) {
+    public RespBody savePasswd(HttpServletRequest request, HttpServletResponse response) {
         final ID user = getRequestUser(request);
 
         JSONObject p = (JSONObject) ServletUtils.getRequestJson(request);
@@ -134,7 +137,14 @@ public class UserSettingsController extends BaseController {
             return RespBody.errorl("原密码输入有误");
         }
 
-        return savePasswd(user, newp);
+        RespBody res = savePasswd(user, newp);
+        if (res.getErrorCode() == Controller.CODE_OK) {
+            try {
+                ServletUtils.removeCookie(request, response, LoginAction.CK_AUTOLOGIN);
+                request.getSession().invalidate();
+            } catch (Exception ignored) {}
+        }
+        return res;
     }
 
     @GetMapping("/user/login-logs")

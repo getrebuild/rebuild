@@ -3082,6 +3082,10 @@ form {
   overflow: hidden;
 }
 
+a.user-show:not([href]) {
+  cursor: default;
+}
+
 .user-show + .user-show {
   margin-left: 6px;
 }

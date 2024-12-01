@@ -90,12 +90,13 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
                     .addAttribute("deletable", "true");
 
             // 实体扩展配置
-            JSONObject extraAttrs;
-            if (StringUtils.isBlank((String) c[9])) {
-                extraAttrs = new JSONObject();
-            } else {
-                extraAttrs = JSON.parseObject((String) c[9]);
+            JSONObject extraAttrs = null;
+            if (JSONUtils.wellFormat((String) c[9])) {
+                try {
+                    extraAttrs = JSON.parseObject((String) c[9]);
+                } catch (Exception ignored){}
             }
+            if (extraAttrs == null) extraAttrs = new JSONObject();
 
             extraAttrs.put("metaId", c[4]);
             extraAttrs.put("comments", c[5]);
@@ -165,12 +166,13 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             }
 
             // 字段扩展配置
-            JSONObject extraAttrs;
+            JSONObject extraAttrs = null;
             if (JSONUtils.wellFormat((String) c[14])) {
-                extraAttrs = JSON.parseObject((String) c[14]);
-            } else {
-                extraAttrs = new JSONObject();
+                try {
+                    extraAttrs = JSON.parseObject((String) c[14]);
+                } catch (Exception ignored){}
             }
+            if (extraAttrs == null) extraAttrs = new JSONObject();
 
             extraAttrs.put("metaId", c[12]);
             extraAttrs.put("comments", c[13]);

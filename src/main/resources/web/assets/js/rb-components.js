@@ -1270,11 +1270,12 @@ class AsideTree extends React.Component {
             })
           }}
           onDoubleClick={() => {
-            if (hasChild) {
-              const expandItemsNew = this.state.expandItems
-              expandItemsNew.toggle(item.id)
-              this.setState({ expandItems: expandItemsNew }, () => $clearSelection())
-            }
+            // FIXME v3.9 双击会出发两次 onClick
+            // if (hasChild) {
+            //   const expandItemsNew = this.state.expandItems
+            //   expandItemsNew.toggle(item.id)
+            //   this.setState({ expandItems: expandItemsNew }, () => $clearSelection())
+            // }
           }}>
           {this.props.icon && <i className={`icon ${this.props.icon}`} />}
           {item.text || item.name}
