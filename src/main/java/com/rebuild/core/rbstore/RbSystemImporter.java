@@ -40,15 +40,15 @@ import java.sql.Statement;
 public class RbSystemImporter extends HeavyTask<Integer> {
 
     private final String fileUrl;
-    private File respkgDir;
+    private File rbspkgDir;
 
     public RbSystemImporter(String fileUrl) {
         this.fileUrl = fileUrl;
     }
 
-    protected RbSystemImporter(File respkgDir) {
+    protected RbSystemImporter(File rbspkgDir) {
         this.fileUrl = null;
-        this.respkgDir = respkgDir;
+        this.rbspkgDir = rbspkgDir;
     }
 
     @Override
@@ -66,6 +66,8 @@ public class RbSystemImporter extends HeavyTask<Integer> {
         final Field field_READY = Application.class.getDeclaredField("_READY");
         field_READY.setAccessible(true);
         field_READY.set(null, false);
+
+        // TODO 保留用戶/部門/角色
 
         // #3 清空数据库
         this.forceEmptyDb();
@@ -92,7 +94,7 @@ public class RbSystemImporter extends HeavyTask<Integer> {
         field_READY.setAccessible(false);
 
         // #6 报表模版
-        File REPORT_TEMPLATES = new File(respkgDir, "REPORT_TEMPLATES");
+        File REPORT_TEMPLATES = new File(rbspkgDir, "REPORT_TEMPLATES");
         if (REPORT_TEMPLATES.exists()) {
             File dest = RebuildConfiguration.getFileOfData("rb/REPORT_TEMPLATES");
             if (!dest.exists()) FileUtils.forceMkdir(dest);
@@ -102,8 +104,25 @@ public class RbSystemImporter extends HeavyTask<Integer> {
         return 1;
     }
 
+    /**
+     * 檢查
+     *
+     * @throws RebuildException
+     */
+    public void check() throws RebuildException {
+        try {
+            this.readyFiles();
+        } catch (IOException e) {
+            throw new RebuildException("CANNOT FETCH RBSPKG", e);
+        }
+
+        if (!new File(this.rbspkgDir, "rebuild.sql").exists()) {
+            throw new RebuildException("BAD RBSPKG RESOURCES");
+        }
+    }
+
     private void readyFiles() throws IOException {
-        if (respkgDir != null) return;
+        if (rbspkgDir != null) return;
 
         File rbspkgDir = RebuildConfiguration.getFileOfTemp("__RBSPKG");
         if (rbspkgDir.exists()) FileUtils.forceDelete(rbspkgDir);
@@ -113,7 +132,7 @@ public class RbSystemImporter extends HeavyTask<Integer> {
         if (rbspkg == null) throw new RebuildException("Cannot fetch respkg : " + RBStore.DATA_REPO + fileUrl);
 
         ZipUtil.unzip(rbspkg, rbspkgDir);
-        this.respkgDir = rbspkgDir;
+        this.rbspkgDir = rbspkgDir;
     }
 
     private void forceEmptyDb() {
@@ -142,12 +161,11 @@ public class RbSystemImporter extends HeavyTask<Integer> {
     }
 
     private void importDb() {
-        File sqlFile = new File(this.respkgDir, "rebuild.sql");
-
+        File fileOfDb = new File(this.rbspkgDir, "rebuild.sql");
         Connection conn = Application.getSqlExecutor().getConnection();
         Statement stmt = null;
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(sqlFile))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileOfDb))) {
             StringBuilder sb = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -157,7 +175,6 @@ public class RbSystemImporter extends HeavyTask<Integer> {
                 if (line.endsWith(";")) {
                     if (stmt == null) stmt = conn.createStatement();
                     stmt.execute(sb.toString());
-                    System.out.println(sb);
                     sb = new StringBuilder();
                 } else {
                     sb.append("\n");
