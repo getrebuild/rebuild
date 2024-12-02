@@ -387,7 +387,7 @@ class DlgTransform extends RbModalHandler {
     super(props)
     this.state.transType = 0
     // 支持多个
-    this._isMuilt = typeof Array.isArray(props.sourceRecord) && props.sourceRecord.length > 1
+    this._isMuilt = Array.isArray(props.sourceRecord) && props.sourceRecord.length > 1
   }
 
   render() {
@@ -523,8 +523,14 @@ class DlgTransform extends RbModalHandler {
           }
 
           setTimeout(() => {
-            if (window.RbViewPage) window.RbViewPage.clickView(`#!/View/${this.props.entity}/${res.data}`)
-            else window.open(`${rb.baseUrl}/app/${this.props.entity}/view/${res.data}`)
+            if (window.RbViewModal) {
+              window.RbViewModal.create({ id: res.data, entity: this.props.entity }, true)
+              window.RbListPage && window.RbListPage.reload()
+            } else if (window.RbViewPage) {
+              window.RbViewPage.clickView(`#!/View/${this.props.entity}/${res.data}`)
+            } else {
+              window.open(`${rb.baseUrl}/app/${this.props.entity}/view/${res.data}`)
+            }
           }, 200)
         }
       } else {
