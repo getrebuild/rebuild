@@ -514,7 +514,7 @@ class DlgTransform extends RbModalHandler {
             modalProps.title = $L('编辑%s', props.entityLabel)
             modalProps.id = _post.existsRecord
           }
-          // form
+          // From
           RbFormModal.create(modalProps, true)
         } else {
           if (this._isMuilt) {
@@ -522,9 +522,10 @@ class DlgTransform extends RbModalHandler {
             return
           }
 
+          // View
           setTimeout(() => {
             if (window.RbViewModal) {
-              window.RbViewModal.create({ id: res.data, entity: this.props.entity }, true)
+              window.RbViewModal.create({ id: res.data, entity: this.props.entity })
               window.RbListPage && window.RbListPage.reload()
             } else if (window.RbViewPage) {
               window.RbViewPage.clickView(`#!/View/${this.props.entity}/${res.data}`)
