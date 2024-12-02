@@ -7,7 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.DefinedException;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.NeedRbvException;
 import com.rebuild.core.support.i18n.Language;
@@ -26,7 +28,14 @@ public class RbAssert {
         if (message == null) message = Language.L("免费版不支持此功能");
         throw new NeedRbvException(message);
     }
-    
+
+    /**
+     * @param user
+     */
+    public static void isSuperAdmin(ID user) {
+        is(UserHelper.isSuperAdmin(user), Language.L("非超级管理员用户"));
+    }
+
     /**
      * @param expression
      * @param message

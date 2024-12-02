@@ -387,7 +387,7 @@ class DlgTransform extends RbModalHandler {
     super(props)
     this.state.transType = 0
     // 支持多个
-    this._isMuilt = typeof Array.isArray(props.sourceRecord) && props.sourceRecord.length > 1
+    this._isMuilt = Array.isArray(props.sourceRecord) && props.sourceRecord.length > 1
   }
 
   render() {
@@ -418,14 +418,14 @@ class DlgTransform extends RbModalHandler {
           <div className={`form-group row ${this.state.transType !== 1 && 'hide'}`}>
             <label className="col-sm-3 col-form-label text-sm-right">{$L('选择已有记录')}</label>
             <div className="col-sm-7">
-              <select className="form-control form-control-sm" ref={(c) => (this._$existsRecord = c)} />
+              <RecordSelector entity={this.props.entity} entityLabel={this.props.entityLabel} ref={(c) => (this._existsRecord = c)} />
             </div>
           </div>
           {this.props.mainEntity && (
             <div className={`form-group row ${this.state.transType === 1 && 'hide'}`}>
               <label className="col-sm-3 col-form-label text-sm-right">{$L('选择主记录')}</label>
               <div className="col-sm-7">
-                <select className="form-control form-control-sm" ref={(c) => (this._$mainRecord = c)} />
+                <RecordSelector entity={this.props.mainEntity} entityLabel={this.props.mainEntityLabel} ref={(c) => (this._mainRecord = c)} />
                 <p className="form-text">{$L('转换新明细记录时需要选择主记录')}</p>
               </div>
             </div>
@@ -449,31 +449,11 @@ class DlgTransform extends RbModalHandler {
   }
 
   componentDidMount() {
-    $initReferenceSelect2(this._$existsRecord, {
-      placeholder: $L('选择'),
-      entity: this.props.entity,
-      searchType: 'search',
-    })
     if (this.props.existsRecord) {
-      $.get(`/commons/frontjs/ref-label?id=${this.props.existsRecord}`, (res) => {
-        const o = new Option(res.data, this.props.existsRecord, true, true)
-        $(this._$existsRecord).append(o).trigger('change')
-        this.setState({ transType: 1 })
-      })
+      this._existsRecord.setValue(this.props.existsRecord)
     }
-
-    if (this.props.mainEntity) {
-      $initReferenceSelect2(this._$mainRecord, {
-        placeholder: $L('选择'),
-        entity: this.props.entity,
-        name: `${this.props.mainEntity}Id`,
-      })
-      if (this.props.mainRecord) {
-        $.get(`/commons/frontjs/ref-label?id=${this.props.mainRecord}`, (res) => {
-          const o = new Option(res.data, this.props.mainRecord, true, true)
-          $(this._$mainRecord).append(o).trigger('change')
-        })
-      }
+    if (this.props.mainEntity && this.props.mainRecord) {
+      this._mainRecord.setValue(this.props.mainRecord)
     }
   }
 
@@ -482,8 +462,8 @@ class DlgTransform extends RbModalHandler {
     const _post = {
       transid: props.transid,
       sourceRecord: props.sourceRecord,
-      existsRecord: this.state.transType === 1 ? $(this._$existsRecord).val() || null : null,
-      mainRecord: this.state.transType === 0 ? $(this._$mainRecord).val() || null : null,
+      existsRecord: this.state.transType === 1 ? this._existsRecord.val() || null : null,
+      mainRecord: this.state.transType === 0 ? this._mainRecord.val() || null : null,
       preview: preview || false,
     }
     // 单条兼容
@@ -514,7 +494,7 @@ class DlgTransform extends RbModalHandler {
             modalProps.title = $L('编辑%s', props.entityLabel)
             modalProps.id = _post.existsRecord
           }
-          // form
+          // From
           RbFormModal.create(modalProps, true)
         } else {
           if (this._isMuilt) {
@@ -522,9 +502,16 @@ class DlgTransform extends RbModalHandler {
             return
           }
 
+          // View
           setTimeout(() => {
-            if (window.RbViewPage) window.RbViewPage.clickView(`#!/View/${this.props.entity}/${res.data}`)
-            else window.open(`${rb.baseUrl}/app/${this.props.entity}/view/${res.data}`)
+            if (window.RbViewModal) {
+              window.RbViewModal.create({ id: res.data, entity: this.props.entity })
+              window.RbListPage && window.RbListPage.reload()
+            } else if (window.RbViewPage) {
+              window.RbViewPage.clickView(`#!/View/${this.props.entity}/${res.data}`)
+            } else {
+              window.open(`${rb.baseUrl}/app/${this.props.entity}/view/${res.data}`)
+            }
           }, 200)
         }
       } else {
@@ -535,7 +522,7 @@ class DlgTransform extends RbModalHandler {
 
   reset() {
     this.setState({ transType: 0 })
-    this._$existsRecord && $(this._$existsRecord).val(null).trigger('change')
-    this._$mainRecord && $(this._$mainRecord).val(null).trigger('change')
+    this._existsRecord && this._existsRecord.reset()
+    this._mainRecord && this._mainRecord.reset()
   }
 }
