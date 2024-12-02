@@ -12,10 +12,8 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.rbstore.MetaschemaExporter;
 import com.rebuild.core.rbstore.MetaschemaImporter;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.RbAssert;
@@ -44,7 +42,7 @@ public class CopyEntity extends Entity2Schema {
      */
     public String copy(String entityName, String detailName) {
         final ID user = getUser();
-        RbAssert.isAllow(UserHelper.isSuperAdmin(user), Language.L("仅超级管理员可操作"));
+        RbAssert.isSuperAdmin(user);
 
         // 导出
 

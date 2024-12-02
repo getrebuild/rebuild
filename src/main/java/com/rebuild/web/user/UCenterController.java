@@ -8,15 +8,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.user;
 
 import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.License;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -32,8 +34,7 @@ public class UCenterController extends BaseController {
 
     @PostMapping("/bind")
     public RespBody bindCloudAccount(@RequestBody JSONObject body, HttpServletRequest request) {
-        final ID user = getRequestUser(request);
-        RbAssert.isAllow(UserHelper.isSuperAdmin(user), Language.L("仅超级管理员可操作"));
+        RbAssert.isSuperAdmin(getRequestUser(request));
 
         String account = body.getString("cloudAccount");
         String passwd = body.getString("cloudPasswd");

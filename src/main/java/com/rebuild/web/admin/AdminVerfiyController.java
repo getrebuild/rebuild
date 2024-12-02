@@ -15,7 +15,6 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.SysbaseHeartbeat;
 import com.rebuild.core.support.i18n.Language;
@@ -93,13 +92,13 @@ public class AdminVerfiyController extends BaseController {
 
     @GetMapping("/admin/admin-cli")
     public ModelAndView adminCliConsole(HttpServletRequest request) {
-        RbAssert.isAllow(UserService.ADMIN_USER.equals(getRequestUser(request)), "ONLY FOR SUPER ADMIN");
+        RbAssert.isSuperAdmin(getRequestUser(request));
         return createModelAndView("/admin/admin-cli");
     }
 
     @RequestMapping("/admin/admin-cli/exec")
     public RespBody adminCliExec(HttpServletRequest request) {
-        RbAssert.isAllow(UserService.ADMIN_USER.equals(getRequestUser(request)), "ONLY FOR SUPER ADMIN");
+        RbAssert.isSuperAdmin(getRequestUser(request));
 
         String command = ServletUtils.getRequestString(request);
         if (StringUtils.isBlank(command)) return RespBody.error();
