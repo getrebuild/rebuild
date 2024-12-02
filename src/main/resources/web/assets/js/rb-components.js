@@ -824,15 +824,119 @@ const DateShow = function ({ date, title }) {
   return date ? <span title={title || date}>{$fromNow(date)}</span> : null
 }
 
-// ~~ 任意记录选择
+// ~~ 记录选择器
 // @see rb-page.js#$initReferenceSelect2
-class AnyRecordSelector extends React.Component {
+class RecordSelector extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
-    this.__select2 = []
   }
 
+  render() {
+    return (
+      <div className="input-group has-append">
+        <select className="form-control form-control-sm" ref={(c) => (this._$select = c)}></select>
+        <div className="input-group-append">
+          <button className="btn btn-secondary" onClick={() => this._showSearcher()}>
+            <i className="icon zmdi zmdi-search" />
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    this._initSelect2()
+  }
+
+  _initSelect2(reset) {
+    const props = this.state // use state
+    if (!props.entity) return
+
+    if (reset) {
+      this.reset()
+      this.__select2 && this.__select2.select2('destroy')
+      this._ReferenceSearcher && this._ReferenceSearcher.destroy()
+      this._ReferenceSearcher = null
+    }
+
+    this.__select2 = $initReferenceSelect2(this._$select, {
+      searchType: 'search',
+      entity: props.entity,
+      placeholder: props.entityLabel || null,
+    }).on('change', (e) => {
+      typeof props.onSelect === 'function' && props.onSelect(e.target.value)
+    })
+  }
+
+  _showSearcher() {
+    const that = this
+    window.referenceSearch__call = function (selected) {
+      const id = selected[0]
+      if ($(that._$select).find(`option[value="${id}"]`).length > 0) {
+        that.__select2.val(id).trigger('change')
+      } else {
+        that._setValue(id)
+      }
+      that._ReferenceSearcher.hide()
+    }
+
+    if (this._ReferenceSearcher) {
+      this._ReferenceSearcher.show()
+    } else {
+      const props = this.state // use state
+      const searchUrl = `${rb.baseUrl}/app/entity/reference-search?field=${props.entity}Id.${props.entity}`
+      renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('选择%s', props.entityLabel || '')} useWhite />, function () {
+        that._ReferenceSearcher = this
+      })
+    }
+  }
+
+  _setValue(id) {
+    $.get(`/commons/search/read-labels?ids=${id}`, (res) => {
+      const _data = res.data || {}
+      const o = new Option(_data[id], id, true, true)
+      this.__select2.append(o).trigger('change')
+    })
+  }
+
+  // return `id`
+  val() {
+    return $(this._$select).val()
+  }
+
+  // return `{ id:xx, text:xx }`
+  getValue() {
+    const id = this.val()
+    if (id) {
+      return {
+        id: id,
+        text: this.__select2.select2('data')[0].text,
+      }
+    }
+    return null
+  }
+
+  setValue(id, text) {
+    if (text) {
+      const o = new Option(text, id, true, true)
+      this.__select2.append(o).trigger('change')
+    } else {
+      this._setValue(id)
+    }
+  }
+
+  reset() {
+    $(this._$select).val(null).trigger('change')
+  }
+
+  componentWillUnmount() {
+    this.__select2 && this.__select2.select2('destroy')
+  }
+}
+
+// ~~ 任意记录选择器
+class AnyRecordSelector extends RecordSelector {
   render() {
     return (
       <div className="row">
@@ -848,119 +952,61 @@ class AnyRecordSelector extends React.Component {
             })}
           </select>
         </div>
-        <div className="col-8 pl-2">
-          <select className="form-control form-control-sm float-left" ref={(c) => (this._$record = c)} />
-        </div>
+        <div className="col-8 pl-2">{super.render()}</div>
       </div>
     )
   }
 
   componentDidMount() {
-    $.get('/commons/metadata/entities', (res) => {
-      if ((res.data || []).length === 0) $(this._$record).attr('disabled', true)
+    super.componentDidMount()
 
-      this.setState({ entities: res.data || [] }, () => {
-        const s2 = $(this._$entity)
+    $.get('/commons/metadata/entities', (res) => {
+      const _entities = res.data || []
+      if (_entities.length === 0) $(this._$select).attr('disabled', true)
+
+      this.setState({ entities: _entities }, () => {
+        const s2entity = $(this._$entity)
           .select2({
             placeholder: $L('无可用实体'),
             allowClear: false,
           })
-          .on('change', () => {
-            $(this._$record).val(null).trigger('change')
+          .on('change', (e) => {
+            this.setState(
+              {
+                entity: e.target.value,
+                entityLabel: this.__select2Entity.select2('data')[0].text,
+              },
+              () => this._initSelect2(true)
+            )
           })
-        this.__select2.push(s2)
+        this.__select2Entity = s2entity
+        // init
+        if (_entities.length > 0) {
+          $(this._$entity).val(_entities[0].name).trigger('change')
+        }
 
         // 编辑时
         const iv = this.props.initValue
         if (iv) {
           $(this._$entity).val(iv.entity).trigger('change')
           const option = new Option(iv.text, iv.id, true, true)
-          $(this._$record).append(option)
+          $(this._$select).append(option)
         }
       })
     })
-
-    const that = this
-    let search_input = null
-    const s2 = $(this._$record)
-      .select2({
-        placeholder: `${$L('选择记录')}`,
-        minimumInputLength: 0,
-        maximumSelectionLength: 2,
-        ajax: {
-          url: '/commons/search/search',
-          delay: 300,
-          data: function (params) {
-            search_input = params.term
-            return {
-              entity: $(that._$entity).val(),
-              q: params.term,
-            }
-          },
-          processResults: function (data) {
-            return {
-              results: data.data,
-            }
-          },
-        },
-        language: {
-          noResults: () => {
-            return $trim(search_input).length > 0 ? $L('未找到结果') : $L('输入关键词搜索')
-          },
-          inputTooShort: () => {
-            return $L('输入关键词搜索')
-          },
-          searching: () => {
-            return $L('搜索中')
-          },
-          maximumSelected: () => {
-            return $L('只能选择 1 项')
-          },
-        },
-        templateResult: function (res) {
-          const $span = $('<span class="code-append"></span>').attr('title', res.text).text(res.text)
-          if (res.id) {
-            $(`<a title="${$L('在新页面打开')}"><i class="zmdi zmdi-open-in-new"></i></a>`)
-              .appendTo($span)
-              .on('mousedown', (e) => {
-                $stopEvent(e, true)
-                window.open(`${rb.baseUrl}/app/redirect?id=${res.id}&type=newtab`)
-              })
-          }
-          return $span
-        },
-      })
-      .on('change', (e) => {
-        typeof that.props.onSelect === 'function' && that.props.onSelect(e.target.value)
-      })
-    this.__select2.push(s2)
   }
 
-  // return `id`
-  val() {
-    return $(this._$record).val()
-  }
-
-  // return `{ id:xx, text:xx, entity:xx }`
-  value() {
-    const val = this.val()
-    if (!val) return null
-
-    return {
-      entity: $(this._$entity).val(),
-      id: val,
-      text: $(this._$record).select2('data')[0].text,
+  getValue() {
+    let v = super.getValue()
+    if (v) {
+      v = { ...v, entity: $(this._$entity).val() }
     }
-  }
-
-  reset() {
-    $(this._$record).val(null).trigger('change')
+    return v
   }
 
   componentWillUnmount() {
-    this.__select2.forEach(function (s) {
-      s.select2('destroy')
-    })
+    super.componentWillUnmount()
+    this.__select2Entity && this.__select2Entity.select2('destroy')
   }
 }
 

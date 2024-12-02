@@ -174,7 +174,6 @@ class ClassificationSelector extends React.Component {
 
 window.referenceSearch__call = function (selected) {}
 window.referenceSearch__dlg
-
 // see `reference-search.html`
 class ReferenceSearcher extends RbModal {
   renderContent() {

@@ -184,7 +184,7 @@ $(document).ready(() => {
       }
     })
 
-    if (unset > 0) tips.push($L('部分必填字段未映射，可能导致转换失败'))
+    if (unset > 0) tips.push($L('部分必填字段未映射，可能导致直接转换失败'))
 
     if (importsMode) {
       importsFilter = _ImportsFilterMapping.buildFilter()
