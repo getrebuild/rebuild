@@ -798,6 +798,13 @@ const RbListCommon = {
         RbListPage.reload()
         $cleanVia.remove()
       })
+    } else {
+      let def39 = $urlp('def')
+      if (def39) {
+        def39 = def39.split(':') // FILTER:LAYOUT
+        if (def39[0]) wpc.protocolFilter = `via:${def39[0]}`
+        if (def39[1]) console.log('Use listConfig :', def39[1])
+      }
     }
 
     const entity = wpc.entity

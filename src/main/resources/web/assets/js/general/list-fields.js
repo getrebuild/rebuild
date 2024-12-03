@@ -168,7 +168,6 @@ render_item_after = function ($item) {
             refreshConfigStar()
           }}
         />,
-        null,
         function () {
           ShowStyles_Comps[fkey] = this
         }

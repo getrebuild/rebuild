@@ -90,6 +90,13 @@ public abstract class ShareToManager implements ConfigManager {
         final Object[][] alls = getAllConfig(belongEntity, applyType);
         if (alls.length == 0) return null;
 
+        // 0. v3.9 指定配置
+        if (ID.isId(useSysFlag)) {
+            for (Object[] d : alls) {
+                if (d[0].toString().equals(useSysFlag)) return (ID) d[0];
+            }
+        }
+
         // 1.优先使用自己的
         if (firstUseSelf) {
             for (Object[] d : alls) {
