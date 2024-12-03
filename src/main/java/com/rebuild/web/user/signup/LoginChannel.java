@@ -26,12 +26,14 @@ public enum LoginChannel {
     PC_DINGTALK("PC钉钉"),
     PC_WECOM("PC企业微信"),
     PC_WECHAT("PC微信"),
+    PC_FEISHU("PC飞书"),
     PC_DESKTOP("PC桌面"),
 
     MOB_WEB("手机浏览器"),
     MOB_DINGTALK("手机钉钉"),
     MOB_WECOM("手机企业微信"),
     MOB_WECHAT("手机微信"),
+    MOB_FEISHU("手机飞书"),
     MOB_ANDROID("手机APP"),
     MOB_IOS("iOS APP"),  // 保留
 
@@ -64,12 +66,14 @@ public enum LoginChannel {
         boolean isDingtalk = userAgent.contains("DINGTALK");
         boolean isWecom = userAgent.contains("WXWORK");
         boolean isWechat = !isWecom && userAgent.contains("MICROMESSENGER");
+        boolean isFeishu = userAgent.contains("LARK");
         boolean isH5PlusApp = userAgent.contains("HTML5PLUS");
 
         if ((OS != null && OS.getDeviceType() == DeviceType.MOBILE) || forceH5) {
             if (isDingtalk) return MOB_DINGTALK;
             else if (isWecom) return MOB_WECOM;
             else if (isWechat) return MOB_WECHAT;
+            else if (isFeishu) return MOB_FEISHU;
             else if (isH5PlusApp) return MOB_ANDROID;
             return MOB_WEB;
         }
@@ -79,6 +83,7 @@ public enum LoginChannel {
         if (isDingtalk) return PC_DINGTALK;
         else if (isWecom) return PC_WECOM;
         else if (isWechat) return PC_WECHAT;
+        else if (isFeishu) return PC_FEISHU;
         else if (isDesktop) return PC_DESKTOP;
         return PC_WEB;
     }
