@@ -27,6 +27,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.integration.SMSender;
+import com.rebuild.rbv.integration.feishu.FeishuSdk;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
@@ -372,6 +373,43 @@ public class ConfigurationController extends BaseController {
 
     @PostMapping("integration/wxwork")
     public RespBody postIntegrationWxwork(@RequestBody JSONObject data) {
+        setValues(data);
+        return RespBody.ok();
+    }
+
+    // Fesihu
+
+    @GetMapping("integration/feishu")
+    public ModelAndView pageIntegrationFeishu() {
+        RbAssert.isCommercial(
+                Language.L("免费版不支持飞书集成 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+
+        ModelAndView mv = createModelAndView("/admin/integration/feishu");
+        for (ConfigurationItem item : ConfigurationItem.values()) {
+            String name = item.name();
+            if (name.startsWith("Feishu")) {
+                String value = RebuildConfiguration.get(item);
+
+                if (value != null && item == ConfigurationItem.FeishuAppSecret) {
+                    value = DataDesensitized.any(value);
+                }
+                mv.getModel().put(name, value);
+
+                if (ID.isId(value) && item == ConfigurationItem.FeishuSyncUsersRole) {
+                    mv.getModel().put(name + "Label", UserHelper.getName(ID.valueOf(value)));
+                }
+            }
+        }
+
+        String homeUrl = RebuildConfiguration.getHomeUrl("/user/feishu");
+        mv.getModel().put("_FeishuHomeUrl", homeUrl);
+        String[] homeUrls = homeUrl.split("//");
+        mv.getModel().put("_FeishuAuthUrl", homeUrls[0] + "//" + homeUrls[1].split("/")[0]);
+        return mv;
+    }
+
+    @PostMapping("integration/feishu")
+    public RespBody postIntegrationFeishu(@RequestBody JSONObject data) {
         setValues(data);
         return RespBody.ok();
     }
