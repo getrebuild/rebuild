@@ -191,6 +191,15 @@
                           <button class="btn btn-danger btn-outline J_unauth-wxwork" type="button" data-type="2">[[${bundle.L('取消授权')}]]</button>
                         </div>
                       </div>
+                      <div th:if="${feishuUser != null}" class="form-group row">
+                        <label class="col-2 col-form-label">[[${bundle.L('飞书授权')}]]</label>
+                        <div class="col-7 pl-0">
+                          <div class="form-control-plaintext text-muted">[[${feishuUser}]]</div>
+                        </div>
+                        <div class="col-3 text-right">
+                          <button class="btn btn-danger btn-outline J_unauth-feishu" type="button" data-type="3">[[${bundle.L('取消授权')}]]</button>
+                        </div>
+                      </div>
                       <div class="form-group row">
                         <label class="col-2 col-form-label">[[${bundle.L('临时授权')}]]</label>
                         <div class="col-7 pl-0">

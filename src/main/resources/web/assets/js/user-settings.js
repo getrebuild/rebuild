@@ -61,7 +61,7 @@ $(document).ready(function () {
     })
   })
 
-  const $unauth = $('.J_unauth-dingtalk, .J_unauth-wxwork').on('click', () => {
+  const $unauth = $('.J_unauth-dingtalk, .J_unauth-wxwork, .J_unauth-feishu').on('click', () => {
     RbAlert.create($L('确认要取消授权吗？'), {
       confirm: function () {
         this.hide()
