@@ -77,7 +77,7 @@ public class AdminCli3 {
                 result = " Usage : " +
                         " \ncache [clean|get] [KEY]" +
                         " \nsyscfg NAME [VALUE]" +
-                        " \nsyscfg clean-qiniu|clean-sms|clean-email|clean-wxwork|clean-dingtalk" +
+                        " \nsyscfg clean-qiniu|clean-sms|clean-email|clean-wxwork|clean-dingtalk|clean-feishu" +
                         " \nbackup [database|datafile]" +
                         " \naes [decrypt] VALUE" +
                         " \nclean-approval ENTITY" +
@@ -172,6 +172,9 @@ public class AdminCli3 {
                 return SUCCESS;
             } else if ("clean-dingtalk".equals(name)) {
                 removeItems("Dingtalk");
+                return SUCCESS;
+            } else if ("clean-feishu".equals(name)) {
+                removeItems("Feishu");
                 return SUCCESS;
             }
 

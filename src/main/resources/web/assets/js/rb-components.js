@@ -27,6 +27,7 @@ class RbModal extends React.Component {
       <div
         className={modalClazz}
         style={props.zIndex ? { zIndex: props.zIndex } : null}
+        aria-hidden="true"
         ref={(c) => {
           this._rbmodal = c
           this._element = c

@@ -27,6 +27,7 @@ import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
+import com.rebuild.rbv.integration.ExternalUserAuth;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.user.signup.LoginAction;
 import com.rebuild.web.user.signup.LoginController;
@@ -79,6 +80,11 @@ public class UserSettingsController extends BaseController {
                     .setParameter(2, wxworkCorpid)
                     .unique();
             if (wxworkUser != null) mv.getModelMap().put("wxworkUser", wxworkUser[0]);
+        }
+        String feishuAppid = RebuildConfiguration.get(ConfigurationItem.FeishuAppId);
+        if (feishuAppid != null) {
+            String feishuUser = ExternalUserAuth.getExternalUserId(ub.getId(), feishuAppid);
+            if (feishuUser != null) mv.getModelMap().put("feishuUser", feishuUser);
         }
 
         return mv;
@@ -193,10 +199,11 @@ public class UserSettingsController extends BaseController {
     @PostMapping("/cancel-external-user")
     public RespBody cancelExternalUser(HttpServletRequest request) {
         int appType = getIntParameter(request, "type", 0);
-        // 1=Dingtalk, 2=Wxwork
+        // 1=Dingtalk, 2=Wxwork, 3=Feishu
         String appId = appType == 1
                 ? RebuildConfiguration.get(ConfigurationItem.DingtalkCorpid)
                 : RebuildConfiguration.get(ConfigurationItem.WxworkCorpid);
+        if (appType == 3) appId = RebuildConfiguration.get(ConfigurationItem.FeishuAppId);
 
         Object[] externalUser = Application.createQueryNoFilter(
                 "select userId from ExternalUser where bindUser = ? and appId = ?")

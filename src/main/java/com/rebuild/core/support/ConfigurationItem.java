@@ -108,6 +108,11 @@ public enum ConfigurationItem {
     WxworkSyncUsers(false),
     WxworkSyncUsersRole,
     WxworkSyncUsersMatch("ID"),
+    // Feishu
+    FeishuAppId, FeishuAppSecret,
+    FeishuSyncUsers(false),
+    FeishuSyncUsersRole,
+    FeishuSyncUsersMatch("ID"),
 
     // PORTALs
     PortalBaiduMapAk,

@@ -30,6 +30,9 @@
                           <li th:class="${active == 'integration-dingtalk'} ? 'active'">
                             <a th:href="@{/admin/integration/dingtalk}"><span>[[${bundle.L('钉钉')}]]</span> <sup class="rbv"></sup></a>
                           </li>
+                          <li th:class="${active == 'integration-feishu'} ? 'active'" th:classappend="bosskey-show">
+                            <a th:href="@{/admin/integration/feishu}"><span>[[${bundle.L('飞书')}]]</span> <sup class="rbv"></sup></a>
+                          </li>
                         </ul>
                       </div>
                     </div>

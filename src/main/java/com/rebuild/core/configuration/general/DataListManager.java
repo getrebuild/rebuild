@@ -65,7 +65,7 @@ public class DataListManager extends BaseLayoutManager {
     /**
      * @param entity
      * @param user
-     * @param useSysFlag
+     * @param useSysFlag 优先使用系统指定的 `SYS XXX` or ID
      * @return
      */
     public JSON getListFields(String entity, ID user, String useSysFlag) {

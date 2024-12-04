@@ -122,9 +122,12 @@ public class LoginController extends LoginAction {
             mv.getModel().put("ssoDingtalk", RebuildConfiguration.get(ConfigurationItem.DingtalkAppkey));
             // WxWork
             mv.getModel().put("ssoWxwork", RebuildConfiguration.get(ConfigurationItem.WxworkCorpid));
+            // Feishu
+            mv.getModel().put("ssoFeishu", RebuildConfiguration.get(ConfigurationItem.FeishuAppId));
         } else {
             mv.getModel().put("ssoDingtalk", "#");
             mv.getModel().put("ssoWxwork", "#");
+//            mv.getModel().put("ssoFeishu", "#");
         }
 
         mv.getModelMap().put("UsersMsg", SysbaseHeartbeat.getUsersDanger());
