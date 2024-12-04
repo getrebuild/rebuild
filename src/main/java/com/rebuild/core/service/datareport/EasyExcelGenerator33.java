@@ -94,14 +94,15 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
         for (Map.Entry<String, String> e : varsMap.entrySet()) {
             final String varName = e.getKey();
+            final String varNameNoAt = varName.replace(TemplateExtractor33.IMG_PREFIX, "");
             final String fieldName = e.getValue();
 
             String refKey = null;
             if (varName.startsWith(NROW_PREFIX) || varName.startsWith(NROW_PREFIX2)) {
                 if (varName.startsWith(APPROVAL_PREFIX) || varName.startsWith(APPROVAL_PREFIX2)) {
                     refKey = varName.startsWith(NROW_PREFIX) ? APPROVAL_PREFIX : APPROVAL_PREFIX2;
-                } else if (varName.startsWith(DETAIL_PREFIX) || varName.startsWith(DETAIL_PREFIX2)) {
-                    refKey = varName.startsWith(NROW_PREFIX) ? DETAIL_PREFIX : DETAIL_PREFIX2;
+                } else if (varNameNoAt.startsWith(DETAIL_PREFIX) || varNameNoAt.startsWith(DETAIL_PREFIX2)) {
+                    refKey = varNameNoAt.startsWith(NROW_PREFIX) ? DETAIL_PREFIX : DETAIL_PREFIX2;
                 } else {
                     // 在客户中导出订单（下列 AccountId 为订单中引用客户的引用字段）
                     // .AccountId.SalesOrder.SalesOrderName or $AccountId$SalesOrder$SalesOrderName
