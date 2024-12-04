@@ -106,11 +106,11 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 } else {
                     // 在客户中导出订单（下列 AccountId 为订单中引用客户的引用字段）
                     // .AccountId.SalesOrder.SalesOrderName or $AccountId$SalesOrder$SalesOrderName
-                    String[] split = varName.substring(1).split("[.$]");
+                    String[] split = varNameNoAt.substring(1).split("[.$]");
                     if (split.length < 2) throw new ReportsException("Bad REF (Miss .detail prefix?) : " + varName);
 
                     String refName2 = split[0] + split[1];
-                    refKey = varName.substring(0, refName2.length() + 2 /* dots */);
+                    refKey = varNameNoAt.substring(0, refName2.length() + 2 /* dots */);
                 }
 
                 Map<String, String> varsMapOfRef = varsMapOfRefs.getOrDefault(refKey, new HashMap<>());
