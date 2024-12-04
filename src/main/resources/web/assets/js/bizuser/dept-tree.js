@@ -45,6 +45,7 @@ RbList.renderAfter = function () {
   const FLAGS = {
     'WW': $L('企业微信'),
     'DD': $L('钉钉'),
+    'FS': $L('飞书'),
   }
 
   const userids = []
