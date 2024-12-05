@@ -72,6 +72,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .contact-list > div.card .info td {
   padding: 1px 4px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .contact-list > div.card .info td strong,
