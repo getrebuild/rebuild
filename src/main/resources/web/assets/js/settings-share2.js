@@ -32,9 +32,6 @@ class Share2 extends _ChangeHandler {
     // init
     if (props.shareTo && props.shareTo !== SHARE_SELF) {
       this.state.shared = true
-    } else if (rb.isAdminUser && !props.id) {
-      // new for Admin
-      this.state.shared = true
     }
   }
 

@@ -154,7 +154,8 @@ $(document).ready(() => {
       const c = alist.find((x) => x[0] === _current.id)
 
       if (rb.isAdminUser) {
-        renderRbcomp(<Share2 title={$L('导航菜单')} list={alist} configName={c ? c[1] : ''} shareTo={_current.shareTo} id={_current.id} />, 'shareTo', function () {
+        const shareTo39 = _current.id ? _current.shareTo : 'ALL'
+        renderRbcomp(<Share2 title={$L('导航菜单')} list={alist} configName={c ? c[1] : ''} shareTo={shareTo39} id={_current.id} />, 'shareTo', function () {
           _Share2 = this
 
           const $menu = $(this._$switch).find('.dropdown-menu')
