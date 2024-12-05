@@ -876,10 +876,10 @@ body.view-body {
   color: #404040;
 }
 
-.select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
+/* .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
   max-width: 100%;
   min-width: 21px;
-}
+} */
 
 .select2-container--default.select2-container--focus .select2-selection.select2-selection--multiple {
   border-color: #4285f4;

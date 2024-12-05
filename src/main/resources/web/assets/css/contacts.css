@@ -68,6 +68,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .contact-list > div.card .info {
   margin-left: 71px;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .contact-list > div.card .info td {

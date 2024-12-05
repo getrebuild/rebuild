@@ -112,7 +112,7 @@ public class ContactsController extends BaseController {
         for (Member m : usersMembers) {
             User u = (User) m;
             if (UserService.SYSTEM_USER.equals(u.getId())) continue;
-            if (u.isDisabled()) continue;
+            if (!u.isActive()) continue;
 
             Department d = u.getOwningDept();
             if (deptAndChild != null) {
@@ -146,8 +146,8 @@ public class ContactsController extends BaseController {
             }
 
             JSONObject item = JSONUtils.toJSONObject(
-                    new String[]{"id", "fullName", "email", "workphone", "deptName"},
-                    new Object[]{u.getId(), u.getFullName(), u.getEmail(), u.getWorkphone(), d.getName() });
+                    new String[]{"id", "fullName", "email", "workphone", "deptName", "avtive"},
+                    new Object[]{u.getId(), u.getFullName(), u.getEmail(), u.getWorkphone(), d == null ? "-" : d.getName(), u.isActive()});
             array.add(item);
         }
         return RespBody.ok(array);

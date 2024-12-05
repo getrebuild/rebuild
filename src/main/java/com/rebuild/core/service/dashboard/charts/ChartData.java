@@ -11,7 +11,6 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Query;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -285,7 +284,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
      * @return
      */
     protected String wrapAxisValue(Numerical numerical, Object value) {
-        return wrapAxisValue(numerical, value, Boolean.FALSE);
+        return wrapAxisValue(numerical, value, false);
     }
 
     /**
@@ -330,7 +329,8 @@ public abstract class ChartData extends SetUser implements ChartSpec {
      * @see com.rebuild.core.metadata.easymeta.EasyDecimal#wrapValue(Object)
      */
     protected String getNumericalFlag(Numerical numerical) {
-        if (numerical.getField().getType() != FieldType.DECIMAL) return null;
+        DisplayType numType = EasyMetaFactory.getDisplayType(numerical.getField());
+        if (!(numType == DisplayType.DECIMAL || numType == DisplayType.NUMBER)) return null;
 
         if (!(numerical.getFormatCalc() == FormatCalc.SUM
                 || numerical.getFormatCalc() == FormatCalc.AVG

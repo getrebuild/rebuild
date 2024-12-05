@@ -276,9 +276,11 @@ class ContentFieldAggregation extends ActionContentSpec {
       this.__targetFieldsCache = res.data.target
 
       const fbs = this.__sourceFieldsCache.filter((item) => {
-        return item.ref && item.ref[0] === teSplit[1]
+        let can = item.ref && item.ref[0] === teSplit[1]
+        // DTM字段
+        if (can && item.creatable === false && item.nullable === false && item.updatable === false) can = false
+        return can
       })
-      console.log(this.__sourceFieldsCache)
 
       if (this.state.sourceFields) {
         this.setState({ sourceFields: res.data.source, fillbackFields: fbs }, () => $(this._$sourceField).trigger('change'))

@@ -12,6 +12,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.alibaba.fastjson.JSON;
@@ -289,8 +290,12 @@ public class FieldAggregation extends TriggerAction {
 
                 // FIXME 回填仅更新，无业务规则
                 Record r = EntityHelper.forUpdate((ID) o[0], UserService.SYSTEM_USER, false);
-                r.setID(fillbackField, targetRecordId);
-                Application.getCommonsService().update(r, false);
+                if (sourceEntity.getField(fillbackField).getType() == FieldType.REFERENCE_LIST) {
+                    r.setIDArray(fillbackField, new ID[]{targetRecordId});
+                } else {
+                    r.setID(fillbackField, targetRecordId);
+                }
+                Application.getCommonsService().getBaseService().update(r);
             }
         }
 
