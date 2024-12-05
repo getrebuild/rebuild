@@ -694,7 +694,8 @@ public class ApprovalStepService extends BaseService {
         if (nextApproversFix == null) {
             // NOTE 保留不清空???
             record.setNull(EntityHelper.ApprovalStepUsers);
-            record.setNull(EntityHelper.ApprovalStepNodeName);
+            // v3.9 保留审批步骤
+//            record.setNull(EntityHelper.ApprovalStepNodeName);
             return;
         }
 
