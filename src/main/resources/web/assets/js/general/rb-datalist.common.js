@@ -1099,15 +1099,14 @@ class RbList extends React.Component {
 
   fetchList(filter) {
     const fields = []
-    let fieldSort = null
+    let sort = null
     this.state.fields.forEach((item) => {
       fields.push(item.field)
-      if (item.sort) fieldSort = `${item.field}:${item.sort.replace('sort-', '')}`
+      if (item.sort) sort = `${item.field}:${item.sort.replace('sort-', '')}`
     })
-    if (!fieldSort && this.__defaultSort) fieldSort = this.__defaultSort
+    if (!sort && this.__defaultSort) sort = this.__defaultSort
 
     this.lastFilter = filter || this.lastFilter
-
     const reload = this._forceReload || this.pageNo === 1
     this._forceReload = false
 
@@ -1119,7 +1118,7 @@ class RbList extends React.Component {
       filter: this.lastFilter,
       advFilter: this.advFilterId,
       protocolFilter: this.props.protocolFilter || wpc.protocolFilter,
-      sort: fieldSort,
+      sort: sort,
       reload: reload,
       statsField: wpc.statsField === true && rb.commercial > 0,
     }
