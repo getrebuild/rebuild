@@ -16,6 +16,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.exception.JdbcException;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -192,6 +193,9 @@ public class DataImporter extends HeavyTask<Integer> {
                 }
             }
         }
+
+        // fix: 3.9 导入也生效
+        AutoFillinManager.instance.fillinRecord(checkout);
 
         // Verify new record
         // Throws DataSpecificationException
