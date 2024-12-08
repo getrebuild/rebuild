@@ -197,7 +197,8 @@ public class ProjectTaskController extends BaseController {
                 return baseSql + String.format("modifiedOn < '%s'", dtf.format(CalendarUtils.addDay(-14)));
             }
         } else if (planKey.equals("0-0")) {
-            return "1=1";
+            // 列表视图
+            return "projectId = '" + projectId + "'";
         }
 
         throw new InvalidParameterException(Language.L("无效请求参数 (%s=%s)", "id", planKey));
