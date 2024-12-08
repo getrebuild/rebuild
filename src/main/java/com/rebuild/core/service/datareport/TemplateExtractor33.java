@@ -44,6 +44,8 @@ public class TemplateExtractor33 extends TemplateExtractor {
     // 排序
     protected static final String SORT_ASC = ":asc";
     protected static final String SORT_DESC = ":desc";
+    // H5,WORD 图片
+    public final static String IMG_PREFIX = "@";
 
     private Map<String, String> sortFields = new HashMap<>();
     private Set<String> inShapeVars = new HashSet<>();
@@ -66,10 +68,11 @@ public class TemplateExtractor33 extends TemplateExtractor {
         Map<String, String> map = new HashMap<>();
         for (final String varName : vars) {
             String thatName = ValueConvertFunc.splitName(varName);
+            String thatNameNoAt = thatName.replace(IMG_PREFIX, "");
 
             // 列表型字段
             if (thatName.startsWith(NROW_PREFIX) || thatName.startsWith(NROW_PREFIX2)) {
-                final String listField = thatName.substring(1).replace("$", ".");
+                final String listField = thatNameNoAt.substring(1).replace("$", ".");
 
                 // 占位
                 if (isPlaceholder(listField)) {
@@ -85,7 +88,7 @@ public class TemplateExtractor33 extends TemplateExtractor {
                     }
                 }
                 // 明细实体
-                else if (thatName.startsWith(DETAIL_PREFIX) || thatName.startsWith(DETAIL_PREFIX2)) {
+                else if (thatNameNoAt.startsWith(DETAIL_PREFIX) || thatNameNoAt.startsWith(DETAIL_PREFIX2)) {
                     String detailField = listField.substring(DETAIL_PREFIX.length());
                     detailField = getFieldNameWithSort(DETAIL_PREFIX, detailField);
 
@@ -97,9 +100,9 @@ public class TemplateExtractor33 extends TemplateExtractor {
                 }
                 // REF
                 else {
-                    String[] split = listField.split("\\.");
-                    String ref2Field = split[0];
-                    String ref2Entity = split.length > 1 ? split[1] : null;
+                    String[] refSplit = listField.split("\\.");
+                    String ref2Field = refSplit[0];
+                    String ref2Entity = refSplit.length > 1 ? refSplit[1] : null;
                     Field ref2FieldMeta = ref2Entity != null && MetadataHelper.containsField(ref2Entity, ref2Field)
                             ? MetadataHelper.getField(ref2Entity, ref2Field) : null;
 
