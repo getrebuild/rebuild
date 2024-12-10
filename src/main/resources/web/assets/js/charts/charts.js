@@ -423,10 +423,11 @@ const shortNumber = function (num) {
 
 // 千分位
 const formatThousands = function (num, flag) {
+  if (flag === '0:0') flag = null // Unset
   let n = num
   // v3.9 unit
   let flagUnit = ''
-  if (flag && flag !== '0:0') {
+  if (flag) {
     const flags = flag.split(':')
     flag = flags[0] === '0' ? null : flags[0]
 

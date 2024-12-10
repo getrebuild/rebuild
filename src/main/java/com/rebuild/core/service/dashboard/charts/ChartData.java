@@ -329,19 +329,12 @@ public abstract class ChartData extends SetUser implements ChartSpec {
      * @see com.rebuild.core.metadata.easymeta.EasyDecimal#wrapValue(Object)
      */
     protected String getNumericalFlag(Numerical numerical) {
-        DisplayType numType = EasyMetaFactory.getDisplayType(numerical.getField());
-        if (!(numType == DisplayType.DECIMAL || numType == DisplayType.NUMBER)) return null;
-
-        if (!(numerical.getFormatCalc() == FormatCalc.SUM
-                || numerical.getFormatCalc() == FormatCalc.AVG
-                || numerical.getFormatCalc() == FormatCalc.MIN
-                || numerical.getFormatCalc() == FormatCalc.MAX)) {
-            return null;
+        String type = null;
+        EasyField easyField = EasyMetaFactory.valueOf(numerical.getField());
+        if (easyField.getDisplayType() == DisplayType.DECIMAL) {
+            type = easyField.getExtraAttr(EasyFieldConfigProps.DECIMAL_TYPE);
         }
-
-        String type = EasyMetaFactory.valueOf(numerical.getField()).getExtraAttr(EasyFieldConfigProps.DECIMAL_TYPE);
-        if (StringUtils.isBlank(type)) type = "0";
-        return type + ":" + numerical.getUnit();
+        return StringUtils.defaultIfBlank(type, "0") + ":" + numerical.getUnit();
     }
 
     /**
