@@ -769,12 +769,8 @@ public class FormsBuilder extends FormsManager {
                         ? getReferenceMixValue(value)
                         : (isNewMainId(value) ? EntityHelper.UNSAVED_ID : value);
 
-                if (mixValue != null) {
-                    initialValReady.put(dtmField.getName(), mixValue);
-                    initialValKeeps.add(dtmField.getName());
-                }
                 // v3.9 明细直接新建
-                else if (DV_MAINID_FJS.equals(value)) {
+                if (DV_MAINID_FJS.equals(value)) {
                     for (Object o : elements) {
                         JSONObject item = (JSONObject) o;
                         if (dtmField.getName().equalsIgnoreCase(item.getString("field"))) {
@@ -783,6 +779,9 @@ public class FormsBuilder extends FormsManager {
                             break;
                         }
                     }
+                } else if (mixValue != null) {
+                    initialValReady.put(dtmField.getName(), mixValue);
+                    initialValKeeps.add(dtmField.getName());
                 }
             }
             // 其他

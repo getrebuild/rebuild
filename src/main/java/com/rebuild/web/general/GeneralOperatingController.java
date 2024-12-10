@@ -139,16 +139,6 @@ public class GeneralOperatingController extends BaseController {
         final ID weakMode = getIdParameter(request, "weakMode");
         if (weakMode != null) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.DataValidate#setWeakMode", weakMode);
 
-        // v3.9 明细直接新建
-        final boolean detailNew = record.getPrimary() == null && record.getEntity().getMainEntity() != null;
-        if (detailNew) {
-            String dtmField = MetadataHelper.getDetailToMainField(record.getEntity()).getName();
-            ID mainid = record.getID(dtmField);
-            if (mainid == null || EntityHelper.isUnsavedId(mainid)) {
-                return RespBody.errorl("新建明细需要选择主记录");
-            }
-        }
-
         try {
             record = ies.createOrUpdate(record);
 
