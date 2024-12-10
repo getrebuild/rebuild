@@ -80,6 +80,7 @@ public class FormsBuilder extends FormsManager {
 
     // 引用主记录
     public static final String DV_MAINID = "$MAINID$";
+    public static final String DV_MAINID_FJS = "$MAINID$FJS";
 
     // 引用记录
     public static final String DV_REFERENCE_PREFIX = "&";
@@ -442,7 +443,6 @@ public class FormsBuilder extends FormsManager {
             final DisplayType dt = easyField.getDisplayType();
             el.put("label", easyField.getLabel());
             el.put("type", dt.name());
-
             el.put("readonly", (!isNew && !fieldMeta.isUpdatable()) || roViaAuto);
 
             // 优先使用指定值
@@ -772,6 +772,17 @@ public class FormsBuilder extends FormsManager {
                 if (mixValue != null) {
                     initialValReady.put(dtmField.getName(), mixValue);
                     initialValKeeps.add(dtmField.getName());
+                }
+                // v3.9 明细直接新建
+                else if (DV_MAINID_FJS.equals(value)) {
+                    for (Object o : elements) {
+                        JSONObject item = (JSONObject) o;
+                        if (dtmField.getName().equalsIgnoreCase(item.getString("field"))) {
+                            item.remove("readonly");
+                            item.remove("readonlyw");
+                            break;
+                        }
+                    }
                 }
             }
             // 其他

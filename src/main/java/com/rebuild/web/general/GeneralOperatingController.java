@@ -99,7 +99,7 @@ public class GeneralOperatingController extends BaseController {
             return CommonOperatingController.saveRecord(record);
         }
 
-        // 明细
+        // 明细列表
         List<Record> detailsList = new ArrayList<>();
         if (details != null) {
             try {
@@ -128,8 +128,6 @@ public class GeneralOperatingController extends BaseController {
             GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS);
         }
 
-        final boolean isNew = record.getPrimary() == null;
-
         // v3.4 TODO 单字段修改检查，有性能问题
         final boolean singleField = getBoolParameter(request, "singleField");
         Record beforeSnap = null;
@@ -140,6 +138,16 @@ public class GeneralOperatingController extends BaseController {
         // v3.2,3.8 弱校验
         final ID weakMode = getIdParameter(request, "weakMode");
         if (weakMode != null) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.DataValidate#setWeakMode", weakMode);
+
+        // v3.9 明细直接新建
+        final boolean detailNew = record.getPrimary() == null && record.getEntity().getMainEntity() != null;
+        if (detailNew) {
+            String dtmField = MetadataHelper.getDetailToMainField(record.getEntity()).getName();
+            ID mainid = record.getID(dtmField);
+            if (mainid == null || EntityHelper.isUnsavedId(mainid)) {
+                return RespBody.errorl("新建明细需要选择主记录");
+            }
+        }
 
         try {
             record = ies.createOrUpdate(record);
