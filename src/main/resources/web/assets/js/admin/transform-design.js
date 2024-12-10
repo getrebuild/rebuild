@@ -46,7 +46,7 @@ $(document).ready(() => {
 
     const targetEntity = wpc.targetDetailEntities.find((x) => x.entity === s.target)
     const sourceEntity = wpc.sourceDetailEntities.find((x) => x.entity === s.source)
-    if (!targetEntity || !sourceEntity) return // Bad
+    if (!targetEntity || !sourceEntity) return // Bad?
 
     const $tab = $(
       `<li class="nav-item"><a class="nav-link text-ellipsis" href="#${key}" data-toggle="tab">${targetEntity.label}<span>${sourceEntity.label}</span><em title="${$L(
@@ -85,7 +85,6 @@ $(document).ready(() => {
         config.fieldsMappingDetails.forEach((fmd) => {
           const key = fmd._.target + '_' + fmd._.source
           if (key === _FieldsMapping2_key) return // default
-
           _addDts({ target: fmd._.target, source: fmd._.source }, fmd)
         })
       }
@@ -494,6 +493,7 @@ class ImportsFilterMapping extends React.Component {
             </div>
           )
         })}
+        {state.targetFields && state.targetFields.length === 0 && <span className="text-muted text-italic">{$L('无')}</span>}
       </div>
     )
   }
