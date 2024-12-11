@@ -22,7 +22,7 @@ class FuncList extends React.Component {
   render() {
     return (
       <div ref={(c) => (this._$funclist = c)}>
-        <RbAlertBox message={$L('选择**非超级管理员**所能使用的管理中心功能')} type="info" />
+        <RbAlertBox message={WrapHtml($L('选择**非超级管理员**所能使用的管理中心功能'))} type="info" />
         {this.state.funclist &&
           this.state.funclist.map((item) => {
             const isSYS = item[0] === 'SYS'
