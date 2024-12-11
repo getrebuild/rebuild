@@ -140,8 +140,6 @@ public class GeneralOperatingController extends BaseController {
         final ID weakMode = getIdParameter(request, "weakMode");
         if (weakMode != null) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.DataValidate#setWeakMode", weakMode);
 
-        final boolean isNew = record.getPrimary() == null;
-
         try {
             record = ies.createOrUpdate(record);
 
@@ -166,11 +164,11 @@ public class GeneralOperatingController extends BaseController {
 
         // 转换后回填
         String previewid = request.getParameter("previewid");
-        if (isNew && StringUtils.isNotBlank(previewid)) {
+        if (StringUtils.isNotBlank(previewid)) {
             try {
                 new TransformerPreview37(previewid, user).fillback(record.getPrimary());
             } catch (Exception ex) {
-                log.error("TransformerPreview37 fillback error!", ex);
+                log.error("Transforme with fillback fails : {}", previewid, ex);
             }
         }
 
