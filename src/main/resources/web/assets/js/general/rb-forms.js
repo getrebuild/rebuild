@@ -233,6 +233,7 @@ class RbFormModal extends React.Component {
     const state = { reset: reset === true }
     if (state.reset) {
       state.id = null
+      state.previewid = null
     }
     this.setState(state)
   }
@@ -788,6 +789,7 @@ class RbForm extends React.Component {
 
     const $btn = $(this._$formAction).find('.btn').button('loading')
     let url = '/app/entity/record-save'
+    if ($$$parent.state.previewid) url += `?previewid=${$$$parent.state.previewid}`
     if (weakMode) {
       url += url.includes('?') ? '&' : '?'
       url += 'weakMode=' + weakMode
