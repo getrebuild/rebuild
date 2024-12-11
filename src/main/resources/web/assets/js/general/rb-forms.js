@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global SimpleMDE, RepeatedViewer, ProTable, Md2Html */
+/* global SimpleMDE, RepeatedViewer, ProTable, Md2Html, ClassificationSelector */
 
 /**
  * Callback API:
@@ -2489,9 +2489,7 @@ class RbFormClassification extends RbFormElement {
       const p = this.props
       const that = this
       renderRbcomp(
-        // eslint-disable-next-line react/jsx-no-undef
-        <ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} onSelect={(s) => this._setClassificationValue(s)} keepModalOpen={true} />,
-        null,
+        <ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} onSelect={(s) => this._setClassificationValue(s)} keepModalOpen />,
         function () {
           that.__selector = this
         }
