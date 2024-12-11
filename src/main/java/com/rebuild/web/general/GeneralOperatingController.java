@@ -35,6 +35,7 @@ import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.RecordDifference;
 import com.rebuild.core.service.general.RepeatedRecordsException;
+import com.rebuild.core.service.general.transform.TransformerPreview37;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.DataValidateException;
 import com.rebuild.core.support.general.FieldValueHelper;
@@ -159,6 +160,16 @@ public class GeneralOperatingController extends BaseController {
             // 确保清除
             GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
             if (weakMode != null) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.DataValidate#getWeakMode", true);
+        }
+
+        // 转换后回填
+        String previewid = request.getParameter("previewid");
+        if (StringUtils.isNotBlank(previewid)) {
+            try {
+                new TransformerPreview37(previewid, user).fillback(record.getPrimary());
+            } catch (Exception ex) {
+                log.error("Transforme with fillback fails : {}", previewid, ex);
+            }
         }
 
         JSONObject res = new JSONObject();
