@@ -179,13 +179,13 @@ class RbFormModal extends React.Component {
     let reset = this.state.reset === true
     if (!reset) {
       // 比较初始参数决定是否可复用
-      const stateNew = [state.id, state.entity, state.initialValue]
-      const stateOld = [this.state.id, this.state.entity, this.state.initialValue]
+      const stateNew = [state.id, state.entity, state.initialValue, state.previewid]
+      const stateOld = [this.state.id, this.state.entity, this.state.initialValue, this.state.previewid]
       reset = !$same(stateNew, stateOld)
     }
 
     if (reset) {
-      state = { formComponent: null, initialValue: null, alertMessage: null, inLoad: true, ...state }
+      state = { formComponent: null, initialValue: null, previewid: null, alertMessage: null, inLoad: true, ...state }
       this.setState(state, () => this._showAfter({ reset: false }, true))
     } else {
       this._showAfter({ ...state, reset: false })
@@ -786,10 +786,11 @@ class RbForm extends React.Component {
     if (this._postBeforeExec(data) === false) return
 
     const $$$parent = this.props.$$$parent
+    const previewid = $$$parent.state.previewid
 
     const $btn = $(this._$formAction).find('.btn').button('loading')
     let url = '/app/entity/record-save'
-    if ($$$parent.state.previewid) url += `?previewid=${$$$parent.state.previewid}`
+    if (previewid) url += `?previewid=${previewid}`
     if (weakMode) {
       url += url.includes('?') ? '&' : '?'
       url += 'weakMode=' + weakMode
