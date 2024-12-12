@@ -433,7 +433,8 @@ const formatThousands = function (num, flag) {
 
     let unit = ~~flags[1]
     if (unit && unit > 0) {
-      let scale = (num.split('.')[1] || '').length || 0
+      let scale = 0
+      if (num && num.includes('.')) scale = num.split('.')[1].length
       n = (parseFloat(n) / unit).toFixed(scale)
       flagUnit = _FLAG_UNITS()[unit + ''] || ''
     }

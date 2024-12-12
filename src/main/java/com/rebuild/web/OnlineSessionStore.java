@@ -153,7 +153,7 @@ public class OnlineSessionStore implements HttpSessionListener {
         if (sessionOrTokenOrUser instanceof ID) {
             for (LoginChannel ch : LoginChannel.values()) {
                 HttpSession s = getSession((ID) sessionOrTokenOrUser, ch);
-                killSession(s.getId());
+                if (s != null) killSession(s.getId());
             }
             return;
         }
