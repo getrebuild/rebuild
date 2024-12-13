@@ -408,19 +408,19 @@ public class NavBuilder extends NavManager {
             }
 
         } else if (NAV_FEEDS.equals(navName)) {
-            navName = "nav_entity-FEEDS";
+            navName = "nav_entity--FEEDS";
             navUrl = AppUtils.getContextPath("/feeds/home");
 
         } else if (NAV_FILEMRG.equals(navName)) {
-            navName = "nav_entity-ATTACHMENT";
+            navName = "nav_entity--ATTACHMENT";
             navUrl = AppUtils.getContextPath("/files/home");
 
         } else if (NAV_CONTACT.equals(navName)) {
-            navName = "nav_entity-CONTACT";
+            navName = "nav_entity--CONTACTS";
             navUrl = AppUtils.getContextPath("/contacts/home");
 
         } else if (NAV_PROJECT.equals(navName)) {
-            navName = "nav_entity-PROJECT";
+            navName = "nav_entity--PROJECT";
             navUrl = AppUtils.getContextPath("/project/search");
 
         } else if (NAV_PROJECT.equals(navType)) {
@@ -428,7 +428,7 @@ public class NavBuilder extends NavManager {
             navUrl = String.format("%s/project/%s/tasks", AppUtils.getContextPath(), navUrl);
 
         } else if (navName.startsWith(NAV_PROJECT)) {
-            navName = "nav_project--add";
+            navName = "nav_project-add";
             navUrl = AppUtils.getContextPath("/admin/projects");
 
         } else if (NAV_DASHBOARD.equals(navType)) {
