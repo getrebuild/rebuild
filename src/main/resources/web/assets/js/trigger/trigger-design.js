@@ -518,15 +518,14 @@ class DlgSpecApproveNodes extends RbModalHandler {
                 {$L('填写步骤名称')} ({$L('* 表示所有')})
               </label>
               <div>
-                <select className="form-control form-control-sm" ref={(c) => (this._$set = c)}>
-                  {this.state.stepNames &&
-                    this.state.stepNames.map((item) => {
-                      return (
-                        <option key={item} value={item}>
-                          {item}
-                        </option>
-                      )
-                    })}
+                <select className="form-control form-control-sm" ref={(c) => (this._$set = c)} multiple>
+                  {(this.state.stepNames || []).map((item) => {
+                    return (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    )
+                  })}
                 </select>
               </div>
             </div>
@@ -546,15 +545,8 @@ class DlgSpecApproveNodes extends RbModalHandler {
   }
 
   componentDidMount() {
-    let s2data = this.props.selected || []
-    s2data = s2data.map((item) => {
-      return { id: item, text: item, selected: true }
-    })
     this.__select2 = $(this._$set).select2({
       placeholder: $L('无'),
-      data: s2data,
-      multiple: true,
-      maximumSelectionLength: 9,
       language: {
         noResults: function () {
           return $L('请输入')
@@ -566,7 +558,15 @@ class DlgSpecApproveNodes extends RbModalHandler {
     })
 
     $.get(`/admin/robot/trigger/approval-steps?entity=${wpc.sourceEntity}`, (res) => {
-      this.setState({ stepNames: res.data || [] })
+      let names = res.data || []
+      if (this.props.selected) {
+        this.props.selected.forEach((item) => {
+          if (!names.includes(item)) names.push(item)
+        })
+      }
+      this.setState({ stepNames: names }, () => {
+        this.props.selected && this.__select2.val(this.props.selected).trigger('change')
+      })
     })
   }
 
