@@ -808,14 +808,14 @@ public class ApprovalStepService extends BaseService {
                 }
 
                 if (!allowTriggers.isEmpty()) {
-                    RobotTriggerObserver.setAllowTriggersOnApproved(allowTriggers.toString());
+                    RobotTriggerObserver.setAllowTriggersOnNodeApproved(allowTriggers.toString());
                     for (ID did : QueryHelper.detailIdsNoFilter(approvalRecord.getPrimary(), de)) {
                         Record dAfter = EntityHelper.forUpdate(did, approvalUser, false);
                         triggerManual.onApproved(
                                 OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, dAfter));
                     }
 
-                    RobotTriggerObserver.clearAllowTriggersOnApproved();
+                    RobotTriggerObserver.clearAllowTriggersOnNodeApproved();
                     allowTriggers.clear();
                 }
             }
@@ -827,20 +827,21 @@ public class ApprovalStepService extends BaseService {
             }
 
             if (!allowTriggers.isEmpty()) {
-                RobotTriggerObserver.setAllowTriggersOnApproved(allowTriggers.toString());
+                RobotTriggerObserver.setAllowTriggersOnNodeApproved(allowTriggers.toString());
                 triggerManual.onApproved(
                         OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, approvalRecord));
             }
 
         } finally {
-            RobotTriggerObserver.clearAllowTriggersOnApproved();
+            RobotTriggerObserver.clearAllowTriggersOnNodeApproved();
         }
     }
 
     private boolean isSpecApproveNode(TriggerAction triggerAction, String nodeName) {
-        JSONObject actionContent = (JSONObject) triggerAction.getActionContext().getActionContent();
-        JSONArray whenApproveNodes = actionContent.getJSONArray("whenApproveNodes");
-        return whenApproveNodes != null && (whenApproveNodes.contains(nodeName) || whenApproveNodes.contains("*"));
+        JSONArray whenApproveNodes = ((JSONObject) triggerAction.getActionContext().getActionContent())
+                .getJSONArray("whenApproveNodes");
+        if (whenApproveNodes == null || whenApproveNodes.isEmpty()) return false;
+        return whenApproveNodes.contains(nodeName) || whenApproveNodes.contains("*");
     }
 
     /**
