@@ -123,7 +123,7 @@ public class ApprovalFields2Schema extends Field2Schema {
                 DisplayType.TEXT, true, false, false, true, true, null, null, null, null, null);
     }
 
-    private boolean schema2DatabaseInternal(Entity entity, Field... fields) {
+    private void schema2DatabaseInternal(Entity entity, Field... fields) {
         boolean schemaReady = schema2Database(entity, fields);
 
         if (!schemaReady) {
@@ -132,7 +132,6 @@ public class ApprovalFields2Schema extends Field2Schema {
         }
 
         MetadataHelper.getMetadataFactory().refresh();
-        return true;
     }
 
     /**

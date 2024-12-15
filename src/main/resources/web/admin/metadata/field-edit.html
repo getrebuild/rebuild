@@ -30,14 +30,7 @@
                   <p class="description">[[${comments}]]</p>
                 </div>
               </div>
-              <div class="aside-nav collapse">
-                <ul class="nav">
-                  <li><a href="../base">[[${bundle.L('基本信息')}]]</a></li>
-                  <li><a href="../form-design">[[${bundle.L('表单设计')}]]</a></li>
-                  <li class="active"><a href="../fields">[[${bundle.L('字段管理')}]]</a></li>
-                  <li><a href="../advanced">[[${bundle.L('高级配置')}]]</a></li>
-                </ul>
-              </div>
+              <th:block th:replace="~{/admin/metadata/subnav-entity(active='fields',urlPrefix='../')}" />
             </div>
           </div>
         </aside>
@@ -189,6 +182,19 @@
                     <button class="btn btn-secondary btn-sm J_picklist-edit" type="button"><i class="zmdi zmdi-settings"></i> [[${bundle.L('配置选项')}]]</button>
                   </div>
                 </div>
+                <div th:if="${fieldType == 'PICKLIST'}" class="form-group row J_for-PICKLIST">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('显示样式')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8 pt-1">
+                    <label class="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                      <input class="custom-control-input" type="radio" name="showStyle" value="0" checked />
+                      <span class="custom-control-label">[[${bundle.L('默认')}]]</span>
+                    </label>
+                    <label class="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                      <input class="custom-control-input" type="radio" name="showStyle" value="10" />
+                      <span class="custom-control-label">[[${bundle.L('单选框')}]]</span>
+                    </label>
+                  </div>
+                </div>
                 <th:block th:if="${fieldType == 'TAG'}">
                   <div class="form-group row J_for-TAG">
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('常用标签')}]]</label>
@@ -295,7 +301,7 @@
                     </div>
                   </div>
                   <div class="form-group row J_for-DECIMAL">
-                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('格式')}]]</label>
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('显示格式')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8 pt-1">
                       <label class="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
                         <input class="custom-control-input" type="radio" name="decimalType" value="0" checked />
@@ -537,6 +543,7 @@
                         <a class="badge" data-patt="^[1-9][0-9]{5}$">[[${bundle.L('邮编')}]]</a>
                         <a class="badge" data-patt="^[\u4e00-\u9fa5]{0,}$">[[${bundle.L('仅中文')}]]</a>
                         <a class="badge" data-patt="^[A-Za-z]{0,}$">[[${bundle.L('仅英文')}]]</a>
+                        <a class="badge" data-patt="^[0-9]{0,}$">[[${bundle.L('仅数字')}]]</a>
                         <a class="badge" data-patt="^.{10,20}$">[[${bundle.L('限制字数')}]]</a>
                       </div>
                     </div>

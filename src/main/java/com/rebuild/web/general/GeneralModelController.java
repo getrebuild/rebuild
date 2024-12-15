@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.general.EasyActionManager;
 import com.rebuild.core.configuration.general.FormsBuilder;
 import com.rebuild.core.configuration.general.FormsBuilderContextHolder;
 import com.rebuild.core.configuration.general.FormsManager;
@@ -25,7 +26,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.service.general.transform.TransformerPreview37;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -34,7 +34,6 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -87,6 +86,8 @@ public class GeneralModelController extends EntityController {
         mv.getModel().putAll(getViewExtras(user, entity, isDetail));
         // 显示历史
         mv.getModel().put("ShowViewHistory", RebuildConfiguration.getBool(ConfigurationItem.ShowViewHistory));
+        // EasyAction
+        mv.getModel().put("easyAction", EasyActionManager.instance.getEasyAction(entity, user));
 
         mv.getModel().put("id", id);
         return mv;
@@ -128,26 +129,20 @@ public class GeneralModelController extends EntityController {
                     FormsBuilderContextHolder.setMainIdOfDetail(ID.valueOf(mainid));
                 }
                 // v2.8
-                else if (FormsBuilder.DV_MAINID.equals(mainid)) {
+                // v3.9 明细直接新建
+                else if (FormsBuilder.DV_MAINID.equals(mainid) || FormsBuilder.DV_MAINID_FJS.equals(mainid)) {
                     ID fakeMainid = EntityHelper.newUnsavedId(modelEntity.getMainEntity().getEntityCode());
                     FormsBuilderContextHolder.setMainIdOfDetail(fakeMainid);
                 }
             }
         }
 
-        // 记录转换:预览模式
-        final String previewid = request.getParameter("previewid");
         // 指定布局
         final ID specLayout = getIdParameter(request, "layout");
 
         try {
-            JSON model;
-            if (StringUtils.isNotBlank(previewid)) {
-                model = new TransformerPreview37(previewid, user).buildForm();
-            } else {
-                if (specLayout != null) FormsBuilderContextHolder.setSpecLayout(specLayout);
-                model = FormsBuilder.instance.buildForm(entity, user, id);
-            }
+            if (specLayout != null) FormsBuilderContextHolder.setSpecLayout(specLayout);
+            JSON model = FormsBuilder.instance.buildForm(entity, user, id);
 
             // 填充前端设定的初始值
             if (id == null && initialVal != null) {
@@ -246,12 +241,6 @@ public class GeneralModelController extends EntityController {
             HttpServletRequest request) {
         final ID user = getRequestUser(request);
 
-        // 记录转换预览模式
-        String previewid = request.getParameter("previewid");
-        if (StringUtils.isNotBlank(previewid)) {
-            return new TransformerPreview37(previewid, user).buildForm(entity);
-        }
-
         Entity detailEntityMeta = MetadataHelper.getEntity(entity);
         List<ID> ids = QueryHelper.detailIdsNoFilter(mainid, detailEntityMeta);
         if (ids.isEmpty()) return JSONUtils.EMPTY_ARRAY;
@@ -272,6 +261,7 @@ public class GeneralModelController extends EntityController {
         } finally {
             FormsBuilderContextHolder.getSpecLayout(true);
         }
+
         return details;
     }
 }

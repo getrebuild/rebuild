@@ -51,12 +51,6 @@
         border-radius: 2px;
         margin-right: 3px;
       }
-      .J_cloudAccount .icon {
-        font-size: 24px;
-        float: left;
-        color: #34a853;
-        margin-right: 6px;
-      }
       .unstyle.text-break {
         white-space: pre-wrap !important;
       }
@@ -359,12 +353,12 @@
                 <div class="card-header card-header-divider">REBUILD [[${bundle.L('云账号')}]]</div>
                 <div class="card-body">
                   <div class="J_not-bind hide">
-                    <p>[[${bundle.L('绑定 REBUILD 云账号，获取更多专享服务与资源，还有免费系统安全与健康检测。')}]]</p>
+                    <p>[[${bundle.L('绑定 REBUILD 云账号，便捷使用服务与资源，还有免费系统安全与健康检测。')}]]</p>
                     <button class="btn btn-primary btn-sm pl-3 pr-3" type="button">[[${bundle.L('点击绑定')}]]</button>
                   </div>
                   <div class="J_has-bind hide">
                     <p class="mb-1 mt-1 text-bold">
-                      <i class="mdi mdi-shield-check icon up-3"></i>
+                      <img th:src="@{/assets/img/rbuc-icon.svg}" style="width: 24px" class="up-2" />
                       [[${bundle.L('当前已绑定云账号')}]] <a href="https://getrebuild.com/ucenter/account" target="_blank" class="text-uppercase"></a>
                     </p>
                   </div>

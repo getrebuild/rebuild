@@ -192,8 +192,8 @@ public class ApprovalController extends BaseController {
     }
 
     @GetMapping("fetch-workedsteps")
-    public JSON fetchWorkedSteps(@IdParam(name = "record") ID recordId) {
-        return new ApprovalProcessor(recordId).getWorkedSteps();
+    public JSON fetchWorkedSteps(@IdParam(name = "record") ID recordId, HttpServletRequest request) {
+        return new ApprovalProcessor(recordId).getWorkedSteps(getBoolParameter(request, "his"));
     }
 
     @GetMapping("fetch-backsteps")

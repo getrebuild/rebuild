@@ -533,42 +533,25 @@ class SelectReport extends React.Component {
   }
 }
 
-// 记录转换
+const _FrontJS = window.FrontJS
+const _EasyAction = window.EasyAction
 // eslint-disable-next-line no-unused-vars
-class TransformRich extends React.Component {
-  render() {
-    return (
-      <RF>
-        {WrapHtml(this.props.previewMode ? $L('转换明细记录需先选择主记录') : $L('确认将当前记录转换为 **%s** 吗？', this.props.transName || this.props.entityLabel))}
-        {this.props.mainEntity && (
-          <div className="widget-sm mt-3">
-            <div>
-              <select className="form-control form-control-sm" ref={(c) => (this._$select = c)}></select>
-            </div>
-          </div>
-        )}
-      </RF>
-    )
-  }
+const EasyAction4View = {
+  init(items) {
+    if (!(_FrontJS && items)) return
+    const _View = _FrontJS.View
 
-  componentDidMount() {
-    $initReferenceSelect2(this._$select, {
-      placeholder: $L('选择主记录'),
-      entity: this.props.entity,
-      name: `${this.props.mainEntity}Id`,
-    })
-  }
+    items['view'] &&
+      items['view'].forEach((item) => {
+        item = _EasyAction.fixItem(item)
+        if (!item) return
 
-  getMainId() {
-    if (this._$select) {
-      let v = $(this._$select).val()
-      v = v ? v : false
-
-      if (v === false) {
-        RbHighbar.create($L('请选择主记录'))
-      }
-      return v
-    }
-    return true
-  }
+        item.onClick = () => _EasyAction.handleOp(item, _View.getCurrentId())
+        item.items &&
+          item.items.forEach((itemL2) => {
+            itemL2.onClick = () => _EasyAction.handleOp(itemL2, _View.getCurrentId())
+          })
+        _View.addButton(item)
+      })
+  },
 }

@@ -115,7 +115,9 @@ module.exports = {
     $isTrue: true,
     $fieldIsCompatible: true,
     $unhideDropdown: true,
+    RecordSelector: true,
     AnyRecordSelector: true,
+    ReferenceSearcher: true,
     AsideTree: true,
     $useMap: true,
     BaiduMap: true,
@@ -146,5 +148,8 @@ module.exports = {
     $isImage: true,
     $dropUpload: true,
     $tagStyle2: true,
+    $clearSelection: true,
+    DlgTransform: true,
+    $select2OpenTemplateResult: true,
   },
 }

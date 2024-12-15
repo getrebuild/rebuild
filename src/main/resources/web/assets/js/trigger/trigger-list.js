@@ -225,7 +225,7 @@ class TriggerEdit extends ConfigFormDlg {
     $.get('/admin/robot/trigger/available-actions', (res) => {
       let actions = res.data || []
       if (!window.__BOSSKEY) {
-        actions = actions.filter((item) => !['PROXYTRIGGERACTION', 'AUTOGENREPORT', 'AUTOREVOKE'].includes(item[0]))
+        actions = actions.filter((item) => !['PROXYTRIGGERACTION', 'AUTOREVOKE'].includes(item[0]))
       }
 
       this.setState({ actions }, () => {

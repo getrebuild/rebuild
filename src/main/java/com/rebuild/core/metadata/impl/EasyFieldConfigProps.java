@@ -199,4 +199,8 @@ public class EasyFieldConfigProps {
      */
     public static final String TAG_MAXSELECT = "tagMaxSelect";
 
+    /**
+     * PICKLIST:显示样式
+     */
+    public static final String PICKLIST_SHOWSTYLE = "showStyle";
 }

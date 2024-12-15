@@ -7,15 +7,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // 部门树
 
-var __AsideTree
+let _AsideTree
 // eslint-disable-next-line no-unused-vars
-var loadDeptTree = function () {
+const loadDeptTree = function () {
   $.get('/admin/bizuser/dept-tree', function (res) {
-    if (__AsideTree) {
+    if (_AsideTree) {
       ReactDOM.unmountComponentAtNode(document.getElementById('dept-tree'))
     }
 
-    const activeItem = __AsideTree ? __AsideTree.state.activeItem || '$ALL$' : '$ALL$'
+    const activeItem = _AsideTree ? _AsideTree.state.activeItem || '$ALL$' : '$ALL$'
     const data = [{ id: '$ALL$', name: $L('全部部门') }, ...res.data]
     renderRbcomp(
       <AsideTree
@@ -31,7 +31,7 @@ var loadDeptTree = function () {
       />,
       'dept-tree',
       function () {
-        __AsideTree = this
+        _AsideTree = this
       }
     )
   })
@@ -45,6 +45,7 @@ RbList.renderAfter = function () {
   const FLAGS = {
     'WW': $L('企业微信'),
     'DD': $L('钉钉'),
+    'FS': $L('飞书'),
   }
 
   const userids = []

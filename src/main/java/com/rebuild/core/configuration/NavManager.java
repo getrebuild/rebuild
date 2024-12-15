@@ -30,6 +30,10 @@ public class NavManager extends BaseLayoutManager {
     public static final String NAV_FEEDS = "$FEEDS$";
     // 项目
     public static final String NAV_PROJECT = "$PROJECT$";
+    // 通讯录
+    public static final String NAV_CONTACT = "$CONTACT$";
+    // 仪表盘
+    public static final String NAV_DASHBOARD = "$DASHBOARD$";
 
     // 分栏
     public static final String NAV_DIVIDER = "$DIVIDER$";

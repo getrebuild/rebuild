@@ -107,7 +107,7 @@ public class BarCodeSupport {
      * @return
      */
     public static BufferedImage createBarCode(String content, int height, boolean showText) {
-        return createBarCode(content, 0, height, showText);
+        return createBarCode(content, 0, height, showText, BarcodeFormat.CODE_128);
     }
 
     /**
@@ -119,12 +119,12 @@ public class BarCodeSupport {
      * @param showText 显示底部文字
      * @return
      */
-    public static BufferedImage createBarCode(String content, int width, int height, boolean showText) {
+    public static BufferedImage createBarCode(String content, int width, int height, boolean showText, BarcodeFormat specFormat) {
         BitMatrix bitMatrix;
         try {
-            bitMatrix = createBarCodeImage(content, BarcodeFormat.CODE_128, width, height);
+            bitMatrix = createBarCodeImage(content, specFormat, width, height);
         } catch (IllegalArgumentException ex) {
-            log.error("Cannot encode `{}` to CODE_128", content);
+            log.error("Cannot encode `{}` to {}", content, specFormat);
 
             content = CONTENT_ERROR;
             bitMatrix = createBarCodeImage(content, BarcodeFormat.CODE_128, width, height);
@@ -169,8 +169,7 @@ public class BarCodeSupport {
 
                 // 条形码宽度为自适应
                 if (width == 0 && height > base) {
-                    // 非整数倍数两边有白边
-                    width = (int) (((height + 0d) / base) * new Code128Writer().encode(content).length);
+                    width = (int) (((height + 0d) / base * 1.51) * new Code128Writer().encode(content).length);
                 }
             }
 

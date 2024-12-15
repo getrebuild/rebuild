@@ -97,7 +97,7 @@ public class AppUtils {
         try {
             user = request.getSession().getAttribute(WebUtils.CURRENT_USER);
         } catch (Exception resHasBeenCommitted) {
-            log.warn("resHasBeenCommitted", resHasBeenCommitted);
+            log.debug("resHasBeenCommitted", resHasBeenCommitted);
         }
 
         if (user == null) user = getRequestUserViaToken(request, refreshToken);
@@ -114,7 +114,7 @@ public class AppUtils {
     protected static ID getRequestUserViaToken(HttpServletRequest request, boolean refreshToken) {
         String authToken = request.getHeader(HF_AUTHTOKEN);
         return authToken == null
-                ? null : AuthTokenManager.verifyToken(authToken, Boolean.FALSE, refreshToken);
+                ? null : AuthTokenManager.verifyToken(authToken, false, refreshToken);
     }
 
     /**

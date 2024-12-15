@@ -71,9 +71,9 @@ class DlgAssign extends RbModalHandler {
               <button className="btn btn-primary" type="button" onClick={() => this.post()}>
                 {$L('确定')}
               </button>
-              <a className="btn btn-link" onClick={() => this.hide()}>
+              <button type="button" className="btn btn-link" onClick={() => this.hide()}>
                 {$L('取消')}
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -224,9 +224,9 @@ class DlgUnshare extends RbModalHandler {
               <button className="btn btn-primary" type="button" onClick={() => this.post()}>
                 {$L('确定')}
               </button>
-              <a className="btn btn-link" onClick={() => this.hide()}>
+              <button type="button" className="btn btn-link" onClick={() => this.hide()}>
                 {$L('取消')}
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -378,5 +378,157 @@ class DlgShareManager extends RbModalHandler {
       renderRbcomp(<DlgShareManager {...props} />, function () {
         that.__HOLDER = this
       })
+  }
+}
+
+// ~~ 记录转换
+class DlgTransform extends RbModalHandler {
+  constructor(props) {
+    super(props)
+    this.state.transType = 0
+    // 支持多个
+    this._isMuilt = Array.isArray(props.sourceRecord) && props.sourceRecord.length > 1
+  }
+
+  render() {
+    return (
+      <RbModal title={$L('转换记录')} className="sm-height" ref={(c) => (this._dlg = c)} disposeOnHide>
+        <div className="form">
+          <div className="form-group row pb-1">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('转换为')}</label>
+            <div className="col-sm-7" style={{ paddingTop: 6 }}>
+              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
+                <input className="custom-control-input" type="radio" name="transType" checked={this.state.transType === 0} onChange={() => this.setState({ transType: 0 })} />
+                <span className="custom-control-label">{$L('新记录')}</span>
+              </label>
+              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
+                <input
+                  className="custom-control-input J_word4"
+                  type="radio"
+                  name="transType"
+                  checked={this.state.transType === 1}
+                  onChange={() => this.setState({ transType: 1 })}
+                  disabled={this._isMuilt}
+                />
+                <span className="custom-control-label">{$L('已有记录')}</span>
+              </label>
+              {this._isMuilt && <RbAlertBox message={$L('本次将批量转换 %d 条记录', this.props.sourceRecord.length)} type="info" className="mt-1 mb-0" />}
+            </div>
+          </div>
+          <div className={`form-group row ${this.state.transType !== 1 && 'hide'}`}>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('选择已有记录')}</label>
+            <div className="col-sm-7">
+              <RecordSelector entity={this.props.entity} entityLabel={this.props.entityLabel} ref={(c) => (this._existsRecord = c)} />
+            </div>
+          </div>
+          {this.props.mainEntity && (
+            <div className={`form-group row ${this.state.transType === 1 && 'hide'}`}>
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('选择主记录')}</label>
+              <div className="col-sm-7">
+                <RecordSelector entity={this.props.mainEntity} entityLabel={this.props.mainEntityLabel} ref={(c) => (this._mainRecord = c)} />
+                <p className="form-text">{$L('转换新明细记录时需要选择主记录')}</p>
+              </div>
+            </div>
+          )}
+          <div className="form-group row footer">
+            <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
+              <button className="btn btn-primary" type="button" onClick={() => this.post()}>
+                {$L('确定')}
+              </button>
+              <button className={`btn btn-primary btn-outline ml-2 ${this._isMuilt && 'hide'}`} type="button" onClick={() => this.post(true)}>
+                {$L('预览')}
+              </button>
+              <button type="button" className="btn btn-link" onClick={() => this.hide()}>
+                {$L('取消')}
+              </button>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    if (this.props.existsRecord) {
+      this._existsRecord.setValue(this.props.existsRecord)
+    }
+    if (this.props.mainEntity && this.props.mainRecord) {
+      this._mainRecord.setValue(this.props.mainRecord)
+    }
+  }
+
+  post(preview) {
+    const props = this.props
+    const _post = {
+      transid: props.transid,
+      sourceRecord: props.sourceRecord,
+      existsRecord: this.state.transType === 1 ? this._existsRecord.val() || null : null,
+      mainRecord: this.state.transType === 0 && this._mainRecord ? this._mainRecord.val() || null : null,
+      preview: preview || false,
+    }
+    // 单条兼容
+    if (Array.isArray(_post.sourceRecord) && !this._isMuilt) _post.sourceRecord = _post.sourceRecord[0]
+
+    if (this.state.transType === 1 && !_post.existsRecord) {
+      return RbHighbar.createl('请选择已有记录')
+    }
+    if (props.mainEntity) {
+      if (this.state.transType !== 1 && !_post.mainRecord) {
+        return RbHighbar.createl('请选择主记录')
+      }
+    }
+    if (_post.sourceRecord === _post.existsRecord) {
+      return RbHighbar.createl('已有记录不能是当前记录')
+    }
+
+    const $btn = $(this._$btn).find('.btn').button('loading')
+    $.post('/app/entity/extras/transform39', JSON.stringify(_post), (res) => {
+      $btn.button('reset')
+      if (res.error_code === 0) {
+        this.reset()
+        this.hide(true)
+
+        if (_post.preview) {
+          const modalProps = {
+            title: $L('新建%s', props.entityLabel),
+            entity: props.entity,
+            icon: props.icon,
+            initialFormModel: res.data,
+            previewid: `${props.transid}.${props.sourceRecord}`,
+          }
+          if (_post.existsRecord) {
+            modalProps.title = $L('编辑%s', props.entityLabel)
+            modalProps.id = _post.existsRecord
+          }
+          // From
+          RbFormModal.create(modalProps, true)
+        } else {
+          if (this._isMuilt) {
+            RbHighbar.success($L('成功转换 %d 条记录', (res.data || []).length))
+            return
+          }
+
+          // View
+          setTimeout(() => {
+            if (window.RbViewModal) {
+              window.RbViewModal.create({ id: res.data, entity: this.props.entity })
+              window.RbListPage && window.RbListPage.reload()
+            } else if (window.RbViewPage) {
+              window.RbViewPage.clickView(`#!/View/${this.props.entity}/${res.data}`)
+            } else {
+              window.open(`${rb.baseUrl}/app/${this.props.entity}/view/${res.data}`)
+            }
+          }, 200)
+        }
+      } else {
+        res.error_code === 400 ? RbHighbar.create(res.error_msg) : RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+
+  reset() {
+    this.setState({ transType: 0 })
+    this._existsRecord && this._existsRecord.reset()
+    this._mainRecord && this._mainRecord.reset()
   }
 }

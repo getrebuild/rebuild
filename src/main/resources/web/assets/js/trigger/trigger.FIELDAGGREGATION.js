@@ -69,8 +69,8 @@ class ContentFieldAggregation extends ActionContentSpec {
             <div className="form-group row">
               <label className="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
               <div className="col-md-12 col-lg-9">
-                <h5 className="mt-0 text-bold">{$L('字段匹配规则')} (LAB)</h5>
-                <MatchFields targetFields={this.state.targetFields2} sourceFields={this.__sourceFieldsCache} ref={(c) => (this._MatchFields = c)} />
+                <h5 className="mt-0 text-bold">{$L('字段匹配规则')}</h5>
+                <MatchFields targetFields={this.state.targetFields4Group} sourceFields={this.__sourceFieldsCache} ref={(c) => (this._MatchFields = c)} />
               </div>
             </div>
           )}
@@ -169,7 +169,7 @@ class ContentFieldAggregation extends ActionContentSpec {
             </div>
           </div>
 
-          <div className="form-group row pb-0">
+          <div className="form-group row">
             <label className="col-md-12 col-lg-3 col-form-label" />
             <div className="col-md-12 col-lg-9">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
@@ -194,6 +194,34 @@ class ContentFieldAggregation extends ActionContentSpec {
                   <span className="custom-control-label">{$L('禁用级联执行')}</span>
                 </label>
               </div>
+              <div className="mt-2">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$autoCreate = c)} />
+                  <span className="custom-control-label">
+                    {$L('目标记录不存在时自动新建')}
+                    <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('仅使用“通过字段匹配”时有效')} />
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('聚合后回填')}</label>
+            <div className="col-md-12 col-lg-9">
+              <div className="row">
+                <div className="col-5">
+                  <select className="form-control form-control-sm" style={{ maxWidth: 300 }} ref={(c) => (this._$fillbackField = c)}>
+                    {(this.state.fillbackFields || []).map((item) => {
+                      return (
+                        <option key={item.name} value={item.name}>
+                          {item.label}
+                        </option>
+                      )
+                    })}
+                  </select>
+                </div>
+              </div>
+              <div className="form-text">{$L('可将聚合后的记录 ID 回填至源记录中')}</div>
             </div>
           </div>
         </form>
@@ -226,6 +254,7 @@ class ContentFieldAggregation extends ActionContentSpec {
       $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
       $(this._$forceUpdate).attr('checked', content.forceUpdate === true)
       $(this._$stopPropagation).attr('checked', content.stopPropagation === true)
+      $(this._$autoCreate).attr('checked', content.autoCreate === true)
       this.saveAdvFilter(content.dataFilter)
       $(this._$matchFields).val(content.targetEntityMatchFields || null)
     }
@@ -235,7 +264,7 @@ class ContentFieldAggregation extends ActionContentSpec {
     const teSplit = ($(this._$targetEntity).val() || '').split('.')
     if (!teSplit || !teSplit[1]) return
     // 清空现有规则
-    this.setState({ items: [] })
+    this.setState({ items: [], fillbackFields: [] })
     if (__LAB_MATCHFIELDS) {
       this.setState({ showMatchFields: teSplit[0] === '$' })
     }
@@ -246,11 +275,18 @@ class ContentFieldAggregation extends ActionContentSpec {
       this.__sourceFieldsCache = res.data.source
       this.__targetFieldsCache = res.data.target
 
+      const fbs = this.__sourceFieldsCache.filter((item) => {
+        let can = item.ref && item.ref[0] === teSplit[1]
+        // DTM字段
+        if (can && item.creatable === false && item.nullable === false && item.updatable === false) can = false
+        return can
+      })
+
       if (this.state.sourceFields) {
-        this.setState({ sourceFields: res.data.source }, () => $(this._$sourceField).trigger('change'))
+        this.setState({ sourceFields: res.data.source, fillbackFields: fbs }, () => $(this._$sourceField).trigger('change'))
       } else {
         // init
-        this.setState({ sourceFields: res.data.source }, () => {
+        this.setState({ sourceFields: res.data.source, fillbackFields: fbs }, () => {
           let $s2sf, $s2cm, $s2tf
 
           $s2sf = $(this._$sourceField)
@@ -310,6 +346,10 @@ class ContentFieldAggregation extends ActionContentSpec {
 
           $s2sf.trigger('change')
 
+          // 回填
+          const $fbf = $(this._$fillbackField).select2({ placeholder: $L('(可选)'), allowClear: true })
+          this.__select2.push($fbf)
+
           this.__select2.push($s2sf)
           this.__select2.push($s2cm)
           this.__select2.push($s2tf)
@@ -318,17 +358,21 @@ class ContentFieldAggregation extends ActionContentSpec {
         const content = this.props.content
         if (content) {
           this.setState({ items: content.items || [] })
-
           if (content.targetEntityMatchFields) {
             setTimeout(() => this._MatchFields && this._MatchFields.setState({ groupFields: content.targetEntityMatchFields }), 200)
           }
+          setTimeout(() => {
+            $(this._$fillbackField)
+              .val(content.fillbackField || null)
+              .trigger('change')
+          }, 200)
         }
       }
 
       // v3.7
-      const targetFields2 = res.data.target2 || []
-      this.setState({ targetFields2: targetFields2 })
-      this._MatchFields && this._MatchFields.reset({ targetFields: targetFields2, sourceFields: this.__sourceFieldsCache })
+      const target4Group = res.data.target4Group || []
+      this.setState({ targetFields4Group: target4Group })
+      this._MatchFields && this._MatchFields.reset({ targetFields: target4Group, sourceFields: this.__sourceFieldsCache })
     })
   }
 
@@ -403,6 +447,8 @@ class ContentFieldAggregation extends ActionContentSpec {
       readonlyFields: $(this._$readonlyFields).prop('checked'),
       forceUpdate: $(this._$forceUpdate).prop('checked'),
       stopPropagation: $(this._$stopPropagation).prop('checked'),
+      autoCreate: $(this._$autoCreate).prop('checked'),
+      fillbackField: $(this._$fillbackField).val() || null,
       dataFilter: this._advFilter__data,
     }
 
@@ -432,6 +478,7 @@ class ContentFieldAggregation extends ActionContentSpec {
 // eslint-disable-next-line no-undef
 renderContentComp = function (props) {
   __LAB_MATCHFIELDS = window.__BOSSKEY || !!(props.content && props.content.targetEntityMatchFields)
+  __LAB_MATCHFIELDS = true // v3.9
   renderRbcomp(<ContentFieldAggregation {...props} />, 'react-content', function () {
     // eslint-disable-next-line no-undef
     contentComp = this

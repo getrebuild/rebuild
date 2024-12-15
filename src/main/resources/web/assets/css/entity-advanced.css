@@ -151,3 +151,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   overflow: hidden;
   border-radius: 99px;
 }
+
+.aside-show .aside-item + .aside-item {
+  margin-top: 10px;
+}

@@ -32,9 +32,6 @@ class Share2 extends _ChangeHandler {
     // init
     if (props.shareTo && props.shareTo !== SHARE_SELF) {
       this.state.shared = true
-    } else if (rb.isAdminUser && !props.id) {
-      // new for Admin
-      this.state.shared = true
     }
   }
 
@@ -156,7 +153,7 @@ class Share2Switch extends _ChangeHandler {
 
             return (
               <li key={'item-' + item[0]}>
-                <a href={`?id=${item[0]}&entity=${this.props.entity || ''}`}>
+                <a href={`?id=${item[0]}&entity=${this.props.entity || ''}`} data-id={item[0]}>
                   {item[1] || $L('未命名')}
                   <span className="muted">{st}</span>
                 </a>
@@ -269,9 +266,7 @@ const renderSwitchButton = (data, title, current) => {
             let name = x[1] || $L('未命名')
             if (x[3] === rb.currentUser) name = $L('我的%s', title)
             else name += ` [${$L('共享的')}]`
-
             if (current && current === x[0]) name += ` [${$L('当前')}]`
-
             return (
               <a key={`sw-${x[0]}`} className="dropdown-item" href={`?id=${x[0]}${x[4] ? `&entity=${x[4]}` : ''}`}>
                 {name}

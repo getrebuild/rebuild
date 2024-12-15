@@ -108,8 +108,7 @@ class DataList extends React.Component {
 
   showDetails() {
     const ids = this._List.getSelectedIds()
-    if (!ids || ids.length === 0) return
-    renderRbcomp(<DlgDetails id={ids[0]} width="681" />)
+    ids && ids[0] && renderRbcomp(<DlgDetails id={ids[0]} width="681" />)
   }
 }
 
@@ -118,12 +117,12 @@ const CellRenders_renderSimple = CellRenders.renderSimple
 CellRenders.renderSimple = function (v, s, k) {
   if (k.endsWith('.channelWith')) {
     v = v ? (
-      <React.Fragment>
+      <RF>
         {$L('关联操作')}
         <span className="badge text-id ml-1" title={$L('关联记录 ID')}>
           {v.id}
         </span>
-      </React.Fragment>
+      </RF>
     ) : (
       $L('直接操作')
     )
@@ -141,12 +140,10 @@ CellRenders.renderSimple = function (v, s, k) {
 // ~~ 变更详情
 class DlgDetails extends RbAlert {
   renderContent() {
-    if (this.state.viewAll) {
-      return <HistoryViewport id={this.props.id} />
-    }
+    if (this.state.viewAll) return <HistoryViewport id={this.props.id} />
 
     return (
-      <table className="table table-fixed">
+      <table className="table table-fixed mb-0">
         <thead>
           <tr>
             <th width="25%">{$L('字段')}</th>
@@ -158,9 +155,11 @@ class DlgDetails extends RbAlert {
           <ContentsGroup contents={this.state.data} />
           <tr>
             <td colSpan="3" className="text-center pb-0">
-              <a className="text-primary" onClick={() => this.setState({ viewAll: true })}>
-                {$L('查看全部')}
-              </a>
+              <div className="mt-1">
+                <a className="show-more-pill" onClick={() => this.setState({ viewAll: true })}>
+                  {$L('查看全部')}
+                </a>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -227,12 +226,12 @@ class HistoryViewport extends React.Component {
 }
 
 function ContentsGroup({ contents }) {
-  const f = function (v) {
-    if (v) {
-      return typeof v === 'object' ? v.join(', ') : v
-    } else {
-      return <span className="text-muted">{$L('空')}</span>
-    }
+  const _FN = function (v) {
+    if (v === true) return $L('是')
+    else if (v === false) return $L('否')
+    else if (v === 0) return 0
+    else if (v) return typeof v === 'object' ? v.join(', ') : v
+    return <span className="text-muted">{$L('空')}</span>
   }
 
   // 排除相同
@@ -251,10 +250,10 @@ function ContentsGroup({ contents }) {
             <tr key={item.field}>
               <td>{item.field}</td>
               <td>
-                <div>{f(item.before)}</div>
+                <div>{_FN(item.before)}</div>
               </td>
               <td>
-                <div>{f(item.after)}</div>
+                <div>{_FN(item.after)}</div>
               </td>
             </tr>
           )

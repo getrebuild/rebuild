@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global SelectReport TransformRich, FeedEditorDlg, LightTaskDlg, ApprovalProcessor, SopProcessor */
+/* global SelectReport, FeedEditorDlg, LightTaskDlg, ApprovalProcessor, SopProcessor */
 
 const wpc = window.__PageConfig || {}
 
@@ -61,6 +61,7 @@ class RbViewForm extends React.Component {
       this.__lastModified = res.data.lastModified || 0
       if (res.data.onViewEditable === false) this.onViewEditable = false
 
+      let _dividerRefs = []
       const VFORM = (
         <RF>
           {hadAlert}
@@ -71,16 +72,21 @@ class RbViewForm extends React.Component {
             {res.data.elements.map((item) => {
               if (![TYPE_DIVIDER, TYPE_REFFORM].includes(item.field)) this.__ViewData[item.field] = item.value
               if (item.field === TYPE_REFFORM) this.__hasRefform = true
+
               item.$$$parent = this
+              if (item.field === TYPE_DIVIDER && item.collapsed) {
+                item.ref = (c) => _dividerRefs.push(c)
+              }
               return detectViewElement(item, this.props.entity)
             })}
           </div>
-
-          {this.renderCustomizedFormArea()}
         </RF>
       )
 
       this.setState({ formComponent: VFORM }, () => {
+        // v3.9 默认收起
+        _dividerRefs.forEach((d) => d._toggle())
+
         this.hideLoading()
         if (window.FrontJS) {
           window.FrontJS.View._trigger('open', [res.data])
@@ -92,15 +98,6 @@ class RbViewForm extends React.Component {
   renderViewError(message) {
     this.setState({ formComponent: _renderError(message) }, () => this.hideLoading())
     $('.view-operating .view-action').empty()
-  }
-
-  renderCustomizedFormArea() {
-    let _FormArea
-    if (window._CustomizedForms) {
-      _FormArea = window._CustomizedForms.useFormArea(this.props.entity, this)
-      if (_FormArea) _FormArea = <div className="row">{React.cloneElement(_FormArea, { $$$parent: this })}</div>
-    }
-    return _FormArea || null
   }
 
   hideLoading() {
@@ -329,10 +326,10 @@ class RelatedList extends React.Component {
         )}
 
         {this.state.showMore && (
-          <div className="text-center mt-2 pb-2">
-            <button type="button" className="btn btn-link" onClick={() => this.fetchData(1)}>
+          <div className="text-center mt-3 pb-3">
+            <a className="show-more-pill" onClick={() => this.fetchData(1)}>
               {$L('显示更多')}
-            </button>
+            </a>
           </div>
         )}
       </RF>
@@ -916,56 +913,11 @@ const RbViewPage = {
     })
   },
 
-  // 转换
+  // 记录转换
   initTransform(config) {
-    const that = this
     config.forEach((item) => {
       const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.transName || item.entityLabel}</a>`)
-
-      const entity = item.entity.split('.')
-      $item.on('click', () => {
-        let _TransformRich
-
-        if (item.previewMode) {
-          const previewid = `${item.transid}.${that.__id}`
-          if (item.mainEntity) {
-            RbAlert.create(<TransformRich {...item} ref={(c) => (_TransformRich = c)} />, {
-              icon: 'info-outline',
-              onConfirm: function () {
-                const mainid = _TransformRich.getMainId()
-                if (mainid === false) return
-
-                this.hide()
-                RbFormModal.create({ title: $L('新建%s', item.entityLabel), entity: entity[0], icon: item.icon, previewid: `${previewid}.${mainid}` }, true)
-              },
-            })
-          } else {
-            RbFormModal.create({ title: $L('新建%s', item.entityLabel), entity: entity[0], icon: item.icon, previewid: previewid }, true)
-          }
-
-          // end: previewMode
-        } else {
-          RbAlert.create(<TransformRich {...item} ref={(c) => (_TransformRich = c)} />, {
-            tabIndex: 1,
-            onConfirm: function () {
-              const mainid = _TransformRich.getMainId()
-              if (mainid === false) return
-
-              this.disabled(true, true)
-              $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}&mainid=${mainid === true ? '' : mainid}`, (res) => {
-                if (res.error_code === 0) {
-                  this.hide(true)
-                  setTimeout(() => that.clickView(`#!/View/${item.entity}/${res.data}`), 200)
-                } else {
-                  this.disabled()
-                  res.error_code === 400 ? RbHighbar.create(res.error_msg) : RbHighbar.error(res.error_msg)
-                }
-              })
-            },
-          })
-        }
-      })
-
+      $item.on('click', () => renderRbcomp(<DlgTransform {...item} sourceRecord={this.__id} />))
       $('.J_transform .dropdown-divider').before($item)
     })
   },
@@ -1070,4 +1022,7 @@ $(document).ready(function () {
     if (wpc.viewTabs) RbViewPage.initVTabs(wpc.viewTabs)
     if (wpc.viewAdds) RbViewPage.initVAdds(wpc.viewAdds)
   }
+
+  // v3.8, v3.9
+  wpc.easyAction && window.EasyAction4View && window.EasyAction4View.init(wpc.easyAction)
 })

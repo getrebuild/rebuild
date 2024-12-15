@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global SimpleMDE, RepeatedViewer, ProTable, Md2Html */
+/* global SimpleMDE, RepeatedViewer, ProTable, Md2Html, ClassificationSelector */
 
 /**
  * Callback API:
@@ -38,7 +38,7 @@ class RbFormModal extends React.Component {
 
     return (
       <div className="modal-wrapper">
-        <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => (this._rbmodal = c)}>
+        <div className="modal rbmodal colored-header colored-header-primary" aria-hidden="true" ref={(c) => (this._rbmodal = c)}>
           <div className="modal-dialog" style={style2}>
             <div className="modal-content" style={style2}>
               <div
@@ -110,13 +110,19 @@ class RbFormModal extends React.Component {
     const initialValue = this.state.initialValue || {} // 默认值填充（仅新建有效）
 
     let url = `/app/${entity}/form-model?id=${id}`
-    if (this.state.previewid) url += `&previewid=${this.state.previewid}`
-    else if (this.state.specLayout) url += `&layout=${this.state.specLayout}`
+    if (this.state.specLayout) url += `&layout=${this.state.specLayout}`
 
     const that = this
-    function _FN2(formModel) {
+    function _FN2(formModel, forceInitFieldValue) {
       const FORM = (
-        <RbForm entity={entity} id={id} rawModel={formModel} $$$parent={that} readonly={!!formModel.readonlyMessage} ref={(c) => (that._formComponentRef = c)}>
+        <RbForm
+          entity={entity}
+          id={id}
+          rawModel={formModel}
+          forceInitFieldValue={forceInitFieldValue}
+          $$$parent={that}
+          readonly={!!formModel.readonlyMessage}
+          ref={(c) => (that._formComponentRef = c)}>
           {formModel.elements.map((item) => {
             return detectElement(item, entity)
           })}
@@ -139,7 +145,7 @@ class RbFormModal extends React.Component {
 
     // v3.8
     if (this.props.initialFormModel) {
-      _FN2(this.props.initialFormModel)
+      _FN2(this.props.initialFormModel, true)
       return
     }
 
@@ -300,8 +306,6 @@ class RbForm extends React.Component {
             }
             return React.cloneElement(fieldComp, { $$$parent: this, ref: ref })
           })}
-
-          {this.renderCustomizedFormArea()}
         </div>
 
         {this.renderDetailForms()}
@@ -310,36 +314,26 @@ class RbForm extends React.Component {
     )
   }
 
-  renderCustomizedFormArea() {
-    let _FormArea
-    if (window._CustomizedForms) {
-      _FormArea = window._CustomizedForms.useFormArea(this.props.entity, this)
-      if (_FormArea) _FormArea = React.cloneElement(_FormArea, { $$$parent: this })
-    }
-    return _FormArea || null
-  }
-
   renderDetailForms() {
     if (!window.ProTable || !this.props.rawModel.detailMeta) return null
 
-    // 记录转换:预览模式
-    const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
-
     // v3.7 ND
     const detailImports = this.props.rawModel.detailImports
+    // v3.9 记录转换
+    const transDetails39 = this.props.rawModel['$DETAILS$']
 
     this._ProTables = {}
 
     return (
       <RF>
         {this.props.rawModel.detailMetas.map((item, idx) => {
-          return <RF key={idx}>{this.renderDetailsForm(item, detailImports, previewid)}</RF>
+          return <RF key={idx}>{this._renderDetailForms(item, detailImports, transDetails39)}</RF>
         })}
       </RF>
     )
   }
 
-  renderDetailsForm(detailMeta, detailImports, previewid) {
+  _renderDetailForms(detailMeta, detailImports, transDetails39) {
     let _ProTable
     if (window._CustomizedForms) {
       _ProTable = window._CustomizedForms.useProTable(detailMeta.entity, this)
@@ -445,13 +439,14 @@ class RbForm extends React.Component {
         <ProTable
           entity={detailMeta}
           mainid={this.state.id}
-          previewid={previewid}
           ref={(c) => {
             _ProTable = c // ref
             this._ProTables[detailMeta.entity] = c
             this._ProTable = c // comp:v3.8
           }}
           $$$main={this}
+          transDetails={transDetails39 ? transDetails39[detailMeta.entity] : null}
+          transDetailsDelete={transDetails39 ? transDetails39[detailMeta.entity + '$DELETED'] : null}
         />
       )
     } else {
@@ -553,21 +548,21 @@ class RbForm extends React.Component {
       if (props.$$$parent && props.$$$parent.props._nextAddDetail) {
         moreActions.push(
           <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_NEWDETAIL)}>
-            {$L('保存并继续添加')}
+            {$L('保存并添加')}
           </a>
         )
       }
     }
     // 列表页保存并继续
     else if (window.RbViewModal && window.__PageConfig.type === 'RecordList') {
-      if (window.__LAB_FORMACTION_105) {
+      if (window.__LAB_FORMACTION_105 || props.rawModel.extrasAction) {
         moreActions.push(
           <a key="Action105" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADD36)}>
-            {$L('保存并继续新建')}
+            {$L('保存并新建')}
           </a>
         )
       }
-      if (window.__LAB_FORMACTION_103 && props.rawModel.hadApproval && window.ApprovalSubmitForm) {
+      if ((window.__LAB_FORMACTION_103 || props.rawModel.extrasAction) && props.rawModel.hadApproval && window.ApprovalSubmitForm) {
         moreActions.push(
           <a key="Action103" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_SUBMIT37)}>
             {$L('保存并提交')}
@@ -615,8 +610,8 @@ class RbForm extends React.Component {
   }
 
   componentDidMount() {
-    // 新纪录初始值
-    if (this.isNew) {
+    // 新记录初始值
+    if (this.isNew || this.props.forceInitFieldValue) {
       this.props.children.map((child) => {
         let iv = child.props.value
         if (!$empty(iv) && (!this.props.readonly || (this.props.readonly && this.props.readonlyw === 3))) {
@@ -839,9 +834,6 @@ class RbForm extends React.Component {
             // ~
           } else if (next === RbForm.NEXT_SUBMIT37) {
             renderRbcomp(<ApprovalSubmitForm id={recordId} />)
-            // ~
-          } else if (previewid && window.RbViewPage) {
-            window.RbViewPage.clickView(`#!/View/${this.state.entity}/${recordId}`)
             // ~
           }
 
@@ -1179,7 +1171,7 @@ class RbFormText extends RbFormElement {
 
     if (this._textCommonMenuId) {
       const that = this
-      console.log('[dev] init dropdown-menu with text-common', this._textCommonMenuId)
+      if (rb.dev === 'env') console.log('[dev] init dropdown-menu with text-common', this._textCommonMenuId)
       renderRbcomp(
         <div id={this._textCommonMenuId}>
           <div className="dropdown-menu common-texts">
@@ -1207,7 +1199,7 @@ class RbFormText extends RbFormElement {
     super.componentWillUnmount()
 
     if (this._textCommonMenuId) {
-      console.log('[dev] unmount dropdown-menu with text-common:', this._textCommonMenuId)
+      if (rb.dev === 'env') console.log('[dev] unmount dropdown-menu with text-common:', this._textCommonMenuId)
       $unmount($(`#${this._textCommonMenuId}`).parent())
     }
   }
@@ -1649,6 +1641,7 @@ class RbFormImage extends RbFormElement {
       this.__minUpload = 0
       this.__maxUpload = 9
     }
+    if (window.__LAB_FILE_MAXUPLOAD > 9) this.__maxUpload = window.__LAB_FILE_MAXUPLOAD
 
     // 1=默认, 2=拍摄, 3=1+2
     this._captureType = 0
@@ -1939,16 +1932,33 @@ class RbFormPickList extends RbFormElement {
       }
     }
     this._options = options
+    this._isShowRadio39 = props.showStyle === '10'
+    this._htmlid = `${props.field}-${$random()}-`
   }
 
   renderElement() {
-    const keyName = `${this.state.field}-option-`
+    if (this._isShowRadio39) {
+      const _readonly37 = this.state.readonly
+      return (
+        <div ref={(c) => (this._fieldValue = c)} className="mt-1">
+          {this._options.map((item) => {
+            return (
+              <label className="custom-control custom-radio custom-control-inline mb-1" key={`${this._htmlid}-${item.id}`}>
+                <input className="custom-control-input" name={this._htmlid} type="radio" checked={this.state.value === item.id} onChange={() => this.setValue(item.id)} disabled={_readonly37} />
+                <span className="custom-control-label">{item.text}</span>
+              </label>
+            )
+          })}
+        </div>
+      )
+    }
+
     return (
       <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" defaultValue={this.state.value || ''}>
         <option value="" />
         {this._options.map((item) => {
           return (
-            <option key={`${keyName}${item.id}`} value={item.id} disabled={$isSysMask(item.text)}>
+            <option key={`${this._htmlid}${item.id}`} value={item.id} disabled={$isSysMask(item.text)}>
               {item.text}
             </option>
           )
@@ -1965,18 +1975,22 @@ class RbFormPickList extends RbFormElement {
     if (destroy) {
       super.onEditModeChanged(destroy)
     } else {
-      this.__select2 = $(this._fieldValue).select2({
-        placeholder: $L('选择%s', this.props.label),
-      })
+      if (this._isShowRadio39) {
+        // TODO
+      } else {
+        this.__select2 = $(this._fieldValue).select2({
+          placeholder: $L('选择%s', this.props.label),
+        })
 
-      const that = this
-      this.__select2.on('change', function (e) {
-        const val = e.target.value
-        that.handleChange({ target: { value: val } }, true)
-      })
+        const that = this
+        this.__select2.on('change', function (e) {
+          const val = e.target.value
+          that.handleChange({ target: { value: val } }, true)
+        })
 
-      const _readonly37 = this.state.readonly
-      if (_readonly37) $(this._fieldValue).attr('disabled', true)
+        const _readonly37 = this.state.readonly
+        if (_readonly37) $(this._fieldValue).attr('disabled', true)
+      }
     }
   }
 
@@ -1987,7 +2001,11 @@ class RbFormPickList extends RbFormElement {
 
   setValue(val) {
     if (val && typeof val === 'object') val = val.id
-    this.__select2.val(val).trigger('change')
+    if (this._isShowRadio39) {
+      this.handleChange({ target: { value: val } }, true)
+    } else {
+      this.__select2.val(val).trigger('change')
+    }
   }
 }
 
@@ -2066,18 +2084,7 @@ class RbFormReference extends RbFormElement {
           return cascadingValue ? { cascadingValue, ...query } : query
         },
         placeholder: this._placeholderw,
-        templateResult: function (res) {
-          const $span = $('<span class="code-append"></span>').attr('title', res.text).text(res.text)
-          if (res.id) {
-            $(`<a title="${$L('在新页面打开')}"><i class="zmdi zmdi-open-in-new"></i></a>`)
-              .appendTo($span)
-              .on('mousedown', (e) => {
-                $stopEvent(e, true)
-                window.open(`${rb.baseUrl}/app/redirect?id=${res.id}&type=newtab`)
-              })
-          }
-          return $span
-        },
+        templateResult: $select2OpenTemplateResult,
       })
 
       const val = this.state.value
@@ -2092,15 +2099,16 @@ class RbFormReference extends RbFormElement {
 
           // v2.10 FIXME 父级改变后清除明细
           // v3.1 因为父级无法获取到明细的级联值，且级联值有多个（逻辑上存在多个父级值）
-          const _cascadingFieldChild = that.props._cascadingFieldChild || ''
-          if ($$$form._ProTables && !$$$form._inAutoFillin && _cascadingFieldChild.includes('.')) {
-            const _ProTable = $$$form._ProTables[_cascadingFieldChild.split('.')[0]]
-            if (_ProTable) {
-              const field = _cascadingFieldChild.split('$$$$')[0].split('.')[1]
-              _ProTable.setFieldNull(field)
-              console.log('Clean details ...', field)
-            }
-          }
+          // v3.9 不清除明细
+          // const _cascadingFieldChild = that.props._cascadingFieldChild || ''
+          // if ($$$form._ProTables && !$$$form._inAutoFillin && _cascadingFieldChild.includes('.')) {
+          //   const _ProTable = $$$form._ProTables[_cascadingFieldChild.split('.')[0]]
+          //   if (_ProTable) {
+          //     const field = _cascadingFieldChild.split('$$$$')[0].split('.')[1]
+          //     _ProTable.setFieldNull(field)
+          //     console.log('Clean details ...', field)
+          //   }
+          // }
         }
 
         that.handleChange({ target: { value: v } }, true)
@@ -2126,6 +2134,8 @@ class RbFormReference extends RbFormElement {
       return props.getCascadingFieldValue(this)
     }
 
+    let $$$parent = props.$$$parent
+
     // v3.3.2 在多级级联中会同时存在父子级
     let cascadingField
     if (props._cascadingFieldParent) {
@@ -2133,11 +2143,33 @@ class RbFormReference extends RbFormElement {
     } else if (props._cascadingFieldChild) {
       cascadingField = props._cascadingFieldChild.split('$$$$')[0]
       // v3.3.3 明细作为子级时不控制，因为选择后明细关联字段会清空
-      if (cascadingField && cascadingField.includes('.')) return null
+      // v3.9 开始控制，同时主记录中父级字段修改时不再清空明细（视图中还不能控制）
+      if (cascadingField && cascadingField.includes('.') && $$$parent._ProTables) {
+        const ef = cascadingField.split('.')
+        const pt = $$$parent._ProTables[ef[0]]
+
+        let vvv = []
+        const ptForms = pt.getInlineForms()
+        ptForms &&
+          ptForms.forEach((F) => {
+            const fieldComp = F.getFieldComp(ef[1])
+            let v = fieldComp ? fieldComp.getValue() : null
+            // N2N
+            if (v && Array.isArray(v)) {
+              let temp = []
+              v.forEach((item) => {
+                if (item.id) temp.push(item.id)
+                else temp.push(item)
+              })
+              v = temp.join(',')
+            }
+            v = v ? v.id || v : null
+            if (v) vvv.push(v)
+          })
+        return vvv.length > 0 ? vvv.join(',') : null
+      }
     }
     if (!cascadingField) return null
-
-    let $$$parent = props.$$$parent
 
     // v2.10 明细中使用主表单
     if ($$$parent._InlineForm && (props._cascadingFieldParent || '').includes('.')) {
@@ -2163,7 +2195,15 @@ class RbFormReference extends RbFormElement {
       }
     }
 
-    if (v && Array.isArray(v)) v = v[0] // N2N
+    // N2N
+    if (v && Array.isArray(v)) {
+      let temp = []
+      v.forEach((item) => {
+        if (item.id) temp.push(item.id)
+        else temp.push(item)
+      })
+      v = temp.join(',')
+    }
     return v ? v.id || v : null
   }
 
@@ -2452,9 +2492,7 @@ class RbFormClassification extends RbFormElement {
       const p = this.props
       const that = this
       renderRbcomp(
-        // eslint-disable-next-line react/jsx-no-undef
-        <ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} onSelect={(s) => this._setClassificationValue(s)} keepModalOpen={true} />,
-        null,
+        <ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} onSelect={(s) => this._setClassificationValue(s)} keepModalOpen />,
         function () {
           that.__selector = this
         }

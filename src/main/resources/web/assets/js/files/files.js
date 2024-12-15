@@ -56,10 +56,10 @@ class FilesList extends React.Component {
         {this.state.currentSize >= PAGE_SIZE && (
           <div className="text-center mt-4 pb-4">
             <a
-              href="#"
+              className="show-more-pill"
               onClick={(e) => {
+                $stopEvent(e, true)
                 this.loadData(null, this._pageNo + 1)
-                e.preventDefault()
               }}>
               {$L('显示更多')}
             </a>

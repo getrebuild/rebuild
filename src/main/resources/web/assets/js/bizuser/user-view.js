@@ -149,7 +149,11 @@ $(document).ready(() => {
         $.get(`/commons/search/read-labels?ids=${res.data.roleAppends.join(',')}`, (res) => {
           const $p = $('.J_roleAppends').empty()
           for (let k in res.data) {
-            $(`<span class="badge badge-info up-2"><i class="icon mdi mdi-account-lock"></i> ${res.data[k]}</span>`).appendTo($p)
+            $(
+              `<a class="badge badge-info fs-12 up-2" href="${rb.baseUrl}/admin/bizuser/role/${k}" target="_blank" title="${$L('查看角色权限')}"><i class="icon mdi mdi-account-lock"></i> ${
+                res.data[k]
+              }</a>`
+            ).appendTo($p)
           }
         })
       }
@@ -219,7 +223,7 @@ class DlgEnableUser extends RbModalHandler {
 
   render() {
     return (
-      <RbModal title={this._title} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={this._title} ref={(c) => (this._dlg = c)} disposeOnHide className="sm-height">
         <div className="form">
           {this.props.deptSet && (
             <div className="form-group row">
@@ -253,9 +257,9 @@ class DlgEnableUser extends RbModalHandler {
               <button className="btn btn-primary" type="button" onClick={() => this.post()}>
                 {$L('确定')}
               </button>
-              <a className="btn btn-link" onClick={() => this.hide()}>
+              <button type="button" className="btn btn-link" onClick={() => this.hide()}>
                 {$L('取消')}
-              </a>
+              </button>
             </div>
           </div>
         </div>

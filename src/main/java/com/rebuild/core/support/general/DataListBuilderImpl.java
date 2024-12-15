@@ -102,7 +102,8 @@ public class DataListBuilderImpl implements DataListBuilder {
             if (stats2.size() > 1) {
                 stats = new JSONArray();
                 for (int i = 1; i < stats2.size(); i++) {
-                    stats.add(JSONUtils.toJSONObject(new String[] {"label", "value"}, stats2.get(i)));
+                    stats.add(JSONUtils.toJSONObject(
+                            new String[]{"label", "value", "color"}, stats2.get(i)));
                 }
             }
         }
@@ -127,7 +128,8 @@ public class DataListBuilderImpl implements DataListBuilder {
 
         JSONArray stats = new JSONArray();
         for (int i = 1; i < stats2.size(); i++) {
-            stats.add(JSONUtils.toJSONObject(new String[] {"label", "value"}, stats2.get(i)));
+            stats.add(JSONUtils.toJSONObject(
+                    new String[] {"label", "value", "color"}, stats2.get(i)));
         }
         return stats;
     }
@@ -141,7 +143,7 @@ public class DataListBuilderImpl implements DataListBuilder {
         List<Object[]> stats = new ArrayList<>();
 
         final Object[] count = Application.createQuery(queryParser.toCountSql(), user).unique();
-        stats.add(new Object[] {null, count[0]});
+        stats.add(new Object[]{null, count[0]});
         if (count.length < 2) return stats;
 
         List<Map<String, Object>> statsFields = queryParser.getCountFields();
@@ -172,7 +174,7 @@ public class DataListBuilderImpl implements DataListBuilder {
                 value = FieldValueHelper.desensitized(easyField, value);
             }
 
-            stats.add(new Object[] {label, value});
+            stats.add(new Object[]{label, value, c.get("color")});
         }
         return stats;
     }

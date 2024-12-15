@@ -29,7 +29,6 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.Installer;
@@ -81,7 +80,7 @@ public class Field2Schema extends SetUser {
     @Override
     public ID getUser() {
         ID user = super.getUser();
-        RbAssert.isAllow(UserHelper.isSuperAdmin(user), Language.L("仅超级管理员可操作"));
+        RbAssert.isSuperAdmin(user);
         return user;
     }
 

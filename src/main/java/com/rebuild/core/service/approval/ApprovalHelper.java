@@ -22,6 +22,7 @@ import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerWhen;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -166,13 +167,19 @@ public class ApprovalHelper {
      * 根据节点编号获取名称
      *
      * @param nodeId
+     * @param approvalId
+     * @param fallbackName
      * @return
      */
-    public static String getNodeNameById(String nodeId, ID approvalId) {
+    public static String getNodeNameById(String nodeId, ID approvalId, boolean fallbackName) {
         FlowDefinition flowDefinition = RobotApprovalManager.instance.getFlowDefinition(approvalId);
         FlowParser flowParser = flowDefinition.createFlowParser();
         for (FlowNode node : flowParser.getAllNodes()) {
-            if (nodeId.equals(node.getNodeId())) return node.getNodeName();
+            if (nodeId.equals(node.getNodeId())) {
+                String name = node.getNodeName();
+                if (StringUtils.isBlank(name) && fallbackName) name = "@" + nodeId;
+                return name;
+            }
         }
         return null;
     }

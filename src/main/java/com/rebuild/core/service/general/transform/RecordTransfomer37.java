@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.general.transform;
 
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
@@ -75,21 +74,23 @@ public class RecordTransfomer37 extends RecordTransfomer {
             if (filter != null) querySourceSql = querySourceSql.replace("(1=1)", filter);
 
             Object[][] dArray = Application.createQueryNoFilter(querySourceSql).array();
+            Map<String, Object> dvMap4Details = Collections.singletonMap(
+                    MetadataHelper.getDetailToMainField(dTargetEntity).getName(), EntityHelper.UNSAVED_ID);
+
             for (Object[] d : dArray) {
-                detailsList.add(transformRecord(
-                        dSourceEntity, dTargetEntity, fmd, (ID) d[0], null, false, false, checkNullable));
+                Record dRecord = transformRecord(
+                        dSourceEntity, dTargetEntity, fmd, (ID) d[0], dvMap4Details, false, false, checkNullable);
+                detailsList.add(dRecord);
             }
         }
 
-        Map<String, Object> dvMap4Detail = null;
-        if (specMainId != null) {
-            Field dtf = MetadataHelper.getDetailToMainField(targetEntity);
-            dvMap4Detail = Collections.singletonMap(dtf.getName(), specMainId);
-        }
+        // 目标是明细
+        Map<String, Object> dvMap4Details = specMainId == null ? null : Collections.singletonMap(
+                MetadataHelper.getDetailToMainField(targetEntity).getName(), specMainId);
 
         Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
         Record targetRecord = transformRecord(
-                sourceEntity, targetEntity, fieldsMapping, sourceRecordId, dvMap4Detail, false, false, checkNullable);
+                sourceEntity, targetEntity, fieldsMapping, sourceRecordId, dvMap4Details, false, false, checkNullable);
 
         // v3.5 需要先回填
         // 因为可能以回填字段作为条件进行转换一次判断

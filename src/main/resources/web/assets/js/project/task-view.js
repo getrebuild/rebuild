@@ -129,14 +129,19 @@ class TaskForm extends React.Component {
   }
 
   componentDidMount() {
-    __TaskViewer.setLoadingState(false)
-    this.fetch()
+    this.fetch(() => {
+      __TaskViewer.setLoadingState(false)
+    })
   }
 
-  fetch() {
+  fetch(cb) {
     $.get(`/project/tasks/details?task=${this.props.id}`, (res) => {
-      if (res.error_code === 0) this.setState({ ...res.data }, () => $(this._status).prop('checked', this.state.status === 1))
-      else RbHighbar.error(res.error_msg)
+      if (res.error_code === 0) {
+        this.setState({ ...res.data }, () => $(this._status).prop('checked', this.state.status === 1))
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+      typeof cb === 'function' && cb()
     })
   }
 

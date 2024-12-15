@@ -100,7 +100,7 @@ public class GeneralOperatingController extends BaseController {
             return CommonOperatingController.saveRecord(record);
         }
 
-        // 明细
+        // 明细列表
         List<Record> detailsList = new ArrayList<>();
         if (details != null) {
             try {
@@ -128,8 +128,6 @@ public class GeneralOperatingController extends BaseController {
             record.setObjectValue(GeneralEntityService.HAS_DETAILS, detailsList);
             GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS);
         }
-
-        final boolean isNew = record.getPrimary() == null;
 
         // v3.4 TODO 单字段修改检查，有性能问题
         final boolean singleField = getBoolParameter(request, "singleField");
@@ -165,12 +163,12 @@ public class GeneralOperatingController extends BaseController {
         }
 
         // 转换后回填
-        final String previewid = request.getParameter("previewid");
-        if (isNew && StringUtils.isNotBlank(previewid)) {
+        String previewid = request.getParameter("previewid");
+        if (StringUtils.isNotBlank(previewid)) {
             try {
                 new TransformerPreview37(previewid, user).fillback(record.getPrimary());
             } catch (Exception ex) {
-                log.error("Transformer fillback error!", ex);
+                log.error("Transforme with fillback fails : {}", previewid, ex);
             }
         }
 

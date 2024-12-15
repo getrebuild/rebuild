@@ -108,6 +108,11 @@ public enum ConfigurationItem {
     WxworkSyncUsers(false),
     WxworkSyncUsersRole,
     WxworkSyncUsersMatch("ID"),
+    // Feishu
+    FeishuAppId, FeishuAppSecret,
+    FeishuSyncUsers(false),
+    FeishuSyncUsersRole,
+    FeishuSyncUsersMatch("ID"),
 
     // PORTALs
     PortalBaiduMapAk,
@@ -116,7 +121,12 @@ public enum ConfigurationItem {
     MobileNavStyle(34),
     PageMourningMode(false),
 
-    // !!! 命令行适用
+    /**
+     * @see com.rebuild.web.admin.ProtectedAdmin
+     */
+    ProtectedAdmin,
+
+    // !!! 命令行适用 or `rebuild.conf`
     DataDirectory,                  // 数据目录
     RedisDatabase(0),     // Redis DB
     MobileUrl,                      // 移动端地址

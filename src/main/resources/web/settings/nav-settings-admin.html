@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.L('配置管理中心功能')}]]</title>
+    <style>
+      #funclist label {
+        width: 25%;
+        margin-bottom: 10px;
+        margin-right: 0;
+      }
+    </style>
+  </head>
+  <body class="dialog">
+    <div class="main-content">
+      <div id="funclist" class="m-1"></div>
+      <div class="dialog-footer">
+        <div class="float-left ml-1"></div>
+        <button class="btn btn-secondary btn-space" onclick="parent.RbModal.hide('/p/settings/nav-settings-admin')" type="button">[[${bundle.L('取消')}]]</button>
+        <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/admin/nav-settings-admin.js}" type="text/babel"></script>
+  </body>
+</html>

@@ -472,7 +472,7 @@ class DlgDashAdd extends RbFormHandler {
               <label className="col-sm-3 col-form-label text-sm-right" />
               <div className="col-sm-7">
                 <div className="shareTo--wrap">
-                  <Share2 ref={(c) => (this._Share2 = c)} noSwitch />
+                  <Share2 ref={(c) => (this._Share2 = c)} noSwitch shareTo="ALL" />
                 </div>
               </div>
             </div>

@@ -12,6 +12,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.alibaba.fastjson.JSON;
@@ -46,6 +47,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -80,6 +82,8 @@ public class FieldAggregation extends TriggerAction {
     protected ID targetRecordId;
     // 关联字段条件
     protected String followSourceWhere;
+
+    transient private TargetWithMatchFields targetWithMatchFields;
 
     public FieldAggregation(ActionContext context) {
         this(context, Boolean.TRUE);
@@ -271,11 +275,10 @@ public class FieldAggregation extends TriggerAction {
         }
 
         if (operatingContext.getAction() == BizzPermission.UPDATE && this.getClass() == FieldAggregation.class) {
-            this.fieldAggregationRefresh = new FieldAggregationRefresh(this, operatingContext);
+            this.fieldAggregationRefresh = new FieldAggregationRefresh(this, operatingContext, targetWithMatchFields);
         }
 
-        // 回填 (v3.1)
-        // 仅分组聚合有此配置
+        // 聚合后回填 (v3.1, 3.9)
         String fillbackField = ((JSONObject) actionContext.getActionContent()).getString("fillbackField");
         if (fillbackField != null && MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
             String sql = String.format("select %s,%s from %s where %s",
@@ -287,8 +290,12 @@ public class FieldAggregation extends TriggerAction {
 
                 // FIXME 回填仅更新，无业务规则
                 Record r = EntityHelper.forUpdate((ID) o[0], UserService.SYSTEM_USER, false);
-                r.setID(fillbackField, targetRecordId);
-                Application.getCommonsService().update(r, false);
+                if (sourceEntity.getField(fillbackField).getType() == FieldType.REFERENCE_LIST) {
+                    r.setIDArray(fillbackField, new ID[]{targetRecordId});
+                } else {
+                    r.setID(fillbackField, targetRecordId);
+                }
+                Application.getCommonsService().getBaseService().update(r);
             }
         }
 
@@ -299,6 +306,8 @@ public class FieldAggregation extends TriggerAction {
     public void prepare(OperatingContext operatingContext) throws TriggerException {
         if (sourceEntity != null) return;  // 已经初始化
 
+        final JSONObject actionContent = (JSONObject) actionContext.getActionContent();
+
         // FIELD.ENTITY
         String[] targetFieldEntity = ((JSONObject) actionContext.getActionContent()).getString("targetEntity").split("\\.");
         sourceEntity = actionContext.getSourceEntity();
@@ -306,9 +315,12 @@ public class FieldAggregation extends TriggerAction {
 
         String followSourceField = targetFieldEntity[0];
         if (TARGET_ANY.equals(followSourceField)) {
-            TargetWithMatchFields targetWithMatchFields = new TargetWithMatchFields();
+            targetWithMatchFields = new TargetWithMatchFields();
             targetRecordId = targetWithMatchFields.match(actionContext);
-            followSourceWhere = StringUtils.join(targetWithMatchFields.getQFieldsFollow().iterator(), " and ");
+            if (targetRecordId == null && actionContent.getBooleanValue("autoCreate")) {
+                targetRecordId = this.aotuCreateTargetRecord39(targetWithMatchFields);
+            }
+            followSourceWhere = StringUtils.join(targetWithMatchFields.getQFieldsFollow(), " and ");
             return;
         }
 
@@ -351,6 +363,41 @@ public class FieldAggregation extends TriggerAction {
         Record c = QueryHelper.querySnap(record);
         return new RecordDifference(record).isSame(c, false);
     }
+
+    /**
+     * 自动创建目标记录
+     *
+     * @param twmf
+     * @return
+     */
+    protected ID aotuCreateTargetRecord39(TargetWithMatchFields twmf) {
+        if (twmf.getSourceRecord() == null) return null;
+
+        Record newTargetRecord = EntityHelper.forNew(targetEntity.getEntityCode(), UserService.SYSTEM_USER);
+        for (Map.Entry<String, String> e : twmf.getMatchFieldsMapping().entrySet()) {
+            String sourceField = e.getKey();
+            String targetField = e.getValue();
+
+            Object val = twmf.getSourceRecord().getObjectValue(sourceField);
+            if (val != null) {
+                newTargetRecord.setObjectValue(targetField, val);
+            }
+        }
+
+        // 不必担心必填字段，必填只是前端约束
+        // 还可以通过设置字段默认值来完成必填字段的自动填写
+        // 240425 需要业务规则，譬如自动编号、默认值等
+
+        GeneralEntityServiceContextHolder.setSkipGuard(EntityHelper.UNSAVED_ID);
+        try {
+            Application.getBestService(targetEntity).create(newTargetRecord);
+        } finally {
+            GeneralEntityServiceContextHolder.isSkipGuardOnce();
+        }
+        return newTargetRecord.getPrimary();
+    }
+
+    // --
 
     /**
      * 清理触发链（在批处理时需要调用）

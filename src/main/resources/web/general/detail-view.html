@@ -85,6 +85,9 @@
         privileges: [(${entityPrivileges})],
         transformTos: [(${TransformTos})],
         recordId: '[[${id}]]',
+        forceSubView: true,
+        statsField: true,
+        easyAction: [(${easyAction ?:'null'})],
       }
     </script>
     <th:block th:replace="~{/_include/forms}" />

@@ -98,7 +98,7 @@ function modeSave(newOption, next) {
   })
 }
 
-const _CATEGORY_TYPES = ['PICKLIST', 'MULTISELECT', 'CLASSIFICATION', 'DATE', 'DATETIME', 'REFERENCE', 'N2NREFERENCE']
+const _CATEGORY_TYPES = ['PICKLIST', 'MULTISELECT', 'CLASSIFICATION', 'DATE', 'DATETIME', 'REFERENCE', 'N2NREFERENCE', 'TEXT']
 // 模式选项
 class DlgMode1Option extends RbFormHandler {
   constructor(props) {
@@ -112,8 +112,8 @@ class DlgMode1Option extends RbFormHandler {
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('在侧栏显示')}</label>
-            <div className="col-sm-9">
-              <div>
+            <div className="col-sm-9 aside-show" ref={(c) => (this._$asideShow = c)}>
+              <div className="aside-item">
                 <div className="switch-button switch-button-xs">
                   <input type="checkbox" id="advListHideFilters" defaultChecked={wpc.extConfig && !wpc.extConfig.advListHideFilters} />
                   <span>
@@ -123,7 +123,7 @@ class DlgMode1Option extends RbFormHandler {
                 <span className="ml-2 down-5 d-inline-block">{$L('常用查询')}</span>
               </div>
               {CompCategory(this)}
-              <div className="mt-2">
+              <div className="aside-item">
                 <div className="switch-button switch-button-xs">
                   <input type="checkbox" id="advListHideCharts" defaultChecked={wpc.extConfig && !wpc.extConfig.advListHideCharts} />
                   <span>
@@ -353,8 +353,8 @@ class DlgMode3Option extends DlgMode2Option {
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('在侧栏显示')}</label>
-            <div className="col-sm-9">
-              <div>
+            <div className="col-sm-9 aside-show">
+              <div className="aside-item">
                 <div className="switch-button switch-button-xs">
                   <input type="checkbox" id="mode3ShowFilters" defaultChecked={wpc.extConfig && wpc.extConfig.mode3ShowFilters} />
                   <span>
@@ -364,7 +364,7 @@ class DlgMode3Option extends DlgMode2Option {
                 <span className="ml-2 down-5 d-inline-block">{$L('常用查询')}</span>
               </div>
               {CompCategory(this, 'mode3ShowCategory')}
-              <div className="mt-2">
+              <div className="aside-item">
                 <div className="switch-button switch-button-xs">
                   <input type="checkbox" id="mode3ShowCharts" defaultChecked={wpc.extConfig && wpc.extConfig.mode3ShowCharts} />
                   <span>
@@ -449,7 +449,7 @@ class DlgMode3Option extends DlgMode2Option {
 
 const CompCategory = (_this, name = 'advListShowCategory') => {
   return (
-    <div ref={(c) => (_this._$category = c)} className="mt-2">
+    <div className="aside-item" ref={(c) => (_this._$category = c)}>
       <div className="switch-button switch-button-xs">
         <input type="checkbox" id={name} defaultChecked={wpc.extConfig && wpc.extConfig[name]} />
         <span>
@@ -513,7 +513,7 @@ const CompCategory = (_this, name = 'advListShowCategory') => {
   )
 }
 const CompCategory_componentDidMount = (_this, name = 'advListShowCategory') => {
-  const $el = $('#' + name).on('change', function () {
+  const $el = $(`#${name}`).on('change', function () {
     _this.setState({ advListShowCategory: $val(this) ? true : null })
     // fields
     if (!_this.state.advListShowCategoryFields) {
@@ -632,6 +632,11 @@ class CompCategoryItem extends React.Component {
     const $format = $(this._$format).select2({
       allowClear: true,
       placeholder: $L('默认'),
+      language: {
+        noResults: function () {
+          return $L('默认')
+        },
+      },
     })
 
     $field.on('change', (e) => {

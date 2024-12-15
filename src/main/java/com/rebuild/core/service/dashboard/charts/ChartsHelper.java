@@ -7,6 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.dashboard.charts;
 
+import java.math.BigDecimal;
+
 /**
  * @author ZHAO
  * @since 2020/4/28
@@ -38,6 +40,8 @@ public class ChartsHelper {
             return (Long) value == 0L;
         } else if (value instanceof Integer) {
             return (Integer) value == 0;
+        } else if (value instanceof BigDecimal) {
+            return ((BigDecimal) value).doubleValue() == 0d;
         }
         return false;
     }

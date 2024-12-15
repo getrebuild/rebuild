@@ -17,6 +17,7 @@ import com.rebuild.core.ServerStatus;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
@@ -130,6 +131,9 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                     }
                     return false;
                 }
+
+                // v3.9
+                if (UserService.ADMIN_USER.equals(requestUser)) request.setAttribute("IsSuperAdmin", true);
             }
 
             UserContextHolder.setUser(requestUser);
@@ -141,7 +145,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
             if (isHtmlRequest(requestUri, request)) {
                 // Last active
-                Application.getSessionStore().storeLastActive(request);
+                Application.getSessionStore().storeLastActive(requestUser, request, null);
 
                 // Nav collapsed
                 String sidebarCollapsed = ServletUtils.readCookie(request, "rb.sidebarCollapsed");
@@ -191,10 +195,6 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) {
-        // v3.6 H5 session 时间
-        if (AppUtils.isRbMobile(request)) {
-            request.getSession().setMaxInactiveInterval(60 * 5);
-        }
     }
 
     @Override

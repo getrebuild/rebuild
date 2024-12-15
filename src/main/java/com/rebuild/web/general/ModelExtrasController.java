@@ -25,8 +25,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.general.RepeatedRecordsException;
-import com.rebuild.core.service.general.transform.RecordTransfomer;
-import com.rebuild.core.service.general.transform.RecordTransfomer37;
+import com.rebuild.core.service.general.transform.RecordTransfomer39;
 import com.rebuild.core.support.general.CalcFormulaSupport;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
@@ -71,22 +70,36 @@ public class ModelExtrasController extends BaseController {
     }
 
     // 记录转换
-    @RequestMapping("transform")
-    public RespBody transform(HttpServletRequest request) {
-        ID transid = getIdParameterNotNull(request, "transid");
-        ID sourceRecord = getIdParameterNotNull(request, "source");
-        ID mainid = getIdParameter(request, "mainid");
+    @PostMapping("transform39")
+    public RespBody transform39(HttpServletRequest request) {
+        final JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
+        final ID transid = ID.valueOf(post.getString("transid"));
+        final Object sourceRecordAny = post.get("sourceRecord");
+        if (sourceRecordAny instanceof JSONArray) {
+            return this.transform39Muilt(transid, (JSONArray) sourceRecordAny);
+        }
+        // 单个
+        ID sourceRecord = ID.valueOf(sourceRecordAny.toString());
 
-        RecordTransfomer transfomer = new RecordTransfomer37(transid);
-        if (!transfomer.checkFilter(sourceRecord)) {
+        RecordTransfomer39 transfomer39 = new RecordTransfomer39(transid);
+        if (!transfomer39.checkFilter(sourceRecord)) {
             return RespBody.error(Language.L("当前记录不符合转换条件"), 400);
         }
 
+        ID mainRecord = ID.isId(post.getString("mainRecord")) ? ID.valueOf(post.getString("mainRecord")) : null;
+        ID existsRecord = ID.isId(post.getString("existsRecord")) ? ID.valueOf(post.getString("existsRecord")) : null;
+
         try {
-            ID theNewId = transfomer.transform(sourceRecord, mainid);
-            return RespBody.ok(theNewId);
+            Object res;
+            if (post.getBooleanValue("preview")) {
+                res = transfomer39.preview(sourceRecord, mainRecord, existsRecord);
+            } else {
+                res = transfomer39.transform(sourceRecord, mainRecord, existsRecord);
+            }
+            return RespBody.ok(res);
+
         } catch (Exception ex) {
-            log.warn(">>>>> {}", ex.getLocalizedMessage());
+            log.warn(">>>>> {} : {}", sourceRecord, ex.getLocalizedMessage());
 
             String error = ex.getLocalizedMessage();
             if (ex instanceof RepeatedRecordsException) {
@@ -94,8 +107,26 @@ public class ModelExtrasController extends BaseController {
             }
 
             return RespBody.errorl("记录转换失败 (%s)",
-                    Objects.toString(error, ex.getClass().getSimpleName()));
+                    Objects.toString(error, ex.getClass().getSimpleName().toUpperCase()));
         }
+    }
+
+    // 批量转换
+    private RespBody transform39Muilt(ID transid, JSONArray sourceRecords) {
+        List<ID> newIds = new ArrayList<>();
+        RecordTransfomer39 transfomer39 = new RecordTransfomer39(transid);
+        for (Object o : sourceRecords) {
+            ID sourceRecord = ID.valueOf((String) o);
+            if (!transfomer39.checkFilter(sourceRecord)) continue;
+
+            try {
+                ID newId = transfomer39.transform(sourceRecord, null, null);
+                newIds.add(newId);
+            } catch (Exception ex) {
+                log.warn(">>>>> {} : {}", sourceRecord, ex.getLocalizedMessage());
+            }
+        }
+        return RespBody.ok(newIds);
     }
 
     @GetMapping("record-last-modified")

@@ -9,6 +9,7 @@ package com.rebuild.core.privileges.bizz;
 
 import cn.devezhao.bizz.security.member.BusinessUnit;
 import cn.devezhao.persist4j.engine.ID;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -21,11 +22,14 @@ import java.util.Set;
  * @author devezhao
  * @since 10/08/2018
  */
-public class Department extends BusinessUnit {
+public class Department extends BusinessUnit implements Comparable<Department> {
     private static final long serialVersionUID = -5308455934676294159L;
 
-    public Department(Serializable identity, String name, boolean disabled) {
+    private int seq;
+
+    public Department(Serializable identity, String name, boolean disabled, int seq) {
         super(identity, name, disabled);
+        this.seq = seq;
     }
 
     /**
@@ -74,5 +78,12 @@ public class Department extends BusinessUnit {
             children.addAll(((Department) child).getAllChildren());
         }
         return Collections.unmodifiableSet(children);
+    }
+
+    @Override
+    public int compareTo(@NotNull Department o) {
+        int c = Integer.compare(seq, o.seq);
+        if (c == 0) return getName().compareTo(o.getName());
+        return c;
     }
 }

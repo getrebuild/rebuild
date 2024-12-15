@@ -2,11 +2,12 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <meta name="page-help" content="https://getrebuild.com/docs/admin/users#%E9%83%A8%E9%97%A8" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/users#%E7%AE%A1%E7%90%86%E9%83%A8%E9%97%A8" />
     <title>[[${bundle.L('部门管理')}]]</title>
     <style>
       .badge.badge-WW,
-      .badge.badge-DD {
+      .badge.badge-DD,
+      .badge.badge-FS {
         font-weight: normal;
         cursor: help;
         border-radius: 12px;
@@ -17,6 +18,10 @@
       .badge.badge-DD {
         border-color: #38adff;
         color: #38adff;
+      }
+      .badge.badge-FS {
+        border-color: #3370ff;
+        color: #3370ff;
       }
     </style>
   </head>

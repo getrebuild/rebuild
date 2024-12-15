@@ -9,7 +9,7 @@
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside" th:classappend="${sideCollapsedClazz}">
       <th:block th:replace="~{/_include/nav-top}" />
-      <th:block th:replace="~{/_include/nav-left(active='nav_entity-Attachment')}" />
+      <th:block th:replace="~{/_include/nav-left(active='nav_entity--ATTACHMENT')}" />
       <div class="rb-content rb-no-padding">
         <aside class="page-aside widgets">
           <a class="side-toggle" th:title="${bundle.L('展开/收起')}"><i class="zmdi zmdi-arrow-left"></i></a>
@@ -36,7 +36,7 @@
           <div class="file-header">
             <div class="file-path">
               <ol class="breadcrumb">
-                <li class="breadcrumb-item active">[[${bundle.L('全部附件')}]]</li>
+                <li class="breadcrumb-item">[[${bundle.L('全部附件')}]]</li>
               </ol>
             </div>
             <div class="file-operator">

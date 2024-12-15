@@ -102,7 +102,12 @@ public class GeneralListController extends EntityController {
         JSON listConfig = null;
 
         if (listMode == 1) {
-            listConfig = DataListManager.instance.getListFields(entity, user);
+            String def39 = getParameter(request, "def");
+            ID useLayout = null;
+            if (def39 != null && def39.contains(":")) {
+                useLayout = ID.valueOf(def39.split(":")[1]);
+            }
+            listConfig = DataListManager.instance.getListFields(entity, user, useLayout == null ? null : useLayout.toLiteral());
 
             // 侧栏
 

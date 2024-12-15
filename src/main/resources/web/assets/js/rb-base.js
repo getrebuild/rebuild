@@ -168,14 +168,28 @@ See LICENSE and COMMERCIAL in the project root for license information.
   $.fn.select2.defaults.set('matcher', function (params, data) {
     return $select2MatcherAll(params, data)
   })
-  // $.fn.select2.defaults.set('minimumResultsForSearch', 9)
-
   // fix:backspace https://github.com/select2/select2/issues/3335
   var AllowClear = $.fn.select2.amd.require('select2/selection/allowClear')
   var _handleKeyboardClearOriginal = AllowClear.prototype._handleKeyboardClear
   AllowClear.prototype._handleKeyboardClear = function (_, e, container) {
     if (this.$element.prop('multiple')) return
     _handleKeyboardClearOriginal.call(this, _, e, container)
+  }
+  // fix:width https://github.com/select2/select2/issues/291#issuecomment-299824673
+  var Search = $.fn.select2.amd.require('select2/selection/search')
+  Search.prototype.resizeSearch = function () {
+    var width = ''
+    var widthParent = ''
+    if (this.$search.attr('placeholder') !== '') {
+      width = '100%'
+      widthParent = '100%'
+    } else {
+      var minimumWidth = this.$search.val().length + 1
+      width = minimumWidth * 0.75 + 'em'
+      widthParent = 'auto'
+    }
+    this.$search.css('width', width)
+    this.$search.closest('.select2-search--inline').css('width', widthParent)
   }
 })(jQuery)
 
@@ -576,4 +590,13 @@ var $hex2rgb = function (hex, alpha) {
 // RGB to Hex
 var $rgb2hex = function (r, g, b) {
   return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
+}
+
+// 取消选中
+var $clearSelection = function () {
+  if (window.getSelection) {
+    window.getSelection().removeAllRanges()
+  } else if (document.selection) {
+    document.selection.empty()
+  }
 }

@@ -434,7 +434,13 @@ const StepProject = () => {
       intro: $L('搜索当前项目中的任务'),
     },
     {
-      element: '.J_views',
+      element: '.J_view',
+      title: $L('切换视图'),
+      intro: $L('切换视图为卡片模式或列表模式'),
+      rbRight: 10,
+    },
+    {
+      element: '.J_sorts',
       title: $L('显示方式'),
       intro: $L('任务排序，或切换任务排列方式'),
       rbRight: 5,

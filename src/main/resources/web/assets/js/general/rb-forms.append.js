@@ -96,11 +96,10 @@ class ClassificationSelector extends React.Component {
   componentDidMount() {
     const $root = this.show()
     $root.on('hidden.bs.modal', () => {
+      this.props.keepModalOpen && $keepModalOpen()
       if (this.props.disposeOnHide === true) {
         $root.modal('dispose')
         $unmount($root.parent())
-      } else if (this.props.keepModalOpen === true) {
-        $(document.body).addClass('modal-open') // Keep scroll
       }
     })
 
@@ -174,7 +173,6 @@ class ClassificationSelector extends React.Component {
 
 window.referenceSearch__call = function (selected) {}
 window.referenceSearch__dlg
-
 // see `reference-search.html`
 class ReferenceSearcher extends RbModal {
   renderContent() {
@@ -765,11 +763,7 @@ class RepeatedViewer extends RbModalHandler {
 if (!window.RbForm) window.RbForm = function () {}
 // eslint-disable-next-line no-unused-vars
 class LiteForm extends RbForm {
-  renderCustomizedFormArea() {
-    return null
-  }
-
-  renderDetailsForm() {
+  renderDetailForms() {
     return null
   }
 

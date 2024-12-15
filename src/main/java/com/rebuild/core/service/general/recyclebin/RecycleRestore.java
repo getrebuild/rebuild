@@ -44,7 +44,7 @@ import java.util.List;
 @Slf4j
 public class RecycleRestore {
 
-    private ID recycleId;
+    final private ID recycleId;
 
     /**
      * @param recycleId
@@ -178,9 +178,11 @@ public class RecycleRestore {
             }
         }
 
-        JSONArray detailList = content.getJSONArray(RecycleBean.NAME_DETAILLIST);
-        if (detailList != null) {
+        JSONArray detailsList = content.getJSONArray(RecycleBean.NAME_DETAILLIST);
+        if (detailsList == null) detailsList = content.getJSONArray(RecycleBean.NAME_DETAILLIST39);
+        if (detailsList != null) {
             content.remove(RecycleBean.NAME_DETAILLIST);
+            content.remove(RecycleBean.NAME_DETAILLIST39);
         }
 
         List<Record> records = new ArrayList<>();
@@ -189,8 +191,8 @@ public class RecycleRestore {
 
         // v36 多明细
         Entity detailEntity = entity.getDetailEntity();
-        if (detailList != null && detailEntity != null) {
-            for (Object o : detailList) {
+        if (detailsList != null && detailEntity != null) {
+            for (Object o : detailsList) {
                 JSONObject item = (JSONObject) o;
                 Entity de = detailEntity;
                 if (item.containsKey(RestoreRecordCreator.META_FIELD)) {

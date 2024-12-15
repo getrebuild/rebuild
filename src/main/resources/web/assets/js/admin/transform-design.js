@@ -31,7 +31,7 @@ $(document).ready(() => {
   })
 
   const config = wpc.config || {}
-  console.log('[dev]', config)
+  if (rb.dev === 'env') console.log('[dev]', config)
 
   let _FieldsMapping
   let _FieldsMapping2_key
@@ -46,7 +46,7 @@ $(document).ready(() => {
 
     const targetEntity = wpc.targetDetailEntities.find((x) => x.entity === s.target)
     const sourceEntity = wpc.sourceDetailEntities.find((x) => x.entity === s.source)
-    if (!targetEntity || !sourceEntity) return // Bad
+    if (!targetEntity || !sourceEntity) return // Bad?
 
     const $tab = $(
       `<li class="nav-item"><a class="nav-link text-ellipsis" href="#${key}" data-toggle="tab">${targetEntity.label}<span>${sourceEntity.label}</span><em title="${$L(
@@ -85,7 +85,6 @@ $(document).ready(() => {
         config.fieldsMappingDetails.forEach((fmd) => {
           const key = fmd._.target + '_' + fmd._.source
           if (key === _FieldsMapping2_key) return // default
-
           _addDts({ target: fmd._.target, source: fmd._.source }, fmd)
         })
       }
@@ -184,7 +183,7 @@ $(document).ready(() => {
       }
     })
 
-    if (unset > 0) tips.push($L('部分必填字段未映射，可能导致转换失败'))
+    if (unset > 0) tips.push($L('部分必填字段未映射，可能导致直接转换失败'))
 
     if (importsMode) {
       importsFilter = _ImportsFilterMapping.buildFilter()
@@ -199,7 +198,6 @@ $(document).ready(() => {
       fieldsMappingDetail: fmd36,
       fieldsMappingDetails: fmdList37,
       fillbackField: $('#fillbackField').val(),
-      transformMode: $('#transformMode').prop('checked') ? 2 : 1,
       useFilter: _AdvFilter_data,
       importsMode: $val('#importsMode'),
       importsFilter: importsFilter || null,
@@ -242,7 +240,6 @@ $(document).ready(() => {
     _saveFilter(config.useFilter)
 
     if (config.fillbackField) $('#fillbackField').val(config.fillbackField).trigger('change')
-    if (config.transformMode === 2) $('#transformMode').attr('checked', true)
     if (config.importsMode) $('#importsMode').trigger('click')
     if (config.importsMode2Auto === 1 || config.importsMode2Auto === 3) $('#importsMode2Auto1').prop('checked', true)
     if (config.importsMode2Auto === 2 || config.importsMode2Auto === 3) $('#importsMode2Auto2').prop('checked', true)
@@ -496,6 +493,7 @@ class ImportsFilterMapping extends React.Component {
             </div>
           )
         })}
+        {state.targetFields && state.targetFields.length === 0 && <span className="text-muted text-italic">{$L('无')}</span>}
       </div>
     )
   }

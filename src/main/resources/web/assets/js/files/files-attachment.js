@@ -21,7 +21,7 @@ const EntityTree = {
           activeItem={__DEFAULT_ALL}
           onItemClick={(item) => {
             filesList && filesList.loadData(item.id)
-            $('.file-path .active').text(item.text)
+            $('.file-path li').text(item.text)
             location.hash = `!/Entity/${item.id}`
           }}
         />,

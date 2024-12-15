@@ -8,14 +8,18 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.dashboard.charts;
 
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -29,6 +33,7 @@ public class TableChart extends ChartData {
     private boolean showLineNumber = false;
     private boolean showSums = false;
     private boolean mergeCell = true;
+    private int pageSize = 0;
 
     protected TableChart(JSONObject config) {
         super(config);
@@ -38,6 +43,7 @@ public class TableChart extends ChartData {
             this.showLineNumber = option.getBooleanValue("showLineNumber");
             this.showSums = option.getBooleanValue("showSums");
             if (option.containsKey("mergeCell")) this.mergeCell = option.getBooleanValue("mergeCell");
+            if (option.containsKey("pageSize")) this.pageSize = option.getIntValue("pageSize");
         }
     }
 
@@ -61,6 +67,11 @@ public class TableChart extends ChartData {
             dataRaw = mergeAxisEntry2Data(axisValues, indexAndSize, false);
         } else {
             dataRaw = createQuery(buildSql(dims, nums)).array();
+        }
+
+        // v3.9
+        if (pageSize > 0 && dataRaw.length > pageSize) {
+            dataRaw = ArrayUtils.subarray(dataRaw, 0, pageSize);
         }
 
         // 行号
@@ -152,5 +163,57 @@ public class TableChart extends ChartData {
                 getSourceEntity().getName(), getFilterSql(nums.length > 0 ? nums[0] : null));
 
         return appendSqlSort(sql);
+    }
+
+    @Override
+    protected String wrapAxisValue(Numerical numerical, Object value, boolean useThousands) {
+        if (ChartsHelper.isZero(value)) return ChartsHelper.VALUE_ZERO;
+        if (ID.isId(value)) value = 1d;
+
+        String flag = getNumericalFlag(numerical);
+        if (StringUtils.isBlank(flag) || "0:0".equals(flag)) return super.wrapAxisValue(numerical, value, useThousands);
+
+        // v3.9
+        String flagUnit = "";
+        int unit = Integer.parseInt(flag.split(":")[1]);
+        if (unit > 0) {
+            double d = ObjectUtils.toDouble(value);
+            switch (unit) {
+                case 1000: {
+                    d /= 1000;
+                    flagUnit = Language.L("千");
+                    break;
+                }
+                case 10000: {
+                    d /= 10000;
+                    flagUnit = Language.L("万");
+                    break;
+                }
+                case 100000: {
+                    d /= 100000;
+                    flagUnit = Language.L("十万");
+                    break;
+                }
+                case 1000000: {
+                    d /= 1000000;
+                    flagUnit = Language.L("百万");
+                    break;
+                }
+                case 10000000: {
+                    d /= 10000000;
+                    flagUnit = Language.L("千万");
+                    break;
+                }
+                case 100000000: {
+                    d /= 100000000;
+                    flagUnit = Language.L("亿");
+                    break;
+                }
+            }
+            value = d;
+        }
+
+        String n = super.wrapAxisValue(numerical, value, useThousands);
+        return n + flagUnit;
     }
 }

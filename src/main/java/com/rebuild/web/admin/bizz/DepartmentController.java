@@ -58,7 +58,7 @@ public class DepartmentController extends EntityController {
         JSONArray dtree = new JSONArray();
 
         Department[] ds = Application.getUserStore().getTopDepartments();
-        sortByName(ds);
+        Arrays.sort(ds);
         for (Department root : ds) {
             dtree.add(recursiveDeptTree(root));
         }
@@ -73,7 +73,7 @@ public class DepartmentController extends EntityController {
         JSONArray children = new JSONArray();
 
         BusinessUnit[] ds = parent.getChildren().toArray(new BusinessUnit[0]);
-        sortByName(ds);
+        Arrays.sort(ds);
         for (BusinessUnit child : ds) {
             children.add(recursiveDeptTree((Department) child));
         }
@@ -82,14 +82,5 @@ public class DepartmentController extends EntityController {
             parentJson.put("children", children);
         }
         return parentJson;
-    }
-
-    private void sortByName(BusinessUnit[] depts) {
-        // 排序 a-z
-        Arrays.sort(depts, (o1, o2) -> {
-            if (DepartmentService.ROOT_DEPT.equals(o1.getIdentity())) return -1;
-            else if (DepartmentService.ROOT_DEPT.equals(o2.getIdentity())) return 1;
-            else return o1.getName().compareTo(o2.getName());
-        });
     }
 }

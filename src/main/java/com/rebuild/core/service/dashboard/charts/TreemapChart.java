@@ -54,15 +54,4 @@ public class TreemapChart extends ChartData {
                 new String[]{"data", "xLabel", "xAmount", "_renderOption"},
                 new Object[]{builder.toJSON(), num1.getLabel(), xAmount, renderOption});
     }
-
-    @Override
-    public Numerical[] getNumericals() {
-        Numerical[] nums = super.getNumericals();
-        if (nums.length == 0) {
-            Numerical n = new Numerical(
-                    getSourceEntity().getPrimaryField(), FormatSort.NONE, FormatCalc.COUNT, null, 0, null, null);
-            return new Numerical[]{n};
-        }
-        return nums;
-    }
 }

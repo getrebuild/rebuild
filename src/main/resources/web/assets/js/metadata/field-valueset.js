@@ -81,6 +81,10 @@ class FieldValueSet extends React.Component {
 
       this.__$datetimepicker = $(this._$value).datetimepicker(dpcfg)
     }
+
+    if (this.props.defaultValue) {
+      this.setValue(this.props.defaultValue)
+    }
   }
 
   componentWillUnmount() {

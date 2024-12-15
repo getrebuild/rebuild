@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.privileges.RoleService;
 import com.rebuild.core.privileges.UserService;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * 用户
@@ -19,23 +20,25 @@ import org.apache.commons.lang.StringUtils;
  * @author Zixin (RB)
  * @since 09/16/2018
  */
-public class User extends cn.devezhao.bizz.security.member.User {
+public class User extends cn.devezhao.bizz.security.member.User implements Comparable<User>  {
     private static final long serialVersionUID = 15823574375847575L;
 
     private String email;
     private String workphone;
     private String fullName;
     private String avatarUrl;
+    private int seq;
 
     private CombinedRole combinedRole;
 
     public User(ID userId, String loginName, String email, String workphone,
-                String fullName, String avatarUrl, boolean disabled) {
+                String fullName, String avatarUrl, boolean disabled, int seq) {
         super(userId, loginName, disabled);
         this.email = email;
         this.workphone = workphone;
         this.fullName = fullName;
         this.avatarUrl = avatarUrl;
+        this.seq = seq;
     }
 
     /**
@@ -142,5 +145,12 @@ public class User extends cn.devezhao.bizz.security.member.User {
     @Override
     public boolean equals(Object o) {
         return super.equals(o);
+    }
+
+    @Override
+    public int compareTo(@NotNull User o) {
+        int c = Integer.compare(seq, o.seq);
+        if (c == 0) return getName().compareTo(o.getName());
+        return c;
     }
 }

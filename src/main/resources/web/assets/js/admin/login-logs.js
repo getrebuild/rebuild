@@ -78,7 +78,13 @@ class OnlineUserViewer extends RbAlert {
               <tr key={item.sid}>
                 <td className="user-avatar cell-detail user-info">
                   <img src={`${rb.baseUrl}/account/user-avatar/${item.user}`} alt="Avatar" />
-                  <span className="pt-1">{item.fullName}</span>
+                  <span>
+                    {item.fullName.replace('[CURRENT]', '')}
+                    <div>
+                      {item.channel && <span className="badge badge-info">{$L(item.channel)}</span>}
+                      {item.fullName.includes('[CURRENT]') && <span className="badge badge-warning">{$L('当前')}</span>}
+                    </div>
+                  </span>
                 </td>
                 <td className="cell-detail">
                   <span className="cell-detail-description">
@@ -92,7 +98,7 @@ class OnlineUserViewer extends RbAlert {
                   </a>
                 </td>
                 <td className="actions text-right">
-                  <button className="btn btn-danger btn-sm btn-outline" type="button" onClick={() => this._killSession(item.sid)}>
+                  <button className="btn btn-danger btn-sm btn-outline" type="button" onClick={() => this._killSession(item.token || item.sid)}>
                     {$L('强退')}
                   </button>
                 </td>

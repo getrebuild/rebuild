@@ -176,7 +176,7 @@ body {
 .nav-tabs .vtab-settings {
   position: absolute;
   right: 0;
-  top: 3px;
+  top: 2px;
   padding: 9px 8px;
   font-size: 1.2rem;
   opacity: 0.6;
@@ -816,13 +816,14 @@ body {
 }
 
 .timeline.approved-steps .timeline-item.state11::before,
-.timeline.approved-steps .timeline-item.state21::before {
+.timeline.approved-steps .timeline-item.state21::before,
+.timeline.approved-steps .timeline-item.state12::before,
+.timeline.approved-steps .timeline-item.state13::before {
   border-color: #fff;
   background-color: #ea3f30;
 }
 
-.timeline.approved-steps .timeline-item.state12::before,
-.timeline.approved-steps .timeline-item.state13::before {
+.timeline.approved-steps .timeline-item.state21::before {
   border-color: #fff;
   background-color: #f7b904;
 }

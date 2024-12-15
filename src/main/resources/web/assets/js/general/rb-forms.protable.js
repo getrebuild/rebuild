@@ -126,16 +126,14 @@ class ProTable extends React.Component {
         $(this._$scroller).find('thead .tipping').tooltip()
       })
 
-      // 正常编辑
-      if (this.props.mainid) {
-        $.get(`/app/${entity.entity}/detail-models?mainid=${this.props.mainid}`, (res) => {
-          if (res.error_code === 0) this.setLines(res.data)
-          else RbHighbar.error($L('明细加载失败，请稍后重试'))
-        })
+      // v3.9 记录转换
+      if (this.props.transDetails) {
+        this.setLines(this.props.transDetails)
+        this._deletesQuietly = this.props.transDetailsDelete
       }
-      // 记录转换
-      else if (this.props.previewid) {
-        $.get(`/app/${entity.entity}/detail-models?previewid=${this.props.previewid}`, (res) => {
+      // 正常编辑
+      else if (this.props.mainid) {
+        $.get(`/app/${entity.entity}/detail-models?mainid=${this.props.mainid}`, (res) => {
           if (res.error_code === 0) this.setLines(res.data)
           else RbHighbar.error($L('明细加载失败，请稍后重试'))
         })
@@ -322,15 +320,33 @@ class ProTable extends React.Component {
       })
   }
 
+  // @Deprecated
+  getLineForm(lineKey) {
+    console.warn('@Deprecated : getLineForm')
+    return this.getInlineForm(lineKey)
+  }
+
   /**
    * 获取指定 InlineForm
    * @param {string} lineKey
    * @returns
    */
-  getLineForm(lineKey) {
+  getInlineForm(lineKey) {
     if (!this.state.inlineForms) return null
     const F = this.state.inlineForms.find((c) => c.key === lineKey)
     return F ? F.ref.current || null : null
+  }
+
+  /**
+   * @returns
+   */
+  getInlineForms() {
+    if (!this.state.inlineForms) return null
+    let ff = []
+    this.state.inlineForms.forEach((F) => {
+      if (F && F.ref.current) ff.push(F.ref.current)
+    })
+    return ff
   }
 
   /**
@@ -359,19 +375,28 @@ class ProTable extends React.Component {
       return null
     }
 
-    // 删除
-    if (this._deletes) {
+    // 删除的
+    this._deletes &&
       this._deletes.forEach((item) => {
-        const d = {
+        datas.push({
           metadata: {
             entity: this.props.entity.entity,
             id: item,
             delete: true,
           },
-        }
-        datas.push(d)
+        })
       })
-    }
+    // 记录转换删除的
+    this._deletesQuietly &&
+      this._deletesQuietly.forEach((item) => {
+        datas.push({
+          metadata: {
+            entity: this.props.entity.entity,
+            id: item,
+            deleteQuietly: true,
+          },
+        })
+      })
 
     return datas
   }

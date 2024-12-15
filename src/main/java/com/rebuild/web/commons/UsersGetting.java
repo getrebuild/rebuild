@@ -110,9 +110,10 @@ public class UsersGetting extends BaseController {
 
     /**
      * 获取符合 UserSelector 组件的数据
-     *
      * @param request
+     * @param useEntity
      * @see UserHelper#parseUsers(JSONArray, ID)
+     * @return
      */
     @PostMapping("user-selector")
     public JSON parseUserSelectorRaw(HttpServletRequest request, @EntityParam(required = false) Entity useEntity) {

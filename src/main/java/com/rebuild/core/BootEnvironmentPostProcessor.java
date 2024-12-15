@@ -145,7 +145,7 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
                 String newValue = AES.decryptQuietly(value);
                 if (newValue == null) {
                     newValue = StringUtils.EMPTY;
-                    log.warn("Decrypting error (Use blank string) : " + name);
+                    log.warn("Decrypting error (Use blank string) : {}", name);
                 }
                 ps.put(name, newValue);
             }

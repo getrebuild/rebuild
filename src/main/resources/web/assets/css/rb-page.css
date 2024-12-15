@@ -876,10 +876,10 @@ body.view-body {
   color: #404040;
 }
 
-.select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
+/* .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
   max-width: 100%;
   min-width: 21px;
-}
+} */
 
 .select2-container--default.select2-container--focus .select2-selection.select2-selection--multiple {
   border-color: #4285f4;
@@ -1073,7 +1073,8 @@ a.link.link-icon::after {
   margin-top: 0.25rem !important;
 }
 
-.type-MULTISELECT .custom-checkbox {
+.type-MULTISELECT .custom-checkbox,
+.type-PICKLIST .custom-radio {
   margin-bottom: 0.61rem;
   margin-right: 2%;
   min-width: 23%;
@@ -1081,12 +1082,14 @@ a.link.link-icon::after {
   overflow: hidden;
 }
 
-.col-sm-3.type-MULTISELECT .custom-checkbox {
+.col-sm-3.type-MULTISELECT .custom-checkbox,
+.col-sm-3.type-PICKLIST .custom-radio {
   margin-right: 0;
   min-width: 100%;
 }
 
-.col-sm-4.type-MULTISELECT .custom-checkbox {
+.col-sm-4.type-MULTISELECT .custom-checkbox,
+.col-sm-4.type-PICKLIST .custom-radio {
   min-width: 48%;
 }
 
@@ -1851,6 +1854,20 @@ th.column-fixed {
   top: 0;
 }
 
+.data-list .table tr td .progress {
+  height: 16px;
+  font-size: 12px;
+  text-align: center;
+  background-color: #ccc;
+  display: block;
+}
+
+.data-list .table tr td .progress .progress-bar {
+  line-height: 16px;
+  width: 0;
+  max-width: 100%;
+}
+
 .form.batch-form {
   padding: 10px 15px;
 }
@@ -1915,7 +1932,7 @@ th.column-fixed {
   padding: 9px 8px;
   font-size: 15px;
   position: absolute;
-  top: -2px;
+  top: -1.5px;
   z-index: 1;
   display: none;
 }
@@ -1933,6 +1950,10 @@ th.column-fixed {
   color: #999;
   font-weight: bold;
   margin: 0 5px;
+}
+
+.dataTables_info .stat-item > strong {
+  margin-left: 4px;
 }
 
 /* DataList ends */
@@ -3061,6 +3082,10 @@ form {
   overflow: hidden;
 }
 
+a.user-show:not([href]) {
+  cursor: default;
+}
+
 .user-show + .user-show {
   margin-left: 6px;
 }
@@ -3341,7 +3366,7 @@ form {
 
 @media (max-width: 767.98px) {
   .rb-top-header .global-search2,
-  .rb-top-header .global-create2-- {
+  .rb-top-header .global-create2 {
     display: none !important;
   }
 }
@@ -5036,6 +5061,12 @@ pre.unstyle {
   background-color: rgba(0, 0, 0, 0.03);
 }
 
+.rb-left-sidebar .sidebar-elements > li ul li > a.text-muted {
+  background-color: unset !important;
+  font-style: italic;
+  cursor: default;
+}
+
 .rb-left-sidebar.v2 .sidebar-elements li.active > a {
   background-color: rgba(0, 0, 0, 0.08);
 }
@@ -5164,6 +5195,10 @@ pre.unstyle {
 .rbcolors > a + a,
 .rbcolors input[type='color'] {
   margin-left: 6px;
+}
+
+.rbcolors input[type='color'] {
+  position: absolute;
 }
 
 .rbcolors > a > i {
@@ -5299,6 +5334,10 @@ pre.unstyle {
 
 .modal.rbmodal .modal-dialog .modal-body {
   padding: 15px 15px 18px;
+}
+
+.modal.rbmodal .modal-dialog.sm-height .modal-body {
+  min-height: auto;
 }
 
 .page-head {
@@ -5837,4 +5876,24 @@ div.formula-code {
 }
 
 .rbview-fjsalert {
+}
+
+.show-more-pill {
+  color: #4285f4 !important;
+  border-radius: 99px;
+  border: 1px solid #dee2e6;
+  padding: 5px 10px;
+  display: inline-block;
+  line-height: 1;
+}
+
+.show-more-pill::after {
+  font: normal normal normal 14px/1 'Material Design Icons';
+  content: '\F0B8D';
+  margin-left: 5px;
+}
+
+.show-more-pill:hover {
+  border-color: #0d5bdd;
+  color: #0d5bdd;
 }

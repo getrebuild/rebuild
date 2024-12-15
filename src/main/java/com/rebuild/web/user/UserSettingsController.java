@@ -13,6 +13,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.Controller;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
@@ -26,7 +27,9 @@ import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
+import com.rebuild.rbv.integration.ExternalUserAuth;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.user.signup.LoginAction;
 import com.rebuild.web.user.signup.LoginController;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
 /**
@@ -76,6 +80,11 @@ public class UserSettingsController extends BaseController {
                     .setParameter(2, wxworkCorpid)
                     .unique();
             if (wxworkUser != null) mv.getModelMap().put("wxworkUser", wxworkUser[0]);
+        }
+        String feishuAppid = RebuildConfiguration.get(ConfigurationItem.FeishuAppId);
+        if (feishuAppid != null) {
+            String feishuUser = ExternalUserAuth.getExternalUserId(ub.getId(), feishuAppid);
+            if (feishuUser != null) mv.getModelMap().put("feishuUser", feishuUser);
         }
 
         return mv;
@@ -122,7 +131,7 @@ public class UserSettingsController extends BaseController {
     }
 
     @PostMapping("/user/save-passwd")
-    public RespBody savePasswd(HttpServletRequest request) {
+    public RespBody savePasswd(HttpServletRequest request, HttpServletResponse response) {
         final ID user = getRequestUser(request);
 
         JSONObject p = (JSONObject) ServletUtils.getRequestJson(request);
@@ -134,7 +143,14 @@ public class UserSettingsController extends BaseController {
             return RespBody.errorl("原密码输入有误");
         }
 
-        return savePasswd(user, newp);
+        RespBody res = savePasswd(user, newp);
+        if (res.getErrorCode() == Controller.CODE_OK) {
+            try {
+                ServletUtils.removeCookie(request, response, LoginAction.CK_AUTOLOGIN);
+                request.getSession().invalidate();
+            } catch (Exception ignored) {}
+        }
+        return res;
     }
 
     @GetMapping("/user/login-logs")
@@ -183,10 +199,11 @@ public class UserSettingsController extends BaseController {
     @PostMapping("/cancel-external-user")
     public RespBody cancelExternalUser(HttpServletRequest request) {
         int appType = getIntParameter(request, "type", 0);
-        // 1=Dingtalk, 2=Wxwork
+        // 1=Dingtalk, 2=Wxwork, 3=Feishu
         String appId = appType == 1
                 ? RebuildConfiguration.get(ConfigurationItem.DingtalkCorpid)
                 : RebuildConfiguration.get(ConfigurationItem.WxworkCorpid);
+        if (appType == 3) appId = RebuildConfiguration.get(ConfigurationItem.FeishuAppId);
 
         Object[] externalUser = Application.createQueryNoFilter(
                 "select userId from ExternalUser where bindUser = ? and appId = ?")

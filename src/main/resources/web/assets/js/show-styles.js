@@ -27,15 +27,14 @@ class ShowStyles extends React.Component {
                   </div>
                 </div>
                 {this.renderExtras()}
-
                 <div className="form-group row footer">
                   <div className="col-sm-7 offset-sm-3">
                     <button className="btn btn-primary" type="button" onClick={() => this.saveProps()}>
                       {$L('确定')}
                     </button>
-                    <a className="btn btn-link" onClick={() => this.hide()}>
+                    <button type="button" className="btn btn-link" onClick={() => this.hide()}>
                       {$L('取消')}
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>

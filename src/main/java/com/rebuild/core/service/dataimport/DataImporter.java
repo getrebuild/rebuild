@@ -194,7 +194,7 @@ public class DataImporter extends HeavyTask<Integer> {
             }
         }
 
-        // fix: 3.9 导入也生效
+        // fix: v3.9 导入也生效
         AutoFillinManager.instance.fillinRecord(checkout);
 
         // Verify new record

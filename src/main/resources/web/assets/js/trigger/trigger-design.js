@@ -368,6 +368,12 @@ function _handle512Change() {
 
 // 立即执行
 function useExecManual() {
+  function _FN(taskid, that) {
+    const mp_parent = $(that._dlg).find('.modal-header').attr('id', $random('node-'))
+    const mp = new Mprogress({ template: 1, start: true, parent: '#' + $(mp_parent).attr('id') })
+    useExecManual_checkState(taskid, mp, that)
+  }
+
   $('.J_exec-manual').on('click', () => {
     if (rb.commercial < 10) {
       RbHighbar.error(WrapHtml($L('免费版不支持立即执行功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
@@ -376,11 +382,27 @@ function useExecManual() {
 
     RbAlert.create($L('将直接执行此触发器，数据过多耗时会较长，请耐心等待。是否继续？'), {
       onConfirm: function () {
-        this.disabled(true, true)
+        const that = this
+        that.disabled(true, true)
         $.post(`/admin/robot/trigger/exec-manual?id=${wpc.configId}`, (res) => {
-          const mp_parent = $(this._dlg).find('.modal-header').attr('id', $random('node-'))
-          const mp = new Mprogress({ template: 1, start: true, parent: '#' + $(mp_parent).attr('id') })
-          useExecManual_checkState(res.data, mp, this)
+          let taskid = res.data || ''
+          // 执行中了
+          if (taskid.startsWith('_EXECUTE:')) {
+            taskid = taskid.substr(9)
+            RbAlert.create($L('此触发器已在执行中，不能同时执行。是否显示执行状态？'), {
+              onConfirm: function () {
+                this.hide()
+                _FN(taskid, that)
+              },
+              onCancel: function () {
+                this.hide()
+                that.hide(true)
+              },
+            })
+            return
+          }
+
+          _FN(taskid, that)
         })
       },
       countdown: 5,
@@ -496,7 +518,15 @@ class DlgSpecApproveNodes extends RbModalHandler {
                 {$L('填写步骤名称')} ({$L('* 表示所有')})
               </label>
               <div>
-                <select className="form-control form-control-sm" ref={(c) => (this._$set = c)}></select>
+                <select className="form-control form-control-sm" ref={(c) => (this._$set = c)} multiple>
+                  {(this.state.stepNames || []).map((item) => {
+                    return (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    )
+                  })}
+                </select>
               </div>
             </div>
           </div>
@@ -515,15 +545,8 @@ class DlgSpecApproveNodes extends RbModalHandler {
   }
 
   componentDidMount() {
-    let s2data = this.props.selected || []
-    s2data = s2data.map((item) => {
-      return { id: item, text: item, selected: true }
-    })
     this.__select2 = $(this._$set).select2({
       placeholder: $L('无'),
-      data: s2data,
-      multiple: true,
-      maximumSelectionLength: 9,
       language: {
         noResults: function () {
           return $L('请输入')
@@ -532,6 +555,18 @@ class DlgSpecApproveNodes extends RbModalHandler {
       tags: true,
       theme: 'default select2-tag',
       allowClear: true,
+    })
+
+    $.get(`/admin/robot/trigger/approval-steps?entity=${wpc.sourceEntity}`, (res) => {
+      let names = res.data || []
+      if (this.props.selected) {
+        this.props.selected.forEach((item) => {
+          if (!names.includes(item)) names.push(item)
+        })
+      }
+      this.setState({ stepNames: names }, () => {
+        this.props.selected && this.__select2.val(this.props.selected).trigger('change')
+      })
     })
   }
 

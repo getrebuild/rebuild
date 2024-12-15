@@ -15,16 +15,18 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.PrivilegesGuardInterceptor;
+import lombok.Getter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 /**
- * 基础 CRUD 服务，使用须知：
+ * 基础 CRUD 服务。使用须知：
  * <br>- 此类有事物
  * <br>- 此类不经过用户权限验证 {@link PrivilegesGuardInterceptor}
  * <br>- 此类不字段值做任何处理，如多值、附件 {@link BaseService}
  * <br>- 此类无任何系统规则，如默认值、重复检查、自动编号等
  * <br>- 有权限的实体使用此类需要指定 `strictMode=false`
+ * <br>- v3.9 如有以上（部分）需求请考虑使用 #getBaseService
  *
  * @author Zixin (RB)
  * @since 11/06/2019
@@ -32,8 +34,12 @@ import org.springframework.util.Assert;
 @Service("rbCommonsService")
 public class CommonsService extends InternalPersistService {
 
+    @Getter
+    final private BaseService baseService;
+
     protected CommonsService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
+        this.baseService = new BaseService(aPMFactory){};
     }
 
     @Override

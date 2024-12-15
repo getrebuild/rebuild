@@ -33,8 +33,10 @@ import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 解析已知的个性化过滤条件
@@ -171,16 +173,25 @@ public class ProtocolFilterParser {
         }
 
         // 父级级联字段
-        if (hasFieldCascadingField(field) && ID.isId(cascadingValue)) {
+        ID[] cascadingValueIds = null;
+        if (hasFieldCascadingField(field) && StringUtils.isNotBlank(cascadingValue)) {
+            Set<ID> cascadingValueIdList = new HashSet<>();
+            for (String s : cascadingValue.split("[,;]")) {
+                if (ID.isId(s)) cascadingValueIdList.add(ID.valueOf(s));
+            }
+            if (!cascadingValueIdList.isEmpty()) cascadingValueIds = cascadingValueIdList.toArray(new ID[0]);
+        }
+
+        if (cascadingValueIds != null) {
             // 可能同时存在父子级
             String cascadingFieldParent = field.getExtraAttrs().getString("_cascadingFieldParent");
             String cascadingFieldChild = field.getExtraAttrs().getString("_cascadingFieldChild");
             // v35 多个使用第一个
             if (cascadingFieldChild != null) cascadingFieldChild = cascadingFieldChild.split(";")[0];
 
-            ID cascadingValueId = ID.valueOf(cascadingValue);
             List<String> parentAndChind = new ArrayList<>();
 
+            // 选子级时（只会有一个ID）
             if (StringUtils.isNotBlank(cascadingFieldParent)) {
                 String[] fs = cascadingFieldParent.split(MetadataHelper.SPLITER_RE);
                 Entity refEntity;
@@ -192,11 +203,12 @@ public class ProtocolFilterParser {
                     refEntity = entity.getField(fs[0]).getReferenceEntity();
                 }
 
-                if (refEntity.getEntityCode().equals(cascadingValueId.getEntityCode())) {
-                    parentAndChind.add(String.format("%s = '%s'", fs[1], cascadingValueId));
+                if (refEntity.getEntityCode().equals(cascadingValueIds[0].getEntityCode())) {
+                    parentAndChind.add(String.format("%s = '%s'", fs[1], cascadingValueIds[0]));
                 }
             }
-            
+
+            // 选父级时（会有多个ID）
             if (StringUtils.isNotBlank(cascadingFieldChild)) {
                 String[] fs = cascadingFieldChild.split(MetadataHelper.SPLITER_RE);
                 Entity refEntity;
@@ -208,11 +220,12 @@ public class ProtocolFilterParser {
                     refEntity = entity.getField(fs[0]).getReferenceEntity();
                 }
 
-                if (refEntity.getEntityCode().equals(cascadingValueId.getEntityCode())) {
-                    String s = String.format("exists (select %s from %s where ^%s = %s and %s = '%s')",
+                if (refEntity.getEntityCode().equals(cascadingValueIds[0].getEntityCode())) {
+                    String ps = String.format("%s in ('%s')",
+                            refEntity.getPrimaryField().getName(), StringUtils.join(cascadingValueIds, "','"));
+                    String s = String.format("exists (select %s from %s where ^%s = %s and ( %s ))",
                             fs[1], refEntity.getName(),
-                            field.getReferenceEntity().getPrimaryField().getName(), fs[1],
-                            refEntity.getPrimaryField().getName(), cascadingValueId);
+                            field.getReferenceEntity().getPrimaryField().getName(), fs[1], ps);
                     parentAndChind.add(s);
                 }
             }

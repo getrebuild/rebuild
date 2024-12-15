@@ -25,6 +25,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.RoleService;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.dashboard.DashboardManager;
 import com.rebuild.core.service.project.ProjectManager;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.License;
@@ -66,10 +67,11 @@ public class NavBuilder extends NavManager {
     // 默认导航
     private static final JSONArray NAVS_DEFAULT = JSONUtils.toJSONObjectArray(
             NAV_ITEM_PROPS,
-            new Object[][] {
-                    new Object[] { "chart-donut", "动态", "BUILTIN", NAV_FEEDS },
-                    new Object[] { "shape", "项目", "BUILTIN", NAV_PROJECT },
-                    new Object[] { "folder", "文件", "BUILTIN", NAV_FILEMRG }
+            new Object[][]{
+                    new Object[]{"chart-donut", "动态", "BUILTIN", NAV_FEEDS},
+                    new Object[]{"folder", "文件", "BUILTIN", NAV_FILEMRG},
+                    new Object[]{"account-box-phone", "通讯录", "BUILTIN", NAV_CONTACT},
+                    new Object[]{"shape", "项目", "BUILTIN", NAV_PROJECT},
             });
 
     // 新建项目
@@ -119,7 +121,7 @@ public class NavBuilder extends NavManager {
 
         if (config == null) {
             JSONArray useDefault = replaceLang(NAVS_DEFAULT);
-            ((JSONObject) useDefault.get(1)).put("sub", buildAvailableProjects(user));
+            ((JSONObject) useDefault.get(3)).put("sub", buildAvailableProjects(user));
             return useDefault;
         }
 
@@ -145,6 +147,8 @@ public class NavBuilder extends NavManager {
                 iter.remove();
             } else if (NAV_PROJECT.equals(nav.getString("value"))) {
                 nav.put("sub", buildAvailableProjects(user));
+            } else if (NAV_DASHBOARD.equals(nav.getString("value"))) {
+                nav.put("sub", buildAvailableDashboards(user));
             }
         }
 
@@ -168,7 +172,8 @@ public class NavBuilder extends NavManager {
         if ("ENTITY".equalsIgnoreCase(type)) {
             if (NAV_PARENT.equals(value)) {
                 return true;
-            } else if (NAV_FEEDS.equals(value) || NAV_FILEMRG.equals(value) || NAV_PROJECT.equals(value)) {
+            } else if (NAV_FEEDS.equals(value) || NAV_FILEMRG.equals(value)
+                    || NAV_PROJECT.equals(value) || NAV_CONTACT.equals(value) || NAV_DASHBOARD.equals(value)) {
                 return false;
             } else if (!MetadataHelper.containsEntity(value)) {
                 log.warn("Unknown entity in nav : {}", value);
@@ -254,6 +259,27 @@ public class NavBuilder extends NavManager {
             navsOfProjects.add(add);
         }
         return navsOfProjects;
+    }
+
+    /**
+     * 动态获取仪表盘菜单
+     *
+     * @param user
+     * @return
+     */
+    private JSONArray buildAvailableDashboards(ID user) {
+        JSONArray dashs = (JSONArray) DashboardManager.instance.getAvailable(user, false);
+        if (dashs == null || dashs.isEmpty()) return JSONUtils.EMPTY_ARRAY;
+
+        JSONArray itemsOfNav = new JSONArray();
+        for (Object d : dashs) {
+            JSONArray dash = (JSONArray) d;
+            JSONObject item = JSONUtils.toJSONObject(
+                    NAV_ITEM_PROPS,
+                    new Object[]{"--", dash.getString(4), NAV_DASHBOARD, dash.getString(0)});
+            itemsOfNav.add(item);
+        }
+        return itemsOfNav;
     }
 
     /**
@@ -382,15 +408,19 @@ public class NavBuilder extends NavManager {
             }
 
         } else if (NAV_FEEDS.equals(navName)) {
-            navName = "nav_entity-FEEDS";
+            navName = "nav_entity--FEEDS";
             navUrl = AppUtils.getContextPath("/feeds/home");
 
         } else if (NAV_FILEMRG.equals(navName)) {
-            navName = "nav_entity-ATTACHMENT";
+            navName = "nav_entity--ATTACHMENT";
             navUrl = AppUtils.getContextPath("/files/home");
 
+        } else if (NAV_CONTACT.equals(navName)) {
+            navName = "nav_entity--CONTACTS";
+            navUrl = AppUtils.getContextPath("/contacts/home");
+
         } else if (NAV_PROJECT.equals(navName)) {
-            navName = "nav_entity-PROJECT";
+            navName = "nav_entity--PROJECT";
             navUrl = AppUtils.getContextPath("/project/search");
 
         } else if (NAV_PROJECT.equals(navType)) {
@@ -398,8 +428,16 @@ public class NavBuilder extends NavManager {
             navUrl = String.format("%s/project/%s/tasks", AppUtils.getContextPath(), navUrl);
 
         } else if (navName.startsWith(NAV_PROJECT)) {
-            navName = "nav_project--add";
+            navName = "nav_project-add";
             navUrl = AppUtils.getContextPath("/admin/projects");
+
+        } else if (NAV_DASHBOARD.equals(navType)) {
+            navName = "nav_dashboard-" + navName;
+            navUrl = String.format("%s/dashboard/home?d=%s", AppUtils.getContextPath(), navUrl);
+
+        } else if (NAV_DASHBOARD.equals(navName)) {
+            navName = "nav_dashboard-DASHBOARD";
+            navUrl = String.format("%s/dashboard/home", AppUtils.getContextPath());
 
         } else {
             navEntity = navName;
@@ -417,9 +455,6 @@ public class NavBuilder extends NavManager {
         JSONArray subNavs = null;
         if (activeNav != null) {
             subNavs = item.getJSONArray("sub");
-            if (subNavs == null || subNavs.isEmpty()) {
-                subNavs = null;
-            }
         }
 
         String navItemHtml;
@@ -429,14 +464,25 @@ public class NavBuilder extends NavManager {
             String parentClass = " parent";
             if (item.getBooleanValue("open")) parentClass += " open";
 
-            navItemHtml = String.format(
-                    "<li class=\"%s\" data-entity=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon %s\"></i><span>%s</span></a>",
-                    navName + (subNavs == null ? StringUtils.EMPTY : parentClass),
-                    navEntity == null ? StringUtils.EMPTY : navEntity,
-                    subNavs == null ? navUrl : "###",
-                    isOutUrl ? "_blank" : "_self",
-                    iconClazz,
-                    navText);
+            // v3.9 No icon
+            if ("zmdi zmdi---".equals(iconClazz)) {
+                navItemHtml = String.format(
+                        "<li class=\"%s\" data-entity=\"%s\"><a href=\"%s\" target=\"%s\"><span>%s</span></a>",
+                        navName + (subNavs == null ? StringUtils.EMPTY : parentClass),
+                        navEntity == null ? StringUtils.EMPTY : navEntity,
+                        subNavs == null ? navUrl : "###",
+                        isOutUrl ? "_blank" : "_self",
+                        navText);
+            } else {
+                navItemHtml = String.format(
+                        "<li class=\"%s\" data-entity=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon %s\"></i><span>%s</span></a>",
+                        navName + (subNavs == null ? StringUtils.EMPTY : parentClass),
+                        navEntity == null ? StringUtils.EMPTY : navEntity,
+                        subNavs == null ? navUrl : "###",
+                        isOutUrl ? "_blank" : "_self",
+                        iconClazz,
+                        navText);
+            }
         }
 
         StringBuilder navHtml = new StringBuilder(navItemHtml);
@@ -451,6 +497,7 @@ public class NavBuilder extends NavManager {
                 JSONObject subNav = (JSONObject) o;
                 subHtml.append(renderNavItem(subNav, null));
             }
+            if (subNavs.isEmpty()) subHtml.append(String.format("<li><a class=\"text-muted\">%s</a></li>", Language.L("暂无可用")));
 
             subHtml.append("</ul></div></li></ul>");
             navHtml.append(subHtml);

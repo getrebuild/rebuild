@@ -135,7 +135,7 @@ public class FieldAggregationController extends BaseController {
                 ObjectUtils.defaultIfNull(targetEntity.getMainEntity(), targetEntity), null) != null;
 
         return JSONUtils.toJSONObject(
-                new String[] { "source", "target", "hadApproval", "target2" },
+                new String[] { "source", "target", "hadApproval", "target4Group" },
                 new Object[] { sourceFields, targetFields, hadApproval, targetFields2 });
     }
 

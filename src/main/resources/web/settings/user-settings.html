@@ -58,10 +58,6 @@
         padding: 8px 0;
         border-bottom: 1px dotted #e6e9f0;
       }
-      .split-span > span + span::before {
-        content: ' / ';
-        color: #aaa;
-      }
       #logs thead th {
         font-weight: normal;
         color: #777;
@@ -110,17 +106,20 @@
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-4 col-form-label">[[${bundle.L('所属部门')}]]</label>
+                            <label class="col-4 col-form-label">[[${bundle.L('所在部门')}]]</label>
                             <div class="col-8">
                               <div class="form-control-plaintext" th:text="${user.getOwningBizUnit().getName()}"></div>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-4 col-form-label">[[${bundle.L('加入团队')}]]</label>
+                            <label class="col-4 col-form-label">[[${bundle.L('所在团队')}]]</label>
                             <div class="col-8">
-                              <div class="form-control-plaintext split-span">
+                              <div class="form-control-plaintext">
                                 <th:block th:each="team : ${user.getOwningTeams()}">
-                                  <span th:text="${team.getName()}"></span>
+                                  <span class="badge badge-info fs-12 up-2">
+                                    <i class="icon mdi mdi-briefcase-account"></i>
+                                    <th:block th:text="${team.getName()}" />
+                                  </span>
                                 </th:block>
                                 <em class="text-muted" th:if="${user.getOwningTeams().isEmpty()}">[[${bundle.L('你未加入任何团队')}]]</em>
                               </div>
@@ -190,6 +189,15 @@
                         </div>
                         <div class="col-3 text-right">
                           <button class="btn btn-danger btn-outline J_unauth-wxwork" type="button" data-type="2">[[${bundle.L('取消授权')}]]</button>
+                        </div>
+                      </div>
+                      <div th:if="${feishuUser != null}" class="form-group row">
+                        <label class="col-2 col-form-label">[[${bundle.L('飞书授权')}]]</label>
+                        <div class="col-7 pl-0">
+                          <div class="form-control-plaintext text-muted">[[${feishuUser}]]</div>
+                        </div>
+                        <div class="col-3 text-right">
+                          <button class="btn btn-danger btn-outline J_unauth-feishu" type="button" data-type="3">[[${bundle.L('取消授权')}]]</button>
                         </div>
                       </div>
                       <div class="form-group row">

@@ -62,9 +62,9 @@ $(document).ready(() => {
       .droppable({
         accept: function () {
           if (dargOnSort === true) return false
-          const isdim = $(this).hasClass('J_axis-dim')
-          if (type_DATALIST2) return isdim
-          if (isdim) return !dragIsNum
+          const isDim = $(this).hasClass('J_axis-dim')
+          if (type_DATALIST2) return isDim
+          if (isDim) return !dragIsNum
           return true
         },
         drop: function (e, ui) {
@@ -118,7 +118,7 @@ $(document).ready(() => {
     }
   })
 
-  const $chTypes = $('.chart-type > a').on('click', function () {
+  const $chTypes = $('.chart-type>a').on('click', function () {
     const $this = $(this)
     if ($this.hasClass('active') === false) return
     $chTypes.removeClass('select')
@@ -178,7 +178,6 @@ $(document).ready(() => {
     $('<i class="zmdi zmdi-check"></i>').appendTo(this)
     render_preview()
   })
-
   $('<input type="color" />')
     .appendTo($cs)
     .on('change', (e) => {
@@ -200,12 +199,14 @@ $(document).ready(() => {
     const option = wpc.chartConfig.option || {}
     if (typeof option['mergeCell'] === undefined) option.mergeCell = true // fix: 3.1.3
     for (let k in option) {
-      const opt = $(`.chart-option input[data-name=${k}]`)
-      if (opt.length > 0) {
-        if (opt.attr('type') === 'checkbox') {
-          if ($isTrue(option[k])) opt.trigger('click')
+      let $o = $(`.chart-option input[data-name=${k}]`)
+      if (!$o[0]) $o = $(`.chart-option select[data-name=${k}]`)
+
+      if ($o.length > 0) {
+        if ($o.attr('type') === 'checkbox') {
+          if ($isTrue(option[k])) $o.trigger('click')
         } else {
-          opt.val(option[k])
+          $o.val(option[k])
         }
       }
 
@@ -276,7 +277,7 @@ function add_axis($target, axis) {
     sort = axis.sort
     fkey = axis.fkey
     if (axis.filter) _axisAdvFilters__data[axis.fkey] = axis.filter
-    $dd.attr({ 'data-label': axis.label, 'data-scale': axis.scale })
+    $dd.attr({ 'data-label': axis.label, 'data-scale': axis.scale, 'data-unit': axis.unit })
   }
   // New
   else {
@@ -359,9 +360,10 @@ function add_axis($target, axis) {
         isNumAxis: isNumAxis,
         label: $dd.attr('data-label'),
         scale: $dd.attr('data-scale'),
+        unit: $dd.attr('data-unit'),
       }
       state.callback = (s) => {
-        $dd.attr({ 'data-label': s.label, 'data-scale': s.scale })
+        $dd.attr({ 'data-label': s.label, 'data-scale': s.scale, 'data-unit': s.unit })
         render_preview()
       }
 
@@ -535,6 +537,7 @@ function _buildAxisItem(item, isNum) {
   if (isNum) {
     x.calc = item.attr('data-calc')
     x.scale = item.attr('data-scale')
+    x.unit = item.attr('data-unit')
     x.filter = _axisAdvFilters__data[x.fkey] || null
   } else if (['date', 'time', 'clazz'].includes(item.data('type'))) {
     x.calc = item.attr('data-calc')
@@ -549,7 +552,7 @@ class DlgAxisProps extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L('显示样式')} ref={(c) => (this._dlg = c)}>
+      <RbModal title={$L('显示样式')} ref={(c) => (this._dlg = c)} className="sm-height">
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('别名')}</label>
@@ -558,29 +561,45 @@ class DlgAxisProps extends RbFormHandler {
             </div>
           </div>
           {this.state.isNumAxis && (
-            <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('小数位长度')}</label>
-              <div className="col-sm-7">
-                <select className="form-control form-control-sm" value={this.state.scale || 2} data-id="scale" onChange={this.handleChange}>
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                  <option value="6">6</option>
-                </select>
+            <RF>
+              <div className="form-group row">
+                <label className="col-sm-3 col-form-label text-sm-right">{$L('小数位长度')}</label>
+                <div className="col-sm-7">
+                  <select className="form-control form-control-sm" value={this.state.scale || 2} data-id="scale" onChange={this.handleChange}>
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                  </select>
+                </div>
               </div>
-            </div>
+              <div className="form-group row">
+                <label className="col-sm-3 col-form-label text-sm-right">{$L('数字单位')}</label>
+                <div className="col-sm-7">
+                  <select className="form-control form-control-sm" value={this.state.unit || 0} data-id="unit" onChange={this.handleChange}>
+                    <option value="0">{$L('默认')}</option>
+                    <option value="1000">{$L('千')}</option>
+                    <option value="10000">{$L('万')}</option>
+                    <option value="100000">{$L('十万')}</option>
+                    <option value="1000000">{$L('百万')}</option>
+                    <option value="10000000">{$L('千万')}</option>
+                    <option value="100000000">{$L('亿')}</option>
+                  </select>
+                </div>
+              </div>
+            </RF>
           )}
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3">
               <button className="btn btn-primary" type="button" onClick={() => this.saveProps()}>
                 {$L('确定')}
               </button>
-              <a className="btn btn-link" onClick={() => this.hide()}>
+              <button type="button" className="btn btn-link" onClick={() => this.hide()}>
                 {$L('取消')}
-              </a>
+              </button>
             </div>
           </div>
         </div>

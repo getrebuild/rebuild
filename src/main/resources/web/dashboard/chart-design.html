@@ -172,14 +172,14 @@
                   </label>
                 </div>
                 <div class="hide J_opt-INDEX">
-                  <label style="color: #444">[[${bundle.L('配色')}]]</label>
+                  <label style="color: #444">[[${bundle.L('颜色')}]]</label>
                   <div id="useColor" class="rbcolors">
                     <a class="default" th:title="${bundle.L('默认')}"></a>
                   </div>
                 </div>
-                <div class="hide J_opt-DATALIST2">
+                <div class="hide J_opt-DATALIST2 J_opt-TABLE">
                   <label style="color: #444">[[${bundle.L('最大显示条数')}]]</label>
-                  <input type="text" data-name="pageSize" placeholder="40" maxlength="4" />
+                  <input type="text" data-name="pageSize" th:placeholder="${bundle.L('默认')}" maxlength="4" />
                 </div>
                 <div class="hide J_opt-CNMAP">
                   <label style="color: #444">[[${bundle.L('样式')}]]</label>
@@ -187,6 +187,22 @@
                     <option value="">[[${bundle.L('默认')}]]</option>
                     <option value="dark">[[${bundle.L('深色')}]]</option>
                     <option value="light">[[${bundle.L('浅色')}]]</option>
+                  </select>
+                </div>
+                <div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP J_opt-RADAR J_opt-SCATTER">
+                  <label style="color: #444">[[${bundle.L('样式')}]]</label>
+                  <select data-name="themeStyle" class="themeStyle">
+                    <option value="">[[${bundle.L('默认')}]]</option>
+                    <option value="shine">SHINE</option>
+                    <option value="techblue">TECHBLUE</option>
+                    <option value="mint">MINT</option>
+                    <option value="fruit">FRUIT</option>
+                    <option value="sakura">SAKURA</option>
+                    <option value="jazz">JAZZ</option>
+                    <option value="wonderland">WONDERLAND</option>
+                    <option value="westeros">WESTEROS</option>
+                    <option value="infographic">INFOGRAPHIC</option>
+                    <option value="macarons">MACARONS</option>
                   </select>
                 </div>
               </div>

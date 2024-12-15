@@ -150,7 +150,10 @@ public class MetaEntityController extends EntityController {
     @GetMapping("entity/{entity}/easy-action")
     public ModelAndView pageEasyAction(@PathVariable String entity) {
         ModelAndView mv = createModelAndView("/admin/metadata/entity-easy-action");
-        setEntityBase(mv, entity);
+        EasyEntity easyEntity = setEntityBase(mv, entity);
+        if (easyEntity.getRawMeta().getMainEntity() != null) {
+            mv.getModel().put("mainEntity", easyEntity.getRawMeta().getMainEntity().getName());
+        }
 
         ConfigBean cb = EasyActionManager.instance.getEasyActionRaw(entity);
         if (cb != null) {

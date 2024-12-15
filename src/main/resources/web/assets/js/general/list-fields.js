@@ -51,7 +51,8 @@ $(document).ready(() => {
     $.get(`${settingsUrl}/alist`, (res) => {
       const ccfg = res.data.find((x) => x[0] === cfgid)
       if (rb.isAdminUser) {
-        renderRbcomp(<Share2 title={$L('列显示')} list={res.data} configName={ccfg ? ccfg[1] : ''} shareTo={_data.shareTo} entity={entity} id={_data.configId} />, 'shareTo', function () {
+        const shareTo39 = _data.configId ? _data.shareTo : 'ALL'
+        renderRbcomp(<Share2 title={$L('列显示')} list={res.data} entity={entity} configName={ccfg ? ccfg[1] : ''} shareTo={shareTo39} id={_data.configId} />, 'shareTo', function () {
           shareToComp = this
         })
       } else {
@@ -168,7 +169,6 @@ render_item_after = function ($item) {
             refreshConfigStar()
           }}
         />,
-        null,
         function () {
           ShowStyles_Comps[fkey] = this
         }

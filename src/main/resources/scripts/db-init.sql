@@ -32,6 +32,7 @@ create table if not exists `user` (
   `ROLE_ID`            char(20) comment '角色',
   `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
   `QUICK_CODE`         varchar(50),
+  `SEQ`                int(11) default '0' comment '排序 (小到大)',
   `EXTERNAL_ID`        varchar(100) comment '外部用户ID',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
@@ -52,6 +53,7 @@ create table if not exists `department` (
   `PRINCIPAL_ID`       char(20) comment '负责人',
   `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
   `QUICK_CODE`         varchar(50),
+  `SEQ`                int(11) default '0' comment '排序 (小到大)',
   `EXTERNAL_ID`        varchar(100) comment '外部部门ID',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
@@ -337,7 +339,7 @@ create table if not exists `attachment` (
   `RELATED_RECORD`     char(20) comment '相关记录',
   `FILE_PATH`          varchar(300) not null comment '文件路径',
   `FILE_TYPE`          varchar(20) comment '文件类型',
-  `FILE_SIZE`          bigint(20) default '0' comment '执行顺序',
+  `FILE_SIZE`          bigint(20) default '0' comment '文件大小',
   `FILE_NAME`          varchar(100) comment '文件名称',
   `IN_FOLDER`          char(20) comment '所在目录',
   `IS_DELETED`         char(1) default 'F' comment '是否删除',
@@ -787,6 +789,7 @@ create table if not exists `extform_config` (
   `BIND_USER`          char(20) comment '数据绑定用户',
   `HOOK_URL`           varchar(300) comment '回调地址',
   `HOOK_SECRET`        varchar(300) comment '回调安全码',
+  `NO_RATE_LIMITER`    char(1) default 'F' comment '关闭限流',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
@@ -907,13 +910,13 @@ insert into `team_member` (`MEMBER_ID`, `TEAM_ID`, `USER_ID`)
 -- Layouts
 insert into `layout_config` (`CONFIG_ID`, `BELONG_ENTITY`, `CONFIG`, `APPLY_TYPE`, `SHARE_TO`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`)
   values
-  ('013-9000000000000001', 'Department', '[{"field":"name"},{"field":"principalId"},{"field":"parentDept"},{"field":"isDisabled"}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
-  ('013-9000000000000002', 'User', '[{"field":"fullName"},{"field":"jobTitle"},{"field":"workphone"},{"field":"email"},{"field":"loginName"},{"field":"password"},{"field":"$DIVIDER$"},{"field":"deptId"},{"field":"roleId"},{"field":"isDisabled"}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
-  ('013-9000000000000003', 'Role', '[{"field":"name"},{"field":"isDisabled"}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
-  ('013-9000000000000004', 'Team', '[{"field":"name"},{"field":"principalId"},{"field":"isDisabled"}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
-  ('013-9000000000000005', 'User', '[{"field":"fullName"},{"field":"jobTitle"},{"field":"deptId"},{"field":"workphone"},{"field":"email"},{"field":"loginName"},{"field":"roleId"},{"field":"isDisabled"},{"field":"createdOn"}]', 'DATALIST', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
-  ('013-9000000000000006', 'Department', '[{"field":"name"},{"field":"principalId"},{"field":"parentDept"},{"field":"isDisabled"},{"field":"createdOn"}]', 'DATALIST', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
-  ('013-9000000000000007', 'Team', '[{"field":"name"},{"field":"principalId"},{"field":"isDisabled"},{"field":"createdOn"}]', 'DATALIST', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001');
+  ('013-0000000000000001', 'Department', '[{"field":"name"},{"field":"principalId"},{"field":"parentDept"},{"field":"isDisabled"}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
+  ('013-0000000000000002', 'User', '[{"field":"fullName"},{"field":"jobTitle"},{"field":"workphone"},{"field":"email"},{"field":"loginName"},{"field":"password"},{"field":"$DIVIDER$"},{"field":"deptId"},{"field":"roleId"},{"field":"isDisabled"}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
+  ('013-0000000000000003', 'Role', '[{"field":"name"},{"field":"isDisabled"}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
+  ('013-0000000000000004', 'Team', '[{"field":"name"},{"field":"principalId"},{"field":"isDisabled"}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
+  ('013-0000000000000005', 'User', '[{"field":"fullName"},{"field":"jobTitle"},{"field":"deptId"},{"field":"workphone"},{"field":"email"},{"field":"loginName"},{"field":"roleId"},{"field":"isDisabled"},{"field":"createdOn"}]', 'DATALIST', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
+  ('013-0000000000000006', 'Department', '[{"field":"name"},{"field":"principalId"},{"field":"parentDept"},{"field":"isDisabled"},{"field":"createdOn"}]', 'DATALIST', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
+  ('013-0000000000000007', 'Team', '[{"field":"name"},{"field":"principalId"},{"field":"isDisabled"},{"field":"createdOn"}]', 'DATALIST', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001');
 
 -- Classifications (No data)
 insert into `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `IS_DISABLED`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`)
@@ -924,13 +927,16 @@ insert into `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 -- Projects
 insert into `project_config` (`CONFIG_ID`, `PROJECT_NAME`, `PROJECT_CODE`, `PRINCIPAL`, `MEMBERS`, `SCOPE`, `CREATED_BY`, `CREATED_ON`, `MODIFIED_BY`, `MODIFIED_ON`)
   values
-  ('050-0000000000000001', 'RB示例项目', 'RB', '001-0000000000000001', '001-9000000000000001', 1, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP);
+  ('050-9000000000000001', 'RB示例项目', 'RB', '001-0000000000000001', '001-9000000000000001', 1, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP);
 insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`, `FLOW_STATUS`, `FLOW_NEXTS`)
   values
-  ('051-0000000000000001', '050-0000000000000001', '待处理', 1000, 1, '051-0000000000000002,051-0000000000000003'),
-  ('051-0000000000000002', '050-0000000000000001', '进行中', 2000, 2, '051-0000000000000001,051-0000000000000003'),
-  ('051-0000000000000003', '050-0000000000000001', '已完成', 3000, 3, '051-0000000000000001,051-0000000000000002');
+  ('051-9000000000000001', '050-9000000000000001', '待处理', 1000, 1, '051-9000000000000002,051-9000000000000003'),
+  ('051-9000000000000002', '050-9000000000000001', '进行中', 2000, 2, '051-9000000000000001,051-9000000000000003'),
+  ('051-9000000000000003', '050-9000000000000001', '已完成', 3000, 3, '051-9000000000000001,051-9000000000000002');
+insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NUMBER`, `TASK_NAME`, `SEQ`, `CREATED_BY`, `CREATED_ON`, `MODIFIED_BY`, `MODIFIED_ON`)
+  values
+  ('052-9000000000000001', '050-9000000000000001', '051-9000000000000001', 1, 'RB示例任务', 1000, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP);
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 58);
+  values ('021-9000000000000001', 'DBVer', 60);

@@ -15,16 +15,19 @@ import cn.devezhao.persist4j.metadata.BaseMeta;
 import cn.devezhao.persist4j.metadata.MetadataException;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.alibaba.fastjson.JSONObject;
-import com.esotericsoftware.minlog.Log;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.trigger.RobotTriggerManager;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.rebuild.core.metadata.easymeta.DisplayType.ANYREFERENCE;
@@ -45,6 +48,7 @@ import static com.rebuild.core.metadata.easymeta.DisplayType.TEXT;
  * @author devezhao
  * @since 2020/11/17
  */
+@Slf4j
 public class EasyMetaFactory {
 
     /**
@@ -161,7 +165,7 @@ public class EasyMetaFactory {
     }
 
     /**
-     * 获取字段 Label（支持两级字段，如 owningUser.fullName）
+     * 获取字段 Label（如 owningUser.fullName）
      *
      * @param entity
      * @param fieldPath
@@ -171,15 +175,20 @@ public class EasyMetaFactory {
         try {
             String[] fieldPathSplit = fieldPath.split("\\.");
             Field firstField = entity.getField(fieldPathSplit[0]);
-            if (fieldPathSplit.length == 1) {
-                return getLabel(firstField);
-            }
+            if (fieldPathSplit.length == 1) return getLabel(firstField);
 
-            Entity refEntity = firstField.getReferenceEntity();
-            Field secondField = refEntity.getField(fieldPathSplit[1]);
-            return String.format("%s.%s", getLabel(firstField), getLabel(secondField));
+            List<String> labels = new ArrayList<>();
+            Entity prevEntity = entity;
+            for (String s : fieldPathSplit) {
+                Field field = prevEntity.getField(s);
+                labels.add(getLabel(field));
+                // ref
+                if (field.getType() == FieldType.REFERENCE) prevEntity = field.getReferenceEntity();
+            }
+            return StringUtils.join(labels, ".");
+
         } catch (MissingMetaExcetion ex) {
-            Log.error(ex.getLocalizedMessage());
+            log.error("{}:{}", fieldPath, ex.getLocalizedMessage());
             return String.format("[%s]", fieldPath.toUpperCase());
         }
     }

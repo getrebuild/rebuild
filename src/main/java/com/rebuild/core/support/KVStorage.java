@@ -22,6 +22,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.rebuild.core.support.ConfigurationItem.DataDirectory;
+import static com.rebuild.core.support.ConfigurationItem.RedisDatabase;
+
 /**
  * K/V 对存储
  *
@@ -123,7 +126,10 @@ public class KVStorage {
         if (ConfigurationItem.SN.name().equals(key)) {
             value = BootEnvironmentPostProcessor.getProperty(key);
         } else if (ConfigurationItem.inJvmArgs(key)) {
-            return BootEnvironmentPostProcessor.getProperty(key);
+            if (DataDirectory.name().equalsIgnoreCase(key) || RedisDatabase.name().equalsIgnoreCase(key)) {
+                return BootEnvironmentPostProcessor.getProperty(key);
+            }
+            return CommandArgs.getStringWithBootEnvironmentPostProcessor(key);
         }
 
         if (Application.isReady()) {

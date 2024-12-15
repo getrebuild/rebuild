@@ -10,9 +10,11 @@ package com.rebuild.web.admin;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserService;
-import com.rebuild.core.support.CommandArgs;
+import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.AppUtils;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,7 +51,7 @@ public class ProtectedAdmin {
         if (UserService.ADMIN_USER.equals(adminUser)) return true;
 
         if (PA == null) {
-            String vv = CommandArgs.getString(CommandArgs._ProtectedAdmin);
+            String vv = RebuildConfiguration.get(ConfigurationItem.ProtectedAdmin);
             if (StringUtils.isBlank(vv)) PA = new PaEntry[0];
             else {
                 List<PaEntry> pp = new ArrayList<>();
@@ -67,52 +69,48 @@ public class ProtectedAdmin {
         return false;
     }
 
-    // 功能
-    enum PaEntry {
-        // 通用配置
-        SYS("/systems"),
-        // 服务集成*
-        SSI("/integration/"),
-        // API
-        API("/apis-manager"),
-        // 实体管理* (含分类)
-        ENT("/entities;/entity/;/metadata/"),
-        // 审批流程
-        APR("/robot/approval"),
-        // 记录转换
-        TRA("/robot/transform"),
-        // 触发器
-        TRI("/robot/trigger"),
-        // 业务进度
-        SOP("/robot/sop"),
-        // 报表设计
-        REP("/data/report-template"),
-        // 数据导入
-        IMP("/data/data-imports"),
-        // 外部表单
-        EXF("/extform"),
-        // 项目
-        PRO("/project"),
-        // FrontJS
-        FJS("/frontjs-code"),
-        // 用户*
-        USR("/bizuser/users;bizuser/departments"),
-        // 角色
-        ROL("/bizuser/role-privileges"),
-        // 团队
-        TEM("/bizuser/teams"),
-        // 登录日志
-        LLG("/audit/login-logs"),
-        // 变更历史
-        REV("/audit/revision-history"),
-        // 回收站
-        RCY("/audit/recycle-bin"),
+    /**
+     * 缓存清理
+     */
+    public static void clean() {
+        // unsafe
+        PA = null;
+    }
+
+    // --
+
+    /**
+     * 功能列表
+     */
+    public enum PaEntry {
+        SYS("/systems", "通用配置"),
+        SSI("/integration/", "服务集成"),
+        API("/apis-manager", "API 秘钥"),
+        ENT("/entities;/entity/;/metadata/", "实体管理"),
+        APR("/robot/approval", "审批流程"),
+        TRA("/robot/transform", "记录转换"),
+        TRI("/robot/trigger", "触发器"),
+        SOP("/robot/sop", "业务进度"),
+        REP("/data/report-template", "报表设计"),
+        IMP("/data/data-imports", "数据导入"),
+        EXF("/extform", "外部表单"),
+        PRO("/project", "项目"),
+        FJS("/frontjs-code", "FrontJS"),
+        USR("/bizuser/users;bizuser/departments", "部门用户"),
+        ROL("/bizuser/role-privileges", "角色权限"),
+        TEM("/bizuser/teams", "团队"),
+        LLG("/audit/login-logs", "登录日志"),
+        REV("/audit/revision-history", "变更历史"),
+        RCY("/audit/recycle-bin", "回收站"),
 
         ;
 
         final private String[] paths;
-        PaEntry(String paths) {
+        @Getter
+        final private String name;
+        PaEntry(String paths, String name) {
             this.paths = paths.split(";");
+            this.name = name;
         }
 
         /**

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/integration-dingtalk" />
+    <title>[[${bundle.L('飞书')}]]</title>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='integration-feishu')}" />
+      <div class="rb-content">
+        <div class="main-content container-fluid syscfg">
+          <div class="row">
+            <div class="col-lg-9 col-12">
+              <div class="card">
+                <div class="card-header pb-1">
+                  [[${bundle.L('飞书')}]] (LAB)
+                  <a href="###" class="float-right J_edit"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
+                  <a href="###" class="float-right J_save hide"><i class="icon zmdi zmdi-check text-bold"></i> [[${bundle.L('保存')}]]</a>
+                </div>
+                <div class="card-body">
+                  <h5>[[${bundle.L('应用凭证')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">App ID</td>
+                        <td data-id="FeishuAppId" th:data-value="${FeishuAppId ?:''}">[[${FeishuAppId ?:bundle.L('未设置')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>App Secret</td>
+                        <td data-id="FeishuAppSecret" th:data-value="${FeishuAppSecret ?:''}">[[${FeishuAppSecret ?:bundle.L('未设置')}]]</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <h5>[[${bundle.L('飞书侧配置')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">[[${bundle.L('主页')}]]</td>
+                        <td class="click-copy">
+                          [[${_FeishuHomeUrl}]]
+                          <a class="ml-1 link" th:data-clipboard-text="${_FeishuHomeUrl}"><i class="icon zmdi zmdi-copy"></i></a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('重定向 URL')}]]</td>
+                        <td class="click-copy">
+                          [[${_FeishuHomeUrl}]]
+                          <a class="ml-1 link" th:data-clipboard-text="${_FeishuHomeUrl}"><i class="icon zmdi zmdi-copy"></i></a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('H5 可信域名')}]]</td>
+                        <td class="click-copy">
+                          [[${_FeishuAuthUrl}]]
+                          <a class="ml-1 link" th:data-clipboard-text="${_FeishuAuthUrl}"><i class="icon zmdi zmdi-copy"></i></a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <h5>[[${bundle.L('数据同步')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">[[${bundle.L('自动同步部门用户')}]]</td>
+                        <td data-id="FeishuSyncUsers" th:data-value="${FeishuSyncUsers}">
+                          <span class="mr-1">[[${FeishuSyncUsers ? bundle.L('是') : bundle.L('否')}]]</span>
+                          <button class="btn btn-light btn-sm J_syncUsers up-1" type="button"><i class="icon zmdi zmdi-refresh up-1"></i> [[${bundle.L('立即同步')}]]</button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('同步用户匹配方式')}]]</td>
+                        <td data-id="FeishuSyncUsersMatch" th:data-value="${FeishuSyncUsersMatch}" th:data-form-text="${bundle.L('通过何种方式匹配已存在用户，如无匹配则新建')}">
+                          <th:block th:if="${FeishuSyncUsersMatch == 'ID'}">[[${bundle.L('默认')}]]</th:block>
+                          <th:block th:if="${FeishuSyncUsersMatch == 'EMAIL'}">[[${bundle.L('邮箱')}]]</th:block>
+                          <th:block th:if="${FeishuSyncUsersMatch == 'NAME'}">[[${bundle.L('用户名')}]]</th:block>
+                          <th:block th:if="${FeishuSyncUsersMatch == 'NAME2'}">[[${bundle.L('姓名')}]]</th:block>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('用户默认角色')}]]</td>
+                        <td data-id="FeishuSyncUsersRole" th:data-value="${FeishuSyncUsersRole}" th:data-form-text="${bundle.L('如不指定，新建用户将不可用，直到你为他们指定了角色')}">
+                          [[${FeishuSyncUsersRoleLabel ?:bundle.L('无')}]]
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="edit-footer">
+                    <button class="btn btn-link" type="button">[[${bundle.L('取消')}]]</button>
+                    <button class="btn btn-primary" type="button">[[${bundle.L('保存')}]]</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-12"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/lib/clipboard.min.js}"></script>
+    <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/admin/syscfg-sync.js}" type="text/babel"></script>
+  </body>
+</html>

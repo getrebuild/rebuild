@@ -9,6 +9,7 @@ package com.rebuild.web.general;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -72,9 +73,7 @@ public class ReferenceSearchController extends EntityController {
         Entity searchEntity = referenceField.getReferenceEntity();
 
         // 引用字段数据过滤
-        String cascadingValue = getParameter(request, "cascadingValue", StringUtils.EMPTY);
-        if (cascadingValue.contains(",")) cascadingValue = cascadingValue.split(",")[0];  // N2N
-
+        String cascadingValue = getParameter(request, "cascadingValue");
         String protocolFilter = new ProtocolFilterParser()
                 .parseRef(referenceField.getName() + "." + entity.getName(), cascadingValue);
 
@@ -268,9 +267,7 @@ public class ReferenceSearchController extends EntityController {
         Map<String, String> labels = new HashMap<>();
         for (String id : ids.split("[|,]")) {
             if (!ID.isId(id)) {
-                if (_SELF.equals(id)) {
-                    labels.put(_SELF, Language.L("本人/本部门"));
-                }
+                if (_SELF.equals(id)) labels.put(_SELF, Language.L("本人/本部门"));
                 continue;
             }
 
@@ -305,7 +302,8 @@ public class ReferenceSearchController extends EntityController {
 
         Entity entity = MetadataHelper.getEntity(fieldAndEntity[1]);
         Field field = entity.getField(fieldAndEntity[0]);
-        Entity searchEntity = field.getReferenceEntity();
+        // v3.9 支持主键字段
+        Entity searchEntity = field.getType() == FieldType.PRIMARY ? entity : field.getReferenceEntity();
 
         ModelAndView mv = createModelAndView("/general/reference-search");
         putEntityMeta(mv, searchEntity);

@@ -501,7 +501,8 @@ a.ui-draggable.ui-draggable-dragging {
 }
 
 .J_opt-DATALIST2 input,
-.J_opt-CNMAP select {
+.J_opt-CNMAP select,
+.themeStyle {
   border: 0 none;
   outline: 0 none;
   width: 77px;
@@ -512,7 +513,8 @@ a.ui-draggable.ui-draggable-dragging {
 }
 
 .J_opt-DATALIST2 input:focus,
-.J_opt-CNMAP select:focus {
+.J_opt-CNMAP select:focus,
+.themeStyle:focus {
   border-color: #4285f4;
 }
 

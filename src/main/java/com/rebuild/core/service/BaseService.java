@@ -46,7 +46,7 @@ import java.util.Set;
  * @since 01/04/2019
  */
 @Slf4j
-public class BaseService extends InternalPersistService {
+public abstract class BaseService extends InternalPersistService {
 
     public BaseService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);

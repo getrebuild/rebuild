@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -29,12 +30,15 @@ import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.FieldPrivileges;
 import com.rebuild.core.privileges.UserFilters;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
+import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.support.general.DataListWrapper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
@@ -76,6 +80,7 @@ public class FormsBuilder extends FormsManager {
 
     // 引用主记录
     public static final String DV_MAINID = "$MAINID$";
+    public static final String DV_MAINID_FJS = "$MAINID$FJS";
 
     // 引用记录
     public static final String DV_REFERENCE_PREFIX = "&";
@@ -438,7 +443,6 @@ public class FormsBuilder extends FormsManager {
             final DisplayType dt = easyField.getDisplayType();
             el.put("label", easyField.getLabel());
             el.put("type", dt.name());
-
             el.put("readonly", (!isNew && !fieldMeta.isUpdatable()) || roViaAuto);
 
             // 优先使用指定值
@@ -657,7 +661,7 @@ public class FormsBuilder extends FormsManager {
      * @param user4Desensitized 不传则不脱敏
      * @return
      * @see FieldValueHelper#wrapFieldValue(Object, EasyField)
-     * @see com.rebuild.core.support.general.DataListWrapper#wrapFieldValue(Object, Field)
+     * @see DataListWrapper#wrapFieldValue(Object, Field)
      */
     public Object wrapFieldValue(Record data, EasyField field, ID user4Desensitized) {
         final DisplayType dt = field.getDisplayType();
@@ -717,6 +721,13 @@ public class FormsBuilder extends FormsManager {
         JSONArray elements = ((JSONObject) formModel).getJSONArray("elements");
         if (elements == null || elements.isEmpty()) return;
 
+        // v3.9 可携带明细
+        Object hasDetails = initialVal.remove(GeneralEntityService.HAS_DETAILS);
+        if (hasDetails instanceof JSONArray && !((JSONArray) hasDetails).isEmpty()) {
+            JSONObject ds = setFormInitialValue4Details39(entity, (JSONArray) hasDetails);
+            if (!ds.isEmpty()) ((JSONObject) formModel).put(GeneralEntityService.HAS_DETAILS, ds);
+        }
+
         // 已布局字段。字段是否布局会影响返回值
         Set<String> inFormFields = new HashSet<>();
         for (Object o : elements) {
@@ -724,12 +735,18 @@ public class FormsBuilder extends FormsManager {
         }
 
         // 保持在初始值中
-        // TODO 更多保持字段
         Set<String> initialValKeeps = new HashSet<>();
 
         Map<String, Object> initialValReady = new HashMap<>();
         for (Map.Entry<String, Object> e : initialVal.entrySet()) {
             final String field = e.getKey();
+            Object v = e.getValue();
+            if (!(v instanceof String)) {
+                if (!(EntityRecordCreator.META_FIELD.equals(field))) {
+                    log.warn("Invalid value in `initialVal` : {}", e);
+                }
+                continue;
+            }
             final String value = (String) e.getValue();
             if (StringUtils.isBlank(value)) continue;
 
@@ -752,7 +769,17 @@ public class FormsBuilder extends FormsManager {
                         ? getReferenceMixValue(value)
                         : (isNewMainId(value) ? EntityHelper.UNSAVED_ID : value);
 
-                if (mixValue != null) {
+                // v3.9 明细直接新建
+                if (DV_MAINID_FJS.equals(value)) {
+                    for (Object o : elements) {
+                        JSONObject item = (JSONObject) o;
+                        if (dtmField.getName().equalsIgnoreCase(item.getString("field"))) {
+                            item.remove("readonly");
+                            item.remove("readonlyw");
+                            break;
+                        }
+                    }
+                } else if (mixValue != null) {
                     initialValReady.put(dtmField.getName(), mixValue);
                     initialValKeeps.add(dtmField.getName());
                 }
@@ -807,6 +834,44 @@ public class FormsBuilder extends FormsManager {
         if (!initialValReady.isEmpty()) {
             ((JSONObject) formModel).put("initialValue", initialValReady);
         }
+    }
+
+    // 支持明细
+    private JSONObject setFormInitialValue4Details39(Entity entity, JSONArray details) {
+        final Entity defDetailEntity = entity.getDetailEntity();
+        Assert.notNull(defDetailEntity, "None detail-entity");
+
+        ID forceMainid = EntityHelper.UNSAVED_ID;
+        FormsBuilderContextHolder.setMainIdOfDetail(forceMainid);
+        JSONObject dsMap = new JSONObject();
+        try {
+            for (Object o : details) {
+                JSONObject item = (JSONObject) o;
+                JSONObject metadata = item.getJSONObject(EntityRecordCreator.META_FIELD);
+                Entity detailEntity = null;
+                if (metadata != null) {
+                    String n = metadata.getString("entity");
+                    if (n != null) detailEntity = MetadataHelper.getEntity(n);
+                }
+                if (detailEntity == null) detailEntity = defDetailEntity;
+
+                // 新建明细记录时必须指定主实体
+                item.put(DV_MAINID, forceMainid.toString());
+                JSON model = buildForm(detailEntity.getName(), UserService.SYSTEM_USER, null);
+                setFormInitialValue(detailEntity, model, item);
+
+                JSONArray ds = dsMap.getJSONArray(detailEntity.getName());
+                if (ds == null) {
+                    ds = new JSONArray();
+                    dsMap.put(detailEntity.getName(), ds);
+                }
+                ds.add(model);
+            }
+
+        } finally {
+            FormsBuilderContextHolder.getMainIdOfDetail(true);
+        }
+        return dsMap;
     }
 
     /**

@@ -6,7 +6,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
@@ -30,7 +29,7 @@ public class ExcelEntity extends Entity2Schema {
      */
     public String imports(String entityName, JSONArray fields) {
         final ID user = getUser();
-        RbAssert.isAllow(UserHelper.isSuperAdmin(user), Language.L("仅超级管理员可操作"));
+        RbAssert.isSuperAdmin(user);
 
         // 1.实体
         String uniqueEntityName = createEntity(null, entityName, null, null, false, false);
