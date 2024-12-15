@@ -821,6 +821,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             log.warn("Use '{}' do approve : {}", approvalUser, recordId);
         }
 
+        // after
         Record approvalRecord = EntityHelper.forUpdate(recordId, approvalUser, false);
         approvalRecord.setInt(EntityHelper.ApprovalState, state.getState());
         delegateService.update(approvalRecord);

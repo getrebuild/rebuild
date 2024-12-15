@@ -125,7 +125,7 @@ public class ApprovalStepService extends BaseService {
         String ckey = "ApprovalSubmitter" + recordId + approvalId;
         Application.getCommonsCache().evict(ckey);
 
-        execTriggersWhenSE(recordOfMain, TriggerWhen.SUBMIT);
+        execTriggersWhenSR(recordOfMain, TriggerWhen.SUBMIT);
         this.execSopSteps38(recordOfMain);
     }
 
@@ -225,7 +225,7 @@ public class ApprovalStepService extends BaseService {
                 if (StringUtils.isNotBlank(remark)) rejectedMsg += "\n > " + remark;
                 sendNotification(submitter, rejectedMsg, recordId);
 
-                execTriggersWhenSE(recordOfMain, TriggerWhen.REJECTED);
+                execTriggersWhenSR(recordOfMain, TriggerWhen.REJECTED);
             }
             return;
         }
@@ -283,7 +283,7 @@ public class ApprovalStepService extends BaseService {
             sendNotification(submitter, approvedMsg, recordId);
 
             Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED, approver);
-            this.execSopSteps38(recordOfMain);
+            execSopSteps38(recordOfMain);
             return;
         }
 
@@ -294,7 +294,7 @@ public class ApprovalStepService extends BaseService {
             super.update(recordOfMain);
 
             // v3.7 触发器
-            execTriggersByNode(recordOfMain, approvalId, currentNode);
+            execTriggersWhenNodeApproved(recordOfMain, approvalId, currentNode);
         }
 
         // 下一步审批人
@@ -311,7 +311,7 @@ public class ApprovalStepService extends BaseService {
             }
         }
 
-        this.execSopSteps38(recordOfMain);
+        execSopSteps38(recordOfMain);
     }
 
     /**
@@ -360,7 +360,7 @@ public class ApprovalStepService extends BaseService {
             setApprovalStepX37(recordOfMain, null);
             super.update(recordOfMain);
 
-            execTriggersWhenSE(recordOfMain, TriggerWhen.REJECTED);
+            execTriggersWhenSR(recordOfMain, TriggerWhen.REJECTED);
         }
     }
 
@@ -744,9 +744,11 @@ public class ApprovalStepService extends BaseService {
     }
 
     /**
+     * @param approvalRecord
+     * @param when
      * @see com.rebuild.core.service.general.GeneralEntityService#approve(ID, ApprovalState, ID)
      */
-    private void execTriggersWhenSE(Record approvalRecord, TriggerWhen when) {
+    private void execTriggersWhenSR(Record approvalRecord, TriggerWhen when) {
         final RobotTriggerManual triggerManual = new RobotTriggerManual();
         final ID approvalUser = UserService.SYSTEM_USER;
 
@@ -782,8 +784,9 @@ public class ApprovalStepService extends BaseService {
      * @param approvalId
      * @param currentNode
      * @see com.rebuild.core.service.general.GeneralEntityService#approve(ID, ApprovalState, ID)
+     * @see RobotTriggerManual#allowWhenApproved(TriggerAction)
      */
-    private void execTriggersByNode(Record approvalRecord, ID approvalId, String currentNode) {
+    private void execTriggersWhenNodeApproved(Record approvalRecord, ID approvalId, String currentNode) {
         final RobotTriggerManual triggerManual = new RobotTriggerManual();
         final ID approvalUser = UserService.SYSTEM_USER;
 
