@@ -65,21 +65,18 @@ public class UserSettingsController extends BaseController {
 
         String dingtalkCorpid = RebuildConfiguration.get(ConfigurationItem.DingtalkCorpid);
         if (dingtalkCorpid != null) {
-            Object[] dingtalkUser = Application.createQueryNoFilter(
-                    "select appUser from ExternalUser where bindUser = ? and appId = ?")
-                    .setParameter(1, ub.getId())
-                    .setParameter(2, dingtalkCorpid)
-                    .unique();
-            if (dingtalkUser != null) mv.getModelMap().put("dingtalkUser", dingtalkUser[0]);
+            Object dingtalkUser = getExternalUserId(ub.getId(), dingtalkCorpid);
+            if (dingtalkUser != null) mv.getModelMap().put("dingtalkUser", dingtalkUser);
         }
         String wxworkCorpid = RebuildConfiguration.get(ConfigurationItem.WxworkCorpid);
         if (wxworkCorpid != null) {
-            Object[] wxworkUser = Application.createQueryNoFilter(
-                    "select appUser from ExternalUser where bindUser = ? and appId = ?")
-                    .setParameter(1, ub.getId())
-                    .setParameter(2, wxworkCorpid)
-                    .unique();
-            if (wxworkUser != null) mv.getModelMap().put("wxworkUser", wxworkUser[0]);
+            Object wxworkUser = getExternalUserId(ub.getId(), wxworkCorpid);
+            if (wxworkUser != null) mv.getModelMap().put("wxworkUser", wxworkUser);
+        }
+        String feishuAppid = RebuildConfiguration.get(ConfigurationItem.FeishuAppId);
+        if (feishuAppid != null) {
+            Object feishuUser = getExternalUserId(ub.getId(), feishuAppid);
+            if (feishuUser != null) mv.getModelMap().put("feishuUser", feishuUser);
         }
         String feishuAppid = RebuildConfiguration.get(ConfigurationItem.FeishuAppId);
         if (feishuAppid != null) {
@@ -88,6 +85,15 @@ public class UserSettingsController extends BaseController {
         }
 
         return mv;
+    }
+
+    private Object getExternalUserId(ID user, String appid) {
+        Object[] o = Application.createQueryNoFilter(
+                "select appUser from ExternalUser where bindUser = ? and appId = ?")
+                .setParameter(1, user)
+                .setParameter(2, appid)
+                .unique();
+        return o == null ? null : o[0];
     }
 
     @RequestMapping("/user/send-email-vcode")
