@@ -784,7 +784,7 @@ public class ApprovalStepService extends BaseService {
      * @param approvalId
      * @param currentNode
      * @see com.rebuild.core.service.general.GeneralEntityService#approve(ID, ApprovalState, ID)
-     * @see RobotTriggerManual#allowWhenApproved(TriggerAction)
+     * @see RobotTriggerObserver#allowWhenApproved(TriggerAction, OperatingContext)
      */
     private void execTriggersWhenNodeApproved(Record approvalRecord, ID approvalId, String currentNode) {
         final RobotTriggerManual triggerManual = new RobotTriggerManual();
@@ -837,16 +837,13 @@ public class ApprovalStepService extends BaseService {
         }
     }
 
-    private boolean isSpecApproveNode(TriggerAction triggerAction, String nodeName) {
-        JSONArray whenApproveNodes = ((JSONObject) triggerAction.getActionContext().getActionContent())
+    private boolean isSpecApproveNode(TriggerAction action, String nodeName) {
+        JSONArray whenApproveNodes = ((JSONObject) action.getActionContext().getActionContent())
                 .getJSONArray("whenApproveNodes");
         if (whenApproveNodes == null || whenApproveNodes.isEmpty()) return false;
         return whenApproveNodes.contains(nodeName) || whenApproveNodes.contains("*");
     }
 
-    /**
-     * @param approvalRecord
-     */
     private void execSopSteps38(Record approvalRecord) {
         try {
             CommonsUtils.invokeMethod("com.rebuild.rbv.sop.RobotSopObserver#onApproveManual", approvalRecord);
