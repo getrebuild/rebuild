@@ -338,7 +338,7 @@ var _initNav = function () {
   }, 400)
 
   // Active Outer-URL Nav
-  var urls = location.href.split('/')
+  var urls = location.href.split('#')[0].split('/')
   var navUrl = '/' + urls.slice(3).join('/')
   var $navHit = $('.sidebar-elements a[href="' + navUrl + '"]')
   if ($navHit.length > 0 && !$navHit.parent().hasClass('active')) {
@@ -489,7 +489,7 @@ var _initGlobalSearch = function () {
     var $a = $item.find('>a')
     if (!$item.hasClass('parent') && ($item.attr('class') || '').contains('nav_entity-')) {
       $('<a class="badge" data-url="' + $a.attr('href') + '">' + $escapeHtml($a.text()) + '</a>').appendTo($gs)
-    } else if ($item.hasClass('nav_entity-PROJECT') && $item.hasClass('parent')) {
+    } else if ($item.hasClass('nav_entity--PROJECT') && $item.hasClass('parent')) {
       $('<a class="badge QUERY" data-url="' + rb.baseUrl + '/project/search">' + $escapeHtml($a.text()) + '</a>').appendTo($gs)
     }
   })

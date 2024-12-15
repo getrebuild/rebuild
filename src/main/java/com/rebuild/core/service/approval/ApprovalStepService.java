@@ -125,7 +125,7 @@ public class ApprovalStepService extends BaseService {
         String ckey = "ApprovalSubmitter" + recordId + approvalId;
         Application.getCommonsCache().evict(ckey);
 
-        execTriggersWhenSE(recordOfMain, TriggerWhen.SUBMIT);
+        execTriggersWhenSR(recordOfMain, TriggerWhen.SUBMIT);
         this.execSopSteps38(recordOfMain);
     }
 
@@ -225,7 +225,7 @@ public class ApprovalStepService extends BaseService {
                 if (StringUtils.isNotBlank(remark)) rejectedMsg += "\n > " + remark;
                 sendNotification(submitter, rejectedMsg, recordId);
 
-                execTriggersWhenSE(recordOfMain, TriggerWhen.REJECTED);
+                execTriggersWhenSR(recordOfMain, TriggerWhen.REJECTED);
             }
             return;
         }
@@ -283,7 +283,7 @@ public class ApprovalStepService extends BaseService {
             sendNotification(submitter, approvedMsg, recordId);
 
             Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED, approver);
-            this.execSopSteps38(recordOfMain);
+            execSopSteps38(recordOfMain);
             return;
         }
 
@@ -294,7 +294,7 @@ public class ApprovalStepService extends BaseService {
             super.update(recordOfMain);
 
             // v3.7 触发器
-            execTriggersByNode(recordOfMain, approvalId, currentNode);
+            execTriggersWhenNodeApproved(recordOfMain, approvalId, currentNode);
         }
 
         // 下一步审批人
@@ -311,7 +311,7 @@ public class ApprovalStepService extends BaseService {
             }
         }
 
-        this.execSopSteps38(recordOfMain);
+        execSopSteps38(recordOfMain);
     }
 
     /**
@@ -360,7 +360,7 @@ public class ApprovalStepService extends BaseService {
             setApprovalStepX37(recordOfMain, null);
             super.update(recordOfMain);
 
-            execTriggersWhenSE(recordOfMain, TriggerWhen.REJECTED);
+            execTriggersWhenSR(recordOfMain, TriggerWhen.REJECTED);
         }
     }
 
@@ -744,9 +744,11 @@ public class ApprovalStepService extends BaseService {
     }
 
     /**
+     * @param approvalRecord
+     * @param when
      * @see com.rebuild.core.service.general.GeneralEntityService#approve(ID, ApprovalState, ID)
      */
-    private void execTriggersWhenSE(Record approvalRecord, TriggerWhen when) {
+    private void execTriggersWhenSR(Record approvalRecord, TriggerWhen when) {
         final RobotTriggerManual triggerManual = new RobotTriggerManual();
         final ID approvalUser = UserService.SYSTEM_USER;
 
@@ -782,8 +784,9 @@ public class ApprovalStepService extends BaseService {
      * @param approvalId
      * @param currentNode
      * @see com.rebuild.core.service.general.GeneralEntityService#approve(ID, ApprovalState, ID)
+     * @see RobotTriggerObserver#allowWhenApproved(TriggerAction, OperatingContext)
      */
-    private void execTriggersByNode(Record approvalRecord, ID approvalId, String currentNode) {
+    private void execTriggersWhenNodeApproved(Record approvalRecord, ID approvalId, String currentNode) {
         final RobotTriggerManual triggerManual = new RobotTriggerManual();
         final ID approvalUser = UserService.SYSTEM_USER;
 
@@ -805,14 +808,14 @@ public class ApprovalStepService extends BaseService {
                 }
 
                 if (!allowTriggers.isEmpty()) {
-                    RobotTriggerObserver.setAllowTriggersOnApproved(allowTriggers.toString());
+                    RobotTriggerObserver.setAllowTriggersOnNodeApproved(allowTriggers.toString());
                     for (ID did : QueryHelper.detailIdsNoFilter(approvalRecord.getPrimary(), de)) {
                         Record dAfter = EntityHelper.forUpdate(did, approvalUser, false);
                         triggerManual.onApproved(
                                 OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, dAfter));
                     }
 
-                    RobotTriggerObserver.clearAllowTriggersOnApproved();
+                    RobotTriggerObserver.clearAllowTriggersOnNodeApproved();
                     allowTriggers.clear();
                 }
             }
@@ -824,25 +827,23 @@ public class ApprovalStepService extends BaseService {
             }
 
             if (!allowTriggers.isEmpty()) {
-                RobotTriggerObserver.setAllowTriggersOnApproved(allowTriggers.toString());
+                RobotTriggerObserver.setAllowTriggersOnNodeApproved(allowTriggers.toString());
                 triggerManual.onApproved(
                         OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, approvalRecord));
             }
 
         } finally {
-            RobotTriggerObserver.clearAllowTriggersOnApproved();
+            RobotTriggerObserver.clearAllowTriggersOnNodeApproved();
         }
     }
 
-    private boolean isSpecApproveNode(TriggerAction triggerAction, String nodeName) {
-        JSONObject actionContent = (JSONObject) triggerAction.getActionContext().getActionContent();
-        JSONArray whenApproveNodes = actionContent.getJSONArray("whenApproveNodes");
-        return whenApproveNodes != null && (whenApproveNodes.contains(nodeName) || whenApproveNodes.contains("*"));
+    private boolean isSpecApproveNode(TriggerAction action, String nodeName) {
+        JSONArray whenApproveNodes = ((JSONObject) action.getActionContext().getActionContent())
+                .getJSONArray("whenApproveNodes");
+        if (whenApproveNodes == null || whenApproveNodes.isEmpty()) return false;
+        return whenApproveNodes.contains(nodeName) || whenApproveNodes.contains("*");
     }
 
-    /**
-     * @param approvalRecord
-     */
     private void execSopSteps38(Record approvalRecord) {
         try {
             CommonsUtils.invokeMethod("com.rebuild.rbv.sop.RobotSopObserver#onApproveManual", approvalRecord);

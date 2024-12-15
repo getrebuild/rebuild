@@ -302,6 +302,16 @@ public class MetadataHelper {
     }
 
     /**
+     * 是否明细实体
+     *
+     * @param entityCode
+     * @return
+     */
+    public static boolean isDetailEntity(int entityCode) {
+        return getEntity(entityCode).getMainEntity() != null;
+    }
+
+    /**
      * 实体是否具备权限字段（业务实体）
      *
      * @param entity

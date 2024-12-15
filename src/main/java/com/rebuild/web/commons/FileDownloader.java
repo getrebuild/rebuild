@@ -82,6 +82,12 @@ public class FileDownloader extends BaseController {
             imageView2 = null;
         }
 
+        // v3.9 SVG 安全问题
+        if (filepath.toLowerCase().endsWith(".svg")) {
+            writeStream(CommonsUtils.getStreamOfRes("web/assets/img/image.png"), response);
+            return;
+        }
+
         final int cacheTime = 60;
         ServletUtils.addCacheHead(response, cacheTime);
 

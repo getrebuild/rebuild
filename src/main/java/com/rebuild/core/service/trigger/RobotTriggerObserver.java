@@ -10,11 +10,16 @@ package com.rebuild.core.service.trigger;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.Application;
+import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.SafeObservable;
+import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.OperatingObserver;
 import com.rebuild.core.service.general.RepeatedRecordsException;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.impl.FieldAggregation;
 import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.CommonsLog;
@@ -47,7 +52,7 @@ public class RobotTriggerObserver extends OperatingObserver {
     private static final ThreadLocal<Boolean> LAZY_TRIGGERS = new NamedThreadLocal<>("Lazy triggers");
     private static final ThreadLocal<List<Object>> LAZY_TRIGGERS_CTX = new NamedThreadLocal<>("Lazy triggers ctx");
 
-    private static final ThreadLocal<String> ALLOW_TRIGGERS_ONAPPROVED = new NamedThreadLocal<>("Allow triggers on approve-node");
+    private static final ThreadLocal<String> ALLOW_TRIGGERS_ON_NODEAPPROVED = new NamedThreadLocal<>("Allow triggers on node-approve");
 
     // 少量触发器日志
     public static final boolean _TriggerLessLog = CommandArgs.getBoolean(CommandArgs._TriggerLessLog);
@@ -170,12 +175,7 @@ public class RobotTriggerObserver extends OperatingObserver {
             for (TriggerAction action : beExecuted) {
                 // v3.7 审批节点触发
                 if (when == TriggerWhen.APPROVED) {
-                    String hasIds = ALLOW_TRIGGERS_ONAPPROVED.get();
-                    if (hasIds != null) {
-                        if (!hasIds.contains(action.actionContext.getConfigId().toString())) {
-                            continue;
-                        }
-                    }
+                    if (!allowWhenApproved(action, context)) continue;
                 }
                 // v3.7 指定字段通用化
                 if (when == TriggerWhen.UPDATE) {
@@ -257,6 +257,35 @@ public class RobotTriggerObserver extends OperatingObserver {
         }
     }
 
+    private boolean allowWhenApproved(TriggerAction action, OperatingContext context) {
+        // 节点触发
+        String allowTriggers = ALLOW_TRIGGERS_ON_NODEAPPROVED.get();
+        if (allowTriggers != null) {
+            return allowTriggers.contains(action.actionContext.getConfigId().toString());
+        }
+
+        // 最终触发
+        final JSONArray whenApproveNodes = ((JSONObject) action.getActionContext().getActionContent())
+                .getJSONArray("whenApproveNodes");
+        // 无指定步骤
+        if (whenApproveNodes == null || whenApproveNodes.isEmpty()) return true;
+
+        ID approveRecordId = context.getFixedRecordId();
+        if (MetadataHelper.isDetailEntity(approveRecordId.getEntityCode())) {
+            approveRecordId = QueryHelper.getMainIdByDetail(approveRecordId);
+        }
+
+        Object[] state = Application.getQueryFactory().unique(
+                approveRecordId, EntityHelper.ApprovalState, EntityHelper.ApprovalStepNodeName);
+        int approvalState = (int) state[0];
+        String nodeName = (String) state[1];
+        if (approvalState == ApprovalState.APPROVED.getState()) {
+            return (whenApproveNodes.contains(nodeName) || whenApproveNodes.contains("*"));
+        }
+
+        return true;
+    }
+
     // --
 
     /**
@@ -311,15 +340,15 @@ public class RobotTriggerObserver extends OperatingObserver {
     /**
      * 设置允许触发的触发器（ID）
      *
-     * @param triggerIds
+     * @param triggerIds eg. [xxx,xxx,xxx]
      */
-    public static void setAllowTriggersOnApproved(String triggerIds) {
-        ALLOW_TRIGGERS_ONAPPROVED.set(triggerIds);
+    public static void setAllowTriggersOnNodeApproved(String triggerIds) {
+        ALLOW_TRIGGERS_ON_NODEAPPROVED.set(triggerIds);
     }
 
     /**
      */
-    public static void clearAllowTriggersOnApproved() {
-        ALLOW_TRIGGERS_ONAPPROVED.remove();
+    public static void clearAllowTriggersOnNodeApproved() {
+        ALLOW_TRIGGERS_ON_NODEAPPROVED.remove();
     }
 }
