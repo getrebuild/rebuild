@@ -999,7 +999,7 @@ class RbList extends React.Component {
                                   }}>
                                   <span className={`text-${btn.type || ''}`}>
                                     {btn.icon && <i className={`icon zmdi zmdi-${btn.icon}`} />}
-                                    {btn.text || null}
+                                    {btn.text && <span>{btn.text}</span>}
                                   </span>
                                 </button>
                               )

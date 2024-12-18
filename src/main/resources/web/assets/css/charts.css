@@ -18,6 +18,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-bottom: 0;
 }
 
+.chart-box.INDEX .chart-body .with {
+  margin-top: -3px;
+}
+
 .chart-box.high {
   outline: 2px solid #4285f4;
 }

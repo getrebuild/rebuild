@@ -405,6 +405,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-top: 40px;
 }
 
+#asideWidgets .chart-box.INDEX .chart-body .with {
+  margin-top: -8px;
+}
+
 #asideWidgets .chart-box.LINE,
 #asideWidgets .chart-box.BAR,
 #asideWidgets .chart-box.BAR2,

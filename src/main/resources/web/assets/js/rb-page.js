@@ -1075,22 +1075,33 @@ var _getLang = function (key) {
  * https://lbsyun.baidu.com/index.php?title=jspopularGL/guide/helloworld
  */
 var $useMap__Loaded
+var $useMap__Callbacks = []
 var $useMap = function (cb, v3) {
+  // fix: v3.9 并发
+  var _cbs = function () {
+    $($useMap__Callbacks).each(function () {
+      this()
+    })
+    $useMap__Callbacks = []
+  }
+
   var _BMap = v3 ? window.BMap : window.BMapGL
   if ($useMap__Loaded === 2 && _BMap) {
     typeof cb === 'function' && cb()
   } else if ($useMap__Loaded === 1) {
+    typeof cb === 'function' && $useMap__Callbacks.push(cb)
     var _timer = setInterval(function () {
       if ($useMap__Loaded === 2 && _BMap) {
-        typeof cb === 'function' && cb()
+        _cbs()
         clearInterval(_timer)
       }
     }, 500)
   } else {
     $useMap__Loaded = 1
+    typeof cb === 'function' && $useMap__Callbacks.push(cb)
     window['$useMap__callback'] = function () {
+      _cbs()
       $useMap__Loaded = 2
-      typeof cb === 'function' && cb()
     }
 
     var apiUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'YQKHNmIcOgYccKepCkxetRDy8oTC28nD') + '&callback=$useMap__callback'

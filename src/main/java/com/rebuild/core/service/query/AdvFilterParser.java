@@ -188,20 +188,23 @@ public class AdvFilterParser extends SetUser {
             return "( " + StringUtils.join(indexItemSqls.values(), " and ") + " )";
         } else {
             // 高级表达式 eg: (1 AND 2) or (3 AND 4)
-            String[] tokens = equation.toLowerCase().split(" ");
+            String[] tokens = equation.toLowerCase()
+                    .replace("and", " and ")
+                    .replace("or", " or ")
+                    .replace("(", " ( ")
+                    .replace(")", " ) ")
+                    .replace("  ", " ").split(" ");
             List<String> itemSqls = new ArrayList<>();
             for (String token : tokens) {
-                if (StringUtils.isBlank(token)) {
-                    continue;
-                }
+                if (StringUtils.isBlank(token)) continue;
 
-                boolean hasRP = false;  // the `)`
+                boolean appendRP = false;  // the `)`
                 if (token.length() > 1) {
                     if (token.startsWith("(")) {
                         itemSqls.add("(");
                         token = token.substring(1);
                     } else if (token.endsWith(")")) {
-                        hasRP = true;
+                        appendRP = true;
                         token = token.substring(0, token.length() - 1);
                     }
                 }
@@ -215,10 +218,9 @@ public class AdvFilterParser extends SetUser {
                     log.warn("Invalid equation token : {}", token);
                 }
 
-                if (hasRP) {
-                    itemSqls.add(")");
-                }
+                if (appendRP) itemSqls.add(")");
             }
+
             return "( " + StringUtils.join(itemSqls, " ") + " )";
         }
     }
