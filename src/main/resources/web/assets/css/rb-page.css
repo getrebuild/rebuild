@@ -1849,6 +1849,10 @@ th.column-fixed {
   background-color: #ddd;
 }
 
+.column-fixed.col-action button.btn .icon + span {
+  margin-left: 3px;
+}
+
 .table.table-header-fixed thead > tr > th {
   position: sticky;
   top: 0;
