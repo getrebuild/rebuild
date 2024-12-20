@@ -466,7 +466,7 @@ public class ApprovalProcessor extends SetUser {
         try {
             return getFlowParser().getNode(nodeNo);
         } catch (ApprovalException | ConfigurationException ex) {
-            log.warn("Cannot parse node : {} with {}", nodeNo, approvalId, ex);
+            log.debug("Cannot parse node : {} with {}", nodeNo, approvalId, ex);
         }
         return null;
     }
@@ -540,6 +540,8 @@ public class ApprovalProcessor extends SetUser {
             if (FlowNode.NODE_REVOKED.equals(node) || (FlowNode.NODE_CANCELED.equals(node) && !(Boolean) o[13])) {
                 Object[] bLast = batch.get(batch.size() - 2);
                 ID bLastApprovalId = (ID) bLast[12];
+                if (bLastApprovalId == null) continue;  // 流程删除了
+
                 String bLastApprovalName = FieldValueHelper.getLabelNotry(bLastApprovalId);
                 ApprovalStatus bLastStatus = new ApprovalStatus(
                         bLastApprovalId, bLastApprovalName, ApprovalState.REVOKED.getState(), (String) bLast[6], this.recordId);
