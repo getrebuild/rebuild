@@ -1097,7 +1097,7 @@ const WrapHtml = (htmlContent) => <span dangerouslySetInnerHTML={{ __html: htmlC
 class Md2Html extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { md2html: SimpleMDE.prototype.markdown(props.markdown) }
+    this.state = {}
   }
 
   render() {
@@ -1105,7 +1105,12 @@ class Md2Html extends React.Component {
   }
 
   componentDidMount() {
-    let cHtml = SimpleMDE.prototype.markdown(this.props.markdown)
+    let md = this.props.markdown
+    if (this.props.keepHtml !== true) {
+      md = md.replace(/>/g, '&gt;').replace(/</g, '&lt;')
+      md = md.replace(/&gt; /g, '> ')
+    }
+    let cHtml = SimpleMDE.prototype.markdown(md)
     cHtml = cHtml.replace(/<img src="([^"]+)"/g, function (s, src) {
       let srcNew = src + (src.includes('?') ? '&' : '?') + 'imageView2/2/w/1000/interlace/1/q/100'
       return s.replace(src, srcNew)
@@ -1115,22 +1120,15 @@ class Md2Html extends React.Component {
       $(this._$md2html)
         .find('a')
         .each(function () {
-          const $this = $(this)
-          $this.attr({
-            href: `${rb.baseUrl}/commons/url-safe?url=${encodeURIComponent($this.attr('href'))}`,
+          const $a = $(this)
+          $a.attr({
+            href: `${rb.baseUrl}/commons/url-safe?url=${encodeURIComponent($a.attr('href'))}`,
             target: '_blank',
-          })
-          $this.on('click', (e) => {
+          }).on('click', (e) => {
             $stopEvent(e, false)
           })
         })
-      // FIXME
-      // $(this._$md2html)
-      //   .find('img')
-      //   .on('click', function () {
-      //     const p = parent || window
-      //     p.RbPreview.create($(this).attr('src'))
-      //   })
+      // TODO 图片预览
     })
   }
 }
