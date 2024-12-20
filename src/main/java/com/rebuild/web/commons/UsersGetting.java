@@ -66,8 +66,6 @@ public class UsersGetting extends BaseController {
 
         // v3.2 过滤本部门或下级部门
         members = UserFilters.filterMembers32(members, getRequestUser(request));
-
-        // 排序
         members = UserHelper.sortMembers(members);
 
         JSONArray found = new JSONArray();

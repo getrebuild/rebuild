@@ -16,6 +16,7 @@ import com.hankcs.hanlp.HanLP;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserFilters;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
@@ -94,6 +95,7 @@ public class ContactsController extends BaseController {
 
         User[] users = Application.getUserStore().getAllUsers();
         Member[] usersMembers = UserFilters.filterMembers32(users, user);
+        usersMembers = UserHelper.sortMembers(usersMembers);
 
         Set<ID> deptAndChild = null;
         if (dept != null) {
