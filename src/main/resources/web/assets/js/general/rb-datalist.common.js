@@ -1090,9 +1090,8 @@ class RbList extends React.Component {
       },
     })
 
-    // 首次由 AdvFilter 加载
+    // 首次由外部查询 eg.AdvFilter
     if (wpc.advFilter !== true) this.fetchList(this._buildQuick())
-
     // 按键操作
     if (wpc.type === 'RecordList' || wpc.type === 'DetailList') $(document).on('keydown', (e) => this._keyEvent(e))
   }
