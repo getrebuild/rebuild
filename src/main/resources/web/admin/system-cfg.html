@@ -64,11 +64,15 @@
         padding: 10px 15px;
         display: none;
       }
-      td.td-MobileAppPath .J_MobileAppPath-del {
-        display: none;
+      .J_backDb,
+      button.J_MobileAppPath,
+      button.J_MobileAppPath-del {
+        position: absolute;
+        margin-top: -6px;
+        margin-left: 6px;
       }
-      td.td-MobileAppPath:hover .J_MobileAppPath-del {
-        display: inline-block;
+      button.J_MobileAppPath + button.J_MobileAppPath-del {
+        margin-left: 70px;
       }
     </style>
   </head>
@@ -242,7 +246,8 @@
                       <tr>
                         <td width="40%">[[${bundle.L('数据自动备份')}]]</td>
                         <td data-id="DBBackupsEnable" th:data-value="${DBBackupsEnable}" th:data-form-text="${bundle.L('每日 0 点备份到数据目录，请预留足够磁盘空间')}">
-                          [[${DBBackupsEnable ? bundle.L('是') : bundle.L('否')}]]
+                          <span>[[${DBBackupsEnable ? bundle.L('是') : bundle.L('否')}]]</span>
+                          <button class="btn btn-light btn-sm J_backDb" type="button"><i class="icon mdi mdi-database-export-outline"></i> [[${bundle.L('立即备份')}]]</button>
                         </td>
                       </tr>
                       <tr>
@@ -291,10 +296,12 @@
                       <tr>
                         <td>[[${bundle.L('APP 安装包')}]] <sup class="rbv"></sup></td>
                         <td class="td-MobileAppPath">
-                          <a class="J_MobileAppPath hide-empty mr-1 link" target="_blank" href="../h5app-download">[[${MobileAppPath}]]</a>
-                          <input type="file" class="hide J_MobileAppPath" accept=".apk" />
-                          <button class="btn btn-light btn-sm J_MobileAppPath" type="button"><i class="icon zmdi zmdi-upload"></i> [[${bundle.L('上传')}]]<span></span></button>
-                          <button class="btn btn-light w-auto btn-sm J_MobileAppPath-del hide" type="button" th:title="${bundle.L('删除')}"><i class="icon zmdi zmdi-delete"></i></button>
+                          <a>[[${MobileAppPath ?:bundle.L('无')}]]</a>
+                          <button class="btn btn-light btn-sm J_MobileAppPath" type="button"><i class="icon mdi mdi-upload"></i> [[${bundle.L('上传')}]]<span></span></button>
+                          <button class="btn btn-light btn-sm J_MobileAppPath-del w-auto hide" type="button" th:title="${bundle.L('删除')}"><i class="icon mdi mdi-delete"></i></button>
+                          <div class="hide">
+                            <input type="file" class="hide J_MobileAppPath" accept=".apk" />
+                          </div>
                         </td>
                       </tr>
                     </tbody>

@@ -17,7 +17,9 @@ import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyDecimal;
 import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.rbv.data.Html5ReportGenerator;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -53,14 +55,16 @@ public class ValueConvertFunc {
     private static final String PICKAT_4CLASS_DATE = "PICKAT";  // eg. PICKAT:2
     private static final String SIZE_4IMG = "SIZE";  // eg. SIZE:100*200, SIZE:100
     private static final String EMPTY = "EMPTY";  // eg. EMPTY:无
+    public static final String CLEAR_4NTEXT = "CLEAR";
 
     /**
      * @param field
      * @param value
      * @param varName
+     * @param fromClazz
      * @return
      */
-    public static Object convert(EasyField field, Object value, String varName) {
+    public static Object convert(EasyField field, Object value, String varName, Class<?> fromClazz) {
         String thatFunc = splitFunc(varName);
         if (thatFunc == null) return value;
 
@@ -153,6 +157,15 @@ public class ValueConvertFunc {
                 return m[m.length - 1];  // last
             }
 
+        } else if (type == DisplayType.NTEXT) {
+            if (thatFunc.equals(CLEAR_4NTEXT)) {
+                if (fromClazz == Html5ReportGenerator.class) {
+                    String md2html = MarkdownUtils.render((String) value);
+                    return "<div class='mdedit-content md2html'>" + md2html + "</div>";
+                } else {
+                    return MarkdownUtils.cleanMarks((String) value);
+                }
+            }
         }
 
         return value;

@@ -4,6 +4,13 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/integration-wxwork" />
     <title>[[${bundle.L('企业微信')}]]</title>
+    <style>
+      .J_syncUsers {
+        position: absolute;
+        margin-top: -6px;
+        margin-left: 6px;
+      }
+    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -70,8 +77,8 @@
                       <tr>
                         <td width="40%">[[${bundle.L('自动同步部门用户')}]]</td>
                         <td data-id="WxworkSyncUsers" th:data-value="${WxworkSyncUsers}">
-                          <span class="mr-1">[[${WxworkSyncUsers ? bundle.L('是') : bundle.L('否')}]]</span>
-                          <button class="btn btn-light btn-sm J_syncUsers up-1" type="button"><i class="icon zmdi zmdi-refresh up-1"></i> [[${bundle.L('立即同步')}]]</button>
+                          <span>[[${WxworkSyncUsers ? bundle.L('是') : bundle.L('否')}]]</span>
+                          <button class="btn btn-light btn-sm J_syncUsers" type="button"><i class="icon zmdi zmdi-refresh up-1"></i> [[${bundle.L('立即同步')}]]</button>
                         </td>
                       </tr>
                       <tr>

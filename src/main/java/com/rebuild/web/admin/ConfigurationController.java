@@ -47,6 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
@@ -131,6 +132,34 @@ public class ConfigurationController extends BaseController {
         Application.getBean(RebuildWebConfigurer.class).init();
 
         return RespBody.ok();
+    }
+
+    @PostMapping("systems/backup")
+    public RespBody postSystemsBackup(HttpServletRequest request) {
+        RbAssert.isSuperAdmin(getRequestUser(request));
+        final int type = getIntParameter(request, "type", 3);
+        final File backups = RebuildConfiguration.getFileOfData("_backups");
+
+        String dbFile = null, fileFile = null;
+        if (type == 1 || type == 3) {
+            try {
+                dbFile = "_backups/" + new DatabaseBackup().backup(backups).getName();
+            } catch (Exception e) {
+                dbFile = "ERR:" + e.getMessage();
+                log.error("Executing [DatabaseBackup] fails", e);
+            }
+        }
+        if (type == 2 || type == 3) {
+            try {
+                fileFile = "_backups/" + new DatafileBackup().backup(backups).getName();
+            } catch (Exception e) {
+                fileFile = "ERR:" + e.getMessage();
+                log.error("Executing [DataFileBackup] fails", e);
+            }
+        }
+
+        JSON res = JSONUtils.toJSONObject(new String[]{"db","file"}, new Object[]{dbFile, fileFile});
+        return RespBody.ok(res);
     }
 
     @GetMapping("integration/storage")

@@ -122,7 +122,7 @@ public class KVStorage {
      */
     protected static String getValue(final String key, boolean noCache, Object defaultValue) {
         String value = null;
-        // be:v3.8
+        // be:3.8
         if (ConfigurationItem.SN.name().equals(key)) {
             value = BootEnvironmentPostProcessor.getProperty(key);
         } else if (ConfigurationItem.inJvmArgs(key)) {
@@ -174,7 +174,7 @@ public class KVStorage {
     
     private static final Object THROTTLED_QUEUE_LOCK = new Object();
     private static final Map<String, Object> THROTTLED_QUEUE = new ConcurrentHashMap<>();
-    private static final Timer THROTTLED_TIMER = new Timer("KVStorage-Timer");
+    private static final Timer THROTTLED_TIMER = new Timer("KVStorage-Syncer");
 
     static {
         final TimerTask localTimerTask = new TimerTask() {
