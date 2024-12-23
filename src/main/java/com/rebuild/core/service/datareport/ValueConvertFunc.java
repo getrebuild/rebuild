@@ -18,6 +18,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyDecimal;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -53,6 +54,7 @@ public class ValueConvertFunc {
     private static final String PICKAT_4CLASS_DATE = "PICKAT";  // eg. PICKAT:2
     private static final String SIZE_4IMG = "SIZE";  // eg. SIZE:100*200, SIZE:100
     private static final String EMPTY = "EMPTY";  // eg. EMPTY:无
+    public static final String HTML_4NTEXT = "HTML";
 
     /**
      * @param field
@@ -153,6 +155,11 @@ public class ValueConvertFunc {
                 return m[m.length - 1];  // last
             }
 
+        } else if (type == DisplayType.NTEXT) {
+            if (thatFunc.equals(HTML_4NTEXT)) {
+                String md2html = MarkdownUtils.render((String) value);
+                return "<div class='mdedit-content md2html'>" + md2html + "</div>";
+            }
         }
 
         return value;
