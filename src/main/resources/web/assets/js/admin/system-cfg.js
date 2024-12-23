@@ -69,6 +69,8 @@ $(document).ready(() => {
       })
     }
   })
+
+  $('.J_backDb').on('click', () => renderRbcomp(<DlgBackup />))
 })
 
 useEditComp = function (name) {
@@ -285,13 +287,15 @@ class DlgMM extends RbAlert {
 
 $(document).ready(() => {
   if (rb.commercial < 1) {
-    $('button.J_MobileAppPath').attr('disabled', true)
+    $('.td-MobileAppPath button').remove()
     return
   }
 
   const renderMobileAppPath = function (key) {
-    const file = $fileCutName(key)
-    $('a.J_MobileAppPath').text(file)
+    $('.td-MobileAppPath>a').text($fileCutName(key)).attr({
+      href: '../h5app-download',
+      target: '_blank',
+    })
     $('button.J_MobileAppPath-del').removeClass('hide')
   }
 
@@ -316,22 +320,66 @@ $(document).ready(() => {
   )
   $('button.J_MobileAppPath').on('click', () => $input[0].click())
 
-  const $del = $('button.J_MobileAppPath-del').on('click', () => {
+  $('button.J_MobileAppPath-del').on('click', () => {
     RbAlert.create($L('确认删除 APP 安装包？'), {
       onConfirm: function () {
         this.hide()
-        $.post(location.href, JSON.stringify({ MobileAppPath: '' }), (res) => {
-          if (res.error_code === 0) {
-            $('a.J_MobileAppPath').removeAttr('href').text('')
-            $del.addClass('hide')
-          } else {
-            RbHighbar.error(res.error_msg)
-          }
+        $.post(location.href, JSON.stringify({ MobileAppPath: '' }), () => {
+          location.reload()
         })
       },
     })
   })
 
-  const key = $('a.J_MobileAppPath').text()
-  if (key) renderMobileAppPath(key)
+  const apk = $('.td-MobileAppPath>a').text()
+  if (apk && apk.length > 20) renderMobileAppPath(apk)
 })
+
+class DlgBackup extends RbAlert {
+  state = { ...this.props }
+
+  renderContent() {
+    return (
+      <form className="rbalert-form-sm">
+        <div className="form-group mb-0">
+          <label className="text-bold">{$L('选择要备份哪些数据')}</label>
+          <div ref={(c) => (this._$bkType = c)}>
+            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
+              <input className="custom-control-input" type="checkbox" defaultChecked />
+              <span className="custom-control-label">{$L('数据库')}</span>
+            </label>
+            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
+              <input className="custom-control-input" type="checkbox" defaultChecked />
+              <span className="custom-control-label">{$L('数据目录文件')}</span>
+            </label>
+          </div>
+        </div>
+        <div className="form-group mb-1">
+          <div className="text-warning mb-1" ref={(c) => (this._$tips = c)}>
+            <i className="mdi-alert-outline mdi" /> {$L('请勿在业务高峰时段执行备份')}
+          </div>
+          <button type="button" className="btn btn-space btn-primary" onClick={this.confirm} disabled={this.state.disable}>
+            {$L('开始备份')}
+          </button>
+        </div>
+      </form>
+    )
+  }
+
+  confirm = () => {
+    let type = ($(this._$bkType).find('input:eq(0)').prop('checked') ? 1 : 0) + ($(this._$bkType).find('input:eq(1)').prop('checked') ? 2 : 0)
+    if (type === 0) return
+
+    this.disabled(true, true)
+    $.post(`systems/backup?type=${type}`, (res) => {
+      if (res.error_code === 0) {
+        const data = res.data || {}
+        const tips = [$L('数据库'), ' <code>', data.db || $L('未备份'), '</code><br>', $L('数据目录文件'), ' <code>', data.file || $L('未备份'), '</code>']
+        $(this._$tips).html(tips.join(''))
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+      this.disabled(false, false)
+    })
+  }
+}

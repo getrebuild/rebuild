@@ -785,8 +785,8 @@ const RbViewPage = {
         $(`<li>${$L('无')}</li>`).appendTo($into)
       }
 
-      // v3.6
       $('.view-history.invisible2').removeClass('invisible2')
+      $('.view-history legend a').attr('href', `${rb.baseUrl}/admin/audit/revision-history#gs=${this.__id}`)
     })
   },
 

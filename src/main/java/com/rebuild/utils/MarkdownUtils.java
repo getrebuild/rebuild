@@ -89,6 +89,7 @@ public class MarkdownUtils {
      * @return
      */
     public static String cleanMarks(String md) {
+        md = md.replaceAll("!\\[.*?]\\((.*?)\\)", "[$1]"); // 替换图片
         String html = render(md);
         return Jsoup.parse(html).body().text();
     }

@@ -13,6 +13,7 @@ import com.rebuild.core.metadata.impl.TsetEntity;
 import com.rebuild.core.rbstore.RbSystemImporter;
 import com.rebuild.core.service.approval.ApprovalFields2Schema;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.DatabaseBackup;
 import com.rebuild.core.support.setup.DatafileBackup;
@@ -186,7 +187,15 @@ public class AdminCli3 {
             // Setter
             else {
                 String value = commands[2];
-                RebuildConfiguration.set(item, value);
+                if (item == ConfigurationItem.SN) {
+                    String usql = String.format("update system_config set `VALUE` = '%s' where `ITEM` = 'SN'", value);
+                    Application.getSqlExecutor().execute(usql);
+                    // reset: RB NEED RESTART
+                    Application.getCommonsCache().evict(ConfigurationItem.SN.name());
+                    License.siteApiNoCache("api/authority/query");
+                } else {
+                    RebuildConfiguration.set(item, value);
+                }
                 return "OK";
             }
 

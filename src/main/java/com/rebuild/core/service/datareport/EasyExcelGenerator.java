@@ -365,7 +365,7 @@ public class EasyExcelGenerator extends SetUser {
                 data.put(varName, buildBarcodeData(easyField.getRawMeta(), record.getPrimary()));
             } else if (fieldValue == null) {
                 // v3.8
-                Object funcValue = ValueConvertFunc.convert(easyField, null, varName);
+                Object funcValue = ValueConvertFunc.convert(easyField, null, varName, this.getClass());
                 data.put(varName, funcValue == null ? StringUtils.EMPTY : funcValue);
             } else {
 
@@ -418,7 +418,7 @@ public class EasyExcelGenerator extends SetUser {
                     }
 
                     // v3.7.0
-                    fieldValue = ValueConvertFunc.convert(easyField, fieldValue, varName);
+                    fieldValue = ValueConvertFunc.convert(easyField, fieldValue, varName, this.getClass());
                 }
 
                 data.put(varName, fieldValue);

@@ -374,7 +374,7 @@
         <index field-list="recordId,channelWith"/>
     </entity>
 
-    <entity name="RevisionHistory" type-code="034" name-field="recordName" description="变更历史" queryable="false" parent="false">
+    <entity name="RevisionHistory" type-code="034" name-field="recordId" description="变更历史" queryable="false" parent="false">
         <field name="revisionId" type="primary"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="所属实体"/>
         <field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="记录 ID"/>
