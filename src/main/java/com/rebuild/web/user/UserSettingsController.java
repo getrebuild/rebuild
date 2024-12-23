@@ -27,7 +27,6 @@ import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
-import com.rebuild.rbv.integration.ExternalUserAuth;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.user.signup.LoginAction;
 import com.rebuild.web.user.signup.LoginController;
@@ -76,11 +75,6 @@ public class UserSettingsController extends BaseController {
         String feishuAppid = RebuildConfiguration.get(ConfigurationItem.FeishuAppId);
         if (feishuAppid != null) {
             Object feishuUser = getExternalUserId(ub.getId(), feishuAppid);
-            if (feishuUser != null) mv.getModelMap().put("feishuUser", feishuUser);
-        }
-        String feishuAppid = RebuildConfiguration.get(ConfigurationItem.FeishuAppId);
-        if (feishuAppid != null) {
-            String feishuUser = ExternalUserAuth.getExternalUserId(ub.getId(), feishuAppid);
             if (feishuUser != null) mv.getModelMap().put("feishuUser", feishuUser);
         }
 
