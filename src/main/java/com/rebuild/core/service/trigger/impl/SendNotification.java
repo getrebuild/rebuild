@@ -61,6 +61,7 @@ public class SendNotification extends TriggerAction {
     private static final int UTYPE_ACCOUNT20 = 20;      // 外部人员-输入
     private static final int UTYPE_WXWORK = 4;          // 企微群
     private static final int UTYPE_DINGTALK = 5;        // 钉钉群
+    private static final int UTYPE_FEISHU = 6;          // 飞书群
 
     public SendNotification(ActionContext context) {
         super(context);
@@ -96,6 +97,8 @@ public class SendNotification extends TriggerAction {
             s = sendToWxwork(operatingContext);
         } else if (userType == UTYPE_DINGTALK) {
             s = sendToDingtalk(operatingContext);
+        } else if (userType == UTYPE_FEISHU) {
+            s = sendToFeishu(operatingContext);
         } else {  // UTYPE_USER
             s = sendToUsers(operatingContext);
         }
@@ -208,6 +211,13 @@ public class SendNotification extends TriggerAction {
     private Set<Object> sendToDingtalk(OperatingContext operatingContext) {
         Object resp = CommonsUtils.invokeMethod(
                 "com.rebuild.rbv.trigger.SendNotification2#sendToDingtalk", actionContext, operatingContext);
+        return (Set<Object>) resp;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Set<Object> sendToFeishu(OperatingContext operatingContext) {
+        Object resp = CommonsUtils.invokeMethod(
+                "com.rebuild.rbv.trigger.SendNotification2#sendToFeishu", actionContext, operatingContext);
         return (Set<Object>) resp;
     }
 

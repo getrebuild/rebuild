@@ -593,6 +593,16 @@ textarea.formula-code + .fields-vars {
   max-width: 100% !important;
 }
 
+.send-notification .nav-tabs .nav-link span.text-danger {
+  display: none;
+  font-size: 12px;
+}
+
+.send-notification .nav-tabs .nav-link.active span.text-danger {
+  display: inline-block;
+  margin-left: 5px;
+}
+
 .create-task .user-selector,
 .create-task .form-control {
   max-width: 100% !important;
