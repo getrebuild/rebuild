@@ -20,7 +20,6 @@ import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
@@ -44,7 +43,6 @@ import java.util.Map;
  * 数据导入
  *
  * @author devezhao
- * @see DisplayType
  * @since 01/09/2019
  */
 @Slf4j
@@ -55,9 +53,6 @@ public class DataImporter extends HeavyTask<Integer> {
     final private List<Object[]> traceLogs = new ArrayList<>();
     private String cellTraces = null;
 
-    /**
-     * @param rule
-     */
     public DataImporter(ImportRule rule) {
         this.rule = rule;
     }
@@ -187,7 +182,10 @@ public class DataImporter extends HeavyTask<Integer> {
                 checkout = EntityHelper.forUpdate(repeat, defaultOwning);
                 for (Iterator<String> iter = recordHub.getAvailableFieldIterator(); iter.hasNext(); ) {
                     String field = iter.next();
-                    if (MetadataHelper.isCommonsField(field)) continue;
+                    if (MetadataHelper.isCommonsField(field)) {
+                        // v3.9 所属用户
+                        if (!(EntityHelper.OwningUser.equals(field) || EntityHelper.OwningDept.equals(field))) continue;
+                    }
 
                     checkout.setObjectValue(field, recordHub.getObjectValue(field));
                 }

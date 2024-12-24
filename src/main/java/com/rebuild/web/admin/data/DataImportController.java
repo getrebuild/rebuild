@@ -88,9 +88,7 @@ public class DataImportController extends BaseController {
     public RespBody checkFile(HttpServletRequest request) {
         String file = getParameterNotNull(request, "file");
         File tmp = getFileOfImport(file);
-        if (tmp == null) {
-            return RespBody.error(Language.L("数据文件无效"));
-        }
+        if (tmp == null) return RespBody.error(Language.L("数据文件无效"));
 
         DataFileParser parser;
         int count;
@@ -100,7 +98,7 @@ public class DataImportController extends BaseController {
             preview = parser.parse(101);
             count = parser.getRowsCount();
         } catch (Exception ex) {
-            log.error("Parse excel error : " + file, ex);
+            log.error("Parse excel error : {}", file, ex);
             return RespBody.error(Language.L("无法解析数据，请检查数据文件格式"));
         }
 
@@ -205,10 +203,7 @@ public class DataImportController extends BaseController {
         String taskid = getParameterNotNull(request, "taskid");
         HeavyTask<?> task = TaskExecutors.get(taskid);
 
-        if (task == null) {
-            return RespBody.error();
-        } else {
-            return RespBody.ok(((DataImporter) task).getTraceLogs());
-        }
+        if (task == null) return RespBody.error();
+        return RespBody.ok(((DataImporter) task).getTraceLogs());
     }
 }
