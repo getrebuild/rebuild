@@ -918,6 +918,11 @@ class ApprovalList extends BaseChart {
               })}
             </tbody>
           </table>
+          {data.overLimit && (
+            <div className="m-2 text-center text-warning">
+              <i className="mdi mdi-information-outline" /> {$L('最多显示最近 500 条记录')}
+            </div>
+          )}
         </div>
       )
 

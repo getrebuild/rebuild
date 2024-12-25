@@ -121,6 +121,7 @@ public class ApprovalList extends ChartData implements BuiltinChart {
         Map<String, Object> ret = new HashMap<>();
         ret.put("data", rearray);
         ret.put("stats", stats);
+        ret.put("overLimit", array.length >= 500);
         return (JSON) JSON.toJSON(ret);
     }
 }
