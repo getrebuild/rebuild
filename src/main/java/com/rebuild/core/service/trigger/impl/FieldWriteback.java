@@ -283,7 +283,7 @@ public class FieldWriteback extends FieldAggregation {
                 }
             }
         }
-        // 1>N
+        // 1:N
         else {
             // N:N v3.1
             Field targetField = targetEntity.getField(targetFieldEntity[0]);
