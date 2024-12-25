@@ -33,25 +33,31 @@ class ContentSendNotification extends ActionContentSpec {
                   <li className="nav-item">
                     <a className={`nav-link ${state.type === 2 && 'active'}`} onClick={() => this.setMsgType(2)}>
                       {$L('邮件')}
-                      {state.serviceMail === false && <span className="text-danger fs-12"> ({$L('不可用')})</span>}
+                      {state.serviceMail === false && <span className="text-danger">({$L('不可用')})</span>}
                     </a>
                   </li>
                   <li className="nav-item">
                     <a className={`nav-link ${state.type === 3 && 'active'}`} onClick={() => this.setMsgType(3)}>
                       {$L('短信')}
-                      {state.serviceSms === false && <span className="text-danger fs-12"> ({$L('不可用')})</span>}
+                      {state.serviceSms === false && <span className="text-danger">({$L('不可用')})</span>}
                     </a>
                   </li>
                   <li className="nav-item">
                     <a className={`nav-link ${state.type === 4 && 'active'}`} onClick={() => this.setMsgType(4)}>
                       {$L('企业微信群')}
-                      {state.serviceWxwork === false && <span className="text-danger fs-12"> ({$L('不可用')})</span>} <sup className="rbv" />
+                      {state.serviceWxwork === false && <span className="text-danger">({$L('不可用')})</span>} <sup className="rbv" />
                     </a>
                   </li>
                   <li className="nav-item">
                     <a className={`nav-link ${state.type === 5 && 'active'}`} onClick={() => this.setMsgType(5)}>
                       {$L('钉钉群')}
-                      {state.serviceDingtalk === false && <span className="text-danger fs-12"> ({$L('不可用')})</span>} <sup className="rbv" />
+                      {state.serviceDingtalk === false && <span className="text-danger">({$L('不可用')})</span>} <sup className="rbv" />
+                    </a>
+                  </li>
+                  <li className="nav-item">
+                    <a className={`nav-link ${state.type === 6 && 'active'}`} onClick={() => this.setMsgType(6)}>
+                      {$L('飞书群')}
+                      {state.serviceFeishu === false && <span className="text-danger">({$L('不可用')})</span>} <sup className="rbv" />
                     </a>
                   </li>
                 </ul>
@@ -82,6 +88,10 @@ class ContentSendNotification extends ActionContentSpec {
                 <input className="custom-control-input" name="utype" type="radio" onChange={() => this.setState({ userType: 5 })} checked={state.userType === 5} />
                 <span className="custom-control-label">{$L('钉钉群')}</span>
               </label>
+              <label className={`custom-control custom-control-sm custom-radio custom-control-inline mb-1 ${state.type === 6 ? '' : 'hide'}`}>
+                <input className="custom-control-input" name="utype" type="radio" onChange={() => this.setState({ userType: 6 })} checked={state.userType === 6} />
+                <span className="custom-control-label">{$L('飞书群')}</span>
+              </label>
             </div>
           </div>
           <div className="form-group row pt-0 mt-0">
@@ -100,7 +110,7 @@ class ContentSendNotification extends ActionContentSpec {
                 <p className="form-text">{$L('输入手机/邮箱，多个请使用逗号分开')}</p>
               </div>
               <div className={state.userType === 4 ? '' : 'hide'}>
-                <input type="text" className="form-control form-control-sm w-100" ref={(c) => (this._$webhook = c)} style={{ maxWidth: '100%' }} placeholder={$L('群 Webhook 地址')} />
+                <input type="text" className="form-control form-control-sm w-100" ref={(c) => (this._$webhookWxwork = c)} style={{ maxWidth: '100%' }} placeholder={$L('群 Webhook 地址')} />
                 <p className="form-text link">
                   <a href="https://getrebuild.com/docs/admin/trigger/sendnotification#%E8%8E%B7%E5%8F%96%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E7%BE%A4%20Webhook%20%E5%9C%B0%E5%9D%80" target="_blank">
                     {$L('如何获取群 Webhook 地址')}
@@ -112,6 +122,14 @@ class ContentSendNotification extends ActionContentSpec {
                 <p className="form-text link">
                   <a href="https://getrebuild.com/docs/admin/trigger/sendnotification#%E8%8E%B7%E5%8F%96%E9%92%89%E9%92%89%E7%BE%A4%E5%8F%B7" target="_blank">
                     {$L('如何获取群号')}
+                  </a>
+                </p>
+              </div>
+              <div className={state.userType === 6 ? '' : 'hide'}>
+                <input type="text" className="form-control form-control-sm w-100" ref={(c) => (this._$webhookFeishu = c)} style={{ maxWidth: '100%' }} placeholder={$L('群 Webhook 地址')} />
+                <p className="form-text link">
+                  <a href="https://getrebuild.com/docs/admin/trigger/sendnotification#%E8%8E%B7%E5%8F%96%E9%A3%9E%E4%B9%A6%E7%BE%A4%20Webhook%20%E5%9C%B0%E5%9D%80" target="_blank">
+                    {$L('如何获取群 Webhook 地址')}
                   </a>
                 </p>
               </div>
@@ -162,9 +180,11 @@ class ContentSendNotification extends ActionContentSpec {
     if (content) {
       if (content.sendTo) {
         if (content.type === 4) {
-          $(this._$webhook).val(content.sendTo)
+          $(this._$webhookWxwork).val(content.sendTo)
         } else if (content.type === 5) {
           $(this._$groupId).val(content.sendTo)
+        } else if (content.type === 6) {
+          $(this._$webhookFeishu).val(content.sendTo)
         } else if (content.userType === 20) {
           $(this._sendTo20).val(content.sendTo)
         } else {
@@ -213,7 +233,7 @@ class ContentSendNotification extends ActionContentSpec {
     if (this.state.userType === 20) sendTo = $val(this._sendTo20)
 
     if (this.state.type === 4) {
-      sendTo = $(this._$webhook).val()
+      sendTo = $(this._$webhookWxwork).val()
       if (!sendTo || !$regex.isUrl(sendTo)) {
         RbHighbar.create($L('请输入有效的群 Webhook 地址'))
         return false
@@ -222,6 +242,12 @@ class ContentSendNotification extends ActionContentSpec {
       sendTo = $(this._$groupId).val()
       if (!sendTo) {
         RbHighbar.create($L('请输入群号'))
+        return false
+      }
+    } else if (this.state.type === 6) {
+      sendTo = $(this._$webhookFeishu).val()
+      if (!sendTo || !$regex.isUrl(sendTo)) {
+        RbHighbar.create($L('请输入有效的群 Webhook 地址'))
         return false
       }
     } else {

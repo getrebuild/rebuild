@@ -34,6 +34,7 @@ public class SendNotificationController extends BaseController {
         map.put("serviceSms", SMSender.availableSMS());
         map.put("serviceWxwork", RebuildConfiguration.get(ConfigurationItem.WxworkCorpid) != null);
         map.put("serviceDingtalk", RebuildConfiguration.get(ConfigurationItem.DingtalkRobotCode) != null);
+        map.put("serviceFeishu", RebuildConfiguration.get(ConfigurationItem.FeishuAppId) != null);
         return RespBody.ok(map);
     }
 }
