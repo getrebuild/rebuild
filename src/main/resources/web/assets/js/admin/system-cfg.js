@@ -358,7 +358,7 @@ class DlgBackup extends RbAlert {
           <div className="text-warning mb-1" ref={(c) => (this._$tips = c)}>
             <i className="mdi-alert-outline mdi" /> {$L('请勿在业务高峰时段执行备份')}
           </div>
-          <button type="button" className="btn btn-space btn-primary" onClick={this.confirm} disabled={this.state.disable}>
+          <button type="button" className="btn btn-space btn-primary" onClick={this.confirm} ref={(c) => (this._$btn = c)} data-spinner>
             {$L('开始备份')}
           </button>
         </div>
@@ -371,6 +371,7 @@ class DlgBackup extends RbAlert {
     if (type === 0) return
 
     this.disabled(true, true)
+    const $btn = $(this._$btn).button('loading')
     $.post(`systems/backup?type=${type}`, (res) => {
       if (res.error_code === 0) {
         const data = res.data || {}
@@ -380,6 +381,7 @@ class DlgBackup extends RbAlert {
         RbHighbar.error(res.error_msg)
       }
       this.disabled(false, false)
+      $btn.button('reset')
     })
   }
 }
