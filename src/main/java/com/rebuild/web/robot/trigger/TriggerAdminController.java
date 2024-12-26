@@ -18,6 +18,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.approval.RobotApprovalManager;
+import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.trigger.ActionFactory;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
@@ -158,24 +159,32 @@ public class TriggerAdminController extends BaseController {
         // 自动记录转换
         String useTransform = configJson.getString("useTransform");
         if (ID.isId(useTransform)) {
-            ConfigBean cb;
             try {
-                cb = TransformManager.instance.getTransformConfig(ID.valueOf(useTransform), sourceEntity);
-            } catch (Exception ignored) {
-                return null;
+                ConfigBean cb = TransformManager.instance.getTransformConfig(ID.valueOf(useTransform), sourceEntity);
+                return new String[]{ useTransform, cb.getString("name") };
+            } catch (Exception deleted) {
+                return new String[]{ null, String.format("[%s]", useTransform.toUpperCase()) };
             }
-            return new String[]{ useTransform, cb.getString("name") };
         }
         // 自动审批
         String useApproval = configJson.getString("useApproval");
         if (ID.isId(useApproval)) {
-            ConfigBean cb;
             try {
-                cb = RobotApprovalManager.instance.getFlowDefinition(ID.valueOf(useApproval));
-            } catch (Exception ignored) {
-                return null;
+                ConfigBean cb = RobotApprovalManager.instance.getFlowDefinition(ID.valueOf(useApproval));
+                return new String[]{ useApproval, cb.getString("name") };
+            } catch (Exception deleted) {
+                return new String[]{ null, String.format("[%s]", useApproval.toUpperCase()) };
             }
-            return new String[]{ useApproval, cb.getString("name") };
+        }
+        // 导出报表
+        String useTemplate = configJson.getString("useTemplate");
+        if (ID.isId(useTemplate)) {
+            try {
+                ConfigBean cb = DataReportManager.instance.getReportRaw(ID.valueOf(useTemplate));
+                return new String[]{ useTemplate, cb.getString("name") };
+            } catch (Exception deleted) {
+                return new String[]{ null, String.format("[%s]", useTemplate.toUpperCase()) };
+            }
         }
 
         return null;
