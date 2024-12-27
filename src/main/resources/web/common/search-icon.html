@@ -48,20 +48,18 @@
     <script th:src="@{/assets/js/mdi7-icons.js}"></script>
     <script type="text/babel">
       const cb = function (icon) {
-        (parent && parent.clickIcon ? parent.clickIcon : console.log)(icon)
+        ;(parent && parent.clickIcon ? parent.clickIcon : console.log)(icon)
       }
       $(document).ready(() => {
-        if ($urlp('mdi7')) renderMdi7()
-        else renderZmdi()
+        renderMdi7()
         parent && parent.RbModal && parent.RbModal.resize()
 
         window.bosskeyTrigger = function () {
           $('#icons').empty()
-          $('#icons').text('MDI7 Loading')
-
+          $('#icons').text('ZMDI Loading')
           setTimeout(() => {
             $('#icons').empty()
-            renderMdi7()
+            renderZmdi()
             parent && parent.RbModal && parent.RbModal.resize()
           }, 666)
         }
@@ -100,7 +98,7 @@
           }
         })
       }
-      // V2
+      // V2-4.0
       function renderMdi7() {
         MDI7_ICONS.forEach((icon) => {
           if (MDI7_ICONS_IGNORE.includes(icon)) return
