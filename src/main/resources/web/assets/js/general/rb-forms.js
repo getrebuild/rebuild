@@ -1857,7 +1857,15 @@ class RbFormFile extends RbFormImage {
           )
         })}
         <div className={`file-select ${showUpload ? '' : 'hide'}`}>
-          <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={this._htmlid} accept={this.props.fileSuffix || null} multiple />
+          <input
+            type="file"
+            className="inputfile"
+            ref={(c) => (this._fieldValue__input = c)}
+            id={this._htmlid}
+            accept={this.props.fileSuffix || null}
+            multiple
+            data-updir={this.props.fileUpdir || null}
+          />
           <label htmlFor={this._htmlid} title={$L('拖动或点击选择文件。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary" onClick={(e) => this._fileClick(e)}>
             {this._captureType === 2 ? <span className="mdi mdi-camera" /> : <span className="zmdi zmdi-upload" />}
             <span className="ml-1">{$L('上传文件')}</span>
