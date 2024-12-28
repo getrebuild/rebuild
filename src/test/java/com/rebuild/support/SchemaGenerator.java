@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.metadata.MetadataFactory;
 import cn.devezhao.persist4j.metadata.impl.ConfigurationMetadataFactory;
 import cn.devezhao.persist4j.util.support.Table;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.Table40;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.dom4j.Element;
@@ -68,7 +69,7 @@ public class SchemaGenerator {
     static void generate(int entityCode) {
         Entity entity = metadataFactory.getEntity(entityCode);
         Element root = ((ConfigurationMetadataFactory) metadataFactory).getConfigDocument().getRootElement();
-        Table table = new Table(
+        Table table = new Table40(
                 entity,
                 dialect,
                 root.selectSingleNode("//entity[@name='" + entity.getName() + "']").selectNodes("index"));

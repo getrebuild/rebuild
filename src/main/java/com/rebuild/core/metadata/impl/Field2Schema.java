@@ -493,7 +493,7 @@ public class Field2Schema extends SetUser {
 
             alterTypeSql = String.format("alter table `%s` change column `%s` ",
                     field.getOwnEntity().getPhysicalName(), field.getPhysicalName());
-            alterTypeSql += ddl.toString().trim().replace("  ", " ");
+            alterTypeSql += ddl.toString().trim().replaceAll("\\s+", " ");
 
             Application.getSqlExecutor().executeBatch(new String[]{alterTypeSql}, DDL_TIMEOUT);
             log.info("Cast field type : {}", alterTypeSql);
@@ -517,6 +517,27 @@ public class Field2Schema extends SetUser {
             DynamicMetadataContextHolder.isSkipLanguageRefresh(true);
         }
 
+        return true;
+    }
+
+    /**
+     * @param field
+     * @return
+     */
+    public boolean fixsDatetime40(Field field) {
+        if (field.getType() != FieldType.TIMESTAMP) return false;
+
+        Dialect dialect = Application.getPersistManagerFactory().getDialect();
+        final Table table = new Table40(field.getOwnEntity(), dialect);
+        StringBuilder ddl = new StringBuilder();
+        table.generateFieldDDL(field, ddl);
+
+        String alterTypeSql = String.format("alter table `%s` change column `%s` ",
+                field.getOwnEntity().getPhysicalName(), field.getPhysicalName());
+        alterTypeSql += ddl.toString().trim().replaceAll("\\s+", " ");
+
+        Application.getSqlExecutor().executeBatch(new String[]{alterTypeSql}, DDL_TIMEOUT);
+        log.info("Fixs datetime field : {}", alterTypeSql);
         return true;
     }
 }

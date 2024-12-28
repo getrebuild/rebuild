@@ -12,6 +12,8 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.Dialect;
 import cn.devezhao.persist4j.util.support.Table;
 
+import java.util.List;
+
 /**
  * Fixs timestamp to datetime
  *
@@ -22,6 +24,10 @@ public class Table40 extends Table {
 
     public Table40(Entity entity, Dialect dialect) {
         super(entity, dialect);
+    }
+
+    public Table40(Entity entity, Dialect dialect, List<?> indexList) {
+        super(entity, dialect, indexList);
     }
 
     @Override
