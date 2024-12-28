@@ -862,7 +862,7 @@ class FieldTypeCast extends RbFormHandler {
               <button className="btn btn-link" type="button" onClick={() => this.hide()}>
                 {$L('取消')}
               </button>
-              <button className="btn btn-warning bosskey-show " type="button" onClick={() => this.post('datetime40')}>
+              <button className="btn btn-warning bosskey-show " type="button" onClick={() => this.post('DATETIME40')}>
                 Repair
               </button>
             </div>
