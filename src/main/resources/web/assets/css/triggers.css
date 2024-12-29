@@ -579,10 +579,6 @@ textarea.formula-code + .fields-vars {
   margin-bottom: 1px;
 }
 
-.v36-logdesc > .badge + .badge {
-  margin-left: 0;
-}
-
 .table.table-logs p {
   margin: 0;
   line-height: 1.4;

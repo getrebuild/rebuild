@@ -347,26 +347,26 @@ class ContentFieldAggregation extends ActionContentSpec {
           $s2sf.trigger('change')
 
           // 回填
-          const $fbf = $(this._$fillbackField).select2({ placeholder: $L('(可选)'), allowClear: true })
-          this.__select2.push($fbf)
+          const $fbField = $(this._$fillbackField).select2({ placeholder: $L('(可选)'), allowClear: true })
+          $fbField.val(null).trigger('change')
+          this.__select2.push($fbField)
 
           this.__select2.push($s2sf)
           this.__select2.push($s2cm)
           this.__select2.push($s2tf)
-        })
 
-        const content = this.props.content
-        if (content) {
-          this.setState({ items: content.items || [] })
-          if (content.targetEntityMatchFields) {
-            setTimeout(() => this._MatchFields && this._MatchFields.setState({ groupFields: content.targetEntityMatchFields }), 200)
-          }
-          setTimeout(() => {
+          // init
+          const content = this.props.content
+          if (content) {
+            this.setState({ items: content.items || [] })
+            if (content.targetEntityMatchFields) {
+              this._MatchFields && this._MatchFields.setState({ groupFields: content.targetEntityMatchFields })
+            }
             $(this._$fillbackField)
               .val(content.fillbackField || null)
               .trigger('change')
-          }, 200)
-        }
+          }
+        })
       }
 
       // v3.7
