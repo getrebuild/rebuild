@@ -33,7 +33,6 @@ public class BlockList {
             String s = CommonsUtils.getStringOfRes("blocklist.json");
             BLOCKED = JSON.parseArray(s == null ? JSONUtils.EMPTY_ARRAY_STR : s);
         }
-
         return BLOCKED.contains(text.toLowerCase()) || isSqlKeyword(text);
     }
 

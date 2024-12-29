@@ -16,6 +16,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.impl.DynamicMetadataContextHolder;
 import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.privileges.UserService;
@@ -40,6 +41,15 @@ public class SimpleEntity {
      * @return
      */
     public boolean create(boolean dropExists, boolean includeBuiltin, boolean addPrivileges) {
+        try {
+            DynamicMetadataContextHolder.setSkipLanguageRefresh();
+            return this.createInternal(dropExists, includeBuiltin, addPrivileges);
+        } finally {
+            DynamicMetadataContextHolder.setSkipLanguageRefresh();
+        }
+    }
+
+    private boolean createInternal(boolean dropExists, boolean includeBuiltin, boolean addPrivileges) {
         if (MetadataHelper.containsEntity(NAME)) {
             if (dropExists) {
                 log.warn("Dropping exists : {}", NAME);
@@ -51,30 +61,31 @@ public class SimpleEntity {
 
         Entity2Schema entity2Schema = new Entity2Schema(UserService.SYSTEM_USER);
         entity2Schema.createEntity(
-                NAME.toUpperCase(), "RB示例实体", "演示实体/字段的基本用法。更多详情参阅 https://getrebuild.com/docs/admin/entity/", null, true, true);
+                NAME, "RB示例实体", "演示实体/字段的基本用法。更多详情参阅 https://getrebuild.com/docs/admin/entity/", null, true, false);
 
         final Entity entity = MetadataHelper.getEntity(NAME);
         Field2Schema field2Schema = new Field2Schema(UserService.SYSTEM_USER);
 
         for (DisplayType dt : DisplayType.values()) {
-            if (dt == DisplayType.ID || dt == DisplayType.SERIES) continue;
+            if (dt == DisplayType.ID) continue;
             if (!includeBuiltin) {
                 if (dt == DisplayType.STATE || dt == DisplayType.ANYREFERENCE) continue;
             }
 
-            String fieldName = dt.name().toUpperCase();
+            String fieldName = dt.name();
             if (BlockList.isBlock(fieldName)) fieldName += "1";
+            String fieldLabel = dt.getDisplayName();
 
             if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
-                field2Schema.createField(entity, fieldName, dt, null, NAME, null);
+                field2Schema.createField(entity, fieldLabel, fieldName, dt, null, NAME, null);
             } else if (dt == DisplayType.CLASSIFICATION) {
                 JSON extConfig = JSON.parseObject("{classification:'018-0000000000000001'}");
-                field2Schema.createField(entity, fieldName, dt, null, NAME, extConfig);
+                field2Schema.createField(entity, fieldLabel, fieldName, dt, null, NAME, extConfig);
             } else if (dt == DisplayType.STATE) {
                 JSON extConfig = JSON.parseObject("{stateClass:'com.rebuild.core.support.state.HowtoState'}");
-                field2Schema.createField(entity, fieldName, dt, null, NAME, extConfig);
+                field2Schema.createField(entity, fieldLabel, fieldName, dt, null, NAME, extConfig);
             } else {
-                field2Schema.createField(entity, fieldName, dt, null, null, null);
+                field2Schema.createField(entity, fieldLabel, fieldName, dt, null, null, null);
             }
         }
 
