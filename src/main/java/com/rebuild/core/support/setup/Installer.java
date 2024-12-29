@@ -87,7 +87,7 @@ public class Installer implements InstallState {
 
     private String EXISTS_SN;
 
-    private Installer() { }
+    private Installer() {}
 
     /**
      * @param installProps

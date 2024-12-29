@@ -9,8 +9,6 @@ package com.rebuild.web.admin;
 
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.TsetEntity;
-import com.rebuild.core.rbstore.RbSystemImporter;
 import com.rebuild.core.service.approval.ApprovalFields2Schema;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
@@ -18,7 +16,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.DatabaseBackup;
 import com.rebuild.core.support.setup.DatafileBackup;
 import com.rebuild.core.support.setup.Installer;
-import com.rebuild.core.support.task.TaskExecutors;
+import com.rebuild.core.support.setup.SimpleEntity;
 import com.rebuild.utils.AES;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -34,7 +32,7 @@ import java.util.regex.Pattern;
  * @since 2020/3/16
  */
 @Slf4j
-public class AdminCli3 {
+public class AdminCli4 {
 
     private static final String C_HELP = "help";
     private static final String C_CACHE = "cache";
@@ -43,7 +41,6 @@ public class AdminCli3 {
     private static final String C_AES = "aes";
     private static final String C_CLEAN_APPROVAL = "clean-approval";
     private static final String C_ADD_TESTENTITY = "add-testentity";
-    private static final String C_RBSPKG = "rbspkg";
 
     private static final String SUCCESS = "OK";
 
@@ -52,7 +49,7 @@ public class AdminCli3 {
     /**
      * @param args
      */
-    protected AdminCli3(String args) {
+    protected AdminCli4(String args) {
         List<String> list = new ArrayList<>();
         Matcher m = Pattern.compile("([^\"]\\S*|\".+?\")\\s*").matcher(args);
         while (m.find()) {
@@ -82,8 +79,7 @@ public class AdminCli3 {
                         " \nbackup [database|datafile]" +
                         " \naes [decrypt] VALUE" +
                         " \nclean-approval ENTITY" +
-                        " \nadd-testentity [NAME]" +
-                        " \nrbspkg URL";
+                        " \nadd-testentity";
                 break;
             }
             case C_CACHE: {
@@ -108,10 +104,6 @@ public class AdminCli3 {
             }
             case C_ADD_TESTENTITY : {
                 result = this.execAddTestentity();
-                break;
-            }
-            case C_RBSPKG: {
-                result = this.execRbspkg();
                 break;
             }
             default: {
@@ -274,27 +266,7 @@ public class AdminCli3 {
      * @return
      */
     private String execAddTestentity() {
-        String name = commands.length > 1 ? commands[1] : "TestAllFields999";
-        String entityName = new TsetEntity().create(name);
-
-        if (entityName.startsWith("EXISTS:")) return "WRAN: " + entityName;
-        else return "OK: " + entityName;
-    }
-
-    /**
-     * @return
-     */
-    private String execRbspkg() {
-        if (commands.length < 2) return "WRAN: Bad arguments";
-
-        String fileUrl = commands[1];
-        RbSystemImporter importer = new RbSystemImporter(fileUrl);
-        try {
-            TaskExecutors.run(importer);
-            return "OK";
-        } catch (Exception ex) {
-            log.error("RBSPKG", ex);
-            return "ERROR: " + ex.getLocalizedMessage();
-        }
+        boolean o = new SimpleEntity().create(true, true, true);
+        return o ? "OK" : "WRAN: Cannot create:" + SimpleEntity.NAME;
     }
 }

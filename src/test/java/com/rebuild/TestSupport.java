@@ -17,16 +17,14 @@ import com.rebuild.core.BootApplication;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.impl.DynamicMetadataContextHolder;
 import com.rebuild.core.metadata.impl.Entity2Schema;
-import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.rbstore.MetaschemaImporter;
+import com.rebuild.core.support.setup.SimpleEntity;
 import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.utils.BlockList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -83,7 +81,7 @@ public class TestSupport {
     // -- 测试实体
 
     // 全部字段类型
-    protected static final String TestAllFields = "TestAllFields";
+    protected static final String TestAllFields = SimpleEntity.NAME;
 
     // 业务实体
     protected static final String Account = "Account999";
@@ -114,54 +112,17 @@ public class TestSupport {
     protected static boolean addTestEntities(boolean dropExists) throws Exception {
         boolean changed = false;
         if (dropExists) {
-            if (MetadataHelper.containsEntity(TestAllFields)) {
-                _log.warn("Dropping test entity : " + TestAllFields);
-                new Entity2Schema(UserService.ADMIN_USER).dropEntity(MetadataHelper.getEntity(TestAllFields), true);
-            }
-
             if (MetadataHelper.containsEntity(SalesOrder)) {
                 _log.warn("Dropping test entity : " + SalesOrder);
                 new Entity2Schema(UserService.ADMIN_USER).dropEntity(MetadataHelper.getEntity(SalesOrder), true);
             }
-
             if (MetadataHelper.containsEntity(Account)) {
                 _log.warn("Dropping test entity : " + Account);
                 new Entity2Schema(UserService.ADMIN_USER).dropEntity(MetadataHelper.getEntity(Account), true);
             }
         }
 
-        if (!MetadataHelper.containsEntity(TestAllFields)) {
-            Entity2Schema entity2Schema = new Entity2Schema(UserService.ADMIN_USER);
-            String entityName = entity2Schema.createEntity(
-                    null, TestAllFields.toUpperCase(), null, null, Boolean.TRUE, Boolean.FALSE);
-            Entity testEntity = MetadataHelper.getEntity(entityName);
-
-            for (DisplayType dt : DisplayType.values()) {
-                if (dt == DisplayType.ID) {
-                    continue;
-                }
-
-                String fieldName = dt.name().toUpperCase();
-                if (BlockList.isBlock(fieldName)) fieldName += "1";
-
-                if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
-                    new Field2Schema(UserService.ADMIN_USER)
-                            .createField(testEntity, fieldName, dt, null, entityName, null);
-                } else if (dt == DisplayType.CLASSIFICATION) {
-                    JSON extra = JSON.parseObject("{classification:'018-0000000000000001'}");
-                    new Field2Schema(UserService.ADMIN_USER)
-                            .createField(testEntity, fieldName, dt, null, entityName, extra);
-                } else if (dt == DisplayType.STATE) {
-                    JSON extra = JSON.parseObject("{stateClass:'com.rebuild.core.support.state.HowtoState'}");
-                    new Field2Schema(UserService.ADMIN_USER)
-                            .createField(testEntity, fieldName, dt, null, entityName, extra);
-                } else {
-                    new Field2Schema(UserService.ADMIN_USER)
-                            .createField(testEntity, fieldName, dt, null, null, null);
-                }
-            }
-            changed = true;
-        }
+        new SimpleEntity().create(true, true, true);
 
         if (!MetadataHelper.containsEntity(Account)) {
             String metaschema = FileUtils.readFileToString(
@@ -170,7 +131,6 @@ public class TestSupport {
             TaskExecutors.run((HeavyTask<?>) importer.setUser(UserService.ADMIN_USER));
             changed = true;
         }
-
         if (!MetadataHelper.containsEntity(SalesOrder)) {
             String metaschema = FileUtils.readFileToString(
                     ResourceUtils.getFile("classpath:schema-SalesOrder999.json"), AppUtils.UTF8);
@@ -194,17 +154,6 @@ public class TestSupport {
         }
 
         Entity testEntity = MetadataHelper.getEntity(TestAllFields);
-
-        // 自动添加权限
-        if (!Application.getPrivilegesManager().allowCreate(user, testEntity.getEntityCode())) {
-            Record p = EntityHelper.forNew(EntityHelper.RolePrivileges, user);
-            p.setID("roleId", SIMPLE_ROLE);
-            p.setInt("entity", testEntity.getEntityCode());
-            p.setString("definition", "{'A':1,'R':1,'C':4,'S':1,'D':1,'U':1}");
-            Application.getCommonsService().create(p, Boolean.FALSE);
-            Application.getUserStore().refreshRole(SIMPLE_ROLE);
-        }
-
         Record record = EntityHelper.forNew(testEntity.getEntityCode(), user);
         record.setString("TestAllFieldsName", "TestAllFieldsName-" + RandomUtils.nextLong());
         record.setString("text", "TEXT-" + RandomUtils.nextLong());
