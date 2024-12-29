@@ -107,7 +107,7 @@ class Setup extends React.Component {
 }
 
 $(document).ready(() => {
-  $.get('/admin/rbstore/load-index?type=rbsystems', (res) => {
+  $.get('/setup/load-index?type=rbsystems', (res) => {
     if ((res.data || []).length > 0) {
       renderRbcomp(<Setup data={res.data} />, $('.card-body'))
     } else {

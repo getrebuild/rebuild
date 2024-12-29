@@ -29,12 +29,10 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 public class RBStoreController extends BaseController {
 
-    @GetMapping("/admin/rbstore/load-index")
+    @GetMapping({"/admin/rbstore/load-index", "/setup/load-index"})
     public JSONAware loadDataIndex(HttpServletRequest request) {
         String type = getParameterNotNull(request, "type");
-        if (CommonsUtils.isExternalUrl(type)) {
-            return RespBody.error();
-        }
+        if (CommonsUtils.isExternalUrl(type)) return RespBody.error();
 
         JSON index = null;
         try {
