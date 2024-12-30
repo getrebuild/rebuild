@@ -413,12 +413,18 @@ const ECHART_LEGEND_VOPT = {
   textStyle: { fontSize: 12 },
 }
 
-// K=千 M=百万
+// K=千 M=百万 B=亿
 const shortNumber = function (num) {
-  if (rb.locale === 'zh_CN' && (num > 10000 || num < -10000)) return (num / 10000).toFixed(1) + '万'
-  if (num > 1000000 || num < -1000000) return (num / 1000000).toFixed(1) + 'M'
+  if (rb.locale === 'zh_CN') {
+    if (num > 100000000 || num < -100000000) return (num / 100000000).toFixed(1) + '亿'
+    else if (num > 1000000 || num < -1000000) return (num / 1000000).toFixed(1) + '百万'
+    else if (num > 10000 || num < -10000) return (num / 10000).toFixed(1) + '万'
+    return num
+  }
+  if (num > 100000000 || num < -100000000) return (num / 100000000).toFixed(1) + 'B'
+  else if (num > 1000000 || num < -1000000) return (num / 1000000).toFixed(1) + 'M'
   else if (num > 10000 || num < -10000) return (num / 1000).toFixed(1) + 'K'
-  else return num
+  return num
 }
 
 // 千分位

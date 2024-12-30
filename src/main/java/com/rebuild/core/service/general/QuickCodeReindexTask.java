@@ -168,7 +168,7 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
             try {
                 quickCode = HanLP.convertToPinyinString(nameVal, "", Boolean.FALSE);
             } catch (Exception e) {
-                log.error("QuickCode shorting error : " + nameVal, e);
+                log.error("QuickCode shorting error : {}", nameVal, e);
                 quickCode = StringUtils.EMPTY;
             }
         }
