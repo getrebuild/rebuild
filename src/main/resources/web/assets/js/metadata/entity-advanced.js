@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* eslint-disable react/no-string-refs */
 
 const wpc = window.__PageConfig
+const _advListAsideShows = (wpc.extConfig || {}).advListAsideShows || {}
 
 $(document).ready(() => {
   _listmodeAction()
@@ -120,7 +121,10 @@ class DlgMode1Option extends RbFormHandler {
                     <label htmlFor="advListHideFilters" />
                   </span>
                 </div>
-                <span className="ml-2 down-5 d-inline-block">{$L('常用查询')}</span>
+                <span>{$L('常用查询')}</span>
+                <a title={$L('显示样式')} onClick={() => renderRbcomp(<OptionProps name="advListHideFilters" />)}>
+                  <i className="zmdi zmdi-edit" />
+                </a>
               </div>
               {CompCategory(this)}
               <div className="aside-item">
@@ -130,7 +134,10 @@ class DlgMode1Option extends RbFormHandler {
                     <label htmlFor="advListHideCharts" />
                   </span>
                 </div>
-                <span className="ml-2 down-5 d-inline-block">{$L('图表')}</span>
+                <span>{$L('图表')}</span>
+                <a title={$L('显示样式')} onClick={() => renderRbcomp(<OptionProps name="advListHideCharts" />)}>
+                  <i className="zmdi zmdi-edit" />
+                </a>
               </div>
             </div>
           </div>
@@ -138,23 +145,23 @@ class DlgMode1Option extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('在顶栏显示')}</label>
             <div className="col-sm-9">
-              <div className="bosskey-show mb-2">
+              <div className="topside-item bosskey-show">
                 <div className="switch-button switch-button-xs">
                   <input type="checkbox" id="advListFilterTabs" defaultChecked={wpc.extConfig && wpc.extConfig.advListFilterTabs} />
                   <span>
                     <label htmlFor="advListFilterTabs" />
                   </span>
                 </div>
-                <span className="ml-2 down-5 d-inline-block">{$L('列表视图')}</span>
+                <span>{$L('列表视图')}</span>
               </div>
-              <div>
+              <div className="topside-item">
                 <div className="switch-button switch-button-xs">
                   <input type="checkbox" id="advListFilterPane" defaultChecked={wpc.extConfig && wpc.extConfig.advListFilterPane} />
                   <span>
                     <label htmlFor="advListFilterPane" />
                   </span>
                 </div>
-                <span className="ml-2 down-5 d-inline-block">{$L('查询面板')}</span>
+                <span>{$L('查询面板')}</span>
               </div>
             </div>
           </div>
@@ -176,6 +183,12 @@ class DlgMode1Option extends RbFormHandler {
 
   componentDidMount() {
     CompCategory_componentDidMount(this)
+
+    setTimeout(() => {
+      _refreshConfigStar('advListHideFilters')
+      _refreshConfigStar('advListHideCharts')
+      _refreshConfigStar('advListShowCategory')
+    }, 200)
   }
 
   save = () => {
@@ -184,6 +197,7 @@ class DlgMode1Option extends RbFormHandler {
       advListHideCharts: !$val('#advListHideCharts'),
       advListFilterPane: $val('#advListFilterPane'),
       advListFilterTabs: $val('#advListFilterTabs'),
+      advListAsideShows: _advListAsideShows,
     }
     if (this.state.advListShowCategory) {
       o.advListShowCategory = []
@@ -361,7 +375,10 @@ class DlgMode3Option extends DlgMode2Option {
                     <label htmlFor="mode3ShowFilters" />
                   </span>
                 </div>
-                <span className="ml-2 down-5 d-inline-block">{$L('常用查询')}</span>
+                <span>{$L('常用查询')}</span>
+                <a title={$L('显示样式')} onClick={() => renderRbcomp(<OptionProps name="mode3ShowFilters" />)}>
+                  <i className="zmdi zmdi-edit" />
+                </a>
               </div>
               {CompCategory(this, 'mode3ShowCategory')}
               <div className="aside-item">
@@ -371,7 +388,10 @@ class DlgMode3Option extends DlgMode2Option {
                     <label htmlFor="mode3ShowCharts" />
                   </span>
                 </div>
-                <span className="ml-2 down-5 d-inline-block">{$L('图表')}</span>
+                <span>{$L('图表')}</span>
+                <a title={$L('显示样式')} onClick={() => renderRbcomp(<OptionProps name="mode3ShowCharts" />)}>
+                  <i className="zmdi zmdi-edit" />
+                </a>
               </div>
             </div>
           </div>
@@ -419,6 +439,12 @@ class DlgMode3Option extends DlgMode2Option {
   componentDidMount() {
     super.componentDidMount()
     CompCategory_componentDidMount(this, 'mode3ShowCategory')
+
+    setTimeout(() => {
+      _refreshConfigStar('mode3ShowFilters')
+      _refreshConfigStar('mode3ShowCharts')
+      _refreshConfigStar('mode3ShowCategory')
+    }, 200)
   }
 
   onFieldsMenuShow($item, $menu) {
@@ -443,6 +469,7 @@ class DlgMode3Option extends DlgMode2Option {
     } else {
       o.mode3ShowCategory = null
     }
+    o.advListAsideShows = _advListAsideShows
     return o
   }
 }
@@ -456,7 +483,10 @@ const CompCategory = (_this, name = 'advListShowCategory') => {
           <label htmlFor={name} />
         </span>
       </div>
-      <span className="ml-2 down-5 d-inline-block">{$L('分组')}</span>
+      <span>{$L('分组')}</span>
+      <a title={$L('显示样式')} onClick={() => renderRbcomp(<OptionProps name={name} />)}>
+        <i className="zmdi zmdi-edit" />
+      </a>
       <div className="clearfix"></div>
       <div className={`advListShowCategory-set ${_this.state.advListShowCategory ? '' : 'hide'}`}>
         <div className="row">
@@ -710,5 +740,79 @@ class CompCategoryItem extends React.Component {
       sort: this.state.sort || 0,
       filter: this.state.filter || null,
     }
+  }
+}
+
+class OptionProps extends RbAlert {
+  renderContent() {
+    return (
+      <div className="form">
+        <div className="form-group row">
+          <label className="col-sm-3 col-form-label text-sm-right">{$L('别名')}</label>
+          <div className="col-sm-7">
+            <input className="form-control form-control-sm" placeholder={$L('默认')} maxLength="20" ref={(c) => (this._$label = c)} />
+          </div>
+        </div>
+        <div className="form-group row pb-0">
+          <label className="col-sm-3 col-form-label text-sm-right pt-1">{$L('显示位置')}</label>
+          <div className="col-sm-7" ref={(c) => (this._$orders = c)}>
+            <label className="custom-control custom-control-sm custom-radio custom-control-inline">
+              <input className="custom-control-input" type="radio" name="showOrder" value="0" defaultChecked />
+              <span className="custom-control-label">{$L('默认')}</span>
+            </label>
+            <label className="custom-control custom-control-sm custom-radio custom-control-inline">
+              <input className="custom-control-input" type="radio" name="showOrder" value="1" />
+              <span className="custom-control-label">(1)</span>
+            </label>
+            <label className="custom-control custom-control-sm custom-radio custom-control-inline">
+              <input className="custom-control-input" type="radio" name="showOrder" value="2" />
+              <span className="custom-control-label">(2)</span>
+            </label>
+            <label className="custom-control custom-control-sm custom-radio custom-control-inline">
+              <input className="custom-control-input" type="radio" name="showOrder" value="3" />
+              <span className="custom-control-label">(3)</span>
+            </label>
+          </div>
+        </div>
+        <div className="form-group row footer">
+          <div className="col-sm-7 offset-sm-3">
+            <button className="btn btn-primary" type="button" onClick={() => this.saveProps()}>
+              {$L('确定')}
+            </button>
+            <button type="button" className="btn btn-link" onClick={() => this.hide()}>
+              {$L('取消')}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    // init
+    const ps = _advListAsideShows[this.props.name] || {}
+    if (ps.label) $(this._$label).val(ps.label)
+    if (ps.order) $(this._$orders).find(`input[value=${ps.order}]`).attr('checked', true)
+  }
+
+  saveProps() {
+    const ps = {
+      label: $(this._$label).val() || null,
+      order: ~~$(this._$orders).find('input:checked').val(),
+    }
+    _advListAsideShows[this.props.name] = ps
+    _refreshConfigStar(this.props.name)
+    this.hide()
+  }
+}
+
+const _refreshConfigStar = function (name) {
+  let $span = $(`#${name}`)
+  if ($span[0]) {
+    $span = $span.parents('.aside-item').find('>span')
+    const ps = _advListAsideShows[name] || {}
+    if (ps.label || ps.order) $span.addClass('star')
+    else $span.removeClass('star')
   }
 }

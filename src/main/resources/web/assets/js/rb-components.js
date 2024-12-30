@@ -256,6 +256,7 @@ class RbAlert extends React.Component {
     return (
       <div
         className="modal rbalert"
+        aria-hidden="true"
         style={style1}
         ref={(c) => {
           this._dlg = c
