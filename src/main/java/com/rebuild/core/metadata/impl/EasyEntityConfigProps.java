@@ -92,4 +92,8 @@ public class EasyEntityConfigProps {
      * @see #ADVLIST_SHOWCATEGORY
      */
     public static final String ADVLIST_MODE3_SHOWCATEGORY = "mode3ShowCategory";
+    /**
+     * 列表侧栏显示样式
+     */
+    public static final String ADVLIST_ASIDE_SHOWS = "advListAsideShows";
 }
