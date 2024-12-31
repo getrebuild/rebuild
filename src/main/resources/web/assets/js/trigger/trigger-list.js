@@ -70,16 +70,25 @@ class TriggerList extends ConfigList {
       <RF>
         {(this.state.data || []).map((item) => {
           let targetRef = item[9]
+          // [ID, NAME]
           if (targetRef) {
-            if (targetRef[0] && targetRef[0].startsWith('028-')) {
+            if (!targetRef[0]) {
+              targetRef = <a className="text-danger">{targetRef[1]}</a>
+            } else if (targetRef[0].startsWith('028-')) {
               targetRef = (
                 <a href={`${rb.baseUrl}/admin/robot/approval/${targetRef[0]}`} className="light-link" target={`_${targetRef[0]}`}>
                   {targetRef[1]}
                 </a>
               )
-            } else if (targetRef[0] && targetRef[0].startsWith('037-')) {
+            } else if (targetRef[0].startsWith('037-')) {
               targetRef = (
                 <a href={`${rb.baseUrl}/admin/robot/transform/${targetRef[0]}`} className="light-link" target={`_${targetRef[0]}`}>
+                  {targetRef[1]}
+                </a>
+              )
+            } else if (targetRef[0].startsWith('032-')) {
+              targetRef = (
+                <a href={`${rb.baseUrl}/admin/data/report-templates#gs=${targetRef[0]}`} className="light-link" target={`_${targetRef[0]}`}>
                   {targetRef[1]}
                 </a>
               )

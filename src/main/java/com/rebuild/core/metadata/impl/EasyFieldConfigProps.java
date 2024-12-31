@@ -102,6 +102,10 @@ public class EasyFieldConfigProps {
      * 允许上传文件类型
      */
     public static final String FILE_SUFFIX = "fileSuffix";
+    /**
+     * 指定上传路径
+     */
+    public static final String FILE_UPDIR = "fileUpdir";
 
     /**
      * 允许上传数量

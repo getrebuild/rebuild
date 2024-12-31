@@ -192,6 +192,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
     this.$search.closest('.select2-search--inline').css('width', widthParent)
   }
 })(jQuery)
+// fix:select2:https://stackoverflow.com/questions/18487056/select2-doesnt-work-when-embedded-in-a-bootstrap-modal
+$.fn.modal.Constructor.prototype._enforceFocus = function () {}
 
 // extends Array
 Array.prototype.remove = function (item) {
