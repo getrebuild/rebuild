@@ -405,7 +405,7 @@ public class DataListManager extends BaseLayoutManager {
                 itemsMap.put(ADVLIST_MODE3_SHOWCATEGORY, new Object[]{Language.L("分组"), 2, "asideCategory"});
             }
             if (extraAttrs.getBooleanValue(ADVLIST_MODE3_SHOWCHARTS)) {
-                itemsMap.put(ADVLIST_MODE3_SHOWCHARTS, new Object[]{Language.L("图表"), 3, "asideWidgets"});
+                itemsMap.put(ADVLIST_MODE3_SHOWCHARTS, new Object[]{Language.L("图表"), 3, "asideCharts"});
             }
         } else {
             if (!extraAttrs.getBooleanValue(ADVLIST_HIDE_FILTERS)) {
@@ -415,7 +415,7 @@ public class DataListManager extends BaseLayoutManager {
                 itemsMap.put(ADVLIST_SHOWCATEGORY, new Object[]{Language.L("分组"), 2, "asideCategory"});
             }
             if (!extraAttrs.getBooleanValue(ADVLIST_HIDE_CHARTS)) {
-                itemsMap.put(ADVLIST_HIDE_CHARTS, new Object[]{Language.L("图表"), 3, "asideWidgets"});
+                itemsMap.put(ADVLIST_HIDE_CHARTS, new Object[]{Language.L("图表"), 3, "asideCharts"});
             }
         }
 

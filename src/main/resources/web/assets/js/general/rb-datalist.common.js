@@ -2099,11 +2099,11 @@ const ChartsWidget = {
     // eslint-disable-next-line no-undef
     ECHART_BASE.grid = { left: 40, right: 20, top: 30, bottom: 20 }
 
-    $('#asideShows a[href="#asideWidgets"]').on('click', () => {
+    $('#asideShows a[href="#asideCharts"]').on('click', () => {
       this._chartLoaded !== true && this.loadWidget()
     })
-    $('#asideWidgets .charts--add').on('click', () => this.showChartSelect())
-    $('#asideWidgets .charts-wrap')
+    $('#asideCharts .charts--add').on('click', () => this.showChartSelect())
+    $('#asideCharts .charts-wrap')
       .sortable({
         handle: '.chart-title',
         axis: 'y',
@@ -2127,7 +2127,7 @@ const ChartsWidget = {
   },
 
   renderChart: function (chart, append) {
-    const $w = $(`<div id="chart-${chart.chart}"></div>`).appendTo('#asideWidgets .charts-wrap')
+    const $w = $(`<div id="chart-${chart.chart}"></div>`).appendTo('#asideCharts .charts-wrap')
     // eslint-disable-next-line no-undef
     renderRbcomp(detectChart({ ...chart, editable: true }, chart.chart), $w, function () {
       if (append) ChartsWidget.saveWidget()
@@ -2152,7 +2152,7 @@ const ChartsWidget = {
 
   __currentCharts: function (o) {
     const charts = []
-    $('#asideWidgets .charts-wrap>div').each(function () {
+    $('#asideCharts .charts-wrap>div').each(function () {
       const id = $(this).attr('id').substr(6)
       if (o) charts.push({ chart: id })
       else charts.push(id)

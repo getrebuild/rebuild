@@ -276,7 +276,7 @@ $(document).ready(() => {
     })
 
     // eslint-disable-next-line no-undef
-    if ($('#asideWidgets')[0]) ChartsWidget.init()
+    if ($('#asideCharts')[0]) ChartsWidget.init()
     // eslint-disable-next-line no-undef
     if ($('#asideCategory')[0]) CategoryWidget.init()
 
