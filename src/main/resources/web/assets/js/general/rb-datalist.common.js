@@ -1694,7 +1694,7 @@ CellRenders.addRender('FILE', (v, s, k) => {
     </td>
   )
 })
-const renderReference = (v, s, k) => {
+const _renderReference = (v, s, k) => {
   return (
     <td key={k}>
       <div style={s} title={v.text}>
@@ -1705,8 +1705,8 @@ const renderReference = (v, s, k) => {
     </td>
   )
 }
-CellRenders.addRender('REFERENCE', renderReference)
-CellRenders.addRender('ANYREFERENCE', renderReference)
+CellRenders.addRender('REFERENCE', _renderReference)
+CellRenders.addRender('ANYREFERENCE', _renderReference)
 CellRenders.addRender('N2NREFERENCE', (v, s, k) => {
   v = v || []
   const vLen = v.length
@@ -2099,12 +2099,11 @@ const ChartsWidget = {
     // eslint-disable-next-line no-undef
     ECHART_BASE.grid = { left: 40, right: 20, top: 30, bottom: 20 }
 
-    $('.J_load-charts').on('click', () => {
+    $('#asideShows a[href="#asideWidgets"]').on('click', () => {
       this._chartLoaded !== true && this.loadWidget()
     })
-    $('.J_add-chart').on('click', () => this.showChartSelect())
-
-    $('.charts-wrap')
+    $('#asideWidgets .charts--add').on('click', () => this.showChartSelect())
+    $('#asideWidgets .charts-wrap')
       .sortable({
         handle: '.chart-title',
         axis: 'y',
@@ -2128,7 +2127,7 @@ const ChartsWidget = {
   },
 
   renderChart: function (chart, append) {
-    const $w = $(`<div id="chart-${chart.chart}"></div>`).appendTo('.charts-wrap')
+    const $w = $(`<div id="chart-${chart.chart}"></div>`).appendTo('#asideWidgets .charts-wrap')
     // eslint-disable-next-line no-undef
     renderRbcomp(detectChart({ ...chart, editable: true }, chart.chart), $w, function () {
       if (append) ChartsWidget.saveWidget()
@@ -2147,13 +2146,13 @@ const ChartsWidget = {
     const charts = this.__currentCharts(true)
     $.post(`/app/${wpc.entity[0]}/widget-charts?id=${this.__config.id || ''}`, JSON.stringify(charts), (res) => {
       ChartsWidget.__config.id = res.data
-      $('.page-aside .tab-content').perfectScrollbar('update')
+      $('.page-aside.widgets .tab-content').perfectScrollbar('update')
     })
   },
 
   __currentCharts: function (o) {
     const charts = []
-    $('.charts-wrap>div').each(function () {
+    $('#asideWidgets .charts-wrap>div').each(function () {
       const id = $(this).attr('id').substr(6)
       if (o) charts.push({ chart: id })
       else charts.push(id)
@@ -2168,9 +2167,8 @@ const CategoryWidget = {
 
   init() {
     let _init = false
-    $('.J_load-category').on('click', () => {
+    $('#asideShows a[href="#asideCategory"]').on('click', () => {
       if (_init) return
-
       renderRbcomp(
         <AsideTree4Category
           entity={wpc.entity[0]}
