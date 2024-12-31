@@ -17,7 +17,6 @@ import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyDecimal;
 import com.rebuild.core.metadata.easymeta.EasyField;
-import com.rebuild.rbv.data.Html5ReportGenerator;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -159,7 +158,7 @@ public class ValueConvertFunc {
 
         } else if (type == DisplayType.NTEXT) {
             if (thatFunc.equals(CLEAR_4NTEXT)) {
-                if (fromClazz == Html5ReportGenerator.class) {
+                if (fromClazz != null && fromClazz.getSimpleName().equals("Html5ReportGenerator")) {
                     String md2html = MarkdownUtils.render((String) value);
                     return "<div class='mdedit-content md2html'>" + md2html + "</div>";
                 } else {

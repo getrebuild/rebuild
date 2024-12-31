@@ -101,12 +101,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   cursor: default;
 }
 
-.axis .axis-head > a {
-  display: inline-block;
-  padding: 0 3px;
-  cursor: default;
-}
-
 .axis .axis-target {
   margin-left: 80px;
   min-height: 30px;

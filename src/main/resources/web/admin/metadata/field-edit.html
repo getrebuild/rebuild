@@ -171,6 +171,12 @@
                     </label>
                   </div>
                 </div>
+                <div th:if="${fieldType == 'FILE'}" class="form-group row J_for-FILE bosskey-show">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('上传目录')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <input type="text" class="form-control form-control-sm" id="fileUpdir" th:placeholder="${bundle.L('默认')}" />
+                  </div>
+                </div>
                 <div th:if="${fieldType == 'PICKLIST' or fieldType == 'MULTISELECT'}" class="form-group row J_for-PICKLIST J_for-MULTISELECT">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('选项列表')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">

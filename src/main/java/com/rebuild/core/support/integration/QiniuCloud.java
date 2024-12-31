@@ -344,8 +344,8 @@ public class QiniuCloud {
         String dt = CalendarUtils.getDateFormat("yyyyMMddHHmmssSSS").format(CalendarUtils.now());
         String subdir = dt.substring(0, 8);
         String filePrefix = dt.substring(8);
-        // remove unsafe /\.
-        if (StringUtils.isNotBlank(updir)) subdir = updir.replaceAll("[./\\\\\\s]", "");
+        // remove unsafe flags
+        if (StringUtils.isNotBlank(updir)) subdir = updir.replaceAll("[%./\\\\\\s]", "");
 
         return String.format("rb/%s/%s__%s", subdir, filePrefix, fileName);
     }
