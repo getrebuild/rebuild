@@ -13,7 +13,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
-import com.rebuild.core.RebuildException;
+import com.rebuild.core.DefinedException;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.InstallState;
@@ -53,7 +53,7 @@ public class InstallController extends BaseController implements InstallState {
     @Override
     public boolean checkInstalled() {
         if (InstallState.super.checkInstalled() && Application.isReady()) {
-            throw new RebuildException("NOT ALLOWED");
+            throw new DefinedException("NOT ALLOWED");
         }
         return false;
     }

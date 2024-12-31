@@ -862,6 +862,9 @@ class FieldTypeCast extends RbFormHandler {
               <button className="btn btn-link" type="button" onClick={() => this.hide()}>
                 {$L('取消')}
               </button>
+              <button className="btn btn-warning bosskey-show " type="button" onClick={() => this.post('DATETIME40')}>
+                Repair
+              </button>
             </div>
           </div>
         </div>
@@ -880,8 +883,8 @@ class FieldTypeCast extends RbFormHandler {
     })
   }
 
-  post() {
-    const toType = $(this._$toType).val()
+  post(fixsType) {
+    const toType = fixsType || $(this._$toType).val()
     if (!toType) return RbHighbar.create($L('不可转换'))
 
     const $btn = $(this._$btns).find('.btn').button('loading')

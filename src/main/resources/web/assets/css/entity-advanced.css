@@ -152,6 +152,37 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-radius: 99px;
 }
 
-.aside-show .aside-item + .aside-item {
+.aside-show .aside-item + .aside-item,
+.topside + .topside {
   margin-top: 10px;
+}
+
+.aside-show .aside-item > span,
+.topside-item > span {
+  display: inline-block;
+  margin-left: 10px;
+  transform: translateY(5px);
+}
+
+.aside-show .aside-item > span + a {
+  font-size: 1.23rem;
+  color: #a1a1a1;
+  margin-left: 6px;
+  transform: translateY(6px);
+  display: none;
+}
+
+.aside-show .aside-item > span + a:hover {
+  color: rgb(128, 128, 128);
+}
+
+.aside-show .aside-item:hover > span + a {
+  display: inline-block;
+}
+
+.aside-show .aside-item > span.star::after {
+  content: '*';
+  margin-left: 4px;
+  font-weight: bold;
+  color: #fbbc05;
 }

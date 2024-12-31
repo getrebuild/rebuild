@@ -270,7 +270,22 @@ $(document).ready(() => {
   }
 
   // ASIDE
-  if ($('#asideFilters, #asideWidgets, #asideCategory').length > 0) {
+  if (wpc.advListAsideShows && wpc.advListAsideShows.length > 0) {
+    wpc.advListAsideShows.forEach((item) => {
+      $(`<li class="nav-item"><a class="nav-link" href="#${item[2]}" data-toggle="tab">${item[0]}</a></li>`).appendTo('#asideShows')
+    })
+
+    // eslint-disable-next-line no-undef
+    if ($('#asideCharts')[0]) ChartsWidget.init()
+    // eslint-disable-next-line no-undef
+    if ($('#asideCategory')[0]) CategoryWidget.init()
+
+    const $wtab = $('.page-aside.widgets .nav a:eq(0)')
+    if ($wtab.length > 0) {
+      $('.page-aside.widgets .ph-item.rb').remove()
+      $wtab.trigger('click')
+    }
+
     $('.side-toggle').on('click', () => {
       const $el = $('.rb-aside').toggleClass('rb-aside-collapsed')
       $.cookie('rb.asideCollapsed', $el.hasClass('rb-aside-collapsed'), { expires: 180 })
@@ -281,17 +296,6 @@ $(document).ready(() => {
       $content.height($(window).height() - 135)
       $content.perfectScrollbar('update')
     })()
-
-    // eslint-disable-next-line no-undef
-    if ($('#asideWidgets')[0]) ChartsWidget.init()
-    // eslint-disable-next-line no-undef
-    if ($('#asideCategory')[0]) CategoryWidget.init()
-  }
-
-  const $wtab = $('.page-aside.widgets .nav a:eq(0)')
-  if ($wtab.length > 0) {
-    $('.page-aside.widgets .ph-item.rb').remove()
-    $wtab.trigger('click')
   }
 
   // v3.8, v3.9

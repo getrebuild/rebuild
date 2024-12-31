@@ -534,5 +534,6 @@
   "current",
   "main",
   "detail",
-  "forceReload"
+  "forceReload",
+  "url"
 ]

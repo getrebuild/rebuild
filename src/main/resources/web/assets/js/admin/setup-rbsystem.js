@@ -24,10 +24,24 @@ class Setup extends React.Component {
               {this.props.data.map((item) => {
                 return (
                   <li key={item.file}>
-                    <a onClick={() => this.install(item)}>
+                    <div className="item" onClick={() => this.install(item)}>
                       <h5 className="m-0 text-bold">{item.name}</h5>
-                      <p className="m-0 mt-1 text-muted">{item.desc || item.name}</p>
-                    </a>
+                      <p className="m-0 mt-1 text-muted">
+                        <span>{item.desc || item.name}</span>
+                        {item.source && (
+                          <a
+                            className="ml-1 link"
+                            href={item.source}
+                            target="_blank"
+                            onClick={(e) => {
+                              $stopEvent(e, true)
+                              window.open(item.source)
+                            }}>
+                            ...{$L('详情')}
+                          </a>
+                        )}
+                      </p>
+                    </div>
                   </li>
                 )
               })}
@@ -71,7 +85,7 @@ class Setup extends React.Component {
   install(item) {
     const warningTip = (
       <div>
-        <div className="text-bold">{WrapHtml($L('安装系统模版将清空您现有系统的所有数据，包括系统配置、业务实体、数据等。安装前强烈建议您做好系统备份。'))}</div>
+        <div className="text-bold">{WrapHtml($L('安装系统模版将清空您现有系统的所有数据，包括系统配置、业务实体、数据以及附件等。安装前强烈建议您做好系统备份。'))}</div>
       </div>
     )
 
@@ -79,7 +93,7 @@ class Setup extends React.Component {
     RbAlert.create(warningTip, {
       icon: ' mdi mdi-database-refresh-outline',
       type: 'danger',
-      confirmText: $L('开始安装'),
+      confirmText: $L('清空并安装'),
       countdown: 10,
       onConfirm: function () {
         this.hide()
@@ -93,7 +107,7 @@ class Setup extends React.Component {
 }
 
 $(document).ready(() => {
-  $.get('/admin/rbstore/load-index?type=rbsystems', (res) => {
+  $.get('/setup/load-index?type=rbsystems', (res) => {
     if ((res.data || []).length > 0) {
       renderRbcomp(<Setup data={res.data} />, $('.card-body'))
     } else {

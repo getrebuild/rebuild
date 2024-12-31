@@ -168,9 +168,9 @@ public class Field2Schema extends SetUser {
         } catch (Throwable ex) {
             // ?
             if (ThrowableUtils.getRootCause(ex).getLocalizedMessage().contains("exists")) {
-                log.warn("Column not exists? " + ex.getLocalizedMessage());
+                log.warn("Column not exists? {}", ex.getLocalizedMessage());
             } else {
-                log.error("DDL ERROR : \n" + ddl, ex);
+                log.error("DDL ERROR : \n{}", ddl, ex);
                 return false;
             }
         }
@@ -208,7 +208,7 @@ public class Field2Schema extends SetUser {
      */
     public boolean schema2Database(Entity entity, Field[] fields, Collection<String> uniqueKeyFields) {
         Dialect dialect = Application.getPersistManagerFactory().getDialect();
-        final Table table = new Table(entity, dialect);
+        final Table table = new Table40(entity, dialect);
         final String alterSql = "alter table `" + entity.getPhysicalName() + "`";
 
         // H2 只能一个个字段的加
@@ -220,7 +220,7 @@ public class Field2Schema extends SetUser {
                 try {
                     Application.getSqlExecutor().executeBatch(new String[]{ddl.toString()}, DDL_TIMEOUT);
                 } catch (Throwable ex) {
-                    log.error("DDL ERROR : \n" + ddl, ex);
+                    log.error("DDL ERROR : \n{}", ddl, ex);
                     return false;
                 }
             }
@@ -249,9 +249,9 @@ public class Field2Schema extends SetUser {
             // Duplicate column name: 'xxx'
             if (fields.length == 1
                     && ThrowableUtils.getRootCause(ex).getLocalizedMessage().contains("Duplicate column")) {
-                log.warn("Duplicate column exists? " + ex.getLocalizedMessage());
+                log.warn("Duplicate column exists? {}", ex.getLocalizedMessage());
             } else {
-                log.error("DDL ERROR : \n" + ddl, ex);
+                log.error("DDL ERROR : \n{}", ddl, ex);
                 return false;
             }
         }
@@ -487,13 +487,13 @@ public class Field2Schema extends SetUser {
         String alterTypeSql = null;
         try {
             Dialect dialect = Application.getPersistManagerFactory().getDialect();
-            final Table table = new Table(field.getOwnEntity(), dialect);
+            final Table table = new Table40(field.getOwnEntity(), dialect);
             StringBuilder ddl = new StringBuilder();
             table.generateFieldDDL(field, ddl);
 
             alterTypeSql = String.format("alter table `%s` change column `%s` ",
                     field.getOwnEntity().getPhysicalName(), field.getPhysicalName());
-            alterTypeSql += ddl.toString().trim().replace("  ", " ");
+            alterTypeSql += ddl.toString().trim().replaceAll("\\s+", " ");
 
             Application.getSqlExecutor().executeBatch(new String[]{alterTypeSql}, DDL_TIMEOUT);
             log.info("Cast field type : {}", alterTypeSql);
@@ -517,6 +517,27 @@ public class Field2Schema extends SetUser {
             DynamicMetadataContextHolder.isSkipLanguageRefresh(true);
         }
 
+        return true;
+    }
+
+    /**
+     * @param field
+     * @return
+     */
+    public boolean fixsDatetime40(Field field) {
+        if (field.getType() != FieldType.TIMESTAMP) return false;
+
+        Dialect dialect = Application.getPersistManagerFactory().getDialect();
+        final Table table = new Table40(field.getOwnEntity(), dialect);
+        StringBuilder ddl = new StringBuilder();
+        table.generateFieldDDL(field, ddl);
+
+        String alterTypeSql = String.format("alter table `%s` change column `%s` ",
+                field.getOwnEntity().getPhysicalName(), field.getPhysicalName());
+        alterTypeSql += ddl.toString().trim().replaceAll("\\s+", " ");
+
+        Application.getSqlExecutor().executeBatch(new String[]{alterTypeSql}, DDL_TIMEOUT);
+        log.info("Fixs datetime field : {}", alterTypeSql);
         return true;
     }
 }

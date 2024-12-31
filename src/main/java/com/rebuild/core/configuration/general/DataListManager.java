@@ -19,20 +19,32 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.core.service.query.ParseHelper;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_ASIDE_SHOWS;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_HIDE_CHARTS;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_HIDE_FILTERS;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_MODE3_SHOWCATEGORY;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_MODE3_SHOWCHARTS;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_MODE3_SHOWFILTERS;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_SHOWCATEGORY;
 
 /**
  * 数据列表
@@ -372,5 +384,60 @@ public class DataListManager extends BaseLayoutManager {
             if (name != null) fields.add(formatField(entity.getField((String) name)));
         }
         return emptyConfig;
+    }
+
+    /**
+     * 获取侧栏显示
+     *
+     * @param easyEntity
+     * @param listMode
+     * @return
+     */
+    public JSONArray getAdvListAsideShows(EasyEntity easyEntity, int listMode) {
+        final JSONObject extraAttrs = easyEntity.getExtraAttrs();
+
+        Map<String, Object[]> itemsMap = new HashMap<>();
+        if (listMode == 3) {
+            if (extraAttrs.getBooleanValue(ADVLIST_MODE3_SHOWFILTERS)) {
+                itemsMap.put(ADVLIST_MODE3_SHOWFILTERS, new Object[]{Language.L("常用查询"), 1, "asideFilters"});
+            }
+            if (extraAttrs.getString(ADVLIST_MODE3_SHOWCATEGORY) != null) {
+                itemsMap.put(ADVLIST_MODE3_SHOWCATEGORY, new Object[]{Language.L("分组"), 2, "asideCategory"});
+            }
+            if (extraAttrs.getBooleanValue(ADVLIST_MODE3_SHOWCHARTS)) {
+                itemsMap.put(ADVLIST_MODE3_SHOWCHARTS, new Object[]{Language.L("图表"), 3, "asideCharts"});
+            }
+        } else {
+            if (!extraAttrs.getBooleanValue(ADVLIST_HIDE_FILTERS)) {
+                itemsMap.put(ADVLIST_HIDE_FILTERS, new Object[]{Language.L("常用查询"), 1, "asideFilters"});
+            }
+            if (extraAttrs.getString(ADVLIST_SHOWCATEGORY) != null) {
+                itemsMap.put(ADVLIST_SHOWCATEGORY, new Object[]{Language.L("分组"), 2, "asideCategory"});
+            }
+            if (!extraAttrs.getBooleanValue(ADVLIST_HIDE_CHARTS)) {
+                itemsMap.put(ADVLIST_HIDE_CHARTS, new Object[]{Language.L("图表"), 3, "asideCharts"});
+            }
+        }
+
+        String shows = easyEntity.getExtraAttr(ADVLIST_ASIDE_SHOWS);
+        JSONObject showsConf;
+        if (JSONUtils.wellFormat(shows)) showsConf = JSON.parseObject(shows);
+        else showsConf = new JSONObject();
+
+        for (String name : showsConf.keySet()) {
+            JSONObject o = showsConf.getJSONObject(name);
+            Object[] item = itemsMap.get(name);
+            if (o == null || item == null) continue;
+
+            String label = o.getString("label");
+            int order = o.getIntValue("order");
+            if (StringUtils.isNotBlank(label)) item[0] = label;
+            if (order > 0) item[1] = order;
+            itemsMap.put(name, item);
+        }
+
+        List<Object[]> items = new ArrayList<>(itemsMap.values());
+        items.sort(Comparator.comparingInt(o -> (int) o[1]));
+        return (JSONArray) JSON.toJSON(items);
     }
 }

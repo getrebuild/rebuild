@@ -41,7 +41,7 @@ $(document).ready(() => {
       _configSorts[fkey] = this.sort
     })
 
-    refreshConfigStar()
+    _refreshConfigStar()
 
     // 覆盖自有配置
     if (res.data) {
@@ -129,7 +129,7 @@ $(document).ready(() => {
   })
 })
 
-const refreshConfigStar = function () {
+const _refreshConfigStar = function () {
   $('.dd-list.J_config .dd-item').each(function () {
     const fkey = $(this).data('key')
     if (_configLabels[fkey] || _configWidths[fkey] || _configSorts[fkey]) {
@@ -166,7 +166,7 @@ render_item_after = function ($item) {
               _configSorts = {}
               _configSorts[fkey] = s.sort
             }
-            refreshConfigStar()
+            _refreshConfigStar()
           }}
         />,
         function () {
