@@ -56,6 +56,7 @@ import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_HIDE_
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_HIDE_FILTERS;
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_MODE;
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_MODE3_SHOWCATEGORY;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_MODE3_SHOWCHARTS;
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_MODE3_SHOWFILTERS;
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_SHOWCATEGORY;
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ENABLE_RECORD_MERGER;
@@ -121,9 +122,9 @@ public class GeneralListController extends EntityController {
 
             // 侧栏
 
-            String advListShowCategory = easyEntity.getExtraAttr(ADVLIST_SHOWCATEGORY);
             String advListHideFilters = easyEntity.getExtraAttr(ADVLIST_HIDE_FILTERS);
             String advListHideCharts = easyEntity.getExtraAttr(ADVLIST_HIDE_CHARTS);
+            String advListShowCategory = easyEntity.getExtraAttr(ADVLIST_SHOWCATEGORY);
             mv.getModel().put("hideAside",
                     BooleanUtils.toBoolean(advListHideFilters) && BooleanUtils.toBoolean(advListHideCharts) && StringUtils.isBlank(advListShowCategory));
             mv.getModel().put(ADVLIST_ASIDE_SHOWS, DataListManager.instance.getAdvListAsideShows(easyEntity, 1));
@@ -170,10 +171,11 @@ public class GeneralListController extends EntityController {
 
             // 侧栏
 
-            String mode3ShowCategory = easyEntity.getExtraAttr(ADVLIST_MODE3_SHOWCATEGORY);
             String mode3ShowFilters = easyEntity.getExtraAttr(ADVLIST_MODE3_SHOWFILTERS);
+            String mode3ShowCharts = easyEntity.getExtraAttr(ADVLIST_MODE3_SHOWCHARTS);
+            String mode3ShowCategory = easyEntity.getExtraAttr(ADVLIST_MODE3_SHOWCATEGORY);
             mv.getModel().put("hideAside",
-                    !(BooleanUtils.toBoolean(mode3ShowFilters) || StringUtils.isNotBlank(mode3ShowCategory)));
+                    !(BooleanUtils.toBoolean(mode3ShowFilters) || BooleanUtils.toBoolean(mode3ShowCharts) || StringUtils.isNotBlank(mode3ShowCategory)));
             mv.getModel().put(ADVLIST_ASIDE_SHOWS, DataListManager.instance.getAdvListAsideShows(easyEntity, 3));
         }
 
