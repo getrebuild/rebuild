@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-;(function () {
+(function () {
   var gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -387,6 +387,7 @@ var _checkMessage = function () {
     }
 
     _showStateMM(res.data.mm)
+    _showStateST(res.data.st)
     setTimeout(_checkMessage, rb.env === 'dev' ? 9000 : 2000)
   })
 }
@@ -446,7 +447,6 @@ var _showNotification = function (state) {
 }
 var _showStateMM = function (mm) {
   if ($.cookie('mm_gritter_cancel')) return
-
   if (mm) {
     var $mm = $('#mm_gritter')
     if ($mm[0]) {
@@ -469,6 +469,25 @@ var _showStateMM = function (mm) {
     }
   } else {
     RbGritter.remove('mm_gritter')
+  }
+}
+var _showStateST = function (st) {
+  if ($.cookie('st_gritter_cancel')) return
+  st = Math.abs(moment().diff(st, 'seconds'))
+  if (st > 60) {
+    if (!$('#gritter-item-st_gritter')[0]) {
+      RbGritter.create($L('本地计算机与服务器时间存在加大差异，建议立即校正。'), {
+        timeout: 60 * 1000,
+        type: 'danger',
+        icon: 'mdi-clock-remove-outline',
+        onCancel: function () {
+          $.cookie('st_gritter_cancel', st, { expires: 1 })
+        },
+        id: 'st_gritter',
+      })
+    }
+  } else {
+    RbGritter.remove('st_gritter')
   }
 }
 // 全局搜索
