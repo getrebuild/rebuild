@@ -1391,7 +1391,7 @@ class DataList extends BaseChart {
     }
 
     const extconfig = this.state.config.extconfig
-    extconfig && this.setState({ title: extconfig.title || $L('数据列表') })
+    // extconfig && this.setState({ title: extconfig.title || $L('数据列表') })
 
     const listFields = data.fields
     const listData = data.data
