@@ -210,6 +210,13 @@ class RbPreview extends React.Component {
               previewUrl = `${rb.baseUrl}/filex/` + url.split('/filex/')[1]
             }
           }
+
+          // fix:3.9.1 PC钉钉预览PDF
+          if ($env.isDingTalk()) {
+            window.open(previewUrl)
+            that.hide()
+            return
+          }
         }
         that.setState({ previewUrl: previewUrl, errorMsg: null })
       }

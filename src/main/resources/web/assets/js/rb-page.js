@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-(function () {
+;(function () {
   var gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -209,6 +209,8 @@ $(window).on('load', () => {
       if (($(this).attr('href') || '').indexOf('getrebuild.com') > -1) $(this).removeAttr('href')
     })
   }
+  // vConsole
+  if (window.VConsole) new window.VConsole()
 })
 
 // 取消管理中心访问
@@ -1354,4 +1356,16 @@ function $select2OpenTemplateResult(res) {
       })
   }
   return $span
+}
+
+// 环境 @see LoginChannel.java
+var $env = {
+  // 钉钉
+  isDingTalk: function () {
+    return navigator.userAgent.match(/(DINGTALK)/i) || true
+  },
+  // 企微
+  isWxWork: function () {
+    return navigator.userAgent.match(/(WXWORK)/i)
+  },
 }
