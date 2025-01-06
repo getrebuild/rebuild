@@ -38,7 +38,7 @@ class RbFormModal extends React.Component {
 
     return (
       <div className="modal-wrapper">
-        <div className="modal rbmodal colored-header colored-header-primary" aria-hidden="true" ref={(c) => (this._rbmodal = c)}>
+        <div className="modal rbmodal colored-header colored-header-primary" aria-modal="true" ref={(c) => (this._rbmodal = c)}>
           <div className="modal-dialog" style={style2}>
             <div className="modal-content" style={style2}>
               <div

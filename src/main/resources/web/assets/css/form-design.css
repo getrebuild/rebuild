@@ -334,6 +334,24 @@ form.field-attr label > span {
 .table.table-p .custom-control {
   padding-left: 1.9377rem;
   margin-right: 1.385rem;
+  padding-left: 22px;
+  margin-right: 12px;
+}
+
+.table.table-p a.easy-control {
+  font-size: 15px;
+  color: #999;
+  display: none;
+}
+
+.table.table-p tr:hover a.easy-control {
+  display: inline-block;
+}
+
+.table.table-p a.easy-control:hover,
+.table.table-p a.easy-control.active {
+  color: #4285f4;
+  display: inline-block;
 }
 
 .type-list .dd-handle {

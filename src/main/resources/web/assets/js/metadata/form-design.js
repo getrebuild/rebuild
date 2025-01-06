@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global FIELD_TYPES */
+/* global FIELD_TYPES, EasyFilter */
 
 const wpc = window.__PageConfig
 const DIVIDER_LINE = '$DIVIDER$'
@@ -646,20 +646,24 @@ const AdvControl = {
   $tbody: $('#adv-control tbody'),
 
   init() {
-    this._template = this.$tbody.find('tr').html()
+    this._$template = this.$tbody.find('tr').html()
     this.$tbody.find('tr').remove()
   },
 
   set: function (field) {
-    const $c = $(`<tr data-field="${field.fieldName}">${this._template}</tr>`).appendTo(this.$tbody)
+    const $c = $(`<tr data-field="${field.fieldName}">${this._$template}</tr>`).appendTo(this.$tbody)
     $c.find('td:eq(0)').text(field.fieldLabel)
 
+    // 显示
+    const $show = $c.find('td:eq(1)')
+    $show.find('>a').on('click', () => this._showEasyFilter(field.fieldName, 'display', $L('显示条件')))
     // 必填
     const $req = $c.find('td:eq(2)')
     if (field.builtin) $req.empty()
     else if (!field.nullable) {
       $req.find('input').attr({ disabled: true, checked: true })
     }
+    $req.find('>a').on('click', () => this._showEasyFilter(field.fieldName, 'required', $L('必填条件')))
     // 只读
     const $ro = $c.find('td:eq(3)')
     if (field.builtin) $ro.empty()
@@ -667,21 +671,74 @@ const AdvControl = {
       if (!field.creatable) $ro.find('input:eq(0)').attr({ disabled: true, checked: true })
       if (!field.updatable) $ro.find('input:eq(1)').attr({ disabled: true, checked: true })
     }
+    $ro.find('>a').on('click', () => this._showEasyFilter(field.fieldName, 'readonly', $L('只读条件')))
 
-    this.$tbody.find(`tr[data-field="${field.fieldName}"] input`).each(function () {
+    // init
+    const $tr = this.$tbody.find(`tr[data-field="${field.fieldName}"]`)
+    $tr.find('input').each(function () {
       const $this = $(this)
       if ($this.prop('disabled')) return
       const v = field[$this.attr('name')]
       if (v === true || v === false) $this.attr('checked', v)
     })
+    // v4.0
+    ;['display', 'required', 'readonly'].forEach((type) => {
+      const s = field[type + 'OnEasyControl']
+      if (s) {
+        const key = field.fieldName + '--' + type
+        AdvControl._EasyFilters__data[key] = s
+        $tr.find(`a.easy-control[data-type="${type}"]`).addClass('active')
+      }
+    })
   },
 
   cfgAppend: function (item) {
-    this.$tbody.find(`tr[data-field="${item.field}"] input`).each(function () {
+    const $tr = this.$tbody.find(`tr[data-field="${item.field}"]`)
+    $tr.find('input').each(function () {
       const $this = $(this)
       if ($this.prop('disabled')) return
       item[$this.attr('name')] = $this.prop('checked')
     })
+    // v4.0
+    $tr.find('a.easy-control.active').each(function () {
+      const type = $(this).data('type')
+      const key = item.field + '--' + type
+      if (AdvControl._EasyFilters__data[key]) item[type + 'OnEasyControl'] = AdvControl._EasyFilters__data[key]
+    })
+  },
+
+  _EasyFilters: {},
+  _EasyFilters__data: {},
+  _showEasyFilter: function (field, type, title) {
+    const key = field + '--' + type
+    if (this._EasyFilters[key]) {
+      this._EasyFilters[key].show()
+    } else {
+      renderRbcomp(
+        <EasyFilter
+          inModal
+          inEasyFilter
+          canNoFilters
+          fsDeep={1}
+          entity={wpc.entityName}
+          title={title}
+          filter={this._EasyFilters__data[key] || null}
+          onConfirm={(s) => {
+            this._EasyFilters__data[key] = s
+            const $t = $(`#adv-control tr[data-field="${field}"]`).find(`a.easy-control[data-type="${type}"]`)
+            if (s.items.length === 0) {
+              $t.removeClass('active')
+              delete this._EasyFilters__data[key]
+            } else {
+              $t.addClass('active')
+            }
+          }}
+        />,
+        function () {
+          AdvControl._EasyFilters[key] = this
+        }
+      )
+    }
   },
 }
 

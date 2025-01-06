@@ -27,7 +27,7 @@ class RbModal extends React.Component {
       <div
         className={modalClazz}
         style={props.zIndex ? { zIndex: props.zIndex } : null}
-        aria-hidden="true"
+        aria-modal="true"
         ref={(c) => {
           this._rbmodal = c
           this._element = c
@@ -256,7 +256,7 @@ class RbAlert extends React.Component {
     return (
       <div
         className="modal rbalert"
-        aria-hidden="true"
+        aria-modal="true"
         style={style1}
         ref={(c) => {
           this._dlg = c
