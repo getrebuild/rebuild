@@ -296,7 +296,8 @@ public class FormsBuilder extends FormsManager {
         // v3.7
         model.set("hadSop", true);
 
-        model.remove("id");  // Clean form's ID of config
+        model.set("layoutId", model.getID("id"));
+        model.remove("id");
         return model.toJSON();
     }
 

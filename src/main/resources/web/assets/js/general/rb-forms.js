@@ -661,6 +661,11 @@ class RbForm extends React.Component {
 
   // 设置字段值
   setFieldValue(field, value, error) {
+    // v4.0 一样不触发
+    // if (this.__FormData[field] && this.__FormData[field].value === value) {
+    //   if (rb.env === 'dev') console.log('FV1 ... Same value :', this.__FormData[field], value)
+    //   return
+    // }
     this.__FormData[field] = { value: value, error: error }
     this._onFieldValueChangeCall(field, value)
 
@@ -691,8 +696,10 @@ class RbForm extends React.Component {
 
     if (window.FrontJS) {
       const fieldKey = `${this.props.entity}.${field}`
-      const ret = window.FrontJS.Form._trigger('fieldValueChange', [fieldKey, value, this.props.id || null])
-      if (ret === false) return false
+      window.FrontJS.Form._trigger('fieldValueChange', [fieldKey, value, this.props.id || null])
+      // v4.0
+      // eslint-disable-next-line no-undef
+      if (window.EasyFilterEval) EasyFilterEval.evalAndEffect(this)
     }
   }
 
@@ -712,7 +719,7 @@ class RbForm extends React.Component {
 
       const fieldComp = _refs[key]
       let v = fieldComp.getValue()
-      if (v && typeof v === 'object') v = v.id
+      if (v && typeof v === 'object') v = v.id || v // array
       if (v) data[fieldComp.props.field] = v
     }
     return data
@@ -2937,9 +2944,11 @@ class RbFormTag extends RbFormElement {
   }
 
   renderElement() {
+    const _readonly40 = this.state.readonly
+
     const keyName = `${this.state.field}-tag-`
     return (
-      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" multiple defaultValue={this._selected}>
+      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" multiple defaultValue={this._selected} disabled={_readonly40}>
         {this._options.map((item) => {
           return (
             <option key={`${keyName}${item.name}`} value={item.name}>
@@ -3003,8 +3012,8 @@ class RbFormTag extends RbFormElement {
         that.handleChange({ target: { value: mVal.join('$$$$') } }, true)
       })
 
-      const _readonly37 = this.state.readonly
-      if (_readonly37) $(this._fieldValue).attr('disabled', true)
+      // const _readonly37 = this.state.readonly
+      // if (_readonly37) $(this._fieldValue).attr('disabled', true)
     }
   }
 

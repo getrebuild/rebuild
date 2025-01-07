@@ -694,7 +694,7 @@ const AdvControl = {
     })
     // v4.0
     ;['hidden', 'required', 'readonly'].forEach((type) => {
-      const s = field[type + 'OnEasyControl']
+      const s = field[type + 'OnEasyFilter']
       if (s) {
         const key = field.fieldName + '--' + type
         AdvControl._EasyFilters__data[key] = s
@@ -714,7 +714,7 @@ const AdvControl = {
     $tr.find('a.easy-control.active').each(function () {
       const type = $(this).data('type')
       const key = item.field + '--' + type
-      if (AdvControl._EasyFilters__data[key]) item[type + 'OnEasyControl'] = AdvControl._EasyFilters__data[key]
+      if (AdvControl._EasyFilters__data[key]) item[type + 'OnEasyFilter'] = AdvControl._EasyFilters__data[key]
     })
   },
 
