@@ -41,7 +41,7 @@ public class ContentWithFieldVars {
     /**
      * 通过 `{}` 包裹的变量或字段
      */
-    public static final Pattern PATT_VAR = Pattern.compile("\\{([0-9a-zA-Z._$]+)}");
+    public static final Pattern PATT_VAR = Pattern.compile("\\{([0-9a-zA-Z._$]{4,})}");
 
     /**
      * 替换文本中的字段变量
@@ -82,9 +82,7 @@ public class ContentWithFieldVars {
      * @return
      */
     public static String replaceWithRecord(String content, Record record) {
-        if (StringUtils.isBlank(content) || record == null) {
-            return content;
-        }
+        if (StringUtils.isBlank(content) || record == null) return content;
 
         // 主键占位符
         content = content.replace("{ID}",
@@ -147,25 +145,19 @@ public class ContentWithFieldVars {
     }
 
     /**
-     * 提取内容中的变量 {xxx}
+     * 提取内容中的变量 {xxxx}
      *
      * @param content
      * @return
      */
     public static Set<String> matchsVars(String content) {
-        if (StringUtils.isBlank(content)) {
-            return Collections.emptySet();
-        }
+        if (StringUtils.isBlank(content)) return Collections.emptySet();
 
         Set<String> vars = new HashSet<>();
         Matcher m = PATT_VAR.matcher(content);
         while (m.find()) {
             String varName = m.group(1);
-            if (StringUtils.isBlank(varName)) {
-                log.warn("Blank `\\{\\}` found in `{}`", content);
-            } else {
-                vars.add(varName);
-            }
+            vars.add(varName);
         }
         return vars;
     }
