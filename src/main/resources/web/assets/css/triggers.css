@@ -614,3 +614,19 @@ textarea.formula-code + .fields-vars {
   border-radius: 3px;
   margin-top: 10px;
 }
+
+.timeline-item.exec::before {
+  border: 0 none;
+  background-color: #fff;
+  font-family: 'Material Design Icons', serif;
+  content: '\F1936';
+  color: #f7b904;
+  font-size: 20px;
+  margin-left: -2px;
+  margin-top: -2px;
+}
+
+.timeline-item:first-child::before {
+  background-color: #4285f4;
+  border: 1px solid #fff;
+}
