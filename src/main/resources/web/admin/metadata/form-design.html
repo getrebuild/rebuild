@@ -87,7 +87,7 @@
                     <thead>
                       <tr>
                         <th>[[${bundle.L('字段')}]]</th>
-                        <th>[[${bundle.L('显示')}]]</th>
+                        <th>[[${bundle.L('隐藏')}]]</th>
                         <th>
                           <span class="d-inline-block">[[${bundle.L('必填')}]] <i class="zmdi zmdi-help zicon up-2" data-toggle="tooltip" th:title="${bundle.L('本选项仅针对表单有效')}"></i></span>
                         </th>
@@ -101,11 +101,11 @@
                         <td>TEMPLATE</td>
                         <td>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                            <input class="custom-control-input" type="checkbox" name="displayOnCreate" checked />
+                            <input class="custom-control-input" type="checkbox" name="hiddenOnCreate" />
                             <span class="custom-control-label">[[${bundle.L('新建时')}]]</span>
                           </label>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                            <input class="custom-control-input" type="checkbox" name="displayOnUpdate" checked />
+                            <input class="custom-control-input" type="checkbox" name="hiddenOnUpdate" />
                             <span class="custom-control-label">[[${bundle.L('编辑时')}]]</span>
                           </label>
                           <a class="easy-control" data-type="display"><i class="icon mdi mdi-filter-cog-outline"></i></a>

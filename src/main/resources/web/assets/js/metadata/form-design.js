@@ -651,17 +651,27 @@ const AdvControl = {
   },
 
   set: function (field) {
+    // comp:v3.9
+    if (typeof field['displayOnCreate'] !== 'undefined') {
+      if (field['displayOnCreate'] === false) field.hiddenOnCreate = true
+      if (field['displayOnUpdate'] === false) field.hiddenOnUpdate = true
+    }
+
     const $c = $(`<tr data-field="${field.fieldName}">${this._$template}</tr>`).appendTo(this.$tbody)
     $c.find('td:eq(0)').text(field.fieldLabel)
 
-    // 显示
+    // 隐藏
     const $show = $c.find('td:eq(1)')
-    $show.find('>a').on('click', () => this._showEasyFilter(field.fieldName, 'display', $L('显示条件')))
+    $show.find('>a').on('click', () => this._showEasyFilter(field.fieldName, 'hidden', $L('隐藏条件')))
     // 必填
     const $req = $c.find('td:eq(2)')
     if (field.builtin) $req.empty()
-    else if (!field.nullable) {
+    else if ($L('二维码') === field.displayType || $L('自动编号') === field.displayType) {
+      $req.find('input').attr({ disabled: true, checked: false })
+      $req.find('>a').remove()
+    } else if (!field.nullable) {
       $req.find('input').attr({ disabled: true, checked: true })
+      $req.find('>a').remove()
     }
     $req.find('>a').on('click', () => this._showEasyFilter(field.fieldName, 'required', $L('必填条件')))
     // 只读
@@ -670,6 +680,7 @@ const AdvControl = {
     else {
       if (!field.creatable) $ro.find('input:eq(0)').attr({ disabled: true, checked: true })
       if (!field.updatable) $ro.find('input:eq(1)').attr({ disabled: true, checked: true })
+      if (!field.creatable || !field.updatable) $ro.find('>a').remove()
     }
     $ro.find('>a').on('click', () => this._showEasyFilter(field.fieldName, 'readonly', $L('只读条件')))
 
@@ -682,7 +693,7 @@ const AdvControl = {
       if (v === true || v === false) $this.attr('checked', v)
     })
     // v4.0
-    ;['display', 'required', 'readonly'].forEach((type) => {
+    ;['hidden', 'required', 'readonly'].forEach((type) => {
       const s = field[type + 'OnEasyControl']
       if (s) {
         const key = field.fieldName + '--' + type

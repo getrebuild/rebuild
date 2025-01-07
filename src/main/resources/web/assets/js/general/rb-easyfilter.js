@@ -36,8 +36,10 @@ class EasyFilterItem extends FilterItem {
       op = ['EQ']
     } else if (fieldType === 'LOCATION') {
       op = ['LK', 'NLK']
-    } else if (fieldType === 'TAG') {
+    } else if (fieldType === 'TAG' || fieldType === 'PICKLIST') {
       op = ['IN', 'NIN']
+    } else if (fieldType === 'FILE' || fieldType === 'IMAGE' || fieldType === 'AVATAR') {
+      op = []
     }
 
     op.push('NL', 'NT')
