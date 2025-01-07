@@ -217,24 +217,28 @@ public class QueryParser {
             if (StringUtils.isNotBlank(where)) wheres.add(where);
         }
 
-        final String sqlWhere = wheres.isEmpty() ? "1=1" : StringUtils.join(wheres.iterator(), " and ");
-        fullSql.append(" where ").append(sqlWhere);
+        final String whereClause = wheres.isEmpty() ? "1=1" : StringUtils.join(wheres.iterator(), " and ");
+        fullSql.append(" where ").append(whereClause);
 
         // 排序
 
         String sortNode = queryExpr.getString("sort");
-        String sortSql = null;
+        String sortClause = null;
         if (StringUtils.isNotBlank(sortNode)) {
-            sortSql = parseSort(sortNode);
+            sortClause = parseSort(sortNode);
         } else if (entity.containsField(EntityHelper.ModifiedOn)) {
-            sortSql = EntityHelper.ModifiedOn + " desc";
+            sortClause = EntityHelper.ModifiedOn + " desc";
         } else if (entity.containsField(EntityHelper.CreatedOn)) {
-            sortSql = EntityHelper.CreatedOn + " desc";
+            sortClause = EntityHelper.CreatedOn + " desc";
         }
-        if (StringUtils.isNotBlank(sortSql)) fullSql.append(" order by ").append(sortSql);
+        if (StringUtils.isNotBlank(sortClause)) {
+            fullSql.append(" order by ").append(sortClause);
+            // v3.9.1
+            if (!sortClause.contains(" autoId") && entity.containsField(EntityHelper.AutoId)) fullSql.append(", autoId");
+        }
 
         this.sql = fullSql.toString();
-        this.countSql = this.buildCountSql(pkName) + sqlWhere;
+        this.countSql = this.buildCountSql(pkName) + whereClause;
 
         int pageNo = NumberUtils.toInt(queryExpr.getString("pageNo"), 1);
         int pageSize = NumberUtils.toInt(queryExpr.getString("pageSize"), 40);
