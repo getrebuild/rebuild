@@ -31,6 +31,9 @@ import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * 创建实体
  *
@@ -271,7 +274,9 @@ public class Entity2Schema extends Field2Schema {
      */
     private boolean schema2Database(Entity entity) {
         Dialect dialect = Application.getPersistManagerFactory().getDialect();
-        Table table = new Table40(entity, dialect);
+        List<String> ixs = Arrays.asList(
+                EntityHelper.QuickCode, EntityHelper.OwningUser, EntityHelper.OwningDept, EntityHelper.CreatedOn, EntityHelper.ModifiedOn);
+        Table table = new Table40(entity, dialect, ixs);
         String[] ddls = table.generateDDL(false, false, false);
 
         try {
