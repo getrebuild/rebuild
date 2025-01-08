@@ -385,7 +385,7 @@ class DlgBackup extends RbAlert {
   }
 
   confirm = () => {
-    let type = ($(this._$bkType).find('input:eq(0)').prop('checked') ? 1 : 0) + ($(this._$bkType).find('input:eq(1)').prop('checked') ? 2 : 0)
+    const type = ($(this._$bkType).find('input:eq(0)').prop('checked') ? 1 : 0) + ($(this._$bkType).find('input:eq(1)').prop('checked') ? 2 : 0)
     if (type === 0) return
 
     this.disabled(true, true)
@@ -393,6 +393,7 @@ class DlgBackup extends RbAlert {
     $.post(`systems/backup?type=${type}`, (res) => {
       if (res.error_code === 0) this.setState({ ...res.data })
       else RbHighbar.error(res.error_msg)
+
       this.disabled(false, false)
       $btn.button('reset')
     })
