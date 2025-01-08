@@ -339,6 +339,7 @@ class DlgBackup extends RbAlert {
   state = { ...this.props }
 
   renderContent() {
+    const _backup = this.state.db || this.state.file
     return (
       <form className="rbalert-form-sm">
         <div className="form-group mb-0">
@@ -355,9 +356,26 @@ class DlgBackup extends RbAlert {
           </div>
         </div>
         <div className="form-group mb-1">
-          <div className="text-warning mb-1" ref={(c) => (this._$tips = c)}>
-            <i className="mdi-alert-outline mdi" /> {$L('请勿在业务高峰时段执行备份')}
-          </div>
+          {_backup ? (
+            <div className="backup-box">
+              <table>
+                <tbody>
+                  <tr>
+                    <td className="text-ellipsis pr-1">{$L('数据库')}</td>
+                    <td>{this.state.db ? <code>{this.state.db}</code> : <span className="text-muted">{$L('未备份')}</span>}</td>
+                  </tr>
+                  <tr>
+                    <td className="text-ellipsis pr-1">{$L('数据目录文件')}</td>
+                    <td>{this.state.file ? <code>{this.state.file}</code> : <span className="text-muted">{$L('未备份')}</span>}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-warning mb-1" ref={(c) => (this._$tips = c)}>
+              <i className="mdi-alert-outline mdi" /> {$L('请勿在业务高峰时段执行备份')}
+            </div>
+          )}
           <button type="button" className="btn btn-space btn-primary" onClick={this.confirm} ref={(c) => (this._$btn = c)} data-spinner>
             {$L('开始备份')}
           </button>
@@ -373,13 +391,8 @@ class DlgBackup extends RbAlert {
     this.disabled(true, true)
     const $btn = $(this._$btn).button('loading')
     $.post(`systems/backup?type=${type}`, (res) => {
-      if (res.error_code === 0) {
-        const data = res.data || {}
-        const tips = [$L('数据库'), ' <code>', data.db || $L('未备份'), '</code><br>', $L('数据目录文件'), ' <code>', data.file || $L('未备份'), '</code>']
-        $(this._$tips).html(tips.join(''))
-      } else {
-        RbHighbar.error(res.error_msg)
-      }
+      if (res.error_code === 0) this.setState({ ...res.data })
+      else RbHighbar.error(res.error_msg)
       this.disabled(false, false)
       $btn.button('reset')
     })
