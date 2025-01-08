@@ -68,6 +68,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 4px 20px;
 }
 
+#config-side .adv-filter-wrap .alert.alert-warning {
+  padding: 0;
+  margin-bottom: 20px;
+}
+
 #config-side .footer,
 #config-side .adv-filter-option .btn-footer {
   position: absolute;

@@ -41,7 +41,9 @@ import java.util.Map;
 public class EasyFilterEval {
 
     final private JSONArray formElements;
+
     private Entity filterEntity;
+    private HashMap<String, Boolean> filterCache = new HashMap<>();
 
     /**
      * @param layoutId
@@ -94,7 +96,16 @@ public class EasyFilterEval {
         Map<Integer, Boolean> itemsPass = new HashMap<>();
         for (Object o : easyFilter.getJSONArray("items")) {
             JSONObject item = (JSONObject) o;
-            itemsPass.put(item.getInteger("index"), evalFilterItem(data, item));
+            String itemKey = item.toString();
+            if (filterCache.containsKey(itemKey)) {
+                itemsPass.put(item.getInteger("index"), filterCache.get(itemKey));
+                continue;
+            }
+
+            boolean pass = evalFilterItem(data, item);
+            itemsPass.put(item.getInteger("index"), pass);
+            filterCache.put(itemKey, pass);
+            if (CommonsUtils.DEVLOG) System.out.println("[dev] Parse item : " + item + " >> " + pass);
         }
 
         String equation = StringUtils.defaultIfBlank(easyFilter.getString("equation"), "OR");
@@ -107,6 +118,8 @@ public class EasyFilterEval {
         for (Boolean b : itemsPass.values()) {
             if (b) return true;
         }
+
+
 
         // TODO 高级表达式
         return false;
@@ -139,7 +152,7 @@ public class EasyFilterEval {
         }
 
         // 空值不继续了
-        if (StringUtils.isBlank(valueInData)) return true;
+        if (StringUtils.isBlank(valueInData)) return false;
 
         // 等于
         if (ParseHelper.EQ.equals(op)) {

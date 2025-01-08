@@ -77,7 +77,7 @@ class AdvFilter extends React.Component {
                 <input className="custom-control-input" type="radio" name={this._htmlid} data-id="useEquation" value="AND" checked={this.state.useEquation === 'AND'} onChange={this.handleChange} />
                 <span className="custom-control-label pl-1">{$L('符合全部')}</span>
               </label>
-              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
+              <label className={`custom-control custom-control-sm custom-radio custom-control-inline mb-2 ${this.props.inEasyFilter && 'hide'}`}>
                 <input className="custom-control-input" type="radio" name={this._htmlid} data-id="useEquation" value="9999" checked={this.state.useEquation === '9999'} onChange={this.handleChange} />
                 <span className="custom-control-label pl-1">
                   {$L('高级表达式')}
