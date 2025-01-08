@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.query;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -18,12 +19,14 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -117,7 +120,7 @@ public class EasyFilterEval {
     protected boolean evalFilterItem(JSONObject data, JSONObject easyFilterItem) {
         final String field = easyFilterItem.getString("field");
         final String op = easyFilterItem.getString("op");
-        final String valueInEasy = easyFilterItem.getString("value");
+        String valueInEasy = easyFilterItem.getString("value");
         String valueInData = data.getString(field);
 
         EasyField easyField = EasyMetaFactory.valueOf(filterEntity.getField(field));
@@ -134,6 +137,8 @@ public class EasyFilterEval {
         if (ParseHelper.NT.equals(op)) {
             return !StringUtils.isBlank(valueInData);
         }
+
+        // 空值不继续了
         if (StringUtils.isBlank(valueInData)) return true;
 
         // 等于
@@ -167,6 +172,36 @@ public class EasyFilterEval {
             return pass;
         }
 
+        // GT/LT/EQ/GE/LE
+        boolean isDate = dt == DisplayType.DATE || dt == DisplayType.DATETIME || dt == DisplayType.TIME;
+        if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER || isDate) {
+            String opReal = ParseHelper.convetOperation(op);
+            Map<String, Object> map = new HashMap<>();
+            if (isDate) {
+                map.put("valueInData", parseDate(valueInData, dt));
+                map.put("valueInEasy", parseDate(valueInEasy, dt));
+            } else {
+                map.put("valueInData", valueInData);
+                map.put("valueInEasy", valueInEasy);
+            }
+
+            String aviatorString = String.format("valueInData %s valueInEasy", opReal);
+            Object b = AviatorUtils.eval(aviatorString, map);
+            return b instanceof Boolean ? (Boolean) b : false;
+        }
+
         return false;
+    }
+
+    private Date parseDate(String date, DisplayType dt) {
+        if (dt == DisplayType.TIME) {
+            if (date.length() == 2) date = "2025-01-01 " + date + ":00:00";
+            else if (date.length() == 5) date = "2025-01-01 " + date + ":00";
+            else date = "2025-01-01 " + date;
+        } else {
+            if (date.length() == 4) date = date + "-01-01";
+            else if (date.length() == 7) date = date + "-01";
+        }
+        return CalendarUtils.parse(date);
     }
 }
