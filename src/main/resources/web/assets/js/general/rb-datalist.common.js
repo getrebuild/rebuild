@@ -1739,9 +1739,13 @@ CellRenders.addRender('EMAIL', (v, s, k) => {
   return (
     <td key={k}>
       <div style={s} title={v}>
-        <a href={`mailto:${v}`} className="column-url" onClick={(e) => $stopEvent(e)}>
-          {v}
-        </a>
+        {$env.isDingTalk() ? (
+          <a>{v}</a>
+        ) : (
+          <a href={`mailto:${v}`} className="column-url" onClick={(e) => $stopEvent(e)}>
+            {v}
+          </a>
+        )}
       </div>
     </td>
   )
@@ -1750,9 +1754,13 @@ CellRenders.addRender('PHONE', (v, s, k) => {
   return (
     <td key={k}>
       <div style={s} title={v}>
-        <a href={`tel:${v}`} className="column-url" onClick={(e) => $stopEvent(e)}>
-          {v}
-        </a>
+        {$env.isDingTalk() || $env.isWxWork() ? (
+          <a>{v}</a>
+        ) : (
+          <a href={`tel:${v}`} className="column-url" onClick={(e) => $stopEvent(e)}>
+            {v}
+          </a>
+        )}
       </div>
     </td>
   )

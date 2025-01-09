@@ -524,6 +524,29 @@ public class AdvFilterParser extends SetUser {
                 op = ParseHelper.BW;
             }
 
+            // v3.9.1 日期查询年月日 0000-00-00
+            if (ParseHelper.EQ.equals(op) && (value.startsWith("0000-") || value.contains("-00-") || value.endsWith("-00"))) {
+                final String[] ymd = value.split("-");
+                String format;
+                if (ymd[0].equals("0000") && ymd[1].equals("00")) {  // 0000-00-XX
+                    format = "%d";
+                    value = ymd[2];
+                } else if (ymd[0].equals("0000") && ymd[2].equals("00")) {  // 0000-XX-00
+                    format = "%m";
+                    value = ymd[1];
+                } else if (ymd[1].equals("00") && ymd[2].equals("00")) {  // XXXX-00-00
+                    format = "%Y";
+                    value = ymd[0];
+                } else if (ymd[1].equals("00")) {  // XXXX-00-XX
+                    format = "%Y%d";
+                    value = ymd[0] + ymd[2];
+                } else {  // 0000-XX-XX
+                    format = "%m%d";
+                    value = ymd[1] + ymd[2];
+                }
+                field = String.format("DATE_FORMAT(%s, '%s')", field, format);
+            }
+
         } else if (dt == DisplayType.TIME) {
             // 前端输入 HH:mm
             if (value != null && value.length() == 5) {
@@ -662,13 +685,13 @@ public class AdvFilterParser extends SetUser {
                     .append(" )");
         }
 
+        // 当前审批人
         if (VF_ACU.equals(field)) {
             return String.format(
                     "(exists (select recordId from RobotApprovalStep where ^%s = recordId and state = 1 and isCanceled = 'F' and %s) and approvalState = 2)",
                     specRootEntity.getPrimaryField().getName(), sb.toString().replace(VF_ACU, "approver"));
-        } else {
-            return sb.toString();
         }
+        return sb.toString();
     }
 
     /**

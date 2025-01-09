@@ -60,6 +60,7 @@ public class NotificationController extends BaseController {
 
         JSON mm = buildMM();
         if (mm != null) state.put("mm", mm);
+        state.put("st", CalendarUtils.now());
 
         // v3.8 手机版利用通知检查做最近活跃信息存储
         String h5referer = getParameter(request, "h5referer");

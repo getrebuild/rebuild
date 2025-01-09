@@ -1234,9 +1234,13 @@ class RbFormEMail extends RbFormText {
 
     return (
       <div className="form-control-plaintext">
-        <a title={$L('发送邮件')} href={`mailto:${this.state.value}`} className="link">
-          {this.state.value}
-        </a>
+        {$env.isDingTalk() ? (
+          <a>{this.state.value}</a>
+        ) : (
+          <a title={$L('发送邮件')} href={`mailto:${this.state.value}`} className="link">
+            {this.state.value}
+          </a>
+        )}
       </div>
     )
   }
@@ -1254,9 +1258,13 @@ class RbFormPhone extends RbFormText {
 
     return (
       <div className="form-control-plaintext">
-        <a title={$L('拨打电话')} href={`tel:${this.state.value}`} className="link">
-          {this.state.value}
-        </a>
+        {$env.isDingTalk() || $env.isWxWork() ? (
+          <a>{this.state.value}</a>
+        ) : (
+          <a title={$L('拨打电话')} href={`tel:${this.state.value}`} className="link">
+            {this.state.value}
+          </a>
+        )}
       </div>
     )
   }
