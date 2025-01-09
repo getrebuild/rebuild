@@ -24,10 +24,7 @@ import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
-import com.rebuild.core.metadata.easymeta.EasyFile;
-import com.rebuild.core.metadata.easymeta.EasyID;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.EasyN2NReference;
 import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.general.CalcFormulaSupport;
@@ -313,17 +310,20 @@ public class AutoFillinManager implements ConfigManager {
 
         // 转换成前端可接受的值
 
-        if (sourceEasy.getDisplayType() == targetEasy.getDisplayType()
-                && sourceEasy.getDisplayType() == DisplayType.MULTISELECT) {
+        DisplayType sourceEasyType = sourceEasy.getDisplayType();
+        DisplayType targetEasyType = targetEasy.getDisplayType();
+
+        if (sourceEasyType == targetEasyType && sourceEasyType == DisplayType.MULTISELECT) {
             return newValue;  // Long
         }
 
-        if (sourceEasy instanceof EasyID && targetEasy instanceof EasyN2NReference) {
+        if (sourceEasyType == DisplayType.ID
+                && (targetEasyType == DisplayType.REFERENCE || targetEasyType == DisplayType.N2NREFERENCE || targetEasyType == DisplayType.ANYREFERENCE)) {
             newValue = FieldValueHelper.wrapFieldValue(newValue, targetEasy);
-        } else if (targetEasy instanceof EasyN2NReference) {
+        } else if (targetEasyType == DisplayType.N2NREFERENCE) {
             newValue = targetEasy.wrapValue(newValue);
         } else if (sourceEasy instanceof MixValue) {
-            if (!(newValue instanceof String) || sourceEasy instanceof EasyFile) {
+            if (!(newValue instanceof String) || sourceEasyType == DisplayType.FILE) {
                 newValue = sourceEasy.wrapValue(newValue);
             }
         }

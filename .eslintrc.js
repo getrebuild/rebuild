@@ -151,5 +151,6 @@ module.exports = {
     $clearSelection: true,
     DlgTransform: true,
     $select2OpenTemplateResult: true,
+    $env: true,
   },
 }

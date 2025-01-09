@@ -990,8 +990,10 @@ class AnyRecordSelector extends RecordSelector {
         const iv = this.props.initValue
         if (iv) {
           $(this._$entity).val(iv.entity).trigger('change')
-          const option = new Option(iv.text, iv.id, true, true)
-          $(this._$select).append(option)
+          setTimeout(() => {
+            const o = new Option(iv.text, iv.id, true, true)
+            $(this._$select).append(o)
+          }, 200)
         }
       })
     })
