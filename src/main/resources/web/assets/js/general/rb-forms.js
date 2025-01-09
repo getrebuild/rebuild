@@ -712,7 +712,7 @@ class RbForm extends React.Component {
 
       const fieldComp = _refs[key]
       let v = fieldComp.getValue()
-      if (v && typeof v === 'object') v = v.id
+      if (v && typeof v === 'object') v = v.id || v // array
       if (v) data[fieldComp.props.field] = v
     }
     return data
