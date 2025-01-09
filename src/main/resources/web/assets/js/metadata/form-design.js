@@ -201,7 +201,7 @@ $(document).ready(() => {
   })()
 
   $('.nav-tabs-classic a[href="#adv-control"]').on('click', (e) => {
-    if (rb.commercial < 1) {
+    if (rb.commercial < 10) {
       e.preventDefault()
       RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return false
