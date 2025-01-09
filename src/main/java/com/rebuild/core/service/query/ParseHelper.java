@@ -117,7 +117,7 @@ public class ParseHelper {
      * @param token
      * @return
      */
-    protected static String convetOperation(String token) {
+    public static String convetOperation(String token) {
         if (EQ.equalsIgnoreCase(token)) {
             return "=";
         } else if (NEQ.equalsIgnoreCase(token)) {

@@ -661,11 +661,6 @@ class RbForm extends React.Component {
 
   // 设置字段值
   setFieldValue(field, value, error) {
-    // v4.0 一样不触发
-    // if (this.__FormData[field] && this.__FormData[field].value === value) {
-    //   if (rb.env === 'dev') console.log('FV1 ... Same value :', this.__FormData[field], value)
-    //   return
-    // }
     this.__FormData[field] = { value: value, error: error }
     this._onFieldValueChangeCall(field, value)
 
