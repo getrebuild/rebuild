@@ -1021,7 +1021,7 @@ const EasyFilterEval = {
       clearTimeout(this.__timer)
       this.__timer = null
     }
-    this.__timer = setTimeout(() => this._evalAndEffect(form), 600)
+    this.__timer = setTimeout(() => this._evalAndEffect(form), 200)
   },
 
   _evalAndEffect: function (form) {
