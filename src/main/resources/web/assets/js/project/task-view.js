@@ -935,9 +935,9 @@ class ValueRelatedRecord extends ValueComp {
   }
 
   handleChange() {
-    const value = this._relatedRecord.value() || null
-    super.handleChange({ target: { name: 'relatedRecord', value: value ? value.id : null } }, () => {
-      this.setState({ editMode: false, relatedRecordData: value })
+    const val = this._relatedRecord ? this._relatedRecord.getValue() || null : null
+    super.handleChange({ target: { name: 'relatedRecord', value: val ? val.id : null } }, () => {
+      this.setState({ editMode: false, relatedRecordData: val })
     })
   }
 }
