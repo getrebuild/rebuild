@@ -961,7 +961,7 @@ class AnyRecordSelector extends RecordSelector {
   componentDidMount() {
     super.componentDidMount()
 
-    $.get('/commons/metadata/entities', (res) => {
+    $.get('/commons/metadata/entities?detail=true', (res) => {
       const _entities = res.data || []
       if (_entities.length === 0) $(this._$select).attr('disabled', true)
 
