@@ -10,8 +10,11 @@ package com.rebuild.core.metadata.impl;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.Dialect;
+import cn.devezhao.persist4j.util.XmlHelper;
 import cn.devezhao.persist4j.util.support.Table;
+import org.dom4j.Element;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,11 +26,23 @@ import java.util.List;
 public class Table40 extends Table {
 
     public Table40(Entity entity, Dialect dialect) {
-        super(entity, dialect);
+        this(entity, dialect, null);
     }
 
-    public Table40(Entity entity, Dialect dialect, List<?> indexList) {
-        super(entity, dialect, indexList);
+    public Table40(Entity entity, Dialect dialect, List<String> indexFields) {
+        super(entity, dialect, buildIndexList(indexFields));
+    }
+
+    private static List<Element> buildIndexList(List<String> indexFields) {
+        if (indexFields == null || indexFields.isEmpty()) return null;
+
+        List<Element> ixs = new ArrayList<>();
+        for (String indexField : indexFields) {
+            Element ix = XmlHelper.createDom4jElement("index");
+            ix.addAttribute("field-list", indexField);
+            ixs.add(ix);
+        }
+        return ixs;
     }
 
     @Override

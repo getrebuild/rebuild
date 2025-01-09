@@ -77,7 +77,7 @@ class AdvFilter extends React.Component {
                 <input className="custom-control-input" type="radio" name={this._htmlid} data-id="useEquation" value="AND" checked={this.state.useEquation === 'AND'} onChange={this.handleChange} />
                 <span className="custom-control-label pl-1">{$L('符合全部')}</span>
               </label>
-              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
+              <label className={`custom-control custom-control-sm custom-radio custom-control-inline mb-2 ${this.props.inEasyFilter && 'hide'}`}>
                 <input className="custom-control-input" type="radio" name={this._htmlid} data-id="useEquation" value="9999" checked={this.state.useEquation === '9999'} onChange={this.handleChange} />
                 <span className="custom-control-label pl-1">
                   {$L('高级表达式')}
@@ -131,7 +131,7 @@ class AdvFilter extends React.Component {
   }
 
   componentDidMount() {
-    const deep = this.props.deep3 || location.href.includes('/admin/') || window.__LAB_ADVFILTER_FSDEEP3 ? 3 : 2
+    const deep = this.props.fsDeep ? this.props.fsDeep : location.href.includes('/admin/') || window.__LAB_ADVFILTER_FSDEEP3 ? 3 : 2
     const referer = this.props.referer || ''
     $.get(`/commons/metadata/fields?deep=${deep}&entity=${this.props.entity}&referer=${referer}`, (res) => {
       const validFs = []
@@ -214,9 +214,13 @@ class AdvFilter extends React.Component {
       index: items.length + 1,
     }
     if (props) itemProps = { ...itemProps, ...props }
-    items.push(<FilterItem {...itemProps} />)
+    items.push(this.addItem40(itemProps))
 
     this.setState({ items }, () => this.renderEquation())
+  }
+
+  addItem40(props) {
+    return <FilterItem {...props} />
   }
 
   removeItem(id) {
@@ -853,22 +857,24 @@ class FilterItem extends React.Component {
     const s = this.state // DON'T CHANGES `state`!!!
 
     // v3.9
-    if (this._inFilterPane && s.op === 'BW' && (s.value || s.value2)) {
-      const item = {
-        index: s.index,
-        field: s.field,
-        op: s.op,
+    if (this.props.inFilterPane) {
+      if (s.op === 'BW' && (s.value || s.value2)) {
+        const item = {
+          index: s.index,
+          field: s.field,
+          op: s.op,
+        }
+        if (s.value) item.value = s.value
+        if (s.value2) item.value2 = s.value2
+        return item
+      } else if (s.op === 'BW' && s.op4) {
+        const item = {
+          index: s.index,
+          field: s.field,
+          op: s.op4,
+        }
+        return item
       }
-      if (s.value) item.value = s.value
-      if (s.value2) item.value2 = s.value2
-      return item
-    } else if (this._inFilterPane && s.op === 'BW' && s.op4) {
-      const item = {
-        index: s.index,
-        field: s.field,
-        op: s.op4,
-      }
-      return item
     }
 
     let noValue = false

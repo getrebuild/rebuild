@@ -296,7 +296,8 @@ public class FormsBuilder extends FormsManager {
         // v3.7
         model.set("hadSop", true);
 
-        model.remove("id");  // Clean form's ID of config
+        model.set("layoutId", model.getID("id"));
+        model.remove("id");
         return model.toJSON();
     }
 
@@ -392,45 +393,51 @@ public class FormsBuilder extends FormsManager {
             // v2.2 高级控制
             // v3.8.4 视图下也有效（单字段编辑也算编辑）
             if (useAdvControl) {
-                Object displayOnCreate = el.remove("displayOnCreate");
-                Object displayOnUpdate = el.remove("displayOnUpdate");
+                Object hiddenOnCreate = el.remove("hiddenOnCreate");
+                Object hiddenOnUpdate = el.remove("hiddenOnUpdate");
+                if (hiddenOnCreate == null) {
+                    Object displayOnCreate39 = el.remove("displayOnCreate");
+                    Object displayOnUpdate39 = el.remove("displayOnUpdate");
+                    if (displayOnCreate39 != null && !(Boolean) displayOnCreate39) hiddenOnCreate = true;
+                    if (displayOnUpdate39 != null && !(Boolean) displayOnUpdate39) hiddenOnUpdate = true;
+                }
                 final Object requiredOnCreate = el.remove("requiredOnCreate");
                 final Object requiredOnUpdate = el.remove("requiredOnUpdate");
                 final Object readonlyOnCreate = el.remove("readonlyOnCreate");
                 final Object readonlyOnUpdate = el.remove("readonlyOnUpdate");
                 // fix v3.3.4 跟随主记录新建/更新
-                boolean isNew2 = isNew;
+                boolean isNewState = isNew;
                 if (entity.getMainEntity() != null) {
                     ID fromMain = FormsBuilderContextHolder.getMainIdOfDetail(false);
-                    isNew2 = EntityHelper.isUnsavedId(fromMain);
+                    isNewState = EntityHelper.isUnsavedId(fromMain);
                 }
 
                 // 视图下忽略此选项
                 if (viewModel) {
-                    displayOnCreate = true;
-                    displayOnUpdate = true;
+                    hiddenOnCreate = false;
+                    hiddenOnUpdate = false;
                 }
-                // 显示
-                if (displayOnCreate != null && !(Boolean) displayOnCreate && isNew2) {
+                // 隐藏 v4.0
+                if (hiddenOnCreate != null && (Boolean) hiddenOnCreate && isNewState) {
                     iter.remove();
                     continue;
                 }
-                if (displayOnUpdate != null && !(Boolean) displayOnUpdate && !isNew2) {
+                if (hiddenOnUpdate != null && (Boolean) hiddenOnUpdate && !isNewState) {
                     iter.remove();
                     continue;
                 }
                 // 必填
-                if (requiredOnCreate != null && (Boolean) requiredOnCreate && isNew2) {
+                if (requiredOnCreate != null && (Boolean) requiredOnCreate && isNewState) {
                     el.put("nullable", false);
                 }
-                if (requiredOnUpdate != null && (Boolean) requiredOnUpdate && !isNew2) {
+                if (requiredOnUpdate != null && (Boolean) requiredOnUpdate && !isNewState) {
                     el.put("nullable", false);
                 }
                 // 只读 v3.6
-                if (readonlyOnCreate != null && (Boolean) readonlyOnCreate && isNew2) {
+                if (readonlyOnCreate != null && (Boolean) readonlyOnCreate && isNewState) {
                     el.put("readonly", true);
                 }
-                if (readonlyOnUpdate != null && (Boolean) readonlyOnUpdate && !isNew2) {
+                if (readonlyOnUpdate != null && (Boolean) readonlyOnUpdate && !isNewState) {
                     el.put("readonly", true);
                 }
             }

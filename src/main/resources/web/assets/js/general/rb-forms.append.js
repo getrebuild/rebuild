@@ -1012,3 +1012,48 @@ class LiteFormArea extends React.Component {
     else return v
   }
 }
+
+const EasyFilterEval = {
+  __timer: null,
+
+  evalAndEffect: function (form) {
+    if (this.__timer) {
+      clearTimeout(this.__timer)
+      this.__timer = null
+    }
+    this.__timer = setTimeout(() => this._evalAndEffect(form), 600)
+  },
+
+  _evalAndEffect: function (form) {
+    const _this = form
+    $.post(`/app/entity/extras/easyfilter-eval?layout=${_this.props.rawModel.layoutId}`, JSON.stringify(_this.getFormData()), (res) => {
+      const attrs = res.data || []
+      const attrsLast = form.__lastEasyFilterEval || []
+      form.__lastEasyFilterEval = attrs // 绑定到表单对象
+      console.log('Eval ...', JSON.stringify(attrs))
+
+      attrs.forEach((a) => {
+        const fieldComp = _this.getFieldComp(a.field)
+        if (fieldComp) {
+          const aLast = this._getLastAttr(a.field, attrsLast)
+          if (a.hidden === true || a.hidden === false) {
+            if (aLast.hidden !== a.hidden) fieldComp.setHidden(a.hidden)
+          }
+          if (a.required === true || a.required === false) {
+            if (aLast.required !== a.required) fieldComp.setNullable(!a.required)
+          }
+          if (a.readonly === true || a.readonly === false) {
+            if (aLast.readonly !== a.readonly) fieldComp.setReadonly(a.readonly)
+          }
+        }
+      })
+    })
+  },
+
+  _getLastAttr(field, attrsLast) {
+    for (let i = 0; i < attrsLast.length; i++) {
+      if (attrsLast[i].field === field) return attrsLast[i]
+    }
+    return {}
+  },
+}

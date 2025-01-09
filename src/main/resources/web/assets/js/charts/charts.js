@@ -1391,7 +1391,7 @@ class DataList extends BaseChart {
     }
 
     const extconfig = this.state.config.extconfig
-    extconfig && this.setState({ title: extconfig.title || $L('数据列表') })
+    // extconfig && this.setState({ title: extconfig.title || $L('数据列表') })
 
     const listFields = data.fields
     const listData = data.data
@@ -1451,7 +1451,6 @@ class DataList extends BaseChart {
                     if (idx === lastIndex) return null // Last is ID
                     return this.renderCell(c, listFields[idx])
                   })}
-
                   <td className="open-newtab">
                     <a href={`${rb.baseUrl}/app/redirect?id=${lastCell.id}&type=newtab`} target="_blank" title={$L('打开')}>
                       <i className="zmdi zmdi-open-in-new icon" />
