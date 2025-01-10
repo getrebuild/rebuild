@@ -994,6 +994,8 @@ class RbList extends React.Component {
                                   type="button"
                                   className="btn btn-sm btn-link w-auto"
                                   title={btn.title || null}
+                                  disabled={!!btn._eaid}
+                                  data-eaid={btn._eaid}
                                   onClick={(e) => {
                                     typeof btn.onClick === 'function' && btn.onClick(primaryKey.id, e)
                                   }}>
@@ -2201,7 +2203,8 @@ const EasyAction4List = {
     if (!(_FrontJS && _EasyAction && items)) return
     const _List = _FrontJS.DataList
 
-    items['datalist'] &&
+    // 工具栏
+    if (items['datalist']) {
       items['datalist'].forEach((item) => {
         item = _EasyAction.fixItem(item)
         if (!item) return
@@ -2213,8 +2216,10 @@ const EasyAction4List = {
           })
         _List.addButton(item)
       })
+    }
 
-    items['datarow'] &&
+    // 记录行
+    if (items['datarow']) {
       items['datarow'].forEach((item) => {
         item = _EasyAction.fixItem(item)
         if (!item) return
@@ -2222,6 +2227,7 @@ const EasyAction4List = {
         item.onClick = (id) => _EasyAction.handleOp(item, id)
         _List.regRowButton(item)
       })
+    }
   },
 }
 

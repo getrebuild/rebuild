@@ -538,7 +538,7 @@ const _EasyAction = window.EasyAction
 // eslint-disable-next-line no-unused-vars
 const EasyAction4View = {
   init(items) {
-    if (!(_FrontJS && items) || !items['view']) return
+    if (!(_FrontJS && _EasyAction && items) || !items['view']) return
     const _View = _FrontJS.View
 
     items['view'].forEach((item) => {
