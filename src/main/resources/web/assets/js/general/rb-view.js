@@ -175,7 +175,7 @@ class RbViewForm extends React.Component {
         parent && parent.RbListPage && parent.RbListPage.reload(this.props.id, true)
 
         // 刷新本页
-        if ((res.data && res.data.forceReload) || this.__hasRefform) {
+        if ((res.data && res.data.forceReload) || this.__hasRefform || this.__hasEaButton) {
           setTimeout(() => RbViewPage.reload(), 200)
         }
       } else if (res.error_code === 499) {

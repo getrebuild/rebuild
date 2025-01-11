@@ -992,11 +992,11 @@ class RbList extends React.Component {
                                 <button
                                   key={idx}
                                   type="button"
-                                  className="btn btn-sm btn-link w-auto"
+                                  className={`btn btn-sm btn-link w-auto ${btn._eaid && 'disabled'}`}
                                   title={btn.title || null}
-                                  disabled={!!btn._eaid}
-                                  data-eaid={btn._eaid}
+                                  data-eaid={btn._eaid || null}
                                   onClick={(e) => {
+                                    if ($(e.target).hasClass('disabled')) return
                                     typeof btn.onClick === 'function' && btn.onClick(primaryKey.id, e)
                                   }}>
                                   <span className={`text-${btn.type || ''}`}>
@@ -1139,7 +1139,10 @@ class RbList extends React.Component {
           this._clearSelected()
           $(this._$scroller).scrollTop(0)
 
-          setTimeout(() => RbList.renderAfter(this), 0)
+          setTimeout(() => {
+            RbList.renderAfter(this)
+            RbList.renderAfter40(this)
+          }, 0)
         })
 
         if (reload && this._Pagination) {
@@ -1408,6 +1411,8 @@ class RbList extends React.Component {
   // 组件渲染后调用
   // eslint-disable-next-line no-unused-vars
   static renderAfter(list) {}
+  // eslint-disable-next-line no-unused-vars
+  static renderAfter40(list) {}
 }
 
 // 分页组件
@@ -2204,8 +2209,9 @@ const EasyAction4List = {
     const _List = _FrontJS.DataList
 
     // 工具栏
-    if (items['datalist']) {
-      items['datalist'].forEach((item) => {
+    const _eaDatalist = items['datalist']
+    if (_eaDatalist) {
+      _eaDatalist.forEach((item) => {
         item = _EasyAction.fixItem(item)
         if (!item) return
 
@@ -2219,14 +2225,36 @@ const EasyAction4List = {
     }
 
     // 记录行
-    if (items['datarow']) {
-      items['datarow'].forEach((item) => {
+    const _eaDatarow = items['datarow']
+    if (_eaDatarow) {
+      _eaDatarow.forEach((item) => {
         item = _EasyAction.fixItem(item)
         if (!item) return
 
         item.onClick = (id) => _EasyAction.handleOp(item, id)
+        item._eaid = item.id
         _List.regRowButton(item)
       })
+
+      const RbList_renderAfter40 = RbList.renderAfter40
+      RbList.renderAfter40 = function (listObj) {
+        typeof RbList_renderAfter40 === 'function' && RbList_renderAfter40()
+
+        // ROW
+        $(listObj._$tbody)
+          .find('tr')
+          .each(function () {
+            const $row = $(this)
+            const id = $row.data('id')
+            // ACTION
+            _EasyAction.checkShowFilter(_eaDatarow, id, (res) => {
+              $row.find('.col-action button[data-eaid]').each((i, b) => {
+                const $this = $(b)
+                res[$this.data('eaid')] && $this.removeClass('disabled')
+              })
+            })
+          })
+      }
     }
   },
 }

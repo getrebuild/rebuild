@@ -540,27 +540,37 @@ const EasyAction4View = {
   init(items) {
     if (!(_FrontJS && _EasyAction && items) || !items['view']) return
     const _View = _FrontJS.View
+    const viewObj = _View._detectView()
+    if (!viewObj) return
+    viewObj.__hasEaButton = true
 
-    items['view'].forEach((item) => {
+    const id = _View.getCurrentId()
+    const _eaView = items['view']
+    _eaView.forEach((item) => {
       item = _EasyAction.fixItem(item, _View.getCurrentId())
       if (!item) return
 
-      item.onClick = () => _EasyAction.handleOp(item, _View.getCurrentId())
+      item.onClick = () => _EasyAction.handleOp(item, id)
       item._eaid = item.id
       item.items &&
         item.items.forEach((itemL2) => {
-          itemL2.onClick = () => _EasyAction.handleOp(itemL2, _View.getCurrentId())
+          itemL2.onClick = (e) => {
+            if ($(e.target).attr('disabled')) return
+            _EasyAction.handleOp(itemL2, id)
+          }
           itemL2._eaid = itemL2.id
         })
       _View.addButton(item)
     })
 
     // v4.0
-    _EasyAction.checkShowFilter(items['view'], _View.getCurrentId(), (res) => {
-      $('.view-action button[data-eaid]').each((i, b) => {
-        const $this = $(b)
-        res[$this.data('button-id')] && $this.attr('disabled', false)
-      })
+    _EasyAction.checkShowFilter(_eaView, id, (res) => {
+      $('.view-action')
+        .find('button[data-eaid],a[data-eaid]')
+        .each((i, b) => {
+          const $this = $(b)
+          res[$this.data('eaid')] && $this.attr('disabled', false)
+        })
     })
   },
 }
