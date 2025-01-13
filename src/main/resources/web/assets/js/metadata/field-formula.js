@@ -335,11 +335,11 @@ class MatchFields extends React.Component {
 
   // fix:3.8.2
   _groupFields38() {
-    let groupFields = this.state.groupFields
-    if (groupFields && typeof groupFields === 'string') {
-      eval(`groupFields = ${groupFields}`)
+    let _groupFields = this.state.groupFields
+    if (_groupFields && typeof _groupFields === 'string') {
+      eval(`_groupFields = ${_groupFields}`)
     }
-    return groupFields
+    return _groupFields
   }
 
   render() {

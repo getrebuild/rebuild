@@ -349,12 +349,11 @@ public class ApprovalController extends BaseController {
             return RespBody.errorl("无效审批流程，可能已被删除");
         }
 
-        FlowDefinition def = RobotApprovalManager.instance
-                .getFlowDefinition(MetadataHelper.getEntity((String) belongEntity[0]), approvalId);
-
+        Entity applyEntity = MetadataHelper.getEntity((String) belongEntity[0]);
+        FlowDefinition def = RobotApprovalManager.instance.getFlowDefinition(applyEntity, approvalId);
         JSONObject data = JSONUtils.toJSONObject(
-                new String[] { "applyEntity", "flowDefinition" },
-                new Object[] { belongEntity[0], def.getJSON("flowDefinition") });
+                new String[]{"applyEntity", "flowDefinition"},
+                new Object[]{applyEntity.getName(), def.getJSON("flowDefinition")});
         return RespBody.ok(data);
     }
 
