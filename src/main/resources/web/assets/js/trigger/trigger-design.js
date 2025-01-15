@@ -32,6 +32,21 @@ $(document).ready(() => {
     })
   $('.J_startHour2').val('23')
 
+  $('.J_whenTimer1').on('change', function (e) {
+    if (e.target.value === 'cron') {
+      $('.J_timerSimple').addClass('hide')
+      $('.J_timerCron').removeClass('hide')
+    } else {
+      $('.J_timerSimple').removeClass('hide')
+      $('.J_timerCron').addClass('hide')
+    }
+  })
+  function _buildWhenTimer() {
+    let wt = $('.J_whenTimer1').val() || 'D'
+    if (wt === 'cron') return wt + ':' + ($('.J_whenTimer9').val() || '0 0 * * * ?')
+    return wt + `:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}:${$('.J_whenTimer4').val() || ''}`
+  }
+
   if (wpc.when > 0) {
     $([1, 2, 4, 16, 32, 64, 128, 256, 512, 1024, 2048]).each(function () {
       let mask = this
@@ -42,13 +57,17 @@ $(document).ready(() => {
           $('.on-timers').removeClass('hide')
           const wt = (wpc.whenTimer || 'D:1').split(':')
           $('.J_whenTimer1').val(wt[0])
-          $('.J_whenTimer2').val(wt[1])
-          // v2.9
-          if (wt[2]) $('.J_startHour1').val(wt[2])
-          if (wt[3]) $('.J_startHour2').val(wt[3])
-          // v3.8
-          if (wt[4]) $('.J_whenTimer4').val(wt[4]).parents('.bosskey-show').removeClass('bosskey-show')
-
+          // v4.0
+          if (wt[0] === 'cron') {
+            $('.J_whenTimer9').val(wt[1])
+          } else {
+            $('.J_whenTimer2').val(wt[1])
+            // v2.9
+            if (wt[2]) $('.J_startHour1').val(wt[2])
+            if (wt[3]) $('.J_startHour2').val(wt[3])
+            // v3.8
+            if (wt[4]) $('.J_whenTimer4').val(wt[4]).parents('.bosskey-show').removeClass('bosskey-show')
+          }
           $('.J_whenTimer1').trigger('change')
         }
       }
@@ -57,15 +76,15 @@ $(document).ready(() => {
 
   // 评估具体执行时间
   function evalTriggerTimes() {
-    const whenTimer = `${$('.J_whenTimer1').val() || 'D'}:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}:${$('.J_whenTimer4').val() || ''}`
-    $.get(`/admin/robot/trigger/eval-trigger-times?whenTimer=${whenTimer}`, (res) => {
+    $.get(`/admin/robot/trigger/eval-trigger-times?whenTimer=${_buildWhenTimer()}`, (res) => {
       renderRbcomp(
         <RbAlertBox
+          unclose
           icon="time"
           message={
             <div>
               <span className="mr-1">{$L('预计执行时间 (最多显示近 9 次)')} : </span>
-              <code>{res.data.slice(0, 9).join(', ')}</code>
+              <code>{res.data.length > 0 ? res.data.slice(0, 9).join(', ') : $L('无')}</code>
             </div>
           }
         />,
@@ -143,8 +162,6 @@ $(document).ready(() => {
       return
     }
 
-    const whenTimer = `${$('.J_whenTimer1').val() || 'D'}:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}:${$('.J_whenTimer4').val() || ''}`
-
     const content = contentComp.buildContent()
     if (content === false) return
 
@@ -152,7 +169,7 @@ $(document).ready(() => {
     if (window.whenApproveNodes) content.whenApproveNodes = window.whenApproveNodes
     const data = {
       when: when,
-      whenTimer: whenTimer,
+      whenTimer: _buildWhenTimer(),
       whenFilter: wpc.whenFilter || null,
       actionContent: content,
       metadata: {
