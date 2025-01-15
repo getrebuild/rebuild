@@ -17,7 +17,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
-import com.rebuild.core.configuration.general.LiteFormBuilder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
@@ -29,16 +28,19 @@ import com.rebuild.core.service.approval.ApprovalProcessor;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.ApprovalStatus;
 import com.rebuild.core.service.approval.ApprovalStepService;
+import com.rebuild.core.service.approval.EditableFields;
 import com.rebuild.core.service.approval.FlowDefinition;
 import com.rebuild.core.service.approval.FlowNode;
 import com.rebuild.core.service.approval.FlowNodeGroup;
 import com.rebuild.core.service.approval.RobotApprovalManager;
+import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.trigger.DataValidateException;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,7 +50,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowRevokeApproval;
@@ -173,11 +177,7 @@ public class ApprovalController extends BaseController {
         // 可修改字段
         JSONArray editableFields = currentFlowNode.getEditableFields();
         if (editableFields != null && !editableFields.isEmpty()) {
-            JSONArray aform = new LiteFormBuilder(recordId, user).build(editableFields);
-            if (aform != null && !aform.isEmpty()) {
-                data.put("aform", aform);
-                data.put("aentity", MetadataHelper.getEntityName(recordId));
-            }
+            data.putAll(new EditableFields(editableFields).buildForms(recordId, user));
         }
 
         return data;
@@ -185,9 +185,7 @@ public class ApprovalController extends BaseController {
 
     private JSONArray formatUsers(Collection<ID> users) {
         JSONArray array = new JSONArray();
-        for (ID u : users) {
-            array.add(new Object[] { u, UserHelper.getName(u) });
-        }
+        for (ID u : users) array.add(new Object[]{u, UserHelper.getName(u)});
         return array;
     }
 
@@ -227,13 +225,22 @@ public class ApprovalController extends BaseController {
         String useGroup = post.getString("useGroup");
 
         // 可编辑字段
-        JSONObject aformData = post.getJSONObject("aformData");
+        JSONArray aformData = post.getJSONArray("aformData");
         Record addedRecord = null;
         // v3.9 弱校验
         final ID weakMode = getIdParameter(request, "weakMode");
-        if (aformData != null && aformData.size() > 1) {
+        if (CollectionUtils.isNotEmpty(aformData)) {
+            List<Record> details = new ArrayList<>();
             try {
-                addedRecord = EntityHelper.parse(aformData, getRequestUser(request));
+                for (Object o : aformData) {
+                    Record a = EntityHelper.parse((JSONObject) o, approver);
+                    if (a.getEntity().getEntityCode().equals(recordId.getEntityCode())) addedRecord = a;
+                    else details.add(a);
+                }
+
+                if (addedRecord == null) addedRecord = EntityHelper.forUpdate(recordId, approver);
+                if (!details.isEmpty()) addedRecord.setObjectValue(GeneralEntityService.HAS_DETAILS, details);
+
             } catch (DataSpecificationException known) {
                 log.warn(">>>>> {}", known.getLocalizedMessage());
                 return RespBody.error(known.getLocalizedMessage());

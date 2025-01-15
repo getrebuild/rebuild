@@ -145,7 +145,7 @@ public class ApprovalStepService extends BaseService {
         if (addedData != null) {
             GeneralEntityServiceContextHolder.setAllowForceUpdate(addedData.getPrimary());
             try {
-                Application.getEntityService(addedData.getEntity().getEntityCode()).update(addedData);
+                Application.getEntityService(addedData.getEntity().getEntityCode()).createOrUpdate(addedData);
             } finally {
                 GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
             }

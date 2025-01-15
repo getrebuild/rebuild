@@ -648,7 +648,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
                     // 审批时/已通过强制修改
                     if (unallow) {
-                        boolean forceUpdate = GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+                        boolean forceUpdate = GeneralEntityServiceContextHolder.isAllowForceUpdate(false);
                         if (forceUpdate) unallow = false;
                     }
                 }

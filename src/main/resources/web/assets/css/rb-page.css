@@ -3280,12 +3280,21 @@ a.user-show:not([href]) {
   margin-top: 2px;
 }
 
-.form.approval-form .rbform {
+.form.approval-form .aforms {
   background-color: #f5f5f5;
   border-radius: 2px;
   padding: 15px;
   background-color: rgba(230, 230, 230, 0.3);
   box-shadow: inset 0 0 10px rgba(230, 230, 230, 0.6);
+}
+
+.form.approval-form .aforms div.detail-form > h5 {
+  font-size: 14px;
+  font-weight: bold;
+  background-color: #eceff1;
+  padding: 12px 15px;
+  margin: 10px 0;
+  border-radius: 2px;
 }
 
 .form.approval-form .approval-list {

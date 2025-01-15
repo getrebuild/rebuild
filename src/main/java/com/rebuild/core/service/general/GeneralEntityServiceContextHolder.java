@@ -63,8 +63,17 @@ public class GeneralEntityServiceContextHolder {
      * @see #setAllowForceUpdate(ID)
      */
     public static boolean isAllowForceUpdateOnce() {
+        return isAllowForceUpdate(true);
+    }
+
+    /**
+     * @param once
+     * @return
+     * @see #setAllowForceUpdate(ID)
+     */
+    public static boolean isAllowForceUpdate(boolean once) {
         ID recordId = ALLOW_FORCE_UPDATE.get();
-        if (recordId != null) ALLOW_FORCE_UPDATE.remove();
+        if (recordId != null && once) ALLOW_FORCE_UPDATE.remove();
         return recordId != null;
     }
 
