@@ -994,7 +994,7 @@ class EditableFieldForms extends React.Component {
   _renderDetails(details) {
     return details.map((d) => {
       return (
-        <div key={d.aentity} className="detail-form">
+        <div key={d.aentity} className="aforms-detail">
           <h5>
             {d.aentityLabel} ({d.aforms.length})
           </h5>
