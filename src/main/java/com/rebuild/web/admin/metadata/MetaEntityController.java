@@ -59,11 +59,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author Zixin (RB)
@@ -324,7 +326,14 @@ public class MetaEntityController extends EntityController {
 
     @GetMapping("entity/entity-tags")
     public RespBody entityTags() {
-        return RespBody.ok(MetadataHelper.getEntityTags());
+        Set<String> set = new TreeSet<>();
+        for (Entity entity : MetadataHelper.getEntities()) {
+            String tags = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.TAGS);
+            if (StringUtils.isNotBlank(tags)) {
+                Collections.addAll(set, tags.split(","));
+            }
+        }
+        return RespBody.ok(set);
     }
 
     @GetMapping("entities/sheet")
