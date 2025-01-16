@@ -41,7 +41,7 @@ public class ContentWithFieldVars {
     /**
      * 通过 `{}` 包裹的变量或字段
      */
-    public static final Pattern PATT_VAR = Pattern.compile("\\{([0-9a-zA-Z._$]{4,})}");
+    public static final Pattern PATT_VAR = Pattern.compile("\\{([0-9a-zA-Z._$]{3,})}");
 
     /**
      * 替换文本中的字段变量
