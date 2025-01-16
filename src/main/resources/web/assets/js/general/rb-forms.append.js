@@ -1017,6 +1017,9 @@ const EasyFilterEval = {
   __timer: null,
 
   evalAndEffect: function (form) {
+    // LiteForm or others
+    if (!form.props.rawModel.layoutId) return
+
     if (this.__timer) {
       clearTimeout(this.__timer)
       this.__timer = null
