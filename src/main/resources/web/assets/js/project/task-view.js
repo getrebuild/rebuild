@@ -138,6 +138,7 @@ class TaskForm extends React.Component {
     $.get(`/project/tasks/details?task=${this.props.id}`, (res) => {
       if (res.error_code === 0) {
         this.setState({ ...res.data }, () => $(this._status).prop('checked', this.state.status === 1))
+        $(`<i class="badge">${res.data.taskNumber}</i>`).appendTo('.view-header .title')
       } else {
         RbHighbar.error(res.error_msg)
       }

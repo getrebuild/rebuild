@@ -15,6 +15,7 @@ import com.rebuild.core.DefinedException;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 /**
  * 轻量级表单
@@ -60,9 +61,11 @@ public class LiteFormBuilder {
      * @return
      */
     public JSONArray build(JSONArray fieldElements) {
-        if (fieldElements == null || fieldElements.isEmpty()) {
+        if (CollectionUtils.isEmpty(fieldElements)) {
             throw new DefinedException("No field elements");
         }
+        // Use clone
+        fieldElements = (JSONArray) JSONUtils.clone(fieldElements);
 
         Record recordData = null;
         if (recordId != null) {
@@ -85,7 +88,7 @@ public class LiteFormBuilder {
         for (String field : fields) {
             if (entity.containsField(field)) {
                 fieldElements.add(JSONUtils.toJSONObject(
-                        new String[] { "field", "colspan" }, new Object[] { field, 4 }));
+                        new String[]{"field", "colspan"}, new Object[]{field, 4}));
             }
         }
         return build(fieldElements);

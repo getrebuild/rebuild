@@ -482,7 +482,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             </div>
           )}
 
-          {this.state.aform && this.renderLiteForm()}
+          {(this.state.aform || this.state.aform_details) && this.renderLiteForm()}
 
           <div className="form-group">
             <label>{$L('批注')}</label>
@@ -539,23 +539,10 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   }
 
   renderLiteForm() {
-    const fake = {
-      state: { id: this.props.id },
-    }
-
-    // @see rb-forms.append.js LiteFormModal#create
-
     return (
       <div className="form-group">
         <label>{$L('信息完善 (驳回时无需填写)')}</label>
-        <LiteForm entity={this.props.entity} id={this.props.id} rawModel={{}} $$$parent={fake} ref={(c) => (this._LiteForm = c)}>
-          {this.state.aform.map((item) => {
-            item.isFull = true
-            delete item.referenceQuickNew // v35
-            // eslint-disable-next-line no-undef
-            return detectElement(item)
-          })}
-        </LiteForm>
+        <EditableFieldForms _this={this} ref={(c) => (this._EditableFieldForms = c)} />
       </div>
     )
   }
@@ -610,9 +597,10 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   }
 
   _post(state, rejectNode, _alert, weakMode) {
-    let aformData = {}
-    if (this.state.aform && state === 10) {
-      aformData = this._LiteForm.buildFormData()
+    let aformData = []
+    if ((this.state.aform || this.state.aform_details) && state === 10) {
+      // aformData = this._LiteForm.buildFormData()
+      aformData = this._EditableFieldForms.buildFormsData()
       if (aformData === false) return
     }
 
@@ -979,6 +967,72 @@ class ApprovalStepViewer extends React.Component {
     } else {
       $(this._dlg).modal({ show: true, keyboard: true })
     }
+  }
+}
+
+class EditableFieldForms extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this._fakeParent = {
+      state: { id: props._this.props.id },
+    }
+    this._LiteForms = []
+  }
+
+  render() {
+    const _this = this.props._this
+    const _details = _this.state.aform_details
+    return (
+      <div className="aforms">
+        {_this.state.aform && this._renderLiteForm(_this.props.entity, _this.props.id, _this.state.aform)}
+        {_details && this._renderDetails(_details)}
+      </div>
+    )
+  }
+
+  _renderDetails(details) {
+    return details.map((d) => {
+      return (
+        <div key={d.aentity} className="aforms-detail">
+          <h5>
+            {d.aentityLabel} ({d.aforms.length})
+          </h5>
+          {d.aforms.map((aform) => {
+            const id = aform[aform.length - 1]
+            aform.pop()
+            return this._renderLiteForm(d.aentity, id, aform)
+          })}
+        </div>
+      )
+    })
+  }
+
+  _renderLiteForm(entity, id, aform) {
+    // @see rb-forms.append.js LiteFormModal#create
+    return (
+      <LiteForm entity={entity} id={id} rawModel={{}} $$$parent={this._fakeParent} ref={(c) => this._LiteForms.push(c)} key={id}>
+        {aform.map((item) => {
+          item.isFull = true
+          delete item.referenceQuickNew // v35
+          // eslint-disable-next-line no-undef
+          return detectElement(item)
+        })}
+      </LiteForm>
+    )
+  }
+
+  buildFormsData() {
+    let datas = []
+    for (let i = 0; i < this._LiteForms.length; i++) {
+      const aformData = this._LiteForms[i].buildFormData()
+      if (aformData === false) {
+        datas = false
+        break
+      }
+      datas.push(aformData)
+    }
+    return datas
   }
 }
 

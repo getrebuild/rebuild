@@ -37,6 +37,7 @@ import com.rebuild.core.metadata.impl.MetaEntityService;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.rbstore.MetaschemaExporter;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
+import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.task.TaskExecutors;
@@ -258,6 +259,25 @@ public class MetaEntityController extends EntityController {
 
         } catch (Exception ex) {
             log.error("entity-drop", ex);
+            return RespBody.error(ex.getLocalizedMessage());
+        }
+    }
+
+    @RequestMapping("entity/entity-truncate")
+    public RespBody entityTruncate(HttpServletRequest request) {
+        final Entity entity = getEntityById(getIdParameterNotNull(request, "id"));
+
+        try {
+            String dsql = String.format("TRUNCATE TABLE `%s`", entity.getPhysicalName());
+            Application.getSqlExecutor().execute(dsql);
+            // 置零
+            for (Field s : MetadataSorter.sortFields(entity, DisplayType.SERIES)) {
+                SeriesGeneratorFactory.zero(s);
+            }
+            return RespBody.ok();
+
+        } catch (Exception ex) {
+            log.error("entity-truncate", ex);
             return RespBody.error(ex.getLocalizedMessage());
         }
     }

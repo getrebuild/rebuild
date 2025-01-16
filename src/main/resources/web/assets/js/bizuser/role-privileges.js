@@ -451,7 +451,7 @@ class FieldsPrivileges extends RbModalHandler {
                 )
               })}
           </ul>
-          <div className="tab-content m-0 pb-0">
+          <div className="tab-content m-0 pb-0 pl-2 pr-2">
             {this.state.entityAndDetails &&
               this.state.entityAndDetails.map((item, idx) => {
                 return (

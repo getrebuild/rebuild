@@ -74,6 +74,12 @@ body {
   max-width: 80%;
 }
 
+.view-header .title > .badge {
+  position: absolute;
+  margin-left: 6px;
+  margin-top: 5px;
+}
+
 .view-header > span > .close {
   font-size: 1.638rem;
   opacity: 0.6;

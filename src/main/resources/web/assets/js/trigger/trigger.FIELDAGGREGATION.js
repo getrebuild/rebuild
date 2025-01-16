@@ -360,7 +360,9 @@ class ContentFieldAggregation extends ActionContentSpec {
           if (content) {
             this.setState({ items: content.items || [] })
             if (content.targetEntityMatchFields) {
-              this._MatchFields && this._MatchFields.setState({ groupFields: content.targetEntityMatchFields })
+              setTimeout(() => {
+                this._MatchFields && this._MatchFields.setState({ groupFields: content.targetEntityMatchFields })
+              }, 200)
             }
             $(this._$fillbackField)
               .val(content.fillbackField || null)

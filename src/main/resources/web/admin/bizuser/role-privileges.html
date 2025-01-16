@@ -77,7 +77,7 @@
         margin-left: 15px;
         margin-top: 2px;
         font-size: 15px;
-        color: #999;
+        color: #999 !important;
         display: none;
       }
       .table.table-priv tr:hover > td > a.cp,
@@ -174,29 +174,29 @@
                       <td class="name">
                         <a th:data-entity="${entity[1]}" th:data-name="${entity[0]}" th:title="${bundle.L('批量选择')}">[[${entity[2]}]]</a>
                         <span>
-                          <a th:data-entity="${entity[1]}" th:title="${bundle.L('字段权限')}"><i class="mdi mdi-filter-variant-remove"></i></a>
+                          <a th:data-entity="${entity[1]}" th:title="${bundle.L('字段权限')}"><i class="mdi mdi-filter-variant-plus"></i></a>
                         </span>
                       </td>
                       <td><i data-action="C" class="priv R0"></i><a></a></td>
                       <td>
                         <i data-action="R" class="priv R0"></i>
-                        <a data-action="R9" class="cp" th:title="${bundle.L('自定义权限')}"><i class="mdi mdi-filter-cog-outline"></i></a>
+                        <a data-action="R9" class="cp" th:title="${bundle.L('自定义权限')}"><i class="mdi mdi-filter-check-outline"></i></a>
                       </td>
                       <td>
                         <i data-action="U" class="priv R0"></i>
-                        <a data-action="U9" class="cp" th:title="${bundle.L('自定义权限')}"><i class="mdi mdi-filter-cog-outline"></i></a>
+                        <a data-action="U9" class="cp" th:title="${bundle.L('自定义权限')}"><i class="mdi mdi-filter-check-outline"></i></a>
                       </td>
                       <td>
                         <i data-action="D" class="priv R0"></i>
-                        <a data-action="D9" class="cp" th:title="${bundle.L('自定义权限')}"><i class="mdi mdi-filter-cog-outline"></i></a>
+                        <a data-action="D9" class="cp" th:title="${bundle.L('自定义权限')}"><i class="mdi mdi-filter-check-outline"></i></a>
                       </td>
                       <td>
                         <i data-action="A" class="priv R0"></i>
-                        <a data-action="A9" class="cp" th:title="${bundle.L('自定义权限')}"><i class="mdi mdi-filter-cog-outline"></i></a>
+                        <a data-action="A9" class="cp" th:title="${bundle.L('自定义权限')}"><i class="mdi mdi-filter-check-outline"></i></a>
                       </td>
                       <td>
                         <i data-action="S" class="priv R0"></i>
-                        <a data-action="S9" class="cp" th:title="${bundle.L('自定义权限')}"><i class="mdi mdi-filter-cog-outline"></i></a>
+                        <a data-action="S9" class="cp" th:title="${bundle.L('自定义权限')}"><i class="mdi mdi-filter-check-outline"></i></a>
                       </td>
                     </tr>
                   </tbody>
