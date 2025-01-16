@@ -65,7 +65,7 @@ public class LiteFormBuilder {
             throw new DefinedException("No field elements");
         }
         // Use clone
-        fieldElements = (JSONArray) fieldElements.clone();
+        fieldElements = (JSONArray) JSONUtils.clone(fieldElements);
 
         Record recordData = null;
         if (recordId != null) {
