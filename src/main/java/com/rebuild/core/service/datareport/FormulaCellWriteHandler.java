@@ -9,6 +9,7 @@ package com.rebuild.core.service.datareport;
 
 import com.alibaba.excel.write.handler.CellWriteHandler;
 import com.alibaba.excel.write.handler.context.CellWriteHandlerContext;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -24,6 +25,7 @@ import java.util.regex.Pattern;
  * @author Zixin
  * @since 2022/12/14
  */
+@Slf4j
 public class FormulaCellWriteHandler implements CellWriteHandler {
 
     private static final Pattern PATT_CELLNO = Pattern.compile("([A-Z]+[0-9]+)");
@@ -47,6 +49,11 @@ public class FormulaCellWriteHandler implements CellWriteHandler {
         Set<String> set = new HashSet<>();
         while (m.find()) {
             String cellNo = m.group(1);
+            // v3.9.2 验证以防错误匹配 Gitee#IBI8UQ
+            if (!cellNo.matches("[A-Z]{1,2}[0-9]{1,3}")) {
+                log.warn("Bad cell no matches : {}", cellNo);
+                continue;
+            }
             // 避免多次替换出错
             if (set.contains(cellNo)) continue;
             set.add(cellNo);
