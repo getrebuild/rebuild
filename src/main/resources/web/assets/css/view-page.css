@@ -810,31 +810,32 @@ body {
   background-color: #fff;
 }
 
-.timeline.approved-steps .timeline-item.state0::before {
+.timeline.approved-steps .timeline-item.state0::before,
+.timeline.approved-steps .timeline-item.state10::before {
   border-color: #fff;
   background-color: #4285f4;
   background-color: #33a451;
 }
 
-.timeline.approved-steps .timeline-item.state10::before {
-  border-color: #fff;
-  background-color: #33a451;
-}
-
 .timeline.approved-steps .timeline-item.state11::before,
-.timeline.approved-steps .timeline-item.state21::before,
 .timeline.approved-steps .timeline-item.state12::before,
 .timeline.approved-steps .timeline-item.state13::before {
   border-color: #fff;
   background-color: #ea3f30;
 }
 
-.timeline.approved-steps .timeline-item.state21::before {
+.timeline.approved-steps .timeline-item.state21::before,
+.timeline.approved-steps .timeline-item.state1::before {
   border-color: #fff;
   background-color: #f7b904;
 }
 
 .timeline.approved-steps .timeline-item.state1::before {
+  border-color: #fff;
+  background-color: #dbdbdb;
+}
+
+.timeline.approved-steps .timeline-item.state1.w::before {
   border: 0 none;
   background-color: #fff;
   content: '\f337';
