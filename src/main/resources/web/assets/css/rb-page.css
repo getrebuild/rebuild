@@ -2402,6 +2402,13 @@ th.column-fixed {
   padding: 25px 18px;
 }
 
+.aside-2tree ul:empty::after {
+  content: 'LOADING';
+  color: #999;
+  display: block;
+  text-align: center;
+}
+
 .aside-2tree ul > ul {
   padding-left: 17px !important;
 }
