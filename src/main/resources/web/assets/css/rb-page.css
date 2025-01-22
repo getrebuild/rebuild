@@ -354,6 +354,11 @@ a.btn {
   cursor: default;
 }
 
+.btn .icon {
+  min-width: 12px;
+  transform: translateY(-1px);
+}
+
 .btn .icon.x14 {
   font-size: 1.431rem;
 }
