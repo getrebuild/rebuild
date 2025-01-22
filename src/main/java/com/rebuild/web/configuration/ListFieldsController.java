@@ -106,25 +106,49 @@ public class ListFieldsController extends BaseController implements ShareTo {
             }
         }
 
-        // 明细关联字段
-        final Field dtmField = entityMeta.getMainEntity() == null ? null : MetadataHelper.getDetailToMainField(entityMeta);
+        // 3级字段
+        // FIXME 3级字段有问题，暂无法确定3级字段的权限
+        final boolean deep3 = getBoolParameter(request, "deep3");
 
+        // ~引用:2级
+        List<Field[]> refFieldsOf2 = new ArrayList<>();
+        // 明细关联字段
+        Field dtmField = entityMeta.getMainEntity() == null ? null : MetadataHelper.getDetailToMainField(entityMeta);
         // 引用实体的字段
         for (Field field : MetadataSorter.sortFields(entityMeta, DisplayType.REFERENCE)) {
             // 过滤所属用户/所属部门等系统字段（除了明细引用（主实体）字段）
-            if (EasyMetaFactory.valueOf(field).isBuiltin() && (dtmField == null || !dtmField.equals(field))) {
-                continue;
-            }
-
-            Entity refEntity = field.getReferenceEntity();
+            if (EasyMetaFactory.valueOf(field).isBuiltin() && (dtmField == null || !dtmField.equals(field))) continue;
             // 无权限的不返回
-            if (!Application.getPrivilegesManager().allowRead(user, refEntity.getEntityCode())) {
-                continue;
-            }
+            final Entity refEntity = field.getReferenceEntity();
+            if (!Application.getPrivilegesManager().allowRead(user, refEntity.getEntityCode())) continue;
 
-            for (Field fieldOfRef : MetadataSorter.sortFields(refEntity)) {
-                if (canListField(fieldOfRef)) {
-                    fieldList.add(DataListManager.instance.formatField(fieldOfRef, field));
+            for (Field field2 : MetadataSorter.sortFields(refEntity)) {
+                if (canListField(field2)) {
+                    fieldList.add(DataListManager.instance.formatField(field2, field));
+
+                    if (deep3 && EasyMetaFactory.getDisplayType(field2) == DisplayType.REFERENCE) {
+                        refFieldsOf2.add(new Field[]{field, field2});
+                    }
+                }
+            }
+        }
+        // ~引用:3级
+        for (Field[] parentField : refFieldsOf2) {
+            Field field2 = parentField[1];
+
+            // 明细关联字段
+            final Field dtmField2 = field2.getOwnEntity().getMainEntity() == null ? null
+                    : MetadataHelper.getDetailToMainField(field2.getOwnEntity());
+
+            // 过滤所属用户/所属部门等系统字段（除了明细引用（主实体）字段）
+            if (EasyMetaFactory.valueOf(field2).isBuiltin() && (dtmField2 == null || !dtmField2.equals(field2))) continue;
+            // 无权限的不返回
+            final Entity refEntity2 = field2.getReferenceEntity();
+            if (!Application.getPrivilegesManager().allowRead(user, refEntity2.getEntityCode())) continue;
+
+            for (Field field3 : MetadataSorter.sortFields(refEntity2)) {
+                if (canListField(field3)) {
+                    fieldList.add(DataListManager.instance.formatField(field3, parentField));
                 }
             }
         }
@@ -152,6 +176,10 @@ public class ListFieldsController extends BaseController implements ShareTo {
         writeSuccess(response, ret);
     }
 
+    private boolean canListField(Field field) {
+        return field.isQueryable() && EasyMetaFactory.getDisplayType(field) != DisplayType.BARCODE;
+    }
+
     @GetMapping("list-fields/alist")
     public void getsList(@PathVariable String entity,
                          HttpServletRequest request, HttpServletResponse response) {
@@ -169,9 +197,5 @@ public class ListFieldsController extends BaseController implements ShareTo {
 
         Object[][] list = Application.createQueryNoFilter(sql).array();
         writeSuccess(response, list);
-    }
-
-    private boolean canListField(Field field) {
-        return field.isQueryable() && EasyMetaFactory.getDisplayType(field) != DisplayType.BARCODE;
     }
 }
