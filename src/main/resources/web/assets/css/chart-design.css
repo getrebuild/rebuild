@@ -310,12 +310,12 @@ a.ui-draggable.ui-draggable-dragging {
 }
 
 .data-info .fields li.map a::before {
-  content: 'M';
+  content: 'T';
   color: #fbbc05;
 }
 
 .data-info .fields li.list a::before {
-  content: 'L';
+  content: 'T';
   color: #fbbc05;
 }
 
