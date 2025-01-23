@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.general;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -51,14 +52,14 @@ public class ContentWithFieldVars {
      * @return
      */
     public static String replaceWithRecord(String content, ID recordId) {
-        if (StringUtils.isBlank(content) || recordId == null) {
-            return content;
-        }
+        if (StringUtils.isBlank(content) || recordId == null) return content;
 
-        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
-        String pkName = entity.getPrimaryField().getName();
-        // 主键占位符
+        final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+        final String pkName = entity.getPrimaryField().getName();
+
+        // 固定占位符
         content = content.replace("{ID}", String.format("{%s}", pkName));
+        content = content.replace("{NOW}", CalendarUtils.getUTCDateFormat().format(CalendarUtils.now()));
 
         Set<String> fieldVars = new HashSet<>();
         for (String field : matchsVars(content)) {
@@ -84,11 +85,11 @@ public class ContentWithFieldVars {
     public static String replaceWithRecord(String content, Record record) {
         if (StringUtils.isBlank(content) || record == null) return content;
 
-        // 主键占位符
-        content = content.replace("{ID}",
-                String.format("{%s}", record.getEntity().getPrimaryField().getName()));
-
         final Entity entity = record.getEntity();
+
+        // 固定占位符
+        content = content.replace("{ID}", String.format("{%s}", entity.getPrimaryField().getName()));
+        content = content.replace("{NOW}", CalendarUtils.getUTCDateFormat().format(CalendarUtils.now()));
 
         Map<String, String> fieldVars = new HashMap<>();
         for (String field : matchsVars(content)) {
