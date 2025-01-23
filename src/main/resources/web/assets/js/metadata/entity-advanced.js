@@ -28,11 +28,6 @@ $(document).ready(() => {
 
   $('.J_drop-confirm').on('click', () => {
     if (!$('.J_drop-check').prop('checked')) return
-    if (!window.__PageConfig.isSuperAdmin) {
-      RbHighbar.error($L('仅超级管理员可删除实体'))
-      return
-    }
-
     RbAlert.create($L('实体删除后将无法恢复，请务必谨慎操作。确认删除吗？'), $L('删除实体'), {
       type: 'danger',
       confirmText: $L('删除'),
@@ -54,11 +49,6 @@ $(document).ready(() => {
   })
   $('.J_truncate-confirm').on('click', () => {
     if (!$('.J_drop-check').prop('checked')) return
-    if (!window.__PageConfig.isSuperAdmin) {
-      RbHighbar.error($L('仅超级管理员可清空数据'))
-      return
-    }
-
     RbAlert.create($L('此操作将直接清空数据，不会保留在回收站及触发相关业务规则。'), $L('清空数据'), {
       type: 'danger',
       confirmText: $L('清空'),

@@ -16,13 +16,11 @@ $(document).ready(() => {
   })
   $('.J_new-field').on('click', () => {
     // eslint-disable-next-line react/jsx-no-undef
-    if (wpc.isSuperAdmin) renderRbcomp18(<FieldNew2 entity={wpc.entityName} />)
-    else RbHighbar.error($L('仅超级管理员可添加字段'))
+    renderRbcomp18(<FieldNew2 entity={wpc.entityName} />)
   })
 
   $('.J_new9-field').on('click', () => {
-    if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new9?entity=${wpc.entityName}`, $L('批量添加字段'), { width: 1064 })
-    else RbHighbar.error($L('仅超级管理员可添加字段'))
+    RbModal.create(`/p/admin/metadata/field-new9?entity=${wpc.entityName}`, $L('批量添加字段'), { width: 1064 })
   })
 
   $('.J_export-fields').on('click', exportFields)

@@ -426,8 +426,7 @@ const render_type = function (fieldType) {
   const $item = $(`<li class="dd-item"><div class="dd-handle"><i class="icon mdi ${fieldType.icon || 'mdi-form-textbox'}"></i> ${$L(fieldType.label)}</div></li>`).appendTo('.type-list')
   $item.on('click', function () {
     // eslint-disable-next-line react/jsx-no-undef
-    if (wpc.isSuperAdmin) renderRbcomp(<FieldNew2 entity={wpc.entityName} fieldType={fieldType.name} />)
-    else RbHighbar.error($L('仅超级管理员可添加字段'))
+    renderRbcomp(<FieldNew2 entity={wpc.entityName} fieldType={fieldType.name} />)
   })
   return $item
 }

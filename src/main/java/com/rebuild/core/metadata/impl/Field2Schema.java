@@ -34,7 +34,6 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.BlockList;
 import com.rebuild.utils.CommonsUtils;
-import com.rebuild.utils.RbAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.CharSet;
 import org.apache.commons.lang.StringUtils;
@@ -75,13 +74,6 @@ public class Field2Schema extends SetUser {
 
     public Field2Schema(ID user) {
         super.setUser(user);
-    }
-
-    @Override
-    public ID getUser() {
-        ID user = super.getUser();
-        RbAssert.isSuperAdmin(user);
-        return user;
     }
 
     /**

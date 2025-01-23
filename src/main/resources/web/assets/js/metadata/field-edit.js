@@ -282,11 +282,6 @@ $(document).ready(function () {
   // delete extConfig['stateClass']
 
   $('.J_del').on('click', function () {
-    if (!wpc.isSuperAdmin) {
-      RbHighbar.error($L('仅超级管理员可删除字段'))
-      return
-    }
-
     RbAlert.create($L('字段删除后将无法恢复，请务必谨慎操作。确认删除吗？'), $L('删除字段'), {
       type: 'danger',
       confirmText: $L('删除'),

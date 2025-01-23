@@ -8,7 +8,6 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
-import com.rebuild.utils.RbAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
@@ -28,9 +27,6 @@ public class ExcelEntity extends Entity2Schema {
      * @return
      */
     public String imports(String entityName, JSONArray fields) {
-        final ID user = getUser();
-        RbAssert.isSuperAdmin(user);
-
         // 1.实体
         String uniqueEntityName = createEntity(null, entityName, null, null, false, false);
         Entity entityNew = MetadataHelper.getEntity(uniqueEntityName);
