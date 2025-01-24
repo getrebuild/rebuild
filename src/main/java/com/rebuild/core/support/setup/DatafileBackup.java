@@ -25,10 +25,6 @@ import java.io.IOException;
 @Slf4j
 public class DatafileBackup extends DatabaseBackup {
 
-    /**
-     * @return
-     * @throws IOException
-     */
     @Override
     public File backup(File backups) throws IOException {
         File rbdata = RebuildConfiguration.getFileOfData("");
@@ -41,7 +37,7 @@ public class DatafileBackup extends DatabaseBackup {
             return !("_backups".equals(name) || "_log".equals(name) || "temp".equals(name) || "rebuild.pid".equals(name));
         });
 
-        log.info("Backup succeeded : {} ({})", destZip, FileUtils.byteCountToDisplaySize(destZip.length()));
+        log.info("Backup files succeeded : {} ({})", destZip, FileUtils.byteCountToDisplaySize(destZip.length()));
 
         return destZip;
     }
