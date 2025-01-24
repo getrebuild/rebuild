@@ -39,6 +39,7 @@ import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -194,7 +195,7 @@ public class SMSender {
                 String base64;
                 try {
                     byte[] bs = FileUtils.readFileToByteArray(a);
-                    base64 = java.util.Base64.getEncoder().encodeToString(bs);
+                    base64 = Base64.getEncoder().encodeToString(bs);
                 } catch (IOException ex) {
                     continue;
                 }
@@ -280,10 +281,22 @@ public class SMSender {
         if (Application.devMode()) MT_CACHE = null;
         if (MT_CACHE != null) return MT_CACHE.clone();
 
-        String content = CommonsUtils.getStringOfRes("i18n/email.zh_CN.html");
-        Assert.notNull(content, "Cannot load template of email");
-        Document html = Jsoup.parse(content);
+        String content = null;
+        // v3.9.3 从数据目录
+        File file = RebuildConfiguration.getFileOfData("email.zh_CN.html");
+        if (file.exists()) {
+            try {
+                content = FileUtils.readFileToString(file, AppUtils.UTF8);
+            } catch (IOException ex) {
+                log.warn("Cannot read file of email template : {}", file, ex);
+            }
+        }
+        if (content == null) {
+            content = CommonsUtils.getStringOfRes("i18n/email.zh_CN.html");
+        }
+        Assert.notNull(content, "Cannot read email template");
 
+        Document html = Jsoup.parse(content);
         MT_CACHE = html.body();
         return MT_CACHE.clone();
     }

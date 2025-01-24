@@ -99,7 +99,7 @@ public class DatabaseBackup {
             log.warn("Cannot zip backup : {}", zip);
         }
 
-        log.info("Backup succeeded : {} ({})", dest, FileUtils.byteCountToDisplaySize(dest.length()));
+        log.info("Backup database succeeded : {} ({})", dest, FileUtils.byteCountToDisplaySize(dest.length()));
 
         // 恢复
         // https://stackoverflow.com/questions/16735344/how-to-ignore-certain-mysql-tables-when-importing-a-database

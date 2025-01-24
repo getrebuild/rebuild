@@ -21,14 +21,18 @@ import com.rebuild.core.configuration.general.FormsBuilderContextHolder;
 import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.CommonsLog;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Zixin
@@ -175,6 +179,12 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
         }
 
         ((JSONObject) formModel).put(GeneralEntityService.HAS_DETAILS, formModelDetailsMap);
+
+        // 明细导入
+        if (targetEntity.getDetailEntity() != null) {
+            ((JSONObject) formModel).put("detailImports", buildDetailImports39(targetEntity));
+        }
+
         return formModel;
     }
 
@@ -190,21 +200,6 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
             transTargetRecord.removeValue(EntityHelper.OwningUser);
             transTargetRecord.removeValue(EntityHelper.OwningDept);
         }
-
-//        if (isPreview) {
-//            Record existsRecordSnap = Application.getQueryFactory().recordNoFilter(targetExistsRecordId);
-//            for (Field field : existsRecordSnap.getEntity().getFields()) {
-//                EasyField easyField = EasyMetaFactory.valueOf(field);
-//                if (MetadataHelper.isCommonsField(field) || easyField.getDisplayType() == DisplayType.SERIES) {
-//                    if (field.getType() == FieldType.PRIMARY) continue;
-//
-//                    String fieldName = field.getName();
-//                    if (EntityHelper.AutoId.equals(fieldName) || EntityHelper.QuickCode.equals(fieldName)) continue;
-//
-//                    transTargetRecord.setObjectValue(fieldName, existsRecordSnap.getObjectValue(fieldName));
-//                }
-//            }
-//        }
     }
 
     // 获取主记录（如果是明细的话）
@@ -214,5 +209,45 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
             return QueryHelper.getMainIdByDetail(targetRecordId);
         }
         return null;
+    }
+
+    // ~~
+
+    /**
+     * @param mainEntity
+     * @return
+     */
+    public static List<Object> buildDetailImports39(Entity mainEntity) {
+        List<Object> alist = new ArrayList<>();
+        for (Entity de : mainEntity.getDetialEntities()) {
+            List<ConfigBean> confImports = TransformManager.instance.getDetailImports(de.getName());
+            if (!confImports.isEmpty()) {
+                for (ConfigBean c : confImports) {
+                    JSONObject trans = (JSONObject) EasyMetaFactory.valueOf(c.getString("source")).toJSON();
+                    trans.put("transid", c.getID("id"));
+                    trans.put("transName", c.getString("name"));
+
+                    int ifAuto = ((JSONObject) c.getJSON("config")).getIntValue("importsMode2Auto");
+                    if (ifAuto > 0) {
+                        JSONArray importsFilter = ((JSONObject) c.getJSON("config")).getJSONArray("importsFilter");
+                        Set<String> autoFields = new HashSet<>();
+                        for (Object o : importsFilter) {
+                            String name = ((JSONArray) o).getString(0);
+                            autoFields.add(name.split("\\.")[1]);
+                        }
+
+                        if (!autoFields.isEmpty()) {
+                            trans.put("auto", ifAuto);
+                            trans.put("autoFields", autoFields);
+                        }
+                    }
+
+                    trans.put("detailName", de.getName());
+                    alist.add(trans);
+                }
+
+            }
+        }
+        return alist;
     }
 }
