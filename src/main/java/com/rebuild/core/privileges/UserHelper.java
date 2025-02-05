@@ -100,7 +100,7 @@ public class UserHelper {
             }
 
         } catch (NoMemberFoundException ex) {
-            log.error("No bizz found : " + bizzId);
+            log.error("No bizz found : {}", bizzId);
         }
         return false;
     }
@@ -460,16 +460,21 @@ public class UserHelper {
      * @return
      */
     public static boolean isSelf(ID user, ID otherUserOrAnyRecordId) {
-        ID createdBy = otherUserOrAnyRecordId;
-        if (otherUserOrAnyRecordId.getEntityCode() != EntityHelper.User) {
-            createdBy = getCreatedBy(otherUserOrAnyRecordId);
-            if (createdBy == null) return false;
+        try {
+            ID createdBy = otherUserOrAnyRecordId;
+            if (otherUserOrAnyRecordId.getEntityCode() != EntityHelper.User) {
+                createdBy = getCreatedBy(otherUserOrAnyRecordId);
+                if (createdBy == null) return false;
+            }
+
+            if (createdBy.equals(user)) return true;
+
+            // 所有管理员被视为同一用户
+            return isAdmin(createdBy) && isAdmin(user);
+        } catch (Exception e) {
+            log.warn("Check isSelf error : {}, {}", user, otherUserOrAnyRecordId);
+            return false;
         }
-
-        if (createdBy.equals(user)) return true;
-
-        // 所有管理员被视为同一用户
-        return isAdmin(createdBy) && isAdmin(user);
     }
 
     private static ID getCreatedBy(ID anyRecordId) {
