@@ -117,8 +117,8 @@ public abstract class BaseController extends Controller {
      * @param name
      * @return
      */
-    protected Integer getIntParameter(HttpServletRequest request, String name) {
-        return getIntParameter(request, name, null);
+    protected int getIntParameter(HttpServletRequest request, String name) {
+        return getIntParameter(request, name, 0);
     }
 
     /**
@@ -127,7 +127,7 @@ public abstract class BaseController extends Controller {
      * @param defaultValue
      * @return
      */
-    protected Integer getIntParameter(HttpServletRequest request, String name, Integer defaultValue) {
+    protected int getIntParameter(HttpServletRequest request, String name, int defaultValue) {
         String v = request.getParameter(name);
         if (StringUtils.isBlank(v)) return defaultValue;
 
