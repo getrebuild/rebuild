@@ -65,7 +65,7 @@ public class UserHelper {
         try {
             return Application.getUserStore().getUser(userId).isAdmin();
         } catch (NoMemberFoundException ex) {
-            log.error("No User found : " + userId);
+            log.error("No User found : {}", userId);
         }
         return false;
     }
