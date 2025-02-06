@@ -174,6 +174,8 @@ class ShowStyles2 extends ShowStyles {
     if (this.props.color) {
       $cs.find(`a[data-color="${this.props.color}"]`).trigger('click')
       $('.rbcolors>input').val(this.props.color)
+    } else {
+      $('.rbcolors>a:eq(0)').trigger('click')
     }
   }
 

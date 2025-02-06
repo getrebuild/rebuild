@@ -55,7 +55,7 @@ $(document).ready(() => {
     }
 
     const id = $('.J_text').attr('attr-id')
-    const color = $('.rbcolors >a>i').parent().data('color') || _color || ''
+    const color = $('.rbcolors>a>i').parent().data('color') || _color || ''
 
     let exists = null
     $('.J_config .dd3-content, .unset-list .dd-handle>span').each(function () {
@@ -95,7 +95,7 @@ $(document).ready(() => {
     // Reset
     $('.J_text').val('').removeAttr('data-key')
     $('.J_confirm').text($L('添加'))
-    $('.rbcolors >a>i').remove()
+    $('.rbcolors>a>i').remove()
     $('.J_config').parent().scrollTop(9999)
     _color = null
 
@@ -176,8 +176,10 @@ render_item_after = function (item, data) {
 
     data[3] = item.attr('data-color')
     if (data[3]) {
-      $(`.rbcolors >a[data-color="${data[3]}"]`).trigger('click')
-      $('.rbcolors >input').val(data[3])
+      $(`.rbcolors>a[data-color="${data[3]}"]`).trigger('click')
+      $('.rbcolors>input').val(data[3])
+    } else {
+      $('.rbcolors>a>i').remove()
     }
   })
 
