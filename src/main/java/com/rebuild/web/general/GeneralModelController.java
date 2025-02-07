@@ -24,8 +24,8 @@ import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.general.transform.RecordTransfomer39;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -43,13 +43,10 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * 表单/视图
@@ -149,41 +146,9 @@ public class GeneralModelController extends EntityController {
                 FormsBuilder.instance.setFormInitialValue(modelEntity, model, (JSONObject) initialVal);
             }
 
-            // v3.1 明细导入配置
-            // v3.4 FIXME ND只有第一个实体支持转换
-            // v3.7 ND
+            // 明细导入
             if (modelEntity.getDetailEntity() != null) {
-                List<Object> alist = new ArrayList<>();
-                for (Entity de : modelEntity.getDetialEntities()) {
-                    List<ConfigBean> confImports = TransformManager.instance.getDetailImports(de.getName());
-                    if (!confImports.isEmpty()) {
-                        for (ConfigBean c : confImports) {
-                            JSONObject trans = (JSONObject) EasyMetaFactory.valueOf(c.getString("source")).toJSON();
-                            trans.put("transid", c.getID("id"));
-                            trans.put("transName", c.getString("name"));
-
-                            int ifAuto = ((JSONObject) c.getJSON("config")).getIntValue("importsMode2Auto");
-                            if (ifAuto > 0) {
-                                JSONArray importsFilter = ((JSONObject) c.getJSON("config")).getJSONArray("importsFilter");
-                                Set<String> autoFields = new HashSet<>();
-                                for (Object o : importsFilter) {
-                                    String name = ((JSONArray) o).getString(0);
-                                    autoFields.add(name.split("\\.")[1]);
-                                }
-
-                                if (!autoFields.isEmpty()) {
-                                    trans.put("auto", ifAuto);
-                                    trans.put("autoFields", autoFields);
-                                }
-                            }
-
-                            trans.put("detailName", de.getName());
-                            alist.add(trans);
-                        }
-
-                    }
-                    ((JSONObject) model).put("detailImports", alist);
-                }
+                ((JSONObject) model).put("detailImports", RecordTransfomer39.buildDetailImports39(modelEntity));
             }
 
             return model;

@@ -54,7 +54,7 @@ public class BarCodeGeneratorController extends BaseController {
     @GetMapping({"/commons/barcode/render-qr", "/commons/barcode/render"})
     public void render(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String content = getParameter(request, "t", "UNSET");
-        int w = getIntParameter(request, "w", 0);
+        int w = getIntParameter(request, "w");
 
         BufferedImage bi;
         if (request.getRequestURI().endsWith("render-qr")) {

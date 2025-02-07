@@ -24,6 +24,7 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.SysbaseHeartbeat;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.integration.SMSender;
@@ -145,6 +146,7 @@ public class ConfigurationController extends BaseController {
         if (type == 1 || type == 3) {
             try {
                 dbFile = "_backups/" + new DatabaseBackup().backup(backups).getName();
+                SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, null);
             } catch (Exception e) {
                 dbFile = "ERR:" + e.getMessage();
                 log.error("Executing [DatabaseBackup] fails", e);
@@ -153,6 +155,7 @@ public class ConfigurationController extends BaseController {
         if (type == 2 || type == 3) {
             try {
                 fileFile = "_backups/" + new DatafileBackup().backup(backups).getName();
+                SysbaseHeartbeat.setItem(SysbaseHeartbeat.DataFileBackupFail, null);
             } catch (Exception e) {
                 fileFile = "ERR:" + e.getMessage();
                 log.error("Executing [DataFileBackup] fails", e);

@@ -44,7 +44,7 @@ public class AnnouncementController extends BaseController {
     @GetMapping("/commons/announcements")
     public RespBody announcementList(HttpServletRequest request) {
         final ID user = AppUtils.getRequestUser(request);
-        int fromWhere = getIntParameter(request, "from", 0);
+        int fromWhere = getIntParameter(request, "from");
 
         if (fromWhere == 0) {
             // 1=动态页 2=首页 4=登录页

@@ -198,7 +198,7 @@ public class UserSettingsController extends BaseController {
 
     @PostMapping("/cancel-external-user")
     public RespBody cancelExternalUser(HttpServletRequest request) {
-        int appType = getIntParameter(request, "type", 0);
+        int appType = getIntParameter(request, "type");
         // 1=Dingtalk, 2=Wxwork, 3=Feishu
         String appId = appType == 1
                 ? RebuildConfiguration.get(ConfigurationItem.DingtalkCorpid)

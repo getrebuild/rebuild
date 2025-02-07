@@ -156,9 +156,8 @@ public class SignUpController extends BaseController {
     public RespBody checkoutName(HttpServletRequest request) {
         String fullName = getParameterNotNull(request, "fullName");
 
-        //noinspection UnnecessaryUnicodeEscape
-        fullName = fullName.replaceAll("[^a-zA-Z0-9\u4e00-\u9fa5]", "");
         String loginName = HanLP.convertToPinyinString(fullName, "", false);
+        loginName = loginName.replaceAll("[^a-zA-Z0-9]", "");
         if (loginName.length() > 20) {
             loginName = loginName.substring(0, 20);
         }

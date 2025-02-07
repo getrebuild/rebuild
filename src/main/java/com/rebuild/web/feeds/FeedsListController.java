@@ -80,7 +80,7 @@ public class FeedsListController extends BaseController {
             sqlWhere = "(1=1)";
         }
 
-        int type = getIntParameter(request, "type", 0);
+        int type = getIntParameter(request, "type");
         if (type == 1) {
             sqlWhere += String.format(" and exists (select feedsId from FeedsMention where ^feedsId = feedsId and user = '%s')", user);
         } else if (type == 2) {
