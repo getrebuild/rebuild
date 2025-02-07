@@ -413,7 +413,7 @@ class ValueDescription extends ValueComp {
       return (
         <div className="form-control-plaintext" ref={(c) => (this._$mde = c)}>
           <textarea defaultValue={this.state.description || ''} ref={(c) => (this._$editor = c)} />
-          <input type="file" className="hide" accept="image/*" ref={(c) => (this._fieldValue__upload = c)} />
+          <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />
           <div className="mt-2 text-right">
             <button onClick={() => this._handleEditMode(false)} className="btn btn-sm btn-link mr-1">
               {$L('取消')}
@@ -496,6 +496,16 @@ class ValueDescription extends ValueComp {
         })
         mde.codemirror.focus()
         mde.codemirror.setCursor(mde.codemirror.lineCount(), 0) // cursor at end
+
+        // v4.0
+        mde.codemirror.on('paste', (_mde, e) => {
+          const data = e.clipboardData || window.clipboardData
+          if (data && data.items && data.files && data.files.length > 0) {
+            $stopEvent(e, true)
+            this._fieldValue__upload.files = data.files
+            $(this._fieldValue__upload).trigger('change')
+          }
+        })
       }
     })
   }
