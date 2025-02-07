@@ -68,7 +68,7 @@ public class MetadataGetting extends BaseController {
     public JSON fields(HttpServletRequest request) {
         Entity entity = MetadataHelper.getEntity(getParameterNotNull(request, "entity"));
         // 返回引用实体的字段层级
-        int appendRefFields = getIntParameter(request, "deep", 0);
+        int appendRefFields = getIntParameter(request, "deep");
 
         // 根据不同的 referer 返回不同的字段列表
         // 返回 ID 主键字段

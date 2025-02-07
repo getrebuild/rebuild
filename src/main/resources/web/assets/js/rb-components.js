@@ -964,7 +964,7 @@ class AnyRecordSelector extends RecordSelector {
   componentDidMount() {
     super.componentDidMount()
 
-    $.get('/commons/metadata/entities', (res) => {
+    $.get('/commons/metadata/entities?detail=true', (res) => {
       const _entities = res.data || []
       if (_entities.length === 0) $(this._$select).attr('disabled', true)
 
@@ -975,13 +975,15 @@ class AnyRecordSelector extends RecordSelector {
             allowClear: false,
           })
           .on('change', (e) => {
-            this.setState(
-              {
-                entity: e.target.value,
-                entityLabel: this.__select2Entity.select2('data')[0].text,
-              },
-              () => this._initSelect2(true)
-            )
+            if (e.target.value) {
+              this.setState(
+                {
+                  entity: e.target.value,
+                  entityLabel: this.__select2Entity.select2('data')[0].text,
+                },
+                () => this._initSelect2(true)
+              )
+            }
           })
         this.__select2Entity = s2entity
         // init

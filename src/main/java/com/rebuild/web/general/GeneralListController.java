@@ -82,8 +82,8 @@ public class GeneralListController extends EntityController {
         final Entity listEntity = MetadataHelper.getEntity(entity);
         final EasyEntity easyEntity = EasyMetaFactory.valueOf(listEntity);
 
+        int listModeForce = getIntParameter(request, "mode");
         int listMode = ObjectUtils.toInt(easyEntity.getExtraAttr(ADVLIST_MODE), 1);
-        int listModeForce = getIntParameter(request, "mode", 0);
         if (listModeForce >= 1 && listModeForce <= 3) listMode = listModeForce;
         String listPage = listEntity.getMainEntity() != null ? "/general/detail-list" : "/general/record-list";
         if (listMode == 2) listPage = "/general/record-list2";  // Mode2

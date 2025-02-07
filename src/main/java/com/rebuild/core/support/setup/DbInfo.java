@@ -32,9 +32,18 @@ public class DbInfo {
         return desc.contains("5.6.");
     }
 
-    public boolean isMySQL80() {
+    public boolean isMySQL8x() {
         if (isOceanBase()) return false;
-        return desc.contains("8.0.") || desc.contains("8.1.");
+        return desc.startsWith("8.");
+    }
+
+    public boolean isMySQL9x() {
+        if (isOceanBase()) return false;
+        return desc.startsWith("9.");
+    }
+
+    public String getDesc() {
+        return desc;
     }
 
     /**

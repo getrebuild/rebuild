@@ -114,7 +114,7 @@ public class Installer implements InstallState {
 
         if (dbInfo.isOceanBase()) {
             installProps.put("db.type", "OceanBase");
-        } else if (dbInfo.isMySQL80()) {
+        } else if (dbInfo.isMySQL8x() || dbInfo.isMySQL9x()) {
             // https://www.cnblogs.com/lusaisai/p/13372763.html
             String dbUrl8 = installProps.getProperty("db.url");
             if (!dbUrl8.contains("allowPublicKeyRetrieval")) dbUrl8 += "&allowPublicKeyRetrieval=true";
@@ -355,7 +355,7 @@ public class Installer implements InstallState {
 
         try (Connection conn = getConnection("mysql")) {
             try (Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("select version()")) {
+                try (ResultSet rs = stmt.executeQuery("SELECT VERSION()")) {
                     if (rs.next()) return new DbInfo(rs.getString(1));
                 }
             }

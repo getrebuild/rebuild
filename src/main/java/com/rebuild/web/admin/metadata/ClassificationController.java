@@ -88,7 +88,7 @@ public class ClassificationController extends BaseController {
             item = EntityHelper.forUpdate(itemId, user);
         } else if (dataId != null) {
             ID parent = getIdParameter(request, "parent");
-            int level = getIntParameter(request, "level", 0);
+            int level = getIntParameter(request, "level");
 
             item = EntityHelper.forNew(EntityHelper.ClassificationData, user);
             item.setID("dataId", dataId);

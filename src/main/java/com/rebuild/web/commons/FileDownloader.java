@@ -182,7 +182,7 @@ public class FileDownloader extends BaseController {
     public void readRawText(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String filepath = getParameterNotNull(request, "url");
         final String charset = getParameter(request, "charset", AppUtils.UTF8);
-        final int cut = getIntParameter(request, "cut");  // MB
+        final Integer cut = getIntParameter(request, "cut");  // MB
 
         if (CommonsUtils.isExternalUrl(filepath)) {
             // v3.7 禁外部地址

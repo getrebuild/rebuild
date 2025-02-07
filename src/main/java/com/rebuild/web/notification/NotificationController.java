@@ -101,7 +101,7 @@ public class NotificationController extends BaseController {
         final ID user = getRequestUser(request);
         int pn = getIntParameter(request, "pageNo", 1);
         int ps = getIntParameter(request, "pageSize", 40);
-        int type = getIntParameter(request, "type", 0);
+        int type = getIntParameter(request, "type");
         boolean preview = getBoolParameter(request, "preview");
 
         String sql = "select fromUser,message,createdOn,unread,messageId,relatedRecord,type from Notification" +

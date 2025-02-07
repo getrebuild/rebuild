@@ -3141,6 +3141,10 @@ class RbFormRefform extends React.Component {
       this.setState({ formComponent: VFORM })
     })
   }
+
+  // for comp
+  getValue() {}
+  setValue() {}
 }
 
 // 确定元素类型

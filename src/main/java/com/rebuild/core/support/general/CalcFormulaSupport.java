@@ -107,7 +107,8 @@ public class CalcFormulaSupport {
     public static Object evalCalcFormula(Field targetField, Map<String, Object> varsInFormula) {
         final Entity entity = targetField.getOwnEntity();
         final EasyField easyField = EasyMetaFactory.valueOf(targetField);
-        final String formula = easyField.getExtraAttr(EasyFieldConfigProps.NUMBER_CALCFORMULA);
+        String formula = easyField.getExtraAttr(EasyFieldConfigProps.NUMBER_CALCFORMULA);
+        formula = formula.replace("{{NOW}}", EasyDateTime.VAR_NOW);
 
         boolean calcReady = true;
         Set<String> fieldVars = ContentWithFieldVars.matchsVars(formula);
