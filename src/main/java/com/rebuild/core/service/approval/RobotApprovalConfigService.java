@@ -20,6 +20,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.i18n.Language;
+import org.springframework.core.NamedThreadLocal;
 import org.springframework.stereotype.Service;
 
 /**
@@ -52,7 +53,9 @@ public class RobotApprovalConfigService extends BaseConfigurationService impleme
         if (record.hasValue("flowDefinition")) {
             int inUsed = ApprovalHelper.checkInUsed(record.getPrimary());
             if (inUsed > 0) {
-                throw new DataSpecificationException(Language.L("有 %d 条记录正在使用此流程，禁止修改", inUsed));
+                Boolean force40 = _FORCESAVE.get();
+                if (force40 != null) _FORCESAVE.remove();
+                else throw new DataSpecificationException(Language.L("有 %d 条记录正在使用此流程，禁止修改", inUsed));
             }
         }
         return super.update(record);
@@ -86,5 +89,12 @@ public class RobotApprovalConfigService extends BaseConfigurationService impleme
             Entity entity = MetadataHelper.getEntity((String) cfg[0]);
             RobotApprovalManager.instance.clean(entity);
         }
+    }
+
+    private static final ThreadLocal<Boolean> _FORCESAVE = new NamedThreadLocal<>("Force save on used");
+    /**
+     */
+    public static void setForceSave() {
+        _FORCESAVE.set(true);
     }
 }

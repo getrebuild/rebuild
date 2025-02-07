@@ -1092,7 +1092,7 @@ class RbFlowCanvas extends NodeGroupSpec {
     $('.box-scale').draggable({ cursor: 'move', axis: 'x', scroll: false })
     $('#rbflow').removeClass('rb-loading-active')
 
-    const $btn = $('.J_save').on('click', () => {
+    const $btn = $('.J_save').on('click', (e) => {
       const s = this.serialize()
       if (!s) return
 
@@ -1104,7 +1104,7 @@ class RbFlowCanvas extends NodeGroupSpec {
       const noApproverNode = !data.includes('"approver"')
 
       $btn.button('loading')
-      $.post('/app/entity/common-save', data, (res) => {
+      $.post(`/app/entity/common-save?force=${!!$(e.target).data('force')}`, data, (res) => {
         if (res.error_code === 0) {
           const msg = (
             <RF>

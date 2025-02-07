@@ -29,6 +29,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -141,18 +142,35 @@ public class DataListManager extends BaseLayoutManager {
                 }
 
                 String[] fieldPath = field.split("\\.");
+                Assert.isTrue(fieldPath.length <= 3, "Up to 3 levels of fields allowed");
                 Map<String, Object> formatted = null;
                 if (fieldPath.length == 1) {
                     formatted = formatField(lastField);
                 } else {
 
-                    // 如果没有引用实体的读权限，则直接过滤掉字段
+                    // 如没有引用实体的读权限，则过滤该字段
 
+                    final boolean isLevel3 = fieldPath.length == 3;
                     Field parentField = entityMeta.getField(fieldPath[0]);
-                    if (!filterNoPriviFields) {
-                        formatted = formatField(lastField, parentField);
-                    } else if (Application.getPrivilegesManager().allowRead(user, lastField.getOwnEntity().getEntityCode())) {
-                        formatted = formatField(lastField, parentField);
+                    Field[] parents;
+                    if (isLevel3) {
+                        parents = new Field[]{parentField, parentField.getReferenceEntity().getField(fieldPath[1])};
+                    } else {
+                        parents = new Field[]{parentField};
+                    }
+
+                    if (filterNoPriviFields) {
+                        boolean lastFieldAllow = Application.getPrivilegesManager().allowRead(user, lastField.getOwnEntity().getEntityCode());
+                        if (isLevel3) {
+                            if (lastFieldAllow
+                                    && Application.getPrivilegesManager().allowRead(user, parents[1].getOwnEntity().getEntityCode())) {
+                                formatted = formatField(lastField, parents);
+                            }
+                        } else if (lastFieldAllow) {
+                            formatted = formatField(lastField, parents);
+                        }
+                    } else {
+                        formatted = formatField(lastField, parents);
                     }
                 }
 
@@ -179,7 +197,7 @@ public class DataListManager extends BaseLayoutManager {
      * @return
      */
     public Map<String, Object> formatField(Field field) {
-        return formatField(field, null);
+        return formatField(field, new Field[0]);
     }
 
     /**
@@ -188,8 +206,25 @@ public class DataListManager extends BaseLayoutManager {
      * @return
      */
     public Map<String, Object> formatField(Field field, Field parent) {
-        String parentField = parent == null ? "" : (parent.getName() + ".");
-        String parentLabel = parent == null ? "" : (EasyMetaFactory.getLabel(parent) + ".");
+        if (parent != null) return formatField(field, new Field[]{parent});
+        return formatField(field, new Field[0]);
+    }
+
+    /**
+     * @param field
+     * @param parents
+     * @return
+     */
+    public Map<String, Object> formatField(Field field, Field[] parents) {
+        String parentField = "";
+        String parentLabel = "";
+        if (parents != null) {
+            for (Field f : parents) {
+                parentField += f.getName() + ".";
+                parentLabel += EasyMetaFactory.getLabel(f) + ".";
+            }
+        }
+
         EasyField easyField = EasyMetaFactory.valueOf(field);
         return JSONUtils.toJSONObject(
                 new String[]{"field", "label", "type"},

@@ -16,7 +16,6 @@ import com.rebuild.core.rbstore.MetaschemaExporter;
 import com.rebuild.core.rbstore.MetaschemaImporter;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
-import com.rebuild.utils.RbAssert;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -42,7 +41,6 @@ public class CopyEntity extends Entity2Schema {
      */
     public String copy(String entityName, String detailName) {
         final ID user = getUser();
-        RbAssert.isSuperAdmin(user);
 
         // 导出
 

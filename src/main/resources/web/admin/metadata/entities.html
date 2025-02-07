@@ -172,20 +172,16 @@
             .find('a.card')
             .attr('href', 'javascript:;')
             .on('click', function () {
-              if (window.__PageConfig.isSuperAdmin) {
-                if (_EntityNew2) {
-                  _EntityNew2.show()
-                } else {
-                  renderRbcomp18(
-                    <EntityNew2
-                      ref={function (o) {
-                        _EntityNew2 = o
-                      }}
-                    />
-                  )
-                }
+              if (_EntityNew2) {
+                _EntityNew2.show()
               } else {
-                RbHighbar.error('仅超级管理员可添加实体')
+                renderRbcomp18(
+                  <EntityNew2
+                    ref={function (o) {
+                      _EntityNew2 = o
+                    }}
+                  />
+                )
               }
             })
             .find('.more-action')

@@ -354,6 +354,11 @@ a.btn {
   cursor: default;
 }
 
+.btn .icon {
+  min-width: 12px;
+  transform: translateY(-1px);
+}
+
 .btn .icon.x14 {
   font-size: 1.431rem;
 }
@@ -1990,13 +1995,6 @@ th.column-fixed {
   position: relative;
 }
 
-.sortable-box-title > a {
-  position: absolute;
-  font-size: 1.231rem;
-  margin-top: -2px;
-  margin-left: 5px;
-}
-
 .sortable-swap {
   position: relative;
 }
@@ -2402,6 +2400,13 @@ th.column-fixed {
 
 .page-aside-tree {
   padding: 25px 18px;
+}
+
+.aside-2tree ul:empty::after {
+  content: 'LOADING';
+  color: #999;
+  display: block;
+  text-align: center;
 }
 
 .aside-2tree ul > ul {
@@ -5188,15 +5193,15 @@ pre.unstyle {
 
 .rbcolors > a,
 .rbcolors input[type='color'] {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   display: inline-block;
   background-color: #ccc;
   border-radius: 50%;
   color: #fff;
   overflow: hidden;
   font-size: 1.3rem;
-  padding-top: 4px;
+  padding-top: 3px;
   text-align: center;
 }
 
@@ -5207,7 +5212,7 @@ pre.unstyle {
 
 .rbcolors > a + a,
 .rbcolors input[type='color'] {
-  margin-left: 6px;
+  margin-left: 5px;
 }
 
 .rbcolors input[type='color'] {

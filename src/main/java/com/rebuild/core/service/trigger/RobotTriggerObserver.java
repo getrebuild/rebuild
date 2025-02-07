@@ -10,6 +10,7 @@ package com.rebuild.core.service.trigger;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.googlecode.aviator.exception.StandardError;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -216,6 +217,8 @@ public class RobotTriggerObserver extends OperatingObserver {
 
                     // DataValidate 直接抛出
                     if (ex instanceof DataValidateException) throw ex;
+                    // throw of Aviator 抛出
+                    if (ex instanceof StandardError) throw new DataValidateException(ex.getLocalizedMessage());
 
                     log.error("Trigger execution failed : {} << {}", action, context, ex);
                     CommonsLog.createLog(TYPE_TRIGGER,

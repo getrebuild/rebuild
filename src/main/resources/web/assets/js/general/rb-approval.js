@@ -739,7 +739,7 @@ class ApprovalStepViewer extends React.Component {
   }
 
   render() {
-    // const stateLast = this.state.steps ? this.state.steps[0].approvalState : 0
+    const stepsLen = (this.state.steps || []).length
     let stateLast = 0
 
     return (
@@ -757,7 +757,7 @@ class ApprovalStepViewer extends React.Component {
               <ul className="timeline approved-steps">
                 {(this.state.steps || []).map((item, idx) => {
                   if (item.submitter) stateLast = item.approvalState
-                  return idx === 0 || item.submitter ? this.renderSubmitter(item, idx) : this.renderApprover(item, stateLast)
+                  return idx === 0 || item.submitter ? this.renderSubmitter(item, idx) : this.renderApprover(item, stateLast, stepsLen === idx + 1)
                 })}
 
                 {stateLast >= 10 && (
@@ -788,9 +788,9 @@ class ApprovalStepViewer extends React.Component {
 
   renderSubmitter(s, idx) {
     return (
-      <RF>
+      <RF key={`step-submit-${idx}`}>
         {idx > 0 && <strong className="mb-1">{$L('再次提交')}</strong>}
-        <li className="timeline-item state0" key="step-submit">
+        <li className="timeline-item state0">
           {this._formatTime(s.createdOn)}
           <div className="timeline-content">
             <div className="timeline-avatar">
@@ -814,8 +814,8 @@ class ApprovalStepViewer extends React.Component {
     )
   }
 
-  renderApprover(s, stateLast) {
-    const sss = []
+  renderApprover(s, stateLast, isLast) {
+    const stepsGroup = []
     let nodeState = 0
     if (s[0].signMode === 'OR') {
       s.forEach((item) => {
@@ -849,8 +849,9 @@ class ApprovalStepViewer extends React.Component {
         )
       }
 
-      sss.push(
-        <li className={`timeline-item state${item.state}`} key={`step-${$random()}`}>
+      const state1w = item.state === 1 && isLast && stateLast < 10
+      stepsGroup.push(
+        <li className={`timeline-item state${item.state} ${state1w && 'w'}`} key={`step-${$random()}`}>
           {this._formatTime(item.approvedTime || item.createdOn)}
           <div className="timeline-content">
             <div className="timeline-avatar">
@@ -911,11 +912,11 @@ class ApprovalStepViewer extends React.Component {
       )
     })
 
-    if (sss.length < 2) {
+    if (stepsGroup.length < 2) {
       return (
         <RF key={`step-${$random()}`}>
           {s[0].nodeName && <strong className="mb-1">{s[0].nodeName}</strong>}
-          {sss}
+          {stepsGroup}
         </RF>
       )
     }
@@ -926,7 +927,7 @@ class ApprovalStepViewer extends React.Component {
       <RF key={`step-${$random()}`}>
         {s[0].nodeName && <strong className="mb-1">{s[0].nodeName}</strong>}
         <div className={clazz} _title={sm === 'OR' ? $L('或签') : sm === 'AND' ? $L('会签') : null} key={`step-${$random()}`}>
-          {sss}
+          {stepsGroup}
         </div>
       </RF>
     )

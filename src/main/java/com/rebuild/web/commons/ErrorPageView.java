@@ -130,7 +130,7 @@ public class ErrorPageView extends BaseController {
 
     @GetMapping("/error/request-support")
     public void requestSupport(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String tsid = null;
+        String tsid;
         try {
             tsid = new SysbaseSupport().submit();
         } catch (Exception ex) {

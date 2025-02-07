@@ -23,7 +23,7 @@ $(document).ready(() => {
   let shareToComp
   let cfgid = $urlp('id')
 
-  $.get(`${settingsUrl}?id=${cfgid || ''}`, (res) => {
+  $.get(`${settingsUrl}?id=${cfgid || ''}&deep3=false`, (res) => {
     const _data = res.data || {}
     cfgid = _data.configId || ''
     _fieldCached = [..._data.fieldList, ..._data.configList]
@@ -112,17 +112,22 @@ $(document).ready(() => {
   $('.sortable-box-title .search-btn').on('click', function () {
     const $s = $(`<div class="search-input"><input type="text" placeholder="${$L('筛选字段')}" /></div>`).appendTo($(this).parent())
     const $input = $s.find('input').on('input', (e) => {
-      $setTimeout(() => {
-        const q = $trim(e.target.value).toLowerCase()
-        $('.unset-list .dd-item').each(function () {
-          const $item = $(this)
-          if (!q || $item.text().toLowerCase().includes(q) || $item.data('key').toLowerCase().includes(q)) {
-            $item.removeClass('hide')
-          } else {
-            $item.addClass('hide')
-          }
-        })
-      }, 200)
+      $setTimeout(
+        () => {
+          const q = $trim(e.target.value).toLowerCase()
+          $('.unset-list .dd-item').each(function () {
+            const $item = $(this)
+            if (!q || $item.text().toLowerCase().includes(q) || $item.data('key').toLowerCase().includes(q)) {
+              $item.removeClass('hide')
+            } else {
+              $item.addClass('hide')
+            }
+          })
+          $('.sortable-box').perfectScrollbar('update')
+        },
+        200,
+        'sortable-box'
+      )
     })
 
     setTimeout(() => $input[0].focus(), 20)

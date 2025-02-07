@@ -9,6 +9,7 @@ package com.rebuild.core.service.trigger;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.service.DataSpecificationException;
+import lombok.Getter;
 
 /**
  * 数据校验专用
@@ -17,6 +18,7 @@ import com.rebuild.core.service.DataSpecificationException;
  * @since 2021/6/30
  * @see com.rebuild.rbv.trigger.DataValidate
  */
+@Getter
 public class DataValidateException extends DataSpecificationException {
     private static final long serialVersionUID = 4178910284594338317L;
 
@@ -35,13 +37,5 @@ public class DataValidateException extends DataSpecificationException {
         super(msg);
         this.weakMode = weakMode;
         this.weakModeTriggerId = triggerId;
-    }
-
-    public boolean isWeakMode() {
-        return weakMode;
-    }
-
-    public ID getWeakModeTriggerId() {
-        return weakModeTriggerId;
     }
 }

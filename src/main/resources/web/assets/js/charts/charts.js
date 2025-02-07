@@ -376,6 +376,14 @@ const ECHART_AXIS_LABEL = {
   },
 }
 
+const ECHART_MARK_LINE = {
+  data: [{ type: 'average', name: $L('均线') }],
+  symbol: 'none',
+  silent: true,
+  emphasis: { disabled: true },
+  label: { show: false },
+}
+
 const ECHART_VALUE_LABEL2 = function (dataFlags = []) {
   return {
     show: true,
@@ -519,6 +527,7 @@ class ChartLine extends BaseChart {
       const showAreaColor = data._renderOption && data._renderOption.showAreaColor
       const dataFlags = data._renderOption.dataFlags || []
       const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
+      const showMarkLine = data._renderOption ? data._renderOption.showMarkLine : null
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
@@ -532,6 +541,7 @@ class ChartLine extends BaseChart {
         if (showAreaColor) yAxis.areaStyle = { opacity: 0.2 }
         if (showNumerical) yAxis.label = ECHART_VALUE_LABEL2(dataFlags)
         yAxis.cursor = 'default'
+        if (showMarkLine) yAxis.markLine = { ...$clone(ECHART_MARK_LINE) }
         data.yyyAxis[i] = yAxis
       }
 
@@ -589,6 +599,7 @@ class ChartBar extends BaseChart {
       const showMutliYAxis = data._renderOption && data._renderOption.showMutliYAxis // v3.7
       const dataFlags = data._renderOption.dataFlags || [] // 小数符号
       const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
+      const showMarkLine = data._renderOption ? data._renderOption.showMarkLine : null
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
@@ -603,6 +614,7 @@ class ChartBar extends BaseChart {
           yAxis.smooth = true
           yAxis.lineStyle = { width: 3 }
         }
+        if (showMarkLine) yAxis.markLine = { ...$clone(ECHART_MARK_LINE) }
         data.yyyAxis[i] = yAxis
       }
 

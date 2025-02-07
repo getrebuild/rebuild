@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.Dialect;
 import cn.devezhao.persist4j.util.XmlHelper;
 import cn.devezhao.persist4j.util.support.Table;
+import org.apache.commons.collections4.CollectionUtils;
 import org.dom4j.Element;
 
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class Table40 extends Table {
     }
 
     private static List<Element> buildIndexList(List<String> indexFields) {
-        if (indexFields == null || indexFields.isEmpty()) return null;
+        if (CollectionUtils.isEmpty(indexFields)) return null;
 
         List<Element> ixs = new ArrayList<>();
         for (String indexField : indexFields) {

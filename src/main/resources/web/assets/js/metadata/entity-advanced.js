@@ -28,11 +28,6 @@ $(document).ready(() => {
 
   $('.J_drop-confirm').on('click', () => {
     if (!$('.J_drop-check').prop('checked')) return
-    if (!window.__PageConfig.isSuperAdmin) {
-      RbHighbar.error($L('仅超级管理员可删除实体'))
-      return
-    }
-
     RbAlert.create($L('实体删除后将无法恢复，请务必谨慎操作。确认删除吗？'), $L('删除实体'), {
       type: 'danger',
       confirmText: $L('删除'),
@@ -54,11 +49,6 @@ $(document).ready(() => {
   })
   $('.J_truncate-confirm').on('click', () => {
     if (!$('.J_drop-check').prop('checked')) return
-    if (!window.__PageConfig.isSuperAdmin) {
-      RbHighbar.error($L('仅超级管理员可清空数据'))
-      return
-    }
-
     RbAlert.create($L('此操作将直接清空数据，不会保留在回收站及触发相关业务规则。'), $L('清空数据'), {
       type: 'danger',
       confirmText: $L('清空'),
@@ -644,7 +634,7 @@ class CompCategoryItem extends React.Component {
         </div>
         <div className="col-1 pl-0 pr-0 text-right">
           <button className="btn btn-light w-auto dropdown-toggle" type="button" data-toggle="dropdown" title={$L('更多选项')}>
-            <i className="icon zmdi zmdi-more fs-18" />
+            <i className="icon zmdi zmdi-more-vert fs-18" />
           </button>
           <div className="dropdown-menu dropdown-menu-sm">
             <a className="dropdown-item" onClick={() => this.props.handleRemove(this.props.key2)}>
@@ -790,15 +780,15 @@ class OptionProps extends RbAlert {
             </label>
             <label className="custom-control custom-control-sm custom-radio custom-control-inline">
               <input className="custom-control-input" type="radio" name="showOrder" value="1" />
-              <span className="custom-control-label">(1)</span>
+              <span className="custom-control-label">1.</span>
             </label>
             <label className="custom-control custom-control-sm custom-radio custom-control-inline">
               <input className="custom-control-input" type="radio" name="showOrder" value="2" />
-              <span className="custom-control-label">(2)</span>
+              <span className="custom-control-label">2.</span>
             </label>
             <label className="custom-control custom-control-sm custom-radio custom-control-inline">
               <input className="custom-control-input" type="radio" name="showOrder" value="3" />
-              <span className="custom-control-label">(3)</span>
+              <span className="custom-control-label">3.</span>
             </label>
           </div>
         </div>
