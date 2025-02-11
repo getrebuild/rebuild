@@ -83,6 +83,12 @@ class RbFormModal extends React.Component {
   _handleMaximize() {
     this.setState({ _maximize: !this.state._maximize }, () => {
       $storage.set(this.__maximizeKey, this.state._maximize)
+
+      // be:3.9.4
+      setTimeout(() => {
+        const $form = this.getFormComp()._$form
+        $form && $($form).parent().find('.protable').perfectScrollbar('update')
+      }, 200)
     })
   }
 
