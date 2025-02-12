@@ -1135,7 +1135,22 @@ class Md2Html extends React.Component {
             $stopEvent(e, false)
           })
         })
-      // TODO 图片预览
+
+      // 图片预览
+      let imgs = []
+      $(this._$md2html)
+        .find('img[src]')
+        .each(function () {
+          const $img = $(this)
+          let isrc = $img.attr('src')
+          isrc = isrc.split('/filex/img/')[1].split(/[?&]imageView2/)[0]
+          imgs.push(isrc)
+          $img.on('click', (e) => {
+            $stopEvent(e, true)
+            const p = parent || window
+            p.RbPreview.create(imgs, imgs.indexOf(isrc) || 0)
+          })
+        })
     })
   }
 }

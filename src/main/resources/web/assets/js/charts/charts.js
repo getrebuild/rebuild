@@ -376,12 +376,14 @@ const ECHART_AXIS_LABEL = {
   },
 }
 
-const ECHART_MARK_LINE = {
-  data: [{ type: 'average', name: $L('均线') }],
-  symbol: 'none',
-  silent: true,
-  emphasis: { disabled: true },
-  label: { show: false },
+const ECHART_MARK_LINE2 = function (showLabel = false) {
+  return {
+    data: [{ type: 'average', name: $L('均线') }],
+    symbol: 'none',
+    silent: true,
+    emphasis: { disabled: true },
+    label: { show: showLabel },
+  }
 }
 
 const ECHART_VALUE_LABEL2 = function (dataFlags = []) {
@@ -541,7 +543,7 @@ class ChartLine extends BaseChart {
         if (showAreaColor) yAxis.areaStyle = { opacity: 0.2 }
         if (showNumerical) yAxis.label = ECHART_VALUE_LABEL2(dataFlags)
         yAxis.cursor = 'default'
-        if (showMarkLine) yAxis.markLine = { ...$clone(ECHART_MARK_LINE) }
+        if (showMarkLine) yAxis.markLine = ECHART_MARK_LINE2(showNumerical)
         data.yyyAxis[i] = yAxis
       }
 
@@ -614,7 +616,7 @@ class ChartBar extends BaseChart {
           yAxis.smooth = true
           yAxis.lineStyle = { width: 3 }
         }
-        if (showMarkLine) yAxis.markLine = { ...$clone(ECHART_MARK_LINE) }
+        if (showMarkLine) yAxis.markLine = ECHART_MARK_LINE2(showNumerical)
         data.yyyAxis[i] = yAxis
       }
 

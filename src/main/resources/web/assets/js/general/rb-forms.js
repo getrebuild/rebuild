@@ -1498,7 +1498,7 @@ class RbFormNText extends RbFormElement {
       $createUploader(this._fieldValue__upload, null, (res) => {
         const pos = mde.codemirror.getCursor()
         mde.codemirror.setSelection(pos, pos)
-        mde.codemirror.replaceSelection(`![${$L('图片')}](${rb.baseUrl}/filex/img/${res.key})`)
+        mde.codemirror.replaceSelection(`![](${rb.baseUrl}/filex/img/${res.key})`)
         _mdeFocus()
       })
       if (this.props.onView) _mdeFocus()
@@ -1807,6 +1807,7 @@ class RbFormImage extends RbFormElement {
       }
     }
   }
+
   removeItem(item, e) {
     e && $stopEvent(e, true)
     const paths = this.state.value || []
