@@ -29,7 +29,7 @@ import java.util.Date;
 /**
  * @author Zhao Fangfang
  * @see MetadataHelper
- * @since 1.0, 2018-6-26
+ * @since 1.0, 2019-6-26
  */
 @Slf4j
 public class EntityHelper {
