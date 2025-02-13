@@ -152,11 +152,9 @@ public class DashboardController extends BaseController {
         // 附加内置图表
         if (!("ENTITY".equalsIgnoreCase(type) || "MYSELF".equalsIgnoreCase(type))) {
             for (BuiltinChart b : ChartsFactory.getBuiltinCharts()) {
-                if (b.getChartId().equals(DataList.MYID)) continue;
-
                 charts.add(JSONUtils.toJSONObject(
-                        new String[] { "id", "title", "type", "entityLabel" },
-                        new Object[] { b.getChartId(), b.getChartTitle(), b.getChartType(), Language.L("内置") }));
+                        new String[]{"id", "title", "type", "entityLabel"},
+                        new Object[]{b.getChartId(), b.getChartTitle(), b.getChartType(), Language.L("内置")}));
             }
         }
 
