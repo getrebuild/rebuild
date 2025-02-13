@@ -47,7 +47,7 @@ public class EasyFieldConfigProps {
      */
     public static final String NUMBER_CALCFORMULA = "calcFormula";
     /**
-     * 表单公式
+     * 表单公式后端计算
      */
     public static final String NUMBER_CALCFORMULABACKEND = "calcFormulaBackend";
     /**

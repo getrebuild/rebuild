@@ -133,6 +133,11 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
         TransformerPreview37.fillLabelOfReference(tansTargetRecord);
 
         JSON formModel = UseFormsBuilder.buildFormWithRecord(targetEntity, tansTargetRecord, specMainId, getUser(), false);
+        // fix:3.9.4 明细导入
+        if (targetEntity.getDetailEntity() != null) {
+            ((JSONObject) formModel).put("detailImports", buildDetailImports39(targetEntity));
+        }
+
         if (fieldsMappingDetails == null || fieldsMappingDetails.isEmpty()) return formModel;
 
         // 有明细
@@ -179,11 +184,6 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
         }
 
         ((JSONObject) formModel).put(GeneralEntityService.HAS_DETAILS, formModelDetailsMap);
-
-        // 明细导入
-        if (targetEntity.getDetailEntity() != null) {
-            ((JSONObject) formModel).put("detailImports", buildDetailImports39(targetEntity));
-        }
 
         return formModel;
     }

@@ -83,6 +83,12 @@ class RbFormModal extends React.Component {
   _handleMaximize() {
     this.setState({ _maximize: !this.state._maximize }, () => {
       $storage.set(this.__maximizeKey, this.state._maximize)
+
+      // be:3.9.4
+      setTimeout(() => {
+        const $form = this.getFormComp()._$form
+        $form && $($form).parent().find('.protable').perfectScrollbar('update')
+      }, 200)
     })
   }
 
@@ -3331,10 +3337,14 @@ const __calcFormula = function (fieldComp) {
 }
 function __isSameValue38(a, b) {
   if ($same(a, b)) return true
-  try {
-    // eslint-disable-next-line eqeqeq
-    return parseFloat(a) == parseFloat(b)
-  } catch (err) {
-    // ignored
+  // fix: 3.9.4
+  if ($regex.isDecimal(a) && $regex.isDecimal(b)) {
+    try {
+      // eslint-disable-next-line eqeqeq
+      return parseFloat(a) == parseFloat(b)
+    } catch (err) {
+      // ignored
+    }
   }
+  return false
 }

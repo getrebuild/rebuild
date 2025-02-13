@@ -224,12 +224,14 @@ public class QueryParser {
 
         String sortNode = queryExpr.getString("sort");
         String sortSql = null;
-        if (StringUtils.isNotBlank(sortNode)) {
-            sortSql = parseSort(sortNode);
-        } else if (entity.containsField(EntityHelper.ModifiedOn)) {
-            sortSql = EntityHelper.ModifiedOn + " desc";
-        } else if (entity.containsField(EntityHelper.CreatedOn)) {
-            sortSql = EntityHelper.CreatedOn + " desc";
+        if (StringUtils.isNotBlank(sortNode)) sortSql = parseSort(sortNode);
+        // 默认排序
+        if (sortSql == null) {
+            if (entity.containsField(EntityHelper.ModifiedOn)) {
+                sortSql = EntityHelper.ModifiedOn + (":asc".equals(sortNode) ? " asc" : " desc");
+            } else if (entity.containsField(EntityHelper.CreatedOn)) {
+                sortSql = EntityHelper.CreatedOn + (":asc".equals(sortNode) ? " asc" : " desc");
+            }
         }
         if (StringUtils.isNotBlank(sortSql)) fullSql.append(" order by ").append(sortSql);
 
@@ -256,7 +258,7 @@ public class QueryParser {
         if (sort.length() < 5) return null;
 
         StringBuilder sb = new StringBuilder();
-        String[] sorts = sort.split("[,;]");
+        String[] sorts = sort.split("[,;]");  // 支持多个: xx:asc;xxx:desc
         for (String s : sorts) {
             String[] split = s.split(":");
             if (StringUtils.isBlank(split[0])) return null;
