@@ -25,6 +25,7 @@ import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.approval.FlowNode;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.ImageMaker;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -156,9 +157,22 @@ public class UserHelper {
             }
 
         } catch (NoMemberFoundException ex) {
-            log.error("No bizz found : " + bizzId);
+            log.error("No bizz found : {}", bizzId);
         }
         return null;
+    }
+
+    /**
+     * @param bizzId
+     * @return
+     */
+    public static String getNameNotry(ID bizzId) {
+        if (bizzId == null) return "[NULL]";
+        try {
+            return getName(bizzId);
+        } catch (NoMemberFoundException ignored) {
+            return FieldValueHelper.MISS_REF_PLACE;
+        }
     }
 
     /**

@@ -522,7 +522,7 @@ public class ApprovalProcessor extends SetUser {
         this.approvalId = status.getApprovalId();
 
         String sql = "select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode,nodeBatch,ccUsers,ccAccounts,attrMore,approvalId,isBacked from RobotApprovalStep" +
-                " where recordId = ? and isWaiting = 'F' and isCanceled = 'F' order by createdOn";
+                " where recordId = ? and isWaiting = 'F' and isCanceled = 'F' order by createdOn, state";
         if (allHis) sql = sql.replace("and isCanceled = 'F' ", "");
         Object[][] array = Application.createQueryNoFilter(sql)
                 .setParameter(1, this.recordId)
@@ -530,36 +530,41 @@ public class ApprovalProcessor extends SetUser {
         if (array.length == 0) return JSONUtils.EMPTY_ARRAY;
         if (!allHis) return getWorkedSteps1Batch(array, status);
 
-        JSONArray batchs = new JSONArray();
+        JSONArray batchArray = new JSONArray();
         List<Object[]> batch = new ArrayList<>();
         for (Object[] o : array) {
             String node = (String) o[6];
             batch.add(o);
 
-            // 撤销了:新批次
-            if (FlowNode.NODE_REVOKED.equals(node) || (FlowNode.NODE_CANCELED.equals(node) && !(Boolean) o[13])) {
-                Object[] bLast = batch.get(batch.size() - 2);
-                ID bLastApprovalId = (ID) bLast[12];
-                if (bLastApprovalId == null) continue;  // 流程删除了
+            int state = (Integer) o[1];
+            boolean isBacked = (Boolean) o[13];
 
-                String bLastApprovalName = FieldValueHelper.getLabelNotry(bLastApprovalId);
+            // 新批次:当撤销/撤回/驳回
+            if (FlowNode.NODE_REVOKED.equals(node)
+                    || (FlowNode.NODE_CANCELED.equals(node) && !isBacked)
+                    || (state == ApprovalState.REJECTED.getState())) {
+                ID lastApprovalId = (ID) o[12];
+                if (lastApprovalId == null) continue;  // 流程删除了
+
+                String bLastApprovalName = FieldValueHelper.getLabelNotry(lastApprovalId);
                 ApprovalStatus bLastStatus = new ApprovalStatus(
-                        bLastApprovalId, bLastApprovalName, ApprovalState.REVOKED.getState(), (String) bLast[6], this.recordId);
+                        lastApprovalId, bLastApprovalName, ApprovalState.REVOKED.getState(), (String) o[6], this.recordId);
 
-                this.approvalId = bLastApprovalId;
+                this.approvalId = lastApprovalId;
                 this.flowParser = null;
-                batchs.addAll(getWorkedSteps1Batch(batch.toArray(new Object[0][]), bLastStatus));
+                batchArray.addAll(getWorkedSteps1Batch(batch.toArray(new Object[0][]), bLastStatus));
                 batch.clear();
             }
         }
+
         // current
         this.approvalId = status.getApprovalId();
         this.flowParser = null;
         if (!batch.isEmpty()) {
-            batchs.addAll(getWorkedSteps1Batch(batch.toArray(new Object[0][]), status));
+            batchArray.addAll(getWorkedSteps1Batch(batch.toArray(new Object[0][]), status));
         }
 
-        return batchs;
+        return batchArray;
     }
 
     private JSONArray getWorkedSteps1Batch(Object[][] array, ApprovalStatus status) {
@@ -593,18 +598,18 @@ public class ApprovalProcessor extends SetUser {
         Map<String, String> nodeIndexNames = new HashMap<>();
         for (Map.Entry<String, List<Object[]>> e : stepBatchMap.entrySet()) {
             nodeIndex++;
-            List<Object[]> group = e.getValue();
+            List<Object[]> batch = e.getValue();
 
             // 按审批时间排序
-            if (group.size() > 1) {
-                group.sort((o1, o2) -> {
+            if (batch.size() > 1) {
+                batch.sort((o1, o2) -> {
                     Date t1 = (Date) (o1[3] == null ? o1[4] : o1[3]);
                     Date t2 = (Date) (o2[3] == null ? o2[4] : o2[3]);
                     return t1.compareTo(t2);
                 });
             }
 
-            String nodeNo = (String) group.get(0)[6];
+            String nodeNo = (String) batch.get(0)[6];
             FlowNode flowNode = null;
             if (FlowNode.NODE_REVOKED.equals(nodeNo) || FlowNode.NODE_CANCELED.equals(nodeNo)
                     || FlowNode.NODE_AUTOAPPROVAL.equals(nodeNo)) {
@@ -614,7 +619,18 @@ public class ApprovalProcessor extends SetUser {
             }
 
             JSONArray step = new JSONArray();
-            for (Object[] o : group) {
+            // be:3.9.4 或签节点已审批，未审批的无需显示时长
+            boolean state1ShowDruation = true;
+            if (batch.size() > 1) {
+                for (Object[] o : batch) {
+                    int state = (Integer) o[1];
+                    if (state == ApprovalState.APPROVED.getState()) {
+                        state1ShowDruation = false;
+                        break;
+                    }
+                }
+            }
+            for (Object[] o : batch) {
                 JSONObject s = formatStep(o, flowNode == null ? FlowNode.SIGN_OR : flowNode.getSignMode());
 
                 if (FlowNode.NODE_AUTOAPPROVAL.equals(nodeNo)) {
@@ -641,9 +657,13 @@ public class ApprovalProcessor extends SetUser {
                             && (status.getCurrentState() == ApprovalState.REVOKED || status.getCurrentState() == ApprovalState.CANCELED)) {
                         // 无需显示
                     } else {
-                        Date nodeTime = (Date) (o[3] == null ? CalendarUtils.now() : o[3]);
-                        long druation = (nodeTime.getTime() - prevNodeTime.getTime()) / 1000;
-                        s.put("druation", druation);
+                        if (state == ApprovalState.DRAFT.getState() && !state1ShowDruation) {
+                            // 无需显示
+                        } else {
+                            Date nodeTime = (Date) (o[3] == null ? CalendarUtils.now() : o[3]);
+                            long druation = (nodeTime.getTime() - prevNodeTime.getTime()) / 1000;
+                            s.put("druation", druation);
+                        }
                     }
                 }
 
@@ -661,7 +681,7 @@ public class ApprovalProcessor extends SetUser {
             }
             steps.add(step);
 
-            Object[] lastNode = group.get(group.size() - 1);
+            Object[] lastNode = batch.get(batch.size() - 1);
             prevNodeTime = (Date) (lastNode[3] == null ? lastNode[4] : lastNode[3]);
         }
 
@@ -673,14 +693,14 @@ public class ApprovalProcessor extends SetUser {
         JSONObject s = JSONUtils.toJSONObject(
                 new String[]{"approver", "approverName", "state", "remark", "approvedTime", "createdOn", "signMode"},
                 new Object[]{
-                        approver, UserHelper.getName(approver),
+                        approver, UserHelper.getNameNotry(approver),
                         step[1], step[2],
                         step[3] == null ? null : CalendarUtils.getUTCDateTimeFormat().format(step[3]),
                         CalendarUtils.getUTCDateTimeFormat().format(step[4]), signMode });
 
         if (step.length > 9 && step[9] != null) {
             List<String> names = new ArrayList<>();
-            for (ID u : (ID[]) step[9]) names.add(UserHelper.getName(u));
+            for (ID u : (ID[]) step[9]) names.add(UserHelper.getNameNotry(u));
             s.put("ccUsers", names);
         }
         if (step.length > 10 && step[10] != null) {

@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.dashboard.charts;
 
+import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
@@ -93,7 +94,8 @@ public class ChartsFactory {
         } else {
             for (BuiltinChart ch : getBuiltinCharts()) {
                 if (ch.getChartType().equalsIgnoreCase(type)) {
-                    return (ChartData) ((ChartData) ch).setUser(user);
+                    ChartData c = (ChartData) ReflectUtils.newObject(ch.getClass().getName());
+                    return (ChartData) c.setUser(user);
                 }
             }
         }

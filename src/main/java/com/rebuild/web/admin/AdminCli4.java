@@ -19,6 +19,7 @@ import com.rebuild.core.support.setup.Installer;
 import com.rebuild.core.support.setup.SimpleEntity;
 import com.rebuild.utils.AES;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -180,7 +181,8 @@ public class AdminCli4 {
             else {
                 String value = commands[2];
                 if (item == ConfigurationItem.SN) {
-                    String usql = String.format("update system_config set `VALUE` = '%s' where `ITEM` = 'SN'", value);
+                    String usql = String.format("update system_config set `VALUE` = '%s' where `ITEM` = 'SN'",
+                            StringEscapeUtils.escapeSql(value));
                     Application.getSqlExecutor().execute(usql);
                     // reset: RB NEED RESTART
                     Application.getCommonsCache().evict(ConfigurationItem.SN.name());
