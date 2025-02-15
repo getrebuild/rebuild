@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
@@ -28,6 +29,7 @@ import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
@@ -121,7 +123,32 @@ public class ProtocolFilterParser {
         // via Charts
         if (anyId.getEntityCode() == EntityHelper.ChartConfig) {
             ConfigBean chart = ChartManager.instance.getChart(anyId);
-            if (chart != null) filterExp = ((JSONObject) chart.getJSON("config")).getJSONObject("filter");
+            if (chart != null) {
+                JSONObject chartConfig = (JSONObject) chart.getJSON("config");
+                filterExp = chartConfig.getJSONObject("filter");
+
+                // be:v4.0 轴-数值条件也生效
+                JSONObject axis = chartConfig.getJSONObject("axis");
+                JSONArray numsOfAxis = axis == null ? null : axis.getJSONArray("numerical");
+                if (!CollectionUtils.isEmpty(numsOfAxis)) {
+                    List<String> numsSqls = new ArrayList<>();
+                    for (Object o : numsOfAxis) {
+                        JSONObject axisFilterExp = ((JSONObject) o).getJSONObject("filter");
+                        if (ParseHelper.validAdvFilter(axisFilterExp)) {
+                            String s = new AdvFilterParser(axisFilterExp).toSqlWhere();
+                            if (s != null) numsSqls.add(s);
+                        }
+                    }
+
+                    if (!numsSqls.isEmpty()) {
+                        if (ParseHelper.validAdvFilter(filterExp)) {
+                            String chartSql = new AdvFilterParser(filterExp).toSqlWhere();
+                            return String.format("%s and (%s)", chartSql, StringUtils.join(numsSqls, " or "));
+                        }
+                        return String.format("(%s)", StringUtils.join(numsSqls, " or "));
+                    }
+                }
+            }
         }
         // via AdvFilter
         else if (anyId.getEntityCode() == EntityHelper.FilterConfig) {
@@ -145,7 +172,7 @@ public class ProtocolFilterParser {
             filterExp.put("items", Collections.singletonList(item));
         }
 
-        return filterExp == null ? null : new AdvFilterParser(filterExp).toSqlWhere();
+        return ParseHelper.validAdvFilter(filterExp) ? new AdvFilterParser(filterExp).toSqlWhere() : null;
     }
 
     /**

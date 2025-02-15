@@ -61,6 +61,8 @@ public class EasyDecimal extends EasyField {
     public Object wrapValue(Object value) {
         String format = StringUtils.defaultIfBlank(
                 getExtraAttr(EasyFieldConfigProps.DECIMAL_FORMAT), getDisplayType().getDefaultFormat());
+        // fix:3.9.4 进位模式
+        value = fixedDecimalScale(value, this);
         String n = new DecimalFormat(format).format(value);
 
         // 0, %, etc.

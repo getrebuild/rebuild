@@ -20,6 +20,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashSet;
@@ -319,6 +320,6 @@ public class ParseHelper {
         if (advFilter == null || advFilter.isEmpty()) return false;
 
         JSONArray items = advFilter.getJSONArray("items");
-        return items != null && !items.isEmpty();
+        return !CollectionUtils.isEmpty(items);
     }
 }
