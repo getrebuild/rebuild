@@ -29,6 +29,7 @@ import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
@@ -129,7 +130,7 @@ public class ProtocolFilterParser {
                 // be:v4.0 轴-数值条件也生效
                 JSONObject axis = chartConfig.getJSONObject("axis");
                 JSONArray numsOfAxis = axis == null ? null : axis.getJSONArray("numerical");
-                if (numsOfAxis != null) {
+                if (!CollectionUtils.isEmpty(numsOfAxis)) {
                     List<String> numsSqls = new ArrayList<>();
                     for (Object o : numsOfAxis) {
                         JSONObject axisFilterExp = ((JSONObject) o).getJSONObject("filter");
