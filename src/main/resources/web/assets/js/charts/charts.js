@@ -1635,6 +1635,12 @@ class ChartCNMap extends BaseChart {
   }
 }
 
+class HeadingText extends BaseChart {
+  renderChart() {
+    return <h1>{this.props.title || $L('标题')}</h1>
+  }
+}
+
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
 const detectChart = function (cfg, id) {
@@ -1661,19 +1667,21 @@ const detectChart = function (cfg, id) {
   } else if (cfg.type === 'TREEMAP') {
     return <ChartTreemap {...props} />
   } else if (cfg.type === 'ApprovalList') {
-    return <ApprovalList {...props} builtin={true} />
+    return <ApprovalList {...props} builtin />
   } else if (cfg.type === 'FeedsSchedule') {
-    return <FeedsSchedule {...props} builtin={true} />
+    return <FeedsSchedule {...props} builtin />
   } else if (cfg.type === 'RADAR') {
     return <ChartRadar {...props} />
   } else if (cfg.type === 'SCATTER') {
     return <ChartScatter {...props} />
   } else if (cfg.type === 'ProjectTasks') {
-    return <ProjectTasks {...props} builtin={true} />
+    return <ProjectTasks {...props} builtin />
   } else if (cfg.type === 'DataList' || cfg.type === 'DATALIST2') {
     return <DataList {...props} builtin={false} />
   } else if (cfg.type === 'CNMAP') {
     return <ChartCNMap {...props} />
+  } else if (cfg.type === 'HeadingText') {
+    return <HeadingText {...props} builtin />
   } else {
     return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${cfg.type}]`}</h4>
   }
