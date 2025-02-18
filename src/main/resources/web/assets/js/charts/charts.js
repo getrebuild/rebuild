@@ -1380,7 +1380,23 @@ class DataList extends BaseChart {
       const $op = $(this._$box).find('.chart-oper')
       $op.find('.J_chart-edit').on('click', (e) => {
         $stopEvent(e, true)
-        RbHighbar.create('[DEPRECATED] 该功能将在下一版本禁用')
+
+        const config2 = this.state.config
+        renderRbcomp(
+          // eslint-disable-next-line react/jsx-no-undef
+          <DataListSettings
+            chart={config2.chart}
+            {...config2.extconfig}
+            onConfirm={(s) => {
+              if (typeof window.save_dashboard === 'function') {
+                config2.extconfig = s
+                this.setState({ config: config2 }, () => this.loadChartData())
+              } else {
+                console.log('No `save_dashboard` found :', s)
+              }
+            }}
+          />
+        )
       })
     }
   }
@@ -1404,9 +1420,7 @@ class DataList extends BaseChart {
       return
     }
 
-    const extconfig = this.state.config.extconfig
-    // extconfig && this.setState({ title: extconfig.title || $L('数据列表') })
-
+    const extconfig2 = this.state.config.extconfig
     const listFields = data.fields
     const listData = data.data
     const lastIndex = listFields.length
@@ -1418,8 +1432,8 @@ class DataList extends BaseChart {
             <tr ref={(c) => (this._$head = c)}>
               {listFields.map((item) => {
                 let sortClazz = null
-                if (extconfig && extconfig.sort) {
-                  const s = extconfig.sort.split(':')
+                if (extconfig2 && extconfig2.sort) {
+                  const s = extconfig2.sort.split(':')
                   if (s[0] === item.field && s[1] === 'asc') sortClazz = 'sort-asc'
                   if (s[0] === item.field && s[1] === 'desc') sortClazz = 'sort-desc'
                 }
@@ -1621,6 +1635,12 @@ class ChartCNMap extends BaseChart {
   }
 }
 
+class HeadingText extends BaseChart {
+  renderChart() {
+    return <h1>{this.props.title || $L('标题')}</h1>
+  }
+}
+
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
 const detectChart = function (cfg, id) {
@@ -1647,19 +1667,21 @@ const detectChart = function (cfg, id) {
   } else if (cfg.type === 'TREEMAP') {
     return <ChartTreemap {...props} />
   } else if (cfg.type === 'ApprovalList') {
-    return <ApprovalList {...props} builtin={true} />
+    return <ApprovalList {...props} builtin />
   } else if (cfg.type === 'FeedsSchedule') {
-    return <FeedsSchedule {...props} builtin={true} />
+    return <FeedsSchedule {...props} builtin />
   } else if (cfg.type === 'RADAR') {
     return <ChartRadar {...props} />
   } else if (cfg.type === 'SCATTER') {
     return <ChartScatter {...props} />
   } else if (cfg.type === 'ProjectTasks') {
-    return <ProjectTasks {...props} builtin={true} />
+    return <ProjectTasks {...props} builtin />
   } else if (cfg.type === 'DataList' || cfg.type === 'DATALIST2') {
     return <DataList {...props} builtin={false} />
   } else if (cfg.type === 'CNMAP') {
     return <ChartCNMap {...props} />
+  } else if (cfg.type === 'HeadingText') {
+    return <HeadingText {...props} builtin />
   } else {
     return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${cfg.type}]`}</h4>
   }

@@ -158,7 +158,12 @@ CellRenders.renderSimple = function (v, s, k) {
     v = _ENTITIES[v] || `[${v.toUpperCase()}]`
   }
 
-  return CellRenders_renderSimple(v, s, k)
+  let c = CellRenders_renderSimple(v, s, k)
+  console.log(k)
+  if (k.endsWith('.recordId')) {
+    c = React.cloneElement(c, { className: 'td-sm' })
+  }
+  return c
 }
 
 // ~~ 数据详情

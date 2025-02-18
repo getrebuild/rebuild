@@ -225,12 +225,12 @@ code {
   color: #555;
   font-size: 12px !important;
   text-transform: uppercase;
-  line-height: 1.2 !important;
 }
 
 a.badge.text-id {
   color: #4285f4;
   cursor: pointer;
+  line-height: 1.2 !important;
 }
 
 a.badge.text-id:hover {

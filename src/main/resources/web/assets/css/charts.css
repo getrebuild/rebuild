@@ -601,8 +601,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .DataList-showfields .select2-container--default .select2-selection--single .select2-selection__arrow b::after {
   font-family: 'Material Design Icons', serif;
   content: '\f0415';
-  font-size: 1.4rem;
-  margin-left: -2px;
+  font-size: 1.45rem;
+  margin-left: -3px;
+  color: #404040;
 }
 
 .DataList-showfields .sortable-box .dd-item .sort.desc::before {

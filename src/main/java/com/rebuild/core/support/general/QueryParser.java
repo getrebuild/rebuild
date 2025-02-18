@@ -37,7 +37,7 @@ import java.util.Set;
  * 列表查询解析
  *
  * @author Zhao Fangfang
- * @since 1.0, 2018-6-20
+ * @since 1.0, 2019-6-20
  */
 public class QueryParser {
 

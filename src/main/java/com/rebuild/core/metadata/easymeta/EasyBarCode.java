@@ -37,7 +37,7 @@ public class EasyBarCode extends EasyField {
             return BarCodeSupport.getBarCodeContent(getRawMeta(), (ID) value);
         }
 
-        if (value != null) log.warn("Cannot wrap value of EasyBarCode : " + value);
+        if (value != null) log.warn("Cannot wrap value of EasyBarCode : {}", value);
         return null;
     }
 

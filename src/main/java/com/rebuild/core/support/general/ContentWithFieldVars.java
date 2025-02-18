@@ -65,6 +65,8 @@ public class ContentWithFieldVars {
         for (String field : matchsVars(content)) {
             if (MetadataHelper.getLastJoinField(entity, field) != null) {
                 fieldVars.add(field);
+            } else {
+                log.warn("[ContentWithFieldVars] No field : {}", field);
             }
         }
         if (fieldVars.isEmpty()) return content;

@@ -32,9 +32,7 @@ import java.util.Map;
  *
  * @author devezhao
  * @since 2023/1/6
- * @deprecated v3.6
  */
-@Deprecated
 public class DataList extends ChartData implements BuiltinChart {
 
     // 虚拟ID
@@ -57,11 +55,11 @@ public class DataList extends ChartData implements BuiltinChart {
     @Override
     public JSON build() {
         Map<String, Object> params = getExtraParams();
-        final JSONObject extconfig = (JSONObject) params.get("extconfig");
-        if (extconfig == null) return JSONUtils.toJSONObject("error", "UNSET");
+        final JSONObject extConfig = (JSONObject) params.get("extconfig");
+        if (extConfig == null) return JSONUtils.toJSONObject("error", "UNSET");
 
-        final Entity entity = MetadataHelper.getEntity(extconfig.getString("entity"));
-        final JSONArray fields = extconfig.getJSONArray("fields");
+        final Entity entity = MetadataHelper.getEntity(extConfig.getString("entity"));
+        final JSONArray fields = extConfig.getJSONArray("fields");
         if (fields == null || fields.isEmpty()) return JSONUtils.toJSONObject("error", "UNSET");
 
         List<Object> fieldsRich = new ArrayList<>();
@@ -74,16 +72,21 @@ public class DataList extends ChartData implements BuiltinChart {
 
             EasyField lastFieldEasy = EasyMetaFactory.valueOf(lastField);
             JSONObject rich = JSONUtils.toJSONObject(
-                    new String[] { "field", "type", "label" },
-                    new Object[] { fieldName, lastFieldEasy.getDisplayType(), EasyMetaFactory.getLabel(entity, fieldName) });
+                    new String[]{"field", "type", "label"},
+                    new Object[]{fieldName, lastFieldEasy.getDisplayType(), EasyMetaFactory.getLabel(entity, fieldName)});
             fieldsRich.add(rich);
         }
 
-        extconfig.put("pageNo", 1);
-        extconfig.put("reload", false);
-        extconfig.put("statsField", false);
+        int pageSize = extConfig.getIntValue("pageSize");
+        if (pageSize <= 0) pageSize = 40;
+        if (pageSize >= 2000) pageSize = 2000;
 
-        DataListBuilder builder = new DataListBuilderImpl(extconfig, getUser());
+        extConfig.put("pageNo", 1);
+        extConfig.put("pageSize", pageSize);
+        extConfig.put("reload", false);
+        extConfig.put("statsField", false);
+
+        DataListBuilder builder = new DataListBuilderImpl(extConfig, getUser());
         JSONObject data = (JSONObject) builder.getJSONResult();
         data.put("fields", fieldsRich);
         return data;
