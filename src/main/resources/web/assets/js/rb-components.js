@@ -1287,6 +1287,7 @@ class AsideTree extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props, expandItems: [] }
+    this.__items = {}
   }
 
   render() {
@@ -1314,6 +1315,7 @@ class AsideTree extends React.Component {
   }
 
   renderItem(item, hasChild) {
+    this.__items[item.id] = item
     return (
       <li className={this.state.activeItem === item.id ? 'active' : ''}>
         <span
@@ -1335,14 +1337,6 @@ class AsideTree extends React.Component {
             this.setState({ activeItem: item.id }, () => {
               typeof this.props.onItemClick === 'function' && this.props.onItemClick(item)
             })
-          }}
-          onDoubleClick={() => {
-            // FIXME v3.9 双击会出发两次 onClick
-            // if (hasChild) {
-            //   const expandItemsNew = this.state.expandItems
-            //   expandItemsNew.toggle(item.id)
-            //   this.setState({ expandItems: expandItemsNew }, () => $clearSelection())
-            // }
           }}>
           {this.props.icon && <i className={`icon ${this.props.icon}`} />}
           {item.text || item.name}
@@ -1356,7 +1350,26 @@ class AsideTree extends React.Component {
   }
 
   refresh(data) {
+    this.__items = {}
     this.setState({ data: data })
+  }
+
+  triggerClick(id) {
+    const item = this.__items[id]
+    if (item) {
+      this.setState({ activeItem: item.id }, () => {
+        typeof this.props.onItemClick === 'function' && this.props.onItemClick(item)
+
+        // 树状需要展开父级
+        let ps = []
+        let loop = item
+        while (loop.parent) {
+          ps.push(loop.parent)
+          loop = this.__items[loop.parent]
+        }
+        ps.length > 0 && this.setState({ expandItems: ps })
+      })
+    }
   }
 
   // 获取所有子级 ID

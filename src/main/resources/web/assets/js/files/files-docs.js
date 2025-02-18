@@ -60,6 +60,9 @@ const FolderTree = {
         'navTree',
         function () {
           FolderTree._filesNav = this
+          // be:v4.0
+          const e = (location.hash || '').split('Folder/')[1]
+          if (e) this.triggerClick(e)
         }
       )
     })
@@ -129,7 +132,6 @@ const _renderFolderOption = function (item, idx, disabledItem) {
     })
   }
 
-  console.log(options)
   return options
 }
 
