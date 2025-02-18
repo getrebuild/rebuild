@@ -27,6 +27,15 @@ class RbPreview extends React.Component {
     const currentUrl = this.props.urls[this.state.currentIndex]
     const fileName = $fileCutName(currentUrl)
     const downloadUrl = this._buildAbsoluteUrl(currentUrl, 'attname=' + $encode(fileName))
+    // fix:3.9.5 钉钉内下载
+    if ($env.isDingTalk()) {
+      $.get(`/filex/make-url?url=${currentUrl}`, (res) => {
+        if (res.data.publicUrl) {
+          let s = res.data.publicUrl + '&attname=' + $encode(fileName)
+          $(this._dlg).find('.J_downloadUrl').attr('href', s)
+        }
+      })
+    }
 
     let previewContent = null
     if (this._isImage(fileName)) previewContent = this.renderImage()
@@ -40,7 +49,7 @@ class RbPreview extends React.Component {
       previewContent = (
         <div className="unsupports shadow-lg rounded bg-light">
           <h4 className="mt-1">{this.state.errorMsg || $L('暂不支持此类型文件的预览')}</h4>
-          <a className="link" target="_blank" rel="noopener noreferrer" href={downloadUrl}>
+          <a className="link J_downloadUrl" target="_blank" rel="noopener noreferrer" href={downloadUrl}>
             <i className="zmdi zmdi-download icon mr-1" />
             {$L('下载文件')}
           </a>
@@ -61,7 +70,7 @@ class RbPreview extends React.Component {
                   <i className="zmdi zmdi-share fs-17" />
                 </a>
               )}
-              <a title={$L('下载')} target="_blank" rel="noopener noreferrer" href={downloadUrl}>
+              <a title={$L('下载')} className="J_downloadUrl" target="_blank" rel="noopener noreferrer" href={downloadUrl}>
                 <i className="zmdi zmdi-download" />
               </a>
               {!this.props.unclose && (
