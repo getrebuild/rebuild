@@ -339,16 +339,16 @@ public class ReferenceSearchController extends EntityController {
         String entityAndField = getParameterNotNull(request, "e");
         String[] ef = entityAndField.split("\\.");
         Field field = MetadataHelper.getField(ef[0], ef[1]);
-        DisplayType fieldDt = EasyMetaFactory.getDisplayType(field);
+        DisplayType dtOfField = EasyMetaFactory.getDisplayType(field);
 
         String q = StringUtils.trim(getParameter(request, "q"));
         int pageSize = getIntParameter(request, "pageSize", 10);
 
-        if (fieldDt == DisplayType.REFERENCE) {
+        if (dtOfField == DisplayType.REFERENCE || dtOfField == DisplayType.N2NREFERENCE) {
             return buildResultSearch(
                     field.getReferenceEntity(), null, q, null, pageSize, user);
         }
-        else if (fieldDt == DisplayType.CLASSIFICATION) {
+        else if (dtOfField == DisplayType.CLASSIFICATION) {
             ID useClassification = ClassificationManager.instance.getUseClassification(field, false);
             if (useClassification == null) return JSONUtils.EMPTY_ARRAY;
             int openLevel = ClassificationManager.instance.getOpenLevel(field);
