@@ -5916,3 +5916,14 @@ div.formula-code {
   border-color: #0d5bdd;
   color: #0d5bdd;
 }
+
+.bootstrap-autocomplete.dropdown-menu {
+  width: 100%;
+  max-width: 100%;
+}
+
+.bootstrap-autocomplete.dropdown-menu .dropdown-item.active,
+.bootstrap-autocomplete.dropdown-menu .dropdown-item:hover {
+  color: #fff;
+  background-color: var(--rb-color);
+}
