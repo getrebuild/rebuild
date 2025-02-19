@@ -535,12 +535,12 @@ class FilterItem extends React.Component {
 
   // 可联想
   isCanSuggest() {
-    if (this.state.type === 'CLASSIFICATION') {
-      return true
-    }
+    if (!this.props.inFilterPane) return false
+    if (this.state.type === 'CLASSIFICATION') return true
     if (this.state.type === 'TEXT') {
       const ifRefField = REFENTITY_CACHE[this.state.field]
-      return ifRefField && !BIZZ_ENTITIES.includes(ifRefField[0])
+      if (ifRefField) return !BIZZ_ENTITIES.includes(ifRefField[0]) // 引用
+      return true // 文本
     }
     return false
   }
@@ -891,7 +891,7 @@ class FilterItem extends React.Component {
               const result = res.data || []
               const _data = []
               result.forEach((item) => {
-                _data.push(item.text)
+                if (!_data.includes(item.text)) _data.push(item.text)
               })
               return _data
             },

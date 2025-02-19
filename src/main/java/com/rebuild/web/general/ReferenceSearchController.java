@@ -345,8 +345,11 @@ public class ReferenceSearchController extends EntityController {
         int pageSize = getIntParameter(request, "pageSize", 10);
 
         if (dtOfField == DisplayType.REFERENCE || dtOfField == DisplayType.N2NREFERENCE) {
+            String quickFields = field.getReferenceEntity().getNameField().getName();
+            if (field.getReferenceEntity().containsField(EntityHelper.QuickCode)) quickFields += ",quickCode";
+
             return buildResultSearch(
-                    field.getReferenceEntity(), null, q, null, pageSize, user);
+                    field.getReferenceEntity(), quickFields, q, null, pageSize, user);
         }
         else if (dtOfField == DisplayType.CLASSIFICATION) {
             ID useClassification = ClassificationManager.instance.getUseClassification(field, false);
@@ -355,12 +358,19 @@ public class ReferenceSearchController extends EntityController {
 
             q = CommonsUtils.escapeSql(q);
             String sqlWhere = String.format(
-                    "dataId = '%s' and level = %d and (fullName like '%%%s%%' or quickCode like '%%%s%%' or code like '%s%%') order by code,fullName",
-                    useClassification.toLiteral(), openLevel, q, q, q);
+                    "dataId = '%s' and level = %d and (fullName like '%%%s%%' or quickCode like '%%%s%%') order by code,fullName",
+                    useClassification.toLiteral(), openLevel, q, q);
 
             Object result = resultSearch(
                     sqlWhere, MetadataHelper.getEntity(EntityHelper.ClassificationData), pageSize);
             return (JSON) JSON.toJSON(result);
+        }
+        else if (dtOfField == DisplayType.TEXT) {
+            String quickFields = field.getOwnEntity().getNameField().getName();
+            if (field.getOwnEntity().containsField(EntityHelper.QuickCode)) quickFields += ",quickCode";
+
+            return buildResultSearch(
+                    field.getOwnEntity(), quickFields, q, null, pageSize, user);
         }
 
         return JSONUtils.EMPTY_ARRAY;
