@@ -533,6 +533,18 @@ class FilterItem extends React.Component {
     return false
   }
 
+  // 可联想
+  isCanSuggest() {
+    if (this.state.type === 'CLASSIFICATION') {
+      return true
+    }
+    if (this.state.type === 'TEXT') {
+      const ifRefField = REFENTITY_CACHE[this.state.field]
+      return ifRefField && !BIZZ_ENTITIES.includes(ifRefField[0])
+    }
+    return false
+  }
+
   // 审批状态
   isApprovalState() {
     const fieldName = this.state.field || ''
@@ -620,6 +632,13 @@ class FilterItem extends React.Component {
       }
     } else if (lastType === 'BOOL') {
       this.removeBool()
+    }
+
+    // v4.0 TODO 引用也支持一下
+    if (this.isCanSuggest()) {
+      this.renderSuggest(state.field)
+    } else if (lastType === 'CLASSIFICATION' || lastType === 'TEXT') {
+      this.removeSuggest()
     }
 
     if (state.value) this.valueCheck($(this._filterVal))
@@ -846,6 +865,54 @@ class FilterItem extends React.Component {
       this.__select2_Bool.select2('destroy')
       this.__select2_Bool = null
       this.setState({ value: null })
+    }
+  }
+
+  // SUGGEST
+
+  renderSuggest(field) {
+    if (!this._filterVal) return
+    const found = this.props.fields.find((x) => x.name === field)
+    if (!found) return
+
+    const that = this
+    function _autoComplete() {
+      that.__autoComplete = $(that._filterVal)
+        .autoComplete({
+          bootstrapVersion: '4',
+          noResultsText: '',
+          minLength: 2,
+          preventEnter: false,
+          resolverSettings: {
+            url: `/commons/search/suggest?e=${that.props.$$$parent.props.entity}.${field}`,
+          },
+          events: {
+            searchPost: function (res) {
+              const result = res.data || []
+              const _data = []
+              result.forEach((item) => {
+                _data.push(item.text)
+              })
+              return _data
+            },
+          },
+        })
+        .on('autocomplete.select', (e, item) => {
+          $stopEvent(e, true)
+          that.setState({ value: item })
+        })
+    }
+    if (jQuery.prototype.autoComplete) {
+      _autoComplete()
+    } else {
+      $getScript('/assets/lib/bootstrap-autocomplete.min.js?v=2.3.7', () => _autoComplete())
+    }
+  }
+
+  removeSuggest() {
+    if (this.__autoComplete) {
+      this.__autoComplete.autoComplete('destroy')
+      this.__autoComplete = null
     }
   }
 

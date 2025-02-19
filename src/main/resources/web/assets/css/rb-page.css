@@ -5920,6 +5920,11 @@ div.formula-code {
 .bootstrap-autocomplete.dropdown-menu {
   width: 100%;
   max-width: 100%;
+  padding: 1px 0;
+}
+
+.bootstrap-autocomplete.dropdown-menu .dropdown-item {
+  padding: 7px 10px;
 }
 
 .bootstrap-autocomplete.dropdown-menu .dropdown-item.active,

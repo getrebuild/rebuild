@@ -2238,7 +2238,7 @@ const EasyAction4List = {
 
       const RbList_renderAfter40 = RbList.renderAfter40
       RbList.renderAfter40 = function (listObj) {
-        typeof RbList_renderAfter40 === 'function' && RbList_renderAfter40()
+        typeof RbList_renderAfter40 === 'function' && RbList_renderAfter40(listObj)
 
         // ROW
         $(listObj._$tbody)

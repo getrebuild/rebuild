@@ -332,4 +332,37 @@ public class ReferenceSearchController extends EntityController {
 
         return mv;
     }
+
+    @GetMapping("suggest")
+    public JSON commonSuggest(HttpServletRequest request) {
+        ID user = getRequestUser(request);
+        String entityAndField = getParameterNotNull(request, "e");
+        String[] ef = entityAndField.split("\\.");
+        Field field = MetadataHelper.getField(ef[0], ef[1]);
+        DisplayType fieldDt = EasyMetaFactory.getDisplayType(field);
+
+        String q = StringUtils.trim(getParameter(request, "q"));
+        int pageSize = getIntParameter(request, "pageSize", 10);
+
+        if (fieldDt == DisplayType.REFERENCE) {
+            return buildResultSearch(
+                    field.getReferenceEntity(), null, q, null, pageSize, user);
+        }
+        else if (fieldDt == DisplayType.CLASSIFICATION) {
+            ID useClassification = ClassificationManager.instance.getUseClassification(field, false);
+            if (useClassification == null) return JSONUtils.EMPTY_ARRAY;
+            int openLevel = ClassificationManager.instance.getOpenLevel(field);
+
+            q = CommonsUtils.escapeSql(q);
+            String sqlWhere = String.format(
+                    "dataId = '%s' and level = %d and (fullName like '%%%s%%' or quickCode like '%%%s%%' or code like '%s%%') order by code,fullName",
+                    useClassification.toLiteral(), openLevel, q, q, q);
+
+            Object result = resultSearch(
+                    sqlWhere, MetadataHelper.getEntity(EntityHelper.ClassificationData), pageSize);
+            return (JSON) JSON.toJSON(result);
+        }
+
+        return JSONUtils.EMPTY_ARRAY;
+    }
 }
