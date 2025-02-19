@@ -58,12 +58,10 @@ public class NavBuilder extends NavManager {
 
     public static final NavBuilder instance = new NavBuilder();
 
-    private NavBuilder() {
-    }
+    private NavBuilder() {}
 
     // 导航项属性
-    private static final String[] NAV_ITEM_PROPS = new String[] { "icon", "text", "type", "value" };
-
+    private static final String[] NAV_ITEM_PROPS = new String[]{"icon", "text", "type", "value"};
     // 默认导航
     private static final JSONArray NAVS_DEFAULT = JSONUtils.toJSONObjectArray(
             NAV_ITEM_PROPS,
@@ -73,11 +71,10 @@ public class NavBuilder extends NavManager {
                     new Object[]{"account-box-phone", "通讯录", "BUILTIN", NAV_CONTACT},
                     new Object[]{"shape", "项目", "BUILTIN", NAV_PROJECT},
             });
-
     // 新建项目
     private static final JSONObject NAV_PROJECT__ADD = JSONUtils.toJSONObject(
             NAV_ITEM_PROPS,
-            new String[] { "plus", "添加项目", "BUILTIN", NAV_PROJECT + "--add" }
+            new String[]{"plus", "添加项目", "BUILTIN", NAV_PROJECT + "--add"}
     );
 
     /**
@@ -379,8 +376,8 @@ public class NavBuilder extends NavManager {
         ID user = AppUtils.getRequestUser(request);
         String useNav = ServletUtils.readCookie(request, "AppHome.Nav");
         JSONArray navs = License.isRbvAttached()
-                ? NavBuilder.instance.getUserNav(user, useNav)
-                : NavBuilder.instance.getUserNav(user);
+                ? instance.getUserNav(user, useNav)
+                : instance.getUserNav(user);
 
         StringBuilder navsHtml = new StringBuilder();
         for (Object item : navs) {
@@ -446,6 +443,12 @@ public class NavBuilder extends NavManager {
         }
 
         String iconClazz = StringUtils.defaultIfBlank(item.getString("icon"), "texture");
+        // be:v4.0 使用图标
+        if ("texture".equals(iconClazz) && navEntity != null && MetadataHelper.containsEntity(navEntity)) {
+            String icon = EasyMetaFactory.valueOf(navEntity).getIcon();
+            if (!(StringUtils.isBlank(icon) || "texture".equals(icon))) iconClazz = icon;
+        }
+
         if (iconClazz.startsWith("mdi-")) iconClazz = "mdi " + iconClazz;
         else iconClazz = "zmdi zmdi-" + iconClazz;
 
