@@ -279,13 +279,38 @@ class DataListSettings extends RbModalHandler {
 // eslint-disable-next-line no-unused-vars
 class HeadingTextSettings extends RbModalHandler {
   render() {
+    const style = this.props.style || {}
     return (
-      <RbModal title={$L('编辑文本')} disposeOnHide ref={(c) => (this._dlg = c)}>
-        <div className="form">
+      <RbModal title={$L('编辑标题文字')} disposeOnHide ref={(c) => (this._dlg = c)}>
+        <div className="form HeadingText-settings">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('图表名称')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('标题')}</label>
             <div className="col-sm-7">
-              <input type="text" className="form-control form-control-sm" placeholder={$L('数据列表')} ref={(c) => (this._$title = c)} />
+              <input type="text" className="form-control form-control-sm" placeholder={$L('标题文字')} defaultValue={this.props.title} ref={(c) => (this._$title = c)} />
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right" style={{ paddingTop: 9 }}>
+              {$L('样式')}
+            </label>
+            <div className="col-sm-7 HeadingText-style">
+              <div className="float-left">
+                <select className="form-control form-control-sm" title="文字大小" defaultValue={style.fontSize || ''} ref={(c) => (this._$fontSize = c)}>
+                  <option value="">{$L('默认')}</option>
+                  <option value="48">48</option>
+                  <option value="32">32</option>
+                  <option value="24">24</option>
+                  <option value="18">18</option>
+                  <option value="14">14</option>
+                </select>
+              </div>
+              <div className="float-left ml-2">
+                <input type="color" title="文字颜色" defaultValue={style.color || ''} ref={(c) => (this._$color = c)} />
+              </div>
+              <div className="float-left ml-2">
+                <input type="color" title="背景颜色" defaultValue={style.bgcolor || ''} ref={(c) => (this._$bgcolor = c)} />
+              </div>
+              <div className="clearfix" />
             </div>
           </div>
 
@@ -304,11 +329,24 @@ class HeadingTextSettings extends RbModalHandler {
     )
   }
 
+  componentDidMount() {
+    $([this._$fontSize, this._$color, this._$bgcolor]).tooltip({})
+  }
+
   handleConfirm() {
     const post = {
       type: 'HeadingText',
+      entity: 'User',
       title: $val(this._$title),
+      style: {
+        fontSize: $val(this._$fontSize) || null,
+        color: $val(this._$color) || null,
+        bgcolor: $val(this._$bgcolor) || null,
+      },
     }
+    // No color
+    if (post.style.color === '#000000') post.style.color = null
+    if (post.style.bgcolor === '#000000') post.style.bgcolor = null
 
     const $btn = $(this._$btn).find('.btn').button('loading')
     $.post(`/dashboard/builtin-chart-save?id=${this.props.chart}`, JSON.stringify(post), (res) => {

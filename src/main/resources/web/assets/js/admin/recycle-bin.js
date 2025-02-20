@@ -159,7 +159,6 @@ CellRenders.renderSimple = function (v, s, k) {
   }
 
   let c = CellRenders_renderSimple(v, s, k)
-  console.log(k)
   if (k.endsWith('.recordId')) {
     c = React.cloneElement(c, { className: 'td-sm' })
   }

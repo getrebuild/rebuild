@@ -1380,23 +1380,24 @@ class DataList extends BaseChart {
       const $op = $(this._$box).find('.chart-oper')
       $op.find('.J_chart-edit').on('click', (e) => {
         $stopEvent(e, true)
+        RbHighbar.create('[DEPRECATED] 该功能将在下一版本禁用')
 
-        const config2 = this.state.config
-        renderRbcomp(
-          // eslint-disable-next-line react/jsx-no-undef
-          <DataListSettings
-            chart={config2.chart}
-            {...config2.extconfig}
-            onConfirm={(s) => {
-              if (typeof window.save_dashboard === 'function') {
-                config2.extconfig = s
-                this.setState({ config: config2 }, () => this.loadChartData())
-              } else {
-                console.log('No `save_dashboard` found :', s)
-              }
-            }}
-          />
-        )
+        // const config2 = this.state.config
+        // renderRbcomp(
+        //   // eslint-disable-next-line react/jsx-no-undef
+        //   <DataListSettings
+        //     chart={config2.chart}
+        //     {...config2.extconfig}
+        //     onConfirm={(s) => {
+        //       if (typeof window.save_dashboard === 'function') {
+        //         config2.extconfig = s
+        //         this.setState({ config: config2 }, () => this.loadChartData())
+        //       } else {
+        //         console.log('No `save_dashboard` found :', s)
+        //       }
+        //     }}
+        //   />
+        // )
       })
     }
   }
@@ -1636,8 +1637,59 @@ class ChartCNMap extends BaseChart {
 }
 
 class HeadingText extends BaseChart {
+  constructor(props) {
+    super(props)
+    this.state.title = null
+  }
+
   renderChart() {
-    return <h1>{this.props.title || $L('标题')}</h1>
+    const config2 = this.state.config.extconfig || {}
+    let style2 = { ...config2.style }
+    if (style2.fontSize) style2.fontSize = ~~style2.fontSize
+    // bg
+    style2.bgcolor = style2.bgcolor || 'transparent'
+    $(this._$box).parent().css({ backgroundColor: style2.bgcolor })
+    delete style2.bgcolor
+
+    const H = (
+      <div className="must-center">
+        <h1 className="m-0 text-ellipsis" style={style2}>
+          {config2.title || $L('标题文字')}
+        </h1>
+      </div>
+    )
+    this.setState({ chartdata: H }, () => {})
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    // class
+    $(this._$box).parent().parent().addClass('HeadingText')
+    // action
+    const $op = $(this._$box).find('.chart-oper')
+    $op.find('.J_fullscreen, .J_source').remove()
+    $op.find('.J_chart-edit').on('click', (e) => {
+      $stopEvent(e, true)
+
+      const config2 = this.state.config.extconfig || {}
+      renderRbcomp(
+        // eslint-disable-next-line react/jsx-no-undef
+        <HeadingTextSettings
+          chart={this.props.id}
+          {...config2}
+          onConfirm={(s) => {
+            const c = { ...this.state.config }
+            c.extconfig = { ...config2, ...s }
+            if (typeof window.save_dashboard === 'function') {
+              this.setState({ config: c }, () => this.loadChartData())
+            } else {
+              console.log('No `save_dashboard` found :', s)
+            }
+          }}
+        />
+      )
+    })
   }
 }
 
@@ -1681,7 +1733,7 @@ const detectChart = function (cfg, id) {
   } else if (cfg.type === 'CNMAP') {
     return <ChartCNMap {...props} />
   } else if (cfg.type === 'HeadingText') {
-    return <HeadingText {...props} builtin />
+    return <HeadingText {...props} builtin={false} />
   } else {
     return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${cfg.type}]`}</h4>
   }

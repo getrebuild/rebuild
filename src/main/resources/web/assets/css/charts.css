@@ -662,3 +662,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart-box.CNMAP .chart-body {
   margin-top: -5px;
 }
+
+.grid-stack .grid-stack-item.HeadingText .grid-stack-item-content {
+  background-color: transparent;
+}
+
+.HeadingText-style input,
+.HeadingText-style select {
+  width: 50px;
+  height: 32px !important;
+}

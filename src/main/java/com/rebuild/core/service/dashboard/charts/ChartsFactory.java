@@ -21,7 +21,9 @@ import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.core.service.dashboard.charts.builtin.ApprovalList;
 import com.rebuild.core.service.dashboard.charts.builtin.BuiltinChart;
 import com.rebuild.core.service.dashboard.charts.builtin.DataList;
+import com.rebuild.core.service.dashboard.charts.builtin.EmbedFrame;
 import com.rebuild.core.service.dashboard.charts.builtin.FeedsSchedule;
+import com.rebuild.core.service.dashboard.charts.builtin.HeadingText;
 import com.rebuild.core.service.dashboard.charts.builtin.ProjectTasks;
 import com.rebuild.core.support.i18n.Language;
 
@@ -112,7 +114,9 @@ public class ChartsFactory {
                 new ApprovalList(),
                 new FeedsSchedule(),
                 new ProjectTasks(),
-                new DataList()
+                new DataList(),
+                new HeadingText(),
+                new EmbedFrame(),
         };
     }
 }

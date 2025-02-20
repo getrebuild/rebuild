@@ -113,12 +113,19 @@ $(document).ready(() => {
         <ChartSelect
           select={(c) => {
             c.w = c.h = 4
-            if (c.id === '017-9000000000000004') {
+            if (['017-9000000000000004', '017-9000000000000005'].includes(c.id)) {
               const init = {
                 entity: 'User',
                 type: 'DataList',
                 title: $L('数据列表'),
               }
+              if ('017-9000000000000005' === c.id) {
+                init.type = 'HeadingText'
+                init.title = $L('标题文字')
+                c.size_x = 12
+                c.size_y = 1
+              }
+
               $.post(`/dashboard/builtin-chart-save?source=${c.id}`, JSON.stringify(init), (res) => {
                 c.id = c.chart = res.data
                 c.isManageable = true
@@ -129,7 +136,6 @@ $(document).ready(() => {
             }
           }}
         />,
-        null,
         function () {
           dlgChartSelect = this
           this.setState({ appended: appended })
@@ -277,14 +283,14 @@ const add_widget = function (item) {
   const chart_add = $('#chart-add')
   if (chart_add.length > 0) gridstack.removeWidget(chart_add.parent())
 
+  const hmm = item.type === 'HeadingText' ? [1, 24] : [2, 24] // 高度限制
   const gsi = `<div class="grid-stack-item ${item.bgcolor && 'bgcolor'}"><div id="${chid}" class="grid-stack-item-content" ${
     item.bgcolor ? `style="background-color:${item.bgcolor}` : ''
   }"></div></div>`
-  // Use gridstar
   if (item.size_x || item.size_y) {
-    gridstack.addWidget(gsi, (item.col || 1) - 1, (item.row || 1) - 1, item.size_x || 2, item.size_y || 2, true, 2, 12, 2, 24)
+    gridstack.addWidget(gsi, (item.col || 1) - 1, (item.row || 1) - 1, item.size_x || 2, item.size_y || 2, true, 2, 12, hmm[0], hmm[1])
   } else {
-    gridstack.addWidget(gsi, item.x, item.y, item.w, item.h, item.x === undefined, 2, 12, 2, 24)
+    gridstack.addWidget(gsi, item.x, item.y, item.w, item.h, item.x === undefined, 2, 12, hmm[0], hmm[1])
   }
 
   item.editable = dash_editable

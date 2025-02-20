@@ -33,10 +33,13 @@ import java.util.Map;
  * @author devezhao
  * @since 2023/1/6
  */
+@Deprecated
 public class DataList extends ChartData implements BuiltinChart {
 
     // 虚拟ID
     public static final ID MYID = ID.valueOf("017-9000000000000004");
+    // 名称
+    public static final String MYNAME = "DataList";
 
     public DataList() {
         super(null);

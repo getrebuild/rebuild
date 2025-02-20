@@ -30,6 +30,8 @@ import com.rebuild.core.service.dashboard.DashboardConfigService;
 import com.rebuild.core.service.dashboard.charts.ChartData;
 import com.rebuild.core.service.dashboard.charts.ChartsFactory;
 import com.rebuild.core.service.dashboard.charts.builtin.DataList;
+import com.rebuild.core.service.dashboard.charts.builtin.EmbedFrame;
+import com.rebuild.core.service.dashboard.charts.builtin.HeadingText;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
@@ -55,10 +57,10 @@ import java.util.List;
  * @since 12/09/2018
  */
 @RestController
-@RequestMapping("/dashboard")
+@RequestMapping("dashboard")
 public class ChartDesignController extends EntityController {
 
-    @GetMapping("/chart-design")
+    @GetMapping("chart-design")
     public ModelAndView pageDesign(@IdParam(required = false) ID chartId,
                                    @EntityParam(name = "source", required = false) Entity entity,
                                    HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -158,14 +160,14 @@ public class ChartDesignController extends EntityController {
         }
     }
 
-    @PostMapping("/chart-preview")
+    @PostMapping("chart-preview")
     public JSON dataPreview(HttpServletRequest request) {
         JSON config = ServletUtils.getRequestJson(request);
         ChartData chart = ChartsFactory.create((JSONObject) config, getRequestUser(request));
         return chart.build(true);
     }
 
-    @PostMapping("/chart-save")
+    @PostMapping("chart-save")
     public JSON chartSave(HttpServletRequest request) {
         final ID user = getRequestUser(request);
         JSON formJson = ServletUtils.getRequestJson(request);
@@ -198,14 +200,14 @@ public class ChartDesignController extends EntityController {
         return JSONUtils.toJSONObject("id", record.getPrimary());
     }
 
-    @RequestMapping("/chart-delete")
+    @RequestMapping("chart-delete")
     public RespBody chartDelete(@IdParam ID chartId) {
         Application.getBean(ChartConfigService.class).delete(chartId);
         return RespBody.ok();
     }
 
     @RequestMapping("builtin-chart-save")
-    public RespBody chartCopy(@IdParam(required = false) ID chartId, HttpServletRequest request) {
+    public RespBody builtinChartSave(@IdParam(required = false) ID chartId, HttpServletRequest request) {
         final ID user = getRequestUser(request);
         final JSONObject config = (JSONObject) ServletUtils.getRequestJson(request);
 
@@ -215,10 +217,12 @@ public class ChartDesignController extends EntityController {
         } else {
             // FIXME 只能复制 DataList
             ID sourceChart = getIdParameter(request, "source");
-            Assert.isTrue(DataList.MYID.equals(sourceChart), "Not allowed");
+            Assert.isTrue(DataList.MYID.equals(sourceChart)
+                            || HeadingText.MYID.equals(sourceChart) || EmbedFrame.MYID.equals(sourceChart),
+                    "Not allowed : " + sourceChart);
 
             record = EntityHelper.forNew(EntityHelper.ChartConfig, user);
-            record.setString("chartType", "DataList");
+            record.setString("chartType", config.getString("type"));
         }
 
         record.setString("config", config.toJSONString());
