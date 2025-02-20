@@ -113,7 +113,7 @@ $(document).ready(() => {
         <ChartSelect
           select={(c) => {
             c.w = c.h = 4
-            if (['017-9000000000000004', '017-9000000000000005'].includes(c.id)) {
+            if (['017-9000000000000004', '017-9000000000000005', '017-9000000000000006'].includes(c.id)) {
               const init = {
                 entity: 'User',
                 type: 'DataList',
@@ -124,6 +124,9 @@ $(document).ready(() => {
                 init.title = $L('标题文字')
                 c.size_x = 12
                 c.size_y = 1
+              } else if ('017-9000000000000006' === c.id) {
+                init.type = 'EmbedFrame'
+                init.title = $L('嵌入页面')
               }
 
               $.post(`/dashboard/builtin-chart-save?source=${c.id}`, JSON.stringify(init), (res) => {

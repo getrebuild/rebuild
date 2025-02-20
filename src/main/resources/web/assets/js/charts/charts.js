@@ -1693,6 +1693,63 @@ class HeadingText extends BaseChart {
   }
 }
 
+class EmbedFrame extends BaseChart {
+  constructor(props) {
+    super(props)
+    this.state.title = null
+  }
+
+  renderChart() {
+    const config2 = this.state.config.extconfig || {}
+    // if (!config2.url) {
+    //   super.renderError(
+    //     <RF>
+    //       <span>{$L('当前图表无数据')}</span>
+    //       {this.props.isManageable && <div>{WrapHtml($L('请先 [编辑图表](###)'))}</div>}
+    //     </RF>
+    //   )
+    //   return
+    // }
+
+    // sandbox="allow-forms allow-scripts allow-same-origin"
+    const F = (
+      <div className="iframe">
+        <iframe src={config2.url || 'https://getrebuild.com/'} frameBorder="0" width="100%" height="100%" />
+      </div>
+    )
+    this.setState({ chartdata: F }, () => {})
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    // action
+    const $op = $(this._$box).find('.chart-oper')
+    $op.find('.J_source').remove()
+    $op.find('.J_chart-edit').on('click', (e) => {
+      $stopEvent(e, true)
+
+      const config2 = this.state.config.extconfig || {}
+      renderRbcomp(
+        // eslint-disable-next-line react/jsx-no-undef
+        <EmbedFrameSettings
+          chart={this.props.id}
+          {...config2}
+          onConfirm={(s) => {
+            const c = { ...this.state.config }
+            c.extconfig = { ...config2, ...s }
+            if (typeof window.save_dashboard === 'function') {
+              this.setState({ config: c }, () => this.loadChartData())
+            } else {
+              console.log('No `save_dashboard` found :', s)
+            }
+          }}
+        />
+      )
+    })
+  }
+}
+
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
 const detectChart = function (cfg, id) {
@@ -1734,6 +1791,8 @@ const detectChart = function (cfg, id) {
     return <ChartCNMap {...props} />
   } else if (cfg.type === 'HeadingText') {
     return <HeadingText {...props} builtin={false} />
+  } else if (cfg.type === 'EmbedFrame') {
+    return <EmbedFrame {...props} builtin={false} />
   } else {
     return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${cfg.type}]`}</h4>
   }

@@ -273,8 +273,6 @@ class DataListSettings extends RbModalHandler {
   }
 }
 
-//
-
 // ~~ 标题配置
 // eslint-disable-next-line no-unused-vars
 class HeadingTextSettings extends RbModalHandler {
@@ -347,6 +345,54 @@ class HeadingTextSettings extends RbModalHandler {
     // No color
     if (post.style.color === '#000000') post.style.color = null
     if (post.style.bgcolor === '#000000') post.style.bgcolor = null
+
+    const $btn = $(this._$btn).find('.btn').button('loading')
+    $.post(`/dashboard/builtin-chart-save?id=${this.props.chart}`, JSON.stringify(post), (res) => {
+      $btn.button('reset')
+      if (res.error_code === 0) {
+        typeof this.props.onConfirm === 'function' && this.props.onConfirm(post)
+        this.hide()
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+}
+
+// ~~ 标题配置
+// eslint-disable-next-line no-unused-vars
+class EmbedFrameSettings extends RbModalHandler {
+  render() {
+    return (
+      <RbModal title={$L('编辑嵌入页面')} disposeOnHide ref={(c) => (this._dlg = c)}>
+        <div className="form HeadingText-settings">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('页面地址')}</label>
+            <div className="col-sm-7">
+              <input type="text" className="form-control form-control-sm" placeholder={$L('页面地址')} defaultValue={this.props.url} ref={(c) => (this._$url = c)} />
+            </div>
+          </div>
+          <div className="form-group row footer">
+            <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
+              <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
+                {$L('保存')}
+              </button>
+              <a className="btn btn-link" onClick={this.hide}>
+                {$L('取消')}
+              </a>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  handleConfirm() {
+    const post = {
+      type: 'EmbedFrame',
+      entity: 'User',
+      url: $val(this._$url),
+    }
 
     const $btn = $(this._$btn).find('.btn').button('loading')
     $.post(`/dashboard/builtin-chart-save?id=${this.props.chart}`, JSON.stringify(post), (res) => {
