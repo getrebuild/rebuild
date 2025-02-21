@@ -313,6 +313,8 @@ public class RecordTransfomer extends SetUser {
 
         if (checkNullable) {
             AutoFillinManager.instance.fillinRecord(targetRecord);
+
+            // v3.9 直接转换时验证非空字段
             new EntityRecordCreator(targetEntity, JSONUtils.EMPTY_OBJECT, getUser()).verify(targetRecord);
         }
 

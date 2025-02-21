@@ -116,9 +116,6 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
         if (fieldsMapping == null || fieldsMapping.isEmpty()) {
             throw new ConfigurationException("INVALID TRANSFORM CONFIG");
         }
-        if (fieldsMapping.get("_") == null) {
-            throw new ConfigurationException("INCOMPATIBLE(39) TRANSFORM CONFIG");
-        }
 
         Entity targetEntity = MetadataHelper.getEntity(config.getString("target"));
         Record tansTargetRecord = transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId,

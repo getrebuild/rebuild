@@ -1362,7 +1362,7 @@ function $select2OpenTemplateResult(res) {
 var $env = {
   // 钉钉
   isDingTalk: function () {
-    return navigator.userAgent.match(/(DINGTALK)/i) || true
+    return navigator.userAgent.match(/(DINGTALK)/i)
   },
   // 企微
   isWxWork: function () {

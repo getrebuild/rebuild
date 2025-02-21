@@ -182,12 +182,17 @@ public class FileDownloader extends BaseController {
     public void readRawText(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String filepath = getParameterNotNull(request, "url");
         final String charset = getParameter(request, "charset", AppUtils.UTF8);
-        final Integer cut = getIntParameter(request, "cut");  // MB
+        final int cut = getIntParameter(request, "cut");  // MB
 
         if (CommonsUtils.isExternalUrl(filepath)) {
-            // v3.7 禁外部地址
-//            String text = OkHttpUtils.get(filepath, null, charset);
-            String text = "ERROR:URL_NOT_SUPPORTED";
+            String text;
+            if (filepath.startsWith(RebuildConfiguration.getHomeUrl())) {
+                text = OkHttpUtils.get(filepath, null, charset);
+            } else {
+                // v3.7 禁外部地址
+                text = "ERROR:URL_NOT_SUPPORTED";
+            }
+
             ServletUtils.setContentType(response, ServletUtils.CT_PLAIN);
             ServletUtils.write(response, text);
             return;

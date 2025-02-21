@@ -386,7 +386,6 @@ class ExcelFieldsPreview extends RbModal {
                       <select className="form-control form-control-sm">
                         {this.state.refEntities &&
                           this.state.refEntities.map((item) => {
-                            if (item.entityName === 'Team') return null
                             return (
                               <option key={item.entityName} value={item.entityName}>
                                 {item.entityLabel}
@@ -430,7 +429,7 @@ class ExcelFieldsPreview extends RbModal {
   componentDidMount() {
     super.componentDidMount()
 
-    $.get('/admin/entity/entity-list?detail=true', (res) => {
+    $.get('/admin/entity/entity-list?detail=true&bizz=true', (res) => {
       this.setState({ refEntities: res.data || [] })
 
       $.get('/admin/metadata/classification/list', (res2) => {
