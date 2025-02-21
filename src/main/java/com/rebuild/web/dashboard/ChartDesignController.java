@@ -215,10 +215,10 @@ public class ChartDesignController extends EntityController {
         if (chartId != null) {
             record = EntityHelper.forUpdate(chartId, user);
         } else {
-            // FIXME 只能复制 DataList
             ID sourceChart = getIdParameter(request, "source");
             Assert.isTrue(DataList.MYID.equals(sourceChart)
-                            || HeadingText.MYID.equals(sourceChart) || EmbedFrame.MYID.equals(sourceChart),
+                            || HeadingText.MYID.equals(sourceChart)
+                            || EmbedFrame.MYID.equals(sourceChart),
                     "Not allowed : " + sourceChart);
 
             record = EntityHelper.forNew(EntityHelper.ChartConfig, user);

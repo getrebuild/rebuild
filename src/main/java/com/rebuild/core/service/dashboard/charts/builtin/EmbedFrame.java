@@ -40,6 +40,9 @@ public class EmbedFrame extends ChartData implements BuiltinChart {
 
     @Override
     public JSON build() {
+
+        // 此类无实际作用
+
         return JSONUtils.clone(JSONUtils.EMPTY_OBJECT);
     }
 }
