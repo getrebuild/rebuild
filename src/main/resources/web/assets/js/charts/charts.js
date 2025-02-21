@@ -1701,20 +1701,24 @@ class EmbedFrame extends BaseChart {
 
   renderChart() {
     const config2 = this.state.config.extconfig || {}
-    // if (!config2.url) {
-    //   super.renderError(
-    //     <RF>
-    //       <span>{$L('当前图表无数据')}</span>
-    //       {this.props.isManageable && <div>{WrapHtml($L('请先 [编辑图表](###)'))}</div>}
-    //     </RF>
-    //   )
-    //   return
-    // }
+    if (!config2.url) {
+      super.renderError(
+        <RF>
+          <span>{$L('当前图表无数据')}</span>
+          {this.props.isManageable && <div>{WrapHtml($L('请先 [编辑图表](###)'))}</div>}
+        </RF>,
+        () => {
+          $(this._$box)
+            .find('.chart-undata a')
+            .on('click', () => $(this._$box).find('.chart-oper .J_chart-edit').trigger('click'))
+        }
+      )
+      return
+    }
 
-    // sandbox="allow-forms allow-scripts allow-same-origin"
     const F = (
       <div className="iframe">
-        <iframe src={config2.url || 'https://getrebuild.com/'} frameBorder="0" width="100%" height="100%" />
+        <iframe src={config2.url} frameBorder="0" width="100%" height="100%" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" />
       </div>
     )
     this.setState({ chartdata: F }, () => {})

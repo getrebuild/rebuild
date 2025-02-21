@@ -370,6 +370,7 @@ class EmbedFrameSettings extends RbModalHandler {
             <label className="col-sm-3 col-form-label text-sm-right">{$L('页面地址')}</label>
             <div className="col-sm-7">
               <input type="text" className="form-control form-control-sm" placeholder={$L('页面地址')} defaultValue={this.props.url} ref={(c) => (this._$url = c)} />
+              <p className="form-text">{$L('支持绝对地址或相对地址')}</p>
             </div>
           </div>
           <div className="form-group row footer">
@@ -392,6 +393,11 @@ class EmbedFrameSettings extends RbModalHandler {
       type: 'EmbedFrame',
       entity: 'User',
       url: $val(this._$url),
+    }
+    if (!post.url) {
+      return RbHighbar.createl('请输入页面地址')
+    } else if (!($regex.isUrl(post.url) || $regex.isUrl(`https://getrebuild.com${post.url}`))) {
+      return RbHighbar.createl('请输入有效的页面地址')
     }
 
     const $btn = $(this._$btn).find('.btn').button('loading')
