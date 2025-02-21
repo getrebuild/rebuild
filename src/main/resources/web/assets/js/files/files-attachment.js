@@ -25,7 +25,11 @@ const EntityTree = {
             location.hash = `!/Entity/${item.id}`
           }}
         />,
-        'navTree'
+        'navTree',
+        function () {
+          const e = (location.hash || '').split('Entity/')[1]
+          if (e) this.triggerClick(~~e)
+        }
       )
     })
   },

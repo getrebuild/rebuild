@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
  * 从 JSON 解析 Record
  *
  * @author Zhao Fangfang
- * @since 1.0, 2018-6-26
+ * @since 1.0, 2019-6-26
  * @see com.rebuild.core.support.general.RecordBuilder
  */
 @Slf4j

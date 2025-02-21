@@ -134,7 +134,11 @@ CellRenders.renderSimple = function (v, s, k) {
     v = RevTypes[v] || 'N'
   }
 
-  return CellRenders_renderSimple(v, s, k)
+  let c = CellRenders_renderSimple(v, s, k)
+  if (k.endsWith('.recordId')) {
+    c = React.cloneElement(c, { className: 'td-sm' })
+  }
+  return c
 }
 
 // ~~ 变更详情

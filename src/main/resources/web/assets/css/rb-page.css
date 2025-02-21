@@ -225,12 +225,12 @@ code {
   color: #555;
   font-size: 12px !important;
   text-transform: uppercase;
-  line-height: 1.2 !important;
 }
 
 a.badge.text-id {
   color: #4285f4;
   cursor: pointer;
+  line-height: 1.2 !important;
 }
 
 a.badge.text-id:hover {
@@ -5915,4 +5915,20 @@ div.formula-code {
 .show-more-pill:hover {
   border-color: #0d5bdd;
   color: #0d5bdd;
+}
+
+.bootstrap-autocomplete.dropdown-menu {
+  width: 100%;
+  max-width: 100%;
+  padding: 1px 0;
+}
+
+.bootstrap-autocomplete.dropdown-menu .dropdown-item {
+  padding: 7px 10px;
+}
+
+.bootstrap-autocomplete.dropdown-menu .dropdown-item.active,
+.bootstrap-autocomplete.dropdown-menu .dropdown-item:hover {
+  color: #fff;
+  background-color: var(--rb-color);
 }

@@ -1381,6 +1381,23 @@ class DataList extends BaseChart {
       $op.find('.J_chart-edit').on('click', (e) => {
         $stopEvent(e, true)
         RbHighbar.create('[DEPRECATED] 该功能将在下一版本禁用')
+
+        // const config2 = this.state.config
+        // renderRbcomp(
+        //   // eslint-disable-next-line react/jsx-no-undef
+        //   <DataListSettings
+        //     chart={config2.chart}
+        //     {...config2.extconfig}
+        //     onConfirm={(s) => {
+        //       if (typeof window.save_dashboard === 'function') {
+        //         config2.extconfig = s
+        //         this.setState({ config: config2 }, () => this.loadChartData())
+        //       } else {
+        //         console.log('No `save_dashboard` found :', s)
+        //       }
+        //     }}
+        //   />
+        // )
       })
     }
   }
@@ -1404,9 +1421,7 @@ class DataList extends BaseChart {
       return
     }
 
-    const extconfig = this.state.config.extconfig
-    // extconfig && this.setState({ title: extconfig.title || $L('数据列表') })
-
+    const extconfig2 = this.state.config.extconfig
     const listFields = data.fields
     const listData = data.data
     const lastIndex = listFields.length
@@ -1418,8 +1433,8 @@ class DataList extends BaseChart {
             <tr ref={(c) => (this._$head = c)}>
               {listFields.map((item) => {
                 let sortClazz = null
-                if (extconfig && extconfig.sort) {
-                  const s = extconfig.sort.split(':')
+                if (extconfig2 && extconfig2.sort) {
+                  const s = extconfig2.sort.split(':')
                   if (s[0] === item.field && s[1] === 'asc') sortClazz = 'sort-asc'
                   if (s[0] === item.field && s[1] === 'desc') sortClazz = 'sort-desc'
                 }
@@ -1621,6 +1636,120 @@ class ChartCNMap extends BaseChart {
   }
 }
 
+class HeadingText extends BaseChart {
+  constructor(props) {
+    super(props)
+    this.state.title = null
+  }
+
+  renderChart() {
+    const config2 = this.state.config.extconfig || {}
+    let style2 = { ...config2.style }
+    if (style2.fontSize) style2.fontSize = ~~style2.fontSize
+    // bg
+    style2.bgcolor = style2.bgcolor || 'transparent'
+    $(this._$box).parent().css({ backgroundColor: style2.bgcolor })
+    delete style2.bgcolor
+
+    const H = (
+      <div className="must-center">
+        <h1 className="m-0 text-ellipsis" style={style2}>
+          {config2.title || $L('标题文字')}
+        </h1>
+      </div>
+    )
+    this.setState({ chartdata: H }, () => {})
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    // class
+    $(this._$box).parent().parent().addClass('HeadingText')
+    // action
+    const $op = $(this._$box).find('.chart-oper')
+    $op.find('.J_fullscreen, .J_source').remove()
+    $op.find('.J_chart-edit').on('click', (e) => {
+      $stopEvent(e, true)
+
+      const config2 = this.state.config.extconfig || {}
+      renderRbcomp(
+        // eslint-disable-next-line react/jsx-no-undef
+        <HeadingTextSettings
+          chart={this.props.id}
+          {...config2}
+          onConfirm={(s) => {
+            const c = { ...this.state.config }
+            c.extconfig = { ...config2, ...s }
+            if (typeof window.save_dashboard === 'function') {
+              this.setState({ config: c }, () => this.loadChartData())
+            } else {
+              console.log('No `save_dashboard` found :', s)
+            }
+          }}
+        />
+      )
+    })
+  }
+}
+
+class EmbedFrame extends BaseChart {
+  renderChart() {
+    const config2 = this.state.config.extconfig || {}
+    if (!config2.url) {
+      super.renderError(
+        <RF>
+          <span>{$L('当前图表无数据')}</span>
+          {this.props.isManageable && <div>{WrapHtml($L('请先 [编辑图表](###)'))}</div>}
+        </RF>,
+        () => {
+          $(this._$box)
+            .find('.chart-undata a')
+            .on('click', () => $(this._$box).find('.chart-oper .J_chart-edit').trigger('click'))
+        }
+      )
+      return
+    }
+
+    const F = (
+      <div className="iframe">
+        <iframe src={config2.url} frameBorder="0" width="100%" height="100%" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" />
+      </div>
+    )
+    this.setState({ chartdata: F }, () => {})
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    let config2 = this.state.config.extconfig || {}
+    // action
+    const $op = $(this._$box).find('.chart-oper')
+    $op.find('.J_source').attr('href', config2.url || 'about:blank')
+    $op.find('.J_chart-edit').on('click', (e) => {
+      $stopEvent(e, true)
+
+      config2 = this.state.config.extconfig || {}
+      renderRbcomp(
+        // eslint-disable-next-line react/jsx-no-undef
+        <EmbedFrameSettings
+          chart={this.props.id}
+          {...config2}
+          onConfirm={(s) => {
+            const c = { ...this.state.config }
+            c.extconfig = { ...config2, ...s }
+            if (typeof window.save_dashboard === 'function') {
+              this.setState({ config: c, title: s.title }, () => this.loadChartData())
+            } else {
+              console.log('No `save_dashboard` found :', s)
+            }
+          }}
+        />
+      )
+    })
+  }
+}
+
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
 const detectChart = function (cfg, id) {
@@ -1647,19 +1776,23 @@ const detectChart = function (cfg, id) {
   } else if (cfg.type === 'TREEMAP') {
     return <ChartTreemap {...props} />
   } else if (cfg.type === 'ApprovalList') {
-    return <ApprovalList {...props} builtin={true} />
+    return <ApprovalList {...props} builtin />
   } else if (cfg.type === 'FeedsSchedule') {
-    return <FeedsSchedule {...props} builtin={true} />
+    return <FeedsSchedule {...props} builtin />
   } else if (cfg.type === 'RADAR') {
     return <ChartRadar {...props} />
   } else if (cfg.type === 'SCATTER') {
     return <ChartScatter {...props} />
   } else if (cfg.type === 'ProjectTasks') {
-    return <ProjectTasks {...props} builtin={true} />
+    return <ProjectTasks {...props} builtin />
   } else if (cfg.type === 'DataList' || cfg.type === 'DATALIST2') {
     return <DataList {...props} builtin={false} />
   } else if (cfg.type === 'CNMAP') {
     return <ChartCNMap {...props} />
+  } else if (cfg.type === 'HeadingText') {
+    return <HeadingText {...props} builtin={false} />
+  } else if (cfg.type === 'EmbedFrame') {
+    return <EmbedFrame {...props} builtin={false} />
   } else {
     return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${cfg.type}]`}</h4>
   }

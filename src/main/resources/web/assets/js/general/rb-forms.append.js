@@ -417,10 +417,7 @@ class BaiduMap extends React.Component {
 
 class BaiduMapModal extends RbModal {
   renderContent() {
-    if (this.state.destroy) return null
-
-    const sug = this.state.suggestion || []
-    return (
+    return this.state.destroy ? null : (
       <RF>
         {this.props.canPin && (
           <div className="map-pin">
@@ -431,39 +428,16 @@ class BaiduMapModal extends RbModal {
                     <input
                       type="text"
                       ref={(c) => (this._$searchValue = c)}
-                      className="form-control form-control-sm dropdown-toggle"
+                      className="form-control form-control-sm"
                       placeholder={$L('查找位置')}
                       defaultValue={this.props.lnglat ? this.props.lnglat.text || '' : ''}
-                      onKeyDown={(e) => {
-                        if (e.which === 38 || e.which === 40) {
-                          $stopEvent(e, true)
-                          this._suggestUpDown(e.which)
-                        } else if (e.which === 13) {
-                          const $active = $(this._$suggestion).find('.active')
-                          if ($active[0] && $active.text()) {
-                            this._suggestSelect({ address: $active.text(), location: $active.data('location') })
-                          }
-                          setTimeout(() => this._search(), 10)
-                        } else {
-                          this._suggest()
-                        }
-                      }}
-                      onFocus={() => this._suggest()}
+                      autoComplete="off"
                     />
                     <div className="input-group-append">
                       <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
                         <i className="icon zmdi zmdi-search" />
                       </button>
                     </div>
-                  </div>
-                  <div className={`dropdown-menu map-suggestion ${sug.length > 0 && 'show'}`} ref={(c) => (this._$suggestion = c)}>
-                    {sug.map((item) => {
-                      return (
-                        <a key={$random()} className="dropdown-item" title={item.address} data-location={item.location} onClick={(e) => this._suggestSelect(item, e)}>
-                          {item.address}
-                        </a>
-                      )
-                    })}
                   </div>
                 </div>
               </div>
@@ -495,82 +469,49 @@ class BaiduMapModal extends RbModal {
   componentDidMount() {
     super.componentDidMount()
 
-    $(this._rbmodal).on('click', (e) => {
-      if (e.target && e.target.tagName === 'INPUT') return
-      setTimeout(() => {
-        this.setState({ suggestion: [] })
-      }, 100)
-    })
-  }
+    // https://bootstrap-autocomplete.readthedocs.io/en/latest/
+    const that = this
+    function _autoComplete() {
+      $(that._$searchValue)
+        .autoComplete({
+          bootstrapVersion: '4',
+          noResultsText: '',
+          minLength: 2,
+          resolverSettings: {
+            url: '/commons/map/suggest',
+          },
+          events: {
+            searchPost: function (res) {
+              const result = res.data ? res.data.result || [] : []
+              const _data = []
+              result.forEach((item) => {
+                item.address && _data.push({ text: item.address.replaceAll('-', ''), id: item.location })
+              })
+              return _data
+            },
+          },
+        })
+        .on('autocomplete.select', (e, item) => {
+          $stopEvent(e, true)
+          $(that._$searchValue).val(item.text)
+          that._BaiduMap.center(item.id)
 
-  destroy() {
-    this.setState({ destroy: true })
+          that._latlngValue = {
+            lat: item.id.lat,
+            lng: item.id.lng,
+            text: item.text,
+          }
+        })
+    }
+    if (jQuery.prototype.autoComplete) {
+      _autoComplete()
+    } else {
+      $getScript('/assets/lib/bootstrap-autocomplete.min.js?v=2.3.7', () => _autoComplete())
+    }
   }
 
   _search() {
     this._BaiduMap.search($val(this._$searchValue))
-    this.setState({ suggestion: [] })
-  }
-
-  _suggest() {
-    if (this._sugTimer) {
-      clearTimeout(this._sugTimer)
-      this._sugTimer = null
-    }
-
-    let q = $(this._$searchValue).val()
-    q = $trim(q)
-
-    this._sugTimer = setTimeout(() => {
-      if (!q || q.length < 3) {
-        this.setState({ suggestion: [] })
-        return
-      }
-
-      this._sugCached = this._sugCached || {}
-      if (this._sugCached[q]) {
-        this.setState({ suggestion: this._sugCached[q] })
-        return
-      }
-
-      $.get(`/commons/map/suggest?q=${$encode(q)}`, (res) => {
-        const result = res.data ? res.data.result || [] : []
-        const ss = []
-        result.forEach((item) => {
-          item.address && ss.push({ address: item.address.replaceAll('-', ''), location: item.location })
-        })
-        this.setState({ suggestion: ss })
-        this._sugCached[q] = ss
-      })
-    }, 600)
-  }
-
-  _suggestSelect(item, e) {
-    $stopEvent(e, true)
-    $(this._$searchValue).val(item.address)
-    this._BaiduMap.center(item.location)
-    this.setState({ suggestion: [] })
-
-    this._latlngValue = {
-      lat: item.location.lat,
-      lng: item.location.lng,
-      text: item.address,
-    }
-  }
-
-  _suggestUpDown(key) {
-    let $active = $(this._$suggestion).find('.active').removeClass('active')
-    let $next
-
-    if (key === 40) {
-      if ($active[0]) $next = $active.next()
-      if (!$next || !$next[0]) $next = $(this._$suggestion).find('a:first')
-    } else if (key === 38) {
-      if ($active[0]) $next = $active.prev()
-      if (!$next || !$next[0]) $next = $(this._$suggestion).find('a:last')
-    }
-
-    if ($next[0]) $next.addClass('active')
   }
 
   _onConfirm() {
@@ -582,6 +523,10 @@ class BaiduMapModal extends RbModal {
     const val = { ...this._latlngValue, text: $val(this._$searchValue) }
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(val)
     this.hide()
+  }
+
+  destroy() {
+    this.setState({ destroy: true })
   }
 
   // ~~ Usage
