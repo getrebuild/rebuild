@@ -1694,11 +1694,6 @@ class HeadingText extends BaseChart {
 }
 
 class EmbedFrame extends BaseChart {
-  constructor(props) {
-    super(props)
-    this.state.title = null
-  }
-
   renderChart() {
     const config2 = this.state.config.extconfig || {}
     if (!config2.url) {
@@ -1727,13 +1722,14 @@ class EmbedFrame extends BaseChart {
   componentDidMount() {
     super.componentDidMount()
 
+    let config2 = this.state.config.extconfig || {}
     // action
     const $op = $(this._$box).find('.chart-oper')
-    $op.find('.J_source').remove()
+    $op.find('.J_source').attr('href', config2.url || 'about:blank')
     $op.find('.J_chart-edit').on('click', (e) => {
       $stopEvent(e, true)
 
-      const config2 = this.state.config.extconfig || {}
+      config2 = this.state.config.extconfig || {}
       renderRbcomp(
         // eslint-disable-next-line react/jsx-no-undef
         <EmbedFrameSettings
@@ -1743,7 +1739,7 @@ class EmbedFrame extends BaseChart {
             const c = { ...this.state.config }
             c.extconfig = { ...config2, ...s }
             if (typeof window.save_dashboard === 'function') {
-              this.setState({ config: c }, () => this.loadChartData())
+              this.setState({ config: c, title: s.title }, () => this.loadChartData())
             } else {
               console.log('No `save_dashboard` found :', s)
             }

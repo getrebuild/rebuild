@@ -311,6 +311,20 @@ class HeadingTextSettings extends RbModalHandler {
               <div className="clearfix" />
             </div>
           </div>
+          {rb.isAdminUser && (
+            <div className="form-group row pb-2 pt-1">
+              <label className="col-sm-3 col-form-label text-sm-right" />
+              <div className="col-sm-7">
+                <label className="custom-control custom-control-sm custom-checkbox mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$shareChart = c)} />
+                  <span className="custom-control-label">
+                    {$L('共享此图表')}
+                    <i className="zmdi zmdi-help zicon" title={$L('共享后其他用户也可以使用 (不能修改)')} />
+                  </span>
+                </label>
+              </div>
+            </div>
+          )}
 
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
@@ -329,6 +343,8 @@ class HeadingTextSettings extends RbModalHandler {
 
   componentDidMount() {
     $([this._$fontSize, this._$color, this._$bgcolor]).tooltip({})
+    // init
+    if ((this.props.option || {}).shareChart) $(this._$shareChart).attr('checked', true)
   }
 
   handleConfirm() {
@@ -340,6 +356,9 @@ class HeadingTextSettings extends RbModalHandler {
         fontSize: $val(this._$fontSize) || null,
         color: $val(this._$color) || null,
         bgcolor: $val(this._$bgcolor) || null,
+      },
+      option: {
+        shareChart: $val(this._$shareChart) && rb.isAdminUser,
       },
     }
     // No color
@@ -365,7 +384,7 @@ class EmbedFrameSettings extends RbModalHandler {
   render() {
     return (
       <RbModal title={$L('编辑嵌入页面')} disposeOnHide ref={(c) => (this._dlg = c)}>
-        <div className="form HeadingText-settings">
+        <div className="form EmbedFrame-settings">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('页面地址')}</label>
             <div className="col-sm-7">
@@ -373,6 +392,27 @@ class EmbedFrameSettings extends RbModalHandler {
               <p className="form-text">{$L('支持绝对地址或相对地址')}</p>
             </div>
           </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('图表名称')}</label>
+            <div className="col-sm-7">
+              <input type="text" className="form-control form-control-sm" placeholder={$L('嵌入页面')} defaultValue={this.props.title} ref={(c) => (this._$title = c)} />
+            </div>
+          </div>
+          {rb.isAdminUser && (
+            <div className="form-group row pb-2 pt-1">
+              <label className="col-sm-3 col-form-label text-sm-right"></label>
+              <div className="col-sm-7">
+                <label className="custom-control custom-control-sm custom-checkbox mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$shareChart = c)} />
+                  <span className="custom-control-label">
+                    {$L('共享此图表')}
+                    <i className="zmdi zmdi-help zicon" title={$L('共享后其他用户也可以使用 (不能修改)')} />
+                  </span>
+                </label>
+              </div>
+            </div>
+          )}
+
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
               <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
@@ -388,11 +428,20 @@ class EmbedFrameSettings extends RbModalHandler {
     )
   }
 
+  componentDidMount() {
+    // init
+    if ((this.props.option || {}).shareChart) $(this._$shareChart).attr('checked', true)
+  }
+
   handleConfirm() {
     const post = {
       type: 'EmbedFrame',
       entity: 'User',
       url: $val(this._$url),
+      title: $val(this._$title),
+      option: {
+        shareChart: $val(this._$shareChart) && rb.isAdminUser,
+      },
     }
     if (!post.url) {
       return RbHighbar.createl('请输入页面地址')
