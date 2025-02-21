@@ -111,6 +111,7 @@ public class RecordTransfomer37 extends RecordTransfomer {
      */
     protected static Entity[] checkEntity(JSONObject fmd) {
         JSONObject fmdMeta = fmd.getJSONObject("_");
+        if (fmdMeta == null) throw new ConfigurationException("INCOMPATIBLE(39) TRANSFORM CONFIG");
 
         String dTargetEntity = fmdMeta.getString("target");
         if (!MetadataHelper.containsEntity(dTargetEntity)) {
@@ -133,8 +134,9 @@ public class RecordTransfomer37 extends RecordTransfomer {
      */
     protected static String appendFilter(JSONObject fmd) {
         JSONObject fmdMeta = fmd.getJSONObject("_");
-        JSONObject hasFilter = fmdMeta.getJSONObject("filter");
+        if (fmdMeta == null) throw new ConfigurationException("INCOMPATIBLE(39) TRANSFORM CONFIG");
 
+        JSONObject hasFilter = fmdMeta.getJSONObject("filter");
         if (ParseHelper.validAdvFilter(hasFilter)) {
             return new AdvFilterParser(hasFilter).toSqlWhere();
         }
