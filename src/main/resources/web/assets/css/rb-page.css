@@ -431,6 +431,10 @@ a.btn {
   padding: 0.95rem 0;
 }
 
+.alert-danger.alert-sm .icon {
+  border-top: 1px solid #ea4335;
+}
+
 .input-search,
 .input-search input {
   height: 2.8rem;
