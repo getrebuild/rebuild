@@ -18,12 +18,14 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
+import com.rebuild.rbv.approval.ApprovalExpiresAutoJob;
 import com.rebuild.utils.JSONUtils;
 import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -323,6 +325,30 @@ public class FlowNode {
         if (expiresAuto == null) return null;
         if (expiresAuto.getIntValue("expiresAuto") <= 0) return null;
         return expiresAuto;
+    }
+
+    /**
+     * @param recordId
+     * @param approver
+     * @param nodeId
+     * @return
+     */
+    public int getRemarkReq(ID recordId, ID approver, String nodeId) {
+        int reqType = getDataMap().getIntValue("remarkReq");
+        if (reqType < 2) return reqType;
+
+        // 超时必填 @see ApprovalExpiresAutoJob
+        Object[] stepApprover = Application.createQueryNoFilter(
+                "select createdOn,stepId from RobotApprovalStep where recordId = ? and approver = ? and node = ? and isCanceled = 'F' order by createdOn desc")
+                .setParameter(1, recordId)
+                .setParameter(2, approver)
+                .setParameter(3, nodeId)
+                .unique();
+        if (stepApprover == null) return 0;
+
+        JSONObject eaConf = getExpiresAuto();
+        if (ApprovalExpiresAutoJob.isExpired((Date) stepApprover[0], eaConf, recordId)) return 1;
+        return 0;
     }
 
     // --

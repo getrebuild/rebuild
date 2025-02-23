@@ -718,7 +718,7 @@ class ApproverNodeConfig extends StartNodeConfig {
                     <select className="form-control form-control-sm" name="expiresAuto1ValueType">
                       <option value="D">{$L('天后')}</option>
                       <option value="H">{$L('小时后')}</option>
-                      {/*<option value="I">{$L('分钟后')}</option>*/}
+                      {rb.env === 'dev' && <option value="I">{$L('分钟后')}</option>}
                     </select>
                   </div>
                 </div>
@@ -761,6 +761,22 @@ class ApproverNodeConfig extends StartNodeConfig {
                 <label className="mt-2 mb-1">{$L('通知内容')}</label>
                 <textarea className="form-control form-control-sm row2x" placeholder={$L('有一条记录正在等待你审批，请及时处理')} name="expiresAutoUrgeMsg"></textarea>
               </div>
+            </div>
+          </div>
+
+          <div className="form-group mt-5">
+            <label className="text-bold">
+              {$L('审批批注')} <sup className="rbv" />
+            </label>
+            <div className="row">
+              <div className="col">
+                <select className="form-control form-control-sm" name="remarkReq" defaultValue={this.state.remarkReq || null} onChange={this.handleChange}>
+                  <option value="0">{$L('可选填写')}</option>
+                  <option value="1">{$L('必须填写')}</option>
+                  <option value="2">{$L('超时必填 (启用限时审批后有效)')} </option>
+                </select>
+              </div>
+              <div className="col pl-0" />
             </div>
           </div>
 
@@ -818,9 +834,6 @@ class ApproverNodeConfig extends StartNodeConfig {
 
     $(this._$expiresAuto)
       .find('select')
-      .select2({
-        allowClear: false,
-      })
       .on('change', (e) => {
         const t = e.target
         if (['expiresAuto', 'expiresAutoType'].includes(t.name)) {
@@ -836,9 +849,6 @@ class ApproverNodeConfig extends StartNodeConfig {
           })
         }
       })
-      .on('select2:open', () => (donotCloseSidebar = true))
-      .on('select2:close', () => (donotCloseSidebar = false))
-
     $(this._$expiresAuto)
       .find('select[name="expiresAutoUrgeUser"]')
       .select2({ placeholder: $L('审批人') })
@@ -901,6 +911,7 @@ class ApproverNodeConfig extends StartNodeConfig {
       allowCountersign: this.state.allowCountersign,
       allowBatch: this.state.allowBatch,
       expiresAuto: expiresAuto,
+      remarkReq: this.state.remarkReq || 0,
     }
 
     if (d.users.length === 0 && !d.selfSelecting) {
