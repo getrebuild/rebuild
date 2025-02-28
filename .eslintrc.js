@@ -152,5 +152,6 @@ module.exports = {
     DlgTransform: true,
     $select2OpenTemplateResult: true,
     $env: true,
+    $dropdownMenuSearch: true,
   },
 }

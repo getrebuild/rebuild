@@ -773,7 +773,7 @@ class ApproverNodeConfig extends StartNodeConfig {
                 <select className="form-control form-control-sm" name="remarkReq" defaultValue={this.state.remarkReq || null} onChange={this.handleChange}>
                   <option value="0">{$L('可选填写')}</option>
                   <option value="1">{$L('必须填写')}</option>
-                  <option value="2">{$L('超时必填 (启用限时审批后有效)')} </option>
+                  <option value="2">{$L('超时必填 (限时审批启用后有效)')} </option>
                 </select>
               </div>
               <div className="col pl-0" />

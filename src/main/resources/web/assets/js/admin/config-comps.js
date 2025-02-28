@@ -205,3 +205,33 @@ function ShowEnable(enable, cfgid) {
     return enable ? <span className="badge badge-grey">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>
   }
 }
+
+$(document).ready(() => {
+  // v4.0 搜索
+  const $title = $('.page-aside .config-title')
+  $(`<a class="search-btn" title="${$L('搜索')}"><i class="zmdi zmdi-search"></i></a>`)
+    .appendTo($title)
+    .on('click', () => {
+      const $s = $(`<div class="search-input"><input type="text" placeholder="${$L('搜索')}" /></div>`).appendTo($title.empty())
+      const $input = $s.find('input').on('input', (e) => {
+        const q = $trim(e.target.value).toLowerCase()
+        $setTimeout(
+          () => {
+            $('.page-aside ul>li').each(function () {
+              var $item = $(this)
+              var name = ($item.data('entity') || '').toLowerCase()
+              var text = $item.text().toLowerCase()
+              if (!q || name.contains(q) || text.contains(q)) {
+                $item.removeClass('hide')
+              } else {
+                $item.addClass('hide')
+              }
+            })
+          },
+          200,
+          '$dropdownMenuSearch'
+        )
+      })
+      setTimeout(() => $input[0].focus(), 20)
+    })
+})

@@ -1,0 +1,32 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+.config-title a.search-btn {
+  position: absolute;
+  font-size: 1.231rem;
+  margin-top: -2px;
+  margin-left: 5px;
+}
+
+.config-title a.search-btn:hover {
+  opacity: 0.8;
+}
+
+.config-title .search-input {
+  background-color: #fff;
+  margin-top: -1px;
+}
+
+.config-title .search-input > input {
+  border: 0 none;
+  width: 100%;
+  padding: 0 4px;
+  appearance: none;
+  outline: 0 none;
+  background-color: transparent;
+  line-height: 1;
+}

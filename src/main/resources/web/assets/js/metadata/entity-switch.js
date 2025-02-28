@@ -14,28 +14,7 @@ $(document).ready(() => {
   if (href.includes('?id=')) href = href.split('?id=')[0]
 
   const $menu = $('<div class="dropdown-menu auto-scroller entity-switch"></div>').appendTo('.aside-header')
-
-  // v3.7 search
-  $(`<div class="searchbox"><input placeholder="${$L('搜索')}" /></div>`)
-    .appendTo($menu)
-    .find('input')
-    .on('input', function (e) {
-      const s = $trim(e.target.value).toLowerCase()
-      $setTimeout(
-        () => {
-          $menu.find('.dropdown-item').each(function () {
-            const $item = $(this)
-            if (!s || $item.data('name').toLowerCase().includes(s) || $item.text().toLowerCase().includes(s)) {
-              $item.removeClass('hide')
-            } else {
-              $item.addClass('hide')
-            }
-          })
-        },
-        200,
-        '_SearchEntities'
-      )
-    })
+  $dropdownMenuSearch($menu)
 
   function renderItem(item) {
     const $item = $(
@@ -62,8 +41,5 @@ $(document).ready(() => {
   $toggle.addClass('dropdown-toggle').attr({
     'data-toggle': 'dropdown',
     'title': $L('切换'),
-  })
-  $toggle.parent().on('shown.bs.dropdown', () => {
-    setTimeout(() => $menu.find('input')[0].focus(), 100)
   })
 })
