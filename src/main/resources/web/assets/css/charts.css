@@ -669,8 +669,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .HeadingText-style input,
 .HeadingText-style select {
-  width: 50px;
+  width: 64px;
   height: 32px !important;
+}
+
+.HeadingText-style input[type='color'] {
+  width: 32px;
 }
 
 .chart-box.EmbedFrame .iframe,

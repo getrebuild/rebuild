@@ -563,7 +563,8 @@ class DlgEditItem extends RbAlert {
       .appendTo($cs)
       .on('change', (e) => {
         $cs.find('>a .zmdi').remove()
-        that.handleChange({ target: { name: 'color', value: e.target.value } })
+        let c = e.target.value
+        that.handleChange({ target: { name: 'color', value: c === '#000000' ? null : c } })
       })
 
     if (this.props.color) {
