@@ -24,7 +24,7 @@ class RbFormModal extends React.Component {
     this.state = { ...props, inLoad: true, _maximize: false }
 
     this.__maximizeKey = 'FormMaximize-ANY'
-    this.state._maximize = $isTrue($storage.get(this.__maximizeKey))
+    this.state._maximize = $isTrue($storage.get(this.__maximizeKey)) || window.__LAB_FORM_MAXIMIZE40
 
     if (!props.id) this.state.id = null
   }
