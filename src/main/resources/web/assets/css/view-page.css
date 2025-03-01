@@ -810,10 +810,13 @@ body {
   background-color: #fff;
 }
 
-.timeline.approved-steps .timeline-item.state0::before,
-.timeline.approved-steps .timeline-item.state10::before {
+.timeline.approved-steps .timeline-item.state0::before {
   border-color: #fff;
   background-color: #4285f4;
+}
+
+.timeline.approved-steps .timeline-item.state10::before {
+  border-color: #fff;
   background-color: #33a451;
 }
 
@@ -824,8 +827,7 @@ body {
   background-color: #ea3f30;
 }
 
-.timeline.approved-steps .timeline-item.state21::before,
-.timeline.approved-steps .timeline-item.state1::before {
+.timeline.approved-steps .timeline-item.state21::before {
   border-color: #fff;
   background-color: #f7b904;
 }
