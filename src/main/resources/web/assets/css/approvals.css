@@ -725,9 +725,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
   width: 232px;
 }
 
-.updatable-fields h4 {
+.updatable-fields > h4 {
   font-size: 1rem;
   font-weight: bold;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
+  padding-left: 4px;
+  margin-bottom: 6px;
+}
+
+.updatable-fields > .row:empty::after {
+  content: attr(_title);
+  font-style: italic;
+  color: #999;
+  padding-left: 12px;
 }

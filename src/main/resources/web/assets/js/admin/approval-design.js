@@ -737,7 +737,7 @@ class ApproverNodeConfig extends StartNodeConfig {
             </div>
 
             <div className={`expires-notify-set mt-3 ${(this.state.expiresAuto || 0) > 0 ? '' : 'hide'}`}>
-              <label className="text-bold">{$L('到期后如何处理')}</label>
+              <label className="text-bold">{$L('超时后如何处理')}</label>
               <select className="form-control form-control-sm" name="expiresAutoType">
                 {Object.keys(__EXPIRESAUTOTYPE).map((k) => {
                   return (
@@ -1172,12 +1172,12 @@ class DlgFields extends RbModalHandler {
   render() {
     return (
       <RbModal title={$L('选择可修改字段')} ref={(c) => (this._dlg = c)} disposeOnHide onHide={() => (donotCloseSidebar = false)} width="780">
-        <div className="updatable-fields pl-2 pr-0" ref={(c) => (this._fields = c)}>
+        <div className="updatable-fields pl-1 pr-0" ref={(c) => (this._fields = c)}>
           {fieldsCache.map((e) => {
             return (
               <RF key={e.entity}>
                 <h4>{e.entityLabel}</h4>
-                <div className="row p-1">
+                <div className="row p-1" _title={$L('无可用字段')}>
                   {e.fields.map((item) => {
                     if (item.type === 'BARCODE' || item.updatable === false) return null
                     const name = e.mainEntity ? `${e.entity}.${item.name}` : item.name
