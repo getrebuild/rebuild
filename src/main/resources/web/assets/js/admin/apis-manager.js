@@ -93,6 +93,7 @@ class AppList extends ConfigList {
           dlgActionAfter(this)
         })
       },
+      countdown: 5,
     })
   }
 

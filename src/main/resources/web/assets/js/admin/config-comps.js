@@ -94,9 +94,8 @@ class ConfigList extends React.Component {
 
     entity = entity || this.__entity
     this.__entity = entity
-    const q = $('.input-search input').val()
 
-    $.get(`${this.requestUrl}?entity=${entity || ''}&q=${$encode(q)}`, (res) => {
+    $.get(`${this.requestUrl}?entity=${entity || ''}&q=${$encode(this.getSearchKey())}`, (res) => {
       if (res.error_code === 0) {
         const data = res.data || []
         if (this.renderEntityTree(data) !== false) {
@@ -115,8 +114,10 @@ class ConfigList extends React.Component {
       }
     })
   }
-
   loadDataAfter() {}
+  getSearchKey() {
+    return $('.input-search input').val() || ''
+  }
 
   // 渲染实体树
   renderEntityTree(data) {
