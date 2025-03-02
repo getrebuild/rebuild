@@ -55,7 +55,7 @@ public class NotificationController extends BaseController {
     @GetMapping("/notification/check-state")
     public JSON checkMessage(HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        int unread = Application.getNotifications().getUnreadMessage(user);
+        int unread = Application.getNotifications().getUnreadCount(user);
         JSONObject state = JSONUtils.toJSONObject("unread", unread);
 
         JSON mm = buildMM();

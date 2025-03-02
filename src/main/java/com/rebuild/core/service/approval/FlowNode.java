@@ -330,10 +330,10 @@ public class FlowNode {
     /**
      * @param recordId
      * @param approver
-     * @param nodeId
      * @return
+     * @see ApprovalExpiresAutoJob#getExpiredTime(Date, JSONObject, ID)
      */
-    public int getRemarkReq(ID recordId, ID approver, String nodeId) {
+    public int getRemarkReq(ID recordId, ID approver) {
         int reqType = getDataMap().getIntValue("remarkReq");
         if (reqType < 2) return reqType;
 
@@ -342,13 +342,13 @@ public class FlowNode {
                 "select createdOn,stepId from RobotApprovalStep where recordId = ? and approver = ? and node = ? and isCanceled = 'F' order by createdOn desc")
                 .setParameter(1, recordId)
                 .setParameter(2, approver)
-                .setParameter(3, nodeId)
+                .setParameter(3, this.nodeId)
                 .unique();
         if (stepApprover == null) return 0;
 
         JSONObject eaConf = getExpiresAuto();
-        if (ApprovalExpiresAutoJob.isExpired((Date) stepApprover[0], eaConf, recordId)) return 1;
-        return 0;
+        long expTime = ApprovalExpiresAutoJob.getExpiredTime((Date) stepApprover[0], eaConf, recordId);
+        return expTime > 0 ? 1 : 0;
     }
 
     // --

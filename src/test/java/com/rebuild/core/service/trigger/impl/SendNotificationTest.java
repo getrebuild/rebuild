@@ -48,7 +48,7 @@ class SendNotificationTest extends TestSupport {
         Application.getBean(RobotTriggerConfigService.class).create(triggerConfig);
 
         // 当前未读消息
-        int unread = Application.getNotifications().getUnreadMessage(toUser);
+        int unread = Application.getNotifications().getUnreadCount(toUser);
 
         // 保存/删除会发送两条消息
         Record record = EntityHelper.forNew(entity.getEntityCode(), SIMPLE_USER);
@@ -60,7 +60,7 @@ class SendNotificationTest extends TestSupport {
 
         // 比对消息数
         ThreadPool.waitFor(3000);
-        int unreadCheck = Application.getNotifications().getUnreadMessage(toUser);
+        int unreadCheck = Application.getNotifications().getUnreadCount(toUser);
         Assertions.assertEquals(unread, unreadCheck - 2);
 
         // 清理
