@@ -14,6 +14,7 @@ import com.rebuild.utils.MarkdownUtils;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 通知消息。
@@ -46,6 +47,9 @@ public class Message {
     private int type;
     private ID relatedRecord;
 
+    @Setter
+    private String specTitle;
+
     /**
      * @param fromUser
      * @param toUser
@@ -66,12 +70,13 @@ public class Message {
      * @return
      */
     public String getTitle4Type() {
+        if (StringUtils.isNotBlank(this.specTitle)) return this.specTitle;
         if (this.type == TYPE_ASSIGN) return Language.L("记录分配通知");
         else if (this.type == TYPE_SAHRE) return Language.L("记录共享通知");
         else if (this.type == TYPE_APPROVAL) return Language.L("记录审批通知");
         else if (this.type == TYPE_FEEDS) return Language.L("动态通知");
         else if (this.type == TYPE_PROJECT) return Language.L("项目任务通知");
-        else return Language.L("新通知");
+        else return Language.L("你有一条新通知");
     }
 
     /**

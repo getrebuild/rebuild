@@ -202,6 +202,7 @@ class ApprovalProcessor extends React.Component {
   approve = () => {
     const that = this
     if (this._ApproveForm) {
+      // this._ApproveForm.show(null, () => that._ApproveForm.reload())
       this._ApproveForm.show()
     } else {
       renderRbcomp(<ApprovalApproveForm id={this.props.id} approval={this.state.approvalId} entity={this.props.entity} $$$parent={this} />, function () {
@@ -555,6 +556,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   }
 
   componentDidMount = () => this.getNextStep()
+  reload = () => this.getNextStep()
 
   post(state) {
     const that = this
