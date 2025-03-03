@@ -3448,6 +3448,7 @@ a.user-show:not([href]) {
   margin-right: -60px;
   padding-top: 7px;
   padding-bottom: 7px;
+  max-height: 488px;
 }
 
 @media (max-width: 575.98px) {
