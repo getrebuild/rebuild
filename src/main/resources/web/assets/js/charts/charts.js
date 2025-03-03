@@ -915,7 +915,15 @@ class ApprovalList extends BaseChart {
                       <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} alt="Avatar" />
                       <span>{item[1]}</span>
                       <span className="cell-detail-description">
-                        <DateShow date={item[2]} />
+                        <div className="float-left" style={{ marginTop: item[8] >= 2 ? 3 : 0 }}>
+                          <DateShow date={item[2]} />
+                        </div>
+                        {item[8] >= 2 && (
+                          <div className="float-left" style={{ marginTop: 1 }}>
+                            <span className="float-left badge badge-sm badge-danger m-0 ml-1">{$L('已超时 %s', $sec2Time(item[8]))}</span>
+                          </div>
+                        )}
+                        <div className="clearfix" />
                       </span>
                     </td>
                     <td className="cell-detail">

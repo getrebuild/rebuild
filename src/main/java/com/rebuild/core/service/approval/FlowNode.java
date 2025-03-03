@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.rbv.approval.ApprovalExpiresAutoJob;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
@@ -330,10 +331,11 @@ public class FlowNode {
     /**
      * @param recordId
      * @param approver
-     * @return
+     * @return `>=2` 表示超时时间
      * @see ApprovalExpiresAutoJob#getExpiredTime(Date, JSONObject, ID)
      */
-    public int getRemarkReq(ID recordId, ID approver) {
+    public long getRemarkReq(ID recordId, ID approver) {
+        // 0=选填, 1=必填, 2=超时必填
         int reqType = getDataMap().getIntValue("remarkReq");
         if (reqType < 2) return reqType;
 
@@ -347,8 +349,10 @@ public class FlowNode {
         if (stepApprover == null) return 0;
 
         JSONObject eaConf = getExpiresAuto();
-        long expTime = ApprovalExpiresAutoJob.getExpiredTime((Date) stepApprover[0], eaConf, recordId);
-        return expTime > 0 ? 1 : 0;
+        Object o = CommonsUtils.invokeMethod("com.rebuild.rbv.approval.ApprovalExpiresAutoJob#getExpiredTime",
+                stepApprover[0], eaConf, recordId);
+        long expTime = o == null ? 0 : (Long) o;
+        return expTime > 0 ? Math.max(expTime, 2) : 0;
     }
 
     // --

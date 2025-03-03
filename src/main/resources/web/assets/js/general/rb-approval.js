@@ -490,7 +490,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             <textarea
               className="form-control form-control-sm row2x"
               name="remark"
-              placeholder={`${$L('输入批注')} (${this.state.remarkReq === 1 ? $L('必填') : $L('选填')})`}
+              placeholder={`${$L('输入批注')} (${this.state.remarkReq >= 1 ? $L('必填') : $L('选填')})`}
               value={this.state.remark || ''}
               onChange={this.handleChange}
               maxLength="600"
@@ -627,7 +627,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
       useGroup: this.state.useGroup,
     }
     // v4.0
-    if (this.state.remarkReq === 1 && $empty(data.remark)) {
+    if (this.state.remarkReq >= 1 && $empty(data.remark)) {
       RbHighbar.createl('请填写批注')
       return false
     }

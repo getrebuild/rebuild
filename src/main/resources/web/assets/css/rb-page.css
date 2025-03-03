@@ -5936,3 +5936,8 @@ div.formula-code {
   color: #fff;
   background-color: var(--rb-color);
 }
+
+.badge.badge-sm {
+  padding: 3px 5px;
+  line-height: 1;
+}

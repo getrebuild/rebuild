@@ -293,7 +293,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chart.FeedsSchedule span.badge,
-.chart.ProjectTasks span.badge {
+.chart.ProjectTasks span.badge,
+.chart.ApprovalList span.badge {
   display: inline-block;
   font-weight: normal;
   padding: 3px 5px;
