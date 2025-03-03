@@ -7,6 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.cache;
 
+import lombok.extern.slf4j.Slf4j;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.springframework.cache.Cache;
@@ -23,6 +25,7 @@ import java.util.Objects;
  * @author devezhao
  * @since 01/02/2019
  */
+@Slf4j
 public class EhcacheDriver<V extends Serializable> implements CacheTemplate<V> {
 
     private CacheManager ehcacheManager;
@@ -53,11 +56,17 @@ public class EhcacheDriver<V extends Serializable> implements CacheTemplate<V> {
         ((Ehcache) cache().getNativeCache()).put(el);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public V getx(String key) {
-        ValueWrapper w = cache().get(key);
-        return w == null ? null : (V) w.get();
+        try {
+            ValueWrapper w = cache().get(key);
+            //noinspection unchecked
+            return w == null ? null : (V) w.get();
+        } catch (CacheException ex) {
+            log.warn("Evict on #getx error : {}", ex.getLocalizedMessage());
+            this.evict(key);
+        }
+        return null;
     }
 
     @Override
