@@ -16,6 +16,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.InternalPersistService;
+import com.rebuild.core.support.integration.SMSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -75,6 +76,17 @@ public class NotificationService extends InternalPersistService {
      * @param message
      */
     public void send(Message message) {
+        send(message, false, false);
+    }
+
+    /**
+     * 发送消息
+     *
+     * @param message
+     * @param distSms 同时发短信
+     * @param distEmail 同时发邮件
+     */
+    public void send(Message message, boolean distSms, boolean distEmail) {
         Record record = EntityHelper.forNew(EntityHelper.Notification, message.getFromUser());
         record.setID("fromUser", message.getFromUser());
         record.setID("toUser", message.getToUser());
@@ -94,7 +106,18 @@ public class NotificationService extends InternalPersistService {
             String[] distNames = Application.getContext().getBeanNamesForType(MessageDistributor.class);
             for (String name : distNames) {
                 MessageDistributor md = (MessageDistributor) Application.getContext().getBean(name);
-                if (!md.isEnable()) continue;
+                if (!md.isEnable()) {
+                    String distType = md.getClass().getSimpleName();
+                    if ("SmsDistributor".equals(distType)) {
+                        if (!SMSender.availableSMS()) continue;
+                        if (!distSms) continue;
+                    } else if ("EmailDistributor".equals(distType)) {
+                        if (!SMSender.availableMail()) continue;
+                        if (!distEmail) continue;
+                    } else {
+                        continue;
+                    }
+                }
 
                 try {
                     boolean sent = md.send(message, messageId);
@@ -112,7 +135,7 @@ public class NotificationService extends InternalPersistService {
      * @param user
      * @return
      */
-    public int getUnreadMessage(ID user) {
+    public int getUnreadCount(ID user) {
         final String ckey = "UnreadNotification-" + user;
         Object cval = Application.getCommonsCache().getx(ckey);
         if (cval != null) {

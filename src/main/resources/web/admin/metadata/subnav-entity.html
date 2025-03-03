@@ -1,4 +1,14 @@
 <th:block xmlns:th="http://www.thymeleaf.org">
+  <style>
+    .aside-header .title i.icon {
+      color: #777;
+      font-size: 18px;
+      margin-left: 4px;
+    }
+    .aside-header .title:hover {
+      opacity: 0.8;
+    }
+  </style>
   <div class="aside-nav collapse">
     <ul class="nav">
       <li th:class="${active == 'base'} ? 'active'"><a th:href="${((urlPrefix?:'')) + 'base'}">[[${bundle.L('基本信息')}]]</a></li>

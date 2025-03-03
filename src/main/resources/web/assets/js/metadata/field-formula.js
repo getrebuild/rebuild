@@ -508,8 +508,9 @@ class EditorWithFieldVars extends React.Component {
             else if (['NUMBER', 'DECIMAL'].includes(item.type)) typeMark = 'N'
             return (
               <a
-                className="dropdown-item"
                 key={item.name}
+                className="dropdown-item"
+                data-name={item.name}
                 onClick={() => {
                   $(this._$content).insertAtCursor(`{${item.name}}`)
                 }}>
@@ -535,6 +536,8 @@ class EditorWithFieldVars extends React.Component {
     setTimeout(() => {
       const evt = new Event('input')
       this._$content.dispatchEvent(evt)
+      // search
+      $dropdownMenuSearch(this._$fieldVars)
     }, 20)
   }
 

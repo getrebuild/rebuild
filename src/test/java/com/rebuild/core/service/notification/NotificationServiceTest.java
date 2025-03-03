@@ -26,6 +26,6 @@ public class NotificationServiceTest extends TestSupport {
 
     @Test
     void testGetUnread() {
-        Application.getNotifications().getUnreadMessage(SIMPLE_USER);
+        Application.getNotifications().getUnreadCount(SIMPLE_USER);
     }
 }

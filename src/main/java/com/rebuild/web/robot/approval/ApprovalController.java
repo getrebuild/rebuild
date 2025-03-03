@@ -173,6 +173,7 @@ public class ApprovalController extends BaseController {
         data.put("currentNode", currentFlowNode.getNodeId());
         data.put("allowReferral", currentFlowNode.allowReferral());
         data.put("allowCountersign", currentFlowNode.allowCountersign());
+        data.put("remarkReq", Math.min(currentFlowNode.getRemarkReq(recordId, user), 1));
 
         // 可修改字段
         JSONArray editableFields = currentFlowNode.getEditableFields();

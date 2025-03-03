@@ -718,7 +718,7 @@ class ApproverNodeConfig extends StartNodeConfig {
                     <select className="form-control form-control-sm" name="expiresAuto1ValueType">
                       <option value="D">{$L('天后')}</option>
                       <option value="H">{$L('小时后')}</option>
-                      {/*<option value="I">{$L('分钟后')}</option>*/}
+                      {rb.env === 'dev' && <option value="I">{$L('分钟后')}</option>}
                     </select>
                   </div>
                 </div>
@@ -737,7 +737,7 @@ class ApproverNodeConfig extends StartNodeConfig {
             </div>
 
             <div className={`expires-notify-set mt-3 ${(this.state.expiresAuto || 0) > 0 ? '' : 'hide'}`}>
-              <label className="text-bold">{$L('到期后如何处理')}</label>
+              <label className="text-bold">{$L('超时后如何处理')}</label>
               <select className="form-control form-control-sm" name="expiresAutoType">
                 {Object.keys(__EXPIRESAUTOTYPE).map((k) => {
                   return (
@@ -761,6 +761,22 @@ class ApproverNodeConfig extends StartNodeConfig {
                 <label className="mt-2 mb-1">{$L('通知内容')}</label>
                 <textarea className="form-control form-control-sm row2x" placeholder={$L('有一条记录正在等待你审批，请及时处理')} name="expiresAutoUrgeMsg"></textarea>
               </div>
+            </div>
+          </div>
+
+          <div className="form-group mt-5">
+            <label className="text-bold">
+              {$L('审批批注')} <sup className="rbv" />
+            </label>
+            <div className="row">
+              <div className="col">
+                <select className="form-control form-control-sm" name="remarkReq" defaultValue={this.state.remarkReq || null} onChange={this.handleChange}>
+                  <option value="0">{$L('可选填写')}</option>
+                  <option value="1">{$L('必须填写')}</option>
+                  <option value="2">{$L('超时必填 (限时审批启用后有效)')} </option>
+                </select>
+              </div>
+              <div className="col pl-0" />
             </div>
           </div>
 
@@ -818,9 +834,6 @@ class ApproverNodeConfig extends StartNodeConfig {
 
     $(this._$expiresAuto)
       .find('select')
-      .select2({
-        allowClear: false,
-      })
       .on('change', (e) => {
         const t = e.target
         if (['expiresAuto', 'expiresAutoType'].includes(t.name)) {
@@ -836,9 +849,6 @@ class ApproverNodeConfig extends StartNodeConfig {
           })
         }
       })
-      .on('select2:open', () => (donotCloseSidebar = true))
-      .on('select2:close', () => (donotCloseSidebar = false))
-
     $(this._$expiresAuto)
       .find('select[name="expiresAutoUrgeUser"]')
       .select2({ placeholder: $L('审批人') })
@@ -901,6 +911,7 @@ class ApproverNodeConfig extends StartNodeConfig {
       allowCountersign: this.state.allowCountersign,
       allowBatch: this.state.allowBatch,
       expiresAuto: expiresAuto,
+      remarkReq: this.state.remarkReq || 0,
     }
 
     if (d.users.length === 0 && !d.selfSelecting) {
@@ -1161,12 +1172,12 @@ class DlgFields extends RbModalHandler {
   render() {
     return (
       <RbModal title={$L('选择可修改字段')} ref={(c) => (this._dlg = c)} disposeOnHide onHide={() => (donotCloseSidebar = false)} width="780">
-        <div className="updatable-fields pl-2 pr-0" ref={(c) => (this._fields = c)}>
+        <div className="updatable-fields pl-1 pr-0" ref={(c) => (this._fields = c)}>
           {fieldsCache.map((e) => {
             return (
               <RF key={e.entity}>
                 <h4>{e.entityLabel}</h4>
-                <div className="row p-1">
+                <div className="row p-1" _title={$L('无可用字段')}>
                   {e.fields.map((item) => {
                     if (item.type === 'BARCODE' || item.updatable === false) return null
                     const name = e.mainEntity ? `${e.entity}.${item.name}` : item.name

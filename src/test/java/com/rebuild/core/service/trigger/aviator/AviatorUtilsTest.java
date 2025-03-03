@@ -10,6 +10,7 @@ package com.rebuild.core.service.trigger.aviator;
 import cn.devezhao.commons.CalendarUtils;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.exception.ExpressionRuntimeException;
+import com.rebuild.Rbv;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -137,5 +138,12 @@ class AviatorUtilsTest {
         System.out.println(AviatorUtils.eval("'张三' == '张三'"));
         System.out.println(AviatorUtils.eval("1 == 1"));
         System.out.println(AviatorUtils.eval("0.0001 == 0.0001"));
+    }
+
+    @Test
+    void testHanlp() throws Exception {
+        new Rbv().init();
+        System.out.println(AviatorUtils.eval("HANLPPINY('1张2三3', true)"));
+        System.out.println(AviatorUtils.eval("HANLPPINY('1张2三3', false)"));
     }
 }

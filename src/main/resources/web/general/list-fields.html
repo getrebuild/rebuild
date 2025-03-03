@@ -27,7 +27,7 @@
         margin-left: 5px;
       }
       .sortable-box-title a.search-btn:hover {
-        color: #4285f4;
+        opacity: 0.8;
       }
       .sortable-box-title .search-input {
         position: absolute;
@@ -38,15 +38,11 @@
       }
       .sortable-box-title .search-input > input {
         border: 0 none;
-        border-bottom: 1px solid #d5d8de;
         width: 100%;
         padding: 4px;
         appearance: none;
         outline: 0 none;
         background-color: transparent;
-      }
-      .sortable-box-title .search-input > input:focus {
-        border-color: #4285f4;
       }
     </style>
   </head>
@@ -63,7 +59,7 @@
         <div class="col-6 pr-2">
           <h5 class="sortable-box-title">
             [[${bundle.L('未显示')}]]
-            <a class="search-btn" th:title="${bundle.L('筛选字段')}"><i class="zmdi zmdi-search"></i></a>
+            <a class="search-btn" th:title="${bundle.L('搜索')}"><i class="zmdi zmdi-search"></i></a>
           </h5>
           <div class="sortable-box h380 rb-scroller">
             <ol class="dd-list unset-list"></ol>

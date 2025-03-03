@@ -1369,3 +1369,37 @@ var $env = {
     return navigator.userAgent.match(/(WXWORK)/i)
   },
 }
+
+// 菜单加搜索
+function $dropdownMenuSearch($dd) {
+  $dd = $($dd)
+  $(`<div class="searchbox"><input placeholder="${$L('搜索')}" /></div>`)
+    .prependTo($dd)
+    .find('input')
+    .on('input', function (e) {
+      var q = $trim(e.target.value).toLowerCase()
+      $setTimeout(
+        function () {
+          $dd.find('.dropdown-item').each(function () {
+            var $item = $(this)
+            var name = ($item.data('name') || $item.data('value') || $item.data('id') || '').toLowerCase()
+            var text = $item.text().toLowerCase()
+            if (!q || name.contains(q) || text.contains(q)) {
+              $item.removeClass('hide')
+            } else {
+              $item.addClass('hide')
+            }
+          })
+        },
+        200,
+        '$dropdownMenuSearch'
+      )
+    })
+  // foucs
+  $dd.parent().on('shown.bs.dropdown', function () {
+    console.log('open')
+    setTimeout(function () {
+      $dd.find('input')[0].focus()
+    }, 200)
+  })
+}

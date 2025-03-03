@@ -779,6 +779,7 @@ class TagEditor extends RbAlert {
       .on('change', (e) => {
         $cs.find('>a .zmdi').remove()
         this._color = e.target.value
+        if (this._color === '#000000') this._color = null
       })
   }
 

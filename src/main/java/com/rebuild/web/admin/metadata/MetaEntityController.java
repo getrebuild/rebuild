@@ -46,6 +46,7 @@ import com.rebuild.web.EntityController;
 import com.rebuild.web.commons.FileDownloader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -61,6 +62,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -418,5 +420,33 @@ public class MetaEntityController extends EntityController {
 
         String entityName = new ExcelEntity().imports(entityLabel, fields);
         return RespBody.ok(entityName);
+    }
+
+    @GetMapping("entities/search")
+    public JSON entitiesSearch(HttpServletRequest request) {
+        String q = getParameterNotNull(request, "q");
+        q = StringEscapeUtils.escapeSql(q).toUpperCase();
+
+        JSONArray res = new JSONArray();
+        for (Entity e : MetadataSorter.sortEntities()) {
+            String name = e.getName();
+            String label = EasyMetaFactory.getLabel(e);
+            if (StringUtils.containsIgnoreCase(name, q) || StringUtils.containsIgnoreCase(label, q)) {
+                res.add(JSONUtils.toJSONObject(new String[]{"name", "label"}, new Object[]{name, label}));
+            }
+
+            for (Field f : MetadataSorter.sortFields(e)) {
+                String fname = f.getName();
+                String flabel = EasyMetaFactory.getLabel(f);
+                if (StringUtils.containsIgnoreCase(fname, q) || StringUtils.containsIgnoreCase(flabel, q)) {
+                    res.add(JSONUtils.toJSONObject(
+                            new String[]{"name", "label", "entity"}, new Object[]{fname, label + "." + flabel, name}));
+                }
+            }
+        }
+
+        // 按 label 排序
+        res.sort(Comparator.comparing((Object o) -> ((JSONObject) o).getString("label")));
+        return res;
     }
 }

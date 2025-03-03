@@ -205,15 +205,19 @@ $(document).ready(() => {
 
   if (LastLogsViewer.renderLog && rb.commercial > 1) {
     $.get(`/admin/robot/trigger/last-logs?id=${wpc.configId}`, (res) => {
-      const _data = res.data || []
-      if (_data.length > 0) {
-        const last = _data[0]
-        const $a = $(`<a href="#last-logs">${$fromNow(last[0])}</a>`).appendTo($('.J_last-logs .form-control-plaintext').empty())
-        $a.on('click', (e) => {
-          $stopEvent(e, true)
-          renderRbcomp(<LastLogsViewer width="681" data={_data} />)
-        })
+      const _data = res.data || {}
+      if (_data.logs && _data.logs.length > 0) {
+        const last = _data.logs[0]
+        const $d = $('.J_last-logs .form-control-plaintext').empty()
+        $(`<a href="#last-logs">${$fromNow(last[0])}</a>`)
+          .appendTo($d)
+          .on('click', (e) => {
+            $stopEvent(e, true)
+            renderRbcomp(<LastLogsViewer width="681" data={_data.logs} />)
+          })
+        $(`<span class="text-muted ml-1">(${$L('近 30 天执行 %s 次', _data.count)})</span>`).appendTo($d)
       }
+
       $('.J_last-logs').removeClass('hide')
     })
   }

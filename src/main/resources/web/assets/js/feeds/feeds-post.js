@@ -50,6 +50,7 @@ class FeedsPost extends React.Component {
         <div className="mt-3">
           <div className="float-right">
             <button className="btn btn-primary" ref={(c) => (this._$btn = c)} onClick={this._post}>
+              <i className="mdi mdi-send icon mr-1" />
               {$L('发布')}
             </button>
           </div>

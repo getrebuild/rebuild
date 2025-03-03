@@ -431,6 +431,10 @@ a.btn {
   padding: 0.95rem 0;
 }
 
+.alert-danger.alert-sm .icon {
+  border-top: 1px solid #ea4335;
+}
+
 .input-search,
 .input-search input {
   height: 2.8rem;
@@ -5924,11 +5928,16 @@ div.formula-code {
 }
 
 .bootstrap-autocomplete.dropdown-menu .dropdown-item {
-  padding: 7px 10px;
+  padding: 8px 10px;
 }
 
 .bootstrap-autocomplete.dropdown-menu .dropdown-item.active,
 .bootstrap-autocomplete.dropdown-menu .dropdown-item:hover {
   color: #fff;
   background-color: var(--rb-color);
+}
+
+.badge.badge-sm {
+  padding: 3px 5px;
+  line-height: 1;
 }

@@ -28,6 +28,7 @@ $(document).ready(() => {
     .on('change', (e) => {
       $cs.find('>a .zmdi').remove()
       _color = e.target.value
+      if (_color === '#000000') _color = null
     })
 
   $.get(`/admin/field/picklist-gets?isAll=true&${query}`, (res) => {

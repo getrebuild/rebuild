@@ -186,7 +186,7 @@ class ShowStyles2 extends ShowStyles {
 
     const data = {
       label: $(this._$label).val() || '',
-      color: color,
+      color: color === '#000000' ? null : color,
     }
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(data)
     this.hide()

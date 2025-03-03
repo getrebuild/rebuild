@@ -202,6 +202,7 @@ class ApprovalProcessor extends React.Component {
   approve = () => {
     const that = this
     if (this._ApproveForm) {
+      // this._ApproveForm.show(null, () => that._ApproveForm.reload())
       this._ApproveForm.show()
     } else {
       renderRbcomp(<ApprovalApproveForm id={this.props.id} approval={this.state.approvalId} entity={this.props.entity} $$$parent={this} />, function () {
@@ -486,7 +487,14 @@ class ApprovalApproveForm extends ApprovalUsersForm {
 
           <div className="form-group">
             <label>{$L('批注')}</label>
-            <textarea className="form-control form-control-sm row2x" name="remark" placeholder={$L('输入批注 (可选)')} value={this.state.remark || ''} onChange={this.handleChange} maxLength="600" />
+            <textarea
+              className="form-control form-control-sm row2x"
+              name="remark"
+              placeholder={`${$L('输入批注')} (${this.state.remarkReq >= 1 ? $L('必填') : $L('选填')})`}
+              value={this.state.remark || ''}
+              onChange={this.handleChange}
+              maxLength="600"
+            />
           </div>
 
           {this.renderUsers()}
@@ -548,6 +556,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   }
 
   componentDidMount = () => this.getNextStep()
+  reload = () => this.getNextStep()
 
   post(state) {
     const that = this
@@ -581,7 +590,8 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             onConfirm: function () {
               this.disabled(true, true)
               const node = $(this._element).find('select').val()
-              that._post(state, node === '0' ? null : node, this)
+              const s = that._post(state, node === '0' ? null : node, this)
+              if (s === false) this.disabled() // reset
             },
             onRendered: function () {
               $(this._element).find('select').select2({
@@ -601,20 +611,25 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     if ((this.state.aform || this.state.aform_details) && state === 10) {
       // aformData = this._LiteForm.buildFormData()
       aformData = this._EditableFieldForms.buildFormsData()
-      if (aformData === false) return
+      if (aformData === false) return false
     }
 
     let selectUsers
     if (state === 10) {
       selectUsers = this.getSelectUsers()
-      if (!selectUsers) return
+      if (!selectUsers) return false
     }
 
     const data = {
-      remark: this.state.remark || '',
+      remark: this.state.remark || null,
       selectUsers: selectUsers,
       aformData: aformData,
       useGroup: this.state.useGroup,
+    }
+    // v4.0
+    if (this.state.remarkReq >= 1 && $empty(data.remark)) {
+      RbHighbar.createl('请填写批注')
+      return false
     }
 
     _alert && _alert.disabled(true, true)
