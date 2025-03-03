@@ -460,7 +460,7 @@ class RbForm extends React.Component {
     }
 
     return (
-      <div className="detail-form-table">
+      <div className="detail-form-table" data-entity={detailMeta.entity}>
         <div className="row">
           <div className="col">
             <h5 className="mt-2 mb-0 text-bold fs-14">
@@ -469,7 +469,7 @@ class RbForm extends React.Component {
             </h5>
           </div>
 
-          <div className="col text-right">
+          <div className="col text-right detail-form-action">
             {_detailImports.length > 0 && (
               <div className="btn-group mr-2">
                 <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
