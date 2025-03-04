@@ -116,7 +116,7 @@ class ConfigList extends React.Component {
   }
   loadDataAfter() {}
   getSearchKey() {
-    return $('.input-search input').val() || ''
+    return $trim($('.input-search input').val())
   }
 
   // 渲染实体树

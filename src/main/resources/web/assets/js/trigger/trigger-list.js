@@ -73,8 +73,10 @@ class TriggerList extends ConfigList {
         {(this.state.data || []).map((item) => {
           // v4.0 渲染时过滤
           if (q) {
-            let name = [item[3], item[2], item[7]].join(';').toLowerCase()
-            if (!name.includes(q.toLowerCase())) return null
+            let names = [item[3], item[2], item[7]]
+            if (item[9] && item[9][1]) names.push(item[9][1])
+            names = names.join(';').toLowerCase()
+            if (!names.includes(q.toLowerCase())) return null
           }
 
           let targetRef = item[9]

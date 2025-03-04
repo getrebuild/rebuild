@@ -421,3 +421,7 @@ form.field-attr label > span {
 .form-action-menu .dropdown-item > div.action > span:hover {
   color: #4285f4 !important;
 }
+
+#FIELDNEW .bosskey-show {
+  display: none !important;
+}
