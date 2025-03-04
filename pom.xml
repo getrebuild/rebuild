@@ -555,12 +555,12 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
-            <version>4.1.118.final</version>
+            <version>4.1.118.Final</version>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-resolver-dns</artifactId>
-            <version>4.1.112.Final</version>
+            <version>4.1.118.Final</version>
         </dependency>
     </dependencies>
 </project>
