@@ -100,7 +100,8 @@ public class EntityHelper {
             return new DeleteRecord(ID.valueOf(id), user, true);
         }
 
-        Record record = new EntityRecordCreator(MetadataHelper.getEntity(entityName), data, user, safetyUrl)
+        Record record = new EntityRecordCreator(
+                MetadataHelper.getEntity(entityName), data, user, safetyUrl)
                 .create(false);
 
         // v3.4 表单后端回填

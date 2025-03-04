@@ -33,6 +33,7 @@ public class CommonsLog {
 
     public static final String TYPE_TRIGGER = "TRIGGER";
     public static final String TYPE_EXPORT = "EXPORT";
+    public static final String TYPE_REPORT = "REPORT";
     public static final String TYPE_ACCESS = "ACCESS";
     public static final String TYPE_EXTFORM = "EXTFORM";
     public static final String TYPE_TRANSFORM = "TRANSFORM";

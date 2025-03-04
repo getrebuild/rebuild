@@ -915,15 +915,7 @@ class ApprovalList extends BaseChart {
                       <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} alt="Avatar" />
                       <span>{item[1]}</span>
                       <span className="cell-detail-description">
-                        <div className="float-left" style={{ marginTop: item[8] >= 2 ? 3 : 0 }}>
-                          <DateShow date={item[2]} />
-                        </div>
-                        {item[8] >= 2 && (
-                          <div className="float-left" style={{ marginTop: 1 }}>
-                            <span className="float-left badge badge-sm badge-danger m-0 ml-1">{$L('已超时 %s', $sec2Time(item[8]))}</span>
-                          </div>
-                        )}
-                        <div className="clearfix" />
+                        <DateShow date={item[2]} />
                       </span>
                     </td>
                     <td className="cell-detail">
@@ -934,9 +926,16 @@ class ApprovalList extends BaseChart {
                     </td>
                     <td className="actions text-right text-nowrap">
                       {this.state.viewState === 1 && (
-                        <button className="btn btn-secondary btn-sm" onClick={() => this.approve(item[3], item[5], item[7])}>
-                          {$L('审批')}
-                        </button>
+                        <RF>
+                          <button className="btn btn-secondary btn-sm" onClick={() => this.approve(item[3], item[5], item[7])}>
+                            {$L('审批')}
+                          </button>
+                          {item[8] >= 2 && (
+                            <span className="float-left badge badge-sm badge-danger" style={{ marginTop: 3 }}>
+                              {$L('已超时 %s', $sec2Time(item[8]))}
+                            </span>
+                          )}
+                        </RF>
                       )}
                       {this.state.viewState === 10 && <span className="text-success">{$L('通过')}</span>}
                       {this.state.viewState === 11 && <span className="text-danger">{$L('驳回')}</span>}
@@ -1037,7 +1036,7 @@ class FeedsSchedule extends BaseChart {
                 } else if ($expired(item.scheduleTime, -60 * 60 * 24 * 3)) {
                   scheduleTimeTip = <span className="badge badge-warning">{$fromNow(item.scheduleTime)}</span>
                 } else {
-                  scheduleTimeTip = <span className="badge badge-primary">{$fromNow(item.scheduleTime)}</span>
+                  scheduleTimeTip = <span className="badge badge-info">{$fromNow(item.scheduleTime)}</span>
                 }
 
                 return (
@@ -1298,7 +1297,7 @@ class ProjectTasks extends BaseChart {
                   } else if ($expired(item.deadline, -60 * 60 * 24 * 3)) {
                     deadlineClass = 'badge-warning'
                   } else {
-                    deadlineClass = 'badge-primary'
+                    deadlineClass = 'badge-info'
                   }
                 }
 
@@ -1662,11 +1661,31 @@ class HeadingText extends BaseChart {
     const H = (
       <div className="must-center">
         <h1 className="m-0 text-ellipsis" style={style2}>
-          {config2.title || $L('标题文字')}
+          {this._flashContent(config2.title)}
         </h1>
       </div>
     )
-    this.setState({ chartdata: H }, () => {})
+    this.setState({ chartdata: H }, () => {
+      if (this.__timer) {
+        clearInterval(this.__timer)
+        this.__timer = null
+      }
+
+      if (config2.title && config2.title.includes('{NOW}')) {
+        this.__timer = setInterval(() => {
+          $(this._$box).find('h1').text(this._flashContent(config2.title))
+        }, 1000)
+      }
+    })
+  }
+
+  _flashContent(text) {
+    if (text) {
+      if (text.includes('{NOW}')) text = text.replace('{NOW}', moment().format('YYYY-MM-DD HH:mm:ss'))
+      if (text.includes('{USER}')) text = text.replace('{USER}', $('.rb-user-nav .user-name:eq(0)').text())
+      return text
+    }
+    return $L('标题文字')
   }
 
   componentDidMount() {

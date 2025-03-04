@@ -87,7 +87,7 @@ const render_entity = function (item) {
 
 $(document).bind('keydown', 'ctrl+f', (e) => {
   $stopEvent(e, true)
-  renderRbcomp(<EntitySearcher />)
+  renderRbcomp(<EntitySearcher className="modal-dialog-centered-unset" />)
 })
 
 // v4.0 搜索
@@ -113,7 +113,7 @@ class EntitySearcher extends RbAlert {
                   <li key={idx}>
                     <a href={item.entity ? `./entity/${item.entity}/field/${item.name}` : `./entity/${item.name}/base`} target="_blank">
                       <span>{WrapHtml(item.label.replace(this.__q, `<b>${this.__q}</b>`))}</span>
-                      <div className="float-right">{item.entity ? <span className="badge badge-info">{$L('字段')}</span> : <span className="badge badge-success">{$L('实体')}</span>}</div>
+                      <div className="float-right">{item.entity ? <span className="badge badge-light">{$L('字段')}</span> : <span className="badge badge-info">{$L('实体')}</span>}</div>
                     </a>
                   </li>
                 )
@@ -126,9 +126,7 @@ class EntitySearcher extends RbAlert {
 
   componentDidMount() {
     super.componentDidMount()
-
     this._$searchValue.focus()
-    $(this._element).find('.modal-dialog-centered').removeClass('modal-dialog-centered')
   }
 
   searchMeta(q) {

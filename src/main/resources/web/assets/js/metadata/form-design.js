@@ -87,7 +87,8 @@ $(document).ready(() => {
   // @see field-type.js
   for (let k in FIELD_TYPES) {
     const ft = FIELD_TYPES[k]
-    if (!ft[2]) render_type({ name: k, label: ft[0], icon: ft[1] })
+    const $type = render_type({ name: k, label: ft[0], icon: ft[1] })
+    if (ft[2]) $type.addClass('bosskey-show')
   }
 
   // v3.7, v3.8
