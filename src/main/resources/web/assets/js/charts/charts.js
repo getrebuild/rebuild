@@ -1661,11 +1661,31 @@ class HeadingText extends BaseChart {
     const H = (
       <div className="must-center">
         <h1 className="m-0 text-ellipsis" style={style2}>
-          {config2.title || $L('标题文字')}
+          {this._flashContent(config2.title)}
         </h1>
       </div>
     )
-    this.setState({ chartdata: H }, () => {})
+    this.setState({ chartdata: H }, () => {
+      if (this.__timer) {
+        clearInterval(this.__timer)
+        this.__timer = null
+      }
+
+      if (config2.title && config2.title.includes('{NOW}')) {
+        this.__timer = setInterval(() => {
+          $(this._$box).find('h1').text(this._flashContent(config2.title))
+        }, 1000)
+      }
+    })
+  }
+
+  _flashContent(text) {
+    if (text) {
+      if (text.includes('{NOW}')) text = text.replace('{NOW}', moment().format('YYYY-MM-DD HH:mm:ss'))
+      if (text.includes('{USER}')) text = text.replace('{USER}', $('.rb-user-nav .user-name:eq(0)').text())
+      return text
+    }
+    return $L('标题文字')
   }
 
   componentDidMount() {
