@@ -7,11 +7,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
 import cn.devezhao.persist4j.record.JsonRecordCreator;
@@ -21,6 +23,8 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.EasyText;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
@@ -30,6 +34,7 @@ import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -64,6 +69,29 @@ public class EntityRecordCreator extends JsonRecordCreator {
     public EntityRecordCreator(Entity entity, JSONObject source, ID editor, boolean safedUrl) {
         super(entity, source, editor);
         this.safetyUrl = safedUrl;
+    }
+
+    @Override
+    public boolean setFieldValue(Field field, String value, Record record) {
+        // v4.0
+        if ("{@CURRENT}".equals(value) || "{CURRENT}".equals(value)) {
+            Type fieldType = field.getType();
+            if (fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP || fieldType == FieldType.TIME) {
+                value = CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
+            } else {
+                Entity entityOfRef = field.getReferenceEntity();
+                if (entityOfRef != null) {
+                    if (entityOfRef.getEntityCode() == EntityHelper.User) {
+                        value = this.editor.toString();
+                    } else if (entityOfRef.getEntityCode() == EntityHelper.Department) {
+                        Department d = UserHelper.getDepartment(this.editor);
+                        value = Objects.requireNonNull(d).getIdentity().toString();
+                    }
+                }
+            }
+        }
+
+        return super.setFieldValue(field, value, record);
     }
 
     @Override

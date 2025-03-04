@@ -160,9 +160,10 @@ class FieldValueSet extends React.Component {
         }
       })
     } else if (field.type === 'REFERENCE' || field.type === 'N2NREFERENCE' || field.type === 'CLASSIFICATION') {
-      $.get(`/commons/search/read-labels?ids=${val}`, (res) => {
-        for (let id in res.data || {}) {
-          const o = new Option(res.data[id], id, true, true)
+      $.get(`/commons/search/read-labels?ids=${$encode(val)}`, (res) => {
+        const _data = res.data || {}
+        for (let id in _data) {
+          const o = new Option(_data[id], id, true, true)
           this.__$select2.append(o)
         }
       })
@@ -192,7 +193,7 @@ FieldValueSet.formatFieldText = function (value, field) {
 
   if (field.type === 'REFERENCE' || field.type === 'N2NREFERENCE' || field.type === 'CLASSIFICATION') {
     const result = $.ajax({
-      url: `/commons/search/read-labels?ids=${value}`,
+      url: `/commons/search/read-labels?ids=${$encode(value)}`,
       async: false,
     }).responseJSON
 
