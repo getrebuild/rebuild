@@ -931,7 +931,7 @@ class ApprovalList extends BaseChart {
                             {$L('审批')}
                           </button>
                           {item[8] >= 2 && (
-                            <span className="float-left badge badge-sm badge-warning" style={{ marginTop: 3 }}>
+                            <span className="float-left badge badge-sm badge-danger" style={{ marginTop: 3 }}>
                               {$L('已超时 %s', $sec2Time(item[8]))}
                             </span>
                           )}
@@ -1036,7 +1036,7 @@ class FeedsSchedule extends BaseChart {
                 } else if ($expired(item.scheduleTime, -60 * 60 * 24 * 3)) {
                   scheduleTimeTip = <span className="badge badge-warning">{$fromNow(item.scheduleTime)}</span>
                 } else {
-                  scheduleTimeTip = <span className="badge badge-primary">{$fromNow(item.scheduleTime)}</span>
+                  scheduleTimeTip = <span className="badge badge-info">{$fromNow(item.scheduleTime)}</span>
                 }
 
                 return (
@@ -1297,7 +1297,7 @@ class ProjectTasks extends BaseChart {
                   } else if ($expired(item.deadline, -60 * 60 * 24 * 3)) {
                     deadlineClass = 'badge-warning'
                   } else {
-                    deadlineClass = 'badge-primary'
+                    deadlineClass = 'badge-info'
                   }
                 }
 
