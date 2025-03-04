@@ -255,7 +255,7 @@ class RbAlert extends React.Component {
 
     return (
       <div
-        className="modal rbalert"
+        className={`modal rbalert ${this.props.className || ''}`}
         aria-modal="true"
         style={style1}
         ref={(c) => {
