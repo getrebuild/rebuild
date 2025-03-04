@@ -108,6 +108,9 @@ public class ReportsController extends BaseController {
 
             if (reportGenerator != null) output = reportGenerator.generate();
 
+            CommonsLog.createLog(CommonsLog.TYPE_REPORT,
+                    getRequestUser(request), reportId, StringUtils.join(recordIds, ";"));
+
         } catch (ExcelRuntimeException ex) {
             log.error(null, ex);
         }
