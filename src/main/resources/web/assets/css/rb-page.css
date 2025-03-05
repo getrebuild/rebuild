@@ -5946,3 +5946,21 @@ div.formula-code {
 .modal-dialog-centered-unset .modal-dialog-centered {
   display: block;
 }
+
+.rb-navless40 .rb-wrapper {
+  padding-top: 0;
+}
+
+.rb-navless40 .rb-wrapper > .navbar,
+.rb-navless40 .rb-wrapper > .rb-left-sidebar {
+  display: none;
+}
+
+.rb-navless40 .rb-wrapper > .rb-content {
+  margin: 0;
+}
+
+.rb-navless40 .rb-wrapper > .rb-content > .page-aside {
+  left: 0;
+  margin: 0;
+}

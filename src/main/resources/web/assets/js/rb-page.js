@@ -26,6 +26,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // PAGE INITIAL
 $(function () {
+  // navless
+  if (~~$urlp('navless') === 1) $(document.body).addClass('rb-navless40')
+
   // scroller
   var $t = $('.rb-scroller')
   $t.perfectScrollbar()
