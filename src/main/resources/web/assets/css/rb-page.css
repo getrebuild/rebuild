@@ -5964,3 +5964,30 @@ div.formula-code {
   left: 0;
   margin: 0;
 }
+
+.rbform .dialog-footer .fjs-dock,
+.rbform .detail-form-table .detail-form-action .fjs-dock,
+.dataTables_wrapper .dataTables_oper .fjs-dock {
+  display: inline-block;
+}
+
+.rbform .dialog-footer .fjs-dock:empty,
+.rbform .detail-form-table .detail-form-action .fjs-dock:empty,
+.dataTables_wrapper .dataTables_oper .fjs-dock:empty,
+.view-body .view-operating .fjs-dock:empty {
+  display: none;
+}
+
+.rbform .dialog-footer .fjs-dock > *,
+.rbform .detail-form-table .detail-form-action .fjs-dock > *,
+.dataTables_wrapper .dataTables_oper .fjs-dock > * {
+  margin-right: 10px;
+}
+
+.dataTables_wrapper .dataTables_oper .fjs-dock {
+  transform: translateY(-2.5px);
+}
+
+.dataTables_wrapper .dataTables_oper .fjs-dock > *:last-child {
+  margin-right: 5px;
+}

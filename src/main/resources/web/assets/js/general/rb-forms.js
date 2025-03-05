@@ -462,14 +462,15 @@ class RbForm extends React.Component {
     return (
       <div className="detail-form-table" data-entity={detailMeta.entity}>
         <div className="row">
-          <div className="col">
+          <div className="col-4">
             <h5 className="mt-2 mb-0 text-bold fs-14">
               <i className={`icon zmdi zmdi-${detailMeta.icon} fs-15 mr-2`} />
               {detailMeta.entityLabel}
             </h5>
           </div>
 
-          <div className="col text-right detail-form-action">
+          <div className="col-8 text-right detail-form-action">
+            <div className="fjs-dock"></div>
             {_detailImports.length > 0 && (
               <div className="btn-group mr-2">
                 <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
@@ -593,6 +594,7 @@ class RbForm extends React.Component {
 
     return (
       <div className="dialog-footer" ref={(c) => (this._$formAction = c)}>
+        <div className="fjs-dock"></div>
         <button className="btn btn-secondary btn-space" type="button" onClick={() => props.$$$parent.hide()}>
           {cancelText || $L('取消')}
         </button>
