@@ -72,10 +72,7 @@ $(document).ready(() => {
       $mm.find('.note dd:eq(1)').text(_data.note || $L('无'))
       $mm.find('.note').show()
     } else {
-      $mm.find('.btn').on('click', () => {
-        if (rb.commercial < 1) return RbHighbar.error(WrapHtml($L('免费版不支持开启维护计划功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-        renderRbcomp(<DlgMM />)
-      })
+      $mm.find('.btn').on('click', () => renderRbcomp(<DlgMM />))
     }
   })
 
@@ -295,7 +292,7 @@ class DlgMM extends RbAlert {
 // ~~ App
 
 $(document).ready(() => {
-  if (rb.commercial < 1) {
+  if (rb.commercial < 10) {
     $('.td-MobileAppPath button').remove()
     return
   }
