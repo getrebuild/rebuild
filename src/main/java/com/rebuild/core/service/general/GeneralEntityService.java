@@ -140,10 +140,6 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             final boolean checkDetailsRepeated = rcm == GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS
                     || rcm == GeneralEntityServiceContextHolder.RCM_CHECK_ALL;
 
-            // 明细可能有自己的 Service
-            EntityService des = Application.getEntityService(detailEntity.getEntityCode());
-            if (des.getEntityCode() == 0) des = this;
-
             // 先删除
             for (int i = 0; i < details.size(); i++) {
                 Record d = details.get(i);
@@ -152,7 +148,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     if (((DeleteRecord) d).isQuietly()) {
                         Application.getCommonsService().delete(d.getPrimary(), false);
                     } else {
-                        des.delete(d.getPrimary());
+                        getDetailEntityService(d.getEntity()).delete(d.getPrimary());
                         detaileds.put(i, d.getPrimary());
                     }
                 }
@@ -162,6 +158,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             for (int i = 0; i < details.size(); i++) {
                 Record d = details.get(i);
                 if (d instanceof DeleteRecord) continue;
+
+                EntityService des = getDetailEntityService(d.getEntity());
 
                 if (checkDetailsRepeated) {
                     d.setID(dtfField, mainid);  // for check
@@ -187,6 +185,13 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         } finally {
             RobotTriggerObserver.executeLazyTriggers(this);
         }
+    }
+
+    // 明细可能有自己的 Service
+    private EntityService getDetailEntityService(Entity detailEntity) {
+        EntityService des = Application.getEntityService(detailEntity.getEntityCode());
+        if (des.getEntityCode() == 0) des = this;
+        return des;
     }
 
     /**
