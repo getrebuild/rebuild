@@ -548,40 +548,42 @@ class RbForm extends React.Component {
 
   renderFormAction() {
     const props = this.props
+    const parentProps = props.$$$parent ? props.$$$parent.props || {} : {}
     let moreActions = []
     // 添加明细
     if (props.rawModel.mainMeta) {
-      // in New
-      if (props.$$$parent && props.$$$parent.props._nextAddDetail) {
-        moreActions.push(
-          <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_NEWDETAIL)}>
-            {$L('保存并添加')}
-          </a>
-        )
-      }
-    }
-    // 列表页保存并继续
-    else if (window.RbViewModal && window.__PageConfig.type === 'RecordList') {
-      if (window.__LAB_FORMACTION_105 || props.rawModel.extrasAction) {
-        moreActions.push(
-          <a key="Action105" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADD36)}>
-            {$L('保存并新建')}
-          </a>
-        )
-      }
-      if ((window.__LAB_FORMACTION_103 || props.rawModel.extrasAction) && props.rawModel.hadApproval && window.ApprovalSubmitForm) {
-        moreActions.push(
-          <a key="Action103" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_SUBMIT37)}>
-            {$L('保存并提交')}
-          </a>
-        )
-      }
-
       moreActions.push(
-        <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_VIEW)}>
-          {$L('保存并打开')}
+        <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_NEWDETAIL)}>
+          {$L('保存并添加')}
         </a>
       )
+    } else {
+      // 列表页保存并...
+      const inList = window.RbViewModal && window.__PageConfig.type === 'RecordList'
+      if (inList) {
+        if (window.__LAB_FORMACTION_105 || props.rawModel.extrasAction) {
+          moreActions.push(
+            <a key="Action105" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADD36)}>
+              {$L('保存并新建')}
+            </a>
+          )
+        }
+        if ((window.__LAB_FORMACTION_103 || props.rawModel.extrasAction) && props.rawModel.hadApproval && window.ApprovalSubmitForm) {
+          moreActions.push(
+            <a key="Action103" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_SUBMIT37)}>
+              {$L('保存并提交')}
+            </a>
+          )
+        }
+      }
+
+      if (inList || parentProps._nextOpen) {
+        moreActions.push(
+          <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_VIEW)}>
+            {$L('保存并打开')}
+          </a>
+        )
+      }
     }
 
     // @see #_postAfterExec
@@ -832,9 +834,15 @@ class RbForm extends React.Component {
             const dm = this.props.rawModel.entityMeta
             RbFormModal.create({ title: $L('添加%s', dm.entityLabel), entity: dm.entity, icon: dm.icon, initialValue: iv })
             // ~
-          } else if (next === RbForm.NEXT_VIEW && window.RbViewModal) {
-            window.RbViewModal.create({ id: recordId, entity: this.state.entity })
-            if (window.RbListPage) location.hash = `!/View/${this.state.entity}/${recordId}`
+          } else if (next === RbForm.NEXT_VIEW) {
+            if (window.RbViewModal) {
+              window.RbViewModal.create({ id: recordId, entity: this.state.entity })
+              if (window.RbListPage) location.hash = `!/View/${this.state.entity}/${recordId}`
+            } else if (parent && parent.RbViewModal) {
+              parent.RbViewModal.create({ id: recordId, entity: this.state.entity }, true)
+            } else {
+              window.open(`${rb.baseUrl}/app/redirect?id=${recordId}&type=dock`)
+            }
             // ~
           } else if (next === RbForm.NEXT_ADD36) {
             let titleNew = $$$parent.state.title
