@@ -552,11 +552,13 @@ class RbForm extends React.Component {
     let moreActions = []
     // 添加明细
     if (props.rawModel.mainMeta) {
-      moreActions.push(
-        <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_NEWDETAIL)}>
-          {$L('保存并添加')}
-        </a>
-      )
+      if (parentProps._nextAddDetail) {
+        moreActions.push(
+          <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_NEWDETAIL)}>
+            {$L('保存并添加')}
+          </a>
+        )
+      }
     } else {
       // 列表页保存并...
       const inList = window.RbViewModal && window.__PageConfig.type === 'RecordList'
@@ -577,7 +579,7 @@ class RbForm extends React.Component {
         }
       }
 
-      if (inList || parentProps._nextOpen) {
+      if (inList || parentProps._nextOpenView) {
         moreActions.push(
           <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_VIEW)}>
             {$L('保存并打开')}
