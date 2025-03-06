@@ -51,7 +51,7 @@ class ProTable extends React.Component {
                       className="custom-control-input"
                       type="checkbox"
                       onChange={(e) => {
-                        $(this._$tbody).find('.col-checkbox input').attr('checked', e.target.checked)
+                        $(this._$tbody).find('.col-checkbox input').prop('checked', e.target.checked)
                       }}
                     />
                     <i className="custom-control-label" />
