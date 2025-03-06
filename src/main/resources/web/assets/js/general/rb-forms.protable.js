@@ -14,6 +14,8 @@ const _PT_COLUMN_MAX_WIDTH = 500
 const _PT_COLUMN_DEF_WIDTH = 200
 const _PT_COLUMN_WIDTH_PLUS = ['REFERENCE', 'N2NREFERENCE', 'CLASSIFICATION']
 
+const _EXTCONFIG = window.__LAB40_PROTABLE_EXTCONFIG || {}
+
 class ProTable extends React.Component {
   constructor(props) {
     super(props)
@@ -34,6 +36,7 @@ class ProTable extends React.Component {
     const formFields = this.state.formFields
     const details = this.state.details || [] // 编辑时有
     const fixedWidth = formFields.length <= 5
+    const extConf40 = _EXTCONFIG[this.props.entity.entity] || {}
 
     return (
       <div className={`protable rb-scroller ${!fixedWidth && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
@@ -41,7 +44,7 @@ class ProTable extends React.Component {
           <thead>
             <tr>
               <th className="col-index" />
-              {props.showCheckbox && (
+              {extConf40.showCheckbox && (
                 <th className="col-checkbox">
                   <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
                     <input
@@ -55,7 +58,7 @@ class ProTable extends React.Component {
                   </label>
                 </th>
               )}
-              {props.treeConfig && <th className="col-tree"></th>}
+              {extConf40.showTreeConfig && <th className="col-tree" />}
               {formFields.map((item) => {
                 if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
 
@@ -98,7 +101,7 @@ class ProTable extends React.Component {
                       </a>
                     )}
                   </th>
-                  {props.showCheckbox && (
+                  {extConf40.showCheckbox && (
                     <td className="col-checkbox">
                       <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
                         <input className="custom-control-input" type="checkbox" />
@@ -106,7 +109,7 @@ class ProTable extends React.Component {
                       </label>
                     </td>
                   )}
-                  {props.treeConfig && (
+                  {extConf40.treeConfig && (
                     <td className="col-tree">
                       <a className={`col-tree-level-${idx}`}>
                         <i className="zmdi zmdi-chevron-right  " />
@@ -128,12 +131,12 @@ class ProTable extends React.Component {
               )
             })}
           </tbody>
-          {props.showCounts && (
+          {extConf40.showCounts && (
             <tfoot>
               <tr>
                 <th className="col-idx" />
-                {props.showCheckbox && <th className="col-checkbox" />}
-                {props.treeConfig && <th className="col-tree" />}
+                {extConf40.showCheckbox && <th className="col-checkbox" />}
+                {extConf40.showTreeConfig && <th className="col-tree" />}
                 {formFields.map((item) => {
                   if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
 
@@ -203,7 +206,8 @@ class ProTable extends React.Component {
   // prevProps, prevState, snapshot
   componentDidUpdate = () => this._componentDidUpdate()
   _componentDidUpdate() {
-    if (!this.props.showCounts || this._countsStateUpdate) return
+    const extConf40 = _EXTCONFIG[this.props.entity.entity] || {}
+    if (!extConf40.showCounts || this._countsStateUpdate) return
 
     // 计算合计
     if (this._countsTimer) clearTimeout(this._countsTimer)
