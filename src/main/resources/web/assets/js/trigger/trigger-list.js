@@ -131,7 +131,7 @@ class TriggerList extends ConfigList {
               </td>
               <td>{ShowEnable(item[4], item[0])}</td>
               <td>
-                <DateShow date={item[5]} />
+                <DateShow date={item[5]} title={`${$L('修改时间')} : ${item[5].split('UTC')[0]}\n${$L('添加时间')} : ${item[10]}`} />
               </td>
               <td className="actions">
                 <a className="icon" title={$L('触发过程')} onClick={() => this.handleShowChain(item[0])}>

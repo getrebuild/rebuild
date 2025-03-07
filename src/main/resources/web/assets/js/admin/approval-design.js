@@ -759,7 +759,23 @@ class ApproverNodeConfig extends StartNodeConfig {
                   })}
                 </select>
                 <label className="mt-2 mb-1">{$L('通知内容')}</label>
-                <textarea className="form-control form-control-sm row2x" placeholder={$L('有一条记录正在等待你审批，请及时处理')} name="expiresAutoUrgeMsg"></textarea>
+                <textarea className="form-control form-control-sm row2x" placeholder={$L('有一条记录正在等待你审批，请及时处理')} name="expiresAutoUrgeMsg" />
+                <div className="mt-2">
+                  <div className="row">
+                    <div className="col pr-2">
+                      <label className="mb-1">
+                        {$L('提前通知')} ({$L('小时')})
+                      </label>
+                      <input className="form-control form-control-sm" placeholder={$L('不提前')} name="expiresAutoUrgeEarly" />
+                    </div>
+                    <div className="col pl-2">
+                      <label className="mb-1">
+                        {$L('重复通知')} ({$L('小时')})
+                      </label>
+                      <input className="form-control form-control-sm" placeholder={$L('不重复')} name="expiresAutoUrgeRepeat" />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

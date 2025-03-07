@@ -331,13 +331,22 @@ public class FlowNode {
      * @param recordId
      * @param approver
      * @return `>=2` 表示超时时间
-     * @see ApprovalExpiresAutoJob#getExpiredTime(Date, JSONObject, ID)
      */
     public long getRemarkReq(ID recordId, ID approver) {
         // 0=选填, 1=必填, 2=超时必填
         int reqType = getDataMap().getIntValue("remarkReq");
         if (reqType < 2) return reqType;
 
+        return getExpiredTime(recordId, approver);
+    }
+
+    /**
+     * @param recordId
+     * @param approver
+     * @return
+     * @see com.rebuild.rbv.approval.ApprovalExpiresAutoJob#getExpiredTime(Date, JSONObject, ID)
+     */
+    public long getExpiredTime(ID recordId, ID approver) {
         // 超时必填 @see ApprovalExpiresAutoJob
         Object[] stepApprover = Application.createQueryNoFilter(
                 "select createdOn,stepId from RobotApprovalStep where recordId = ? and approver = ? and node = ? and isCanceled = 'F' order by createdOn desc")

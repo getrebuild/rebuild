@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.TransformManager;
@@ -93,16 +94,16 @@ public class TriggerAdminController extends BaseController {
     }
 
     @GetMapping("trigger/available-actions")
-    public List<String[]> getAvailableActions() {
+    public RespBody getAvailableActions() {
         List<String[]> alist = new ArrayList<>();
         for (ActionType t : ActionFactory.getAvailableActions()) {
-            alist.add(new String[] { t.name(), Language.L(t) });
+            alist.add(new String[]{t.name(), Language.L(t)});
         }
-        return alist;
+        return RespBody.ok(alist);
     }
 
     @GetMapping("trigger/available-entities")
-    public List<String[]> getAvailableEntities(HttpServletRequest request) {
+    public RespBody getAvailableEntities(HttpServletRequest request) {
         String actionType = getParameterNotNull(request, "action");
         TriggerAction action = ActionFactory.createAction(actionType);
 
@@ -112,14 +113,14 @@ public class TriggerAdminController extends BaseController {
                 alist.add(new String[]{e.getName(), EasyMetaFactory.getLabel(e)});
             }
         }
-        return alist;
+        return RespBody.ok(alist);
     }
 
     @GetMapping("trigger/list")
-    public Object[][] triggerList(HttpServletRequest request) {
+    public RespBody triggerList(HttpServletRequest request) {
         String belongEntity = getParameter(request, "entity");
         String q = getParameter(request, "q");
-        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,when,actionType,priority,actionContent from RobotTriggerConfig" +
+        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,when,actionType,priority,actionContent,createdOn from RobotTriggerConfig" +
                 " where (1=1) and (2=2)" +
                 " order by modifiedOn desc, name";
 
@@ -129,7 +130,7 @@ public class TriggerAdminController extends BaseController {
             // 目标实体
             o[9] = tryParseTargetEntity((String) o[9], (String) o[1]);
         }
-        return array;
+        return RespBody.ok(array);
     }
 
     /**

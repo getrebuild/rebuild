@@ -112,7 +112,7 @@ public class ApprovalList extends ChartData implements BuiltinChart {
                     o[3],
                     EasyMetaFactory.getLabel(e),
                     e.getName(),
-                    currentNode == null ? 0 : currentNode.getRemarkReq(recordId, getUser())
+                    currentNode == null ? 0 : currentNode.getExpiredTime(recordId, getUser())
             });
         }
 
