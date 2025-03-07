@@ -99,7 +99,7 @@
         <field name="icon" type="string" max-length="60"/>
         <field name="nameField" type="string" max-length="100"/>
         <field name="masterEntity" type="string" max-length="100" updatable="false" description="所属主实体 (明细实体)"/>
-        <field name="extConfig" type="string" max-length="700" description="扩展配置 (JSON Map)"/>
+        <field name="extConfig" type="string" max-length="2000" description="扩展配置 (JSON Map)"/>
         <index type="unique" field-list="typeCode"/>
         <index type="unique" field-list="entityName"/>
         <index type="unique" field-list="physicalName"/>
@@ -122,7 +122,7 @@
         <field name="refEntity" type="string" max-length="100"/>
         <field name="cascade" type="string" max-length="20"/>
         <field name="comments" type="string" max-length="300"/>
-        <field name="extConfig" type="string" max-length="700" description="扩展配置 (JSON Map)"/>
+        <field name="extConfig" type="string" max-length="2000" description="扩展配置 (JSON Map)"/>
         <index type="unique" field-list="belongEntity,fieldName"/>
         <index type="unique" field-list="belongEntity,physicalName"/>
     </entity>
@@ -207,7 +207,7 @@
     <entity name="SystemConfig" type-code="021" description="通用配置" queryable="false" parent="false">
         <field name="configId" type="primary"/>
         <field name="item" type="string" max-length="100" nullable="false" updatable="false"/>
-        <field name="value" type="string" max-length="600" nullable="false"/>
+        <field name="value" type="string" max-length="2000" nullable="false"/>
         <index type="unique" field-list="item"/>
     </entity>
 
@@ -263,7 +263,7 @@
         <field name="belongField" type="string" max-length="100" nullable="false" updatable="false"/>
         <field name="sourceField" type="string" max-length="100" nullable="false" description="引用实体的字段"/>
         <field name="targetField" type="string" max-length="100" nullable="false" description="当前实体的字段"/>
-        <field name="extConfig" type="string" max-length="700" description="扩展配置 (JSON Map)"/>
+        <field name="extConfig" type="string" max-length="2000" description="扩展配置 (JSON Map)"/>
     </entity>
 
     <entity name="RobotTriggerConfig" type-code="027" description="触发器" queryable="false" name-field="name">

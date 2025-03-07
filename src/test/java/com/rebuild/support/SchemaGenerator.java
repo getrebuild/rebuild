@@ -74,11 +74,11 @@ public class SchemaGenerator {
                 dialect,
                 root.selectSingleNode("//entity[@name='" + entity.getName() + "']").selectNodes("index"));
 
-        String[] ddl = table.generateDDL(false, false, false);
+        String[] ddls = table.generateDDL(false, false, false);
 
         StringBuffer sb = new StringBuffer();
         sb.append("-- ************ Entity [").append(entity.getName()).append("] DDL ************\n");
-        for (String d : ddl) {
+        for (String d : ddls) {
             sb.append(d).append("\n");
         }
         System.out.println(sb);

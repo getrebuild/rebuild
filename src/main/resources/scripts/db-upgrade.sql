@@ -1,6 +1,16 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #61 (v4.0)
+alter table `meta_entity`
+  change column `EXT_CONFIG` `EXT_CONFIG` varchar(2000) comment '扩展配置 (JSON Map)';
+alter table `meta_field`
+  change column `EXT_CONFIG` `EXT_CONFIG` varchar(2000) comment '扩展配置 (JSON Map)';
+alter table `system_config`
+  change column `VALUE` `VALUE` varchar(2000) not null;
+alter table `auto_fillin_config`
+  change column `EXT_CONFIG` `EXT_CONFIG` varchar(2000) comment '扩展配置 (JSON Map)';
+
 -- #60 (v3.9)
 alter table `user`
   add column `SEQ` int(11) default '0' comment '排序 (小到大)';
