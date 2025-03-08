@@ -244,7 +244,7 @@ const loadPrivileges = function () {
             }
           } else if (k === 'FP') {
             fieldpSettings[entity] = defs[k]
-            $name.parent().find('span>a').addClass('active')
+            $name.parent().find('span>a').addClass('active').parent().removeClass('bosskey-show')
           } else {
             $tr.find(`i.priv[data-action="${k}"]`).removeClass('R0 R1 R2 R3 R4').addClass(`R${defs[k]}`)
           }
