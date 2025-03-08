@@ -55,8 +55,17 @@ $(document).ready(() => {
   // 批量操作
   $('#priv-entity tbody .name>a').on('click', function () {
     const $items = $(this).parent().parent().find('.priv')
-    const clz = $items.eq(0).hasClass('R0') ? 'R4' : 'R0'
+    let clz = 'R0'
+    let item = $items.eq(1)
+    if (item.hasClass('R0')) clz = 'R1'
+    else if (item.hasClass('R1')) clz = 'R2'
+    else if (item.hasClass('R2')) clz = 'R3'
+    else if (item.hasClass('R3')) clz = 'R4'
+    else if (item.hasClass('R4')) clz = 'R0'
     $items.removeClass('R0 R1 R2 R3 R4').addClass(clz)
+    // for New
+    if (clz === 'R0') $items.eq(0).removeClass('R0 R1 R2 R3 R4').addClass('R0')
+    else $items.eq(0).removeClass('R0 R1 R2 R3 R4').addClass('R4')
   })
   // v3.8 字段权限
   $('#priv-entity tbody .name>span>a').on('click', function () {
