@@ -6041,6 +6041,16 @@ div.formula-code {
   color: var(--rb-theme-color);
 }
 
+.protable .table .col-tree a > span {
+  font-size: 11px;
+  display: inline-block;
+  transform: translateY(-2px);
+}
+
+.protable .table .col-tree a > span ~ i {
+  display: none;
+}
+
 .protable .table .col-tree a.col-tree-level-1 {
   margin-left: 9px;
 }
