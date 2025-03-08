@@ -109,7 +109,7 @@ class ProTable extends React.Component {
                       </label>
                     </td>
                   )}
-                  {extConf40.treeConfig && (
+                  {extConf40.showTreeConfig && (
                     <td className="col-tree">
                       <a className={`col-tree-level-${idx}`}>
                         <i className="zmdi zmdi-chevron-right  " />
