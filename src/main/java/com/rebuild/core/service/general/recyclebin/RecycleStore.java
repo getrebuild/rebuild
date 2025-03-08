@@ -10,6 +10,7 @@ package com.rebuild.core.service.general.recyclebin;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -93,7 +94,15 @@ public class RecycleStore {
             clone.setString("belongEntity", belongEntity.getName());
 
             JSONObject recordContent = (JSONObject) o[1];
-            String recordName = recordContent.getString(belongEntity.getNameField().getName());
+            String recordName;
+            if (belongEntity.getNameField().getType() == FieldType.REFERENCE) {
+                Object id = recordContent.get(belongEntity.getNameField().getName());
+                if (id instanceof ID) recordName = FieldValueHelper.getLabelNotry((ID) id);
+                else recordName = id == null ? null : (String) id;
+            } else {
+                recordName = recordContent.getString(belongEntity.getNameField().getName());
+            }
+
             if (StringUtils.isBlank(recordName)) {
                 recordName = FieldValueHelper.NO_LABEL_PREFIX + recordId.toLiteral().toUpperCase();
             }
