@@ -1196,11 +1196,11 @@ class DlgFields extends RbModalHandler {
                 <div className="row p-1" _title={$L('无可用字段')}>
                   {e.fields.map((item) => {
                     if (item.type === 'BARCODE' || item.updatable === false) return null
-                    const name = e.mainEntity ? `${e.entity}.${item.name}` : item.name
+                    const keyName = e.mainEntity ? `${e.entity}.${item.name}` : item.name
                     return (
                       <div className="col-3" key={`field-${item.name}`}>
                         <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-1">
-                          <input className="custom-control-input" type="checkbox" disabled={!item.updatable} value={name} defaultChecked={item.updatable && this._selected.includes(item.name)} />
+                          <input className="custom-control-input" type="checkbox" disabled={!item.updatable} value={keyName} defaultChecked={item.updatable && this._selected.includes(keyName)} />
                           <span className="custom-control-label">{item.label}</span>
                         </label>
                       </div>
