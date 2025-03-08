@@ -10,6 +10,7 @@ package com.rebuild.core.support;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +22,7 @@ import java.util.Date;
  */
 @ConditionalOnMissingClass("com.rebuild.Rbv")
 @Component
+@Slf4j
 public class RbvFunction {
 
     public static RbvFunction call() {
@@ -30,13 +32,16 @@ public class RbvFunction {
     // --
 
     public long getExpiredTime(Date createdOn, JSONObject eaConf, ID recordId) {
+        log.warn("No RbvFunction : getExpiredTime");
         return 0;
     }
 
     public void setWeakMode(ID id) {
+        log.warn("No RbvFunction : setWeakMode");
     }
 
     public ID getWeakMode(boolean once) {
+        log.warn("No RbvFunction : getWeakMode");
         return null;
     }
 }
