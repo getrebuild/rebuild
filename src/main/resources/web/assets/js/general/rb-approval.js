@@ -1030,8 +1030,9 @@ class EditableFieldForms extends React.Component {
             {d.aentityLabel} ({d.aforms.length})
           </h5>
           {d.aforms.map((aform) => {
-            const id = aform[aform.length - 1]
-            const c = aform.slice(0, aform.length - 1) // Last is ID
+            const c = [...aform]
+            const id = c[c.length - 1] // Last is ID
+            c.pop()
             return this.renderLiteForm(d.aentity, id, c)
           })}
         </div>

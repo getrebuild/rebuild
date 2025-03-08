@@ -7,9 +7,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 $(document).ready(() => {
   // eslint-disable-next-line eqeqeq
-  if (top != self) {
-    parent.location.reload()
-    return
+  if (top && top != self) {
+    try {
+      console.log('Check Top :', top.location.href)
+    } catch (ignored) {
+      parent.location.reload()
+      return
+    }
   }
 
   if ($.browser.mobile) {
