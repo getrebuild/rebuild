@@ -14,6 +14,9 @@ import cn.devezhao.persist4j.engine.NullValue;
 import cn.hutool.core.date.DateException;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import com.hankcs.hanlp.dictionary.py.Pinyin;
+import com.hankcs.hanlp.dictionary.py.PinyinDictionary;
+import com.hankcs.hanlp.utility.TextUtility;
 import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
 import com.rebuild.core.RebuildException;
@@ -392,5 +395,29 @@ public class CommonsUtils {
             return c.toArray();
         }
         return new Object[]{o};
+    }
+
+    /**
+     * 转换成为拼音
+     *
+     * @param text
+     * @param firstChar
+     * @return
+     */
+    public static String convertToPinyinString(String text, boolean firstChar) {
+        StringBuilder res = new StringBuilder();
+        for (char c : text.toCharArray()) {
+            if (TextUtility.isChinese(c)) {
+                List<Pinyin> pys = PinyinDictionary.convertToPinyin(String.valueOf(c), false);
+                if (!pys.isEmpty()) {
+                    String py = pys.get(0).getPinyinWithoutTone();
+                    res.append(firstChar ? py.charAt(0) : py);
+                }
+            } else if (Character.isDigit(c) || Character.isLetter(c)) {
+                res.append(c);
+            }
+        }
+        // 只保留字母、数字、-
+        return res.toString().replaceAll("[^a-zA-Z0-9\\-]", "").toUpperCase();
     }
 }

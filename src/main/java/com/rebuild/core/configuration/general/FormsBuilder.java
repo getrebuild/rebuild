@@ -361,7 +361,7 @@ public class FormsBuilder extends FormsManager {
                 || EntityHelper.isUnsavedId(recordData.getPrimary());
 
         final FieldPrivileges fp = Application.getPrivilegesManager().getFieldPrivileges();
-        // 在共同编辑时，对于明细应该是编辑而非新建
+        // 是否来自明细共同编辑
         final boolean isProTableLayout = FormsBuilderContextHolder.getMainIdOfDetail(false) != null;
 
         // Check and clean
@@ -611,8 +611,8 @@ public class FormsBuilder extends FormsManager {
                 el.put("decimalType", decimalType.replace("%s", ""));
             }
 
-            // v3.8
-            if (isNew && !isProTableLayout) {
+            // v3.8 字段权限
+            if (isNew) {
                 if (!fp.isCreatable(fieldMeta, user)) el.put("readonly", true);
             } else {
                 if (!fp.isReadble(fieldMeta, user)) iter.remove();

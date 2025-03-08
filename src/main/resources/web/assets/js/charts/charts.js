@@ -45,7 +45,7 @@ class BaseChart extends React.Component {
             </a>
           )}
           <a className="dropdown-item J_export" onClick={() => this.export()}>
-            {$L('导出')} <sup className="rbv" />
+            {$L('导出')}
           </a>
         </div>
       </div>
@@ -136,11 +136,6 @@ class BaseChart extends React.Component {
   }
 
   export() {
-    if (rb.commercial < 1) {
-      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-      return
-    }
-
     if (this._echarts) {
       const base64 = this._echarts.getDataURL({
         type: 'png',
@@ -915,7 +910,10 @@ class ApprovalList extends BaseChart {
                       <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} alt="Avatar" />
                       <span>{item[1]}</span>
                       <span className="cell-detail-description">
-                        <DateShow date={item[2]} />
+                        <div className="float-left" style={{ marginTop: item[8] >= 2 ? 3 : 0 }}>
+                          <DateShow date={item[2]} />
+                        </div>
+                        {item[8] >= 2 && <span className="float-left badge badge-sm badge-danger ml-1">{$L('已超时 %s', $sec2Time(item[8]))}</span>}
                       </span>
                     </td>
                     <td className="cell-detail">
@@ -926,16 +924,9 @@ class ApprovalList extends BaseChart {
                     </td>
                     <td className="actions text-right text-nowrap">
                       {this.state.viewState === 1 && (
-                        <RF>
-                          <button className="btn btn-secondary btn-sm" onClick={() => this.approve(item[3], item[5], item[7])}>
-                            {$L('审批')}
-                          </button>
-                          {item[8] >= 2 && (
-                            <span className="float-left badge badge-sm badge-danger" style={{ marginTop: 3 }}>
-                              {$L('已超时 %s', $sec2Time(item[8]))}
-                            </span>
-                          )}
-                        </RF>
+                        <button className="btn btn-secondary btn-sm" onClick={() => this.approve(item[3], item[5], item[7])}>
+                          {$L('审批')}
+                        </button>
                       )}
                       {this.state.viewState === 10 && <span className="text-success">{$L('通过')}</span>}
                       {this.state.viewState === 11 && <span className="text-danger">{$L('驳回')}</span>}

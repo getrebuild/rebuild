@@ -18,6 +18,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.privileges.FieldPrivileges;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.feeds.FeedsType;
 import com.rebuild.core.service.query.ParseHelper;
@@ -25,6 +26,7 @@ import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.general.ProtocolFilterParser;
 import com.rebuild.core.support.i18n.I18nUtils;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -76,12 +78,18 @@ public class RelatedListController extends BaseController {
 
         Object[][] array = QueryHelper.createQuery(sql, relatedEntity).setLimit(ps, pn * ps - ps).array();
 
+        FieldPrivileges fp = Application.getPrivilegesManager().getFieldPrivileges();
         List<Object> res = new ArrayList<>();
         for (Object[] o : array) {
             Object nameValue = o[1];
-            nameValue = FieldValueHelper.wrapFieldValue(nameValue, relatedEntity.getNameField(), true);
-            if (nameValue == null || StringUtils.isEmpty(nameValue.toString())) {
-                nameValue = FieldValueHelper.NO_LABEL_PREFIX + o[0].toString().toUpperCase();
+            if (!fp.isReadble(relatedEntity.getNameField(), user)) {
+                nameValue = FieldValueHelper.NO_READ_PRIVILEGES;
+                nameValue = Language.L("[无权限]");
+            } else {
+                nameValue = FieldValueHelper.wrapFieldValue(nameValue, relatedEntity.getNameField(), true);
+                if (nameValue == null || StringUtils.isEmpty(nameValue.toString())) {
+                    nameValue = FieldValueHelper.NO_LABEL_PREFIX + o[0].toString().toUpperCase();
+                }
             }
 
             int approvalState = o.length > 3 ? ObjectUtils.toInt(o[3]) : 0;
@@ -89,14 +97,14 @@ public class RelatedListController extends BaseController {
                     && approvalState != ApprovalState.PROCESSING.getState()
                     && Application.getPrivilegesManager().allowUpdate(user, (ID) o[0]);
 
-            res.add(new Object[] {
+            res.add(new Object[]{
                     o[0], nameValue, I18nUtils.formatDate((Date) o[2]),
-                    approvalState, canUpdate });
+                    approvalState, canUpdate});
         }
 
         return JSONUtils.toJSONObject(
-                new String[] { "total", "data" },
-                new Object[] { 0, res });
+                new String[]{"total", "data"},
+                new Object[]{0, res});
     }
 
     @GetMapping("related-counts")

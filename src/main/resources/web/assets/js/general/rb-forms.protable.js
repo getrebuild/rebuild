@@ -14,10 +14,12 @@ const _PT_COLUMN_MAX_WIDTH = 500
 const _PT_COLUMN_DEF_WIDTH = 200
 const _PT_COLUMN_WIDTH_PLUS = ['REFERENCE', 'N2NREFERENCE', 'CLASSIFICATION']
 
+const _EXTCONFIG = window.__LAB40_PROTABLE_EXTCONFIG || {}
+
 class ProTable extends React.Component {
   constructor(props) {
     super(props)
-    this.state = {}
+    this.state = { _counts: {} }
   }
 
   render() {
@@ -29,10 +31,12 @@ class ProTable extends React.Component {
     // 等待初始化
     if (!this.state.formFields) return null
 
-    const _readonly = this.props.$$$main.props.readonly
+    const props = this.props
+    const _readonly = props.$$$main.props.readonly
     const formFields = this.state.formFields
     const details = this.state.details || [] // 编辑时有
     const fixedWidth = formFields.length <= 5
+    const extConf40 = _EXTCONFIG[this.props.entity.entity] || {}
 
     return (
       <div className={`protable rb-scroller ${!fixedWidth && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
@@ -40,6 +44,21 @@ class ProTable extends React.Component {
           <thead>
             <tr>
               <th className="col-index" />
+              {extConf40.showCheckbox && (
+                <th className="col-checkbox">
+                  <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                    <input
+                      className="custom-control-input"
+                      type="checkbox"
+                      onChange={(e) => {
+                        $(this._$tbody).find('.col-checkbox input').prop('checked', e.target.checked)
+                      }}
+                    />
+                    <i className="custom-control-label" />
+                  </label>
+                </th>
+              )}
+              {extConf40.showTreeConfig && <th className="col-tree" />}
               {formFields.map((item) => {
                 if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
 
@@ -69,11 +88,11 @@ class ProTable extends React.Component {
               <td className={`col-action ${this._initModel.detailsCopiable && 'has-copy-btn'} ${!fixedWidth && 'column-fixed'}`} />
             </tr>
           </thead>
-          <tbody>
+          <tbody ref={(c) => (this._$tbody = c)}>
             {(this.state.inlineForms || []).map((FORM, idx) => {
               const key = FORM.key
               return (
-                <tr key={`inline-${key}`}>
+                <tr key={`if-${key}`} data-key={key}>
                   <th className={`col-index ${!_readonly && 'action'}`}>
                     <span>{details.length + idx + 1}</span>
                     {!_readonly && (
@@ -82,6 +101,21 @@ class ProTable extends React.Component {
                       </a>
                     )}
                   </th>
+                  {extConf40.showCheckbox && (
+                    <td className="col-checkbox">
+                      <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                        <input className="custom-control-input" type="checkbox" />
+                        <i className="custom-control-label" />
+                      </label>
+                    </td>
+                  )}
+                  {extConf40.treeConfig && (
+                    <td className="col-tree">
+                      <a className={`col-tree-level-${idx}`}>
+                        <i className="zmdi zmdi-chevron-right  " />
+                      </a>
+                    </td>
+                  )}
                   {FORM}
                   <td className={`col-action ${!fixedWidth && 'column-fixed'}`}>
                     {this._initModel.detailsCopiable && (
@@ -97,6 +131,28 @@ class ProTable extends React.Component {
               )
             })}
           </tbody>
+          {extConf40.showCounts && (
+            <tfoot>
+              <tr>
+                <th className="col-idx" />
+                {extConf40.showCheckbox && <th className="col-checkbox" />}
+                {extConf40.showTreeConfig && <th className="col-tree" />}
+                {formFields.map((item) => {
+                  if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
+
+                  let v = this.state._counts[item.field]
+                  if (item.type === 'DECIMAL') v = (v || 0).toFixed(2)
+                  else if (item.type === 'NUMBER') v = (v || 0).toFixed(0)
+                  return (
+                    <th key={item.field} className="text-bold">
+                      {v}
+                    </th>
+                  )
+                })}
+                <th className="col-action" />
+              </tr>
+            </tfoot>
+          )}
         </table>
 
         {(this.state.inlineForms || []).length === 0 && <div className="text-center text-muted mt-6">{$L('请添加明细')}</div>}
@@ -141,6 +197,45 @@ class ProTable extends React.Component {
 
       this._dividing37()
     })
+
+    setTimeout(() => {
+      this.getSelectedInlineForms()
+    }, 5000)
+  }
+
+  // prevProps, prevState, snapshot
+  componentDidUpdate = () => this._componentDidUpdate()
+  _componentDidUpdate() {
+    const extConf40 = _EXTCONFIG[this.props.entity.entity] || {}
+    if (!extConf40.showCounts || this._countsStateUpdate) return
+
+    // 计算合计
+    if (this._countsTimer) clearTimeout(this._countsTimer)
+    this._countsTimer = setTimeout(() => {
+      const _counts = {}
+      const inlineForms = this.getInlineForms()
+      inlineForms &&
+        inlineForms.forEach((FORM) => {
+          this.state.formFields.forEach((item) => {
+            if (item.type === 'NUMBER' || item.type === 'DECIMAL') {
+              const c = FORM.getFieldComp(item.field)
+              if (c) {
+                let v = c.getValue()
+                if (v === null || v === undefined || v === '');
+                else {
+                  v = $cleanNumber(v, true)
+                  _counts[item.field] = (_counts[item.field] || 0) + v
+                }
+              }
+            }
+          })
+        })
+
+      this._countsStateUpdate = true
+      this.setState({ _counts }, () => {
+        this._countsStateUpdate = false
+      })
+    }, 400)
   }
 
   _dividing37() {
@@ -236,7 +331,7 @@ class ProTable extends React.Component {
     const lineKey = `${entityName}-${model.id ? model.id : $random()}`
     const ref = React.createRef()
     const FORM = (
-      <InlineForm entity={entityName} id={model.id} rawModel={model} $$$parent={this} $$$main={this.props.$$$main} key={lineKey} ref={ref}>
+      <InlineForm entity={entityName} id={model.id} rawModel={model} $$$parent={this} $$$main={this.props.$$$main} key={lineKey} ref={ref} _componentDidUpdate={() => this._componentDidUpdate()}>
         {model.elements.map((item) => {
           return detectElement({ ...item, colspan: 4 })
         })}
@@ -346,6 +441,20 @@ class ProTable extends React.Component {
     this.state.inlineForms.forEach((F) => {
       if (F && F.ref.current) ff.push(F.ref.current)
     })
+    return ff
+  }
+
+  /**
+   */
+  getSelectedInlineForms() {
+    const ff = []
+    $(this._$tbody)
+      .find('.col-checkbox input[type="checkbox"]:checked')
+      .each((idx, c) => {
+        let key = $(c).parents('tr').attr('data-key')
+        let F = this.getInlineForm(key)
+        if (F) ff.push(F)
+      })
     return ff
   }
 
@@ -517,6 +626,12 @@ class InlineForm extends RbForm {
       const c = this.getFieldComp(name)
       if (c) c.setValue(data[name])
     }
+  }
+
+  _onFieldValueChangeCall(field, value) {
+    super._onFieldValueChangeCall(field, value)
+    // v4.0
+    typeof this.props._componentDidUpdate === 'function' && this.props._componentDidUpdate()
   }
 }
 

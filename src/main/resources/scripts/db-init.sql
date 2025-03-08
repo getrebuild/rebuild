@@ -140,7 +140,7 @@ create table if not exists `meta_entity` (
   `ICON`               varchar(60),
   `NAME_FIELD`         varchar(100),
   `MASTER_ENTITY`      varchar(100) comment '所属主实体 (明细实体)',
-  `EXT_CONFIG`         varchar(700) comment '扩展配置 (JSON Map)',
+  `EXT_CONFIG`         varchar(2000) comment '扩展配置 (JSON Map)',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
@@ -169,7 +169,7 @@ create table if not exists `meta_field` (
   `REF_ENTITY`         varchar(100),
   `CASCADE`            varchar(20),
   `COMMENTS`           varchar(300),
-  `EXT_CONFIG`         varchar(700) comment '扩展配置 (JSON Map)',
+  `EXT_CONFIG`         varchar(2000) comment '扩展配置 (JSON Map)',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
@@ -308,7 +308,7 @@ create table if not exists `share_access` (
 create table if not exists `system_config` (
   `CONFIG_ID`          char(20) not null,
   `ITEM`               varchar(100) not null,
-  `VALUE`              varchar(600) not null,
+  `VALUE`              varchar(2000) not null,
   primary key  (`CONFIG_ID`),
   unique index UIX0_system_config (`ITEM`)
 )Engine=InnoDB;
@@ -386,7 +386,7 @@ create table if not exists `auto_fillin_config` (
   `BELONG_FIELD`       varchar(100) not null,
   `SOURCE_FIELD`       varchar(100) not null comment '引用实体的字段',
   `TARGET_FIELD`       varchar(100) not null comment '当前实体的字段',
-  `EXT_CONFIG`         varchar(700) comment '扩展配置 (JSON Map)',
+  `EXT_CONFIG`         varchar(2000) comment '扩展配置 (JSON Map)',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -940,4 +940,4 @@ insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NU
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 60);
+  values ('021-9000000000000001', 'DBVer', 61);

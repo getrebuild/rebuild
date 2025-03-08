@@ -233,7 +233,8 @@ public class MetaFieldController extends BaseController {
 
         Field field = MetadataHelper.getField((String) fieldRecord[0], (String) fieldRecord[1]);
 
-        boolean drop = new Field2Schema().dropField(field, false);
+        boolean force = getBoolParameter(request, "force", false);
+        boolean drop = new Field2Schema().dropField(field, force);
         return drop ? RespBody.ok() : RespBody.error();
     }
 

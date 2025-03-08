@@ -26,6 +26,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // PAGE INITIAL
 $(function () {
+  // navless
+  if (~~$urlp('navless') === 1) $(document.body).addClass('rb-navless40')
+
   // scroller
   var $t = $('.rb-scroller')
   $t.perfectScrollbar()
@@ -564,7 +567,7 @@ var _initGlobalCreate = function () {
         var $item = $('<a class="dropdown-item"><i class="icon zmdi zmdi-' + this.icon + '"></i>' + this.entityLabel + '</a>').appendTo($gc)
         var _this = this
         $item.on('click', function () {
-          RbFormModal.create({ title: $L('新建%s', _this.entityLabel), entity: _this.entity, icon: _this.icon })
+          RbFormModal.create({ title: $L('新建%s', _this.entityLabel), entity: _this.entity, icon: _this.icon, _nextOpenView: true })
         })
       })
     }

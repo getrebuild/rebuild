@@ -221,7 +221,9 @@ public class EasyMetaFactory {
      */
     public static Set<String> getAutoReadonlyFields(String entity) {
         Set<String> set = new HashSet<>();
+        // 触发器
         set.addAll(RobotTriggerManager.instance.getAutoReadonlyFields(entity));
+        // 表单回填
         set.addAll(AutoFillinManager.instance.getAutoReadonlyFields(entity));
         return set;
     }

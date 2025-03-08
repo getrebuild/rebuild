@@ -759,7 +759,23 @@ class ApproverNodeConfig extends StartNodeConfig {
                   })}
                 </select>
                 <label className="mt-2 mb-1">{$L('通知内容')}</label>
-                <textarea className="form-control form-control-sm row2x" placeholder={$L('有一条记录正在等待你审批，请及时处理')} name="expiresAutoUrgeMsg"></textarea>
+                <textarea className="form-control form-control-sm row2x" placeholder={$L('有一条记录正在等待你审批，请及时处理')} name="expiresAutoUrgeMsg" />
+                <div className="mt-2">
+                  <div className="row">
+                    <div className="col pr-2">
+                      <label className="mb-1">
+                        {$L('提前通知')} ({$L('小时')})
+                      </label>
+                      <input className="form-control form-control-sm" placeholder={$L('不提前')} name="expiresAutoUrgeEarly" />
+                    </div>
+                    <div className="col pl-2">
+                      <label className="mb-1">
+                        {$L('重复通知')} ({$L('小时')})
+                      </label>
+                      <input className="form-control form-control-sm" placeholder={$L('不重复')} name="expiresAutoUrgeRepeat" />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1180,11 +1196,11 @@ class DlgFields extends RbModalHandler {
                 <div className="row p-1" _title={$L('无可用字段')}>
                   {e.fields.map((item) => {
                     if (item.type === 'BARCODE' || item.updatable === false) return null
-                    const name = e.mainEntity ? `${e.entity}.${item.name}` : item.name
+                    const keyName = e.mainEntity ? `${e.entity}.${item.name}` : item.name
                     return (
                       <div className="col-3" key={`field-${item.name}`}>
                         <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-1">
-                          <input className="custom-control-input" type="checkbox" disabled={!item.updatable} value={name} defaultChecked={item.updatable && this._selected.includes(item.name)} />
+                          <input className="custom-control-input" type="checkbox" disabled={!item.updatable} value={keyName} defaultChecked={item.updatable && this._selected.includes(keyName)} />
                           <span className="custom-control-label">{item.label}</span>
                         </label>
                       </div>

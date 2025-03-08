@@ -265,9 +265,7 @@ public class ApprovalProcessor extends SetUser {
         this.approvalId = status.getApprovalId();
 
         final String sentKey = String.format("URGE:%s-%s", approvalId, recordId);
-        if (Application.getCommonsCache().getx(sentKey) != null) {
-            return -1;
-        }
+        if (Application.getCommonsCache().getx(sentKey) != null) return -1;
 
         int sent = 0;
         String entityLabel = EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode()));

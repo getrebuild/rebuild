@@ -30,17 +30,18 @@ public class Table40 extends Table {
         this(entity, dialect, null);
     }
 
-    public Table40(Entity entity, Dialect dialect, List<String> indexFields) {
+    public Table40(Entity entity, Dialect dialect, List<?> indexFields) {
         super(entity, dialect, buildIndexList(indexFields));
     }
 
-    private static List<Element> buildIndexList(List<String> indexFields) {
+    private static List<Element> buildIndexList(List<?> indexFields) {
         if (CollectionUtils.isEmpty(indexFields)) return null;
+        if (indexFields.get(0) instanceof Element) return (List<Element>) indexFields;
 
         List<Element> ixs = new ArrayList<>();
-        for (String indexField : indexFields) {
+        for (Object indexField : indexFields) {
             Element ix = XmlHelper.createDom4jElement("index");
-            ix.addAttribute("field-list", indexField);
+            ix.addAttribute("field-list", (String) indexField);
             ixs.add(ix);
         }
         return ixs;

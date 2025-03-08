@@ -330,12 +330,12 @@ var $cleanArray = function (array, isunique) {
 /**
  * 清理数字中的符号
  */
-function $cleanNumber(n) {
+function $cleanNumber(n, forceNumber) {
   if (typeof n === 'number') return n
   var m = (n + '').match(/-?\d+(,\d+)*(.\d+)?/g)
   if (m && m[0]) {
     m = m[0].replace(/,/g, '') // 千分位
-    return m
+    return forceNumber ? parseFloat(m) : m
   }
   return NaN
 }

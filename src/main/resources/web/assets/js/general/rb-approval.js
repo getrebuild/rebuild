@@ -993,41 +993,25 @@ class EditableFieldForms extends React.Component {
     this._fakeParent = {
       state: { id: props._this.props.id },
     }
-    this._LiteForms = []
+    this._LiteForms = {}
   }
 
   render() {
     const _this = this.props._this
     const _details = _this.state.aform_details
+    console.log(_details)
     return (
       <div className="aforms">
-        {_this.state.aform && this._renderLiteForm(_this.props.entity, _this.props.id, _this.state.aform)}
-        {_details && this._renderDetails(_details)}
+        {_this.state.aform && this.renderLiteForm(_this.props.entity, _this.props.id, _this.state.aform)}
+        {_details && this.renderDetails(_details)}
       </div>
     )
   }
 
-  _renderDetails(details) {
-    return details.map((d) => {
-      return (
-        <div key={d.aentity} className="aforms-detail">
-          <h5>
-            {d.aentityLabel} ({d.aforms.length})
-          </h5>
-          {d.aforms.map((aform) => {
-            const id = aform[aform.length - 1]
-            aform.pop()
-            return this._renderLiteForm(d.aentity, id, aform)
-          })}
-        </div>
-      )
-    })
-  }
-
-  _renderLiteForm(entity, id, aform) {
+  renderLiteForm(entity, id, aform) {
     // @see rb-forms.append.js LiteFormModal#create
     return (
-      <LiteForm entity={entity} id={id} rawModel={{}} $$$parent={this._fakeParent} ref={(c) => this._LiteForms.push(c)} key={id}>
+      <LiteForm entity={entity} id={id} rawModel={{}} $$$parent={this._fakeParent} ref={(c) => (this._LiteForms[id] = c)} key={id}>
         {aform.map((item) => {
           item.isFull = true
           delete item.referenceQuickNew // v35
@@ -1038,10 +1022,28 @@ class EditableFieldForms extends React.Component {
     )
   }
 
+  renderDetails(details) {
+    return details.map((d) => {
+      return (
+        <div key={d.aentity} className="aforms-detail">
+          <h5>
+            {d.aentityLabel} ({d.aforms.length})
+          </h5>
+          {d.aforms.map((aform) => {
+            const c = [...aform]
+            const id = c[c.length - 1] // Last is ID
+            c.pop()
+            return this.renderLiteForm(d.aentity, id, c)
+          })}
+        </div>
+      )
+    })
+  }
+
   buildFormsData() {
     let datas = []
-    for (let i = 0; i < this._LiteForms.length; i++) {
-      const aformData = this._LiteForms[i].buildFormData()
+    for (let key in this._LiteForms) {
+      const aformData = this._LiteForms[key].buildFormData()
       if (aformData === false) {
         datas = false
         break

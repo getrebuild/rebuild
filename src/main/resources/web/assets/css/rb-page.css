@@ -4955,7 +4955,9 @@ pre.unstyle {
   border-bottom-width: 1px;
 }
 
-.protable .table .col-index {
+.protable .table .col-index,
+.protable .table .col-checkbox,
+.protable .table .col-tree {
   width: 38px;
   min-width: 38px;
   padding-left: 0;
@@ -4978,7 +4980,8 @@ pre.unstyle {
   min-width: 38px;
 }
 
-.protable .table thead th {
+.protable .table thead th,
+.protable .table tfoot th {
   position: relative;
   padding-top: 9px;
   padding-bottom: 9px;
@@ -5945,4 +5948,115 @@ div.formula-code {
 
 .modal-dialog-centered-unset .modal-dialog-centered {
   display: block;
+}
+
+.rb-navless40 .rb-wrapper {
+  padding-top: 0;
+}
+
+.rb-navless40 .rb-wrapper > .navbar,
+.rb-navless40 .rb-wrapper > .rb-left-sidebar {
+  display: none;
+}
+
+.rb-navless40 .rb-wrapper > .rb-content {
+  margin: 0;
+}
+
+.rb-navless40 .rb-wrapper > .rb-content > .page-aside {
+  left: 0;
+  margin: 0;
+}
+
+.rbform .dialog-footer .fjs-dock,
+.rbform .detail-form-table .detail-form-action .fjs-dock,
+.dataTables_wrapper .dataTables_oper .fjs-dock {
+  display: inline-block;
+}
+
+.rbform .dialog-footer .fjs-dock:empty,
+.rbform .detail-form-table .detail-form-action .fjs-dock:empty,
+.dataTables_wrapper .dataTables_oper .fjs-dock:empty,
+.view-body .view-operating .fjs-dock:empty {
+  display: none;
+}
+
+.rbform .dialog-footer .fjs-dock > *,
+.rbform .detail-form-table .detail-form-action .fjs-dock > *,
+.dataTables_wrapper .dataTables_oper .fjs-dock > * {
+  margin-right: 10px;
+}
+
+.dataTables_wrapper .dataTables_oper .fjs-dock {
+  transform: translateY(-2.5px);
+}
+
+.dataTables_wrapper .dataTables_oper .fjs-dock > *:last-child {
+  margin-right: 5px;
+}
+
+.protable .table .col-checkbox,
+.protable .table .col-tree {
+  text-align: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.protable .table .col-checkbox .custom-control {
+  padding-left: 0;
+  margin-top: 3px;
+}
+
+.protable .table th.col-checkbox .custom-control {
+  margin-top: -2px;
+}
+
+.protable .table .col-checkbox .custom-control-label::before {
+  border-radius: 2px;
+}
+
+.protable .table .col-checkbox .custom-control .custom-control-input:checked ~ .custom-control-label::after {
+  margin-left: -1.2px;
+}
+
+.protable .table .col-tree {
+  text-align: left;
+  width: 61px;
+}
+
+.protable .table .col-tree a {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  font-size: 1.4rem;
+  background-color: #eee;
+  border-radius: 2px;
+  text-align: center;
+  margin-top: 3px;
+  color: #999;
+}
+
+.protable .table .col-tree a:hover {
+  color: var(--rb-theme-color);
+}
+
+.protable .table .col-tree a.col-tree-level-1 {
+  margin-left: 9px;
+}
+
+.protable .table .col-tree a.col-tree-level-2 {
+  margin-left: 18px;
+}
+
+.protable .table .col-tree a.col-tree-level-3 {
+  margin-left: 24px;
+}
+
+.protable .table .col-tree a.col-tree-level-4 {
+  margin-left: 32px;
+}
+
+.protable .table .col-tree a.col-tree-level-5 {
+  margin-left: 40px;
 }
