@@ -35,7 +35,7 @@ import com.rebuild.core.service.approval.FlowNodeGroup;
 import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.trigger.DataValidateException;
-import com.rebuild.utils.CommonsUtils;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
@@ -250,7 +250,7 @@ public class ApprovalController extends BaseController {
             if (!Application.getEntityService(addedRecord.getEntity().getEntityCode()).getAndCheckRepeated(addedRecord, 1).isEmpty()) {
                 return RespBody.errorl("存在重复记录");
             }
-            if (weakMode != null) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.DataValidate#setWeakMode", weakMode);
+            if (weakMode != null) RbvFunction.call().setWeakMode(weakMode);
         }
 
         try {
@@ -272,7 +272,7 @@ public class ApprovalController extends BaseController {
             log.error("ROLLEDBACK", rolledback);
             return RespBody.error("ROLLEDBACK OCCURED");
         } finally {
-            if (weakMode != null) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.DataValidate#getWeakMode", true);
+            if (weakMode != null) RbvFunction.call().getWeakMode(true);
         }
     }
 

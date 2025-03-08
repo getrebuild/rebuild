@@ -18,7 +18,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
-import com.rebuild.utils.CommonsUtils;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.utils.JSONUtils;
 import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
@@ -357,9 +357,7 @@ public class FlowNode {
         if (stepApprover == null) return 0;
 
         JSONObject eaConf = getExpiresAuto();
-        Object o = CommonsUtils.invokeMethod("com.rebuild.rbv.approval.ApprovalExpiresAutoJob#getExpiredTime",
-                stepApprover[0], eaConf, recordId);
-        long expTime = o == null ? 0 : (Long) o;
+        long expTime = RbvFunction.call().getExpiredTime((Date) stepApprover[0], eaConf, recordId);
         return expTime > 0 ? Math.max(expTime, 2) : 0;
     }
 

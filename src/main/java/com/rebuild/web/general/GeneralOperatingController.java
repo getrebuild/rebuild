@@ -38,10 +38,10 @@ import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.general.transform.TransformerPreview37;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.DataValidateException;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
@@ -138,7 +138,7 @@ public class GeneralOperatingController extends BaseController {
 
         // v3.2,3.8 弱校验
         final ID weakMode = getIdParameter(request, "weakMode");
-        if (weakMode != null) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.DataValidate#setWeakMode", weakMode);
+        if (weakMode != null) RbvFunction.call().setWeakMode(weakMode);
 
         try {
             record = ies.createOrUpdate(record);
@@ -159,7 +159,7 @@ public class GeneralOperatingController extends BaseController {
         } finally {
             // 确保清除
             GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
-            if (weakMode != null) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.DataValidate#getWeakMode", true);
+            if (weakMode != null) RbvFunction.call().getWeakMode(true);
         }
 
         // 转换后回填
