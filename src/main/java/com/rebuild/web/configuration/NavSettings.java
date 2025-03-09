@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.configuration.NavManager;
 import com.rebuild.core.configuration.general.BaseLayoutManager;
 import com.rebuild.core.configuration.general.LayoutConfigService;
@@ -88,11 +89,15 @@ public class NavSettings extends BaseController implements ShareTo {
         // 管理员才可以新建（多个）
         if ("NEW".equalsIgnoreCase(cfgid)) {
             return RespBody.ok();
-        } else if (ID.isId(cfgid)) {
-            return RespBody.ok(NavManager.instance.getNavLayoutById(ID.valueOf(cfgid)));
-        } else {
-            return RespBody.ok(NavManager.instance.getNavLayout(user));
         }
+        // 优先指定的
+        if (ID.isId(cfgid)) {
+            try {
+                return RespBody.ok(NavManager.instance.getNavLayoutById(ID.valueOf(cfgid)));
+            } catch (ConfigurationException ignored) {}
+        }
+
+        return RespBody.ok(NavManager.instance.getNavLayout(user));
     }
 
     @GetMapping("nav-settings/alist")
