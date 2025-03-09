@@ -153,7 +153,7 @@ class ProTable extends React.Component {
             let data = res.data || []
             if (this._extConf40.showTreeConfig && data.length > 0) {
               let stc = this._extConf40.showTreeConfig
-              data = this._buildData2Tree(stc.parentField, stc.childField, data)
+              data = this._buildData2Tree40(stc.parentField, stc.childField, data)
             }
             this.setLines(data)
           } else {
@@ -170,7 +170,8 @@ class ProTable extends React.Component {
     }, 5000)
   }
 
-  _buildData2Tree(parentField, childField, data) {
+  // 构建树形数据
+  _buildData2Tree40(parentField, childField, data) {
     // 获取字段值
     function _FIND(item, fieldName) {
       let field = item.elements.find((x) => x.field === fieldName)
