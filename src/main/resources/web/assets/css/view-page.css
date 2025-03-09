@@ -813,6 +813,8 @@ body {
 .timeline.approved-steps .timeline-item.state0::before {
   border-color: #fff;
   background-color: #4285f4;
+  border-color: #33a451;
+  background-color: #fff;
 }
 
 .timeline.approved-steps .timeline-item.state10::before {

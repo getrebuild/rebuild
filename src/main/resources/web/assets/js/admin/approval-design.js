@@ -764,13 +764,13 @@ class ApproverNodeConfig extends StartNodeConfig {
                   <div className="row">
                     <div className="col pr-2">
                       <label className="mb-1">
-                        {$L('提前通知')} ({$L('小时')})
+                        {$L('提前通知')} ({$L('提前几小时')})
                       </label>
                       <input className="form-control form-control-sm" placeholder={$L('不提前')} name="expiresAutoUrgeEarly" />
                     </div>
                     <div className="col pl-2">
                       <label className="mb-1">
-                        {$L('重复通知')} ({$L('小时')})
+                        {$L('重复通知')} ({$L('间隔几小时')})
                       </label>
                       <input className="form-control form-control-sm" placeholder={$L('不重复')} name="expiresAutoUrgeRepeat" />
                     </div>
