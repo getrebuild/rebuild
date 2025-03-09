@@ -1945,7 +1945,7 @@ th.column-fixed {
   padding: 9px 8px;
   font-size: 15px;
   position: absolute;
-  top: -1.5px;
+  top: -1px;
   z-index: 1;
   display: none;
 }
@@ -6041,6 +6041,16 @@ div.formula-code {
   color: var(--rb-theme-color);
 }
 
+.protable .table .col-tree a > span {
+  font-size: 11px;
+  display: inline-block;
+  transform: translateY(-2px);
+}
+
+.protable .table .col-tree a > span ~ i {
+  display: none;
+}
+
 .protable .table .col-tree a.col-tree-level-1 {
   margin-left: 9px;
 }
@@ -6059,4 +6069,21 @@ div.formula-code {
 
 .protable .table .col-tree a.col-tree-level-5 {
   margin-left: 40px;
+}
+
+.detail-form-header h5 > a {
+  opacity: 0.6;
+  padding: 0 8px;
+  font-size: 15px;
+  color: #616161;
+  transform: translateY(1px);
+  display: none;
+}
+
+.detail-form-header h5 > a:hover {
+  opacity: 0.8;
+}
+
+.detail-form-header h5:hover > a {
+  display: inline-block;
 }

@@ -462,10 +462,15 @@ class RbForm extends React.Component {
     return (
       <div className="detail-form-table" data-entity={detailMeta.entity}>
         <div className="row">
-          <div className="col-4">
+          <div className="col-4 detail-form-header">
             <h5 className="mt-2 mb-0 text-bold fs-14">
               <i className={`icon zmdi zmdi-${detailMeta.icon} fs-15 mr-2`} />
               {detailMeta.entityLabel}
+              {rb.isAdminUser && (
+                <a href={`${rb.baseUrl}/admin/entity/${detailMeta.entity}/form-design`} target="_blank" title={$L('表单设计')}>
+                  <span className="zmdi zmdi-settings up-1" />
+                </a>
+              )}
             </h5>
           </div>
 

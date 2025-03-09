@@ -9,11 +9,11 @@ $(document).ready(() => {
   // eslint-disable-next-line eqeqeq
   if (top && top != self) {
     try {
-      console.log('Check Top :', top.location.href)
-    } catch (ignored) {
       parent.location.reload()
-      return
+    } catch (ignored) {
+      // NOOP
     }
+    return
   }
 
   if ($.browser.mobile) {
