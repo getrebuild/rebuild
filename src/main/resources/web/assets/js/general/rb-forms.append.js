@@ -972,10 +972,10 @@ const EasyFilterEval = {
 
   _evalAndEffect: function (formObject) {
     const _this = formObject
-    $.post(`/app/entity/extras/easyfilter-eval?layout=${_this.props.rawModel.layoutId}`, JSON.stringify(_this.getFormData()), (res) => {
+    $.post(`/app/entity/extras/easyfilter-eval?layout=${_this.props.rawModel.layoutId}&id=${_this.props.id}`, JSON.stringify(_this.getFormData()), (res) => {
       const attrs = res.data || []
       const attrsLast = _this.__lastEasyFilterEval || []
-      _this.__lastEasyFilterEval = attrs // 绑定到表单对象
+      _this.__lastEasyFilterEval = attrs // 挂载到表单对象
 
       attrs.forEach((a) => {
         const fieldComp = _this.getFieldComp(a.field)
