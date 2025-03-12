@@ -70,8 +70,8 @@ class ConfigList extends React.Component {
     this.loadData()
 
     // 搜索
-    const $btn = $('.input-search .btn').on('click', () => this.loadData())
-    $('.input-search .form-control').keydown((e) => {
+    const $btn = $('.input-search button.btn').on('click', () => this.loadData())
+    $('.input-search input.form-control').keydown((e) => {
       if (e.which === 13) $btn.trigger('click')
     })
 
@@ -105,6 +105,13 @@ class ConfigList extends React.Component {
 
             if (this.state.data.length === 0) $('.list-nodata').removeClass('hide')
             else $('.list-nodata').addClass('hide')
+
+            // 标签搜索
+            $('.data-list td.name>a span.badge').on('click', function (e) {
+              $stopEvent(e, true)
+              $('.input-search input.form-control').val('#' + $(this).text())
+              $('.input-search button.btn').trigger('click')
+            })
 
             this.loadDataAfter()
           })
@@ -236,3 +243,17 @@ $(document).ready(() => {
       setTimeout(() => $input[0].focus(), 20)
     })
 })
+
+const _RndColors = [...RBCOLORS, '#1abc9c', '#2ecc71', '#3498db', '#9b59b6', '#34495e', '#16a085', '#27ae60', '#2980b9', '#8e44ad', '#f1c40f', '#e67e22', '#f39c12', '#d35400', '#c0392b']
+function taggedTitle(title) {
+  let tags = title.match(/#[\w\u4e00-\u9fa5]+/g) || []
+  if (tags.length === 0) return title
+
+  tags.forEach(function (tag) {
+    let ch = tag.substr(1).charCodeAt(0)
+    ch = (ch + '').split('')
+    ch = ~~ch[0] + ~~ch[ch.length - 1]
+    title = title.replace(tag, `<span class="badge badge-info badge-sm" style="background-color:${_RndColors[ch]}">${tag.substr(1)}</span>`)
+  })
+  return WrapHtml(title)
+}
