@@ -1979,8 +1979,8 @@ class RbFormPickList extends RbFormElement {
   }
 
   renderElement() {
+    const _readonly37 = this.state.readonly
     if (this._isShowRadio39) {
-      const _readonly37 = this.state.readonly
       return (
         <div ref={(c) => (this._fieldValue = c)} className="mt-1">
           {this._options.map((item) => {
@@ -1996,7 +1996,7 @@ class RbFormPickList extends RbFormElement {
     }
 
     return (
-      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" defaultValue={this.state.value || ''}>
+      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" defaultValue={this.state.value || ''} disabled={_readonly37}>
         <option value="" />
         {this._options.map((item) => {
           return (
@@ -2063,7 +2063,13 @@ class RbFormReference extends RbFormElement {
 
     return (
       <div className="input-group has-append">
-        <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" title={this._hasDataFilter ? $L('当前字段已启用数据过滤') : null} multiple={this._multiple === true} />
+        <select
+          ref={(c) => (this._fieldValue = c)}
+          className="form-control form-control-sm"
+          title={this._hasDataFilter ? $L('当前字段已启用数据过滤') : null}
+          multiple={this._multiple === true}
+          disabled={_readonly37}
+        />
         {!_readonly37 && (
           <div className="input-group-append">
             <button className="btn btn-secondary" type="button" onClick={() => this.showSearcher()}>
