@@ -401,33 +401,39 @@ function useExecManual() {
       return
     }
 
-    RbAlert.create($L('将直接执行此触发器，数据过多耗时会较长，请耐心等待。是否继续？'), {
-      onConfirm: function () {
-        const that = this
-        that.disabled(true, true)
-        $.post(`/admin/robot/trigger/exec-manual?id=${wpc.configId}`, (res) => {
-          let taskid = res.data || ''
-          // 执行中了
-          if (taskid.startsWith('_EXECUTE:')) {
-            taskid = taskid.substr(9)
-            RbAlert.create($L('此触发器已在执行中，不能同时执行。是否显示执行状态？'), {
-              onConfirm: function () {
-                this.hide()
-                _FN(taskid, that)
-              },
-              onCancel: function () {
-                this.hide()
-                that.hide(true)
-              },
-            })
-            return
-          }
+    RbAlert.create(
+      <RF>
+        <div>{$L('将直接执行此触发器，数据过多耗时会较长，请耐心等待。是否继续？')}</div>
+        <div className="text-warning mt-1">({$L('若触发器已修改，请保存后再执行')})</div>
+      </RF>,
+      {
+        onConfirm: function () {
+          const that = this
+          that.disabled(true, true)
+          $.post(`/admin/robot/trigger/exec-manual?id=${wpc.configId}`, (res) => {
+            let taskid = res.data || ''
+            // 执行中了
+            if (taskid.startsWith('_EXECUTE:')) {
+              taskid = taskid.substr(9)
+              RbAlert.create($L('此触发器已在执行中，不能同时执行。是否显示执行状态？'), {
+                onConfirm: function () {
+                  this.hide()
+                  _FN(taskid, that)
+                },
+                onCancel: function () {
+                  this.hide()
+                  that.hide(true)
+                },
+              })
+              return
+            }
 
-          _FN(taskid, that)
-        })
-      },
-      countdown: 5,
-    })
+            _FN(taskid, that)
+          })
+        },
+        countdown: 5,
+      }
+    )
   })
 }
 // 检查状态
