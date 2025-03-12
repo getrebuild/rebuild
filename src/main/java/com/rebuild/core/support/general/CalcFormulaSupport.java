@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyDateTime;
@@ -98,16 +99,27 @@ public class CalcFormulaSupport {
     }
 
     /**
-     * 计算
-     *
      * @param targetField
      * @param varsInFormula
      * @return
      */
     public static Object evalCalcFormula(Field targetField, Map<String, Object> varsInFormula) {
+        return evalCalcFormula(targetField, varsInFormula, null);
+    }
+
+    /**
+     * 计算
+     *
+     * @param targetField
+     * @param varsInFormula
+     * @param specFormula
+     * @return
+     */
+    public static Object evalCalcFormula(Field targetField, Map<String, Object> varsInFormula, String specFormula) {
         final Entity entity = targetField.getOwnEntity();
         final EasyField easyField = EasyMetaFactory.valueOf(targetField);
-        String formula = easyField.getExtraAttr(EasyFieldConfigProps.NUMBER_CALCFORMULA);
+        String formula = specFormula;
+        if (formula == null) formula = easyField.getExtraAttr(EasyFieldConfigProps.NUMBER_CALCFORMULA);
         formula = formula.replace("{{NOW}}", EasyDateTime.VAR_NOW);
 
         boolean calcReady = true;
@@ -118,7 +130,9 @@ public class CalcFormulaSupport {
                 continue;
             }
 
-            if (!entity.containsField(fieldName)) {
+            // v40 支持点连接字段
+            Field field = MetadataHelper.getLastJoinField(entity, fieldName);
+            if (field == null) {
                 calcReady = false;
                 break;
             }
@@ -130,7 +144,7 @@ public class CalcFormulaSupport {
             }
 
             String val2str = fieldValue.toString();
-            DisplayType dt = EasyMetaFactory.valueOf(entity.getField(fieldName)).getDisplayType();
+            DisplayType dt = EasyMetaFactory.getDisplayType(field);
             if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
                 fieldValue = CalendarUtils.parse(val2str, CalendarUtils.UTC_DATETIME_FORMAT.substring(0, val2str.length()));
             } else if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {

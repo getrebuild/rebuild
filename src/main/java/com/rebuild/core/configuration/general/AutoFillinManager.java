@@ -21,6 +21,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
+import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
@@ -38,6 +39,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -59,13 +61,23 @@ public class AutoFillinManager implements ConfigManager {
     private AutoFillinManager() {}
 
     /**
-     * 获取回填值
-     *
      * @param field
      * @param sourceId
      * @return
      */
     public JSONArray getFillinValue(Field field, ID sourceId) {
+        return getFillinValue(field, sourceId, null);
+    }
+
+    /**
+     * 获取回填值
+     *
+     * @param field
+     * @param sourceId
+     * @param formData
+     * @return
+     */
+    public JSONArray getFillinValue(Field field, ID sourceId, JSONObject formData) {
         final EasyField easyField = EasyMetaFactory.valueOf(field);
 
         // 内置字段无配置
@@ -154,7 +166,27 @@ public class AutoFillinManager implements ConfigManager {
             } else {
                 targetFieldMeta = targetEntity.getField(targetField);
             }
-            
+
+            // v40 使用公式回填
+            String sourceFieldFormula40 = e.getString("sourceFieldFormula");
+            if (StringUtils.isNotBlank(sourceFieldFormula40)) {
+                Map<String, Object> varsInFormula = new HashMap<>();
+                if (formData != null) {
+                    formData.remove(EntityRecordCreator.META_FIELD);
+                    JSONObject formDataMain = (JSONObject) formData.remove("$$$main");
+                    if (formDataMain != null) {
+                        formDataMain.remove(EntityRecordCreator.META_FIELD);
+                        String dtfName = MetadataHelper.getDetailToMainField(field.getOwnEntity()).getName() + ".";
+                        formDataMain.forEach((k, v) -> varsInFormula.put(dtfName + k, v));
+                    }
+                    varsInFormula.putAll(formData);
+                }
+
+                Object value = CalcFormulaSupport.evalCalcFormula(targetFieldMeta, varsInFormula, sourceFieldFormula40);
+                if (value == null) sourceRecord.setNull(sourceField);
+                else sourceRecord.setObjectValue(sourceField, value);
+            }
+
             Object value = null;
             if (sourceRecord.hasValue(sourceField, false)) {
                 value = sourceRecord.getObjectValue(sourceField);
@@ -404,6 +436,9 @@ public class AutoFillinManager implements ConfigManager {
                     .set("whenUpdate", extra.getBooleanValue("whenUpdate"))
                     .set("fillinForce", extra.getBooleanValue("fillinForce"))
                     .set("fillinBackend", extra.getBooleanValue("fillinBackend"));
+            if (extra.getString("sourceFieldFormula") != null) {
+                entry.set("sourceFieldFormula", extra.getString("sourceFieldFormula"));
+            }
             entries.add(entry);
         }
 

@@ -2107,7 +2107,7 @@ class RbFormReference extends RbFormElement {
     // 新建记录时触发回填
     const props = this.props
     if (this._isNew && props.value && props.value.id) {
-      setTimeout(() => this.triggerAutoFillin(props.value.id), 500)
+      setTimeout(() => this.triggerAutoFillin(props.value.id), 200)
     }
   }
 
@@ -2138,19 +2138,6 @@ class RbFormReference extends RbFormElement {
         if (v && typeof v === 'string') {
           __addRecentlyUse(v)
           that.triggerAutoFillin(v)
-
-          // v2.10 FIXME 父级改变后清除明细
-          // v3.1 因为父级无法获取到明细的级联值，且级联值有多个（逻辑上存在多个父级值）
-          // v3.9 不清除明细
-          // const _cascadingFieldChild = that.props._cascadingFieldChild || ''
-          // if ($$$form._ProTables && !$$$form._inAutoFillin && _cascadingFieldChild.includes('.')) {
-          //   const _ProTable = $$$form._ProTables[_cascadingFieldChild.split('.')[0]]
-          //   if (_ProTable) {
-          //     const field = _cascadingFieldChild.split('$$$$')[0].split('.')[1]
-          //     _ProTable.setFieldNull(field)
-          //     console.log('Clean details ...', field)
-          //   }
-          // }
         }
 
         that.handleChange({ target: { value: v } }, true)
@@ -2251,11 +2238,23 @@ class RbFormReference extends RbFormElement {
 
   // 字段回填
   triggerAutoFillin(value) {
+    setTimeout(() => this._triggerAutoFillin(value), 400)
+  }
+  _triggerAutoFillin(value) {
     if (this.props.onView) return
 
     const $$$form = this.props.$$$parent
+    let formData = null
+    if (this.props.fillinWithFormData) {
+      formData = $$$form.getFormData()
+      if ($$$form._InlineForm) {
+        const $$$formMain = $$$form.props.$$$main
+        formData.$$$main = $$$formMain.getFormData()
+      }
+    }
+
     const url = `/app/entity/extras/fillin-value?entity=${$$$form.props.entity}&field=${this.props.field}&source=${value}`
-    $.get(url, (res) => {
+    $.post(url, JSON.stringify(formData), (res) => {
       if (res.error_code === 0 && res.data.length > 0) {
         const fillin2main = []
         const fillin2this = []

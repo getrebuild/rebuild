@@ -500,6 +500,8 @@ public class FormsBuilder extends FormsManager {
                             Application.getPrivilegesManager().allowCreate(user, refEntity.getEntityCode()));
                     el.put("referenceEntity", EasyMetaFactory.toJSON(refEntity));
                 }
+
+                if (dt == DisplayType.REFERENCE) el.put("fillinWithFormData", true);
             }
 
             // 新建记录

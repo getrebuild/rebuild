@@ -37,6 +37,8 @@ class ProTable extends React.Component {
     const fixedWidth = formFields.length <= 5
     const inlineForms = this.state.inlineForms || []
 
+    const colActionClazz = `col-action ${this._initModel.detailsCopiable && 'has-copy-btn'} ${!fixedWidth && 'column-fixed'}`
+
     return (
       <div className={`protable rb-scroller ${!fixedWidth && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
         <table className={`table table-sm ${fixedWidth && 'table-fixed'}`}>
@@ -84,7 +86,7 @@ class ProTable extends React.Component {
                   </th>
                 )
               })}
-              <td className={`col-action ${this._initModel.detailsCopiable && 'has-copy-btn'} ${!fixedWidth && 'column-fixed'}`} />
+              <td className={colActionClazz} />
             </tr>
           </thead>
           <tbody ref={(c) => (this._$tbody = c)}>
@@ -108,7 +110,7 @@ class ProTable extends React.Component {
                     </th>
                   )
                 })}
-                <th className="col-action" />
+                <td className={colActionClazz} />
               </tr>
             </tfoot>
           )}

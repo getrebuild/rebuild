@@ -4949,7 +4949,8 @@ pre.unstyle {
 }
 
 .protable .table th,
-.protable .table thead td {
+.protable .table thead td,
+.protable .table tfoot td {
   background-color: #eceff1;
   font-weight: normal;
   border-bottom-width: 1px;
@@ -5944,6 +5945,10 @@ div.formula-code {
 .badge.badge-sm {
   padding: 3px 5px;
   line-height: 1;
+}
+
+.badge.badge-dark {
+  border: 0 none;
 }
 
 .modal-dialog-centered-unset .modal-dialog-centered {
