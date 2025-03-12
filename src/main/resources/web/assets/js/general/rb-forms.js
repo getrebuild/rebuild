@@ -657,7 +657,14 @@ class RbForm extends React.Component {
       this.refs[d]._toggle()
     })
 
-    setTimeout(() => RbForm.renderAfter(this), 0)
+    setTimeout(() => {
+      RbForm.renderAfter(this)
+
+      // v4.0 编辑时触发
+      if (window.FrontJS && window.EasyFilterEval && this.props.id && !this.props.readonly) {
+        if (window.EasyFilterEval) window.EasyFilterEval.evalAndEffect(this)
+      }
+    }, 20)
   }
 
   // 表单回填
@@ -710,8 +717,7 @@ class RbForm extends React.Component {
       const fieldKey = `${this.props.entity}.${field}`
       window.FrontJS.Form._trigger('fieldValueChange', [fieldKey, value, this.props.id || null])
       // v4.0
-      // eslint-disable-next-line no-undef
-      if (window.EasyFilterEval) EasyFilterEval.evalAndEffect(this)
+      if (window.EasyFilterEval) window.EasyFilterEval.evalAndEffect(this)
     }
   }
 

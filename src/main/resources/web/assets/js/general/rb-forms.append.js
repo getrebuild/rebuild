@@ -959,21 +959,19 @@ class LiteFormArea extends React.Component {
 }
 
 const EasyFilterEval = {
-  __timer: null,
-
-  evalAndEffect: function (form) {
-    // LiteForm or others
-    if (!form.props.rawModel.layoutId) return
+  evalAndEffect: function (formObject) {
+    // LiteForm or Others
+    if (!formObject.props.rawModel.layoutId) return
 
     if (this.__timer) {
       clearTimeout(this.__timer)
       this.__timer = null
     }
-    this.__timer = setTimeout(() => this._evalAndEffect(form), 200)
+    this.__timer = setTimeout(() => this._evalAndEffect(formObject), 200)
   },
 
-  _evalAndEffect: function (form) {
-    const _this = form
+  _evalAndEffect: function (formObject) {
+    const _this = formObject
     $.post(`/app/entity/extras/easyfilter-eval?layout=${_this.props.rawModel.layoutId}`, JSON.stringify(_this.getFormData()), (res) => {
       const attrs = res.data || []
       const attrsLast = _this.__lastEasyFilterEval || []
