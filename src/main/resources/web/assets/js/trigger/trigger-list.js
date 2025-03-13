@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global dlgActionAfter ShowEnable */
+/* global dlgActionAfter ShowEnable taggedTitle */
 
 $(document).ready(function () {
   $('.J_add').on('click', () => renderRbcomp(<TriggerEdit />))
@@ -73,10 +73,16 @@ class TriggerList extends ConfigList {
         {(this.state.data || []).map((item) => {
           // v4.0 渲染时过滤
           if (q) {
-            let names = [item[3], item[2], item[7]]
-            if (item[9] && item[9][1]) names.push(item[9][1])
-            names = names.join(';').toLowerCase()
-            if (!names.includes(q.toLowerCase())) return null
+            if (q.startsWith('#')) {
+              let name = item[3] || ''
+              if (name.includes(q + ' ') || name.endsWith(q));
+              else return null
+            } else {
+              let names = [item[3], item[2], item[7]]
+              if (item[9] && item[9][1]) names.push(item[9][1])
+              names = names.join(';').toLowerCase()
+              if (!names.includes(q.toLowerCase())) return null
+            }
           }
 
           let targetRef = item[9]
@@ -113,8 +119,8 @@ class TriggerList extends ConfigList {
 
           return (
             <tr key={item[0]}>
-              <td>
-                <a href={`trigger/${item[0]}`}>{item[3] || item[2] + ' · ' + item[7]}</a>
+              <td className="name">
+                <a href={`trigger/${item[0]}`}>{taggedTitle(item[3]) || item[2] + ' · ' + item[7]}</a>
               </td>
               <td>
                 <a href={`${rb.baseUrl}/admin/entity/${item[1]}/base`} className="light-link" target={`_${item[1]}`}>

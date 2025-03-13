@@ -16,10 +16,10 @@ class EasyFilter extends AdvFilter {
   // -- USAGE
 
   /**
-   * @param {RbForm} form
+   * @param {RbForm} formObject
    */
-  static check(form) {
-    console.log(form)
+  static check(formObject) {
+    console.log(formObject)
   }
 }
 

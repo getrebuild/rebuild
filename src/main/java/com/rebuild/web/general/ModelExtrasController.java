@@ -60,13 +60,14 @@ import java.util.Objects;
 public class ModelExtrasController extends BaseController {
 
     // 获取表单回填数据
-    @GetMapping("fillin-value")
+    @RequestMapping("fillin-value")
     public JSON getFillinValue(@EntityParam Entity entity, @IdParam(name = "source") ID sourceRecord,
                                HttpServletRequest request) {
         String field = getParameterNotNull(request, "field");
         Field useField = entity.getField(field);
+        JSONObject formData40 = (JSONObject) ServletUtils.getRequestJson(request);
 
-        return AutoFillinManager.instance.getFillinValue(useField, sourceRecord);
+        return AutoFillinManager.instance.getFillinValue(useField, sourceRecord, formData40);
     }
 
     // 记录转换

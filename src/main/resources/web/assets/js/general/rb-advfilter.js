@@ -46,6 +46,8 @@ class AdvFilter extends React.Component {
           </div>
         )}
 
+        {this.props.hasTip && <RbAlertBox message={this.props.hasTip} type="info" />}
+
         <div className="adv-filter">
           <div
             className="filter-items"

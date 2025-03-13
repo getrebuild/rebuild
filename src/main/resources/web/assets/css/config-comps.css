@@ -30,3 +30,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: transparent;
   line-height: 15px;
 }
+
+.data-list td.name span.badge {
+  margin: 0;
+}
+
+.data-list td.name span.badge:first-child {
+  margin-left: 5px;
+}
+
+.data-list td.name span.badge:hover {
+  opacity: 0.8;
+  cursor: pointer;
+}

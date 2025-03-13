@@ -657,7 +657,14 @@ class RbForm extends React.Component {
       this.refs[d]._toggle()
     })
 
-    setTimeout(() => RbForm.renderAfter(this), 0)
+    setTimeout(() => {
+      RbForm.renderAfter(this)
+
+      // v4.0 编辑时触发
+      if (window.FrontJS && window.EasyFilterEval && this.props.id && !this.props.readonly) {
+        if (window.EasyFilterEval) window.EasyFilterEval.evalAndEffect(this)
+      }
+    }, 20)
   }
 
   // 表单回填
@@ -710,8 +717,7 @@ class RbForm extends React.Component {
       const fieldKey = `${this.props.entity}.${field}`
       window.FrontJS.Form._trigger('fieldValueChange', [fieldKey, value, this.props.id || null])
       // v4.0
-      // eslint-disable-next-line no-undef
-      if (window.EasyFilterEval) EasyFilterEval.evalAndEffect(this)
+      if (window.EasyFilterEval) window.EasyFilterEval.evalAndEffect(this)
     }
   }
 
@@ -725,11 +731,11 @@ class RbForm extends React.Component {
   getFormData() {
     const data = {}
     // eslint-disable-next-line react/no-string-refs
-    const _refs = this.refs
-    for (let key in _refs) {
+    const fieldRefs = this.refs
+    for (let key in fieldRefs) {
       if (!key.startsWith('fieldcomp-')) continue
 
-      const fieldComp = _refs[key]
+      const fieldComp = fieldRefs[key]
       let v = fieldComp.getValue()
       if (v && typeof v === 'object') v = v.id || v // array
       if (v) data[fieldComp.props.field] = v
@@ -995,7 +1001,7 @@ class RbFormElement extends React.Component {
     const props = this.props
     if (!props.onView) {
       // 必填字段
-      if (!this.state.nullable && $empty(props.value) && props.readonlyw !== 2) {
+      if (!this.state.nullable && $empty(props.value) && props.readonlyw !== 2 && props.unreadable !== true) {
         props.$$$parent.setFieldValue(props.field, null, $L('%s不能为空', props.label))
       }
 
@@ -1979,8 +1985,8 @@ class RbFormPickList extends RbFormElement {
   }
 
   renderElement() {
+    const _readonly37 = this.state.readonly
     if (this._isShowRadio39) {
-      const _readonly37 = this.state.readonly
       return (
         <div ref={(c) => (this._fieldValue = c)} className="mt-1">
           {this._options.map((item) => {
@@ -1996,7 +2002,7 @@ class RbFormPickList extends RbFormElement {
     }
 
     return (
-      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" defaultValue={this.state.value || ''}>
+      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" defaultValue={this.state.value || ''} disabled={_readonly37}>
         <option value="" />
         {this._options.map((item) => {
           return (
@@ -2063,7 +2069,13 @@ class RbFormReference extends RbFormElement {
 
     return (
       <div className="input-group has-append">
-        <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" title={this._hasDataFilter ? $L('当前字段已启用数据过滤') : null} multiple={this._multiple === true} />
+        <select
+          ref={(c) => (this._fieldValue = c)}
+          className="form-control form-control-sm"
+          title={this._hasDataFilter ? $L('当前字段已启用数据过滤') : null}
+          multiple={this._multiple === true}
+          disabled={_readonly37}
+        />
         {!_readonly37 && (
           <div className="input-group-append">
             <button className="btn btn-secondary" type="button" onClick={() => this.showSearcher()}>
@@ -2107,7 +2119,7 @@ class RbFormReference extends RbFormElement {
     // 新建记录时触发回填
     const props = this.props
     if (this._isNew && props.value && props.value.id) {
-      setTimeout(() => this.triggerAutoFillin(props.value.id), 500)
+      setTimeout(() => this.triggerAutoFillin(props.value.id), 200)
     }
   }
 
@@ -2138,19 +2150,6 @@ class RbFormReference extends RbFormElement {
         if (v && typeof v === 'string') {
           __addRecentlyUse(v)
           that.triggerAutoFillin(v)
-
-          // v2.10 FIXME 父级改变后清除明细
-          // v3.1 因为父级无法获取到明细的级联值，且级联值有多个（逻辑上存在多个父级值）
-          // v3.9 不清除明细
-          // const _cascadingFieldChild = that.props._cascadingFieldChild || ''
-          // if ($$$form._ProTables && !$$$form._inAutoFillin && _cascadingFieldChild.includes('.')) {
-          //   const _ProTable = $$$form._ProTables[_cascadingFieldChild.split('.')[0]]
-          //   if (_ProTable) {
-          //     const field = _cascadingFieldChild.split('$$$$')[0].split('.')[1]
-          //     _ProTable.setFieldNull(field)
-          //     console.log('Clean details ...', field)
-          //   }
-          // }
         }
 
         that.handleChange({ target: { value: v } }, true)
@@ -2251,11 +2250,23 @@ class RbFormReference extends RbFormElement {
 
   // 字段回填
   triggerAutoFillin(value) {
+    setTimeout(() => this._triggerAutoFillin(value), 400)
+  }
+  _triggerAutoFillin(value) {
     if (this.props.onView) return
 
+    const id = value && typeof value === 'object' ? value.id : value
     const $$$form = this.props.$$$parent
-    const url = `/app/entity/extras/fillin-value?entity=${$$$form.props.entity}&field=${this.props.field}&source=${value}`
-    $.get(url, (res) => {
+    let formData = null
+    if (this.props.fillinWithFormData) {
+      formData = $$$form.getFormData()
+      if ($$$form._InlineForm && $$$form.props.$$$main) {
+        formData.$$$main = $$$form.props.$$$main.getFormData()
+      }
+    }
+
+    const url = `/app/entity/extras/fillin-value?entity=${$$$form.props.entity}&field=${this.props.field}&source=${id}`
+    $.post(url, JSON.stringify(formData), (res) => {
       if (res.error_code === 0 && res.data.length > 0) {
         const fillin2main = []
         const fillin2this = []
@@ -3075,6 +3086,16 @@ class RbFormUnsupportted extends RbFormElement {
   }
 }
 
+// 无权限读取的字段
+class RbFormUnreadable extends RbFormElement {
+  renderElement() {
+    return <div className="form-control-plaintext text-muted">{$L('[无权限]')}</div>
+  }
+  renderViewElement() {
+    return this.renderElement()
+  }
+}
+
 // 分割线
 class RbFormDivider extends React.Component {
   constructor(props) {
@@ -3178,6 +3199,10 @@ var detectElement = function (item, entity) {
   if (entity && window._CustomizedForms) {
     const c = window._CustomizedForms.useFormElement(entity, item)
     if (c) return c
+  }
+
+  if (item.unreadable === true) {
+    return <RbFormUnreadable {...item} />
   }
 
   if (item.type === 'TEXT' || item.type === 'SERIES') {

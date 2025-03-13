@@ -82,7 +82,7 @@ public class RelatedListController extends BaseController {
         List<Object> res = new ArrayList<>();
         for (Object[] o : array) {
             Object nameValue = o[1];
-            if (!fp.isReadble(relatedEntity.getNameField(), user)) {
+            if (!fp.isReadable(relatedEntity.getNameField(), user)) {
                 nameValue = FieldValueHelper.NO_READ_PRIVILEGES;
                 nameValue = Language.L("[无权限]");
             } else {

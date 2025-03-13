@@ -38,6 +38,7 @@ import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.general.DataListWrapper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
@@ -361,8 +362,6 @@ public class FormsBuilder extends FormsManager {
                 || EntityHelper.isUnsavedId(recordData.getPrimary());
 
         final FieldPrivileges fp = Application.getPrivilegesManager().getFieldPrivileges();
-        // 是否来自明细共同编辑
-        final boolean isProTableLayout = FormsBuilderContextHolder.getMainIdOfDetail(false) != null;
 
         // Check and clean
         for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
@@ -500,6 +499,10 @@ public class FormsBuilder extends FormsManager {
                             Application.getPrivilegesManager().allowCreate(user, refEntity.getEntityCode()));
                     el.put("referenceEntity", EasyMetaFactory.toJSON(refEntity));
                 }
+
+                if (dt == DisplayType.REFERENCE && License.isRbvAttached()) {
+                    el.put("fillinWithFormData", true);
+                }
             }
 
             // 新建记录
@@ -615,7 +618,12 @@ public class FormsBuilder extends FormsManager {
             if (isNew) {
                 if (!fp.isCreatable(fieldMeta, user)) el.put("readonly", true);
             } else {
-                if (!fp.isReadble(fieldMeta, user)) iter.remove();
+                // v40 保留占位
+                if (!fp.isReadable(fieldMeta, user)) {
+                    el.put("unreadable", true);
+                    el.put("readonly", true);
+                    el.remove("value");
+                }
                 else if (!fp.isUpdatable(fieldMeta, user)) el.put("readonly", true);
             }
         }
