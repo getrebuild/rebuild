@@ -731,11 +731,11 @@ class RbForm extends React.Component {
   getFormData() {
     const data = {}
     // eslint-disable-next-line react/no-string-refs
-    const _refs = this.refs
-    for (let key in _refs) {
+    const fieldRefs = this.refs
+    for (let key in fieldRefs) {
       if (!key.startsWith('fieldcomp-')) continue
 
-      const fieldComp = _refs[key]
+      const fieldComp = fieldRefs[key]
       let v = fieldComp.getValue()
       if (v && typeof v === 'object') v = v.id || v // array
       if (v) data[fieldComp.props.field] = v
@@ -1001,7 +1001,7 @@ class RbFormElement extends React.Component {
     const props = this.props
     if (!props.onView) {
       // 必填字段
-      if (!this.state.nullable && $empty(props.value) && props.readonlyw !== 2) {
+      if (!this.state.nullable && $empty(props.value) && props.readonlyw !== 2 && props.unreadable !== true) {
         props.$$$parent.setFieldValue(props.field, null, $L('%s不能为空', props.label))
       }
 
@@ -3086,6 +3086,16 @@ class RbFormUnsupportted extends RbFormElement {
   }
 }
 
+// 无权限读取的字段
+class RbFormUnreadable extends RbFormElement {
+  renderElement() {
+    return <div className="form-control-plaintext text-muted">{$L('[无权限]')}</div>
+  }
+  renderViewElement() {
+    return this.renderElement()
+  }
+}
+
 // 分割线
 class RbFormDivider extends React.Component {
   constructor(props) {
@@ -3189,6 +3199,10 @@ var detectElement = function (item, entity) {
   if (entity && window._CustomizedForms) {
     const c = window._CustomizedForms.useFormElement(entity, item)
     if (c) return c
+  }
+
+  if (item.unreadable === true) {
+    return <RbFormUnreadable {...item} />
   }
 
   if (item.type === 'TEXT' || item.type === 'SERIES') {

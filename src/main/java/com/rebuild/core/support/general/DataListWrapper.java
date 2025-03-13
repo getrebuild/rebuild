@@ -296,7 +296,7 @@ public class DataListWrapper {
      */
     protected boolean checkHasFieldPrivileges(SelectItem field) {
         ID u = user == null ? UserContextHolder.getUser() : user;
-        return Application.getPrivilegesManager().getFieldPrivileges().isReadble(field.getField(), u);
+        return Application.getPrivilegesManager().getFieldPrivileges().isReadable(field.getField(), u);
     }
 
     /**

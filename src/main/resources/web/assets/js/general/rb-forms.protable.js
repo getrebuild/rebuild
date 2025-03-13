@@ -696,8 +696,8 @@ class InlineForm extends RbForm {
     return data
   }
 
-  buildFormData(retAll) {
-    const data = retAll ? this._baseFormData() : {}
+  buildFormData(returnAll) {
+    const data = returnAll ? this._baseFormData() : {}
 
     const $idx = $(this._$ref).parent().find('th.col-index').removeAttr('title')
     let error = null

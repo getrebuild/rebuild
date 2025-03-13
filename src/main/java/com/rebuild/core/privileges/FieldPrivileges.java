@@ -36,7 +36,7 @@ public class FieldPrivileges {
      * @param user
      * @return
      */
-    public boolean isReadble(Field field, ID user) {
+    public boolean isReadable(Field field, ID user) {
         return true;
     }
 

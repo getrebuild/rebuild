@@ -617,7 +617,12 @@ public class FormsBuilder extends FormsManager {
             if (isNew) {
                 if (!fp.isCreatable(fieldMeta, user)) el.put("readonly", true);
             } else {
-                if (!fp.isReadble(fieldMeta, user)) iter.remove();
+                // v40 保留占位
+                if (!fp.isReadable(fieldMeta, user)) {
+                    el.put("unreadable", true);
+                    el.put("readonly", true);
+                    el.remove("value");
+                }
                 else if (!fp.isUpdatable(fieldMeta, user)) el.put("readonly", true);
             }
         }
