@@ -38,6 +38,7 @@ import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.general.DataListWrapper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
@@ -361,8 +362,6 @@ public class FormsBuilder extends FormsManager {
                 || EntityHelper.isUnsavedId(recordData.getPrimary());
 
         final FieldPrivileges fp = Application.getPrivilegesManager().getFieldPrivileges();
-        // 是否来自明细共同编辑
-        final boolean isProTableLayout = FormsBuilderContextHolder.getMainIdOfDetail(false) != null;
 
         // Check and clean
         for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
@@ -501,7 +500,9 @@ public class FormsBuilder extends FormsManager {
                     el.put("referenceEntity", EasyMetaFactory.toJSON(refEntity));
                 }
 
-                if (dt == DisplayType.REFERENCE) el.put("fillinWithFormData", true);
+                if (dt == DisplayType.REFERENCE && License.isRbvAttached()) {
+                    el.put("fillinWithFormData", true);
+                }
             }
 
             // 新建记录

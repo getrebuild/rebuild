@@ -744,6 +744,7 @@ const AdvControl = {
               $t.addClass('active')
             }
           }}
+          hasTip={$L('选择的条件字段需布局在表单中')}
         />,
         function () {
           AdvControl._EasyFilters[key] = this
