@@ -2255,17 +2255,17 @@ class RbFormReference extends RbFormElement {
   _triggerAutoFillin(value) {
     if (this.props.onView) return
 
+    const id = value && typeof value === 'object' ? value.id : value
     const $$$form = this.props.$$$parent
     let formData = null
     if (this.props.fillinWithFormData) {
       formData = $$$form.getFormData()
-      if ($$$form._InlineForm) {
-        const $$$formMain = $$$form.props.$$$main
-        formData.$$$main = $$$formMain.getFormData()
+      if ($$$form._InlineForm && $$$form.props.$$$main) {
+        formData.$$$main = $$$form.props.$$$main.getFormData()
       }
     }
 
-    const url = `/app/entity/extras/fillin-value?entity=${$$$form.props.entity}&field=${this.props.field}&source=${value}`
+    const url = `/app/entity/extras/fillin-value?entity=${$$$form.props.entity}&field=${this.props.field}&source=${id}`
     $.post(url, JSON.stringify(formData), (res) => {
       if (res.error_code === 0 && res.data.length > 0) {
         const fillin2main = []
