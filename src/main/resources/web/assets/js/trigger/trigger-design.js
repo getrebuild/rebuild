@@ -466,7 +466,7 @@ class DlgSpecFields extends RbModalHandler {
         ref={(c) => (this._dlg = c)}
         width="780">
         <div className="p-2">
-          <RbAlertBox message={$L('指定字段被更新时触发，默认为全部字段')} />
+          <RbAlertBox message={$L('指定字段被更新时触发，默认为全部字段')} type="info" />
           <div className="row" ref={(c) => (this._$fields = c)}>
             {(this.state.fields || []).map((item) => {
               if (item.type === 'BARCODE' || item.updatable === false) return null
@@ -538,7 +538,7 @@ class DlgSpecApproveNodes extends RbModalHandler {
         ref={(c) => (this._dlg = c)}
         width="780">
         <div className="p-2">
-          <RbAlertBox message={$L('指定审批步骤 (名称) 通过时触发，默认仅审批完成时触发')} />
+          <RbAlertBox message={$L('指定审批步骤 (名称) 通过时触发，默认仅审批完成时触发')} type="info" />
           <div className="row">
             <div className="col-12">
               <label>
