@@ -153,5 +153,6 @@ module.exports = {
     $select2OpenTemplateResult: true,
     $env: true,
     $dropdownMenuSearch: true,
+    $formatNumber: true,
   },
 }

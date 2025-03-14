@@ -341,6 +341,15 @@ function $cleanNumber(n, forceNumber) {
 }
 
 /**
+ * 格式化数字
+ */
+function $formatNumber(n, scale) {
+  let [i, d] = n.toFixed(scale).split('.')
+  i = i.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return d ? `${i}.${d}` : i
+}
+
+/**
  * 常用正则
  */
 var $regex = {
