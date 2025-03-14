@@ -786,7 +786,7 @@ const RbListCommon = {
       $btn.trigger('click')
     })
 
-    // Via 过滤
+    // via 默认过滤
     const via = $urlp('via') || $urlp('via', location.hash)
     if (via) {
       wpc.protocolFilter = `via:${via}`
@@ -799,8 +799,14 @@ const RbListCommon = {
         $cleanVia.remove()
       })
     } else {
-      let def39 = $urlp('def')
+      // d 强制过滤
+      let def39 = $urlp('def') || $urlp('d')
       if (def39) {
+        $('.main-content .nav-tabs a[href]').each(function () {
+          const $this = $(this)
+          $this.attr('href', `${$this.attr('href')}?d=${def39}`)
+        })
+
         def39 = def39.split(':') // FILTER:LAYOUT
         if (def39[0]) wpc.protocolFilter = `via:${def39[0]}`
         if (def39[1]) console.log('Use listConfig :', def39[1])

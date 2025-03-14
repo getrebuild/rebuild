@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support.general;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -191,6 +192,20 @@ public class QueryParser {
         String protocolFilter = queryExpr.getString("protocolFilter");
         if (StringUtils.isNotBlank(protocolFilter)) {
             String where = new ProtocolFilterParser(protocolFilter).toSqlWhere();
+
+            // d 强制过滤明细切换支持
+            if (StringUtils.isNotBlank(where) && protocolFilter.startsWith("via:014-") && entity.getMainEntity() != null) {
+                ConfigBean filter = AdvFilterManager.instance.getAdvFilter(ID.valueOf(protocolFilter.split(":")[1]));
+                String filterEntity = ((JSONObject) filter.getJSON("filter")).getString("entity");
+                Entity filterEntityMeta = MetadataHelper.getEntity(filterEntity);
+                // 明细使用主实体的
+                Entity me = entity.getMainEntity();
+                if (filterEntityMeta.equals(me)) {
+                    Field dtmField = MetadataHelper.getDetailToMainField(entity);
+                    where = String.format("%s in (select %sId from %s where %s)", dtmField.getName(), me.getName(), me.getName(), where);
+                }
+            }
+
             if (StringUtils.isNotBlank(where)) {
                 if (CommonsUtils.DEVLOG) System.out.println("[dev] Parse protocolFilter : " + protocolFilter + " >> " + where);
                 wheres.add(where);
