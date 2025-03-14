@@ -1000,6 +1000,11 @@ class FilterItem extends React.Component {
 
 // eslint-disable-next-line no-unused-vars
 class ListAdvFilter extends AdvFilter {
+  constructor(props) {
+    super(props)
+    props.id && rb.isAdminUser && console.log(`RBAPI ASSISTANT *AdvFilter* :\n %c${props.id}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
+  }
+
   render() {
     const filterComp = super.render()
     return this.props.inModal ? filterComp : <div className="dropdown-menu-advfilter">{filterComp}</div>
