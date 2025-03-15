@@ -5,6 +5,12 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+.J_syncUsers {
+  position: absolute;
+  margin-top: -6px;
+  margin-left: 6px;
+}
+
 .config-title a.search-btn {
   position: absolute;
   font-size: 1.231rem;
