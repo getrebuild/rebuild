@@ -249,11 +249,21 @@ function taggedTitle(title) {
   let tags = title.match(/#[\w\u4e00-\u9fa5]+/g) || []
   if (tags.length === 0) return title
 
+  tags = [...tags].sort((a, b) => a.length - b.length)
   tags.forEach(function (tag) {
-    let ch = tag.substr(1).charCodeAt(0)
-    ch = (ch + '').split('')
-    ch = ~~ch[0] + ~~ch[ch.length - 1]
-    title = title.replace(tag, `<span class="badge badge-info badge-sm" style="background-color:${_RndColors[ch]}">${tag.substr(1)}</span>`)
+    title = title.replace(tag, `<span class="badge badge-info badge-sm" style="background-color:${stringToColor(tag)}">${tag.substr(1)}</span>`)
   })
   return WrapHtml(title)
+}
+
+function stringToColor(str) {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    const ch = str.charCodeAt(i)
+    hash = (hash << 5) - hash + ch
+    hash |= 0
+  }
+  const index = Math.abs(hash) % _RndColors.length
+  console.log(hash, index)
+  return _RndColors[index] || _RndColors[0]
 }
