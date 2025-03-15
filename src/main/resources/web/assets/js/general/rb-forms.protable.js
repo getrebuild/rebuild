@@ -273,17 +273,17 @@ class ProTable extends React.Component {
     })
   }
 
-  addNew(specFieldValues) {
+  addNew(specFieldValues, index) {
     const model = $clone(this._initModel)
     if (specFieldValues) {
       model.elements.forEach((item) => {
         if (specFieldValues[item.field]) item.value = specFieldValues[item.field]
       })
     }
-    this._addLine(model)
+    this._addLine(model, index)
   }
 
-  _addLine(model) {
+  _addLine(model, index) {
     // 明细未配置或出错
     if (!model) {
       if (this.state.hasError) RbHighbar.create(this.state.hasError)
@@ -302,7 +302,8 @@ class ProTable extends React.Component {
     )
 
     const inlineForms = this.state.inlineForms || []
-    inlineForms.push(FORM)
+    if (index >= 0) inlineForms.splice(index, 0, FORM)
+    else inlineForms.push(FORM)
     this.setState({ inlineForms: inlineForms }, () => {
       const refs = this._inlineFormsRefs || []
       refs.push(ref)
@@ -311,17 +312,14 @@ class ProTable extends React.Component {
     })
   }
 
-  copyLine(lineKey) {
+  copyLine(lineKey, index) {
     const F = this.getLineForm(lineKey)
     const data = F ? F.getFormData() : null
     if (!data) return
 
     // force New
     delete data.metadata.id
-
-    this._formdataRebuild(data, (res) => {
-      this._addLine(res.data)
-    })
+    this._formdataRebuild(data, (res) => this._addLine(res.data, index))
   }
 
   removeLine(lineKey) {
@@ -857,7 +855,7 @@ class ProTableTree extends ProTable {
                   </th>
                   {FORM}
                   <td className={`col-action ${!fixedWidth && 'column-fixed'}`}>
-                    <button className="btn btn-light" title={$L('添加')} onClick={() => this.copyLine(key)} disabled={readonly}>
+                    <button className="btn btn-light" title={$L('添加子级')} onClick={() => this.insertLine(key, idx + 1)} disabled={readonly}>
                       <i className="icon zmdi zmdi-plus fs-16" />
                     </button>
                     <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={readonly}>
@@ -896,23 +894,27 @@ class ProTableTree extends ProTable {
     )
   }
 
-  _addLine(model) {
-    model._treeNodeLevel = model._treeNodeLevel || 0
-    super._addLine(model)
+  insertLine(lineKey, index) {
+    const model = $clone(this._initModel)
+    // 加工
+    const stc = this.props.showTreeConfig
+    const F = this.getInlineForm(lineKey)
+    model._treeNodeLevel = F.props.rawModel._treeNodeLevel + 1
+    model.elements.forEach((item) => {
+      if (stc.parentField === item.field) {
+        let parentFieldValue = F.props.rawModel.id
+        if (parentFieldValue) {
+          item.value = { id: parentFieldValue, text: `@${parentFieldValue.toUpperCase()}` }
+        }
+        return
+      }
+    })
+    this._addLine(model, index)
   }
 
-  /**
-   */
-  getSelectedInlineForms() {
-    const ff = []
-    $(this._$tbody)
-      .find('.col-tree input[type="checkbox"]:checked')
-      .each((idx, c) => {
-        let key = $(c).parents('tr').attr('data-key')
-        let F = this.getInlineForm(key)
-        if (F) ff.push(F)
-      })
-    return ff
+  _addLine(model, index) {
+    model._treeNodeLevel = model._treeNodeLevel || 0
+    super._addLine(model, index)
   }
 
   setLines(models = []) {
@@ -951,11 +953,6 @@ class ProTableTree extends ProTable {
       }
     })
   }
-
-  _getValueInModel(model, fieldName) {
-    let found = model.elements.find((x) => x.field === fieldName)
-    return found && found.value ? found.value.id : null
-  }
   _orderNodes(model, into) {
     if (model._treeNodes) {
       model._treeNodes.forEach((node) => {
@@ -964,14 +961,23 @@ class ProTableTree extends ProTable {
       })
     }
   }
-}
-
-class ProTableTreeNode extends React.Component {
-  constructor(props) {
-    super(props)
+  _getValueInModel(model, fieldName) {
+    let found = model.elements.find((x) => x.field === fieldName)
+    return found && found.value ? found.value.id : null
   }
 
-  render() {
-    return super.render()
+  /**
+   * 获取选中
+   */
+  getSelectedInlineForms() {
+    const ff = []
+    $(this._$tbody)
+      .find('.col-tree input[type="checkbox"]:checked')
+      .each((idx, c) => {
+        let key = $(c).parents('tr').attr('data-key')
+        let F = this.getInlineForm(key)
+        if (F) ff.push(F)
+      })
+    return ff
   }
 }
