@@ -25,10 +25,8 @@ class ProTable extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      // $('.detail-form-table .btn-group .btn').attr('disabled', true)
       return <RbAlertBox message={this.state.hasError} />
     }
-
     // 等待初始化
     if (!this.state.formFields) return null
 
@@ -36,7 +34,6 @@ class ProTable extends React.Component {
     const readonly = this.props.$$$main.props.readonly
     const fixedWidth = formFields.length <= 5
     const inlineForms = this.state.inlineForms || []
-
     const colActionClazz = `col-action ${this._initModel.detailsCopiable && 'has-copy-btn'} ${!fixedWidth && 'column-fixed'}`
 
     return (
@@ -45,21 +42,6 @@ class ProTable extends React.Component {
           <thead>
             <tr>
               <th className="col-index" />
-              {this._extConf40.showCheckbox && (
-                <th className="col-checkbox">
-                  <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                    <input
-                      className="custom-control-input"
-                      type="checkbox"
-                      onChange={(e) => {
-                        $(this._$tbody).find('.col-checkbox input').prop('checked', e.target.checked)
-                      }}
-                    />
-                    <i className="custom-control-label" />
-                  </label>
-                </th>
-              )}
-              {this._extConf40.showTreeConfig && <th className="col-tree" />}
               {formFields.map((item) => {
                 if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
 
@@ -90,20 +72,43 @@ class ProTable extends React.Component {
             </tr>
           </thead>
           <tbody ref={(c) => (this._$tbody = c)}>
-            <InlineFormTree readonly={readonly} fixedWidth={fixedWidth} inlineForms={inlineForms} extConf40={this._extConf40} _this={this} />
+            {inlineForms.map((FORM, idx) => {
+              const key = FORM.key
+              return (
+                <tr key={`if-${key}`} data-key={key}>
+                  <th className={`col-index ${!readonly && 'action'}`}>
+                    <span>{idx + 1}</span>
+                    {!readonly && (
+                      <a title={$L('展开编辑')} onClick={() => this._expandLineForm(key)}>
+                        <i className="mdi mdi-arrow-expand" />
+                      </a>
+                    )}
+                  </th>
+                  {FORM}
+                  <td className={`col-action ${!fixedWidth && 'column-fixed'}`}>
+                    {this._initModel.detailsCopiable && (
+                      <button className="btn btn-light" title={$L('复制')} onClick={() => this.copyLine(key)} disabled={readonly}>
+                        <i className="icon zmdi zmdi-copy fs-13" />
+                      </button>
+                    )}
+                    <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={readonly}>
+                      <i className="icon zmdi zmdi-close fs-16" />
+                    </button>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
           {this._extConf40.showCounts && (
             <tfoot className={inlineForms.length === 0 ? 'hide' : ''}>
               <tr>
                 <th className="col-idx" />
-                {this._extConf40.showCheckbox && <th className="col-checkbox" />}
-                {this._extConf40.showTreeConfig && <th className="col-tree" />}
                 {formFields.map((item) => {
                   if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
 
                   let v = this.state._counts[item.field]
-                  if (item.type === 'DECIMAL') v = (v || 0).toFixed(2)
-                  else if (item.type === 'NUMBER') v = (v || 0).toFixed(0)
+                  if (item.type === 'DECIMAL') v = $formatNumber(v || 0, 2)
+                  else if (item.type === 'NUMBER') v = $formatNumber(v || 0, 0)
                   return (
                     <th key={item.field} className="text-bold">
                       {v}
@@ -148,16 +153,11 @@ class ProTable extends React.Component {
         this.setLines(this.props.transDetails)
         this._deletesQuietly = this.props.transDetailsDelete
       }
-      // 正常编辑
+      // 常规编辑
       else if (this.props.mainid) {
         $.get(`/app/${entity.entity}/detail-models?mainid=${this.props.mainid}`, (res) => {
           if (res.error_code === 0) {
-            let data = res.data || []
-            if (this._extConf40.showTreeConfig && data.length > 0) {
-              let stc = this._extConf40.showTreeConfig
-              data = this._buildData2Tree40(stc.parentField, stc.childField, data)
-            }
-            this.setLines(data)
+            this.setLines(res.data || [])
           } else {
             RbHighbar.error($L('明细加载失败，请稍后重试'))
           }
@@ -166,111 +166,12 @@ class ProTable extends React.Component {
 
       this._initDividing37()
     })
-
-    setTimeout(() => {
-      this.getSelectedInlineForms()
-    }, 5000)
-  }
-
-  // 构建树形数据
-  _buildData2Tree40(parentField, childField, data) {
-    // 获取字段值
-    function _FIND(item, fieldName) {
-      let field = item.elements.find((x) => x.field === fieldName)
-      let value = field ? field.value : null
-      return (typeof value === 'object' ? value.id : value) || '0'
-    }
-
-    let data2 = []
-    // #1
-    data.forEach((item) => {
-      item._treeNodeKey = _FIND(item, parentField)
-      item._treeNodeParentKey = _FIND(item, childField)
-      item._id = $random('_id')
-      data2.push(item)
-    })
-    // #2
-    data2.forEach((item) => {
-      let parent = data2.find((x) => item._treeNodeParentKey === x._treeNodeKey)
-      if (parent) {
-        if (!parent._treeChildren) parent._treeChildren = []
-        parent._treeChildren.push(item._id)
-      }
-    })
-
-    // #3
-    let data3 = []
-    data2.forEach((item) => {
-      if (item._treeNodeParentKey === '0') {
-        data3.push(item)
-        // L2
-        if (item._treeChildren) {
-          item._treeChildren.forEach((child) => {
-            let childItem = data2.find((x) => x._id === child)
-            if (childItem) {
-              childItem._treeNodeLevel = 1
-              data3.push(childItem)
-              // L3
-              if (childItem._treeChildren) {
-                childItem._treeChildren.forEach((child) => {
-                  childItem = data2.find((x) => x._id === child)
-                  if (childItem) {
-                    childItem._treeNodeLevel = 2
-                    data3.push(childItem)
-                    // L4
-                    if (childItem._treeChildren) {
-                      childItem._treeChildren.forEach((child) => {
-                        childItem = data2.find((x) => x._id === child)
-                        if (childItem) {
-                          childItem._treeNodeLevel = 3
-                          data3.push(childItem)
-                          // L5
-                          if (childItem._treeChildren) {
-                            childItem._treeChildren.forEach((child) => {
-                              childItem = data2.find((x) => x._id === child)
-                              if (childItem) {
-                                childItem._treeNodeLevel = 4
-                                data3.push(childItem)
-                                // L6
-                                if (childItem._treeChildren) {
-                                  childItem._treeChildren.forEach((child) => {
-                                    childItem = data2.find((x) => x._id === child)
-                                    if (childItem) {
-                                      childItem._treeNodeLevel = 5
-                                      data3.push(childItem)
-                                      // L7
-                                    }
-                                  })
-                                }
-                              }
-                            })
-                          }
-                        }
-                      })
-                    }
-                  }
-                })
-              }
-            }
-          })
-        }
-      }
-    })
-
-    data2.forEach((item) => {
-      let found = data3.find((x) => x._id === item._id)
-      if (!found) data3.push(item)
-    })
-
-    console.log(data2, data3)
-    return data3
   }
 
   // prevProps, prevState, snapshot
   componentDidUpdate = () => this._componentDidUpdate()
   _componentDidUpdate() {
-    const extConf40 = _EXTCONFIG[this.props.entity.entity] || {}
-    if (!extConf40.showCounts || this._countsStateUpdate) return
+    if (!this._extConf40.showCounts || this._countsStateUpdate) return
 
     // 计算合计
     if (this._countsTimer) clearTimeout(this._countsTimer)
@@ -284,8 +185,7 @@ class ProTable extends React.Component {
               const c = FORM.getFieldComp(item.field)
               if (c) {
                 let v = c.getValue()
-                if (v === null || v === undefined || v === '');
-                else {
+                if (!$empty(v)) {
                   v = $cleanNumber(v, true)
                   _counts[item.field] = (_counts[item.field] || 0) + v
                 }
@@ -373,17 +273,17 @@ class ProTable extends React.Component {
     })
   }
 
-  addNew(specFieldValues) {
+  addNew(specFieldValues, index) {
     const model = $clone(this._initModel)
     if (specFieldValues) {
       model.elements.forEach((item) => {
         if (specFieldValues[item.field]) item.value = specFieldValues[item.field]
       })
     }
-    this._addLine(model)
+    this._addLine(model, index)
   }
 
-  _addLine(model) {
+  _addLine(model, index) {
     // 明细未配置或出错
     if (!model) {
       if (this.state.hasError) RbHighbar.create(this.state.hasError)
@@ -401,9 +301,10 @@ class ProTable extends React.Component {
       </InlineForm>
     )
 
-    const forms = this.state.inlineForms || []
-    forms.push(FORM)
-    this.setState({ inlineForms: forms }, () => {
+    const inlineForms = this.state.inlineForms || []
+    if (index >= 0) inlineForms.splice(index, 0, FORM)
+    else inlineForms.push(FORM)
+    this.setState({ inlineForms: inlineForms }, () => {
       const refs = this._inlineFormsRefs || []
       refs.push(ref)
       this._inlineFormsRefs = refs
@@ -411,22 +312,19 @@ class ProTable extends React.Component {
     })
   }
 
-  copyLine(lineKey) {
+  copyLine(lineKey, index) {
     const F = this.getLineForm(lineKey)
     const data = F ? F.getFormData() : null
     if (!data) return
 
     // force New
     delete data.metadata.id
-
-    this._formdataRebuild(data, (res) => {
-      this._addLine(res.data)
-    })
+    this._formdataRebuild(data, (res) => this._addLine(res.data, index))
   }
 
   removeLine(lineKey) {
     if (!this.state.inlineForms) return
-    const forms = this.state.inlineForms.filter((x) => {
+    const inlineForms = this.state.inlineForms.filter((x) => {
       if (x.key === lineKey && x.props.id) {
         const d = this._deletes || []
         d.push(x.props.id)
@@ -434,7 +332,7 @@ class ProTable extends React.Component {
       }
       return x.key !== lineKey
     })
-    this.setState({ inlineForms: forms }, () => this._onLineUpdated(lineKey))
+    this.setState({ inlineForms }, () => this._onLineUpdated(lineKey))
   }
 
   setLines(models = []) {
@@ -508,20 +406,6 @@ class ProTable extends React.Component {
   }
 
   /**
-   */
-  getSelectedInlineForms() {
-    const ff = []
-    $(this._$tbody)
-      .find('.col-checkbox input[type="checkbox"]:checked')
-      .each((idx, c) => {
-        let key = $(c).parents('tr').attr('data-key')
-        let F = this.getInlineForm(key)
-        if (F) ff.push(F)
-      })
-    return ff
-  }
-
-  /**
    * 构建数据
    * @param {boolean} retAll 是否返回所有数据
    * @returns
@@ -576,17 +460,29 @@ class ProTable extends React.Component {
   // --
 
   /**
-   * 导入明细
+   * 创建
+   * @param {*} rest
+   * @returns
+   */
+  static create(rest) {
+    const _extConf40 = _EXTCONFIG[rest.entity.entity] || {}
+    if (_extConf40.showTreeConfig) {
+      return <ProTableTree {...rest} showTreeConfig={_extConf40.showTreeConfig} />
+    }
+    return <ProTable {...rest} />
+  }
+
+  /**
+   * 记录转换-明细导入
    * @param {*} transid
-   * @param {*} form
+   * @param {*} formObject
    * @param {*} cb
    * @returns
    */
-  static detailImports(transid, form, cb) {
-    const formdata = form.getFormData()
-    const mainid = form.props.id || null
-
-    $.post(`/app/entity/extras/detail-imports?transid=${transid}&mainid=${mainid}`, JSON.stringify(formdata), (res) => {
+  static detailImports(transid, formObject, cb) {
+    const formData = formObject.getFormData()
+    const mainid = formObject.props.id || null
+    $.post(`/app/entity/extras/detail-imports?transid=${transid}&mainid=${mainid}`, JSON.stringify(formData), (res) => {
       if (res.error_code === 0) {
         if ((res.data || []).length === 0) RbHighbar.create($L('没有可导入的明细记录'))
         else typeof cb === 'function' && cb(res.data)
@@ -597,63 +493,6 @@ class ProTable extends React.Component {
   }
 }
 
-class InlineFormTree extends React.Component {
-  render() {
-    return this.props.inlineForms.map((FORM, idx) => {
-      return this.renderRow(FORM, idx)
-    })
-  }
-
-  renderRow(FORM, idx) {
-    const _this = this.props._this
-    const readonly = this.props.readonly
-    const fixedWidth = this.props.fixedWidth
-    const extConf40 = this.props.extConf40
-
-    const key = FORM.key
-    const rawModel = FORM.props.rawModel
-    return (
-      <tr key={`if-${key}`} data-key={key}>
-        <th className={`col-index ${!readonly && 'action'}`}>
-          <span>{idx + 1}</span>
-          {!readonly && (
-            <a title={$L('展开编辑')} onClick={() => _this._expandLineForm(key)}>
-              <i className="mdi mdi-arrow-expand" />
-            </a>
-          )}
-        </th>
-        {extConf40.showCheckbox && (
-          <td className="col-checkbox">
-            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-              <input className="custom-control-input" type="checkbox" />
-              <i className="custom-control-label" />
-            </label>
-          </td>
-        )}
-        {extConf40.showTreeConfig && (
-          <td className="col-tree">
-            <a className={`col-tree-level-${rawModel._treeNodeLevel || 0}`}>
-              <span>{(rawModel._treeNodeLevel || 0) + 1}</span>
-              <i className="zmdi zmdi-chevron-right" />
-            </a>
-          </td>
-        )}
-        {FORM}
-        <td className={`col-action ${!fixedWidth && 'column-fixed'}`}>
-          {_this._initModel.detailsCopiable && (
-            <button className="btn btn-light" title={$L('复制')} onClick={() => _this.copyLine(key)} disabled={readonly}>
-              <i className="icon zmdi zmdi-copy fs-14" />
-            </button>
-          )}
-          <button className="btn btn-light" title={$L('移除')} onClick={() => _this.removeLine(key)} disabled={readonly}>
-            <i className="icon zmdi zmdi-close fs-16 text-bold" />
-          </button>
-        </td>
-      </tr>
-    )
-  }
-}
-
 class InlineForm extends RbForm {
   constructor(props) {
     super(props)
@@ -661,14 +500,28 @@ class InlineForm extends RbForm {
   }
 
   render() {
+    const rawModel = this.props.rawModel
     return (
       <RF>
+        {rawModel._treeNodeLevel >= 0 && (
+          <td className="col-tree">
+            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
+              <input className="custom-control-input" type="checkbox" />
+              <i className="custom-control-label" />
+            </label>
+            <a style={{ marginLeft: (rawModel._treeNodeLevel || 0) * 9 }}>
+              <span>{(rawModel._treeNodeLevel || 0) + 1}</span>
+              <i className="zmdi zmdi-chevron-right" />
+            </a>
+          </td>
+        )}
+
         {this.props.children.map((fieldComp) => {
           if (fieldComp.props.field === TYPE_DIVIDER || fieldComp.props.field === TYPE_REFFORM) return null
-          const refid = `fieldcomp-${fieldComp.props.field}`
+          const key = `fieldcomp-${fieldComp.props.field}`
           return (
-            <td key={`td-${refid}`} ref={(c) => (this._$ref = c)}>
-              {React.cloneElement(fieldComp, { $$$parent: this, ref: refid })}
+            <td key={key} ref={(c) => (this._$ref = c)}>
+              {React.cloneElement(fieldComp, { $$$parent: this, ref: key })}
             </td>
           )
         })}
@@ -752,13 +605,6 @@ class InlineForm extends RbForm {
     super._onFieldValueChangeCall(field, value)
     // v4.0
     typeof this.props._componentDidUpdate === 'function' && this.props._componentDidUpdate()
-  }
-
-  getTreeNodeKey() {
-    return this.props.rawModel._treeNodeKey
-  }
-  getTreeNodeParentKey() {
-    return this.props.rawModel._treeNodeParentKey
   }
 }
 
@@ -925,5 +771,213 @@ class ExcelClipboardDataModal extends RbModalHandler {
         />
       </RbModal>
     )
+  }
+}
+
+// LAB 树状
+class ProTableTree extends ProTable {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <RbAlertBox message={this.state.hasError} />
+    }
+    // 等待初始化
+    if (!this.state.formFields) return null
+
+    const formFields = this.state.formFields
+    const readonly = this.props.$$$main.props.readonly
+    const fixedWidth = false
+    const inlineForms = this.state.inlineForms || []
+    const colActionClazz = `col-action has-copy-btn ${!fixedWidth && 'column-fixed'}`
+
+    return (
+      <div className={`protable rb-scroller ${!fixedWidth && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
+        <table className={`table table-sm ${fixedWidth && 'table-fixed'}`}>
+          <thead>
+            <tr>
+              <th className="col-index" />
+              <th className="col-tree">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                  <input
+                    className="custom-control-input"
+                    type="checkbox"
+                    onChange={(e) => {
+                      $(this._$tbody).find('.col-tree input').prop('checked', e.target.checked)
+                    }}
+                  />
+                  <i className="custom-control-label" />
+                </label>
+              </th>
+              {formFields.map((item) => {
+                if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
+
+                let colStyle2 = { minWidth: _PT_COLUMN_DEF_WIDTH }
+                if (!fixedWidth) {
+                  // v35, v38
+                  let _colspan = ~~(item.colspan || 2)
+                  if (_colspan === 9) _colspan = 1.5
+                  if (_colspan === 8) _colspan = 2.5
+                  colStyle2.minWidth = (_PT_COLUMN_DEF_WIDTH / 2) * _colspan
+                  if (_PT_COLUMN_WIDTH_PLUS.includes(item.type)) colStyle2.minWidth += 38 // btn
+                }
+                // v37 LAB
+                if (item.width) {
+                  colStyle2.width = item.width
+                  colStyle2.minWidth = 'auto'
+                }
+
+                return (
+                  <th key={item.field} data-field={item.field} style={colStyle2} className={item.nullable ? '' : 'required'}>
+                    {item.label}
+                    {item.tip && <i className="tipping zmdi zmdi-info-outline" title={item.tip} />}
+                    <i className="dividing hide" />
+                  </th>
+                )
+              })}
+              <td className={colActionClazz} />
+            </tr>
+          </thead>
+          <tbody ref={(c) => (this._$tbody = c)}>
+            {inlineForms.map((FORM, idx) => {
+              const key = FORM.key
+              return (
+                <tr key={`if-${key}`} data-key={key}>
+                  <th className={`col-index ${!readonly && 'action'}`}>
+                    <span>{idx + 1}</span>
+                    {!readonly && (
+                      <a title={$L('展开编辑')} onClick={() => this._expandLineForm(key)}>
+                        <i className="mdi mdi-arrow-expand" />
+                      </a>
+                    )}
+                  </th>
+                  {FORM}
+                  <td className={`col-action ${!fixedWidth && 'column-fixed'}`}>
+                    <button className="btn btn-light" title={$L('添加子级')} onClick={() => this.insertLine(key, idx + 1)} disabled={readonly}>
+                      <i className="icon zmdi zmdi-plus fs-16" />
+                    </button>
+                    <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={readonly}>
+                      <i className="icon zmdi zmdi-close fs-16" />
+                    </button>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+          {this._extConf40.showCounts && (
+            <tfoot className={inlineForms.length === 0 ? 'hide' : ''}>
+              <tr>
+                <th className="col-idx" />
+                <th className="col-tree" />
+                {formFields.map((item) => {
+                  if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
+
+                  let v = this.state._counts[item.field]
+                  if (item.type === 'DECIMAL') v = $formatNumber(v || 0, 2)
+                  else if (item.type === 'NUMBER') v = $formatNumber(v || 0, 0)
+                  return (
+                    <th key={item.field} className="text-bold">
+                      {v}
+                    </th>
+                  )
+                })}
+                <td className={colActionClazz} />
+              </tr>
+            </tfoot>
+          )}
+        </table>
+
+        {inlineForms.length === 0 && <div className="text-center text-muted mt-6">{$L('请添加明细')}</div>}
+      </div>
+    )
+  }
+
+  insertLine(lineKey, index) {
+    const model = $clone(this._initModel)
+    // 加工
+    const stc = this.props.showTreeConfig
+    const F = this.getInlineForm(lineKey)
+    model._treeNodeLevel = F.props.rawModel._treeNodeLevel + 1
+    model.elements.forEach((item) => {
+      if (stc.parentField === item.field) {
+        let parentFieldValue = F.props.rawModel.id
+        if (parentFieldValue) {
+          item.value = { id: parentFieldValue, text: `@${parentFieldValue.toUpperCase()}` }
+        }
+        return
+      }
+    })
+    this._addLine(model, index)
+  }
+
+  _addLine(model, index) {
+    model._treeNodeLevel = model._treeNodeLevel || 0
+    super._addLine(model, index)
+  }
+
+  setLines(models = []) {
+    const stc = this.props.showTreeConfig
+    let root = []
+    models.forEach((model) => {
+      let p = this._getValueInModel(model, stc.parentField)
+      if (!p) {
+        model._treeNodeId = model.id
+        model._treeNodeLevel = 0
+        this._findNodes(model, models)
+        root.push(model)
+      }
+    })
+
+    let orders = []
+    root.forEach((model) => {
+      orders.push(model)
+      this._orderNodes(model, orders)
+    })
+
+    super.setLines(orders)
+  }
+
+  _findNodes(parent, models) {
+    const stc = this.props.showTreeConfig
+    models.forEach((model) => {
+      let p = this._getValueInModel(model, stc.parentField)
+      if (p && p === parent.id) {
+        model._treeNodeId = model.id
+        model._treeNodeLevel = parent._treeNodeLevel + 1
+        parent._treeNodes = parent._treeNodes || []
+        parent._treeNodes.push(model)
+        // recursion
+        this._findNodes(model, models)
+      }
+    })
+  }
+  _orderNodes(model, into) {
+    if (model._treeNodes) {
+      model._treeNodes.forEach((node) => {
+        into.push(node)
+        this._orderNodes(node, into)
+      })
+    }
+  }
+  _getValueInModel(model, fieldName) {
+    let found = model.elements.find((x) => x.field === fieldName)
+    return found && found.value ? found.value.id : null
+  }
+
+  /**
+   * 获取选中
+   */
+  getSelectedInlineForms() {
+    const ff = []
+    $(this._$tbody)
+      .find('.col-tree input[type="checkbox"]:checked')
+      .each((idx, c) => {
+        let key = $(c).parents('tr').attr('data-key')
+        let F = this.getInlineForm(key)
+        if (F) ff.push(F)
+      })
+    return ff
   }
 }

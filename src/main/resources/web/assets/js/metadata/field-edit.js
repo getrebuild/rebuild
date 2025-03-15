@@ -432,7 +432,7 @@ const _handleDatetime = function (dt) {
   }
   $('.J_defaultValue').attr('readonly', true).datetimepicker(dpOption)
 
-  $(`<button class="btn btn-secondary" type="button" title="${$L('日期公式')}"><i class="icon zmdi zmdi-settings-square"></i></button>`)
+  $(`<button class="btn btn-secondary" type="button" title="${$L('日期公式')}"><i class="icon mdi mdi-function-variant"></i></button>`)
     .appendTo('.J_defaultValue-append')
     .on('click', () => renderRbcomp(<FormulaDate type={dt} onConfirm={(expr) => $('.J_defaultValue').val(expr)} />))
 }
@@ -598,7 +598,7 @@ const _handleReference = function (isN2N) {
 
   // Bizz
   if (['User', 'Department', 'Team'].includes(referenceEntity)) {
-    const $current = $(`<button class="btn btn-secondary" type="button" title="${$L('当前用户')}"><i class="icon zmdi zmdi-account-o"></i></button>`).appendTo('.J_defaultValue-append')
+    const $current = $(`<button class="btn btn-secondary" type="button" title="${$L('当前用户')}"><i class="icon mdi mdi-function-variant"></i></button>`).appendTo('.J_defaultValue-append')
     $current.on('click', () => {
       $dv.attr('data-value-id', CURRENT_BIZZ).val(CURRENT_BIZZ)
       $dvClear.removeClass('hide')

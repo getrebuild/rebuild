@@ -441,20 +441,18 @@ class RbForm extends React.Component {
     }
 
     if (!_ProTable) {
-      _ProTable = (
-        <ProTable
-          entity={detailMeta}
-          mainid={this.state.id}
-          ref={(c) => {
-            _ProTable = c // ref
-            this._ProTables[detailMeta.entity] = c
-            this._ProTable = c // comp:v3.8
-          }}
-          $$$main={this}
-          transDetails={transDetails39 ? transDetails39[detailMeta.entity] : null}
-          transDetailsDelete={transDetails39 ? transDetails39[detailMeta.entity + '$DELETED'] : null}
-        />
-      )
+      _ProTable = ProTable.create({
+        entity: detailMeta,
+        mainid: this.state.id,
+        ref: (c) => {
+          _ProTable = c // ref
+          this._ProTables[detailMeta.entity] = c
+          this._ProTable = c // comp:v3.8
+        },
+        $$$main: this,
+        transDetails: transDetails39 ? transDetails39[detailMeta.entity] : null,
+        transDetailsDelete: transDetails39 ? transDetails39[detailMeta.entity + '$DELETED'] : null,
+      })
     } else {
       this._ProTable = _ProTable // comp:v3.8
     }
@@ -747,7 +745,8 @@ class RbForm extends React.Component {
   getProTables() {
     return this._ProTables ? Object.values(this._ProTables) : null
   }
-  getProTable() {
+  getProTable(detailName) {
+    if (detailName) return this._ProTables ? this._ProTables[detailName] || null : null
     return (this.getProTables() || [])[0] || null
   }
 
