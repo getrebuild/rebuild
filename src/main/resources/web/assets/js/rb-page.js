@@ -392,8 +392,8 @@ var _checkMessage = function () {
     }
 
     _showStateMM(res.data.mm)
-    _showStateST(res.data.st)
-    setTimeout(_checkMessage, rb.env === 'dev' ? 9000 : 2000)
+    // _showStateST(res.data.st)  // FIXME 4.0禁用，未考虑时区问题
+    setTimeout(_checkMessage, rb.env === 'dev' ? 9000 : 3000)
   })
 }
 var _loadMessages__state = false
