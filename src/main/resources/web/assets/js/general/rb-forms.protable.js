@@ -991,4 +991,16 @@ class ProTableTree extends ProTable {
       })
     return ff
   }
+
+  buildFormData(returnAll) {
+    let datas = super.buildFormData(returnAll)
+    if (!datas) return datas
+
+    let datas2 = []
+    datas.forEach((d) => {
+      if (d.metadata.delete && (d.metadata.id || '').startsWith('000-'));
+      else datas2.push(d)
+    })
+    return datas2
+  }
 }
