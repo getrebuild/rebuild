@@ -4956,8 +4956,7 @@ pre.unstyle {
   border-bottom-width: 1px;
 }
 
-.protable .table .col-index,
-.protable .table .col-tree {
+.protable .table .col-index {
   width: 38px;
   min-width: 38px;
   padding-left: 0;

@@ -10,8 +10,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-left: 0;
   padding-right: 0;
   text-align: left;
+  width: 102px; /* L6 */
   width: 122px; /* L8 */
-  width: 102px;
+  min-width: 38px;
+}
+
+.protable .table .col-tree.chk {
+  width: 38px;
 }
 
 .protable .table .col-tree a {

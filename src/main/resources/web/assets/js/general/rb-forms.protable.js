@@ -466,8 +466,8 @@ class ProTable extends React.Component {
    */
   static create(rest) {
     const _extConf40 = _EXTCONFIG[rest.entity.entity] || {}
-    if (_extConf40.showTreeConfig) {
-      return <ProTableTree {...rest} showTreeConfig={_extConf40.showTreeConfig} />
+    if (_extConf40.showTreeConfig || _extConf40.showCheckbox) {
+      return <ProTableTree {...rest} showTreeConfig={_extConf40.showTreeConfig} showCheckbox={_extConf40.showCheckbox} />
     }
     return <ProTable {...rest} />
   }
@@ -503,18 +503,18 @@ class InlineForm extends RbForm {
     const rawModel = this.props.rawModel
     return (
       <RF>
-        {rawModel._treeNodeLevel >= 0 && (
-          <td className="col-tree">
-            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-              <input className="custom-control-input" type="checkbox" />
-              <i className="custom-control-label" />
-            </label>
-            <a style={{ marginLeft: (rawModel._treeNodeLevel || 0) * 9 }}>
-              <span>{(rawModel._treeNodeLevel || 0) + 1}</span>
+        <td className="col-tree">
+          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
+            <input className="custom-control-input" type="checkbox" />
+            <i className="custom-control-label" />
+          </label>
+          {rawModel._treeNodeLevel >= 0 && (
+            <a style={{ marginLeft: rawModel._treeNodeLevel * 9 }}>
+              <span>{rawModel._treeNodeLevel + 1}</span>
               <i className="zmdi zmdi-chevron-right" />
             </a>
-          </td>
-        )}
+          )}
+        </td>
 
         {this.props.children.map((fieldComp) => {
           if (fieldComp.props.field === TYPE_DIVIDER || fieldComp.props.field === TYPE_REFFORM) return null
@@ -791,7 +791,7 @@ class ProTableTree extends ProTable {
     const readonly = this.props.$$$main.props.readonly
     const fixedWidth = false
     const inlineForms = this.state.inlineForms || []
-    const colActionClazz = `col-action has-copy-btn ${!fixedWidth && 'column-fixed'}`
+    const colActionClazz = `col-action ${this._extConf40.showTreeConfig && 'has-copy-btn'} ${!fixedWidth && 'column-fixed'}`
 
     return (
       <div className={`protable rb-scroller ${!fixedWidth && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
@@ -799,7 +799,7 @@ class ProTableTree extends ProTable {
           <thead>
             <tr>
               <th className="col-index" />
-              <th className="col-tree">
+              <th className={`col-tree ${!this._extConf40.showTreeConfig && 'chk'}`}>
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
                   <input
                     className="custom-control-input"
@@ -855,9 +855,11 @@ class ProTableTree extends ProTable {
                   </th>
                   {FORM}
                   <td className={`col-action ${!fixedWidth && 'column-fixed'}`}>
-                    <button className="btn btn-light" title={$L('添加子级')} onClick={() => this.insertLine(key, idx + 1)} disabled={readonly}>
-                      <i className="icon zmdi zmdi-plus fs-16" />
-                    </button>
+                    {this._extConf40.showTreeConfig && (
+                      <button className="btn btn-light" title={$L('添加子级')} onClick={() => this.insertLine(key, idx + 1)} disabled={readonly}>
+                        <i className="icon zmdi zmdi-plus fs-16" />
+                      </button>
+                    )}
                     <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={readonly}>
                       <i className="icon zmdi zmdi-close fs-16" />
                     </button>
@@ -900,6 +902,7 @@ class ProTableTree extends ProTable {
     const stc = this.props.showTreeConfig
     const F = this.getInlineForm(lineKey)
     model._treeNodeLevel = F.props.rawModel._treeNodeLevel + 1
+    model._treeNodeId = $random('node-')
     model.elements.forEach((item) => {
       if (stc.parentField === item.field) {
         let parentFieldValue = F.props.rawModel.id
@@ -913,30 +916,37 @@ class ProTableTree extends ProTable {
   }
 
   _addLine(model, index) {
-    model._treeNodeLevel = model._treeNodeLevel || 0
+    const stc = this.props.showTreeConfig
+    if (stc) {
+      model._treeNodeLevel = model._treeNodeLevel || 0
+      model._treeNodeId = model._treeNodeId || $random('node-')
+    }
     super._addLine(model, index)
   }
 
   setLines(models = []) {
     const stc = this.props.showTreeConfig
-    let root = []
-    models.forEach((model) => {
-      let p = this._getValueInModel(model, stc.parentField)
-      if (!p) {
-        model._treeNodeId = model.id
-        model._treeNodeLevel = 0
-        this._findNodes(model, models)
-        root.push(model)
-      }
-    })
+    if (stc) {
+      let root = []
+      models.forEach((model) => {
+        let p = this._getValueInModel(model, stc.parentField)
+        if (!p) {
+          model._treeNodeLevel = 0
+          model._treeNodeId = model._treeNodeId || $random('node-')
+          this._findNodes(model, models)
+          root.push(model)
+        }
+      })
 
-    let orders = []
-    root.forEach((model) => {
-      orders.push(model)
-      this._orderNodes(model, orders)
-    })
+      let orders = []
+      root.forEach((model) => {
+        orders.push(model)
+        this._orderNodes(model, orders)
+      })
+      models = orders
+    }
 
-    super.setLines(orders)
+    super.setLines(models)
   }
 
   _findNodes(parent, models) {
@@ -944,8 +954,8 @@ class ProTableTree extends ProTable {
     models.forEach((model) => {
       let p = this._getValueInModel(model, stc.parentField)
       if (p && p === parent.id) {
-        model._treeNodeId = model.id
         model._treeNodeLevel = parent._treeNodeLevel + 1
+        model._treeNodeId = model._treeNodeId || $random('node-')
         parent._treeNodes = parent._treeNodes || []
         parent._treeNodes.push(model)
         // recursion
