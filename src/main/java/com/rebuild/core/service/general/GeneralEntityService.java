@@ -187,7 +187,11 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         }
     }
 
-    // 明细可能有自己的 Service
+    /**
+     * 明细可能有自己的 Service
+     * @param detailEntity
+     * @return
+     */
     private EntityService getDetailEntityService(Entity detailEntity) {
         EntityService des = Application.getEntityService(detailEntity.getEntityCode());
         if (des.getEntityCode() == 0) des = this;

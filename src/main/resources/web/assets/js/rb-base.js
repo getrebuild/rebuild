@@ -436,7 +436,7 @@ var $random = function (prefix, alphabetic, maxLength) {
     while (c.length < maxLength) {
       c += Math.random()
         .toString(36)
-        .replace(/[^a-z1-9]+/g, '')
+        .replace(/[^a-f1-9]+/g, '')
     }
     return c.substring(0, maxLength)
   } else {

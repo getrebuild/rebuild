@@ -310,6 +310,7 @@ class ProTable extends React.Component {
       this._inlineFormsRefs = refs
       this._onLineUpdated(lineKey)
     })
+    return ref
   }
 
   copyLine(lineKey, index) {
@@ -407,17 +408,17 @@ class ProTable extends React.Component {
 
   /**
    * 构建数据
-   * @param {boolean} retAll 是否返回所有数据
+   * @param {boolean} returnAll 是否返回所有数据
    * @returns
    */
-  buildFormData(retAll) {
+  buildFormData(returnAll) {
     const datas = []
     let error = null
 
     this._inlineFormsRefs &&
       this._inlineFormsRefs.forEach((item) => {
         if (!item.current) return
-        const d = item.current.buildFormData(retAll)
+        const d = item.current.buildFormData(returnAll)
 
         if (!d || typeof d === 'string') {
           if (!error) error = d
@@ -843,6 +844,7 @@ class ProTableTree extends ProTable {
           <tbody ref={(c) => (this._$tbody = c)}>
             {inlineForms.map((FORM, idx) => {
               const key = FORM.key
+              const rawModel = FORM.props.rawModel
               return (
                 <tr key={`if-${key}`} data-key={key}>
                   <th className={`col-index ${!readonly && 'action'}`}>
@@ -896,30 +898,26 @@ class ProTableTree extends ProTable {
     )
   }
 
-  insertLine(lineKey, index) {
+  insertLine(parentLineKey, index) {
     const model = $clone(this._initModel)
-    // 加工
+    const PF = this.getInlineForm(parentLineKey)
+    model.id = $random('000-', true, 20) // newVID
+    model._treeNodeLevel = PF.props.rawModel._treeNodeLevel + 1
+    // 父级ID
     const stc = this.props.showTreeConfig
-    const F = this.getInlineForm(lineKey)
-    model._treeNodeLevel = F.props.rawModel._treeNodeLevel + 1
-    model._treeNodeId = $random('node-')
-    model.elements.forEach((item) => {
-      if (stc.parentField === item.field) {
-        let parentFieldValue = F.props.rawModel.id
-        if (parentFieldValue) {
-          item.value = { id: parentFieldValue, text: `@${parentFieldValue.toUpperCase()}` }
-        }
-        return
-      }
-    })
+    const parentId = PF.props.rawModel.id.replace('000-', stc.parentFieldRefEntityCode + '-')
+    this._setValueInModel(model, stc.parentField, parentId)
+    model.initialValue = model.initialValue || {}
+    model.initialValue[stc.parentField] = parentId
+
     this._addLine(model, index)
   }
 
   _addLine(model, index) {
     const stc = this.props.showTreeConfig
     if (stc) {
+      if (!model.id) model.id = $random('000-', true, 20) // newVID
       model._treeNodeLevel = model._treeNodeLevel || 0
-      model._treeNodeId = model._treeNodeId || $random('node-')
     }
     super._addLine(model, index)
   }
@@ -931,8 +929,8 @@ class ProTableTree extends ProTable {
       models.forEach((model) => {
         let p = this._getValueInModel(model, stc.parentField)
         if (!p) {
+          if (!model.id) model.id = $random('000-', true, 20) // newVID
           model._treeNodeLevel = 0
-          model._treeNodeId = model._treeNodeId || $random('node-')
           this._findNodes(model, models)
           root.push(model)
         }
@@ -955,10 +953,9 @@ class ProTableTree extends ProTable {
       let p = this._getValueInModel(model, stc.parentField)
       if (p && p === parent.id) {
         model._treeNodeLevel = parent._treeNodeLevel + 1
-        model._treeNodeId = model._treeNodeId || $random('node-')
+        // recursion
         parent._treeNodes = parent._treeNodes || []
         parent._treeNodes.push(model)
-        // recursion
         this._findNodes(model, models)
       }
     })
@@ -974,6 +971,10 @@ class ProTableTree extends ProTable {
   _getValueInModel(model, fieldName) {
     let found = model.elements.find((x) => x.field === fieldName)
     return found && found.value ? found.value.id : null
+  }
+  _setValueInModel(model, fieldName, value) {
+    let found = model.elements.find((x) => x.field === fieldName)
+    if (found) found.value = { id: value, text: value }
   }
 
   /**

@@ -12,11 +12,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   text-align: left;
   width: 102px; /* L6 */
   width: 122px; /* L8 */
-  min-width: 38px;
+  min-width: 122px;
 }
 
 .protable .table .col-tree.chk {
   width: 38px;
+  min-width: 38px;
 }
 
 .protable .table .col-tree a {
