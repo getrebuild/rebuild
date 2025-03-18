@@ -17,6 +17,8 @@ import com.rebuild.core.configuration.general.AdvFilterManager;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
@@ -280,8 +282,15 @@ public class QueryParser {
         for (String s : sorts) {
             String[] split = s.split(":");
             if (StringUtils.isBlank(split[0])) return null;
+            Field sortField = MetadataHelper.getLastJoinField(entity, split[0]);
+            if (sortField == null) return null;
 
+            DisplayType dt = EasyMetaFactory.getDisplayType(sortField);
+            if (dt == DisplayType.REFERENCE || dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION) {
+                sb.append('&');
+            }
             sb.append(split[0]);
+
             if (split.length > 1) sb.append("desc".equalsIgnoreCase(split[1]) ? " desc" : " asc");
             sb.append(", ");
         }
