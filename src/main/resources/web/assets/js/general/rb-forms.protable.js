@@ -408,17 +408,17 @@ class ProTable extends React.Component {
 
   /**
    * 构建数据
-   * @param {boolean} returnAll 是否返回所有数据
+   * @param {boolean} retAll 是否返回所有数据
    * @returns
    */
-  buildFormData(returnAll) {
+  buildFormData(retAll) {
     const datas = []
     let error = null
 
     this._inlineFormsRefs &&
       this._inlineFormsRefs.forEach((item) => {
         if (!item.current) return
-        const d = item.current.buildFormData(returnAll)
+        const d = item.current.buildFormData(retAll)
 
         if (!d || typeof d === 'string') {
           if (!error) error = d
@@ -557,8 +557,8 @@ class InlineForm extends RbForm {
     return data
   }
 
-  buildFormData(returnAll) {
-    const data = returnAll ? this._baseFormData() : {}
+  buildFormData(retAll) {
+    const data = retAll ? this._baseFormData() : {}
 
     const $idx = $(this._$ref).parent().find('th.col-index').removeAttr('title')
     let error = null
@@ -914,8 +914,6 @@ class ProTableTree extends ProTable {
     const stc = this.props.showTreeConfig
     const parentId = PF.props.rawModel.id.replace('000-', stc.parentFieldRefEntityCode + '-')
     this._setValueInModel(model, stc.parentField, parentId)
-    model.initialValue = model.initialValue || {}
-    model.initialValue[stc.parentField] = parentId
 
     this._addLine(model, index)
   }
@@ -999,8 +997,8 @@ class ProTableTree extends ProTable {
     return ff
   }
 
-  buildFormData(returnAll) {
-    let datas = super.buildFormData(returnAll)
+  buildFormData() {
+    let datas = super.buildFormData(true) // 强制所有字段
     if (!datas) return datas
 
     let datas2 = []
