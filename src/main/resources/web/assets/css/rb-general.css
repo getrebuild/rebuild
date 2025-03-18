@@ -5,17 +5,16 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-.protable .table .col-tree {
-  text-align: center;
+.protable .table .col-tree,
+.protable .table .col-checkbox {
   padding-left: 0;
   padding-right: 0;
   text-align: left;
-  width: 102px; /* L6 */
-  width: 122px; /* L8 */
-  min-width: 122px;
+  width: 66px; /* L6 */
+  min-width: 66px;
 }
 
-.protable .table .col-tree.chk {
+.protable .table .col-checkbox {
   width: 38px;
   min-width: 38px;
 }
@@ -46,15 +45,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
   display: none;
 }
 
-.protable .table .col-tree > label {
+.protable .table .col-checkbox > label {
   margin-left: 10px;
 }
 
-.protable .table .col-tree .custom-control-label::before {
+.protable .table .col-checkbox .custom-control-label::before {
   border-radius: 2px;
 }
 
-.protable .table .col-tree .custom-control .custom-control-input:checked ~ .custom-control-label::after {
+.protable .table .col-checkbox .custom-control .custom-control-input:checked ~ .custom-control-label::after {
   margin-left: -1.2px;
 }
 

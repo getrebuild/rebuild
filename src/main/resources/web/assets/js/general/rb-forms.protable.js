@@ -20,7 +20,6 @@ class ProTable extends React.Component {
   constructor(props) {
     super(props)
     this.state = { _counts: {}, _treeState: {} }
-    this._extConf40 = _EXTCONFIG[this.props.entity.entity] || {}
   }
 
   render() {
@@ -498,24 +497,31 @@ class InlineForm extends RbForm {
   constructor(props) {
     super(props)
     this._InlineForm = true
+    this._extConf40 = _EXTCONFIG[this.props.entity] || {}
   }
 
   render() {
     const rawModel = this.props.rawModel
     return (
       <RF>
-        <td className="col-tree">
-          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-            <input className="custom-control-input" type="checkbox" />
-            <i className="custom-control-label" />
-          </label>
-          {rawModel._treeNodeLevel >= 0 && (
-            <a style={{ marginLeft: rawModel._treeNodeLevel * 9 }}>
-              <span>{rawModel._treeNodeLevel + 1}</span>
-              <i className="zmdi zmdi-chevron-right" />
-            </a>
-          )}
-        </td>
+        {this._extConf40.showCheckbox && (
+          <td className="col-checkbox">
+            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
+              <input className="custom-control-input" type="checkbox" />
+              <i className="custom-control-label" />
+            </label>
+          </td>
+        )}
+        {this._extConf40.showTreeConfig && (
+          <td className="col-tree">
+            {rawModel._treeNodeLevel >= 0 && (
+              <a style={{ marginLeft: rawModel._treeNodeLevel * 9 }}>
+                <span>{rawModel._treeNodeLevel + 1}</span>
+                <i className="zmdi zmdi-chevron-right" />
+              </a>
+            )}
+          </td>
+        )}
 
         {this.props.children.map((fieldComp) => {
           if (fieldComp.props.field === TYPE_DIVIDER || fieldComp.props.field === TYPE_REFFORM) return null
@@ -779,6 +785,7 @@ class ExcelClipboardDataModal extends RbModalHandler {
 class ProTableTree extends ProTable {
   constructor(props) {
     super(props)
+    this._extConf40 = _EXTCONFIG[this.props.entity.entity] || {}
   }
 
   render() {
@@ -800,18 +807,22 @@ class ProTableTree extends ProTable {
           <thead>
             <tr>
               <th className="col-index" />
-              <th className={`col-tree ${!this._extConf40.showTreeConfig && 'chk'}`}>
-                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                  <input
-                    className="custom-control-input"
-                    type="checkbox"
-                    onChange={(e) => {
-                      $(this._$tbody).find('.col-tree input').prop('checked', e.target.checked)
-                    }}
-                  />
-                  <i className="custom-control-label" />
-                </label>
-              </th>
+              {this._extConf40.showCheckbox && (
+                <th className="col-checkbox">
+                  <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                    <input
+                      className="custom-control-input"
+                      type="checkbox"
+                      onChange={(e) => {
+                        $(this._$tbody).find('.col-checkbox input').prop('checked', e.target.checked)
+                      }}
+                    />
+                    <i className="custom-control-label" />
+                  </label>
+                </th>
+              )}
+              {this._extConf40.showTreeConfig && <th className="col-tree" />}
+
               {formFields.map((item) => {
                 if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
 
@@ -844,7 +855,6 @@ class ProTableTree extends ProTable {
           <tbody ref={(c) => (this._$tbody = c)}>
             {inlineForms.map((FORM, idx) => {
               const key = FORM.key
-              const rawModel = FORM.props.rawModel
               return (
                 <tr key={`if-${key}`} data-key={key}>
                   <th className={`col-index ${!readonly && 'action'}`}>
@@ -874,7 +884,8 @@ class ProTableTree extends ProTable {
             <tfoot className={inlineForms.length === 0 ? 'hide' : ''}>
               <tr>
                 <th className="col-idx" />
-                <th className="col-tree" />
+                {this._extConf40.showCheckbox && <td className="col-checkbox" />}
+                {this._extConf40.showTreeConfig && <td className="col-tree" />}
                 {formFields.map((item) => {
                   if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
 
