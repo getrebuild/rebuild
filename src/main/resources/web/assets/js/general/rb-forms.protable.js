@@ -20,6 +20,7 @@ class ProTable extends React.Component {
   constructor(props) {
     super(props)
     this.state = { _counts: {}, _treeState: {} }
+    this._extConf40 = _EXTCONFIG[this.props.entity.entity] || {}
   }
 
   render() {
@@ -783,11 +784,6 @@ class ExcelClipboardDataModal extends RbModalHandler {
 
 // LAB 树状
 class ProTableTree extends ProTable {
-  constructor(props) {
-    super(props)
-    this._extConf40 = _EXTCONFIG[this.props.entity.entity] || {}
-  }
-
   render() {
     if (this.state.hasError) {
       return <RbAlertBox message={this.state.hasError} />
