@@ -498,7 +498,7 @@ class InlineForm extends RbForm {
   constructor(props) {
     super(props)
     this._InlineForm = true
-    this._extConf40 = _EXTCONFIG[this.props.entity] || {}
+    this._extConf40 = props.$$$parent._extConf40 || {}
   }
 
   render() {
