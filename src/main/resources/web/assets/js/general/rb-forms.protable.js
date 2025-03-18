@@ -962,7 +962,7 @@ class ProTableTree extends ProTable {
     const stc = this.props.showTreeConfig
     models.forEach((model) => {
       let p = this._getValueInModel(model, stc.parentField)
-      if (p && p === parent.id) {
+      if (p && (p === parent.id || p.substr(3) === (parent.id || '').substr(3))) {
         model._treeNodeLevel = parent._treeNodeLevel + 1
         // recursion
         parent._treeNodes = parent._treeNodes || []
