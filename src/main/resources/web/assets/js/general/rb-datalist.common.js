@@ -1416,9 +1416,9 @@ class RbList extends React.Component {
 
   // 组件渲染后调用
   // eslint-disable-next-line no-unused-vars
-  static renderAfter(list) {}
+  static renderAfter(listObj) {}
   // eslint-disable-next-line no-unused-vars
-  static renderAfter40(list) {}
+  static renderAfter40(listObj) {}
 }
 
 // 分页组件

@@ -1945,7 +1945,7 @@ th.column-fixed {
   padding: 9px 8px;
   font-size: 15px;
   position: absolute;
-  top: -1px;
+  top: 0;
   z-index: 1;
   display: none;
 }

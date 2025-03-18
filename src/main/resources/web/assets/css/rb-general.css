@@ -10,13 +10,21 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-left: 0;
   padding-right: 0;
   text-align: left;
-  width: 66px; /* L6 */
-  min-width: 66px;
+  width: 73px; /* L6 */
+  min-width: 73px;
 }
 
 .protable .table .col-checkbox {
   width: 38px;
   min-width: 38px;
+}
+
+.protable .table .col-tree {
+  padding-left: 9px;
+}
+
+.protable .table .col-checkbox + .col-tree {
+  padding-left: 0;
 }
 
 .protable .table .col-tree a {
