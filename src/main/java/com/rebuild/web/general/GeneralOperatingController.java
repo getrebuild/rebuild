@@ -29,12 +29,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.DataSpecificationException;
-import com.rebuild.core.service.general.BulkContext;
-import com.rebuild.core.service.general.EntityService;
-import com.rebuild.core.service.general.GeneralEntityService;
-import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
-import com.rebuild.core.service.general.RecordDifference;
-import com.rebuild.core.service.general.RepeatedRecordsException;
+import com.rebuild.core.service.general.*;
 import com.rebuild.core.service.general.transform.TransformerPreview37;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.DataValidateException;
@@ -57,15 +52,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 业务实体操作（增/改/删/分配/共享）
@@ -86,10 +73,12 @@ public class GeneralOperatingController extends BaseController {
 
         final JSON formJson = ServletUtils.getRequestJson(request);
         final Object details = ((JSONObject) formJson).remove(GeneralEntityService.HAS_DETAILS);
+        final String _postAction40 = request.getParameter("_postAction");
 
         Record record;
         try {
             record = EntityHelper.parse((JSONObject) formJson, user);
+            if (_postAction40 != null) record.addExtra("_postAction", _postAction40);
         } catch (DataSpecificationException known) {
             log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
@@ -106,6 +95,7 @@ public class GeneralOperatingController extends BaseController {
             try {
                 for (Object d : (JSONArray) details) {
                     Record detail = EntityHelper.parse((JSONObject) d, user);
+                    if (_postAction40 != null) detail.addExtra("_postAction", _postAction40);
                     detailsList.add(detail);
                 }
 
@@ -140,9 +130,6 @@ public class GeneralOperatingController extends BaseController {
         final ID weakMode = getIdParameter(request, "weakMode");
         if (weakMode != null) RbvFunction.call().setWeakMode(weakMode);
 
-        String _postAction = request.getParameter("_postAction");
-        if (_postAction != null) GeneralEntityServiceContextHolder.setPostAction(_postAction);
-
         try {
             record = ies.createOrUpdate(record);
 
@@ -163,7 +150,6 @@ public class GeneralOperatingController extends BaseController {
             // 确保清除
             GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
             if (weakMode != null) RbvFunction.call().getWeakMode(true);
-            if (_postAction != null) GeneralEntityServiceContextHolder.getPostAction(true);
         }
 
         // 转换后回填
