@@ -569,7 +569,15 @@ const EasyAction4View = {
         .find('button[data-eaid],a[data-eaid]')
         .each((i, b) => {
           const $this = $(b)
-          res[$this.data('eaid')] && $this.attr('disabled', false)
+          if (res[$this.data('eaid')]) $this.attr('disabled', false)
+          else {
+            if (b.tagName === 'BUTTON') {
+              // $this.parent().addClass('hide')
+              $this.parent().remove()
+            } else {
+              $this.addClass('hide')
+            }
+          }
         })
     })
   },

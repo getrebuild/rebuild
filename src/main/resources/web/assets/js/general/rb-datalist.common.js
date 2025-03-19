@@ -2256,7 +2256,8 @@ const EasyAction4List = {
             _EasyAction.checkShowFilter(_eaDatarow, id, (res) => {
               $row.find('.col-action button[data-eaid]').each((i, b) => {
                 const $this = $(b)
-                res[$this.data('eaid')] && $this.removeClass('disabled')
+                if (res[$this.data('eaid')]) $this.removeClass('disabled')
+                else $this.addClass('hide')
               })
             })
           })

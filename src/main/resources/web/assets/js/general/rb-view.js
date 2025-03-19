@@ -612,6 +612,9 @@ const RbViewPage = {
     renderRbcomp(<RbViewForm entity={entity[0]} id={id} onViewEditable={ep && ep.U} />, 'tab-rbview', function () {
       RbViewPage._RbViewForm = this
       setTimeout(() => $('.view-body.loading').removeClass('loading'), 100)
+
+      // v3.8, v3.9
+      wpc.easyAction && window.EasyAction4View && window.EasyAction4View.init(wpc.easyAction)
     })
 
     $('.J_close').on('click', () => this.hide())
@@ -994,7 +997,7 @@ const RbViewPage = {
 }
 
 // init
-$(document).ready(function () {
+$(document).ready(() => {
   // 回退按钮
   if ($urlp('back') === 'auto' && parent && parent.RbViewModal) {
     $('.J_back')
@@ -1022,7 +1025,4 @@ $(document).ready(function () {
     if (wpc.viewTabs) RbViewPage.initVTabs(wpc.viewTabs)
     if (wpc.viewAdds) RbViewPage.initVAdds(wpc.viewAdds)
   }
-
-  // v3.8, v3.9
-  wpc.easyAction && window.EasyAction4View && window.EasyAction4View.init(wpc.easyAction)
 })
