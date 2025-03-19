@@ -140,6 +140,9 @@ public class GeneralOperatingController extends BaseController {
         final ID weakMode = getIdParameter(request, "weakMode");
         if (weakMode != null) RbvFunction.call().setWeakMode(weakMode);
 
+        String _postAction = request.getParameter("_postAction");
+        if (_postAction != null) GeneralEntityServiceContextHolder.setPostAction(_postAction);
+
         try {
             record = ies.createOrUpdate(record);
 
@@ -160,6 +163,7 @@ public class GeneralOperatingController extends BaseController {
             // 确保清除
             GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
             if (weakMode != null) RbvFunction.call().getWeakMode(true);
+            if (_postAction != null) GeneralEntityServiceContextHolder.getPostAction(true);
         }
 
         // 转换后回填

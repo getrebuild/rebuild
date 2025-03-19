@@ -31,6 +31,8 @@ public class GeneralEntityServiceContextHolder {
 
     private static final ThreadLocal<ID> SKIP_GUARD = new NamedThreadLocal<>("Skip some check once");
 
+    private static final ThreadLocal<Object> POST_ACTION = new NamedThreadLocal<>("Post action from forms");
+
     /**
      * 新建记录时允许跳过自动编号字段
      */
@@ -163,6 +165,23 @@ public class GeneralEntityServiceContextHolder {
     public static ID isSkipGuardOnce() {
         ID s = SKIP_GUARD.get();
         if (s != null) SKIP_GUARD.remove();
+        return s;
+    }
+
+    /**
+     * @param action
+     */
+    public static void setPostAction(Object action) {
+        POST_ACTION.set(action);
+    }
+
+    /**
+     * @param once
+     * @return
+     */
+    public static Object getPostAction(boolean once) {
+        Object s = POST_ACTION.get();
+        if (s != null && once) POST_ACTION.remove();
         return s;
     }
 }

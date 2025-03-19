@@ -815,11 +815,10 @@ class RbForm extends React.Component {
     const $btn = $(this._$formAction).find('.btn').button('loading')
     let url = '/app/entity/record-save'
     if (previewid) url += `?previewid=${previewid}`
-    if (weakMode) {
-      url += url.includes('?') ? '&' : '?'
-      url += 'weakMode=' + weakMode
+    if (weakMode) url += `${url.includes('?') ? '&' : '?'}weakMode=${weakMode}`
+    if (this._postAction || this.props._postAction) {
+      url += `${url.includes('?') ? '&' : '?'}_postAction=${$encode(this._postAction || this.props._postAction)}`
     }
-
     $.post(url, JSON.stringify(data), (res) => {
       $btn.button('reset')
       if (res.error_code === 0) {
@@ -3393,4 +3392,3 @@ function __isSameValue38(a, b) {
     }
   }
   return false
-}
