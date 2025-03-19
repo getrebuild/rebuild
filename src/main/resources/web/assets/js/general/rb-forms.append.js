@@ -764,6 +764,7 @@ class LiteFormModal extends RbModalHandler {
             <a className="btn btn-link" onClick={this.hide}>
               {$L('取消')}
             </a>
+            {this.props.ids && this.props.ids.length > 1 && <RbAlertBox message={$L('本次保存将修改 **%d** 条记录', this.props.ids.length)} />}
           </div>
         </div>
       </RbModal>
@@ -789,8 +790,8 @@ class LiteFormModal extends RbModalHandler {
     }
 
     this.disabled(true)
-    let url = '/app/entity/liteform/record-save'
-    if (weakMode) url += '?weakMode=' + weakMode
+    let url = `/app/entity/liteform/record-save?weakMode=${weakMode || 0}`
+    if (this.props.ids && this.props.ids.length > 1) url += '&ids=' + this.props.ids.join(',')
     $.post(url, JSON.stringify(data2), (res) => {
       this.disabled()
       if (res.error_code === 0) {
@@ -834,14 +835,15 @@ class LiteFormModal extends RbModalHandler {
    * @param {*} onHandleSave
    */
   static create(entityOrId, fields, title, onHandleSave) {
+    const isMultiId = Array.isArray(entityOrId)
     const post = {
-      id: entityOrId,
+      id: isMultiId ? entityOrId[0] : entityOrId,
       fields: fields,
     }
 
     $.post('/app/entity/liteform/form-model', JSON.stringify(post), (res) => {
       if (res.error_code === 0) {
-        renderRbcomp(<LiteFormModal title={title} onHandleSave={onHandleSave} {...res.data} />)
+        renderRbcomp(<LiteFormModal title={title} onHandleSave={onHandleSave} {...res.data} ids={isMultiId ? entityOrId : null} />)
       } else {
         RbHighbar.error(res.error_msg)
       }

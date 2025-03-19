@@ -5428,6 +5428,12 @@ pre.unstyle {
   margin-bottom: 0;
 }
 
+.liteform-wrap .footer > .alert {
+  width: 80%;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
 /* fix btn-space compact */
 
 div.dataTables_wrapper div.dataTables_oper {
