@@ -40,6 +40,6 @@ spring:
     scheduling:
       thread-name-prefix: rbScheduler-
       pool:
-        size: 10
+        size: 50
   main:
     banner-mode: off
