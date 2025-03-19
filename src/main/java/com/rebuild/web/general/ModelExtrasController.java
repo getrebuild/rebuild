@@ -115,8 +115,8 @@ public class ModelExtrasController extends BaseController {
     // 批量转换
     private RespBody transform39Muilt(ID transid, JSONArray sourceRecords) {
         List<ID> newIds = new ArrayList<>();
-        RecordTransfomer39 transfomer39 = new RecordTransfomer39(transid);
         for (Object o : sourceRecords) {
+            RecordTransfomer39 transfomer39 = new RecordTransfomer39(transid);
             ID sourceRecord = ID.valueOf((String) o);
             if (!transfomer39.checkFilter(sourceRecord)) continue;
 
