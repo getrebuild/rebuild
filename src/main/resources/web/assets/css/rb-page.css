@@ -1945,7 +1945,7 @@ th.column-fixed {
   padding: 9px 8px;
   font-size: 15px;
   position: absolute;
-  top: -1px;
+  top: 0;
   z-index: 1;
   display: none;
 }
@@ -4956,8 +4956,7 @@ pre.unstyle {
   border-bottom-width: 1px;
 }
 
-.protable .table .col-index,
-.protable .table .col-tree {
+.protable .table .col-index {
   width: 38px;
   min-width: 38px;
   padding-left: 0;
@@ -5427,6 +5426,10 @@ pre.unstyle {
 
 .liteform-wrap .form-text {
   margin-bottom: 0;
+}
+
+.liteform-wrap .footer > .alert {
+  width: 373px;
 }
 
 /* fix btn-space compact */

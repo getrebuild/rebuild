@@ -95,4 +95,4 @@ REBUILD uses the GPL-3.0 open source license and commercial license dual license
 
 ## 购买商业授权
 
-从 2.0 版本开始，REBUILD 将推出 [增值功能](https://getrebuild.com/docs/rbv-features) 计划。如果 REBUILD 对贵公司业务有帮助，请考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 以支持 REBUILD 可持续发展。除了永久享有全部最新功能以外，还可以得到更专业的技术支持服务。非常感谢！
+从 2.0 版本开始，REBUILD 将推出 [增值功能](https://getrebuild.com/docs/rbv-features) 计划。如果 REBUILD 对贵公司业务有帮助，请考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 以支持 REBUILD 可持续发展。除了可享有全部功能以外，还可以得到更专业的技术支持服务。非常感谢！

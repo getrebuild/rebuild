@@ -310,6 +310,7 @@ class ProTable extends React.Component {
       this._inlineFormsRefs = refs
       this._onLineUpdated(lineKey)
     })
+    return ref
   }
 
   copyLine(lineKey, index) {
@@ -466,8 +467,8 @@ class ProTable extends React.Component {
    */
   static create(rest) {
     const _extConf40 = _EXTCONFIG[rest.entity.entity] || {}
-    if (_extConf40.showTreeConfig) {
-      return <ProTableTree {...rest} showTreeConfig={_extConf40.showTreeConfig} />
+    if (_extConf40.showTreeConfig || _extConf40.showCheckbox) {
+      return <ProTableTree {...rest} showTreeConfig={_extConf40.showTreeConfig} showCheckbox={_extConf40.showCheckbox} />
     }
     return <ProTable {...rest} />
   }
@@ -497,22 +498,29 @@ class InlineForm extends RbForm {
   constructor(props) {
     super(props)
     this._InlineForm = true
+    this._extConf40 = props.$$$parent._extConf40 || {}
   }
 
   render() {
     const rawModel = this.props.rawModel
     return (
       <RF>
-        {rawModel._treeNodeLevel >= 0 && (
-          <td className="col-tree">
+        {this._extConf40.showCheckbox && (
+          <td className="col-checkbox">
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
               <input className="custom-control-input" type="checkbox" />
               <i className="custom-control-label" />
             </label>
-            <a style={{ marginLeft: (rawModel._treeNodeLevel || 0) * 9 }}>
-              <span>{(rawModel._treeNodeLevel || 0) + 1}</span>
-              <i className="zmdi zmdi-chevron-right" />
-            </a>
+          </td>
+        )}
+        {this._extConf40.showTreeConfig && (
+          <td className="col-tree">
+            {rawModel._treeNodeLevel >= 0 && (
+              <a style={{ marginLeft: rawModel._treeNodeLevel * 9 }}>
+                <span>{rawModel._treeNodeLevel + 1}</span>
+                <i className="zmdi zmdi-chevron-right" />
+              </a>
+            )}
           </td>
         )}
 
@@ -549,8 +557,8 @@ class InlineForm extends RbForm {
     return data
   }
 
-  buildFormData(returnAll) {
-    const data = returnAll ? this._baseFormData() : {}
+  buildFormData(retAll) {
+    const data = retAll ? this._baseFormData() : {}
 
     const $idx = $(this._$ref).parent().find('th.col-index').removeAttr('title')
     let error = null
@@ -776,10 +784,6 @@ class ExcelClipboardDataModal extends RbModalHandler {
 
 // LAB 树状
 class ProTableTree extends ProTable {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     if (this.state.hasError) {
       return <RbAlertBox message={this.state.hasError} />
@@ -791,7 +795,7 @@ class ProTableTree extends ProTable {
     const readonly = this.props.$$$main.props.readonly
     const fixedWidth = false
     const inlineForms = this.state.inlineForms || []
-    const colActionClazz = `col-action has-copy-btn ${!fixedWidth && 'column-fixed'}`
+    const colActionClazz = `col-action ${this._extConf40.showTreeConfig && 'has-copy-btn'} ${!fixedWidth && 'column-fixed'}`
 
     return (
       <div className={`protable rb-scroller ${!fixedWidth && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
@@ -799,18 +803,22 @@ class ProTableTree extends ProTable {
           <thead>
             <tr>
               <th className="col-index" />
-              <th className="col-tree">
-                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                  <input
-                    className="custom-control-input"
-                    type="checkbox"
-                    onChange={(e) => {
-                      $(this._$tbody).find('.col-tree input').prop('checked', e.target.checked)
-                    }}
-                  />
-                  <i className="custom-control-label" />
-                </label>
-              </th>
+              {this._extConf40.showCheckbox && (
+                <th className="col-checkbox">
+                  <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                    <input
+                      className="custom-control-input"
+                      type="checkbox"
+                      onChange={(e) => {
+                        $(this._$tbody).find('.col-checkbox input').prop('checked', e.target.checked)
+                      }}
+                    />
+                    <i className="custom-control-label" />
+                  </label>
+                </th>
+              )}
+              {this._extConf40.showTreeConfig && <th className="col-tree" />}
+
               {formFields.map((item) => {
                 if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
 
@@ -855,9 +863,11 @@ class ProTableTree extends ProTable {
                   </th>
                   {FORM}
                   <td className={`col-action ${!fixedWidth && 'column-fixed'}`}>
-                    <button className="btn btn-light" title={$L('添加子级')} onClick={() => this.insertLine(key, idx + 1)} disabled={readonly}>
-                      <i className="icon zmdi zmdi-plus fs-16" />
-                    </button>
+                    {this._extConf40.showTreeConfig && (
+                      <button className="btn btn-light" title={$L('添加子级')} onClick={() => this.insertLine(key, idx + 1)} disabled={readonly}>
+                        <i className="icon zmdi zmdi-plus fs-16" />
+                      </button>
+                    )}
                     <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={readonly}>
                       <i className="icon zmdi zmdi-close fs-16" />
                     </button>
@@ -870,7 +880,8 @@ class ProTableTree extends ProTable {
             <tfoot className={inlineForms.length === 0 ? 'hide' : ''}>
               <tr>
                 <th className="col-idx" />
-                <th className="col-tree" />
+                {this._extConf40.showCheckbox && <td className="col-checkbox" />}
+                {this._extConf40.showTreeConfig && <td className="col-tree" />}
                 {formFields.map((item) => {
                   if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
 
@@ -894,61 +905,62 @@ class ProTableTree extends ProTable {
     )
   }
 
-  insertLine(lineKey, index) {
+  insertLine(parentLineKey, index) {
     const model = $clone(this._initModel)
-    // 加工
+    const PF = this.getInlineForm(parentLineKey)
+    model.id = $random('000-', true, 20) // newVID
+    model._treeNodeLevel = PF.props.rawModel._treeNodeLevel + 1
+    // 父级ID
     const stc = this.props.showTreeConfig
-    const F = this.getInlineForm(lineKey)
-    model._treeNodeLevel = F.props.rawModel._treeNodeLevel + 1
-    model.elements.forEach((item) => {
-      if (stc.parentField === item.field) {
-        let parentFieldValue = F.props.rawModel.id
-        if (parentFieldValue) {
-          item.value = { id: parentFieldValue, text: `@${parentFieldValue.toUpperCase()}` }
-        }
-        return
-      }
-    })
+    const parentId = PF.props.rawModel.id.replace('000-', stc.parentFieldRefEntityCode + '-')
+    this._setValueInModel(model, stc.parentField, parentId)
+
     this._addLine(model, index)
   }
 
   _addLine(model, index) {
-    model._treeNodeLevel = model._treeNodeLevel || 0
+    const stc = this.props.showTreeConfig
+    if (stc) {
+      if (!model.id) model.id = $random('000-', true, 20) // newVID
+      model._treeNodeLevel = model._treeNodeLevel || 0
+    }
     super._addLine(model, index)
   }
 
   setLines(models = []) {
     const stc = this.props.showTreeConfig
-    let root = []
-    models.forEach((model) => {
-      let p = this._getValueInModel(model, stc.parentField)
-      if (!p) {
-        model._treeNodeId = model.id
-        model._treeNodeLevel = 0
-        this._findNodes(model, models)
-        root.push(model)
-      }
-    })
+    if (stc) {
+      let root = []
+      models.forEach((model) => {
+        let p = this._getValueInModel(model, stc.parentField)
+        if (!p) {
+          if (!model.id) model.id = $random('000-', true, 20) // newVID
+          model._treeNodeLevel = 0
+          this._findNodes(model, models)
+          root.push(model)
+        }
+      })
 
-    let orders = []
-    root.forEach((model) => {
-      orders.push(model)
-      this._orderNodes(model, orders)
-    })
+      let orders = []
+      root.forEach((model) => {
+        orders.push(model)
+        this._orderNodes(model, orders)
+      })
+      models = orders
+    }
 
-    super.setLines(orders)
+    super.setLines(models)
   }
 
   _findNodes(parent, models) {
     const stc = this.props.showTreeConfig
     models.forEach((model) => {
       let p = this._getValueInModel(model, stc.parentField)
-      if (p && p === parent.id) {
-        model._treeNodeId = model.id
+      if (p && (p === parent.id || p.substr(3) === (parent.id || '').substr(3))) {
         model._treeNodeLevel = parent._treeNodeLevel + 1
+        // recursion
         parent._treeNodes = parent._treeNodes || []
         parent._treeNodes.push(model)
-        // recursion
         this._findNodes(model, models)
       }
     })
@@ -965,6 +977,10 @@ class ProTableTree extends ProTable {
     let found = model.elements.find((x) => x.field === fieldName)
     return found && found.value ? found.value.id : null
   }
+  _setValueInModel(model, fieldName, value) {
+    let found = model.elements.find((x) => x.field === fieldName)
+    if (found) found.value = { id: value, text: value }
+  }
 
   /**
    * 获取选中
@@ -979,5 +995,17 @@ class ProTableTree extends ProTable {
         if (F) ff.push(F)
       })
     return ff
+  }
+
+  buildFormData() {
+    let datas = super.buildFormData(true) // 强制所有字段
+    if (!datas) return datas
+
+    let datas2 = []
+    datas.forEach((d) => {
+      if (d.metadata.delete && (d.metadata.id || '').startsWith('000-'));
+      else datas2.push(d)
+    })
+    return datas2
   }
 }

@@ -342,7 +342,7 @@ class TopNavSettings extends Share2Switch {
                 <div key={item[0]}>
                   <div className="row">
                     <div className="col-6">
-                      <span className="J_nav-name nav-name-text pt-2">
+                      <span className="J_nav-name nav-name-text pt-2 text-ellipsis">
                         <span>{item[1] || $L('未命名')}</span>
                         <a
                           title={$L('编辑')}
