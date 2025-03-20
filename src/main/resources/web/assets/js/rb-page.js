@@ -1406,3 +1406,7 @@ function $dropdownMenuSearch($dd) {
     }, 200)
   })
 }
+
+function $logRBAPI(id, type) {
+  id && rb.isAdminUser && console.log('RBAPI ASSISTANT *' + (type || 'N') + '* :\n%c' + id, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
+}
