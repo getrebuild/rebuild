@@ -42,6 +42,10 @@ class EasyFilterItem extends FilterItem {
       op = []
     }
 
+    if (fieldType === 'REFERENCE' && (this.isBizzField('User') || this.isBizzField('Department') || this.isBizzField('Role') || this.isBizzField('Team'))) {
+      op = ['IN', 'NIN']
+    }
+
     fieldType !== 'STATE' && op.push('NL', 'NT')
     this.__op = op
     return op
