@@ -32,8 +32,8 @@ const loadRules = () => {
         if (this.extConfig.whenCreate) ruleLabels.push($L('新建时'))
         if (this.extConfig.whenUpdate) ruleLabels.push($L('编辑时'))
         if (this.extConfig.fillinForce) ruleLabels.push($L('强制回填'))
-        if (this.extConfig.readonlyTargetField) ruleLabels.push($L('自动设置目标字段为只读'))
-        if (this.extConfig.fillinBackend) ruleLabels.push($L('使用后端回填'))
+        if (this.extConfig.readonlyTargetField) ruleLabels.push($L('目标字段只读'))
+        if (this.extConfig.fillinBackend) ruleLabels.push($L('后端回填'))
         $(`<td>${ruleLabels.join(', ')}</div></td>`).appendTo($tr)
       }
 
@@ -157,7 +157,7 @@ class DlgRuleEdit extends RbFormHandler {
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" checked={this.state.fillinBackend === true} data-id="fillinBackend" onChange={this.handleChange} />
                 <span className="custom-control-label">
-                  {$L('使用后端回填')} <sup className="rbv" />
+                  {$L('同时启用后端回填')} <sup className="rbv" />
                 </span>
               </label>
             </div>

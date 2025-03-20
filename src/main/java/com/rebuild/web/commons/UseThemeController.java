@@ -77,7 +77,7 @@ public class UseThemeController extends BaseController {
             }
         }
 
-        theme = String.format("web/assets/css/theme-%s.css", theme);
+        theme = String.format("web/assets/css/theme/theme-%s.css", theme);
 
         String themeHash = EncryptUtils.toMD5Hex(theme);
         Etag etag = new Etag(themeHash, response);

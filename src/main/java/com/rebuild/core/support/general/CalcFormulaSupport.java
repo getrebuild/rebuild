@@ -16,11 +16,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.easymeta.EasyDateTime;
-import com.rebuild.core.metadata.easymeta.EasyDecimal;
-import com.rebuild.core.metadata.easymeta.EasyField;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.*;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.utils.CommonsUtils;
@@ -49,16 +45,14 @@ public class CalcFormulaSupport {
      * FIXME 字段计算存在路径依赖：例如字段 B=A+1, 但 A 也是计算字段
      *
      * @param record
-     * @return
      */
-    public static int calcFormulaBackend(Record record) {
+    public static void calcFormulaBackend(Record record) {
         // 从数据库访问
         Record recordInDb = null;
         if (record.getPrimary() != null) {
             recordInDb = Application.getQueryFactory().recordNoFilter(record.getPrimary());
         }
 
-        int calc = 0;
         for (Field field
                 : MetadataSorter.sortFields(record.getEntity(), DisplayType.DECIMAL, DisplayType.NUMBER, DisplayType.DATE, DisplayType.DATETIME)) {
             final EasyField targetField = EasyMetaFactory.valueOf(field);
@@ -94,11 +88,11 @@ public class CalcFormulaSupport {
 
             record.setObjectValue(field.getName(), evalVal);
         }
-
-        return calc;
     }
 
     /**
+     * 计算
+     *
      * @param targetField
      * @param varsInFormula
      * @return

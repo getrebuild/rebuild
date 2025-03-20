@@ -20,7 +20,7 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-base.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-page.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-general.css}" />
-    <link rel="stylesheet" type="text/css" th:href="@{/commons/theme/use-theme}" th:if="${user != null && commercial > 1}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/commons/theme/use-theme}" th:if="${user != null}" />
   </th:block>
   <meta name="rb.env" th:content="${env}" />
   <meta name="rb.build" th:content="${AppBuild}" />
