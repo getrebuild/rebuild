@@ -27,15 +27,6 @@ class RbPreview extends React.Component {
     const currentUrl = this.props.urls[this.state.currentIndex]
     const fileName = $fileCutName(currentUrl)
     const downloadUrl = this._buildAbsoluteUrl(currentUrl, 'attname=' + $encode(fileName))
-    // fix:3.9.5 钉钉内下载
-    if ($env.isDingTalk()) {
-      $.get(`/filex/make-url?url=${currentUrl}`, (res) => {
-        if (res.data.publicUrl) {
-          let s = res.data.publicUrl + '&attname=' + $encode(fileName)
-          $(this._dlg).find('.J_downloadUrl').attr('href', s)
-        }
-      })
-    }
 
     let previewContent = null
     if (this._isImage(fileName)) previewContent = this.renderImage()
@@ -218,13 +209,6 @@ class RbPreview extends React.Component {
               // 本地加载PDF
               previewUrl = `${rb.baseUrl}/filex/` + url.split('/filex/')[1]
             }
-          }
-
-          // fix:3.9.1 PC钉钉预览PDF
-          if ($env.isDingTalk()) {
-            window.open(previewUrl)
-            that.hide()
-            return
           }
         }
         that.setState({ previewUrl: previewUrl, errorMsg: null })
