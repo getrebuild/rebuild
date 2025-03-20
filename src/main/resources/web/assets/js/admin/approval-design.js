@@ -113,7 +113,7 @@ class NodeSpec extends React.Component {
     this.setState({ active: true })
     activeNode = this
 
-    if (this.nodeType === 'approver') console.log(`RBAPI ASSISTANT *Approval Node* :\n %c${this.props.nodeId}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
+    this.nodeType === 'approver' && $logRBAPI(this.props.nodeId, 'ApprovalNode')
   }
 
   serialize() {

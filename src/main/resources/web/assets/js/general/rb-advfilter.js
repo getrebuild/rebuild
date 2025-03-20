@@ -1002,7 +1002,7 @@ class FilterItem extends React.Component {
 class ListAdvFilter extends AdvFilter {
   constructor(props) {
     super(props)
-    props.id && rb.isAdminUser && console.log(`RBAPI ASSISTANT *AdvFilter* :\n %c${props.id}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
+    $logRBAPI(props.id, 'AdvFilter')
   }
 
   render() {

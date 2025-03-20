@@ -36,13 +36,17 @@ class EasyFilterItem extends FilterItem {
       op = ['EQ']
     } else if (fieldType === 'LOCATION') {
       op = ['LK', 'NLK']
-    } else if (fieldType === 'TAG' || fieldType === 'PICKLIST') {
+    } else if (fieldType === 'TAG' || fieldType === 'PICKLIST' || fieldType === 'STATE') {
       op = ['IN', 'NIN']
     } else if (fieldType === 'FILE' || fieldType === 'IMAGE' || fieldType === 'AVATAR') {
       op = []
     }
 
-    op.push('NL', 'NT')
+    if (fieldType === 'REFERENCE' && (this.isBizzField('User') || this.isBizzField('Department') || this.isBizzField('Role') || this.isBizzField('Team'))) {
+      op = ['IN', 'NIN']
+    }
+
+    fieldType !== 'STATE' && op.push('NL', 'NT')
     this.__op = op
     return op
   }

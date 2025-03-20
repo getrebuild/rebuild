@@ -351,7 +351,7 @@ const _handlePicklist = function (dt) {
       res.data.forEach((item) => {
         rbapi.push([item.mask || item.id, item.text])
       })
-    rbapi.length > 0 && console.log(`RBAPI ASSISTANT *Option* :\n %c${JSON.stringify(rbapi)}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
+    rbapi.length > 0 && $logRBAPI(JSON.stringify(rbapi), 'FieldOptions')
   })
 
   $('.J_picklist-edit').on('click', () => {

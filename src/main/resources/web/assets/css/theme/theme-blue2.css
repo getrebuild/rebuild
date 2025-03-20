@@ -1,0 +1,56 @@
+/*!
+Copyright (c) Ruifang Tech <http://ruifang-tech.com/> and/or its owners. All rights reserved.
+*/
+/* color with dingtalk */
+
+:root {
+  --rb-theme-color: #38adff;
+}
+
+.rb-wrapper .rb-top-header,
+.rb-user-nav > li.dropdown .dropdown-menu .user-info {
+  background-color: #38adff;
+  border-bottom-color: #38adff;
+}
+
+.rb-wrapper .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .icon {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.rb-wrapper .rb-top-header .rb-navbar-header .navbar-brand {
+  background-image: url(../../commons/theme/use-logo-white) !important;
+}
+
+.rb-wrapper .rb-top-header .page-title,
+.rb-wrapper .rb-top-header .rb-right-navbar .navbar-nav > li > a,
+.rb-wrapper .rb-top-header .rb-right-navbar .rb-icons-nav > li.dropdown > a .icon,
+.rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .icon {
+  color: #fff;
+}
+
+.rb-wrapper .rb-top-header .rb-right-navbar .rb-icons-nav > li.dropdown > a .indicator {
+  background-color: #fff;
+}
+
+.rb-top-header .rb-user-nav > li.dropdown .dropdown-menu:after {
+  border-bottom-color: #38adff;
+}
+
+@media (max-width: 767.98px) {
+  .rb-top-header .rb-right-navbar {
+    background-color: #38adff;
+    border-bottom-color: #38adff;
+  }
+}
+
+.rb-top-header .search-input-gs {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* TOP-MENU */
+
+.navbar-collapse .navbar-nav > li > a.nav-link,
+.navbar-collapse .navbar-nav > li > a.nav-link:hover,
+.navbar-collapse .navbar-nav > li > a.nav-link:focus {
+  color: #fff;
+}

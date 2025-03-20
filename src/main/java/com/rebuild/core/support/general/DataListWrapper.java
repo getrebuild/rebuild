@@ -116,7 +116,7 @@ public class DataListWrapper {
 
             Object nameValue = null;
             for (int colIndex = 0; colIndex < selectFieldsLen; colIndex++) {
-                if (!checkHasFieldPrivileges(selectFields[colIndex])) {
+                if (!checkHasFieldPrivileges(selectFields[colIndex].getField())) {
                     row[colIndex] = FieldValueHelper.NO_READ_PRIVILEGES;
                     continue;
                 }
@@ -141,15 +141,19 @@ public class DataListWrapper {
 
                 // At last
                 if (colIndex + 1 == selectFieldsLen && fieldMeta.getType() == FieldType.PRIMARY) {
-                    // 如无名称字段值则补充
-                    if (nameValue == null) {
-                        nameValue = FieldValueHelper.getLabel((ID) value, StringUtils.EMPTY);
+                    // 字段权限
+                    if (checkHasFieldPrivileges(entity.getNameField())) {
+                        // 如无名称字段值则补充
+                        if (nameValue == null) {
+                            nameValue = FieldValueHelper.getLabel((ID) value, StringUtils.EMPTY);
+                        } else {
+                            nameValue = FieldValueHelper.wrapFieldValue(nameValue, nameFiled, true);
+                        }
+                        if (nameValue != null && isUseDesensitized(nameFieldEasy)) {
+                            nameValue = FieldValueHelper.desensitized(nameFieldEasy, nameValue);
+                        }
                     } else {
-                        nameValue = FieldValueHelper.wrapFieldValue(nameValue, nameFiled, true);
-                    }
-
-                    if (nameValue != null && isUseDesensitized(nameFieldEasy)) {
-                        nameValue = FieldValueHelper.desensitized(nameFieldEasy, nameValue);
+                        nameValue = FieldValueHelper.NO_READ_PRIVILEGES;
                     }
 
                     ((ID) value).setLabel(ObjectUtils.defaultIfNull(nameValue, StringUtils.EMPTY));
@@ -273,7 +277,7 @@ public class DataListWrapper {
      * @param field
      * @param original
      * @return
-     * @see #checkHasFieldPrivileges(SelectItem)
+     * @see #checkHasFieldPrivileges(Field)
      */
     protected boolean checkHasJoinFieldPrivileges(SelectItem field, Object[] original) {
         if (this.queryJoinFields == null || UserHelper.isAdmin(user)) {
@@ -294,9 +298,9 @@ public class DataListWrapper {
      * @param field
      * @return
      */
-    protected boolean checkHasFieldPrivileges(SelectItem field) {
+    protected boolean checkHasFieldPrivileges(Field field) {
         ID u = user == null ? UserContextHolder.getUser() : user;
-        return Application.getPrivilegesManager().getFieldPrivileges().isReadable(field.getField(), u);
+        return Application.getPrivilegesManager().getFieldPrivileges().isReadable(field, u);
     }
 
     /**

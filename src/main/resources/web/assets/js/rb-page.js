@@ -177,11 +177,6 @@ $(function () {
 
   // theme
   $('.use-theme a').on('click', function () {
-    if (rb.commercial < 10) {
-      RbHighbar.error(WrapHtml($L('免费版不支持选择主题功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-      return
-    }
-
     var theme = $(this).data('theme')
     $.get('/commons/theme/set-use-theme?theme=' + theme, function () {
       location.reload(true)
@@ -1405,4 +1400,8 @@ function $dropdownMenuSearch($dd) {
       $dd.find('input')[0].focus()
     }, 200)
   })
+}
+
+function $logRBAPI(id, type) {
+  id && rb.isAdminUser && console.log('RBAPI ASSISTANT *' + (type || 'N') + '* :\n%c' + id, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
 }

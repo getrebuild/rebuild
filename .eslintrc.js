@@ -154,5 +154,6 @@ module.exports = {
     $env: true,
     $dropdownMenuSearch: true,
     $formatNumber: true,
+    $logRBAPI: true,
   },
 }

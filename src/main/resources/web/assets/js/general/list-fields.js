@@ -28,6 +28,8 @@ $(document).ready(() => {
     cfgid = _data.configId || ''
     _fieldCached = [..._data.fieldList, ..._data.configList]
 
+    $logRBAPI(cfgid, 'ListFields')
+
     $(_data.fieldList).each(function () {
       // eslint-disable-next-line no-undef
       if (!$isSysMask(this.label)) render_unset([this.field, this.label])
