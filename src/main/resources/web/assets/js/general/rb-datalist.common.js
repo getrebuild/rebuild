@@ -800,16 +800,22 @@ const RbListCommon = {
       })
     } else {
       // d 强制过滤
-      let def39 = $urlp('def') || $urlp('d')
-      if (def39) {
+      let def40 = $urlp('def')
+      if (def40) {
         $('.main-content .nav-tabs a[href]').each(function () {
           const $this = $(this)
-          $this.attr('href', `${$this.attr('href')}?d=${def39}`)
+          $this.attr('href', `${$this.attr('href')}?def=${def40}`)
         })
 
-        def39 = def39.split(':') // FILTER:LAYOUT
-        if (def39[0]) wpc.protocolFilter = `via:${def39[0]}`
-        if (def39[1]) console.log('Use listConfig :', def39[1])
+        def40 = def40.split(':') // FILTER:LAYOUT
+        if (def40[0]) {
+          if (def40[0].substr(4) === '014-') wpc.protocolFilter = `via:${def40[0]}`
+          else console.log('Use listConfig :', def40[0])
+        }
+        if (def40[1]) {
+          if (def40[1].substr(4) === '014-') wpc.protocolFilter = `via:${def40[1]}`
+          else console.log('Use listConfig :', def40[1])
+        }
       }
     }
 

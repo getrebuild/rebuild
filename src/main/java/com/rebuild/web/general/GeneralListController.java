@@ -113,10 +113,12 @@ public class GeneralListController extends EntityController {
         JSON listConfig = null;
 
         if (listMode == 1) {
-            String def39 = getParameter(request, "def");
+            String def40 = getParameter(request, "def");
             ID useLayout = null;
-            if (def39 != null && def39.contains(":")) {
-                useLayout = ID.valueOf(def39.split(":")[1]);
+            if (def40 != null && def40.length() >= 20) {
+                String[] ff = def40.split(":");
+                if (ff[0].startsWith("013-")) useLayout = ID.valueOf(ff[0]);
+                if (ff.length > 1 && ff[1].startsWith("013-")) useLayout = ID.valueOf(ff[1]);
             }
             listConfig = DataListManager.instance.getListFields(entity, user, useLayout == null ? null : useLayout.toLiteral());
 
