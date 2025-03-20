@@ -1135,9 +1135,7 @@ class RbList extends React.Component {
       this.setState({ inLoad: true }, () => this._$wrapper.addClass('rb-loading-active'))
     }, 400)
 
-    if (query.filter && (query.filter.items || []).length > 0) {
-      console.log(`RBAPI ASSISTANT *Filter Body* :\n %c${JSON.stringify(query.filter)}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
-    }
+    if (query.filter && (query.filter.items || []).length > 0) $logRBAPI(JSON.stringify(query.filter), 'FilterBody')
 
     $.post(`/app/${this._entity}/data-list`, JSON.stringify(RbList.queryBefore(query)), (res) => {
       if (res.error_code === 0) {

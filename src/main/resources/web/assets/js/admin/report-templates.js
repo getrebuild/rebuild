@@ -97,6 +97,7 @@ class ReportEditor extends ConfigFormDlg {
     super(props)
     this.subtitle = $L('报表模板')
     this.hasDetail = true
+    $logRBAPI(props.id, 'Report')
   }
 
   renderFrom() {
@@ -313,8 +314,6 @@ class ReportEditor extends ConfigFormDlg {
 
       window.open(`./report-templates/preview?${ps}&output=${output || ''}`)
     })
-
-    this.props.id && console.log(`RBAPI ASSISTANT *Report* :\n %c${this.props.id}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
   }
 
   // 检查模板

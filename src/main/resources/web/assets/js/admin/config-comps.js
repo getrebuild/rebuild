@@ -264,6 +264,5 @@ function stringToColor(str) {
     hash |= 0
   }
   const index = Math.abs(hash) % _RndColors.length
-  console.log(hash, index)
   return _RndColors[index] || _RndColors[0]
 }
