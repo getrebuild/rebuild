@@ -764,7 +764,8 @@ class LiteFormModal extends RbModalHandler {
           </LiteForm>
 
           <div className="footer" ref={(c) => (this._$formAction = c)}>
-            {this._ids.length > 1 && <RbAlertBox message={$L('本次保存将修改 **%d** 条记录', this.props.ids.length)} type="info" className="mt-0 mb-2" />}
+            {this._ids.length > 1 && <RbAlertBox message={WrapHtml($L('本次保存将修改 **%d** 条记录', this.props.ids.length))} type="info" className="mt-0 mb-2" />}
+
             <button className="btn btn-primary" type="button" onClick={() => this._handleSave()}>
               {$L('保存')}
             </button>
