@@ -75,6 +75,11 @@ public class InstallController extends BaseController implements InstallState {
         JSONObject dbProps = (JSONObject) ServletUtils.getRequestJson(request);
         JSONObject props = JSONUtils.toJSONObject("databaseProps", dbProps);
 
+        String dbName = dbProps.getString("dbName");
+        if (":MYSQL:SYS:INFORMATION_SCHEMA:PERFORMANCE_SCHEMA:".contains(":" + dbName.toUpperCase() + ":")) {
+            return RespBody.errorl( "请勿使用 MySQL 系统数据库");
+        }
+
         Installer checker = new Installer(props);
         try (Connection conn = checker.getConnection(null)) {
             DatabaseMetaData dmd = conn.getMetaData();
