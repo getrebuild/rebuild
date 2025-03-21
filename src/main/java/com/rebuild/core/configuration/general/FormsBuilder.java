@@ -291,6 +291,11 @@ public class FormsBuilder extends FormsManager {
 
         model.set("layoutId", model.getID("id"));
         model.remove("id");
+        // v4.0
+        if (recordId != null && !EntityHelper.isUnsavedId(recordId)) {
+            model.set("recordId", recordId);
+            model.set("recordName", FieldValueHelper.getLabelNotry(recordId));
+        }
         return model.toJSON();
     }
 
