@@ -5998,6 +5998,7 @@ div.formula-code {
   transform: translateY(-2.5px);
 }
 
-.dataTables_wrapper .dataTables_oper .fjs-dock > *:last-child {
+.dataTables_wrapper .dataTables_oper .fjs-dock > *:last-child,
+.dataTables_wrapper .dataTables_oper.compact .fjs-dock > * {
   margin-right: 5px;
 }
