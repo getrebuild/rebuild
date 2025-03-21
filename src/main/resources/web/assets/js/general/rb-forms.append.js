@@ -971,11 +971,13 @@ const EasyFilterEval = {
     // LiteForm or Others
     if (!formObject.props.rawModel.layoutId) return
 
-    if (this.__timer) {
-      clearTimeout(this.__timer)
-      this.__timer = null
+    const key = formObject.props.rawModel.layoutId + (formObject.props.id || '')
+    this.__timers = this.__timers || {}
+    if (this.__timers[key]) {
+      clearTimeout(this.__timers[key])
+      this.__timers[key] = null
     }
-    this.__timer = setTimeout(() => this._evalAndEffect(formObject), 200)
+    this.__timers[key] = setTimeout(() => this._evalAndEffect(formObject), 200)
   },
 
   _evalAndEffect: function (formObject) {
