@@ -332,4 +332,47 @@ public class ReferenceSearchController extends EntityController {
 
         return mv;
     }
+
+    @GetMapping("suggest")
+    public JSON commonSuggest(HttpServletRequest request) {
+        ID user = getRequestUser(request);
+        String entityAndField = getParameterNotNull(request, "e");
+        String[] ef = entityAndField.split("\\.");
+        Field field = MetadataHelper.getField(ef[0], ef[1]);
+        DisplayType dtOfField = EasyMetaFactory.getDisplayType(field);
+
+        String q = StringUtils.trim(getParameter(request, "q"));
+        int pageSize = getIntParameter(request, "pageSize", 10);
+
+        if (dtOfField == DisplayType.REFERENCE || dtOfField == DisplayType.N2NREFERENCE) {
+            String quickFields = field.getReferenceEntity().getNameField().getName();
+            if (field.getReferenceEntity().containsField(EntityHelper.QuickCode)) quickFields += ",quickCode";
+
+            return buildResultSearch(
+                    field.getReferenceEntity(), quickFields, q, null, pageSize, user);
+        }
+        else if (dtOfField == DisplayType.CLASSIFICATION) {
+            ID useClassification = ClassificationManager.instance.getUseClassification(field, false);
+            if (useClassification == null) return JSONUtils.EMPTY_ARRAY;
+            int openLevel = ClassificationManager.instance.getOpenLevel(field);
+
+            q = CommonsUtils.escapeSql(q);
+            String sqlWhere = String.format(
+                    "dataId = '%s' and level = %d and (fullName like '%%%s%%' or quickCode like '%%%s%%') order by code,fullName",
+                    useClassification.toLiteral(), openLevel, q, q);
+
+            Object result = resultSearch(
+                    sqlWhere, MetadataHelper.getEntity(EntityHelper.ClassificationData), pageSize);
+            return (JSON) JSON.toJSON(result);
+        }
+        else if (dtOfField == DisplayType.TEXT) {
+            String quickFields = field.getOwnEntity().getNameField().getName();
+            if (field.getOwnEntity().containsField(EntityHelper.QuickCode)) quickFields += ",quickCode";
+
+            return buildResultSearch(
+                    field.getOwnEntity(), quickFields, q, null, pageSize, user);
+        }
+
+        return JSONUtils.EMPTY_ARRAY;
+    }
 }

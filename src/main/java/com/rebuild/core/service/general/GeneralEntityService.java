@@ -10,12 +10,7 @@ package com.rebuild.core.service.general;
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.ReflectUtils;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.Filter;
-import cn.devezhao.persist4j.PersistManagerFactory;
-import cn.devezhao.persist4j.Query;
-import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.*;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
@@ -41,11 +36,7 @@ import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.service.notification.NotificationObserver;
 import com.rebuild.core.service.query.QueryHelper;
-import com.rebuild.core.service.trigger.ActionType;
-import com.rebuild.core.service.trigger.RobotTriggerManual;
-import com.rebuild.core.service.trigger.RobotTriggerObserver;
-import com.rebuild.core.service.trigger.TriggerAction;
-import com.rebuild.core.service.trigger.TriggerWhen;
+import com.rebuild.core.service.trigger.*;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import lombok.extern.slf4j.Slf4j;
@@ -54,15 +45,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 import static com.rebuild.core.service.approval.ApprovalHelper.getSpecTriggers;
 
@@ -106,6 +89,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         @SuppressWarnings("unchecked")
         final List<Record> details = (List<Record>) record.removeValue(HAS_DETAILS);
 
+        // 重复检查模式
         final int rcm = GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
 
         if (rcm == GeneralEntityServiceContextHolder.RCM_CHECK_MAIN
@@ -132,17 +116,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             }
 
             // 明细记录处理
-
-            final Entity detailEntity = record.getEntity().getDetailEntity();
-            final String dtfField = MetadataHelper.getDetailToMainField(detailEntity).getName();
             final ID mainid = record.getPrimary();
-
             final boolean checkDetailsRepeated = rcm == GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS
                     || rcm == GeneralEntityServiceContextHolder.RCM_CHECK_ALL;
-
-            // 明细可能有自己的 Service
-            EntityService des = Application.getEntityService(detailEntity.getEntityCode());
-            if (des.getEntityCode() == 0) des = this;
 
             // 先删除
             for (int i = 0; i < details.size(); i++) {
@@ -152,7 +128,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     if (((DeleteRecord) d).isQuietly()) {
                         Application.getCommonsService().delete(d.getPrimary(), false);
                     } else {
-                        des.delete(d.getPrimary());
+                        getDetailEntityService(d.getEntity()).delete(d.getPrimary());
                         detaileds.put(i, d.getPrimary());
                     }
                 }
@@ -160,16 +136,19 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
             // 再保存
             for (int i = 0; i < details.size(); i++) {
-                Record d = details.get(i);
+                final Record d = details.get(i);
                 if (d instanceof DeleteRecord) continue;
 
-                if (checkDetailsRepeated) {
-                    d.setID(dtfField, mainid);  // for check
+                EntityService des = getDetailEntityService(d.getEntity());
+                String dtfField = MetadataHelper.getDetailToMainField(d.getEntity()).getName();
 
-                    List<Record> repeated = des.getAndCheckRepeated(d, 20);
-                    if (!repeated.isEmpty()) {
-                        throw new RepeatedRecordsException(repeated);
-                    }
+                if (checkDetailsRepeated) {
+                    Record c = d.clone();
+                    // for check use clone
+                    if (!c.hasValue(dtfField)) c.setID(dtfField, mainid);
+
+                    List<Record> repeated = des.getAndCheckRepeated(c, 20);
+                    if (!repeated.isEmpty()) throw new RepeatedRecordsException(repeated);
                 }
 
                 if (d.getPrimary() == null) {
@@ -187,6 +166,17 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         } finally {
             RobotTriggerObserver.executeLazyTriggers(this);
         }
+    }
+
+    /**
+     * 明细可能有自己的 Service
+     * @param detailEntity
+     * @return
+     */
+    private EntityService getDetailEntityService(Entity detailEntity) {
+        EntityService des = Application.getEntityService(detailEntity.getEntityCode());
+        if (des.getEntityCode() == 0) des = this;
+        return des;
     }
 
     /**
@@ -648,7 +638,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
                     // 审批时/已通过强制修改
                     if (unallow) {
-                        boolean forceUpdate = GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+                        boolean forceUpdate = GeneralEntityServiceContextHolder.isAllowForceUpdate(false);
                         if (forceUpdate) unallow = false;
                     }
                 }

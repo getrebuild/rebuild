@@ -32,6 +32,21 @@ $(document).ready(() => {
     })
   $('.J_startHour2').val('23')
 
+  $('.J_whenTimer1').on('change', function (e) {
+    if (e.target.value === 'cron') {
+      $('.J_timerSimple').addClass('hide')
+      $('.J_timerCron').removeClass('hide')
+    } else {
+      $('.J_timerSimple').removeClass('hide')
+      $('.J_timerCron').addClass('hide')
+    }
+  })
+  function _buildWhenTimer() {
+    let wt = $('.J_whenTimer1').val() || 'D'
+    if (wt === 'cron') return wt + ':' + ($('.J_whenTimer9').val() || '0 0 * * * ?')
+    return wt + `:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}`
+  }
+
   if (wpc.when > 0) {
     $([1, 2, 4, 16, 32, 64, 128, 256, 512, 1024, 2048]).each(function () {
       let mask = this
@@ -42,13 +57,15 @@ $(document).ready(() => {
           $('.on-timers').removeClass('hide')
           const wt = (wpc.whenTimer || 'D:1').split(':')
           $('.J_whenTimer1').val(wt[0])
-          $('.J_whenTimer2').val(wt[1])
-          // v2.9
-          if (wt[2]) $('.J_startHour1').val(wt[2])
-          if (wt[3]) $('.J_startHour2').val(wt[3])
-          // v3.8
-          if (wt[4]) $('.J_whenTimer4').val(wt[4]).parents('.bosskey-show').removeClass('bosskey-show')
-
+          // v4.0
+          if (wt[0] === 'cron') {
+            $('.J_whenTimer9').val(wt[1])
+          } else {
+            $('.J_whenTimer2').val(wt[1])
+            // v2.9
+            if (wt[2]) $('.J_startHour1').val(wt[2])
+            if (wt[3]) $('.J_startHour2').val(wt[3])
+          }
           $('.J_whenTimer1').trigger('change')
         }
       }
@@ -57,15 +74,15 @@ $(document).ready(() => {
 
   // 评估具体执行时间
   function evalTriggerTimes() {
-    const whenTimer = `${$('.J_whenTimer1').val() || 'D'}:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}:${$('.J_whenTimer4').val() || ''}`
-    $.get(`/admin/robot/trigger/eval-trigger-times?whenTimer=${whenTimer}`, (res) => {
+    $.get(`/admin/robot/trigger/eval-trigger-times?whenTimer=${_buildWhenTimer()}`, (res) => {
       renderRbcomp(
         <RbAlertBox
+          unclose
           icon="time"
           message={
             <div>
               <span className="mr-1">{$L('预计执行时间 (最多显示近 9 次)')} : </span>
-              <code>{res.data.slice(0, 9).join(', ')}</code>
+              <code>{res.data.length > 0 ? res.data.slice(0, 9).join(', ') : $L('无')}</code>
             </div>
           }
         />,
@@ -143,8 +160,6 @@ $(document).ready(() => {
       return
     }
 
-    const whenTimer = `${$('.J_whenTimer1').val() || 'D'}:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}:${$('.J_whenTimer4').val() || ''}`
-
     const content = contentComp.buildContent()
     if (content === false) return
 
@@ -152,7 +167,7 @@ $(document).ready(() => {
     if (window.whenApproveNodes) content.whenApproveNodes = window.whenApproveNodes
     const data = {
       when: when,
-      whenTimer: whenTimer,
+      whenTimer: _buildWhenTimer(),
       whenFilter: wpc.whenFilter || null,
       actionContent: content,
       metadata: {
@@ -188,15 +203,19 @@ $(document).ready(() => {
 
   if (LastLogsViewer.renderLog && rb.commercial > 1) {
     $.get(`/admin/robot/trigger/last-logs?id=${wpc.configId}`, (res) => {
-      const _data = res.data || []
-      if (_data.length > 0) {
-        const last = _data[0]
-        const $a = $(`<a href="#last-logs">${$fromNow(last[0])}</a>`).appendTo($('.J_last-logs .form-control-plaintext').empty())
-        $a.on('click', (e) => {
-          $stopEvent(e, true)
-          renderRbcomp(<LastLogsViewer width="681" data={_data} />)
-        })
+      const _data = res.data || {}
+      if (_data.logs && _data.logs.length > 0) {
+        const last = _data.logs[0]
+        const $d = $('.J_last-logs .form-control-plaintext').empty()
+        $(`<a href="#last-logs">${$fromNow(last[0])}</a>`)
+          .appendTo($d)
+          .on('click', (e) => {
+            $stopEvent(e, true)
+            renderRbcomp(<LastLogsViewer width="681" data={_data.logs} />)
+          })
+        $(`<span class="text-muted ml-1">(${$L('近 30 天执行 %s 次', _data.count)})</span>`).appendTo($d)
       }
+
       $('.J_last-logs').removeClass('hide')
     })
   }
@@ -380,33 +399,39 @@ function useExecManual() {
       return
     }
 
-    RbAlert.create($L('将直接执行此触发器，数据过多耗时会较长，请耐心等待。是否继续？'), {
-      onConfirm: function () {
-        const that = this
-        that.disabled(true, true)
-        $.post(`/admin/robot/trigger/exec-manual?id=${wpc.configId}`, (res) => {
-          let taskid = res.data || ''
-          // 执行中了
-          if (taskid.startsWith('_EXECUTE:')) {
-            taskid = taskid.substr(9)
-            RbAlert.create($L('此触发器已在执行中，不能同时执行。是否显示执行状态？'), {
-              onConfirm: function () {
-                this.hide()
-                _FN(taskid, that)
-              },
-              onCancel: function () {
-                this.hide()
-                that.hide(true)
-              },
-            })
-            return
-          }
+    RbAlert.create(
+      <RF>
+        <div>{$L('将直接执行此触发器，数据过多耗时会较长，请耐心等待。是否继续？')}</div>
+        <div className="text-warning mt-1">({$L('若触发器已修改，请保存后再执行')})</div>
+      </RF>,
+      {
+        onConfirm: function () {
+          const that = this
+          that.disabled(true, true)
+          $.post(`/admin/robot/trigger/exec-manual?id=${wpc.configId}`, (res) => {
+            let taskid = res.data || ''
+            // 执行中了
+            if (taskid.startsWith('_EXECUTE:')) {
+              taskid = taskid.substr(9)
+              RbAlert.create($L('此触发器已在执行中，不能同时执行。是否显示执行状态？'), {
+                onConfirm: function () {
+                  this.hide()
+                  _FN(taskid, that)
+                },
+                onCancel: function () {
+                  this.hide()
+                  that.hide(true)
+                },
+              })
+              return
+            }
 
-          _FN(taskid, that)
-        })
-      },
-      countdown: 5,
-    })
+            _FN(taskid, that)
+          })
+        },
+        countdown: 5,
+      }
+    )
   })
 }
 // 检查状态
@@ -439,7 +464,7 @@ class DlgSpecFields extends RbModalHandler {
         ref={(c) => (this._dlg = c)}
         width="780">
         <div className="p-2">
-          <RbAlertBox message={$L('指定字段被更新时触发，默认为全部字段')} />
+          <RbAlertBox message={$L('指定字段被更新时触发，默认为全部字段')} type="info" />
           <div className="row" ref={(c) => (this._$fields = c)}>
             {(this.state.fields || []).map((item) => {
               if (item.type === 'BARCODE' || item.updatable === false) return null
@@ -511,7 +536,7 @@ class DlgSpecApproveNodes extends RbModalHandler {
         ref={(c) => (this._dlg = c)}
         width="780">
         <div className="p-2">
-          <RbAlertBox message={$L('指定审批步骤 (名称) 通过时触发，默认仅审批完成时触发')} />
+          <RbAlertBox message={$L('指定审批步骤 (名称) 通过时触发，默认仅审批完成时触发')} type="info" />
           <div className="row">
             <div className="col-12">
               <label>

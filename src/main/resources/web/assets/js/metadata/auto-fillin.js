@@ -20,7 +20,10 @@ const loadRules = () => {
     $(res.data).each(function () {
       const $tr = $('<tr></tr>').appendTo($tbody)
       $(`<td><div>${this.targetFieldLabel}</div></td>`).appendTo($tr)
-      $(`<td>${this.sourceFieldLabel}</div></td>`).appendTo($tr)
+      const $sf = $(`<td>${this.sourceFieldLabel}</div></td>`).appendTo($tr)
+      if (this.extConfig.sourceFieldFormula) {
+        $(`<span class="badge badge-dark badge-pill ml-1">${$L('计算公式')}</span>`).appendTo($sf)
+      }
 
       if (!this.extConfig.whenCreate && !this.extConfig.whenUpdate) {
         $(`<td class="text-warning">(${$L('未启用')})</div></td>`).appendTo($tr)
@@ -29,8 +32,8 @@ const loadRules = () => {
         if (this.extConfig.whenCreate) ruleLabels.push($L('新建时'))
         if (this.extConfig.whenUpdate) ruleLabels.push($L('编辑时'))
         if (this.extConfig.fillinForce) ruleLabels.push($L('强制回填'))
-        if (this.extConfig.readonlyTargetField) ruleLabels.push($L('自动设置目标字段为只读'))
-        if (this.extConfig.fillinBackend) ruleLabels.push($L('使用后端回填'))
+        if (this.extConfig.readonlyTargetField) ruleLabels.push($L('目标字段只读'))
+        if (this.extConfig.fillinBackend) ruleLabels.push($L('后端回填'))
         $(`<td>${ruleLabels.join(', ')}</div></td>`).appendTo($tr)
       }
 
@@ -74,7 +77,7 @@ class DlgRuleEdit extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L('回填规则')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={$L('回填规则')} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form" ref={(c) => (this._$form = c)}>
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('源字段')}</label>
@@ -82,12 +85,22 @@ class DlgRuleEdit extends RbFormHandler {
               <select className="form-control form-control-sm" ref={(c) => (this._sourceField = c)}>
                 {(this.state.sourceFields || []).map((item) => {
                   return (
-                    <option key={`sf-${item.name}`} value={item.name}>
+                    <option key={item.name} value={item.name}>
                       {item.label}
                     </option>
                   )
                 })}
               </select>
+              <div className={`mt-2 ${this.props.sourceFieldFormula ? '' : 'bosskey-show'}`}>
+                <textarea
+                  className="formula-code row3x"
+                  ref={(c) => (this._$sourceFieldFormula = c)}
+                  defaultValue={this.props.sourceFieldFormula || null}
+                  maxLength="1000"
+                  placeholder="## Support AviatorScript"
+                  spellCheck="false"
+                />
+              </div>
             </div>
           </div>
           <div className="form-group row">
@@ -96,7 +109,7 @@ class DlgRuleEdit extends RbFormHandler {
               <select className="form-control form-control-sm" ref={(c) => (this._targetField = c)}>
                 {(this.state.targetFields || []).map((item) => {
                   return (
-                    <option key={`tf-${item.name}`} value={item.name}>
+                    <option key={item.name} value={item.name}>
                       {item.label}
                     </option>
                   )
@@ -144,7 +157,7 @@ class DlgRuleEdit extends RbFormHandler {
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" checked={this.state.fillinBackend === true} data-id="fillinBackend" onChange={this.handleChange} />
                 <span className="custom-control-label">
-                  {$L('使用后端回填')} <sup className="rbv" />
+                  {$L('同时启用后端回填')} <sup className="rbv" />
                 </span>
               </label>
             </div>
@@ -236,6 +249,7 @@ class DlgRuleEdit extends RbFormHandler {
       fillinForce: this.state.fillinForce,
       readonlyTargetField: this.state.readonlyTargetField,
       fillinBackend: this.state.fillinBackend,
+      sourceFieldFormula: $(this._$sourceFieldFormula).val(),
     }
     if (this.props.id) _data.id = this.props.id
 

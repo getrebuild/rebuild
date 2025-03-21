@@ -22,7 +22,12 @@ $(document).ready(() => {
   if (rb.env === 'dev') console.log(wpc.flowDefinition)
 
   // 备用
-  $.get(`/commons/metadata/fields?entity=${wpc.applyEntity}`, (res) => (fieldsCache = res.data))
+  $.get(`/commons/metadata/entity-and-details?entity=${wpc.applyEntity}`, (res) => {
+    fieldsCache = [...res.data]
+    fieldsCache.forEach((e) => {
+      $.get(`/commons/metadata/fields?entity=${e.entity}`, (res2) => (e.fields = res2.data || []))
+    })
+  })
 
   renderRbcomp(<RbFlowCanvas />, 'rbflow')
 
@@ -108,7 +113,7 @@ class NodeSpec extends React.Component {
     this.setState({ active: true })
     activeNode = this
 
-    if (this.nodeType === 'approver') console.log(`RBAPI ASSISTANT *Approval Node* :\n %c${this.props.nodeId}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
+    this.nodeType === 'approver' && $logRBAPI(this.props.nodeId, 'ApprovalNode')
   }
 
   serialize() {
@@ -713,7 +718,7 @@ class ApproverNodeConfig extends StartNodeConfig {
                     <select className="form-control form-control-sm" name="expiresAuto1ValueType">
                       <option value="D">{$L('天后')}</option>
                       <option value="H">{$L('小时后')}</option>
-                      {/*<option value="I">{$L('分钟后')}</option>*/}
+                      {rb.env === 'dev' && <option value="I">{$L('分钟后')}</option>}
                     </select>
                   </div>
                 </div>
@@ -732,7 +737,7 @@ class ApproverNodeConfig extends StartNodeConfig {
             </div>
 
             <div className={`expires-notify-set mt-3 ${(this.state.expiresAuto || 0) > 0 ? '' : 'hide'}`}>
-              <label className="text-bold">{$L('到期后如何处理')}</label>
+              <label className="text-bold">{$L('超时后如何处理')}</label>
               <select className="form-control form-control-sm" name="expiresAutoType">
                 {Object.keys(__EXPIRESAUTOTYPE).map((k) => {
                   return (
@@ -754,8 +759,40 @@ class ApproverNodeConfig extends StartNodeConfig {
                   })}
                 </select>
                 <label className="mt-2 mb-1">{$L('通知内容')}</label>
-                <textarea className="form-control form-control-sm row2x" placeholder={$L('有一条记录正在等待你审批，请及时处理')} name="expiresAutoUrgeMsg"></textarea>
+                <textarea className="form-control form-control-sm row2x" placeholder={$L('有一条记录正在等待你审批，请及时处理')} name="expiresAutoUrgeMsg" />
+                <div className="mt-2">
+                  <div className="row">
+                    <div className="col pr-2">
+                      <label className="mb-1">
+                        {$L('提前通知')} ({$L('提前几小时')})
+                      </label>
+                      <input className="form-control form-control-sm" placeholder={$L('不提前')} name="expiresAutoUrgeEarly" />
+                    </div>
+                    <div className="col pl-2">
+                      <label className="mb-1">
+                        {$L('重复通知')} ({$L('间隔几小时')})
+                      </label>
+                      <input className="form-control form-control-sm" placeholder={$L('不重复')} name="expiresAutoUrgeRepeat" />
+                    </div>
+                  </div>
+                </div>
               </div>
+            </div>
+          </div>
+
+          <div className="form-group mt-5">
+            <label className="text-bold">
+              {$L('审批批注')} <sup className="rbv" />
+            </label>
+            <div className="row">
+              <div className="col">
+                <select className="form-control form-control-sm" name="remarkReq" defaultValue={this.state.remarkReq || null} onChange={this.handleChange}>
+                  <option value="0">{$L('可选填写')}</option>
+                  <option value="1">{$L('必须填写')}</option>
+                  <option value="2">{$L('超时必填 (限时审批启用后有效)')} </option>
+                </select>
+              </div>
+              <div className="col pl-0" />
             </div>
           </div>
 
@@ -813,9 +850,6 @@ class ApproverNodeConfig extends StartNodeConfig {
 
     $(this._$expiresAuto)
       .find('select')
-      .select2({
-        allowClear: false,
-      })
       .on('change', (e) => {
         const t = e.target
         if (['expiresAuto', 'expiresAutoType'].includes(t.name)) {
@@ -831,9 +865,6 @@ class ApproverNodeConfig extends StartNodeConfig {
           })
         }
       })
-      .on('select2:open', () => (donotCloseSidebar = true))
-      .on('select2:close', () => (donotCloseSidebar = false))
-
     $(this._$expiresAuto)
       .find('select[name="expiresAutoUrgeUser"]')
       .select2({ placeholder: $L('审批人') })
@@ -896,6 +927,7 @@ class ApproverNodeConfig extends StartNodeConfig {
       allowCountersign: this.state.allowCountersign,
       allowBatch: this.state.allowBatch,
       expiresAuto: expiresAuto,
+      remarkReq: this.state.remarkReq || 0,
     }
 
     if (d.users.length === 0 && !d.selfSelecting) {
@@ -940,8 +972,12 @@ class ApproverNodeConfig extends StartNodeConfig {
   }
 
   __fieldLabel(name) {
-    const field = fieldsCache.find((x) => x.name === name)
-    return field ? field.label : `[${name.toUpperCase()}]`
+    const s = name.includes('.') ? name.split('.') : [wpc.applyEntity, name]
+    const fsMeta = fieldsCache.find((x) => x.entity === s[0])
+
+    let field = fsMeta.fields.find((x) => x.name === s[1])
+    field = field ? field.label : `[${name.toUpperCase()}]`
+    return name.includes('.') ? `${fsMeta.entityLabel}.${field}` : field
   }
 }
 
@@ -1083,7 +1119,7 @@ class RbFlowCanvas extends NodeGroupSpec {
     $('.box-scale').draggable({ cursor: 'move', axis: 'x', scroll: false })
     $('#rbflow').removeClass('rb-loading-active')
 
-    const $btn = $('.J_save').on('click', () => {
+    const $btn = $('.J_save').on('click', (e) => {
       const s = this.serialize()
       if (!s) return
 
@@ -1095,7 +1131,7 @@ class RbFlowCanvas extends NodeGroupSpec {
       const noApproverNode = !data.includes('"approver"')
 
       $btn.button('loading')
-      $.post('/app/entity/common-save', data, (res) => {
+      $.post(`/app/entity/common-save?force=${!!$(e.target).data('force')}`, data, (res) => {
         if (res.error_code === 0) {
           const msg = (
             <RF>
@@ -1151,26 +1187,36 @@ class DlgFields extends RbModalHandler {
 
   render() {
     return (
-      <RbModal title={$L('选择可修改字段')} ref={(c) => (this._dlg = c)} disposeOnHide onHide={() => (donotCloseSidebar = false)}>
-        <div className="row p-1" ref={(c) => (this._fields = c)}>
-          {fieldsCache.map((item) => {
-            if (item.type === 'BARCODE') return null
+      <RbModal title={$L('选择可修改字段')} ref={(c) => (this._dlg = c)} disposeOnHide onHide={() => (donotCloseSidebar = false)} width="780">
+        <div className="updatable-fields pl-1 pr-0" ref={(c) => (this._fields = c)}>
+          {fieldsCache.map((e) => {
             return (
-              <div className="col-3" key={`field-${item.name}`}>
-                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-1">
-                  <input className="custom-control-input" type="checkbox" disabled={!item.updatable} value={item.name} defaultChecked={item.updatable && this._selected.includes(item.name)} />
-                  <span className="custom-control-label">{item.label}</span>
-                </label>
-              </div>
+              <RF key={e.entity}>
+                <h4>{e.entityLabel}</h4>
+                <div className="row p-1" _title={$L('无可用字段')}>
+                  {e.fields.map((item) => {
+                    if (item.type === 'BARCODE' || item.updatable === false) return null
+                    const keyName = e.mainEntity ? `${e.entity}.${item.name}` : item.name
+                    return (
+                      <div className="col-3" key={`field-${item.name}`}>
+                        <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-1">
+                          <input className="custom-control-input" type="checkbox" disabled={!item.updatable} value={keyName} defaultChecked={item.updatable && this._selected.includes(keyName)} />
+                          <span className="custom-control-label">{item.label}</span>
+                        </label>
+                      </div>
+                    )
+                  })}
+                </div>
+              </RF>
             )
           })}
         </div>
         <div className="dialog-footer">
-          <button className="btn btn-primary btn-space" type="button" onClick={this.confirm}>
-            {$L('确定')}
-          </button>
-          <button className="btn btn-secondary btn-space" type="button" onClick={this.hide}>
+          <button className="btn btn-secondary mr-2" type="button" onClick={this.hide}>
             {$L('取消')}
+          </button>
+          <button className="btn btn-primary" type="button" onClick={this.confirm}>
+            {$L('确定')}
           </button>
         </div>
       </RbModal>

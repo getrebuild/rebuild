@@ -19,20 +19,33 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.core.service.query.ParseHelper;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_ASIDE_SHOWS;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_HIDE_CHARTS;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_HIDE_FILTERS;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_MODE3_SHOWCATEGORY;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_MODE3_SHOWCHARTS;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_MODE3_SHOWFILTERS;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_SHOWCATEGORY;
 
 /**
  * 数据列表
@@ -129,18 +142,35 @@ public class DataListManager extends BaseLayoutManager {
                 }
 
                 String[] fieldPath = field.split("\\.");
+                Assert.isTrue(fieldPath.length <= 3, "Up to 3 levels of fields allowed");
                 Map<String, Object> formatted = null;
                 if (fieldPath.length == 1) {
                     formatted = formatField(lastField);
                 } else {
 
-                    // 如果没有引用实体的读权限，则直接过滤掉字段
+                    // 如没有引用实体的读权限，则过滤该字段
 
+                    final boolean isLevel3 = fieldPath.length == 3;
                     Field parentField = entityMeta.getField(fieldPath[0]);
-                    if (!filterNoPriviFields) {
-                        formatted = formatField(lastField, parentField);
-                    } else if (Application.getPrivilegesManager().allowRead(user, lastField.getOwnEntity().getEntityCode())) {
-                        formatted = formatField(lastField, parentField);
+                    Field[] parents;
+                    if (isLevel3) {
+                        parents = new Field[]{parentField, parentField.getReferenceEntity().getField(fieldPath[1])};
+                    } else {
+                        parents = new Field[]{parentField};
+                    }
+
+                    if (filterNoPriviFields) {
+                        boolean lastFieldAllow = Application.getPrivilegesManager().allowRead(user, lastField.getOwnEntity().getEntityCode());
+                        if (isLevel3) {
+                            if (lastFieldAllow
+                                    && Application.getPrivilegesManager().allowRead(user, parents[1].getOwnEntity().getEntityCode())) {
+                                formatted = formatField(lastField, parents);
+                            }
+                        } else if (lastFieldAllow) {
+                            formatted = formatField(lastField, parents);
+                        }
+                    } else {
+                        formatted = formatField(lastField, parents);
                     }
                 }
 
@@ -167,7 +197,7 @@ public class DataListManager extends BaseLayoutManager {
      * @return
      */
     public Map<String, Object> formatField(Field field) {
-        return formatField(field, null);
+        return formatField(field, new Field[0]);
     }
 
     /**
@@ -176,8 +206,25 @@ public class DataListManager extends BaseLayoutManager {
      * @return
      */
     public Map<String, Object> formatField(Field field, Field parent) {
-        String parentField = parent == null ? "" : (parent.getName() + ".");
-        String parentLabel = parent == null ? "" : (EasyMetaFactory.getLabel(parent) + ".");
+        if (parent != null) return formatField(field, new Field[]{parent});
+        return formatField(field, new Field[0]);
+    }
+
+    /**
+     * @param field
+     * @param parents
+     * @return
+     */
+    public Map<String, Object> formatField(Field field, Field[] parents) {
+        String parentField = "";
+        String parentLabel = "";
+        if (parents != null) {
+            for (Field f : parents) {
+                parentField += f.getName() + ".";
+                parentLabel += EasyMetaFactory.getLabel(f) + ".";
+            }
+        }
+
         EasyField easyField = EasyMetaFactory.valueOf(field);
         return JSONUtils.toJSONObject(
                 new String[]{"field", "label", "type"},
@@ -372,5 +419,60 @@ public class DataListManager extends BaseLayoutManager {
             if (name != null) fields.add(formatField(entity.getField((String) name)));
         }
         return emptyConfig;
+    }
+
+    /**
+     * 获取侧栏显示
+     *
+     * @param easyEntity
+     * @param listMode
+     * @return
+     */
+    public JSONArray getAdvListAsideShows(EasyEntity easyEntity, int listMode) {
+        final JSONObject extraAttrs = easyEntity.getExtraAttrs();
+
+        Map<String, Object[]> itemsMap = new HashMap<>();
+        if (listMode == 3) {
+            if (extraAttrs.getBooleanValue(ADVLIST_MODE3_SHOWFILTERS)) {
+                itemsMap.put(ADVLIST_MODE3_SHOWFILTERS, new Object[]{Language.L("常用查询"), 1, "asideFilters"});
+            }
+            if (extraAttrs.getString(ADVLIST_MODE3_SHOWCATEGORY) != null) {
+                itemsMap.put(ADVLIST_MODE3_SHOWCATEGORY, new Object[]{Language.L("分组"), 2, "asideCategory"});
+            }
+            if (extraAttrs.getBooleanValue(ADVLIST_MODE3_SHOWCHARTS)) {
+                itemsMap.put(ADVLIST_MODE3_SHOWCHARTS, new Object[]{Language.L("图表"), 3, "asideCharts"});
+            }
+        } else {
+            if (!extraAttrs.getBooleanValue(ADVLIST_HIDE_FILTERS)) {
+                itemsMap.put(ADVLIST_HIDE_FILTERS, new Object[]{Language.L("常用查询"), 1, "asideFilters"});
+            }
+            if (extraAttrs.getString(ADVLIST_SHOWCATEGORY) != null) {
+                itemsMap.put(ADVLIST_SHOWCATEGORY, new Object[]{Language.L("分组"), 2, "asideCategory"});
+            }
+            if (!extraAttrs.getBooleanValue(ADVLIST_HIDE_CHARTS)) {
+                itemsMap.put(ADVLIST_HIDE_CHARTS, new Object[]{Language.L("图表"), 3, "asideCharts"});
+            }
+        }
+
+        String shows = easyEntity.getExtraAttr(ADVLIST_ASIDE_SHOWS);
+        JSONObject showsConf;
+        if (JSONUtils.wellFormat(shows)) showsConf = JSON.parseObject(shows);
+        else showsConf = new JSONObject();
+
+        for (String name : showsConf.keySet()) {
+            JSONObject o = showsConf.getJSONObject(name);
+            Object[] item = itemsMap.get(name);
+            if (o == null || item == null) continue;
+
+            String label = o.getString("label");
+            int order = o.getIntValue("order");
+            if (StringUtils.isNotBlank(label)) item[0] = label;
+            if (order > 0) item[1] = order;
+            itemsMap.put(name, item);
+        }
+
+        List<Object[]> items = new ArrayList<>(itemsMap.values());
+        items.sort(Comparator.comparingInt(o -> (int) o[1]));
+        return (JSONArray) JSON.toJSON(items);
     }
 }

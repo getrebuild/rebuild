@@ -111,7 +111,6 @@ public class EasyFieldConfigProps {
      * 允许上传数量
      */
     public static final String IMAGE_UPLOADNUMBER = FILE_UPLOADNUMBER;
-
     /**
      * 图片获取方式（兼容附件）
      */
@@ -120,6 +119,10 @@ public class EasyFieldConfigProps {
      * 图片获取方式（兼容附件）
      */
     public static final String IMAGE_CAPTURE_DEF = "imageCaptureDef";
+    /**
+     * 指定上传路径
+     */
+    public static final String IMAGE_UPDIR = FILE_UPDIR;
 
     /**
      * 自动编号规则

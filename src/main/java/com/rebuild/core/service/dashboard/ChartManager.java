@@ -21,6 +21,10 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.dashboard.charts.ChartsFactory;
 import com.rebuild.core.service.dashboard.charts.builtin.BuiltinChart;
+import com.rebuild.core.service.dashboard.charts.builtin.DataList;
+import com.rebuild.core.service.dashboard.charts.builtin.EmbedFrame;
+import com.rebuild.core.service.dashboard.charts.builtin.HeadingText;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -114,14 +118,15 @@ public class ChartManager implements ConfigManager {
 
                 JSONObject config = JSONUtils.wellFormat((String) o[2]) ? JSON.parseObject((String) o[2]) : null;
                 JSONObject chartOption = config == null ? null : config.getJSONObject("option");
-                if (chartOption == null || !chartOption.getBooleanValue("shareChart")) {
-                    continue;
-                }
+                if (chartOption == null || !chartOption.getBooleanValue("shareChart")) continue;
             }
 
+            Object[] c = new Object[]{o[3], o[4], o[5], EasyMetaFactory.getLabel(entity), self};
+            if (HeadingText.MYNAME.equals(o[5])) c[3] = Language.L("标题文字");
+            if (EmbedFrame.MYNAME.equals(o[5])) c[3] = Language.L("嵌入页面");
+
             charts.add(JSONUtils.toJSONObject(
-                    new String[] { "id", "title", "type", "entityLabel", "isManageable" },
-                    new Object[] { o[3], o[4], o[5], EasyMetaFactory.getLabel(entity), self }));
+                    new String[]{"id", "title", "type", "entityLabel", "isManageable"}, c));
         }
         return charts;
     }
@@ -134,34 +139,34 @@ public class ChartManager implements ConfigManager {
      */
     public void richingCharts(JSONArray charts, ID user) {
         for (Iterator<Object> iter = charts.iterator(); iter.hasNext(); ) {
-            JSONObject ch = (JSONObject) iter.next();
-            ID chartId = ID.valueOf(ch.getString("chart"));
+            JSONObject c = (JSONObject) iter.next();
+            ID chartId = ID.valueOf(c.getString("chart"));
             ConfigBean e = getChart(chartId);
             if (e == null) {
                 iter.remove();
                 continue;
             }
 
-            ch.put("title", e.getString("title"));
+            c.put("title", e.getString("title"));
             String type = e.getString("type");
-            ch.put("type", type);
+            c.put("type", type);
 
             JSONObject config = (JSONObject) e.getJSON("config");
             if (config != null) {
                 if ("INDEX".equals(type)) {
                     JSONObject option = config.getJSONObject("option");
-                    String c = option == null ? null : option.getString("useColor");
-                    if (StringUtils.isNotBlank(c)) ch.put("color", c);
+                    String color = option == null ? null : option.getString("useColor");
+                    if (StringUtils.isNotBlank(color)) c.put("color", color);
                 }
-
-                if ("DataList".equals(type)) {
-                    ch.put("extconfig", config);
+                if (DataList.MYNAME.equals(type)
+                        || HeadingText.MYNAME.equals(type) || EmbedFrame.MYNAME.equals(type)) {
+                    c.put("extconfig", config);
                 }
             }
 
             if (user != null) {
                 ID createdBy = e.getID("createdBy");
-                ch.put("isManageable", UserHelper.isSelf(user, createdBy));
+                c.put("isManageable", UserHelper.isSelf(user, createdBy));
             }
         }
     }

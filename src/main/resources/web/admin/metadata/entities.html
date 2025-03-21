@@ -90,6 +90,23 @@
       .table.table-excel {
         border-bottom: 1px solid #dee2e6;
       }
+
+      .search-results {
+        margin-top: 3px;
+      }
+      .search-results li {
+        clear: both;
+      }
+      .search-results li > a {
+        display: block;
+        border-bottom: 1px solid #e5e5e5;
+        padding: 10px;
+        color: #444;
+      }
+      .search-results li > a:hover {
+        color: var(--rb-color);
+        background-color: #f0f0f0;
+      }
     </style>
   </head>
   <body>
@@ -137,88 +154,6 @@
     <script th:src="@{/assets/js/admin/init-models.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-type.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/entity-new2.js}" type="text/babel"></script>
-    <script type="text/babel">
-      $(document).ready(function () {
-        const NO_TAG = '__'
-        $.get('/admin/entity/entity-list?bizz=true', function (res) {
-          $('#entityList').empty()
-
-          const groups = { [NO_TAG]: [] }
-          $(res.data).each(function () {
-            ;(this.tags || NO_TAG).split(',').forEach((tag) => {
-              let g = groups[tag]
-              if (!g) {
-                g = []
-                groups[tag] = g
-              }
-              g.push(this)
-            })
-          })
-
-          $(groups[NO_TAG]).each(function () {
-            if (this.builtin) render_entity(this)
-          })
-          $(groups[NO_TAG]).each(function () {
-            if (!this.builtin) render_entity(this)
-          })
-
-          let _EntityNew2
-          const $new = render_entity({
-            icon: 'plus',
-            entityLabel: $L('添加实体'),
-          })
-          $new
-            .addClass('new-entity')
-            .find('a.card')
-            .attr('href', 'javascript:;')
-            .on('click', function () {
-              if (window.__PageConfig.isSuperAdmin) {
-                if (_EntityNew2) {
-                  _EntityNew2.show()
-                } else {
-                  renderRbcomp18(
-                    <EntityNew2
-                      ref={function (o) {
-                        _EntityNew2 = o
-                      }}
-                    />
-                  )
-                }
-              } else {
-                RbHighbar.error('仅超级管理员可添加实体')
-              }
-            })
-            .find('.more-action')
-            .remove()
-
-          delete groups[NO_TAG]
-
-          const keys = Object.keys(groups).sort()
-          keys.forEach((tag) => {
-            $(`<div class="tag"><h3><i class="icon mdi mdi-widgets-outline mr-2"></i>${tag}</h3></div>`).appendTo('#entityList')
-            $(groups[tag]).each(function () {
-              render_entity(this)
-            })
-          })
-        })
-      })
-
-      const render_entity = function (item) {
-        const $t = $($('#entity-tmpl').html()).appendTo('#entityList')
-        $t.find('a.card').attr({
-          href: `entity/${item.entityName}/base`,
-          title: item.comments || null,
-        })
-        $t.find('.icon:eq(0)').addClass(`zmdi-${item.icon}`)
-        $t.find('span').text(item.entityLabel)
-        if (item.comments) $t.find('p').text(item.comments)
-        else $t.find('p').html('&nbsp;')
-
-        if (item.builtin) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('内置')}</i>`).appendTo($t.find('a.card .badge-wrap'))
-        if (item.hadApproval) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('审批')}</i>`).appendTo($t.find('a.card .badge-wrap'))
-        if (item.detailEntity) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('明细')}</i>`).appendTo($t.find('a.card .badge-wrap'))
-        return $t
-      }
-    </script>
+    <script th:src="@{/assets/js/metadata/entities.js}" type="text/babel"></script>
   </body>
 </html>

@@ -175,7 +175,7 @@ class RbViewForm extends React.Component {
         parent && parent.RbListPage && parent.RbListPage.reload(this.props.id, true)
 
         // 刷新本页
-        if ((res.data && res.data.forceReload) || this.__hasRefform) {
+        if ((res.data && res.data.forceReload) || this.__hasRefform || this.__hasEaButton) {
           setTimeout(() => RbViewPage.reload(), 200)
         }
       } else if (res.error_code === 499) {
@@ -612,6 +612,9 @@ const RbViewPage = {
     renderRbcomp(<RbViewForm entity={entity[0]} id={id} onViewEditable={ep && ep.U} />, 'tab-rbview', function () {
       RbViewPage._RbViewForm = this
       setTimeout(() => $('.view-body.loading').removeClass('loading'), 100)
+
+      // v3.8, v3.9
+      wpc.easyAction && window.EasyAction4View && window.EasyAction4View.init(wpc.easyAction)
     })
 
     $('.J_close').on('click', () => this.hide())
@@ -905,7 +908,7 @@ const RbViewPage = {
           if (entity.length > 1) iv[entity[1]] = that.__id
           else iv[`&${that.__entity[0]}`] = that.__id
 
-          RbFormModal.create({ title: $L('新建%s', item._entityLabel || item.entityLabel), entity: entity[0], icon: item.icon, initialValue: iv })
+          RbFormModal.create({ title: $L('新建%s', item._entityLabel || item.entityLabel), entity: entity[0], icon: item.icon, initialValue: iv, _nextOpenView: true })
         }
       })
 
@@ -994,7 +997,7 @@ const RbViewPage = {
 }
 
 // init
-$(document).ready(function () {
+$(document).ready(() => {
   // 回退按钮
   if ($urlp('back') === 'auto' && parent && parent.RbViewModal) {
     $('.J_back')
@@ -1022,7 +1025,4 @@ $(document).ready(function () {
     if (wpc.viewTabs) RbViewPage.initVTabs(wpc.viewTabs)
     if (wpc.viewAdds) RbViewPage.initVAdds(wpc.viewAdds)
   }
-
-  // v3.8, v3.9
-  wpc.easyAction && window.EasyAction4View && window.EasyAction4View.init(wpc.easyAction)
 })

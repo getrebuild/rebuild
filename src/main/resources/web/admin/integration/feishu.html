@@ -2,15 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <meta name="page-help" content="https://getrebuild.com/docs/admin/integration-dingtalk" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/integration-feishu" />
     <title>[[${bundle.L('飞书')}]]</title>
-    <style>
-      .J_syncUsers {
-        position: absolute;
-        margin-top: -6px;
-        margin-left: 6px;
-      }
-    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -22,7 +15,7 @@
             <div class="col-lg-9 col-12">
               <div class="card">
                 <div class="card-header pb-1">
-                  [[${bundle.L('飞书')}]] (LAB)
+                  [[${bundle.L('飞书')}]]
                   <a href="###" class="float-right J_edit"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
                   <a href="###" class="float-right J_save hide"><i class="icon zmdi zmdi-check text-bold"></i> [[${bundle.L('保存')}]]</a>
                 </div>

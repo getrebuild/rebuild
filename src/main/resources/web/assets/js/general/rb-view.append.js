@@ -538,20 +538,47 @@ const _EasyAction = window.EasyAction
 // eslint-disable-next-line no-unused-vars
 const EasyAction4View = {
   init(items) {
-    if (!(_FrontJS && items)) return
+    if (!(_FrontJS && _EasyAction && items) || !items['view']) return
     const _View = _FrontJS.View
+    const viewObj = _View._detectView()
+    if (!viewObj) return
+    viewObj.__hasEaButton = true
 
-    items['view'] &&
-      items['view'].forEach((item) => {
-        item = _EasyAction.fixItem(item)
-        if (!item) return
+    const id = _View.getCurrentId()
+    const _eaView = items['view']
+    _eaView.forEach((item) => {
+      item = _EasyAction.fixItem(item, _View.getCurrentId())
+      if (!item) return
 
-        item.onClick = () => _EasyAction.handleOp(item, _View.getCurrentId())
-        item.items &&
-          item.items.forEach((itemL2) => {
-            itemL2.onClick = () => _EasyAction.handleOp(itemL2, _View.getCurrentId())
-          })
-        _View.addButton(item)
-      })
+      item.onClick = () => _EasyAction.handleOp(item, id)
+      item._eaid = item.id
+      item.items &&
+        item.items.forEach((itemL2) => {
+          itemL2.onClick = (e) => {
+            if ($(e.target).attr('disabled')) return
+            _EasyAction.handleOp(itemL2, id)
+          }
+          itemL2._eaid = itemL2.id
+        })
+      _View.addButton(item)
+    })
+
+    // v4.0
+    _EasyAction.checkShowFilter(_eaView, id, (res) => {
+      $('.view-action')
+        .find('button[data-eaid],a[data-eaid]')
+        .each((i, b) => {
+          const $this = $(b)
+          if (res[$this.data('eaid')]) $this.attr('disabled', false)
+          else {
+            if (b.tagName === 'BUTTON') {
+              // $this.parent().addClass('hide')
+              $this.parent().remove()
+            } else {
+              $this.addClass('hide')
+            }
+          }
+        })
+    })
   },
 }

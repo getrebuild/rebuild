@@ -417,10 +417,7 @@ class BaiduMap extends React.Component {
 
 class BaiduMapModal extends RbModal {
   renderContent() {
-    if (this.state.destroy) return null
-
-    const sug = this.state.suggestion || []
-    return (
+    return this.state.destroy ? null : (
       <RF>
         {this.props.canPin && (
           <div className="map-pin">
@@ -431,39 +428,16 @@ class BaiduMapModal extends RbModal {
                     <input
                       type="text"
                       ref={(c) => (this._$searchValue = c)}
-                      className="form-control form-control-sm dropdown-toggle"
+                      className="form-control form-control-sm"
                       placeholder={$L('查找位置')}
                       defaultValue={this.props.lnglat ? this.props.lnglat.text || '' : ''}
-                      onKeyDown={(e) => {
-                        if (e.which === 38 || e.which === 40) {
-                          $stopEvent(e, true)
-                          this._suggestUpDown(e.which)
-                        } else if (e.which === 13) {
-                          const $active = $(this._$suggestion).find('.active')
-                          if ($active[0] && $active.text()) {
-                            this._suggestSelect({ address: $active.text(), location: $active.data('location') })
-                          }
-                          setTimeout(() => this._search(), 10)
-                        } else {
-                          this._suggest()
-                        }
-                      }}
-                      onFocus={() => this._suggest()}
+                      autoComplete="off"
                     />
                     <div className="input-group-append">
                       <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
                         <i className="icon zmdi zmdi-search" />
                       </button>
                     </div>
-                  </div>
-                  <div className={`dropdown-menu map-suggestion ${sug.length > 0 && 'show'}`} ref={(c) => (this._$suggestion = c)}>
-                    {sug.map((item) => {
-                      return (
-                        <a key={$random()} className="dropdown-item" title={item.address} data-location={item.location} onClick={(e) => this._suggestSelect(item, e)}>
-                          {item.address}
-                        </a>
-                      )
-                    })}
                   </div>
                 </div>
               </div>
@@ -495,82 +469,49 @@ class BaiduMapModal extends RbModal {
   componentDidMount() {
     super.componentDidMount()
 
-    $(this._rbmodal).on('click', (e) => {
-      if (e.target && e.target.tagName === 'INPUT') return
-      setTimeout(() => {
-        this.setState({ suggestion: [] })
-      }, 100)
-    })
-  }
+    // https://bootstrap-autocomplete.readthedocs.io/en/latest/
+    const that = this
+    function _autoComplete() {
+      $(that._$searchValue)
+        .autoComplete({
+          bootstrapVersion: '4',
+          noResultsText: '',
+          minLength: 2,
+          resolverSettings: {
+            url: '/commons/map/suggest',
+          },
+          events: {
+            searchPost: function (res) {
+              const result = res.data ? res.data.result || [] : []
+              const _data = []
+              result.forEach((item) => {
+                item.address && _data.push({ text: item.address.replaceAll('-', ''), id: item.location })
+              })
+              return _data
+            },
+          },
+        })
+        .on('autocomplete.select', (e, item) => {
+          $stopEvent(e, true)
+          $(that._$searchValue).val(item.text)
+          that._BaiduMap.center(item.id)
 
-  destroy() {
-    this.setState({ destroy: true })
+          that._latlngValue = {
+            lat: item.id.lat,
+            lng: item.id.lng,
+            text: item.text,
+          }
+        })
+    }
+    if (jQuery.prototype.autoComplete) {
+      _autoComplete()
+    } else {
+      $getScript('/assets/lib/bootstrap-autocomplete.min.js?v=2.3.7', () => _autoComplete())
+    }
   }
 
   _search() {
     this._BaiduMap.search($val(this._$searchValue))
-    this.setState({ suggestion: [] })
-  }
-
-  _suggest() {
-    if (this._sugTimer) {
-      clearTimeout(this._sugTimer)
-      this._sugTimer = null
-    }
-
-    let q = $(this._$searchValue).val()
-    q = $trim(q)
-
-    this._sugTimer = setTimeout(() => {
-      if (!q || q.length < 3) {
-        this.setState({ suggestion: [] })
-        return
-      }
-
-      this._sugCached = this._sugCached || {}
-      if (this._sugCached[q]) {
-        this.setState({ suggestion: this._sugCached[q] })
-        return
-      }
-
-      $.get(`/commons/map/suggest?q=${$encode(q)}`, (res) => {
-        const result = res.data ? res.data.result || [] : []
-        const ss = []
-        result.forEach((item) => {
-          item.address && ss.push({ address: item.address.replaceAll('-', ''), location: item.location })
-        })
-        this.setState({ suggestion: ss })
-        this._sugCached[q] = ss
-      })
-    }, 600)
-  }
-
-  _suggestSelect(item, e) {
-    $stopEvent(e, true)
-    $(this._$searchValue).val(item.address)
-    this._BaiduMap.center(item.location)
-    this.setState({ suggestion: [] })
-
-    this._latlngValue = {
-      lat: item.location.lat,
-      lng: item.location.lng,
-      text: item.address,
-    }
-  }
-
-  _suggestUpDown(key) {
-    let $active = $(this._$suggestion).find('.active').removeClass('active')
-    let $next
-
-    if (key === 40) {
-      if ($active[0]) $next = $active.next()
-      if (!$next || !$next[0]) $next = $(this._$suggestion).find('a:first')
-    } else if (key === 38) {
-      if ($active[0]) $next = $active.prev()
-      if (!$next || !$next[0]) $next = $(this._$suggestion).find('a:last')
-    }
-
-    if ($next[0]) $next.addClass('active')
   }
 
   _onConfirm() {
@@ -582,6 +523,10 @@ class BaiduMapModal extends RbModal {
     const val = { ...this._latlngValue, text: $val(this._$searchValue) }
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(val)
     this.hide()
+  }
+
+  destroy() {
+    this.setState({ destroy: true })
   }
 
   // ~~ Usage
@@ -813,6 +758,8 @@ class LiteFormModal extends RbModalHandler {
           </LiteForm>
 
           <div className="footer" ref={(c) => (this._$formAction = c)}>
+            {this.props.ids && this.props.ids.length > 1 && <RbAlertBox message={$L('本次保存将修改 **%d** 条记录', this.props.ids.length)} type="info" className="mt-0 mb-2" />}
+
             <button className="btn btn-primary" type="button" onClick={() => this._handleSave()}>
               {$L('保存')}
             </button>
@@ -844,8 +791,8 @@ class LiteFormModal extends RbModalHandler {
     }
 
     this.disabled(true)
-    let url = '/app/entity/liteform/record-save'
-    if (weakMode) url += '?weakMode=' + weakMode
+    let url = `/app/entity/liteform/record-save?weakMode=${weakMode || 0}`
+    if (this.props.ids && this.props.ids.length > 1) url += '&ids=' + this.props.ids.join(',')
     $.post(url, JSON.stringify(data2), (res) => {
       this.disabled()
       if (res.error_code === 0) {
@@ -889,14 +836,15 @@ class LiteFormModal extends RbModalHandler {
    * @param {*} onHandleSave
    */
   static create(entityOrId, fields, title, onHandleSave) {
+    const isMultiId = Array.isArray(entityOrId)
     const post = {
-      id: entityOrId,
+      id: isMultiId ? entityOrId[0] : entityOrId,
       fields: fields,
     }
 
     $.post('/app/entity/liteform/form-model', JSON.stringify(post), (res) => {
       if (res.error_code === 0) {
-        renderRbcomp(<LiteFormModal title={title} onHandleSave={onHandleSave} {...res.data} />)
+        renderRbcomp(<LiteFormModal title={title} onHandleSave={onHandleSave} {...res.data} ids={isMultiId ? entityOrId : null} />)
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -1011,4 +959,49 @@ class LiteFormArea extends React.Component {
     else if (v === 'T') return $L('是')
     else return v
   }
+}
+
+const EasyFilterEval = {
+  evalAndEffect: function (formObject) {
+    // LiteForm or Others
+    if (!formObject.props.rawModel.layoutId) return
+
+    if (this.__timer) {
+      clearTimeout(this.__timer)
+      this.__timer = null
+    }
+    this.__timer = setTimeout(() => this._evalAndEffect(formObject), 200)
+  },
+
+  _evalAndEffect: function (formObject) {
+    const _this = formObject
+    $.post(`/app/entity/extras/easyfilter-eval?layout=${_this.props.rawModel.layoutId}&id=${_this.props.id || ''}`, JSON.stringify(_this.getFormData()), (res) => {
+      const attrs = res.data || []
+      const attrsLast = _this.__lastEasyFilterEval || []
+      _this.__lastEasyFilterEval = attrs // 挂载到表单对象
+
+      attrs.forEach((a) => {
+        const fieldComp = _this.getFieldComp(a.field)
+        if (fieldComp) {
+          const aLast = this._getLastAttr(a.field, attrsLast)
+          if (a.hidden === true || a.hidden === false) {
+            if (aLast.hidden !== a.hidden) fieldComp.setHidden(a.hidden)
+          }
+          if (a.required === true || a.required === false) {
+            if (aLast.required !== a.required) fieldComp.setNullable(!a.required)
+          }
+          if (a.readonly === true || a.readonly === false) {
+            if (aLast.readonly !== a.readonly) fieldComp.setReadonly(a.readonly)
+          }
+        }
+      })
+    })
+  },
+
+  _getLastAttr(field, attrsLast) {
+    for (let i = 0; i < attrsLast.length; i++) {
+      if (attrsLast[i].field === field) return attrsLast[i]
+    }
+    return {}
+  },
 }

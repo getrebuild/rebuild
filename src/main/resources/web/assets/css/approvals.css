@@ -68,6 +68,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 4px 20px;
 }
 
+#config-side .adv-filter-wrap .alert.alert-warning {
+  padding: 0;
+  margin-bottom: 20px;
+}
+
 #config-side .footer,
 #config-side .adv-filter-option .btn-footer {
   position: absolute;
@@ -718,4 +723,18 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .expires-notify-set select {
   width: 232px;
+}
+
+.updatable-fields > h4 {
+  font-size: 1rem;
+  font-weight: bold;
+  padding-left: 4px;
+  margin-bottom: 6px;
+}
+
+.updatable-fields > .row:empty::after {
+  content: attr(_title);
+  font-style: italic;
+  color: #999;
+  padding-left: 12px;
 }

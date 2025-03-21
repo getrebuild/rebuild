@@ -96,21 +96,24 @@
                             </div>
                             <div class="on-timers mt-1 hide">
                               <div>
-                                <select class="J_whenTimer1">
+                                <select class="J_whenTimer1" style="width: 80px">
                                   <option value="D">[[${bundle.L('每天')}]]</option>
                                   <option value="H">[[${bundle.L('每小时')}]]</option>
                                   <option value="M">[[${bundle.L('每月')}]]</option>
+                                  <option value="cron">[[${bundle.L('高级表达式')}]]</option>
                                 </select>
-                                <span>[[${bundle.L('执行')}]]</span>
-                                <input type="text" class="J_whenTimer2" placeholder="1" />
-                                <span>[[${bundle.L('次')}]]</span>
-                                <span class="ml-2">[[${bundle.L('执行时段')}]]</span>
-                                <select class="J_startHour1"></select>
-                                <span>~</span>
-                                <select class="J_startHour2"></select>
-                                <span class="bosskey-show">
-                                  <span class="ml-2">[[${bundle.L('执行日期')}]] (LAB)</span>
-                                  <input type="text" class="J_whenTimer4 w-auto" placeholder="eg. 1,2,15,30" />
+                                <span class="J_timerSimple">
+                                  <span>[[${bundle.L('执行')}]]</span>
+                                  <input type="text" class="J_whenTimer2" placeholder="1" />
+                                  <span>[[${bundle.L('次')}]]</span>
+                                  <span class="ml-2">[[${bundle.L('执行时段')}]]</span>
+                                  <select class="J_startHour1"></select>
+                                  <span>~</span>
+                                  <select class="J_startHour2"></select>
+                                </span>
+                                <span class="J_timerCron hide">
+                                  <span>[[${bundle.L('CRON 表达式')}]]</span>
+                                  <input type="text" class="J_whenTimer9 text-bold" placeholder="0 0 * * * ?" value="0 0 * * * ?" style="width: 120px" />
                                 </span>
                               </div>
                               <p class="form-text">[[${bundle.L('具体执行时间将在你设定的周期内平均分布。例如每天执行 2 次，其执行时间为 00:00 和 12:00')}]]</p>
@@ -129,7 +132,7 @@
                     </form>
                   </div>
                 </li>
-                <li class="timeline-item">
+                <li class="timeline-item exec">
                   <div class="timeline-date"><span>[[${bundle.L('就执行操作')}]]</span></div>
                   <div class="timeline-content">
                     <form class="simple">

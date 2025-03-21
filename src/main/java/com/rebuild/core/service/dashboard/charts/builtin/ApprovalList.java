@@ -17,11 +17,14 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalHelper;
+import com.rebuild.core.service.approval.ApprovalProcessor;
 import com.rebuild.core.service.approval.ApprovalState;
+import com.rebuild.core.service.approval.FlowNode;
 import com.rebuild.core.service.dashboard.charts.ChartData;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,6 +38,7 @@ import java.util.Map;
  * @author devezhao
  * @since 2019/10/14
  */
+@Slf4j
 public class ApprovalList extends ChartData implements BuiltinChart {
 
     // 虚拟ID
@@ -64,7 +68,7 @@ public class ApprovalList extends ChartData implements BuiltinChart {
         Object[][] array = Application.createQueryNoFilter(
                 "select createdBy,modifiedOn,recordId,approvalId from RobotApprovalStep " +
                         baseWhere + " state = ? order by modifiedOn desc")
-                .setParameter(1, this.getUser())
+                .setParameter(1, getUser())
                 .setParameter(2, viewState)
                 .setLimit(500)  // 最多显示
                 .array();
@@ -87,7 +91,17 @@ public class ApprovalList extends ChartData implements BuiltinChart {
                 continue;
             }
 
-            Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+            FlowNode currentNode = null;
+            if (currentState == ApprovalState.PROCESSING) {
+                try {
+                    ApprovalProcessor approvalProcessor = new ApprovalProcessor(recordId, (ID) o[3]);
+                    currentNode = approvalProcessor.getCurrentNode();
+                } catch (Exception warn) {
+                    log.warn("Error on `getCurrentNode` : {}", recordId);
+                }
+            }
+
+            Entity e = MetadataHelper.getEntity(recordId.getEntityCode());
             ID s = ApprovalHelper.getSubmitter(recordId, (ID) o[3]);
             rearray.add(new Object[]{
                     s,
@@ -96,8 +110,9 @@ public class ApprovalList extends ChartData implements BuiltinChart {
                     o[2],
                     label,
                     o[3],
-                    EasyMetaFactory.getLabel(entity),
-                    entity.getName()
+                    EasyMetaFactory.getLabel(e),
+                    e.getName(),
+                    currentNode == null ? 0 : currentNode.getExpiredTime(recordId, getUser())
             });
         }
 
@@ -106,7 +121,7 @@ public class ApprovalList extends ChartData implements BuiltinChart {
                 .setParameter(1, this.getUser())
                 .setParameter(2, ApprovalState.CANCELED.getState())
                 .array();
-        // FIXME 排除删除的（可能导致不同状态下数据不一致）
+        // 排除删除和无效的（可能导致不同状态下数据不一致）
         if (removed > 0) {
             for (Object[] o : stats) {
                 if ((Integer) o[0] == viewState) {

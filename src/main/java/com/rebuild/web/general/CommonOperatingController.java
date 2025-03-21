@@ -24,6 +24,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.service.DataSpecificationException;
+import com.rebuild.core.service.approval.RobotApprovalConfigService;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.service.query.QueryHelper;
@@ -66,6 +67,12 @@ public class CommonOperatingController extends BaseController {
         } catch (DataSpecificationException known) {
             log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
+        }
+
+        // 特殊处理
+        if (getBoolParameter(request, "force")
+                && record.getEntity().getEntityCode() == EntityHelper.RobotApprovalConfig) {
+            RobotApprovalConfigService.setForceSave();
         }
 
         return saveRecord(record);

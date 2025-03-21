@@ -44,9 +44,9 @@ public class GeneralEntityServiceContextHolder {
      * @see #setSkipSeriesValue()
      */
     public static boolean isSkipSeriesValue(boolean once) {
-        Boolean is = SKIP_SERIES_VALUE.get();
-        if (is != null && once) SKIP_SERIES_VALUE.remove();
-        return is != null && is;
+        Boolean s = SKIP_SERIES_VALUE.get();
+        if (s != null && once) SKIP_SERIES_VALUE.remove();
+        return s != null && s;
     }
 
     /**
@@ -63,9 +63,18 @@ public class GeneralEntityServiceContextHolder {
      * @see #setAllowForceUpdate(ID)
      */
     public static boolean isAllowForceUpdateOnce() {
-        ID recordId = ALLOW_FORCE_UPDATE.get();
-        if (recordId != null) ALLOW_FORCE_UPDATE.remove();
-        return recordId != null;
+        return isAllowForceUpdate(true);
+    }
+
+    /**
+     * @param once
+     * @return
+     * @see #setAllowForceUpdate(ID)
+     */
+    public static boolean isAllowForceUpdate(boolean once) {
+        ID s = ALLOW_FORCE_UPDATE.get();
+        if (s != null && once) ALLOW_FORCE_UPDATE.remove();
+        return s != null;
     }
 
     /**
@@ -82,9 +91,9 @@ public class GeneralEntityServiceContextHolder {
      * @see #setFromTrigger(ID)
      */
     public static boolean isFromTrigger(boolean once) {
-        ID recordId = FROM_TRIGGERS.get();
-        if (recordId != null && once) FROM_TRIGGERS.remove();
-        return recordId != null;
+        ID s = FROM_TRIGGERS.get();
+        if (s != null && once) FROM_TRIGGERS.remove();
+        return s != null;
     }
 
     // 检查全部
@@ -108,9 +117,9 @@ public class GeneralEntityServiceContextHolder {
      * @see #setRepeatedCheckMode(int)
      */
     public static int getRepeatedCheckModeOnce() {
-        Integer mode = REPEATED_CHECK_MODE.get();
-        if (mode != null) REPEATED_CHECK_MODE.remove();
-        return mode == null ? 0 : mode;
+        Integer s = REPEATED_CHECK_MODE.get();
+        if (s != null) REPEATED_CHECK_MODE.remove();
+        return s == null ? 0 : s;
     }
 
     /**
@@ -126,9 +135,9 @@ public class GeneralEntityServiceContextHolder {
      * @see #setQuickMode()
      */
     public static boolean isQuickMode(boolean once) {
-        Boolean is = QUICK_MODE.get();
-        if (is != null && once) QUICK_MODE.remove();
-        return is != null && is;
+        Boolean s = QUICK_MODE.get();
+        if (s != null && once) QUICK_MODE.remove();
+        return s != null && s;
     }
 
     /**
@@ -152,8 +161,8 @@ public class GeneralEntityServiceContextHolder {
      * @see #setSkipGuard(ID)
      */
     public static ID isSkipGuardOnce() {
-        ID recordId = SKIP_GUARD.get();
-        if (recordId != null) SKIP_GUARD.remove();
-        return recordId;
+        ID s = SKIP_GUARD.get();
+        if (s != null) SKIP_GUARD.remove();
+        return s;
     }
 }

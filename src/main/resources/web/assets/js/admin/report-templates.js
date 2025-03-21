@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global dlgActionAfter ShowEnable */
+/* global dlgActionAfter ShowEnable taggedTitle */
 
 $(document).ready(() => {
   $('.J_add').on('click', () => renderRbcomp(<ReportEditor />))
@@ -27,13 +27,13 @@ class ReportList extends ConfigList {
 
           return (
             <tr key={item[0]}>
-              <td>
+              <td className="name">
                 {isHtml5 ? (
                   <a title={$L('网页模版设计器')} href={`report-template/design?id=${item[0]}`}>
-                    {item[3]}
+                    {taggedTitle(item[3])}
                   </a>
                 ) : (
-                  item[3]
+                  taggedTitle(item[3])
                 )}
                 {item[6] === 1 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 excel">EXCEL</span>}
                 {item[6] === 2 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 excel">{$L('EXCEL 列表')}</span>}
@@ -97,6 +97,7 @@ class ReportEditor extends ConfigFormDlg {
     super(props)
     this.subtitle = $L('报表模板')
     this.hasDetail = true
+    $logRBAPI(props.id, 'Report')
   }
 
   renderFrom() {
@@ -313,8 +314,6 @@ class ReportEditor extends ConfigFormDlg {
 
       window.open(`./report-templates/preview?${ps}&output=${output || ''}`)
     })
-
-    this.props.id && console.log(`RBAPI ASSISTANT *Report* :\n %c${this.props.id}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
   }
 
   // 检查模板

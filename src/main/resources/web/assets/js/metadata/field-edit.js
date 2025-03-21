@@ -282,11 +282,6 @@ $(document).ready(function () {
   // delete extConfig['stateClass']
 
   $('.J_del').on('click', function () {
-    if (!wpc.isSuperAdmin) {
-      RbHighbar.error($L('仅超级管理员可删除字段'))
-      return
-    }
-
     RbAlert.create($L('字段删除后将无法恢复，请务必谨慎操作。确认删除吗？'), $L('删除字段'), {
       type: 'danger',
       confirmText: $L('删除'),
@@ -356,7 +351,7 @@ const _handlePicklist = function (dt) {
       res.data.forEach((item) => {
         rbapi.push([item.mask || item.id, item.text])
       })
-    rbapi.length > 0 && console.log(`RBAPI ASSISTANT *Option* :\n %c${JSON.stringify(rbapi)}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
+    rbapi.length > 0 && $logRBAPI(JSON.stringify(rbapi), 'FieldOptions')
   })
 
   $('.J_picklist-edit').on('click', () => {
@@ -437,7 +432,7 @@ const _handleDatetime = function (dt) {
   }
   $('.J_defaultValue').attr('readonly', true).datetimepicker(dpOption)
 
-  $(`<button class="btn btn-secondary" type="button" title="${$L('日期公式')}"><i class="icon zmdi zmdi-settings-square"></i></button>`)
+  $(`<button class="btn btn-secondary" type="button" title="${$L('日期公式')}"><i class="icon mdi mdi-function-variant"></i></button>`)
     .appendTo('.J_defaultValue-append')
     .on('click', () => renderRbcomp(<FormulaDate type={dt} onConfirm={(expr) => $('.J_defaultValue').val(expr)} />))
 }
@@ -603,7 +598,7 @@ const _handleReference = function (isN2N) {
 
   // Bizz
   if (['User', 'Department', 'Team'].includes(referenceEntity)) {
-    const $current = $(`<button class="btn btn-secondary" type="button" title="${$L('当前用户')}"><i class="icon zmdi zmdi-account-o"></i></button>`).appendTo('.J_defaultValue-append')
+    const $current = $(`<button class="btn btn-secondary" type="button" title="${$L('当前用户')}"><i class="icon mdi mdi-function-variant"></i></button>`).appendTo('.J_defaultValue-append')
     $current.on('click', () => {
       $dv.attr('data-value-id', CURRENT_BIZZ).val(CURRENT_BIZZ)
       $dvClear.removeClass('hide')
@@ -784,6 +779,7 @@ class TagEditor extends RbAlert {
       .on('change', (e) => {
         $cs.find('>a .zmdi').remove()
         this._color = e.target.value
+        if (this._color === '#000000') this._color = null
       })
   }
 
@@ -862,6 +858,9 @@ class FieldTypeCast extends RbFormHandler {
               <button className="btn btn-link" type="button" onClick={() => this.hide()}>
                 {$L('取消')}
               </button>
+              <button className="btn btn-warning bosskey-show " type="button" onClick={() => this.post('DATETIME40')}>
+                Repair
+              </button>
             </div>
           </div>
         </div>
@@ -880,8 +879,8 @@ class FieldTypeCast extends RbFormHandler {
     })
   }
 
-  post() {
-    const toType = $(this._$toType).val()
+  post(fixsType) {
+    const toType = fixsType || $(this._$toType).val()
     if (!toType) return RbHighbar.create($L('不可转换'))
 
     const $btn = $(this._$btns).find('.btn').button('loading')

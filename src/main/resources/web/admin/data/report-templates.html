@@ -3,6 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/excel-admin" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/config-comps.css}" />
     <title>[[${bundle.L('报表模板')}]]</title>
     <style>
       .invalid-vars .alert {
@@ -11,7 +12,7 @@
       .mdi-monitor::before {
         margin-left: -1px;
       }
-      .badge.badge-info {
+      .badge.badge-info.badge-arrow3 {
         color: #555;
       }
       .badge.badge-info.excel {

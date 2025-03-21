@@ -12,9 +12,9 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.configuration.NavManager;
 import com.rebuild.core.configuration.general.BaseLayoutManager;
 import com.rebuild.core.configuration.general.LayoutConfigService;
@@ -29,7 +29,6 @@ import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -90,11 +89,15 @@ public class NavSettings extends BaseController implements ShareTo {
         // 管理员才可以新建（多个）
         if ("NEW".equalsIgnoreCase(cfgid)) {
             return RespBody.ok();
-        } else if (ID.isId(cfgid)) {
-            return RespBody.ok(NavManager.instance.getNavLayoutById(ID.valueOf(cfgid)));
-        } else {
-            return RespBody.ok(NavManager.instance.getNavLayout(user));
         }
+        // 优先指定的
+        if (ID.isId(cfgid)) {
+            try {
+                return RespBody.ok(NavManager.instance.getNavLayoutById(ID.valueOf(cfgid)));
+            } catch (ConfigurationException ignored) {}
+        }
+
+        return RespBody.ok(NavManager.instance.getNavLayout(user));
     }
 
     @GetMapping("nav-settings/alist")
@@ -145,26 +148,6 @@ public class NavSettings extends BaseController implements ShareTo {
         }
 
         KVStorage.setCustomValue("TopNav32", sets.toJSONString());
-        return RespBody.ok();
-    }
-
-    @PostMapping("nav-settings/nav-copyto")
-    public RespBody navCopyTo(@RequestBody JSONObject post, HttpServletRequest request) {
-        final ID user = getRequestUser(request);
-        if (!UserHelper.isAdmin(user)) return RespBody.error();
-
-        final ID from  = ID.valueOf(post.getString("from"));
-        final JSON config = NavManager.instance.getLayoutById(from).getJSON("config");
-
-        for (Object s : post.getJSONArray("copyTo")) {
-            ID to = ID.isId(s) ? ID.valueOf(s.toString()) : null;
-            if (to == null || from.equals(to)) continue;
-
-            Record record = EntityHelper.forUpdate(to, user);
-            record.setString("config", config.toJSONString());
-            Application.getBean(LayoutConfigService.class).createOrUpdate(record);
-        }
-
         return RespBody.ok();
     }
 }

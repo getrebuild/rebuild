@@ -98,6 +98,7 @@ $(document).ready(() => {
 
   let overwriteMode = false
   let cfgid = $urlp('id')
+  if (!cfgid) cfgid = $.cookie('AppHome.Nav') // v4.0 优先当前
   const _save = function (cfg) {
     const $btn = $('.J_save').button('loading')
     const std = _Share2 ? _Share2.getData() : { shareTo: 'SELF' }
@@ -159,12 +160,6 @@ $(document).ready(() => {
           _Share2 = this
 
           const $menu = $(this._$switch).find('.dropdown-menu')
-
-          // TODO copy
-          $(`<a class="dropdown-item bosskey-show" ${c ? '' : 'disabled'}>${$L('复制导航菜单')}</a>`)
-            .prependTo($menu)
-            .on('click', () => c && renderRbcomp(<CopyNavTo list={alist} current={c[0]} />))
-
           $('<div class="dropdown-divider"></div>').prependTo($menu)
           $(`<a class="dropdown-item">${$L('配置顶部菜单')} <sup class="rbv"></sup></a>`)
             .prependTo($menu)
@@ -347,7 +342,7 @@ class TopNavSettings extends Share2Switch {
                 <div key={item[0]}>
                   <div className="row">
                     <div className="col-6">
-                      <span className="J_nav-name nav-name-text pt-2">
+                      <span className="J_nav-name nav-name-text pt-2 text-ellipsis">
                         <span>{item[1] || $L('未命名')}</span>
                         <a
                           title={$L('编辑')}
@@ -464,58 +459,6 @@ class TopNavSettings extends Share2Switch {
       setTimeout(() => {
         if (newNameChanged) location.reload()
       }, 200)
-    })
-  }
-}
-
-// eslint-disable-next-line no-undef
-class CopyNavTo extends Share2Switch {
-  renderContent() {
-    return (
-      <div style={{ margin: '0 15px' }}>
-        <div className="form-group">
-          <label className="text-bold mb-2">{$L('复制到哪些导航菜单')}</label>
-          <div ref={(c) => (this._$selected = c)}>
-            {this.props.list.map((item) => {
-              return (
-                <label className="custom-control custom-checkbox custom-control-inline mb-2" key={item[0]}>
-                  <input className="custom-control-input" type="checkbox" data-id={item[0]} disabled={item[0] === this.props.current} />
-                  <span className="custom-control-label">
-                    {item[1] || $L('未命名')}
-                    {item[0] === this.props.current && ` [${$L('当前')}]`}
-                  </span>
-                </label>
-              )
-            })}
-          </div>
-          <div className="form-text mt-1">{$L('将当前导航菜单配置复制到选择的导航菜单中')}</div>
-        </div>
-        <div className="mb-1">
-          <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
-            {$L('确定')}
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  handleConfirm() {
-    const post = {
-      from: this.props.current,
-      copyTo: [],
-    }
-
-    $(this._$selected)
-      .find('input:checked')
-      .each(function () {
-        post.copyTo.push($(this).data('id'))
-      })
-
-    console.log(post)
-
-    $.post('/app/settings/nav-settings/nav-copyto', JSON.stringify(post), () => {
-      this.hide()
-      RbHighbar.success($L('复制完成'))
     })
   }
 }

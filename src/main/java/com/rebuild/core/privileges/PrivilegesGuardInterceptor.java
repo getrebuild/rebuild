@@ -52,9 +52,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
     @Override
     public void checkGuard(Object object) throws SecurityException {
         final MethodInvocation invocation = (MethodInvocation) object;
-        if (!isGuardMethod(invocation)) {
-            return;
-        }
+        if (!isGuardMethod(invocation))  return;
 
         final ID caller = UserContextHolder.getUser();
         if (Application.devMode()) log.info("User [ {} ] call : {}", caller, invocation.getMethod());
@@ -67,9 +65,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         }
 
         // 仅 EntityService 或子类会验证角色权限
-        if (!EntityService.class.isAssignableFrom(invocationClass)) {
-            return;
-        }
+        if (!EntityService.class.isAssignableFrom(invocationClass)) return;
 
         boolean isBulk = invocation.getMethod().getName().startsWith("bulk");
         if (isBulk) {
@@ -221,10 +217,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
             actionHuman = Language.L("审批");
         }
 
-        if (target == null) {
-            return Language.L("你没有%s%s权限", actionHuman, EasyMetaFactory.getLabel(entity));
-        } else {
-            return Language.L("你没有%s此记录的权限", actionHuman);
-        }
+        if (target == null) return Language.L("你没有%s%s权限", actionHuman, EasyMetaFactory.getLabel(entity));
+        return Language.L("你没有%s此记录的权限", actionHuman);
     }
 }

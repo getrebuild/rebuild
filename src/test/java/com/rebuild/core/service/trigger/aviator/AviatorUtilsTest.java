@@ -138,4 +138,10 @@ class AviatorUtilsTest {
         System.out.println(AviatorUtils.eval("1 == 1"));
         System.out.println(AviatorUtils.eval("0.0001 == 0.0001"));
     }
+
+    @Test
+    void testHanlp() throws Exception {
+        System.out.println(AviatorUtils.eval("HANLPPINY('1张2三3', true)"));
+        System.out.println(AviatorUtils.eval("HANLPPINY('1张2三3', false)"));
+    }
 }

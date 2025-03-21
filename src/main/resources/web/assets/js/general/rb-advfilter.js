@@ -46,6 +46,8 @@ class AdvFilter extends React.Component {
           </div>
         )}
 
+        {this.props.hasTip && <RbAlertBox message={this.props.hasTip} type="info" />}
+
         <div className="adv-filter">
           <div
             className="filter-items"
@@ -77,7 +79,7 @@ class AdvFilter extends React.Component {
                 <input className="custom-control-input" type="radio" name={this._htmlid} data-id="useEquation" value="AND" checked={this.state.useEquation === 'AND'} onChange={this.handleChange} />
                 <span className="custom-control-label pl-1">{$L('符合全部')}</span>
               </label>
-              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
+              <label className={`custom-control custom-control-sm custom-radio custom-control-inline mb-2 ${this.props.inEasyFilter && 'hide'}`}>
                 <input className="custom-control-input" type="radio" name={this._htmlid} data-id="useEquation" value="9999" checked={this.state.useEquation === '9999'} onChange={this.handleChange} />
                 <span className="custom-control-label pl-1">
                   {$L('高级表达式')}
@@ -131,7 +133,7 @@ class AdvFilter extends React.Component {
   }
 
   componentDidMount() {
-    const deep = this.props.deep3 || location.href.includes('/admin/') || window.__LAB_ADVFILTER_FSDEEP3 ? 3 : 2
+    const deep = this.props.fsDeep ? this.props.fsDeep : location.href.includes('/admin/') || window.__LAB_ADVFILTER_FSDEEP3 ? 3 : 2
     const referer = this.props.referer || ''
     $.get(`/commons/metadata/fields?deep=${deep}&entity=${this.props.entity}&referer=${referer}`, (res) => {
       const validFs = []
@@ -214,9 +216,13 @@ class AdvFilter extends React.Component {
       index: items.length + 1,
     }
     if (props) itemProps = { ...itemProps, ...props }
-    items.push(<FilterItem {...itemProps} />)
+    items.push(this.addItem40(itemProps))
 
     this.setState({ items }, () => this.renderEquation())
+  }
+
+  addItem40(props) {
+    return <FilterItem {...props} />
   }
 
   removeItem(id) {
@@ -529,6 +535,18 @@ class FilterItem extends React.Component {
     return false
   }
 
+  // 可联想
+  isCanSuggest() {
+    if (!this.props.inFilterPane) return false
+    if (this.state.type === 'CLASSIFICATION') return true
+    if (this.state.type === 'TEXT') {
+      const ifRefField = REFENTITY_CACHE[this.state.field]
+      if (ifRefField) return !BIZZ_ENTITIES.includes(ifRefField[0]) // 引用
+      return true // 文本
+    }
+    return false
+  }
+
   // 审批状态
   isApprovalState() {
     const fieldName = this.state.field || ''
@@ -616,6 +634,13 @@ class FilterItem extends React.Component {
       }
     } else if (lastType === 'BOOL') {
       this.removeBool()
+    }
+
+    // v4.0 TODO 引用也支持一下
+    if (this.isCanSuggest()) {
+      this.renderSuggest(state.field)
+    } else if (lastType === 'CLASSIFICATION' || lastType === 'TEXT') {
+      this.removeSuggest()
     }
 
     if (state.value) this.valueCheck($(this._filterVal))
@@ -845,6 +870,54 @@ class FilterItem extends React.Component {
     }
   }
 
+  // SUGGEST
+
+  renderSuggest(field) {
+    if (!this._filterVal) return
+    const found = this.props.fields.find((x) => x.name === field)
+    if (!found) return
+
+    const that = this
+    function _autoComplete() {
+      that.__autoComplete = $(that._filterVal)
+        .autoComplete({
+          bootstrapVersion: '4',
+          noResultsText: '',
+          minLength: 2,
+          preventEnter: false,
+          resolverSettings: {
+            url: `/commons/search/suggest?e=${that.props.$$$parent.props.entity}.${field}`,
+          },
+          events: {
+            searchPost: function (res) {
+              const result = res.data || []
+              const _data = []
+              result.forEach((item) => {
+                if (!_data.includes(item.text)) _data.push(item.text)
+              })
+              return _data
+            },
+          },
+        })
+        .on('autocomplete.select', (e, item) => {
+          $stopEvent(e, true)
+          that.setState({ value: item })
+        })
+    }
+    if (jQuery.prototype.autoComplete) {
+      _autoComplete()
+    } else {
+      $getScript('/assets/lib/bootstrap-autocomplete.min.js?v=2.3.7', () => _autoComplete())
+    }
+  }
+
+  removeSuggest() {
+    if (this.__autoComplete) {
+      this.__autoComplete.autoComplete('destroy')
+      this.__autoComplete = null
+    }
+  }
+
   setIndex(idx) {
     this.setState({ index: idx })
   }
@@ -853,22 +926,24 @@ class FilterItem extends React.Component {
     const s = this.state // DON'T CHANGES `state`!!!
 
     // v3.9
-    if (this._inFilterPane && s.op === 'BW' && (s.value || s.value2)) {
-      const item = {
-        index: s.index,
-        field: s.field,
-        op: s.op,
+    if (this.props.inFilterPane) {
+      if (s.op === 'BW' && (s.value || s.value2)) {
+        const item = {
+          index: s.index,
+          field: s.field,
+          op: s.op,
+        }
+        if (s.value) item.value = s.value
+        if (s.value2) item.value2 = s.value2
+        return item
+      } else if (s.op === 'BW' && s.op4) {
+        const item = {
+          index: s.index,
+          field: s.field,
+          op: s.op4,
+        }
+        return item
       }
-      if (s.value) item.value = s.value
-      if (s.value2) item.value2 = s.value2
-      return item
-    } else if (this._inFilterPane && s.op === 'BW' && s.op4) {
-      const item = {
-        index: s.index,
-        field: s.field,
-        op: s.op4,
-      }
-      return item
     }
 
     let noValue = false
@@ -925,6 +1000,11 @@ class FilterItem extends React.Component {
 
 // eslint-disable-next-line no-unused-vars
 class ListAdvFilter extends AdvFilter {
+  constructor(props) {
+    super(props)
+    $logRBAPI(props.id, 'AdvFilter')
+  }
+
   render() {
     const filterComp = super.render()
     return this.props.inModal ? filterComp : <div className="dropdown-menu-advfilter">{filterComp}</div>

@@ -29,7 +29,7 @@ import java.util.Date;
 /**
  * @author Zhao Fangfang
  * @see MetadataHelper
- * @since 1.0, 2018-6-26
+ * @since 1.0, 2019-6-26
  */
 @Slf4j
 public class EntityHelper {
@@ -81,6 +81,11 @@ public class EntityHelper {
                     com.rebuild.core.support.i18n.Language.L("无效实体数据格式 : %s", data.toJSONString()));
         }
 
+        // v4.0 VID
+        String _id = metadata.getString("id");
+        if (_id != null && _id.startsWith("000-")) metadata.remove("id");
+        else _id = null;
+
         String entityName = metadata.getString("entity");
         if (StringUtils.isBlank(entityName)) {
             String id = metadata.getString("id");
@@ -100,8 +105,10 @@ public class EntityHelper {
             return new DeleteRecord(ID.valueOf(id), user, true);
         }
 
-        Record record = new EntityRecordCreator(MetadataHelper.getEntity(entityName), data, user, safetyUrl)
+        Record record = new EntityRecordCreator(
+                MetadataHelper.getEntity(entityName), data, user, safetyUrl)
                 .create(false);
+        if (_id != null) record.addExtra("_id", _id);
 
         // v3.4 表单后端回填
         if (MetadataHelper.isBusinessEntity(record.getEntity())) {

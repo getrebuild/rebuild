@@ -14,12 +14,9 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.easymeta.EasyDateTime;
-import com.rebuild.core.metadata.easymeta.EasyDecimal;
-import com.rebuild.core.metadata.easymeta.EasyField;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.*;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.utils.CommonsUtils;
@@ -48,16 +45,14 @@ public class CalcFormulaSupport {
      * FIXME 字段计算存在路径依赖：例如字段 B=A+1, 但 A 也是计算字段
      *
      * @param record
-     * @return
      */
-    public static int calcFormulaBackend(Record record) {
+    public static void calcFormulaBackend(Record record) {
         // 从数据库访问
         Record recordInDb = null;
         if (record.getPrimary() != null) {
             recordInDb = Application.getQueryFactory().recordNoFilter(record.getPrimary());
         }
 
-        int calc = 0;
         for (Field field
                 : MetadataSorter.sortFields(record.getEntity(), DisplayType.DECIMAL, DisplayType.NUMBER, DisplayType.DATE, DisplayType.DATETIME)) {
             final EasyField targetField = EasyMetaFactory.valueOf(field);
@@ -93,8 +88,6 @@ public class CalcFormulaSupport {
 
             record.setObjectValue(field.getName(), evalVal);
         }
-
-        return calc;
     }
 
     /**
@@ -105,9 +98,22 @@ public class CalcFormulaSupport {
      * @return
      */
     public static Object evalCalcFormula(Field targetField, Map<String, Object> varsInFormula) {
+        return evalCalcFormula(targetField, varsInFormula, null);
+    }
+
+    /**
+     * 计算
+     *
+     * @param targetField
+     * @param varsInFormula
+     * @param specFormula
+     * @return
+     */
+    public static Object evalCalcFormula(Field targetField, Map<String, Object> varsInFormula, String specFormula) {
         final Entity entity = targetField.getOwnEntity();
         final EasyField easyField = EasyMetaFactory.valueOf(targetField);
-        String formula = easyField.getExtraAttr(EasyFieldConfigProps.NUMBER_CALCFORMULA);
+        String formula = specFormula;
+        if (formula == null) formula = easyField.getExtraAttr(EasyFieldConfigProps.NUMBER_CALCFORMULA);
         formula = formula.replace("{{NOW}}", EasyDateTime.VAR_NOW);
 
         boolean calcReady = true;
@@ -118,7 +124,9 @@ public class CalcFormulaSupport {
                 continue;
             }
 
-            if (!entity.containsField(fieldName)) {
+            // v4.0 支持点连接字段
+            Field field = MetadataHelper.getLastJoinField(entity, fieldName);
+            if (field == null) {
                 calcReady = false;
                 break;
             }
@@ -130,7 +138,7 @@ public class CalcFormulaSupport {
             }
 
             String val2str = fieldValue.toString();
-            DisplayType dt = EasyMetaFactory.valueOf(entity.getField(fieldName)).getDisplayType();
+            DisplayType dt = EasyMetaFactory.getDisplayType(field);
             if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
                 fieldValue = CalendarUtils.parse(val2str, CalendarUtils.UTC_DATETIME_FORMAT.substring(0, val2str.length()));
             } else if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {

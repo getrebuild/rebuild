@@ -42,6 +42,7 @@ import java.util.Set;
  *
  * @author devezhao
  * @since 10/23/2018
+ * @see ViewAddonsManager
  */
 @RestController
 @RequestMapping("/admin/entity/")
@@ -87,8 +88,8 @@ public class ViewAddonsController extends BaseController {
 
         List<String[]> allRefs = new ArrayList<>();
         for (Field field : entityMeta.getReferenceToFields(Boolean.FALSE, Boolean.TRUE)) {
+            if (MetadataHelper.isCommonsField(field)) continue;
             Entity e = field.getOwnEntity();
-            if (!MetadataHelper.isBusinessEntity(e)) continue;
             if (ArrayUtils.contains(entityMeta.getDetialEntities(), e)) continue;
 
             // 新建项无明细

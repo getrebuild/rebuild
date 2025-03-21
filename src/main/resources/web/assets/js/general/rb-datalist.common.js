@@ -786,7 +786,7 @@ const RbListCommon = {
       $btn.trigger('click')
     })
 
-    // Via 过滤
+    // via 默认过滤
     const via = $urlp('via') || $urlp('via', location.hash)
     if (via) {
       wpc.protocolFilter = `via:${via}`
@@ -799,11 +799,23 @@ const RbListCommon = {
         $cleanVia.remove()
       })
     } else {
-      let def39 = $urlp('def')
-      if (def39) {
-        def39 = def39.split(':') // FILTER:LAYOUT
-        if (def39[0]) wpc.protocolFilter = `via:${def39[0]}`
-        if (def39[1]) console.log('Use listConfig :', def39[1])
+      // d 强制过滤
+      let def40 = $urlp('def')
+      if (def40) {
+        $('.main-content .nav-tabs a[href]').each(function () {
+          const $this = $(this)
+          $this.attr('href', `${$this.attr('href')}?def=${def40}`)
+        })
+
+        def40 = def40.split(':') // FILTER:LAYOUT
+        if (def40[0]) {
+          if (def40[0].substr(4) === '014-') wpc.protocolFilter = `via:${def40[0]}`
+          else console.log('Use listConfig :', def40[0])
+        }
+        if (def40[1]) {
+          if (def40[1].substr(4) === '014-') wpc.protocolFilter = `via:${def40[1]}`
+          else console.log('Use listConfig :', def40[1])
+        }
       }
     }
 
@@ -992,9 +1004,11 @@ class RbList extends React.Component {
                                 <button
                                   key={idx}
                                   type="button"
-                                  className="btn btn-sm btn-link w-auto"
+                                  className={`btn btn-sm btn-link w-auto ${btn._eaid && 'disabled'}`}
                                   title={btn.title || null}
+                                  data-eaid={btn._eaid || null}
                                   onClick={(e) => {
+                                    if ($(e.target).hasClass('disabled')) return
                                     typeof btn.onClick === 'function' && btn.onClick(primaryKey.id, e)
                                   }}>
                                   <span className={`text-${btn.type || ''}`}>
@@ -1127,9 +1141,7 @@ class RbList extends React.Component {
       this.setState({ inLoad: true }, () => this._$wrapper.addClass('rb-loading-active'))
     }, 400)
 
-    if (query.filter && (query.filter.items || []).length > 0) {
-      console.log(`RBAPI ASSISTANT *Filter Body* :\n %c${JSON.stringify(query.filter)}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
-    }
+    if (query.filter && (query.filter.items || []).length > 0) $logRBAPI(JSON.stringify(query.filter), 'FilterBody')
 
     $.post(`/app/${this._entity}/data-list`, JSON.stringify(RbList.queryBefore(query)), (res) => {
       if (res.error_code === 0) {
@@ -1137,7 +1149,10 @@ class RbList extends React.Component {
           this._clearSelected()
           $(this._$scroller).scrollTop(0)
 
-          setTimeout(() => RbList.renderAfter(this), 0)
+          setTimeout(() => {
+            RbList.renderAfter(this)
+            RbList.renderAfter40(this)
+          }, 0)
         })
 
         if (reload && this._Pagination) {
@@ -1405,7 +1420,9 @@ class RbList extends React.Component {
 
   // 组件渲染后调用
   // eslint-disable-next-line no-unused-vars
-  static renderAfter(list) {}
+  static renderAfter(listObj) {}
+  // eslint-disable-next-line no-unused-vars
+  static renderAfter40(listObj) {}
 }
 
 // 分页组件
@@ -1694,7 +1711,7 @@ CellRenders.addRender('FILE', (v, s, k) => {
     </td>
   )
 })
-const renderReference = (v, s, k) => {
+const _renderReference = (v, s, k) => {
   return (
     <td key={k}>
       <div style={s} title={v.text}>
@@ -1705,8 +1722,8 @@ const renderReference = (v, s, k) => {
     </td>
   )
 }
-CellRenders.addRender('REFERENCE', renderReference)
-CellRenders.addRender('ANYREFERENCE', renderReference)
+CellRenders.addRender('REFERENCE', _renderReference)
+CellRenders.addRender('ANYREFERENCE', _renderReference)
 CellRenders.addRender('N2NREFERENCE', (v, s, k) => {
   v = v || []
   const vLen = v.length
@@ -2107,12 +2124,11 @@ const ChartsWidget = {
     // eslint-disable-next-line no-undef
     ECHART_BASE.grid = { left: 40, right: 20, top: 30, bottom: 20 }
 
-    $('.J_load-charts').on('click', () => {
+    $('#asideShows a[href="#asideCharts"]').on('click', () => {
       this._chartLoaded !== true && this.loadWidget()
     })
-    $('.J_add-chart').on('click', () => this.showChartSelect())
-
-    $('.charts-wrap')
+    $('#asideCharts .charts--add').on('click', () => this.showChartSelect())
+    $('#asideCharts .charts-wrap')
       .sortable({
         handle: '.chart-title',
         axis: 'y',
@@ -2136,7 +2152,7 @@ const ChartsWidget = {
   },
 
   renderChart: function (chart, append) {
-    const $w = $(`<div id="chart-${chart.chart}"></div>`).appendTo('.charts-wrap')
+    const $w = $(`<div id="chart-${chart.chart}"></div>`).appendTo('#asideCharts .charts-wrap')
     // eslint-disable-next-line no-undef
     renderRbcomp(detectChart({ ...chart, editable: true }, chart.chart), $w, function () {
       if (append) ChartsWidget.saveWidget()
@@ -2155,13 +2171,13 @@ const ChartsWidget = {
     const charts = this.__currentCharts(true)
     $.post(`/app/${wpc.entity[0]}/widget-charts?id=${this.__config.id || ''}`, JSON.stringify(charts), (res) => {
       ChartsWidget.__config.id = res.data
-      $('.page-aside .tab-content').perfectScrollbar('update')
+      $('.page-aside.widgets .tab-content').perfectScrollbar('update')
     })
   },
 
   __currentCharts: function (o) {
     const charts = []
-    $('.charts-wrap>div').each(function () {
+    $('#asideCharts .charts-wrap>div').each(function () {
       const id = $(this).attr('id').substr(6)
       if (o) charts.push({ chart: id })
       else charts.push(id)
@@ -2176,9 +2192,8 @@ const CategoryWidget = {
 
   init() {
     let _init = false
-    $('.J_load-category').on('click', () => {
+    $('#asideShows a[href="#asideCategory"]').on('click', () => {
       if (_init) return
-
       renderRbcomp(
         <AsideTree4Category
           entity={wpc.entity[0]}
@@ -2203,8 +2218,10 @@ const EasyAction4List = {
     if (!(_FrontJS && _EasyAction && items)) return
     const _List = _FrontJS.DataList
 
-    items['datalist'] &&
-      items['datalist'].forEach((item) => {
+    // 工具栏
+    const _eaDatalist = items['datalist']
+    if (_eaDatalist) {
+      _eaDatalist.forEach((item) => {
         item = _EasyAction.fixItem(item)
         if (!item) return
 
@@ -2215,15 +2232,41 @@ const EasyAction4List = {
           })
         _List.addButton(item)
       })
+    }
 
-    items['datarow'] &&
-      items['datarow'].forEach((item) => {
+    // 记录行
+    const _eaDatarow = items['datarow']
+    if (_eaDatarow) {
+      _eaDatarow.forEach((item) => {
         item = _EasyAction.fixItem(item)
         if (!item) return
 
         item.onClick = (id) => _EasyAction.handleOp(item, id)
+        item._eaid = item.id
         _List.regRowButton(item)
       })
+
+      const RbList_renderAfter40 = RbList.renderAfter40
+      RbList.renderAfter40 = function (listObj) {
+        typeof RbList_renderAfter40 === 'function' && RbList_renderAfter40(listObj)
+
+        // ROW
+        $(listObj._$tbody)
+          .find('tr')
+          .each(function () {
+            const $row = $(this)
+            const id = $row.data('id')
+            // ACTION
+            _EasyAction.checkShowFilter(_eaDatarow, id, (res) => {
+              $row.find('.col-action button[data-eaid]').each((i, b) => {
+                const $this = $(b)
+                if (res[$this.data('eaid')]) $this.removeClass('disabled')
+                else $this.addClass('hide')
+              })
+            })
+          })
+      }
+    }
   },
 }
 

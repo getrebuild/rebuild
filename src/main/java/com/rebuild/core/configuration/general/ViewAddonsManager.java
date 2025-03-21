@@ -158,8 +158,8 @@ public class ViewAddonsManager extends BaseLayoutManager {
         if (config == null) {
             JSONArray useRefs = new JSONArray();
             for (Field field : entityMeta.getReferenceToFields(Boolean.FALSE, Boolean.TRUE)) {
+                if (MetadataHelper.isCommonsField(field)) continue;
                 Entity e = field.getOwnEntity();
-                if (!MetadataHelper.isBusinessEntity(e)) continue;
                 if (ArrayUtils.contains(entityMeta.getDetialEntities(), e)) continue;
 
                 // 新建项排除明细

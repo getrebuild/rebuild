@@ -157,7 +157,7 @@ class LevelBox extends React.Component {
         res.data.forEach((item) => {
           rbapi.push([item[0], item[1]])
         })
-      rbapi.length > 0 && console.log(`RBAPI ASSISTANT *Classification* :\n%c${this.parentId || '-'}\n${JSON.stringify(rbapi)}`, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
+      rbapi.length > 0 && $logRBAPI(`${this.parentId || ''}\n\n${JSON.stringify(rbapi)}`, 'Classification')
     })
   }
 
@@ -563,7 +563,8 @@ class DlgEditItem extends RbAlert {
       .appendTo($cs)
       .on('change', (e) => {
         $cs.find('>a .zmdi').remove()
-        that.handleChange({ target: { name: 'color', value: e.target.value } })
+        let c = e.target.value
+        that.handleChange({ target: { name: 'color', value: c === '#000000' ? null : c } })
       })
 
     if (this.props.color) {

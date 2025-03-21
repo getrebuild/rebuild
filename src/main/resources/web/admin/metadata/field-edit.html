@@ -171,8 +171,8 @@
                     </label>
                   </div>
                 </div>
-                <div th:if="${fieldType == 'FILE'}" class="form-group row J_for-FILE bosskey-show">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('上传目录')}]]</label>
+                <div th:if="${fieldType == 'IMAGE' || fieldType == 'FILE'}" class="form-group row J_for-IMAGE J_for-FILE bosskey-show">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('上传目录')}]] (LAB)</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <input type="text" class="form-control form-control-sm" id="fileUpdir" th:placeholder="${bundle.L('默认')}" />
                   </div>
@@ -409,15 +409,14 @@
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <input type="hidden" class="form-control" id="calcFormula" />
                       <div class="form-control-plaintext formula" id="calcFormula2" th:_title="${bundle.L('无')}">[[${calcFormula ?: calcFormula}]]</div>
-                      <p class="form-text" th:utext="${bundle.L('如公式中所用字段未布局/未显示，则不会进行计算。如需后端计算或更复杂的计算逻辑请使用 [触发器 (字段更新)](/admin/robot/triggers)')}"></p>
                     </div>
                   </div>
-                  <div class="form-group row J_for-DECIMAL J_for-NUMBER J_for-DATE J_for-DATETIME pt-0 bosskey-show">
+                  <div class="form-group row J_for-DECIMAL J_for-NUMBER J_for-DATE J_for-DATETIME pt-0">
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right"></label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                         <input class="custom-control-input" type="checkbox" id="calcFormulaBackend" />
-                        <span class="custom-control-label">[[${bundle.L('使用后端计算')}]] (LAB)</span>
+                        <span class="custom-control-label">[[${bundle.L('同时启用后端计算')}]]</span>
                       </label>
                     </div>
                   </div>

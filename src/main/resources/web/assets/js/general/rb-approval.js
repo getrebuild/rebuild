@@ -202,6 +202,7 @@ class ApprovalProcessor extends React.Component {
   approve = () => {
     const that = this
     if (this._ApproveForm) {
+      // this._ApproveForm.show(null, () => that._ApproveForm.reload())
       this._ApproveForm.show()
     } else {
       renderRbcomp(<ApprovalApproveForm id={this.props.id} approval={this.state.approvalId} entity={this.props.entity} $$$parent={this} />, function () {
@@ -482,11 +483,18 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             </div>
           )}
 
-          {this.state.aform && this.renderLiteForm()}
+          {(this.state.aform || this.state.aform_details) && this.renderLiteForm()}
 
           <div className="form-group">
             <label>{$L('批注')}</label>
-            <textarea className="form-control form-control-sm row2x" name="remark" placeholder={$L('输入批注 (可选)')} value={this.state.remark || ''} onChange={this.handleChange} maxLength="600" />
+            <textarea
+              className="form-control form-control-sm row2x"
+              name="remark"
+              placeholder={`${$L('输入批注')} (${this.state.remarkReq >= 1 ? $L('必填') : $L('选填')})`}
+              value={this.state.remark || ''}
+              onChange={this.handleChange}
+              maxLength="600"
+            />
           </div>
 
           {this.renderUsers()}
@@ -539,28 +547,16 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   }
 
   renderLiteForm() {
-    const fake = {
-      state: { id: this.props.id },
-    }
-
-    // @see rb-forms.append.js LiteFormModal#create
-
     return (
       <div className="form-group">
         <label>{$L('信息完善 (驳回时无需填写)')}</label>
-        <LiteForm entity={this.props.entity} id={this.props.id} rawModel={{}} $$$parent={fake} ref={(c) => (this._LiteForm = c)}>
-          {this.state.aform.map((item) => {
-            item.isFull = true
-            delete item.referenceQuickNew // v35
-            // eslint-disable-next-line no-undef
-            return detectElement(item)
-          })}
-        </LiteForm>
+        <EditableFieldForms _this={this} ref={(c) => (this._EditableFieldForms = c)} />
       </div>
     )
   }
 
   componentDidMount = () => this.getNextStep()
+  reload = () => this.getNextStep()
 
   post(state) {
     const that = this
@@ -594,7 +590,8 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             onConfirm: function () {
               this.disabled(true, true)
               const node = $(this._element).find('select').val()
-              that._post(state, node === '0' ? null : node, this)
+              const s = that._post(state, node === '0' ? null : node, this)
+              if (s === false) this.disabled() // reset
             },
             onRendered: function () {
               $(this._element).find('select').select2({
@@ -610,23 +607,29 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   }
 
   _post(state, rejectNode, _alert, weakMode) {
-    let aformData = {}
-    if (this.state.aform && state === 10) {
-      aformData = this._LiteForm.buildFormData()
-      if (aformData === false) return
+    let aformData = []
+    if ((this.state.aform || this.state.aform_details) && state === 10) {
+      // aformData = this._LiteForm.buildFormData()
+      aformData = this._EditableFieldForms.buildFormsData()
+      if (aformData === false) return false
     }
 
     let selectUsers
     if (state === 10) {
       selectUsers = this.getSelectUsers()
-      if (!selectUsers) return
+      if (!selectUsers) return false
     }
 
     const data = {
-      remark: this.state.remark || '',
+      remark: this.state.remark || null,
       selectUsers: selectUsers,
       aformData: aformData,
       useGroup: this.state.useGroup,
+    }
+    // v4.0
+    if (this.state.remarkReq >= 1 && $empty(data.remark)) {
+      RbHighbar.createl('请填写批注')
+      return false
     }
 
     _alert && _alert.disabled(true, true)
@@ -751,7 +754,7 @@ class ApprovalStepViewer extends React.Component {
   }
 
   render() {
-    // const stateLast = this.state.steps ? this.state.steps[0].approvalState : 0
+    const stepsLen = (this.state.steps || []).length
     let stateLast = 0
 
     return (
@@ -769,7 +772,7 @@ class ApprovalStepViewer extends React.Component {
               <ul className="timeline approved-steps">
                 {(this.state.steps || []).map((item, idx) => {
                   if (item.submitter) stateLast = item.approvalState
-                  return idx === 0 || item.submitter ? this.renderSubmitter(item, idx) : this.renderApprover(item, stateLast)
+                  return idx === 0 || item.submitter ? this.renderSubmitter(item, idx) : this.renderApprover(item, stateLast, stepsLen === idx + 1)
                 })}
 
                 {stateLast >= 10 && (
@@ -800,9 +803,9 @@ class ApprovalStepViewer extends React.Component {
 
   renderSubmitter(s, idx) {
     return (
-      <RF>
+      <RF key={`step-submit-${idx}`}>
         {idx > 0 && <strong className="mb-1">{$L('再次提交')}</strong>}
-        <li className="timeline-item state0" key="step-submit">
+        <li className="timeline-item state0">
           {this._formatTime(s.createdOn)}
           <div className="timeline-content">
             <div className="timeline-avatar">
@@ -826,8 +829,8 @@ class ApprovalStepViewer extends React.Component {
     )
   }
 
-  renderApprover(s, stateLast) {
-    const sss = []
+  renderApprover(s, stateLast, isLast) {
+    const stepsGroup = []
     let nodeState = 0
     if (s[0].signMode === 'OR') {
       s.forEach((item) => {
@@ -861,8 +864,9 @@ class ApprovalStepViewer extends React.Component {
         )
       }
 
-      sss.push(
-        <li className={`timeline-item state${item.state}`} key={`step-${$random()}`}>
+      const state1w = item.state === 1 && isLast && stateLast < 10
+      stepsGroup.push(
+        <li className={`timeline-item state${item.state} ${state1w && 'w'}`} key={`step-${$random()}`}>
           {this._formatTime(item.approvedTime || item.createdOn)}
           <div className="timeline-content">
             <div className="timeline-avatar">
@@ -923,11 +927,11 @@ class ApprovalStepViewer extends React.Component {
       )
     })
 
-    if (sss.length < 2) {
+    if (stepsGroup.length < 2) {
       return (
         <RF key={`step-${$random()}`}>
           {s[0].nodeName && <strong className="mb-1">{s[0].nodeName}</strong>}
-          {sss}
+          {stepsGroup}
         </RF>
       )
     }
@@ -938,7 +942,7 @@ class ApprovalStepViewer extends React.Component {
       <RF key={`step-${$random()}`}>
         {s[0].nodeName && <strong className="mb-1">{s[0].nodeName}</strong>}
         <div className={clazz} _title={sm === 'OR' ? $L('或签') : sm === 'AND' ? $L('会签') : null} key={`step-${$random()}`}>
-          {sss}
+          {stepsGroup}
         </div>
       </RF>
     )
@@ -979,6 +983,74 @@ class ApprovalStepViewer extends React.Component {
     } else {
       $(this._dlg).modal({ show: true, keyboard: true })
     }
+  }
+}
+
+class EditableFieldForms extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this._fakeParent = {
+      state: { id: props._this.props.id },
+    }
+    this._LiteForms = {}
+  }
+
+  render() {
+    const _this = this.props._this
+    const _details = _this.state.aform_details
+    console.log(_details)
+    return (
+      <div className="aforms">
+        {_this.state.aform && this.renderLiteForm(_this.props.entity, _this.props.id, _this.state.aform)}
+        {_details && this.renderDetails(_details)}
+      </div>
+    )
+  }
+
+  renderLiteForm(entity, id, aform) {
+    // @see rb-forms.append.js LiteFormModal#create
+    return (
+      <LiteForm entity={entity} id={id} rawModel={{}} $$$parent={this._fakeParent} ref={(c) => (this._LiteForms[id] = c)} key={id}>
+        {aform.map((item) => {
+          item.isFull = true
+          delete item.referenceQuickNew // v35
+          // eslint-disable-next-line no-undef
+          return detectElement(item)
+        })}
+      </LiteForm>
+    )
+  }
+
+  renderDetails(details) {
+    return details.map((d) => {
+      return (
+        <div key={d.aentity} className="aforms-detail">
+          <h5>
+            {d.aentityLabel} ({d.aforms.length})
+          </h5>
+          {d.aforms.map((aform) => {
+            const c = [...aform]
+            const id = c[c.length - 1] // Last is ID
+            c.pop()
+            return this.renderLiteForm(d.aentity, id, c)
+          })}
+        </div>
+      )
+    })
+  }
+
+  buildFormsData() {
+    let datas = []
+    for (let key in this._LiteForms) {
+      const aformData = this._LiteForms[key].buildFormData()
+      if (aformData === false) {
+        datas = false
+        break
+      }
+      datas.push(aformData)
+    }
+    return datas
   }
 }
 

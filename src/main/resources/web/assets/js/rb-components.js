@@ -27,7 +27,7 @@ class RbModal extends React.Component {
       <div
         className={modalClazz}
         style={props.zIndex ? { zIndex: props.zIndex } : null}
-        aria-hidden="true"
+        aria-modal="true"
         ref={(c) => {
           this._rbmodal = c
           this._element = c
@@ -255,7 +255,8 @@ class RbAlert extends React.Component {
 
     return (
       <div
-        className="modal rbalert"
+        className={`modal rbalert ${this.props.className || ''}`}
+        aria-modal="true"
         style={style1}
         ref={(c) => {
           this._dlg = c
@@ -472,14 +473,16 @@ class RbAlertBox extends React.Component {
     if (!icon) icon = type === 'success' ? 'check' : type === 'danger' ? 'close-circle-o' : 'info-outline'
 
     return (
-      <div className={`alert alert-icon alert-icon-border alert-dismissible alert-sm alert-${type} ${props.className || ''}`} ref={(c) => (this._element = c)}>
+      <div className={`alert alert-icon alert-icon-border alert-sm alert-${type} ${props.unclose ? '' : 'alert-dismissible'} ${props.className || ''}`} ref={(c) => (this._element = c)}>
         <div className="icon">
           <i className={`zmdi zmdi-${icon}`} />
         </div>
         <div className="message">
-          <a className="close" onClick={() => this._handleClose()} title={$L('关闭')} data-dismiss="alert">
-            <i className="zmdi zmdi-close" />
-          </a>
+          {props.unclose ? null : (
+            <a className="close" onClick={() => this._handleClose()} title={$L('关闭')} data-dismiss="alert">
+              <i className="zmdi zmdi-close" />
+            </a>
+          )}
           <div>{props.message || 'INMESSAGE'}</div>
         </div>
       </div>
@@ -1132,7 +1135,22 @@ class Md2Html extends React.Component {
             $stopEvent(e, false)
           })
         })
-      // TODO 图片预览
+
+      // 图片预览
+      let imgs = []
+      $(this._$md2html)
+        .find('img[src]')
+        .each(function () {
+          const $img = $(this)
+          let isrc = $img.attr('src')
+          isrc = isrc.split('/filex/img/')[1].split(/[?&]imageView2/)[0]
+          imgs.push(isrc)
+          $img.on('click', (e) => {
+            $stopEvent(e, true)
+            const p = parent || window
+            p.RbPreview.create(imgs, imgs.indexOf(isrc) || 0)
+          })
+        })
     })
   }
 }
@@ -1269,6 +1287,7 @@ class AsideTree extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props, expandItems: [] }
+    this.__items = {}
   }
 
   render() {
@@ -1296,6 +1315,7 @@ class AsideTree extends React.Component {
   }
 
   renderItem(item, hasChild) {
+    this.__items[item.id] = item
     return (
       <li className={this.state.activeItem === item.id ? 'active' : ''}>
         <span
@@ -1317,14 +1337,6 @@ class AsideTree extends React.Component {
             this.setState({ activeItem: item.id }, () => {
               typeof this.props.onItemClick === 'function' && this.props.onItemClick(item)
             })
-          }}
-          onDoubleClick={() => {
-            // FIXME v3.9 双击会出发两次 onClick
-            // if (hasChild) {
-            //   const expandItemsNew = this.state.expandItems
-            //   expandItemsNew.toggle(item.id)
-            //   this.setState({ expandItems: expandItemsNew }, () => $clearSelection())
-            // }
           }}>
           {this.props.icon && <i className={`icon ${this.props.icon}`} />}
           {item.text || item.name}
@@ -1338,7 +1350,26 @@ class AsideTree extends React.Component {
   }
 
   refresh(data) {
+    this.__items = {}
     this.setState({ data: data })
+  }
+
+  triggerClick(id) {
+    const item = this.__items[id]
+    if (item) {
+      this.setState({ activeItem: item.id }, () => {
+        typeof this.props.onItemClick === 'function' && this.props.onItemClick(item)
+
+        // 树状需要展开父级
+        let ps = []
+        let loop = item
+        while (loop.parent) {
+          ps.push(loop.parent)
+          loop = this.__items[loop.parent]
+        }
+        ps.length > 0 && this.setState({ expandItems: ps })
+      })
+    }
   }
 
   // 获取所有子级 ID

@@ -26,6 +26,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // PAGE INITIAL
 $(function () {
+  // navless
+  if (rb.commercial > 1 && ~~$urlp('navless') === 1) $(document.body).addClass('rb-navless40')
+
   // scroller
   var $t = $('.rb-scroller')
   $t.perfectScrollbar()
@@ -174,11 +177,6 @@ $(function () {
 
   // theme
   $('.use-theme a').on('click', function () {
-    if (rb.commercial < 10) {
-      RbHighbar.error(WrapHtml($L('免费版不支持选择主题功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-      return
-    }
-
     var theme = $(this).data('theme')
     $.get('/commons/theme/set-use-theme?theme=' + theme, function () {
       location.reload(true)
@@ -389,8 +387,8 @@ var _checkMessage = function () {
     }
 
     _showStateMM(res.data.mm)
-    _showStateST(res.data.st)
-    setTimeout(_checkMessage, rb.env === 'dev' ? 9000 : 2000)
+    // _showStateST(res.data.st)  // FIXME 4.0禁用，未考虑时区问题
+    setTimeout(_checkMessage, rb.env === 'dev' ? 9000 : 3000)
   })
 }
 var _loadMessages__state = false
@@ -564,7 +562,7 @@ var _initGlobalCreate = function () {
         var $item = $('<a class="dropdown-item"><i class="icon zmdi zmdi-' + this.icon + '"></i>' + this.entityLabel + '</a>').appendTo($gc)
         var _this = this
         $item.on('click', function () {
-          RbFormModal.create({ title: $L('新建%s', _this.entityLabel), entity: _this.entity, icon: _this.icon })
+          RbFormModal.create({ title: $L('新建%s', _this.entityLabel), entity: _this.entity, icon: _this.icon, _nextOpenView: true })
         })
       })
     }
@@ -1368,4 +1366,42 @@ var $env = {
   isWxWork: function () {
     return navigator.userAgent.match(/(WXWORK)/i)
   },
+}
+
+// 菜单加搜索
+function $dropdownMenuSearch($dd) {
+  $dd = $($dd)
+  $(`<div class="searchbox"><input placeholder="${$L('搜索')}" /></div>`)
+    .prependTo($dd)
+    .find('input')
+    .on('input', function (e) {
+      var q = $trim(e.target.value).toLowerCase()
+      $setTimeout(
+        function () {
+          $dd.find('.dropdown-item').each(function () {
+            var $item = $(this)
+            var name = ($item.data('name') || $item.data('value') || $item.data('id') || '').toLowerCase()
+            var text = $item.text().toLowerCase()
+            if (!q || name.contains(q) || text.contains(q)) {
+              $item.removeClass('hide')
+            } else {
+              $item.addClass('hide')
+            }
+          })
+        },
+        200,
+        '$dropdownMenuSearch'
+      )
+    })
+  // foucs
+  $dd.parent().on('shown.bs.dropdown', function () {
+    console.log('open')
+    setTimeout(function () {
+      $dd.find('input')[0].focus()
+    }, 200)
+  })
+}
+
+function $logRBAPI(id, type) {
+  id && rb.isAdminUser && console.log('RBAPI ASSISTANT *' + (type || 'N') + '* :\n%c' + id, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
 }

@@ -398,16 +398,40 @@ public class MetadataHelper {
     }
 
     /**
+     * @param entity
+     * @param fieldName
+     * @return
+     * @see #checkAndWarnField(Entity, String, Object)
+     */
+    public static boolean checkAndWarnField(Entity entity, String fieldName) {
+        return checkAndWarnField(entity, fieldName, null);
+    }
+
+    /**
+     * @param entityName
+     * @param fieldName
+     * @return
+     * @see #checkAndWarnField(String, String, Object)
+     */
+    public static boolean checkAndWarnField(String entityName, String fieldName) {
+        return checkAndWarnField(entityName, fieldName, null);
+    }
+
+    /**
      * 检查字段有效性（无效会 LOG）
      *
      * @param entity
      * @param fieldName
+     * @param checkSource
      * @return
      */
-    public static boolean checkAndWarnField(Entity entity, String fieldName) {
+    public static boolean checkAndWarnField(Entity entity, String fieldName, Object checkSource) {
         if (entity.containsField(fieldName)) return true;
-        log.warn("Unknown field `{}` in `{}`", fieldName, entity.getName());
-        CommonsUtils.printStackTrace();
+
+        String warning = String.format("Unknown field `%s.%s`", entity.getName(), fieldName);
+        if (checkSource != null) warning += " in `" + checkSource + "`";
+        log.warn(warning);
+        if (CommonsUtils.DEVLOG) CommonsUtils.printStackTrace();
         return false;
     }
 
@@ -416,11 +440,13 @@ public class MetadataHelper {
      *
      * @param entityName
      * @param fieldName
+     * @param checkSource
      * @return
+     * @see #checkAndWarnField(Entity, String, Object)
      */
-    public static boolean checkAndWarnField(String entityName, String fieldName) {
+    public static boolean checkAndWarnField(String entityName, String fieldName, Object checkSource) {
         if (!containsEntity(entityName)) return false;
-        return checkAndWarnField(getEntity(entityName), fieldName);
+        return checkAndWarnField(getEntity(entityName), fieldName, checkSource);
     }
 
     /**

@@ -24,7 +24,7 @@ $(document).ready(() => {
         const field = fields.find((x) => x.name === item.field)
         render_set({ ...item, name: item.field, specLabel: item.label, label: field ? field.label : `[${item.field.toUpperCase()}]` })
       })
-      refreshConfigStar()
+      _refreshConfigStar()
     }
 
     parent.RbModal && parent.RbModal.resize()
@@ -115,7 +115,7 @@ const render_set = function (item) {
                 'data-label': s.label || '',
                 'data-color': s.color || '',
               })
-              refreshConfigStar()
+              _refreshConfigStar()
             }}
           />,
           function () {
@@ -129,7 +129,7 @@ const render_set = function (item) {
   })
 }
 
-const refreshConfigStar = function () {
+const _refreshConfigStar = function () {
   $('.set-items>span').each(function () {
     const $this = $(this)
     if ($this.attr('data-label') || $this.attr('data-color')) $this.find('.item').addClass('star')
@@ -186,7 +186,7 @@ class ShowStyles2 extends ShowStyles {
 
     const data = {
       label: $(this._$label).val() || '',
-      color: color,
+      color: color === '#000000' ? null : color,
     }
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(data)
     this.hide()

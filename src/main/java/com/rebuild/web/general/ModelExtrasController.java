@@ -60,13 +60,14 @@ import java.util.Objects;
 public class ModelExtrasController extends BaseController {
 
     // 获取表单回填数据
-    @GetMapping("fillin-value")
+    @RequestMapping("fillin-value")
     public JSON getFillinValue(@EntityParam Entity entity, @IdParam(name = "source") ID sourceRecord,
                                HttpServletRequest request) {
         String field = getParameterNotNull(request, "field");
         Field useField = entity.getField(field);
+        JSONObject formData40 = (JSONObject) ServletUtils.getRequestJson(request);
 
-        return AutoFillinManager.instance.getFillinValue(useField, sourceRecord);
+        return AutoFillinManager.instance.getFillinValue(useField, sourceRecord, formData40);
     }
 
     // 记录转换
@@ -114,8 +115,8 @@ public class ModelExtrasController extends BaseController {
     // 批量转换
     private RespBody transform39Muilt(ID transid, JSONArray sourceRecords) {
         List<ID> newIds = new ArrayList<>();
-        RecordTransfomer39 transfomer39 = new RecordTransfomer39(transid);
         for (Object o : sourceRecords) {
+            RecordTransfomer39 transfomer39 = new RecordTransfomer39(transid);
             ID sourceRecord = ID.valueOf((String) o);
             if (!transfomer39.checkFilter(sourceRecord)) continue;
 

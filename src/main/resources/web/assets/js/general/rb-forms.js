@@ -24,7 +24,7 @@ class RbFormModal extends React.Component {
     this.state = { ...props, inLoad: true, _maximize: false }
 
     this.__maximizeKey = 'FormMaximize-ANY'
-    this.state._maximize = $isTrue($storage.get(this.__maximizeKey))
+    this.state._maximize = $isTrue($storage.get(this.__maximizeKey)) || window.__LAB_FORM_MAXIMIZE40
 
     if (!props.id) this.state.id = null
   }
@@ -38,7 +38,7 @@ class RbFormModal extends React.Component {
 
     return (
       <div className="modal-wrapper">
-        <div className="modal rbmodal colored-header colored-header-primary" aria-hidden="true" ref={(c) => (this._rbmodal = c)}>
+        <div className="modal rbmodal colored-header colored-header-primary" aria-modal="true" ref={(c) => (this._rbmodal = c)}>
           <div className="modal-dialog" style={style2}>
             <div className="modal-content" style={style2}>
               <div
@@ -441,35 +441,39 @@ class RbForm extends React.Component {
     }
 
     if (!_ProTable) {
-      _ProTable = (
-        <ProTable
-          entity={detailMeta}
-          mainid={this.state.id}
-          ref={(c) => {
-            _ProTable = c // ref
-            this._ProTables[detailMeta.entity] = c
-            this._ProTable = c // comp:v3.8
-          }}
-          $$$main={this}
-          transDetails={transDetails39 ? transDetails39[detailMeta.entity] : null}
-          transDetailsDelete={transDetails39 ? transDetails39[detailMeta.entity + '$DELETED'] : null}
-        />
-      )
+      _ProTable = ProTable.create({
+        entity: detailMeta,
+        mainid: this.state.id,
+        ref: (c) => {
+          _ProTable = c // ref
+          this._ProTables[detailMeta.entity] = c
+          this._ProTable = c // comp:v3.8
+        },
+        $$$main: this,
+        transDetails: transDetails39 ? transDetails39[detailMeta.entity] : null,
+        transDetailsDelete: transDetails39 ? transDetails39[detailMeta.entity + '$DELETED'] : null,
+      })
     } else {
       this._ProTable = _ProTable // comp:v3.8
     }
 
     return (
-      <div className="detail-form-table">
+      <div className="detail-form-table" data-entity={detailMeta.entity}>
         <div className="row">
-          <div className="col">
+          <div className="col-4 detail-form-header">
             <h5 className="mt-2 mb-0 text-bold fs-14">
               <i className={`icon zmdi zmdi-${detailMeta.icon} fs-15 mr-2`} />
               {detailMeta.entityLabel}
+              {rb.isAdminUser && (
+                <a href={`${rb.baseUrl}/admin/entity/${detailMeta.entity}/form-design`} target="_blank" title={$L('表单设计')}>
+                  <span className="zmdi zmdi-settings up-1" />
+                </a>
+              )}
             </h5>
           </div>
 
-          <div className="col text-right">
+          <div className="col-8 text-right detail-form-action">
+            <div className="fjs-dock"></div>
             {_detailImports.length > 0 && (
               <div className="btn-group mr-2">
                 <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
@@ -547,40 +551,44 @@ class RbForm extends React.Component {
 
   renderFormAction() {
     const props = this.props
+    const parentProps = props.$$$parent ? props.$$$parent.props || {} : {}
     let moreActions = []
     // 添加明细
     if (props.rawModel.mainMeta) {
-      // in New
-      if (props.$$$parent && props.$$$parent.props._nextAddDetail) {
+      if (parentProps._nextAddDetail) {
         moreActions.push(
           <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_NEWDETAIL)}>
             {$L('保存并添加')}
           </a>
         )
       }
-    }
-    // 列表页保存并继续
-    else if (window.RbViewModal && window.__PageConfig.type === 'RecordList') {
-      if (window.__LAB_FORMACTION_105 || props.rawModel.extrasAction) {
-        moreActions.push(
-          <a key="Action105" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADD36)}>
-            {$L('保存并新建')}
-          </a>
-        )
-      }
-      if ((window.__LAB_FORMACTION_103 || props.rawModel.extrasAction) && props.rawModel.hadApproval && window.ApprovalSubmitForm) {
-        moreActions.push(
-          <a key="Action103" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_SUBMIT37)}>
-            {$L('保存并提交')}
-          </a>
-        )
+    } else {
+      // 列表页保存并...
+      const inList = window.RbViewModal && window.__PageConfig.type === 'RecordList'
+      if (inList) {
+        if (window.__LAB_FORMACTION_105 || props.rawModel.extrasAction) {
+          moreActions.push(
+            <a key="Action105" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADD36)}>
+              {$L('保存并新建')}
+            </a>
+          )
+        }
+        if ((window.__LAB_FORMACTION_103 || props.rawModel.extrasAction) && props.rawModel.hadApproval && window.ApprovalSubmitForm) {
+          moreActions.push(
+            <a key="Action103" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_SUBMIT37)}>
+              {$L('保存并提交')}
+            </a>
+          )
+        }
       }
 
-      moreActions.push(
-        <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_VIEW)}>
-          {$L('保存并打开')}
-        </a>
-      )
+      if (inList || parentProps._nextOpenView) {
+        moreActions.push(
+          <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_VIEW)}>
+            {$L('保存并打开')}
+          </a>
+        )
+      }
     }
 
     // @see #_postAfterExec
@@ -593,6 +601,7 @@ class RbForm extends React.Component {
 
     return (
       <div className="dialog-footer" ref={(c) => (this._$formAction = c)}>
+        <div className="fjs-dock"></div>
         <button className="btn btn-secondary btn-space" type="button" onClick={() => props.$$$parent.hide()}>
           {cancelText || $L('取消')}
         </button>
@@ -646,7 +655,14 @@ class RbForm extends React.Component {
       this.refs[d]._toggle()
     })
 
-    setTimeout(() => RbForm.renderAfter(this), 0)
+    setTimeout(() => {
+      RbForm.renderAfter(this)
+
+      // v4.0 编辑时触发
+      if (window.FrontJS && window.EasyFilterEval && this.props.id && !this.props.readonly) {
+        if (window.EasyFilterEval) window.EasyFilterEval.evalAndEffect(this)
+      }
+    }, 20)
   }
 
   // 表单回填
@@ -697,8 +713,9 @@ class RbForm extends React.Component {
 
     if (window.FrontJS) {
       const fieldKey = `${this.props.entity}.${field}`
-      const ret = window.FrontJS.Form._trigger('fieldValueChange', [fieldKey, value, this.props.id || null])
-      if (ret === false) return false
+      window.FrontJS.Form._trigger('fieldValueChange', [fieldKey, value, this.props.id || null])
+      // v4.0
+      if (window.EasyFilterEval) window.EasyFilterEval.evalAndEffect(this)
     }
   }
 
@@ -712,11 +729,11 @@ class RbForm extends React.Component {
   getFormData() {
     const data = {}
     // eslint-disable-next-line react/no-string-refs
-    const _refs = this.refs
-    for (let key in _refs) {
+    const fieldRefs = this.refs
+    for (let key in fieldRefs) {
       if (!key.startsWith('fieldcomp-')) continue
 
-      const fieldComp = _refs[key]
+      const fieldComp = fieldRefs[key]
       let v = fieldComp.getValue()
       if (v && typeof v === 'object') v = v.id || v // array
       if (v) data[fieldComp.props.field] = v
@@ -728,7 +745,8 @@ class RbForm extends React.Component {
   getProTables() {
     return this._ProTables ? Object.values(this._ProTables) : null
   }
-  getProTable() {
+  getProTable(detailName) {
+    if (detailName) return this._ProTables ? this._ProTables[detailName] || null : null
     return (this.getProTables() || [])[0] || null
   }
 
@@ -797,11 +815,10 @@ class RbForm extends React.Component {
     const $btn = $(this._$formAction).find('.btn').button('loading')
     let url = '/app/entity/record-save'
     if (previewid) url += `?previewid=${previewid}`
-    if (weakMode) {
-      url += url.includes('?') ? '&' : '?'
-      url += 'weakMode=' + weakMode
+    if (weakMode) url += `${url.includes('?') ? '&' : '?'}weakMode=${weakMode}`
+    if (this._postAction || this.props._postAction) {
+      url += `${url.includes('?') ? '&' : '?'}_postAction=${$encode(this._postAction || this.props._postAction)}`
     }
-
     $.post(url, JSON.stringify(data), (res) => {
       $btn.button('reset')
       if (res.error_code === 0) {
@@ -828,9 +845,15 @@ class RbForm extends React.Component {
             const dm = this.props.rawModel.entityMeta
             RbFormModal.create({ title: $L('添加%s', dm.entityLabel), entity: dm.entity, icon: dm.icon, initialValue: iv })
             // ~
-          } else if (next === RbForm.NEXT_VIEW && window.RbViewModal) {
-            window.RbViewModal.create({ id: recordId, entity: this.state.entity })
-            if (window.RbListPage) location.hash = `!/View/${this.state.entity}/${recordId}`
+          } else if (next === RbForm.NEXT_VIEW) {
+            if (window.RbViewModal) {
+              window.RbViewModal.create({ id: recordId, entity: this.state.entity })
+              if (window.RbListPage) location.hash = `!/View/${this.state.entity}/${recordId}`
+            } else if (parent && parent.RbViewModal) {
+              parent.RbViewModal.create({ id: recordId, entity: this.state.entity }, true)
+            } else {
+              window.open(`${rb.baseUrl}/app/redirect?id=${recordId}&type=dock`)
+            }
             // ~
           } else if (next === RbForm.NEXT_ADD36) {
             let titleNew = $$$parent.state.title
@@ -976,7 +999,7 @@ class RbFormElement extends React.Component {
     const props = this.props
     if (!props.onView) {
       // 必填字段
-      if (!this.state.nullable && $empty(props.value) && props.readonlyw !== 2) {
+      if (!this.state.nullable && $empty(props.value) && props.readonlyw !== 2 && props.unreadable !== true) {
         props.$$$parent.setFieldValue(props.field, null, $L('%s不能为空', props.label))
       }
 
@@ -1502,7 +1525,7 @@ class RbFormNText extends RbFormElement {
       $createUploader(this._fieldValue__upload, null, (res) => {
         const pos = mde.codemirror.getCursor()
         mde.codemirror.setSelection(pos, pos)
-        mde.codemirror.replaceSelection(`![${$L('图片')}](${rb.baseUrl}/filex/img/${res.key})`)
+        mde.codemirror.replaceSelection(`![](${rb.baseUrl}/filex/img/${res.key})`)
         _mdeFocus()
       })
       if (this.props.onView) _mdeFocus()
@@ -1575,7 +1598,7 @@ class RbFormDateTime extends RbFormElement {
       const that = this
       this.__datetimepicker = $(this._fieldValue)
         .datetimepicker({
-          format: format || 'yyyy-mm-dd hh:ii:ss',
+          format: (format || 'yyyy-mm-dd hh:ii:ss').replace(':ss', ':00'),
           minView: minView,
           startView: startView,
           pickerPosition: this._getAutoPosition(),
@@ -1623,7 +1646,7 @@ class RbFormTime extends RbFormDateTime {
       const that = this
       this.__datetimepicker = $(this._fieldValue)
         .datetimepicker({
-          format: format,
+          format: format.replace(':ss', ':00'),
           startView: 1,
           minView: minView,
           maxView: 1,
@@ -1696,7 +1719,7 @@ class RbFormImage extends RbFormElement {
           )
         })}
         <span title={$L('拖动或点击选择图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={`position-relative ${!showUpload && 'hide'}`}>
-          <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" multiple />
+          <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" multiple data-updir={this.props.fileUpdir || null} />
           <label htmlFor={this._htmlid} className="img-thumbnail img-upload" onClick={(e) => this._fileClick(e)}>
             {this._captureType === 2 ? <span className="mdi mdi-camera down-2" /> : <span className="zmdi zmdi-image-alt down-2" />}
           </label>
@@ -1811,6 +1834,7 @@ class RbFormImage extends RbFormElement {
       }
     }
   }
+
   removeItem(item, e) {
     e && $stopEvent(e, true)
     const paths = this.state.value || []
@@ -1959,8 +1983,8 @@ class RbFormPickList extends RbFormElement {
   }
 
   renderElement() {
+    const _readonly37 = this.state.readonly
     if (this._isShowRadio39) {
-      const _readonly37 = this.state.readonly
       return (
         <div ref={(c) => (this._fieldValue = c)} className="mt-1">
           {this._options.map((item) => {
@@ -1976,7 +2000,7 @@ class RbFormPickList extends RbFormElement {
     }
 
     return (
-      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" defaultValue={this.state.value || ''}>
+      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" defaultValue={this.state.value || ''} disabled={_readonly37}>
         <option value="" />
         {this._options.map((item) => {
           return (
@@ -2043,7 +2067,13 @@ class RbFormReference extends RbFormElement {
 
     return (
       <div className="input-group has-append">
-        <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" title={this._hasDataFilter ? $L('当前字段已启用数据过滤') : null} multiple={this._multiple === true} />
+        <select
+          ref={(c) => (this._fieldValue = c)}
+          className="form-control form-control-sm"
+          title={this._hasDataFilter ? $L('当前字段已启用数据过滤') : null}
+          multiple={this._multiple === true}
+          disabled={_readonly37}
+        />
         {!_readonly37 && (
           <div className="input-group-append">
             <button className="btn btn-secondary" type="button" onClick={() => this.showSearcher()}>
@@ -2087,7 +2117,7 @@ class RbFormReference extends RbFormElement {
     // 新建记录时触发回填
     const props = this.props
     if (this._isNew && props.value && props.value.id) {
-      setTimeout(() => this.triggerAutoFillin(props.value.id), 500)
+      setTimeout(() => this.triggerAutoFillin(props.value.id), 200)
     }
   }
 
@@ -2118,19 +2148,6 @@ class RbFormReference extends RbFormElement {
         if (v && typeof v === 'string') {
           __addRecentlyUse(v)
           that.triggerAutoFillin(v)
-
-          // v2.10 FIXME 父级改变后清除明细
-          // v3.1 因为父级无法获取到明细的级联值，且级联值有多个（逻辑上存在多个父级值）
-          // v3.9 不清除明细
-          // const _cascadingFieldChild = that.props._cascadingFieldChild || ''
-          // if ($$$form._ProTables && !$$$form._inAutoFillin && _cascadingFieldChild.includes('.')) {
-          //   const _ProTable = $$$form._ProTables[_cascadingFieldChild.split('.')[0]]
-          //   if (_ProTable) {
-          //     const field = _cascadingFieldChild.split('$$$$')[0].split('.')[1]
-          //     _ProTable.setFieldNull(field)
-          //     console.log('Clean details ...', field)
-          //   }
-          // }
         }
 
         that.handleChange({ target: { value: v } }, true)
@@ -2231,11 +2248,23 @@ class RbFormReference extends RbFormElement {
 
   // 字段回填
   triggerAutoFillin(value) {
+    setTimeout(() => this._triggerAutoFillin(value), 400)
+  }
+  _triggerAutoFillin(value) {
     if (this.props.onView) return
 
+    const id = value && typeof value === 'object' ? value.id : value
     const $$$form = this.props.$$$parent
-    const url = `/app/entity/extras/fillin-value?entity=${$$$form.props.entity}&field=${this.props.field}&source=${value}`
-    $.get(url, (res) => {
+    let formData = null
+    if (this.props.fillinWithFormData) {
+      formData = $$$form.getFormData()
+      if ($$$form._InlineForm && $$$form.props.$$$main) {
+        formData.$$$main = $$$form.props.$$$main.getFormData()
+      }
+    }
+
+    const url = `/app/entity/extras/fillin-value?entity=${$$$form.props.entity}&field=${this.props.field}&source=${id}`
+    $.post(url, JSON.stringify(formData), (res) => {
       if (res.error_code === 0 && res.data.length > 0) {
         const fillin2main = []
         const fillin2this = []
@@ -2951,9 +2980,11 @@ class RbFormTag extends RbFormElement {
   }
 
   renderElement() {
+    const _readonly40 = this.state.readonly
+
     const keyName = `${this.state.field}-tag-`
     return (
-      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" multiple defaultValue={this._selected}>
+      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" multiple defaultValue={this._selected} disabled={_readonly40}>
         {this._options.map((item) => {
           return (
             <option key={`${keyName}${item.name}`} value={item.name}>
@@ -3017,8 +3048,8 @@ class RbFormTag extends RbFormElement {
         that.handleChange({ target: { value: mVal.join('$$$$') } }, true)
       })
 
-      const _readonly37 = this.state.readonly
-      if (_readonly37) $(this._fieldValue).attr('disabled', true)
+      // const _readonly37 = this.state.readonly
+      // if (_readonly37) $(this._fieldValue).attr('disabled', true)
     }
   }
 
@@ -3048,6 +3079,16 @@ class RbFormUnsupportted extends RbFormElement {
     return <div className="form-control-plaintext text-danger">UNSUPPORTTED</div>
   }
 
+  renderViewElement() {
+    return this.renderElement()
+  }
+}
+
+// 无权限读取的字段
+class RbFormUnreadable extends RbFormElement {
+  renderElement() {
+    return <div className="form-control-plaintext text-muted">{$L('[无权限]')}</div>
+  }
   renderViewElement() {
     return this.renderElement()
   }
@@ -3156,6 +3197,10 @@ var detectElement = function (item, entity) {
   if (entity && window._CustomizedForms) {
     const c = window._CustomizedForms.useFormElement(entity, item)
     if (c) return c
+  }
+
+  if (item.unreadable === true) {
+    return <RbFormUnreadable {...item} />
   }
 
   if (item.type === 'TEXT' || item.type === 'SERIES') {

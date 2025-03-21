@@ -105,7 +105,8 @@ public class OnlineSessionStore implements HttpSessionListener {
     public void storeLastActive(ID user, HttpServletRequest request, String requestUri) {
         if (requestUri == null) requestUri = request.getRequestURI();
         if (requestUri.contains("/filex/access/")
-                || requestUri.contains("/notification/check-state")) {
+                || requestUri.contains("/notification/check-state")
+                || requestUri.contains("/redirect")) {
             return;
         }
 

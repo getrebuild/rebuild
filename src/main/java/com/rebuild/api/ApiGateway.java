@@ -202,27 +202,27 @@ public class ApiGateway extends Controller implements Initialization {
                 throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [timestamp] : " + timestamp);
             }
 
-            StringBuilder sign2 = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             for (Map.Entry<String, String> e : sortedMap.entrySet()) {
-                sign2.append(e.getKey())
+                sb.append(e.getKey())
                         .append('=')
                         .append(e.getValue())
                         .append('&');
             }
-            sign2.append(appid)
+            sb.append(appid)
                     .append('.')
                     .append(apiConfig.getString("appSecret"));
 
-            String sign2sign;
+            String signCheck;
             if ("MD5".equals(signType)) {
-                sign2sign = EncryptUtils.toMD5Hex(sign2.toString());
+                signCheck = EncryptUtils.toMD5Hex(sb.toString());
             } else if ("SHA1".equals(signType)) {
-                sign2sign = EncryptUtils.toSHA1Hex(sign2.toString());
+                signCheck = EncryptUtils.toSHA1Hex(sb.toString());
             } else {
                 throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [sign_type] : " + signType);
             }
 
-            if (!sign.equals(sign2sign)) {
+            if (!sign.equals(signCheck)) {
                 throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [sign] : " + sign);
             }
         }

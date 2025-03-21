@@ -30,14 +30,15 @@
         font-weight: normal;
         margin-top: 10px;
       }
-      .rb-welcome li > a {
+      .rb-welcome li > .item {
         display: block;
         border: 1px solid #eee;
         padding: 15px 20px;
         margin-bottom: 10px;
         border-radius: 2px;
+        cursor: pointer;
       }
-      .rb-welcome li > a:hover {
+      .rb-welcome li > .item:hover {
         border: 1px solid #4285f4;
         background-color: #e6eff8;
       }
@@ -69,6 +70,6 @@
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
-    <script th:src="@{/assets/js/admin/rbsystem-install.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/admin/setup-rbsystem.js}" type="text/babel"></script>
   </body>
 </html>

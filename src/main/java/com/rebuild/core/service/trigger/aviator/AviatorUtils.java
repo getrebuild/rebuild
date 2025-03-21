@@ -12,6 +12,7 @@ import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Options;
 import com.googlecode.aviator.exception.ExpressionSyntaxErrorException;
+import com.googlecode.aviator.exception.StandardError;
 import com.googlecode.aviator.lexer.token.OperatorType;
 import com.googlecode.aviator.runtime.function.FunctionUtils;
 import com.googlecode.aviator.runtime.function.system.AssertFunction;
@@ -73,6 +74,7 @@ public class AviatorUtils {
         addCustomFunction(new ChineseYuanFunction());
         addCustomFunction(new TextFunction());
         addCustomFunction(new IsNullFunction());
+        addCustomFunction(new ChineseDateFunction());
     }
 
     /**
@@ -109,7 +111,9 @@ public class AviatorUtils {
                 throw new AssertFailedException((AssertFunction.AssertFailed) ex);
             }
 
-            log.error("Bad aviator expression : \n>> {}\n>> {}\n>> {}", expression, env, ex.getLocalizedMessage());
+            if (!StandardError.class.getName().equals(ex.getClass().getName())) {
+                log.error("Bad aviator expression : \n>> {}\n>> {}\n>> {}", expression, env, ex.getLocalizedMessage());
+            }
             if (!quietly) throw ex;
         }
         return null;

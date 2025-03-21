@@ -70,8 +70,8 @@ class ConfigList extends React.Component {
     this.loadData()
 
     // 搜索
-    const $btn = $('.input-search .btn').on('click', () => this.loadData())
-    $('.input-search .form-control').keydown((e) => {
+    const $btn = $('.input-search button.btn').on('click', () => this.loadData())
+    $('.input-search input.form-control').keydown((e) => {
       if (e.which === 13) $btn.trigger('click')
     })
 
@@ -94,9 +94,8 @@ class ConfigList extends React.Component {
 
     entity = entity || this.__entity
     this.__entity = entity
-    const q = $('.input-search input').val()
 
-    $.get(`${this.requestUrl}?entity=${entity || ''}&q=${$encode(q)}`, (res) => {
+    $.get(`${this.requestUrl}?entity=${entity || ''}&q=${$encode(this.getSearchKey())}`, (res) => {
       if (res.error_code === 0) {
         const data = res.data || []
         if (this.renderEntityTree(data) !== false) {
@@ -107,6 +106,13 @@ class ConfigList extends React.Component {
             if (this.state.data.length === 0) $('.list-nodata').removeClass('hide')
             else $('.list-nodata').addClass('hide')
 
+            // 标签搜索
+            $('.data-list td.name>a span.badge').on('click', function (e) {
+              $stopEvent(e, true)
+              $('.input-search input.form-control').val('#' + $(this).text())
+              $('.input-search button.btn').trigger('click')
+            })
+
             this.loadDataAfter()
           })
         }
@@ -115,8 +121,10 @@ class ConfigList extends React.Component {
       }
     })
   }
-
   loadDataAfter() {}
+  getSearchKey() {
+    return $trim($('.input-search input').val())
+  }
 
   // 渲染实体树
   renderEntityTree(data) {
@@ -204,4 +212,57 @@ function ShowEnable(enable, cfgid) {
   } else {
     return enable ? <span className="badge badge-grey">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>
   }
+}
+
+$(document).ready(() => {
+  // v4.0 搜索
+  const $title = $('.page-aside .config-title')
+  $(`<a class="search-btn" title="${$L('搜索')}"><i class="zmdi zmdi-search"></i></a>`)
+    .appendTo($title)
+    .on('click', () => {
+      const $s = $(`<div class="search-input"><input type="text" placeholder="${$L('搜索')}" /></div>`).appendTo($title.empty())
+      const $input = $s.find('input').on('input', (e) => {
+        const q = $trim(e.target.value).toLowerCase()
+        $setTimeout(
+          () => {
+            $('.page-aside ul>li').each(function () {
+              var $item = $(this)
+              var name = ($item.data('entity') || '').toLowerCase()
+              var text = $item.text().toLowerCase()
+              if (!q || name.contains(q) || text.contains(q)) {
+                $item.removeClass('hide')
+              } else {
+                $item.addClass('hide')
+              }
+            })
+          },
+          200,
+          '$dropdownMenuSearch'
+        )
+      })
+      setTimeout(() => $input[0].focus(), 20)
+    })
+})
+
+const _RndColors = [...RBCOLORS, '#1abc9c', '#2ecc71', '#3498db', '#9b59b6', '#34495e', '#16a085', '#27ae60', '#2980b9', '#8e44ad', '#f1c40f', '#e67e22', '#f39c12', '#d35400', '#c0392b']
+function taggedTitle(title) {
+  let tags = title.match(/#[\w\u4e00-\u9fa5]+/g) || []
+  if (tags.length === 0) return title
+
+  tags = [...tags].sort((a, b) => a.length - b.length)
+  tags.forEach(function (tag) {
+    title = title.replace(tag, `<span class="badge badge-info badge-sm" style="background-color:${stringToColor(tag)}">${tag.substr(1)}</span>`)
+  })
+  return WrapHtml(title)
+}
+
+function stringToColor(str) {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    const ch = str.charCodeAt(i)
+    hash = (hash << 5) - hash + ch
+    hash |= 0
+  }
+  const index = Math.abs(hash) % _RndColors.length
+  return _RndColors[index] || _RndColors[0]
 }

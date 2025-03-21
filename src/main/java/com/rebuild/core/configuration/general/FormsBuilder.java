@@ -38,6 +38,7 @@ import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.general.DataListWrapper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
@@ -49,15 +50,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 表单构造
@@ -296,7 +289,8 @@ public class FormsBuilder extends FormsManager {
         // v3.7
         model.set("hadSop", true);
 
-        model.remove("id");  // Clean form's ID of config
+        model.set("layoutId", model.getID("id"));
+        model.remove("id");
         return model.toJSON();
     }
 
@@ -360,8 +354,6 @@ public class FormsBuilder extends FormsManager {
                 || EntityHelper.isUnsavedId(recordData.getPrimary());
 
         final FieldPrivileges fp = Application.getPrivilegesManager().getFieldPrivileges();
-        // 在共同编辑时，对于明细应该是编辑而非新建
-        final boolean isProTableLayout = FormsBuilderContextHolder.getMainIdOfDetail(false) != null;
 
         // Check and clean
         for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
@@ -392,45 +384,51 @@ public class FormsBuilder extends FormsManager {
             // v2.2 高级控制
             // v3.8.4 视图下也有效（单字段编辑也算编辑）
             if (useAdvControl) {
-                Object displayOnCreate = el.remove("displayOnCreate");
-                Object displayOnUpdate = el.remove("displayOnUpdate");
+                Object hiddenOnCreate = el.remove("hiddenOnCreate");
+                Object hiddenOnUpdate = el.remove("hiddenOnUpdate");
+                if (hiddenOnCreate == null) {
+                    Object displayOnCreate39 = el.remove("displayOnCreate");
+                    Object displayOnUpdate39 = el.remove("displayOnUpdate");
+                    if (displayOnCreate39 != null && !(Boolean) displayOnCreate39) hiddenOnCreate = true;
+                    if (displayOnUpdate39 != null && !(Boolean) displayOnUpdate39) hiddenOnUpdate = true;
+                }
                 final Object requiredOnCreate = el.remove("requiredOnCreate");
                 final Object requiredOnUpdate = el.remove("requiredOnUpdate");
                 final Object readonlyOnCreate = el.remove("readonlyOnCreate");
                 final Object readonlyOnUpdate = el.remove("readonlyOnUpdate");
                 // fix v3.3.4 跟随主记录新建/更新
-                boolean isNew2 = isNew;
+                boolean isNewState = isNew;
                 if (entity.getMainEntity() != null) {
                     ID fromMain = FormsBuilderContextHolder.getMainIdOfDetail(false);
-                    isNew2 = EntityHelper.isUnsavedId(fromMain);
+                    isNewState = EntityHelper.isUnsavedId(fromMain);
                 }
 
                 // 视图下忽略此选项
                 if (viewModel) {
-                    displayOnCreate = true;
-                    displayOnUpdate = true;
+                    hiddenOnCreate = false;
+                    hiddenOnUpdate = false;
                 }
-                // 显示
-                if (displayOnCreate != null && !(Boolean) displayOnCreate && isNew2) {
+                // 隐藏 v4.0
+                if (hiddenOnCreate != null && (Boolean) hiddenOnCreate && isNewState) {
                     iter.remove();
                     continue;
                 }
-                if (displayOnUpdate != null && !(Boolean) displayOnUpdate && !isNew2) {
+                if (hiddenOnUpdate != null && (Boolean) hiddenOnUpdate && !isNewState) {
                     iter.remove();
                     continue;
                 }
                 // 必填
-                if (requiredOnCreate != null && (Boolean) requiredOnCreate && isNew2) {
+                if (requiredOnCreate != null && (Boolean) requiredOnCreate && isNewState) {
                     el.put("nullable", false);
                 }
-                if (requiredOnUpdate != null && (Boolean) requiredOnUpdate && !isNew2) {
+                if (requiredOnUpdate != null && (Boolean) requiredOnUpdate && !isNewState) {
                     el.put("nullable", false);
                 }
                 // 只读 v3.6
-                if (readonlyOnCreate != null && (Boolean) readonlyOnCreate && isNew2) {
+                if (readonlyOnCreate != null && (Boolean) readonlyOnCreate && isNewState) {
                     el.put("readonly", true);
                 }
-                if (readonlyOnUpdate != null && (Boolean) readonlyOnUpdate && !isNew2) {
+                if (readonlyOnUpdate != null && (Boolean) readonlyOnUpdate && !isNewState) {
                     el.put("readonly", true);
                 }
             }
@@ -492,6 +490,10 @@ public class FormsBuilder extends FormsManager {
                     el.put(EasyFieldConfigProps.REFERENCE_QUICKNEW,
                             Application.getPrivilegesManager().allowCreate(user, refEntity.getEntityCode()));
                     el.put("referenceEntity", EasyMetaFactory.toJSON(refEntity));
+                }
+
+                if (dt == DisplayType.REFERENCE && License.isRbvAttached()) {
+                    el.put("fillinWithFormData", true);
                 }
             }
 
@@ -604,11 +606,16 @@ public class FormsBuilder extends FormsManager {
                 el.put("decimalType", decimalType.replace("%s", ""));
             }
 
-            // v3.8
-            if (isNew && !isProTableLayout) {
+            // v3.8 字段权限
+            if (isNew) {
                 if (!fp.isCreatable(fieldMeta, user)) el.put("readonly", true);
             } else {
-                if (!fp.isReadble(fieldMeta, user)) iter.remove();
+                // v4.0 保留占位
+                if (!fp.isReadable(fieldMeta, user)) {
+                    el.put("unreadable", true);
+                    el.put("readonly", true);
+                    el.remove("value");
+                }
                 else if (!fp.isUpdatable(fieldMeta, user)) el.put("readonly", true);
             }
         }

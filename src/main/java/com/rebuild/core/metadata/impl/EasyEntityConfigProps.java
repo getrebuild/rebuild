@@ -89,7 +89,15 @@ public class EasyEntityConfigProps {
      */
     public static final String ADVLIST_MODE3_SHOWFILTERS = "mode3ShowFilters";
     /**
+     * @see #ADVLIST_HIDE_CHARTS
+     */
+    public static final String ADVLIST_MODE3_SHOWCHARTS = "mode3ShowCharts";
+    /**
      * @see #ADVLIST_SHOWCATEGORY
      */
     public static final String ADVLIST_MODE3_SHOWCATEGORY = "mode3ShowCategory";
+    /**
+     * 列表侧栏显示样式
+     */
+    public static final String ADVLIST_ASIDE_SHOWS = "advListAsideShows";
 }

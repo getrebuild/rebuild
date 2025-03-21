@@ -13,6 +13,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /*! https://github.com/gabceb/jquery-browser-plugin */
 // prettier-ignore
 !(function(a){'function'===typeof define&&define.amd?define(['jquery'],function(b){return a(b)}):'object'===typeof module&&'object'===typeof module.exports?(module.exports=a(require('jquery'))):a(window.jQuery)})(function(a){function b(a){void 0===a&&(a=window.navigator.userAgent),(a=a.toLowerCase());var b=/(edge)\/([\w.]+)/.exec(a)||/(opr)[\/]([\w.]+)/.exec(a)||/(chrome)[ \/]([\w.]+)/.exec(a)||/(iemobile)[\/]([\w.]+)/.exec(a)||/(version)(applewebkit)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(a)||/(webkit)[ \/]([\w.]+).*(version)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(a)||/(webkit)[ \/]([\w.]+)/.exec(a)||/(opera)(?:.*version|)[ \/]([\w.]+)/.exec(a)||/(msie) ([\w.]+)/.exec(a)||(a.indexOf('trident')>=0&&/(rv)(?::| )([\w.]+)/.exec(a))||(a.indexOf('compatible')<0&&/(mozilla)(?:.*? rv:([\w.]+)|)/.exec(a))||[],c=/(ipad)/.exec(a)||/(ipod)/.exec(a)||/(windows phone)/.exec(a)||/(iphone)/.exec(a)||/(kindle)/.exec(a)||/(silk)/.exec(a)||/(android)/.exec(a)||/(win)/.exec(a)||/(mac)/.exec(a)||/(linux)/.exec(a)||/(cros)/.exec(a)||/(playbook)/.exec(a)||/(bb)/.exec(a)||/(blackberry)/.exec(a)||[],d={},e={browser:b[5]||b[3]||b[1]||'',version:b[2]||b[4]||'0',versionNumber:b[4]||b[2]||'0',platform:c[0]||'',};if((e.browser&&((d[e.browser]=!0),(d.version=e.version),(d.versionNumber=parseInt(e.versionNumber,10))),e.platform&&(d[e.platform]=!0),(d.android||d.bb||d.blackberry||d.ipad||d.iphone||d.ipod||d.kindle||d.playbook||d.silk||d['windows phone'])&&(d.mobile=!0),(d.cros||d.mac||d.linux||d.win)&&(d.desktop=!0),(d.chrome||d.opr||d.safari)&&(d.webkit=!0),d.rv||d.iemobile)){var f='msie';(e.browser=f),(d[f]=!0)}if(d.edge){delete d.edge;var g='msedge';(e.browser=g),(d[g]=!0)}if(d.safari&&d.blackberry){var h='blackberry';(e.browser=h),(d[h]=!0)}if(d.safari&&d.playbook){var i='playbook';(e.browser=i),(d[i]=!0)}if(d.bb){var j='blackberry';(e.browser=j),(d[j]=!0)}if(d.opr){var k='opera';(e.browser=k),(d[k]=!0)}if(d.safari&&d.android){var l='android';(e.browser=l),(d[l]=!0)}if(d.safari&&d.kindle){var m='kindle';(e.browser=m),(d[m]=!0)}if(d.safari&&d.silk){var n='silk';(e.browser=n),(d[n]=!0)}return(d.name=e.browser),(d.platform=e.platform),d}return((window.jQBrowser=b(window.navigator.userAgent)),(window.jQBrowser.uaMatch=b),a&&(a.browser=window.jQBrowser),window.jQBrowser)})
+// https://github.com/jeresig/jquery.hotkeys
+// prettier-ignore
+!function(e){function t(t){if('string'===typeof t.data){var s=t.handler,a=t.data.toLowerCase().split(' ');t.handler=function(t){if(this===t.target||!/textarea|select/i.test(t.target.nodeName)&&'text'!==t.target.type){var r='keypress'!==t.type&&e.hotkeys.specialKeys[t.which],f=String.fromCharCode(t.which).toLowerCase(),i='',h={};t.altKey&&'alt'!==r&&(i+='alt+'),t.ctrlKey&&'ctrl'!==r&&(i+='ctrl+'),t.metaKey&&!t.ctrlKey&&'meta'!==r&&(i+='meta+'),t.shiftKey&&'shift'!==r&&(i+='shift+'),r?h[i+r]=!0:(h[i+f]=!0,h[i+e.hotkeys.shiftNums[f]]=!0,'shift+'===i&&(h[e.hotkeys.shiftNums[f]]=!0));for(var o=0,c=a.length;o<c;o++)if(h[a[o]])return s.apply(this,arguments)}}}}e.hotkeys={version:'0.8',specialKeys:{8:'backspace',9:'tab',13:'return',16:'shift',17:'ctrl',18:'alt',19:'pause',20:'capslock',27:'esc',32:'space',33:'pageup',34:'pagedown',35:'end',36:'home',37:'left',38:'up',39:'right',40:'down',45:'insert',46:'del',96:'0',97:'1',98:'2',99:'3',100:'4',101:'5',102:'6',103:'7',104:'8',105:'9',106:'*',107:'+',109:'-',110:'.',111:'/',112:'f1',113:'f2',114:'f3',115:'f4',116:'f5',117:'f6',118:'f7',119:'f8',120:'f9',121:'f10',122:'f11',123:'f12',144:'numlock',145:'scroll',191:'/',224:'meta'},shiftNums:{'`':'~',1:'!',2:'@',3:'#',4:'$',5:'%',6:'^',7:'&',8:'*',9:'(',0:')','-':'_','=':'+',';':': ','\'':'"',',':'<','.':'>','/':'?','\\':'|'}},e.each(['keydown','keyup','keypress'],function(){e.event.special[this]={add:t}})}(jQuery)
 // select2.zh-CN
 // prettier-ignore
 !(function(){if(jQuery&&jQuery.fn&&jQuery.fn.select2&&jQuery.fn.select2.amd){var e=jQuery.fn.select2.amd}return(e.define('select2/i18n/zh_CN',[],function(){return{errorLoading:function(){return'无法加载结果'},inputTooLong:function(e){var t=e.input.length-e.maximum,n='请删除'+t+'个字符';return n},inputTooShort:function(e){var t=e.minimum-e.input.length,n='请再输入至少'+t+'个字符';n='输入关键词搜索';return n},loadingMore:function(){return'加载更多结果'},maximumSelected:function(e){var t='最多只能选择'+e.maximum+'项';return t},noResults:function(){return'未找到结果'},searching:function(){return'搜索中...'},removeAllItems:function(){return'清除'}}}),{define:e.define,require:e.require})})()
@@ -327,14 +330,23 @@ var $cleanArray = function (array, isunique) {
 /**
  * 清理数字中的符号
  */
-function $cleanNumber(n) {
+function $cleanNumber(n, forceNumber) {
   if (typeof n === 'number') return n
   var m = (n + '').match(/-?\d+(,\d+)*(.\d+)?/g)
   if (m && m[0]) {
     m = m[0].replace(/,/g, '') // 千分位
-    return m
+    return forceNumber ? parseFloat(m) : m
   }
   return NaN
+}
+
+/**
+ * 格式化数字
+ */
+function $formatNumber(n, scale) {
+  let [i, d] = n.toFixed(scale).split('.')
+  i = i.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return d ? `${i}.${d}` : i
 }
 
 /**
@@ -424,7 +436,7 @@ var $random = function (prefix, alphabetic, maxLength) {
     while (c.length < maxLength) {
       c += Math.random()
         .toString(36)
-        .replace(/[^a-z1-9]+/g, '')
+        .replace(/[^a-f1-9]+/g, '')
     }
     return c.substring(0, maxLength)
   } else {

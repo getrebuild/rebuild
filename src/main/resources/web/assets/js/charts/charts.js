@@ -45,7 +45,7 @@ class BaseChart extends React.Component {
             </a>
           )}
           <a className="dropdown-item J_export" onClick={() => this.export()}>
-            {$L('导出')} <sup className="rbv" />
+            {$L('导出')}
           </a>
         </div>
       </div>
@@ -136,11 +136,6 @@ class BaseChart extends React.Component {
   }
 
   export() {
-    if (rb.commercial < 1) {
-      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-      return
-    }
-
     if (this._echarts) {
       const base64 = this._echarts.getDataURL({
         type: 'png',
@@ -376,6 +371,16 @@ const ECHART_AXIS_LABEL = {
   },
 }
 
+const ECHART_MARK_LINE2 = function (showLabel = false) {
+  return {
+    data: [{ type: 'average', name: $L('均线') }],
+    symbol: 'none',
+    silent: true,
+    emphasis: { disabled: true },
+    label: { show: showLabel },
+  }
+}
+
 const ECHART_VALUE_LABEL2 = function (dataFlags = []) {
   return {
     show: true,
@@ -519,6 +524,7 @@ class ChartLine extends BaseChart {
       const showAreaColor = data._renderOption && data._renderOption.showAreaColor
       const dataFlags = data._renderOption.dataFlags || []
       const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
+      const showMarkLine = data._renderOption ? data._renderOption.showMarkLine : null
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
@@ -532,6 +538,7 @@ class ChartLine extends BaseChart {
         if (showAreaColor) yAxis.areaStyle = { opacity: 0.2 }
         if (showNumerical) yAxis.label = ECHART_VALUE_LABEL2(dataFlags)
         yAxis.cursor = 'default'
+        if (showMarkLine) yAxis.markLine = ECHART_MARK_LINE2(showNumerical)
         data.yyyAxis[i] = yAxis
       }
 
@@ -589,6 +596,7 @@ class ChartBar extends BaseChart {
       const showMutliYAxis = data._renderOption && data._renderOption.showMutliYAxis // v3.7
       const dataFlags = data._renderOption.dataFlags || [] // 小数符号
       const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
+      const showMarkLine = data._renderOption ? data._renderOption.showMarkLine : null
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
@@ -603,6 +611,7 @@ class ChartBar extends BaseChart {
           yAxis.smooth = true
           yAxis.lineStyle = { width: 3 }
         }
+        if (showMarkLine) yAxis.markLine = ECHART_MARK_LINE2(showNumerical)
         data.yyyAxis[i] = yAxis
       }
 
@@ -901,7 +910,10 @@ class ApprovalList extends BaseChart {
                       <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} alt="Avatar" />
                       <span>{item[1]}</span>
                       <span className="cell-detail-description">
-                        <DateShow date={item[2]} />
+                        <div className="float-left" style={{ marginTop: item[8] >= 2 ? 3 : 0 }}>
+                          <DateShow date={item[2]} />
+                        </div>
+                        {item[8] >= 2 && <span className="float-left badge badge-sm badge-danger ml-1">{$L('已超时 %s', $sec2Time(item[8]))}</span>}
                       </span>
                     </td>
                     <td className="cell-detail">
@@ -1015,7 +1027,7 @@ class FeedsSchedule extends BaseChart {
                 } else if ($expired(item.scheduleTime, -60 * 60 * 24 * 3)) {
                   scheduleTimeTip = <span className="badge badge-warning">{$fromNow(item.scheduleTime)}</span>
                 } else {
-                  scheduleTimeTip = <span className="badge badge-primary">{$fromNow(item.scheduleTime)}</span>
+                  scheduleTimeTip = <span className="badge badge-info">{$fromNow(item.scheduleTime)}</span>
                 }
 
                 return (
@@ -1276,7 +1288,7 @@ class ProjectTasks extends BaseChart {
                   } else if ($expired(item.deadline, -60 * 60 * 24 * 3)) {
                     deadlineClass = 'badge-warning'
                   } else {
-                    deadlineClass = 'badge-primary'
+                    deadlineClass = 'badge-info'
                   }
                 }
 
@@ -1367,6 +1379,23 @@ class DataList extends BaseChart {
       $op.find('.J_chart-edit').on('click', (e) => {
         $stopEvent(e, true)
         RbHighbar.create('[DEPRECATED] 该功能将在下一版本禁用')
+
+        // const config2 = this.state.config
+        // renderRbcomp(
+        //   // eslint-disable-next-line react/jsx-no-undef
+        //   <DataListSettings
+        //     chart={config2.chart}
+        //     {...config2.extconfig}
+        //     onConfirm={(s) => {
+        //       if (typeof window.save_dashboard === 'function') {
+        //         config2.extconfig = s
+        //         this.setState({ config: config2 }, () => this.loadChartData())
+        //       } else {
+        //         console.log('No `save_dashboard` found :', s)
+        //       }
+        //     }}
+        //   />
+        // )
       })
     }
   }
@@ -1390,9 +1419,7 @@ class DataList extends BaseChart {
       return
     }
 
-    const extconfig = this.state.config.extconfig
-    // extconfig && this.setState({ title: extconfig.title || $L('数据列表') })
-
+    const extconfig2 = this.state.config.extconfig
     const listFields = data.fields
     const listData = data.data
     const lastIndex = listFields.length
@@ -1404,8 +1431,8 @@ class DataList extends BaseChart {
             <tr ref={(c) => (this._$head = c)}>
               {listFields.map((item) => {
                 let sortClazz = null
-                if (extconfig && extconfig.sort) {
-                  const s = extconfig.sort.split(':')
+                if (extconfig2 && extconfig2.sort) {
+                  const s = extconfig2.sort.split(':')
                   if (s[0] === item.field && s[1] === 'asc') sortClazz = 'sort-asc'
                   if (s[0] === item.field && s[1] === 'desc') sortClazz = 'sort-desc'
                 }
@@ -1451,7 +1478,6 @@ class DataList extends BaseChart {
                     if (idx === lastIndex) return null // Last is ID
                     return this.renderCell(c, listFields[idx])
                   })}
-
                   <td className="open-newtab">
                     <a href={`${rb.baseUrl}/app/redirect?id=${lastCell.id}&type=newtab`} target="_blank" title={$L('打开')}>
                       <i className="zmdi zmdi-open-in-new icon" />
@@ -1608,6 +1634,140 @@ class ChartCNMap extends BaseChart {
   }
 }
 
+class HeadingText extends BaseChart {
+  constructor(props) {
+    super(props)
+    this.state.title = null
+  }
+
+  renderChart() {
+    const config2 = this.state.config.extconfig || {}
+    let style2 = { ...config2.style }
+    if (style2.fontSize) style2.fontSize = ~~style2.fontSize
+    // bg
+    style2.bgcolor = style2.bgcolor || 'transparent'
+    $(this._$box).parent().css({ backgroundColor: style2.bgcolor })
+    delete style2.bgcolor
+
+    const H = (
+      <div className="must-center">
+        <h1 className="m-0 text-ellipsis" style={style2}>
+          {this._flashContent(config2.title)}
+        </h1>
+      </div>
+    )
+    this.setState({ chartdata: H }, () => {
+      if (this.__timer) {
+        clearInterval(this.__timer)
+        this.__timer = null
+      }
+
+      if (config2.title && config2.title.includes('{NOW}')) {
+        this.__timer = setInterval(() => {
+          $(this._$box).find('h1').text(this._flashContent(config2.title))
+        }, 1000)
+      }
+    })
+  }
+
+  _flashContent(text) {
+    if (text) {
+      if (text.includes('{NOW}')) text = text.replace('{NOW}', moment().format('YYYY-MM-DD HH:mm:ss'))
+      if (text.includes('{USER}')) text = text.replace('{USER}', $('.rb-user-nav .user-name:eq(0)').text())
+      return text
+    }
+    return $L('标题文字')
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    // class
+    $(this._$box).parent().parent().addClass('HeadingText')
+    // action
+    const $op = $(this._$box).find('.chart-oper')
+    $op.find('.J_fullscreen, .J_source').remove()
+    $op.find('.J_chart-edit').on('click', (e) => {
+      $stopEvent(e, true)
+
+      const config2 = this.state.config.extconfig || {}
+      renderRbcomp(
+        // eslint-disable-next-line react/jsx-no-undef
+        <HeadingTextSettings
+          chart={this.props.id}
+          {...config2}
+          onConfirm={(s) => {
+            const c = { ...this.state.config }
+            c.extconfig = { ...config2, ...s }
+            if (typeof window.save_dashboard === 'function') {
+              this.setState({ config: c }, () => this.loadChartData())
+            } else {
+              console.log('No `save_dashboard` found :', s)
+            }
+          }}
+        />
+      )
+    })
+  }
+}
+
+class EmbedFrame extends BaseChart {
+  renderChart() {
+    const config2 = this.state.config.extconfig || {}
+    if (!config2.url) {
+      super.renderError(
+        <RF>
+          <span>{$L('当前图表无数据')}</span>
+          {this.props.isManageable && <div>{WrapHtml($L('请先 [编辑图表](###)'))}</div>}
+        </RF>,
+        () => {
+          $(this._$box)
+            .find('.chart-undata a')
+            .on('click', () => $(this._$box).find('.chart-oper .J_chart-edit').trigger('click'))
+        }
+      )
+      return
+    }
+
+    const F = (
+      <div className="iframe">
+        <iframe src={config2.url} frameBorder="0" width="100%" height="100%" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" />
+      </div>
+    )
+    this.setState({ chartdata: F }, () => {})
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    let config2 = this.state.config.extconfig || {}
+    // action
+    const $op = $(this._$box).find('.chart-oper')
+    $op.find('.J_source').attr('href', config2.url || 'about:blank')
+    $op.find('.J_chart-edit').on('click', (e) => {
+      $stopEvent(e, true)
+
+      config2 = this.state.config.extconfig || {}
+      renderRbcomp(
+        // eslint-disable-next-line react/jsx-no-undef
+        <EmbedFrameSettings
+          chart={this.props.id}
+          {...config2}
+          onConfirm={(s) => {
+            const c = { ...this.state.config }
+            c.extconfig = { ...config2, ...s }
+            if (typeof window.save_dashboard === 'function') {
+              this.setState({ config: c, title: s.title }, () => this.loadChartData())
+            } else {
+              console.log('No `save_dashboard` found :', s)
+            }
+          }}
+        />
+      )
+    })
+  }
+}
+
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
 const detectChart = function (cfg, id) {
@@ -1634,19 +1794,23 @@ const detectChart = function (cfg, id) {
   } else if (cfg.type === 'TREEMAP') {
     return <ChartTreemap {...props} />
   } else if (cfg.type === 'ApprovalList') {
-    return <ApprovalList {...props} builtin={true} />
+    return <ApprovalList {...props} builtin />
   } else if (cfg.type === 'FeedsSchedule') {
-    return <FeedsSchedule {...props} builtin={true} />
+    return <FeedsSchedule {...props} builtin />
   } else if (cfg.type === 'RADAR') {
     return <ChartRadar {...props} />
   } else if (cfg.type === 'SCATTER') {
     return <ChartScatter {...props} />
   } else if (cfg.type === 'ProjectTasks') {
-    return <ProjectTasks {...props} builtin={true} />
+    return <ProjectTasks {...props} builtin />
   } else if (cfg.type === 'DataList' || cfg.type === 'DATALIST2') {
     return <DataList {...props} builtin={false} />
   } else if (cfg.type === 'CNMAP') {
     return <ChartCNMap {...props} />
+  } else if (cfg.type === 'HeadingText') {
+    return <HeadingText {...props} builtin={false} />
+  } else if (cfg.type === 'EmbedFrame') {
+    return <EmbedFrame {...props} builtin={false} />
   } else {
     return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${cfg.type}]`}</h4>
   }

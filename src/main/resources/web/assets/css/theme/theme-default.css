@@ -1,0 +1,13 @@
+/*!
+Copyright (c) Ruifang Tech <http://ruifang-tech.com/> and/or its owners. All rights reserved.
+*/
+
+.theme-default,
+.theme-dark,
+.theme-red,
+.theme-green,
+.theme-blue,
+.theme-blue2,
+.theme-purple {
+  background-color: transparent;
+}

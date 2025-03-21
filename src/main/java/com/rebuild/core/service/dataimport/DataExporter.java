@@ -124,6 +124,7 @@ public class DataExporter extends SetUser {
                     .sheet("Sheet1")
                     .head(head4Excel)
                     .doWrite(datas);
+            this.count = datas.size();
             return file;
         }
 

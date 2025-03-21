@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support.general;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -16,6 +17,8 @@ import com.rebuild.core.configuration.general.AdvFilterManager;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
@@ -37,7 +40,7 @@ import java.util.Set;
  * 列表查询解析
  *
  * @author Zhao Fangfang
- * @since 1.0, 2018-6-20
+ * @since 1.0, 2019-6-20
  */
 public class QueryParser {
 
@@ -191,6 +194,20 @@ public class QueryParser {
         String protocolFilter = queryExpr.getString("protocolFilter");
         if (StringUtils.isNotBlank(protocolFilter)) {
             String where = new ProtocolFilterParser(protocolFilter).toSqlWhere();
+
+            // d 强制过滤明细切换支持
+            if (StringUtils.isNotBlank(where) && protocolFilter.startsWith("via:014-") && entity.getMainEntity() != null) {
+                ConfigBean filter = AdvFilterManager.instance.getAdvFilter(ID.valueOf(protocolFilter.split(":")[1]));
+                String filterEntity = ((JSONObject) filter.getJSON("filter")).getString("entity");
+                Entity filterEntityMeta = MetadataHelper.getEntity(filterEntity);
+                // 明细使用主实体的
+                Entity me = entity.getMainEntity();
+                if (filterEntityMeta.equals(me)) {
+                    Field dtmField = MetadataHelper.getDetailToMainField(entity);
+                    where = String.format("%s in (select %sId from %s where %s)", dtmField.getName(), me.getName(), me.getName(), where);
+                }
+            }
+
             if (StringUtils.isNotBlank(where)) {
                 if (CommonsUtils.DEVLOG) System.out.println("[dev] Parse protocolFilter : " + protocolFilter + " >> " + where);
                 wheres.add(where);
@@ -217,26 +234,29 @@ public class QueryParser {
             if (StringUtils.isNotBlank(where)) wheres.add(where);
         }
 
-        final String sqlWhere = wheres.isEmpty() ? "1=1" : StringUtils.join(wheres.iterator(), " and ");
-        fullSql.append(" where ").append(sqlWhere);
+        final String whereClause = wheres.isEmpty() ? "1=1" : StringUtils.join(wheres.iterator(), " and ");
+        fullSql.append(" where ").append(whereClause);
 
         // 排序
-
         String sortNode = queryExpr.getString("sort");
-        String sortSql = null;
-        if (StringUtils.isNotBlank(sortNode)) sortSql = parseSort(sortNode);
+        String sortClause = null;
+        if (StringUtils.isNotBlank(sortNode)) sortClause = parseSort(sortNode);
         // 默认排序
-        if (sortSql == null) {
+        if (sortClause == null) {
             if (entity.containsField(EntityHelper.ModifiedOn)) {
-                sortSql = EntityHelper.ModifiedOn + (":asc".equals(sortNode) ? " asc" : " desc");
+                sortClause = EntityHelper.ModifiedOn + (":asc".equals(sortNode) ? " asc" : " desc");
             } else if (entity.containsField(EntityHelper.CreatedOn)) {
-                sortSql = EntityHelper.CreatedOn + (":asc".equals(sortNode) ? " asc" : " desc");
+                sortClause = EntityHelper.CreatedOn + (":asc".equals(sortNode) ? " asc" : " desc");
             }
         }
-        if (StringUtils.isNotBlank(sortSql)) fullSql.append(" order by ").append(sortSql);
+        if (StringUtils.isNotBlank(sortClause)) {
+            fullSql.append(" order by ").append(sortClause);
+            // v3.9.1
+            if (!sortClause.contains(" autoId") && entity.containsField(EntityHelper.AutoId)) fullSql.append(", autoId");
+        }
 
         this.sql = fullSql.toString();
-        this.countSql = this.buildCountSql(pkName) + sqlWhere;
+        this.countSql = this.buildCountSql(pkName) + whereClause;
 
         int pageNo = NumberUtils.toInt(queryExpr.getString("pageNo"), 1);
         int pageSize = NumberUtils.toInt(queryExpr.getString("pageSize"), 40);
@@ -262,8 +282,15 @@ public class QueryParser {
         for (String s : sorts) {
             String[] split = s.split(":");
             if (StringUtils.isBlank(split[0])) return null;
+            Field sortField = MetadataHelper.getLastJoinField(entity, split[0]);
+            if (sortField == null) return null;
 
+            DisplayType dt = EasyMetaFactory.getDisplayType(sortField);
+            if (dt == DisplayType.REFERENCE || dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION) {
+                sb.append('&');
+            }
             sb.append(split[0]);
+
             if (split.length > 1) sb.append("desc".equalsIgnoreCase(split[1]) ? " desc" : " asc");
             sb.append(", ");
         }

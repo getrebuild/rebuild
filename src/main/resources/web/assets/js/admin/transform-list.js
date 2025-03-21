@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global dlgActionAfter, ShowEnable */
+/* global dlgActionAfter, ShowEnable taggedTitle */
 
 $(document).ready(function () {
   $('.J_add').on('click', () => renderRbcomp(<TransformEditor />))
@@ -21,10 +21,10 @@ class TransformList extends ConfigList {
     return (
       <React.Fragment>
         {(this.state.data || []).map((item) => {
-          const name = item[6] || `${item[2]} · ${item[4]}`
+          const name = taggedTitle(item[6]) || `${item[2]} · ${item[4]}`
           return (
             <tr key={item[0]}>
-              <td>
+              <td className="name">
                 <a href={`transform/${item[0]}`}>{name}</a>
               </td>
               <td>

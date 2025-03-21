@@ -87,7 +87,7 @@
                     <thead>
                       <tr>
                         <th>[[${bundle.L('字段')}]]</th>
-                        <th>[[${bundle.L('显示')}]]</th>
+                        <th>[[${bundle.L('隐藏')}]]</th>
                         <th>
                           <span class="d-inline-block">[[${bundle.L('必填')}]] <i class="zmdi zmdi-help zicon up-2" data-toggle="tooltip" th:title="${bundle.L('本选项仅针对表单有效')}"></i></span>
                         </th>
@@ -101,13 +101,14 @@
                         <td>TEMPLATE</td>
                         <td>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                            <input class="custom-control-input" type="checkbox" name="displayOnCreate" checked />
+                            <input class="custom-control-input" type="checkbox" name="hiddenOnCreate" />
                             <span class="custom-control-label">[[${bundle.L('新建时')}]]</span>
                           </label>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                            <input class="custom-control-input" type="checkbox" name="displayOnUpdate" checked />
+                            <input class="custom-control-input" type="checkbox" name="hiddenOnUpdate" />
                             <span class="custom-control-label">[[${bundle.L('编辑时')}]]</span>
                           </label>
+                          <a class="easy-control" data-type="hidden" th:title="${bundle.L('隐藏条件')}"><i class="icon mdi mdi-filter-check-outline"></i></a>
                         </td>
                         <td>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
@@ -118,6 +119,7 @@
                             <input class="custom-control-input" type="checkbox" name="requiredOnUpdate" />
                             <span class="custom-control-label">[[${bundle.L('编辑时')}]]</span>
                           </label>
+                          <a class="easy-control" data-type="required" th:title="${bundle.L('必填条件')}"><i class="icon mdi mdi-filter-check-outline"></i></a>
                         </td>
                         <td>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
@@ -128,6 +130,7 @@
                             <input class="custom-control-input" type="checkbox" name="readonlyOnUpdate" />
                             <span class="custom-control-label">[[${bundle.L('编辑时')}]]</span>
                           </label>
+                          <a class="easy-control" data-type="readonly" th:title="${bundle.L('只读条件')}"><i class="icon mdi mdi-filter-check-outline"></i></a>
                         </td>
                       </tr>
                     </tbody>
@@ -152,6 +155,7 @@
     </script>
     <script th:src="@{/assets/js/metadata/entity-switch.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/general/rb-advfilter.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/general/rb-easyfilter.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-type.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-new2.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/form-design.js}" type="text/babel"></script>

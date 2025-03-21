@@ -134,7 +134,11 @@ CellRenders.renderSimple = function (v, s, k) {
     v = RevTypes[v] || 'N'
   }
 
-  return CellRenders_renderSimple(v, s, k)
+  let c = CellRenders_renderSimple(v, s, k)
+  if (k.endsWith('.recordId')) {
+    c = React.cloneElement(c, { className: 'td-sm' })
+  }
+  return c
 }
 
 // ~~ 变更详情
@@ -230,6 +234,7 @@ function ContentsGroup({ contents }) {
     if (v === true) return $L('是')
     else if (v === false) return $L('否')
     else if (v === 0) return 0
+    else if ($regex.isId(v)) return _LabelOfIdGet(v)
     else if (v) return typeof v === 'object' ? v.join(', ') : v
     return <span className="text-muted">{$L('空')}</span>
   }
@@ -261,4 +266,19 @@ function ContentsGroup({ contents }) {
       )}
     </RF>
   )
+}
+
+// v4.0 文本值
+let _LabelOfId = {}
+function _LabelOfIdGet(id) {
+  if (!window.FrontJS) return id
+  if (_LabelOfId[id]) return _LabelOfId[id]
+
+  let label = window.FrontJS.getText(id)
+  if (label) {
+    _LabelOfId[id] = <span title={id}>{label}</span>
+  } else {
+    _LabelOfId[id] = id
+  }
+  return _LabelOfId[id]
 }

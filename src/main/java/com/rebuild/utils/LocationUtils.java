@@ -93,7 +93,7 @@ public class LocationUtils {
         }
 
         if (Application.isReady()) {
-            Application.getCommonsCache().putx(ckey, result, CommonsCache.TS_DAY * 90);
+            Application.getCommonsCache().putx(ckey, result, CommonsCache.TS_DAY * 180);
         }
         return result;
     }

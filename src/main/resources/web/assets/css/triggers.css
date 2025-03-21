@@ -593,6 +593,16 @@ textarea.formula-code + .fields-vars {
   max-width: 100% !important;
 }
 
+.send-notification .nav-tabs .nav-link span.text-danger {
+  display: none;
+  font-size: 12px;
+}
+
+.send-notification .nav-tabs .nav-link.active span.text-danger {
+  display: inline-block;
+  margin-left: 5px;
+}
+
 .create-task .user-selector,
 .create-task .form-control {
   max-width: 100% !important;
@@ -603,4 +613,20 @@ textarea.formula-code + .fields-vars {
   padding: 20px;
   border-radius: 3px;
   margin-top: 10px;
+}
+
+.timeline-item.exec::before {
+  border: 0 none;
+  background-color: #fff;
+  font-family: 'Material Design Icons', serif;
+  content: '\F1936';
+  color: #f7b904;
+  font-size: 20px;
+  margin-left: -2px;
+  margin-top: -2px;
+}
+
+.timeline-item:first-child::before {
+  background-color: #4285f4;
+  border: 1px solid #fff;
 }

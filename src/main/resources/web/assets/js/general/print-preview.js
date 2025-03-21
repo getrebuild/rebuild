@@ -137,6 +137,10 @@ class PreviewTable extends React.Component {
       )
     }
 
+    if (item && item.unreadable === true) {
+      return <span className="text-muted">{$L('[无权限]')}</span>
+    }
+
     if (!item || !item.value) return null
 
     if (item.type === 'FILE') {

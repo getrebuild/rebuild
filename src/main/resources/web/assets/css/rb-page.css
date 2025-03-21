@@ -225,12 +225,12 @@ code {
   color: #555;
   font-size: 12px !important;
   text-transform: uppercase;
-  line-height: 1.2 !important;
 }
 
 a.badge.text-id {
   color: #4285f4;
   cursor: pointer;
+  line-height: 1.2 !important;
 }
 
 a.badge.text-id:hover {
@@ -354,6 +354,11 @@ a.btn {
   cursor: default;
 }
 
+.btn .icon {
+  min-width: 12px;
+  transform: translateY(-1px);
+}
+
 .btn .icon.x14 {
   font-size: 1.431rem;
 }
@@ -424,6 +429,10 @@ a.btn {
 
 .alert-sm .close {
   padding: 0.95rem 0;
+}
+
+.alert-danger.alert-sm .icon {
+  border-top: 1px solid #ea4335;
 }
 
 .input-search,
@@ -1936,7 +1945,7 @@ th.column-fixed {
   padding: 9px 8px;
   font-size: 15px;
   position: absolute;
-  top: -1.5px;
+  top: 0;
   z-index: 1;
   display: none;
 }
@@ -1988,13 +1997,6 @@ th.column-fixed {
 .sortable-box-title {
   margin-top: 9px;
   position: relative;
-}
-
-.sortable-box-title > a {
-  position: absolute;
-  font-size: 1.231rem;
-  margin-top: -2px;
-  margin-left: 5px;
 }
 
 .sortable-swap {
@@ -2402,6 +2404,13 @@ th.column-fixed {
 
 .page-aside-tree {
   padding: 25px 18px;
+}
+
+.aside-2tree ul:empty::after {
+  content: 'LOADING';
+  color: #999;
+  display: block;
+  text-align: center;
 }
 
 .aside-2tree ul > ul {
@@ -3280,12 +3289,21 @@ a.user-show:not([href]) {
   margin-top: 2px;
 }
 
-.form.approval-form .rbform {
+.form.approval-form .aforms {
   background-color: #f5f5f5;
   border-radius: 2px;
   padding: 15px;
   background-color: rgba(230, 230, 230, 0.3);
   box-shadow: inset 0 0 10px rgba(230, 230, 230, 0.6);
+}
+
+.form.approval-form .aforms .aforms-detail > h5 {
+  font-size: 14px;
+  font-weight: bold;
+  background-color: #eceff1;
+  padding: 12px 15px;
+  margin: 10px 0;
+  border-radius: 2px;
 }
 
 .form.approval-form .approval-list {
@@ -3430,6 +3448,7 @@ a.user-show:not([href]) {
   margin-right: -60px;
   padding-top: 7px;
   padding-bottom: 7px;
+  max-height: 488px;
 }
 
 @media (max-width: 575.98px) {
@@ -4364,6 +4383,7 @@ h3.modal-title > .rbv {
 .editor-preview img {
   max-width: 100% !important;
   max-height: 100% !important;
+  cursor: zoom-in;
 }
 
 .mdedit-content th,
@@ -4929,7 +4949,8 @@ pre.unstyle {
 }
 
 .protable .table th,
-.protable .table thead td {
+.protable .table thead td,
+.protable .table tfoot td {
   background-color: #eceff1;
   font-weight: normal;
   border-bottom-width: 1px;
@@ -4958,7 +4979,8 @@ pre.unstyle {
   min-width: 38px;
 }
 
-.protable .table thead th {
+.protable .table thead th,
+.protable .table tfoot th {
   position: relative;
   padding-top: 9px;
   padding-bottom: 9px;
@@ -5179,15 +5201,15 @@ pre.unstyle {
 
 .rbcolors > a,
 .rbcolors input[type='color'] {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   display: inline-block;
   background-color: #ccc;
   border-radius: 50%;
   color: #fff;
   overflow: hidden;
   font-size: 1.3rem;
-  padding-top: 4px;
+  padding-top: 3px;
   text-align: center;
 }
 
@@ -5198,7 +5220,7 @@ pre.unstyle {
 
 .rbcolors > a + a,
 .rbcolors input[type='color'] {
-  margin-left: 6px;
+  margin-left: 5px;
 }
 
 .rbcolors input[type='color'] {
@@ -5404,6 +5426,10 @@ pre.unstyle {
 
 .liteform-wrap .form-text {
   margin-bottom: 0;
+}
+
+.liteform-wrap .footer > .alert {
+  width: 373px;
 }
 
 /* fix btn-space compact */
@@ -5900,4 +5926,78 @@ div.formula-code {
 .show-more-pill:hover {
   border-color: #0d5bdd;
   color: #0d5bdd;
+}
+
+.bootstrap-autocomplete.dropdown-menu {
+  width: 100%;
+  max-width: 100%;
+  padding: 1px 0;
+}
+
+.bootstrap-autocomplete.dropdown-menu .dropdown-item {
+  padding: 8px 10px;
+}
+
+.bootstrap-autocomplete.dropdown-menu .dropdown-item.active,
+.bootstrap-autocomplete.dropdown-menu .dropdown-item:hover {
+  color: #fff;
+  background-color: var(--rb-color);
+}
+
+.badge.badge-sm {
+  padding: 3px 5px;
+  line-height: 1;
+}
+
+.badge.badge-dark {
+  border: 0 none;
+}
+
+.modal-dialog-centered-unset .modal-dialog-centered {
+  display: block;
+}
+
+.rb-navless40 .rb-wrapper {
+  padding-top: 0;
+}
+
+.rb-navless40 .rb-wrapper > .navbar,
+.rb-navless40 .rb-wrapper > .rb-left-sidebar {
+  display: none;
+}
+
+.rb-navless40 .rb-wrapper > .rb-content {
+  margin: 0;
+}
+
+.rb-navless40 .rb-wrapper > .rb-content > .page-aside {
+  left: 0;
+  margin: 0;
+}
+
+.rbform .dialog-footer .fjs-dock,
+.rbform .detail-form-table .detail-form-action .fjs-dock,
+.dataTables_wrapper .dataTables_oper .fjs-dock {
+  display: inline-block;
+}
+
+.rbform .dialog-footer .fjs-dock:empty,
+.rbform .detail-form-table .detail-form-action .fjs-dock:empty,
+.dataTables_wrapper .dataTables_oper .fjs-dock:empty,
+.view-body .view-operating .fjs-dock:empty {
+  display: none;
+}
+
+.rbform .dialog-footer .fjs-dock > *,
+.rbform .detail-form-table .detail-form-action .fjs-dock > *,
+.dataTables_wrapper .dataTables_oper .fjs-dock > * {
+  margin-right: 10px;
+}
+
+.dataTables_wrapper .dataTables_oper .fjs-dock {
+  transform: translateY(-2.5px);
+}
+
+.dataTables_wrapper .dataTables_oper .fjs-dock > *:last-child {
+  margin-right: 5px;
 }

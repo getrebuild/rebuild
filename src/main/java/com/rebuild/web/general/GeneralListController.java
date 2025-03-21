@@ -24,7 +24,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.query.AdvFilterParser;
@@ -50,6 +49,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_ASIDE_SHOWS;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_FILTERPANE;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_FILTERTABS;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_HIDE_CHARTS;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_HIDE_FILTERS;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_MODE;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_MODE3_SHOWCATEGORY;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_MODE3_SHOWCHARTS;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_MODE3_SHOWFILTERS;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_SHOWCATEGORY;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ENABLE_RECORD_MERGER;
+
 /**
  * 数据列表
  *
@@ -71,8 +82,8 @@ public class GeneralListController extends EntityController {
         final Entity listEntity = MetadataHelper.getEntity(entity);
         final EasyEntity easyEntity = EasyMetaFactory.valueOf(listEntity);
 
-        int listMode = ObjectUtils.toInt(easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE), 1);
         int listModeForce = getIntParameter(request, "mode");
+        int listMode = ObjectUtils.toInt(easyEntity.getExtraAttr(ADVLIST_MODE), 1);
         if (listModeForce >= 1 && listModeForce <= 3) listMode = listModeForce;
         String listPage = listEntity.getMainEntity() != null ? "/general/detail-list" : "/general/record-list";
         if (listMode == 2) listPage = "/general/record-list2";  // Mode2
@@ -102,38 +113,33 @@ public class GeneralListController extends EntityController {
         JSON listConfig = null;
 
         if (listMode == 1) {
-            String def39 = getParameter(request, "def");
+            String def40 = getParameter(request, "def");
             ID useLayout = null;
-            if (def39 != null && def39.contains(":")) {
-                useLayout = ID.valueOf(def39.split(":")[1]);
+            if (def40 != null && def40.length() >= 20) {
+                String[] ff = def40.split(":");
+                if (ff[0].startsWith("013-")) useLayout = ID.valueOf(ff[0]);
+                if (ff.length > 1 && ff[1].startsWith("013-")) useLayout = ID.valueOf(ff[1]);
             }
             listConfig = DataListManager.instance.getListFields(entity, user, useLayout == null ? null : useLayout.toLiteral());
 
             // 侧栏
 
-            String advListShowCategory = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_SHOWCATEGORY);
-            String advListHideFilters = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_HIDE_FILTERS);
-            String advListHideCharts = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_HIDE_CHARTS);
-            mv.getModel().put(EasyEntityConfigProps.ADVLIST_SHOWCATEGORY, StringUtils.isNotBlank(advListShowCategory));
-            mv.getModel().put(EasyEntityConfigProps.ADVLIST_HIDE_FILTERS, advListHideFilters);
-            mv.getModel().put(EasyEntityConfigProps.ADVLIST_HIDE_CHARTS, advListHideCharts);
-
+            String advListHideFilters = easyEntity.getExtraAttr(ADVLIST_HIDE_FILTERS);
+            String advListHideCharts = easyEntity.getExtraAttr(ADVLIST_HIDE_CHARTS);
+            String advListShowCategory = easyEntity.getExtraAttr(ADVLIST_SHOWCATEGORY);
             mv.getModel().put("hideAside",
                     BooleanUtils.toBoolean(advListHideFilters) && BooleanUtils.toBoolean(advListHideCharts) && StringUtils.isBlank(advListShowCategory));
+            mv.getModel().put(ADVLIST_ASIDE_SHOWS, DataListManager.instance.getAdvListAsideShows(easyEntity, 1));
 
             // 查询面板
 
-            String advListFilterPane = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_FILTERPANE);
-            mv.getModel().put(EasyEntityConfigProps.ADVLIST_FILTERPANE, advListFilterPane);
+            String advListFilterPane = easyEntity.getExtraAttr(ADVLIST_FILTERPANE);
+            mv.getModel().put(ADVLIST_FILTERPANE, advListFilterPane);
 
             if (BooleanUtils.toBoolean(advListFilterPane)) {
                 JSONArray paneFields = new JSONArray();
                 for (String field : DataListManager.instance.getListFilterPaneFields(user, entity)) {
                     if (AdvFilterParser.VF_ACU.equals(field)) {
-//                        JSONObject vf = (JSONObject) EasyMetaFactory.valueOf(listEntity.getField(EntityHelper.ApprovalLastUser)).toJSON();
-//                        vf.put("name", AdvFilterParser.VF_ACU);
-//                        vf.put("label", Language.L("当前审批人"));
-//                        paneFields.add(vf);
                         log.warn("{} is deprecated", AdvFilterParser.VF_ACU);
                     } else {
                         paneFields.add(EasyMetaFactory.valueOf(listEntity.getField(field)).toJSON());
@@ -144,14 +150,14 @@ public class GeneralListController extends EntityController {
             }
 
             // v3.3 查询页签
-            String advListFilterTabs = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_FILTERTABS);
-            mv.getModel().put(EasyEntityConfigProps.ADVLIST_FILTERTABS, advListFilterTabs);
+            String advListFilterTabs = easyEntity.getExtraAttr(ADVLIST_FILTERTABS);
+            mv.getModel().put(ADVLIST_FILTERTABS, advListFilterTabs);
 
             // v3.6 记录合并
-            String enableRecordMerger = easyEntity.getExtraAttr(EasyEntityConfigProps.ENABLE_RECORD_MERGER);
+            String enableRecordMerger = easyEntity.getExtraAttr(ENABLE_RECORD_MERGER);
             if (BooleanUtils.toBoolean(enableRecordMerger)) {
                 if (Application.getPrivilegesManager().allow(user, ZeroEntry.AllowRecordMerge)) {
-                    mv.getModel().put(EasyEntityConfigProps.ENABLE_RECORD_MERGER, true);
+                    mv.getModel().put(ENABLE_RECORD_MERGER, true);
                 }
             }
 
@@ -166,12 +172,13 @@ public class GeneralListController extends EntityController {
             if (listEntity.getMainEntity() != null) mv.getModel().put("DataListType", "DetailList");
 
             // 侧栏
-            String mode3ShowCategory = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE3_SHOWCATEGORY);
-            String mode3ShowFilters = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE3_SHOWFILTERS);
-            mv.getModel().put(EasyEntityConfigProps.ADVLIST_MODE3_SHOWCATEGORY, StringUtils.isNotBlank(mode3ShowCategory));
-            mv.getModel().put(EasyEntityConfigProps.ADVLIST_MODE3_SHOWFILTERS, mode3ShowFilters);
+
+            String mode3ShowFilters = easyEntity.getExtraAttr(ADVLIST_MODE3_SHOWFILTERS);
+            String mode3ShowCharts = easyEntity.getExtraAttr(ADVLIST_MODE3_SHOWCHARTS);
+            String mode3ShowCategory = easyEntity.getExtraAttr(ADVLIST_MODE3_SHOWCATEGORY);
             mv.getModel().put("hideAside",
-                    !(BooleanUtils.toBoolean(mode3ShowFilters) || StringUtils.isNotBlank(mode3ShowCategory)));
+                    !(BooleanUtils.toBoolean(mode3ShowFilters) || BooleanUtils.toBoolean(mode3ShowCharts) || StringUtils.isNotBlank(mode3ShowCategory)));
+            mv.getModel().put(ADVLIST_ASIDE_SHOWS, DataListManager.instance.getAdvListAsideShows(easyEntity, 3));
         }
 
         // 列表配置

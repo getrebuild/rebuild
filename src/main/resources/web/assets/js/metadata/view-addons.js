@@ -31,7 +31,7 @@ $(document).ready(() => {
         $(`.unset-list li[data-key="${key}"]`).trigger('click')
       })
 
-      refreshConfigStar()
+      _refreshConfigStar()
 
       $('#relatedAutoExpand').attr('checked', res.data.config.autoExpand === true)
       $('#relatedAutoHide').attr('checked', res.data.config.autoHide === true)
@@ -68,7 +68,7 @@ $(document).ready(() => {
   $unhideDropdown($('.J_extoption'))
 })
 
-const refreshConfigStar = function () {
+const _refreshConfigStar = function () {
   $('.dd-list.J_config .dd-item').each(function () {
     const key = $(this).data('key')
     if (_configLabels[key] || _configFilters[key]) {
@@ -101,14 +101,14 @@ render_item_after = function ($item) {
           label={_configLabels[key]}
           onConfirm={(s) => {
             _configLabels[key] = s.label
-            refreshConfigStar()
+            _refreshConfigStar()
           }}
           filter={_configFilters[key]}
           filterShow={$urlp('type') === 'TAB' && !_NO_FILTERS.includes(entity)}
           filterEntity={entity}
           filterConfirm={(s) => {
             _configFilters[key] = s
-            refreshConfigStar()
+            _refreshConfigStar()
           }}
         />,
         null,

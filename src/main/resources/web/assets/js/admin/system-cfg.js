@@ -22,6 +22,15 @@ $(document).ready(() => {
     if (~~$d.attr('data-value') <= 0) $d.text($L('不启用'))
   })
 
+  // HomeURL
+  const checkHomeURL = $('td[data-id="HomeURL"]').attr('data-value')
+  if (checkHomeURL === 'https://getrebuild.com/') {
+    let m = $L('主页地址/域名设置有误，将导致相关功能不可用。建议立即 [修改](###)')
+    m = `<div class="alert alert-danger alert-icon alert-sm m-0 mt-1"><div class="icon"><span class="mdi mdi-message-alert-outline"></span></div><div class="message">${m}</div></div>`
+    m = $(m).appendTo('td[data-id="HomeURL"]')
+    m.find('.message>a').on('click', () => $('.J_edit').trigger('click'))
+  }
+
   // UC
   UCenter.query((res) => {
     const bindAccount = res.bindAccount
@@ -63,10 +72,7 @@ $(document).ready(() => {
       $mm.find('.note dd:eq(1)').text(_data.note || $L('无'))
       $mm.find('.note').show()
     } else {
-      $mm.find('.btn').on('click', () => {
-        if (rb.commercial < 1) return RbHighbar.error(WrapHtml($L('免费版不支持开启维护计划功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-        renderRbcomp(<DlgMM />)
-      })
+      $mm.find('.btn').on('click', () => renderRbcomp(<DlgMM />))
     }
   })
 
@@ -286,7 +292,7 @@ class DlgMM extends RbAlert {
 // ~~ App
 
 $(document).ready(() => {
-  if (rb.commercial < 1) {
+  if (rb.commercial < 10) {
     $('.td-MobileAppPath button').remove()
     return
   }

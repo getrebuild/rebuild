@@ -103,7 +103,7 @@ public class AdminVerfiyController extends BaseController {
         String command = ServletUtils.getRequestString(request);
         if (StringUtils.isBlank(command)) return RespBody.error();
 
-        String result = new AdminCli3(command).exec();
-        return RespBody.ok(result);
+        String res = new AdminCli4(command).exec();
+        return RespBody.ok(res);
     }
 }

@@ -180,9 +180,9 @@ $(document).ready(() => {
   })
   $('<input type="color" />')
     .appendTo($cs)
-    .on('change', (e) => {
+    .on('change', () => {
       $cs.find('>a .zmdi').remove()
-      render_preview(e.target.value)
+      render_preview()
     })
 
   // init
@@ -440,7 +440,7 @@ function render_option() {
 
 let render_preview_chart = null
 // 生成预览
-function render_preview(_color) {
+function render_preview() {
   const $filterLen = $('a.J_filter > span:eq(1)')
   if (dataFilter && (dataFilter.items || []).length > 0) {
     $filterLen.text(`(${dataFilter.items.length})`)
@@ -471,8 +471,6 @@ function render_preview(_color) {
           return
         }
       }
-
-      if (conf.option.useColor === '' && _color) conf.option.useColor = _color
 
       $('#chart-preview').empty()
       // eslint-disable-next-line no-undef
@@ -516,7 +514,7 @@ function build_config() {
   let color = $('.rbcolors >a>i')
   if (color[0]) color = color.parent().data('color') || ''
   else color = $('.rbcolors >input').val() || ''
-  option.useColor = color || ''
+  option.useColor = color === '#000000' ? null : color
   cfg.option = option
 
   // 排他

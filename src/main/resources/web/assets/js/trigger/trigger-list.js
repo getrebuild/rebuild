@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global dlgActionAfter ShowEnable */
+/* global dlgActionAfter ShowEnable taggedTitle */
 
 $(document).ready(function () {
   $('.J_add').on('click', () => renderRbcomp(<TriggerEdit />))
@@ -32,30 +32,31 @@ const RBV_TRIGGERS = {
 }
 
 const WHENS = {
-  1: $L('新建'),
-  4: $L('更新'),
-  2: $L('删除'),
-  16: $L('分配'),
-  32: $L('共享'),
-  64: $L('取消共享'),
-  128: $L('审批通过'),
-  256: $L('审批撤销'),
-  1024: $L('审批提交时'),
-  2048: $L('审批驳回/撤回时'),
-  512: `(${$L('定期执行')})`,
+  'W1': $L('新建'),
+  'W4': $L('更新'),
+  'W2': $L('删除'),
+  'W16': $L('分配'),
+  'W32': $L('共享'),
+  'W64': $L('取消共享'),
+  'W128': $L('审批通过'),
+  'W256': $L('审批撤销'),
+  'W1024': $L('审批提交时'),
+  'W2048': $L('审批驳回/撤回时'),
+  'W512': `(${$L('定期执行')})`,
 }
 
 const formatWhen = function (maskVal) {
   const ss = []
   let timed
   for (let k in WHENS) {
-    if ((maskVal & k) !== 0) {
-      if (k === 512) timed = true
+    let k2 = ~~k.substring(1)
+    if ((maskVal & k2) !== 0) {
+      if (k2 === 512) timed = true
       else ss.push(WHENS[k])
     }
   }
 
-  if (timed) ss.join(WHENS[512])
+  if (timed) ss.join(WHENS['W512'])
   return ss.join('/')
 }
 
@@ -66,9 +67,24 @@ class TriggerList extends ConfigList {
   }
 
   render() {
+    const q = this.getSearchKey(true)
     return (
       <RF>
         {(this.state.data || []).map((item) => {
+          // v4.0 渲染时过滤
+          if (q) {
+            if (q.startsWith('#')) {
+              let name = item[3] || ''
+              if (name.includes(q + ' ') || name.endsWith(q));
+              else return null
+            } else {
+              let names = [item[3], item[2], item[7]]
+              if (item[9] && item[9][1]) names.push(item[9][1])
+              names = names.join(';').toLowerCase()
+              if (!names.includes(q.toLowerCase())) return null
+            }
+          }
+
           let targetRef = item[9]
           // [ID, NAME]
           if (targetRef) {
@@ -103,8 +119,8 @@ class TriggerList extends ConfigList {
 
           return (
             <tr key={item[0]}>
-              <td>
-                <a href={`trigger/${item[0]}`}>{item[3] || item[2] + ' · ' + item[7]}</a>
+              <td className="name">
+                <a href={`trigger/${item[0]}`}>{taggedTitle(item[3]) || item[2] + ' · ' + item[7]}</a>
               </td>
               <td>
                 <a href={`${rb.baseUrl}/admin/entity/${item[1]}/base`} className="light-link" target={`_${item[1]}`}>
@@ -121,7 +137,7 @@ class TriggerList extends ConfigList {
               </td>
               <td>{ShowEnable(item[4], item[0])}</td>
               <td>
-                <DateShow date={item[5]} />
+                <DateShow date={item[5]} title={`${$L('修改时间')} : ${item[5].split('UTC')[0]}\n${$L('添加时间')} : ${item[10]}`} />
               </td>
               <td className="actions">
                 <a className="icon" title={$L('触发过程')} onClick={() => this.handleShowChain(item[0])}>
@@ -139,6 +155,12 @@ class TriggerList extends ConfigList {
         })}
       </RF>
     )
+  }
+
+  getSearchKey(real) {
+    if (real) return super.getSearchKey()
+    // v4.0 渲染时过滤
+    return ''
   }
 
   handleEdit(item) {
