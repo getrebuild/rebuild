@@ -50,15 +50,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 表单构造
@@ -618,7 +610,7 @@ public class FormsBuilder extends FormsManager {
             if (isNew) {
                 if (!fp.isCreatable(fieldMeta, user)) el.put("readonly", true);
             } else {
-                // v40 保留占位
+                // v4.0 保留占位
                 if (!fp.isReadable(fieldMeta, user)) {
                     el.put("unreadable", true);
                     el.put("readonly", true);

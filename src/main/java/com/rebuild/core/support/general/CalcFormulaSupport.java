@@ -124,7 +124,7 @@ public class CalcFormulaSupport {
                 continue;
             }
 
-            // v40 支持点连接字段
+            // v4.0 支持点连接字段
             Field field = MetadataHelper.getLastJoinField(entity, fieldName);
             if (field == null) {
                 calcReady = false;

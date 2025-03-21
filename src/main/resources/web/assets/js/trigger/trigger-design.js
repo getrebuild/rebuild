@@ -44,7 +44,7 @@ $(document).ready(() => {
   function _buildWhenTimer() {
     let wt = $('.J_whenTimer1').val() || 'D'
     if (wt === 'cron') return wt + ':' + ($('.J_whenTimer9').val() || '0 0 * * * ?')
-    return wt + `:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}:${$('.J_whenTimer4').val() || ''}`
+    return wt + `:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}`
   }
 
   if (wpc.when > 0) {
@@ -65,8 +65,6 @@ $(document).ready(() => {
             // v2.9
             if (wt[2]) $('.J_startHour1').val(wt[2])
             if (wt[3]) $('.J_startHour2').val(wt[3])
-            // v3.8
-            if (wt[4]) $('.J_whenTimer4').val(wt[4]).parents('.bosskey-show').removeClass('bosskey-show')
           }
           $('.J_whenTimer1').trigger('change')
         }

@@ -25,6 +25,8 @@ import java.util.Date;
 @Slf4j
 public class RbvFunction {
 
+    protected RbvFunction() {}
+
     public static RbvFunction call() {
         return Application.getBean(RbvFunction.class);
     }

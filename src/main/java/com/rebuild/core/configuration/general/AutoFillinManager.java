@@ -36,15 +36,7 @@ import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 表单自动回填。
@@ -167,7 +159,7 @@ public class AutoFillinManager implements ConfigManager {
                 targetFieldMeta = targetEntity.getField(targetField);
             }
 
-            // v40 使用公式回填
+            // v4.0 使用公式回填
             String sourceFieldFormula40 = e.getString("sourceFieldFormula");
             if (StringUtils.isNotBlank(sourceFieldFormula40)) {
                 Map<String, Object> varsInFormula = new HashMap<>();

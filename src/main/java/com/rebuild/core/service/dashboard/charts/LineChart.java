@@ -17,14 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 曲线图
@@ -141,7 +134,7 @@ public class LineChart extends ChartData {
 
                 dataRaw = mergeAxisEntry2Data(axisValues, indexAndSize, useComparison);
             } else {
-                dataRaw = createQuery(buildSql(dim1, nums, false)).array();
+                dataRaw = createQuery(buildSql(dim1, nums, true)).array();
                 // 连续日期
                 if (dateContinuous && dataRaw.length > 0) {
                     dataRaw = putContinuousDate2Data(dataRaw, dim1, 1);
