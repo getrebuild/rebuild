@@ -801,7 +801,7 @@ const RbListCommon = {
     } else {
       // d 强制过滤
       let def40 = $urlp('def')
-      if (def40) {
+      if (def40 && def40.length >= 20) {
         $('.main-content .nav-tabs a[href]').each(function () {
           const $this = $(this)
           $this.attr('href', `${$this.attr('href')}?def=${def40}`)
@@ -809,11 +809,11 @@ const RbListCommon = {
 
         def40 = def40.split(':') // FILTER:LAYOUT
         if (def40[0]) {
-          if (def40[0].substr(4) === '014-') wpc.protocolFilter = `via:${def40[0]}`
+          if (def40[0].startsWith('014-')) wpc.protocolFilter = `via:${def40[0]}`
           else console.log('Use listConfig :', def40[0])
         }
         if (def40[1]) {
-          if (def40[1].substr(4) === '014-') wpc.protocolFilter = `via:${def40[1]}`
+          if (def40[1].startsWith('014-')) wpc.protocolFilter = `via:${def40[1]}`
           else console.log('Use listConfig :', def40[1])
         }
       }
