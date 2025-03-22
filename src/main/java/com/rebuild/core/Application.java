@@ -78,7 +78,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 4000001;
+    public static final int BUILD = 4000002;
 
     static {
         // Driver for DB

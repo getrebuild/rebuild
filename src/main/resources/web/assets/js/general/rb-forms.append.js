@@ -721,8 +721,9 @@ class LiteForm extends RbForm {
     // TODO init...
   }
 
-  buildFormData() {
-    const s = {}
+  buildFormData(retAll) {
+    debugger
+    const s = retAll ? this.getFormData() : {}
     const data = this.__FormData || {}
     for (let k in data) {
       const error = data[k].error
@@ -738,6 +739,11 @@ class LiteForm extends RbForm {
 }
 
 class LiteFormModal extends RbModalHandler {
+  constructor(props) {
+    super(props)
+    this._ids = this.props.ids || []
+  }
+
   render() {
     const props = this.props
     const entity = props.entityMeta
@@ -758,7 +764,7 @@ class LiteFormModal extends RbModalHandler {
           </LiteForm>
 
           <div className="footer" ref={(c) => (this._$formAction = c)}>
-            {this.props.ids && this.props.ids.length > 1 && <RbAlertBox message={$L('本次保存将修改 **%d** 条记录', this.props.ids.length)} type="info" className="mt-0 mb-2" />}
+            {this._ids.length > 1 && <RbAlertBox message={WrapHtml($L('本次保存将修改 **%d** 条记录', this.props.ids.length))} type="info" className="mt-0 mb-2" />}
 
             <button className="btn btn-primary" type="button" onClick={() => this._handleSave()}>
               {$L('保存')}
@@ -773,7 +779,7 @@ class LiteFormModal extends RbModalHandler {
   }
 
   _handleSave(weakMode) {
-    const data = this._LiteForm.buildFormData()
+    const data = this._LiteForm.buildFormData(this._ids.length > 1)
     if (data === false) return
 
     const props = this.props
@@ -792,7 +798,7 @@ class LiteFormModal extends RbModalHandler {
 
     this.disabled(true)
     let url = `/app/entity/liteform/record-save?weakMode=${weakMode || 0}`
-    if (this.props.ids && this.props.ids.length > 1) url += '&ids=' + this.props.ids.join(',')
+    if (this._ids.length > 1) url += '&ids=' + this.props.ids.join(',')
     $.post(url, JSON.stringify(data2), (res) => {
       this.disabled()
       if (res.error_code === 0) {
@@ -966,11 +972,13 @@ const EasyFilterEval = {
     // LiteForm or Others
     if (!formObject.props.rawModel.layoutId) return
 
-    if (this.__timer) {
-      clearTimeout(this.__timer)
-      this.__timer = null
+    const key = formObject.props.rawModel.layoutId + (formObject.props.id || '')
+    this.__timers = this.__timers || {}
+    if (this.__timers[key]) {
+      clearTimeout(this.__timers[key])
+      this.__timers[key] = null
     }
-    this.__timer = setTimeout(() => this._evalAndEffect(formObject), 200)
+    this.__timers[key] = setTimeout(() => this._evalAndEffect(formObject), 200)
   },
 
   _evalAndEffect: function (formObject) {

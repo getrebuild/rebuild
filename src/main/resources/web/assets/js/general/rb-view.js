@@ -86,6 +86,12 @@ class RbViewForm extends React.Component {
       this.setState({ formComponent: VFORM }, () => {
         // v3.9 默认收起
         _dividerRefs.forEach((d) => d._toggle())
+        // v4.0 title
+        if (res.data.recordName) {
+          const $title = $('.view-header>h3.title')
+          // $title.text(`${$title.attr('title')} : ${res.data.recordName}`)
+          $title.text(res.data.recordName)
+        }
 
         this.hideLoading()
         if (window.FrontJS) {

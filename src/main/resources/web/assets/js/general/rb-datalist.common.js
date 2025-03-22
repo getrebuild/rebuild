@@ -801,7 +801,7 @@ const RbListCommon = {
     } else {
       // d 强制过滤
       let def40 = $urlp('def')
-      if (def40) {
+      if (def40 && def40.length >= 20) {
         $('.main-content .nav-tabs a[href]').each(function () {
           const $this = $(this)
           $this.attr('href', `${$this.attr('href')}?def=${def40}`)
@@ -809,11 +809,11 @@ const RbListCommon = {
 
         def40 = def40.split(':') // FILTER:LAYOUT
         if (def40[0]) {
-          if (def40[0].substr(4) === '014-') wpc.protocolFilter = `via:${def40[0]}`
+          if (def40[0].startsWith('014-')) wpc.protocolFilter = `via:${def40[0]}`
           else console.log('Use listConfig :', def40[0])
         }
         if (def40[1]) {
-          if (def40[1].substr(4) === '014-') wpc.protocolFilter = `via:${def40[1]}`
+          if (def40[1].startsWith('014-')) wpc.protocolFilter = `via:${def40[1]}`
           else console.log('Use listConfig :', def40[1])
         }
       }
@@ -1004,7 +1004,7 @@ class RbList extends React.Component {
                                 <button
                                   key={idx}
                                   type="button"
-                                  className={`btn btn-sm btn-link w-auto ${btn._eaid && 'disabled'}`}
+                                  className={`btn btn-sm btn-link w-auto ${btn._eaid && 'disabled'} ${btn.title && 'bs-tooltip'}`}
                                   title={btn.title || null}
                                   data-eaid={btn._eaid || null}
                                   onClick={(e) => {
@@ -2260,8 +2260,12 @@ const EasyAction4List = {
             _EasyAction.checkShowFilter(_eaDatarow, id, (res) => {
               $row.find('.col-action button[data-eaid]').each((i, b) => {
                 const $this = $(b)
-                if (res[$this.data('eaid')]) $this.removeClass('disabled')
-                else $this.addClass('hide')
+                if (res[$this.data('eaid')]) {
+                  $this.removeClass('disabled')
+                  if ($this.hasClass('bs-tooltip')) $this.tooltip({})
+                } else {
+                  $this.addClass('hide')
+                }
               })
             })
           })

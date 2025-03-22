@@ -76,7 +76,7 @@ public class GeneralListController extends EntityController {
     public ModelAndView pageList(@PathVariable String entity, HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         final ID user = getRequestUser(request);
-        int status = getCanAccessStatus(entity, user, response);
+        int status = getAccessibleStatus(entity, user, response);
         if (status > 0) return null;
 
         final Entity listEntity = MetadataHelper.getEntity(entity);

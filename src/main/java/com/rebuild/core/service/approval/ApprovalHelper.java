@@ -7,15 +7,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.approval;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.NoRecordFoundException;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.RobotTriggerManager;
 import com.rebuild.core.service.trigger.TriggerAction;
@@ -26,6 +30,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -203,5 +209,70 @@ public class ApprovalHelper {
             if (t.getType() == specType) specTriggers.add(t);
         }
         return specTriggers.toArray(new TriggerAction[0]);
+    }
+
+    /**
+     * 获取超时配置
+     *
+     * @param approvalId
+     * @param node
+     * @return
+     * @see FlowNode#getExpiresAuto()
+     */
+    public static JSONObject getExpiresAuto(ID approvalId, String node) {
+        try {
+            FlowNode fn = RobotApprovalManager.instance.getFlowDefinition(approvalId)
+                    .createFlowParser().getNode(node);
+            return fn == null ? null : fn.getExpiresAuto();
+        } catch (ConfigurationException | ApprovalException ignored) {}
+        return null;
+    }
+
+    /**
+     * 获取审批超时时间
+     *
+     * @param createdOn
+     * @param eaConf
+     * @param recordId
+     * @return
+     * @see #getExpiresAuto(ID, String)
+     */
+    public static Date getExpiresTime(Date createdOn, JSONObject eaConf, ID recordId) {
+        final int expiresAuto = eaConf == null ? 0 : eaConf.getIntValue("expiresAuto");
+
+        if (expiresAuto == 1) {
+            int auto1Value = Math.max(eaConf.getIntValue("expiresAuto1Value"), 1);
+            String auto1Type = eaConf.getString("expiresAuto1ValueType");
+            // I,H,D
+            return CalendarUtils.add(createdOn, auto1Value,
+                    "I".equals(auto1Type) ? Calendar.MINUTE : "H".equals(auto1Type) ? Calendar.HOUR_OF_DAY : Calendar.DAY_OF_MONTH);
+        }
+        else if (expiresAuto == 2) {
+            String auto2Value = eaConf.getString("expiresAuto2Value");
+            Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+            if (!entity.containsField(auto2Value)) {
+                log.warn("Invalid field : {} in {}", auto2Value, entity.getName());
+                return null;
+            }
+
+            return (Date) QueryHelper.queryFieldValue(recordId, auto2Value);
+        }
+        // 未启用
+        return null;
+    }
+
+    /**
+     * 获取审批超时时间
+     *
+     * @param createdOn
+     * @param eaConf
+     * @param recordId
+     * @return
+     * @see #getExpiresAuto(ID, String)
+     */
+    public static long getExpiresTimeLeft(Date createdOn, JSONObject eaConf, ID recordId) {
+        Date exp = getExpiresTime(createdOn, eaConf, recordId);
+        if (exp == null) return 0;
+        return (CalendarUtils.now().getTime() - exp.getTime()) / 1000;
     }
 }
