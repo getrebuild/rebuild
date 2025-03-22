@@ -341,8 +341,21 @@ class RbForm extends React.Component {
 
   _renderDetailForms(detailMeta, detailImports, transDetails39) {
     let _ProTable
+    const dProps = {
+      entity: detailMeta,
+      mainid: this.state.id,
+      ref: (c) => {
+        _ProTable = c // ref
+        this._ProTables[detailMeta.entity] = c
+        this._ProTable = c // comp:v3.8
+      },
+      $$$main: this,
+      transDetails: transDetails39 ? transDetails39[detailMeta.entity] : null,
+      transDetailsDelete: transDetails39 ? transDetails39[detailMeta.entity + '$DELETED'] : null,
+    }
+
     if (window._CustomizedForms) {
-      _ProTable = window._CustomizedForms.useProTable(detailMeta.entity, this)
+      _ProTable = window._CustomizedForms.useProTable(dProps)
       if (_ProTable === false) return null // 不显示
     }
 
@@ -441,18 +454,7 @@ class RbForm extends React.Component {
     }
 
     if (!_ProTable) {
-      _ProTable = ProTable.create({
-        entity: detailMeta,
-        mainid: this.state.id,
-        ref: (c) => {
-          _ProTable = c // ref
-          this._ProTables[detailMeta.entity] = c
-          this._ProTable = c // comp:v3.8
-        },
-        $$$main: this,
-        transDetails: transDetails39 ? transDetails39[detailMeta.entity] : null,
-        transDetailsDelete: transDetails39 ? transDetails39[detailMeta.entity + '$DELETED'] : null,
-      })
+      _ProTable = ProTable.create(dProps)
     } else {
       this._ProTable = _ProTable // comp:v3.8
     }
