@@ -1004,7 +1004,7 @@ class RbList extends React.Component {
                                 <button
                                   key={idx}
                                   type="button"
-                                  className={`btn btn-sm btn-link w-auto ${btn._eaid && 'disabled'}`}
+                                  className={`btn btn-sm btn-link w-auto ${btn._eaid && 'disabled'} ${btn.title && 'bs-tooltip'}`}
                                   title={btn.title || null}
                                   data-eaid={btn._eaid || null}
                                   onClick={(e) => {
@@ -2260,8 +2260,12 @@ const EasyAction4List = {
             _EasyAction.checkShowFilter(_eaDatarow, id, (res) => {
               $row.find('.col-action button[data-eaid]').each((i, b) => {
                 const $this = $(b)
-                if (res[$this.data('eaid')]) $this.removeClass('disabled')
-                else $this.addClass('hide')
+                if (res[$this.data('eaid')]) {
+                  $this.removeClass('disabled')
+                  if ($this.hasClass('bs-tooltip')) $this.tooltip({})
+                } else {
+                  $this.addClass('hide')
+                }
               })
             })
           })
