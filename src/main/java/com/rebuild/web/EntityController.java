@@ -151,28 +151,30 @@ public abstract class EntityController extends BaseController {
      * @param user
      * @param sendError
      * @return
+     * @throws IOException
      */
-    protected int getCanAccessStatus(String entity, ID user, HttpServletResponse sendError) throws IOException {
-        int status = 0;
-        if (!MetadataHelper.containsEntity(entity)) status = 404;
+    protected int getAccessibleStatus(String entity, ID user, HttpServletResponse sendError) throws IOException {
+        int s = 0;
+        if (!MetadataHelper.containsEntity(entity)) s = 404;
 
         final Entity checkEntity = MetadataHelper.getEntity(entity);
-        if (status == 0) {
-            if (checkEntity.getEntityCode() < 100) {
-                status = MetadataHelper.isBizzEntity(checkEntity)
-                        || checkEntity.getEntityCode() == EntityHelper.RobotApprovalConfig ? 0 : 404;
+        final int ec = checkEntity.getEntityCode();
+        if (s == 0) {
+            if (ec < 100) {
+                s = MetadataHelper.isBizzEntity(checkEntity)
+                        || ec == EntityHelper.RobotApprovalConfig || ec == EntityHelper.ApprovalStatus ? 0 : 404;
             }
         }
 
-        if (status == 0) {
-            if (!Application.getPrivilegesManager().allowRead(user, checkEntity.getEntityCode())) status = 403;
+        if (s == 0) {
+            if (!Application.getPrivilegesManager().allowRead(user, ec)) s = 403;
         }
 
-        if (sendError != null && status > 0) {
-            String statusText = status == 403 ? Language.L("你没有访问此页面的权限") : null;
-            sendError.sendError(status, statusText);
+        if (sendError != null && s > 0) {
+            String statusText = s == 403 ? Language.L("你没有访问此页面的权限") : null;
+            sendError.sendError(s, statusText);
         }
-        return status;
+        return s;
     }
 
     /**

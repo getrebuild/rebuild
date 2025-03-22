@@ -8,13 +8,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support;
 
 import cn.devezhao.persist4j.engine.ID;
-import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.stereotype.Component;
-
-import java.util.Date;
 
 /**
  * @author devezhao
@@ -32,11 +29,6 @@ public class RbvFunction {
     }
 
     // --
-
-    public long getExpiredTime(Date createdOn, JSONObject eaConf, ID recordId) {
-        log.warn("No RbvFunction : getExpiredTime");
-        return 0;
-    }
 
     public void setWeakMode(ID id) {
         log.warn("No RbvFunction : setWeakMode");

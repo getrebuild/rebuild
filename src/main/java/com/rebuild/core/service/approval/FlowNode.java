@@ -18,7 +18,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
-import com.rebuild.core.support.RbvFunction;
 import com.rebuild.utils.JSONUtils;
 import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
@@ -337,17 +336,16 @@ public class FlowNode {
         int reqType = getDataMap().getIntValue("remarkReq");
         if (reqType < 2) return reqType;
 
-        return getExpiredTime(recordId, approver);
+        return getExpiresTime(recordId, approver);
     }
 
     /**
      * @param recordId
      * @param approver
      * @return
-     * @see com.rebuild.rbv.approval.ApprovalExpiresAutoJob#getExpiredTime(Date, JSONObject, ID)
+     * @see ApprovalHelper#getExpiresTimeLeft(Date, JSONObject, ID)
      */
-    public long getExpiredTime(ID recordId, ID approver) {
-        // 超时必填 @see ApprovalExpiresAutoJob
+    public long getExpiresTime(ID recordId, ID approver) {
         Object[] stepApprover = Application.createQueryNoFilter(
                 "select createdOn,stepId from RobotApprovalStep where recordId = ? and approver = ? and node = ? and isCanceled = 'F' order by createdOn desc")
                 .setParameter(1, recordId)
@@ -357,7 +355,7 @@ public class FlowNode {
         if (stepApprover == null) return 0;
 
         JSONObject eaConf = getExpiresAuto();
-        long expTime = RbvFunction.call().getExpiredTime((Date) stepApprover[0], eaConf, recordId);
+        long expTime = ApprovalHelper.getExpiresTimeLeft((Date) stepApprover[0], eaConf, recordId);
         return expTime > 0 ? Math.max(expTime, 2) : 0;
     }
 
