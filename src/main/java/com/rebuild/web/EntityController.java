@@ -162,7 +162,7 @@ public abstract class EntityController extends BaseController {
         if (s == 0) {
             if (ec < 100) {
                 s = MetadataHelper.isBizzEntity(checkEntity)
-                        || ec == EntityHelper.RobotApprovalConfig || ec == EntityHelper.ApprovalStatus ? 0 : 404;
+                        || ec == EntityHelper.RobotApprovalConfig ? 0 : 404;
             }
         }
 
