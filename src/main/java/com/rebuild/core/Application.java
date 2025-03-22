@@ -143,7 +143,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                         public void run() {
                             String localUrl = BootApplication.getLocalUrl(null);
                             String banner = RebuildBanner.formatSimple(
-                                    "Rebuild (" + VER + ") started successfully in " + time2 + " ms.",
+                                    "REBUILD (" + VER + ") started successfully in " + time2 + " ms.",
                                     "    License : " + License.queryAuthority().values(),
                                     "Access URLs : ",
                                     "      Local : " + localUrl,
@@ -201,7 +201,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
      */
     public static boolean init() throws Exception {
         if (_READY) throw new IllegalStateException("REBUILD ALREADY STARTED");
-        log.info("Initializing Rebuild context [ {} ] ...", _CONTEXT.getClass().getSimpleName());
+        log.info("Initializing REBUILD context [ {} ] ...", _CONTEXT.getClass().getSimpleName());
 
         if (!(_READY = ServerStatus.checkAll())) {
             log.error(RebuildBanner.formatBanner(

@@ -128,7 +128,7 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
 
         ENV_HOLD = env;
 
-        log.info("Use RB data directory : {}", RebuildConfiguration.getFileOfData("/"));
+        log.info("Use REBUILD data directory : {}", RebuildConfiguration.getFileOfData("/"));
     }
 
     /**

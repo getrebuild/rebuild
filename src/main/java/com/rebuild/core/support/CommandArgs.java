@@ -114,7 +114,7 @@ public class CommandArgs {
                 try {
                     conf.load(Files.newInputStream(rebuildConf.toPath()));
                     CONF39 = conf;
-                    log.info("Use RB conf file : {}", rebuildConf);
+                    log.info("Use REBUILD conf file : {}", rebuildConf);
                 } catch (IOException e) {
                     log.warn("Cannot load `rebuild.conf` : {}", rebuildConf);
                 }
