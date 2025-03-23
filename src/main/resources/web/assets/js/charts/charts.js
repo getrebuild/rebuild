@@ -1426,7 +1426,7 @@ class DataList extends BaseChart {
 
     const table = (
       <RF>
-        <table className="table table-hover">
+        <table className="table table-hover table-striped table-header-fixed table-sortable">
           <thead>
             <tr ref={(c) => (this._$head = c)}>
               {listFields.map((item) => {
@@ -1446,7 +1446,7 @@ class DataList extends BaseChart {
                       // eslint-disable-next-line no-undef
                       if (UNSORT_FIELDTYPES.includes(item.type)) return
 
-                      const $th = $(e.target)
+                      const $th = $(e.currentTarget)
                       const hasAsc = $th.hasClass('sort-asc'),
                         hasDesc = $th.hasClass('sort-desc')
 
@@ -1461,7 +1461,7 @@ class DataList extends BaseChart {
                       config2.extconfig.sort = `${item.field}:${$th.hasClass('sort-desc') ? 'desc' : 'asc'}`
                       this.setState({ config: config2 }, () => this.loadChartData(true))
                     }}>
-                    {item.label}
+                    <div>{item.label}</div>
                   </th>
                 )
               })}

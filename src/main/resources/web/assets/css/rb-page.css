@@ -5111,14 +5111,14 @@ pre.unstyle {
 .tablesort thead th.sorted.ascending::after,
 .tablesort thead th.sorted.descending::after {
   font: normal normal normal 18px/1 'Material Design Icons';
-  content: '\F0140';
+  content: '\F0143';
   position: absolute;
   right: 10px;
   top: 9.5px;
 }
 
 .tablesort thead th.sorted.descending::after {
-  content: '\F0143';
+  content: '\F0140';
 }
 
 .map-suggestion.dropdown-menu {
