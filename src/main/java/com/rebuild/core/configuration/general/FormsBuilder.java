@@ -50,7 +50,15 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 表单构造
@@ -115,7 +123,7 @@ public class FormsBuilder extends FormsManager {
      * @param viewMode 视图模式
      * @return
      */
-    private JSON buildModel(String entity, ID user, ID recordId, boolean viewMode) {
+    private JSON buildModel(final String entity, final ID user, final ID recordId, final boolean viewMode) {
         Assert.notNull(entity, "[entity] cannot be null");
         Assert.notNull(user, "[user] cannot be null");
 
@@ -258,9 +266,26 @@ public class FormsBuilder extends FormsManager {
             model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
             // compatible v3.3
             model.set("detailsNotEmpty", entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_NOTEMPTY));
-            // v3.4 N-D
+            // v3.4 ND
             List<JSON> detailMetas = new ArrayList<>();
-            for (Entity de : MetadataSorter.sortDetailEntities(entityMeta)) detailMetas.add(EasyMetaFactory.toJSON(de));
+            for (Entity de : MetadataSorter.sortDetailEntities(entityMeta)) {
+                // v4.0 隐藏明细
+                boolean show = true;
+                if (!viewMode) {
+                    String hide = de.getExtraAttrs().getString("detailsHide");
+                    if (recordId == null) {
+                        if ("3".equals(hide) || "1".equals(hide)) show = false;
+                    } else {
+                        if ("3".equals(hide) || "2".equals(hide)) show = false;
+                    }
+                }
+
+                if (show) {
+                    detailMetas.add(EasyMetaFactory.toJSON(de));
+                } else if (de.equals(entityMeta.getDetailEntity())) {
+                    model.set("detailMeta", null);
+                }
+            }
             model.set("detailMetas", detailMetas);
         }
 
@@ -285,10 +310,10 @@ public class FormsBuilder extends FormsManager {
         String disabledViewEditable = EasyMetaFactory.valueOf(entityMeta)
                 .getExtraAttr(EasyEntityConfigProps.DISABLED_VIEW_EDITABLE);
         model.set("onViewEditable", !BooleanUtils.toBoolean(disabledViewEditable));
-        
-        // v3.7
-        model.set("hadSop", true);
 
+        // v3.7
+        model.set("hadSop", License.isRbvAttached());
+        // v3.9
         model.set("layoutId", model.getID("id"));
         model.remove("id");
         // v4.0

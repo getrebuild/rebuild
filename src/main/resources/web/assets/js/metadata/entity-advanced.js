@@ -771,25 +771,21 @@ class OptionProps extends RbAlert {
             <input className="form-control form-control-sm" placeholder={$L('默认')} maxLength="20" ref={(c) => (this._$label = c)} />
           </div>
         </div>
-        <div className="form-group row pb-0">
-          <label className="col-sm-3 col-form-label text-sm-right pt-1">{$L('显示位置')}</label>
-          <div className="col-sm-7" ref={(c) => (this._$orders = c)}>
-            <label className="custom-control custom-control-sm custom-radio custom-control-inline">
-              <input className="custom-control-input" type="radio" name="showOrder" value="0" defaultChecked />
-              <span className="custom-control-label">{$L('默认')}</span>
-            </label>
-            <label className="custom-control custom-control-sm custom-radio custom-control-inline">
-              <input className="custom-control-input" type="radio" name="showOrder" value="1" />
-              <span className="custom-control-label">1.</span>
-            </label>
-            <label className="custom-control custom-control-sm custom-radio custom-control-inline">
-              <input className="custom-control-input" type="radio" name="showOrder" value="2" />
-              <span className="custom-control-label">2.</span>
-            </label>
-            <label className="custom-control custom-control-sm custom-radio custom-control-inline">
-              <input className="custom-control-input" type="radio" name="showOrder" value="3" />
-              <span className="custom-control-label">3.</span>
-            </label>
+        <div className="form-group row">
+          <label className="col-sm-3 col-form-label text-sm-right">{$L('显示位置')}</label>
+          <div className="col-sm-7">
+            <select className="form-control form-control-sm w-50" ref={(c) => (this._$order = c)}>
+              <option value="">{$L('默认')}</option>
+              <option value="1">1.</option>
+              <option value="2">2.</option>
+              <option value="3">3.</option>
+              <option value="4">4.</option>
+              <option value="5">5.</option>
+              <option value="6">6.</option>
+              <option value="7">7.</option>
+              <option value="8">8.</option>
+              <option value="9">9.</option>
+            </select>
           </div>
         </div>
         <div className="form-group row footer">
@@ -811,13 +807,13 @@ class OptionProps extends RbAlert {
     // init
     const ps = _advListAsideShows[this.props.name] || {}
     if (ps.label) $(this._$label).val(ps.label)
-    if (ps.order) $(this._$orders).find(`input[value=${ps.order}]`).attr('checked', true)
+    if (ps.order) $(this._$order).val(ps.order)
   }
 
   saveProps() {
     const ps = {
       label: $(this._$label).val() || null,
-      order: ~~$(this._$orders).find('input:checked').val(),
+      order: ~~$(this._$order).val(),
     }
     _advListAsideShows[this.props.name] = ps
     _refreshConfigStar(this.props.name)

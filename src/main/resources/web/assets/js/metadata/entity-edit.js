@@ -48,6 +48,9 @@ $(document).ready(() => {
       extConfig.detailsShowAt2 = $val('#detailsShowAt2')
       // v3.6
       extConfig.detailsCopiable = $val('#detailsCopiable')
+      // v4.0
+      extConfig.detailsSeq = $val('#detailsSeq')
+      extConfig.detailsHide = $val('#detailsHide')
     }
     extConfig.repeatFieldsCheckMode = $val('#repeatFieldsCheckMode') ? 'and' : 'or'
     extConfig.disabledViewEditable = $val('#disabledViewEditable')
@@ -55,7 +58,17 @@ $(document).ready(() => {
 
     // v3.6
     if (rb.commercial < 10) {
-      const checkAdv = ['detailsNotEmpty', 'detailsGlobalRepeat', 'detailsShowAt2', 'detailsCopiable', 'repeatFieldsCheckMode', 'disabledViewEditable', 'enableRecordMerger']
+      const checkAdv = [
+        'detailsNotEmpty',
+        'detailsGlobalRepeat',
+        'detailsShowAt2',
+        'detailsCopiable',
+        'detailsSeq',
+        'detailsHide',
+        'repeatFieldsCheckMode',
+        'disabledViewEditable',
+        'enableRecordMerger',
+      ]
       let needRbv = false
       for (let i = 0; i < checkAdv.length; i++) {
         if ($val(`#${checkAdv[i]}`)) {
@@ -184,4 +197,10 @@ $(document).ready(() => {
   // v3.6
   if (wpc.extConfig.detailsCopiable) $('#detailsCopiable').attr('checked', true)
   if (wpc.extConfig.enableRecordMerger) $('#enableRecordMerger').attr('checked', true)
+  // v4.0
+  if (wpc.extConfig.detailsSeq || wpc.extConfig.detailsHide) {
+    if (wpc.extConfig.detailsSeq) $('#detailsSeq').val(wpc.extConfig.detailsSeq)
+    if (wpc.extConfig.detailsHide) $('#detailsHide').val(wpc.extConfig.detailsHide)
+    $('#detailsSeq').parents('.bosskey-show').removeClass('bosskey-show')
+  }
 })
