@@ -1712,7 +1712,7 @@ class HeadingText extends BaseChart {
 }
 
 class EmbedFrame extends BaseChart {
-  renderChart() {
+  renderChart(data) {
     const config2 = this.state.config.extconfig || {}
     if (!config2.url) {
       super.renderError(
@@ -1729,9 +1729,10 @@ class EmbedFrame extends BaseChart {
       return
     }
 
+    const url = data.url || config2.url
     const F = (
       <div className="iframe">
-        <iframe src={config2.url} frameBorder="0" width="100%" height="100%" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" />
+        <iframe src={url} frameBorder="0" width="100%" height="100%" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" />
       </div>
     )
     this.setState({ chartdata: F }, () => {})

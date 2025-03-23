@@ -9,6 +9,8 @@ package com.rebuild.core.service.dashboard.charts.builtin;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.user.PageTokenVerify;
 import com.rebuild.core.service.dashboard.charts.ChartData;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -40,8 +42,12 @@ public class EmbedFrame extends ChartData implements BuiltinChart {
 
     @Override
     public JSON build() {
-
-        // 此类无实际作用
+        Object o = getExtraParams().get("extconfig");
+        if (o != null) {
+            String url = ((JSONObject) o).getString("url");
+            url = PageTokenVerify.replacePageToken(url, getUser());
+            return JSONUtils.toJSONObject("url", url);
+        }
 
         return JSONUtils.clone(JSONUtils.EMPTY_OBJECT);
     }

@@ -181,24 +181,8 @@ public class NavBuilder extends NavManager {
                     user, MetadataHelper.getEntity(value).getEntityCode());
 
         } else if ("URL".equals(type)) {
-
-            // 替换 RBTOKEN https://juejin.cn/post/7045494433797652511
-            // https://getrebuild.com/docs/rbv/openapi/page-token-verify
-
-            if (value.contains("$RBTOKEN$") || value.contains("%24RBTOKEN%24")) {
-
-                final String key = "PTOKEN:" + user;
-                String ptoken = Application.getCommonsCache().get(key);
-                if (ptoken == null) {
-                    ptoken = PageTokenVerify.generate(user);
-                    Application.getCommonsCache().put(key, ptoken, PageTokenVerify.TOKEN_EXPIRES);
-                }
-
-                if (value.contains("$RBTOKEN$")) value = value.replace("$RBTOKEN$", ptoken);
-                else value = value.replace("%24RBTOKEN%24", ptoken);
-
-                item.put("value", value);
-            }
+            value = PageTokenVerify.replacePageToken(value, user);
+            item.put("value", value);
 
             // URL 绑定实体权限 https://juejin.cn/post/7045494433797652511
             // 如 https://www.baidu.com/::ENTITY_NAME
@@ -209,8 +193,8 @@ public class NavBuilder extends NavManager {
             String bindEntity = ss[1];
             if (MetadataHelper.containsEntity(bindEntity)) {
                 item.put("value", ss[0]);
-                return !Application.getPrivilegesManager().allowRead(user,
-                        MetadataHelper.getEntity(bindEntity).getEntityCode());
+                return !Application.getPrivilegesManager()
+                        .allowRead(user, MetadataHelper.getEntity(bindEntity).getEntityCode());
             }
         }
 
