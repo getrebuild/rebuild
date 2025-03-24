@@ -722,7 +722,6 @@ class LiteForm extends RbForm {
   }
 
   buildFormData(retAll) {
-    debugger
     const s = retAll ? this.getFormData() : {}
     const data = this.__FormData || {}
     for (let k in data) {

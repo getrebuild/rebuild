@@ -564,6 +564,14 @@ a.hover-color:hover {
   border-color: #0d5bdd !important;
 }
 
+a.hover-opacity {
+  opacity: 1;
+}
+
+a.hover-opacity:hover {
+  opacity: 0.8;
+}
+
 .table tbody tr.muted td:first-child {
   border-left: 3px solid #bbb;
   padding-left: 17px;

@@ -98,6 +98,7 @@ public class ChartManager implements ConfigManager {
         }
 
         JSONArray charts = new JSONArray();
+        String builtinLabel = Language.L("内置") + ":";
         for (Object[] o : value) {
             ID createdBy = (ID) o[0];
             String belongEntity = (String) o[1];
@@ -122,8 +123,8 @@ public class ChartManager implements ConfigManager {
             }
 
             Object[] c = new Object[]{o[3], o[4], o[5], EasyMetaFactory.getLabel(entity), self};
-            if (HeadingText.MYNAME.equals(o[5])) c[3] = Language.L("标题文字");
-            if (EmbedFrame.MYNAME.equals(o[5])) c[3] = Language.L("嵌入页面");
+            if (HeadingText.MYNAME.equals(o[5])) c[3] = builtinLabel + Language.L("标题文字");
+            if (EmbedFrame.MYNAME.equals(o[5])) c[3] = builtinLabel + Language.L("嵌入页面");
 
             charts.add(JSONUtils.toJSONObject(
                     new String[]{"id", "title", "type", "entityLabel", "isManageable"}, c));

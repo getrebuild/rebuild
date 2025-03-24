@@ -297,6 +297,7 @@ class LastLogsViewer extends RbAlert {
           <RF>
             <dt className="mt-1 font-weight-normal">
               <a
+                className="hover-opacity"
                 onClick={(e) => {
                   $(e.currentTarget).find('i.mdi').toggleClass('mdi-chevron-double-up')
                   $(e.currentTarget).parent().next().toggleClass('hide')
