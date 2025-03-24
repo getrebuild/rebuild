@@ -7,24 +7,29 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 $(document).ready(() => {
   // eslint-disable-next-line eqeqeq
+  let isH5App40 = false
   if (top && top != self) {
     try {
-      parent.location.reload()
+      isH5App40 = !!top.FrontJS5
+      if (isH5App40) {
+        // 非同源会抛出
+      } else {
+        parent.location.reload()
+        return
+      }
     } catch (ignored) {
       // NOOP
     }
-    return
   }
 
-  if ($.browser.mobile) {
-    setTimeout(function () {
-      // $('.h5-mobile').dropdown('dispose') ???
+  setTimeout(function () {
+    if ($.browser.mobile) {
       const $a = $('.h5-mobile>a')
       $a.parent().html('<a href="' + $a.attr('href') + '">' + $a.html() + '</a>')
-    }, 200)
-  }
-
-  $('.h5-mobile img').attr('src', `${rb.baseUrl}/commons/barcode/render-qr?w=296&t=${$encode($('.h5-mobile a').attr('href'))}`)
+    } else {
+      $('.h5-mobile img').attr('src', `${rb.baseUrl}/commons/barcode/render-qr?w=296&t=${$encode($('.h5-mobile a').attr('href'))}`)
+    }
+  }, 200)
 
   $.get('/user/live-wallpaper', (res) => {
     if (res.error_code !== 0 || !res.data) return
@@ -86,7 +91,7 @@ $(document).ready(() => {
     RbHighbar.create($L('临时授权链接已过期'))
   }
 
-  const tip2mob = $.browser.mobile
+  const tip2mob = $.browser.mobile && !isH5App40
   if (tip2mob) {
     setTimeout(() => {
       RbAlert.create($L('是否需要切换到手机版访问？'), {
