@@ -29,7 +29,12 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.DataSpecificationException;
-import com.rebuild.core.service.general.*;
+import com.rebuild.core.service.general.BulkContext;
+import com.rebuild.core.service.general.EntityService;
+import com.rebuild.core.service.general.GeneralEntityService;
+import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
+import com.rebuild.core.service.general.RecordDifference;
+import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.general.transform.TransformerPreview37;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.DataValidateException;
@@ -52,7 +57,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 业务实体操作（增/改/删/分配/共享）
@@ -186,10 +199,14 @@ public class GeneralOperatingController extends BaseController {
             // 不一致时前端整体刷新
             if (singleFieldName != null) {
                 Record afterSnap = Application.getQueryFactory().recordNoFilter(record.getPrimary());
-                beforeSnap.removeValue(singleFieldName);
-                afterSnap.removeValue(singleFieldName);
-                boolean same = new RecordDifference(beforeSnap).isSame(afterSnap, false);
-                res.put("forceReload", !same);
+                if (afterSnap == null) {
+                    res.put("forceReload", true);
+                } else {
+                    beforeSnap.removeValue(singleFieldName);
+                    afterSnap.removeValue(singleFieldName);
+                    boolean same = new RecordDifference(beforeSnap).isSame(afterSnap, false);
+                    res.put("forceReload", !same);
+                }
             }
         }
 

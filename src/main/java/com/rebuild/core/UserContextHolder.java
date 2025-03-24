@@ -25,10 +25,10 @@ import org.springframework.util.Assert;
 @Slf4j
 public class UserContextHolder {
 
-    private static final ThreadLocal<ID> CALLER = new NamedThreadLocal<>("Current user");
-    private static final ThreadLocal<ID> CALLER_PREV = new NamedThreadLocal<>("Previous user");
+    private static final ThreadLocal<ID> CALLER = new NamedThreadLocal<>("User in current thread");
+    private static final ThreadLocal<ID> CALLER_KEEP = new NamedThreadLocal<>("Keep previous User in current thread");
 
-    private static final ThreadLocal<String> LOCALE = new NamedThreadLocal<>("Request locale");
+    private static final ThreadLocal<String> LOCALE = new NamedThreadLocal<>("Request Locale");
 
     private static final ThreadLocal<String> REQIP = new NamedThreadLocal<>("Request IP");
 
@@ -47,16 +47,12 @@ public class UserContextHolder {
      * 设置当前用户
      *
      * @param user
-     * @see #replaceUser(ID)
      */
     public static void setUser(ID user) {
         Assert.notNull(user, "[user] cannot be null");
 
-        ID e = getUser(Boolean.TRUE);
-        if (e != null) {
-            log.warn("Replace user in current thread (session) : {} < {}", user, e);
-            CALLER.remove();
-        }
+        ID o = getUser(true);
+        if (o != null) CALLER_KEEP.set(o);
         CALLER.set(user);
     }
 
@@ -72,7 +68,7 @@ public class UserContextHolder {
      * @return
      */
     public static ID getUser() {
-        return getUser(Boolean.FALSE);
+        return getUser(false);
     }
 
     /**
@@ -110,60 +106,24 @@ public class UserContextHolder {
     /**
      */
     public static void clearUser() {
+        clearUser(false);
+    }
+
+    /**
+     */
+    public static void clearUser(boolean restorePrev) {
         CALLER.remove();
-        CALLER_PREV.remove();
+        if (restorePrev) {
+            ID o = CALLER_KEEP.get();
+            if (o != null) CALLER.set(o);
+        }
+        CALLER_KEEP.remove();
     }
 
     /**
      */
     public static void clearLocale() {
         LOCALE.remove();
-    }
-
-    /**
-     * 设置当前用户，并保持原始用户（如有）
-     *
-     * @param user
-     * @see #getReplacedUser()
-     * @see #restoreUser()
-     */
-    public static void replaceUser(ID user) {
-        Assert.notNull(user, "[user] cannot be null");
-
-        // Keep origin
-        ID e = CALLER_PREV.get();
-        if (e == null) e = getUser(Boolean.TRUE);
-
-        if (e != null) CALLER_PREV.set(e);
-        else CALLER_PREV.remove();
-
-        CALLER.set(user);
-    }
-
-    /**
-     * 获取原始用户
-     * 
-     * @return
-     * @see #replaceUser(ID)
-     */
-    public static ID getReplacedUser() {
-        ID prev = CALLER_PREV.get();
-        if (prev != null) return prev;
-        return getUser();
-    }
-
-    /**
-     * @return
-     * @see #replaceUser(ID)
-     */
-    public static boolean restoreUser() {
-        ID e = CALLER_PREV.get();
-        if (e != null) {
-            clearUser();
-            setUser(e);
-            return true;
-        }
-        return false;
     }
 
     // --
