@@ -1742,7 +1742,8 @@ class EmbedFrame extends BaseChart {
         <iframe src={url} frameBorder="0" width="100%" height="100%" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" />
       </div>
     )
-    this.setState({ chartdata: F, title: config2.title || $L('嵌入页面') }, () => {})
+    config2.title = config2.title || this.state.title || $L('嵌入页面')
+    this.setState({ chartdata: F, title: config2.title }, () => {})
   }
 
   componentDidMount() {

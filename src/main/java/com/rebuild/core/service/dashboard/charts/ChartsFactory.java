@@ -15,6 +15,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.dashboard.ChartManager;
@@ -63,7 +64,9 @@ public class ChartsFactory {
 
         Entity entity = MetadataHelper.getEntity(entityName);
         if (user == null || !Application.getPrivilegesManager().allowRead(user, entity.getEntityCode())) {
-            throw new DefinedException(Language.L("没有读取 %s 的权限", EasyMetaFactory.getLabel(entity)));
+            // 特殊绑定
+            if (entity.getEntityCode() == EntityHelper.User);
+            else throw new DefinedException(Language.L("没有读取 %s 的权限", EasyMetaFactory.getLabel(entity)));
         }
 
         String type = config.getString("type");
