@@ -119,13 +119,12 @@
         <aside class="page-aside">
           <div class="rb-scroller">
             <div class="page-aside-tree" id="role-tree">
-              <div class="ph-item rb">
-                <div class="ph-col-12 p-0">
-                  <div class="ph-row">
-                    <div class="ph-col-12 big"></div>
-                    <div class="ph-col-12 big"></div>
-                  </div>
-                </div>
+              <div class="aside-2tree hide-collapse">
+                <ul class="list-unstyled m-0">
+                  <li th:each="R : ${Roles}" th:class="${R[0] == RoleId ?'active':''}">
+                    <a th:data-id="${R[0]}" class="text-ellipsis" th:classappend="${R[2] ?'text-disabled':''}">[[${R[1]}]]</a>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
