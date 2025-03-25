@@ -74,11 +74,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "4.0.0-beta1";
+    public static final String VER = "4.0.0-beta2";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 4000002;
+    public static final int BUILD = 4000003;
 
     static {
         // Driver for DB
@@ -143,7 +143,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                         public void run() {
                             String localUrl = BootApplication.getLocalUrl(null);
                             String banner = RebuildBanner.formatSimple(
-                                    "Rebuild (" + VER + ") started successfully in " + time2 + " ms.",
+                                    "REBUILD (" + VER + ") started successfully in " + time2 + " ms.",
                                     "    License : " + License.queryAuthority().values(),
                                     "Access URLs : ",
                                     "      Local : " + localUrl,
@@ -201,7 +201,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
      */
     public static boolean init() throws Exception {
         if (_READY) throw new IllegalStateException("REBUILD ALREADY STARTED");
-        log.info("Initializing Rebuild context [ {} ] ...", _CONTEXT.getClass().getSimpleName());
+        log.info("Initializing REBUILD context [ {} ] ...", _CONTEXT.getClass().getSimpleName());
 
         if (!(_READY = ServerStatus.checkAll())) {
             log.error(RebuildBanner.formatBanner(
@@ -214,8 +214,9 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
         // 版本升级会清除缓存
         int lastBuild = ObjectUtils.toInt(RebuildConfiguration.get(ConfigurationItem.AppBuild, true), 0);
-        if (lastBuild != BUILD) {
-            log.warn("Clean up the cache once when upgrading : {} from {}", BUILD, lastBuild);
+        // MINOR
+        if (lastBuild / 100000 != BUILD / 100000) {
+            log.warn("Clean up the cache when upgrading : {} from {}", BUILD, lastBuild);
             Installer.clearAllCache();
             RebuildConfiguration.set(ConfigurationItem.AppBuild, BUILD);
         }

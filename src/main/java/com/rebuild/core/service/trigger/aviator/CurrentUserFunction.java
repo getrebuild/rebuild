@@ -26,7 +26,7 @@ public class CurrentUserFunction extends AbstractFunction {
 
     @Override
     public AviatorObject call(Map<String, Object> env) {
-        ID user = UserContextHolder.getReplacedUser();
+        ID user = UserContextHolder.getUser();
         return AviatorUtils.wrapReturn(user);
     }
 

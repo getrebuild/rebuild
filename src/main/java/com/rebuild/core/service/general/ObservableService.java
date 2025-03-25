@@ -145,9 +145,9 @@ public abstract class ObservableService extends SafeObservable implements Servic
      * 获取原始调用用户
      *
      * @return
-     * @see UserContextHolder#replaceUser(ID) 
+     * @see UserContextHolder#getUser()
      */
     protected ID getCurrentUser() {
-        return UserContextHolder.getReplacedUser();
+        return UserContextHolder.getUser();
     }
 }

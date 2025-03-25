@@ -37,6 +37,14 @@ public class EasyEntityConfigProps {
      * 明细复制按钮
      */
     public static final String DETAILS_COPIABLE = "detailsCopiable";
+    /**
+     * 显示顺序
+     */
+    public static final String DETAILS_SEQ = "detailsSeq";
+    /**
+     * 显示/隐藏方式
+     */
+    public static final String DETAILS_HIDE = "detailsHide";
 
     /**
      * 隐藏常用查询面板

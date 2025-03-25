@@ -16,6 +16,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.text.Collator;
@@ -113,8 +114,15 @@ public class MetadataSorter {
 
         List<BaseMeta> entities = new ArrayList<>();
         CollectionUtils.addAll(entities, mainEntity.getDetialEntities());
-        // SORT: 名称。默认是返回按CODE大小
-        if (entities.size() > 1) sortByLabel(entities);
+        if (entities.size() <= 1) entities.toArray(new Entity[0]);
+
+        // 显示顺序（默认是返回按CODE大小）
+        entities.sort((foo, bar) -> {
+            String fooSeq = foo.getExtraAttrs().getString("detailsSeq");
+            String barSeq = bar.getExtraAttrs().getString("detailsSeq");
+            if (StringUtils.isBlank(fooSeq) || StringUtils.isBlank(barSeq)) return 0;
+            return fooSeq.compareTo(barSeq);
+        });
         return entities.toArray(new Entity[0]);
     }
 

@@ -106,7 +106,7 @@ public class BootApplication extends SpringBootServletInitializer {
     // ---------------------------------------- USE BOOT
 
     public static void main(String[] args) {
-        log.info("Rebuild starting ...");
+        log.info("REBUILD starting ...");
         if (devMode()) System.setProperty("spring.profiles.active", "dev");
 
         // kill -15 `cat ~/.rebuild/rebuild.pid`
@@ -122,7 +122,7 @@ public class BootApplication extends SpringBootServletInitializer {
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-        log.info("Rebuild starting ...");
+        log.info("REBUILD starting ...");
         if (SystemUtils.IS_OS_WINDOWS) AnsiConsole.systemInstall();
         if (devMode()) System.setProperty("spring.profiles.active", "dev");
 

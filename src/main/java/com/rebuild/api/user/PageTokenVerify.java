@@ -71,4 +71,27 @@ public class PageTokenVerify extends BaseApi {
         Application.getCommonsCache().putx("RBPT." + ptoken, user, TOKEN_EXPIRES);
         return user;
     }
+
+    /**
+     * 替换 RBTOKEN https://juejin.cn/post/7045494433797652511
+     * https://getrebuild.com/docs/rbv/openapi/page-token-verify
+     *
+     * @param url
+     * @param user
+     * @return
+     */
+    public static String replacePageToken(String url, ID user) {
+        if (url.contains("$RBTOKEN$") || url.contains("%24RBTOKEN%24")) {
+            final String key = "PTOKEN:" + user;
+            String ptoken = Application.getCommonsCache().get(key);
+            if (ptoken == null) {
+                ptoken = generate(user);
+                Application.getCommonsCache().put(key, ptoken, PageTokenVerify.TOKEN_EXPIRES);
+            }
+
+            if (url.contains("$RBTOKEN$")) url = url.replace("$RBTOKEN$", ptoken);
+            else url = url.replace("%24RBTOKEN%24", ptoken);
+        }
+        return url;
+    }
 }

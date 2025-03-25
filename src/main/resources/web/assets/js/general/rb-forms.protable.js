@@ -988,7 +988,7 @@ class ProTableTree extends ProTable {
   getSelectedInlineForms() {
     const ff = []
     $(this._$tbody)
-      .find('.col-tree input[type="checkbox"]:checked')
+      .find('.col-checkbox input[type="checkbox"]:checked')
       .each((idx, c) => {
         let key = $(c).parents('tr').attr('data-key')
         let F = this.getInlineForm(key)

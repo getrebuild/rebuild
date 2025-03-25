@@ -564,6 +564,14 @@ a.hover-color:hover {
   border-color: #0d5bdd !important;
 }
 
+a.hover-opacity {
+  opacity: 1;
+}
+
+a.hover-opacity:hover {
+  opacity: 0.8;
+}
+
 .table tbody tr.muted td:first-child {
   border-left: 3px solid #bbb;
   padding-left: 17px;
@@ -5111,14 +5119,14 @@ pre.unstyle {
 .tablesort thead th.sorted.ascending::after,
 .tablesort thead th.sorted.descending::after {
   font: normal normal normal 18px/1 'Material Design Icons';
-  content: '\F0140';
+  content: '\F0143';
   position: absolute;
   right: 10px;
   top: 9.5px;
 }
 
 .tablesort thead th.sorted.descending::after {
-  content: '\F0143';
+  content: '\F0140';
 }
 
 .map-suggestion.dropdown-menu {
@@ -5234,6 +5242,9 @@ pre.unstyle {
 .rbcolors > a.default {
   border: 1px solid #ccc;
   background-color: #fff;
+  background-image: linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc), linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc);
+  background-size: 10px 10px;
+  background-position: 0 0, 5px 5px;
 }
 
 .rbcolors > a.default > i {

@@ -234,6 +234,37 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-weight: bold;
 }
 
+.chart.ctable .table-sortable thead th.sort-asc > div,
+.chart.ctable .table-sortable thead th.sort-desc > div {
+  position: relative;
+}
+
+.chart.ctable .table-sortable thead th.sort-asc > div::after,
+.chart.ctable .table-sortable thead th.sort-desc > div::after {
+  color: #4285f4;
+  font: normal normal normal 18px / 1 'Material Design Icons';
+  content: '\F0143';
+  position: absolute;
+  right: -2px;
+  top: 0;
+}
+
+.chart.ctable .table-sortable thead th.sort-desc > div::after {
+  content: '\F0140';
+}
+
+.chart.ctable .table-sortable thead th:hover,
+.chart.ctable .table-sortable thead th:active {
+  cursor: pointer;
+  background-color: #dee2e6;
+}
+
+.chart.ctable .table-sortable thead th.no-sort:hover,
+.chart.ctable .table-sortable thead th.no-sort:active {
+  cursor: default;
+  background-color: #eceff1;
+}
+
 .chart-box.ApprovalList,
 .chart-box.FeedsSchedule,
 .chart-box.ProjectTasks {
@@ -548,34 +579,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 4px 10px;
 }
 
-.chart-box.DataList .chart.ctable thead th.sort-asc::after,
-.chart-box.DataList .chart.ctable thead th.sort-desc::after {
-  position: absolute;
-  font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
-  content: '\f2fc';
-  font-size: 18px;
-  color: #4285f4;
-  font-weight: normal;
-  margin-left: 4px;
-  margin-top: -1px;
-}
-
-.chart-box.DataList .chart.ctable thead th.sort-desc::after {
-  content: '\f2f9';
-}
-
-.chart-box.DataList .chart.ctable thead th:hover,
-.chart-box.DataList .chart.ctable thead th:active {
-  cursor: pointer;
-  background-color: #dee2e6;
-}
-
-.chart-box.DataList .chart.ctable thead th.no-sort:hover,
-.chart-box.DataList .chart.ctable thead th.no-sort:active {
-  cursor: default;
-  background-color: #eceff1;
-}
-
 .chart-box.DataList .table td,
 .chart-box.DataList .table td > div {
   white-space: nowrap;
@@ -683,4 +686,41 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart-box.EmbedFrame .iframe iframe {
   width: 100%;
   height: 100%;
+}
+
+.chart.ctable .table.table-header-fixed2 {
+  border: 1px solid #dee2e6;
+  border-top: 0 none;
+}
+
+.chart.ctable .table.table-header-fixed2 thead,
+.chart.ctable .table.table-header-fixed2 tbody {
+  border-width: 0;
+}
+
+.chart.ctable .table.table-header-fixed2 thead {
+  position: sticky;
+  top: 0;
+}
+
+.chart.ctable .table.table-header-fixed2 thead th {
+  border-width: 0;
+}
+
+.chart.ctable .table.table-header-fixed2 thead th::before,
+.chart.ctable .table.table-header-fixed2 thead th::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 100%;
+}
+
+.chart.ctable .table.table-header-fixed2 thead th::before {
+  top: 0;
+  border-top: 1px solid #dee2e6;
+}
+
+.chart.ctable .table.table-header-fixed2 thead th::after {
+  bottom: 0;
+  border-bottom: 1px solid #dee2e6;
 }

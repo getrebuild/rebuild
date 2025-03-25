@@ -29,7 +29,7 @@ public class CurrentBizunitFunction extends AbstractFunction {
 
     @Override
     public AviatorObject call(Map<String, Object> env) {
-        ID user = UserContextHolder.getReplacedUser();
+        ID user = UserContextHolder.getUser();
         User ub = Application.getUserStore().getUser(user);
         if (ub.getOwningDept() == null) return AviatorNil.NIL;
         return AviatorUtils.wrapReturn(ub.getOwningDept().getIdentity());

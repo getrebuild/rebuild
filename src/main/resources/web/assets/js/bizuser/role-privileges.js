@@ -179,51 +179,25 @@ const _clickPriv = function (elements, action) {
   }
 }
 
-let _AsideTree
 const loadRoles = function () {
-  $.get('/admin/bizuser/role-list', (res) => {
-    if (_AsideTree) {
-      ReactDOM.unmountComponentAtNode(document.getElementById('role-tree'))
-      _AsideTree = null
-    }
+  $('#role-tree a').each(function () {
+    const $a = $(this)
+    const $p = $a.parent()
+    const _id = $a.data('id')
+    $a.on('click', function () {
+      $('#role-tree li').removeClass('active')
+      $p.addClass('active')
+      setTimeout(() => {
+        location.href = `${rb.baseUrl}/admin/bizuser/role/${_id}`
+      }, 0)
+    })
 
-    renderRbcomp(
-      <AsideTree
-        data={res.data}
-        activeItem={roleId}
-        onItemClick={(item) => {
-          location.href = `${rb.baseUrl}/admin/bizuser/role/${item.id}`
-
-          // history.pushState(item.id, null, `${rb.baseUrl}/admin/bizuser/role/${item.id}`)
-          // roleId = item.id
-          // // reset
-          // $('.table-priv i.priv').attr('class', 'priv R0')
-          // loadPrivileges()
-        }}
-        extrasAction={(item) => {
-          return (
-            <RF>
-              <span className="action" onClick={() => RbFormModal.create({ title: $L('编辑角色'), entity: 'Role', icon: 'lock', id: item.id }, true)}>
-                <i className="zmdi zmdi-edit" />
-              </span>
-              <span
-                className="action"
-                onClick={() => {
-                  // eslint-disable-next-line no-undef
-                  deleteRole(item.id)
-                }}>
-                <i className="zmdi zmdi-delete" />
-              </span>
-            </RF>
-          )
-        }}
-        hideCollapse
-      />,
-      'role-tree',
-      function () {
-        _AsideTree = this
-      }
-    )
+    $('<span class="action"><i class="zmdi zmdi-edit"></i></span>')
+      .appendTo($p)
+      .on('click', () => RbFormModal.create({ title: $L('编辑角色'), entity: 'Role', icon: 'lock', id: _id, postAfter: () => location.reload() }, true))
+    $('<span class="action"><i class="zmdi zmdi-delete"></i></span>')
+      .appendTo($p)
+      .on('click', () => deleteRole(_id))
   })
 }
 

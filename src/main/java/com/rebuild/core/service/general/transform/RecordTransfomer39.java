@@ -43,7 +43,9 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
 
     private ID transid;
     // 转换到已存在记录
-    volatile private ID targetExistsRecordId;
+    private ID targetExistsRecordId;
+    // 预览时生成的 Record
+    volatile private List<Record> previewRecords;
 
     public RecordTransfomer39(ID transid) {
         super(transid);
@@ -101,6 +103,7 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
      * @return
      */
     public JSON preview(ID sourceRecordId, ID specMainId, ID targetExistsRecordId) {
+        this.previewRecords = new ArrayList<>();
         this.targetExistsRecordId = targetExistsRecordId;
         // 预览不做非空检查
         this.transConfig.put("checkNullable35", false);
@@ -127,6 +130,7 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
             AutoFillinManager.instance.fillinRecord(tansTargetRecord, true);
         }
 
+        this.previewRecords.add(tansTargetRecord);
         TransformerPreview37.fillLabelOfReference(tansTargetRecord);
 
         JSON formModel = UseFormsBuilder.buildFormWithRecord(targetEntity, tansTargetRecord, specMainId, getUser(), false);
@@ -160,6 +164,8 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
                 for (Object[] d : dArray) {
                     Record dRecord = transformRecord(
                             dSourceEntity, dTargetEntity, fmd, (ID) d[0], null, true, false, false);
+
+                    this.previewRecords.add(dRecord);
                     TransformerPreview37.fillLabelOfReference(dRecord);
 
                     JSON m = UseFormsBuilder.instance.buildNewForm(dTargetEntity, dRecord, fakeMainId, getUser());
@@ -206,6 +212,16 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
             return QueryHelper.getMainIdByDetail(targetRecordId);
         }
         return null;
+    }
+
+    /**
+     * 获取预览后产生的 Record
+     *
+     * @return
+     * @see #preview(ID, ID, ID)
+     */
+    public List<Record> getPreviewRecords() {
+        return previewRecords;
     }
 
     // ~~

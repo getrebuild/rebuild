@@ -25,7 +25,7 @@ public class BootShutdown implements ApplicationListener<ContextClosedEvent> {
 
     @Override
     public void onApplicationEvent(ContextClosedEvent event) {
-        log.warn("Rebuild shutting down ...");
+        log.warn("REBUILD shutting down ...");
 
         TaskExecutors.shutdown();
     }

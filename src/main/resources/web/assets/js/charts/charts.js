@@ -371,13 +371,18 @@ const ECHART_AXIS_LABEL = {
   },
 }
 
-const ECHART_MARK_LINE2 = function (showLabel = false) {
+const ECHART_MARK_LINE2 = function (showLabel = false, unitFlag) {
   return {
     data: [{ type: 'average', name: $L('均线') }],
     symbol: 'none',
     silent: true,
     emphasis: { disabled: true },
-    label: { show: showLabel },
+    label: {
+      show: showLabel,
+      formatter: function (o) {
+        return formatThousands(o.value, unitFlag)
+      },
+    },
   }
 }
 
@@ -435,6 +440,7 @@ const shortNumber = function (num) {
 // 千分位
 const formatThousands = function (num, flag) {
   if (flag === '0:0') flag = null // Unset
+  num += '' // string
   let n = num
   // v3.9 unit
   let flagUnit = ''
@@ -480,7 +486,7 @@ const _FLAG_UNITS = () => {
 }
 
 // 多轴显示
-const recalcMutliYAxis = function (option) {
+const reOptionMutliYAxis = function (option) {
   const yAxisBase = option.yAxis
   const yAxisMutli = []
   for (let i = 0; i < option.series.length; i++) {
@@ -538,7 +544,7 @@ class ChartLine extends BaseChart {
         if (showAreaColor) yAxis.areaStyle = { opacity: 0.2 }
         if (showNumerical) yAxis.label = ECHART_VALUE_LABEL2(dataFlags)
         yAxis.cursor = 'default'
-        if (showMarkLine) yAxis.markLine = ECHART_MARK_LINE2(showNumerical)
+        if (showMarkLine) yAxis.markLine = ECHART_MARK_LINE2(showNumerical, dataFlags[i])
         data.yyyAxis[i] = yAxis
       }
 
@@ -571,8 +577,9 @@ class ChartLine extends BaseChart {
         option.legend = ECHART_LEGEND_HOPT
         option.grid.top = 40
       }
+      if (showMarkLine) option.grid.right = 60
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
-      if (showMutliYAxis && option.series.length > 1) recalcMutliYAxis(option)
+      if (showMutliYAxis && option.series.length > 1) reOptionMutliYAxis(option)
 
       this._echarts = renderEChart(option, elid)
     })
@@ -611,7 +618,7 @@ class ChartBar extends BaseChart {
           yAxis.smooth = true
           yAxis.lineStyle = { width: 3 }
         }
-        if (showMarkLine) yAxis.markLine = ECHART_MARK_LINE2(showNumerical)
+        if (showMarkLine) yAxis.markLine = ECHART_MARK_LINE2(showNumerical, dataFlags[i])
         data.yyyAxis[i] = yAxis
       }
 
@@ -652,15 +659,12 @@ class ChartBar extends BaseChart {
         option.legend = ECHART_LEGEND_HOPT
         option.grid.top = 40
       }
+      if (showMarkLine) option.grid.right = 60
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
       // 加大左侧距离
-      if (showHorizontal) {
-        option.grid.left = 100
-      }
+      if (showHorizontal) option.grid.left = 100
       // 排他
-      else if (showMutliYAxis && option.series.length > 1 && !this._stack) {
-        recalcMutliYAxis(option)
-      }
+      else if (showMutliYAxis && option.series.length > 1 && !this._stack) reOptionMutliYAxis(option)
 
       this._echarts = renderEChart(option, elid)
     })
@@ -1426,7 +1430,7 @@ class DataList extends BaseChart {
 
     const table = (
       <RF>
-        <table className="table table-hover">
+        <table className="table table-hover table-striped table-header-fixed2 table-sortable">
           <thead>
             <tr ref={(c) => (this._$head = c)}>
               {listFields.map((item) => {
@@ -1446,7 +1450,7 @@ class DataList extends BaseChart {
                       // eslint-disable-next-line no-undef
                       if (UNSORT_FIELDTYPES.includes(item.type)) return
 
-                      const $th = $(e.target)
+                      const $th = $(e.currentTarget)
                       const hasAsc = $th.hasClass('sort-asc'),
                         hasDesc = $th.hasClass('sort-desc')
 
@@ -1461,7 +1465,7 @@ class DataList extends BaseChart {
                       config2.extconfig.sort = `${item.field}:${$th.hasClass('sort-desc') ? 'desc' : 'asc'}`
                       this.setState({ config: config2 }, () => this.loadChartData(true))
                     }}>
-                    {item.label}
+                    <div>{item.label}</div>
                   </th>
                 )
               })}
@@ -1712,7 +1716,7 @@ class HeadingText extends BaseChart {
 }
 
 class EmbedFrame extends BaseChart {
-  renderChart() {
+  renderChart(data) {
     const config2 = this.state.config.extconfig || {}
     if (!config2.url) {
       super.renderError(
@@ -1723,18 +1727,23 @@ class EmbedFrame extends BaseChart {
         () => {
           $(this._$box)
             .find('.chart-undata a')
-            .on('click', () => $(this._$box).find('.chart-oper .J_chart-edit').trigger('click'))
+            .on('click', (e) => {
+              $stopEvent(e, true)
+              $(this._$box).find('.chart-oper .J_chart-edit').trigger('click')
+            })
         }
       )
       return
     }
 
+    const url = data.url || config2.url
     const F = (
       <div className="iframe">
-        <iframe src={config2.url} frameBorder="0" width="100%" height="100%" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" />
+        <iframe src={url} frameBorder="0" width="100%" height="100%" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" />
       </div>
     )
-    this.setState({ chartdata: F }, () => {})
+    config2.title = config2.title || this.state.title || $L('嵌入页面')
+    this.setState({ chartdata: F, title: config2.title }, () => {})
   }
 
   componentDidMount() {

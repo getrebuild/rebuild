@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.bizz;
 
+import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
@@ -48,8 +49,8 @@ public class RolePrivilegesController extends EntityController {
     public ModelAndView pageList(HttpServletRequest request) {
         final ID user = getRequestUser(request);
         ModelAndView mv = createModelAndView("/admin/bizuser/role-privileges", "Role", user);
-
         setEntities(mv);
+        setRoles(mv);
         return mv;
     }
 
@@ -57,10 +58,23 @@ public class RolePrivilegesController extends EntityController {
     public ModelAndView pagePrivileges(@PathVariable ID id, HttpServletRequest request) {
         final ID user = getRequestUser(request);
         ModelAndView mv = createModelAndView("/admin/bizuser/role-privileges", "Role", user);
-
         setEntities(mv);
+        setRoles(mv);
         mv.getModel().put("RoleId", id);
         return mv;
+    }
+
+    private void setRoles(ModelAndView mv) {
+        List<Object[]> roles = new ArrayList<>();
+        for (Role role : Application.getUserStore().getAllRoles()) {
+            roles.add(new Object[]{role.getIdentity(), role.getName(), role.isDisabled()});
+        }
+        roles.sort((o1, o2) -> {
+            if (RoleService.ADMIN_ROLE.equals(o1[0])) return -1;
+            else if (RoleService.ADMIN_ROLE.equals(o2[0])) return 1;
+            else return ((String) o1[1]).compareTo((String) o2[1]);
+        });
+        mv.getModel().put("Roles", roles);
     }
 
     private void setEntities(ModelAndView mv) {

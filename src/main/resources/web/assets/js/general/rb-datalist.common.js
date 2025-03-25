@@ -482,7 +482,7 @@ class BatchUpdate extends BatchOperator {
     if (rb.env === 'dev') console.log(JSON.stringify(_data))
 
     const that = this
-    RbAlert.create($L('请再次确认修改数据范围和修改内容。开始修改吗？'), {
+    RbAlert.create(<b>{$L('请再次确认修改数据范围和修改内容。开始修改吗？')}</b>, {
       onConfirm: function () {
         this.hide()
         that.disabled(true, true)
@@ -680,7 +680,7 @@ class BatchApprove extends BatchOperator {
           <label className="text-bold">{$L('批注')}</label>
           <textarea className="form-control form-control-sm row2x" name="approveRemark" placeholder={$L('输入批注 (可选)')} maxLength="600" onChange={this.handleChange} />
         </div>
-        <RbAlertBox message={$L('仅处于待你审批，且允许批量审批的记录才能审批成功')} className="mb-0" />
+        <RbAlertBox message={$L('仅处于待你审批，且允许批量审批的记录才能审批成功')} type="info" className="mb-0" />
       </div>
     )
   }
