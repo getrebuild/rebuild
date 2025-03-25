@@ -5242,6 +5242,9 @@ pre.unstyle {
 .rbcolors > a.default {
   border: 1px solid #ccc;
   background-color: #fff;
+  background-image: linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc), linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc);
+  background-size: 10px 10px;
+  background-position: 0 0, 5px 5px;
 }
 
 .rbcolors > a.default > i {
