@@ -34,8 +34,8 @@ public class NotificationObserver extends OperatingObserver {
 
     @Override
     protected boolean isAsync() {
-        // NOTE 异步无法使用 NotificationOnce 功能
-        return true;
+        // NOTE 异步无法使用 NotificationOnce 合并发送功能
+        return false;
     }
 
     @Override
