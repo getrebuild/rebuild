@@ -5966,8 +5966,9 @@ div.formula-code {
   border: 0 none;
 }
 
-.modal-dialog-centered-unset .modal-dialog-centered {
+.modal-dialog-centered-unset .modal-dialog.modal-dialog-centered {
   display: block;
+  margin: 0 auto !important;
 }
 
 .rb-navless40 .rb-wrapper {
