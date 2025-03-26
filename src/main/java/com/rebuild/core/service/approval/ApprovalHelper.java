@@ -267,12 +267,12 @@ public class ApprovalHelper {
      * @param createdOn
      * @param eaConf
      * @param recordId
-     * @return
+     * @return `null` 表示未开启
      * @see #getExpiresAuto(ID, String)
      */
-    public static long getExpiresTimeLeft(Date createdOn, JSONObject eaConf, ID recordId) {
+    public static Long getExpiresTimeLeft(Date createdOn, JSONObject eaConf, ID recordId) {
         Date exp = getExpiresTime(createdOn, eaConf, recordId);
-        if (exp == null) return 0;
+        if (exp == null) return null;
         return (CalendarUtils.now().getTime() - exp.getTime()) / 1000;
     }
 }

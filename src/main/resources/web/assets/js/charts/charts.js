@@ -908,16 +908,19 @@ class ApprovalList extends BaseChart {
             </thead>
             <tbody>
               {data.data.map((item, idx) => {
+                let expType = isNaN(item[8]) ? null : item[8]
+                if (expType !== null) expType = item[8] > 0 ? 2 : 1
                 return (
                   <tr key={`approval-${idx}`}>
                     <td className="user-avatar cell-detail user-info">
                       <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} alt="Avatar" />
                       <span>{item[1]}</span>
                       <span className="cell-detail-description">
-                        <div className="float-left" style={{ marginTop: item[8] >= 2 ? 3 : 0 }}>
+                        <div className="float-left" style={{ marginTop: expType ? 2 : 0 }}>
                           <DateShow date={item[2]} />
                         </div>
-                        {item[8] >= 2 && <span className="float-left badge badge-sm badge-danger ml-1">{$L('已超时 %s', $sec2Time(item[8]))}</span>}
+                        {expType === 2 && <span className="float-left badge badge-sm badge-danger ml-1">{$L('已超时 %s', $sec2Time(item[8]))}</span>}
+                        {expType === 1 && <span className="float-left badge badge-sm badge-info ml-1">{$L('%s 后超时', $sec2Time(Math.abs(item[8])))}</span>}
                       </span>
                     </td>
                     <td className="cell-detail">
