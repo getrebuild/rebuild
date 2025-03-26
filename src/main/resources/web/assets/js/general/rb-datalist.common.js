@@ -2261,7 +2261,7 @@ const EasyAction4List = {
               $row.find('.col-action button[data-eaid]').each((i, b) => {
                 const $this = $(b)
                 if (res[$this.data('eaid')]) {
-                  $this.removeClass('disabled')
+                  $this.removeClass('disabled hide')
                   if ($this.hasClass('bs-tooltip')) $this.tooltip({})
                 } else {
                   $this.addClass('hide')

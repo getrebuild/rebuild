@@ -1855,6 +1855,8 @@ th.column-fixed {
 .column-fixed.col-action .btn.btn-sm {
   line-height: 26px;
   min-width: 32px;
+  padding-left: 6px;
+  padding-right: 6px;
 }
 
 .column-fixed.col-action .btn.btn-sm:hover,
