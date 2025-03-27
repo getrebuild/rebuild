@@ -234,13 +234,19 @@ class ChartIndex extends BaseChart {
         <div className="data-item must-center text-truncate w-auto">
           <p style={style2}>{_index.label || this.label}</p>
           <strong style={style2}>
-            {formatThousands(_index.data, _index.dataFlag)}
+            <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}&axis=N1`} target="_blank">
+              {formatThousands(_index.data, _index.dataFlag)}
+            </a>
             {showGrowthRate && clazz2 && <span className={clazz2}>{rate2}</span>}
           </strong>
           {_index.label2 && (
             <div className="with">
               <p>{_index.label2}</p>
-              <strong>{formatThousands(_index.data2, _index.dataFlag2)}</strong>
+              <strong>
+                <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}&axis=N2`} target="_blank">
+                  {formatThousands(_index.data2, _index.dataFlag2)}
+                </a>
+              </strong>
             </div>
           )}
         </div>

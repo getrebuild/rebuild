@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.general;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
@@ -110,11 +111,11 @@ public class ProtocolFilterParser {
 
     /**
      * @param viaId
-     * @param refField
+     * @param extParam
      * @return
      * @see #P_VIA
      */
-    protected String parseVia(String viaId, String refField) {
+    protected String parseVia(String viaId, String extParam) {
         final ID anyId = ID.isId(viaId) ? ID.valueOf(viaId) : null;
         if (anyId == null) return null;
 
@@ -131,21 +132,36 @@ public class ProtocolFilterParser {
                 JSONObject axis = chartConfig.getJSONObject("axis");
                 JSONArray numsOfAxis = axis == null ? null : axis.getJSONArray("numerical");
                 if (!CollectionUtils.isEmpty(numsOfAxis)) {
+                    int useAxis = extParam != null && extParam.startsWith("N")
+                            ? ObjectUtils.toInt(extParam.substring(1)) : -1;
                     List<String> numsSqls = new ArrayList<>();
-                    for (Object o : numsOfAxis) {
+                    if (useAxis == -1) {
+                        for (Object o : numsOfAxis) {
+                            JSONObject axisFilterExp = ((JSONObject) o).getJSONObject("filter");
+                            if (ParseHelper.validAdvFilter(axisFilterExp)) {
+                                String f = new AdvFilterParser(axisFilterExp).toSqlWhere();
+                                if (f != null) numsSqls.add(f);
+                                else numsSqls.add("(1=1)");
+                            } else {
+                                numsSqls.add("(1=1)");
+                            }
+                        }
+                    } else {
+                        Object o = numsOfAxis.get(useAxis - 1);
                         JSONObject axisFilterExp = ((JSONObject) o).getJSONObject("filter");
                         if (ParseHelper.validAdvFilter(axisFilterExp)) {
-                            String s = new AdvFilterParser(axisFilterExp).toSqlWhere();
-                            if (s != null) numsSqls.add(s);
+                            String f = new AdvFilterParser(axisFilterExp).toSqlWhere();
+                            if (f != null) numsSqls.add(f);
                         }
                     }
 
                     if (!numsSqls.isEmpty()) {
+                        String numsSql = String.format("(%s)", StringUtils.join(numsSqls, " or "));
                         if (ParseHelper.validAdvFilter(filterExp)) {
                             String chartSql = new AdvFilterParser(filterExp).toSqlWhere();
-                            return String.format("%s and (%s)", chartSql, StringUtils.join(numsSqls, " or "));
+                            return String.format("%s and %s", chartSql, numsSql);
                         }
-                        return String.format("(%s)", StringUtils.join(numsSqls, " or "));
+                        return numsSql;
                     }
                 }
             }
@@ -156,9 +172,9 @@ public class ProtocolFilterParser {
             if (filter != null) filterExp = (JSONObject) filter.getJSON("filter");
         }
         // via OTHERS
-        else if (refField != null) {
+        else if (extParam != null) {
             // format: Entity.Field
-            String[] entityAndField = refField.split("\\.");
+            String[] entityAndField = extParam.split("\\.");
             Assert.isTrue(entityAndField.length == 2, "Bad `via` filter defined");
 
             Field field = MetadataHelper.getField(entityAndField[0], entityAndField[1]);
