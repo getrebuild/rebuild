@@ -109,6 +109,13 @@
         font-weight: normal;
         line-height: 1.2;
       }
+      .aside-2tree h5 {
+        padding: 0 10px;
+        margin: 0;
+        line-height: 30px;
+        color: #b0b0b0;
+        font-weight: 600;
+      }
     </style>
   </head>
   <body>
@@ -121,8 +128,12 @@
             <div class="page-aside-tree" id="role-tree">
               <div class="aside-2tree hide-collapse">
                 <ul class="list-unstyled m-0">
-                  <li th:each="R : ${Roles}" th:class="${R[0] == RoleId ?'active':''}">
-                    <a th:data-id="${R[0]}" class="text-ellipsis" th:classappend="${R[2] ?'text-disabled':''}">[[${R[1]}]]</a>
+                  <li th:each="R : ${Roles}" th:class="${R[0] == RoleId ?'active':''}" th:if="${!R[2]}">
+                    <a th:data-id="${R[0]}" class="text-ellipsis">[[${R[1]}]]</a>
+                  </li>
+                  <h5 th:if="${hasDisabled}">[[${bundle.L('已禁用')}]]</h5>
+                  <li th:each="R : ${Roles}" th:class="${R[0] == RoleId ?'active':''}" th:if="${R[2]}">
+                    <a th:data-id="${R[0]}" class="text-ellipsis">[[${R[1]}]]</a>
                   </li>
                 </ul>
               </div>
