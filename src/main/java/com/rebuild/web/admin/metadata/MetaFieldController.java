@@ -81,7 +81,6 @@ public class MetaFieldController extends BaseController {
             map.put("builtin", easyMeta.isBuiltin());
             map.put("creatable", field.isCreatable());
             map.put("updatable", field.isUpdatable());
-
             DisplayType dt = easyMeta.getDisplayType();
             map.put("displayType", Language.L(dt));
             map.put("displayTypeName", easyMeta.getDisplayType().name());

@@ -267,6 +267,22 @@ class DlgMode2Option extends RbFormHandler {
               </div>
             </div>
           </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('树型列表')}</label>
+            <div className="col-sm-6">
+              <select className="form-control form-control-sm" ref={(c) => (this._$enableTreeField = c)}>
+                <option value="">{$L('不启用')}</option>
+                {this.state.treeields &&
+                  this.state.treeields.map((item) => {
+                    return (
+                      <option key={item.fieldName} value={item.fieldName}>
+                        {item.fieldLabel}
+                      </option>
+                    )
+                  })}
+              </select>
+            </div>
+          </div>
           <div className="form-group row footer">
             <div className="col-sm-9 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this.save}>
@@ -285,7 +301,7 @@ class DlgMode2Option extends RbFormHandler {
   componentDidMount() {
     let $clickItem
     const $menu = $(this._$showFields).find('.dropdown-menu')
-    $.get(`../list-field?entity=${wpc.entityName}`, (res) => {
+    $.get(`../list-field?entity=${wpc.entityName}&refname=true`, (res) => {
       const _data = [{ fieldName: null, fieldLabel: $L('默认'), displayTypeName: 'N' }]
       _data.push(...res.data)
 
@@ -318,6 +334,14 @@ class DlgMode2Option extends RbFormHandler {
         .on('hide.bs.dropdown', () => {
           $menu.find('.dropdown-item').removeClass('hide')
         })
+
+      let treeFields = []
+      res.data.forEach((item) => {
+        if (item.displayTypeName === 'REFERENCE' && item.displayTypeRef[0] === wpc.entityName) {
+          treeFields.push(item)
+        }
+      })
+      this.setState({ treeFields })
 
       if (wpc.extConfig) {
         const showFields = this.__mode3 ? wpc.extConfig.mode3ShowFields : wpc.extConfig.mode2ShowFields
