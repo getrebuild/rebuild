@@ -268,7 +268,7 @@ class DlgMode2Option extends RbFormHandler {
             </div>
           </div>
           <div className="form-group row bosskey-show">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('启用树型列表')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('启用树型列表')} (LAB)</label>
             <div className="col-sm-9">
               <div style={{ width: '96%' }}>
                 <div className="row">
@@ -286,7 +286,7 @@ class DlgMode2Option extends RbFormHandler {
                     <p className="text-muted m-0 mt-1">{$L('使用顶级字段')}</p>
                   </div>
                   <div className="col-sm-6 pl-2">
-                    <select className="form-control form-control-sm" ref={(c) => (this._$enableTreeParentField = c)}>
+                    <select className="form-control form-control-sm" ref={(c) => (this._$enableTreeParentField = c)} disabled>
                       {this.state.treeParentFields &&
                         this.state.treeParentFields.map((item) => {
                           return (
