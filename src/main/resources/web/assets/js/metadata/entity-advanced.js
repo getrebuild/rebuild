@@ -283,7 +283,7 @@ class DlgMode2Option extends RbFormHandler {
                           )
                         })}
                     </select>
-                    <p className="text-muted m-0 mt-1">{$L('使用顶级字段')}</p>
+                    <p className="text-muted m-0 mt-1">{$L('使用分组字段')}</p>
                   </div>
                   <div className="col-sm-6 pl-2">
                     <select className="form-control form-control-sm" ref={(c) => (this._$enableTreeParentField = c)} disabled>
