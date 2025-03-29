@@ -915,7 +915,7 @@ class ProTableTree extends ProTable {
     model._treeNodeLevel = PF.props.rawModel._treeNodeLevel + 1
     // 父级ID
     const stc = this.props.showTreeConfig
-    if (stc.parentField) {
+    if (stc && stc.parentField) {
       const parentId = PF.props.rawModel.id.replace('000-', stc.parentFieldRefEntityCode + '-')
       this._setValueInModel(model, stc.parentField, parentId)
     }
@@ -933,7 +933,7 @@ class ProTableTree extends ProTable {
 
   setLines(models = []) {
     const stc = this.props.showTreeConfig
-    if (stc.parentField) {
+    if (stc && stc.parentField) {
       let root = []
       models.forEach((model) => {
         let p = this._getValueInModel(model, stc.parentField)
