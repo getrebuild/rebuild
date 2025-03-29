@@ -237,6 +237,12 @@ public class QueryParser {
         final String whereClause = wheres.isEmpty() ? "1=1" : StringUtils.join(wheres.iterator(), " and ");
         fullSql.append(" where ").append(whereClause);
 
+        // v4.0-b3 分组
+        final String groupBy = queryExpr.getString("groupBy");
+        if (groupBy != null) {
+            fullSql.append(" group by ").append(groupBy);
+        }
+
         // 排序
         String sortNode = queryExpr.getString("sort");
         String sortClause = null;
@@ -257,6 +263,11 @@ public class QueryParser {
 
         this.sql = fullSql.toString();
         this.countSql = this.buildCountSql(pkName) + whereClause;
+        if (groupBy != null) {
+            // TODO NULL 未计入
+            String distinctSql = String.format("select count(distinct %s", groupBy);
+            this.countSql = distinctSql + this.countSql.substring(this.countSql.indexOf(")"));
+        }
 
         int pageNo = NumberUtils.toInt(queryExpr.getString("pageNo"), 1);
         int pageSize = NumberUtils.toInt(queryExpr.getString("pageSize"), 40);

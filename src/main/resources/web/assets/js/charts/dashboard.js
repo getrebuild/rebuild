@@ -168,19 +168,31 @@ $(document).ready(() => {
 
   $('.J_darkmode button').on('click', () => $(document.body).toggleClass('darkmode'))
 
-  // check AppBuild
+  // check:LastRebuildVer
   if (window.localStorage && rb.isAdminUser) {
-    const last = window.localStorage.getItem('LastAppBuild') || rb.build
-    // eslint-disable-next-line eqeqeq
-    if (last != rb.build) {
-      setTimeout(() => {
-        RbGritter.create(<RF>{$L('REBUILD 已成功更新至 %s 版本', rb.build)}</RF>, {
-          timeout: 15 * 1000,
-          type: 'success',
-          icon: 'mdi-shimmer',
-        })
-        window.localStorage.setItem('LastAppBuild', rb.build)
-      }, 1500)
+    const lastVer = window.localStorage.getItem('LastRebuildVer')
+    if (lastVer) {
+      // eslint-disable-next-line eqeqeq
+      if (lastVer != rb.ver) {
+        setTimeout(() => {
+          RbGritter.create(
+            <RF>
+              <p>{$L('REBUILD 已成功更新至 %s 版本', rb.ver)}</p>
+              <a href={`https://getrebuild.com/docs/dev/changelog?ver=${rb.ver}`} target="_blank" className="text-white link">
+                {$L('查看详情')}
+              </a>
+            </RF>,
+            {
+              timeout: 30 * 1000,
+              type: 'success',
+              icon: 'mdi-shimmer',
+            }
+          )
+          window.localStorage.setItem('LastRebuildVer', rb.ver)
+        }, 1500)
+      }
+    } else {
+      window.localStorage.setItem('LastRebuildVer', rb.ver)
     }
   }
 })

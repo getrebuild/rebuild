@@ -63,19 +63,19 @@ import static com.rebuild.core.service.datareport.TemplateExtractor33.NROW_PREFI
 public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
     // 支持多记录导出，会合并到一个 Excel 文件
-    final private List<ID> recordIdMultiple;
+    final private List<ID> recordIdMult;
 
     private Set<String> inShapeVars;
     private Map<String, Object> recordMainHolder;
 
     protected EasyExcelGenerator33(File templateFile, ID recordId) {
         super(templateFile, recordId);
-        this.recordIdMultiple = null;
+        this.recordIdMult = null;
     }
 
     protected EasyExcelGenerator33(File template, List<ID> recordIds) {
         super(template, recordIds.get(0));
-        this.recordIdMultiple = recordIds;
+        this.recordIdMult = recordIds;
     }
 
     @Override
@@ -249,7 +249,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
     @Override
     public File generate() {
-        if (recordIdMultiple == null) return superGenerate();
+        if (recordIdMult == null) return superGenerate();
 
         // init
         File targetFile = super.getTargetFile();
@@ -260,7 +260,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
         }
 
         PrintSetup copyPrintSetup = null;
-        for (ID recordId : recordIdMultiple) {
+        for (ID recordId : recordIdMult) {
             int newSheetAt;
             try (Workbook wb = WorkbookFactory.create(Files.newInputStream(targetFile.toPath()))) {
                 // 1.复制模板

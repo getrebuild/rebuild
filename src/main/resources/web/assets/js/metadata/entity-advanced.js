@@ -267,6 +267,41 @@ class DlgMode2Option extends RbFormHandler {
               </div>
             </div>
           </div>
+          <div className="form-group row bosskey-show">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('启用树型列表')} (LAB)</label>
+            <div className="col-sm-9">
+              <div style={{ width: '96%' }}>
+                <div className="row">
+                  <div className="col-sm-6 pr-2">
+                    <select className="form-control form-control-sm" ref={(c) => (this._$enableTreeGroupField = c)}>
+                      {this.state.treeGroupFields &&
+                        this.state.treeGroupFields.map((item) => {
+                          return (
+                            <option key={item.fieldName} value={item.fieldName}>
+                              {item.fieldLabel}
+                            </option>
+                          )
+                        })}
+                    </select>
+                    <p className="text-muted m-0 mt-1">{$L('使用分组字段')}</p>
+                  </div>
+                  <div className="col-sm-6 pl-2">
+                    <select className="form-control form-control-sm" ref={(c) => (this._$enableTreeParentField = c)} disabled>
+                      {this.state.treeParentFields &&
+                        this.state.treeParentFields.map((item) => {
+                          return (
+                            <option key={item.fieldName} value={item.fieldName}>
+                              {item.fieldLabel}
+                            </option>
+                          )
+                        })}
+                    </select>
+                    <p className="text-muted m-0 mt-1">{$L('使用父级字段')}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           <div className="form-group row footer">
             <div className="col-sm-9 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this.save}>
@@ -285,7 +320,7 @@ class DlgMode2Option extends RbFormHandler {
   componentDidMount() {
     let $clickItem
     const $menu = $(this._$showFields).find('.dropdown-menu')
-    $.get(`../list-field?entity=${wpc.entityName}`, (res) => {
+    $.get(`../list-field?entity=${wpc.entityName}&refname=true`, (res) => {
       const _data = [{ fieldName: null, fieldLabel: $L('默认'), displayTypeName: 'N' }]
       _data.push(...res.data)
 
@@ -319,6 +354,23 @@ class DlgMode2Option extends RbFormHandler {
           $menu.find('.dropdown-item').removeClass('hide')
         })
 
+      let treeGroupFields = [],
+        treeParentFields = []
+      res.data.forEach((item) => {
+        if (['TEXT', 'REFERENCE', 'DATE', 'CLASSIFICATION'].includes(item.displayTypeName)) {
+          treeGroupFields.push(item)
+        }
+        if (item.displayTypeName === 'REFERENCE' && item.displayTypeRef[0] === wpc.entityName) {
+          treeParentFields.push(item)
+        }
+      })
+      this.setState({ treeGroupFields, treeParentFields })
+      $([this._$enableTreeGroupField, this._$enableTreeParentField])
+        .select2({ placeholder: $L('不启用') })
+        .val(null)
+        .trigger('change')
+
+      // init
       if (wpc.extConfig) {
         const showFields = this.__mode3 ? wpc.extConfig.mode3ShowFields : wpc.extConfig.mode2ShowFields
         if (showFields) {
@@ -331,8 +383,15 @@ class DlgMode2Option extends RbFormHandler {
             }
           })
         }
+        if (wpc.extConfig.mode2EnableTreeGroupField) {
+          const $e = $(this._$enableTreeGroupField).val(wpc.extConfig.mode2EnableTreeGroupField).trigger('change')
+          $e.parents('.bosskey-show').removeClass('bosskey-show')
+        }
+        if (wpc.extConfig.mode2EnableTreeParentField) {
+          const $e = $(this._$enableTreeParentField).val(wpc.extConfig.mode2EnableTreeParentField).trigger('change')
+          $e.parents('.bosskey-show').removeClass('bosskey-show')
+        }
       }
-      // this._loadAfter && this._loadAfter(res.data)
     })
   }
 
@@ -358,6 +417,10 @@ class DlgMode2Option extends RbFormHandler {
 
     let o = {
       [this.__mode3 ? 'mode3ShowFields' : 'mode2ShowFields']: modeShowFields,
+    }
+    if (this._$enableTreeGroupField) {
+      o.mode2EnableTreeGroupField = $(this._$enableTreeGroupField).val() || null
+      o.mode2EnableTreeParentField = $(this._$enableTreeParentField).val() || null
     }
     if (this._saveBefore) {
       o = this._saveBefore(o)

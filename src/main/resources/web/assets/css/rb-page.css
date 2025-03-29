@@ -1855,6 +1855,8 @@ th.column-fixed {
 .column-fixed.col-action .btn.btn-sm {
   line-height: 26px;
   min-width: 32px;
+  padding-left: 6px;
+  padding-right: 6px;
 }
 
 .column-fixed.col-action .btn.btn-sm:hover,
@@ -5964,8 +5966,9 @@ div.formula-code {
   border: 0 none;
 }
 
-.modal-dialog-centered-unset .modal-dialog-centered {
+.modal-dialog-centered-unset .modal-dialog.modal-dialog-centered {
   display: block;
+  margin: 0 auto !important;
 }
 
 .rb-navless40 .rb-wrapper {

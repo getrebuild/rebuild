@@ -68,11 +68,8 @@ public class ListFieldsController extends BaseController implements ShareTo {
         // 普通用户只能有一个
         if (cfgid != null && !UserHelper.isSelf(user, cfgid)) {
             ID useList = DataListManager.instance.detectUseConfig(user, entity, DataListManager.TYPE_DATALIST);
-            if (useList != null && UserHelper.isSelf(user, useList)) {
-                cfgid = useList;
-            } else {
-                cfgid = null;
-            }
+            if (useList != null && UserHelper.isSelf(user, useList)) cfgid = useList;
+            else cfgid = null;
         }
 
         JSON config = ServletUtils.getRequestJson(request);

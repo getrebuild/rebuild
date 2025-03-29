@@ -61,13 +61,16 @@ public class ChartDataController extends BaseController {
      * @see DataListBuilderImpl
      */
     @RequestMapping("view-chart-source")
-    public void viewChartSource(@IdParam ID chartId, HttpServletResponse response) throws IOException {
+    public void viewChartSource(@IdParam ID chartId,
+                                HttpServletRequest request, HttpServletResponse response) throws IOException {
         ConfigBean configEntry = ChartManager.instance.getChart(chartId);
 
         JSONObject config = (JSONObject) configEntry.getJSON("config");
         String sourceEntity = config.getString("entity");
 
         String url = MessageFormat.format("../app/{0}/list#via={1}", sourceEntity, chartId);
+        String axis = getParameter(request, "axis");
+        if (StringUtils.isNotBlank(axis)) url += ":" + axis;
         response.sendRedirect(url);
     }
 }

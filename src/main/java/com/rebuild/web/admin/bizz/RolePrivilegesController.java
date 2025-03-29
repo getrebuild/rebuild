@@ -66,8 +66,10 @@ public class RolePrivilegesController extends EntityController {
 
     private void setRoles(ModelAndView mv) {
         List<Object[]> roles = new ArrayList<>();
+        boolean hasDisabled = false;
         for (Role role : Application.getUserStore().getAllRoles()) {
             roles.add(new Object[]{role.getIdentity(), role.getName(), role.isDisabled()});
+            if (role.isDisabled()) hasDisabled = true;
         }
         roles.sort((o1, o2) -> {
             if (RoleService.ADMIN_ROLE.equals(o1[0])) return -1;
@@ -75,6 +77,7 @@ public class RolePrivilegesController extends EntityController {
             else return ((String) o1[1]).compareTo((String) o2[1]);
         });
         mv.getModel().put("Roles", roles);
+        mv.getModel().put("hasDisabled", hasDisabled);
     }
 
     private void setEntities(ModelAndView mv) {

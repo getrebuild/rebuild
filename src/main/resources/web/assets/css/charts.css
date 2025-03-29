@@ -135,6 +135,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-weight: 400;
 }
 
+.chart.index > .data-item strong > a {
+  color: unset;
+}
+
+.chart.index > .data-item strong > a:hover {
+  opacity: 0.8;
+}
+
 .chart.index > .data-item .with p,
 .chart.index > .data-item .with strong {
   display: inline-block;
@@ -688,39 +696,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
   height: 100%;
 }
 
-.chart.ctable .table.table-header-fixed2 {
-  border: 1px solid #dee2e6;
-  border-top: 0 none;
-}
-
-.chart.ctable .table.table-header-fixed2 thead,
-.chart.ctable .table.table-header-fixed2 tbody {
-  border-width: 0;
-}
-
 .chart.ctable .table.table-header-fixed2 thead {
   position: sticky;
   top: 0;
 }
 
-.chart.ctable .table.table-header-fixed2 thead th {
-  border-width: 0;
-}
-
-.chart.ctable .table.table-header-fixed2 thead th::before,
 .chart.ctable .table.table-header-fixed2 thead th::after {
   content: '';
   position: absolute;
-  left: 0;
   width: 100%;
-}
-
-.chart.ctable .table.table-header-fixed2 thead th::before {
-  top: 0;
-  border-top: 1px solid #dee2e6;
-}
-
-.chart.ctable .table.table-header-fixed2 thead th::after {
+  left: 0;
   bottom: 0;
   border-bottom: 1px solid #dee2e6;
 }

@@ -486,7 +486,10 @@ class ApprovalApproveForm extends ApprovalUsersForm {
           {(this.state.aform || this.state.aform_details) && this.renderLiteForm()}
 
           <div className="form-group">
-            <label>{$L('批注')}</label>
+            <label>
+              {$L('批注')}
+              {this.state.expiresTime > 0 && <span className="text-danger ml-1">({$L('已超时 %s', $sec2Time(this.state.expiresTime))})</span>}
+            </label>
             <textarea
               className="form-control form-control-sm row2x"
               name="remark"

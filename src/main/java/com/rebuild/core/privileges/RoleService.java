@@ -54,6 +54,11 @@ public class RoleService extends BaseService implements AdminGuard {
 
     @Override
     public Record update(Record record) {
+        if (ADMIN_ROLE.equals(record.getPrimary())) {
+            Boolean b = record.getBoolean("isDisabled");
+            if (b != null && b) throw new OperationDeniedException("内置角色不能禁用");
+        }
+
         record = super.update(record);
         Application.getUserStore().refreshRole(record.getPrimary());
         return record;
@@ -70,9 +75,7 @@ public class RoleService extends BaseService implements AdminGuard {
      * @param transferTo 删除后转移成员到其他角色
      */
     public void deleteAndTransfer(ID roleId, ID transferTo) {
-        if (roleId.equals(ADMIN_ROLE)) {
-            throw new OperationDeniedException("内置角色禁止删除");
-        }
+        if (ADMIN_ROLE.equals(roleId)) throw new OperationDeniedException("内置角色禁止删除");
 
         super.delete(roleId);
         Application.getUserStore().removeRole(roleId, transferTo);
