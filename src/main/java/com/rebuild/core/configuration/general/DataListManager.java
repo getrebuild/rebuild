@@ -344,7 +344,8 @@ public class DataListManager extends BaseLayoutManager {
      * @return
      */
     public JSON getFieldsLayoutMode2(Entity entity) {
-        String showFields = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE2_SHOWFIELDS);
+        final EasyEntity entityEasy = EasyMetaFactory.valueOf(entity);
+        String showFields = entityEasy.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE2_SHOWFIELDS);
         JSONArray showFieldsConf;
         if (JSONUtils.wellFormat(showFields)) {
             showFieldsConf = JSON.parseArray(showFields);
@@ -376,6 +377,16 @@ public class DataListManager extends BaseLayoutManager {
         String createdByField4 = showFieldsConf.getString(4);
         if (createdByField4 == null) {
             showFieldsConf.set(4, EntityHelper.CreatedBy);
+        }
+
+        // v4.0-b3
+        String tgf = entityEasy.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE2_ENABLETREEGROUPFIELD);
+        if (StringUtils.isNotBlank(tgf)) {
+            showFieldsConf = new JSONArray();
+            showFieldsConf.add(tgf);
+            JSONObject res = (JSONObject) formatShowFields(entity, showFieldsConf);
+            res.put("treeGroupField", tgf);
+            return res;
         }
 
         return formatShowFields(entity, showFieldsConf);

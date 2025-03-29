@@ -89,6 +89,14 @@ public class EasyEntityConfigProps {
      */
     public static final String ADVLIST_MODE2_SHOWFIELDS = "mode2ShowFields";
     /**
+     * 详情模式:树形菜单:父级
+     */
+    public static final String ADVLIST_MODE2_ENABLETREEPARENTFIELD = "mode2EnableTreeParentField";
+    /**
+     * 详情模式:树形菜单:顶级
+     */
+    public static final String ADVLIST_MODE2_ENABLETREEGROUPFIELD = "mode2EnableTreeGroupField";
+    /**
      * 卡片模式:字段
      */
     public static final String ADVLIST_MODE3_SHOWFIELDS = "mode3ShowFields";

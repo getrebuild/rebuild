@@ -237,6 +237,12 @@ public class QueryParser {
         final String whereClause = wheres.isEmpty() ? "1=1" : StringUtils.join(wheres.iterator(), " and ");
         fullSql.append(" where ").append(whereClause);
 
+        // v4.0-b3 分组
+        String groupBy = queryExpr.getString("groupBy");
+        if (groupBy != null) {
+            fullSql.append(" group by ").append(groupBy);
+        }
+
         // 排序
         String sortNode = queryExpr.getString("sort");
         String sortClause = null;
