@@ -28,8 +28,8 @@
         <div class="page-head">
           <div class="page-head-title">[[${bundle.L('高级配置')}]]</div>
         </div>
-        <div class="main-content container-fluid pt-1">
-          <div th:if="${useListMode}" class="card">
+        <div class="main-content container-fluid pt-0" th:if="${!isBizz}">
+          <div class="card">
             <div class="card-header">
               [[${bundle.L('列表模式')}]]
               <sup class="rbv"></sup>
@@ -148,6 +148,12 @@
                 <a th:href="|../entity-export?id=${entityMetaId}|" target="_blank" class="btn btn-primary"><i class="zmdi zmdi-cloud-download icon"></i> [[${bundle.L('导出')}]]</a>
               </div>
             </div>
+          </div>
+        </div>
+        <div class="main-content container-fluid pt-0" th:if="${isBizz}">
+          <div class="alert alert-warning alert-icon">
+            <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
+            <div class="message">[[${bundle.L('系统内置，不允许修改')}]]</div>
           </div>
         </div>
       </div>

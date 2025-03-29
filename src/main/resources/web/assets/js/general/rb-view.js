@@ -109,6 +109,10 @@ class RbViewForm extends React.Component {
   hideLoading() {
     const ph = parent && parent.RbViewModal ? parent.RbViewModal.holder(this.state.id) : null
     ph && ph.hideLoading()
+    // v4.0-b3 mode2 不显示 header
+    if (parent && parent.RbViewModal && parent.RbViewModal.mode === 2) {
+      $('.view-header').addClass('hide')
+    }
   }
 
   showAgain(handle) {

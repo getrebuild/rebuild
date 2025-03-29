@@ -136,8 +136,7 @@ public class MetaEntityController extends EntityController {
         mv.getModel().put("entityExtConfig", easyEntity.getExtraAttrs(true));
 
         boolean isBizz = MetadataHelper.isBizzEntity(easyEntity.getRawMeta());
-        mv.getModel().put("useListMode", !isBizz);
-
+        mv.getModel().put("isBizz", isBizz);
         return mv;
     }
 
@@ -165,6 +164,9 @@ public class MetaEntityController extends EntityController {
             mv.getModelMap().put("configId", cb.getID("id"));
             mv.getModelMap().put("config", cb.getJSON("config"));
         }
+
+        boolean isBizz = MetadataHelper.isBizzEntity(easyEntity.getRawMeta());
+        mv.getModel().put("isBizz", isBizz);
         return mv;
     }
 
