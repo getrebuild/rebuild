@@ -106,7 +106,18 @@ public class ReportsController extends BaseController {
                 reportGenerator = EasyExcelGenerator.create(reportId, Arrays.asList(recordIds));
             }
 
-            if (reportGenerator != null) output = reportGenerator.generate();
+            if (reportGenerator != null) {
+                // in URL
+                String vars = getParameter(request, "vars");
+                if (JSONUtils.wellFormat(vars) && reportGenerator instanceof EasyExcelGenerator33) {
+                    JSONObject varsJson = JSON.parseObject(vars);
+                    if (varsJson != null) {
+                        ((EasyExcelGenerator33) reportGenerator).setTempVars(varsJson.getInnerMap());
+                    }
+                }
+
+                output = reportGenerator.generate();
+            }
 
             CommonsLog.createLog(CommonsLog.TYPE_REPORT,
                     getRequestUser(request), reportId, StringUtils.join(recordIds, ";"));

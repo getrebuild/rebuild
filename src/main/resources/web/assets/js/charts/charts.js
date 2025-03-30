@@ -234,13 +234,19 @@ class ChartIndex extends BaseChart {
         <div className="data-item must-center text-truncate w-auto">
           <p style={style2}>{_index.label || this.label}</p>
           <strong style={style2}>
-            {formatThousands(_index.data, _index.dataFlag)}
+            <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}&axis=N1`} target="_blank">
+              {formatThousands(_index.data, _index.dataFlag)}
+            </a>
             {showGrowthRate && clazz2 && <span className={clazz2}>{rate2}</span>}
           </strong>
           {_index.label2 && (
             <div className="with">
               <p>{_index.label2}</p>
-              <strong>{formatThousands(_index.data2, _index.dataFlag2)}</strong>
+              <strong>
+                <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}&axis=N2`} target="_blank">
+                  {formatThousands(_index.data2, _index.dataFlag2)}
+                </a>
+              </strong>
             </div>
           )}
         </div>
@@ -908,16 +914,19 @@ class ApprovalList extends BaseChart {
             </thead>
             <tbody>
               {data.data.map((item, idx) => {
+                let expType = isNaN(item[8]) ? null : item[8]
+                if (expType !== null) expType = item[8] > 0 ? 2 : 1
                 return (
                   <tr key={`approval-${idx}`}>
                     <td className="user-avatar cell-detail user-info">
                       <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} alt="Avatar" />
                       <span>{item[1]}</span>
                       <span className="cell-detail-description">
-                        <div className="float-left" style={{ marginTop: item[8] >= 2 ? 3 : 0 }}>
+                        <div className="float-left" style={{ marginTop: expType ? 2 : 0 }}>
                           <DateShow date={item[2]} />
                         </div>
-                        {item[8] >= 2 && <span className="float-left badge badge-sm badge-danger ml-1">{$L('已超时 %s', $sec2Time(item[8]))}</span>}
+                        {expType === 2 && <span className="float-left badge badge-sm badge-danger ml-1">{$L('已超时 %s', $sec2Time(item[8]))}</span>}
+                        {expType === 1 && <span className="float-left badge badge-sm badge-info ml-1">{$L('%s 后超时', $sec2Time(Math.abs(item[8])))}</span>}
                       </span>
                     </td>
                     <td className="cell-detail">
@@ -1447,8 +1456,7 @@ class DataList extends BaseChart {
                     data-field={item.field}
                     className={sortClazz}
                     onClick={(e) => {
-                      // eslint-disable-next-line no-undef
-                      if (UNSORT_FIELDTYPES.includes(item.type)) return
+                      if (window.UNSORT_FIELDTYPES.includes(item.type)) return
 
                       const $th = $(e.currentTarget)
                       const hasAsc = $th.hasClass('sort-asc'),

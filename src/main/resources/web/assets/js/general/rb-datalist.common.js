@@ -913,8 +913,7 @@ class RbList extends React.Component {
 
       if (sort && sort[0] === fields[i].field) fields[i].sort = sort[1]
       else fields[i].sort = null
-      // eslint-disable-next-line no-undef
-      if (UNSORT_FIELDTYPES.includes(fields[i].type)) fields[i].unsort = true
+      if (window.UNSORT_FIELDTYPES.includes(fields[i].type)) fields[i].unsort = true
     }
 
     delete props.config.fields
@@ -999,25 +998,27 @@ class RbList extends React.Component {
                         <td className="column-empty" />
                         {rowActions.length > 0 && (
                           <td className="col-action column-fixed">
-                            {rowActions.map((btn, idx) => {
-                              return (
-                                <button
-                                  key={idx}
-                                  type="button"
-                                  className={`btn btn-sm btn-link w-auto ${btn._eaid && 'disabled'} ${btn.title && 'bs-tooltip'}`}
-                                  title={btn.title || null}
-                                  data-eaid={btn._eaid || null}
-                                  onClick={(e) => {
-                                    if ($(e.target).hasClass('disabled')) return
-                                    typeof btn.onClick === 'function' && btn.onClick(primaryKey.id, e)
-                                  }}>
-                                  <span className={`text-${btn.type || ''}`}>
-                                    {btn.icon && <i className={`icon zmdi zmdi-${btn.icon}`} />}
-                                    {btn.text && <span>{btn.text}</span>}
-                                  </span>
-                                </button>
-                              )
-                            })}
+                            <div>
+                              {rowActions.map((btn, idx) => {
+                                return (
+                                  <button
+                                    key={idx}
+                                    type="button"
+                                    className={`btn btn-sm btn-link w-auto ${btn._eaid && 'disabled'} ${btn.title && 'bs-tooltip'}`}
+                                    title={btn.title || null}
+                                    data-eaid={btn._eaid || null}
+                                    onClick={(e) => {
+                                      if ($(e.target).hasClass('disabled')) return
+                                      typeof btn.onClick === 'function' && btn.onClick(primaryKey.id, e)
+                                    }}>
+                                    <span className={`text-${btn.type || ''}`}>
+                                      {btn.icon && <i className={`icon zmdi zmdi-${btn.icon}`} />}
+                                      {btn.text && <span>{btn.text}</span>}
+                                    </span>
+                                  </button>
+                                )
+                              })}
+                            </div>
                           </td>
                         )}
                       </tr>
@@ -2261,10 +2262,18 @@ const EasyAction4List = {
               $row.find('.col-action button[data-eaid]').each((i, b) => {
                 const $this = $(b)
                 if (res[$this.data('eaid')]) {
-                  $this.removeClass('disabled')
-                  if ($this.hasClass('bs-tooltip')) $this.tooltip({})
+                  $this.removeClass('disabled hide')
                 } else {
                   $this.addClass('hide')
+                }
+
+                if ($this.hasClass('bs-tooltip')) {
+                  setTimeout(() => {
+                    $this.tooltip({})
+                    // $this.on('show.bs.tooltip', function () {
+                    //   $(this).tooltip('update') // 强制更新位置
+                    // })
+                  }, 300)
                 }
               })
             })

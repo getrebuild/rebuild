@@ -412,7 +412,7 @@ class DlgTransform extends RbModalHandler {
                 />
                 <span className="custom-control-label">{$L('已有记录')}</span>
               </label>
-              {this._isMuilt && <RbAlertBox message={$L('本次将批量转换 %d 条记录', this.props.sourceRecord.length)} type="info" className="mt-1 mb-0" />}
+              {this._isMuilt && <RbAlertBox message={$L('本次将批量转换 %d 条记录', this.props.sourceRecord.length)} type="info" className="mt-3 mb-0" />}
             </div>
           </div>
           <div className={`form-group row ${this.state.transType !== 1 && 'hide'}`}>

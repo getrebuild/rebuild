@@ -192,8 +192,7 @@ class ShowStyles2 extends ShowStyles {
   }
 
   renderExtras() {
-    // eslint-disable-next-line no-undef
-    const cansort = !UNSORT_FIELDTYPES.includes(this.props.type)
+    const canSort = !window.UNSORT_FIELDTYPES.includes(this.props.type)
     return (
       <RF>
         <div className="form-group row">
@@ -203,7 +202,7 @@ class ShowStyles2 extends ShowStyles {
             <div className="form-text mt-0">{$L('默认')}</div>
           </div>
         </div>
-        {cansort && (
+        {canSort && (
           <div className="form-group row pt-1 pb-1">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('默认排序')}</label>
             <div className="col-sm-7" ref={(c) => (this._$sort = c)}>

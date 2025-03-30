@@ -329,14 +329,16 @@ public class FlowNode {
     /**
      * @param recordId
      * @param approver
-     * @return `>=2` 表示超时时间
+     * @return
+     * @see #getExpiresTime(ID, ID)
      */
     public long getRemarkReq(ID recordId, ID approver) {
         // 0=选填, 1=必填, 2=超时必填
         int reqType = getDataMap().getIntValue("remarkReq");
         if (reqType < 2) return reqType;
 
-        return getExpiresTime(recordId, approver);
+        Long expTime = getExpiresTime(recordId, approver);
+        return expTime == null || expTime < 0 ? 0 : 1;
     }
 
     /**
@@ -345,18 +347,18 @@ public class FlowNode {
      * @return
      * @see ApprovalHelper#getExpiresTimeLeft(Date, JSONObject, ID)
      */
-    public long getExpiresTime(ID recordId, ID approver) {
+    public Long getExpiresTime(ID recordId, ID approver) {
         Object[] stepApprover = Application.createQueryNoFilter(
                 "select createdOn,stepId from RobotApprovalStep where recordId = ? and approver = ? and node = ? and isCanceled = 'F' order by createdOn desc")
                 .setParameter(1, recordId)
                 .setParameter(2, approver)
                 .setParameter(3, this.nodeId)
                 .unique();
-        if (stepApprover == null) return 0;
+        if (stepApprover == null) return null;
 
         JSONObject eaConf = getExpiresAuto();
-        long expTime = ApprovalHelper.getExpiresTimeLeft((Date) stepApprover[0], eaConf, recordId);
-        return expTime > 0 ? Math.max(expTime, 2) : 0;
+        if (eaConf == null) return null;
+        return ApprovalHelper.getExpiresTimeLeft((Date) stepApprover[0], eaConf, recordId);
     }
 
     // --

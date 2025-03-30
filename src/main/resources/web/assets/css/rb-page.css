@@ -1855,6 +1855,8 @@ th.column-fixed {
 .column-fixed.col-action .btn.btn-sm {
   line-height: 26px;
   min-width: 32px;
+  padding-left: 6px;
+  padding-right: 6px;
 }
 
 .column-fixed.col-action .btn.btn-sm:hover,
@@ -4317,6 +4319,15 @@ h3.modal-title > .rbv {
   background-image: linear-gradient(135deg, #16a88f 0%, #16a88f 50%, #9b52de 51%, #9b52de 100%) !important;
 }
 
+.btn.btn-theme {
+  background-color: var(--rb-theme-color);
+  color: #fff;
+}
+
+.btn.btn-theme:active {
+  opacity: 0.88;
+}
+
 /* for MDE */
 
 .editor-toolbar {
@@ -5964,8 +5975,9 @@ div.formula-code {
   border: 0 none;
 }
 
-.modal-dialog-centered-unset .modal-dialog-centered {
+.modal-dialog-centered-unset .modal-dialog.modal-dialog-centered {
   display: block;
+  margin: 0 auto !important;
 }
 
 .rb-navless40 .rb-wrapper {

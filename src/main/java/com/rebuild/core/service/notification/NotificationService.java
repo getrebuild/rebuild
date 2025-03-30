@@ -100,7 +100,7 @@ public class NotificationService extends InternalPersistService {
 
         record = this.create(record);
 
-        // 分发消息
+        // 异步分发消息
         final ID messageId = record.getPrimary();
         ThreadPool.exec(() -> {
             String[] distNames = Application.getContext().getBeanNamesForType(MessageDistributor.class);

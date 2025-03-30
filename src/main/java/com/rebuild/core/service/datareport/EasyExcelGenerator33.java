@@ -19,6 +19,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.approval.ApprovalHelper;
 import com.rebuild.core.support.general.ProtocolFilterParser;
 import com.rebuild.core.support.general.RecordBuilder;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -63,19 +64,22 @@ import static com.rebuild.core.service.datareport.TemplateExtractor33.NROW_PREFI
 public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
     // 支持多记录导出，会合并到一个 Excel 文件
-    final private List<ID> recordIdMultiple;
+    final private List<ID> recordIdMulti;
 
     private Set<String> inShapeVars;
     private Map<String, Object> recordMainHolder;
 
+    @Setter
+    protected Map<String, Object> tempVars;
+
     protected EasyExcelGenerator33(File templateFile, ID recordId) {
         super(templateFile, recordId);
-        this.recordIdMultiple = null;
+        this.recordIdMulti = null;
     }
 
     protected EasyExcelGenerator33(File template, List<ID> recordIds) {
         super(template, recordIds.get(0));
-        this.recordIdMultiple = recordIds;
+        this.recordIdMulti = recordIds;
     }
 
     @Override
@@ -249,7 +253,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
     @Override
     public File generate() {
-        if (recordIdMultiple == null) return superGenerate();
+        if (recordIdMulti == null) return superGenerate();
 
         // init
         File targetFile = super.getTargetFile();
@@ -260,7 +264,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
         }
 
         PrintSetup copyPrintSetup = null;
-        for (ID recordId : recordIdMultiple) {
+        for (ID recordId : recordIdMulti) {
             int newSheetAt;
             try (Workbook wb = WorkbookFactory.create(Files.newInputStream(targetFile.toPath()))) {
                 // 1.复制模板

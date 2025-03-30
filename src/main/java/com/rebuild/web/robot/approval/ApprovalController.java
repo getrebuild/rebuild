@@ -173,7 +173,13 @@ public class ApprovalController extends BaseController {
         data.put("currentNode", currentFlowNode.getNodeId());
         data.put("allowReferral", currentFlowNode.allowReferral());
         data.put("allowCountersign", currentFlowNode.allowCountersign());
-        data.put("remarkReq", Math.min(currentFlowNode.getRemarkReq(recordId, user), 1));
+        // v4.0
+        Long expTime = currentFlowNode.getExpiresTime(recordId, user);
+        data.put("expiresTime", expTime);
+        // 0=选填, 1=必填, 2=超时必填
+        int reqType = currentFlowNode.getDataMap().getIntValue("remarkReq");
+        if (reqType < 2) data.put("remarkReq", reqType);
+        else data.put("remarkReq", expTime == null || expTime < 0 ? 0 : 1);
 
         // 可修改字段
         JSONArray editableFields = currentFlowNode.getEditableFields();

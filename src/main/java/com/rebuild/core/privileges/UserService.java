@@ -100,6 +100,11 @@ public class UserService extends BaseService {
 
     @Override
     public Record update(Record record) {
+        if (ADMIN_USER.equals(record.getPrimary())) {
+            Boolean b = record.getBoolean("isDisabled");
+            if (b != null && b) throw new OperationDeniedException("超管账户不能禁用");
+        }
+
         checkAdminGuard(BizzPermission.UPDATE, record.getPrimary());
 
         saveBefore(record);

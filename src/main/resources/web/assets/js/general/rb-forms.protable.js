@@ -513,7 +513,7 @@ class InlineForm extends RbForm {
             </label>
           </td>
         )}
-        {this._extConf40.showTreeConfig && (
+        {this._extConf40.showTreeConfig && this._extConf40.showTreeConfig.parentField && (
           <td className="col-tree">
             {rawModel._treeNodeLevel >= 0 && (
               <a style={{ marginLeft: rawModel._treeNodeLevel * 9 }}>
@@ -795,7 +795,9 @@ class ProTableTree extends ProTable {
     const readonly = this.props.$$$main.props.readonly
     const fixedWidth = false
     const inlineForms = this.state.inlineForms || []
-    const colActionClazz = `col-action ${this._extConf40.showTreeConfig && 'has-copy-btn'} ${!fixedWidth && 'column-fixed'}`
+    // v4.0-b3
+    const stcParentField = (this._extConf40.showTreeConfig || {}).parentField
+    const colActionClazz = `col-action ${stcParentField && 'has-copy-btn'} ${!fixedWidth && 'column-fixed'}`
 
     return (
       <div className={`protable rb-scroller ${!fixedWidth && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
@@ -817,7 +819,7 @@ class ProTableTree extends ProTable {
                   </label>
                 </th>
               )}
-              {this._extConf40.showTreeConfig && <th className="col-tree" />}
+              {stcParentField && <th className="col-tree" />}
 
               {formFields.map((item) => {
                 if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
@@ -863,7 +865,7 @@ class ProTableTree extends ProTable {
                   </th>
                   {FORM}
                   <td className={`col-action ${!fixedWidth && 'column-fixed'}`}>
-                    {this._extConf40.showTreeConfig && (
+                    {stcParentField && (
                       <button className="btn btn-light" title={$L('添加子级')} onClick={() => this.insertLine(key, idx + 1)} disabled={readonly}>
                         <i className="icon zmdi zmdi-plus fs-16" />
                       </button>
@@ -881,7 +883,7 @@ class ProTableTree extends ProTable {
               <tr>
                 <th className="col-idx" />
                 {this._extConf40.showCheckbox && <td className="col-checkbox" />}
-                {this._extConf40.showTreeConfig && <td className="col-tree" />}
+                {stcParentField && <td className="col-tree" />}
                 {formFields.map((item) => {
                   if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
 
@@ -905,6 +907,7 @@ class ProTableTree extends ProTable {
     )
   }
 
+  // 插入下级
   insertLine(parentLineKey, index) {
     const model = $clone(this._initModel)
     const PF = this.getInlineForm(parentLineKey)
@@ -912,9 +915,10 @@ class ProTableTree extends ProTable {
     model._treeNodeLevel = PF.props.rawModel._treeNodeLevel + 1
     // 父级ID
     const stc = this.props.showTreeConfig
-    const parentId = PF.props.rawModel.id.replace('000-', stc.parentFieldRefEntityCode + '-')
-    this._setValueInModel(model, stc.parentField, parentId)
-
+    if (stc && stc.parentField) {
+      const parentId = PF.props.rawModel.id.replace('000-', stc.parentFieldRefEntityCode + '-')
+      this._setValueInModel(model, stc.parentField, parentId)
+    }
     this._addLine(model, index)
   }
 
@@ -929,7 +933,7 @@ class ProTableTree extends ProTable {
 
   setLines(models = []) {
     const stc = this.props.showTreeConfig
-    if (stc) {
+    if (stc && stc.parentField) {
       let root = []
       models.forEach((model) => {
         let p = this._getValueInModel(model, stc.parentField)
