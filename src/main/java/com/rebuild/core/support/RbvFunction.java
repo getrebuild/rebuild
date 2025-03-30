@@ -28,7 +28,7 @@ public class RbvFunction {
         return Application.getBean(RbvFunction.class);
     }
 
-    // --
+    // -- 触发器
 
     public void setWeakMode(ID id) {
         log.warn("No RbvFunction : setWeakMode");
