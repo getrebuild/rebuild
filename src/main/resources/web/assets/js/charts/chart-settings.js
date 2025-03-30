@@ -5,8 +5,6 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-const COLUMN_UNSORT = window.COLUMN_UNSORT || ['SIGN', 'N2NREFERENCE', 'MULTISELECT', 'FILE', 'IMAGE', 'AVATAR', 'TAG']
-
 // ~~ 数据列表配置
 // eslint-disable-next-line no-unused-vars
 class DataListSettings extends RbModalHandler {
@@ -156,8 +154,7 @@ class DataListSettings extends RbModalHandler {
                 `<li class="dd-item dd3-item" data-key="${x.field}"><div class="dd-handle dd3-handle"></div><div class="dd3-content">${x.label}</div><div class="dd3-action"></div></li>`
               ).appendTo($showfields)
 
-              // eslint-disable-next-line no-undef
-              if (!COLUMN_UNSORT.includes(x.type)) {
+              if (!window.UNSORT_FIELDTYPES.includes(x.type)) {
                 $(`<a title="${$L('默认排序')}"><i class="zmdi mdi mdi-sort-alphabetical-ascending sort"></i></a>`)
                   .appendTo($item.find('.dd3-action'))
                   .on('click', () => {

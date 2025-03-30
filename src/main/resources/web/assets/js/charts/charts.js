@@ -1456,8 +1456,7 @@ class DataList extends BaseChart {
                     data-field={item.field}
                     className={sortClazz}
                     onClick={(e) => {
-                      // eslint-disable-next-line no-undef
-                      if (UNSORT_FIELDTYPES.includes(item.type)) return
+                      if (window.UNSORT_FIELDTYPES.includes(item.type)) return
 
                       const $th = $(e.currentTarget)
                       const hasAsc = $th.hasClass('sort-asc'),

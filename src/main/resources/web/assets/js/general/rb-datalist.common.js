@@ -913,8 +913,7 @@ class RbList extends React.Component {
 
       if (sort && sort[0] === fields[i].field) fields[i].sort = sort[1]
       else fields[i].sort = null
-      // eslint-disable-next-line no-undef
-      if (UNSORT_FIELDTYPES.includes(fields[i].type)) fields[i].unsort = true
+      if (window.UNSORT_FIELDTYPES.includes(fields[i].type)) fields[i].unsort = true
     }
 
     delete props.config.fields

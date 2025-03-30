@@ -273,10 +273,10 @@ public class QueryParser {
         int pageSize = NumberUtils.toInt(queryExpr.getString("pageSize"), 40);
         this.limit = new int[] { pageSize, pageNo * pageSize - pageSize };
 
-        this.reload = limit[1] == 0;
-        if (!reload) {
-            reload = BooleanUtils.toBoolean(queryExpr.getString("reload"));
-        }
+        this.reload = limit[1] == 0
+                || BooleanUtils.toBoolean(queryExpr.getString("reload"));
+        // force
+        if ("false".equals(queryExpr.getString("reload"))) this.reload = false;
     }
 
     /**
