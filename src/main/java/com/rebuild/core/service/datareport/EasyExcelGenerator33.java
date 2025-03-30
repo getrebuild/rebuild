@@ -368,6 +368,4 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
         return file;
     }
-
-
 }
