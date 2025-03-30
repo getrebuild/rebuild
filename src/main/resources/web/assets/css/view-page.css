@@ -1236,3 +1236,11 @@ body {
   display: inline-block;
   padding-top: 3px;
 }
+
+.view-action .btn-group .dropdown-menu:not(:has(> :not(.hide)))::after {
+  display: block;
+  content: attr(_title);
+  padding: 8px 20px;
+  color: #777;
+  font-style: italic;
+}

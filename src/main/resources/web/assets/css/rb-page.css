@@ -5454,28 +5454,6 @@ pre.unstyle {
   width: 373px;
 }
 
-/* fix btn-space compact */
-
-div.dataTables_wrapper div.dataTables_oper {
-  font-size: 0;
-}
-
-div.dataTables_wrapper div.dataTables_oper .btn-space {
-  margin-right: 10px;
-}
-
-div.dataTables_wrapper div.dataTables_oper .btn-space:last-child {
-  margin-right: 5px;
-}
-
-div.dataTables_wrapper div.dataTables_oper.compact .btn {
-  min-width: 68px;
-}
-
-div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
-  margin-right: 5px;
-}
-
 .alert.alert-dismissible .message {
   padding-right: 42px;
 }
@@ -5996,32 +5974,4 @@ div.formula-code {
 .rb-navless40 .rb-wrapper > .rb-content > .page-aside {
   left: 0;
   margin: 0;
-}
-
-.rbform .dialog-footer .fjs-dock,
-.rbform .detail-form-table .detail-form-action .fjs-dock,
-.dataTables_wrapper .dataTables_oper .fjs-dock {
-  display: inline-block;
-}
-
-.rbform .dialog-footer .fjs-dock:empty,
-.rbform .detail-form-table .detail-form-action .fjs-dock:empty,
-.dataTables_wrapper .dataTables_oper .fjs-dock:empty,
-.view-body .view-operating .fjs-dock:empty {
-  display: none;
-}
-
-.rbform .dialog-footer .fjs-dock > *,
-.rbform .detail-form-table .detail-form-action .fjs-dock > *,
-.dataTables_wrapper .dataTables_oper .fjs-dock > * {
-  margin-right: 10px;
-}
-
-.dataTables_wrapper .dataTables_oper .fjs-dock {
-  transform: translateY(-2.5px);
-}
-
-.dataTables_wrapper .dataTables_oper .fjs-dock > *:last-child,
-.dataTables_wrapper .dataTables_oper.compact .fjs-dock > * {
-  margin-right: 5px;
 }
