@@ -746,14 +746,13 @@ class LiteFormModal extends RbModalHandler {
   render() {
     const props = this.props
     const entity = props.entityMeta
-
-    const title = props.id ? $L('编辑%s', entity.entityLabel) : $L('新建%s', entity.entityLabel)
+    const title = props.title || (props.id ? $L('编辑%s', entity.entityLabel) : $L('新建%s', entity.entityLabel))
     const fake = {
       state: { id: props.id },
     }
 
     return (
-      <RbModal title={props.title || title} ref={(c) => (this._dlg = c)} disposeOnHide>
+      <RbModal title={title} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="liteform-wrap">
           <LiteForm entity={entity.entity} id={props.id} rawModel={{}} $$$parent={fake} ref={(c) => (this._LiteForm = c)}>
             {this.props.elements.map((item) => {
@@ -766,7 +765,7 @@ class LiteFormModal extends RbModalHandler {
             {this._ids.length > 1 && <RbAlertBox message={WrapHtml($L('本次保存将修改 **%d** 条记录', this.props.ids.length))} type="info" className="mt-0 mb-3" />}
 
             <button className="btn btn-primary" type="button" onClick={() => this._handleSave()}>
-              {$L('保存')}
+              {this.props.confirmText || $L('保存')}
             </button>
             <a className="btn btn-link" onClick={this.hide}>
               {$L('取消')}
@@ -841,6 +840,47 @@ class LiteFormModal extends RbModalHandler {
    * @param {*} onHandleSave
    */
   static create(entityOrId, fields, title, onHandleSave) {
+    // 无实体表单模式
+    if (entityOrId === false) {
+      const fakeModel = {
+        entityMeta: {
+          entity: '__liteform__',
+          entityLabel: '__liteform__',
+        },
+        elements: [],
+      }
+      // 修订
+      fields.forEach((item) => {
+        let field = { nullable: true, type: 'TEXT', colspan: 4 }
+        if (typeof F === 'string') {
+          field = { ...field, field: item, label: item }
+        } else {
+          field = { ...field, ...item }
+        }
+        fakeModel.elements.push(field)
+      })
+
+      renderRbcomp(
+        <LiteFormModal
+          title={title || $L('无标题')}
+          onHandleSave={(data, formObj) => {
+            if (typeof onHandleSave === 'function') {
+              const s = onHandleSave(data, formObj)
+              // 默认关闭
+              if (s !== false) formObj.hide()
+            } else {
+              console.log(data)
+              formObj.hide()
+            }
+            return false
+          }}
+          confirmText={$L('确定')}
+          {...fakeModel}
+        />
+      )
+      return
+    }
+
     const isMultiId = Array.isArray(entityOrId)
     const post = {
       id: isMultiId ? entityOrId[0] : entityOrId,
