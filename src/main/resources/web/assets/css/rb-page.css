@@ -3847,7 +3847,6 @@ a.user-show:not([href]) {
 }
 
 .page-aside.widgets .tab-container .tab-content {
-  padding: 20px 18px;
   padding: 15px;
   margin: 0;
   border-radius: 0;
@@ -4160,6 +4159,7 @@ a.icon-link > .zmdi {
 
 .nav-tabs > li.nav-item a.nav-link {
   max-width: 200px;
+  padding: 12px 15px 10px;
 }
 
 .select2-container--default.warning-data-filter .select2-results::after {

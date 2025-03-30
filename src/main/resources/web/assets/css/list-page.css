@@ -220,11 +220,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   min-height: 44px;
 }
 
-.page-aside.widgets .nav.nav-tabs > li.nav-item > .nav-link {
-  padding-top: 12px;
-  padding-bottom: 10px;
-}
-
 .quick-filter-tabs + .quick-filter-pane,
 .quick-filter-tabs + .card-table,
 .quick-filter-tabs + .nav-tabs {
