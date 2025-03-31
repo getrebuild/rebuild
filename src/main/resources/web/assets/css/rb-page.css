@@ -2174,6 +2174,16 @@ th.column-fixed {
     width: 1220px;
     margin: 0 -1230px 0 0;
   }
+
+  .page-aside {
+    width: 230px;
+  }
+  .page-aside.widgets .tab-container {
+    min-width: 229px;
+  }
+  .rb-aside .main-content {
+    margin-left: 230px;
+  }
 }
 
 .modal.rbview .modal-dialog .modal-content .modal-header {
@@ -2313,8 +2323,9 @@ th.column-fixed {
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
 }
 
-.aside-tree {
-  padding: 25px 18px;
+.aside-tree,
+.page-aside-tree {
+  padding: 20px 15px;
 }
 
 .aside-tree .config-title {
@@ -2410,10 +2421,6 @@ th.column-fixed {
 
 .aside-tree li > span.toggle:hover {
   color: #4285f4;
-}
-
-.page-aside-tree {
-  padding: 25px 18px;
 }
 
 .aside-2tree ul:empty::after {
@@ -5410,12 +5417,6 @@ pre.unstyle {
 .aside-header .title {
   margin-top: 4px;
   margin-bottom: 0;
-}
-
-.page-aside-tree,
-.aside-tree {
-  padding-top: 20px;
-  padding-bottom: 20px;
 }
 
 .dialog-footer {
