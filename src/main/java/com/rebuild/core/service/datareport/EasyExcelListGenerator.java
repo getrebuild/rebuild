@@ -29,6 +29,7 @@ import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTB
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTDATE;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTDATETIME;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTUSER;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PH__EXPORTTIMES;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PLACEHOLDER;
 
 /**
@@ -95,6 +96,7 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
         if (varsMap.containsKey(PH__CURRENTBIZUNIT)) phValues.put(PH__CURRENTBIZUNIT, getPhValue(PH__CURRENTBIZUNIT));
         if (varsMap.containsKey(PH__CURRENTDATE)) phValues.put(PH__CURRENTDATE, getPhValue(PH__CURRENTDATE));
         if (varsMap.containsKey(PH__CURRENTDATETIME)) phValues.put(PH__CURRENTDATETIME, getPhValue(PH__CURRENTDATETIME));
+        if (varsMap.containsKey(PH__EXPORTTIMES)) phValues.put(PH__EXPORTTIMES, getPhValue(PH__EXPORTTIMES));
 
         Map<String, List<Map<String, Object>>> datasMap = new HashMap<>();
         datasMap.put(REFKEY_LIST, datas);

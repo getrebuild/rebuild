@@ -33,6 +33,7 @@ import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.BarCodeSupport;
@@ -68,6 +69,7 @@ import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTB
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTDATE;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTDATETIME;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTUSER;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PH__EXPORTTIMES;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__KEEP;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__NUMBER;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PLACEHOLDER;
@@ -332,7 +334,7 @@ public class EasyExcelGenerator extends SetUser {
                     varName = varName.substring(1);
                 }
 
-                Object phValue = getPhValue(varName);
+                Object phValue = getPhValue(varName, recordId);
                 if (phValue != null) {
                     data.put(varName, phValue);
                 } else {
@@ -479,6 +481,15 @@ public class EasyExcelGenerator extends SetUser {
      * @return
      */
     protected Object getPhValue(String phName) {
+        return getPhValue(phName, null);
+    }
+
+    /**
+     * @param phName
+     * @param recordId
+     * @return
+     */
+    protected Object getPhValue(String phName, ID recordId) {
         if (!phName.contains("__")) return null;
 
         // detail.__KEEP > __KEEP
@@ -501,6 +512,12 @@ public class EasyExcelGenerator extends SetUser {
                 return CalendarUtils.getUTCDateFormat().format(CalendarUtils.now());
             case PH__CURRENTDATETIME:
                 return CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
+            case PH__EXPORTTIMES: {
+                if (recordId == null) return 1;
+                String key = "REPORT-EXPORTTIMES:" + recordId;
+                Object t = KVStorage.getCustomValue(key);
+                return ObjectUtils.toInt(t) + 1;
+            }
         }
 
         // v3.7

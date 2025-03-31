@@ -9,6 +9,7 @@ package com.rebuild.web.general;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import cn.hutool.core.io.FileUtil;
@@ -30,6 +31,7 @@ import com.rebuild.core.service.datareport.EasyExcelGenerator33;
 import com.rebuild.core.service.datareport.TemplateFile;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.i18n.Language;
@@ -121,6 +123,12 @@ public class ReportsController extends BaseController {
 
             CommonsLog.createLog(CommonsLog.TYPE_REPORT,
                     getRequestUser(request), reportId, StringUtils.join(recordIds, ";"));
+            // PH__EXPORTTIMES
+            for (ID id : recordIds) {
+                String key = "REPORT-EXPORTTIMES:" + id;
+                Object t = KVStorage.getCustomValue(key);
+                KVStorage.setCustomValue(key, ObjectUtils.toInt(t) + 1);
+            }
 
         } catch (ExcelRuntimeException ex) {
             log.error(null, ex);

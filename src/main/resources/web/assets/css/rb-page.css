@@ -1861,11 +1861,12 @@ th.column-fixed {
 
 .column-fixed.col-action .btn.btn-sm:hover,
 .column-fixed.col-action .btn.btn-sm:active {
-  background-color: #e3e3e3;
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .column-fixed.col-action .btn.btn-sm:active {
-  background-color: #ddd;
+  background-color: rgba(0, 0, 0, 0.1);
+  opacity: 1;
 }
 
 .column-fixed.col-action button.btn .icon + span {
