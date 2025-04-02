@@ -154,7 +154,7 @@ public class FormsBuilder extends FormsManager {
                 approvalState = EntityHelper.isUnsavedId(mainid) ? null : getHadApproval(hasMainEntity, mainid);
                 if ((approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED)) {
                     readonlyMessage = approvalState == ApprovalState.APPROVED
-                            ? Language.L("主记录已完成审批，不能添加明细")
+                            ? Language.L("主记录已审批完成，不能添加明细")
                             : Language.L("主记录正在审批中，不能添加明细");
                 }
                 // 明细无需审批
@@ -190,9 +190,9 @@ public class FormsBuilder extends FormsManager {
             if (approvalState != null) {
                 String recordType = hasMainEntity == null ? Language.L("记录") : Language.L("主记录");
                 if (approvalState == ApprovalState.APPROVED) {
-                    readonlyMessage = Language.L("%s已完成审批，禁止编辑", recordType);
+                    readonlyMessage = Language.L("%s已审批完成，不能编辑", recordType);
                 } else if (approvalState == ApprovalState.PROCESSING) {
-                    readonlyMessage = Language.L("%s正在审批中，禁止编辑", recordType);
+                    readonlyMessage = Language.L("%s正在审批中，不能编辑", recordType);
                 }
             }
         }

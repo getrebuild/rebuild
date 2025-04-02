@@ -52,7 +52,7 @@ class RbViewForm extends React.Component {
           if (window.RbViewPage) window.RbViewPage.setReadonly()
           else $('.J_edit, .J_delete').remove()
 
-          hadAlert = <RbAlertBox message={hadApproval === 2 ? $L('主记录正在审批中，明细记录禁止操作') : $L('主记录已审批完成，明细记录禁止操作')} />
+          hadAlert = <RbAlertBox message={hadApproval === 2 ? $L('主记录正在审批中，明细记录不能编辑') : $L('主记录已审批完成，明细记录不能编辑')} />
         }
         hadApproval = null
       }
@@ -500,8 +500,9 @@ class EntityRelatedList extends RelatedList {
 
   _handleEdit(e, id) {
     $stopEvent(e, true)
-    const editProps = { id: id, entity: this.__entity, title: $L('编辑%s', this.props.entity2[0]), icon: this.props.entity2[1] }
-    if (window.__LAB40_EDIT_PROVIDERS[this.__entity]) window.__LAB40_EDIT_PROVIDERS[this.__entity](editProps)
+    const _entity = this.__entity
+    const editProps = { id: id, entity: _entity, title: $L('编辑%s', this.props.entity2[0]), icon: this.props.entity2[1] }
+    if ((window.__LAB40_EDIT_PROVIDERS || {})[_entity]) window.__LAB40_EDIT_PROVIDERS[_entity](editProps)
     else RbFormModal.create(editProps, true)
   }
 
@@ -656,8 +657,9 @@ const RbViewPage = {
     })
 
     $('.J_edit').on('click', () => {
-      const editProps = { id: id, title: $L('编辑%s', entity[1]), entity: entity[0], icon: entity[2] }
-      if (window.__LAB40_EDIT_PROVIDERS[entity[0]]) window.__LAB40_EDIT_PROVIDERS[entity[0]](editProps)
+      const _entity = entity[0]
+      const editProps = { id: id, title: $L('编辑%s', entity[1]), entity: _entity, icon: entity[2] }
+      if ((window.__LAB40_EDIT_PROVIDERS || {})[_entity]) window.__LAB40_EDIT_PROVIDERS[_entity](editProps)
       else RbFormModal.create(editProps, true)
     })
     $('.J_assign').on('click', () => DlgAssign.create({ entity: entity[0], ids: [id] }))
