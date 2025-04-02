@@ -106,20 +106,23 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
 
 .rbform .dialog-footer .fjs-dock,
 .rbform .detail-form-table .detail-form-action .fjs-dock,
-.dataTables_wrapper .dataTables_oper .fjs-dock {
+.dataTables_wrapper .dataTables_oper .fjs-dock,
+.related-list .related-toolbar .fjs-dock {
   display: inline-block;
 }
 
 .rbform .dialog-footer .fjs-dock:empty,
 .rbform .detail-form-table .detail-form-action .fjs-dock:empty,
 .dataTables_wrapper .dataTables_oper .fjs-dock:empty,
-.view-body .view-operating .fjs-dock:empty {
+.view-body .view-operating .fjs-dock:empty,
+.related-list .related-toolbar .fjs-dock:empty {
   display: none;
 }
 
 .rbform .dialog-footer .fjs-dock > *,
 .rbform .detail-form-table .detail-form-action .fjs-dock > *,
-.dataTables_wrapper .dataTables_oper .fjs-dock > * {
+.dataTables_wrapper .dataTables_oper .fjs-dock > *,
+.related-list .related-toolbar .fjs-dock > * {
   margin-right: 10px;
 }
 
@@ -131,5 +134,3 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
 .dataTables_oper .btn-space {
   margin-bottom: 0;
 }
-
-

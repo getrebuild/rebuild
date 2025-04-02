@@ -255,14 +255,15 @@ class RelatedList extends React.Component {
   render() {
     const optionName = $random('vm-')
     const isListView = this.props.showViewMode && this.state.viewMode === 'LIST'
+    const entityName = this.props.entity.split('.')[0] // ENTITY.PKNAME
 
     return (
-      <div className={`related-list ${this.state.dataList || isListView ? '' : 'rb-loading rb-loading-active'}`}>
+      <div className={`related-list ${this.state.dataList || isListView ? '' : 'rb-loading rb-loading-active'}`} data-entity={entityName}>
         {!(this.state.dataList || isListView) && <RbSpinner />}
 
         <div className="related-toolbar">
           <div className="row">
-            <div className="col">
+            <div className="col-5">
               <div className="input-group input-search float-left">
                 <input className="form-control" type="text" placeholder={$L('快速查询')} maxLength="40" ref={(c) => (this._$quickSearch = c)} onKeyDown={(e) => e.keyCode === 13 && this.search()} />
                 <span className="input-group-btn">
@@ -273,7 +274,8 @@ class RelatedList extends React.Component {
               </div>
               {this.__listExtraLink}
             </div>
-            <div className="col text-right">
+            <div className="col-7 text-right">
+              <div className="fjs-dock"></div>
               <div className="btn-group w-auto">
                 <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown" disabled={isListView}>
                   {this.state.sortDisplayText || $L('默认排序')} <i className="icon zmdi zmdi-chevron-down up-1" />
@@ -498,7 +500,9 @@ class EntityRelatedList extends RelatedList {
 
   _handleEdit(e, id) {
     $stopEvent(e, true)
-    RbFormModal.create({ id: id, entity: this.__entity, title: $L('编辑%s', this.props.entity2[0]), icon: this.props.entity2[1] }, true)
+    const editProps = { id: id, entity: this.__entity, title: $L('编辑%s', this.props.entity2[0]), icon: this.props.entity2[1] }
+    if (window.__LAB40_EDIT_PROVIDERS[this.__entity]) window.__LAB40_EDIT_PROVIDERS[this.__entity](editProps)
+    else RbFormModal.create(editProps, true)
   }
 
   _handleView(e) {
@@ -652,7 +656,9 @@ const RbViewPage = {
     })
 
     $('.J_edit').on('click', () => {
-      RbFormModal.create({ id: id, title: $L('编辑%s', entity[1]), entity: entity[0], icon: entity[2] }, true)
+      const editProps = { id: id, title: $L('编辑%s', entity[1]), entity: entity[0], icon: entity[2] }
+      if (window.__LAB40_EDIT_PROVIDERS[entity[0]]) window.__LAB40_EDIT_PROVIDERS[entity[0]](editProps)
+      else RbFormModal.create(editProps, true)
     })
     $('.J_assign').on('click', () => DlgAssign.create({ entity: entity[0], ids: [id] }))
     $('.J_share').on('click', () => DlgShare.create({ entity: entity[0], ids: [id] }))
