@@ -15,6 +15,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.Initialization;
 import com.rebuild.core.RebuildException;
@@ -25,6 +26,7 @@ import com.rebuild.core.configuration.RebuildApiManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.DataSpecificationException;
+import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.task.TaskExecutors;
@@ -108,6 +110,7 @@ public class ApiGateway extends Controller implements Initialization {
 
         int errorCode;
         String errorMsg;
+        Object errorData40 = null;
 
         ApiContext context = null;
         try {
@@ -131,6 +134,10 @@ public class ApiGateway extends Controller implements Initialization {
         } catch (DataSpecificationException ex) {
             errorCode = ApiInvokeException.ERR_DATASPEC;
             errorMsg = ex.getLocalizedMessage();
+        } catch (RepeatedRecordsException ex) {
+            errorCode = ApiInvokeException.ERR_DATASPEC;
+            errorMsg = ex.getLocalizedMessage();
+            errorData40 = ((RepeatedRecordsException) ex).getRepeatedRecords();
         } catch (Throwable ex) {
             errorCode = Controller.CODE_SERV_ERROR;
             errorMsg = ThrowableUtils.getRootCause(ex).getLocalizedMessage();
@@ -144,6 +151,8 @@ public class ApiGateway extends Controller implements Initialization {
         }
 
         JSON error = formatFailure(StringUtils.defaultIfBlank(errorMsg, "Server Internal Error"), errorCode);
+        if (errorData40 != null) ((JSONObject) error).put("error_data", errorData40);
+
         try {
             logRequestAsync(reuqestTime, remoteIp, requestId, apiName, context, error);
         } catch (Exception ignored) {
