@@ -23,7 +23,7 @@ const RbListPage = {
       RbListPage._RbList = this
 
       if (window.FrontJS) {
-        window.FrontJS.DataList._trigger('open', [])
+        window.FrontJS.DataList._trigger('open', [this])
       }
     })
 
