@@ -463,7 +463,7 @@ class RbForm extends React.Component {
       <div className="detail-form-table" data-entity={detailMeta.entity}>
         <div className="row">
           <div className="col-4 detail-form-header">
-            <h5 className="mt-2 mb-0 text-bold fs-14">
+            <h5 className="mt-2 mb-1 text-bold fs-14">
               <i className={`icon zmdi zmdi-${detailMeta.icon} fs-15 mr-2`} />
               {detailMeta.entityLabel}
               {rb.isAdminUser && (
@@ -499,7 +499,7 @@ class RbForm extends React.Component {
               </div>
             )}
 
-            <div className="btn-group">
+            <div className="btn-group J_adds">
               <button className="btn btn-secondary" type="button" onClick={() => _addNew()} disabled={this.props.readonly}>
                 <i className="icon x14 mdi mdi-playlist-plus mr-1" />
                 {$L('添加明细')}
@@ -608,7 +608,7 @@ class RbForm extends React.Component {
           {cancelText || $L('取消')}
         </button>
         {!props.readonly && (
-          <div className="btn-group dropup btn-space ml-1">
+          <div className="btn-group dropup btn-space ml-1 J_save">
             <button className="btn btn-primary" type="button" onClick={() => this.post()}>
               {confirmText || $L('保存')}
             </button>
