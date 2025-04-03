@@ -499,7 +499,7 @@ class RbForm extends React.Component {
               </div>
             )}
 
-            <div className="btn-group J_adds">
+            <div className="btn-group J_add-detail">
               <button className="btn btn-secondary" type="button" onClick={() => _addNew()} disabled={this.props.readonly}>
                 <i className="icon x14 mdi mdi-playlist-plus mr-1" />
                 {$L('添加明细')}
