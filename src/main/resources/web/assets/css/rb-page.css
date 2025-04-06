@@ -2170,23 +2170,6 @@ th.column-fixed {
   height: 100%;
 }
 
-@media (max-width: 1464px) {
-  .modal.rbview .modal-dialog .modal-content {
-    width: 1220px;
-    margin: 0 -1230px 0 0;
-  }
-
-  .page-aside {
-    width: 230px;
-  }
-  .page-aside.widgets .tab-container {
-    min-width: 229px;
-  }
-  .rb-aside .main-content {
-    margin-left: 230px;
-  }
-}
-
 .modal.rbview .modal-dialog .modal-content .modal-header {
   background-color: #fff;
   position: absolute;
@@ -5908,6 +5891,7 @@ div.formula-code {
 }
 
 .rbview-fjsalert {
+  /* NOOP */
 }
 
 .show-more-pill {

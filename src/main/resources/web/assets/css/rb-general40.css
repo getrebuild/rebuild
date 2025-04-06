@@ -134,3 +134,20 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
 .dataTables_oper .btn-space {
   margin-bottom: 0;
 }
+
+@media (max-width: 1464px) {
+  .modal.rbview .modal-dialog .modal-content {
+    width: 1220px;
+    margin: 0 -1230px 0 0;
+  }
+  .page-aside {
+    width: 230px;
+  }
+  .page-aside .tab-container,
+  .page-aside.widgets .tab-container {
+    min-width: 229px;
+  }
+  .rb-aside .main-content {
+    margin-left: 230px;
+  }
+}
