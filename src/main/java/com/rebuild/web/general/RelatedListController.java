@@ -93,13 +93,14 @@ public class RelatedListController extends BaseController {
             }
 
             int approvalState = o.length > 3 ? ObjectUtils.toInt(o[3]) : 0;
-            boolean canUpdate = approvalState != ApprovalState.APPROVED.getState()
+            boolean canEdit = approvalState != ApprovalState.APPROVED.getState()
                     && approvalState != ApprovalState.PROCESSING.getState()
                     && Application.getPrivilegesManager().allowUpdate(user, (ID) o[0]);
+            // v4.0 明细的
+            if (approvalState > 0 && relatedEntity.getMainEntity() != null) approvalState = 0;
 
             res.add(new Object[]{
-                    o[0], nameValue, I18nUtils.formatDate((Date) o[2]),
-                    approvalState, canUpdate});
+                    o[0], nameValue, I18nUtils.formatDate((Date) o[2]), approvalState, canEdit});
         }
 
         return JSONUtils.toJSONObject(
@@ -181,6 +182,13 @@ public class RelatedListController extends BaseController {
 
             if (MetadataHelper.hasApprovalField(relatedEntity)) {
                 sql.append(",").append(EntityHelper.ApprovalState);
+            } else if (relatedEntity.getMainEntity() != null) {
+                // v4.0-b4 明细的
+                if (MetadataHelper.hasApprovalField(relatedEntity.getMainEntity())) {
+                    String pf = String.format("%s.%s",
+                            MetadataHelper.getDetailToMainField(relatedEntity).getName(), EntityHelper.ApprovalState);
+                    sql.append(",").append(pf);
+                }
             }
         }
 

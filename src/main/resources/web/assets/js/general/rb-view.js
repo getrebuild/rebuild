@@ -52,7 +52,7 @@ class RbViewForm extends React.Component {
           if (window.RbViewPage) window.RbViewPage.setReadonly()
           else $('.J_edit, .J_delete').remove()
 
-          hadAlert = <RbAlertBox message={hadApproval === 2 ? $L('主记录正在审批中，明细记录禁止操作') : $L('主记录已审批完成，明细记录禁止操作')} />
+          hadAlert = <RbAlertBox message={hadApproval === 2 ? $L('主记录正在审批中，明细记录不能编辑') : $L('主记录已审批完成，明细记录不能编辑')} />
         }
         hadApproval = null
       }
@@ -107,11 +107,6 @@ class RbViewForm extends React.Component {
   }
 
   hideLoading() {
-    // v4.0-b3 mode2 不显示 header
-    if (parent && parent.RbViewModal && parent.RbViewModal.mode === 2) {
-      $('.view-header').addClass('hide')
-    }
-
     const ph = parent && parent.RbViewModal ? parent.RbViewModal.holder(this.state.id) : null
     ph && ph.hideLoading()
   }
@@ -260,14 +255,15 @@ class RelatedList extends React.Component {
   render() {
     const optionName = $random('vm-')
     const isListView = this.props.showViewMode && this.state.viewMode === 'LIST'
+    const entityName = this.props.entity.split('.')[0] // ENTITY.PKNAME
 
     return (
-      <div className={`related-list ${this.state.dataList || isListView ? '' : 'rb-loading rb-loading-active'}`}>
+      <div className={`related-list ${this.state.dataList || isListView ? '' : 'rb-loading rb-loading-active'}`} data-entity={entityName}>
         {!(this.state.dataList || isListView) && <RbSpinner />}
 
         <div className="related-toolbar">
           <div className="row">
-            <div className="col">
+            <div className="col-5">
               <div className="input-group input-search float-left">
                 <input className="form-control" type="text" placeholder={$L('快速查询')} maxLength="40" ref={(c) => (this._$quickSearch = c)} onKeyDown={(e) => e.keyCode === 13 && this.search()} />
                 <span className="input-group-btn">
@@ -278,7 +274,8 @@ class RelatedList extends React.Component {
               </div>
               {this.__listExtraLink}
             </div>
-            <div className="col text-right">
+            <div className="col-7 text-right">
+              <div className="fjs-dock"></div>
               <div className="btn-group w-auto">
                 <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown" disabled={isListView}>
                   {this.state.sortDisplayText || $L('默认排序')} <i className="icon zmdi zmdi-chevron-down up-1" />
@@ -503,7 +500,10 @@ class EntityRelatedList extends RelatedList {
 
   _handleEdit(e, id) {
     $stopEvent(e, true)
-    RbFormModal.create({ id: id, entity: this.__entity, title: $L('编辑%s', this.props.entity2[0]), icon: this.props.entity2[1] }, true)
+    const _entity = this.__entity
+    const editProps = { id: id, entity: _entity, title: $L('编辑%s', this.props.entity2[0]), icon: this.props.entity2[1] }
+    if ((window.__LAB40_EDIT_PROVIDERS || {})[_entity]) window.__LAB40_EDIT_PROVIDERS[_entity](editProps)
+    else RbFormModal.create(editProps, true)
   }
 
   _handleView(e) {
@@ -657,7 +657,10 @@ const RbViewPage = {
     })
 
     $('.J_edit').on('click', () => {
-      RbFormModal.create({ id: id, title: $L('编辑%s', entity[1]), entity: entity[0], icon: entity[2] }, true)
+      const _entity = entity[0]
+      const editProps = { id: id, title: $L('编辑%s', entity[1]), entity: _entity, icon: entity[2] }
+      if ((window.__LAB40_EDIT_PROVIDERS || {})[_entity]) window.__LAB40_EDIT_PROVIDERS[_entity](editProps)
+      else RbFormModal.create(editProps, true)
     })
     $('.J_assign').on('click', () => DlgAssign.create({ entity: entity[0], ids: [id] }))
     $('.J_share').on('click', () => DlgShare.create({ entity: entity[0], ids: [id] }))

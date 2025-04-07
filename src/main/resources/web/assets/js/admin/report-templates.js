@@ -311,8 +311,9 @@ class ReportEditor extends ConfigFormDlg {
       let output // default
       // if ($val($(this._$outputType).find('input:eq(1)'))) output = 'pdf'
       // else if ($val($(this._$outputType).find('input:eq(2)'))) output = 'html'
-
-      window.open(`./report-templates/preview?${ps}&output=${output || ''}`)
+      let url = `./report-templates/preview?${ps}&output=${output || ''}`
+      if (this.state.reportType === 3) url += '&id=' + this.state.id // H5
+      window.open(url)
     })
   }
 

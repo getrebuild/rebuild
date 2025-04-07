@@ -157,10 +157,10 @@
                             <span class="custom-control-label">[[${bundle.L('明细启用复制功能')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
                           </label>
                         </div>
-                        <div class="mt-2 bosskey-show">
+                        <div class="mt-2">
                           <div class="row">
                             <div class="col-4 pr-2">
-                              <label>[[${bundle.L('显示顺序')}]]</label>
+                              <label class="mb-1">[[${bundle.L('显示顺序')}]]</label>
                               <select class="form-control form-control-sm" id="detailsSeq">
                                 <option value="">[[${bundle.L('默认')}]]</option>
                                 <option value="1">1.</option>
@@ -174,8 +174,8 @@
                                 <option value="9">9.</option>
                               </select>
                             </div>
-                            <div class="col-4 pl-1">
-                              <label>[[${bundle.L('显示方式')}]]</label>
+                            <div class="col-4 pl-1 bosskey-show">
+                              <label class="mb-1">[[${bundle.L('是否隐藏')}]]</label>
                               <select class="form-control form-control-sm" id="detailsHide">
                                 <option value="">[[${bundle.L('默认')}]]</option>
                                 <option value="1">新建时隐藏</option>

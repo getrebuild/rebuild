@@ -81,3 +81,73 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .detail-form-header h5:hover > a {
   display: inline-block;
 }
+
+/* fix btn-space compact */
+
+div.dataTables_wrapper div.dataTables_oper {
+  font-size: 0;
+}
+
+div.dataTables_wrapper div.dataTables_oper .btn-space {
+  margin-right: 10px;
+}
+
+div.dataTables_wrapper div.dataTables_oper .btn-space:last-child {
+  margin-right: 5px;
+}
+
+div.dataTables_wrapper div.dataTables_oper.compact .btn {
+  min-width: 68px;
+}
+
+div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
+  margin-right: 5px;
+}
+
+.rbform .dialog-footer .fjs-dock,
+.rbform .detail-form-table .detail-form-action .fjs-dock,
+.dataTables_wrapper .dataTables_oper .fjs-dock,
+.related-list .related-toolbar .fjs-dock {
+  display: inline-block;
+}
+
+.rbform .dialog-footer .fjs-dock:empty,
+.rbform .detail-form-table .detail-form-action .fjs-dock:empty,
+.dataTables_wrapper .dataTables_oper .fjs-dock:empty,
+.view-body .view-operating .fjs-dock:empty,
+.related-list .related-toolbar .fjs-dock:empty {
+  display: none;
+}
+
+.rbform .dialog-footer .fjs-dock > *,
+.rbform .detail-form-table .detail-form-action .fjs-dock > *,
+.dataTables_wrapper .dataTables_oper .fjs-dock > *,
+.related-list .related-toolbar .fjs-dock > * {
+  margin-right: 10px;
+}
+
+.dataTables_wrapper .dataTables_oper .fjs-dock > *:last-child,
+.dataTables_wrapper .dataTables_oper.compact .fjs-dock > * {
+  margin-right: 5px;
+}
+
+.dataTables_oper .btn-space {
+  margin-bottom: 0;
+}
+
+@media (max-width: 1464px) {
+  .modal.rbview .modal-dialog .modal-content {
+    width: 1220px;
+    margin: 0 -1230px 0 0;
+  }
+  .page-aside {
+    width: 230px;
+  }
+  .page-aside .tab-container,
+  .page-aside.widgets .tab-container {
+    min-width: 229px;
+  }
+  .rb-aside .main-content {
+    margin-left: 230px;
+  }
+}

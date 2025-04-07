@@ -172,7 +172,7 @@ public class RecycleRestore {
                 ApprovalState state = ApprovalHelper.getApprovalState(mainid);
                 if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
                     throw new DataSpecificationException(state == ApprovalState.APPROVED
-                            ? Language.L("明细所属主记录已完成审批，无法恢复")
+                            ? Language.L("明细所属主记录已审批完成，无法恢复")
                             : Language.L("明细所属主记录正在审批中，无法恢复"));
                 }
             }

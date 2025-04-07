@@ -261,7 +261,10 @@ public class CommonsUtils {
 
             Class<?>[] paramTypes = new Class<?>[args.length];
             for (int i = 0; i < args.length; i++) {
-                if (args[i] == null) args[i] = new Object();
+                if (args[i] == null) {
+                    log.warn("{} argument [{}] is null", desc, i);
+                    args[i] = new Object();
+                }
                 paramTypes[i] = args[i].getClass();
             }
 

@@ -7,6 +7,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import cn.devezhao.commons.CalendarUtils;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.jwt.JWT;
+import com.alibaba.fastjson.JSON;
+import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -21,7 +26,13 @@ import org.jsoup.nodes.Element;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+
+import static com.rebuild.core.support.ConfigurationItem.OnlyofficeJwt;
+import static com.rebuild.core.support.ConfigurationItem.OnlyofficeServer;
 
 /**
  * Office 文件转换
@@ -42,6 +53,11 @@ public class PdfConverter {
      * @throws PdfConverterException
      */
     public static Path convert(Path path, String type) throws PdfConverterException {
+        // v4.0
+        if (TYPE_PDF.equalsIgnoreCase(type) && RebuildConfiguration.get(OnlyofficeServer) != null) {
+            return ooConvertPdf(path);
+        }
+
         try {
             return convert(path, type, true);
         } catch (IOException e) {
@@ -147,5 +163,49 @@ public class PdfConverter {
         Objects.requireNonNull(template.head().selectFirst("title")).text(title);
 
         FileUtils.writeStringToFile(sourceHtml, template.html(), "UTF-8");
+    }
+
+    /**
+     * OnlyOffice PDF
+     *
+     * @param path
+     * @return
+     * @throws PdfConverterException
+     */
+    public static Path ooConvertPdf(Path path) throws PdfConverterException {
+        final String ooServer = RebuildConfiguration.get(OnlyofficeServer);
+        final String ooJwt = RebuildConfiguration.get(OnlyofficeJwt);
+
+        String filename = path.getFileName().toString();
+        Map<String, Object> document = new HashMap<>();
+        document.put("key", "key-" + filename.hashCode());
+        document.put("filetype", FileUtil.getSuffix(filename));
+        document.put("outputtype", "pdf");
+        document.put("async", "false");
+        document.put("title", filename);
+
+        String fileUrl = String.format("/filex/download/%s?_csrfToken=%s&temp=yes",
+                filename, AuthTokenManager.generateCsrfToken(90));
+        fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
+        document.put("url", fileUrl);
+
+        // Token
+        String token = JWT.create()
+                .setPayload("document", document)
+                .setExpiresAt(CalendarUtils.add(15, Calendar.MINUTE))
+                .setKey(ooJwt.getBytes())
+                .sign();
+
+        Map<String, String> httpHeaders = new HashMap<>();
+        httpHeaders.put("Content-Type", "application/json");
+        httpHeaders.put("Authorization", "Bearer " + token);
+
+        String res;
+        try {
+            res = OkHttpUtils.post(ooServer + "/converter", JSON.toJSON(document), httpHeaders);
+        } catch (IOException e) {
+            throw new PdfConverterException(e);
+        }
+        throw new UnsupportedOperationException("TODO:" + res);
     }
 }

@@ -10,6 +10,8 @@ package com.rebuild.core;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ThrowableUtils;
+import cn.devezhao.commons.sql.SqlBuilder;
+import cn.devezhao.persist4j.util.SqlHelper;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.Installer;
@@ -19,11 +21,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -100,15 +103,33 @@ public final class ServerStatus {
         if (Installer.isUseH2()) name += "/H2";
         else name += "/MYSQL";
 
-        String url = BootEnvironmentPostProcessor.getProperty("db.url");
+        final String url = BootEnvironmentPostProcessor.getProperty("db.url");
+        final String rbSql = SqlBuilder.buildSelect("system_config")
+                .addColumns("ITEM", "VALUE")
+                .setWhere("ITEM = 'DBVer' or ITEM = 'SN'")
+                .toSql();
+
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet rs = null;
         try {
-            Connection c = DriverManager.getConnection(
+            conn = DriverManager.getConnection(
                     url,
                     BootEnvironmentPostProcessor.getProperty("db.user"),
                     BootEnvironmentPostProcessor.getProperty("db.passwd"));
-            c.close();
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(rbSql);
+            if (rs.next()) {
+                log.debug("Check database success : {}", rs.getString(1));
+            }
+
         } catch (Exception ex) {
             return Status.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+        } finally {
+            SqlHelper.close(rs);
+            SqlHelper.close(stmt);
+            //noinspection deprecation
+            SqlHelper.close(conn);
         }
         return Status.success(name);
     }

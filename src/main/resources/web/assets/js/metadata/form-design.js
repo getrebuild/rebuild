@@ -222,12 +222,38 @@ $(document).ready(() => {
   })
 
   $('.J_resize-fields').on('click', () => {
-    $('.form-preview .dd-item').each(function () {
-      const $field = $(this).find('.J_field')
-      if ($field.data('field') !== '$DIVIDER$') {
-        $field.removeAttr('data-height').parent().removeClass('w-25 w-50 w-75 w-100 w-33 w-66').addClass('w-50')
+    RbAlert.create(
+      <RF>
+        {$L('重置布局为')}
+        <div className="mt-1">
+          <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
+            <input className="custom-control-input" name="resize_fields" type="radio" value="w-50" defaultChecked />
+            <span className="custom-control-label">{$L('两栏')}</span>
+          </label>
+          <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
+            <input className="custom-control-input" name="resize_fields" type="radio" value="w-33" />
+            <span className="custom-control-label">{$L('三栏')}</span>
+          </label>
+          <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
+            <input className="custom-control-input" name="resize_fields" type="radio" value="w-25" />
+            <span className="custom-control-label">{$L('四栏')}</span>
+          </label>
+        </div>
+      </RF>,
+      {
+        icon: 'unicon hide',
+        onConfirm: function () {
+          const w = $(this._element).find('input[type=radio]:checked').val()
+          $('.form-preview .dd-item').each(function () {
+            const $field = $(this).find('.J_field')
+            if ($field.data('field') !== '$DIVIDER$' && $field.data('field') !== '$REFFORM$') {
+              $field.removeAttr('data-height').parent().removeClass('w-25 w-50 w-75 w-100 w-33 w-66').addClass(w)
+            }
+          })
+          this.hide()
+        },
       }
-    })
+    )
   })
   $('.J_del-unlayout-fields').on('click', () => {
     RbAlert.create($L('是否删除所有未布局字段？'), {

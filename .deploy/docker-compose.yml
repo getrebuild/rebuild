@@ -1,0 +1,46 @@
+services:
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_ROOT_PASSWORD: "rebuildP4wd"
+      MYSQL_DATABASE: rebuild40
+    command: sh -c "
+      curl -sSL -o /docker-entrypoint-initdb.d/db-init.sql https://www.qn-cdn.getrebuild.com/pub/deploy/db-init_4.0.sql &&
+      exec docker-entrypoint.sh mysqld
+      "
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - app_network
+
+  rebuild:
+    image: getrebuild/rebuild:4.0.2
+    depends_on:
+      mysql:
+        condition: service_healthy
+    entrypoint: [ "sh", "-c" ]
+    command:
+      - >
+        mkdir -p /app/rebuild/.rebuild &&
+        wget -O /app/rebuild/.rebuild/.rebuild https://www.qn-cdn.getrebuild.com/pub/deploy/.rebuild &&
+        java -Duser.timezone=Asia/Shanghai -DDataDirectory=/app/rebuild/.rebuild -jar /app/rebuild/rebuild-boot.jar
+    ports:
+      - "18080:18080"
+    volumes:
+      - rebuild_data:/app/rebuild/.rebuild
+    networks:
+      - app_network
+
+volumes:
+  mysql_data:
+  rebuild_data:
+
+networks:
+  app_network:
+    driver: bridge

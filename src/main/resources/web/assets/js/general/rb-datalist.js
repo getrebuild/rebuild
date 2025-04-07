@@ -23,7 +23,7 @@ const RbListPage = {
       RbListPage._RbList = this
 
       if (window.FrontJS) {
-        window.FrontJS.DataList._trigger('open', [])
+        window.FrontJS.DataList._trigger('open', [this])
       }
     })
 
@@ -39,7 +39,10 @@ const RbListPage = {
     $('.J_edit').on('click', () => {
       const ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
-        RbFormModal.create({ id: ids[0], title: $L('编辑%s', entity[1]), entity: entity[0], icon: entity[2] }, true)
+        const _entity = entity[0]
+        const editProps = { id: ids[0], title: $L('编辑%s', entity[1]), entity: _entity, icon: entity[2] }
+        if ((window.__LAB40_EDIT_PROVIDERS || {})[_entity]) window.__LAB40_EDIT_PROVIDERS[_entity](editProps)
+        else RbFormModal.create(editProps, true)
       }
     })
     $('.J_delete').on('click', () => {
