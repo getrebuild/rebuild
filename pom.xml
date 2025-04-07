@@ -500,7 +500,12 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
-            <version>5.8.29</version>
+            <version>5.8.36</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-jwt</artifactId>
+            <version>5.8.36</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

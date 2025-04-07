@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${title ?:'REBUILD'}]]</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        background-color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="viewer" style="width: 100%; height: 100%"></div>
+    <script th:src="${OnlyofficeServer + '/web-apps/apps/api/documents/api.js'}"></script>
+    <script>
+      new DocsAPI.DocEditor('viewer', {
+        editorConfig: {
+          mode: 'view',
+          lang: 'zh',
+          user: { id: '001-0000000000000000', name: 'REBUILD' },
+        },
+        token: '[[${_Token}]]',
+        document: [(${_DocumentConfig})],
+      })
+    </script>
+  </body>
+</html>
