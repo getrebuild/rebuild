@@ -2,7 +2,6 @@ services:
   mysql:
     image: mysql:5.7
     environment:
-      MYSQL_ROOT_HOST: "%"
       MYSQL_ROOT_PASSWORD: "rebuildP4wd"
       MYSQL_DATABASE: rebuild40
     command: sh -c "
@@ -12,7 +11,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD" ]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "mysql", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD" ]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -25,6 +24,7 @@ services:
       mysql:
         condition: service_healthy
     command: sh -c "
+      mkdir -p /app/rebuild/.rebuild &&
       curl -sSL -o /app/rebuild/.rebuild/.rebuild https://www.qn-cdn.getrebuild.com/pub/deploy/.rebuild
       "
     ports:
