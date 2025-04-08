@@ -11,6 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.jwt.JWT;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
@@ -53,12 +54,12 @@ public class PdfConverter {
      * @throws PdfConverterException
      */
     public static Path convert(Path path, String type) throws PdfConverterException {
-        // v4.0
-        if (TYPE_PDF.equalsIgnoreCase(type) && RebuildConfiguration.get(OnlyofficeServer) != null) {
-            return ooConvertPdf(path);
-        }
-
         try {
+            // v4.0
+            if (TYPE_PDF.equalsIgnoreCase(type) && RebuildConfiguration.get(OnlyofficeServer) != null) {
+                return ooConvertPdf(path);
+            }
+
             return convert(path, type, true);
         } catch (IOException e) {
             throw new PdfConverterException(e);
@@ -171,18 +172,18 @@ public class PdfConverter {
      * @param path
      * @return
      * @throws PdfConverterException
+     * @see com.rebuild.web.commons.FilePreviewer
      */
-    public static Path ooConvertPdf(Path path) throws PdfConverterException {
+    public static Path ooConvertPdf(Path path) throws PdfConverterException, IOException {
         final String ooServer = RebuildConfiguration.get(OnlyofficeServer);
         final String ooJwt = RebuildConfiguration.get(OnlyofficeJwt);
 
         String filename = path.getFileName().toString();
-        Map<String, Object> document = new HashMap<>();
+        JSONObject document = new JSONObject(true);
+        document.put("async", false);
         document.put("key", "key-" + filename.hashCode());
         document.put("filetype", FileUtil.getSuffix(filename));
         document.put("outputtype", "pdf");
-        document.put("async", "false");
-        document.put("title", filename);
 
         String fileUrl = String.format("/filex/download/%s?_csrfToken=%s&temp=yes",
                 filename, AuthTokenManager.generateCsrfToken(90));
@@ -192,20 +193,27 @@ public class PdfConverter {
         // Token
         String token = JWT.create()
                 .setPayload("document", document)
-                .setExpiresAt(CalendarUtils.add(15, Calendar.MINUTE))
+                .setExpiresAt(CalendarUtils.add(5, Calendar.MINUTE))
                 .setKey(ooJwt.getBytes())
                 .sign();
+        document.put("token", token);
 
-        Map<String, String> httpHeaders = new HashMap<>();
-        httpHeaders.put("Content-Type", "application/json");
-        httpHeaders.put("Authorization", "Bearer " + token);
+        Map<String, String> reqHeaders = new HashMap<>();
+        reqHeaders.put("Content-Type", "application/json");
+        reqHeaders.put("Authorization", "Bearer " + token);
 
-        String res;
-        try {
-            res = OkHttpUtils.post(ooServer + "/converter", JSON.toJSON(document), httpHeaders);
-        } catch (IOException e) {
-            throw new PdfConverterException(e);
+        String res = OkHttpUtils.post(ooServer + "/converter", document, reqHeaders);
+        JSONObject resJson = JSON.parseObject(res);
+
+        String resFileUrl = resJson == null ? null : resJson.getString("fileUrl");
+        if (resFileUrl != null) {
+            File outDir = RebuildConfiguration.getFileOfTemp(null);
+            String outName = filename.substring(0, filename.lastIndexOf(".") + 1) + ".pdf";
+            File dest = new File(outDir, outName);
+            OkHttpUtils.readBinary(resFileUrl, dest, null);
+            if (dest.exists()) return dest.toPath();
         }
-        throw new UnsupportedOperationException("TODO:" + res);
+
+        throw new UnsupportedOperationException("Cannot convert:" + resJson);
     }
 }
