@@ -7,6 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.commons;
 
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OnlyOfficeUtils;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
@@ -29,15 +33,24 @@ import static com.rebuild.core.support.ConfigurationItem.OnlyofficeServer;
 @Controller
 public class FilePreviewer extends BaseController {
 
-    @GetMapping("/filex/preview/**")
+    @GetMapping("/commons/file-preview")
     public ModelAndView ooPreview(HttpServletRequest request) {
-        String filepath = request.getRequestURI().split("/filex/preview/")[1];
-        Object[] ps = OnlyOfficeUtils.buildPreviewParams(filepath);
+        String src = getParameterNotNull(request, "src");
+        Object[] ps = OnlyOfficeUtils.buildPreviewParams(src);
 
         ModelAndView mv = createModelAndView("/common/oo-preview");
         mv.getModel().put(OnlyofficeServer.name(), OnlyOfficeUtils.getOoServer());
         mv.getModel().put("_DocumentConfig", ps[0]);
         mv.getModel().put("_Token", ps[1]);
+
+        String[] user = new String[]{"REBUILD", "REBUILD"};
+        ID userid = AppUtils.getRequestUser(request);
+        if (userid != null) {
+            user = new String[]{userid.toString(), UserHelper.getName(userid)};
+        }
+        mv.getModel().put("_User",
+                JSONUtils.toJSONObject(new String[]{"id", "name"}, user));
+
         return mv;
     }
 }

@@ -94,7 +94,7 @@ public class OnlyOfficeUtils {
 
         final String filepathDecode = CodecUtils.urlDecode(filepath);
         String[] fs = filepathDecode.split("/");
-        String filename = fs[fs.length - 1];
+        String filename = fs[fs.length - 1].split("\\?")[0];
 
         Map<String, Object> document = new HashMap<>();
         document.put("fileType", FileUtil.getSuffix(filename));
