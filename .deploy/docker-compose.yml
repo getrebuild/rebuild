@@ -6,7 +6,7 @@ services:
       MYSQL_ROOT_PASSWORD: "rebuildP4wd"
       MYSQL_DATABASE: rebuild40
     command: sh -c "
-      curl -sSL -o /docker-entrypoint-initdb.d/db-init.sql https://www.qn-cdn.getrebuild.com/pub/deploy/db-init_4.0.sql &&
+      curl -sSL -o /docker-entrypoint-initdb.d/db-init.sql https://www.qn-cdn.getrebuild.com/pub/deploy/db-init_latest.sql &&
       exec docker-entrypoint.sh mysqld
       "
     volumes:
@@ -20,7 +20,7 @@ services:
       - app_network
 
   rebuild:
-    image: getrebuild/rebuild:4.0.2
+    image: getrebuild/rebuild:latest
     depends_on:
       mysql:
         condition: service_healthy

@@ -101,8 +101,10 @@ public class ConfigurationController extends BaseController {
         }
 
         String dPortalOfficePreviewUrl = defaultIfBlank(data, ConfigurationItem.PortalOfficePreviewUrl);
-        if (StringUtils.isNotBlank(dPortalOfficePreviewUrl) && !RegexUtils.isUrl(dPortalOfficePreviewUrl)) {
-            return RespBody.errorl("无效文档预览服务地址");
+        if (StringUtils.isNotBlank(dPortalOfficePreviewUrl)) {
+            boolean valid = RegexUtils.isUrl(dPortalOfficePreviewUrl)
+                    || dPortalOfficePreviewUrl.contains("/commons/file-preview?src=");
+            if (!valid) return RespBody.errorl("无效文档预览服务地址");
         }
 
         // 验证数字参数
