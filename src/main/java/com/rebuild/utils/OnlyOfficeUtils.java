@@ -14,6 +14,7 @@ import cn.hutool.jwt.JWT;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.user.AuthTokenManager;
+import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
 import org.springframework.util.Assert;
@@ -49,9 +50,9 @@ public class OnlyOfficeUtils {
         JSONObject document = new JSONObject(true);
         document.put("async", false);
         document.put("key", "key-" + filename.hashCode());
-        document.put("filetype", FileUtil.getSuffix(filename));
-        document.put("outputtype", "pdf");
-        document.put("title", filename);
+        document.put("fileType", FileUtil.getSuffix(filename));
+        document.put("outputType", "pdf");
+        document.put("title", filename.substring(0, filename.lastIndexOf(".")));
 
         String fileUrl = String.format("/filex/download/%s?_csrfToken=%s&temp=yes",
                 filename, AuthTokenManager.generateCsrfToken(90));
@@ -59,7 +60,7 @@ public class OnlyOfficeUtils {
         document.put("url", fileUrl);
 
         // Token
-        String token = JWT.create()
+        String tokenIfNeed = ooJwt == null ? null : JWT.create()
                 .setPayload("document", document)
                 .setExpiresAt(CalendarUtils.add(5, Calendar.MINUTE))
                 .setKey(ooJwt.getBytes())
@@ -67,7 +68,7 @@ public class OnlyOfficeUtils {
 
         Map<String, String> reqHeaders = new HashMap<>();
         reqHeaders.put("Content-Type", "application/json");
-        reqHeaders.put("Authorization", "Bearer " + token);
+        if (tokenIfNeed != null) reqHeaders.put("Authorization", "Bearer " + tokenIfNeed);
 
         String res = OkHttpUtils.post(ooServer + "/converter", document, reqHeaders);
         JSONObject resJson = JSON.parseObject(res);
@@ -81,7 +82,7 @@ public class OnlyOfficeUtils {
             if (dest.exists()) return dest.toPath();
         }
 
-        throw new UnsupportedOperationException("Cannot convert:" + resJson);
+        throw new RebuildException("Convert PDF fails (oo-ds) : " + resJson);
     }
 
     /**
@@ -111,13 +112,13 @@ public class OnlyOfficeUtils {
         }
 
         // Token
-        String token = JWT.create()
+        String tokenIfNeed = ooJwt == null ? null : JWT.create()
                 .setPayload("document", document)
                 .setExpiresAt(CalendarUtils.add(15, Calendar.MINUTE))
                 .setKey(ooJwt.getBytes())
                 .sign();
 
-        return new Object[]{JSON.toJSON(document), token};
+        return new Object[]{JSON.toJSON(document), tokenIfNeed};
     }
 
     /**
