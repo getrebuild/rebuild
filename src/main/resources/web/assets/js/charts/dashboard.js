@@ -177,7 +177,8 @@ $(document).ready(() => {
         setTimeout(() => {
           RbGritter.create(
             <RF>
-              <p>{$L('REBUILD 已成功更新至 %s 版本', rb.ver)}</p>
+              {$L('REBUILD 已成功更新至 %s 版本', rb.ver)}
+              <br />
               <a href={`https://getrebuild.com/docs/dev/changelog?ver=${rb.ver}`} target="_blank" className="text-white link">
                 {$L('查看详情')}
               </a>
