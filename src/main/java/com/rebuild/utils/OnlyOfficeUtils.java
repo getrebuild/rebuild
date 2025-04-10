@@ -101,8 +101,8 @@ public class OnlyOfficeUtils {
         document.put("key", "key-" + filename.hashCode());
         document.put("title", QiniuCloud.parseFileName(filename));
         // 外部地址
-        if (CommonsUtils.isExternalUrl(filepathDecode)) {
-            document.put("url", filepathDecode);
+        if (CommonsUtils.isExternalUrl(filepath)) {
+            document.put("url", filepath);
         } else {
             String fileUrl = String.format("/filex/download/%s?_csrfToken=%s",
                     filepath,
