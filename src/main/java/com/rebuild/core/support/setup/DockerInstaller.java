@@ -7,19 +7,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.setup;
 
-import cn.devezhao.persist4j.util.SqlHelper;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OshiUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
 
 /**
  * Docker 安装
@@ -31,12 +24,12 @@ import java.sql.Statement;
 public class DockerInstaller extends Installer {
 
     public DockerInstaller() {
-        super(new JSONObject());
+        super(buildInstallProps());
     }
 
-    @Override
-    public void install() throws Exception {
-        installProps = new JSONObject();
+    // FAKE
+    static JSONObject buildInstallProps() {
+        JSONObject installProps = new JSONObject();
         JSONObject databaseProps = JSONUtils.toJSONObject(
                 new String[]{"dbName", "dbHost", "dbPort", "dbUser", "dbPassword"},
                 new String[]{"rebuild40", "mysql", "3306", "root", "rebuildP4wd"});
@@ -46,7 +39,11 @@ public class DockerInstaller extends Installer {
             databaseProps.put("dbPassword", "rebuild");
         }
         installProps.put("databaseProps", databaseProps);
+        return installProps;
+    }
 
+    @Override
+    public void install() throws Exception {
         this.installDatabase();
     }
 
@@ -68,28 +65,8 @@ public class DockerInstaller extends Installer {
         if (!BooleanUtils.toBoolean(System.getProperty("initialize"))) return false;
 
         if (Installer.isInstalled()) {
-            Connection conn = null;
-            try {
-                conn = DriverManager.getConnection(
-                        BootEnvironmentPostProcessor.getProperty("db.url"),
-                        BootEnvironmentPostProcessor.getProperty("db.user"),
-                        BootEnvironmentPostProcessor.getProperty("db.passwd"));
-                try (Statement stmt = conn.createStatement()) {
-                    try (ResultSet rs = stmt.executeQuery("SHOW TABLES")) {
-                        // 非空则无需
-                        return !rs.next();
-                    }
-                }
-
-            } catch (Exception ex) {
-                log.warn("Error check initialize state", ex);
-            } finally {
-                //noinspection deprecation
-                SqlHelper.close(conn);
-            }
+            return !isRbDatabase();
         }
-
-        // 必须有 `.rebuild` 文件
         return false;
     }
 }

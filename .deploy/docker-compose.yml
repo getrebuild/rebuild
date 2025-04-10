@@ -2,11 +2,8 @@ services:
   mysql:
     image: mysql:5.7
     environment:
-      MYSQL_CHARSET: utf8mb4
-      MYSQL_COLLATION: utf8mb4_general_ci
       MYSQL_ROOT_HOST: "%"
       MYSQL_ROOT_PASSWORD: "rebuildP4wd"
-      MYSQL_DATABASE: rebuild40
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
