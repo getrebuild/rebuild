@@ -9,6 +9,7 @@ package com.rebuild.core.support.setup;
 
 import cn.devezhao.persist4j.util.SqlHelper;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.Application;
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OshiUtils;
@@ -38,7 +39,12 @@ public class DockerInstaller extends Installer {
         installProps = new JSONObject();
         JSONObject databaseProps = JSONUtils.toJSONObject(
                 new String[]{"dbName", "dbHost", "dbPort", "dbUser", "dbPassword"},
-                new String[]{"rebuild40", "localhost", "3306", "rebuild", "rebuild"});
+                new String[]{"rebuild40", "mysql", "3306", "root", "rebuildP4wd"});
+        if (Application.devMode()) {
+            databaseProps.put("dbHost", "localhost");
+            databaseProps.put("dbUser", "rebuild");
+            databaseProps.put("dbPassword", "rebuild");
+        }
         installProps.put("databaseProps", databaseProps);
 
         this.installDatabase();
@@ -58,6 +64,7 @@ public class DockerInstaller extends Installer {
      * @return
      */
     public boolean isNeedInitialize() {
+        if (!OshiUtils.isDockerEnv()) return false;
         if (!BooleanUtils.toBoolean(System.getProperty("initialize"))) return false;
 
         if (Installer.isInstalled()) {
