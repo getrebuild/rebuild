@@ -933,6 +933,7 @@ const RbViewPage = {
   // 记录转换
   initTransform(config) {
     config.forEach((item) => {
+      if ($isSysMask(item.transName)) return // v4.0.2
       const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.transName || item.entityLabel}</a>`)
       $item.on('click', () => renderRbcomp(<DlgTransform {...item} sourceRecord={this.__id} />))
       $('.J_transform .dropdown-divider').before($item)
