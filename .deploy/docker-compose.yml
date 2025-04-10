@@ -2,13 +2,11 @@ services:
   mysql:
     image: mysql:5.7
     environment:
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_general_ci
       MYSQL_ROOT_HOST: "%"
       MYSQL_ROOT_PASSWORD: "rebuildP4wd"
       MYSQL_DATABASE: rebuild40
-    command: sh -c "
-      curl -sSL -o /docker-entrypoint-initdb.d/db-init.sql https://www.qn-cdn.getrebuild.com/pub/deploy/db-init_latest.sql &&
-      exec docker-entrypoint.sh mysqld
-      "
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -20,7 +18,7 @@ services:
       - app_network
 
   rebuild:
-    image: getrebuild/rebuild:latest
+    image: getrebuild/rebuild:4.0.2
     depends_on:
       mysql:
         condition: service_healthy
@@ -29,7 +27,7 @@ services:
       - >
         mkdir -p /app/rebuild/.rebuild &&
         wget -O /app/rebuild/.rebuild/.rebuild https://www.qn-cdn.getrebuild.com/pub/deploy/.rebuild &&
-        java -Duser.timezone=Asia/Shanghai -DDataDirectory=/app/rebuild/.rebuild -jar /app/rebuild/rebuild-boot.jar
+        java -Dinitialize=yes -Duser.timezone=Asia/Shanghai -DDataDirectory=/app/rebuild/.rebuild -jar /app/rebuild/rebuild-boot.jar
     ports:
       - "18080:18080"
     volumes:
