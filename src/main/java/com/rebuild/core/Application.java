@@ -226,7 +226,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         // 版本升级会清除缓存
         int lastBuild = ObjectUtils.toInt(RebuildConfiguration.get(ConfigurationItem.AppBuild, true), 0);
         // MINOR
-        if (lastBuild / 100000 != BUILD / 100000) {
+        if (lastBuild > 0 && lastBuild / 100000 != BUILD / 100000) {
             log.warn("Clean up the cache when upgrading : {} from {}", BUILD, lastBuild);
             Installer.clearAllCache();
             RebuildConfiguration.set(ConfigurationItem.AppBuild, BUILD);
