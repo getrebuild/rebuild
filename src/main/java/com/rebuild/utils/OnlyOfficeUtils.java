@@ -9,6 +9,7 @@ package com.rebuild.utils;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.EncryptUtils;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.jwt.JWT;
 import com.alibaba.fastjson.JSON;
@@ -49,7 +50,7 @@ public class OnlyOfficeUtils {
         String filename = path.getFileName().toString();
         JSONObject document = new JSONObject(true);
         document.put("async", false);
-        document.put("key", "key-" + filename.hashCode());
+        document.put("key", "key-" + EncryptUtils.toMD5Hex(filename));
         document.put("fileType", FileUtil.getSuffix(filename));
         document.put("outputType", "pdf");
         document.put("title", filename.substring(0, filename.lastIndexOf(".")));
@@ -68,7 +69,10 @@ public class OnlyOfficeUtils {
 
         Map<String, String> reqHeaders = new HashMap<>();
         reqHeaders.put("Content-Type", "application/json");
-        if (tokenIfNeed != null) reqHeaders.put("Authorization", "Bearer " + tokenIfNeed);
+        if (tokenIfNeed != null) {
+            reqHeaders.put("Authorization", "Bearer " + tokenIfNeed);
+            document.put("token", tokenIfNeed);
+        }
 
         String res = OkHttpUtils.post(ooServer + "/converter", document, reqHeaders);
         JSONObject resJson = JSON.parseObject(res);
@@ -98,11 +102,11 @@ public class OnlyOfficeUtils {
 
         Map<String, Object> document = new HashMap<>();
         document.put("fileType", FileUtil.getSuffix(filename));
-        document.put("key", "key-" + filename.hashCode());
+        document.put("key", "key-" + EncryptUtils.toMD5Hex(filename));
         document.put("title", QiniuCloud.parseFileName(filename));
         // 外部地址
-        if (CommonsUtils.isExternalUrl(filepathDecode)) {
-            document.put("url", filepathDecode);
+        if (CommonsUtils.isExternalUrl(filepath)) {
+            document.put("url", filepath);
         } else {
             String fileUrl = String.format("/filex/download/%s?_csrfToken=%s",
                     filepath,
@@ -114,7 +118,7 @@ public class OnlyOfficeUtils {
         // Token
         String tokenIfNeed = ooJwt == null ? null : JWT.create()
                 .setPayload("document", document)
-                .setExpiresAt(CalendarUtils.add(15, Calendar.MINUTE))
+                .setExpiresAt(CalendarUtils.add(30, Calendar.MINUTE))
                 .setKey(ooJwt.getBytes())
                 .sign();
 

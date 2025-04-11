@@ -283,7 +283,7 @@ class ProTable extends React.Component {
     this._addLine(model, index)
   }
 
-  _addLine(model, index) {
+  _addLine(model, index, _disableAutoFillin) {
     // 明细未配置或出错
     if (!model) {
       if (this.state.hasError) RbHighbar.create(this.state.hasError)
@@ -296,7 +296,7 @@ class ProTable extends React.Component {
     const FORM = (
       <InlineForm entity={entityName} id={model.id} rawModel={model} $$$parent={this} $$$main={this.props.$$$main} key={lineKey} ref={ref} _componentDidUpdate={() => this._componentDidUpdate()}>
         {model.elements.map((item) => {
-          return detectElement({ ...item, colspan: 4 })
+          return detectElement({ ...item, colspan: 4, _disableAutoFillin: _disableAutoFillin === true })
         })}
       </InlineForm>
     )
@@ -320,7 +320,7 @@ class ProTable extends React.Component {
 
     // force New
     delete data.metadata.id
-    this._formdataRebuild(data, (res) => this._addLine(res.data, index))
+    this._formdataRebuild(data, (res) => this._addLine(res.data, index, true))
   }
 
   removeLine(lineKey) {

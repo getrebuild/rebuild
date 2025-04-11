@@ -470,7 +470,6 @@ class SelectReport extends React.Component {
               <div>
                 <ul className="list-unstyled">
                   {(this.state.reports || []).map((item) => {
-                    rb._officePreviewUrl = 111
                     const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}`
                     const showPdf = (item.outputType || '').includes('pdf')
                     const showHtml = item.outputType !== 'html5' && (item.outputType || '').includes('html')

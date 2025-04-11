@@ -163,13 +163,13 @@ public enum ConfigurationItem {
                 || SN.name().equals(name);
     }
 
-    private Object defaultVal;
+    private Object defaultValue;
 
     ConfigurationItem() {
     }
 
     ConfigurationItem(Object defaultVal) {
-        this.defaultVal = defaultVal;
+        this.defaultValue = defaultVal;
     }
 
     /**
@@ -178,9 +178,9 @@ public enum ConfigurationItem {
      * @return
      */
     public Object getDefaultValue() {
-        if (defaultVal != null && defaultVal instanceof ConfigurationItem) {
-            return ((ConfigurationItem) defaultVal).getDefaultValue();
+        if (defaultValue != null && defaultValue instanceof ConfigurationItem) {
+            return ((ConfigurationItem) defaultValue).getDefaultValue();
         }
-        return defaultVal;
+        return defaultValue;
     }
 }

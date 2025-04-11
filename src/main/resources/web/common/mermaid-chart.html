@@ -95,7 +95,7 @@
         function setZoom(z) {
           zoom += z
           if (zoom < 20) zoom = 20
-          if (zoom > 500) zoom = 500
+          if (zoom > 1000) zoom = 1000
 
           $('.zoom > span').text(zoom + '%')
           $node.css('transform', `scale(${zoom / 100})`)
