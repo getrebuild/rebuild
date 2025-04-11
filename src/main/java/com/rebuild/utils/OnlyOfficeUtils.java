@@ -69,7 +69,10 @@ public class OnlyOfficeUtils {
 
         Map<String, String> reqHeaders = new HashMap<>();
         reqHeaders.put("Content-Type", "application/json");
-        if (tokenIfNeed != null) reqHeaders.put("Authorization", "Bearer " + tokenIfNeed);
+        if (tokenIfNeed != null) {
+            reqHeaders.put("Authorization", "Bearer " + tokenIfNeed);
+            document.put("token", tokenIfNeed);
+        }
 
         String res = OkHttpUtils.post(ooServer + "/converter", document, reqHeaders);
         JSONObject resJson = JSON.parseObject(res);
@@ -115,7 +118,7 @@ public class OnlyOfficeUtils {
         // Token
         String tokenIfNeed = ooJwt == null ? null : JWT.create()
                 .setPayload("document", document)
-                .setExpiresAt(CalendarUtils.add(15, Calendar.MINUTE))
+                .setExpiresAt(CalendarUtils.add(30, Calendar.MINUTE))
                 .setKey(ooJwt.getBytes())
                 .sign();
 
