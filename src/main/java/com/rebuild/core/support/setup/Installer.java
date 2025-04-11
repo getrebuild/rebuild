@@ -78,7 +78,7 @@ public class Installer implements InstallState {
     // 快速安装模式（H2 数据库）
     private boolean quickMode;
 
-    protected JSONObject installProps;
+    private JSONObject installProps;
 
     private DbInfo dbInfo;
 
