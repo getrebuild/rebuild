@@ -16,8 +16,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.RebuildException;
+import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
+import com.rebuild.web.admin.ConfigurationController;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.io.File;
@@ -134,5 +137,15 @@ public class OnlyOfficeUtils {
 
         if (ooServer.endsWith("/")) ooServer = ooServer.substring(0, ooServer.length() - 1);
         return ooServer;
+    }
+
+    /**
+     * @return
+     */
+    public static boolean isUseOoPreview() {
+        if (RebuildConfiguration.get(OnlyofficeServer) == null) return false;
+        return StringUtils.contains(
+                RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl),
+                ConfigurationController.OO_PREVIEW_URL);
     }
 }
