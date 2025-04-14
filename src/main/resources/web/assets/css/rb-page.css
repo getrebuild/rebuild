@@ -5961,3 +5961,24 @@ div.formula-code {
   left: 0;
   margin: 0;
 }
+
+.aibot {
+  position: fixed;
+  right: 16px;
+  bottom: 15px;
+  z-index: 999;
+}
+
+.aibot .aibot-chat {
+  border: 2px solid rgb(213, 213, 213);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.aibot-show .icon::before {
+  background: linear-gradient(90deg, #fe5281, #a928bf, #474efe);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: bold;
+}
