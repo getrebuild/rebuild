@@ -5962,19 +5962,57 @@ div.formula-code {
   margin: 0;
 }
 
-.aibot {
-  position: fixed;
-  right: 16px;
-  bottom: 15px;
-  z-index: 999;
+.aibot.show {
+  display: block;
 }
 
-.aibot .aibot-chat {
-  border: 2px solid rgb(213, 213, 213);
+.aibot.modal {
+  top: unset;
+  left: unset;
+  bottom: 5px;
+  right: 5px;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
   border-radius: 4px;
   overflow: hidden;
 }
 
+.aibot .modal-dialog {
+  max-width: 100%;
+  margin: 0;
+}
+
+.aibot .modal-content {
+  margin: 0;
+}
+
+.aibot .modal-content .modal-header {
+  background-color: #eee;
+  padding: 12px 16px;
+  background: linear-gradient(90deg, #fe5281, #a928bf, #474efe);
+}
+
+.aibot .modal-content .modal-header,
+.aibot .modal-content .modal-header .icon {
+  color: #fff;
+}
+
+.aibot .modal-content .modal-header h3 {
+  font-size: 1.51rem;
+}
+
+.aibot .modal-content .modal-header .close {
+  margin-top: -10px;
+}
+
+.aibot .modal-content .modal-body {
+  padding: 0 !important;
+}
+
+.aibot .aibot-chat {
+  background-color: #fff;
+}
+
+.aibot-icon::before,
 .aibot-show .icon::before {
   background: linear-gradient(90deg, #fe5281, #a928bf, #474efe);
   -webkit-background-clip: text;
