@@ -747,7 +747,7 @@ const RbViewPage = {
             $('.J_sharingList').parent().remove()
           }
         } else if (k === 'createdOn' || k === 'modifiedOn') {
-          renderRbcomp(<DateShow date={v} />, $el[0])
+          renderRbcomp(<DateShow date={v} showOrigin />, $el)
         } else {
           $(`<span>${v}</span>`).appendTo($el.empty())
         }

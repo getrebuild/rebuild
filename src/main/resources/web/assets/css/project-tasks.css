@@ -347,8 +347,8 @@ td.task-user > .avatar img {
 
 .ps-toolbar .J_view > .btn > .icon,
 .ps-toolbar .J_sorts > .btn > .icon {
-  font-size: 16px;
-  top: 10px;
+  font-size: 17px;
+  top: 11.5px;
   left: 0;
   position: absolute;
 }
