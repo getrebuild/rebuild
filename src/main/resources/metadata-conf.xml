@@ -600,7 +600,7 @@
         <field name="longUrl" type="string" max-length="600" nullable="false" updatable="false" description="对应长链/文件"/>
         <field name="expireTime" type="timestamp" updatable="false" description="到期时间"/>
         <field name="checkPasswd" type="timestamp" updatable="false" description="密码"/>
-        <field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人"/>
+        <field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人" cascade="ignore"/>
         <field name="createdOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="创建时间"/>
         <index field-list="createdBy,createdOn,expireTime"/>
         <index field-list="shortKey"/>
@@ -624,6 +624,16 @@
         <field name="logTime" type="timestamp" nullable="false"/>
         <field name="status" type="small-int" default-value="1"/>
         <index field-list="type,logTime,source"/>
+    </entity>
+
+    <entity name="AiBotChat" type-code="096" description="AI助手对话记录" queryable="false" parent="false">
+        <field name="chatId" type="primary"/>
+        <field name="sessionId" type="string" max-length="100" nullable="false" description="会话ID"/>
+        <field name="subject" type="string" max-length="100" nullable="false" description="主题"/>
+        <field name="content" type="ntext" description="内容 (JSON)"/>
+        <field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人" cascade="ignore"/>
+        <field name="createdOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="创建时间"/>
+        <index field-list="createdBy,createdOn,sessionId"/>
     </entity>
 
 </metadata-config>

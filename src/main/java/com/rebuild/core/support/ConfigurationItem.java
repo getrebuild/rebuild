@@ -114,6 +114,11 @@ public enum ConfigurationItem {
     FeishuSyncUsersRole,
     FeishuSyncUsersMatch("ID"),
 
+    // DS
+    DeepSeekUrl("https://api.deepseek.com/chat/completions"),
+    DeepSeekModel("deepseek-chat"),
+    DeepSeekSecret,
+
     // PORTALs
     PortalBaiduMapAk,
     PortalOfficePreviewUrl,
