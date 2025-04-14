@@ -2119,7 +2119,10 @@ class RbFormReference extends RbFormElement {
     // 新建记录时触发回填
     const props = this.props
     if (this._isNew && props.value && props.value.id) {
-      setTimeout(() => this.triggerAutoFillin(props.value.id), 200)
+      // fix: 4.0.2 #IC0GPI 复制时无需回填
+      if (props._disableAutoFillin !== true) {
+        setTimeout(() => this.triggerAutoFillin(props.value.id), 200)
+      }
     }
   }
 

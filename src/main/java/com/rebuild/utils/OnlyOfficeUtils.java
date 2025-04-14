@@ -7,27 +7,30 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.EncryptUtils;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.jwt.JWT;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.RebuildException;
+import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
+import com.rebuild.web.admin.ConfigurationController;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.rebuild.core.support.ConfigurationItem.OnlyofficeJwt;
 import static com.rebuild.core.support.ConfigurationItem.OnlyofficeServer;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * @author devezhao
@@ -47,12 +50,13 @@ public class OnlyOfficeUtils {
         final String ooJwt = RebuildConfiguration.get(OnlyofficeJwt);
 
         String filename = path.getFileName().toString();
+        String filenameWithoutExt = filename.substring(0, filename.lastIndexOf("."));
         JSONObject document = new JSONObject(true);
         document.put("async", false);
-        document.put("key", "key-" + filename.hashCode());
+        document.put("key", "key-" + EncryptUtils.toMD5Hex(filename));
         document.put("fileType", FileUtil.getSuffix(filename));
         document.put("outputType", "pdf");
-        document.put("title", filename.substring(0, filename.lastIndexOf(".")));
+        document.put("title", filenameWithoutExt);
 
         String fileUrl = String.format("/filex/download/%s?_csrfToken=%s&temp=yes",
                 filename, AuthTokenManager.generateCsrfToken(90));
@@ -60,24 +64,24 @@ public class OnlyOfficeUtils {
         document.put("url", fileUrl);
 
         // Token
-        String tokenIfNeed = ooJwt == null ? null : JWT.create()
-                .setPayload("document", document)
-                .setExpiresAt(CalendarUtils.add(5, Calendar.MINUTE))
-                .setKey(ooJwt.getBytes())
+        String tokenIfNeed = StringUtils.isBlank(ooJwt) ? null : JWT.create()
+                .addPayloads(document)
+                .setKey(ooJwt.getBytes(UTF_8))
                 .sign();
 
         Map<String, String> reqHeaders = new HashMap<>();
         reqHeaders.put("Content-Type", "application/json");
-        if (tokenIfNeed != null) reqHeaders.put("Authorization", "Bearer " + tokenIfNeed);
+        if (tokenIfNeed != null) {
+            reqHeaders.put("Authorization", "Bearer " + tokenIfNeed);
+        }
 
         String res = OkHttpUtils.post(ooServer + "/converter", document, reqHeaders);
         JSONObject resJson = JSON.parseObject(res);
 
         String resFileUrl = resJson == null ? null : resJson.getString("fileUrl");
         if (resFileUrl != null) {
-            File outDir = RebuildConfiguration.getFileOfTemp(null);
-            String outName = filename.substring(0, filename.lastIndexOf(".") + 1) + ".pdf";
-            File dest = new File(outDir, outName);
+            File dest = new File(
+                    RebuildConfiguration.getFileOfTemp(null), filenameWithoutExt + ".pdf");
             OkHttpUtils.readBinary(resFileUrl, dest, null);
             if (dest.exists()) return dest.toPath();
         }
@@ -96,13 +100,13 @@ public class OnlyOfficeUtils {
         String[] fs = filepathDecode.split("/");
         String filename = fs[fs.length - 1].split("\\?")[0];
 
-        Map<String, Object> document = new HashMap<>();
+        JSONObject document = new JSONObject(true);
         document.put("fileType", FileUtil.getSuffix(filename));
-        document.put("key", "key-" + filename.hashCode());
+        document.put("key", "key-" + EncryptUtils.toMD5Hex(filename));
         document.put("title", QiniuCloud.parseFileName(filename));
         // 外部地址
-        if (CommonsUtils.isExternalUrl(filepathDecode)) {
-            document.put("url", filepathDecode);
+        if (CommonsUtils.isExternalUrl(filepath)) {
+            document.put("url", filepath);
         } else {
             String fileUrl = String.format("/filex/download/%s?_csrfToken=%s",
                     filepath,
@@ -112,13 +116,12 @@ public class OnlyOfficeUtils {
         }
 
         // Token
-        String tokenIfNeed = ooJwt == null ? null : JWT.create()
+        String tokenIfNeed = StringUtils.isBlank(ooJwt) ? null : JWT.create()
                 .setPayload("document", document)
-                .setExpiresAt(CalendarUtils.add(15, Calendar.MINUTE))
-                .setKey(ooJwt.getBytes())
+                .setKey(ooJwt.getBytes(UTF_8))
                 .sign();
 
-        return new Object[]{JSON.toJSON(document), tokenIfNeed};
+        return new Object[]{document, tokenIfNeed};
     }
 
     /**
@@ -130,5 +133,15 @@ public class OnlyOfficeUtils {
 
         if (ooServer.endsWith("/")) ooServer = ooServer.substring(0, ooServer.length() - 1);
         return ooServer;
+    }
+
+    /**
+     * @return
+     */
+    public static boolean isUseOoPreview() {
+        if (RebuildConfiguration.get(OnlyofficeServer) == null) return false;
+        return StringUtils.contains(
+                RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl),
+                ConfigurationController.OO_PREVIEW_URL);
     }
 }

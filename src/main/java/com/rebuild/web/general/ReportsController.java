@@ -38,6 +38,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.OnlyOfficeUtils;
 import com.rebuild.utils.PdfConverter;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
@@ -175,7 +176,10 @@ public class ReportsController extends BaseController {
 
         } else {
             // 直接预览
-            boolean forcePreview = isHtml || isPdf || getBoolParameter(request, "preview");
+            boolean forcePreview = isHtml || getBoolParameter(request, "preview");
+            if (!forcePreview) {
+                if (isPdf && !OnlyOfficeUtils.isUseOoPreview()) forcePreview = true;
+            }
             FileDownloader.downloadTempFile(response, output, fileName, forcePreview);
         }
         return null;

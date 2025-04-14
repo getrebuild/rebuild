@@ -824,8 +824,20 @@ const UserShow = function (props) {
 }
 
 // ~~ 日期显示
-const DateShow = function ({ date, title }) {
-  return date ? <span title={title || date}>{$fromNow(date)}</span> : null
+class DateShow extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  render() {
+    const date = this.props.date
+    return date ? (
+      <span title={this.props.title || date} onClick={() => this.setState({ _showOrigin: !this.state._showOrigin })}>
+        {this.props.showOrigin && this.state._showOrigin ? date : $fromNow(date)}
+      </span>
+    ) : null
+  }
 }
 
 // ~~ 记录选择器

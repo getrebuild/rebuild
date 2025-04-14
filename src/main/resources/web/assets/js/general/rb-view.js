@@ -747,7 +747,7 @@ const RbViewPage = {
             $('.J_sharingList').parent().remove()
           }
         } else if (k === 'createdOn' || k === 'modifiedOn') {
-          renderRbcomp(<DateShow date={v} />, $el[0])
+          renderRbcomp(<DateShow date={v} showOrigin />, $el)
         } else {
           $(`<span>${v}</span>`).appendTo($el.empty())
         }
@@ -933,6 +933,7 @@ const RbViewPage = {
   // 记录转换
   initTransform(config) {
     config.forEach((item) => {
+      if ($isSysMask(item.transName)) return // v4.0.2
       const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.transName || item.entityLabel}</a>`)
       $item.on('click', () => renderRbcomp(<DlgTransform {...item} sourceRecord={this.__id} />))
       $('.J_transform .dropdown-divider').before($item)
