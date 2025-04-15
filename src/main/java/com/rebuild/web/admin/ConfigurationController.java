@@ -441,6 +441,28 @@ public class ConfigurationController extends BaseController {
         return mv;
     }
 
+    @PostMapping("integration/aibot")
+    public RespBody postIntegrationAibot(@RequestBody JSONObject data) {
+        setValues(data);
+        return RespBody.ok();
+    }
+
+    @GetMapping("integration/aibot")
+    public ModelAndView pageIntegrationAibot() {
+        ModelAndView mv = createModelAndView("/admin/integration/aibot");
+        for (ConfigurationItem item : ConfigurationItem.values()) {
+            String name = item.name();
+            if (name.startsWith("Aibot")) {
+                String value = RebuildConfiguration.get(item);
+                if (value != null && item == ConfigurationItem.AibotDSSecret) {
+                    value = DataDesensitized.any(value);
+                }
+                mv.getModel().put(name, value);
+            }
+        }
+        return mv;
+    }
+
     @PostMapping("integration/feishu")
     public RespBody postIntegrationFeishu(@RequestBody JSONObject data) {
         setValues(data);

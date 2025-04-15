@@ -118,10 +118,10 @@ public enum ConfigurationItem {
     OnlyofficeServer,
     OnlyofficeJwt,
 
-    // AI
-    DeepSeekUrl("https://api.deepseek.com/chat/completions"),
-    DeepSeekModel("deepseek-chat"),
-    DeepSeekSecret,
+    // Aibot
+    AibotDSUrl("https://api.deepseek.com/"),
+    AibotDSSecret,
+    AibotBasePrompt,
 
     // PORTALs
     PortalBaiduMapAk,
