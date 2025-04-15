@@ -171,17 +171,13 @@ public class Installer implements InstallState {
             log.error("Error installing business module", ex);
         }
 
-        try {
-            this.installClassificationAsync();
-        } catch (Exception ex) {
-            log.error("Error installing classification data", ex);
-        }
+        this.installClassificationAsync();
     }
 
     /**
      * 刷新配置
      */
-    private void refresh() throws Exception {
+    protected void refresh() throws Exception {
         // 重配置
         Application.getBean(BootEnvironmentPostProcessor.class).postProcessEnvironment(null, null);
 

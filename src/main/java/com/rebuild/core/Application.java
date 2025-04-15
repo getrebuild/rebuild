@@ -134,14 +134,6 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         final Timer timer = new Timer("Boot-Timer");
 
         try {
-            // v4.0.3 for Docker
-            DockerInstaller di = new DockerInstaller();
-            final boolean isNeedInitialize = di.isNeedInitialize();
-            if (isNeedInitialize) {
-                log.info("Initializing REBUILD for Docker container ...");
-                di.install();
-            }
-
             if (Installer.isInstalled()) {
                 started = init();
 
@@ -171,8 +163,6 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                             }
                         }
                     }, 999);
-
-                    if (isNeedInitialize) di.installAfter();
                 }
 
             } else {
@@ -184,6 +174,13 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                                 "Install : " + BootApplication.getLocalUrl("/setup/install")));
                     }
                 }, 999);
+
+                // v4.0.3 for Docker
+                DockerInstaller di = new DockerInstaller();
+                if (di.isNeedInitialize()) {
+                    log.info("Initializing REBUILD for Docker container ...");
+                    di.install();
+                }
             }
 
         } catch (Exception ex) {

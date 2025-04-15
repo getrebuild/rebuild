@@ -55,23 +55,15 @@ public class DockerInstaller extends Installer {
 
         Properties installProps = buildConnectionProps(null);
         installProps.put(CONF_PREFIX + CacheHost.name(), "0");
-
         File dest = RebuildConfiguration.getFileOfData(INSTALL_FILE);
         try (OutputStream os = Files.newOutputStream(dest.toPath())) {
             installProps.store(os, "REBUILD INSTALLER MAGIC FOR DOCKER !!! DO NOT EDIT !!!");
             log.info("Saved installation file : {}", dest);
         }
-    }
 
-    /**
-     * 安装后执行
-     */
-    public void installAfter() {
-        try {
-            this.installClassificationAsync();
-        } catch (Exception ex) {
-            log.error("Error init Classification", ex);
-        }
+        this.refresh();
+
+        this.installClassificationAsync();
     }
 
     /**
@@ -80,10 +72,7 @@ public class DockerInstaller extends Installer {
      * @return
      */
     public boolean isNeedInitialize() {
-        if (OshiUtils.isDockerEnv()
-                && "docker".equals(System.getProperty("initialize"))) {
-            return !Installer.isInstalled();
-        }
-        return false;
+        if (Installer.isInstalled()) return false;
+        return OshiUtils.isDockerEnv() && "docker".equals(System.getProperty("initialize"));
     }
 }
