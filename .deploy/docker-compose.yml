@@ -15,7 +15,7 @@ services:
       - app_network
 
   rebuild:
-    image: getrebuild/rebuild:4.0.2
+    image: getrebuild/rebuild:latest
     depends_on:
       mysql:
         condition: service_healthy
@@ -23,8 +23,7 @@ services:
     command:
       - >
         mkdir -p /app/rebuild/.rebuild &&
-        wget -O /app/rebuild/.rebuild/.rebuild https://www.qn-cdn.getrebuild.com/pub/deploy/.rebuild &&
-        java -Dinitialize=yes -Duser.timezone=Asia/Shanghai -DDataDirectory=/app/rebuild/.rebuild -jar /app/rebuild/rebuild-boot.jar
+        java -Dinitialize=docker -Duser.timezone=Asia/Shanghai -DDataDirectory=/app/rebuild/.rebuild -jar /app/rebuild/rebuild-boot.jar
     ports:
       - "18080:18080"
     volumes:

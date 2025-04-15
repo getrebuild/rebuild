@@ -134,7 +134,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         final Timer timer = new Timer("Boot-Timer");
 
         try {
-            // v4.0.2 for Docker
+            // v4.0.3 for Docker
             DockerInstaller di = new DockerInstaller();
             final boolean isNeedInitialize = di.isNeedInitialize();
             if (isNeedInitialize) {

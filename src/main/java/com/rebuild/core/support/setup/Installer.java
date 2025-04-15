@@ -132,11 +132,10 @@ public class Installer implements InstallState {
                 installProps.put(CONF_PREFIX + CachePassword.name(), String.format("AES(%s)", AES.encrypt(cachePasswd)));
             }
         } else {
-            // Use ehcache
+            // Ehcache
             installProps.put(CONF_PREFIX + CacheHost.name(), "0");
         }
 
-        // Save install state (file)
         File dest = RebuildConfiguration.getFileOfData(INSTALL_FILE);
         try {
             FileUtils.deleteQuietly(dest);
@@ -149,7 +148,6 @@ public class Installer implements InstallState {
             throw new SetupException(e);
         }
 
-        // Refresh
         try {
             refresh();
         } catch (Exception ex) {
@@ -157,7 +155,6 @@ public class Installer implements InstallState {
             throw ex;
         }
 
-        // Clean cached
         clearAllCache();
 
         if (!dbNew) return;
@@ -248,7 +245,7 @@ public class Installer implements InstallState {
      * @param dbName
      * @return
      */
-    private Properties buildConnectionProps(String dbName) {
+    protected Properties buildConnectionProps(String dbName) {
         final JSONObject dbProps = installProps.getJSONObject("databaseProps");
         if (dbName == null) {
             dbName = dbProps == null ? null : dbProps.getString("dbName");

@@ -9,10 +9,17 @@ package com.rebuild.core.support.setup;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OshiUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.BooleanUtils;
+
+import java.io.File;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.util.Properties;
+
+import static com.rebuild.core.support.ConfigurationItem.CacheHost;
 
 /**
  * Docker 安装
@@ -45,27 +52,37 @@ public class DockerInstaller extends Installer {
     @Override
     public void install() throws Exception {
         this.installDatabase();
+
+        Properties installProps = buildConnectionProps(null);
+        installProps.put(CONF_PREFIX + CacheHost.name(), "0");
+
+        File dest = RebuildConfiguration.getFileOfData(INSTALL_FILE);
+        try (OutputStream os = Files.newOutputStream(dest.toPath())) {
+            installProps.store(os, "REBUILD INSTALLER MAGIC FOR DOCKER !!! DO NOT EDIT !!!");
+            log.info("Saved installation file : {}", dest);
+        }
     }
 
     /**
+     * 安装后执行
      */
     public void installAfter() {
         try {
             this.installClassificationAsync();
         } catch (Exception ex) {
-            log.error("Error installing classification data", ex);
+            log.error("Error init Classification", ex);
         }
     }
 
     /**
+     * 是否需要安装
+     *
      * @return
      */
     public boolean isNeedInitialize() {
-        if (!OshiUtils.isDockerEnv()) return false;
-        if (!BooleanUtils.toBoolean(System.getProperty("initialize"))) return false;
-
-        if (Installer.isInstalled()) {
-            return !isRbDatabase();
+        if (OshiUtils.isDockerEnv()
+                && "docker".equals(System.getProperty("initialize"))) {
+            return !Installer.isInstalled();
         }
         return false;
     }
