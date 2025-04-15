@@ -252,10 +252,11 @@ public class DataListWrapper {
                 value = colorValue;
 
             } else  if (easyField.getDisplayType() == DisplayType.CLASSIFICATION) {
-                String color = ClassificationManager.instance.getColor((ID) originValue);
-                if (StringUtils.isNotBlank(color)) {
+                ClassificationManager.Item item = ClassificationManager.instance.getItem((ID) originValue);
+                if (item != null && StringUtils.isNotBlank(item.getColor())) {
                     value = JSONUtils.toJSONObject(
-                            new String[]{ "text", "color" }, new Object[]{ value, color });
+                            new String[]{ "text", "color" },
+                            new Object[]{ value, item.getColor() });
                 }
             }
         }

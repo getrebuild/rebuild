@@ -30,8 +30,8 @@ public class EasyClassification extends EasyReference {
         JSONObject map = (JSONObject) super.wrapValue(value);
         if (map != null) {
             map.remove("entity");
-            String color = ClassificationManager.instance.getColor((ID) value);
-            if (color != null) map.put("color", color);
+            ClassificationManager.Item item = ClassificationManager.instance.getItem((ID) value);
+            if (item != null && item.getColor() != null) map.put("color", item.getColor());
         }
         return map;
     }
