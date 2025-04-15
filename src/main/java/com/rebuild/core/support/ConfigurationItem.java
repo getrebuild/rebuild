@@ -114,7 +114,11 @@ public enum ConfigurationItem {
     FeishuSyncUsersRole,
     FeishuSyncUsersMatch("ID"),
 
-    // DS
+    // 预览、PDF转换
+    OnlyofficeServer,
+    OnlyofficeJwt,
+
+    // AI
     DeepSeekUrl("https://api.deepseek.com/chat/completions"),
     DeepSeekModel("deepseek-chat"),
     DeepSeekSecret,
@@ -139,8 +143,6 @@ public enum ConfigurationItem {
     SecurityEnhanced(false), // 安全增强
     TrustedAllUrl(false), // 可信外部地址
     LibreofficeBin,                 // Libreoffice 命令
-    OnlyofficeServer,           // Onlyoffice 服务器地址
-    OnlyofficeJwt,              // Onlyoffice JWT
     MysqldumpBin,                   // mysqldump 命令
     UnsafeImgAccess(false), // 不安全图片访问
 
@@ -161,8 +163,6 @@ public enum ConfigurationItem {
                 || SecurityEnhanced.name().equalsIgnoreCase(name)
                 || TrustedAllUrl.name().equalsIgnoreCase(name)
                 || LibreofficeBin.name().equalsIgnoreCase(name)
-                || OnlyofficeServer.name().equalsIgnoreCase(name)
-                || OnlyofficeJwt.name().equalsIgnoreCase(name)
                 || MysqldumpBin.name().equalsIgnoreCase(name)
                 || UnsafeImgAccess.name().equals(name)
                 || SN.name().equals(name);
