@@ -88,6 +88,11 @@ public class RecentlyUsedHelper {
                     || Application.getPrivilegesManager().allowRead(user, raw);
             if (!allowRead) continue;
 
+            // 添加分类数据项隐藏状态检查
+            if (entityCode == EntityHelper.ClassificationData && !isClassificationItemVisible(raw)) {
+                continue;
+            }
+
             // 是否符合条件
             if (checkFilter != null) {
                 if (!QueryHelper.isMatchFilter(raw, checkFilter)) {
@@ -160,5 +165,40 @@ public class RecentlyUsedHelper {
 
     private static String formatKey(ID user, String entity, String type) {
         return String.format("RS31.%s-%s-%s", user, entity, StringUtils.defaultIfBlank(type, StringUtils.EMPTY));
+    }
+
+    /**
+     * 检查分类数据项是否可见（未隐藏）
+     *
+     * @param itemId 分类项ID
+     * @return true 如果分类项可见
+     */
+    private static boolean isClassificationItemVisible(ID itemId) {
+        String sql = "select isHide,parent from ClassificationData where itemId = ?";
+        Object[] current = Application.createQuery(sql).setParameter(1, itemId).unique();
+        
+        // 记录不存在
+        if (current == null) return false;
+        
+        // 当前项被隐藏
+        if ((Boolean) current[0]) return false;
+        
+        // 检查所有父级
+        ID parentId = current[1] == null ? null : (ID) current[1];
+        while (parentId != null) {
+            Object[] parent = Application.createQuery(sql)
+                    .setParameter(1, parentId)
+                    .unique();
+            
+            // 父级记录不存在或被隐藏
+            if (parent == null || (Boolean) parent[0]) {
+                return false;
+            }
+            
+            // 继续检查上一级父级
+            parentId = parent[1] == null ? null : (ID) parent[1];
+        }
+        
+        return true;
     }
 }
