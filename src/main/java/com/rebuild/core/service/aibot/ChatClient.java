@@ -110,6 +110,8 @@ public class ChatClient {
                     return;
                 }
 
+                // 0=未开始 1=输出中 2=结束
+                int reasoningState = 0;
                 while (!source.exhausted()) {
                     String d = source.readUtf8Line();
                     if (d != null && d.startsWith("data: ")) {
@@ -118,8 +120,22 @@ public class ChatClient {
 
                         JSONObject dJson = JSON.parseObject(d);
                         // choices[{delta:{content:xxx}}]
-                        String chunk = dJson.getJSONArray("choices").getJSONObject(0).getJSONObject("delta").getString("content");
-                        if (chunk.isEmpty()) continue;
+                        JSONObject delta = dJson.getJSONArray("choices").getJSONObject(0).getJSONObject("delta");
+                        String chunk = delta.getString("content");
+                        // 推理
+                        if (chunk == null) {
+                            String reasoning = delta.getString("reasoning_content");
+                            if (reasoningState == 0) {
+                                reasoning = "思考中...\n" + reasoning;
+                                reasoningState = 1;
+                            }
+                            chunk = reasoning;
+                        } else if (reasoningState == 1) {
+                            reasoningState = 2;
+                            StreamEcho.text("\n\n", writer);
+                        }
+
+                        if (chunk == null || chunk.isEmpty()) continue;
 
                         StreamEcho.text(chunk, writer);
                         deltaContent.append(chunk);

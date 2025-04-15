@@ -26,11 +26,11 @@ public class StreamEcho {
     }
 
     /**
-     * @param error
+     * @param html
      * @param writer
      */
-    public static void html(String error, PrintWriter writer) {
-        echo(error, writer, "html");
+    public static void html(String html, PrintWriter writer) {
+        echo(html, writer, "html");
     }
 
     /**

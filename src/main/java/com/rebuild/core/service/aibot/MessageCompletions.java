@@ -62,7 +62,7 @@ public class MessageCompletions implements Serializable {
      */
     public JSON toCompletions(boolean stream) {
         JSONObject data = JSON.parseObject(DS_PARAM);
-        data.put("model", RebuildConfiguration.get(ConfigurationItem.AibotDSSecret));
+//        data.put("model", "deepseek-reasoner");
         if (stream) data.put("stream", true);
 
         JSONArray ms = new JSONArray();
