@@ -22,11 +22,6 @@ import java.util.Objects;
  */
 public class Axis {
 
-    /**
-     * -- GETTER --
-     *
-     * @return
-     */
     @Getter
     private Field field;
     private FormatSort sort;

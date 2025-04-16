@@ -131,7 +131,7 @@ class FeedsList extends React.Component {
 
               <a>{item.createdBy[1]}</a>
               <p className="text-muted fs-12 m-0">
-                <DateShow date={item.createdOn} />
+                <DateShow date={item.createdOn} showOrigin />
                 {item.createdOn !== item.modifiedOn && (
                   <span className="text-warning ml-1" title={`${$L('修改于')} ${item.modifiedOn}`}>
                     ({$L('已修改')})

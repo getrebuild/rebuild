@@ -17,14 +17,18 @@
     <div id="viewer" style="width: 100%; height: 100%"></div>
     <script th:src="${OnlyofficeServer + '/web-apps/apps/api/documents/api.js'}"></script>
     <script>
+      // https://api.onlyoffice.com/docs/docs-api/usage-api/config/
       new DocsAPI.DocEditor('viewer', {
         editorConfig: {
           mode: 'view',
           lang: 'zh',
-          user: { id: '001-0000000000000000', name: 'REBUILD' },
+          toolbar: false,
+          menu: false,
+          user: [(${_User})],
         },
-        token: '[[${_Token}]]',
         document: [(${_DocumentConfig})],
+        token: '[[${_Token ?:""}]]',
+        type: 'embedded',
       })
     </script>
   </body>

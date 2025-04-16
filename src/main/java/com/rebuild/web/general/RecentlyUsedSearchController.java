@@ -87,10 +87,10 @@ public class RecentlyUsedSearchController extends BaseController {
                 label = FieldValueHelper.NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
             }
 
-            String code = isClazz ? ClassificationManager.instance.getCode(id) : null;
+            ClassificationManager.Item item = isClazz ? ClassificationManager.instance.getItem(id) : null;
             data.add(JSONUtils.toJSONObject(
                     new String[] { "id", "text", "code" },
-                    new Object[] { id, label, code }));
+                    new Object[] { id, label, item == null ? null : item.getCode() }));
         }
 
         if (useGroupName != null) {
