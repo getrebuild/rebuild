@@ -270,6 +270,23 @@
                       </tr>
                     </tbody>
                   </table>
+                  <h5>[[${bundle.L('文档预览')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">[[${bundle.L('文档预览服务地址')}]]</td>
+                        <td th:data-id="PortalOfficePreviewUrl" th:data-value="${PortalOfficePreviewUrl}" data-optional="true">[[${PortalOfficePreviewUrl ?:bundle.L('默认')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('ONLYOFFICE 服务地址')}]]</td>
+                        <td th:data-id="OnlyofficeServer" th:data-value="${OnlyofficeServer}" data-optional="true">[[${OnlyofficeServer ?:bundle.L('无')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('ONLYOFFICE JWT')}]]</td>
+                        <td th:data-id="OnlyofficeJwt" th:data-value="${OnlyofficeJwt}" data-optional="true">[[${OnlyofficeJwt ?:bundle.L('无')}]]</td>
+                      </tr>
+                    </tbody>
+                  </table>
                   <h5>[[${bundle.L('其他')}]]</h5>
                   <table class="table">
                     <tbody>
