@@ -37,6 +37,7 @@ import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.DatabaseFixer;
+import com.rebuild.core.support.setup.DockerInstaller;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.core.support.setup.UpgradeDatabase;
 import com.rebuild.utils.JSONable;
@@ -74,11 +75,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "4.0.0";
+    public static final String VER = "4.0.2";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 4000006;
+    public static final int BUILD = 4000208;
 
     static {
         // Driver for DB
@@ -133,17 +134,25 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         final Timer timer = new Timer("Boot-Timer");
 
         try {
+            // v4.0.2 for Docker
+            DockerInstaller di = new DockerInstaller();
+            final boolean isNeedInitialize = di.isNeedInitialize();
+            if (isNeedInitialize) {
+                log.info("Initializing REBUILD for Docker container ...");
+                di.install();
+            }
+
             if (Installer.isInstalled()) {
                 started = init();
 
                 if (started) {
-                    final long time2 = System.currentTimeMillis() - time;
+                    final long timeCost = System.currentTimeMillis() - time;
                     timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
                             String localUrl = BootApplication.getLocalUrl(null);
                             String banner = RebuildBanner.formatSimple(
-                                    "REBUILD (" + VER + ") started successfully in " + time2 + " ms.",
+                                    "REBUILD (" + VER + ") started successfully in " + timeCost + " ms.",
                                     "    License : " + License.queryAuthority().values(),
                                     "Access URLs : ",
                                     "      Local : " + localUrl,
@@ -162,6 +171,8 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                             }
                         }
                     }, 999);
+
+                    if (isNeedInitialize) di.installAfter();
                 }
 
             } else {
@@ -215,7 +226,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         // 版本升级会清除缓存
         int lastBuild = ObjectUtils.toInt(RebuildConfiguration.get(ConfigurationItem.AppBuild, true), 0);
         // MINOR
-        if (lastBuild / 100000 != BUILD / 100000) {
+        if (lastBuild > 0 && lastBuild / 100000 != BUILD / 100000) {
             log.warn("Clean up the cache when upgrading : {} from {}", BUILD, lastBuild);
             Installer.clearAllCache();
             RebuildConfiguration.set(ConfigurationItem.AppBuild, BUILD);

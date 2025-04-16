@@ -9,6 +9,7 @@ package com.rebuild.core.service.general;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserFilters;
@@ -90,9 +91,12 @@ public class RecentlyUsedHelper {
 
             // 是否符合条件
             if (checkFilter != null) {
-                if (!QueryHelper.isMatchFilter(raw, checkFilter)) {
-                    continue;
-                }
+                if (!QueryHelper.isMatchFilter(raw, checkFilter)) continue;
+            }
+            // fix:4.0.2
+            if (entityCode == EntityHelper.ClassificationData) {
+                ClassificationManager.Item item = ClassificationManager.instance.getItem(raw);
+                if (item == null || item.isHide()) continue;
             }
 
             try {
