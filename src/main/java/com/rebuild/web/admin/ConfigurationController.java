@@ -77,7 +77,11 @@ public class ConfigurationController extends BaseController {
     public ModelAndView pageSystems() {
         ModelAndView mv = createModelAndView("/admin/system-cfg");
         for (ConfigurationItem item : ConfigurationItem.values()) {
-            mv.getModel().put(item.name(), RebuildConfiguration.get(item));
+            String value = RebuildConfiguration.get(item);
+            if (value != null && item == ConfigurationItem.OnlyofficeJwt) {
+                value = DataDesensitized.any(value);
+            }
+            mv.getModel().put(item.name(), value);
         }
 
         mv.getModel().put("availableLangs",
@@ -445,6 +449,14 @@ public class ConfigurationController extends BaseController {
         return mv;
     }
 
+    @PostMapping("integration/feishu")
+    public RespBody postIntegrationFeishu(@RequestBody JSONObject data) {
+        setValues(data);
+        return RespBody.ok();
+    }
+
+    // AiBot
+
     @PostMapping("integration/aibot")
     public RespBody postIntegrationAibot(@RequestBody JSONObject data) {
         setValues(data);
@@ -467,20 +479,11 @@ public class ConfigurationController extends BaseController {
         return mv;
     }
 
-    @PostMapping("integration/feishu")
-    public RespBody postIntegrationFeishu(@RequestBody JSONObject data) {
-        setValues(data);
-        return RespBody.ok();
-    }
-
     // --
 
     private String[] starsAccount(String[] account, int... index) {
         if (account == null || account.length == 0) return null;
-
-        for (int i : index) {
-            account[i] = DataDesensitized.any(account[i]);
-        }
+        for (int i : index) account[i] = DataDesensitized.any(account[i]);
         return account;
     }
 

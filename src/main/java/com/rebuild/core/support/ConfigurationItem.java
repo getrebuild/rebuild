@@ -117,6 +117,7 @@ public enum ConfigurationItem {
     // 预览、PDF转换
     OnlyofficeServer,
     OnlyofficeJwt,
+    PortalOfficePreviewUrl,
 
     // Aibot
     AibotDSUrl("https://api.deepseek.com/"),
@@ -125,7 +126,6 @@ public enum ConfigurationItem {
 
     // PORTALs
     PortalBaiduMapAk,
-    PortalOfficePreviewUrl,
     PortalUploadMaxSize(200),
     MobileNavStyle(34),
     PageMourningMode(false),
