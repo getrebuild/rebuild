@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.aibot;
 
 import cn.devezhao.commons.web.ServletUtils;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
@@ -61,6 +62,11 @@ public class AiBotController extends BaseController {
             if (c != null) {
                 c.getMessages().forEach(m -> messages.add(m.toClientJSON()));
             }
+        } else {
+            JSON welcome = JSONUtils.toJSONObject(
+                    new String[]{"role", "content"},
+                    new Object[]{"ai", "欢迎使用 REBUILD AI 助手！有什么问题都可以向我提问哦"});
+            messages.add(welcome);
         }
 
         return RespBody.ok(JSONUtils.toJSONObject(

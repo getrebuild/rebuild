@@ -81,7 +81,7 @@ public class ChatClient {
         final String dsUrl = Config.getServerUrl("chat/completions");
         final String dsSecret = Config.getSecret();
 
-        MessageCompletions completions = (MessageCompletions) Application.getCommonsCache().getx(chatid);
+        MessageCompletions completions = getMessageCompletions(chatid, Config.getBasePrompt());
         completions.addMessage(user, "user");
 
         String reqBody = completions.toCompletions(true).toJSONString();

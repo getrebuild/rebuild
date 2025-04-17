@@ -1,0 +1,151 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+.chat,
+.chat-messages {
+  background-color: #fff;
+  width: 100%;
+  height: 100%;
+  font-size: 14px;
+}
+
+.chat {
+  width: 720px;
+  height: 500px;
+}
+
+.chat .chat-input-container {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+}
+
+.chat-input {
+  background-color: #eee;
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  border: 2px solid #eee;
+}
+
+.chat-input.active {
+  border-color: var(--rb-theme-color);
+}
+
+.chat-input .chat-input-input {
+  flex: 1;
+  line-height: 1;
+}
+
+.chat-input .chat-input-input textarea {
+  width: 100%;
+  border: 0 none;
+  resize: none;
+  outline: none;
+  height: 40px;
+  line-height: 20px;
+  background-color: transparent;
+}
+
+.chat-input .chat-input-action {
+  width: 94px;
+  text-align: right;
+  margin-top: auto;
+}
+
+.chat-input .chat-input-action button {
+  border: 0 none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.1);
+  color: var(--rb-theme-color);
+  min-width: 0 !important;
+}
+
+.chat-input .chat-input-action button .mdi {
+  font-size: 1.5rem;
+  line-height: 1.5;
+}
+
+.chat-input .chat-input-action button:disabled {
+  color: #aaa;
+}
+
+.chat-messages {
+  padding: 16px;
+  overflow: auto;
+  padding-bottom: 80px;
+}
+
+.chat-message {
+  margin-bottom: 16px;
+}
+
+.chat-message .msg-user {
+  text-align: right;
+}
+
+.chat-message .msg-user > .msg-content {
+  padding: 10px;
+  background-color: var(--rb-theme-color);
+  color: #fff;
+  border-radius: 10px;
+  max-width: 100%;
+  display: inline-block;
+  word-wrap: break-word;
+  word-break: break-all;
+  text-align: left;
+}
+
+.chat-message .msg-ai {
+  max-width: 100%;
+  display: flex;
+}
+
+.chat-message .msg-ai > .avatar {
+  width: 42px;
+}
+
+.chat-message .msg-ai > .avatar img {
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  border-radius: 50%;
+}
+
+.chat-message .msg-ai > .msg-content {
+  flex: 1;
+  padding: 4px 0;
+  overflow: hidden;
+}
+
+/* RICH */
+
+.chat-message .msg-content .mdedit-content *:last-child {
+  margin-bottom: 0;
+}
+
+.chat-message .msg-content .mdedit-content table {
+  width: 100%;
+  max-width: 100%;
+}
+
+.chat-message .msg-content .mdedit-content pre {
+  background-color: #282c34;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 20px 0;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+  color: #abb2bf;
+  white-space: pre;
+  tab-size: 2;
+  font-size: 0.8rem;
+  max-width: 100%;
+}
