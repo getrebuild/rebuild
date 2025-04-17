@@ -16,13 +16,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chat {
   width: 720px;
   height: 500px;
+  width: 100%;
+  height: 100%;
 }
 
 .chat .chat-input-container {
-  position: fixed;
-  bottom: 16px;
-  left: 16px;
-  right: 16px;
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  padding: 16px;
 }
 
 .chat-input {
@@ -34,6 +36,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chat-input.active {
+  border-color: #4285f4;
   border-color: var(--rb-theme-color);
 }
 
@@ -64,6 +67,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   height: 40px;
   border-radius: 50%;
   background-color: rgba(0, 0, 0, 0.1);
+  color: #4285f4;
   color: var(--rb-theme-color);
   min-width: 0 !important;
 }
@@ -77,10 +81,31 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #aaa;
 }
 
+.chat-input .chat-input-action button:hover,
+.chat-input .chat-input-action button:active {
+  background-color: #4285f4;
+  background-color: var(--rb-theme-color);
+  color: #fff;
+}
+
+.chat-input .chat-input-attach ul {
+  margin: 0;
+}
+
+.chat-input .chat-input-attach ul > li {
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+.chat-input .chat-input-attach ul > li > a {
+  background-color: #ccc;
+  padding: 5px 7px;
+  border-radius: 30px;
+}
+
 .chat-messages {
-  padding: 16px;
   overflow: auto;
-  padding-bottom: 80px;
+  padding: 16px 16px 80px;
 }
 
 .chat-message {
@@ -93,6 +118,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chat-message .msg-user > .msg-content {
   padding: 10px;
+  background-color: #4285f4;
   background-color: var(--rb-theme-color);
   color: #fff;
   border-radius: 10px;
@@ -125,7 +151,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   overflow: hidden;
 }
 
-/* RICH */
+/* MD */
 
 .chat-message .msg-content .mdedit-content *:last-child {
   margin-bottom: 0;
@@ -148,4 +174,69 @@ See LICENSE and COMMERCIAL in the project root for license information.
   tab-size: 2;
   font-size: 0.8rem;
   max-width: 100%;
+}
+
+/* AiBot */
+
+.aibot.modal {
+  top: unset;
+  left: unset;
+  bottom: 5px;
+  right: 5px;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.aibot.modal.show {
+  display: block;
+}
+
+.aibot .modal-dialog {
+  max-width: 100%;
+  margin: 0;
+}
+
+.aibot .modal-content {
+  margin: 0 auto;
+  box-shadow: none !important;
+  max-width: 100%;
+  width: 720px;
+  height: 600px;
+}
+
+.aibot .modal-content .modal-header {
+  background-color: #eee;
+  padding: 12px 16px;
+  background: linear-gradient(90deg, #fe5281, #a928bf, #474efe);
+}
+
+.aibot .modal-content .modal-header,
+.aibot .modal-content .modal-header .icon {
+  color: #fff;
+}
+
+.aibot .modal-content .modal-header h3 {
+  font-size: 1.51rem;
+}
+
+.aibot .modal-content .modal-header .close {
+  margin-top: -10px;
+}
+
+.aibot .modal-content .modal-body {
+  padding: 0 !important;
+}
+
+.aibot .aibot-chat {
+  background-color: #fff;
+}
+
+.aibot-icon::before,
+.aibot-show .icon::before {
+  background: linear-gradient(90deg, #fe5281, #a928bf, #474efe);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: bold;
 }

@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,23 +38,23 @@ import java.io.IOException;
  */
 @Slf4j
 @RestController
-@RequestMapping("/aibot/post")
+@RequestMapping("/aibot")
 public class AiBotController extends BaseController {
 
-    @PostMapping("chat")
+    @PostMapping("post/chat")
     public void chat(HttpServletRequest req, HttpServletResponse resp) {
         RequestBody requestBody = new RequestBody(req);
         Message respMessage = ChatClient.instance.post(requestBody.getChatid(), requestBody.getUserContent());
         ServletUtils.writeJson(resp, respMessage.toClientJSON().toJSONString());
     }
 
-    @PostMapping("chat-stream")
+    @PostMapping("post/chat-stream")
     public void chatStream(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         RequestBody requestBody = new RequestBody(req);
         ChatClient.instance.stream(requestBody.getChatid(), requestBody.getUserContent(), resp);
     }
 
-    @GetMapping("chat-init")
+    @GetMapping("post/chat-init")
     public RespBody chatInit(HttpServletRequest req) {
         String chatid = req.getParameter("chatid");
         JSONArray messages = new JSONArray();
@@ -73,7 +74,7 @@ public class AiBotController extends BaseController {
                 new String[]{"_chatid", "messages"}, new Object[]{chatid, messages}));
     }
 
-    @GetMapping("chat-list")
+    @GetMapping("post/chat-list")
     public RespBody chatList(HttpServletRequest req, HttpServletResponse resp) {
         String dsSecret = RebuildConfiguration.get(ConfigurationItem.AibotDSSecret);
         if (dsSecret == null) {
@@ -82,8 +83,13 @@ public class AiBotController extends BaseController {
         return RespBody.ok();
     }
 
-    @GetMapping("chat-delete")
+    @GetMapping("post/chat-delete")
     public RespBody chatDelete(HttpServletRequest req, HttpServletResponse resp) {
         return null;
+    }
+
+    @GetMapping("chat")
+    public ModelAndView chat() {
+        return createModelAndView("/aibot/chat");
     }
 }

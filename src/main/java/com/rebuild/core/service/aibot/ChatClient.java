@@ -46,7 +46,7 @@ public class ChatClient {
         final String dsUrl = Config.getServerUrl("chat/completions");
         final String dsSecret = Config.getSecret();
 
-        MessageCompletions completions = getMessageCompletions(chatid, Config.getBasePrompt());
+        MessageCompletions completions = getOrNewMessageCompletions(chatid, Config.getBasePrompt());
         completions.addMessage(user, "user");
 
         Map<String, String> headers = new HashMap<>();
@@ -81,7 +81,7 @@ public class ChatClient {
         final String dsUrl = Config.getServerUrl("chat/completions");
         final String dsSecret = Config.getSecret();
 
-        MessageCompletions completions = getMessageCompletions(chatid, Config.getBasePrompt());
+        MessageCompletions completions = getOrNewMessageCompletions(chatid, Config.getBasePrompt());
         completions.addMessage(user, "user");
 
         String reqBody = completions.toCompletions(true).toJSONString();
@@ -111,15 +111,16 @@ public class ChatClient {
                     return;
                 }
 
-                // 0=未开始 1=输出中 2=结束
+                // 推理 0=未开始 1=输出中 2=结束
                 int reasoningState = 0;
                 while (!source.exhausted()) {
                     String d = source.readUtf8Line();
                     if (d != null && d.startsWith("data: ")) {
                         d = d.substring(6);
-                        if ("[DONE]".equals(d)) break;
-
-                        System.out.println("echo ..." + d);
+                        if ("[DONE]".equals(d)) {
+                            StreamEcho.echo(completions.getId(), writer, "_chatid");
+                            break;
+                        }
 
                         JSONObject dJson = JSON.parseObject(d);
                         // choices[{delta:{content:xxx}}]
@@ -156,7 +157,7 @@ public class ChatClient {
      * @param prompt
      * @return
      */
-    public MessageCompletions getMessageCompletions(String chatid, String prompt) {
+    public MessageCompletions getOrNewMessageCompletions(String chatid, String prompt) {
         MessageCompletions c = null;
         if (chatid != null) {
             c = (MessageCompletions) Application.getCommonsCache().getx(chatid);

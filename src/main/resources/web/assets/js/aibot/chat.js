@@ -9,6 +9,7 @@ class Chat extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
+      ...props,
       messages: [],
     }
   }
@@ -23,11 +24,17 @@ class Chat extends React.Component {
   }
 
   componentDidMount() {
-    $.get(`/aibot/post/chat-init?chatid=${this.props.chatid || ''}`, (res) => {
+    $.get(`/aibot/post/chat-init?chatid=${this.state.chatid || ''}`, (res) => {
       const _data = res.data || {}
       if (_data._chatid) this.setState({ chatid: _data._chatid })
       this._ChatMessages.setMessages(_data.messages || [])
     })
+  }
+
+  componentDidUpdate(props, prevState) {
+    if (this.state.chatid !== prevState.chatid) {
+      typeof this.props.onChatidChanged === 'function' && this.props.onChatidChanged(this.state.chatid)
+    }
   }
 
   send(data) {
@@ -65,7 +72,7 @@ class Chat extends React.Component {
 class ChatInput extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { postState: 0 }
+    this.state = { postState: 0, attach: [{ name: '记录:123' }] }
   }
 
   render() {
@@ -73,7 +80,17 @@ class ChatInput extends React.Component {
       <div className="chat-input-container">
         <div className={`chat-input ${this.state.active && 'active'}`}>
           <div className="chat-input-input">
-            <div className="chat-input-att"></div>
+            <div className="chat-input-attach">
+              <ul className="m-0 list-unstyled">
+                {this.state.attach.map((item, idx) => {
+                  return (
+                    <li key={idx}>
+                      <Attach {...item} />
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
             <textarea
               rows="2"
               value={this.state.content}
@@ -92,18 +109,14 @@ class ChatInput extends React.Component {
             <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0}>
               <i className="mdi mdi-attachment-plus" />
             </button>
-            <ul className="dropdown-menu">
-              <li>
-                <a className="dropdown-item" onClick={() => this.attachRecord()}>
-                  {$L('选择记录')}
-                </a>
-              </li>
-              <li>
-                <a className="dropdown-item" onClick={() => this.attachFile()}>
-                  {$L('选择文件')}
-                </a>
-              </li>
-            </ul>
+            <div className="dropdown-menu dropdown-menu-right">
+              <a className="dropdown-item" onClick={() => this.attachRecord()}>
+                {$L('选择记录')}
+              </a>
+              <a className="dropdown-item" onClick={() => this.attachFile()}>
+                {$L('选择文件')}
+              </a>
+            </div>
             <button type="button" className="btn btn-sm ml-1" onClick={() => this.hanldeSend()} disabled={this.state.postState !== 0}>
               <i className="mdi mdi-arrow-up" />
             </button>
@@ -114,10 +127,11 @@ class ChatInput extends React.Component {
   }
 
   hanldeSend() {
+    if ($empty(this.state.content)) return
     const data = {
       role: 'user',
       content: this.state.content,
-      attach: [],
+      attach: this.state.attach,
     }
     setTimeout(() => {
       this.setState({ content: '', attach: [], postState: 1 })
@@ -171,6 +185,11 @@ class ChatMessage extends React.Component {
     sendResp &&
       sendResp((data) => {
         data = data || {}
+        if (data._chatid) {
+          this.props._ChatMessages.props._Chat.setState({ chatid: data._chatid })
+          return
+        }
+
         if (data.error) {
           data.content = `<span class="text-danger">${data.error}</span>`
         }
@@ -190,7 +209,6 @@ class ChatMessage extends React.Component {
     let c = null
     if (this.props.role === 'user') c = this.renderUser()
     else if (this.props.role === 'assistant' || this.props.role === 'ai') c = this.renderAi()
-    else if (this.props.role === 'system') c = this.renderSystem()
     else c = this.renderError()
 
     return <div className="chat-message">{c}</div>
@@ -214,7 +232,6 @@ class ChatMessage extends React.Component {
       </div>
     )
   }
-  renderSystem() {}
 
   renderError() {
     return (
@@ -225,9 +242,10 @@ class ChatMessage extends React.Component {
   }
 
   _renderText() {
+    let md = this.state.content
     return (
       <div className="msg-text">
-        <Md2Html markdown={this.state.content} />
+        <span className="mdedit-content" dangerouslySetInnerHTML={{ __html: SimpleMDE.prototype.markdown(md) }}></span>
       </div>
     )
   }
@@ -239,7 +257,7 @@ function scrollToBottom() {
       const el = document.querySelector('.chat-messages')
       el && el.scrollTo(0, el.scrollHeight)
     },
-    20,
+    40,
     'scrollToBottom'
   )
 }
@@ -286,4 +304,10 @@ function fetchStream(url, data, onChunk, onDone) {
       console.error('Error on stream :', err)
       typeof cb === 'function' && onChunk({ error: err })
     })
+}
+
+class Attach extends React.Component {
+  render() {
+    return <a>{this.props.name}</a>
+  }
 }
