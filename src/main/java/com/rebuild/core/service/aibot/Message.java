@@ -45,13 +45,9 @@ public class Message implements Serializable {
                 new String[]{"role", "content"}, new Object[]{role, content});
     }
 
-    public JSONObject toDeepChat(boolean hasRole) {
-        if (error != null) {
-            return JSONUtils.toJSONObject("error", error);
-        }
-
-        JSONObject o = JSONUtils.toJSONObject("text", content);
-        if (hasRole) o.put("role", "user".equals(role) ? "user" : "ai");
-        return o;
+    public JSONObject toClientJSON() {
+        JSONObject d = toJSON();
+        d.put("_chatid", completions.getId());
+        return d;
     }
 }

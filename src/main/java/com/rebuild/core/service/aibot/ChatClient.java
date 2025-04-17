@@ -46,7 +46,7 @@ public class ChatClient {
         final String dsUrl = Config.getServerUrl("chat/completions");
         final String dsSecret = Config.getSecret();
 
-        MessageCompletions completions = (MessageCompletions) Application.getCommonsCache().getx(chatid);
+        MessageCompletions completions = getMessageCompletions(chatid, Config.getBasePrompt());
         completions.addMessage(user, "user");
 
         Map<String, String> headers = new HashMap<>();
@@ -66,6 +66,7 @@ public class ChatClient {
         // choices[{message:xxx}]
         JSONObject choiceMessage = resJson.getJSONArray("choices").getJSONObject(0).getJSONObject("message");
         Message resMessage = completions.addMessage(choiceMessage.getString("content"), choiceMessage.getString("role"));
+
         Application.getCommonsCache().putx(completions.getId(), completions);
         return resMessage;
     }
@@ -106,7 +107,7 @@ public class ChatClient {
                  PrintWriter writer = httpResp.getWriter()) {
                 // [ERROR]
                 if (!apiResp.isSuccessful()) {
-                    StreamEcho.error("请求接口错误:" + apiResp.code(), writer);
+                    StreamEcho.text("请求接口错误:" + apiResp.code(), writer);
                     return;
                 }
 
@@ -117,6 +118,8 @@ public class ChatClient {
                     if (d != null && d.startsWith("data: ")) {
                         d = d.substring(6);
                         if ("[DONE]".equals(d)) break;
+
+                        System.out.println("echo ..." + d);
 
                         JSONObject dJson = JSON.parseObject(d);
                         // choices[{delta:{content:xxx}}]
@@ -153,9 +156,17 @@ public class ChatClient {
      * @param prompt
      * @return
      */
-    public MessageCompletions createMessageCompletions(String prompt) {
-        MessageCompletions c = new MessageCompletions(prompt);
-        Application.getCommonsCache().putx(c.getId(), c);
+    public MessageCompletions getMessageCompletions(String chatid, String prompt) {
+        MessageCompletions c = null;
+        if (chatid != null) {
+            c = (MessageCompletions) Application.getCommonsCache().getx(chatid);
+            if (c == null) log.error("[getMessageCompletions] chatid {} not found", chatid);
+        }
+
+        if (c == null) {
+            c = new MessageCompletions(prompt);
+            Application.getCommonsCache().putx(c.getId(), c);
+        }
         return c;
     }
 }

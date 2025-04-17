@@ -8,9 +8,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.aibot;
 
 import cn.devezhao.commons.web.ServletUtils;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,15 +22,19 @@ public class RequestBody {
 
     @Getter
     private final String chatid;
+    @Getter
     private final JSONObject reqJson;
 
     protected RequestBody(HttpServletRequest request) {
         this.reqJson = (JSONObject) ServletUtils.getRequestJson(request);
-        this.chatid = request.getHeader("chatid");
+        this.chatid = StringUtils.defaultIfBlank(request.getParameter("chatid"), null);
     }
 
     public String getUserContent() {
-        JSONArray messages = reqJson.getJSONArray("messages");
-        return messages.getJSONObject(0).getString("text");
+        return reqJson.getString("content");
+    }
+
+    public Object getUserAttach() {
+        return reqJson.get("attach");
     }
 }

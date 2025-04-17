@@ -94,7 +94,7 @@ class AiBotComponent extends React.Component {
   }
 
   componentDidMount() {
-    $.get('/aibot/chat-init', (res) => {
+    $.get('/aibot/post/chat-init', (res) => {
       const data = res.data || {}
       this.setState({ _history: data.history || [], _chatid: data.chatid })
     })
@@ -105,7 +105,7 @@ class AiBotComponent extends React.Component {
 const _DeepChatProps = function (stream, chatid) {
   return {
     connect: {
-      'url': `${rb.baseUrl}/aibot/${stream ? 'chat-stream' : 'chat'}`,
+      'url': `${rb.baseUrl}/aibot/post/${stream ? 'chat-stream' : 'chat'}`,
       'method': 'POST',
       'stream': !!stream,
       'headers': { 'chatid': chatid },

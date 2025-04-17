@@ -12,7 +12,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.service.aibot.ChatClient;
-import com.rebuild.core.service.aibot.Config;
 import com.rebuild.core.service.aibot.Message;
 import com.rebuild.core.service.aibot.MessageCompletions;
 import com.rebuild.core.support.ConfigurationItem;
@@ -21,6 +20,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,14 +36,14 @@ import java.io.IOException;
  */
 @Slf4j
 @RestController
-@RequestMapping("/aibot")
+@RequestMapping("/aibot/post")
 public class AiBotController extends BaseController {
 
     @PostMapping("chat")
     public void chat(HttpServletRequest req, HttpServletResponse resp) {
         RequestBody requestBody = new RequestBody(req);
         Message respMessage = ChatClient.instance.post(requestBody.getChatid(), requestBody.getUserContent());
-        ServletUtils.writeJson(resp, respMessage.toDeepChat(false).toJSONString());
+        ServletUtils.writeJson(resp, respMessage.toClientJSON().toJSONString());
     }
 
     @PostMapping("chat-stream")
@@ -54,21 +54,17 @@ public class AiBotController extends BaseController {
 
     @GetMapping("chat-init")
     public RespBody chatInit(HttpServletRequest req) {
-        String chatid = req.getHeader("chatid");
-        MessageCompletions completions;
-        if (chatid != null) {
-            completions = (MessageCompletions) Application.getCommonsCache().getx(chatid);
-        } else {
-            completions = ChatClient.instance.createMessageCompletions(Config.getBasePrompt());
-        }
-
-        JSONArray history = new JSONArray();
-        for (Message m : completions.getMessages()) {
-            history.add(m.toDeepChat(true));
+        String chatid = req.getParameter("chatid");
+        JSONArray messages = new JSONArray();
+        if (StringUtils.isNotBlank(chatid)) {
+            MessageCompletions c = (MessageCompletions) Application.getCommonsCache().getx(chatid);
+            if (c != null) {
+                c.getMessages().forEach(m -> messages.add(m.toClientJSON()));
+            }
         }
 
         return RespBody.ok(JSONUtils.toJSONObject(
-                new String[]{"chatid", "history"}, new Object[]{completions.getId(), history}));
+                new String[]{"_chatid", "messages"}, new Object[]{chatid, messages}));
     }
 
     @GetMapping("chat-list")

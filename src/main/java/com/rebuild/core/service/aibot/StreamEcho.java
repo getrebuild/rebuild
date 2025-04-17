@@ -22,23 +22,7 @@ public class StreamEcho {
      * @param writer
      */
     public static void text(String text, PrintWriter writer) {
-        echo(text, writer, "text");
-    }
-
-    /**
-     * @param html
-     * @param writer
-     */
-    public static void html(String html, PrintWriter writer) {
-        echo(html, writer, "html");
-    }
-
-    /**
-     * @param error
-     * @param writer
-     */
-    public static void error(String error, PrintWriter writer) {
-        html(String.format("<span style='color:red'>%s</span>", error), writer);
+        echo(text, writer, "content");
     }
 
     /**
@@ -48,7 +32,7 @@ public class StreamEcho {
      */
     public static void echo(String content, PrintWriter writer, String type) {
         if (type == null) type = "text";
-        String echo = String.format("data: %s\n\n", JSONUtils.toJSONObject(type, content).toJSONString());
+        String echo = String.format("data: %s\n\n", JSONUtils.toJSONObject(type, content));
         writer.write(echo);
         writer.flush();
     }
