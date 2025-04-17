@@ -19,15 +19,25 @@ class AiBot extends React.Component {
             <div className="modal-header">
               <i className="icon mdi mdi-shimmer" />
               <h3 className="modal-title">{$L('AI 助手')} (LAB)</h3>
-              <a className="close fs-17 down-2" href={`${rb.baseUrl}/aibot/chat#chatid=${this.state.chatid || ''}`} title={$L('在新页面打开')} target="_blank">
-                <span className="zmdi zmdi-open-in-new" />
+              <button className="close" type="button" onClick={() => this.openChatSidebar()} title={$L('对话列表')}>
+                <span className="mdi mdi-segment" />
+              </button>
+              <a className="close fs-17 down-2 hide2" href={`${rb.baseUrl}/aibot/chat#chatid=${this.state.chatid || ''}`} title={$L('在新页面打开')} target="_blank">
+                <span className="mdi mdi-open-in-new" />
               </a>
-              <button className="close" type="button" onClick={() => this.hide()} title={$L('关闭')}>
-                <span className="zmdi zmdi-close" />
+              <button className="close hide2" type="button" onClick={() => this.hide()} title={$L('关闭')}>
+                <span className="mdi mdi-close" />
               </button>
             </div>
             <div className="modal-body">
-              <Chat chatid={this.props.chatid} onChatidChanged={(id) => this.setState({ chatid: id })} />
+              <Chat
+                chatid={this.props.chatid}
+                onChatidChanged={(id) => {
+                  this.setState({ chatid: id })
+                  typeof this.props.onChatidChanged === 'function' && this.props.onChatidChanged(id)
+                }}
+                ref={(c) => (this._Chat = c)}
+              />
             </div>
           </div>
         </div>
@@ -37,6 +47,10 @@ class AiBot extends React.Component {
 
   componentDidMount() {
     setTimeout(() => this.show(), 100)
+  }
+
+  openChatSidebar() {
+    this._Chat.toggleSidebar()
   }
 
   hide() {
@@ -50,11 +64,11 @@ class AiBot extends React.Component {
   // --
 
   static init(props) {
-    if (window._CurrentAiBot) {
-      window._CurrentAiBot.show()
+    if (window._AiBot) {
+      window._AiBot.show()
     } else {
       renderRbcomp(<AiBot {...props} />, function () {
-        window._CurrentAiBot = this
+        window._AiBot = this
       })
     }
   }

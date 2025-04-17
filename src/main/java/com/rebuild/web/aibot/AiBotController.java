@@ -90,6 +90,6 @@ public class AiBotController extends BaseController {
 
     @GetMapping("chat")
     public ModelAndView chat() {
-        return createModelAndView("/aibot/chat");
+        return createModelAndView("/aibot/chat-view");
     }
 }

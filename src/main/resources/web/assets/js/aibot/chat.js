@@ -16,25 +16,41 @@ class Chat extends React.Component {
 
   render() {
     return (
-      <div className="chat">
-        <ChatMessages _Chat={this} ref={(c) => (this._ChatMessages = c)} />
-        <ChatInput _Chat={this} ref={(c) => (this._ChatInput = c)} />
-      </div>
+      <RF>
+        <div className="chat">
+          <ChatMessages _Chat={this} ref={(c) => (this._ChatMessages = c)} />
+          <ChatInput _Chat={this} ref={(c) => (this._ChatInput = c)} />
+        </div>
+        <ChatSidebar _Chat={this} ref={(c) => (this._ChatSidebar = c)} />
+      </RF>
     )
   }
 
   componentDidMount() {
-    $.get(`/aibot/post/chat-init?chatid=${this.state.chatid || ''}`, (res) => {
-      const _data = res.data || {}
-      if (_data._chatid) this.setState({ chatid: _data._chatid })
-      this._ChatMessages.setMessages(_data.messages || [])
-    })
+    // $('.chat-messages').perfectScrollbar()
+    this.initChat(this.state.chatid)
   }
 
   componentDidUpdate(props, prevState) {
     if (this.state.chatid !== prevState.chatid) {
       typeof this.props.onChatidChanged === 'function' && this.props.onChatidChanged(this.state.chatid)
     }
+  }
+
+  initChat(chatid) {
+    this.setState({ chatid: chatid || null })
+    this._ChatMessages.setMessages([])
+    this._ChatInput.reset()
+
+    $.get(`/aibot/post/chat-init?chatid=${chatid || ''}`, (res) => {
+      const _data = res.data || {}
+      if (_data._chatid) this.setState({ chatid: _data._chatid })
+      this._ChatMessages.setMessages(_data.messages || [])
+    })
+  }
+
+  toggleSidebar() {
+    this._ChatSidebar.toggleShow()
   }
 
   send(data) {
@@ -65,8 +81,6 @@ class Chat extends React.Component {
       })
     }, 20)
   }
-
-  resetInput() {}
 }
 
 class ChatInput extends React.Component {
@@ -133,14 +147,16 @@ class ChatInput extends React.Component {
       content: this.state.content,
       attach: this.state.attach,
     }
-    setTimeout(() => {
-      this.setState({ content: '', attach: [], postState: 1 })
-    }, 20)
-
     this.props._Chat &&
       this.props._Chat.sendStream(data, () => {
         this.setState({ postState: 0 })
       })
+
+    this.reset()
+  }
+
+  reset() {
+    this.setState({ content: '', attach: [], postState: 1 })
   }
 
   attachRecord() {}
@@ -309,5 +325,77 @@ function fetchStream(url, data, onChunk, onDone) {
 class Attach extends React.Component {
   render() {
     return <a>{this.props.name}</a>
+  }
+}
+
+// ~~
+
+class ChatSidebar extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props, list: [] }
+  }
+
+  componentDidMount() {
+    this.setState({
+      list: [
+        {
+          name: '给我表格',
+          chatid: 'chat-4041e892fbb6443994a39bce619700c4',
+        },
+        {
+          name: '123',
+          chatid: 'chat-c6417ff74f92436bbb1068549c7ec863',
+        },
+      ],
+    })
+  }
+
+  render() {
+    return (
+      <div className={`chat-sidebar ${this.state.show && 'show'}`}>
+        <div className="chat-new">
+          <a
+            className="btn"
+            onClick={() => {
+              this.props._Chat.initChat()
+              this.toggleShow(true)
+              this.setState({ current: null })
+            }}>
+            <i className="mdi mdi-chat-plus-outline mr-1 icon" />
+            {$L('新对话')}
+          </a>
+        </div>
+        <ul className="chat-list list-unstyled">
+          {this.state.list.map((item) => {
+            return (
+              <li className={this.state.current === item.chatid ? 'active' : ''}>
+                <div
+                  onClick={() => {
+                    this.props._Chat.initChat(item.chatid)
+                    this.toggleShow(true)
+                    this.setState({ current: item.chatid })
+                  }}>
+                  {item.name}
+                </div>
+                <span className="dropdown" data-toggle="dropdown">
+                  <a>
+                    <i className="icon zmdi zmdi-more fs-18" />
+                  </a>
+                  <div className="dropdown-menu dropdown-menu-right">
+                    <a className="dropdown-item">{$L('删除')}</a>
+                    <a className="dropdown-item">{$L('重命名')}</a>
+                  </div>
+                </span>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+    )
+  }
+
+  toggleShow(forceHide) {
+    this.setState({ show: forceHide === true ? false : !this.state.show })
   }
 }

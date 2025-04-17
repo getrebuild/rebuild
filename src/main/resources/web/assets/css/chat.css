@@ -176,6 +176,75 @@ See LICENSE and COMMERCIAL in the project root for license information.
   max-width: 100%;
 }
 
+/* ChatSidebar */
+
+.chat-sidebar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  top: 52px;
+  width: 230px;
+  background-color: #f5f5f5;
+  border-left: 1px solid #e3e3e3;
+  box-shadow: -5px 0 5px rgba(0, 0, 0, 0.1);
+  display: none;
+  padding: 16px 12px;
+}
+
+.chat-sidebar.show {
+  display: block;
+}
+
+.chat-sidebar .chat-new a.btn {
+  border-radius: 10px;
+  background-color: var(--rb-theme-color);
+  color: #fff;
+  width: 100%;
+}
+
+.chat-sidebar .chat-new a.btn:hover {
+  opacity: 0.9;
+}
+
+.chat-sidebar .chat-new a.btn:active {
+  opacity: 1;
+}
+
+.chat-sidebar .chat-list {
+  margin: 0;
+  margin-top: 20px;
+}
+
+.chat-sidebar .chat-list > li {
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  position: relative;
+}
+
+.chat-sidebar .chat-list > li:hover {
+  background-color: #ddd;
+}
+
+.chat-sidebar .chat-list > li.active {
+  background-color: #ccc;
+}
+
+.chat-sidebar .chat-list > li > span {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 34px;
+  height: 34px;
+  line-height: 34px;
+  text-align: center;
+  margin-top: 2px;
+}
+
+.chat-sidebar .chat-list .dropdown-menu {
+  min-width: 140px;
+}
+
 /* AiBot */
 
 .aibot.modal {
