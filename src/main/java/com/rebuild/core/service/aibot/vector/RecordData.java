@@ -13,7 +13,6 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.service.aibot.VectorData;
 import com.rebuild.core.support.general.FieldValueHelper;
 
 /**

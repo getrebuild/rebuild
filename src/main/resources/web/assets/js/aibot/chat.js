@@ -134,10 +134,10 @@ class ChatInput extends React.Component {
               <a className="dropdown-item" onClick={() => this.attachRecord()}>
                 {$L('选择记录')}
               </a>
-              <a className="dropdown-item hide" onClick={() => this.attachFile()}>
+              <a className="dropdown-item" onClick={() => this.attachFile()}>
                 {$L('选择文件')}
               </a>
-              <a className="dropdown-item" onClick={() => this.attachRecord()}>
+              <a className="dropdown-item" onClick={() => this.attachPageData()}>
                 {$L('选择当前页数据')}
               </a>
             </div>
@@ -178,14 +178,20 @@ class ChatInput extends React.Component {
   attachRecord() {
     renderRbcomp(
       <DlgAttachRecord
+        zIndex="1050"
         onConfirm={(v) => {
-          const attach = [...this.state.attach, { record: v, id: $random('ATT') }]
+          const attach = [...this.state.attach, { record: v, id: $random('attach-') }]
           this.setState({ attach })
         }}
       />
     )
   }
-  attachFile() {}
+  attachFile() {
+    RbHighbar.createl('暂不支持')
+  }
+  attachPageData() {
+    RbHighbar.createl('暂不支持')
+  }
 }
 
 class ChatMessages extends React.Component {
@@ -281,13 +287,22 @@ class ChatMessage extends React.Component {
         <div className="avatar">
           <img src={`${rb.baseUrl}/assets/img/icon-192x192.png`} alt="AI" />
         </div>
-        <div className="msg-content">{this.state.waitResp ? <div className="wait-resp">{$L('思考中...')}</div> : this.renderContent()}</div>
+        <div className="msg-content">
+          {this.state.waitResp ? (
+            <div className="wait-resp">
+              <i className="mdi-spin mdi mdi-loading fs-18" />
+            </div>
+          ) : (
+            this.renderContent()
+          )}
+        </div>
       </div>
     )
   }
 
   renderSystem() {
     // TODO 不渲染
+    console.log('renderSystem', this.state.content)
   }
 
   renderError() {
@@ -478,7 +493,7 @@ class ChatSidebar extends React.Component {
                     <a className="dropdown-item" onClick={() => this.handleDelete(item)}>
                       {$L('删除')}
                     </a>
-                    <a className="dropdown-item hide" onClick={() => this.handleRename(item)}>
+                    <a className="dropdown-item" onClick={() => this.handleRename(item)}>
                       {$L('重命名')}
                     </a>
                     <a className="dropdown-item" href={`${rb.baseUrl}/aibot/chat#chatid=${item.chatid}`} target="_blank">
@@ -499,7 +514,7 @@ class ChatSidebar extends React.Component {
   }
 
   handleRename(item) {
-    console.log('TODO', item)
+    RbHighbar.createl('暂不支持')
   }
 
   toggleShow(showOrHide) {

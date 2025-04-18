@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.aibot;
 
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
 
 import java.io.PrintWriter;
@@ -22,17 +23,19 @@ public class StreamEcho {
      * @param writer
      */
     public static void text(String text, PrintWriter writer) {
-        echo(text, writer, "content");
+        echo(text, writer, null);
     }
 
     /**
      * @param content
      * @param writer
-     * @param type
+     * @param type `reasoning`
      */
     public static void echo(String content, PrintWriter writer, String type) {
-        if (type == null) type = "text";
-        String echo = String.format("data: %s\n\n", JSONUtils.toJSONObject(type, content));
+        JSONObject o = JSONUtils.toJSONObject("content", content);
+        if (type != null) o.put("type", type);
+
+        String echo = String.format("data: %s\n\n", o);
         writer.write(echo);
         writer.flush();
     }

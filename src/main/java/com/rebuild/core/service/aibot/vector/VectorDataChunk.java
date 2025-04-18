@@ -7,8 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.aibot.vector;
 
-import com.rebuild.core.service.aibot.VectorData;
-
 import java.util.ArrayList;
 import java.util.List;
 

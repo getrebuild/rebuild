@@ -83,7 +83,8 @@ public class ChatClient {
         MessageCompletions completions = getOrNewMessageCompletions(chatRequest.getChatid(), Config.getBasePrompt());
         completions.addUserMessage(chatRequest);
 
-        String reqBody = completions.toCompletions(true).toJSONString();
+        // "deepseek-reasoner"
+        String reqBody = completions.toCompletions(true, null).toJSONString();
         RequestBody body = RequestBody.create(
                 reqBody,
                 MediaType.parse("application/json; charset=utf-8"));
@@ -114,6 +115,7 @@ public class ChatClient {
                 int reasoningState = 0;
                 while (!source.exhausted()) {
                     String d = source.readUtf8Line();
+                    if (Application.devMode()) System.out.println("[dev] " + d);
                     if (d != null && d.startsWith("data: ")) {
                         d = d.substring(6);
                         if ("[DONE]".equals(d)) {
@@ -140,7 +142,11 @@ public class ChatClient {
 
                         if (chunk == null || chunk.isEmpty()) continue;
 
-                        StreamEcho.text(chunk, writer);
+                        if (reasoningState == 1) {
+                            StreamEcho.echo(chunk, writer, "reasoning");
+                        } else {
+                            StreamEcho.text(chunk, writer);
+                        }
                         deltaContent.append(chunk);
                     }
                 }

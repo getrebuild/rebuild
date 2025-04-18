@@ -7,6 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.aibot;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import org.springframework.util.Assert;
@@ -32,4 +34,30 @@ public class Config {
     public static String getBasePrompt() {
         return RebuildConfiguration.get(ConfigurationItem.AibotBasePrompt);
     }
+
+    public static JSONObject getDeepSeekParams() {
+        return JSON.parseObject(DS_PARAM);
+    }
+
+    /**
+     * DS 模型基础参数
+     */
+    static final String DS_PARAM = "{\n" +
+            "    'model': 'deepseek-chat',\n" +
+            "    'frequency_penalty': 0,\n" +
+            "    'max_tokens': 8192,\n" +
+            "    'presence_penalty': 0,\n" +
+            "    'response_format': {\n" +
+            "      'type': 'text'\n" +
+            "    },\n" +
+            "    'stop': null,\n" +
+            "    'stream': false,\n" +
+            "    'stream_options': null,\n" +
+            "    'temperature': 1,\n" +
+            "    'top_p': 1,\n" +
+            "    'tools': null,\n" +
+            "    'tool_choice': 'none',\n" +
+            "    'logprobs': false,\n" +
+            "    'top_logprobs': null\n" +
+            "  }";
 }

@@ -13,6 +13,7 @@
         display: block;
         position: relative;
         margin: 0 auto;
+        z-index: 1;
       }
       .aibot.modal .modal-content {
         width: 100%;
@@ -24,12 +25,13 @@
   </head>
   <body>
     <div id="chat-wrapper">
-      <div class="text-center text-bold" style="margin-top: 20%">LOADING</div>
+      <div class="rb-loading rb-loading-active" style="margin-top: 30%">
+        <th:block th:replace="~{/_include/spinner}" />
+      </div>
     </div>
-    <div th:if="${pageFooter != null}" class="page-footer link">
-      <a href="https://getrebuild.com/docs/topic/aibot" target="_blank">[(${pageFooter})]</a>
-    </div>
+    <div th:if="${pageFooter != null}" class="page-footer">[(${pageFooter})]</div>
     <th:block th:replace="~{/_include/footer}" />
+    <th:block th:replace="~{/_include/forms}" />
     <script th:src="@{/assets/js/aibot/chat-view.js}" type="text/babel"></script>
   </body>
 </html>
