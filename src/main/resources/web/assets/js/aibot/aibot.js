@@ -22,9 +22,6 @@ class AiBot extends React.Component {
               <button className="close" type="button" onClick={() => this.openChatSidebar()} title={$L('对话列表')}>
                 <span className="mdi mdi-segment" />
               </button>
-              <a className="close fs-17 down-2 hide2" href={`${rb.baseUrl}/aibot/chat#chatid=${this.state.chatid || ''}`} title={$L('在新页面打开')} target="_blank">
-                <span className="mdi mdi-open-in-new" />
-              </a>
               <button className="close hide2" type="button" onClick={() => this.hide()} title={$L('关闭')}>
                 <span className="mdi mdi-close" />
               </button>

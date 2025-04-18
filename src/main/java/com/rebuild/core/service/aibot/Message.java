@@ -18,9 +18,10 @@ import java.io.Serializable;
  * @since 2025/4/12
  */
 public class Message implements Serializable {
+    private static final long serialVersionUID = 5985250499303228749L;
 
     @Getter
-    private MessageCompletions completions;
+    private MessageCompletions messageCompletions;
 
     @Getter
     private final String role;
@@ -29,11 +30,11 @@ public class Message implements Serializable {
     @Getter
     private final String error;
 
-    protected Message(String role, String content, String error, MessageCompletions completions) {
+    protected Message(String role, String content, String error, MessageCompletions messageCompletions) {
         this.role = role;
         this.content = content;
         this.error = error;
-        this.completions = completions;
+        this.messageCompletions = messageCompletions;
     }
 
     public boolean isSystem() {
@@ -41,13 +42,15 @@ public class Message implements Serializable {
     }
 
     public JSONObject toJSON() {
-        return JSONUtils.toJSONObject(
+        JSONObject o = JSONUtils.toJSONObject(
                 new String[]{"role", "content"}, new Object[]{role, content});
+        if (error != null) o.put("error", error);
+        return o;
     }
 
     public JSONObject toClientJSON() {
         JSONObject d = toJSON();
-        d.put("_chatid", completions.getId());
+        d.put("_chatid", messageCompletions.getChatid());
         return d;
     }
 }

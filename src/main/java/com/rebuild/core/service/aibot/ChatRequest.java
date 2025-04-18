@@ -5,12 +5,12 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.web.aibot;
+package com.rebuild.core.service.aibot;
 
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,16 +18,17 @@ import javax.servlet.http.HttpServletRequest;
  * @author devezhao
  * @since 2025/4/12
  */
-public class RequestBody {
+public class ChatRequest {
 
     @Getter
-    private final String chatid;
+    private final ID chatid;
     @Getter
     private final JSONObject reqJson;
 
-    protected RequestBody(HttpServletRequest request) {
+    public ChatRequest(HttpServletRequest request) {
+        String id = request.getParameter("chatid");
+        this.chatid = ID.isId(id) ? ID.valueOf(id) : null;
         this.reqJson = (JSONObject) ServletUtils.getRequestJson(request);
-        this.chatid = StringUtils.defaultIfBlank(request.getParameter("chatid"), null);
     }
 
     public String getUserContent() {
@@ -36,5 +37,9 @@ public class RequestBody {
 
     public Object getUserAttach() {
         return reqJson.get("attach");
+    }
+
+    public VectorData getVectorData() {
+        return null;
     }
 }

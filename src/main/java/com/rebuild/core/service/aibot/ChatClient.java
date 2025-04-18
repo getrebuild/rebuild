@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.aibot;
 
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -38,16 +39,15 @@ public class ChatClient {
     protected ChatClient() {}
 
     /**
-     * @param chatid
-     * @param user
+     * @param chatRequest
      * @return
      */
-    public Message post(String chatid, String user) {
+    public Message post(ChatRequest chatRequest) {
         final String dsUrl = Config.getServerUrl("chat/completions");
         final String dsSecret = Config.getSecret();
 
-        MessageCompletions completions = getOrNewMessageCompletions(chatid, Config.getBasePrompt());
-        completions.addMessage(user, "user");
+        MessageCompletions completions = getOrNewMessageCompletions(chatRequest.getChatid(), Config.getBasePrompt());
+        completions.addMessage(chatRequest.getUserContent(), "user");
 
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json");
@@ -67,22 +67,21 @@ public class ChatClient {
         JSONObject choiceMessage = resJson.getJSONArray("choices").getJSONObject(0).getJSONObject("message");
         Message resMessage = completions.addMessage(choiceMessage.getString("content"), choiceMessage.getString("role"));
 
-        Application.getCommonsCache().putx(completions.getId(), completions);
+        ChatStore.instance.store(completions);
         return resMessage;
     }
 
     /**
-     * @param chatid
-     * @param user
+     * @param chatRequest
      * @param httpResp
      * @throws IOException
      */
-    public void stream(String chatid, String user, HttpServletResponse httpResp) throws IOException {
+    public void stream(ChatRequest chatRequest, HttpServletResponse httpResp) throws IOException {
         final String dsUrl = Config.getServerUrl("chat/completions");
         final String dsSecret = Config.getSecret();
 
-        MessageCompletions completions = getOrNewMessageCompletions(chatid, Config.getBasePrompt());
-        completions.addMessage(user, "user");
+        MessageCompletions completions = getOrNewMessageCompletions(chatRequest.getChatid(), Config.getBasePrompt());
+        completions.addMessage(chatRequest.getUserContent(), "user");
 
         String reqBody = completions.toCompletions(true).toJSONString();
         RequestBody body = RequestBody.create(
@@ -115,10 +114,11 @@ public class ChatClient {
                 int reasoningState = 0;
                 while (!source.exhausted()) {
                     String d = source.readUtf8Line();
+                    System.out.println(d);
                     if (d != null && d.startsWith("data: ")) {
                         d = d.substring(6);
                         if ("[DONE]".equals(d)) {
-                            StreamEcho.echo(completions.getId(), writer, "_chatid");
+                            StreamEcho.echo(completions.getChatid().toLiteral(), writer, "_chatid");
                             break;
                         }
 
@@ -148,25 +148,26 @@ public class ChatClient {
 
                 // [DONE]
                 completions.addMessage(deltaContent.toString(), "assistant");
-                Application.getCommonsCache().putx(completions.getId(), completions);
+                ChatStore.instance.store(completions);
             }
         }
     }
 
     /**
+     * @param chatid
      * @param prompt
      * @return
      */
-    public MessageCompletions getOrNewMessageCompletions(String chatid, String prompt) {
+    public MessageCompletions getOrNewMessageCompletions(ID chatid, String prompt) {
         MessageCompletions c = null;
         if (chatid != null) {
-            c = (MessageCompletions) Application.getCommonsCache().getx(chatid);
-            if (c == null) log.error("[getMessageCompletions] chatid {} not found", chatid);
+            c = ChatStore.instance.get(chatid);
+            if (c == null) log.error("[getOrNewMessageCompletions] chatid {} not found", chatid);
         }
 
         if (c == null) {
             c = new MessageCompletions(prompt);
-            Application.getCommonsCache().putx(c.getId(), c);
+            ChatStore.instance.store(c);
         }
         return c;
     }

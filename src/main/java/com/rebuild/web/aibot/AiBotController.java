@@ -8,20 +8,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.aibot;
 
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.service.aibot.ChatClient;
+import com.rebuild.core.service.aibot.ChatRequest;
+import com.rebuild.core.service.aibot.ChatStore;
 import com.rebuild.core.service.aibot.Message;
 import com.rebuild.core.service.aibot.MessageCompletions;
-import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,23 +43,21 @@ public class AiBotController extends BaseController {
 
     @PostMapping("post/chat")
     public void chat(HttpServletRequest req, HttpServletResponse resp) {
-        RequestBody requestBody = new RequestBody(req);
-        Message respMessage = ChatClient.instance.post(requestBody.getChatid(), requestBody.getUserContent());
+        Message respMessage = ChatClient.instance.post(new ChatRequest(req));
         ServletUtils.writeJson(resp, respMessage.toClientJSON().toJSONString());
     }
 
     @PostMapping("post/chat-stream")
     public void chatStream(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        RequestBody requestBody = new RequestBody(req);
-        ChatClient.instance.stream(requestBody.getChatid(), requestBody.getUserContent(), resp);
+        ChatClient.instance.stream(new ChatRequest(req), resp);
     }
 
     @GetMapping("post/chat-init")
     public RespBody chatInit(HttpServletRequest req) {
-        String chatid = req.getParameter("chatid");
+        final ID chatid = getIdParameter(req, "chatid");
         JSONArray messages = new JSONArray();
-        if (StringUtils.isNotBlank(chatid)) {
-            MessageCompletions c = (MessageCompletions) Application.getCommonsCache().getx(chatid);
+        if (chatid != null) {
+            MessageCompletions c = ChatStore.instance.get(chatid);
             if (c != null) {
                 c.getMessages().forEach(m -> messages.add(m.toClientJSON()));
             }
@@ -75,21 +73,29 @@ public class AiBotController extends BaseController {
     }
 
     @GetMapping("post/chat-list")
-    public RespBody chatList(HttpServletRequest req, HttpServletResponse resp) {
-        String dsSecret = RebuildConfiguration.get(ConfigurationItem.AibotDSSecret);
-        if (dsSecret == null) {
-            return RespBody.error(Language.L("请配置后使用"));
-        }
+    public RespBody chatList(HttpServletRequest req) {
+        Object[][] chats = Application.createQueryNoFilter(
+                "select chatId,subject,createdOn from AibotChat where createdBy = ? order by createdOn desc")
+                .setParameter(1, getRequestUser(req))
+                .array();
+        JSON res = JSONUtils.toJSONObjectArray(new String[]{"chatid", "subject", "createdOn"}, chats);
+        return RespBody.ok(res);
+    }
+
+    @PostMapping("post/chat-delete")
+    public RespBody chatDelete(HttpServletRequest req) {
+        ChatStore.instance.delete(getIdParameterNotNull(req, "chatid"));
         return RespBody.ok();
     }
 
-    @GetMapping("post/chat-delete")
-    public RespBody chatDelete(HttpServletRequest req, HttpServletResponse resp) {
-        return null;
+    @PostMapping("post/chat-reanme")
+    public RespBody chatRename(HttpServletRequest req) {
+        // TODO
+        return RespBody.ok();
     }
 
     @GetMapping("chat")
-    public ModelAndView chat() {
+    public ModelAndView chatIndex() {
         ModelAndView mv = createModelAndView("/aibot/chat-view");
         mv.getModelMap().put("pageFooter", Language.L("由 REBUILD AI 助手强力驱动"));
         return mv;

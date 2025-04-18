@@ -231,18 +231,22 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chat-sidebar .chat-list > li {
-  padding: 8px 10px;
   border-radius: 10px;
   cursor: pointer;
   position: relative;
 }
 
 .chat-sidebar .chat-list > li:hover {
-  background-color: #ddd;
+  background-color: #eee;
 }
 
 .chat-sidebar .chat-list > li.active {
-  background-color: #ccc;
+  background-color: #ddd;
+}
+
+.chat-sidebar .chat-list > li > div {
+  padding: 8px 10px;
+  padding-right: 24px;
 }
 
 .chat-sidebar .chat-list > li > span {
@@ -253,7 +257,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   height: 34px;
   line-height: 34px;
   text-align: center;
-  margin-top: 2px;
+  margin-top: 3px;
+  display: block;
 }
 
 .chat-sidebar .chat-list .dropdown-menu {

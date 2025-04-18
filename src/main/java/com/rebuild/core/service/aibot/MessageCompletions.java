@@ -7,13 +7,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.aibot;
 
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.utils.CommonsUtils;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -24,14 +23,19 @@ import java.util.List;
  * @since 2025/4/12
  */
 public class MessageCompletions implements Serializable {
+    private static final long serialVersionUID = -8886909310259876224L;
 
     @Getter
-    private final String id;
+    @Setter
+    private ID chatid;
+    @Getter
+    @Setter
+    private String subject;
+
     @Getter
     private final List<Message> messages = new ArrayList<>();
 
     protected MessageCompletions(String prompt) {
-        id = "chat-" + CommonsUtils.randomHex(true);
         if (prompt != null) this.addMessage(prompt, "system");
     }
 
@@ -57,13 +61,30 @@ public class MessageCompletions implements Serializable {
     }
 
     /**
-     * @param stream
+     * @param rawMessage
      * @return
      */
+    protected Message setRawMessage(JSONObject rawMessage) {
+        Message m = new Message(
+                rawMessage.getString("role"), rawMessage.getString("content"),
+                rawMessage.getString("error"), this);
+        messages.add(m);
+        return m;
+    }
+
     public JSON toCompletions(boolean stream) {
+        return toCompletions(stream, null);
+    }
+
+    /**
+     * @param stream
+     * @param model
+     * @return
+     */
+    public JSON toCompletions(boolean stream, String model) {
         JSONObject data = JSON.parseObject(DS_PARAM);
-//        data.put("model", "deepseek-reasoner");
         if (stream) data.put("stream", true);
+        if (model != null) data.put("model", model);
 
         JSONArray ms = new JSONArray();
         for (Message message : messages) {
@@ -75,12 +96,13 @@ public class MessageCompletions implements Serializable {
 
     @Override
     public String toString() {
-        return toCompletions(true).toString();
+        return toCompletions(true, null).toString();
     }
 
     /**
+     * DS 模型基础参数
      */
-    private static final String DS_PARAM = "{\n" +
+    static final String DS_PARAM = "{\n" +
             "    'model': 'deepseek-chat',\n" +
             "    'frequency_penalty': 0,\n" +
             "    'max_tokens': 2048,\n" +

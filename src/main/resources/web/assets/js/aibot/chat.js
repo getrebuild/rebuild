@@ -43,9 +43,12 @@ class Chat extends React.Component {
 
     $.get(`/aibot/post/chat-init?chatid=${chatid || ''}`, (res) => {
       if (res.error_code === 0) {
-        const _data = res.data || {}
-        if (_data._chatid) this.setState({ chatid: _data._chatid })
-        this._ChatMessages.setMessages(_data.messages || [])
+        const d = res.data || {}
+        if (d._chatid) {
+          this.setState({ chatid: d._chatid })
+          this._ChatSidebar.setState({ current: d._chatid })
+        }
+        this._ChatMessages.setMessages(d.messages || [])
       } else {
         this._ChatMessages.setMessages([{ error: res.error_msg }])
       }
@@ -131,7 +134,7 @@ class ChatInput extends React.Component {
               <a className="dropdown-item" onClick={() => this.attachRecord()}>
                 {$L('选择记录')}
               </a>
-              <a className="dropdown-item" onClick={() => this.attachFile()}>
+              <a className="dropdown-item hide" onClick={() => this.attachFile()}>
                 {$L('选择文件')}
               </a>
               <a className="dropdown-item" onClick={() => this.attachRecord()}>
@@ -193,7 +196,9 @@ class ChatMessages extends React.Component {
   }
 
   setMessages(messages) {
-    this.setState({ messages: messages }, () => scrollToBottom())
+    this.setState({ messages: messages }, () => {
+      setTimeout(scrollToBottom, 100)
+    })
   }
 }
 
@@ -209,7 +214,9 @@ class ChatMessage extends React.Component {
       sendResp((data) => {
         data = data || {}
         if (data._chatid) {
-          this.props._ChatMessages.props._Chat.setState({ chatid: data._chatid })
+          const _Chat = this.props._ChatMessages.props._Chat
+          _Chat.setState({ chatid: data._chatid })
+          _Chat._ChatSidebar.setState({ current: data._chatid })
           return
         }
 
@@ -232,6 +239,7 @@ class ChatMessage extends React.Component {
     let c = null
     if (this.props.role === 'user') c = this.renderUser()
     else if (this.props.role === 'assistant' || this.props.role === 'ai') c = this.renderAi()
+    else if (this.props.role === 'system') c = this.renderSystem()
     else c = this.renderError()
 
     return <div className="chat-message">{c}</div>
@@ -240,7 +248,7 @@ class ChatMessage extends React.Component {
   renderUser() {
     return (
       <div className="msg-user">
-        <div className="msg-content">{this._renderText()}</div>
+        <div className="msg-content">{this.renderContent()}</div>
       </div>
     )
   }
@@ -251,20 +259,24 @@ class ChatMessage extends React.Component {
         <div className="avatar">
           <img src={`${rb.baseUrl}/assets/img/icon-192x192.png`} alt="AI" />
         </div>
-        <div className="msg-content">{this.state.waitResp ? <div className="wait-resp">{$L('思考中...')}</div> : this._renderText()}</div>
+        <div className="msg-content">{this.state.waitResp ? <div className="wait-resp">{$L('思考中...')}</div> : this.renderContent()}</div>
       </div>
     )
+  }
+
+  renderSystem() {
+    // TODO 不渲染
   }
 
   renderError() {
     return (
       <div className="msg-error">
-        <div className="msg-content">{this.state.error ? this.state.error : JSON.stringify(this.state)}</div>
+        <div className="msg-content">{this.state.error || 'UNKNOW ERROR'}</div>
       </div>
     )
   }
 
-  _renderText() {
+  renderContent() {
     let md = this.state.content
     return (
       <div className="msg-text">
@@ -344,17 +356,27 @@ class ChatSidebar extends React.Component {
   }
 
   componentDidMount() {
-    this.setState({
-      list: [
-        {
-          name: '给我表格',
-          chatid: 'chat-9ece011f2d5045fc8d4237bf12a9b11a',
-        },
-        {
-          name: '123',
-          chatid: 'chat-c6417ff74f92436bbb1068549c7ec863',
-        },
-      ],
+    this._loadChatList()
+  }
+
+  componentDidUpdate(props, prevState) {
+    if (prevState.current !== this.state.current) {
+      $storage.set('__LastChatId', this.state.current)
+    }
+  }
+
+  _loadChatList() {
+    $.get('/aibot/post/chat-list', (res) => {
+      const data = res.data || []
+      this.setState({ list: data })
+
+      if (this.state.current) {
+        const delIf = data.find((x) => x.chatid === this.state.current)
+        if (!delIf) {
+          this.props._Chat.initChat()
+          this.setState({ current: null })
+        }
+      }
     })
   }
 
@@ -366,8 +388,8 @@ class ChatSidebar extends React.Component {
             className="btn"
             onClick={() => {
               this.props._Chat.initChat()
-              this.toggleShow(true)
               this.setState({ current: null })
+              this.toggleShow(true)
             }}>
             <i className="mdi mdi-chat-plus-outline mr-1 icon" />
             {$L('新对话')}
@@ -376,22 +398,31 @@ class ChatSidebar extends React.Component {
         <ul className="chat-list list-unstyled">
           {this.state.list.map((item) => {
             return (
-              <li className={this.state.current === item.chatid ? 'active' : ''}>
+              <li key={item.chatid} className={this.state.current === item.chatid ? 'active' : ''}>
                 <div
+                  className="text-ellipsis"
+                  title={item.subject}
                   onClick={() => {
                     this.props._Chat.initChat(item.chatid)
                     this.toggleShow(true)
                     this.setState({ current: item.chatid })
                   }}>
-                  {item.name}
+                  {item.subject}
                 </div>
-                <span className="dropdown" data-toggle="dropdown">
-                  <a>
+                <span>
+                  <a data-toggle="dropdown">
                     <i className="icon zmdi zmdi-more fs-18" />
                   </a>
                   <div className="dropdown-menu dropdown-menu-right">
-                    <a className="dropdown-item">{$L('删除')}</a>
-                    <a className="dropdown-item">{$L('重命名')}</a>
+                    <a className="dropdown-item" onClick={() => this.handleDelete(item)}>
+                      {$L('删除')}
+                    </a>
+                    <a className="dropdown-item hide" onClick={() => this.handleRename(item)}>
+                      {$L('重命名')}
+                    </a>
+                    <a className="dropdown-item" href={`${rb.baseUrl}/aibot/chat#chatid=${item.chatid}`} target="_blank">
+                      {$L('新窗口打开')}
+                    </a>
                   </div>
                 </span>
               </li>
@@ -402,7 +433,17 @@ class ChatSidebar extends React.Component {
     )
   }
 
+  handleDelete(item) {
+    $.post('/aibot/post/chat-delete?chatid=' + item.chatid, () => this._loadChatList())
+  }
+
+  handleRename(item) {
+    console.log('TODO', item)
+  }
+
   toggleShow(forceHide) {
-    this.setState({ show: forceHide === true ? false : !this.state.show })
+    this.setState({ show: forceHide === true ? false : !this.state.show }, () => {
+      this.state.show && this._loadChatList()
+    })
   }
 }
