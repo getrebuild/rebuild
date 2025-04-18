@@ -17,7 +17,7 @@ class Chat extends React.Component {
   render() {
     return (
       <RF>
-        <div className="chat">
+        <div className="chat" ref={(c) => (this._$chat = c)}>
           <ChatMessages _Chat={this} ref={(c) => (this._ChatMessages = c)} />
           <ChatInput _Chat={this} ref={(c) => (this._ChatInput = c)} />
         </div>
@@ -450,7 +450,7 @@ class ChatSidebar extends React.Component {
             onClick={() => {
               this.props._Chat.initChat()
               this.setState({ current: null })
-              this.toggleShow(true)
+              this.toggleShow(false)
             }}>
             <i className="mdi mdi-chat-plus-outline mr-1 icon" />
             {$L('新对话')}
@@ -465,7 +465,7 @@ class ChatSidebar extends React.Component {
                   title={item.subject}
                   onClick={() => {
                     this.props._Chat.initChat(item.chatid)
-                    this.toggleShow(true)
+                    this.toggleShow(false)
                     this.setState({ current: item.chatid })
                   }}>
                   {item.subject}
@@ -502,8 +502,12 @@ class ChatSidebar extends React.Component {
     console.log('TODO', item)
   }
 
-  toggleShow(forceHide) {
-    this.setState({ show: forceHide === true ? false : !this.state.show }, () => {
+  toggleShow(showOrHide) {
+    let show = !this.state.show
+    if (showOrHide === true) show = true
+    else if (showOrHide === false) show = false
+
+    this.setState({ show: show }, () => {
       this.state.show && this._loadChatList()
     })
   }
