@@ -18,7 +18,7 @@ class AiBot extends React.Component {
           <div className="modal-content">
             <div className="modal-header">
               <i className="icon mdi mdi-shimmer" />
-              <h3 className="modal-title">{$L('AI 助手')} (LAB)</h3>
+              <h3 className="modal-title">{$L('REBUILD AI 助手')} (LAB)</h3>
               <button className="close" type="button" onClick={() => this.openChatSidebar()} title={$L('对话列表')}>
                 <span className="mdi mdi-segment" />
               </button>

@@ -23,8 +23,12 @@
     </style>
   </head>
   <body>
-    <div id="chat-wrapper"></div>
-    <div th:if="${pageFooter != null}" class="page-footer">[(${pageFooter})]</div>
+    <div id="chat-wrapper">
+      <div class="text-center text-bold" style="margin-top: 20%">LOADING</div>
+    </div>
+    <div th:if="${pageFooter != null}" class="page-footer link">
+      <a href="https://getrebuild.com/docs/topic/aibot" target="_blank">[(${pageFooter})]</a>
+    </div>
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/js/aibot/chat-view.js}" type="text/babel"></script>
   </body>
