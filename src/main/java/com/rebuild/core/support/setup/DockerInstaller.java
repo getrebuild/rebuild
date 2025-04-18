@@ -39,7 +39,7 @@ public class DockerInstaller extends Installer {
         JSONObject installProps = new JSONObject();
         JSONObject databaseProps = JSONUtils.toJSONObject(
                 new String[]{"dbName", "dbHost", "dbPort", "dbUser", "dbPassword"},
-                new String[]{"rebuild40", "mysql", "3306", "root", "rebuildP4wd"});
+                new String[]{"rebuild40", "mysql", "3306", "root", "rebuild!P4wd"});
         if (Application.devMode()) {
             databaseProps.put("dbHost", "localhost");
             databaseProps.put("dbUser", "rebuild");

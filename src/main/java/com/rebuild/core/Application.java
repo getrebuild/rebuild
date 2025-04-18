@@ -136,34 +136,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         try {
             if (Installer.isInstalled()) {
                 started = init();
-
-                if (started) {
-                    final long timeCost = System.currentTimeMillis() - time;
-                    timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            String localUrl = BootApplication.getLocalUrl(null);
-                            String banner = RebuildBanner.formatSimple(
-                                    "REBUILD (" + VER + ") started successfully in " + timeCost + " ms.",
-                                    "    License : " + License.queryAuthority().values(),
-                                    "Access URLs : ",
-                                    "      Local : " + localUrl,
-                                    "   External : " + localUrl.replace("localhost", OshiUtils.getLocalIp()),
-                                    "     Public : " + RebuildConfiguration.getHomeUrl());
-                            log.info(banner);
-
-                            if (!License.isCommercial()) {
-                                String thanks = RebuildBanner.formatSimple(
-                                        "**********",
-                                        "感谢使用 REBUILD！",
-                                        "您当前使用的是免费版本，如果 REBUILD 对贵公司业务有帮助，请考虑购买商业授权版本，帮助我们可持续发展！",
-                                        "查看详情 https://getrebuild.com/#pricing-plans",
-                                        "**********");
-                                System.out.println(thanks);
-                            }
-                        }
-                    }, 999);
-                }
+                if (started) printStartup(timer, System.currentTimeMillis() - time);
 
             } else {
                 timer.schedule(new TimerTask() {
@@ -180,6 +153,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                 if (di.isNeedInitialize()) {
                     log.info("Initializing REBUILD for Docker container ...");
                     di.install();
+                    printStartup(timer, System.currentTimeMillis() - time);
                 }
             }
 
@@ -200,6 +174,34 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
             _WAITLOAD = false;
         }
+    }
+
+    // 打印启动信息
+    private void printStartup(Timer timer, long timeCost) {
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                String localUrl = BootApplication.getLocalUrl(null);
+                String banner = RebuildBanner.formatSimple(
+                        "REBUILD (" + VER + ") started successfully in " + timeCost + " ms.",
+                        "    License : " + License.queryAuthority().values(),
+                        "Access URLs : ",
+                        "      Local : " + localUrl,
+                        "   External : " + localUrl.replace("localhost", OshiUtils.getLocalIp()),
+                        "     Public : " + RebuildConfiguration.getHomeUrl());
+                log.info(banner);
+
+                if (!License.isCommercial()) {
+                    String thanks = RebuildBanner.formatSimple(
+                            "\n  **********",
+                            "感谢使用 REBUILD！",
+                            "您当前使用的是免费版本，如果 REBUILD 对贵公司业务有帮助，请考虑购买商业授权版本，帮助我们可持续发展！",
+                            "查看详情 https://getrebuild.com/#pricing-plans",
+                            "**********");
+                    log.info(thanks);
+                }
+            }
+        }, 999);
     }
 
     /**
