@@ -75,11 +75,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "4.0.2";
+    public static final String VER = "4.0.3";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 4000208;
+    public static final int BUILD = 4000309;
 
     static {
         // Driver for DB
@@ -134,46 +134,9 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         final Timer timer = new Timer("Boot-Timer");
 
         try {
-            // v4.0.2 for Docker
-            DockerInstaller di = new DockerInstaller();
-            final boolean isNeedInitialize = di.isNeedInitialize();
-            if (isNeedInitialize) {
-                log.info("Initializing REBUILD for Docker container ...");
-                di.install();
-            }
-
             if (Installer.isInstalled()) {
                 started = init();
-
-                if (started) {
-                    final long timeCost = System.currentTimeMillis() - time;
-                    timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            String localUrl = BootApplication.getLocalUrl(null);
-                            String banner = RebuildBanner.formatSimple(
-                                    "REBUILD (" + VER + ") started successfully in " + timeCost + " ms.",
-                                    "    License : " + License.queryAuthority().values(),
-                                    "Access URLs : ",
-                                    "      Local : " + localUrl,
-                                    "   External : " + localUrl.replace("localhost", OshiUtils.getLocalIp()),
-                                    "     Public : " + RebuildConfiguration.getHomeUrl());
-                            log.info(banner);
-
-                            if (!License.isCommercial()) {
-                                String thanks = RebuildBanner.formatSimple(
-                                        "**********",
-                                        "感谢使用 REBUILD！",
-                                        "您当前使用的是免费版本，如果 REBUILD 对贵公司业务有帮助，请考虑购买商业授权版本，帮助我们可持续发展！",
-                                        "查看详情 https://getrebuild.com/#pricing-plans",
-                                        "**********");
-                                System.out.println(thanks);
-                            }
-                        }
-                    }, 999);
-
-                    if (isNeedInitialize) di.installAfter();
-                }
+                if (started) printStartup(timer, System.currentTimeMillis() - time);
 
             } else {
                 timer.schedule(new TimerTask() {
@@ -184,6 +147,14 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                                 "Install : " + BootApplication.getLocalUrl("/setup/install")));
                     }
                 }, 999);
+
+                // v4.0.3 for Docker
+                DockerInstaller di = new DockerInstaller();
+                if (di.isNeedInitialize()) {
+                    log.info("Initializing REBUILD for Docker container ...");
+                    di.install();
+                    printStartup(timer, System.currentTimeMillis() - time);
+                }
             }
 
         } catch (Exception ex) {
@@ -203,6 +174,34 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
             _WAITLOAD = false;
         }
+    }
+
+    // 打印启动信息
+    private void printStartup(Timer timer, long timeCost) {
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                String localUrl = BootApplication.getLocalUrl(null);
+                String banner = RebuildBanner.formatSimple(
+                        "REBUILD (" + VER + ") started successfully in " + timeCost + " ms.",
+                        "    License : " + License.queryAuthority().values(),
+                        "Access URLs : ",
+                        "      Local : " + localUrl,
+                        "   External : " + localUrl.replace("localhost", OshiUtils.getLocalIp()),
+                        "     Public : " + RebuildConfiguration.getHomeUrl());
+                log.info(banner);
+
+                if (!License.isCommercial()) {
+                    String thanks = RebuildBanner.formatSimple(
+                            "\n  **********",
+                            "感谢使用 REBUILD！",
+                            "您当前使用的是免费版本，如果 REBUILD 对贵公司业务有帮助，请考虑购买商业授权版本，帮助我们可持续发展！",
+                            "查看详情 https://getrebuild.com/#pricing-plans",
+                            "**********");
+                    log.info(thanks);
+                }
+            }
+        }, 999);
     }
 
     /**

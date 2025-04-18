@@ -127,7 +127,7 @@ public class LoginController extends LoginAction {
         } else {
             mv.getModel().put("ssoDingtalk", "#");
             mv.getModel().put("ssoWxwork", "#");
-//            mv.getModel().put("ssoFeishu", "#");
+            mv.getModel().put("ssoFeishu", "#");
         }
 
         mv.getModelMap().put("UsersMsg", SysbaseHeartbeat.getUsersDanger());

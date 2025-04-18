@@ -17,7 +17,7 @@ import org.apache.commons.lang.SystemUtils;
  */
 public class RebuildBanner {
 
-    static final String COMMON_BANNER = "" +
+    static final String COMMON_BANNER =
             "\n  Version : " + Application.VER +
             "\n  OS      : " + SystemUtils.OS_NAME + " (" + SystemUtils.OS_ARCH + ")" +
             "\n  JVM     : " + SystemUtils.JAVA_VM_NAME + " (" + SystemUtils.JAVA_VERSION + ")" +

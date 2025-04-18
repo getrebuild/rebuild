@@ -3,11 +3,11 @@ services:
     image: mysql:5.7
     environment:
       MYSQL_ROOT_HOST: "%"
-      MYSQL_ROOT_PASSWORD: "rebuildP4wd"
+      MYSQL_ROOT_PASSWORD: "rebuild!P4wd"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD" ]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "mysql", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD" ]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -15,7 +15,7 @@ services:
       - app_network
 
   rebuild:
-    image: getrebuild/rebuild:4.0.2
+    image: getrebuild/rebuild:latest
     depends_on:
       mysql:
         condition: service_healthy
@@ -23,8 +23,7 @@ services:
     command:
       - >
         mkdir -p /app/rebuild/.rebuild &&
-        wget -O /app/rebuild/.rebuild/.rebuild https://www.qn-cdn.getrebuild.com/pub/deploy/.rebuild &&
-        java -Dinitialize=yes -Duser.timezone=Asia/Shanghai -DDataDirectory=/app/rebuild/.rebuild -jar /app/rebuild/rebuild-boot.jar
+        java -Dinitialize=docker -Duser.timezone=Asia/Shanghai -DSN= -DDataDirectory=/app/rebuild/.rebuild -jar /app/rebuild/rebuild-boot.jar
     ports:
       - "18080:18080"
     volumes:
