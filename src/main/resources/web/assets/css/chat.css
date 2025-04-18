@@ -14,15 +14,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chat {
-  width: 720px;
-  height: 500px;
   width: 100%;
   height: 100%;
 }
 
 .chat .chat-input-container {
-  position: sticky;
+  position: fixed;
   bottom: 0;
+  left: 0;
   width: 100%;
   padding: 16px;
 }
@@ -104,8 +103,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chat-messages {
-  overflow: auto;
   padding: 16px 16px 80px;
+  height: 600px;
+  overflow: auto;
 }
 
 .chat-message {
@@ -151,6 +151,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
   overflow: hidden;
 }
 
+.chat-message .msg-error {
+  width: 80%;
+  margin: 0 auto;
+  font-size: 13px;
+  background-color: #f4c0c0;
+  color: #f44336;
+  padding: 5px 8px;
+  border-radius: 10px;
+}
+
 /* MD */
 
 .chat-message .msg-content .mdedit-content *:last-child {
@@ -168,12 +178,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 16px;
   margin: 20px 0;
   overflow-x: auto;
-  font-family: 'Courier New', monospace;
   color: #abb2bf;
   white-space: pre;
   tab-size: 2;
   font-size: 0.8rem;
   max-width: 100%;
+}
+
+.chat-message .msg-content .mdedit-content pre,
+.chat-message .msg-content .mdedit-content code {
+  font-family: 'Courier New', monospace, Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei',
+    sans-serif;
 }
 
 /* ChatSidebar */
@@ -271,7 +286,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   box-shadow: none !important;
   max-width: 100%;
   width: 720px;
-  height: 600px;
+  height: 100%;
 }
 
 .aibot .modal-content .modal-header {

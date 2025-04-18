@@ -16,7 +16,7 @@ $(document).ready(() => {
     'chat-wrapper',
     () => {
       $addResizeHandler(() => {
-        $('#chat-wrapper .modal-content').height($(window).height() - 40)
+        $('#chat-wrapper .chat-messages').height($(window).height() - 200)
       })()
     }
   )

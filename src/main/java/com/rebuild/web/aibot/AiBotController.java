@@ -90,6 +90,8 @@ public class AiBotController extends BaseController {
 
     @GetMapping("chat")
     public ModelAndView chat() {
-        return createModelAndView("/aibot/chat-view");
+        ModelAndView mv = createModelAndView("/aibot/chat-view");
+        mv.getModelMap().put("pageFooter", Language.L("由 REBUILD AI 助手强力驱动"));
+        return mv;
     }
 }

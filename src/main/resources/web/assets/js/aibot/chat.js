@@ -27,7 +27,6 @@ class Chat extends React.Component {
   }
 
   componentDidMount() {
-    // $('.chat-messages').perfectScrollbar()
     this.initChat(this.state.chatid)
   }
 
@@ -43,9 +42,13 @@ class Chat extends React.Component {
     this._ChatInput.reset()
 
     $.get(`/aibot/post/chat-init?chatid=${chatid || ''}`, (res) => {
-      const _data = res.data || {}
-      if (_data._chatid) this.setState({ chatid: _data._chatid })
-      this._ChatMessages.setMessages(_data.messages || [])
+      if (res.error_code === 0) {
+        const _data = res.data || {}
+        if (_data._chatid) this.setState({ chatid: _data._chatid })
+        this._ChatMessages.setMessages(_data.messages || [])
+      } else {
+        this._ChatMessages.setMessages([{ error: res.error_msg }])
+      }
     })
   }
 
@@ -117,6 +120,7 @@ class ChatInput extends React.Component {
               }}
               onBlur={() => this.setState({ active: false })}
               onFocus={() => this.setState({ active: true })}
+              placeholder={$L('输入问题')}
             />
           </div>
           <div className="chat-input-action">
@@ -129,6 +133,9 @@ class ChatInput extends React.Component {
               </a>
               <a className="dropdown-item" onClick={() => this.attachFile()}>
                 {$L('选择文件')}
+              </a>
+              <a className="dropdown-item" onClick={() => this.attachRecord()}>
+                {$L('选择当前页数据')}
               </a>
             </div>
             <button type="button" className="btn btn-sm ml-1" onClick={() => this.hanldeSend()} disabled={this.state.postState !== 0}>
@@ -156,7 +163,7 @@ class ChatInput extends React.Component {
   }
 
   reset() {
-    this.setState({ content: '', attach: [], postState: 1 })
+    this.setState({ content: '', attach: [], postState: 0 })
   }
 
   attachRecord() {}
@@ -341,7 +348,7 @@ class ChatSidebar extends React.Component {
       list: [
         {
           name: '给我表格',
-          chatid: 'chat-4041e892fbb6443994a39bce619700c4',
+          chatid: 'chat-9ece011f2d5045fc8d4237bf12a9b11a',
         },
         {
           name: '123',
