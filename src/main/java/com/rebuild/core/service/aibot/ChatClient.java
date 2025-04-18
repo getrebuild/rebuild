@@ -47,7 +47,7 @@ public class ChatClient {
         final String dsSecret = Config.getSecret();
 
         MessageCompletions completions = getOrNewMessageCompletions(chatRequest.getChatid(), Config.getBasePrompt());
-        completions.addMessage(chatRequest.getUserContent(), "user");
+        completions.addUserMessage(chatRequest);
 
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json");
@@ -81,7 +81,7 @@ public class ChatClient {
         final String dsSecret = Config.getSecret();
 
         MessageCompletions completions = getOrNewMessageCompletions(chatRequest.getChatid(), Config.getBasePrompt());
-        completions.addMessage(chatRequest.getUserContent(), "user");
+        completions.addUserMessage(chatRequest);
 
         String reqBody = completions.toCompletions(true).toJSONString();
         RequestBody body = RequestBody.create(
@@ -114,7 +114,6 @@ public class ChatClient {
                 int reasoningState = 0;
                 while (!source.exhausted()) {
                     String d = source.readUtf8Line();
-                    System.out.println(d);
                     if (d != null && d.startsWith("data: ")) {
                         d = d.substring(6);
                         if ("[DONE]".equals(d)) {
@@ -147,7 +146,7 @@ public class ChatClient {
                 }
 
                 // [DONE]
-                completions.addMessage(deltaContent.toString(), "assistant");
+                completions.addMessage(deltaContent.toString(), Message.ROLE_AI);
                 ChatStore.instance.store(completions);
             }
         }

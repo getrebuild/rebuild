@@ -41,11 +41,22 @@ public class MessageCompletions implements Serializable {
 
     /**
      * @param content
-     * @param role system/user/assistant
+     * @param role
      * @return
      */
     public Message addMessage(String content, String role) {
-        Message m = new Message(role, content, null, this);
+        Message m = new Message(role, content, null, null, this);
+        messages.add(m);
+        return m;
+    }
+
+    /**
+     * @param chatRequest
+     * @return
+     */
+    public Message addUserMessage(ChatRequest chatRequest) {
+        Message m = new Message(Message.ROLE_USER, chatRequest.getUserContent(true), null,
+                chatRequest.getReqJson(), this);
         messages.add(m);
         return m;
     }
@@ -55,7 +66,7 @@ public class MessageCompletions implements Serializable {
      * @return
      */
     public Message addError(String error) {
-        Message m = new Message(null, null, error, this);
+        Message m = new Message(null, null, error, null, this);
         messages.add(m);
         return m;
     }
@@ -67,11 +78,15 @@ public class MessageCompletions implements Serializable {
     protected Message setRawMessage(JSONObject rawMessage) {
         Message m = new Message(
                 rawMessage.getString("role"), rawMessage.getString("content"),
-                rawMessage.getString("error"), this);
+                rawMessage.getString("error"), rawMessage, this);
         messages.add(m);
         return m;
     }
 
+    /**
+     * @param stream
+     * @return
+     */
     public JSON toCompletions(boolean stream) {
         return toCompletions(stream, null);
     }

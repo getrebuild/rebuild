@@ -92,14 +92,25 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chat-input .chat-input-attach ul > li {
-  margin-right: 10px;
+  margin-right: 5px;
   margin-bottom: 10px;
+  display: inline-block;
 }
 
-.chat-input .chat-input-attach ul > li > a {
-  background-color: #ccc;
-  padding: 5px 7px;
+.chat-input .chat-input-attach ul > li > span,
+.chat-message .msg-user > .msg-attach > a {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: #444;
+  padding: 4px 7px;
   border-radius: 30px;
+  display: inline-block;
+  font-size: 13px;
+}
+
+.chat-input .chat-input-attach ul > li > span a.close {
+  font-weight: normal;
+  text-shadow: none;
+  margin-left: 4px;
 }
 
 .chat-messages {
@@ -127,6 +138,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
   word-wrap: break-word;
   word-break: break-all;
   text-align: left;
+}
+
+.chat-message .msg-user > .msg-attach {
+  margin-top: 7px;
+}
+
+.chat-message .msg-user > .msg-attach > a:hover {
+  color: var(--rb-theme-color);
 }
 
 .chat-message .msg-ai {

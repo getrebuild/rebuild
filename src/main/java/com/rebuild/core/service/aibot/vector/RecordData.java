@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.aibot.VectorData;
 import com.rebuild.core.support.general.FieldValueHelper;
@@ -34,6 +35,8 @@ public class RecordData implements VectorData {
         StringBuilder v = new StringBuilder();
         for (String fieldName : r.getAvailableFields()) {
             Field field = r.getEntity().getField(fieldName);
+            if (MetadataHelper.isSystemField(field)) continue;
+
             String label = EasyMetaFactory.getLabel(field);
             Object value = FieldValueHelper.wrapFieldValue(r.getObjectValue(fieldName), field, true);
             v.append(label).append(":").append(value).append("\n");

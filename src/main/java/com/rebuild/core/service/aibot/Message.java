@@ -20,6 +20,10 @@ import java.io.Serializable;
 public class Message implements Serializable {
     private static final long serialVersionUID = 5985250499303228749L;
 
+    public static final String ROLE_SYSTEM = "system";
+    public static final String ROLE_USER = "user";
+    public static final String ROLE_AI = "assistant";
+
     @Getter
     private MessageCompletions messageCompletions;
 
@@ -30,17 +34,34 @@ public class Message implements Serializable {
     @Getter
     private final String error;
 
-    protected Message(String role, String content, String error, MessageCompletions messageCompletions) {
+    private final JSONObject originRequest;
+
+    /**
+     * @param role
+     * @param content
+     * @param error
+     * @param originRequest
+     * @param messageCompletions
+     */
+    protected Message(String role, String content, String error,
+                      JSONObject originRequest, MessageCompletions messageCompletions) {
         this.role = role;
         this.content = content;
         this.error = error;
         this.messageCompletions = messageCompletions;
+        this.originRequest = originRequest;
     }
 
+    /**
+     * @return
+     */
     public boolean isSystem() {
-        return "system".equals(role);
+        return ROLE_SYSTEM.equals(role);
     }
 
+    /**
+     * @return
+     */
     public JSONObject toJSON() {
         JSONObject o = JSONUtils.toJSONObject(
                 new String[]{"role", "content"}, new Object[]{role, content});
@@ -48,8 +69,16 @@ public class Message implements Serializable {
         return o;
     }
 
+    /**
+     * @return
+     */
     public JSONObject toClientJSON() {
-        JSONObject d = toJSON();
+        JSONObject d;
+        if (Message.ROLE_USER.equals(role)) {
+            d = (JSONObject) JSONUtils.clone(originRequest);
+        } else {
+            d = toJSON();
+        }
         d.put("_chatid", messageCompletions.getChatid());
         return d;
     }

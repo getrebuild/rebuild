@@ -9,8 +9,12 @@ package com.rebuild.core.service.aibot;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.service.aibot.vector.RecordData;
+import com.rebuild.core.service.aibot.vector.VectorDataChunk;
 import lombok.Getter;
+import org.apache.commons.collections4.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -25,21 +29,51 @@ public class ChatRequest {
     @Getter
     private final JSONObject reqJson;
 
+    /**
+     * @param request
+     */
     public ChatRequest(HttpServletRequest request) {
         String id = request.getParameter("chatid");
         this.chatid = ID.isId(id) ? ID.valueOf(id) : null;
         this.reqJson = (JSONObject) ServletUtils.getRequestJson(request);
     }
 
+    /**
+     * @return
+     */
     public String getUserContent() {
-        return reqJson.getString("content");
+        return getUserContent(true);
     }
 
-    public Object getUserAttach() {
-        return reqJson.get("attach");
+    /**
+     * @param withVector
+     * @return
+     */
+    public String getUserContent(boolean withVector) {
+        String c = reqJson.getString("content");
+        if (!withVector) return c;
+
+        VectorData vd = getVectorData();
+        if (vd == null) return c;
+
+        return vd.toVector() + "\n\n" + c;
     }
 
+    /**
+     * @return
+     */
     public VectorData getVectorData() {
-        return null;
+        JSONArray attachs = (JSONArray) reqJson.get("attach");
+        if (CollectionUtils.isEmpty(attachs)) return null;
+
+        VectorDataChunk vdc = new VectorDataChunk();
+        for (int i = 0; i < attachs.size(); i++) {
+            JSONObject a = attachs.getJSONObject(i);
+            String record = a.getString("record");
+            if (ID.isId(record)) {
+                vdc.addVectorData(new RecordData(ID.valueOf(record)));
+            }
+        }
+        return vdc;
     }
 }

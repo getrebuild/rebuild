@@ -92,7 +92,7 @@ class Chat extends React.Component {
 class ChatInput extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { postState: 0, attach: [{ name: '记录:123' }] }
+    this.state = { postState: 0, attach: [] }
   }
 
   render() {
@@ -105,7 +105,7 @@ class ChatInput extends React.Component {
                 {this.state.attach.map((item, idx) => {
                   return (
                     <li key={idx}>
-                      <Attach {...item} />
+                      <Attach {...item} _ChatInput={this} />
                     </li>
                   )
                 })}
@@ -163,13 +163,28 @@ class ChatInput extends React.Component {
       })
 
     this.reset()
+    this.setState({ postState: 1 })
   }
 
   reset() {
     this.setState({ content: '', attach: [], postState: 0 })
   }
 
-  attachRecord() {}
+  removeAttach(id) {
+    const attach = this.state.attach.filter((item) => item.id !== id)
+    this.setState({ attach })
+  }
+
+  attachRecord() {
+    renderRbcomp(
+      <DlgAttachRecord
+        onConfirm={(v) => {
+          const attach = [...this.state.attach, { record: v, id: $random('ATT') }]
+          this.setState({ attach })
+        }}
+      />
+    )
+  }
   attachFile() {}
 }
 
@@ -249,6 +264,13 @@ class ChatMessage extends React.Component {
     return (
       <div className="msg-user">
         <div className="msg-content">{this.renderContent()}</div>
+        {this.state.attach && (
+          <div className="msg-attach">
+            {this.state.attach.map((item) => {
+              return <Attach {...item} />
+            })}
+          </div>
+        )}
       </div>
     )
   }
@@ -343,7 +365,46 @@ function fetchStream(url, data, onChunk, onDone) {
 
 class Attach extends React.Component {
   render() {
-    return <a>{this.props.name}</a>
+    if (!this.state) return null
+    if (this.props._ChatInput) {
+      return (
+        <span>
+          {this.state.name}
+          <a className="close" onClick={() => this.props._ChatInput.removeAttach(this.props.id)}>
+            &times;
+          </a>
+        </span>
+      )
+    }
+    // View
+    return (
+      <a href={this.state.viewUrl || null} target={this.state.viewUrl ? '_blank' : '_self'}>
+        {this.state.name}
+      </a>
+    )
+  }
+
+  componentDidMount() {
+    const props = this.props
+    if (props.record) {
+      $.get(`/commons/search/read-labels?id=${props.record}`, (res) => {
+        const d = res.data || {}
+        this.setState({ name: `[${$L('记录')}] ${d[props.record]}`, viewUrl: `${rb.baseUrl}/app/redirect?id=${props.record}&type=newtab` })
+      })
+    } else if (props.listFilter) {
+      this.setState({ name: $L('列表数据') })
+    }
+  }
+
+  val() {
+    const props = this.props
+    if (props.record) {
+      return { record: props.record }
+    }
+    if (props.listFilter) {
+      return { listFilter: props.listFilter }
+    }
+    return null
   }
 }
 
@@ -445,5 +506,28 @@ class ChatSidebar extends React.Component {
     this.setState({ show: forceHide === true ? false : !this.state.show }, () => {
       this.state.show && this._loadChatList()
     })
+  }
+}
+
+class DlgAttachRecord extends RbAlert {
+  renderContent() {
+    return (
+      <div className="form ml-3 mr-3">
+        <div className="form-group">
+          <label className="text-bold">{$L('选择记录')}</label>
+          <AnyRecordSelector ref={(c) => (this._AnyRecordSelector = c)} />
+        </div>
+        <div className="form-group mb-2">
+          <button type="button" className="btn btn-primary" onClick={this._onConfirm}>
+            {$L('确定')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  _onConfirm = () => {
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(this._AnyRecordSelector.val())
+    this.hide()
   }
 }

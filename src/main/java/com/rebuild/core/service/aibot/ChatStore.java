@@ -54,7 +54,7 @@ public class ChatStore {
         }
 
         JSONArray contents = new JSONArray();
-        completions.getMessages().forEach(m -> contents.add(m.toJSON()));
+        completions.getMessages().forEach(m -> contents.add(m.toClientJSON()));
         chat.setString("contents", contents.toJSONString());
         Application.getCommonsService().createOrUpdate(chat);
 
