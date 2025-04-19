@@ -107,7 +107,7 @@ public class ChatClient {
                  PrintWriter writer = httpResp.getWriter()) {
                 // [ERROR]
                 if (!apiResp.isSuccessful()) {
-                    StreamEcho.text("请求接口错误:" + apiResp.code(), writer);
+                    StreamEcho.error("请求接口错误:" + apiResp.code(), writer);
                     return;
                 }
 

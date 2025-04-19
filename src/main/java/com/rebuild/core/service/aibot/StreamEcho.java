@@ -27,12 +27,24 @@ public class StreamEcho {
     }
 
     /**
+     * @param error
+     * @param writer
+     */
+    public static void error(String error, PrintWriter writer) {
+        echo(error, writer, null, true);
+    }
+
+    /**
      * @param content
      * @param writer
      * @param type `_reasoning` `_chatid`
      */
     public static void echo(String content, PrintWriter writer, String type) {
-        JSONObject o = JSONUtils.toJSONObject("content", content);
+        echo(content, writer, type, false);
+    }
+
+    static void echo(String content, PrintWriter writer, String type, boolean isError) {
+        JSONObject o = JSONUtils.toJSONObject(isError ? "error" : "content", content);
         if (type != null) o.put("type", type);
 
         String echo = String.format("data: %s\n\n", o);
