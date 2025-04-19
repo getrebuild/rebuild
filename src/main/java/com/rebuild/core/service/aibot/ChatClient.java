@@ -83,8 +83,7 @@ public class ChatClient {
         MessageCompletions completions = getOrNewMessageCompletions(chatRequest.getChatid(), Config.getBasePrompt());
         completions.addUserMessage(chatRequest);
 
-        // "deepseek-reasoner"
-        String reqBody = completions.toCompletions(true, null).toJSONString();
+        String reqBody = completions.toCompletions(true, chatRequest.getModel()).toJSONString();
         RequestBody body = RequestBody.create(
                 reqBody,
                 MediaType.parse("application/json; charset=utf-8"));
@@ -100,6 +99,7 @@ public class ChatClient {
         httpResp.setHeader("Connection", "keep-alive");
 
         StringBuilder deltaContent = new StringBuilder();
+        StringBuilder reasoningContent = new StringBuilder();
 
         // 执行请求并处理响应
         try (Response apiResp = OkHttpUtils.getHttpClient().newCall(apiReq).execute()) {
@@ -131,28 +131,28 @@ public class ChatClient {
                         if (chunk == null) {
                             String reasoning = delta.getString("reasoning_content");
                             if (reasoningState == 0) {
-                                reasoning = "思考中...\n" + reasoning;
-                                reasoningState = 1;
+                                reasoningState = 1;  // 开始思考
                             }
                             chunk = reasoning;
                         } else if (reasoningState == 1) {
-                            reasoningState = 2;
+                            reasoningState = 2;  // 完成思考
                             StreamEcho.text("\n\n", writer);
                         }
 
                         if (chunk == null || chunk.isEmpty()) continue;
 
                         if (reasoningState == 1) {
-                            StreamEcho.echo(chunk, writer, "reasoning");
+                            StreamEcho.echo(chunk, writer, "_reasoning");
+                            reasoningContent.append(chunk);
                         } else {
                             StreamEcho.text(chunk, writer);
+                            deltaContent.append(chunk);
                         }
-                        deltaContent.append(chunk);
                     }
                 }
 
                 // [DONE]
-                completions.addMessage(deltaContent.toString(), Message.ROLE_AI);
+                completions.addMessage(deltaContent.toString(), reasoningContent.toString(), Message.ROLE_AI);
                 ChatStore.instance.store(completions);
             }
         }

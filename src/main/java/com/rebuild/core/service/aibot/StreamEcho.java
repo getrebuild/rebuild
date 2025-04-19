@@ -29,7 +29,7 @@ public class StreamEcho {
     /**
      * @param content
      * @param writer
-     * @param type `reasoning`
+     * @param type `_reasoning` `_chatid`
      */
     public static void echo(String content, PrintWriter writer, String type) {
         JSONObject o = JSONUtils.toJSONObject("content", content);
@@ -39,5 +39,4 @@ public class StreamEcho {
         writer.write(echo);
         writer.flush();
     }
-
 }

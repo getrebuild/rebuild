@@ -32,6 +32,8 @@ public class Message implements Serializable {
     @Getter
     private final String content;
     @Getter
+    private final String reasoning;
+    @Getter
     private final String error;
 
     private final JSONObject originRequest;
@@ -39,14 +41,16 @@ public class Message implements Serializable {
     /**
      * @param role
      * @param content
+     * @param reasoning
      * @param error
      * @param originRequest
      * @param messageCompletions
      */
-    protected Message(String role, String content, String error,
+    protected Message(String role, String content, String reasoning, String error,
                       JSONObject originRequest, MessageCompletions messageCompletions) {
         this.role = role;
         this.content = content;
+        this.reasoning = reasoning;
         this.error = error;
         this.messageCompletions = messageCompletions;
         this.originRequest = originRequest;
@@ -62,7 +66,7 @@ public class Message implements Serializable {
     /**
      * @return
      */
-    public JSONObject toJSON() {
+    public JSONObject toAiJSON() {
         JSONObject o = JSONUtils.toJSONObject(
                 new String[]{"role", "content"}, new Object[]{role, content});
         if (error != null) o.put("error", error);
@@ -77,7 +81,8 @@ public class Message implements Serializable {
         if (Message.ROLE_USER.equals(role)) {
             d = (JSONObject) JSONUtils.clone(originRequest);
         } else {
-            d = toJSON();
+            d = toAiJSON();
+            if (reasoning != null) d.put("reasoning", reasoning);
         }
         d.put("_chatid", messageCompletions.getChatid());
         return d;

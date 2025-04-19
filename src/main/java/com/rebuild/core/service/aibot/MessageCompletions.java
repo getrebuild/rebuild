@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class MessageCompletions implements Serializable {
     private final List<Message> messages = new ArrayList<>();
 
     protected MessageCompletions(String prompt) {
-        if (prompt != null) this.addMessage(prompt, "system");
+        if (prompt != null) this.addMessage(prompt, Message.ROLE_SYSTEM);
     }
 
     /**
@@ -45,7 +46,17 @@ public class MessageCompletions implements Serializable {
      * @return
      */
     public Message addMessage(String content, String role) {
-        Message m = new Message(role, content, null, null, this);
+        return this.addMessage(content, null, role);
+    }
+
+    /**
+     * @param content
+     * @param reasoning
+     * @param role
+     * @return
+     */
+    public Message addMessage(String content, String reasoning, String role) {
+        Message m = new Message(role, content, reasoning, null, null, this);
         messages.add(m);
         return m;
     }
@@ -55,8 +66,7 @@ public class MessageCompletions implements Serializable {
      * @return
      */
     public Message addUserMessage(ChatRequest chatRequest) {
-        Message m = new Message(Message.ROLE_USER, chatRequest.getUserContent(true), null,
-                chatRequest.getReqJson(), this);
+        Message m = new Message(Message.ROLE_USER, chatRequest.getUserContent(true), null, null, chatRequest.getReqJson(), this);
         messages.add(m);
         return m;
     }
@@ -66,7 +76,7 @@ public class MessageCompletions implements Serializable {
      * @return
      */
     public Message addError(String error) {
-        Message m = new Message(null, null, error, null, this);
+        Message m = new Message(null, null, error, null, null, this);
         messages.add(m);
         return m;
     }
@@ -77,8 +87,11 @@ public class MessageCompletions implements Serializable {
      */
     protected Message setRawMessage(JSONObject rawMessage) {
         Message m = new Message(
-                rawMessage.getString("role"), rawMessage.getString("content"),
-                rawMessage.getString("error"), rawMessage, this);
+                rawMessage.getString("role"),
+                rawMessage.getString("content"),
+                rawMessage.getString("reasoning"),
+                rawMessage.getString("error"),
+                rawMessage, this);
         messages.add(m);
         return m;
     }
@@ -99,11 +112,11 @@ public class MessageCompletions implements Serializable {
     public JSON toCompletions(boolean stream, String model) {
         JSONObject data = Config.getDeepSeekParams();
         if (stream) data.put("stream", true);
-        if (model != null) data.put("model", model);
+        if (StringUtils.isNotBlank(model)) data.put("model", model);
 
         JSONArray ms = new JSONArray();
         for (Message message : messages) {
-            if (message.getError() == null) ms.add(message.toJSON());
+            if (message.getError() == null) ms.add(message.toAiJSON());
         }
         data.put("messages", ms);
         return data;

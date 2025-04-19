@@ -28,6 +28,8 @@ public class ChatRequest {
     @Getter
     private final ID chatid;
     @Getter
+    private final String model;
+    @Getter
     private final JSONObject reqJson;
 
     /**
@@ -36,6 +38,7 @@ public class ChatRequest {
     public ChatRequest(HttpServletRequest request) {
         String id = request.getParameter("chatid");
         this.chatid = ID.isId(id) ? ID.valueOf(id) : null;
+        this.model = request.getParameter("model");
         this.reqJson = (JSONObject) ServletUtils.getRequestJson(request);
     }
 

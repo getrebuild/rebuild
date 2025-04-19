@@ -82,7 +82,7 @@ class Chat extends React.Component {
       this._ChatMessages.appendMessage({
         role: 'assistant',
         sendResp: (onChunk) => {
-          fetchStream(`${rb.baseUrl}/aibot/post/chat-stream?chatid=${this.state.chatid || ''}`, data, onChunk, onDone)
+          fetchStream(`${rb.baseUrl}/aibot/post/chat-stream?chatid=${this.state.chatid || ''}&model=deepseek-reasoner&noload`, data, onChunk, onDone)
         },
       })
     }, 20)
@@ -226,7 +226,7 @@ class ChatMessages extends React.Component {
 class ChatMessage extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props, waitResp: !!props.sendResp }
+    this.state = { ...props, waitResp: props.sendResp ? 1 : 0 }
   }
 
   componentDidMount() {
@@ -234,26 +234,32 @@ class ChatMessage extends React.Component {
     sendResp &&
       sendResp((data) => {
         data = data || {}
-        if (data._chatid) {
-          const _Chat = this.props._ChatMessages.props._Chat
-          _Chat.setState({ chatid: data._chatid })
-          _Chat._ChatSidebar.setState({ current: data._chatid })
-          return
-        }
-
         if (data.error) {
           data.content = `<span class="text-danger">${data.error}</span>`
         }
 
+        if (data.type === '_chatid') {
+          const _Chat = this.props._ChatMessages.props._Chat
+          _Chat.setState({ chatid: data.content })
+          _Chat._ChatSidebar.setState({ current: data.content })
+          return
+        }
+
         if (data.content) {
-          data.content = (this.state.content || '') + data.content
-          this.setState({ ...data, waitResp: false })
+          if (data.type === '_reasoning') {
+            data.reasoning = (this.state.reasoning || '') + data.content
+            delete data.content
+            this.setState({ ...data, waitResp: 2 })
+          } else {
+            data.content = (this.state.content || '') + data.content
+            this.setState({ ...data, waitResp: 0 })
+          }
         }
       })
   }
 
   componentDidUpdate(props, prevState) {
-    if (prevState.content !== this.state.content) scrollToBottom()
+    if (prevState.content !== this.state.content || prevState.reasoning !== this.state.reasoning) scrollToBottom()
   }
 
   render() {
@@ -288,13 +294,13 @@ class ChatMessage extends React.Component {
           <img src={`${rb.baseUrl}/assets/img/icon-192x192.png`} alt="AI" />
         </div>
         <div className="msg-content">
-          {this.state.waitResp ? (
+          {this.state.waitResp == 1 && (
             <div className="wait-resp">
-              <i className="mdi-spin mdi mdi-loading fs-18" />
+              <i className="mdi-spin mdi mdi-loading fs-20" />
             </div>
-          ) : (
-            this.renderContent()
           )}
+          {this.state.reasoning && <div className="reasoning">{this.renderContent(this.state.reasoning)}</div>}
+          {this.renderContent(this.state.content)}
         </div>
       </div>
     )
@@ -313,8 +319,9 @@ class ChatMessage extends React.Component {
     )
   }
 
-  renderContent() {
-    let md = this.state.content
+  renderContent(content) {
+    const md = content || this.state.content
+    if (!md) return null
     return (
       <div className="msg-text">
         <span className="mdedit-content" dangerouslySetInnerHTML={{ __html: SimpleMDE.prototype.markdown(md) }}></span>

@@ -170,6 +170,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
   overflow: hidden;
 }
 
+.chat-message .msg-ai > .msg-content > .reasoning {
+  border-left: 2px solid #ccc;
+  padding-left: 10px;
+  margin-bottom: 10px;
+}
+
+.chat-message .msg-ai > .msg-content > .reasoning,
+.chat-message .msg-ai > .msg-content > .reasoning > * {
+  color: #666;
+}
+
 .chat-message .msg-error {
   width: 80%;
   margin: 0 auto;
@@ -223,6 +234,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   box-shadow: -5px 0 5px rgba(0, 0, 0, 0.1);
   display: none;
   padding: 16px 12px;
+  overflow: auto;
 }
 
 .chat-sidebar.show {
