@@ -11,9 +11,11 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.service.aibot.vector.ListFilterData;
 import com.rebuild.core.service.aibot.vector.RecordData;
 import com.rebuild.core.service.aibot.vector.VectorData;
 import com.rebuild.core.service.aibot.vector.VectorDataChunk;
+import com.rebuild.utils.JSONUtils;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -73,9 +75,13 @@ public class ChatRequest {
         VectorDataChunk vdc = new VectorDataChunk();
         for (int i = 0; i < attachs.size(); i++) {
             JSONObject a = attachs.getJSONObject(i);
+
             String record = a.getString("record");
+            String orListFilter = a.getString("listFilter");
             if (ID.isId(record)) {
                 vdc.addVectorData(new RecordData(ID.valueOf(record)));
+            } else if (JSONUtils.wellFormat(orListFilter)) {
+                vdc.addVectorData(new ListFilterData(JSONObject.parseObject(orListFilter)));
             }
         }
         return vdc;

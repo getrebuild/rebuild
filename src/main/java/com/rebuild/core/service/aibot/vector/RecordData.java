@@ -12,8 +12,11 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.general.FieldValueHelper;
+
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 /**
  * @author Zixin
@@ -37,9 +40,24 @@ public class RecordData implements VectorData {
             if (MetadataHelper.isSystemField(field)) continue;
 
             String label = EasyMetaFactory.getLabel(field);
-            Object value = FieldValueHelper.wrapFieldValue(r.getObjectValue(fieldName), field, true);
+            String value = clearedFieldValue(r.getObjectValue(fieldName), field);
             v.append(label).append(":").append(value).append("\n");
         }
         return v.toString();
+    }
+
+    /**
+     * @param value
+     * @param field
+     * @return
+     */
+    protected static String clearedFieldValue(Object value, Field field) {
+        DisplayType dt = EasyMetaFactory.getDisplayType(field);
+        if (dt == DisplayType.IMAGE || dt == DisplayType.FILE
+                || dt == DisplayType.SIGN || dt == DisplayType.BARCODE
+                || dt == DisplayType.AVATAR) return EMPTY;
+
+        Object o = FieldValueHelper.wrapFieldValue(value, field, true);
+        return o == null ? EMPTY : o.toString();
     }
 }

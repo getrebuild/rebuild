@@ -26,7 +26,7 @@ public class VectorDataChunk implements VectorData {
     public String toVector() {
         StringBuilder out = new StringBuilder();
         for (VectorData data : datas) {
-            out.append(data.toVector()).append("\n\n");
+            out.append(data.toVector()).append("\n");
         }
         return out.append('\n').toString();
     }

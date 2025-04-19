@@ -212,14 +212,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #abb2bf;
   white-space: pre;
   tab-size: 2;
-  font-size: 0.8rem;
+  font-size: 90%;
   max-width: 100%;
 }
 
 .chat-message .msg-content .mdedit-content pre,
 .chat-message .msg-content .mdedit-content code {
-  font-family: 'Courier New', monospace, Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei',
-    sans-serif;
+  font-family: 'Courier New', 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
 }
 
 /* ChatSidebar */

@@ -190,7 +190,14 @@ class ChatInput extends React.Component {
     RbHighbar.createl('暂不支持')
   }
   attachPageData() {
-    RbHighbar.createl('暂不支持')
+    if (typeof window.attachAibotPageData === 'function') {
+      window.attachAibotPageData((data) => {
+        const attach = [...this.state.attach, data]
+        this.setState({ attach })
+      })
+    } else {
+      RbHighbar.createl('当前页面暂无可使用数据')
+    }
   }
 }
 
@@ -385,51 +392,6 @@ function fetchStream(url, data, onChunk, onDone) {
     })
 }
 
-class Attach extends React.Component {
-  render() {
-    if (!this.state) return null
-    if (this.props._ChatInput) {
-      return (
-        <span>
-          {this.state.name}
-          <a className="close" onClick={() => this.props._ChatInput.removeAttach(this.props.id)}>
-            &times;
-          </a>
-        </span>
-      )
-    }
-    // View
-    return (
-      <a href={this.state.viewUrl || null} target={this.state.viewUrl ? '_blank' : '_self'}>
-        {this.state.name}
-      </a>
-    )
-  }
-
-  componentDidMount() {
-    const props = this.props
-    if (props.record) {
-      $.get(`/commons/search/read-labels?id=${props.record}`, (res) => {
-        const d = res.data || {}
-        this.setState({ name: `[${$L('记录')}] ${d[props.record]}`, viewUrl: `${rb.baseUrl}/app/redirect?id=${props.record}&type=newtab` })
-      })
-    } else if (props.listFilter) {
-      this.setState({ name: $L('列表数据') })
-    }
-  }
-
-  val() {
-    const props = this.props
-    if (props.record) {
-      return { record: props.record }
-    }
-    if (props.listFilter) {
-      return { listFilter: props.listFilter }
-    }
-    return null
-  }
-}
-
 // ~~
 
 class ChatSidebar extends React.Component {
@@ -535,6 +497,54 @@ class ChatSidebar extends React.Component {
   }
 }
 
+// ~~
+
+class Attach extends React.Component {
+  render() {
+    if (!this.state) return null
+    if (this.props._ChatInput) {
+      return (
+        <span>
+          {this.state.name}
+          <a className="close" onClick={() => this.props._ChatInput.removeAttach(this.props.id)}>
+            &times;
+          </a>
+        </span>
+      )
+    }
+    // View
+    return (
+      <a href={this.state.viewUrl || null} target={this.state.viewUrl ? '_blank' : '_self'}>
+        {this.state.name}
+      </a>
+    )
+  }
+
+  componentDidMount() {
+    const props = this.props
+    if (props.record) {
+      $.get(`/commons/search/read-labels?id=${props.record}`, (res) => {
+        const d = res.data || {}
+        this.setState({ name: `[${$L('记录')}] ${d[props.record]}`, viewUrl: `${rb.baseUrl}/app/redirect?id=${props.record}&type=newtab` })
+      })
+    } else if (props.listFilter) {
+      this.setState({ name: this.props.name || $L('列表数据') })
+    }
+  }
+
+  val() {
+    const props = this.props
+    if (props.record) {
+      return { record: props.record }
+    }
+    if (props.listFilter) {
+      return { listFilter: props.listFilter }
+    }
+    return null
+  }
+}
+
+// 选择记录
 class DlgAttachRecord extends RbAlert {
   renderContent() {
     return (
@@ -554,6 +564,44 @@ class DlgAttachRecord extends RbAlert {
 
   _onConfirm = () => {
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(this._AnyRecordSelector.val())
+    this.hide()
+  }
+}
+
+// 选择列表
+class DlgAttachRecordList extends RbAlert {
+  renderContent() {
+    return (
+      <div className="form ml-3 mr-3">
+        <div className="form-group">
+          <label className="text-bold">{$L('选择数据范围')}</label>
+          <div ref={(c) => (this._$select = c)}>
+            <label className="custom-control custom-control-sm custom-radio mb-2">
+              <input className="custom-control-input" name="dataRange" type="radio" value="2" defaultChecked />
+              <span className="custom-control-label">{$L('当前页的记录')}</span>
+            </label>
+            <label className="custom-control custom-control-sm custom-radio mb-2">
+              <input className="custom-control-input" name="dataRange" type="radio" value="3" />
+              <span className="custom-control-label">{$L('查询后的记录')}</span>
+            </label>
+            <label className="custom-control custom-control-sm custom-radio mb-1">
+              <input className="custom-control-input" name="dataRange" type="radio" value="10" />
+              <span className="custom-control-label">{$L('全部数据')}</span>
+            </label>
+          </div>
+        </div>
+        <div className="form-group mb-2">
+          <button type="button" className="btn btn-primary" onClick={this._onConfirm}>
+            {$L('确定')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  _onConfirm = () => {
+    const s = $(this._$select).find('input:checked').val()
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(s)
     this.hide()
   }
 }
