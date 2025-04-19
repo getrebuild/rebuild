@@ -174,6 +174,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-left: 2px solid #ccc;
   padding-left: 10px;
   margin-bottom: 10px;
+  font-size: 90%;
 }
 
 .chat-message .msg-ai > .msg-content > .reasoning,
