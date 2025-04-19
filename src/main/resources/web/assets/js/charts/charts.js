@@ -370,7 +370,7 @@ const ECHART_BASE = {
     show: false,
   },
   textStyle: {
-    fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
+    fontFamily: '"Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
   },
   color: COLOR_PALETTES[window.__LAB_CHARTCOLORS || 'x'] || RBCOLORS,
 }

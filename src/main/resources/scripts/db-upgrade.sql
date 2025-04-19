@@ -1,6 +1,18 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #62 (v4.1)
+-- ************ Entity [AibotChat] DDL ************
+create table if not exists `aibot_chat` (
+  `CHAT_ID`            char(20) not null,
+  `SUBJECT`            varchar(100) comment '主题',
+  `CONTENTS`           longtext comment '会话内容',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  primary key  (`CHAT_ID`),
+  index IX0_aibot_chat (`CREATED_BY`, `CREATED_ON`)
+)Engine=InnoDB;
+
 -- #61 (v4.0)
 alter table `meta_entity`
   change column `EXT_CONFIG` `EXT_CONFIG` varchar(2000) comment '扩展配置 (JSON Map)';

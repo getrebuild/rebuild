@@ -9,6 +9,7 @@ package com.rebuild.utils;
 
 import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.OnlyOffice;
 import com.rebuild.core.support.RebuildConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -47,7 +48,7 @@ public class PdfConverter {
         try {
             // v4.0
             if (TYPE_PDF.equalsIgnoreCase(type) && RebuildConfiguration.get(OnlyofficeServer) != null) {
-                return OnlyOfficeUtils.convertPdf(path);
+                return OnlyOffice.convertPdf(path);
             }
 
             return convert(path, type, true);

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.L('REBUILD AI 助手')}]]</title>
+    <style>
+      #chat-wrapper {
+        width: 1000px;
+        margin: 0 auto;
+        padding: 20px 0;
+      }
+      .aibot.modal {
+        display: block;
+        position: relative;
+        margin: 0 auto;
+        z-index: 1;
+      }
+      .aibot.modal .modal-content {
+        width: 100%;
+      }
+      .aibot.modal .modal-header .hide2 {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chat-wrapper">
+      <div class="rb-loading rb-loading-active" style="margin-top: 30%">
+        <th:block th:replace="~{/_include/spinner}" />
+      </div>
+    </div>
+    <div th:if="${pageFooter != null}" class="page-footer">[(${pageFooter})]</div>
+    <th:block th:replace="~{/_include/footer}" />
+    <th:block th:replace="~{/_include/forms}" />
+    <script th:src="@{/assets/js/aibot/chat-view.js}" type="text/babel"></script>
+  </body>
+</html>

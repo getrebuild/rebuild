@@ -17,6 +17,7 @@ public class RebuildException extends RuntimeException {
     private static final long serialVersionUID = -889444005870894361L;
 
     public RebuildException() {
+        super();
     }
 
     public RebuildException(String message) {
