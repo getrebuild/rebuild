@@ -310,7 +310,6 @@ window.attachAibotPageData = function (cb) {
   renderRbcomp(
     <DlgAttachRecordList
       onConfirm={(s) => {
-        debugger
         const qe = RbListPage._RbList.getLastQueryEntry()
         qe._dataRange = s
         typeof cb === 'function' && cb({ listFilter: qe, name })

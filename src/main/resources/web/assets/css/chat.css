@@ -123,6 +123,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-bottom: 16px;
 }
 
+.chat-message:empty {
+  display: none;
+}
+
 .chat-message .msg-user {
   text-align: right;
 }
@@ -233,12 +237,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-left: 1px solid #e3e3e3;
   box-shadow: -5px 0 5px rgba(0, 0, 0, 0.1);
   display: none;
-  padding: 16px 12px;
-  overflow: auto;
+  padding: 0;
 }
 
 .chat-sidebar.show {
   display: block;
+  display: flex;
+  flex-direction: column;
 }
 
 .chat-sidebar .chat-new a.btn {
@@ -256,31 +261,38 @@ See LICENSE and COMMERCIAL in the project root for license information.
   opacity: 1;
 }
 
-.chat-sidebar .chat-list {
-  margin: 0;
-  margin-top: 20px;
+.chat-sidebar .chat-new {
+  height: 68px;
+  padding: 16px 10px;
+  padding-bottom: 0;
 }
 
-.chat-sidebar .chat-list > li {
+.chat-sidebar .chat-list {
+  flex: 1;
+  overflow: auto;
+  padding: 0 10px;
+}
+
+.chat-sidebar .chat-list > ul > li {
   border-radius: 10px;
   cursor: pointer;
   position: relative;
 }
 
-.chat-sidebar .chat-list > li:hover {
+.chat-sidebar .chat-list > ul > li:hover {
   background-color: #eee;
 }
 
-.chat-sidebar .chat-list > li.active {
+.chat-sidebar .chat-list > ul > li.active {
   background-color: #ddd;
 }
 
-.chat-sidebar .chat-list > li > div {
+.chat-sidebar .chat-list > ul > li > div {
   padding: 8px 10px;
   padding-right: 24px;
 }
 
-.chat-sidebar .chat-list > li > span {
+.chat-sidebar .chat-list > ul > li > span {
   position: absolute;
   right: 0;
   top: 0;

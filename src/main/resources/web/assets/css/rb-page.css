@@ -1354,11 +1354,6 @@ a.link.link-icon::after {
   padding: 8px;
 }
 
-.editor-toolbar.fullscreen::before,
-.editor-toolbar.fullscreen::after {
-  display: none;
-}
-
 /* v35 */
 .form-layout.refform {
   display: block;
@@ -4326,6 +4321,7 @@ h3.modal-title > .rbv {
   border-top-right-radius: 2px;
   border-color: #d5d8de;
   opacity: 1;
+  padding-top: 0;
 }
 
 .editor-toolbar:hover {
@@ -4350,7 +4346,7 @@ h3.modal-title > .rbv {
 
 .CodeMirror,
 .CodeMirror-scroll {
-  min-height: 130px;
+  min-height: 130px !important;
 }
 
 .CodeMirror .cm-formatting {
@@ -5886,12 +5882,20 @@ div.formula-code {
   margin-bottom: 0;
 }
 
+.rbform-fjsalert:empty {
+  display: none;
+}
+
 .rbform-fjsalert .alert {
   margin-bottom: 10px;
 }
 
 .rbview-fjsalert {
   /* NOOP */
+}
+
+.rbform-fjsalert:empty .rbview-fjsalert:empty {
+  display: none;
 }
 
 .show-more-pill {
@@ -5960,4 +5964,16 @@ div.formula-code {
 .rb-navless40 .rb-wrapper > .rb-content > .page-aside {
   left: 0;
   margin: 0;
+}
+
+.EasyMDEContainer .editor-toolbar button {
+  width: 30px;
+  max-width: 30px;
+  font-size: 16px;
+  font-weight: normal;
+}
+
+.EasyMDEContainer .editor-toolbar.fullscreen::before,
+.EasyMDEContainer .editor-toolbar.fullscreen::after {
+  display: none;
 }

@@ -100,4 +100,10 @@ public class AiBotController extends BaseController {
         mv.getModelMap().put("pageFooter", Language.L("由 REBUILD AI 助手强力驱动"));
         return mv;
     }
+
+    @GetMapping("redirect")
+    public void chatRedirect(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String id = req.getParameter("id");
+        resp.sendRedirect("../");
+    }
 }

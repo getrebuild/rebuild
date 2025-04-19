@@ -28,6 +28,14 @@ class Chat extends React.Component {
 
   componentDidMount() {
     this.initChat(this.state.chatid)
+
+    $(this._$chat).on('click.chat-hide', (e) => {
+      const $e = $(e.target)
+      if ($e.hasClass('chat-sidebar') || $e.parents('.chat-sidebar')[0]);
+      else {
+        this.toggleSidebar(false)
+      }
+    })
   }
 
   componentDidUpdate(props, prevState) {
@@ -36,10 +44,14 @@ class Chat extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    $(this._$chat).off('click.chat-hide')
+  }
+
   initChat(chatid) {
     this.setState({ chatid: chatid || null })
     this._ChatMessages.setMessages([])
-    this._ChatInput.reset()
+    this._ChatInput.reset(true)
 
     $.get(`/aibot/post/chat-init?chatid=${chatid || ''}`, (res) => {
       if (res.error_code === 0) {
@@ -55,8 +67,8 @@ class Chat extends React.Component {
     })
   }
 
-  toggleSidebar() {
-    this._ChatSidebar.toggleShow()
+  toggleSidebar(showOrHide) {
+    this._ChatSidebar.toggleShow(showOrHide)
   }
 
   send(data) {
@@ -82,7 +94,7 @@ class Chat extends React.Component {
       this._ChatMessages.appendMessage({
         role: 'assistant',
         sendResp: (onChunk) => {
-          fetchStream(`${rb.baseUrl}/aibot/post/chat-stream?chatid=${this.state.chatid || ''}&model=deepseek-reasoner&noload`, data, onChunk, onDone)
+          fetchStream(`${rb.baseUrl}/aibot/post/chat-stream?chatid=${this.state.chatid || ''}&model=&noload`, data, onChunk, onDone)
         },
       })
     }, 20)
@@ -124,6 +136,8 @@ class ChatInput extends React.Component {
               onBlur={() => this.setState({ active: false })}
               onFocus={() => this.setState({ active: true })}
               placeholder={$L('输入问题')}
+              autoFocus
+              ref={(c) => (this._$textarea = c)}
             />
           </div>
           <div className="chat-input-action">
@@ -166,8 +180,10 @@ class ChatInput extends React.Component {
     this.setState({ postState: 1 })
   }
 
-  reset() {
-    this.setState({ content: '', attach: [], postState: 0 })
+  reset(autoFocus) {
+    this.setState({ content: '', attach: [], postState: 0 }, () => {
+      if (autoFocus) this._$textarea.focus()
+    })
   }
 
   removeAttach(id) {
@@ -180,7 +196,7 @@ class ChatInput extends React.Component {
       <DlgAttachRecord
         zIndex="1050"
         onConfirm={(v) => {
-          const attach = [...this.state.attach, { record: v, id: $random('attach-') }]
+          const attach = [...this.state.attach, { record: v, id: $random('attach-', true) }]
           this.setState({ attach })
         }}
       />
@@ -192,7 +208,7 @@ class ChatInput extends React.Component {
   attachPageData() {
     if (typeof window.attachAibotPageData === 'function') {
       window.attachAibotPageData((data) => {
-        const attach = [...this.state.attach, data]
+        const attach = [...this.state.attach, { ...data, id: $random('attach-', true) }]
         this.setState({ attach })
       })
     } else {
@@ -285,8 +301,8 @@ class ChatMessage extends React.Component {
         <div className="msg-content">{this.renderContent()}</div>
         {this.state.attach && (
           <div className="msg-attach">
-            {this.state.attach.map((item) => {
-              return <Attach {...item} />
+            {this.state.attach.map((item, idx) => {
+              return <Attach {...item} _chatid={this.props._chatid} key={idx} />
             })}
           </div>
         )}
@@ -331,7 +347,7 @@ class ChatMessage extends React.Component {
     if (!md) return null
     return (
       <div className="msg-text">
-        <span className="mdedit-content" dangerouslySetInnerHTML={{ __html: SimpleMDE.prototype.markdown(md) }}></span>
+        <span className="mdedit-content" dangerouslySetInnerHTML={{ __html: marked.parse(md) }}></span>
       </div>
     )
   }
@@ -440,40 +456,42 @@ class ChatSidebar extends React.Component {
             {$L('新对话')}
           </a>
         </div>
-        <ul className="chat-list list-unstyled">
-          {this.state.list.map((item) => {
-            return (
-              <li key={item.chatid} className={this.state.current === item.chatid ? 'active' : ''}>
-                <div
-                  className="text-ellipsis"
-                  title={item.subject}
-                  onClick={() => {
-                    this.props._Chat.initChat(item.chatid)
-                    this.toggleShow(false)
-                    this.setState({ current: item.chatid })
-                  }}>
-                  {item.subject}
-                </div>
-                <span>
-                  <a data-toggle="dropdown">
-                    <i className="icon zmdi zmdi-more fs-18" />
-                  </a>
-                  <div className="dropdown-menu dropdown-menu-right">
-                    <a className="dropdown-item" onClick={() => this.handleDelete(item)}>
-                      {$L('删除')}
-                    </a>
-                    <a className="dropdown-item" onClick={() => this.handleRename(item)}>
-                      {$L('重命名')}
-                    </a>
-                    <a className="dropdown-item" href={`${rb.baseUrl}/aibot/chat#chatid=${item.chatid}`} target="_blank">
-                      {$L('新窗口打开')}
-                    </a>
+        <div className="chat-list">
+          <ul className="list-unstyled m-0">
+            {this.state.list.map((item) => {
+              return (
+                <li key={item.chatid} className={this.state.current === item.chatid ? 'active' : ''}>
+                  <div
+                    className="text-ellipsis"
+                    title={item.subject}
+                    onClick={() => {
+                      this.props._Chat.initChat(item.chatid)
+                      // this.toggleShow(false)
+                      this.setState({ current: item.chatid })
+                    }}>
+                    {item.subject}
                   </div>
-                </span>
-              </li>
-            )
-          })}
-        </ul>
+                  <span>
+                    <a data-toggle="dropdown">
+                      <i className="icon zmdi zmdi-more fs-18" />
+                    </a>
+                    <div className="dropdown-menu dropdown-menu-right">
+                      <a className="dropdown-item" onClick={() => this.handleDelete(item)}>
+                        {$L('删除')}
+                      </a>
+                      <a className="dropdown-item" onClick={() => this.handleRename(item)}>
+                        {$L('重命名')}
+                      </a>
+                      <a className="dropdown-item" href={`${rb.baseUrl}/aibot/chat#chatid=${item.chatid}`} target="_blank">
+                        {$L('新窗口打开')}
+                      </a>
+                    </div>
+                  </span>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
       </div>
     )
   }
@@ -514,7 +532,7 @@ class Attach extends React.Component {
     }
     // View
     return (
-      <a href={this.state.viewUrl || null} target={this.state.viewUrl ? '_blank' : '_self'}>
+      <a href={`${rb.baseUrl}/aibot/redirect?id=${this.props._chatid}:${this.props.id}`} target={'_blank'}>
         {this.state.name}
       </a>
     )
@@ -525,20 +543,21 @@ class Attach extends React.Component {
     if (props.record) {
       $.get(`/commons/search/read-labels?id=${props.record}`, (res) => {
         const d = res.data || {}
-        this.setState({ name: `[${$L('记录')}] ${d[props.record]}`, viewUrl: `${rb.baseUrl}/app/redirect?id=${props.record}&type=newtab` })
+        this.setState({ name: `[${$L('记录')}] ${d[props.record]}` })
       })
     } else if (props.listFilter) {
-      this.setState({ name: this.props.name || $L('列表数据') })
+      this.setState({ name: props.name || $L('列表数据') })
     }
   }
 
   val() {
     const props = this.props
+    let res = { id: props.id }
     if (props.record) {
-      return { record: props.record }
+      return { ...res, record: props.record }
     }
     if (props.listFilter) {
-      return { listFilter: props.listFilter }
+      return { ...res, listFilter: props.listFilter }
     }
     return null
   }
