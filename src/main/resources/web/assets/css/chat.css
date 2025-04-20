@@ -229,21 +229,21 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chat-sidebar {
   position: fixed;
-  right: 0;
   bottom: 0;
   top: 52px;
   width: 230px;
+  right: -240px;
   background-color: #f5f5f5;
   border-left: 1px solid #e3e3e3;
-  box-shadow: -5px 0 5px rgba(0, 0, 0, 0.1);
-  display: none;
+  box-shadow: -4px 0 4px rgba(0, 0, 0, 0.1);
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  transition: right 0.2s;
 }
 
 .chat-sidebar.show {
-  display: block;
-  display: flex;
-  flex-direction: column;
+  right: 0;
 }
 
 .chat-sidebar .chat-new a.btn {
@@ -280,11 +280,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chat-sidebar .chat-list > ul > li:hover {
-  background-color: #eee;
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
 .chat-sidebar .chat-list > ul > li.active {
-  background-color: #ddd;
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .chat-sidebar .chat-list > ul > li > div {
@@ -333,7 +333,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin: 0 auto;
   box-shadow: none !important;
   max-width: 100%;
-  width: 760px;
+  width: 768px;
   height: 100%;
 }
 
@@ -364,11 +364,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #fff;
 }
 
+.ai-color,
 .aibot-icon::before,
 .aibot-show .icon::before {
   background: linear-gradient(90deg, #fe5281, #a928bf, #474efe);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  font-weight: bold;
+  transition: all 0.4s;
 }

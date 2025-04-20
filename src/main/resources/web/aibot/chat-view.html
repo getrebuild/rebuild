@@ -2,24 +2,36 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('REBUILD AI 助手')}]]</title>
+    <meta name="viewport" content="minimal-ui,width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>[[${bundle.L('AI 助手')}]]</title>
     <style>
       #chat-wrapper {
-        width: 1000px;
+        min-width: 360px;
+        max-width: 1000px;
         margin: 0 auto;
         padding: 20px 0;
       }
       .aibot.modal {
-        display: block;
         position: relative;
         margin: 0 auto;
         z-index: 1;
+        bottom: unset;
+        right: unset;
       }
       .aibot.modal .modal-content {
         width: 100%;
       }
       .aibot.modal .modal-header .hide2 {
         display: none;
+      }
+      @media (max-width: 767.98px) {
+        #chat-wrapper {
+          padding: 0;
+        }
+        .aibot.modal,
+        .aibot.modal .modal-header {
+          border-radius: 0;
+        }
       }
     </style>
   </head>
@@ -29,7 +41,9 @@
         <th:block th:replace="~{/_include/spinner}" />
       </div>
     </div>
-    <div th:if="${pageFooter != null}" class="page-footer">[(${pageFooter})]</div>
+    <div th:if="${pageFooter != null}" class="page-footer">
+      <a class="ai-color link" href="https://getrebuild.com/docs/topic/aibot">[(${pageFooter})]</a>
+    </div>
     <th:block th:replace="~{/_include/footer}" />
     <th:block th:replace="~{/_include/forms}" />
     <script th:src="@{/assets/js/aibot/chat-view.js}" type="text/babel"></script>

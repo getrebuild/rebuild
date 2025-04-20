@@ -4553,7 +4553,7 @@ html.external-auth .auth-body.must-center .login {
   left: 0;
   width: 100%;
   z-index: 10;
-  padding: 8px;
+  padding: 10px;
   text-align: center;
   background-color: #eee;
   background-color: rgba(255, 255, 255, 0.15);
