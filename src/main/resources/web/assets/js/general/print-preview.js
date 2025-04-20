@@ -173,7 +173,8 @@ class PreviewTable extends React.Component {
       )
     } else if (item.type === 'NTEXT') {
       if (item.useMdedit) {
-        const md2html = marked.parse(item.value)
+        // eslint-disable-next-line no-undef
+        const md2html = SimpleMDE.prototype.markdown(item.value)
         return <div className="mdedit-content" dangerouslySetInnerHTML={{ __html: md2html }} />
       } else {
         return (

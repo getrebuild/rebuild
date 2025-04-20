@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.support;
+package com.rebuild.utils;
 
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.EncryptUtils;
@@ -15,10 +15,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.RebuildException;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
-import com.rebuild.utils.CommonsUtils;
-import com.rebuild.utils.OkHttpUtils;
-import com.rebuild.utils.PdfConverterException;
 import com.rebuild.web.admin.ConfigurationController;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
@@ -37,7 +36,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * @author devezhao
  * @since 2025/2/26
  */
-public class OnlyOffice {
+public class OnlyOfficeUtils {
 
     /**
      * OnlyOffice PDF
@@ -95,7 +94,6 @@ public class OnlyOffice {
      * @return
      */
     public static Object[] buildPreviewParams(String filepath) {
-        getOoServer();
         final String ooJwt = RebuildConfiguration.get(OnlyofficeJwt);
 
         final String filepathDecode = CodecUtils.urlDecode(filepath);
@@ -142,7 +140,8 @@ public class OnlyOffice {
      */
     public static boolean isUseOoPreview() {
         if (RebuildConfiguration.get(OnlyofficeServer) == null) return false;
-        String o = RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl);
-        return o == null || o.contains(ConfigurationController.OO_PREVIEW_URL);
+        return StringUtils.contains(
+                RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl),
+                ConfigurationController.OO_PREVIEW_URL);
     }
 }

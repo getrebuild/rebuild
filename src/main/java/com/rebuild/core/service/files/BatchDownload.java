@@ -7,11 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.files;
 
-import cn.devezhao.commons.CalendarUtils;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.task.HeavyTask;
-import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.CompressUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -38,12 +36,10 @@ public class BatchDownload extends HeavyTask<File> {
 
     @Override
     protected File exec() throws Exception {
-        final String tmpName = String.format("RBZIP-%s-%s",
-                CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()), CommonsUtils.randomHex().split("-")[0]);
-        File tmp = RebuildConfiguration.getFileOfTemp(tmpName);
+        File tmp = RebuildConfiguration.getFileOfTemp(String.format("RBFILES-%d", System.currentTimeMillis()));
         FileUtils.forceMkdir(tmp);
 
-        File tmpZip = RebuildConfiguration.getFileOfTemp(tmpName + ".zip");
+        File tmpZip = RebuildConfiguration.getFileOfTemp(tmp.getName() + ".zip");
 
         for (String path : files) {
             if (StringUtils.isBlank(path)) continue;
@@ -59,7 +55,7 @@ public class BatchDownload extends HeavyTask<File> {
                 }
 
             } catch (IOException ex) {
-                log.error("Cannot read source file. ignored : {}", path, ex);
+                log.error("Cannot read source file : {}", path, ex);
             }
         }
 

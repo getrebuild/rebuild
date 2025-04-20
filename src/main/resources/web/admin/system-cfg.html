@@ -270,23 +270,6 @@
                       </tr>
                     </tbody>
                   </table>
-                  <h5>[[${bundle.L('文档预览')}]]</h5>
-                  <table class="table">
-                    <tbody>
-                      <tr>
-                        <td width="40%">[[${bundle.L('ONLYOFFICE 服务地址')}]]</td>
-                        <td th:data-id="OnlyofficeServer" th:data-value="${OnlyofficeServer}" data-optional="true">[[${OnlyofficeServer ?:bundle.L('无')}]]</td>
-                      </tr>
-                      <tr>
-                        <td>ONLYOFFICE JWT</td>
-                        <td th:data-id="OnlyofficeJwt" th:data-value="${OnlyofficeJwt}" data-optional="true">[[${OnlyofficeJwt ?:bundle.L('无')}]]</td>
-                      </tr>
-                      <tr>
-                        <td>[[${bundle.L('文档预览服务地址')}]]</td>
-                        <td th:data-id="PortalOfficePreviewUrl" th:data-value="${PortalOfficePreviewUrl}" data-optional="true">[[${PortalOfficePreviewUrl ?:bundle.L('默认')}]]</td>
-                      </tr>
-                    </tbody>
-                  </table>
                   <h5>[[${bundle.L('其他')}]]</h5>
                   <table class="table">
                     <tbody>
@@ -297,6 +280,12 @@
                       <tr>
                         <td>[[${bundle.L('文件上传大小限制')}]]</td>
                         <td data-id="PortalUploadMaxSize" th:data-value="${PortalUploadMaxSize}" data-optional="true">[[${PortalUploadMaxSize}]] MB</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('文档预览服务地址')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 1 ? 'PortalOfficePreviewUrl' : ''}" th:data-value="${PortalOfficePreviewUrl}" data-optional="true">
+                          [[${PortalOfficePreviewUrl ?:bundle.L('默认')}]]
+                        </td>
                       </tr>
                       <tr class="bosskey-show">
                         <td>[[${bundle.L('百度地图 AK')}]] <sup class="rbv"></sup></td>

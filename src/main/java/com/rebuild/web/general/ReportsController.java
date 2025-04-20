@@ -32,13 +32,13 @@ import com.rebuild.core.service.datareport.TemplateFile;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.KVStorage;
-import com.rebuild.core.support.OnlyOffice;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.OnlyOfficeUtils;
 import com.rebuild.utils.PdfConverter;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
@@ -178,7 +178,7 @@ public class ReportsController extends BaseController {
             // 直接预览
             boolean forcePreview = isHtml || getBoolParameter(request, "preview");
             if (!forcePreview) {
-                if (isPdf && !OnlyOffice.isUseOoPreview()) forcePreview = true;
+                if (isPdf && !OnlyOfficeUtils.isUseOoPreview()) forcePreview = true;
             }
             FileDownloader.downloadTempFile(response, output, fileName, forcePreview);
         }

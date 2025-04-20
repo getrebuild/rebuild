@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.rbstore;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.ConfigurationItem;
@@ -42,7 +43,7 @@ public class RBStore {
     /**
      * for Metaschema
      *
-     * @param fileUri
+     * @param fileUri default use index.json
      * @return
      */
     public static JSON fetchMetaschema(String fileUri) {
@@ -51,46 +52,27 @@ public class RBStore {
     }
 
     /**
-     * for AiBot
+     * 远程读取 JSON 文件
      *
-     * @param fileUri
-     * @return
-     */
-    public static Object fetchPrompt(String fileUri) {
-        String content = fetchRemoteFile("prompts/" +
-                StringUtils.defaultIfBlank(fileUri, "index.json"));
-        if (JSONUtils.wellFormat(content)) return JSON.parse(content);
-        return content;
-    }
-
-    /**
      * @param fileUrl
      * @return
-     * @throws RebuildException
+     * @throws RebuildException 如果读取失败
      */
     public static JSON fetchRemoteJson(String fileUrl) throws RebuildException {
-        String content = fetchRemoteFile(fileUrl);
-        if (JSONUtils.wellFormat(content)) {
-            return (JSON) JSON.parse(content);
-        }
-        throw new RebuildException("Unable to read data from RB-Store");
-    }
-
-    /**
-     * @param fileUrl
-     * @return
-     * @throws RebuildException
-     */
-    protected static String fetchRemoteFile(String fileUrl) throws RebuildException {
         if (!fileUrl.startsWith("http")) {
             fileUrl = DATA_REPO + (fileUrl.startsWith("/") ? fileUrl.substring(1) : fileUrl);
         }
 
         try {
-            return OkHttpUtils.get(fileUrl);
+            String content = OkHttpUtils.get(fileUrl);
+            if (JSONUtils.wellFormat(content)) {
+                return (JSON) JSON.parse(content, Feature.OrderedField);
+            }
+
         } catch (Exception e) {
             log.error("Unable to read data from URL : {}", fileUrl, e);
         }
+
         throw new RebuildException("Unable to read data from RB-Store");
     }
 }

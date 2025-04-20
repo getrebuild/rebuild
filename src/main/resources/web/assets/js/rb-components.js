@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* eslint-disable no-unused-vars */
-/* global EasyMDE */
+/* global SimpleMDE */
 
 // ~~ Modal 兼容子元素和 iFrame
 class RbModal extends React.Component {
@@ -1030,48 +1030,48 @@ class AnyRecordSelector extends RecordSelector {
   }
 }
 
-// ~~ 默认 EasyMDE 工具栏
+// ~~ 默认 SimpleMDE 工具栏
 const DEFAULT_MDE_TOOLBAR = (c) => {
   return [
     {
       name: 'bold',
-      action: EasyMDE.toggleBold,
+      action: SimpleMDE.toggleBold,
       className: 'zmdi zmdi-format-bold',
       title: $L('粗体'),
     },
     {
       name: 'italic',
-      action: EasyMDE.toggleItalic,
+      action: SimpleMDE.toggleItalic,
       className: 'zmdi zmdi-format-italic',
       title: $L('斜体'),
     },
     {
       name: 'strikethrough',
-      action: EasyMDE.toggleStrikethrough,
+      action: SimpleMDE.toggleStrikethrough,
       className: 'zmdi zmdi-format-strikethrough',
       title: $L('删除线'),
     },
     {
       name: 'heading',
-      action: EasyMDE.toggleHeadingSmaller,
+      action: SimpleMDE.toggleHeadingSmaller,
       className: 'zmdi zmdi-format-size',
       title: $L('标题'),
     },
     {
       name: 'unordered-list',
-      action: EasyMDE.toggleUnorderedList,
+      action: SimpleMDE.toggleUnorderedList,
       className: 'zmdi zmdi-format-list-bulleted',
       title: $L('列表'),
     },
     {
       name: 'ordered-list',
-      action: EasyMDE.toggleOrderedList,
+      action: SimpleMDE.toggleOrderedList,
       className: 'zmdi zmdi-format-list-numbered',
       title: $L('数字列表'),
     },
     {
       name: 'link',
-      action: EasyMDE.drawLink,
+      action: SimpleMDE.drawLink,
       className: 'zmdi zmdi-link',
       title: $L('链接'),
     },
@@ -1083,20 +1083,20 @@ const DEFAULT_MDE_TOOLBAR = (c) => {
     },
     {
       name: 'table',
-      action: EasyMDE.drawTable,
+      action: SimpleMDE.drawTable,
       className: 'zmdi zmdi-border-all',
       title: $L('表格'),
     },
     '|',
     {
       name: 'preview',
-      action: EasyMDE.togglePreview,
+      action: SimpleMDE.togglePreview,
       className: 'zmdi zmdi-eye no-disable',
       title: $L('预览'),
     },
     {
       name: 'fullscreen',
-      action: EasyMDE.toggleFullScreen,
+      action: SimpleMDE.toggleFullScreen,
       className: 'zmdi zmdi-fullscreen no-disable',
       title: $L('全屏'),
     },
@@ -1129,7 +1129,7 @@ class Md2Html extends React.Component {
       md = md.replace(/>/g, '&gt;').replace(/</g, '&lt;')
       md = md.replace(/&gt; /g, '> ')
     }
-    let cHtml = marked.parse(md)
+    let cHtml = SimpleMDE.prototype.markdown(md)
     cHtml = cHtml.replace(/<img src="([^"]+)"/g, function (s, src) {
       let srcNew = src + (src.includes('?') ? '&' : '?') + 'imageView2/2/w/1000/interlace/1/q/100'
       return s.replace(src, srcNew)
