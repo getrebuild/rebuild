@@ -881,6 +881,30 @@ create table if not exists `commons_log` (
   index IX0_commons_log (`TYPE`, `LOG_TIME`, `SOURCE`)
 )Engine=InnoDB;
 
+-- ************ Entity [AibotChat] DDL ************
+create table if not exists `aibot_chat` (
+  `CHAT_ID`            char(20) not null,
+  `SUBJECT`            varchar(100) comment '主题',
+  `CONTENTS`           longtext comment '会话内容',
+  `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  primary key  (`CHAT_ID`),
+  index IX0_aibot_chat (`CREATED_BY`, `MODIFIED_ON`, `CREATED_ON`)
+)Engine=InnoDB;
+
+-- ************ Entity [AibotChatAttach] DDL ************
+create table if not exists `aibot_chat_attach` (
+  `ATTACH_ID`          char(20) not null,
+  `CHAT_ID`            char(20) not null,
+  `CONTENT`            varchar(600) comment '附件内容',
+  `VECTOR_DATA`        longtext comment '向量数据',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  primary key  (`ATTACH_ID`),
+  index IX0_aibot_chat_attach (`CHAT_ID`, `CREATED_ON`, `CREATED_BY`)
+)Engine=InnoDB;
 
 -- #3 datas
 
@@ -940,4 +964,4 @@ insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NU
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 61);
+  values ('021-9000000000000001', 'DBVer', 62);

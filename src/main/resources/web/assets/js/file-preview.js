@@ -275,7 +275,6 @@ class RbPreview extends React.Component {
 
   componentWillUnmount() {
     if (!this.__modalOpen) $(document.body).removeClass('modal-open')
-
     $(document).off('keyup.esc-hide mousewheel.image-zoom')
   }
 

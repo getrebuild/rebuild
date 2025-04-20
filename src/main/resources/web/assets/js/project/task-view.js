@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global autosize, SimpleMDE, Md2Html */
+/* global autosize, EasyMDE, Md2Html */
 
 const wpc = window.__PageConfig
 
@@ -463,13 +463,11 @@ class ValueDescription extends ValueComp {
   }
 
   _destroyMde() {
-    if (this._SimpleMDE) {
+    if (this._EasyMDE) {
       try {
-        this._SimpleMDE.toTextArea()
-      } catch (err) {
-        // Nothings
-      }
-      this._SimpleMDE = null
+        this._EasyMDE.toTextArea()
+      } catch (ignored) {}
+      this._EasyMDE = null
       $('.CodeMirror-wrap').remove()
     }
   }
@@ -479,7 +477,7 @@ class ValueDescription extends ValueComp {
 
     this.setState({ editMode: editMode }, () => {
       if (this.state.editMode) {
-        const mde = new SimpleMDE({
+        const mde = new EasyMDE({
           element: this._$editor,
           status: false,
           autoDownloadFontAwesome: false,
@@ -487,7 +485,7 @@ class ValueDescription extends ValueComp {
           // eslint-disable-next-line no-undef
           toolbar: DEFAULT_MDE_TOOLBAR(this),
         })
-        this._SimpleMDE = mde
+        this._EasyMDE = mde
 
         $createUploader(this._fieldValue__upload, null, (res) => {
           const pos = mde.codemirror.getCursor()
@@ -511,7 +509,7 @@ class ValueDescription extends ValueComp {
   }
 
   handleChange() {
-    const value = this._SimpleMDE.value()
+    const value = this._EasyMDE.value()
     super.handleChange({ target: { name: 'description', value: value } }, () => {
       this.setState({ description: value, editMode: false })
       this._destroyMde()
