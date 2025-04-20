@@ -200,6 +200,11 @@ $(function () {
       console.log('Switch on visibilityState ...', $.cookie('AppHome.Nav'), $.cookie('AppHome.Dash'))
     }
   }
+
+  // AI
+  $('.aibot-show a').on('click', function () {
+    window.AiBot && window.AiBot.init({ chatid: $storage.get('__LastChatId') }, true)
+  })
 })
 $(window).on('load', () => {
   if (window.__LAB_COMMERCIAL11_NORB) {
