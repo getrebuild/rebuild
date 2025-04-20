@@ -540,11 +540,14 @@ class Attach extends React.Component {
       )
     }
     // View
-    return (
-      <a href={`${rb.baseUrl}/aibot/redirect?id=${this.props._chatid}:${this.props.id}`} target={'_blank'}>
-        {this.state.name}
-      </a>
-    )
+    if (this.state.viewUrl) {
+      return (
+        <a href={`${rb.baseUrl}/aibot/redirect?id=${this.props._chatid}:${this.props.id}`} target={'_blank'}>
+          {this.state.name}
+        </a>
+      )
+    }
+    return <a>{this.state.name}</a>
   }
 
   componentDidMount() {
@@ -552,7 +555,7 @@ class Attach extends React.Component {
     if (props.record) {
       $.get(`/commons/search/read-labels?id=${props.record}`, (res) => {
         const d = res.data || {}
-        this.setState({ name: `[${$L('记录')}] ${d[props.record]}` })
+        this.setState({ name: `[${$L('记录')}] ${d[props.record]}`, viewUrl: `${rb.baseUrl}/app/redirect?id=${props.record}&type=newtab` })
       })
     } else if (props.listFilter) {
       this.setState({ name: props.name || $L('列表数据') })

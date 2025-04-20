@@ -148,7 +148,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-top: 5px;
 }
 
-.chat-message .msg-user > .msg-attach > a:hover {
+.chat-message .msg-user > .msg-attach > a[href]:hover {
   color: var(--rb-theme-color);
 }
 
@@ -198,7 +198,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 /* MD */
 
-.chat-message .msg-content .mdedit-content *:last-child {
+.chat-message .msg-user .msg-content .mdedit-content *:last-child {
   margin-bottom: 0;
 }
 

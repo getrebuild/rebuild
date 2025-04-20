@@ -203,7 +203,7 @@ $(function () {
 
   // AI
   $('.aibot-show a').on('click', function () {
-    window.AiBot && window.AiBot.init({ chatid: $storage.get('__LastChatId') })
+    window.AiBot && window.AiBot.init({ chatid: $storage.get('__LastChatId') }, true)
   })
 })
 $(window).on('load', () => {

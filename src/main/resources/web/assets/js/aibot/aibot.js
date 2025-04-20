@@ -60,9 +60,14 @@ class AiBot extends React.Component {
 
   // --
 
-  static init(props) {
+  static init(props, toggleShow) {
     if (window._AiBot) {
-      window._AiBot.show()
+      if (toggleShow) {
+        if (window._AiBot.state.hide) window._AiBot.show()
+        else window._AiBot.hide()
+      } else {
+        window._AiBot.show()
+      }
     } else {
       renderRbcomp(<AiBot {...props} />, function () {
         window._AiBot = this
