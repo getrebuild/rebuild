@@ -954,6 +954,7 @@ class RecordSelector extends React.Component {
 // ~~ 任意记录选择器
 class AnyRecordSelector extends RecordSelector {
   render() {
+    const ae = this.props.allowEntities || []
     return (
       <div className="row">
         <div className="col-4 pr-0">
@@ -977,10 +978,12 @@ class AnyRecordSelector extends RecordSelector {
     super.componentDidMount()
 
     $.get('/commons/metadata/entities?detail=true', (res) => {
-      const _entities = res.data || []
-      if (_entities.length === 0) $(this._$select).attr('disabled', true)
+      let entities = res.data || []
+      if (this.props.allowEntities && this.props.allowEntities.length > 0) {
+        entities = entities.filter((item) => this.props.allowEntities.includes(item.name))
+      }
 
-      this.setState({ entities: _entities }, () => {
+      this.setState({ entities }, () => {
         const s2entity = $(this._$entity)
           .select2({
             placeholder: $L('无可用实体'),
@@ -999,8 +1002,8 @@ class AnyRecordSelector extends RecordSelector {
           })
         this.__select2Entity = s2entity
         // init
-        if (_entities.length > 0) {
-          $(this._$entity).val(_entities[0].name).trigger('change')
+        if (entities.length > 0) {
+          $(this._$entity).val(entities[0].name).trigger('change')
         }
 
         // 编辑时
@@ -1027,6 +1030,40 @@ class AnyRecordSelector extends RecordSelector {
   componentWillUnmount() {
     super.componentWillUnmount()
     this.__select2Entity && this.__select2Entity.select2('destroy')
+  }
+}
+
+// ~~ 选择记录
+class RecordSelectorModal extends RbAlert {
+  renderContent() {
+    return (
+      <div className="form ml-3 mr-3">
+        <div className="form-group">
+          <label className="text-bold">{this.props.title || $L('选择记录')}</label>
+          <AnyRecordSelector ref={(c) => (this._AnyRecordSelector = c)} allowEntities={this.props.allowEntities} />
+        </div>
+        <div className="form-group mb-2">
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => {
+              typeof this.props.onConfirm === 'function' && this.props.onConfirm(this._AnyRecordSelector.val())
+              this.hide()
+            }}>
+            {$L('确定')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // -- Usage
+
+  /**
+   * @param {*} props
+   */
+  static create(props) {
+    renderRbcomp(<RecordSelectorModal {...props} zIndex="1050" />)
   }
 }
 

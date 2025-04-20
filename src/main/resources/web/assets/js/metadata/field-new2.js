@@ -41,7 +41,7 @@ class FieldNew2 extends RbModalHandler {
                 </select>
               </div>
             </div>
-            <div className={`form-group row ${this.state.fieldType === 'REFERENCE' || this.state.fieldType === 'N2NREFERENCE' ? '' : 'hide'}`}>
+            <div className={`form-group row ${['REFERENCE', 'N2NREFERENCE', 'ANYREFERENCE'].includes(this.state.fieldType) ? '' : 'hide'}`}>
               <label className="col-sm-3 col-form-label text-sm-right">{$L('选择引用实体')}</label>
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._$refEntity = c)}>

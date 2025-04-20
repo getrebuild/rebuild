@@ -10,7 +10,7 @@ const wpc = window.__PageConfig
 const __gExtConfig = {}
 
 const SHOW_REPEATABLE = ['TEXT', 'DATE', 'EMAIL', 'URL', 'PHONE', 'REFERENCE', 'CLASSIFICATION', 'ANYREFERENCE', 'PICKLIST']
-const SHOW_DEFAULTVALUE = ['TEXT', 'NTEXT', 'EMAIL', 'PHONE', 'URL', 'NUMBER', 'DECIMAL', 'DATETIME', 'DATE', 'TIME', 'BOOL', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE']
+const SHOW_DEFAULTVALUE = ['TEXT', 'NTEXT', 'EMAIL', 'PHONE', 'URL', 'NUMBER', 'DECIMAL', 'DATETIME', 'DATE', 'TIME', 'BOOL', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE', 'ANYREFERENCE']
 const SHOW_ADVDESENSITIZED = ['TEXT', 'PHONE', 'EMAIL', 'NUMBER', 'DECIMAL']
 const SHOW_ADVPATTERN = ['TEXT']
 const SHOW_SCANCODE = ['TEXT', 'REFERENCE']
@@ -83,7 +83,7 @@ $(document).ready(function () {
 
     // 默认值
     let dv = $val('.J_defaultValue')
-    if (dt === 'CLASSIFICATION' || dt === 'REFERENCE' || dt === 'N2NREFERENCE') {
+    if (dt === 'CLASSIFICATION' || dt === 'REFERENCE' || dt === 'N2NREFERENCE' || dt === 'ANYREFERENCE') {
       dv = $('.J_defaultValue').attr('data-value-id') || ''
       const odv = $('.J_defaultValue').attr('data-o') || ''
       if (dv === odv) dv = null
@@ -552,52 +552,13 @@ const _handleReference = function (isN2N) {
     }
   })
 
-  // 默认值
-  const $dv = $('.J_defaultValue')
-  const $dvClear = $('.J_defaultValue-clear').on('click', () => {
-    $dv.attr('data-value-id', '').val('')
-    $dvClear.addClass('hide')
-  })
-
-  let _ReferenceSearcher
-  function _showSearcher() {
-    if (_ReferenceSearcher) {
-      _ReferenceSearcher.show()
-    } else {
-      const searchUrl = `${rb.baseUrl}/app/entity/reference-search?field=${wpc.fieldName}.${wpc.entityName}`
-      // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('选择默认值')} useWhite />, function () {
-        _ReferenceSearcher = this
-      })
-    }
-  }
-
-  const $append = $(`<button class="btn btn-secondary" type="button" title="${$L('选择默认值')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo('.J_defaultValue-append')
-  $dv.attr('readonly', true)
-  $append.on('click', () => _showSearcher())
-
-  window.referenceSearch__call = function (selected) {
-    let val
-    if (isN2N) {
-      let keepVal = $dv.attr('data-value-id')
-      if (keepVal) keepVal = keepVal.split(',')
-      else keepVal = []
-
-      selected.forEach((s) => {
-        if (!keepVal.contains(s)) keepVal.push(s)
-      })
-      val = keepVal.slice(0, 20).join(',')
-    } else {
-      val = selected[0]
-    }
-
-    $dv.attr('data-value-id', val).val(val)
-    _loadRefsLabel($dv, $dvClear)
-    _ReferenceSearcher.hide()
-  }
+  _initRefsDefaultValue([referenceEntity], isN2N)
 
   // Bizz
   if (['User', 'Department', 'Team'].includes(referenceEntity)) {
+    const $dv = $('.J_defaultValue')
+    const $dvClear = $('.J_defaultValue-clear')
+
     const $current = $(`<button class="btn btn-secondary" type="button" title="${$L('当前用户')}"><i class="icon mdi mdi-function-variant"></i></button>`).appendTo('.J_defaultValue-append')
     $current.on('click', () => {
       $dv.attr('data-value-id', CURRENT_BIZZ).val(CURRENT_BIZZ)
@@ -605,18 +566,60 @@ const _handleReference = function (isN2N) {
     })
     $dvClear.css({ right: 75 })
   }
+}
+
+const _handleAnyReference = function (es) {
+  $.get('/commons/metadata/entities?bizz=true&detail=true', (res) => {
+    res.data &&
+      res.data.forEach((item) => {
+        $(`<option value="${item.name}">${item.label}</option>`).appendTo('#anyreferenceEntities')
+      })
+
+    const $s2 = $('#anyreferenceEntities').select2({
+      placeholder: $L('不限'),
+      tag: true,
+    })
+
+    es && $s2.val(es.split(',')).trigger('change')
+    _initRefsDefaultValue(() => $s2.val())
+  })
+}
+
+const _initRefsDefaultValue = function (allowEntities, isN2N) {
+  const $dv = $('.J_defaultValue')
+  const $dvClear = $('.J_defaultValue-clear').on('click', () => {
+    $dv.attr('data-value-id', '').val('')
+    $dvClear.addClass('hide')
+  })
+
+  const $append = $(`<button class="btn btn-secondary" type="button" title="${$L('选择默认值')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo('.J_defaultValue-append')
+  $dv.attr('readonly', true)
+  $append.on('click', () => {
+    const ae = typeof allowEntities === 'function' ? allowEntities() : allowEntities
+    RecordSelectorModal.create({
+      title: $L('选择默认值'),
+      allowEntities: ae,
+      onConfirm: (val) => {
+        if (isN2N) {
+          let valKeep = $dv.attr('data-value-id')
+          if (valKeep) val = valKeep + ',' + val
+        }
+        $dv.attr('data-value-id', val).val(val)
+        _loadRefsLabel($dv, $dvClear)
+      },
+    })
+  })
 
   _loadRefsLabel($dv, $dvClear)
 }
 
 const _loadRefsLabel = function ($dv, $dvClear) {
-  const dvid = $dv.val()
-
-  if (dvid === CURRENT_BIZZ) {
+  const def = $dv.val()
+  if (def === CURRENT_BIZZ) {
     $dv.attr('data-value-id', CURRENT_BIZZ)
-    $dvClear && $dvClear.removeClass('hide')
-  } else if (dvid) {
-    $.get(`/commons/search/read-labels?ids=${encodeURIComponent(dvid)}&ignoreMiss=false`, (res) => {
+    $dvClear.removeClass('hide')
+  } else if (def) {
+    $.get(`/commons/search/read-labels?ids=${encodeURIComponent(def)}&ignoreMiss=false`, (res) => {
       if (res.data) {
         const ids = []
         const labels = []
@@ -630,7 +633,7 @@ const _loadRefsLabel = function ($dv, $dvClear) {
       }
     })
 
-    $dvClear && $dvClear.removeClass('hide')
+    $dvClear.removeClass('hide')
   }
 }
 
@@ -790,22 +793,6 @@ class TagEditor extends RbAlert {
     const ok = this.props.onConfirm({ name, color, default: $val(this._$default) })
     ok && this.hide()
   }
-}
-
-const _handleAnyReference = function (es) {
-  $.get('/commons/metadata/entities?bizz=true&detail=true', (res) => {
-    res.data &&
-      res.data.forEach((item) => {
-        $(`<option value="${item.name}">${item.label}</option>`).appendTo('#anyreferenceEntities')
-      })
-
-    const $s2 = $('#anyreferenceEntities').select2({
-      placeholder: $L('不限'),
-      tag: true,
-    })
-    // init
-    if (es) $s2.val(es.split(',')).trigger('change')
-  })
 }
 
 // 字段类型转换
