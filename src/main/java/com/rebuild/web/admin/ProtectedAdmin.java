@@ -86,7 +86,6 @@ public class ProtectedAdmin {
         SYS("/systems", "通用配置"),
         SSI("/integration/", "服务集成"),
         API("/apis-manager", "API 秘钥"),
-        AIB("/integration/aibot", "AI 助手"),
         ENT("/entities;/entity/;/metadata/", "实体管理"),
         APR("/robot/approval", "审批流程"),
         TRA("/robot/transform", "记录转换"),

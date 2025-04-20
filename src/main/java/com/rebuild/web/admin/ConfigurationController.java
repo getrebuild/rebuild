@@ -77,11 +77,7 @@ public class ConfigurationController extends BaseController {
     public ModelAndView pageSystems() {
         ModelAndView mv = createModelAndView("/admin/system-cfg");
         for (ConfigurationItem item : ConfigurationItem.values()) {
-            String value = RebuildConfiguration.get(item);
-            if (value != null && item == ConfigurationItem.OnlyofficeJwt) {
-                value = DataDesensitized.any(value);
-            }
-            mv.getModel().put(item.name(), value);
+            mv.getModel().put(item.name(), RebuildConfiguration.get(item));
         }
 
         mv.getModel().put("availableLangs",
@@ -455,35 +451,14 @@ public class ConfigurationController extends BaseController {
         return RespBody.ok();
     }
 
-    // AiBot
-
-    @PostMapping("integration/aibot")
-    public RespBody postIntegrationAibot(@RequestBody JSONObject data) {
-        setValues(data);
-        return RespBody.ok();
-    }
-
-    @GetMapping("integration/aibot")
-    public ModelAndView pageIntegrationAibot() {
-        ModelAndView mv = createModelAndView("/admin/integration/aibot");
-        for (ConfigurationItem item : ConfigurationItem.values()) {
-            String name = item.name();
-            if (name.startsWith("Aibot")) {
-                String value = RebuildConfiguration.get(item);
-                if (value != null && item == ConfigurationItem.AibotDSSecret) {
-                    value = DataDesensitized.any(value);
-                }
-                mv.getModel().put(name, value);
-            }
-        }
-        return mv;
-    }
-
     // --
 
     private String[] starsAccount(String[] account, int... index) {
         if (account == null || account.length == 0) return null;
-        for (int i : index) account[i] = DataDesensitized.any(account[i]);
+
+        for (int i : index) {
+            account[i] = DataDesensitized.any(account[i]);
+        }
         return account;
     }
 

@@ -9,9 +9,9 @@ package com.rebuild.web.commons;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.support.OnlyOffice;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.OnlyOfficeUtils;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -36,10 +36,10 @@ public class FilePreviewer extends BaseController {
     @GetMapping("/commons/file-preview")
     public ModelAndView ooPreview(HttpServletRequest request) {
         String src = getParameterNotNull(request, "src");
-        Object[] ps = OnlyOffice.buildPreviewParams(src);
+        Object[] ps = OnlyOfficeUtils.buildPreviewParams(src);
 
         ModelAndView mv = createModelAndView("/common/oo-preview");
-        mv.getModel().put(OnlyofficeServer.name(), OnlyOffice.getOoServer());
+        mv.getModel().put(OnlyofficeServer.name(), OnlyOfficeUtils.getOoServer());
         mv.getModel().put("_DocumentConfig", ps[0]);
         mv.getModel().put("_Token", ps[1]);
 

@@ -457,6 +457,11 @@ class ContentFieldWriteback extends ActionContentSpec {
       if (v.length === 0) {
         RbHighbar.create($L('请添加字段匹配规则'))
         return false
+      } else {
+        if (rb.commercial < 1) {
+          RbHighbar.error(WrapHtml($L('免费版不支持%s功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)', $L('通过字段匹配'))))
+          return false
+        }
       }
       content.targetEntityMatchFields = v
     }

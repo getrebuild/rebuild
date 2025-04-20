@@ -116,8 +116,8 @@ useEditComp = function (name) {
         <option value="2">{$L('总是显示')}</option>
       </select>
     )
-  } else if (['PageFooter', 'AllowUsesTime', 'AllowUsesIp'].includes(name)) {
-    return <textarea name={name} className="form-control form-control-sm row2x" maxLength="2000" />
+  } else if ('PageFooter' === name || 'AllowUsesTime' === name || 'AllowUsesIp' === name) {
+    return <textarea name={name} className="form-control form-control-sm row3x" maxLength="600" />
   } else if ('Login2FAMode' === name) {
     return (
       <select className="form-control form-control-sm">

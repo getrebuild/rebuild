@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global EasyMDE, RepeatedViewer, ProTable, Md2Html, ClassificationSelector */
+/* global SimpleMDE, RepeatedViewer, ProTable, Md2Html, ClassificationSelector */
 
 /**
  * Callback API:
@@ -1465,9 +1465,9 @@ class RbFormNText extends RbFormElement {
   UNSAFE_componentWillUpdate(nextProps, nextState) {
     // destroy
     if (this.state.editMode && !nextState.editMode) {
-      if (this._EasyMDE) {
-        this._EasyMDE.toTextArea()
-        this._EasyMDE = null
+      if (this._SimpleMDE) {
+        this._SimpleMDE.toTextArea()
+        this._SimpleMDE = null
       }
     }
   }
@@ -1498,13 +1498,13 @@ class RbFormNText extends RbFormElement {
 
   setValue(val) {
     super.setValue(val)
-    if (this.props.useMdedit) this._EasyMDE.value(val || '')
+    if (this.props.useMdedit) this._SimpleMDE.value(val || '')
   }
 
   _initMde() {
     const _readonly37 = this.state.readonly
 
-    const mde = new EasyMDE({
+    const mde = new SimpleMDE({
       element: this._fieldValue,
       status: false,
       autoDownloadFontAwesome: false,
@@ -1512,7 +1512,7 @@ class RbFormNText extends RbFormElement {
       // eslint-disable-next-line no-undef
       toolbar: _readonly37 ? false : DEFAULT_MDE_TOOLBAR(this),
     })
-    this._EasyMDE = mde
+    this._SimpleMDE = mde
 
     function _mdeFocus() {
       setTimeout(() => {

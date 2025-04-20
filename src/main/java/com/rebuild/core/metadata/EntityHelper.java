@@ -365,9 +365,4 @@ public class EntityHelper {
     public static final int CommonsLock = 98;
     public static final int CommonsLog = 99;
 
-    // AI
-
-    public static final int AibotChat = 96;
-    public static final int AibotChatAttach = 95;
-
 }
