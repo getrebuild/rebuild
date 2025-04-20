@@ -1348,6 +1348,7 @@ a.link.link-icon::after {
 
 .rbform .type-NTEXT .CodeMirror-fullscreen {
   top: 119px;
+  top: 107.6px;
 }
 
 .rbform .type-NTEXT .CodeMirror {
@@ -4382,7 +4383,7 @@ h3.modal-title > .rbv {
 .editor-preview ol,
 .editor-preview table {
   margin-bottom: 0.75em;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .mdedit-content img,
@@ -5964,6 +5965,18 @@ div.formula-code {
 .rb-navless40 .rb-wrapper > .rb-content > .page-aside {
   left: 0;
   margin: 0;
+}
+
+.EasyMDEContainer .editor-toolbar {
+  padding: 4px;
+}
+
+.EasyMDEContainer .editor-toolbar.fullscreen {
+  height: 38.6px;
+}
+
+.EasyMDEContainer .CodeMirror-fullscreen {
+  top: 99px;
 }
 
 .EasyMDEContainer .editor-toolbar button {
