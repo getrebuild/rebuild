@@ -7,10 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.aibot;
 
-import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,7 @@ public class ChatClient {
         final String dsUrl = Config.getServerUrl("chat/completions");
         final String dsSecret = Config.getSecret();
 
-        MessageCompletions completions = getOrNewMessageCompletions(chatRequest.getChatid(), Config.getBasePrompt());
+        MessageCompletions completions = getOrNewMessageCompletions(chatRequest, Config.getBasePrompt());
         completions.addUserMessage(chatRequest);
 
         Map<String, String> headers = new HashMap<>();
@@ -80,7 +80,7 @@ public class ChatClient {
         final String dsUrl = Config.getServerUrl("chat/completions");
         final String dsSecret = Config.getSecret();
 
-        MessageCompletions completions = getOrNewMessageCompletions(chatRequest.getChatid(), Config.getBasePrompt());
+        MessageCompletions completions = getOrNewMessageCompletions(chatRequest, Config.getBasePrompt());
         completions.addUserMessage(chatRequest);
 
         String reqBody = completions.toCompletions(true, chatRequest.getModel()).toJSONString();
@@ -115,7 +115,6 @@ public class ChatClient {
                 int reasoningState = 0;
                 while (!source.exhausted()) {
                     String d = source.readUtf8Line();
-                    if (Application.devMode()) System.out.println("[dev] " + d);
                     if (d != null && d.startsWith("data: ")) {
                         d = d.substring(6);
                         if ("[DONE]".equals(d)) {
@@ -159,19 +158,21 @@ public class ChatClient {
     }
 
     /**
-     * @param chatid
+     * @param chatRequest
      * @param prompt
      * @return
      */
-    public MessageCompletions getOrNewMessageCompletions(ID chatid, String prompt) {
+    protected MessageCompletions getOrNewMessageCompletions(ChatRequest chatRequest, String prompt) {
         MessageCompletions c = null;
-        if (chatid != null) {
-            c = ChatStore.instance.get(chatid);
-            if (c == null) log.error("[getOrNewMessageCompletions] chatid {} not found", chatid);
+        if (chatRequest.getChatid() != null) {
+            c = ChatStore.instance.get(chatRequest.getChatid());
+            if (c == null) log.error("[getOrNewMessageCompletions] chat {} not found", chatRequest.getChatid());
         }
 
         if (c == null) {
             c = new MessageCompletions(prompt);
+            // 第一句话作为主题
+            c.setSubject(CommonsUtils.maxstr(chatRequest.getUserContent(false), 40));
             ChatStore.instance.store(c);
         }
         return c;

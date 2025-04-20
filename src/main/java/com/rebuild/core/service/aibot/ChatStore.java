@@ -16,7 +16,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.query.QueryHelper;
-import com.rebuild.utils.CommonsUtils;
 
 /**
  * @author Zixin
@@ -44,13 +43,16 @@ public class ChatStore {
      */
     public MessageCompletions store(MessageCompletions completions, ID user) {
         final boolean isNew = completions.getChatid() == null;
+        if (user == null) user = UserContextHolder.getUser();
+
         Record chat;
         if (isNew) {
-            if (user == null) user = UserContextHolder.getUser();
             chat = EntityHelper.forNew(EntityHelper.AibotChat, user);
-            chat.setString("subject", "会话:" + CommonsUtils.randomHex(true));
+            String s = completions.getSubject();
+            if (s == null) s = "会话:" + System.currentTimeMillis();
+            chat.setString("subject", s);
         } else {
-            chat = EntityHelper.forUpdate(completions.getChatid());
+            chat = EntityHelper.forUpdate(completions.getChatid(), user);
         }
 
         JSONArray contents = new JSONArray();

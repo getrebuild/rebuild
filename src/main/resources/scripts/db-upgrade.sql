@@ -7,10 +7,12 @@ create table if not exists `aibot_chat` (
   `CHAT_ID`            char(20) not null,
   `SUBJECT`            varchar(100) comment '主题',
   `CONTENTS`           longtext comment '会话内容',
+  `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
   primary key  (`CHAT_ID`),
-  index IX0_aibot_chat (`CREATED_BY`, `CREATED_ON`)
+  index IX0_aibot_chat (`CREATED_BY`, `CREATED_ON`, `MODIFIED_ON`)
 )Engine=InnoDB;
 
 -- #61 (v4.0)

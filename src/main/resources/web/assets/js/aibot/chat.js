@@ -501,7 +501,16 @@ class ChatSidebar extends React.Component {
   }
 
   handleRename(item) {
-    RbHighbar.createl('暂不支持')
+    renderRbcomp(
+      <DlgChatRename
+        name={item.subject}
+        onConfirm={(s) => {
+          if (!$empty(s)) {
+            $.post(`/aibot/post/chat-rename?chatid=${item.chatid}&s=${$encode(s)}`, () => this._loadChatList())
+          }
+        }}
+      />
+    )
   }
 
   toggleShow(showOrHide) {
@@ -560,6 +569,30 @@ class Attach extends React.Component {
       return { ...res, listFilter: props.listFilter }
     }
     return null
+  }
+}
+
+// 选择记录
+class DlgChatRename extends RbAlert {
+  renderContent() {
+    return (
+      <div className="form ml-3 mr-3">
+        <div className="form-group">
+          <label className="text-bold">{$L('重命名会话')}</label>
+          <input type="text" className="form-control form-control-sm" placeholder={this.props.name || ''} defaultValue={this.props.name || ''} ref={(c) => (this._$name = c)} autoFocus />
+        </div>
+        <div className="form-group mb-2">
+          <button type="button" className="btn btn-primary" onClick={this._onConfirm}>
+            {$L('确定')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  _onConfirm = () => {
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm($(this._$name).val())
+    this.hide()
   }
 }
 
