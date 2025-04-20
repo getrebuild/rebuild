@@ -34,6 +34,8 @@ public class ChatRequest {
     @Getter
     private final JSONObject reqJson;
 
+    private String vectorDataContent;
+
     /**
      * @param request
      */
@@ -59,25 +61,36 @@ public class ChatRequest {
         String c = reqJson.getString("content");
         if (!withVector) return c;
 
-        VectorData vd = getVectorData();
-        if (vd == null) return c;
+        String vdc = getVectorDataContent();
+        if (vdc == null) return c;
+        return vdc + "\n\n" + c;
+    }
 
-        return vd.toVector() + "\n\n" + c;
+    /**
+     * @return
+     */
+    protected String getVectorDataContent() {
+        if (vectorDataContent == null) {
+            VectorData vd = getVectorData();
+            if (vd == null) return null;
+            vectorDataContent = vd.toVector();
+        }
+        return vectorDataContent;
     }
 
     /**
      * @return
      */
     public VectorData getVectorData() {
-        JSONArray attachs = (JSONArray) reqJson.get("attach");
-        if (CollectionUtils.isEmpty(attachs)) return null;
+        JSONArray attach = (JSONArray) reqJson.get("attach");
+        if (CollectionUtils.isEmpty(attach)) return null;
 
         VectorDataChunk vdc = new VectorDataChunk();
-        for (int i = 0; i < attachs.size(); i++) {
-            JSONObject a = attachs.getJSONObject(i);
+        for (int i = 0; i < attach.size(); i++) {
+            JSONObject item = attach.getJSONObject(i);
 
-            String record = a.getString("record");
-            String orListFilter = a.getString("listFilter");
+            String record = item.getString("record");
+            String orListFilter = item.getString("listFilter");
             if (ID.isId(record)) {
                 vdc.addVectorData(new RecordData(ID.valueOf(record)));
             } else if (JSONUtils.wellFormat(orListFilter)) {

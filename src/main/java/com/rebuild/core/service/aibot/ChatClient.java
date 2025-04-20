@@ -153,6 +153,7 @@ public class ChatClient {
                 // [DONE]
                 completions.addMessage(deltaContent.toString(), reasoningContent.toString(), Message.ROLE_AI);
                 ChatStore.instance.store(completions);
+                ChatStore.instance.storeAttach(chatRequest, null);
             }
         }
     }

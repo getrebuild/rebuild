@@ -16,6 +16,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.query.QueryHelper;
+import org.apache.commons.collections4.CollectionUtils;
 
 /**
  * @author Zixin
@@ -36,7 +37,6 @@ public class ChatStore {
     }
 
     /**
-     *
      * @param completions
      * @param user
      * @return
@@ -96,5 +96,21 @@ public class ChatStore {
     public void delete(ID chatid) {
         Application.getCommonsService().delete(chatid);
         Application.getCommonsCache().evict("chat-" + chatid);
+    }
+
+    /**
+     * @param request
+     * @param user
+     */
+    public void storeAttach(ChatRequest request, ID user) {
+        JSONArray attach = (JSONArray) request.getReqJson().get("attach");
+        if (CollectionUtils.isEmpty(attach)) return;
+
+        if (user == null) user = UserContextHolder.getUser();
+        Record r = EntityHelper.forNew(EntityHelper.AibotChatAttach, user);
+        r.setID("chatId", request.getChatid());
+        r.setString("content", attach.toJSONString());
+        r.setString("vectorData", request.getVectorDataContent());
+        Application.getCommonsService().create(r);
     }
 }

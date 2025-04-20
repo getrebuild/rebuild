@@ -891,7 +891,19 @@ create table if not exists `aibot_chat` (
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
   primary key  (`CHAT_ID`),
-  index IX0_aibot_chat (`CREATED_BY`, `CREATED_ON`, `MODIFIED_ON`)
+  index IX0_aibot_chat (`CREATED_BY`, `MODIFIED_ON`, `CREATED_ON`)
+)Engine=InnoDB;
+
+-- ************ Entity [AibotChatAttach] DDL ************
+create table if not exists `aibot_chat_attach` (
+  `ATTACH_ID`          char(20) not null,
+  `CHAT_ID`            char(20) not null,
+  `CONTENT`            varchar(600) comment '附件内容',
+  `VECTOR_DATA`        longtext comment '向量数据',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  primary key  (`ATTACH_ID`),
+  index IX0_aibot_chat_attach (`CHAT_ID`, `CREATED_ON`, `CREATED_BY`)
 )Engine=InnoDB;
 
 -- #3 datas

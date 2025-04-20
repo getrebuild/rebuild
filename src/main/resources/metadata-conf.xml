@@ -630,17 +630,17 @@
         <field name="chatId" type="primary"/>
         <field name="subject" type="string" max-length="100" description="主题"/>
         <field name="contents" type="ntext" description="会话内容"/>
-        <index field-list="createdBy,createdOn,modifiedOn"/>
+        <index field-list="createdBy,modifiedOn,createdOn"/>
     </entity>
 
-    <!--
-    <entity name="AibotChatAttach" type-code="095" description="AI 助手会话记录" queryable="false" parent="false">
+    <entity name="AibotChatAttach" type-code="095" description="AI 助手会话附加数据" queryable="false" parent="false">
         <field name="attachId" type="primary"/>
         <field name="chatId" type="reference" ref-entity="AibotChat" nullable="false" updatable="false" cascade="delete"/>
         <field name="content" type="string" max-length="600" description="附件内容"/>
         <field name="vectorData" type="ntext" max-length="100" description="向量数据"/>
-        <index field-list="chatId"/>
+        <field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人"/>
+        <field name="createdOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="创建时间"/>
+        <index field-list="chatId,createdOn,createdBy"/>
     </entity>
-    -->
 
 </metadata-config>

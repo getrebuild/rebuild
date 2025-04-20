@@ -41,7 +41,7 @@ public class RecordData implements VectorData {
 
             String label = EasyMetaFactory.getLabel(field);
             String value = clearedFieldValue(r.getObjectValue(fieldName), field);
-            v.append(label).append(":").append(value).append("\n");
+            v.append(label).append(": ").append(value).append("\n");
         }
         return v.toString();
     }

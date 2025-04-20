@@ -28,6 +28,11 @@ public class VectorDataChunk implements VectorData {
         for (VectorData data : datas) {
             out.append(data.toVector()).append("\n");
         }
-        return out.append('\n').toString();
+        return out.toString();
+    }
+
+    @Override
+    public String toString() {
+        return toVector();
     }
 }

@@ -368,5 +368,6 @@ public class EntityHelper {
     // AI
 
     public static final int AibotChat = 96;
+    public static final int AibotChatAttach = 95;
 
 }
