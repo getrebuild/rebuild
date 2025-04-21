@@ -2266,7 +2266,7 @@ class RbFormReference extends RbFormElement {
       }
     }
 
-    const url = `/app/entity/extras/fillin-value?entity=${$$$form.props.entity}&field=${this.props.field}&source=${id}`
+    const url = `/app/entity/extras/fillin-value?entity=${this.props.entity}&field=${this.props.field}&source=${id}`
     $.post(url, JSON.stringify(formData), (res) => {
       if (res.error_code === 0 && res.data.length > 0) {
         const fillin2main = []
@@ -2312,9 +2312,7 @@ class RbFormReference extends RbFormElement {
       that._ReferenceSearcher.hide()
     }
 
-    const url = `${rb.baseUrl}/app/entity/reference-search?field=${this.props.field}.${this.props.$$$parent.props.entity}&cascadingValue=${this._getCascadingFieldValue() || ''}`
-    if (!this._ReferenceSearcher_Url) this._ReferenceSearcher_Url = url
-
+    const url = this._buildSearcherUrl()
     if (this._ReferenceSearcher && this._ReferenceSearcher_Url === url) {
       this._ReferenceSearcher.show()
     } else {
@@ -2329,6 +2327,10 @@ class RbFormReference extends RbFormElement {
         that._ReferenceSearcher = this
       })
     }
+  }
+
+  _buildSearcherUrl() {
+    return `${rb.baseUrl}/app/entity/reference-search?field=${this.props.field}.${this.props.entity}&cascadingValue=${this._getCascadingFieldValue() || ''}`
   }
 
   showSearcher_call(selected, that) {
@@ -2501,6 +2503,7 @@ class RbFormAnyReference extends RbFormReference {
     if (destroy) {
       super.onEditModeChanged(destroy)
     } else {
+      const initVal = this.state.value
       $.get('/commons/metadata/entities?detail=true', (res) => {
         let entities = res.data || []
         if (this.props.anyreferenceEntities) {
@@ -2512,15 +2515,24 @@ class RbFormAnyReference extends RbFormReference {
 
         // #1 E
         this.setState({ entities: entities }, () => {
-          this.__select2Entity = $(this._$entity)
-            .select2({
-              placeholder: $L('无可用实体'),
-              allowClear: false,
-            })
-            .on('change', (e) => {
-              this._anyrefEntity = e.target.value
-              this.setValue(null)
-            })
+          this.__select2Entity = $(this._$entity).select2({
+            placeholder: $L('无可用'),
+            allowClear: false,
+          })
+          if (initVal) {
+            let code = ~~(initVal.id || initVal).split('-')[0]
+            let name = entities.find((item) => item.entityCode === code)
+            if (name) {
+              this.__select2Entity.val(name.entity).trigger('change')
+              this._anyrefEntity = name.entity
+            } else {
+              this.__select2Entity.val(null).trigger('change')
+            }
+          }
+          this.__select2Entity.on('change', (e) => {
+            this._anyrefEntity = e.target.value
+            this.setValue(null)
+          })
 
           // #2 R
           this.__select2 = $initReferenceSelect2(this._fieldValue, {
@@ -2544,11 +2556,11 @@ class RbFormAnyReference extends RbFormReference {
           })
 
           // #3 init
-          const val = this.state.value
-          if (val) {
-            this.setValue(val)
-          } else {
-            entities.length > 0 && this.__select2Entity.val(entities[0].name).trigger('change')
+          if (initVal) {
+            this.setValue(initVal)
+          } else if (entities[0]) {
+            this.__select2Entity.val(entities[0].name).trigger('change')
+            this._anyrefEntity = entities[0].name
           }
         })
       })
@@ -2571,6 +2583,10 @@ class RbFormAnyReference extends RbFormReference {
   setValue(val) {
     this._setValueStop = true
     super.setValue(val)
+  }
+
+  _buildSearcherUrl() {
+    return `${rb.baseUrl}/app/entity/reference-search?field=${this._anyrefEntity}Id.${this._anyrefEntity}`
   }
 }
 
@@ -3443,7 +3459,7 @@ const __calcFormula = function (fieldComp) {
   const watchFields = fieldComp.props.calcFormula.match(/\{([a-z0-9]+)}/gi) || []
   const $$$parent = fieldComp.props.$$$parent
 
-  const evalUrl = `/app/entity/extras/eval-calc-formula?entity=${$$$parent.props.entity}&field=${fieldComp.props.field}`
+  const evalUrl = `/app/entity/extras/eval-calc-formula?entity=${fieldComp.props.entity}&field=${fieldComp.props.field}`
   setTimeout(() => {
     const calcFormulaValues = {}
     let _timer

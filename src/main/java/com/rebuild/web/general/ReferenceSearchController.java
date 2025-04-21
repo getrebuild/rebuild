@@ -71,9 +71,10 @@ public class ReferenceSearchController extends EntityController {
 
         Field referenceField = entity.getField(getParameterNotNull(request, "field"));
         Entity searchEntity = referenceField.getReferenceEntity();
-        // v41
+        // v4.1
         if (referenceField.getType() == FieldType.ANY_REFERENCE) {
-            String anyrefEntity = getParameterNotNull(request, "anyrefEntity");
+            String anyrefEntity = getParameter(request, "anyrefEntity");
+            if (StringUtils.isBlank(anyrefEntity)) return JSONUtils.EMPTY_ARRAY;
             searchEntity = MetadataHelper.getEntity(anyrefEntity);
         }
 

@@ -852,9 +852,9 @@ class RecordSelector extends React.Component {
   render() {
     return (
       <div className="input-group has-append">
-        <select className="form-control form-control-sm" ref={(c) => (this._$select = c)}></select>
+        <select className="form-control form-control-sm" ref={(c) => (this._$select = c)} />
         <div className="input-group-append">
-          <button className="btn btn-secondary" onClick={() => this._showSearcher()}>
+          <button className="btn btn-secondary" onClick={() => this._showSearcher()} ref={(c) => (this._$btn = c)}>
             <i className="icon zmdi zmdi-search" />
           </button>
         </div>
@@ -985,9 +985,9 @@ class AnyRecordSelector extends RecordSelector {
       }
 
       this.setState({ entities }, () => {
-        const s2entity = $(this._$entity)
+        this.__select2Entity = $(this._$entity)
           .select2({
-            placeholder: $L('无可用实体'),
+            placeholder: $L('无可用'),
             allowClear: false,
           })
           .on('change', (e) => {
@@ -1001,11 +1001,8 @@ class AnyRecordSelector extends RecordSelector {
               )
             }
           })
-        this.__select2Entity = s2entity
         // init
-        if (entities.length > 0) {
-          $(this._$entity).val(entities[0].name).trigger('change')
-        }
+        entities[0] && $(this._$entity).val(entities[0].name).trigger('change')
 
         // 编辑时
         const iv = this.props.initValue
