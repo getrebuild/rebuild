@@ -2120,22 +2120,20 @@ class RbFormReference extends RbFormElement {
     const props = this.props
     if (this._isNew && props.value && props.value.id) {
       // fix: 4.0.2 #IC0GPI 复制时无需回填
-      if (props._disableAutoFillin !== true) {
+      if (props._disableAutoFillin !== true && this._disableAutoFillin !== true) {
         setTimeout(() => this.triggerAutoFillin(props.value.id), 200)
       }
     }
   }
 
   onEditModeChanged(destroy) {
-    const $$$form = this.props.$$$parent
-
     if (destroy) {
       super.onEditModeChanged(destroy)
     } else {
       this.__select2 = $initReferenceSelect2(this._fieldValue, {
         name: this.props.field,
         label: this.props.label,
-        entity: $$$form.props.entity,
+        entity: this.props.entity,
         wrapQuery: (query) => {
           const cascadingValue = this._getCascadingFieldValue()
           return cascadingValue ? { cascadingValue, ...query } : query
@@ -2462,8 +2460,119 @@ class RbFormN2NReference extends RbFormReference {
   }
 }
 
-// TODO 任意引用支持手动编辑
-class RbFormAnyReference extends RbFormReference {}
+// v4.1 任意引用
+class RbFormAnyReference extends RbFormReference {
+  constructor(props) {
+    super(props)
+    this._disableAutoFillin = true
+  }
+
+  renderElement() {
+    return (
+      <div className="row">
+        <div className="col-4 pr-0">
+          <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)}>
+            {(this.state.entities || []).map((item) => {
+              return (
+                <option key={item.name} value={item.name}>
+                  {item.label}
+                </option>
+              )
+            })}
+          </select>
+        </div>
+        <div className="col-8 pl-2">
+          <div className="input-group has-append">
+            <select className="form-control form-control-sm" ref={(c) => (this._fieldValue = c)} />
+            {!this.state.readonly && (
+              <div className="input-group-append">
+                <button className="btn btn-secondary" type="button" onClick={() => this.showSearcher()}>
+                  <i className="icon zmdi zmdi-search" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  onEditModeChanged(destroy) {
+    if (destroy) {
+      super.onEditModeChanged(destroy)
+    } else {
+      $.get('/commons/metadata/entities?detail=true', (res) => {
+        let entities = res.data || []
+        if (this.props.anyreferenceEntities) {
+          const ae = this.props.anyreferenceEntities.split(',')
+          if (ae.length > 0) {
+            entities = entities.filter((item) => ae.includes(item.name))
+          }
+        }
+
+        // #1 E
+        this.setState({ entities: entities }, () => {
+          this.__select2Entity = $(this._$entity)
+            .select2({
+              placeholder: $L('无可用实体'),
+              allowClear: false,
+            })
+            .on('change', (e) => {
+              this._anyrefEntity = e.target.value
+              this.setValue(null)
+            })
+
+          // #2 R
+          this.__select2 = $initReferenceSelect2(this._fieldValue, {
+            name: this.props.field,
+            label: this.props.label,
+            entity: this.props.entity,
+            placeholder: this._placeholderw,
+            templateResult: $select2OpenTemplateResult,
+            wrapQuery: (query) => {
+              // 真实查询实体
+              query.anyrefEntity = this._anyrefEntity
+              return query
+            },
+          }).on('change', (e) => {
+            if (this._setValueStop) {
+              this._setValueStop = false
+            } else {
+              const v = $(e.target).val()
+              this.handleChange({ target: { value: v } }, true)
+            }
+          })
+
+          // #3 init
+          const val = this.state.value
+          if (val) {
+            this.setValue(val)
+          } else {
+            entities.length > 0 && this.__select2Entity.val(entities[0].name).trigger('change')
+          }
+        })
+      })
+
+      if (this.state.readonly) {
+        $(this._$entity).attr('disabled', true)
+        $(this._fieldValue).attr('disabled', true)
+      }
+    }
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount()
+
+    if (this.__select2Entity) {
+      this.__select2Entity.select2('destroy')
+    }
+  }
+
+  setValue(val) {
+    this._setValueStop = true
+    super.setValue(val)
+  }
+}
 
 class RbFormClassification extends RbFormElement {
   renderElement() {
@@ -2509,7 +2618,7 @@ class RbFormClassification extends RbFormElement {
       this.__select2 = $initReferenceSelect2(this._fieldValue, {
         name: this.props.field,
         label: this.props.label,
-        entity: this.props.$$$parent.props.entity,
+        entity: this.props.entity,
         searchType: 'classification',
         templateResult: function (res) {
           const $span = $('<span class="code-append"></span>').attr('title', res.text).text(res.text)
@@ -3198,6 +3307,8 @@ class RbFormRefform extends React.Component {
 // 确定元素类型
 var detectElement = function (item, entity) {
   if (!item.key) item.key = `field-${item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM ? $random() : item.field}`
+  // v41
+  item.entity = item.entity || entity
 
   if (entity && window._CustomizedForms) {
     const c = window._CustomizedForms.useFormElement(entity, item)
@@ -3206,9 +3317,7 @@ var detectElement = function (item, entity) {
 
   if (item.unreadable === true) {
     return <RbFormUnreadable {...item} />
-  }
-
-  if (item.type === 'TEXT' || item.type === 'SERIES') {
+  } else if (item.type === 'TEXT' || item.type === 'SERIES') {
     return <RbFormText {...item} />
   } else if (item.type === 'NTEXT') {
     return <RbFormNText {...item} />
@@ -3237,7 +3346,7 @@ var detectElement = function (item, entity) {
   } else if (item.type === 'N2NREFERENCE') {
     return <RbFormN2NReference {...item} />
   } else if (item.type === 'ANYREFERENCE') {
-    return <RbFormAnyReference {...item} readonly />
+    return <RbFormAnyReference {...item} />
   } else if (item.type === 'CLASSIFICATION') {
     return <RbFormClassification {...item} />
   } else if (item.type === 'MULTISELECT') {
