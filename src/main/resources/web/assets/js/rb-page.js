@@ -135,8 +135,8 @@ $(function () {
   }
 
   var bosskey = 0
-  $(document).on('keydown', function (e) {
-    if (e.keyCode === 16) {
+  $(document).on('keyup.bosskey', function (e) {
+    if (e.code === 'ShiftLeft') {
       if (++bosskey === 6) {
         $('.bosskey-show').removeClass('bosskey-show')
         typeof window.bosskeyTrigger === 'function' && window.bosskeyTrigger()
