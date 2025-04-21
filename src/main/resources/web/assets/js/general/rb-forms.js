@@ -38,7 +38,7 @@ class RbFormModal extends React.Component {
 
     return (
       <div className="modal-wrapper">
-        <div className="modal rbmodal colored-header colored-header-primary" aria-modal="true" ref={(c) => (this._rbmodal = c)}>
+        <div className="modal rbmodal colored-header colored-header-primary" aria-modal="true" tabIndex="-1" ref={(c) => (this._rbmodal = c)}>
           <div className="modal-dialog" style={style2}>
             <div className="modal-content" style={style2}>
               <div
@@ -57,7 +57,7 @@ class RbFormModal extends React.Component {
                 <button className="close md-close J_maximize" type="button" title={this.state._maximize ? $L('向下还原') : $L('最大化')} onClick={() => this._handleMaximize()}>
                   <span className={`mdi ${this.state._maximize ? 'mdi mdi-window-restore' : 'mdi mdi-window-maximize'}`} />
                 </button>
-                <button className="close md-close" type="button" title={$L('关闭')} onClick={() => this.hide()}>
+                <button className="close md-close" type="button" title={`${$L('关闭')} (Esc)`} onClick={() => this.hide()}>
                   <span className="zmdi zmdi-close" />
                 </button>
               </div>
@@ -97,7 +97,7 @@ class RbFormModal extends React.Component {
       .modal({
         show: false,
         backdrop: 'static',
-        keyboard: false,
+        keyboard: true,
       })
       .on('hidden.bs.modal', () => {
         $keepModalOpen()

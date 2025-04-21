@@ -29,7 +29,7 @@ class Chat extends React.Component {
   componentDidMount() {
     this.initChat(this.state.chatid)
 
-    $(this._$chat).on('click.chat-hide', (e) => {
+    $(this._$chat).on('click.sidebar-hide', (e) => {
       const $e = $(e.target)
       if ($e.hasClass('chat-sidebar') || $e.parents('.chat-sidebar')[0]);
       else {

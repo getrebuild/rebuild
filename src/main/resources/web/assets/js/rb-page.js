@@ -201,13 +201,16 @@ $(function () {
     }
   }
 
-  // AI
-  if ($('.aibot-show a')[0]) {
+  var $ai = $('.aibot-show a')
+  if ($ai[0]) {
     function _FN() {
       window.AiBot && window.AiBot.init({ chatid: $storage.get('__LastChatId') }, true)
     }
-    $('.aibot-show a').on('click', _FN)
-    $(document).on('keydown', null, 'ctrl+space', _FN)
+    $ai.on('click', _FN)
+    $(document).on('keydown.aibot', null, 'ctrl+a', function (e) {
+      $stopEvent(e, true)
+      _FN()
+    })
   }
 })
 $(window).on('load', () => {
@@ -1403,7 +1406,6 @@ function $dropdownMenuSearch($dd) {
     })
   // foucs
   $dd.parent().on('shown.bs.dropdown', function () {
-    console.log('open')
     setTimeout(function () {
       $dd.find('input')[0].focus()
     }, 200)

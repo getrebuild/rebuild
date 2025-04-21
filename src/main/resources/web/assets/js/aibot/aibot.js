@@ -13,7 +13,7 @@ class AiBot extends React.Component {
 
   render() {
     return (
-      <div className={`aibot modal ${this.state.hide ? '' : 'show'}`} ref={(c) => (this._$modal = c)}>
+      <div className={`aibot modal ${this.state.hide ? '' : 'show'}`} ref={(c) => (this._$modal = c)} aria-modal="true" tabIndex="-1">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
@@ -22,7 +22,7 @@ class AiBot extends React.Component {
               <button className="close" type="button" onClick={() => this.openChatSidebar()} title={$L('对话列表')}>
                 <span className="mdi mdi-segment" />
               </button>
-              <button className="close hide2" type="button" onClick={() => this.hide()} title={$L('关闭')}>
+              <button className="close hide2" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
                 <span className="mdi mdi-close" />
               </button>
             </div>
@@ -72,6 +72,8 @@ class AiBot extends React.Component {
           $storage.set('__LastChatModalPos', left + ',' + top)
         },
       })
+
+      $(document).on('keydown.aibot-hide', null, 'esc', () => this.hide())
     }
   }
 

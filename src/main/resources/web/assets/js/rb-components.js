@@ -28,6 +28,7 @@ class RbModal extends React.Component {
         className={modalClazz}
         style={props.zIndex ? { zIndex: props.zIndex } : null}
         aria-modal="true"
+        tabIndex="-1"
         ref={(c) => {
           this._rbmodal = c
           this._element = c
@@ -60,7 +61,7 @@ class RbModal extends React.Component {
                   <span className={`mdi ${this.state._maximize ? 'mdi mdi-window-restore' : 'mdi mdi-window-maximize'}`} />
                 </button>
               )}
-              <button className="close" type="button" onClick={() => this.hide()} title={$L('关闭')}>
+              <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
@@ -87,7 +88,7 @@ class RbModal extends React.Component {
       .modal({
         show: true,
         backdrop: this.props.backdrop === false ? false : 'static',
-        keyboard: false,
+        keyboard: true,
       })
       .on('hidden.bs.modal', () => {
         $keepModalOpen()
@@ -265,7 +266,7 @@ class RbAlert extends React.Component {
         <div className="modal-dialog modal-dialog-centered" style={style2}>
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (ESC)`}>
+              <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
