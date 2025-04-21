@@ -202,9 +202,13 @@ $(function () {
   }
 
   // AI
-  $('.aibot-show a').on('click', function () {
-    window.AiBot && window.AiBot.init({ chatid: $storage.get('__LastChatId') }, true)
-  })
+  if ($('.aibot-show a')[0]) {
+    function _FN() {
+      window.AiBot && window.AiBot.init({ chatid: $storage.get('__LastChatId') }, true)
+    }
+    $('.aibot-show a').on('click', _FN)
+    $(document).on('keydown', null, 'ctrl+space', _FN)
+  }
 })
 $(window).on('load', () => {
   if (window.__LAB_COMMERCIAL11_NORB) {
