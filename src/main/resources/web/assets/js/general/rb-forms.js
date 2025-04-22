@@ -1201,22 +1201,22 @@ class RbFormText extends RbFormElement {
     super.componentDidMount()
 
     if (this._textCommonMenuId) {
-      const that = this
       if (rb.dev === 'env') console.log('[dev] init dropdown-menu with text-common', this._textCommonMenuId)
       renderRbcomp(
         <div id={this._textCommonMenuId}>
           <div className="dropdown-menu common-texts">
             <h5>{$L('常用')}</h5>
-            {this.props.textCommon.split(',').map((item) => {
+            {this.props.textCommon.split(',').map((c) => {
               return (
                 <a
-                  key={item}
-                  title={item}
+                  key={c}
+                  title={c}
                   className="badge text-ellipsis"
                   onClick={() => {
-                    that.handleChange({ target: { value: item } }, true)
+                    this.handleChange({ target: { value: (this.state.value || '') + c } }, true)
+                    $focus2End(this._fieldValue)
                   }}>
-                  {item}
+                  {c}
                 </a>
               )
             })}
@@ -1390,6 +1390,7 @@ class RbFormDecimal extends RbFormNumber {
 class RbFormNText extends RbFormElement {
   constructor(props) {
     super(props)
+    this._textCommonMenuId = props.readonly || !props.textCommon ? null : $random('tcddm-')
 
     this._height = this.props.useMdedit ? 0 : ~~this.props.height
     if (this._height && this._height > 0) {
@@ -1418,6 +1419,11 @@ class RbFormNText extends RbFormElement {
           maxLength="6000"
         />
         {props.useMdedit && !_readonly37 && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
+        {this._textCommonMenuId && (
+          <a class="badge text-common" data-toggle="dropdown" data-target={`#${this._textCommonMenuId}`}>
+            {$L('常用值')}
+          </a>
+        )}
       </RF>
     )
   }
@@ -1460,6 +1466,34 @@ class RbFormNText extends RbFormElement {
   componentDidMount() {
     super.componentDidMount()
     this.props.onView && this.onEditModeChanged(true)
+
+    if (this._textCommonMenuId) {
+      if (rb.dev === 'env') console.log('[dev] init dropdown-menu with text-common', this._textCommonMenuId)
+      renderRbcomp(
+        <div id={this._textCommonMenuId}>
+          <div className="dropdown-menu  dropdown-menu-right common-texts">
+            {this.props.textCommon.split(',').map((c) => {
+              return (
+                <a
+                  key={c}
+                  title={c}
+                  className="badge text-ellipsis"
+                  onClick={() => {
+                    if (this._EasyMDE) {
+                      this._mdeInsert(c)
+                    } else {
+                      this.handleChange({ target: { value: (this.state.value || '') + c } }, true)
+                      $focus2End(this._fieldValue)
+                    }
+                  }}>
+                  {c}
+                </a>
+              )
+            })}
+          </div>
+        </div>
+      )
+    }
   }
 
   UNSAFE_componentWillUpdate(nextProps, nextState) {
@@ -1514,23 +1548,11 @@ class RbFormNText extends RbFormElement {
     })
     this._EasyMDE = mde
 
-    function _mdeFocus() {
-      setTimeout(() => {
-        mde.codemirror.focus()
-        mde.codemirror.setCursor(mde.codemirror.lineCount(), 0) // cursor at end
-      }, 100)
-    }
-
     if (_readonly37) {
       mde.codemirror.setOption('readOnly', true)
     } else {
-      $createUploader(this._fieldValue__upload, null, (res) => {
-        const pos = mde.codemirror.getCursor()
-        mde.codemirror.setSelection(pos, pos)
-        mde.codemirror.replaceSelection(`![](${rb.baseUrl}/filex/img/${res.key})`)
-        _mdeFocus()
-      })
-      if (this.props.onView) _mdeFocus()
+      $createUploader(this._fieldValue__upload, null, (res) => this._mdeInsert(`![](${rb.baseUrl}/filex/img/${res.key})`))
+      if (this.props.onView) this._mdeFocus()
 
       mde.codemirror.on('changes', () => {
         $setTimeout(
@@ -1550,6 +1572,21 @@ class RbFormNText extends RbFormElement {
         }
       })
     }
+  }
+
+  _mdeInsert(text) {
+    if (!this._EasyMDE) return
+    const pos = this._EasyMDE.codemirror.getCursor()
+    this._EasyMDE.codemirror.setSelection(pos, pos)
+    this._EasyMDE.codemirror.replaceSelection(text)
+    this._mdeFocus()
+  }
+  _mdeFocus() {
+    if (!this._EasyMDE) return
+    setTimeout(() => {
+      this._EasyMDE.codemirror.focus()
+      this._EasyMDE.codemirror.setCursor(this._EasyMDE.codemirror.lineCount(), 0) // cursor at end
+    }, 100)
   }
 }
 

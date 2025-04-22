@@ -273,8 +273,8 @@ $(document).ready(function () {
     _handleTag(extConfig.tagList || [], extConfig.tagMaxSelect || null)
   } else if (dt === 'ANYREFERENCE') {
     _handleAnyReference(extConfig.anyreferenceEntities)
-  } else if (dt === 'TEXT') {
-    _handleText(extConfig.textCommon)
+  } else if (dt === 'TEXT' || dt === 'NTEXT') {
+    _handleTextCommon(extConfig.textCommon)
   }
 
   // 只读属性
@@ -716,7 +716,8 @@ const _handleTag = function (tagList, tagMaxSelect) {
     })
 }
 
-const _handleText = function (common) {
+// 常用值
+const _handleTextCommon = function (common) {
   let s2data = common ? common.split(',') : []
   s2data = s2data.map((item) => {
     return { id: item, text: item, selected: true }

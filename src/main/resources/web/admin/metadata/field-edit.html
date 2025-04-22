@@ -433,18 +433,6 @@
                     </div>
                   </div>
                 </th:block>
-                <div th:if="${fieldType == 'NTEXT'}" class="form-group row J_for-NTEXT">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">
-                    <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i>
-                    [[${bundle.L('启用富文本编辑器')}]]
-                  </label>
-                  <div class="col-md-12 col-xl-6 col-lg-8">
-                    <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                      <input class="custom-control-input" type="checkbox" id="useMdedit" />
-                      <span class="custom-control-label">[[${bundle.L('是')}]]</span>
-                    </label>
-                  </div>
-                </div>
                 <div th:if="${fieldType == 'NTEXT'}" class="form-group row J_for-NTEXT bosskey-show">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">
                     <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i>
@@ -477,13 +465,25 @@
                     </div>
                   </div>
                 </th:block>
-                <div th:if="${fieldType == 'TEXT'}" class="form-group row J_for-TEXT">
+                <div th:if="${fieldType == 'TEXT' || fieldType == 'NTEXT'}" class="form-group row J_for-TEXT J_for-NTEXT">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">
                     <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i>
                     [[${bundle.L('常用值')}]]
                   </label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <select class="form-control form-control-sm" id="textCommon"></select>
+                  </div>
+                </div>
+                <div th:if="${fieldType == 'NTEXT'}" class="form-group row J_for-NTEXT">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">
+                    <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i>
+                    [[${bundle.L('启用富文本编辑器')}]]
+                  </label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                      <input class="custom-control-input" type="checkbox" id="useMdedit" />
+                      <span class="custom-control-label">[[${bundle.L('是')}]]</span>
+                    </label>
                   </div>
                 </div>
                 <div class="form-group row">

@@ -5998,6 +5998,7 @@ div.formula-code {
   }
   .page-aside {
     width: 230px;
+    left: 200px;
   }
   .page-aside .tab-container,
   .page-aside.widgets .tab-container {
@@ -6005,5 +6006,11 @@ div.formula-code {
   }
   .rb-aside .main-content {
     margin-left: 230px;
+  }
+  .rb-left-sidebar {
+    width: 200px;
+  }
+  .rb-content {
+    margin-left: 200px;
   }
 }

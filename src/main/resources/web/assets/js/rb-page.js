@@ -1415,3 +1415,13 @@ function $dropdownMenuSearch($dd) {
 function $logRBAPI(id, type) {
   id && rb.isAdminUser && console.log('RBAPI ASSISTANT *' + (type || 'N') + '* :\n%c' + id, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
 }
+
+// 定位
+function $focus2End(el, delay) {
+  if (!el) return
+  setTimeout(function () {
+    el.focus()
+    var len = (el.value || '').length
+    el.setSelectionRange(len, len)
+  }, delay || 100)
+}
