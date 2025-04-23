@@ -35,6 +35,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * v3.9 新增转换为新记录或已存在记录
+ *
  * @author Zixin
  * @since 2024/4/8
  */
@@ -50,6 +52,16 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
     public RecordTransfomer39(ID transid) {
         super(transid);
         this.transid = transid;
+    }
+
+    @Override
+    public ID transform(ID sourceRecordId) {
+        return this.transform(sourceRecordId, null, null);
+    }
+
+    @Override
+    public ID transform(ID sourceRecordId, ID specMainId) {
+        return this.transform(sourceRecordId, specMainId, null);
     }
 
     /**
