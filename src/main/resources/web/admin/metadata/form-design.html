@@ -59,13 +59,18 @@
                   <a class="dropdown-item J_add-divider">[[${bundle.L('分栏')}]]</a>
                   <a class="dropdown-item J_add-refform">[[${bundle.L('表单引用')}]] <sup class="rbv"></sup></a>
                   <a class="dropdown-item J_add-nform">[[${bundle.L('表单布局')}]] <sup class="rbv"></sup></a>
-                  <div class="dropdown-item-text">[[${bundle.L('快捷操作')}]]</div>
-                  <a class="dropdown-item J_resize-fields">[[${bundle.L('重置布局')}]]</a>
                   <a class="dropdown-item J_del-unlayout-fields bosskey-show">[[${bundle.L('删除未布局字段')}]]</a>
                   <div class="dropdown-item-text">[[${bundle.L('切换布局')}]]</div>
                 </div>
               </div>
-              <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+              <div class="btn-group">
+                <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+                <button class="btn btn-primary dropdown-toggle w-auto" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-chevron-down"></i></button>
+                <div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
+                  <a class="dropdown-item J_resize-fields">[[${bundle.L('重置布局')}]]</a>
+                  <a class="dropdown-item J_copy-layout">[[${bundle.L('复制布局')}]] <sup class="rbv"></sup></a>
+                </div>
+              </div>
             </div>
             <div class="tab-container">
               <ul class="nav nav-tabs nav-tabs-classic">

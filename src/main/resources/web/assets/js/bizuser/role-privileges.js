@@ -302,7 +302,7 @@ class CopyRoleTo extends RbModalHandler {
             <label className="col-sm-3 col-form-label text-sm-right">{$L('复制到哪些角色')}</label>
             <div className="col-sm-7">
               <UserSelector hideDepartment hideUser hideTeam ref={(c) => (this._UserSelector = c)} />
-              <p className="form-text">{$L('将当前角色权限复制到选择的角色中，选择角色的原有权限会被完全覆盖')}</p>
+              <p className="form-text">{$L('将当前角色权限复制到选择的角色中')}</p>
             </div>
           </div>
         </div>
@@ -325,10 +325,10 @@ class CopyRoleTo extends RbModalHandler {
       from: this.props.roleId,
       copyTo: this._UserSelector.val(),
     }
-    if ((post.copyTo || []).length === 0) return RbHighbar.create($L('请选择复制给哪些角色'))
+    if ((post.copyTo || []).length === 0) return RbHighbar.create($L('请选择复制到哪些角色'))
 
     const that = this
-    RbAlert.create($L('确定将当前角色权限复制给选择的角色吗？'), {
+    RbAlert.create($L('选择角色的原有权限会被完全覆盖。确定复制吗？'), {
       onConfirm: function () {
         this.hide()
 
@@ -336,7 +336,7 @@ class CopyRoleTo extends RbModalHandler {
         $.post('/admin/bizuser/role-copyto', JSON.stringify(post), (res) => {
           if (res.error_code === 0) {
             RbHighbar.success($L('复制完成'))
-            setTimeout(() => that.hide(), 1500)
+            setTimeout(() => that.hide(), 1000)
           } else {
             RbHighbar.error(res.error_msg)
             $btn.button('reset')

@@ -224,7 +224,7 @@ $(document).ready(() => {
   $('.J_resize-fields').on('click', () => {
     RbAlert.create(
       <RF>
-        {$L('重置布局为')}
+        <strong>{$L('重置布局为')}</strong>
         <div className="mt-1">
           <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
             <input className="custom-control-input" name="resize_fields" type="radio" value="w-50" defaultChecked />
@@ -255,6 +255,15 @@ $(document).ready(() => {
       }
     )
   })
+
+  $('.J_copy-layout').on('click', () => {
+    if (rb.commercial < 10) {
+      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return false
+    }
+    renderRbcomp(<CopyLayoutTo layoutId={wpc.formConfig.id} formsAttr={wpc.formsAttr || []} />)
+  })
+
   $('.J_del-unlayout-fields').on('click', () => {
     RbAlert.create($L('是否删除所有未布局字段？'), {
       type: 'danger',
@@ -927,6 +936,81 @@ class DlgNForm extends RbModalHandler {
             location.href = './form-design'
           } else {
             RbHighbar.error(res.error_msg)
+          }
+        })
+      },
+    })
+  }
+}
+
+// 复制布局
+class CopyLayoutTo extends RbModalHandler {
+  render() {
+    return (
+      <RbModal title={$L('复制布局')} ref={(c) => (this._dlg = c)} disposeOnHide>
+        <div className="form">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('复制到哪些布局')}</label>
+            <div className="col-sm-7">
+              <select className="form-control form-control-sm" multiple ref={(c) => (this._$copyTo = c)}>
+                {this.props.formsAttr.map((item) => {
+                  if (item.id === this.props.layoutId) return null
+                  return (
+                    <option key={item.id} value={item.id}>
+                      {item.name || $L('默认布局')}
+                    </option>
+                  )
+                })}
+              </select>
+              <p className="form-text">{$L('将当前布局复制到选择的布局中')}</p>
+            </div>
+          </div>
+        </div>
+        <div className="form-group row footer">
+          <div className="col-sm-7 offset-sm-3">
+            <button className="btn btn-primary" type="button" onClick={() => this.submit()} ref={(c) => (this._$btn = c)}>
+              {$L('复制')}
+            </button>
+            <a className="btn btn-link" onClick={this.hide}>
+              {$L('取消')}
+            </a>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    $(this._$copyTo).select2({
+      placeholder: $L('请选择'),
+      allowClear: false,
+    })
+  }
+
+  submit() {
+    if (!this.props.layoutId) {
+      return RbHighbar.create($L('请先保存布局'))
+    }
+
+    const post = {
+      from: this.props.layoutId,
+      copyTo: $(this._$copyTo).val(),
+    }
+    if ((post.copyTo || []).length === 0) return RbHighbar.create($L('请选择复制到哪些布局'))
+
+    const that = this
+    RbAlert.create($L('选择布局的原有配置会被覆盖。确定复制吗？'), {
+      onConfirm: function () {
+        this.hide()
+
+        const $btn = $(that._$btn).button('loading')
+        $.post('form-copyto', JSON.stringify(post), (res) => {
+          if (res.error_code === 0) {
+            RbHighbar.success($L('复制完成'))
+            setTimeout(() => that.hide(), 1000)
+          } else {
+            RbHighbar.error(res.error_msg)
+            $btn.button('reset')
           }
         })
       },
