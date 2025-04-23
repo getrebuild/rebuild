@@ -341,7 +341,7 @@ class ReportEditor extends ConfigFormDlg {
           this.setState(
             {
               templateFile: this.__lastFile,
-              name: this.state.name || $fileCutName(this.__lastFile),
+              name: this.state.name || $fileCutName(this.__lastFile, true),
               invalidVars: res.data.invalidVars,
               invalidMsg: res.data.invalidMsg,
             },

@@ -637,12 +637,14 @@ var $unhideDropdown = function (dp) {
 /**
  * 获取附件文件名
  */
-var $fileCutName = function (fileName) {
+var $fileCutName = function (fileName, clearExt) {
   fileName = fileName.split('?')[0]
   fileName = fileName.split('/')
   fileName = fileName[fileName.length - 1]
   var splitIndex = fileName.indexOf('__')
-  return splitIndex === -1 ? fileName : fileName.substr(splitIndex + 2)
+  fileName = splitIndex === -1 ? fileName : fileName.substr(splitIndex + 2)
+  if (clearExt === true) fileName = fileName.substr(0, fileName.lastIndexOf('.'))
+  return fileName
 }
 
 /**
