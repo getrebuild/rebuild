@@ -1546,6 +1546,9 @@ class RbFormNText extends RbFormElement {
       spellChecker: false,
       // eslint-disable-next-line no-undef
       toolbar: _readonly37 ? false : DEFAULT_MDE_TOOLBAR(this),
+      onToggleFullScreen: (is) => {
+        console.log('TODO:', is)
+      },
     })
     this._EasyMDE = mde
 
