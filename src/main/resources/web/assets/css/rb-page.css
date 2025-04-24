@@ -2888,7 +2888,7 @@ form.simple {
 
 .modal.selector .modal-content {
   max-width: 400px;
-  margin-top: 98px;
+  margin-top: 35px;
 }
 
 .modal.selector .modal-content .modal-body {
@@ -5964,4 +5964,87 @@ div.formula-code {
 .rb-navless40 .rb-wrapper > .rb-content > .page-aside {
   left: 0;
   margin: 0;
+}
+
+.classification-selector {
+  display: flex;
+  flex-direction: column;
+  height: 350px;
+}
+
+.level-tabs {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 10px;
+}
+
+.level-tab {
+  padding: 5px 10px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.level-tab.active {
+  border-bottom: 2px solid #007bff;
+  color: #007bff;
+  font-weight: bold;
+}
+
+.items-container {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
+}
+
+.classification-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.classification-item {
+  padding: 8px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.classification-item:hover {
+  background-color: #f8f9fa;
+}
+
+.classification-item.selected {
+  background-color: #e8f0fe;
+}
+
+.item-text {
+  flex: 1;
+}
+
+.item-code {
+  margin-left: 5px;
+  color: #999;
+  font-size: 0.85em;
+}
+
+.classification-item .zmdi-check {
+  position: absolute;
+  right: 10px;
+  color: #007bff;
+}
+
+.selected-path {
+  padding: 5px;
+  border: 1px dashed #ddd;
+  border-radius: 4px;
+  min-height: 30px;
+}
+
+.selected-path-text {
+  color: #007bff;
+  font-weight: bold;
 }
