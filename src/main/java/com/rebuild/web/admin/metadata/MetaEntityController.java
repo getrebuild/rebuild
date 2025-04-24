@@ -38,6 +38,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.rbstore.MetaschemaExporter;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.task.TaskExecutors;
@@ -208,6 +209,11 @@ public class MetaEntityController extends EntityController {
             Entity useMain = MetadataHelper.getEntity(mainEntity);
             if (useMain.getMainEntity() != null) {
                 return RespBody.errorl("明细实体不能作为主实体");
+            }
+
+            if (useMain.getDetailEntity() != null && !License.isCommercial()) {
+                return RespBody.errorl(
+                        "免费版不支持%s功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)", "多明细");
             }
         }
 

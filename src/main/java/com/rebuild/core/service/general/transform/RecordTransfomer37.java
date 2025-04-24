@@ -41,6 +41,11 @@ public class RecordTransfomer37 extends RecordTransfomer {
     }
 
     @Override
+    public ID transform(ID sourceRecordId) {
+        return this.transform(sourceRecordId, null);
+    }
+
+    @Override
     public ID transform(ID sourceRecordId, ID specMainId) {
         // 主
         JSONObject fieldsMapping = transConfig.getJSONObject("fieldsMapping");

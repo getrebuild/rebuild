@@ -3289,8 +3289,8 @@ class RbFormDivider extends React.Component {
     let $next = $(this._$formLine)
     while (($next = $next.next()).length > 0) {
       if ($next.hasClass('form-line') || $next.hasClass('footer')) break
-      $next.toggleClass('hide')
-      if (collapsed === null) collapsed = $next.hasClass('hide')
+      $next.toggleClass('collapsed-hide')
+      if (collapsed === null) collapsed = $next.hasClass('collapsed-hide')
     }
     this.setState({ collapsed })
   }
