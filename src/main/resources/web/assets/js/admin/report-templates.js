@@ -41,7 +41,6 @@ class ReportList extends ConfigList {
                 {item[6] === 4 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 word">WORD</span>}
 
                 {outputType.includes('pdf') && <span className="badge badge-secondary badge-pill ml-1">PDF</span>}
-                {outputType.includes('html') && <span className="badge badge-secondary badge-pill ml-1">HTML</span>}
               </td>
               <td>
                 <a href={`${rb.baseUrl}/admin/entity/${item[1]}/base`} className="light-link" target={`_${item[1]}`}>
@@ -197,10 +196,6 @@ class ReportEditor extends ConfigFormDlg {
                 <i className="zmdi zmdi-help zicon down-1" />
               </a>
             </label>
-            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-1 bosskey-show">
-              <input className="custom-control-input" type="checkbox" value="html" />
-              <span className="custom-control-label">HTML (LAB)</span>
-            </label>
           </div>
         </div>
         <div className="form-group row">
@@ -293,7 +288,6 @@ class ReportEditor extends ConfigFormDlg {
       const outputType = (this.props.extraDefinition || {}).outputType || 'excel'
       if (outputType.includes('excel')) $(this._$outputType).find('input:eq(0)').attr('checked', true)
       if (outputType.includes('pdf')) $(this._$outputType).find('input:eq(1)').attr('checked', true)
-      if (outputType.includes('html')) $(this._$outputType).find('input:eq(2)').attr('checked', true)
 
       const useFilter = (this.props.extraDefinition || {}).useFilter
       this.setState({ useFilter })
@@ -309,8 +303,6 @@ class ReportEditor extends ConfigFormDlg {
       if (ps === false) return RbHighbar.create($L('请选择应用实体并上传模板文件'))
 
       let output // default
-      // if ($val($(this._$outputType).find('input:eq(1)'))) output = 'pdf'
-      // else if ($val($(this._$outputType).find('input:eq(2)'))) output = 'html'
       let url = `./report-templates/preview?${ps}&output=${output || ''}`
       if (this.state.reportType === 3) url += '&id=' + this.state.id // H5
       window.open(url)
@@ -423,7 +415,6 @@ class ReportEditor extends ConfigFormDlg {
     let output = []
     if ($val($(this._$outputType).find('input:eq(0)'))) output.push('excel')
     if ($val($(this._$outputType).find('input:eq(1)'))) output.push('pdf')
-    if ($val($(this._$outputType).find('input:eq(2)'))) output.push('html')
     // default
     if (this.state.reportType === 3) output = ['excel']
 

@@ -151,9 +151,6 @@ public class ReportsController extends BaseController {
         if (isPdf || isOnlyPdf(entity, reportId)) {
             output = PdfConverter.convertPdf(output.toPath()).toFile();
             fileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".pdf";
-        } else if (isHtml) {
-            output = PdfConverter.convertHtml(output.toPath()).toFile();
-            fileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".html";
         }
 
         if (ServletUtils.isAjaxRequest(request)) {
@@ -212,8 +209,6 @@ public class ReportsController extends BaseController {
                 final String typeOutput = getParameter(request, "output");
                 if ("PDF".equalsIgnoreCase(typeOutput) || isOnlyPdf(entity, useReport)) {
                     output = PdfConverter.convertPdf(output.toPath()).toFile();
-                } else if ("HTML".equalsIgnoreCase(typeOutput)) {
-                    output = PdfConverter.convertHtml(output.toPath()).toFile();
                 }
 
             } else {

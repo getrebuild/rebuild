@@ -472,7 +472,6 @@ class SelectReport extends React.Component {
                   {(this.state.reports || []).map((item) => {
                     const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}`
                     const showPdf = (item.outputType || '').includes('pdf')
-                    const showHtml = item.outputType !== 'html5' && (item.outputType || '').includes('html')
                     return (
                       <li key={item.id} className={`${rb._officePreviewUrl && 'has-preview'} ${showPdf && 'has-pdf'} ${showHtml && 'has-html'}`}>
                         <a target="_blank" href={reportUrl} className="text-truncate" title={$L('下载')}>
@@ -483,11 +482,6 @@ class SelectReport extends React.Component {
                           {showPdf && (
                             <a target="_blank" className="preview" href={`${reportUrl}&output=pdf`} title={$L('查看 PDF')}>
                               <i className="mdi mdi-file-pdf-box fs-18" />
-                            </a>
-                          )}
-                          {showHtml && (
-                            <a target="_blank" className="preview" href={`${reportUrl}&output=html`} title={$L('查看 HTML')}>
-                              <i className="mdi mdi-language-html5 fs-18" />
                             </a>
                           )}
                           {rb._officePreviewUrl && (
