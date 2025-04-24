@@ -4,7 +4,7 @@ RUN apk add ttf-dejavu
 RUN apk add wget
 
 RUN mkdir -p /app/rebuild/.rebuild/
-ADD ./rebuild-boot-4.0.0.jar /app/rebuild/rebuild-boot.jar
+ADD ./rebuild.jar /app/rebuild/rebuild-boot.jar
 ADD https://www.qn-cdn.getrebuild.com/pub/deploy/SourceHanSansK-Regular.ttf /app/rebuild/.rebuild/
 
 EXPOSE 18080
