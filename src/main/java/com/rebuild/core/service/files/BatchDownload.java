@@ -8,6 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.files;
 
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.task.HeavyTask;
@@ -38,8 +40,9 @@ public class BatchDownload extends HeavyTask<File> {
 
     @Override
     protected File exec() throws Exception {
-        final String tmpName = String.format("RBZIP-%s-%s",
-                CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()), CommonsUtils.randomHex().split("-")[0]);
+        final String tmpName = String.format("RBFILE-%s-%s",
+                CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()),
+                CommonsUtils.randomHex().split("-")[0]);
         File tmp = RebuildConfiguration.getFileOfTemp(tmpName);
         FileUtils.forceMkdir(tmp);
 
@@ -48,7 +51,14 @@ public class BatchDownload extends HeavyTask<File> {
         for (String path : files) {
             if (StringUtils.isBlank(path)) continue;
 
-            // TODO 太大的文件不适用于下载
+            // v4.1 也可以是附件ID
+            if (ID.isId(path)) {
+                Object filePath = QueryHelper.queryFieldValue(ID.valueOf(path), "filePath");
+                if (filePath == null) continue;
+                path = filePath.toString();
+            }
+
+            // FIXME 太大的文件不适用于下载
             File dest = new File(tmp, QiniuCloud.parseFileName(path));
             try {
                 if (QiniuCloud.instance().available()) {
@@ -59,7 +69,7 @@ public class BatchDownload extends HeavyTask<File> {
                 }
 
             } catch (IOException ex) {
-                log.error("Cannot read source file. ignored : {}", path, ex);
+                log.error("Cannot read file. ignored : {}", path, ex);
             }
         }
 
