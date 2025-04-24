@@ -1423,7 +1423,7 @@ class RbFormNText extends RbFormElement {
         />
         {props.useMdedit && !_readonly37 && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
         {this._textCommonMenuId && (
-          <a class="badge text-common" data-toggle="dropdown" data-target={`#${this._textCommonMenuId}`}>
+          <a className="badge text-common" data-toggle="dropdown" data-target={`#${this._textCommonMenuId}`}>
             {$L('常用值')}
           </a>
         )}
