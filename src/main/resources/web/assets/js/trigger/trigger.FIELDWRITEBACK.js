@@ -252,8 +252,9 @@ class ContentFieldWriteback extends ActionContentSpec {
             templateResult: function (res) {
               const text = res.text.split(' (N)')
               const $span = $('<span></span>').text(text[0])
-              if (text.length > 1) $('<span class="badge badge-default badge-pill">N</span>').appendTo($span)
-              else if (res.children && res.children.length > 0) $('<sup class="rbv ml-1"></sup>').appendTo($span)
+              if (text.length > 1 || (res.children && res.children.length > 0)) {
+                $('<span class="badge badge-default badge-pill">N</span>').appendTo($span)
+              }
               return $span
             },
           })

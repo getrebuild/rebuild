@@ -93,7 +93,6 @@ class EntityNew2 extends RbModalHandler {
                       {this.state.entities &&
                         this.state.entities.map((item) => {
                           if (item.mainEntity) return null
-                          if (item.detailEntity && rb.commercial < 10) return null
                           return (
                             <option key={item.entityName} value={item.entityName}>
                               {item.entityLabel}
@@ -270,7 +269,7 @@ class EntityNew2 extends RbModalHandler {
         location.href = `${rb.baseUrl}/admin/entity/${res.data}/base`
       } else {
         $btn.button('reset')
-        RbHighbar.error(res.error_msg)
+        RbHighbar.error(WrapHtml(res.error_msg))
       }
     })
   }

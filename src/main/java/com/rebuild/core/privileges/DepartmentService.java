@@ -56,6 +56,11 @@ public class DepartmentService extends BaseService {
 
     @Override
     public Record update(Record record) {
+        if (ROOT_DEPT.equals(record.getPrimary())) {
+            Boolean b = record.getBoolean("isDisabled");
+            if (b != null && b) throw new OperationDeniedException("内置部门不能禁用");
+        }
+
         checkAdminGuard(BizzPermission.UPDATE, record.getPrimary());
 
         // 检查父子循环依赖

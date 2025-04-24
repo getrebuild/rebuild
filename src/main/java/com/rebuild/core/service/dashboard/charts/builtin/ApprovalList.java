@@ -7,10 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.dashboard.charts.builtin;
 
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -28,9 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 审批列表/统计
@@ -61,38 +59,43 @@ public class ApprovalList extends ChartData implements BuiltinChart {
 
     @Override
     public JSON build() {
-        final int viewState = ObjectUtils.toInt(getExtraParams().get("state"), ApprovalState.DRAFT.getState());
-        final String baseWhere = "where isCanceled = 'F' and isWaiting = 'F' and approver = ?" +
-                " and approvalId <> '' and recordId <> '' and ";
+        // FIXME 存在一定性能问题
+        JSONObject data = new JSONObject();
+        data.put("state1", queryByState(ApprovalState.DRAFT.getState()));
+        data.put("state10", queryByState(ApprovalState.APPROVED.getState()));
+        data.put("state11", queryByState(ApprovalState.REJECTED.getState()));
+        return data;
+    }
 
-        Object[][] array = Application.createQueryNoFilter(
-                "select createdBy,modifiedOn,recordId,approvalId from RobotApprovalStep " +
-                        baseWhere + " state = ? order by modifiedOn desc")
+    protected List<Object[]> queryByState(int viewState) {
+        String sql = "select createdBy,modifiedOn,recordId,approvalId from RobotApprovalStep" +
+                " where isCanceled = 'F' and isWaiting = 'F' and approver = ? and approvalId <> '' and recordId <> '' and state = ?" +
+                " order by modifiedOn desc";
+        Object[][] array = Application.createQueryNoFilter(sql)
                 .setParameter(1, getUser())
                 .setParameter(2, viewState)
                 .setLimit(500)  // 最多显示
                 .array();
 
-        List<Object> rearray = new ArrayList<>();
-        int removed = 0;
+        List<Object[]> stateList = new ArrayList<>();
         for (Object[] o : array) {
             final ID recordId = (ID) o[2];
             String label;
             try {
                 label = FieldValueHelper.getLabel(recordId);
             } catch (NoRecordFoundException ignored) {
-                removed++;
+                // 已删除
                 continue;
             }
 
-            final ApprovalState currentState = ApprovalHelper.getApprovalState(recordId);
+            // 已取消
+            ApprovalState currentState = ApprovalHelper.getApprovalState(recordId);
             if (currentState == ApprovalState.CANCELED) {
-                removed++;
                 continue;
             }
 
             FlowNode currentNode = null;
-            if (currentState == ApprovalState.PROCESSING) {
+            if (viewState == ApprovalState.PROCESSING.getState()) {
                 try {
                     ApprovalProcessor approvalProcessor = new ApprovalProcessor(recordId, (ID) o[3]);
                     currentNode = approvalProcessor.getCurrentNode();
@@ -103,7 +106,7 @@ public class ApprovalList extends ChartData implements BuiltinChart {
 
             Entity e = MetadataHelper.getEntity(recordId.getEntityCode());
             ID s = ApprovalHelper.getSubmitter(recordId, (ID) o[3]);
-            rearray.add(new Object[]{
+            stateList.add(new Object[]{
                     s,
                     UserHelper.getName(s),
                     I18nUtils.formatDate((Date) o[1]),
@@ -116,27 +119,6 @@ public class ApprovalList extends ChartData implements BuiltinChart {
             });
         }
 
-        Object[][] stats = Application.createQueryNoFilter(
-                "select state,count(state) from RobotApprovalStep " + baseWhere + " state < ? group by state")
-                .setParameter(1, this.getUser())
-                .setParameter(2, ApprovalState.CANCELED.getState())
-                .array();
-        // 排除删除和无效的（可能导致不同状态下数据不一致）
-        if (removed > 0) {
-            for (Object[] o : stats) {
-                if ((Integer) o[0] == viewState) {
-                    o[1] = ObjectUtils.toInt(o[1]) - removed;
-                    if ((Integer) o[1] < 0) {
-                        o[1] = 0;
-                    }
-                }
-            }
-        }
-
-        Map<String, Object> ret = new HashMap<>();
-        ret.put("data", rearray);
-        ret.put("stats", stats);
-        ret.put("overLimit", array.length >= 500);
-        return (JSON) JSON.toJSON(ret);
+        return stateList;
     }
 }

@@ -866,18 +866,28 @@ class ApprovalList extends BaseChart {
   constructor(props) {
     super(props)
     this.__approvalForms = {}
-    this.state.viewState = 1
   }
 
-  renderChart(data) {
-    let statsTotal = 0
-    this._lastStats = this._lastStats || data.stats
-    this._lastStats.forEach((item) => (statsTotal += item[1]))
+  renderChart(data, viewState) {
+    viewState = viewState || 1
 
-    const stats = (
+    let stats = []
+    let statsTotal = 0
+    Object.keys(APPROVAL_STATES).forEach((state) => {
+      let len = (data['state' + state] || []).length
+      stats.push([~~state, len])
+      statsTotal += len
+    })
+
+    if (statsTotal === 0) {
+      this.renderError($L('暂无数据'))
+      return
+    }
+
+    const statsComp = (
       <div className="progress-wrap sticky">
         <div className="progress">
-          {this._lastStats.map((item) => {
+          {stats.map((item) => {
             const s = APPROVAL_STATES[item[0]]
             if (!s || s[1] <= 0) return null
 
@@ -885,26 +895,22 @@ class ApprovalList extends BaseChart {
             return (
               <div
                 key={s[0]}
-                className={`progress-bar bg-${s[0]} ${this.state.viewState === item[0] && 'active'}`}
-                // title={`${s[1]} : ${item[1]} (${p})`}
+                className={`progress-bar bg-${s[0]} ${viewState === item[0] && 'active'}`}
                 style={{ width: p }}
-                onClick={() => this._changeState(item[0])}>
+                onClick={() => {
+                  this.renderChart(data, item[0])
+                }}>
                 {s[1]} ({item[1]})
               </div>
             )
           })}
         </div>
-        <p className="m-0 mt-1 fs-11 text-muted text-right hide">{$L('审批统计')}</p>
       </div>
     )
 
-    if (statsTotal === 0) {
-      this.renderError($L('暂无数据'))
-      return
-    }
-
-    const table =
-      (data.data || []).length === 0 ? (
+    const viewData = data['state' + viewState] || []
+    const tableComp =
+      viewData.length === 0 ? (
         <div className="chart-undata must-center">
           <i className="zmdi zmdi-check icon text-success" /> {$L('你已完成所有审批')}
         </div>
@@ -919,7 +925,7 @@ class ApprovalList extends BaseChart {
               </tr>
             </thead>
             <tbody>
-              {data.data.map((item, idx) => {
+              {viewData.map((item, idx) => {
                 let expType = isNaN(item[8]) ? null : item[8]
                 if (expType !== null) expType = item[8] > 0 ? 2 : 1
                 return (
@@ -942,20 +948,20 @@ class ApprovalList extends BaseChart {
                       <span className="cell-detail-description">{item[6]}</span>
                     </td>
                     <td className="actions text-right text-nowrap">
-                      {this.state.viewState === 1 && (
+                      {viewState === 1 && (
                         <button className="btn btn-secondary btn-sm" onClick={() => this.approve(item[3], item[5], item[7])}>
                           {$L('审批')}
                         </button>
                       )}
-                      {this.state.viewState === 10 && <span className="text-success">{$L('通过')}</span>}
-                      {this.state.viewState === 11 && <span className="text-danger">{$L('驳回')}</span>}
+                      {viewState === 10 && <span className="text-success">{$L('通过')}</span>}
+                      {viewState === 11 && <span className="text-danger">{$L('驳回')}</span>}
                     </td>
                   </tr>
                 )
               })}
             </tbody>
           </table>
-          {data.overLimit && (
+          {viewData.length >= 500 && (
             <div className="m-2 text-center text-warning">
               <i className="mdi mdi-information-outline" /> {$L('最多显示最近 500 条记录')}
             </div>
@@ -965,8 +971,8 @@ class ApprovalList extends BaseChart {
 
     const chartdata = (
       <div className="chart ApprovalList">
-        {stats}
-        {table}
+        {statsComp}
+        {tableComp}
       </div>
     )
     this.setState({ chartdata: chartdata }, () => {
@@ -975,14 +981,14 @@ class ApprovalList extends BaseChart {
         .find('.ApprovalList')
         .css('height', $tb.height() - 5)
         .perfectScrollbar()
-      this._$tb = $tb
     })
   }
 
   resize() {
     $setTimeout(
       () => {
-        if (this._$tb) this._$tb.find('.ApprovalList').css('height', this._$tb.height() - 5)
+        const $tb = $(this._$body)
+        if ($tb) $tb.find('.ApprovalList').css('height', $tb.height() - 5)
       },
       400,
       `resize-chart-${this.state.id}`
@@ -990,30 +996,26 @@ class ApprovalList extends BaseChart {
   }
 
   approve(record, approval, entity) {
-    event.preventDefault()
+    window.event && window.event.preventDefault()
     if (this.__approvalForms[record]) {
       this.__approvalForms[record].show()
     } else {
       const that = this
-      const close = function () {
-        if (that.__approvalForms[record]) that.__approvalForms[record].hide(true)
-        that.loadChartData()
-      }
-      // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ApprovalApproveForm id={record} approval={approval} entity={entity} call={close} />, function () {
-        that.__approvalForms[record] = this
-        that._lastStats = null
-      })
+      renderRbcomp(
+        <ApprovalApproveForm
+          id={record}
+          approval={approval}
+          entity={entity}
+          call={() => {
+            if (that.__approvalForms[record]) that.__approvalForms[record].hide(true)
+            that.loadChartData()
+          }}
+        />,
+        function () {
+          that.__approvalForms[record] = this
+        }
+      )
     }
-  }
-
-  _changeState(state) {
-    if (state === this.state.viewState) state = 1
-    this.setState({ viewState: state }, () => this.loadChartData())
-  }
-
-  buildDataUrl() {
-    return `${super.buildDataUrl()}&state=${this.state.viewState}`
   }
 }
 
