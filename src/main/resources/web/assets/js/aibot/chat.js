@@ -29,7 +29,7 @@ class Chat extends React.Component {
   componentDidMount() {
     this.initChat(this.state.chatid)
 
-    $(this._$chat).on('click.chat-hide', (e) => {
+    $(this._$chat).on('click.sidebar-hide', (e) => {
       const $e = $(e.target)
       if ($e.hasClass('chat-sidebar') || $e.parents('.chat-sidebar')[0]);
       else {
@@ -192,15 +192,12 @@ class ChatInput extends React.Component {
   }
 
   attachRecord() {
-    renderRbcomp(
-      <DlgAttachRecord
-        zIndex="1050"
-        onConfirm={(v) => {
-          const attach = [...this.state.attach, { record: v, id: $random('attach-', true) }]
-          this.setState({ attach })
-        }}
-      />
-    )
+    RecordSelectorModal.create({
+      onConfirm: (v) => {
+        const attach = [...this.state.attach, { record: v, id: $random('attach-', true) }]
+        this.setState({ attach })
+      },
+    })
   }
   attachFile() {
     RbHighbar.createl('暂不支持')
@@ -595,30 +592,6 @@ class DlgChatRename extends RbAlert {
 
   _onConfirm = () => {
     typeof this.props.onConfirm === 'function' && this.props.onConfirm($(this._$name).val())
-    this.hide()
-  }
-}
-
-// 选择记录
-class DlgAttachRecord extends RbAlert {
-  renderContent() {
-    return (
-      <div className="form ml-3 mr-3">
-        <div className="form-group">
-          <label className="text-bold">{$L('选择记录')}</label>
-          <AnyRecordSelector ref={(c) => (this._AnyRecordSelector = c)} />
-        </div>
-        <div className="form-group mb-2">
-          <button type="button" className="btn btn-primary" onClick={this._onConfirm}>
-            {$L('确定')}
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  _onConfirm = () => {
-    typeof this.props.onConfirm === 'function' && this.props.onConfirm(this._AnyRecordSelector.val())
     this.hide()
   }
 }

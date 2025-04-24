@@ -135,8 +135,8 @@ $(function () {
   }
 
   var bosskey = 0
-  $(document).on('keydown', function (e) {
-    if (e.keyCode === 16) {
+  $(document).on('keyup.bosskey', function (e) {
+    if (e.code === 'ShiftLeft') {
       if (++bosskey === 6) {
         $('.bosskey-show').removeClass('bosskey-show')
         typeof window.bosskeyTrigger === 'function' && window.bosskeyTrigger()
@@ -201,10 +201,17 @@ $(function () {
     }
   }
 
-  // AI
-  $('.aibot-show a').on('click', function () {
-    window.AiBot && window.AiBot.init({ chatid: $storage.get('__LastChatId') }, true)
-  })
+  var $ai = $('.aibot-show a')
+  if ($ai[0]) {
+    function _FN() {
+      window.AiBot && window.AiBot.init({ chatid: $storage.get('__LastChatId') }, true)
+    }
+    $ai.on('click', _FN)
+    $(document).on('keydown.aibot', null, 'ctrl+a', function (e) {
+      $stopEvent(e, true)
+      _FN()
+    })
+  }
 })
 $(window).on('load', () => {
   if (window.__LAB_COMMERCIAL11_NORB) {
@@ -630,12 +637,14 @@ var $unhideDropdown = function (dp) {
 /**
  * 获取附件文件名
  */
-var $fileCutName = function (fileName) {
+var $fileCutName = function (fileName, clearExt) {
   fileName = fileName.split('?')[0]
   fileName = fileName.split('/')
   fileName = fileName[fileName.length - 1]
   var splitIndex = fileName.indexOf('__')
-  return splitIndex === -1 ? fileName : fileName.substr(splitIndex + 2)
+  fileName = splitIndex === -1 ? fileName : fileName.substr(splitIndex + 2)
+  if (clearExt === true) fileName = fileName.substr(0, fileName.lastIndexOf('.'))
+  return fileName
 }
 
 /**
@@ -1399,7 +1408,6 @@ function $dropdownMenuSearch($dd) {
     })
   // foucs
   $dd.parent().on('shown.bs.dropdown', function () {
-    console.log('open')
     setTimeout(function () {
       $dd.find('input')[0].focus()
     }, 200)
@@ -1408,4 +1416,14 @@ function $dropdownMenuSearch($dd) {
 
 function $logRBAPI(id, type) {
   id && rb.isAdminUser && console.log('RBAPI ASSISTANT *' + (type || 'N') + '* :\n%c' + id, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
+}
+
+// 定位
+function $focus2End(el, delay) {
+  if (!el) return
+  setTimeout(function () {
+    el.focus()
+    var len = (el.value || '').length
+    el.setSelectionRange(len, len)
+  }, delay || 100)
 }

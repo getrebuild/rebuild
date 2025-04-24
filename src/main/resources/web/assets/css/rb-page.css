@@ -5990,3 +5990,27 @@ div.formula-code {
 .EasyMDEContainer .editor-toolbar.fullscreen::after {
   display: none;
 }
+
+@media (max-width: 1464px) {
+  .modal.rbview .modal-dialog .modal-content {
+    width: 1220px;
+    margin: 0 -1230px 0 0;
+  }
+  .page-aside {
+    width: 230px;
+    left: 200px;
+  }
+  .page-aside .tab-container,
+  .page-aside.widgets .tab-container {
+    min-width: 229px;
+  }
+  .rb-aside .main-content {
+    margin-left: 230px;
+  }
+  .rb-left-sidebar {
+    width: 200px;
+  }
+  .rb-content {
+    margin-left: 200px;
+  }
+}

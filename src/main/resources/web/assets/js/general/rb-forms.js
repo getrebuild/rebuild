@@ -38,7 +38,7 @@ class RbFormModal extends React.Component {
 
     return (
       <div className="modal-wrapper">
-        <div className="modal rbmodal colored-header colored-header-primary" aria-modal="true" ref={(c) => (this._rbmodal = c)}>
+        <div className="modal rbmodal colored-header colored-header-primary" aria-modal="true" tabIndex="-1" ref={(c) => (this._rbmodal = c)}>
           <div className="modal-dialog" style={style2}>
             <div className="modal-content" style={style2}>
               <div
@@ -57,7 +57,7 @@ class RbFormModal extends React.Component {
                 <button className="close md-close J_maximize" type="button" title={this.state._maximize ? $L('向下还原') : $L('最大化')} onClick={() => this._handleMaximize()}>
                   <span className={`mdi ${this.state._maximize ? 'mdi mdi-window-restore' : 'mdi mdi-window-maximize'}`} />
                 </button>
-                <button className="close md-close" type="button" title={$L('关闭')} onClick={() => this.hide()}>
+                <button className="close md-close" type="button" title={`${$L('关闭')} (Esc)`} onClick={() => this.hide()}>
                   <span className="zmdi zmdi-close" />
                 </button>
               </div>
@@ -97,7 +97,7 @@ class RbFormModal extends React.Component {
       .modal({
         show: false,
         backdrop: 'static',
-        keyboard: false,
+        keyboard: true,
       })
       .on('hidden.bs.modal', () => {
         $keepModalOpen()
@@ -1201,22 +1201,22 @@ class RbFormText extends RbFormElement {
     super.componentDidMount()
 
     if (this._textCommonMenuId) {
-      const that = this
       if (rb.dev === 'env') console.log('[dev] init dropdown-menu with text-common', this._textCommonMenuId)
       renderRbcomp(
         <div id={this._textCommonMenuId}>
           <div className="dropdown-menu common-texts">
             <h5>{$L('常用')}</h5>
-            {this.props.textCommon.split(',').map((item) => {
+            {this.props.textCommon.split(',').map((c) => {
               return (
                 <a
-                  key={item}
-                  title={item}
+                  key={c}
+                  title={c}
                   className="badge text-ellipsis"
                   onClick={() => {
-                    that.handleChange({ target: { value: item } }, true)
+                    this.handleChange({ target: { value: (this.state.value || '') + c } }, true)
+                    $focus2End(this._fieldValue)
                   }}>
-                  {item}
+                  {c}
                 </a>
               )
             })}
@@ -1390,6 +1390,7 @@ class RbFormDecimal extends RbFormNumber {
 class RbFormNText extends RbFormElement {
   constructor(props) {
     super(props)
+    this._textCommonMenuId = props.readonly || !props.textCommon ? null : $random('tcddm-')
 
     this._height = this.props.useMdedit ? 0 : ~~this.props.height
     if (this._height && this._height > 0) {
@@ -1418,6 +1419,11 @@ class RbFormNText extends RbFormElement {
           maxLength="6000"
         />
         {props.useMdedit && !_readonly37 && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
+        {this._textCommonMenuId && (
+          <a class="badge text-common" data-toggle="dropdown" data-target={`#${this._textCommonMenuId}`}>
+            {$L('常用值')}
+          </a>
+        )}
       </RF>
     )
   }
@@ -1460,6 +1466,34 @@ class RbFormNText extends RbFormElement {
   componentDidMount() {
     super.componentDidMount()
     this.props.onView && this.onEditModeChanged(true)
+
+    if (this._textCommonMenuId) {
+      if (rb.dev === 'env') console.log('[dev] init dropdown-menu with text-common', this._textCommonMenuId)
+      renderRbcomp(
+        <div id={this._textCommonMenuId}>
+          <div className="dropdown-menu  dropdown-menu-right common-texts">
+            {this.props.textCommon.split(',').map((c) => {
+              return (
+                <a
+                  key={c}
+                  title={c}
+                  className="badge text-ellipsis"
+                  onClick={() => {
+                    if (this._EasyMDE) {
+                      this._mdeInsert(c)
+                    } else {
+                      this.handleChange({ target: { value: (this.state.value || '') + c } }, true)
+                      $focus2End(this._fieldValue)
+                    }
+                  }}>
+                  {c}
+                </a>
+              )
+            })}
+          </div>
+        </div>
+      )
+    }
   }
 
   UNSAFE_componentWillUpdate(nextProps, nextState) {
@@ -1514,23 +1548,11 @@ class RbFormNText extends RbFormElement {
     })
     this._EasyMDE = mde
 
-    function _mdeFocus() {
-      setTimeout(() => {
-        mde.codemirror.focus()
-        mde.codemirror.setCursor(mde.codemirror.lineCount(), 0) // cursor at end
-      }, 100)
-    }
-
     if (_readonly37) {
       mde.codemirror.setOption('readOnly', true)
     } else {
-      $createUploader(this._fieldValue__upload, null, (res) => {
-        const pos = mde.codemirror.getCursor()
-        mde.codemirror.setSelection(pos, pos)
-        mde.codemirror.replaceSelection(`![](${rb.baseUrl}/filex/img/${res.key})`)
-        _mdeFocus()
-      })
-      if (this.props.onView) _mdeFocus()
+      $createUploader(this._fieldValue__upload, null, (res) => this._mdeInsert(`![](${rb.baseUrl}/filex/img/${res.key})`))
+      if (this.props.onView) this._mdeFocus()
 
       mde.codemirror.on('changes', () => {
         $setTimeout(
@@ -1550,6 +1572,21 @@ class RbFormNText extends RbFormElement {
         }
       })
     }
+  }
+
+  _mdeInsert(text) {
+    if (!this._EasyMDE) return
+    const pos = this._EasyMDE.codemirror.getCursor()
+    this._EasyMDE.codemirror.setSelection(pos, pos)
+    this._EasyMDE.codemirror.replaceSelection(text)
+    this._mdeFocus()
+  }
+  _mdeFocus() {
+    if (!this._EasyMDE) return
+    setTimeout(() => {
+      this._EasyMDE.codemirror.focus()
+      this._EasyMDE.codemirror.setCursor(this._EasyMDE.codemirror.lineCount(), 0) // cursor at end
+    }, 100)
   }
 }
 
@@ -2120,22 +2157,20 @@ class RbFormReference extends RbFormElement {
     const props = this.props
     if (this._isNew && props.value && props.value.id) {
       // fix: 4.0.2 #IC0GPI 复制时无需回填
-      if (props._disableAutoFillin !== true) {
+      if (props._disableAutoFillin !== true && this._disableAutoFillin !== true) {
         setTimeout(() => this.triggerAutoFillin(props.value.id), 200)
       }
     }
   }
 
   onEditModeChanged(destroy) {
-    const $$$form = this.props.$$$parent
-
     if (destroy) {
       super.onEditModeChanged(destroy)
     } else {
       this.__select2 = $initReferenceSelect2(this._fieldValue, {
         name: this.props.field,
         label: this.props.label,
-        entity: $$$form.props.entity,
+        entity: this.props.entity,
         wrapQuery: (query) => {
           const cascadingValue = this._getCascadingFieldValue()
           return cascadingValue ? { cascadingValue, ...query } : query
@@ -2268,7 +2303,7 @@ class RbFormReference extends RbFormElement {
       }
     }
 
-    const url = `/app/entity/extras/fillin-value?entity=${$$$form.props.entity}&field=${this.props.field}&source=${id}`
+    const url = `/app/entity/extras/fillin-value?entity=${this.props.entity}&field=${this.props.field}&source=${id}`
     $.post(url, JSON.stringify(formData), (res) => {
       if (res.error_code === 0 && res.data.length > 0) {
         const fillin2main = []
@@ -2314,9 +2349,7 @@ class RbFormReference extends RbFormElement {
       that._ReferenceSearcher.hide()
     }
 
-    const url = `${rb.baseUrl}/app/entity/reference-search?field=${this.props.field}.${this.props.$$$parent.props.entity}&cascadingValue=${this._getCascadingFieldValue() || ''}`
-    if (!this._ReferenceSearcher_Url) this._ReferenceSearcher_Url = url
-
+    const url = this._buildSearcherUrl()
     if (this._ReferenceSearcher && this._ReferenceSearcher_Url === url) {
       this._ReferenceSearcher.show()
     } else {
@@ -2331,6 +2364,10 @@ class RbFormReference extends RbFormElement {
         that._ReferenceSearcher = this
       })
     }
+  }
+
+  _buildSearcherUrl() {
+    return `${rb.baseUrl}/app/entity/reference-search?field=${this.props.field}.${this.props.entity}&cascadingValue=${this._getCascadingFieldValue() || ''}`
   }
 
   showSearcher_call(selected, that) {
@@ -2462,8 +2499,133 @@ class RbFormN2NReference extends RbFormReference {
   }
 }
 
-// TODO 任意引用支持手动编辑
-class RbFormAnyReference extends RbFormReference {}
+// v4.1 任意引用
+class RbFormAnyReference extends RbFormReference {
+  constructor(props) {
+    super(props)
+    this._disableAutoFillin = true
+  }
+
+  renderElement() {
+    return (
+      <div className="row">
+        <div className="col-4 pr-0">
+          <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)}>
+            {(this.state.entities || []).map((item) => {
+              return (
+                <option key={item.name} value={item.name}>
+                  {item.label}
+                </option>
+              )
+            })}
+          </select>
+        </div>
+        <div className="col-8 pl-2">
+          <div className="input-group has-append">
+            <select className="form-control form-control-sm" ref={(c) => (this._fieldValue = c)} />
+            {!this.state.readonly && (
+              <div className="input-group-append">
+                <button className="btn btn-secondary" type="button" onClick={() => this.showSearcher()}>
+                  <i className="icon zmdi zmdi-search" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  onEditModeChanged(destroy) {
+    if (destroy) {
+      super.onEditModeChanged(destroy)
+    } else {
+      const initVal = this.state.value
+      $.get('/commons/metadata/entities?detail=true', (res) => {
+        let entities = res.data || []
+        if (this.props.anyreferenceEntities) {
+          const ae = this.props.anyreferenceEntities.split(',')
+          if (ae.length > 0) {
+            entities = entities.filter((item) => ae.includes(item.name))
+          }
+        }
+
+        // #1 E
+        this.setState({ entities: entities }, () => {
+          this.__select2Entity = $(this._$entity).select2({
+            placeholder: $L('无可用'),
+            allowClear: false,
+          })
+          if (initVal) {
+            let code = ~~(initVal.id || initVal).split('-')[0]
+            let name = entities.find((item) => item.entityCode === code)
+            if (name) {
+              this.__select2Entity.val(name.entity).trigger('change')
+              this._anyrefEntity = name.entity
+            } else {
+              this.__select2Entity.val(null).trigger('change')
+            }
+          }
+          this.__select2Entity.on('change', (e) => {
+            this._anyrefEntity = e.target.value
+            this.setValue(null)
+          })
+
+          // #2 R
+          this.__select2 = $initReferenceSelect2(this._fieldValue, {
+            name: this.props.field,
+            label: this.props.label,
+            entity: this.props.entity,
+            placeholder: this._placeholderw,
+            templateResult: $select2OpenTemplateResult,
+            wrapQuery: (query) => {
+              // 真实查询实体
+              query.anyrefEntity = this._anyrefEntity
+              return query
+            },
+          }).on('change', (e) => {
+            if (this._setValueStop) {
+              this._setValueStop = false
+            } else {
+              const v = $(e.target).val()
+              this.handleChange({ target: { value: v } }, true)
+            }
+          })
+
+          // #3 init
+          if (initVal) {
+            this.setValue(initVal)
+          } else if (entities[0]) {
+            this.__select2Entity.val(entities[0].name).trigger('change')
+            this._anyrefEntity = entities[0].name
+          }
+        })
+      })
+
+      if (this.state.readonly) {
+        $(this._$entity).attr('disabled', true)
+        $(this._fieldValue).attr('disabled', true)
+      }
+    }
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount()
+
+    if (this.__select2Entity) {
+      this.__select2Entity.select2('destroy')
+    }
+  }
+
+  setValue(val) {
+    this._setValueStop = true
+    super.setValue(val)
+  }
+
+  _buildSearcherUrl() {
+    return `${rb.baseUrl}/app/entity/reference-search?field=${this._anyrefEntity}Id.${this._anyrefEntity}`
+  }
+}
 
 class RbFormClassification extends RbFormElement {
   renderElement() {
@@ -2509,7 +2671,7 @@ class RbFormClassification extends RbFormElement {
       this.__select2 = $initReferenceSelect2(this._fieldValue, {
         name: this.props.field,
         label: this.props.label,
-        entity: this.props.$$$parent.props.entity,
+        entity: this.props.entity,
         searchType: 'classification',
         templateResult: function (res) {
           const $span = $('<span class="code-append"></span>').attr('title', res.text).text(res.text)
@@ -3198,6 +3360,8 @@ class RbFormRefform extends React.Component {
 // 确定元素类型
 var detectElement = function (item, entity) {
   if (!item.key) item.key = `field-${item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM ? $random() : item.field}`
+  // v41
+  item.entity = item.entity || entity
 
   if (entity && window._CustomizedForms) {
     const c = window._CustomizedForms.useFormElement(entity, item)
@@ -3206,9 +3370,7 @@ var detectElement = function (item, entity) {
 
   if (item.unreadable === true) {
     return <RbFormUnreadable {...item} />
-  }
-
-  if (item.type === 'TEXT' || item.type === 'SERIES') {
+  } else if (item.type === 'TEXT' || item.type === 'SERIES') {
     return <RbFormText {...item} />
   } else if (item.type === 'NTEXT') {
     return <RbFormNText {...item} />
@@ -3237,7 +3399,7 @@ var detectElement = function (item, entity) {
   } else if (item.type === 'N2NREFERENCE') {
     return <RbFormN2NReference {...item} />
   } else if (item.type === 'ANYREFERENCE') {
-    return <RbFormAnyReference {...item} readonly />
+    return <RbFormAnyReference {...item} />
   } else if (item.type === 'CLASSIFICATION') {
     return <RbFormClassification {...item} />
   } else if (item.type === 'MULTISELECT') {
@@ -3334,7 +3496,7 @@ const __calcFormula = function (fieldComp) {
   const watchFields = fieldComp.props.calcFormula.match(/\{([a-z0-9]+)}/gi) || []
   const $$$parent = fieldComp.props.$$$parent
 
-  const evalUrl = `/app/entity/extras/eval-calc-formula?entity=${$$$parent.props.entity}&field=${fieldComp.props.field}`
+  const evalUrl = `/app/entity/extras/eval-calc-formula?entity=${fieldComp.props.entity}&field=${fieldComp.props.field}`
   setTimeout(() => {
     const calcFormulaValues = {}
     let _timer

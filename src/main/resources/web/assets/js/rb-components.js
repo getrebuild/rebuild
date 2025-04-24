@@ -28,6 +28,7 @@ class RbModal extends React.Component {
         className={modalClazz}
         style={props.zIndex ? { zIndex: props.zIndex } : null}
         aria-modal="true"
+        tabIndex="-1"
         ref={(c) => {
           this._rbmodal = c
           this._element = c
@@ -60,7 +61,7 @@ class RbModal extends React.Component {
                   <span className={`mdi ${this.state._maximize ? 'mdi mdi-window-restore' : 'mdi mdi-window-maximize'}`} />
                 </button>
               )}
-              <button className="close" type="button" onClick={() => this.hide()} title={$L('关闭')}>
+              <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
@@ -87,7 +88,7 @@ class RbModal extends React.Component {
       .modal({
         show: true,
         backdrop: this.props.backdrop === false ? false : 'static',
-        keyboard: false,
+        keyboard: true,
       })
       .on('hidden.bs.modal', () => {
         $keepModalOpen()
@@ -258,6 +259,7 @@ class RbAlert extends React.Component {
         className={`modal rbalert ${this.props.className || ''}`}
         aria-modal="true"
         style={style1}
+        tabIndex="-1"
         ref={(c) => {
           this._dlg = c
           this._element = c
@@ -265,7 +267,7 @@ class RbAlert extends React.Component {
         <div className="modal-dialog modal-dialog-centered" style={style2}>
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (ESC)`}>
+              <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
@@ -851,9 +853,9 @@ class RecordSelector extends React.Component {
   render() {
     return (
       <div className="input-group has-append">
-        <select className="form-control form-control-sm" ref={(c) => (this._$select = c)}></select>
+        <select className="form-control form-control-sm" ref={(c) => (this._$select = c)} />
         <div className="input-group-append">
-          <button className="btn btn-secondary" onClick={() => this._showSearcher()}>
+          <button className="btn btn-secondary" onClick={() => this._showSearcher()} ref={(c) => (this._$btn = c)}>
             <i className="icon zmdi zmdi-search" />
           </button>
         </div>
@@ -954,6 +956,7 @@ class RecordSelector extends React.Component {
 // ~~ 任意记录选择器
 class AnyRecordSelector extends RecordSelector {
   render() {
+    const ae = this.props.allowEntities || []
     return (
       <div className="row">
         <div className="col-4 pr-0">
@@ -977,13 +980,15 @@ class AnyRecordSelector extends RecordSelector {
     super.componentDidMount()
 
     $.get('/commons/metadata/entities?detail=true', (res) => {
-      const _entities = res.data || []
-      if (_entities.length === 0) $(this._$select).attr('disabled', true)
+      let entities = res.data || []
+      if (this.props.allowEntities && this.props.allowEntities.length > 0) {
+        entities = entities.filter((item) => this.props.allowEntities.includes(item.name))
+      }
 
-      this.setState({ entities: _entities }, () => {
-        const s2entity = $(this._$entity)
+      this.setState({ entities }, () => {
+        this.__select2Entity = $(this._$entity)
           .select2({
-            placeholder: $L('无可用实体'),
+            placeholder: $L('无可用'),
             allowClear: false,
           })
           .on('change', (e) => {
@@ -997,11 +1002,8 @@ class AnyRecordSelector extends RecordSelector {
               )
             }
           })
-        this.__select2Entity = s2entity
         // init
-        if (_entities.length > 0) {
-          $(this._$entity).val(_entities[0].name).trigger('change')
-        }
+        entities[0] && $(this._$entity).val(entities[0].name).trigger('change')
 
         // 编辑时
         const iv = this.props.initValue
@@ -1027,6 +1029,40 @@ class AnyRecordSelector extends RecordSelector {
   componentWillUnmount() {
     super.componentWillUnmount()
     this.__select2Entity && this.__select2Entity.select2('destroy')
+  }
+}
+
+// ~~ 选择记录
+class RecordSelectorModal extends RbAlert {
+  renderContent() {
+    return (
+      <div className="form ml-3 mr-3">
+        <div className="form-group">
+          <label className="text-bold">{this.props.title || $L('选择记录')}</label>
+          <AnyRecordSelector ref={(c) => (this._AnyRecordSelector = c)} allowEntities={this.props.allowEntities} />
+        </div>
+        <div className="form-group mb-2">
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => {
+              typeof this.props.onConfirm === 'function' && this.props.onConfirm(this._AnyRecordSelector.val())
+              this.hide()
+            }}>
+            {$L('确定')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // -- Usage
+
+  /**
+   * @param {*} props
+   */
+  static create(props) {
+    renderRbcomp(<RecordSelectorModal {...props} zIndex="1050" />)
   }
 }
 

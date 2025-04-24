@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.rebuild</groupId>
     <artifactId>rebuild</artifactId>
-    <version>4.0.2</version>
+    <version>4.1.0-dev</version>
     <name>rebuild</name>
     <description>Building your business-systems freely!</description>
     <url>https://getrebuild.com/</url>
@@ -302,7 +302,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>persist4j</artifactId>
-            <version>1.8.2</version>
+            <version>0ab849caea</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.alibaba</groupId>

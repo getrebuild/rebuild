@@ -135,19 +135,26 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   margin-bottom: 0;
 }
 
-@media (max-width: 1464px) {
-  .modal.rbview .modal-dialog .modal-content {
-    width: 1220px;
-    margin: 0 -1230px 0 0;
-  }
-  .page-aside {
-    width: 230px;
-  }
-  .page-aside .tab-container,
-  .page-aside.widgets .tab-container {
-    min-width: 229px;
-  }
-  .rb-aside .main-content {
-    margin-left: 230px;
-  }
+.rbform .type-NTEXT a.text-common {
+  position: absolute;
+  right: 15px;
+  bottom: 5px;
+  background-color: #eee;
+  border: 0 none;
+  font-size: 12px;
+  padding-left: 6px;
+  padding-right: 15px;
+}
+
+.rbform .type-NTEXT a.text-common::after {
+  font-family: 'Material Design Icons', serif;
+  content: '\F035D';
+  font-size: 17px;
+  position: absolute;
+  margin-left: -2px;
+  margin-top: -4px;
+}
+
+.rbform .type-NTEXT a.text-common:hover {
+  background-color: #ddd;
 }

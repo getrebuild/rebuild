@@ -25,7 +25,7 @@ class ClassificationSelector extends React.Component {
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()}>
+              <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
@@ -207,7 +207,7 @@ class DeleteConfirm extends RbAlert {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (ESC)`}>
+              <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
@@ -568,7 +568,7 @@ class SignPad extends React.Component {
           <div className="modal-content">
             <div className="modal-header pb-0">
               <h5 className="mt-0 text-bold text-uppercase">{$L('签名区')}</h5>
-              <button className="close" type="button" onClick={this.hide}>
+              <button className="close" type="button" onClick={this.hide} title={`${$L('关闭')} (Esc)`}>
                 <i className="zmdi zmdi-close" />
               </button>
             </div>
@@ -650,7 +650,10 @@ class SignPad extends React.Component {
   hide = () => $(this._$dlg).modal('hide')
   show = (clear) => {
     if (clear && this._SignaturePad) this._SignaturePad.clear()
-    $(this._$dlg).modal('show')
+    $(this._$dlg).modal({
+      show: true,
+      keyboard: true,
+    })
   }
 }
 

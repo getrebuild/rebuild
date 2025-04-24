@@ -65,7 +65,7 @@ class RbPreview extends React.Component {
                 <i className="zmdi zmdi-download" />
               </a>
               {!this.props.unclose && (
-                <a title={`${$L('关闭')} (ESC)`} onClick={this.hide}>
+                <a title={`${$L('关闭')} (Esc)`} onClick={this.hide}>
                   <i className="zmdi zmdi-close" />
                 </a>
               )}

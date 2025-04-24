@@ -13,7 +13,7 @@ class AiBot extends React.Component {
 
   render() {
     return (
-      <div className={`aibot modal ${this.state.hide ? '' : 'show'}`}>
+      <div className={`aibot modal ${this.state.hide ? '' : 'show'}`} ref={(c) => (this._$modal = c)} aria-modal="true" tabIndex="-1">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
@@ -22,7 +22,7 @@ class AiBot extends React.Component {
               <button className="close" type="button" onClick={() => this.openChatSidebar()} title={$L('对话列表')}>
                 <span className="mdi mdi-segment" />
               </button>
-              <button className="close hide2" type="button" onClick={() => this.hide()} title={$L('关闭')}>
+              <button className="close hide2" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
                 <span className="mdi mdi-close" />
               </button>
             </div>
@@ -43,7 +43,38 @@ class AiBot extends React.Component {
   }
 
   componentDidMount() {
-    setTimeout(() => this.show(), 100)
+    setTimeout(() => this.show(), 50)
+
+    if (this.props.draggable) {
+      let pos = $storage.get('__LastChatModalPos')
+      if (pos) {
+        pos = pos.split(',').map((v) => parseInt(v))
+        $(this._$modal).css({
+          left: Math.max(0, pos[0]),
+          top: Math.max(0, pos[1]),
+          right: 'unset',
+          bottom: 'unset',
+        })
+      }
+
+      $(this._$modal).draggable({
+        handle: '.modal-header',
+        containment: document.body,
+        start: function () {
+          $(this).css({
+            right: 'unset',
+            bottom: 'unset',
+          })
+        },
+        stop: function (event, ui) {
+          const left = ui.position.left
+          const top = ui.position.top
+          $storage.set('__LastChatModalPos', left + ',' + top)
+        },
+      })
+
+      $(document).on('keydown.aibot-hide', null, 'esc', () => this.hide())
+    }
   }
 
   openChatSidebar() {
@@ -69,7 +100,7 @@ class AiBot extends React.Component {
         window._AiBot.show()
       }
     } else {
-      renderRbcomp(<AiBot {...props} />, function () {
+      renderRbcomp(<AiBot {...props} draggable />, function () {
         window._AiBot = this
       })
     }
