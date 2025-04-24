@@ -193,7 +193,7 @@ class ReportEditor extends ConfigFormDlg {
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-1">
               <input className="custom-control-input" type="checkbox" value="pdf" disabled={isHtml5} />
               <span className="custom-control-label">PDF</span>
-              <a href="https://getrebuild.com/docs/admin/excel-admin#%E6%8A%A5%E8%A1%A8%E5%AF%BC%E5%87%BA%E6%A0%BC%E5%BC%8F" title={$L('查看帮助')} target="_blank">
+              <a href="https://getrebuild.com/docs/admin/excel-admin#%E5%AF%BC%E5%87%BA%20PDF%20%E6%A0%BC%E5%BC%8F" title={$L('查看帮助')} target="_blank">
                 <i className="zmdi zmdi-help zicon down-1" />
               </a>
             </label>
