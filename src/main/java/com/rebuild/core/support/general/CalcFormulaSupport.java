@@ -145,7 +145,17 @@ public class CalcFormulaSupport {
                 if (StringUtils.isNotBlank(val2str)) {
                     // v3.6.3 整数/小数强制使用 BigDecimal 高精度
                     if (dt == DisplayType.NUMBER) fieldValue = BigDecimal.valueOf(ObjectUtils.toLong(fieldValue));
-                    else fieldValue = BigDecimal.valueOf(ObjectUtils.toDouble(fieldValue));
+                    else {
+                        // 检查是否为百分比类型
+                        EasyField fieldEasy = EasyMetaFactory.valueOf(field);
+                        String decimalType = fieldEasy.getExtraAttr(EasyFieldConfigProps.DECIMAL_TYPE);
+                        if ("%".equals(decimalType)) {
+                            // 百分比转换为小数
+                            fieldValue = BigDecimal.valueOf(ObjectUtils.toDouble(fieldValue) / 100);
+                        } else {
+                            fieldValue = BigDecimal.valueOf(ObjectUtils.toDouble(fieldValue));
+                        }
+                    }
                 } else {
                     fieldValue = null;
                 }
@@ -186,6 +196,13 @@ public class CalcFormulaSupport {
             }
         } else if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
             if (evalVal instanceof Number) {
+                // 检查目标字段是否为百分比类型
+                String decimalType = targetField.getExtraAttr(EasyFieldConfigProps.DECIMAL_TYPE);
+                if ("%".equals(decimalType)) {
+                    // 计算结果需要乘以100转为百分比
+                    evalVal = BigDecimal.valueOf(ObjectUtils.toDouble(evalVal) * 100);
+                }
+                
                 evalVal = targetField.wrapValue(evalVal);
                 evalVal = EasyDecimal.clearFlaged(evalVal);
                 return evalVal;
