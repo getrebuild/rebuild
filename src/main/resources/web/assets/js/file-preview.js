@@ -50,7 +50,7 @@ class RbPreview extends React.Component {
 
     return (
       <RF>
-        <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''}`} ref={(c) => (this._dlg = c)}>
+        <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''}`} ref={(c) => (this._dlg = c)} tabIndex="-1">
           <div className="preview-header">
             <div className="float-left">
               <h5 className="text-bold">{fileName}</h5>

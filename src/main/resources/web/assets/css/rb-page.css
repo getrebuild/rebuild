@@ -6018,3 +6018,9 @@ div.formula-code {
     margin-left: 200px;
   }
 }
+
+.form-control::placeholder,
+.select2-search__field::placeholder {
+  color: #999;
+  opacity: 1;
+}

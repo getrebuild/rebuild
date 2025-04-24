@@ -1197,10 +1197,22 @@ class RbFormText extends RbFormElement {
     return this._textCommonMenuId ? React.cloneElement(comp, { 'data-toggle': 'dropdown', 'data-target': `#${this._textCommonMenuId}` }) : comp
   }
 
-  componentDidMount() {
-    super.componentDidMount()
+  componentWillUnmount() {
+    super.componentWillUnmount()
 
     if (this._textCommonMenuId) {
+      if (rb.dev === 'env') console.log('[dev] unmount dropdown-menu with text-common:', this._textCommonMenuId)
+      $unmount($(`#${this._textCommonMenuId}`).parent())
+    }
+  }
+
+  onEditModeChanged(destroy) {
+    if (destroy) {
+      super.onEditModeChanged(destroy)
+      return
+    }
+
+    if (this._textCommonMenuId && !$(`#${this._textCommonMenuId}`)[0]) {
       if (rb.dev === 'env') console.log('[dev] init dropdown-menu with text-common', this._textCommonMenuId)
       renderRbcomp(
         <div id={this._textCommonMenuId}>
@@ -1213,7 +1225,7 @@ class RbFormText extends RbFormElement {
                   title={c}
                   className="badge text-ellipsis"
                   onClick={() => {
-                    this.handleChange({ target: { value: (this.state.value || '') + c } }, true)
+                    this.handleChange({ target: { value: c } }, true)
                     $focus2End(this._fieldValue)
                   }}>
                   {c}
@@ -1223,15 +1235,6 @@ class RbFormText extends RbFormElement {
           </div>
         </div>
       )
-    }
-  }
-
-  componentWillUnmount() {
-    super.componentWillUnmount()
-
-    if (this._textCommonMenuId) {
-      if (rb.dev === 'env') console.log('[dev] unmount dropdown-menu with text-common:', this._textCommonMenuId)
-      $unmount($(`#${this._textCommonMenuId}`).parent())
     }
   }
 }
@@ -1463,39 +1466,6 @@ class RbFormNText extends RbFormElement {
     }
   }
 
-  componentDidMount() {
-    super.componentDidMount()
-    this.props.onView && this.onEditModeChanged(true)
-
-    if (this._textCommonMenuId) {
-      if (rb.dev === 'env') console.log('[dev] init dropdown-menu with text-common', this._textCommonMenuId)
-      renderRbcomp(
-        <div id={this._textCommonMenuId}>
-          <div className="dropdown-menu  dropdown-menu-right common-texts">
-            {this.props.textCommon.split(',').map((c) => {
-              return (
-                <a
-                  key={c}
-                  title={c}
-                  className="badge text-ellipsis"
-                  onClick={() => {
-                    if (this._EasyMDE) {
-                      this._mdeInsert(c)
-                    } else {
-                      this.handleChange({ target: { value: (this.state.value || '') + c } }, true)
-                      $focus2End(this._fieldValue)
-                    }
-                  }}>
-                  {c}
-                </a>
-              )
-            })}
-          </div>
-        </div>
-      )
-    }
-  }
-
   UNSAFE_componentWillUpdate(nextProps, nextState) {
     // destroy
     if (this.state.editMode && !nextState.editMode) {
@@ -1515,7 +1485,38 @@ class RbFormNText extends RbFormElement {
       }
     }
 
-    if (this.props.useMdedit && !destroy) this._initMde()
+    if (!destroy) {
+      // MDE
+      if (this.props.useMdedit) this._initMde()
+      // 常用值
+      if (this._textCommonMenuId && !$(`#${this._textCommonMenuId}`)[0]) {
+        if (rb.dev === 'env') console.log('[dev] init dropdown-menu with text-common', this._textCommonMenuId)
+        renderRbcomp(
+          <div id={this._textCommonMenuId}>
+            <div className="dropdown-menu  dropdown-menu-right common-texts">
+              {this.props.textCommon.split(',').map((c) => {
+                return (
+                  <a
+                    key={c}
+                    title={c}
+                    className="badge text-ellipsis"
+                    onClick={() => {
+                      if (this._EasyMDE) {
+                        this._mdeInsert(c)
+                      } else {
+                        this.handleChange({ target: { value: (this.state.value || '') + c } }, true)
+                        $focus2End(this._fieldValue)
+                      }
+                    }}>
+                    {c}
+                  </a>
+                )
+              })}
+            </div>
+          </div>
+        )
+      }
+    }
 
     if (this._actionCopy) {
       const that = this
