@@ -1118,7 +1118,8 @@ a.link.link-icon::after {
   cursor: text;
 }
 
-.type-TAG .select2-selection__clear {
+.type-TAG .select2-selection__clear,
+.type-MULTISELECT .select2-selection__clear{
   margin-right: -1px !important;
 }
 

@@ -1126,6 +1126,7 @@ class RbFormElement extends React.Component {
           this.__select2.select2('destroy')
         }
         this.__select2 = null
+        if (rb.env === 'dev') console.log('RbFormElement destroy select2 :', this.props.field)
       }
     }
   }
@@ -2739,6 +2740,11 @@ class RbFormClassification extends RbFormElement {
 }
 
 class RbFormMultiSelect extends RbFormElement {
+  constructor(props) {
+    super(props)
+    this._isShowRadio41 = props.showStyle === '10'
+  }
+
   renderElement() {
     if ((this.props.options || []).length === 0) {
       return <div className="form-control-plaintext text-danger">{$L('未配置')}</div>
@@ -2747,11 +2753,25 @@ class RbFormMultiSelect extends RbFormElement {
     const _readonly37 = this.state.readonly
     const maskValue = this._getMaskValue()
 
+    if (this._isShowRadio41) {
+      return (
+        <select className="form-control form-control-sm" multiple ref={(c) => (this._fieldValue = c)} disabled={_readonly37}>
+          {this.props.options.map((item) => {
+            return (
+              <option key={item.mask} value={item.mask} disabled={$isSysMask(item.text)}>
+                {item.text}
+              </option>
+            )
+          })}
+        </select>
+      )
+    }
+
     return (
       <div className="mt-1" ref={(c) => (this._fieldValue__wrap = c)}>
-        {(this.props.options || []).map((item) => {
+        {this.props.options.map((item) => {
           return (
-            <label key={`mask-${item.mask}`} className="custom-control custom-checkbox custom-control-inline">
+            <label key={item.mask} className="custom-control custom-checkbox custom-control-inline">
               <input
                 className="custom-control-input"
                 name={`checkbox-${this.props.field}`}
@@ -2776,13 +2796,41 @@ class RbFormMultiSelect extends RbFormElement {
     return <div className="form-control-plaintext multi-values">{__findMultiTexts(this.props.options, maskValue, true)}</div>
   }
 
+  onEditModeChanged(destroy) {
+    if (this._isShowRadio41) {
+      if (destroy) {
+        super.onEditModeChanged(destroy)
+      } else {
+        this.__select2 = $(this._fieldValue).select2({
+          placeholder: $L('选择%s', this.props.label),
+        })
+
+        // init
+        const maskValue = this._getMaskValue()
+        if (maskValue) {
+          let s = []
+          this.props.options.forEach((o) => {
+            if ((maskValue & o.mask) !== 0) s.push(o.mask + '')
+          })
+          this.__select2.val(s).trigger('change')
+        }
+
+        this.__select2.on('change', () => this._changeValue())
+      }
+    }
+  }
+
   _changeValue = () => {
     let maskValue = 0
-    $(this._fieldValue__wrap)
-      .find('input:checked')
-      .each(function () {
-        maskValue += ~~$(this).val()
-      })
+    if (this._isShowRadio41) {
+      this.__select2.val().forEach((v) => (maskValue += ~~v))
+    } else {
+      $(this._fieldValue__wrap)
+        .find('input:checked')
+        .each(function () {
+          maskValue += ~~$(this).val()
+        })
+    }
 
     this.handleChange({ target: { value: maskValue === 0 ? null : maskValue } }, true)
   }

@@ -214,4 +214,9 @@ public class EasyFieldConfigProps {
      * PICKLIST:显示样式
      */
     public static final String PICKLIST_SHOWSTYLE = "showStyle";
+
+    /**
+     * MULTISELECT:显示样式
+     */
+    public static final String MULTISELECT_SHOWSTYLE = PICKLIST_SHOWSTYLE;
 }
