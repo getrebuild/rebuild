@@ -79,6 +79,14 @@ public class ClassificationService extends BaseConfigurationService implements A
 
         // Update
         record = super.update(record);
+        
+        // 添加缓存清理逻辑
+        if (record.hasValue("isHide")) {
+            cleanCache(record.getPrimary());
+            if (record.getID("parent") != null) {
+                cleanCache(record.getID("parent"));
+            }
+        }
         if (reindex) {
             final ID itemId = record.getPrimary();
             cleanCache(itemId);
