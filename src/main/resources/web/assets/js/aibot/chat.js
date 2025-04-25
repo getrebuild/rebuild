@@ -539,7 +539,7 @@ class Attach extends React.Component {
     // View
     if (this.state.viewUrl) {
       return (
-        <a href={`${rb.baseUrl}/aibot/redirect?id=${this.props._chatid}:${this.props.id}`} target={'_blank'}>
+        <a href={this.state.viewUrl} target={'_blank'}>
           {this.state.name}
         </a>
       )
