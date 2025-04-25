@@ -24,11 +24,11 @@ import java.util.List;
  * @author Zixin
  * @since 2025/4/29
  */
-public class ListFilterData implements VectorData {
+public class ListData implements VectorData {
 
     private final JSONObject listFilter;
 
-    public ListFilterData(JSONObject listFilter) {
+    public ListData(JSONObject listFilter) {
         this.listFilter = listFilter;
     }
 
@@ -37,9 +37,16 @@ public class ListFilterData implements VectorData {
         int dataRange = listFilter.getIntValue("_dataRange");
         ID[] records = new BatchOperatorQuery(dataRange, listFilter).getQueryedRecordIds();
 
-        String entityName = listFilter.getString("entity");
-        Entity entity = MetadataHelper.getEntity(entityName);
+        Entity entity = MetadataHelper.getEntity(listFilter.getString("entity"));
+        return toVector(records, entity);
+    }
 
+    /**
+     * @param records
+     * @param entity
+     * @return
+     */
+    protected String toVector(ID[] records, Entity entity) {
         List<Field> fields = new ArrayList<>();
         MarkdownTable mdt = new MarkdownTable();
         for (Field field : entity.getFields()) {
