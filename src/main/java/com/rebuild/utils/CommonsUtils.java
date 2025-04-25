@@ -423,4 +423,17 @@ public class CommonsUtils {
         // 只保留字母、数字、-
         return res.toString().replaceAll("[^a-zA-Z0-9\\-]", "").toUpperCase();
     }
+
+    /**
+     * @param prefix
+     * @param hasHex
+     * @return
+     */
+    public static String genPrettyName(String prefix, boolean hasHex) {
+        String name = String.format("%s-%s",
+                prefix,
+                CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()));
+        if (hasHex) name += "-" + CommonsUtils.randomHex().split("-")[0];
+        return name;
+    }
 }

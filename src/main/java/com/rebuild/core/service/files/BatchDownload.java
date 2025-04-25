@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.files;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -40,9 +39,7 @@ public class BatchDownload extends HeavyTask<File> {
 
     @Override
     protected File exec() throws Exception {
-        final String tmpName = String.format("RBFILE-%s-%s",
-                CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()),
-                CommonsUtils.randomHex().split("-")[0]);
+        final String tmpName = CommonsUtils.genPrettyName("RBFILE", true);
         File tmp = RebuildConfiguration.getFileOfTemp(tmpName);
         FileUtils.forceMkdir(tmp);
 
