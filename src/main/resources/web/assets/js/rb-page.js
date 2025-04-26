@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-;(function () {
+(function () {
   var gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -203,7 +203,7 @@ $(function () {
 
   var $ai = $('.aibot-show a')
   if ($ai[0]) {
-    function _FN() {
+    var _FN = function () {
       window.AiBot && window.AiBot.init({ chatid: $storage.get('__LastChatId') }, true)
     }
     $ai.on('click', _FN)

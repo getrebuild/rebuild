@@ -6,8 +6,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 $(document).ready(() => {
-  // eslint-disable-next-line eqeqeq
   let isH5App40 = false
+  // eslint-disable-next-line eqeqeq
   if (top && top != self) {
     try {
       isH5App40 = !!top.FrontJS5
