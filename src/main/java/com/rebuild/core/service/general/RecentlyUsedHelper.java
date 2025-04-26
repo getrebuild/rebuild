@@ -93,10 +93,10 @@ public class RecentlyUsedHelper {
             if (checkFilter != null) {
                 if (!QueryHelper.isMatchFilter(raw, checkFilter)) continue;
             }
-            // fix:4.0.2
+            // fix:4.0.3
             if (entityCode == EntityHelper.ClassificationData) {
                 ClassificationManager.Item item = ClassificationManager.instance.getItem(raw);
-                if (item == null || item.isHide()) continue;
+                if (item == null || isItemHide(item)) continue;
             }
 
             try {
@@ -164,5 +164,12 @@ public class RecentlyUsedHelper {
 
     private static String formatKey(ID user, String entity, String type) {
         return String.format("RS31.%s-%s-%s", user, entity, StringUtils.defaultIfBlank(type, StringUtils.EMPTY));
+    }
+
+    // 分类项是否已禁用（含父级）
+    private static boolean isItemHide(ClassificationManager.Item item) {
+        if (item == null || item.isHide()) return true;
+        if (item.getParent() != null) return isItemHide(ClassificationManager.instance.getItem(item.getParent()));
+        return false;
     }
 }
