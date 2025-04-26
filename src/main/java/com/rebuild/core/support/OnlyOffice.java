@@ -18,7 +18,6 @@ import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.OkHttpUtils;
-import com.rebuild.utils.PdfConverterException;
 import com.rebuild.web.admin.ConfigurationController;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
@@ -34,6 +33,8 @@ import static com.rebuild.core.support.ConfigurationItem.OnlyofficeServer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
+ * https://api.onlyoffice.com/docs/docs-api/additional-api/conversion-api/
+ *
  * @author devezhao
  * @since 2025/2/26
  */
@@ -44,7 +45,7 @@ public class OnlyOffice {
      *
      * @param path
      * @return
-     * @throws PdfConverterException
+     * @throws IOException
      */
     public static Path convertPdf(Path path) throws IOException {
         final String ooServer = getOoServer();
@@ -87,7 +88,7 @@ public class OnlyOffice {
             if (dest.exists()) return dest.toPath();
         }
 
-        throw new RebuildException("Convert PDF fails (oo-ds) : " + resJson);
+        throw new RebuildException("Convert PDF fails (oo-ds) : " + res);
     }
 
     /**

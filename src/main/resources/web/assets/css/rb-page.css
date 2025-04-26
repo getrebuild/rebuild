@@ -1118,7 +1118,8 @@ a.link.link-icon::after {
   cursor: text;
 }
 
-.type-TAG .select2-selection__clear {
+.type-TAG .select2-selection__clear,
+.type-MULTISELECT .select2-selection__clear {
   margin-right: -1px !important;
 }
 
@@ -3568,6 +3569,10 @@ a.user-show:not([href]) {
   overflow: auto;
 }
 
+.preview-modal .preview-body .iframe.text .mdedit-content {
+  padding: 10px 20px;
+}
+
 .preview-modal .preview-body .iframe.text > pre {
   font-family: 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
   font-size: 1rem;
@@ -4378,14 +4383,21 @@ h3.modal-title > .rbv {
   word-break: break-all;
 }
 
+.mdedit-content {
+  font-size: 1rem;
+}
+
 .mdedit-content p,
 .mdedit-content ul,
 .mdedit-content ol,
 .mdedit-content table,
+.mdedit-content blockquote,
 .editor-preview p,
 .editor-preview ul,
 .editor-preview ol,
-.editor-preview table {
+.editor-preview table,
+.editor-preview blockquote {
+  font-size: 1rem;
   margin-bottom: 0.75em;
   line-height: 1.5;
 }
@@ -4395,6 +4407,11 @@ h3.modal-title > .rbv {
   max-width: 100% !important;
   max-height: 100% !important;
   cursor: zoom-in;
+}
+
+.mdedit-content table,
+.editor-preview table {
+  width: 100%;
 }
 
 .mdedit-content th,
@@ -4467,6 +4484,18 @@ h3.modal-title > .rbv {
 .editor-preview a[target]:hover {
   text-decoration: underline;
   opacity: 1;
+}
+
+.mdedit-content blockquote,
+.editor-preview blockquote {
+  border-left: 4px solid #ddd;
+  padding: 4px 7px;
+  padding-right: 0;
+}
+
+.mdedit-content blockquote > p:last-child,
+.editor-preview blockquote > p:last-child {
+  margin: 0 !important;
 }
 
 .popover {
@@ -6017,4 +6046,10 @@ div.formula-code {
   .rb-content {
     margin-left: 200px;
   }
+}
+
+.form-control::placeholder,
+.select2-search__field::placeholder {
+  color: #999;
+  opacity: 1;
 }

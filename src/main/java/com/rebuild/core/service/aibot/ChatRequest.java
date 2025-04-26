@@ -11,7 +11,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.service.aibot.vector.ListFilterData;
+import com.rebuild.core.service.aibot.vector.ListData;
 import com.rebuild.core.service.aibot.vector.RecordData;
 import com.rebuild.core.service.aibot.vector.VectorData;
 import com.rebuild.core.service.aibot.vector.VectorDataChunk;
@@ -94,7 +94,7 @@ public class ChatRequest {
             if (ID.isId(record)) {
                 vdc.addVectorData(new RecordData(ID.valueOf(record)));
             } else if (JSONUtils.wellFormat(orListFilter)) {
-                vdc.addVectorData(new ListFilterData(JSONObject.parseObject(orListFilter)));
+                vdc.addVectorData(new ListData(JSONObject.parseObject(orListFilter)));
             }
         }
         return vdc;

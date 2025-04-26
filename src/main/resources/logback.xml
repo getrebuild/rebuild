@@ -35,4 +35,19 @@
     <!-- <logger name="org.springframework.jdbc.datasource" level="DEBUG" /> -->
     <!-- <logger name="com.deepoove.poi" level="WARN" /> -->
 
+    <!-- 4.1 -->
+    <appender name="FILE.AVATOR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%-20thread] [%reqid] - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS_HOME}/rebuild.AVATOR.%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>180</maxHistory>
+        </rollingPolicy>
+    </appender>
+    <logger name="com.rebuild.rbv.trigger.aviator.LogFunction" level="INFO">
+        <appender-ref ref="FILE.AVATOR"/>
+    </logger>
+
 </configuration>

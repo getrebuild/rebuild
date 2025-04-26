@@ -1126,6 +1126,7 @@ class RbFormElement extends React.Component {
           this.__select2.select2('destroy')
         }
         this.__select2 = null
+        if (rb.env === 'dev') console.log('RbFormElement destroy select2 :', this.props.field)
       }
     }
   }
@@ -1197,10 +1198,22 @@ class RbFormText extends RbFormElement {
     return this._textCommonMenuId ? React.cloneElement(comp, { 'data-toggle': 'dropdown', 'data-target': `#${this._textCommonMenuId}` }) : comp
   }
 
-  componentDidMount() {
-    super.componentDidMount()
+  componentWillUnmount() {
+    super.componentWillUnmount()
 
     if (this._textCommonMenuId) {
+      if (rb.dev === 'env') console.log('[dev] unmount dropdown-menu with text-common:', this._textCommonMenuId)
+      $unmount($(`#${this._textCommonMenuId}`).parent())
+    }
+  }
+
+  onEditModeChanged(destroy) {
+    if (destroy) {
+      super.onEditModeChanged(destroy)
+      return
+    }
+
+    if (this._textCommonMenuId && !$(`#${this._textCommonMenuId}`)[0]) {
       if (rb.dev === 'env') console.log('[dev] init dropdown-menu with text-common', this._textCommonMenuId)
       renderRbcomp(
         <div id={this._textCommonMenuId}>
@@ -1213,7 +1226,7 @@ class RbFormText extends RbFormElement {
                   title={c}
                   className="badge text-ellipsis"
                   onClick={() => {
-                    this.handleChange({ target: { value: (this.state.value || '') + c } }, true)
+                    this.handleChange({ target: { value: c } }, true)
                     $focus2End(this._fieldValue)
                   }}>
                   {c}
@@ -1223,15 +1236,6 @@ class RbFormText extends RbFormElement {
           </div>
         </div>
       )
-    }
-  }
-
-  componentWillUnmount() {
-    super.componentWillUnmount()
-
-    if (this._textCommonMenuId) {
-      if (rb.dev === 'env') console.log('[dev] unmount dropdown-menu with text-common:', this._textCommonMenuId)
-      $unmount($(`#${this._textCommonMenuId}`).parent())
     }
   }
 }
@@ -1420,7 +1424,7 @@ class RbFormNText extends RbFormElement {
         />
         {props.useMdedit && !_readonly37 && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
         {this._textCommonMenuId && (
-          <a class="badge text-common" data-toggle="dropdown" data-target={`#${this._textCommonMenuId}`}>
+          <a className="badge text-common" data-toggle="dropdown" data-target={`#${this._textCommonMenuId}`}>
             {$L('常用值')}
           </a>
         )}
@@ -1463,39 +1467,6 @@ class RbFormNText extends RbFormElement {
     }
   }
 
-  componentDidMount() {
-    super.componentDidMount()
-    this.props.onView && this.onEditModeChanged(true)
-
-    if (this._textCommonMenuId) {
-      if (rb.dev === 'env') console.log('[dev] init dropdown-menu with text-common', this._textCommonMenuId)
-      renderRbcomp(
-        <div id={this._textCommonMenuId}>
-          <div className="dropdown-menu  dropdown-menu-right common-texts">
-            {this.props.textCommon.split(',').map((c) => {
-              return (
-                <a
-                  key={c}
-                  title={c}
-                  className="badge text-ellipsis"
-                  onClick={() => {
-                    if (this._EasyMDE) {
-                      this._mdeInsert(c)
-                    } else {
-                      this.handleChange({ target: { value: (this.state.value || '') + c } }, true)
-                      $focus2End(this._fieldValue)
-                    }
-                  }}>
-                  {c}
-                </a>
-              )
-            })}
-          </div>
-        </div>
-      )
-    }
-  }
-
   UNSAFE_componentWillUpdate(nextProps, nextState) {
     // destroy
     if (this.state.editMode && !nextState.editMode) {
@@ -1515,7 +1486,38 @@ class RbFormNText extends RbFormElement {
       }
     }
 
-    if (this.props.useMdedit && !destroy) this._initMde()
+    if (!destroy) {
+      // MDE
+      if (this.props.useMdedit) this._initMde()
+      // 常用值
+      if (this._textCommonMenuId && !$(`#${this._textCommonMenuId}`)[0]) {
+        if (rb.dev === 'env') console.log('[dev] init dropdown-menu with text-common', this._textCommonMenuId)
+        renderRbcomp(
+          <div id={this._textCommonMenuId}>
+            <div className="dropdown-menu  dropdown-menu-right common-texts">
+              {this.props.textCommon.split(',').map((c) => {
+                return (
+                  <a
+                    key={c}
+                    title={c}
+                    className="badge text-ellipsis"
+                    onClick={() => {
+                      if (this._EasyMDE) {
+                        this._mdeInsert(c)
+                      } else {
+                        this.handleChange({ target: { value: (this.state.value || '') + c } }, true)
+                        $focus2End(this._fieldValue)
+                      }
+                    }}>
+                    {c}
+                  </a>
+                )
+              })}
+            </div>
+          </div>
+        )
+      }
+    }
 
     if (this._actionCopy) {
       const that = this
@@ -1545,6 +1547,9 @@ class RbFormNText extends RbFormElement {
       spellChecker: false,
       // eslint-disable-next-line no-undef
       toolbar: _readonly37 ? false : DEFAULT_MDE_TOOLBAR(this),
+      onToggleFullScreen: (is) => {
+        console.log('TODO:', is)
+      },
     })
     this._EasyMDE = mde
 
@@ -2735,6 +2740,11 @@ class RbFormClassification extends RbFormElement {
 }
 
 class RbFormMultiSelect extends RbFormElement {
+  constructor(props) {
+    super(props)
+    this._isShowRadio41 = props.showStyle === '10'
+  }
+
   renderElement() {
     if ((this.props.options || []).length === 0) {
       return <div className="form-control-plaintext text-danger">{$L('未配置')}</div>
@@ -2743,11 +2753,25 @@ class RbFormMultiSelect extends RbFormElement {
     const _readonly37 = this.state.readonly
     const maskValue = this._getMaskValue()
 
+    if (this._isShowRadio41) {
+      return (
+        <select className="form-control form-control-sm" multiple ref={(c) => (this._fieldValue = c)} disabled={_readonly37}>
+          {this.props.options.map((item) => {
+            return (
+              <option key={item.mask} value={item.mask} disabled={$isSysMask(item.text)}>
+                {item.text}
+              </option>
+            )
+          })}
+        </select>
+      )
+    }
+
     return (
       <div className="mt-1" ref={(c) => (this._fieldValue__wrap = c)}>
-        {(this.props.options || []).map((item) => {
+        {this.props.options.map((item) => {
           return (
-            <label key={`mask-${item.mask}`} className="custom-control custom-checkbox custom-control-inline">
+            <label key={item.mask} className="custom-control custom-checkbox custom-control-inline">
               <input
                 className="custom-control-input"
                 name={`checkbox-${this.props.field}`}
@@ -2772,13 +2796,41 @@ class RbFormMultiSelect extends RbFormElement {
     return <div className="form-control-plaintext multi-values">{__findMultiTexts(this.props.options, maskValue, true)}</div>
   }
 
+  onEditModeChanged(destroy) {
+    if (this._isShowRadio41) {
+      if (destroy) {
+        super.onEditModeChanged(destroy)
+      } else {
+        this.__select2 = $(this._fieldValue).select2({
+          placeholder: $L('选择%s', this.props.label),
+        })
+
+        // init
+        const maskValue = this._getMaskValue()
+        if (maskValue) {
+          let s = []
+          this.props.options.forEach((o) => {
+            if ((maskValue & o.mask) !== 0) s.push(o.mask + '')
+          })
+          this.__select2.val(s).trigger('change')
+        }
+
+        this.__select2.on('change', () => this._changeValue())
+      }
+    }
+  }
+
   _changeValue = () => {
     let maskValue = 0
-    $(this._fieldValue__wrap)
-      .find('input:checked')
-      .each(function () {
-        maskValue += ~~$(this).val()
-      })
+    if (this._isShowRadio41) {
+      this.__select2.val().forEach((v) => (maskValue += ~~v))
+    } else {
+      $(this._fieldValue__wrap)
+        .find('input:checked')
+        .each(function () {
+          maskValue += ~~$(this).val()
+        })
+    }
 
     this.handleChange({ target: { value: maskValue === 0 ? null : maskValue } }, true)
   }

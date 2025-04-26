@@ -27,7 +27,6 @@ import com.rebuild.core.RebuildException;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -442,5 +441,24 @@ public class QiniuCloud {
 
         if (file == null || !file.exists()) throw new RebuildException("Cannot read file : " + filepath);
         return file;
+    }
+
+    /**
+     * 上传文件
+     *
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    public static String uploadFile(File file) throws IOException {
+        String fileKey;
+        if (QiniuCloud.instance().available()) {
+            fileKey = QiniuCloud.instance().upload(file);
+        } else {
+            fileKey = QiniuCloud.formatFileKey(file.getName());
+            File move2data = RebuildConfiguration.getFileOfData(fileKey);
+            FileUtils.moveFile(file, move2data);
+        }
+        return fileKey;
     }
 }

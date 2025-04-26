@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* eslint-disable react/no-unknown-property */
 
 // ~~ 图片/文档预览
 
@@ -31,7 +32,7 @@ class RbPreview extends React.Component {
     let previewContent = null
     if (this._isImage(fileName)) previewContent = this.renderImage()
     else if (this._isDoc(fileName)) previewContent = this.renderDoc()
-    else if (this._isText(fileName)) previewContent = this.renderText()
+    else if (this._isText(fileName)) previewContent = this.renderText(fileName)
     else if (this._isAudio(fileName)) previewContent = this.renderAudio()
     else if (this._isVideo(fileName)) previewContent = this.renderVideo()
 
@@ -50,7 +51,7 @@ class RbPreview extends React.Component {
 
     return (
       <RF>
-        <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''}`} ref={(c) => (this._dlg = c)}>
+        <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''}`} ref={(c) => (this._dlg = c)} tabIndex="-1">
           <div className="preview-header">
             <div className="float-left">
               <h5 className="text-bold">{fileName}</h5>
@@ -136,7 +137,7 @@ class RbPreview extends React.Component {
         <div className="iframe">
           {!this.state.docRendered && (
             <div className="must-center">
-              <RbSpinner fully={true} />
+              <RbSpinner fully />
             </div>
           )}
           <iframe className={!this.state.docRendered ? 'hide' : ''} src={this.state.previewUrl || ''} onLoad={() => this.setState({ docRendered: true })} frameBorder="0" scrolling="no" />
@@ -145,15 +146,30 @@ class RbPreview extends React.Component {
     )
   }
 
-  renderText() {
+  renderText(fileName) {
+    let showMd = fileName && fileName.toLowerCase().endsWith('.md')
+    if (showMd && this.state._showMd === false) showMd = false
+    let content = null
+    if (this.state.previewText === '') {
+      content = <i className="text-muted">{$L('无')}</i>
+    } else if (this.state.previewText) {
+      content = showMd ? (
+        <div className="mdedit-content">
+          <Md2Html markdown={this.state.previewText} />
+        </div>
+      ) : (
+        <pre className="mb-0">{this.state.previewText}</pre>
+      )
+    }
+
     return (
       <div className={`container fp-content ${this.props.fullwidth && 'fullwidth'}`}>
         <div className="iframe text">
           {this.state.previewText || this.state.previewText === '' ? (
-            <pre className="mb-0">{this.state.previewText || <i className="text-muted">{$L('无')}</i>}</pre>
+            content
           ) : (
             <div className="must-center d-inline-block">
-              <RbSpinner fully={true} />
+              <RbSpinner fully />
             </div>
           )}
         </div>

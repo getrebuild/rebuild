@@ -140,7 +140,7 @@ class ChatInput extends React.Component {
               ref={(c) => (this._$textarea = c)}
             />
           </div>
-          <div className="chat-input-action">
+          <div className="chat-input-action dropup">
             <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0}>
               <i className="mdi mdi-attachment-plus" />
             </button>
@@ -539,7 +539,7 @@ class Attach extends React.Component {
     // View
     if (this.state.viewUrl) {
       return (
-        <a href={`${rb.baseUrl}/aibot/redirect?id=${this.props._chatid}:${this.props.id}`} target={'_blank'}>
+        <a href={this.state.viewUrl} target={'_blank'}>
           {this.state.name}
         </a>
       )

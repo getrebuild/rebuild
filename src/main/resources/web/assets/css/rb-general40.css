@@ -135,7 +135,7 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   margin-bottom: 0;
 }
 
-.rbform .type-NTEXT a.text-common {
+.form-layout .type-NTEXT a.text-common {
   position: absolute;
   right: 15px;
   bottom: 5px;
@@ -146,7 +146,7 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   padding-right: 15px;
 }
 
-.rbform .type-NTEXT a.text-common::after {
+.form-layout .type-NTEXT a.text-common::after {
   font-family: 'Material Design Icons', serif;
   content: '\F035D';
   font-size: 17px;
@@ -155,6 +155,10 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   margin-top: -4px;
 }
 
-.rbform .type-NTEXT a.text-common:hover {
+.form-layout .type-NTEXT a.text-common:hover {
   background-color: #ddd;
+}
+
+.rbview-form.form-layout .type-NTEXT a.text-common {
+  bottom: 33px;
 }
