@@ -35,6 +35,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -435,5 +438,24 @@ public class CommonsUtils {
                 CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()));
         if (hasHex) name += "-" + CommonsUtils.randomHex().split("-")[0];
         return name;
+    }
+
+    /**
+     * 获取文件扩展名
+     *
+     * @param fileName
+     * @return
+     * @see Files#probeContentType(Path)
+     */
+    public static String getFileExtension(String fileName) {
+        String mimeType = null;
+        try {
+            mimeType = Files.probeContentType(Paths.get(fileName));
+        } catch (IOException ignored) {}
+
+        if (mimeType == null && fileName.contains(".")) {
+            return fileName.toLowerCase().substring(fileName.lastIndexOf(".") + 1);
+        }
+        return mimeType == null ? "unknown" : mimeType.split("/")[1];
     }
 }

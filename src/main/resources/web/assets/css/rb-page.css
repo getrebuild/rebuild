@@ -1119,7 +1119,7 @@ a.link.link-icon::after {
 }
 
 .type-TAG .select2-selection__clear,
-.type-MULTISELECT .select2-selection__clear{
+.type-MULTISELECT .select2-selection__clear {
   margin-right: -1px !important;
 }
 
@@ -4383,14 +4383,21 @@ h3.modal-title > .rbv {
   word-break: break-all;
 }
 
+.mdedit-content {
+  font-size: 1rem;
+}
+
 .mdedit-content p,
 .mdedit-content ul,
 .mdedit-content ol,
 .mdedit-content table,
+.mdedit-content blockquote,
 .editor-preview p,
 .editor-preview ul,
 .editor-preview ol,
-.editor-preview table {
+.editor-preview table,
+.editor-preview blockquote {
+  font-size: 1rem;
   margin-bottom: 0.75em;
   line-height: 1.5;
 }
@@ -4477,6 +4484,18 @@ h3.modal-title > .rbv {
 .editor-preview a[target]:hover {
   text-decoration: underline;
   opacity: 1;
+}
+
+.mdedit-content blockquote,
+.editor-preview blockquote {
+  border-left: 4px solid #ddd;
+  padding: 4px 7px;
+  padding-right: 0;
+}
+
+.mdedit-content blockquote > p:last-child,
+.editor-preview blockquote > p:last-child {
+  margin: 0 !important;
 }
 
 .popover {

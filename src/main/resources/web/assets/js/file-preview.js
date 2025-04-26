@@ -136,7 +136,7 @@ class RbPreview extends React.Component {
         <div className="iframe">
           {!this.state.docRendered && (
             <div className="must-center">
-              <RbSpinner fully={true} />
+              <RbSpinner fully />
             </div>
           )}
           <iframe className={!this.state.docRendered ? 'hide' : ''} src={this.state.previewUrl || ''} onLoad={() => this.setState({ docRendered: true })} frameBorder="0" scrolling="no" />
@@ -168,7 +168,7 @@ class RbPreview extends React.Component {
             content
           ) : (
             <div className="must-center d-inline-block">
-              <RbSpinner fully={true} />
+              <RbSpinner fully />
             </div>
           )}
         </div>
