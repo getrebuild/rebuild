@@ -938,21 +938,14 @@ body {
 }
 
 .report-list ul > li.has-preview > a,
-.report-list ul > li.has-pdf > a,
-.report-list ul > li.has-html > a {
+.report-list ul > li.has-pdf > a {
   margin-right: 40px;
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
 }
 
-.report-list ul > li.has-preview.has-pdf > a,
-.report-list ul > li.has-preview.has-html > a,
-.report-list ul > li.has-pdf.has-html > a {
+.report-list ul > li.has-preview.has-pdf > a {
   margin-right: 80px;
-}
-
-.report-list ul > li.has-preview.has-pdf.has-html > a {
-  margin-right: 120px;
 }
 
 .report-list ul > li > span {
