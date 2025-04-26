@@ -434,7 +434,7 @@ public class CommonsUtils {
      */
     public static String genPrettyName(String prefix, boolean hasHex) {
         String name = String.format("%s-%s",
-                prefix,
+                prefix == null ? "RB" : prefix,
                 CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()));
         if (hasHex) name += "-" + CommonsUtils.randomHex().split("-")[0];
         return name;
