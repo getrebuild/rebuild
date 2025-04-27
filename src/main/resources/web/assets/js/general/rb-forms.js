@@ -2061,7 +2061,7 @@ class RbFormPickList extends RbFormElement {
         <div ref={(c) => (this._fieldValue = c)} className="mt-1">
           {this._options.map((item) => {
             return (
-              <label className="custom-control custom-radio custom-control-inline mb-1" key={`${this._htmlid}-${item.id}`}>
+              <label key={item.id} className="custom-control custom-radio custom-control-inline mb-1">
                 <input className="custom-control-input" name={this._htmlid} type="radio" checked={this.state.value === item.id} onChange={() => this.setValue(item.id)} disabled={_readonly37} />
                 <span className="custom-control-label">{item.text}</span>
               </label>
@@ -2770,7 +2770,8 @@ class RbFormClassification extends RbFormElement {
 class RbFormMultiSelect extends RbFormElement {
   constructor(props) {
     super(props)
-    this._isShowRadio41 = props.showStyle === '10'
+    this._htmlid = `${props.field}-${$random()}_`
+    this._isShowSelect41 = props.showStyle === '10'
   }
 
   renderElement() {
@@ -2781,7 +2782,7 @@ class RbFormMultiSelect extends RbFormElement {
     const _readonly37 = this.state.readonly
     const maskValue = this._getMaskValue()
 
-    if (this._isShowRadio41) {
+    if (this._isShowSelect41) {
       return (
         <select className="form-control form-control-sm" multiple ref={(c) => (this._fieldValue = c)} disabled={_readonly37}>
           {this.props.options.map((item) => {
@@ -2802,7 +2803,7 @@ class RbFormMultiSelect extends RbFormElement {
             <label key={item.mask} className="custom-control custom-checkbox custom-control-inline">
               <input
                 className="custom-control-input"
-                name={`checkbox-${this.props.field}`}
+                name={this._htmlid}
                 type="checkbox"
                 checked={(maskValue & item.mask) !== 0}
                 value={item.mask}
@@ -2825,7 +2826,7 @@ class RbFormMultiSelect extends RbFormElement {
   }
 
   onEditModeChanged(destroy) {
-    if (this._isShowRadio41) {
+    if (this._isShowSelect41) {
       if (destroy) {
         super.onEditModeChanged(destroy)
       } else {
@@ -2850,7 +2851,7 @@ class RbFormMultiSelect extends RbFormElement {
 
   _changeValue = () => {
     let maskValue = 0
-    if (this._isShowRadio41) {
+    if (this._isShowSelect41) {
       this.__select2.val().forEach((v) => (maskValue += ~~v))
     } else {
       $(this._fieldValue__wrap)

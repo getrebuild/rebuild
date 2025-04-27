@@ -4376,7 +4376,13 @@ h3.modal-title > .rbv {
   line-height: 1.6;
 }
 
-.cm-readonly ~ .CodeMirror {
+.CodeMirror-wrap pre.CodeMirror-line,
+.CodeMirror-wrap pre.CodeMirror-line-like {
+  word-wrap: break-word;
+  word-break: break-all;
+}
+
+.cm-readonly ~ .EasyMDEContainer > .CodeMirror {
   background-color: #eee;
   cursor: default;
 }
@@ -4385,8 +4391,11 @@ h3.modal-title > .rbv {
   word-break: break-all;
 }
 
+/* MD */
+
 .mdedit-content {
   font-size: 1rem;
+  word-break: break-all;
 }
 
 .mdedit-content p,
@@ -4414,6 +4423,7 @@ h3.modal-title > .rbv {
 .mdedit-content table,
 .editor-preview table {
   width: 100%;
+  max-width: 100%;
 }
 
 .mdedit-content th,
@@ -4491,8 +4501,7 @@ h3.modal-title > .rbv {
 .mdedit-content blockquote,
 .editor-preview blockquote {
   border-left: 4px solid #ddd;
-  padding: 4px 7px;
-  padding-right: 0;
+  padding: 4px 0 4px 7px;
 }
 
 .mdedit-content blockquote > p:last-child,
