@@ -162,3 +162,11 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
 .rbview-form.form-layout .type-NTEXT a.text-common {
   bottom: 33px;
 }
+
+.form-layout .img-field > span {
+  margin: 0;
+}
+
+.form-layout .img-field .img-field-btn {
+  position: relative;
+}

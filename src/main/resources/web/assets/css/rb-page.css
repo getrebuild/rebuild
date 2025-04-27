@@ -1140,7 +1140,9 @@ a.link.link-icon::after {
   margin-bottom: 5px;
 }
 
-.img-field > span {
+.img-field > span,
+.img-field .img-field-show > span,
+.img-field .img-field-btn {
   margin-right: 5px;
   margin-bottom: 5px;
   display: inline-block;

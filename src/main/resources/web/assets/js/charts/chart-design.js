@@ -81,7 +81,8 @@ $(document).ready(() => {
         axis: 'x',
         containment: 'parent',
         cursor: 'move',
-        opacity: 0.8,
+        forcePlaceholderSize: true,
+        forceHelperSize: true,
         start: function () {
           dargOnSort = true
         },
