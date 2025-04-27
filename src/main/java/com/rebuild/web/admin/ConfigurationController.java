@@ -23,6 +23,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.License;
+import com.rebuild.core.support.OnlyOffice;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SysbaseHeartbeat;
 import com.rebuild.core.support.i18n.Language;
@@ -71,8 +72,6 @@ public class ConfigurationController extends BaseController {
     public static final String ETAG_DIMGLOGOTIME = "dimgLogoTime";
     public static final String ETAG_DIMGBGIMGTIME = "dimgBgimgTime";
 
-    public static final String OO_PREVIEW_URL = "/commons/file-preview?src=";
-
     @GetMapping("systems")
     public ModelAndView pageSystems() {
         ModelAndView mv = createModelAndView("/admin/system-cfg");
@@ -109,7 +108,7 @@ public class ConfigurationController extends BaseController {
         String dPortalOfficePreviewUrl = defaultIfBlank(data, ConfigurationItem.PortalOfficePreviewUrl);
         if (StringUtils.isNotBlank(dPortalOfficePreviewUrl)) {
             boolean valid = RegexUtils.isUrl(dPortalOfficePreviewUrl)
-                    || dPortalOfficePreviewUrl.contains(OO_PREVIEW_URL);
+                    || dPortalOfficePreviewUrl.contains(OnlyOffice.OO_PREVIEW_URL);
             if (!valid) return RespBody.errorl("无效文档预览服务地址");
         }
 

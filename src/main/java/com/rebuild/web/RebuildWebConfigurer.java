@@ -17,13 +17,13 @@ import com.rebuild.core.DefinedException;
 import com.rebuild.core.Initialization;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
+import com.rebuild.core.support.OnlyOffice;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.MarkdownUtils;
-import com.rebuild.web.admin.ConfigurationController;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
@@ -107,10 +107,8 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         else value = RebuildConfiguration.get(item);
 
         // v4.1 当使用 OnlyOffice 后的默认预览地址
-        if (item == ConfigurationItem.PortalOfficePreviewUrl && value == null) {
-            if (RebuildConfiguration.get(ConfigurationItem.OnlyofficeServer) != null) {
-                value = ConfigurationController.OO_PREVIEW_URL;
-            }
+        if (item == ConfigurationItem.PortalOfficePreviewUrl && OnlyOffice.isUseOoPreview()) {
+            value = OnlyOffice.OO_PREVIEW_URL;
         }
 
         if (StringUtils.isBlank(value)) {

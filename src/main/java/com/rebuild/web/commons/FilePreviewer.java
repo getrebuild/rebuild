@@ -10,6 +10,7 @@ package com.rebuild.web.commons;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.OnlyOffice;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -51,6 +52,7 @@ public class FilePreviewer extends BaseController {
         mv.getModel().put("_User",
                 JSONUtils.toJSONObject(new String[]{"id", "name"}, user));
 
+        mv.getModel().put("title", Language.L("文档预览"));
         return mv;
     }
 }
