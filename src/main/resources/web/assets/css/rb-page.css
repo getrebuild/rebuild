@@ -4133,14 +4133,6 @@ a.icon-link > .zmdi {
   .input-search input {
     width: 212px;
   }
-
-  /* .page-aside {
-    width: 200px;
-  }
-  .rb-aside .main-content,
-  .rb-aside .page-head {
-    margin-left: 200px;
-  } */
 }
 
 /* text overflow */
@@ -6048,6 +6040,7 @@ div.formula-code {
   .page-aside.widgets .tab-container {
     min-width: 229px;
   }
+  .rb-aside .page-head,
   .rb-aside .main-content {
     margin-left: 230px;
   }
