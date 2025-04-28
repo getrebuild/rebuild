@@ -43,7 +43,7 @@
                 <a th:href="@{/admin/apis-manager}"><i class="icon mdi mdi-api"></i><span>[[${bundle.L('API 密钥')}]]</span></a>
               </li>
               <li th:class="${active == 'aibot'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('AIB', #request)}">
-                <a th:href="@{/admin/integration/aibot}"><i class="icon mdi mdi-shimmer"></i><span>[[${bundle.L('AI 助手')}]]</span></a>
+                <a th:href="@{/admin/integration/aibot}"><i class="icon mdi mdi-shimmer"></i><span>[[${bundle.L('AI 助手')}]] (Beta)</span></a>
               </li>
               <li class="divider">[[${bundle.L('业务实体')}]]</li>
               <li th:class="${active == 'entities'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('ENT', #request)}">

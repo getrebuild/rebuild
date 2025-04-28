@@ -5943,6 +5943,7 @@ div.formula-code {
   font-size: 1rem;
   line-height: 1.5;
   word-break: break-all;
+  max-width: 100%;
 }
 
 .md-content table {
