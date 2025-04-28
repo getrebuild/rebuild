@@ -10,6 +10,7 @@ package com.rebuild.core.service.general.series;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.DefinedException;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import org.apache.commons.lang.StringUtils;
@@ -67,15 +68,20 @@ public class SeriesGenerator {
             seriesFormat = DisplayType.SERIES.getDefaultFormat();
         }
 
-        List<SeriesVar> vars = explainVars(seriesFormat, record);
-        for (SeriesVar var : vars) {
-            seriesFormat = seriesFormat.replace("{" + var.getSymbols() + "}", var.generate());
-        }
+        try {
+            List<SeriesVar> vars = explainVars(seriesFormat, record);
+            for (SeriesVar var : vars) {
+                seriesFormat = seriesFormat.replace("{" + var.getSymbols() + "}", var.generate());
+            }
 
-        if (seriesFormat.contains(CHECKSUM)) {
-            seriesFormat = seriesFormat.replace(CHECKSUM, String.valueOf(mod10(seriesFormat)));
+            if (seriesFormat.contains(CHECKSUM)) {
+                seriesFormat = seriesFormat.replace(CHECKSUM, String.valueOf(mod10(seriesFormat)));
+            }
+            return seriesFormat;
+
+        } catch (Exception ex) {
+            throw new DefinedException("自动编号规则无效:" + seriesFormat);
         }
-        return seriesFormat;
     }
 
     private static final Pattern VAR_PATTERN = Pattern.compile("\\{(@?[\\w.]+)}");
