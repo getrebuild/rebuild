@@ -18,7 +18,9 @@ class ClassificationSelector extends React.Component {
       openLevel: props.openLevel || 0, 
       datas: [],
       selectedItems: [], // 存储已选中的项
-      currentLevel: 0 // 当前显示的级别
+      currentLevel: 0, // 当前显示的级别
+      searchQuery: '', // 搜索查询
+      searchResults: [] // 搜索结果
     }
   }
 
@@ -35,37 +37,72 @@ class ClassificationSelector extends React.Component {
             <div className="modal-body">
               <h5 className="mt-0 text-bold">{$L('选择%s', this.props.label)}</h5>
               
+              {/* 添加搜索框 */}
+              <div className="input-group input-search mb-2">
+                <input 
+                  className="form-control" 
+                  type="text" 
+                  placeholder={$L('搜索')} 
+                  value={this.state.searchQuery}
+                  onChange={(e) => this.handleSearchChange(e)}
+                  onKeyPress={(e) => e.key === 'Enter' && this.performSearch()}
+                />
+                <span className="input-group-btn">
+                  <button className="btn btn-secondary" type="button" onClick={() => this.performSearch()}>
+                    <i className="icon zmdi zmdi-search"></i>
+                  </button>
+                </span>
+              </div>
+              
               <div className="classification-selector">
-                <div className="level-tabs">
-                  {Array.from({ length: this.state.openLevel + 1 }, (_, i) => (
-                    <span 
-                      key={`level-${i}`} 
-                      className={`level-tab ${this.state.currentLevel === i ? 'active' : ''}`}
-                      onClick={() => this.switchLevel(i)}
-                    >
-                      <i className="zmdi zmdi-layers-off mr-1"></i> {$L('第 %d 级', i + 1)}
-                    </span>
-                  ))}
-                </div>
-                
-                <div className="items-container rb-scroller">
-                  <ul className="classification-items">
-                    {(this.state.datas[this.state.currentLevel] || []).map((item) => {
-                      const isSelected = this.state.selectedItems[this.state.currentLevel] === item[0];
-                      return (
+                {this.state.searchResults.length > 0 ? (
+                  <div className="search-results rb-scroller">
+                    <ul className="classification-items">
+                      {this.state.searchResults.map((item) => (
                         <li 
-                          key={`item-${item[0]}`} 
-                          className={`classification-item ${isSelected ? 'selected' : ''}`}
-                          onClick={() => this.selectItem(this.state.currentLevel, item)}
+                          key={`search-item-${item.id}`} 
+                          className="classification-item"
+                          onClick={() => this.selectSearchItem(item)}
                         >
-                          <i className={`zmdi zmdi-${isSelected ? 'check-circle' : 'circle-o'} mr-2`}></i>
-                          <span className="item-text">{item[1]}</span>
-                          {this._codes[item[0]] && <em className="item-code">{this._codes[item[0]]}</em>}
+                          <i className="zmdi zmdi-circle-o mr-2"></i>
+                          <span className="item-text">{item.text}</span>
                         </li>
-                      )
-                    })}
-                  </ul>
-                </div>
+                      ))}
+                    </ul>
+                  </div>
+                ) : (
+                  <>
+                    <div className="level-tabs">
+                      {Array.from({ length: this.state.openLevel + 1 }, (_, i) => (
+                        <span 
+                          key={`level-${i}`} 
+                          className={`level-tab ${this.state.currentLevel === i ? 'active' : ''}`}
+                          onClick={() => this.switchLevel(i)}
+                        >
+                          <i className="zmdi zmdi-layers-off mr-1"></i> {`第 ${i + 1} 级`}
+                        </span>
+                      ))}
+                    </div>
+                    
+                    <div className="items-container rb-scroller">
+                      <ul className="classification-items">
+                        {(this.state.datas[this.state.currentLevel] || []).map((item) => {
+                          const isSelected = this.state.selectedItems[this.state.currentLevel] === item[0];
+                          return (
+                            <li 
+                              key={`item-${item[0]}`} 
+                              className={`classification-item ${isSelected ? 'selected' : ''}`}
+                              onClick={() => this.selectItem(this.state.currentLevel, item)}
+                            >
+                              <i className={`zmdi zmdi-${isSelected ? 'check-circle' : 'circle-o'} mr-2`}></i>
+                              <span className="item-text">{item[1]}</span>
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    </div>
+                  </>
+                )}
               </div>
               
               <div className="selected-path mt-2 mb-2">
@@ -83,7 +120,47 @@ class ClassificationSelector extends React.Component {
       </div>
     )
   }
+  handleSearchChange(e) {
+    this.setState({ searchQuery: e.target.value });
+    
+    // 如果清空搜索框，清除搜索结果
+    if (!e.target.value) {
+      this.setState({ searchResults: [] });
+      return;
+    }
+    
+    // 实现输入即搜索功能，无需点击搜索按钮
+    $setTimeout(() => this.performSearch(), 300, 'classification-search');
+  }
   
+  performSearch() {
+    const query = this.state.searchQuery.trim();
+    if (!query) {
+      this.setState({ searchResults: [] });
+      return;
+    }
+    
+    // 构建搜索URL
+    const url = `/commons/search/classification?entity=${this.props.entity}&field=${this.props.field}&q=${encodeURIComponent(query)}&_=${Date.now()}`;
+    
+    $.get(url, (res) => {
+      if (res.error_code === 0 && res.data) {
+        this.setState({ searchResults: res.data });
+      } else {
+        this.setState({ searchResults: [] });
+        RbHighbar.error($L('搜索失败'));
+      }
+    });
+  }
+  
+  selectSearchItem(item) {
+    typeof this.props.onSelect === 'function' && this.props.onSelect({ 
+      id: item.id, 
+      text: item.text 
+    });
+    
+    this.hide();
+  }
   renderSelectedPath() {
     const selectedTexts = [];
     for (let i = 0; i <= this.state.openLevel; i++) {
@@ -96,7 +173,7 @@ class ClassificationSelector extends React.Component {
     }
     
     if (selectedTexts.length === 0) {
-      return <span className="text-muted">{$L('尚未选择')}</span>;
+      return <span className="text-muted">尚未选择</span>;
     }
     
     return (
