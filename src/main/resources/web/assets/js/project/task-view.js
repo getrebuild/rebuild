@@ -426,7 +426,7 @@ class ValueDescription extends ValueComp {
       )
     } else {
       const ps = {
-        className: 'form-control-plaintext mdedit-content hover',
+        className: 'form-control-plaintext md-content hover',
         onClick: () => this._handleEditMode(true),
       }
 
@@ -449,13 +449,13 @@ class ValueDescription extends ValueComp {
   renderViewElement() {
     if (this.state.description) {
       return (
-        <div className="form-control-plaintext mdedit-content">
+        <div className="form-control-plaintext md-content">
           <Md2Html markdown={this.state.description} />
         </div>
       )
     } else {
       return (
-        <div className="form-control-plaintext mdedit-content">
+        <div className="form-control-plaintext md-content">
           <span className="text-muted">{$L('无')}</span>
         </div>
       )
@@ -484,6 +484,7 @@ class ValueDescription extends ValueComp {
           spellChecker: false,
           // eslint-disable-next-line no-undef
           toolbar: DEFAULT_MDE_TOOLBAR(this),
+          previewClass: 'md-content',
         })
         this._EasyMDE = mde
 
