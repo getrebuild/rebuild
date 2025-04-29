@@ -59,7 +59,7 @@ public class FieldWritebackRefresh {
         ID fakeSourceId = EntityHelper.newUnsavedId(fa.sourceEntity.getEntityCode());
         Record fakeSourceRecord = EntityHelper.forUpdate(fakeSourceId, triggerUser, false);
         OperatingContext oCtx = OperatingContext.create(triggerUser, BizzPermission.NONE, fakeSourceRecord, fakeSourceRecord);
-        fa.targetRecordData = fa.buildTargetRecordData(oCtx, true);
+        fa.targetRecordData = fa.buildTargetRecordData(oCtx, null, true);
 
         try {
             fa.execute(oCtx);
