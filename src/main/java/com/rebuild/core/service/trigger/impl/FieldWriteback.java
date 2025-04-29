@@ -10,6 +10,7 @@ package com.rebuild.core.service.trigger.impl;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
@@ -86,9 +87,11 @@ public class FieldWriteback extends FieldAggregation {
 
     private static final String DATE_EXPR = "#";
     private static final String CODE_PREFIX = "{{{{";  // ends with }}}}
+    private static final String SOURCE_FIELD_VAR_PREFIX = "$";
 
     protected Set<ID> targetRecordIds;
     protected Record targetRecordData;
+    private boolean targetRecordDataHasSourceFieldVar;
 
     public FieldWriteback(ActionContext context) {
         super(context, Boolean.TRUE);
@@ -168,7 +171,12 @@ public class FieldWriteback extends FieldAggregation {
                 continue;
             }
 
-            Record targetRecord = targetRecordData.clone();
+            Record targetRecord;
+            if (targetRecordDataHasSourceFieldVar) {
+                targetRecord = buildTargetRecordData(operatingContext, targetRecordId, false);
+            } else {
+                targetRecord = targetRecordData.clone();
+            }
             targetRecord.setID(targetEntity.getPrimaryField().getName(), targetRecordId);
             targetRecord.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
             targetRecord.setID(EntityHelper.ModifiedBy, UserService.SYSTEM_USER);
@@ -306,7 +314,7 @@ public class FieldWriteback extends FieldAggregation {
         if (targetRecordIds.isEmpty()) {
             log.debug("Target record(s) are empty.");
         } else {
-            targetRecordData = buildTargetRecordData(operatingContext, false);
+            targetRecordData = buildTargetRecordData(operatingContext, null, false);
         }
     }
 
@@ -314,10 +322,11 @@ public class FieldWriteback extends FieldAggregation {
      * 构建目标记录
      *
      * @param operatingContext
+     * @param targetRecordId404
      * @param fromRefresh
      * @return
      */
-    protected Record buildTargetRecordData(OperatingContext operatingContext, Boolean fromRefresh) {
+    protected Record buildTargetRecordData(OperatingContext operatingContext, ID targetRecordId404, boolean fromRefresh) {
         // v3.3 源字段为空时置空目标字段
         final boolean clearFields = ((JSONObject) actionContext.getActionContent()).getBooleanValue("clearFields");
         final boolean forceVNull = fromRefresh || (clearFields && operatingContext.getAction() == InternalPermission.DELETE_BEFORE);
@@ -329,6 +338,9 @@ public class FieldWriteback extends FieldAggregation {
         final Set<String> fieldVarsN2NPath = new HashSet<>();
         // 变量值
         Record useSourceData = null;
+        // v4.0.4 使用目标记录数据参与运算
+        Record useTargetData = null;
+        final Set<String> fieldVarsInTarget = new HashSet<>();
 
         if (!forceVNull) {
             for (Object o : items) {
@@ -348,7 +360,13 @@ public class FieldWriteback extends FieldAggregation {
                     } else {
                         Set<String> matchsVars = ContentWithFieldVars.matchsVars(sourceField);
                         for (String field : matchsVars) {
-                            if (N2NReferenceSupport.isN2NMixPath(field, sourceEntity)) {
+                            if (field.startsWith(SOURCE_FIELD_VAR_PREFIX)) {
+                                field = field.substring(1);
+                                if (MetadataHelper.getLastJoinField(targetEntity, field) == null) {
+                                    throw new MissingMetaExcetion(field, targetEntity.getName());
+                                }
+                                fieldVarsInTarget.add(SOURCE_FIELD_VAR_PREFIX + field);
+                            } else if (N2NReferenceSupport.isN2NMixPath(field, sourceEntity)) {
                                 fieldVarsN2NPath.add(field);
                             } else {
                                 if (MetadataHelper.getLastJoinField(sourceEntity, field) == null) {
@@ -375,6 +393,17 @@ public class FieldWriteback extends FieldAggregation {
                 for (String field : fieldVarsN2NPath) {
                     Object[] n2nVal = N2NReferenceSupport.getN2NValueByMixPath(field, actionContext.getSourceRecord());
                     useSourceData.setObjectValue(field, n2nVal);
+                }
+            }
+            if (!fieldVarsInTarget.isEmpty()) {
+                this.targetRecordDataHasSourceFieldVar = true;
+                if (targetRecordId404 != null) {
+                    String sql = MessageFormat.format("select {0},{1} from {2} where {1} = ?",
+                            StringUtils.join(fieldVarsInTarget, ","),
+                            targetEntity.getPrimaryField().getName(),
+                            targetEntity.getName());
+                    sql = sql.replace(SOURCE_FIELD_VAR_PREFIX, "");  // Remove `^`
+                    useTargetData = Application.createQueryNoFilter(sql).setParameter(1, targetRecordId404).record();
                 }
             }
         }
@@ -452,7 +481,9 @@ public class FieldWriteback extends FieldAggregation {
 
                     Map<String, Object> envMap = new HashMap<>();
 
-                    for (String fieldName : fieldVars) {
+                    Set<String> fieldVarsMix = new HashSet<>(fieldVars);
+                    fieldVarsMix.addAll(fieldVarsInTarget);
+                    for (String fieldName : fieldVarsMix) {
                         String replace = "{" + fieldName + "}";
                         String replaceWhitQuote = "\"" + replace + "\"";
                         String replaceWhitQuoteSingle = "'" + replace + "'";
@@ -470,54 +501,71 @@ public class FieldWriteback extends FieldAggregation {
                             continue;
                         }
 
-                        Object value = useSourceData.getObjectValue(fieldName);
+                        Entity useEntity;
+                        Field useVarField;
+                        Object useValue = null;
+                        if (fieldName.startsWith(SOURCE_FIELD_VAR_PREFIX)) {
+                            String fieldName2 = fieldName.substring(1);
+                            if (useTargetData == null) log.debug("No `useTargetData` for var : {}", fieldName);
+                            else useValue = useTargetData.getObjectValue(fieldName2);
+                            useEntity = this.targetEntity;
+                            useVarField = MetadataHelper.getLastJoinField(useEntity, fieldName2);
+                        } else {
+                            useValue = useSourceData.getObjectValue(fieldName);
+                            useEntity = this.sourceEntity;
+                            useVarField = MetadataHelper.getLastJoinField(useEntity, fieldName);
+                        }
 
-                        // fix: 3.5.4
-                        Field varField = MetadataHelper.getLastJoinField(sourceEntity, fieldName);
-                        EasyField easyVarField = varField == null ? null : EasyMetaFactory.valueOf(varField);
-                        boolean isMultiField = easyVarField != null && (easyVarField.getDisplayType() == DisplayType.MULTISELECT
-                                || easyVarField.getDisplayType() == DisplayType.TAG || easyVarField.getDisplayType() == DisplayType.N2NREFERENCE);
-                        // fix: 3.8
-                        boolean isStateField = easyVarField != null && easyVarField.getDisplayType() == DisplayType.STATE;
+                        EasyField easyVarField = null;
+                        boolean isMultiField = false;
+                        boolean isStateField = false;
+                        boolean isNumberField = false;
+                        if (useVarField != null) {
+                            easyVarField = EasyMetaFactory.valueOf(useVarField);
+                            isMultiField = easyVarField.getDisplayType() == DisplayType.MULTISELECT
+                                    || easyVarField.getDisplayType() == DisplayType.TAG
+                                    || easyVarField.getDisplayType() == DisplayType.N2NREFERENCE;
+                            isStateField = easyVarField.getDisplayType() == DisplayType.STATE;
+                            isNumberField = useVarField.getType() == FieldType.LONG || useVarField.getType() == FieldType.DECIMAL;
+                        }
 
                         if (isStateField) {
-                            value = value == null ? "" : StateHelper.getLabel(varField, (Integer) value);
-                        } else if (value instanceof Date) {
-                            value = CalendarUtils.getUTCDateTimeFormat().format(value);
-                        } else if (value == null) {
+                            useValue = useValue == null ? "" : StateHelper.getLabel(useVarField, (Integer) useValue);
+                        } else if (useValue instanceof Date) {
+                            useValue = CalendarUtils.getUTCDateTimeFormat().format(useValue);
+                        } else if (useValue == null) {
                             // N2N 保持 `NULL`
-                            Field isN2NField = sourceEntity.containsField(fieldName) ? sourceEntity.getField(fieldName) : null;
+                            Field isN2NField = useEntity.containsField(fieldName) ? useEntity.getField(fieldName) : null;
                             // 数字字段置 `0`
-                            if (varField != null
-                                    && (varField.getType() == FieldType.LONG || varField.getType() == FieldType.DECIMAL)) {
-                                value = 0L;
+                            if (isNumberField) {
+                                useValue = 0L;
                             } else if (fieldVarsN2NPath.contains(fieldName)
                                     || (isN2NField != null && isN2NField.getType() == FieldType.REFERENCE_LIST)) {
-                                // Keep NULL
+                                log.debug("Keep NULL for N2N");
                             } else {
-                                value = StringUtils.EMPTY;
+                                useValue = StringUtils.EMPTY;
                             }
                         } else if (isMultiField) {
                             // v3.5.5: 目标值为多引用时保持 `ID[]`
                             if (easyVarField.getDisplayType() == DisplayType.N2NREFERENCE
                                     && targetFieldEasy.getDisplayType() == DisplayType.N2NREFERENCE) {
-                                value = StringUtils.join((ID[]) value, MultiValue.MV_SPLIT);
+                                useValue = StringUtils.join((ID[]) useValue, MultiValue.MV_SPLIT);
                             } else {
                                 // force `TEXT`
                                 EasyField fakeTextField = EasyMetaFactory.valueOf(MetadataHelper.getField("User", "fullName"));
-                                value = easyVarField.convertCompatibleValue(value, fakeTextField);
+                                useValue = easyVarField.convertCompatibleValue(useValue, fakeTextField);
                             }
-                        } else if (value instanceof ID || forceUseQuote) {
-                            value = value.toString();
+                        } else if (useValue instanceof ID || forceUseQuote) {
+                            useValue = useValue.toString();
                         }
 
                         // v3.6.3 整数/小数强制使用 BigDecimal 高精度
-                        if (value instanceof Long) value = BigDecimal.valueOf((Long) value);
+                        if (useValue instanceof Long) useValue = BigDecimal.valueOf((Long) useValue);
 
-                        envMap.put(fieldName, value);
+                        envMap.put(fieldName, useValue);
                     }
 
-                    Object newValue = AviatorUtils.eval(clearFormula, envMap, Boolean.FALSE);
+                    Object newValue = AviatorUtils.eval(clearFormula, envMap, false);
 
                     if (newValue != null) {
                         DisplayType targetType = targetFieldEasy.getDisplayType();
