@@ -87,11 +87,11 @@ public class FieldWriteback extends FieldAggregation {
 
     private static final String DATE_EXPR = "#";
     private static final String CODE_PREFIX = "{{{{";  // ends with }}}}
-    private static final String SOURCE_FIELD_VAR_PREFIX = "$";
+    private static final String SOURCE_FIELD_VAR_PREFIX = "^";
 
     protected Set<ID> targetRecordIds;
     protected Record targetRecordData;
-    private boolean targetRecordDataHasSourceFieldVar;
+    private boolean targetRecordDataHasSourceFieldVars;
 
     public FieldWriteback(ActionContext context) {
         super(context, Boolean.TRUE);
@@ -172,7 +172,7 @@ public class FieldWriteback extends FieldAggregation {
             }
 
             Record targetRecord;
-            if (targetRecordDataHasSourceFieldVar) {
+            if (targetRecordDataHasSourceFieldVars) {
                 targetRecord = buildTargetRecordData(operatingContext, targetRecordId, false);
             } else {
                 targetRecord = targetRecordData.clone();
@@ -396,7 +396,7 @@ public class FieldWriteback extends FieldAggregation {
                 }
             }
             if (!fieldVarsInTarget.isEmpty()) {
-                this.targetRecordDataHasSourceFieldVar = true;
+                this.targetRecordDataHasSourceFieldVars = true;
                 if (targetRecordId404 != null) {
                     String sql = MessageFormat.format("select {0},{1} from {2} where {1} = ?",
                             StringUtils.join(fieldVarsInTarget, ","),
@@ -562,9 +562,11 @@ public class FieldWriteback extends FieldAggregation {
                         // v3.6.3 整数/小数强制使用 BigDecimal 高精度
                         if (useValue instanceof Long) useValue = BigDecimal.valueOf((Long) useValue);
 
+                        fieldName = fieldName.replace(SOURCE_FIELD_VAR_PREFIX, "_");
                         envMap.put(fieldName, useValue);
                     }
 
+                    clearFormula = clearFormula.replace(SOURCE_FIELD_VAR_PREFIX, "_");
                     Object newValue = AviatorUtils.eval(clearFormula, envMap, false);
 
                     if (newValue != null) {
