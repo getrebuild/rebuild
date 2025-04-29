@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -80,7 +81,7 @@ public class SeriesGenerator {
             return seriesFormat;
 
         } catch (Exception ex) {
-            throw new DefinedException("自动编号规则无效:" + seriesFormat);
+            throw new DefinedException(Language.L("自动编号规则无效") + "(" + seriesFormat + ")");
         }
     }
 
