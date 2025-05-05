@@ -18,7 +18,6 @@ import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.OkHttpUtils;
-import com.rebuild.web.admin.ConfigurationController;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -39,6 +38,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * @since 2025/2/26
  */
 public class OnlyOffice {
+
+    public static final String OO_PREVIEW_URL = "/commons/file-preview?src=";
 
     /**
      * OnlyOffice PDF
@@ -144,6 +145,6 @@ public class OnlyOffice {
     public static boolean isUseOoPreview() {
         if (RebuildConfiguration.get(OnlyofficeServer) == null) return false;
         String o = RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl);
-        return o == null || o.contains(ConfigurationController.OO_PREVIEW_URL);
+        return StringUtils.isBlank(o) || o.contains(OO_PREVIEW_URL);
     }
 }

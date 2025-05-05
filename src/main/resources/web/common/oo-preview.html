@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
-    <th:block th:replace="~{/_include/header}" />
+    <th:block th:replace="~{/_include/header(css='none')}" />
     <title>[[${title ?:'REBUILD'}]]</title>
     <style>
       html,

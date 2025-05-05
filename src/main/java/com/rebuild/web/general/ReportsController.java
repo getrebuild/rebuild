@@ -110,7 +110,7 @@ public class ReportsController extends BaseController {
             }
 
             if (reportGenerator != null) {
-                // in URL
+                // vars in URL
                 String vars = getParameter(request, "vars");
                 if (JSONUtils.wellFormat(vars) && reportGenerator instanceof EasyExcelGenerator33) {
                     JSONObject varsJson = JSON.parseObject(vars);
@@ -165,8 +165,14 @@ public class ReportsController extends BaseController {
                     CodecUtils.urlEncode(output.getName()), AuthTokenManager.generateOnceToken(null), CodecUtils.urlEncode(fileName));
             fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
 
-            String previewUrl = StringUtils.defaultIfBlank(
-                    RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl), "https://view.officeapps.live.com/op/embed.aspx?src=");
+            String previewUrl;
+            if (OnlyOffice.isUseOoPreview()) {
+                previewUrl = AppUtils.getContextPath(OnlyOffice.OO_PREVIEW_URL);
+            } else {
+                previewUrl = StringUtils.defaultIfBlank(
+                        RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl),
+                        "https://view.officeapps.live.com/op/view.aspx?src=");
+            }
 
             previewUrl += CodecUtils.urlEncode(fileUrl);
             response.sendRedirect(previewUrl);

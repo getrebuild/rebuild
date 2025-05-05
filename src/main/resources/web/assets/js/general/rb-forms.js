@@ -1440,7 +1440,7 @@ class RbFormNText extends RbFormElement {
 
     if (this.props.useMdedit) {
       return (
-        <div className="form-control-plaintext mdedit-content" ref={(c) => (this._textarea = c)} style={style}>
+        <div className="form-control-plaintext md-content" ref={(c) => (this._textarea = c)} style={style}>
           <Md2Html markdown={this.state.value} />
         </div>
       )
@@ -1547,6 +1547,7 @@ class RbFormNText extends RbFormElement {
       spellChecker: false,
       // eslint-disable-next-line no-undef
       toolbar: _readonly37 ? false : DEFAULT_MDE_TOOLBAR(this),
+      previewClass: 'md-content',
       onToggleFullScreen: (is) => {
         console.log('TODO:', is)
       },
@@ -1748,21 +1749,23 @@ class RbFormImage extends RbFormElement {
 
     return (
       <div className="img-field" ref={(c) => (this._$dropArea = c)}>
-        {value.map((item, idx) => {
-          return (
-            <span key={item}>
-              <a title={$fileCutName(item)} className="img-thumbnail img-upload" onClick={() => this._filePreview(value, idx)}>
-                <img src={this._formatUrl(item)} alt="IMG" />
-                {!_readonly37 && (
-                  <b title={$L('移除')} onClick={(e) => this.removeItem(item, e)}>
-                    <span className="zmdi zmdi-close" />
-                  </b>
-                )}
-              </a>
-            </span>
-          )
-        })}
-        <span title={$L('拖动或点击选择图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={`position-relative ${!showUpload && 'hide'}`}>
+        <span className="img-field-show">
+          {value.map((item, idx) => {
+            return (
+              <span key={item} data-key={item}>
+                <a title={$fileCutName(item)} className="img-thumbnail img-upload" onClick={() => this._filePreview(value, idx)}>
+                  <img src={this._formatUrl(item)} alt="IMG" />
+                  {!_readonly37 && (
+                    <b title={$L('移除')} onClick={(e) => this.removeItem(item, e)}>
+                      <span className="zmdi zmdi-close" />
+                    </b>
+                  )}
+                </a>
+              </span>
+            )
+          })}
+        </span>
+        <span title={$L('拖动或点击选择图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={`img-field-btn ${!showUpload && 'hide'}`}>
           <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" multiple data-updir={this.props.fileUpdir || null} />
           <label htmlFor={this._htmlid} className="img-thumbnail img-upload" onClick={(e) => this._fileClick(e)}>
             {this._captureType === 2 ? <span className="mdi mdi-camera down-2" /> : <span className="zmdi zmdi-image-alt down-2" />}
@@ -1791,15 +1794,17 @@ class RbFormImage extends RbFormElement {
 
     return (
       <div className="img-field">
-        {value.map((item, idx) => {
-          return (
-            <span key={item}>
-              <a title={$fileCutName(item)} onClick={() => this._filePreview(value, idx)} className="img-thumbnail img-upload zoom-in">
-                <img src={this._formatUrl(item)} alt="IMG" />
-              </a>
-            </span>
-          )
-        })}
+        <span className="img-field-show">
+          {value.map((item, idx) => {
+            return (
+              <span key={item}>
+                <a title={$fileCutName(item)} onClick={() => this._filePreview(value, idx)} className="img-thumbnail img-upload zoom-in">
+                  <img src={this._formatUrl(item)} alt="IMG" />
+                </a>
+              </span>
+            )
+          })}
+        </span>
       </div>
     )
   }
@@ -1876,6 +1881,28 @@ class RbFormImage extends RbFormElement {
           $(that._fieldValue__input).trigger('change')
         })
       }
+
+      // v4.1 拖动位置
+      if (this._$dropArea) {
+        const that = this
+        const $sortable = $(this._$dropArea)
+          .find('>span:eq(0)')
+          .sortable({
+            axis: 'x',
+            containment: 'parent',
+            cursor: 'move',
+            forcePlaceholderSize: true,
+            forceHelperSize: true,
+            stop: function () {
+              let s = []
+              $sortable.find('>[data-key]').each(function () {
+                s.push($(this).data('key'))
+              })
+              that.handleChange({ target: { value: s } }, true)
+            },
+          })
+          .disableSelection()
+      }
     }
   }
 
@@ -1925,19 +1952,21 @@ class RbFormFile extends RbFormImage {
 
     return (
       <div className="file-field" ref={(c) => (this._$dropArea = c)}>
-        {value.map((item) => {
-          const fileName = $fileCutName(item)
-          return (
-            <div key={item} className="img-thumbnail" title={fileName} onClick={() => this._filePreview(item)}>
-              {this._renderFileIcon(fileName, item)}
-              {!_readonly37 && (
-                <b title={$L('移除')} onClick={(e) => this.removeItem(item, e)}>
-                  <span className="zmdi zmdi-close" />
-                </b>
-              )}
-            </div>
-          )
-        })}
+        <span className="file-field-show">
+          {value.map((item) => {
+            const fileName = $fileCutName(item)
+            return (
+              <div key={item} data-key={item} className="img-thumbnail" title={fileName} onClick={() => this._filePreview(item)}>
+                {this._renderFileIcon(fileName, item)}
+                {!_readonly37 && (
+                  <b title={$L('移除')} onClick={(e) => this.removeItem(item, e)}>
+                    <span className="zmdi zmdi-close" />
+                  </b>
+                )}
+              </div>
+            )
+          })}
+        </span>
         <div className={`file-select ${showUpload ? '' : 'hide'}`}>
           <input
             type="file"
@@ -2033,7 +2062,7 @@ class RbFormPickList extends RbFormElement {
         <div ref={(c) => (this._fieldValue = c)} className="mt-1">
           {this._options.map((item) => {
             return (
-              <label className="custom-control custom-radio custom-control-inline mb-1" key={`${this._htmlid}-${item.id}`}>
+              <label key={item.id} className="custom-control custom-radio custom-control-inline mb-1">
                 <input className="custom-control-input" name={this._htmlid} type="radio" checked={this.state.value === item.id} onChange={() => this.setValue(item.id)} disabled={_readonly37} />
                 <span className="custom-control-label">{item.text}</span>
               </label>
@@ -2742,7 +2771,8 @@ class RbFormClassification extends RbFormElement {
 class RbFormMultiSelect extends RbFormElement {
   constructor(props) {
     super(props)
-    this._isShowRadio41 = props.showStyle === '10'
+    this._htmlid = `${props.field}-${$random()}_`
+    this._isShowSelect41 = props.showStyle === '10'
   }
 
   renderElement() {
@@ -2753,7 +2783,7 @@ class RbFormMultiSelect extends RbFormElement {
     const _readonly37 = this.state.readonly
     const maskValue = this._getMaskValue()
 
-    if (this._isShowRadio41) {
+    if (this._isShowSelect41) {
       return (
         <select className="form-control form-control-sm" multiple ref={(c) => (this._fieldValue = c)} disabled={_readonly37}>
           {this.props.options.map((item) => {
@@ -2774,7 +2804,7 @@ class RbFormMultiSelect extends RbFormElement {
             <label key={item.mask} className="custom-control custom-checkbox custom-control-inline">
               <input
                 className="custom-control-input"
-                name={`checkbox-${this.props.field}`}
+                name={this._htmlid}
                 type="checkbox"
                 checked={(maskValue & item.mask) !== 0}
                 value={item.mask}
@@ -2797,7 +2827,7 @@ class RbFormMultiSelect extends RbFormElement {
   }
 
   onEditModeChanged(destroy) {
-    if (this._isShowRadio41) {
+    if (this._isShowSelect41) {
       if (destroy) {
         super.onEditModeChanged(destroy)
       } else {
@@ -2822,7 +2852,7 @@ class RbFormMultiSelect extends RbFormElement {
 
   _changeValue = () => {
     let maskValue = 0
-    if (this._isShowRadio41) {
+    if (this._isShowSelect41) {
       this.__select2.val().forEach((v) => (maskValue += ~~v))
     } else {
       $(this._fieldValue__wrap)

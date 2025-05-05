@@ -12,8 +12,12 @@ import com.rebuild.core.support.OnlyOffice;
 import com.rebuild.core.support.RebuildConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 
 import java.io.File;
 import java.io.IOException;
@@ -102,5 +106,39 @@ public class PdfConverter {
 
         if (dest.exists()) return dest.toPath();
         throw new PdfConverterException("Cannot convert to <" + type + "> : " + StringUtils.defaultIfBlank(echo, "<empty>"));
+    }
+
+    /**
+     * 元数据
+     *
+     * @param file
+     * @param newFileName
+     */
+    public static File reSavePdf4Meta(File file, String newFileName) {
+        PDDocument origin = null;
+        PDDocument cleand = null;
+        try {
+            origin = Loader.loadPDF(file);
+            cleand = new PDDocument();
+            origin.getPages().forEach(cleand::addPage);
+
+            PDDocumentInformation newinfo = new PDDocumentInformation();
+            newinfo.setTitle(StringUtils.defaultIfBlank(newFileName, file.getName()));
+            newinfo.setAuthor("REBUILD");
+            newinfo.setCreator("PdfConverter");
+            cleand.setDocumentInformation(newinfo);
+
+            FileUtils.deleteQuietly(file);
+            if (newFileName != null) {
+                file = new File(file.getParent(), newFileName);
+            }
+            cleand.save(file);
+
+        } catch (Exception ex) {
+            log.warn("PDF resave error : {}", ex.getLocalizedMessage());
+        } finally {
+            IOUtils.closeQuietly(origin, cleand);
+        }
+        return file;
     }
 }
