@@ -42,13 +42,25 @@ public class OnlyOffice {
     public static final String OO_PREVIEW_URL = "/commons/file-preview?src=";
 
     /**
-     * OnlyOffice PDF
-     *
      * @param path
      * @return
      * @throws IOException
      */
     public static Path convertPdf(Path path) throws IOException {
+        String filename = path.getFileName().toString();
+        String fileUrl = String.format("/filex/download/%s?_csrfToken=%s&temp=yes",
+                filename, AuthTokenManager.generateCsrfToken(90));
+        fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
+
+        return convertPdf(path, fileUrl);
+    }
+
+    /**
+     * @param path
+     * @return
+     * @throws IOException
+     */
+    public static Path convertPdf(Path path, String fileUrl) throws IOException {
         final String ooServer = getOoServer();
         final String ooJwt = RebuildConfiguration.get(OnlyofficeJwt);
 
@@ -60,10 +72,6 @@ public class OnlyOffice {
         document.put("fileType", FileUtil.getSuffix(filename));
         document.put("outputType", "pdf");
         document.put("title", filenameWithoutExt);
-
-        String fileUrl = String.format("/filex/download/%s?_csrfToken=%s&temp=yes",
-                filename, AuthTokenManager.generateCsrfToken(90));
-        fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
         document.put("url", fileUrl);
 
         // Token

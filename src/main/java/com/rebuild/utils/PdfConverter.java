@@ -77,7 +77,7 @@ public class PdfConverter {
      * @return
      * @throws IOException
      */
-    protected static Path convert(Path path, String type, boolean forceRegen) throws IOException {
+    public static Path convert(Path path, String type, boolean forceRegen) throws IOException {
         type = StringUtils.defaultIfBlank(type, TYPE_PDF);
 
         final String pathFileName = path.getFileName().toString();
