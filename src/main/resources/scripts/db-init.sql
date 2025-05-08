@@ -787,9 +787,10 @@ create table if not exists `extform_config` (
   `START_TIME`         datetime null default null comment '开始时间',
   `END_TIME`           datetime null default null comment '结束时间',
   `BIND_USER`          char(20) comment '数据绑定用户',
-  `HOOK_URL`           varchar(300) comment '回调地址',
-  `HOOK_SECRET`        varchar(300) comment '回调安全码',
   `NO_RATE_LIMITER`    char(1) default 'F' comment '关闭限流',
+  `HOOK_URL`           varchar(300) comment '回调地址',
+  `HOOK_SECRET`        varchar(100) comment '回调安全码',
+  `ACCESS_KEY`         varchar(100) comment '访问密码',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
@@ -964,4 +965,4 @@ insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NU
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 62);
+  values ('021-9000000000000001', 'DBVer', 63);

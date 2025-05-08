@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #63 (v4.1)
+alter table `extform_config`
+  add column `ACCESS_KEY` varchar(100) comment '访问密码';
+
 -- #62 (v4.1)
 -- ************ Entity [AibotChat] DDL ************
 create table if not exists `aibot_chat` (
