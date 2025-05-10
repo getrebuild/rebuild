@@ -495,12 +495,12 @@ class DlgTransform extends RbModalHandler {
             icon: props.icon,
             initialFormModel: res.data,
             previewid: `${props.transid}.${props.sourceRecord}`,
+            _disableAutoFillin: true,
           }
           if (_post.existsRecord) {
             modalProps.title = $L('编辑%s', props.entityLabel)
             modalProps.id = _post.existsRecord
           }
-          // From
           RbFormModal.create(modalProps, true)
         } else {
           if (this._isMuilt) {
