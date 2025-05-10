@@ -15,6 +15,9 @@ package com.rebuild.core.service.aibot.vector;
  */
 public interface VectorData {
 
+    String N = "\n";
+    String NN = "\n\n";
+
     /**
      * @return
      */

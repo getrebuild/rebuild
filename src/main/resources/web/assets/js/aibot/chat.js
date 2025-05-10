@@ -261,7 +261,7 @@ class ChatMessages extends React.Component {
     let _lastScroll = 0
     const $ms = $(this._$messages).on('scroll', function () {
       let currentScroll = $(this).scrollTop()
-      if (_lastScroll - currentScroll > 13) {
+      if (_lastScroll - currentScroll > 30) {
         __evt_ScrollToBottomStop = true
       } else {
         if (__evt_ScrollToBottomStop) {

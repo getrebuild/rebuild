@@ -45,22 +45,22 @@ public class RecordData implements VectorData {
         final Record r = Application.getQueryFactory().recordNoFilter(recordId);
 
         StringBuilder v = new StringBuilder();
-        v.append("## ").append(EasyMetaFactory.getLabel(r.getEntity())).append("\n");
+        v.append("### ").append(EasyMetaFactory.getLabel(r.getEntity())).append(NN);
         for (String fieldName : r.getAvailableFields()) {
             Field field = r.getEntity().getField(fieldName);
             if (MetadataHelper.isSystemField(field)) continue;
 
             String label = EasyMetaFactory.getLabel(field);
             String value = clearedFieldValue(r.getObjectValue(fieldName), field);
-            v.append(label).append(": ").append(value).append("\n");
+            v.append(label).append(": ").append(value).append(N);
         }
 
         if (hasDetails) {
             for (Entity de : r.getEntity().getDetialEntities()) {
-                v.append("\n### ").append(EasyMetaFactory.getLabel(de)).append("\n");
+                v.append("\n#### ").append(EasyMetaFactory.getLabel(de)).append(N);
                 List<ID> dids = QueryHelper.detailIdsNoFilter(recordId, de);
                 String didsTable = new ListData(null).toVector(dids.toArray(new ID[0]), de);
-                v.append(didsTable).append("\n");
+                v.append(didsTable).append(N);
             }
         }
 

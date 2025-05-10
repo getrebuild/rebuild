@@ -6001,6 +6001,7 @@ div.formula-code {
   margin-top: -0.9rem;
 }
 
+.md-content *:last-child,
 .md-content blockquote p:last-child {
   margin-bottom: 0 !important;
 }
