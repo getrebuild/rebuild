@@ -18,6 +18,7 @@ import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.OkHttpUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -47,9 +48,23 @@ public class OnlyOffice {
      * @throws IOException
      */
     public static Path convertPdf(Path path) throws IOException {
-        String filename = path.getFileName().toString();
+        String filepath = path.getFileName().toString();
+        File fileInTemp = RebuildConfiguration.getFileOfTemp(filepath);
+        // 需要在临时目录下才可以，否则 oo 访问不到源文件
+        if (!fileInTemp.equals(path.toFile())) {
+            // 尝试父级目录
+            String parent = path.getParent().getFileName().toString();
+            fileInTemp = RebuildConfiguration.getFileOfTemp(parent + "/" + filepath);
+            if (fileInTemp.equals(path.toFile())) {
+                filepath = parent + "/" + filepath;
+            } else {
+                FileUtils.deleteQuietly(fileInTemp);
+                FileUtils.copyFile(path.toFile(), fileInTemp);
+            }
+        }
+
         String fileUrl = String.format("/filex/download/%s?_csrfToken=%s&temp=yes",
-                filename, AuthTokenManager.generateCsrfToken(90));
+                filepath, AuthTokenManager.generateCsrfToken(90));
         fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
 
         return convertPdf(path, fileUrl);
