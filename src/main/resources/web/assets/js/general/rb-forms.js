@@ -128,7 +128,8 @@ class RbFormModal extends React.Component {
           forceInitFieldValue={forceInitFieldValue}
           $$$parent={that}
           readonly={!!formModel.readonlyMessage}
-          ref={(c) => (that._formComponentRef = c)}>
+          ref={(c) => (that._formComponentRef = c)}
+          _disableAutoFillin={that.props._disableAutoFillin}>
           {formModel.elements.map((item) => {
             return detectElement(item, entity)
           })}
@@ -352,6 +353,7 @@ class RbForm extends React.Component {
       $$$main: this,
       transDetails: transDetails39 ? transDetails39[detailMeta.entity] : null,
       transDetailsDelete: transDetails39 ? transDetails39[detailMeta.entity + '$DELETED'] : null,
+      _disableAutoFillin: this.props._disableAutoFillin,
     }
 
     if (window._CustomizedForms) {
@@ -671,7 +673,6 @@ class RbForm extends React.Component {
   setAutoFillin(data) {
     if (!data || data.length === 0) return
 
-    this._inAutoFillin = true
     data.forEach((item) => {
       const fieldComp = this.getFieldComp(item.target)
       if (fieldComp) {
@@ -680,7 +681,6 @@ class RbForm extends React.Component {
         if ((this.isNew && item.whenCreate) || (!this.isNew && item.whenUpdate)) fieldComp.setValue(item.value)
       }
     })
-    this._inAutoFillin = false
   }
 
   // 设置字段值
@@ -2119,11 +2119,27 @@ class RbFormReference extends RbFormElement {
     // 新建记录时触发回填
     const props = this.props
     if (this._isNew && props.value && props.value.id) {
-      // fix: 4.0.2 #IC0GPI 复制时无需回填
-      if (props._disableAutoFillin !== true) {
+      if (!this._disableAutoFillin()) {
         setTimeout(() => this.triggerAutoFillin(props.value.id), 200)
       }
     }
+  }
+
+  // fix: 4.0.2 #IC0GPI 明细复制时无需回填
+  // fix: 4.0.4 #IC63LN 记录转换时无需回填
+  _disableAutoFillin() {
+    if (this.props._disableAutoFillin) return true
+    try {
+      // Form
+      let $parent = this.props.$$$parent
+      if ($parent.props._disableAutoFillin) return true
+      // ProTable or Modal
+      $parent = $parent.props.$$$parent
+      if ($parent && $parent.props._disableAutoFillin) return true
+    } catch (err) {
+      console.log('_disableAutoFillin', err)
+    }
+    return false
   }
 
   onEditModeChanged(destroy) {
@@ -2259,6 +2275,17 @@ class RbFormReference extends RbFormElement {
     if (this.props.onView) return
 
     const id = value && typeof value === 'object' ? value.id : value
+    // fix:4.0.4 死循环
+    this.__infiniteLoop = this.__infiniteLoop || {}
+    this.__infiniteLoop[id] = (this.__infiniteLoop[id] || 0) + 1
+    if (this.__infiniteLoop[id] > 2) {
+      console.log('Infinite loop [triggerAutoFillin] ...', id)
+      return
+    }
+    setTimeout(() => {
+      this.__infiniteLoop = {}
+    }, 2000)
+
     const $$$form = this.props.$$$parent
     let formData = null
     if (this.props.fillinWithFormData) {
@@ -3142,7 +3169,6 @@ class RbFormRefform extends React.Component {
   }
 
   render() {
-    if (!this.state.formComponent) return null
     return (
       <div className={`rbview-form form-layout refform ${window.__LAB_VERTICALLAYOUT && 'vertical38'}`} ref={(c) => (this._viewForm = c)}>
         {this.state.formComponent || 'LOADING'}

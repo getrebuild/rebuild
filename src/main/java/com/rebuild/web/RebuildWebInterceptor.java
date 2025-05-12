@@ -340,7 +340,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
         RequestEntry(HttpServletRequest request, String locale, String ipAddr) {
             this.requestTime = System.currentTimeMillis();
-            this.requestUri = CodecUtils.urlDecode(request.getRequestURI());
+            this.requestUri = request.getRequestURI();
             this.requestUriWithQuery = this.requestUri + (request.getQueryString() == null ? "" : "?" + request.getQueryString());
             this.requestUser = AppUtils.getRequestUser(request, true);
             this.locale = locale;
