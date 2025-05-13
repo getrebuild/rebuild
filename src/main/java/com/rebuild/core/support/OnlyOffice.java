@@ -89,7 +89,7 @@ public class OnlyOffice {
         String filenameWithoutExt = filename.substring(0, filename.lastIndexOf("."));
         JSONObject document = new JSONObject(true);
         document.put("async", false);
-        document.put("key", "key-" + EncryptUtils.toMD5Hex(filename));
+        document.put("key", "key-" + CommonsUtils.randomHex(true));
         document.put("fileType", FileUtil.getSuffix(filename));
         document.put("outputType", "pdf");
         document.put("title", filenameWithoutExt);
@@ -135,7 +135,7 @@ public class OnlyOffice {
 
         JSONObject document = new JSONObject(true);
         document.put("fileType", FileUtil.getSuffix(filename));
-        document.put("key", "key-" + EncryptUtils.toMD5Hex(filename));
+        document.put("key", "key-" + EncryptUtils.toMD5Hex(filepath));
         document.put("title", QiniuCloud.parseFileName(filename));
         // 外部地址
         if (CommonsUtils.isExternalUrl(filepath)) {
