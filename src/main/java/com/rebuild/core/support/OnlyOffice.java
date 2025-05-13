@@ -17,6 +17,7 @@ import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.ExcelUtils;
 import com.rebuild.utils.OkHttpUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -48,15 +49,20 @@ public class OnlyOffice {
      * @throws IOException
      */
     public static Path convertPdf(Path path) throws IOException {
-        String filepath = path.getFileName().toString();
-        File fileInTemp = RebuildConfiguration.getFileOfTemp(filepath);
+        String filename = path.getFileName().toString();
+        // Excel 公式生效
+        if (filename.endsWith(".xlsx") || filename.endsWith(".xls")) {
+            ExcelUtils.reSaveAndCalcFormula(path);
+        }
+
         // 需要在临时目录下才可以，否则 oo 访问不到源文件
+        File fileInTemp = RebuildConfiguration.getFileOfTemp(filename);
         if (!fileInTemp.equals(path.toFile())) {
             // 尝试父级目录
             String parent = path.getParent().getFileName().toString();
-            fileInTemp = RebuildConfiguration.getFileOfTemp(parent + "/" + filepath);
+            fileInTemp = RebuildConfiguration.getFileOfTemp(parent + "/" + filename);
             if (fileInTemp.equals(path.toFile())) {
-                filepath = parent + "/" + filepath;
+                filename = parent + "/" + filename;
             } else {
                 FileUtils.deleteQuietly(fileInTemp);
                 FileUtils.copyFile(path.toFile(), fileInTemp);
@@ -64,7 +70,7 @@ public class OnlyOffice {
         }
 
         String fileUrl = String.format("/filex/download/%s?_csrfToken=%s&temp=yes",
-                filepath, AuthTokenManager.generateCsrfToken(90));
+                filename, AuthTokenManager.generateCsrfToken(90));
         fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
 
         return convertPdf(path, fileUrl);

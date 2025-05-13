@@ -80,20 +80,19 @@ public class PdfConverter {
     public static Path convert(Path path, String type, boolean forceRegen) throws IOException {
         type = StringUtils.defaultIfBlank(type, TYPE_PDF);
 
-        final String pathFileName = path.getFileName().toString();
-        final boolean isExcel = pathFileName.endsWith(".xlsx") || pathFileName.endsWith(".xls");
-        // Excel 公式生效
-        if (isExcel) {
-            ExcelUtils.reSaveAndCalcFormula(path);
-        }
-
+        final String filename = path.getFileName().toString();
         final File outDir = RebuildConfiguration.getFileOfTemp(null);
-        final String outName = pathFileName.substring(0, pathFileName.lastIndexOf(".") + 1) + type;
+        final String outName = filename.substring(0, filename.lastIndexOf(".") + 1) + type;
         final File dest = new File(outDir, outName);
 
         if (dest.exists()) {
             if (forceRegen) FileUtils.deleteQuietly(dest);
             else return dest.toPath();
+        }
+
+        // Excel 公式生效
+        if (filename.endsWith(".xlsx") || filename.endsWith(".xls")) {
+            ExcelUtils.reSaveAndCalcFormula(path);
         }
 
         // alias
