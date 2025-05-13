@@ -242,7 +242,8 @@ public class SMSender {
      */
     protected static String sendMailViaSmtp(String to, String subject, String htmlContent, File[] attach, String[] specAccount) throws EmailException {
         HtmlEmail email = new HtmlEmail();
-        email.addTo(to);
+        // v4.1 多个
+        for (String o : to.split(",")) email.addTo(o);
         if (StringUtils.isNotBlank(specAccount[4])) email.addCc(specAccount[4]);
         if (StringUtils.isNotBlank(specAccount[5])) email.addBcc(specAccount[5]);
         email.setSubject(subject);

@@ -120,6 +120,20 @@ public class SendNotification extends TriggerAction {
         String[] message = formatMessageContent(actionContext, operatingContext);
         Set<Object> send = new HashSet<>();
 
+        // v4.1 合并发送
+        if (msgType == MTYPE_MAIL && content.getBooleanValue("mergeSend")) {
+            for (ID user : toUsers) {
+                String emailAddr = Application.getUserStore().getUser(user).getEmail();
+                if (RegexUtils.isEMail(emailAddr)) send.add(emailAddr);
+            }
+
+            if (!send.isEmpty()) {
+                String mdHtml = MarkdownUtils.render(message[0], false, true);
+                SMSender.sendMailAsync(StringUtils.join(send, ","), message[1], mdHtml, getMailAttach(content));
+            }
+            return send;
+        }
+
         for (ID user : toUsers) {
             if (send.contains(user)) continue;
 
@@ -180,10 +194,24 @@ public class SendNotification extends TriggerAction {
         String[] message = formatMessageContent(actionContext, operatingContext);
         Set<Object> send = new HashSet<>();
 
-        for (Object item : to) {
-            if (item == null) continue;
+        // v4.1 合并发送
+        if (msgType == MTYPE_MAIL && content.getBooleanValue("mergeSend")) {
+            for (Object me : to) {
+                String emailAddr = me == null ? null : me.toString().trim();
+                if (RegexUtils.isEMail(emailAddr)) send.add(emailAddr);
+            }
 
-            String mobileOrEmail = item.toString().trim();
+            if (!send.isEmpty()) {
+                String mdHtml = MarkdownUtils.render(message[0], false, true);
+                SMSender.sendMailAsync(StringUtils.join(send, ","), message[1], mdHtml, getMailAttach(content));
+            }
+            return send;
+        }
+
+        for (Object me : to) {
+            if (me == null) continue;
+
+            String mobileOrEmail = me.toString().trim();
             if (send.contains(mobileOrEmail)) continue;
 
             if (msgType == MTYPE_SMS && RegexUtils.isCNMobile(mobileOrEmail)) {
