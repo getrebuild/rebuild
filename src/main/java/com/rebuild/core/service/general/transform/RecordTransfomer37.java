@@ -53,12 +53,18 @@ public class RecordTransfomer37 extends RecordTransfomer {
             throw new ConfigurationException("INVALID CONFIG OF TRANSFORM");
         }
         // 兼容
-        if (fieldsMapping.get("_") == null) return super.transform(sourceRecordId, specMainId);
+        if (fieldsMapping.get("_") == null) {
+            transConfig.put("checkNullable35", false);
+            return super.transform(sourceRecordId, specMainId);
+        }
 
         // ND:明细
         JSONArray fieldsMappingDetails = transConfig.getJSONArray("fieldsMappingDetails");
         // 兼容
-        if (fieldsMappingDetails == null) return super.transform(sourceRecordId, specMainId);
+        if (fieldsMappingDetails == null) {
+            transConfig.put("checkNullable35", false);
+            return super.transform(sourceRecordId, specMainId);
+        }
 
         // v3.5 此配置未开放
         // 在之前的版本中，虽然文档写明非空字段无值会转换失败，但是从来没有做过非空检查
