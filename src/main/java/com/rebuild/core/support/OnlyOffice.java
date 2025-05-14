@@ -135,7 +135,7 @@ public class OnlyOffice {
 
         JSONObject document = new JSONObject(true);
         document.put("fileType", FileUtil.getSuffix(filename));
-        document.put("key", "key-" + EncryptUtils.toMD5Hex(filepath));
+        document.put("key", "key-" + EncryptUtils.toMD5Hex(filepath.split("\\?")[0]));
         document.put("title", QiniuCloud.parseFileName(filename));
         // 外部地址
         if (CommonsUtils.isExternalUrl(filepath)) {
