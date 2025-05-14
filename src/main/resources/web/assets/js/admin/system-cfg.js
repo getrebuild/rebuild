@@ -28,7 +28,10 @@ $(document).ready(() => {
     let m = $L('主页地址/域名设置有误，将导致相关功能不可用。建议立即 [修改](###)')
     m = `<div class="alert alert-danger alert-icon alert-sm m-0 mt-1"><div class="icon"><span class="mdi mdi-message-alert-outline"></span></div><div class="message">${m}</div></div>`
     m = $(m).appendTo('td[data-id="HomeURL"]')
-    m.find('.message>a').on('click', () => $('.J_edit').trigger('click'))
+    m.find('.message>a').on('click', (e) => {
+      $stopEvent(e, true)
+      $('.J_edit').trigger('click')
+    })
   }
 
   // UC
