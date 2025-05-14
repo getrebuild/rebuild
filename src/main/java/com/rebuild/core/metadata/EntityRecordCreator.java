@@ -230,7 +230,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
         return false;
     }
 
-    // 正则匹配
+    // 格式验证:正则匹配
     private boolean patternMatches(EasyField easyField, Object val) {
         if (!(easyField instanceof EasyText)) return true;
 

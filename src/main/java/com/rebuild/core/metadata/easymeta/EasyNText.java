@@ -13,7 +13,7 @@ import cn.devezhao.persist4j.Field;
  * @author devezhao
  * @since 2020/11/17
  */
-public class EasyNText extends EasyField {
+public class EasyNText extends EasyText {
     private static final long serialVersionUID = -3986451731566643240L;
 
     protected EasyNText(Field field, DisplayType displayType) {
