@@ -30,6 +30,7 @@ import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.mail.EmailConstants;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.jsoup.Jsoup;
@@ -271,6 +272,8 @@ public class SMSender {
 
         email.addHeader("X-User-Agent", OkHttpUtils.RB_UA);
         email.setCharset(AppUtils.UTF8);
+        email.setSocketTimeout(EmailConstants.SOCKET_TIMEOUT_MS * 3);
+        email.setSocketConnectionTimeout(EmailConstants.SOCKET_TIMEOUT_MS * 3);
         return email.send();
     }
 
