@@ -1054,14 +1054,18 @@ class ListAdvFilter extends AdvFilter {
               <button className="btn btn-primary btn-outline" type="button" onClick={() => this.searchNow()}>
                 <i className="icon zmdi zmdi-search" /> {$L('查询')}
               </button>
-              <button className="btn btn-primary btn-outline dropdown-toggle w-auto" type="button" data-toggle="dropdown" style={{ marginLeft: -1 }}>
-                <i className="icon zmdi zmdi-chevron-down" />
-              </button>
-              <div className="dropdown-menu dropdown-menu-right">
-                <a className="dropdown-item" onClick={() => this.handleNew()}>
-                  {$L('保存到常用查询')}
-                </a>
-              </div>
+              {this.props.noSave === true ? null : (
+                <RF>
+                  <button className="btn btn-primary btn-outline dropdown-toggle w-auto" type="button" data-toggle="dropdown" style={{ marginLeft: -1 }}>
+                    <i className="icon zmdi zmdi-chevron-down" />
+                  </button>
+                  <div className="dropdown-menu dropdown-menu-right">
+                    <a className="dropdown-item" onClick={() => this.handleNew()}>
+                      {$L('保存到常用查询')}
+                    </a>
+                  </div>
+                </RF>
+              )}
             </div>
             <button className="btn btn-secondary" type="button" onClick={() => this.searchNow(true)}>
               <i className="icon mdi mdi-restore" /> {$L('重置')}
@@ -1084,6 +1088,8 @@ class ListAdvFilter extends AdvFilter {
         RbListPage._RbList.search(adv, true)
       }
     }
+    // v4.1
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm()
   }
 
   post(name, shareTo) {
