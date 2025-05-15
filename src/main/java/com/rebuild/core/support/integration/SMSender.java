@@ -168,6 +168,7 @@ public class SMSender {
 
             } catch (EmailException ex) {
                 log.error("SMTP send error : {}, {}, {}", to, subject, content, ex);
+                createLog(to, logContent, TYPE_EMAIL, null, ex.getLocalizedMessage());
                 return null;
             }
         }
@@ -215,6 +216,7 @@ public class SMSender {
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
             log.error("Submail send error : {}, {}, {}", to, subject, content, ex);
+            createLog(to, logContent, TYPE_EMAIL, null, ex.getLocalizedMessage());
             return null;
         }
 
@@ -365,6 +367,7 @@ public class SMSender {
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
             log.error("Subsms send error : {}, {}", to, content, ex);
+            createLog(to, content, TYPE_SMS, null, ex.getLocalizedMessage());
             return null;
         } finally {
             HeavyStopWatcher.clean();
