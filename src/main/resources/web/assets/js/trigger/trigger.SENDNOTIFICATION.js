@@ -153,13 +153,27 @@ class ContentSendNotification extends ActionContentSpec {
               </div>
             </div>
             {state.type === 2 && (
-              <div className="form-group row pb-1">
-                <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('邮件附件')}</label>
-                <div className="col-12 col-lg-8">
-                  <SelectorWithField ref={(c) => (this._attach = c)} hideUser hideDepartment hideRole hideTeam fieldTypes={['FILE', 'IMAGE']} />
-                  <p className="form-text">{$L('选择附件/图片字段')}</p>
+              <RF>
+                <div className="form-group row">
+                  <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('邮件附件')}</label>
+                  <div className="col-12 col-lg-8">
+                    <SelectorWithField ref={(c) => (this._attach = c)} hideUser hideDepartment hideRole hideTeam fieldTypes={['FILE', 'IMAGE']} />
+                    <p className="form-text">{$L('选择附件/图片字段')}</p>
+                  </div>
                 </div>
-              </div>
+                <div className="form-group row bosskey-show">
+                  <label className="col-12 col-lg-3 col-form-label text-lg-right" />
+                  <div className="col-12 col-lg-8">
+                    <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                      <input className="custom-control-input" type="checkbox" ref={(c) => (this._$mergeSend = c)} />
+                      <span className="custom-control-label">
+                        {$L('合并发送')}
+                        <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('当有多个收件人邮箱时合并为一封邮件发送')} />
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </RF>
             )}
           </div>
         </form>
@@ -170,6 +184,7 @@ class ContentSendNotification extends ActionContentSpec {
   setMsgType(type) {
     this.setState({ type: type }, () => {
       $(this._$userTypes).find('>label:not(.hide) input')[0].click()
+      $('#react-content [data-toggle="tooltip"]').tooltip()
     })
   }
 
@@ -213,6 +228,13 @@ class ContentSendNotification extends ActionContentSpec {
             $.post(`/commons/search/user-selector?entity=${this.props.sourceEntity}`, JSON.stringify(content.attach), (res) => {
               this._attach.setState({ selected: res.data || [] })
             })
+          }
+          // v4.1
+          if (content.type === 2) {
+            $('#react-content [data-toggle="tooltip"]').tooltip()
+            if (content.mergeSend) {
+              $(this._$mergeSend).attr('checked', true).parents('.form-group').removeClass('bosskey-show')
+            }
           }
         }
       )
@@ -268,6 +290,7 @@ class ContentSendNotification extends ActionContentSpec {
       title: $(this._$title).val(),
       content: this._content.val(),
       attach: this._attach ? this._attach.val() : null,
+      mergeSend: $val(this._$mergeSend),
     }
 
     if (!_data.content) {

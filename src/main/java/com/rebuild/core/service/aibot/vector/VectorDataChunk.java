@@ -18,6 +18,9 @@ public class VectorDataChunk implements VectorData {
 
     private List<VectorData> datas = new ArrayList<>();
 
+    /**
+     * @param data
+     */
     public void addVectorData(VectorData data) {
         datas.add(data);
     }

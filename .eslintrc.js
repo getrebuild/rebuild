@@ -158,5 +158,6 @@ module.exports = {
     Md2Html: true,
     marked: true,
     $focus2End: true,
+    RecordSelectorModal: true,
   },
 }

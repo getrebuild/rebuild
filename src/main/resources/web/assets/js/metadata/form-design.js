@@ -479,15 +479,7 @@ class DlgEditField extends RbAlert {
       <form className="field-attr">
         <div className="form-group">
           <label>{$L('填写提示')}</label>
-          <input
-            type="text"
-            className="form-control form-control-sm"
-            name="fieldTips"
-            value={this.state.fieldTips || ''}
-            onChange={this.handleChange}
-            placeholder={$L('输入填写提示')}
-            maxLength="200"
-          />
+          <input type="text" className="form-control form-control-sm" name="fieldTips" value={this.state.fieldTips || ''} onChange={this.handleChange} placeholder={$L('无')} maxLength="200" />
         </div>
         {this.props.displayType === 'NTEXT' && (
           <div className="form-group">

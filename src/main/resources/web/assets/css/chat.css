@@ -73,11 +73,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #4285f4;
   color: var(--rb-theme-color);
   min-width: 0 !important;
+  font-size: 22px;
 }
 
 .chat-input .chat-input-action button .mdi {
-  font-size: 1.5rem;
-  line-height: 1.5;
+  font-size: 1.75rem;
 }
 
 .chat-input .chat-input-action button:disabled {

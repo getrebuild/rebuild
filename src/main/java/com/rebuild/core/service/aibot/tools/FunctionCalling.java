@@ -7,10 +7,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.aibot.tools;
 
+import com.alibaba.fastjson.JSONObject;
+
 /**
+ * 探索中
  * https://api-docs.deepseek.com/zh-cn/guides/function_calling
+ *
  * @author Zixin
  * @since 2025/4/19
  */
 public interface FunctionCalling {
+
+    /**
+     * @return
+     */
+    JSONObject toAiJSON();
 }

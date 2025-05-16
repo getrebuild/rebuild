@@ -7,8 +7,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.aibot.vector;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.rebuild.core.service.aibot.vector.VectorData.NN;
 
 /**
  * @author Zixin
@@ -16,22 +20,53 @@ import java.util.List;
  */
 public class MarkdownTable {
 
+    private String heading;
     private List<String> headList = new ArrayList<>();
-    private List<List<String>> rowDatas = new ArrayList<>();
+    private List<String[]> rowDatas = new ArrayList<>();
 
     public MarkdownTable() {
+        this(null);
     }
 
-    public void addHead(String headName) {
+    public MarkdownTable(String heading) {
+        this.heading = heading;
+    }
+
+    /**
+     * @param headName
+     * @return
+     */
+    public MarkdownTable addHead(String headName) {
         headList.add(headName);
+        return this;
     }
 
-    public void addRowData(List<String> data) {
+    /**
+     * @param data
+     * @return
+     */
+    public MarkdownTable addRowData(List<String> data) {
+        return addRowData(data.toArray(new String[0]));
+    }
+
+    /**
+     * @param data
+     * @return
+     */
+    public MarkdownTable addRowData(String[] data) {
         rowDatas.add(data);
+        return this;
     }
 
+    /**
+     * @return
+     */
     public String toMdTable() {
         StringBuilder md = new StringBuilder();
+
+        if (heading != null) {
+            md.append("### ").append(heading).append(NN);
+        }
 
         // HEAD
         for (String head : headList) {
@@ -44,7 +79,7 @@ public class MarkdownTable {
         md.append("|\n");
 
         // DATA
-        for (List<String> row : rowDatas) {
+        for (String[] row : rowDatas) {
             for (String cell : row) {
                 md.append(String.format("| %s", escapeValue(cell)));
             }
@@ -56,6 +91,7 @@ public class MarkdownTable {
 
     // 替换 `|` 和换行符
     private String escapeValue(String md) {
+        if (StringUtils.isBlank(md)) return StringUtils.EMPTY;
         return md.replace("|", "\\|").replace("\n", " ");
     }
 }

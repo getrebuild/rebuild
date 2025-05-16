@@ -51,7 +51,7 @@ const formatWhen = function (maskVal) {
   for (let k in WHENS) {
     let k2 = ~~k.substring(1)
     if ((maskVal & k2) !== 0) {
-      if (k2 === 512) timed = true
+      if (k2 === 'W512') timed = true
       else ss.push(WHENS[k])
     }
   }

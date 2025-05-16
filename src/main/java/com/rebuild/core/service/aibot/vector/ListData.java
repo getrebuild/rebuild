@@ -48,12 +48,12 @@ public class ListData implements VectorData {
      */
     protected String toVector(ID[] records, Entity entity) {
         List<Field> fields = new ArrayList<>();
-        MarkdownTable mdt = new MarkdownTable();
+        MarkdownTable mt = new MarkdownTable();
         for (Field field : entity.getFields()) {
             if (MetadataHelper.isSystemField(field)) continue;
 
             fields.add(field);
-            mdt.addHead(EasyMetaFactory.getLabel(field));
+            mt.addHead(EasyMetaFactory.getLabel(field));
         }
 
         for (ID id : records) {
@@ -63,9 +63,9 @@ public class ListData implements VectorData {
                 String value = RecordData.clearedFieldValue(record.getObjectValue(field.getName()), field);
                 data.add(value);
             }
-            mdt.addRowData(data);
+            mt.addRowData(data);
         }
 
-        return mdt.toMdTable();
+        return mt.toMdTable();
     }
 }

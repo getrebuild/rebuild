@@ -5976,6 +5976,7 @@ div.formula-code {
 .md-content pre {
   padding: 1rem;
   background-color: #eee;
+  margin-bottom: 1rem;
 }
 
 .md-content h1,
@@ -5993,6 +5994,11 @@ div.formula-code {
 .md-content ol,
 .md-content ul {
   padding-left: 2rem;
+}
+
+.md-content li > p ~ ol,
+.md-content li > p ~ ul {
+  margin-top: -0.9rem;
 }
 
 .md-content *:last-child,
