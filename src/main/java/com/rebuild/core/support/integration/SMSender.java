@@ -9,6 +9,7 @@ package com.rebuild.core.support.integration;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ThreadPool;
+import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.persist4j.Record;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -162,13 +163,13 @@ public class SMSender {
         // Use SMTP
         if (specAccount.length >= 7 && StringUtils.isNotBlank(specAccount[6])) {
             try {
-                String emailId = sendMailViaSmtp(to, subject, content, attach, specAccount);
-                createLog(to, logContent, TYPE_EMAIL, emailId, null);
-                return emailId;
+                String sendid = sendMailViaSmtp(to, subject, content, attach, specAccount);
+                createLog(to, logContent, TYPE_EMAIL, sendid, null);
+                return sendid;
 
             } catch (EmailException ex) {
                 log.error("SMTP send error : {}, {}, {}", to, subject, content, ex);
-                createLog(to, logContent, TYPE_EMAIL, null, ex.getLocalizedMessage());
+                createLog(to, logContent, TYPE_EMAIL, null, ex);
                 return null;
             }
         }
@@ -216,7 +217,7 @@ public class SMSender {
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
             log.error("Submail send error : {}, {}, {}", to, subject, content, ex);
-            createLog(to, logContent, TYPE_EMAIL, null, ex.getLocalizedMessage());
+            createLog(to, logContent, TYPE_EMAIL, null, ex);
             return null;
         }
 
@@ -246,7 +247,9 @@ public class SMSender {
     protected static String sendMailViaSmtp(String to, String subject, String htmlContent, File[] attach, String[] specAccount) throws EmailException {
         HtmlEmail email = new HtmlEmail();
         // v4.1 多个
-        for (String o : to.split(",")) email.addTo(o);
+        for (String o : to.split(",")) {
+            email.addTo(o);
+        }
         if (StringUtils.isNotBlank(specAccount[4])) email.addCc(specAccount[4]);
         if (StringUtils.isNotBlank(specAccount[5])) email.addBcc(specAccount[5]);
         email.setSubject(subject);
@@ -274,8 +277,8 @@ public class SMSender {
 
         email.addHeader("X-User-Agent", OkHttpUtils.RB_UA);
         email.setCharset(AppUtils.UTF8);
-        email.setSocketTimeout(EmailConstants.SOCKET_TIMEOUT_MS * 3);
-        email.setSocketConnectionTimeout(EmailConstants.SOCKET_TIMEOUT_MS * 3);
+        email.setSocketTimeout(EmailConstants.SOCKET_TIMEOUT_MS * 2);
+        email.setSocketConnectionTimeout(EmailConstants.SOCKET_TIMEOUT_MS * 2);
         return email.send();
     }
 
@@ -367,7 +370,7 @@ public class SMSender {
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
             log.error("Subsms send error : {}, {}", to, content, ex);
-            createLog(to, content, TYPE_SMS, null, ex.getLocalizedMessage());
+            createLog(to, content, TYPE_SMS, null, ex);
             return null;
         } finally {
             HeavyStopWatcher.clean();
@@ -385,19 +388,24 @@ public class SMSender {
     }
 
     // @see com.rebuild.core.support.CommonsLog
-    private static void createLog(String to, String content, int type, String sentid, String error) {
+    private static void createLog(String to, String content, int type, String sentid, Object error) {
         if (!Application.isReady()) return;
 
         Record slog = EntityHelper.forNew(EntityHelper.SmsendLog, UserService.SYSTEM_USER);
-        slog.setString("to", to);
+        slog.setString("to", CommonsUtils.maxstr(to, 700));
         slog.setString("content", CommonsUtils.maxstr(content, 10000));
         slog.setDate("sendTime", CalendarUtils.now());
         slog.setInt("type", type);
         if (sentid != null) {
             slog.setString("sendResult", sentid);
         } else {
-            slog.setString("sendResult",
-                    CommonsUtils.maxstr("ERR:" + StringUtils.defaultIfBlank(error, "Unknow"), 200));
+            String errorMsg = null;
+            if (error instanceof Exception) {
+                errorMsg = ThrowableUtils.getRootCause((Exception) error).getLocalizedMessage();
+            }
+            if (errorMsg == null) errorMsg = "Unknow";
+            else errorMsg = CommonsUtils.maxstr(errorMsg, 200);
+            slog.setString("sendResult", "ERR:" + errorMsg);
         }
 
         Application.getCommonsService().create(slog);

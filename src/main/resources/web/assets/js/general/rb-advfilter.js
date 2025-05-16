@@ -1088,8 +1088,6 @@ class ListAdvFilter extends AdvFilter {
         RbListPage._RbList.search(adv, true)
       }
     }
-    // v4.1
-    typeof this.props.onConfirm === 'function' && this.props.onConfirm()
   }
 
   post(name, shareTo) {

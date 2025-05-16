@@ -391,7 +391,7 @@
 
     <entity name="SmsendLog" type-code="035" description="SM 发送日志" queryable="false" parent="false">
         <field name="sendId" type="primary"/>
-        <field name="to" type="string" max-length="100" nullable="false" updatable="false" description="接收人"/>
+        <field name="to" type="string" max-length="700" nullable="false" updatable="false" description="接收人"/>
         <field name="content" type="text" nullable="false" updatable="false" description="发送内容"/>
         <field name="type" type="small-int" default-value="0" description="(1=短信; 2=邮件)"/>
         <field name="sendTime" type="timestamp" nullable="false" updatable="false" description="发送时间"/>
