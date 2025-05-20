@@ -124,7 +124,15 @@ public class ApprovalController extends BaseController {
                 if (user.equals(ApprovalHelper.getSubmitter(recordId, useApproval))) {
                     data.put("canUrge", true);
                     data.put("canCancel", true);
-                } else if (Application.getPrivilegesManager().allow(user, AllowRevokeApproval)) {
+                    // v4.1 提交后有审批了
+                    if (!"ROOT".equalsIgnoreCase(status.getPrevStepNode())) {
+                        FlowNode root = ApprovalHelper.getFlowNode(useApproval, FlowNode.NODE_ROOT);
+                        if (root != null && root.getDataMap().getBooleanValue("unallowCancel")) {
+                            data.put("canCancel", false);
+                        }
+                    }
+                }
+                if (Application.getPrivilegesManager().allow(user, AllowRevokeApproval)) {
                     // v3.1 管理员可撤回
                     // v3.8 有权限的可撤回
                     data.put("canCancel", true);

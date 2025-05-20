@@ -134,6 +134,7 @@ $(document).ready(() => {
   $.get(`/app/settings/nav-settings?id=${cfgid || ''}`, (res) => {
     if (res.data) {
       cfgid = res.data.id
+      $logRBAPI(cfgid, 'Nav')
       $(res.data.config).each(function () {
         const $item = render_item(this)
         if (this.sub) {

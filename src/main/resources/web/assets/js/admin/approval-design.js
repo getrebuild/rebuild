@@ -225,6 +225,8 @@ class SimpleNode extends NodeSpec {
       descs.push(data.signMode === 'AND' ? $L('会签') : data.signMode === 'ALL' ? $L('依次审批') : $L('或签'))
       if (data.expiresAuto && ~~data.expiresAuto.expiresAuto > 0) descs.push($L('限时审批'))
       if (data.editableFields && data.editableFields.length > 0) descs.push($L('可修改字段'))
+    } else if (this.nodeType === 'start') {
+      if (data.unallowCancel) descs.push($L('禁止撤回'))
     }
 
     return (
@@ -543,6 +545,13 @@ class StartNodeConfig extends RbFormHandler {
               <p className="form-text m-0">{$L('符合条件的记录才可以使用/选择此流程')}</p>
             </div>
           </div>
+
+          <div className="form-group mt-5">
+            <label className="custom-control custom-control-sm custom-checkbox">
+              <input className="custom-control-input" type="checkbox" name="unallowCancel" checked={this.state.unallowCancel === true} onChange={this.handleChange} />
+              <span className="custom-control-label">{$L('审批后禁止提交人撤回')}</span>
+            </label>
+          </div>
         </div>
 
         {this.renderButton()}
@@ -604,6 +613,7 @@ class StartNodeConfig extends RbFormHandler {
       nodeName: this.state.nodeName,
       users: this.state.users === 'SPEC' ? this._UserSelector.getSelected() : [this.state.users],
       filter: this.state.submitFilter,
+      unallowCancel: this.state.unallowCancel === true,
     }
     if (this.state.users === 'SPEC' && d.users.length === 0) {
       RbHighbar.create($L('请选择用户'))
