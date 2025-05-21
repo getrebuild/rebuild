@@ -162,7 +162,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 if (checkDetailsRepeated) {
                     Record c = d.clone();
                     // for check use clone
-                    if (!c.hasValue(dtfField)) c.setID(dtfField, mainid);
+                    ID hasMainid = c.getID(dtfField);
+                    if (hasMainid == null || EntityHelper.isUnsavedId(hasMainid)) c.setID(dtfField, mainid);
 
                     List<Record> repeated = des.getAndCheckRepeated(c, 20);
                     if (!repeated.isEmpty()) throw new RepeatedRecordsException(repeated);

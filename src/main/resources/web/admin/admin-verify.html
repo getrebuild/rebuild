@@ -41,7 +41,10 @@
               </div>
             </div>
             <div class="splash-footer">
-              <span><a href="javascript:history.back()">[[${bundle.L('返回')}]]</a></span>
+              <span>
+                <a href="javascript:history.back()">[[${bundle.L('返回')}]]</a>
+                <a href="javascript:window.close()" class="hide">[[${bundle.L('关闭')}]]</a>
+              </span>
             </div>
           </div>
         </div>
@@ -49,7 +52,7 @@
     </div>
     <th:block th:replace="~{/_include/footer}" />
     <script type="text/babel">
-      $(document).ready(function () {
+      $(document).ready(() => {
         const nexturl = $decode($urlp('nexturl') || '../admin/systems')
         const $btn = $('.J_verify-btn').on('click', () => {
           const passwd = $val('#admin-passwd')
@@ -69,6 +72,13 @@
           })
           return false
         })
+
+        // fix:4.0.5
+        function _FN() {
+          $('.splash-footer a:eq(0)').addClass('hide')
+          $('.splash-footer a:eq(1)').removeClass('hide')
+        }
+        history.length <= 1 && _FN()
       })
     </script>
   </body>
