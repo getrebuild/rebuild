@@ -307,8 +307,6 @@ class RbForm extends React.Component {
       <div className={`rbform form-layout ${window.__LAB_VERTICALLAYOUT && 'vertical38'}`}>
         <div className="form row" ref={(c) => (this._$form = c)}>
           {this.props.children.map((fieldComp) => {
-            // fix:4.0.5 表单忽略表单引用
-            if (fieldComp.props.field === TYPE_REFFORM) return null
             const ref = fieldComp.props.field === TYPE_DIVIDER ? $random('divider-') : `fieldcomp-${fieldComp.props.field}`
             if (fieldComp.props.field === TYPE_DIVIDER && fieldComp.props.collapsed) {
               this._dividerRefs.push(ref)
@@ -3171,6 +3169,7 @@ class RbFormRefform extends React.Component {
   }
 
   render() {
+    if (!this.props.refvalue) return null
     return (
       <div className={`rbview-form form-layout refform ${window.__LAB_VERTICALLAYOUT && 'vertical38'}`} ref={(c) => (this._viewForm = c)}>
         {this.state.formComponent || 'LOADING'}
