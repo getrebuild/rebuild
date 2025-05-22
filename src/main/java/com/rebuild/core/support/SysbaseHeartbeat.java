@@ -35,7 +35,7 @@ public class SysbaseHeartbeat {
 
     private static final String CKEY_DANGERS = "_DANGERS";
 
-    private static final String HasUpdate = "HasUpdate";
+    public static final String HasUpdate = "HasUpdate";
     private static final String AdminMsg = "AdminMsg";
     private static final String UsersMsg = "UsersMsg";
     private static final String CommercialNoRbv = "CommercialNoRbv";
