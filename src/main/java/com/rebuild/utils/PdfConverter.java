@@ -104,7 +104,10 @@ public class PdfConverter {
         if (!echo.isEmpty()) log.info(echo);
 
         if (dest.exists()) return dest.toPath();
-        throw new PdfConverterException("Cannot convert to <" + type + "> : " + StringUtils.defaultIfBlank(echo, "<empty>"));
+
+        String error = "CANNOT CONVERT " + type.toUpperCase();
+        if (StringUtils.isNotBlank(echo)) error += " : " + echo;
+        throw new PdfConverterException(error);
     }
 
     /**
