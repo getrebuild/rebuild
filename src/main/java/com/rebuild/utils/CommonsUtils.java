@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.utils;
 
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.persist4j.engine.NullValue;
@@ -346,8 +347,9 @@ public class CommonsUtils {
      * @throws SecurityException
      */
     public static void checkSafeFilePath(String filepath) throws SecurityException {
-        if (filepath == null) return;
-        if (filepath.contains("../") || filepath.contains("<") || filepath.contains(">")) {
+        if (StringUtils.isBlank(filepath)) return;
+        if (filepath.contains("../") || filepath.contains("..\\")
+                || filepath.contains("<") || filepath.contains(">")) {
             throw new SecurityException("Attack path detected : " + escapeHtml(filepath));
         }
     }

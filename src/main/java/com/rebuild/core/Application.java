@@ -35,6 +35,7 @@ import com.rebuild.core.service.query.QueryFactory;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.SysbaseHeartbeat;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.DatabaseFixer;
 import com.rebuild.core.support.setup.DockerInstaller;
@@ -224,11 +225,15 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
         // 版本升级会清除缓存
         int lastBuild = ObjectUtils.toInt(RebuildConfiguration.get(ConfigurationItem.AppBuild, true), 0);
-        // MINOR
-        if (lastBuild > 0 && lastBuild / 100000 != BUILD / 100000) {
-            log.warn("Clean up the cache when upgrading : {} from {}", BUILD, lastBuild);
-            Installer.clearAllCache();
+        if (lastBuild > 0 && lastBuild != BUILD) {
             RebuildConfiguration.set(ConfigurationItem.AppBuild, BUILD);
+            // MINOR
+            if (lastBuild / 10000 != BUILD / 10000) {
+                log.warn("Clean up the cache when upgrading : {} from {}", BUILD, lastBuild);
+                Installer.clearAllCache();
+            } else {
+                SysbaseHeartbeat.setItem(SysbaseHeartbeat.HasUpdate, null);
+            }
         }
 
         StringBuilder logConf = new StringBuilder();
