@@ -2453,12 +2453,14 @@ class RbFormN2NReference extends RbFormReference {
           ids.push(item.id)
         }
       })
+      if (ids.length > 0) this.__select2.trigger('change')
 
-      if (ids.length > 0) {
-        let ss = ids.join(',')
-        if (append && currentIds && currentIds !== '') ss = currentIds + ',' + ss
-        this.handleChange({ target: { value: ss } }, true)
-      }
+      // v4.0.5 禁用，因为初始化时就会触发
+      // if (ids.length > 0) {
+      //   let ss = ids.join(',')
+      //   if (append && currentIds && currentIds !== '') ss = currentIds + ',' + ss
+      //   this.handleChange({ target: { value: ss } }, true)
+      // }
     } else {
       this.__select2.val(null).trigger('change')
     }
