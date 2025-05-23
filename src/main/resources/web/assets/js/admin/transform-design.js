@@ -5,8 +5,12 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global FieldValueSet*/
+/* 转换模式
+ * 1. 普通 to 普通
+ */
 
 const wpc = window.__PageConfig
+const _sourceEntities41 = wpc.sourceDetailEntities ? [...wpc.sourceDetailEntities, wpc.sourceEntity] : null
 
 let _AdvFilter
 let _AdvFilter_data
@@ -45,7 +49,7 @@ $(document).ready(() => {
     }
 
     const targetEntity = wpc.targetDetailEntities.find((x) => x.entity === s.target)
-    const sourceEntity = wpc.sourceDetailEntities.find((x) => x.entity === s.source)
+    const sourceEntity = _sourceEntities41.find((x) => x.entity === s.source)
     if (!targetEntity || !sourceEntity) return // Bad?
 
     const $tab = $(
@@ -92,10 +96,8 @@ $(document).ready(() => {
   }
 
   $('.J_add-dts').on('click', function () {
-    const _sourceDetailEntities = wpc.sourceDetailEntities
-    renderRbcomp(<DlgAddDts source={_sourceDetailEntities} target={wpc.targetDetailEntities} onConfirm={(s) => _addDts(s)} />)
+    renderRbcomp(<DlgAddDts source={_sourceEntities41} target={wpc.targetDetailEntities} onConfirm={(s) => _addDts(s)} />)
   })
-
   // 回填
   const fillbackFields = []
   wpc.sourceEntity.fields.forEach((item) => {
@@ -145,12 +147,6 @@ $(document).ready(() => {
       RbHighbar.create($L('请至少设置 1 个字段映射'))
       return
     }
-
-    // const fmd = _FieldsMapping2 ? _FieldsMapping2.buildMapping() : null
-    // if (fmd === false) return
-    // if (_FieldsMapping2 && !fmd) {
-    //   tips.push($L('明细实体未配置字段映射，因此明细记录不会转换'))
-    // }
 
     let detailsUnmapping = false
     let fmd36 = null

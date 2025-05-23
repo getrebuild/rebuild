@@ -103,8 +103,9 @@ public class ReportsController extends BaseController {
                 reportGenerator = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
                         "com.rebuild.rbv.data.WordReportGenerator#create", reportId, recordIds);
             } else if (tt.type == DataReportManager.TYPE_HTML5) {
+                boolean noPagebreak = getBoolParameter(request, "noPagebreak");
                 reportGenerator = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
-                        "com.rebuild.rbv.data.Html5ReportGenerator#create", reportId, recordIds);
+                        "com.rebuild.rbv.data.Html5ReportGenerator#create", reportId, recordIds, noPagebreak);
             } else {
                 reportGenerator = EasyExcelGenerator.create(reportId, Arrays.asList(recordIds));
             }

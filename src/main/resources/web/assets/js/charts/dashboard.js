@@ -398,6 +398,11 @@ class DlgAddChart extends RbFormHandler {
 
 // 仪表盘设置
 class DlgDashSettings extends RbFormHandler {
+  constructor(props) {
+    super(props)
+    $logRBAPI(props.dashid, 'Dashboard')
+  }
+
   render() {
     return (
       <RbModal title={$L('设置仪表盘')} ref="dlg">

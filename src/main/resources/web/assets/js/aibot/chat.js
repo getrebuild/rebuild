@@ -4,7 +4,12 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global Chat */
 
+let __evt_ScrollToBottomStop = false
+let __evt_StreamCancel = false
+
+// eslint-disable-next-line no-unused-vars
 class Chat extends React.Component {
   constructor(props) {
     super(props)
@@ -155,8 +160,14 @@ class ChatInput extends React.Component {
                 {$L('选择当前页数据')}
               </a>
             </div>
-            <button type="button" className="btn btn-sm ml-1" onClick={() => this.hanldeSend()} disabled={this.state.postState !== 0}>
-              <i className="mdi mdi-arrow-up" />
+            <button
+              type="button"
+              className="btn btn-sm ml-1"
+              onClick={() => {
+                if (this.state.postState === 0) this.hanldeSend()
+                else this.handleCancel()
+              }}>
+              <i className={this.state.postState === 0 ? 'mdi mdi-arrow-up' : 'mdi mdi-stop'} />
             </button>
           </div>
         </div>
@@ -178,6 +189,10 @@ class ChatInput extends React.Component {
 
     this.reset()
     this.setState({ postState: 1 })
+  }
+
+  handleCancel() {
+    __evt_StreamCancel = true
   }
 
   reset(autoFocus) {
@@ -224,7 +239,7 @@ class ChatMessages extends React.Component {
 
   render() {
     return (
-      <div className="chat-messages">
+      <div className="chat-messages" ref={(c) => (this._$messages = c)}>
         {this.state.messages.map((item, idx) => {
           return <ChatMessage {...item} key={idx} _ChatMessages={this} />
         })}
@@ -239,6 +254,22 @@ class ChatMessages extends React.Component {
   setMessages(messages) {
     this.setState({ messages: messages }, () => {
       setTimeout(scrollToBottom, 100)
+    })
+  }
+
+  componentDidMount() {
+    let _lastScroll = 0
+    const $ms = $(this._$messages).on('scroll', function () {
+      let currentScroll = $(this).scrollTop()
+      if (_lastScroll - currentScroll > 30) {
+        __evt_ScrollToBottomStop = true
+      } else {
+        if (__evt_ScrollToBottomStop) {
+          let isAtBottom = $ms.scrollTop() + $ms.innerHeight() >= $ms[0].scrollHeight - 10
+          if (isAtBottom) __evt_ScrollToBottomStop = false
+        }
+      }
+      _lastScroll = currentScroll
     })
   }
 }
@@ -279,7 +310,9 @@ class ChatMessage extends React.Component {
   }
 
   componentDidUpdate(props, prevState) {
-    if (prevState.content !== this.state.content || prevState.reasoning !== this.state.reasoning) scrollToBottom()
+    if (prevState.content !== this.state.content || prevState.reasoning !== this.state.reasoning) {
+      scrollToBottom()
+    }
   }
 
   render() {
@@ -314,7 +347,7 @@ class ChatMessage extends React.Component {
           <img src={`${rb.baseUrl}/assets/img/icon-192x192.png`} alt="AI" />
         </div>
         <div className="msg-content">
-          {this.state.waitResp == 1 && (
+          {this.state.waitResp === 1 && (
             <div className="wait-resp">
               <i className="mdi-spin mdi mdi-loading fs-20" />
             </div>
@@ -351,9 +384,10 @@ class ChatMessage extends React.Component {
 }
 
 function scrollToBottom() {
+  if (__evt_ScrollToBottomStop) return
   $setTimeout(
     () => {
-      const el = document.querySelector('.chat-messages')
+      const el = $('.chat-messages')[0]
       el && el.scrollTo(0, el.scrollHeight)
     },
     40,
@@ -363,8 +397,12 @@ function scrollToBottom() {
 
 function fetchStream(url, data, onChunk, onDone) {
   const decoder = new TextDecoder('utf-8')
+  const controller = new AbortController()
+  const signal = controller.signal
+
   let buffer = ''
   fetch(url, {
+    signal: signal,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -374,6 +412,14 @@ function fetchStream(url, data, onChunk, onDone) {
     .then((response) => {
       const reader = response.body.getReader()
       function readChunk() {
+        // FIXME 停止后后台仍旧输出
+        if (__evt_StreamCancel) {
+          controller.abort()
+          __evt_StreamCancel = false
+          typeof onDone === 'function' && onDone(null, true)
+          return
+        }
+
         return reader.read().then(({ done, value }) => {
           if (done) {
             typeof onDone === 'function' && onDone(null, true)
@@ -596,7 +642,8 @@ class DlgChatRename extends RbAlert {
   }
 }
 
-// 选择列表
+// 选择列表数据
+// eslint-disable-next-line no-unused-vars
 class DlgAttachRecordList extends RbAlert {
   renderContent() {
     return (

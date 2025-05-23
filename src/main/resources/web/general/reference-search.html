@@ -38,12 +38,16 @@
             <div class="row rb-datatable-header">
               <div class="col-6">
                 <div class="dataTables_filter">
+                  <div class="adv-search float-left">
+                    <button th:title="${bundle.L('高级查询')}" class="btn btn-secondary w-auto J_filterbtn mr-1" type="button"><i class="icon mdi mdi-filter"></i></button>
+                  </div>
                   <div class="input-group input-search" style="width: 227px">
                     <input class="form-control" type="text" th:placeholder="${quickFieldsLabel ?:bundle.L('快速查询')}" th:title="${quickFieldsLabel}" />
                     <span class="input-group-btn">
                       <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
                     </span>
                   </div>
+                  <span id="dropdown-menu-advfilter"></span>
                 </div>
               </div>
               <div class="col-6">
@@ -75,25 +79,6 @@
     </script>
     <th:block th:replace="~{/_include/forms}" />
     <script th:src="@{/assets/js/general/rb-datalist.js}" type="text/babel"></script>
-    <script type="text/babel">
-      RbList.renderAfter = function () {
-        parent && parent.referenceSearch__dlg && parent.referenceSearch__dlg.resize()
-      }
-
-      $(document).ready(() => {
-        $('.J_select').on('click', () => {
-          const ids = RbListPage._RbList.getSelectedIds()
-          if (ids.length > 0 && parent && parent.referenceSearch__call) parent.referenceSearch__call(ids)
-        })
-
-        // 新建后自动刷新
-        window.addEventListener('storage', (e) => {
-          if (e.key === 'referenceSearch__reload') {
-            localStorage.removeItem('referenceSearch__reload')
-            RbListPage.reload()
-          }
-        })
-      })
-    </script>
+    <script th:src="@{/assets/js/general/reference-search.js}" type="text/babel"></script>
   </body>
 </html>

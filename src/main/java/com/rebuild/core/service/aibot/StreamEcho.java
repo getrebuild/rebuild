@@ -43,6 +43,12 @@ public class StreamEcho {
         echo(content, writer, type, false);
     }
 
+    /**
+     * @param content
+     * @param writer
+     * @param type
+     * @param isError
+     */
     static void echo(String content, PrintWriter writer, String type, boolean isError) {
         JSONObject o = JSONUtils.toJSONObject(isError ? "error" : "content", content);
         if (type != null) o.put("type", type);
