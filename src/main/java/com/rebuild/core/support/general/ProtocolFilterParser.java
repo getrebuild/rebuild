@@ -29,6 +29,7 @@ import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -64,6 +65,9 @@ public class ProtocolFilterParser {
     public static final String P_IDS = "ids";
 
     final private String protocolExpr;
+
+    @Setter
+    private JSON varRecord;
 
     /**
      */
@@ -206,13 +210,13 @@ public class ProtocolFilterParser {
         final Entity entity = MetadataHelper.getEntity(fieldAndEntity[1]);
         final Field field = entity.getField(fieldAndEntity[0]);
 
-        List<String> sqls = new ArrayList<>();
+        List<String> sqlWheres = new ArrayList<>();
 
         // 字段附加过滤条件
         JSONObject fieldFilter = getFieldDataFilter(field);
         if (ParseHelper.validAdvFilter(fieldFilter)) {
-            String s = new AdvFilterParser(fieldFilter).toSqlWhere();
-            if (StringUtils.isNotBlank(s)) sqls.add(s);
+            String s = new AdvFilterParser(fieldFilter, this.varRecord).toSqlWhere();
+            if (StringUtils.isNotBlank(s)) sqlWheres.add(s);
         }
 
         // 父级级联字段
@@ -273,11 +277,11 @@ public class ProtocolFilterParser {
                 }
             }
 
-            if (!parentAndChind.isEmpty()) sqls.add("( " + StringUtils.join(parentAndChind, " or ") + " )");
+            if (!parentAndChind.isEmpty()) sqlWheres.add("( " + StringUtils.join(parentAndChind, " or ") + " )");
         }
 
-        return sqls.isEmpty() ? null
-                : "( " + StringUtils.join(sqls, " and ") + " )";
+        return sqlWheres.isEmpty() ? null
+                : "( " + StringUtils.join(sqlWheres, " and ") + " )";
     }
 
     /**

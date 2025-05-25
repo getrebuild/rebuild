@@ -5,22 +5,45 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+const _RbList_renderAfter = RbList.renderAfter
 RbList.renderAfter = function () {
+  typeof _RbList_renderAfter === 'function' && _RbList_renderAfter()
   parent && parent.referenceSearch__dlg && parent.referenceSearch__dlg.resize()
 }
 
-$(document).ready(() => {
-  $('.J_select').on('click', () => {
-    const ids = RbListPage._RbList.getSelectedIds()
-    if (ids.length > 0 && parent && parent.referenceSearch__call) parent.referenceSearch__call(ids)
-  })
+// v4.1 附加过滤条件变量
+const _RbList_queryBefore = RbList.queryBefore
+RbList.queryBefore = function (query) {
+  if (typeof _RbList_queryBefore === 'function') {
+    query = _RbList_queryBefore(query)
+  }
 
+  if (window.__PageConfig.protocolFilter && parent && parent.referenceSearch__dlg && parent.RbFormModal && parent.RbFormModal.__CURRENT35) {
+    const formComp = parent.RbFormModal.__CURRENT35.getFormComp()
+    let varRecord = formComp ? formComp.getFormData() : null
+    if (varRecord) {
+      // FIXME 太长的值过滤
+      for (let k in varRecord) {
+        if (varRecord[k] && (varRecord[k] + '').length > 200) delete varRecord[k]
+      }
+      query.protocolFilter__varRecord = { 'metadata.entity': formComp.props.entity, ...varRecord }
+    }
+  }
+  return query
+}
+
+$(document).ready(() => {
   // 新建后自动刷新
   window.addEventListener('storage', (e) => {
     if (e.key === 'referenceSearch__reload') {
       localStorage.removeItem('referenceSearch__reload')
       RbListPage.reload()
     }
+  })
+
+  $('.J_select').on('click', () => {
+    const ids = RbListPage._RbList.getSelectedIds()
+    if (ids.length > 0 && parent && parent.referenceSearch__call) parent.referenceSearch__call(ids)
   })
 
   // v4.1 高级查询
