@@ -14,9 +14,12 @@ import cn.devezhao.commons.identifier.ComputerIdentifier;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.support.task.TaskExecutors;
+import com.rebuild.utils.AES;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
 
@@ -51,7 +54,7 @@ public final class License {
         SN = newsn.getString("sn");
         if (SN != null) {
             RebuildConfiguration.setValue(ConfigurationItem.SN.name(), SN);
-            siteApiNoCache("api/authority/query");
+            queryAuthority(false);
         }
 
         if (SN == null) {
@@ -62,7 +65,7 @@ public final class License {
                     CalendarUtils.format("wwyy", new Date()),
                     CodecUtils.randomCode(6)).toUpperCase();
             RebuildConfiguration.setValue(ConfigurationItem.SN.name(), SN);
-            siteApiNoCache("api/authority/query");
+            queryAuthority(false);
         }
 
         USE_SN = SN;
@@ -70,12 +73,28 @@ public final class License {
     }
 
     public static JSONObject queryAuthority() {
-        JSONObject auth = siteApi("api/authority/query");
-        String error;
-        if ((error = auth.getString("error")) != null) {
+        return queryAuthority(true);
+    }
+
+    private static JSONObject queryAuthority(boolean cached) {
+        JSONObject auth = TaskExecutors.invoke(() -> {
+            if (cached) return siteApi("api/authority/query");
+            return siteApiNoCache("api/authority/query");
+        }, 10);
+        if (auth == null) {
+            try {
+                String ik = ComputerIdentifier.generateIdentifierKey();
+                String c = FileUtils.readFileToString(RebuildConfiguration.getFileOfData(".license"), "ISO-8859-1");
+                log.warn("Use _LA : {},{}", c, ik);
+                auth = JSON.parseObject(AES.decrypt(c, ik));
+            } catch (Exception ignored) {}
+        }
+
+        String error = null;
+        if (auth == null || (error = auth.getString("error")) != null) {
             auth = JSONUtils.toJSONObject(
-                    new String[] { "sn", "authType", "authObject", "authExpires" },
-                    new String[] { SN(), "开源社区版", "OSC", "无" });
+                    new String[]{"sn", "authType", "authObject", "authExpires"},
+                    new String[]{SN(), "开源社区版", "OSC", "无"});
         }
         if ("BLOCKED".equals(error)) System.exit(110);
         return auth;
@@ -107,15 +126,23 @@ public final class License {
         return USE_RBV;
     }
 
+    /**
+     * @param api
+     * @return
+     */
     public static JSONObject siteApi(String api) {
         return siteApi(api, ExpiresMap.HOUR_IN_SECOND * 2, null);
     }
 
+    /**
+     * @param api
+     * @return
+     */
     public static JSONObject siteApiNoCache(String api) {
         return siteApi(api, 0, null);
     }
 
-    private static final ExpiresMap<String, JSONObject> MCACHED = new ExpiresMap<>();
+    private static final ExpiresMap<String, JSONObject> CACHED = new ExpiresMap<>();
     /**
      * @param api
      * @param t
@@ -124,10 +151,10 @@ public final class License {
      */
     private static JSONObject siteApi(String api, int t, String domain) {
         if (t > 0) {
-            JSONObject c = MCACHED.get(api, t);
+            JSONObject c = CACHED.get(api, t);
             if (c != null) return c.clone();
         } else {
-            MCACHED.remove(api);
+            CACHED.remove(api);
         }
 
         Map<String, String> hs = new HashMap<>();
@@ -145,7 +172,7 @@ public final class License {
                 if (hasError != null) {
                     log.error("Result return error : {}", result);
                 } else {
-                    MCACHED.put(api, o);
+                    CACHED.put(api, o);
                 }
                 return o.clone();
 
@@ -154,14 +181,13 @@ public final class License {
             }
 
         } catch (Exception ex) {
-            log.error("Call site api `{}` error : {}", api.split("\\?")[0], ex.toString());
+            log.error("Call site-api `{}` error : {}", api.split("\\?")[0], ex.toString());
         }
 
         if (domain == null) {
             return siteApi(api, t, "http://rebuild.ruifang-tech.com/");
         } else {
-            return JSONUtils.toJSONObject("error", "Call site api failed");
+            return JSONUtils.toJSONObject("error", "Call site-api fails");
         }
     }
-
 }
