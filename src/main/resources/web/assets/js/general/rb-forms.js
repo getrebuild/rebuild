@@ -2222,8 +2222,19 @@ class RbFormReference extends RbFormElement {
         label: this.props.label,
         entity: this.props.entity,
         wrapQuery: (query) => {
+          // v4.1
+          const varRecord = this.props.referenceDataFilter ? this.props.$$$parent.getFormData() : null
+          if (varRecord) {
+            // FIXME 太长的值过滤，以免 URL 超长
+            for (let k in varRecord) {
+              if (varRecord[k] && (varRecord[k] + '').length > 200) delete varRecord[k]
+            }
+            varRecord['metadata.entity'] = this.props.$$$parent.props.entity
+            query.varRecord = $encode(JSON.stringify(varRecord))
+          }
           const cascadingValue = this._getCascadingFieldValue()
-          return cascadingValue ? { cascadingValue, ...query } : query
+          if (cascadingValue) query.cascadingValue = cascadingValue
+          return query
         },
         placeholder: this._placeholderw,
         templateResult: $select2OpenTemplateResult,
@@ -2410,7 +2421,10 @@ class RbFormReference extends RbFormElement {
       that._ReferenceSearcher.hide()
     }
 
-    const url = this._buildSearcherUrl()
+    let url = this._buildSearcherUrl()
+    // v4.1 附加过滤条件字段变量
+    if (this.props.referenceDataFilter) url += `&referenceDataFilter=${$random()}`
+
     if (this._ReferenceSearcher && this._ReferenceSearcher_Url === url) {
       this._ReferenceSearcher.show()
     } else {
@@ -2685,6 +2699,7 @@ class RbFormAnyReference extends RbFormReference {
     super.setValue(val)
   }
 
+  // @Override
   _buildSearcherUrl() {
     return `${rb.baseUrl}/app/entity/reference-search?field=${this._anyrefEntity}Id.${this._anyrefEntity}`
   }

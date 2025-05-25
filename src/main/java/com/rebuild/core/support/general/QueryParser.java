@@ -193,7 +193,11 @@ public class QueryParser {
         // append: ProtocolFilter
         String protocolFilter = queryExpr.getString("protocolFilter");
         if (StringUtils.isNotBlank(protocolFilter)) {
-            String where = new ProtocolFilterParser(protocolFilter).toSqlWhere();
+            ProtocolFilterParser fp = new ProtocolFilterParser(protocolFilter);
+            if (queryExpr.containsKey("protocolFilter__varRecord")) {
+                fp.setVarRecord(queryExpr.getJSONObject("protocolFilter__varRecord"));
+            }
+            String where = fp.toSqlWhere();
 
             // d 强制过滤明细切换支持
             if (StringUtils.isNotBlank(where) && protocolFilter.startsWith("via:014-") && entity.getMainEntity() != null) {
