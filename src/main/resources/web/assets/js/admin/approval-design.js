@@ -545,15 +545,13 @@ class StartNodeConfig extends RbFormHandler {
               <p className="form-text m-0">{$L('符合条件的记录才可以使用/选择此流程')}</p>
             </div>
           </div>
-
-          <div className="form-group mt-5">
+          <div className="form-group mt-5 bosskey-show">
             <label className="custom-control custom-control-sm custom-checkbox">
               <input className="custom-control-input" type="checkbox" name="unallowCancel" checked={this.state.unallowCancel === true} onChange={this.handleChange} />
-              <span className="custom-control-label">{$L('审批后禁止提交人撤回')}</span>
+              <span className="custom-control-label">{$L('审批后禁止提交人撤回')} (LAB)</span>
             </label>
           </div>
         </div>
-
         {this.renderButton()}
       </div>
     )
