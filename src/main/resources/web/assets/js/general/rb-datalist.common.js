@@ -778,9 +778,22 @@ const RbListCommon = {
     const $btn = $('.input-search .input-group-btn .btn'),
       $input = $('.input-search input')
     $btn.on('click', () => _RbList().searchQuick())
-    $input.on('keydown', (e) => {
-      e.which === 13 && $btn.trigger('click')
-    })
+    $input
+      .on('keydown', (e) => {
+        e.which === 13 && $btn.trigger('click')
+      })
+      .on('paste', (e) => {
+        const c = (e.originalEvent && e.originalEvent.clipboardData && e.originalEvent.clipboardData.getData('text/plain')) || ''
+        let cArray = []
+        c.split('\n').forEach((item) => {
+          item = $trim(item)
+          if (item && item !== '') cArray.push(item)
+        })
+        // 多值查询
+        if (cArray.length > 1) {
+          setTimeout(() => $input.val(cArray.join('|')), 200)
+        }
+      })
     $('.input-search .btn-input-clear').on('click', () => {
       $input.val('')
       $btn.trigger('click')
