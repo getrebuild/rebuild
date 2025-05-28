@@ -112,12 +112,10 @@
                       <option value="yyyy">YYYY</option>
                       <option value="yyyy-MM">YYYY-MM</option>
                       <option value="yyyy-MM-dd" selected="selected">YYYY-MM-DD</option>
-                      <!--
                       <option value="yyyy年">YYYY年</option>
                       <option value="yyyy年MM月">YYYY年MM月</option>
                       <option value="yyyy年MM月dd日">YYYY年MM月DD日</option>
                       <option value="yyyy年MM月dd日 E">YYYY年MM月DD日 周E</option>
-                      -->
                     </select>
                   </div>
                 </div>
@@ -129,12 +127,11 @@
                       <option value="yyyy-MM-dd HH">YYYY-MM-DD HH</option>
                       <option value="yyyy-MM-dd HH:mm">YYYY-MM-DD HH:II</option>
                       <option value="yyyy-MM-dd HH:mm:ss" selected="selected">YYYY-MM-DD HH:II:SS</option>
-                      <!--
                       <option value="yyyy年MM月dd日">YYYY年MM月DD日</option>
                       <option value="yyyy年MM月dd日 HH">YYYY年MM月DD日 HH</option>
                       <option value="yyyy年MM月dd日 HH:mm">YYYY年MM月DD日 HH:II</option>
                       <option value="yyyy年MM月dd日 HH:mm:ss">YYYY年MM月DD日 HH:II:SS</option>
-                      -->
+                      <option value="yyyy年MM月dd日 E HH:mm:ss">YYYY年MM月DD日 周E HH:II:SS</option>
                     </select>
                   </div>
                 </div>
@@ -366,7 +363,9 @@
                             <option value="%sM³">M³</option>
                             <option value="%sM²">M²</option>
                           </optgroup>
+                          <option value="_">[[${bundle.L('自定义')}]]</option>
                         </select>
+                        <input class="underline-sm J_decimalTypeFlag2 hide" placeholder="KG" maxlength="20" />
                       </span>
                     </div>
                   </div>
@@ -526,7 +525,9 @@
                   </div>
                 </div>
                 <div class="form-group row hide J_advOpt">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right" th:classappend="${fieldType == 'TEXT' ? 'pt-1' : ''}">[[${bundle.L('高级选项')}]] <sup class="rbv"></sup></label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right" th:classappend="${fieldType == 'TEXT' ? 'pt-1' : ''}"
+                    >[[${bundle.L('高级选项')}]] <sup class="rbv"></sup
+                  ></label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <div>
                       <label class="custom-control custom-control-sm custom-checkbox custom-control-inline bosskey-show">

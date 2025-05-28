@@ -236,7 +236,8 @@ a#entityIcon:hover {
   border-bottom-right-radius: 2px !important;
 }
 
-select.underline-sm {
+select.underline-sm,
+input.underline-sm {
   width: 60px;
   padding: 1px;
   border: 0 none;
@@ -247,7 +248,12 @@ select.underline-sm {
   text-align-last: center;
 }
 
-select.underline-sm:focus {
+input.underline-sm {
+  text-align: center;
+}
+
+select.underline-sm:focus,
+input.underline-sm:focus {
   border-color: #4285f4;
 }
 
