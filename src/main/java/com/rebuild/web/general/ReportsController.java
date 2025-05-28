@@ -120,6 +120,7 @@ public class ReportsController extends BaseController {
                     }
                 }
 
+                reportGenerator.setReportId(reportId);
                 output = reportGenerator.generate();
             }
 
@@ -127,7 +128,7 @@ public class ReportsController extends BaseController {
                     getRequestUser(request), reportId, StringUtils.join(recordIds, ";"));
             // PH__EXPORTTIMES
             for (ID id : recordIds) {
-                String key = "REPORT-EXPORTTIMES:" + id;
+                String key = "REPORT-EXPORTTIMES:" + id + reportId;
                 Object t = KVStorage.getCustomValue(key);
                 KVStorage.setCustomValue(key, ObjectUtils.toInt(t) + 1);
             }

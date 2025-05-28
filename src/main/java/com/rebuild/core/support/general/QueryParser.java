@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.configuration.general.AdvFilterManager;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.metadata.EntityHelper;
@@ -24,6 +25,7 @@ import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.utils.CommonsUtils;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -42,6 +44,7 @@ import java.util.Set;
  * @author Zhao Fangfang
  * @since 1.0, 2019-6-20
  */
+@Slf4j
 public class QueryParser {
 
     private JSONObject queryExpr;
@@ -321,7 +324,13 @@ public class QueryParser {
      * @return
      */
     private String parseAdvFilter(ID filterId) {
-        ConfigBean advFilter = AdvFilterManager.instance.getAdvFilter(filterId);
+        ConfigBean advFilter = null;
+        try {
+            advFilter = AdvFilterManager.instance.getAdvFilter(filterId);
+        } catch (ConfigurationException miss) {
+            log.error("AdvFilter unset? {}", filterId, miss);
+        }
+
         if (advFilter != null) {
             JSONObject filterExpr = (JSONObject) advFilter.getJSON("filter");
             if (ParseHelper.validAdvFilter(filterExpr)) {

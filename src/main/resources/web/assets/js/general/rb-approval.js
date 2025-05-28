@@ -489,6 +489,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             <label>
               {$L('批注')}
               {this.state.expiresTime > 0 && <span className="text-danger ml-1">({$L('已超时 %s', $sec2Time(this.state.expiresTime))})</span>}
+              {this.state.expiresTime < 0 && <span className="text-warning ml-1">({$L('%s 后超时', $sec2Time(Math.abs(this.state.expiresTime)))})</span>}
             </label>
             <textarea
               className="form-control form-control-sm row2x"
