@@ -18,6 +18,7 @@ import com.googlecode.aviator.runtime.type.AviatorString;
 import com.googlecode.aviator.runtime.type.Sequence;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.MultiValue;
 import com.rebuild.core.support.general.FieldValueHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -100,7 +101,19 @@ public class TextFunction extends AbstractFunction {
             }
 
             if (text.isEmpty()) return arg2;
+            return new AviatorString(StringUtils.join(text, sep));
+        }
 
+        // v4.1 已经转过 TEXT 了
+        if (idArray instanceof String && StringUtils.isNotBlank((String) idArray)) {
+            List<String> text = new ArrayList<>();
+            for (String o : ((String) idArray).split(MultiValue.MV_SPLIT)) {
+                if (ID.isId(o)) {
+                    text.add(getLabel(ID.valueOf(o), null));
+                } else if (StringUtils.isNotBlank(o)) {
+                    text.add(o);
+                }
+            }
             return new AviatorString(StringUtils.join(text, sep));
         }
 
