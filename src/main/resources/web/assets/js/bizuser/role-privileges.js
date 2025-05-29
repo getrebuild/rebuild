@@ -7,10 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const roleId = window.__PageConfig.recordId
 
-// 自定义
+// 自定义权限
 let advFilters = {}
 let advFilterSettings = {}
-// 字段
+// 字段权限
 let fieldpModals = {}
 let fieldpSettings = {}
 
@@ -130,7 +130,7 @@ $(document).ready(() => {
       advFilters[filterKey].show()
     } else {
       renderRbcomp(
-        <AdvFilter
+        <AdvFilter4Custom
           entity={entity}
           filter={advFilterSettings[filterKey]}
           title={
@@ -149,7 +149,6 @@ $(document).ready(() => {
             else $active.removeClass('active')
           }}
         />,
-        null,
         function () {
           advFilters[filterKey] = this
         }
@@ -157,6 +156,34 @@ $(document).ready(() => {
     }
   })
 })
+
+class AdvFilter4Custom extends AdvFilter {
+  constructor(props) {
+    super(props)
+  }
+
+  renderAction() {
+    let c = super.renderAction()
+    c = React.cloneElement(c, { className: 'item float-left' })
+    return (
+      <RF>
+        {c}
+        <div className="float-right ml-3 pt-1">
+          <span className="pr-1">{$L('与基础权限关系')}</span>
+          <select style={{ padding: 5, outline: 'none' }} ref={(c) => (this._$cpAndOr = c)} defaultValue={(this.props.filter || {})._cpAndOr || 'AND'}>
+            <option value="AND">{$L('并且')}</option>
+            <option value="OR">{$L('或者')}</option>
+          </select>
+        </div>
+        <div className="clearfix" />
+      </RF>
+    )
+  }
+
+  toFilterData(canNoFilters) {
+    return { ...super.toFilterData(canNoFilters), _cpAndOr: this._$cpAndOr.value }
+  }
+}
 
 const _clickPriv = function (elements, action) {
   if (action === 'Z' && elements.hasClass('R0')) {
