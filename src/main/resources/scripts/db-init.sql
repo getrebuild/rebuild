@@ -203,7 +203,7 @@ create table if not exists `layout_config` (
   `CONFIG_ID`          char(20) not null,
   `BELONG_ENTITY`      varchar(100) not null,
   `CONFIG`             text(65535) not null,
-  `SHARE_TO`           varchar(420) default 'SELF' comment '共享给谁 (ALL/SELF/$MemberID)',
+  `SHARE_TO`           varchar(2000) default 'SELF' comment '共享给谁 (ALL/SELF/$MemberID)',
   `APPLY_TYPE`         varchar(20) not null comment '(FORM,DATALIST,NAV,TBA,ADD)',
   `CONFIG_NAME`        varchar(100) comment '名称',
   `MODIFIED_BY`        char(20) not null comment '修改人',

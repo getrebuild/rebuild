@@ -144,7 +144,7 @@
         <field name="configId" type="primary"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false"/>
         <field name="config" type="text" nullable="false"/>
-        <field name="shareTo" type="string" max-length="420" default-value="SELF" description="共享给谁 (ALL/SELF/$MemberID)"/>
+        <field name="shareTo" type="string" max-length="2000" default-value="SELF" description="共享给谁 (ALL/SELF/$MemberID)"/>
         <field name="applyType" type="string" max-length="20" nullable="false" updatable="false" description="(FORM,DATALIST,NAV,TBA,ADD)"/>
         <field name="configName" type="string" max-length="100" description="名称"/>
     </entity>
