@@ -120,7 +120,7 @@ public class SendNotification extends TriggerAction {
         String[] message = formatMessageContent(actionContext, operatingContext);
         Set<Object> send = new HashSet<>();
 
-        // v4.1 合并发送
+        // v4.1 合并发送。需要邮件服务器支持，否则还是会单个发送
         if (msgType == MTYPE_MAIL && content.getBooleanValue("mergeSend")) {
             for (ID user : toUsers) {
                 String emailAddr = Application.getUserStore().getUser(user).getEmail();
