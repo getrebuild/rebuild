@@ -53,7 +53,7 @@ import static com.rebuild.core.rbstore.MetaschemaExporter.KEEP_ID;
 /**
  * 元数据模型导入
  *
- * @author devezhao-mbp zhaofang123@gmail.com
+ * @author devezhao-mbp
  * @since 2019/04/28
  * @see MetaschemaExporter
  */

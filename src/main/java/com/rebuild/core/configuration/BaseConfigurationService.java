@@ -24,7 +24,7 @@ import org.apache.commons.lang3.ObjectUtils;
 /**
  * 配置类的 Service。在增/删/改时调用清理缓存方法
  *
- * @author devezhao-mbp zhaofang123@gmail.com
+ * @author devezhao-mbp
  * @since 2019/05/27
  */
 public abstract class BaseConfigurationService extends InternalPersistService {

@@ -58,7 +58,7 @@ import java.util.Set;
 import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowRevokeApproval;
 
 /**
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/07/05
  */
 @Slf4j

@@ -30,7 +30,7 @@ import java.util.Set;
 /**
  * 触发器管理
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/05/27
  */
 @Slf4j

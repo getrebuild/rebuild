@@ -10,7 +10,7 @@ package com.rebuild.core.privileges.bizz;
 /**
  * 扩权限项。注意前端默认值匹配
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/04/13
  */
 public enum ZeroEntry {

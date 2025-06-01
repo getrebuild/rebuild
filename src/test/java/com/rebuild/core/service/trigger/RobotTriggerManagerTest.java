@@ -13,7 +13,7 @@ import com.rebuild.core.metadata.MetadataSorter;
 import org.junit.jupiter.api.Test;
 
 /**
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/05/27
  */
 public class RobotTriggerManagerTest extends TestSupport {

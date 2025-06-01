@@ -19,7 +19,7 @@ import com.rebuild.utils.JSONUtils;
 import org.junit.jupiter.api.Test;
 
 /**
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/06/03
  */
 class FormsBuilderTest extends TestSupport {

@@ -19,7 +19,7 @@ import org.apache.commons.lang.StringUtils;
 /**
  * RB 在线元数据仓库
  *
- * @author devezhao-mbp zhaofang123@gmail.com
+ * @author devezhao-mbp
  * @since 2019/04/28
  */
 @Slf4j

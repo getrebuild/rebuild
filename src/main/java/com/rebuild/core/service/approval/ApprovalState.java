@@ -13,7 +13,7 @@ import com.rebuild.core.support.state.StateSpec;
 /**
  * 审批状态
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/06/25
  */
 public enum ApprovalState implements StateSpec {

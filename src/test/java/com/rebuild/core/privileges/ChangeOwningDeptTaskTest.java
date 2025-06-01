@@ -11,7 +11,7 @@ import com.rebuild.TestSupport;
 import org.junit.jupiter.api.Test;
 
 /**
- * @author devezhao-mbp zhaofang123@gmail.com
+ * @author devezhao-mbp
  * @since 2019/10/29
  */
 public class ChangeOwningDeptTaskTest extends TestSupport {

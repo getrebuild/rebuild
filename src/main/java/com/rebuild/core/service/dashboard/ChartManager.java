@@ -32,7 +32,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.Iterator;
 
 /**
- * @author devezhao-mbp zhaofang123@gmail.com
+ * @author devezhao-mbp
  * @since 2019/06/04
  */
 public class ChartManager implements ConfigManager {

@@ -51,7 +51,7 @@ import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowRevokeApproval;
 /**
  * 审批处理。此类是作为 ApprovalStepService 的辅助，因为有些逻辑放在 Service 中不合适
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/06/24
  */
 @Slf4j

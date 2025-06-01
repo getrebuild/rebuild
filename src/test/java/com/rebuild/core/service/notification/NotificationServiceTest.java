@@ -12,7 +12,7 @@ import com.rebuild.core.Application;
 import org.junit.jupiter.api.Test;
 
 /**
- * @author devezhao-mac zhaofang123@gmail.com
+ * @author devezhao-mbp
  * @since 2019/03/24
  */
 public class NotificationServiceTest extends TestSupport {

@@ -15,7 +15,7 @@ import org.springframework.util.ResourceUtils;
 import java.io.File;
 
 /**
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/03/08
  */
 @Disabled

@@ -42,7 +42,7 @@ import static com.rebuild.core.support.CommonsLog.TYPE_TRIGGER;
 /**
  * 触发器
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/05/27
  */
 @Slf4j

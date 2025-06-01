@@ -24,7 +24,7 @@ import com.rebuild.core.service.trigger.*;
 import org.junit.jupiter.api.Test;
 
 /**
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/05/29
  */
 public class FieldAggregationTest extends TestSupport {
