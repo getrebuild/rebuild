@@ -9,9 +9,13 @@ package com.rebuild.core.support;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.service.general.OperatingContext;
+import com.rebuild.core.service.trigger.ActionContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.stereotype.Component;
+
+import java.util.Set;
 
 /**
  * @author devezhao
@@ -28,7 +32,7 @@ public class RbvFunction {
         return Application.getBean(RbvFunction.class);
     }
 
-    // -- 触发器
+    // -- 触发器相关
 
     public void setWeakMode(ID id) {
         log.warn("No RbvFunction : setWeakMode");
@@ -36,6 +40,21 @@ public class RbvFunction {
 
     public ID getWeakMode(boolean once) {
         log.warn("No RbvFunction : getWeakMode");
+        return null;
+    }
+
+    public Set<Object> sendToWxwork(ActionContext actionContext, OperatingContext operatingContext) {
+        log.warn("No RbvFunction : sendToWxwork");
+        return null;
+    }
+
+    public Set<Object> sendToDingtalk(ActionContext actionContext, OperatingContext operatingContext) {
+        log.warn("No RbvFunction : sendToDingtalk");
+        return null;
+    }
+
+    public Set<Object> sendToFeishu(ActionContext actionContext, OperatingContext operatingContext) {
+        log.warn("No RbvFunction : sendToFeishu");
         return null;
     }
 }
