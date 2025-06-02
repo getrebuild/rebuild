@@ -19,18 +19,7 @@
     <script>
       if (window.DocsAPI) {
         // https://api.onlyoffice.com/docs/docs-api/usage-api/config/
-        new DocsAPI.DocEditor('viewer', {
-          editorConfig: {
-            mode: 'view',
-            lang: 'zh',
-            toolbar: false,
-            menu: false,
-            user: [(${_User})],
-          },
-          document: [(${_DocumentConfig})],
-          token: '[[${_Token ?:""}]]',
-          type: 'embedded',
-        })
+        new DocsAPI.DocEditor('viewer', [(${_DocEditorConfig})])
       } else {
         alert('ONLYOFFICE API 加载失败')
       }
