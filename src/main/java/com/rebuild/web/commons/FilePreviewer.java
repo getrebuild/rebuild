@@ -109,7 +109,7 @@ public class FilePreviewer extends BaseController {
                 break;
             }
             if (file == null) {
-                ServletUtils.writeJson(response, "{'error':'No file found'}");
+                ServletUtils.writeJson(response, "{'error':'NO FILE FOUND'}");
                 return;
             }
 
@@ -129,12 +129,12 @@ public class FilePreviewer extends BaseController {
                 }
             } catch (Exception e) {
                 log.error("Saving file error : {}", fileKey, e);
-                ServletUtils.writeJson(response, "{'error':'Saving file error'}");
+                ServletUtils.writeJson(response, "{'error':'SAVING FILE ERROR'}");
                 return;
             }
         }
 
         // echo
-        ServletUtils.writeJson(response, JSONUtils.toJSONObject("error", 0).toJSONString());
+        ServletUtils.writeJson(response, "{'error':0}");
     }
 }
