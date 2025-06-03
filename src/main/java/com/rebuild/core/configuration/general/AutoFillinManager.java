@@ -341,10 +341,13 @@ public class AutoFillinManager implements ConfigManager {
             return newValue;  // Long
         }
 
-        if (sourceEasyType == DisplayType.ID
-                && (targetEasyType == DisplayType.REFERENCE || targetEasyType == DisplayType.N2NREFERENCE || targetEasyType == DisplayType.ANYREFERENCE)) {
+        boolean targetIsAnyRefType = targetEasyType == DisplayType.REFERENCE
+                || targetEasyType == DisplayType.N2NREFERENCE
+                || targetEasyType == DisplayType.ANYREFERENCE;
+
+        if (sourceEasyType == DisplayType.ID && targetIsAnyRefType) {
             newValue = FieldValueHelper.wrapFieldValue(newValue, targetEasy);
-        } else if (targetEasyType == DisplayType.N2NREFERENCE || targetEasyType == DisplayType.REFERENCE) {
+        } else if (targetIsAnyRefType) {
             newValue = targetEasy.wrapValue(newValue);
         } else if (sourceEasy instanceof MixValue) {
             if (!(newValue instanceof String) || sourceEasyType == DisplayType.FILE) {
