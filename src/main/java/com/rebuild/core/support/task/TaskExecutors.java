@@ -12,14 +12,17 @@ import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.support.distributed.DistributedJobLock;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -118,6 +121,23 @@ public class TaskExecutors extends DistributedJobLock {
      */
     public static void queue(Runnable command) {
         SINGLE_QUEUE.execute(command);
+    }
+
+    /**
+     * @param task
+     * @param timeout in seconds
+     * @return
+     * @param <T>
+     */
+    public static <T> T invoke(Callable<T> task, int timeout) {
+        Future<T> future = EXEC.submit(task);
+        try {
+            return future.get(timeout, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            log.error("Invoke method timeout : {}",
+                    StringUtils.defaultIfBlank(e.getMessage(), e.getClass().getSimpleName()));
+        }
+        return null;
     }
 
     /**
