@@ -23253,3 +23253,17 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^='col-']:las
   opacity: 0;
   animation: spinner-grow 0.75s linear infinite;
 }
+
+.modal-header.modal-header-colored {
+  position: sticky;
+  top: 0;
+  z-index: 1050;
+}
+
+.modal-content {
+  max-height: 90vh;
+}
+
+.modal-body {
+  overflow-y: auto;
+}
