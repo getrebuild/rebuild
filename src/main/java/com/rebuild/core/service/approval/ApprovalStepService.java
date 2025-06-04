@@ -38,6 +38,7 @@ import com.rebuild.core.service.trigger.RobotTriggerManual;
 import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerWhen;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.CommonsUtils;
@@ -845,10 +846,6 @@ public class ApprovalStepService extends BaseService {
     }
 
     private void execSopSteps38(Record approvalRecord) {
-        try {
-            CommonsUtils.invokeMethod("com.rebuild.rbv.sop.RobotSopObserver#onApproveManual", approvalRecord);
-        } catch (Throwable ignored) {
-            log.debug("Unsupportted class [RobotSopObserver]");
-        }
+        RbvFunction.call().onApproveManual(approvalRecord);
     }
 }

@@ -818,8 +818,8 @@ create table if not exists `robot_sop_step` (
   `RECORD_ID`          char(20) not null comment '业务记录',
   `SOP_ID`             char(20) not null comment '业务进度',
   `NODE`               varchar(100) not null comment '进度节点',
-  `OPERATOR`           char(20) not null comment '操作人',
-  `ACHIEVED_TIME`      datetime not null default current_timestamp comment '达成时间',
+  `OPERATOR`           char(20) comment '操作人',
+  `ACHIEVED_TIME`      datetime null default null comment '达成时间',
   `ACHIEVED_CONTENT`   text(65535) comment '达成内容',
   `PREV_STEP`          char(20),
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
@@ -965,4 +965,4 @@ insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NU
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 64);
+  values ('021-9000000000000001', 'DBVer', 65);

@@ -6010,3 +6010,8 @@ div.formula-code {
   padding: 1rem;
   background-color: #fafafa;
 }
+
+.header-icon,
+.modal-header > .icon {
+  width: 27px;
+}

@@ -1144,7 +1144,8 @@ body {
   font-weight: bold;
 }
 
-.sop-steps li.state-2 > div > span:hover {
+.sop-steps li.state-2 > div > span:hover,
+.sop-steps li.state-1.related > div > span:hover {
   cursor: pointer;
   opacity: 0.9;
 }

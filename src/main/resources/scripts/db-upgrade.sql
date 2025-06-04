@@ -1,6 +1,11 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #65 (v4.1)
+alter table `meta_entity`
+  change column `OPERATOR` `OPERATOR` char(20) comment '操作人',
+  change column `ACHIEVED_TIME` `ACHIEVED_TIME` datetime null default null comment '达成时间';
+
 -- #64 (v4.1)
 alter table `smsend_log`
   change column `TO` `TO` varchar(700) not null comment '接收人';

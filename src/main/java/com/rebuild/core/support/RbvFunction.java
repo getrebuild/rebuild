@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support;
 
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.service.general.OperatingContext;
@@ -56,5 +57,11 @@ public class RbvFunction {
     public Set<Object> sendToFeishu(ActionContext actionContext, OperatingContext operatingContext) {
         log.warn("No RbvFunction : sendToFeishu");
         return null;
+    }
+
+    // -- SOP
+
+    public void onApproveManual(Record approvalRecord) {
+        log.debug("No RbvFunction : onApproveManual");
     }
 }

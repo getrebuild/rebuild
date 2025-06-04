@@ -320,9 +320,9 @@
         <field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="业务记录"/>
         <field name="sopId" type="reference" ref-entity="RobotSopConfig" nullable="false" updatable="false" description="业务进度"/>
         <field name="node" type="string" max-length="100" nullable="false" updatable="false" description="进度节点"/>
-        <field name="operator" type="reference" ref-entity="User" nullable="false" updatable="false" description="操作人"/>
-        <field name="achievedTime" type="timestamp" nullable="false" updatable="false" description="达成时间"/>
-        <field name="achievedContent" type="text" updatable="false" description="达成内容"/>
+        <field name="operator" type="reference" ref-entity="User" description="操作人"/>
+        <field name="achievedTime" type="timestamp" description="达成时间"/>
+        <field name="achievedContent" type="text" description="达成内容"/>
         <field name="prevStep" type="reference" updatable="false" ref-entity="RobotSopStep"/>
         <index field-list="recordId,sopId,node,prevStep"/>
     </entity>
