@@ -696,7 +696,6 @@ class ExcelClipboardData extends React.Component {
     if (!this._$table) return
 
     const $table = $(this._$table).find('table').addClass('table table-sm table-bordered table-fixed')
-
     const fields = this.props.fields
     if (fields) {
       const len = $table.find('tbody>tr:eq(0)').find('td').length
@@ -736,6 +735,7 @@ class ExcelClipboardData extends React.Component {
     }
     if (noAnyFields) return RbHighbar.createl('请至少选择一个列字段')
 
+    const that = this
     const dataWithFields = []
     $(this._$table)
       .find('tbody tr')
@@ -745,7 +745,14 @@ class ExcelClipboardData extends React.Component {
           .find('td')
           .each(function (idx) {
             const name = fields[idx]
-            if (name) L[name] = $(this).text() || null
+            if (name) {
+              let val = $(this).text()
+              if ((that.props.fields[idx] || {}).type === 'NTEXT') {
+                val = $(this).find('>span').html()
+                if (val) val = val.replace(/<br>/gi, '\n')
+              }
+              L[name] = val || null
+            }
           })
         dataWithFields.push(L)
       })
