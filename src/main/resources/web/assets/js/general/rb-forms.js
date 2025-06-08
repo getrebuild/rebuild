@@ -3485,10 +3485,13 @@ class RbFormRefform extends React.Component {
 
 // 确定元素类型
 var detectElement = function (item, entity) {
-  if (!item.key) item.key = `field-${item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM ? $random() : item.field}`
-  // v41
+  if (!item.key) {
+    item.key = `field-${item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM ? $random() : item.field}`
+  }
+  // v4.1
   item.entity = item.entity || entity
 
+  // 复写的字段组件
   if (entity && window._CustomizedForms) {
     const c = window._CustomizedForms.useFormElement(entity, item)
     if (c) return c
