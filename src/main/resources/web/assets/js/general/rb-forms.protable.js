@@ -75,7 +75,13 @@ class ProTable extends React.Component {
             {inlineForms.map((FORM, idx) => {
               const key = FORM.key
               return (
-                <tr key={`if-${key}`} data-key={key}>
+                <tr
+                  key={`if-${key}`}
+                  data-key={key}
+                  onClick={(e) => {
+                    $(this._$tbody).find('tr.active').removeClass('active')
+                    $(e.currentTarget).addClass('active')
+                  }}>
                   <th className={`col-index ${!readonly && 'action'}`}>
                     <span>{idx + 1}</span>
                     {!readonly && (

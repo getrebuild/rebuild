@@ -1201,10 +1201,25 @@ class RbList extends React.Component {
 
     // @see rb-datalist.common.js
     const c = CellRenders.render(cellVal, type, width, `${cellKey}.${field.field}`)
-    if (index === 0 && this.fixedColumns) {
-      return React.cloneElement(c, { className: `${c.props.className || ''} column-fixed column-fixed-2nd` })
+    // v4.1 快捷编辑
+    const cProps = {}
+    if (wpc.type === 'RecordList' && (window.__LAB_DATALIST_EDITABLE41 === true || (Array.isArray(window.__LAB_DATALIST_EDITABLE41) && window.__LAB_DATALIST_EDITABLE41.includes(this._entity)))) {
+      cProps.onClick = (e) => {
+        const $el = $(e.currentTarget)
+        if ($el.hasClass('editable')) {
+          // eslint-disable-next-line no-undef
+          LiteFormModal.create(primaryKey.id, [field.field], $L('编辑%s', field.label))
+        } else {
+          $(this._$tbody).find('td.editable').removeClass('editable')
+          $el.addClass('editable')
+        }
+      }
     }
-    return c
+    // 首行固定
+    if (index === 0 && this.fixedColumns) {
+      cProps.className = `${c.props.className || ''} column-fixed column-fixed-2nd`
+    }
+    return React.cloneElement(c, { ...cProps })
   }
 
   // 全选

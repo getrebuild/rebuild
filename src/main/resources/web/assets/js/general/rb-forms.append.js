@@ -758,7 +758,7 @@ class LiteFormModal extends RbModalHandler {
       <RbModal title={title} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="liteform-wrap">
           <LiteForm entity={entity.entity} id={props.id} rawModel={{}} $$$parent={fake} ref={(c) => (this._LiteForm = c)}>
-            {this.props.elements.map((item) => {
+            {props.elements.map((item) => {
               // eslint-disable-next-line no-undef
               return detectElement(item)
             })}
@@ -768,7 +768,7 @@ class LiteFormModal extends RbModalHandler {
             {this._ids.length > 1 && <RbAlertBox message={WrapHtml($L('本次保存将修改 **%d** 条记录', this.props.ids.length))} type="info" className="mt-0 mb-3" />}
 
             <button className="btn btn-primary" type="button" onClick={() => this._handleSave()}>
-              {this.props.confirmText || $L('保存')}
+              {props.confirmText || $L('保存')}
             </button>
             <a className="btn btn-link" onClick={this.hide}>
               {$L('取消')}

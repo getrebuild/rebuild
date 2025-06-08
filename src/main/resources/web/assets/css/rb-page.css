@@ -1277,7 +1277,9 @@ a.link.link-icon::after {
 }
 
 .file-field .file-select label.btn-secondary {
-  line-height: 35px;
+  margin: 0;
+  line-height: 37px;
+  height: 37px;
 }
 
 .file-field .img-thumbnail {
