@@ -1000,6 +1000,7 @@ class ApprovalList extends BaseChart {
     } else {
       const that = this
       renderRbcomp(
+        // eslint-disable-next-line react/jsx-no-undef
         <ApprovalApproveForm
           id={record}
           approval={approval}

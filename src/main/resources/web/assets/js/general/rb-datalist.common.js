@@ -992,6 +992,7 @@ class RbList extends React.Component {
                         data-id={primaryKey.id}
                         onClick={(e) => this._clickRow(e)}
                         onDoubleClick={(e) => {
+                          if (this._isDataListEditable()) return  // v4.1
                           $stopEvent(e, true)
                           this._openView(e.currentTarget)
                         }}>
@@ -1203,7 +1204,7 @@ class RbList extends React.Component {
     const c = CellRenders.render(cellVal, type, width, `${cellKey}.${field.field}`)
     // v4.1 快捷编辑
     const cProps = {}
-    if (wpc.type === 'RecordList' && (window.__LAB_DATALIST_EDITABLE41 === true || (Array.isArray(window.__LAB_DATALIST_EDITABLE41) && window.__LAB_DATALIST_EDITABLE41.includes(this._entity)))) {
+    if (this._isDataListEditable()) {
       cProps.onClick = (e) => {
         const $el = $(e.currentTarget)
         if ($el.hasClass('editable')) {
@@ -1220,6 +1221,14 @@ class RbList extends React.Component {
       cProps.className = `${c.props.className || ''} column-fixed column-fixed-2nd`
     }
     return React.cloneElement(c, { ...cProps })
+  }
+
+  _isDataListEditable() {
+    if (wpc.type !== 'RecordList') return false
+    // 全部
+    if (window.__LAB_DATALIST_EDITABLE41 === true) return true
+    // 指定的
+    return Array.isArray(window.__LAB_DATALIST_EDITABLE41) && window.__LAB_DATALIST_EDITABLE41.includes(this._entity)
   }
 
   // 全选
