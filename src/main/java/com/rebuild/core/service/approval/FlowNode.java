@@ -310,6 +310,7 @@ public class FlowNode {
         for (Object o : editableFields) {
             JSONObject field = (JSONObject) o;
             field.put("nullable", !((Boolean) field.remove("notNull")));
+            field.put("readonly", field.remove("readOnly"));
         }
         return editableFields;
     }
