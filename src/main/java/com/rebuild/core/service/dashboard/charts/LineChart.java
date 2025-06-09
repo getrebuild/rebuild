@@ -273,7 +273,7 @@ public class LineChart extends ChartData {
                 date2unit = CalendarUtils.getDateFormat("yyyy").format(date);
                 Calendar cal = CalendarUtils.getInstance(date);
 
-                if (calc == FormatCalc.Q) {
+                if (calc == FormatCalc.Q || calc == FormatCalc.QQ) {
                     int m = cal.get(Calendar.MONTH) + 1;
                     if (m <= 3) date2unit += " Q1";
                     else if (m <= 6) date2unit += " Q2";
@@ -286,6 +286,8 @@ public class LineChart extends ChartData {
 
             } else if (calc == FormatCalc.M) {
                 date2unit = CalendarUtils.getDateFormat("yyyy-MM").format(date);
+            } else if (calc == FormatCalc.MM) {
+                date2unit = CalendarUtils.getDateFormat("MM").format(date);
             } else {
                 date2unit = CalendarUtils.getDateFormat("yyyy-MM-dd").format(date);
             }

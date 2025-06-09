@@ -42,8 +42,12 @@ public class Dimension extends Axis {
                     return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y");
                 case Q:
                     return MessageFormat.format("CONCAT(YEAR({0}),'' Q'',QUARTER({0}))", super.getSqlName());
+                case QQ:
+                    return MessageFormat.format("CONCAT(''Q'',QUARTER({0}))", super.getSqlName());
                 case M:
                     return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m");
+                case MM:
+                    return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%m");
                 case W:
                     return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y W%u");
                 case H:
