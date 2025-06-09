@@ -41,13 +41,9 @@ import java.util.List;
 @Slf4j
 public final class ServerStatus {
 
-    /**
-     * 启动时间
-     */
+    // 启动时间
     public static final Date STARTUP_TIME = CalendarUtils.now();
-    /**
-     * 启动实例标识
-     */
+    // 启动实例ID
     public static final String STARTUP_ONCE = genStartupOnce();
 
     private static long LastCheckTime = 0;
@@ -174,7 +170,7 @@ public final class ServerStatus {
             try {
                 cache.getx("ServerStatus.test");
             } catch (Exception ex) {
-                log.warn("Clear ehcache because : {}", ex.getLocalizedMessage());
+                log.warn("Clear/Fixs ehcache because : {}", ex.getLocalizedMessage());
                 Installer.clearAllCache();
             }
         }
