@@ -24,7 +24,6 @@ import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -61,7 +60,7 @@ public class FilePreviewer extends BaseController {
 
         JSONObject editorConfig = JSONUtils.toJSONObject(
                 new String[]{"mode", "lang", "toolbar", "menu"},
-                new Object[]{"view", "zh", false, false});
+                new Object[]{"view", AppUtils.getReuqestLocale(request), false, false});
         String[] user = new String[]{"REBUILD", "REBUILD"};
         ID userid = AppUtils.getRequestUser(request);
         if (userid != null) {
