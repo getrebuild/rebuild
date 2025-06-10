@@ -276,7 +276,13 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
 }
 
 .protable .table .col-action .btn {
-  min-width: 38px;
+  min-width: 37px;
+  margin-right: 1px;
+  background-color: transparent;
+}
+
+.protable .table .col-action .btn:hover {
+  background-color: #e6e6e6;
 }
 
 .protable .table thead th,

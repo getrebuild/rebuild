@@ -78,7 +78,7 @@ class ProTable extends React.Component {
                 <tr
                   key={`if-${key}`}
                   data-key={key}
-                  onClick={(e) => {
+                  onMouseDown={(e) => {
                     $(this._$tbody).find('tr.active').removeClass('active')
                     $(e.currentTarget).addClass('active')
                   }}>
