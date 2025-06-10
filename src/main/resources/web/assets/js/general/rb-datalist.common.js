@@ -939,6 +939,10 @@ class RbList extends React.Component {
     this.pageSize = $storage.get('ListPageSize') || 20
     this.advFilterId = wpc.advFilter !== true ? null : $storage.get(this.__defaultFilterKey) // 无高级查询
     this.fixedColumns = supportFixedColumns && props.uncheckbox !== true
+
+    // v4.1 可编辑
+    this.__isDataListEditable =
+      wpc.type === 'RecordList' && (window.__LAB_DATALIST_EDITABLE41 === true || (Array.isArray(window.__LAB_DATALIST_EDITABLE41) && window.__LAB_DATALIST_EDITABLE41.includes(this._entity)))
   }
 
   render() {
@@ -992,7 +996,7 @@ class RbList extends React.Component {
                         data-id={primaryKey.id}
                         onClick={(e) => this._clickRow(e)}
                         onDoubleClick={(e) => {
-                          if (this._isDataListEditable()) return  // v4.1
+                          if (this.__isDataListEditable) return // v4.1
                           $stopEvent(e, true)
                           this._openView(e.currentTarget)
                         }}>
@@ -1123,6 +1127,15 @@ class RbList extends React.Component {
     if (wpc.advFilter !== true) this.fetchList(this._buildQuick())
     // 按键操作
     if (wpc.type === 'RecordList' || wpc.type === 'DetailList') $(document).on('keydown', (e) => this._keyEvent(e))
+    // v4.1 取消选中
+    if (this.__isDataListEditable) {
+      $(document).on('click.unselect', (e) => {
+        let $target = $(e.target)
+        if ($target.closest('.data-list').length === 0 && $target.closest('.rb-wrapper').length > 0) {
+          $(this._$tbody).find('td.editable').removeClass('editable')
+        }
+      })
+    }
   }
 
   fetchList(filter) {
@@ -1204,7 +1217,7 @@ class RbList extends React.Component {
     const c = CellRenders.render(cellVal, type, width, `${cellKey}.${field.field}`)
     // v4.1 快捷编辑
     const cProps = {}
-    if (this._isDataListEditable()) {
+    if (this.__isDataListEditable) {
       cProps.onClick = (e) => {
         const $el = $(e.currentTarget)
         if ($el.hasClass('editable')) {
@@ -1221,14 +1234,6 @@ class RbList extends React.Component {
       cProps.className = `${c.props.className || ''} column-fixed column-fixed-2nd`
     }
     return React.cloneElement(c, { ...cProps })
-  }
-
-  _isDataListEditable() {
-    if (wpc.type !== 'RecordList') return false
-    // 全部
-    if (window.__LAB_DATALIST_EDITABLE41 === true) return true
-    // 指定的
-    return Array.isArray(window.__LAB_DATALIST_EDITABLE41) && window.__LAB_DATALIST_EDITABLE41.includes(this._entity)
   }
 
   // 全选

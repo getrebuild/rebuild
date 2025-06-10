@@ -361,7 +361,7 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   z-index: 1;
 }
 
-.data-list .table td.editable::after {
+.data-list .table td.editable > div::after {
   font-family: 'Material-Design-Iconic-Font', serif;
   content: '\f158';
   font-size: 16px;
@@ -369,4 +369,5 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   color: #737373;
   right: 8px;
   top: 7px;
+  cursor: pointer;
 }
