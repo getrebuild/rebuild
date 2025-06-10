@@ -760,7 +760,7 @@ class LiteFormModal extends RbModalHandler {
           <LiteForm entity={entity.entity} id={props.id} rawModel={{}} $$$parent={fake} ref={(c) => (this._LiteForm = c)}>
             {props.elements.map((item) => {
               // eslint-disable-next-line no-undef
-              return detectElement(item)
+              return detectElement(item, entity.entity)
             })}
           </LiteForm>
 

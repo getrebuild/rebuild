@@ -990,6 +990,12 @@ class AnyRecordSelector extends RecordSelector {
           .select2({
             placeholder: $L('无可用'),
             allowClear: false,
+            templateResult: function (res) {
+              const $span = $('<span class="icon-append"></span>').attr('title', res.text).text(res.text)
+              const icon = entities.find((x) => x.entity === res.id)
+              $(`<i class="icon zmdi zmdi-${icon ? icon.icon : 'texture'}"></i>`).appendTo($span)
+              return $span
+            },
           })
           .on('change', (e) => {
             if (e.target.value) {

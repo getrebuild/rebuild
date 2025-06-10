@@ -97,7 +97,7 @@ div.dataTables_wrapper div.dataTables_oper .btn-space:last-child {
 }
 
 div.dataTables_wrapper div.dataTables_oper.compact .btn {
-  min-width: 68px;
+  min-width: 60px;
 }
 
 div.dataTables_wrapper div.dataTables_oper.compact .btn-space {

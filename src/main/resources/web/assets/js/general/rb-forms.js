@@ -2632,6 +2632,12 @@ class RbFormAnyReference extends RbFormReference {
           this.__select2Entity = $(this._$entity).select2({
             placeholder: $L('无可用'),
             allowClear: false,
+            templateResult: function (res) {
+              const $span = $('<span class="icon-append"></span>').attr('title', res.text).text(res.text)
+              const icon = entities.find((x) => x.entity === res.id)
+              $(`<i class="icon zmdi zmdi-${icon ? icon.icon : 'texture'}"></i>`).appendTo($span)
+              return $span
+            },
           })
           if (initVal) {
             let code = ~~(initVal.id || initVal).split('-')[0]
