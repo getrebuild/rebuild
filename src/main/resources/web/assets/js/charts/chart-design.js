@@ -48,13 +48,15 @@ $(document).ready(() => {
         helper: 'clone',
         appendTo: 'body',
         cursor: 'move',
-        cursorAt: { top: 14, left: 75 },
         zIndex: 1999,
         start: function () {
           dragIsNum = $(this).data('type') === 'num'
         },
         stop: function () {
           dragIsNum = false
+        },
+        classes: {
+          'ui-draggable-dragging': 'ui-draggable-dragging field',
         },
       })
       .disableSelection()
