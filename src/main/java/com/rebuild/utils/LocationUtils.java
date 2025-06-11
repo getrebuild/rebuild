@@ -41,7 +41,7 @@ public class LocationUtils {
      * 获取 IP 所在位置
      *
      * @param ip
-     * @param useCache 7天缓存
+     * @param useCache 使用缓存
      * @return
      */
     public static JSON getLocation(String ip, boolean useCache) {
@@ -63,7 +63,8 @@ public class LocationUtils {
         result.put("ip", ip);
         result.put("country", "N");
 
-        JSONObject fetchTry = getJSON(String.format("http://ip-api.com/json/%s", ip));
+        // https://ip-api.com/docs
+        JSONObject fetchTry = getJSON(String.format("http://ip-api.com/json/%s?lang=zh-CN", ip));
         if (fetchTry != null) {
             String message = fetchTry.getString("message");
             if (fetchTry.getString("countryCode") != null) {
@@ -80,7 +81,7 @@ public class LocationUtils {
             return result;
         }
 
-        // try
+        // try anothers
         fetchTry = getJSON(String.format("https://ipapi.co/%s/json/", ip));
         if (fetchTry != null) {
             if (fetchTry.getString("country") != null) {
