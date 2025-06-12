@@ -2,7 +2,7 @@
 -- Each upgraded starts with `-- #VERSION`
 
 -- #65 (v4.1)
-alter table `meta_entity`
+alter table `robot_sop_step`
   change column `OPERATOR` `OPERATOR` char(20) comment '操作人',
   change column `ACHIEVED_TIME` `ACHIEVED_TIME` datetime null default null comment '达成时间';
 
