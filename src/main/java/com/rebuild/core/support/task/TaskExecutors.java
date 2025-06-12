@@ -139,7 +139,7 @@ public class TaskExecutors extends DistributedJobLock {
     public static <T> T invoke(Callable<T> task, int timeout) {
         Future<T> future = EXEC.submit(task);
         try {
-            return future.get(timeout, TimeUnit.SECONDS);
+            return future.get(timeout, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             log.error("Invoke method timeout : {}",
                     StringUtils.defaultIfBlank(e.getMessage(), e.getClass().getSimpleName()));
@@ -154,7 +154,7 @@ public class TaskExecutors extends DistributedJobLock {
      * @param delay
      */
     public static void schedule(Runnable command, int delay) {
-        SCHEDULED41.schedule(command, delay, TimeUnit.SECONDS);
+        SCHEDULED41.schedule(command, delay, TimeUnit.MILLISECONDS);
     }
 
     /**

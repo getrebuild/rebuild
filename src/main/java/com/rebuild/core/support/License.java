@@ -80,7 +80,7 @@ public final class License {
         JSONObject auth = TaskExecutors.invoke(() -> {
             if (cached) return siteApi("api/authority/query");
             return siteApiNoCache("api/authority/query");
-        }, 10);
+        }, 10 * 1000);
         if (auth == null) {
             try {
                 String ik = ComputerIdentifier.generateIdentifierKey();
