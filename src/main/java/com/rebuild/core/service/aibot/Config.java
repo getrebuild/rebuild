@@ -11,7 +11,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import org.springframework.util.Assert;
 
 import java.util.List;
 
@@ -26,18 +25,14 @@ public class Config {
      * @return
      */
     public static String getServerUrl(String path) {
-        String url = RebuildConfiguration.get(ConfigurationItem.AibotDSUrl);
-        if (path != null) url += "/" + path;
-        return url.replace("//", "/");
+        return DeepSeek.getServerUrl(path);
     }
 
     /**
      * @return
      */
     public static String getSecret() {
-        String sk = RebuildConfiguration.get(ConfigurationItem.AibotDSSecret);
-        Assert.notNull(sk, "[AibotDSSecret] is not set");
-        return sk;
+        return DeepSeek.getSecret();
     }
 
     /**

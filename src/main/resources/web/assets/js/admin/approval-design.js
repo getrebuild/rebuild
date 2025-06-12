@@ -813,10 +813,14 @@ class ApproverNodeConfig extends StartNodeConfig {
                     return (
                       <tr key={`field-${item.field}`}>
                         <td>{this.__fieldLabel(item.field)}</td>
-                        <td width="100">
+                        <td width="140" data-field={item.field}>
                           <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                            <input className="custom-control-input" type="checkbox" name="notNull" defaultChecked={item.notNull === true} data-field={item.field} />
+                            <input className="custom-control-input" type="checkbox" name="notNull" defaultChecked={item.notNull === true} />
                             <span className="custom-control-label">{$L('必填')}</span>
+                          </label>
+                          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline ml-3">
+                            <input className="custom-control-input" type="checkbox" name="readOnly" defaultChecked={item.readOnly === true} />
+                            <span className="custom-control-label">{$L('只读')}</span>
                           </label>
                         </td>
                         <td width="40">
@@ -905,10 +909,10 @@ class ApproverNodeConfig extends StartNodeConfig {
   save = () => {
     const editableFields = []
     $(this._$editableFields)
-      .find('input')
+      .find('td[data-field]')
       .each(function () {
         const $this = $(this)
-        editableFields.push({ field: $this.data('field'), notNull: $this.prop('checked') })
+        editableFields.push({ field: $this.data('field'), notNull: $this.find('input:eq(0)').prop('checked'), readOnly: $this.find('input:eq(1)').prop('checked') })
       })
 
     const expiresAuto = {}

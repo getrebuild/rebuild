@@ -12,15 +12,20 @@ import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.support.distributed.DistributedJobLock;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -40,16 +45,19 @@ public class TaskExecutors extends DistributedJobLock {
 
     // 线程池
     private static final ExecutorService EXEC = new ThreadPoolExecutor(
-            MAX_TASKS_NUMBER, MAX_TASKS_NUMBER, 0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(MAX_TASKS_NUMBER * 6));
+            MAX_TASKS_NUMBER, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>());
 
     // 异步任务
     private static final Map<String, HeavyTask<?>> ASYNC_TASKS = new ConcurrentHashMap<>();
 
     // 队列执行
     private static final ExecutorService SINGLE_QUEUE = new ThreadPoolExecutor(
-            1, 1, 0L, TimeUnit.MILLISECONDS,
+            1, 1, 0L, TimeUnit.SECONDS,
             new LinkedBlockingQueue<>());
+
+    // 延迟执行
+    private static final ScheduledExecutorService SCHEDULED41 = Executors.newScheduledThreadPool(MAX_TASKS_NUMBER);
 
     /**
      * 异步执行（提交给任务调度）
@@ -121,6 +129,35 @@ public class TaskExecutors extends DistributedJobLock {
     }
 
     /**
+     * 超时功能的执行
+     *
+     * @param task
+     * @param timeout in seconds
+     * @return
+     * @param <T>
+     */
+    public static <T> T invoke(Callable<T> task, int timeout) {
+        Future<T> future = EXEC.submit(task);
+        try {
+            return future.get(timeout, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            log.error("Invoke method timeout : {}",
+                    StringUtils.defaultIfBlank(e.getMessage(), e.getClass().getSimpleName()));
+        }
+        return null;
+    }
+
+    /**
+     * 延迟执行
+     *
+     * @param command
+     * @param delay
+     */
+    public static void schedule(Runnable command, int delay) {
+        SCHEDULED41.schedule(command, delay, TimeUnit.SECONDS);
+    }
+
+    /**
      * 停止任务执行器
      */
     public static void shutdown() {
@@ -129,9 +166,14 @@ public class TaskExecutors extends DistributedJobLock {
             log.warn("{} task(s) were interrupted", t.size());
         }
 
-        List<Runnable> c = SINGLE_QUEUE.shutdownNow();
-        if (!c.isEmpty()) {
-            log.warn("{} command(s) were interrupted", c.size());
+        t = SINGLE_QUEUE.shutdownNow();
+        if (!t.isEmpty()) {
+            log.warn("{} command(s) were interrupted", t.size());
+        }
+
+        t = SCHEDULED41.shutdownNow();
+        if (!t.isEmpty()) {
+            log.warn("{} scheduled command(s) were interrupted", t.size());
         }
     }
 

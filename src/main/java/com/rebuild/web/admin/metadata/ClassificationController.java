@@ -33,7 +33,7 @@ import java.io.IOException;
 /**
  * 分类数据管理
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/03/27
  */
 @RestController

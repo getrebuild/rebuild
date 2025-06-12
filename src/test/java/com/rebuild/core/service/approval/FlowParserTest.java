@@ -19,7 +19,7 @@ import java.nio.file.Files;
 import java.util.List;
 
 /**
- * @author devezhao-mbp zhaofang123@gmail.com
+ * @author devezhao-mbp
  * @since 2019/07/06
  */
 public class FlowParserTest {

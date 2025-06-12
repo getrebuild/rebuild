@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 /**
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/03/22
  */
 public class UpgradeDatabaseTest extends TestSupport {

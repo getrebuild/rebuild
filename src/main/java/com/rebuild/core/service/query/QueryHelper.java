@@ -55,7 +55,8 @@ public class QueryHelper {
     public static boolean isMatchAdvFilter(ID recordId, JSONObject advFilter, boolean useVarRecord) {
         if (!ParseHelper.validAdvFilter(advFilter)) return true;
 
-        String filterSql = useVarRecord ? new AdvFilterParser(advFilter, recordId).toSqlWhere()
+        String filterSql = useVarRecord
+                ? new AdvFilterParser(advFilter, recordId).toSqlWhere()
                 : new AdvFilterParser(advFilter).toSqlWhere();
 
         return isMatchFilter(recordId, filterSql);

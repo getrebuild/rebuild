@@ -97,7 +97,7 @@ div.dataTables_wrapper div.dataTables_oper .btn-space:last-child {
 }
 
 div.dataTables_wrapper div.dataTables_oper.compact .btn {
-  min-width: 68px;
+  min-width: 60px;
 }
 
 div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
@@ -169,4 +169,211 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
 
 .form-layout .img-field .img-field-btn {
   position: relative;
+  margin-bottom: 5px;
+}
+
+/* detail-form-table protable */
+
+.detail-form-table {
+  margin: 5px 15px 15px;
+}
+
+.protable.rb-scroller {
+  padding-bottom: 15px;
+}
+
+.protable .form-group {
+  margin: 0;
+  padding: 0;
+}
+
+.protable .col-form-label,
+.protable .col-form-control > .form-text {
+  display: none;
+}
+
+.protable .img-field,
+.protable .file-field label {
+  margin-bottom: 0;
+}
+
+.protable .file-field .file-select {
+  margin-top: 0;
+  overflow: hidden;
+  height: 37px;
+}
+
+.protable .file-field .file-field-show:empty + .file-select {
+  transform: translateY(2px);
+}
+
+.protable .table tr td {
+  position: relative;
+}
+
+.protable .table tr td .custom-control {
+  padding-left: 2.1377rem;
+  margin-bottom: 4px;
+}
+
+.protable .type-MULTISELECT .custom-checkbox {
+  min-width: 48%;
+}
+
+.protable .table tr td .custom-control.custom-radio {
+  margin-right: 10px;
+  margin-bottom: 0;
+}
+
+.protable .type-MULTISELECT {
+  padding-bottom: 0 !important;
+  margin-bottom: -2px !important;
+}
+
+.protable .type-FILE {
+  margin-bottom: 0 !important;
+}
+
+.protable .type-IMAGE {
+  margin-bottom: -5px !important;
+  padding-bottom: 0 !important;
+}
+
+.protable .type-NTEXT textarea.row3x {
+  height: 60px !important;
+}
+
+.protable .table {
+  border-bottom: 1px solid #dee2e6;
+  margin: 0;
+}
+
+.protable .table th,
+.protable .table thead td,
+.protable .table tfoot td {
+  background-color: #eceff1;
+  font-weight: normal;
+  border-bottom-width: 1px;
+}
+
+.protable .table .col-index {
+  width: 38px;
+  min-width: 38px;
+  padding-left: 0;
+  text-align: right;
+}
+
+.protable .table .col-action {
+  padding-right: 0;
+  text-align: right;
+  width: 48px;
+  min-width: 48px;
+}
+
+.protable .table .col-action.has-copy-btn {
+  width: 86px;
+  min-width: 86px;
+}
+
+.protable .table .col-action .btn {
+  min-width: 37px;
+  margin-right: 1px;
+  background-color: transparent;
+}
+
+.protable .table .col-action .btn:hover {
+  background-color: #e6e6e6;
+}
+
+.protable .table thead th,
+.protable .table tfoot th {
+  position: relative;
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+.protable .table thead th .dividing {
+  width: 10px;
+  border-right: 1px solid #dee2e6;
+  border-right: 1px solid #ddd;
+  cursor: col-resize;
+  position: absolute;
+  height: 18px;
+  top: 9px;
+  right: 0;
+}
+
+.protable .table thead th .dividing:hover,
+.protable .table thead th .dividing:active {
+  border-right-width: 3px;
+}
+
+.protable .table thead th i.dividing.ui-draggable-dragging {
+  border-right-width: 3px !important;
+  border-bottom-color: #4285f4 !important;
+  z-index: 101;
+  cursor: col-resize;
+}
+
+.protable .table thead th .tipping {
+  position: absolute;
+  font-size: 1.21rem;
+  margin-left: 6px;
+  margin-top: 1px;
+  cursor: help;
+  color: #777;
+}
+
+.protable .table thead th .tipping:hover {
+  opacity: 0.8;
+}
+
+.protable .table thead th.required .tipping {
+  margin-left: 16px;
+}
+
+.protable .table tbody .col-index[title] {
+  background-color: #ea4335;
+  color: #fff;
+  cursor: help;
+}
+
+.protable .column-fixed.col-action {
+  padding: 7px 0 7px 7px !important;
+  z-index: 2;
+}
+
+.protable .column-fixed.col-action::after {
+  right: auto;
+  left: -48px;
+  box-shadow: inset -10px 0 8px -8px rgb(0 0 0 / 15%);
+}
+
+.protable .table thead {
+  position: sticky;
+  top: 0;
+}
+
+.protable .table tbody tr.active {
+  background-color: #eceff1;
+}
+
+/* DataList */
+
+.data-list .table td.editable {
+  outline: 1px double var(--rb-theme-color);
+  background-color: #fff !important;
+  position: relative;
+  z-index: 1;
+}
+
+.data-list .table td.editable > div::after {
+  font-family: 'Material-Design-Iconic-Font', serif;
+  content: '\f158';
+  font-size: 16px;
+  position: absolute;
+  color: #737373;
+  right: 8px;
+  top: 7px;
+  cursor: pointer;
 }

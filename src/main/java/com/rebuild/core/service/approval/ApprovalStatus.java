@@ -12,7 +12,7 @@ import com.rebuild.core.Application;
 import lombok.Getter;
 
 /**
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2020/08/10
  */
 @Getter

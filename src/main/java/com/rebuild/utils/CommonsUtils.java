@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.utils;
 
 import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.persist4j.engine.NullValue;
@@ -361,11 +360,11 @@ public class CommonsUtils {
      * @return
      */
     public static Date parseDate(String source) {
-        if ("yyyy".length() == source.length()) {
-            return CalendarUtils.parse(source, "yyyy");
-        }
-        if ("yyyy-MM".length() == source.length()) {
-            return CalendarUtils.parse(source, "yyyy-MM");
+        if (source.length() == 4 || source.contains("-") || source.contains("年")) {
+            source = source.replaceAll("[年月日\\-\\s:.]", "");
+            String format = "yyyyMMddHHmmssSSS".substring(0, source.length());
+            Date d = CalendarUtils.parse(source, format);
+            if (d != null) return d;
         }
 
         try {

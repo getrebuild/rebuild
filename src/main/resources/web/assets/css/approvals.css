@@ -704,9 +704,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .fields-table tr.ui-sortable-helper {
-  background-color: #eee;
   display: block;
   width: 100%;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 2px 6px;
 }
 
 .expires-by-time {

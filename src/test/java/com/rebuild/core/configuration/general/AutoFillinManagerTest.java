@@ -22,7 +22,7 @@ import com.rebuild.core.support.general.RecordBuilder;
 import org.junit.jupiter.api.Test;
 
 /**
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/05/22
  */
 public class AutoFillinManagerTest extends TestSupport {

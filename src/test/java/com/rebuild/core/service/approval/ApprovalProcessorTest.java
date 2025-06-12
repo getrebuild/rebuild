@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 /**
- * @author devezhao-mbp zhaofang123@gmail.com
+ * @author devezhao-mbp
  * @since 2019/07/16
  */
 public class ApprovalProcessorTest extends TestSupport {

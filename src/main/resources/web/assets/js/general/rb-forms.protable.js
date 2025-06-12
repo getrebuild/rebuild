@@ -75,7 +75,13 @@ class ProTable extends React.Component {
             {inlineForms.map((FORM, idx) => {
               const key = FORM.key
               return (
-                <tr key={`if-${key}`} data-key={key}>
+                <tr
+                  key={`if-${key}`}
+                  data-key={key}
+                  onMouseDown={(e) => {
+                    $(this._$tbody).find('tr.active').removeClass('active')
+                    $(e.currentTarget).addClass('active')
+                  }}>
                   <th className={`col-index ${!readonly && 'action'}`}>
                     <span>{idx + 1}</span>
                     {!readonly && (
@@ -296,7 +302,7 @@ class ProTable extends React.Component {
     const FORM = (
       <InlineForm entity={entityName} id={model.id} rawModel={model} $$$parent={this} $$$main={this.props.$$$main} key={lineKey} ref={ref} _componentDidUpdate={() => this._componentDidUpdate()}>
         {model.elements.map((item) => {
-          return detectElement({ ...item, colspan: 4, _disableAutoFillin: _disableAutoFillin === true })
+          return detectElement({ ...item, colspan: 4, _disableAutoFillin: _disableAutoFillin === true }, entityName)
         })}
       </InlineForm>
     )
@@ -696,7 +702,6 @@ class ExcelClipboardData extends React.Component {
     if (!this._$table) return
 
     const $table = $(this._$table).find('table').addClass('table table-sm table-bordered table-fixed')
-
     const fields = this.props.fields
     if (fields) {
       const len = $table.find('tbody>tr:eq(0)').find('td').length
@@ -736,6 +741,7 @@ class ExcelClipboardData extends React.Component {
     }
     if (noAnyFields) return RbHighbar.createl('请至少选择一个列字段')
 
+    const that = this
     const dataWithFields = []
     $(this._$table)
       .find('tbody tr')
@@ -745,7 +751,14 @@ class ExcelClipboardData extends React.Component {
           .find('td')
           .each(function (idx) {
             const name = fields[idx]
-            if (name) L[name] = $(this).text() || null
+            if (name) {
+              let val = $(this).text()
+              if ((that.props.fields[idx] || {}).type === 'NTEXT') {
+                val = $(this).find('>span').html()
+                if (val) val = val.replace(/<br>/gi, '\n')
+              }
+              L[name] = val || null
+            }
           })
         dataWithFields.push(L)
       })

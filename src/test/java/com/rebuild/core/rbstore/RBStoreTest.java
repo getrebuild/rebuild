@@ -24,7 +24,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2020/08/18
  */
 public class RBStoreTest extends TestSupport {

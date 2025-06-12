@@ -527,7 +527,7 @@ class RbForm extends React.Component {
                     const fields = []
                     _ProTable.state.formFields.forEach((item) => {
                       if (item.readonly === false && !['IMAGE', 'FILE', 'AVATAR', 'SIGN'].includes(item.type)) {
-                        fields.push({ field: item.field, label: item.label })
+                        fields.push({ field: item.field, label: item.label, type: item.type })
                       }
                     })
 
@@ -1635,10 +1635,10 @@ class RbFormDateTime extends RbFormElement {
       const format = (this.props.datetimeFormat || this.props.dateFormat).replace('mm', 'ii').toLowerCase()
       let minView = 0
       let startView = 'month'
-      if (format.length === 4) minView = startView = 'decade' // 年
-      else if (format.length === 7) minView = startView = 'year' // 年-月
-      else if (format.length === 10) minView = 'month' // 年-月-日
-      else if (format.length === 13) minView = 'day' // 年-月-日-时
+      if (format.length === 4 || format.length === 5) minView = startView = 'decade' // 年
+      else if (format.length === 7 || format.length === 8) minView = startView = 'year' // 年-月
+      else if (format.length === 10 || format.length === 11) minView = 'month' // 年-月-日
+      else if (format.length === 13 || format.length === 14) minView = 'day' // 年-月-日 时
 
       const that = this
       this.__datetimepicker = $(this._fieldValue)
@@ -2632,6 +2632,12 @@ class RbFormAnyReference extends RbFormReference {
           this.__select2Entity = $(this._$entity).select2({
             placeholder: $L('无可用'),
             allowClear: false,
+            templateResult: function (res) {
+              const $span = $('<span class="icon-append"></span>').attr('title', res.text).text(res.text)
+              const icon = entities.find((x) => x.entity === res.id)
+              $(`<i class="icon zmdi zmdi-${icon ? icon.icon : 'texture'}"></i>`).appendTo($span)
+              return $span
+            },
           })
           if (initVal) {
             let code = ~~(initVal.id || initVal).split('-')[0]
@@ -3485,10 +3491,13 @@ class RbFormRefform extends React.Component {
 
 // 确定元素类型
 var detectElement = function (item, entity) {
-  if (!item.key) item.key = `field-${item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM ? $random() : item.field}`
-  // v41
+  if (!item.key) {
+    item.key = `field-${item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM ? $random() : item.field}`
+  }
+  // v4.1
   item.entity = item.entity || entity
 
+  // 复写的字段组件
   if (entity && window._CustomizedForms) {
     const c = window._CustomizedForms.useFormElement(entity, item)
     if (c) return c

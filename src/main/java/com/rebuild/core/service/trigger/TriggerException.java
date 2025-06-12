@@ -10,7 +10,7 @@ package com.rebuild.core.service.trigger;
 import com.rebuild.core.RebuildException;
 
 /**
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/05/24
  */
 public class TriggerException extends RebuildException {

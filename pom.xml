@@ -535,6 +535,11 @@
             <artifactId>pdfbox</artifactId>
             <version>3.0.4</version>
         </dependency>
+        <dependency>
+            <groupId>com.openai</groupId>
+            <artifactId>openai-java</artifactId>
+            <version>2.3.0</version>
+        </dependency>
 
         <!-- fix: CVEs -->
         <dependency>

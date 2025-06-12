@@ -271,12 +271,18 @@ function ContentsGroup({ contents }) {
 // v4.0 文本值
 let _LabelOfId = {}
 function _LabelOfIdGet(id) {
-  if (!window.FrontJS) return id
   if (_LabelOfId[id]) return _LabelOfId[id]
 
-  let label = window.FrontJS.getText(id)
-  if (label) {
-    _LabelOfId[id] = <span title={id}>{label}</span>
+  let L
+  $.ajax({
+    type: 'GET',
+    async: false,
+    url: `/commons/search/read-labels?id=${id}`,
+    success: (res) => (L = res.data),
+  })
+
+  if (L && L[id]) {
+    _LabelOfId[id] = <span title={id}>{L[id]}</span>
   } else {
     _LabelOfId[id] = id
   }

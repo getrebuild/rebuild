@@ -153,6 +153,7 @@ $(document).ready(function () {
     // 小数-货币
     if (dt === 'DECIMAL' && extConfigNew['decimalType'] === '¥') {
       extConfigNew['decimalType'] = $val('.J_decimalTypeFlag') || '¥'
+      if (extConfigNew['decimalType'] === '_') extConfigNew['decimalType'] = $val('.J_decimalTypeFlag2') || '¥'
     }
 
     // fix
@@ -263,11 +264,21 @@ $(document).ready(function () {
       } else {
         $('input[name="decimalType"]:eq(2)')[0].click()
         $('.J_decimalTypeFlag').val(extConfig.decimalType)
+        if ($(`.J_decimalTypeFlag option[value="${extConfig.decimalType}"]`).length === 0) {
+          $('.J_decimalTypeFlag').val('_')
+          $('.J_decimalTypeFlag2').val(extConfig.decimalType)
+          $('.J_decimalTypeFlag2').removeClass('hide')
+        }
       }
 
-      $('.J_decimalTypeFlag').on('click', () => {
-        $('input[name="decimalType"]:eq(2)')[0].click()
-      })
+      $('.J_decimalTypeFlag')
+        .on('click', () => {
+          $('input[name="decimalType"]:eq(2)')[0].click()
+        })
+        .on('change', (e) => {
+          if (e.target.value === '_') $('.J_decimalTypeFlag2').removeClass('hide')
+          else $('.J_decimalTypeFlag2').addClass('hide')
+        })
     }
   } else if (dt === 'TAG') {
     _handleTag(extConfig.tagList || [], extConfig.tagMaxSelect || null)

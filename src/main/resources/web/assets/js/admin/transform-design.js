@@ -10,7 +10,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
  */
 
 const wpc = window.__PageConfig
-const _sourceEntities41 = wpc.sourceDetailEntities ? [...wpc.sourceDetailEntities, wpc.sourceEntity] : null
+const _sourceEntities41 = wpc.sourceDetailEntities || null
+if (wpc.sourceDetailEntities) {
+  let hs = _sourceEntities41.find((x) => x.entity === wpc.sourceEntity.entity)
+  if (!hs) _sourceEntities41.push(wpc.sourceEntity)
+}
 
 let _AdvFilter
 let _AdvFilter_data

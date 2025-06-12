@@ -5,18 +5,18 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.service.approval;
+package com.rebuild.core.service.trigger.aviator;
 
 import com.rebuild.core.RebuildException;
 
 /**
- * @author devezhao-mbp
- * @since 2019/07/06
+ * @author Zixin (RB)
+ * @since 6/3/2025
  */
-public class ApprovalException extends RebuildException {
-    private static final long serialVersionUID = 7876166915760948592L;
+public class FunctionException extends RebuildException {
+    private static final long serialVersionUID = -1558990230035608546L;
 
-    public ApprovalException(String msg) {
-        super(msg);
+    public FunctionException(String message) {
+        super(message);
     }
 }
