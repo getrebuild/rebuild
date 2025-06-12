@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.configuration.general;
 
-import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -20,6 +19,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.task.TaskExecutors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
@@ -82,17 +82,11 @@ public class ClassificationService extends BaseConfigurationService implements A
         if (reindex) {
             final ID itemId = record.getPrimary();
             cleanCache(itemId);
-            final long start = System.currentTimeMillis();
-            ThreadPool.exec(() -> {
-                try {
-                    reindexFullNameByParent(itemId);
-                } finally {
-                    long cost = System.currentTimeMillis() - start;
-                    if (cost > 2000 || Application.devMode()) {
-                        log.info("Reindex FullName [ {} ] in {} ms", itemId, cost);
-                    }
-                }
-            });
+
+            // v4.1 延迟以便事物提交完成
+            TaskExecutors.schedule(() -> {
+                reindexFullNameByParent(itemId);
+            }, 1000);
         }
         return record;
     }
