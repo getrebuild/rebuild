@@ -64,7 +64,7 @@ public class ClassificationService extends BaseConfigurationService implements A
         ClassificationManager.instance.clean(cfgid);
     }
 
-    // -- for DataItem
+    // -- for Item
 
     /**
      * @param record
@@ -147,9 +147,7 @@ public class ClassificationService extends BaseConfigurationService implements A
                 "select dataId from ClassificationData where itemId = ?")
                 .setParameter(1, parent)
                 .unique();
-        if (data == null) {
-            return 0;
-        }
+        if (data == null) return 0;
         return reindexFullNameByParent(parent, (ID) data[0]);
     }
 

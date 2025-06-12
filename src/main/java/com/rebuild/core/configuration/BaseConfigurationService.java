@@ -90,6 +90,13 @@ public abstract class BaseConfigurationService extends InternalPersistService {
      */
     abstract protected void cleanCache(ID cfgid);
 
+    /**
+     * 配置是否被锁定
+     *
+     * @return
+     * @see com.rebuild.core.support.CommonsLock
+     */
+    @Deprecated
     protected boolean hasLock() {
         return false;
     }
