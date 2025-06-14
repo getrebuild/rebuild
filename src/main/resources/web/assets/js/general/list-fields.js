@@ -152,10 +152,9 @@ const ShowStyles_Comps = {}
 // eslint-disable-next-line no-undef
 render_item_after = function ($item) {
   const fkey = $item.data('key')
-  const $a = $(`<a class="mr-1" title="${$L('显示样式')}"><i class="zmdi zmdi-edit"></i></a>`)
-  $item.find('.dd3-action>a').before($a)
-
-  $a.on('click', () => {
+  const $style = $(`<a class="mr-1" title="${$L('显示样式')}"><i class="zmdi zmdi-edit"></i></a>`)
+  $item.find('.dd3-action>a:eq(0)').before($style)
+  $style.on('click', () => {
     if (ShowStyles_Comps[fkey]) {
       ShowStyles_Comps[fkey].show()
     } else {
@@ -182,6 +181,11 @@ render_item_after = function ($item) {
       )
     }
   })
+
+  // v4.1
+  const $top = $(`<a class="mr-1" title="${$L('置顶')}"><i class="zmdi zmdi-format-valign-top"></i></a>`)
+  $item.find('.dd3-action>a:eq(0)').before($top)
+  $top.on('click', () => $item.prependTo($item.parent()))
 }
 
 // eslint-disable-next-line no-undef

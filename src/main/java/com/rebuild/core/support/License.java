@@ -83,8 +83,8 @@ public final class License {
         }, 10 * 1000);
         if (auth == null) {
             try {
-                String ik = ComputerIdentifier.generateIdentifierKey();
                 String c = FileUtils.readFileToString(RebuildConfiguration.getFileOfData(".license"), "ISO-8859-1");
+                String ik = ComputerIdentifier.generateIdentifierKey();
                 log.warn("Use _LA : {},{}", c, ik);
                 auth = JSON.parseObject(AES.decrypt(c, ik));
             } catch (Exception ignored) {}

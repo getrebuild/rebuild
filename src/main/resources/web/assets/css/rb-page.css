@@ -2223,11 +2223,12 @@ th.column-fixed {
   font-size: 1rem;
   background-color: #fff;
   width: auto;
-  left: 10px;
+  left: 0;
   margin: -11px 0 0;
   padding: 3px 5px 0;
   color: #666;
-  border-radius: 4px;
+  border-left: 4px solid #4285f4;
+  border-left-color: var(--rb-theme-color);
 }
 
 .form-line.hover fieldset legend {
@@ -2242,37 +2243,24 @@ th.column-fixed {
   opacity: 0.8;
 }
 
-.form-line.hover fieldset legend::before {
+.form-line.hover fieldset legend::after {
   font-family: 'Material-Design-Iconic-Font', serif;
   font-size: 1.5rem;
   content: '\f2f9';
   width: 13px;
   display: inline-block;
-  float: left;
+  float: right;
   text-align: center;
   line-height: 1;
   transform: translateY(-1px);
 }
 
-.form-line.hover.collapsed fieldset legend::before {
+.form-line.hover.collapsed fieldset legend::after {
   content: '\f2fb';
 }
 
 .form-line.hover fieldset legend > span {
   margin-left: 3px;
-}
-
-.form-line.v33 {
-  background-color: #ebebeb;
-  border-radius: 2px;
-  height: 38px;
-  margin-bottom: 11px;
-  margin-top: 11px;
-  padding-top: 2px;
-}
-
-.form-line.v33 fieldset legend {
-  background-color: transparent;
 }
 
 .form-line-breaked {

@@ -3406,7 +3406,7 @@ class RbFormDivider extends React.Component {
     }
 
     return (
-      <div className={`form-line hover -v33 ${this.state.collapsed && 'collapsed'}`} ref={(c) => (this._$formLine = c)}>
+      <div className={`form-line hover ${this.state.collapsed && 'collapsed'}`} ref={(c) => (this._$formLine = c)}>
         <fieldset>
           <legend onClick={() => this._toggle()} title={$L('展开/收起')}>
             {this.props.label && <span>{this.props.label}</span>}
