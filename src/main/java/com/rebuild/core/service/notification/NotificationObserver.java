@@ -33,12 +33,6 @@ public class NotificationObserver extends OperatingObserver {
     }
 
     @Override
-    protected boolean isAsync() {
-        // NOTE 异步无法使用 NotificationOnce 合并发送功能
-        return false;
-    }
-
-    @Override
     public void onAssign(OperatingContext context) {
         final ID relatedId = context.getAfterRecord().getPrimary();
         if (NotificationOnce.didBegin()) {
