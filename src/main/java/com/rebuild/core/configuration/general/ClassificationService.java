@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.configuration.general;
 
-import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -20,6 +19,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.task.TaskExecutors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 /**
  * 分类数据
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/04/10
  */
 @Slf4j
@@ -64,7 +64,7 @@ public class ClassificationService extends BaseConfigurationService implements A
         ClassificationManager.instance.clean(cfgid);
     }
 
-    // -- for DataItem
+    // -- for Item
 
     /**
      * @param record
@@ -82,17 +82,11 @@ public class ClassificationService extends BaseConfigurationService implements A
         if (reindex) {
             final ID itemId = record.getPrimary();
             cleanCache(itemId);
-            final long start = System.currentTimeMillis();
-            ThreadPool.exec(() -> {
-                try {
-                    reindexFullNameByParent(itemId);
-                } finally {
-                    long cost = System.currentTimeMillis() - start;
-                    if (cost > 2000 || Application.devMode()) {
-                        log.info("Reindex FullName [ {} ] in {} ms", itemId, cost);
-                    }
-                }
-            });
+
+            // v4.1 延迟以便事物提交完成
+            TaskExecutors.schedule(() -> {
+                reindexFullNameByParent(itemId);
+            }, 1000);
         }
         return record;
     }
@@ -147,9 +141,7 @@ public class ClassificationService extends BaseConfigurationService implements A
                 "select dataId from ClassificationData where itemId = ?")
                 .setParameter(1, parent)
                 .unique();
-        if (data == null) {
-            return 0;
-        }
+        if (data == null) return 0;
         return reindexFullNameByParent(parent, (ID) data[0]);
     }
 
