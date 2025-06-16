@@ -635,7 +635,12 @@ class RbForm extends React.Component {
         let iv = child.props.value
         if (!$empty(iv) && (!this.props.readonly || (this.props.readonly && this.props.readonlyw === 3))) {
           if (typeof iv === 'object') {
-            if (child.props.type === 'TAG') {
+            if (child.props.type === 'N2NREFERENCE') {
+              // fix: 4.0.6
+              let iv2 = []
+              iv.forEach((item) => iv2.push(item.id))
+              iv = iv2.join(',')
+            } else if (child.props.type === 'TAG') {
               // eg. 标签
               iv = iv.join('$$$$')
             } else if (child.props.type === 'LOCATION') {
@@ -689,7 +694,7 @@ class RbForm extends React.Component {
     this._onFieldValueChangeCall(field, value)
 
     // eslint-disable-next-line no-console
-    if (rb.env === 'dev') console.log('FV1 ... ' + JSON.stringify(this.__FormData))
+    if (rb.env === 'dev') console.log('FV1 ... ' + field + ' : ' + JSON.stringify(this.__FormData))
   }
 
   // 避免无意义更新
@@ -698,7 +703,7 @@ class RbForm extends React.Component {
     this._onFieldValueChangeCall(field, originValue)
 
     // eslint-disable-next-line no-console
-    if (rb.env === 'dev') console.log('FV2 ... ' + JSON.stringify(this.__FormData))
+    if (rb.env === 'dev') console.log('FV2 ... ' + field + ' : ' + JSON.stringify(this.__FormData))
   }
 
   // 添加字段值变化回调
@@ -2240,9 +2245,11 @@ class RbFormReference extends RbFormElement {
         templateResult: $select2OpenTemplateResult,
       })
 
+      // 先 setValue
       const val = this.state.value
       if (val) this.setValue(val)
 
+      // 再监听
       const that = this
       this.__select2.on('change', function (e) {
         const v = $(e.target).val()
@@ -2520,6 +2527,13 @@ class RbFormN2NReference extends RbFormReference {
     super.handleChange({ target: { value: val } }, checkValue)
   }
 
+  onEditModeChanged(destroy) {
+    super.onEditModeChanged(destroy)
+    if (!destroy && this.__select2) {
+      this.__select2.on('select2:select', (e) => __addRecentlyUse(e.params.data.id))
+    }
+  }
+
   // @append = 追加模式
   setValue(val, append) {
     if (val && val.length > 0) {
@@ -2539,12 +2553,6 @@ class RbFormN2NReference extends RbFormReference {
         }
       })
 
-      // v4.0.5 禁用，因为初始化时就会触发
-      // if (ids.length > 0) {
-      //   let ss = ids.join(',')
-      //   if (append && currentIds && currentIds !== '') ss = currentIds + ',' + ss
-      //   this.handleChange({ target: { value: ss } }, true)
-      // }
       if (ids.length > 0) this.__select2.trigger('change')
     } else {
       this.__select2.val(null).trigger('change')
@@ -2565,13 +2573,6 @@ class RbFormN2NReference extends RbFormReference {
     // v3.1 回填父级
     if (selected[0] && this.props._cascadingFieldParent) {
       this.triggerAutoFillin(selected[0])
-    }
-  }
-
-  onEditModeChanged(destroy) {
-    super.onEditModeChanged(destroy)
-    if (!destroy && this.__select2) {
-      this.__select2.on('select2:select', (e) => __addRecentlyUse(e.params.data.id))
     }
   }
 }
