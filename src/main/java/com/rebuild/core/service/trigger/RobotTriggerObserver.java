@@ -209,7 +209,7 @@ public class RobotTriggerObserver extends OperatingObserver {
                         UserContextHolder.setUser(currentUser2);
                         TRIGGER_SOURCE.set(triggerSource2);
                         try {
-                            execActionInternal(context, action, true, w);
+                            execActionInternal(context, action, true, true, w);
                         } finally {
                             UserContextHolder.clearUser();
                             if (!_TriggerLessLog) log.info("Clear trigger-source : {}", getTriggerSource());
@@ -219,7 +219,7 @@ public class RobotTriggerObserver extends OperatingObserver {
 
                 } else {
                     if (!_TriggerLessLog) log.info(w);
-                    execActionInternal(context, action, originTriggerSource, w);
+                    execActionInternal(context, action, false, originTriggerSource, w);
                 }
             }
 
@@ -231,7 +231,7 @@ public class RobotTriggerObserver extends OperatingObserver {
         }
     }
 
-    private void execActionInternal(OperatingContext context, TriggerAction action, boolean o, String w) {
+    private void execActionInternal(OperatingContext context, TriggerAction action, boolean a, boolean o, String w) {
         try {
             Object res = action.execute(context);
 
@@ -249,11 +249,14 @@ public class RobotTriggerObserver extends OperatingObserver {
 
         } catch (Throwable ex) {
 
-            // DataValidate 直接抛出
-            if (ex instanceof DataValidateException) throw ex;
-            // throw of Aviator 抛出
-            //noinspection ConstantValue
-            if (ex instanceof StandardError) throw new DataValidateException(ex.getLocalizedMessage());
+            // 异步模式不直接抛出
+            if (!a) {
+                // DataValidate 直接抛出
+                if (ex instanceof DataValidateException) throw ex;
+                // throw of Aviator 抛出
+                //noinspection ConstantValue
+                if (ex instanceof StandardError) throw new DataValidateException(ex.getLocalizedMessage());
+            }
 
             log.error("Trigger execution failed : {} << {}", action, context, ex);
             CommonsLog.createLog(TYPE_TRIGGER,
