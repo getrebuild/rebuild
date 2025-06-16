@@ -132,7 +132,7 @@ public class TaskExecutors extends DistributedJobLock {
      * 超时功能的执行
      *
      * @param task
-     * @param timeout in seconds
+     * @param timeout in ms
      * @return
      * @param <T>
      */
@@ -151,7 +151,7 @@ public class TaskExecutors extends DistributedJobLock {
      * 延迟执行
      *
      * @param command
-     * @param delay
+     * @param delay in ms
      */
     public static void schedule(Runnable command, int delay) {
         SCHEDULED41.schedule(command, delay, TimeUnit.MILLISECONDS);
