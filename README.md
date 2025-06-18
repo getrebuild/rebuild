@@ -13,7 +13,7 @@
 
 更多详情介绍 [https://getrebuild.com/](https://getrebuild.com/)
 
-> **福利：加入 REBUILD VIP 用户 QQ 交流群 819865721 1013051587 GET 使用技能**
+> **福利：加入 REBUILD VIP 用户 QQ 交流群 744487038 1013051587 819865721 GET 使用技能**
 
 ## V4.0 新特性
 
