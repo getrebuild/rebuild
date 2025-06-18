@@ -24,6 +24,7 @@ import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -31,6 +32,7 @@ import org.apache.commons.lang.StringUtils;
 import java.text.Collator;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -299,6 +301,9 @@ public class DataListCategory38 {
                     s = s.substring(0, 10);
                     e = e.substring(0, 10);
                 }
+                // fix:月的做大日
+                int maxDayOfMonth = CalendarUtils.getInstance(CalendarUtils.parse(s)).getActualMaximum(Calendar.DAY_OF_MONTH);
+                if (maxDayOfMonth != 31) e = e.replace("-31", "-" + maxDayOfMonth);
 
                 String filter = MessageFormat.format("({0} >= ''{1}'' and {0} <= ''{2}'')", fieldName, s, e);
                 and.add(filter);

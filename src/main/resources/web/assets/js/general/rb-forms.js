@@ -635,7 +635,12 @@ class RbForm extends React.Component {
         let iv = child.props.value
         if (!$empty(iv) && (!this.props.readonly || (this.props.readonly && this.props.readonlyw === 3))) {
           if (typeof iv === 'object') {
-            if (child.props.type === 'TAG') {
+            if (child.props.type === 'N2NREFERENCE') {
+              // fix: 4.0.6
+              let iv2 = []
+              iv.forEach((item) => iv2.push(item.id))
+              iv = iv2.join(',')
+            } else if (child.props.type === 'TAG') {
               // eg. 标签
               iv = iv.join('$$$$')
             } else if (child.props.type === 'LOCATION') {

@@ -76,7 +76,8 @@ public class EasyN2NReference extends EasyReference implements MultiValue {
 
     @Override
     public Object wrapValue(Object value) {
-        ID[] idArrayValue = (ID[]) value;
+        // fix:4.0.6
+        ID[] idArrayValue = value instanceof ID ? new ID[]{(ID) value} : (ID[]) value;
 
         JSONArray array = new JSONArray();
         for (ID id : idArrayValue) {

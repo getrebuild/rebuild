@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-// !!!! 请勿对本文件做任何改动，否则导致的一切损失由您自行承担！
+// !!!! 请勿对本文件做任何改动，否则导致的一切风险/损失由您自行承担！
 // !!!! 请严格遵守《REBUILD 用户服务协议》https://getrebuild.com/legal/service-terms
 @Slf4j
 public final class License {
@@ -54,7 +54,7 @@ public final class License {
         SN = newsn.getString("sn");
         if (SN != null) {
             RebuildConfiguration.setValue(ConfigurationItem.SN.name(), SN);
-            queryAuthority(false);
+            queryAuthority(false);  // reset
         }
 
         if (SN == null) {
@@ -65,7 +65,7 @@ public final class License {
                     CalendarUtils.format("wwyy", new Date()),
                     CodecUtils.randomCode(6)).toUpperCase();
             RebuildConfiguration.setValue(ConfigurationItem.SN.name(), SN);
-            queryAuthority(false);
+            queryAuthority(false);  // reset
         }
 
         USE_SN = SN;
@@ -77,14 +77,16 @@ public final class License {
     }
 
     private static JSONObject queryAuthority(boolean cached) {
+        final String api = "api/authority/query";
         JSONObject auth = TaskExecutors.invoke(() -> {
-            if (cached) return siteApi("api/authority/query");
-            return siteApiNoCache("api/authority/query");
-        }, 10);
-        if (auth == null) {
+            if (cached) return siteApi(api);
+            return siteApiNoCache(api);
+        }, 10 * 1000);
+
+        if (auth == null || auth.getString("error") != null) {
             try {
-                String ik = ComputerIdentifier.generateIdentifierKey();
                 String c = FileUtils.readFileToString(RebuildConfiguration.getFileOfData(".license"), "ISO-8859-1");
+                String ik = ComputerIdentifier.generateIdentifierKey();
                 log.warn("Use _LA : {},{}", c, ik);
                 auth = JSON.parseObject(AES.decrypt(c, ik));
             } catch (Exception ignored) {}
@@ -97,6 +99,8 @@ public final class License {
                     new String[]{SN(), "开源社区版", "OSC", "无"});
         }
         if ("BLOCKED".equals(error)) System.exit(110);
+
+        CACHED.put(api, auth);
         return auth;
     }
 
