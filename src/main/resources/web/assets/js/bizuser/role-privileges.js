@@ -224,6 +224,7 @@ const loadRoles = function () {
       .on('click', () => RbFormModal.create({ title: $L('编辑角色'), entity: 'Role', icon: 'lock', id: _id, postAfter: () => location.reload() }, true))
     $('<span class="action"><i class="zmdi zmdi-delete"></i></span>')
       .appendTo($p)
+      // eslint-disable-next-line no-undef
       .on('click', () => deleteRole(_id))
   })
 }
@@ -254,7 +255,7 @@ const loadPrivileges = function () {
             }
           } else if (k === 'FP') {
             fieldpSettings[entity] = defs[k]
-            $name.parent().find('span>a').addClass('active').parent().removeClass('bosskey-show')
+            $name.parent().find('span>a').addClass('active').parent().removeClass('bosskey-show--41')
           } else {
             $tr.find(`i.priv[data-action="${k}"]`).removeClass('R0 R1 R2 R3 R4').addClass(`R${defs[k]}`)
           }
