@@ -348,7 +348,6 @@ public class AutoFillinManager implements ConfigManager {
         if (sourceEasyType == DisplayType.ID && targetIsAnyRefType) {
             newValue = FieldValueHelper.wrapFieldValue(newValue, targetEasy);
         } else if (targetIsAnyRefType) {
-        } else if (targetEasyType == DisplayType.N2NREFERENCE || targetEasyType == DisplayType.REFERENCE) {
             newValue = targetEasy.wrapValue(newValue);
         } else if (sourceEasy instanceof MixValue) {
             if (!(newValue instanceof String) || sourceEasyType == DisplayType.FILE) {

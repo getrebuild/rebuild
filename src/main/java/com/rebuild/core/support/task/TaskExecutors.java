@@ -152,8 +152,8 @@ public class TaskExecutors extends DistributedJobLock {
      * 延迟执行
      *
      * @param command
-     * @param delay
      * @param delay in ms
+     * @see com.rebuild.core.service.TransactionManual#registerAfterCommit(Runnable)
      */
     public static void schedule(Runnable command, int delay) {
         SCHEDULED41.schedule(command, delay, TimeUnit.MILLISECONDS);
