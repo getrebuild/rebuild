@@ -33,7 +33,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -75,7 +74,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
     @Override
     public boolean setFieldValue(Field field, String value, Record record) {
         final Type fieldType = field.getType();
-        // v4.0
+        // v4.0 处理 CURRENT 变量
         if ("{@CURRENT}".equals(value) || "{CURRENT}".equals(value)) {
             if (fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP || fieldType == FieldType.TIME) {
                 value = CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
@@ -92,7 +91,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
             }
         }
 
-        // v4.1 中文日期
+        // v4.1 处理中文日期
         if ((fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP) && value != null && value.contains("年")) {
             if (value.contains("日")) {
                 value = value.replace("年", "-").replace("月", "-").replace("日", "");
