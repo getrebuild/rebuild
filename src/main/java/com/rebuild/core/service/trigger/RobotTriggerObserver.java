@@ -12,10 +12,12 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.googlecode.aviator.exception.StandardError;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.SafeObservable;
+import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.OperatingObserver;
@@ -65,7 +67,7 @@ public class RobotTriggerObserver extends OperatingObserver {
 
     @Override
     public void update(final SafeObservable o, Object context) {
-        // fix: v3.7.1 预处理不要延迟
+        // fix: v3.7.1 预处理不能延后
         if (context instanceof OperatingContext
                 && ((OperatingContext) context).getAction() == InternalPermission.DELETE_BEFORE) {
             super.update(o, context);
@@ -194,61 +196,30 @@ public class RobotTriggerObserver extends OperatingObserver {
                     }
                 }
 
-                final int t = triggerSource.incrTriggerTimes();
-                final String w = String.format("Trigger.%s.%d [ %s ] executing on record (%s) : %s", sourceId, t, action, when, primaryId);
-                if (!_TriggerLessLog) log.info(w);
+                int t = triggerSource.incrTriggerTimes();
+                String w = String.format("Trigger.%s.%d [ %s ] executing on record (%s) : %s", sourceId, t, action, when, primaryId);
 
-                try {
-                    Object res = action.execute(context);
+                // v4.1 延迟执行（原始触发源才需异步）
+                if (originTriggerSource && action.isAsyncMode()) {
+                    if (!_TriggerLessLog) log.info("[ASYNC_MODE] {}", w);
 
-                    boolean hasAffected = res instanceof TriggerResult && ((TriggerResult) res).hasAffected();
-                    if (CommonsUtils.DEVLOG) System.out.println("[dev] " + w + " > " + (res == null ? "N" : res) + (hasAffected ? " < REALLY AFFECTED" : ""));
-
-                    if (res instanceof TriggerResult) {
-                        if (originTriggerSource) {
-                            ((TriggerResult) res).setChain(getTriggerSource());
+                    final ID currentUser2 = UserContextHolder.getUser();
+                    final TriggerSource triggerSource2 = triggerSource;
+                    TransactionManual.registerAfterCommit(() -> {
+                        UserContextHolder.setUser(currentUser2);
+                        TRIGGER_SOURCE.set(triggerSource2);
+                        try {
+                            execActionInternal(context, action, true, true, w);
+                        } finally {
+                            UserContextHolder.clearUser();
+                            if (!_TriggerLessLog) log.info("Clear trigger-source : {}", getTriggerSource());
+                            TRIGGER_SOURCE.remove();
                         }
+                    });
 
-                        CommonsLog.createLog(TYPE_TRIGGER,
-                                context.getOperator(), action.getActionContext().getConfigId(), res.toString());
-                    }
-
-                } catch (Throwable ex) {
-
-                    // DataValidate 直接抛出
-                    if (ex instanceof DataValidateException) throw ex;
-                    // throw of Aviator 抛出
-                    if (ex instanceof StandardError) throw new DataValidateException(ex.getLocalizedMessage());
-
-                    log.error("Trigger execution failed : {} << {}", action, context, ex);
-                    CommonsLog.createLog(TYPE_TRIGGER,
-                            context.getOperator(), action.getActionContext().getConfigId(), ex);
-
-                    // FIXME 触发器执行失败是否抛出
-                    if (ex instanceof TriggerException) {
-                        throw (TriggerException) ex;
-                    } else {
-                        String errMsg = KnownExceptionConverter.convert2ErrorMsg(ex);
-                        if (errMsg == null) errMsg = ex.getLocalizedMessage();
-                        if (ex instanceof RepeatedRecordsException) errMsg = Language.L("存在重复记录");
-                        if (StringUtils.isBlank(errMsg)) errMsg = ex.getClass().getSimpleName().toUpperCase();
-
-                        errMsg = Language.L("触发器执行失败 : %s", errMsg);
-
-                        ID errTrigger = action.getActionContext().getConfigId();
-                        errMsg = errMsg + " (" + FieldValueHelper.getLabelNotry(errTrigger) + ")";
-
-                        log.error(errMsg, ex);
-                        throw new TriggerException(errMsg);
-                    }
-
-                } finally {
-                    action.clean();
-
-                    // 原始触发源则清理
-                    if (originTriggerSource) {
-                        FieldAggregation.cleanTriggerChain();
-                    }
+                } else {
+                    if (!_TriggerLessLog) log.info(w);
+                    execActionInternal(context, action, false, originTriggerSource, w);
                 }
             }
 
@@ -256,6 +227,65 @@ public class RobotTriggerObserver extends OperatingObserver {
             if (originTriggerSource) {
                 if (!_TriggerLessLog) log.info("Clear trigger-source : {}", getTriggerSource());
                 TRIGGER_SOURCE.remove();
+            }
+        }
+    }
+
+    private void execActionInternal(OperatingContext context, TriggerAction action, boolean a, boolean o, String w) {
+        try {
+            Object res = action.execute(context);
+
+            boolean hasAffected = res instanceof TriggerResult && ((TriggerResult) res).hasAffected();
+            if (CommonsUtils.DEVLOG) System.out.println("[dev] " + w + " > " + (res == null ? "N" : res) + (hasAffected ? " < REALLY AFFECTED" : ""));
+
+            if (res instanceof TriggerResult) {
+                if (o) {
+                    ((TriggerResult) res).setChain(getTriggerSource());
+                }
+
+                CommonsLog.createLog(TYPE_TRIGGER,
+                        context.getOperator(), action.getActionContext().getConfigId(), res.toString());
+            }
+
+        } catch (Throwable ex) {
+
+            // 异步模式不直接抛出
+            if (!a) {
+                // DataValidate 直接抛出
+                if (ex instanceof DataValidateException) throw ex;
+                // throw of Aviator 抛出
+                //noinspection ConstantValue
+                if (ex instanceof StandardError) throw new DataValidateException(ex.getLocalizedMessage());
+            }
+
+            log.error("Trigger execution failed : {} << {}", action, context, ex);
+            CommonsLog.createLog(TYPE_TRIGGER,
+                    context.getOperator(), action.getActionContext().getConfigId(), ex);
+
+            // FIXME 触发器执行失败是否抛出
+            if (ex instanceof TriggerException) {
+                throw (TriggerException) ex;
+            } else {
+                String errMsg = KnownExceptionConverter.convert2ErrorMsg(ex);
+                if (errMsg == null) errMsg = ex.getLocalizedMessage();
+                if (ex instanceof RepeatedRecordsException) errMsg = Language.L("存在重复记录");
+                if (StringUtils.isBlank(errMsg)) errMsg = ex.getClass().getSimpleName().toUpperCase();
+
+                errMsg = Language.L("触发器执行失败 : %s", errMsg);
+
+                ID errTrigger = action.getActionContext().getConfigId();
+                errMsg = errMsg + " (" + FieldValueHelper.getLabelNotry(errTrigger) + ")";
+
+                log.error(errMsg, ex);
+                throw new TriggerException(errMsg);
+            }
+
+        } finally {
+            action.clean();
+
+            // 原始触发源则清理
+            if (o) {
+                FieldAggregation.cleanTriggerChain();
             }
         }
     }

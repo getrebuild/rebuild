@@ -13,6 +13,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
@@ -82,5 +83,20 @@ public class TransactionManual {
      */
     public static String currentTransactionName() {
         return TransactionSynchronizationManager.getCurrentTransactionName();
+    }
+
+    /**
+     * 当前事务完成后回调
+     *
+     * @param c
+     * @see TransactionSynchronizationManager#registerSynchronization(TransactionSynchronization)
+     */
+    public static void registerAfterCommit(Runnable c) {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                new Thread(c).start();
+            }
+        });
     }
 }

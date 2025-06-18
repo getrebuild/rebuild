@@ -76,7 +76,12 @@ class FeedsPost extends React.Component {
   _post = () => {
     const _data = this._FeedsEditor.vals()
     if (!_data) return
-    if (!_data.content) return RbHighbar.create($L('请输入动态内容'))
+    if (!_data.content) {
+      if (_data.images && _data.images.length) _data.content = $fileCutName(_data.images[0])
+      else if (_data.attachments && _data.attachments.length) _data.content = $fileCutName(_data.attachments[0])
+      // v4.1
+      if (!_data.content) return RbHighbar.create($L('请输入动态内容'))
+    }
 
     _data.scope = this.__FeedsScope.val()
     if (_data.scope === false) return

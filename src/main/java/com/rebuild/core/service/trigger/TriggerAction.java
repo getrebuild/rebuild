@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger;
 
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.service.general.OperatingContext;
 
 /**
@@ -40,6 +41,17 @@ public abstract class TriggerAction {
     abstract public ActionType getType();
 
     abstract public Object execute(OperatingContext operatingContext) throws TriggerException;
+
+    /**
+     * v4.1 延迟执行
+     *
+     * @return
+     * @throws TriggerException
+     */
+    protected boolean isAsyncMode() throws TriggerException {
+        return actionContext != null
+                && ((JSONObject) actionContext.getActionContent()).getBooleanValue("asyncMode");
+    }
 
     /**
      * 如果是删除动作，会先调用此方法。可在此方法中保持一些数据状态，以便删除后还可继续使用

@@ -233,32 +233,35 @@ const render_item = function (data, isNew, append2) {
   let $item = $('.J_config').find(`li[attr-id='${data.id}']`)
   if ($item.length === 0) {
     $item = $('<li class="dd-item dd3-item"><div class="dd-handle dd3-handle"></div><div class="dd3-content"><i class="icon"></i><span></span></div></li>').appendTo(append2)
-    const $action = $(
-      `<div class="dd3-action"><a class="J_addsub" title="${$L('添加子菜单')}"><i class="zmdi zmdi-plus"></i></a><a class="J_del" title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a></div>`
-    ).appendTo($item)
+    const $action = $('<div class="dd3-action"></div>').appendTo($item)
+    $(`<a class="J_del" title="${$L('置顶')}"><i class="zmdi zmdi-format-valign-top"></i></a>`)
+      .appendTo($action)
+      .off('click')
+      .on('click', () => $item.prependTo($item.parent()))
 
-    $action
-      .find('a.J_del')
+    if ($(append2).hasClass('J_config')) {
+      $(`<a class="J_addsub" title="${$L('添加子菜单')}"><i class="zmdi zmdi-plus"></i></a>`)
+        .appendTo($action)
+        .off('click')
+        .on('click', () => {
+          let $subUl = $item.find('ul')
+          if ($subUl.length === 0) {
+            $subUl = $('<ul></ul>').appendTo($item)
+            use_sortable($subUl)
+          }
+
+          render_item({}, true, $subUl)
+          fix_parents()
+        })
+    }
+
+    $(`<a class="J_del" title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a>`)
+      .appendTo($action)
       .off('click')
       .on('click', () => {
         $item.remove()
         fix_parents()
       })
-    $action
-      .find('a.J_addsub')
-      .off('click')
-      .on('click', () => {
-        let $subUl = $item.find('ul')
-        if ($subUl.length === 0) {
-          $subUl = $('<ul></ul>').appendTo($item)
-          use_sortable($subUl)
-        }
-
-        render_item({}, true, $subUl)
-        fix_parents()
-      })
-
-    if (!$(append2).hasClass('J_config')) $action.find('a.J_addsub').remove()
   }
 
   const $content = $item.find('.dd3-content').eq(0)

@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class TaskExecutors extends DistributedJobLock {
 
+    // CPU*2
     private static final int MAX_TASKS_NUMBER = Integer.max(Runtime.getRuntime().availableProcessors() / 2, 2);
 
     // 线程池

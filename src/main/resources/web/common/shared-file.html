@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
+    <meta name="og:image" content="https://getrebuild.com/img/logo256.png" />
     <meta http-equiv="refresh" content="3600" />
     <title>[[${bundle.L('分享文件')}]]</title>
     <style>
@@ -28,6 +29,7 @@
     </style>
   </head>
   <body>
+    <img src="https://getrebuild.com/img/logo256.png" alt="Logo for Thumb" style="display: none" />
     <div class="sharebox must-center">
       <i class="zmdi zmdi-share animated flash infinite slow"></i>
     </div>
