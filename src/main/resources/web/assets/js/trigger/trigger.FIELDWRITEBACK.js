@@ -504,6 +504,7 @@ class FieldFormula extends React.Component {
       return <div className="form-control-plaintext text-danger">{$L('暂不支持')}</div>
     } else {
       return (
+        // eslint-disable-next-line react/no-unknown-property
         <div className="form-control-plaintext formula" _title={$L('计算公式')} title={$L('编辑计算公式')} onClick={() => this.show(toFieldType)}>
           {this.state.valueText}
         </div>
