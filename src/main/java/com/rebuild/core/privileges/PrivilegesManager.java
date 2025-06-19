@@ -19,6 +19,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -30,6 +31,7 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.privileges.bizz.ZeroPrivileges;
 import com.rebuild.core.service.NoRecordFoundException;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
@@ -327,7 +329,7 @@ public class PrivilegesManager {
         if (BizzDepthEntry.NONE.equals(depth)) {
             return false;
         } else if (BizzDepthEntry.GLOBAL.equals(depth)) {
-            return andPassCustomFilter(user, target, action, ep);
+            return andOrPassCustomFilter(user, target, action, ep, true);
         }
 
         ID targetUserId = theRecordOwningCache.getOwningUser(target);
@@ -340,7 +342,7 @@ public class PrivilegesManager {
             if (!allowed) {
                 allowed = !ignoreShared && allowViaShare(user, target, action);
             }
-            return allowed && andPassCustomFilter(user, target, action, ep);
+            return andOrPassCustomFilter(user, target, action, ep, allowed);
         }
 
         User accessUser = theUserStore.getUser(user);
@@ -352,18 +354,18 @@ public class PrivilegesManager {
             if (!allowed) {
                 allowed = !ignoreShared && allowViaShare(user, target, action);
             }
-            return allowed && andPassCustomFilter(user, target, action, ep);
+            return andOrPassCustomFilter(user, target, action, ep, allowed);
 
         } else if (BizzDepthEntry.DEEPDOWN.equals(depth)) {
             if (accessUserDept.equals(targetUser.getOwningDept())) {
-                return andPassCustomFilter(user, target, action, ep);
+                return andOrPassCustomFilter(user, target, action, ep, true);
             }
 
             allowed = accessUserDept.isChildren(targetUser.getOwningDept(), true);
             if (!allowed) {
                 allowed = !ignoreShared && allowViaShare(user, target, action);
             }
-            return allowed && andPassCustomFilter(user, target, action, ep);
+            return andOrPassCustomFilter(user, target, action, ep, allowed);
         }
 
         return false;
@@ -415,20 +417,26 @@ public class PrivilegesManager {
      * @return
      * @see RoleBaseQueryFilter#buildCustomFilter(Privileges, Field)
      */
-    private boolean andPassCustomFilter(ID user, ID target, Permission action, Privileges ep) {
+    private boolean andOrPassCustomFilter(ID user, ID target, Permission action, Privileges ep, boolean allowed) {
         if (!(ep instanceof CustomEntityPrivileges)) return true;
-        if (((CustomEntityPrivileges) ep).getCustomFilter(action) == null) return true;
+        JSONObject hasFilter = ((CustomEntityPrivileges) ep).getCustomFilter(action);
+        if (hasFilter == null) return true;
 
         // TODO 性能优化
 
         Entity entity = MetadataHelper.getEntity(target.getEntityCode());
         Filter customFilter = createQueryFilter(user, action);
+        String andOr41 = StringUtils.defaultString(hasFilter.getString("_cpAndOr"), "AND");
+        if ("AND".equalsIgnoreCase(andOr41)) {
+            if (!allowed) return false;
+        }
 
         String sql = MessageFormat.format("select {0} from {1} where {0} = ''{2}''",
                 entity.getPrimaryField().getName(), entity.getName(), target);
 
         Object hasOne = Application.getQueryFactory().createQuery(sql, customFilter).unique();
-        return hasOne != null;
+        if ("AND".equalsIgnoreCase(andOr41)) return allowed && hasOne != null;
+        return allowed || hasOne != null;
     }
 
     /**

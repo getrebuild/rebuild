@@ -64,9 +64,9 @@ public class OkHttpUtils {
     synchronized public static OkHttpClient getHttpClient() {
         if (okHttpClient == null) {
             okHttpClient = new OkHttpClient.Builder()
-                    .connectTimeout(15, TimeUnit.SECONDS)
-                    .writeTimeout(60, TimeUnit.SECONDS)
-                    .readTimeout(60, TimeUnit.SECONDS)
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(120, TimeUnit.SECONDS)
+                    .readTimeout(120, TimeUnit.SECONDS)
                     .retryOnConnectionFailure(true)
                     .hostnameVerifier((s, sslSession) -> true)  // NOT SAFE!!!
                     .build();

@@ -32,7 +32,7 @@ import java.util.Set;
 /**
  * 流程节点（包括审批、抄送）
  *
- * @author devezhao-mbp zhaofang123@gmail.com
+ * @author devezhao-mbp
  * @since 2019/07/06
  */
 @SuppressWarnings("unused")
@@ -310,6 +310,7 @@ public class FlowNode {
         for (Object o : editableFields) {
             JSONObject field = (JSONObject) o;
             field.put("nullable", !((Boolean) field.remove("notNull")));
+            field.put("readonly", field.remove("readOnly"));
         }
         return editableFields;
     }

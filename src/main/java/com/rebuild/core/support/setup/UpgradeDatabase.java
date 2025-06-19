@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * Automatically update database
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/03/22
  * @see DatabaseFixer
  */

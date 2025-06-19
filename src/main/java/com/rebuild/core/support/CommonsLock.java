@@ -17,7 +17,7 @@ import com.rebuild.core.privileges.UserService;
 import org.springframework.util.Assert;
 
 /**
- * 通用锁
+ * 通用锁（用于锁定配置或记录）
  *
  * @author RB
  * @since 2022/4/27

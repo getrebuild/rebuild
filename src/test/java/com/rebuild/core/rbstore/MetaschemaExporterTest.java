@@ -14,7 +14,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import org.junit.jupiter.api.Test;
 
 /**
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/04/28
  */
 public class MetaschemaExporterTest extends TestSupport {

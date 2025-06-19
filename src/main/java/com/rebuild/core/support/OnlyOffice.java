@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.utils;
+package com.rebuild.core.support;
 
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.EncryptUtils;
@@ -15,10 +15,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.RebuildException;
-import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
-import com.rebuild.web.admin.ConfigurationController;
+import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.ExcelUtils;
+import com.rebuild.utils.OkHttpUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -33,19 +34,54 @@ import static com.rebuild.core.support.ConfigurationItem.OnlyofficeServer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
+ * https://api.onlyoffice.com/docs/docs-api/additional-api/conversion-api/
+ *
  * @author devezhao
  * @since 2025/2/26
  */
-public class OnlyOfficeUtils {
+public class OnlyOffice {
+
+    public static final String OO_PREVIEW_URL = "/commons/file-preview?src=";
 
     /**
-     * OnlyOffice PDF
-     *
      * @param path
      * @return
-     * @throws PdfConverterException
+     * @throws IOException
      */
     public static Path convertPdf(Path path) throws IOException {
+        String filename = path.getFileName().toString();
+        // Excel 公式生效
+        if (filename.endsWith(".xlsx") || filename.endsWith(".xls")) {
+            ExcelUtils.reSaveAndCalcFormula(path);
+        }
+
+        // 需要在临时目录下才可以，否则 oo 访问不到源文件
+        File fileInTemp = RebuildConfiguration.getFileOfTemp(filename);
+        if (!fileInTemp.equals(path.toFile())) {
+            // 尝试父级目录
+            String parent = path.getParent().getFileName().toString();
+            fileInTemp = RebuildConfiguration.getFileOfTemp(parent + "/" + filename);
+            if (fileInTemp.equals(path.toFile())) {
+                filename = parent + "/" + filename;
+            } else {
+                FileUtils.deleteQuietly(fileInTemp);
+                FileUtils.copyFile(path.toFile(), fileInTemp);
+            }
+        }
+
+        String fileUrl = String.format("/filex/download/%s?_csrfToken=%s&temp=yes",
+                filename, AuthTokenManager.generateCsrfToken(90));
+        fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
+
+        return convertPdf(path, fileUrl);
+    }
+
+    /**
+     * @param path
+     * @return
+     * @throws IOException
+     */
+    public static Path convertPdf(Path path, String fileUrl) throws IOException {
         final String ooServer = getOoServer();
         final String ooJwt = RebuildConfiguration.get(OnlyofficeJwt);
 
@@ -53,14 +89,10 @@ public class OnlyOfficeUtils {
         String filenameWithoutExt = filename.substring(0, filename.lastIndexOf("."));
         JSONObject document = new JSONObject(true);
         document.put("async", false);
-        document.put("key", "key-" + EncryptUtils.toMD5Hex(filename));
+        document.put("key", "key-" + CommonsUtils.randomHex(true));
         document.put("fileType", FileUtil.getSuffix(filename));
         document.put("outputType", "pdf");
         document.put("title", filenameWithoutExt);
-
-        String fileUrl = String.format("/filex/download/%s?_csrfToken=%s&temp=yes",
-                filename, AuthTokenManager.generateCsrfToken(90));
-        fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
         document.put("url", fileUrl);
 
         // Token
@@ -86,7 +118,7 @@ public class OnlyOfficeUtils {
             if (dest.exists()) return dest.toPath();
         }
 
-        throw new RebuildException("Convert PDF fails (oo-ds) : " + resJson);
+        throw new RebuildException("Convert PDF fails (oo-ds) : " + res);
     }
 
     /**
@@ -94,6 +126,7 @@ public class OnlyOfficeUtils {
      * @return
      */
     public static Object[] buildPreviewParams(String filepath) {
+        getOoServer();
         final String ooJwt = RebuildConfiguration.get(OnlyofficeJwt);
 
         final String filepathDecode = CodecUtils.urlDecode(filepath);
@@ -102,7 +135,7 @@ public class OnlyOfficeUtils {
 
         JSONObject document = new JSONObject(true);
         document.put("fileType", FileUtil.getSuffix(filename));
-        document.put("key", "key-" + EncryptUtils.toMD5Hex(filename));
+        document.put("key", "key-" + EncryptUtils.toMD5Hex(filepath.split("\\?")[0]));
         document.put("title", QiniuCloud.parseFileName(filename));
         // 外部地址
         if (CommonsUtils.isExternalUrl(filepath)) {
@@ -140,8 +173,7 @@ public class OnlyOfficeUtils {
      */
     public static boolean isUseOoPreview() {
         if (RebuildConfiguration.get(OnlyofficeServer) == null) return false;
-        return StringUtils.contains(
-                RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl),
-                ConfigurationController.OO_PREVIEW_URL);
+        String o = RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl);
+        return StringUtils.isBlank(o) || o.contains(OO_PREVIEW_URL);
     }
 }

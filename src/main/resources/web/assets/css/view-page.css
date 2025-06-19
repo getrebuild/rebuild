@@ -125,7 +125,7 @@ body {
   max-height: 134px;
 }
 
-.rbview-form .type-NTEXT .form-control-plaintext.mdedit-content {
+.rbview-form .type-NTEXT .form-control-plaintext.md-content {
   max-height: 1001px;
 }
 
@@ -564,12 +564,6 @@ body {
   top: 60px;
 }
 
-.mdedit-content p,
-.editor-preview p {
-  margin-bottom: 0.75em !important;
-  line-height: 1.428571 !important;
-}
-
 /* over Feeds */
 
 .feeds-list.inview {
@@ -938,21 +932,14 @@ body {
 }
 
 .report-list ul > li.has-preview > a,
-.report-list ul > li.has-pdf > a,
-.report-list ul > li.has-html > a {
+.report-list ul > li.has-pdf > a {
   margin-right: 40px;
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
 }
 
-.report-list ul > li.has-preview.has-pdf > a,
-.report-list ul > li.has-preview.has-html > a,
-.report-list ul > li.has-pdf.has-html > a {
+.report-list ul > li.has-preview.has-pdf > a {
   margin-right: 80px;
-}
-
-.report-list ul > li.has-preview.has-pdf.has-html > a {
-  margin-right: 120px;
 }
 
 .report-list ul > li > span {
@@ -1076,9 +1063,11 @@ body {
 .sop-toolbar-wrap {
   padding: 10px 18px;
   padding-top: 5px;
-  background-color: #f7f7f7;
   margin-bottom: 18px;
   border-radius: 2px;
+  background-color: #f7f7f7;
+  background: linear-gradient(to right, #f7f7f7 0%, #ffd700 100%);
+  background: linear-gradient(to right, #f7f7f7 0%, #e6f0ff 100%);
 }
 
 .sop-toolbar {
@@ -1157,7 +1146,8 @@ body {
   font-weight: bold;
 }
 
-.sop-steps li.state-2 > div > span:hover {
+.sop-steps li.state-2 > div > span:hover,
+.sop-steps li.state-1.related > div > span:hover {
   cursor: pointer;
   opacity: 0.9;
 }

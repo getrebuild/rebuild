@@ -14,7 +14,7 @@ class ShowStyles extends React.Component {
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (ESC)`}>
+              <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>

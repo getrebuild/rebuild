@@ -45,7 +45,7 @@ public class EmbedFrame extends ChartData implements BuiltinChart {
         Object o = getExtraParams().get("extconfig");
         if (o != null) {
             String url = ((JSONObject) o).getString("url");
-            url = PageTokenVerify.replacePageToken(url, getUser());
+            if (url != null) url = PageTokenVerify.replacePageToken(url, getUser());
             return JSONUtils.toJSONObject("url", url);
         }
 

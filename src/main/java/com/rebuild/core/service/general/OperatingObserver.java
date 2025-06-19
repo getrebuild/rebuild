@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.general;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
-import cn.devezhao.commons.ThreadPool;
 import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.SafeObservable;
 import com.rebuild.core.service.SafeObserver;
@@ -30,18 +29,7 @@ public abstract class OperatingObserver implements SafeObserver {
 
     @Override
     public void update(final SafeObservable o, final Object arg) {
-        final OperatingContext ctx = (OperatingContext) arg;
-        if (isAsync()) {
-            ThreadPool.exec(() -> {
-                try {
-                    updateByAction(ctx);
-                } catch (Exception ex) {
-                    log.error("OperateContext : {}", ctx, ex);
-                }
-            });
-        } else {
-            updateByAction(ctx);
-        }
+        updateByAction((OperatingContext) arg);
     }
 
     /**
@@ -63,15 +51,6 @@ public abstract class OperatingObserver implements SafeObserver {
         } else if (ctx.getAction() == InternalPermission.UNSHARE) {
             onUnshare(ctx);
         }
-    }
-
-    /**
-     * 是否异步执行（异步执行请注意事物）
-     *
-     * @return
-     */
-    protected boolean isAsync() {
-        return false;
     }
 
     // -- 根据需要复写以下方法

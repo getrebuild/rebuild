@@ -144,10 +144,10 @@ public class RolePrivilegesController extends EntityController {
 
     @PostMapping("role-copyto")
     public RespBody roleCopyTo(@RequestBody JSONObject post) {
-        ID from  = ID.valueOf(post.getString("from"));
+        final ID from = ID.valueOf(post.getString("from"));
         Set<ID> tos = new HashSet<>();
         for (Object s : post.getJSONArray("copyTo")) {
-            if (ID.isId(s)) tos.add(ID.valueOf(s.toString()));
+            tos.add(ID.valueOf(s.toString()));
         }
 
         Application.getBean(RoleService.class).updateWithCopyTo(from, tos.toArray(new ID[0]));

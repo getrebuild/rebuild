@@ -80,9 +80,13 @@ public class TransformConfigController extends BaseController {
 
         mv.getModelMap().put("sourceEntity", buildEntity(sourceEntity, true));
         mv.getModelMap().put("targetEntity", buildEntity(targetEntity, false));
+        mv.getModelMap().put("allCustomAdd", false);
 
         // 目标为主实体时加入明细
         if (targetEntity.getDetailEntity() != null) {
+            // 多明细可自定义添加
+            mv.getModelMap().put("allCustomAdd", targetEntity.getDetialEntities().length > 1);
+
             if (sourceEntity.getDetailEntity() != null) {
                 mv.getModelMap().put("sourceDetailEntity", buildEntity(sourceEntity.getDetailEntity(), true));
                 JSONArray sourceDetailEntities = new JSONArray();
@@ -90,6 +94,7 @@ public class TransformConfigController extends BaseController {
                     sourceDetailEntities.add(buildEntity(de, true));
                 }
                 mv.getModelMap().put("sourceDetailEntities", sourceDetailEntities);
+                mv.getModelMap().put("allCustomAdd", true);
             } else {
                 // self
                 JSONObject self = buildEntity(sourceEntity, true);

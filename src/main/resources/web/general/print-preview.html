@@ -128,7 +128,9 @@
     </div>
     <div class="preview-content hide">
       <div id="preview-table"></div>
-      <div class="J_print-meta">
+      <div id="details-table"></div>
+      <div>
+        <hr />
         <span>[[${bundle.L('打印时间')}]] : [[${printTime}]]</span>
         &nbsp;<b>·</b>&nbsp;
         <span>[[${bundle.L('打印人')}]] : [[${printUser}]]</span>
@@ -139,6 +141,7 @@
       window.__PageConfig = {
         record: '[[${recordId}]]',
         content: [(${contentBody})],
+        detailsContent: [(${detailsContentBody})],
       }
     </script>
     <script th:src="@{/assets/js/general/rb-forms.js}" type="text/babel"></script>

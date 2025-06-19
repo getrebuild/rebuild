@@ -15,6 +15,7 @@ import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.OnlyOffice;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
@@ -22,6 +23,7 @@ import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.ImageView2;
 import com.rebuild.utils.OkHttpUtils;
+import com.rebuild.utils.PdfConverter;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +44,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * 文件下载/查看
@@ -172,6 +176,15 @@ public class FileDownloader extends BaseController {
             // V34 PDF/HTML 可直接预览
             inline = (filepath.toLowerCase().endsWith(".pdf") || filepath.toLowerCase().endsWith(".html"))
                     && (request.getRequestURI().contains("/filex/access/") || inline);
+
+            // for TEST
+            if (PdfConverter.TYPE_PDF.equals(request.getParameter("convert"))) {
+                String fileUrl = String.format("/filex/download/%s?_csrfToken=%s&temp=%s",
+                        filepath, AuthTokenManager.generateCsrfToken(90), temp);
+                fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
+                Path dest = OnlyOffice.convertPdf(Paths.get(filepath), fileUrl);
+                log.debug("PdfConverter : {}", dest);
+            }
 
             setDownloadHeaders(request, response, attname, inline);
             writeLocalFile(filepath, temp, response);

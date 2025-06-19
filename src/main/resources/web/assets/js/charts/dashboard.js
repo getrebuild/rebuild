@@ -398,6 +398,11 @@ class DlgAddChart extends RbFormHandler {
 
 // 仪表盘设置
 class DlgDashSettings extends RbFormHandler {
+  constructor(props) {
+    super(props)
+    $logRBAPI(props.dashid, 'Dashboard')
+  }
+
   render() {
     return (
       <RbModal title={$L('设置仪表盘')} ref="dlg">
@@ -548,7 +553,7 @@ class DashSelect extends React.Component {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={this.hide}>
+              <button className="close" type="button" onClick={this.hide} title={`${$L('关闭')} (Esc)`}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>

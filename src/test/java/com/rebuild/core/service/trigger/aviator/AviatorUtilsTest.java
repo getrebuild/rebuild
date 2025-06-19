@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2021/04/12
  */
 class AviatorUtilsTest {

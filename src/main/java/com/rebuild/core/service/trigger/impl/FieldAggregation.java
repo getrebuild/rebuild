@@ -53,7 +53,7 @@ import java.util.Set;
 /**
  * 字段聚合，场景 N>1
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/05/29
  */
 @Slf4j

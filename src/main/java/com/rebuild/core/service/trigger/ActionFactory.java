@@ -11,7 +11,7 @@ import com.rebuild.core.service.general.OperatingContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/05/24
  */
 @Slf4j

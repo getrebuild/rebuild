@@ -82,9 +82,9 @@ public class EntityHelper {
         }
 
         // v4.0 VID
-        String _id = metadata.getString("id");
-        if (_id != null && _id.startsWith("000-")) metadata.remove("id");
-        else _id = null;
+        String _id40 = metadata.getString("id");
+        if (_id40 != null && _id40.startsWith("000-")) metadata.remove("id");
+        else _id40 = null;
 
         String entityName = metadata.getString("entity");
         if (StringUtils.isBlank(entityName)) {
@@ -108,7 +108,7 @@ public class EntityHelper {
         Record record = new EntityRecordCreator(
                 MetadataHelper.getEntity(entityName), data, user, safetyUrl)
                 .create(false);
-        if (_id != null) record.addExtra("_id", _id);
+        if (_id40 != null) record.addExtra("_id", _id40);
 
         // v3.4 表单后端回填
         if (MetadataHelper.isBusinessEntity(record.getEntity())) {
@@ -364,5 +364,10 @@ public class EntityHelper {
     public static final int ShortUrl = 97;
     public static final int CommonsLock = 98;
     public static final int CommonsLog = 99;
+
+    // AI
+
+    public static final int AibotChat = 96;
+    public static final int AibotChatAttach = 95;
 
 }

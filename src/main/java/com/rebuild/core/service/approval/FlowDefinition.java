@@ -13,7 +13,7 @@ import com.rebuild.core.configuration.ConfigBean;
 /**
  * 审批流程定义
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/07/05
  */
 public class FlowDefinition extends ConfigBean {

@@ -10,7 +10,8 @@
   <script th:src="@{/assets/lib/qiniu.min.js?v=3.4.1}"></script>
   <script th:src="@{/assets/lib/widget/select2.js?v=4.0.13.fix2}"></script>
   <script th:src="@{/assets/lib/jquery-ui.min.js?v=1.13.2.fix1}"></script>
-  <script th:src="@{/assets/lib/widget/simplemde.min.js}"></script>
+  <script th:src="@{/assets/lib/widget/easymde.min.js}"></script>
+  <script th:src="@{/assets/lib/widget/marked.min.js}"></script>
   <script th:src="@{/assets/lib/jquery.textarea.js}"></script>
   <script th:src="@{/assets/lib/react/babel.js?v=6.26.0}"></script>
   <script th:src="@{/assets/lib/react/react.development.js?v=16.14.0}"></script>
@@ -22,7 +23,7 @@
   <script th:src="@{/assets/js/file-preview.js}" type="text/babel"></script>
   <script th:src="@{/assets/js/media-capturer.js}" type="text/babel"></script>
   <script th:src="@{/assets/js/settings-share2.js}" type="text/babel"></script>
-  <th:block th:if="${user != null && commercial > 1}">
+  <th:block th:if="${commercial > 1}">
     <script th:src="@{/assets/js/frontjs/frontjs-sdk.js}" type="text/babel"></script>
     <script th:src="@{/commons/frontjs/use-frontjs}" type="text/babel"></script>
   </th:block>
@@ -32,6 +33,8 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rebuild-tour.css}" />
     <script th:src="@{/assets/js/rebuild-tour.js}" type="text/babel"></script>
   </th:block>
+  <script th:src="@{/assets/js/aibot/chat.js}" type="text/babel"></script>
+  <script th:src="@{/assets/js/aibot/aibot.js}" type="text/babel"></script>
 </th:block>
 <!--
 <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>

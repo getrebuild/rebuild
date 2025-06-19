@@ -10,7 +10,7 @@ package com.rebuild.core.service.query;
 import com.rebuild.core.RebuildException;
 
 /**
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/05/30
  */
 public class FilterParseException extends RebuildException {

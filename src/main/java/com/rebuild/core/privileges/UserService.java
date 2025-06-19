@@ -208,7 +208,6 @@ public class UserService extends BaseService {
 
         // 用户可自己改自己
         if (action == BizzPermission.UPDATE && currentUser.equals(user)) return;
-
         throw new AccessDeniedException(Language.L("无操作权限"));
     }
 

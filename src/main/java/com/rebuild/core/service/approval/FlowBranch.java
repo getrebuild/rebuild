@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * 流程分支（条件）
  *
- * @author devezhao-mbp zhaofang123@gmail.com
+ * @author devezhao-mbp
  * @since 2019/07/06
  */
 public class FlowBranch extends FlowNode {

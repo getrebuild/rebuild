@@ -45,7 +45,7 @@ class FilesList4Atts extends FilesList {
   renderExtras(item) {
     return item.relatedRecord ? (
       <span>
-        <a title={$L('查看记录')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/app/redirect?id=${item.relatedRecord[0]}`}>
+        <a title={$L('查看记录')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/app/redirect?id=${item.relatedRecord[0]}&type=newtab`} target="_blank">
           {item.relatedRecord[1]}
         </a>
       </span>

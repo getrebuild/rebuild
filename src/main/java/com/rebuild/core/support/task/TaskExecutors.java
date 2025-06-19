@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class TaskExecutors extends DistributedJobLock {
 
+    // CPU*2
     private static final int MAX_TASKS_NUMBER = Integer.max(Runtime.getRuntime().availableProcessors() / 2, 2);
 
     // 线程池
@@ -152,6 +153,7 @@ public class TaskExecutors extends DistributedJobLock {
      *
      * @param command
      * @param delay in ms
+     * @see com.rebuild.core.service.TransactionManual#registerAfterCommit(Runnable)
      */
     public static void schedule(Runnable command, int delay) {
         SCHEDULED41.schedule(command, delay, TimeUnit.MILLISECONDS);

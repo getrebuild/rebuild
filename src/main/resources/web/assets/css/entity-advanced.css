@@ -153,7 +153,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .aside-show .aside-item + .aside-item,
-.topside + .topside {
+.topside-item + .topside-item {
   margin-top: 10px;
 }
 

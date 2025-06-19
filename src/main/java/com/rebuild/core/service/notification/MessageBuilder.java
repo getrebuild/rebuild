@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 /**
  * 消息构建
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/07/12
  * @see com.rebuild.core.support.general.ContentWithFieldVars
  */

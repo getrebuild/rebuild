@@ -149,7 +149,7 @@ public class Field2Schema extends SetUser {
 
         if (!force) {
             long count;
-            if ((count = checkRecordCount(entity)) > 100000) {
+            if ((count = checkRecordCount(entity)) > 1000000) {
                 throw new MetadataModificationException(Language.L("实体记录过多 (%d)，增加/删除字段可能导致表损坏", count));
             }
         }
@@ -430,7 +430,7 @@ public class Field2Schema extends SetUser {
 
         if (!force) {
             long count;
-            if ((count = checkRecordCount(field.getOwnEntity())) > 100000) {
+            if ((count = checkRecordCount(field.getOwnEntity())) > 1000000) {
                 throw new MetadataModificationException(Language.L("实体记录过多 (%d)，转换字段可能导致表损坏", count));
             }
         }

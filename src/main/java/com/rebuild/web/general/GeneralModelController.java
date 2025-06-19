@@ -24,6 +24,7 @@ import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.transform.RecordTransfomer39;
 import com.rebuild.core.service.query.QueryHelper;
@@ -43,6 +44,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -190,11 +192,44 @@ public class GeneralModelController extends EntityController {
     public ModelAndView printPreview(@PathVariable String entity, @IdParam ID recordId, HttpServletRequest request) {
         final ID user = getRequestUser(request);
 
-        JSON model = FormsBuilder.instance.buildView(entity, user, recordId);
-
         ModelAndView mv = createModelAndView("/general/print-preview");
-        mv.getModel().put("contentBody", model);
         mv.getModel().put("recordId", recordId);
+        // 主记录
+        JSON model = FormsBuilder.instance.buildView(entity, user, recordId);
+        mv.getModel().put("contentBody", model);
+
+        // v4.1 明细记录
+        Entity entity2 = MetadataHelper.getEntity(entity);
+        if (entity2.getDetailEntity() != null) {
+            JSONArray details = new JSONArray();
+            for (Entity de : entity2.getDetialEntities()) {
+                List<ID> ids = QueryHelper.detailIdsNoFilter(recordId, de);
+                if (ids.isEmpty()) {
+                    details.add(JSONUtils.toJSONObject("name", EasyMetaFactory.getLabel(de)));
+                    continue;
+                }
+
+                ConfigBean forceLayout = FormsManager.instance
+                        .getFormLayout(de.getName(), ids.get(0), FormsManager.APPLY_VIEW);
+                FormsBuilderContextHolder.setSpecLayout(forceLayout.getID("id"));
+
+                JSONArray dd = new JSONArray();
+                try {
+                    for (ID did : ids) {
+                        JSON m = FormsBuilder.instance.buildForm(de.getName(), user, did);
+                        dd.add(m);
+                    }
+                    details.add(JSONUtils.toJSONObject(
+                            new String[]{"name", "details"},
+                            new Object[]{EasyMetaFactory.getLabel(de), dd}));
+
+                } finally {
+                    FormsBuilderContextHolder.getSpecLayout(true);
+                }
+            }
+            mv.getModel().put("detailsContentBody", details);
+        }
+
         mv.getModel().put("printTime", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
         mv.getModel().put("printUser", UserHelper.getName(user));
         return mv;

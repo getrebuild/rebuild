@@ -16,6 +16,7 @@ class AppList extends ConfigList {
     super(props)
     this.requestUrl = '/admin/apis-manager/app-list'
     this.state.secretShows = []
+    this.state.callTimes = {}
   }
 
   render() {
@@ -30,21 +31,28 @@ class AppList extends ConfigList {
           )
           if (this.state.secretShows.includes(item[2])) secret = item[2]
 
+          // 调用量异步加载
+          let times = this.state.callTimes[item[1]]
+          if (typeof times === 'undefined') {
+            times = '...'
+          } else {
+            times =
+              times > 0 ? (
+                <a title={$L('API 调用日志')} className="light-link" onClick={() => renderRbcomp(<AppLogsViewer title={$L('API 调用日志')} appid={item[1]} maximize disposeOnHide useWhite />)}>
+                  {times}
+                </a>
+              ) : (
+                <span className="text-muted">0</span>
+              )
+          }
+
           return (
             <tr key={item[0]}>
               <td>{item[1]}</td>
               <td>{secret}</td>
               <td>{item[4] || $L('无 (拥有全部权限)')}</td>
-              <td>{item[7] || $L('无 (不限制)')}</td>
-              <td>
-                {item[6] > 0 ? (
-                  <a title={$L('API 调用日志')} className="light-link" onClick={() => renderRbcomp(<AppLogsViewer title={$L('API 调用日志')} appid={item[1]} maximize disposeOnHide useWhite />)}>
-                    {item[6]}
-                  </a>
-                ) : (
-                  <span className="text-muted">0</span>
-                )}
-              </td>
+              <td>{item[6] || $L('无 (不限制)')}</td>
+              <td>{times}</td>
               <td>
                 <DateShow date={item[5]} />
               </td>
@@ -66,6 +74,19 @@ class AppList extends ConfigList {
     )
   }
 
+  loadDataAfter() {
+    this.state.data &&
+      this.state.data.forEach((a) => {
+        $.get(`/admin/apis-manager/request-times?appid=${a[1]}`, (res) => {
+          if (res.error_code === 0) {
+            const callTimes = this.state.callTimes
+            callTimes[a[1]] = res.data[a[1]] || 0
+            this.setState({ callTimes: callTimes })
+          }
+        })
+      })
+  }
+
   handleEdit(app) {
     renderRbcomp(<AppEdit id={app[0]} bindIps={app[7]} bindUser={app[3]} />)
   }
@@ -79,6 +100,7 @@ class AppList extends ConfigList {
         this.disabled(true)
         handle(app[0], () => dlgActionAfter(this))
       },
+      countdown: 5,
     })
   }
 

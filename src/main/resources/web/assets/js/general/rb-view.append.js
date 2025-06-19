@@ -341,7 +341,7 @@ class LightAttachmentList extends RelatedList {
     this.__listExtraLink = (
       <form method="post" action={`${rb.baseUrl}/files/batch-download`} ref={(c) => (this._$downloadForm = c)} target="_blank">
         <input type="hidden" name="files" />
-        <button type="submit" className="btn btn-light w-auto" title={$L('下载全部')} disabled>
+        <button type="submit" className="btn btn-light w-auto" title={$L('批量下载')} disabled>
           <i className="icon zmdi zmdi-download" />
         </button>
       </form>
@@ -451,7 +451,7 @@ class SelectReport extends React.Component {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={this.hide}>
+              <button className="close" type="button" onClick={this.hide} title={`${$L('关闭')} (Esc)`}>
                 <i className="zmdi zmdi-close" />
               </button>
             </div>
@@ -472,9 +472,8 @@ class SelectReport extends React.Component {
                   {(this.state.reports || []).map((item) => {
                     const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}`
                     const showPdf = (item.outputType || '').includes('pdf')
-                    const showHtml = item.outputType !== 'html5' && (item.outputType || '').includes('html')
                     return (
-                      <li key={item.id} className={`${rb._officePreviewUrl && 'has-preview'} ${showPdf && 'has-pdf'} ${showHtml && 'has-html'}`}>
+                      <li key={item.id} className={`${rb._officePreviewUrl && 'has-preview'} ${showPdf && 'has-pdf'}`}>
                         <a target="_blank" href={reportUrl} className="text-truncate" title={$L('下载')}>
                           {item.name}
                           <i className="mdi mdi-download" />
@@ -483,11 +482,6 @@ class SelectReport extends React.Component {
                           {showPdf && (
                             <a target="_blank" className="preview" href={`${reportUrl}&output=pdf`} title={$L('查看 PDF')}>
                               <i className="mdi mdi-file-pdf-box fs-18" />
-                            </a>
-                          )}
-                          {showHtml && (
-                            <a target="_blank" className="preview" href={`${reportUrl}&output=html`} title={$L('查看 HTML')}>
-                              <i className="mdi mdi-language-html5 fs-18" />
                             </a>
                           )}
                           {rb._officePreviewUrl && (

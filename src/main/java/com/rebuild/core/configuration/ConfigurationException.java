@@ -12,7 +12,7 @@ import com.rebuild.core.RebuildException;
 /**
  * Exception when configuration unset or incorrect
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/03/14
  */
 public class ConfigurationException extends RebuildException {

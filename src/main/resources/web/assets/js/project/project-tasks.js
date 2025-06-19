@@ -327,7 +327,7 @@ class PlanBox extends React.Component {
       let mh = $(window).height() - 225 + (this.creatableTask ? 0 : 44)
       if ($boxes.scrollWidth > $boxes.clientWidth) mh -= 13 // 横向滚动条高度
 
-      $scroller.css({ 'max-height': mh })
+      $scroller.css({ 'max-height': mh, 'margin-bottom': this.creatableTask ? null : 0 })
       $scroller.perfectScrollbar('update')
     })()
   }

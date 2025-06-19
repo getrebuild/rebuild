@@ -25,12 +25,12 @@ import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerResult;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.integration.SMSender;
-import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -45,7 +45,7 @@ import java.util.Set;
 /**
  * FIXME 异步发送可能失败，日志表未记录
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/05/25
  */
 @Slf4j
@@ -120,14 +120,33 @@ public class SendNotification extends TriggerAction {
         String[] message = formatMessageContent(actionContext, operatingContext);
         Set<Object> send = new HashSet<>();
 
+        String emailContent = null;
+        File[] emailAttach = null;
+        if (msgType == MTYPE_MAIL) {
+            emailContent = MarkdownUtils.render(message[0], false, true);
+            emailAttach = getMailAttach(content);
+        }
+
+        // v4.1 合并发送。需要邮件服务器支持，否则还是会单个发送
+        if (msgType == MTYPE_MAIL && content.getBooleanValue("mergeSend")) {
+            for (ID user : toUsers) {
+                String emailAddr = Application.getUserStore().getUser(user).getEmail();
+                if (RegexUtils.isEMail(emailAddr)) send.add(emailAddr);
+            }
+
+            if (!send.isEmpty()) {
+                SMSender.sendMailAsync(StringUtils.join(send, ","), message[1], emailContent, emailAttach);
+            }
+            return send;
+        }
+
         for (ID user : toUsers) {
             if (send.contains(user)) continue;
 
             if (msgType == MTYPE_MAIL) {
                 String emailAddr = Application.getUserStore().getUser(user).getEmail();
                 if (RegexUtils.isEMail(emailAddr)) {
-                    String mdHtml = MarkdownUtils.render(message[0], false, true);
-                    SMSender.sendMailAsync(emailAddr, message[1], mdHtml, getMailAttach(content));
+                    SMSender.sendMailAsync(emailAddr, message[1], emailContent, emailAttach);
                     send.add(emailAddr);
                 }
             }
@@ -180,10 +199,30 @@ public class SendNotification extends TriggerAction {
         String[] message = formatMessageContent(actionContext, operatingContext);
         Set<Object> send = new HashSet<>();
 
-        for (Object item : to) {
-            if (item == null) continue;
+        String emailContent = null;
+        File[] emailAttach = null;
+        if (msgType == MTYPE_MAIL) {
+            emailContent = MarkdownUtils.render(message[0], false, true);
+            emailAttach = getMailAttach(content);
+        }
 
-            String mobileOrEmail = item.toString().trim();
+        // v4.1 合并发送
+        if (msgType == MTYPE_MAIL && content.getBooleanValue("mergeSend")) {
+            for (Object me : to) {
+                String emailAddr = me == null ? null : me.toString().trim();
+                if (RegexUtils.isEMail(emailAddr)) send.add(emailAddr);
+            }
+
+            if (!send.isEmpty()) {
+                SMSender.sendMailAsync(StringUtils.join(send, ","), message[1], emailContent, emailAttach);
+            }
+            return send;
+        }
+
+        for (Object me : to) {
+            if (me == null) continue;
+
+            String mobileOrEmail = me.toString().trim();
             if (send.contains(mobileOrEmail)) continue;
 
             if (msgType == MTYPE_SMS && RegexUtils.isCNMobile(mobileOrEmail)) {
@@ -192,33 +231,23 @@ public class SendNotification extends TriggerAction {
             }
 
             if (msgType == MTYPE_MAIL && RegexUtils.isEMail(mobileOrEmail)) {
-                String mdHtml = MarkdownUtils.render(message[0], false, true);
-                SMSender.sendMailAsync(mobileOrEmail, message[1], mdHtml, getMailAttach(content));
+                SMSender.sendMailAsync(mobileOrEmail, message[1], emailContent, emailAttach);
                 send.add(mobileOrEmail);
             }
         }
         return send;
     }
 
-    @SuppressWarnings("unchecked")
     private Set<Object> sendToWxwork(OperatingContext operatingContext) {
-        Object resp = CommonsUtils.invokeMethod(
-                "com.rebuild.rbv.trigger.SendNotification2#sendToWxwork", actionContext, operatingContext);
-        return (Set<Object>) resp;
+        return RbvFunction.call().sendToWxwork(actionContext, operatingContext);
     }
 
-    @SuppressWarnings("unchecked")
     private Set<Object> sendToDingtalk(OperatingContext operatingContext) {
-        Object resp = CommonsUtils.invokeMethod(
-                "com.rebuild.rbv.trigger.SendNotification2#sendToDingtalk", actionContext, operatingContext);
-        return (Set<Object>) resp;
+        return RbvFunction.call().sendToDingtalk(actionContext, operatingContext);
     }
 
-    @SuppressWarnings("unchecked")
     private Set<Object> sendToFeishu(OperatingContext operatingContext) {
-        Object resp = CommonsUtils.invokeMethod(
-                "com.rebuild.rbv.trigger.SendNotification2#sendToFeishu", actionContext, operatingContext);
-        return (Set<Object>) resp;
+        return RbvFunction.call().sendToFeishu(actionContext, operatingContext);
     }
 
     private File[] getMailAttach(final JSONObject content) {

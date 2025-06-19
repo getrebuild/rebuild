@@ -339,7 +339,7 @@ class DlgTempAuth extends RbModalHandler {
               </button>
             </span>
           </div>
-          <p className="form-text text-danger">{$L('通过临时授权链接可登录你的账号')}</p>
+          <p className="form-text text-danger text-bold">{$L('通过临时授权链接可登录你的账号')}</p>
         </div>
       </RbModal>
     )

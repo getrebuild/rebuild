@@ -83,7 +83,7 @@ class AdvFilter extends React.Component {
                 <input className="custom-control-input" type="radio" name={this._htmlid} data-id="useEquation" value="9999" checked={this.state.useEquation === '9999'} onChange={this.handleChange} />
                 <span className="custom-control-label pl-1">
                   {$L('高级表达式')}
-                  <a href="https://getrebuild.com/docs/manual/basic#%E9%AB%98%E7%BA%A7%E8%A1%A8%E8%BE%BE%E5%BC%8F" title={$L('查看帮助')} target="_blank">
+                  <a href="https://getrebuild.com/docs/manual/basic#%E9%AB%98%E7%BA%A7%E6%9F%A5%E8%AF%A2%E8%AF%A6%E8%A7%A3" title={$L('查看帮助')} target="_blank">
                     <i className="zmdi zmdi-help zicon down-1 cursor-pointer" />
                   </a>
                 </span>
@@ -1054,14 +1054,18 @@ class ListAdvFilter extends AdvFilter {
               <button className="btn btn-primary btn-outline" type="button" onClick={() => this.searchNow()}>
                 <i className="icon zmdi zmdi-search" /> {$L('查询')}
               </button>
-              <button className="btn btn-primary btn-outline dropdown-toggle w-auto" type="button" data-toggle="dropdown" style={{ marginLeft: -1 }}>
-                <i className="icon zmdi zmdi-chevron-down" />
-              </button>
-              <div className="dropdown-menu dropdown-menu-right">
-                <a className="dropdown-item" onClick={() => this.handleNew()}>
-                  {$L('保存到常用查询')}
-                </a>
-              </div>
+              {this.props.noSave === true ? null : (
+                <RF>
+                  <button className="btn btn-primary btn-outline dropdown-toggle w-auto" type="button" data-toggle="dropdown" style={{ marginLeft: -1 }}>
+                    <i className="icon zmdi zmdi-chevron-down" />
+                  </button>
+                  <div className="dropdown-menu dropdown-menu-right">
+                    <a className="dropdown-item" onClick={() => this.handleNew()}>
+                      {$L('保存到常用查询')}
+                    </a>
+                  </div>
+                </RF>
+              )}
             </div>
             <button className="btn btn-secondary" type="button" onClick={() => this.searchNow(true)}>
               <i className="icon mdi mdi-restore" /> {$L('重置')}

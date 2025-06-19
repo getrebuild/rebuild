@@ -484,4 +484,13 @@ $(document).ready(() => {
     if (!s) return
     renderRbcomp(<FileMoveDlg files={s} call={() => filesList && filesList.loadData()} />)
   })
+
+  $('a.J_dl').on('click', () => {
+    const s = filesList.getSelected()
+    if (!s) return
+
+    const $form = $('form.J_dl')
+    $form.find('input').val(s.join(','))
+    $form[0].submit()
+  })
 })

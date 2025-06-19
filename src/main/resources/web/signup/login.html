@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
+    <meta name="og:image" content="https://getrebuild.com/img/logo256.png" />
     <title>[[${bundle.L('用户登录')}]]</title>
     <style>
       #login-form > .row {
@@ -101,6 +102,7 @@
     </style>
   </head>
   <body class="rb-splash-screen">
+    <img src="https://getrebuild.com/img/logo256.png" alt="Logo for Thumb" style="display: none" />
     <div class="rb-wrapper rb-login">
       <div class="rb-bgimg"></div>
       <div class="rb-content" style="z-index: 2">
