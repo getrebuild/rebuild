@@ -148,11 +148,20 @@ class BaseChart extends React.Component {
         $.post(`${rb.baseUrl}/dashboard/chart-copy?id=${that.props.id}`, (res) => {
           if (res.error_code === 0) {
             RbHighbar.success($L('图表已复制'))
-            setTimeout(() => location.reload(), 1500)
-          } else {
+            if (window.add_widget) {
+              window.add_widget({
+                chart: res.data,
+                w: 4,
+                h: 4,
+                isManageable: true
+              })
+              window.save_dashboard()
+              setTimeout(() => location.reload(), 1000)
+            } else {
             RbHighbar.error(res.error_msg || $L('操作失败'))
+            }
+            this.disabled(false)
           }
-          this.disabled(false)
         })
       }
     })
