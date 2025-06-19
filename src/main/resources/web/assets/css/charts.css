@@ -162,7 +162,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chart.index > .data-item span.ge::before,
-.chart.index > .data-item span.le::before {
+.chart.index > .data-item span.le::before,
+.chart.index > .data-item span.eq::before {
   font-family: 'Material Design Icons', serif;
   content: '\F0737';
   font-size: 1.25rem;
@@ -176,6 +177,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart.index > .data-item span.le::before {
   content: '\F072E';
   color: green !important;
+}
+
+.chart.index > .data-item span.eq {
+  color: #666 !important; 
+}
+
+.chart.index > .data-item span.eq::before {
+  content: '\F0374';
+  color: #666 !important;
 }
 
 .grid-stack-item.fullscreen .chart.index > .data-item p {
