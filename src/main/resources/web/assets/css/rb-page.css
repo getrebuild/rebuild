@@ -651,7 +651,6 @@ div.dataTables_filter .filter-badge:hover .close {
 
 .adv-search .btn {
   border-radius: 0 2px 2px 0 !important;
-  text-align: left;
   height: 2.8rem;
   line-height: 2.7rem;
   position: relative;
@@ -661,6 +660,7 @@ div.dataTables_filter .filter-badge:hover .close {
 }
 
 .adv-search .btn.dropdown-toggle {
+  text-align: left;
   width: 100%;
   border-radius: 2px 0 0 2px !important;
 }

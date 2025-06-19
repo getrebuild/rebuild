@@ -27,7 +27,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // PAGE INITIAL
 $(function () {
   // navless
-  if (rb.commercial > 1 && ~~$urlp('navless') === 1) $(document.body).addClass('rb-navless40')
+  if (rb.commercial > 1 && (~~$urlp('navless') === 1 || ~~$urlp('frame') === 1)) $(document.body).addClass('rb-navless40')
 
   // scroller
   var $t = $('.rb-scroller')
