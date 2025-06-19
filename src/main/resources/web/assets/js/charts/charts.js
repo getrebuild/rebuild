@@ -39,6 +39,11 @@ class BaseChart extends React.Component {
               {$L('编辑')}
             </a>
           )}
+          {this.props.isManageable && !this.props.builtin && (
+            <a className="dropdown-item J_chart-copy" onClick={() => this.copy()}>
+              {$L('复制')}
+            </a>
+          )}
           {this.props.editable && (
             <a className="dropdown-item" onClick={() => this.remove()}>
               {$L('移除')}
@@ -132,6 +137,24 @@ class BaseChart extends React.Component {
         else if (window.chart_remove) window.chart_remove($(that._$box))
         this.hide()
       },
+    })
+  }
+  
+  copy() {
+    const that = this
+    RbAlert.create($L('确认复制此图表？'), {
+      confirm: function() {
+        this.disabled(true)
+        $.post(`${rb.baseUrl}/dashboard/chart-copy?id=${that.props.id}`, (res) => {
+          if (res.error_code === 0) {
+            RbHighbar.success($L('图表已复制'))
+            setTimeout(() => location.reload(), 1500)
+          } else {
+            RbHighbar.error(res.error_msg || $L('操作失败'))
+          }
+          this.disabled(false)
+        })
+      }
     })
   }
 
