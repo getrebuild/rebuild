@@ -125,7 +125,7 @@ public class TableBuilder {
         }
 
         String tClazz = (chart.isShowLineNumber() ? "line-number " : "") + (chart.isShowSums() ? "sums" : "");
-        return String.format("<table class=\"table table-bordered table-header-fixed2 %s\">%s%s</table>", tClazz, thead, tbody);
+        return String.format("<table class=\"table table-bordered %s\">%s%s</table>", tClazz, thead, tbody);
     }
 
     // --

@@ -1446,7 +1446,7 @@ class DataList extends BaseChart {
 
     const table = (
       <RF>
-        <table className="table table-hover table-bordered table-striped table-header-fixed2 table-sortable">
+        <table className="table table-hover table-bordered table-striped table-sortable">
           <thead>
             <tr ref={(c) => (this._$head = c)}>
               {listFields.map((item) => {

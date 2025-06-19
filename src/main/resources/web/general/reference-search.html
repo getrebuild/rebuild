@@ -28,6 +28,11 @@
       .dataTables_wrapper .paging_sizes-no {
         display: none;
       }
+      .adv-search .btn.w-auto {
+        width: 36px !important;
+        min-width: 36px !important;
+        border-radius: 2px !important;
+      }
     </style>
   </head>
   <body class="dialog">
@@ -39,7 +44,9 @@
               <div class="col-6">
                 <div class="dataTables_filter">
                   <div class="adv-search float-left">
-                    <button th:title="${bundle.L('高级查询')}" class="btn btn-secondary w-auto J_filterbtn mr-1" type="button"><i class="icon mdi mdi-filter"></i></button>
+                    <button th:title="${bundle.L('高级查询')}" class="btn btn-secondary w-auto J_filterbtn mr-1" type="button">
+                      <i class="icon mdi mdi-filter"></i>
+                    </button>
                   </div>
                   <div class="input-group input-search" style="width: 227px">
                     <input class="form-control" type="text" th:placeholder="${quickFieldsLabel ?:bundle.L('快速查询')}" th:title="${quickFieldsLabel}" />
