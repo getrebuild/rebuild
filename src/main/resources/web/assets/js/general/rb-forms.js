@@ -1184,7 +1184,10 @@ class RbFormElement extends React.Component {
   // 只读/非只读
   // 部分字段有效，且如字段属性为只读，即使填写值也无效
   setReadonly(readonly) {
-    this.setState({ readonly: readonly === true })
+    this.setState({ readonly: readonly === true }, () => {
+      // fix 4.0.6 只读变为非只读，富附件需初始化
+      this.onEditModeChanged(readonly === true)
+    })
   }
   // TIP 仅表单有效
   setTip(tip) {

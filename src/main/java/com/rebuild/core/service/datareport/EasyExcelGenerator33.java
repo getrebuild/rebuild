@@ -19,6 +19,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.approval.ApprovalHelper;
 import com.rebuild.core.support.general.ProtocolFilterParser;
 import com.rebuild.core.support.general.RecordBuilder;
+import com.rebuild.core.support.i18n.Language;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -177,7 +178,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             if (isApproval) {
                 querySql += " and isWaiting = 'F' and isCanceled = 'F' order by createdOn";
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
-                        "createdOn,recordId,state,stepId", "RobotApprovalStep", "recordId");
+                        "createdOn,recordId,state,stepId,approvalId", "RobotApprovalStep", "recordId");
 
             } else if (isDetail) {
                 String sortField = templateExtractor33.getSortField(DETAIL_PREFIX);
@@ -208,13 +209,25 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                     .setParameter(1, recordId)
                     .list();
 
-            // 补充提交节点
+            // 审批数据处理
             if (isApproval && !list.isEmpty()) {
-                Record firstNode = list.get(0);
+                final Record firstNode = list.get(0);
+
+                // v4.0.6 解析步骤名称
+                ID approvalId = firstNode.getID("approvalId");
+                for (Record c : list) {
+                    if (c.hasValue("node")) {
+                        String nodeName = ApprovalHelper.getNodeNameById(c.getString("node"), approvalId, true);
+                        c.setString("node", nodeName);
+                    }
+                }
+
+                // 补充提交节点
                 Record submit = RecordBuilder.builder(EntityHelper.RobotApprovalStep)
                         .add("approver", ApprovalHelper.getSubmitter(firstNode.getID("recordId")))
                         .add("approvedTime", CalendarUtils.getUTCDateTimeFormat().format(firstNode.getDate("createdOn")))
                         .add("state", 0)
+                        .add("node", Language.L("提交"))
                         .build(UserService.SYSTEM_USER);
 
                 List<Record> listReplace = new ArrayList<>();
