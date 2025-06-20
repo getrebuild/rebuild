@@ -221,10 +221,10 @@ class ChartIndex extends BaseChart {
       const N2 = parseFloat(_index.data2)
 
       // eslint-disable-next-line eqeqeq
-      if (N2 == 0) {
+      if (N2 === 0) {
         // 如果N1和N2都为0，增长率0%
-        rate2 = N1 == 0 ? '0.00%' : '100.00%'
-        clazz2 = N1 == 0 ? 'eq' : 'ge'
+        rate2 = N1 === 0 ? '0.00%' : '100.00%'
+        clazz2 = N1 === 0 ? 'eq' : 'ge'
       } else {
         rate2 = (((N1 - N2) * 1.0) / N2) * 100
         const rateValue = rate2
