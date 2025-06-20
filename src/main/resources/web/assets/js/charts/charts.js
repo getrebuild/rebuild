@@ -1854,7 +1854,7 @@ class ChartSelect extends RbModalHandler {
     const chartList = this.state.chartList || []
 
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('添加已有图表')}>
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('添加已有图表')} className="chart-selector-modal">
         <div className="m-1">
           <div className="row chart-select-wrap">
             <div className="col-3">
