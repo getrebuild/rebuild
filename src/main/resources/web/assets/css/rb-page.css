@@ -2223,12 +2223,11 @@ th.column-fixed {
   font-size: 1rem;
   background-color: #fff;
   width: auto;
-  left: 0;
+  left: 10px;
   margin: -11px 0 0;
   padding: 3px 5px 0;
   color: #666;
-  border-left: 4px solid #4285f4;
-  border-left-color: var(--rb-theme-color);
+  border-radius: 4px;
 }
 
 .form-line.hover fieldset legend {
@@ -2249,7 +2248,7 @@ th.column-fixed {
   content: '\f2f9';
   width: 13px;
   display: inline-block;
-  float: right;
+  float: left;
   text-align: center;
   line-height: 1;
   transform: translateY(-1px);
@@ -3302,6 +3301,10 @@ a.user-show:not([href]) {
   padding: 12px 15px;
   margin: 10px 0;
   border-radius: 2px;
+}
+
+.form.approval-form .aforms .aforms-detail > .rbform + .rbform {
+  border-top: 1px solid #eceff1;
 }
 
 .form.approval-form .approval-list {
