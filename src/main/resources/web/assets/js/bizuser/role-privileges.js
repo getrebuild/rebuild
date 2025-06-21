@@ -168,9 +168,9 @@ class AdvFilter4Custom extends AdvFilter {
     return (
       <RF>
         {c}
-        <div className="float-right ml-3 pt-1">
+        <div className="float-right pt-1">
           <span className="pr-1">{$L('与基础权限关系')}</span>
-          <select style={{ padding: 5, outline: 'none' }} ref={(c) => (this._$cpAndOr = c)} defaultValue={(this.props.filter || {})._cpAndOr || 'AND'}>
+          <select className="cpAndOr" ref={(c) => (this._$cpAndOr = c)} defaultValue={(this.props.filter || {})._cpAndOr || 'AND'}>
             <option value="AND">{$L('并且')}</option>
             <option value="OR">{$L('或者')}</option>
           </select>

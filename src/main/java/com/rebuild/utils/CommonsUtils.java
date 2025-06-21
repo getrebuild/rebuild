@@ -21,6 +21,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
 import com.rebuild.core.RebuildException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -28,6 +29,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.core.io.ClassPathResource;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -458,5 +461,32 @@ public class CommonsUtils {
             return fileName.toLowerCase().substring(fileName.lastIndexOf(".") + 1);
         }
         return mimeType == null ? "unknown" : mimeType.split("/")[1];
+    }
+
+    /**
+     * @param base64Data
+     * @param dest
+     */
+    public static void base64ToFile(String base64Data, File dest) {
+        byte[] decodedBytes = Base64.decodeBase64(base64Data);
+
+        try (FileOutputStream fos = new FileOutputStream(dest)) {
+            fos.write(decodedBytes);
+        } catch (IOException e) {
+            throw new RebuildException(e);
+        }
+    }
+
+    /**
+     * @param file
+     * @return
+     */
+    public static String fileToBase64(File file) {
+        try {
+            byte[] fileBytes = Files.readAllBytes(file.toPath());
+            return Base64.encodeBase64String(fileBytes);
+        } catch (IOException e) {
+            throw new RebuildException(e);
+        }
     }
 }
