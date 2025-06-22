@@ -2228,12 +2228,15 @@ class RbFormReference extends RbFormElement {
         label: this.props.label,
         entity: this.props.entity,
         wrapQuery: (query) => {
-          // v4.1
+          // v4.1 附加过滤条件支持从表单动态取值
           const varRecord = this.props.referenceDataFilter ? this.props.$$$parent.getFormData() : null
           if (varRecord) {
             // FIXME 太长的值过滤，以免 URL 超长
             for (let k in varRecord) {
-              if (varRecord[k] && (varRecord[k] + '').length > 200) delete varRecord[k]
+              if (varRecord[k] && (varRecord[k] + '').length > 100) {
+                delete varRecord[k]
+                console.log('Ignore large value of field :', k, varRecord[k])
+              }
             }
             varRecord['metadata.entity'] = this.props.$$$parent.props.entity
             query.varRecord = $encode(JSON.stringify(varRecord))
