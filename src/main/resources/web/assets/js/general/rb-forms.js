@@ -570,20 +570,18 @@ class RbForm extends React.Component {
       // 列表页保存并...
       const inList = window.RbViewModal && window.__PageConfig.type === 'RecordList'
       if (inList) {
-        if (window.__LAB_FORMACTION_105 || props.rawModel.extrasAction) {
-          moreActions.push(
-            <a key="Action105" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADD36)}>
-              {$L('保存并新建')}
-            </a>
-          )
-        }
-        if ((window.__LAB_FORMACTION_103 || props.rawModel.extrasAction) && props.rawModel.hadApproval && window.ApprovalSubmitForm) {
+        if (props.rawModel.hadApproval && window.ApprovalSubmitForm) {
           moreActions.push(
             <a key="Action103" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_SUBMIT37)}>
               {$L('保存并提交')}
             </a>
           )
         }
+        moreActions.push(
+          <a key="Action105" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADD36)}>
+            {$L('保存并新建')}
+          </a>
+        )
       }
 
       if (inList || parentProps._nextOpenView) {
