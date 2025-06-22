@@ -255,7 +255,7 @@ const loadPrivileges = function () {
             }
           } else if (k === 'FP') {
             fieldpSettings[entity] = defs[k]
-            $name.parent().find('span>a').addClass('active').parent().removeClass('bosskey-show--41')
+            $name.parent().find('span>a').addClass('active')
           } else {
             $tr.find(`i.priv[data-action="${k}"]`).removeClass('R0 R1 R2 R3 R4').addClass(`R${defs[k]}`)
           }
@@ -545,6 +545,18 @@ class FieldsPrivilegesPane extends React.Component {
             })}
           </select>
         </div>
+        <div className="form-group hide">
+          <label>{$L('脱敏读取字段')} TODO</label>
+          <select className="form-control form-control-sm" multiple ref={(c) => (this._$mask = c)}>
+            {_fields.map((item) => {
+              return (
+                <option key={item.name} value={item.name}>
+                  {item.label}
+                </option>
+              )
+            })}
+          </select>
+        </div>
         <div className="form-group">
           <label>{$L('不可编辑字段')}</label>
           <select className="form-control form-control-sm" multiple ref={(c) => (this._$update = c)}>
@@ -565,7 +577,7 @@ class FieldsPrivilegesPane extends React.Component {
   componentDidMount() {
     $.get(`/commons/metadata/fields?entity=${this.props.entity}`, (res) => {
       this.setState({ fields: res.data }, () => {
-        $([this._$create, this._$read, this._$update]).select2({
+        $([this._$create, this._$read, this._$mask, this._$update]).select2({
           placeholder: $L('无'),
           allowClear: true,
         })
@@ -574,6 +586,7 @@ class FieldsPrivilegesPane extends React.Component {
         const _selected = this.props.selected || {}
         if (_selected.create) $(this._$create).val(_selected.create).trigger('change')
         if (_selected.read) $(this._$read).val(_selected.read).trigger('change')
+        if (_selected.mask) $(this._$mask).val(_selected.mask).trigger('change')
         if (_selected.update) $(this._$update).val(_selected.update).trigger('change')
       })
     })
@@ -583,10 +596,9 @@ class FieldsPrivilegesPane extends React.Component {
     const d = {
       create: $(this._$create).val(),
       read: $(this._$read).val(),
+      mask: $(this._$mask).val(),
       update: $(this._$update).val(),
     }
-
-    if (d.create.length + d.read.length + d.update.length === 0) return null
-    return d
+    return d.create.length + d.read.length + d.mask.length + d.update.length === 0 ? null : d
   }
 }
