@@ -7,6 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // 打印视图
 
 const wpc = window.__PageConfig
+let __printTimer
+
 $(document).ready(() => {
   renderRbcomp(<PreviewTable data={wpc.content} />, 'preview-table')
   // v4.1 明细
@@ -20,6 +22,7 @@ $(document).ready(() => {
   setDefaultStyle('fontSize')
   setDefaultStyle('fontFamily')
   setDefaultStyle('fontBold')
+  setDefaultStyle('showDetails')
 })
 
 function setDefaultStyle(id) {
@@ -35,6 +38,10 @@ function setDefaultStyle(id) {
     }
     if (id === 'fontBold') {
       $('.preview-content').attr('data-bold', v)
+    }
+    if (id === 'showDetails') {
+      if (v === '1') $('.preview-content').removeClass('hide-details')
+      else $('.preview-content').addClass('hide-details')
     }
   })
 
@@ -133,7 +140,10 @@ class PreviewTable extends React.Component {
 
   componentDidMount() {
     $('.preview-content.hide').removeClass('hide')
-    if (~~$urlp('mode') === 1) setTimeout(() => window.print(), 100)
+    if (~~$urlp('mode') === 1) {
+      if (__printTimer) clearTimeout(__printTimer)
+      __printTimer = setTimeout(() => window.print(), 801)
+    }
   }
 
   formatValue(item) {
