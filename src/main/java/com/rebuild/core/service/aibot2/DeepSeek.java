@@ -5,18 +5,17 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.service.aibot;
+package com.rebuild.core.service.aibot2;
 
 import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
-import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import org.springframework.util.Assert;
 
 /**
- * @author devezhao
+ * @author Zixin
  * @since 2025/6/8
  */
 public class DeepSeek {
@@ -24,38 +23,38 @@ public class DeepSeek {
     public static final String MODEL_CHAT = "deepseek-chat";
     public static final String MODEL_REASONER = "deepseek-reasoner";
 
-    private static OpenAIClient _CLIENT;
+    private static OpenAIClient CLIENT;
+
+    /**
+     * @return
+     */
+    public static OpenAIClient getClient() {
+        return getClient(false);
+    }
+
     /**
      * @param reset
      * @return
      */
     public static OpenAIClient getClient(boolean reset) {
-        if (reset && _CLIENT != null) {
-            _CLIENT.close();
-        }
+        if (reset && CLIENT != null) CLIENT.close();
 
-        _CLIENT = OpenAIOkHttpClient.builder()
+        CLIENT = OpenAIOkHttpClient.builder()
                 .baseUrl(getServerUrl(null))
                 .apiKey(getSecret())
                 .build();
-        return _CLIENT;
+        return CLIENT;
     }
 
     /**
-     * @param user
+     * @param system
      * @param model
      * @return
      */
-    public static ChatCompletion createChatCompletion(String user, String model) {
-        ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
-                .addUserMessage(user)
+    public static ChatCompletionCreateParams.Builder createBuilder(String system, String model) {
+        return ChatCompletionCreateParams.builder()
                 .model(model)
-                .build();
-        return getClient(false).chat().completions().create(params);
-
-//        chatCompletion.choices().forEach(choice -> {
-//            System.out.println(choice.message().content());
-//        });
+                .addSystemMessage(system);
     }
 
     /**
