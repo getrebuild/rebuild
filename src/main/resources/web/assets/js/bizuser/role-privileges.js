@@ -130,7 +130,7 @@ $(document).ready(() => {
       advFilters[filterKey].show()
     } else {
       renderRbcomp(
-        <AdvFilter4Custom
+        <AdvFilterWithAndOr
           entity={entity}
           filter={advFilterSettings[filterKey]}
           title={
@@ -157,11 +157,7 @@ $(document).ready(() => {
   })
 })
 
-class AdvFilter4Custom extends AdvFilter {
-  constructor(props) {
-    super(props)
-  }
-
+class AdvFilterWithAndOr extends AdvFilter {
   renderAction() {
     let c = super.renderAction()
     c = React.cloneElement(c, { className: 'item float-left' })

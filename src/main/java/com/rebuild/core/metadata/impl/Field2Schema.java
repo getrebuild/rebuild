@@ -13,7 +13,6 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.Dialect;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.CascadeModel;
 import cn.devezhao.persist4j.metadata.impl.AnyEntity;
@@ -21,7 +20,6 @@ import cn.devezhao.persist4j.metadata.impl.FieldImpl;
 import cn.devezhao.persist4j.util.StringHelper;
 import cn.devezhao.persist4j.util.support.Table;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.hankcs.hanlp.HanLP;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
@@ -38,18 +36,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.CharSet;
 import org.apache.commons.lang.StringUtils;
 
-import java.sql.DataTruncation;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.DATETIME_FORMAT;
-import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.DATE_FORMAT;
-import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.NUMBER_CALCFORMULA;
-import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.NUMBER_CALCFORMULABACKEND;
-import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.NUMBER_NOTNEGATIVE;
 
 /**
  * 创建字段
@@ -411,125 +402,5 @@ public class Field2Schema extends SetUser {
         }
 
         return identifier;
-    }
-
-    /**
-     * 类型转换
-     *
-     * @param field
-     * @param toType
-     * @param force
-     * @return
-     */
-    public boolean castType(Field field, DisplayType toType, boolean force) {
-        EasyField fieldEasy = EasyMetaFactory.valueOf(field);
-        ID metaRecordId = fieldEasy.getMetaId();
-        if (fieldEasy.isBuiltin() || metaRecordId == null) {
-            throw new MetadataModificationException(Language.L("系统内置，不允许转换"));
-        }
-
-        if (!force) {
-            long count;
-            if ((count = checkRecordCount(field.getOwnEntity())) > 1000000) {
-                throw new MetadataModificationException(Language.L("实体记录过多 (%d)，转换字段可能导致表损坏", count));
-            }
-        }
-
-        Record fieldMeta = EntityHelper.forUpdate(metaRecordId, getUser(), false);
-        fieldMeta.setString("displayType", toType.name());
-        // 长度
-        if (toType.getMaxLength() != FieldType.NO_NEED_LENGTH) {
-            fieldMeta.setInt("maxLength", toType.getMaxLength());
-        }
-        // 保留部分扩展配置，其余移除避免冲突
-        JSONObject extraAttrs = fieldEasy.getExtraAttrs();
-        if (!extraAttrs.isEmpty()) {
-            extraAttrs.remove(DATE_FORMAT);
-            extraAttrs.remove(DATETIME_FORMAT);
-            Object notNegative = extraAttrs.remove(NUMBER_NOTNEGATIVE);
-            Object calcFormula = extraAttrs.remove(NUMBER_CALCFORMULA);
-            Object calcFormulaBackend = extraAttrs.remove(NUMBER_CALCFORMULABACKEND);
-
-            extraAttrs.clear();
-            if (notNegative != null) extraAttrs.put(NUMBER_NOTNEGATIVE, notNegative);
-            if (calcFormula != null) extraAttrs.put(NUMBER_CALCFORMULA, calcFormula);
-            if (calcFormulaBackend instanceof Boolean && (Boolean) calcFormulaBackend) extraAttrs.put(NUMBER_CALCFORMULABACKEND, true);
-
-            if (extraAttrs.isEmpty()) fieldMeta.setNull("extConfig");
-            else fieldMeta.setString("extConfig", extraAttrs.toJSONString());
-        }
-        Application.getCommonsService().update(fieldMeta, false);
-
-        // 类型生效
-        DynamicMetadataContextHolder.setSkipLanguageRefresh();
-        MetadataHelper.getMetadataFactory().refresh();
-        field = MetadataHelper.getField(field.getOwnEntity().getName(), field.getName());
-
-        // 去除默认值
-        try {
-            java.lang.reflect.Field defaultValueOfField = field.getClass().getDeclaredField("defaultValue");
-            defaultValueOfField.setAccessible(true);
-            defaultValueOfField.set(field, null);
-            java.lang.reflect.Field nullableOfField = field.getClass().getDeclaredField("nullable");
-            nullableOfField.setAccessible(true);
-            nullableOfField.set(field, true);
-        } catch (ReflectiveOperationException ignored) {
-        }
-
-        String alterTypeSql = null;
-        try {
-            Dialect dialect = Application.getPersistManagerFactory().getDialect();
-            final Table table = new Table40(field.getOwnEntity(), dialect);
-            StringBuilder ddl = new StringBuilder();
-            table.generateFieldDDL(field, ddl);
-
-            alterTypeSql = String.format("alter table `%s` change column `%s` ",
-                    field.getOwnEntity().getPhysicalName(), field.getPhysicalName());
-            alterTypeSql += ddl.toString().trim().replaceAll("\\s+", " ");
-
-            Application.getSqlExecutor().executeBatch(new String[]{alterTypeSql}, DDL_TIMEOUT);
-            log.info("Cast field type : {}", alterTypeSql);
-
-        } catch (Throwable ex) {
-            // 还原
-            fieldMeta.setString("displayType", EasyMetaFactory.getDisplayType(field).name());
-            Application.getCommonsService().update(fieldMeta, false);
-
-            log.error("DDL ERROR : \n{}", alterTypeSql, ex);
-
-            Throwable cause = ThrowableUtils.getRootCause(ex);
-            String causeMsg = cause.getLocalizedMessage();
-            if (cause instanceof DataTruncation) {
-                causeMsg = Language.L("已有数据内容长度超出限制，无法完成转换");
-            }
-            throw new MetadataModificationException(causeMsg);
-
-        } finally {
-            MetadataHelper.getMetadataFactory().refresh();
-            DynamicMetadataContextHolder.isSkipLanguageRefresh(true);
-        }
-
-        return true;
-    }
-
-    /**
-     * @param field
-     * @return
-     */
-    public boolean fixsDatetime40(Field field) {
-        if (field.getType() != FieldType.TIMESTAMP) return false;
-
-        Dialect dialect = Application.getPersistManagerFactory().getDialect();
-        final Table table = new Table40(field.getOwnEntity(), dialect);
-        StringBuilder ddl = new StringBuilder();
-        table.generateFieldDDL(field, ddl);
-
-        String alterTypeSql = String.format("alter table `%s` change column `%s` ",
-                field.getOwnEntity().getPhysicalName(), field.getPhysicalName());
-        alterTypeSql += ddl.toString().trim().replaceAll("\\s+", " ");
-
-        Application.getSqlExecutor().executeBatch(new String[]{alterTypeSql}, DDL_TIMEOUT);
-        log.info("Fixs datetime field : {}", alterTypeSql);
-        return true;
     }
 }

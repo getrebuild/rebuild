@@ -455,6 +455,14 @@ const _handleFile = function (uploadNumber, config) {
     uploadNumber[1] = ~~uploadNumber[1]
     $('.J_minmax b').eq(0).text(uploadNumber[0])
     $('.J_minmax b').eq(1).text(uploadNumber[1])
+
+    // v4.1
+    if (uploadNumber[1] > 9) {
+      $('input.bslider').attr({
+        'data-slider-max': 99,
+        'data-slider-value': '[0,99]',
+      })
+    }
   } else {
     uploadNumber = [0, 9]
   }
@@ -857,9 +865,17 @@ class FieldTypeCast extends RbFormHandler {
               <button className="btn btn-link" type="button" onClick={() => this.hide()}>
                 {$L('取消')}
               </button>
-              <button className="btn btn-warning bosskey-show " type="button" onClick={() => this.post('DATETIME40')}>
-                Repair
+              <button className="btn btn-light w-auto dropdown-toggle bosskey-show" type="button" data-toggle="dropdown" title={$L('更多操作')}>
+                <i className="icon zmdi zmdi-more fs-18" />
               </button>
+              <div className="dropdown-menu">
+                <a className="dropdown-item" onClick={() => this.post('DATETIME40')}>
+                  修订日期时间类型
+                </a>
+                <a className="dropdown-item" onClick={() => this.post('UPLOADNUMBER41')}>
+                  放大允许上传数量
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -878,8 +894,8 @@ class FieldTypeCast extends RbFormHandler {
     })
   }
 
-  post(fixsType) {
-    const toType = fixsType || $(this._$toType).val()
+  post(fixType) {
+    const toType = fixType || $(this._$toType).val()
     if (!toType) return RbHighbar.create($L('不可转换'))
 
     const $btn = $(this._$btns).find('.btn').button('loading')
