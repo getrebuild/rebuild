@@ -38,7 +38,7 @@ class AppList extends ConfigList {
           } else {
             times =
               times > 0 ? (
-                <a title={$L('API 调用日志')} className="light-link" onClick={() => renderRbcomp(<AppLogsViewer title={$L('API 调用日志')} appid={item[1]} maximize disposeOnHide useWhite />)}>
+                <a title={$L('OpenAPI 调用日志')} className="light-link" onClick={() => renderRbcomp(<AppLogsViewer title={$L('OpenAPI 调用日志')} appid={item[1]} maximize disposeOnHide useWhite />)}>
                   {times}
                 </a>
               ) : (
@@ -50,8 +50,8 @@ class AppList extends ConfigList {
             <tr key={item[0]}>
               <td>{item[1]}</td>
               <td>{secret}</td>
-              <td>{item[4] || $L('无 (拥有全部权限)')}</td>
-              <td>{item[6] || $L('无 (不限制)')}</td>
+              <td>{item[4] || $L('无 (全部权限)')}</td>
+              <td>{item[6] || $L('无 (不限)')}</td>
               <td>{times}</td>
               <td>
                 <DateShow date={item[5]} />
