@@ -49,3 +49,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   opacity: 0.8;
   cursor: pointer;
 }
+
+.rb-loading.data-list {
+  overflow-x: auto;
+}
