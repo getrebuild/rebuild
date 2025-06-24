@@ -80,6 +80,26 @@
         border-radius: 2px;
         padding: 10px;
       }
+      .market-banner {
+        width: 100%;
+        margin: 0 auto;
+        border-radius: 6px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #fbc2eb 100%);
+        background-size: 200% 200%;
+        margin-bottom: 15px;
+        display: none;
+      }
+      .market-banner > a {
+        display: block;
+        padding: 2rem;
+        font-size: 1rem;
+        color: #fff !important;
+        text-align: center;
+      }
+      .market-banner.show {
+        display: block;
+      }
     </style>
   </head>
   <body>
@@ -333,6 +353,7 @@
               </div>
             </div>
             <div class="col-lg-3 col-12 col-right-compact">
+              <div class="market-banner"></div>
               <div class="card">
                 <div class="card-header card-header-divider">[[${bundle.L('版本与授权')}]]</div>
                 <div class="card-body">

@@ -50,6 +50,11 @@ $(document).ready(() => {
       })
     }
   })
+  UCenter.market((res) => {
+    if (res.banner) {
+      $('.market-banner').html(res.banner).addClass('show')
+    }
+  })
 
   // v34
   const $mm = $('.J_maintenanceMode')

@@ -207,7 +207,7 @@ $(function () {
       window.AiBot && window.AiBot.init({ chatid: $storage.get('__LastChatId') }, true)
     }
     $ai.on('click', _FN)
-    $(document).on('keydown.aibot', null, 'ctrl+a', function (e) {
+    $(document).on('keydown.aibot', null, 'alt+a', function (e) {
       $stopEvent(e, true)
       _FN()
     })
