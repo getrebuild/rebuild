@@ -74,6 +74,7 @@ public class CommonsLog {
         comLog.setDate("logTime", CalendarUtils.now());
         if (content != null) comLog.setString("logContent", CommonsUtils.maxstr(content, 32767));
 
+        // FIXME 事物回滚时日志无法回滚
         TaskExecutors.queue(() -> Application.getCommonsService().create(comLog, false));
     }
 

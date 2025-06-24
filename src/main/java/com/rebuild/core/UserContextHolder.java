@@ -26,10 +26,7 @@ import org.springframework.util.Assert;
 public class UserContextHolder {
 
     private static final ThreadLocal<ID> CALLER = new NamedThreadLocal<>("User in current thread");
-    private static final ThreadLocal<ID> CALLER_KEEP = new NamedThreadLocal<>("Keep previous User in current thread");
-
     private static final ThreadLocal<String> LOCALE = new NamedThreadLocal<>("Request Locale");
-
     private static final ThreadLocal<String> REQIP = new NamedThreadLocal<>("Request IP");
 
     private UserContextHolder() {}
@@ -47,25 +44,33 @@ public class UserContextHolder {
      * 设置当前用户
      *
      * @param user
+     * @return
      */
-    public static void setUser(ID user) {
+    public static ID setUser(ID user) {
         Assert.notNull(user, "[user] cannot be null");
 
-        ID o = getUser(true);
-        if (o != null) CALLER_KEEP.set(o);
+        ID o = CALLER.get();
         CALLER.set(user);
+        return o;
     }
 
     /**
+     * 设置语言/区域
+     *
      * @param locale
+     * @return
      */
-    public static void setLocale(String locale) {
+    public static String setLocale(String locale) {
         Assert.notNull(locale, "[locale] cannot be null");
+
+        String o = LOCALE.get();
         LOCALE.set(locale);
+        return o;
     }
 
     /**
      * @return
+     * @see #setUser(ID)
      */
     public static ID getUser() {
         return getUser(false);
@@ -106,24 +111,21 @@ public class UserContextHolder {
     /**
      */
     public static void clearUser() {
-        clearUser(false);
-    }
-
-    /**
-     */
-    public static void clearUser(boolean restorePrev) {
-        CALLER.remove();
-        if (restorePrev) {
-            ID o = CALLER_KEEP.get();
-            if (o != null) CALLER.set(o);
-        }
-        CALLER_KEEP.remove();
+        clearUser(null);
     }
 
     /**
      */
     public static void clearLocale() {
         LOCALE.remove();
+    }
+
+    /**
+     * @param restoreUser
+     */
+    public static void clearUser(ID restoreUser) {
+        if (restoreUser == null) CALLER.remove();
+        else CALLER.set(restoreUser);
     }
 
     // --
