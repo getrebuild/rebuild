@@ -42,7 +42,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -186,7 +185,7 @@ public class FileDownloader extends BaseController {
                 log.debug("PdfConverter : {}", dest);
             }
 
-            setDownloadHeaders(request, response, attname, inline);
+            setDownloadHeaders(response, attname, inline);
             writeLocalFile(filepath, temp, response);
         }
     }
@@ -349,28 +348,17 @@ public class FileDownloader extends BaseController {
     /**
      * 设置下载 Headers
      *
-     * @param request
      * @param response
      * @param attname
      * @param inline
      */
-    public static void setDownloadHeaders(HttpServletRequest request, HttpServletResponse response, String attname, boolean inline) {
-        // 特殊字符处理
-        attname = attname.replace(" ", "-");
-        attname = attname.replace("%", "-");
-        attname = attname.replaceAll("[,;]", "-");
-
-        // 火狐 Safari 中文名乱码问题
-        String UA = StringUtils.defaultIfBlank(request.getHeader("user-agent"), "").toUpperCase();
-        if (UA.contains("FIREFOX") || UA.contains("SAFARI") || UA.contains("APPLEWEBKIT")) {
-            attname = CodecUtils.urlDecode(attname);
-            attname = new String(attname.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
-        }
-
+    public static void setDownloadHeaders(HttpServletResponse response, String attname, boolean inline) {
+        // be:v4.1
+        attname = CodecUtils.urlEncode(attname).replaceAll("\\+", "%20");
         if (inline) {
-            response.setHeader("Content-Disposition", "inline;filename=" + attname);
+            response.setHeader("Content-Disposition", "inline; filename=" + attname);
         } else {
-            response.setHeader("Content-Disposition", "attachment;filename=" + attname);
+            response.setHeader("Content-Disposition", "attachment; filename=" + attname);
             response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
         }
     }

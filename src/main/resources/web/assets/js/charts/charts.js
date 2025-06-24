@@ -372,7 +372,7 @@ const ECHART_BASE = {
   textStyle: {
     fontFamily: '"Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
   },
-  color: COLOR_PALETTES[window.__LAB_CHARTCOLORS || 'x'] || RBCOLORS,
+  color: RBCOLORS,
 }
 
 const ECHART_AXIS_LABEL = {
