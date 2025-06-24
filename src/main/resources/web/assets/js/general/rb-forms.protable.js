@@ -138,7 +138,7 @@ class ProTable extends React.Component {
       '$MAINID$': this.props.mainid || '$MAINID$',
     }
 
-    $.post(`/app/${entity.entity}/form-model?from=ProTable&id=`, JSON.stringify(initialValue), (res) => {
+    $.post(`/app/${entity.entity}/form-model?mainLayout=${this.props.mainLayout}&id=`, JSON.stringify(initialValue), (res) => {
       // 包含错误
       if (res.error_code > 0 || !!res.data.error) {
         const error = (res.data || {}).error || res.error_msg

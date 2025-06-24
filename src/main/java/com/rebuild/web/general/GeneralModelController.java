@@ -136,13 +136,27 @@ public class GeneralModelController extends EntityController {
         }
 
         // 指定布局
-        final ID specLayout = getIdParameter(request, "layout");
-        // v4.1
-        final boolean fromProTable = "ProTable".equals(getParameter(request, "from"));
+        ID specLayout = getIdParameter(request, "layout");
+        // v4.1 ProTable 携带主实体布局
+        ID followMainLayout = getIdParameter(request, "mainLayout");
+        if (followMainLayout != null) {
+            FormsBuilderContextHolder.setFromProTable();
+            // 明细绑定主实体布局
+            if (specLayout == null) {
+                ConfigBean cb = FormsBuilder.instance.getLayoutById(followMainLayout);
+                JSONObject attrs = (JSONObject) cb.getJSON("shareTo");
+                if (attrs != null && attrs.get("detailsFromsAttr") != null) {
+                    JSONObject detailsFromsAttr = (JSONObject) attrs.get("detailsFromsAttr");
+                    Object specLayout41 = detailsFromsAttr.get(entity);
+                    if (ID.isId(specLayout41)) {
+                        specLayout = ID.valueOf((String) specLayout41);
+                    }
+                }
+            }
+        }
 
         try {
             if (specLayout != null) FormsBuilderContextHolder.setSpecLayout(specLayout);
-            if (fromProTable) FormsBuilderContextHolder.setFromProTable(true);
             JSON model = FormsBuilder.instance.buildForm(entity, user, id);
 
             // 填充前端设定的初始值
@@ -159,8 +173,8 @@ public class GeneralModelController extends EntityController {
 
         } finally {
             FormsBuilderContextHolder.getMainIdOfDetail(true);
-            FormsBuilderContextHolder.getSpecLayout(true);
             FormsBuilderContextHolder.isFromProTable(true);
+            FormsBuilderContextHolder.getSpecLayout(true);
         }
     }
 

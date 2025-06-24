@@ -353,6 +353,7 @@ class RbForm extends React.Component {
       $$$main: this,
       transDetails: transDetails39 ? transDetails39[detailMeta.entity] : null,
       transDetailsDelete: transDetails39 ? transDetails39[detailMeta.entity + '$DELETED'] : null,
+      mainLayout: this.props.rawModel.layoutId,
       _disableAutoFillin: this.props._disableAutoFillin,
     }
 

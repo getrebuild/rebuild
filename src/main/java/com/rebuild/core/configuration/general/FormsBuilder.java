@@ -205,10 +205,12 @@ public class FormsBuilder extends FormsManager {
         if (forceLayout != null) recordOrLayoutId = forceLayout;
         // 明细共同编辑
         if (forceLayout == null && entityMeta.getMainEntity() != null && recordId == null) {
-            ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
-            if (mainid != null && !EntityHelper.isUnsavedId(mainid)) {
-                List<ID> ids = QueryHelper.detailIdsNoFilter(mainid, entityMeta);
-                if (!ids.isEmpty()) recordOrLayoutId = ids.get(0);
+            if (FormsBuilderContextHolder.isFromProTable(true)) {
+                ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
+                if (mainid != null && !EntityHelper.isUnsavedId(mainid)) {
+                    List<ID> ids = QueryHelper.detailIdsNoFilter(mainid, entityMeta);
+                    if (!ids.isEmpty()) recordOrLayoutId = ids.get(0);
+                }
             }
         }
 

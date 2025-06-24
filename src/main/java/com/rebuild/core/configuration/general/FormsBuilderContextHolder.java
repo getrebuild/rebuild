@@ -38,9 +38,9 @@ public class FormsBuilderContextHolder {
      * @return
      */
     public static ID getMainIdOfDetail(boolean once) {
-        ID mainid = MAINID_OF_DETAIL.get();
-        if (mainid != null && once) MAINID_OF_DETAIL.remove();
-        return mainid;
+        ID id = MAINID_OF_DETAIL.get();
+        if (id != null && once) MAINID_OF_DETAIL.remove();
+        return id;
     }
 
     /**
@@ -57,18 +57,16 @@ public class FormsBuilderContextHolder {
      * @return
      */
     public static ID getSpecLayout(boolean once) {
-        ID specRecordId = SPEC_LAYOUT.get();
-        if (specRecordId != null && once) SPEC_LAYOUT.remove();
-        return specRecordId;
+        ID id = SPEC_LAYOUT.get();
+        if (id != null && once) SPEC_LAYOUT.remove();
+        return id;
     }
 
     /**
-     * 来自表单共同编辑（明细实体）
-     *
-     * @param fromProTable
+     * 来自 ProTable
      */
-    public static void setFromProTable(Boolean fromProTable) {
-        FROM_PROTABLE.set(fromProTable);
+    public static void setFromProTable() {
+        FROM_PROTABLE.set(true);
     }
 
     /**
@@ -77,6 +75,7 @@ public class FormsBuilderContextHolder {
      */
     public static boolean isFromProTable(boolean once) {
         Boolean is = FROM_PROTABLE.get();
+        if (is != null && once) FROM_PROTABLE.remove();
         return is != null && is;
     }
 }
