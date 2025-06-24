@@ -153,9 +153,9 @@
       window.__PageConfig = {
         formConfig: [(${FormConfig ?:'null'})],
         entityName: '[[${entityName}]]',
+        mainEntityName: '[[${mainEntityName}]]',
         isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
         formsAttr: [(${FormsAttr ?:'null'})],
-        isDetailEntity: '[[${isDetailEntity}]]' === 'true',
       }
     </script>
     <script th:src="@{/assets/js/metadata/entity-switch.js}" type="text/babel"></script>

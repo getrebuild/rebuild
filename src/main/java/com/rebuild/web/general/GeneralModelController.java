@@ -44,7 +44,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -138,9 +137,12 @@ public class GeneralModelController extends EntityController {
 
         // 指定布局
         final ID specLayout = getIdParameter(request, "layout");
+        // v4.1
+        final boolean fromProTable = "ProTable".equals(getParameter(request, "from"));
 
         try {
             if (specLayout != null) FormsBuilderContextHolder.setSpecLayout(specLayout);
+            if (fromProTable) FormsBuilderContextHolder.setFromProTable(true);
             JSON model = FormsBuilder.instance.buildForm(entity, user, id);
 
             // 填充前端设定的初始值
@@ -158,6 +160,7 @@ public class GeneralModelController extends EntityController {
         } finally {
             FormsBuilderContextHolder.getMainIdOfDetail(true);
             FormsBuilderContextHolder.getSpecLayout(true);
+            FormsBuilderContextHolder.isFromProTable(true);
         }
     }
 

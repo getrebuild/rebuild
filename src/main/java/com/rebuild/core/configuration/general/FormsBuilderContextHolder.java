@@ -22,6 +22,8 @@ public class FormsBuilderContextHolder {
 
     private static final ThreadLocal<ID> SPEC_LAYOUT = new NamedThreadLocal<>("Layout using specified");
 
+    private static final ThreadLocal<Boolean> FROM_PROTABLE = new NamedThreadLocal<>("From ProTable");
+
     /**
      * 明细指定主记录
      *
@@ -58,5 +60,23 @@ public class FormsBuilderContextHolder {
         ID specRecordId = SPEC_LAYOUT.get();
         if (specRecordId != null && once) SPEC_LAYOUT.remove();
         return specRecordId;
+    }
+
+    /**
+     * 来自表单共同编辑（明细实体）
+     *
+     * @param fromProTable
+     */
+    public static void setFromProTable(Boolean fromProTable) {
+        FROM_PROTABLE.set(fromProTable);
+    }
+
+    /**
+     * @param once
+     * @return
+     */
+    public static boolean isFromProTable(boolean once) {
+        Boolean is = FROM_PROTABLE.get();
+        return is != null && is;
     }
 }

@@ -440,7 +440,7 @@ class FieldsPrivileges extends RbModalHandler {
       <RbModal
         title={
           <RF>
-            {$L('字段权限')} (LAB)
+            {$L('字段权限')}
             <sup className="rbv" />
           </RF>
         }
