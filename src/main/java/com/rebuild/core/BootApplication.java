@@ -127,9 +127,9 @@ public class BootApplication extends SpringBootServletInitializer {
         if (devMode()) System.setProperty("spring.profiles.active", "dev");
 
         try {
-            initTomcatPort();
+            detectTomcatPort();
         } catch (Exception ex) {
-            log.debug("Cannot to get Tomcat port : {}", ex.getLocalizedMessage());
+            log.warn("Cannot detect port of Tomcat : {}", ex.getLocalizedMessage());
         }
 
         log.info("Initializing SpringBoot context {}...", devMode() ? "(dev) " : "");
@@ -142,14 +142,14 @@ public class BootApplication extends SpringBootServletInitializer {
     public void onStartup(ServletContext servletContext) throws ServletException {
         CONTEXT_PATH = StringUtils.defaultIfBlank(servletContext.getContextPath(), "");
 
-        // Remove `jsession`
+        // Remove `jsession` in URL
         servletContext.setSessionTrackingModes(Collections.singleton(SessionTrackingMode.COOKIE));
         servletContext.getSessionCookieConfig().setHttpOnly(true);
 
         super.onStartup(servletContext);
     }
 
-    private static void initTomcatPort() throws Exception {
+    private static void detectTomcatPort() throws Exception {
         List<MBeanServer> mbeans = MBeanServerFactory.findMBeanServer(null);
         if (mbeans.isEmpty()) return;
 

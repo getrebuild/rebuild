@@ -12,7 +12,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const _PT_COLUMN_MIN_WIDTH = 30
 const _PT_COLUMN_MAX_WIDTH = 500
 const _PT_COLUMN_DEF_WIDTH = 200
-const _PT_COLUMN_WIDTH_PLUS = ['REFERENCE', 'N2NREFERENCE', 'CLASSIFICATION']
+const _PT_COLUMN_WIDTH_PLUS = ['REFERENCE', 'N2NREFERENCE', 'ANYREFERENCE', 'CLASSIFICATION']
 
 const _EXTCONFIG = window.__LAB40_PROTABLE_EXTCONFIG || {}
 
@@ -138,7 +138,7 @@ class ProTable extends React.Component {
       '$MAINID$': this.props.mainid || '$MAINID$',
     }
 
-    $.post(`/app/${entity.entity}/form-model?id=`, JSON.stringify(initialValue), (res) => {
+    $.post(`/app/${entity.entity}/form-model?mainLayout=${this.props.mainLayout}&id=`, JSON.stringify(initialValue), (res) => {
       // 包含错误
       if (res.error_code > 0 || !!res.data.error) {
         const error = (res.data || {}).error || res.error_msg

@@ -790,12 +790,10 @@ class DlgNForm extends RbModalHandler {
     if (props.attrs === 'ALL' && !props.name) {
       this.state.fallback = true
       this.state.fornew = true
-      this.state.extrasAction = false
       this._name = $L('默认布局')
     } else if (typeof props.attrs === 'object') {
       this.state.fallback = props.attrs.fallback
       this.state.fornew = props.attrs.fornew
-      this.state.extrasAction = props.attrs.extrasAction
       this.state.useFilter = props.attrs.filter || null
     }
   }
@@ -820,7 +818,7 @@ class DlgNForm extends RbModalHandler {
                     href="###"
                     onClick={(e) => {
                       $stopEvent(e, true)
-                      this._useFilter()
+                      this._handleUseFilter()
                     }}
                     ref={(c) => (this._$useFilter = c)}>
                     {this.state.useFilter && this.state.useFilter.items.length > 0 ? $L('已设置条件') + ` (${this.state.useFilter.items.length})` : $L('点击设置')}
@@ -840,12 +838,38 @@ class DlgNForm extends RbModalHandler {
                   <input className="custom-control-input" type="checkbox" defaultChecked={this.state.fornew} ref={(c) => (this._$fornew = c)} />
                   <span className="custom-control-label">{$L('可用于新建')}</span>
                 </label>
-                <label className={`custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 ${wpc.isDetailEntity && 'hide'} ${this.state.extrasAction ? '' : 'bosskey-show'}`}>
-                  <input className="custom-control-input" type="checkbox" defaultChecked={this.state.extrasAction} ref={(c) => (this._$extrasAction = c)} />
-                  <span className="custom-control-label">{$L('显示扩展按钮')}</span>
-                </label>
               </div>
             </div>
+
+            {this.state.detailsFromsAttr && (
+              <div className="form-group row bosskey-show">
+                <label className="col-sm-3 col-form-label text-sm-right">{$L('指定明细实体布局')} (LAB)</label>
+                <div className="col-sm-7" ref={(c) => (this._$detailsFromsAttr = c)}>
+                  {this.state.detailsFromsAttr.map((de) => {
+                    return (
+                      <div className="row mb-2" key={de[0]}>
+                        <div className="col-8">
+                          <select className="form-control form-control-sm" name={de[0]}>
+                            <option value="0">{$L('自动')}</option>
+                            {de[2].map((item) => {
+                              return (
+                                <option value={item.id} key={item.id}>
+                                  {item.name || $L('默认布局')}
+                                </option>
+                              )
+                            })}
+                          </select>
+                        </div>
+                        <div className="col-4 pl-0 pr-0" style={{ paddingTop: 8 }}>
+                          {de[1]}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
             <div className="form-group row footer">
               <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btns = c)}>
                 <button className="btn btn-primary" type="button" onClick={() => this.postAttr()}>
@@ -869,7 +893,29 @@ class DlgNForm extends RbModalHandler {
     )
   }
 
-  _useFilter() {
+  componentDidMount() {
+    // super.componentDidMount()
+
+    if (!wpc.mainEntityName) {
+      $.get(`/admin/entity/${wpc.entityName}/get-details-forms-attr`, (res) => {
+        this.setState({ detailsFromsAttr: res.data || {} }, () => {
+          const detailsFromsAttr = (this.props.attrs || {}).detailsFromsAttr
+          if (detailsFromsAttr) {
+            $(this._$detailsFromsAttr)
+              .find('select')
+              .each(function () {
+                let name = $(this).attr('name')
+                $(this).val(detailsFromsAttr[name] || '0')
+              })
+            // show
+            $(this._$detailsFromsAttr).parents('.bosskey-show').removeClass('bosskey-show')
+          }
+        })
+      })
+    }
+  }
+
+  _handleUseFilter() {
     if (this._UseFilter) {
       this._UseFilter.show()
     } else {
@@ -892,12 +938,22 @@ class DlgNForm extends RbModalHandler {
     }
   }
   postAttr() {
+    let detailsFromsAttr = {}
+    if (this._$detailsFromsAttr) {
+      $(this._$detailsFromsAttr)
+        .find('select')
+        .each(function () {
+          let v = $(this).val()
+          if (v !== '0') detailsFromsAttr[$(this).attr('name')] = v
+        })
+    }
+
     const ps = {
       name: $val(this._$name),
       filter: this.state.useFilter || null,
       fallback: $val(this._$fallback),
       fornew: $val(this._$fornew),
-      extrasAction: $val(this._$extrasAction),
+      detailsFromsAttr: Object.keys(detailsFromsAttr).length === 0 ? null : detailsFromsAttr,
     }
     if (!ps.name) {
       return RbHighbar.createl('请输入名称')

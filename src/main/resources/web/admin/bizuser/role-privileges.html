@@ -116,6 +116,13 @@
         color: #b0b0b0;
         font-weight: 600;
       }
+      select.cpAndOr {
+        outline: none;
+        padding: 5px;
+        border-color: #e3e3e3;
+        background-color: #f5f5f5;
+        border-radius: 2px;
+      }
     </style>
   </head>
   <body>
@@ -182,7 +189,7 @@
                     <tr th:each="entity : ${Entities}">
                       <td class="name">
                         <a th:data-entity="${entity[1]}" th:data-name="${entity[0]}" th:title="${bundle.L('批量选择')}">[[${entity[2]}]]</a>
-                        <span class="bosskey-show--41">
+                        <span>
                           <a th:data-entity="${entity[1]}" th:title="${bundle.L('字段权限')}"><i class="mdi mdi-form-textbox-lock mdi-sort-variant-lock--"></i></a>
                         </span>
                       </td>

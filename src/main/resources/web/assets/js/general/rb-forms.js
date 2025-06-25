@@ -353,6 +353,7 @@ class RbForm extends React.Component {
       $$$main: this,
       transDetails: transDetails39 ? transDetails39[detailMeta.entity] : null,
       transDetailsDelete: transDetails39 ? transDetails39[detailMeta.entity + '$DELETED'] : null,
+      mainLayout: this.props.rawModel.layoutId,
       _disableAutoFillin: this.props._disableAutoFillin,
     }
 
@@ -570,20 +571,18 @@ class RbForm extends React.Component {
       // 列表页保存并...
       const inList = window.RbViewModal && window.__PageConfig.type === 'RecordList'
       if (inList) {
-        if (window.__LAB_FORMACTION_105 || props.rawModel.extrasAction) {
-          moreActions.push(
-            <a key="Action105" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADD36)}>
-              {$L('保存并新建')}
-            </a>
-          )
-        }
-        if ((window.__LAB_FORMACTION_103 || props.rawModel.extrasAction) && props.rawModel.hadApproval && window.ApprovalSubmitForm) {
+        if (props.rawModel.hadApproval && window.ApprovalSubmitForm) {
           moreActions.push(
             <a key="Action103" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_SUBMIT37)}>
               {$L('保存并提交')}
             </a>
           )
         }
+        moreActions.push(
+          <a key="Action105" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADD36)}>
+            {$L('保存并新建')}
+          </a>
+        )
       }
 
       if (inList || parentProps._nextOpenView) {
@@ -2230,12 +2229,15 @@ class RbFormReference extends RbFormElement {
         label: this.props.label,
         entity: this.props.entity,
         wrapQuery: (query) => {
-          // v4.1
+          // v4.1 附加过滤条件支持从表单动态取值
           const varRecord = this.props.referenceDataFilter ? this.props.$$$parent.getFormData() : null
           if (varRecord) {
             // FIXME 太长的值过滤，以免 URL 超长
             for (let k in varRecord) {
-              if (varRecord[k] && (varRecord[k] + '').length > 200) delete varRecord[k]
+              if (varRecord[k] && (varRecord[k] + '').length > 100) {
+                delete varRecord[k]
+                console.log('Ignore large value of field :', k, varRecord[k])
+              }
             }
             varRecord['metadata.entity'] = this.props.$$$parent.props.entity
             query.varRecord = $encode(JSON.stringify(varRecord))

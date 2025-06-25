@@ -451,11 +451,25 @@ public class QiniuCloud {
      * @throws IOException
      */
     public static String uploadFile(File file) throws IOException {
+        return uploadFile(file, null);
+    }
+
+    /**
+     * 上传文件
+     *
+     * @param file
+     * @param fileName
+     * @return
+     * @throws IOException
+     */
+    public static String uploadFile(File file, String fileName) throws IOException {
+        if (fileName == null) fileName = file.getName();
+
         String fileKey;
         if (QiniuCloud.instance().available()) {
-            fileKey = QiniuCloud.instance().upload(file);
+            fileKey = QiniuCloud.instance().upload(file, fileName);
         } else {
-            fileKey = QiniuCloud.formatFileKey(file.getName());
+            fileKey = QiniuCloud.formatFileKey(fileName);
             File move2data = RebuildConfiguration.getFileOfData(fileKey);
             FileUtils.moveFile(file, move2data);
         }

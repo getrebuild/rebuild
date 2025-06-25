@@ -203,11 +203,11 @@ public class RobotTriggerObserver extends OperatingObserver {
                 if (originTriggerSource && action.isAsyncMode()) {
                     if (!_TriggerLessLog) log.info("[ASYNC_MODE] {}", w);
 
-                    final ID currentUser2 = UserContextHolder.getUser();
-                    final TriggerSource triggerSource2 = triggerSource;
+                    final ID currentUserHold = UserContextHolder.getUser();
+                    final TriggerSource triggerSourceHold = triggerSource;
                     TransactionManual.registerAfterCommit(() -> {
-                        UserContextHolder.setUser(currentUser2);
-                        TRIGGER_SOURCE.set(triggerSource2);
+                        UserContextHolder.setUser(currentUserHold);
+                        TRIGGER_SOURCE.set(triggerSourceHold);
                         try {
                             execActionInternal(context, action, true, true, w);
                         } finally {

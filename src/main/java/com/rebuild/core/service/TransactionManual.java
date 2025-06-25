@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service;
 
 import com.rebuild.core.Application;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionStatus;
@@ -23,6 +24,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * @see org.springframework.transaction.support.TransactionSynchronizationManager
  * @since 2019/8/21
  */
+@Slf4j
 public class TransactionManual {
 
     /**
@@ -89,14 +91,22 @@ public class TransactionManual {
      * 当前事务完成后回调
      *
      * @param c
+     * @see TransactionSynchronizationManager#isSynchronizationActive()
      * @see TransactionSynchronizationManager#registerSynchronization(TransactionSynchronization)
      */
     public static void registerAfterCommit(Runnable c) {
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                new Thread(c).start();
-            }
-        });
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    new Thread(c).start();
+                }
+            });
+            return;
+        }
+
+        // 非事物中
+        log.warn("Transaction synchronization is not active, start directly : {}", c);
+        new Thread(c).start();
     }
 }

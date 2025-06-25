@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.trigger.aviator;
 
 import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.ObjectUtils;
 import com.googlecode.aviator.runtime.function.AbstractFunction;
 import com.googlecode.aviator.runtime.type.AviatorNil;
 import com.googlecode.aviator.runtime.type.AviatorObject;
@@ -61,7 +60,7 @@ public class DateAddFunction extends AbstractFunction {
         else if (AviatorDate.DU_MONTH.equalsIgnoreCase($du)) du4cal = Calendar.MONTH;
         else if (AviatorDate.DU_YEAR.equalsIgnoreCase($du)) du4cal = Calendar.YEAR;
 
-        Date newDate = dateAdd($date, ObjectUtils.toInt($number), du4cal);
+        Date newDate = dateAdd($date, (int) NumberUtils.toDouble($number), du4cal);
         return new AviatorDate(newDate);
     }
 

@@ -44,7 +44,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,7 +136,24 @@ public class GeneralModelController extends EntityController {
         }
 
         // 指定布局
-        final ID specLayout = getIdParameter(request, "layout");
+        ID specLayout = getIdParameter(request, "layout");
+        // v4.1 ProTable 携带主实体布局
+        ID followMainLayout = getIdParameter(request, "mainLayout");
+        if (followMainLayout != null) {
+            FormsBuilderContextHolder.setFromProTable();
+            // 明细绑定主实体布局
+            if (specLayout == null) {
+                ConfigBean cb = FormsBuilder.instance.getLayoutById(followMainLayout);
+                Object attrs = cb.getObject("shareTo");
+                if (attrs instanceof JSONObject) {
+                    JSONObject detailsFromsAttr = (JSONObject) ((JSONObject) attrs).get("detailsFromsAttr");
+                    Object specLayout41 = detailsFromsAttr == null ? null : detailsFromsAttr.get(entity);
+                    if (ID.isId(specLayout41)) {
+                        specLayout = ID.valueOf((String) specLayout41);
+                    }
+                }
+            }
+        }
 
         try {
             if (specLayout != null) FormsBuilderContextHolder.setSpecLayout(specLayout);
@@ -157,6 +173,7 @@ public class GeneralModelController extends EntityController {
 
         } finally {
             FormsBuilderContextHolder.getMainIdOfDetail(true);
+            FormsBuilderContextHolder.isFromProTable(true);
             FormsBuilderContextHolder.getSpecLayout(true);
         }
     }
