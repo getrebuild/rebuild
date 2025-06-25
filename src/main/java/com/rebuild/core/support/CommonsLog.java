@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
@@ -81,8 +82,9 @@ public class CommonsLog {
         commLog.setDate("logTime", CalendarUtils.now());
         if (content != null) commLog.setString("logContent", CommonsUtils.maxstr(content, 32767));
 
-        // FIXME 事物回滚时日志无法回滚
-        TaskExecutors.queue(() -> Application.getCommonsService().create(comLog, false));
+        // v4.1 保证事物一致性
+        TransactionManual.registerAfterCommit(()
+                -> TaskExecutors.queue(() -> Application.getCommonsService().create(commLog, false)));
     }
 
     /**
