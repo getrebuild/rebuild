@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 /**
- * @author devezhao-mbp zhaofang123@gmail.com
+ * @author devezhao-mbp
  * @since 2019/05/30
  */
 public class UserHelperTest extends TestSupport {

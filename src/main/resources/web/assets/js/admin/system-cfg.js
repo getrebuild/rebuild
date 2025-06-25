@@ -28,7 +28,10 @@ $(document).ready(() => {
     let m = $L('主页地址/域名设置有误，将导致相关功能不可用。建议立即 [修改](###)')
     m = `<div class="alert alert-danger alert-icon alert-sm m-0 mt-1"><div class="icon"><span class="mdi mdi-message-alert-outline"></span></div><div class="message">${m}</div></div>`
     m = $(m).appendTo('td[data-id="HomeURL"]')
-    m.find('.message>a').on('click', () => $('.J_edit').trigger('click'))
+    m.find('.message>a').on('click', (e) => {
+      $stopEvent(e, true)
+      $('.J_edit').trigger('click')
+    })
   }
 
   // UC
@@ -45,6 +48,11 @@ $(document).ready(() => {
         if (res.canBind) UCenter.bind()
         else RbHighbar.create($L('仅超级管理员可操作'))
       })
+    }
+  })
+  UCenter.market((res) => {
+    if (res.banner) {
+      $('.market-banner').html(res.banner).addClass('show')
     }
   })
 
@@ -116,8 +124,8 @@ useEditComp = function (name) {
         <option value="2">{$L('总是显示')}</option>
       </select>
     )
-  } else if ('PageFooter' === name || 'AllowUsesTime' === name || 'AllowUsesIp' === name) {
-    return <textarea name={name} className="form-control form-control-sm row3x" maxLength="600" />
+  } else if (['PageFooter', 'AllowUsesTime', 'AllowUsesIp'].includes(name)) {
+    return <textarea name={name} className="form-control form-control-sm row2x" maxLength="2000" />
   } else if ('Login2FAMode' === name) {
     return (
       <select className="form-control form-control-sm">
@@ -218,45 +226,47 @@ class DlgMM extends RbAlert {
       }
     }
 
-    // $([this._$startTime, this._$endTime])
-    //   .datetimepicker({
-    //     startDate: new Date(),
-    //   })
-    //   .on('changeDate', (e) => {
-    //     if ($(e.target).hasClass('J_start')) {
-    //       if ($val(this._$startTime) && !$val(this._$endTime)) {
-    //         const autoEnd = moment($val(this._$startTime)).add('minute', 10).format('YYYY-MM-DD HH:mm')
-    //         $(this._$endTime).val(autoEnd)
-    //       }
-    //     }
-    //     calcTakeTime()
-    //   })
-
     // https://flatpickr.js.org/options/
     $([this._$startTime, this._$endTime]).flatpickr({
       enableTime: true,
       enableSeconds: false,
       time_24hr: true,
       minuteIncrement: 1,
-      // defaultDate: new Date(),
-      minDate: new Date(),
+      // defaultDate: dd,
+      minDate: moment().add(5, 'm').toDate(),
       dateFormat: 'Y-m-d H:i', // :S
       prevArrow: '<i class="mdi mdi-chevron-left"></i>',
       nextArrow: '<i class="mdi mdi-chevron-right"></i>',
       locale: rb.locale.split('_')[0], // zh, en
       onClose: function (s, d, inst) {
-        const st = $val(that._$startTime)
-        if ($(inst.element).hasClass('J_start') && st && !$val(that._$endTime)) {
-          const endd = moment(st).add('minute', 10).format('YYYY-MM-DD HH:mm')
-          $(that._$endTime).val(endd)
-        }
-        calcTakeTime()
+        setTimeout(() => {
+          const st = $val(that._$startTime)
+          if ($(inst.element).hasClass('J_start') && st) {
+            const endd = moment(st).add(10, 'm').format('YYYY-MM-DD HH:mm')
+            $(that._$endTime).val(endd)
+          }
+          calcTakeTime()
+        }, 200)
       },
       plugins: [
         new ShortcutButtonsPlugin({
-          button: [{ label: $L('今天') }],
-          onClick(index, fp) {
-            fp.setDate(new Date())
+          button: [{ label: $L('%d 分钟后', 30) }],
+          onClick(i, fp) {
+            fp.setDate(moment().add(30, 'm').toDate())
+            fp.close()
+          },
+        }),
+        new ShortcutButtonsPlugin({
+          button: [{ label: $L('%d 分钟后', 10) }],
+          onClick(i, fp) {
+            fp.setDate(moment().add(10, 'm').toDate())
+            fp.close()
+          },
+        }),
+        new ShortcutButtonsPlugin({
+          button: [{ label: $L('%d 分钟后', 5) }],
+          onClick(i, fp) {
+            fp.setDate(moment().add(5, 'm').toDate())
             fp.close()
           },
         }),

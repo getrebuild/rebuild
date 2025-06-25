@@ -18,7 +18,7 @@ import java.util.Set;
 /**
  * 1个审批节点+N个抄送节点
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @see FlowNode
  * @since 2019/07/11
  */

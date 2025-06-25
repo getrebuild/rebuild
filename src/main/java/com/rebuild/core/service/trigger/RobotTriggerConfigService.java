@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 /**
  * 触发器
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/05/24
  */
 @Service

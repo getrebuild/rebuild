@@ -90,12 +90,11 @@ public class ApprovalList extends ChartData implements BuiltinChart {
 
             // 已取消
             ApprovalState currentState = ApprovalHelper.getApprovalState(recordId);
-            if (currentState == ApprovalState.CANCELED) {
-                continue;
-            }
+            if (currentState == ApprovalState.CANCELED) continue;
 
             FlowNode currentNode = null;
-            if (viewState == ApprovalState.PROCESSING.getState()) {
+            // PROCESSING
+            if (viewState == ApprovalState.DRAFT.getState()) {
                 try {
                     ApprovalProcessor approvalProcessor = new ApprovalProcessor(recordId, (ID) o[3]);
                     currentNode = approvalProcessor.getCurrentNode();

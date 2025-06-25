@@ -43,6 +43,7 @@ import java.util.Map;
  * @author Zhao Fangfang
  * @since 1.0, 2019-6-20
  */
+@SuppressWarnings("LombokSetterMayBeUsed")
 public class DataListWrapper {
 
     final protected int total;
@@ -116,7 +117,7 @@ public class DataListWrapper {
 
             Object nameValue = null;
             for (int colIndex = 0; colIndex < selectFieldsLen; colIndex++) {
-                if (!checkHasFieldPrivileges(selectFields[colIndex].getField())) {
+                if (!checkHasReadFieldPrivileges(selectFields[colIndex].getField())) {
                     row[colIndex] = FieldValueHelper.NO_READ_PRIVILEGES;
                     continue;
                 }
@@ -142,7 +143,7 @@ public class DataListWrapper {
                 // At last
                 if (colIndex + 1 == selectFieldsLen && fieldMeta.getType() == FieldType.PRIMARY) {
                     // 字段权限
-                    if (checkHasFieldPrivileges(entity.getNameField())) {
+                    if (checkHasReadFieldPrivileges(entity.getNameField())) {
                         // 如无名称字段值则补充
                         if (nameValue == null) {
                             nameValue = FieldValueHelper.getLabel((ID) value, StringUtils.EMPTY);
@@ -278,7 +279,7 @@ public class DataListWrapper {
      * @param field
      * @param original
      * @return
-     * @see #checkHasFieldPrivileges(Field)
+     * @see #checkHasReadFieldPrivileges(Field)
      */
     protected boolean checkHasJoinFieldPrivileges(SelectItem field, Object[] original) {
         if (this.queryJoinFields == null || UserHelper.isAdmin(user)) {
@@ -299,7 +300,7 @@ public class DataListWrapper {
      * @param field
      * @return
      */
-    protected boolean checkHasFieldPrivileges(Field field) {
+    protected boolean checkHasReadFieldPrivileges(Field field) {
         ID u = user == null ? UserContextHolder.getUser() : user;
         return Application.getPrivilegesManager().getFieldPrivileges().isReadable(field, u);
     }

@@ -163,15 +163,6 @@ class DlgMode1Option extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('在顶栏显示')}</label>
             <div className="col-sm-9">
-              <div className="topside-item bosskey-show">
-                <div className="switch-button switch-button-xs">
-                  <input type="checkbox" id="advListFilterTabs" defaultChecked={wpc.extConfig && wpc.extConfig.advListFilterTabs} />
-                  <span>
-                    <label htmlFor="advListFilterTabs" />
-                  </span>
-                </div>
-                <span>{$L('列表视图')}</span>
-              </div>
               <div className="topside-item">
                 <div className="switch-button switch-button-xs">
                   <input type="checkbox" id="advListFilterPane" defaultChecked={wpc.extConfig && wpc.extConfig.advListFilterPane} />
@@ -180,6 +171,15 @@ class DlgMode1Option extends RbFormHandler {
                   </span>
                 </div>
                 <span>{$L('查询面板')}</span>
+              </div>
+              <div className={`topside-item ${wpc.extConfig && wpc.extConfig.advListFilterTabs ? '' : ' bosskey-show'}`}>
+                <div className="switch-button switch-button-xs">
+                  <input type="checkbox" id="advListFilterTabs" defaultChecked={wpc.extConfig && wpc.extConfig.advListFilterTabs} />
+                  <span>
+                    <label htmlFor="advListFilterTabs" />
+                  </span>
+                </div>
+                <span>{$L('列表视图')}</span>
               </div>
             </div>
           </div>
@@ -267,7 +267,7 @@ class DlgMode2Option extends RbFormHandler {
               </div>
             </div>
           </div>
-          <div className="form-group row bosskey-show">
+          <div className="form-group row bosskey-show mt-1">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('启用树型列表')} (LAB)</label>
             <div className="col-sm-9">
               <div style={{ width: '96%' }}>
@@ -285,7 +285,7 @@ class DlgMode2Option extends RbFormHandler {
                     </select>
                     <p className="text-muted m-0 mt-1">{$L('使用分组字段')}</p>
                   </div>
-                  <div className="col-sm-6 pl-2">
+                  <div className="col-sm-6 pl-1">
                     <select className="form-control form-control-sm" ref={(c) => (this._$enableTreeParentField = c)} disabled>
                       {this.state.treeParentFields &&
                         this.state.treeParentFields.map((item) => {

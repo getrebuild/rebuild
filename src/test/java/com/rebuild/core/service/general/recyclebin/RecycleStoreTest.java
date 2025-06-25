@@ -13,7 +13,7 @@ import com.rebuild.TestSupport;
 import org.junit.jupiter.api.Test;
 
 /**
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/08/21
  */
 class RecycleStoreTest extends TestSupport {

@@ -29,7 +29,6 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.support.CommandArgs;
-import com.rebuild.core.support.License;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
@@ -38,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
@@ -92,8 +92,10 @@ public class AdvFilterParser extends SetUser {
 
     final private JSONObject filterExpr;
     final private Entity rootEntity;
-    // v3.1 条件值使用记录作为变量
-    final private ID varRecord;
+    // v3.1 条件值使用记录作为变量 ID
+    // v4.1 条件值使用Map作为变量 Map/JSONObject
+    final private Object varRecord;
+    final private Entity varRecordEntity;
 
     transient private Set<String> includeFields = null;
 
@@ -113,27 +115,42 @@ public class AdvFilterParser extends SetUser {
         this.filterExpr = filterExpr;
         this.rootEntity = rootEntity;
         this.varRecord = null;
+        this.varRecordEntity = rootEntity;
 
         String entityName = filterExpr.getString("entity");
-        if (entityName != null && !entityName.equalsIgnoreCase(this.rootEntity.getName())) {
-            Assert.isTrue(entityName.equalsIgnoreCase(this.rootEntity.getName()),
-                    "Filter(2) uses different entities : " + entityName + ", " + this.rootEntity.getName());
+        if (entityName != null) {
+            Assert.isTrue(entityName.equalsIgnoreCase(rootEntity.getName()),
+                    "Filter uses different entitiy : " + entityName + ", " + rootEntity.getName());
         }
     }
 
     /**
      * @param filterExpr
-     * @param varRecord 条件中包含字段变量，将从该记录中提取实际值替换
+     * @param varRecord 条件中包含字段变量，将从该ID/Map中提取实际值替换
      */
-    public AdvFilterParser(JSONObject filterExpr, ID varRecord) {
+    public AdvFilterParser(JSONObject filterExpr, Object varRecord) {
         this.filterExpr = filterExpr;
-        this.rootEntity = MetadataHelper.getEntity(varRecord.getEntityCode());
-        this.varRecord = License.isRbvAttached() ? varRecord : null;
+        this.varRecord = varRecord;
 
         String entityName = filterExpr.getString("entity");
+        if (varRecord instanceof ID) {
+            this.rootEntity = MetadataHelper.getEntity(((ID) varRecord).getEntityCode());
+            this.varRecordEntity = this.rootEntity;
+        } else {
+            Assert.notNull(entityName, "[entity] cannot be null");
+            this.rootEntity = MetadataHelper.getEntity(entityName);
+
+            if (varRecord != null) {
+                String en = ((JSONObject) varRecord).getString("metadata.entity");
+                this.varRecordEntity = MetadataHelper.getEntity(en);
+            } else {
+                this.varRecordEntity = this.rootEntity;
+            }
+        }
+
         if (entityName != null) {
-            Assert.isTrue(entityName.equalsIgnoreCase(this.rootEntity.getName()),
-                    "Filter(3) uses different entities : " + entityName + ", " + this.rootEntity.getName() + ", " + varRecord);
+            Assert.isTrue(entityName.equalsIgnoreCase(rootEntity.getName()),
+                    "Filter uses different entitiy : " + entityName + ", " + rootEntity.getName());
         }
     }
 
@@ -141,7 +158,7 @@ public class AdvFilterParser extends SetUser {
      * @return
      */
     public String toSqlWhere() {
-        if (filterExpr == null || filterExpr.isEmpty()) return null;
+        if (CollectionUtils.isEmpty(filterExpr)) return null;
 
         this.includeFields = new HashSet<>();
 
@@ -920,29 +937,41 @@ public class AdvFilterParser extends SetUser {
         // {@CURRENT.} for USER
         if (fieldName.startsWith(CURRENT_ANY + ".")) {
             String userField = fieldName.substring(CURRENT_ANY.length() + 1);
-            Object[] o = Application.getQueryFactory().uniqueNoFilter(UserContextHolder.getUser(), userField);
-            if (o == null || o[0] == null) {
+            useValue = QueryHelper.queryFieldValue(UserContextHolder.getUser(), userField);
+            if (useValue == null) {
                 log.warn("Cannot use `{}` in `{}` (No value found)", value, queryField);
                 return new VarFieldNoValue37(value);
-            } else {
-                useValue = o[0];
             }
         }
 
         if (useValue == null) {
             if (varRecord == null) return value;
 
-            Field valueField = MetadataHelper.getLastJoinField(rootEntity, fieldName);
+            Field valueField = MetadataHelper.getLastJoinField(varRecordEntity, fieldName);
             if (valueField == null) {
-                throw new MissingMetaExcetion(fieldName, rootEntity.getName());
+                throw new MissingMetaExcetion(fieldName, varRecordEntity.getName());
             }
 
-            Object[] o = Application.getQueryFactory().uniqueNoFilter(varRecord, fieldName);
-            if (o == null || o[0] == null) {
+            if (varRecord instanceof ID) {
+                useValue = QueryHelper.queryFieldValue((ID) varRecord, fieldName);
+            } else {
+                // 点连接
+                if (fieldName.contains(".")) {
+                    String[] fs = fieldName.split("\\.");
+                    Object id = ((Map<?, ?>) varRecord).get(fs[0]);
+                    if (ID.isId(id)) {
+                        useValue = QueryHelper.queryFieldValue(
+                                ID.valueOf((String) id), fieldName.substring(fieldName.indexOf(".") + 1));
+                    }
+                } else {
+                    useValue = ((Map<?, ?>) varRecord).get(fieldName);
+                }
+            }
+
+            if (useValue == null) {
                 log.warn("Cannot use `{}` in `{}` (None value found)", value, queryField);
                 return new VarFieldNoValue37(value);
             }
-            useValue = o[0];
         }
 
         if (useValue instanceof Date) {

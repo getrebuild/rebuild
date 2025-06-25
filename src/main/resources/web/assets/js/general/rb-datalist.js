@@ -304,3 +304,16 @@ $(document).ready(() => {
   // v3.8, v3.9
   wpc.easyAction && window.EasyAction4List && window.EasyAction4List.init(wpc.easyAction)
 })
+
+// v4.1 AI
+window.attachAibotPageData = function (cb) {
+  renderRbcomp(
+    <DlgAttachRecordList
+      onConfirm={(s) => {
+        const qe = RbListPage._RbList.getLastQueryEntry()
+        qe._dataRange = s
+        typeof cb === 'function' && cb({ listFilter: qe, name })
+      }}
+    />
+  )
+}

@@ -112,7 +112,7 @@ class EntitySearcher extends RbAlert {
                 return (
                   <li key={idx}>
                     <a href={item.entity ? `./entity/${item.entity}/field/${item.name}` : `./entity/${item.name}/base`} target="_blank">
-                      <span>{WrapHtml(item.label.replace(this.__q, `<b>${this.__q}</b>`))}</span>
+                      <span>{WrapHtml(item.label.replaceAll(this.__q, `<b>${this.__q}</b>`))}</span>
                       <div className="float-right">{!item.entity && <span className="badge badge-light">{$L('实体')}</span>}</div>
                     </a>
                   </li>

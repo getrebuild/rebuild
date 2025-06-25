@@ -63,7 +63,7 @@ import java.util.Set;
 /**
  * 表单构造
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/06/03
  */
 @Slf4j
@@ -205,10 +205,12 @@ public class FormsBuilder extends FormsManager {
         if (forceLayout != null) recordOrLayoutId = forceLayout;
         // 明细共同编辑
         if (forceLayout == null && entityMeta.getMainEntity() != null && recordId == null) {
-            ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
-            if (mainid != null && !EntityHelper.isUnsavedId(mainid)) {
-                List<ID> ids = QueryHelper.detailIdsNoFilter(mainid, entityMeta);
-                if (!ids.isEmpty()) recordOrLayoutId = ids.get(0);
+            if (FormsBuilderContextHolder.isFromProTable(true)) {
+                ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
+                if (mainid != null && !EntityHelper.isUnsavedId(mainid)) {
+                    List<ID> ids = QueryHelper.detailIdsNoFilter(mainid, entityMeta);
+                    if (!ids.isEmpty()) recordOrLayoutId = ids.get(0);
+                }
             }
         }
 

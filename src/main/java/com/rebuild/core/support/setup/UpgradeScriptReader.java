@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * Parseing `resources/scripts/db-upgrade.sql`
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/03/22
  */
 public class UpgradeScriptReader {

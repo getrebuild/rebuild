@@ -219,10 +219,6 @@ public class FormsManager extends BaseLayoutManager {
         if (JSONUtils.wellFormat(shareTo)) {
             JSONObject shareTo2 = (JSONObject) JSON.parse(shareTo);
             cb.set("shareTo", shareTo2);
-            // v3.9
-            if (shareTo2.getBooleanValue("extrasAction")) {
-                cb.set("extrasAction", true);
-            }
         }
         return cb;
     }

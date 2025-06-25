@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.rebuild</groupId>
     <artifactId>rebuild</artifactId>
-    <version>4.0.7</version>
+    <version>4.1.0-dev</version>
     <name>rebuild</name>
     <description>Building your business-systems freely!</description>
     <url>https://getrebuild.com/</url>
@@ -302,7 +302,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>persist4j</artifactId>
-            <version>1.8.2</version>
+            <version>0ab849caea</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.alibaba</groupId>
@@ -529,6 +529,16 @@
             <groupId>com.getui.push</groupId>
             <artifactId>restful-sdk</artifactId>
             <version>1.0.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.openai</groupId>
+            <artifactId>openai-java</artifactId>
+            <version>2.3.0</version>
         </dependency>
 
         <!-- fix: CVEs -->

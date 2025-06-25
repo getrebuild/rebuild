@@ -9,12 +9,18 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const UCenter = {
   query: function (c) {
     $.get('/settings/ucenter/bind-query', (res) => {
-      typeof c === 'function' && c(res.data || null)
+      typeof c === 'function' && res.data && c(res.data)
     })
   },
 
   bind: function () {
     renderRbcomp(<UCenterBind />)
+  },
+
+  market: function (c) {
+    $.get('/settings/ucenter/market-query', (res) => {
+      typeof c === 'function' && res.data && c(res.data)
+    })
   },
 }
 

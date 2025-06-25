@@ -41,6 +41,16 @@ public class FieldPrivileges {
     }
 
     /**
+     * 脱敏?
+     * @param field
+     * @param user
+     * @return
+     */
+    public boolean isNotMask(Field field, ID user) {
+        return true;
+    }
+
+    /**
      * 可修改?
      * @param field
      * @param user

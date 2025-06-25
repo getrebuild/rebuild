@@ -17,6 +17,7 @@ import com.rebuild.core.DefinedException;
 import com.rebuild.core.Initialization;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
+import com.rebuild.core.support.OnlyOffice;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
@@ -104,6 +105,11 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         String value;
         if (item == ConfigurationItem.AppBuild) value = Application.VER;
         else value = RebuildConfiguration.get(item);
+
+        // v4.1 当使用 OnlyOffice 后的默认预览地址
+        if (item == ConfigurationItem.PortalOfficePreviewUrl && OnlyOffice.isUseOoPreview()) {
+            value = OnlyOffice.OO_PREVIEW_URL;
+        }
 
         if (StringUtils.isBlank(value)) {
             thymeleafViewResolver.addStaticVariable(item.name(), null);

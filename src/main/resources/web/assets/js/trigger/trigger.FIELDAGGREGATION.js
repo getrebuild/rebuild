@@ -190,17 +190,23 @@ class ContentFieldAggregation extends ActionContentSpec {
               </div>
               <div className="mt-2">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$stopPropagation = c)} />
-                  <span className="custom-control-label">{$L('禁用级联执行')}</span>
-                </label>
-              </div>
-              <div className="mt-2">
-                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._$autoCreate = c)} />
                   <span className="custom-control-label">
                     {$L('目标记录不存在时自动新建')}
                     <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('仅使用“通过字段匹配”时有效')} />
                   </span>
+                </label>
+              </div>
+              <div className="mt-2">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$stopPropagation = c)} />
+                  <span className="custom-control-label">{$L('禁用级联执行')}</span>
+                </label>
+              </div>
+              <div className="mt-2 bosskey-show">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$asyncMode = c)} />
+                  <span className="custom-control-label">{$L('启用延迟执行')} (LAB)</span>
                 </label>
               </div>
             </div>
@@ -255,6 +261,9 @@ class ContentFieldAggregation extends ActionContentSpec {
       $(this._$forceUpdate).attr('checked', content.forceUpdate === true)
       $(this._$stopPropagation).attr('checked', content.stopPropagation === true)
       $(this._$autoCreate).attr('checked', content.autoCreate === true)
+      if (content.asyncMode === true) {
+        $(this._$asyncMode).attr('checked', true).parents('.mt-2').removeClass('bosskey-show')
+      }
       this.saveAdvFilter(content.dataFilter)
       $(this._$matchFields).val(content.targetEntityMatchFields || null)
     }
@@ -450,6 +459,7 @@ class ContentFieldAggregation extends ActionContentSpec {
       forceUpdate: $(this._$forceUpdate).prop('checked'),
       stopPropagation: $(this._$stopPropagation).prop('checked'),
       autoCreate: $(this._$autoCreate).prop('checked'),
+      asyncMode: $(this._$asyncMode).prop('checked'),
       fillbackField: $(this._$fillbackField).val() || null,
       dataFilter: this._advFilter__data,
     }

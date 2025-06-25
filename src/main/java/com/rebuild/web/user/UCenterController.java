@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/settings/ucenter")
 public class UCenterController extends BaseController {
 
-    @PostMapping("/bind")
+    @PostMapping("bind")
     public RespBody bindCloudAccount(@RequestBody JSONObject body, HttpServletRequest request) {
         RbAssert.isSuperAdmin(getRequestUser(request));
 
@@ -52,10 +52,16 @@ public class UCenterController extends BaseController {
         }
     }
 
-    @GetMapping("/bind-query")
+    @GetMapping("bind-query")
     public RespBody bindQuery(HttpServletRequest request) {
         JSONObject res = License.siteApi("api/ucenter/bind-query");
         res.put("canBind", UserHelper.isSuperAdmin(getRequestUser(request)));
+        return RespBody.ok(res);
+    }
+
+    @GetMapping("market-query")
+    public RespBody marketQuery41() {
+        JSONObject res = License.siteApi("api/ucenter/market-query");
         return RespBody.ok(res);
     }
 }

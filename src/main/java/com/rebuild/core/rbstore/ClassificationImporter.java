@@ -21,7 +21,7 @@ import org.apache.commons.lang.StringUtils;
 /**
  * 导入分类数据
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/04/08
  */
 public class ClassificationImporter extends HeavyTask<Integer> {

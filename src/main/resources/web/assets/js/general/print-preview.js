@@ -7,12 +7,22 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // 打印视图
 
 const wpc = window.__PageConfig
+let __printTimer
+
 $(document).ready(() => {
   renderRbcomp(<PreviewTable data={wpc.content} />, 'preview-table')
+  // v4.1 明细
+  if (wpc.detailsContent) {
+    wpc.detailsContent.forEach((d) => {
+      const $d = $('<div></div>').appendTo('#details-table')
+      renderRbcomp(<DetailsTable data={d} />, $d)
+    })
+  }
 
   setDefaultStyle('fontSize')
   setDefaultStyle('fontFamily')
   setDefaultStyle('fontBold')
+  setDefaultStyle('showDetails')
 })
 
 function setDefaultStyle(id) {
@@ -28,6 +38,10 @@ function setDefaultStyle(id) {
     }
     if (id === 'fontBold') {
       $('.preview-content').attr('data-bold', v)
+    }
+    if (id === 'showDetails') {
+      if (v === '1') $('.preview-content').removeClass('hide-details')
+      else $('.preview-content').addClass('hide-details')
     }
   })
 
@@ -70,21 +84,24 @@ class PreviewTable extends React.Component {
     if (currentRow.length > 0) rows.push(currentRow)
 
     return (
-      <table className="table table-bordered table-sm table-fixed">
-        <tbody>
-          <tr className="hide">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => {
-              return <td data-col={i} key={i} />
-            })}
-          </tr>
-          {rows.map((row, idx) => {
-            if (row[0].field === '$REFFORM$') return null
+      <RF>
+        <h3>{this.props.data.entityMeta.entityLabel}</h3>
+        <table className="table table-bordered table-sm table-fixed">
+          <tbody>
+            <tr className="hide">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => {
+                return <td data-col={i} key={i} />
+              })}
+            </tr>
+            {rows.map((row, idx) => {
+              if (row[0].field === '$REFFORM$') return null
 
-            const k = `row-${idx}-`
-            return <tr key={k}>{this._renderRow(row).map((c, idx2) => React.cloneElement(c, { key: `${k}${idx2}` }))}</tr>
-          })}
-        </tbody>
-      </table>
+              const k = `row-${idx}-`
+              return <tr key={k}>{this._renderRow(row).map((c, idx2) => React.cloneElement(c, { key: `${k}${idx2}` }))}</tr>
+            })}
+          </tbody>
+        </table>
+      </RF>
     )
   }
 
@@ -123,7 +140,10 @@ class PreviewTable extends React.Component {
 
   componentDidMount() {
     $('.preview-content.hide').removeClass('hide')
-    if (~~$urlp('mode') === 1) setTimeout(() => window.print(), 100)
+    if (~~$urlp('mode') === 1) {
+      if (__printTimer) clearTimeout(__printTimer)
+      __printTimer = setTimeout(() => window.print(), 801)
+    }
   }
 
   formatValue(item) {
@@ -173,9 +193,8 @@ class PreviewTable extends React.Component {
       )
     } else if (item.type === 'NTEXT') {
       if (item.useMdedit) {
-        // eslint-disable-next-line no-undef
-        const md2html = SimpleMDE.prototype.markdown(item.value)
-        return <div className="mdedit-content" dangerouslySetInnerHTML={{ __html: md2html }} />
+        const md2html = marked.parse(item.value)
+        return <div className="md-content" dangerouslySetInnerHTML={{ __html: md2html }} />
       } else {
         return (
           <RF>
@@ -241,5 +260,42 @@ class PreviewTable extends React.Component {
     const text = value.text
     if (!text && value.id) return `@${value.id.toUpperCase()}`
     else return text
+  }
+}
+
+class DetailsTable extends PreviewTable {
+  render() {
+    const d = this.props.data
+    return (
+      <RF>
+        <h3>{d.name}</h3>
+        {d.details ? (
+          <table className="table table-bordered table-sm table-fixed">
+            <thead>
+              <tr>
+                {d.details[0].elements.map((x) => {
+                  return <th key={x.field}>{x.label}</th>
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {d.details.map((x) => {
+                return (
+                  <tr key={x.recordId}>
+                    {x.elements.map((item, idx) => {
+                      return <td key={`${item.field}-${idx}`}>{this.formatValue(item)}</td>
+                    })}
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        ) : (
+          <div className="text-muted" style={{ marginBottom: '1rem' }}>
+            {$L('无数据')}
+          </div>
+        )}
+      </RF>
+    )
   }
 }

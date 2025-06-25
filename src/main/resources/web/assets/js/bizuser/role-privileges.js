@@ -7,10 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const roleId = window.__PageConfig.recordId
 
-// 自定义
+// 自定义权限
 let advFilters = {}
 let advFilterSettings = {}
-// 字段
+// 字段权限
 let fieldpModals = {}
 let fieldpSettings = {}
 
@@ -130,7 +130,7 @@ $(document).ready(() => {
       advFilters[filterKey].show()
     } else {
       renderRbcomp(
-        <AdvFilter
+        <AdvFilterWithAndOr
           entity={entity}
           filter={advFilterSettings[filterKey]}
           title={
@@ -149,7 +149,6 @@ $(document).ready(() => {
             else $active.removeClass('active')
           }}
         />,
-        null,
         function () {
           advFilters[filterKey] = this
         }
@@ -157,6 +156,30 @@ $(document).ready(() => {
     }
   })
 })
+
+class AdvFilterWithAndOr extends AdvFilter {
+  renderAction() {
+    let c = super.renderAction()
+    c = React.cloneElement(c, { className: 'item float-left' })
+    return (
+      <RF>
+        {c}
+        <div className="float-right pt-1">
+          <span className="pr-1">{$L('与基础权限关系')}</span>
+          <select className="cpAndOr" ref={(c) => (this._$cpAndOr = c)} defaultValue={(this.props.filter || {})._cpAndOr || 'AND'}>
+            <option value="AND">{$L('并且')}</option>
+            <option value="OR">{$L('或者')}</option>
+          </select>
+        </div>
+        <div className="clearfix" />
+      </RF>
+    )
+  }
+
+  toFilterData(canNoFilters) {
+    return { ...super.toFilterData(canNoFilters), _cpAndOr: this._$cpAndOr.value }
+  }
+}
 
 const _clickPriv = function (elements, action) {
   if (action === 'Z' && elements.hasClass('R0')) {
@@ -197,6 +220,7 @@ const loadRoles = function () {
       .on('click', () => RbFormModal.create({ title: $L('编辑角色'), entity: 'Role', icon: 'lock', id: _id, postAfter: () => location.reload() }, true))
     $('<span class="action"><i class="zmdi zmdi-delete"></i></span>')
       .appendTo($p)
+      // eslint-disable-next-line no-undef
       .on('click', () => deleteRole(_id))
   })
 }
@@ -227,7 +251,7 @@ const loadPrivileges = function () {
             }
           } else if (k === 'FP') {
             fieldpSettings[entity] = defs[k]
-            $name.parent().find('span>a').addClass('active').parent().removeClass('bosskey-show')
+            $name.parent().find('span>a').addClass('active')
           } else {
             $tr.find(`i.priv[data-action="${k}"]`).removeClass('R0 R1 R2 R3 R4').addClass(`R${defs[k]}`)
           }
@@ -302,7 +326,7 @@ class CopyRoleTo extends RbModalHandler {
             <label className="col-sm-3 col-form-label text-sm-right">{$L('复制到哪些角色')}</label>
             <div className="col-sm-7">
               <UserSelector hideDepartment hideUser hideTeam ref={(c) => (this._UserSelector = c)} />
-              <p className="form-text">{$L('将当前角色权限复制到选择的角色中，选择角色的原有权限会被完全覆盖')}</p>
+              <p className="form-text">{$L('将当前角色权限复制到选择的角色中')}</p>
             </div>
           </div>
         </div>
@@ -325,10 +349,10 @@ class CopyRoleTo extends RbModalHandler {
       from: this.props.roleId,
       copyTo: this._UserSelector.val(),
     }
-    if ((post.copyTo || []).length === 0) return RbHighbar.create($L('请选择复制给哪些角色'))
+    if ((post.copyTo || []).length === 0) return RbHighbar.create($L('请选择复制到哪些角色'))
 
     const that = this
-    RbAlert.create($L('确定将当前角色权限复制给选择的角色吗？'), {
+    RbAlert.create($L('选择角色的原有权限会被完全覆盖。确定复制吗？'), {
       onConfirm: function () {
         this.hide()
 
@@ -336,7 +360,7 @@ class CopyRoleTo extends RbModalHandler {
         $.post('/admin/bizuser/role-copyto', JSON.stringify(post), (res) => {
           if (res.error_code === 0) {
             RbHighbar.success($L('复制完成'))
-            setTimeout(() => that.hide(), 1500)
+            setTimeout(() => that.hide(), 1000)
           } else {
             RbHighbar.error(res.error_msg)
             $btn.button('reset')
@@ -416,7 +440,7 @@ class FieldsPrivileges extends RbModalHandler {
       <RbModal
         title={
           <RF>
-            {$L('字段权限')} (LAB)
+            {$L('字段权限')}
             <sup className="rbv" />
           </RF>
         }
@@ -517,6 +541,18 @@ class FieldsPrivilegesPane extends React.Component {
             })}
           </select>
         </div>
+        <div className="form-group hide">
+          <label>{$L('脱敏读取字段')} TODO</label>
+          <select className="form-control form-control-sm" multiple ref={(c) => (this._$mask = c)}>
+            {_fields.map((item) => {
+              return (
+                <option key={item.name} value={item.name}>
+                  {item.label}
+                </option>
+              )
+            })}
+          </select>
+        </div>
         <div className="form-group">
           <label>{$L('不可编辑字段')}</label>
           <select className="form-control form-control-sm" multiple ref={(c) => (this._$update = c)}>
@@ -537,7 +573,7 @@ class FieldsPrivilegesPane extends React.Component {
   componentDidMount() {
     $.get(`/commons/metadata/fields?entity=${this.props.entity}`, (res) => {
       this.setState({ fields: res.data }, () => {
-        $([this._$create, this._$read, this._$update]).select2({
+        $([this._$create, this._$read, this._$mask, this._$update]).select2({
           placeholder: $L('无'),
           allowClear: true,
         })
@@ -546,6 +582,7 @@ class FieldsPrivilegesPane extends React.Component {
         const _selected = this.props.selected || {}
         if (_selected.create) $(this._$create).val(_selected.create).trigger('change')
         if (_selected.read) $(this._$read).val(_selected.read).trigger('change')
+        if (_selected.mask) $(this._$mask).val(_selected.mask).trigger('change')
         if (_selected.update) $(this._$update).val(_selected.update).trigger('change')
       })
     })
@@ -555,10 +592,9 @@ class FieldsPrivilegesPane extends React.Component {
     const d = {
       create: $(this._$create).val(),
       read: $(this._$read).val(),
+      mask: $(this._$mask).val(),
       update: $(this._$update).val(),
     }
-
-    if (d.create.length + d.read.length + d.update.length === 0) return null
-    return d
+    return d.create.length + d.read.length + d.mask.length + d.update.length === 0 ? null : d
   }
 }

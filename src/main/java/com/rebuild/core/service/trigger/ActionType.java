@@ -21,7 +21,7 @@ import java.lang.reflect.Constructor;
 /**
  * 支持的操作类型
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/05/23
  */
 public enum ActionType {

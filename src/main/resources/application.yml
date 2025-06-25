@@ -41,5 +41,9 @@ spring:
       thread-name-prefix: rbScheduler-
       pool:
         size: 50
+    execution:
+      pool:
+        core-size: 8
+      thread-name-prefix: rbTask-
   main:
     banner-mode: off

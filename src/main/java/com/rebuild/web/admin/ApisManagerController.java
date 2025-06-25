@@ -30,6 +30,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author devezhao
@@ -49,21 +51,11 @@ public class ApisManagerController extends BaseController {
     @GetMapping("apis-manager/app-list")
     public RespBody appList() {
         Object[][] apps = Application.createQueryNoFilter(
-                "select uniqueId,appId,appSecret,bindUser,bindUser.fullName,createdOn,appId,bindIps from RebuildApi order by createdOn")
+                "select uniqueId,appId,appSecret,bindUser,bindUser.fullName,createdOn,bindIps from RebuildApi order by createdOn")
                 .array();
-
-        // 近30日用量
         for (Object[] o : apps) {
-            String appid = (String) o[6];
-            Object[] count = Application.createQueryNoFilter(
-                    "select count(requestId) from RebuildApiRequest where appId = ? and requestTime > ?")
-                    .setParameter(1, appid)
-                    .setParameter(2, CalendarUtils.addDay(-SHOW_DAYS))
-                    .unique();
-            o[6] = count[0];
             o[5] = I18nUtils.formatDate((Date) o[5]);
         }
-
         return RespBody.ok(apps);
     }
 
@@ -77,6 +69,22 @@ public class ApisManagerController extends BaseController {
         // cache
         Application.getBean(RebuildApiService.class).update(record);
         return RespBody.ok();
+    }
+
+    @GetMapping("apis-manager/request-times")
+    public RespBody requestTimes(HttpServletRequest request) {
+        final String appids = getParameterNotNull(request, "appid");
+
+        Map<String, Long> times = new HashMap<>();
+        for (String appid : appids.split("[,;]")) {
+            Object[] count = Application.createQueryNoFilter(
+                    "select count(requestId) from RebuildApiRequest where appId = ? and requestTime > ?")
+                    .setParameter(1, appid)
+                    .setParameter(2, CalendarUtils.addDay(-SHOW_DAYS))
+                    .unique();
+            times.put(appid, (Long) count[0]);
+        }
+        return RespBody.ok(times);
     }
 
     @GetMapping("apis-manager/request-logs")

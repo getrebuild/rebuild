@@ -45,7 +45,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-left: 5px;
 }
 
-.data-list td.name span.badge:hover {
+.data-list td.name span.badge:not(.badge-arrow3):hover {
   opacity: 0.8;
   cursor: pointer;
+}
+
+.rb-loading.data-list {
+  overflow-x: auto;
 }

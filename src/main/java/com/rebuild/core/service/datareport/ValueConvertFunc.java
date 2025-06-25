@@ -160,7 +160,7 @@ public class ValueConvertFunc {
             if (thatFunc.equals(CLEAR_4NTEXT)) {
                 if (fromClazz != null && fromClazz.getSimpleName().equals("Html5ReportGenerator")) {
                     String md2html = MarkdownUtils.render((String) value);
-                    return "<div class='mdedit-content md2html'>" + md2html + "</div>";
+                    return "<div class='md-content md2html'>" + md2html + "</div>";
                 } else {
                     return MarkdownUtils.cleanMarks((String) value);
                 }

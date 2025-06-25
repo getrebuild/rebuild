@@ -22,7 +22,7 @@ import java.util.Arrays;
 /**
  * MD 转换工具
  *
- * @author devezhao-mbp zhaofang123@gmail.com
+ * @author devezhao-mbp
  * @since 2019/05/16
  */
 public class MarkdownUtils {

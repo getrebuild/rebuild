@@ -370,9 +370,9 @@ const ECHART_BASE = {
     show: false,
   },
   textStyle: {
-    fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
+    fontFamily: '"Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
   },
-  color: COLOR_PALETTES[window.__LAB_CHARTCOLORS || 'x'] || RBCOLORS,
+  color: RBCOLORS,
 }
 
 const ECHART_AXIS_LABEL = {
@@ -926,19 +926,17 @@ class ApprovalList extends BaseChart {
             </thead>
             <tbody>
               {viewData.map((item, idx) => {
-                let expType = isNaN(item[8]) ? null : item[8]
-                if (expType !== null) expType = item[8] > 0 ? 2 : 1
                 return (
                   <tr key={`approval-${idx}`}>
                     <td className="user-avatar cell-detail user-info">
                       <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} alt="Avatar" />
                       <span>{item[1]}</span>
                       <span className="cell-detail-description">
-                        <div className="float-left" style={{ marginTop: expType ? 2 : 0 }}>
+                        <div className="float-left">
                           <DateShow date={item[2]} />
                         </div>
-                        {expType === 2 && <span className="float-left badge badge-sm badge-danger ml-1">{$L('已超时 %s', $sec2Time(item[8]))}</span>}
-                        {expType === 1 && <span className="float-left badge badge-sm badge-info ml-1">{$L('%s 后超时', $sec2Time(Math.abs(item[8])))}</span>}
+                        {item[8] > 0 && <span className="float-left text-danger ml-1">({$L('已超时 %s', $sec2Time(item[8]))})</span>}
+                        {item[8] < 0 && <span className="float-left text-warning ml-1">({$L('%s 后超时', $sec2Time(Math.abs(item[8])))})</span>}
                       </span>
                     </td>
                     <td className="cell-detail">
@@ -1002,6 +1000,7 @@ class ApprovalList extends BaseChart {
     } else {
       const that = this
       renderRbcomp(
+        // eslint-disable-next-line react/jsx-no-undef
         <ApprovalApproveForm
           id={record}
           approval={approval}
@@ -1447,7 +1446,7 @@ class DataList extends BaseChart {
 
     const table = (
       <RF>
-        <table className="table table-hover table-striped table-header-fixed2 table-sortable">
+        <table className="table table-hover table-bordered table-striped table-sortable">
           <thead>
             <tr ref={(c) => (this._$head = c)}>
               {listFields.map((item) => {

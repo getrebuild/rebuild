@@ -489,6 +489,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             <label>
               {$L('批注')}
               {this.state.expiresTime > 0 && <span className="text-danger ml-1">({$L('已超时 %s', $sec2Time(this.state.expiresTime))})</span>}
+              {this.state.expiresTime < 0 && <span className="text-warning ml-1">({$L('%s 后超时', $sec2Time(Math.abs(this.state.expiresTime)))})</span>}
             </label>
             <textarea
               className="form-control form-control-sm row2x"
@@ -765,7 +766,7 @@ class ApprovalStepViewer extends React.Component {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={this.hide}>
+              <button className="close" type="button" onClick={this.hide} title={`${$L('关闭')} (Esc)`}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
@@ -1019,7 +1020,7 @@ class EditableFieldForms extends React.Component {
           item.isFull = true
           delete item.referenceQuickNew // v35
           // eslint-disable-next-line no-undef
-          return detectElement(item)
+          return detectElement(item, entity.entity)
         })}
       </LiteForm>
     )

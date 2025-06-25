@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.utils;
 
 import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.persist4j.engine.NullValue;
@@ -22,6 +21,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
 import com.rebuild.core.RebuildException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -29,6 +29,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.core.io.ClassPathResource;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -36,6 +38,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -358,11 +363,11 @@ public class CommonsUtils {
      * @return
      */
     public static Date parseDate(String source) {
-        if ("yyyy".length() == source.length()) {
-            return CalendarUtils.parse(source, "yyyy");
-        }
-        if ("yyyy-MM".length() == source.length()) {
-            return CalendarUtils.parse(source, "yyyy-MM");
+        if (source.length() == 4 || source.contains("-") || source.contains("年")) {
+            source = source.replaceAll("[年月日\\-\\s:.]", "");
+            String format = "yyyyMMddHHmmssSSS".substring(0, source.length());
+            Date d = CalendarUtils.parse(source, format);
+            if (d != null) return d;
         }
 
         try {
@@ -424,5 +429,64 @@ public class CommonsUtils {
         }
         // 只保留字母、数字、-
         return res.toString().replaceAll("[^a-zA-Z0-9\\-]", "").toUpperCase();
+    }
+
+    /**
+     * @param prefix
+     * @param hasHex
+     * @return
+     */
+    public static String genPrettyName(String prefix, boolean hasHex) {
+        String name = String.format("%s-%s",
+                prefix == null ? "RB" : prefix,
+                CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()));
+        if (hasHex) name += "-" + CommonsUtils.randomHex().split("-")[0];
+        return name;
+    }
+
+    /**
+     * 获取文件扩展名
+     *
+     * @param fileName
+     * @return
+     * @see Files#probeContentType(Path)
+     */
+    public static String getFileExtension(String fileName) {
+        String mimeType = null;
+        try {
+            mimeType = Files.probeContentType(Paths.get(fileName));
+        } catch (IOException ignored) {}
+
+        if (mimeType == null && fileName.contains(".")) {
+            return fileName.toLowerCase().substring(fileName.lastIndexOf(".") + 1);
+        }
+        return mimeType == null ? "unknown" : mimeType.split("/")[1];
+    }
+
+    /**
+     * @param base64Data
+     * @param dest
+     */
+    public static void base64ToFile(String base64Data, File dest) {
+        byte[] decodedBytes = Base64.decodeBase64(base64Data);
+
+        try (FileOutputStream fos = new FileOutputStream(dest)) {
+            fos.write(decodedBytes);
+        } catch (IOException e) {
+            throw new RebuildException(e);
+        }
+    }
+
+    /**
+     * @param file
+     * @return
+     */
+    public static String fileToBase64(File file) {
+        try {
+            byte[] fileBytes = Files.readAllBytes(file.toPath());
+            return Base64.encodeBase64String(fileBytes);
+        } catch (IOException e) {
+            throw new RebuildException(e);
+        }
     }
 }

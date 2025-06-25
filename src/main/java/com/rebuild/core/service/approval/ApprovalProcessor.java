@@ -20,6 +20,7 @@ import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.privileges.OperationDeniedException;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
@@ -31,6 +32,7 @@ import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.intellij.lang.annotations.Flow;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -44,10 +46,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowRevokeApproval;
+
 /**
  * 审批处理。此类是作为 ApprovalStepService 的辅助，因为有些逻辑放在 Service 中不合适
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/06/24
  */
 @Slf4j
@@ -222,6 +226,19 @@ public class ApprovalProcessor extends SetUser {
      */
     public void cancel() throws ApprovalException {
         final ApprovalStatus status = checkApprovalState(ApprovalState.PROCESSING);
+        this.approvalId = status.getApprovalId();
+        // v4.1 提交后有审批了
+        if (!"ROOT".equalsIgnoreCase(status.getPrevStepNode())) {
+            FlowNode root = ApprovalHelper.getFlowNode(this.approvalId, FlowNode.NODE_ROOT);
+            if (root != null && root.getDataMap().getBooleanValue("unallowCancel")) {
+                if (Application.getPrivilegesManager().allow(getUser(), AllowRevokeApproval)) {
+                    // 权限允许则可以
+                } else {
+                    // 提交人不允许
+                    throw new ApprovalException(Language.L("你无权撤回审批"));
+                }
+            }
+        }
 
         Application.getBean(ApprovalStepService.class).txCancel(
                 this.recordId, status.getApprovalId(), getCurrentNodeId(status), false);

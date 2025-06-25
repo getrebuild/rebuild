@@ -17,7 +17,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/03/08
  */
 public class QiniuCloudTest extends TestSupport {

@@ -128,9 +128,9 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
             owningFormat = dtmField.getName() + "." + owningFormat;
         }
 
-        final String customFilter = buildCustomFilter(ep, dtmField);
+        final String customFilterWithAndOr = buildCustomFilter(ep, dtmField);
+        final String customFilter = customFilterWithAndOr == null ? null : customFilterWithAndOr.substring(3).trim();
         final String shareFilter = buildShareFilter(entity, dtmField);
-
         final DepthEntry depth = ep.superlative(useAction);
 
         // 全部
@@ -147,7 +147,7 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
 
         if (depth == BizzDepthEntry.PRIVATE) {
             String baseFilter = String.format(owningFormat, EntityHelper.OwningUser, user.getIdentity());
-            return joinFilters(baseFilter, customFilter, shareFilter);
+            return joinFilters(baseFilter, customFilterWithAndOr, shareFilter);
         }
 
         // 部门
@@ -156,7 +156,7 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
         String deptFilter = String.format(owningFormat, EntityHelper.OwningDept, dept.getIdentity());
 
         if (depth == BizzDepthEntry.LOCAL) {
-            return joinFilters(deptFilter, customFilter, shareFilter);
+            return joinFilters(deptFilter, customFilterWithAndOr, shareFilter);
         } else if (depth == BizzDepthEntry.DEEPDOWN) {
             Set<String> set = new HashSet<>();
             set.add(deptFilter);
@@ -165,7 +165,7 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
             }
 
             deptFilter = StringUtils.join(set, " or ");
-            return joinFilters(deptFilter, customFilter, shareFilter);
+            return joinFilters(deptFilter, customFilterWithAndOr, shareFilter);
         }
 
         return DENIED.evaluate(null);
@@ -175,7 +175,7 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
         if (customFilter == null) {
             return String.format("((%s) or %s)", baseFilter, shareFilter);
         } else {
-            return String.format("(((%s) and %s) or %s)", baseFilter, customFilter, shareFilter);
+            return String.format("(((%s) %s) or %s)", baseFilter, customFilter, shareFilter);
         }
     }
 
@@ -241,6 +241,10 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
 
         AdvFilterParser advFilterParser = new AdvFilterParser(hasFilter);
         advFilterParser.setUser(user.getId());
-        return advFilterParser.toSqlWhere();
+        String filterSql = advFilterParser.toSqlWhere();
+        if (filterSql == null) return null;
+        // v4.1
+        String andOr41 = StringUtils.defaultString(hasFilter.getString("_cpAndOr"), "AND");
+        return andOr41.toLowerCase() + " " + filterSql;
     }
 }

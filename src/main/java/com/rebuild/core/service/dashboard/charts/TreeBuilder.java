@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * 两纬数组转树形 JSON
  *
- * @author devezhao-mbp zhaofang123@gmail.com
+ * @author devezhao-mbp
  * @since 2019/04/14
  */
 public class TreeBuilder {

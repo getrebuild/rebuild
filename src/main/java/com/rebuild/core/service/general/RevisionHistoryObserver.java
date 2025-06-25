@@ -160,10 +160,4 @@ public class RevisionHistoryObserver extends OperatingObserver {
         }
         Application.getCommonsService().create(revision);
     }
-
-    // FIXME 异步无法获知是否关联操作
-    @Override
-    protected boolean isAsync() {
-        return false;
-    }
 }

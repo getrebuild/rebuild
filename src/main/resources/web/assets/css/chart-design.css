@@ -526,3 +526,8 @@ a.ui-draggable.ui-draggable-dragging {
 .chart-box.CNMAP {
   padding-top: 30px;
 }
+
+.ui-draggable-dragging.field {
+  box-shadow: rgba(0, 0, 0, 0.2) 0 2px 6px;
+  width: 199px;
+}

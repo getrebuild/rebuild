@@ -23,6 +23,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.License;
+import com.rebuild.core.support.OnlyOffice;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SysbaseHeartbeat;
 import com.rebuild.core.support.i18n.Language;
@@ -71,13 +72,15 @@ public class ConfigurationController extends BaseController {
     public static final String ETAG_DIMGLOGOTIME = "dimgLogoTime";
     public static final String ETAG_DIMGBGIMGTIME = "dimgBgimgTime";
 
-    public static final String OO_PREVIEW_URL = "/commons/file-preview?src=";
-
     @GetMapping("systems")
     public ModelAndView pageSystems() {
         ModelAndView mv = createModelAndView("/admin/system-cfg");
         for (ConfigurationItem item : ConfigurationItem.values()) {
-            mv.getModel().put(item.name(), RebuildConfiguration.get(item));
+            String value = RebuildConfiguration.get(item);
+            if (value != null && item == ConfigurationItem.OnlyofficeJwt) {
+                value = DataDesensitized.any(value);
+            }
+            mv.getModel().put(item.name(), value);
         }
 
         mv.getModel().put("availableLangs",
@@ -105,7 +108,7 @@ public class ConfigurationController extends BaseController {
         String dPortalOfficePreviewUrl = defaultIfBlank(data, ConfigurationItem.PortalOfficePreviewUrl);
         if (StringUtils.isNotBlank(dPortalOfficePreviewUrl)) {
             boolean valid = RegexUtils.isUrl(dPortalOfficePreviewUrl)
-                    || dPortalOfficePreviewUrl.contains(OO_PREVIEW_URL);
+                    || dPortalOfficePreviewUrl.contains(OnlyOffice.OO_PREVIEW_URL);
             if (!valid) return RespBody.errorl("无效文档预览服务地址");
         }
 
@@ -451,14 +454,35 @@ public class ConfigurationController extends BaseController {
         return RespBody.ok();
     }
 
+    // AiBot
+
+    @PostMapping("integration/aibot")
+    public RespBody postIntegrationAibot(@RequestBody JSONObject data) {
+        setValues(data);
+        return RespBody.ok();
+    }
+
+    @GetMapping("integration/aibot")
+    public ModelAndView pageIntegrationAibot() {
+        ModelAndView mv = createModelAndView("/admin/integration/aibot");
+        for (ConfigurationItem item : ConfigurationItem.values()) {
+            String name = item.name();
+            if (name.startsWith("Aibot")) {
+                String value = RebuildConfiguration.get(item);
+                if (value != null && item == ConfigurationItem.AibotDSSecret) {
+                    value = DataDesensitized.any(value);
+                }
+                mv.getModel().put(name, value);
+            }
+        }
+        return mv;
+    }
+
     // --
 
     private String[] starsAccount(String[] account, int... index) {
         if (account == null || account.length == 0) return null;
-
-        for (int i : index) {
-            account[i] = DataDesensitized.any(account[i]);
-        }
+        for (int i : index) account[i] = DataDesensitized.any(account[i]);
         return account;
     }
 

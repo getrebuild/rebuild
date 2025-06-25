@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 
 /**
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/12/03
  */
 class BulkBacthUpdateTest extends TestSupport {

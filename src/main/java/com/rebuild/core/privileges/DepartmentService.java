@@ -94,11 +94,11 @@ public class DepartmentService extends BaseService {
      * @param transferTo 删除后转移成员到其他部门
      */
     public void deleteAndTransfer(ID deptId, ID transferTo) {
+        checkAdminGuard(BizzPermission.DELETE, null);
+
         if (ROOT_DEPT.equals(deptId)) {
             throw new OperationDeniedException(Language.L("内置部门禁止删除"));
         }
-        
-        checkAdminGuard(BizzPermission.DELETE, null);
 
         Department dept = Application.getUserStore().getDepartment(deptId);
         if (!dept.getMembers().isEmpty()) {
@@ -127,9 +127,7 @@ public class DepartmentService extends BaseService {
 
         // 用户可自己改自己的部门
         ID currentDeptOfUser = (ID) Application.getUserStore().getUser(currentUser).getOwningDept().getIdentity();
-        if (action == BizzPermission.UPDATE && dept.equals(currentDeptOfUser)) {
-            return;
-        }
+        if (action == BizzPermission.UPDATE && dept.equals(currentDeptOfUser)) return;
         throw new PrivilegesException(Language.L("无操作权限"));
     }
 }

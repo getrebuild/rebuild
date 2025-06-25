@@ -177,8 +177,17 @@ public class NavBuilder extends NavManager {
                 return true;
             }
 
-            return !Application.getPrivilegesManager().allowRead(
+            boolean filter = !Application.getPrivilegesManager().allowRead(
                     user, MetadataHelper.getEntity(value).getEntityCode());
+            if (filter) return true;
+
+            // be:v4.1, 4.0 使用实体图标
+            String icon = StringUtils.defaultIfBlank(item.getString("icon"), "texture");
+            if ("texture".equals(icon)) {
+                icon = EasyMetaFactory.valueOf(value).getIcon();
+                if (!(StringUtils.isBlank(icon) || "texture".equals(icon))) item.put("icon", icon);
+            }
+            return false;
 
         } else if ("URL".equals(type)) {
             value = PageTokenVerify.replacePageToken(value, user);
@@ -427,12 +436,6 @@ public class NavBuilder extends NavManager {
         }
 
         String iconClazz = StringUtils.defaultIfBlank(item.getString("icon"), "texture");
-        // be:v4.0 使用图标
-        if ("texture".equals(iconClazz) && navEntity != null && MetadataHelper.containsEntity(navEntity)) {
-            String icon = EasyMetaFactory.valueOf(navEntity).getIcon();
-            if (!(StringUtils.isBlank(icon) || "texture".equals(icon))) iconClazz = icon;
-        }
-
         if (iconClazz.startsWith("mdi-")) iconClazz = "mdi " + iconClazz;
         else iconClazz = "zmdi zmdi-" + iconClazz;
 

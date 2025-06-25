@@ -33,7 +33,7 @@ import java.io.IOException;
 /**
  * 元数据模型导出
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/04/28
  * @see MetaschemaImporter
  */

@@ -48,8 +48,11 @@ public class EasyN2NReference extends EasyReference implements MultiValue {
             return StringUtils.join(texts, ", ");
         }
 
-        if (targetField.getDisplayType() == DisplayType.REFERENCE) {
-            log.warn("ID array may be lost : {} << {}", idArrayValue[0], Arrays.toString(idArrayValue));
+        if (targetField.getDisplayType() == DisplayType.REFERENCE
+                || targetField.getDisplayType() == DisplayType.ANYREFERENCE) {
+            if (idArrayValue.length > 1) {
+                log.warn("ID array may be lost : {} << {}", idArrayValue[0], Arrays.toString(idArrayValue));
+            }
             return idArrayValue[0];
         }
         return idArrayValue;

@@ -70,7 +70,7 @@ public class Entity2Schema extends Field2Schema {
      * @return Returns 实体名称
      */
     public String createEntity(String entityName, String entityLabel, String comments, String mainEntity, boolean haveNameField, boolean haveSeriesField) {
-        if (!License.isRbvAttached() && MetadataHelper.getEntities().length >= 100) {
+        if (!License.isRbvAttached() && MetadataHelper.getEntities().length >= 120) {
             throw new NeedRbvException(Language.L("实体数量超出免费版限制"));
         }
 

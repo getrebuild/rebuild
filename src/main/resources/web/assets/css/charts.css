@@ -594,6 +594,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   overflow: hidden;
   clear: both;
   max-width: 400px;
+  line-height: 16px;
 }
 
 .chart-box.DataList .table td.open-newtab {
@@ -701,11 +702,42 @@ See LICENSE and COMMERCIAL in the project root for license information.
   top: 0;
 }
 
-.chart.ctable .table.table-header-fixed2 thead th::after {
+.chart.ctable .table.table-header-fixed2 thead::before,
+.chart.ctable .table.table-header-fixed2 thead::after {
   content: '';
   position: absolute;
   width: 100%;
   left: 0;
+  top: 0;
+  font-size: 0;
+  height: 1px;
+  overflow: hidden;
+  background-color: #dee2e6;
+}
+
+.chart.ctable .table.table-header-fixed2 thead::after {
+  top: unset;
   bottom: 0;
-  border-bottom: 1px solid #dee2e6;
+}
+
+.chart.ctable .table.table-header-fixed2 thead th {
+  position: relative;
+}
+
+.chart.ctable .table.table-header-fixed2 thead th::before,
+.chart.ctable .table.table-header-fixed2 thead th::after {
+  content: '';
+  position: absolute;
+  font-size: 0;
+  height: 100%;
+  left: -1px;
+  top: 0;
+  width: 1px;
+  overflow: hidden;
+  background-color: #dee2e6;
+}
+
+.chart.ctable .table.table-header-fixed2 thead th::after {
+  left: unset;
+  right: 0;
 }
