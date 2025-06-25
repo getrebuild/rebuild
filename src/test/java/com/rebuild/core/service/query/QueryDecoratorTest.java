@@ -39,11 +39,11 @@ class QueryDecoratorTest extends TestSupport {
 
         Record id3Record = EntityHelper.forUpdate(id3);
         id3Record.setIDArray("N2NREFERENCE", new ID[] { id1, id2 });
-        UserContextHolder.setUser(UserService.SYSTEM_USER);
+        ID o = UserContextHolder.setUser(UserService.SYSTEM_USER);
         try {
             Application.getGeneralEntityService().update(id3Record);
         } finally {
-            UserContextHolder.clearUser(true);
+            UserContextHolder.clearUser(o);
         }
 
         Record r = Application.createQueryNoFilter(
