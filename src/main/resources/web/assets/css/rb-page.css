@@ -3434,9 +3434,11 @@ a.user-show:not([href]) {
 }
 
 .global-search > .dropdown-menu a.badge:hover,
-.global-search > .dropdown-menu a.badge.active {
-  background-color: #4285f4;
-  background-color: var(--rb-theme-color);
+.global-search > .dropdown-menu a.badge.active,
+.global-create2 > .dropdown-menu a:hover,
+.rb-notifications .notification:hover {
+  background-color: #4285f4 !important;
+  background-color: var(--rb-theme-color) !important;
   color: #fff !important;
 }
 
@@ -5858,4 +5860,30 @@ div.formula-code {
 .select2-container .select2-selection--single {
   user-select: auto;
   -webkit-user-select: auto;
+}
+
+.navbar-more41 {
+  position: relative;
+}
+
+.navbar-more41 .icon {
+  font-size: 1.5rem;
+  transform: translateY(1px);
+}
+
+.navbar-more41 .dropdown-menu {
+  background-color: var(--rb-theme-color);
+  color: #fff;
+  width: 220px;
+  margin-top: -1px;
+}
+
+.navbar-more41 .dropdown-menu a {
+  padding: 10px 20px;
+  color: #fff;
+}
+
+.navbar-more41 .dropdown-menu a:hover,
+.navbar-more41.show > a {
+  background-color: rgba(255, 255, 255, 0.15);
 }

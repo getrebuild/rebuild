@@ -144,10 +144,10 @@ public class GeneralModelController extends EntityController {
             // 明细绑定主实体布局
             if (specLayout == null) {
                 ConfigBean cb = FormsBuilder.instance.getLayoutById(followMainLayout);
-                JSONObject attrs = (JSONObject) cb.getJSON("shareTo");
-                if (attrs != null && attrs.get("detailsFromsAttr") != null) {
-                    JSONObject detailsFromsAttr = (JSONObject) attrs.get("detailsFromsAttr");
-                    Object specLayout41 = detailsFromsAttr.get(entity);
+                Object attrs = cb.getObject("shareTo");
+                if (attrs instanceof JSONObject) {
+                    JSONObject detailsFromsAttr = (JSONObject) ((JSONObject) attrs).get("detailsFromsAttr");
+                    Object specLayout41 = detailsFromsAttr == null ? null : detailsFromsAttr.get(entity);
                     if (ID.isId(specLayout41)) {
                         specLayout = ID.valueOf((String) specLayout41);
                     }
