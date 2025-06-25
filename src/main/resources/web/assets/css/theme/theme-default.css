@@ -11,3 +11,11 @@ Copyright (c) Ruifang Tech <http://ruifang-tech.com/> and/or its owners. All rig
 .theme-purple {
   background-color: transparent;
 }
+
+.navbar-more41 .dropdown-menu {
+  background-color: #fff;
+}
+
+.navbar-more41 .dropdown-menu a {
+  color: inherit;
+}
