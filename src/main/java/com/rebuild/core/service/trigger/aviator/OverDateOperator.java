@@ -14,6 +14,7 @@ import com.googlecode.aviator.runtime.function.FunctionUtils;
 import com.googlecode.aviator.runtime.type.AviatorLong;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.Map;
 
@@ -41,13 +42,19 @@ public class OverDateOperator {
 
         @Override
         public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
-            Object $argv1 = convertIfDate(arg1.getValue(env));
-            Object $argv2 = convertIfDate(arg2.getValue(env));
+            Object $argv1 = convertIfDateTime(arg1.getValue(env));
+            Object $argv2 = convertIfDateTime(arg2.getValue(env));
 
             if ($argv1 instanceof Date && $argv2 instanceof Number) {
                 return opDate((Date) $argv1, ((Number) $argv2).intValue());
             } else if ($argv2 instanceof Date && $argv1 instanceof Number) {
                 return opDate((Date) $argv2, ((Number) $argv1).intValue());
+            }
+            // v4.1 Time
+            else if ($argv1 instanceof LocalTime && $argv2 instanceof Number) {
+                return opTime((LocalTime) $argv1, ((Number) $argv2).intValue());
+            } else if ($argv2 instanceof LocalTime && $argv1 instanceof Number) {
+                return opTime((LocalTime) $argv2, ((Number) $argv1).intValue());
             } else {
                 return arg1.add(arg2, env);
             }
@@ -66,8 +73,8 @@ public class OverDateOperator {
 
         @Override
         public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
-            Object $argv1 = convertIfDate(arg1.getValue(env));
-            Object $argv2 = convertIfDate(arg2.getValue(env));
+            Object $argv1 = convertIfDateTime(arg1.getValue(env));
+            Object $argv2 = convertIfDateTime(arg2.getValue(env));
 
             if ($argv1 instanceof Date && $argv2 instanceof Number) {
                 return opDate((Date) $argv1, -((Number) $argv2).intValue());
@@ -76,7 +83,17 @@ public class OverDateOperator {
             } else if ($argv1 instanceof Date && $argv2 instanceof Date) {
                 int diff = CalendarUtils.getDayLeft((Date) $argv1, (Date) $argv2);
                 return AviatorLong.valueOf(diff);
-            } else {
+            }
+            // v4.1 Time
+            else if ($argv1 instanceof LocalTime && $argv2 instanceof Number) {
+                return opTime((LocalTime) $argv1, -((Number) $argv2).intValue());
+            } else if ($argv2 instanceof LocalTime && $argv1 instanceof Number) {
+                return opTime((LocalTime) $argv2, -((Number) $argv1).intValue());
+            } else if ($argv1 instanceof LocalTime && $argv2 instanceof LocalTime) {
+                int diff = ((LocalTime) $argv1).getHour() - ((LocalTime) $argv2).getHour();
+                return AviatorLong.valueOf(diff);
+            }
+            else {
                 return arg1.sub(arg2, env);
             }
         }
@@ -85,6 +102,11 @@ public class OverDateOperator {
     static AviatorDate opDate(Date date, int num) {
         Date d = CalendarUtils.addDay(date, num);
         return new AviatorDate(d);
+    }
+
+    static AviatorTime opTime(LocalTime date, int num) {
+        LocalTime t = date.plusHours(num);
+        return new AviatorTime(t);
     }
 
     // -- 比较
@@ -101,8 +123,8 @@ public class OverDateOperator {
 
         @Override
         public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
-            Object $argv1 = convertIfDate(arg1.getValue(env));
-            Object $argv2 = convertIfDate(arg2.getValue(env));
+            Object $argv1 = convertIfDateTime(arg1.getValue(env));
+            Object $argv2 = convertIfDateTime(arg2.getValue(env));
 
             if ($argv1 instanceof Date && $argv2 instanceof Date) {
                 long v1 = ((Date) $argv1).getTime();
@@ -127,8 +149,8 @@ public class OverDateOperator {
 
         @Override
         public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
-            Object $argv1 = convertIfDate(arg1.getValue(env));
-            Object $argv2 = convertIfDate(arg2.getValue(env));
+            Object $argv1 = convertIfDateTime(arg1.getValue(env));
+            Object $argv2 = convertIfDateTime(arg2.getValue(env));
 
             if ($argv1 instanceof Date && $argv2 instanceof Date) {
                 long v1 = ((Date) $argv1).getTime();
@@ -153,8 +175,8 @@ public class OverDateOperator {
 
         @Override
         public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
-            Object $argv1 = convertIfDate(arg1.getValue(env));
-            Object $argv2 = convertIfDate(arg2.getValue(env));
+            Object $argv1 = convertIfDateTime(arg1.getValue(env));
+            Object $argv2 = convertIfDateTime(arg2.getValue(env));
 
             if ($argv1 instanceof Date && $argv2 instanceof Date) {
                 long v1 = ((Date) $argv1).getTime();
@@ -179,8 +201,8 @@ public class OverDateOperator {
 
         @Override
         public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
-            Object $argv1 = convertIfDate(arg1.getValue(env));
-            Object $argv2 = convertIfDate(arg2.getValue(env));
+            Object $argv1 = convertIfDateTime(arg1.getValue(env));
+            Object $argv2 = convertIfDateTime(arg2.getValue(env));
 
             if ($argv1 instanceof Date && $argv2 instanceof Date) {
                 long v1 = ((Date) $argv1).getTime();
@@ -205,8 +227,8 @@ public class OverDateOperator {
 
         @Override
         public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
-            Object $argv1 = convertIfDate(arg1.getValue(env));
-            Object $argv2 = convertIfDate(arg2.getValue(env));
+            Object $argv1 = convertIfDateTime(arg1.getValue(env));
+            Object $argv2 = convertIfDateTime(arg2.getValue(env));
 
             if ($argv1 instanceof Date && $argv2 instanceof Date) {
                 long v1 = ((Date) $argv1).getTime();
@@ -231,8 +253,8 @@ public class OverDateOperator {
 
         @Override
         public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
-            Object $argv1 = convertIfDate(arg1.getValue(env));
-            Object $argv2 = convertIfDate(arg2.getValue(env));
+            Object $argv1 = convertIfDateTime(arg1.getValue(env));
+            Object $argv2 = convertIfDateTime(arg2.getValue(env));
 
             if ($argv1 instanceof Date && $argv2 instanceof Date) {
                 long v1 = ((Date) $argv1).getTime();
@@ -246,8 +268,9 @@ public class OverDateOperator {
     }
 
     // 转换为日期
-    static Object convertIfDate(Object d) {
+    static Object convertIfDateTime(Object d) {
         if (d instanceof Date) return d;
+        if (d instanceof LocalTime) return d;  // be:v4.1
         if (d instanceof String) {
             Date date = CalendarUtils.parse((String) d);
             return date == null ? d : date;
