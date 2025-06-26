@@ -18,11 +18,17 @@ import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.files.BatchDownload;
 import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.service.project.ProjectHelper;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.task.TaskExecutors;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.commons.FileDownloader;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -154,5 +160,39 @@ public class FileManagerController extends BaseController {
         } else {
             resp.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), Language.L("无法下载文件"));
         }
+    }
+
+    @PostMapping("file-edit")
+    public RespBody fileEdit(HttpServletRequest req) throws IOException {
+        final ID fileId = getIdParameter(req, "id");
+        final String newName = getParameterNotNull(req, "newName");
+
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(fileId, "filePath");
+        String filePath = (String) o[0];
+        if (CommonsUtils.isExternalUrl(filePath)) return RespBody.errorl("无法修改外部文件");
+
+        String oldName = QiniuCloud.parseFileName(filePath);
+        if (StringUtils.equals(newName, oldName)) return RespBody.ok();
+
+        String newFilePath = filePath.substring(0, filePath.lastIndexOf(oldName)) + newName;
+
+        if (QiniuCloud.instance().available()) {
+            QiniuCloud.instance().move(newFilePath, filePath);
+        } else {
+            File src = RebuildConfiguration.getFileOfData(filePath);
+            // 移动两次，解决字母大小写问题
+            File destTmp = RebuildConfiguration.getFileOfData(newFilePath + ".tmp");
+            File dest = RebuildConfiguration.getFileOfData(newFilePath);
+            FileUtils.moveFile(src, destTmp);
+            FileUtils.moveFile(destTmp, dest);
+        }
+
+        Record r = EntityHelper.forUpdate(fileId, getRequestUser(req));
+        r.setString("filePath", newFilePath);
+        r.setString("fileName", newName);
+        String ext = FilenameUtils.getExtension(newName);
+        r.setString("fileType", CommonsUtils.maxstr(ext, 10));
+        Application.getCommonsService().update(r, false);
+        return RespBody.ok();
     }
 }

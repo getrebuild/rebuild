@@ -372,7 +372,7 @@ var _initNav = function () {
   }
   // v4.1 自动折叠
   var $topNavs = $('.navbar-collapse a.nav-link.text-ellipsis')
-  if ($topNavs.length > 5) {
+  if ($topNavs.length >= 5) {
     $topNavs.each(function () {
       var $a = $(this).clone().attr('class', 'dropdown-item')
       $a.attr('data-id', $(this).parent().attr('data-id'))
