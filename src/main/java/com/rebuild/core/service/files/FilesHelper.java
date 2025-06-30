@@ -67,8 +67,7 @@ public class FilesHelper {
 
         String ext = FilenameUtils.getExtension(filePath);
         if (StringUtils.isNotBlank(ext)) {
-            if (ext.length() > 10) ext = ext.substring(0, 10);
-            attach.setString("fileType", ext);
+            attach.setString("fileType", CommonsUtils.maxstr(ext, 10));
         }
 
         if (FILESIZES.containsKey(filePath)) {

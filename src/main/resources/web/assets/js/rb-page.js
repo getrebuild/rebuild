@@ -370,23 +370,28 @@ var _initNav = function () {
   if (topnav) {
     $('.navbar-collapse .nav-item[data-id="' + topnav + '"]').addClass('active')
   }
-  // v4.1 折叠
+  // v4.1 自动折叠
   var $topNavs = $('.navbar-collapse a.nav-link.text-ellipsis')
-  if ($topNavs.length > 5) {
+  if ($topNavs.length >= 5) {
     $topNavs.each(function () {
       var $a = $(this).clone().attr('class', 'dropdown-item')
       $a.attr('data-id', $(this).parent().attr('data-id'))
       $a.appendTo('.navbar-more41 .dropdown-menu')
     })
+
     $addResizeHandler(function () {
+      // reset
+      $topNavs.removeClass('hide')
+      $('.navbar-more41').addClass('hide')
+      // calc
       var ww = $(window).width()
       var ow = $('.rb-navbar-header').width() + $('.rb-right-navbar').width()
       var nw = $('.navbar-collapse .navbar-nav').width()
-      if (ww > 768 && ow + nw + 81 > ww) {
+      if (ww > 768 && ow + nw + 80 > ww) {
         $('.navbar-more41').removeClass('hide')
         $('.navbar-more41 .dropdown-menu a').addClass('hide')
 
-        for (var i = $topNavs.length; i > 0; i--) {
+        for (var i = $topNavs.length; i > 1; i--) {
           var $last = $topNavs.eq(i - 1)
           $last.addClass('hide')
           var dataid = $last.parent().data('id')
@@ -394,11 +399,8 @@ var _initNav = function () {
 
           // check
           nw = $('.navbar-collapse .navbar-nav').width()
-          if (ow + nw + 81 < ww) break
+          if (ow + nw + 80 < ww) break
         }
-      } else {
-        $topNavs.removeClass('hide')
-        $('.navbar-more41').addClass('hide')
       }
     })()
   }
