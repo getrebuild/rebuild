@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global FieldValueSet, ListAdvFilter */
+/* global FieldValueSet, ListAdvFilter, LiteFormModal */
 // 列表公共操作
 
 const _RbList = function () {
@@ -939,10 +939,8 @@ class RbList extends React.Component {
     this.pageSize = $storage.get('ListPageSize') || 20
     this.advFilterId = wpc.advFilter !== true ? null : $storage.get(this.__defaultFilterKey) // 无高级查询
     this.fixedColumns = supportFixedColumns && props.uncheckbox !== true
-
     // v4.1 可编辑
-    this.__isDataListEditable =
-      wpc.type === 'RecordList' && (window.__LAB_DATALIST_EDITABLE41 === true || (Array.isArray(window.__LAB_DATALIST_EDITABLE41) && window.__LAB_DATALIST_EDITABLE41.includes(this._entity)))
+    this.enabledListEditable = ['RecordList', 'DetailList'].includes(wpc.type) && (window.__LAB_DATALIST_EDITABLE41 === true || wpc.enabledListEditable)
   }
 
   render() {
@@ -996,7 +994,7 @@ class RbList extends React.Component {
                         data-id={primaryKey.id}
                         onClick={(e) => this._clickRow(e)}
                         onDoubleClick={(e) => {
-                          if (this.__isDataListEditable) return // v4.1
+                          if (this.enabledListEditable) return // v4.1
                           $stopEvent(e, true)
                           this._openView(e.currentTarget)
                         }}>
@@ -1126,11 +1124,11 @@ class RbList extends React.Component {
     // 首次由外部查询 eg.AdvFilter
     if (wpc.advFilter !== true) this.fetchList(this._buildQuick())
     // 按键操作
-    if (wpc.type === 'RecordList' || wpc.type === 'DetailList') $(document).on('keydown', (e) => this._keyEvent(e))
+    if (['RecordList', 'DetailList'].includes(wpc.type)) $(document).on('keydown', (e) => this._keyEvent(e))
     // v4.1 取消选中
-    if (this.__isDataListEditable) {
+    if (this.enabledListEditable) {
       $(document).on('click.unselect', (e) => {
-        let $target = $(e.target)
+        const $target = $(e.target)
         if ($target.closest('.data-list').length === 0 && $target.closest('.rb-wrapper').length > 0) {
           $(this._$tbody).find('td.editable').removeClass('editable')
         }
@@ -1217,11 +1215,10 @@ class RbList extends React.Component {
     const c = CellRenders.render(cellVal, type, width, `${cellKey}.${field.field}`)
     // v4.1 快捷编辑
     const cProps = {}
-    if (this.__isDataListEditable) {
+    if (this.enabledListEditable) {
       cProps.onClick = (e) => {
         const $el = $(e.currentTarget)
         if ($el.hasClass('editable')) {
-          // eslint-disable-next-line no-undef
           LiteFormModal.create(primaryKey.id, [field.field], $L('编辑%s', field.label))
         } else {
           $(this._$tbody).find('td.editable').removeClass('editable')
@@ -1557,7 +1554,7 @@ class RbListPagination extends React.Component {
             </span>
           )
         })}
-        {rb.isAdminUser && wpc.statsField && (wpc.type === 'RecordList' || wpc.type === 'DetailList') && (
+        {rb.isAdminUser && wpc.statsField && ['RecordList', 'DetailList'].includes(wpc.type) && (
           <a
             className="list-stats-settings"
             onClick={() => {
