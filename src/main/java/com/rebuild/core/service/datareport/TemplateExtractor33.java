@@ -9,6 +9,7 @@ package com.rebuild.core.service.datareport;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -98,7 +99,7 @@ public class TemplateExtractor33 extends TemplateExtractor {
                         map.put(varName, null);
                     }
                 }
-                // REF
+                // REF 相关项
                 else {
                     String[] refSplit = listField.split("\\.");
                     String ref2Field = refSplit[0];
@@ -112,6 +113,18 @@ public class TemplateExtractor33 extends TemplateExtractor {
                         subField = getFieldNameWithSort(refName, subField);
 
                         if (MetadataHelper.getLastJoinField(MetadataHelper.getEntity(ref2Entity), subField) != null) {
+                            map.put(varName, subField);
+                        } else {
+                            map.put(varName, null);
+                        }
+                    }
+                    // v4.1 多引用字段
+                    else if (ref2FieldMeta != null && ref2FieldMeta.getType() == FieldType.REFERENCE_LIST) {
+                        String refName = NROW_PREFIX + ref2Field + "." + ref2Entity;
+                        String subField = listField.substring(refName.length());
+                        subField = getFieldNameWithSort(refName, subField);
+
+                        if (MetadataHelper.getLastJoinField(ref2FieldMeta.getReferenceEntity(), subField) != null) {
                             map.put(varName, subField);
                         } else {
                             map.put(varName, null);

@@ -155,6 +155,39 @@ $(document).ready(() => {
       )
     }
   })
+
+  // SEARCH
+
+  // v4.0 搜索
+  const $title = $('.J_search-entity')
+  $(`<a class="search-btn" title="${$L('搜索')}"><i class="zmdi zmdi-search"></i></a>`)
+    .appendTo($title)
+    .on('click', () => {
+      const $s = $(`<div class="search-input"><input type="text" placeholder="${$L('搜索')}" /></div>`).appendTo($title.empty())
+      const $input = $s.find('input').on('input', (e) => {
+        const q = $trim(e.target.value).toLowerCase()
+        $setTimeout(
+          () => {
+            $('#priv-entity tbody td.name>a[data-entity]').each(function () {
+              var $item = $(this)
+              var name = ($item.data('entity') || '').toLowerCase()
+              var text = $item.text().toLowerCase()
+
+              console.log(name, text, q)
+
+              if (!q || name.contains(q) || text.contains(q)) {
+                $item.parents('tr').removeClass('hide')
+              } else {
+                $item.parents('tr').addClass('hide')
+              }
+            })
+          },
+          200,
+          '$dropdownMenuSearch'
+        )
+      })
+      setTimeout(() => $input[0].focus(), 20)
+    })
 })
 
 class AdvFilterWithAndOr extends AdvFilter {

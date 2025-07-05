@@ -417,10 +417,10 @@ public class PrivilegesManager {
      * @return
      * @see RoleBaseQueryFilter#buildCustomFilter(Privileges, Field)
      */
-    private boolean andOrPassCustomFilter(ID user, ID target, Permission action, Privileges ep, boolean allowed) {
+    private boolean andOrPassCustomFilter(ID user, ID target, Permission action, Privileges ep, boolean allowedBase) {
         if (!(ep instanceof CustomEntityPrivileges)) return true;
         JSONObject hasFilter = ((CustomEntityPrivileges) ep).getCustomFilter(action);
-        if (hasFilter == null) return true;
+        if (hasFilter == null) return allowedBase;
 
         // TODO 性能优化
 
@@ -428,15 +428,15 @@ public class PrivilegesManager {
         Filter customFilter = createQueryFilter(user, action);
         String andOr41 = StringUtils.defaultString(hasFilter.getString("_cpAndOr"), "AND");
         if ("AND".equalsIgnoreCase(andOr41)) {
-            if (!allowed) return false;
+            if (!allowedBase) return false;
         }
 
         String sql = MessageFormat.format("select {0} from {1} where {0} = ''{2}''",
                 entity.getPrimaryField().getName(), entity.getName(), target);
+        Object o = Application.getQueryFactory().createQuery(sql, customFilter).unique();
 
-        Object hasOne = Application.getQueryFactory().createQuery(sql, customFilter).unique();
-        if ("AND".equalsIgnoreCase(andOr41)) return allowed && hasOne != null;
-        return allowed || hasOne != null;
+        if ("AND".equalsIgnoreCase(andOr41)) return allowedBase && o != null;
+        return allowedBase || o != null;
     }
 
     /**

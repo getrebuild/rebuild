@@ -884,6 +884,18 @@ class LiteFormModal extends RbModalHandler {
       return
     }
 
+    // v4.1 这里支持修改引用字段（单个字段）
+    if (fields.length === 1 && fields[0].includes('.')) {
+      $.get(`/commons/frontjs/reffield-editable?id=${entityOrId}&reffield=${fields[0]}`, (res) => {
+        if (res.error_code === 0) {
+          LiteFormModal.create(res.data.id, [res.data.field], title, onHandleSave)
+        } else {
+          RbHighbar.create(res.error_msg)
+        }
+      })
+      return
+    }
+
     const isMultiId = Array.isArray(entityOrId)
     const post = {
       id: isMultiId ? entityOrId[0] : entityOrId,

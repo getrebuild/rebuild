@@ -11,6 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
@@ -196,12 +197,27 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 String sortField = templateExtractor33.getSortField(refKey);
                 querySql += " order by " + StringUtils.defaultIfBlank(sortField, "createdOn asc");
 
-                String relatedExpr = split[1] + "." + split[0];
-                String where = new ProtocolFilterParser().parseRelated(relatedExpr, recordId);
-                querySql = querySql.replace("%s = ?", where);
+                // v4.1 多引用字段
+                if (ref2Field.getType() == FieldType.REFERENCE_LIST) {
+                    Entity ref2Entity4N = ref2Field.getReferenceEntity();
+                    Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, ref2Field.getName());
+                    String where = "1=2";
+                    if (o != null && o[0] != null && ((Object[]) o[0]).length > 0) {
+                        where = String.format("%s in ('%s')",
+                                ref2Entity4N.getPrimaryField().getName(), StringUtils.join((Object[]) o[0], "','"));
+                    }
+                    querySql = querySql.replace("%s = ?", where);
 
-                querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
-                        ref2Entity.getPrimaryField().getName(), ref2Entity.getName());
+                    querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
+                            ref2Entity4N.getPrimaryField().getName(), ref2Entity4N.getName());
+                } else {
+                    String relatedExpr = split[1] + "." + split[0];
+                    String where = new ProtocolFilterParser().parseRelated(relatedExpr, recordId);
+                    querySql = querySql.replace("%s = ?", where);
+
+                    querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
+                            ref2Entity.getPrimaryField().getName(), ref2Entity.getName());
+                }
             }
 
             log.info("SQL of template : {}", querySql);

@@ -78,6 +78,10 @@ public class EasyEntityConfigProps {
      * 禁用视图单字段编辑
      */
     public static final String DISABLED_VIEW_EDITABLE = "disabledViewEditable";
+    /**
+     * 启用列表单字段编辑
+     */
+    public static final String ENABLED_LIST_EDITABLE41 = "enabledListEditable";
 
     /**
      * 启用记录合并（还需配合权限）
