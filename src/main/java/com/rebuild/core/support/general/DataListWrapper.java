@@ -29,6 +29,7 @@ import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.JSONUtils;
+import lombok.Setter;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -43,7 +44,6 @@ import java.util.Map;
  * @author Zhao Fangfang
  * @since 1.0, 2019-6-20
  */
-@SuppressWarnings("LombokSetterMayBeUsed")
 public class DataListWrapper {
 
     final protected int total;
@@ -58,6 +58,8 @@ public class DataListWrapper {
     // 信息脱敏
     protected boolean useDesensitized = false;
 
+    // 进一步封装查询结果
+    @Setter
     private boolean mixWrapper = true;
 
     private Map<ID, Object> cacheRefValue = new HashMap<>();
@@ -303,14 +305,5 @@ public class DataListWrapper {
     protected boolean checkHasReadFieldPrivileges(Field field) {
         ID u = user == null ? UserContextHolder.getUser() : user;
         return Application.getPrivilegesManager().getFieldPrivileges().isReadable(field, u);
-    }
-
-    /**
-     * 进一步封装查询结果
-     *
-     * @param mixWrapper
-     */
-    public void setMixWrapper(boolean mixWrapper) {
-        this.mixWrapper = mixWrapper;
     }
 }
