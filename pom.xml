@@ -248,21 +248,11 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+            <scope>test</scope>
         </dependency>
-        -->
-        <!-- Use Live Reload: https://docs.spring.io/spring-boot/docs/current/reference/html/using.html#using.devtools.livereload -->
-        <!--
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-        -->
 
         <!-- Use SPEC -->
         <dependency>
@@ -302,7 +292,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>persist4j</artifactId>
-            <version>0ab849caea</version>
+            <version>1.8.3</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.alibaba</groupId>
