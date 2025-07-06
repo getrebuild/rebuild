@@ -8,6 +8,10 @@
       <div class="navbar-collapse collapse">
         <ul class="navbar-nav">
           <th:block th:utext="${topNav32}" th:with="topNav32=${T(com.rebuild.core.configuration.NavBuilder).renderTopNav(#request)}" />
+          <li class="nav-item navbar-more41 hide">
+            <a class="nav-link" data-toggle="dropdown"><i class="icon mdi mdi-dots-horizontal"></i></a>
+            <div class="dropdown-menu"></div>
+          </li>
         </ul>
       </div>
       <div class="search-container hide">
@@ -53,6 +57,9 @@
         </ul>
         <div class="page-title hide"><span>REBUILD</span></div>
         <ul class="nav navbar-nav float-right rb-icons-nav">
+          <li class="nav-item dropdown aibot-show" th:title="${bundle.L('AI 助手') + ' (Alt+A)'}">
+            <a class="nav-link"><i class="icon mdi mdi-shimmer"></i></a>
+          </li>
           <li class="nav-item dropdown global-search2" th:title="${bundle.L('搜索')}">
             <a class="nav-link"><i class="icon zmdi zmdi-search"></i></a>
           </li>

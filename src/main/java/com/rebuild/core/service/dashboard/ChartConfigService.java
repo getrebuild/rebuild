@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 /**
  * 图表
  *
- * @author devezhao-mbp zhaofang123@gmail.com
+ * @author devezhao-mbp
  * @since 2019/06/04
  */
 @Service

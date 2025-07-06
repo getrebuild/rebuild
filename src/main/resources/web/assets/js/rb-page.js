@@ -27,7 +27,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // PAGE INITIAL
 $(function () {
   // navless
-  if (rb.commercial > 1 && ~~$urlp('navless') === 1) $(document.body).addClass('rb-navless40')
+  if (rb.commercial > 1 && (~~$urlp('navless') === 1 || ~~$urlp('frame') === 1)) $(document.body).addClass('rb-navless40')
 
   // scroller
   var $t = $('.rb-scroller')
@@ -135,8 +135,8 @@ $(function () {
   }
 
   var bosskey = 0
-  $(document).on('keydown', function (e) {
-    if (e.keyCode === 16) {
+  $(document).on('keyup.bosskey', function (e) {
+    if (e.code === 'ShiftLeft') {
       if (++bosskey === 6) {
         $('.bosskey-show').removeClass('bosskey-show')
         typeof window.bosskeyTrigger === 'function' && window.bosskeyTrigger()
@@ -199,6 +199,18 @@ $(function () {
       }
       console.log('Switch on visibilityState ...', $.cookie('AppHome.Nav'), $.cookie('AppHome.Dash'))
     }
+  }
+
+  var $ai = $('.aibot-show a')
+  if ($ai[0]) {
+    var _FN = function () {
+      window.AiBot && window.AiBot.init({ chatid: $storage.get('__LastChatId') }, true)
+    }
+    $ai.on('click', _FN)
+    $(document).on('keydown.aibot', null, 'alt+a', function (e) {
+      $stopEvent(e, true)
+      _FN()
+    })
   }
 })
 $(window).on('load', () => {
@@ -358,8 +370,42 @@ var _initNav = function () {
   if (topnav) {
     $('.navbar-collapse .nav-item[data-id="' + topnav + '"]').addClass('active')
   }
+  // v4.1 自动折叠
+  var $topNavs = $('.navbar-collapse a.nav-link.text-ellipsis')
+  if ($topNavs.length >= 5) {
+    $topNavs.each(function () {
+      var $a = $(this).clone().attr('class', 'dropdown-item')
+      $a.attr('data-id', $(this).parent().attr('data-id'))
+      $a.appendTo('.navbar-more41 .dropdown-menu')
+    })
 
-  // `/admin/` empty divider
+    $addResizeHandler(function () {
+      // reset
+      $topNavs.removeClass('hide')
+      $('.navbar-more41').addClass('hide')
+      // calc
+      var ww = $(window).width()
+      var ow = $('.rb-navbar-header').width() + $('.rb-right-navbar').width()
+      var nw = $('.navbar-collapse .navbar-nav').width()
+      if (ww > 768 && ow + nw + 80 > ww) {
+        $('.navbar-more41').removeClass('hide')
+        $('.navbar-more41 .dropdown-menu a').addClass('hide')
+
+        for (var i = $topNavs.length; i > 1; i--) {
+          var $last = $topNavs.eq(i - 1)
+          $last.addClass('hide')
+          var dataid = $last.parent().data('id')
+          $('.navbar-more41 .dropdown-menu a[data-id="' + dataid + '"]').removeClass('hide')
+
+          // check
+          nw = $('.navbar-collapse .navbar-nav').width()
+          if (ow + nw + 80 < ww) break
+        }
+      }
+    })()
+  }
+
+  // `/admin/` Empty divider
   if (location.href.includes('/admin/')) {
     $('.sidebar-elements .divider').each(function () {
       if (!$(this).next().find('>a')[0]) $(this).remove()
@@ -625,12 +671,14 @@ var $unhideDropdown = function (dp) {
 /**
  * 获取附件文件名
  */
-var $fileCutName = function (fileName) {
+var $fileCutName = function (fileName, clearExt) {
   fileName = fileName.split('?')[0]
   fileName = fileName.split('/')
   fileName = fileName[fileName.length - 1]
   var splitIndex = fileName.indexOf('__')
-  return splitIndex === -1 ? fileName : fileName.substr(splitIndex + 2)
+  fileName = splitIndex === -1 ? fileName : fileName.substr(splitIndex + 2)
+  if (clearExt === true) fileName = fileName.substr(0, fileName.lastIndexOf('.'))
+  return fileName
 }
 
 /**
@@ -1042,9 +1090,20 @@ var $converEmoji = function (text) {
 /**
  * Use momentjs
  */
-var $moment = function (date) {
-  if (!date || !window.moment) return null
-  return moment(date.split('UTC')[0].trim())
+var $moment = function (d) {
+  if (!d || !window.moment) return null
+
+  d = d.split('UTC')[0].trim()
+  if (d.includes('年')) {
+    if (d.includes('日')) {
+      d = d.replace('年', '-').replace('月', '-').replace('日', '')
+    } else if (d.includes('月')) {
+      d = d.replace('年', '-').replace('月', '')
+    } else {
+      d = d.replace('年', '')
+    }
+  }
+  return moment(d)
 }
 /**
  * 是否过期
@@ -1394,7 +1453,6 @@ function $dropdownMenuSearch($dd) {
     })
   // foucs
   $dd.parent().on('shown.bs.dropdown', function () {
-    console.log('open')
     setTimeout(function () {
       $dd.find('input')[0].focus()
     }, 200)
@@ -1403,4 +1461,14 @@ function $dropdownMenuSearch($dd) {
 
 function $logRBAPI(id, type) {
   id && rb.isAdminUser && console.log('RBAPI ASSISTANT *' + (type || 'N') + '* :\n%c' + id, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
+}
+
+// 定位
+function $focus2End(el, delay) {
+  if (!el) return
+  setTimeout(function () {
+    el.focus()
+    var len = (el.value || '').length
+    el.setSelectionRange(len, len)
+  }, delay || 100)
 }

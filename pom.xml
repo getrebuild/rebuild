@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.rebuild</groupId>
     <artifactId>rebuild</artifactId>
-    <version>4.0.7</version>
+    <version>4.1.0-beta1</version>
     <name>rebuild</name>
     <description>Building your business-systems freely!</description>
     <url>https://getrebuild.com/</url>
@@ -248,21 +248,11 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+            <scope>test</scope>
         </dependency>
-        -->
-        <!-- Use Live Reload: https://docs.spring.io/spring-boot/docs/current/reference/html/using.html#using.devtools.livereload -->
-        <!--
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-        -->
 
         <!-- Use SPEC -->
         <dependency>
@@ -302,7 +292,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>persist4j</artifactId>
-            <version>1.8.2</version>
+            <version>1.8.3</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.alibaba</groupId>
@@ -529,6 +519,16 @@
             <groupId>com.getui.push</groupId>
             <artifactId>restful-sdk</artifactId>
             <version>1.0.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.openai</groupId>
+            <artifactId>openai-java</artifactId>
+            <version>2.3.0</version>
         </dependency>
 
         <!-- fix: CVEs -->

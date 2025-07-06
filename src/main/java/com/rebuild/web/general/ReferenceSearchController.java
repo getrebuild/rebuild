@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.general;
 
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
@@ -65,17 +66,29 @@ public class ReferenceSearchController extends EntityController {
     private static final String _SELF = "{@CURRENT}";
 
     // 引用字段-快速搜索
-    @GetMapping({"reference", "quick"})
+    @RequestMapping({"reference", "quick"})
     public JSON referenceSearch(@EntityParam Entity entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
 
         Field referenceField = entity.getField(getParameterNotNull(request, "field"));
         Entity searchEntity = referenceField.getReferenceEntity();
+        // v4.1
+        if (referenceField.getType() == FieldType.ANY_REFERENCE) {
+            String anyrefEntity = getParameter(request, "anyrefEntity");
+            if (StringUtils.isBlank(anyrefEntity)) return JSONUtils.EMPTY_ARRAY;
+            searchEntity = MetadataHelper.getEntity(anyrefEntity);
+        }
 
-        // 引用字段数据过滤
+        // 引用字段数据过滤:级联
         String cascadingValue = getParameter(request, "cascadingValue");
-        String protocolFilter = new ProtocolFilterParser()
-                .parseRef(referenceField.getName() + "." + entity.getName(), cascadingValue);
+        // v4.1 附加过滤条件使用表单字段变量
+        String varRecord = getParameter(request, "varRecord");
+        ProtocolFilterParser fp = new ProtocolFilterParser();
+        if (StringUtils.isNotBlank(varRecord)) {
+            varRecord = CodecUtils.urlDecode(varRecord);
+            if (JSONUtils.wellFormat(varRecord)) fp.setVarRecord(JSON.parseObject(varRecord));
+        }
+        String protocolFilter = fp.parseRef(referenceField.getName() + "." + entity.getName(), cascadingValue);
 
         String q = StringUtils.trim(getParameter(request, "q"));
 
@@ -288,7 +301,7 @@ public class ReferenceSearchController extends EntityController {
 
     /**
      * 引用字段搜索页面
-     * @see com.rebuild.web.general.GeneralListController#pageList(String, HttpServletRequest, HttpServletResponse)
+     * @see GeneralListController#pageList(String, HttpServletRequest, HttpServletResponse)
      */
     @GetMapping("reference-search")
     public ModelAndView referenceSearchPage(HttpServletRequest request, HttpServletResponse response) throws IOException {

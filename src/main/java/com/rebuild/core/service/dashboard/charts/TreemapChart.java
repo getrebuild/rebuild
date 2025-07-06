@@ -15,7 +15,7 @@ import com.rebuild.utils.JSONUtils;
 /**
  * 树图
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/04/13
  */
 public class TreemapChart extends ChartData {

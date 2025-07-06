@@ -489,10 +489,11 @@ class DlgTransform extends RbModalHandler {
         this.hide(true)
 
         if (_post.preview) {
+          const em = res.data.entityMeta
           const modalProps = {
-            title: $L('新建%s', props.entityLabel),
-            entity: props.entity,
-            icon: props.icon,
+            title: $L('新建%s', em.entityLabel),
+            entity: em.entity,
+            icon: em.icon,
             initialFormModel: res.data,
             previewid: `${props.transid}.${props.sourceRecord}`,
             _disableAutoFillin: true,
@@ -501,6 +502,7 @@ class DlgTransform extends RbModalHandler {
             modalProps.title = $L('编辑%s', props.entityLabel)
             modalProps.id = _post.existsRecord
           }
+          // Form
           RbFormModal.create(modalProps, true)
         } else {
           if (this._isMuilt) {

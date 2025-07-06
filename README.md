@@ -1,31 +1,64 @@
 [![Codacy](https://api.codacy.com/project/badge/Grade/599a0a3e46f84e6bbc29e8fbe4632860)](https://www.codacy.com/app/getrebuild/rebuild)
 [![codecov](https://codecov.io/gh/getrebuild/rebuild/branch/master/graph/badge.svg)](https://codecov.io/gh/getrebuild/rebuild)
-[![Package](https://github.com/getrebuild/rebuild/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/getrebuild?tab=packages&repo_name=rebuild)
 [![Build Status](https://travis-ci.com/getrebuild/rebuild.svg?branch=master)](https://travis-ci.com/getrebuild/rebuild)
 [![License GPLv3](https://img.shields.io/github/license/getrebuild/rebuild.svg)](https://getrebuild.com/legal/service-terms)
 [![License 商业授权](https://img.shields.io/badge/license-%E5%95%86%E4%B8%9A%E6%8E%88%E6%9D%83-red.svg)](https://getrebuild.com/legal/service-terms)
+[![Docker Image Version](https://img.shields.io/docker/v/getrebuild/rebuild?label=Docker%20Image)](https://www.getrebuild.com/learn/install-use-docker)
 
-## 项目特色
+## 项目简介
 
 **_相较于同类产品，REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启动模板。_**
 
 「开放式设计」是 REBUILD 的重要设计理念！得益于团队成熟的企业管理系统经验，我们实现了对企业日常各类需求的可配置化管理，全图形化设计零代码搭建，所见即所得。
 
+> **福利：加入 REBUILD VIP 用户 QQ 交流群 744487038 1013051587 GET 使用技能**
+
+### 为什么需要 REBUILD
+
+相较于传统软件系统，REBUILD 提供了绝佳的灵活性与可控性，可以完全按照企业需求进行量身打造。同时，当系统投入使用一段时间后会遇到业务变化或需求变更，通过 REBUILD 提供的高度可配置化能力，可快速完成需求变更而无需额外投入。
+
+### REBUILD 最适合哪类用户
+
+#### 企业 IT 团队
+
+- 场景：快速搭建 CRM/MES/WMS 等业务系统
+- 优势：零代码配置业务实体、权限、流程
+- 用户：IT 管理员、实施顾问
+
+#### 中小企业
+
+- 场景：缺乏开发资源与预算
+- 优势：开源免费版满足基础需求，商业版提供更多高阶功能
+
+业务管理者（典型应用）
+
+- 销售（客户/商机管理）
+- 供应链（库存/出入库）
+- 生产（工单/进度监控）
+
+#### 系统升级企业
+
+- 场景：替换老旧 OA/Excel 管理
+- 能力：数据迁移、多实体关联、审计追踪
+
+#### 开发者
+
+- 扩展：Java/Spring 二次开发，提供 OpenAPI 集成外部系统
+- 部署：支持 Docker/私有云/本地
+
 更多详情介绍 [https://getrebuild.com/](https://getrebuild.com/)
 
-> **福利：加入 REBUILD VIP 用户 QQ 交流群 819865721 1013051587 GET 使用技能**
-
-## V4.0 新特性
+## V4.1 新特性
 
 本次更新为你带来众多功能增强与优化。
 
-1. [新增] 多明细实体支持
-2. [新增] 表单设计支持自定义条件控制字段隐藏、必填与只读
-3. [新增] 表单计算公式同时支持开启后端计算
-4. [新增] 审批流程可修改字段支持修改明细
-5. [新增] 触发器支持 CRON 定时
-6. [新增] 标题文字、嵌入页面图表
-7. [新增] 飞书集成
+1. [新增] 字段级权限控制
+2. [新增] 任意引用字段
+3. [新增] 自定义操作多项新功能
+4. [新增] 限时审批倒计时、超时时间
+5. [新增] 外部表单多项新功能
+6. [新增] 网页报表支持页码、表头打印在每一页
+7. [新增] OpenAPI BASE64 文件数据支持
 8. [优化] 30+ 细节/BUG/安全性更新
 9. ...
 
@@ -41,7 +74,7 @@
 
 开始使用 REBUILD 非常简单，无需配置复杂的运行环境，零依赖快速部署！
 
-#### 1. 使用已发布版本
+### 1. 使用已发布版本
 
 _生产环境强烈推荐使用此方式 !!!_
 
@@ -51,7 +84,7 @@ _生产环境强烈推荐使用此方式 !!!_
 
 更多详情请参见 [安装文档](https://getrebuild.com/learn/install)
 
-#### 2. 通过源码编译
+### 2. 通过源码编译
 
 _注意 !!! 生产环境请使用 `master` 分支（默认分支），其他分支为开发分支，功能存在不确定性！_
 
@@ -74,7 +107,7 @@ REBUILD 从 2.0 版本开始支持 `jar` 与 `war` 两种打包/运行模式，�
 
 如你希望使用外部 Tomcat（或其他 Java Web 容器） 即 `war` 方式，请将 `pom.xml` 文件中注释为 `UNCOMMENT USE TOMCAT` 的下一行取消注释。
 
-#### 开发环境
+### 开发环境
 
 REBUILD 对于开发环境的要求非常简单，由于使用 Java 开发，因此可以运行在几乎所有操作系统上。请按如下清单准备：
 

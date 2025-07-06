@@ -10,7 +10,7 @@ package com.rebuild.core.service.approval;
 import com.rebuild.core.RebuildException;
 
 /**
- * @author devezhao-mbp zhaofang123@gmail.com
+ * @author devezhao-mbp
  * @since 2019/07/06
  */
 public class ApprovalException extends RebuildException {

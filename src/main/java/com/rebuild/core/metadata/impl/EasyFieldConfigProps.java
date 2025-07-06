@@ -187,6 +187,10 @@ public class EasyFieldConfigProps {
      * 多行文本使用 MD 编辑器
      */
     public static final String NTEXT_USEMDEDIT = "useMdedit";
+    /**
+     * v4.1 多行文本常用值
+     */
+    public static final String NTEXT_COMMON = TEXT_COMMON;
 
     /**
      * 视图直接显示地图
@@ -210,4 +214,9 @@ public class EasyFieldConfigProps {
      * PICKLIST:显示样式
      */
     public static final String PICKLIST_SHOWSTYLE = "showStyle";
+
+    /**
+     * MULTISELECT:显示样式
+     */
+    public static final String MULTISELECT_SHOWSTYLE = PICKLIST_SHOWSTYLE;
 }

@@ -15,7 +15,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 /**
  * 触发动作执行上下文
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/05/27
  */
 public class ActionContext {

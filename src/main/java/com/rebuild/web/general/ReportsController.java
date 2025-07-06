@@ -32,13 +32,13 @@ import com.rebuild.core.service.datareport.TemplateFile;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.KVStorage;
+import com.rebuild.core.support.OnlyOffice;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
-import com.rebuild.utils.OnlyOfficeUtils;
 import com.rebuild.utils.PdfConverter;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
@@ -103,14 +103,15 @@ public class ReportsController extends BaseController {
                 reportGenerator = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
                         "com.rebuild.rbv.data.WordReportGenerator#create", reportId, recordIds);
             } else if (tt.type == DataReportManager.TYPE_HTML5) {
+                boolean noPagebreak = getBoolParameter(request, "noPagebreak");
                 reportGenerator = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
-                        "com.rebuild.rbv.data.Html5ReportGenerator#create", reportId, recordIds);
+                        "com.rebuild.rbv.data.Html5ReportGenerator#create", reportId, recordIds, noPagebreak);
             } else {
                 reportGenerator = EasyExcelGenerator.create(reportId, Arrays.asList(recordIds));
             }
 
             if (reportGenerator != null) {
-                // in URL
+                // vars in URL
                 String vars = getParameter(request, "vars");
                 if (JSONUtils.wellFormat(vars) && reportGenerator instanceof EasyExcelGenerator33) {
                     JSONObject varsJson = JSON.parseObject(vars);
@@ -119,6 +120,7 @@ public class ReportsController extends BaseController {
                     }
                 }
 
+                reportGenerator.setReportId(reportId);
                 output = reportGenerator.generate();
             }
 
@@ -126,7 +128,7 @@ public class ReportsController extends BaseController {
                     getRequestUser(request), reportId, StringUtils.join(recordIds, ";"));
             // PH__EXPORTTIMES
             for (ID id : recordIds) {
-                String key = "REPORT-EXPORTTIMES:" + id;
+                String key = "REPORT-EXPORTTIMES:" + id + reportId;
                 Object t = KVStorage.getCustomValue(key);
                 KVStorage.setCustomValue(key, ObjectUtils.toInt(t) + 1);
             }
@@ -151,9 +153,6 @@ public class ReportsController extends BaseController {
         if (isPdf || isOnlyPdf(entity, reportId)) {
             output = PdfConverter.convertPdf(output.toPath()).toFile();
             fileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".pdf";
-        } else if (isHtml) {
-            output = PdfConverter.convertHtml(output.toPath()).toFile();
-            fileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".html";
         }
 
         if (ServletUtils.isAjaxRequest(request)) {
@@ -168,8 +167,14 @@ public class ReportsController extends BaseController {
                     CodecUtils.urlEncode(output.getName()), AuthTokenManager.generateOnceToken(null), CodecUtils.urlEncode(fileName));
             fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
 
-            String previewUrl = StringUtils.defaultIfBlank(
-                    RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl), "https://view.officeapps.live.com/op/embed.aspx?src=");
+            String previewUrl;
+            if (OnlyOffice.isUseOoPreview()) {
+                previewUrl = AppUtils.getContextPath(OnlyOffice.OO_PREVIEW_URL);
+            } else {
+                previewUrl = StringUtils.defaultIfBlank(
+                        RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl),
+                        "https://view.officeapps.live.com/op/view.aspx?src=");
+            }
 
             previewUrl += CodecUtils.urlEncode(fileUrl);
             response.sendRedirect(previewUrl);
@@ -178,7 +183,7 @@ public class ReportsController extends BaseController {
             // 直接预览
             boolean forcePreview = isHtml || getBoolParameter(request, "preview");
             if (!forcePreview) {
-                if (isPdf && !OnlyOfficeUtils.isUseOoPreview()) forcePreview = true;
+                if (isPdf && !OnlyOffice.isUseOoPreview()) forcePreview = true;
             }
             FileDownloader.downloadTempFile(response, output, fileName, forcePreview);
         }
@@ -212,8 +217,6 @@ public class ReportsController extends BaseController {
                 final String typeOutput = getParameter(request, "output");
                 if ("PDF".equalsIgnoreCase(typeOutput) || isOnlyPdf(entity, useReport)) {
                     output = PdfConverter.convertPdf(output.toPath()).toFile();
-                } else if ("HTML".equalsIgnoreCase(typeOutput)) {
-                    output = PdfConverter.convertHtml(output.toPath()).toFile();
                 }
 
             } else {

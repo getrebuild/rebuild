@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/05/25
  */
 @RestController
@@ -61,14 +61,13 @@ public class FieldAggregationController extends BaseController {
 
         // v35 字段匹配
         if (getBoolParameter(request, "matchfields")) {
-            List<String[]> entities2 = new ArrayList<>();
+            List<String[]> temp = new ArrayList<>();
             for (Entity entity : MetadataSorter.sortEntities(null, false, true)) {
-                entities2.add(new String[] {
-                        entity.getName(), EasyMetaFactory.getLabel(entity), "$" });
+                temp.add(new String[]{entity.getName(), EasyMetaFactory.getLabel(entity), "$"});
             }
 
-            FieldAggregationController.sortEntities(entities2, null);
-            entities.addAll(entities2);
+            sortEntities(temp, null);
+            entities.addAll(temp);
         }
 
         // v3.0 字段聚合无需自己

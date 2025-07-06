@@ -234,6 +234,18 @@ String.prototype.contains = function (substr) {
   return this.indexOf(substr) >= 0
 }
 
+// bootstrap-datetimepicker.min.js 解决不支持中文日期
+window.datetimepicker_clearDate41 = function (i) {
+  if (i.indexOf('-') > -1) return $trim(i)
+  i = i.replace(/[年月]/g, '-').replace('日', '')
+  if (i.indexOf('周') > -1) {
+    i = i.split(' ')
+    if (i.length === 2) return i[0]
+    return i[0] + ' ' + i[2]
+  }
+  return i;
+}
+
 var $setTimeout__timers = {}
 /**
  * 不会重复执行的 setTimeout

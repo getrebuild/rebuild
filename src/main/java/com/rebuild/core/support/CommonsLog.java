@@ -13,6 +13,8 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.service.TransactionManual;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
@@ -66,16 +68,23 @@ public class CommonsLog {
      * @param status
      */
     public static void createLog(String type, ID user, ID source, String content, int status) {
-        Record comLog = EntityHelper.forNew(EntityHelper.CommonsLog, user);
-        comLog.setString("type", type);
-        comLog.setID("user", user);
-        comLog.setID("source", ObjectUtils.defaultIfNull(source, user));
-        comLog.setInt("status", status);
-        comLog.setDate("logTime", CalendarUtils.now());
-        if (content != null) comLog.setString("logContent", CommonsUtils.maxstr(content, 32767));
+        // v4.1 关闭触发器日志
+        if (source != null && source.getEntityCode() == EntityHelper.RobotTriggerConfig) {
+            String triggerName = FieldValueHelper.getLabelNotry(source);
+            if (triggerName.contains("关闭日志")) return;
+        }
 
-        // FIXME 事物回滚时日志无法回滚
-        TaskExecutors.queue(() -> Application.getCommonsService().create(comLog, false));
+        Record commLog = EntityHelper.forNew(EntityHelper.CommonsLog, user);
+        commLog.setString("type", type);
+        commLog.setID("user", user);
+        commLog.setID("source", ObjectUtils.defaultIfNull(source, user));
+        commLog.setInt("status", status);
+        commLog.setDate("logTime", CalendarUtils.now());
+        if (content != null) commLog.setString("logContent", CommonsUtils.maxstr(content, 32767));
+
+        // v4.1 保证事物一致性
+        TransactionManual.registerAfterCommit(()
+                -> TaskExecutors.queue(() -> Application.getCommonsService().create(commLog, false)));
     }
 
     /**

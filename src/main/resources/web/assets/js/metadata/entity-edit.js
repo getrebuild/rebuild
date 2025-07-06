@@ -53,6 +53,7 @@ $(document).ready(() => {
       extConfig.detailsHide = $val('#detailsHide')
     }
     extConfig.repeatFieldsCheckMode = $val('#repeatFieldsCheckMode') ? 'and' : 'or'
+    extConfig.enabledListEditable = $val('#enabledListEditable')
     extConfig.disabledViewEditable = $val('#disabledViewEditable')
     extConfig.enableRecordMerger = $val('#enableRecordMerger')
 
@@ -66,6 +67,7 @@ $(document).ready(() => {
         'detailsSeq',
         'detailsHide',
         'repeatFieldsCheckMode',
+        'enabledListEditable',
         'disabledViewEditable',
         'enableRecordMerger',
       ]
@@ -192,6 +194,7 @@ $(document).ready(() => {
   if (wpc.extConfig.detailsNotEmpty) $('#detailsNotEmpty').attr('checked', true)
   if (wpc.extConfig.detailsGlobalRepeat) $('#detailsGlobalRepeat').attr('checked', true)
   if (wpc.extConfig.repeatFieldsCheckMode === 'and') $('#repeatFieldsCheckMode').attr('checked', true)
+  if (wpc.extConfig.enabledListEditable) $('#enabledListEditable').attr('checked', true)
   if (wpc.extConfig.disabledViewEditable) $('#disabledViewEditable').attr('checked', true)
   if (wpc.extConfig.detailsShowAt2) $('#detailsShowAt2').attr('checked', true)
   // v3.6
@@ -201,6 +204,9 @@ $(document).ready(() => {
   if (wpc.extConfig.detailsSeq || wpc.extConfig.detailsHide) {
     if (wpc.extConfig.detailsSeq) $('#detailsSeq').val(wpc.extConfig.detailsSeq)
     if (wpc.extConfig.detailsHide) $('#detailsHide').val(wpc.extConfig.detailsHide)
-    $('#detailsSeq').parents('.bosskey-show').removeClass('bosskey-show')
+  }
+  // v4.1
+  if (wpc.extConfig.enabledListEditable) {
+    $('#enabledListEditable').parents('.bosskey-show').removeClass('bosskey-show')
   }
 })

@@ -17,6 +17,7 @@ import com.rebuild.core.RebuildException;
 import com.rebuild.core.service.dataimport.DataFileParser;
 import com.rebuild.core.support.RebuildConfiguration;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
@@ -158,6 +159,7 @@ public class ExcelUtils {
             wb.setForceFormulaRecalculation(true);
             wb.getCreationHelper().createFormulaEvaluator().evaluateAll();
 
+            FileUtils.deleteQuietly(path.toFile());
             try (FileOutputStream fos = new FileOutputStream(path.toFile())) {
                 wb.write(fos);
             }

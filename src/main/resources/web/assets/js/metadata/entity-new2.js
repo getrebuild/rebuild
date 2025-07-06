@@ -12,7 +12,6 @@ class EntityNew2 extends RbModalHandler {
   constructor(props) {
     super(props)
     this.state = { ...props }
-    // this.state.excelfile = '134807507__副本IUI000008390352CNY23100100N-111.xls'
   }
 
   render() {
@@ -243,7 +242,7 @@ class EntityNew2 extends RbModalHandler {
       (res) => {
         this.setState({ excelfile: res.key })
         $(this._$uploadbtn).text($L('上传文件'))
-        $(this._$excelEntityLabel).val($fileCutName(res.key))
+        $(this._$excelEntityLabel).val($fileCutName(res.key, true))
       }
     )
     $(this._$uploadbtn).on('click', () => this._$uploadfile.click())
@@ -263,14 +262,16 @@ class EntityNew2 extends RbModalHandler {
       if (!data.mainEntity) return RbHighbar.create($L('请选择主实体'))
     }
 
-    const $btn = $(this._$container).find('.btn').button('loading')
-    $.post(`/admin/entity/entity-new?nameField=${$val(this._$nameField)}&seriesField=${$val(this._$seriesField)}`, JSON.stringify(data), (res) => {
-      if (res.error_code === 0) {
-        location.href = `${rb.baseUrl}/admin/entity/${res.data}/base`
-      } else {
-        $btn.button('reset')
-        RbHighbar.error(WrapHtml(res.error_msg))
-      }
+    _checkRename(data.label, () => {
+      const $btn = $(this._$container).find('.btn').button('loading')
+      $.post(`/admin/entity/entity-new?nameField=${$val(this._$nameField)}&seriesField=${$val(this._$seriesField)}`, JSON.stringify(data), (res) => {
+        if (res.error_code === 0) {
+          location.href = `${rb.baseUrl}/admin/entity/${res.data}/base`
+        } else {
+          $btn.button('reset')
+          RbHighbar.error(WrapHtml(res.error_msg))
+        }
+      })
     })
   }
 
@@ -284,14 +285,16 @@ class EntityNew2 extends RbModalHandler {
     if (!data.sourceEntity) return RbHighbar.create($L('请选择从哪个实体复制'))
     if (!data.entityName) return RbHighbar.create($L('请输入实体名称'))
 
-    const $btn = $(this._$container).find('.btn').button('loading')
-    $.post('/admin/entity/entity-copy', JSON.stringify(data), (res) => {
-      if (res.error_code === 0) {
-        location.href = `${rb.baseUrl}/admin/entity/${res.data}/base`
-      } else {
-        $btn.button('reset')
-        RbHighbar.error(res.error_msg)
-      }
+    _checkRename(data.entityName, () => {
+      const $btn = $(this._$container).find('.btn').button('loading')
+      $.post('/admin/entity/entity-copy', JSON.stringify(data), (res) => {
+        if (res.error_code === 0) {
+          location.href = `${rb.baseUrl}/admin/entity/${res.data}/base`
+        } else {
+          $btn.button('reset')
+          RbHighbar.error(res.error_msg)
+        }
+      })
     })
   }
 
@@ -314,7 +317,9 @@ class EntityNew2 extends RbModalHandler {
       const entityLabel = $val(this._$excelEntityLabel)
       if (!entityLabel) return RbHighbar.create($L('请输入实体名称'))
 
-      renderRbcomp(<ExcelFieldsPreview datas={_data.preview} entityLabel={entityLabel} excelfile={excelfile} title={$L('确认导入字段')} disposeOnHide width="701" />)
+      _checkRename(entityLabel, () => {
+        renderRbcomp(<ExcelFieldsPreview datas={_data.preview} entityLabel={entityLabel} excelfile={excelfile} title={$L('确认导入字段')} disposeOnHide width="701" />)
+      })
     })
   }
 
@@ -536,4 +541,25 @@ class ExcelFieldsPreview extends RbModal {
       },
     })
   }
+}
+
+function _checkRename(name, cb) {
+  $.get(`/commons/metadata/entities?detail=true`, (res) => {
+    let rename = false
+    res.data &&
+      res.data.forEach((item) => {
+        if (item.label === name) rename = true
+      })
+
+    if (rename) {
+      RbAlert.create($L('存在同名实体，是否继续添加？'), {
+        onConfirm: function () {
+          this.hide()
+          typeof cb === 'function' && cb()
+        },
+      })
+    } else {
+      typeof cb === 'function' && cb()
+    }
+  })
 }

@@ -304,7 +304,7 @@ class FileUploadDlg extends RbFormHandler {
     const that = this
 
     let fixConcurrency = 0
-    function fn(file, s) {
+    function _FN(file, s) {
       if (fixConcurrency === 1) return
 
       const files = that.state.files || {}
@@ -315,17 +315,17 @@ class FileUploadDlg extends RbFormHandler {
 
     $createUploader(
       this._$upload,
-      (res) => fn(res.file, { percent: res.percent }),
-      (res) => fn(res.file, { key: res.key }),
-      (res) => fn(res.file, { error: res.error })
+      (res) => _FN(res.file, { percent: res.percent }),
+      (res) => _FN(res.file, { key: res.key }),
+      (res) => _FN(res.file, { error: res.error })
     )
 
-    function _dropUpload(files) {
+    function _dropOrPasteUpload(files) {
       if (!files || files.length === 0) return false
       that._$upload.files = files
       $(that._$upload).trigger('change')
     }
-    $dropUpload(this._$dropArea, document, _dropUpload)
+    $dropUpload(this._$dropArea, document, _dropOrPasteUpload)
   }
 
   componentWillUnmount() {
@@ -417,6 +417,54 @@ class FileMoveDlg extends RbFormHandler {
   }
 }
 
+// ~ 修改
+class FileEditDlg extends RbFormHandler {
+  state = { ...this.props }
+
+  render() {
+    let fileName = this.props.file.filePath
+    fileName = fileName ? $fileCutName(fileName) : null
+    return (
+      <RbModal title={$L('编辑文件')} ref={(c) => (this._dlg = c)} disposeOnHide>
+        <div className="form">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('文件名称')}</label>
+            <div className="col-sm-7">
+              <input className="form-control form-control-sm" defaultValue={fileName} ref={(c) => (this._$fileName = c)} />
+            </div>
+          </div>
+          <div className="form-group row footer">
+            <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
+              <button className="btn btn-primary" type="button" onClick={this._post}>
+                {$L('确定')}
+              </button>
+              <a className="btn btn-link" onClick={this.hide}>
+                {$L('取消')}
+              </a>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  _post = () => {
+    const newName = $val(this._$fileName)
+    if (!newName) return
+
+    this.disabled(true)
+    $.post(`/files/file-edit?newName=${$encode(newName)}&id=${this.props.file.id}`, (res) => {
+      if (res.error_code === 0) {
+        this.hide()
+        filesList && filesList.loadData()
+      } else {
+        RbHighbar.error(res.error_msg)
+        this.disabled()
+      }
+    })
+  }
+}
+
 // eslint-disable-next-line no-undef
 class FilesList4Docs extends FilesList {
   constructor(props) {
@@ -428,11 +476,14 @@ class FilesList4Docs extends FilesList {
     return (
       <div className="info position-relative">
         <span className="fop-action">
-          <a title={$L('下载')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
+          <a title={$L('编辑')} onClick={(e) => this._handleEdit(item, e)}>
+            <i className="icon zmdi zmdi-edit up-1" />
+          </a>
+          <a title={$L('下载')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$encode(item.fileName)}`} target="_blank">
             <i className="icon zmdi zmdi-download fs-17" />
           </a>
           {rb.fileSharable && (
-            <a title={$L('分享')} onClick={(e) => this.handleShare(item, e)}>
+            <a title={$L('分享')} onClick={(e) => this._handleShare(item, e)}>
               <i className="icon zmdi zmdi-share up-1" />
             </a>
           )}
@@ -441,7 +492,12 @@ class FilesList4Docs extends FilesList {
     )
   }
 
-  handleShare(item, e) {
+  _handleEdit(item, e) {
+    $stopEvent(e)
+    renderRbcomp(<FileEditDlg file={item} />)
+  }
+
+  _handleShare(item, e) {
     $stopEvent(e)
     // eslint-disable-next-line react/jsx-no-undef
     renderRbcomp(<FileShare file={item.filePath} />)
@@ -483,5 +539,14 @@ $(document).ready(() => {
     const s = filesList.getSelected()
     if (!s) return
     renderRbcomp(<FileMoveDlg files={s} call={() => filesList && filesList.loadData()} />)
+  })
+
+  $('a.J_dl').on('click', () => {
+    const s = filesList.getSelected()
+    if (!s) return
+
+    const $form = $('form.J_dl')
+    $form.find('input').val(s.join(','))
+    $form[0].submit()
   })
 })

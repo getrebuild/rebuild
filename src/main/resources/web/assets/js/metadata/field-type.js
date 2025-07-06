@@ -25,6 +25,7 @@ const FIELD_TYPES = {
   'TAG': [$L('标签'), 'mdi-tag-outline'],
   'REFERENCE': [$L('引用'), 'mdi-feature-search-outline'],
   'N2NREFERENCE': [$L('多引用'), 'mdi-text-box-search-outline'],
+  'ANYREFERENCE': [$L('任意引用'), 'mdi-feature-search'],
   'FILE': [$L('附件'), 'mdi-attachment'],
   'IMAGE': [$L('图片'), 'mdi-image-outline'],
   'AVATAR': [$L('头像'), 'mdi-account-box-outline'],
@@ -32,6 +33,5 @@ const FIELD_TYPES = {
   'LOCATION': [$L('位置'), 'mdi-map-marker'],
   'SIGN': [$L('签名'), 'mdi-file-sign'],
   'BOOL': [$L('布尔'), 'mdi-toggle-switch-off-outline'],
-  'ANYREFERENCE': [$L('任意引用'), 'mdi-feature-search', true],
   'STATE': [$L('状态'), 'mdi-language-java', true],
 }

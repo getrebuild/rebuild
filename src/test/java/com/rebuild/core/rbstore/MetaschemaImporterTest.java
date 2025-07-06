@@ -24,7 +24,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * @author devezhao-mbp zhaofang123@gmail.com
+ * @author devezhao-mbp
  * @since 2019/04/29
  */
 public class MetaschemaImporterTest extends TestSupport {

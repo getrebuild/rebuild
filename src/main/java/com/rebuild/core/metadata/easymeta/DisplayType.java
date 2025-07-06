@@ -42,12 +42,12 @@ public enum DisplayType {
     LOCATION(EasyLocation.class, "位置", FieldType.STRING, 200, null),
     SIGN(EasySign.class, "签名", FieldType.TEXT, 32767, null, false, true),
     TAG(EasyTag.class, "标签", FieldType.STRING, 40, null),
+    ANYREFERENCE(EasyAnyReference.class, "任意引用", FieldType.ANY_REFERENCE, -1, null, false, true),
 
     // 内部
 
     ID(EasyID.class, "主键", FieldType.PRIMARY, -1, null, false, true),
     STATE(EasyState.class, "状态", FieldType.SMALL_INT, -1, null),
-    ANYREFERENCE(EasyAnyReference.class, "任意引用", FieldType.ANY_REFERENCE, -1, null, false, true),
 
     ;
 

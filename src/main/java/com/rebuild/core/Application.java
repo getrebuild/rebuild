@@ -76,11 +76,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "4.0.7";
+    public static final String VER = "4.1.0-beta1";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 4000715;
+    public static final int BUILD = 4010001;
 
     static {
         // Driver for DB

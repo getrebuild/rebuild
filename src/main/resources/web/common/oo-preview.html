@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
-    <th:block th:replace="~{/_include/header}" />
+    <th:block th:replace="~{/_include/header(css='none')}" />
     <title>[[${title ?:'REBUILD'}]]</title>
     <style>
       html,
@@ -17,19 +17,12 @@
     <div id="viewer" style="width: 100%; height: 100%"></div>
     <script th:src="${OnlyofficeServer + '/web-apps/apps/api/documents/api.js'}"></script>
     <script>
-      // https://api.onlyoffice.com/docs/docs-api/usage-api/config/
-      new DocsAPI.DocEditor('viewer', {
-        editorConfig: {
-          mode: 'view',
-          lang: 'zh',
-          toolbar: false,
-          menu: false,
-          user: [(${_User})],
-        },
-        document: [(${_DocumentConfig})],
-        token: '[[${_Token ?:""}]]',
-        type: 'embedded',
-      })
+      if (window.DocsAPI) {
+        // https://api.onlyoffice.com/docs/docs-api/usage-api/config/
+        new DocsAPI.DocEditor('viewer', [(${_DocEditorConfig})])
+      } else {
+        alert('ONLYOFFICE API 加载失败')
+      }
     </script>
   </body>
 </html>

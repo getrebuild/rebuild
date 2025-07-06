@@ -25,7 +25,7 @@ class ClassificationSelector extends React.Component {
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()}>
+              <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
@@ -207,7 +207,7 @@ class DeleteConfirm extends RbAlert {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (ESC)`}>
+              <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
@@ -568,7 +568,7 @@ class SignPad extends React.Component {
           <div className="modal-content">
             <div className="modal-header pb-0">
               <h5 className="mt-0 text-bold text-uppercase">{$L('签名区')}</h5>
-              <button className="close" type="button" onClick={this.hide}>
+              <button className="close" type="button" onClick={this.hide} title={`${$L('关闭')} (Esc)`}>
                 <i className="zmdi zmdi-close" />
               </button>
             </div>
@@ -650,7 +650,10 @@ class SignPad extends React.Component {
   hide = () => $(this._$dlg).modal('hide')
   show = (clear) => {
     if (clear && this._SignaturePad) this._SignaturePad.clear()
-    $(this._$dlg).modal('show')
+    $(this._$dlg).modal({
+      show: true,
+      keyboard: true,
+    })
   }
 }
 
@@ -755,17 +758,17 @@ class LiteFormModal extends RbModalHandler {
       <RbModal title={title} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="liteform-wrap">
           <LiteForm entity={entity.entity} id={props.id} rawModel={{}} $$$parent={fake} ref={(c) => (this._LiteForm = c)}>
-            {this.props.elements.map((item) => {
+            {props.elements.map((item) => {
               // eslint-disable-next-line no-undef
-              return detectElement(item)
+              return detectElement(item, entity.entity)
             })}
           </LiteForm>
 
           <div className="footer" ref={(c) => (this._$formAction = c)}>
-            {this._ids.length > 1 && <RbAlertBox message={WrapHtml($L('本次保存将修改 **%d** 条记录', this.props.ids.length))} type="info" className="mt-0 mb-3" />}
+            {this._ids.length > 1 && <RbAlertBox message={WrapHtml($L('本次保存将修改 **%d** 条记录', this.props.ids.length))} type="info" className="mt-0 mb-2" />}
 
             <button className="btn btn-primary" type="button" onClick={() => this._handleSave()}>
-              {this.props.confirmText || $L('保存')}
+              {props.confirmText || $L('保存')}
             </button>
             <a className="btn btn-link" onClick={this.hide}>
               {$L('取消')}
@@ -878,6 +881,18 @@ class LiteFormModal extends RbModalHandler {
           {...fakeModel}
         />
       )
+      return
+    }
+
+    // v4.1 这里支持修改引用字段（单个字段）
+    if (fields.length === 1 && fields[0].includes('.')) {
+      $.get(`/commons/frontjs/reffield-editable?id=${entityOrId}&reffield=${fields[0]}`, (res) => {
+        if (res.error_code === 0) {
+          LiteFormModal.create(res.data.id, [res.data.field], title, onHandleSave)
+        } else {
+          RbHighbar.create(res.error_msg)
+        }
+      })
       return
     }
 

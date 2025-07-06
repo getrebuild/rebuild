@@ -41,6 +41,7 @@ import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.ImageView2;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
@@ -91,6 +92,8 @@ public class EasyExcelGenerator extends SetUser {
     protected File templateFile;
     protected Integer writeSheetAt = null;
     protected ID recordId;
+    @Setter
+    private ID reportId;
 
     protected int phNumber = 1;
     protected Map<String, Object> phValues = new HashMap<>();
@@ -513,8 +516,8 @@ public class EasyExcelGenerator extends SetUser {
             case PH__CURRENTDATETIME:
                 return CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
             case PH__EXPORTTIMES: {
-                if (recordId == null) return 1;
-                String key = "REPORT-EXPORTTIMES:" + recordId;
+                if (recordId == null || this.reportId == null) return 1;
+                String key = "REPORT-EXPORTTIMES:" + recordId + this.reportId;
                 Object t = KVStorage.getCustomValue(key);
                 return ObjectUtils.toInt(t) + 1;
             }

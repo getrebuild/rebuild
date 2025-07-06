@@ -28,7 +28,7 @@ import java.util.Set;
 /**
  * 最近使用的数据（引用型字段搜索）
  *
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/04/25
  */
 public class RecentlyUsedHelper {

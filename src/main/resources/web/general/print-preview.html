@@ -64,6 +64,10 @@
       .preview-content[data-bold='3'] td {
         font-weight: bold;
       }
+      .preview-content.hide-details #details-table,
+      .preview-content.hide-details h3 {
+        display: none;
+      }
 
       @media screen {
         html,
@@ -91,6 +95,10 @@
   </head>
   <body>
     <div class="preview-tools d-print-none">
+      <select class="form-control form-control-sm" id="showDetails">
+        <option value="1">[[${bundle.L('显示明细')}]]</option>
+        <option value="0">[[${bundle.L('隐藏明细')}]]</option>
+      </select>
       <select class="form-control form-control-sm hide" id="fontBold">
         <option value="1">[[${bundle.L('默认粗体')}]]</option>
         <option value="3">[[${bundle.L('全部粗体')}]]</option>
@@ -124,11 +132,12 @@
         <option value="20">200%</option>
       </select>
       <button class="btn btn-space btn-primary" onclick="window.print()"><i class="icon zmdi zmdi-print"></i> [[${bundle.L('打印')}]]</button>
-      <button class="btn btn-space btn-secondary" onclick="window.close()">[[${bundle.L('关闭')}]]</button>
+      <button class="btn btn-space btn-secondary mr-0" onclick="window.close()">[[${bundle.L('关闭')}]]</button>
     </div>
     <div class="preview-content hide">
       <div id="preview-table"></div>
-      <div class="J_print-meta">
+      <div id="details-table"></div>
+      <div class="mt-4">
         <span>[[${bundle.L('打印时间')}]] : [[${printTime}]]</span>
         &nbsp;<b>·</b>&nbsp;
         <span>[[${bundle.L('打印人')}]] : [[${printUser}]]</span>
@@ -139,6 +148,7 @@
       window.__PageConfig = {
         record: '[[${recordId}]]',
         content: [(${contentBody})],
+        detailsContent: [(${detailsContentBody})],
       }
     </script>
     <script th:src="@{/assets/js/general/rb-forms.js}" type="text/babel"></script>

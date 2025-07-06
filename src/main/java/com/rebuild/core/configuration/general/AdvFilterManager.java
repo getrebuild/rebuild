@@ -11,8 +11,8 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.Application;
-import com.rebuild.core.RebuildException;
 import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.utils.JSONUtils;
 
@@ -78,7 +78,7 @@ public class AdvFilterManager extends ShareToManager {
                 .setParameter(1, cfgid)
                 .unique();
         if (o == null) {
-            throw new RebuildException("No config found : " + cfgid);
+            throw new ConfigurationException("No config found : " + cfgid);
         }
 
         Object[][] cached = getAllConfig((String) o[0], null);

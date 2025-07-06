@@ -225,6 +225,8 @@ class SimpleNode extends NodeSpec {
       descs.push(data.signMode === 'AND' ? $L('会签') : data.signMode === 'ALL' ? $L('依次审批') : $L('或签'))
       if (data.expiresAuto && ~~data.expiresAuto.expiresAuto > 0) descs.push($L('限时审批'))
       if (data.editableFields && data.editableFields.length > 0) descs.push($L('可修改字段'))
+    } else if (this.nodeType === 'start') {
+      if (data.unallowCancel) descs.push($L('禁止撤回'))
     }
 
     return (
@@ -430,7 +432,7 @@ class DlgAddNode extends React.Component {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()}>
+              <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
@@ -543,8 +545,13 @@ class StartNodeConfig extends RbFormHandler {
               <p className="form-text m-0">{$L('符合条件的记录才可以使用/选择此流程')}</p>
             </div>
           </div>
+          <div className="form-group mt-5 bosskey-show">
+            <label className="custom-control custom-control-sm custom-checkbox">
+              <input className="custom-control-input" type="checkbox" name="unallowCancel" checked={this.state.unallowCancel === true} onChange={this.handleChange} />
+              <span className="custom-control-label">{$L('审批后禁止提交人撤回')} (LAB)</span>
+            </label>
+          </div>
         </div>
-
         {this.renderButton()}
       </div>
     )
@@ -604,6 +611,7 @@ class StartNodeConfig extends RbFormHandler {
       nodeName: this.state.nodeName,
       users: this.state.users === 'SPEC' ? this._UserSelector.getSelected() : [this.state.users],
       filter: this.state.submitFilter,
+      unallowCancel: this.state.unallowCancel === true,
     }
     if (this.state.users === 'SPEC' && d.users.length === 0) {
       RbHighbar.create($L('请选择用户'))
@@ -805,10 +813,14 @@ class ApproverNodeConfig extends StartNodeConfig {
                     return (
                       <tr key={`field-${item.field}`}>
                         <td>{this.__fieldLabel(item.field)}</td>
-                        <td width="100">
+                        <td width="140" data-field={item.field}>
                           <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                            <input className="custom-control-input" type="checkbox" name="notNull" defaultChecked={item.notNull === true} data-field={item.field} />
+                            <input className="custom-control-input" type="checkbox" name="notNull" defaultChecked={item.notNull === true} />
                             <span className="custom-control-label">{$L('必填')}</span>
+                          </label>
+                          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline ml-3">
+                            <input className="custom-control-input" type="checkbox" name="readOnly" defaultChecked={item.readOnly === true} />
+                            <span className="custom-control-label">{$L('只读')}</span>
                           </label>
                         </td>
                         <td width="40">
@@ -897,10 +909,10 @@ class ApproverNodeConfig extends StartNodeConfig {
   save = () => {
     const editableFields = []
     $(this._$editableFields)
-      .find('input')
+      .find('td[data-field]')
       .each(function () {
         const $this = $(this)
-        editableFields.push({ field: $this.data('field'), notNull: $this.prop('checked') })
+        editableFields.push({ field: $this.data('field'), notNull: $this.find('input:eq(0)').prop('checked'), readOnly: $this.find('input:eq(1)').prop('checked') })
       })
 
     const expiresAuto = {}

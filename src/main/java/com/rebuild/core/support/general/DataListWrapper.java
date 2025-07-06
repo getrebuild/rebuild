@@ -29,6 +29,7 @@ import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.JSONUtils;
+import lombok.Setter;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -57,6 +58,8 @@ public class DataListWrapper {
     // 信息脱敏
     protected boolean useDesensitized = false;
 
+    // 进一步封装查询结果
+    @Setter
     private boolean mixWrapper = true;
 
     private Map<ID, Object> cacheRefValue = new HashMap<>();
@@ -116,7 +119,7 @@ public class DataListWrapper {
 
             Object nameValue = null;
             for (int colIndex = 0; colIndex < selectFieldsLen; colIndex++) {
-                if (!checkHasFieldPrivileges(selectFields[colIndex].getField())) {
+                if (!checkHasReadFieldPrivileges(selectFields[colIndex].getField())) {
                     row[colIndex] = FieldValueHelper.NO_READ_PRIVILEGES;
                     continue;
                 }
@@ -142,7 +145,7 @@ public class DataListWrapper {
                 // At last
                 if (colIndex + 1 == selectFieldsLen && fieldMeta.getType() == FieldType.PRIMARY) {
                     // 字段权限
-                    if (checkHasFieldPrivileges(entity.getNameField())) {
+                    if (checkHasReadFieldPrivileges(entity.getNameField())) {
                         // 如无名称字段值则补充
                         if (nameValue == null) {
                             nameValue = FieldValueHelper.getLabel((ID) value, StringUtils.EMPTY);
@@ -278,7 +281,7 @@ public class DataListWrapper {
      * @param field
      * @param original
      * @return
-     * @see #checkHasFieldPrivileges(Field)
+     * @see #checkHasReadFieldPrivileges(Field)
      */
     protected boolean checkHasJoinFieldPrivileges(SelectItem field, Object[] original) {
         if (this.queryJoinFields == null || UserHelper.isAdmin(user)) {
@@ -299,17 +302,8 @@ public class DataListWrapper {
      * @param field
      * @return
      */
-    protected boolean checkHasFieldPrivileges(Field field) {
+    protected boolean checkHasReadFieldPrivileges(Field field) {
         ID u = user == null ? UserContextHolder.getUser() : user;
         return Application.getPrivilegesManager().getFieldPrivileges().isReadable(field, u);
-    }
-
-    /**
-     * 进一步封装查询结果
-     *
-     * @param mixWrapper
-     */
-    public void setMixWrapper(boolean mixWrapper) {
-        this.mixWrapper = mixWrapper;
     }
 }

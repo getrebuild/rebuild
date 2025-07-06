@@ -59,6 +59,7 @@ import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_MODE3
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_MODE3_SHOWCHARTS;
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_MODE3_SHOWFILTERS;
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_SHOWCATEGORY;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ENABLED_LIST_EDITABLE41;
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ENABLE_RECORD_MERGER;
 
 /**
@@ -160,6 +161,9 @@ public class GeneralListController extends EntityController {
                     mv.getModel().put(ENABLE_RECORD_MERGER, true);
                 }
             }
+
+            mv.getModel().put(ENABLED_LIST_EDITABLE41,
+                    BooleanUtils.toBoolean(easyEntity.getExtraAttr(ENABLED_LIST_EDITABLE41)));
 
         } else if (listMode == 2) {
             listConfig = DataListManager.instance.getFieldsLayoutMode2(listEntity);

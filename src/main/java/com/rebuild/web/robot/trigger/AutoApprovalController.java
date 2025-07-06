@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao
  * @since 2019/05/25
  */
 @RestController

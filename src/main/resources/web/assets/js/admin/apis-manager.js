@@ -16,6 +16,7 @@ class AppList extends ConfigList {
     super(props)
     this.requestUrl = '/admin/apis-manager/app-list'
     this.state.secretShows = []
+    this.state.callTimes = {}
   }
 
   render() {
@@ -30,21 +31,28 @@ class AppList extends ConfigList {
           )
           if (this.state.secretShows.includes(item[2])) secret = item[2]
 
+          // 调用量异步加载
+          let times = this.state.callTimes[item[1]]
+          if (typeof times === 'undefined') {
+            times = '...'
+          } else {
+            times =
+              times > 0 ? (
+                <a title={$L('OpenAPI 调用日志')} className="light-link" onClick={() => renderRbcomp(<AppLogsViewer title={$L('OpenAPI 调用日志')} appid={item[1]} maximize disposeOnHide useWhite />)}>
+                  {times}
+                </a>
+              ) : (
+                <span className="text-muted">0</span>
+              )
+          }
+
           return (
             <tr key={item[0]}>
               <td>{item[1]}</td>
               <td>{secret}</td>
-              <td>{item[4] || $L('无 (拥有全部权限)')}</td>
-              <td>{item[7] || $L('无 (不限制)')}</td>
-              <td>
-                {item[6] > 0 ? (
-                  <a title={$L('API 调用日志')} className="light-link" onClick={() => renderRbcomp(<AppLogsViewer title={$L('API 调用日志')} appid={item[1]} maximize disposeOnHide useWhite />)}>
-                    {item[6]}
-                  </a>
-                ) : (
-                  <span className="text-muted">0</span>
-                )}
-              </td>
+              <td>{item[4] || $L('无 (全部权限)')}</td>
+              <td>{item[6] || $L('无 (不限)')}</td>
+              <td>{times}</td>
               <td>
                 <DateShow date={item[5]} />
               </td>
@@ -66,19 +74,33 @@ class AppList extends ConfigList {
     )
   }
 
+  loadDataAfter() {
+    this.state.data &&
+      this.state.data.forEach((a) => {
+        $.get(`/admin/apis-manager/request-times?appid=${a[1]}`, (res) => {
+          if (res.error_code === 0) {
+            const callTimes = this.state.callTimes
+            callTimes[a[1]] = res.data[a[1]] || 0
+            this.setState({ callTimes: callTimes })
+          }
+        })
+      })
+  }
+
   handleEdit(app) {
     renderRbcomp(<AppEdit id={app[0]} bindIps={app[7]} bindUser={app[3]} />)
   }
 
   handleDelete(app) {
     const handle = super.handleDelete
-    RbAlert.create($L('删除后，使用此 API 密钥的第三方应用功能将会失败'), {
+    RbAlert.create($L('删除后，使用此 OpenAPI 密钥的第三方应用功能将会失败'), {
       type: 'danger',
       confirmText: $L('删除'),
       onConfirm: function () {
         this.disabled(true)
         handle(app[0], () => dlgActionAfter(this))
       },
+      countdown: 5,
     })
   }
 
@@ -108,7 +130,7 @@ class AppList extends ConfigList {
 class AppEdit extends ConfigFormDlg {
   constructor(props) {
     super(props)
-    this.title = props.id ? $L('修改 API 密钥') : $L('添加 API 密钥')
+    this.title = props.id ? $L('修改 OpenAPI 密钥') : $L('添加 OpenAPI 密钥')
   }
 
   renderFrom() {
@@ -118,14 +140,14 @@ class AppEdit extends ConfigFormDlg {
           <label className="col-sm-3 col-form-label text-sm-right">{$L('绑定用户 (权限)')}</label>
           <div className="col-sm-7">
             <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (this._UserSelector = c)} defaultValue={this.props.bindUser} />
-            <p className="form-text">{$L('强烈建议为 API 密钥绑定一个用户，此密钥将拥有和其一样的权限。如不绑定则拥有全部权限')}</p>
+            <p className="form-text">{$L('强烈建议为 OpenAPI 密钥绑定一个用户，此密钥将拥有和其一样的权限。如不绑定则拥有全部权限')}</p>
           </div>
         </div>
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">{$L('IP 白名单')}</label>
           <div className="col-sm-7">
             <textarea className="form-control form-control-sm row2x" ref={(c) => (this._$bindIps = c)} defaultValue={this.props.bindIps} placeholder={$L('(可选)')} />
-            <p className="form-text">{$L('白名单内的 IP 才可以通过此 API 密钥调用接口，如有多个 IP 请使用逗号或空格分开，留空则不限制')}</p>
+            <p className="form-text">{$L('白名单内的 IP 才可以通过此 OpenAPI 密钥调用接口，如有多个 IP 请使用逗号或空格分开，留空则不限制')}</p>
           </div>
         </div>
       </RF>

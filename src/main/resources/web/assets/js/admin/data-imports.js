@@ -205,6 +205,7 @@ const step3_import = () => {
           }
         })
       },
+      countdown: 5,
     })
   }
 

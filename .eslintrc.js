@@ -155,5 +155,9 @@ module.exports = {
     $dropdownMenuSearch: true,
     $formatNumber: true,
     $logRBAPI: true,
+    Md2Html: true,
+    marked: true,
+    $focus2End: true,
+    RecordSelectorModal: true,
   },
 }

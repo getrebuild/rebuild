@@ -76,7 +76,12 @@ class FeedsPost extends React.Component {
   _post = () => {
     const _data = this._FeedsEditor.vals()
     if (!_data) return
-    if (!_data.content) return RbHighbar.create($L('请输入动态内容'))
+    if (!_data.content) {
+      if (_data.images && _data.images.length) _data.content = $fileCutName(_data.images[0])
+      else if (_data.attachments && _data.attachments.length) _data.content = $fileCutName(_data.attachments[0])
+      // v4.1
+      if (!_data.content) return RbHighbar.create($L('请输入动态内容'))
+    }
 
     _data.scope = this.__FeedsScope.val()
     if (_data.scope === false) return
@@ -448,7 +453,7 @@ class SelectGroup extends React.Component {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={this.hide}>
+              <button className="close" type="button" onClick={this.hide} title={`${$L('关闭')} (Esc)`}>
                 <i className="zmdi zmdi-close" />
               </button>
             </div>

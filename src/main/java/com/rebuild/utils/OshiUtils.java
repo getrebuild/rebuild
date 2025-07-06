@@ -98,20 +98,22 @@ public class OshiUtils {
 
         String bestipv4 = null;
         for (NetworkIF net : nets) {
+            net.updateAttributes();
+            if (net.isKnownVmMacAddr()) continue;
+            if (net.getIfOperStatus() != NetworkIF.IfOperStatus.UP) continue;
+
+            String name = net.getName().toLowerCase();
+            if (name.contains("docker") || name.contains("vbox") || name.contains("vmnet")
+                    || name.contains("loopback") || name.contains("veth")) {
+                continue;
+            }
+
             for (String ip : net.getIPv4addr()) {
+                if (StringUtils.isBlank(ip) || ip.equals("127.0.0.1") || ip.equals("0.0.0.0")) continue;
                 if (bestipv4 == null) bestipv4 = ip;
                 break;
             }
-
-            if (net.isKnownVmMacAddr()) continue;
-
-            String[] ipsv4 = net.getIPv4addr();
-            if (ipsv4.length > 0) {
-                bestipv4 = ipsv4[0];
-                break;
-            }
         }
-
         return StringUtils.defaultIfBlank(bestipv4, "127.0.0.1");
     }
 

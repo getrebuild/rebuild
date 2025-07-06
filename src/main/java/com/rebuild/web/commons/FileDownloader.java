@@ -15,6 +15,7 @@ import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.OnlyOffice;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
@@ -22,6 +23,7 @@ import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.ImageView2;
 import com.rebuild.utils.OkHttpUtils;
+import com.rebuild.utils.PdfConverter;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
@@ -40,8 +42,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * 文件下载/查看
@@ -173,7 +176,16 @@ public class FileDownloader extends BaseController {
             inline = (filepath.toLowerCase().endsWith(".pdf") || filepath.toLowerCase().endsWith(".html"))
                     && (request.getRequestURI().contains("/filex/access/") || inline);
 
-            setDownloadHeaders(request, response, attname, inline);
+            // for TEST
+            if (PdfConverter.TYPE_PDF.equals(request.getParameter("convert"))) {
+                String fileUrl = String.format("/filex/download/%s?_csrfToken=%s&temp=%s",
+                        filepath, AuthTokenManager.generateCsrfToken(90), temp);
+                fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
+                Path dest = OnlyOffice.convertPdf(Paths.get(filepath), fileUrl);
+                log.debug("PdfConverter : {}", dest);
+            }
+
+            setDownloadHeaders(response, attname, inline);
             writeLocalFile(filepath, temp, response);
         }
     }
@@ -336,28 +348,17 @@ public class FileDownloader extends BaseController {
     /**
      * 设置下载 Headers
      *
-     * @param request
      * @param response
      * @param attname
      * @param inline
      */
-    public static void setDownloadHeaders(HttpServletRequest request, HttpServletResponse response, String attname, boolean inline) {
-        // 特殊字符处理
-        attname = attname.replace(" ", "-");
-        attname = attname.replace("%", "-");
-        attname = attname.replaceAll("[,;]", "-");
-
-        // 火狐 Safari 中文名乱码问题
-        String UA = StringUtils.defaultIfBlank(request.getHeader("user-agent"), "").toUpperCase();
-        if (UA.contains("FIREFOX") || UA.contains("SAFARI") || UA.contains("APPLEWEBKIT")) {
-            attname = CodecUtils.urlDecode(attname);
-            attname = new String(attname.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
-        }
-
+    public static void setDownloadHeaders(HttpServletResponse response, String attname, boolean inline) {
+        // be:v4.1
+        attname = CodecUtils.urlEncode(attname).replaceAll("\\+", "%20");
         if (inline) {
-            response.setHeader("Content-Disposition", "inline;filename=" + attname);
+            response.setHeader("Content-Disposition", "inline; filename=" + attname);
         } else {
-            response.setHeader("Content-Disposition", "attachment;filename=" + attname);
+            response.setHeader("Content-Disposition", "attachment; filename=" + attname);
             response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
         }
     }

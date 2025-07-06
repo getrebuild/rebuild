@@ -40,8 +40,6 @@ public class EntityHelper {
     public static final ID UNSAVED_ID = ID.valueOf("000" + UNSAVED_ID_SUFFIX);
 
     /**
-     * 解析 JSON 为 Record
-     *
      * @param data
      * @return
      * @see #parse(JSONObject, ID, boolean, boolean)
@@ -53,8 +51,6 @@ public class EntityHelper {
     }
 
     /**
-     * 解析 JSON 为 Record
-     *
      * @param data
      * @param user
      * @return
@@ -82,9 +78,9 @@ public class EntityHelper {
         }
 
         // v4.0 VID
-        String _id = metadata.getString("id");
-        if (_id != null && _id.startsWith("000-")) metadata.remove("id");
-        else _id = null;
+        String _id40 = metadata.getString("id");
+        if (_id40 != null && _id40.startsWith("000-")) metadata.remove("id");
+        else _id40 = null;
 
         String entityName = metadata.getString("entity");
         if (StringUtils.isBlank(entityName)) {
@@ -108,7 +104,7 @@ public class EntityHelper {
         Record record = new EntityRecordCreator(
                 MetadataHelper.getEntity(entityName), data, user, safetyUrl)
                 .create(false);
-        if (_id != null) record.addExtra("_id", _id);
+        if (_id40 != null) record.addExtra("_id", _id40);
 
         // v3.4 表单后端回填
         if (MetadataHelper.isBusinessEntity(record.getEntity())) {
@@ -119,8 +115,6 @@ public class EntityHelper {
     }
 
     /**
-     * 构建更新 Record
-     *
      * @param recordId
      * @return
      * @see #forUpdate(ID, ID, boolean)
@@ -132,8 +126,6 @@ public class EntityHelper {
     }
 
     /**
-     * 构建更新 Record
-     *
      * @param recordId
      * @param user
      * @return
@@ -165,43 +157,89 @@ public class EntityHelper {
     }
 
     /**
-     * 构建新建 Record
-     *
-     * @param entity
+     * @param entityCode
      * @return
      * @see #forNew(int, ID, boolean)
      */
-    public static Record forNew(int entity) {
+    public static Record forNew(int entityCode) {
         ID user = (ID) ObjectUtils.defaultIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
         log.info("Use '{}' do forNew", user);
-        return forNew(entity, user, true);
+        return forNew41(entityCode, user, true);
     }
 
     /**
-     * 构建新建 Record
-     *
-     * @param entity
+     * @param entityCode
      * @param user
      * @return
      * @see #forNew(int, ID, boolean)
      */
-    public static Record forNew(int entity, ID user) {
-        return forNew(entity, user, true);
+    public static Record forNew(int entityCode, ID user) {
+        return forNew41(entityCode, user, true);
     }
 
     /**
      * 构建新建 Record
      *
-     * @param entity
+     * @param entityCode
      * @param user
      * @param bindCommons
      * @return
      */
-    public static Record forNew(int entity, ID user, boolean bindCommons) {
-        Assert.isTrue(MetadataHelper.containsEntity(entity), "[entity] does not exists : " + entity);
-        Assert.notNull(user, "[user] cannot be null");
+    public static Record forNew(int entityCode, ID user, boolean bindCommons) {
+        return forNew41(entityCode, user, bindCommons);
+    }
 
-        Record record = new StandardRecord(MetadataHelper.getEntity(entity), user);
+    /**
+     * @param entityName
+     * @return
+     * @see #forNew(String, ID, boolean)
+     */
+    public static Record forNew(String entityName) {
+        ID user = (ID) ObjectUtils.defaultIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
+        log.info("Use '{}' do forNew", user);
+        return forNew41(entityName, user, true);
+    }
+
+    /**
+     * @param entityName
+     * @param user
+     * @return
+     * @see #forNew(String, ID, boolean)
+     */
+    public static Record forNew(String entityName, ID user) {
+        return forNew41(entityName, user, true);
+    }
+
+    /**
+     * 构建新建 Record
+     *
+     * @param entityName
+     * @param user
+     * @param bindCommons
+     * @return
+     */
+    public static Record forNew(String entityName, ID user, boolean bindCommons) {
+        return forNew41(entityName, user, bindCommons);
+    }
+
+    /**
+     * 构建新建 Record
+     *
+     * @param entityCodeOrName 实体名或编码
+     * @param user
+     * @param bindCommons
+     * @return
+     */
+    private static Record forNew41(Object entityCodeOrName, ID user, boolean bindCommons) {
+        Assert.notNull(user, "[user] cannot be null");
+        Entity entity;
+        if (entityCodeOrName instanceof Integer) {
+            entity = MetadataHelper.getEntity((Integer) entityCodeOrName);
+        } else {
+            entity = MetadataHelper.getEntity((String) entityCodeOrName);
+        }
+
+        Record record = new StandardRecord(entity, user);
         if (bindCommons) {
             bindCommonsFieldsValue(record, true);
         }
@@ -364,5 +402,10 @@ public class EntityHelper {
     public static final int ShortUrl = 97;
     public static final int CommonsLock = 98;
     public static final int CommonsLog = 99;
+
+    // AI
+
+    public static final int AibotChat = 96;
+    public static final int AibotChatAttach = 95;
 
 }

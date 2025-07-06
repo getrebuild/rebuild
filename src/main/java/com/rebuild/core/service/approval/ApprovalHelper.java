@@ -220,10 +220,19 @@ public class ApprovalHelper {
      * @see FlowNode#getExpiresAuto()
      */
     public static JSONObject getExpiresAuto(ID approvalId, String node) {
+        FlowNode n = getFlowNode(approvalId, node);
+        return n == null ? null : n.getExpiresAuto();
+    }
+
+    /**
+     * @param approvalId
+     * @param node
+     * @return
+     */
+    public static FlowNode getFlowNode(ID approvalId, String node) {
         try {
-            FlowNode fn = RobotApprovalManager.instance.getFlowDefinition(approvalId)
+            return RobotApprovalManager.instance.getFlowDefinition(approvalId)
                     .createFlowParser().getNode(node);
-            return fn == null ? null : fn.getExpiresAuto();
         } catch (ConfigurationException | ApprovalException ignored) {}
         return null;
     }

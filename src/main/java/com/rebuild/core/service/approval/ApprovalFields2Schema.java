@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * 审批流程字段
  *
- * @author devezhao-mbp zhaofang123@gmail.com
+ * @author devezhao-mbp
  * @since 2019/07/04
  */
 @Slf4j

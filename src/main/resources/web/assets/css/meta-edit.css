@@ -113,7 +113,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   height: 32px;
   width: 1.4rem;
   right: 40px;
-  top: 2px;
+  top: 1px;
   text-align: center;
   padding-top: 6px;
   color: #737373 !important;
@@ -236,7 +236,8 @@ a#entityIcon:hover {
   border-bottom-right-radius: 2px !important;
 }
 
-select.underline-sm {
+select.underline-sm,
+input.underline-sm {
   width: 60px;
   padding: 1px;
   border: 0 none;
@@ -247,7 +248,12 @@ select.underline-sm {
   text-align-last: center;
 }
 
-select.underline-sm:focus {
+input.underline-sm {
+  text-align: center;
+}
+
+select.underline-sm:focus,
+input.underline-sm:focus {
   border-color: #4285f4;
 }
 

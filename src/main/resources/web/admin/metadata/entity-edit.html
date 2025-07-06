@@ -94,10 +94,16 @@
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <a href="javascript:;" class="adv-options-btn">[[${bundle.L('展开高级选项')}]] <i class="mdi mdi-chevron-double-down"></i> <sup class="rbv"></sup></a>
                     <div class="adv-options hide">
+                      <div class="mb-2 bosskey-show">
+                        <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                          <input class="custom-control-input" type="checkbox" id="enabledListEditable" />
+                          <span class="custom-control-label">[[${bundle.L('启用列表页单字段编辑')}]] (LAB) <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
+                        </label>
+                      </div>
                       <div>
                         <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                           <input class="custom-control-input" type="checkbox" id="disabledViewEditable" />
-                          <span class="custom-control-label">[[${bundle.L('禁用详情页单字段编辑')}]]</span>
+                          <span class="custom-control-label">[[${bundle.L('禁用详情页单字段编辑')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
                         </label>
                       </div>
                       <th:block th:if="${currentEntity == mainEntity || detailEntity == null}">
@@ -174,7 +180,7 @@
                                 <option value="9">9.</option>
                               </select>
                             </div>
-                            <div class="col-4 pl-1 bosskey-show">
+                            <div class="col-4 pl-1">
                               <label class="mb-1">[[${bundle.L('是否隐藏')}]]</label>
                               <select class="form-control form-control-sm" id="detailsHide">
                                 <option value="">[[${bundle.L('默认')}]]</option>
