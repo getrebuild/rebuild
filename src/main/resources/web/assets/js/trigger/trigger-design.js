@@ -181,10 +181,13 @@ $(document).ready(() => {
     $btn.button('loading')
     $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
+        let warns = []
+        if (when <= 0) warns.push($L('无任何触发动作'))
+        if ($('.J_trigger-isDisabled')[0]) warns.push($L('未启用'))
         const msg = (
           <RF>
             <strong>{$L('保存成功')}</strong>
-            {when <= 0 && <p className="text-warning m-0 mt-1">{$L('由于未启用任何触发动作，此触发器不会被自动执行')}</p>}
+            {warns.length > 0 && <p className="text-warning m-0 mt-1">{$L('由于%s，此触发器不会执行', warns.join('/'))}</p>}
           </RF>
         )
         RbAlert.create(msg, {

@@ -22,6 +22,7 @@
       .table.table-priv th {
         border-top: 0 none;
         color: #777;
+        line-height: 15px;
       }
       .table.table-priv th a:hover,
       .table.table-priv .name a:hover {
@@ -123,6 +124,29 @@
         background-color: #f5f5f5;
         border-radius: 2px;
       }
+
+      th.J_search-entity a.search-btn {
+        position: absolute;
+        font-size: 1.231rem;
+        margin-top: -1px;
+        margin-left: 5px;
+      }
+      th.J_search-entity a.search-btn:hover {
+        opacity: 0.8;
+      }
+      th.J_search-entity .search-input {
+        background-color: #fff;
+        margin-top: -1px;
+      }
+      th.J_search-entity .search-input > input {
+        border: 0 none;
+        width: 100%;
+        padding: 0 4px;
+        appearance: none;
+        outline: 0 none;
+        background-color: transparent;
+        line-height: 15px;
+      }
     </style>
   </head>
   <body>
@@ -176,7 +200,7 @@
                 <table class="table table-hover table-priv">
                   <thead>
                     <tr>
-                      <th class="text-left" width="25%">[[${bundle.L('业务实体')}]]</th>
+                      <th class="text-left J_search-entity" width="25%">[[${bundle.L('业务实体')}]]</th>
                       <th><a data-action="C" th:title="${bundle.L('批量选择')}">[[${bundle.L('新建')}]]</a></th>
                       <th><a data-action="R" th:title="${bundle.L('批量选择')}">[[${bundle.L('读取')}]]</a></th>
                       <th><a data-action="U" th:title="${bundle.L('批量选择')}">[[${bundle.L('编辑')}]]</a></th>

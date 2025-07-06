@@ -5868,12 +5868,11 @@ div.formula-code {
 
 .navbar-more41 .icon {
   font-size: 1.5rem;
-  transform: translateY(1px);
+  transform: translateY(1.5px);
 }
 
 .navbar-more41 .dropdown-menu {
   background-color: var(--rb-theme-color);
-  color: #fff;
   width: 220px;
   margin-top: -1px;
 }

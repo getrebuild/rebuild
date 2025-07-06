@@ -59,14 +59,16 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
         Map<String, String> varsMap = varsExtractor.transformVars(entity);
 
         List<String> validFields = new ArrayList<>();
+        List<String> validFieldsOfSingle41 = new ArrayList<>();
 
         for (Map.Entry<String, String> e : varsMap.entrySet()) {
             String varName = e.getKey();
             if (varName.startsWith(NROW_PREFIX + PLACEHOLDER)) continue;
 
             String validField = e.getValue();
-            if (validField != null && e.getKey().startsWith(NROW_PREFIX)) {
-                validFields.add(validField);
+            if (validField != null) {
+                if (e.getKey().startsWith(NROW_PREFIX)) validFields.add(validField);
+                else validFieldsOfSingle41.add(validField);
             } else {
                 log.warn("Invalid field `{}` in template : {}", e.getKey(), templateFile);
             }
@@ -76,7 +78,9 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
 
         queryData.put("fields", validFields);  // 使用模板字段
         // v3.8.4 优先使用模版中指定的排序
-        if (varsExtractor.getListTypeSortFields() != null) queryData.put("sort", varsExtractor.getListTypeSortFields());
+        if (varsExtractor.getListTypeSortFields() != null) {
+            queryData.put("sort", varsExtractor.getListTypeSortFields());
+        }
 
         QueryParser queryParser = new QueryParser(queryData);
         int[] limits = queryParser.getSqlLimit();
@@ -100,6 +104,17 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
 
         Map<String, List<Map<String, Object>>> datasMap = new HashMap<>();
         datasMap.put(REFKEY_LIST, datas);
+
+        // v4.1 独立字段
+        if (!validFieldsOfSingle41.isEmpty()) {
+            queryData.put("fields", validFieldsOfSingle41);
+            queryParser = new QueryParser(queryData);
+
+            Record s = Application.createQuery(queryParser.toSql(), getUser()).record();
+            Map<String, Object> map = buildData(s, varsMap);
+            datasMap.put(REFKEY_RECORD_MAIN, Collections.singletonList(map));
+        }
+
         return datasMap;
     }
 

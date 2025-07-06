@@ -199,19 +199,23 @@ public class QiniuCloud {
     }
 
     /**
-     * 文件信息
+     * 移动文件
      *
-     * @param filePath
+     * @param newKey
+     * @param oldKey
      * @return
      */
-    public FileInfo stat(String filePath) {
+    public boolean move(String newKey, String oldKey) {
         BucketManager bucketManager = new BucketManager(getAuth(), CONFIGURATION);
+        Response resp;
         try {
-            return bucketManager.stat(this.bucketName, filePath);
+            resp = bucketManager.move(this.bucketName, oldKey, this.bucketName, newKey, true);
+            if (resp.isOK()) return true;
+
+            throw new RebuildException("Failed to move file : " + newKey + " < " + oldKey + " : " + resp.bodyString());
         } catch (QiniuException e) {
-            log.error("Cannot stat file : {}", filePath);
+            throw new RebuildException("Failed to move file : " + newKey + " < " + oldKey, e);
         }
-        return null;
     }
 
     /**
@@ -225,14 +229,28 @@ public class QiniuCloud {
         Response resp;
         try {
             resp = bucketManager.delete(this.bucketName, key);
-            if (resp.isOK()) {
-                return true;
-            } else {
-                throw new RebuildException("Failed to delete file : " + this.bucketName + " < " + key + " : " + resp.bodyString());
-            }
+            if (resp.isOK()) return true;
+
+            throw new RebuildException("Failed to delete file : " + this.bucketName + " < " + key + " : " + resp.bodyString());
         } catch (QiniuException e) {
             throw new RebuildException("Failed to delete file : " + this.bucketName + " < " + key, e);
         }
+    }
+
+    /**
+     * 文件信息
+     *
+     * @param filePath
+     * @return
+     */
+    public FileInfo stat(String filePath) {
+        BucketManager bucketManager = new BucketManager(getAuth(), CONFIGURATION);
+        try {
+            return bucketManager.stat(this.bucketName, filePath);
+        } catch (QiniuException e) {
+            log.error("Cannot stat file : {}", filePath);
+        }
+        return null;
     }
 
     /**

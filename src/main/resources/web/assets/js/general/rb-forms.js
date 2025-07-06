@@ -1484,6 +1484,12 @@ class RbFormNText extends RbFormElement {
     }
   }
 
+  componentDidMount() {
+    super.componentDidMount()
+    // fix:4.1
+    if (this.props.onView) $(this._textarea).perfectScrollbar()
+  }
+
   onEditModeChanged(destroy) {
     if (this._textarea) {
       if (destroy) {
@@ -1496,7 +1502,7 @@ class RbFormNText extends RbFormElement {
     if (!destroy) {
       // MDE
       if (this.props.useMdedit) this._initMde()
-      // 常用值
+      // v4.1 常用值
       if (this._textCommonMenuId && !$(`#${this._textCommonMenuId}`)[0]) {
         if (rb.dev === 'env') console.log('[dev] init dropdown-menu with text-common', this._textCommonMenuId)
         renderRbcomp(
