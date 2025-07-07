@@ -135,13 +135,15 @@ public class CommonsUtils {
             return StringUtils.EMPTY;
         }
 
+
         // TODO 更好的 sanitizeHtml
         return text.toString()
-                .replace("<script", "")
-                .replace("</script>", "")
-                .replace("<style", "")
-                .replace("</style>", "")
-                .replace("<img", "");
+                .replaceAll("(?i)<script", "")
+                .replaceAll("(?i)</script>", "")
+                .replaceAll("(?i)<style", "")
+                .replaceAll("(?i)</style>", "")
+                .replaceAll("(?i)<iframe", "")
+                .replaceAll("(?i)<img", "");
     }
 
     /**
