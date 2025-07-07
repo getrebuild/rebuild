@@ -5746,7 +5746,7 @@ div.formula-code {
   display: none;
 }
 
-@media (max-width: 1464px) {
+@media (min-width: 768px) and (max-width: 1464px) {
   .modal.rbview .modal-dialog .modal-content {
     width: 1220px;
     margin: 0 -1230px 0 0;
@@ -5883,6 +5883,7 @@ div.formula-code {
 }
 
 .navbar-more41 .dropdown-menu a:hover,
+.navbar-more41 .dropdown-menu a.active,
 .navbar-more41.show > a {
   background-color: rgba(255, 255, 255, 0.15);
 }
