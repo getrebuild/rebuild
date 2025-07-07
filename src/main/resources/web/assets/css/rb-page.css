@@ -3389,7 +3389,8 @@ a.user-show:not([href]) {
 
 @media (max-width: 767.98px) {
   .rb-top-header .global-search2,
-  .rb-top-header .global-create2 {
+  .rb-top-header .global-create2,
+  .rb-top-header .aibot-show {
     display: none !important;
   }
 }
