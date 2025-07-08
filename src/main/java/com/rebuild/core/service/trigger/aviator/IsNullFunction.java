@@ -37,15 +37,12 @@ public class IsNullFunction extends AbstractFunction {
 
         if ($any instanceof Number) {
             if (ObjectUtils.toDouble($any) == 0d) return AviatorBoolean.TRUE;
-            if (ObjectUtils.toLong($any) == 0L) return AviatorBoolean.TRUE;
-        }
-
-        if ($any instanceof Object[]) {
+        } else if ($any instanceof Object[]) {
             return ((Object[]) $any).length == 0 ? AviatorBoolean.TRUE : AviatorBoolean.FALSE;
-        }
-
-        if ($any instanceof Collection) {
+        } else if ($any instanceof Collection) {
             return ((Collection<?>) $any).isEmpty() ? AviatorBoolean.TRUE : AviatorBoolean.FALSE;
+        } else if ($any instanceof Iterable) {
+            return ((Iterable<?>) $any).iterator().hasNext() ? AviatorBoolean.FALSE : AviatorBoolean.TRUE;
         }
 
         return StringUtils.isEmpty($any.toString()) ? AviatorBoolean.TRUE : AviatorBoolean.FALSE;
