@@ -141,9 +141,13 @@ public class OnlyOffice {
         if (CommonsUtils.isExternalUrl(filepath)) {
             document.put("url", filepath);
         } else {
+            boolean temp = filepath.startsWith("/temp/");
+            if (temp) filepath = filepath.substring(6);
+
             String fileUrl = String.format("/filex/download/%s?_csrfToken=%s",
                     filepath,
                     AuthTokenManager.generateCsrfToken(90));
+            if (temp) fileUrl += "&temp=yes";
             fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
             document.put("url", fileUrl);
         }
