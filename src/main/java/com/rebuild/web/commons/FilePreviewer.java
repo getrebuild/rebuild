@@ -33,6 +33,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.IOException;
 
 import static com.rebuild.core.support.ConfigurationItem.OnlyofficeServer;
 
@@ -49,8 +50,26 @@ public class FilePreviewer extends BaseController {
 
     // https://api.onlyoffice.com/docs/docs-api/usage-api/config/
     @GetMapping("/commons/file-preview")
-    public ModelAndView ooPreview(HttpServletRequest request) {
+    public ModelAndView ooPreview(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String src = getParameterNotNull(request, "src");
+        // v4.0 兼容
+        if (!OnlyOffice.isUseOoPreview()) {
+            String fileUrl = src;
+            if (!CommonsUtils.isExternalUrl(fileUrl)) {
+                boolean temp = fileUrl.startsWith("/temp/");
+                if (temp) fileUrl = fileUrl.substring(6);
+
+                fileUrl = String.format("/filex/download/%s?temp=%s&_onceToken=%s",
+                        fileUrl, temp, AuthTokenManager.generateOnceToken(null));
+                fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
+            }
+
+            String previewUrl = OnlyOffice.getBestPreviewUrl();
+            previewUrl += CodecUtils.urlEncode(fileUrl);
+            response.sendRedirect(previewUrl);
+            return null;
+        }
+
         final String mode = getParameter(request, "mode", "view");  // edit
         Object[] ps = OnlyOffice.buildPreviewParams(src);
 

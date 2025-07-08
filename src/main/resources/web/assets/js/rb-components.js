@@ -1171,7 +1171,7 @@ class Md2Html extends React.Component {
       md = md.replace(/>/g, '&gt;').replace(/</g, '&lt;')
       md = md.replace(/&gt; /g, '> ')
     }
-    let cHtml = marked.parse(md)
+    let cHtml = marked.parse(md.replace(/\n/g, '<br/>'))
     cHtml = cHtml.replace(/<img src="([^"]+)"/g, function (s, src) {
       let srcNew = src + (src.includes('?') ? '&' : '?') + 'imageView2/2/w/1000/interlace/1/q/100'
       return s.replace(src, srcNew)

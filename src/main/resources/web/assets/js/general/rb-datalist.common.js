@@ -1908,7 +1908,9 @@ CellRenders.addRender('LOCATION', (v, s, k) => {
 CellRenders.addRender('SIGN', (v, s, k) => {
   return (
     <td key={k} className="user-avatar sign">
-      <img alt="SIGN" src={v} />
+      <div style={s}>
+        <img alt="SIGN" src={v} />
+      </div>
     </td>
   )
 })

@@ -36,11 +36,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 8px 10px;
   display: flex;
   border: 2px solid #eee;
+  transition: all 0.2s;
 }
 
 .chat-input.active {
   border-color: #4285f4;
   border-color: var(--rb-theme-color);
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
 }
 
 .chat-input .chat-input-input {

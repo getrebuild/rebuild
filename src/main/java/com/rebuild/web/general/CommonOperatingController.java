@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.approval.RobotApprovalConfigService;
 import com.rebuild.core.service.query.AdvFilterParser;
@@ -38,7 +39,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -85,15 +85,17 @@ public class CommonOperatingController extends BaseController {
 
     @RequestMapping("common-get")
     public RespBody get(@IdParam ID recordId, HttpServletRequest request) {
+        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
         String fields = getParameter(request, "fields");
-        if (StringUtils.isEmpty(fields)) {
-            fields = getAllFields(MetadataHelper.getEntity(recordId.getEntityCode()));
+        if (StringUtils.isEmpty(fields)) fields = entity.getPrimaryField().getName();
+
+        // fix:CVE
+        if (MetadataHelper.isBizzEntity(entity) && !UserHelper.isAdmin(getRequestUser(request))) {
+            return RespBody.error("无权读取此记录或记录已被删除");
         }
 
         Record record = Application.getQueryFactory().record(recordId, fields.split("[,;]"));
-        if (record == null) {
-            return RespBody.error("无权读取此记录或记录已被删除");
-        }
+        if (record == null) return RespBody.error("无权读取此记录或记录已被删除");
         return RespBody.ok(record);
     }
 
@@ -104,6 +106,11 @@ public class CommonOperatingController extends BaseController {
 
         String[] ef = k.split("\\.");
         Entity findEntity = MetadataHelper.getEntity(ef[0]);
+        // fix:CVE
+        if (MetadataHelper.isBizzEntity(findEntity) && !UserHelper.isAdmin(getRequestUser(request))) {
+            return RespBody.error("无权读取此记录或记录已被删除");
+        }
+
         Field findField = findEntity.getField(ef[1]);
         String sql = String.format("select %s from %s where %s = ?",
                 findEntity.getPrimaryField().getName(), findEntity.getName(), findField.getName());
@@ -120,7 +127,7 @@ public class CommonOperatingController extends BaseController {
         }
 
         Object[] found = id == null ? null
-                : Application.createQueryNoFilter(sql).setParameter(1, id).unique();
+                : Application.createQuery(sql).setParameter(1, id).unique();
 
         if (found != null) return RespBody.ok(JSONUtils.toJSONObject("id", found[0]));
         return RespBody.ok(JSONUtils.toJSONObject("entity", findEntity.getName()));
@@ -139,30 +146,21 @@ public class CommonOperatingController extends BaseController {
         if (limit < 1) limit = 20;
         if (limit > 500) limit = 500;
 
-        Entity entityMate = MetadataHelper.getEntity(entity);
-        if (StringUtils.isBlank(fields)) fields = getAllFields(entityMate);
+        Entity listEntity = MetadataHelper.getEntity(entity);
+        if (StringUtils.isBlank(fields)) fields = listEntity.getPrimaryField().getName();
 
         String sql = String.format("select %s from %s",
-                StringUtils.join(fields.split("[,;]"), ","), entityMate.getName());
+                StringUtils.join(fields.split("[,;]"), ","), listEntity.getName());
         if (ParseHelper.validAdvFilter(filter)) {
-            String filterWhere = new AdvFilterParser(filter, entityMate).toSqlWhere();
+            String filterWhere = new AdvFilterParser(filter, listEntity).toSqlWhere();
             if (filterWhere != null) sql += " where " + filterWhere;
         }
         if (StringUtils.isNotBlank(sort)) {
             sql += " order by " + sort.replace(":", " ");
         }
 
-        List<Record> list = Application.getQueryFactory().createQueryNoFilter(sql).setLimit(limit).list();
+        List<Record> list = Application.createQuery(sql).setLimit(limit).list();
         return RespBody.ok(list);
-    }
-
-    // 获取全部字段
-    private String getAllFields(Entity entity) {
-        List<String> fs = new ArrayList<>();
-        for (Field field : entity.getFields()) {
-            if (!MetadataHelper.isSystemField(field.getName())) fs.add(field.getName());
-        }
-        return StringUtils.join(fs, ",");
     }
 
     /**
@@ -189,8 +187,6 @@ public class CommonOperatingController extends BaseController {
      */
     static JSON deleteRecord(ID recordId) {
         int del = Application.getService(recordId.getEntityCode()).delete(recordId);
-        return JSONUtils.toJSONObject(
-                new String[] { "deleted", "requests" },
-                new Object[] { del, del });
+        return JSONUtils.toJSONObject(new String[]{"deleted", "requests"}, new Object[]{del, del});
     }
 }

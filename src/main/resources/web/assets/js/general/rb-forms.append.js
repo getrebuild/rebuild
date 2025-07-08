@@ -767,7 +767,7 @@ class LiteFormModal extends RbModalHandler {
           <div className="footer" ref={(c) => (this._$formAction = c)}>
             {this._ids.length > 1 && <RbAlertBox message={WrapHtml($L('本次保存将修改 **%d** 条记录', this.props.ids.length))} type="info" className="mt-0 mb-2" />}
 
-            <button className="btn btn-primary" type="button" onClick={() => this._handleSave()}>
+            <button className="btn btn-primary" type="button" disabled={this.state.readonly === true} onClick={() => this._handleSave()}>
               {props.confirmText || $L('保存')}
             </button>
             <a className="btn btn-link" onClick={this.hide}>
@@ -777,6 +777,16 @@ class LiteFormModal extends RbModalHandler {
         </div>
       </RbModal>
     )
+  }
+
+  componentDidMount() {
+    // super.componentDidMount()
+
+    let ro = true
+    this.props.elements.forEach((item) => {
+      if (item.readonly !== true) ro = false
+    })
+    if (ro) this.setState({ readonly: ro })
   }
 
   _handleSave(weakMode) {
@@ -884,7 +894,7 @@ class LiteFormModal extends RbModalHandler {
       return
     }
 
-    // v4.1 这里支持修改引用字段（单个字段）
+    // v4.1 这里支持修改引用字段（仅单个字段时）
     if (fields.length === 1 && fields[0].includes('.')) {
       $.get(`/commons/frontjs/reffield-editable?id=${entityOrId}&reffield=${fields[0]}`, (res) => {
         if (res.error_code === 0) {

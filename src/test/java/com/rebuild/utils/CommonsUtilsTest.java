@@ -41,4 +41,9 @@ class CommonsUtilsTest {
 
         CommonsUtils.base64ToFile(base64String, new File(FileUtils.getTempDirectory(), "barcode.png"));
     }
+
+    @Test
+    void sanitizeHtml() {
+        System.out.println(CommonsUtils.sanitizeHtml("<scriPT>alert(1)</script>"));
+    }
 }

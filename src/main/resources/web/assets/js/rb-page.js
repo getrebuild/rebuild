@@ -237,7 +237,7 @@ var _cancelAdmin = function () {
 var _initNav = function () {
   var isOffcanvas = $('.rb-offcanvas-menu').length > 0 // Float mode
 
-  // Nav
+  // nav
   if (isOffcanvas) {
     $('.rb-toggle-left-sidebar').on('click', function () {
       $(document.body).toggleClass('open-left-sidebar')
@@ -274,7 +274,7 @@ var _initNav = function () {
     })
   }
 
-  // SubNavs
+  // sub-nav
   var $currsntSubnav
 
   // MinNav && SubnavOpen
@@ -330,7 +330,7 @@ var _initNav = function () {
     }
   })
 
-  // WHEN SMALL-WIDTH
+  // small-width
   $('.left-sidebar-toggle')
     .on('click', function () {
       $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
@@ -349,33 +349,35 @@ var _initNav = function () {
     $('sup.rbv').attr('title', $L('增值功能'))
   }, 400)
 
-  // Active Outer-URL Nav
+  // active outer-nav
   var urls = location.href.split('#')[0].split('/')
   var navUrl = '/' + urls.slice(3).join('/')
   var $navHit = $('.sidebar-elements a[href="' + navUrl + '"]')
   if ($navHit.length > 0 && !$navHit.parent().hasClass('active')) {
     $('.sidebar-elements li.active:not(.parent)').removeClass('active')
     $navHit.parent().addClass('active')
-    // Nav parent
+    // nav parent
     var $parent = $navHit.parents('li.parent:not(.active)')
     if ($parent.length > 0) {
       $parent.addClass('active')
-      // Not default open
+      // no default open
       if (!$parent.hasClass('open')) $parent.first().trigger('click')
     }
   }
 
-  // Active Top
+  // active top-nav
   var topnav = $.cookie('AppHome.Nav')
   if (topnav) {
     $('.navbar-collapse .nav-item[data-id="' + topnav + '"]').addClass('active')
   }
   // v4.1 自动折叠
   var $topNavs = $('.navbar-collapse a.nav-link.text-ellipsis')
-  if ($topNavs.length >= 5) {
+  if ($topNavs.length >= 2) {
     $topNavs.each(function () {
-      var $a = $(this).clone().attr('class', 'dropdown-item')
-      $a.attr('data-id', $(this).parent().attr('data-id'))
+      var $this = $(this)
+      var $a = $this.clone().attr('class', 'dropdown-item')
+      if ($this.parent().hasClass('active')) $a.addClass('active')
+      $a.attr('data-id', $this.parent().attr('data-id'))
       $a.appendTo('.navbar-more41 .dropdown-menu')
     })
 
@@ -405,7 +407,7 @@ var _initNav = function () {
     })()
   }
 
-  // `/admin/` Empty divider
+  // remove `/admin/` empty divider
   if (location.href.includes('/admin/')) {
     $('.sidebar-elements .divider').each(function () {
       if (!$(this).next().find('>a')[0]) $(this).remove()
@@ -1402,7 +1404,7 @@ function $tagStyle2(color) {
 
 // select2
 function $select2OpenTemplateResult(res) {
-  const $span = $('<span class="code-append"></span>').attr('title', res.text).text(res.text)
+  var $span = $('<span class="code-append"></span>').attr('title', res.text).text(res.text)
   if (res.id) {
     $(`<a title="${$L('在新页面打开')}"><i class="zmdi zmdi-open-in-new"></i></a>`)
       .appendTo($span)
