@@ -30,7 +30,6 @@ import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.service.datareport.EasyExcelGenerator33;
 import com.rebuild.core.service.datareport.TemplateFile;
 import com.rebuild.core.support.CommonsLog;
-import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.OnlyOffice;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -142,11 +141,20 @@ public class ReportsController extends BaseController {
         String typeOutput = getParameter(request, "output");
         boolean isHtml = "HTML".equalsIgnoreCase(typeOutput);
         boolean isPdf = "PDF".equalsIgnoreCase(typeOutput);
+        // 请求预览
+        boolean forcePreview = isHtml || getBoolParameter(request, "preview");
         String fileName = DataReportManager.getPrettyReportName(reportId, recordId, output.getName());
+
+        // 多个打包下载的
+        if (fileName.endsWith(".zip")) {
+            typeOutput = "false";
+            isPdf = false;
+            forcePreview = false;
+        }
 
         // v3.6
         if (tt.type == DataReportManager.TYPE_HTML5) {
-            // TODO PDF
+            // TODO H5>PDF
             return ReportTemplateController.buildHtml5ModelAndView(output, fileName);
         }
 
@@ -157,7 +165,7 @@ public class ReportsController extends BaseController {
 
         if (ServletUtils.isAjaxRequest(request)) {
             JSONObject data = JSONUtils.toJSONObject(
-                    new String[] { "fileKey", "fileName" }, new Object[] { output.getName(), fileName });
+                    new String[]{"fileKey", "fileName"}, new Object[]{output.getName(), fileName});
             if (AppUtils.isMobile(request)) putFileUrl(data);
             writeSuccess(response, data);
 
@@ -167,21 +175,11 @@ public class ReportsController extends BaseController {
                     CodecUtils.urlEncode(output.getName()), AuthTokenManager.generateOnceToken(null), CodecUtils.urlEncode(fileName));
             fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
 
-            String previewUrl;
-            if (OnlyOffice.isUseOoPreview()) {
-                previewUrl = AppUtils.getContextPath(OnlyOffice.OO_PREVIEW_URL);
-            } else {
-                previewUrl = StringUtils.defaultIfBlank(
-                        RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl),
-                        "https://view.officeapps.live.com/op/view.aspx?src=");
-            }
-
+            String previewUrl = OnlyOffice.getBestPreviewUrl();
             previewUrl += CodecUtils.urlEncode(fileUrl);
             response.sendRedirect(previewUrl);
 
         } else {
-            // 直接预览
-            boolean forcePreview = isHtml || getBoolParameter(request, "preview");
             if (!forcePreview) {
                 if (isPdf && !OnlyOffice.isUseOoPreview()) forcePreview = true;
             }
