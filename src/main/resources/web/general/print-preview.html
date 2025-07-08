@@ -68,6 +68,10 @@
       .preview-content.hide-details h3 {
         display: none;
       }
+      .preview-content h3 {
+        margin: 0;
+        padding: 10px 0;
+      }
 
       @media screen {
         html,
@@ -148,7 +152,7 @@
       window.__PageConfig = {
         record: '[[${recordId}]]',
         content: [(${contentBody})],
-        detailsContent: [(${detailsContentBody})],
+        detailsContent: [(${detailsContentBody?:'null'})],
       }
     </script>
     <script th:src="@{/assets/js/general/rb-forms.js}" type="text/babel"></script>
