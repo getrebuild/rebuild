@@ -38,7 +38,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -87,7 +86,7 @@ public class CommonOperatingController extends BaseController {
     public RespBody get(@IdParam ID recordId, HttpServletRequest request) {
         String fields = getParameter(request, "fields");
         if (StringUtils.isEmpty(fields)) {
-            fields = getAllFields(MetadataHelper.getEntity(recordId.getEntityCode()));
+            fields = MetadataHelper.getEntity(recordId.getEntityCode()).getPrimaryField().getName();
         }
 
         Record record = Application.getQueryFactory().record(recordId, fields.split("[,;]"));
@@ -140,7 +139,7 @@ public class CommonOperatingController extends BaseController {
         if (limit > 500) limit = 500;
 
         Entity listEntity = MetadataHelper.getEntity(entity);
-        if (StringUtils.isBlank(fields)) fields = getAllFields(listEntity);
+        if (StringUtils.isBlank(fields)) fields = listEntity.getPrimaryField().getName();
 
         String sql = String.format("select %s from %s",
                 StringUtils.join(fields.split("[,;]"), ","), listEntity.getName());
@@ -154,15 +153,6 @@ public class CommonOperatingController extends BaseController {
 
         List<Record> list = Application.createQuery(sql).setLimit(limit).list();
         return RespBody.ok(list);
-    }
-
-    // 获取全部字段
-    private String getAllFields(Entity entity) {
-        List<String> fs = new ArrayList<>();
-        for (Field field : entity.getFields()) {
-            if (!MetadataHelper.isSystemField(field.getName())) fs.add(field.getName());
-        }
-        return StringUtils.join(fs, ",");
     }
 
     /**
