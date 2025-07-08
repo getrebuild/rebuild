@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.approval.RobotApprovalConfigService;
 import com.rebuild.core.service.query.AdvFilterParser;
@@ -84,15 +85,17 @@ public class CommonOperatingController extends BaseController {
 
     @RequestMapping("common-get")
     public RespBody get(@IdParam ID recordId, HttpServletRequest request) {
+        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
         String fields = getParameter(request, "fields");
-        if (StringUtils.isEmpty(fields)) {
-            fields = MetadataHelper.getEntity(recordId.getEntityCode()).getPrimaryField().getName();
+        if (StringUtils.isEmpty(fields)) fields = entity.getPrimaryField().getName();
+
+        // fix:CVE
+        if (MetadataHelper.isBizzEntity(entity) && !UserHelper.isAdmin(getRequestUser(request))) {
+            return RespBody.error("无权读取此记录或记录已被删除");
         }
 
         Record record = Application.getQueryFactory().record(recordId, fields.split("[,;]"));
-        if (record == null) {
-            return RespBody.error("无权读取此记录或记录已被删除");
-        }
+        if (record == null) return RespBody.error("无权读取此记录或记录已被删除");
         return RespBody.ok(record);
     }
 
@@ -103,6 +106,11 @@ public class CommonOperatingController extends BaseController {
 
         String[] ef = k.split("\\.");
         Entity findEntity = MetadataHelper.getEntity(ef[0]);
+        // fix:CVE
+        if (MetadataHelper.isBizzEntity(findEntity) && !UserHelper.isAdmin(getRequestUser(request))) {
+            return RespBody.error("无权读取此记录或记录已被删除");
+        }
+
         Field findField = findEntity.getField(ef[1]);
         String sql = String.format("select %s from %s where %s = ?",
                 findEntity.getPrimaryField().getName(), findEntity.getName(), findField.getName());
