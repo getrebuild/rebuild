@@ -120,7 +120,7 @@ public class CommonOperatingController extends BaseController {
         }
 
         Object[] found = id == null ? null
-                : Application.createQueryNoFilter(sql).setParameter(1, id).unique();
+                : Application.createQuery(sql).setParameter(1, id).unique();
 
         if (found != null) return RespBody.ok(JSONUtils.toJSONObject("id", found[0]));
         return RespBody.ok(JSONUtils.toJSONObject("entity", findEntity.getName()));
@@ -139,20 +139,20 @@ public class CommonOperatingController extends BaseController {
         if (limit < 1) limit = 20;
         if (limit > 500) limit = 500;
 
-        Entity entityMate = MetadataHelper.getEntity(entity);
-        if (StringUtils.isBlank(fields)) fields = getAllFields(entityMate);
+        Entity listEntity = MetadataHelper.getEntity(entity);
+        if (StringUtils.isBlank(fields)) fields = getAllFields(listEntity);
 
         String sql = String.format("select %s from %s",
-                StringUtils.join(fields.split("[,;]"), ","), entityMate.getName());
+                StringUtils.join(fields.split("[,;]"), ","), listEntity.getName());
         if (ParseHelper.validAdvFilter(filter)) {
-            String filterWhere = new AdvFilterParser(filter, entityMate).toSqlWhere();
+            String filterWhere = new AdvFilterParser(filter, listEntity).toSqlWhere();
             if (filterWhere != null) sql += " where " + filterWhere;
         }
         if (StringUtils.isNotBlank(sort)) {
             sql += " order by " + sort.replace(":", " ");
         }
 
-        List<Record> list = Application.getQueryFactory().createQueryNoFilter(sql).setLimit(limit).list();
+        List<Record> list = Application.createQuery(sql).setLimit(limit).list();
         return RespBody.ok(list);
     }
 
@@ -189,8 +189,6 @@ public class CommonOperatingController extends BaseController {
      */
     static JSON deleteRecord(ID recordId) {
         int del = Application.getService(recordId.getEntityCode()).delete(recordId);
-        return JSONUtils.toJSONObject(
-                new String[] { "deleted", "requests" },
-                new Object[] { del, del });
+        return JSONUtils.toJSONObject(new String[]{"deleted", "requests"}, new Object[]{del, del});
     }
 }
