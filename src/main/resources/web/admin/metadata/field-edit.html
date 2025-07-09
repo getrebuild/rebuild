@@ -579,8 +579,8 @@
                           <a class="badge" data-patt="^([0-9A-Z]{15}|[0-9A-Z]{17}|[0-9A-Z]{18}|[0-9A-Z]{20})$">[[${bundle.L('税号')}]]</a>
                           <a class="badge" data-patt="^[0-9]{0,}$">[[${bundle.L('仅数字')}]]</a>
                         </th:block>
-                        <a class="badge" data-patt="^[\u4e00-\u9fa5]{0,}$">[[${bundle.L('仅中文')}]]</a>
-                        <a class="badge" data-patt="^[A-Za-z]{0,}$">[[${bundle.L('仅英文')}]]</a>
+                        <a class="badge" data-patt="^[\u4e00-\u9fa5\s\n]{0,}$">[[${bundle.L('仅中文')}]]</a>
+                        <a class="badge" data-patt="^[A-Za-z\s\n]{0,}$">[[${bundle.L('仅英文')}]]</a>
                         <a class="badge" data-patt="^.{10,20}$">[[${bundle.L('限制字数')}]]</a>
                       </div>
                     </div>

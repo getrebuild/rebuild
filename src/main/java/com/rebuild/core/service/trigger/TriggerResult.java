@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Collection;
 
@@ -31,21 +32,22 @@ public class TriggerResult implements JSONAware {
     // 影响的记录
     final private Collection<ID> affected;
 
+    @Setter
     private TriggerSource chain;
+    @Setter
     private boolean breakNext;
+    @Setter
+    private boolean isManual = false;  // 手动执行
 
+    /**
+     * @param level
+     * @param message
+     * @param affected
+     */
     protected TriggerResult(int level, String message, Collection<ID> affected) {
         this.level = level;
         this.message = message;
         this.affected = affected;
-    }
-
-    public void setChain(TriggerSource chain) {
-        this.chain = chain;
-    }
-
-    public void setBreakNext(boolean breakNext) {
-        this.breakNext = breakNext;
     }
 
     public boolean hasAffected() {
@@ -59,6 +61,7 @@ public class TriggerResult implements JSONAware {
         if (affected != null) res.put("affected", affected);
         if (chain != null) res.put("chain", chain.toString());
         if (breakNext) res.put("break", true);
+        if (isManual) res.put("manual", true);
         return res.toJSONString();
     }
 
