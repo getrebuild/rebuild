@@ -1515,11 +1515,16 @@ class RbFormNText extends RbFormElement {
                     title={c}
                     className="badge text-ellipsis"
                     onClick={() => {
+                      c = c.replace(/\\n/g, '\n')
                       if (this._EasyMDE) {
                         this._mdeInsert(c)
                       } else {
-                        this.handleChange({ target: { value: (this.state.value || '') + c } }, true)
-                        $focus2End(this._fieldValue)
+                        const ps = this._fieldValue.selectionStart,
+                          pe = this._fieldValue.selectionEnd
+                        let val = this.state.value
+                        val = val.substring(0, ps) + c + val.substring(pe)
+                        this.handleChange({ target: { value: val } }, true)
+                        // $focus2End(this._fieldValue)
                       }
                     }}>
                     {c}

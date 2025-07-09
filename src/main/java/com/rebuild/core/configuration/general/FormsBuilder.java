@@ -288,7 +288,11 @@ public class FormsBuilder extends FormsManager {
                     model.set("detailMeta", null);
                 }
             }
+
             model.set("detailMetas", detailMetas);
+            if (!detailMetas.isEmpty() && model.getObject("detailMeta") == null) {
+                model.set("detailMeta", detailMetas.get(0));
+            }
         }
 
         // 最后修改时间

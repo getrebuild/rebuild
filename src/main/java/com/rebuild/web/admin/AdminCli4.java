@@ -18,6 +18,7 @@ import com.rebuild.core.support.setup.DatafileBackup;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.core.support.setup.SimpleEntity;
 import com.rebuild.utils.AES;
+import com.rebuild.web.RebuildWebConfigurer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -76,7 +77,7 @@ public class AdminCli4 {
                 result = " Usage : " +
                         " \ncache [clean|get] [KEY]" +
                         " \nsyscfg NAME [VALUE]" +
-                        " \nsyscfg clean-qiniu|clean-sms|clean-email|clean-wxwork|clean-dingtalk|clean-feishu" +
+                        " \nsyscfg clean-qiniu|clean-sms|clean-email|clean-wxwork|clean-dingtalk|clean-feishu|clean-aibot" +
                         " \nbackup [database|datafile]" +
                         " \naes [decrypt] VALUE" +
                         " \nclean-approval ENTITY" +
@@ -170,6 +171,9 @@ public class AdminCli4 {
             } else if ("clean-feishu".equals(name)) {
                 removeItems("Feishu");
                 return SUCCESS;
+            } else if ("clean-aibot".equals(name)) {
+                removeItems("Aibot");
+                return SUCCESS;
             }
 
             ConfigurationItem item = ConfigurationItem.valueOf(name);
@@ -202,6 +206,7 @@ public class AdminCli4 {
         for (ConfigurationItem i : ConfigurationItem.values()) {
             if (i.name().startsWith(itemPrefix)) RebuildConfiguration.set(i, RebuildConfiguration.SETNULL);
         }
+        Application.getBean(RebuildWebConfigurer.class).init();
     }
 
     /**
