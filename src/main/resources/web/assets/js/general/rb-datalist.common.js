@@ -1330,9 +1330,9 @@ class RbList extends React.Component {
     const fields = this.state.fields
     for (let i = 0; i < fields.length; i++) {
       if (fields[i].field === field) {
-        if (fields[i].sort === 'sort-asc') fields[i].sort = 'sort-desc'
-        else if (fields[i].sort === 'sort-desc') fields[i].sort = null
-        else fields[i].sort = 'sort-asc'
+        if (fields[i].sort === 'sort-desc') fields[i].sort = 'sort-asc'
+        else if (fields[i].sort === 'sort-asc') fields[i].sort = null
+        else fields[i].sort = 'sort-desc'
 
         if (fields[i].sort) $storage.set(this.__sortFieldKey, `${field}:${fields[i].sort}`)
         else $storage.remove(this.__sortFieldKey)
