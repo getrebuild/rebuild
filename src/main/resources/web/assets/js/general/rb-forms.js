@@ -1465,7 +1465,7 @@ class RbFormNText extends RbFormElement {
             <a title={$L('展开/收起')} onClick={() => $(this._textarea).toggleClass('ntext-expand')}>
               <i className="mdi mdi-arrow-expand" />
             </a>
-            <a ref={(c) => (this._actionCopy = c)} onClick={() => {}}>
+            <a ref={(c) => (this._$actionCopy = c)} onClick={() => {}}>
               <i className="mdi mdi-content-copy" />
             </a>
           </div>
@@ -1537,10 +1537,10 @@ class RbFormNText extends RbFormElement {
       }
     }
 
-    if (this._actionCopy) {
+    if (this._$actionCopy) {
       const that = this
       const initCopy = function () {
-        $clipboard($(that._actionCopy), that.state.value)
+        $clipboard($(that._$actionCopy), that.state.value)
       }
       if (window.ClipboardJS) {
         initCopy()
@@ -2634,7 +2634,7 @@ class RbFormAnyReference extends RbFormReference {
     if (destroy) {
       super.onEditModeChanged(destroy)
     } else {
-      const initVal = this.state.value
+      const iv = this.state.value
       $.get('/commons/metadata/entities?detail=true', (res) => {
         let entities = res.data || []
         if (this.props.anyreferenceEntities) {
@@ -2656,8 +2656,8 @@ class RbFormAnyReference extends RbFormReference {
               return $span
             },
           })
-          if (initVal) {
-            let code = ~~(initVal.id || initVal).split('-')[0]
+          if (iv) {
+            let code = ~~(iv.id || iv).split('-')[0]
             let name = entities.find((item) => item.entityCode === code)
             if (name) {
               this.__select2Entity.val(name.entity).trigger('change')
@@ -2668,7 +2668,7 @@ class RbFormAnyReference extends RbFormReference {
           }
           this.__select2Entity.on('change', (e) => {
             this._anyrefEntity = e.target.value
-            this.setValue(null)
+            if (!this._setValueStop) this.setValue(null)
           })
 
           // #2 R
@@ -2693,8 +2693,8 @@ class RbFormAnyReference extends RbFormReference {
           })
 
           // #3 init
-          if (initVal) {
-            this.setValue(initVal)
+          if (iv) {
+            this.setValue(iv, true)
           } else if (entities[0]) {
             this.__select2Entity.val(entities[0].name).trigger('change')
             this._anyrefEntity = entities[0].name
@@ -2717,8 +2717,11 @@ class RbFormAnyReference extends RbFormReference {
     }
   }
 
-  setValue(val) {
-    this._setValueStop = true
+  setValue(val, init) {
+    if (init) this._setValueStop = true
+    if (val && val.entity && val.entity !== $(this.__select2Entity).val()) {
+      $(this.__select2Entity).val(val.entity).trigger('change')
+    }
     super.setValue(val)
   }
 
