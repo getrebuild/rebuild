@@ -36,7 +36,8 @@ public class EasyAnyReference extends EasyReference {
             return FieldValueHelper.getLabelNotry((ID) value);
         }
 
-        Assert.isTrue(targetField.getDisplayType() == DisplayType.ANYREFERENCE, "type-by-type is must");
+        Assert.isTrue(targetField.getDisplayType() == DisplayType.ANYREFERENCE,
+                "TYPE-BY-TYPE IS MUST (" + this.getName() + ">" + targetField.getName() + ")");
         return value;
     }
 
