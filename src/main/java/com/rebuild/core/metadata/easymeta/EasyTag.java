@@ -43,7 +43,8 @@ public class EasyTag extends EasyField implements MultiValue, MixValue {
             return unpackWrapValue(value);
         }
 
-        Assert.isTrue(targetField.getDisplayType() == getDisplayType(), "type-by-type is must");
+        Assert.isTrue(targetField.getDisplayType() == getDisplayType(),
+                "TYPE-BY-TYPE IS MUST (" + this.getName() + ">" + targetField.getName() + ")");
         return value;
     }
 

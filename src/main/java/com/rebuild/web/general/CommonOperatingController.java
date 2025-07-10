@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.approval.RobotApprovalConfigService;
@@ -33,13 +34,14 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,9 +50,9 @@ import java.util.Set;
  * 非业务实体操作（如系统实体）
  *
  * @author devezhao
- * @since 2020/11/6
  * @see Application#getService(int)
  * @see GeneralOperatingController
+ * @since 2020/11/6
  */
 @Slf4j
 @RestController
@@ -85,12 +87,12 @@ public class CommonOperatingController extends BaseController {
 
     @RequestMapping("common-get")
     public RespBody get(@IdParam ID recordId, HttpServletRequest request) {
-        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+        Entity getEntity = MetadataHelper.getEntity(recordId.getEntityCode());
         String fields = getParameter(request, "fields");
-        if (StringUtils.isEmpty(fields)) fields = entity.getPrimaryField().getName();
+        if (StringUtils.isEmpty(fields)) fields = getAllFields(getEntity);
 
         // fix:CVE
-        if (MetadataHelper.isBizzEntity(entity) && !UserHelper.isAdmin(getRequestUser(request))) {
+        if (MetadataHelper.isBizzEntity(getEntity) && !UserHelper.isAdmin(getRequestUser(request))) {
             return RespBody.error("无权读取此记录或记录已被删除");
         }
 
@@ -121,7 +123,8 @@ public class CommonOperatingController extends BaseController {
             } else {
                 Set<Field> queryFields = new HashSet<>();
                 queryFields.add(findField.getReferenceEntity().getNameField());
-                queryFields.addAll(Arrays.asList(MetadataSorter.sortFields(findField.getReferenceEntity(), DisplayType.SERIES)));
+                CollectionUtils.addAll(queryFields,
+                        MetadataSorter.sortFields(findField.getReferenceEntity(), DisplayType.SERIES));
                 id = QueryHelper.queryIdValue(queryFields.toArray(new Field[0]), id.toString(), false);
             }
         }
@@ -147,7 +150,7 @@ public class CommonOperatingController extends BaseController {
         if (limit > 500) limit = 500;
 
         Entity listEntity = MetadataHelper.getEntity(entity);
-        if (StringUtils.isBlank(fields)) fields = listEntity.getPrimaryField().getName();
+        if (StringUtils.isBlank(fields)) fields = getAllFields(listEntity);
 
         String sql = String.format("select %s from %s",
                 StringUtils.join(fields.split("[,;]"), ","), listEntity.getName());
@@ -161,6 +164,17 @@ public class CommonOperatingController extends BaseController {
 
         List<Record> list = Application.createQuery(sql).setLimit(limit).list();
         return RespBody.ok(list);
+    }
+
+    // 获取全部字段
+    private String getAllFields(Entity entity) {
+        List<String> fs = new ArrayList<>();
+        for (Field field : entity.getFields()) {
+            if (MetadataHelper.isSystemField(field.getName())) continue;
+            if (!EasyMetaFactory.valueOf(field).isQueryable()) continue;
+            fs.add(field.getName());
+        }
+        return StringUtils.join(fs, ",");
     }
 
     /**

@@ -459,6 +459,7 @@ public class ConfigurationController extends BaseController {
     @PostMapping("integration/aibot")
     public RespBody postIntegrationAibot(@RequestBody JSONObject data) {
         setValues(data);
+        Application.getBean(RebuildWebConfigurer.class).init();
         return RespBody.ok();
     }
 

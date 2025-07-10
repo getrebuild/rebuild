@@ -57,7 +57,7 @@
         </ul>
         <div class="page-title hide"><span>REBUILD</span></div>
         <ul class="nav navbar-nav float-right rb-icons-nav">
-          <li class="nav-item dropdown aibot-show" th:title="${bundle.L('AI 助手') + ' (Alt+A)'}">
+          <li class="nav-item dropdown aibot-show" th:title="${bundle.L('AI 助手') + ' (Alt+A)'}" th:if="${_AiBot}">
             <a class="nav-link"><i class="icon mdi mdi-shimmer"></i></a>
           </li>
           <li class="nav-item dropdown global-search2" th:title="${bundle.L('搜索')}">

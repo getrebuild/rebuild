@@ -246,12 +246,11 @@ $(document).ready(() => {
 
 const _RndColors = [...RBCOLORS, '#1abc9c', '#2ecc71', '#3498db', '#9b59b6', '#34495e', '#16a085', '#27ae60', '#2980b9', '#8e44ad', '#f1c40f', '#e67e22', '#f39c12', '#d35400', '#c0392b']
 function taggedTitle(title) {
-  let tags = (title || '').match(/#[\w\u4e00-\u9fa5]+/g) || []
+  let tags = (title || '').match(/#[^\s]*(?=\s|$)/g) || []
   if (tags.length === 0) return title
 
-  tags = [...tags].sort((a, b) => a.length - b.length)
-  tags.forEach(function (tag) {
-    title = title.replace(tag, `<span class="badge badge-info badge-sm" style="background-color:${stringToColor(tag)}">${tag.substr(1)}</span>`)
+  tags.forEach(function (item) {
+    title = title.replace(item, `<span class="badge badge-info badge-sm" style="background-color:${stringToColor(item)}">${item.substr(1)}</span>`)
   })
   return WrapHtml(title)
 }

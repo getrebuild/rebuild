@@ -97,6 +97,10 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         setStaticVariable(ConfigurationItem.AppBuild);
         setStaticVariable(ConfigurationItem.PageMourningMode);
 
+        // v4.1 配置才显示
+        thymeleafViewResolver.addStaticVariable("_AiBot",
+                RebuildConfiguration.get(ConfigurationItem.AibotDSSecret) != null);
+
         // 清理缓存
         thymeleafViewResolver.clearCache();
     }

@@ -665,7 +665,7 @@ const RbViewPage = {
     $('.J_assign').on('click', () => DlgAssign.create({ entity: entity[0], ids: [id] }))
     $('.J_share').on('click', () => DlgShare.create({ entity: entity[0], ids: [id] }))
     $('.J_report').on('click', () => SelectReport.create(entity[0], id))
-    $('.J_add-details>a').on('click', function () {
+    $('.J_add-detail-memu>a').on('click', function () {
       const iv = { $MAINID$: id }
       const $this = $(this)
       RbFormModal.create({ title: $L('添加%s', $this.data('label')), entity: $this.data('entity'), icon: $this.data('icon'), initialValue: iv, _nextAddDetail: true })
@@ -681,7 +681,7 @@ const RbViewPage = {
     // Privileges
     if (ep) {
       if (ep.D === false) $('.J_delete').remove()
-      if (ep.U === false) $('.J_edit, .J_add-detail, .J_add-details').remove()
+      if (ep.U === false) $('.J_edit, .J_add-detail, .J_add-detail-memu').remove()
       if (ep.A !== true) $('.J_assign').remove()
       if (ep.S !== true) $('.J_share').remove()
     }
@@ -926,7 +926,7 @@ const RbViewPage = {
         }
       })
 
-      $('.J_adds .dropdown-divider').before($item)
+      $('.J_add-related .dropdown-divider').before($item)
     })
   },
 
@@ -968,7 +968,7 @@ const RbViewPage = {
     $setTimeout(
       () => {
         $cleanMenu('.view-action .J_mores')
-        $cleanMenu('.view-action .J_adds')
+        $cleanMenu('.view-action .J_add-related')
         $cleanMenu('.view-action .J_transform')
         $('.view-action .col-lg-6').each(function () {
           if ($(this).children().length === 0) $(this).remove()
@@ -1006,7 +1006,7 @@ const RbViewPage = {
   // 记录只读
   setReadonly() {
     $(this._RbViewForm._viewForm).addClass('readonly')
-    $('.J_edit, .J_delete, .J_add-detail, .J_add-details').remove()
+    $('.J_edit, .J_delete, .J_add-detail, .J_add-detail-menu').remove()
     this._cleanViewActionButton()
   },
 }

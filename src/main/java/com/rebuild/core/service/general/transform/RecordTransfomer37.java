@@ -96,12 +96,19 @@ public class RecordTransfomer37 extends RecordTransfomer {
         }
 
         // 目标是明细
-        Map<String, Object> dvMap4Details = specMainId == null ? null : Collections.singletonMap(
-                MetadataHelper.getDetailToMainField(targetEntity).getName(), specMainId);
+        String dtmField = null;
+        Map<String, Object> dvMap4Details = null;
+        if (specMainId != null) {
+            dtmField = MetadataHelper.getDetailToMainField(targetEntity).getName();
+            dvMap4Details = Collections.singletonMap(dtmField, specMainId);
+        }
 
         Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
         Record targetRecord = transformRecord(
                 sourceEntity, targetEntity, fieldsMapping, sourceRecordId, dvMap4Details, false, false, checkNullable);
+
+        // 明细强制修订，以免做过映射字段导致不对
+        if (specMainId != null) targetRecord.setID(dtmField, specMainId);
 
         // v3.5 需要先回填
         // 因为可能以回填字段作为条件进行转换一次判断
