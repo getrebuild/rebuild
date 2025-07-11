@@ -16,7 +16,7 @@ import com.rebuild.core.support.general.FieldValueHelper;
 import org.springframework.util.Assert;
 
 /**
- * 暂不开放（开放应注意触发器/记录转换等处的填值）
+ * 任意引用 v4.1
  *
  * @author devezhao
  * @since 2020/11/17
@@ -36,7 +36,8 @@ public class EasyAnyReference extends EasyReference {
             return FieldValueHelper.getLabelNotry((ID) value);
         }
 
-        Assert.isTrue(targetField.getDisplayType() == DisplayType.ANYREFERENCE, "type-by-type is must");
+        Assert.isTrue(targetField.getDisplayType() == DisplayType.ANYREFERENCE,
+                "TYPE-BY-TYPE IS MUST (" + this.getName() + ">" + targetField.getName() + ")");
         return value;
     }
 

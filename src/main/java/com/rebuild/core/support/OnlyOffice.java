@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.integration.QiniuCloud;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.ExcelUtils;
 import com.rebuild.utils.OkHttpUtils;
@@ -141,9 +142,13 @@ public class OnlyOffice {
         if (CommonsUtils.isExternalUrl(filepath)) {
             document.put("url", filepath);
         } else {
+            boolean temp = filepath.startsWith("/temp/");
+            if (temp) filepath = filepath.substring(6);
+
             String fileUrl = String.format("/filex/download/%s?_csrfToken=%s",
                     filepath,
                     AuthTokenManager.generateCsrfToken(90));
+            if (temp) fileUrl += "&temp=yes";
             fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
             document.put("url", fileUrl);
         }
@@ -175,5 +180,19 @@ public class OnlyOffice {
         if (RebuildConfiguration.get(OnlyofficeServer) == null) return false;
         String o = RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl);
         return StringUtils.isBlank(o) || o.contains(OO_PREVIEW_URL);
+    }
+
+    /**
+     * @return
+     */
+    public static String getBestPreviewUrl() {
+        // v4.1
+        if (OnlyOffice.isUseOoPreview()) {
+            return AppUtils.getContextPath(OnlyOffice.OO_PREVIEW_URL);
+        }
+        // v4.0
+        return StringUtils.defaultIfBlank(
+                RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl),
+                "https://view.officeapps.live.com/op/view.aspx?src=");
     }
 }

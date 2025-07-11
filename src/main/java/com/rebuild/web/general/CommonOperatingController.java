@@ -23,6 +23,8 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.approval.RobotApprovalConfigService;
 import com.rebuild.core.service.query.AdvFilterParser;
@@ -32,6 +34,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,7 +42,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,9 +50,9 @@ import java.util.Set;
  * 非业务实体操作（如系统实体）
  *
  * @author devezhao
- * @since 2020/11/6
  * @see Application#getService(int)
  * @see GeneralOperatingController
+ * @since 2020/11/6
  */
 @Slf4j
 @RestController
@@ -85,15 +87,17 @@ public class CommonOperatingController extends BaseController {
 
     @RequestMapping("common-get")
     public RespBody get(@IdParam ID recordId, HttpServletRequest request) {
+        Entity getEntity = MetadataHelper.getEntity(recordId.getEntityCode());
         String fields = getParameter(request, "fields");
-        if (StringUtils.isEmpty(fields)) {
-            fields = getAllFields(MetadataHelper.getEntity(recordId.getEntityCode()));
+        if (StringUtils.isEmpty(fields)) fields = getAllFields(getEntity);
+
+        // fix:CVE
+        if (MetadataHelper.isBizzEntity(getEntity) && !UserHelper.isAdmin(getRequestUser(request))) {
+            return RespBody.error("无权读取此记录或记录已被删除");
         }
 
         Record record = Application.getQueryFactory().record(recordId, fields.split("[,;]"));
-        if (record == null) {
-            return RespBody.error("无权读取此记录或记录已被删除");
-        }
+        if (record == null) return RespBody.error("无权读取此记录或记录已被删除");
         return RespBody.ok(record);
     }
 
@@ -104,6 +108,11 @@ public class CommonOperatingController extends BaseController {
 
         String[] ef = k.split("\\.");
         Entity findEntity = MetadataHelper.getEntity(ef[0]);
+        // fix:CVE
+        if (MetadataHelper.isBizzEntity(findEntity) && !UserHelper.isAdmin(getRequestUser(request))) {
+            return RespBody.error("无权读取此记录或记录已被删除");
+        }
+
         Field findField = findEntity.getField(ef[1]);
         String sql = String.format("select %s from %s where %s = ?",
                 findEntity.getPrimaryField().getName(), findEntity.getName(), findField.getName());
@@ -114,13 +123,14 @@ public class CommonOperatingController extends BaseController {
             } else {
                 Set<Field> queryFields = new HashSet<>();
                 queryFields.add(findField.getReferenceEntity().getNameField());
-                queryFields.addAll(Arrays.asList(MetadataSorter.sortFields(findField.getReferenceEntity(), DisplayType.SERIES)));
+                CollectionUtils.addAll(queryFields,
+                        MetadataSorter.sortFields(findField.getReferenceEntity(), DisplayType.SERIES));
                 id = QueryHelper.queryIdValue(queryFields.toArray(new Field[0]), id.toString(), false);
             }
         }
 
         Object[] found = id == null ? null
-                : Application.createQueryNoFilter(sql).setParameter(1, id).unique();
+                : Application.createQuery(sql).setParameter(1, id).unique();
 
         if (found != null) return RespBody.ok(JSONUtils.toJSONObject("id", found[0]));
         return RespBody.ok(JSONUtils.toJSONObject("entity", findEntity.getName()));
@@ -139,20 +149,20 @@ public class CommonOperatingController extends BaseController {
         if (limit < 1) limit = 20;
         if (limit > 500) limit = 500;
 
-        Entity entityMate = MetadataHelper.getEntity(entity);
-        if (StringUtils.isBlank(fields)) fields = getAllFields(entityMate);
+        Entity listEntity = MetadataHelper.getEntity(entity);
+        if (StringUtils.isBlank(fields)) fields = getAllFields(listEntity);
 
         String sql = String.format("select %s from %s",
-                StringUtils.join(fields.split("[,;]"), ","), entityMate.getName());
+                StringUtils.join(fields.split("[,;]"), ","), listEntity.getName());
         if (ParseHelper.validAdvFilter(filter)) {
-            String filterWhere = new AdvFilterParser(filter, entityMate).toSqlWhere();
+            String filterWhere = new AdvFilterParser(filter, listEntity).toSqlWhere();
             if (filterWhere != null) sql += " where " + filterWhere;
         }
         if (StringUtils.isNotBlank(sort)) {
             sql += " order by " + sort.replace(":", " ");
         }
 
-        List<Record> list = Application.getQueryFactory().createQueryNoFilter(sql).setLimit(limit).list();
+        List<Record> list = Application.createQuery(sql).setLimit(limit).list();
         return RespBody.ok(list);
     }
 
@@ -160,7 +170,9 @@ public class CommonOperatingController extends BaseController {
     private String getAllFields(Entity entity) {
         List<String> fs = new ArrayList<>();
         for (Field field : entity.getFields()) {
-            if (!MetadataHelper.isSystemField(field.getName())) fs.add(field.getName());
+            if (MetadataHelper.isSystemField(field.getName())) continue;
+            if (!EasyMetaFactory.valueOf(field).isQueryable()) continue;
+            fs.add(field.getName());
         }
         return StringUtils.join(fs, ",");
     }
@@ -189,8 +201,6 @@ public class CommonOperatingController extends BaseController {
      */
     static JSON deleteRecord(ID recordId) {
         int del = Application.getService(recordId.getEntityCode()).delete(recordId);
-        return JSONUtils.toJSONObject(
-                new String[] { "deleted", "requests" },
-                new Object[] { del, del });
+        return JSONUtils.toJSONObject(new String[]{"deleted", "requests"}, new Object[]{del, del});
     }
 }

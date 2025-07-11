@@ -28,7 +28,8 @@ public class EasyFile extends EasyField {
      */
     @Override
     public Object convertCompatibleValue(Object value, EasyField targetField) {
-        Assert.isTrue(targetField.getDisplayType() == getDisplayType(), "type-by-type is must");
+        Assert.isTrue(targetField.getDisplayType() == getDisplayType(),
+                "TYPE-BY-TYPE IS MUST (" + this.getName() + ">" + targetField.getName() + ")");
         return wrapValue(value);
     }
 

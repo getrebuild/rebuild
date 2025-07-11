@@ -969,7 +969,7 @@ public class AdvFilterParser extends SetUser {
             }
 
             if (useValue == null) {
-                log.warn("Cannot use `{}` in `{}` (None value found)", value, queryField);
+                log.warn("Cannot use `{}` in `{}` (No value found)", value, queryField);
                 return new VarFieldNoValue37(value);
             }
         }

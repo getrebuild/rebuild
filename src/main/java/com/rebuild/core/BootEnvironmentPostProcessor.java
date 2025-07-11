@@ -57,6 +57,7 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
         File installed;
         try {
             installed = getInstallFile();
+            if (Application.devMode()) installed = null;  // v4.1 开发环境不使用 .rebuild 文件
         } catch (RebuildException init) {
             throw new IllegalStateException("GET INSTALL FILE ERROR!", init);
         }

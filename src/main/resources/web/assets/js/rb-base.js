@@ -25,6 +25,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // extends jQuery
 !(function ($) {
+  if ($.browser.msie && $.browser.version < 11) {
+    location.replace(rb.baseUrl + '/error/unsupported-browser')
+    return
+  }
+
   $.fn.extend({
     button: function (state) {
       return this.each(function () {
@@ -68,8 +73,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
     else window.rb[k] = v || ''
   })
 
-  if ($.browser.msie && $.browser.version < 11) location.replace(rb.baseUrl + '/error/unsupported-browser')
-
+  var rr_prefix = Math.floor(Math.random() * 88888888) + 10000000 + '-'
   $.ajaxSetup({
     headers: {
       'Content-Type': 'text/plain;charset=utf-8',
@@ -105,6 +109,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
     beforeSend: function (xhr, settings) {
       // URL prefix
       if (settings.url.substring(0, 1) === '/' && rb.baseUrl) settings.url = rb.baseUrl + settings.url
+      // v4.1
+      xhr.setRequestHeader('X-ReqRandom', rr_prefix + $random())
       return settings
     },
   })
@@ -243,7 +249,7 @@ window.datetimepicker_clearDate41 = function (i) {
     if (i.length === 2) return i[0]
     return i[0] + ' ' + i[2]
   }
-  return i;
+  return i
 }
 
 var $setTimeout__timers = {}

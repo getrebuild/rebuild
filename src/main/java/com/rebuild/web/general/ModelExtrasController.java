@@ -75,9 +75,16 @@ public class ModelExtrasController extends BaseController {
     public RespBody transform39(HttpServletRequest request) {
         final JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
         final ID transid = ID.valueOf(post.getString("transid"));
-        final Object sourceRecordAny = post.get("sourceRecord");
+
+        Object sourceRecordAny = post.get("sourceRecord");
         if (sourceRecordAny instanceof JSONArray) {
-            return this.transform39Muilt(transid, (JSONArray) sourceRecordAny);
+            if (((JSONArray) sourceRecordAny).size() == 1) {
+                sourceRecordAny = ((JSONArray) sourceRecordAny).get(0);
+            }
+            // 多个
+            else {
+                return this.transform39Muilt(transid, (JSONArray) sourceRecordAny);
+            }
         }
         // 单个
         ID sourceRecord = ID.valueOf(sourceRecordAny.toString());

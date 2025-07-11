@@ -288,7 +288,11 @@ public class FormsBuilder extends FormsManager {
                     model.set("detailMeta", null);
                 }
             }
+
             model.set("detailMetas", detailMetas);
+            if (!detailMetas.isEmpty() && model.getObject("detailMeta") == null) {
+                model.set("detailMeta", detailMetas.get(0));
+            }
         }
 
         // 最后修改时间
@@ -321,7 +325,9 @@ public class FormsBuilder extends FormsManager {
         // v4.0
         if (recordId != null && !EntityHelper.isUnsavedId(recordId)) {
             model.set("recordId", recordId);
-            model.set("recordName", FieldValueHelper.getLabelNotry(recordId));
+            String recordName = FieldValueHelper.getLabel(recordId, "");
+            if (StringUtils.isBlank(recordName)) recordName = EasyMetaFactory.getLabel(recordData.getEntity());
+            model.set("recordName", recordName);
         }
         return model.toJSON();
     }

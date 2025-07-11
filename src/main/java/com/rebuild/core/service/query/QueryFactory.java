@@ -123,6 +123,14 @@ public class QueryFactory {
      * @param ajql
      * @return
      */
+    public Object[] uniqueNoFilter(String ajql) {
+        return createQueryNoFilter(ajql).unique();
+    }
+
+    /**
+     * @param ajql
+     * @return
+     */
     public Record record(String ajql) {
         return createQuery(ajql).record();
     }
