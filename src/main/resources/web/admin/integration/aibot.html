@@ -44,7 +44,13 @@
                   </table>
                   <div class="edit-footer">
                     <button class="btn btn-link" type="button">[[${bundle.L('取消')}]]</button>
-                    <button class="btn btn-primary" type="button">[[${bundle.L('保存')}]]</button>
+                    <div class="btn-group">
+                      <button class="btn btn-primary" type="button">[[${bundle.L('保存')}]]</button>
+                      <button class="btn btn-primary dropdown-toggle w-auto" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-chevron-down"></i></button>
+                      <div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
+                        <a class="dropdown-item J_clear">[[${bundle.L('清空配置')}]]</a>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
