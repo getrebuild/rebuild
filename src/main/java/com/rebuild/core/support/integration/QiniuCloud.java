@@ -109,7 +109,11 @@ public class QiniuCloud {
      * @throws IOException
      */
     public String upload(File file, String fileName, String fops) throws IOException {
-        String fileKey = formatFileKey(fileName == null ? file.getName() : fileName);
+        String fileKey;
+        // v4.1
+        if (fileName != null && fileName.startsWith("rb/")) fileKey = fileName;
+        else fileKey = formatFileKey(fileName == null ? file.getName() : fileName);
+
         Response resp = UPLOAD_MANAGER.put(file, fileKey, getUploadToken(fileKey, fops));
         if (resp.isOK()) {
             return fileKey;

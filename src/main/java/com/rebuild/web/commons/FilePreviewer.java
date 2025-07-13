@@ -7,27 +7,37 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.commons;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.user.AuthTokenManager;
+import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.cache.CommonsCache;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.OnlyOffice;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.OkHttpUtils;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,16 +61,27 @@ public class FilePreviewer extends BaseController {
     // https://api.onlyoffice.com/docs/docs-api/usage-api/config/
     @GetMapping("/commons/file-preview")
     public ModelAndView ooPreview(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        return ooPreviewOrEditor(request, response, false);
+    }
+
+    @GetMapping("/commons/file-editor")
+    public ModelAndView ooEditor(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        return ooPreviewOrEditor(request, response, true);
+    }
+
+    // 预览或编辑
+    private ModelAndView ooPreviewOrEditor(HttpServletRequest request, HttpServletResponse response, boolean editor) throws IOException {
         final String src = getParameterNotNull(request, "src");
         // v4.0 兼容
         if (!OnlyOffice.isUseOoPreview()) {
             String fileUrl = src;
             if (!CommonsUtils.isExternalUrl(fileUrl)) {
                 boolean temp = fileUrl.startsWith("/temp/");
-                if (temp) fileUrl = fileUrl.substring(6);
+                boolean data = fileUrl.startsWith("/data/");
+                if (temp || data) fileUrl = fileUrl.substring(6);
 
-                fileUrl = String.format("/filex/download/%s?temp=%s&_onceToken=%s",
-                        fileUrl, temp, AuthTokenManager.generateOnceToken(null));
+                fileUrl = String.format("/filex/download/%s?temp=%s&data=%s&_onceToken=%s",
+                        fileUrl, temp, data, AuthTokenManager.generateOnceToken(null));
                 fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
             }
 
@@ -69,13 +90,6 @@ public class FilePreviewer extends BaseController {
             response.sendRedirect(previewUrl);
             return null;
         }
-
-        final String mode = getParameter(request, "mode", "view");  // edit
-        Object[] ps = OnlyOffice.buildPreviewParams(src);
-
-        JSONObject ooConfig = new JSONObject();
-        ooConfig.put("document", ps[0]);
-        ooConfig.put("token", ps[1]);
 
         JSONObject editorConfig = JSONUtils.toJSONObject(
                 new String[]{"mode", "lang", "toolbar", "menu"},
@@ -87,20 +101,33 @@ public class FilePreviewer extends BaseController {
         }
         editorConfig.put("user", JSONUtils.toJSONObject(new String[]{"id", "name"}, user));
 
+        // 编辑模式
+        if (editor) {
+            String callbackUrl = RebuildConfiguration.getHomeUrl("/commons/file-editor-forcesave");
+            String fileKey = src.split("\\?")[0];
+            callbackUrl += "?fileKey=" + CodecUtils.urlEncode(fileKey);
+            callbackUrl += "&_csrfToken=" + AuthTokenManager.generateCsrfToken(CommonsCache.TS_HOUR * 12);
+            String hasId = getParameter(request, "id");
+            if (StringUtils.isNotBlank(hasId)) callbackUrl += "&id=" + hasId;
+
+            editorConfig.put("callbackUrl", callbackUrl);
+            editorConfig.put("mode", "edit");
+            editorConfig.put("toolbar", true);
+            editorConfig.put("menu", true);
+        }
+
+        Object[] ps = OnlyOffice.buildPreviewParams(src, editorConfig);
+
+        JSONObject ooConfig = new JSONObject();
+        ooConfig.put("document", ps[0]);
+        ooConfig.put("token", ps[1]);
+        ooConfig.put("editorConfig", editorConfig);
+
         ModelAndView mv = createModelAndView("/common/oo-preview");
         mv.getModel().put(OnlyofficeServer.name(), OnlyOffice.getOoServer());
 
         // 编辑模式
-        if ("edit".equals(mode)) {
-            String callbackUrl = RebuildConfiguration.getHomeUrl("/commons/file-preview-forcesave");
-            String fileKey = "/rb/" + src.split("/rb/")[1].split("\\?")[0];
-            callbackUrl += "?fileKey=" + CodecUtils.urlEncode(fileKey);
-            callbackUrl += "&_csrfToken=" + AuthTokenManager.generateCsrfToken(2 * 60 * 60);
-            editorConfig.put("callbackUrl", callbackUrl);
-
-            editorConfig.put("mode", "edit");
-            editorConfig.put("toolbar", true);
-            editorConfig.put("menu", true);
+        if (editor) {
             ooConfig.put("type", "desktop");
             mv.getModel().put("title", Language.L("文档编辑"));
         } else {
@@ -108,51 +135,101 @@ public class FilePreviewer extends BaseController {
             mv.getModel().put("title", Language.L("文档预览"));
         }
 
-        ooConfig.put("editorConfig", editorConfig);
+        if (Application.devMode()) System.out.println("[dev] " + JSONUtils.prettyPrint(ooConfig));
         mv.getModel().put("_DocEditorConfig", ooConfig);
         return mv;
     }
 
     // https://api.onlyoffice.com/docs/docs-api/usage-api/callback-handler/
-    @RequestMapping("/commons/file-preview-forcesave")
-    public void ooPreviewForcesave(HttpServletRequest request, HttpServletResponse response) {
-        int status = getIntParameter(request, "status");
+    @PostMapping("/commons/file-editor-forcesave")
+    public void ooEditorForcesave(HttpServletRequest request, HttpServletResponse response) {
+        final JSONObject status = (JSONObject) ServletUtils.getRequestJson(request);
+        if (Application.devMode()) {
+            System.out.println("[dev] oo-callback : " + request.getQueryString() + "\n" + JSONUtils.prettyPrint(status));
+        }
+
         // saving
-        if (status == 2) {
-            CommonsMultipartResolver resolver = new CommonsMultipartResolver(request.getServletContext());
-            MultipartFile file = null;
-            MultipartHttpServletRequest mp = resolver.resolveMultipart(request);
-            for (MultipartFile t : mp.getFileMap().values()) {
-                file = t;
-                break;
-            }
-            if (file == null) {
-                ServletUtils.writeJson(response, "{'error':'NO FILE FOUND'}");
+        if (status.getIntValue("status") == 2) {
+            // 授权检测
+            String csrfToken = getParameter(request, "_csrfToken");
+            if (AuthTokenManager.verifyToken(csrfToken) == null) {
+                ServletUtils.writeJson(response, "{\"error\":\"UNAUTHORIZED ACCESS\"}");
                 return;
             }
 
             String fileKey = getParameter(request, "fileKey");
+            boolean data41 = fileKey.startsWith("/data/");
+            if (data41) fileKey = fileKey.substring(6);
+
+            String hasId = getParameter(request, "id");
+            if (ID.isId(hasId)) {
+                String[] fileKey_s = fileKey.split("/");
+                String fileName = QiniuCloud.parseFileName(fileKey);
+                fileName = String.format("%s__%s",
+                        CalendarUtils.getDateFormat("HHmmssSSS").format(CalendarUtils.now()), fileName);
+                fileKey_s[fileKey_s.length - 1] = fileName;
+                fileKey = StringUtils.join(fileKey_s, "/");
+            }
+
             File dest;
-            if (QiniuCloud.instance().available()) {
-                dest = RebuildConfiguration.getFileOfTemp("oo-tmpfile-" + CommonsUtils.randomHex(true));
+            if (QiniuCloud.instance().available() && !data41) {
+                dest = RebuildConfiguration.getFileOfTemp("oo-tmpfile-" + CommonsUtils.randomHex());
             } else {
                 dest = RebuildConfiguration.getFileOfData(fileKey);
             }
 
+            String changedUrl = status.getString("url");
             try {
-                file.transferTo(dest);
+                OkHttpUtils.readBinary(changedUrl, dest, null);
 
-                if (QiniuCloud.instance().available()) {
+                if (QiniuCloud.instance().available() && !data41) {
                     QiniuCloud.instance().upload(dest, fileKey);
+                    FileUtils.deleteQuietly(dest);
                 }
+
+                JSONArray users = status.getJSONArray("users");
+                ooEditorForcesaveHasId(fileKey, hasId, users);
+
             } catch (Exception e) {
                 log.error("Saving file error : {}", fileKey, e);
-                ServletUtils.writeJson(response, "{'error':'SAVING FILE ERROR'}");
+                ServletUtils.writeJson(response, "{\"error\":\"SAVING FILE ERROR\"}");
                 return;
             }
         }
 
         // echo
-        ServletUtils.writeJson(response, "{'error':0}");
+        ServletUtils.writeJson(response, "{\"error\":0}");
+    }
+
+    // 保存
+    private void ooEditorForcesaveHasId(String fileKey, String hasId, JSONArray users) {
+        if (!ID.isId(hasId)) return;
+
+        ID user = UserService.SYSTEM_USER;
+        if (!CollectionUtils.isEmpty(users)) {
+            if (ID.isId(users.getString(0))) {
+                user = ID.valueOf(users.getString(0));
+            }
+        }
+
+        ID id = ID.valueOf(hasId);
+        Record record = null;
+        if (id.getEntityCode() == EntityHelper.DataReportConfig) {
+            record = RecordBuilder.builder(id)
+                    .add("templateFile", fileKey)
+                    .build(user);
+        } else if (id.getEntityCode() == EntityHelper.Attachment) {
+            record = RecordBuilder.builder(id)
+                    .add("filePath", fileKey)
+                    .build(user);
+        }
+        if (record == null) return;
+
+        ID o = UserContextHolder.setUser(user);
+        try {
+            Application.getService(id.getEntityCode()).update(record);
+        } finally {
+            UserContextHolder.clearUser(o);
+        }
     }
 }
