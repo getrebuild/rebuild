@@ -21,6 +21,7 @@ import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.support.OnlyOffice;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.RecordBuilder;
@@ -30,6 +31,7 @@ import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OkHttpUtils;
+import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -66,12 +68,19 @@ public class FilePreviewer extends BaseController {
 
     @GetMapping("/commons/file-editor")
     public ModelAndView ooEditor(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        getRequestUser(request);
         return ooPreviewOrEditor(request, response, true);
     }
 
     // 预览或编辑
     private ModelAndView ooPreviewOrEditor(HttpServletRequest request, HttpServletResponse response, boolean editor) throws IOException {
-        final String src = getParameterNotNull(request, "src");
+        String src = getParameterNotNull(request, "src");
+        ID id = null;
+        if (ID.isId(src)) {
+            id = ID.valueOf(src);
+            src = getFileById(id, getRequestUser(request));
+        }
+
         // v4.0 兼容
         if (!OnlyOffice.isUseOoPreview()) {
             String fileUrl = src;
@@ -107,13 +116,13 @@ public class FilePreviewer extends BaseController {
             String fileKey = src.split("\\?")[0];
             callbackUrl += "?fileKey=" + CodecUtils.urlEncode(fileKey);
             callbackUrl += "&_csrfToken=" + AuthTokenManager.generateCsrfToken(CommonsCache.TS_HOUR * 12);
-            String hasId = getParameter(request, "id");
-            if (StringUtils.isNotBlank(hasId)) callbackUrl += "&id=" + hasId;
+            if (id != null) callbackUrl += "&id=" + id;
 
             editorConfig.put("callbackUrl", callbackUrl);
             editorConfig.put("mode", "edit");
             editorConfig.put("toolbar", true);
             editorConfig.put("menu", true);
+            editorConfig.put("customization", JSONUtils.toJSONObject("forcesave", true));
         }
 
         Object[] ps = OnlyOffice.buildPreviewParams(src, editorConfig);
@@ -149,7 +158,8 @@ public class FilePreviewer extends BaseController {
         }
 
         // saving
-        if (status.getIntValue("status") == 2) {
+        int statusVal = status.getIntValue("status");
+        if (statusVal == 2 || statusVal == 6) {
             // 授权检测
             String csrfToken = getParameter(request, "_csrfToken");
             if (AuthTokenManager.verifyToken(csrfToken) == null) {
@@ -187,8 +197,7 @@ public class FilePreviewer extends BaseController {
                     FileUtils.deleteQuietly(dest);
                 }
 
-                JSONArray users = status.getJSONArray("users");
-                ooEditorForcesaveHasId(fileKey, hasId, users);
+                saveFileById(fileKey, hasId, status.getJSONArray("users"));
 
             } catch (Exception e) {
                 log.error("Saving file error : {}", fileKey, e);
@@ -201,9 +210,13 @@ public class FilePreviewer extends BaseController {
         ServletUtils.writeJson(response, "{\"error\":0}");
     }
 
-    // 保存
-    private void ooEditorForcesaveHasId(String fileKey, String hasId, JSONArray users) {
-        if (!ID.isId(hasId)) return;
+    /**
+     * @param fileKey
+     * @param id
+     * @param users
+     */
+    static void saveFileById(String fileKey, String id, JSONArray users) {
+        if (!ID.isId(id)) return;
 
         ID user = UserService.SYSTEM_USER;
         if (!CollectionUtils.isEmpty(users)) {
@@ -212,14 +225,14 @@ public class FilePreviewer extends BaseController {
             }
         }
 
-        ID id = ID.valueOf(hasId);
+        ID fid = ID.valueOf(id);
         Record record = null;
-        if (id.getEntityCode() == EntityHelper.DataReportConfig) {
-            record = RecordBuilder.builder(id)
+        if (fid.getEntityCode() == EntityHelper.DataReportConfig) {
+            record = RecordBuilder.builder(fid)
                     .add("templateFile", fileKey)
                     .build(user);
-        } else if (id.getEntityCode() == EntityHelper.Attachment) {
-            record = RecordBuilder.builder(id)
+        } else if (fid.getEntityCode() == EntityHelper.Attachment) {
+            record = RecordBuilder.builder(fid)
                     .add("filePath", fileKey)
                     .build(user);
         }
@@ -227,9 +240,32 @@ public class FilePreviewer extends BaseController {
 
         ID o = UserContextHolder.setUser(user);
         try {
-            Application.getService(id.getEntityCode()).update(record);
+            Application.getService(fid.getEntityCode()).update(record);
         } finally {
             UserContextHolder.clearUser(o);
         }
+    }
+
+    /**
+     * @param id
+     * @param user
+     * @return
+     */
+    static String getFileById(ID id, ID user) {
+        Object[] e = null;
+        // 报表
+        if (id.getEntityCode() == EntityHelper.DataReportConfig) {
+            RbAssert.is(UserHelper.isAdmin(user), "NOT ALLOWED");
+            e = Application.getQueryFactory().uniqueNoFilter(id, "templateFile");
+            if (e != null && e[0] != null) e[0] = "/data/" + e[0];
+        }
+        // 文件
+        if (id.getEntityCode() == EntityHelper.Attachment) {
+            RbAssert.is(FilesHelper.isFileManageable(user, id), "NOT ALLOWED");
+            e = Application.getQueryFactory().uniqueNoFilter(id, "filePath");
+        }
+
+        RbAssert.is(e != null && e[0] != null, "FILE NOT FOUND:" + id);
+        return (String) e[0];
     }
 }

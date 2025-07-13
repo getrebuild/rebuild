@@ -433,7 +433,7 @@ class FileEditDlg extends RbFormHandler {
             <div className="col-sm-7">
               <input className="form-control form-control-sm" defaultValue={fileName} ref={(c) => (this._$fileName = c)} />
               <p className="form-text bosskey-show">
-                <a href={`${rb.baseUrl}/commons/file-editor?src=${$encode(file.filePath)}&id=${file.id}`} target="_blank">
+                <a href={`${rb.baseUrl}/commons/file-editor?src=${file.id}`} target="_blank">
                   {$L('在线编辑')} (LAB)
                 </a>
               </p>

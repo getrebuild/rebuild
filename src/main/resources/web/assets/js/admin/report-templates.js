@@ -161,7 +161,7 @@ class ReportEditor extends ConfigFormDlg {
               </div>
             </div>
             <div className="float-left bosskey-show ml-2" style={{ paddingTop: 8 }}>
-              <a className="btn-secondary" target="_blank" href={`${rb.baseUrl}/commons/file-editor?src=${$encode('/data/' + templateFile)}&id=${this.props.id}`}>
+              <a className="btn-secondary" target="_blank" href={`${rb.baseUrl}/commons/file-editor?src=${this.props.id}`}>
                 {$L('在线编辑')} (LAB)
               </a>
             </div>
