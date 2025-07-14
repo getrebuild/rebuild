@@ -58,7 +58,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
 
             // 相关系统引用也在此时一并删除，因为记录已经彻底删除
             // Field: recordId
-            String[] sysRefs = new String[] {
+            String[] sysRefs = new String[]{
                     "Attachment", "ShareAccess", "RobotApprovalStep", "NreferenceItem", "TagItem"
             };
             for (String refName : sysRefs) {
@@ -117,6 +117,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
 
     /**
      * 回收站是否激活
+     *
      * @return
      * @see #setSkipRecyclebinOnce()
      */
@@ -132,6 +133,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
 
     /**
      * 变更历史是否激活
+     *
      * @return
      * @see #setSkipRevisionHistoryOnce()
      */

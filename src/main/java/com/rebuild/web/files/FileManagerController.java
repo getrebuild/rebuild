@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.files.BatchDownload;
 import com.rebuild.core.service.files.FilesHelper;
@@ -30,6 +31,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -87,7 +89,16 @@ public class FileManagerController extends BaseController {
             willDeleteIds.add(fileId);
         }
 
-        Application.getCommonsService().delete(willDeleteIds.toArray(new ID[0]));
+        TransactionStatus tx = TransactionManual.newTransaction();
+        try {
+            for (ID fileId : willDeleteIds) {
+                Application.getService(EntityHelper.Attachment).delete(fileId);
+            }
+            TransactionManual.commit(tx);
+        } catch (Exception ex) {
+            TransactionManual.rollback(tx);
+        }
+
         return RespBody.ok();
     }
 
