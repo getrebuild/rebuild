@@ -38,6 +38,8 @@ public abstract class OperatingObserver implements SafeObserver {
     protected void updateByAction(final OperatingContext ctx) {
         if (ctx.getAction() == BizzPermission.CREATE) {
             onCreate(ctx);
+        } else if (ctx.getAction() == InternalPermission.UPDATE_BEFORE) {
+            onUpdateBefore(ctx);
         } else if (ctx.getAction() == BizzPermission.UPDATE) {
             onUpdate(ctx);
         } else if (ctx.getAction() == InternalPermission.DELETE_BEFORE) {
@@ -69,6 +71,14 @@ public abstract class OperatingObserver implements SafeObserver {
      * @param context
      */
     protected void onUpdate(final OperatingContext context) {
+    }
+
+    /**
+     * 更新前处理
+     *
+     * @param context
+     */
+    protected void onUpdateBefore(final OperatingContext context) {
     }
 
     /**

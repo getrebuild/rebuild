@@ -31,6 +31,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.KnownExceptionConverter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.NamedThreadLocal;
 
@@ -96,6 +97,11 @@ public class RobotTriggerObserver extends OperatingObserver {
     }
 
     @Override
+    protected void onUpdateBefore(OperatingContext context) {
+        execAction(context, TriggerWhen.UPDATE_BEFORE);
+    }
+
+    @Override
     protected void onAssign(OperatingContext context) {
         execAction(context, TriggerWhen.ASSIGN);
     }
@@ -154,7 +160,7 @@ public class RobotTriggerObserver extends OperatingObserver {
         TriggerAction[] beExecuted = when == TriggerWhen.DELETE
                 ? DELETE_BEFORE_HOLD.get(primaryId)
                 : RobotTriggerManager.instance.getActions(context.getFixedRecordId(), when);
-        if (beExecuted == null || beExecuted.length == 0) return;
+        if (ArrayUtils.isEmpty(beExecuted)) return;
 
         TriggerSource triggerSource = getTriggerSource();
         final boolean originTriggerSource = triggerSource == null;

@@ -103,14 +103,14 @@ public class RobotTriggerManager implements ConfigManager {
     /**
      * 允许的动作
      *
-     * @param entry
+     * @param e
      * @param when
      * @return
      */
-    private boolean allowedWhen(ConfigBean entry, TriggerWhen... when) {
+    private boolean allowedWhen(ConfigBean e, TriggerWhen... when) {
         if (when.length == 0) return true;
 
-        int whenMask = entry.getInteger("when");
+        int whenMask = e.getInteger("when");
         for (TriggerWhen w : when) {
             if ((whenMask & w.getMaskValue()) != 0) {
                 return true;

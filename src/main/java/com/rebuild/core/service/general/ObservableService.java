@@ -71,7 +71,17 @@ public abstract class ObservableService extends SafeObservable implements Servic
 
     @Override
     public Record update(Record record) {
-        final Record before = countObservers() > 0 ? recordSnap(record, false) : null;
+        final ID currentUser = getCurrentUser();
+
+        Record before = null;
+        if (countObservers() > 0) {
+            before = recordSnap(record, false);
+
+            // 更新前触发
+            if (before != null) {
+                notifyObservers(OperatingContext.create(currentUser, InternalPermission.UPDATE_BEFORE, before, record));
+            }
+        }
 
         record = delegateService.update(record);
 
