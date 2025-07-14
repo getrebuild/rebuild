@@ -18,9 +18,18 @@ $(document).ready(() => {
   })
 
   $('.edit-footer>.btn-link').on('click', () => location.reload())
-  $('.edit-footer>.btn-primary, .card-header .J_save').on('click', (e) => {
+  $('.edit-footer>.btn-primary:eq(0), .edit-footer>.btn-group>.btn-primary:eq(0), .card-header .J_save').on('click', (e) => {
     $stopEvent(e, true)
     post(__data)
+  })
+  $('.edit-footer .J_clear').on('click', (e) => {
+    $stopEvent(e, true)
+    RbAlert.create($L('确定要清空配置吗？'), {
+      onConfirm: function () {
+        post({ __clear__: true })
+      },
+      type: 'danger',
+    })
   })
 
   $('a[data-clipboard-text]').each((idx, item) => $clipboard($(item)))

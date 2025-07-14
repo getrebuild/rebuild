@@ -157,12 +157,21 @@ public class FileDownloader extends BaseController {
             attname = CodecUtils.urlDecode(attname);
         }
 
-        boolean temp = getBoolParameter(request, "temp");
+        boolean temp = getBoolParameter(request, "temp");  // 在临时目录
+        boolean data41 = getBoolParameter(request, "data");  // 在数据目录
+        if (!temp) {
+            temp = filepath.startsWith("temp/");
+            if (temp) filepath = filepath.substring(5);
+        }
+        if (!data41) {
+            data41 = filepath.startsWith("data/");
+            if (data41) filepath = filepath.substring(5);
+        }
         boolean inline = getBoolParameter(request, "inline");
 
         ServletUtils.setNoCacheHeaders(response);
 
-        if (QiniuCloud.instance().available() && !temp) {
+        if (QiniuCloud.instance().available() && !temp && !data41) {
             String privateUrl = QiniuCloud.instance().makeUrl(filepath);
             if (!inline) privateUrl += "&attname=" + CodecUtils.urlEncode(attname);
             response.sendRedirect(privateUrl);

@@ -165,8 +165,9 @@ $(document).ready(() => {
 
     if (window.whenUpdateFields) content.whenUpdateFields = window.whenUpdateFields
     if (window.whenApproveNodes) content.whenApproveNodes = window.whenApproveNodes
+    const whenUpdateBefore41 = $('input.when-update-before').prop('checked') ? 4096 : 0
     const data = {
-      when: when,
+      when: when + whenUpdateBefore41,
       whenTimer: _buildWhenTimer(),
       whenFilter: wpc.whenFilter || null,
       actionContent: content,

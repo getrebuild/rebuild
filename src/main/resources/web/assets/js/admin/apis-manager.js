@@ -51,7 +51,7 @@ class AppList extends ConfigList {
               <td>{item[1]}</td>
               <td>{secret}</td>
               <td>{item[4] || $L('无 (全部权限)')}</td>
-              <td>{item[6] || $L('无 (不限)')}</td>
+              <td>{this._formatIps(item[6]) || $L('无 (不限)')}</td>
               <td>{times}</td>
               <td>
                 <DateShow date={item[5]} />
@@ -74,6 +74,17 @@ class AppList extends ConfigList {
     )
   }
 
+  _formatIps(ips) {
+    if (!ips) return null
+    return ips.split(/[\s,]+/).map((ip) => {
+      return (
+        <span className="badge badge-light" key={ip}>
+          {ip}
+        </span>
+      )
+    })
+  }
+
   loadDataAfter() {
     this.state.data &&
       this.state.data.forEach((a) => {
@@ -88,7 +99,7 @@ class AppList extends ConfigList {
   }
 
   handleEdit(app) {
-    renderRbcomp(<AppEdit id={app[0]} bindIps={app[7]} bindUser={app[3]} />)
+    renderRbcomp(<AppEdit id={app[0]} bindIps={app[6]} bindUser={app[3]} />)
   }
 
   handleDelete(app) {

@@ -1522,7 +1522,8 @@ class RbFormNText extends RbFormElement {
                         const ps = this._fieldValue.selectionStart,
                           pe = this._fieldValue.selectionEnd
                         let val = this.state.value
-                        val = val.substring(0, ps) + c + val.substring(pe)
+                        if ($empty(val)) val = c
+                        else val = val.substring(0, ps) + c + val.substring(pe)
                         this.handleChange({ target: { value: val } }, true)
                         // $focus2End(this._fieldValue)
                       }

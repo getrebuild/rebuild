@@ -160,6 +160,11 @@ class ReportEditor extends ConfigFormDlg {
                 </label>
               </div>
             </div>
+            <div className="float-left bosskey-show ml-2" style={{ paddingTop: 8 }}>
+              <a className="btn-secondary" target="_blank" href={`${rb.baseUrl}/commons/file-editor?src=${this.props.id}`}>
+                {$L('在线编辑')} (LAB)
+              </a>
+            </div>
             <div className="float-left ml-2" style={{ paddingTop: 8 }}>
               {templateFile && (
                 <a href={`${rb.baseUrl}/admin/data/report-templates/download?file=${$encode(templateFile)}`} target="_blank" title={$L('下载模版')} className="text-bold text-dark text-underline">

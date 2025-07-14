@@ -164,7 +164,12 @@ public class FileManagerController extends BaseController {
 
     @PostMapping("file-edit")
     public RespBody fileEdit(HttpServletRequest req) throws IOException {
+        final ID user = getRequestUser(req);
         final ID fileId = getIdParameter(req, "id");
+        if (!FilesHelper.isFileManageable(user, fileId)) {
+            return RespBody.errorl("无权修改他人文件");
+        }
+
         final String newName = getParameterNotNull(req, "newName");
 
         Object[] o = Application.getQueryFactory().uniqueNoFilter(fileId, "filePath");
@@ -187,7 +192,7 @@ public class FileManagerController extends BaseController {
             FileUtils.moveFile(destTmp, dest);
         }
 
-        Record r = EntityHelper.forUpdate(fileId, getRequestUser(req));
+        Record r = EntityHelper.forUpdate(fileId, user);
         r.setString("filePath", newFilePath);
         r.setString("fileName", newName);
         String ext = FilenameUtils.getExtension(newName);

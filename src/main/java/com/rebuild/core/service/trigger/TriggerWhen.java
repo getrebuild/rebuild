@@ -36,6 +36,10 @@ public enum TriggerWhen {
      */
     UPDATE(BizzPermission.UPDATE.getMask()),
     /**
+     * v4.1-b4 更新前
+     */
+    UPDATE_BEFORE(4096),
+    /**
      * 分配时
      */
     ASSIGN(BizzPermission.ASSIGN.getMask()),

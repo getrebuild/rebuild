@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.service.general.OperatingContext;
 
 /**
  * 触发动作执行上下文
@@ -51,6 +52,7 @@ public class ActionContext {
      * 触发源记录
      *
      * @return
+     * @see OperatingContext#getFixedRecordId()
      */
     public ID getSourceRecord() {
         return sourceRecord;
