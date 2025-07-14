@@ -303,11 +303,6 @@ public class LoginController extends LoginAction {
         return v;
     }
 
-    @GetMapping("site-register")
-    public void reg(HttpServletResponse response) throws IOException {
-        response.sendRedirect("https://getrebuild.com/market/site-register?sn=" + License.SN());
-    }
-
     // --
 
     /**
