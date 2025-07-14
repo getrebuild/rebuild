@@ -76,7 +76,7 @@ public class FileManagerController extends BaseController {
         final ID user = getRequestUser(request);
         String[] files = getParameter(request, "ids", "").split(",");
 
-        Set<ID> willDeletes = new HashSet<>();
+        Set<ID> willDeleteIds = new HashSet<>();
         for (String file : files) {
             if (!ID.isId(file)) continue;
 
@@ -84,11 +84,10 @@ public class FileManagerController extends BaseController {
             if (!FilesHelper.isFileManageable(user, fileId)) {
                 return RespBody.errorl("无权删除他人文件");
             }
-
-            willDeletes.add(fileId);
+            willDeleteIds.add(fileId);
         }
 
-        Application.getCommonsService().delete(willDeletes.toArray(new ID[0]));
+        Application.getCommonsService().delete(willDeleteIds.toArray(new ID[0]));
         return RespBody.ok();
     }
 

@@ -11,6 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
@@ -28,6 +29,7 @@ import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -235,7 +237,8 @@ public class QiniuCloud {
             resp = bucketManager.delete(this.bucketName, key);
             if (resp.isOK()) return true;
 
-            throw new RebuildException("Failed to delete file : " + this.bucketName + " < " + key + " : " + resp.bodyString());
+            log.warn("Cannot delete file : {} < {} : {}", this.bucketName, key, resp.bodyString());
+            return false;
         } catch (QiniuException e) {
             throw new RebuildException("Failed to delete file : " + this.bucketName + " < " + key, e);
         }
@@ -496,5 +499,37 @@ public class QiniuCloud {
             FileUtils.moveFile(file, move2data);
         }
         return fileKey;
+    }
+
+    /**
+     * 删除文件
+     *
+     * @param filesValue
+     * @return
+     */
+    public static int deleteFiles(String filesValue) {
+        if (StringUtils.isBlank(filesValue)) return 0;
+
+        if (!JSONUtils.wellFormat(filesValue)) {
+            if (filesValue.startsWith("rb/")) {
+                filesValue = "[\"" + filesValue + "\"]";
+            } else {
+                return 0;
+            }
+        }
+
+        int del = 0;
+        JSONArray fileKeys = JSON.parseArray(filesValue);
+        for (Object fileKey : fileKeys) {
+            if (QiniuCloud.instance().available()) {
+                del += QiniuCloud.instance().delete(fileKey.toString()) ? 1 : 0;
+            } else {
+                File file = RebuildConfiguration.getFileOfData(fileKey.toString());
+                if (file.exists()) {
+                    del += file.delete() ? 1 : 0;
+                }
+            }
+        }
+        return del;
     }
 }
