@@ -130,9 +130,7 @@ class RbFormModal extends React.Component {
           readonly={!!formModel.readonlyMessage}
           ref={(c) => (that._formComponentRef = c)}
           _disableAutoFillin={that.props._disableAutoFillin}>
-          {formModel.elements.map((item) => {
-            return detectElement(item, entity)
-          })}
+          {formModel.elements.map((item) => detectElement(item))}
         </RbForm>
       )
 
@@ -3515,9 +3513,10 @@ var detectElement = function (item, entity) {
   if (!item.key) {
     item.key = `field-${item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM ? $random() : item.field}`
   }
-  // v4.1
-  item.entity = item.entity || entity
-
+  // v4.1-b5
+  if (entity) {
+    item.entity = entity
+  }
   // 复写的字段组件
   if (entity && window._CustomizedForms) {
     const c = window._CustomizedForms.useFormElement(entity, item)

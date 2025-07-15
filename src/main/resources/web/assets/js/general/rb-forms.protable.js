@@ -302,7 +302,7 @@ class ProTable extends React.Component {
     const FORM = (
       <InlineForm entity={entityName} id={model.id} rawModel={model} $$$parent={this} $$$main={this.props.$$$main} key={lineKey} ref={ref} _componentDidUpdate={() => this._componentDidUpdate()}>
         {model.elements.map((item) => {
-          return detectElement({ ...item, colspan: 4, _disableAutoFillin: _disableAutoFillin === true }, entityName)
+          return detectElement({ ...item, colspan: 4, _disableAutoFillin: _disableAutoFillin === true })
         })}
       </InlineForm>
     )
