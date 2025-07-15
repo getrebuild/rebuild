@@ -1507,21 +1507,21 @@ class RbFormNText extends RbFormElement {
           <div id={this._textCommonMenuId}>
             <div className="dropdown-menu  dropdown-menu-right common-texts">
               {this.props.textCommon.split(',').map((c) => {
+                let cLN = c.replace(/\\n/g, '\n') // 换行符
                 return (
                   <a
                     key={c}
-                    title={c}
+                    title={cLN}
                     className="badge text-ellipsis"
                     onClick={() => {
-                      c = c.replace(/\\n/g, '\n')
                       if (this._EasyMDE) {
-                        this._mdeInsert(c)
+                        this._mdeInsert(cLN)
                       } else {
                         const ps = this._fieldValue.selectionStart,
                           pe = this._fieldValue.selectionEnd
                         let val = this.state.value
-                        if ($empty(val)) val = c
-                        else val = val.substring(0, ps) + c + val.substring(pe)
+                        if ($empty(val)) val = cLN
+                        else val = val.substring(0, ps) + cLN + val.substring(pe)
                         this.handleChange({ target: { value: val } }, true)
                         // $focus2End(this._fieldValue)
                       }
