@@ -1183,7 +1183,7 @@ class RbFormElement extends React.Component {
   setReadonly(readonly) {
     this.setState({ readonly: readonly === true }, () => {
       // fix 4.0.6 只读变为非只读，富附件需初始化
-      this.onEditModeChanged(readonly === true)
+      this.onEditModeChanged(readonly === true, true)
     })
   }
   // TIP 仅表单有效
@@ -1241,6 +1241,12 @@ class RbFormText extends RbFormElement {
           </div>
         </div>
       )
+
+      // fix:4.1-b5 禁用时不触发
+      $(this._fieldValue).on('click', (e) => {
+        const $t = e.target || {}
+        if ($t.disabled || $t.readOnly) $stopEvent(e, true)
+      })
     }
   }
 }
@@ -1429,7 +1435,7 @@ class RbFormNText extends RbFormElement {
         />
         {props.useMdedit && !_readonly37 && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
         {this._textCommonMenuId && (
-          <a className="badge text-common" data-toggle="dropdown" data-target={`#${this._textCommonMenuId}`}>
+          <a className={`badge text-common ${_readonly37 && 'hide'}`} data-toggle="dropdown" data-target={`#${this._textCommonMenuId}`}>
             {$L('常用值')}
           </a>
         )}
@@ -1556,6 +1562,9 @@ class RbFormNText extends RbFormElement {
 
   _initMde() {
     const _readonly37 = this.state.readonly
+
+    // fix:4.1-b5
+    this._EasyMDE && this._EasyMDE.toTextArea()
 
     const mde = new EasyMDE({
       element: this._fieldValue,
@@ -2107,12 +2116,16 @@ class RbFormPickList extends RbFormElement {
     return super.renderViewElement(__findOptionText(this.state.options, this.state.value, true))
   }
 
-  onEditModeChanged(destroy) {
+  onEditModeChanged(destroy, fromReadonly41) {
     if (destroy) {
-      super.onEditModeChanged(destroy)
+      if (fromReadonly41) {
+        this.__select2 && $(this._fieldValue).attr('disabled', true)
+      } else {
+        super.onEditModeChanged(destroy)
+      }
     } else {
       if (this._isShowRadio39) {
-        // TODO
+        // Nothings
       } else {
         this.__select2 = $(this._fieldValue).select2({
           placeholder: $L('选择%s', this.props.label),
@@ -2140,7 +2153,7 @@ class RbFormPickList extends RbFormElement {
     if (this._isShowRadio39) {
       this.handleChange({ target: { value: val } }, true)
     } else {
-      this.__select2.val(val).trigger('change')
+      this.__select2 && this.__select2.val(val).trigger('change')
     }
   }
 }
@@ -2230,9 +2243,13 @@ class RbFormReference extends RbFormElement {
     return false
   }
 
-  onEditModeChanged(destroy) {
+  onEditModeChanged(destroy, fromReadonly41) {
     if (destroy) {
-      super.onEditModeChanged(destroy)
+      if (fromReadonly41) {
+        this.__select2 && $(this._fieldValue).attr('disabled', true)
+      } else {
+        super.onEditModeChanged(destroy)
+      }
     } else {
       this.__select2 = $initReferenceSelect2(this._fieldValue, {
         name: this.props.field,
@@ -2544,6 +2561,7 @@ class RbFormN2NReference extends RbFormReference {
 
   onEditModeChanged(destroy) {
     super.onEditModeChanged(destroy)
+
     if (!destroy && this.__select2) {
       this.__select2.on('select2:select', (e) => __addRecentlyUse(e.params.data.id))
     }
@@ -2762,13 +2780,17 @@ class RbFormClassification extends RbFormElement {
     return super.renderViewElement(text)
   }
 
-  onEditModeChanged(destroy) {
+  onEditModeChanged(destroy, fromReadonly41) {
     if (destroy) {
-      super.onEditModeChanged(destroy)
-      this.__cached = null
-      if (this.__selector) {
-        this.__selector.hide(true)
-        this.__selector = null
+      if (fromReadonly41) {
+        this.__select2 && $(this._fieldValue).attr('disabled', true)
+      } else {
+        super.onEditModeChanged(destroy)
+        this.__cached = null
+        if (this.__selector) {
+          this.__selector.hide(true)
+          this.__selector = null
+        }
       }
     } else {
       this.__select2 = $initReferenceSelect2(this._fieldValue, {
@@ -2895,10 +2917,14 @@ class RbFormMultiSelect extends RbFormElement {
     return <div className="form-control-plaintext multi-values">{__findMultiTexts(this.props.options, maskValue, true)}</div>
   }
 
-  onEditModeChanged(destroy) {
+  onEditModeChanged(destroy, fromReadonly41) {
     if (this._isShowSelect41) {
       if (destroy) {
-        super.onEditModeChanged(destroy)
+        if (fromReadonly41) {
+          this.__select2 && $(this._fieldValue).attr('disabled', true)
+        } else {
+          super.onEditModeChanged(destroy)
+        }
       } else {
         this.__select2 = $(this._fieldValue).select2({
           placeholder: $L('选择%s', this.props.label),
@@ -2943,7 +2969,16 @@ class RbFormMultiSelect extends RbFormElement {
   setValue(val) {
     // eg. {id:3, text:["A", "B"]}
     if (typeof val === 'object') val = val.id || val
-    super.setValue(val)
+    if (this._isShowSelect41) {
+      let s = []
+      this.props.options &&
+        this.props.options.forEach((o) => {
+          if ((val & o.mask) !== 0) s.push(o.mask)
+        })
+      this.__select2 && this.__select2.val(s).trigger('change')
+    } else {
+      super.setValue(val)
+    }
   }
 }
 
@@ -3343,10 +3378,14 @@ class RbFormTag extends RbFormElement {
     this._selected = selected
   }
 
-  onEditModeChanged(destroy) {
+  onEditModeChanged(destroy, fromReadonly41) {
     if (destroy) {
-      super.onEditModeChanged(destroy)
-      this._initOptions()
+      if (fromReadonly41) {
+        this.__select2 && $(this._fieldValue).attr('disabled', true)
+      } else {
+        super.onEditModeChanged(destroy)
+        this._initOptions()
+      }
     } else {
       this.__select2 = $(this._fieldValue).select2({
         placeholder: this.props.readonlyw > 0 ? this._placeholderw : $L('输入%s', this.props.label),
