@@ -371,8 +371,15 @@ class LightAttachmentList extends RelatedList {
           <i className="file-icon" data-type={item.fileType} />
         </div>
         <div className="detail">
-          <a onClick={() => (parent || window).RbPreview.create(item.filePath)} title={$L('预览')}>
-            {$fileCutName(item.filePath)}
+          <a
+            onClick={() => {
+              $.get(`/files/check-readable?id=${item.id}`, (res) => {
+                if (res.data) (parent || window).RbPreview.create(res.data)
+                else RbHighbar.create($L('你没有查看此文件的权限'))
+              })
+            }}
+            title={$L('预览')}>
+            {item.fileName}
           </a>
           <div className="extras">
             <span className="fsize">{item.fileSize}</span>
@@ -380,7 +387,7 @@ class LightAttachmentList extends RelatedList {
         </div>
         <div className="info position-relative">
           <span className="fop-action">
-            <a title={$L('下载')} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
+            <a title={$L('下载')} href={`${rb.baseUrl}/files/download?id=${item.id}`} target="_blank">
               <i className="icon zmdi zmdi-download fs-17" />
             </a>
             {rb.fileSharable && (
@@ -389,7 +396,7 @@ class LightAttachmentList extends RelatedList {
                 onClick={(e) => {
                   $stopEvent(e)
                   // eslint-disable-next-line react/jsx-no-undef
-                  renderRbcomp(<FileShare file={item.filePath} />)
+                  renderRbcomp(<FileShare file={item.id} />)
                 }}>
                 <i className="icon zmdi zmdi-share up-1" />
               </a>
@@ -410,32 +417,27 @@ class LightAttachmentList extends RelatedList {
     const pageSize = 20
 
     const relatedId = this.props.mainid
-    $.get(
-      `/files/list-file?entry=${relatedId.substr(0, 3)}&sort=${this.__searchSort || ''}&q=${$encode(this.__searchKey)}&pageNo=${this.__pageNo}&pageSize=${pageSize}&related=${relatedId}`,
-      (res) => {
-        if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
+    let url = `/files/list-file?entry=${relatedId.substr(0, 3)}&sort=${this.__searchSort || ''}&q=${$encode(this.__searchKey)}&pageNo=${this.__pageNo}&pageSize=${pageSize}&related=${relatedId}`
+    $.get(url, (res) => {
+      if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
 
-        const data = res.data || []
-        const list = append ? (this.state.dataList || []).concat(data) : data
-        this.setState({ dataList: list, showMore: data.length >= pageSize })
+      const data = res.data || []
+      const list = append ? (this.state.dataList || []).concat(data) : data
+      this.setState({ dataList: list, showMore: data.length >= pageSize })
 
-        const files = list.map((item) => item.filePath)
-        if (files.length > 0) {
-          $(this._$downloadForm).find('input').val(files.join(','))
-          $(this._$downloadForm).find('button').attr('disabled', false)
-        }
+      const files = list.map((item) => item.id)
+      if (files.length > 0) {
+        $(this._$downloadForm).find('input').val(files.join(','))
+        $(this._$downloadForm).find('button').attr('disabled', false)
       }
-    )
+    })
   }
 
   componentDidMount() {
-    // v3.1 有权限才加载
-    $.get(`/files/check-readable?id=${this.props.mainid}`, (res) => {
-      if (res.data === true) {
-        this.fetchData()
-      } else {
-        this.setState({ dataList: [] }, () => {})
-      }
+    // v3.1 有读取权限才加载
+    $.get(`/app/entity/check-readable?id=${this.props.mainid}`, (res) => {
+      if (res.data === true) this.fetchData()
+      else this.setState({ dataList: [] }, () => {})
     })
   }
 }
