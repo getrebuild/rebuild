@@ -67,6 +67,9 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
     // 支持多记录导出，会合并到一个 Excel 文件
     final private List<ID> recordIdMulti;
+    // 默认合并到一个文件，也可以打包成一个 zip
+    @Setter
+    private boolean recordIdMultiMerge2Sheets = true;
 
     private Set<String> inShapeVars;
     private Map<String, Object> recordMainHolder;
@@ -284,8 +287,29 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
     public File generate() {
         if (recordIdMulti == null) return superGenerate();
 
-        // init
         File targetFile = super.getTargetFile();
+
+        // v4.1-b5
+        if (!recordIdMultiMerge2Sheets) {
+            String reportName = DataReportManager.getPrettyReportName(reportId, recordId, targetFile.getName());
+            ReportsFile reportsFile = new ReportsFile(
+                    String.format("RBREPORT-%d", System.currentTimeMillis()), reportName);
+
+            for (ID recordId : this.recordIdMulti) {
+                this.recordId = recordId;
+                this.phNumber = 1;
+                this.phValues.clear();
+
+                try {
+                    reportsFile.addFile(superGenerate());
+                } catch (IOException e) {
+                    throw new ReportsException(e);
+                }
+            }
+            return reportsFile;
+        }
+
+        // init
         try {
             FileUtils.copyFile(templateFile, targetFile);
         } catch (IOException e) {
