@@ -323,7 +323,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 // 1.复制模板
                 Sheet newSheet = wb.cloneSheet(0);
                 newSheetAt = wb.getSheetIndex(newSheet);
-                String newSheetName = "A" + newSheetAt;
+                String newSheetName = "" + newSheetAt;
                 try {
                     wb.setSheetName(newSheetAt, newSheetName);
                 } catch (IllegalArgumentException ignored) {
