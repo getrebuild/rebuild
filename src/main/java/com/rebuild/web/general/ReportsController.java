@@ -28,6 +28,7 @@ import com.rebuild.core.service.dataimport.DataExporter;
 import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.service.datareport.EasyExcelGenerator33;
+import com.rebuild.core.service.datareport.ReportsFile;
 import com.rebuild.core.service.datareport.TemplateFile;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.KVStorage;
@@ -95,6 +96,10 @@ public class ReportsController extends BaseController {
         final ID recordId = recordIds[0];
         final TemplateFile tt = DataReportManager.instance.buildTemplateFile(reportId);
 
+        String typeOutput = getParameter(request, "output");
+        boolean isHtml = "HTML".equalsIgnoreCase(typeOutput);
+        boolean isPdf = "PDF".equalsIgnoreCase(typeOutput);
+
         File output = null;
         try {
             EasyExcelGenerator reportGenerator;
@@ -109,19 +114,22 @@ public class ReportsController extends BaseController {
                 reportGenerator = EasyExcelGenerator.create(reportId, Arrays.asList(recordIds));
             }
 
-            if (reportGenerator != null) {
-                // vars in URL
-                String vars = getParameter(request, "vars");
-                if (JSONUtils.wellFormat(vars) && reportGenerator instanceof EasyExcelGenerator33) {
-                    JSONObject varsJson = JSON.parseObject(vars);
-                    if (varsJson != null) {
-                        ((EasyExcelGenerator33) reportGenerator).setTempVars(varsJson.getInnerMap());
-                    }
+            // vars in URL
+            String vars = getParameter(request, "vars");
+            if (JSONUtils.wellFormat(vars) && reportGenerator instanceof EasyExcelGenerator33) {
+                JSONObject varsJson = JSON.parseObject(vars);
+                if (varsJson != null) {
+                    ((EasyExcelGenerator33) reportGenerator).setTempVars(varsJson.getInnerMap());
                 }
-
-                reportGenerator.setReportId(reportId);
-                output = reportGenerator.generate();
             }
+
+            // 4.1-b5 压缩包
+            if (isPdf && recordIds.length > 1 && reportGenerator instanceof EasyExcelGenerator33) {
+                ((EasyExcelGenerator33) reportGenerator).setRecordIdMultiMerge2Sheets(false);
+            }
+
+            reportGenerator.setReportId(reportId);
+            output = reportGenerator.generate();
 
             CommonsLog.createLog(CommonsLog.TYPE_REPORT,
                     getRequestUser(request), reportId, StringUtils.join(recordIds, ";"));
@@ -138,9 +146,10 @@ public class ReportsController extends BaseController {
 
         RbAssert.is(output != null, Language.L("无法输出报表，请检查报表模板是否有误"));
 
-        String typeOutput = getParameter(request, "output");
-        boolean isHtml = "HTML".equalsIgnoreCase(typeOutput);
-        boolean isPdf = "PDF".equalsIgnoreCase(typeOutput);
+        if (output instanceof ReportsFile) {
+            output = ((ReportsFile) output).toZip(isPdf);
+        }
+
         // 请求预览
         boolean forcePreview = isHtml || getBoolParameter(request, "preview");
         String fileName = DataReportManager.getPrettyReportName(reportId, recordId, output.getName());
@@ -170,8 +179,7 @@ public class ReportsController extends BaseController {
             writeSuccess(response, data);
 
         } else if ("preview".equalsIgnoreCase(typeOutput)) {
-            String fileUrl = String.format(
-                    "/filex/download/%s?temp=yes&_onceToken=%s&attname=%s",
+            String fileUrl = String.format("/filex/download/%s?temp=yes&_onceToken=%s&attname=%s",
                     CodecUtils.urlEncode(output.getName()), AuthTokenManager.generateOnceToken(null), CodecUtils.urlEncode(fileName));
             fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
 
@@ -187,10 +195,10 @@ public class ReportsController extends BaseController {
         }
         return null;
     }
-    
+
     // 列表数据导出
 
-    @RequestMapping({ "export/submit", "report/export-list" })
+    @RequestMapping({"export/submit", "report/export-list"})
     public RespBody export(@PathVariable String entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
         RbAssert.isAllow(
@@ -222,7 +230,7 @@ public class ReportsController extends BaseController {
             }
 
             RbAssert.is(output != null, Language.L("无法输出报表，请检查报表模板是否有误"));
-            
+
             String fileName;
             if (useReport == null) {
                 fileName = String.format("%s-%s.%s",
@@ -237,7 +245,7 @@ public class ReportsController extends BaseController {
                     String.format("%s:%d", entity, exporter.getExportCount()));
 
             JSONObject data = JSONUtils.toJSONObject(
-                    new String[] { "fileKey", "fileName" }, new Object[] { output.getName(), fileName });
+                    new String[]{"fileKey", "fileName"}, new Object[]{output.getName(), fileName});
             if (AppUtils.isMobile(request)) putFileUrl(data);
 
             return RespBody.ok(data);

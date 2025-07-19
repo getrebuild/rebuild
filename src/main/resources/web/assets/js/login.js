@@ -24,7 +24,7 @@ $(document).ready(() => {
 
   setTimeout(function () {
     if ($.browser.mobile) {
-      const $a = $('.h5-mobile>a')
+      const $a = $('.h5-mobile>a:eq(0)')
       $a.parent().html('<a href="' + $a.attr('href') + '">' + $a.html() + '</a>')
     } else {
       $('.h5-mobile img').attr('src', `${rb.baseUrl}/commons/barcode/render-qr?w=296&t=${$encode($('.h5-mobile a').attr('href'))}`)
@@ -97,9 +97,27 @@ $(document).ready(() => {
       RbAlert.create($L('是否需要切换到手机版访问？'), {
         onConfirm: function () {
           this.hide()
-          location.href = $('.h5-mobile a').attr('href')
+          location.href = $('.h5-mobile>a:eq(0)').attr('href')
         },
       })
     }, 500)
   }
+})
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault()
+  let deferredPrompt = e
+
+  $('.h5-mobile.pwa')
+    .removeClass('hide')
+    .find('>a')
+    .on('click', () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt()
+        deferredPrompt.userChoice.then((choiceRes) => {
+          console.log('', choiceRes.outcome)
+          deferredPrompt = null
+        })
+      }
+    })
 })

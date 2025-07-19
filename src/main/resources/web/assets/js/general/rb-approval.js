@@ -1020,7 +1020,7 @@ class EditableFieldForms extends React.Component {
           item.isFull = true
           delete item.referenceQuickNew // v35
           // eslint-disable-next-line no-undef
-          return detectElement(item, entity.entity)
+          return detectElement(item)
         })}
       </LiteForm>
     )

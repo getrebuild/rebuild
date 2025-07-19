@@ -35,6 +35,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author devezhao
@@ -49,6 +51,15 @@ public class UseThemeController extends BaseController {
     public static final String[] THEMES = {
             "default", "dark", "red", "green", "blue", "blue2", "purple"
     };
+    public static final Map<String, String> THEMES_COLORS = new HashMap<>();
+    static {
+        THEMES_COLORS.put("dark", "#2d333b");
+        THEMES_COLORS.put("red", "#f7615e");
+        THEMES_COLORS.put("green", "#16a88f");
+        THEMES_COLORS.put("blue", "#4873c0");
+        THEMES_COLORS.put("blue2", "#38adff");
+        THEMES_COLORS.put("purple", "#9b52de");
+    }
 
     @GetMapping("use-theme")
     public void useTheme(HttpServletRequest request, HttpServletResponse response) throws IOException {
