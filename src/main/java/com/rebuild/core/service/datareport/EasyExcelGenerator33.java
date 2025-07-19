@@ -291,17 +291,16 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
         // v4.1-b5
         if (!recordIdMultiMerge2Sheets) {
-            String reportName = DataReportManager.getPrettyReportName(reportId, recordId, targetFile.getName());
-            ReportsFile reportsFile = new ReportsFile(
-                    String.format("RBREPORT-%d", System.currentTimeMillis()), reportName);
+            ReportsFile reportsFile = new ReportsFile();
 
             for (ID recordId : this.recordIdMulti) {
                 this.recordId = recordId;
                 this.phNumber = 1;
                 this.phValues.clear();
 
+                String reportName = DataReportManager.getPrettyReportName(reportId, recordId, templateFile.getName());
                 try {
-                    reportsFile.addFile(superGenerate());
+                    reportsFile.addFile(superGenerate(), reportName);
                 } catch (IOException e) {
                     throw new ReportsException(e);
                 }
