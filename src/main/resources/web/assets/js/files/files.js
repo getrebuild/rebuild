@@ -37,7 +37,8 @@ class FilesList extends React.Component {
               </div>
               <div className="detail">
                 <a
-                  onClick={() => {
+                  onClick={(e) => {
+                    $stopEvent(e, true)
                     $.get(`/files/check-readable?id=${item.id}`, (res) => {
                       if (res.data) RbPreview.create(res.data)
                       else RbHighbar.create($L('你没有查看此文件的权限'))
