@@ -53,7 +53,8 @@ public class MetaEntityService extends InternalPersistService implements AdminGu
                 "MetaField", "PickList", "LayoutConfig", "FilterConfig", "ShareAccess", "ChartConfig",
                 "Attachment", "AutoFillinConfig", "RobotTriggerConfig", "RobotApprovalConfig",
                 "DataReportConfig", "TransformConfig", "ExtformConfig",
-                "NreferenceItem", "RobotSopConfig"
+                "NreferenceItem", "RobotSopConfig",
+                "RolePrivileges"
         };
 
         int del = 0;
@@ -64,6 +65,10 @@ public class MetaEntityService extends InternalPersistService implements AdminGu
                     confEntity.getPrimaryField().getName(), confEntity.getName());
             if (confEntity.getEntityCode() == EntityHelper.Attachment) {
                 sql += delEntity.getEntityCode();
+            } else if (confEntity.getEntityCode() == EntityHelper.RolePrivileges) {
+                // v4.1-b6
+                sql += delEntity.getEntityCode();
+                sql = sql.replace("belongEntity", "entity");
             } else {
                 sql += String.format("'%s'", delEntity.getName());
 
