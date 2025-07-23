@@ -19,6 +19,7 @@ import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.ExcelUtils;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OkHttpUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -124,9 +125,11 @@ public class OnlyOffice {
 
     /**
      * @param filepath
+     * @param editorConfig
      * @return
+     * @see com.rebuild.web.commons.FileDownloader
      */
-    public static Object[] buildPreviewParams(String filepath) {
+    public static Object[] buildPreviewParams(String filepath, JSONObject editorConfig) {
         getOoServer();
         final String ooJwt = RebuildConfiguration.get(OnlyofficeJwt);
 
@@ -142,20 +145,22 @@ public class OnlyOffice {
         if (CommonsUtils.isExternalUrl(filepath)) {
             document.put("url", filepath);
         } else {
-            boolean temp = filepath.startsWith("/temp/");
-            if (temp) filepath = filepath.substring(6);
-
+            if (filepath.startsWith("/")) filepath = filepath.substring(1);
             String fileUrl = String.format("/filex/download/%s?_csrfToken=%s",
-                    filepath,
-                    AuthTokenManager.generateCsrfToken(90));
-            if (temp) fileUrl += "&temp=yes";
+                    filepath, AuthTokenManager.generateCsrfToken(90));
             fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
             document.put("url", fileUrl);
+        }
+
+        // 编辑需要
+        if ("edit".equals(editorConfig.getString("mode"))) {
+            document.put("permissions", JSONUtils.toJSONObject("edit", true));
         }
 
         // Token
         String tokenIfNeed = StringUtils.isBlank(ooJwt) ? null : JWT.create()
                 .setPayload("document", document)
+                .setPayload("editorConfig", editorConfig)
                 .setKey(ooJwt.getBytes(UTF_8))
                 .sign();
 

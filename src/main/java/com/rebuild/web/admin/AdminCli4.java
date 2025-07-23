@@ -18,7 +18,6 @@ import com.rebuild.core.support.setup.DatafileBackup;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.core.support.setup.SimpleEntity;
 import com.rebuild.utils.AES;
-import com.rebuild.web.RebuildWebConfigurer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -28,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.rebuild.web.admin.ConfigurationController.clearConfigurationByPrefix;
 
 /**
  * @author devezhao
@@ -154,25 +155,25 @@ public class AdminCli4 {
         String name = commands[1];
         try {
             if ("clean-qiniu".equals(name)) {
-                removeItems("Storage");
+                clearConfigurationByPrefix("Storage");
                 return SUCCESS;
             } else if ("clean-sms".equals(name)) {
-                removeItems("Sms");
+                clearConfigurationByPrefix("Sms");
                 return SUCCESS;
             } else if ("clean-email".equals(name)) {
-                removeItems("Mail");
+                clearConfigurationByPrefix("Mail");
                 return SUCCESS;
             } else if ("clean-wxwork".equals(name)) {
-                removeItems("Wxwork");
+                clearConfigurationByPrefix("Wxwork");
                 return SUCCESS;
             } else if ("clean-dingtalk".equals(name)) {
-                removeItems("Dingtalk");
+                clearConfigurationByPrefix("Dingtalk");
                 return SUCCESS;
             } else if ("clean-feishu".equals(name)) {
-                removeItems("Feishu");
+                clearConfigurationByPrefix("Feishu");
                 return SUCCESS;
             } else if ("clean-aibot".equals(name)) {
-                removeItems("Aibot");
+                clearConfigurationByPrefix("Aibot");
                 return SUCCESS;
             }
 
@@ -200,13 +201,6 @@ public class AdminCli4 {
         } catch (IllegalArgumentException ex) {
             return "WRAN: Bad arguments [1] : " + name;
         }
-    }
-
-    private void removeItems(String itemPrefix) {
-        for (ConfigurationItem i : ConfigurationItem.values()) {
-            if (i.name().startsWith(itemPrefix)) RebuildConfiguration.set(i, RebuildConfiguration.SETNULL);
-        }
-        Application.getBean(RebuildWebConfigurer.class).init();
     }
 
     /**

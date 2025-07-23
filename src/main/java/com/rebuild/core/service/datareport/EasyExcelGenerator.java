@@ -93,7 +93,7 @@ public class EasyExcelGenerator extends SetUser {
     protected Integer writeSheetAt = null;
     protected ID recordId;
     @Setter
-    private ID reportId;
+    protected ID reportId;
 
     protected int phNumber = 1;
     protected Map<String, Object> phValues = new HashMap<>();

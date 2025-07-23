@@ -95,7 +95,8 @@ public class FormDesignController extends BaseController {
                 fieldRecord.setString("fieldLabel", newLabel);
             }
             if (newNullable != null && newNullable != fieldEasy.isNullable()) {
-                fieldRecord.setBoolean("nullable", newNullable);
+                // fix:v4.1 非内建才可改
+                if (!fieldEasy.isBuiltin()) fieldRecord.setBoolean("nullable", newNullable);
             }
 
             if (!fieldRecord.isEmpty()) willUpdates.add(fieldRecord);

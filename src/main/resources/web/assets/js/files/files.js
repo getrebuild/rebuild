@@ -25,7 +25,7 @@ class FilesList extends React.Component {
         {(this.state.files || []).map((item) => {
           const checked = currentActive.includes(item.id)
           return (
-            <div key={`file-${item.id}`} className={`file-list-item ${checked ? 'active' : ''}`} onClick={(e) => this._handleClick(e, item.id)}>
+            <div key={item.id} className={`file-list-item ${checked ? 'active' : ''}`} onClick={(e) => this._handleClick(e, item.id)}>
               <div className="check">
                 <div className="custom-control custom-checkbox m-0">
                   <input className="custom-control-input" type="checkbox" checked={checked === true} readOnly />
@@ -36,8 +36,16 @@ class FilesList extends React.Component {
                 <i className="file-icon" data-type={item.fileType || '?'} />
               </div>
               <div className="detail">
-                <a onClick={(e) => previewFile(e, item.filePath, item.relatedRecord ? item.relatedRecord[0] : null)} title={$L('预览')}>
-                  {$fileCutName(item.filePath)}
+                <a
+                  onClick={(e) => {
+                    $stopEvent(e, true)
+                    $.get(`/files/check-readable?id=${item.id}`, (res) => {
+                      if (res.data) RbPreview.create(res.data)
+                      else RbHighbar.create($L('你没有查看此文件的权限'))
+                    })
+                  }}
+                  title={$L('预览')}>
+                  {item.fileName}
                 </a>
                 <div className="extras">
                   <span className="fsize">{item.fileSize}</span>
@@ -115,19 +123,6 @@ class FilesList extends React.Component {
     const s = this.state.currentActive
     if ((s || []).length === 0) RbHighbar.create($L('未选中任何文件'))
     else return s
-  }
-}
-
-// 文件预览
-const previewFile = function (e, path, checkId) {
-  $stopEvent(e)
-  if (checkId) {
-    $.get(`/files/check-readable?id=${checkId}`, (res) => {
-      if (res.data) RbPreview.create(path)
-      else RbHighbar.error($L('你没有查看此文件的权限'))
-    })
-  } else {
-    RbPreview.create(path)
   }
 }
 

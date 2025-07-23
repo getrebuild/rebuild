@@ -451,14 +451,27 @@ class FileShare extends RbModalHandler {
 
   componentDidMount() {
     $(this._dlg._rbmodal).css({ zIndex: 1099 })
-    this._changeTime()
+
+    this._filePath = this.props.file
+    if ($regex.isId(this.props.file)) {
+      $.get(`/files/check-readable?id=${this.props.file}`, (res) => {
+        if (res.data) {
+          this._filePath = res.data
+          this._changeTime()
+        } else {
+          RbHighbar.create($L('你没有查看此文件的权限'))
+        }
+      })
+    } else {
+      this._changeTime()
+    }
   }
 
   _changeTime = (e) => {
     const t = e ? ~~e.target.dataset.time : EXPIRES_TIME[0][0]
     if (this.state.time === t) return
     this.setState({ time: t }, () => {
-      $.get(`/filex/make-share?url=${$encode(this.props.file)}&time=${t}&shareUrl=${$encode(this.__shareUrl)}`, (res) => {
+      $.get(`/filex/make-share?url=${$encode(this._filePath)}&time=${t}&shareUrl=${$encode(this.__shareUrl)}`, (res) => {
         this.__shareUrl = (res.data || {}).shareUrl
         this.setState({ shareUrl: this.__shareUrl })
 

@@ -895,7 +895,7 @@ class LiteFormModal extends RbModalHandler {
     }
 
     // v4.1 这里支持修改引用字段（仅单个字段时）
-    if (fields.length === 1 && fields[0].includes('.')) {
+    if (Array.isArray(fields) && fields.length === 1 && typeof fields[0] === 'string' && fields[0].includes('.')) {
       $.get(`/commons/frontjs/reffield-editable?id=${entityOrId}&reffield=${fields[0]}`, (res) => {
         if (res.error_code === 0) {
           LiteFormModal.create(res.data.id, [res.data.field], title, onHandleSave)

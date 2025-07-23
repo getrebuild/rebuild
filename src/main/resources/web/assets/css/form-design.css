@@ -342,6 +342,7 @@ form.field-attr label > span {
   font-size: 15px;
   color: #999;
   display: none;
+  transform: translateY(1px);
 }
 
 .table.table-p tr:hover a.easy-control {

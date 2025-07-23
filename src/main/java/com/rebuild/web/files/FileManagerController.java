@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.files;
 
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -14,6 +15,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.files.BatchDownload;
 import com.rebuild.core.service.files.FilesHelper;
@@ -76,7 +78,7 @@ public class FileManagerController extends BaseController {
         final ID user = getRequestUser(request);
         String[] files = getParameter(request, "ids", "").split(",");
 
-        Set<ID> willDeletes = new HashSet<>();
+        Set<ID> willDeleteIds = new HashSet<>();
         for (String file : files) {
             if (!ID.isId(file)) continue;
 
@@ -84,11 +86,10 @@ public class FileManagerController extends BaseController {
             if (!FilesHelper.isFileManageable(user, fileId)) {
                 return RespBody.errorl("无权删除他人文件");
             }
-
-            willDeletes.add(fileId);
+            willDeleteIds.add(fileId);
         }
 
-        Application.getCommonsService().delete(willDeletes.toArray(new ID[0]));
+        Application.getCommonsService().delete(willDeleteIds.toArray(new ID[0]));
         return RespBody.ok();
     }
 
@@ -108,11 +109,8 @@ public class FileManagerController extends BaseController {
             }
 
             Record r = EntityHelper.forUpdate(fileId, user);
-            if (inFolder == null) {
-                r.setNull("inFolder");
-            } else {
-                r.setID("inFolder", inFolder);
-            }
+            if (inFolder == null) r.setNull("inFolder");
+            else r.setID("inFolder", inFolder);
             fileRecords.add(r);
         }
 
@@ -120,38 +118,48 @@ public class FileManagerController extends BaseController {
         return RespBody.ok();
     }
 
-    // TODO 更严格的文件访问权限检查
     @RequestMapping("check-readable")
-    public RespBody checkReadable(@IdParam ID recordOrFileId, HttpServletRequest request) {
-        final ID user = getRequestUser(request);
-        final int entityCode = recordOrFileId.getEntityCode();
+    public RespBody checkReadable(@IdParam ID fileId, HttpServletRequest request) {
+        String filePath = checkFileReadable(fileId, getRequestUser(request));
+        return filePath == null ? RespBody.error() : RespBody.ok(filePath);
+    }
 
-        boolean readable;
+    // 是否可读取文件
+    static String checkFileReadable(ID fileId, ID user) {
+        Object[] file = Application.getQueryFactory().uniqueNoFilter(fileId, "filePath,relatedRecord,belongEntity");
+        if (file == null) return null;
+        if (UserHelper.isAdmin(user)) return (String) file[0];
+
         // 文件
-        if (entityCode == EntityHelper.Attachment) {
-            readable = FilesHelper.isFileAccessable(user, recordOrFileId);
-        } else {
-            // 附件
-            if (entityCode == EntityHelper.Feeds || entityCode == EntityHelper.FeedsComment) {
-                readable = FeedsHelper.checkReadable(recordOrFileId, user);
-            } else if (entityCode == EntityHelper.ProjectTask || entityCode == EntityHelper.ProjectTaskComment) {
-                readable = ProjectHelper.checkReadable(recordOrFileId, user);
-            } else {
-                readable = Application.getPrivilegesManager().allowRead(user, recordOrFileId);
-            }
+        if ((int) file[2] <= 0) {
+            if (FilesHelper.isFileAccessable(user, fileId)) return (String) file[0];
+            else return null;
         }
 
-        return RespBody.ok(readable);
+        // 附件
+        final ID recordId = (ID) file[1];
+        if (recordId == null) return null;
+
+        int entityCode = recordId.getEntityCode();
+        boolean readable;
+        if (entityCode == EntityHelper.Feeds || entityCode == EntityHelper.FeedsComment) {
+            readable = FeedsHelper.checkReadable(recordId, user);
+        } else if (entityCode == EntityHelper.ProjectTask || entityCode == EntityHelper.ProjectTaskComment) {
+            readable = ProjectHelper.checkReadable(recordId, user);
+        } else {
+            readable = Application.getPrivilegesManager().allowRead(user, recordId);
+        }
+        return readable ? (String) file[0] : null;
     }
 
     @PostMapping("batch-download")
-    public void batchDownload(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    public void downloadBatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         final String files = req.getParameter("files");
 
-        List<String> filePaths = new ArrayList<>();
-        Collections.addAll(filePaths, files.split(","));
+        List<String> filesList = new ArrayList<>();
+        Collections.addAll(filesList, files.split(","));
 
-        BatchDownload bd = new BatchDownload(filePaths);
+        BatchDownload bd = new BatchDownload(filesList);
         TaskExecutors.run(bd);
 
         File zipName = bd.getDestZip();
@@ -162,9 +170,28 @@ public class FileManagerController extends BaseController {
         }
     }
 
+    @RequestMapping("download")
+    public void download(@IdParam ID fileId, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String filePath = checkFileReadable(fileId, getRequestUser(req));
+        if (filePath == null) {
+            resp.sendError(HttpStatus.FORBIDDEN.value(), Language.L("你没有查看此文件的权限"));
+        } else {
+            String fileUrl = CodecUtils.urlEncode(filePath);
+            fileUrl = fileUrl.replace("%2F", "/");
+            fileUrl = String.format("../filex/download/%s?attname=%s",
+                    fileUrl, CodecUtils.urlEncode(QiniuCloud.parseFileName(filePath)));
+            resp.sendRedirect(fileUrl);
+        }
+    }
+
     @PostMapping("file-edit")
     public RespBody fileEdit(HttpServletRequest req) throws IOException {
+        final ID user = getRequestUser(req);
         final ID fileId = getIdParameter(req, "id");
+        if (!FilesHelper.isFileManageable(user, fileId)) {
+            return RespBody.errorl("无权修改他人文件");
+        }
+
         final String newName = getParameterNotNull(req, "newName");
 
         Object[] o = Application.getQueryFactory().uniqueNoFilter(fileId, "filePath");
@@ -187,7 +214,7 @@ public class FileManagerController extends BaseController {
             FileUtils.moveFile(destTmp, dest);
         }
 
-        Record r = EntityHelper.forUpdate(fileId, getRequestUser(req));
+        Record r = EntityHelper.forUpdate(fileId, user);
         r.setString("filePath", newFilePath);
         r.setString("fileName", newName);
         String ext = FilenameUtils.getExtension(newName);

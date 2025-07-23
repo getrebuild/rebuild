@@ -51,7 +51,11 @@ class Setup extends React.Component {
               )}
 
               {(this.state.installState === 10 || this.state.installState === 11) && (
-                <div className="protips text-dark animated fadeIn delay-1s link mt-4">{WrapHtml($L('首次使用？强烈建议阅读 [5分钟快速上手](https://getrebuild.com/learn/quick-start)'))}</div>
+                <div className="quick-tip animated fadeIn delay-1s link mt-4">
+                  <a href="https://getrebuild.com/learn/quick-start" target="_blank">
+                    {$L('首次使用？强烈建议阅读5分钟快速上手')}
+                  </a>
+                </div>
               )}
             </div>
           </div>

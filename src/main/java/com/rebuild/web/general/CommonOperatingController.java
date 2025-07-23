@@ -177,6 +177,12 @@ public class CommonOperatingController extends BaseController {
         return StringUtils.join(fs, ",");
     }
 
+    @RequestMapping("check-readable")
+    public RespBody checkReadable(@IdParam ID recordId, HttpServletRequest request) {
+        boolean r = Application.getPrivilegesManager().allowRead(getRequestUser(request), recordId);
+        return RespBody.ok(r);
+    }
+
     /**
      * 保存记录
      *

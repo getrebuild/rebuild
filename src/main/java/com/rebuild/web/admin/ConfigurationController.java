@@ -458,6 +458,11 @@ public class ConfigurationController extends BaseController {
 
     @PostMapping("integration/aibot")
     public RespBody postIntegrationAibot(@RequestBody JSONObject data) {
+        if (data.getBooleanValue("__clear__")) {
+            clearConfigurationByPrefix("Aibot");
+            return RespBody.ok();
+        }
+
         setValues(data);
         Application.getBean(RebuildWebConfigurer.class).init();
         return RespBody.ok();
@@ -500,6 +505,18 @@ public class ConfigurationController extends BaseController {
                 log.error("Invalid item : {} = {}", e.getKey(), e.getValue(), ex);
             }
         }
+    }
+
+    /**
+     * 清空配置
+     *
+     * @param itemPrefix
+     */
+    public static void clearConfigurationByPrefix(String itemPrefix) {
+        for (ConfigurationItem i : ConfigurationItem.values()) {
+            if (i.name().startsWith(itemPrefix)) RebuildConfiguration.set(i, RebuildConfiguration.SETNULL);
+        }
+        Application.getBean(RebuildWebConfigurer.class).init();
     }
 
     // --

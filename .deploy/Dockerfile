@@ -1,5 +1,7 @@
 FROM amazoncorretto:11-alpine
 
+USER root
+
 RUN apk add ttf-dejavu
 RUN apk add wget
 

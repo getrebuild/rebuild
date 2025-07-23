@@ -28,6 +28,12 @@ public class InternalPermission {
     public static final Permission DELETE_BEFORE = new BizzPermission("DELETE_BEFORE", 0, false);
 
     /**
+     * 更新前触发的动作
+     * @see com.rebuild.core.service.trigger.TriggerWhen#UPDATE_BEFORE
+     */
+    public static final Permission UPDATE_BEFORE = new BizzPermission("UPDATE_BEFORE", 0, false);
+
+    /**
      * 审批
      */
     public static final Permission APPROVAL = new BizzPermission("APPROVAL", 0, false);

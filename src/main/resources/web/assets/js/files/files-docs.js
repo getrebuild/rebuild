@@ -422,15 +422,19 @@ class FileEditDlg extends RbFormHandler {
   state = { ...this.props }
 
   render() {
-    let fileName = this.props.file.filePath
-    fileName = fileName ? $fileCutName(fileName) : null
+    const file = this.props.file
     return (
-      <RbModal title={$L('编辑文件')} ref={(c) => (this._dlg = c)} disposeOnHide>
+      <RbModal title={$L('修改文件')} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('文件名称')}</label>
             <div className="col-sm-7">
-              <input className="form-control form-control-sm" defaultValue={fileName} ref={(c) => (this._$fileName = c)} />
+              <input className="form-control form-control-sm" defaultValue={file.fileName} ref={(c) => (this._$fileName = c)} />
+              <p className="form-text bosskey-show">
+                <a href={`${rb.baseUrl}/commons/file-editor?src=${file.id}`} target="_blank">
+                  {$L('在线编辑')} (LAB)
+                </a>
+              </p>
             </div>
           </div>
           <div className="form-group row footer">
@@ -476,10 +480,10 @@ class FilesList4Docs extends FilesList {
     return (
       <div className="info position-relative">
         <span className="fop-action">
-          <a title={$L('编辑')} onClick={(e) => this._handleEdit(item, e)}>
+          <a title={$L('修改')} onClick={(e) => this._handleEdit(item, e)}>
             <i className="icon zmdi zmdi-edit up-1" />
           </a>
-          <a title={$L('下载')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$encode(item.fileName)}`} target="_blank">
+          <a title={$L('下载')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/files/download?id=${item.id}`} target="_blank">
             <i className="icon zmdi zmdi-download fs-17" />
           </a>
           {rb.fileSharable && (
@@ -500,7 +504,7 @@ class FilesList4Docs extends FilesList {
   _handleShare(item, e) {
     $stopEvent(e)
     // eslint-disable-next-line react/jsx-no-undef
-    renderRbcomp(<FileShare file={item.filePath} />)
+    renderRbcomp(<FileShare file={item.id} />)
   }
 }
 

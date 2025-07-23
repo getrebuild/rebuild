@@ -395,19 +395,19 @@ public class FormsBuilder extends FormsManager {
 
         // Check and clean
         for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
-            JSONObject el = (JSONObject) iter.next();
-            String fieldName = el.getString("field");
+            JSONObject field = (JSONObject) iter.next();
+            String fieldName = field.getString("field");
             if (DIVIDER_LINE.equalsIgnoreCase(fieldName)) continue;
             if (REFFORM_LINE.equalsIgnoreCase(fieldName)) {
                 // v3.6
                 if (viewModel && recordData != null) {
-                    String reffield = el.getString("reffield");
+                    String reffield = field.getString("reffield");
                     Object v = recordData.getObjectValue(reffield);
                     if (v == null && entity.containsField(reffield)) {
                         v = Application.getQueryFactory().unique(recordData.getPrimary(), reffield)[0];
                     }
                     if (v != null) {
-                        el.put("refvalue", new Object[]{ v, entity.getField(reffield).getReferenceEntity().getName() });
+                        field.put("refvalue", new Object[]{ v, entity.getField(reffield).getReferenceEntity().getName() });
                     }
                 }
                 continue;
@@ -422,18 +422,18 @@ public class FormsBuilder extends FormsManager {
             // v2.2 高级控制
             // v3.8.4 视图下也有效（单字段编辑也算编辑）
             if (useAdvControl) {
-                Object hiddenOnCreate = el.remove("hiddenOnCreate");
-                Object hiddenOnUpdate = el.remove("hiddenOnUpdate");
+                Object hiddenOnCreate = field.remove("hiddenOnCreate");
+                Object hiddenOnUpdate = field.remove("hiddenOnUpdate");
                 if (hiddenOnCreate == null) {
-                    Object displayOnCreate39 = el.remove("displayOnCreate");
-                    Object displayOnUpdate39 = el.remove("displayOnUpdate");
+                    Object displayOnCreate39 = field.remove("displayOnCreate");
+                    Object displayOnUpdate39 = field.remove("displayOnUpdate");
                     if (displayOnCreate39 != null && !(Boolean) displayOnCreate39) hiddenOnCreate = true;
                     if (displayOnUpdate39 != null && !(Boolean) displayOnUpdate39) hiddenOnUpdate = true;
                 }
-                final Object requiredOnCreate = el.remove("requiredOnCreate");
-                final Object requiredOnUpdate = el.remove("requiredOnUpdate");
-                final Object readonlyOnCreate = el.remove("readonlyOnCreate");
-                final Object readonlyOnUpdate = el.remove("readonlyOnUpdate");
+                final Object requiredOnCreate = field.remove("requiredOnCreate");
+                final Object requiredOnUpdate = field.remove("requiredOnUpdate");
+                final Object readonlyOnCreate = field.remove("readonlyOnCreate");
+                final Object readonlyOnUpdate = field.remove("readonlyOnUpdate");
                 // fix v3.3.4 跟随主记录新建/更新
                 boolean isNewState = isNew;
                 if (entity.getMainEntity() != null) {
@@ -457,108 +457,109 @@ public class FormsBuilder extends FormsManager {
                 }
                 // 必填
                 if (requiredOnCreate != null && (Boolean) requiredOnCreate && isNewState) {
-                    el.put("nullable", false);
+                    field.put("nullable", false);
                 }
                 if (requiredOnUpdate != null && (Boolean) requiredOnUpdate && !isNewState) {
-                    el.put("nullable", false);
+                    field.put("nullable", false);
                 }
                 // 只读 v3.6
                 if (readonlyOnCreate != null && (Boolean) readonlyOnCreate && isNewState) {
-                    el.put("readonly", true);
+                    field.put("readonly", true);
                 }
                 if (readonlyOnUpdate != null && (Boolean) readonlyOnUpdate && !isNewState) {
-                    el.put("readonly", true);
+                    field.put("readonly", true);
                 }
             }
 
             // 自动只读的
-            final boolean roViaAuto = el.getBooleanValue("readonly");
+            final boolean roViaAuto = field.getBooleanValue("readonly");
 
             final Field fieldMeta = entity.getField(fieldName);
             final EasyField easyField = EasyMetaFactory.valueOf(fieldMeta);
             final DisplayType dt = easyField.getDisplayType();
-            el.put("label", easyField.getLabel());
-            el.put("type", dt.name());
-            el.put("readonly", (!isNew && !fieldMeta.isUpdatable()) || roViaAuto);
+            field.put("label", easyField.getLabel());
+            field.put("type", dt.name());
+            field.put("readonly", (!isNew && !fieldMeta.isUpdatable()) || roViaAuto);
+            field.put("entity", entity.getName());
 
             // 优先使用指定值
-            final Boolean nullable = el.getBoolean("nullable");
+            final Boolean nullable = field.getBoolean("nullable");
             if (nullable != null) {
-                el.put("nullable", nullable);
+                field.put("nullable", nullable);
             } else {
-                el.put("nullable", fieldMeta.isNullable());
+                field.put("nullable", fieldMeta.isNullable());
             }
 
             // 字段扩展配置 FieldExtConfigProps
             JSONObject fieldExtAttrs = easyField.getExtraAttrs(true);
-            el.putAll(fieldExtAttrs);
+            field.putAll(fieldExtAttrs);
 
             // 不同字段类型的处理
 
             if (dt == DisplayType.PICKLIST) {
                 JSONArray options = PickListManager.instance.getPickList(fieldMeta);
-                el.put("options", options);
+                field.put("options", options);
             } else if (dt == DisplayType.STATE) {
                 JSONArray options = StateManager.instance.getStateOptions(fieldMeta);
-                el.put("options", options);
-                el.remove(EasyFieldConfigProps.STATE_CLASS);
+                field.put("options", options);
+                field.remove(EasyFieldConfigProps.STATE_CLASS);
             } else if (dt == DisplayType.MULTISELECT) {
                 JSONArray options = MultiSelectManager.instance.getSelectList(fieldMeta);
-                el.put("options", options);
+                field.put("options", options);
             } else if (dt == DisplayType.TAG) {
-                el.put("options", ObjectUtils.defaultIfNull(el.remove("tagList"), JSONUtils.EMPTY_ARRAY));
+                field.put("options", ObjectUtils.defaultIfNull(field.remove("tagList"), JSONUtils.EMPTY_ARRAY));
             } else if (dt == DisplayType.DATETIME) {
                 String format = StringUtils.defaultIfBlank(
                         easyField.getExtraAttr(EasyFieldConfigProps.DATETIME_FORMAT), dt.getDefaultFormat());
-                el.put(EasyFieldConfigProps.DATETIME_FORMAT, format);
+                field.put(EasyFieldConfigProps.DATETIME_FORMAT, format);
             } else if (dt == DisplayType.DATE) {
                 String format = StringUtils.defaultIfBlank(
                         easyField.getExtraAttr(EasyFieldConfigProps.DATE_FORMAT), dt.getDefaultFormat());
-                el.put(EasyFieldConfigProps.DATE_FORMAT, format);
+                field.put(EasyFieldConfigProps.DATE_FORMAT, format);
             } else if (dt == DisplayType.TIME) {
                 String format = StringUtils.defaultIfBlank(
                         easyField.getExtraAttr(EasyFieldConfigProps.TIME_FORMAT), dt.getDefaultFormat());
-                el.put(EasyFieldConfigProps.TIME_FORMAT, format);
+                field.put(EasyFieldConfigProps.TIME_FORMAT, format);
             } else if (dt == DisplayType.CLASSIFICATION) {
-                el.put("openLevel", ClassificationManager.instance.getOpenLevel(fieldMeta));
+                field.put("openLevel", ClassificationManager.instance.getOpenLevel(fieldMeta));
             } else if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
                 Entity refEntity = fieldMeta.getReferenceEntity();
-                boolean quickNew = el.getBooleanValue(EasyFieldConfigProps.REFERENCE_QUICKNEW);
+                boolean quickNew = field.getBooleanValue(EasyFieldConfigProps.REFERENCE_QUICKNEW);
                 if (quickNew) {
-                    el.put(EasyFieldConfigProps.REFERENCE_QUICKNEW,
+                    field.put(EasyFieldConfigProps.REFERENCE_QUICKNEW,
                             Application.getPrivilegesManager().allowCreate(user, refEntity.getEntityCode()));
-                    el.put("referenceEntity", EasyMetaFactory.toJSON(refEntity));
+                    field.put("referenceEntity", EasyMetaFactory.toJSON(refEntity));
                 }
 
                 if (dt == DisplayType.REFERENCE && License.isRbvAttached()) {
-                    el.put("fillinWithFormData", true);
+                    field.put("fillinWithFormData", true);
                 }
             }
 
             // 新建记录
             if (isNew) {
                 if (!fieldMeta.isCreatable()) {
-                    el.put("readonly", true);
+                    field.put("readonly", true);
                     switch (fieldName) {
                         case EntityHelper.CreatedOn:
                         case EntityHelper.ModifiedOn:
-                            el.put("value", CalendarUtils.getUTCDateTimeFormat().format(now));
+                            field.put("value", CalendarUtils.getUTCDateTimeFormat().format(now));
                             break;
                         case EntityHelper.CreatedBy:
                         case EntityHelper.ModifiedBy:
                         case EntityHelper.OwningUser:
-                            el.put("value", FieldValueHelper.wrapMixValue(formUser.getId(), formUser.getFullName()));
+                            field.put("value", FieldValueHelper.wrapMixValue(formUser.getId(), formUser.getFullName()));
                             break;
                         case EntityHelper.OwningDept:
                             Department dept = formUser.getOwningDept();
                             Assert.notNull(dept, "Department of user is unset : " + formUser.getId());
-                            el.put("value", FieldValueHelper.wrapMixValue((ID) dept.getIdentity(), dept.getName()));
+                            field.put("value", FieldValueHelper.wrapMixValue((ID) dept.getIdentity(), dept.getName()));
                             break;
                         case EntityHelper.ApprovalId:
-                            el.put("value", FieldValueHelper.wrapMixValue(null, Language.L("未提交")));
+                            field.put("value", FieldValueHelper.wrapMixValue(null, Language.L("未提交")));
                             break;
                         case EntityHelper.ApprovalState:
-                            el.put("value", ApprovalState.DRAFT.getState());
+                            field.put("value", ApprovalState.DRAFT.getState());
                             break;
                         default:
                             break;
@@ -566,12 +567,12 @@ public class FormsBuilder extends FormsManager {
                 }
 
                 // 默认值
-                if (el.get("value") == null) {
+                if (field.get("value") == null) {
                     if (dt == DisplayType.SERIES
                             || EntityHelper.ApprovalLastTime.equals(fieldName) || EntityHelper.ApprovalLastRemark.equals(fieldName)
                             || EntityHelper.ApprovalLastUser.equals(fieldName) || EntityHelper.ApprovalStepUsers.equals(fieldName)
                             || EntityHelper.ApprovalStepNodeName.equals(fieldName)) {
-                        el.put("readonlyw", READONLYW_RO);
+                        field.put("readonlyw", READONLYW_RO);
                     } else {
                         Object defaultValue = easyField.exprDefaultValue();
                         if (defaultValue != null) {
@@ -580,13 +581,13 @@ public class FormsBuilder extends FormsManager {
                             if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {
                                 defaultValue = EasyDecimal.clearFlaged(defaultValue);
                             }
-                            el.put("value", defaultValue);
+                            field.put("value", defaultValue);
                         }
                     }
                 }
 
                 // 自动值
-                if (roViaAuto && el.get("value") == null) {
+                if (roViaAuto && field.get("value") == null) {
                     if (dt == DisplayType.EMAIL
                             || dt == DisplayType.PHONE
                             || dt == DisplayType.URL
@@ -597,8 +598,8 @@ public class FormsBuilder extends FormsManager {
                             || dt == DisplayType.SERIES
                             || dt == DisplayType.TEXT
                             || dt == DisplayType.NTEXT) {
-                        Integer s = el.getInteger("readonlyw");
-                        if (s == null) el.put("readonlyw", READONLYW_RO);
+                        Integer s = field.getInteger("readonlyw");
+                        if (s == null) field.put("readonlyw", READONLYW_RO);
                     }
                 }
 
@@ -608,7 +609,7 @@ public class FormsBuilder extends FormsManager {
                     ID parentValue = EntityHelper.isUnsavedId(mainid) ? null
                             : getCascadingFieldParentValue(easyField, mainid, true);
                     if (parentValue != null) {
-                        el.put("_cascadingFieldParentValue", parentValue);
+                        field.put("_cascadingFieldParentValue", parentValue);
                     }
                 }
             }
@@ -621,40 +622,40 @@ public class FormsBuilder extends FormsManager {
                     if (!viewModel && (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER)) {
                         value = EasyDecimal.clearFlaged(value);
                     }
-                    el.put("value", value);
+                    field.put("value", value);
                 }
 
                 // 父级级联
                 if ((dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) && recordData.getPrimary() != null) {
                     ID parentValue = getCascadingFieldParentValue(easyField, recordData.getPrimary(), false);
                     if (parentValue != null) {
-                        el.put("_cascadingFieldParentValue", parentValue);
+                        field.put("_cascadingFieldParentValue", parentValue);
                     }
                 }
             }
 
             // Clean
-            el.remove(EasyFieldConfigProps.ADV_PATTERN);
-            el.remove(EasyFieldConfigProps.ADV_DESENSITIZED);
-            el.remove("barcodeFormat");
-            el.remove("seriesFormat");
+            field.remove(EasyFieldConfigProps.ADV_PATTERN);
+            field.remove(EasyFieldConfigProps.ADV_DESENSITIZED);
+            field.remove("barcodeFormat");
+            field.remove("seriesFormat");
 
-            String decimalType = el.getString("decimalType");
+            String decimalType = field.getString("decimalType");
             if (decimalType != null && decimalType.contains("%s")) {
-                el.put("decimalType", decimalType.replace("%s", ""));
+                field.put("decimalType", decimalType.replace("%s", ""));
             }
 
             // v3.8 字段权限
             if (isNew) {
-                if (!fp.isCreatable(fieldMeta, user)) el.put("readonly", true);
+                if (!fp.isCreatable(fieldMeta, user)) field.put("readonly", true);
             } else {
                 // v4.0 保留占位
                 if (!fp.isReadable(fieldMeta, user)) {
-                    el.put("unreadable", true);
-                    el.put("readonly", true);
-                    el.remove("value");
+                    field.put("unreadable", true);
+                    field.put("readonly", true);
+                    field.remove("value");
                 }
-                else if (!fp.isUpdatable(fieldMeta, user)) el.put("readonly", true);
+                else if (!fp.isUpdatable(fieldMeta, user)) field.put("readonly", true);
             }
         }
     }
