@@ -100,7 +100,6 @@ public class FileManagerController extends BaseController {
         } catch (Exception ex) {
             TransactionManual.rollback(tx);
         }
-        
         return RespBody.ok();
     }
 
