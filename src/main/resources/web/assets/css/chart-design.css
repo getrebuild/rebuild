@@ -494,6 +494,10 @@ a.ui-draggable.ui-draggable-dragging {
   margin-left: 5px;
 }
 
+.rbcolors {
+  margin-bottom: 12px;
+}
+
 .J_opt-DATALIST2 input,
 .J_opt-CNMAP select,
 .themeStyle {
