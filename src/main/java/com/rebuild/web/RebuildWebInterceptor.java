@@ -28,6 +28,7 @@ import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.admin.ProtectedAdmin;
+import com.rebuild.web.user.signup.LoginController;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -42,6 +43,8 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
+import static com.rebuild.web.commons.UseThemeController.THEMES_COLORS;
 
 /**
  * 请求拦截
@@ -94,6 +97,12 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         // Lang
         request.setAttribute(WebConstants.LOCALE, requestEntry.getLocale());
         request.setAttribute(WebConstants.$BUNDLE, Application.getLanguage().getBundle(requestEntry.getLocale()));
+        // v4.1 theme
+        String theme = (String) ServletUtils.getSessionAttribute(request, LoginController.SK_USER_THEME);
+        if (theme != null) {
+            theme = THEMES_COLORS.get(theme);
+            if (theme != null) request.setAttribute(WebConstants.THEME_COLOR, theme);
+        }
 
         final String requestUri = requestEntry.getRequestUri();
 

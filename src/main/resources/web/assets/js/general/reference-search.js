@@ -18,15 +18,19 @@ RbList.queryBefore = function (query) {
     query = _RbList_queryBefore(query)
   }
 
-  if (window.__PageConfig.protocolFilter && parent && parent.referenceSearch__dlg && parent.RbFormModal && parent.RbFormModal.__CURRENT35) {
-    const formComp = parent.RbFormModal.__CURRENT35.getFormComp()
-    let varRecord = formComp ? formComp.getFormData() : null
+  const formComp = parent.RbFormModal && parent.RbFormModal.__CURRENT35 ? parent.RbFormModal.__CURRENT35.getFormComp() : null
+  const viewComp = parent.RbViewPage ? parent.RbViewPage._RbViewForm : null
+  if (window.__PageConfig.protocolFilter && parent && parent.referenceSearch__dlg && (formComp || viewComp)) {
+    let varRecord = formComp ? formComp.getFormData() : viewComp ? viewComp.__ViewData : null
     if (varRecord) {
       // FIXME 太长的值过滤
       for (let k in varRecord) {
-        if (varRecord[k] && (varRecord[k] + '').length > 200) delete varRecord[k]
+        if (varRecord[k] && (varRecord[k] + '').length > 100) {
+          console.log('Ignore large value of field :', k, varRecord[k])
+          delete varRecord[k]
+        }
       }
-      query.protocolFilter__varRecord = { 'metadata.entity': formComp.props.entity, ...varRecord }
+      query.protocolFilter__varRecord = { 'metadata.entity': (formComp || viewComp).props.entity, ...varRecord }
     }
   }
   return query

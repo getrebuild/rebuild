@@ -261,7 +261,11 @@ public class RobotTriggerObserver extends OperatingObserver {
                 if (ex instanceof DataValidateException) throw ex;
                 // throw of Aviator 抛出
                 //noinspection ConstantValue
-                if (ex instanceof StandardError) throw new DataValidateException(ex.getLocalizedMessage());
+                if (ex instanceof StandardError) {
+                    String exMsg = StringUtils.defaultIfBlank(ex.getLocalizedMessage(), ex.getMessage());
+                    if (StringUtils.isBlank(exMsg)) exMsg = Language.L("系统繁忙，请稍后重试") + " (StandardError)";
+                    throw new DataValidateException(exMsg);
+                }
             }
 
             log.error("Trigger execution failed : {} << {}", action, context, ex);

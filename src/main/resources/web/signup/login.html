@@ -55,6 +55,9 @@
         text-align: center;
         overflow: hidden;
       }
+      .h5-mobile.pwa .icon {
+        line-height: 26px;
+      }
       .h5-mobile span {
         float: right;
         color: rgb(64, 64, 64);
@@ -163,7 +166,7 @@
                     </a>
                   </div>
                   <div class="row mb-2">
-                    <div class="col">
+                    <div class="col-8">
                       <div class="btn-group dropup h5-mobile fs-0">
                         <a class="dropdown-toggle" data-toggle="dropdown" th:href="${mobileUrl}">
                           <i class="icon zmdi zmdi-smartphone-iphone"></i>
@@ -175,8 +178,14 @@
                           </div>
                         </div>
                       </div>
+                      <div class="btn-group dropup h5-mobile pwa fs-0 ml-2 hide">
+                        <a>
+                          <i class="icon mdi mdi-monitor-arrow-down"></i>
+                          <span class="up-1">[[${bundle.L('放在桌面')}]]</span>
+                        </a>
+                      </div>
                     </div>
-                    <div class="col text-right">
+                    <div class="col-4 text-right pl-0">
                       <div class="btn-group">
                         <a class="select-lang dropdown-toggle" data-toggle="dropdown">
                           <i class="icon zmdi zmdi-globe-alt"></i>

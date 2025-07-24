@@ -194,7 +194,7 @@ public class FilesHelper {
      * @return
      */
     public static boolean isFileAccessable(ID user, ID fileId) {
-        Object[] o = Application.getQueryFactory().uniqueNoFilter(fileId, "folderId");
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(fileId, "inFolder");
         if (o == null) return true;
         return getAccessableFolders(user).contains((ID) o[0]);
     }

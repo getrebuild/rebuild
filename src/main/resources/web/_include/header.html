@@ -4,6 +4,7 @@
   <meta name="renderer" content="webkit" />
   <meta http-equiv="x-ua-compatible" content="IE=edge" />
   <link rel="manifest" th:href="@{/assets/manifest.json}" />
+  <meta name="theme-color" th:content="${themeColor ?:'#4285f4'}" />
   <link rel="shortcut icon" th:href="@{/assets/img/favicon.png}" />
   <link rel="apple-touch-icon" th:href="@{/assets/img/favicon.png}" />
   <th:block th:if="${css != 'none'}">

@@ -25,6 +25,7 @@ import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.service.project.ProjectManager;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -65,7 +66,7 @@ public class FileListController extends BaseController {
             path = ServletUtils.readCookie(request, CK_LASTPATH);
             path = "attachment".equals(path) ? path : "docs";
         }
-        
+
         // 记住最后一次访问的文件类型
         ServletUtils.addCookie(response, CK_LASTPATH, path);
 
@@ -168,7 +169,7 @@ public class FileListController extends BaseController {
             sqlWhere.add(String.format("relatedRecord = '%s'", related));
         }
 
-        String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn,inFolder,relatedRecord from Attachment where (1=1) and (isDeleted = ?)";
+        String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn,inFolder,relatedRecord,fileName from Attachment where (1=1) and (isDeleted = ?)";
         sql = sql.replace("(1=1)", StringUtils.join(sqlWhere.iterator(), " and "));
         if ("size".equals(sort)) {
             sql += " order by fileSize desc";
@@ -188,7 +189,9 @@ public class FileListController extends BaseController {
         for (Object[] o : array) {
             JSONObject item = new JSONObject();
             item.put("id", o[0]);
-            item.put("filePath", o[1]);
+            String fileName = (String) o[8];
+            if (fileName == null) fileName = QiniuCloud.parseFileName((String) o[1]);
+            item.put("fileName", fileName);
             item.put("fileType", o[2]);
             item.put("fileSize", FileUtils.byteCountToDisplaySize(ObjectUtils.toLong(o[3])));
             item.put("uploadBy", new Object[]{o[4], UserHelper.getName((ID) o[4])});

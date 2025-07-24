@@ -43,7 +43,8 @@ public class TransformManager implements ConfigManager {
     // 任何修改都会清空
     private static final Map<Object, Object> WEAK_CACHED = new ConcurrentHashMap<>();
 
-    private TransformManager() { }
+    private TransformManager() {
+    }
 
     /**
      * 前端使用
@@ -65,12 +66,15 @@ public class TransformManager implements ConfigManager {
             String target = cb.getString("target");
             Entity targetEntity = MetadataHelper.getEntity(target);
 
+            // 普通或主实体
             if (targetEntity.getMainEntity() == null) {
-                if (!Application.getPrivilegesManager().allowCreate(user, targetEntity.getEntityCode())) {
+                // 允许创建或更新
+                if (!Application.getPrivilegesManager().allowCreate(user, targetEntity.getEntityCode())
+                        && !Application.getPrivilegesManager().allowUpdate(user, targetEntity.getEntityCode())) {
                     continue;
                 }
             } else {
-                // To 明细
+                // 明细实体-允许更新主记录
                 if (!Application.getPrivilegesManager().allowUpdate(user, targetEntity.getMainEntity().getEntityCode())) {
                     continue;
                 }

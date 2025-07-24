@@ -22,6 +22,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author devezhao
@@ -40,12 +42,18 @@ public class ApiGatewayTest extends TestSupport {
         JSON ret = openApiSDK.get("system-time", null);
         System.out.println("OpenApiSDK response : " + ret);
 
-        // 明文请求
-        String apiUrl = baseUrl + "page-token-verify?appid=" + app[0] + "&sign=" + app[1] + "&token=123";
+        // 请求列表数据
+        Map<String, Object> reqMap = new HashMap<>();
+        reqMap.put("entity", "TestAllFields");
+        reqMap.put("fields", "TestAllFieldsId,TestAllFieldsName,createdOn,createdBy");
+        ret = openApiSDK.get("entity/list", reqMap);
+        System.out.println("OpenApiSDK response (MIX_PARAMS) : " + ret);
+
+        // 明文请求（无需签名）
+        String apiUrl = baseUrl + "page-token-verify?appid=" + app[0] + "&sign=" + app[1] + "&token=PLAINTEXT_REQUEST";
         try {
             ret = openApiSDK.httpGet(apiUrl);
-            System.out.println("OpenApiSDK response (plaintext) : " + ret);
-
+            System.out.println("OpenApiSDK response (PLAINTEXT) : " + ret);
         } catch (IOException ignored) {
         }
     }
@@ -71,6 +79,6 @@ public class ApiGatewayTest extends TestSupport {
         Application.getCommonsService().create(record, false);
 
         RebuildApiManager.instance.clean(appId);
-        return new String[] { appId, appSecret };
+        return new String[]{appId, appSecret};
     }
 }

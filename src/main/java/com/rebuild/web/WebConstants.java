@@ -68,6 +68,11 @@ public class WebConstants {
     public static final String LOCALE = "locale";
 
     /**
+     * v4.1 主题色
+     */
+    public static final String THEME_COLOR = "themeColor";
+
+    /**
      * CSRF-Token
      * @see com.rebuild.api.user.AuthTokenManager#TYPE_CSRF_TOKEN
      */

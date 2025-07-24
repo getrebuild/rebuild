@@ -336,7 +336,7 @@
         <index type="unique" field-list="appId"/>
     </entity>
 
-    <entity name="RebuildApiRequest" type-code="031" description="API 调用日志" queryable="false" parent="false">
+    <entity name="RebuildApiRequest" type-code="031" description="OpenAPI 调用日志" queryable="false" parent="false">
         <field name="requestId" type="primary"/>
         <field name="appId" type="string" max-length="20" nullable="false" updatable="false" description="APPID"/>
         <field name="remoteIp" type="string" max-length="100" nullable="false" updatable="false" description="来源 IP"/>
