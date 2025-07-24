@@ -1247,9 +1247,12 @@ class RbFormText extends RbFormElement {
       )
 
       // fix:4.1-b5 禁用时不触发
-      $(this._fieldValue).on('click', (e) => {
+      $(this._fieldValue).on('click', function (e) {
         const $t = e.target || {}
-        if ($t.disabled || $t.readOnly) $stopEvent(e, true)
+        if ($t.disabled || $t.readOnly) {
+          $stopEvent(e, true)
+          return false
+        }
       })
     }
   }
