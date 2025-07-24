@@ -53,7 +53,7 @@ public class UseThemeController extends BaseController {
     };
     public static final Map<String, String> THEMES_COLORS = new HashMap<>();
     static {
-        THEMES_COLORS.put("dark", "#2d333b");
+        THEMES_COLORS.put("dark", "#1c2128");
         THEMES_COLORS.put("red", "#f7615e");
         THEMES_COLORS.put("green", "#16a88f");
         THEMES_COLORS.put("blue", "#4873c0");
