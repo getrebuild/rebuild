@@ -2281,7 +2281,7 @@ class RbFormReference extends RbFormElement {
                 }
               }
               varRecord['metadata.entity'] = $$$parent.props.entity
-              query.varRecord = $encode(JSON.stringify(varRecord))
+              query.varRecord = JSON.stringify(varRecord)
             }
           }
 
