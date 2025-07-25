@@ -17,6 +17,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-radius: 6px;
 }
 
+.grid-stack .grid-stack-item .grid-stack-item-content > .chart-box {
+  border-radius: 6px;
+}
+
 .grid-stack .grid-stack-item .grid-stack-item-content.high,
 .grid-stack .grid-stack-item .grid-stack-item-content:hover {
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1), 0 16px 24px 0 rgba(81, 129, 228, 0.1);
