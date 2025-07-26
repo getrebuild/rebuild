@@ -1182,8 +1182,12 @@ class RbFormElement extends React.Component {
   // 部分字段有效，且如字段属性为只读，即使填写值也无效
   setReadonly(readonly) {
     this.setState({ readonly: readonly === true }, () => {
-      // fix 4.0.6 只读变为非只读，富附件需初始化
-      this.onEditModeChanged(readonly === true, true)
+      // fix 4.0.6 只读变为非只读，富组件仍需初始化
+      try {
+        this.onEditModeChanged(readonly === true, true)
+      } catch (err) {
+        console.error(err)
+      }
     })
   }
   // TIP 仅表单有效
@@ -1243,9 +1247,12 @@ class RbFormText extends RbFormElement {
       )
 
       // fix:4.1-b5 禁用时不触发
-      $(this._fieldValue).on('click', (e) => {
+      $(this._fieldValue).on('click', function (e) {
         const $t = e.target || {}
-        if ($t.disabled || $t.readOnly) $stopEvent(e, true)
+        if ($t.disabled || $t.readOnly) {
+          $stopEvent(e, true)
+          return false
+        }
       })
     }
   }
@@ -2118,11 +2125,13 @@ class RbFormPickList extends RbFormElement {
 
   onEditModeChanged(destroy, fromReadonly41) {
     if (destroy) {
-      if (fromReadonly41) {
-        this.__select2 && $(this._fieldValue).attr('disabled', true)
+      if (fromReadonly41 && this.__select2) {
+        $(this._fieldValue).attr('disabled', true)
       } else {
         super.onEditModeChanged(destroy)
       }
+    } else if (fromReadonly41 && this.__select2) {
+      $(this._fieldValue).attr('disabled', false)
     } else {
       if (this._isShowRadio39) {
         // Nothings
@@ -2230,6 +2239,7 @@ class RbFormReference extends RbFormElement {
   // fix: 4.0.4 #IC63LN 记录转换时无需回填
   _disableAutoFillin() {
     if (this.props._disableAutoFillin) return true
+
     try {
       // Form
       let $parent = this.props.$$$parent
@@ -2245,11 +2255,13 @@ class RbFormReference extends RbFormElement {
 
   onEditModeChanged(destroy, fromReadonly41) {
     if (destroy) {
-      if (fromReadonly41) {
-        this.__select2 && $(this._fieldValue).attr('disabled', true)
+      if (fromReadonly41 && this.__select2) {
+        $(this._fieldValue).attr('disabled', true)
       } else {
         super.onEditModeChanged(destroy)
       }
+    } else if (fromReadonly41 && this.__select2) {
+      $(this._fieldValue).attr('disabled', false)
     } else {
       this.__select2 = $initReferenceSelect2(this._fieldValue, {
         name: this.props.field,
@@ -2269,7 +2281,7 @@ class RbFormReference extends RbFormElement {
                 }
               }
               varRecord['metadata.entity'] = $$$parent.props.entity
-              query.varRecord = $encode(JSON.stringify(varRecord))
+              query.varRecord = JSON.stringify(varRecord)
             }
           }
 
@@ -2563,8 +2575,8 @@ class RbFormN2NReference extends RbFormReference {
     super.handleChange({ target: { value: val } }, checkValue)
   }
 
-  onEditModeChanged(destroy) {
-    super.onEditModeChanged(destroy)
+  onEditModeChanged(destroy, fromReadonly41) {
+    super.onEditModeChanged(destroy, fromReadonly41)
 
     if (!destroy && this.__select2) {
       this.__select2.on('select2:select', (e) => __addRecentlyUse(e.params.data.id))
@@ -2622,10 +2634,12 @@ class RbFormAnyReference extends RbFormReference {
   }
 
   renderElement() {
+    const _readonly41 = this.state.readonly
+
     return (
       <div className="row">
         <div className="col-4 pr-0">
-          <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)}>
+          <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)} disabled={_readonly41}>
             {(this.state.entities || []).map((item) => {
               return (
                 <option key={item.name} value={item.name}>
@@ -2637,7 +2651,7 @@ class RbFormAnyReference extends RbFormReference {
         </div>
         <div className="col-8 pl-2">
           <div className="input-group has-append">
-            <select className="form-control form-control-sm" ref={(c) => (this._fieldValue = c)} />
+            <select className="form-control form-control-sm" ref={(c) => (this._fieldValue = c)} disabled={_readonly41} />
             {!this.state.readonly && (
               <div className="input-group-append">
                 <button className="btn btn-secondary" type="button" onClick={() => this.showSearcher()}>
@@ -2651,9 +2665,15 @@ class RbFormAnyReference extends RbFormReference {
     )
   }
 
-  onEditModeChanged(destroy) {
+  onEditModeChanged(destroy, fromReadonly41) {
     if (destroy) {
-      super.onEditModeChanged(destroy)
+      if (fromReadonly41 && this.__select2) {
+        $([this._$entity, this._fieldValue]).attr('disabled', true)
+      } else {
+        super.onEditModeChanged(destroy)
+      }
+    } else if (fromReadonly41 && this.__select2) {
+      $([this._$entity, this._fieldValue]).attr('disabled', false)
     } else {
       const iv = this.state.value
       $.get('/commons/metadata/entities?detail=true', (res) => {
@@ -2723,10 +2743,7 @@ class RbFormAnyReference extends RbFormReference {
         })
       })
 
-      if (this.state.readonly) {
-        $(this._$entity).attr('disabled', true)
-        $(this._fieldValue).attr('disabled', true)
-      }
+      this.state.readonly && $([this._$entity, this._fieldValue]).attr('disabled', true)
     }
   }
 
@@ -2735,6 +2752,7 @@ class RbFormAnyReference extends RbFormReference {
 
     if (this.__select2Entity) {
       this.__select2Entity.select2('destroy')
+      this.__select2Entity = null
     }
   }
 
@@ -2786,8 +2804,8 @@ class RbFormClassification extends RbFormElement {
 
   onEditModeChanged(destroy, fromReadonly41) {
     if (destroy) {
-      if (fromReadonly41) {
-        this.__select2 && $(this._fieldValue).attr('disabled', true)
+      if (fromReadonly41 && this.__select2) {
+        $(this._fieldValue).attr('disabled', true)
       } else {
         super.onEditModeChanged(destroy)
         this.__cached = null
@@ -2796,6 +2814,8 @@ class RbFormClassification extends RbFormElement {
           this.__selector = null
         }
       }
+    } else if (fromReadonly41 && this.__select2) {
+      $(this._fieldValue).attr('disabled', false)
     } else {
       this.__select2 = $initReferenceSelect2(this._fieldValue, {
         name: this.props.field,
@@ -2924,11 +2944,13 @@ class RbFormMultiSelect extends RbFormElement {
   onEditModeChanged(destroy, fromReadonly41) {
     if (this._isShowSelect41) {
       if (destroy) {
-        if (fromReadonly41) {
-          this.__select2 && $(this._fieldValue).attr('disabled', true)
+        if (fromReadonly41 && this.__select2) {
+          $(this._fieldValue).attr('disabled', true)
         } else {
           super.onEditModeChanged(destroy)
         }
+      } else if (fromReadonly41 && this.__select2) {
+        $(this._fieldValue).attr('disabled', false)
       } else {
         this.__select2 = $(this._fieldValue).select2({
           placeholder: $L('选择%s', this.props.label),
@@ -3384,12 +3406,14 @@ class RbFormTag extends RbFormElement {
 
   onEditModeChanged(destroy, fromReadonly41) {
     if (destroy) {
-      if (fromReadonly41) {
-        this.__select2 && $(this._fieldValue).attr('disabled', true)
+      if (fromReadonly41 && this.__select2) {
+        $(this._fieldValue).attr('disabled', true)
       } else {
         super.onEditModeChanged(destroy)
         this._initOptions()
       }
+    } else if (fromReadonly41 && this.__select2) {
+      $(this._fieldValue).attr('disabled', false)
     } else {
       this.__select2 = $(this._fieldValue).select2({
         placeholder: this.props.readonlyw > 0 ? this._placeholderw : $L('输入%s', this.props.label),

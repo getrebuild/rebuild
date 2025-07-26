@@ -1221,6 +1221,11 @@ var $getScript = function (url, callback) {
     success: callback,
     dataType: 'script',
     cache: true,
+    complete: function (xhr) {
+      if (!(xhr.status === 200 || xhr.status === 0)) {
+        console.error('Failed to load script:', url, xhr)
+      }
+    },
   })
 }
 

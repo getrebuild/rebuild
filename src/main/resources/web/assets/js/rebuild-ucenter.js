@@ -16,12 +16,6 @@ const UCenter = {
   bind: function () {
     renderRbcomp(<UCenterBind />)
   },
-
-  market: function (c) {
-    $.get('/settings/ucenter/market-query', (res) => {
-      typeof c === 'function' && res.data && c(res.data)
-    })
-  },
 }
 
 class UCenterBind extends RbFormHandler {

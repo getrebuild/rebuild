@@ -17,7 +17,9 @@
 
 相较于传统软件系统，REBUILD 提供了绝佳的灵活性与可控性，可以完全按照企业需求进行量身打造。同时，当系统投入使用一段时间后会遇到业务变化或需求变更，通过 REBUILD 提供的高度可配置化能力，可快速完成需求变更而无需额外投入。
 
-### REBUILD 最适合哪类用户
+### REBUILD 适合哪类用户
+
+REBUILD 适合需要灵活搭建业务系统的企业 IT 团队、缺乏专职开发资源的中小企业、特定业务领域的管理者、从传统系统迁移或升级的企业，或是开发者或技术合作伙伴。
 
 #### 企业 IT 团队
 
@@ -43,10 +45,10 @@
 
 #### 开发者
 
-- 扩展：Java/Spring 二次开发，提供 OpenAPI 集成外部系统
-- 部署：支持 Docker/私有云/本地
+- 扩展：Java/SpringBoot 二次开发，提供 OpenAPI 集成外部系统
+- 部署：支持 Docker 私有云或本地部署
 
-更多详情介绍 [https://getrebuild.com/](https://getrebuild.com/)
+更多详情介绍 [https://getrebuild.com/learn/declaration](https://getrebuild.com/learn/declaration)
 
 ## V4.1 新特性
 
@@ -62,7 +64,7 @@
 8. [优化] 30+ 细节/BUG/安全性更新
 9. ...
 
-更多更新详情请参见 [更新日志](https://getrebuild.com/docs/dev/changelog?v=4.0)
+更多更新详情请参见 [更新日志](https://getrebuild.com/docs/dev/changelog?v=4.1)
 
 ## 在线体验
 
@@ -82,7 +84,7 @@ _生产环境强烈推荐使用此方式 !!!_
 
 下载后解压（集成安装包），通过 `start-rebuild.bat` 或 `start-rebuild.sh` 启动，然后打开浏览器输入 [http://localhost:18080/](http://localhost:18080/) 开始体验。
 
-更多详情请参见 [安装文档](https://getrebuild.com/learn/install)
+或者您也可以 [使用 Docker 安装](https://getrebuild.com/learn/install-use-docker)。更多详情请参见 [安装文档](https://getrebuild.com/learn/install)
 
 ### 2. 通过源码编译
 
