@@ -58,10 +58,4 @@ public class UCenterController extends BaseController {
         res.put("canBind", UserHelper.isSuperAdmin(getRequestUser(request)));
         return RespBody.ok(res);
     }
-
-    @GetMapping("market-query")
-    public RespBody marketQuery41() {
-        JSONObject res = License.siteApi("api/ucenter/market-query");
-        return RespBody.ok(res);
-    }
 }

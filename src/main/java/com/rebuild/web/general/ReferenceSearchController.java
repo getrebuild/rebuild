@@ -85,8 +85,17 @@ public class ReferenceSearchController extends EntityController {
         String varRecord = getParameter(request, "varRecord");
         ProtocolFilterParser fp = new ProtocolFilterParser();
         if (StringUtils.isNotBlank(varRecord)) {
-            varRecord = CodecUtils.urlDecode(varRecord);
-            if (JSONUtils.wellFormat(varRecord)) fp.setVarRecord(JSON.parseObject(varRecord));
+            if (JSONUtils.wellFormat(varRecord)) {
+                fp.setVarRecord(JSON.parseObject(varRecord));
+            } else {
+                // 兼容处理
+                try {
+                    varRecord = CodecUtils.urlDecode(varRecord);
+                } catch (Exception ignored) {}
+                if (JSONUtils.wellFormat(varRecord)) {
+                    fp.setVarRecord(JSON.parseObject(varRecord));
+                }
+            }
         }
         String protocolFilter = fp.parseRef(referenceField.getName() + "." + entity.getName(), cascadingValue);
 

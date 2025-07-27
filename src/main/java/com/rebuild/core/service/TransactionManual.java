@@ -106,7 +106,7 @@ public class TransactionManual {
         }
 
         // 非事物中
-        log.warn("Transaction synchronization is not active, start directly : {}", c);
+        log.debug("Transaction synchronization is not active, start directly : {}", c);
         new Thread(c).start();
     }
 }

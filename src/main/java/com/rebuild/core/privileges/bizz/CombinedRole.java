@@ -129,12 +129,12 @@ public class CombinedRole extends Role {
                 if (p instanceof ZeroPrivileges) continue;
                 System.out.println();
                 System.out.println("Combined Privileges : " + p.getIdentity());
-                System.out.println("M " + roleMain.getPrivileges(p.getIdentity()));
+                System.out.println("MAIN. " + roleMain.getPrivileges(p.getIdentity()));
                 for (Role ra : roleAppends) {
-                    System.out.println("A " + ra.getPrivileges(p.getIdentity()));
+                    System.out.println("APPE. " + ra.getPrivileges(p.getIdentity()));
                 }
                 System.out.println("--");
-                System.out.println("T " + getPrivileges(p.getIdentity()));
+                System.out.println("MERG. " + getPrivileges(p.getIdentity()));
             }
             System.out.println();
         }
@@ -190,11 +190,12 @@ public class CombinedRole extends Role {
         }
 
         // 字段权限
+
         Map<String, Object> useFpDefinition;
         Map<String, Object> aFpDefinition = ((CustomEntityPrivileges) a).getFpDefinition();
         Map<String, Object> bFpDefinition = ((CustomEntityPrivileges) b).getFpDefinition();
         if (aFpDefinition == null || bFpDefinition == null) useFpDefinition = null;
-        else useFpDefinition = aFpDefinition;
+        else useFpDefinition = aFpDefinition;  // 无法比较字段权限高低，因此随便选一个
 
         String definition = StringUtils.join(defs.iterator(), ",");
         return new CustomEntityPrivileges(((EntityPrivileges) a).getEntity(), definition, useCustomFilters, useFpDefinition);

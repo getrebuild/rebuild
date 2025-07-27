@@ -100,6 +100,10 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         // v4.1 theme
         String theme = (String) ServletUtils.getSessionAttribute(request, LoginController.SK_USER_THEME);
         if (theme != null) {
+            if (requestEntry.getRequestUri().contains("/admin/")
+                    || requestEntry.getRequestUri().contains("/admin-")) {
+                theme = "default";
+            }
             theme = THEMES_COLORS.get(theme);
             if (theme != null) request.setAttribute(WebConstants.THEME_COLOR, theme);
         }

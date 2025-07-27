@@ -4286,7 +4286,7 @@ h3.modal-title > .rbv {
 }
 
 .use-theme ul li a.theme-dark {
-  background-color: #2d333b !important;
+  background-color: #1c2128 !important;
 }
 
 .use-theme ul li a.theme-blue {
@@ -4646,10 +4646,6 @@ pre.unstyle {
   content: '\f26b';
   float: right;
   font-size: 1.2rem;
-}
-
-.bg-market {
-  background-image: linear-gradient(45deg, rgb(0, 84, 70), rgb(57, 0, 63), rgb(89, 0, 0)), linear-gradient(45deg, rgb(0, 122, 101), rgb(127, 14, 127), rgb(255, 137, 131));
 }
 
 #gritter-notice-wrapper {
