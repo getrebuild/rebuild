@@ -15,7 +15,8 @@ import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import org.springframework.stereotype.Service;
 
 /**
- * Only for 文件, Not 附件
+ * Only for 文件, Not 附件.
+ * NOTE 只具备回收站功能, 无变更历史记录
  *
  * @author ZHAO
  * @since 2025/7/14

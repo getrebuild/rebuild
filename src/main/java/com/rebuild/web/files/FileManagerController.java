@@ -15,8 +15,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.ServiceSpec;
+import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.files.BatchDownload;
 import com.rebuild.core.service.files.FilesHelper;
@@ -92,10 +93,9 @@ public class FileManagerController extends BaseController {
         }
 
         TransactionStatus tx = TransactionManual.newTransaction();
+        ServiceSpec ss = Application.getService(EntityHelper.Attachment);
         try {
-            for (ID fileId : willDeleteIds) {
-                Application.getService(EntityHelper.Attachment).delete(fileId);
-            }
+            for (ID fileId : willDeleteIds) ss.delete(fileId);
             TransactionManual.commit(tx);
         } catch (Exception ex) {
             TransactionManual.rollback(tx);
