@@ -198,6 +198,12 @@ class DlgMM extends RbAlert {
           <label>{$L('弹窗附加内容')}</label>
           <textarea className="form-control form-control-sm row2x" ref={(c) => (this._$note = c)} placeholder={$L('维护期间系统将无法使用，请及时保存数据！')} />
         </div>
+        <div className="form-group">
+          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+            <input className="custom-control-input" type="checkbox" ref={(c) => (this._$notLogin = c)} />
+            <span className="custom-control-label">{$L('维护时间内禁止登录')}</span>
+          </label>
+        </div>
         <div className="form-group mb-2">
           <button type="button" className="btn btn-danger" onClick={this._onConfirm}>
             {$L('开启')}
@@ -279,6 +285,7 @@ class DlgMM extends RbAlert {
       startTime: $val(this._$startTime),
       endTime: $val(this._$endTime),
       note: $val(this._$note),
+      notLogin: $val(this._$notLogin),
     }
   }
 

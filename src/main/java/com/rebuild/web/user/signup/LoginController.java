@@ -170,11 +170,8 @@ public class LoginController extends LoginAction {
         // v34 维护计划
         if (!UserHelper.isAdmin(loginUser.getId())) {
             ConfigurationController.MaintenanceMode mm = ConfigurationController.getCurrentMm();
-            if (mm != null) {
-                long left = (mm.getStartTime().getTime() - CalendarUtils.now().getTime()) / 1000;
-                if (left <= 300) {
-                    return RespBody.errorl("系统即将开始维护，暂时禁止登录");
-                }
+            if (mm != null && mm.isNotLogin() && mm.getStartTime().compareTo(CalendarUtils.now()) <= 0) {
+                return RespBody.errorl("系统即将开始维护，暂时禁止登录");
             }
         }
 

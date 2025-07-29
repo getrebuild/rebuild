@@ -529,7 +529,7 @@ public class ConfigurationController extends BaseController {
      */
     public static MaintenanceMode getCurrentMm() {
         // 过期
-        if (CURRENT_MM != null && CURRENT_MM.getStartTime().getTime() - CalendarUtils.now().getTime() <= 0) {
+        if (CURRENT_MM != null && CURRENT_MM.getEndTime().compareTo(CalendarUtils.now()) <= 0) {
             CURRENT_MM = null;
         }
         return CURRENT_MM;
@@ -541,6 +541,7 @@ public class ConfigurationController extends BaseController {
         Date startTime;
         Date endTime;
         String note;
+        boolean notLogin;
     }
 
     @GetMapping("systems/maintenance-mode")
