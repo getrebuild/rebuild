@@ -172,7 +172,7 @@ $(document).ready(() => {
     .addClass('zmdi-arrow-left')
 
   // 颜色
-  const $cs = $('.rbcolors')
+  const $cs = $('#useColor')
   RBCOLORS.forEach((c) => {
     $(`<a style="background-color:${c}" data-color="${c}"></a>`).appendTo($cs)
   })
@@ -187,6 +187,17 @@ $(document).ready(() => {
       $cs.find('>a .zmdi').remove()
       render_preview()
     })
+  // 背景
+  const $bs = $('#useBgcolor')
+  $bs.find('>a').on('click', function () {
+    let idx = Math.floor(Math.random() * 100) + 1
+    $('#chart-preview >.chart-box')
+      .removeClass(function (index, className) {
+        return (className.match(/\bgradient-bg-\S+/g) || []).join(' ')
+      })
+      .addClass(`gradient-bg-${idx}`)
+    $(this).attr('data-bgcolor', idx)
+  })
 
   // init
   if (wpc.chartConfig && wpc.chartConfig.axis) {
@@ -215,7 +226,10 @@ $(document).ready(() => {
 
       if (k === 'useColor' && option[k]) {
         $cs.find(`a[data-color="${option[k]}"]`).trigger('click')
-        $('.rbcolors >input').val(option[k])
+        $('#useColor >input').val(option[k])
+      }
+      if (k === 'useBgcolor' && option[k]) {
+        $bs.find('a').attr('data-bgcolor', option[k])
       }
     }
   }
@@ -515,11 +529,15 @@ function build_config() {
     if (name) option[name] = $val(this)
   })
 
-  let color = $('.rbcolors >a>i')
+  let color = $('#useColor >a>i')
   if (color[0]) color = color.parent().data('color') || ''
-  else color = $('.rbcolors >input').val() || ''
+  else color = $('#useColor >input').val() || ''
   option.useColor = color === '#000000' ? null : color
   cfg.option = option
+  // v4.2
+  let bgcolor = $('#useBgcolor >a')
+  if (bgcolor[0]) option.useBgcolor = bgcolor.attr('data-bgcolor')
+  else option.useBgcolor = null
 
   // 排他
   $('input[data-name="showMutliYAxis"]').attr('disabled', option.showHorizontal === true)

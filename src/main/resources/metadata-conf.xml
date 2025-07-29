@@ -223,7 +223,7 @@
         <index field-list="toUser,type,createdOn"/>
     </entity>
 
-    <entity name="Attachment" type-code="023" description="附件" extra-attrs="{icon:'folder'}">
+    <entity name="Attachment" type-code="023" description="附件" name-field="fileName" extra-attrs="{icon:'folder'}">
         <field name="attachmentId" type="primary"/>
         <field name="belongEntity" type="small-int" default-value="0" updatable="false" queryable="false" description="所属实体" />
         <field name="belongField" type="string" max-length="100" updatable="false" queryable="false" description="所属字段"/>

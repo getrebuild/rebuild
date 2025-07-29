@@ -52,7 +52,7 @@ class BaseChart extends React.Component {
     )
 
     return (
-      <div className={`chart-box ${this.props.type} ${this.props.type === 'DATALIST2' && 'DataList'}`} ref={(c) => (this._$box = c)}>
+      <div className={`chart-box ${this.props.type} ${this.state.useBgcolor && `gradient-bg-${this.state.useBgcolor}`} ${this.props.type === 'DATALIST2' && 'DataList'}`} ref={(c) => (this._$box = c)}>
         <div className="chart-head">
           <div className="chart-title text-truncate">{this.state.title}</div>
           {opActions}
@@ -77,8 +77,13 @@ class BaseChart extends React.Component {
     $.post(this.buildDataUrl(), JSON.stringify(this.state.config || {}), (res) => {
       if (this._echarts) this._echarts.dispose()
 
-      if (res.error_code === 0) this.renderChart(res.data)
-      else this.renderError(res.error_msg)
+      if (res.error_code === 0) {
+        this.renderChart(res.data)
+        // v4.2
+        res.data._renderOption && res.data._renderOption.useBgcolor && this.setState({ useBgcolor: res.data._renderOption.useBgcolor })
+      } else {
+        this.renderError(res.error_msg)
+      }
     })
   }
 
@@ -1153,7 +1158,7 @@ class ChartRadar extends BaseChart {
           splitNumber: 4,
           splitArea: {
             areaStyle: {
-              color: ['#fff', '#fff', '#fff', '#fff', '#fff'],
+              // color: ['#fff', '#fff', '#fff', '#fff', '#fff'],
             },
           },
           splitLine: {

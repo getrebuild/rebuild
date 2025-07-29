@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const _ENTITIES = {
   'Feeds': $L('动态'),
   'ProjectTask': $L('任务'),
+  'Attachment': $L('文件'),
 }
 
 $(document).ready(() => {
