@@ -187,12 +187,15 @@ public class LanguageBundle implements JSONable {
     // -- 系统语言
 
     public static final String SYS_LC = "zh_CN";
+
     static final LanguageBundle SYS_BUNDLE = new LanguageBundle() {
         private static final long serialVersionUID = -5127621395095384712L;
+
         @Override
         public String getLocale() {
             return SYS_LC;
         }
+
         @Override
         public String L(String key, Object... placeholders) {
             String lang = getLang(key);

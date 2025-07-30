@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/entity/layout#%E5%88%97%E8%A1%A8%E9%A1%B5%E9%9D%A2" />
+    <title>[[${bundle.L('多语言')}]]</title>
+    <style>
+      #i18nList td {
+        padding-top: 4px;
+        padding-bottom: 4px;
+      }
+      #i18nList td textarea {
+        padding-top: 7px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='entities')}" />
+      <div class="rb-content">
+        <aside class="page-aside">
+          <div class="rb-scroller-aside rb-scroller">
+            <div class="aside-content">
+              <div class="content">
+                <div class="aside-header">
+                  <button class="navbar-toggle collapsed" type="button"><span class="icon zmdi zmdi-caret-down"></span></button>
+                  <span class="title">[[${entityLabel}]]</span>
+                  <p class="description">[[${comments}]]</p>
+                </div>
+              </div>
+              <th:block th:replace="~{/admin/metadata/subnav-entity(active='i18n')}" />
+            </div>
+          </div>
+        </aside>
+        <div class="page-head">
+          <div class="page-head-title">[[${bundle.L('多语言')}]]</div>
+        </div>
+        <div class="main-content container-fluid pt-0">
+          <div class="card card-table">
+            <div class="card-body">
+              <div class="dataTables_wrapper container-fluid">
+                <div class="row rb-datatable-header">
+                  <div class="col-sm-6">
+                    <div class="dataTables_filter">
+                      <div class="input-group input-search">
+                        <input class="form-control" type="text" th:placeholder="${bundle.L('查询')}" />
+                        <span class="input-group-btn">
+                          <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="dataTables_oper">
+                      <div class="btn-group">
+                        <button class="btn btn-light w-auto dropdown-toggle ml-2" type="button" data-toggle="dropdown">
+                          <i class="icon mdi mdi-translate-variant"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right p-0">
+                          <div class="m-3">
+                            <h6>[[${bundle.L('选择翻译语言')}]]</h6>
+                            <label class="custom-control custom-control-sm custom-checkbox mb-2" th:each="L : ${availableLangs}">
+                              <input class="custom-control-input" type="checkbox" th:value="${L[0]}" checked />
+                              <span class="custom-control-label" th:text="${L[1]}"></span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      <button class="btn btn-primary J_save ml-2" type="button">[[${bundle.L('保存')}]]</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="row rb-datatable-body">
+                  <div class="col-sm-12">
+                    <div class="rb-loading rb-loading-active data-list">
+                      <table class="table table-hover table-fixed" id="i18nList">
+                        <thead>
+                          <tr>
+                            <th data-locale="_def">[[${bundle.L('实体')}]]/[[${bundle.L('字段')}]]</th>
+                            <th th:data-locale="${L[0]}" th:text="${L[1]}" th:each="L : ${availableLangs}"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr class="hide">
+                            <td data-locale="_def"></td>
+                            <td th:data-locale="${L[0]}" th:each="L : ${availableLangs}">
+                              <textarea class="form-control form-control-sm row1x" th:placeholder="${bundle.L('默认')}"></textarea>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <th:block th:replace="~{/_include/spinner}" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        id: '[[${entityMetaId}]]',
+        isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
+        entityName: '[[${entityName}]]',
+      }
+    </script>
+    <script th:src="@{/assets/js/metadata/entity-switch.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/entity-i18n.js}" type="text/babel"></script>
+  </body>
+</html>

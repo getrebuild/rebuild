@@ -12,11 +12,13 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.EasyActionManager;
@@ -70,6 +72,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import static com.rebuild.web.commons.LanguageController.putLocales;
 
 /**
  * @author Zixin (RB)
@@ -456,5 +460,45 @@ public class MetaEntityController extends EntityController {
         // 按 label 排序
         res.sort(Comparator.comparing((Object o) -> ((JSONObject) o).getString("label")));
         return res;
+    }
+
+    /**
+     * @param entity
+     * @return
+     * @see com.rebuild.web.admin.LanguageAdminController
+     */
+    @GetMapping("entity/{entity}/i18n")
+    public ModelAndView pageI18n(@PathVariable String entity) {
+        ModelAndView mv = createModelAndView("/admin/metadata/entity-i18n");
+        putLocales(mv, UserContextHolder.getLocale());
+        setEntityBase(mv, entity);
+        return mv;
+    }
+
+    @GetMapping("entity/{entity}/i18n-list")
+    public RespBody listI18n(@PathVariable String entity) {
+        Entity e = MetadataHelper.getEntity(entity);
+        String key = "META." + e.getName();
+        Set<String> locales = Application.getLanguage().availableLocales().keySet();
+
+        List<Map<String, String>> i18nList = new ArrayList<>();
+        i18nList.add(buildI18n(e, key, locales));
+
+        key += ".";
+        for (Field field : MetadataSorter.sortFields(e)) {
+            i18nList.add(buildI18n(field, key + field.getName(), locales));
+        }
+        return RespBody.ok(i18nList);
+    }
+
+    private Map<String, String> buildI18n(BaseMeta entityOrField, String key, Set<String> locales) {
+        key = key.toUpperCase();
+        Map<String, String> i18n = new HashMap<>();
+        i18n.put("_key", key);
+        i18n.put("_def", entityOrField.getDescription());
+        for (String L : locales) {
+            i18n.put(L, Application.getLanguage().getBundle(L).getLang(key));
+        }
+        return i18n;
     }
 }

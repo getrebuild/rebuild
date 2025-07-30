@@ -41,10 +41,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import static com.rebuild.web.commons.LanguageController.putLocales;
 
 /**
  * @author Zixin (RB)
@@ -298,32 +298,5 @@ public class LoginController extends LoginAction {
             return code.equalsIgnoreCase(code2);
         }
         return v;
-    }
-
-    // --
-
-    /**
-     * 可用语言
-     *
-     * @param into
-     * @param currentLocale
-     */
-    public static void putLocales(ModelAndView into, String currentLocale) {
-        String currentLocaleText = null;
-
-        List<String[]> alangs = new ArrayList<>();
-        for (Map.Entry<String, String> lc : Application.getLanguage().availableLocales().entrySet()) {
-            String lcText = lc.getValue();
-            lcText = lcText.split("\\(")[0].trim();
-
-            alangs.add(new String[] { lc.getKey(), lcText });
-
-            if (lc.getKey().equals(currentLocale)) {
-                currentLocaleText = lcText;
-            }
-        }
-
-        into.getModelMap().put("currentLang", currentLocaleText);
-        into.getModelMap().put("availableLangs", alangs);
     }
 }
