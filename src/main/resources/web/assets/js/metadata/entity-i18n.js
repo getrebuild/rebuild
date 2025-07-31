@@ -8,13 +8,26 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const wpc = window.__PageConfig
 
 $(document).ready(() => {
+  $unhideDropdown('.J_show-locales')
+  $('.J_show-locales input').on('click', () => {
+    const $table = $('#i18nList')
+    $table.find('[data-locale]').removeClass('hide')
+
+    let hide = []
+    $('.J_show-locales input:not(:checked)').each(function () {
+      hide.push($(this).val())
+    })
+    hide.forEach((locale) => {
+      $table.find(`[data-locale=${locale}]`).addClass('hide')
+    })
+    $storage.set('i18n-hide', hide.join(';'))
+  })
+
   $.get(`./i18n-list?entity=${wpc.entityName}`, (res) => i18nList(res.data || []))
 
   $('.J_save').on('click', () => {
-    let data = buildI18nList()
-    console.log(data)
-
-    $.post('/admin/i18n/editor-post', JSON.stringify(data), (res) => {
+    const post = buildI18nList()
+    $.post('/admin/i18n/editor-post', JSON.stringify(post), (res) => {
       if (res.error_code === 0) {
         location.reload()
       } else {
@@ -39,6 +52,14 @@ function i18nList(data) {
 
   $('#i18nList').parent().removeClass('rb-loading-active')
   $tmpl.remove()
+
+  // 记住隐藏
+  const hide = $storage.get('i18n-hide')
+  if (hide) {
+    hide.split(';').forEach((locale) => {
+      $(`.J_show-locales input[value=${locale}]`)[0].click()
+    })
+  }
 }
 
 function buildI18nList() {
