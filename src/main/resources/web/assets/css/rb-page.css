@@ -915,6 +915,11 @@ body.view-body {
   margin: 0 0 0 5px;
 }
 
+textarea.row1x {
+  height: 37px !important;
+  resize: none;
+}
+
 textarea.row2x {
   height: 52px !important;
   resize: none;

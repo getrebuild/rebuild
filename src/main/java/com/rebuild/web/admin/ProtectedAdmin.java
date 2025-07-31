@@ -97,6 +97,7 @@ public class ProtectedAdmin {
         EXF("/extform", "外部表单"),
         PRO("/project", "项目"),
         FJS("/frontjs-code", "FrontJS"),
+        I18("/i18n/editor", "多语言"),
         USR("/bizuser/users;bizuser/departments", "部门用户"),
         ROL("/bizuser/role-privileges;/bizuser/role", "角色权限"),
         TEM("/bizuser/teams", "团队"),
