@@ -13,6 +13,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.JSONable;
 import lombok.Data;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
  * 统一请求返回消息体
@@ -72,6 +73,15 @@ public class RespBody implements JSONable {
      */
     public static RespBody error(int errorCode) {
         return error(null, errorCode);
+    }
+
+    /**
+     * @param errorObject
+     * @return
+     */
+    public static RespBody error(Throwable errorObject) {
+        String msg = ExceptionUtils.getRootCauseMessage(errorObject);
+        return error(msg);
     }
 
     /**
