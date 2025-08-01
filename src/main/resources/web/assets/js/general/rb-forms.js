@@ -2481,6 +2481,10 @@ class RbFormReference extends RbFormElement {
       that._ReferenceSearcher.hide()
     }
 
+    // fix:4.1.2 哪个表单打开的
+    window.referenceSearch__form = this.props.$$$parent
+    if (window.referenceSearch__form && window.referenceSearch__form.__ViewData) window.referenceSearch__form = null
+
     let url = this._buildSearcherUrl()
     // v4.1 附加过滤条件字段变量
     if (this.props.referenceDataFilter) url += `&referenceDataFilter=${$random()}`

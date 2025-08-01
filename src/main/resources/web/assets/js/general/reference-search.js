@@ -18,10 +18,10 @@ RbList.queryBefore = function (query) {
     query = _RbList_queryBefore(query)
   }
 
-  const formComp = parent.RbFormModal && parent.RbFormModal.__CURRENT35 ? parent.RbFormModal.__CURRENT35.getFormComp() : null
+  const formComp412 = parent.referenceSearch__form
   const viewComp = parent.RbViewPage ? parent.RbViewPage._RbViewForm : null
-  if (window.__PageConfig.protocolFilter && parent && parent.referenceSearch__dlg && (formComp || viewComp)) {
-    let varRecord = formComp ? formComp.getFormData() : viewComp ? viewComp.__ViewData : null
+  if (window.__PageConfig.protocolFilter && parent.referenceSearch__dlg && (formComp412 || viewComp)) {
+    let varRecord = formComp412 ? formComp412.getFormData() : viewComp ? viewComp.__ViewData : null
     if (varRecord) {
       // FIXME 太长的值过滤
       for (let k in varRecord) {
@@ -30,7 +30,7 @@ RbList.queryBefore = function (query) {
           delete varRecord[k]
         }
       }
-      query.protocolFilter__varRecord = { 'metadata.entity': (formComp || viewComp).props.entity, ...varRecord }
+      query.protocolFilter__varRecord = { 'metadata.entity': (formComp412 || viewComp).props.entity, ...varRecord }
     }
   }
   return query
