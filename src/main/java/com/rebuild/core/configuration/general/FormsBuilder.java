@@ -41,6 +41,7 @@ import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.general.DataListWrapper;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import com.rebuild.utils.JSONUtils;
@@ -397,7 +398,10 @@ public class FormsBuilder extends FormsManager {
         for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
             JSONObject field = (JSONObject) iter.next();
             String fieldName = field.getString("field");
-            if (DIVIDER_LINE.equalsIgnoreCase(fieldName)) continue;
+            if (DIVIDER_LINE.equalsIgnoreCase(fieldName)) {
+                I18nUtils.replaceLP(field, "label");
+                continue;
+            }
             if (REFFORM_LINE.equalsIgnoreCase(fieldName)) {
                 // v3.6
                 if (viewModel && recordData != null) {
@@ -657,6 +661,9 @@ public class FormsBuilder extends FormsManager {
                 }
                 else if (!fp.isUpdatable(fieldMeta, user)) field.put("readonly", true);
             }
+
+            // v4.2
+            I18nUtils.replaceLP(field, "tip");
         }
     }
 

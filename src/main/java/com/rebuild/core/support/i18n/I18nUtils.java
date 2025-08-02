@@ -11,7 +11,6 @@ import cn.devezhao.commons.CalendarUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
@@ -63,19 +62,24 @@ public class I18nUtils {
      * @return
      */
     public static JSON replaceLP(JSON n, String textKey) {
-        JSON clone = JSONUtils.clone(n);
         if (textKey == null) textKey = "text";
 
-        if (clone instanceof JSONObject) {
-            JSONObject o = (JSONObject) clone;
-            o.put(textKey, LP(o.getString(textKey)));
+        if (n instanceof JSONObject) {
+            JSONObject o = (JSONObject) n;
+            String text = o.getString(textKey);
+            if (StringUtils.isBlank(text)) return n;
+
+            o.put(textKey, LP(text));
             return o;
         }
 
-        for (Object item : (JSONArray) clone) {
+        for (Object item : (JSONArray) n) {
             JSONObject o = (JSONObject) item;
+            String text = o.getString(textKey);
+            if (StringUtils.isBlank(text)) continue;
+
             o.put(textKey, LP(o.getString(textKey)));
         }
-        return clone;
+        return n;
     }
 }

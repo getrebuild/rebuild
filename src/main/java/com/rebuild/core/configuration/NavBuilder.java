@@ -135,9 +135,7 @@ public class NavBuilder extends NavManager {
             }
         }
 
-        if (config == null) {
-            config = getLayoutOfNav(user);
-        }
+        if (config == null) config = getLayoutOfNav(user);
 
         if (config == null) {
             JSONArray useDefault = (JSONArray) JSONUtils.clone(NAVS_DEFAULT);
