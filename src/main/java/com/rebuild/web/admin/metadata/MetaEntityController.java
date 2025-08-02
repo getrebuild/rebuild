@@ -43,8 +43,10 @@ import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.RbAssert;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.commons.FileDownloader;
 import lombok.extern.slf4j.Slf4j;
@@ -466,6 +468,9 @@ public class MetaEntityController extends EntityController {
 
     @GetMapping("entity/{entity}/i18n")
     public ModelAndView pageI18n(@PathVariable String entity) {
+        RbAssert.isCommercial(
+                Language.L("免费版不支持多语言功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+
         ModelAndView mv = createModelAndView("/admin/metadata/entity-i18n");
         putLocales(mv, UserContextHolder.getLocale());
         setEntityBase(mv, entity);
