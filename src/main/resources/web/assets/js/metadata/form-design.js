@@ -842,9 +842,9 @@ class DlgNForm extends RbModalHandler {
             </div>
 
             {this.state.detailsFromsAttr && (
-              <div className="form-group row bosskey-show">
-                <label className="col-sm-3 col-form-label text-sm-right">{$L('指定明细实体布局')} (LAB)</label>
-                <div className="col-sm-7" ref={(c) => (this._$detailsFromsAttr = c)}>
+              <div className="form-group row">
+                <label className="col-sm-3 col-form-label text-sm-right">{$L('指定明细实体布局')}</label>
+                <div className="col-sm-8" ref={(c) => (this._$detailsFromsAttr = c)}>
                   {this.state.detailsFromsAttr.map((de) => {
                     return (
                       <div className="row mb-2" key={de[0]}>
@@ -860,7 +860,7 @@ class DlgNForm extends RbModalHandler {
                             })}
                           </select>
                         </div>
-                        <div className="col-4 pl-0 pr-0" style={{ paddingTop: 8 }}>
+                        <div className="col-4 pl-0 pr-0 text-bold" style={{ paddingTop: 8 }}>
                           {de[1]}
                         </div>
                       </div>
@@ -907,8 +907,6 @@ class DlgNForm extends RbModalHandler {
                 let name = $(this).attr('name')
                 $(this).val(detailsFromsAttr[name] || '0')
               })
-            // show
-            $(this._$detailsFromsAttr).parents('.bosskey-show').removeClass('bosskey-show')
           }
         })
       })

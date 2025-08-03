@@ -43,8 +43,10 @@ import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.RbAssert;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.commons.FileDownloader;
 import lombok.extern.slf4j.Slf4j;
@@ -462,13 +464,13 @@ public class MetaEntityController extends EntityController {
         return res;
     }
 
-    /**
-     * @param entity
-     * @return
-     * @see com.rebuild.web.admin.LanguageAdminController
-     */
+    // @see com.rebuild.rbv.admin.LanguageAdminController
+
     @GetMapping("entity/{entity}/i18n")
     public ModelAndView pageI18n(@PathVariable String entity) {
+        RbAssert.isCommercial(
+                Language.L("免费版不支持多语言功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+
         ModelAndView mv = createModelAndView("/admin/metadata/entity-i18n");
         putLocales(mv, UserContextHolder.getLocale());
         setEntityBase(mv, entity);
@@ -482,16 +484,16 @@ public class MetaEntityController extends EntityController {
         Set<String> locales = Application.getLanguage().availableLocales().keySet();
 
         List<Map<String, String>> i18nList = new ArrayList<>();
-        i18nList.add(buildI18n(e, key, locales));
+        i18nList.add(buildI18nItem(e, key, locales));
 
         key += ".";
         for (Field field : MetadataSorter.sortFields(e)) {
-            i18nList.add(buildI18n(field, key + field.getName(), locales));
+            i18nList.add(buildI18nItem(field, key + field.getName(), locales));
         }
         return RespBody.ok(i18nList);
     }
 
-    private Map<String, String> buildI18n(BaseMeta entityOrField, String key, Set<String> locales) {
+    private Map<String, String> buildI18nItem(BaseMeta entityOrField, String key, Set<String> locales) {
         key = key.toUpperCase();
         Map<String, String> i18n = new HashMap<>();
         i18n.put("_key", key);

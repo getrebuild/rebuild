@@ -29,35 +29,42 @@ public class RbvMissingController extends BaseController {
 
     @GetMapping({"/h5app/**"})
     public ModelAndView h5app() {
-        ModelAndView mv = ErrorPageView.createErrorPage(
-                Language.L("免费版不支持手机访问功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
-        mv.getModelMap().put(WebConstants.$BUNDLE, Language.getCurrentBundle());
-        return mv;
+        return errorUnsupport("免费版不支持手机访问功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)");
     }
 
     @GetMapping("/user/login/sso")
     public ModelAndView ssoLogin(HttpServletRequest request) {
-        String error = "dingtalk".equalsIgnoreCase(getParameterNotNull(request, "protocol"))
-                ? Language.L("免费版不支持钉钉集成 [(查看详情)](https://getrebuild.com/docs/rbv-features)")
-                : Language.L("免费版不支持企业微信集成 [(查看详情)](https://getrebuild.com/docs/rbv-features)");
-
-        ModelAndView mv = ErrorPageView.createErrorPage(error);
-        mv.getModelMap().put(WebConstants.$BUNDLE, Language.getCurrentBundle());
-        return mv;
+        String protocol = getParameterNotNull(request, "protocol");
+        String error = "dingtalk".equalsIgnoreCase(protocol)
+                ? "免费版不支持钉钉集成 [(查看详情)](https://getrebuild.com/docs/rbv-features)"
+                : "feishu".equalsIgnoreCase(protocol)
+                    ? "免费版不支持飞书集成 [(查看详情)](https://getrebuild.com/docs/rbv-features)"
+                    : "免费版不支持企业微信集成 [(查看详情)](https://getrebuild.com/docs/rbv-features)";
+        return errorUnsupport(error);
     }
 
     @GetMapping("/admin/robot/sops")
     public ModelAndView sopList() {
-        ModelAndView mv = ErrorPageView.createErrorPage(
-                Language.L("免费版不支持业务进度功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
-        mv.getModelMap().put(WebConstants.$BUNDLE, Language.getCurrentBundle());
-        return mv;
+        return errorUnsupport("免费版不支持业务进度功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)");
     }
 
     @GetMapping("/admin/extforms")
     public ModelAndView extformList() {
-        ModelAndView mv = ErrorPageView.createErrorPage(
-                Language.L("免费版不支持外部表单功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+        return errorUnsupport("免费版不支持外部表单功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)");
+    }
+
+    @GetMapping("/admin/frontjs-code")
+    public ModelAndView frontjs() {
+        return errorUnsupport("免费版不支持 FrontJS 功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)");
+    }
+
+    @GetMapping("/admin/i18n/translation")
+    public ModelAndView i18nList() {
+        return errorUnsupport("免费版不支持多语言功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)");
+    }
+
+    private ModelAndView errorUnsupport(String msg) {
+        ModelAndView mv = ErrorPageView.createErrorPage(msg);
         mv.getModelMap().put(WebConstants.$BUNDLE, Language.getCurrentBundle());
         return mv;
     }

@@ -124,7 +124,8 @@ public class LanguageBundle implements JSONable {
     }
 
     /**
-     * 数据库
+     * 从数据库
+     *
      * @param bundle
      */
     private void appendDatabase(JSONObject bundle) {

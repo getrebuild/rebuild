@@ -64,7 +64,7 @@ public class FormsManager extends BaseLayoutManager {
         if (recordOrLayoutId != null && recordOrLayoutId.getEntityCode() == EntityHelper.LayoutConfig) {
             use = findConfigBean(allConfs, recordOrLayoutId);
             if (use == null) {
-                log.warn("Spec layout not longer exists : {}", recordOrLayoutId);
+                log.warn("Spec form-layout not longer exists : {}", recordOrLayoutId);
                 recordOrLayoutId = null;
             }
         }

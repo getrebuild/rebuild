@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const wpc = window.__PageConfig
 
 $(document).ready(() => {
+  // 选择语言
   $unhideDropdown('.J_show-locales')
   $('.J_show-locales input').on('click', () => {
     const $table = $('#i18nList')
@@ -23,55 +24,51 @@ $(document).ready(() => {
     $storage.set('i18n-hide', hide.join(';'))
   })
 
-  $.get(`./i18n-list?entity=${wpc.entityName}`, (res) => i18nList(res.data || []))
+  // LIST
+  $.get(`./i18n-list?entity=${wpc.entityName}`, (res) => renderI18nList(res.data || []))
 
-  $('.J_save').on('click', () => {
+  // SAVE
+  const $btn = $('.J_save').on('click', () => {
+    $btn.button('loading')
     const post = buildI18nList()
-    $.post('/admin/i18n/editor-post', JSON.stringify(post), (res) => {
-      if (res.error_code === 0) {
-        location.reload()
-      } else {
-        RbHighbar.error(res.error_msg)
-      }
+    $.post('/admin/i18n/translation-post', JSON.stringify(post), (res) => {
+      if (res.error_code === 0) location.reload()
+      else RbHighbar.error(res.error_msg)
     })
   })
 })
 
-function i18nList(data) {
+function renderI18nList(data) {
   const $tbody = $('#i18nList tbody')
   const $tmpl = $('#i18nList tr.hide')
 
   data.forEach((item) => {
     const $tr = $tmpl.clone().removeClass('hide').appendTo($tbody)
-    for (let k in item) {
-      const $td = $tr.find(`td[data-locale=${k}]`)
-      if (k === '_def') $td.text(item[k]).attr('data-key', item._key)
-      else $td.find('textarea').val(item[k])
+    for (let L in item) {
+      const $td = $tr.find(`td[data-locale=${L}]`)
+      if (L === '_def') $td.text(item[L]).attr('data-key', item._key)
+      else $td.find('textarea').val(item[L])
     }
   })
 
   $('#i18nList').parent().removeClass('rb-loading-active')
-  $tmpl.remove()
 
   // 记住隐藏
   const hide = $storage.get('i18n-hide')
-  if (hide) {
-    hide.split(';').forEach((locale) => {
-      $(`.J_show-locales input[value=${locale}]`)[0].click()
-    })
-  }
+  hide && hide.split(';').forEach((L) => $(`.J_show-locales input[value=${L}]`)[0].click())
 }
 
 function buildI18nList() {
   let data = []
   $('#i18nList tbody tr').each(function () {
     const $tr = $(this)
-    const key = $tr.find('td[data-key]').data('key')
+    if ($tr.hasClass('hide')) return
 
+    let key = $tr.find('td[data-key]').data('key')
     $tr.find('textarea').each(function () {
+      const L = $(this).parent().data('locale')
       const text = $(this).val()
-      const locale = $(this).parent().data('locale')
-      data.push([locale, key, text || null])
+      data.push([L, key, text || null])
     })
   })
   return data
