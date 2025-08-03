@@ -35,6 +35,7 @@ import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,6 +53,7 @@ import java.util.Map;
  * @author Zixin (RB)
  * @since 08/19/2018
  */
+@Slf4j
 @RestController
 @RequestMapping("/admin/entity/")
 public class MetaFieldController extends BaseController {
@@ -202,7 +204,8 @@ public class MetaFieldController extends BaseController {
             return RespBody.ok(fieldName);
 
         } catch (Exception ex) {
-            return RespBody.error(ex.getLocalizedMessage());
+            log.error("field-new", ex);
+            return RespBody.error(ex);
         }
     }
 

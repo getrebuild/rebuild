@@ -229,7 +229,7 @@ public class MetaEntityController extends EntityController {
             return RespBody.ok(entityName);
         } catch (Exception ex) {
             log.error("entity-new", ex);
-            return RespBody.error(ex.getLocalizedMessage());
+            return RespBody.error(ex);
         }
     }
 
@@ -277,7 +277,7 @@ public class MetaEntityController extends EntityController {
 
         } catch (Exception ex) {
             log.error("entity-drop", ex);
-            return RespBody.error(ex.getLocalizedMessage());
+            return RespBody.error(ex);
         }
     }
 
@@ -296,7 +296,7 @@ public class MetaEntityController extends EntityController {
 
         } catch (Exception ex) {
             log.error("entity-truncate", ex);
-            return RespBody.error(ex.getLocalizedMessage());
+            return RespBody.error(ex);
         }
     }
 
@@ -356,7 +356,7 @@ public class MetaEntityController extends EntityController {
             return RespBody.ok(entityName);
         } catch (Exception ex) {
             log.error("entity-copy", ex);
-            return RespBody.error(ex.getLocalizedMessage());
+            return RespBody.error(ex);
         }
     }
 
