@@ -12,6 +12,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.approval.ApprovalFields2Schema;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.DatabaseBackup;
 import com.rebuild.core.support.setup.DatafileBackup;
@@ -44,6 +45,7 @@ public class AdminCli4 {
     private static final String C_AES = "aes";
     private static final String C_CLEAN_APPROVAL = "clean-approval";
     private static final String C_ADD_TESTENTITY = "add-testentity";
+    private static final String C_CHK_SCHEMAS = "chk-schemas";
 
     private static final String SUCCESS = "OK";
 
@@ -79,10 +81,11 @@ public class AdminCli4 {
                         " \ncache [clean|get] [KEY]" +
                         " \nsyscfg NAME [VALUE]" +
                         " \nsyscfg clean-qiniu|clean-sms|clean-email|clean-wxwork|clean-dingtalk|clean-feishu|clean-aibot" +
-                        " \nbackup [database|datafile]" +
+                        " \nbackup [database|datafile|conf]" +
                         " \naes [decrypt] VALUE" +
                         " \nclean-approval ENTITY" +
-                        " \nadd-testentity";
+                        " \nadd-testentity" +
+                        " \nchk-schemas";
                 break;
             }
             case C_CACHE: {
@@ -107,6 +110,10 @@ public class AdminCli4 {
             }
             case C_ADD_TESTENTITY : {
                 result = this.execAddTestentity();
+                break;
+            }
+            case C_CHK_SCHEMAS: {
+                result = this.execChkSchemas();
                 break;
             }
             default: {
@@ -213,13 +220,19 @@ public class AdminCli4 {
 
         List<String> result = new ArrayList<>(2);
         try {
-            if (type == null || "database".equals(type)) {
-                File backup = new DatabaseBackup().backup();
-                result.add("Backup database : " + backup);
+            if ("conf".equals(type)) {
+                File backup = RbvFunction.call().dumpRebuildConf();
+                result.add("Backup conf : " + backup);
             }
-            if (type == null || "datafile".equals(type)) {
-                File backup = new DatafileBackup().backup();
-                result.add("Backup datafile : " + backup);
+            else {
+                if (type == null || "database".equals(type)) {
+                    File backup = new DatabaseBackup().backup();
+                    result.add("Backup database : " + backup);
+                }
+                if (type == null || "datafile".equals(type)) {
+                    File backup = new DatafileBackup().backup();
+                    result.add("Backup datafile : " + backup);
+                }
             }
 
             return result.isEmpty() ? "WRAN: Nothing to backup" : StringUtils.join(result, "\n");
@@ -269,5 +282,14 @@ public class AdminCli4 {
     private String execAddTestentity() {
         boolean o = new SimpleEntity().create(true, true, true);
         return o ? "OK" : "WRAN: Cannot create:" + SimpleEntity.NAME;
+    }
+
+    /**
+     *
+     * @return
+     */
+    private String execChkSchemas() {
+        RbvFunction.call().checkSchemas();
+        return "OK";
     }
 }
