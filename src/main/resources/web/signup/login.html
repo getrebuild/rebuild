@@ -192,7 +192,7 @@
                           <span>[[${currentLang}]]</span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right">
-                          <a class="dropdown-item" th:each="lang : ${availableLangs}" th:href="${'?locale=' + lang[0]}">[[${lang[1]}]]</a>
+                          <a class="dropdown-item" th:each="L : ${availableLangs}" th:href="${'?locale=' + L[0]}">[[${L[1]}]]</a>
                         </div>
                       </div>
                     </div>
