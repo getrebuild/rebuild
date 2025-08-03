@@ -35,6 +35,7 @@ import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.CharSet;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 
 import java.text.MessageFormat;
 import java.util.Collection;
@@ -280,6 +281,13 @@ public class Field2Schema extends SetUser {
         }
 
         String physicalName = StringHelper.hyphenate(fieldName).toUpperCase();
+        // fix:4.1.2 物理名称重复
+        Object[] de = Application.createQueryNoFilter(
+                "select fieldId from MetaField where belongEntity = ? and physicalName = ?")
+                .setParameter(1, entity.getName())
+                .setParameter(2, physicalName)
+                .unique();
+        if (de != null) physicalName += RandomUtils.nextInt(8888) + 1000;
 
         Record recordOfField = EntityHelper.forNew(EntityHelper.MetaField, getUser());
         recordOfField.setString("belongEntity", entity.getName());

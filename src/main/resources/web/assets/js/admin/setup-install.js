@@ -115,13 +115,16 @@ class RbWelcome extends React.Component {
         <div className="input-sn">
           <a
             className="text-primary"
-            onClick={() => {
-              $('.input-sn>a').addClass('hide')
-              $('.input-sn>input').removeClass('hide')[0].focus()
+            onClick={(e) => {
+              $(e.target).remove()
+              $('.input-sn .hide').removeClass('hide')[0].focus()
             }}>
             {$L('我有商业授权码')}
           </a>
           <input className="form-control form-control-sm hide" maxLength="30" placeholder={$L('(无授权码无需填写)')} />
+          <a className="mt-1 hide" href="https://getrebuild.com/learn/declaration#%E5%95%86%E4%B8%9A%E6%8E%88%E6%9D%83" target="_blank">
+            {$L('什么是商业授权码')}
+          </a>
         </div>
       </div>
     )
