@@ -173,6 +173,7 @@ class ClassificationSelector extends React.Component {
 
 window.referenceSearch__call = function (selected) {}
 window.referenceSearch__dlg
+window.referenceSearch__form // fix:4.1.2 哪个表单打开的
 // see `reference-search.html`
 class ReferenceSearcher extends RbModal {
   renderContent() {

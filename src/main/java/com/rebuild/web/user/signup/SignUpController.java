@@ -68,7 +68,7 @@ public class SignUpController extends BaseController {
     @GetMapping("signup")
     public ModelAndView pageSignup(HttpServletResponse response) throws IOException {
         if (!RebuildConfiguration.getBool(ConfigurationItem.OpenSignUp)) {
-            response.sendError(400, Language.L("管理员未开放公开注册"));
+            response.sendError(400, Language.L("公开注册未开放，请联系管理员创建账号"));
             return null;
         }
         return createModelAndView("/signup/signup");

@@ -2083,13 +2083,18 @@ class RbFormPickList extends RbFormElement {
         options.push({ id: props.value, text: '[DELETED]' })
       }
     }
-    this._options = options
+    this._options = options ? options.filter((item) => !item.hide) : []
     this._isShowRadio39 = props.showStyle === '10'
     this._htmlid = `${props.field}-${$random()}-`
   }
 
   renderElement() {
+    if (this._options.length === 0) {
+      return <div className="form-control-plaintext text-danger">{$L('未配置')}</div>
+    }
+
     const _readonly37 = this.state.readonly
+
     if (this._isShowRadio39) {
       return (
         <div ref={(c) => (this._fieldValue = c)} className="mt-1">
@@ -2120,7 +2125,7 @@ class RbFormPickList extends RbFormElement {
   }
 
   renderViewElement() {
-    return super.renderViewElement(__findOptionText(this.state.options, this.state.value, true))
+    return super.renderViewElement(__findOptionText(this.props.options, this.state.value, true))
   }
 
   onEditModeChanged(destroy, fromReadonly41) {
@@ -2475,6 +2480,10 @@ class RbFormReference extends RbFormElement {
       that.showSearcher_call(selected, that)
       that._ReferenceSearcher.hide()
     }
+
+    // fix:4.1.2 哪个表单打开的
+    window.referenceSearch__form = this.props.$$$parent
+    if (window.referenceSearch__form && window.referenceSearch__form.__ViewData) window.referenceSearch__form = null
 
     let url = this._buildSearcherUrl()
     // v4.1 附加过滤条件字段变量
@@ -2888,10 +2897,11 @@ class RbFormMultiSelect extends RbFormElement {
     super(props)
     this._htmlid = `${props.field}-${$random()}_`
     this._isShowSelect41 = props.showStyle === '10'
+    this._options = props.options ? props.options.filter((item) => !item.hide) : []
   }
 
   renderElement() {
-    if ((this.props.options || []).length === 0) {
+    if (this._options.length === 0) {
       return <div className="form-control-plaintext text-danger">{$L('未配置')}</div>
     }
 
@@ -2901,7 +2911,7 @@ class RbFormMultiSelect extends RbFormElement {
     if (this._isShowSelect41) {
       return (
         <select className="form-control form-control-sm" multiple ref={(c) => (this._fieldValue = c)} disabled={_readonly37}>
-          {this.props.options.map((item) => {
+          {this._options.map((item) => {
             return (
               <option key={item.mask} value={item.mask} disabled={$isSysMask(item.text)}>
                 {item.text}
@@ -2914,7 +2924,7 @@ class RbFormMultiSelect extends RbFormElement {
 
     return (
       <div className="mt-1" ref={(c) => (this._fieldValue__wrap = c)}>
-        {this.props.options.map((item) => {
+        {this._options.map((item) => {
           return (
             <label key={item.mask} className="custom-control custom-checkbox custom-control-inline">
               <input
