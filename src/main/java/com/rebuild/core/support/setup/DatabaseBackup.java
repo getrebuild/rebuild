@@ -33,13 +33,15 @@ import java.io.IOException;
 public class DatabaseBackup {
 
     final private String[] ignoreTables;
+    final private String[] forceTables;
 
     public DatabaseBackup() {
-        this(null);
+        this(null, null);
     }
 
-    public DatabaseBackup(String[] ignoreTables) {
+    public DatabaseBackup(String[] ignoreTables, String[] forceTables) {
         this.ignoreTables = ignoreTables;
+        this.forceTables = forceTables;
     }
 
     /**
@@ -79,7 +81,10 @@ public class DatabaseBackup {
                 "%s -u%s -p\"%s\" -h%s -P%s --default-character-set=utf8 --opt --extended-insert=true --triggers --hex-blob --single-transaction -R %s>\"%s\"",
                 mysqldump, user, passwd, host, port, dbname, dest.getAbsolutePath());
 
-        if (ignoreTables != null) {
+        if (forceTables != null) {
+            String foTables = StringUtils.join(forceTables, " ");
+            cmd = cmd.replaceFirst("> ", " " + foTables + " >");
+        } else if (ignoreTables != null) {
             String igPrefix = " --ignore-table=" + dbname + ".";
             String ig = igPrefix + StringUtils.join(ignoreTables, igPrefix);
             cmd = cmd.replaceFirst(" -R ", " -R" + ig + " ");
