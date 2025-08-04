@@ -1028,6 +1028,15 @@ $(document).ready(() => {
   if (ua.includes('wxwork') && ua.includes('MicroMessenger') && $.browser.desktop) {
     $('.J_home').removeClass('hide')
   }
+  // v4.2
+  if (parent && parent.RbListPage && parent.RbListPage._RbList && parent.RbListPage._RbList.jumpView) {
+    $('.J_record-next')
+      .removeClass('hide')
+      .on('click', () => parent.RbListPage._RbList.jumpView(1))
+    $('.J_record-prev')
+      .removeClass('hide')
+      .on('click', () => parent.RbListPage._RbList.jumpView(-1))
+  }
 
   // iframe 点击穿透
   if (parent) {
