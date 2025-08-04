@@ -5765,12 +5765,17 @@ div.formula-code {
   .rb-aside .main-content {
     margin-left: 230px;
   }
-  .rb-left-sidebar {
+  .rb-left-sidebar,
+  .rb-collapsible-sidebar-collapsed .rb-left-sidebar .sidebar-elements > li ul.visible {
     width: 200px;
   }
   .rb-content {
     margin-left: 200px;
   }
+}
+
+.rb-collapsible-sidebar-collapsed .rb-left-sidebar .sidebar-elements > li ul.visible .title {
+  padding-top: 9px;
 }
 
 .form-control::placeholder,
