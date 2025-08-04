@@ -97,6 +97,11 @@ body {
   opacity: 0.8;
 }
 
+.view-header > span > .close.sm.J_record-prev .mdi,
+.view-header > span > .close.sm.J_record-next .mdi {
+  font-size: 21px;
+}
+
 .rbview-form > .row .form-group {
   padding-top: 4px;
   padding-bottom: 4px;

@@ -1287,11 +1287,8 @@ class RbList extends React.Component {
 
     // 操作按钮状态
     const $oper = $('.dataTables_oper')
-    $oper.find('.J_delete, .J_view, .J_edit, .J_assign, .J_share, .J_unshare').attr('disabled', true)
-    if (chkSelected > 0) {
-      $oper.find('.J_delete, .J_assign, .J_share, .J_unshare').attr('disabled', false)
-      if (chkSelected === 1) $oper.find('.J_view, .J_edit').attr('disabled', false)
-    }
+    $oper.find('.J_delete,.J_view,.J_edit,.J_assign,.J_share,.J_unshare').attr('disabled', true)
+    if (chkSelected > 0) $oper.find('.J_delete,.J_view,.J_edit,.J_assign,.J_share,.J_unshare').attr('disabled', false)
 
     // 分页组件
     if (this._Pagination) {
@@ -1346,24 +1343,6 @@ class RbList extends React.Component {
     return false
   }
 
-  _keyEvent(e) {
-    if (!$(e.target).is('body')) return
-    if (!(e.keyCode === 40 || e.keyCode === 38 || e.keyCode === 13)) return
-
-    const $chk = $(this._$tbody).find('>tr .custom-control-input:checked').last()
-    if ($chk.length === 0) return
-
-    const $tr = $chk.eq(0).parents('tr')
-    if (e.keyCode === 40) this._tryActive($tr.next())
-    else if (e.keyCode === 38) this._tryActive($tr.prev())
-    else this._openView($tr)
-  }
-
-  _tryActive($el) {
-    if ($el.length !== 1) return
-    this._clickRow({ target: $el.find('td:eq(1)') })
-  }
-
   _openView($tr) {
     if (!wpc.type) return
     const id = $($tr).data('id')
@@ -1371,6 +1350,53 @@ class RbList extends React.Component {
       location.hash = `!/View/${this._entity}/${id}`
     }
     CellRenders.clickView({ id: id, entity: this._entity })
+  }
+
+  _keyEvent(e) {
+    if (!$(e.target).is('body')) return
+    if (!(e.keyCode === 40 || e.keyCode === 38 || e.keyCode === 13)) return
+
+    let $chk = $(this._$tbody).find('>tr .custom-control-input:checked').first()
+    if (e.keyCode === 13) {
+      let $go = $chk.eq(0).parents('tr')
+      if ($go[0]) {
+        this._clickRow({ target: $go.find('td:eq(1)') })
+        this._openView($go)
+      }
+      return
+    }
+
+    let $go = $chk.eq(0).parents('tr')
+    if ($go[0]) {
+      $go = e.keyCode === 40 ? $go.next() : $go.prev()
+    } else {
+      // No selected
+    }
+    if (!$go[0]) {
+      $chk = $(this._$tbody).find('>tr .custom-control-input')
+      $chk = e.keyCode === 40 ? $chk.first() : $chk.last()
+      $go = $chk.eq(0).parents('tr')
+    }
+    $go[0] && this._clickRow({ target: $go.find('td:eq(1)') })
+  }
+  // Next or Prev
+  jumpView(go) {
+    let $chk = $(this._$tbody).find('>tr .custom-control-input:checked').first()
+    let $go = $chk.eq(0).parents('tr')
+    if ($go[0]) {
+      $go = go === 1 ? $go.next() : $go.prev()
+    } else {
+      // No selected
+    }
+    if (!$go[0]) {
+      $chk = $(this._$tbody).find('>tr .custom-control-input')
+      $chk = go === 1 ? $chk.first() : $chk.last()
+      $go = $chk.eq(0).parents('tr')
+    }
+    if ($go[0]) {
+      this._clickRow({ target: $go.find('td:eq(1)') })
+      this._openView($go)
+    }
   }
 
   // -- 外部接口

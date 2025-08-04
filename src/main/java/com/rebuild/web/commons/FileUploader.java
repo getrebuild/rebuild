@@ -13,6 +13,7 @@ import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
+import com.rebuild.utils.ImageMaker;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
@@ -82,6 +83,12 @@ public class FileUploader extends BaseController {
             if (!dest.exists()) {
                 writeFailure(response, Language.L("上传失败，请稍后重试"));
                 return;
+            }
+
+            // 添加 iw 参数支持水印
+            String iw42 = getParameter(request, "iw");
+            if (iw42 != null) {
+                ImageMaker.makeWatermark(dest, iw42, dest);
             }
 
         } catch (Exception ex) {

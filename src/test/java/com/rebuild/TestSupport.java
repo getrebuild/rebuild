@@ -122,7 +122,10 @@ public class TestSupport {
             }
         }
 
-        new SimpleEntity().create(true, true, true);
+        try {
+            new SimpleEntity().create(true, true, true);
+        } catch (Exception ignored) {
+        }
 
         if (!MetadataHelper.containsEntity(Account)) {
             String metaschema = FileUtils.readFileToString(

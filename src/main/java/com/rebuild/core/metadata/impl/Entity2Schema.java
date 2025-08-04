@@ -31,6 +31,7 @@ import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -272,14 +273,13 @@ public class Entity2Schema extends Field2Schema {
      * @param entity
      * @return
      */
-    private boolean schema2Database(Entity entity) {
+    public boolean schema2Database(Entity entity) {
+        List<String> ixs = new ArrayList<>(Arrays.asList(EntityHelper.CreatedOn, EntityHelper.ModifiedOn));
+        if (entity.containsField(EntityHelper.QuickCode)) ixs.add(EntityHelper.QuickCode);
+        if (entity.containsField(EntityHelper.OwningUser)) ixs.add(EntityHelper.OwningUser);
+        if (entity.containsField(EntityHelper.OwningDept)) ixs.add(EntityHelper.OwningDept);
+
         Dialect dialect = Application.getPersistManagerFactory().getDialect();
-        List<String> ixs = Arrays.asList(EntityHelper.CreatedOn, EntityHelper.ModifiedOn);
-        if (entity.getMainEntity() != null) {
-            ixs.add(EntityHelper.QuickCode);
-            ixs.add(EntityHelper.OwningUser);
-            ixs.add(EntityHelper.OwningDept);
-        }
         Table table = new Table40(entity, dialect, ixs);
 
         String[] ddls = null;
