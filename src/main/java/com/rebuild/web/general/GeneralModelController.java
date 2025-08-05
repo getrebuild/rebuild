@@ -143,7 +143,7 @@ public class GeneralModelController extends EntityController {
             FormsBuilderContextHolder.setFromProTable();
             // 明细绑定主实体布局
             if (specLayout == null) {
-                ConfigBean cb = FormsBuilder.instance.getFormLayout(null, followMainLayout, 0);
+                ConfigBean cb = FormsBuilder.instance.getFormLayout(modelEntity.getMainEntity().getName(), followMainLayout, 0);
                 JSONObject detailsFromsAttr = (JSONObject) cb.getJSON("detailsFromsAttr");
                 Object specLayout41 = detailsFromsAttr == null ? null : detailsFromsAttr.get(entity);
                 if (ID.isId(specLayout41)) {

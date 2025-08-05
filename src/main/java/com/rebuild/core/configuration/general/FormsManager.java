@@ -16,6 +16,7 @@ import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,7 @@ public class FormsManager extends BaseLayoutManager {
      * @return
      */
     public ConfigBean getFormLayout(String entity, ID recordOrLayoutId, int applyType) {
+        Assert.notNull(entity, "[entity] cannot be null");
         final Object[][] allConfs = getAllConfig(entity, TYPE_FORM);
 
         // TODO `applyType` 暂未用
