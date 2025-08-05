@@ -330,6 +330,7 @@ public class FormsBuilder extends FormsManager {
             if (StringUtils.isBlank(recordName)) recordName = EasyMetaFactory.getLabel(recordData.getEntity());
             model.set("recordName", recordName);
         }
+
         return model.toJSON();
     }
 

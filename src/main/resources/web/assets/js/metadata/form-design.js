@@ -795,6 +795,7 @@ class DlgNForm extends RbModalHandler {
       this.state.fallback = props.attrs.fallback
       this.state.fornew = props.attrs.fornew
       this.state.useFilter = props.attrs.filter || null
+      this.state.verticalLayout = props.attrs.verticalLayout || null
     }
   }
 
@@ -838,6 +839,21 @@ class DlgNForm extends RbModalHandler {
                   <input className="custom-control-input" type="checkbox" defaultChecked={this.state.fornew} ref={(c) => (this._$fornew = c)} />
                   <span className="custom-control-label">{$L('可用于新建')}</span>
                 </label>
+              </div>
+            </div>
+            <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('显示样式')}</label>
+              <div className="col-sm-7">
+                <select className="form-control form-control-sm" ref={(c) => (this._$verticalLayout = c)} defaultValue={this.state.verticalLayout}>
+                  <option value="0">{$L('默认')}</option>
+                  <option value="3">{$L('垂直')}</option>
+                  <option value="1">
+                    {$L('垂直')} ({$L('仅 PC')})
+                  </option>
+                  <option value="2">
+                    {$L('垂直')} ({$L('仅手机')})
+                  </option>
+                </select>
               </div>
             </div>
 
@@ -896,7 +912,8 @@ class DlgNForm extends RbModalHandler {
   componentDidMount() {
     // super.componentDidMount()
 
-    if (!wpc.mainEntityName) {
+    // 明细绑定
+    if (wpc.isMainEntity) {
       $.get(`/admin/entity/${wpc.entityName}/get-details-forms-attr`, (res) => {
         this.setState({ detailsFromsAttr: res.data || {} }, () => {
           const detailsFromsAttr = (this.props.attrs || {}).detailsFromsAttr
@@ -952,6 +969,7 @@ class DlgNForm extends RbModalHandler {
       fallback: $val(this._$fallback),
       fornew: $val(this._$fornew),
       detailsFromsAttr: Object.keys(detailsFromsAttr).length === 0 ? null : detailsFromsAttr,
+      verticalLayout: ~~$val(this._$verticalLayout),
     }
     if (!ps.name) {
       return RbHighbar.createl('请输入名称')
