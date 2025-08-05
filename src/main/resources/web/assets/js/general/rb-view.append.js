@@ -5,6 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global RelatedList, FeedsList */
+/* eslint-disable react/no-unknown-property */
 
 const wpc = window.__PageConfig || {}
 
@@ -463,8 +464,8 @@ class SelectReport extends React.Component {
                 <p className="text-muted">
                   {$L('暂无报表')}
                   {rb.isAdminUser && (
-                    <a className="icon-link ml-2" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates`}>
-                      <i className="zmdi zmdi-settings" /> {$L('点击配置')}
+                    <a className="icon-link ml-2" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates?new=${wpc.entity[0]}`}>
+                      <i className="zmdi zmdi-settings" /> {$L('点击添加')}
                     </a>
                   )}
                 </p>
