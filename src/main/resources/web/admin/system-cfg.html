@@ -170,6 +170,10 @@
                         <td th:data-id="MarkWatermark" th:data-value="${MarkWatermark}">[[${MarkWatermark ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
+                        <td width="40%">[[${bundle.L('页面水印内容')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 0 ? 'MarkWatermarkFormat' : ''}" th:data-value="${MarkWatermarkFormat}" data-optional="true">[[${MarkWatermarkFormat ?:bundle.L('默认')}]]</td>
+                      </tr>
+                      <tr>
                         <td>[[${bundle.L('允许分享文件')}]]</td>
                         <td data-id="FileSharable" th:data-value="${FileSharable}">[[${FileSharable ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
