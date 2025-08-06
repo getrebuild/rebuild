@@ -98,6 +98,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   text-align: center;
 }
 
+.chart-body.rb-loading-active::after {
+  opacity: unset;
+}
+
 .chart-body .chart {
   line-height: normal;
   height: 100%;
