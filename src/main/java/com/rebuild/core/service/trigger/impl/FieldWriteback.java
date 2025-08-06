@@ -666,6 +666,11 @@ public class FieldWriteback extends FieldAggregation {
         if (newValue == null) {
             log.warn("Value `{}` cannot be convert to field (value) : {}", value, field.getRawMeta());
         }
+
+        // fix:4.1.3 空字符
+        if (newValue instanceof String && ((String) newValue).isEmpty()) {
+            return null;
+        }
         return newValue;
     }
 }
