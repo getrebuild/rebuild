@@ -55,6 +55,8 @@ public class RecordTransfomer extends SetUser {
     final protected JSONObject transConfig;
     final protected boolean skipGuard;
 
+    final private ID transid;
+
     /**
      * @param transid
      */
@@ -63,6 +65,7 @@ public class RecordTransfomer extends SetUser {
         this.targetEntity = MetadataHelper.getEntity(config.getString("target"));
         this.transConfig = (JSONObject) config.getJSON("config");
         this.skipGuard = false;
+        this.transid = transid;
     }
 
     /**
@@ -74,6 +77,7 @@ public class RecordTransfomer extends SetUser {
         this.targetEntity = targetEntity;
         this.transConfig = transConfig;
         this.skipGuard = skipGuard;
+        this.transid = null;
     }
 
     /**
@@ -259,7 +263,7 @@ public class RecordTransfomer extends SetUser {
         List<String> validFields = checkAndWarnFields(sourceEntity, fieldsMapping.values());
         if (validFields.isEmpty()) {
             // fix: https://github.com/getrebuild/rebuild/issues/633
-            log.warn("No fields (var) for transform : {}", fieldsMapping);
+            log.debug("No fields (var) for transform : {} in {}", fieldsMapping, this.transid);
         }
 
         validFields.add(sourceEntity.getPrimaryField().getName());
