@@ -387,6 +387,7 @@ body {
 
 .view-user .user-show {
   line-height: 1;
+  cursor: pointer !important;
 }
 
 .shares-list {
