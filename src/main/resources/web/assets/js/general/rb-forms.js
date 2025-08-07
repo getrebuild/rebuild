@@ -567,8 +567,9 @@ class RbForm extends React.Component {
         )
       }
     } else {
-      const inView = window.RbViewPage
-      if (!inView) {
+      if (parentProps._noExtraButton) {
+        // 无扩展按钮
+      } else {
         // 保存并...
         if (props.rawModel.hadApproval && window.ApprovalSubmitForm) {
           moreActions.push(
