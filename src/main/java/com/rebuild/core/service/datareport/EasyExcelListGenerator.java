@@ -15,6 +15,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.core.support.general.QueryParser;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -42,6 +43,8 @@ import static com.rebuild.core.service.datareport.TemplateExtractor.PLACEHOLDER;
 public class EasyExcelListGenerator extends EasyExcelGenerator {
 
     private JSONObject queryData;
+    @Getter
+    private List<Record> queryDataList;
 
     protected EasyExcelListGenerator(File template, JSONObject queryData) {
         super(template, null);
@@ -87,6 +90,7 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
         List<Record> list = Application.createQuery(queryParser.toSql(), getUser())
                 .setLimit(limits[0], limits[1])
                 .list();
+        this.queryDataList = list;
 
         List<Map<String, Object>> datas = new ArrayList<>();
 
@@ -118,6 +122,9 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
         return datasMap;
     }
 
+    /**
+     * @return
+     */
     public int getExportCount() {
         return phNumber - 1;
     }

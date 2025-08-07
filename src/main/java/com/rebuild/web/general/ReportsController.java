@@ -238,7 +238,9 @@ public class ReportsController extends BaseController {
                         CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()),
                         FileUtil.getSuffix(output));
             } else {
-                fileName = DataReportManager.getPrettyReportName(useReport, entity, output.getName());
+                Object e = exporter.getRandomIdOfExportData413();
+                if (e == null) e = entity;
+                fileName = DataReportManager.getPrettyReportName(useReport, e, output.getName());
             }
 
             CommonsLog.createLog(CommonsLog.TYPE_EXPORT, user, null,
@@ -251,8 +253,8 @@ public class ReportsController extends BaseController {
             return RespBody.ok(data);
 
         } catch (Exception ex) {
-            log.error(null, ex);
-            return RespBody.error(ex.getLocalizedMessage());
+            log.error("export-list", ex);
+            return RespBody.error(ex);
         }
     }
 
