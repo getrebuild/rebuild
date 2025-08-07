@@ -231,6 +231,7 @@ public class DataReportManager implements ConfigManager {
         } else if (idOrEntity instanceof ID) {
             name = ContentWithFieldVars.replaceWithRecord(name, (ID) idOrEntity);
         }
+
         // Suffix
         if (fileName.endsWith(".pdf")) name += ".pdf";
         else if (fileName.endsWith(".docx")) name += ".docx";

@@ -9,6 +9,7 @@ package com.rebuild.core.service.dataimport;
 
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Query;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.write.metadata.style.WriteCellStyle;
@@ -18,7 +19,6 @@ import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.DefinedException;
-import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
@@ -29,12 +29,14 @@ import com.rebuild.core.metadata.easymeta.EasyTag;
 import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.service.datareport.EasyExcelListGenerator;
+import com.rebuild.core.service.datareport.ReportsException;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.core.support.general.DataListWrapper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
@@ -72,6 +74,8 @@ public class DataExporter extends SetUser {
 
     private int count = 0;
 
+    private EasyExcelListGenerator useEasyExcelListGenerator;
+
     /**
      * @param queryData
      */
@@ -87,12 +91,24 @@ public class DataExporter extends SetUser {
      * @see com.rebuild.core.service.datareport.EasyExcelListGenerator
      */
     public File export(ID useReport) {
-        EasyExcelListGenerator g = EasyExcelListGenerator.create(useReport, this.queryData);
-        g.setUser(getUser());
-        File file = g.generate();
+        useEasyExcelListGenerator = EasyExcelListGenerator.create(useReport, this.queryData);
+        useEasyExcelListGenerator.setUser(getUser());
+        File file = useEasyExcelListGenerator.generate();
 
-        count = g.getExportCount();
+        count = useEasyExcelListGenerator.getExportCount();
         return file;
+    }
+
+    /**
+     * 随机获取一个导出记录ID，仅使用模版时支持
+     *
+     * @return
+     */
+    public ID getRandomIdOfExportData413() {
+        if (useEasyExcelListGenerator == null) return null;
+        List<Record> qd = useEasyExcelListGenerator.getQueryDataList();
+        if (CollectionUtils.isEmpty(qd)) return null;
+        return qd.get(0).getPrimary();
     }
 
     /**
@@ -150,7 +166,7 @@ public class DataExporter extends SetUser {
                 }
             }
         } catch (IOException e) {
-            throw new RebuildException("Cannot write .csv file", e);
+            throw new ReportsException("Cannot write .csv file", e);
         }
         return file;
     }
