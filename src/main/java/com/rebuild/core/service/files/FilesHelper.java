@@ -187,7 +187,7 @@ public class FilesHelper {
     }
 
     /**
-     * 是否允许访问文件
+     * 是否允许访问文件。是否可访问取决于文件所在目录，如果无目录则为公开访问
      *
      * @param user
      * @param fileId
@@ -195,7 +195,7 @@ public class FilesHelper {
      */
     public static boolean isFileAccessable(ID user, ID fileId) {
         Object[] o = Application.getQueryFactory().uniqueNoFilter(fileId, "inFolder");
-        if (o == null) return true;
+        if (o == null || o[0] == null) return true;
         return getAccessableFolders(user).contains((ID) o[0]);
     }
 }
