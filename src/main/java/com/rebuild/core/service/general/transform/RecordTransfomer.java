@@ -53,7 +53,7 @@ import java.util.Objects;
 public class RecordTransfomer extends SetUser {
 
     // 防止自动转换死循环
-    private static final ThreadLocal<ID> FILLBACK2_ONCE413 = new NamedThreadLocal<>("FallbackMode=2 Trigger Once");
+    private static final ThreadLocal<ID> FILLBACK2_ONCE414 = new NamedThreadLocal<>("FallbackMode=2 Trigger Once");
 
     final protected Entity targetEntity;
     final protected JSONObject transConfig;
@@ -107,6 +107,8 @@ public class RecordTransfomer extends SetUser {
      * @see #checkFilter(ID)
      */
     public ID transform(ID sourceRecordId, ID specMainId) {
+        FILLBACK2_ONCE414.remove();
+
         // 检查配置
         Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
         Entity sourceDetailEntity = null;
@@ -218,9 +220,9 @@ public class RecordTransfomer extends SetUser {
 
         // 4.1.3 配置开放
         int fillbackMode = transConfig.getIntValue("fillbackMode");
-        if (fillbackMode == 2 && !EntityHelper.isUnsavedId(newId) && !Objects.equals(newId, FILLBACK2_ONCE413.get())) {
+        if (fillbackMode == 2 && !EntityHelper.isUnsavedId(newId) && FILLBACK2_ONCE414.get() == null) {
             GeneralEntityServiceContextHolder.setAllowForceUpdate(updateSource.getPrimary());
-            FILLBACK2_ONCE413.set(newId);
+            FILLBACK2_ONCE414.set(newId);
             try {
                 Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
             } finally {
@@ -230,7 +232,6 @@ public class RecordTransfomer extends SetUser {
             // 无传播更新
             Application.getCommonsService().update(updateSource, false);
         }
-
         return true;
     }
 

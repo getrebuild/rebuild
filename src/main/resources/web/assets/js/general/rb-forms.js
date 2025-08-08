@@ -2299,6 +2299,12 @@ class RbFormReference extends RbFormElement {
 
           const cascadingValue = this._getCascadingFieldValue()
           if (cascadingValue) query.cascadingValue = cascadingValue
+          // 4.1.3
+          let val = this.state.value
+          if (typeof val === 'object') val = val.id
+          if (val) query._top = val
+
+          console.log('Reference query:', query)
           return query
         },
         placeholder: this._placeholderw,
