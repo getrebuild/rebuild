@@ -387,6 +387,7 @@ body {
 
 .view-user .user-show {
   line-height: 1;
+  cursor: pointer !important;
 }
 
 .shares-list {
@@ -493,20 +494,20 @@ body {
   background-color: transparent;
 }
 
-.rbview-form.inside {
+.rbview-form-inside {
   display: none;
   padding: 10px 15px;
 }
 
-.rbview-form.inside > .rb-loading {
+.rbview-form-inside > .rb-loading {
   height: 60px;
 }
 
-.rbview-form.inside > .alert {
+.rbview-form-inside > .alert {
   margin: 10px auto !important;
 }
 
-.card.active .rbview-form.inside {
+.card.active .rbview-form-inside {
   display: block;
 }
 

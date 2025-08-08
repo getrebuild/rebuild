@@ -298,11 +298,12 @@ class RbForm extends React.Component {
     this._postAfter = props.postAfter || $$$props.postAfter
     this._onProTableLineUpdated = props.onProTableLineUpdated || $$$props.onProTableLineUpdated
     this._dividerRefs = []
+    this._verticalLayout42 = window.__LAB_VERTICALLAYOUT || props.rawModel.verticalLayout === 1 || props.rawModel.verticalLayout === 3
   }
 
   render() {
     return (
-      <div className={`rbform form-layout ${window.__LAB_VERTICALLAYOUT && 'vertical38'}`}>
+      <div className={`rbform form-layout ${this._verticalLayout42 && 'vertical38'}`}>
         <div className="form row" ref={(c) => (this._$form = c)}>
           {this.props.children.map((fieldComp) => {
             const ref = fieldComp.props.field === TYPE_DIVIDER ? $random('divider-') : `fieldcomp-${fieldComp.props.field}`
@@ -566,9 +567,10 @@ class RbForm extends React.Component {
         )
       }
     } else {
-      // 列表页保存并...
-      const inList = window.RbViewModal && window.__PageConfig.type === 'RecordList'
-      if (inList) {
+      if (parentProps._noExtraButton) {
+        // 无扩展按钮
+      } else {
+        // 保存并...
         if (props.rawModel.hadApproval && window.ApprovalSubmitForm) {
           moreActions.push(
             <a key="Action103" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_SUBMIT37)}>
@@ -581,9 +583,6 @@ class RbForm extends React.Component {
             {$L('保存并新建')}
           </a>
         )
-      }
-
-      if (inList || parentProps._nextOpenView) {
         moreActions.push(
           <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_VIEW)}>
             {$L('保存并打开')}
@@ -3533,8 +3532,10 @@ class RbFormRefform extends React.Component {
 
   render() {
     if (!this.props.refvalue) return null
+
+    const verticalLayout42 = window.__LAB_VERTICALLAYOUT || this.state.verticalLayout === 1 || this.state.verticalLayout === 3
     return (
-      <div className={`rbview-form form-layout refform ${window.__LAB_VERTICALLAYOUT && 'vertical38'}`} ref={(c) => (this._viewForm = c)}>
+      <div className={`rbview-form form-layout refform ${verticalLayout42 && 'vertical38'}`} ref={(c) => (this._viewForm = c)}>
         {this.state.formComponent || 'LOADING'}
       </div>
     )

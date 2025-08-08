@@ -16,6 +16,7 @@ import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,7 @@ public class FormsManager extends BaseLayoutManager {
      * @return
      */
     public ConfigBean getFormLayout(String entity, ID recordOrLayoutId, int applyType) {
+        Assert.notNull(entity, "[entity] cannot be null");
         final Object[][] allConfs = getAllConfig(entity, TYPE_FORM);
 
         // TODO `applyType` 暂未用
@@ -107,6 +109,14 @@ public class FormsManager extends BaseLayoutManager {
         }
 
         if (use != null) {
+            Object shareTo = use.getObject("shareTo");
+            if (shareTo instanceof JSONObject) {
+                JSONObject shareTo4Attr = (JSONObject) shareTo;
+                Object o;
+                if ((o = shareTo4Attr.get("verticalLayout")) != null) use.set("verticalLayout", o);
+                if ((o = shareTo4Attr.get("detailsFromsAttr")) != null) use.set("detailsFromsAttr", o);
+            }
+
             use.set("entity", entity)
                     .remove("shareTo").remove("name");
             return use;
@@ -177,25 +187,25 @@ public class FormsManager extends BaseLayoutManager {
     public List<ConfigBean> getAllFormsAttr(String entity, boolean forNew) {
         final Object[][] alls = getAllConfig(entity, TYPE_FORM);
 
-        List<ConfigBean> flist = new ArrayList<>();
+        List<ConfigBean> faList = new ArrayList<>();
         for (Object[] o : alls) {
             ConfigBean cb = findConfigBean(alls, (ID) o[0]).remove("config");
             cb.remove("elements");
             if (forNew) {
-                if (new ShareToAttr(cb).isForNew()) flist.add(cb.remove("shareTo"));
+                if (new ShareToAttr(cb).isForNew()) faList.add(cb.remove("shareTo"));
             } else {
-                flist.add(cb);
+                faList.add(cb);
             }
         }
 
         // A-Z
-        flist.sort((o1, o2) -> {
+        faList.sort((o1, o2) -> {
             String name1 = Objects.toString(o1.getString("name"), "0");
             String name2 = Objects.toString(o2.getString("name"), "0");
             return name1.compareTo(name2);
         });
 
-        return flist;
+        return faList;
     }
 
     @Override

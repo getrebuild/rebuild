@@ -22,13 +22,14 @@ class RbViewForm extends React.Component {
     if (window.__LAB_VIEWEDITABLE === false) this.onViewEditable = false
     // temp for `saveSingleFieldValue`
     this.__FormData = {}
+    this._verticalLayout42 = window.__LAB_VERTICALLAYOUT
   }
 
   render() {
     return (
       <RF>
         {this.state.fjsAlertMessage}
-        <div className={`rbview-form form-layout ${window.__LAB_VERTICALLAYOUT && 'vertical38'}`} ref={(c) => (this._viewForm = c)}>
+        <div className={`rbview-form form-layout ${this._verticalLayout42 && 'vertical38'}`} ref={(c) => (this._viewForm = c)}>
           {this.state.formComponent}
         </div>
       </RF>
@@ -60,6 +61,7 @@ class RbViewForm extends React.Component {
       this.__ViewData = {}
       this.__lastModified = res.data.lastModified || 0
       if (res.data.onViewEditable === false) this.onViewEditable = false
+      this._verticalLayout42 = this._verticalLayout42 || res.data.verticalLayout === 1 || res.data.verticalLayout === 3
 
       let _dividerRefs = []
       const VFORM = (
@@ -436,7 +438,8 @@ class EntityRelatedList extends RelatedList {
             </span>
           </div>
         </div>
-        <div className={`rbview-form form-layout inside ${window.__LAB_VERTICALLAYOUT && 'vertical38'}`}>{this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}</div>
+
+        <div className="rbview-form-inside">{this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}</div>
       </div>
     )
   }
@@ -523,12 +526,15 @@ class EntityRelatedList extends RelatedList {
         if (res.error_code > 0 || !!res.data.error) {
           viewComponents[id] = _renderError(res.data.error || res.error_msg)
         } else {
+          const _verticalLayout42 = window.__LAB_VERTICALLAYOUT || res.data.verticalLayout === 1 || res.data.verticalLayout === 3
           viewComponents[id] = (
-            <div className="row">
-              {res.data.elements.map((item) => {
-                item.$$$parent = this
-                return detectViewElement(item)
-              })}
+            <div className={`rbview-form form-layout ${_verticalLayout42 && 'vertical38'}`}>
+              <div className="row">
+                {res.data.elements.map((item) => {
+                  item.$$$parent = this
+                  return detectViewElement(item)
+                })}
+              </div>
             </div>
           )
         }
@@ -922,7 +928,7 @@ const RbViewPage = {
           if (entity.length > 1) iv[entity[1]] = that.__id
           else iv[`&${that.__entity[0]}`] = that.__id
 
-          RbFormModal.create({ title: $L('新建%s', item._entityLabel || item.entityLabel), entity: entity[0], icon: item.icon, initialValue: iv, _nextOpenView: true })
+          RbFormModal.create({ title: $L('新建%s', item._entityLabel || item.entityLabel), entity: entity[0], icon: item.icon, initialValue: iv, _noExtraButton: true })
         }
       })
 

@@ -404,8 +404,8 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
                 <p className="text-muted">
                   {$L('无适用流程')}
                   {rb.isAdminUser && (
-                    <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/robot/approvals`}>
-                      <i className="zmdi zmdi-settings" /> {$L('点击配置')}
+                    <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/robot/approvals?new=${(window.__PageConfig || {}).entity[0] || ''}`}>
+                      <i className="zmdi zmdi-settings" /> {$L('点击添加')}
                     </a>
                   )}
                 </p>

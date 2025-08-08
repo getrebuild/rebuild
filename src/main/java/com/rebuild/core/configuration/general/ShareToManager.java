@@ -62,7 +62,8 @@ public abstract class ShareToManager implements ConfigManager {
                 (hasApplyType ? ",applyType" : ""), getConfigEntity());
         Object[] c = Application.createQueryNoFilter(ql).setParameter(1, cfgid).unique();
         if (c != null) {
-            Application.getCommonsCache().evict(formatCacheKey((String) c[0], hasApplyType ? (String) c[1] : null));
+            String key = formatCacheKey((String) c[0], hasApplyType ? (String) c[1] : null);
+            Application.getCommonsCache().evict(key);
         }
     }
 

@@ -160,7 +160,6 @@ public class AviatorUtils {
     public static Iterator<Object> toIterator(Object value) {
         if (value instanceof Collection) return ((Collection<Object>) value).iterator();
         if (value instanceof Sequence) return ((Sequence<Object>) value).iterator();
-
         throw new UnsupportedOperationException("Unsupport type : " + value);
     }
 
@@ -174,5 +173,29 @@ public class AviatorUtils {
         if (ret instanceof Date) return new AviatorDate((Date) ret);
         if (ret instanceof ID) return new AviatorId((ID) ret);
         return FunctionUtils.wrapReturn(ret);
+    }
+
+    /**
+     * @param o
+     * @return
+     */
+    public static ID toIdValue(Object o) {
+        if (o instanceof ID) return (ID) o;
+
+        String o2str = o.toString().trim();
+        if (o2str.isEmpty()) return null;
+        if (ID.isId(o2str)) return ID.valueOf(o2str);
+
+        log.warn("Bad id string : {}", o);
+        return null;
+    }
+
+    /**
+     * @param o
+     * @return
+     */
+    public static String toStringValue(Object o) {
+        if (o == null) return null;
+        return o.toString();
     }
 }
