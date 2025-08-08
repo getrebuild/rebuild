@@ -123,6 +123,11 @@ $(document).ready(() => {
     .val(null)
     .trigger('change')
 
+  if (config.fillbackMode === 2) {
+    $('#fillbackMode')[0].checked = true
+    $('#fillbackMode').parents('.bosskey-show').removeClass('bosskey-show')
+  }
+
   let _ImportsFilterMapping
   $('#importsMode').on('click', function () {
     if ($val(this)) {
@@ -198,6 +203,7 @@ $(document).ready(() => {
       fieldsMappingDetail: fmd36,
       fieldsMappingDetails: fmdList37,
       fillbackField: $('#fillbackField').val(),
+      fillbackMode: $val('#fillbackMode') ? 2 : 0,
       useFilter: _AdvFilter_data,
       importsMode: $val('#importsMode'),
       importsFilter: importsFilter || null,
