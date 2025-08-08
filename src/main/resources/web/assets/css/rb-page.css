@@ -1788,6 +1788,8 @@ i.dividing.ui-draggable-dragging {
 .column-multi span.badge {
   background-color: #f2f2f2;
   border-color: #f2f2f2;
+  background-color: rgba(0, 0, 0, 0.04);
+  border-color: transparent;
 }
 
 .column-fixed {
