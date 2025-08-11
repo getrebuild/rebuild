@@ -37,6 +37,7 @@ public class CommandArgs {
     public static final String _UseDbFullText = "_UseDbFullText";
     public static final String _StartEntityTypeCode = "_StartEntityTypeCode";
     public static final String _InitScriptEngine = "_InitScriptEngine";
+    public static final String _AdminDownload = "_AdminDownload";
 
     /**
      * 内部消息同步发送短信

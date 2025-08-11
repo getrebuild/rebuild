@@ -306,6 +306,7 @@ public class FileDownloader extends BaseController {
      * @param response
      * @return
      * @throws IOException
+     * @see #setDownloadHeaders(HttpServletResponse, String, boolean)
      */
     public static boolean writeLocalFile(File file, HttpServletResponse response) throws IOException {
         if (file == null || !file.exists()) {
