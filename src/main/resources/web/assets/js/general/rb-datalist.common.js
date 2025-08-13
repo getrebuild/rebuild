@@ -419,7 +419,7 @@ class BatchUpdate extends BatchOperator {
                       <span className="badge badge-warning">{field.label}</span>
                     </div>
                     <div className="col-2 pl-0 pr-0">
-                      <span className="badge badge-warning">{BUE_OPTYPES[item.op]}</span>
+                      <span className="badge badge-warning">{BU_OPS[item.op]}</span>
                     </div>
                     <div className="col-6">
                       {item.op !== 'NULL' && <span className="badge badge-warning text-break text-left">{FieldValueSet.formatFieldText(item.value, field)}</span>}
@@ -433,7 +433,7 @@ class BatchUpdate extends BatchOperator {
             })}
           </div>
           <div className="batch-editor">
-            {this.state.fields && <BatchUpdateEditor ref={(c) => (this._editor = c)} fields={this.state.fields} entity={this.props.entity} />}
+            {this.state.fields && <BatchUpdateEntry ref={(c) => (this._buEntry = c)} fields={this.state.fields} entity={this.props.entity} />}
             <div className="mt-1">
               <button className="btn btn-primary btn-sm btn-outline" onClick={() => this.addItem()} type="button">
                 + {$L('添加')}
@@ -446,7 +446,7 @@ class BatchUpdate extends BatchOperator {
   }
 
   addItem() {
-    const item = this._editor.buildItem()
+    const item = this._buEntry.buildItem()
     if (!item) return
 
     const contents = this.state.updateContents || []
@@ -537,19 +537,22 @@ class BatchUpdate extends BatchOperator {
   }
 }
 
-// ~ 批量修改编辑器
-
-const BUE_OPTYPES = {
+const BU_OPS = {
   SET: $L('修改为'),
   NULL: $L('置空'),
   // TODO 支持更多修改模式
+  // 250813 也可以触发器修改
   // PREFIX: $L('前添加'),
   // SUFFIX: $L('后添加'),
+  // REPLACE: $L('替换'),
   // PLUS: $L('加上'),
   // MINUS: $L('减去'),
+  // MULTIPLY: $L('乘以'),
+  // DIVIDE: $L('除以'),
 }
 
-class BatchUpdateEditor extends React.Component {
+// 批量修改编辑器
+class BatchUpdateEntry extends React.Component {
   state = { ...this.props, selectOp: 'SET' }
 
   componentDidMount() {
@@ -598,8 +601,8 @@ class BatchUpdateEditor extends React.Component {
         </div>
         <div className="col-2 pl-0 pr-0">
           <select className="form-control form-control-sm" ref={(c) => (this._$op = c)}>
-            <option value="SET">{BUE_OPTYPES['SET']}</option>
-            <option value="NULL">{BUE_OPTYPES['NULL']}</option>
+            <option value="SET">{BU_OPS['SET']}</option>
+            <option value="NULL">{BU_OPS['NULL']}</option>
           </select>
           <span className="text-muted">{$L('修改方式')}</span>
         </div>
@@ -636,7 +639,10 @@ class BatchUpdateEditor extends React.Component {
     }
 
     data.value = this._FieldValue.val()
-    if (!data.value) {
+    if (data.value === false) {
+      // 格式不正确
+      return null
+    } else if (!data.value) {
       RbHighbar.create($L('请填写新值'))
       return null
     } else {
