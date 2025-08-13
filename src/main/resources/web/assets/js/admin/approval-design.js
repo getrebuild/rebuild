@@ -221,7 +221,7 @@ class SimpleNode extends NodeSpec {
     if (this.nodeType === 'approver') {
       if (data.allowReferral) descs.push($L('允许转审'))
       if (data.allowCountersign) descs.push($L('允许加签'))
-      if (data.allowBatch) descs.push($L('允许批量'))
+      // if (data.allowBatch) descs.push($L('允许批量'))
       descs.push(data.signMode === 'AND' ? $L('会签') : data.signMode === 'ALL' ? $L('依次审批') : $L('或签'))
       if (data.expiresAuto && ~~data.expiresAuto.expiresAuto > 0) descs.push($L('限时审批'))
       if (data.editableFields && data.editableFields.length > 0) descs.push($L('可修改字段'))
@@ -682,7 +682,7 @@ class ApproverNodeConfig extends StartNodeConfig {
               </span>
             </label>
           </div>
-          <div className="form-group mb-0">
+          <div className="form-group mb-0 hide disabled-on-4.2">
             <label className="custom-control custom-control-sm custom-checkbox">
               <input className="custom-control-input" type="checkbox" name="allowBatch" checked={this.state.allowBatch === true} onChange={this.handleChange} />
               <span className="custom-control-label">

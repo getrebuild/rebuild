@@ -38,6 +38,7 @@ import com.rebuild.core.service.trigger.DataValidateException;
 import com.rebuild.core.support.RbvFunction;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -83,6 +84,23 @@ public class ApprovalController extends BaseController {
             return j1.getString("name").compareTo(j2.getString("name"));
         });
         return res;
+    }
+
+    @GetMapping("alist")
+    public RespBody getApprovalList(HttpServletRequest request, @EntityParam Entity entity) {
+        boolean valid = getBoolParameter(request, "valid");
+
+        FlowDefinition[] defs = RobotApprovalManager.instance.getFlowDefinitions(entity);
+        List<Object> res = new ArrayList<>();
+        for (FlowDefinition d : defs) {
+            if (d.isDisabled()) continue;
+            // 仅返回可用的
+            if (valid && !d.isWorkable()) continue;
+
+            res.add(JSONUtils.toJSONObject(new String[]{"id", "text"},
+                    new Object[]{d.getID("id"), d.getString("name")}));
+        }
+        return RespBody.ok(res);
     }
 
     @GetMapping("state")

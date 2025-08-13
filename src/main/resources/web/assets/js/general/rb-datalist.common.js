@@ -667,10 +667,11 @@ class BatchApprove extends BatchOperator {
   }
 
   renderOperator() {
+    const approveState = ~~this.state.approveState
     return (
       <div>
         <div className="form-group">
-          <label className="text-bold">{$L('审批结果')}</label>
+          <label className="text-bold">{$L('审批方式')}</label>
           <div>
             <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
               <input className="custom-control-input" type="radio" name="approveState" value="10" onClick={this.handleChange} />
@@ -680,15 +681,40 @@ class BatchApprove extends BatchOperator {
               <input className="custom-control-input" type="radio" name="approveState" value="11" onClick={this.handleChange} />
               <span className="custom-control-label">{$L('驳回')}</span>
             </label>
+            <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+              <input className="custom-control-input" type="radio" name="approveState" value="1" onClick={this.handleChange} />
+              <span className="custom-control-label">{$L('提交')}</span>
+            </label>
           </div>
         </div>
-        <div className="form-group">
+
+        <div className={`form-group ${approveState >= 10 ? '' : 'hide'}`}>
           <label className="text-bold">{$L('批注')}</label>
-          <textarea className="form-control form-control-sm row2x" name="approveRemark" placeholder={$L('输入批注 (可选)')} maxLength="600" onChange={this.handleChange} />
+          <textarea className="form-control form-control-sm row2x" name="approveRemark" placeholder={$L('输入批注')} maxLength="600" onChange={this.handleChange} />
         </div>
-        <RbAlertBox message={$L('仅处于待你审批，且允许批量审批的记录才能审批成功')} type="info" className="mb-0" />
+        <div className={`form-group ${approveState === 1 ? '' : 'hide'}`}>
+          <label className="text-bold">{$L('审批流程')}</label>
+          <select className="form-control form-control-sm" ref={(c) => (this._$useApproval = c)} />
+        </div>
+
+        <RbAlertBox message={$L('仅允许你审批或提交的记录，才能审批成功')} type="info" className="mb-0" />
       </div>
     )
+  }
+
+  componentDidMount() {
+    // super.componentDidMount()
+
+    $.get(`/app/entity/approval/alist?entity=${wpc.entity[0]}&valid=true`, (res) => {
+      $(this._$useApproval).select2({
+        placeholder: $L('无'),
+        allowClear: false,
+        language: {
+          noResults: () => $L('无适用流程'),
+        },
+        data: res.data || [],
+      })
+    })
   }
 
   handleConfirm() {
@@ -697,19 +723,31 @@ class BatchApprove extends BatchOperator {
       return
     }
 
-    if (!this.state.approveState) return RbHighbar.create($L('请选择审批结果'))
+    if (!this.state.approveState) return RbHighbar.create($L('请选择审批方式'))
 
     const _data = {
       queryData: this.getQueryData(),
       approveContent: {
         state: this.state.approveState,
-        remark: this.state.approveRemark,
+        remark: this.state.approveRemark || null,
+        approvalId: $val(this._$useApproval) || null,
       },
+    }
+    if (~~this.state.approveState === 1) {
+      if (!_data.approveContent.approvalId) {
+        RbHighbar.create($L('请选择审批流程'))
+        return
+      }
+    } else {
+      if ($empty(this.state.approveRemark)) {
+        RbHighbar.create($L('请输入批注'))
+        return
+      }
     }
     if (rb.env === 'dev') console.log(JSON.stringify(_data))
 
     const that = this
-    RbAlert.create(<b>{$L('请再次确认审批数据范围和审批结果。开始审批吗？')}</b>, {
+    RbAlert.create(<b>{$L('请再次确认审批数据范围和审批方式。开始审批吗？')}</b>, {
       onConfirm: function () {
         this.hide()
         that.disabled(true, true)
@@ -728,6 +766,7 @@ class BatchApprove extends BatchOperator {
           }
         })
       },
+      countdown: 5,
     })
   }
 

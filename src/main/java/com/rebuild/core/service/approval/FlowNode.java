@@ -153,8 +153,9 @@ public class FlowNode {
      * @return
      */
     public boolean allowBatch() {
-        Boolean b = getDataMap().getBoolean("allowBatch");
-        return b != null && b;
+//        Boolean b = getDataMap().getBoolean("allowBatch");
+//        return b != null && b;
+        return true;  // v4.2 全面允许
     }
 
     /**

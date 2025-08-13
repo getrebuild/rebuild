@@ -632,7 +632,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     }
     // v4.0
     if (this.state.remarkReq >= 1 && $empty(data.remark)) {
-      RbHighbar.createl('请填写批注')
+      RbHighbar.createl('请输入批注')
       return false
     }
 
