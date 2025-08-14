@@ -714,7 +714,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   width: 100%;
 }
 
-.expires-notify-set {
+.expires-notify-set,
+.editable-mode-set {
   background-color: #eee;
   padding: 20px;
   padding-top: 15px;

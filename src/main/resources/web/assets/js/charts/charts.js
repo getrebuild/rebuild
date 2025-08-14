@@ -52,7 +52,9 @@ class BaseChart extends React.Component {
     )
 
     return (
-      <div className={`chart-box ${this.props.type} ${this.state.useBgcolor && `gradient-bg-${this.state.useBgcolor}`} ${this.props.type === 'DATALIST2' && 'DataList'}`} ref={(c) => (this._$box = c)}>
+      <div
+        className={`chart-box ${this.props.type} ${this.state.useBgcolor && `gradient-bg gradient-bg-${this.state.useBgcolor}`} ${this.props.type === 'DATALIST2' && 'DataList'}`}
+        ref={(c) => (this._$box = c)}>
         <div className="chart-head">
           <div className="chart-title text-truncate">{this.state.title}</div>
           {opActions}

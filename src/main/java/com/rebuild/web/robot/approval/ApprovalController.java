@@ -207,10 +207,14 @@ public class ApprovalController extends BaseController {
         if (reqType < 2) data.put("remarkReq", reqType);
         else data.put("remarkReq", expTime == null || expTime < 0 ? 0 : 1);
 
-        // 可修改字段
-        JSONArray editableFields = currentFlowNode.getEditableFields();
-        if (editableFields != null && !editableFields.isEmpty()) {
-            data.putAll(new EditableFields(editableFields).buildForms(recordId, user));
+        // 可修改记录
+        int editableMode = currentFlowNode.getEditableMode();
+        data.put("editableMode", editableMode);
+        if (editableMode ==FlowNode.EDITABLE_MODE_FIELDS) {
+            JSONArray editableFields = currentFlowNode.getEditableFields();
+            if (!CollectionUtils.isEmpty(editableFields)) {
+                data.putAll(new EditableFields(editableFields).buildForms(recordId, user));
+            }
         }
 
         return data;

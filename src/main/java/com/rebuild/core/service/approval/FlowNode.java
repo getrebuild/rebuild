@@ -20,6 +20,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.utils.JSONUtils;
 import lombok.Getter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -65,6 +66,12 @@ public class FlowNode {
     public static final String SIGN_AND = "AND";  // 会签（默认）
     public static final String SIGN_OR = "OR";    // 或签
     public static final String SIGN_ALL = "ALL";  // 逐个审批（暂未用）
+
+    // 可修改记录
+
+    public static final int EDITABLE_MODE_NONE = 0;
+    public static final int EDITABLE_MODE_RECORD = 1;
+    public static final int EDITABLE_MODE_FIELDS = 10;
 
     // --
 
@@ -167,7 +174,7 @@ public class FlowNode {
      */
     public Set<ID> getSpecUsers(ID operator, ID record) {
         JSONArray userDefs = getDataMap().getJSONArray("users");
-        if (userDefs == null || userDefs.isEmpty()) return Collections.emptySet();
+        if (CollectionUtils.isEmpty(userDefs)) return Collections.emptySet();
 
         String userType = userDefs.getString(0);
         if (USER_SELF.equalsIgnoreCase(userType)) {
@@ -248,7 +255,7 @@ public class FlowNode {
      */
     public Set<String> getCcAccounts(ID record) {
         JSONArray accountFields = getDataMap().getJSONArray("accounts");
-        if (accountFields == null || accountFields.isEmpty()) return Collections.emptySet();
+        if (CollectionUtils.isEmpty(accountFields)) return Collections.emptySet();
 
         Entity useEntity = MetadataHelper.getEntity(record.getEntityCode());
         List<String> useFields = new ArrayList<>();
@@ -292,10 +299,22 @@ public class FlowNode {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
+        if (obj == null) return false;
         return obj instanceof FlowNode && obj.hashCode() == this.hashCode();
+    }
+
+    /**
+     * 节点可修改记录
+     *
+     * @return 0=不可修改, 1=可修改, 10=可修改字段
+     * @see #getEditableFields()
+     */
+    public int getEditableMode() {
+        if (getDataMap().containsKey("editableMode")) {
+            return getDataMap().getIntValue("editableMode");
+        }
+        // v4.2 兼容
+        return CollectionUtils.isEmpty(getEditableFields()) ? EDITABLE_MODE_NONE : EDITABLE_MODE_FIELDS;
     }
 
     /**
@@ -304,8 +323,8 @@ public class FlowNode {
      * @return
      */
     public JSONArray getEditableFields() {
-        JSONArray editableFields = dataMap == null ? null : dataMap.getJSONArray("editableFields");
-        if (editableFields == null) return null;
+        JSONArray editableFields = getDataMap().getJSONArray("editableFields");
+        if (CollectionUtils.isEmpty(editableFields)) return JSONUtils.EMPTY_ARRAY;
 
         editableFields = (JSONArray) JSONUtils.clone(editableFields);
         for (Object o : editableFields) {
@@ -322,7 +341,7 @@ public class FlowNode {
      * @return
      */
     public JSONObject getExpiresAuto() {
-        JSONObject expiresAuto = dataMap == null ? null : dataMap.getJSONObject("expiresAuto");
+        JSONObject expiresAuto = getDataMap().getJSONObject("expiresAuto");
         if (expiresAuto == null) return null;
         if (expiresAuto.getIntValue("expiresAuto") <= 0) return null;
         return expiresAuto;
