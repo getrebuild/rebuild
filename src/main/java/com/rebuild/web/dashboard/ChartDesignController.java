@@ -232,4 +232,25 @@ public class ChartDesignController extends EntityController {
 
         return RespBody.ok(record.getPrimary());
     }
+    
+    @RequestMapping("chart-copy")
+    public RespBody chartCopy(@IdParam ID chartId, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        
+        // 获取原图表信息
+        Object[] chart = Application.createQueryNoFilter(
+                "select belongEntity,title,config,chartType from ChartConfig where chartId = ?")
+                .setParameter(1, chartId)
+                .unique();
+        
+        // 创建新记录
+        Record record = EntityHelper.forNew(EntityHelper.ChartConfig, user);
+        record.setString("belongEntity", (String) chart[0]);
+        record.setString("title", chart[1] + " " + Language.L("(副本)"));
+        record.setString("config", (String) chart[2]);
+        record.setString("chartType", (String) chart[3]);
+        
+        record = Application.getBean(ChartConfigService.class).createOrUpdate(record);
+        return RespBody.ok(record.getPrimary());
+    }
 }
