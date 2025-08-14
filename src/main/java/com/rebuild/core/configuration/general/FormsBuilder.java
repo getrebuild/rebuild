@@ -34,6 +34,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.NoRecordFoundException;
+import com.rebuild.core.service.approval.ApprovalHelper;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.general.GeneralEntityService;
@@ -143,6 +144,7 @@ public class FormsBuilder extends FormsManager {
         ApprovalState approvalState;
         // 提示
         String readonlyMessage = null;
+        String readonlywMessage = null;  // 可强制编辑
 
         // 判断表单权限
 
@@ -193,7 +195,13 @@ public class FormsBuilder extends FormsManager {
                 if (approvalState == ApprovalState.APPROVED) {
                     readonlyMessage = Language.L("%s已审批完成，不能编辑", recordType);
                 } else if (approvalState == ApprovalState.PROCESSING) {
-                    readonlyMessage = Language.L("%s正在审批中，不能编辑", recordType);
+                    // v4.2
+                    boolean allow42 = ApprovalHelper.isAllowEditableRecord(recordId, user);
+                    if (allow42) {
+                        readonlywMessage = Language.L("%s正在审批中，审批人允许编辑", recordType);
+                    } else {
+                        readonlyMessage = Language.L("%s正在审批中，不能编辑", recordType);
+                    }
                 }
             }
         }
@@ -311,7 +319,8 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        if (readonlyMessage != null) model.set("readonlyMessage", readonlyMessage);
+        if (readonlywMessage != null) model.set("readonlywMessage", readonlywMessage);
+        else if (readonlyMessage != null) model.set("readonlyMessage", readonlyMessage);
 
         // v3.4
         String disabledViewEditable = EasyMetaFactory.valueOf(entityMeta)

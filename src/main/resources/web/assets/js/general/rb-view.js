@@ -503,9 +503,14 @@ class EntityRelatedList extends RelatedList {
 
   _handleEdit(e, id) {
     $stopEvent(e, true)
-    const _entity = this.__entity
-    const editProps = { id: id, entity: _entity, title: $L('编辑%s', this.props.entity2[0]), icon: this.props.entity2[1] }
-    if ((window.__LAB40_EDIT_PROVIDERS || {})[_entity]) window.__LAB40_EDIT_PROVIDERS[_entity](editProps)
+    const editProps = {
+      id: id,
+      entity: this.__entity,
+      title: $L('编辑%s', this.props.entity2[0]),
+      icon: this.props.entity2[1],
+      noExtraButton: true,
+    }
+    if ((window.__LAB40_EDIT_PROVIDERS || {})[this.__entity]) window.__LAB40_EDIT_PROVIDERS[this.__entity](editProps)
     else RbFormModal.create(editProps, true)
   }
 
@@ -928,7 +933,14 @@ const RbViewPage = {
           if (entity.length > 1) iv[entity[1]] = that.__id
           else iv[`&${that.__entity[0]}`] = that.__id
 
-          RbFormModal.create({ title: $L('新建%s', item._entityLabel || item.entityLabel), entity: entity[0], icon: item.icon, initialValue: iv, _noExtraButton: true })
+          const newProps = {
+            title: $L('新建%s', item._entityLabel || item.entityLabel),
+            entity: entity[0],
+            icon: item.icon,
+            initialValue: iv,
+            noExtraButton: true,
+          }
+          RbFormModal.create(newProps)
         }
       })
 

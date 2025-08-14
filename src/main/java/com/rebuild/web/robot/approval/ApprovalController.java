@@ -107,7 +107,7 @@ public class ApprovalController extends BaseController {
     public RespBody getApprovalState(HttpServletRequest request, @IdParam(name = "record") ID recordId) {
         final Entity approvalEntity = MetadataHelper.getEntity(recordId.getEntityCode());
         if (!MetadataHelper.hasApprovalField(approvalEntity)) {
-            return RespBody.error("NOT AN APPROVAL ENTITY");
+            return RespBody.error("NONE APPROVAL ENTITY");
         }
 
         final ID user = getRequestUser(request);

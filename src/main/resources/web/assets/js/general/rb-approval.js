@@ -484,6 +484,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
           )}
 
           {(this.state.aform || this.state.aform_details) && this.renderLiteForm()}
+          {this.state.editableMode === 1 && this.renderEditable()}
 
           <div className="form-group">
             <label>
@@ -555,6 +556,46 @@ class ApprovalApproveForm extends ApprovalUsersForm {
       <div className="form-group">
         <label>{$L('信息完善 (驳回时无需填写)')}</label>
         <EditableFieldForms _this={this} ref={(c) => (this._EditableFieldForms = c)} />
+      </div>
+    )
+  }
+
+  renderEditable() {
+    return (
+      <div className="form-group">
+        <label>{$L('信息完善 (驳回时无需填写)')}</label>
+        <div>
+          <button
+            type="button"
+            className="btn btn-primary btn-outline"
+            onClick={() => {
+              $fetchMetaInfo(this.props.entity, (res) => {
+                const editProps = {
+                  entity: res.entity,
+                  title: $L('编辑%s', res.entityLabel),
+                  icon: res.icon,
+                  id: this.props.id,
+                  noExtraButton: true,
+                  postAfter: (recordId, next, formObject) => {
+                    RbAlert.create($L('是否需要刷新当前页面？'), {
+                      onConfirm: () => {
+                        // 刷新列表
+                        const rlp = window.RbListPage || parent.RbListPage
+                        if (rlp) rlp.reload(recordId)
+                        // 刷新视图
+                        if (window.RbViewPage) window.RbViewPage.reload()
+                      },
+                    })
+                  },
+                }
+                if ((window.__LAB40_EDIT_PROVIDERS || {})[this.props.entity]) window.__LAB40_EDIT_PROVIDERS[this.props.entity](editProps)
+                else RbFormModal.create(editProps, true)
+              })
+            }}>
+            <i className="icon zmdi zmdi-edit mr-1" />
+            {$L('编辑')}
+          </button>
+        </div>
       </div>
     )
   }

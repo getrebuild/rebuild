@@ -159,5 +159,6 @@ module.exports = {
     marked: true,
     $focus2End: true,
     RecordSelectorModal: true,
+    $fetchMetaInfo: true,
   },
 }

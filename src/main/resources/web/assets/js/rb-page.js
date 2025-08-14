@@ -1479,3 +1479,14 @@ function $focus2End(el, delay) {
     el.setSelectionRange(len, len)
   }, delay || 100)
 }
+
+// 获取实体元数据
+function $fetchMetaInfo(name, cb) {
+  $.get('/commons/metadata/meta-info?name=' + $encode(name), function (res) {
+    if (res.error_code === 0) {
+      typeof cb === 'function' && cb(res.data || {})
+    } else {
+      RbHighbar.error(res.error_msg)
+    }
+  })
+}

@@ -134,7 +134,7 @@ class RbFormModal extends React.Component {
         </RbForm>
       )
 
-      that.setState({ formComponent: FORM, alertMessage: formModel.readonlyMessage || null }, () => {
+      that.setState({ formComponent: FORM, alertMessage: formModel.readonlywMessage || formModel.readonlyMessage || null }, () => {
         that.setState({ inLoad: false })
         if (window.FrontJS) {
           window.FrontJS.Form._trigger('open', [formModel])
@@ -567,7 +567,7 @@ class RbForm extends React.Component {
         )
       }
     } else {
-      if (parentProps._noExtraButton) {
+      if (parentProps.noExtraButton) {
         // 无扩展按钮
       } else {
         // 保存并...
@@ -896,12 +896,12 @@ class RbForm extends React.Component {
   // 提交前调用
   _postBeforeExec(data) {
     if (typeof this._postBefore === 'function') {
-      let ret = this._postBefore(data, this)
+      const ret = this._postBefore(data, this)
       if (ret === false) return false
     }
 
     if (window.FrontJS) {
-      let ret = window.FrontJS.Form._trigger('saveBefore', [data, this])
+      const ret = window.FrontJS.Form._trigger('saveBefore', [data, this])
       if (ret === false) return false
     }
 
