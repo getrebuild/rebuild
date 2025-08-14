@@ -744,6 +744,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   right: 0;
 }
 
+.chart-box.TABLE .chart.ctable .table {
+  background-color: transparent;
+}
+
 /* gradient-backgrounds.css */
 
 .gradient-bg-1 {

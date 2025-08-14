@@ -19,7 +19,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -113,7 +112,13 @@ public class TableChart extends ChartData {
         }
 
         String tableHtml = new TableBuilder(this, dataRaw).toHTML();
-        return JSONUtils.toJSONObject("html", tableHtml);
+
+        JSONObject renderOption = config.getJSONObject("option");
+        if (renderOption == null) renderOption = new JSONObject();
+
+        return JSONUtils.toJSONObject(
+                new String[]{"html", "_renderOption"},
+                new Object[]{tableHtml, renderOption});
     }
 
     protected boolean isShowLineNumber() {
