@@ -20,6 +20,7 @@ class RbViewForm extends React.Component {
     this.onViewEditable = this.props.onViewEditable
     if (this.onViewEditable) this.onViewEditable = wpc.onViewEditable !== false
     if (window.__LAB_VIEWEDITABLE === false) this.onViewEditable = false
+
     // temp for `saveSingleFieldValue`
     this.__FormData = {}
     this._verticalLayout42 = window.__LAB_VERTICALLAYOUT
@@ -46,7 +47,7 @@ class RbViewForm extends React.Component {
       }
 
       let hadApproval = res.data.hadApproval
-      if (hadApproval === 2 || hadApproval === 10) this.onViewEditable = false
+      if (hadApproval === 2 || hadApproval === 10) this.onViewEditable = false // be:4.2
       let hadAlert = null
       let hadSop = res.data.hadSop && rb.commercial > 1
       if (wpc.type === 'DetailView') {
