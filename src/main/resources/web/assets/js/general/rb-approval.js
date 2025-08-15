@@ -575,7 +575,6 @@ class ApprovalApproveForm extends ApprovalUsersForm {
                   title: $L('编辑%s', res.entityLabel),
                   icon: res.icon,
                   id: this.props.id,
-                  noExtraButton: true,
                   postAfter: (recordId, next, formObject) => {
                     // 刷新列表
                     const rlp = window.RbListPage || parent.RbListPage
@@ -588,8 +587,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
                     })
                   },
                 }
-                if ((window.__LAB40_EDIT_PROVIDERS || {})[this.props.entity]) window.__LAB40_EDIT_PROVIDERS[this.props.entity](editProps)
-                else RbFormModal.create(editProps, true)
+                RbFormModal.create(editProps, true)
               })
             }}>
             <i className="icon zmdi zmdi-edit mr-1" />

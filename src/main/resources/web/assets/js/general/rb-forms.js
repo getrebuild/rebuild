@@ -254,6 +254,12 @@ class RbFormModal extends React.Component {
    * @param {*} forceNew
    */
   static create(props, forceNew) {
+    // 自定义编辑
+    if ((window.__LAB40_EDIT_PROVIDERS || {})[props.entity]) {
+      window.__LAB40_EDIT_PROVIDERS[props.entity](props, forceNew)
+      return
+    }
+
     // `__CURRENT35`, `__HOLDER` 可能已 unmount
     const that = this
     if (forceNew === true) {
@@ -559,7 +565,7 @@ class RbForm extends React.Component {
     let moreActions = []
     // 添加明细
     if (props.rawModel.mainMeta) {
-      if (parentProps._nextAddDetail) {
+      if (parentProps.nextAddDetail) {
         moreActions.push(
           <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_NEWDETAIL)}>
             {$L('保存并添加')}
@@ -567,10 +573,8 @@ class RbForm extends React.Component {
         )
       }
     } else {
-      if (parentProps.noExtraButton) {
-        // 无扩展按钮
-      } else {
-        // 保存并...
+      // 保存并...
+      if (parentProps.showExtraButton) {
         if (props.rawModel.hadApproval && window.ApprovalSubmitForm) {
           moreActions.push(
             <a key="Action103" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_SUBMIT37)}>

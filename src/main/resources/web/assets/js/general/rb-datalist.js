@@ -39,10 +39,7 @@ const RbListPage = {
     $('.J_edit').on('click', () => {
       const ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
-        const _entity = entity[0]
-        const editProps = { id: ids[0], title: $L('编辑%s', entity[1]), entity: _entity, icon: entity[2] }
-        if ((window.__LAB40_EDIT_PROVIDERS || {})[_entity]) window.__LAB40_EDIT_PROVIDERS[_entity](editProps)
-        else RbFormModal.create(editProps, true)
+        RbFormModal.create({ id: ids[0], title: $L('编辑%s', entity[1]), entity: entity[0], icon: entity[2], showExtraButton: true }, true)
       }
     })
     $('.J_delete').on('click', () => {
@@ -111,7 +108,7 @@ class RbViewModal extends React.Component {
     super(props)
     this.state = { ...props, inLoad: true, isHide: true, destroy: false }
 
-    this._mcWidth = this.props.subView === true ? 1344 : 1404
+    this._mcWidth = props.subView === true ? 1344 : 1404
     if ($(window).width() < 1464) this._mcWidth -= 184
   }
 
@@ -122,7 +119,14 @@ class RbViewModal extends React.Component {
           <div className="modal-dialog">
             <div className="modal-content" style={{ width: this._mcWidth }}>
               <div className={`modal-body iframe rb-loading ${this.state.inLoad === true && 'rb-loading-active'}`}>
-                <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no" />
+                <iframe
+                  data-subview={this.props.subView || false}
+                  ref={(c) => (this._iframe = c)}
+                  className={this.state.isHide ? 'invisible' : ''}
+                  src={this.state.showAfterUrl || 'about:blank'}
+                  frameBorder="0"
+                  scrolling="no"
+                />
                 <RbSpinner />
               </div>
             </div>
