@@ -155,10 +155,15 @@ public class FormsBuilder extends FormsManager {
                 Assert.notNull(mainid, "CALL `FormBuilderContextHolder#setMainIdOfDetail` FIRST!");
 
                 approvalState = EntityHelper.isUnsavedId(mainid) ? null : getHadApproval(hasMainEntity, mainid);
-                if ((approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED)) {
-                    readonlyMessage = approvalState == ApprovalState.APPROVED
-                            ? Language.L("主记录已审批完成，不能添加明细")
-                            : Language.L("主记录正在审批中，不能添加明细");
+                if (approvalState == ApprovalState.APPROVED) {
+                    readonlyMessage = Language.L("主记录已审批完成，不能添加明细");
+                } else if (approvalState == ApprovalState.PROCESSING) {
+                    boolean allow42 = ApprovalHelper.isAllowEditableRecord(mainid, user);
+                    if (allow42) {
+                        readonlywMessage = Language.L("主记录正在审批中，审批人允许编辑");
+                    } else {
+                        readonlyMessage = Language.L("主记录正在审批中，不能添加明细");
+                    }
                 }
                 // 明细无需审批
                 approvalState = null;

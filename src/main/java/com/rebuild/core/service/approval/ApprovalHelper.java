@@ -253,6 +253,11 @@ public class ApprovalHelper {
      * @return
      */
     public static boolean isAllowEditableRecord(ID recordId, ID user) {
+        // 明细需要使用主记录判断
+        if (MetadataHelper.getEntity(recordId.getEntityCode()).getMainEntity() != null) {
+            recordId = QueryHelper.getMainIdByDetail(recordId);
+        }
+
         ApprovalStatus s = getApprovalStatus(recordId);
         FlowNode node = getFlowNode(s.getApprovalId(), s.getCurrentStepNode());
         if (node == null || node.getEditableMode() != FlowNode.EDITABLE_MODE_RECORD) return false;

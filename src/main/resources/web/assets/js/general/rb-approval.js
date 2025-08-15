@@ -563,7 +563,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   renderEditable() {
     return (
       <div className="form-group">
-        <label>{$L('信息完善 (驳回时无需填写)')}</label>
+        <label>{$L('信息完善')}</label>
         <div>
           <button
             type="button"
@@ -577,11 +577,11 @@ class ApprovalApproveForm extends ApprovalUsersForm {
                   id: this.props.id,
                   noExtraButton: true,
                   postAfter: (recordId, next, formObject) => {
-                    RbAlert.create($L('是否需要刷新当前页面？'), {
+                    // 刷新列表
+                    const rlp = window.RbListPage || parent.RbListPage
+                    if (rlp) rlp.reload(recordId)
+                    RbAlert.create($L('数据可能已更改，是否需要刷新页面？'), {
                       onConfirm: () => {
-                        // 刷新列表
-                        const rlp = window.RbListPage || parent.RbListPage
-                        if (rlp) rlp.reload(recordId)
                         // 刷新视图
                         if (window.RbViewPage) window.RbViewPage.reload()
                       },
