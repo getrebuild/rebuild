@@ -12,6 +12,7 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigurationException;
@@ -235,6 +236,38 @@ public class ApprovalHelper {
                     .createFlowParser().getNode(node);
         } catch (ConfigurationException | ApprovalException ignored) {}
         return null;
+    }
+
+    /**
+     * @param recordId
+     * @return
+     */
+    public static FlowNode getCurrentFlowNode(ID recordId) {
+        ApprovalStatus s = getApprovalStatus(recordId);
+        return getFlowNode(s.getApprovalId(), s.getCurrentStepNode());
+    }
+
+    /**
+     * @param recordId
+     * @param user
+     * @return
+     */
+    public static boolean isAllowEditableRecord(ID recordId, ID user) {
+        // 明细需要使用主记录判断
+        if (MetadataHelper.getEntity(recordId.getEntityCode()).getMainEntity() != null) {
+            recordId = QueryHelper.getMainIdByDetail(recordId);
+        }
+
+        ApprovalStatus s = getApprovalStatus(recordId);
+        FlowNode node = getFlowNode(s.getApprovalId(), s.getCurrentStepNode());
+        if (node == null || node.getEditableMode() != FlowNode.EDITABLE_MODE_RECORD) return false;
+
+        JSONArray current = new ApprovalProcessor(recordId, s.getApprovalId()).getCurrentStep(s);
+        for (Object o : current) {
+            JSONObject step = (JSONObject) o;
+            if (StringUtils.equalsIgnoreCase(user.toLiteral(), step.getString("approver"))) return true;
+        }
+        return false;
     }
 
     /**

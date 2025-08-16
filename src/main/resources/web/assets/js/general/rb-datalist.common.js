@@ -419,7 +419,7 @@ class BatchUpdate extends BatchOperator {
                       <span className="badge badge-warning">{field.label}</span>
                     </div>
                     <div className="col-2 pl-0 pr-0">
-                      <span className="badge badge-warning">{BUE_OPTYPES[item.op]}</span>
+                      <span className="badge badge-warning">{BU_OPS[item.op]}</span>
                     </div>
                     <div className="col-6">
                       {item.op !== 'NULL' && <span className="badge badge-warning text-break text-left">{FieldValueSet.formatFieldText(item.value, field)}</span>}
@@ -433,7 +433,7 @@ class BatchUpdate extends BatchOperator {
             })}
           </div>
           <div className="batch-editor">
-            {this.state.fields && <BatchUpdateEditor ref={(c) => (this._editor = c)} fields={this.state.fields} entity={this.props.entity} />}
+            {this.state.fields && <BatchUpdateEntry ref={(c) => (this._buEntry = c)} fields={this.state.fields} entity={this.props.entity} />}
             <div className="mt-1">
               <button className="btn btn-primary btn-sm btn-outline" onClick={() => this.addItem()} type="button">
                 + {$L('添加')}
@@ -446,7 +446,7 @@ class BatchUpdate extends BatchOperator {
   }
 
   addItem() {
-    const item = this._editor.buildItem()
+    const item = this._buEntry.buildItem()
     if (!item) return
 
     const contents = this.state.updateContents || []
@@ -537,19 +537,22 @@ class BatchUpdate extends BatchOperator {
   }
 }
 
-// ~ 批量修改编辑器
-
-const BUE_OPTYPES = {
+const BU_OPS = {
   SET: $L('修改为'),
   NULL: $L('置空'),
   // TODO 支持更多修改模式
+  // 250813 也可以触发器修改
   // PREFIX: $L('前添加'),
   // SUFFIX: $L('后添加'),
+  // REPLACE: $L('替换'),
   // PLUS: $L('加上'),
   // MINUS: $L('减去'),
+  // MULTIPLY: $L('乘以'),
+  // DIVIDE: $L('除以'),
 }
 
-class BatchUpdateEditor extends React.Component {
+// 批量修改编辑器
+class BatchUpdateEntry extends React.Component {
   state = { ...this.props, selectOp: 'SET' }
 
   componentDidMount() {
@@ -598,8 +601,8 @@ class BatchUpdateEditor extends React.Component {
         </div>
         <div className="col-2 pl-0 pr-0">
           <select className="form-control form-control-sm" ref={(c) => (this._$op = c)}>
-            <option value="SET">{BUE_OPTYPES['SET']}</option>
-            <option value="NULL">{BUE_OPTYPES['NULL']}</option>
+            <option value="SET">{BU_OPS['SET']}</option>
+            <option value="NULL">{BU_OPS['NULL']}</option>
           </select>
           <span className="text-muted">{$L('修改方式')}</span>
         </div>
@@ -636,7 +639,10 @@ class BatchUpdateEditor extends React.Component {
     }
 
     data.value = this._FieldValue.val()
-    if (!data.value) {
+    if (data.value === false) {
+      // 格式不正确
+      return null
+    } else if (!data.value) {
       RbHighbar.create($L('请填写新值'))
       return null
     } else {
@@ -661,10 +667,11 @@ class BatchApprove extends BatchOperator {
   }
 
   renderOperator() {
+    const approveState = ~~this.state.approveState
     return (
       <div>
         <div className="form-group">
-          <label className="text-bold">{$L('审批结果')}</label>
+          <label className="text-bold">{$L('审批方式')}</label>
           <div>
             <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
               <input className="custom-control-input" type="radio" name="approveState" value="10" onClick={this.handleChange} />
@@ -674,15 +681,40 @@ class BatchApprove extends BatchOperator {
               <input className="custom-control-input" type="radio" name="approveState" value="11" onClick={this.handleChange} />
               <span className="custom-control-label">{$L('驳回')}</span>
             </label>
+            <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+              <input className="custom-control-input" type="radio" name="approveState" value="1" onClick={this.handleChange} />
+              <span className="custom-control-label">{$L('提交')}</span>
+            </label>
           </div>
         </div>
-        <div className="form-group">
+
+        <div className={`form-group ${approveState >= 10 ? '' : 'hide'}`}>
           <label className="text-bold">{$L('批注')}</label>
-          <textarea className="form-control form-control-sm row2x" name="approveRemark" placeholder={$L('输入批注 (可选)')} maxLength="600" onChange={this.handleChange} />
+          <textarea className="form-control form-control-sm row2x" name="approveRemark" placeholder={$L('输入批注')} maxLength="600" onChange={this.handleChange} />
         </div>
-        <RbAlertBox message={$L('仅处于待你审批，且允许批量审批的记录才能审批成功')} type="info" className="mb-0" />
+        <div className={`form-group ${approveState === 1 ? '' : 'hide'}`}>
+          <label className="text-bold">{$L('审批流程')}</label>
+          <select className="form-control form-control-sm" ref={(c) => (this._$useApproval = c)} />
+        </div>
+
+        <RbAlertBox message={$L('仅允许你审批或提交的记录，才能审批成功')} type="info" className="mb-0" />
       </div>
     )
+  }
+
+  componentDidMount() {
+    // super.componentDidMount()
+
+    $.get(`/app/entity/approval/alist?entity=${wpc.entity[0]}&valid=true`, (res) => {
+      $(this._$useApproval).select2({
+        placeholder: $L('无'),
+        allowClear: false,
+        language: {
+          noResults: () => $L('无适用流程'),
+        },
+        data: res.data || [],
+      })
+    })
   }
 
   handleConfirm() {
@@ -691,19 +723,31 @@ class BatchApprove extends BatchOperator {
       return
     }
 
-    if (!this.state.approveState) return RbHighbar.create($L('请选择审批结果'))
+    if (!this.state.approveState) return RbHighbar.create($L('请选择审批方式'))
 
     const _data = {
       queryData: this.getQueryData(),
       approveContent: {
         state: this.state.approveState,
-        remark: this.state.approveRemark,
+        remark: this.state.approveRemark || null,
+        approvalId: $val(this._$useApproval) || null,
       },
+    }
+    if (~~this.state.approveState === 1) {
+      if (!_data.approveContent.approvalId) {
+        RbHighbar.create($L('请选择审批流程'))
+        return
+      }
+    } else {
+      if ($empty(this.state.approveRemark)) {
+        RbHighbar.create($L('请输入批注'))
+        return
+      }
     }
     if (rb.env === 'dev') console.log(JSON.stringify(_data))
 
     const that = this
-    RbAlert.create(<b>{$L('请再次确认审批数据范围和审批结果。开始审批吗？')}</b>, {
+    RbAlert.create(<b>{$L('请再次确认审批数据范围和审批方式。开始审批吗？')}</b>, {
       onConfirm: function () {
         this.hide()
         that.disabled(true, true)
@@ -722,6 +766,7 @@ class BatchApprove extends BatchOperator {
           }
         })
       },
+      countdown: 5,
     })
   }
 
@@ -838,16 +883,16 @@ const RbListCommon = {
     RbListPage.init(wpc.listConfig, entity, wpc.privileges)
     if (wpc.advFilter !== false) AdvFilters.init('.adv-search', entity[0])
 
-    const newProps = { title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }
+    const newProps = { title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2], showExtraButton: true }
     const $new = $('.J_new')
       .attr('disabled', false)
       .on('click', () => RbFormModal.create(newProps))
     if (wpc.formsAttr) {
       $new.next().removeClass('hide')
-      const $nn = $new.next().next()
+      const $next = $new.next().next()
       wpc.formsAttr.map((n) => {
         $(`<a class="dropdown-item" data-id="${n.id}">${n.name || $L('默认布局')}</a>`)
-          .appendTo($nn)
+          .appendTo($next)
           .on('click', () => RbFormModal.create({ ...newProps, specLayout: n.id }, true))
       })
     } else {

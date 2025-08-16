@@ -918,6 +918,7 @@ body.view-body {
 textarea.row1x {
   height: 37px !important;
   resize: none;
+  padding-top: 7px;
 }
 
 textarea.row2x {

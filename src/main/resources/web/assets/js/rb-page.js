@@ -610,7 +610,7 @@ var _initGlobalCreate = function () {
         var $item = $('<a class="dropdown-item"><i class="icon zmdi zmdi-' + this.icon + '"></i>' + this.entityLabel + '</a>').appendTo($gc)
         var _this = this
         $item.on('click', function () {
-          RbFormModal.create({ title: $L('新建%s', _this.entityLabel), entity: _this.entity, icon: _this.icon })
+          RbFormModal.create({ title: $L('新建%s', _this.entityLabel), entity: _this.entity, icon: _this.icon, showExtraButton: true })
         })
       })
     }
@@ -1478,4 +1478,15 @@ function $focus2End(el, delay) {
     var len = (el.value || '').length
     el.setSelectionRange(len, len)
   }, delay || 100)
+}
+
+// 获取实体元数据
+function $fetchMetaInfo(name, cb) {
+  $.get('/commons/metadata/meta-info?name=' + $encode(name), function (res) {
+    if (res.error_code === 0) {
+      typeof cb === 'function' && cb(res.data || {})
+    } else {
+      RbHighbar.error(res.error_msg)
+    }
+  })
 }

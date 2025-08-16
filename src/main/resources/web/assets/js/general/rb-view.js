@@ -20,6 +20,7 @@ class RbViewForm extends React.Component {
     this.onViewEditable = this.props.onViewEditable
     if (this.onViewEditable) this.onViewEditable = wpc.onViewEditable !== false
     if (window.__LAB_VIEWEDITABLE === false) this.onViewEditable = false
+
     // temp for `saveSingleFieldValue`
     this.__FormData = {}
     this._verticalLayout42 = window.__LAB_VERTICALLAYOUT
@@ -46,6 +47,7 @@ class RbViewForm extends React.Component {
       }
 
       let hadApproval = res.data.hadApproval
+      if (hadApproval === 2 || hadApproval === 10) this.onViewEditable = false // be:4.2
       let hadAlert = null
       let hadSop = res.data.hadSop && rb.commercial > 1
       if (wpc.type === 'DetailView') {
@@ -503,10 +505,7 @@ class EntityRelatedList extends RelatedList {
 
   _handleEdit(e, id) {
     $stopEvent(e, true)
-    const _entity = this.__entity
-    const editProps = { id: id, entity: _entity, title: $L('编辑%s', this.props.entity2[0]), icon: this.props.entity2[1] }
-    if ((window.__LAB40_EDIT_PROVIDERS || {})[_entity]) window.__LAB40_EDIT_PROVIDERS[_entity](editProps)
-    else RbFormModal.create(editProps, true)
+    RbFormModal.create({ id: id, entity: this.__entity, title: $L('编辑%s', this.props.entity2[0]), icon: this.props.entity2[1] }, true)
   }
 
   _handleView(e) {
@@ -663,10 +662,7 @@ const RbViewPage = {
     })
 
     $('.J_edit').on('click', () => {
-      const _entity = entity[0]
-      const editProps = { id: id, title: $L('编辑%s', entity[1]), entity: _entity, icon: entity[2] }
-      if ((window.__LAB40_EDIT_PROVIDERS || {})[_entity]) window.__LAB40_EDIT_PROVIDERS[_entity](editProps)
-      else RbFormModal.create(editProps, true)
+      RbFormModal.create({ id: id, title: $L('编辑%s', entity[1]), entity: entity[0], icon: entity[2] }, true)
     })
     $('.J_assign').on('click', () => DlgAssign.create({ entity: entity[0], ids: [id] }))
     $('.J_share').on('click', () => DlgShare.create({ entity: entity[0], ids: [id] }))
@@ -674,7 +670,7 @@ const RbViewPage = {
     $('.J_add-detail-menu>a').on('click', function () {
       const iv = { $MAINID$: id }
       const $this = $(this)
-      RbFormModal.create({ title: $L('添加%s', $this.data('label')), entity: $this.data('entity'), icon: $this.data('icon'), initialValue: iv, _nextAddDetail: true })
+      RbFormModal.create({ title: $L('添加%s', $this.data('label')), entity: $this.data('entity'), icon: $this.data('icon'), initialValue: iv, nextAddDetail: true })
     })
 
     if (wpc.transformTos && wpc.transformTos.length > 0) {
@@ -928,7 +924,13 @@ const RbViewPage = {
           if (entity.length > 1) iv[entity[1]] = that.__id
           else iv[`&${that.__entity[0]}`] = that.__id
 
-          RbFormModal.create({ title: $L('新建%s', item._entityLabel || item.entityLabel), entity: entity[0], icon: item.icon, initialValue: iv, _noExtraButton: true })
+          const newProps = {
+            title: $L('新建%s', item._entityLabel || item.entityLabel),
+            entity: entity[0],
+            icon: item.icon,
+            initialValue: iv,
+          }
+          RbFormModal.create(newProps)
         }
       })
 
@@ -1035,13 +1037,17 @@ $(document).ready(() => {
     $('.J_home').removeClass('hide')
   }
   // v4.2
-  if (parent && parent.RbListPage && parent.RbListPage._RbList && parent.RbListPage._RbList.jumpView) {
-    $('.J_record-next')
-      .removeClass('hide')
-      .on('click', () => parent.RbListPage._RbList.jumpView(1))
-    $('.J_record-prev')
-      .removeClass('hide')
-      .on('click', () => parent.RbListPage._RbList.jumpView(-1))
+  if (window.frameElement && parent && parent.RbListPage && parent.RbListPage._RbList && parent.RbListPage._RbList.jumpView) {
+    if ($(window.frameElement).data('subview')) {
+      // SubView
+    } else {
+      $('.J_record-next')
+        .removeClass('hide')
+        .on('click', () => parent.RbListPage._RbList.jumpView(1))
+      $('.J_record-prev')
+        .removeClass('hide')
+        .on('click', () => parent.RbListPage._RbList.jumpView(-1))
+    }
   }
 
   // iframe 点击穿透
