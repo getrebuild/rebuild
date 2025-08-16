@@ -77,7 +77,7 @@ public class PickListManager implements ConfigManager {
                         .set("default", o[2])
                         .set("hide", o[3])
                         .set("mask", o[4])
-                        .set("color", o[5]);
+                        .set("color", StringUtils.defaultIfBlank((String) o[5], null));
                 list.add(entry);
             }
 
@@ -126,7 +126,10 @@ public class PickListManager implements ConfigManager {
                 "select text,color from PickList where itemId = ?")
                 .setParameter(1, itemId)
                 .unique();
-        if (o != null) cached = o;
+        if (o != null) {
+            o[1] = StringUtils.defaultIfBlank((String) o[1], null);
+            cached = o;
+        }
         if (cached == null) cached = DELETED_ITEM;  // 已删除
 
         Application.getCommonsCache().putx(ckey, cached);
