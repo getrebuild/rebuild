@@ -48,12 +48,10 @@ public class MultiSelectManager extends PickListManager {
      * @return
      */
     public String[] getLabels(long maskValue, Field field) {
-        if (maskValue <= 0) {
-            return new String[0];
-        }
+        if (maskValue <= 0) return new String[0];
 
         List<String> labels = new ArrayList<>();
-        ConfigBean[] entries = getPickListRaw(field, false);
+        ConfigBean[] entries = getPickListRaw(field, true);
         for (ConfigBean e : entries) {
             long m = e.get("mask", Long.class);
             if ((maskValue & m) != 0) {

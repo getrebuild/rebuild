@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.project.ProjectHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.utils.JSONUtils;
@@ -50,6 +51,7 @@ public class TaskCommentController extends BaseController {
             o[3] = I18nUtils.formatDate((Date) o[3]);
             o[4] = new Object[]{o[4], UserHelper.getName((ID) o[4])};
             o[5] = ProjectHelper.isManageable((ID) o[0], user);
+            o[1] = FeedsHelper.formatContent((String) o[1]);  // fix:Gitee#ICSJD5
 
             JSONObject item = JSONUtils.toJSONObject(
                     new String[]{"id", "content", "attachments", "createdOn", "createdBy", "isManageable"},

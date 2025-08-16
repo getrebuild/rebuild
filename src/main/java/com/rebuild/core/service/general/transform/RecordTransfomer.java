@@ -31,6 +31,7 @@ import com.rebuild.core.service.query.FilterRecordChecker;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.NamedThreadLocal;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,6 +51,9 @@ import java.util.Objects;
  */
 @Slf4j
 public class RecordTransfomer extends SetUser {
+
+    // 防止自动转换死循环
+    private static final ThreadLocal<ID> FILLBACK2_ONCE414 = new NamedThreadLocal<>("FallbackMode=2 Trigger Once");
 
     final protected Entity targetEntity;
     final protected JSONObject transConfig;
@@ -107,6 +111,8 @@ public class RecordTransfomer extends SetUser {
      * @see #checkFilter(ID)
      */
     public ID transform(ID sourceRecordId, ID specMainId) {
+        FILLBACK2_ONCE414.remove();
+
         // 检查配置
         Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
         Entity sourceDetailEntity = null;
@@ -216,10 +222,11 @@ public class RecordTransfomer extends SetUser {
         Record updateSource = EntityHelper.forUpdate(sourceRecordId, UserService.SYSTEM_USER, false);
         updateSource.setID(fillbackField, newId);
 
-        // 此配置未开放
+        // 4.1.3 配置开放
         int fillbackMode = transConfig.getIntValue("fillbackMode");
-        if (fillbackMode == 2 && !EntityHelper.isUnsavedId(newId)) {
+        if (fillbackMode == 2 && !EntityHelper.isUnsavedId(newId) && FILLBACK2_ONCE414.get() == null) {
             GeneralEntityServiceContextHolder.setAllowForceUpdate(updateSource.getPrimary());
+            FILLBACK2_ONCE414.set(newId);
             try {
                 Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
             } finally {
@@ -229,7 +236,6 @@ public class RecordTransfomer extends SetUser {
             // 无传播更新
             Application.getCommonsService().update(updateSource, false);
         }
-
         return true;
     }
 

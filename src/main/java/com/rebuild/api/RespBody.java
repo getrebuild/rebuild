@@ -10,10 +10,11 @@ package com.rebuild.api;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.JSONable;
 import lombok.Data;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 统一请求返回消息体
@@ -80,8 +81,8 @@ public class RespBody implements JSONable {
      * @return
      */
     public static RespBody error(Throwable errorObject) {
-        String msg = ExceptionUtils.getRootCauseMessage(errorObject);
-        return error(msg);
+        String msg = CommonsUtils.getRootMessage(errorObject);
+        return error(StringUtils.defaultIfBlank(msg, "UNKNOW ERROR"));
     }
 
     /**

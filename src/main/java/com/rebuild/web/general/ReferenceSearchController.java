@@ -36,6 +36,7 @@ import com.rebuild.web.EntityController;
 import com.rebuild.web.EntityParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -97,8 +98,8 @@ public class ReferenceSearchController extends EntityController {
                 }
             }
         }
-        String protocolFilter = fp.parseRef(referenceField.getName() + "." + entity.getName(), cascadingValue);
 
+        String protocolFilter = fp.parseRef(referenceField.getName() + "." + entity.getName(), cascadingValue);
         String q = StringUtils.trim(getParameter(request, "q"));
 
         // 强制搜索 H5
@@ -109,6 +110,12 @@ public class ReferenceSearchController extends EntityController {
         if (StringUtils.isBlank(q) && !forceSearchs) {
             ID[] used = RecentlyUsedHelper.gets(
                     user, searchEntity.getName(), getParameter(request, "type"), protocolFilter);
+            // v4.1.4 当前记录值置顶显示
+            ID _top = getIdParameter(request, "_top");
+            if (_top != null && !ArrayUtils.contains(used, _top)) {
+                _top.setLabel(FieldValueHelper.getLabelNotry(_top));
+                used = ArrayUtils.insert(0, used, _top);
+            }
 
             if (used.length == 0) {
                 if (!forceResults) return JSONUtils.EMPTY_ARRAY;

@@ -2086,7 +2086,10 @@ class RbFormPickList extends RbFormElement {
         options.push({ id: props.value, text: '[DELETED]' })
       }
     }
-    this._options = options
+    this._options = options.filter((item) => {
+      return item.hide !== true || (props.value && item.id === props.value)
+    })
+
     this._isShowRadio39 = props.showStyle === '10'
     this._htmlid = `${props.field}-${$random()}-`
   }
@@ -2302,6 +2305,12 @@ class RbFormReference extends RbFormElement {
 
           const cascadingValue = this._getCascadingFieldValue()
           if (cascadingValue) query.cascadingValue = cascadingValue
+          // 4.1.3
+          let val = this.state.value
+          if (typeof val === 'object') val = val.id
+          if (val) query._top = val
+
+          console.log('Reference query:', query)
           return query
         },
         placeholder: this._placeholderw,
@@ -2907,7 +2916,12 @@ class RbFormMultiSelect extends RbFormElement {
     super(props)
     this._htmlid = `${props.field}-${$random()}_`
     this._isShowSelect41 = props.showStyle === '10'
-    this._options = props.options || []
+    this._options = (props.options || []).filter((item) => {
+      if (props.value && props.value.id) {
+        if ((props.value.id & item.mask) !== 0) return true
+      }
+      return item.hide !== true
+    })
   }
 
   renderElement() {

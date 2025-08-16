@@ -21,6 +21,8 @@ import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 /**
  * @author devezhao
  * @since 2020/7/27
@@ -42,9 +44,18 @@ public class ProjectCommentService extends BaseTaskService {
         final ID user = getCurrentUser();
         checkModifications(user, record.getID("taskId"));
 
+        String content = record.getString("content");
+        // 将 @FULL_NAME 转成 @ID
+        Map<String, ID> map = FeedsHelper.findMentionsMap(content);
+        for (Map.Entry<String, ID> e : map.entrySet()) {
+            content = content.replace("@" + e.getKey(), "@" + e.getValue());
+        }
+        record.setString("content", content);
         record = super.create(record);
 
-        checkAtUserAndNotification(record, record.getString("content"));
+        if (StringUtils.isNotBlank(content) && !map.isEmpty()) {
+            checkAtUserAndNotification(record, content, map.values().toArray(new ID[0]));
+        }
         return record;
     }
 
@@ -68,14 +79,11 @@ public class ProjectCommentService extends BaseTaskService {
      * @param content
      * @return
      */
-    private int checkAtUserAndNotification(Record record, String content) {
-        if (StringUtils.isBlank(content)) return 0;
-
-        final String msgContent = Language.L("@%s 在任务中提到了你", record.getEditor()) + " \n> " + content;
+    private int checkAtUserAndNotification(Record record, String content, ID[] atUsers) {
+        String msgContent = Language.L("@%s 在任务中提到了你", record.getEditor()) + " \n> " + content;
         ID related = record.getID("taskId");
         if (related == null) related = (ID) QueryHelper.queryFieldValue(record.getPrimary(), "taskId");
 
-        ID[] atUsers = FeedsHelper.findMentions(content);
         int send = 0;
         for (ID to : atUsers) {
             // 是否已经发送过
