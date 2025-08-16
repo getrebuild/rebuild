@@ -87,7 +87,7 @@ class MemberList extends React.Component {
   componentDidMount = () => this.loadMembers()
 
   loadMembers() {
-    $.get(`/admin/bizuser/group-members?id=${this.props.id}`, (res) => {
+    $.get(`/app/bizuser/group-members?id=${this.props.id}`, (res) => {
       const data = res.data || []
       this.setState({ members: data })
 

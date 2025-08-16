@@ -27,6 +27,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
@@ -233,7 +235,7 @@ public class CommonsUtils {
     }
 
     /**
-     * 打印调用栈（for DEBUG）
+     * 打印调用栈 `dev only`
      */
     public static void printStackTrace() {
         if (Application.devMode() || log.isDebugEnabled()) {
@@ -490,5 +492,19 @@ public class CommonsUtils {
         } catch (IOException e) {
             throw new RebuildException(e);
         }
+    }
+
+    /**
+     * @param ex
+     * @return
+     */
+    public static String getRootMessage(Throwable ex) {
+        String msg = null;
+        Throwable th = ExceptionUtils.getRootCause(ex);
+        if (th != null) {
+            msg = th.getMessage();
+            if (StringUtils.isBlank(msg)) msg = ClassUtils.getShortClassName(th, "");
+        }
+        return msg == null ? "" : msg;
     }
 }

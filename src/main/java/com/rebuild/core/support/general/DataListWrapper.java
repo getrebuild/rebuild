@@ -225,7 +225,7 @@ public class DataListWrapper {
                 // @see MultiSelectManager#getLabels
 
                 List<Object> colorLabels = new ArrayList<>();
-                ConfigBean[] entries = MultiSelectManager.instance.getPickListRaw(field, false);
+                ConfigBean[] entries = MultiSelectManager.instance.getPickListRaw(field, true);
                 for (ConfigBean e : entries) {
                     long m = e.get("mask", Long.class);
                     if (((long) originValue & m) != 0) {
