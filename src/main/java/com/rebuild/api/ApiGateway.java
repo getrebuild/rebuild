@@ -137,7 +137,7 @@ public class ApiGateway extends Controller implements Initialization {
         } catch (RepeatedRecordsException ex) {
             errorCode = ApiInvokeException.ERR_DATASPEC;
             errorMsg = ex.getLocalizedMessage();
-            errorData40 = ((RepeatedRecordsException) ex).getRepeatedRecords();
+            errorData40 = ex.getRepeatedRecords();
         } catch (Throwable ex) {
             errorCode = Controller.CODE_SERV_ERROR;
             errorMsg = ThrowableUtils.getRootCause(ex).getLocalizedMessage();
