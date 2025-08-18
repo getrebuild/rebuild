@@ -525,7 +525,7 @@ public class FormsBuilder extends FormsManager {
             } else if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
                 Entity refEntity = fieldMeta.getReferenceEntity();
                 boolean quickNew = field.getBooleanValue(EasyFieldConfigProps.REFERENCE_QUICKNEW);
-                if (quickNew) {
+                if (quickNew && refEntity.isCreatable() && refEntity.getMainEntity() == null) {
                     field.put(EasyFieldConfigProps.REFERENCE_QUICKNEW,
                             Application.getPrivilegesManager().allowCreate(user, refEntity.getEntityCode()));
                     field.put("referenceEntity", EasyMetaFactory.toJSON(refEntity));
