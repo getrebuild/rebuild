@@ -1173,7 +1173,7 @@ class Md2Html extends React.Component {
     }
 
     // 替换换行并保持表格换行
-    let cHtml = marked.parse(md.replace(/(?<!\|)\n(?!\|)/g, '<BR/>'))
+    let cHtml = marked.parse(md.replace(/(?<!\|)\n(?!\|)/g, '\n\n'))
     cHtml = cHtml.replace(/<img src="([^"]+)"/g, function (s, src) {
       let srcNew = src + (src.includes('?') ? '&' : '?') + 'imageView2/2/w/1000/interlace/1/q/100'
       return s.replace(src, srcNew)
