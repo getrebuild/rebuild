@@ -1843,7 +1843,7 @@ class MyNotification extends BaseChart {
         <div className="rb-notifications notification-list rb-scroller">
           {dd.length === 0 ? (
             <div className="chart-undata must-center" style={{ marginTop: -15 }}>
-              <i className="zmdi zmdi-check icon text-success" /> {$L('暂无通知')}
+              <i className="zmdi zmdi-notifications icon" /> {$L('暂无通知')}
             </div>
           ) : (
             <ul className="list-unstyled m-0">{dd.map((item) => this.renderItem(item))}</ul>
@@ -1911,7 +1911,6 @@ class MyNotification extends BaseChart {
   }
 
   makeRead(id, $el) {
-    debugger
     $.post(`/notification/make-read?id=${id}`, () => {
       if (id === 'ALL') {
         RbHighbar.success($L('全部通知已设为已读'))
