@@ -59,6 +59,18 @@ public class MessageBuilder {
     /**
      * @param toUser
      * @param message
+     * @param type
+     * @param relatedRecord
+     * @param fromUser
+     * @return
+     */
+    public static Message createMessage(ID toUser, String message, int type, ID relatedRecord, ID fromUser) {
+        return new Message(fromUser, toUser, message, type, relatedRecord);
+    }
+
+    /**
+     * @param toUser
+     * @param message
      * @param relatedRecord
      * @return
      */
