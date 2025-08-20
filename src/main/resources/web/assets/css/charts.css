@@ -767,10 +767,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 8px 25px;
 }
 
-.chart-box.MyNotification .notification-list li:first-child {
-  border-top: 1px solid #ebebeb;
-}
-
 .chart-box.MyNotification .notification-op {
   padding: 10px 25px 15px;
 }

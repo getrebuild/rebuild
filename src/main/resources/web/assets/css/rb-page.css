@@ -5931,6 +5931,7 @@ div.formula-code {
 .notification-list .notification .text a {
   cursor: pointer;
 }
+
 .notification-list .notification .text a.record {
   text-decoration: underline;
   padding: 0 1px;
@@ -5994,4 +5995,8 @@ div.formula-code {
   padding-left: 6px;
   margin: 4px 0 6px 1px;
   color: #777;
+}
+
+.notification-list li:first-child {
+  border-top: 1px solid #ebebeb;
 }

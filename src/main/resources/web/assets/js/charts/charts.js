@@ -1502,14 +1502,15 @@ class DataList extends BaseChart {
             {listData.map((row) => {
               const lastCell = row[lastIndex]
               const rkey = `tr-${lastCell.id}`
+              const viewUrl = `${rb.baseUrl}/app/redirect?id=${lastCell.id}&type=newtab`
               return (
-                <tr key={rkey} data-id={lastCell.id}>
+                <tr key={rkey} data-id={lastCell.id} onDoubleClick={() => window.open(viewUrl)}>
                   {row.map((c, idx) => {
                     if (idx === lastIndex) return null // Last is ID
                     return this.renderCell(c, listFields[idx])
                   })}
                   <td className="open-newtab">
-                    <a href={`${rb.baseUrl}/app/redirect?id=${lastCell.id}&type=newtab`} target="_blank" title={$L('打开')}>
+                    <a href={viewUrl} target="_blank" title={$L('打开')}>
                       <i className="zmdi zmdi-open-in-new icon" />
                     </a>
                   </td>
@@ -1529,15 +1530,9 @@ class DataList extends BaseChart {
         .css('height', this._$tb.height() - 20)
         .perfectScrollbar()
 
-      let $trActive
       const $trs = this._$tb.find('tbody tr').on('mousedown', function () {
-        if ($trActive === this) {
-          $(this).toggleClass('highlight')
-        } else {
-          $trActive = this
-          $trs.removeClass('highlight')
-          $(this).addClass('highlight')
-        }
+        $trs.removeClass('highlight')
+        $(this).addClass('highlight')
       })
     })
   }
