@@ -3035,10 +3035,11 @@ form {
   text-overflow: clip;
 }
 
+.user-selector .tab-container,
 .user-selector .tab-content {
-  margin: 0;
-  padding: 0;
-  border-radius: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
 }
 
 .user-selector .rb-scroller {
@@ -5896,4 +5897,101 @@ div.formula-code {
 .navbar-more41 .dropdown-menu a.active,
 .navbar-more41.show > a {
   background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* v4.2 N */
+
+.notification-list .list-nodata {
+  padding-top: 70px;
+}
+
+.notification-list .notification > .a {
+  cursor: default;
+  padding-left: 10px;
+}
+
+.notification-list .notification:hover {
+  background-color: #ebf2fe !important;
+}
+
+.notification-list .notification.notification-unread:hover {
+  background-color: #dce9fd !important;
+}
+
+.notification-list .notification .text {
+  color: #404040 !important;
+  font-size: 1rem !important;
+}
+
+.notification-list .notification .date {
+  color: #8a8a8a !important;
+  margin-top: 6px !important;
+}
+
+.notification-list .notification .text a {
+  cursor: pointer;
+}
+.notification-list .notification .text a.record {
+  text-decoration: underline;
+  padding: 0 1px;
+}
+
+.notification-list .notification.append {
+  padding-right: 70px;
+}
+
+.notification-list .notification.append .badge,
+.notification-list .notification .read-mark {
+  position: absolute;
+  right: 10px;
+  top: 11px;
+  font-weight: normal;
+}
+
+.notification-list .notification.append .badge {
+  line-height: 1.35;
+}
+
+.notification-list .notification .read-mark {
+  top: unset;
+  bottom: 6px;
+  font-size: 12px;
+  display: none;
+  visibility: hidden;
+}
+
+.notification-list .notification:hover .read-mark {
+  display: inline-block;
+}
+
+.notification-list .notification.notification-unread > .a::after {
+  right: 8px;
+  top: 4px;
+  background-color: #4285f4 !important;
+}
+
+.notification-list .notification.notification-unread .read-mark {
+  visibility: visible;
+}
+
+.notification-list .notification .text > ul {
+  padding-left: 18px;
+}
+
+.notification-list .notification .text > ul li > p {
+  margin: 0;
+}
+
+.notification-list .notification.focus {
+  outline: 2px solid #fbbc05;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.notification-info blockquote {
+  font-size: 1rem;
+  border-left: 3px solid #ccc;
+  padding-left: 6px;
+  margin: 4px 0 6px 1px;
+  color: #777;
 }

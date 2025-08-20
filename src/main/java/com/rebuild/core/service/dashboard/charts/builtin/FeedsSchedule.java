@@ -58,7 +58,7 @@ public class FeedsSchedule extends ChartData implements BuiltinChart {
                         " where createdBy = ? and type = 4 and scheduleTime > ? order by scheduleTime")
                 .setParameter(1, getUser())
                 .setParameter(2, CalendarUtils.addDay(-30))  // 忽略30天前的
-                .setLimit(200)
+                .setLimit(500)
                 .array();
 
         final EasyField relatedRecordMeta = EasyMetaFactory.valueOf(
