@@ -380,7 +380,7 @@ const _handleSeries = function () {
   $(`<a class="dropdown-item">${$L('补充编号')}</a>`)
     .appendTo('.J_action .dropdown-menu')
     .on('click', () => {
-      RbAlert.create($L('此操作将为空字段补充编号，空字段过多耗时会较长，请耐心等待。是否继续？'), {
+      RbAlert.create($L('此操作将为空字段补充编号。是否继续？'), {
         onConfirm: function () {
           this.disabled(true)
           $.post(`/admin/field/series-reindex?entity=${wpc.entityName}&field=${wpc.fieldName}`, (res) => {
