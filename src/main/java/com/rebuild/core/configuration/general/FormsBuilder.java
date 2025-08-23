@@ -497,14 +497,14 @@ public class FormsBuilder extends FormsManager {
             // 不同字段类型的处理
 
             if (dt == DisplayType.PICKLIST) {
-                JSONArray options = PickListManager.instance.getPickList(fieldMeta);
+                JSONArray options = PickListManager.instance.getPickList(fieldMeta, true);
                 field.put("options", options);
             } else if (dt == DisplayType.STATE) {
                 JSONArray options = StateManager.instance.getStateOptions(fieldMeta);
                 field.put("options", options);
                 field.remove(EasyFieldConfigProps.STATE_CLASS);
             } else if (dt == DisplayType.MULTISELECT) {
-                JSONArray options = MultiSelectManager.instance.getSelectList(fieldMeta);
+                JSONArray options = MultiSelectManager.instance.getSelectList(fieldMeta, true);
                 field.put("options", options);
             } else if (dt == DisplayType.TAG) {
                 field.put("options", ObjectUtils.defaultIfNull(field.remove("tagList"), JSONUtils.EMPTY_ARRAY));

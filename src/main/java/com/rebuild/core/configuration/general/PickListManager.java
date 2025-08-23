@@ -30,14 +30,23 @@ public class PickListManager implements ConfigManager {
 
     public static final PickListManager instance = new PickListManager();
 
-    protected PickListManager() { }
+    protected PickListManager() {}
 
     /**
      * @param field
      * @return
      */
     public JSONArray getPickList(Field field) {
-        ConfigBean[] entries = getPickListRaw(field, true);
+        return getPickList(field, false);
+    }
+
+    /**
+     * @param field
+     * @param includeHide
+     * @return
+     */
+    public JSONArray getPickList(Field field, boolean includeHide) {
+        ConfigBean[] entries = getPickListRaw(field, includeHide);
         for (ConfigBean e : entries) {
             e.remove("mask");
         }
