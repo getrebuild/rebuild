@@ -76,11 +76,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "4.1.4";
+    public static final String VER = "4.1.5";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 4010409;
+    public static final int BUILD = 4010510;
 
     static {
         // Driver for DB
@@ -129,7 +129,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
         _CONTEXT = event.getApplicationContext();
 
-        long time = System.currentTimeMillis();
+        long time = BootApplication.BOOTING_TIME415;
         boolean started = false;
 
         final Timer timer = new Timer("Boot-Timer");

@@ -62,6 +62,7 @@ public class BootApplication extends SpringBootServletInitializer {
 
     private static String CONTEXT_PATH;
     private static String TOMCAT_PORT;
+    protected static long BOOTING_TIME415 = System.currentTimeMillis();
 
     /**
      * 获取上下文地址，注意此地址尾部不含 `/`
@@ -107,6 +108,7 @@ public class BootApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         log.info("REBUILD starting ...");
+        BOOTING_TIME415 = System.currentTimeMillis();
         if (devMode()) System.setProperty("spring.profiles.active", "dev");
 
         // kill -15 `cat ~/.rebuild/rebuild.pid`
@@ -123,6 +125,7 @@ public class BootApplication extends SpringBootServletInitializer {
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         log.info("REBUILD starting ...");
+        BOOTING_TIME415 = System.currentTimeMillis();
         if (SystemUtils.IS_OS_WINDOWS) AnsiConsole.systemInstall();
         if (devMode()) System.setProperty("spring.profiles.active", "dev");
 

@@ -27,15 +27,23 @@ public class MultiSelectManager extends PickListManager {
 
     public static final MultiSelectManager instance = new MultiSelectManager();
 
-    private MultiSelectManager() {
-    }
+    private MultiSelectManager() {}
 
     /**
      * @param field
      * @return
      */
     public JSONArray getSelectList(Field field) {
-        ConfigBean[] entries = getPickListRaw(field, true);
+        return getSelectList(field, false);
+    }
+
+    /**
+     * @param field
+     * @param includeHide
+     * @return
+     */
+    public JSONArray getSelectList(Field field, boolean includeHide) {
+        ConfigBean[] entries = getPickListRaw(field, includeHide);
         for (ConfigBean e : entries) {
             e.remove("id");
         }

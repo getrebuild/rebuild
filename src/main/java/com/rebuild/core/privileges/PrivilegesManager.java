@@ -31,6 +31,7 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.privileges.bizz.ZeroPrivileges;
 import com.rebuild.core.service.NoRecordFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +46,7 @@ import java.text.MessageFormat;
  * @see BizzDepthEntry
  * @see CustomEntityPrivileges
  */
+@Slf4j
 @Service
 public class PrivilegesManager {
 
@@ -243,7 +245,8 @@ public class PrivilegesManager {
             // 明细实体不能使用此方法检查创建权限
             // 明细实体创建 = 主实体更新，因此应该检查主实体记录是否有更新权限
             if (action == BizzPermission.CREATE) {
-                throw new PrivilegesException("Unsupported checks detail-entity : " + entity);
+                log.warn("Unsupported checks detail-entity : {}", entity);
+                return false;  // be:4.1.5
             }
             // 明细无分配/共享
             else if (action == BizzPermission.ASSIGN || action == BizzPermission.SHARE) {
