@@ -133,4 +133,8 @@ public class EasyEntityConfigProps {
      * 日历显示
      */
     public static final String ADVLIST_MODE4_FIELDOFTITLE = "mode4FieldOfTitle";
+    /**
+     * 日历显示颜色
+     */
+    public static final String ADVLIST_MODE4_FIELDOFCOLOR = "mode4FieldOfColor";
 }

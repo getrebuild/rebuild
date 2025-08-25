@@ -614,8 +614,22 @@ class DlgMode4Option extends RbFormHandler {
                         )
                       })}
                   </select>
+                  <label className="form-text">{$L('内容')}</label>
                 </div>
-                <div className="col"></div>
+                <div className="col">
+                  <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfColor = c)}>
+                    {this.state.fields &&
+                      this.state.fields.map((item) => {
+                        if (!['PICKLIST'].includes(item.type)) return null
+                        return (
+                          <option key={item.name} value={item.name}>
+                            {item.label}
+                          </option>
+                        )
+                      })}
+                  </select>
+                  <label className="form-text">{$L('颜色')}</label>
+                </div>
               </div>
             </div>
           </div>
@@ -652,6 +666,10 @@ class DlgMode4Option extends RbFormHandler {
           .select2({ placeholder: $L('默认') })
           .val(conf.mode4FieldOfTitle || null)
           .trigger('change')
+        $(this._$fieldOfColor)
+          .select2({ placeholder: $L('无') })
+          .val(conf.mode4FieldOfColor || null)
+          .trigger('change')
       })
     })
   }
@@ -661,6 +679,7 @@ class DlgMode4Option extends RbFormHandler {
     o.mode4FieldOfStart = $val(this._$fieldOfStart)
     o.mode4FieldOfEnd = $val(this._$fieldOfEnd)
     o.mode4FieldOfTitle = $val(this._$fieldOfTitle)
+    o.mode4FieldOfColor = $val(this._$fieldOfColor)
 
     this.disabled(true)
     modeSave(o, () => {

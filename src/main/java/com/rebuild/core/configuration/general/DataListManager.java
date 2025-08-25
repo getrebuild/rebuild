@@ -509,9 +509,13 @@ public class DataListManager extends BaseLayoutManager {
         if (StringUtils.isBlank(titleField) || !entity.containsField(titleField)) {
             titleField = entity.getNameField().getName();
         }
+        String colorField = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE4_FIELDOFCOLOR);
+        if (StringUtils.isBlank(colorField) || !entity.containsField(colorField)) {
+            colorField = null;
+        }
 
         return JSONUtils.toJSONObject(
-                new String[]{"startField", "endField", "titleField"},
-                new Object[]{startField, endField, titleField});
+                new String[]{"startField", "endField", "titleField", "colorField"},
+                new Object[]{startField, endField, titleField, colorField});
     }
 }
