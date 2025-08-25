@@ -120,4 +120,17 @@ public class EasyEntityConfigProps {
      * 列表侧栏显示样式
      */
     public static final String ADVLIST_ASIDE_SHOWS = "advListAsideShows";
+
+    /**
+     * 日历开始时间
+     */
+    public static final String ADVLIST_MODE4_FIELDOFSTART = "mode4FieldOfStart";
+    /**
+     * 日历结束时间
+     */
+    public static final String ADVLIST_MODE4_FIELDOFEND = "mode4FieldOfEnd";
+    /**
+     * 日历显示
+     */
+    public static final String ADVLIST_MODE4_FIELDOFTITLE = "mode4FieldOfTitle";
 }
