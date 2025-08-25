@@ -620,7 +620,7 @@ class DlgMode4Option extends RbFormHandler {
                   <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfColor = c)}>
                     {this.state.fields &&
                       this.state.fields.map((item) => {
-                        if (!['PICKLIST'].includes(item.type)) return null
+                        if (!['PICKLIST', 'CLASSIFICATION'].includes(item.type)) return null
                         return (
                           <option key={item.name} value={item.name}>
                             {item.label}
