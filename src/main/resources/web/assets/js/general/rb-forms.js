@@ -312,11 +312,14 @@ class RbForm extends React.Component {
       <div className={`rbform form-layout ${this._verticalLayout42 && 'vertical38'}`}>
         <div className="form row" ref={(c) => (this._$form = c)}>
           {this.props.children.map((fieldComp) => {
-            const ref = fieldComp.props.field === TYPE_DIVIDER ? $random('divider-') : `fieldcomp-${fieldComp.props.field}`
+            let refKey = `fieldcomp-${fieldComp.props.field}`
+            if (fieldComp.props.field === TYPE_DIVIDER) refKey = $random('divider-')
+            else if (fieldComp.props.field === TYPE_REFFORM) refKey = $random('refform-')
+            // for init
             if (fieldComp.props.field === TYPE_DIVIDER && fieldComp.props.collapsed) {
-              this._dividerRefs.push(ref)
+              this._dividerRefs.push(refKey)
             }
-            return React.cloneElement(fieldComp, { $$$parent: this, ref: ref })
+            return React.cloneElement(fieldComp, { $$$parent: this, ref: refKey })
           })}
         </div>
 
@@ -2307,7 +2310,7 @@ class RbFormReference extends RbFormElement {
           if (cascadingValue) query.cascadingValue = cascadingValue
           // 4.1.3
           let val = this.state.value
-          if (typeof val === 'object') val = val.id
+          if (val && typeof val === 'object') val = val.id
           if (val) query._top = val
 
           console.log('Reference query:', query)
@@ -3028,7 +3031,7 @@ class RbFormMultiSelect extends RbFormElement {
 
   setValue(val) {
     // eg. {id:3, text:["A", "B"]}
-    if (typeof val === 'object') val = val.id || val
+    if (val && typeof val === 'object') val = val.id || val
     if (this._isShowSelect41) {
       let s = []
       this.props.options &&
