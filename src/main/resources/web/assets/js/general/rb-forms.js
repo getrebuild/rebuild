@@ -3104,7 +3104,7 @@ class RbFormBarcode extends RbFormElement {
     return (
       <div className="img-field barcode">
         <a
-          className={`img-thumbnail pointer ${isbar && 'w-auto'}`}
+          className={`img-thumbnail zoom-in ${isbar && 'w-auto'}`}
           title={this.state.value}
           onClick={() => {
             RbAlert.create(

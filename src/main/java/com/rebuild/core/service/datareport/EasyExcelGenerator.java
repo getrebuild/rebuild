@@ -466,6 +466,7 @@ public class EasyExcelGenerator extends SetUser {
 
     private byte[] buildBarcodeData(Field barcodeField, ID recordId) {
         BufferedImage bi = BarCodeSupport.getBarCodeImage(barcodeField, recordId);
+        if (bi == null) return null;
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             ImageIO.write(bi, "png", baos);

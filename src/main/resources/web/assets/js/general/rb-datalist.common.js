@@ -2019,6 +2019,31 @@ CellRenders.addRender('TAG', (v, s, k) => {
     </td>
   )
 })
+CellRenders.addRender('BARCODE', (v, s, k) => {
+  const codeUrl = `${rb.baseUrl}/commons/barcode/render-auto?t=${$encode(v)}`
+  const isbar = v.startsWith('BC:')
+  v = v.substr(3)
+  return (
+    <td key={k} className="td-sm">
+      <div className="column-imgs" style={s}>
+        <a
+          onClick={() => {
+            RbAlert.create(
+              <div className="mb-3 text-center">
+                <img src={`${codeUrl}&w=${isbar ? 64 * 2 : 80 * 3}`} alt={v} style={{ maxWidth: '100%' }} />
+                {!isbar && <div className="text-muted mt-2 mb-1 text-break text-bold">{v}</div>}
+              </div>,
+              {
+                type: 'clear',
+              }
+            )
+          }}>
+          <img src={`${codeUrl}&w=${isbar ? 64 : 120}`} alt={v} />
+        </a>
+      </div>
+    </td>
+  )
+})
 
 // ~~ 记录合并
 
