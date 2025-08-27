@@ -18,6 +18,5 @@ public interface Callback2 {
      *
      * @param res 可能是任何值，请按需处理
      */
-    default void onComplete(Object res) {
-    }
+    void onComplete(Object res);
 }
