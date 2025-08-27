@@ -6000,3 +6000,8 @@ div.formula-code {
 .notification-list li:first-child {
   border-top: 1px solid #ebebeb;
 }
+
+.modal-header .close[disabled] {
+  color: #aaa !important;
+  opacity: 0.5 !important;
+}

@@ -307,6 +307,7 @@ class BatchOperator extends RbFormHandler {
           return
         }
 
+        this.disabled(true)
         $.post(`/commons/task/cancel?taskid=${that._taskid}`, (res) => {
           if (res.error_code !== 0) {
             RbHighbar.error(res.error_msg)
@@ -388,6 +389,12 @@ class DataExport extends BatchOperator {
 }
 
 // ~ 批量修改
+
+let BatchUpdate__taskid
+window.onbeforeunload = function () {
+  if (!BatchUpdate__taskid) return undefined
+  return 'SHOW-CLOSE-CONFIRM'
+}
 
 // eslint-disable-next-line no-unused-vars
 class BatchUpdate extends BatchOperator {
@@ -506,6 +513,7 @@ class BatchUpdate extends BatchOperator {
   }
 
   _checkState(taskid, mp) {
+    BatchUpdate__taskid = taskid
     $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.hasError) {
@@ -516,6 +524,7 @@ class BatchUpdate extends BatchOperator {
 
         const cp = res.data.progress
         if (res.data.isCompleted) {
+          BatchUpdate__taskid = null
           mp && mp.end()
           $(this._btns)
             .find('.btn-primary')
@@ -527,7 +536,7 @@ class BatchUpdate extends BatchOperator {
           setTimeout(() => {
             this.disabled(false)
             this.hide()
-          }, 2000)
+          }, 3000)
         } else {
           mp && mp.set(cp)
           setTimeout(() => this._checkState(taskid, mp), 1500)
