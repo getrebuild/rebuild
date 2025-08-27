@@ -26,7 +26,7 @@ class SysbaseSupportTest {
     void getLogbackFile() throws IOException {
         log.info("SysbaseSupportTest#getLogbackFile");
 
-        File file = SysbaseHeartbeat.getLogbackFile();
+        File file = SysbaseHeartbeat.getLastLogbackFile();
         System.out.println(file + " >> " + file.exists());
         System.out.println(FileUtils.readFileToString(file, AppUtils.UTF8));
     }
