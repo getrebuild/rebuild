@@ -129,7 +129,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
         _CONTEXT = event.getApplicationContext();
 
-        long time = System.currentTimeMillis();
+        long time = BootApplication.BOOTING_TIME415;
         boolean started = false;
 
         final Timer timer = new Timer("Boot-Timer");
