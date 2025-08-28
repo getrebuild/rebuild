@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.files;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -19,7 +20,6 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.OperatingObserver;
-import com.rebuild.core.service.general.recyclebin.RecycleBinCleanerJob;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -53,9 +53,9 @@ public class AttachmentAwareObserver extends OperatingObserver {
             if (record.hasValue(field.getName(), false)) {
                 JSONArray files = parseFilesJson(record.getObjectValue(field.getName()));
                 for (Object file : files) {
-                    Record add = createAttachment(
+                    Record c = buildAttachment(
                             field, context.getAfterRecord().getPrimary(), (String) file, context.getOperator());
-                    creates.add(add);
+                    creates.add(c);
                 }
             }
         }
@@ -72,8 +72,8 @@ public class AttachmentAwareObserver extends OperatingObserver {
 
         Record before = context.getBeforeRecord();
 
-        List<Record> creates = new ArrayList<>();
-        List<ID> deletes = new ArrayList<>();
+        // 4.2 标记删除
+        List<Record> createsAndUpdates = new ArrayList<>();
         for (Field field : fileFields) {
             String fieldName = field.getName();
             if (record.hasValue(fieldName)) {
@@ -101,21 +101,24 @@ public class AttachmentAwareObserver extends OperatingObserver {
                             .setParameter(3, o)
                             .unique();
                     if (delete != null) {
-                        deletes.add((ID) delete[0]);
+                        Record d = EntityHelper.forUpdate((ID) delete[0], UserService.SYSTEM_USER, false);
+                        d.setBoolean(EntityHelper.IsDeleted, true);
+                        d.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
+                        createsAndUpdates.add(d);
                     }
                 }
 
                 for (Object o : afterFiles) {
-                    Record add = createAttachment(
+                    Record c = buildAttachment(
                             field, context.getAfterRecord().getPrimary(), (String) o, context.getOperator());
-                    creates.add(add);
+                    createsAndUpdates.add(c);
                 }
             }
         }
-        if (creates.isEmpty() && deletes.isEmpty()) return;
+        if (createsAndUpdates.isEmpty()) return;
 
-        Application.getCommonsService().createOrUpdateAndDelete(
-                creates.toArray(new Record[0]), deletes.toArray(new ID[0]), false);
+        Application.getCommonsService()
+                .createOrUpdate(createsAndUpdates.toArray(new Record[0]), false);
     }
 
     @Override
@@ -130,23 +133,17 @@ public class AttachmentAwareObserver extends OperatingObserver {
                 .array();
         if (array.length == 0) return;
 
-        // 标记删除，以便记录从回收站恢复后可用
-        final boolean rbEnable = RecycleBinCleanerJob.isEnableRecycleBin();
-
+        // 4.2 标记删除
         List<Record> updates = new ArrayList<>();
-        List<ID> deletes = new ArrayList<>();
         for (Object[] o : array) {
-            if (rbEnable) {
-                Record upt = EntityHelper.forUpdate((ID) o[0], UserService.SYSTEM_USER, false);
-                upt.setBoolean(EntityHelper.IsDeleted, true);
-                updates.add(upt);
-            } else {
-                deletes.add((ID) o[0]);
-            }
+            Record d = EntityHelper.forUpdate((ID) o[0], UserService.SYSTEM_USER, false);
+            d.setBoolean(EntityHelper.IsDeleted, true);
+            d.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
+            updates.add(d);
         }
 
-        Application.getCommonsService().createOrUpdateAndDelete(
-                updates.toArray(new Record[0]), deletes.toArray(new ID[0]), false);
+        Application.getCommonsService()
+                .createOrUpdate(updates.toArray(new Record[0]), false);
     }
 
     private JSONArray parseFilesJson(Object files) {
@@ -155,7 +152,7 @@ public class AttachmentAwareObserver extends OperatingObserver {
         else return JSON.parseArray(files.toString());
     }
 
-    private Record createAttachment(Field field, ID recordId, String filePath, ID user) {
+    private Record buildAttachment(Field field, ID recordId, String filePath, ID user) {
         Record attach = FilesHelper.createAttachment(filePath, user);
         attach.setInt("belongEntity", field.getOwnEntity().getEntityCode());
         attach.setString("belongField", field.getName());

@@ -47,17 +47,29 @@ public class BarCodeGeneratorController extends BaseController {
         Field barcodeField = MetadataHelper.getField(entity, field);
         ID record = getIdParameterNotNull(request, "id");
 
-        ServletUtils.setNoCacheHeaders(response);
-        writeTo(BarCodeSupport.getBarCodeImage(barcodeField, record), response);
+        BufferedImage bi = BarCodeSupport.getBarCodeImage(barcodeField, record);
+        if (bi == null) {
+            response.sendRedirect(AppUtils.getContextPath("/assets/img/s.gif"));
+        } else {
+            ServletUtils.setNoCacheHeaders(response);
+            writeTo(bi, response);
+        }
     }
 
-    @GetMapping({"/commons/barcode/render-qr", "/commons/barcode/render"})
+    @GetMapping({"/commons/barcode/render-qr", "/commons/barcode/render", "/commons/barcode/render-auto"})
     public void render(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String content = getParameter(request, "t", "UNSET");
         int w = getIntParameter(request, "w");
 
+        // v4.2 根据前缀渲染 QR: BC:
+        boolean renderQr = request.getRequestURI().endsWith("render-qr");
+        if (request.getRequestURI().endsWith("render-auto")) {
+            renderQr = content.startsWith("QR:");
+            content = content.substring(3);
+        }
+
         BufferedImage bi;
-        if (request.getRequestURI().endsWith("render-qr")) {
+        if (renderQr) {
             bi = BarCodeSupport.createQRCode(content, w);
         } else {
             boolean showText = getBoolParameter(request, "b", true);

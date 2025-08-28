@@ -100,7 +100,7 @@ public abstract class BaseFeedsService extends ObservableService {
         for (ID to : atUsers) {
             if (existsAtUsers.contains(to)) continue;
             Application.getNotifications().send(
-                    MessageBuilder.createMessage(to, msgContent, Message.TYPE_FEEDS, related));
+                    MessageBuilder.createMessage(to, msgContent, Message.TYPE_FEEDS, related, record.getEditor()));
         }
     }
 

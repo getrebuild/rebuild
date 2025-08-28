@@ -112,6 +112,8 @@ public class FilePreviewer extends BaseController {
 
         JSONObject customization = new JSONObject();
         customization.put("uiTheme", "theme-dark");
+        customization.put("about", false);
+        customization.put("logo", JSONUtils.toJSONObject("visible", false));
 
         // 编辑模式
         if (editor) {

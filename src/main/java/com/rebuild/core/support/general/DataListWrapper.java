@@ -24,6 +24,7 @@ import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.ConfigurationItem;
@@ -92,7 +93,8 @@ public class DataListWrapper {
         if (user != null) {
             this.useDesensitized = !Application.getPrivilegesManager().allow(user, ZeroEntry.AllowNoDesensitized);
             if (!this.useDesensitized) {
-                this.useDesensitized = UserHelper.isAdmin(user) && RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced);
+                this.useDesensitized = UserHelper.isAdmin(user)
+                        && RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced);
             }
         }
     }
@@ -128,14 +130,19 @@ public class DataListWrapper {
                     continue;
                 }
 
-                final Object value = row[colIndex];
+                final SelectItem fieldItem = selectFields[colIndex];
+                final Field fieldMeta = fieldItem.getField();
+                final EasyField fieldEasy = EasyMetaFactory.valueOf(fieldMeta);
+
+                Object value = row[colIndex];
+                // v4.2 支持条码
+                if (fieldEasy.getDisplayType() == DisplayType.BARCODE) {
+                    value = row[selectFieldsLen - 1];
+                }
                 if (value == null) {
                     row[colIndex] = StringUtils.EMPTY;
                     continue;
                 }
-
-                final SelectItem fieldItem = selectFields[colIndex];
-                final Field fieldMeta = fieldItem.getField();
 
                 // 名称字段值
                 if (fieldMeta.equals(nameFiled) && !fieldItem.getFieldPath().contains(".")) {
@@ -162,23 +169,20 @@ public class DataListWrapper {
                     ((ID) value).setLabel(ObjectUtils.defaultIfNull(nameValue, StringUtils.EMPTY));
                 }
 
-                row[colIndex] = wrapFieldValue(value, fieldMeta);
+                row[colIndex] = wrapFieldValue(value, fieldEasy);
             }
         }
 
-        return JSONUtils.toJSONObject(
-                new String[] { "total", "data" },
-                new Object[] { total, data });
+        return JSONUtils.toJSONObject(new String[]{"total", "data"}, new Object[]{total, data});
     }
 
     /**
      * @param value
-     * @param field
+     * @param easyField
      * @return
      * @see FieldValueHelper#wrapFieldValue(Object, EasyField, boolean)
      */
-    protected Object wrapFieldValue(Object value, Field field) {
-        EasyField easyField = EasyMetaFactory.valueOf(field);
+    protected Object wrapFieldValue(Object value, EasyField easyField) {
         if (easyField.getDisplayType() == DisplayType.ID) {
             return FieldValueHelper.wrapMixValue((ID) value, null);
         }
@@ -195,6 +199,16 @@ public class DataListWrapper {
                 || dt == DisplayType.STATE || dt == DisplayType.BOOL;
 
         value = FieldValueHelper.wrapFieldValue(value, easyField, unpack);
+
+        // v4.2 支持条码
+        if (dt == DisplayType.BARCODE && value != null && StringUtils.isNotBlank(value.toString())) {
+            String barcodeType = easyField.getExtraAttr(EasyFieldConfigProps.BARCODE_TYPE);
+            if (BarCodeSupport.TYPE_QRCODE.equals(barcodeType)) {
+                value = "QR:" + value;
+            } else {
+                value = "BC:" + value;
+            }
+        }
 
         if (value != null) {
             if (isUseDesensitized(easyField)) {
@@ -225,7 +239,7 @@ public class DataListWrapper {
                 // @see MultiSelectManager#getLabels
 
                 List<Object> colorLabels = new ArrayList<>();
-                ConfigBean[] entries = MultiSelectManager.instance.getPickListRaw(field, true);
+                ConfigBean[] entries = MultiSelectManager.instance.getPickListRaw(easyField.getRawMeta(), true);
                 for (ConfigBean e : entries) {
                     long m = e.get("mask", Long.class);
                     if (((long) originValue & m) != 0) {

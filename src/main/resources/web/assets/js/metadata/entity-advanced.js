@@ -102,6 +102,7 @@ function _listmodeAction() {
   $('.mode-select .J_mode1-option').on('click', () => renderDlgcomp(<DlgMode1Option />, '_DlgMode1Option'))
   $('.mode-select .J_mode2-option').on('click', () => renderDlgcomp(<DlgMode2Option />, '_DlgMode2Option'))
   $('.mode-select .J_mode3-option').on('click', () => renderDlgcomp(<DlgMode3Option />, '_DlgMode3Option'))
+  $('.mode-select .J_mode4-option').on('click', () => renderDlgcomp(<DlgMode4Option />, '_DlgMode3Option'))
 }
 
 function modeSave(newOption, next) {
@@ -552,6 +553,139 @@ class DlgMode3Option extends DlgMode2Option {
     }
     o.advListAsideShows = _advListAsideShows
     return o
+  }
+}
+
+// @see `entity-edit.js`
+const CAN_NAME = ['TEXT', 'EMAIL', 'URL', 'PHONE', 'SERIES', 'LOCATION', 'PICKLIST', 'CLASSIFICATION', 'DATE', 'DATETIME', 'TIME', 'REFERENCE']
+class DlgMode4Option extends RbFormHandler {
+  render() {
+    return (
+      <RbModal title={$L('日历模式选项')} ref={(c) => (this._dlg = c)}>
+        <div className="form">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('日历字段')}</label>
+            <div className="col-sm-9">
+              <div className="row">
+                <div className="col">
+                  <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfStart = c)}>
+                    {this.state.fields &&
+                      this.state.fields.map((item) => {
+                        if (!['DATE', 'DATETIME'].includes(item.type)) return null
+                        return (
+                          <option key={item.name} value={item.name}>
+                            {item.label}
+                          </option>
+                        )
+                      })}
+                  </select>
+                  <label className="form-text">{$L('开始')}</label>
+                </div>
+                <div className="col">
+                  <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfEnd = c)}>
+                    {this.state.fields &&
+                      this.state.fields.map((item) => {
+                        if (!['DATE', 'DATETIME'].includes(item.type)) return null
+                        return (
+                          <option key={item.name} value={item.name}>
+                            {item.label}
+                          </option>
+                        )
+                      })}
+                  </select>
+                  <label className="form-text">{$L('结束')}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示字段')}</label>
+            <div className="col-sm-9">
+              <div className="row">
+                <div className="col">
+                  <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfTitle = c)}>
+                    {this.state.fields &&
+                      this.state.fields.map((item) => {
+                        if (!CAN_NAME.includes(item.type)) return null
+                        return (
+                          <option key={item.name} value={item.name}>
+                            {item.label}
+                          </option>
+                        )
+                      })}
+                  </select>
+                  <label className="form-text">{$L('内容')}</label>
+                </div>
+                <div className="col">
+                  <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfColor = c)}>
+                    {this.state.fields &&
+                      this.state.fields.map((item) => {
+                        if (!['PICKLIST', 'CLASSIFICATION'].includes(item.type)) return null
+                        return (
+                          <option key={item.name} value={item.name}>
+                            {item.label}
+                          </option>
+                        )
+                      })}
+                  </select>
+                  <label className="form-text">{$L('颜色')}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="form-group row footer">
+            <div className="col-sm-9 offset-sm-3" ref={(c) => (this._btns = c)}>
+              <button className="btn btn-primary" type="button" onClick={this.save}>
+                {$L('确定')}
+              </button>
+              <a className="btn btn-link" onClick={this.hide}>
+                {$L('取消')}
+              </a>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    // super.componentDidMount()
+
+    $.get(`/commons/metadata/fields?entity=${wpc.entityName}`, (res) => {
+      this.setState({ fields: res.data }, () => {
+        const conf = wpc.extConfig || {}
+        $(this._$fieldOfStart)
+          .select2({ placeholder: $L('默认') })
+          .val(conf.mode4FieldOfStart || null)
+          .trigger('change')
+        $(this._$fieldOfEnd)
+          .select2({ placeholder: $L('无') })
+          .val(conf.mode4FieldOfEnd || null)
+          .trigger('change')
+        $(this._$fieldOfTitle)
+          .select2({ placeholder: $L('默认') })
+          .val(conf.mode4FieldOfTitle || null)
+          .trigger('change')
+        $(this._$fieldOfColor)
+          .select2({ placeholder: $L('无') })
+          .val(conf.mode4FieldOfColor || null)
+          .trigger('change')
+      })
+    })
+  }
+
+  save = () => {
+    const o = {}
+    o.mode4FieldOfStart = $val(this._$fieldOfStart)
+    o.mode4FieldOfEnd = $val(this._$fieldOfEnd)
+    o.mode4FieldOfTitle = $val(this._$fieldOfTitle)
+    o.mode4FieldOfColor = $val(this._$fieldOfColor)
+
+    this.disabled(true)
+    modeSave(o, () => {
+      this.hide()
+      location.reload()
+    })
   }
 }
 

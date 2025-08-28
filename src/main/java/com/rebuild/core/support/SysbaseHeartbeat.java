@@ -164,9 +164,11 @@ public class SysbaseHeartbeat {
     }
 
     /**
+     * 获取最新的日志文件
+     *
      * @return
      */
-    public static File getLogbackFile() {
+    public static File getLastLogbackFile() {
         LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
         Logger lg = lc.getLogger("ROOT");
         FileAppender<?> fa = (FileAppender<?>) lg.getAppender("FILE");

@@ -298,10 +298,10 @@ class RbAlert extends React.Component {
         </div>
 
         <div className="mt-4 mb-3">
-          <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={_onCancel}>
+          <button disabled={this.state.disabled} className="btn btn-space btn-secondary" type="button" onClick={_onCancel} ref={(c) => (this._$cancel = c)}>
             {this.props.cancelText || $L('取消')}
           </button>
-          <button disabled={this.state.disable} className={`btn btn-space btn-${type}`} type="button" onClick={_onConfirm} ref={(c) => (this._$btn = c)}>
+          <button disabled={this.state.disabled} className={`btn btn-space btn-${type}`} type="button" onClick={_onConfirm} ref={(c) => (this._$btn = c)}>
             {this.props.confirmText || $L('确定')}
           </button>
         </div>
@@ -344,7 +344,7 @@ class RbAlert extends React.Component {
   disabled(d, preventHide) {
     d = d === true
     // 带有 tabIndex=-1 导致 select2 组件搜索框无法搜索???
-    this.setState({ disable: d }, () => _preventHide(d, preventHide, this._dlg))
+    this.setState({ disabled: d }, () => _preventHide(d, preventHide, this._dlg))
   }
 
   // -- Usage

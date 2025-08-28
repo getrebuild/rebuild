@@ -125,10 +125,10 @@ public class AdminVerfiyController extends BaseController {
             return;
         }
 
-        final String type = getParameterNotNull(request, "type");
+        final String type = getParameter(request, "type", "log");
         // 日志
         if ("log".equalsIgnoreCase(type)) {
-            File logFile = SysbaseHeartbeat.getLogbackFile();
+            File logFile = SysbaseHeartbeat.getLastLogbackFile();
             FileDownloader.setDownloadHeaders(response, logFile.getName(), false);
             FileDownloader.writeLocalFile(logFile, response);
             return;

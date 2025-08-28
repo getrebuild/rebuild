@@ -4,6 +4,11 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/entity/#%E5%AD%97%E6%AE%B5%E7%AE%A1%E7%90%86" />
     <title>[[${bundle.L('字段管理')}]]</title>
+    <style>
+      .table tbody tr.warning td:first-child {
+        border-left-color: #fbbc05 !important;
+      }
+    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">

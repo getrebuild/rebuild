@@ -390,9 +390,16 @@ function _handle512Change() {
   else $('.on-timers').addClass('hide')
 }
 
+let useExecManual__taskid
+window.onbeforeunload = function () {
+  if (!useExecManual__taskid) return undefined
+  return 'SHOW-CLOSE-CONFIRM'
+}
+
 // 立即执行
 function useExecManual() {
   function _FN(taskid, that) {
+    useExecManual__taskid = taskid
     const mp_parent = $(that._dlg).find('.modal-header').attr('id', $random('node-'))
     const mp = new Mprogress({ template: 1, start: true, parent: '#' + $(mp_parent).attr('id') })
     useExecManual_checkState(taskid, mp, that)
@@ -418,9 +425,14 @@ function useExecManual() {
             // 执行中了
             if (taskid.startsWith('_EXECUTE:')) {
               taskid = taskid.substr(9)
+
               RbAlert.create($L('此触发器已在执行中，不能同时执行。是否显示执行状态？'), {
                 onConfirm: function () {
                   this.hide()
+
+                  that.setState({ disabled: false }, () => {
+                    $(that._$btn).attr('disabled', true)
+                  })
                   _FN(taskid, that)
                 },
                 onCancel: function () {
@@ -431,7 +443,35 @@ function useExecManual() {
               return
             }
 
+            that.setState({ disabled: false }, () => {
+              $(that._$btn).attr('disabled', true)
+            })
             _FN(taskid, that)
+          })
+        },
+        onCancel: function () {
+          if (!useExecManual__taskid) {
+            this.hide()
+            return
+          }
+
+          RbAlert.create($L('是否取消/终止当前操作？'), {
+            onConfirm: function () {
+              if (!useExecManual__taskid) {
+                this.hide()
+                return
+              }
+
+              this.disabled(true)
+              $.post(`/commons/task/cancel?taskid=${useExecManual__taskid}`, (res) => {
+                if (res.error_code !== 0) {
+                  RbHighbar.error(res.error_msg)
+                } else {
+                  useExecManual__taskid = null
+                  this.hide()
+                }
+              })
+            },
           })
         },
         countdown: 5,
@@ -444,9 +484,15 @@ function useExecManual_checkState(taskid, mp, _alert) {
   $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
     const cp = res.data.progress
     if (res.data.isCompleted) {
+      useExecManual__taskid = null
       mp && mp.end()
-      _alert && _alert.hide(true)
-      RbHighbar.success($L('执行成功'))
+      if (_alert) {
+        $(_alert._$btn).text(res.data.isInterrupted ? $L('已终止') : $L('已完成'))
+        setTimeout(() => _alert.hide(true), 3000)
+      }
+
+      if (res.data.isInterrupted) RbHighbar.success($L('%d 条记录已执行成功', res.data.succeeded))
+      else RbHighbar.success($L('执行成功'))
     } else {
       mp && mp.set(cp)
       setTimeout(() => useExecManual_checkState(taskid, mp, _alert), 1000)

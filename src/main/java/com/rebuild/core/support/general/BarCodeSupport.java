@@ -25,6 +25,7 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.AppUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -75,8 +76,10 @@ public class BarCodeSupport {
      */
     public static BufferedImage getBarCodeImage(Field field, ID record) {
         String content = getBarCodeContent(field, record);
+        if (StringUtils.isBlank(content)) return null;
+
         EasyField easyField = EasyMetaFactory.valueOf(field);
-        String barcodeType = easyField.getExtraAttr("barcodeType");
+        String barcodeType = easyField.getExtraAttr(EasyFieldConfigProps.BARCODE_TYPE);
 
         if (TYPE_BARCODE.equalsIgnoreCase(barcodeType)) {
             return createBarCode(content, 0, Boolean.TRUE);

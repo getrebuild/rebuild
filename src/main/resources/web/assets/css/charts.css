@@ -754,6 +754,28 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: rgba(255, 255, 255, 0.2);
 }
 
+.chart-box.MyNotification {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.chart-box.MyNotification .chart-head {
+  margin: 0 25px;
+}
+
+.chart-box.MyNotification .notification-list .a {
+  padding: 8px 25px;
+}
+
+.chart-box.MyNotification .notification-op {
+  padding: 10px 25px 15px;
+}
+
+.chart-box.MyNotification .notification-list .notification.append .badge,
+.chart-box.MyNotification .notification-list .notification .read-mark {
+  right: 25px;
+}
+
 /* gradient-backgrounds.css */
 
 .gradient-bg-1 {

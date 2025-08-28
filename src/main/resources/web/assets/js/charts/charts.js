@@ -16,9 +16,12 @@ class BaseChart extends React.Component {
   }
 
   render() {
+    let showScurce = !this.props.builtin
+    if (this.props.id === '017-9000000000000007' || this.props.id === '017-9000000000000002') showScurce = true
+
     const opActions = (
       <div className="chart-oper">
-        {!this.props.builtin && (
+        {showScurce && (
           <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`} target="_blank" className="J_source">
             <i className="zmdi zmdi-rss" />
           </a>
@@ -185,7 +188,7 @@ class BaseChart extends React.Component {
       const wb = window.XLSX.utils.table_to_book(table, { raw: true, wrapText: true })
       window.XLSX.writeFile(wb, name)
       // restore
-      setTimeout(() => _rmLinks(table, 'href', '__href'), 500)
+      setTimeout(() => _rmLinks(table, 'href', '__href'), 499)
     }
 
     if (window.XLSX && window.XLSX.utils) _export()
@@ -968,7 +971,7 @@ class ApprovalList extends BaseChart {
           </table>
           {viewData.length >= 500 && (
             <div className="m-2 text-center text-warning">
-              <i className="mdi mdi-information-outline" /> {$L('最多显示最近 500 条记录')}
+              <i className="mdi mdi-information-outline" /> {$L('最多显示最近 500 条')}
             </div>
           )}
         </div>
@@ -982,10 +985,11 @@ class ApprovalList extends BaseChart {
     )
     this.setState({ chartdata: chartdata }, () => {
       const $tb = $(this._$body)
-      $tb
-        .find('.ApprovalList')
-        .css('height', $tb.height() - 5)
-        .perfectScrollbar()
+      $tb &&
+        $tb
+          .find('.ApprovalList')
+          .css('height', $tb.height() - 5)
+          .perfectScrollbar()
     })
   }
 
@@ -993,7 +997,7 @@ class ApprovalList extends BaseChart {
     $setTimeout(
       () => {
         const $tb = $(this._$body)
-        if ($tb) $tb.find('.ApprovalList').css('height', $tb.height() - 5)
+        $tb && $tb.find('.ApprovalList').css('height', $tb.height() - 5)
       },
       400,
       `resize-chart-${this.state.id}`
@@ -1498,14 +1502,15 @@ class DataList extends BaseChart {
             {listData.map((row) => {
               const lastCell = row[lastIndex]
               const rkey = `tr-${lastCell.id}`
+              const viewUrl = `${rb.baseUrl}/app/redirect?id=${lastCell.id}&type=newtab`
               return (
-                <tr key={rkey} data-id={lastCell.id}>
+                <tr key={rkey} data-id={lastCell.id} onDoubleClick={() => window.open(viewUrl)}>
                   {row.map((c, idx) => {
                     if (idx === lastIndex) return null // Last is ID
                     return this.renderCell(c, listFields[idx])
                   })}
                   <td className="open-newtab">
-                    <a href={`${rb.baseUrl}/app/redirect?id=${lastCell.id}&type=newtab`} target="_blank" title={$L('打开')}>
+                    <a href={viewUrl} target="_blank" title={$L('打开')}>
                       <i className="zmdi zmdi-open-in-new icon" />
                     </a>
                   </td>
@@ -1525,15 +1530,9 @@ class DataList extends BaseChart {
         .css('height', this._$tb.height() - 20)
         .perfectScrollbar()
 
-      let $trActive
       const $trs = this._$tb.find('tbody tr').on('mousedown', function () {
-        if ($trActive === this) {
-          $(this).toggleClass('highlight')
-        } else {
-          $trActive = this
-          $trs.removeClass('highlight')
-          $(this).addClass('highlight')
-        }
+        $trs.removeClass('highlight')
+        $(this).addClass('highlight')
       })
     })
   }
@@ -1799,6 +1798,130 @@ class EmbedFrame extends BaseChart {
   }
 }
 
+// ~~ 我的通知
+// @see notifications.js
+class MyNotification extends BaseChart {
+  renderChart(data, type = 1) {
+    const opComp = (
+      <div className="notification-op">
+        <div className="float-left">
+          <div className="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons">
+            <label className="btn btn-secondary active" onClick={() => this.renderChart(data, 1)}>
+              <input type="radio" name="__typeOfMyNotification" defaultChecked={type === 1} />
+              {$L('未读')} ({data.unread.length})
+            </label>
+            <label className="btn btn-secondary" onClick={() => this.renderChart(data, 2)}>
+              <input type="radio" name="__typeOfMyNotification" defaultChecked={type === 2} />
+              {$L('已读')} ({data.readed.length})
+            </label>
+          </div>
+        </div>
+        <div className="float-right">
+          <button
+            className="btn btn-sm btn-secondary"
+            type="button"
+            onClick={() => {
+              const that = this
+              RbAlert.create($L('确认已读全部通知？'), {
+                onConfirm: function () {
+                  this.hide()
+                  that.makeRead('ALL')
+                },
+              })
+            }}>
+            <i className="zmdi zmdi-check-all icon"></i> {$L('已读全部')}
+          </button>
+        </div>
+        <div className="clearfix"></div>
+      </div>
+    )
+
+    const dd = type === 1 ? data.unread : data.readed
+    const chartdata = (
+      <RF>
+        {opComp}
+        <div className="rb-notifications notification-list rb-scroller">
+          {dd.length === 0 ? (
+            <div className="chart-undata must-center" style={{ marginTop: -15 }}>
+              <i className="zmdi zmdi-notifications icon" /> {$L('暂无通知')}
+            </div>
+          ) : (
+            <ul className="list-unstyled m-0">{dd.map((item) => this.renderItem(item))}</ul>
+          )}
+          {dd.length >= 500 && (
+            <div className="m-2 text-center text-warning">
+              <i className="mdi mdi-information-outline" /> {$L('最多显示最近 500 条')}
+            </div>
+          )}
+        </div>
+      </RF>
+    )
+
+    this.setState({ chartdata: chartdata }, () => {
+      const $scroller = $(this._$box).find('.rb-scroller').perfectScrollbar('destroy')
+      $scroller.css('height', $(this._$body).height() - 34)
+      dd.length > 0 && $scroller.perfectScrollbar()
+    })
+  }
+
+  resize() {
+    $setTimeout(
+      () => {
+        const $scroller = $(this._$box).find('.rb-scroller').perfectScrollbar('destroy')
+        $scroller.css('height', $(this._$body).height() - 34)
+        $scroller.perfectScrollbar()
+      },
+      400,
+      `resize-chart-${this.state.id}`
+    )
+  }
+
+  renderItem(item) {
+    // const append = item[6] === 30
+    const append = item[5] && ~~item[5].substr(0, 3) !== 29 // 过滤审批步骤ID
+    let clazz = 'notification'
+    if (item[3]) clazz += ' notification-unread'
+    if (append) clazz += ' append'
+
+    return (
+      <li id={item[4]} className={clazz} key={item[4]} onClick={(e) => this.makeRead(item[4], e.currentTarget)}>
+        <span className="a">
+          <div className="image">
+            <img src={`${rb.baseUrl}/account/user-avatar/${item[0][0]}`} title={item[0][1]} alt="Avatar" />
+          </div>
+          <div className="notification-info">
+            <div className="text" dangerouslySetInnerHTML={{ __html: item[1] }} />
+            <div className="date">
+              <DateShow date={item[2]} />
+            </div>
+          </div>
+          {append && (
+            <a title={$L('查看记录')} className="badge link" href={`${rb.baseUrl}/app/redirect?id=${item[5]}&type=newtab`} target="_blank">
+              {$L('查看')}
+            </a>
+          )}
+          {item[3] && (
+            <a className="read-mark text-muted">
+              <i className="icon zmdi zmdi-check text-bold" /> {$L('点击已读')}
+            </a>
+          )}
+        </span>
+      </li>
+    )
+  }
+
+  makeRead(id, $el) {
+    $.post(`/notification/make-read?id=${id}`, () => {
+      if (id === 'ALL') {
+        RbHighbar.success($L('全部通知已设为已读'))
+        $(this._$box).find('.notification-unread').removeClass('notification-unread')
+      } else {
+        $($el).removeClass('notification-unread')
+      }
+    })
+  }
+}
+
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
 const detectChart = function (cfg, id) {
@@ -1842,6 +1965,8 @@ const detectChart = function (cfg, id) {
     return <HeadingText {...props} builtin={false} />
   } else if (cfg.type === 'EmbedFrame') {
     return <EmbedFrame {...props} builtin={false} />
+  } else if (cfg.type === 'MyNotification') {
+    return <MyNotification {...props} builtin />
   } else {
     return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${cfg.type}]`}</h4>
   }

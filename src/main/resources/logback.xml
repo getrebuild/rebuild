@@ -36,7 +36,7 @@
     <!-- <logger name="com.deepoove.poi" level="WARN" /> -->
 
     <!-- 4.1 -->
-    <appender name="FILE.AVATOR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="FILE-AVATOR" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%-20thread] [%reqid] - %msg%n</pattern>
         </encoder>
@@ -47,7 +47,25 @@
         </rollingPolicy>
     </appender>
     <logger name="com.rebuild.rbv.trigger.aviator.LogFunction" level="INFO">
-        <appender-ref ref="FILE.AVATOR"/>
+        <appender-ref ref="FILE-AVATOR"/>
+    </logger>
+
+    <!-- 4.2 -->
+    <appender name="FILE-ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%-20thread] [%reqid] %logger{36}:%line - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS_HOME}/rebuild.ERROR.%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>180</maxHistory>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+    <logger name="com.rebuild" level="WARN">
+        <appender-ref ref="FILE-ERROR"/>
     </logger>
 
 </configuration>

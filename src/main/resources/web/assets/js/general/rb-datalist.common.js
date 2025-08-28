@@ -307,6 +307,7 @@ class BatchOperator extends RbFormHandler {
           return
         }
 
+        this.disabled(true)
         $.post(`/commons/task/cancel?taskid=${that._taskid}`, (res) => {
           if (res.error_code !== 0) {
             RbHighbar.error(res.error_msg)
@@ -388,6 +389,12 @@ class DataExport extends BatchOperator {
 }
 
 // ~ 批量修改
+
+let BatchUpdate__taskid
+window.onbeforeunload = function () {
+  if (!BatchUpdate__taskid) return undefined
+  return 'SHOW-CLOSE-CONFIRM'
+}
 
 // eslint-disable-next-line no-unused-vars
 class BatchUpdate extends BatchOperator {
@@ -506,6 +513,7 @@ class BatchUpdate extends BatchOperator {
   }
 
   _checkState(taskid, mp) {
+    BatchUpdate__taskid = taskid
     $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.hasError) {
@@ -516,6 +524,7 @@ class BatchUpdate extends BatchOperator {
 
         const cp = res.data.progress
         if (res.data.isCompleted) {
+          BatchUpdate__taskid = null
           mp && mp.end()
           $(this._btns)
             .find('.btn-primary')
@@ -527,7 +536,7 @@ class BatchUpdate extends BatchOperator {
           setTimeout(() => {
             this.disabled(false)
             this.hide()
-          }, 2000)
+          }, 3000)
         } else {
           mp && mp.set(cp)
           setTimeout(() => this._checkState(taskid, mp), 1500)
@@ -2015,6 +2024,31 @@ CellRenders.addRender('TAG', (v, s, k) => {
             </span>
           )
         })}
+      </div>
+    </td>
+  )
+})
+CellRenders.addRender('BARCODE', (v, s, k) => {
+  const codeUrl = `${rb.baseUrl}/commons/barcode/render-auto?t=${$encode(v)}`
+  const isbar = v.startsWith('BC:')
+  v = v.substr(3)
+  return (
+    <td key={k} className="td-sm">
+      <div className="column-imgs" style={s}>
+        <a
+          onClick={() => {
+            RbAlert.create(
+              <div className="mb-3 text-center">
+                <img src={`${codeUrl}&w=${isbar ? 64 * 2 : 80 * 3}`} alt={v} style={{ maxWidth: '100%' }} />
+                {!isbar && <div className="text-muted mt-2 mb-1 text-break text-bold">{v}</div>}
+              </div>,
+              {
+                type: 'clear',
+              }
+            )
+          }}>
+          <img src={`${codeUrl}&w=${isbar ? 64 : 120}`} alt={v} />
+        </a>
       </div>
     </td>
   )
