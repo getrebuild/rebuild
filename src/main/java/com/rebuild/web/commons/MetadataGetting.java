@@ -10,10 +10,12 @@ package com.rebuild.web.commons;
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -25,15 +27,19 @@ import com.rebuild.core.privileges.PrivilegesManager;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.general.MetaFormatter;
+import com.rebuild.web.robot.trigger.FieldAggregationController;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -147,6 +153,9 @@ public class MetadataGetting extends BaseController {
         return EasyMetaFactory.valueOf(foundEntity).toJSON();
     }
 
+    /**
+     * @see
+     */
     @GetMapping("entity-and-details")
     public JSON entityAndDetails(HttpServletRequest request) {
         Entity entity = MetadataHelper.getEntity(getParameterNotNull(request, "entity"));
@@ -160,5 +169,47 @@ public class MetadataGetting extends BaseController {
             }
         }
         return res;
+    }
+
+    // 关联项（包括相关项和引用项）
+    @GetMapping("relateds")
+    public RespBody getEntityRelateds(@EntityParam Entity entity) {
+        // 1.我引用了谁
+        List<String[]> refs = new ArrayList<>();
+        for (Field from : MetadataSorter.sortFields(entity,
+                DisplayType.REFERENCE, DisplayType.N2NREFERENCE, DisplayType.ANYREFERENCE)) {
+            Entity re = from.getReferenceEntity();
+            boolean isAny = from.getType() == FieldType.ANY_REFERENCE;
+            if (!(MetadataHelper.isBusinessEntity(re) || isAny)) continue;
+
+            String entityLabel = String.format("%s (%s)",
+                    isAny ? "" : EasyMetaFactory.getLabel(re), EasyMetaFactory.getLabel(from));
+            refs.add(new String[]{from.getName(), entityLabel});
+        }
+
+        // 2.谁引用了我
+        List<String[]> relateds = new ArrayList<>();
+        for (Field to : entity.getReferenceToFields(Boolean.FALSE, Boolean.TRUE)) {
+            Entity oe = to.getOwnEntity();
+            if (!MetadataHelper.isBusinessEntity(oe)) continue;
+
+            String entityLabel = String.format("%s (%s)",
+                    EasyMetaFactory.getLabel(oe), EasyMetaFactory.getLabel(to));
+            relateds.add(new String[]{to.getName() + "." + oe.getName(), entityLabel});
+        }
+
+        FieldAggregationController.sortEntities(refs, null);
+        FieldAggregationController.sortEntities(relateds, null);
+
+        JSONObject res = new JSONObject();
+        res.put("refs", refs);
+        res.put("relateds", relateds);
+
+        return RespBody.ok(res);
+    }
+
+    private void sortEntities(List<String[]> entities) {
+        Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);
+        entities.sort((o1, o2) -> comparator.compare(o1[1], o2[1]));
     }
 }

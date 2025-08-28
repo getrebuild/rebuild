@@ -14,6 +14,7 @@ class ContentAutoShare extends ActionContentSpec {
   state = { ...this.props }
 
   render() {
+    const relatedsFields = this.state.relatedsFields
     return (
       <div className="auto-share">
         <form className="simple">
@@ -31,18 +32,45 @@ class ContentAutoShare extends ActionContentSpec {
           </div>
 
           <div className="form-group row">
-            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('同时共享相关记录')}</label>
+            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('同时共享关联记录')}</label>
             <div className="col-12 col-lg-8">
               <div>
-                <select className="form-control form-control-sm" ref={(c) => (this._cascades = c)}>
-                  {(this.state.cascadesEntity || []).map((item) => {
-                    return (
-                      <option key={item[0]} value={item[0]}>
-                        {item[1]}
-                      </option>
-                    )
-                  })}
-                </select>
+                {this.state.cascadesEntity && (
+                  <select className="form-control form-control-sm" ref={(c) => (this._cascades = c)}>
+                    {this.state.cascadesEntity.map((item) => {
+                      return (
+                        <option key={'option-' + item[0]} value={item[0]}>
+                          {item[1]}
+                        </option>
+                      )
+                    })}
+                  </select>
+                )}
+
+                {relatedsFields && (
+                  <select className="form-control form-control-sm" ref={(c) => (this._$relatedsFields = c)} multiple>
+                    <optgroup label={$L('相关项')}>
+                      {relatedsFields &&
+                        relatedsFields.relateds.map((item) => {
+                          return (
+                            <option key={item[0]} value={item[0]}>
+                              {item[1]}
+                            </option>
+                          )
+                        })}
+                    </optgroup>
+                    <optgroup label={$L('引用项')}>
+                      {relatedsFields &&
+                        relatedsFields.refs.map((item) => {
+                          return (
+                            <option key={item[0]} value={item[0]}>
+                              {item[1]}
+                            </option>
+                          )
+                        })}
+                    </optgroup>
+                  </select>
+                )}
               </div>
             </div>
           </div>
@@ -74,17 +102,39 @@ class ContentAutoShare extends ActionContentSpec {
     }
 
     const cascades = content.cascades ? content.cascades.split(',') : []
-    $.get(`/commons/metadata/references?entity=${this.props.sourceEntity}`, (res) => {
-      this.setState({ cascadesEntity: res.data }, () => {
-        this.__select2 = $(this._cascades)
-          .select2({
-            multiple: true,
-            placeholder: `${$L('选择相关实体')} ${$L('(可选)')}`,
-          })
-          .val(cascades.length === 0 ? null : cascades)
-          .trigger('change')
+    if (cascades.length > 0) {
+      $.get(`/commons/metadata/references?entity=${this.props.sourceEntity}`, (res) => {
+        this.setState({ cascadesEntity: res.data }, () => {
+          this.__select2 = $(this._cascades)
+            .select2({
+              multiple: true,
+              placeholder: `${$L('选择相关实体')} ${$L('(可选)')}`,
+            })
+            .val(cascades.length === 0 ? null : cascades)
+            .trigger('change')
+        })
       })
-    })
+    } else {
+      // 4.2
+      $.get(`/commons/metadata/relateds?entity=${this.props.sourceEntity}`, (res) => {
+        this.setState({ relatedsFields: res.data || {} }, () => {
+          this.__select42 = $(this._$relatedsFields).select2({
+            placeholder: $L('(可选)'),
+            allowClear: true,
+            templateResult: function (res) {
+              const text = res.text.split(' (N)')
+              const $span = $('<span></span>').text(text[0])
+              if (text.length > 1) $('<span class="badge badge-default badge-pill">N</span>').appendTo($span)
+              return $span
+            },
+          })
+
+          if (content.relatedsFields42) {
+            this.__select42.val(content.relatedsFields42).trigger('change')
+          }
+        })
+      })
+    }
 
     if (content.withUpdate) {
       $(this._withUpdate).attr('checked', true)
@@ -94,7 +144,8 @@ class ContentAutoShare extends ActionContentSpec {
   buildContent() {
     const _data = {
       shareTo: this._shareTo.getSelected(),
-      cascades: this.__select2.val().join(','),
+      cascades: this.__select2 ? this.__select2.val().join(',') : null,
+      relatedsFields42: this.__select42 ? this.__select42.val() : null,
       withUpdate: $(this._withUpdate).prop('checked'),
     }
     if (!_data.shareTo || _data.shareTo.length === 0) {
