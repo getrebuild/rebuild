@@ -772,7 +772,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chart-box.MyNotification .notification-list .notification.append .badge,
-.chart-box.MyNotification .notification-list .notification .read-mark {
+.chart-box.MyNotification .notification-list .notification .read-mark,
+.chart-box.MyNotification .notification-list .notification.notification-unread > .a::after {
   right: 25px;
 }
 
