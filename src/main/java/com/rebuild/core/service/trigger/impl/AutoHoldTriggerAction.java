@@ -42,12 +42,16 @@ public abstract class AutoHoldTriggerAction extends TriggerAction {
         super(actionContext);
     }
 
-    // 删除前保持
+    /**
+     * 删除前获取相关资源
+     *
+     * @param operatingContext
+     * @throws TriggerException
+     */
     @Override
     protected void prepare(OperatingContext operatingContext) throws TriggerException {
         if (operatingContext.getAction() == InternalPermission.DELETE_BEFORE) {
-            willRecords = getRelatedRecords(
-                    actionContext, operatingContext.getFixedRecordId());
+            willRecords = getRelatedRecords42(actionContext, operatingContext.getFixedRecordId());
         }
     }
 
@@ -59,8 +63,7 @@ public abstract class AutoHoldTriggerAction extends TriggerAction {
      */
     protected Set<ID> getWillRecords(OperatingContext operatingContext) {
         if (willRecords == null) {
-            willRecords = getRelatedRecords(
-                    actionContext, operatingContext.getFixedRecordId());
+            willRecords = getRelatedRecords42(actionContext, operatingContext.getFixedRecordId());
         }
         return willRecords;
     }
@@ -72,7 +75,7 @@ public abstract class AutoHoldTriggerAction extends TriggerAction {
      * @param sourceRecordId
      * @return
      */
-    protected static Set<ID> getRelatedRecords(ActionContext actionContext, ID sourceRecordId) {
+    protected Set<ID> getRelatedRecords42(ActionContext actionContext, ID sourceRecordId) {
         // 共享的需要使用记录 ID
         if (sourceRecordId.getEntityCode() == EntityHelper.ShareAccess) {
             Object[] o = Application.getQueryFactory().uniqueNoFilter(sourceRecordId, "recordId");
@@ -83,39 +86,36 @@ public abstract class AutoHoldTriggerAction extends TriggerAction {
         final JSONObject actionContent = (JSONObject) actionContext.getActionContent();
 
         Entity sourceEntity = actionContext.getSourceEntity();
-        JSONArray fs = actionContent.getJSONArray("fields");
-        // for AutoApproval
-        if (fs == null) fs = actionContent.getJSONArray("revokeFields");
+        JSONArray fields = actionContent.getJSONArray("fields");
+        if (fields == null) fields = actionContent.getJSONArray("revokeFields");
 
-        List<String> fieldsSelf = new ArrayList<>();
-        List<Field> fieldsRefto = new ArrayList<>();
-        boolean hasSelf = false;
+        List<String> fieldsRefs = new ArrayList<>();
+        List<Field> fieldsRelateds = new ArrayList<>();
 
-        for (Object o : fs) {
+        for (Object o : fields) {
             String field = (String) o;
-            if (field.contains(".")) {
+            // 自己
+            if (SOURCE_SELF.equals(field)) {
+                fieldsRefs.add(sourceEntity.getPrimaryField().getName());
+            } else if (field.contains(".")) {
                 String[] fieldAndEntity = field.split("\\.");
                 if (MetadataHelper.containsField(fieldAndEntity[1], fieldAndEntity[0])) {
-                    fieldsRefto.add(MetadataHelper.getField(fieldAndEntity[1], fieldAndEntity[0]));
+                    fieldsRelateds.add(MetadataHelper.getField(fieldAndEntity[1], fieldAndEntity[0]));
                 }
-
             } else {
-                if (SOURCE_SELF.equals(field)) {
-                    fieldsSelf.add(sourceEntity.getPrimaryField().getName());
-                    hasSelf = true;
-                } if (sourceEntity.containsField(field)) {
-                    fieldsSelf.add(field);
-                }
+                fieldsRefs.add(field);
             }
         }
 
         final Set<ID> relateds = new HashSet<>();
 
-        if (!fieldsSelf.isEmpty()) {
-            fieldsSelf.add(sourceEntity.getPrimaryField().getName());
-            Object[] o = Application.getQueryFactory().uniqueNoFilter(sourceRecordId, fieldsSelf.toArray(new String[0]));
+        // 引用项
+        if (!fieldsRefs.isEmpty()) {
+            fieldsRefs.add(sourceEntity.getPrimaryField().getName());
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(sourceRecordId, fieldsRefs.toArray(new String[0]));
             if (o != null) {
-                for (Object id : o) {
+                for (int i = 0; i < o.length - 1; i++) {
+                    Object id = o[i];
                     if (id != null) {
                         if (id instanceof ID[]) Collections.addAll(relateds, (ID[]) id);
                         else relateds.add((ID) id);
@@ -124,26 +124,25 @@ public abstract class AutoHoldTriggerAction extends TriggerAction {
             }
         }
 
-        for (Field refto : fieldsRefto) {
-            final Entity ownEntity = refto.getOwnEntity();
-            String sql = String.format("select %s from %s where ",
-                    ownEntity.getPrimaryField().getName(), ownEntity.getName());
+        // 相关项
+        for (Field field : fieldsRelateds) {
+            Entity oe = field.getOwnEntity();
+            String sql = String.format("select %s from %s where ", oe.getPrimaryField().getName(), oe.getName());
 
             // N2N
-            if (refto.getType() == FieldType.REFERENCE_LIST) {
+            if (field.getType() == FieldType.REFERENCE_LIST) {
                 sql += String.format(
                         "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId = '%s')",
-                        ownEntity.getPrimaryField().getName(), refto.getName(), sourceRecordId);
+                        oe.getPrimaryField().getName(), field.getName(), sourceRecordId);
             } else {
-                sql += String.format("%s = '%s'", refto.getName(), sourceRecordId);
+                sql += String.format("%s = '%s'", field.getName(), sourceRecordId);
             }
 
             Object[][] array = Application.createQueryNoFilter(sql).array();
-            for (Object[] o : array) relateds.add((ID) o[0]);
+            for (Object[] o : array) {
+                relateds.add((ID) o[0]);
+            }
         }
-
-        // 不含自己
-        if (!hasSelf) relateds.remove(sourceRecordId);
 
         return relateds;
     }
@@ -155,13 +154,11 @@ public abstract class AutoHoldTriggerAction extends TriggerAction {
      * @return
      * @see ApprovalHelper#getApprovalState(ID)
      */
-    protected static ApprovalState getApprovalState(ID recordId) {
+    protected ApprovalState getApprovalState(ID recordId) {
         if (MetadataHelper.hasApprovalField(MetadataHelper.getEntity(recordId.getEntityCode()))) {
             try {
                 return ApprovalHelper.getApprovalState(recordId);
-            } catch (NoRecordFoundException ignored) {
-                return null;
-            }
+            } catch (NoRecordFoundException ignored) {}
         }
         return null;
     }
