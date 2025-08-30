@@ -5907,7 +5907,7 @@ div.formula-code {
 
 .notification-list .notification > .a {
   cursor: default;
-  padding-left: 10px;
+  padding-left: 15px;
 }
 
 .notification-list .notification:hover {
@@ -5944,7 +5944,7 @@ div.formula-code {
 .notification-list .notification.append .badge,
 .notification-list .notification .read-mark {
   position: absolute;
-  right: 10px;
+  right: 15px;
   top: 11px;
   font-weight: normal;
 }
@@ -5966,7 +5966,7 @@ div.formula-code {
 }
 
 .notification-list .notification.notification-unread > .a::after {
-  right: 8px;
+  right: 13px;
   top: 4px;
   background-color: #4285f4 !important;
 }

@@ -10,10 +10,12 @@ package com.rebuild.web.commons;
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -22,6 +24,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesManager;
+import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.general.MetaFormatter;
@@ -160,5 +163,48 @@ public class MetadataGetting extends BaseController {
             }
         }
         return res;
+    }
+
+    // 关联项（包括相关项和引用项）
+    @GetMapping("relateds")
+    public RespBody getEntityRelateds(@EntityParam Entity entity) {
+        // 相关项
+        List<Object[]> relateds = new ArrayList<>();
+        for (Field to : entity.getReferenceToFields(Boolean.FALSE, Boolean.TRUE)) {
+            Entity oe = to.getOwnEntity();
+            // 排除系统实体
+            if (!MetadataHelper.isBusinessEntity(oe)) continue;
+            // 排除明细
+            if (oe.getMainEntity() != null && oe.getMainEntity().equals(entity)) continue;
+
+            String entityLabel = String.format("%s (%s)",
+                    EasyMetaFactory.getLabel(oe), EasyMetaFactory.getLabel(to));
+            relateds.add(new Object[]{to.getName() + "." + oe.getName(), entityLabel, oe.getMainEntity() != null});
+        }
+
+        // 引用项
+        List<Object[]> refs = new ArrayList<>();
+        for (Field from : MetadataSorter.sortFields(entity,
+                DisplayType.REFERENCE, DisplayType.N2NREFERENCE, DisplayType.ANYREFERENCE)) {
+            Entity re = from.getReferenceEntity();
+            boolean isAny = from.getType() == FieldType.ANY_REFERENCE;
+            // 排除系统实体和任意引用
+            if (!(MetadataHelper.isBusinessEntity(re) || isAny)) continue;
+
+            String entityLabel = String.format("%s (%s)",
+                    isAny ? "" : EasyMetaFactory.getLabel(re), EasyMetaFactory.getLabel(from));
+            refs.add(new Object[]{from.getName(), entityLabel, re.getMainEntity() != null});
+        }
+
+        MetadataSorter.sortEntities(refs, null);
+        MetadataSorter.sortEntities(relateds, null);
+
+        JSONObject res = new JSONObject();
+        res.put("relateds", relateds);
+        res.put("refs", refs);
+        res.put("self", new Object[]{
+                TriggerAction.SOURCE_SELF, EasyMetaFactory.getLabel(entity), entity.getMainEntity() != null});
+
+        return RespBody.ok(res);
     }
 }

@@ -18,11 +18,11 @@ import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
-import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.core.service.trigger.TriggerResult;
 import com.rebuild.core.support.KVStorage;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 
@@ -35,7 +35,7 @@ import java.util.Set;
  * @since 2019/8/23
  */
 @Slf4j
-public class AutoAssign extends TriggerAction {
+public class AutoAssign extends AutoHoldTriggerAction {
 
     public AutoAssign(ActionContext context) {
         super(context);
@@ -96,32 +96,40 @@ public class AutoAssign extends TriggerAction {
             toUser = toUsers.toArray(new ID[0])[r];
         }
 
+        Set<ID> relateds42 = null;
         String hasCascades = ((JSONObject) actionContext.getActionContent()).getString("cascades");
         String[] cascades = null;
         if (StringUtils.isNotBlank(hasCascades)) {
             cascades = hasCascades.split(",");
+        } else {
+            relateds42 = getWillRecords(operatingContext);
         }
 
-        GeneralEntityServiceContextHolder.setSkipGuard(recordId);
-        GeneralEntityServiceContextHolder.setFromTrigger(recordId);
+        assign(recordId, toUser, cascades);
+        // 当前分配人
+        if (orderedAssign) {
+            KVStorage.setCustomValue(orderedAssignKey, toUser);
+        }
 
-        try {
-            Application.getEntityService(actionContext.getSourceEntity().getEntityCode())
-                    .assign(recordId, toUser, cascades);
-
-            // 当前分配人
-            if (orderedAssign) {
-                KVStorage.setCustomValue(orderedAssignKey, toUser);
-            }
-
-        } finally {
-            GeneralEntityServiceContextHolder.isSkipGuardOnce();
-            GeneralEntityServiceContextHolder.isFromTrigger(true);
+        if (!CollectionUtils.isEmpty(relateds42)) {
+            for (ID id : relateds42) assign(id, toUser, null);
         }
 
         Collection<ID> affected = new ArrayList<>(2);
         affected.add(toUser);
         affected.add(recordId);
         return TriggerResult.success(affected);
+    }
+
+    private void assign(ID recordId, ID toUser, String[] cascades) {
+        GeneralEntityServiceContextHolder.setSkipGuard(recordId);
+        GeneralEntityServiceContextHolder.setFromTrigger(recordId);
+
+        try {
+            Application.getEntityService(recordId.getEntityCode()).assign(recordId, toUser, cascades);
+        } finally {
+            GeneralEntityServiceContextHolder.isSkipGuardOnce();
+            GeneralEntityServiceContextHolder.isFromTrigger(true);
+        }
     }
 }
