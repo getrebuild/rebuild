@@ -24,22 +24,19 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesManager;
+import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.general.MetaFormatter;
-import com.rebuild.web.robot.trigger.FieldAggregationController;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -174,42 +171,43 @@ public class MetadataGetting extends BaseController {
     // 关联项（包括相关项和引用项）
     @GetMapping("relateds")
     public RespBody getEntityRelateds(@EntityParam Entity entity) {
-        // 1.我引用了谁
-        List<String[]> refs = new ArrayList<>();
+        // 相关项
+        List<Object[]> relateds = new ArrayList<>();
+        for (Field to : entity.getReferenceToFields(Boolean.FALSE, Boolean.TRUE)) {
+            Entity oe = to.getOwnEntity();
+            // 排除系统实体
+            if (!MetadataHelper.isBusinessEntity(oe)) continue;
+            // 排除明细
+            if (oe.getMainEntity() != null && oe.getMainEntity().equals(entity)) continue;
+
+            String entityLabel = String.format("%s (%s)",
+                    EasyMetaFactory.getLabel(oe), EasyMetaFactory.getLabel(to));
+            relateds.add(new Object[]{to.getName() + "." + oe.getName(), entityLabel, oe.getMainEntity() != null});
+        }
+
+        // 引用项
+        List<Object[]> refs = new ArrayList<>();
         for (Field from : MetadataSorter.sortFields(entity,
                 DisplayType.REFERENCE, DisplayType.N2NREFERENCE, DisplayType.ANYREFERENCE)) {
             Entity re = from.getReferenceEntity();
             boolean isAny = from.getType() == FieldType.ANY_REFERENCE;
+            // 排除系统实体和任意引用
             if (!(MetadataHelper.isBusinessEntity(re) || isAny)) continue;
 
             String entityLabel = String.format("%s (%s)",
                     isAny ? "" : EasyMetaFactory.getLabel(re), EasyMetaFactory.getLabel(from));
-            refs.add(new String[]{from.getName(), entityLabel});
+            refs.add(new Object[]{from.getName(), entityLabel, re.getMainEntity() != null});
         }
 
-        // 2.谁引用了我
-        List<String[]> relateds = new ArrayList<>();
-        for (Field to : entity.getReferenceToFields(Boolean.FALSE, Boolean.TRUE)) {
-            Entity oe = to.getOwnEntity();
-            if (!MetadataHelper.isBusinessEntity(oe)) continue;
-
-            String entityLabel = String.format("%s (%s)",
-                    EasyMetaFactory.getLabel(oe), EasyMetaFactory.getLabel(to));
-            relateds.add(new String[]{to.getName() + "." + oe.getName(), entityLabel});
-        }
-
-        FieldAggregationController.sortEntities(refs, null);
-        FieldAggregationController.sortEntities(relateds, null);
+        MetadataSorter.sortEntities(refs, null);
+        MetadataSorter.sortEntities(relateds, null);
 
         JSONObject res = new JSONObject();
-        res.put("refs", refs);
         res.put("relateds", relateds);
+        res.put("refs", refs);
+        res.put("self", new Object[]{
+                TriggerAction.SOURCE_SELF, EasyMetaFactory.getLabel(entity), entity.getMainEntity() != null});
 
         return RespBody.ok(res);
-    }
-
-    private void sortEntities(List<String[]> entities) {
-        Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);
-        entities.sort((o1, o2) -> comparator.compare(o1[1], o2[1]));
     }
 }

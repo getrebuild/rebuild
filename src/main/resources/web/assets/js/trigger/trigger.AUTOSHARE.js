@@ -14,7 +14,7 @@ class ContentAutoShare extends ActionContentSpec {
   state = { ...this.props }
 
   render() {
-    const relatedsFields = this.state.relatedsFields
+    const fields42 = this.state.relatedsFields
     return (
       <div className="auto-share">
         <form className="simple">
@@ -39,7 +39,7 @@ class ContentAutoShare extends ActionContentSpec {
                   <select className="form-control form-control-sm" ref={(c) => (this._cascades = c)}>
                     {this.state.cascadesEntity.map((item) => {
                       return (
-                        <option key={'option-' + item[0]} value={item[0]}>
+                        <option key={item[0]} value={item[0]}>
                           {item[1]}
                         </option>
                       )
@@ -47,28 +47,30 @@ class ContentAutoShare extends ActionContentSpec {
                   </select>
                 )}
 
-                {relatedsFields && (
+                {fields42 && (
                   <select className="form-control form-control-sm" ref={(c) => (this._$relatedsFields = c)} multiple>
-                    <optgroup label={$L('相关项')}>
-                      {relatedsFields &&
-                        relatedsFields.relateds.map((item) => {
+                    {fields42 && fields42.relateds.length > 0 && (
+                      <optgroup label={$L('相关项')}>
+                        {fields42.relateds.map((item) => {
+                          return (
+                            <option key={item[0]} value={item[0]}>
+                              {item[1]} (N)
+                            </option>
+                          )
+                        })}
+                      </optgroup>
+                    )}
+                    {fields42 && fields42.refs.length > 0 && (
+                      <optgroup label={$L('引用项')}>
+                        {fields42.refs.map((item) => {
                           return (
                             <option key={item[0]} value={item[0]}>
                               {item[1]}
                             </option>
                           )
                         })}
-                    </optgroup>
-                    <optgroup label={$L('引用项')}>
-                      {relatedsFields &&
-                        relatedsFields.refs.map((item) => {
-                          return (
-                            <option key={item[0]} value={item[0]}>
-                              {item[1]}
-                            </option>
-                          )
-                        })}
-                    </optgroup>
+                      </optgroup>
+                    )}
                   </select>
                 )}
               </div>
@@ -129,8 +131,8 @@ class ContentAutoShare extends ActionContentSpec {
             },
           })
 
-          if (content.relatedsFields42) {
-            this.__select42.val(content.relatedsFields42).trigger('change')
+          if (content.fields42) {
+            this.__select42.val(content.fields42).trigger('change')
           }
         })
       })
@@ -145,7 +147,7 @@ class ContentAutoShare extends ActionContentSpec {
     const _data = {
       shareTo: this._shareTo.getSelected(),
       cascades: this.__select2 ? this.__select2.val().join(',') : null,
-      relatedsFields42: this.__select42 ? this.__select42.val() : null,
+      fields42: this.__select42 ? this.__select42.val() : null,
       withUpdate: $(this._withUpdate).prop('checked'),
     }
     if (!_data.shareTo || _data.shareTo.length === 0) {

@@ -87,6 +87,7 @@ public abstract class AutoHoldTriggerAction extends TriggerAction {
 
         Entity sourceEntity = actionContext.getSourceEntity();
         JSONArray fields = actionContent.getJSONArray("fields");
+        if (fields == null) fields = actionContent.getJSONArray("fields42");
         if (fields == null) fields = actionContent.getJSONArray("revokeFields");
 
         List<String> fieldsRefs = new ArrayList<>();
