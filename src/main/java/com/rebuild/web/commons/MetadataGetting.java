@@ -150,9 +150,6 @@ public class MetadataGetting extends BaseController {
         return EasyMetaFactory.valueOf(foundEntity).toJSON();
     }
 
-    /**
-     * @see
-     */
     @GetMapping("entity-and-details")
     public JSON entityAndDetails(HttpServletRequest request) {
         Entity entity = MetadataHelper.getEntity(getParameterNotNull(request, "entity"));
