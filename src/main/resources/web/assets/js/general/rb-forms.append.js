@@ -225,7 +225,7 @@ class DeleteConfirm extends RbAlert {
                       <span className="custom-control-label"> {$L('同时删除相关记录')}</span>
                     </label>
                     <div className={this.state.enableCascade ? '' : 'hide'}>
-                      <select className="form-control form-control-sm" ref={(c) => (this._cascades = c)} multiple>
+                      <select className="form-control form-control-sm" ref={(c) => (this._$cascades = c)} multiple>
                         {(this.state.cascadesEntity || []).map((item) => {
                           if ($isSysMask(item[1])) return null
                           return (
@@ -259,10 +259,13 @@ class DeleteConfirm extends RbAlert {
     if (!this.state.cascadesEntity) {
       $.get(`/commons/metadata/references?entity=${this.props.entity}&permission=D`, (res) => {
         this.setState({ cascadesEntity: res.data }, () => {
-          this.__select2 = $(this._cascades)
+          this.__select2 = $(this._$cascades)
             .select2({
               placeholder: $L('选择'),
               width: '88%',
+              language: {
+                noResults: () => $L('无'),
+              },
             })
             .val(null)
             .trigger('change')

@@ -42,7 +42,7 @@ class DlgAssign extends RbModalHandler {
             <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('选择相关记录')}</label>
               <div className="col-sm-7">
-                <select className="form-control form-control-sm" ref={(c) => (this._$cascades = c)}>
+                <select className="form-control form-control-sm" ref={(c) => (this._$cascades = c)} multiple>
                   {(this.state.cascadesEntity || []).map((item) => {
                     if ($isSysMask(item[1])) return null
                     return (
@@ -90,8 +90,10 @@ class DlgAssign extends RbModalHandler {
 
         $(this._$cascades)
           .select2({
-            multiple: true,
             placeholder: $L('选择'),
+            language: {
+              noResults: () => $L('无'),
+            },
           })
           .val(defaultSelected)
           .trigger('change')
