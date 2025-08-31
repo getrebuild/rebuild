@@ -17,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -99,12 +100,36 @@ public class TableChart extends ChartData {
                     sumsRow[i] = dataRaw.length;
                 }
             }
-            for (int i = numericalIndexStart; i < colLength; i++) {
-                BigDecimal sum = new BigDecimal(0);
-                for (Object[] row : dataRaw) {
-                    sum = sum.add(BigDecimal.valueOf(ObjectUtils.toDouble(row[i])));
+
+            for (int i = numericalIndexStart, j = 0; i < colLength; i++, j++) {
+                final Numerical N = getNumericals()[j];
+                final FormatCalc FC = N.getFormatCalc();
+
+                BigDecimal sums = null;
+                if (FC == FormatCalc.MAX) {
+                    // 最大
+                    for (Object[] row : dataRaw) {
+                        BigDecimal b = BigDecimal.valueOf(ObjectUtils.toDouble(row[i]));
+                        if (sums == null || sums.compareTo(b) < 0) sums = b;
+                    }
+                } else if (FC == FormatCalc.MIN) {
+                    // 最小
+                    for (Object[] row : dataRaw) {
+                        BigDecimal b = BigDecimal.valueOf(ObjectUtils.toDouble(row[i]));
+                        if (sums == null || sums.compareTo(b) > 0) sums = b;
+                    }
+                } else {
+                    sums = new BigDecimal(0);
+                    // 求和
+                    for (Object[] row : dataRaw) {
+                        sums = sums.add(BigDecimal.valueOf(ObjectUtils.toDouble(row[i])));
+                    }
+                    // 均值
+                    if (FC == FormatCalc.AVG) {
+                        sums = sums.divide(new BigDecimal(dataRaw.length), N.getScale(), RoundingMode.HALF_UP);
+                    }
                 }
-                sumsRow[i] = sum.doubleValue();
+                sumsRow[i] = sums.doubleValue();
             }
 
             dataRawNew[dataRaw.length] = sumsRow;
