@@ -1239,14 +1239,19 @@ var $select2MatcherAll = function (params, data) {
     return null
   }
 
-  function _matcher(item, s) {
+  // 匹配
+  function _FN(item, s) {
+    console.log('_FN', item, s)
     s = s.toLowerCase()
-    return (item.text || '').toLowerCase().indexOf(s) > -1 || (item.id || '').toLowerCase().indexOf(s) > -1
+    if ((item.text || '').toLowerCase().indexOf(s) > -1 || (item.id || '').toLowerCase().indexOf(s) > -1) return true
+    // v4.2
+    var pinyin = $(item.element).data('pinyin')
+    return pinyin && pinyin.toLowerCase().indexOf(s) > -1
   }
 
   if (data.children) {
     var ch = data.children.filter(function (item) {
-      return _matcher(item, params.term)
+      return _FN(item, params.term)
     })
     if (ch.length === 0) return null
 
@@ -1254,7 +1259,7 @@ var $select2MatcherAll = function (params, data) {
     data2.children = ch
     return data2
   } else {
-    if (_matcher(data, params.term)) {
+    if (_FN(data, params.term, data.element)) {
       return data
     }
   }

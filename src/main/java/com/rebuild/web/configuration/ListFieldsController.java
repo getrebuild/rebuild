@@ -27,6 +27,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.RoleService;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
+import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
@@ -99,7 +100,9 @@ public class ListFieldsController extends BaseController implements ShareTo {
         List<Map<String, Object>> fieldList = new ArrayList<>();
         for (Field field : MetadataSorter.sortFields(entityMeta)) {
             if (canListField(field)) {
-                fieldList.add(DataListManager.instance.formatField(field));
+                Map<String, Object> m = DataListManager.instance.formatField(field);
+                m.put("quickCode", QuickCodeReindexTask.generateQuickCode((String) m.get("label")));
+                fieldList.add(m);
             }
         }
 
@@ -121,7 +124,9 @@ public class ListFieldsController extends BaseController implements ShareTo {
 
             for (Field field2 : MetadataSorter.sortFields(refEntity)) {
                 if (canListField(field2)) {
-                    fieldList.add(DataListManager.instance.formatField(field2, field));
+                    Map<String, Object> m = DataListManager.instance.formatField(field2, field);
+                    m.put("quickCode", QuickCodeReindexTask.generateQuickCode((String) m.get("label")));
+                    fieldList.add(m);
 
                     if (deep3 && EasyMetaFactory.getDisplayType(field2) == DisplayType.REFERENCE) {
                         refFieldsOf2.add(new Field[]{field, field2});
@@ -145,7 +150,9 @@ public class ListFieldsController extends BaseController implements ShareTo {
 
             for (Field field3 : MetadataSorter.sortFields(refEntity2)) {
                 if (canListField(field3)) {
-                    fieldList.add(DataListManager.instance.formatField(field3, parentField));
+                    Map<String, Object> m = DataListManager.instance.formatField(field3, parentField);
+                    m.put("quickCode", QuickCodeReindexTask.generateQuickCode((String) m.get("label")));
+                    fieldList.add(m);
                 }
             }
         }
