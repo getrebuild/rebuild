@@ -15,6 +15,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.service.trigger.TriggerAction;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
@@ -225,5 +226,21 @@ public class MetadataSorter {
             String barLetter = EasyMetaFactory.getLabel(bar);
             return comparator.compare(fooLetter, barLetter);
         });
+    }
+
+    /**
+     * 排序
+     *
+     * @param entities
+     * @param selfEntity 添加自己
+     */
+    public static void sortEntities(List<Object[]> entities, Entity selfEntity) {
+        Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);
+        entities.sort((o1, o2) -> comparator.compare(o1[1], o2[1]));
+
+        if (selfEntity != null) {
+            entities.add(new String[]{
+                    selfEntity.getName(), EasyMetaFactory.getLabel(selfEntity), TriggerAction.SOURCE_SELF});
+        }
     }
 }

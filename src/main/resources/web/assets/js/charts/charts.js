@@ -1914,7 +1914,7 @@ class MyNotification extends BaseChart {
     $.post(`/notification/make-read?id=${id}`, () => {
       if (id === 'ALL') {
         RbHighbar.success($L('全部通知已设为已读'))
-        $(this._$box).find('.notification-unread').removeClass('notification-unread')
+        this.loadChartData()
       } else {
         $($el).removeClass('notification-unread')
       }

@@ -51,9 +51,9 @@ import java.util.Set;
 public class FieldWritebackController extends BaseController {
 
     @RequestMapping("field-writeback-entities")
-    public List<String[]> getTargetEntities(
+    public RespBody getTargetEntities(
             @EntityParam(name = "source") Entity sourceEntity, HttpServletRequest request) {
-        List<String[]> temp = new ArrayList<>();
+        List<Object[]> temp = new ArrayList<>();
         Set<String> unique = new HashSet<>();
 
         // 1.我引用了谁 v2.7.1
@@ -69,8 +69,8 @@ public class FieldWritebackController extends BaseController {
             unique.add(refEntity.getName() + "." + refFrom.getName());
         }
 
-        FieldAggregationController.sortEntities(temp, null);
-        List<String[]> entities = new ArrayList<>(temp);
+        MetadataSorter.sortEntities(temp, null);
+        List<Object[]> entities = new ArrayList<>(temp);
         temp.clear();
 
         // 2.谁引用了我 (N)
@@ -87,12 +87,12 @@ public class FieldWritebackController extends BaseController {
             }
         }
 
-        FieldAggregationController.sortEntities(temp, null);
+        MetadataSorter.sortEntities(temp, null);
         entities.addAll(temp);
         temp.clear();
 
         // 3. 自己
-        FieldAggregationController.sortEntities(temp, sourceEntity);
+        MetadataSorter.sortEntities(temp, sourceEntity);
         entities.addAll(temp);
         temp.clear();
 
@@ -102,12 +102,12 @@ public class FieldWritebackController extends BaseController {
                 temp.add(new String[]{entity.getName(), EasyMetaFactory.getLabel(entity), "$"});
             }
 
-            FieldAggregationController.sortEntities(temp, null);
+            MetadataSorter.sortEntities(temp, null);
             entities.addAll(temp);
             temp.clear();
         }
 
-        return entities;
+        return RespBody.ok(entities);
     }
 
     @RequestMapping("field-writeback-fields")
