@@ -876,11 +876,11 @@ const RbListCommon = {
 
         def40 = def40.split(':') // FILTER:LAYOUT
         if (def40[0]) {
-          if (def40[0].startsWith('014-')) wpc.protocolFilter = `via:${def40[0]}`
+          if (def40[0].startsWith('014-')) wpc.protocolFilterAnd = `via:${def40[0]}`
           else console.log('Use listConfig :', def40[0])
         }
         if (def40[1]) {
-          if (def40[1].startsWith('014-')) wpc.protocolFilter = `via:${def40[1]}`
+          if (def40[1].startsWith('014-')) wpc.protocolFilterAnd = `via:${def40[1]}`
           else console.log('Use listConfig :', def40[1])
         }
       }
@@ -1211,6 +1211,7 @@ class RbList extends React.Component {
       filter: this.lastFilter,
       advFilter: this.advFilterId,
       protocolFilter: this.props.protocolFilter || wpc.protocolFilter,
+      protocolFilterAnd: this.props.protocolFilterAnd || wpc.protocolFilterAnd,
       sort: sort,
       reload: reload,
       statsField: wpc.statsField === true && rb.commercial > 0,

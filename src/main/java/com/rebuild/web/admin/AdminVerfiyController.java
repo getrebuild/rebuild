@@ -129,7 +129,7 @@ public class AdminVerfiyController extends BaseController {
         // 日志
         if ("log".equalsIgnoreCase(type)) {
             File logFile = SysbaseHeartbeat.getLastLogbackFile();
-            FileDownloader.setDownloadHeaders(response, logFile.getName(), false);
+            FileDownloader.setDownloadHeaders(response, logFile.getName(), true);
             FileDownloader.writeLocalFile(logFile, response);
             return;
         }
