@@ -1241,7 +1241,6 @@ var $select2MatcherAll = function (params, data) {
 
   // 匹配
   function _FN(item, s) {
-    console.log('_FN', item, s)
     s = s.toLowerCase()
     if ((item.text || '').toLowerCase().indexOf(s) > -1 || (item.id || '').toLowerCase().indexOf(s) > -1) return true
     // v4.2
