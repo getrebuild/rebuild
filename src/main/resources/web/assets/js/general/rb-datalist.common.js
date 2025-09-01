@@ -2347,6 +2347,7 @@ const CategoryWidget = {
           onItemClick={(query) => {
             if (!query || query[0] === CategoryWidget.__ALL) wpc.protocolFilter = null
             else wpc.protocolFilter = `category:${wpc.entity[0]}:${query.join('$$$$')}`
+            _RbList().pageNo = 1
             RbListPage.reload()
           }}
         />,

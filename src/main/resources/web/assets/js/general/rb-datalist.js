@@ -312,6 +312,7 @@ $(document).ready(() => {
 // v4.1 AI
 window.attachAibotPageData = function (cb) {
   renderRbcomp(
+    // eslint-disable-next-line react/jsx-no-undef
     <DlgAttachRecordList
       onConfirm={(s) => {
         const qe = RbListPage._RbList.getLastQueryEntry()

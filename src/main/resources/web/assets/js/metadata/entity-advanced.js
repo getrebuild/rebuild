@@ -810,7 +810,7 @@ class CompCategoryItem extends React.Component {
           <select className="form-control form-control-sm" ref={(c) => (this._$field = c)}>
             {this.props.fields.map((item) => {
               return (
-                <option key={item.name} value={item.name}>
+                <option key={item.name} value={item.name} data-pinyin={item.quickCode}>
                   {item.label}
                 </option>
               )
