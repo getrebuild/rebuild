@@ -381,7 +381,7 @@ class FilterItem extends React.Component {
           <select className="form-control form-control-sm" ref={(c) => (this._filterField = c)}>
             {this.state.fields.map((item) => {
               return (
-                <option value={item.name + NT_SPLIT + item.type} key={item.name} title={item.label} data-pinyin={item.quickCode || null}>
+                <option value={item.name + NT_SPLIT + item.type} key={item.name} title={item.label} data-pinyin={item.quickCode}>
                   {item.label}
                 </option>
               )
