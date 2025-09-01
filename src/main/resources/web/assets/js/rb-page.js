@@ -1311,21 +1311,25 @@ var $pages = function (tp, cp) {
 
 // 格式化代码
 var $formattedCode = function (c, type) {
-  if (typeof c === 'object') c = JSON.stringify(c)
-  if (!window.prettier) return c
-
-  try {
-    // eslint-disable-next-line no-undef
-    return prettier.format(c, {
-      parser: type || 'json',
-      // eslint-disable-next-line no-undef
-      plugins: prettierPlugins,
-      printWidth: 10,
-    })
-  } catch (err) {
-    console.log('Cannot format code :', err)
-    return c
+  // v4.2
+  if (type === 'json') {
+    return JSON.stringify(typeof c === 'object' ? c : JSON.parse(c), null, 2)
   }
+
+  if (typeof c === 'object') c = JSON.stringify(c)
+  if (window.prettier) {
+    try {
+      return window.prettier.format(c, {
+        parser: type || 'json',
+        plugins: window.prettierPlugins,
+        printWidth: 10,
+      })
+    } catch (err) {
+      console.log('Cannot format code :', err)
+      return c
+    }
+  }
+  return c
 }
 
 // 复制

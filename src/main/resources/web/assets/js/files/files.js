@@ -83,7 +83,7 @@ class FilesList extends React.Component {
         {this._pageNo === 1 && this.state.files && this.state.files.length === 0 && (
           <div className="list-nodata">
             <i className="zmdi zmdi-folder-outline" />
-            <p>{$L('暂无数据')}</p>
+            <p>{$L('暂无文件')}</p>
           </div>
         )}
       </div>

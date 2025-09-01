@@ -141,15 +141,17 @@ public class FilePreviewer extends BaseController {
         ModelAndView mv = createModelAndView("/common/oo-preview");
         mv.getModel().put(OnlyofficeServer.name(), OnlyOffice.getOoServer());
 
+        String fileName = ((JSONObject) ps[0]).getString("title");
+
         // 编辑模式
         if (editor) {
             ooConfig.put("type", "desktop");
-            mv.getModel().put("title", Language.L("文档编辑"));
+            mv.getModel().put("title", fileName + " - " + Language.L("文档编辑"));
         } else {
             // https://api.onlyoffice.com/docs/docs-api/usage-api/config/#type
             String view = StringUtils.defaultIfBlank(getParameter(request, "view"), "embedded");
             ooConfig.put("type", view);
-            mv.getModel().put("title", Language.L("文档预览"));
+            mv.getModel().put("title", fileName + " - " + Language.L("文档预览"));
         }
         if (Application.devMode()) System.out.println("[dev] " + JSONUtils.prettyPrint(ooConfig));
         mv.getModel().put("_DocEditorConfig", ooConfig);

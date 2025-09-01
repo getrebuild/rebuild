@@ -1173,7 +1173,7 @@ class Md2Html extends React.Component {
     }
 
     // 替换换行并保持表格换行
-    let cHtml = marked.parse(md.replace(/(?<!\|)\n(?!\|)/g, '\n\n'))
+    let cHtml = marked.parse(md.replace(/(?<!\|)\n(?!\|)/g, '\n'))
     cHtml = cHtml.replace(/<img src="([^"]+)"/g, function (s, src) {
       let srcNew = src + (src.includes('?') ? '&' : '?') + 'imageView2/2/w/1000/interlace/1/q/100'
       return s.replace(src, srcNew)
@@ -1199,13 +1199,17 @@ class Md2Html extends React.Component {
         .each(function () {
           const $img = $(this)
           let isrc = $img.attr('src')
-          isrc = isrc.split('/filex/img/')[1].split(/[?&]imageView2/)[0]
-          imgs.push(isrc)
-          $img.on('click', (e) => {
-            $stopEvent(e, true)
-            const p = parent || window
-            p.RbPreview.create(imgs, imgs.indexOf(isrc) || 0)
-          })
+          if (isrc) {
+            if (isrc.includes('/filex/img/')) {
+              isrc = isrc.split('/filex/img/')[1].split(/[?&]imageView2/)[0]
+            }
+            imgs.push(isrc)
+            $img.on('click', (e) => {
+              $stopEvent(e, true)
+              const p = parent || window
+              p.RbPreview.create(imgs, imgs.indexOf(isrc) || 0)
+            })
+          }
         })
     })
   }
@@ -1318,7 +1322,7 @@ class CodeViewport extends React.Component {
   }
 
   componentDidMount() {
-    this._$code.innerHTML = $formattedCode(this.props.code || '')
+    this._$code.innerHTML = $formattedCode(this.props.code || '', this.props.type)
 
     if (this._$copy) {
       const that = this
@@ -1333,7 +1337,10 @@ class CodeViewport extends React.Component {
   }
 
   UNSAFE_componentWillReceiveProps(newProps) {
-    if (newProps.code) this._$code.innerHTML = $formattedCode(newProps.code)
+    // eslint-disable-next-line eqeqeq
+    if (newProps.code && newProps.code != this.props.code) {
+      this._$code.innerHTML = $formattedCode(newProps.code, this.props.type)
+    }
   }
 }
 
