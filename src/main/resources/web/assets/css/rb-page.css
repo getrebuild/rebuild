@@ -3840,8 +3840,12 @@ a.user-show:not([href]) {
 }
 
 .page-aside.widgets {
-  z-index: 2;
+  z-index: 3;
   overflow: hidden;
+}
+
+.page-aside.widgets + .main-content {
+  z-index: 2;
 }
 
 .page-aside.widgets .tab-container {

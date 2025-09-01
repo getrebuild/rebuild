@@ -109,12 +109,13 @@ class BaseChart extends React.Component {
       const $stack = $('.chart-grid>.grid-stack')
       if (!$stack[0]) {
         // in DataList
-        // $(this._$box).parent().toggleClass('fullscreen')
+        const $wrap = $(this._$box).parent()
+        $wrap.toggleClass('fullscreen')
+        this.resize()
         return
       }
 
       const $boxParent = $(this._$box).parents('.grid-stack-item')
-
       if (this.state.fullscreen) {
         BaseChart.currentFullscreen = this
         if (!this.__chartStackHeight) this.__chartStackHeight = $stack.height()
