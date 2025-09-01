@@ -528,8 +528,13 @@ const reOptionMutliYAxis = function (option) {
 }
 
 const renderEChart = function (option, $target) {
-  const c = echarts.init(document.getElementById($target), 'light', {
+  $target = document.getElementById($target)
+  const c = echarts.init($target, 'light', {
     renderer: navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i) ? 'svg' : 'canvas',
+  })
+  // v4.2 禁用右键
+  $target.addEventListener('contextmenu', function (e) {
+    e.preventDefault()
   })
   if (rb.env === 'dev') console.log(option)
   c.setOption(option)
