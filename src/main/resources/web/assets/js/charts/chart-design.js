@@ -191,7 +191,7 @@ $(document).ready(() => {
   // 背景色
   function _removeClass($el) {
     $el.removeClass(function (index, className) {
-      return (className.match(/\bgradient-bg-\S+/g) || []).join(' ')
+      return (className.match(/gradient-bg(?:-\d+)?/g) || []).join(' ')
     })
     return $el
   }
@@ -207,7 +207,7 @@ $(document).ready(() => {
     renderRbcomp(
       <DlgBgcolor
         onConfirm={(colorIndex) => {
-          _removeClass($('#chart-preview >.chart-box')).addClass(`gradient-bg-${colorIndex}`)
+          _removeClass($('#chart-preview >.chart-box')).addClass(`gradient-bg gradient-bg-${colorIndex}`)
           _removeClass($bs.find('>a:eq(1)')).addClass(`gradient-bg-${colorIndex}`)
           $bs.find('>a:eq(0)').attr('data-bgcolor', colorIndex)
           // check
