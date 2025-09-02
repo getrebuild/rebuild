@@ -441,7 +441,7 @@ class FileEditDlg extends RbFormHandler {
                   <a href={`${rb.baseUrl}/commons/file-editor?src=${file.id}`} target="_blank">
                     <i className="mdi mdi-microsoft-office icon" />
                     &nbsp;
-                    {$L('在线文档编辑')}
+                    {$L('在线编辑')}
                   </a>
                 </div>
               </div>

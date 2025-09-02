@@ -67,7 +67,7 @@ public class FilePreviewer extends BaseController {
 
     @GetMapping("/commons/file-editor")
     public ModelAndView ooEditor(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        getRequestUser(request);
+        getRequestUser(request);  // check
         return ooPreviewOrEditor(request, response, true);
     }
 
