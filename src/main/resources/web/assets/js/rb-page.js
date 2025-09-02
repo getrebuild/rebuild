@@ -472,7 +472,7 @@ var _showNotification = function (state) {
   var _Notification = window.Notification || window.mozNotification || window.webkitNotification
   if (_Notification) {
     if (_Notification.permission === 'granted') {
-      var n = new _Notification($L('你有 %d 条未读消息', state), {
+      var n = new _Notification($L('你有 %d 条未读通知', state), {
         body: window.rb.appName,
         icon: rb.baseUrl + '/assets/img/icon-192x192.png',
         tag: 'rbNotification',
