@@ -263,7 +263,7 @@ public class AdvFilterParser extends SetUser {
         String field = item.getString("field");
         if (field.startsWith("&amp;")) field = field.replace("&amp;", NAME_FIELD_PREFIX);  // fix: _$unthy
 
-        final boolean hasNameFlag = field.startsWith(NAME_FIELD_PREFIX);
+        boolean hasNameFlag = field.startsWith(NAME_FIELD_PREFIX);
         if (hasNameFlag) field = field.substring(1);
 
         Field lastFieldMeta = VF_ACU.equals(field)
@@ -272,6 +272,12 @@ public class AdvFilterParser extends SetUser {
         if (lastFieldMeta == null) {
             log.warn("Invalid field : {} in {}", field, specRootEntity.getName());
             return null;
+        }
+
+        String op = item.getString("op");
+        // 引用字段`重复`特殊处理
+        if (hasNameFlag && ParseHelper.REP.equalsIgnoreCase(op)) {
+            hasNameFlag = false;
         }
 
         DisplayType dt = EasyMetaFactory.getDisplayType(lastFieldMeta);
@@ -295,7 +301,7 @@ public class AdvFilterParser extends SetUser {
         final boolean isN2NUsers = dt == DisplayType.N2NREFERENCE
                 && lastFieldMeta.getReferenceEntity().getEntityCode() == EntityHelper.User;
 
-        String op = item.getString("op");
+
         // v3.9 区间兼容
         if (ParseHelper.BW.equals(op)) {
             String valueBegin = item.getString("value");
@@ -645,9 +651,10 @@ public class AdvFilterParser extends SetUser {
                     StringUtils.join(value.split("\\|"), "', '"));
         } else if (ParseHelper.REP.equalsIgnoreCase(op)) {
             // `in`
+            int count = NumberUtils.toInt(value, 1);
             value = MessageFormat.format(
-                    "( select {0} from {1} group by {0} having (count({0}) > {2}) )",
-                    field, rootEntity.getName(), String.valueOf(NumberUtils.toInt(value, 1)));
+                    "( select {0} from {1} group by {0} having (count({0}) {2} {3}) )",
+                    field, rootEntity.getName(), count < 1 ? "=" : ">", Math.max(count, 1));
         }
 
         if (StringUtils.isBlank(value)) {
