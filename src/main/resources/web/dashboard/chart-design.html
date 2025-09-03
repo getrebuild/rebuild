@@ -25,10 +25,15 @@
               </ul>
             </div>
             <div class="data-info J_fields">
-              <h5>[[${bundle.L('可用字段')}]]</h5>
+              <h5>
+                <div class="search-input">
+                  <input type="text" th:placeholder="${bundle.L('可用字段')}" />
+                  <i class="zmdi zmdi-search"></i>
+                </div>
+              </h5>
               <ul class="list-unstyled fields">
                 <th:block th:each="field : ${availableFields}">
-                  <li th:class="${field[2]}"><a th:title="${field[1]}" th:data-field="${field[0]}" th:data-type="${field[2]}">[[${field[1]}]]</a></li>
+                  <li th:class="${field[2]}"><a th:title="${field[1]}" th:data-field="${field[0]}" th:data-pinyin="${field[3]}" th:data-type="${field[2]}">[[${field[1]}]]</a></li>
                 </th:block>
               </ul>
             </div>
