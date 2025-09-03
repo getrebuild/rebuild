@@ -392,8 +392,7 @@ class DataExport extends BatchOperator {
 
 let BatchUpdate__taskid
 window.onbeforeunload = function () {
-  if (!BatchUpdate__taskid) return undefined
-  return 'SHOW-CLOSE-CONFIRM'
+  if (BatchUpdate__taskid) return 'SHOW-CLOSE-CONFIRM'
 }
 
 // eslint-disable-next-line no-unused-vars
