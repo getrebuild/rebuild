@@ -125,7 +125,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
                 CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(-180)));
         Application.getSqlExecutor().execute(delSql, 60 * 3);
 
-        // 4.2 已删除附件最少保留 180d
+        // 4.2 已删除附件*最少*保留 180d
 
         List<ID> deletesAuto42 = new ArrayList<>();
         Object[][] array = Application.createQueryNoFilter(
@@ -142,7 +142,6 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
             Application.getCommonsService().delete(deletesAuto42.toArray(new ID[0]), false);
         }
         // 删文件
-        int del = 0;
         for (String path : deletePaths42) {
             Object[] o = Application.createQueryNoFilter(
                     "select count(filePath) from Attachment where filePath = ?")
@@ -151,17 +150,16 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
             // 检查附件是否有其他字段使用（例如记录转换、触发器处理的）
             if (o != null && ObjectUtils.toInt(o[0]) > 0) continue;
 
+            boolean s = false;
             if (QiniuCloud.instance().available()) {
                 try {
-                    boolean s = QiniuCloud.instance().delete(path);
-                    del += s ? 1 : 0;
+                    s = QiniuCloud.instance().delete(path);
                 } catch (Exception ignored) {}
             } else {
-                boolean s = FileUtils.deleteQuietly(RebuildConfiguration.getFileOfData(path));
-                del += s ? 1 : 0;
+                s = FileUtils.deleteQuietly(RebuildConfiguration.getFileOfData(path));
             }
+            log.info("File/Attachment deleted : {} >> {}", path, s);
         }
-        log.warn("File/Attachment deleted : {}", del);
     }
 
     // --

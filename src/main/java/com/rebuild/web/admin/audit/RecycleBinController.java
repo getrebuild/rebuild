@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * 回收站
@@ -56,7 +55,7 @@ public class RecycleBinController extends BaseController {
                 restored += a;
             } catch (Exception ex) {
                 // 出现错误就跳出
-                log.error("Restore record failed : " + id, ex);
+                log.error("Restore record failed : {}", id, ex);
                 lastError = ex.getLocalizedMessage();
                 break;
             }

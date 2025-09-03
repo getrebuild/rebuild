@@ -33,6 +33,7 @@ import java.util.List;
  *
  * @author devezhao
  * @since 12/25/2018
+ * @see com.rebuild.core.service.general.recyclebin.RecycleBinCleanerJob
  */
 @Slf4j
 public class AttachmentAwareObserver extends OperatingObserver {
