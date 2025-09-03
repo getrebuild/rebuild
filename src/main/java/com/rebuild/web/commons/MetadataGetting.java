@@ -24,6 +24,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesManager;
+import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
@@ -61,24 +62,27 @@ public class MetadataGetting extends BaseController {
         for (Entity e : MetadataSorter.sortEntities(usesNopriv ? null : user, usesBizz, usesDetail)) {
             JSONObject item = (JSONObject) EasyMetaFactory.valueOf(e).toJSON();
             item.put("name", item.getString("entity"));
-            item.put("label", item.getString("entityLabel"));
+            String L42 = item.getString("entityLabel");
+            item.put("label", L42);
+            item.put("quickCode", QuickCodeReindexTask.generateQuickCode(L42));
             res.add(item);
         }
         return res;
     }
 
     @GetMapping("fields")
-    public JSON fields(HttpServletRequest request) {
-        Entity entity = MetadataHelper.getEntity(getParameterNotNull(request, "entity"));
+    public JSON fields(@EntityParam Entity entity, HttpServletRequest request) {
         // 返回引用实体的字段层级
         int appendRefFields = getIntParameter(request, "deep");
+        // 丰富字段信息
+        boolean riching = getBoolParameter(request, "riching", true);
 
         // 根据不同的 referer 返回不同的字段列表
         // 返回 ID 主键字段
         String referer = getParameter(request, "referer");
         int forceWith = "withid".equals(referer) ? 1 : 0;
 
-        return MetaFormatter.buildFieldsWithRefs(entity, appendRefFields, true, forceWith, field -> {
+        return MetaFormatter.buildFieldsWithRefs(entity, appendRefFields, riching, forceWith, field -> {
             if (!field.isQueryable()) return true;
 
             if (field instanceof Field) {

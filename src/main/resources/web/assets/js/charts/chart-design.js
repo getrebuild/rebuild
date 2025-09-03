@@ -96,6 +96,27 @@ $(document).ready(() => {
       .disableSelection()
   }, 1000)
 
+  // v4.2 搜索
+  $('.search-input input').on('input', (e) => {
+    $setTimeout(
+      () => {
+        const q = $trim(e.target.value).toLowerCase()
+        $('.list-unstyled.fields>li>a').each(function () {
+          const $item = $(this)
+          const pinyin = $item.data('pinyin')
+          if (!q || $item.text().toLowerCase().includes(q) || $item.data('field').toLowerCase().includes(q) || (pinyin && pinyin.toLowerCase().includes(q))) {
+            $item.removeClass('hide')
+          } else {
+            $item.addClass('hide')
+          }
+        })
+        $('.data-aside>.rb-scroller').perfectScrollbar('update')
+      },
+      200,
+      'sortable-box'
+    )
+  })
+
   let _AdvFilter
   $('.J_filter').on('click', (e) => {
     $stopEvent(e, true)
@@ -191,7 +212,7 @@ $(document).ready(() => {
   // 背景色
   function _removeClass($el) {
     $el.removeClass(function (index, className) {
-      return (className.match(/\bgradient-bg-\S+/g) || []).join(' ')
+      return (className.match(/gradient-bg(?:-\d+)?/g) || []).join(' ')
     })
     return $el
   }
@@ -207,7 +228,7 @@ $(document).ready(() => {
     renderRbcomp(
       <DlgBgcolor
         onConfirm={(colorIndex) => {
-          _removeClass($('#chart-preview >.chart-box')).addClass(`gradient-bg-${colorIndex}`)
+          _removeClass($('#chart-preview >.chart-box')).addClass(`gradient-bg gradient-bg-${colorIndex}`)
           _removeClass($bs.find('>a:eq(1)')).addClass(`gradient-bg-${colorIndex}`)
           $bs.find('>a:eq(0)').attr('data-bgcolor', colorIndex)
           // check

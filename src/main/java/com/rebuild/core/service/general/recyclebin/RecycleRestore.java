@@ -75,7 +75,7 @@ public class RecycleRestore {
                 .unique();
         // 可能已经（关联）恢复了
         if (main == null) {
-            log.warn("No recycle found! Maybe restored : " + this.recycleId);
+            log.warn("No recycle found : {}", this.recycleId);
             return 0;
         }
 
@@ -112,11 +112,20 @@ public class RecycleRestore {
             for (Record r : willRestores) {
                 String primaryName = r.getEntity().getPrimaryField().getName();
                 ID primaryId = (ID) r.removeValue(primaryName);
-                PM.saveInternal(r, primaryId);
+                int entityCode = primaryId.getEntityCode();
 
-                restoreAttachment(PM, primaryId);
-                if (primaryId.getEntityCode() == EntityHelper.Feeds) restoreFeedsMention(r);
+                // v4.2 文件特殊处理
+                if (entityCode == EntityHelper.Attachment) {
+                    Record d = EntityHelper.forUpdate(primaryId, UserService.SYSTEM_USER, false);
+                    d.setBoolean(EntityHelper.IsDeleted, false);
+                    PM.update(d);
 
+                } else {
+                    PM.saveInternal(r, primaryId);
+
+                    restoreAttachment(PM, primaryId);
+                    if (entityCode == EntityHelper.Feeds) restoreFeedsMention(r);
+                }
                 restored++;
             }
 
@@ -211,7 +220,12 @@ public class RecycleRestore {
         return records;
     }
 
-    // 附件恢复
+    /**
+     * 附件恢复
+     *
+     * @param PM
+     * @param recordId
+     */
     private void restoreAttachment(PersistManagerImpl PM, ID recordId) {
         Object[][] array = Application.createQueryNoFilter(
                 "select attachmentId from Attachment where relatedRecord = ?")
@@ -224,7 +238,11 @@ public class RecycleRestore {
         }
     }
 
-    // 动态提及
+    /**
+     * 重建动态提及
+     *
+     * @param feed
+     */
     private void restoreFeedsMention(Record feed) {
         if (feed.getString("content").contains("@")) {
             Application.getBean(FeedsService.class).awareMentionCreate(feed);

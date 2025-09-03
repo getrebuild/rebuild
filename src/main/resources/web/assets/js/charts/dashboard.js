@@ -355,7 +355,17 @@ class DlgAddChart extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('图表数据来源')}</label>
             <div className="col-sm-7">
-              <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)} />
+              <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)}>
+                {this.state._entities &&
+                  this.state._entities.map((item) => {
+                    if ($isSysMask(item.label)) return null
+                    return (
+                      <option key={item.name} value={item.name} data-pinyin={item.quickCode}>
+                        {item.label}
+                      </option>
+                    )
+                  })}
+              </select>
             </div>
           </div>
           <div className="form-group row footer">
@@ -375,16 +385,11 @@ class DlgAddChart extends RbFormHandler {
 
   componentDidMount() {
     $.get('/commons/metadata/entities?detail=true', (res) => {
-      const _data = res.data || []
-      _data.forEach((item) => {
-        if (!$isSysMask(item.label)) {
-          $(`<option value="${item.name}">${item.label}</option>`).appendTo(this._$entity)
-        }
-      })
-
-      this.__select2 = $(this._$entity).select2({
-        allowClear: false,
-        placeholder: $L('选择数据来源'),
+      this.setState({ _entities: res.data || [] }, () => {
+        this.__select2 = $(this._$entity).select2({
+          allowClear: false,
+          placeholder: $L('选择数据来源'),
+        })
       })
     })
   }

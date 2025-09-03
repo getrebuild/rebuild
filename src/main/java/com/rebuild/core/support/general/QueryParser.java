@@ -185,63 +185,48 @@ public class QueryParser {
 
         // 过滤器
 
-        List<String> wheres = new ArrayList<>();
+        List<String> whereAnds = new ArrayList<>();
 
         // Default
         String defaultFilter = dataListBuilder == null ? null : dataListBuilder.getDefaultFilter();
         if (StringUtils.isNotBlank(defaultFilter)) {
-            wheres.add(defaultFilter);
+            whereAnds.add(defaultFilter);
         }
 
         // append: ProtocolFilter
         String protocolFilter = queryExpr.getString("protocolFilter");
         if (StringUtils.isNotBlank(protocolFilter)) {
-            ProtocolFilterParser fp = new ProtocolFilterParser(protocolFilter);
-            if (queryExpr.containsKey("protocolFilter__varRecord")) {
-                fp.setVarRecord(queryExpr.getJSONObject("protocolFilter__varRecord"));
-            }
-            String where = fp.toSqlWhere();
-
-            // d 强制过滤明细切换支持
-            if (StringUtils.isNotBlank(where) && protocolFilter.startsWith("via:014-") && entity.getMainEntity() != null) {
-                ConfigBean filter = AdvFilterManager.instance.getAdvFilter(ID.valueOf(protocolFilter.split(":")[1]));
-                String filterEntity = ((JSONObject) filter.getJSON("filter")).getString("entity");
-                Entity filterEntityMeta = MetadataHelper.getEntity(filterEntity);
-                // 明细使用主实体的
-                Entity me = entity.getMainEntity();
-                if (filterEntityMeta.equals(me)) {
-                    Field dtmField = MetadataHelper.getDetailToMainField(entity);
-                    where = String.format("%s in (select %sId from %s where %s)", dtmField.getName(), me.getName(), me.getName(), where);
-                }
-            }
-
-            if (StringUtils.isNotBlank(where)) {
-                if (CommonsUtils.DEVLOG) System.out.println("[dev] Parse protocolFilter : " + protocolFilter + " >> " + where);
-                wheres.add(where);
-            }
+            String w = parseProtocolFilter(protocolFilter);
+            if (w != null) whereAnds.add(w);
+        }
+        // append: protocolFilterAnd
+        String protocolFilterAnd = queryExpr.getString("protocolFilterAnd");
+        if (StringUtils.isNotBlank(protocolFilterAnd)) {
+            String w = parseProtocolFilter(protocolFilterAnd);
+            if (w != null) whereAnds.add(w);
         }
 
         // append: AdvFilter
         String advFilter = queryExpr.getString("advFilter");
         if (ID.isId(advFilter)) {
             String where = parseAdvFilter(ID.valueOf(advFilter));
-            if (StringUtils.isNotBlank(where)) wheres.add(where);
+            if (StringUtils.isNotBlank(where)) whereAnds.add(where);
         }
 
         // append: QuickQuery
         JSONObject quickFilter = queryExpr.getJSONObject("filter");
         if (quickFilter != null) {
             String where = new AdvFilterParser(quickFilter, entity).toSqlWhere();
-            if (StringUtils.isNotBlank(where)) wheres.add(where);
+            if (StringUtils.isNotBlank(where)) whereAnds.add(where);
         }
         // v3.3
         JSONObject quickFilterAnd = queryExpr.getJSONObject("filterAnd");
         if (quickFilterAnd != null) {
             String where = new AdvFilterParser(quickFilterAnd, entity).toSqlWhere();
-            if (StringUtils.isNotBlank(where)) wheres.add(where);
+            if (StringUtils.isNotBlank(where)) whereAnds.add(where);
         }
 
-        final String whereClause = wheres.isEmpty() ? "1=1" : StringUtils.join(wheres.iterator(), " and ");
+        final String whereClause = whereAnds.isEmpty() ? "1=1" : StringUtils.join(whereAnds.iterator(), " and ");
         fullSql.append(" where ").append(whereClause);
 
         // v4.0-b3 分组
@@ -368,5 +353,33 @@ public class QueryParser {
 
         return String.format("select %s from %s where ",
                 StringUtils.join(counts, ","), entity.getName());
+    }
+
+    /**
+     * @param protocolFilter
+     * @return
+     */
+    private String parseProtocolFilter(String protocolFilter) {
+        ProtocolFilterParser fp = new ProtocolFilterParser(protocolFilter);
+        if (queryExpr.containsKey("protocolFilter__varRecord")) {
+            fp.setVarRecord(queryExpr.getJSONObject("protocolFilter__varRecord"));
+        }
+        String where = fp.toSqlWhere();
+
+        // d 强制过滤明细切换支持
+        if (StringUtils.isNotBlank(where) && protocolFilter.startsWith("via:014-") && entity.getMainEntity() != null) {
+            ConfigBean filter = AdvFilterManager.instance.getAdvFilter(ID.valueOf(protocolFilter.split(":")[1]));
+            String filterEntity = ((JSONObject) filter.getJSON("filter")).getString("entity");
+            Entity filterEntityMeta = MetadataHelper.getEntity(filterEntity);
+            // 明细使用主实体的
+            Entity me = entity.getMainEntity();
+            if (filterEntityMeta.equals(me)) {
+                Field dtmField = MetadataHelper.getDetailToMainField(entity);
+                where = String.format("%s in (select %sId from %s where %s)", dtmField.getName(), me.getName(), me.getName(), where);
+            }
+        }
+
+        if (CommonsUtils.DEVLOG) System.out.println("[dev] Parse protocolFilter : " + protocolFilter + " >> " + where);
+        return where;
     }
 }

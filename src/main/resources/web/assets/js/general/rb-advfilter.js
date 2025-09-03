@@ -381,7 +381,7 @@ class FilterItem extends React.Component {
           <select className="form-control form-control-sm" ref={(c) => (this._filterField = c)}>
             {this.state.fields.map((item) => {
               return (
-                <option value={item.name + NT_SPLIT + item.type} key={`field-${item.name}`} title={item.label}>
+                <option value={item.name + NT_SPLIT + item.type} key={item.name} title={item.label} data-pinyin={item.quickCode}>
                   {item.label}
                 </option>
               )
@@ -392,7 +392,7 @@ class FilterItem extends React.Component {
           <select className="form-control form-control-sm" ref={(c) => (this._filterOp = c)}>
             {this.selectOp().map((item) => {
               return (
-                <option value={item} key={`op-${item}`} title={OP_TYPE[item]}>
+                <option value={item} key={item} title={OP_TYPE[item]}>
                   {OP_TYPE[item]}
                 </option>
               )
@@ -442,8 +442,8 @@ class FilterItem extends React.Component {
       op = ['IN', 'NIN']
     }
 
-    // v3.6-b4,v3.7
-    if (['TEXT', 'PHONE', 'EMAIL', 'URL', 'DATE', 'DATETIME', 'TIME'].includes(fieldType)) op.push('REP')
+    // v3.6-b4, v3.7, v4.2
+    if (['TEXT', 'PHONE', 'EMAIL', 'URL', 'DATE', 'DATETIME', 'TIME', 'REFERENCE', 'ANYREFERENCE'].includes(fieldType)) op.push('REP')
 
     if (this.isApprovalState()) op = ['IN', 'NIN']
     else if (this.state.field === VF_ACU) op = ['IN', 'SFU', 'SFB', 'SFT'] // v3.7 准备废弃

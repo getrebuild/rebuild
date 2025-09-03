@@ -35,7 +35,9 @@ class ReportList extends ConfigList {
                     {taggedTitle(item[3])}
                   </a>
                 ) : (
-                  taggedTitle(item[3])
+                  <a title={$L('模版在线编辑')} href={`${rb.baseUrl}/commons/file-editor?src=${item[0]}`}>
+                    {taggedTitle(item[3])}
+                  </a>
                 )}
                 {item[6] === 1 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 excel">EXCEL</span>}
                 {item[6] === 2 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 excel">{$L('EXCEL 列表')}</span>}

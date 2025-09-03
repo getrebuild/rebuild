@@ -472,7 +472,7 @@ var _showNotification = function (state) {
   var _Notification = window.Notification || window.mozNotification || window.webkitNotification
   if (_Notification) {
     if (_Notification.permission === 'granted') {
-      var n = new _Notification($L('你有 %d 条未读消息', state), {
+      var n = new _Notification($L('你有 %d 条未读通知', state), {
         body: window.rb.appName,
         icon: rb.baseUrl + '/assets/img/icon-192x192.png',
         tag: 'rbNotification',
@@ -1239,14 +1239,18 @@ var $select2MatcherAll = function (params, data) {
     return null
   }
 
-  function _matcher(item, s) {
+  // 匹配
+  function _FN(item, s) {
     s = s.toLowerCase()
-    return (item.text || '').toLowerCase().indexOf(s) > -1 || (item.id || '').toLowerCase().indexOf(s) > -1
+    if ((item.text || '').toLowerCase().indexOf(s) > -1 || (item.id || '').toLowerCase().indexOf(s) > -1) return true
+    // v4.2
+    var pinyin = $(item.element).data('pinyin')
+    return pinyin && pinyin.toLowerCase().indexOf(s) > -1
   }
 
   if (data.children) {
     var ch = data.children.filter(function (item) {
-      return _matcher(item, params.term)
+      return _FN(item, params.term)
     })
     if (ch.length === 0) return null
 
@@ -1254,7 +1258,7 @@ var $select2MatcherAll = function (params, data) {
     data2.children = ch
     return data2
   } else {
-    if (_matcher(data, params.term)) {
+    if (_FN(data, params.term, data.element)) {
       return data
     }
   }
@@ -1307,21 +1311,25 @@ var $pages = function (tp, cp) {
 
 // 格式化代码
 var $formattedCode = function (c, type) {
-  if (typeof c === 'object') c = JSON.stringify(c)
-  if (!window.prettier) return c
-
-  try {
-    // eslint-disable-next-line no-undef
-    return prettier.format(c, {
-      parser: type || 'json',
-      // eslint-disable-next-line no-undef
-      plugins: prettierPlugins,
-      printWidth: 10,
-    })
-  } catch (err) {
-    console.log('Cannot format code :', err)
-    return c
+  // v4.2
+  if (type === 'json') {
+    return JSON.stringify(typeof c === 'object' ? c : JSON.parse(c), null, 2)
   }
+
+  if (typeof c === 'object') c = JSON.stringify(c)
+  if (window.prettier) {
+    try {
+      return window.prettier.format(c, {
+        parser: type || 'json',
+        plugins: window.prettierPlugins,
+        printWidth: 10,
+      })
+    } catch (err) {
+      console.log('Cannot format code :', err)
+      return c
+    }
+  }
+  return c
 }
 
 // 复制

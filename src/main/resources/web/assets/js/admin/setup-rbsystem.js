@@ -60,8 +60,8 @@ class Setup extends React.Component {
           </div>
           <h2>{state[1]}</h2>
           {this.state.installState === 11 && (
-            <a className="btn btn-secondary mt-3" href="../user/login">
-              {$L('立即登录')}
+            <a className="btn btn-secondary mt-3" href="../dashboard/home">
+              {$L('进入系统')}
             </a>
           )}
           {this.state.installState === 12 && (
@@ -98,7 +98,7 @@ class Setup extends React.Component {
       onConfirm: function () {
         this.hide()
         that.setState({ installState: 10 })
-        $.post('/setup/install-rbsystem?file=' + $decode(item.file), (res) => {
+        $.post(`/setup/install-rbsystem?file=${$decode(item.file)}`, (res) => {
           that.setState({ installState: res.error_code === 0 ? 11 : 12, installError: res.error_msg })
         })
       },

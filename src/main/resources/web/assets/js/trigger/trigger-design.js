@@ -392,8 +392,7 @@ function _handle512Change() {
 
 let useExecManual__taskid
 window.onbeforeunload = function () {
-  if (!useExecManual__taskid) return undefined
-  return 'SHOW-CLOSE-CONFIRM'
+  if (useExecManual__taskid) return 'SHOW-CLOSE-CONFIRM'
 }
 
 // 立即执行

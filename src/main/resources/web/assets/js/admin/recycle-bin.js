@@ -169,7 +169,7 @@ CellRenders.renderSimple = function (v, s, k) {
 // ~~ 数据详情
 class DlgDetails extends RbAlert {
   renderContent() {
-    return this.state.code && <CodeViewport code={this.state.code} />
+    return this.state.code && <CodeViewport code={this.state.code} type="json" />
   }
 
   componentDidMount() {

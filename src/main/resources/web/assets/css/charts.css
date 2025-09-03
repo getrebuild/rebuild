@@ -671,10 +671,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .tcs td.tcs-selected:not(.sel-from) {
-  /*border: 1px double #4887c7;*/
-  /*background-color: rgba(51, 122, 183, 0.2) !important;*/
   border: 1px double #4285f4;
-  background-color: #f5f8fd;
+  background-color: #f5f8fd !important;
 }
 
 .chart-box.CNMAP .chart-body {
@@ -778,6 +776,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 /* gradient-backgrounds.css */
+
+.gradient-bg .tcs td.tcs-selected:not(.sel-from) {
+  background-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.gradient-bg .table-bordered th,
+.gradient-bg .table-bordered td {
+  border-color: rgba(0, 0, 0, 0.15);
+}
 
 .gradient-bg-1 {
   background: linear-gradient(126deg, #c471f5, #fa71cd);
