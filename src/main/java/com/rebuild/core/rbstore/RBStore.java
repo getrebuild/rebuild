@@ -51,19 +51,6 @@ public class RBStore {
     }
 
     /**
-     * for AiBot
-     *
-     * @param fileUri
-     * @return
-     */
-    public static Object fetchPrompt(String fileUri) {
-        String content = fetchRemoteFile("prompts/" +
-                StringUtils.defaultIfBlank(fileUri, "index.json"));
-        if (JSONUtils.wellFormat(content)) return JSON.parse(content);
-        return content;
-    }
-
-    /**
      * @param fileUrl
      * @return
      * @throws RebuildException
