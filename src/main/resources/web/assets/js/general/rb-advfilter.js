@@ -443,7 +443,17 @@ class FilterItem extends React.Component {
     }
 
     // v3.6-b4, v3.7, v4.2
-    if (['TEXT', 'PHONE', 'EMAIL', 'URL', 'DATE', 'DATETIME', 'TIME', 'REFERENCE', 'ANYREFERENCE'].includes(fieldType)) op.push('REP')
+    let ifRefField = REFENTITY_CACHE[this.state.field]
+    if (['TEXT', 'PHONE', 'EMAIL', 'URL', 'DATE', 'DATETIME', 'TIME', 'REFERENCE', 'ANYREFERENCE'].includes(fieldType)) {
+      if (ifRefField && ifRefField[2]) {
+        // 多引用不支持
+      } else {
+        op.push('REP')
+      }
+    } else if (ifRefField && !ifRefField[2]) {
+      // 引用支持
+      op.push('REP')
+    }
 
     if (this.isApprovalState()) op = ['IN', 'NIN']
     else if (this.state.field === VF_ACU) op = ['IN', 'SFU', 'SFB', 'SFT'] // v3.7 准备废弃
@@ -506,7 +516,7 @@ class FilterItem extends React.Component {
   // 引用 User/Department/Role/Team
   isBizzField(entity) {
     if (this.state.type === 'REFERENCE') {
-      const ifRefField = REFENTITY_CACHE[this.state.field]
+      let ifRefField = REFENTITY_CACHE[this.state.field]
       if (entity) return ifRefField[0] === entity
       else return BIZZ_ENTITIES.includes(ifRefField[0])
     }
@@ -540,7 +550,7 @@ class FilterItem extends React.Component {
     if (!this.props.inFilterPane) return false
     if (this.state.type === 'CLASSIFICATION') return true
     if (this.state.type === 'TEXT') {
-      const ifRefField = REFENTITY_CACHE[this.state.field]
+      let ifRefField = REFENTITY_CACHE[this.state.field]
       if (ifRefField) return !BIZZ_ENTITIES.includes(ifRefField[0]) // 引用
       return true // 文本
     }
@@ -980,7 +990,7 @@ class FilterItem extends React.Component {
     }
 
     // 引用字段查询名称字段
-    const ifRefField = REFENTITY_CACHE[s.field]
+    let ifRefField = REFENTITY_CACHE[s.field]
     if (ifRefField && !(s.op === 'NL' || s.op === 'NT')) {
       if (BIZZ_ENTITIES.includes(ifRefField[0])) {
         if (ifRefField[2]) {
