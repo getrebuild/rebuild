@@ -247,12 +247,12 @@
         <index field-list="scope,createdBy"/>
     </entity>
 
-    <entity name="LoginLog" type-code="025" description="登陆日志" parent="false">
+    <entity name="LoginLog" type-code="025" description="登录日志" parent="false">
         <field name="logId" type="primary"/>
-        <field name="user" type="reference" ref-entity="User" nullable="false" updatable="false" description="登陆用户" cascade="ignore"/>
+        <field name="user" type="reference" ref-entity="User" nullable="false" updatable="false" description="登录用户" cascade="ignore"/>
         <field name="ipAddr" type="string" max-length="100" description="IP 地址"/>
         <field name="userAgent" type="string" max-length="200" description="客户端"/>
-        <field name="loginTime" type="timestamp" nullable="false" updatable="false" description="登陆时间"/>
+        <field name="loginTime" type="timestamp" nullable="false" updatable="false" description="登录时间"/>
         <field name="logoutTime" type="timestamp" description="退出时间"/>
         <index field-list="user,loginTime"/>
     </entity>

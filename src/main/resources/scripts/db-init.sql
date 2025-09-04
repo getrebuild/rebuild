@@ -370,10 +370,10 @@ create table if not exists `attachment_folder` (
 -- ************ Entity [LoginLog] DDL ************
 create table if not exists `login_log` (
   `LOG_ID`             char(20) not null,
-  `USER`               char(20) not null comment '登陆用户',
+  `USER`               char(20) not null comment '登录用户',
   `IP_ADDR`            varchar(100) comment 'IP 地址',
   `USER_AGENT`         varchar(200) comment '客户端',
-  `LOGIN_TIME`         datetime not null default current_timestamp comment '登陆时间',
+  `LOGIN_TIME`         datetime not null default current_timestamp comment '登录时间',
   `LOGOUT_TIME`        datetime null default null comment '退出时间',
   primary key  (`LOG_ID`),
   index IX0_login_log (`USER`, `LOGIN_TIME`)
