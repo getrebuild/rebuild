@@ -436,6 +436,7 @@ create table if not exists `robot_approval_step` (
   `APPROVER`           char(20) not null comment '审批人',
   `STATE`              smallint(6) default '1' comment '审批结果',
   `REMARK`             varchar(600) comment '批注',
+  `REMARK_ATTACHMENTS` varchar(700) comment '批注附件',
   `APPROVED_TIME`      datetime null default null comment '审批时间',
   `PREV_NODE`          varchar(100) not null comment '上一审批节点',
   `IS_CANCELED`        char(1) default 'F' comment '是否取消',
@@ -965,4 +966,4 @@ insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NU
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 65);
+  values ('021-9000000000000001', 'DBVer', 66);

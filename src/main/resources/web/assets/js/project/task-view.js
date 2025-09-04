@@ -595,7 +595,7 @@ class ValueAttachments extends ValueComp {
           {this.state.attachments.map((item) => {
             const fileName = $fileCutName(item)
             return (
-              <a key={`file-${item}`} className="img-thumbnail" title={fileName} onClick={() => (parent || window).RbPreview.create([item])}>
+              <a key={item} className="img-thumbnail" title={fileName} onClick={() => (parent || window).RbPreview.create(item)}>
                 <i className="file-icon" data-type={$fileExtName(fileName)} />
                 <span>{fileName}</span>
                 {del && (
@@ -1167,15 +1167,16 @@ class RichTextEditor extends React.Component {
           <div className="attachment">
             <div className="file-field attachments">
               {(this.state.files || []).map((item) => {
-                const fileName = $fileCutName(item)
                 return (
-                  <div key={'file-' + item} className="img-thumbnail" title={fileName}>
-                    <i className="file-icon" data-type={$fileExtName(fileName)} />
-                    <span>{fileName}</span>
-                    <b title={$L('移除')} onClick={() => this._removeFile(item)}>
-                      <span className="zmdi zmdi-close" />
-                    </b>
-                  </div>
+                  <FileShow
+                    file={item}
+                    key={item}
+                    removeHandle={() => {
+                      const files = this.state.files
+                      files.remove(item)
+                      this.setState({ files: files })
+                    }}
+                  />
                 )
               })}
             </div>
@@ -1223,12 +1224,6 @@ class RichTextEditor extends React.Component {
     if (e.key === '@') {
       this._handleInput__Timer = setTimeout(() => this._UserSelector.toggle('show'), 400)
     }
-  }
-
-  _removeFile(file) {
-    const files = this.state.files
-    files.remove(file)
-    this.setState({ files: files })
   }
 
   val() {

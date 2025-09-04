@@ -20,7 +20,6 @@ import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.privileges.OperationDeniedException;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
@@ -32,7 +31,6 @@ import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.intellij.lang.annotations.Flow;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -131,20 +129,7 @@ public class ApprovalProcessor extends SetUser {
      *
      * @param approver
      * @param state
-     * @param remark
-     * @param selectNextUsers
-     * @throws ApprovalException
-     */
-    public void approve(ID approver, ApprovalState state, String remark, JSONObject selectNextUsers) throws ApprovalException {
-        approve(approver, state, remark, selectNextUsers, null, null, null, false);
-    }
-
-    /**
-     * 2.审批
-     *
-     * @param approver
-     * @param state
-     * @param remark
+     * @param remarks
      * @param selectNextUsers
      * @param addedData
      * @param checkUseGroup
@@ -152,7 +137,7 @@ public class ApprovalProcessor extends SetUser {
      * @param batchMode
      * @throws ApprovalException
      */
-    public void approve(ID approver, ApprovalState state, String remark, JSONObject selectNextUsers, Record addedData, String checkUseGroup, String rejectNode, boolean batchMode) throws ApprovalException {
+    public void approve(ID approver, ApprovalState state, Object[] remarks, JSONObject selectNextUsers, Record addedData, String checkUseGroup, String rejectNode, boolean batchMode) throws ApprovalException {
         final ApprovalStatus status = checkApprovalState(ApprovalState.PROCESSING);
 
         final Object[] stepApprover = Application.createQueryNoFilter(
@@ -170,8 +155,17 @@ public class ApprovalProcessor extends SetUser {
         Record approvedStep = EntityHelper.forUpdate((ID) stepApprover[0], approver);
         approvedStep.setInt("state", state.getState());
         approvedStep.setDate("approvedTime", CalendarUtils.now());
-        if (StringUtils.isNotBlank(remark)) {
-            approvedStep.setString("remark", remark);
+        if (remarks != null) {
+            if (StringUtils.isNotBlank((String) remarks[0])) {
+                approvedStep.setString("remark", (String) remarks[0]);
+            }
+            // v4.2
+            if (remarks.length > 1 && remarks[1] != null) {
+                String remarkAttachments = remarks[1].toString();
+                if (remarkAttachments.length() > 2) {  // `[]`
+                    approvedStep.setString("remarkAttachments", remarkAttachments);
+                }
+            }
         }
 
         if (batchMode) {
@@ -249,7 +243,6 @@ public class ApprovalProcessor extends SetUser {
      *
      * @param approver
      * @throws ApprovalException
-     * @see #approve(ID, ApprovalState, String, JSONObject)
      */
     public void cancel38(ID approver) throws ApprovalException {
         ApprovalStatus status = checkApprovalState(ApprovalState.PROCESSING);
@@ -269,7 +262,7 @@ public class ApprovalProcessor extends SetUser {
 
         // BACKED
         String key = KEY_CANCEL38 + ":" + approver;
-        approve(proxyApprover, ApprovalState.REJECTED, key, null, null, null, prevNode, false);
+        approve(proxyApprover, ApprovalState.REJECTED, new Object[]{key}, null, null, null, prevNode, false);
     }
 
     /**
@@ -536,7 +529,7 @@ public class ApprovalProcessor extends SetUser {
         final ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.recordId);
         this.approvalId = status.getApprovalId();
 
-        String sql = "select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode,nodeBatch,ccUsers,ccAccounts,attrMore,approvalId,isBacked from RobotApprovalStep" +
+        String sql = "select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode,nodeBatch,ccUsers,ccAccounts,attrMore,approvalId,isBacked,remarkAttachments from RobotApprovalStep" +
                 " where recordId = ? and isWaiting = 'F' and isCanceled = 'F' order by createdOn, state";
         if (allHis) sql = sql.replace("and isCanceled = 'F' ", "");
         Object[][] array = Application.createQueryNoFilter(sql)
@@ -734,6 +727,9 @@ public class ApprovalProcessor extends SetUser {
             // 批量
             String batchMode = attrMored.getString("batchMode");
             s.put("batchMode", batchMode != null);
+        }
+        if (step.length > 14) {
+            if (step[14] != null) s.put("remarkAttachments", JSON.parse((String) step[14]));
         }
 
         return s;
