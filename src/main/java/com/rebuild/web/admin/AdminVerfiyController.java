@@ -132,7 +132,7 @@ public class AdminVerfiyController extends BaseController {
             File logFile = SysbaseHeartbeat.getLastLogbackFile("error".equalsIgnoreCase(type));
 
             ServletUtils.setContentType(response, ServletUtils.CT_PLAIN);
-            FileDownloader.setDownloadHeaders(response, logFile.getName(), true);
+            FileDownloader.setDownloadHeaders(response, logFile.getName(), false);
             FileDownloader.writeLocalFile(logFile, response);
         }
         // 数据库
