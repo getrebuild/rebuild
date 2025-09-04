@@ -794,6 +794,7 @@ class DlgNForm extends RbModalHandler {
     } else if (typeof props.attrs === 'object') {
       this.state.fallback = props.attrs.fallback
       this.state.fornew = props.attrs.fornew
+      this.state.hideEmptyFields = props.attrs.hideEmptyFields
       this.state.useFilter = props.attrs.filter || null
       this.state.verticalLayout = props.attrs.verticalLayout || null
     }
@@ -841,7 +842,16 @@ class DlgNForm extends RbModalHandler {
                 </label>
               </div>
             </div>
-            <div className="form-group row">
+            <div className="form-group row pt-0">
+              <label className="col-sm-3 col-form-label text-sm-right"></label>
+              <div className="col-sm-7">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 --bosskey-show">
+                  <input className="custom-control-input" type="checkbox" defaultChecked={this.state.hideEmptyFields} ref={(c) => (this._$hideEmptyFields = c)} />
+                  <span className="custom-control-label">{$L('隐藏空值字段 (详情页)')}</span>
+                </label>
+              </div>
+            </div>
+            <div className="form-group row --bosskey-show">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('显示样式')}</label>
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._$verticalLayout = c)} defaultValue={this.state.verticalLayout}>
@@ -859,7 +869,7 @@ class DlgNForm extends RbModalHandler {
 
             {this.state.detailsFromsAttr && (
               <div className="form-group row">
-                <label className="col-sm-3 col-form-label text-sm-right">{$L('指定明细实体布局')}</label>
+                <label className="col-sm-3 col-form-label text-sm-right">{$L('指定明细布局')}</label>
                 <div className="col-sm-8" ref={(c) => (this._$detailsFromsAttr = c)}>
                   {this.state.detailsFromsAttr.map((de) => {
                     return (
@@ -968,6 +978,7 @@ class DlgNForm extends RbModalHandler {
       filter: this.state.useFilter || null,
       fallback: $val(this._$fallback),
       fornew: $val(this._$fornew),
+      hideEmptyFields: $val(this._$hideEmptyFields),
       detailsFromsAttr: Object.keys(detailsFromsAttr).length === 0 ? null : detailsFromsAttr,
       verticalLayout: ~~$val(this._$verticalLayout),
     }

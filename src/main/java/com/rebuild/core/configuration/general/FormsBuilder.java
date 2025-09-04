@@ -263,7 +263,8 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        buildModelElements(elements, entityMeta, recordData, user, viewMode, true);
+        buildModelElements(elements, entityMeta, recordData, user, viewMode,
+                viewMode && cn.devezhao.commons.ObjectUtils.toBool(model.getBoolean("hideEmptyFields")), true);
 
         if (elements.isEmpty()) {
             return formatModelError(Language.L("此表单布局尚未配置，请配置后使用"));
@@ -397,9 +398,10 @@ public class FormsBuilder extends FormsManager {
      * @param recordData
      * @param user
      * @param viewModel 是否视图
+     * @param hideEmpty 隐藏空值字段
      * @param useAdvControl 是否使用表单高级控制
      */
-    protected void buildModelElements(JSONArray elements, Entity entity, Record recordData, ID user, boolean viewModel, boolean useAdvControl) {
+    protected void buildModelElements(JSONArray elements, Entity entity, Record recordData, ID user, boolean viewModel, boolean hideEmpty, boolean useAdvControl) {
         final User formUser = Application.getUserStore().getUser(user);
         final Date now = CalendarUtils.now();
 
@@ -644,6 +646,12 @@ public class FormsBuilder extends FormsManager {
                     field.put("value", value);
                 }
 
+                // v4.2 隐藏空值字段
+                if (hideEmpty && value == null) {
+                    iter.remove();
+                    continue;
+                }
+
                 // 父级级联
                 if ((dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) && recordData.getPrimary() != null) {
                     ID parentValue = getCascadingFieldParentValue(easyField, recordData.getPrimary(), false);
@@ -729,7 +737,7 @@ public class FormsBuilder extends FormsManager {
      * @param user4Desensitized 不传则不脱敏
      * @return
      * @see FieldValueHelper#wrapFieldValue(Object, EasyField)
-     * @see DataListWrapper#wrapFieldValue(Object, Field)
+     * @see DataListWrapper#wrapFieldValue(Object, EasyField)
      */
     public Object wrapFieldValue(Record data, EasyField field, ID user4Desensitized) {
         final DisplayType dt = field.getDisplayType();
