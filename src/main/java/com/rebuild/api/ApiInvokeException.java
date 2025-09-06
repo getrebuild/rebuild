@@ -28,6 +28,8 @@ public class ApiInvokeException extends RebuildException {
     public static final int ERR_BADPARAMS = 410;
     // 违反数据约束
     public static final int ERR_DATASPEC = 420;
+    // 权限不足
+    public static final int ERR_NOPRIV = 430;
 
     private int errorCode = Controller.CODE_ERROR;
 
