@@ -85,6 +85,7 @@ module.exports = {
     UserSelector: true,
     UserShow: true,
     DateShow: true,
+    FileShow: true,
     DeleteConfirm: true,
     RbFormModal: true,
     DlgAssign: true,

@@ -842,6 +842,39 @@ class DateShow extends React.Component {
   }
 }
 
+// ~~ 附件显示
+class FileShow extends React.Component {
+  render() {
+    const file = this.props.file
+    const fileName = $fileCutName(file)
+    const isImage = $isImage(fileName)
+    let imageUrl
+    if (isImage) {
+      if (file.startsWith('http://') || file.startsWith('https://')) imageUrl = file
+      else imageUrl = `${rb.baseUrl}/filex/img/${file}?imageView2/2/w/100/interlace/1/q/100`
+    }
+
+    return (
+      <div data-key={file} className="img-thumbnail" title={fileName} onClick={() => (parent || window).RbPreview.create(file)}>
+        <i className={`file-icon ${isImage && 'image'}`} data-type={$fileExtName(fileName)}>
+          {isImage && <img src={imageUrl} />}
+        </i>
+        <span>{fileName}</span>
+        {this.props.removeHandle && (
+          <b
+            title={$L('移除')}
+            onClick={(e) => {
+              $stopEvent(e, true)
+              this.props.removeHandle(e, file)
+            }}>
+            <span className="zmdi zmdi-close" />
+          </b>
+        )}
+      </div>
+    )
+  }
+}
+
 // ~~ 记录选择器
 // @see rb-page.js#$initReferenceSelect2
 class RecordSelector extends React.Component {

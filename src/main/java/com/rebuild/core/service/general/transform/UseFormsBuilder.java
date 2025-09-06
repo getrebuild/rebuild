@@ -54,7 +54,7 @@ public class UseFormsBuilder extends FormsBuilder {
         }
 
         JSONArray elements = ((JSONObject) model).getJSONArray("elements");
-        buildModelElements(elements, entity, record, user, false, true);
+        buildModelElements(elements, entity, record, user, false, false, true);
         return model;
     }
 

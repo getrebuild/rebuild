@@ -875,6 +875,7 @@ body {
 .timeline.approved-steps .timeline-header > .blockquote {
   margin-top: 5px;
   padding: 2px 10px;
+  padding-right: 0;
 }
 
 .timeline.approved-steps .timeline-header > .blockquote.cc {

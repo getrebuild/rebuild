@@ -3263,7 +3263,7 @@ a.user-show:not([href]) {
 }
 
 .approval-toolbar .alert > .close .btn {
-  padding: 8px 0;
+  padding: 8px;
   font-size: 12px;
   line-height: 1.1;
   min-height: 0;
@@ -3358,6 +3358,32 @@ a.user-show:not([href]) {
   margin-left: 1px;
   margin-right: 4px;
   color: #8a8a8a;
+}
+
+.form.approval-form .file-field {
+  margin-top: 6px;
+}
+
+.form.approval-form .file-field .file-field-handle {
+  display: inline-block;
+  height: 38px;
+  width: 38px;
+  margin: 0;
+  background-color: #eee;
+  border-radius: 2px;
+  text-align: center;
+  line-height: 38px;
+  font-size: 18px;
+  cursor: pointer;
+  margin-bottom: 5px;
+}
+
+.form.approval-form .file-field .file-field-handle:hover {
+  opacity: 0.8;
+}
+
+.form.approval-form .file-field {
+  display: flex;
 }
 
 .select2-sm .select2-container--default .select2-selection--single,

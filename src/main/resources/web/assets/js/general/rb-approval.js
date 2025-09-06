@@ -49,19 +49,20 @@ class ApprovalProcessor extends React.Component {
     let aMsg = $L('当前记录正在审批中')
     let imApproverCurrent = false
     if (this.state.imApprover) {
-      if (this.state.imApproveSatate === 1) {
+      if (this.state.imApproveState === 1) {
         aMsg = $L('当前记录正在等待你审批')
         imApproverCurrent = true
-      } else if (this.state.imApproveSatate === 10) aMsg = $L('你已审批同意，正在等待其他人审批')
-      else if (this.state.imApproveSatate === 11) aMsg = $L('你已驳回审批')
+      } else if (this.state.imApproveState === 10) aMsg = $L('你已审批同意，正在等待其他人审批')
+      else if (this.state.imApproveState === 11) aMsg = $L('你已驳回审批')
     }
 
     return (
       <div className="alert alert-warning shadow-sm">
         <span className="close">
-          {this.state.imApprover && this.state.imApproveSatate === 1 && (
+          {this.state.imApprover && this.state.imApproveState === 1 && (
             <button className="btn btn-secondary" onClick={this.approve}>
               {$L('审批')}
+              {imApproverCurrent && this.state.expiresTime > 0 && ` (${$L('已超时')})`}
             </button>
           )}
           {this.state.canUrge && imApproverCurrent === false && (
@@ -486,7 +487,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
           {(this.state.aform || this.state.aform_details) && this.renderLiteForm()}
           {this.state.editableMode === 1 && this.renderEditable()}
 
-          <div className="form-group">
+          <div className="form-group mb-3">
             <label>
               {$L('批注')}
               {this.state.expiresTime > 0 && <span className="text-danger ml-1">({$L('已超时 %s', $sec2Time(this.state.expiresTime))})</span>}
@@ -500,6 +501,28 @@ class ApprovalApproveForm extends ApprovalUsersForm {
               onChange={this.handleChange}
               maxLength="600"
             />
+            <div className="file-field">
+              <span className="file-field-show">
+                {this.state.remarkAttachments &&
+                  this.state.remarkAttachments.map((item) => {
+                    return (
+                      <FileShow
+                        file={item}
+                        key={item}
+                        removeHandle={(e) => {
+                          const fs = this.state.remarkAttachments || []
+                          fs.remove(item)
+                          this.setState({ remarkAttachments: fs })
+                        }}
+                      />
+                    )
+                  })}
+              </span>
+              <label className="file-field-handle" title={$L('上传附件')}>
+                <input type="file" className="inputfile" ref={(c) => (this._$attach = c)} multiple />
+                <i className="mdi mdi-attachment mdi-rotate-315"></i>
+              </label>
+            </div>
           </div>
 
           {this.renderUsers()}
@@ -598,7 +621,20 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     )
   }
 
-  componentDidMount = () => this.getNextStep()
+  componentDidMount() {
+    this.getNextStep()
+
+    $multipleUploader(this._$attach, (res) => {
+      const fs = this.state.remarkAttachments || []
+      let hasByName = $fileCutName(res.key)
+      hasByName = fs.find((x) => $fileCutName(x) === hasByName)
+      if (!hasByName) {
+        fs.push(res.key)
+        this.setState({ remarkAttachments: fs })
+      }
+    })
+  }
+
   reload = () => this.getNextStep()
 
   post(state) {
@@ -665,6 +701,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
 
     const data = {
       remark: this.state.remark || null,
+      remarkAttachments: this.state.remarkAttachments || null,
       selectUsers: selectUsers,
       aformData: aformData,
       useGroup: this.state.useGroup,
@@ -943,6 +980,13 @@ class ApprovalStepViewer extends React.Component {
                 <blockquote className="blockquote timeline-blockquote mb-0">
                   <p className="text-wrap">{item.remark}</p>
                 </blockquote>
+              )}
+              {item.remarkAttachments && item.remarkAttachments.length > 0 && (
+                <div className="file-field mt-1 ml-1">
+                  {item.remarkAttachments.map((item) => (
+                    <FileShow file={item} key={item} />
+                  ))}
+                </div>
               )}
               {item.state >= 10 && (item.ccUsers || []).length + (item.ccAccounts || []).length > 0 && (
                 <blockquote className="blockquote timeline-blockquote mb-0 cc">
