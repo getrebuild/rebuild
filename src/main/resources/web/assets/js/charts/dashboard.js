@@ -15,6 +15,9 @@ let refresh_timer = null
 let on_resizestart = false
 let rendered_charts = []
 
+let dash_filter_user = null
+let dash_filter_date = null
+
 $(document).ready(() => {
   const d = $urlp('d')
   if (d) $storage.set('DashDefault', d)
@@ -90,7 +93,7 @@ $(document).ready(() => {
 
       if (refresh_timeout > 0) {
         refresh_timer = setInterval(() => {
-          rendered_charts.forEach((x) => x.loadChartData())
+          rendered_charts.forEach((c) => c.loadChartData())
         }, refresh_timeout * 1000)
       }
     })
@@ -196,6 +199,19 @@ $(document).ready(() => {
       window.localStorage.setItem('LastRebuildVer', rb.ver)
     }
   }
+
+  $('.J_dash-filter-user a').on('click', function () {
+    let $a = $(this)
+    dash_filter_user = $a.data('user')
+    $a.parents('.btn-group').find('.btn span').text($a.text())
+    rendered_charts.forEach((c) => c.loadChartData())
+  })
+  $('.J_dash-filter-date a').on('click', function () {
+    let $a = $(this)
+    dash_filter_date = $a.data('date')
+    $a.parents('.btn-group').find('.btn span').text($a.text())
+    rendered_charts.forEach((c) => c.loadChartData())
+  })
 })
 
 // 全屏工具

@@ -69,11 +69,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: rgba(0, 0, 0, 0.7);
 }
 
-.chart-box .chart-head .chart-oper > a .zmdi {
+.chart-box .chart-head .chart-oper > a .zmdi,
+.chart-box .chart-head .chart-oper > a .mdi {
   font-size: 1.3rem;
   vertical-align: middle;
   width: 20px;
   text-align: center;
+}
+
+.chart-box .chart-head .chart-oper > a .mdi-filter {
+  font-size: 1.25rem;
 }
 
 .chart-box .chart-head .chart-oper > a .zmdi-close {
@@ -88,6 +93,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart-undata {
   margin: 0;
   color: #999;
+  color: rgba(0, 0, 0, 0.3);
   display: inline-block;
   font-size: 1.1rem;
 }

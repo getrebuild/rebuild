@@ -126,7 +126,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .dash-list .dash-head {
   display: inline-block;
-  padding-right: 71px;
+  padding-right: 61px;
   position: relative;
 }
 
@@ -138,7 +138,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-left: 6px;
   display: none;
   text-align: left;
-  width: 70px;
+  width: 60px;
 }
 
 .dash-head:hover .dash-action {
@@ -148,6 +148,25 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .dash-head .dash-action a {
   padding: 3px;
   margin-left: 3px;
+}
+
+.dash-list .dash-head,
+.dash-list .dash-filter {
+  float: left;
+}
+
+.dash-list .dash-filter > div {
+  display: inline-block;
+  margin-top: 3px;
+  margin-left: 5px;
+}
+
+.dash-list .dash-filter .btn-group > .btn {
+  min-width: 150px !important;
+  text-align: left;
+  border-radius: 4px;
+  font-size: 14px;
+  min-height: 31px;
 }
 
 .modal.select-list .modal-body li a {

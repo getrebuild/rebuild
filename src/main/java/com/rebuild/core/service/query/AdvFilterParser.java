@@ -992,6 +992,8 @@ public class AdvFilterParser extends SetUser {
         return useValue;
     }
 
+    // --
+
     /**
      * 测试高级表达式
      *

@@ -17,10 +17,16 @@ class BaseChart extends React.Component {
 
   render() {
     let showScurce = !this.props.builtin
+    let showFilter = !this.props.builtin
     if (this.props.id === '017-9000000000000007' || this.props.id === '017-9000000000000002') showScurce = true
 
     const opActions = (
       <div className="chart-oper">
+        {showFilter && (
+          <a title={$L('过滤条件')} onClick={() => this.showChartFilter()}>
+            <i className="mdi mdi-filter" />
+          </a>
+        )}
         {showScurce && (
           <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`} target="_blank" className="J_source">
             <i className="zmdi zmdi-rss" />
@@ -77,9 +83,43 @@ class BaseChart extends React.Component {
     if (this._echarts) this._echarts.dispose()
   }
 
+  showChartFilter() {
+    if (this._ChartFilter) {
+      this._ChartFilter.show()
+    } else {
+      const that = this
+      const config = this.props.config || {}
+      renderRbcomp(
+        <AdvFilter
+          title={$L('图表过滤条件')}
+          entity={config.entity}
+          filter={config.filter}
+          onConfirm={(s) => {
+            that._ChartFilter__data = s
+            that.loadChartData()
+          }}
+          inModal
+          canNoFilters
+        />,
+        function () {
+          that._ChartFilter = this
+        }
+      )
+    }
+  }
+
   loadChartData(notClear) {
     if (notClear !== true) this.setState({ chartdata: null })
-    $.post(this.buildDataUrl(), JSON.stringify(this.state.config || {}), (res) => {
+
+    let config = this.state.config || {}
+    config.extconfig = {
+      ...config.extconfig,
+      dash_filter_user: window.dash_filter_user || null,
+      dash_filter_date: window.dash_filter_date || null,
+      chart_filter: this._ChartFilter__data || null,
+    }
+
+    $.post(this.buildDataUrl(), JSON.stringify(config), (res) => {
       if (this._echarts) this._echarts.dispose()
 
       if (res.error_code === 0) {
