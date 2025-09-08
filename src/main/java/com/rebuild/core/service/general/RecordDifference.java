@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyDecimal;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
@@ -82,11 +83,7 @@ public class RecordDifference {
                 Object beforeVal = e.getValue();
                 if (NullValue.is(beforeVal)) beforeVal = null;
 
-                // v3.5.3
-                if (beforeVal instanceof Date && entity.getField(fieldName).getType() == FieldType.DATE) {
-                    beforeVal = CalendarUtils.clearTime((Date) beforeVal);
-                }
-
+                beforeVal = fixValuePrecision416(entity.getField(fieldName), beforeVal);
                 merged.put(fieldName, new Object[]{beforeVal, null});
             }
         }
@@ -101,11 +98,7 @@ public class RecordDifference {
                 Object afterVal = e.getValue();
                 if (NullValue.is(afterVal)) continue;
 
-                // v3.5.3
-                if (afterVal instanceof Date && entity.getField(fieldName).getType() == FieldType.DATE) {
-                    afterVal = CalendarUtils.clearTime((Date) afterVal);
-                }
-
+                afterVal = fixValuePrecision416(entity.getField(fieldName), afterVal);
                 Object[] mergedValue = merged.computeIfAbsent(fieldName, k -> new Object[]{null, null});
                 mergedValue[1] = afterVal;
             }
@@ -114,16 +107,30 @@ public class RecordDifference {
         JSONArray result = new JSONArray();
 
         for (Map.Entry<String, Object[]> e : merged.entrySet()) {
-            Object[] vals = e.getValue();
-            if (vals[0] == null && vals[1] == null) continue;
-            if (CommonsUtils.isSame(vals[0], vals[1])) continue;
+            Object[] val2 = e.getValue();
+            if (val2[0] == null && val2[1] == null) continue;
+            if (CommonsUtils.isSame(val2[0], val2[1])) continue;
 
             JSON item = JSONUtils.toJSONObject(
                     new String[]{"field", "before", "after"},
-                    new Object[]{e.getKey(), vals[0], vals[1]});
+                    new Object[]{e.getKey(), val2[0], val2[1]});
             result.add(item);
         }
         return result;
+    }
+
+    private Object fixValuePrecision416(Field field, Object value) {
+        if (value == null || NullValue.is(value)) return null;
+
+        // fix:3.5.3
+        if (value instanceof Date && field.getType() == FieldType.DATE) {
+            return CalendarUtils.clearTime((Date) value);
+        }
+        // fix:4.1.6 修订小数精度
+        if (field.getType() == FieldType.DECIMAL) {
+            return EasyDecimal.fixedDecimalScale(value, field);
+        }
+        return value;
     }
 
     /**

@@ -2304,7 +2304,7 @@ class RbFormReference extends RbFormElement {
           if (cascadingValue) query.cascadingValue = cascadingValue
           // 4.1.3
           let val = this.state.value
-          if (typeof val === 'object') val = val.id
+          if (val && typeof val === 'object') val = val.id
           if (val) query._top = val
 
           console.log('Reference query:', query)
@@ -3025,7 +3025,7 @@ class RbFormMultiSelect extends RbFormElement {
 
   setValue(val) {
     // eg. {id:3, text:["A", "B"]}
-    if (typeof val === 'object') val = val.id || val
+    if (val && typeof val === 'object') val = val.id || val
     if (this._isShowSelect41) {
       let s = []
       this.props.options &&
