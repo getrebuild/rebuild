@@ -148,8 +148,8 @@ $(document).ready(function () {
       $(res.data).each(function (idx) {
         const $tr = $('<tr></tr>').appendTo('#logs tbody')
         $(`<td class="text-muted">${idx + 1}.</td>`).appendTo($tr)
-        $(`<td>${this[0].split('UTC')[0]}</td>`).appendTo($tr)
-        $(`<td>${this[1]}</td>`).appendTo($tr)
+        $('<td></td>').appendTo($tr).text(this[0].split('UTC')[0])
+        $('<td></td>').appendTo($tr).text(this[1])
 
         const uaRich = this[2].replace(/\[TempAuth]/i, `<span class="badge badge-danger">${$L('临时授权')}</span>`)
         $(`<td>${uaRich}</td>`).appendTo($tr)
