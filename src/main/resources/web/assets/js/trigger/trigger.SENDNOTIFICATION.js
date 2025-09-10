@@ -333,7 +333,13 @@ class SelectorWithField extends UserSelector {
   }
 
   switchTab() {
-    this.setState({ tabType: 'FIELDS', items: this._fields || [] })
+    let items416 = []
+    if (this.state.query) {
+      items416 = this._fields.filter((x) => x.text.contains(this.state.query))
+    } else {
+      items416 = [...this._fields]
+    }
+    this.setState({ tabType: 'FIELDS', items: items416 })
   }
 }
 
