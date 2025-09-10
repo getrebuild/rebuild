@@ -890,7 +890,7 @@ body.view-body {
 
 .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field,
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
-  color: #404040;
+  color: #222222;
 }
 
 /* .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
@@ -1083,7 +1083,7 @@ a.link.link-icon::after {
   font-size: 1.6rem;
   font-weight: 400;
   line-height: 35px;
-  color: #404040;
+  color: #222222;
   position: absolute;
   right: 10px;
 }
@@ -1297,7 +1297,7 @@ a.link.link-icon::after {
   position: relative;
   overflow: hidden;
   border: 0 none;
-  color: #404040;
+  color: #222222;
   border-left: 2px solid #ccc;
   border-radius: 2px;
   max-height: 38px;
@@ -1411,7 +1411,7 @@ a.link.link-icon::after {
   top: 0;
   font-size: 1rem;
   font-weight: 700;
-  color: #404040;
+  color: #222222;
   width: 12px;
   height: 32px;
   cursor: pointer;
@@ -2874,7 +2874,7 @@ form.simple {
 }
 
 .cl-base {
-  color: #404040;
+  color: #222222;
 }
 
 .modal-dialog.selector.show {
@@ -3349,7 +3349,7 @@ a.user-show:not([href]) {
 }
 
 .form.approval-form .cc-accounts a {
-  color: #404040;
+  color: #222222;
   font-weight: bold;
 }
 
@@ -5499,7 +5499,7 @@ pre.unstyle {
 }
 
 .light-link {
-  color: #404040 !important;
+  color: #222222 !important;
   border-bottom: 1px dotted #4285f4;
 }
 
@@ -5949,7 +5949,7 @@ div.formula-code {
 }
 
 .notification-list .notification .text {
-  color: #404040 !important;
+  color: #222222 !important;
   font-size: 1rem !important;
 }
 
