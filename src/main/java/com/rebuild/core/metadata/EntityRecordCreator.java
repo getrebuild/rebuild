@@ -26,6 +26,7 @@ import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.service.DataSpecificationException;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +76,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
     public boolean setFieldValue(Field field, String value, Record record) {
         final Type fieldType = field.getType();
         // v4.0 处理 CURRENT 变量
-        if ("{@CURRENT}".equals(value) || "{CURRENT}".equals(value)) {
+        if (FieldValueHelper.CURRENT.equals(value) || "{@CURRENT}".equals(value)) {
             if (fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP || fieldType == FieldType.TIME) {
                 value = CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
             } else {

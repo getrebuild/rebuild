@@ -83,6 +83,7 @@ class FieldValueSet extends React.Component {
         }
       }
 
+      dpcfg.forceParse = false
       this.__$datetimepicker = $(this._$value).datetimepicker(dpcfg)
     }
 

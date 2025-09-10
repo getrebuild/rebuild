@@ -166,8 +166,9 @@ public class ApiGateway extends Controller implements Initialization {
         } catch (Exception ignored) {
         }
 
-        log.error("{} : {}", requestId, error.toJSONString());
-        ServletUtils.writeJson(response, error.toJSONString());
+        errorMsg = error.toJSONString();
+        log.error("ReqId: {}\nReqParams: {}\nRespError: {}", requestId, request.getQueryString(), errorMsg);
+        ServletUtils.writeJson(response, errorMsg);
     }
 
     /**
