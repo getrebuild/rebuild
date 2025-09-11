@@ -519,6 +519,7 @@ a.btn {
 .custom-control-label {
   line-height: 1.9;
   color: #444;
+  color: #404040;
 }
 
 .custom-control-sm .custom-control-label {
@@ -2340,6 +2341,7 @@ th.column-fixed {
   display: block;
   padding: 8px 10px;
   color: #444;
+  color: #404040;
 }
 
 .aside-tree > ul > li > a {
@@ -5032,6 +5034,7 @@ pre.unstyle {
 
 .rbcolors > a.default > i {
   color: #444 !important;
+  color: #404040 !important;
 }
 
 .rbcolors input[type='color'] {

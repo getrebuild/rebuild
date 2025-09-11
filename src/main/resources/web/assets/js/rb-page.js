@@ -1313,7 +1313,12 @@ var $pages = function (tp, cp) {
 var $formattedCode = function (c, type) {
   // v4.2
   if (type === 'json') {
-    return JSON.stringify(typeof c === 'object' ? c : JSON.parse(c), null, 2)
+    try {
+      return JSON.stringify(typeof c === 'object' ? c : JSON.parse(c), null, 2)
+    } catch (err) {
+      console.log('Cannot format code : ' + err)
+      return c
+    }
   }
 
   if (typeof c === 'object') c = JSON.stringify(c)
@@ -1325,7 +1330,7 @@ var $formattedCode = function (c, type) {
         printWidth: 10,
       })
     } catch (err) {
-      console.log('Cannot format code :', err)
+      console.log('Cannot format code : ' + err)
       return c
     }
   }
