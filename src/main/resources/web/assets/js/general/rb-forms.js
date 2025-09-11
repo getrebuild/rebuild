@@ -1482,7 +1482,7 @@ class RbFormNText extends RbFormElement {
             <a title={$L('展开/收起')} onClick={() => $(this._textarea).toggleClass('ntext-expand')}>
               <i className="mdi mdi-arrow-expand" />
             </a>
-            <a ref={(c) => (this._$actionCopy = c)} onClick={() => {}}>
+            <a ref={(c) => (this._$actionCopy = c)}>
               <i className="mdi mdi-content-copy" />
             </a>
           </div>
@@ -1504,7 +1504,10 @@ class RbFormNText extends RbFormElement {
   componentDidMount() {
     super.componentDidMount()
     // fix:4.1
-    if (this.props.onView) $(this._textarea).perfectScrollbar()
+    if (this.props.onView) {
+      $(this._textarea).perfectScrollbar()
+      this._initActionCopy()
+    }
   }
 
   onEditModeChanged(destroy) {
@@ -1555,22 +1558,26 @@ class RbFormNText extends RbFormElement {
       }
     }
 
-    if (this._$actionCopy) {
-      const that = this
-      const initCopy = function () {
-        $clipboard($(that._$actionCopy), that.state.value)
-      }
-      if (window.ClipboardJS) {
-        initCopy()
-      } else {
-        $getScript('/assets/lib/clipboard.min.js', initCopy)
-      }
-    }
+    this._initActionCopy()
   }
 
   setValue(val) {
     super.setValue(val)
     if (this.props.useMdedit) this._EasyMDE.value(val || '')
+  }
+
+  _initActionCopy() {
+    if (!this._$actionCopy) return
+
+    const that = this
+    const initCopy = function () {
+      $clipboard($(that._$actionCopy), that.state.value)
+    }
+    if (window.ClipboardJS) {
+      initCopy()
+    } else {
+      $getScript('/assets/lib/clipboard.min.js', initCopy)
+    }
   }
 
   _initMde() {
