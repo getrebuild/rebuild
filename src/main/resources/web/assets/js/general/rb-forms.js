@@ -1470,7 +1470,10 @@ class RbFormNText extends RbFormElement {
       )
     } else {
       let text2 = this.state.value.replace(/</g, '&lt;').replace(/\n/g, '<br/>')
-      if (this.props.useCode) text2 = text2.replace(/\s/g, '&nbsp;')
+      if (this.props.useCode) {
+        text2 = $formattedCode(text2, 'json')
+        text2 = text2.replace(/\n/g, '<br/>') //.replace(/\s/g, '&nbsp;')
+      }
 
       return (
         <RF>

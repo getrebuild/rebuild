@@ -5609,6 +5609,10 @@ div.formula-code {
   padding: 4px 10px;
 }
 
+div.formula-code {
+  white-space: pre;
+}
+
 .flatpickr-time input::selection {
   background-color: var(--rb-theme-color);
   color: #fff;

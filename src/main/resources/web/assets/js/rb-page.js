@@ -1318,6 +1318,7 @@ var $formattedCode = function (c, type) {
     try {
       return JSON.stringify(typeof c === 'object' ? c : JSON.parse(c), null, 2)
     } catch (err) {
+      if (rb.env === 'dev') console.log('Cannot format code : ' + err)
       // ignored
     }
   }
