@@ -489,7 +489,7 @@ class RbForm extends React.Component {
             <div className="fjs-dock"></div>
             {_detailImports.length > 0 && (
               <div className="btn-group mr-2">
-                <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
                   <i className="icon mdi mdi-transfer-down"></i> {$L('导入明细')}
                 </button>
                 <div className="dropdown-menu dropdown-menu-right">
