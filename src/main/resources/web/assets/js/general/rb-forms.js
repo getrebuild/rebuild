@@ -361,7 +361,7 @@ class RbForm extends React.Component {
       $$$main: this,
       transDetails: transDetails39 ? transDetails39[detailMeta.entity] : null,
       transDetailsDelete: transDetails39 ? transDetails39[detailMeta.entity + '$DELETED'] : null,
-      mainLayout: this.props.rawModel.layoutId,
+      mainLayoutId: this.props.rawModel.layoutId,
       _disableAutoFillin: this.props._disableAutoFillin,
     }
 
@@ -422,7 +422,7 @@ class RbForm extends React.Component {
             }
 
             const mainid = form.props.id || null
-            $.post(`/app/entity/extras/detail-imports?transid=${item.transid}&mainid=${mainid}`, JSON.stringify(formdata), (res) => {
+            $.post(`/app/entity/extras/detail-imports?transid=${item.transid}&mainid=${mainid}&layoutId=${_ProTable.getLayoutId()}`, JSON.stringify(formdata), (res) => {
               if (res.error_code === 0) {
                 if (autoFields) {
                   typeof cb === 'function' && cb(res.data)
