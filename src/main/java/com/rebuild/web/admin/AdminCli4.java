@@ -193,7 +193,8 @@ public class AdminCli4 {
             else {
                 String value = commands[2];
                 if (item == ConfigurationItem.SN) {
-                    String usql = String.format("update system_config set `VALUE` = '%s' where `ITEM` = 'SN'",
+                    String usql = String.format(
+                            "update system_config set `VALUE` = '%s' where `ITEM` = 'SN'",
                             StringEscapeUtils.escapeSql(value));
                     Application.getSqlExecutor().execute(usql);
                     // reset: RB NEED RESTART
@@ -218,7 +219,7 @@ public class AdminCli4 {
     protected String execBackup() {
         String type = commands.length > 1 ? commands[1] : null;
 
-        List<String> result = new ArrayList<>(2);
+        List<String> result = new ArrayList<>();
         try {
             if ("conf".equals(type)) {
                 File backup = RbvFunction.call().dumpRebuildConf();
