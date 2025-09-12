@@ -18,6 +18,7 @@ import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.DefinedException;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
@@ -26,9 +27,12 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.general.transform.RecordTransfomer39;
+import com.rebuild.core.service.trigger.DataValidateException;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.general.CalcFormulaSupport;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
@@ -46,7 +50,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * 表单/视图 功能扩展
@@ -97,6 +100,10 @@ public class ModelExtrasController extends BaseController {
         ID mainRecord = ID.isId(post.getString("mainRecord")) ? ID.valueOf(post.getString("mainRecord")) : null;
         ID existsRecord = ID.isId(post.getString("existsRecord")) ? ID.valueOf(post.getString("existsRecord")) : null;
 
+        // v4.2 弱校验
+        final ID weakMode = getIdParameter(request, "weakMode");
+        if (weakMode != null) RbvFunction.call().setWeakMode(weakMode);
+
         try {
             Object res;
             if (post.getBooleanValue("preview")) {
@@ -107,15 +114,22 @@ public class ModelExtrasController extends BaseController {
             return RespBody.ok(res);
 
         } catch (Exception ex) {
-            log.warn(">>>>> {} : {}", sourceRecord, ex.getLocalizedMessage());
+            String errorMsg = CommonsUtils.getRootMessage(ex);
+            log.warn(">>>>> {} : {}", sourceRecord, errorMsg);
 
-            String error = ex.getLocalizedMessage();
-            if (ex instanceof RepeatedRecordsException) {
-                error = Language.L("存在重复记录");
+            // v4.2 弱校验
+            if (ex instanceof DataValidateException && ((DataValidateException) ex).isWeakMode()) {
+                errorMsg = ex.getLocalizedMessage() + "$$$$" + ((DataValidateException) ex).getWeakModeTriggerId();
+                return RespBody.error(errorMsg, DefinedException.CODE_WEAK_VALIDATE);
             }
 
-            return RespBody.errorl("记录转换失败 (%s)",
-                    Objects.toString(error, ex.getClass().getSimpleName().toUpperCase()));
+            if (ex instanceof RepeatedRecordsException) {
+                errorMsg = Language.L("存在重复记录");
+            }
+            return RespBody.errorl("记录转换失败 (%s)", errorMsg);
+
+        } finally {
+            if (weakMode != null) RbvFunction.call().getWeakMode(true);
         }
     }
 

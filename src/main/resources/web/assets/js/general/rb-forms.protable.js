@@ -138,7 +138,7 @@ class ProTable extends React.Component {
       '$MAINID$': this.props.mainid || '$MAINID$',
     }
 
-    $.post(`/app/${entity.entity}/form-model?mainLayout=${this.props.mainLayout}&id=`, JSON.stringify(initialValue), (res) => {
+    $.post(`/app/${entity.entity}/form-model?mainLayoutId=${this.props.mainLayoutId}&id=`, JSON.stringify(initialValue), (res) => {
       // 包含错误
       if (res.error_code > 0 || !!res.data.error) {
         const error = (res.data || {}).error || res.error_msg
@@ -270,7 +270,7 @@ class ProTable extends React.Component {
 
   _formdataRebuild(data, cb) {
     const mainid = this.props.$$$main.props.id || '000-0000000000000000'
-    $.post(`/app/entity/extras/formdata-rebuild?mainid=${mainid}`, JSON.stringify(data), (res) => {
+    $.post(`/app/entity/extras/formdata-rebuild?mainid=${mainid}&layoutId=${this.getLayoutId()}`, JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
         typeof cb === 'function' && cb(res)
       } else {
@@ -324,8 +324,7 @@ class ProTable extends React.Component {
     const data = F ? F.getFormData() : null
     if (!data) return
 
-    // force New
-    delete data.metadata.id
+    delete data.metadata.id // force New
     this._formdataRebuild(data, (res) => this._addLine(res.data, index, true))
   }
 
@@ -464,6 +463,10 @@ class ProTable extends React.Component {
     return datas
   }
 
+  getLayoutId() {
+    return this._initModel ? this._initModel.layoutId : null
+  }
+
   // --
 
   /**
@@ -479,25 +482,26 @@ class ProTable extends React.Component {
     return <ProTable {...rest} />
   }
 
-  /**
-   * 记录转换-明细导入
-   * @param {*} transid
-   * @param {*} formObject
-   * @param {*} cb
-   * @returns
-   */
-  static detailImports(transid, formObject, cb) {
-    const formData = formObject.getFormData()
-    const mainid = formObject.props.id || null
-    $.post(`/app/entity/extras/detail-imports?transid=${transid}&mainid=${mainid}`, JSON.stringify(formData), (res) => {
-      if (res.error_code === 0) {
-        if ((res.data || []).length === 0) RbHighbar.create($L('没有可导入的明细记录'))
-        else typeof cb === 'function' && cb(res.data)
-      } else {
-        RbHighbar.error(res.error_msg)
-      }
-    })
-  }
+  // Remove from v4.2
+  // /**
+  //  * 记录转换-明细导入
+  //  * @param {*} transid
+  //  * @param {*} formObject
+  //  * @param {*} cb
+  //  * @returns
+  //  */
+  // static detailImports(transid, formObject, cb) {
+  //   const formData = formObject.getFormData()
+  //   const mainid = formObject.props.id || null
+  //   $.post(`/app/entity/extras/detail-imports?transid=${transid}&mainid=${mainid}`, JSON.stringify(formData), (res) => {
+  //     if (res.error_code === 0) {
+  //       if ((res.data || []).length === 0) RbHighbar.create($L('没有可导入的明细记录'))
+  //       else typeof cb === 'function' && cb(res.data)
+  //     } else {
+  //       RbHighbar.error(res.error_msg)
+  //     }
+  //   })
+  // }
 }
 
 class InlineForm extends RbForm {

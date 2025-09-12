@@ -286,6 +286,9 @@ $(document).ready(function () {
     _handleAnyReference(extConfig.anyreferenceEntities)
   } else if (dt === 'TEXT' || dt === 'NTEXT') {
     _handleTextCommon(extConfig.textCommon)
+    if (dt === 'NTEXT' && extConfig.useCode) {
+      $('#useCode').parents('.form-group').removeClass('bosskey-show')
+    }
   }
 
   // 只读属性

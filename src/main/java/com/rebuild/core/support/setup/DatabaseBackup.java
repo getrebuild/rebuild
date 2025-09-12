@@ -15,6 +15,7 @@ import com.rebuild.utils.CommandUtils;
 import com.rebuild.utils.CompressUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -49,10 +50,10 @@ public class DatabaseBackup {
      * @throws IOException
      */
     public File backup() throws IOException {
-        File backupdir = RebuildConfiguration.getFileOfData("_backups");
-        if (!backupdir.exists()) FileUtils.forceMkdir(backupdir);
+        File backupd = RebuildConfiguration.getFileOfData("_backups");
+        if (!backupd.exists()) FileUtils.forceMkdir(backupd);
 
-        return backup(backupdir);
+        return backup(backupd);
     }
 
     /**
@@ -81,10 +82,10 @@ public class DatabaseBackup {
                 "%s -u%s -p\"%s\" -h%s -P%s --default-character-set=utf8 --opt --extended-insert=true --triggers --hex-blob --single-transaction -R %s>\"%s\"",
                 mysqldump, user, passwd, host, port, dbname, dest.getAbsolutePath());
 
-        if (forceTables != null) {
+        if (!ArrayUtils.isEmpty(forceTables)) {
             String foTables = StringUtils.join(forceTables, " ");
             cmd = cmd.replaceFirst("> ", " " + foTables + " >");
-        } else if (ignoreTables != null) {
+        } else if (!ArrayUtils.isEmpty(ignoreTables)) {
             String igPrefix = " --ignore-table=" + dbname + ".";
             String ig = igPrefix + StringUtils.join(ignoreTables, igPrefix);
             cmd = cmd.replaceFirst(" -R ", " -R" + ig + " ");

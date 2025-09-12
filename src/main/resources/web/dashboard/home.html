@@ -20,7 +20,7 @@
         <div class="main-content container-fluid p-0">
           <div class="tools-bar">
             <div class="row">
-              <div class="col-sm-6 dash-list">
+              <div class="col-sm-7 dash-list">
                 <div class="dash-head">
                   <h4 class="J_dash-select" th:title="${bundle.L('切换仪表盘')}">[[${bundle.L('仪表盘')}]]</h4>
                   <div class="dash-action" th:if="${AllowCustomChart}">
@@ -28,8 +28,43 @@
                     <a class="zicon J_dash-new" th:title="${bundle.L('添加仪表盘')}"><i class="zmdi zmdi-plus-circle-o"></i></a>
                   </div>
                 </div>
+                <div class="dash-filter --bosskey-show">
+                  <div>
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-secondary" data-toggle="dropdown">
+                        <i class="mdi mdi-account-multiple icon"></i>
+                        <span>[[${bundle.L('全部')}]]</span>
+                      </button>
+                      <div class="dropdown-menu J_dash-filter-user">
+                        <a class="dropdown-item" data-user="0">[[${bundle.L('全部')}]]</a>
+                        <a class="dropdown-item" data-user="SFU">[[${bundle.L('本人')}]]</a>
+                        <a class="dropdown-item" data-user="SFB">[[${bundle.L('本部门')}]]</a>
+                        <a class="dropdown-item" data-user="SFD">[[${bundle.L('本部门及子部门')}]]</a>
+                        <a class="dropdown-item" data-user="99">[[${bundle.L('自定义')}]]</a>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-secondary" data-toggle="dropdown">
+                        <i class="zmdi zmdi-calendar icon"></i>
+                        <span>[[${bundle.L('全部')}]]</span>
+                      </button>
+                      <div class="dropdown-menu J_dash-filter-date">
+                        <a class="dropdown-item" data-date="0">[[${bundle.L('全部')}]]</a>
+                        <a class="dropdown-item" data-date="CUM">[[${bundle.L('本月')}]]</a>
+                        <a class="dropdown-item" data-date="PUM">[[${bundle.L('上月')}]]</a>
+                        <a class="dropdown-item" data-date="CUQ">[[${bundle.L('本季度')}]]</a>
+                        <a class="dropdown-item" data-date="PUQ">[[${bundle.L('上季度')}]]</a>
+                        <a class="dropdown-item" data-date="CUY">[[${bundle.L('本年')}]]</a>
+                        <a class="dropdown-item" data-date="PUY">[[${bundle.L('去年')}]]</a>
+                        <a class="dropdown-item" data-date="99">[[${bundle.L('自定义')}]]</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="col-sm-6 text-right d-none d-md-block dash-right">
+              <div class="col-sm-5 text-right d-none d-md-block dash-right">
                 <div class="btn-group J_darkmode">
                   <button type="button" class="btn btn-link pr-0 text-right">
                     <i class="mdi mdi-weather-sunny icon up-1" style="font-size: 1.45rem"></i>

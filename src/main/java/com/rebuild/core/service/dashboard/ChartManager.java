@@ -163,6 +163,9 @@ public class ChartManager implements ConfigManager {
                         || HeadingText.MYNAME.equals(type) || EmbedFrame.MYNAME.equals(type)) {
                     c.put("extconfig", config);
                 }
+
+                c.put("entity", config.getString("entity"));
+                c.put("filter", config.getJSONObject("filter"));
             }
 
             if (user != null) {

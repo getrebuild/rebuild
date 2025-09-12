@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.api;
 
+import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.ObjectUtils;
@@ -103,7 +104,7 @@ public class ApiGateway extends Controller implements Initialization {
 
         if (RRL.overLimitWhenIncremented("ip:" + remoteIp)) {
             JSON error = formatFailure("Request frequency exceeded", ApiInvokeException.ERR_FREQUENCY);
-            log.error("{} : {}", requestId, error.toJSONString());
+            log.error("ReqId: {}\nReqParams: {}\nRespError: {}", requestId, request.getQueryString(), error.toJSONString());
             ServletUtils.writeJson(response, error.toJSONString());
             return;
         }
@@ -138,13 +139,20 @@ public class ApiGateway extends Controller implements Initialization {
             errorCode = ApiInvokeException.ERR_DATASPEC;
             errorMsg = ex.getLocalizedMessage();
             errorData40 = ex.getRepeatedRecords();
+        } catch (AccessDeniedException ex) {
+            errorCode = ApiInvokeException.ERR_NOPRIV;
+            errorMsg = ex.getLocalizedMessage();
         } catch (Throwable ex) {
             errorCode = Controller.CODE_SERV_ERROR;
-            errorMsg = ThrowableUtils.getRootCause(ex).getLocalizedMessage();
-            log.error("Server Internal Error ({})", requestId, ex);
 
             String knownError = KnownExceptionConverter.convert2ErrorMsg(ex);
-            if (knownError != null) errorMsg = "Server Internal Error : " + knownError;
+            if (knownError == null) {
+                errorMsg = ThrowableUtils.getRootCause(ex).getLocalizedMessage();
+                log.error("ReqId: {}\nReqParams: {}\nRespError: {}", requestId, request.getQueryString(), errorMsg, ex);
+            } else {
+                errorMsg = knownError;
+                log.error("ReqId: {}\nReqParams: {}\nRespError: {}", requestId, request.getQueryString(), errorMsg);
+            }
 
         } finally {
             UserContextHolder.clear();
@@ -158,8 +166,9 @@ public class ApiGateway extends Controller implements Initialization {
         } catch (Exception ignored) {
         }
 
-        log.error("{} : {}", requestId, error.toJSONString());
-        ServletUtils.writeJson(response, error.toJSONString());
+        errorMsg = error.toJSONString();
+        log.error("ReqId: {}\nReqParams: {}\nRespError: {}", requestId, request.getQueryString(), errorMsg);
+        ServletUtils.writeJson(response, errorMsg);
     }
 
     /**

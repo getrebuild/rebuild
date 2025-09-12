@@ -222,7 +222,7 @@ public class RecordTransfomer extends SetUser {
         Record updateSource = EntityHelper.forUpdate(sourceRecordId, UserService.SYSTEM_USER, false);
         updateSource.setID(fillbackField, newId);
 
-        // 4.1.3 配置开放
+        // 4.1.4 (LAB) 配置开放
         int fillbackMode = transConfig.getIntValue("fillbackMode");
         if (fillbackMode == 2 && !EntityHelper.isUnsavedId(newId) && FILLBACK2_ONCE414.get() == null) {
             GeneralEntityServiceContextHolder.setAllowForceUpdate(updateSource.getPrimary());

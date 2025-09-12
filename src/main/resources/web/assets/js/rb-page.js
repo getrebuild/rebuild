@@ -430,6 +430,8 @@ var _checkMessage = function () {
         if (!window.__title) window.__title = document.title
         document.title = '(' + _checkMessage__state + ') ' + window.__title
         _showNotification(_checkMessage__state)
+      } else if (window.__title) {
+        document.title = window.__title
       }
       _loadMessages__state = false
     }
@@ -1313,7 +1315,12 @@ var $pages = function (tp, cp) {
 var $formattedCode = function (c, type) {
   // v4.2
   if (type === 'json') {
-    return JSON.stringify(typeof c === 'object' ? c : JSON.parse(c), null, 2)
+    try {
+      return JSON.stringify(typeof c === 'object' ? c : JSON.parse(c), null, 2)
+    } catch (err) {
+      if (rb.env === 'dev') console.log('Cannot format code : ' + err)
+      // ignored
+    }
   }
 
   if (typeof c === 'object') c = JSON.stringify(c)
@@ -1325,7 +1332,7 @@ var $formattedCode = function (c, type) {
         printWidth: 10,
       })
     } catch (err) {
-      console.log('Cannot format code :', err)
+      console.log('Cannot format code : ' + err)
       return c
     }
   }

@@ -32,8 +32,10 @@ import java.util.List;
 public class EasyReference extends EasyField implements MixValue {
     private static final long serialVersionUID = -5001745527956303569L;
 
-    // 此变量表示当前用户/部门/角色/团队
-    protected static final String VAR_CURRENT = "{CURRENT}";
+    /**
+     * 此变量表示当前用户/部门/角色/团队
+     */
+    public static final String VAR_CURRENT = "{CURRENT}";
 
     protected EasyReference(Field field, DisplayType displayType) {
         super(field, displayType);

@@ -138,7 +138,7 @@ public class GeneralModelController extends EntityController {
         // 指定布局
         ID specLayout = getIdParameter(request, "layout");
         // v4.1 ProTable 携带主实体布局
-        ID followMainLayout = getIdParameter(request, "mainLayout");
+        ID followMainLayout = getIdParameter(request, "mainLayoutId");
         if (followMainLayout != null) {
             FormsBuilderContextHolder.setFromProTable();
             // 明细绑定主实体布局

@@ -361,7 +361,7 @@ class RbForm extends React.Component {
       $$$main: this,
       transDetails: transDetails39 ? transDetails39[detailMeta.entity] : null,
       transDetailsDelete: transDetails39 ? transDetails39[detailMeta.entity + '$DELETED'] : null,
-      mainLayout: this.props.rawModel.layoutId,
+      mainLayoutId: this.props.rawModel.layoutId,
       _disableAutoFillin: this.props._disableAutoFillin,
     }
 
@@ -422,7 +422,7 @@ class RbForm extends React.Component {
             }
 
             const mainid = form.props.id || null
-            $.post(`/app/entity/extras/detail-imports?transid=${item.transid}&mainid=${mainid}`, JSON.stringify(formdata), (res) => {
+            $.post(`/app/entity/extras/detail-imports?transid=${item.transid}&mainid=${mainid}&layoutId=${_ProTable.getLayoutId()}`, JSON.stringify(formdata), (res) => {
               if (res.error_code === 0) {
                 if (autoFields) {
                   typeof cb === 'function' && cb(res.data)
@@ -487,9 +487,9 @@ class RbForm extends React.Component {
 
           <div className="col-8 text-right detail-form-action">
             <div className="fjs-dock"></div>
-            {_detailImports.length > 0 && (
+            {_detailImports.length > 0 && !this.props.readonly && (
               <div className="btn-group mr-2">
-                <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
                   <i className="icon mdi mdi-transfer-down"></i> {$L('导入明细')}
                 </button>
                 <div className="dropdown-menu dropdown-menu-right">
@@ -510,8 +510,8 @@ class RbForm extends React.Component {
               </div>
             )}
 
-            <div className="btn-group J_add-detail">
-              <button className="btn btn-secondary" type="button" onClick={() => _addNew()} disabled={this.props.readonly}>
+            <div className={`btn-group J_add-detail ${this.props.readonly && 'hide'}`}>
+              <button className="btn btn-secondary" type="button" onClick={() => _addNew()}>
                 <i className="icon x14 mdi mdi-playlist-plus mr-1" />
                 {$L('添加明细')}
               </button>
@@ -1470,7 +1470,10 @@ class RbFormNText extends RbFormElement {
       )
     } else {
       let text2 = this.state.value.replace(/</g, '&lt;').replace(/\n/g, '<br/>')
-      if (this.props.useCode) text2 = text2.replace(/\s/g, '&nbsp;')
+      if (this.props.useCode) {
+        text2 = $formattedCode(text2, 'json')
+        text2 = text2.replace(/\n/g, '<br/>') //.replace(/\s/g, '&nbsp;')
+      }
 
       return (
         <RF>
@@ -1482,7 +1485,7 @@ class RbFormNText extends RbFormElement {
             <a title={$L('展开/收起')} onClick={() => $(this._textarea).toggleClass('ntext-expand')}>
               <i className="mdi mdi-arrow-expand" />
             </a>
-            <a ref={(c) => (this._$actionCopy = c)} onClick={() => {}}>
+            <a ref={(c) => (this._$actionCopy = c)}>
               <i className="mdi mdi-content-copy" />
             </a>
           </div>
@@ -1504,7 +1507,10 @@ class RbFormNText extends RbFormElement {
   componentDidMount() {
     super.componentDidMount()
     // fix:4.1
-    if (this.props.onView) $(this._textarea).perfectScrollbar()
+    if (this.props.onView) {
+      $(this._textarea).perfectScrollbar()
+      this._initActionCopy()
+    }
   }
 
   onEditModeChanged(destroy) {
@@ -1555,22 +1561,26 @@ class RbFormNText extends RbFormElement {
       }
     }
 
-    if (this._$actionCopy) {
-      const that = this
-      const initCopy = function () {
-        $clipboard($(that._$actionCopy), that.state.value)
-      }
-      if (window.ClipboardJS) {
-        initCopy()
-      } else {
-        $getScript('/assets/lib/clipboard.min.js', initCopy)
-      }
-    }
+    this._initActionCopy()
   }
 
   setValue(val) {
     super.setValue(val)
     if (this.props.useMdedit) this._EasyMDE.value(val || '')
+  }
+
+  _initActionCopy() {
+    if (!this._$actionCopy) return
+
+    const that = this
+    const initCopy = function () {
+      $clipboard($(that._$actionCopy), that.state.value)
+    }
+    if (window.ClipboardJS) {
+      initCopy()
+    } else {
+      $getScript('/assets/lib/clipboard.min.js', initCopy)
+    }
   }
 
   _initMde() {

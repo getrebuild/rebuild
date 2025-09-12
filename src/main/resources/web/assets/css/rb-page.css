@@ -519,6 +519,7 @@ a.btn {
 .custom-control-label {
   line-height: 1.9;
   color: #444;
+  color: #404040;
 }
 
 .custom-control-sm .custom-control-label {
@@ -890,7 +891,7 @@ body.view-body {
 
 .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field,
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
-  color: #404040;
+  color: #222222;
 }
 
 /* .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
@@ -1083,7 +1084,7 @@ a.link.link-icon::after {
   font-size: 1.6rem;
   font-weight: 400;
   line-height: 35px;
-  color: #404040;
+  color: #222222;
   position: absolute;
   right: 10px;
 }
@@ -1297,7 +1298,7 @@ a.link.link-icon::after {
   position: relative;
   overflow: hidden;
   border: 0 none;
-  color: #404040;
+  color: #222222;
   border-left: 2px solid #ccc;
   border-radius: 2px;
   max-height: 38px;
@@ -1411,7 +1412,7 @@ a.link.link-icon::after {
   top: 0;
   font-size: 1rem;
   font-weight: 700;
-  color: #404040;
+  color: #222222;
   width: 12px;
   height: 32px;
   cursor: pointer;
@@ -2340,6 +2341,7 @@ th.column-fixed {
   display: block;
   padding: 8px 10px;
   color: #444;
+  color: #404040;
 }
 
 .aside-tree > ul > li > a {
@@ -2874,7 +2876,7 @@ form.simple {
 }
 
 .cl-base {
-  color: #404040;
+  color: #222222;
 }
 
 .modal-dialog.selector.show {
@@ -3298,7 +3300,7 @@ a.user-show:not([href]) {
 .form.approval-form .aforms {
   background-color: #f5f5f5;
   border-radius: 2px;
-  padding: 15px;
+  padding: 20px;
   background-color: rgba(230, 230, 230, 0.3);
   box-shadow: inset 0 0 10px rgba(230, 230, 230, 0.6);
 }
@@ -3314,6 +3316,11 @@ a.user-show:not([href]) {
 
 .form.approval-form .aforms .aforms-detail > .rbform + .rbform {
   border-top: 1px solid #eceff1;
+}
+
+.form.approval-form .aforms .form.row > .form-group {
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .form.approval-form .approval-list {
@@ -3349,7 +3356,7 @@ a.user-show:not([href]) {
 }
 
 .form.approval-form .cc-accounts a {
-  color: #404040;
+  color: #222222;
   font-weight: bold;
 }
 
@@ -5032,6 +5039,7 @@ pre.unstyle {
 
 .rbcolors > a.default > i {
   color: #444 !important;
+  color: #404040 !important;
 }
 
 .rbcolors input[type='color'] {
@@ -5499,7 +5507,7 @@ pre.unstyle {
 }
 
 .light-link {
-  color: #404040 !important;
+  color: #222222 !important;
   border-bottom: 1px dotted #4285f4;
 }
 
@@ -5599,6 +5607,10 @@ div.formula-code {
   border-radius: 0;
   line-height: 1.6;
   padding: 4px 10px;
+}
+
+div.formula-code {
+  white-space: pre;
 }
 
 .flatpickr-time input::selection {
@@ -5949,7 +5961,7 @@ div.formula-code {
 }
 
 .notification-list .notification .text {
-  color: #404040 !important;
+  color: #222222 !important;
   font-size: 1rem !important;
 }
 

@@ -125,7 +125,7 @@ $(document).ready(() => {
     } else {
       renderRbcomp(
         <AdvFilter
-          title={$L('附加过滤条件')}
+          title={$L('图表过滤条件')}
           entity={wpc.sourceEntity}
           filter={dataFilter}
           onConfirm={(s) => {
@@ -400,7 +400,7 @@ function add_axis($target, axis) {
       } else {
         renderRbcomp(
           <AdvFilter
-            title={$L('过滤条件')}
+            title={$L('数值过滤条件')}
             entity={wpc.sourceEntity}
             filter={_axisAdvFilters__data[fkey] || null}
             onConfirm={(s) => {
