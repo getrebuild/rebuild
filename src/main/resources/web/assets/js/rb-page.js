@@ -430,6 +430,8 @@ var _checkMessage = function () {
         if (!window.__title) window.__title = document.title
         document.title = '(' + _checkMessage__state + ') ' + window.__title
         _showNotification(_checkMessage__state)
+      } else if (window.__title) {
+        document.title = window.__title
       }
       _loadMessages__state = false
     }

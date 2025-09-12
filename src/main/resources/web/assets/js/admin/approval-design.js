@@ -224,7 +224,7 @@ class SimpleNode extends NodeSpec {
       // if (data.allowBatch) descs.push($L('允许批量'))
       descs.push(data.signMode === 'AND' ? $L('会签') : data.signMode === 'ALL' ? $L('依次审批') : $L('或签'))
       if (data.expiresAuto && ~~data.expiresAuto.expiresAuto > 0) descs.push($L('限时审批'))
-      if (~~data.editableMode > 0) descs.push($L('可修改记录'))
+      if (~~data.editableMode > 0 || (data.editableFields || []).length > 0) descs.push($L('记录可修改'))
     } else if (this.nodeType === 'start') {
       if (data.unallowCancel) descs.push($L('禁止撤回'))
     }
