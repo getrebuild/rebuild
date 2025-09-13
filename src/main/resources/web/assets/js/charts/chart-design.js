@@ -683,7 +683,7 @@ class DlgBgcolor extends RbAlert {
 
   renderContent() {
     let c = []
-    for (let i = 1; i < 100; i++) {
+    for (let i = 1; i < 57; i++) {
       c.push(<a key={i} className={`gradient-bg-${i}`} onClick={() => this._onConfirm(i)}></a>)
     }
     return <div className="gradient-bg-list">{c}</div>
