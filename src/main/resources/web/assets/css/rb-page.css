@@ -5574,7 +5574,11 @@ pre.unstyle {
   min-width: 120px;
   display: block;
   line-height: 1;
-  outline-color: #bdc0c7;
+}
+
+.rsheetb-table td > span:focus {
+  outline-width: 1px;
+  outline-color: var(--rb-color);
 }
 
 .rsheetb-table tr > th:first-child,

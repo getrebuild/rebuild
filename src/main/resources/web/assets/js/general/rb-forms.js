@@ -543,7 +543,7 @@ class RbForm extends React.Component {
                     const mainid = this.state.id || '000-0000000000000000'
                     renderRbcomp(
                       // eslint-disable-next-line react/jsx-no-undef
-                      <ExcelClipboardDataModal entity={detailMeta.entity} fields={fields} mainid={mainid} onConfirm={(data) => _setLines(data)} />
+                      <ExcelClipboardDataModal entity={detailMeta.entity} fields={fields} mainid={mainid} layoutId={_ProTable.getLayoutId()} onConfirm={(data) => _setLines(data)} />
                     )
                   }}>
                   {$L('从 Excel 添加')} <sup className="rbv" />
