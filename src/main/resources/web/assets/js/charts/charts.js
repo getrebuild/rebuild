@@ -1948,7 +1948,7 @@ class MyNotification extends BaseChart {
           )}
           {item[3] && (
             <a className="read-mark text-muted">
-              <i className="icon zmdi zmdi-check text-bold" /> {$L('点击已读')}
+              <i className="icon zmdi zmdi-check text-bold" /> {$L('设为已读')}
             </a>
           )}
         </span>
