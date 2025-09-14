@@ -3433,11 +3433,7 @@ class RbFormTag extends RbFormElement {
 
     let options = [...props.options]
     let selected = []
-    if (this._isNew) {
-      props.options.forEach((item) => {
-        if (item.default) selected.push(item.name)
-      })
-    } else if (this.state.value) {
+    if (this.state.value && this.state.value.length > 0) {
       let value = this.state.value
       if (typeof value === 'string') value = value.split('$$$$') // Save after
 
@@ -3445,6 +3441,10 @@ class RbFormTag extends RbFormElement {
         selected.push(name)
         const found = props.options.find((x) => x.name === name)
         if (!found) options.push({ name: name })
+      })
+    } else if (this._isNew) {
+      props.options.forEach((item) => {
+        if (item.default) selected.push(item.name)
       })
     }
     this._options = options
