@@ -22,6 +22,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.EasyText;
+import com.rebuild.core.metadata.easymeta.PatternValue;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
@@ -75,6 +76,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
     @Override
     public boolean setFieldValue(Field field, String value, Record record) {
         final Type fieldType = field.getType();
+
         // v4.0 处理 CURRENT 变量
         if (FieldValueHelper.CURRENT.equals(value) || "{@CURRENT}".equals(value)) {
             if (fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP || fieldType == FieldType.TIME) {
@@ -100,6 +102,18 @@ public class EntityRecordCreator extends JsonRecordCreator {
                 value = value.replace("年", "-").replace("月", "");
             } else {
                 value = value.replace("年", "");
+            }
+        }
+
+        // v4.2 验证格式
+        if (value != null) {
+            EasyField easyField = EasyMetaFactory.valueOf(field);
+            if (easyField instanceof PatternValue) {
+                boolean s = ((PatternValue) easyField).checkPattern(value);
+                if (!s) {
+                    log.warn("Value `{}` cannot be set : {}", value, field);
+                    value = null;
+                }
             }
         }
 
