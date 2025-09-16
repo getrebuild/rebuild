@@ -19,3 +19,8 @@ Copyright (c) Ruifang Tech <http://ruifang-tech.com/> and/or its owners. All rig
 .navbar-more41 .dropdown-menu a {
   color: inherit;
 }
+
+.rb-icons-nav > li.dropdown > a .indicator:not(:empty) {
+  background-color: #eee;
+  color: #737373;
+}

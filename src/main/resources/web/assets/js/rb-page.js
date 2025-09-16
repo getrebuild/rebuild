@@ -421,8 +421,12 @@ var _checkMessage = function () {
     if (res.error_code > 0) return
 
     $('.J_top-notifications .badge').text(res.data.unread)
-    if (res.data.unread > 0) $('.J_top-notifications .indicator').removeClass('hide')
-    else $('.J_top-notifications .indicator').addClass('hide')
+    if (res.data.unread > 0) {
+      $('.J_top-notifications .indicator').removeClass('hide')
+      if (window.__LAB_SHOW_INDICATORNUM42) $('.J_top-notifications .indicator').text(res.data.unread)
+    } else {
+      $('.J_top-notifications .indicator').addClass('hide').text('')
+    }
 
     if (_checkMessage__state !== res.data.unread) {
       _checkMessage__state = res.data.unread
