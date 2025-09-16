@@ -423,7 +423,7 @@ var _checkMessage = function () {
     $('.J_top-notifications .badge').text(res.data.unread)
     if (res.data.unread > 0) {
       $('.J_top-notifications .indicator').removeClass('hide')
-      if (window.__LAB_SHOW_INDICATORNUM42) $('.J_top-notifications .indicator').text(res.data.unread)
+      if (window.__LAB_SHOW_INDICATORNUM42) $('.J_top-notifications .indicator').text(res.data.unread > 9999 ? '9999+' : res.data.unread)
     } else {
       $('.J_top-notifications .indicator').addClass('hide').text('')
     }
