@@ -81,7 +81,16 @@ class RbViewForm extends React.Component {
               if (item.field === TYPE_DIVIDER && item.collapsed) {
                 item.ref = (c) => _dividerRefs.push(c)
               }
-              return detectViewElement(item, this.props.entity)
+
+              const fieldComp = detectViewElement(item, this.props.entity)
+              if (window.FrontJS) {
+                let fieldKey = this.props.entity + '.' + item.field
+                const enable42 = window.FrontJS.View.__fieldCopys.includes(fieldKey)
+                if (enable42) {
+                  return React.cloneElement(fieldComp, { dataCopy: true })
+                }
+              }
+              return fieldComp
             })}
           </div>
         </RF>

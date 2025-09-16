@@ -136,6 +136,7 @@ module.exports = {
     $formattedCode: true,
     CodeViewport: true,
     $clipboard: true,
+    $clipboard2: true,
     $getScript: true,
     $sec2Time: true,
     $removeHtml: true,

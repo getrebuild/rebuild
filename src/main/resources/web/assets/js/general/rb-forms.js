@@ -1007,7 +1007,19 @@ class RbFormElement extends React.Component {
 
   componentDidMount() {
     const props = this.props
-    if (!props.onView) {
+    if (props.onView) {
+      if (props.dataCopy && this._fieldValue) {
+        const $text = $(this._fieldValue)
+          .attr({
+            'data-copy': true,
+            'title': $L('点击复制'),
+          })
+          .on('click', (e) => {
+            $stopEvent(e, true)
+            $clipboard2($text.text(), true)
+          })
+      }
+    } else {
       // 必填字段
       if (!this.state.nullable && $empty(props.value) && props.readonlyw !== 2 && props.unreadable !== true) {
         props.$$$parent.setFieldValue(props.field, null, $L('%s不能为空', props.label))
@@ -1050,7 +1062,11 @@ class RbFormElement extends React.Component {
     let value = arguments.length > 0 ? arguments[0] : this.state.value
     if (value && $empty(value)) value = null
 
-    return <div className="form-control-plaintext">{value || <span className="text-muted">{$L('无')}</span>}</div>
+    return (
+      <div className="form-control-plaintext" ref={(c) => (this._fieldValue = c)}>
+        {value || <span className="text-muted">{$L('无')}</span>}
+      </div>
+    )
   }
 
   /**

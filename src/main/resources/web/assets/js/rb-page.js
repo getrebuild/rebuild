@@ -1364,6 +1364,28 @@ var $clipboard = function ($el, text) {
   })
 }
 
+// 复制
+var $clipboard2 = function (text, tips) {
+  if (navigator.clipboard) {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        tips && RbHighbar.success($L('已复制'))
+      })
+      .catch((err) => {
+        console.log('Cannot copy text :', err)
+      })
+  } else {
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textarea)
+    tips && RbHighbar.success($L('已复制'))
+  }
+}
+
 // 格式化秒显示
 function $sec2Time(s) {
   if (!s || ~~s <= 0) return '00:00'

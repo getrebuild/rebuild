@@ -1683,6 +1683,11 @@ i.dividing.ui-draggable-dragging {
   max-width: 1000px;
 }
 
+.data-list .table td[data-copy]:hover {
+  cursor: pointer !important;
+  font-weight: bold !important;
+}
+
 .data-list .table td.td-sm,
 .data-list .table tbody tr td.user-avatar {
   padding: 3px 10px;

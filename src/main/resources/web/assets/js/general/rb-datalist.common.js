@@ -1265,7 +1265,6 @@ class RbList extends React.Component {
       type = '$NAME$'
     }
 
-    // @see rb-datalist.common.js
     const c = CellRenders.render(cellVal, type, width, `${cellKey}.${field.field}`)
     // v4.1 快捷编辑
     const cProps = {}
@@ -1713,18 +1712,35 @@ const CellRenders = {
   // 单元格渲染
   render(value, type, width, key) {
     const style2 = { width: width || _DL_COLUMN_MIN_WIDTH }
+    let fieldKey = null
     if (window.FrontJS && wpc.entity) {
-      let fieldKey = key.split('.').slice(1)
+      fieldKey = key.split('.').slice(1)
       fieldKey = `${wpc.entity[0]}.${fieldKey.join('.')}`
-      const fn = window.FrontJS.DataList.__cellRenders[fieldKey]
-      if (typeof fn === 'function') {
-        const fnRet = fn(value, style2, key)
+
+      const _FN = window.FrontJS.DataList.__cellRenders[fieldKey]
+      if (typeof _FN === 'function') {
+        const fnRet = _FN(value, style2, key)
         if (fnRet !== false) return fnRet
       }
     }
 
     if (!value) return this.renderSimple(value, style2, key)
-    else return (this.__RENDERS[type] || this.renderSimple)(value, style2, key)
+
+    const cellComp = (this.__RENDERS[type] || this.renderSimple)(value, style2, key)
+    if (fieldKey && window.FrontJS && wpc.entity) {
+      const enable42 = window.FrontJS.DataList.__cellCopys.includes(fieldKey)
+      if (enable42) {
+        return React.cloneElement(cellComp, {
+          'data-copy': true,
+          title: $L('点击复制'),
+          onClick: (e) => {
+            $stopEvent(e, true)
+            $clipboard2($(e.currentTarget).text(), true)
+          },
+        })
+      }
+    }
+    return cellComp
   },
 
   /**
