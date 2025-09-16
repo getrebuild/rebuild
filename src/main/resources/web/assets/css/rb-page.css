@@ -1688,8 +1688,9 @@ i.dividing.ui-draggable-dragging {
   max-width: 1000px;
 }
 
-.data-list .table td[data-copy]:hover {
-  cursor: pointer !important;
+.data-list .table td[data-copy]:hover,
+.data-list .table td[data-copy]:hover .badge {
+  cursor: pointer;
   font-weight: bold !important;
 }
 
