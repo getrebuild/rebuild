@@ -1592,6 +1592,11 @@ a.link.link-icon::after {
   background-color: #fff;
 }
 
+.data-list .table.table-bordered42 td,
+.data-list .table.table-bordered42 th {
+  border-right: 1px solid #dee2e6;
+}
+
 .data-list .table thead th.column-checkbox > div > .custom-control.custom-control-sm {
   margin-top: -19px;
 }

@@ -1006,7 +1006,7 @@ class RbList extends React.Component {
         <div className="row rb-datatable-body">
           <div className="col-sm-12">
             <div className="rb-scroller" ref={(c) => (this._$scroller = c)}>
-              <table className="table table-hover table-striped">
+              <table className={`table table-hover table-striped ${window.__LAB_DATALIST_BORDERED42 && 'table-bordered42'}`}>
                 <thead>
                   <tr>
                     {this.props.uncheckbox !== true && (
