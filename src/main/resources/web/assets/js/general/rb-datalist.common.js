@@ -43,8 +43,7 @@ const AdvFilters = {
       ) {
         return
       }
-
-      if (this.__customAdv) {
+      if (this.__customAdv && !this.__$customAdvWrap.hasClass('hide')) {
         this.__$customAdvWrap.addClass('hide')
       }
     })
