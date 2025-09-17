@@ -943,6 +943,43 @@ var $initReferenceSelect2 = function (el, option) {
   return $(el).select2(select2Option)
 }
 
+// 搜索 text/id
+// https://select2.org/searching#customizing-how-results-are-matched
+var $select2MatcherAll = function (params, data) {
+  if ($trim(params.term) === '') {
+    return data
+  }
+  if (typeof data.text === 'undefined') {
+    return null
+  }
+
+  // 匹配
+  function _FN(item, s) {
+    s = s.toLowerCase()
+    if ((item.text || '').toLowerCase().indexOf(s) > -1 || (item.id || '').toLowerCase().indexOf(s) > -1) return true
+    // v4.2
+    var pinyin = $(item.element).data('pinyin')
+    return pinyin && pinyin.toLowerCase().indexOf(s) > -1
+  }
+
+  if (data.children) {
+    var ch = data.children.filter(function (item) {
+      return _FN(item, params.term)
+    })
+    if (ch.length === 0) return null
+
+    var data2 = $.extend({}, data, true)
+    data2.children = ch
+    return data2
+  } else {
+    if (_FN(data, params.term, data.element)) {
+      return data
+    }
+  }
+
+  return null
+}
+
 /**
  * 保持模态窗口（如果需要）
  */
@@ -1233,43 +1270,6 @@ var $getScript = function (url, callback) {
       }
     },
   })
-}
-
-// 搜索 text/id
-// https://select2.org/searching#customizing-how-results-are-matched
-var $select2MatcherAll = function (params, data) {
-  if ($trim(params.term) === '') {
-    return data
-  }
-  if (typeof data.text === 'undefined') {
-    return null
-  }
-
-  // 匹配
-  function _FN(item, s) {
-    s = s.toLowerCase()
-    if ((item.text || '').toLowerCase().indexOf(s) > -1 || (item.id || '').toLowerCase().indexOf(s) > -1) return true
-    // v4.2
-    var pinyin = $(item.element).data('pinyin')
-    return pinyin && pinyin.toLowerCase().indexOf(s) > -1
-  }
-
-  if (data.children) {
-    var ch = data.children.filter(function (item) {
-      return _FN(item, params.term)
-    })
-    if (ch.length === 0) return null
-
-    var data2 = $.extend({}, data, true)
-    data2.children = ch
-    return data2
-  } else {
-    if (_FN(data, params.term, data.element)) {
-      return data
-    }
-  }
-
-  return null
 }
 
 // 绝对 URL

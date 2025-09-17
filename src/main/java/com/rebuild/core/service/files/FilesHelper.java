@@ -12,16 +12,21 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.LRUMap;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -32,6 +37,7 @@ import java.util.Set;
  *
  * @author ZHAO
  * @since 2019/11/12
+ * @see QiniuCloud
  */
 public class FilesHelper {
 
@@ -198,5 +204,70 @@ public class FilesHelper {
         Object[] o = Application.getQueryFactory().uniqueNoFilter(fileId, "inFolder");
         if (o == null || o[0] == null) return true;
         return getAccessableFolders(user).contains((ID) o[0]);
+    }
+
+    /**
+     * 移动/重命名文件
+     *
+     * @param fileKey
+     * @param newFileKey
+     * @return
+     * @throws IOException
+     */
+    public static boolean moveFile(String fileKey, String newFileKey) throws IOException {
+        return moveFile(fileKey, newFileKey, null);
+    }
+
+    /**
+     * 移动/重命名文件
+     *
+     * @param fileKey
+     * @param newFileKey
+     * @param updateAttachment
+     * @return
+     * @throws IOException
+     */
+    public static boolean moveFile(String fileKey, String newFileKey, ID updateAttachment) throws IOException {
+        if (QiniuCloud.instance().available()) {
+            QiniuCloud.instance().move(newFileKey, fileKey);
+        } else {
+            File src = RebuildConfiguration.getFileOfData(fileKey);
+            // 移动两次，解决字母大小写问题
+            File destTmp = RebuildConfiguration.getFileOfData(newFileKey + ".tmp");
+            File dest = RebuildConfiguration.getFileOfData(newFileKey);
+            FileUtils.moveFile(src, destTmp);
+            FileUtils.moveFile(destTmp, dest);
+        }
+
+        // 顺便更新附件表
+        if (updateAttachment != null) {
+            Record r = EntityHelper.forUpdate(updateAttachment, UserContextHolder.getUser());
+            r.setString("filePath", newFileKey);
+            String newName = QiniuCloud.parseFileName(newFileKey);
+            r.setString("fileName", newName);
+            String extName = FilenameUtils.getExtension(newName);
+            r.setString("fileType", CommonsUtils.maxstr(extName, 10));
+            Application.getCommonsService().update(r, false);
+        }
+        return true;
+    }
+
+    /**
+     * 复制文件
+     *
+     * @param fileKey
+     * @param toFileKey
+     * @return
+     * @throws IOException
+     */
+    public static boolean copyFile(String fileKey, String toFileKey) throws IOException {
+        if (QiniuCloud.instance().available()) {
+            QiniuCloud.instance().copy(fileKey, toFileKey);
+        } else {
+            File src = RebuildConfiguration.getFileOfData(fileKey);
+            File dest = RebuildConfiguration.getFileOfData(toFileKey);
+            FileUtils.copyFile(src, dest);
+        }
+        return true;
     }
 }

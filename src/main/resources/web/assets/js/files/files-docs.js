@@ -491,14 +491,14 @@ class FilesList4Docs extends FilesList {
       <div className="info position-relative">
         <span className="fop-action">
           <a title={$L('修改')} onClick={(e) => this._handleEdit(item, e)}>
-            <i className="icon mdi mdi-square-edit-outline fs-17" />
+            <i className="icon mdi mdi-square-edit-outline" />
           </a>
           <a title={$L('下载')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/files/download?id=${item.id}`} target="_blank">
-            <i className="icon zmdi zmdi-download fs-17" />
+            <i className="icon zmdi zmdi-download" />
           </a>
           {rb.fileSharable && (
             <a title={$L('分享')} onClick={(e) => this._handleShare(item, e)}>
-              <i className="icon zmdi zmdi-share up-1" />
+              <i className="icon zmdi zmdi-share fs-16 up-1" />
             </a>
           )}
         </span>

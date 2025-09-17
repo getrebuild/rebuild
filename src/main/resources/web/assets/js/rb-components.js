@@ -1483,6 +1483,55 @@ class AsideTree extends React.Component {
   }
 }
 
+// ~~ 文件重命名
+class FileRename extends RbAlert {
+  constructor(props) {
+    super(props)
+    this.__fileName = $fileCutName(this.props.fileKey)
+  }
+
+  renderContent() {
+    return (
+      <form className="rbalert-form-sm">
+        <div className="form-group">
+          <label>{$L('重命名')}</label>
+          <input type="text" className="form-control form-control-sm" defaultValue={this.__fileName} placeholder={this.__fileName} ref={(c) => (this._$fileName = c)} maxLength="100" />
+        </div>
+        <div className="form-group mb-1">
+          <button disabled={this.state.disabled} type="button" className="btn btn-space btn-primary" onClick={(e) => this.handleConfirm(e)}>
+            {$L('确定')}
+          </button>
+        </div>
+      </form>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    // 选择
+  }
+
+  handleConfirm(e) {
+    const newName = $val(this._$fileName)
+    if (newName && this.__fileName !== newName) {
+      typeof this.props.onConfirm === 'function' && this.props.onConfirm(newName, this)
+    } else {
+      typeof this.props.onConfirm === 'function' && this.props.onConfirm(null) // Nochangs
+      this.hide()
+    }
+  }
+
+  // -- Usage
+
+  /**
+   * @param {*} fileKey
+   * @param {*} onConfirm
+   */
+  static create(fileKey, onConfirm) {
+    renderRbcomp(<FileRename fileKey={fileKey} onConfirm={onConfirm} />)
+  }
+}
+
 /**
  * JSX 组件渲染
  *

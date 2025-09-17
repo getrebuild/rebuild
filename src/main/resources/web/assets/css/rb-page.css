@@ -1197,15 +1197,21 @@ a.link.link-icon::after {
   position: absolute;
   right: 0;
   top: 0;
-  font-size: 1.15rem;
+  font-size: 1rem;
   color: #fff;
   cursor: default;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.4);
   text-align: center;
   display: none;
-  width: 18px;
-  height: 19px;
-  line-height: 19px;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+}
+
+.img-field a.img-upload b + b,
+.img-field label.img-upload b + b,
+.file-field .img-thumbnail b + b {
+  right: 17px;
 }
 
 .img-field.drop .inputfile + label,

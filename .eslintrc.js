@@ -162,5 +162,6 @@ module.exports = {
     $focus2End: true,
     RecordSelectorModal: true,
     $fetchMetaInfo: true,
+    FileRename: true,
   },
 }

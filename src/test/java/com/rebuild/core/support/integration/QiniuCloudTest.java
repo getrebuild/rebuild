@@ -47,7 +47,7 @@ public class QiniuCloudTest extends TestSupport {
         String downloadUrl = QiniuCloud.instance().makeUrl(uploadKey);
         System.out.println("download url ... " + downloadUrl);
 
-        File temp = QiniuCloud.getStorageFile(uploadKey);
+        File temp = QiniuCloud.downloadFile(uploadKey);
         System.out.println("downloaded file ... " + temp);
 
         QiniuCloud.instance().delete(uploadKey);
@@ -71,8 +71,8 @@ public class QiniuCloudTest extends TestSupport {
     }
 
     @Test
-    void getStorageFile() throws IOException {
-        File file = QiniuCloud.getStorageFile("https://cn.bing.com/th?id=OHR.LowerAntelopeAZ_ZH-CN4758496750_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp");
+    void downloadFile() throws IOException {
+        File file = QiniuCloud.downloadFile("https://cn.bing.com/th?id=OHR.LowerAntelopeAZ_ZH-CN4758496750_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp");
         System.out.println(file);
     }
 }
