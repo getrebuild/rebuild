@@ -97,7 +97,7 @@ $(document).ready(() => {
           if (res.error_code === 0 && res.data.country !== 'N') {
             L = res.data.country === 'R' ? $L('局域网') : [res.data.region, res.data.country].join(', ')
           }
-          $(`<span class="ml-1" title="${ip}">(${L})</span>`).appendTo($login)
+          $(`<span class="ml-1" title="${ip}"></span>`).text(`(${L})`).appendTo($login)
         })
       }
 
