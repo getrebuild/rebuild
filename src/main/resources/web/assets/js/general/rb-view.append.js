@@ -394,15 +394,15 @@ class LightAttachmentList extends RelatedList {
                 onClick={(e) => {
                   $stopEvent(e)
                   FileRename.create(item.fileName, (newName, dlg) => {
-                    if (!newName) return
-                    dlg && dlg.disabled(true)
+                    if (!newName || !dlg) return
+                    dlg.disabled(true)
                     $.post(`/app/entity/extras/file-rename?newName=${$encode(newName)}&id=${$encode(item.id)}&fieldBelong=${item.belongField}:${item.relatedRecord[0]}`, (res) => {
                       if (res.error_code === 0) {
                         // this.fetchData()
                         location.reload()
                       } else {
                         RbHighbar.error(res.error_msg)
-                        dlg && dlg.disabled(false)
+                        dlg.disabled(false)
                       }
                     })
                   })

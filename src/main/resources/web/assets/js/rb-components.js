@@ -1491,11 +1491,21 @@ class FileRename extends RbAlert {
   }
 
   renderContent() {
+    const isOffice = this.props.fileId && ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes($fileExtName(this.__fileName))
     return (
       <form className="rbalert-form-sm">
         <div className="form-group">
-          <label>{$L('重命名')}</label>
+          <label className="text-bold">{$L('重命名')}</label>
           <input type="text" className="form-control form-control-sm" defaultValue={this.__fileName} placeholder={this.__fileName} ref={(c) => (this._$fileName = c)} maxLength="100" />
+          {isOffice && (
+            <div className="mt-2">
+              <a href={`${rb.baseUrl}/commons/file-editor?src=${this.props.fileId}`} target="_blank">
+                <i className="mdi mdi-microsoft-office icon" />
+                &nbsp;
+                {$L('在线编辑')} (LAB)
+              </a>
+            </div>
+          )}
         </div>
         <div className="form-group mb-1">
           <button disabled={this.state.disabled} type="button" className="btn btn-space btn-primary" onClick={(e) => this.handleConfirm(e)}>

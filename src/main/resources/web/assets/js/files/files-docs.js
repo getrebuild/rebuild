@@ -417,68 +417,6 @@ class FileMoveDlg extends RbFormHandler {
   }
 }
 
-// ~ 修改
-class FileEditDlg extends RbFormHandler {
-  state = { ...this.props }
-
-  render() {
-    const file = this.props.file
-    const isOffice = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes($fileExtName(file.fileName))
-    return (
-      <RbModal title={$L('修改文件')} ref={(c) => (this._dlg = c)} disposeOnHide>
-        <div className="form">
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('重命名')}</label>
-            <div className="col-sm-7">
-              <input className="form-control form-control-sm" defaultValue={file.fileName} ref={(c) => (this._$fileName = c)} />
-            </div>
-          </div>
-          {isOffice && (
-            <div className="form-group row p-0">
-              <label className="col-sm-3 col-form-label text-sm-right" />
-              <div className="col-sm-7">
-                <div className="form-control-plaintext">
-                  <a href={`${rb.baseUrl}/commons/file-editor?src=${file.id}`} target="_blank">
-                    <i className="mdi mdi-microsoft-office icon" />
-                    &nbsp;
-                    {$L('在线编辑')}
-                  </a>
-                </div>
-              </div>
-            </div>
-          )}
-          <div className="form-group row footer">
-            <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
-              <button className="btn btn-primary" type="button" onClick={this._post}>
-                {$L('确定')}
-              </button>
-              <a className="btn btn-link" onClick={this.hide}>
-                {$L('取消')}
-              </a>
-            </div>
-          </div>
-        </div>
-      </RbModal>
-    )
-  }
-
-  _post = () => {
-    const newName = $val(this._$fileName)
-    if (!newName) return
-
-    this.disabled(true)
-    $.post(`/files/file-edit?newName=${$encode(newName)}&id=${this.props.file.id}`, (res) => {
-      if (res.error_code === 0) {
-        this.hide()
-        filesList && filesList.loadData()
-      } else {
-        RbHighbar.error(res.error_msg)
-        this.disabled()
-      }
-    })
-  }
-}
-
 // eslint-disable-next-line no-undef
 class FilesList4Docs extends FilesList {
   constructor(props) {
@@ -507,8 +445,26 @@ class FilesList4Docs extends FilesList {
   }
 
   _handleEdit(item, e) {
-    $stopEvent(e)
-    renderRbcomp(<FileEditDlg file={item} />)
+    $stopEvent(e, true)
+    renderRbcomp(
+      <FileRename
+        fileId={item.id}
+        fileKey={item.fileName}
+        onConfirm={(newName, dlg) => {
+          if (!newName || !dlg) return
+          dlg.disabled(true)
+          $.post(`/files/file-edit?newName=${$encode(newName)}&id=${item.id}`, (res) => {
+            if (res.error_code === 0) {
+              dlg.hide()
+              filesList && filesList.loadData()
+            } else {
+              RbHighbar.error(res.error_msg)
+              dlg.disabled()
+            }
+          })
+        }}
+      />
+    )
   }
 
   _handleShare(item, e) {
