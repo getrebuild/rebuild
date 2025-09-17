@@ -441,7 +441,7 @@ public class EasyExcelGenerator extends SetUser {
             for (Object path : paths) {
                 File temp;
                 try {
-                    temp = QiniuCloud.getStorageFile((String) path);
+                    temp = QiniuCloud.downloadFile((String) path);
                 } catch (RebuildException ex) {
                     log.warn(ex.getMessage());
                     continue;

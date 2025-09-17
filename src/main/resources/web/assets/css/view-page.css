@@ -111,6 +111,12 @@ body {
   min-height: 37px;
 }
 
+.rbview-form .form-control-plaintext[data-copy]:hover,
+.rbview-form .form-control-plaintext[data-copy]:hover .badge {
+  cursor: pointer;
+  font-weight: bold !important;
+}
+
 .rbview-form .type-NTEXT .form-control-plaintext {
   max-height: 72px;
   position: relative;

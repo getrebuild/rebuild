@@ -136,6 +136,7 @@ module.exports = {
     $formattedCode: true,
     CodeViewport: true,
     $clipboard: true,
+    $clipboard2: true,
     $getScript: true,
     $sec2Time: true,
     $removeHtml: true,
@@ -161,5 +162,6 @@ module.exports = {
     $focus2End: true,
     RecordSelectorModal: true,
     $fetchMetaInfo: true,
+    FileRename: true,
   },
 }

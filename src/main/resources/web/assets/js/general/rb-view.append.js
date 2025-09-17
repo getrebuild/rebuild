@@ -388,8 +388,30 @@ class LightAttachmentList extends RelatedList {
         </div>
         <div className="info position-relative">
           <span className="fop-action">
+            {window.__LAB_FILE_RENAME42 && (
+              <a
+                title={$L('重命名')}
+                onClick={(e) => {
+                  $stopEvent(e)
+                  FileRename.create(item.fileName, (newName, dlg) => {
+                    if (!newName || !dlg) return
+                    dlg.disabled(true)
+                    $.post(`/app/entity/extras/file-rename?newName=${$encode(newName)}&id=${$encode(item.id)}&fieldBelong=${item.belongField}:${item.relatedRecord[0]}`, (res) => {
+                      if (res.error_code === 0) {
+                        // this.fetchData()
+                        location.reload()
+                      } else {
+                        RbHighbar.error(res.error_msg)
+                        dlg.disabled(false)
+                      }
+                    })
+                  })
+                }}>
+                <i className="icon mdi mdi-square-edit-outline" />
+              </a>
+            )}
             <a title={$L('下载')} href={`${rb.baseUrl}/files/download?id=${item.id}`} target="_blank">
-              <i className="icon zmdi zmdi-download fs-17" />
+              <i className="icon zmdi zmdi-download" />
             </a>
             {rb.fileSharable && (
               <a
@@ -399,7 +421,7 @@ class LightAttachmentList extends RelatedList {
                   // eslint-disable-next-line react/jsx-no-undef
                   renderRbcomp(<FileShare file={item.id} />)
                 }}>
-                <i className="icon zmdi zmdi-share up-1" />
+                <i className="icon zmdi zmdi-share fs-16 up-1" />
               </a>
             )}
           </span>

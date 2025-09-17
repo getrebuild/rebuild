@@ -20,18 +20,14 @@ import java.util.regex.PatternSyntaxException;
  * @since 2020/11/17
  */
 @Slf4j
-public class EasyText extends EasyField {
+public class EasyText extends EasyField implements PatternValue {
     private static final long serialVersionUID = -244546170269555223L;
 
     protected EasyText(Field field, DisplayType displayType) {
         super(field, displayType);
     }
 
-    /**
-     * 文本字段正则表达式
-     *
-     * @return
-     */
+    @Override
     public Pattern getPattern() {
         String patt = getExtraAttr(EasyFieldConfigProps.ADV_PATTERN);
         if (StringUtils.isNotBlank(patt)) {

@@ -29,6 +29,7 @@ import com.rebuild.core.metadata.easymeta.EasyDateTime;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.MultiValue;
+import com.rebuild.core.metadata.easymeta.PatternValue;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
@@ -659,8 +660,13 @@ public class FieldWriteback extends FieldAggregation {
             }
 
         } else {
-            // TODO 验证字段格式
             newValue = value.toString();
+
+            // v4.2 验证格式
+            if (field instanceof PatternValue) {
+                boolean s = ((PatternValue) field).checkPattern((String) newValue);
+                if (!s) newValue = null;
+            }
         }
 
         if (newValue == null) {

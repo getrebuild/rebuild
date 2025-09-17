@@ -544,7 +544,7 @@ class ExcelFieldsPreview extends RbModal {
 }
 
 function _checkRename(name, cb) {
-  $.get(`/commons/metadata/entities?detail=true`, (res) => {
+  $.get('/commons/metadata/entities?detail=true', (res) => {
     let rename = false
     res.data &&
       res.data.forEach((item) => {

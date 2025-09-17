@@ -1197,15 +1197,21 @@ a.link.link-icon::after {
   position: absolute;
   right: 0;
   top: 0;
-  font-size: 1.15rem;
+  font-size: 1rem;
   color: #fff;
   cursor: default;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.4);
   text-align: center;
   display: none;
-  width: 18px;
-  height: 19px;
-  line-height: 19px;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+}
+
+.img-field a.img-upload b + b,
+.img-field label.img-upload b + b,
+.file-field .img-thumbnail b + b {
+  right: 17px;
 }
 
 .img-field.drop .inputfile + label,
@@ -1592,6 +1598,11 @@ a.link.link-icon::after {
   background-color: #fff;
 }
 
+.data-list .table.table-bordered42 td,
+.data-list .table.table-bordered42 th {
+  border-right: 1px solid #dee2e6;
+}
+
 .data-list .table thead th.column-checkbox > div > .custom-control.custom-control-sm {
   margin-top: -19px;
 }
@@ -1681,6 +1692,12 @@ i.dividing.ui-draggable-dragging {
 .data-list .table td,
 .data-list .table td > div.nmw {
   max-width: 1000px;
+}
+
+.data-list .table td[data-copy]:hover,
+.data-list .table td[data-copy]:hover .badge {
+  cursor: pointer;
+  font-weight: bold !important;
 }
 
 .data-list .table td.td-sm,
@@ -5574,7 +5591,11 @@ pre.unstyle {
   min-width: 120px;
   display: block;
   line-height: 1;
-  outline-color: #bdc0c7;
+}
+
+.rsheetb-table td > span:focus {
+  outline-width: 1px;
+  outline-color: var(--rb-color);
 }
 
 .rsheetb-table tr > th:first-child,
@@ -6046,4 +6067,19 @@ div.formula-code {
 .modal-header .close[disabled] {
   color: #aaa !important;
   opacity: 0.5 !important;
+}
+
+.rb-icons-nav > li.dropdown > a .indicator:not(:empty) {
+  background-color: #ea4335 !important;
+  color: #fff;
+  height: 14px;
+  min-width: 14px;
+  line-height: 14px;
+  width: auto;
+  text-align: center;
+  padding: 0 3px;
+  right: unset;
+  left: 24px;
+  font-size: 10px;
+  border-radius: 10rem;
 }

@@ -543,7 +543,7 @@ class RbForm extends React.Component {
                     const mainid = this.state.id || '000-0000000000000000'
                     renderRbcomp(
                       // eslint-disable-next-line react/jsx-no-undef
-                      <ExcelClipboardDataModal entity={detailMeta.entity} fields={fields} mainid={mainid} onConfirm={(data) => _setLines(data)} />
+                      <ExcelClipboardDataModal entity={detailMeta.entity} fields={fields} mainid={mainid} layoutId={_ProTable.getLayoutId()} onConfirm={(data) => _setLines(data)} />
                     )
                   }}>
                   {$L('从 Excel 添加')} <sup className="rbv" />
@@ -1007,7 +1007,19 @@ class RbFormElement extends React.Component {
 
   componentDidMount() {
     const props = this.props
-    if (!props.onView) {
+    if (props.onView) {
+      if (props.dataCopy && this._fieldValue) {
+        const $text = $(this._fieldValue)
+          .attr({
+            'data-copy': true,
+            'title': $L('点击复制'),
+          })
+          .on('click', (e) => {
+            $stopEvent(e, true)
+            $clipboard2($text.text(), true)
+          })
+      }
+    } else {
       // 必填字段
       if (!this.state.nullable && $empty(props.value) && props.readonlyw !== 2 && props.unreadable !== true) {
         props.$$$parent.setFieldValue(props.field, null, $L('%s不能为空', props.label))
@@ -1050,7 +1062,11 @@ class RbFormElement extends React.Component {
     let value = arguments.length > 0 ? arguments[0] : this.state.value
     if (value && $empty(value)) value = null
 
-    return <div className="form-control-plaintext">{value || <span className="text-muted">{$L('无')}</span>}</div>
+    return (
+      <div className="form-control-plaintext" ref={(c) => (this._fieldValue = c)}>
+        {value || <span className="text-muted">{$L('无')}</span>}
+      </div>
+    )
   }
 
   /**
@@ -3433,11 +3449,7 @@ class RbFormTag extends RbFormElement {
 
     let options = [...props.options]
     let selected = []
-    if (this._isNew) {
-      props.options.forEach((item) => {
-        if (item.default) selected.push(item.name)
-      })
-    } else if (this.state.value) {
+    if (this.state.value && this.state.value.length > 0) {
       let value = this.state.value
       if (typeof value === 'string') value = value.split('$$$$') // Save after
 
@@ -3445,6 +3457,10 @@ class RbFormTag extends RbFormElement {
         selected.push(name)
         const found = props.options.find((x) => x.name === name)
         if (!found) options.push({ name: name })
+      })
+    } else if (this._isNew) {
+      props.options.forEach((item) => {
+        if (item.default) selected.push(item.name)
       })
     }
     this._options = options

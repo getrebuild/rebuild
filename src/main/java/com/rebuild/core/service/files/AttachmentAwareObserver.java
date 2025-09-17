@@ -13,7 +13,9 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
 import com.rebuild.core.Application;
+import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -150,7 +152,12 @@ public class AttachmentAwareObserver extends OperatingObserver {
     private JSONArray parseFilesJson(Object files) {
         if (files instanceof JSON) return (JSONArray) files;
         else if (files == null || StringUtils.isBlank(files.toString())) return JSONUtils.EMPTY_ARRAY;
-        else return JSON.parseArray(files.toString());
+
+        try {
+            return JSON.parseArray(files.toString());
+        } catch (JSONException ex) {
+            throw new RebuildException("BAD VALUE OF FILES");
+        }
     }
 
     private Record buildAttachment(Field field, ID recordId, String filePath, ID user) {

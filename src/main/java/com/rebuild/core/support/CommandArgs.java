@@ -35,9 +35,14 @@ public class CommandArgs {
     public static final String _HeavyStopWatcher = "_HeavyStopWatcher";
     public static final String _UniPush = "_UniPush";
     public static final String _UseDbFullText = "_UseDbFullText";
+    // v4.1
     public static final String _StartEntityTypeCode = "_StartEntityTypeCode";
     public static final String _InitScriptEngine = "_InitScriptEngine";
+    // v4.2
     public static final String _AdminDownload = "_AdminDownload";
+    public static final String _WxWorkProxyUrl = "_WxWorkProxyUrl";
+    public static final String _DingTalkProxyUrl = "_DingTalkProxyUrl";
+    public static final String _FeishuProxyUrl = "_FeishuProxyUrl";
 
     /**
      * 内部消息同步发送短信
@@ -70,10 +75,10 @@ public class CommandArgs {
 
     /**
      * @param name
-     * @return default `-1`
+     * @return default `0`
      */
     public static int getInt(String name) {
-        return ObjectUtils.toInt(getProperty39(name), -1);
+        return ObjectUtils.toInt(getProperty39(name), 0);
     }
 
     /**
@@ -83,15 +88,24 @@ public class CommandArgs {
      */
     public static int getInt(String name, int defaultValue) {
         int s = getInt(name);
-        return s == -1 ? defaultValue : s;
+        return s == 0 ? defaultValue : s;
+    }
+
+    /**
+     * @param name
+     * @return default `null`
+     */
+    public static String getString(String name) {
+        return getString(name, null);
     }
 
     /**
      * @param name
      * @return
      */
-    public static String getString(String name) {
-        return getProperty39(name);
+    public static String getString(String name, String defaultValue) {
+        String v = getProperty39(name);
+        return StringUtils.defaultIfBlank(v, defaultValue);
     }
 
     /**

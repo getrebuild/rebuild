@@ -1081,3 +1081,250 @@ const EasyFilterEval = {
     return {}
   },
 }
+
+// ~~ Excel 粘贴数据
+class ExcelClipboardData extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div className="must-center text-danger">{this.state.hasError}</div>
+    }
+    if (!this.state.data) {
+      let tips = $L('复制 Excel 单元格 Ctrl + V 粘贴')
+      if ($.browser.mac) tips = tips.replace('Ctrl', 'Command')
+      return (
+        <div className="must-center text-muted">
+          <div className="mb-2">
+            <i className="mdi mdi-microsoft-excel" style={{ fontSize: 48 }} />
+          </div>
+          {tips}
+        </div>
+      )
+    }
+
+    return (
+      <div className="rsheetb-table" ref={(c) => (this._$table = c)}>
+        <div className="head-action">
+          <span className="float-left">
+            <h5 className="text-bold fs-14 m-0" style={{ paddingTop: 11 }}>
+              {$L('请选择列字段')}
+            </h5>
+          </span>
+          <span className="float-right">
+            <button className="btn btn-primary" onClick={() => this._handleConfirm()} ref={(c) => (this._$btn = c)}>
+              {this.props.confirmText || $L('确定')}
+            </button>
+          </span>
+          <div className="clearfix" />
+        </div>
+        {WrapHtml(this.state.data)}
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    const that = this
+    function _init() {
+      $(document).on('paste.csv-data', (e) => {
+        let data
+        try {
+          // https://docs.sheetjs.com/docs/demos/local/clipboard/
+          // https://docs.sheetjs.com/docs/api/utilities/html
+          const c = e.originalEvent.clipboardData.getData('text/html')
+          const wb = window.XLSX.read(c, { type: 'string' })
+          const ws = wb.Sheets[wb.SheetNames[0]]
+          data = window.XLSX.utils.sheet_to_html(ws, { id: 'rsheetb', header: '', footer: '', editable: true })
+
+          // No content
+          if (data && !$(data).text()) data = null
+        } catch (err) {
+          console.log('Cannot read csv-data from clipboardData', err)
+        }
+
+        if (data) {
+          if (rb.env === 'dev') console.log(data)
+          that.setState({ data: data, hasError: null }, () => that._tableAfter())
+        } else {
+          RbHighbar.createl('未识别到有效数据')
+        }
+      })
+    }
+
+    if (window.XLSX) _init()
+    else $getScript('/assets/lib/charts/xlsx.full.min.js', setTimeout(_init, 200))
+  }
+
+  _tableAfter() {
+    if (!this._$table) return
+
+    const $table = $(this._$table).find('table').addClass('table table-sm table-bordered table-fixed')
+    const fields = this.props.fields
+    if (fields) {
+      const len = $table.find('tbody>tr:eq(0)').find('td').length
+      const $tr = $('<thead><tr></tr></thead>').appendTo($table).find('tr')
+      for (let i = 0; i < len; i++) {
+        const $th = $('<th><select></select></th>').appendTo($tr)
+        fields.forEach((item) => {
+          $(`<option value="${item.field}">${item.label}</option>`).appendTo($th.find('select'))
+        })
+        $th
+          .find('select')
+          .select2({
+            placeholder: $L('无'),
+          })
+          .val(fields[i] ? fields[i].field : null)
+          .trigger('change')
+      }
+    }
+  }
+
+  _handleConfirm() {
+    const fields = []
+    $(this._$table)
+      .find('thead select')
+      .each(function () {
+        let fm = $(this).val() || null
+        if (fm && fields.includes(fm)) fm = null
+        fields.push(fm)
+      })
+
+    let noAnyFields = true
+    for (let i = 0; i < fields.length; i++) {
+      if (fields[i]) {
+        noAnyFields = false
+        break
+      }
+    }
+    if (noAnyFields) return RbHighbar.createl('请至少选择一个列字段')
+
+    const that = this
+    const dataWithFields = []
+    $(this._$table)
+      .find('tbody tr')
+      .each(function () {
+        const L = {}
+        $(this)
+          .find('td')
+          .each(function (idx) {
+            const name = fields[idx]
+            if (name) {
+              let val = $(this).text()
+              if ((that.props.fields[idx] || {}).type === 'NTEXT') {
+                val = $(this).find('>span').html()
+                if (val) val = val.replace(/<br>/gi, '\n')
+              }
+              L[name] = val || null
+            }
+          })
+        dataWithFields.push(L)
+      })
+
+    const $btn = $(this._$btn).button('loading')
+    const url = `/app/entity/extras/csvdata-rebuild?entity=${this.props.entity}&mainid=${this.props.mainid || ''}&layoutId=${this.props.layoutId || ''}`
+    $.post(url, JSON.stringify(dataWithFields), (res) => {
+      if (res.error_code === 0) {
+        this.props.onConfirm && this.props.onConfirm(res.data)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+      $btn.button('reset')
+    })
+  }
+
+  componentWillUnmount() {
+    $(document).off('paste.csv-data')
+  }
+}
+
+class ExcelClipboardDataModal extends RbModalHandler {
+  render() {
+    return (
+      <RbModal title={this.props.title || $L('从 Excel 添加')} width="1000" className="modal-rsheetb" disposeOnHide maximize ref={(c) => (this._dlg = c)}>
+        <ExcelClipboardData
+          {...this.props}
+          onConfirm={(data) => {
+            if (typeof this.props.onConfirm === 'function') {
+              let res = this.props.onConfirm(data)
+              if (res === false);
+              else this.hide()
+            } else {
+              this.hide()
+            }
+          }}
+        />
+      </RbModal>
+    )
+  }
+}
+
+// LAB
+class ExcelClipboardDataModalWithForm extends React.Component {
+  state = {}
+  render() {
+    return this.state.formProps ? <ExcelClipboardDataModal {...this.state.formProps} confirmText={$L('保存')} ref={(c) => (this._ExcelClipboardDataModal = c)} /> : null
+  }
+
+  componentDidMount() {
+    $.post(`/app/${this.props.entity}/form-model?layout=${this.props.specLayout || ''}`, (res) => {
+      // 包含错误
+      if (res.error_code > 0 || !!res.data.error) {
+        const error = (res.data || {}).error || res.error_msg
+        RbHighbar.error(error)
+      } else {
+        const formProps = {
+          ...this.props,
+          entity: res.data.entity,
+          layoutId: res.data.layoutId,
+          fields: [],
+          onConfirm: (data) => this.handleConfirm(data),
+        }
+        res.data.elements.forEach((item) => {
+          if (item.readonly || !item.type) return
+          formProps.fields.push({
+            field: item.field,
+            label: item.label,
+            type: item.type,
+          })
+        })
+
+        this.setState({ formProps })
+      }
+    })
+  }
+
+  handleConfirm(data) {
+    const formsData = []
+    data.forEach((item) => {
+      const formData = {
+        metadata: { entity: this.props.entity },
+      }
+      item.elements.forEach((d) => {
+        if (d.value) {
+          if (typeof d.value === 'object') formData[d.field] = d.value.id
+          else formData[d.field] = d.value
+        }
+      })
+      formsData.push(formData)
+    })
+
+    let len = formsData.length
+    let success = 0
+    formsData.forEach((formData) => {
+      $.post('/app/entity/record-save', JSON.stringify(formData), (res) => {
+        len--
+        if (res.error_code === 0) success++
+        if (len <= 0) {
+          RbHighbar.success($L('成功保存 %d 条记录', success))
+          this._ExcelClipboardDataModal.hide()
+          const rlp = window.RbListPage || parent.RbListPage
+          if (rlp) rlp.reload(data.id)
+        }
+      })
+    })
+    return false
+  }
+}

@@ -225,6 +225,26 @@ public class QiniuCloud {
     }
 
     /**
+     * 拷贝文件
+     *
+     * @param fromKey
+     * @param toKey
+     * @return
+     */
+    public boolean copy(String fromKey, String toKey) {
+        BucketManager bucketManager = new BucketManager(getAuth(), CONFIGURATION);
+        Response resp;
+        try {
+            resp = bucketManager.copy(this.bucketName, fromKey, this.bucketName, toKey, true);
+            if (resp.isOK()) return true;
+
+            throw new RebuildException("Failed to copy file : " + toKey + " < " + fromKey + " : " + resp.bodyString());
+        } catch (QiniuException e) {
+            throw new RebuildException("Failed to copy file : " + toKey + " < " + fromKey, e);
+        }
+    }
+
+    /**
      * 删除文件
      *
      * @param key
@@ -400,9 +420,7 @@ public class QiniuCloud {
      * @return
      */
     public static String encodeUrl(String url) {
-        if (StringUtils.isBlank(url)) {
-            return url;
-        }
+        if (StringUtils.isBlank(url)) return url;
 
         String[] urlSplit = url.split("/");
         for (int i = 0; i < urlSplit.length; i++) {
@@ -440,14 +458,14 @@ public class QiniuCloud {
     }
 
     /**
-     * 读取本地存储文件 `$DATA/rb/`
+     * 下载文件
      *
      * @param filepath
      * @return
      * @throws IOException
      * @throws RebuildException If cannot read/download
      */
-    public static File getStorageFile(String filepath) throws IOException, RebuildException {
+    public static File downloadFile(String filepath) throws IOException, RebuildException {
         File file = null;
         if (CommonsUtils.isExternalUrl(filepath)) {
             String name = filepath.split("\\?")[0];
@@ -504,22 +522,22 @@ public class QiniuCloud {
     /**
      * 删除文件
      *
-     * @param filesValue
+     * @param filePaths
      * @return
      */
-    public static int deleteFiles(String filesValue) {
-        if (StringUtils.isBlank(filesValue)) return 0;
+    public static int deleteFiles(String filePaths) {
+        if (StringUtils.isBlank(filePaths)) return 0;
 
-        if (!JSONUtils.wellFormat(filesValue)) {
-            if (filesValue.startsWith("rb/")) {
-                filesValue = "[\"" + filesValue + "\"]";
+        if (!JSONUtils.wellFormat(filePaths)) {
+            if (filePaths.startsWith("rb/")) {
+                filePaths = "[\"" + filePaths + "\"]";
             } else {
                 return 0;
             }
         }
 
         int del = 0;
-        JSONArray fileKeys = JSON.parseArray(filesValue);
+        JSONArray fileKeys = JSON.parseArray(filePaths);
         for (Object fileKey : fileKeys) {
             if (QiniuCloud.instance().available()) {
                 del += QiniuCloud.instance().delete(fileKey.toString()) ? 1 : 0;

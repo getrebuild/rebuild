@@ -421,8 +421,12 @@ var _checkMessage = function () {
     if (res.error_code > 0) return
 
     $('.J_top-notifications .badge').text(res.data.unread)
-    if (res.data.unread > 0) $('.J_top-notifications .indicator').removeClass('hide')
-    else $('.J_top-notifications .indicator').addClass('hide')
+    if (res.data.unread > 0) {
+      $('.J_top-notifications .indicator').removeClass('hide')
+      if (window.__LAB_SHOW_INDICATORNUM42) $('.J_top-notifications .indicator').text(res.data.unread > 9999 ? '9999+' : res.data.unread)
+    } else {
+      $('.J_top-notifications .indicator').addClass('hide').text('')
+    }
 
     if (_checkMessage__state !== res.data.unread) {
       _checkMessage__state = res.data.unread
@@ -939,6 +943,43 @@ var $initReferenceSelect2 = function (el, option) {
   return $(el).select2(select2Option)
 }
 
+// 搜索 text/id
+// https://select2.org/searching#customizing-how-results-are-matched
+var $select2MatcherAll = function (params, data) {
+  if ($trim(params.term) === '') {
+    return data
+  }
+  if (typeof data.text === 'undefined') {
+    return null
+  }
+
+  // 匹配
+  function _FN(item, s) {
+    s = s.toLowerCase()
+    if ((item.text || '').toLowerCase().indexOf(s) > -1 || (item.id || '').toLowerCase().indexOf(s) > -1) return true
+    // v4.2
+    var pinyin = $(item.element).data('pinyin')
+    return pinyin && pinyin.toLowerCase().indexOf(s) > -1
+  }
+
+  if (data.children) {
+    var ch = data.children.filter(function (item) {
+      return _FN(item, params.term)
+    })
+    if (ch.length === 0) return null
+
+    var data2 = $.extend({}, data, true)
+    data2.children = ch
+    return data2
+  } else {
+    if (_FN(data, params.term, data.element)) {
+      return data
+    }
+  }
+
+  return null
+}
+
 /**
  * 保持模态窗口（如果需要）
  */
@@ -1231,43 +1272,6 @@ var $getScript = function (url, callback) {
   })
 }
 
-// 搜索 text/id
-// https://select2.org/searching#customizing-how-results-are-matched
-var $select2MatcherAll = function (params, data) {
-  if ($trim(params.term) === '') {
-    return data
-  }
-  if (typeof data.text === 'undefined') {
-    return null
-  }
-
-  // 匹配
-  function _FN(item, s) {
-    s = s.toLowerCase()
-    if ((item.text || '').toLowerCase().indexOf(s) > -1 || (item.id || '').toLowerCase().indexOf(s) > -1) return true
-    // v4.2
-    var pinyin = $(item.element).data('pinyin')
-    return pinyin && pinyin.toLowerCase().indexOf(s) > -1
-  }
-
-  if (data.children) {
-    var ch = data.children.filter(function (item) {
-      return _FN(item, params.term)
-    })
-    if (ch.length === 0) return null
-
-    var data2 = $.extend({}, data, true)
-    data2.children = ch
-    return data2
-  } else {
-    if (_FN(data, params.term, data.element)) {
-      return data
-    }
-  }
-
-  return null
-}
-
 // 绝对 URL
 var $isFullUrl = function (url) {
   return url && (url.startsWith('http://') || url.startsWith('https://'))
@@ -1362,6 +1366,28 @@ var $clipboard = function ($el, text) {
       $b.tooltip('show')
     }, 20)
   })
+}
+
+// 复制
+var $clipboard2 = function (text, tips) {
+  if (navigator.clipboard) {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        tips && RbHighbar.success($L('已复制'))
+      })
+      .catch((err) => {
+        console.log('Cannot copy text :', err)
+      })
+  } else {
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textarea)
+    tips && RbHighbar.success($L('已复制'))
+  }
 }
 
 // 格式化秒显示
