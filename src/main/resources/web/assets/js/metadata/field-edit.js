@@ -534,7 +534,7 @@ const _handleClassification = function (useClassification) {
     })
   })
 
-  _loadRefsLabel($dv, $dvClear)
+  _initRefsLabel($dv, $dvClear)
 }
 
 const _handleReference = function (isN2N) {
@@ -576,7 +576,7 @@ const _handleReference = function (isN2N) {
 
   _initRefsDefaultValue([referenceEntity], isN2N)
 
-  // Bizz
+  // BIZZ 特殊处理
   if (['User', 'Department', 'Team'].includes(referenceEntity)) {
     const $dv = $('.J_defaultValue')
     const $dvClear = $('.J_defaultValue-clear')
@@ -627,15 +627,14 @@ const _initRefsDefaultValue = function (allowEntities, isN2N) {
           if (valKeep) val = valKeep + ',' + val
         }
         $dv.attr('data-value-id', val).val(val)
-        _loadRefsLabel($dv, $dvClear)
+        _initRefsLabel($dv, $dvClear)
       },
     })
   })
 
-  _loadRefsLabel($dv, $dvClear)
+  _initRefsLabel($dv, $dvClear)
 }
-
-const _loadRefsLabel = function ($dv, $dvClear) {
+const _initRefsLabel = function ($dv, $dvClear) {
   const def = $dv.val()
   if (def === CURRENT_BIZZ) {
     $dv.attr('data-value-id', CURRENT_BIZZ)

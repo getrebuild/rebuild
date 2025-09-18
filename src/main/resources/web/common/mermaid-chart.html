@@ -24,31 +24,6 @@
         padding: 0;
         margin: 0;
       }
-      /* pre.mermaid .edgeLabel,
-      pre.mermaid .er.relationshipLabel {
-        background-color: #fff !important;
-        font-size: 14px;
-      }
-      pre.mermaid .relationshipLabelBox {
-        fill: none !important;
-        opacity: 1 !important;
-      }
-      pre.mermaid .nodeLabel {
-        font-size: 14px;
-        color: #222;
-      }
-      pre.mermaid .node rect {
-        fill: #eee !important;
-        stroke: #999 !important;
-      }
-      pre.mermaid .mermaidTooltip {
-        display: none;
-        font-size: 0;
-      }
-      pre.mermaid .edgeLabel {
-        background-color: #e6eff8 !important;
-        padding: 6px !important;
-      } */
       .zoom {
         bottom: 20px;
       }
@@ -74,7 +49,6 @@
     <script type="text/babel">
       $(document).ready(() => {
         const $node = $('.mermaid')
-
         mermaid.initialize({
           securityLevel: 'loose',
           startOnLoad: false,
@@ -85,7 +59,7 @@
           })
           .then(() => {
             $('.zoom').removeClass('hide')
-            parent.RbModal.resize()
+            parent && parent.RbModal && parent.RbModal.resize()
           })
           .catch((err) => {
             console.error(err)

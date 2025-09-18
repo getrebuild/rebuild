@@ -184,7 +184,7 @@ public class TriggerAdminController extends BaseController {
         if (ID.isId(useTemplate)) {
             try {
                 ConfigBean cb = DataReportManager.instance.getReportRaw(ID.valueOf(useTemplate));
-                return new String[]{useTemplate, cb.getString("name")};
+                return new String[]{null, cb.getString("name")};
             } catch (Exception deleted) {
                 return new String[]{null, String.format("[%s]", useTemplate.toUpperCase())};
             }
