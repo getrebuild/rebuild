@@ -16,9 +16,10 @@ class BaseChart extends React.Component {
   }
 
   render() {
-    let showScurce = !this.props.builtin
+    let showSource = !this.props.builtin
     let showFilter = !this.props.builtin
-    if (this.props.id === '017-9000000000000007' || this.props.id === '017-9000000000000002') showScurce = true
+    if (this.props.id === '017-9000000000000007' || this.props.id === '017-9000000000000002') showSource = true
+    if (this.props.type === 'HeadingText' || this.props.type === 'EmbedFrame') showFilter = false
 
     const opActions = (
       <div className="chart-oper">
@@ -27,7 +28,7 @@ class BaseChart extends React.Component {
             <i className="mdi mdi-filter" />
           </a>
         )}
-        {showScurce && (
+        {showSource && (
           <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`} target="_blank" className="J_source">
             <i className="zmdi zmdi-rss" />
           </a>
