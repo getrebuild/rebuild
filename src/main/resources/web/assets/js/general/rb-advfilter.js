@@ -128,6 +128,11 @@ class AdvFilter extends React.Component {
         <button className="btn btn-secondary" type="button" onClick={() => this.hide()}>
           {$L('取消')}
         </button>
+        {this.props.showPreview && (
+          <button className="btn btn-light w-auto" type="button" title={$L('查看符合条件数据')} onClick={() => this.handlePreview()}>
+            <i className="icon zmdi zmdi-open-in-new" />
+          </button>
+        )}
       </div>
     )
   }
@@ -298,6 +303,12 @@ class AdvFilter extends React.Component {
     typeof _onCancel === 'function' && _onCancel()
 
     this.props.inModal && this._dlg.hide()
+  }
+
+  handlePreview() {
+    const adv = this.toFilterData(this.props.canNoFilters)
+    if (!adv) return
+    window.open(`${rb.baseUrl}/app/${this.props.entity}/list?via=${$encode(JSON.stringify(adv))}`)
   }
 }
 
