@@ -270,4 +270,18 @@ public class FilesHelper {
         }
         return true;
     }
+
+    /**
+     * 其他地方有用（例如复制的记录）
+     *
+     * @param filePath
+     * @return
+     */
+    public static boolean fileHasCopy(String filePath) {
+        Object[] hasCopy = Application.createQueryNoFilter(
+                "select attachmentId from Attachment where filePath = ?")
+                .setParameter(1, filePath)
+                .unique();
+        return hasCopy != null;
+    }
 }

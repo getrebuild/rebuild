@@ -53,7 +53,7 @@ public class QiniuCloud {
     /**
      * 默认配置
      */
-    public static final Configuration CONFIGURATION = new Configuration(Region.autoRegion());
+    public static final Configuration CONFIGURATION = Configuration.create(Region.autoRegion());
 
     private static final QiniuCloud INSTANCE = new QiniuCloud();
 
@@ -543,8 +543,8 @@ public class QiniuCloud {
                 del += QiniuCloud.instance().delete(fileKey.toString()) ? 1 : 0;
             } else {
                 File file = RebuildConfiguration.getFileOfData(fileKey.toString());
-                if (file.exists()) {
-                    del += file.delete() ? 1 : 0;
+                if (file.exists() && !file.isDirectory()) {
+                    del += FileUtils.deleteQuietly(file) ? 1 : 0;
                 }
             }
         }

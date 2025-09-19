@@ -100,7 +100,7 @@ $(document).ready(() => {
     if (advFilter) {
       advFilter.show()
     } else {
-      renderRbcomp(<AdvFilter entity={wpc.sourceEntity} filter={wpc.whenFilter} confirm={saveFilter} title={$L('附加过滤条件')} inModal canNoFilters />, function () {
+      renderRbcomp(<AdvFilter entity={wpc.sourceEntity} filter={wpc.whenFilter} confirm={saveFilter} title={$L('附加过滤条件')} inModal canNoFilters showPreview />, function () {
         advFilter = this
       })
     }
