@@ -11,7 +11,6 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
@@ -98,41 +97,19 @@ public class FieldAggregationController extends BaseController {
 
         JSONArray targetFields = new JSONArray();
         if (targetEntity != null) {
-            // 可用于聚合的字段
-            for (Field field : MetadataSorter.sortFields(targetEntity,
-                    DisplayType.NUMBER, DisplayType.DECIMAL, DisplayType.DATE, DisplayType.DATETIME,
-                    DisplayType.N2NREFERENCE, DisplayType.NTEXT, DisplayType.FILE)) {
-
-                EasyField easyField = EasyMetaFactory.valueOf(field);
-                if (easyField.isBuiltin()) continue;
-
-                JSONObject item = (JSONObject) easyField.toJSON();
-                if (easyField.getDisplayType() == DisplayType.ID) {
-                    item.put("ref", new String[] {
-                            targetEntity.getName(), EasyMetaFactory.getDisplayType(targetEntity.getNameField()).name() });
-                }
-
-                targetFields.add(item);
-            }
-        }
-
-        // 目标匹配字段
-        JSONArray targetFields2 = new JSONArray();
-        if (targetEntity != null) {
-            targetFields2 = MetaFormatter.buildFieldsWithRefs(targetEntity, 1, true, field -> {
-                EasyField easyField = (EasyField) field;
-                return easyField.getDisplayType() == DisplayType.SERIES
-                        || easyField.getDisplayType() == DisplayType.BARCODE
-                        || easyField.isBuiltin();
+            targetFields = MetaFormatter.buildFieldsWithRefs(targetEntity, 1, true, field -> {
+                EasyField e = (EasyField) field;
+                return e.getDisplayType() == DisplayType.SERIES || e.getDisplayType() == DisplayType.BARCODE
+                        || e.isBuiltin();
             });
         }
 
         // 审批流程启用
         boolean hadApproval = targetEntity != null && RobotApprovalManager.instance.hadApproval(
-                ObjectUtils.defaultIfNull(targetEntity.getMainEntity(), targetEntity), null) != null;
+                ObjectUtils.getIfNull(targetEntity.getMainEntity(), targetEntity), null) != null;
 
         return JSONUtils.toJSONObject(
                 new String[] { "source", "target", "hadApproval", "target4Group" },
-                new Object[] { sourceFields, targetFields, hadApproval, targetFields2 });
+                new Object[] { sourceFields, targetFields, hadApproval, targetFields });
     }
 }
