@@ -603,10 +603,13 @@ public class FieldWriteback extends FieldAggregation {
     }
 
     /**
+     * @param value
+     * @param field
+     * @return
      * @see DisplayType
      * @see com.rebuild.core.metadata.EntityRecordCreator
      */
-    private Object checkoutFieldValue(Object value, EasyField field) {
+    protected static Object checkoutFieldValue(Object value, EasyField field) {
         DisplayType dt = field.getDisplayType();
         Object newValue = null;
 
