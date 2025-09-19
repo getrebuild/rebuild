@@ -2796,6 +2796,7 @@ div.dataTables_wrapper div.dataTables_filter .dropdown-menu-advfilter input {
   cursor: help;
   float: right;
   margin-left: 0.384615rem;
+  margin-top: 1px;
 }
 
 form.dropzone {

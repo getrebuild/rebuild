@@ -3342,17 +3342,8 @@ class RbFormLocation extends RbFormElement {
   componentDidMount() {
     super.componentDidMount()
 
-    if (this._autoLocation) {
-      $(this._$icon).addClass('animated')
-      // eslint-disable-next-line no-undef
-      $autoLocation((v) => {
-        v = v && v.text ? `${v.text}$$$$${v.lng},${v.lat}` : null
-        v && this.handleChange({ target: { value: v } }, true)
-
-        if (this.props.readonly) $(this._$icon).remove()
-        else $(this._$icon).removeClass('animated')
-      })
-    }
+    // 自动定位
+    this._autoLocation && this.reLocation()
   }
 
   componentWillUnmount() {
@@ -3361,6 +3352,19 @@ class RbFormLocation extends RbFormElement {
       this._BaiduMapModal.destroy()
       this._BaiduMapModal = null
     }
+  }
+
+  // v4.2 重新定位
+  reLocation() {
+    $(this._$icon).addClass('animated')
+    // eslint-disable-next-line no-undef
+    $autoLocation((v) => {
+      v = v && v.text ? `${v.text}$$$$${v.lng},${v.lat}` : null
+      v && this.handleChange({ target: { value: v } }, true)
+
+      if (this.props.readonly) $(this._$icon).remove()
+      else $(this._$icon).removeClass('animated')
+    })
   }
 }
 

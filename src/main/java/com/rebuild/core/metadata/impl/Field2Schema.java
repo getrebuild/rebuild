@@ -57,7 +57,7 @@ public class Field2Schema extends SetUser {
     protected static final int DDL_TIMEOUT = 60 * 15;
 
     // 小数位真实长度
-    private static final int DECIMAL_SCALE = 8;
+    protected static final int DECIMAL_SCALE = 8;
 
     final protected Set<ID> recordedMetaIds = new HashSet<>();
 
