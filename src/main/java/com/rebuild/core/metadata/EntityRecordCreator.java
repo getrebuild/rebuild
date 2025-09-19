@@ -94,14 +94,25 @@ public class EntityRecordCreator extends JsonRecordCreator {
             }
         }
 
-        // v4.1 处理中文日期
-        if ((fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP) && value != null && value.contains("年")) {
-            if (value.contains("日")) {
-                value = value.replace("年", "-").replace("月", "-").replace("日", "");
-            } else if (value.contains("月")) {
-                value = value.replace("年", "-").replace("月", "");
-            } else {
-                value = value.replace("年", "");
+        // v4.1, v4.2 处理为标准日期格式
+        if ((fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP) && value != null) {
+            // eg. 2025年09月25日 (周四) 00:55:00
+            if (value.contains("(") && value.contains(")")) {
+                value = value.replaceAll("\\([^)]*\\)", "").replaceAll("\\s+", " ");
+            }
+
+            // eg. 2025年09月25日 00:55:00
+            if (value.contains("年")) {
+                if (value.contains("日")) {
+                    value = value.replace("年", "-").replace("月", "-").replace("日", "");
+                } else if (value.contains("月")) {
+                    value = value.replace("年", "-").replace("月", "");
+                } else {
+                    value = value.replace("年", "");
+                }
+            } else if (value.contains("/")) {
+                // eg. 2025/09/19
+                value = value.replace("/", "-");
             }
         }
 
