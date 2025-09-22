@@ -756,6 +756,18 @@ class ChartBar3 extends ChartBar {
   }
 }
 
+// 柏拉图/帕累托图
+class ChartPareto extends ChartBar3 {
+  constructor(props) {
+    super(props)
+  }
+
+  renderChart(data) {
+    // TODO Need?
+    super.renderChart(data)
+  }
+}
+
 // 饼图
 class ChartPie extends BaseChart {
   renderChart(data) {
@@ -1988,6 +2000,8 @@ const detectChart = function (cfg, id) {
     return <ChartBar2 {...props} />
   } else if (cfg.type === 'BAR3') {
     return <ChartBar3 {...props} />
+  } else if (cfg.type === 'PARETO') {
+    return <ChartPareto {...props} />
   } else if (cfg.type === 'PIE') {
     return <ChartPie {...props} />
   } else if (cfg.type === 'FUNNEL') {

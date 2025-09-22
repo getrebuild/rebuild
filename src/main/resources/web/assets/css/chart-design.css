@@ -469,20 +469,29 @@ a.ui-draggable.ui-draggable-dragging {
   background-position: -1290px -1288px;
 }
 
-.chart-type > a.DATALIST2 {
+.chart-type > a.DATALIST2,
+.chart-type > a.PARETO {
   transform: translateY(7px);
 }
 
-.chart-type > a > i.DATALIST2 {
+.chart-type > a > i.DATALIST2,
+.chart-type > a > i.PARETO {
   position: absolute;
   background: none;
-  font-size: 27px;
+  font-size: 29px;
   color: #ddd;
-  margin-top: 3px;
-  margin-left: 2px;
+  margin-top: 2px;
+  margin-left: 1px;
 }
 
-.chart-type > a.active > i.DATALIST2 {
+.chart-type > a > i.PARETO {
+  font-size: 20px;
+  margin-left: 5px;
+  margin-top: 7px;
+}
+
+.chart-type > a.active > i.DATALIST2,
+.chart-type > a.active > i.PARETO {
   color: #4285f4;
 }
 

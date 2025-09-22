@@ -64,6 +64,7 @@
                 <a th:title="${bundle.L('散点图')}" data-type="SCATTER" data-allow-dims="0|3" data-allow-nums="2|2"><i class="C280"></i></a>
                 <a th:title="${bundle.L('地图')}" data-type="CNMAP" data-allow-dims="1|1" data-allow-nums="0|1"><i class="C271"></i></a>
                 <a th:title="${bundle.L('数据列表')}" data-type="DATALIST2" data-allow-dims="1|99" data-allow-nums="0|0" class="DATALIST2"><i class="DATALIST2 mdi mdi-view-module-outline"></i></a>
+                <a th:title="${bundle.L('柏拉图')}" data-type="PARETO" data-allow-dims="1|1" data-allow-nums="1|1" class="PARETO bosskey-show--"><i class="PARETO mdi mdi-chart-multiple"></i></a>
                 <!--
                 <a th:title="${bundle.L('对比图')}" data-type="BARNEGATIVE" data-allow-dims="1|1" data-allow-nums="2|2"><i class="C243"></i></a>
                 <a th:title="${bundle.L('词云')}" data-type="DOLOR" data-allow-dims="1|1" data-allow-nums="0|0"><i class="C340"></i></a>
@@ -110,19 +111,19 @@
                     <span class="custom-control-label">[[${bundle.L('自动合并单元格')}]]</span>
                   </label>
                 </div>
-                <div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP J_opt-RADAR J_opt-SCATTER">
+                <div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PARETO J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP J_opt-RADAR J_opt-SCATTER">
                   <label class="custom-control custom-control-sm custom-checkbox">
                     <input class="custom-control-input" type="checkbox" data-name="showNumerical" />
                     <span class="custom-control-label">[[${bundle.L('在图表上显示数值')}]]</span>
                   </label>
                 </div>
-                <div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-SCATTER">
+                <div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PARETO J_opt-SCATTER">
                   <label class="custom-control custom-control-sm custom-checkbox">
                     <input class="custom-control-input" type="checkbox" data-name="showGrid" />
                     <span class="custom-control-label">[[${bundle.L('显示参考线')}]]</span>
                   </label>
                 </div>
-                <div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3">
+                <div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PARETO">
                   <label class="custom-control custom-control-sm custom-checkbox">
                     <input class="custom-control-input" type="checkbox" data-name="showMarkLine" />
                     <span class="custom-control-label">[[${bundle.L('显示均线')}]]</span>
@@ -152,7 +153,7 @@
                     <span class="custom-control-label">[[${bundle.L('比例显示')}]]</span>
                   </label>
                 </div>
-                <div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PIE J_opt-RADAR J_opt-SCATTER">
+                <div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PARETO J_opt-PIE J_opt-RADAR J_opt-SCATTER">
                   <label class="custom-control custom-control-sm custom-checkbox">
                     <input class="custom-control-input" type="checkbox" data-name="showLegend" />
                     <span class="custom-control-label">[[${bundle.L('显示图例')}]]</span>
@@ -200,7 +201,7 @@
                     <option value="light">[[${bundle.L('浅色')}]]</option>
                   </select>
                 </div>
-                <div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP J_opt-RADAR J_opt-SCATTER">
+                <div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PARETO J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP J_opt-RADAR J_opt-SCATTER">
                   <label style="color: #444">[[${bundle.L('样式')}]]</label>
                   <select data-name="themeStyle" class="themeStyle">
                     <option value="">[[${bundle.L('默认')}]]</option>
@@ -216,7 +217,7 @@
                     <option value="macarons">MACARONS</option>
                   </select>
                 </div>
-                <div class="hide bosskey-show-- J_opt-TABLE J_opt-INDEX J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PIE J_opt-FUNNEL J_opt-RADAR J_opt-SCATTER">
+                <div class="hide bosskey-show-- J_opt-TABLE J_opt-INDEX J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PARETO J_opt-PIE J_opt-FUNNEL J_opt-RADAR J_opt-SCATTER">
                   <label style="color: #444; margin-bottom: 8px">[[${bundle.L('背景色')}]]</label>
                   <div id="useBgcolor" class="rbcolors">
                     <a class="default" th:title="${bundle.L('默认')}"></a>

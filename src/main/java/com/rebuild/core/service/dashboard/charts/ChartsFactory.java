@@ -83,6 +83,8 @@ public class ChartsFactory {
             return (ChartData) new Bar2Chart(config).setUser(user);
         } else if ("BAR3".equalsIgnoreCase(type)) {
             return (ChartData) new Bar3Chart(config).setUser(user);
+        } else if ("PARETO".equalsIgnoreCase(type)) {
+            return (ChartData) new ParetoChart(config).setUser(user);
         } else if ("PIE".equalsIgnoreCase(type)) {
             return (ChartData) new PieChart(config).setUser(user);
         } else if ("FUNNEL".equalsIgnoreCase(type)) {

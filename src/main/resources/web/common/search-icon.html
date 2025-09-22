@@ -101,7 +101,7 @@
       // V2-4.0
       function renderMdi7() {
         MDI7_ICONS.forEach((icon) => {
-          if (MDI7_ICONS_IGNORE.includes(icon)) return
+          // if (MDI7_ICONS_IGNORE.includes(icon)) return
           const $a = $(`<a data-icon="${icon}" title="${icon.substr(4).toUpperCase()}"><i class="mdi ${icon}"></a>`).appendTo('#icons')
           $a.on('click', function () {
             cb($(this).data('icon'))
