@@ -53,7 +53,7 @@ public class CommandArgs {
      */
     public static final String _EmailDistributor = "_EmailDistributor";
     /**
-     * FrontJS在所有页面生效
+     * FrontJS 在所有页面生效
      */
     public static final String _UseFrontJSAnywhere = "_UseFrontJSAnywhere";
     /**
