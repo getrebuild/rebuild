@@ -1697,7 +1697,7 @@ class RbFormDateTime extends RbFormElement {
         this.__datetimepicker = null
       }
     } else if (!_readonly37) {
-      const format = (this.props.datetimeFormat || this.props.dateFormat).replace('mm', 'ii').toLowerCase()
+      const format = (this.props.datetimeFormat || this.props.dateFormat).replace(' (E)', '').replace('mm', 'ii').toLowerCase()
       let minView = 0
       let startView = 'month'
       if (format.length === 4 || format.length === 5) minView = startView = 'decade' // 年

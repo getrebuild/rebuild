@@ -29,9 +29,11 @@ import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.core.support.general.QueryParser;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.DecimalFormat;
@@ -51,6 +53,7 @@ import java.util.Set;
  * @author devezhao
  * @since 12/14/2018
  */
+@Slf4j
 public abstract class ChartData extends SetUser implements ChartSpec {
 
     protected JSONObject config;
@@ -241,12 +244,21 @@ public abstract class ChartData extends SetUser implements ChartSpec {
         }
 
         JSONObject filterExpr = config.getJSONObject("filter");
-        // v4.2 前端优先
+        // v4.2 前端过滤优先
         JSONObject params = (JSONObject) getExtraParams().get("extconfig");
         if (params != null && params.get("chart_filter") != null) {
             filterExpr = params.getJSONObject("chart_filter");
-        }
-        if (ParseHelper.validAdvFilter(filterExpr)) {
+            // 从列表查询
+            if ("LIST".equalsIgnoreCase(filterExpr.getString("filter_type"))) {
+                String s = new QueryParser(filterExpr).toFilterSql();
+                if (s != null) filtersAnd.add(s);
+            } else if (ParseHelper.validAdvFilter(filterExpr)) {
+                String s = new AdvFilterParser(filterExpr).toSqlWhere();
+                if (s != null) filtersAnd.add(s);
+            } else {
+                log.warn("Invalid `chart_filter` : {}", filterExpr);
+            }
+        } else if (ParseHelper.validAdvFilter(filterExpr)) {
             String s = new AdvFilterParser(filterExpr).toSqlWhere();
             if (s != null) filtersAnd.add(s);
         }

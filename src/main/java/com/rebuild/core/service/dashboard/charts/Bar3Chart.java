@@ -10,7 +10,7 @@ package com.rebuild.core.service.dashboard.charts;
 import com.alibaba.fastjson.JSONObject;
 
 /**
- * 柱状图
+ * 折线柱状图
  *
  * @author devezhao
  * @since 4/3/2024

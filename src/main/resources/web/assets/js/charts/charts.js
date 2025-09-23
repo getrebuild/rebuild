@@ -24,7 +24,7 @@ class BaseChart extends React.Component {
     const opActions = (
       <div className="chart-oper">
         {showFilter && (
-          <a title={$L('过滤条件')} onClick={() => this.showChartFilter()}>
+          <a title={$L('过滤条件')} className="J_chart-filter" onClick={() => this.showChartFilter()}>
             <i className="mdi mdi-filter" />
           </a>
         )}
@@ -112,15 +112,16 @@ class BaseChart extends React.Component {
   loadChartData(notClear) {
     if (notClear !== true) this.setState({ chartdata: null })
 
-    let config = this.state.config || {}
-    config.extconfig = {
-      ...config.extconfig,
+    const conf = this.state.config || {}
+    conf.extconfig = {
+      ...conf.extconfig,
       dash_filter_user: window.dash_filter_user || null,
       dash_filter_date: window.dash_filter_date || null,
-      chart_filter: this._ChartFilter__data || null,
     }
+    // 优先级高
+    if (this._ChartFilter__data) conf.extconfig.chart_filter = this._ChartFilter__data
 
-    $.post(this.buildDataUrl(), JSON.stringify(config), (res) => {
+    $.post(this.buildDataUrl(), JSON.stringify(conf), (res) => {
       if (this._echarts) this._echarts.dispose()
 
       if (res.error_code === 0) {
@@ -644,7 +645,7 @@ class ChartLine extends BaseChart {
       option.tooltip.formatter = (a) => ECHART_TOOLTIP_FORMATTER(a, dataFlags)
       if (showLegend) {
         option.legend = ECHART_LEGEND_HOPT
-        option.grid.top = 40
+        option.grid.top = 50
       }
       if (showMarkLine) option.grid.right = 60
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
@@ -726,7 +727,7 @@ class ChartBar extends BaseChart {
       }
       if (showLegend) {
         option.legend = ECHART_LEGEND_HOPT
-        option.grid.top = 40
+        option.grid.top = 50
       }
       if (showMarkLine) option.grid.right = 60
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
@@ -753,6 +754,18 @@ class ChartBar3 extends ChartBar {
   constructor(props) {
     super(props)
     this._overLine = true
+  }
+}
+
+// 柏拉图/帕累托图
+class ChartPareto extends ChartBar3 {
+  constructor(props) {
+    super(props)
+  }
+
+  renderChart(data) {
+    // TODO Need?
+    super.renderChart(data)
   }
 }
 
@@ -1330,7 +1343,7 @@ class ChartScatter extends BaseChart {
       }
       if (showLegend) {
         option.legend = ECHART_LEGEND_HOPT
-        option.grid.top = 40
+        option.grid.top = 50
       }
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
@@ -1971,51 +1984,54 @@ class MyNotification extends BaseChart {
 
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
-const detectChart = function (cfg, id) {
+const detectChart = function (conf, id) {
   // isManageable = 图表可编辑
   // editable = 仪表盘可编辑
-  const props = { config: cfg, id: id, title: cfg.title, type: cfg.type, isManageable: cfg.isManageable, editable: cfg.editable }
+  const props = { config: conf, id: id, title: conf.title, type: conf.type, isManageable: conf.isManageable, editable: conf.editable }
+  console.log('conf', conf.extconfig)
 
-  if (cfg.type === 'INDEX') {
+  if (conf.type === 'INDEX') {
     return <ChartIndex {...props} />
-  } else if (cfg.type === 'TABLE') {
+  } else if (conf.type === 'TABLE') {
     return <ChartTable {...props} />
-  } else if (cfg.type === 'LINE') {
+  } else if (conf.type === 'LINE') {
     return <ChartLine {...props} />
-  } else if (cfg.type === 'BAR') {
+  } else if (conf.type === 'BAR') {
     return <ChartBar {...props} />
-  } else if (cfg.type === 'BAR2') {
+  } else if (conf.type === 'BAR2') {
     return <ChartBar2 {...props} />
-  } else if (cfg.type === 'BAR3') {
+  } else if (conf.type === 'BAR3') {
     return <ChartBar3 {...props} />
-  } else if (cfg.type === 'PIE') {
+  } else if (conf.type === 'PARETO') {
+    return <ChartPareto {...props} />
+  } else if (conf.type === 'PIE') {
     return <ChartPie {...props} />
-  } else if (cfg.type === 'FUNNEL') {
+  } else if (conf.type === 'FUNNEL') {
     return <ChartFunnel {...props} />
-  } else if (cfg.type === 'TREEMAP') {
+  } else if (conf.type === 'TREEMAP') {
     return <ChartTreemap {...props} />
-  } else if (cfg.type === 'ApprovalList') {
+  } else if (conf.type === 'ApprovalList') {
     return <ApprovalList {...props} builtin />
-  } else if (cfg.type === 'FeedsSchedule') {
+  } else if (conf.type === 'FeedsSchedule') {
     return <FeedsSchedule {...props} builtin />
-  } else if (cfg.type === 'RADAR') {
+  } else if (conf.type === 'RADAR') {
     return <ChartRadar {...props} />
-  } else if (cfg.type === 'SCATTER') {
+  } else if (conf.type === 'SCATTER') {
     return <ChartScatter {...props} />
-  } else if (cfg.type === 'ProjectTasks') {
+  } else if (conf.type === 'ProjectTasks') {
     return <ProjectTasks {...props} builtin />
-  } else if (cfg.type === 'DataList' || cfg.type === 'DATALIST2') {
+  } else if (conf.type === 'DataList' || conf.type === 'DATALIST2') {
     return <DataList {...props} builtin={false} />
-  } else if (cfg.type === 'CNMAP') {
+  } else if (conf.type === 'CNMAP') {
     return <ChartCNMap {...props} />
-  } else if (cfg.type === 'HeadingText') {
+  } else if (conf.type === 'HeadingText') {
     return <HeadingText {...props} builtin={false} />
-  } else if (cfg.type === 'EmbedFrame') {
+  } else if (conf.type === 'EmbedFrame') {
     return <EmbedFrame {...props} builtin={false} />
-  } else if (cfg.type === 'MyNotification') {
+  } else if (conf.type === 'MyNotification') {
     return <MyNotification {...props} builtin />
   } else {
-    return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${cfg.type}]`}</h4>
+    return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${conf.type}]`}</h4>
   }
 }
 
