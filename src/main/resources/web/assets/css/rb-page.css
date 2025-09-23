@@ -21,10 +21,6 @@ html.commercial .rbv {
   display: none !important;
 }
 
-.dev-show {
-  display: none !important;
-}
-
 html.admin .admin-show {
   display: block !important;
 }

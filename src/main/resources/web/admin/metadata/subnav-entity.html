@@ -19,7 +19,9 @@
       </li>
       <li th:class="${active == 'advanced'} ? 'active'"><a th:href="${(urlPrefix?:'') + 'advanced'}">[[${bundle.L('高级配置')}]]</a></li>
       <li th:class="${active == 'overview'} ? 'active'" th:classappend="bosskey-show"><a th:href="${(urlPrefix?:'') + 'overview'}">[[${bundle.L('技术全览')}]] (LAB)</a></li>
-      <li th:class="${active == 'i18n'} ? 'active'" th:classappend="bosskey-show--"><a th:href="${(urlPrefix?:'') + 'i18n'}">[[${bundle.L('多语言')}]] <sup class="rbv"></sup></a></li>
+      <li th:class="${active == 'i18n'} ? 'active'" th:classappend="bosskey-show">
+        <a th:href="${(urlPrefix?:'') + 'i18n'}">[[${bundle.L('多语言')}]] <sup class="rbv"></sup></a>
+      </li>
     </ul>
   </div>
 </th:block>
