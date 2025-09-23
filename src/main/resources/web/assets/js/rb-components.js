@@ -47,8 +47,8 @@ class RbModal extends React.Component {
               <h3 className="modal-title">{props.title || ''}</h3>
 
               {props.url && props.urlOpenInNew && (
-                <a className="close s fs-18" href={props.url} target="_blank" title={$L('在新页面打开')}>
-                  <span className="zmdi zmdi-open-in-new" />
+                <a className="close s fs-17" href={props.url} target="_blank" title={$L('在新页面打开')}>
+                  <span className="zmdi zmdi-open-in-new down-2" />
                 </a>
               )}
               {this.props.maximize && (

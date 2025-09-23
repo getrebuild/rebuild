@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.easymeta.EasyDecimal;
 import com.rebuild.core.support.i18n.Language;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,8 @@ public class ParetoChart extends Bar3Chart {
     @Override
     public JSON build() {
         JSONObject res = (JSONObject) super.build();
+        // 无数据
+        if (CollectionUtils.isEmpty(res.getJSONArray("xAxis"))) return res;
 
         // 累计增长
         JSONArray yyyAxis = res.getJSONArray("yyyAxis");
@@ -47,7 +50,11 @@ public class ParetoChart extends Bar3Chart {
         double dd = 0;
         for (Object o : precentAxisData) {
             dd += ObjectUtils.toDouble(EasyDecimal.clearFlaged(o));
-            precentAxisDataNew.add(ObjectUtils.round(dd / total * 100, 2));
+            if (Double.compare(dd, 0.0) == 0) {
+                precentAxisDataNew.add(0);
+            } else {
+                precentAxisDataNew.add(ObjectUtils.round(dd / total * 100, 2));
+            }
         }
         precentAxis.put("data", precentAxisDataNew);
 

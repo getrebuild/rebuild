@@ -100,6 +100,13 @@ public class QueryParser {
     }
 
     /**
+     * @return
+     */
+    public String toFilterSql() {
+        return parseFilters();
+    }
+
+    /**
      * 获取查询字段
      *
      * @return
@@ -184,49 +191,7 @@ public class QueryParser {
         fullSql.append(" from ").append(entity.getName());
 
         // 过滤器
-
-        List<String> whereAnds = new ArrayList<>();
-
-        // Default
-        String defaultFilter = dataListBuilder == null ? null : dataListBuilder.getDefaultFilter();
-        if (StringUtils.isNotBlank(defaultFilter)) {
-            whereAnds.add(defaultFilter);
-        }
-
-        // append: ProtocolFilter
-        String protocolFilter = queryExpr.getString("protocolFilter");
-        if (StringUtils.isNotBlank(protocolFilter)) {
-            String w = parseProtocolFilter(protocolFilter);
-            if (w != null) whereAnds.add(w);
-        }
-        // append: protocolFilterAnd
-        String protocolFilterAnd = queryExpr.getString("protocolFilterAnd");
-        if (StringUtils.isNotBlank(protocolFilterAnd)) {
-            String w = parseProtocolFilter(protocolFilterAnd);
-            if (w != null) whereAnds.add(w);
-        }
-
-        // append: AdvFilter
-        String advFilter = queryExpr.getString("advFilter");
-        if (ID.isId(advFilter)) {
-            String where = parseAdvFilter(ID.valueOf(advFilter));
-            if (StringUtils.isNotBlank(where)) whereAnds.add(where);
-        }
-
-        // append: QuickQuery
-        JSONObject quickFilter = queryExpr.getJSONObject("filter");
-        if (quickFilter != null) {
-            String where = new AdvFilterParser(quickFilter, entity).toSqlWhere();
-            if (StringUtils.isNotBlank(where)) whereAnds.add(where);
-        }
-        // v3.3
-        JSONObject quickFilterAnd = queryExpr.getJSONObject("filterAnd");
-        if (quickFilterAnd != null) {
-            String where = new AdvFilterParser(quickFilterAnd, entity).toSqlWhere();
-            if (StringUtils.isNotBlank(where)) whereAnds.add(where);
-        }
-
-        final String whereClause = whereAnds.isEmpty() ? "1=1" : StringUtils.join(whereAnds.iterator(), " and ");
+        final String whereClause = parseFilters();
         fullSql.append(" where ").append(whereClause);
 
         // v4.0-b3 分组
@@ -269,6 +234,56 @@ public class QueryParser {
                 || BooleanUtils.toBoolean(queryExpr.getString("reload"));
         // force
         if ("false".equals(queryExpr.getString("reload"))) this.reload = false;
+    }
+
+    /**
+     * 解析过滤器
+     *
+     * @return
+     */
+    private String parseFilters() {
+        List<String> whereAnds = new ArrayList<>();
+
+        // Default
+        String defaultFilter = dataListBuilder == null ? null : dataListBuilder.getDefaultFilter();
+        if (StringUtils.isNotBlank(defaultFilter)) {
+            whereAnds.add(defaultFilter);
+        }
+
+        // append: ProtocolFilter
+        String protocolFilter = queryExpr.getString("protocolFilter");
+        if (StringUtils.isNotBlank(protocolFilter)) {
+            String w = parseProtocolFilter(protocolFilter);
+            if (w != null) whereAnds.add(w);
+        }
+        // append: protocolFilterAnd
+        String protocolFilterAnd = queryExpr.getString("protocolFilterAnd");
+        if (StringUtils.isNotBlank(protocolFilterAnd)) {
+            String w = parseProtocolFilter(protocolFilterAnd);
+            if (w != null) whereAnds.add(w);
+        }
+
+        // append: AdvFilter
+        String advFilter = queryExpr.getString("advFilter");
+        if (ID.isId(advFilter)) {
+            String where = parseAdvFilter(ID.valueOf(advFilter));
+            if (StringUtils.isNotBlank(where)) whereAnds.add(where);
+        }
+
+        // append: QuickQuery
+        JSONObject quickFilter = queryExpr.getJSONObject("filter");
+        if (quickFilter != null) {
+            String where = new AdvFilterParser(quickFilter, entity).toSqlWhere();
+            if (StringUtils.isNotBlank(where)) whereAnds.add(where);
+        }
+        // v3.3
+        JSONObject quickFilterAnd = queryExpr.getJSONObject("filterAnd");
+        if (quickFilterAnd != null) {
+            String where = new AdvFilterParser(quickFilterAnd, entity).toSqlWhere();
+            if (StringUtils.isNotBlank(where)) whereAnds.add(where);
+        }
+
+        return whereAnds.isEmpty() ? "1=1" : StringUtils.join(whereAnds.iterator(), " and ");
     }
 
     /**

@@ -369,12 +369,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 #asideCharts .chart-box:hover .chart-oper a.J_source,
 #asideCharts .chart-box:hover .chart-oper a.J_chart-edit,
-#asideCharts .chart-box:hover .chart-oper a.J_export {
+#asideCharts .chart-box:hover .chart-oper a.J_export,
+#asideCharts .chart-box:hover .chart-oper a.J_chart-filter {
   display: none !important;
 }
 
 #asideCharts .charts-wrap > div {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 #asideCharts .charts-wrap > div.fullscreen {
