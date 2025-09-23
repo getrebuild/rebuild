@@ -128,7 +128,7 @@
                       </div>
                     </div>
                     <div class="text-center">
-                      <h5 class="font-weight-bold">[[${bundle.L('日历模式')}]]</h5>
+                      <h5 class="font-weight-bold">[[${bundle.L('日历模式')}]] (LAB)</h5>
                       <div class="btn-group">
                         <button class="btn btn-secondary J_mode-select" type="button" data-mode="4">[[${bundle.L('使用')}]]</button>
                         <button class="btn btn-secondary J_mode4-option w-auto" type="button"><i class="icon zmdi zmdi-settings"></i></button>
@@ -152,12 +152,14 @@
                 </label>
                 <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2 bosskey-show">
                   <input class="custom-control-input J_drop-force" type="checkbox" />
-                  <span class="custom-control-label">[[${bundle.L('强制删除')}]]</span>
+                  <span class="custom-control-label">[[${bundle.L('强制删除')}]] (LAB)</span>
                 </label>
               </div>
               <div>
                 <button type="button" class="btn btn-danger J_drop-confirm" disabled="disabled"><i class="zmdi zmdi-delete icon"></i> [[${bundle.L('确定')}]]</button>
-                <button type="button" class="btn btn-warning J_truncate-confirm ml-2 bosskey-show" disabled="disabled"><i class="mdi mdi-alert-outline icon"></i> [[${bundle.L('清空数据')}]]</button>
+                <button type="button" class="btn btn-warning J_truncate-confirm ml-2 bosskey-show" disabled="disabled">
+                  <i class="mdi mdi-alert-outline icon"></i> [[${bundle.L('清空数据')}]] (LAB)
+                </button>
                 <div class="alert alert-warning alert-icon hide col-sm-6 mb-0">
                   <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
                   <div class="message">[[${bundle.L('系统内置，不允许删除')}]]</div>
@@ -166,7 +168,7 @@
             </div>
           </div>
           <div class="card bosskey-show">
-            <div class="card-header">[[${bundle.L('导出实体')}]]</div>
+            <div class="card-header">[[${bundle.L('导出实体')}]] (LAB)</div>
             <div class="card-body">
               <p class="link" th:utext="${bundle.L('将实体的元数据导出，方便与其他实例间共享。你也可以将导出文件发布到 [RB 仓库](https://getrebuild.com/market/go/1220-rb-store)。')}"></p>
               <div>

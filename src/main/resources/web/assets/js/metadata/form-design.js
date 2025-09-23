@@ -845,14 +845,14 @@ class DlgNForm extends RbModalHandler {
             <div className="form-group row pt-0">
               <label className="col-sm-3 col-form-label text-sm-right"></label>
               <div className="col-sm-7">
-                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 --bosskey-show">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 bosskey-show">
                   <input className="custom-control-input" type="checkbox" defaultChecked={this.state.hideEmptyFields} ref={(c) => (this._$hideEmptyFields = c)} />
-                  <span className="custom-control-label">{$L('隐藏空值字段 (详情页)')}</span>
+                  <span className="custom-control-label">{$L('隐藏空值字段 (详情页)')} (LAB)</span>
                 </label>
               </div>
             </div>
-            <div className="form-group row --bosskey-show">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('显示样式')}</label>
+            <div className="form-group row bosskey-show">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('显示样式')} (LAB)</label>
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._$verticalLayout = c)} defaultValue={this.state.verticalLayout}>
                   <option value="0">{$L('默认')}</option>
