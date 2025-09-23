@@ -645,7 +645,7 @@ class ChartLine extends BaseChart {
       option.tooltip.formatter = (a) => ECHART_TOOLTIP_FORMATTER(a, dataFlags)
       if (showLegend) {
         option.legend = ECHART_LEGEND_HOPT
-        option.grid.top = 40
+        option.grid.top = 50
       }
       if (showMarkLine) option.grid.right = 60
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
@@ -727,7 +727,7 @@ class ChartBar extends BaseChart {
       }
       if (showLegend) {
         option.legend = ECHART_LEGEND_HOPT
-        option.grid.top = 40
+        option.grid.top = 50
       }
       if (showMarkLine) option.grid.right = 60
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
@@ -1343,7 +1343,7 @@ class ChartScatter extends BaseChart {
       }
       if (showLegend) {
         option.legend = ECHART_LEGEND_HOPT
-        option.grid.top = 40
+        option.grid.top = 50
       }
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
