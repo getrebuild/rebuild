@@ -625,12 +625,15 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     this.getNextStep()
 
     $multipleUploader(this._$attach, (res) => {
-      const fs = this.state.remarkAttachments || []
-      let hasByName = $fileCutName(res.key)
-      hasByName = fs.find((x) => $fileCutName(x) === hasByName)
-      if (!hasByName) {
-        fs.push(res.key)
-        this.setState({ remarkAttachments: fs })
+      const paths = this.state.remarkAttachments || []
+      // 最多上传，多余忽略
+      if (paths.length < 9) {
+        let hasByName = $fileCutName(res.key)
+        hasByName = paths.find((x) => $fileCutName(x) === hasByName)
+        if (!hasByName) {
+          paths.push(res.key)
+          this.setState({ remarkAttachments: paths })
+        }
       }
     })
   }
