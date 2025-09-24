@@ -1498,7 +1498,10 @@ class RbFormNText extends RbFormElement {
   componentDidMount() {
     super.componentDidMount()
     // fix:4.1
-    if (this.props.onView) $(this._textarea).perfectScrollbar()
+    if (this.props.onView) {
+      $(this._textarea).perfectScrollbar()
+      this._initActionCopy()
+    }
   }
 
   onEditModeChanged(destroy) {
@@ -1549,16 +1552,20 @@ class RbFormNText extends RbFormElement {
       }
     }
 
-    if (this._$actionCopy) {
-      const that = this
-      const initCopy = function () {
-        $clipboard($(that._$actionCopy), that.state.value)
-      }
-      if (window.ClipboardJS) {
-        initCopy()
-      } else {
-        $getScript('/assets/lib/clipboard.min.js', initCopy)
-      }
+    this._initActionCopy()
+  }
+
+  _initActionCopy() {
+    if (!this._$actionCopy) return
+
+    const that = this
+    const initCopy = function () {
+      $clipboard($(that._$actionCopy), that.state.value)
+    }
+    if (window.ClipboardJS) {
+      initCopy()
+    } else {
+      $getScript('/assets/lib/clipboard.min.js', initCopy)
     }
   }
 
