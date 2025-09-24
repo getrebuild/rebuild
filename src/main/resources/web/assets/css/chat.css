@@ -220,6 +220,25 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-family: 'Courier New', 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
 }
 
+.chat-message .msg-content .md-content h1 {
+  font-size: 21px;
+}
+.chat-message .msg-content .md-content h2 {
+  font-size: 19px;
+}
+.chat-message .msg-content .md-content h3 {
+  font-size: 17px;
+}
+.chat-message .msg-content .md-content h4 {
+  font-size: 15px;
+}
+.chat-message .msg-content .md-content h5 {
+  font-size: 13px;
+}
+.chat-message .msg-content .md-content h6 {
+  font-size: 13px;
+}
+
 /* ChatSidebar */
 
 .chat-sidebar {
