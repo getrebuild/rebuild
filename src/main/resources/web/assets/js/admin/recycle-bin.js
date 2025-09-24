@@ -36,7 +36,7 @@ const ListConfig = {
     { field: 'deletedOn', label: $L('删除时间'), type: 'DATETIME' },
     { field: 'deletedBy.fullName', label: $L('删除用户') },
     { field: 'channelWith', label: $L('删除渠道'), unsort: true },
-    { field: 'recordId', label: $L('记录 ID'), unsort: true },
+    { field: 'recordId', label: $L('记录 ID'), unsort: true, width: 180 },
   ],
   sort: 'deletedOn:desc',
 }
