@@ -63,8 +63,9 @@ public class DeepSeek {
      */
     public static String getServerUrl(String path) {
         String url = RebuildConfiguration.get(ConfigurationItem.AibotDSUrl);
-        if (path != null) url += "/" + path;
-        return url.replace("//", "/");
+        if (!url.endsWith("/")) url += "/";
+        if (path.startsWith("/")) path = path.substring(1);
+        return url + path;
     }
 
     /**
