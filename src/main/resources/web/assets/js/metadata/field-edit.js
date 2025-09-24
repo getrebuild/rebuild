@@ -618,6 +618,7 @@ const _initRefsDefaultValue = function (allowEntities, isN2N) {
     RecordSelectorModal.create({
       title: $L('选择默认值'),
       allowEntities: ae,
+      allowBizz: true,
       onConfirm: (val) => {
         if (isN2N) {
           let valKeep = $dv.attr('data-value-id')
