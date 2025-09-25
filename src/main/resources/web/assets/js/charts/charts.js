@@ -117,6 +117,7 @@ class BaseChart extends React.Component {
       ...conf.extconfig,
       dash_filter_user: window.dash_filter_user || null,
       dash_filter_date: window.dash_filter_date || null,
+      dash_filter_custom: window.dash_filter_custom || null,
     }
     // 优先级高
     if (this._ChartFilter__data) conf.extconfig.chart_filter = this._ChartFilter__data

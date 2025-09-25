@@ -15,8 +15,9 @@ let refresh_timer = null
 let on_resizestart = false
 let rendered_charts = []
 
-let dash_filter_user = null
-let dash_filter_date = null
+window.dash_filter_user = null
+window.dash_filter_date = null
+window.dash_filter_custom = null
 
 $(document).ready(() => {
   const d = $urlp('d')
@@ -81,10 +82,11 @@ $(document).ready(() => {
     $('.J_chart-new').on('click', () => dlgShow('DlgAddChart'))
     $('.J_dash-select').on('click', () => dlgShow('DashSelect', { dashList: dash_list }))
 
-    $('.J_dash-refresh .dropdown-item').on('click', function () {
-      const $this = $(this)
-      $('.J_dash-refresh .btn span').text($this.text())
-      refresh_timeout = ~~$this.data('time')
+    const $refreshs = $('.J_dash-refresh .dropdown-item').on('click', function () {
+      $refreshs.removeClass('check')
+      const $a = $(this).addClass('check')
+      $('.J_dash-refresh .btn span').text($a.text())
+      refresh_timeout = ~~$a.data('time')
 
       if (refresh_timer) {
         clearInterval(refresh_timer)
@@ -200,17 +202,54 @@ $(document).ready(() => {
     }
   }
 
-  $('.J_dash-filter-user a').on('click', function () {
-    let $a = $(this)
-    dash_filter_user = $a.data('user')
-    $a.parents('.btn-group').find('.btn span').text($a.text())
+  function _dashReload() {
     rendered_charts.forEach((c) => c.loadChartData())
+  }
+  const $users = $('.J_dash-filter a[data-user]').on('click', function () {
+    $users.removeClass('check')
+    let $a = $(this).addClass('check')
+    window.dash_filter_user = $a.data('user')
+    _dashReload()
   })
-  $('.J_dash-filter-date a').on('click', function () {
-    let $a = $(this)
-    dash_filter_date = $a.data('date')
-    $a.parents('.btn-group').find('.btn span').text($a.text())
-    rendered_charts.forEach((c) => c.loadChartData())
+  const $dates = $('.J_dash-filter a[data-date]').on('click', function () {
+    $dates.removeClass('check')
+    let $a = $(this).addClass('check')
+    window.dash_filter_date = $a.data('date')
+    _dashReload()
+  })
+  let dash_Filter
+  const $custom = $('.J_dash-filter a[data-custom]').on('click', function () {
+    if (dash_Filter) {
+      dash_Filter.show()
+    } else {
+      let hold = $storage.get('dash_filter_custom')
+      try {
+        if (hold) hold = JSON.parse(hold)
+      } catch (e) {
+        hold = null
+      }
+
+      renderRbcomp(
+        <AdvFilter
+          title={$L('仪表盘过滤条件')}
+          entity="SystemCommon"
+          filter={window.dash_filter_custom || hold || null}
+          onConfirm={(s) => {
+            if (s && s.items && s.items.length) $custom.addClass('check')
+            else $custom.removeClass('check')
+
+            window.dash_filter_custom = s
+            $storage.set('dash_filter_custom', JSON.stringify(s))
+            _dashReload()
+          }}
+          inModal
+          canNoFilters
+        />,
+        function () {
+          dash_Filter = this
+        }
+      )
+    }
   })
 })
 
