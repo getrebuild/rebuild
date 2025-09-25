@@ -979,7 +979,7 @@ class AnyRecordSelector extends RecordSelector {
   componentDidMount() {
     super.componentDidMount()
 
-    $.get('/commons/metadata/entities?detail=true', (res) => {
+    $.get(`/commons/metadata/entities?detail=true&bizz=${this.props.allowBizz || false}`, (res) => {
       let entities = res.data || []
       if (this.props.allowEntities && this.props.allowEntities.length > 0) {
         entities = entities.filter((item) => this.props.allowEntities.includes(item.name))
@@ -1045,7 +1045,7 @@ class RecordSelectorModal extends RbAlert {
       <div className="form ml-3 mr-3">
         <div className="form-group">
           <label className="text-bold">{this.props.title || $L('选择记录')}</label>
-          <AnyRecordSelector ref={(c) => (this._AnyRecordSelector = c)} allowEntities={this.props.allowEntities} />
+          <AnyRecordSelector ref={(c) => (this._AnyRecordSelector = c)} allowEntities={this.props.allowEntities} allowBizz={this.props.allowBizz} />
         </div>
         <div className="form-group mb-2">
           <button
