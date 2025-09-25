@@ -263,7 +263,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
             if (s != null) filtersAnd.add(s);
         }
 
-        // v4.2 全局过滤
+        // v4.2 仪表盘全局过滤
         if (params != null && params.get("dash_filter_user") != null) {
             String s = parseGlobalFilter42(params.get("dash_filter_user"), EntityHelper.OwningUser);
             if (s != null) filtersAnd.add(s);
@@ -271,6 +271,14 @@ public abstract class ChartData extends SetUser implements ChartSpec {
         if (params != null && params.get("dash_filter_date") != null) {
             String s = parseGlobalFilter42(params.get("dash_filter_date"), EntityHelper.CreatedOn);
             if (s != null) filtersAnd.add(s);
+        }
+        if (params != null && params.get("dash_filter_custom") != null) {
+            JSONObject custom = params.getJSONObject("dash_filter_custom");
+            if (ParseHelper.validAdvFilter(custom)) {
+                custom.put("entity", getSourceEntity().getName());
+                String s = new AdvFilterParser(custom).toSqlWhere();
+                if (s != null) filtersAnd.add(s);
+            }
         }
 
         if (filtersAnd.isEmpty()) return "(1=1)";

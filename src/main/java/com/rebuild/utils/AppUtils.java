@@ -197,6 +197,13 @@ public class AppUtils {
         String wt = RebuildConfiguration.get(ConfigurationItem.MarkWatermarkFormat);
         if (StringUtils.isBlank(wt)) return null;
 
+        // 兼容中文变量
+        wt = wt.replace("{用户}", "{USER}");
+        wt = wt.replace("{姓名}", "{NAME}");
+        wt = wt.replace("{邮箱}", "{EMAIL}");
+        wt = wt.replace("{电话}", "{PHONE}");
+        wt = wt.replace("{系统}", "{SYS}");
+
         List<String> t = new ArrayList<>();
         User u = user == null ? null : Application.getUserStore().getUser(user);
         for (String item : wt.split(" ")) {

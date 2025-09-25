@@ -621,6 +621,7 @@ const _initRefsDefaultValue = function (allowEntities, isN2N) {
     RecordSelectorModal.create({
       title: $L('选择默认值'),
       allowEntities: ae,
+      allowBizz: true,
       onConfirm: (val) => {
         if (isN2N) {
           let valKeep = $dv.attr('data-value-id')
@@ -830,6 +831,7 @@ const __TYPE2TYPE = {
   'NTEXT': ['TEXT'],
   'IMAGE': ['FILE'],
   'FILE': ['IMAGE'],
+  'REFERENCE': ['N2NREFERENCE', 'ANYREFERENCE'],
 }
 class FieldTypeCast extends RbFormHandler {
   render() {
@@ -848,6 +850,7 @@ class FieldTypeCast extends RbFormHandler {
             <label className="col-sm-3 col-form-label text-sm-right">{$L('新字段类型')}</label>
             <div className="col-sm-7">
               <select className="form-control form-control-sm" ref={(c) => (this._$toType = c)}>
+                <option value="">{$L('请选择')}</option>
                 {toTypes.map((t) => {
                   return (
                     <option value={t} key={t}>
@@ -867,8 +870,8 @@ class FieldTypeCast extends RbFormHandler {
               <button className="btn btn-link" type="button" onClick={() => this.hide()}>
                 {$L('取消')}
               </button>
-              <button className="btn btn-light w-auto dropdown-toggle bosskey-show" type="button" data-toggle="dropdown" title={$L('更多操作')}>
-                <i className="icon zmdi zmdi-more fs-18" />
+              <button className="btn btn-light w-auto dropdown-toggle bosskey-show" type="button" data-toggle="dropdown">
+                {$L('更多')} (LAB) <i className="icon zmdi zmdi-more-vert"></i>
               </button>
               <div className="dropdown-menu">
                 <a className="dropdown-item" onClick={() => this.post('DATETIME40')}>
@@ -887,7 +890,7 @@ class FieldTypeCast extends RbFormHandler {
 
   componentDidMount() {
     $(this._$toType).select2({
-      placeholder: $L('不可转换'),
+      placeholder: $L('请选择'),
       templateResult: function (res) {
         const $span = $('<span class="icon-append"></span>').attr('title', res.text).text(res.text)
         $(`<i class="icon mdi ${(FIELD_TYPES[res.id] || [])[1]}"></i>`).appendTo($span)
@@ -898,7 +901,7 @@ class FieldTypeCast extends RbFormHandler {
 
   post(fixType) {
     const toType = fixType || $(this._$toType).val()
-    if (!toType) return RbHighbar.create($L('不可转换'))
+    if (!toType) return RbHighbar.create($L('请选择新字段类型'))
 
     const $btn = $(this._$btns).find('.btn').button('loading')
     $.post(`/admin/entity/field-type-cast?entity=${this.props.entity}&field=${this.props.field}&toType=${toType}`, (res) => {

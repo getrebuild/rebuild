@@ -26,6 +26,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesManager;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.service.trigger.TriggerAction;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.general.MetaFormatter;
@@ -71,7 +72,29 @@ public class MetadataGetting extends BaseController {
     }
 
     @GetMapping("fields")
-    public JSON fields(@EntityParam Entity entity, HttpServletRequest request) {
+    public JSON fields(HttpServletRequest request) {
+        String entityName = getParameter(request, "entity");
+        // v4.2 公共字段
+        if ("SystemCommon".equalsIgnoreCase(entityName)) {
+            Entity dept = MetadataHelper.getEntity("Department");
+            JSONArray common = new JSONArray();
+            common.add(EasyMetaFactory.valueOf(dept.getField(EntityHelper.CreatedBy)).toJSON());
+            common.add(EasyMetaFactory.valueOf(dept.getField(EntityHelper.CreatedOn)).toJSON());
+            common.add(EasyMetaFactory.valueOf(dept.getField(EntityHelper.ModifiedBy)).toJSON());
+            common.add(EasyMetaFactory.valueOf(dept.getField(EntityHelper.ModifiedOn)).toJSON());
+
+            JSON owningUser = EasyMetaFactory.valueOf(dept.getField("principalId")).toJSON();
+            JSON owningDept = EasyMetaFactory.valueOf(dept.getField("parentDept")).toJSON();
+            ((JSONObject) owningUser).put("name", "owningUser");
+            ((JSONObject) owningUser).put("label", Language.L("所属用户"));
+            ((JSONObject) owningDept).put("name", "owningDept");
+            ((JSONObject) owningDept).put("label", Language.L("所属部门"));
+            common.add(owningUser);
+            common.add(owningDept);
+            return common;
+        }
+
+        final Entity entity = MetadataHelper.getEntity(entityName);
         // 返回引用实体的字段层级
         int appendRefFields = getIntParameter(request, "deep");
         // 丰富字段信息

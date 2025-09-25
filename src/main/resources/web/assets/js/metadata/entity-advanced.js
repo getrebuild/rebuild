@@ -180,7 +180,7 @@ class DlgMode1Option extends RbFormHandler {
                     <label htmlFor="advListFilterTabs" />
                   </span>
                 </div>
-                <span>{$L('列表视图')}</span>
+                <span>{$L('列表视图')} (LAB)</span>
               </div>
             </div>
           </div>
