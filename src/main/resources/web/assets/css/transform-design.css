@@ -35,6 +35,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-left: 3px solid #bbb;
 }
 
+.fields-mapping span.badge.rep {
+  border-left: 3px solid #fbbc05;
+}
+
 .fields-mapping span.badge::before,
 .entities-mapping > li.nav-item a > span::before {
   content: '\f2fd';
@@ -43,9 +47,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
   right: 0;
   color: #aaa;
   transform: rotate(180deg);
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: bold;
-  margin-top: -2px;
+  margin-top: -3px;
 }
 
 .entities-mapping > li.nav-item a.nav-link > span {

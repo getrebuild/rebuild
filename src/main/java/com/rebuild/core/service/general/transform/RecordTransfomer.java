@@ -29,6 +29,7 @@ import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.query.FilterRecordChecker;
 import com.rebuild.core.support.SetUser;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.NamedThreadLocal;
@@ -199,7 +200,7 @@ public class RecordTransfomer extends SetUser {
         }
 
         try {
-            record = Application.getEntityService(targetEntity.getEntityCode()).createOrUpdate(record);
+            record = Application.getBestService(targetEntity).createOrUpdate(record);
             return record.getPrimary();
         } finally {
             if (this.skipGuard) GeneralEntityServiceContextHolder.isSkipGuardOnce();
@@ -324,6 +325,10 @@ public class RecordTransfomer extends SetUser {
         if (checkNullable) {
             AutoFillinManager.instance.fillinRecord(targetRecord);
 
+            // v4.2 用户密码特殊处理
+            if (targetEntity.getEntityCode() == EntityHelper.User && !targetRecord.hasValue("password")) {
+                targetRecord.setString("password", CommonsUtils.randomHex().substring(0, 6) + "rB!8");
+            }
             // v3.9 直接转换时验证非空字段
             new EntityRecordCreator(targetEntity, JSONUtils.EMPTY_OBJECT, getUser()).verify(targetRecord);
         }

@@ -19,7 +19,7 @@ class TransformList extends ConfigList {
 
   render() {
     return (
-      <React.Fragment>
+      <RF>
         {(this.state.data || []).map((item) => {
           const name = taggedTitle(item[6]) || `${item[2]} · ${item[4]}`
           return (
@@ -52,7 +52,7 @@ class TransformList extends ConfigList {
             </tr>
           )
         })}
-      </React.Fragment>
+      </RF>
     )
   }
 
@@ -80,17 +80,18 @@ class TransformEditor extends ConfigFormDlg {
   }
 
   renderFrom() {
+    const entities = this.state.entities || []
     return (
-      <React.Fragment>
+      <RF>
         {!this.props.id && (
-          <React.Fragment>
+          <RF>
             <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('选择源实体')}</label>
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._source = c)}>
-                  {(this.state.entities || []).map((item) => {
+                  {entities.map((item) => {
                     return (
-                      <option key={item.name} value={item.name}>
+                      <option key={item.name} value={item.name} data-pinyin={item.quickCode}>
                         {item.label}
                       </option>
                     )
@@ -102,17 +103,27 @@ class TransformEditor extends ConfigFormDlg {
               <label className="col-sm-3 col-form-label text-sm-right">{$L('选择目标实体')}</label>
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._target = c)}>
-                  {(this.state.entities || []).map((item) => {
+                  {entities.map((item) => {
                     return (
-                      <option key={item.name} value={item.name}>
+                      <option key={item.name} value={item.name} data-pinyin={item.quickCode}>
                         {item.label}
                       </option>
                     )
                   })}
+                  {entities.length && (
+                    <RF>
+                      <option value="User" data-pinyin="yonghu">
+                        {$L('用户')}
+                      </option>
+                      <option value="Department" data-pinyin="bumen">
+                        {$L('部门')}
+                      </option>
+                    </RF>
+                  )}
                 </select>
               </div>
             </div>
-          </React.Fragment>
+          </RF>
         )}
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
@@ -130,7 +141,7 @@ class TransformEditor extends ConfigFormDlg {
             </div>
           </div>
         )}
-      </React.Fragment>
+      </RF>
     )
   }
 
