@@ -87,13 +87,28 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #fbbc05;
 }
 
+.fields-mapping .row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.fields-mapping .row > div:first-child {
+  padding-left: 0;
+}
+
+.fields-mapping .row > div:last-child {
+  padding-right: 0;
+}
+
+.fields-mapping .row:not(.title2):hover {
+  background-color: #f0f0f0;
+}
+
 .fields-mapping .row::after {
   content: ' ';
   height: 1px;
   width: 100%;
   border-bottom: 1px dotted #dee2e6;
-  margin-left: 15px;
-  margin-right: 15px;
 }
 
 .fields-mapping .row.title2::after {
