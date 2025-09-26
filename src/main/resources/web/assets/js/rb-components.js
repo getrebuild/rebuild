@@ -1199,13 +1199,17 @@ class Md2Html extends React.Component {
         .each(function () {
           const $img = $(this)
           let isrc = $img.attr('src')
-          isrc = isrc.split('/filex/img/')[1].split(/[?&]imageView2/)[0]
-          imgs.push(isrc)
-          $img.on('click', (e) => {
-            $stopEvent(e, true)
-            const p = parent || window
-            p.RbPreview.create(imgs, imgs.indexOf(isrc) || 0)
-          })
+          if (isrc) {
+            if (isrc.includes('/filex/img/')) {
+              isrc = isrc.split('/filex/img/')[1].split(/[?&]imageView2/)[0]
+            }
+            imgs.push(isrc)
+            $img.on('click', (e) => {
+              $stopEvent(e, true)
+              const p = parent || window
+              p.RbPreview.create(imgs, imgs.indexOf(isrc) || 0)
+            })
+          }
         })
     })
   }
@@ -1214,6 +1218,7 @@ class Md2Html extends React.Component {
 // ~~ short React.Fragment
 const RF = ({ children }) => <React.Fragment>{children}</React.Fragment>
 
+// ~~ 右下弹出框
 class RbGritter extends React.Component {
   constructor(props) {
     super(props)
