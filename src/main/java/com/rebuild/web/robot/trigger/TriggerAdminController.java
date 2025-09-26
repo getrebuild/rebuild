@@ -151,9 +151,9 @@ public class TriggerAdminController extends BaseController {
             else if (targetEntity.contains(".")) targetEntity = targetEntity.split("\\.")[1];
 
             if (MetadataHelper.containsEntity(targetEntity)) {
-                return new String[]{ targetEntity, EasyMetaFactory.getLabel(targetEntity) };
+                return new String[]{targetEntity, EasyMetaFactory.getLabel(targetEntity)};
             } else {
-                return new String[]{ null, String.format("[%s]", targetEntity.toUpperCase()) };
+                return new String[]{null, String.format("[%s]", targetEntity.toUpperCase())};
             }
         }
 
@@ -162,29 +162,31 @@ public class TriggerAdminController extends BaseController {
         if (ID.isId(useTransform)) {
             try {
                 ConfigBean cb = TransformManager.instance.getTransformConfig(ID.valueOf(useTransform), sourceEntity);
-                return new String[]{ useTransform, cb.getString("name") };
+                return new String[]{useTransform, cb.getString("name")};
             } catch (Exception deleted) {
-                return new String[]{ null, String.format("[%s]", useTransform.toUpperCase()) };
+                return new String[]{null, String.format("[%s]", useTransform.toUpperCase())};
             }
         }
+
         // 自动审批
         String useApproval = configJson.getString("useApproval");
         if (ID.isId(useApproval)) {
             try {
                 ConfigBean cb = RobotApprovalManager.instance.getFlowDefinition(ID.valueOf(useApproval));
-                return new String[]{ useApproval, cb.getString("name") };
+                return new String[]{useApproval, cb.getString("name")};
             } catch (Exception deleted) {
-                return new String[]{ null, String.format("[%s]", useApproval.toUpperCase()) };
+                return new String[]{null, String.format("[%s]", useApproval.toUpperCase())};
             }
         }
+
         // 导出报表
         String useTemplate = configJson.getString("useTemplate");
         if (ID.isId(useTemplate)) {
             try {
                 ConfigBean cb = DataReportManager.instance.getReportRaw(ID.valueOf(useTemplate));
-                return new String[]{ useTemplate, cb.getString("name") };
+                return new String[]{useTemplate, cb.getString("name")};
             } catch (Exception deleted) {
-                return new String[]{ null, String.format("[%s]", useTemplate.toUpperCase()) };
+                return new String[]{null, String.format("[%s]", useTemplate.toUpperCase())};
             }
         }
 

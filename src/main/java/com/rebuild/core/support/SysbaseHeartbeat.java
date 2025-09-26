@@ -164,11 +164,20 @@ public class SysbaseHeartbeat {
     }
 
     /**
+     * 获取最新的日志文件
+     *
+     * @param isError 如获取不到则降级获取
      * @return
      */
-    public static File getLogbackFile() {
+    public static File getLastLogbackFile(boolean isError) {
         LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-        Logger lg = lc.getLogger("ROOT");
+        Logger lg = lc.getLogger(isError ? "com.rebuild" : "ROOT");
+
+        if (isError) {
+            FileAppender<?> fa = (FileAppender<?>) lg.getAppender("FILE-ERROR");
+            if (fa != null && fa.getFile() != null) return new File(fa.getFile());
+        }
+
         FileAppender<?> fa = (FileAppender<?>) lg.getAppender("FILE");
         return new File(fa.getFile());
     }

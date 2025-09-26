@@ -186,3 +186,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-weight: bold;
   color: #fbbc05;
 }
+
+.block4 {
+  text-align: center;
+  vertical-align: middle;
+  font-size: 2px;
+  padding-top: 9px;
+}
+
+.block4 .block-item4 {
+  display: inline-block;
+  background-color: #dee2e6;
+  width: 30%;
+  height: 30%;
+  margin: 0;
+  padding: 0;
+  margin-top: 0;
+}

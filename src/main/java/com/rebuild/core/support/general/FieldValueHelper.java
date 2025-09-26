@@ -25,6 +25,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.EasyReference;
 import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
@@ -70,6 +71,10 @@ public class FieldValueHelper {
      * 无权限标识
      */
     public static final String NO_READ_PRIVILEGES = "$NOPRIVILEGES$";
+    /**
+     * 当前（BIZZ、DATE）
+     */
+    public static final String CURRENT = EasyReference.VAR_CURRENT;
 
     /**
      * @param value

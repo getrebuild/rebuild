@@ -169,7 +169,7 @@ public class FileListController extends BaseController {
             sqlWhere.add(String.format("relatedRecord = '%s'", related));
         }
 
-        String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn,inFolder,relatedRecord,fileName from Attachment where (1=1) and (isDeleted = ?)";
+        String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn,inFolder,relatedRecord,fileName,belongField from Attachment where (1=1) and (isDeleted <> 'T')";
         sql = sql.replace("(1=1)", StringUtils.join(sqlWhere.iterator(), " and "));
         if ("size".equals(sort)) {
             sql += " order by fileSize desc";
@@ -179,9 +179,7 @@ public class FileListController extends BaseController {
             sql += " order by modifiedOn desc";
         }
 
-        // FIXME 会连同路径一起搜索
         Object[][] array = Application.createQueryNoFilter(sql)
-                .setParameter(1, false)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
 
@@ -202,6 +200,7 @@ public class FileListController extends BaseController {
             if (relatedRecord != null && MetadataHelper.containsEntity(relatedRecord.getEntityCode())) {
                 Entity belongEntity = MetadataHelper.getEntity(relatedRecord.getEntityCode());
                 item.put("relatedRecord", new Object[]{relatedRecord, EasyMetaFactory.getLabel(belongEntity)});
+                item.put("belongField", o[9]);
             }
 
             files.add(item);

@@ -49,19 +49,20 @@ class ApprovalProcessor extends React.Component {
     let aMsg = $L('当前记录正在审批中')
     let imApproverCurrent = false
     if (this.state.imApprover) {
-      if (this.state.imApproveSatate === 1) {
+      if (this.state.imApproveState === 1) {
         aMsg = $L('当前记录正在等待你审批')
         imApproverCurrent = true
-      } else if (this.state.imApproveSatate === 10) aMsg = $L('你已审批同意，正在等待其他人审批')
-      else if (this.state.imApproveSatate === 11) aMsg = $L('你已驳回审批')
+      } else if (this.state.imApproveState === 10) aMsg = $L('你已审批同意，正在等待其他人审批')
+      else if (this.state.imApproveState === 11) aMsg = $L('你已驳回审批')
     }
 
     return (
       <div className="alert alert-warning shadow-sm">
         <span className="close">
-          {this.state.imApprover && this.state.imApproveSatate === 1 && (
+          {this.state.imApprover && this.state.imApproveState === 1 && (
             <button className="btn btn-secondary" onClick={this.approve}>
               {$L('审批')}
+              {imApproverCurrent && this.state.expiresTime > 0 && ` (${$L('已超时')})`}
             </button>
           )}
           {this.state.canUrge && imApproverCurrent === false && (
@@ -404,8 +405,8 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
                 <p className="text-muted">
                   {$L('无适用流程')}
                   {rb.isAdminUser && (
-                    <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/robot/approvals`}>
-                      <i className="zmdi zmdi-settings" /> {$L('点击配置')}
+                    <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/robot/approvals?new=${(window.__PageConfig || {}).entity[0] || ''}`}>
+                      <i className="zmdi zmdi-settings" /> {$L('点击添加')}
                     </a>
                   )}
                 </p>
@@ -484,8 +485,9 @@ class ApprovalApproveForm extends ApprovalUsersForm {
           )}
 
           {(this.state.aform || this.state.aform_details) && this.renderLiteForm()}
+          {this.state.editableMode === 1 && this.renderEditable()}
 
-          <div className="form-group">
+          <div className="form-group mb-3">
             <label>
               {$L('批注')}
               {this.state.expiresTime > 0 && <span className="text-danger ml-1">({$L('已超时 %s', $sec2Time(this.state.expiresTime))})</span>}
@@ -499,6 +501,28 @@ class ApprovalApproveForm extends ApprovalUsersForm {
               onChange={this.handleChange}
               maxLength="600"
             />
+            <div className="file-field">
+              <span className="file-field-show">
+                {this.state.remarkAttachments &&
+                  this.state.remarkAttachments.map((item) => {
+                    return (
+                      <FileShow
+                        file={item}
+                        key={item}
+                        removeHandle={(e) => {
+                          const fs = this.state.remarkAttachments || []
+                          fs.remove(item)
+                          this.setState({ remarkAttachments: fs })
+                        }}
+                      />
+                    )
+                  })}
+              </span>
+              <label className="file-field-handle" title={$L('上传附件')}>
+                <input type="file" className="inputfile" ref={(c) => (this._$attach = c)} multiple />
+                <i className="mdi mdi-attachment mdi-rotate-315"></i>
+              </label>
+            </div>
           </div>
 
           {this.renderUsers()}
@@ -559,7 +583,61 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     )
   }
 
-  componentDidMount = () => this.getNextStep()
+  renderEditable() {
+    return (
+      <div className="form-group">
+        <label>{$L('信息完善')}</label>
+        <div>
+          <button
+            type="button"
+            className="btn btn-primary btn-outline"
+            onClick={() => {
+              $fetchMetaInfo(this.props.entity, (res) => {
+                const editProps = {
+                  entity: res.entity,
+                  title: $L('编辑%s', res.entityLabel),
+                  icon: res.icon,
+                  id: this.props.id,
+                  postAfter: (recordId, next, formObject) => {
+                    // 刷新列表
+                    const rlp = window.RbListPage || parent.RbListPage
+                    if (rlp) rlp.reload(recordId)
+                    RbAlert.create($L('数据可能已更改，是否需要刷新页面？'), {
+                      onConfirm: () => {
+                        // 刷新视图
+                        if (window.RbViewPage) window.RbViewPage.reload()
+                      },
+                    })
+                  },
+                }
+                RbFormModal.create(editProps, true)
+              })
+            }}>
+            <i className="icon zmdi zmdi-edit mr-1" />
+            {$L('编辑')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    this.getNextStep()
+
+    $multipleUploader(this._$attach, (res) => {
+      const paths = this.state.remarkAttachments || []
+      // 最多上传，多余忽略
+      if (paths.length < 9) {
+        let hasByName = $fileCutName(res.key)
+        hasByName = paths.find((x) => $fileCutName(x) === hasByName)
+        if (!hasByName) {
+          paths.push(res.key)
+          this.setState({ remarkAttachments: paths })
+        }
+      }
+    })
+  }
+
   reload = () => this.getNextStep()
 
   post(state) {
@@ -626,13 +704,14 @@ class ApprovalApproveForm extends ApprovalUsersForm {
 
     const data = {
       remark: this.state.remark || null,
+      remarkAttachments: this.state.remarkAttachments || null,
       selectUsers: selectUsers,
       aformData: aformData,
       useGroup: this.state.useGroup,
     }
     // v4.0
     if (this.state.remarkReq >= 1 && $empty(data.remark)) {
-      RbHighbar.createl('请填写批注')
+      RbHighbar.createl('请输入批注')
       return false
     }
 
@@ -904,6 +983,13 @@ class ApprovalStepViewer extends React.Component {
                 <blockquote className="blockquote timeline-blockquote mb-0">
                   <p className="text-wrap">{item.remark}</p>
                 </blockquote>
+              )}
+              {item.remarkAttachments && item.remarkAttachments.length > 0 && (
+                <div className="file-field mt-1 ml-1">
+                  {item.remarkAttachments.map((item) => (
+                    <FileShow file={item} key={item} />
+                  ))}
+                </div>
               )}
               {item.state >= 10 && (item.ccUsers || []).length + (item.ccAccounts || []).length > 0 && (
                 <blockquote className="blockquote timeline-blockquote mb-0 cc">

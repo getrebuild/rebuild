@@ -11,6 +11,7 @@ $(document).ready(() => {
 
   $('.J_add').on('click', () => renderRbcomp(<ApprovalEdit />))
   $('.J_referral').on('click', () => renderRbcomp(<ApprovalReferral />))
+  if ($urlp('new')) setTimeout(() => $('.J_add').trigger('click'), 500)
 })
 
 class ApprovalList extends ConfigList {
@@ -153,6 +154,7 @@ class ApprovalEdit extends ConfigFormDlg {
 
     let e = $('.aside-tree li.active>a').attr('href')
     e = e ? e.split('=')[1] : null
+    if ($urlp('new')) e = $urlp('new')
     if (e) {
       setTimeout(() => $(this._entity).val(e).trigger('change'), 300)
     }

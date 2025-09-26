@@ -127,8 +127,8 @@ public abstract class BaseEasyMeta<T extends BaseMeta> implements BaseMeta, JSON
      * @see com.rebuild.core.support.i18n.Language#L(BaseMeta)
      */
     public String getLabel() {
-        String l = Language.L(getRawMeta());
-        return CommonsUtils.escapeHtml(l);
+        String L42 = Language.L(getRawMeta());
+        return CommonsUtils.escapeHtml(L42);
     }
 
     /**

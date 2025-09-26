@@ -21,7 +21,6 @@ import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import com.rebuild.web.user.signup.LoginController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -40,6 +39,8 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import static com.rebuild.web.commons.LanguageController.putLocales;
 
 /**
  * @author devezhao
@@ -65,7 +66,7 @@ public class InstallController extends BaseController implements InstallState {
         mv.getModel().put("Version", Application.VER);
 
         // 切换语言
-        LoginController.putLocales(mv, AppUtils.getReuqestLocale(request));
+        putLocales(mv, AppUtils.getReuqestLocale(request));
         return mv;
     }
 

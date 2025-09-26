@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web;
 
+import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.persist4j.exception.JdbcException;
 import cn.devezhao.persist4j.exception.jdbc.ConstraintViolationException;
 import com.rebuild.core.service.DataSpecificationException;
@@ -37,6 +38,9 @@ public class KnownExceptionConverter {
         if (ex == null) return null;
 
         if (ex instanceof DataSpecificationException) {
+            return ex.getLocalizedMessage();
+        }
+        if (ex instanceof AccessDeniedException) {
             return ex.getLocalizedMessage();
         }
 

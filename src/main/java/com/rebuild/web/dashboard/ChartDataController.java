@@ -14,6 +14,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.core.service.dashboard.charts.ChartsFactory;
+import com.rebuild.core.service.dashboard.charts.builtin.FeedsSchedule;
+import com.rebuild.core.service.dashboard.charts.builtin.MyNotification;
 import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
@@ -63,6 +65,15 @@ public class ChartDataController extends BaseController {
     @RequestMapping("view-chart-source")
     public void viewChartSource(@IdParam ID chartId,
                                 HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (MyNotification.MYID.equals(chartId)) {
+            response.sendRedirect("../notifications");
+            return;
+        }
+        if (FeedsSchedule.MYID.equals(chartId)) {
+            response.sendRedirect("../feeds/home");
+            return;
+        }
+
         ConfigBean configEntry = ChartManager.instance.getChart(chartId);
 
         JSONObject config = (JSONObject) configEntry.getJSON("config");

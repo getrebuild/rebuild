@@ -562,7 +562,7 @@ public class UserStore implements Initialization {
                     userId, (String) o[1], (String) o[2], (String) o[8], (String) o[3], (String) o[4], (Boolean) o[5], (Integer) o[9]);
             store(user);
         }
-        log.info("Loaded [ " + USERS.size() + " ] users.");
+        log.info("Loaded [ {} ] users.", USERS.size());
 
         // 角色
 
@@ -570,7 +570,7 @@ public class UserStore implements Initialization {
         for (Object[] o : array) {
             this.refreshRole((ID) o[0]);
         }
-        log.info("Loaded [ " + ROLES.size() + " ] roles.");
+        log.info("Loaded [ {} ] roles.", ROLES.size());
 
         // 附加角色
         for (User user : USERS.values()) {
@@ -602,7 +602,7 @@ public class UserStore implements Initialization {
             }
         }
 
-        log.info("Loaded [ " + DEPTS.size() + " ] departments.");
+        log.info("Loaded [ {} ] departments.", DEPTS.size());
 
         // 团队
 
@@ -610,7 +610,7 @@ public class UserStore implements Initialization {
         for (Object[] o : array) {
             this.refreshTeam((ID) o[0]);
         }
-        log.info("Loaded [ " + TEAMS.size() + " ] teams.");
+        log.info("Loaded [ {} ] teams.", TEAMS.size());
 
         isLoaded = true;
     }

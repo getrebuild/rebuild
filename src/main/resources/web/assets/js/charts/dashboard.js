@@ -15,6 +15,10 @@ let refresh_timer = null
 let on_resizestart = false
 let rendered_charts = []
 
+window.dash_filter_user = null
+window.dash_filter_date = null
+window.dash_filter_custom = null
+
 $(document).ready(() => {
   const d = $urlp('d')
   if (d) $storage.set('DashDefault', d)
@@ -78,10 +82,11 @@ $(document).ready(() => {
     $('.J_chart-new').on('click', () => dlgShow('DlgAddChart'))
     $('.J_dash-select').on('click', () => dlgShow('DashSelect', { dashList: dash_list }))
 
-    $('.J_dash-refresh .dropdown-item').on('click', function () {
-      const $this = $(this)
-      $('.J_dash-refresh .btn span').text($this.text())
-      refresh_timeout = ~~$this.data('time')
+    const $refreshs = $('.J_dash-refresh .dropdown-item').on('click', function () {
+      $refreshs.removeClass('check')
+      const $a = $(this).addClass('check')
+      $('.J_dash-refresh .btn span').text($a.text())
+      refresh_timeout = ~~$a.data('time')
 
       if (refresh_timer) {
         clearInterval(refresh_timer)
@@ -90,7 +95,7 @@ $(document).ready(() => {
 
       if (refresh_timeout > 0) {
         refresh_timer = setInterval(() => {
-          rendered_charts.forEach((x) => x.loadChartData())
+          rendered_charts.forEach((c) => c.loadChartData())
         }, refresh_timeout * 1000)
       }
     })
@@ -196,6 +201,56 @@ $(document).ready(() => {
       window.localStorage.setItem('LastRebuildVer', rb.ver)
     }
   }
+
+  function _dashReload() {
+    rendered_charts.forEach((c) => c.loadChartData())
+  }
+  const $users = $('.J_dash-filter a[data-user]').on('click', function () {
+    $users.removeClass('check')
+    let $a = $(this).addClass('check')
+    window.dash_filter_user = $a.data('user')
+    _dashReload()
+  })
+  const $dates = $('.J_dash-filter a[data-date]').on('click', function () {
+    $dates.removeClass('check')
+    let $a = $(this).addClass('check')
+    window.dash_filter_date = $a.data('date')
+    _dashReload()
+  })
+  let dash_Filter
+  const $custom = $('.J_dash-filter a[data-custom]').on('click', function () {
+    if (dash_Filter) {
+      dash_Filter.show()
+    } else {
+      let hold = $storage.get('dash_filter_custom')
+      try {
+        if (hold) hold = JSON.parse(hold)
+      } catch (e) {
+        hold = null
+      }
+
+      renderRbcomp(
+        <AdvFilter
+          title={$L('仪表盘过滤条件')}
+          entity="SystemCommon"
+          filter={window.dash_filter_custom || hold || null}
+          onConfirm={(s) => {
+            if (s && s.items && s.items.length) $custom.addClass('check')
+            else $custom.removeClass('check')
+
+            window.dash_filter_custom = s
+            $storage.set('dash_filter_custom', JSON.stringify(s))
+            _dashReload()
+          }}
+          inModal
+          canNoFilters
+        />,
+        function () {
+          dash_Filter = this
+        }
+      )
+    }
+  })
 })
 
 // 全屏工具
@@ -355,7 +410,17 @@ class DlgAddChart extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('图表数据来源')}</label>
             <div className="col-sm-7">
-              <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)} />
+              <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)}>
+                {this.state._entities &&
+                  this.state._entities.map((item) => {
+                    if ($isSysMask(item.label)) return null
+                    return (
+                      <option key={item.name} value={item.name} data-pinyin={item.quickCode}>
+                        {item.label}
+                      </option>
+                    )
+                  })}
+              </select>
             </div>
           </div>
           <div className="form-group row footer">
@@ -375,16 +440,11 @@ class DlgAddChart extends RbFormHandler {
 
   componentDidMount() {
     $.get('/commons/metadata/entities?detail=true', (res) => {
-      const _data = res.data || []
-      _data.forEach((item) => {
-        if (!$isSysMask(item.label)) {
-          $(`<option value="${item.name}">${item.label}</option>`).appendTo(this._$entity)
-        }
-      })
-
-      this.__select2 = $(this._$entity).select2({
-        allowClear: false,
-        placeholder: $L('选择数据来源'),
+      this.setState({ _entities: res.data || [] }, () => {
+        this.__select2 = $(this._$entity).select2({
+          allowClear: false,
+          placeholder: $L('选择数据来源'),
+        })
       })
     })
   }

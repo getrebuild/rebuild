@@ -22,7 +22,10 @@ import java.util.Date;
 public class EasyDateTime extends EasyField {
     private static final long serialVersionUID = 3882003543084097603L;
 
-    // 此变量表示当前日期（时间）
+    /**
+     * 此变量表示当前日期（时间）
+     * @see EasyReference#VAR_CURRENT
+     */
     public static final String VAR_NOW = "{NOW}";
 
     protected EasyDateTime(Field field, DisplayType displayType) {

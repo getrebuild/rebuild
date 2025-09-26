@@ -59,6 +59,8 @@ public class RecordTransfomer extends SetUser {
     final protected JSONObject transConfig;
     final protected boolean skipGuard;
 
+    final private ID transid;
+
     /**
      * @param transid
      */
@@ -67,6 +69,7 @@ public class RecordTransfomer extends SetUser {
         this.targetEntity = MetadataHelper.getEntity(config.getString("target"));
         this.transConfig = (JSONObject) config.getJSON("config");
         this.skipGuard = false;
+        this.transid = transid;
     }
 
     /**
@@ -78,6 +81,7 @@ public class RecordTransfomer extends SetUser {
         this.targetEntity = targetEntity;
         this.transConfig = transConfig;
         this.skipGuard = skipGuard;
+        this.transid = null;
     }
 
     /**
@@ -218,7 +222,7 @@ public class RecordTransfomer extends SetUser {
         Record updateSource = EntityHelper.forUpdate(sourceRecordId, UserService.SYSTEM_USER, false);
         updateSource.setID(fillbackField, newId);
 
-        // 4.1.3 配置开放
+        // 4.1.4 (LAB) 配置开放
         int fillbackMode = transConfig.getIntValue("fillbackMode");
         if (fillbackMode == 2 && !EntityHelper.isUnsavedId(newId) && FILLBACK2_ONCE414.get() == null) {
             GeneralEntityServiceContextHolder.setAllowForceUpdate(updateSource.getPrimary());
@@ -265,7 +269,7 @@ public class RecordTransfomer extends SetUser {
         List<String> validFields = checkAndWarnFields(sourceEntity, fieldsMapping.values());
         if (validFields.isEmpty()) {
             // fix: https://github.com/getrebuild/rebuild/issues/633
-            log.warn("No fields (var) for transform : {}", fieldsMapping);
+            log.debug("No fields (var) for transform : {} in {}", fieldsMapping, this.transid);
         }
 
         validFields.add(sourceEntity.getPrimaryField().getName());

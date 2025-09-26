@@ -41,12 +41,20 @@
         <div class="card-body">
           <div class="dataTables_wrapper container-fluid">
             <div class="row rb-datatable-header">
-              <div class="col-6">
+              <div class="col-7">
                 <div class="dataTables_filter">
                   <div class="adv-search float-left">
-                    <button th:title="${bundle.L('高级查询')}" class="btn btn-secondary w-auto J_filterbtn mr-1" type="button">
-                      <i class="icon mdi mdi-filter"></i>
-                    </button>
+                    <div class="btn-group btn-space">
+                      <button th:title="${bundle.L('常用查询')}" class="btn btn-secondary dropdown-toggle J_filterlist" type="button" data-toggle="dropdown">
+                        <span class="text-truncate J_name">[[${bundle.L('全部数据')}]]</span><i class="icon zmdi zmdi-caret-down"></i>
+                      </button>
+                      <div class="dropdown-menu rb-scroller nott">
+                        <div class="dropdown-item" data-id="$ALL$"><a>[[${bundle.L('全部数据')}]]</a></div>
+                      </div>
+                      <div class="input-group-append">
+                        <button th:title="${bundle.L('高级查询')}" class="btn btn-secondary w-auto J_filterbtn" type="button"><i class="icon mdi mdi-filter"></i></button>
+                      </div>
+                    </div>
                   </div>
                   <div class="input-group input-search" style="width: 227px">
                     <input class="form-control" type="text" th:placeholder="${quickFieldsLabel ?:bundle.L('快速查询')}" th:title="${quickFieldsLabel}" />
@@ -57,7 +65,7 @@
                   <span id="dropdown-menu-advfilter"></span>
                 </div>
               </div>
-              <div class="col-6">
+              <div class="col-5">
                 <div class="dataTables_oper">
                   <button class="btn btn-space btn-primary btn-outline J_select" type="button"><i class="icon zmdi zmdi-check"></i> [[${bundle.L('选择')}]]</button>
                   <a th:if="${canCreate}" target="_blank" class="btn btn-space btn-primary" th:href="|${baseUrl}/app/entity/form?e=${entityName}&after=close|">

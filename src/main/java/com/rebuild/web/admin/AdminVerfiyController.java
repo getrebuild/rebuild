@@ -125,16 +125,18 @@ public class AdminVerfiyController extends BaseController {
             return;
         }
 
-        final String type = getParameterNotNull(request, "type");
+        final String type = getParameter(request, "type", "log");
+
         // 日志
-        if ("log".equalsIgnoreCase(type)) {
-            File logFile = SysbaseHeartbeat.getLogbackFile();
+        if ("log".equalsIgnoreCase(type) || "error".equalsIgnoreCase(type)) {
+            File logFile = SysbaseHeartbeat.getLastLogbackFile("error".equalsIgnoreCase(type));
+
+            ServletUtils.setContentType(response, ServletUtils.CT_PLAIN);
             FileDownloader.setDownloadHeaders(response, logFile.getName(), false);
             FileDownloader.writeLocalFile(logFile, response);
-            return;
         }
         // 数据库
-        if ("database".equalsIgnoreCase(type)) {
+        else if ("database".equalsIgnoreCase(type) || "db".equalsIgnoreCase(type)) {
             File path = RebuildConfiguration.getFileOfData("");
             path = new File(path, "_backups");
 

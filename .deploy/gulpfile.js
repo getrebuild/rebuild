@@ -34,7 +34,7 @@ function compileJs(m) {
     .pipe(babel(BABEL_OPTIONS))
     .pipe(
       debug({
-        title: 'Compiled .js : ',
+        title: 'Compiled .js   :',
       })
     )
     .pipe(dest(`${OUT_ROOT}/assets/js`))
@@ -45,7 +45,7 @@ function compileCss(m) {
     .pipe(cleanCSS())
     .pipe(
       debug({
-        title: 'Compiled .css : ',
+        title: 'Compiled .css  :',
       })
     )
     .pipe(dest(`${OUT_ROOT}/assets/css`))
@@ -121,7 +121,7 @@ function compileHtml(m) {
     )
     .pipe(
       debug({
-        title: 'Compiled .html : ',
+        title: 'Compiled .html :',
       })
     )
     .pipe(dest(OUT_ROOT))

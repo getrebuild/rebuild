@@ -32,7 +32,7 @@ const ListConfig = {
     { field: 'revisionOn', label: $L('变更时间'), type: 'DATETIME' },
     { field: 'revisionBy.fullName', label: $L('变更用户') },
     { field: 'channelWith', label: $L('变更渠道'), unsort: true },
-    { field: 'recordId', label: $L('记录 ID'), unsort: true },
+    { field: 'recordId', label: $L('记录 ID'), unsort: true, width: 180 },
   ],
   sort: 'revisionOn:desc',
 }

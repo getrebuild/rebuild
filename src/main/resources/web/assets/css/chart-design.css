@@ -263,8 +263,9 @@ a.ui-draggable.ui-draggable-dragging {
 .data-info .input .form-control + .icon {
   position: absolute;
   right: 12px;
-  top: 9px;
+  top: 8px;
   color: #999;
+  font-size: 15px;
 }
 
 .data-info .input .form-control:hover,
@@ -468,20 +469,29 @@ a.ui-draggable.ui-draggable-dragging {
   background-position: -1290px -1288px;
 }
 
-.chart-type > a.DATALIST2 {
+.chart-type > a.DATALIST2,
+.chart-type > a.PARETO {
   transform: translateY(7px);
 }
 
-.chart-type > a > i.DATALIST2 {
+.chart-type > a > i.DATALIST2,
+.chart-type > a > i.PARETO {
   position: absolute;
   background: none;
-  font-size: 27px;
+  font-size: 29px;
   color: #ddd;
-  margin-top: 3px;
-  margin-left: 2px;
+  margin-top: 2px;
+  margin-left: 1px;
 }
 
-.chart-type > a.active > i.DATALIST2 {
+.chart-type > a > i.PARETO {
+  font-size: 20px;
+  margin-left: 5px;
+  margin-top: 7px;
+}
+
+.chart-type > a.active > i.DATALIST2,
+.chart-type > a.active > i.PARETO {
   color: #4285f4;
 }
 
@@ -492,6 +502,10 @@ a.ui-draggable.ui-draggable-dragging {
 .rbcolors > a + a,
 .rbcolors input[type='color'] {
   margin-left: 5px;
+}
+
+.rbcolors {
+  margin-bottom: 12px;
 }
 
 .J_opt-DATALIST2 input,
@@ -530,4 +544,42 @@ a.ui-draggable.ui-draggable-dragging {
 .ui-draggable-dragging.field {
   box-shadow: rgba(0, 0, 0, 0.2) 0 2px 6px;
   width: 199px;
+}
+
+.gradient-bg-list {
+  text-align: center;
+}
+
+.gradient-bg-list > a {
+  display: inline-block;
+  width: 57px;
+  height: 23px;
+  margin: 0 3px;
+  margin-top: 1px;
+}
+
+.gradient-bg-list > a:hover {
+  opacity: 0.8;
+}
+
+h5 > .search-input {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+h5 > .search-input > input {
+  border: 0 none;
+  width: 100%;
+  padding: 3px 0;
+  appearance: none;
+  outline: 0 none;
+  background-color: transparent;
+}
+
+h5 > .search-input > .zmdi {
+  position: absolute;
+  right: 1px;
+  top: 4px;
+  color: #999;
+  font-size: 15px;
 }

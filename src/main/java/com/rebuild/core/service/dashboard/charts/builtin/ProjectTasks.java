@@ -53,6 +53,7 @@ public class ProjectTasks extends ChartData implements BuiltinChart {
                         " from ProjectTask where executor = ? and status = ? order by seq asc")
                 .setParameter(1, getUser())
                 .setParameter(2, viewState)
+                .setLimit(500)
                 .array();
 
         JSONArray array = new JSONArray();

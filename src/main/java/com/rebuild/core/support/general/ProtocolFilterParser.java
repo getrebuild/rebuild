@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.general;
 
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -114,14 +115,26 @@ public class ProtocolFilterParser {
     }
 
     /**
-     * @param viaId
+     * @param via
      * @param extParam
      * @return
      * @see #P_VIA
      */
-    protected String parseVia(String viaId, String extParam) {
-        final ID anyId = ID.isId(viaId) ? ID.valueOf(viaId) : null;
-        if (anyId == null) return null;
+    protected String parseVia(String via, String extParam) {
+        final ID anyId = ID.isId(via) ? ID.valueOf(via) : null;
+        if (anyId == null) {
+            // v4.2 表达式
+            if (via.startsWith("%7B%22")) {
+                try {
+                    JSONObject expr = JSON.parseObject(CodecUtils.urlDecode(via));
+                    return ParseHelper.validAdvFilter(expr) ? new AdvFilterParser(expr).toSqlWhere() : null;
+                } catch (Exception ex) {
+                    log.warn("Bad filter-expr : {}", via);
+                }
+            }
+
+            return null;
+        }
 
         JSONObject filterExp = null;
 

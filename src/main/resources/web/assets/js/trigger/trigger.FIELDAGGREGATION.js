@@ -6,14 +6,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global FormulaAggregation, ActionContentSpec, MatchFields */
 
-const CALC_MODES2 = {
+const CALC_MODES_FULL = {
   ...FormulaAggregation.CALC_MODES,
   RBJOIN: $L('连接'),
   RBJOIN2: $L('去重连接'),
   RBJOIN3: $L('去重连接*N'),
+  RAND: $L('随机赋值'),
 }
-
-let __LAB_MATCHFIELDS = false
 
 // ~~ 字段聚合
 class ContentFieldAggregation extends ActionContentSpec {
@@ -89,7 +88,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                           </div>
                           <div className="col-2">
                             <i className="zmdi zmdi-forward zmdi-hc-rotate-180" />
-                            <span className="badge badge-warning">{CALC_MODES2[item.calcMode]}</span>
+                            <span className="badge badge-warning">{CALC_MODES_FULL[item.calcMode]}</span>
                           </div>
                           <div className="col-5 del-wrap">
                             <span className="badge badge-warning">
@@ -125,7 +124,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                     {(this.state.calcModes || []).map((item) => {
                       return (
                         <option key={item} value={item}>
-                          {CALC_MODES2[item]}
+                          {CALC_MODES_FULL[item]}
                         </option>
                       )
                     })}
@@ -239,7 +238,7 @@ class ContentFieldAggregation extends ActionContentSpec {
     const content = this.props.content
     this.__select2 = []
 
-    $.get(`/admin/robot/trigger/field-aggregation-entities?source=${this.props.sourceEntity}&matchfields=${__LAB_MATCHFIELDS}`, (res) => {
+    $.get(`/admin/robot/trigger/field-aggregation-entities?source=${this.props.sourceEntity}&matchfields=true`, (res) => {
       this.setState({ targetEntities: res.data || [] }, () => {
         const $s2te = $(this._$targetEntity)
           .select2({ placeholder: $L('选择目标实体') })
@@ -274,9 +273,7 @@ class ContentFieldAggregation extends ActionContentSpec {
     if (!teSplit || !teSplit[1]) return
     // 清空现有规则
     this.setState({ items: [], fillbackFields: [] })
-    if (__LAB_MATCHFIELDS) {
-      this.setState({ showMatchFields: teSplit[0] === '$' })
-    }
+    this.setState({ showMatchFields: teSplit[0] === '$' })
 
     $.get(`/admin/robot/trigger/field-aggregation-fields?source=${this.props.sourceEntity}&target=${teSplit[1]}`, (res) => {
       this.setState({ hasWarning: res.data.hadApproval ? $L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)，建议启用“允许强制更新”') : null })
@@ -312,6 +309,8 @@ class ContentFieldAggregation extends ActionContentSpec {
                 cmAllow = ['COUNT', 'COUNT2', 'RBJOIN', 'RBJOIN2', 'RBJOIN3', 'FORMULA']
               }
 
+              // v4.2
+              cmAllow.splice(cmAllow.length - 1, 0, 'RAND')
               this.setState({ calcModes: cmAllow }, () => $s2cm.trigger('change'))
             })
 
@@ -327,14 +326,17 @@ class ContentFieldAggregation extends ActionContentSpec {
 
               let tfAllow = this.__targetFieldsCache.filter((x) => ['NUMBER', 'DECIMAL'].includes(x.type))
               if ('RBJOIN' === cm || 'RBJOIN2' === cm || 'RBJOIN3' === cm) {
-                tfAllow = this.__targetFieldsCache.filter((x) => {
-                  if ('NTEXT' === x.type) return true
-                  if ('N2NREFERENCE' === x.type) return sf.ref && sf.ref[0] === x.ref[0]
-                  if ('FILE' === x.type) return true
+                tfAllow = this.__targetFieldsCache.filter((t) => {
+                  if ('NTEXT' === t.type) return true
+                  if ('N2NREFERENCE' === t.type) return sf.ref && sf.ref[0] === t.ref[0]
+                  if ('FILE' === t.type) return true
                   return false
                 })
+              } else if ('RAND' === cm) {
+                // v4.2 赋值
+                tfAllow = this.__targetFieldsCache.filter((t) => $fieldIsCompatible(sf, t))
               } else if (['DATE', 'DATETIME'].includes(sf.type) && !['COUNT', 'COUNT2', 'FORMULA'].includes(cm)) {
-                tfAllow = this.__targetFieldsCache.filter((x) => ['DATE', 'DATETIME'].includes(x.type))
+                tfAllow = this.__targetFieldsCache.filter((t) => ['DATE', 'DATETIME'].includes(t.type))
               }
 
               this.setState({ targetFields: tfAllow })
@@ -489,8 +491,6 @@ class ContentFieldAggregation extends ActionContentSpec {
 
 // eslint-disable-next-line no-undef
 renderContentComp = function (props) {
-  __LAB_MATCHFIELDS = window.__BOSSKEY || !!(props.content && props.content.targetEntityMatchFields)
-  __LAB_MATCHFIELDS = true // v3.9
   renderRbcomp(<ContentFieldAggregation {...props} />, 'react-content', function () {
     // eslint-disable-next-line no-undef
     contentComp = this

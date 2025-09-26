@@ -5,6 +5,8 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+const wpc = window.__PageConfig
+
 const _RbList_renderAfter = RbList.renderAfter
 RbList.renderAfter = function () {
   typeof _RbList_renderAfter === 'function' && _RbList_renderAfter()
@@ -20,7 +22,7 @@ RbList.queryBefore = function (query) {
 
   const formComp412 = parent.referenceSearch__form
   const viewComp = parent.RbViewPage ? parent.RbViewPage._RbViewForm : null
-  if (window.__PageConfig.protocolFilter && parent.referenceSearch__dlg && (formComp412 || viewComp)) {
+  if (wpc.protocolFilter && parent.referenceSearch__dlg && (formComp412 || viewComp)) {
     let varRecord = formComp412 ? formComp412.getFormData() : viewComp ? viewComp.__ViewData : null
     if (varRecord) {
       // FIXME 太长的值过滤
@@ -51,7 +53,7 @@ $(document).ready(() => {
   })
 
   // v4.1 高级查询
-  const $wrap = $('#dropdown-menu-advfilter')
+  const $customAdvWrap = $('#dropdown-menu-advfilter')
   $(document.body).on('click', (e) => {
     if (!e.target) return
     const $target = $(e.target)
@@ -67,25 +69,40 @@ $(document).ready(() => {
     ) {
       return
     }
-    $wrap.addClass('hide')
+    if (!$customAdvWrap.hasClass('hide')) $customAdvWrap.addClass('hide')
   })
 
   let _AdvFilter
   $('.J_filterbtn').on('click', () => {
     if (_AdvFilter) {
-      $wrap.toggleClass('hide')
+      $customAdvWrap.toggleClass('hide')
     } else {
       const props = {
-        entity: window.__PageConfig.entity[0],
+        entity: wpc.entity[0],
         noSave: true,
         onConfirm: function () {
-          setTimeout(() => $wrap.addClass('hide'), 200)
+          setTimeout(() => $customAdvWrap.addClass('hide'), 200)
         },
       }
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ListAdvFilter {...props} />, $wrap, function () {
+      renderRbcomp(<ListAdvFilter {...props} />, $customAdvWrap, function () {
         _AdvFilter = this
       })
     }
+  })
+
+  // v4.2 已有常用查询
+  $.get(`/app/${wpc.entity[0]}/advfilter/list`, function (res) {
+    const $menu = $('.adv-search .dropdown-menu')
+    res.data.forEach((item) => {
+      const $item = $(`<div class="dropdown-item J_custom" data-id="${item.id}"><a class="text-truncate"></a></div>`).appendTo($menu)
+      $item.find('>a').text(item.name)
+    })
+
+    $menu.find('.dropdown-item').on('click', function () {
+      const $item = $(this)
+      $('.adv-search .J_name').text($item.text())
+      RbListPage._RbList.setAdvFilter($item.data('id'))
+    })
   })
 })

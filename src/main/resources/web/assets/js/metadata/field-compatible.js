@@ -36,7 +36,9 @@ function $fieldIsCompatible(s, t) {
   if (FT_TYPE2TYPE.includes(s.type) && s.type !== t.type) return false
 
   // 判断附加参数
-  if ((t.type === 'REFERENCE' || t.type === 'N2NREFERENCE' || t.type === 'ID') && t.ref && s.ref && t.ref[0] === s.ref[0]) return true
+  if (t.type === 'REFERENCE' || t.type === 'N2NREFERENCE' || t.type === 'ID') {
+    return t.ref && s.ref && t.ref[0] === s.ref[0]
+  }
   if (t.type === 'CLASSIFICATION' && t.classification && t.classification === s.classification) return true
   if (t.type === 'STATE' && t.stateClass && t.stateClass === s.stateClass) return true
   if (t.type === 'ANYREFERENCE' && (s.type === 'REFERENCE' || s.type === 'N2NREFERENCE' || s.type === 'ID')) return true

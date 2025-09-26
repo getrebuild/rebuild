@@ -60,7 +60,6 @@ import static com.rebuild.core.support.ConfigurationItem.OnlyofficeServer;
 @Controller
 public class FilePreviewer extends BaseController {
 
-    // https://api.onlyoffice.com/docs/docs-api/usage-api/config/
     @GetMapping("/commons/file-preview")
     public ModelAndView ooPreview(HttpServletRequest request, HttpServletResponse response) throws IOException {
         return ooPreviewOrEditor(request, response, false);
@@ -68,7 +67,7 @@ public class FilePreviewer extends BaseController {
 
     @GetMapping("/commons/file-editor")
     public ModelAndView ooEditor(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        getRequestUser(request);
+        getRequestUser(request);  // check
         return ooPreviewOrEditor(request, response, true);
     }
 
@@ -100,6 +99,7 @@ public class FilePreviewer extends BaseController {
             return null;
         }
 
+        // https://api.onlyoffice.com/docs/docs-api/usage-api/config/
         JSONObject editorConfig = JSONUtils.toJSONObject(
                 new String[]{"mode", "lang", "toolbar", "menu"},
                 new Object[]{"view", AppUtils.getReuqestLocale(request), false, false});
@@ -109,6 +109,11 @@ public class FilePreviewer extends BaseController {
             user = new String[]{userid.toString(), UserHelper.getName(userid)};
         }
         editorConfig.put("user", JSONUtils.toJSONObject(new String[]{"id", "name"}, user));
+
+        JSONObject customization = new JSONObject();
+        customization.put("uiTheme", "theme-dark");
+        customization.put("about", false);
+        customization.put("logo", JSONUtils.toJSONObject("visible", false));
 
         // 编辑模式
         if (editor) {
@@ -122,8 +127,9 @@ public class FilePreviewer extends BaseController {
             editorConfig.put("mode", "edit");
             editorConfig.put("toolbar", true);
             editorConfig.put("menu", true);
-            editorConfig.put("customization", JSONUtils.toJSONObject("forcesave", true));
+            customization.put("forcesave", true);
         }
+        editorConfig.put("customization", customization);
 
         Object[] ps = OnlyOffice.buildPreviewParams(src, editorConfig);
 
@@ -135,15 +141,18 @@ public class FilePreviewer extends BaseController {
         ModelAndView mv = createModelAndView("/common/oo-preview");
         mv.getModel().put(OnlyofficeServer.name(), OnlyOffice.getOoServer());
 
+        String fileName = ((JSONObject) ps[0]).getString("title");
+
         // 编辑模式
         if (editor) {
             ooConfig.put("type", "desktop");
-            mv.getModel().put("title", Language.L("文档编辑"));
+            mv.getModel().put("title", fileName + " - " + Language.L("文档编辑"));
         } else {
-            ooConfig.put("type", "embedded");
-            mv.getModel().put("title", Language.L("文档预览"));
+            // https://api.onlyoffice.com/docs/docs-api/usage-api/config/#type
+            String view = StringUtils.defaultIfBlank(getParameter(request, "view"), "embedded");
+            ooConfig.put("type", view);
+            mv.getModel().put("title", fileName + " - " + Language.L("文档预览"));
         }
-
         if (Application.devMode()) System.out.println("[dev] " + JSONUtils.prettyPrint(ooConfig));
         mv.getModel().put("_DocEditorConfig", ooConfig);
         return mv;

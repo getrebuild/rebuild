@@ -264,7 +264,7 @@ public class SendNotification extends TriggerAction {
             JSONArray paths = JSON.parseArray((String) item);
             for (Object path : paths) {
                 try {
-                    files.add(QiniuCloud.getStorageFile((String) path));
+                    files.add(QiniuCloud.downloadFile((String) path));
                 } catch (IOException ex) {
                     log.warn("Cannot get storage file : {}", path, ex);
                 }

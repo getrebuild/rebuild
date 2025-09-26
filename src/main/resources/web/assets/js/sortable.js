@@ -18,6 +18,7 @@ $(document).ready(function () {
 
 const render_unset = function (data, target) {
   const $item = $(`<li class="dd-item" data-key="${data[0]}"><div class="dd-handle"><span>${data[1]}</span></div></li>`).appendTo(target || '.unset-list')
+  if (data[2]) $item.attr('data-pinyin', data[2])
   $item.on('click', function () {
     render_item(data)
     $item.remove()

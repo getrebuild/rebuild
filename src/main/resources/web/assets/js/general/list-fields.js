@@ -32,7 +32,7 @@ $(document).ready(() => {
 
     $(_data.fieldList).each(function () {
       // eslint-disable-next-line no-undef
-      if (!$isSysMask(this.label)) render_unset([this.field, this.label])
+      if (!$isSysMask(this.label)) render_unset([this.field, this.label, this.quickCode])
     })
     $(_data.configList).each(function () {
       const fkey = this.field
@@ -119,7 +119,8 @@ $(document).ready(() => {
           const q = $trim(e.target.value).toLowerCase()
           $('.unset-list .dd-item').each(function () {
             const $item = $(this)
-            if (!q || $item.text().toLowerCase().includes(q) || $item.data('key').toLowerCase().includes(q)) {
+            const pinyin = $item.data('pinyin')
+            if (!q || $item.text().toLowerCase().includes(q) || $item.data('key').toLowerCase().includes(q) || (pinyin && pinyin.toLowerCase().includes(q))) {
               $item.removeClass('hide')
             } else {
               $item.addClass('hide')

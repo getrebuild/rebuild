@@ -84,13 +84,19 @@ public class AggregationEvaluator {
             throw new MissingMetaExcetion(sourceField, sourceEntity.getName());
         }
 
+        String filterSql2 = filterSql;
         String funcAndField = String.format("%s(%s)", calcMode, sourceField);
         // 去重计数
         if ("COUNT2".equalsIgnoreCase(calcMode)) {
             funcAndField = String.format("COUNT(DISTINCT %s)", sourceField);
         }
+        // v4.2 随机赋值
+        else if ("RAND".equals(calcMode)) {
+            funcAndField = sourceField;
+            filterSql2 += String.format(" and (%s is not null)", sourceField);
+        }
 
-        String ql = String.format("select %s from %s where %s", funcAndField, sourceEntity.getName(), filterSql);
+        String ql = String.format("select %s from %s where %s", funcAndField, sourceEntity.getName(), filterSql2);
         Object[] o = Application.createQueryNoFilter(ql).unique();
         return o == null || o[0] == null ? 0 : o[0];
     }

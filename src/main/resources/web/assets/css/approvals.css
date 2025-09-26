@@ -46,7 +46,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   right: 27px;
   top: 18px;
   color: #999;
-  font-size: 1.23rem;
+  font-size: 15px;
 }
 
 #config-side .header > input {
@@ -714,7 +714,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   width: 100%;
 }
 
-.expires-notify-set {
+.expires-notify-set,
+.editable-mode-set {
   background-color: #eee;
   padding: 20px;
   padding-top: 15px;

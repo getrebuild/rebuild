@@ -20,7 +20,7 @@ const ListConfig = {
     { field: 'user', label: $L('登录用户'), type: 'REFERENCE' },
     { field: 'loginTime', label: $L('登录时间'), type: 'DATETIME' },
     { field: 'ipAddr', label: $L('IP 地址') },
-    { field: 'userAgent', label: $L('客户端'), width: 250 },
+    { field: 'userAgent', label: $L('客户端'), width: 400 },
   ],
   sort: 'loginTime:desc',
 }
@@ -63,17 +63,21 @@ RbList.renderAfter = function () {
 // ~ 在线用户
 class OnlineUserViewer extends RbAlert {
   renderContent() {
+    const users = this.state.users || []
+
     return (
       <table className="table table-hover">
         <thead>
           <tr>
-            <th width="30%">{$L('用户')}</th>
+            <th width="30%">
+              {$L('在线用户')} ({users.length})
+            </th>
             <th>{$L('最近活跃')}</th>
             <th width="90" />
           </tr>
         </thead>
         <tbody>
-          {(this.state.users || []).map((item) => {
+          {users.map((item) => {
             return (
               <tr key={item.sid}>
                 <td className="user-avatar cell-detail user-info">

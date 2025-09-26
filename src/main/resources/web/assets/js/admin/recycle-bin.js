@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const _ENTITIES = {
   'Feeds': $L('动态'),
   'ProjectTask': $L('任务'),
+  'Attachment': $L('文件'),
 }
 
 $(document).ready(() => {
@@ -35,7 +36,7 @@ const ListConfig = {
     { field: 'deletedOn', label: $L('删除时间'), type: 'DATETIME' },
     { field: 'deletedBy.fullName', label: $L('删除用户') },
     { field: 'channelWith', label: $L('删除渠道'), unsort: true },
-    { field: 'recordId', label: $L('记录 ID'), unsort: true },
+    { field: 'recordId', label: $L('记录 ID'), unsort: true, width: 180 },
   ],
   sort: 'deletedOn:desc',
 }
@@ -168,7 +169,7 @@ CellRenders.renderSimple = function (v, s, k) {
 // ~~ 数据详情
 class DlgDetails extends RbAlert {
   renderContent() {
-    return this.state.code && <CodeViewport code={this.state.code} />
+    return this.state.code && <CodeViewport code={this.state.code} type="json" />
   }
 
   componentDidMount() {

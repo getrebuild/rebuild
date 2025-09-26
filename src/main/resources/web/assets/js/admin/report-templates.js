@@ -7,8 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global dlgActionAfter ShowEnable taggedTitle */
 
 $(document).ready(() => {
-  $('.J_add').on('click', () => renderRbcomp(<ReportEditor />))
   renderRbcomp(<ReportList />, 'dataList')
+
+  $('.J_add').on('click', () => renderRbcomp(<ReportEditor />))
+  if ($urlp('new')) setTimeout(() => $('.J_add').trigger('click'), 500)
 })
 
 class ReportList extends ConfigList {
@@ -33,7 +35,9 @@ class ReportList extends ConfigList {
                     {taggedTitle(item[3])}
                   </a>
                 ) : (
-                  taggedTitle(item[3])
+                  <a title={$L('模版在线编辑')} href={`${rb.baseUrl}/commons/file-editor?src=${item[0]}`}>
+                    {taggedTitle(item[3])}
+                  </a>
                 )}
                 {item[6] === 1 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 excel">EXCEL</span>}
                 {item[6] === 2 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 excel">{$L('EXCEL 列表')}</span>}
@@ -285,6 +289,7 @@ class ReportEditor extends ConfigFormDlg {
 
     let e = $('.aside-tree li.active>a').attr('href')
     e = e ? e.split('=')[1] : null
+    if ($urlp('new')) e = $urlp('new')
     if (e) {
       setTimeout(() => $(this._entity).val(e).trigger('change'), 300)
     }

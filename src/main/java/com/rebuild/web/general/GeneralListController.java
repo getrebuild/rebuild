@@ -85,10 +85,11 @@ public class GeneralListController extends EntityController {
 
         int listModeForce = getIntParameter(request, "mode");
         int listMode = ObjectUtils.toInt(easyEntity.getExtraAttr(ADVLIST_MODE), 1);
-        if (listModeForce >= 1 && listModeForce <= 3) listMode = listModeForce;
+        if (listModeForce >= 1 && listModeForce <= 4) listMode = listModeForce;
         String listPage = listEntity.getMainEntity() != null ? "/general/detail-list" : "/general/record-list";
         if (listMode == 2) listPage = "/general/record-list2";  // Mode2
         if (listMode == 3) listPage = "/general/record-list3";  // Mode3
+        if (listMode == 4) listPage = "/general/record-list4";  // Mode4
 
         ModelAndView mv = createModelAndView(listPage, entity, user);
 
@@ -183,6 +184,11 @@ public class GeneralListController extends EntityController {
             mv.getModel().put("hideAside",
                     !(BooleanUtils.toBoolean(mode3ShowFilters) || BooleanUtils.toBoolean(mode3ShowCharts) || StringUtils.isNotBlank(mode3ShowCategory)));
             mv.getModel().put(ADVLIST_ASIDE_SHOWS, DataListManager.instance.getAdvListAsideShows(easyEntity, 3));
+
+        } else if (listMode == 4) {
+            listConfig = DataListManager.instance.getFieldsLayoutMode4(listEntity);
+            // 明细
+            if (listEntity.getMainEntity() != null) mv.getModel().put("DataListType", "DetailList");
         }
 
         // 列表配置

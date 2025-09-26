@@ -20,15 +20,17 @@ class RbViewForm extends React.Component {
     this.onViewEditable = this.props.onViewEditable
     if (this.onViewEditable) this.onViewEditable = wpc.onViewEditable !== false
     if (window.__LAB_VIEWEDITABLE === false) this.onViewEditable = false
+
     // temp for `saveSingleFieldValue`
     this.__FormData = {}
+    this._verticalLayout42 = window.__LAB_VERTICALLAYOUT
   }
 
   render() {
     return (
       <RF>
         {this.state.fjsAlertMessage}
-        <div className={`rbview-form form-layout ${window.__LAB_VERTICALLAYOUT && 'vertical38'}`} ref={(c) => (this._viewForm = c)}>
+        <div className={`rbview-form form-layout ${this._verticalLayout42 && 'vertical38'}`} ref={(c) => (this._viewForm = c)}>
           {this.state.formComponent}
         </div>
       </RF>
@@ -45,6 +47,7 @@ class RbViewForm extends React.Component {
       }
 
       let hadApproval = res.data.hadApproval
+      if (hadApproval === 2 || hadApproval === 10) this.onViewEditable = false // be:4.2
       let hadAlert = null
       let hadSop = res.data.hadSop && rb.commercial > 1
       if (wpc.type === 'DetailView') {
@@ -60,6 +63,7 @@ class RbViewForm extends React.Component {
       this.__ViewData = {}
       this.__lastModified = res.data.lastModified || 0
       if (res.data.onViewEditable === false) this.onViewEditable = false
+      this._verticalLayout42 = this._verticalLayout42 || res.data.verticalLayout === 1 || res.data.verticalLayout === 3
 
       let _dividerRefs = []
       const VFORM = (
@@ -77,7 +81,16 @@ class RbViewForm extends React.Component {
               if (item.field === TYPE_DIVIDER && item.collapsed) {
                 item.ref = (c) => _dividerRefs.push(c)
               }
-              return detectViewElement(item, this.props.entity)
+
+              const fieldComp = detectViewElement(item, this.props.entity)
+              if (window.FrontJS) {
+                let fieldKey = this.props.entity + '.' + item.field
+                const enable42 = window.FrontJS.View.__fieldCopys.includes(fieldKey)
+                if (enable42) {
+                  return React.cloneElement(fieldComp, { dataCopy: true })
+                }
+              }
+              return fieldComp
             })}
           </div>
         </RF>
@@ -436,7 +449,8 @@ class EntityRelatedList extends RelatedList {
             </span>
           </div>
         </div>
-        <div className={`rbview-form form-layout inside ${window.__LAB_VERTICALLAYOUT && 'vertical38'}`}>{this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}</div>
+
+        <div className="rbview-form-inside">{this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}</div>
       </div>
     )
   }
@@ -500,10 +514,7 @@ class EntityRelatedList extends RelatedList {
 
   _handleEdit(e, id) {
     $stopEvent(e, true)
-    const _entity = this.__entity
-    const editProps = { id: id, entity: _entity, title: $L('编辑%s', this.props.entity2[0]), icon: this.props.entity2[1] }
-    if ((window.__LAB40_EDIT_PROVIDERS || {})[_entity]) window.__LAB40_EDIT_PROVIDERS[_entity](editProps)
-    else RbFormModal.create(editProps, true)
+    RbFormModal.create({ id: id, entity: this.__entity, title: $L('编辑%s', this.props.entity2[0]), icon: this.props.entity2[1] }, true)
   }
 
   _handleView(e) {
@@ -523,12 +534,15 @@ class EntityRelatedList extends RelatedList {
         if (res.error_code > 0 || !!res.data.error) {
           viewComponents[id] = _renderError(res.data.error || res.error_msg)
         } else {
+          const _verticalLayout42 = window.__LAB_VERTICALLAYOUT || res.data.verticalLayout === 1 || res.data.verticalLayout === 3
           viewComponents[id] = (
-            <div className="row">
-              {res.data.elements.map((item) => {
-                item.$$$parent = this
-                return detectViewElement(item)
-              })}
+            <div className={`rbview-form form-layout ${_verticalLayout42 && 'vertical38'}`}>
+              <div className="row">
+                {res.data.elements.map((item) => {
+                  item.$$$parent = this
+                  return detectViewElement(item)
+                })}
+              </div>
             </div>
           )
         }
@@ -657,10 +671,7 @@ const RbViewPage = {
     })
 
     $('.J_edit').on('click', () => {
-      const _entity = entity[0]
-      const editProps = { id: id, title: $L('编辑%s', entity[1]), entity: _entity, icon: entity[2] }
-      if ((window.__LAB40_EDIT_PROVIDERS || {})[_entity]) window.__LAB40_EDIT_PROVIDERS[_entity](editProps)
-      else RbFormModal.create(editProps, true)
+      RbFormModal.create({ id: id, title: $L('编辑%s', entity[1]), entity: entity[0], icon: entity[2] }, true)
     })
     $('.J_assign').on('click', () => DlgAssign.create({ entity: entity[0], ids: [id] }))
     $('.J_share').on('click', () => DlgShare.create({ entity: entity[0], ids: [id] }))
@@ -668,7 +679,7 @@ const RbViewPage = {
     $('.J_add-detail-menu>a').on('click', function () {
       const iv = { $MAINID$: id }
       const $this = $(this)
-      RbFormModal.create({ title: $L('添加%s', $this.data('label')), entity: $this.data('entity'), icon: $this.data('icon'), initialValue: iv, _nextAddDetail: true })
+      RbFormModal.create({ title: $L('添加%s', $this.data('label')), entity: $this.data('entity'), icon: $this.data('icon'), initialValue: iv, nextAddDetail: true })
     })
 
     if (wpc.transformTos && wpc.transformTos.length > 0) {
@@ -922,7 +933,13 @@ const RbViewPage = {
           if (entity.length > 1) iv[entity[1]] = that.__id
           else iv[`&${that.__entity[0]}`] = that.__id
 
-          RbFormModal.create({ title: $L('新建%s', item._entityLabel || item.entityLabel), entity: entity[0], icon: item.icon, initialValue: iv, _nextOpenView: true })
+          const newProps = {
+            title: $L('新建%s', item._entityLabel || item.entityLabel),
+            entity: entity[0],
+            icon: item.icon,
+            initialValue: iv,
+          }
+          RbFormModal.create(newProps)
         }
       })
 
@@ -1027,6 +1044,19 @@ $(document).ready(() => {
   const ua = navigator.userAgent || ''
   if (ua.includes('wxwork') && ua.includes('MicroMessenger') && $.browser.desktop) {
     $('.J_home').removeClass('hide')
+  }
+  // v4.2
+  if (window.frameElement && parent && parent.RbListPage && parent.RbListPage._RbList && parent.RbListPage._RbList.jumpView) {
+    if ($(window.frameElement).data('subview')) {
+      // SubView
+    } else {
+      $('.J_record-next')
+        .removeClass('hide')
+        .on('click', () => parent.RbListPage._RbList.jumpView(1))
+      $('.J_record-prev')
+        .removeClass('hide')
+        .on('click', () => parent.RbListPage._RbList.jumpView(-1))
+    }
   }
 
   // iframe 点击穿透

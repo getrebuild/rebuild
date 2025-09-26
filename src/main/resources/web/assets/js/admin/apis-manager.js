@@ -264,9 +264,9 @@ class AppLogsViewer extends RbModal {
                     <dt className="col-sm-3">{$L('请求地址')}</dt>
                     <dd className="col-sm-9 text-break">{dataShow[3]}</dd>
                     <dt className="col-sm-12">{$L('请求数据')}</dt>
-                    <dd className="col-sm-12">{dataShow[4] && <CodeViewport code={dataShow[4]} />}</dd>
+                    <dd className="col-sm-12">{dataShow[4] && <CodeViewport code={dataShow[4]} type="json" />}</dd>
                     <dt className="col-sm-12">{$L('响应数据')}</dt>
-                    <dd className="col-sm-12 mb-0">{dataShow[5] && <CodeViewport code={dataShow[5]} />}</dd>
+                    <dd className="col-sm-12 mb-0">{dataShow[5] && <CodeViewport code={dataShow[5]} type="json" />}</dd>
                   </dl>
                 </div>
               ) : (
