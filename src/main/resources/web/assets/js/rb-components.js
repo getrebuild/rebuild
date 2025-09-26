@@ -1250,6 +1250,7 @@ class Md2Html extends React.Component {
 // ~~ short React.Fragment
 const RF = ({ children }) => <React.Fragment>{children}</React.Fragment>
 
+// ~~ 右下弹出框
 class RbGritter extends React.Component {
   constructor(props) {
     super(props)
