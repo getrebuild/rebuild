@@ -40,6 +40,8 @@
     <meta name="rb.isAdminVerified" th:content="${T(com.rebuild.utils.AppUtils).isAdminVerified(#request)}" />
     <meta name="rb.currentUserRoles" th:content="${T(com.rebuild.core.privileges.UserHelper).getRolesOfUser(user.getId())}" />
     <meta name="rb.currentUserTeams" th:content="${T(com.rebuild.core.privileges.UserHelper).getTeamsOfUser(user.getId())}" />
+    <meta name="rb.currentUserName" th:content="${user.getName()}" />
+    <meta name="rb.currentUserFullname" th:content="${user.getFullName()}" />
   </th:block>
   <meta name="rb._baiduMapAk" th:content="${PortalBaiduMapAk}" />
   <meta name="rb._officePreviewUrl" th:content="${PortalOfficePreviewUrl}" />

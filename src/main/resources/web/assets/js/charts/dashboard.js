@@ -8,12 +8,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 let dashid = null
 let dash_editable = false
+let on_resizestart = false
 
 let refresh_timeout = 0
 let refresh_timer = null
 
-let on_resizestart = false
 let rendered_charts = []
+const rendered_charts_reload = function () {
+  rendered_charts.forEach((c) => c.loadChartData())
+}
 
 window.dash_filter_user = null
 window.dash_filter_date = null
@@ -85,18 +88,15 @@ $(document).ready(() => {
     const $refreshs = $('.J_dash-refresh .dropdown-item').on('click', function () {
       $refreshs.removeClass('check')
       const $a = $(this).addClass('check')
-      $('.J_dash-refresh .btn span').text($a.text())
       refresh_timeout = ~~$a.data('time')
+      $('.J_dash-refresh .btn span').text(refresh_timeout > 0 ? $a.text() : $L('自动刷新'))
 
       if (refresh_timer) {
         clearInterval(refresh_timer)
         refresh_timer = null
       }
-
       if (refresh_timeout > 0) {
-        refresh_timer = setInterval(() => {
-          rendered_charts.forEach((c) => c.loadChartData())
-        }, refresh_timeout * 1000)
+        refresh_timer = setInterval(rendered_charts_reload, refresh_timeout * 1000)
       }
     })
 
@@ -202,20 +202,17 @@ $(document).ready(() => {
     }
   }
 
-  function _dashReload() {
-    rendered_charts.forEach((c) => c.loadChartData())
-  }
   const $users = $('.J_dash-filter a[data-user]').on('click', function () {
     $users.removeClass('check')
     let $a = $(this).addClass('check')
     window.dash_filter_user = $a.data('user')
-    _dashReload()
+    rendered_charts_reload()
   })
   const $dates = $('.J_dash-filter a[data-date]').on('click', function () {
     $dates.removeClass('check')
     let $a = $(this).addClass('check')
     window.dash_filter_date = $a.data('date')
-    _dashReload()
+    rendered_charts_reload()
   })
   let dash_Filter
   const $custom = $('.J_dash-filter a[data-custom]').on('click', function () {
@@ -240,7 +237,7 @@ $(document).ready(() => {
 
             window.dash_filter_custom = s
             $storage.set('dash_filter_custom', JSON.stringify(s))
-            _dashReload()
+            rendered_charts_reload()
           }}
           inModal
           canNoFilters
@@ -354,14 +351,14 @@ const add_widget = function (item) {
   const chart_add = $('#chart-add')
   if (chart_add.length > 0) gridstack.removeWidget(chart_add.parent())
 
-  const hmm = item.type === 'HeadingText' ? [1, 24] : [2, 24] // 高度限制
+  const hwLimit = item.type === 'HeadingText' ? [1, 120] : [2, 120] // 宽高限制
   const gsi = `<div class="grid-stack-item ${item.bgcolor && 'bgcolor'}"><div id="${chid}" class="grid-stack-item-content" ${
     item.bgcolor ? `style="background-color:${item.bgcolor}` : ''
   }"></div></div>`
   if (item.size_x || item.size_y) {
-    gridstack.addWidget(gsi, (item.col || 1) - 1, (item.row || 1) - 1, item.size_x || 2, item.size_y || 2, true, 2, 12, hmm[0], hmm[1])
+    gridstack.addWidget(gsi, (item.col || 1) - 1, (item.row || 1) - 1, item.size_x || 2, item.size_y || 2, true, 2, 12, hwLimit[0], hwLimit[1])
   } else {
-    gridstack.addWidget(gsi, item.x, item.y, item.w, item.h, item.x === undefined, 2, 12, hmm[0], hmm[1])
+    gridstack.addWidget(gsi, item.x, item.y, item.w, item.h, item.x === undefined, 2, 12, hwLimit[0], hwLimit[1])
   }
 
   item.editable = dash_editable

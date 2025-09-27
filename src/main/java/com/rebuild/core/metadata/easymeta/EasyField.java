@@ -78,9 +78,10 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
     @Override
     public JSON toJSON() {
         return JSONUtils.toJSONObject(
-                new String[] { "name", "label", "type", "nullable", "creatable", "updatable" },
-                new Object[] { getName(), getLabel(), getDisplayType().name(),
-                        getRawMeta().isNullable(), getRawMeta().isCreatable(), getRawMeta().isUpdatable() });
+                new String[]{"name", "label", "type", "nullable", "creatable", "updatable", "repeatable", "queryable"},
+                new Object[]{getName(), getLabel(), getDisplayType().name(),
+                        getRawMeta().isNullable(), getRawMeta().isCreatable(), getRawMeta().isUpdatable(),
+                        getRawMeta().isRepeatable(), getRawMeta().isQueryable()});
     }
 
     @Override
@@ -151,12 +152,15 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
         return value;
     }
 
-//    /**
-//     * TODO 转换符合字段类型的值
-//     * @param rawValue
-//     * @return
-//     */
-//    abstract T checkoutValue(Object rawValue);
+    /**
+     * TODO 转换符合字段类型的值
+     *
+     * @param rawValue
+     * @return
+     */
+    public Object checkoutValue(Object rawValue) {
+        throw new UnsupportedOperationException("TODO:" + rawValue);
+    }
 
     /**
      * 启用信息脱敏
