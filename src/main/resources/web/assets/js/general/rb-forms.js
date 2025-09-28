@@ -2490,8 +2490,11 @@ class RbFormReference extends RbFormElement {
 
   setValue(val) {
     if (val) {
-      const o = new Option(val.text, val.id, true, true)
-      this.__select2.append(o).trigger('change')
+      // fix:4.1.7
+      if (typeof val === 'object') {
+        const o = new Option(val.text, val.id, true, true)
+        this.__select2.append(o).trigger('change')
+      }
     } else {
       this.__select2.val(null).trigger('change')
     }
@@ -2618,23 +2621,25 @@ class RbFormN2NReference extends RbFormReference {
   // @append = 追加模式
   setValue(val, append) {
     if (val && val.length > 0) {
-      let currentIds = this.state.value || '' // init is Object
-
-      if (!append) {
-        this.__select2.val(null).trigger('change')
-        currentIds = ''
-      }
-
-      const ids = []
-      val.forEach((item) => {
-        if (!currentIds.includes(item.id)) {
-          const o = new Option(item.text, item.id, true, true)
-          this.__select2.append(o)
-          ids.push(item.id)
+      // fix:4.1.7
+      if (Array.isArray(val)) {
+        let currentIds = this.state.value || '' // init is Object
+        if (!append) {
+          this.__select2.val(null).trigger('change')
+          currentIds = ''
         }
-      })
 
-      if (ids.length > 0) this.__select2.trigger('change')
+        const ids = []
+        val.forEach((item) => {
+          if (!currentIds.includes(item.id)) {
+            const o = new Option(item.text, item.id, true, true)
+            this.__select2.append(o)
+            ids.push(item.id)
+          }
+        })
+
+        if (ids.length > 0) this.__select2.trigger('change')
+      }
     } else {
       this.__select2.val(null).trigger('change')
     }
@@ -2790,10 +2795,13 @@ class RbFormAnyReference extends RbFormReference {
 
   setValue(val, init) {
     if (init) this._setValueStop = true
-    if (val && val.entity && val.entity !== $(this.__select2Entity).val()) {
-      $(this.__select2Entity).val(val.entity).trigger('change')
+    // fix:4.1.7
+    if (val && typeof val === 'object') {
+      if (val.entity && val.entity !== $(this.__select2Entity).val()) {
+        $(this.__select2Entity).val(val.entity).trigger('change')
+      }
+      super.setValue(val)
     }
-    super.setValue(val)
   }
 
   // @Override
@@ -2881,8 +2889,10 @@ class RbFormClassification extends RbFormElement {
   }
 
   setValue(val) {
-    if (val && val.id) this._setClassificationValue(val)
-    else this.__select2.val(null).trigger('change')
+    if (val) {
+      // fix:4.1.7
+      val.id && this._setClassificationValue(val)
+    } else this.__select2.val(null).trigger('change')
   }
 
   showSelector = () => {
@@ -3484,7 +3494,7 @@ class RbFormTag extends RbFormElement {
     if ($empty(val)) {
       this.__select2.val(null).trigger('change')
     } else {
-      const names = []
+      const names = this.__select2.val() || [] // fix:4.2
       val.split('$$$$').forEach((name) => {
         if (!names.includes(name)) {
           const o = new Option(name, name, true, true)
