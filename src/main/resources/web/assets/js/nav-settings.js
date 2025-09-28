@@ -23,7 +23,7 @@ $(document).ready(() => {
   $.get('/commons/metadata/entities?detail=true', (res) => {
     $(res.data).each(function () {
       if (!$isSysMask(this.label)) {
-        $(`<option value="${this.name}" data-pinyin="${this.quickCode}">${this.label}</option>`).appendTo('.J_menuEntity optgroup:eq(0)')
+        $(`<option value="${this.name}">${this.label}</option>`).appendTo('.J_menuEntity optgroup:eq(0)')
       }
       _entities[this.name] = this
     })

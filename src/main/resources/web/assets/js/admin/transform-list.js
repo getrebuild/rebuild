@@ -91,7 +91,7 @@ class TransformEditor extends ConfigFormDlg {
                 <select className="form-control form-control-sm" ref={(c) => (this._source = c)}>
                   {entities.map((item) => {
                     return (
-                      <option key={item.name} value={item.name} data-pinyin={item.quickCode}>
+                      <option key={item.name} value={item.name}>
                         {item.label}
                       </option>
                     )
@@ -105,19 +105,15 @@ class TransformEditor extends ConfigFormDlg {
                 <select className="form-control form-control-sm" ref={(c) => (this._target = c)}>
                   {entities.map((item) => {
                     return (
-                      <option key={item.name} value={item.name} data-pinyin={item.quickCode}>
+                      <option key={item.name} value={item.name}>
                         {item.label}
                       </option>
                     )
                   })}
                   {entities.length && (
                     <RF>
-                      <option value="User" data-pinyin="yonghu">
-                        {$L('用户')}
-                      </option>
-                      <option value="Department" data-pinyin="bumen">
-                        {$L('部门')}
-                      </option>
+                      <option value="User">{$L('用户')}</option>
+                      <option value="Department">{$L('部门')}</option>
                     </RF>
                   )}
                 </select>

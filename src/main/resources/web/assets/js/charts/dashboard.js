@@ -412,7 +412,7 @@ class DlgAddChart extends RbFormHandler {
                   this.state._entities.map((item) => {
                     if ($isSysMask(item.label)) return null
                     return (
-                      <option key={item.name} value={item.name} data-pinyin={item.quickCode}>
+                      <option key={item.name} value={item.name}>
                         {item.label}
                       </option>
                     )

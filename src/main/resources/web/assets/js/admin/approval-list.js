@@ -115,7 +115,7 @@ class ApprovalEdit extends ConfigFormDlg {
               <select className="form-control form-control-sm" ref={(c) => (this._entity = c)}>
                 {(this.state.entities || []).map((item) => {
                   return (
-                    <option key={`e-${item.name}`} value={item.name}>
+                    <option key={item.name} value={item.name}>
                       {item.label}
                     </option>
                   )
