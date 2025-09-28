@@ -2647,7 +2647,7 @@ class RbFormN2NReference extends RbFormReference {
   setValue(val, append) {
     if (val && val.length > 0) {
       // fix:4.2
-      if (typeof val === 'object') {
+      if (Array.isArray(val)) {
         let currentIds = this.state.value || '' // init is Object
         if (!append) {
           this.__select2.val(null).trigger('change')
@@ -2823,7 +2823,7 @@ class RbFormAnyReference extends RbFormReference {
 
     // fix:4.2
     if (val && typeof val === 'object') {
-      if (val && val.entity && val.entity !== $(this.__select2Entity).val()) {
+      if (val.entity && val.entity !== $(this.__select2Entity).val()) {
         $(this.__select2Entity).val(val.entity).trigger('change')
       }
       super.setValue(val)
