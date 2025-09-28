@@ -1532,3 +1532,15 @@ function $fetchMetaInfo(name, cb) {
     }
   })
 }
+
+// 同步获取数据
+function $syncGet(url) {
+  var _data
+  $.ajax({
+    type: 'GET',
+    async: false,
+    url: url,
+    success: (res) => (_data = res),
+  })
+  return _data || {}
+}

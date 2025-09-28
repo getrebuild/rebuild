@@ -163,5 +163,6 @@ module.exports = {
     RecordSelectorModal: true,
     $fetchMetaInfo: true,
     FileRename: true,
+    $syncGet: true,
   },
 }
