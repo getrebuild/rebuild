@@ -5579,16 +5579,36 @@ pre.unstyle {
   padding: 0 15px;
 }
 
+.rsheetb-table > span {
+  overflow: auto;
+  display: block;
+}
+
 .rsheetb-table th {
   font-weight: normal !important;
 }
 
 .rsheetb-table table {
   margin: 0;
+  border-left: 0 none;
+  border-right: 0 none;
+}
+
+.rsheetb-table table td:first-child,
+.table-bordered th:first-child {
+  border-left: 0 none;
+  padding-left: 15px !important;
+}
+
+.rsheetb-table table td:last-child,
+.table-bordered th:last-child {
+  border-right: 0 none;
+  padding-right: 15px !important;
 }
 
 .rsheetb-table td > span {
-  padding: 4px;
+  padding: 5px 0;
+  width: 100%;
   min-width: 120px;
   display: block;
   line-height: 1;
@@ -5597,16 +5617,6 @@ pre.unstyle {
 .rsheetb-table td > span:focus {
   outline-width: 1px;
   outline-color: var(--rb-color);
-}
-
-.rsheetb-table tr > th:first-child,
-.rsheetb-table tr > td:first-child {
-  padding-left: 15px;
-}
-
-.rsheetb-table tr > th:last-child,
-.rsheetb-table tr > td:last-child {
-  padding-right: 15px;
 }
 
 /*.input-search .input-group-btn,*/
