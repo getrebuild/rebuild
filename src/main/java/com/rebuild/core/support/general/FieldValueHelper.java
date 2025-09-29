@@ -360,4 +360,20 @@ public class FieldValueHelper {
 
         return QueryHelper.isMatchAdvFilter(value, dataFilterJson);
     }
+
+    /**
+     * 获取字段文本值
+     *
+     * @param value
+     * @param field
+     * @return
+     */
+    public static String getText(Object value, EasyField field) {
+        if (value == null) return null;
+        if (value instanceof ID) return getLabel((ID) value);
+
+        EasyField textTarget = EasyMetaFactory
+                .valueOf(MetadataHelper.getField("User", "fullName"));
+        return (String) field.convertCompatibleValue(value, textTarget);
+    }
 }
