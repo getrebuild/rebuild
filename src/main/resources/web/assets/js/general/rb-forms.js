@@ -2515,7 +2515,7 @@ class RbFormReference extends RbFormElement {
 
   setValue(val) {
     if (val) {
-      // fix:4.2
+      // fix:4.1.7
       if (typeof val === 'object') {
         const o = new Option(val.text, val.id, true, true)
         this.__select2.append(o).trigger('change')
@@ -2646,7 +2646,7 @@ class RbFormN2NReference extends RbFormReference {
   // @append = 追加模式
   setValue(val, append) {
     if (val && val.length > 0) {
-      // fix:4.2
+      // fix:4.1.7
       if (Array.isArray(val)) {
         let currentIds = this.state.value || '' // init is Object
         if (!append) {
@@ -2821,7 +2821,7 @@ class RbFormAnyReference extends RbFormReference {
   setValue(val, init) {
     if (init) this._setValueStop = true
 
-    // fix:4.2
+    // fix:4.1.7
     if (val && typeof val === 'object') {
       if (val.entity && val.entity !== $(this.__select2Entity).val()) {
         $(this.__select2Entity).val(val.entity).trigger('change')
@@ -2916,7 +2916,7 @@ class RbFormClassification extends RbFormElement {
 
   setValue(val) {
     if (val) {
-      // fix:4.2
+      // fix:4.1.7
       val.id && this._setClassificationValue(val)
     } else this.__select2.val(null).trigger('change')
   }
