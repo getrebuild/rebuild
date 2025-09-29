@@ -22,7 +22,6 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
-import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.general.FieldValueHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -105,10 +104,11 @@ public class AggregationEvaluator {
      * 执行计算公式
      *
      * @return
+     * @see AviatorUtils#convertValueOfFieldVar(Object, Field)
      */
     public Object evalFormula() {
         String formula = item.getString("sourceFormula");
-        Set<String> matchsVars = ContentWithFieldVars.matchsVars(formula);
+        Set<String> matchsVars = AviatorUtils.matchsFieldVars(formula, null);
 
         List<String[]> fields = new ArrayList<>();
         List<String[]> fields4Sql = new ArrayList<>();
@@ -143,8 +143,8 @@ public class AggregationEvaluator {
         }
 
         if (fields.isEmpty()) {
-            log.warn("No fields found in formula : {}", formula);
-            fields.add(new String[] { sourceEntity.getPrimaryField().getName() });
+            log.warn("No any fields found in formula : {}", formula);
+            fields.add(new String[]{sourceEntity.getPrimaryField().getName()});
         }
 
         StringBuilder sql = new StringBuilder("select ");
@@ -160,7 +160,7 @@ public class AggregationEvaluator {
                 .append(" from ").append(sourceEntity.getName())
                 .append(" where ").append(filterSql);
 
-        final Record useSourceData = Application.createQueryNoFilter(sql.toString()).record();
+        Record useSourceData = Application.createQueryNoFilter(sql.toString()).record();
         if (useSourceData == null) {
             log.warn("No record found by sql : {}", sql);
             return null;
@@ -169,7 +169,6 @@ public class AggregationEvaluator {
         String clearFormula = formula
                 .replace("×", "*")
                 .replace("÷", "/");
-
         Map<String, Object> envMap = new HashMap<>();
 
         for (String[] fieldAndFunc : fields) {
