@@ -5917,6 +5917,12 @@ div.formula-code {
   margin: 0 0 1rem !important;
 }
 
+.md-content h1,
+.md-content h2 {
+  border-bottom: 1px solid #d1d9e0b3;
+  padding-bottom: 0.3em;
+}
+
 .md-content ol,
 .md-content ul {
   padding-left: 2rem;
