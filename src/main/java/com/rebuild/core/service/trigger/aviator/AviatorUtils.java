@@ -7,7 +7,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.aviator;
 
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Options;
@@ -20,14 +25,24 @@ import com.googlecode.aviator.runtime.type.AviatorFunction;
 import com.googlecode.aviator.runtime.type.AviatorNil;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 import com.googlecode.aviator.runtime.type.Sequence;
+import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.support.general.ContentWithFieldVars;
+import com.rebuild.core.support.state.StateHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.math.BigDecimal;
+import java.time.LocalTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * https://www.yuque.com/boyan-avfmj/aviatorscript
@@ -75,6 +90,7 @@ public class AviatorUtils {
         addCustomFunction(new TextFunction());
         addCustomFunction(new IsNullFunction());
         addCustomFunction(new ChineseDateFunction());
+        addCustomFunction(new DateFunction());
     }
 
     /**
@@ -171,6 +187,7 @@ public class AviatorUtils {
     public static AviatorObject wrapReturn(final Object ret) {
         if (ret == null) return AviatorNil.NIL;
         if (ret instanceof Date) return new AviatorDate((Date) ret);
+        if (ret instanceof LocalTime) return new AviatorTime((LocalTime) ret);
         if (ret instanceof ID) return new AviatorId((ID) ret);
         return FunctionUtils.wrapReturn(ret);
     }
@@ -197,5 +214,69 @@ public class AviatorUtils {
     public static String toStringValue(Object o) {
         if (o == null) return null;
         return o.toString();
+    }
+
+    /**
+     * 提取公式的字段变量
+     *
+     * @param formula
+     * @param checkIfNeed 不传则不验证字段
+     * @return
+     */
+    public static Set<String> matchsFieldVars(String formula, Entity checkIfNeed) {
+        Set<String> fieldVars = new HashSet<>();
+        Set<String> matchsVars = ContentWithFieldVars.matchsVars(formula);
+        for (String field : matchsVars) {
+            if (checkIfNeed != null && MetadataHelper.getLastJoinField(checkIfNeed, field) == null) {
+                throw new MissingMetaExcetion(field, checkIfNeed.getName());
+            }
+            fieldVars.add(field);
+        }
+        return fieldVars;
+    }
+
+    /**
+     * 转换公式的字段变量值
+     * https://getrebuild.com/docs/topic/write-formula#%E5%AD%97%E6%AE%B5%E5%8F%98%E9%87%8F%E5%80%BC%E8%AF%B4%E6%98%8E
+     *
+     * @param value
+     * @param field
+     * @return
+     */
+    public static Object convertValueOfFieldVar(Object value, Field field) {
+        EasyField easyField = EasyMetaFactory.valueOf(field);
+
+        boolean isMultiField = easyField.getDisplayType() == DisplayType.MULTISELECT
+                || easyField.getDisplayType() == DisplayType.TAG
+                || easyField.getDisplayType() == DisplayType.N2NREFERENCE;
+        boolean isStateField = easyField.getDisplayType() == DisplayType.STATE;
+        boolean isNumberField = field.getType() == FieldType.LONG || field.getType() == FieldType.DECIMAL;
+
+        if (isStateField) {
+            value = value == null ? "" : StateHelper.getLabel(field, (Integer) value);
+        } else if (value instanceof Date) {
+            value = CalendarUtils.getUTCDateTimeFormat().format(value);
+        } else if (value == null) {
+            // 数字字段置 `0`
+            if (isNumberField) {
+                value = 0L;
+            } else if (field.getType() == FieldType.REFERENCE_LIST) {
+                log.debug("Keep NULL for N2N");
+            } else {
+                value = StringUtils.EMPTY;
+            }
+        } else if (isMultiField) {
+            // force `TEXT`
+            EasyField fakeTextField = EasyMetaFactory
+                    .valueOf(MetadataHelper.getField("User", "fullName"));
+            value = easyField.convertCompatibleValue(value, fakeTextField);
+        } else if (value instanceof ID) {
+            value = value.toString();
+        }
+
+        // v3.6.3 整数/小数强制使用 BigDecimal 高精度
+        if (value instanceof Long) value = BigDecimal.valueOf((Long) value);
+
+        return value;
     }
 }

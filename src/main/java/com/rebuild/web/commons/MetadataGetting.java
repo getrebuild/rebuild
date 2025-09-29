@@ -91,6 +91,11 @@ public class MetadataGetting extends BaseController {
             ((JSONObject) owningDept).put("label", Language.L("所属部门"));
             common.add(owningUser);
             common.add(owningDept);
+
+            for (Object o : common) {
+                JSONObject item = (JSONObject) o;
+                item.put("quickCode", QuickCodeReindexTask.generateQuickCode(item.getString("label")));
+            }
             return common;
         }
 

@@ -1093,6 +1093,7 @@ class ExcelClipboardData extends React.Component {
     if (this.state.hasError) {
       return <div className="must-center text-danger">{this.state.hasError}</div>
     }
+
     if (!this.state.data) {
       let tips = $L('复制 Excel 单元格 Ctrl + V 粘贴')
       if ($.browser.mac) tips = tips.replace('Ctrl', 'Command')
@@ -1128,13 +1129,16 @@ class ExcelClipboardData extends React.Component {
 
   componentDidMount() {
     const that = this
-    function _init() {
+    function _FN() {
       $(document).on('paste.csv-data', (e) => {
         let data
         try {
           // https://docs.sheetjs.com/docs/demos/local/clipboard/
           // https://docs.sheetjs.com/docs/api/utilities/html
           const c = e.originalEvent.clipboardData.getData('text/html')
+          if (!c) return
+
+          $stopEvent(e, true)
           const wb = window.XLSX.read(c, { type: 'string' })
           const ws = wb.Sheets[wb.SheetNames[0]]
           data = window.XLSX.utils.sheet_to_html(ws, { id: 'rsheetb', header: '', footer: '', editable: true })
@@ -1147,6 +1151,7 @@ class ExcelClipboardData extends React.Component {
 
         if (data) {
           if (rb.env === 'dev') console.log(data)
+          $(that._$table).find('table thead').remove()
           that.setState({ data: data, hasError: null }, () => that._tableAfter())
         } else {
           RbHighbar.createl('未识别到有效数据')
@@ -1154,14 +1159,12 @@ class ExcelClipboardData extends React.Component {
       })
     }
 
-    if (window.XLSX) _init()
-    else $getScript('/assets/lib/charts/xlsx.full.min.js', setTimeout(_init, 200))
+    if (window.XLSX) _FN()
+    else $getScript('/assets/lib/charts/xlsx.full.min.js', setTimeout(_FN, 200))
   }
 
   _tableAfter() {
-    if (!this._$table) return
-
-    const $table = $(this._$table).find('table').addClass('table table-sm table-bordered table-fixed')
+    const $table = $(this._$table).find('table').addClass('table table-sm table-bordered')
     const fields = this.props.fields
     if (fields) {
       const len = $table.find('tbody>tr:eq(0)').find('td').length
@@ -1261,7 +1264,7 @@ class ExcelClipboardDataModal extends RbModalHandler {
   }
 }
 
-// LAB
+// LAB 从 Excel 添加数据
 class ExcelClipboardDataModalWithForm extends React.Component {
   state = {}
   render() {
@@ -1274,14 +1277,20 @@ class ExcelClipboardDataModalWithForm extends React.Component {
       if (res.error_code > 0 || !!res.data.error) {
         const error = (res.data || {}).error || res.error_msg
         RbHighbar.error(error)
+        return
+      }
+
+      const formProps = {
+        ...this.props,
+        entity: res.data.entity,
+        layoutId: res.data.layoutId,
+        fields: [],
+        onConfirm: (data) => this.handleConfirm(data),
+      }
+
+      if (this.props.fields && this.props.fields.length) {
+        formProps.fields = this.props.fields
       } else {
-        const formProps = {
-          ...this.props,
-          entity: res.data.entity,
-          layoutId: res.data.layoutId,
-          fields: [],
-          onConfirm: (data) => this.handleConfirm(data),
-        }
         res.data.elements.forEach((item) => {
           if (item.readonly || !item.type) return
           formProps.fields.push({
@@ -1290,41 +1299,45 @@ class ExcelClipboardDataModalWithForm extends React.Component {
             type: item.type,
           })
         })
-
-        this.setState({ formProps })
       }
+
+      this.setState({ formProps })
     })
   }
 
   handleConfirm(data) {
-    const formsData = []
-    data.forEach((item) => {
-      const formData = {
-        metadata: { entity: this.props.entity },
-      }
-      item.elements.forEach((d) => {
-        if (d.value) {
-          if (typeof d.value === 'object') formData[d.field] = d.value.id
-          else formData[d.field] = d.value
+    function _FN() {
+      const formsData = []
+      data.forEach((item) => {
+        const formData = {
+          metadata: { entity: this.props.entity },
         }
+        item.elements.forEach((d) => {
+          if (d.value) {
+            if (typeof d.value === 'object') formData[d.field] = d.value.id
+            else formData[d.field] = d.value
+          }
+        })
+        formsData.push(formData)
       })
-      formsData.push(formData)
-    })
 
-    let len = formsData.length
-    let success = 0
-    formsData.forEach((formData) => {
-      $.post('/app/entity/record-save', JSON.stringify(formData), (res) => {
-        len--
-        if (res.error_code === 0) success++
-        if (len <= 0) {
-          RbHighbar.success($L('成功保存 %d 条记录', success))
-          this._ExcelClipboardDataModal.hide()
-          const rlp = window.RbListPage || parent.RbListPage
-          if (rlp) rlp.reload(data.id)
-        }
+      let len = formsData.length
+      let success = 0
+      formsData.forEach((formData) => {
+        $.post('/app/entity/record-save', JSON.stringify(formData), (res) => {
+          len--
+          if (res.error_code === 0) success++
+          if (len <= 0) {
+            RbHighbar.success($L('成功保存 %d 条记录', success))
+            this._ExcelClipboardDataModal.hide()
+            const rlp = window.RbListPage || parent.RbListPage
+            if (rlp) rlp.reload(data.id)
+          }
+        })
       })
-    })
+    }
+
+    RbAlert.create($L('是否确认保存？'), { onConfirm: () => _FN() })
     return false
   }
 }

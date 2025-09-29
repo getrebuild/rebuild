@@ -317,7 +317,7 @@ const _fieldsMapping = (columns, fields) => {
     if (idx > 51) L = `B${_LETTERS[idx - 52] || 'X'}` // BA
 
     const $tr = $(`<tr data-col="${idx}"></tr>`).appendTo($tbody)
-    $(`<td><em>${L}</em> ${item || $L('空')}<i class="zmdi zmdi-arrow-right"></i></td>`).appendTo($tr)
+    $(`<td><em>${L}</em> ${item || $L('空')}<i class="zmdi zmdi-forward"></i></td>`).appendTo($tr)
     const $td = $('<td></td>').appendTo($tr)
     const $clone = $fieldSelect.clone().appendTo($td)
     $('<td class="pl-3"></td>').appendTo($tr)

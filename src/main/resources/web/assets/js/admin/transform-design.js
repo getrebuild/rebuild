@@ -364,7 +364,7 @@ class FieldsMapping extends React.Component {
           return (
             <div className="row" key={idx}>
               <div className="col-4">
-                <span className={`badge ${!item.nullable && 'req'} ${isCommon && 'readonly'}`}>{item.label}</span>
+                <span className={`badge ${!item.nullable && 'req'} ${!item.repeatable && 'rep'}  ${isCommon && 'readonly'}`}>{item.label}</span>
               </div>
               <div className="col-2 pr-0">
                 <select className={`form-control form-control-sm J_vfixed J_vfixed-${item.name}`} data-field={item.name} defaultValue="FIELD">

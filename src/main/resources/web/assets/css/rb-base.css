@@ -12420,7 +12420,7 @@ a.avatar.x48 img {
   background-color: #fff;
   padding: 16px 10px;
   color: #222222;
-  font-weight: 300;
+  /* font-weight: 300; */
   font-size: 1.077rem;
 }
 

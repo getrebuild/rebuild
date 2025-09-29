@@ -231,7 +231,7 @@ class AppLogsViewer extends RbModal {
                       <div>
                         {item[3].split('?')[0]}
                         <br />
-                        <span className="text-muted fs-12">{item[1].split('UTC')[0]}</span>
+                        <span className="text-muted fs-11">{item[1].split('UTC')[0]}</span>
                       </div>
                       <span className={`badge badge-${respOk ? 'success' : 'danger'} badge-pill`}>{respOk ? $L('成功') : $L('失败')}</span>
                     </a>

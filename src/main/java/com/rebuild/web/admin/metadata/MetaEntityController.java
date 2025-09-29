@@ -76,6 +76,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static com.rebuild.web.commons.LanguageController.putLocales;
+import static org.apache.commons.lang3.Strings.CI;
 
 /**
  * @author Zixin (RB)
@@ -445,16 +446,18 @@ public class MetaEntityController extends EntityController {
         for (Entity e : MetadataSorter.sortEntities()) {
             String name = e.getName();
             String label = EasyMetaFactory.getLabel(e);
-            if (StringUtils.containsIgnoreCase(name, q) || StringUtils.containsIgnoreCase(label, q)) {
+            String quickCode = QuickCodeReindexTask.generateQuickCode(label);
+            if (CI.contains(name, q) || CI.contains(label, q) || CI.contains(quickCode, q)) {
                 res.add(JSONUtils.toJSONObject(new String[]{"name", "label"}, new Object[]{name, label}));
             }
 
             for (Field f : MetadataSorter.sortFields(e)) {
-                String fname = f.getName();
-                String flabel = EasyMetaFactory.getLabel(f);
-                if (StringUtils.containsIgnoreCase(fname, q) || StringUtils.containsIgnoreCase(flabel, q)) {
+                String fName = f.getName();
+                String fLabel = EasyMetaFactory.getLabel(f);
+                String fQuickCode = QuickCodeReindexTask.generateQuickCode(fLabel);
+                if (CI.contains(fName, q) || CI.contains(fLabel, q) || CI.contains(fQuickCode, q)) {
                     res.add(JSONUtils.toJSONObject(
-                            new String[]{"name", "label", "entity"}, new Object[]{fname, label + "." + flabel, name}));
+                            new String[]{"name", "label", "entity"}, new Object[]{fName, label + "." + fLabel, name}));
                 }
             }
         }

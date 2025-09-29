@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-;(function () {
+(function () {
   var gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -947,6 +947,13 @@ var $initReferenceSelect2 = function (el, option) {
 // 搜索 text/id
 // https://select2.org/searching#customizing-how-results-are-matched
 var $select2MatcherAll = function (params, data) {
+  if (!window.__pinyinLoaded) {
+    window.__pinyinLoaded = 1
+    $getScript('/assets/lib/pinyin-pro.min.js?v=3.27.0', () => {
+      console.log('pinyin-pro.min.js loaded')
+    })
+  }
+
   if ($trim(params.term) === '') {
     return data
   }
@@ -959,8 +966,11 @@ var $select2MatcherAll = function (params, data) {
     s = s.toLowerCase()
     if ((item.text || '').toLowerCase().indexOf(s) > -1 || (item.id || '').toLowerCase().indexOf(s) > -1) return true
     // v4.2
-    var pinyin = $(item.element).data('pinyin')
-    return pinyin && pinyin.toLowerCase().indexOf(s) > -1
+    if (window.pinyinPro) {
+      var pinyin = window.pinyinPro.pinyin(item.text, { toneType: 'none' }).replace(/\s+/g, '')
+      return pinyin && pinyin.toLowerCase().indexOf(s) > -1
+    }
+    return false
   }
 
   if (data.children) {
@@ -1531,4 +1541,16 @@ function $fetchMetaInfo(name, cb) {
       RbHighbar.error(res.error_msg)
     }
   })
+}
+
+// 同步获取数据
+function $syncGet(url) {
+  var _data
+  $.ajax({
+    type: 'GET',
+    async: false,
+    url: url,
+    success: (res) => (_data = res),
+  })
+  return _data || {}
 }

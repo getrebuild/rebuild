@@ -23,7 +23,7 @@ $(document).ready(() => {
   $.get('/commons/metadata/entities?detail=true', (res) => {
     $(res.data).each(function () {
       if (!$isSysMask(this.label)) {
-        $(`<option value="${this.name}" data-pinyin="${this.quickCode}">${this.label}</option>`).appendTo('.J_menuEntity optgroup:eq(0)')
+        $(`<option value="${this.name}">${this.label}</option>`).appendTo('.J_menuEntity optgroup:eq(0)')
       }
       _entities[this.name] = this
     })
@@ -33,7 +33,6 @@ $(document).ready(() => {
         placeholder: $L('选择关联项'),
         allowClear: false,
         templateResult: function (res) {
-          console.log(res)
           const $span = $('<span></span>').attr('title', res.text).text(res.text)
           if (!res.children) $span.addClass('icon-append') // optgroup
           const found = _entities[res.id]
