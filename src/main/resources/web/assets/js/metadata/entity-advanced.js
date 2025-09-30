@@ -651,7 +651,7 @@ class DlgMode4Option extends RbFormHandler {
   componentDidMount() {
     // super.componentDidMount()
 
-    $.get(`/commons/metadata/fields?entity=${wpc.entityName}`, (res) => {
+    $.get(`/commons/metadata/fields?entity=${wpc.entityName}&deep=2`, (res) => {
       this.setState({ fields: res.data }, () => {
         const conf = wpc.extConfig || {}
         $(this._$fieldOfStart)
