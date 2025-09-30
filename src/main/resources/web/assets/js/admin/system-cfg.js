@@ -14,7 +14,7 @@ $(document).ready(() => {
 
   const $ns = $('#_MobileNavStyle')
   // eslint-disable-next-line eqeqeq
-  $ns.text($ns.text() == '35' ? $L('卡片式') : $L('默认'))
+  $ns.text($ns.text() == '35' ? $L('宫格') : $L('默认'))
 
   // 禁用
   ;['PasswordExpiredDays', 'DBBackupsKeepingDays', 'RevisionHistoryKeepingDays', 'RecycleBinKeepingDays'].forEach((item) => {
@@ -142,7 +142,7 @@ useEditComp = function (name) {
     return (
       <select className="form-control form-control-sm">
         <option value="34">{$L('默认')}</option>
-        <option value="35">{$L('卡片式')}</option>
+        <option value="35">{$L('宫格')}</option>
       </select>
     )
   }
