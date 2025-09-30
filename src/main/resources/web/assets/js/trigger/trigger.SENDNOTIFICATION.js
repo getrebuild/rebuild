@@ -167,7 +167,7 @@ class ContentSendNotification extends ActionContentSpec {
                     <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                       <input className="custom-control-input" type="checkbox" ref={(c) => (this._$mergeSend = c)} />
                       <span className="custom-control-label">
-                        {$L('合并发送')}
+                        {$L('合并发送')} (LAB)
                         <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('当有多个收件人邮箱时合并为一封邮件发送')} />
                       </span>
                     </label>

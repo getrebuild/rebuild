@@ -81,7 +81,7 @@ class ContactList extends React.Component {
   componentDidMount = () => this.search()
 
   _fetch() {
-    const url = `/contacts/list-users?page=${this._page}&dept=${this._dept || 'ALL'}&q=${encodeURIComponent(this._q || '')}`
+    const url = `/contacts/list-users?page=${this._page}&dept=${this._dept || 'ALL'}&q=${encodeURIComponent(this._q || '')}&sort=${this._sort || ''}`
     $.get(url, (res) => {
       const current = res.data || []
       let data = this._page === 1 ? [] : this.state.data
@@ -93,12 +93,14 @@ class ContactList extends React.Component {
   search(dept) {
     this._page = 1
     this._q = currentSearch
+    this._sort = currentSort
     this._dept = dept || this._dept
     this._fetch(1)
   }
 }
 
 let currentSearch
+let currentSort
 let _ContactList
 
 $(document).ready(() => {
@@ -134,6 +136,12 @@ $(document).ready(() => {
   })
   $('.az-search>a').click(function () {
     $input.val($(this).text() + '*')
+    $btn.trigger('click')
+  })
+  // 排序
+  $('.J_sort .dropdown-menu>a').on('click', function () {
+    $('.J_sort button>span').text($(this).text())
+    currentSort = $(this).data('sort')
     $btn.trigger('click')
   })
 

@@ -259,7 +259,7 @@ public class UserService extends BaseService {
 
         LanguageBundle bundle = Language.getSysDefaultBundle();
         String content = bundle.L(
-                "系统管理员已经为你开通了 %s 账号！以下为你的登录信息，请妥善保管。 [] 登录账号 : **%s** [] 登录密码 : **%s** [] 登录地址 : [%s](%s) [][] 首次登陆，建议你立即修改登陆密码。修改方式 : 登陆后点击右上角头像 - 个人设置 - 安全设置 - 更改密码",
+                "系统管理员已经为你开通了 %s 账号！以下为你的登录信息，请妥善保管。 [] 登录账号 : **%s** [] 登录密码 : **%s** [] 登录地址 : [%s](%s) [][] 首次登录，建议你立即修改登录密码。修改方式 : 登录后点击右上角头像 - 个人设置 - 安全设置 - 更改密码",
                 appName, newUser.getString("loginName"), passwd, homeUrl, homeUrl);
 
         SMSender.sendMailAsync(newUser.getString("email"), Language.L("你的账号已就绪"), content);
@@ -357,14 +357,14 @@ public class UserService extends BaseService {
         if (did != null) return false;
 
         // 站内信
-        String content = Language.L("%s 你的账户已激活！现在你可以登陆并使用系统。如有任何登陆或使用问题，请与系统管理员联系。",
+        String content = Language.L("%s 你的账户已激活！现在你可以登录并使用系统。如有任何登录或使用问题，请与系统管理员联系。",
                 user.getFullName());
         Application.getNotifications().send(MessageBuilder.createMessage(user.getId(), content));
 
         // 邮件
         if (SMSender.availableMail() && user.getEmail() != null) {
             String homeUrl = RebuildConfiguration.getHomeUrl();
-            content = Language.L("%s 你的账户已激活！现在你可以登陆并使用系统。 [][] 登录地址 : [%s](%s) [][] 首次登陆，建议你立即修改密码！如有任何登陆或使用问题，请与系统管理员联系。",
+            content = Language.L("%s 你的账户已激活！现在你可以登录并使用系统。 [][] 登录地址 : [%s](%s) [][] 首次登录，建议你立即修改密码！如有任何登录或使用问题，请与系统管理员联系。",
                     user.getFullName(), homeUrl, homeUrl);
             String subject = Language.L("你的账户已激活");
             SMSender.sendMailAsync(user.getEmail(), subject, content);
@@ -497,7 +497,7 @@ public class UserService extends BaseService {
      * @return
      */
     public static boolean checkHasUsed(ID user) {
-        // FIXME 仅检查是否登陆过。严谨些还应该检查是否有其他业务数据
+        // FIXME 仅检查是否登录过。严谨些还应该检查是否有其他业务数据
 
         // 登录
         Object[] hasLogin = Application.createQueryNoFilter(

@@ -41,10 +41,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import static com.rebuild.web.commons.LanguageController.putLocales;
 
 /**
  * @author Zixin (RB)
@@ -170,11 +170,8 @@ public class LoginController extends LoginAction {
         // v34 维护计划
         if (!UserHelper.isAdmin(loginUser.getId())) {
             ConfigurationController.MaintenanceMode mm = ConfigurationController.getCurrentMm();
-            if (mm != null) {
-                long left = (mm.getStartTime().getTime() - CalendarUtils.now().getTime()) / 1000;
-                if (left <= 300) {
-                    return RespBody.errorl("系统即将开始维护，暂时禁止登录");
-                }
+            if (mm != null && mm.isNotLogin() && mm.getStartTime().compareTo(CalendarUtils.now()) <= 0) {
+                return RespBody.errorl("系统即将开始维护，暂时禁止登录");
             }
         }
 
@@ -301,32 +298,5 @@ public class LoginController extends LoginAction {
             return code.equalsIgnoreCase(code2);
         }
         return v;
-    }
-
-    // --
-
-    /**
-     * 可用语言
-     *
-     * @param into
-     * @param currentLocale
-     */
-    public static void putLocales(ModelAndView into, String currentLocale) {
-        String currentLocaleText = null;
-
-        List<String[]> alangs = new ArrayList<>();
-        for (Map.Entry<String, String> lc : Application.getLanguage().availableLocales().entrySet()) {
-            String lcText = lc.getValue();
-            lcText = lcText.split("\\(")[0].trim();
-
-            alangs.add(new String[] { lc.getKey(), lcText });
-
-            if (lc.getKey().equals(currentLocale)) {
-                currentLocaleText = lcText;
-            }
-        }
-
-        into.getModelMap().put("currentLang", currentLocaleText);
-        into.getModelMap().put("availableLangs", alangs);
     }
 }

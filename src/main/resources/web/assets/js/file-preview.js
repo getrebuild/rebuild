@@ -9,7 +9,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // ~~ 图片/文档预览
 
 const TYPE_TEXTS = ['.txt', '.xml', '.json', '.md', '.yml', '.css', '.js', '.htm', '.html', '.log', '.sql', '.conf', '.sh', '.bat', '.java', '.ini']
-const TYPE_DOCS = ['.doc', '.docx', '.rtf', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf']
+const TYPE_DOCS = ['.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf'] // .rtf, .csv
 const TYPE_IMGS = ['.jpg', '.jpeg', '.gif', '.png', '.bmp', '.jfif', '.webp']
 const TYPE_AUDIOS = ['.mp3', '.wma', '.m4a', '.flac', '.ogg', '.acc']
 const TYPE_VIDEOS = ['.mp4', '.wmv', '.mov', '.avi', '.mkv', '.webm', '.m4v', '.mpg', '.mpge']
@@ -57,6 +57,11 @@ class RbPreview extends React.Component {
               <h5 className="text-bold">{fileName}</h5>
             </div>
             <div className="float-right">
+              {this.props.id && this._isDoc(fileName) && (
+                <a href={`${rb.baseUrl}/commons/file-editor?src=${this.props.id}`} target="_blank" title={$L('在线编辑')}>
+                  <i className="mdi mdi-microsoft-office fs-17" />
+                </a>
+              )}
               {rb.fileSharable && (
                 <a onClick={this.share} title={$L('分享')}>
                   <i className="zmdi zmdi-share fs-17" />
@@ -388,11 +393,12 @@ class RbPreview extends React.Component {
   /**
    * @param {*} urls string or array of URL
    * @param {*} index
+   * @param {*} id
    */
-  static create(urls, index) {
+  static create(urls, index, id) {
     if (!urls) return
     if (typeof urls === 'string') urls = [urls]
-    renderRbcomp(<RbPreview urls={urls} currentIndex={index || 0} />)
+    renderRbcomp(<RbPreview urls={urls} currentIndex={index || 0} id={id} />)
   }
 }
 

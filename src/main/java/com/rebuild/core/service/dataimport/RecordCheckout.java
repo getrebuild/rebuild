@@ -24,10 +24,10 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.easymeta.EasyEmail;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.EasyPhone;
 import com.rebuild.core.metadata.easymeta.EasyUrl;
+import com.rebuild.core.metadata.easymeta.PatternValue;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.query.QueryHelper;
@@ -116,7 +116,8 @@ public class RecordCheckout {
      * @return
      */
     protected Object checkoutFieldValue(Field field, Cell cell, boolean verifyFormat) {
-        final DisplayType dt = EasyMetaFactory.getDisplayType(field);
+        final EasyField easyField = EasyMetaFactory.valueOf(field);
+        final DisplayType dt = easyField.getDisplayType();
 
         if (dt == DisplayType.NUMBER) {
             return cell.asLong();
@@ -149,14 +150,12 @@ public class RecordCheckout {
         String text = cell.asString();
         if (text != null) text = text.trim();
 
-        // 格式验证
-        if (verifyFormat) {
-            if (dt == DisplayType.EMAIL) {
-                return EasyEmail.isEmail(text) ? text : null;
-            } else if (dt == DisplayType.URL || dt == DisplayType.AVATAR) {
-                return EasyUrl.isUrl(text) ? text : null;
-            } else if (dt == DisplayType.PHONE) {
-                return EasyPhone.isPhone(text) ? text : null;
+        // v4.2 格式验证
+        if (verifyFormat && text != null && easyField instanceof PatternValue) {
+            boolean s = ((PatternValue) easyField).checkPattern(text);
+            if (!s) {
+                log.warn("Value `{}` cannot be checkout : {}", text, field);
+                return null;
             }
         }
 

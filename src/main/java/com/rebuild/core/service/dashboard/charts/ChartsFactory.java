@@ -25,6 +25,7 @@ import com.rebuild.core.service.dashboard.charts.builtin.DataList;
 import com.rebuild.core.service.dashboard.charts.builtin.EmbedFrame;
 import com.rebuild.core.service.dashboard.charts.builtin.FeedsSchedule;
 import com.rebuild.core.service.dashboard.charts.builtin.HeadingText;
+import com.rebuild.core.service.dashboard.charts.builtin.MyNotification;
 import com.rebuild.core.service.dashboard.charts.builtin.ProjectTasks;
 import com.rebuild.core.support.i18n.Language;
 
@@ -82,6 +83,8 @@ public class ChartsFactory {
             return (ChartData) new Bar2Chart(config).setUser(user);
         } else if ("BAR3".equalsIgnoreCase(type)) {
             return (ChartData) new Bar3Chart(config).setUser(user);
+        } else if ("PARETO".equalsIgnoreCase(type)) {
+            return (ChartData) new ParetoChart(config).setUser(user);
         } else if ("PIE".equalsIgnoreCase(type)) {
             return (ChartData) new PieChart(config).setUser(user);
         } else if ("FUNNEL".equalsIgnoreCase(type)) {
@@ -120,6 +123,7 @@ public class ChartsFactory {
                 new DataList(),
                 new HeadingText(),
                 new EmbedFrame(),
+                new MyNotification(),
         };
     }
 }

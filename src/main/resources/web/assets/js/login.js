@@ -39,7 +39,7 @@ $(document).ready(() => {
     bgimg.onload = function () {
       $('.rb-bgimg').animate({ opacity: 0 })
       setTimeout(() => {
-        $('.rb-bgimg').css('background-image', `url(${res.data})`).animate({ opacity: 1 })
+        $('.rb-bgimg').css('background-image', `url(${res.data})`).attr('title', 'www.bing.com').animate({ opacity: 1 })
       }, 400)
     }
   })

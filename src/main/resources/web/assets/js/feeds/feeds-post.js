@@ -294,19 +294,7 @@ class FeedsEditor extends React.Component {
             </div>
             <div className="file-field">
               {(this.state.files || []).map((item) => {
-                const fileName = $fileCutName(item)
-                const isImage = $isImage(fileName)
-                return (
-                  <div key={`file-${item}`} className="img-thumbnail" title={fileName} onClick={() => this._filePreview(item)}>
-                    <i className={`file-icon ${isImage && 'image'}`} data-type={$fileExtName(fileName)}>
-                      {isImage && <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />}
-                    </i>
-                    <span>{fileName}</span>
-                    <b title={$L('移除')} onClick={(e) => this._removeFile(item, e)}>
-                      <span className="zmdi zmdi-close" />
-                    </b>
-                  </div>
-                )
+                return <FileShow file={item} key={item} removeHandle={() => this._removeFile(item)} />
               })}
             </div>
           </div>

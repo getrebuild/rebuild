@@ -68,15 +68,11 @@ public class RobotApprovalManager implements ConfigManager {
 
         // 实体的
         FlowDefinition[] defs = getFlowDefinitions(entity);
-        for (FlowDefinition def : defs) {
-            if (!def.isDisabled()) {
-                return ApprovalState.DRAFT;
-            }
+        for (FlowDefinition d : defs) {
+            if (!d.isDisabled()) return ApprovalState.DRAFT;
         }
-
         return null;
     }
-
 
     /**
      * 获取实体是否有流程

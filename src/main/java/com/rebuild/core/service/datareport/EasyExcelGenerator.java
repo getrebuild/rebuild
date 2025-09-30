@@ -441,7 +441,7 @@ public class EasyExcelGenerator extends SetUser {
             for (Object path : paths) {
                 File temp;
                 try {
-                    temp = QiniuCloud.getStorageFile((String) path);
+                    temp = QiniuCloud.downloadFile((String) path);
                 } catch (RebuildException ex) {
                     log.warn(ex.getMessage());
                     continue;
@@ -466,6 +466,7 @@ public class EasyExcelGenerator extends SetUser {
 
     private byte[] buildBarcodeData(Field barcodeField, ID recordId) {
         BufferedImage bi = BarCodeSupport.getBarCodeImage(barcodeField, recordId);
+        if (bi == null) return null;
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             ImageIO.write(bi, "png", baos);

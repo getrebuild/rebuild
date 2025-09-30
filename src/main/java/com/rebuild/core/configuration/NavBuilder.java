@@ -30,11 +30,13 @@ import com.rebuild.core.service.project.ProjectManager;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.general.RecordBuilder;
+import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -88,11 +90,32 @@ public class NavBuilder extends NavManager {
     }
 
     /**
+     * 获取指定用户的制定导航菜单
+     *
      * @param user
      * @param useNav
      * @return
      */
     public JSONArray getUserNav(ID user, String useNav) {
+        JSONArray navs = getUserNav42(user, useNav);
+
+        // v4.2
+        for (Object item : navs) {
+            JSONArray s = ((JSONObject) item).getJSONArray("sub");
+            if (CollectionUtils.isNotEmpty(s)) {
+                s = (JSONArray) I18nUtils.replaceLP(s, "text");
+                ((JSONObject) item).put("sub", s);
+            }
+        }
+        return (JSONArray) I18nUtils.replaceLP(navs, "text");
+    }
+
+    /**
+     * @param user
+     * @param useNav
+     * @return
+     */
+    private JSONArray getUserNav42(ID user, String useNav) {
         ConfigBean config = null;
 
         if (useNav != null) {
@@ -112,12 +135,10 @@ public class NavBuilder extends NavManager {
             }
         }
 
-        if (config == null) {
-            config = getLayoutOfNav(user);
-        }
+        if (config == null) config = getLayoutOfNav(user);
 
         if (config == null) {
-            JSONArray useDefault = replaceLang(NAVS_DEFAULT);
+            JSONArray useDefault = (JSONArray) JSONUtils.clone(NAVS_DEFAULT);
             ((JSONObject) useDefault.get(3)).put("sub", buildAvailableProjects(user));
             return useDefault;
         }
@@ -244,9 +265,7 @@ public class NavBuilder extends NavManager {
 
         // 管理员显示新建项目入口
         if (UserHelper.isAdmin(user)) {
-            JSONObject add = NAV_PROJECT__ADD.clone();
-            replaceLang(add);
-            navsOfProjects.add(add);
+            navsOfProjects.add(NAV_PROJECT__ADD.clone());
         }
         return navsOfProjects;
     }
@@ -278,7 +297,7 @@ public class NavBuilder extends NavManager {
      * @param initEntity
      */
     public void addInitNavOnInstall(String[] initEntity) {
-        JSONArray initNav = replaceLang(NAVS_DEFAULT);
+        JSONArray initNav = (JSONArray) JSONUtils.clone(NAVS_DEFAULT);
 
         for (String e : initEntity) {
             EasyEntity entity = EasyMetaFactory.valueOf(e);
@@ -336,7 +355,7 @@ public class NavBuilder extends NavManager {
                 if ((isAdmin && RoleService.ADMIN_ROLE.equals(d[5])) || isShareTo((String) d[1], user)) {
                     ID useDash = ID.isId(dash) ? ID.valueOf(dash) : null;
                     String useLabel = StringUtils.defaultIfBlank((String) d[4], Language.L("未命名"));
-                    allow.add(new Object[] { useNav, useDash, useLabel });
+                    allow.add(new Object[]{useNav, useDash, I18nUtils.LP(useLabel)});
                     break;
                 }
             }
@@ -510,23 +529,6 @@ public class NavBuilder extends NavManager {
             return navBody.selectFirst("li").outerHtml();
         }
         return navHtml.toString();
-    }
-
-    private static JSONArray replaceLang(JSONArray items) {
-        JSONArray clone = (JSONArray) items.clone();
-        for (Object o : clone) {
-            replaceLang((JSONObject) o);
-        }
-
-        // TODO 导航条
-
-        return clone;
-    }
-
-    // TODO 目前仅处理了默认导航
-    private static void replaceLang(JSONObject item) {
-        String text = item.getString("text");
-        item.put("text", Language.L(text));
     }
 
     /**

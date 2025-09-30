@@ -53,6 +53,8 @@ public enum ConfigurationItem {
 
     // 启用页面水印
     MarkWatermark(false),
+    // 水印内容
+    MarkWatermarkFormat,
 
     // 密码策略，1-3
     PasswordPolicy(1),

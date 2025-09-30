@@ -54,6 +54,10 @@ public class WebConstants {
      * 是否开启页面水印
      */
     public static final String MARK_WATERMARK = "markWatermark";
+    /**
+     * 页面水印内容
+     */
+    public static final String MARK_WATERMARK_TEXT = "markWatermarkText";
 
     /**
      * 页脚

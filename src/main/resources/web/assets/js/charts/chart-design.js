@@ -96,6 +96,27 @@ $(document).ready(() => {
       .disableSelection()
   }, 1000)
 
+  // v4.2 搜索
+  $('.search-input input').on('input', (e) => {
+    $setTimeout(
+      () => {
+        const q = $trim(e.target.value).toLowerCase()
+        $('.list-unstyled.fields>li>a').each(function () {
+          const $item = $(this)
+          const pinyin = $item.data('pinyin')
+          if (!q || $item.text().toLowerCase().includes(q) || $item.data('field').toLowerCase().includes(q) || (pinyin && pinyin.toLowerCase().includes(q))) {
+            $item.removeClass('hide')
+          } else {
+            $item.addClass('hide')
+          }
+        })
+        $('.data-aside>.rb-scroller').perfectScrollbar('update')
+      },
+      200,
+      'sortable-box'
+    )
+  })
+
   let _AdvFilter
   $('.J_filter').on('click', (e) => {
     $stopEvent(e, true)
@@ -104,7 +125,7 @@ $(document).ready(() => {
     } else {
       renderRbcomp(
         <AdvFilter
-          title={$L('附加过滤条件')}
+          title={$L('图表过滤条件')}
           entity={wpc.sourceEntity}
           filter={dataFilter}
           onConfirm={(s) => {
@@ -172,7 +193,7 @@ $(document).ready(() => {
     .addClass('zmdi-arrow-left')
 
   // 颜色
-  const $cs = $('.rbcolors')
+  const $cs = $('#useColor')
   RBCOLORS.forEach((c) => {
     $(`<a style="background-color:${c}" data-color="${c}"></a>`).appendTo($cs)
   })
@@ -187,6 +208,36 @@ $(document).ready(() => {
       $cs.find('>a .zmdi').remove()
       render_preview()
     })
+
+  // 背景色
+  function _removeClass($el) {
+    $el.removeClass(function (index, className) {
+      return (className.match(/gradient-bg(?:-\d+)?/g) || []).join(' ')
+    })
+    return $el
+  }
+  const $bs = $('#useBgcolor')
+  $bs.find('>a:eq(0)').on('click', function () {
+    _removeClass($('#chart-preview >.chart-box'))
+    $bs.find('>a:eq(0)').attr('data-bgcolor', '')
+    // check
+    $bs.find('>a>i').remove()
+    $('<i class="zmdi zmdi-check"></i>').appendTo($bs.find('a:eq(0)'))
+  })
+  $bs.find('>a:eq(1)').on('click', function () {
+    renderRbcomp(
+      <DlgBgcolor
+        onConfirm={(colorIndex) => {
+          _removeClass($('#chart-preview >.chart-box')).addClass(`gradient-bg gradient-bg-${colorIndex}`)
+          _removeClass($bs.find('>a:eq(1)')).addClass(`gradient-bg-${colorIndex}`)
+          $bs.find('>a:eq(0)').attr('data-bgcolor', colorIndex)
+          // check
+          $bs.find('>a>i').remove()
+          $('<i class="zmdi zmdi-check"></i>').appendTo($bs.find('a:eq(1)'))
+        }}
+      />
+    )
+  })
 
   // init
   if (wpc.chartConfig && wpc.chartConfig.axis) {
@@ -215,7 +266,12 @@ $(document).ready(() => {
 
       if (k === 'useColor' && option[k]) {
         $cs.find(`a[data-color="${option[k]}"]`).trigger('click')
-        $('.rbcolors >input').val(option[k])
+        $('#useColor >input').val(option[k])
+      }
+      if (k === 'useBgcolor' && option[k]) {
+        $bs.find('a:eq(0)').attr('data-bgcolor', option[k])
+        $bs.find('a:eq(1)').removeClass('gradient-bg-100').addClass(`gradient-bg-${option[k]}`)
+        $('<i class="zmdi zmdi-check"></i>').appendTo($bs.find('a:eq(1)'))
       }
     }
   }
@@ -344,7 +400,7 @@ function add_axis($target, axis) {
       } else {
         renderRbcomp(
           <AdvFilter
-            title={$L('过滤条件')}
+            title={$L('数值过滤条件')}
             entity={wpc.sourceEntity}
             filter={_axisAdvFilters__data[fkey] || null}
             onConfirm={(s) => {
@@ -515,11 +571,15 @@ function build_config() {
     if (name) option[name] = $val(this)
   })
 
-  let color = $('.rbcolors >a>i')
+  let color = $('#useColor >a>i')
   if (color[0]) color = color.parent().data('color') || ''
-  else color = $('.rbcolors >input').val() || ''
+  else color = $('#useColor >input').val() || ''
   option.useColor = color === '#000000' ? null : color
   cfg.option = option
+  // v4.2
+  let bgcolor = $('#useBgcolor >a:eq(0)')
+  if (bgcolor[0]) option.useBgcolor = bgcolor.attr('data-bgcolor')
+  else option.useBgcolor = null
 
   // 排他
   $('input[data-name="showMutliYAxis"]').attr('disabled', option.showHorizontal === true)
@@ -611,6 +671,26 @@ class DlgAxisProps extends RbFormHandler {
 
   saveProps() {
     this.state.callback(this.state)
+    this.hide()
+  }
+}
+
+class DlgBgcolor extends RbAlert {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+
+  renderContent() {
+    let c = []
+    for (let i = 1; i < 57; i++) {
+      c.push(<a key={i} className={`gradient-bg-${i}`} onClick={() => this._onConfirm(i)}></a>)
+    }
+    return <div className="gradient-bg-list">{c}</div>
+  }
+
+  _onConfirm(i) {
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(i)
     this.hide()
   }
 }

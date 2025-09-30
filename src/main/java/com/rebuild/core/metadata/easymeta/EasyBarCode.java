@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.support.general.BarCodeSupport;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @author devezhao
@@ -34,7 +35,8 @@ public class EasyBarCode extends EasyField {
     public Object wrapValue(Object value) {
         // value 是记录主键
         if (value instanceof ID) {
-            return BarCodeSupport.getBarCodeContent(getRawMeta(), (ID) value);
+            String bc = BarCodeSupport.getBarCodeContent(getRawMeta(), (ID) value);
+            return StringUtils.defaultIfEmpty(bc, null);
         }
 
         if (value != null) log.warn("Cannot wrap value of EasyBarCode : {}", value);

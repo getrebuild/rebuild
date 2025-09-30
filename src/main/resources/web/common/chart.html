@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${title ?:'REBUILD'}]]</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/charts.css}" />
+    <style>
+      html,
+      body,
+      .main-content,
+      .chart-wrap {
+        background-color: #fff;
+        height: 100%;
+        overflow: hidden;
+      }
+      .main-content,
+      .chart-wrap {
+        min-height: 500px;
+      }
+      .chart-box {
+        padding: 0;
+      }
+      .chart-box .chart-head {
+        visibility: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-content m-0 p-0">
+      <div class="chart-wrap"></div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/lib/charts/echarts.min.js?v=5.5.0}"></script>
+    <script th:src="@{/assets/lib/charts/tablecellsselection.js}"></script>
+    <script th:src="@{/assets/js/charts/charts.mapstyle.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/charts/charts.js}" type="text/babel"></script>
+    <script>
+      window.__PageConfig = {
+        chartId: '[[${chartId}]]',
+        chartConfig: [(${chartConfig ?:'null'})],
+        chartFilter: [(${chartFilter ?:'null'})],
+      }
+    </script>
+    <script type="text/babel">
+      const wpc = window.__PageConfig
+      if (window.frameElement) $(window.frameElement).parents('.modal-content').find('.modal-title').text(wpc.chartConfig.title)
+      $(document).ready(() => {
+        const conf = $clone(wpc.chartConfig)
+        conf.extconfig = { chart_filter: wpc.chartFilter }
+        conf.editable = false
+        renderRbcomp(detectChart(conf, wpc.chartId), $('.chart-wrap'))
+      })
+    </script>
+  </body>
+</html>

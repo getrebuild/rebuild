@@ -20,6 +20,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import com.rebuild.utils.JSONUtils;
@@ -71,6 +72,9 @@ public class MetaFormatter {
                     field.getExtraAttr(EasyFieldConfigProps.DECIMAL_FORMAT));
         }
 
+        String L42 = res.getString("label");
+        res.put("quickCode", QuickCodeReindexTask.generateQuickCode(L42));
+
         return res;
     }
 
@@ -101,10 +105,10 @@ public class MetaFormatter {
      * 获取字段列表
      *
      * @param entity
-     * @param deep 几级
+     * @param deep
      * @param riching
      * @param forceWith 1=ID, 2=approvalStepNode
-     * @param filter
+     * @param filter 过滤
      * @return
      */
     public static JSONArray buildFieldsWithRefs(Entity entity, int deep, boolean riching, int forceWith, Predicate<BaseMeta> filter) {
@@ -203,11 +207,13 @@ public class MetaFormatter {
         return res;
     }
 
-    private static JSONObject buildField(EasyField field, String[] parentsField, boolean rich) {
+    private static JSONObject buildField(EasyField field, String[] parentField, boolean rich) {
         JSONObject item = rich ? buildRichField(field) : (JSONObject) field.toJSON();
-        if (parentsField != null) {
-            item.put("name", parentsField[0] + "." + item.get("name"));
-            item.put("label", parentsField[1] + "." + item.get("label"));
+        if (parentField != null) {
+            item.put("name", parentField[0] + "." + item.get("name"));
+            String L42 = parentField[1] + "." + item.get("label");
+            item.put("label", L42);
+            item.put("quickCode", QuickCodeReindexTask.generateQuickCode(L42));
         }
         return item;
     }

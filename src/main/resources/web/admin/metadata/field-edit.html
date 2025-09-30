@@ -65,7 +65,7 @@
                     <div class="input-group">
                       <input class="form-control form-control-sm" type="text" readonly th:value="${fieldTypeLabel}" />
                       <div class="input-group-append hide">
-                        <button type="button" class="btn btn-secondary J_cast-type" th:title="${bundle.L('转换字段类型')}"><i class="zmdi zmdi-transform icon"></i></button>
+                        <button type="button" class="btn btn-secondary J_cast-type" th:title="${bundle.L('转换字段类型')}"><i class="mdi mdi-cog-transfer icon"></i></button>
                       </div>
                     </div>
                   </div>
@@ -115,9 +115,7 @@
                       <option value="yyyy年">YYYY年</option>
                       <option value="yyyy年MM月">YYYY年MM月</option>
                       <option value="yyyy年MM月dd日">YYYY年MM月DD日</option>
-                      <!--
-                      <option value="yyyy年MM月dd日 E">YYYY年MM月DD日 周E</option>
-                      -->
+                      <option value="yyyy年MM月dd日 (E)">YYYY年MM月DD日 (周E)</option>
                     </select>
                   </div>
                 </div>
@@ -133,9 +131,7 @@
                       <option value="yyyy年MM月dd日 HH">YYYY年MM月DD日 HH</option>
                       <option value="yyyy年MM月dd日 HH:mm">YYYY年MM月DD日 HH:II</option>
                       <option value="yyyy年MM月dd日 HH:mm:ss">YYYY年MM月DD日 HH:II:SS</option>
-                      <!--
-                      <option value="yyyy年MM月dd日 E HH:mm:ss">YYYY年MM月DD日 周E HH:II:SS</option>
-                      -->
+                      <option value="yyyy年MM月dd日 (E) HH:mm:ss">YYYY年MM月DD日 (周E) HH:II:SS</option>
                     </select>
                   </div>
                 </div>
@@ -449,18 +445,6 @@
                     </div>
                   </div>
                 </th:block>
-                <div th:if="${fieldType == 'NTEXT'}" class="form-group row J_for-NTEXT bosskey-show">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">
-                    <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i>
-                    [[${bundle.L('启用代码编辑器')}]]
-                  </label>
-                  <div class="col-md-12 col-xl-6 col-lg-8">
-                    <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                      <input class="custom-control-input" type="checkbox" id="useCode" />
-                      <span class="custom-control-label">[[${bundle.L('是')}]]</span>
-                    </label>
-                  </div>
-                </div>
                 <th:block th:if="${fieldType == 'LOCATION'}">
                   <div class="form-group row J_for-LOCATION">
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('自动定位')}]]</label>
@@ -502,6 +486,18 @@
                     </label>
                   </div>
                 </div>
+                <div th:if="${fieldType == 'NTEXT'}" class="form-group row J_for-NTEXT bosskey-show">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">
+                    <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i>
+                    [[${bundle.L('启用代码编辑器')}]] (LAB)
+                  </label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                      <input class="custom-control-input" type="checkbox" id="useCode" />
+                      <span class="custom-control-label">[[${bundle.L('是')}]]</span>
+                    </label>
+                  </div>
+                </div>
                 <div class="form-group row">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('备注')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
@@ -537,7 +533,7 @@
                       <label class="custom-control custom-control-sm custom-checkbox custom-control-inline bosskey-show">
                         <input class="custom-control-input" type="checkbox" id="fieldQueryable" th:data-o="${fieldQueryable}" />
                         <span class="custom-control-label">
-                          [[${bundle.L('允许使用')}]]
+                          [[${bundle.L('允许使用')}]] (LAB)
                           <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('不允许使用的字段对普通用户不可见')}"></i>
                         </span>
                       </label>

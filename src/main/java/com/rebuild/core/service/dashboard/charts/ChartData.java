@@ -29,8 +29,11 @@ import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.core.support.general.QueryParser;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.JSONUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.DecimalFormat;
@@ -50,6 +53,7 @@ import java.util.Set;
  * @author devezhao
  * @since 12/14/2018
  */
+@Slf4j
 public abstract class ChartData extends SetUser implements ChartSpec {
 
     protected JSONObject config;
@@ -74,6 +78,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
 
     /**
      * @param extraParams
+     * @return
      */
     public ChartData setExtraParams(Map<String, Object> extraParams) {
         this.extraParams = extraParams;
@@ -225,28 +230,79 @@ public abstract class ChartData extends SetUser implements ChartSpec {
      * @return
      */
     protected String getFilterSql() {
-        String previewFilter = StringUtils.EMPTY;
+        List<String> filtersAnd = new ArrayList<>();
+
         // 限制预览数据量
         if (isFromPreview() && getSourceEntity().containsField(EntityHelper.AutoId)) {
             String maxAidSql = String.format("select max(autoId) from %s", getSourceEntity().getName());
             Object[] o = Application.createQueryNoFilter(maxAidSql).unique();
             long maxAid = ObjectUtils.toLong(o[0]);
-            if (maxAid > 5000) {
-                previewFilter = String.format("(%s >= %d) and ", EntityHelper.AutoId, Math.max(maxAid - 2000, 0));
+            if (maxAid > 100000) {
+                String previewFilter = String.format("(%s >= %d) and ", EntityHelper.AutoId, Math.max(maxAid - 5000, 0));
+                filtersAnd.add(previewFilter);
             }
         }
 
         JSONObject filterExpr = config.getJSONObject("filter");
-        if (ParseHelper.validAdvFilter(filterExpr)) {
-            AdvFilterParser filterParser = new AdvFilterParser(filterExpr);
-            String sqlWhere = filterParser.toSqlWhere();
-            if (sqlWhere != null) {
-                sqlWhere = previewFilter + sqlWhere;
+        // v4.2 前端过滤优先
+        JSONObject params = (JSONObject) getExtraParams().get("extconfig");
+        if (params != null && params.get("chart_filter") != null) {
+            filterExpr = params.getJSONObject("chart_filter");
+            // 从列表查询
+            if ("LIST".equalsIgnoreCase(filterExpr.getString("filter_type"))) {
+                String s = new QueryParser(filterExpr).toFilterSql();
+                if (s != null) filtersAnd.add(s);
+            } else if (ParseHelper.validAdvFilter(filterExpr)) {
+                String s = new AdvFilterParser(filterExpr).toSqlWhere();
+                if (s != null) filtersAnd.add(s);
+            } else {
+                log.warn("Invalid `chart_filter` : {}", filterExpr);
             }
-            return StringUtils.defaultIfBlank(sqlWhere, "(1=1)");
+        } else if (ParseHelper.validAdvFilter(filterExpr)) {
+            String s = new AdvFilterParser(filterExpr).toSqlWhere();
+            if (s != null) filtersAnd.add(s);
         }
 
-        return previewFilter + "(1=1)";
+        // v4.2 仪表盘全局过滤
+        if (params != null && params.get("dash_filter_user") != null) {
+            String s = parseGlobalFilter42(params.get("dash_filter_user"), EntityHelper.OwningUser);
+            if (s != null) filtersAnd.add(s);
+        }
+        if (params != null && params.get("dash_filter_date") != null) {
+            String s = parseGlobalFilter42(params.get("dash_filter_date"), EntityHelper.CreatedOn);
+            if (s != null) filtersAnd.add(s);
+        }
+        if (params != null && params.get("dash_filter_custom") != null) {
+            JSONObject custom = params.getJSONObject("dash_filter_custom");
+            if (ParseHelper.validAdvFilter(custom)) {
+                custom.put("entity", getSourceEntity().getName());
+                String s = new AdvFilterParser(custom).toSqlWhere();
+                if (s != null) filtersAnd.add(s);
+            }
+        }
+
+        if (filtersAnd.isEmpty()) return "(1=1)";
+        return String.format("( %s )", String.join(" and ", filtersAnd));
+    }
+
+    /**
+     * 全局过滤
+     *
+     * @param value
+     * @param fieldDefault
+     * @return
+     */
+    private String parseGlobalFilter42(Object value, String fieldDefault) {
+        JSONObject filterItem = JSONUtils.toJSONObject(
+                new String[]{"field", "op"},
+                new Object[]{fieldDefault, value});
+
+        if (ParseHelper.SFD.equals(value)) filterItem.put("field", EntityHelper.OwningDept);
+
+        JSONObject filter = JSONUtils.toJSONObject(
+                new String[]{"entity", "items"},
+                new Object[]{getSourceEntity().getName(), new JSONObject[]{filterItem}});
+        return new AdvFilterParser(filter).toSqlWhere();
     }
 
     /**

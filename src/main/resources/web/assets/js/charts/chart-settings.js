@@ -290,7 +290,7 @@ class HeadingTextSettings extends RbModalHandler {
             </label>
             <div className="col-sm-7 HeadingText-style">
               <div className="float-left">
-                <select className="form-control form-control-sm" title="文字大小" defaultValue={style.fontSize || ''} ref={(c) => (this._$fontSize = c)}>
+                <select className="form-control form-control-sm" title={$L('文字大小')} defaultValue={style.fontSize || ''} ref={(c) => (this._$fontSize = c)}>
                   <option value="">{$L('默认')}</option>
                   <option value="48">48</option>
                   <option value="32">32</option>
@@ -300,10 +300,10 @@ class HeadingTextSettings extends RbModalHandler {
                 </select>
               </div>
               <div className="float-left ml-2">
-                <input type="color" title="文字颜色" defaultValue={style.color || ''} ref={(c) => (this._$color = c)} />
+                <input type="color" title={$L('文字颜色')} defaultValue={style.color || ''} ref={(c) => (this._$color = c)} />
               </div>
               <div className="float-left ml-2">
-                <input type="color" title="背景颜色" defaultValue={style.bgcolor || ''} ref={(c) => (this._$bgcolor = c)} />
+                <input type="color" title={$L('背景颜色')} defaultValue={style.bgcolor || ''} ref={(c) => (this._$bgcolor = c)} />
               </div>
               <div className="clearfix" />
             </div>

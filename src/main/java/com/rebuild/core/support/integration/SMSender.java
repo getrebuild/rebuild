@@ -18,6 +18,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.support.Callback2;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.HeavyStopWatcher;
 import com.rebuild.core.support.License;
@@ -60,13 +61,15 @@ public class SMSender {
     private static final int TYPE_SMS = 1;
     private static final int TYPE_EMAIL = 2;
 
+    // -- 邮件
+
     /**
      * @param to
      * @param subject
      * @param content
      */
     public static void sendMailAsync(String to, String subject, String content) {
-        sendMailAsync(to, subject, content, null);
+        sendMailAsync(to, subject, content, null, null);
     }
 
     /**
@@ -76,11 +79,25 @@ public class SMSender {
      * @param attach
      */
     public static void sendMailAsync(String to, String subject, String content, File[] attach) {
+        sendMailAsync(to, subject, content, attach, null);
+    }
+
+    /**
+     * @param to
+     * @param subject
+     * @param content
+     * @param attach
+     * @param cb
+     */
+    public static void sendMailAsync(String to, String subject, String content, File[] attach, Callback2 cb) {
         ThreadPool.exec(() -> {
             try {
-                sendMail(to, subject, content, attach);
+                String sendid = sendMail(to, subject, content, attach);
+                if (cb != null) cb.onComplete(sendid);
+
             } catch (Exception ex) {
                 log.error("Email send error : {}, {}", to, subject, ex);
+                if (cb != null) cb.onComplete(ex);
             }
         });
     }
@@ -310,16 +327,30 @@ public class SMSender {
         return MT_CACHE.clone();
     }
 
+    // -- 短信
+
     /**
      * @param to
      * @param content
      */
     public static void sendSMSAsync(String to, String content) {
+        sendSMSAsync(to, content, null);
+    }
+
+    /**
+     * @param to
+     * @param content
+     * @param cb
+     */
+    public static void sendSMSAsync(String to, String content, Callback2 cb) {
         ThreadPool.exec(() -> {
             try {
-                sendSMS(to, content);
+                String sendid = sendSMS(to, content);
+                if (cb != null) cb.onComplete(sendid);
+
             } catch (Exception ex) {
                 log.error("SMS send error : {}, {}", to, content, ex);
+                if (cb != null) cb.onComplete(ex);
             }
         });
     }
@@ -386,6 +417,8 @@ public class SMSender {
         createLog(to, content, TYPE_SMS, null, rJson.getString("msg"));
         return null;
     }
+
+    // -- SUPPORTS
 
     // @see com.rebuild.core.support.CommonsLog
     private static void createLog(String to, String content, int type, String sentid, Object error) {

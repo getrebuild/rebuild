@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.DataAccessException;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.JdbcSupport;
 import cn.devezhao.persist4j.engine.StatementCallback;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +43,7 @@ public class SqlExecutor {
      * @return
      */
     public int execute(String sql) {
-        return execute(sql, 60);
+        return execute(sql, -1);
     }
 
     /**
@@ -53,7 +54,7 @@ public class SqlExecutor {
     public int execute(String sql, int timeout) {
         try {
             final JdbcSupport jdbcSupport = (JdbcSupport) aPMFactory.createPersistManager();
-            jdbcSupport.setTimeout(timeout);
+            if (timeout > 0) jdbcSupport.setTimeout(timeout);
 
             return jdbcSupport.execute(new StatementCallback() {
                 @Override
@@ -76,7 +77,7 @@ public class SqlExecutor {
      * @return
      */
     public int executeBatch(String[] sqls) {
-        return executeBatch(sqls, 60 * 3);
+        return executeBatch(sqls, -1);
     }
 
     /**
@@ -95,9 +96,7 @@ public class SqlExecutor {
             }
         }
 
-        if (!tmp.isEmpty()) {
-            affected += this.executeBatchInternal(tmp, timeout);
-        }
+        if (CollectionUtils.isNotEmpty(tmp)) affected += this.executeBatchInternal(tmp, timeout);
         return affected;
     }
 
@@ -110,7 +109,7 @@ public class SqlExecutor {
         int affected = 0;
         try {
             final JdbcSupport jdbcSupport = (JdbcSupport) aPMFactory.createPersistManager();
-            jdbcSupport.setTimeout(timeout);
+            if (timeout > 0) jdbcSupport.setTimeout(timeout);
 
             int[] exec = jdbcSupport.executeBatch(sqls.toArray(new String[0]));
             for (int a : exec) {
@@ -120,6 +119,14 @@ public class SqlExecutor {
             throw new DataAccessException("Batch SQL Error! #", ex);
         }
         return affected;
+    }
+
+    /**
+     * @param sql
+     * @return
+     */
+    public Object[][] executeQuery(String sql) {
+        return aPMFactory.createNativeQuery(sql).array();
     }
 
     /**

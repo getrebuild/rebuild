@@ -59,7 +59,7 @@
                   <a class="dropdown-item J_add-divider">[[${bundle.L('分栏')}]]</a>
                   <a class="dropdown-item J_add-refform">[[${bundle.L('表单引用')}]] <sup class="rbv"></sup></a>
                   <a class="dropdown-item J_add-nform">[[${bundle.L('表单布局')}]] <sup class="rbv"></sup></a>
-                  <a class="dropdown-item J_del-unlayout-fields bosskey-show">[[${bundle.L('删除未布局字段')}]]</a>
+                  <a class="dropdown-item J_del-unlayout-fields bosskey-show">[[${bundle.L('删除未布局字段')}]] (LAB)</a>
                   <div class="dropdown-item-text">[[${bundle.L('切换布局')}]]</div>
                 </div>
               </div>
@@ -153,7 +153,7 @@
       window.__PageConfig = {
         formConfig: [(${FormConfig ?:'null'})],
         entityName: '[[${entityName}]]',
-        mainEntityName: '[[${mainEntityName}]]',
+        isMainEntity: [(${isMainEntity ?:'false'})],
         isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
         formsAttr: [(${FormsAttr ?:'null'})],
       }

@@ -19,7 +19,6 @@ import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.ExcelUtils;
-import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OkHttpUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -154,7 +153,10 @@ public class OnlyOffice {
 
         // 编辑需要
         if ("edit".equals(editorConfig.getString("mode"))) {
-            document.put("permissions", JSONUtils.toJSONObject("edit", true));
+            JSONObject permissions = new JSONObject();
+            permissions.put("edit", true);
+            permissions.put("chat", false);
+            document.put("permissions", permissions);
         }
 
         // Token

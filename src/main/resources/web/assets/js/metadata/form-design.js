@@ -794,7 +794,9 @@ class DlgNForm extends RbModalHandler {
     } else if (typeof props.attrs === 'object') {
       this.state.fallback = props.attrs.fallback
       this.state.fornew = props.attrs.fornew
+      this.state.hideEmptyFields = props.attrs.hideEmptyFields
       this.state.useFilter = props.attrs.filter || null
+      this.state.verticalLayout = props.attrs.verticalLayout || null
     }
   }
 
@@ -840,11 +842,35 @@ class DlgNForm extends RbModalHandler {
                 </label>
               </div>
             </div>
+            <div className="form-group row pt-0">
+              <label className="col-sm-3 col-form-label text-sm-right"></label>
+              <div className="col-sm-7">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 bosskey-show">
+                  <input className="custom-control-input" type="checkbox" defaultChecked={this.state.hideEmptyFields} ref={(c) => (this._$hideEmptyFields = c)} />
+                  <span className="custom-control-label">{$L('隐藏空值字段 (详情页)')} (LAB)</span>
+                </label>
+              </div>
+            </div>
+            <div className="form-group row bosskey-show">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('显示样式')} (LAB)</label>
+              <div className="col-sm-7">
+                <select className="form-control form-control-sm" ref={(c) => (this._$verticalLayout = c)} defaultValue={this.state.verticalLayout}>
+                  <option value="0">{$L('默认')}</option>
+                  <option value="3">{$L('垂直')}</option>
+                  <option value="1">
+                    {$L('垂直')} ({$L('仅 PC')})
+                  </option>
+                  <option value="2">
+                    {$L('垂直')} ({$L('仅手机')})
+                  </option>
+                </select>
+              </div>
+            </div>
 
             {this.state.detailsFromsAttr && (
-              <div className="form-group row bosskey-show">
-                <label className="col-sm-3 col-form-label text-sm-right">{$L('指定明细实体布局')} (LAB)</label>
-                <div className="col-sm-7" ref={(c) => (this._$detailsFromsAttr = c)}>
+              <div className="form-group row">
+                <label className="col-sm-3 col-form-label text-sm-right">{$L('指定明细布局')}</label>
+                <div className="col-sm-8" ref={(c) => (this._$detailsFromsAttr = c)}>
                   {this.state.detailsFromsAttr.map((de) => {
                     return (
                       <div className="row mb-2" key={de[0]}>
@@ -860,7 +886,7 @@ class DlgNForm extends RbModalHandler {
                             })}
                           </select>
                         </div>
-                        <div className="col-4 pl-0 pr-0" style={{ paddingTop: 8 }}>
+                        <div className="col-4 pl-0 pr-0 text-bold" style={{ paddingTop: 8 }}>
                           {de[1]}
                         </div>
                       </div>
@@ -896,7 +922,8 @@ class DlgNForm extends RbModalHandler {
   componentDidMount() {
     // super.componentDidMount()
 
-    if (!wpc.mainEntityName) {
+    // 明细绑定
+    if (wpc.isMainEntity) {
       $.get(`/admin/entity/${wpc.entityName}/get-details-forms-attr`, (res) => {
         this.setState({ detailsFromsAttr: res.data || {} }, () => {
           const detailsFromsAttr = (this.props.attrs || {}).detailsFromsAttr
@@ -907,8 +934,6 @@ class DlgNForm extends RbModalHandler {
                 let name = $(this).attr('name')
                 $(this).val(detailsFromsAttr[name] || '0')
               })
-            // show
-            $(this._$detailsFromsAttr).parents('.bosskey-show').removeClass('bosskey-show')
           }
         })
       })
@@ -953,7 +978,9 @@ class DlgNForm extends RbModalHandler {
       filter: this.state.useFilter || null,
       fallback: $val(this._$fallback),
       fornew: $val(this._$fornew),
+      hideEmptyFields: $val(this._$hideEmptyFields),
       detailsFromsAttr: Object.keys(detailsFromsAttr).length === 0 ? null : detailsFromsAttr,
+      verticalLayout: ~~$val(this._$verticalLayout),
     }
     if (!ps.name) {
       return RbHighbar.createl('请输入名称')

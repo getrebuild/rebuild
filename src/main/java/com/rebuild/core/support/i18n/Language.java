@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.i18n;
 
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -192,8 +193,14 @@ public class Language implements Initialization {
     }
 
     public static String L(BaseMeta meta) {
-        String lang = getCurrentBundle().getLang(meta.getDescription());
-        return lang == null ? meta.getDescription() : lang;
+        // v4.2
+        String key = "META.";
+        if (meta instanceof Field) key += ((Field) meta).getOwnEntity().getName() + "." + meta.getName();
+        else key += meta.getName();
+        String L42 = getCurrentBundle().getLang(key.toUpperCase());
+
+        if (L42 == null) L42 = getCurrentBundle().getLang(meta.getDescription());
+        return L42 == null ? meta.getDescription() : L42;
     }
 
     public static String L(DisplayType type) {

@@ -29,6 +29,7 @@ import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.query.FilterRecordChecker;
 import com.rebuild.core.support.SetUser;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.NamedThreadLocal;
@@ -59,6 +60,8 @@ public class RecordTransfomer extends SetUser {
     final protected JSONObject transConfig;
     final protected boolean skipGuard;
 
+    final private ID transid;
+
     /**
      * @param transid
      */
@@ -67,6 +70,7 @@ public class RecordTransfomer extends SetUser {
         this.targetEntity = MetadataHelper.getEntity(config.getString("target"));
         this.transConfig = (JSONObject) config.getJSON("config");
         this.skipGuard = false;
+        this.transid = transid;
     }
 
     /**
@@ -78,6 +82,7 @@ public class RecordTransfomer extends SetUser {
         this.targetEntity = targetEntity;
         this.transConfig = transConfig;
         this.skipGuard = skipGuard;
+        this.transid = null;
     }
 
     /**
@@ -195,7 +200,7 @@ public class RecordTransfomer extends SetUser {
         }
 
         try {
-            record = Application.getEntityService(targetEntity.getEntityCode()).createOrUpdate(record);
+            record = Application.getBestService(targetEntity).createOrUpdate(record);
             return record.getPrimary();
         } finally {
             if (this.skipGuard) GeneralEntityServiceContextHolder.isSkipGuardOnce();
@@ -218,7 +223,7 @@ public class RecordTransfomer extends SetUser {
         Record updateSource = EntityHelper.forUpdate(sourceRecordId, UserService.SYSTEM_USER, false);
         updateSource.setID(fillbackField, newId);
 
-        // 4.1.3 配置开放
+        // 4.1.4 (LAB) 配置开放
         int fillbackMode = transConfig.getIntValue("fillbackMode");
         if (fillbackMode == 2 && !EntityHelper.isUnsavedId(newId) && FILLBACK2_ONCE414.get() == null) {
             GeneralEntityServiceContextHolder.setAllowForceUpdate(updateSource.getPrimary());
@@ -265,7 +270,7 @@ public class RecordTransfomer extends SetUser {
         List<String> validFields = checkAndWarnFields(sourceEntity, fieldsMapping.values());
         if (validFields.isEmpty()) {
             // fix: https://github.com/getrebuild/rebuild/issues/633
-            log.warn("No fields (var) for transform : {}", fieldsMapping);
+            log.debug("No fields (var) for transform : {} in {}", fieldsMapping, this.transid);
         }
 
         validFields.add(sourceEntity.getPrimaryField().getName());
@@ -320,6 +325,10 @@ public class RecordTransfomer extends SetUser {
         if (checkNullable) {
             AutoFillinManager.instance.fillinRecord(targetRecord);
 
+            // v4.2 用户密码特殊处理
+            if (targetEntity.getEntityCode() == EntityHelper.User && !targetRecord.hasValue("password")) {
+                targetRecord.setString("password", CommonsUtils.randomHex().substring(0, 6) + "rB!8");
+            }
             // v3.9 直接转换时验证非空字段
             new EntityRecordCreator(targetEntity, JSONUtils.EMPTY_OBJECT, getUser()).verify(targetRecord);
         }

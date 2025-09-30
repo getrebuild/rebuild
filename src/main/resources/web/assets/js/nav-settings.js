@@ -33,7 +33,8 @@ $(document).ready(() => {
         placeholder: $L('选择关联项'),
         allowClear: false,
         templateResult: function (res) {
-          const $span = $('<span class="icon-append"></span>').attr('title', res.text).text(res.text)
+          const $span = $('<span></span>').attr('title', res.text).text(res.text)
+          if (!res.children) $span.addClass('icon-append') // optgroup
           const found = _entities[res.id]
           if (found) $(`<i class="icon zmdi zmdi-${found.icon}"></i>`).appendTo($span)
           return $span

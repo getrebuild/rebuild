@@ -29,6 +29,7 @@ import com.rebuild.core.metadata.easymeta.EasyDateTime;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.MultiValue;
+import com.rebuild.core.metadata.easymeta.PatternValue;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
@@ -40,7 +41,6 @@ import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.core.service.trigger.TriggerResult;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
-import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.general.N2NReferenceSupport;
 import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.utils.CommonsUtils;
@@ -325,6 +325,7 @@ public class FieldWriteback extends FieldAggregation {
      * @param targetRecordId404
      * @param fromRefresh
      * @return
+     * @see AviatorUtils#convertValueOfFieldVar(Object, Field)
      */
     protected Record buildTargetRecordData(OperatingContext operatingContext, ID targetRecordId404, boolean fromRefresh) {
         // v3.3 源字段为空时置空目标字段
@@ -358,7 +359,7 @@ public class FieldWriteback extends FieldAggregation {
                     if (sourceField.contains(DATE_EXPR) && !sourceField.startsWith(CODE_PREFIX)) {
                         fieldVars.add(sourceField.split(DATE_EXPR)[0]);
                     } else {
-                        Set<String> matchsVars = ContentWithFieldVars.matchsVars(sourceField);
+                        Set<String> matchsVars = AviatorUtils.matchsFieldVars(sourceField, null);
                         for (String field : matchsVars) {
                             if (field.startsWith(SOURCE_FIELD_VAR_PREFIX)) {
                                 field = field.substring(1);
@@ -384,7 +385,8 @@ public class FieldWriteback extends FieldAggregation {
                         StringUtils.join(fieldVars, ","),
                         sourceEntity.getPrimaryField().getName(),
                         sourceEntity.getName());
-                useSourceData = Application.createQueryNoFilter(sql).setParameter(1, actionContext.getSourceRecord()).record();
+                useSourceData = Application.createQueryNoFilter(sql)
+                        .setParameter(1, actionContext.getSourceRecord()).record();
             }
             if (!fieldVarsN2NPath.isEmpty()) {
                 if (useSourceData == null) useSourceData = new StandardRecord(sourceEntity, null);
@@ -403,7 +405,8 @@ public class FieldWriteback extends FieldAggregation {
                             targetEntity.getPrimaryField().getName(),
                             targetEntity.getName());
                     sql = sql.replace(SOURCE_FIELD_VAR_PREFIX, "");  // Remove `^`
-                    useTargetData = Application.createQueryNoFilter(sql).setParameter(1, targetRecordId404).record();
+                    useTargetData = Application.createQueryNoFilter(sql)
+                            .setParameter(1, targetRecordId404).record();
                 }
             }
         }
@@ -460,15 +463,17 @@ public class FieldWriteback extends FieldAggregation {
                     if (sourceField2 == null) continue;
 
                     Object value = useSourceData.getObjectValue(fieldName);
-                    Object newValue = value == null ? null
-                            : ((EasyDateTime) EasyMetaFactory.valueOf(sourceField2)).convertCompatibleValue(value, targetFieldEasy, sourceAny);
+                    Object newValue = null;
+                    if (value != null) {
+                        newValue = ((EasyDateTime) EasyMetaFactory.valueOf(sourceField2))
+                                .convertCompatibleValue(value, targetFieldEasy, sourceAny);
+                    }
                     if (newValue != null) {
                         targetRecord.setObjectValue(targetField, newValue);
                     } else if (clearFields) {
                         targetRecord.setNull(targetField);
                     }
                 }
-
                 // 高级公式（会涉及各种类型的运算）
                 // @see AggregationEvaluator#evalFormula
                 else {
@@ -516,6 +521,7 @@ public class FieldWriteback extends FieldAggregation {
                             useVarField = MetadataHelper.getLastJoinField(useEntity, fieldName);
                         }
 
+                        // @see AviatorUtils#convertValueOfFieldVar(Object, Field)
                         EasyField easyVarField = null;
                         boolean isMultiField = false;
                         boolean isStateField = false;
@@ -552,7 +558,8 @@ public class FieldWriteback extends FieldAggregation {
                                 useValue = StringUtils.join((ID[]) useValue, MultiValue.MV_SPLIT);
                             } else {
                                 // force `TEXT`
-                                EasyField fakeTextField = EasyMetaFactory.valueOf(MetadataHelper.getField("User", "fullName"));
+                                EasyField fakeTextField = EasyMetaFactory
+                                        .valueOf(MetadataHelper.getField("User", "fullName"));
                                 useValue = easyVarField.convertCompatibleValue(useValue, fakeTextField);
                             }
                         } else if (useValue instanceof ID || forceUseQuote) {
@@ -602,10 +609,13 @@ public class FieldWriteback extends FieldAggregation {
     }
 
     /**
+     * @param value
+     * @param field
+     * @return
      * @see DisplayType
      * @see com.rebuild.core.metadata.EntityRecordCreator
      */
-    private Object checkoutFieldValue(Object value, EasyField field) {
+    protected static Object checkoutFieldValue(Object value, EasyField field) {
         DisplayType dt = field.getDisplayType();
         Object newValue = null;
 
@@ -659,8 +669,13 @@ public class FieldWriteback extends FieldAggregation {
             }
 
         } else {
-            // TODO 验证字段格式
             newValue = value.toString();
+
+            // v4.2 验证格式
+            if (field instanceof PatternValue) {
+                boolean s = ((PatternValue) field).checkPattern((String) newValue);
+                if (!s) newValue = null;
+            }
         }
 
         if (newValue == null) {

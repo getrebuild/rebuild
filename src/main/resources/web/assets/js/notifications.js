@@ -26,7 +26,7 @@ $(document).ready(() => {
   activeNav.trigger('click')
 })
 
-// 消息列表
+// 通知列表
 class MessageList extends React.Component {
   state = { ...this.props, page: 1, pageSize: 20 }
 
@@ -43,7 +43,7 @@ class MessageList extends React.Component {
           {this.state.list && msglist.length === 0 && (
             <div className="list-nodata">
               <span className="zmdi zmdi-notifications" />
-              <p>{$L('暂无消息')}</p>
+              <p>{$L('暂无通知')}</p>
             </div>
           )}
         </div>
@@ -96,7 +96,7 @@ class MessageList extends React.Component {
           )}
           {item[3] && (
             <a className="read-mark text-muted">
-              <i className="icon zmdi zmdi-check text-bold" /> {$L('点击已读')}
+              <i className="icon zmdi zmdi-check text-bold" /> {$L('设为已读')}
             </a>
           )}
         </span>
@@ -109,7 +109,7 @@ class MessageList extends React.Component {
 
     const that = this
     $('.read-all').on('click', () => {
-      RbAlert.create($L('确认已读全部消息？'), {
+      RbAlert.create($L('确认已读全部通知？'), {
         onConfirm: function () {
           this.hide()
           that.makeRead('ALL')
@@ -153,7 +153,7 @@ class MessageList extends React.Component {
       })
       this.setState({ list: list })
 
-      if (id === 'ALL') RbHighbar.success($L('全部消息已设为已读'))
+      if (id === 'ALL') RbHighbar.success($L('全部通知已设为已读'))
     })
   }
 }

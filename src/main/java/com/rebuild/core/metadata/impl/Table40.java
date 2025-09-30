@@ -10,6 +10,8 @@ package com.rebuild.core.metadata.impl;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.Dialect;
+import cn.devezhao.persist4j.metadata.CascadeModel;
+import cn.devezhao.persist4j.metadata.impl.FieldImpl;
 import cn.devezhao.persist4j.util.XmlHelper;
 import cn.devezhao.persist4j.util.support.Table;
 import org.apache.commons.collections4.CollectionUtils;
@@ -34,6 +36,7 @@ public class Table40 extends Table {
         super(entity, dialect, buildIndexList(indexFields));
     }
 
+    @SuppressWarnings("unchecked")
     private static List<Element> buildIndexList(List<?> indexFields) {
         if (CollectionUtils.isEmpty(indexFields)) return null;
         if (indexFields.get(0) instanceof Element) return (List<Element>) indexFields;
@@ -49,9 +52,18 @@ public class Table40 extends Table {
 
     @Override
     public void generateFieldDDL(Field field, StringBuilder into, boolean allowZeroDate) {
-        StringBuilder tmp = new StringBuilder();
-        super.generateFieldDDL(field, tmp, allowZeroDate);
-        String tmpFix = tmp.toString().replace(" timestamp ", " datetime ");
-        into.append(tmpFix);
+        StringBuilder s = new StringBuilder();
+
+        Field unsafeField = new FieldImpl(
+                field.getName(), field.getPhysicalName(), field.getDescription(), null,
+                true, true, true,
+                field.getOwnEntity(), field.getType(), field.getMaxLength(), CascadeModel.Ignore,
+                true, true, field.isAutoValue(), Field2Schema.DECIMAL_SCALE, null);
+        super.generateFieldDDL(unsafeField, s, allowZeroDate);
+
+        String fix = s.toString()
+                .replace(" timestamp ", " datetime ")
+                .replace(" default current_date ", " ");
+        into.append(fix);
     }
 }

@@ -219,4 +219,10 @@ public class EasyFieldConfigProps {
      * MULTISELECT:显示样式
      */
     public static final String MULTISELECT_SHOWSTYLE = PICKLIST_SHOWSTYLE;
+
+    /**
+     * BARCODE:码类型
+     */
+    public static final String BARCODE_TYPE = "barcodeType";
+
 }

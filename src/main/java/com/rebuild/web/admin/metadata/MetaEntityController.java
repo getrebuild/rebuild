@@ -12,11 +12,13 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.EasyActionManager;
@@ -41,8 +43,10 @@ import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.RbAssert;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.commons.FileDownloader;
 import lombok.extern.slf4j.Slf4j;
@@ -70,6 +74,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import static com.rebuild.web.commons.LanguageController.putLocales;
+import static org.apache.commons.lang3.Strings.CI;
 
 /**
  * @author Zixin (RB)
@@ -439,16 +446,18 @@ public class MetaEntityController extends EntityController {
         for (Entity e : MetadataSorter.sortEntities()) {
             String name = e.getName();
             String label = EasyMetaFactory.getLabel(e);
-            if (StringUtils.containsIgnoreCase(name, q) || StringUtils.containsIgnoreCase(label, q)) {
+            String quickCode = QuickCodeReindexTask.generateQuickCode(label);
+            if (CI.contains(name, q) || CI.contains(label, q) || CI.contains(quickCode, q)) {
                 res.add(JSONUtils.toJSONObject(new String[]{"name", "label"}, new Object[]{name, label}));
             }
 
             for (Field f : MetadataSorter.sortFields(e)) {
-                String fname = f.getName();
-                String flabel = EasyMetaFactory.getLabel(f);
-                if (StringUtils.containsIgnoreCase(fname, q) || StringUtils.containsIgnoreCase(flabel, q)) {
+                String fName = f.getName();
+                String fLabel = EasyMetaFactory.getLabel(f);
+                String fQuickCode = QuickCodeReindexTask.generateQuickCode(fLabel);
+                if (CI.contains(fName, q) || CI.contains(fLabel, q) || CI.contains(fQuickCode, q)) {
                     res.add(JSONUtils.toJSONObject(
-                            new String[]{"name", "label", "entity"}, new Object[]{fname, label + "." + flabel, name}));
+                            new String[]{"name", "label", "entity"}, new Object[]{fName, label + "." + fLabel, name}));
                 }
             }
         }
@@ -456,5 +465,45 @@ public class MetaEntityController extends EntityController {
         // 按 label 排序
         res.sort(Comparator.comparing((Object o) -> ((JSONObject) o).getString("label")));
         return res;
+    }
+
+    // @see com.rebuild.rbv.admin.LanguageAdminController
+
+    @GetMapping("entity/{entity}/i18n")
+    public ModelAndView pageI18n(@PathVariable String entity) {
+        RbAssert.isCommercial(
+                Language.L("免费版不支持多语言功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+
+        ModelAndView mv = createModelAndView("/admin/metadata/entity-i18n");
+        putLocales(mv, UserContextHolder.getLocale());
+        setEntityBase(mv, entity);
+        return mv;
+    }
+
+    @GetMapping("entity/{entity}/i18n-list")
+    public RespBody listI18n(@PathVariable String entity) {
+        Entity e = MetadataHelper.getEntity(entity);
+        String key = "META." + e.getName();
+        Set<String> locales = Application.getLanguage().availableLocales().keySet();
+
+        List<Map<String, String>> i18nList = new ArrayList<>();
+        i18nList.add(buildI18nItem(e, key, locales));
+
+        key += ".";
+        for (Field field : MetadataSorter.sortFields(e)) {
+            i18nList.add(buildI18nItem(field, key + field.getName(), locales));
+        }
+        return RespBody.ok(i18nList);
+    }
+
+    private Map<String, String> buildI18nItem(BaseMeta entityOrField, String key, Set<String> locales) {
+        key = key.toUpperCase();
+        Map<String, String> i18n = new HashMap<>();
+        i18n.put("_key", key);
+        i18n.put("_def", entityOrField.getDescription());
+        for (String L : locales) {
+            i18n.put(L, Application.getLanguage().getBundle(L).getLang(key));
+        }
+        return i18n;
     }
 }

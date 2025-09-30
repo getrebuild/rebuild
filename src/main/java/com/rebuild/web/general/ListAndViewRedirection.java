@@ -38,7 +38,7 @@ import java.text.MessageFormat;
 public class ListAndViewRedirection extends BaseController {
 
     // compatible: v3.1 "/app/list-and-view"
-    @GetMapping({ "/app/list-and-view", "/app/redirect" })
+    @GetMapping({"/app/list-and-view", "/app/redirect"})
     public void redirect(@IdParam ID anyId, HttpServletRequest request, HttpServletResponse response) throws IOException {
         String url = null;
 
@@ -109,8 +109,8 @@ public class ListAndViewRedirection extends BaseController {
     public ModelAndView dockView(@IdParam ID recordId) {
         Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
         String viewUrl = String.format("../%s/view/%s", entity.getName(), recordId);
-        ModelAndView mv = createModelAndView("/general/dock-view");
 
+        ModelAndView mv = createModelAndView("/general/dock-view");
         mv.getModel().put("entityName", entity.getName());
         mv.getModel().put("entityLabel", EasyMetaFactory.getLabel(entity));
         mv.getModel().put("id", recordId);

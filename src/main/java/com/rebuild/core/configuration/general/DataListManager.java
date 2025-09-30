@@ -215,6 +215,7 @@ public class DataListManager extends BaseLayoutManager {
      * @param parents
      * @return
      */
+    @SuppressWarnings("StringConcatenationInLoop")
     public Map<String, Object> formatField(Field field, Field[] parents) {
         String parentField = "";
         String parentLabel = "";
@@ -485,5 +486,36 @@ public class DataListManager extends BaseLayoutManager {
         List<Object[]> items = new ArrayList<>(itemsMap.values());
         items.sort(Comparator.comparingInt(o -> (int) o[1]));
         return (JSONArray) JSON.toJSON(items);
+    }
+
+    /**
+     * 自定义字段 MODE4
+     *
+     * @param entity
+     * @return
+     */
+    public JSON getFieldsLayoutMode4(Entity entity) {
+        EasyEntity easyEntity = EasyMetaFactory.valueOf(entity);
+
+        String startField = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE4_FIELDOFSTART);
+        if (StringUtils.isBlank(startField) || !entity.containsField(startField)) {
+            startField = EntityHelper.CreatedOn;
+        }
+        String endField = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE4_FIELDOFEND);
+        if (StringUtils.isBlank(endField) || !entity.containsField(endField)) {
+            endField = null;
+        }
+        String titleField = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE4_FIELDOFTITLE);
+        if (StringUtils.isBlank(titleField) || !entity.containsField(titleField)) {
+            titleField = entity.getNameField().getName();
+        }
+        String colorField = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE4_FIELDOFCOLOR);
+        if (StringUtils.isBlank(colorField) || !entity.containsField(colorField)) {
+            colorField = null;
+        }
+
+        return JSONUtils.toJSONObject(
+                new String[]{"startField", "endField", "titleField", "colorField"},
+                new Object[]{startField, endField, titleField, colorField});
     }
 }

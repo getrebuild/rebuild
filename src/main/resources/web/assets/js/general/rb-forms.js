@@ -134,7 +134,7 @@ class RbFormModal extends React.Component {
         </RbForm>
       )
 
-      that.setState({ formComponent: FORM, alertMessage: formModel.readonlyMessage || null }, () => {
+      that.setState({ formComponent: FORM, alertMessage: formModel.readonlywMessage || formModel.readonlyMessage || null }, () => {
         that.setState({ inLoad: false })
         if (window.FrontJS) {
           window.FrontJS.Form._trigger('open', [formModel])
@@ -254,6 +254,12 @@ class RbFormModal extends React.Component {
    * @param {*} forceNew
    */
   static create(props, forceNew) {
+    // 自定义编辑
+    if ((window.__LAB40_EDIT_PROVIDERS || {})[props.entity]) {
+      window.__LAB40_EDIT_PROVIDERS[props.entity](props, forceNew)
+      return
+    }
+
     // `__CURRENT35`, `__HOLDER` 可能已 unmount
     const that = this
     if (forceNew === true) {
@@ -298,18 +304,22 @@ class RbForm extends React.Component {
     this._postAfter = props.postAfter || $$$props.postAfter
     this._onProTableLineUpdated = props.onProTableLineUpdated || $$$props.onProTableLineUpdated
     this._dividerRefs = []
+    this._verticalLayout42 = window.__LAB_VERTICALLAYOUT || props.rawModel.verticalLayout === 1 || props.rawModel.verticalLayout === 3
   }
 
   render() {
     return (
-      <div className={`rbform form-layout ${window.__LAB_VERTICALLAYOUT && 'vertical38'}`}>
+      <div className={`rbform form-layout ${this._verticalLayout42 && 'vertical38'}`}>
         <div className="form row" ref={(c) => (this._$form = c)}>
           {this.props.children.map((fieldComp) => {
-            const ref = fieldComp.props.field === TYPE_DIVIDER ? $random('divider-') : `fieldcomp-${fieldComp.props.field}`
+            let refKey = `fieldcomp-${fieldComp.props.field}`
+            if (fieldComp.props.field === TYPE_DIVIDER) refKey = $random('divider-')
+            else if (fieldComp.props.field === TYPE_REFFORM) refKey = $random('refform-')
+            // for init
             if (fieldComp.props.field === TYPE_DIVIDER && fieldComp.props.collapsed) {
-              this._dividerRefs.push(ref)
+              this._dividerRefs.push(refKey)
             }
-            return React.cloneElement(fieldComp, { $$$parent: this, ref: ref })
+            return React.cloneElement(fieldComp, { $$$parent: this, ref: refKey })
           })}
         </div>
 
@@ -351,7 +361,7 @@ class RbForm extends React.Component {
       $$$main: this,
       transDetails: transDetails39 ? transDetails39[detailMeta.entity] : null,
       transDetailsDelete: transDetails39 ? transDetails39[detailMeta.entity + '$DELETED'] : null,
-      mainLayout: this.props.rawModel.layoutId,
+      mainLayoutId: this.props.rawModel.layoutId,
       _disableAutoFillin: this.props._disableAutoFillin,
     }
 
@@ -412,7 +422,7 @@ class RbForm extends React.Component {
             }
 
             const mainid = form.props.id || null
-            $.post(`/app/entity/extras/detail-imports?transid=${item.transid}&mainid=${mainid}`, JSON.stringify(formdata), (res) => {
+            $.post(`/app/entity/extras/detail-imports?transid=${item.transid}&mainid=${mainid}&layoutId=${_ProTable.getLayoutId()}`, JSON.stringify(formdata), (res) => {
               if (res.error_code === 0) {
                 if (autoFields) {
                   typeof cb === 'function' && cb(res.data)
@@ -477,9 +487,9 @@ class RbForm extends React.Component {
 
           <div className="col-8 text-right detail-form-action">
             <div className="fjs-dock"></div>
-            {_detailImports.length > 0 && (
+            {_detailImports.length > 0 && !this.props.readonly && (
               <div className="btn-group mr-2">
-                <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
                   <i className="icon mdi mdi-transfer-down"></i> {$L('导入明细')}
                 </button>
                 <div className="dropdown-menu dropdown-menu-right">
@@ -500,8 +510,8 @@ class RbForm extends React.Component {
               </div>
             )}
 
-            <div className="btn-group J_add-detail">
-              <button className="btn btn-secondary" type="button" onClick={() => _addNew()} disabled={this.props.readonly}>
+            <div className={`btn-group J_add-detail ${this.props.readonly && 'hide'}`}>
+              <button className="btn btn-secondary" type="button" onClick={() => _addNew()}>
                 <i className="icon x14 mdi mdi-playlist-plus mr-1" />
                 {$L('添加明细')}
               </button>
@@ -533,7 +543,7 @@ class RbForm extends React.Component {
                     const mainid = this.state.id || '000-0000000000000000'
                     renderRbcomp(
                       // eslint-disable-next-line react/jsx-no-undef
-                      <ExcelClipboardDataModal entity={detailMeta.entity} fields={fields} mainid={mainid} onConfirm={(data) => _setLines(data)} />
+                      <ExcelClipboardDataModal entity={detailMeta.entity} fields={fields} mainid={mainid} layoutId={_ProTable.getLayoutId()} onConfirm={(data) => _setLines(data)} />
                     )
                   }}>
                   {$L('从 Excel 添加')} <sup className="rbv" />
@@ -558,7 +568,7 @@ class RbForm extends React.Component {
     let moreActions = []
     // 添加明细
     if (props.rawModel.mainMeta) {
-      if (parentProps._nextAddDetail) {
+      if (parentProps.nextAddDetail) {
         moreActions.push(
           <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_NEWDETAIL)}>
             {$L('保存并添加')}
@@ -566,9 +576,8 @@ class RbForm extends React.Component {
         )
       }
     } else {
-      // 列表页保存并...
-      const inList = window.RbViewModal && window.__PageConfig.type === 'RecordList'
-      if (inList) {
+      // 保存并...
+      if (parentProps.showExtraButton) {
         if (props.rawModel.hadApproval && window.ApprovalSubmitForm) {
           moreActions.push(
             <a key="Action103" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_SUBMIT37)}>
@@ -581,9 +590,6 @@ class RbForm extends React.Component {
             {$L('保存并新建')}
           </a>
         )
-      }
-
-      if (inList || parentProps._nextOpenView) {
         moreActions.push(
           <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_VIEW)}>
             {$L('保存并打开')}
@@ -897,12 +903,12 @@ class RbForm extends React.Component {
   // 提交前调用
   _postBeforeExec(data) {
     if (typeof this._postBefore === 'function') {
-      let ret = this._postBefore(data, this)
+      const ret = this._postBefore(data, this)
       if (ret === false) return false
     }
 
     if (window.FrontJS) {
-      let ret = window.FrontJS.Form._trigger('saveBefore', [data, this])
+      const ret = window.FrontJS.Form._trigger('saveBefore', [data, this])
       if (ret === false) return false
     }
 
@@ -1001,7 +1007,19 @@ class RbFormElement extends React.Component {
 
   componentDidMount() {
     const props = this.props
-    if (!props.onView) {
+    if (props.onView) {
+      if (props.dataCopy && this._fieldValue) {
+        const $text = $(this._fieldValue)
+          .attr({
+            'data-copy': true,
+            'title': $L('点击复制'),
+          })
+          .on('click', (e) => {
+            $stopEvent(e, true)
+            $clipboard2($text.text(), true)
+          })
+      }
+    } else {
       // 必填字段
       if (!this.state.nullable && $empty(props.value) && props.readonlyw !== 2 && props.unreadable !== true) {
         props.$$$parent.setFieldValue(props.field, null, $L('%s不能为空', props.label))
@@ -1044,7 +1062,11 @@ class RbFormElement extends React.Component {
     let value = arguments.length > 0 ? arguments[0] : this.state.value
     if (value && $empty(value)) value = null
 
-    return <div className="form-control-plaintext">{value || <span className="text-muted">{$L('无')}</span>}</div>
+    return (
+      <div className="form-control-plaintext" ref={(c) => (this._fieldValue = c)}>
+        {value || <span className="text-muted">{$L('无')}</span>}
+      </div>
+    )
   }
 
   /**
@@ -1464,7 +1486,10 @@ class RbFormNText extends RbFormElement {
       )
     } else {
       let text2 = this.state.value.replace(/</g, '&lt;').replace(/\n/g, '<br/>')
-      if (this.props.useCode) text2 = text2.replace(/\s/g, '&nbsp;')
+      if (this.props.useCode) {
+        text2 = $formattedCode(text2, 'json')
+        text2 = text2.replace(/\n/g, '<br/>') //.replace(/\s/g, '&nbsp;')
+      }
 
       return (
         <RF>
@@ -1476,7 +1501,7 @@ class RbFormNText extends RbFormElement {
             <a title={$L('展开/收起')} onClick={() => $(this._textarea).toggleClass('ntext-expand')}>
               <i className="mdi mdi-arrow-expand" />
             </a>
-            <a ref={(c) => (this._$actionCopy = c)} onClick={() => {}}>
+            <a ref={(c) => (this._$actionCopy = c)}>
               <i className="mdi mdi-content-copy" />
             </a>
           </div>
@@ -1555,6 +1580,11 @@ class RbFormNText extends RbFormElement {
     this._initActionCopy()
   }
 
+  setValue(val) {
+    super.setValue(val)
+    if (this.props.useMdedit) this._EasyMDE.value(val || '')
+  }
+
   _initActionCopy() {
     if (!this._$actionCopy) return
 
@@ -1567,11 +1597,6 @@ class RbFormNText extends RbFormElement {
     } else {
       $getScript('/assets/lib/clipboard.min.js', initCopy)
     }
-  }
-
-  setValue(val) {
-    super.setValue(val)
-    if (this.props.useMdedit) this._EasyMDE.value(val || '')
   }
 
   _initMde() {
@@ -1672,7 +1697,7 @@ class RbFormDateTime extends RbFormElement {
         this.__datetimepicker = null
       }
     } else if (!_readonly37) {
-      const format = (this.props.datetimeFormat || this.props.dateFormat).replace('mm', 'ii').toLowerCase()
+      const format = (this.props.datetimeFormat || this.props.dateFormat).replace(' (E)', '').replace('mm', 'ii').toLowerCase()
       let minView = 0
       let startView = 'month'
       if (format.length === 4 || format.length === 5) minView = startView = 'decade' // 年
@@ -2795,6 +2820,7 @@ class RbFormAnyReference extends RbFormReference {
 
   setValue(val, init) {
     if (init) this._setValueStop = true
+
     // fix:4.1.7
     if (val && typeof val === 'object') {
       if (val.entity && val.entity !== $(this.__select2Entity).val()) {
@@ -3115,7 +3141,7 @@ class RbFormBarcode extends RbFormElement {
     return (
       <div className="img-field barcode">
         <a
-          className={`img-thumbnail pointer ${isbar && 'w-auto'}`}
+          className={`img-thumbnail zoom-in ${isbar && 'w-auto'}`}
           title={this.state.value}
           onClick={() => {
             RbAlert.create(
@@ -3327,17 +3353,8 @@ class RbFormLocation extends RbFormElement {
   componentDidMount() {
     super.componentDidMount()
 
-    if (this._autoLocation) {
-      $(this._$icon).addClass('animated')
-      // eslint-disable-next-line no-undef
-      $autoLocation((v) => {
-        v = v && v.text ? `${v.text}$$$$${v.lng},${v.lat}` : null
-        v && this.handleChange({ target: { value: v } }, true)
-
-        if (this.props.readonly) $(this._$icon).remove()
-        else $(this._$icon).removeClass('animated')
-      })
-    }
+    // 自动定位
+    this._autoLocation && this.reLocation()
   }
 
   componentWillUnmount() {
@@ -3346,6 +3363,19 @@ class RbFormLocation extends RbFormElement {
       this._BaiduMapModal.destroy()
       this._BaiduMapModal = null
     }
+  }
+
+  // v4.2 重新定位
+  reLocation() {
+    $(this._$icon).addClass('animated')
+    // eslint-disable-next-line no-undef
+    $autoLocation((v) => {
+      v = v && v.text ? `${v.text}$$$$${v.lng},${v.lat}` : null
+      v && this.handleChange({ target: { value: v } }, true)
+
+      if (this.props.readonly) $(this._$icon).remove()
+      else $(this._$icon).removeClass('animated')
+    })
   }
 }
 
@@ -3434,11 +3464,7 @@ class RbFormTag extends RbFormElement {
 
     let options = [...props.options]
     let selected = []
-    if (this._isNew) {
-      props.options.forEach((item) => {
-        if (item.default) selected.push(item.name)
-      })
-    } else if (this.state.value) {
+    if (this.state.value && this.state.value.length > 0) {
       let value = this.state.value
       if (typeof value === 'string') value = value.split('$$$$') // Save after
 
@@ -3446,6 +3472,10 @@ class RbFormTag extends RbFormElement {
         selected.push(name)
         const found = props.options.find((x) => x.name === name)
         if (!found) options.push({ name: name })
+      })
+    } else if (this._isNew) {
+      props.options.forEach((item) => {
+        if (item.default) selected.push(item.name)
       })
     }
     this._options = options
@@ -3571,8 +3601,10 @@ class RbFormRefform extends React.Component {
 
   render() {
     if (!this.props.refvalue) return null
+
+    const verticalLayout42 = window.__LAB_VERTICALLAYOUT || this.state.verticalLayout === 1 || this.state.verticalLayout === 3
     return (
-      <div className={`rbview-form form-layout refform ${window.__LAB_VERTICALLAYOUT && 'vertical38'}`} ref={(c) => (this._viewForm = c)}>
+      <div className={`rbview-form form-layout refform ${verticalLayout42 && 'vertical38'}`} ref={(c) => (this._viewForm = c)}>
         {this.state.formComponent || 'LOADING'}
       </div>
     )
@@ -3591,7 +3623,7 @@ class RbFormRefform extends React.Component {
     $.get(`/app/${props.entity}/view-model?id=${props.id}&layout=${this.props.speclayout || ''}`, (res) => {
       // 有错误
       if (res.error_code > 0 || !!res.data.error) {
-        const err = res.data.error || res.error_msg
+        const err = (res.data || {}).error || res.error_msg
         this.setState({ formComponent: <div className="text-danger">{err}</div> })
         return
       }

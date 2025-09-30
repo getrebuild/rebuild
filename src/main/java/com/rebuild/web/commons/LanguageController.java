@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.commons;
 
 import cn.devezhao.commons.web.ServletUtils;
+import com.rebuild.core.Application;
 import com.rebuild.core.support.i18n.LanguageBundle;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.Etag;
@@ -15,9 +16,13 @@ import com.rebuild.web.BaseController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 多语言控制
@@ -40,5 +45,31 @@ public class LanguageController extends BaseController {
             ServletUtils.write(response,
                     "window._LANGBUNDLE = " + bundle.toJSON().toJSONString());
         }
+    }
+
+    // --
+
+    /**
+     * 可用语言
+     *
+     * @param into
+     * @param currentLocale
+     */
+    public static void putLocales(ModelAndView into, String currentLocale) {
+        String currentLocaleText = null;
+
+        List<String[]> alangs = new ArrayList<>();
+        for (Map.Entry<String, String> L : Application.getLanguage().availableLocales().entrySet()) {
+            String text = L.getValue();
+            text = text.split("\\(")[0].trim();
+            alangs.add(new String[]{L.getKey(), text});
+
+            if (L.getKey().equals(currentLocale)) {
+                currentLocaleText = text;
+            }
+        }
+
+        into.getModelMap().put("currentLang", currentLocaleText);
+        into.getModelMap().put("availableLangs", alangs);
     }
 }

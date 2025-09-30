@@ -157,6 +157,8 @@ public class RelatedListController extends BaseController {
                 in.add(String.format("scope = '%s'", t.getIdentity()));
             }
             where += " and ( " + StringUtils.join(in, " or ") + " )";
+        } else if (relatedEntity.getEntityCode() == EntityHelper.Attachment) {
+            where += " and isDeleted <> 'T'";
         }
 
         if (StringUtils.isNotBlank(q)) {

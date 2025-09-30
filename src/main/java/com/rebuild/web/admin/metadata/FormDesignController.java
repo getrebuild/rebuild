@@ -60,9 +60,7 @@ public class FormDesignController extends BaseController {
         request.setAttribute("FormsAttr", JSON.toJSONString(attrs));
 
         // v4.1
-        if (easyEntity.getRawMeta().getMainEntity() != null) {
-            mv.getModel().put("mainEntityName", easyEntity.getRawMeta().getMainEntity().getName());
-        }
+        mv.getModel().put("isMainEntity", easyEntity.getRawMeta().getDetailEntity() != null);
 
         return mv;
     }
