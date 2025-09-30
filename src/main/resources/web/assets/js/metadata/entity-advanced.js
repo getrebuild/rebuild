@@ -342,7 +342,7 @@ class DlgMode2Option extends RbFormHandler {
 
       const $showFields = $(this._$showFields)
         .find('>a')
-        .attr('title', $L('选择显示字段'))
+        .attr('title', $L('选择字段'))
         .on('click', function () {
           $clickItem = this
         })
@@ -614,7 +614,7 @@ class DlgMode4Option extends RbFormHandler {
                         )
                       })}
                   </select>
-                  <label className="form-text">{$L('内容')}</label>
+                  <label className="form-text">{$L('标题')}</label>
                 </div>
                 <div className="col">
                   <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfColor = c)}>
