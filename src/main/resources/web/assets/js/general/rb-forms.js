@@ -2826,8 +2826,8 @@ class RbFormAnyReference extends RbFormReference {
       if (val.entity && val.entity !== $(this.__select2Entity).val()) {
         $(this.__select2Entity).val(val.entity).trigger('change')
       }
-      super.setValue(val)
     }
+    super.setValue(val)
   }
 
   // @Override
