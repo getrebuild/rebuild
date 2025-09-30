@@ -5711,6 +5711,10 @@ div.formula-code {
   width: auto;
 }
 
+.form-layout.vertical38.rbview-form > .row .form-group > .col-form-label {
+  margin-bottom: 5px;
+}
+
 /* fjs style */
 
 .rbform-fjsalert {
