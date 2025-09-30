@@ -498,28 +498,53 @@ class EditorWithFieldVars extends React.Component {
     return (
       <div className="textarea-wrap">
         <textarea {...attrs} spellCheck="false" ref={(c) => (this._$content = c)} />
-        <a className="fields-vars" title={$L('插入字段变量')} data-toggle="dropdown">
-          <i className="mdi mdi-code-braces" />
-        </a>
-        <div className="dropdown-menu auto-scroller dropdown-menu-right" ref={(c) => (this._$fieldVars = c)}>
-          {(this.state.fieldVars || []).map((item) => {
-            let typeMark = 'T'
-            if (['DATE', 'DATETIME', 'TIME'].includes(item.type)) typeMark = 'D'
-            else if (['NUMBER', 'DECIMAL'].includes(item.type)) typeMark = 'N'
-            return (
-              <a
-                key={item.name}
-                className="dropdown-item"
-                data-name={item.name}
-                onClick={() => {
-                  $(this._$content).insertAtCursor(`{${item.name}}`)
-                }}>
-                <em>{typeMark}</em>
-                {item.label}
-              </a>
-            )
-          })}
+        <div className="dropdown fields-vars">
+          <a title={$L('插入字段变量')} data-toggle="dropdown">
+            <i className="mdi mdi-code-braces" />
+          </a>
+          <div className="dropdown-menu auto-scroller dropdown-menu-right" ref={(c) => (this._$fieldVars = c)}>
+            {(this.state.fieldVars || []).map((item) => {
+              let typeMark = 'T'
+              if (['DATE', 'DATETIME', 'TIME'].includes(item.type)) typeMark = 'D'
+              else if (['NUMBER', 'DECIMAL'].includes(item.type)) typeMark = 'N'
+              return (
+                <a
+                  key={item.name}
+                  className="dropdown-item"
+                  data-name={item.name}
+                  data-pinyin={item.quickCode}
+                  onClick={() => {
+                    $(this._$content).insertAtCursor(`{${item.name}}`)
+                  }}>
+                  <em>{typeMark}</em>
+                  {item.label}
+                </a>
+              )
+            })}
+          </div>
         </div>
+        {this.state.funcs && (
+          <div className="dropdown fields-vars funcs">
+            <a title={$L('插入函数')} data-toggle="dropdown">
+              <i className="mdi mdi-function-variant" />
+            </a>
+            <div className="dropdown-menu auto-scroller dropdown-menu-right" ref={(c) => (this._$funcs = c)}>
+              {this.state.funcs.map((item) => {
+                return (
+                  <a
+                    key={item.name}
+                    className="dropdown-item"
+                    data-name={item.name}
+                    onClick={() => {
+                      $(this._$content).insertAtCursor(`${item.name}()`)
+                    }}>
+                    {item.label}
+                  </a>
+                )
+              })}
+            </div>
+          </div>
+        )}
       </div>
     )
   }
@@ -530,6 +555,20 @@ class EditorWithFieldVars extends React.Component {
         $(this._$fieldVars).perfectScrollbar()
       })
     })
+
+    // v4.2
+    if (this.props.showFuncs) {
+      const IGNORED_NAMES = ['CACHE', 'DATE', 'LOG', 'RAWSQLQUERY', 'RAWSQLUPDATE', 'USERUPDATE', 'DEPTUPDATE', 'PDFMERGE', 'HANLPSIM', 'HANLPSEG', 'HANLPPINY']
+      $.get('/admin/robot/trigger/field-writeback-custom-funcs', (res) => {
+        let funcs = []
+        res.data.forEach((name) => {
+          if (!IGNORED_NAMES.includes(name)) funcs.push({ name: name, label: name })
+        })
+        this.setState({ funcs }, () => {
+          $(this._$funcs).perfectScrollbar()
+        })
+      })
+    }
 
     // eslint-disable-next-line no-undef
     autosize(this._$content)

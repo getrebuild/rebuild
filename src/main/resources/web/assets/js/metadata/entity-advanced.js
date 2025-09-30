@@ -102,7 +102,7 @@ function _listmodeAction() {
   $('.mode-select .J_mode1-option').on('click', () => renderDlgcomp(<DlgMode1Option />, '_DlgMode1Option'))
   $('.mode-select .J_mode2-option').on('click', () => renderDlgcomp(<DlgMode2Option />, '_DlgMode2Option'))
   $('.mode-select .J_mode3-option').on('click', () => renderDlgcomp(<DlgMode3Option />, '_DlgMode3Option'))
-  $('.mode-select .J_mode4-option').on('click', () => renderDlgcomp(<DlgMode4Option />, '_DlgMode3Option'))
+  $('.mode-select .J_mode4-option').on('click', () => renderDlgcomp(<DlgMode4Option />, '_DlgMode4Option'))
 }
 
 function modeSave(newOption, next) {
@@ -579,7 +579,7 @@ class DlgMode4Option extends RbFormHandler {
                         )
                       })}
                   </select>
-                  <label className="form-text">{$L('开始')}</label>
+                  <label className="form-text">{$L('开始时间')}</label>
                 </div>
                 <div className="col">
                   <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfEnd = c)}>
@@ -593,7 +593,7 @@ class DlgMode4Option extends RbFormHandler {
                         )
                       })}
                   </select>
-                  <label className="form-text">{$L('结束')}</label>
+                  <label className="form-text">{$L('结束时间')}</label>
                 </div>
               </div>
             </div>

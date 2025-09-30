@@ -15,8 +15,6 @@ const UPDATE_MODES = {
   FORMULA: $L('计算公式'),
 }
 
-let __LAB_MATCHFIELDS = false
-
 // ~~ 字段更新
 // eslint-disable-next-line no-undef
 class ContentFieldWriteback extends ActionContentSpec {
@@ -250,7 +248,7 @@ class ContentFieldWriteback extends ActionContentSpec {
   componentDidMount() {
     const content = this.props.content
     this.__select2 = []
-    $.get(`/admin/robot/trigger/field-writeback-entities?source=${this.props.sourceEntity}&matchfields=${__LAB_MATCHFIELDS}`, (res) => {
+    $.get(`/admin/robot/trigger/field-writeback-entities?source=${this.props.sourceEntity}&matchfields=true`, (res) => {
       this.setState({ targetEntities: res.data || [] }, () => {
         const $s2te = $(this._$targetEntity)
           .select2({
@@ -297,9 +295,7 @@ class ContentFieldWriteback extends ActionContentSpec {
     if (!teSplit || !teSplit[1]) return
     // 清空现有规则
     this.setState({ items: [], targetEntity: teSplit[1] })
-    if (__LAB_MATCHFIELDS) {
-      this.setState({ showMatchFields: teSplit[0] === '$' })
-    }
+    this.setState({ showMatchFields: teSplit[0] === '$' })
 
     $.get(`/admin/robot/trigger/field-writeback-fields?source=${this.props.sourceEntity}&target=${teSplit[1]}`, (res) => {
       const _data = res.data || {}
@@ -666,7 +662,7 @@ class FormulaCode extends React.Component {
   render() {
     return (
       <div>
-        <EditorWithFieldVars entity={wpc.sourceEntity} ref={(c) => (this._formulaCode = c)} placeholder="## Support AviatorScript" isCode />
+        <EditorWithFieldVars entity={wpc.sourceEntity} showFuncs ref={(c) => (this._formulaCode = c)} placeholder="## Support AviatorScript" isCode />
         <div className="row mt-1">
           <div className="col pt-2">
             <span className="d-inline-block">
@@ -716,8 +712,6 @@ class FormulaCode extends React.Component {
 
 // eslint-disable-next-line no-undef
 renderContentComp = function (props) {
-  __LAB_MATCHFIELDS = window.__BOSSKEY || !!(props.content && props.content.targetEntityMatchFields)
-  __LAB_MATCHFIELDS = true // v3.8
   renderRbcomp(<ContentFieldWriteback {...props} />, 'react-content', function () {
     // eslint-disable-next-line no-undef
     contentComp = this
