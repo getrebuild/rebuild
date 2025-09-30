@@ -17,14 +17,14 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 
 /**
- * Usage: DATE($dateStr, [$format])
+ * Usage: TODATE($dateStr, [$format])
  * Return: Date
  *
  * @author RB
  * @since 2025/9/29
  */
 @Slf4j
-public class DateFunction extends AbstractFunction {
+public class ToDateFunction extends AbstractFunction {
     private static final long serialVersionUID = -1915688036937857228L;
 
     @Override
@@ -50,6 +50,6 @@ public class DateFunction extends AbstractFunction {
 
     @Override
     public String getName() {
-        return "DATE";
+        return "TODATE";
     }
 }
