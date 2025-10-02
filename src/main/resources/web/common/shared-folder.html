@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="viewport" content="minimal-ui,width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <meta http-equiv="refresh" content="3600" />
+    <meta name="og:image" content="https://getrebuild.com/img/logo256.png" />
+    <title>[[${bundle.L('分享文件')}]]</title>
+    <style>
+      .preview-modal .preview-header .float-right a:first-child {
+        display: none;
+      }
+      .preview-modal {
+        background-color: transparent;
+        z-index: 10;
+      }
+      .preview-modal .preview-header {
+        background-color: #28a745;
+      }
+      .sharebox .zmdi {
+        color: #aaa;
+        font-size: 81px;
+      }
+      @media (max-width: 767.98px) {
+        .unsupports {
+          margin-left: 12px !important;
+          margin-right: 12px !important;
+        }
+      }
+      .file-list {
+        margin: 20px auto;
+        max-width: 980px;
+        border-radius: 6px;
+      }
+      .file-list h5 {
+        padding: 15px 20px;
+        margin: 0;
+        font-weight: bold;
+        margin-top: 0;
+      }
+      .file-list td {
+        padding: 12px 20px;
+      }
+      .file-list td a {
+        color: #444;
+        display: block;
+      }
+      .file-list td:hover a {
+        color: var(--rb-theme-color);
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <img src="https://getrebuild.com/img/logo256.png" alt="Logo for Thumb" style="display: none" />
+    <div class="preview-modal">
+      <div class="preview-header">
+        <div class="float-left">
+          <h5 class="text-bold">[[${folderName}]]</h5>
+        </div>
+      </div>
+      <div class="preview-body">
+        <div class="container">
+          <div class="card file-list">
+            <div class="card-body p-0">
+              <h5>[[${bundle.L('共 %d 个文件', folderFiles.size())}]]</h5>
+              <table class="table table-hover">
+                <tbody>
+                  <tr th:each="file : ${folderFiles}">
+                    <td class="pr-0">
+                      <a th:href="'./' + ${file[0]}" th:text="${file[1]}" target="_blank"></a>
+                    </td>
+                    <td class="text-right">
+                      <span class="fs-12 text-muted" th:text="${file[2]}"></span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div th:if="${pageFooter != null}" class="page-footer">[(${pageFooter})]</div>
+    <th:block th:replace="~{/_include/footer}" />
+  </body>
+</html>

@@ -9,19 +9,24 @@ package com.rebuild.web.commons;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.ShortUrls;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
+import org.apache.commons.io.FileUtils;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,7 +37,11 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 文件共享
@@ -70,6 +79,7 @@ public class FileShareController extends BaseController {
 
     @GetMapping("/s/{shareKey}")
     public ModelAndView viewSharedFile(@PathVariable String shareKey,
+                                       HttpServletRequest request,
                                        HttpServletResponse response) throws IOException {
         if (!RebuildConfiguration.getBool(ConfigurationItem.FileSharable)) {
             response.sendError(403, Language.L("不允许分享文件"));
@@ -80,6 +90,34 @@ public class FileShareController extends BaseController {
         if (fileUrl == null) {
             response.sendError(403, Language.L("分享的文件已过期"));
             return null;
+        }
+
+        // v4.2 目录
+        final ID isFolder = ID.isId(fileUrl) ? ID.valueOf(fileUrl) : null;
+        if (isFolder != null && isFolder.getEntityCode() == EntityHelper.AttachmentFolder) {
+            String viewFile = getParameter(request, "file");
+            if (ID.isId(viewFile)) {
+                fileUrl = (String) QueryHelper.queryFieldValue(ID.valueOf(viewFile), "filePath");
+            }
+            // 目录
+            else {
+                Map<String, Object> map = new HashMap<>();
+                map.put("shareKey", fileUrl);
+                map.put("folderName", FieldValueHelper.getLabel(isFolder));
+
+                Object[][] array = Application.createQueryNoFilter(
+                                "select attachmentId,fileName,fileSize from Attachment where inFolder = ? and isDeleted <> 'T' order by fileName")
+                        .setParameter(1, isFolder)
+                        .array();
+                List<String[]> files = new ArrayList<>();
+                for (Object[] o : array) {
+                    files.add(new String[]{shareKey + "?file=" + o[0], (String) o[1],
+                            FileUtils.byteCountToDisplaySize(ObjectUtils.toLong(o[2]))});
+                }
+                map.put("folderFiles", files);
+
+                return createModelAndView("/common/shared-folder", map);
+            }
         }
 
         String publicUrl = makePublicUrl(fileUrl);

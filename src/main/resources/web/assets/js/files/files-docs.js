@@ -50,6 +50,11 @@ const FolderTree = {
                 <span className="action" onClick={() => FolderTree.handleEdit(item)}>
                   <i className="zmdi zmdi-edit" />
                 </span>
+                {rb.isAdminUser && (
+                  <span className="action bosskey-show" onClick={() => FolderTree.handleShare42(item)}>
+                    <i className="zmdi zmdi-share" />
+                  </span>
+                )}
                 <span className="action" onClick={() => FolderTree.handleDelete(item)}>
                   <i className="zmdi zmdi-delete" />
                 </span>
@@ -102,6 +107,11 @@ const FolderTree = {
         })
       },
     })
+  },
+
+  handleShare42(item) {
+    // eslint-disable-next-line react/jsx-no-undef
+    renderRbcomp(<FileShare file={item.id} />)
   },
 
   _findPaths: function (active, into) {
