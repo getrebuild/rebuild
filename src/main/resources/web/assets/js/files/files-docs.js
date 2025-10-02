@@ -50,11 +50,6 @@ const FolderTree = {
                 <span className="action" onClick={() => FolderTree.handleEdit(item)}>
                   <i className="zmdi zmdi-edit" />
                 </span>
-                {rb.isAdminUser && (
-                  <span className="action bosskey-show" onClick={() => FolderTree.handleShare42(item)}>
-                    <i className="zmdi zmdi-share" />
-                  </span>
-                )}
                 <span className="action" onClick={() => FolderTree.handleDelete(item)}>
                   <i className="zmdi zmdi-delete" />
                 </span>
@@ -107,11 +102,6 @@ const FolderTree = {
         })
       },
     })
-  },
-
-  handleShare42(item) {
-    // eslint-disable-next-line react/jsx-no-undef
-    renderRbcomp(<FileShare file={item.id} />)
   },
 
   _findPaths: function (active, into) {
@@ -207,6 +197,17 @@ class FolderEditDlg extends RbFormHandler {
               <a className="btn btn-link" onClick={this.hide}>
                 {$L('取消')}
               </a>
+              {this.props.id && rb.isAdminUser && (
+                <button
+                  className="btn btn-light w-auto bosskey-show"
+                  type="button"
+                  onClick={() => {
+                    // eslint-disable-next-line react/jsx-no-undef
+                    renderRbcomp(<FileShare file={this.props.id} />)
+                  }}>
+                  <i className="icon zmdi zmdi-share"></i>
+                </button>
+              )}
             </div>
           </div>
         </div>
