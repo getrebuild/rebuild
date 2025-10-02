@@ -418,7 +418,7 @@ class FileShare extends RbModalHandler {
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L('分享文件')} disposeOnHide>
         <div className="file-share">
-          <label className="text-dark">{$L('分享链接')}</label>
+          <label className="text-dark text-bold">{$L('分享链接')}</label>
           <div className="input-group input-group-sm">
             <input className="form-control" value={this.state.shareUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
             <span className="input-group-append">
@@ -442,8 +442,8 @@ class FileShare extends RbModalHandler {
               {EXPIRES_TIME.map((item) => {
                 return (
                   <li key={`time-${item[0]}`} className={`list-inline-item ${this.state.time === item[0] && 'active'}`}>
-                    <a onClick={this._changeTime} data-time={item[0]} _title={$L('有效')}>
-                      {item[1]}&nbsp;
+                    <a onClick={this._changeTime} data-time={item[0]} _title={` ${$L('有效')}`}>
+                      {item[1]}
                     </a>
                   </li>
                 )

@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-(function () {
+;(function () {
   var gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -1499,7 +1499,8 @@ function $dropdownMenuSearch($dd) {
             var $item = $(this)
             var name = ($item.data('name') || $item.data('value') || $item.data('id') || '').toLowerCase()
             var text = $item.text().toLowerCase()
-            if (!q || name.contains(q) || text.contains(q)) {
+            var pinyin = ($item.data('pinyin') || '').toLowerCase()
+            if (!q || name.contains(q) || text.contains(q) || pinyin.contains(q)) {
               $item.removeClass('hide')
             } else {
               $item.addClass('hide')

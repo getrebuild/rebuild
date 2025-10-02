@@ -102,7 +102,7 @@ function _listmodeAction() {
   $('.mode-select .J_mode1-option').on('click', () => renderDlgcomp(<DlgMode1Option />, '_DlgMode1Option'))
   $('.mode-select .J_mode2-option').on('click', () => renderDlgcomp(<DlgMode2Option />, '_DlgMode2Option'))
   $('.mode-select .J_mode3-option').on('click', () => renderDlgcomp(<DlgMode3Option />, '_DlgMode3Option'))
-  $('.mode-select .J_mode4-option').on('click', () => renderDlgcomp(<DlgMode4Option />, '_DlgMode3Option'))
+  $('.mode-select .J_mode4-option').on('click', () => renderDlgcomp(<DlgMode4Option />, '_DlgMode4Option'))
 }
 
 function modeSave(newOption, next) {
@@ -342,7 +342,7 @@ class DlgMode2Option extends RbFormHandler {
 
       const $showFields = $(this._$showFields)
         .find('>a')
-        .attr('title', $L('选择显示字段'))
+        .attr('title', $L('选择字段'))
         .on('click', function () {
           $clickItem = this
         })
@@ -579,7 +579,7 @@ class DlgMode4Option extends RbFormHandler {
                         )
                       })}
                   </select>
-                  <label className="form-text">{$L('开始')}</label>
+                  <label className="form-text">{$L('开始时间')}</label>
                 </div>
                 <div className="col">
                   <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfEnd = c)}>
@@ -593,7 +593,7 @@ class DlgMode4Option extends RbFormHandler {
                         )
                       })}
                   </select>
-                  <label className="form-text">{$L('结束')}</label>
+                  <label className="form-text">{$L('结束时间')}</label>
                 </div>
               </div>
             </div>
@@ -614,7 +614,7 @@ class DlgMode4Option extends RbFormHandler {
                         )
                       })}
                   </select>
-                  <label className="form-text">{$L('内容')}</label>
+                  <label className="form-text">{$L('标题')}</label>
                 </div>
                 <div className="col">
                   <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfColor = c)}>
@@ -651,7 +651,7 @@ class DlgMode4Option extends RbFormHandler {
   componentDidMount() {
     // super.componentDidMount()
 
-    $.get(`/commons/metadata/fields?entity=${wpc.entityName}`, (res) => {
+    $.get(`/commons/metadata/fields?entity=${wpc.entityName}&deep=2`, (res) => {
       this.setState({ fields: res.data }, () => {
         const conf = wpc.extConfig || {}
         $(this._$fieldOfStart)

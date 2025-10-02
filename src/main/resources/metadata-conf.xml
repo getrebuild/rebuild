@@ -239,7 +239,7 @@
         <index field-list="relatedRecord"/>
     </entity>
 
-    <entity name="AttachmentFolder" type-code="024" description="附件目录" queryable="false">
+    <entity name="AttachmentFolder" type-code="024" description="附件目录" name-field="name" queryable="false">
         <field name="folderId" type="primary"/>
         <field name="name" type="string" max-length="100" nullable="false" description="目录名称"/>
         <field name="parent" type="reference" ref-entity="AttachmentFolder" description="父级"/>

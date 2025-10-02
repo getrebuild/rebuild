@@ -197,6 +197,17 @@ class FolderEditDlg extends RbFormHandler {
               <a className="btn btn-link" onClick={this.hide}>
                 {$L('取消')}
               </a>
+              {this.props.id && rb.isAdminUser && (
+                <button
+                  className="btn btn-light w-auto bosskey-show"
+                  type="button"
+                  onClick={() => {
+                    // eslint-disable-next-line react/jsx-no-undef
+                    renderRbcomp(<FileShare file={this.props.id} />)
+                  }}>
+                  <i className="icon zmdi zmdi-share"></i>
+                </button>
+              )}
             </div>
           </div>
         </div>

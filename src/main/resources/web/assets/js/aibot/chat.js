@@ -624,7 +624,7 @@ class DlgChatRename extends RbAlert {
     return (
       <div className="form ml-3 mr-3">
         <div className="form-group">
-          <label className="text-bold">{$L('重命名会话')}</label>
+          <label className="text-dark text-bold">{$L('重命名会话')}</label>
           <input type="text" className="form-control form-control-sm" placeholder={this.props.name || ''} defaultValue={this.props.name || ''} ref={(c) => (this._$name = c)} autoFocus />
         </div>
         <div className="form-group mb-2">

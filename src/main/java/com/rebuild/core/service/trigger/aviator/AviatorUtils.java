@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * https://www.yuque.com/boyan-avfmj/aviatorscript
@@ -54,6 +55,8 @@ import java.util.Set;
 public class AviatorUtils {
 
     private static final AviatorEvaluatorInstance AVIATOR = AviatorEvaluator.newInstance();
+
+    private static final Set<String> CUSTOM_FUNCTIONS = new TreeSet<>();
 
     static {
         // https://www.yuque.com/boyan-avfmj/aviatorscript/yr1oau
@@ -90,7 +93,8 @@ public class AviatorUtils {
         addCustomFunction(new TextFunction());
         addCustomFunction(new IsNullFunction());
         addCustomFunction(new ChineseDateFunction());
-        addCustomFunction(new DateFunction());
+        addCustomFunction(new ToDateFunction());
+        addCustomFunction(new ToStrFunction());
     }
 
     /**
@@ -159,13 +163,25 @@ public class AviatorUtils {
     public static void addCustomFunction(final AviatorFunction function) {
         log.info("Add custom function : {}", function.getName());
         AVIATOR.addFunction(function);
+        CUSTOM_FUNCTIONS.add(function.getName());
     }
 
     /**
+     * AVIATOR 实例
+     *
      * @return
      */
     public static AviatorEvaluatorInstance getInstance() {
         return AVIATOR;
+    }
+
+    /**
+     * 自定义函数
+     *
+     * @return
+     */
+    public static Set<String> getCustomFunctionNames() {
+        return CUSTOM_FUNCTIONS;
     }
 
     /**

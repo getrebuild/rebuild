@@ -360,8 +360,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #fff;
 }
 
-textarea.formula-code + .fields-vars {
-  bottom: 21px;
+textarea.formula-code + .fields-vars > a,
+textarea.formula-code + .fields-vars + .fields-vars > a {
+  bottom: 12px;
+}
+
+.textarea-wrap .fields-vars.funcs > a {
+  right: 33px;
 }
 
 .auto-assign .select2-selection__rendered,
@@ -522,7 +527,7 @@ textarea.formula-code + .fields-vars {
   position: relative;
 }
 
-.textarea-wrap > .fields-vars {
+.textarea-wrap > .fields-vars > a {
   position: absolute;
   right: 6px;
   bottom: 6px;
@@ -531,20 +536,21 @@ textarea.formula-code + .fields-vars {
   line-height: 1;
   padding: 4px 3px 2px;
   border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
   background-color: #212121;
   opacity: 0.4;
   transition: opacity 0.4s;
 }
 
-.textarea-wrap:hover > .fields-vars {
+.textarea-wrap:hover > .fields-vars > a {
   opacity: 1;
 }
 
-.textarea-wrap > .fields-vars > .mdi {
+.textarea-wrap > .fields-vars > a > .mdi {
   color: rgba(255, 255, 255, 0.8);
 }
 
-.textarea-wrap > .fields-vars:hover > .mdi {
+.textarea-wrap > .fields-vars:hover > a > .mdi {
   color: rgba(255, 255, 255, 1);
 }
 

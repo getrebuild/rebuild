@@ -1495,7 +1495,7 @@ class FileRename extends RbAlert {
     return (
       <form className="rbalert-form-sm">
         <div className="form-group">
-          <label className="text-bold">{$L('重命名')}</label>
+          <label className="text-dark text-bold">{$L('重命名')}</label>
           <input type="text" className="form-control form-control-sm" defaultValue={this.__fileName} placeholder={this.__fileName} ref={(c) => (this._$fileName = c)} maxLength="100" />
           {isOffice && (
             <div className="mt-2">
