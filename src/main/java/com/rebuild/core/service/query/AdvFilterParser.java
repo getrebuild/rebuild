@@ -686,11 +686,11 @@ public class AdvFilterParser extends SetUser {
         } else {
             // LIKE
             if (op.equalsIgnoreCase(ParseHelper.LK) || op.equalsIgnoreCase(ParseHelper.NLK)) {
-                value = '%' + value + '%';
+                value = '%' + value.replace("%", "\\%") + '%';
             } else if (op.equalsIgnoreCase(ParseHelper.LK1)) {
-                value = '%' + value;
+                value = '%' + value.replace("%", "\\%");
             } else if (op.equalsIgnoreCase(ParseHelper.LK2)) {
-                value = value + '%';
+                value = value.replace("%", "\\%") + '%';
             }
             sb.append(quoteValue(value, lastFieldMeta.getType()));
         }

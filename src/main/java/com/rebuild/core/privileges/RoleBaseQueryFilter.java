@@ -209,7 +209,7 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
      * @param ep
      * @param dtmField
      * @return
-     * @see PrivilegesManager#andPassCustomFilter(ID, ID, Permission, Privileges)
+     * @see PrivilegesManager#andOrPassCustomFilter(ID, ID, Permission, Privileges, boolean)
      */
     private String buildCustomFilter(Privileges ep, Field dtmField) {
         if (user == null || useAction == null
@@ -220,9 +220,8 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
 
         // 兼容转换（明细实体）
         if (dtmField != null) {
-            final JSONArray items = hasFilter.getJSONArray("items");
-
-            JSONArray items2 = new JSONArray();
+            JSONArray items = hasFilter.getJSONArray("items");
+            JSONArray itemsNew = new JSONArray();
             for (Object item : items) {
                 JSONObject c = (JSONObject) JSONUtils.clone((JSON) item);
                 String field = c.getString("field");
@@ -231,12 +230,12 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
                 } else {
                     c.put("field", String.format("%s.%s", dtmField.getName(), field));
                 }
-                items2.add(c);
+                itemsNew.add(c);
             }
 
-            hasFilter = JSONUtils.toJSONObject(
-                    new String[] { "entity", "items" },
-                    new Object[] { dtmField.getOwnEntity().getName(), items2 });
+            hasFilter = (JSONObject) JSONUtils.clone(hasFilter);
+            hasFilter.put("items", itemsNew);
+            hasFilter.put("entity", dtmField.getOwnEntity().getName());
         }
 
         AdvFilterParser advFilterParser = new AdvFilterParser(hasFilter);
