@@ -2129,7 +2129,7 @@ class ChartSelect extends RbModalHandler {
 
   deleteChart(id) {
     const that = this
-    RbAlert.create($L('确认删除此图表？'), {
+    RbAlert.create(<b>{$L('确认删除此图表？')}</b>, {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {

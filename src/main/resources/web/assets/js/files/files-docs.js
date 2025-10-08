@@ -86,22 +86,28 @@ const FolderTree = {
   },
 
   handleDelete: function (item) {
-    RbAlert.create($L('如果目录内有文件或子目录则不允许删除。确认删除吗？'), {
-      type: 'danger',
-      confirmText: $L('删除'),
-      confirm: function () {
-        this.disabled(true)
-        $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
-          if (res.error_code === 0) {
-            this.hide()
-            FolderTree.load()
-          } else {
-            RbHighbar.error(res.error_msg)
-            this.disabled()
-          }
-        })
-      },
-    })
+    RbAlert.create(
+      <RF>
+        <b>{$L('确认删除此目录？')} </b>
+        <div>{$L('如果目录内有文件或子目录则不允许删除')}</div>
+      </RF>,
+      {
+        type: 'danger',
+        confirmText: $L('删除'),
+        confirm: function () {
+          this.disabled(true)
+          $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
+            if (res.error_code === 0) {
+              this.hide()
+              FolderTree.load()
+            } else {
+              RbHighbar.error(res.error_msg)
+              this.disabled()
+            }
+          })
+        },
+      }
+    )
   },
 
   _findPaths: function (active, into) {
@@ -201,6 +207,7 @@ class FolderEditDlg extends RbFormHandler {
                 <button
                   className="btn btn-light w-auto bosskey-show"
                   type="button"
+                  title={$L('分享') + ' (LAB)'}
                   onClick={() => {
                     // eslint-disable-next-line react/jsx-no-undef
                     renderRbcomp(<FileShare file={this.props.id} />)
@@ -498,7 +505,7 @@ $(document).ready(() => {
   $('.J_delete').on('click', () => {
     const s = filesList.getSelected()
     if (!s) return
-    RbAlert.create($L('确认删除选中的文件？'), {
+    RbAlert.create(<b>{$L('确认删除选中的 %d 个文件？', s.length)}</b>, {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {

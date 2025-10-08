@@ -148,10 +148,13 @@ class SharedFiles extends RbModalHandler {
               <tbody ref={(c) => (this._$tbody = c)}>
                 {this.state.data &&
                   this.state.data.map((item, idx) => {
+                    let icon = <i className="file-icon" data-type={$fileExtName(item[1])} />
+                    if (item[1].startsWith('024-')) icon = <i className="mdi mdi-folder up-2" style={{ color: '#54aeff', fontSize: 24 }} />
+
                     return (
                       <tr key={idx}>
-                        <td width="36" style={{ paddingBottom: 0, paddingTop: 5 }}>
-                          <i className="file-icon" data-type={$fileExtName(item[1])} />
+                        <td width="36" className="pt-1 pb-0">
+                          {icon}
                         </td>
                         <td className="position-relative">
                           <a href={item[0]} target="_blank" className="link">

@@ -3666,7 +3666,7 @@ a.user-show:not([href]) {
 
 .preview-modal .preview-body .oper-box-wrap {
   position: absolute;
-  bottom: 20px;
+  bottom: 25px;
   text-align: center;
   left: 0;
   right: 0;

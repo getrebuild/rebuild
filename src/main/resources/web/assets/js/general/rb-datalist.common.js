@@ -91,7 +91,7 @@ const AdvFilters = {
           })
 
           $action.find('a:eq(1)').on('click', function () {
-            RbAlert.create($L('确认删除此高级查询？'), {
+            RbAlert.create(<b>{$L('确认删除此高级查询？')}</b>, {
               type: 'danger',
               confirmText: $L('删除'),
               confirm: function () {

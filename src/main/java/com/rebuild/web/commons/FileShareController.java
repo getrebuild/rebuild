@@ -42,6 +42,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 文件共享
@@ -96,14 +97,18 @@ public class FileShareController extends BaseController {
         final ID isFolder = ID.isId(fileUrl) ? ID.valueOf(fileUrl) : null;
         if (isFolder != null && isFolder.getEntityCode() == EntityHelper.AttachmentFolder) {
             String viewFile = getParameter(request, "file");
+            // 查看目录内文件
             if (ID.isId(viewFile)) {
                 fileUrl = (String) QueryHelper.queryFieldValue(ID.valueOf(viewFile), "filePath");
-            }
-            // 目录
-            else {
+            } else {
                 Map<String, Object> map = new HashMap<>();
                 map.put("shareKey", fileUrl);
-                map.put("folderName", FieldValueHelper.getLabel(isFolder));
+                String folderName = FieldValueHelper.getLabelNotry(isFolder);
+                if (Objects.equals(folderName, FieldValueHelper.MISS_REF_PLACE)) {
+                    response.sendError(403, Language.L("分享的文件不存在"));
+                    return null;
+                }
+                map.put("folderName", folderName);
 
                 Object[][] array = Application.createQueryNoFilter(
                                 "select attachmentId,fileName,fileSize from Attachment where inFolder = ? and isDeleted <> 'T' order by fileName")
@@ -118,6 +123,15 @@ public class FileShareController extends BaseController {
 
                 return createModelAndView("/common/shared-folder", map);
             }
+        }
+
+        // v4.2 检查文件是否存在
+        Object[] e = Application.createQueryNoFilter(
+                "select attachmentId from Attachment where isDeleted <> 'T' and filePath = ?")
+                .setParameter(1, fileUrl).unique();
+        if (e == null) {
+            response.sendError(403, Language.L("分享的文件不存在"));
+            return null;
         }
 
         String publicUrl = makePublicUrl(fileUrl);
@@ -142,6 +156,10 @@ public class FileShareController extends BaseController {
         for (Object[] o : array) {
             o[0] = RebuildConfiguration.getHomeUrl("s/" + o[0]);
             o[4] = UserHelper.getName((ID) o[4]);
+
+            if (ID.isId(o[1]) && ID.valueOf((String) o[1]).getEntityCode() == EntityHelper.AttachmentFolder) {
+                o[1] = o[1] + "/" + FieldValueHelper.getLabel(ID.valueOf((String) o[1]));
+            }
         }
 
         return RespBody.ok(array);

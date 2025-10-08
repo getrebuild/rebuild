@@ -519,7 +519,7 @@ class DlgDashSettings extends RbFormHandler {
   }
 
   delete() {
-    RbAlert.create($L('确认删除此仪表盘？'), {
+    RbAlert.create(<b>{$L('确认删除此仪表盘？')}</b>, {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {
