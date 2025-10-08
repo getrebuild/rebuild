@@ -33,7 +33,7 @@
               </h5>
               <ul class="list-unstyled fields">
                 <th:block th:each="field : ${availableFields}">
-                  <li th:class="${field[2]}"><a th:title="${field[1]}" th:data-field="${field[0]}" th:data-type="${field[2]}">[[${field[1]}]]</a></li>
+                  <li th:class="${field[2]}"><a th:title="${field[1]}" th:data-field="${field[0]}" th:data-type="${field[2]}" th:data-pinyin="${field[3]}">[[${field[1]}]]</a></li>
                 </th:block>
               </ul>
             </div>
