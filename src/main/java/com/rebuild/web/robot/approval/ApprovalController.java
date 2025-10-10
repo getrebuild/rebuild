@@ -291,9 +291,12 @@ public class ApprovalController extends BaseController {
                 return RespBody.error(known.getLocalizedMessage());
             }
 
-            if (!Application.getEntityService(addedRecord.getEntity().getEntityCode()).getAndCheckRepeated(addedRecord, 1).isEmpty()) {
-                return RespBody.errorl("存在重复记录");
-            }
+            // fix:4.1.8 主+明细
+            boolean checkRepeated = checkRepeated418(addedRecord);
+            if (checkRepeated) return RespBody.errorl("存在重复记录");
+            checkRepeated = checkRepeated418(details.toArray(new Record[0]));
+            if (checkRepeated) return RespBody.errorl("存在重复记录");
+
             if (weakMode != null) RbvFunction.call().setWeakMode(weakMode);
         }
 
@@ -318,6 +321,15 @@ public class ApprovalController extends BaseController {
         } finally {
             if (weakMode != null) RbvFunction.call().getWeakMode(true);
         }
+    }
+
+    private boolean checkRepeated418(Record... records) {
+        for (Record r : records) {
+            if (!Application.getEntityService(r.getEntity().getEntityCode()).getAndCheckRepeated(r, 1).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @RequestMapping("cancel")
