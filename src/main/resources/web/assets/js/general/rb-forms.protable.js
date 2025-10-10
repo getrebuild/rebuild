@@ -32,7 +32,8 @@ class ProTable extends React.Component {
 
     const formFields = this.state.formFields
     const readonly = this.props.$$$main.props.readonly
-    const fixedWidth = formFields.length <= 5
+    // const fixedWidth = formFields.length <= 5
+    const fixedWidth = false // v42
     const inlineForms = this.state.inlineForms || []
     const colActionClazz = `col-action ${this._initModel.detailsCopiable && 'has-copy-btn'} ${!fixedWidth && 'column-fixed'}`
 
@@ -47,7 +48,7 @@ class ProTable extends React.Component {
 
                 let colStyle2 = { minWidth: _PT_COLUMN_DEF_WIDTH }
                 if (!fixedWidth) {
-                  // v35, v38
+                  // v35,v38,v42
                   let _colspan = ~~(item.colspan || 2)
                   if (_colspan === 9) _colspan = 1.5
                   if (_colspan === 8) _colspan = 2.5
