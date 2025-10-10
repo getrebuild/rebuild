@@ -182,7 +182,7 @@ class FolderEditDlg extends RbFormHandler {
               <div className={`mt-1 mb-2 ${this.state.scope !== 'SPEC' && 'hide'}`}>
                 <UserSelector ref={(c) => (this._UserSelector = c)} defaultValue={this.state.specUsers} />
               </div>
-              <div className="form-text mb-1">{$L('目录可见范围将影响子目录以及目录内的文件')}</div>
+              <div className="form-text mt-0 mb-1">{$L('目录可见范围将影响子目录以及目录内的文件')}</div>
             </div>
           </div>
           <div className="form-group row pt-1">

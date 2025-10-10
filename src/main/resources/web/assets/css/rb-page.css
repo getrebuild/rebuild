@@ -2508,13 +2508,13 @@ th.column-fixed {
   line-height: 34px;
   text-align: center;
   font-size: 1.2rem;
-  border-radius: 2px;
+  border-radius: 6px;
   width: 22px;
   display: none;
 }
 
 .aside-2tree li span.action:hover {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.1);
   color: #fff;
 }
 

@@ -143,6 +143,10 @@ public class FileManagerController extends BaseController {
         if (fileId.getEntityCode() == EntityHelper.AttachmentFolder) {
             return FilesHelper.getAccessableFolders(user).contains(fileId) ? fileId.toLiteral() : null;
         }
+        // FIXME v4.2 仪表盘临时借用
+        if (fileId.getEntityCode() == EntityHelper.DashboardConfig) {
+            return UserHelper.isSelf(user, fileId) ? fileId.toLiteral() : null;
+        }
 
         Object[] file = Application.getQueryFactory().uniqueNoFilter(
                 fileId, "filePath,relatedRecord,belongEntity");

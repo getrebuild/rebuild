@@ -308,7 +308,8 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 || requestUri.startsWith("/apiman/")
                 || requestUri.startsWith("/commons/frontjs/use-frontjs")
                 || requestUri.startsWith("/commons/file-preview")
-                || requestUri.startsWith("/commons/file-editor");
+                || requestUri.startsWith("/commons/file-editor")
+                || requestUri.endsWith("/dashboard/chart-data");
     }
 
     private boolean isHtmlRequest(String requestUri, HttpServletRequest request) {
