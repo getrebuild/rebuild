@@ -87,7 +87,7 @@ public class FileUploader extends BaseController {
 
             // 添加 iw 参数支持水印
             String iw42 = getParameter(request, "iw");
-            if (iw42 != null) {
+            if (StringUtils.isNotBlank(iw42)) {
                 ImageMaker.makeWatermark(dest, iw42, dest);
             }
 
