@@ -26,7 +26,7 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.approval.FlowNode;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.FieldValueHelper;
-import com.rebuild.utils.ImageMaker;
+import com.rebuild.utils.img.ImageMaker;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;

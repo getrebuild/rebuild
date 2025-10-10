@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import com.rebuild.utils.md.MarkdownUtils;
 import org.junit.jupiter.api.Test;
 
 /**

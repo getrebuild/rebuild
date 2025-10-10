@@ -40,7 +40,7 @@ import com.rebuild.core.support.general.BarCodeSupport;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
-import com.rebuild.utils.ImageView2;
+import com.rebuild.utils.img.ImageView2;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;

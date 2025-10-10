@@ -1,7 +1,8 @@
-package com.rebuild.utils;
+package com.rebuild.utils.img;
 
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;

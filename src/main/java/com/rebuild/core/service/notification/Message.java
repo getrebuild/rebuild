@@ -10,7 +10,7 @@ package com.rebuild.core.service.notification;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.utils.MarkdownUtils;
+import com.rebuild.utils.md.MarkdownUtils;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;

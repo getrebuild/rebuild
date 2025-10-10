@@ -23,7 +23,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
-import com.rebuild.utils.MarkdownUtils;
+import com.rebuild.utils.md.MarkdownUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
