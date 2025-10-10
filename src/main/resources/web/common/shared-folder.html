@@ -7,9 +7,6 @@
     <meta name="og:image" content="https://getrebuild.com/img/logo256.png" />
     <title>[[${bundle.L('分享文件')}]]</title>
     <style>
-      .preview-modal .preview-header .float-right a:first-child {
-        display: none;
-      }
       .preview-modal {
         background-color: transparent;
         z-index: 10;
@@ -26,6 +23,15 @@
           margin-left: 12px !important;
           margin-right: 12px !important;
         }
+      }
+      .preview-modal .preview-body {
+        overflow: auto;
+        padding-bottom: 30px;
+      }
+      .preview-modal .preview-body .container,
+      .preview-modal .container .iframe,
+      .preview-modal .container iframe {
+        height: auto;
       }
       .file-list {
         margin: 20px auto;
