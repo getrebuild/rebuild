@@ -65,7 +65,7 @@ public class FileShareController extends BaseController {
 
     // URL for share
     @GetMapping("/filex/make-share")
-    public JSON makeSharedFile(HttpServletRequest request) {
+    public JSON makeShareFile(HttpServletRequest request) {
         Assert.isTrue(
                 RebuildConfiguration.getBool(ConfigurationItem.FileSharable),
                 Language.L("不允许分享文件"));
@@ -164,7 +164,7 @@ public class FileShareController extends BaseController {
     }
 
     @GetMapping("/filex/all-make-share")
-    public RespBody allShareFiles(HttpServletRequest request) {
+    public RespBody allSharedFiles(HttpServletRequest request) {
         String sql = "select shortKey,longUrl,expireTime,createdOn,createdBy,shortId" +
                 " from ShortUrl where (expireTime > ? or expireTime is null) and (1=1) order by createdOn desc";
 
@@ -182,7 +182,9 @@ public class FileShareController extends BaseController {
             o[0] = RebuildConfiguration.getHomeUrl("s/" + o[0]);
             o[4] = UserHelper.getName((ID) o[4]);
 
-            if (ID.isId(o[1]) && ID.valueOf((String) o[1]).getEntityCode() == EntityHelper.AttachmentFolder) {
+            final ID folderOrDash42 = ID.isId(o[1]) ? ID.valueOf((String) o[1]) : null;
+            if (folderOrDash42 != null
+                    && (folderOrDash42.getEntityCode() == EntityHelper.AttachmentFolder || folderOrDash42.getEntityCode() == EntityHelper.DashboardConfig)) {
                 o[1] = o[1] + "/" + FieldValueHelper.getLabel(ID.valueOf((String) o[1]));
             }
         }
@@ -191,13 +193,13 @@ public class FileShareController extends BaseController {
     }
 
     @PostMapping("/filex/del-make-share")
-    public RespBody delShareFile(@IdParam ID shortId) {
+    public RespBody delSharedFile(@IdParam ID shortId) {
         Application.getCommonsService().delete(shortId, false);
         return RespBody.ok();
     }
 
     @PostMapping("/filex/is-make-share")
-    public RespBody isShareFile(HttpServletRequest request) {
+    public RespBody isSharedFile(HttpServletRequest request) {
         final String longUrl = getParameterNotNull(request, "longUrl");
 
         Object[] has = Application.createQueryNoFilter(

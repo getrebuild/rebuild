@@ -23,10 +23,16 @@
     </style>
   </head>
   <body>
-    <div class="shared-dash">
-      <div class="chart-grid">
-        <div class="grid-stack"></div>
-      </div>
+    <div class="chart-grid">
+      <div class="grid-stack"></div>
+    </div>
+    <div th:if="${pageFooter != null}" class="page-footer">
+      [(${pageFooter})]
+      <style>
+        body {
+          padding-bottom: 35px;
+        }
+      </style>
     </div>
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/lib/charts/lodash.min.js}"></script>
