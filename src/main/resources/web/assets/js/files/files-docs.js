@@ -86,22 +86,28 @@ const FolderTree = {
   },
 
   handleDelete: function (item) {
-    RbAlert.create($L('如果目录内有文件或子目录则不允许删除。确认删除吗？'), {
-      type: 'danger',
-      confirmText: $L('删除'),
-      confirm: function () {
-        this.disabled(true)
-        $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
-          if (res.error_code === 0) {
-            this.hide()
-            FolderTree.load()
-          } else {
-            RbHighbar.error(res.error_msg)
-            this.disabled()
-          }
-        })
-      },
-    })
+    RbAlert.create(
+      <RF>
+        <b>{$L('确认删除此目录？')} </b>
+        <div>{$L('如果目录内有文件或子目录则不允许删除')}</div>
+      </RF>,
+      {
+        type: 'danger',
+        confirmText: $L('删除'),
+        confirm: function () {
+          this.disabled(true)
+          $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
+            if (res.error_code === 0) {
+              this.hide()
+              FolderTree.load()
+            } else {
+              RbHighbar.error(res.error_msg)
+              this.disabled()
+            }
+          })
+        },
+      }
+    )
   },
 
   _findPaths: function (active, into) {
@@ -176,7 +182,7 @@ class FolderEditDlg extends RbFormHandler {
               <div className={`mt-1 mb-2 ${this.state.scope !== 'SPEC' && 'hide'}`}>
                 <UserSelector ref={(c) => (this._UserSelector = c)} defaultValue={this.state.specUsers} />
               </div>
-              <div className="form-text mb-1">{$L('目录可见范围将影响子目录以及目录内的文件')}</div>
+              <div className="form-text mt-0 mb-1">{$L('目录可见范围将影响子目录以及目录内的文件')}</div>
             </div>
           </div>
           <div className="form-group row pt-1">
@@ -197,6 +203,18 @@ class FolderEditDlg extends RbFormHandler {
               <a className="btn btn-link" onClick={this.hide}>
                 {$L('取消')}
               </a>
+              {this.props.id && rb.isAdminUser && (
+                <button
+                  className="btn btn-light w-auto bosskey-show"
+                  type="button"
+                  title={$L('分享') + ' (LAB)'}
+                  onClick={() => {
+                    // eslint-disable-next-line react/jsx-no-undef
+                    renderRbcomp(<FileShare file={this.props.id} />)
+                  }}>
+                  <i className="icon zmdi zmdi-share"></i>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -487,7 +505,7 @@ $(document).ready(() => {
   $('.J_delete').on('click', () => {
     const s = filesList.getSelected()
     if (!s) return
-    RbAlert.create($L('确认删除选中的文件？'), {
+    RbAlert.create(<b>{$L('确认删除选中的 %d 个文件？', s.length)}</b>, {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {

@@ -23,6 +23,9 @@ window.dash_filter_date = null
 window.dash_filter_custom = null
 
 $(document).ready(() => {
+  // v4.2 分享的
+  if (rb.shareKey) return
+
   const d = $urlp('d')
   if (d) $storage.set('DashDefault', d)
 
@@ -202,20 +205,20 @@ $(document).ready(() => {
     }
   }
 
-  const $users = $('.J_dash-filter a[data-user]').on('click', function () {
-    $users.removeClass('check')
+  const $filterUser = $('.J_dash-filter a[data-user]').on('click', function () {
+    $filterUser.removeClass('check')
     let $a = $(this).addClass('check')
     window.dash_filter_user = $a.data('user')
     rendered_charts_reload()
   })
-  const $dates = $('.J_dash-filter a[data-date]').on('click', function () {
-    $dates.removeClass('check')
+  const $filterDate = $('.J_dash-filter a[data-date]').on('click', function () {
+    $filterDate.removeClass('check')
     let $a = $(this).addClass('check')
     window.dash_filter_date = $a.data('date')
     rendered_charts_reload()
   })
   let dash_Filter
-  const $custom = $('.J_dash-filter a[data-custom]').on('click', function () {
+  const $filterCustom = $('.J_dash-filter a[data-custom]').on('click', function () {
     if (dash_Filter) {
       dash_Filter.show()
     } else {
@@ -232,8 +235,8 @@ $(document).ready(() => {
           entity="SystemCommon"
           filter={window.dash_filter_custom || hold || null}
           onConfirm={(s) => {
-            if (s && s.items && s.items.length) $custom.addClass('check')
-            else $custom.removeClass('check')
+            if (s && s.items && s.items.length) $filterCustom.addClass('check')
+            else $filterCustom.removeClass('check')
 
             window.dash_filter_custom = s
             $storage.set('dash_filter_custom', JSON.stringify(s))
@@ -488,6 +491,18 @@ class DlgDashSettings extends RbFormHandler {
               <button className="btn btn-danger btn-outline ml-2" type="button" onClick={() => this.delete()}>
                 <i className="zmdi zmdi-delete icon" /> {$L('删除')}
               </button>
+              {rb.isAdminUser && (
+                <button
+                  className="btn btn-light w-auto bosskey-show ml-2"
+                  type="button"
+                  title={$L('分享') + ' (LAB)'}
+                  onClick={() => {
+                    // eslint-disable-next-line react/jsx-no-undef
+                    renderRbcomp(<FileShare file={this.props.dashid} />)
+                  }}>
+                  <i className="icon zmdi zmdi-share"></i>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -519,7 +534,7 @@ class DlgDashSettings extends RbFormHandler {
   }
 
   delete() {
-    RbAlert.create($L('确认删除此仪表盘？'), {
+    RbAlert.create(<b>{$L('确认删除此仪表盘？')}</b>, {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {

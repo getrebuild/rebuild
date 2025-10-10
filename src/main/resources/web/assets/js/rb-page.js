@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-(function () {
+;(function () {
   var gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -776,7 +776,7 @@ var $createUploader = function (input, next, complete, error) {
     var idname = $input.attr('id') || $input.attr('name') || $random('H5UP-')
     $input.html5Uploader({
       name: idname,
-      postUrl: rb.baseUrl + '/filex/upload?temp=' + (upLocal === 'temp') + '&noname=' + noname + '&updir=' + updir + useToken,
+      postUrl: rb.baseUrl + '/filex/upload?iw=' + (window.__LAB_IWTEXT42 || '') + '&temp=' + (upLocal === 'temp') + '&noname=' + noname + '&updir=' + updir + useToken,
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
           RbHighbar.create(imageType ? $L('请上传图片') : $L('上传文件类型错误'))
@@ -1499,7 +1499,8 @@ function $dropdownMenuSearch($dd) {
             var $item = $(this)
             var name = ($item.data('name') || $item.data('value') || $item.data('id') || '').toLowerCase()
             var text = $item.text().toLowerCase()
-            if (!q || name.contains(q) || text.contains(q)) {
+            var pinyin = ($item.data('pinyin') || '').toLowerCase()
+            if (!q || name.contains(q) || text.contains(q) || pinyin.contains(q)) {
               $item.removeClass('hide')
             } else {
               $item.addClass('hide')

@@ -1258,6 +1258,7 @@ class ExcelClipboardDataModal extends RbModalHandler {
               this.hide()
             }
           }}
+          ref={(c) => (this._ExcelClipboardData = c)}
         />
       </RbModal>
     )
@@ -1306,11 +1307,12 @@ class ExcelClipboardDataModalWithForm extends React.Component {
   }
 
   handleConfirm(data) {
+    const that = this
     function _FN() {
       const formsData = []
       data.forEach((item) => {
         const formData = {
-          metadata: { entity: this.props.entity },
+          metadata: { entity: that.props.entity },
         }
         item.elements.forEach((d) => {
           if (d.value) {
@@ -1321,23 +1323,40 @@ class ExcelClipboardDataModalWithForm extends React.Component {
         formsData.push(formData)
       })
 
+      const $btn = $(that._ExcelClipboardDataModal._ExcelClipboardData._$btn).button('loading')
       let len = formsData.length
       let success = 0
+      let lastError
       formsData.forEach((formData) => {
         $.post('/app/entity/record-save', JSON.stringify(formData), (res) => {
           len--
           if (res.error_code === 0) success++
+          else lastError = res.error_msg
           if (len <= 0) {
-            RbHighbar.success($L('成功保存 %d 条记录', success))
-            this._ExcelClipboardDataModal.hide()
-            const rlp = window.RbListPage || parent.RbListPage
-            if (rlp) rlp.reload(data.id)
+            if (success > 0) {
+              RbHighbar.success($L('成功保存 %d 条记录', success))
+              const rlp = window.RbListPage || parent.RbListPage
+              if (rlp) rlp.reload(data.id)
+
+              setTimeout(() => {
+                that._ExcelClipboardDataModal.hide()
+                $btn.button('reset')
+              }, 3000)
+            } else {
+              RbHighbar.error($L('未保存任何记录。可能的原因: %s', lastError || 'UNKNOWN ERROR'))
+              $btn.button('reset')
+            }
           }
         })
       })
     }
 
-    RbAlert.create($L('是否确认保存？'), { onConfirm: () => _FN() })
+    RbAlert.create($L('是否确认保存？'), {
+      onConfirm: function () {
+        this.hide()
+        _FN()
+      },
+    })
     return false
   }
 }

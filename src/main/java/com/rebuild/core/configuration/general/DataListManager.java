@@ -498,19 +498,23 @@ public class DataListManager extends BaseLayoutManager {
         EasyEntity easyEntity = EasyMetaFactory.valueOf(entity);
 
         String startField = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE4_FIELDOFSTART);
-        if (StringUtils.isBlank(startField) || !entity.containsField(startField)) {
+        if (StringUtils.isBlank(startField)
+                || MetadataHelper.getLastJoinField(entity, startField) == null) {
             startField = EntityHelper.CreatedOn;
         }
         String endField = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE4_FIELDOFEND);
-        if (StringUtils.isBlank(endField) || !entity.containsField(endField)) {
+        if (StringUtils.isBlank(endField)
+                || MetadataHelper.getLastJoinField(entity, endField) == null) {
             endField = null;
         }
         String titleField = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE4_FIELDOFTITLE);
-        if (StringUtils.isBlank(titleField) || !entity.containsField(titleField)) {
+        if (StringUtils.isBlank(titleField)
+                || MetadataHelper.getLastJoinField(entity, titleField) == null) {
             titleField = entity.getNameField().getName();
         }
         String colorField = easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE4_FIELDOFCOLOR);
-        if (StringUtils.isBlank(colorField) || !entity.containsField(colorField)) {
+        if (StringUtils.isBlank(colorField)
+                || MetadataHelper.getLastJoinField(entity, colorField) == null) {
             colorField = null;
         }
 

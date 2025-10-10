@@ -88,6 +88,11 @@ public class KnownExceptionConverter {
 
         } else if (ex instanceof JdbcException && exMsg != null) {
 
+            // The table 'xxx' is full
+            if (exMsg.contains("The table ") && exMsg.contains(" is full")) {
+                return Language.L("检查磁盘空间是否已满");
+            }
+
             return Language.L("数据库错误") + ":" + exMsg;
 
         }

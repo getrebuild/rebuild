@@ -131,9 +131,25 @@ public class FileManagerController extends BaseController {
         return filePath == null ? RespBody.error() : RespBody.ok(filePath);
     }
 
-    // 是否可读取文件
+    /**
+     * 是否可读取文件
+     *
+     * @param fileId
+     * @param user
+     * @return
+     */
     static String checkFileReadable(ID fileId, ID user) {
-        Object[] file = Application.getQueryFactory().uniqueNoFilter(fileId, "filePath,relatedRecord,belongEntity");
+        // v4.2 目录
+        if (fileId.getEntityCode() == EntityHelper.AttachmentFolder) {
+            return FilesHelper.getAccessableFolders(user).contains(fileId) ? fileId.toLiteral() : null;
+        }
+        // FIXME v4.2 仪表盘临时借用
+        if (fileId.getEntityCode() == EntityHelper.DashboardConfig) {
+            return UserHelper.isSelf(user, fileId) ? fileId.toLiteral() : null;
+        }
+
+        Object[] file = Application.getQueryFactory().uniqueNoFilter(
+                fileId, "filePath,relatedRecord,belongEntity");
         if (file == null) return null;
         if (UserHelper.isAdmin(user)) return (String) file[0];
 

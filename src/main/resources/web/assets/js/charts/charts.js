@@ -39,8 +39,7 @@ class BaseChart extends React.Component {
         <a className="d-none d-md-inline-block J_fullscreen" title={$L('全屏')} onClick={() => this.toggleFullscreen()}>
           <i className={`zmdi zmdi-${this.state.fullscreen ? 'fullscreen-exit' : 'fullscreen'}`} />
         </a>
-
-        <a className="d-none d-md-inline-block" data-toggle="dropdown">
+        <a className="d-none d-md-inline-block J_mores" data-toggle="dropdown">
           <i className="icon zmdi zmdi-more-vert" style={{ width: 16 }} />
         </a>
         <div className="dropdown-menu dropdown-menu-right dropdown-menu-sm">
@@ -165,6 +164,7 @@ class BaseChart extends React.Component {
 
         $boxParent.addClass('fullscreen')
         let height = $(window).height() - ($(document.body).hasClass('fullscreen') ? 75 : 135)
+        if (rb.shareKey) height += 95 // v4.2:in share
         height -= $('.announcement-wrapper').height() || 0
         $stack.css({ height: Math.max(height, 300), overflow: 'hidden' })
       } else {
@@ -2129,7 +2129,7 @@ class ChartSelect extends RbModalHandler {
 
   deleteChart(id) {
     const that = this
-    RbAlert.create($L('确认删除此图表？'), {
+    RbAlert.create(<b>{$L('确认删除此图表？')}</b>, {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {

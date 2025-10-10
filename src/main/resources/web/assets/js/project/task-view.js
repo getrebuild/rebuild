@@ -148,7 +148,7 @@ class TaskForm extends React.Component {
 
   _handleDelete() {
     const that = this
-    RbAlert.create($L('确认删除此任务？'), {
+    RbAlert.create(<b>{$L('确认删除此任务？')}</b>, {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {
@@ -614,7 +614,7 @@ class ValueAttachments extends ValueComp {
   _deleteAttachment(item, e) {
     $stopEvent(e)
     const that = this
-    RbAlert.create($L('确认删除此附件？'), {
+    RbAlert.create(<b>{$L('确认删除此附件？')}</b>, {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {
@@ -855,7 +855,7 @@ class ValueTagsEditor extends React.Component {
 
   _deleteTag(tagId) {
     const that = this
-    RbAlert.create($L('确认删除此标签？'), {
+    RbAlert.create(<b>{$L('确认删除此标签？')}</b>, {
       confirm: function () {
         this.disabled(true)
         $.post(`/app/entity/common-delete?id=${tagId}`, () => {
@@ -1027,7 +1027,7 @@ class TaskCommentsList extends React.Component {
 
   _handleDelete(item) {
     const that = this
-    RbAlert.create($L('确认删除此评论？'), {
+    RbAlert.create(<b>{$L('确认删除此评论？')}</b>, {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {

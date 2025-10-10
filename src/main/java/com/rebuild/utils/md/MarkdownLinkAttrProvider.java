@@ -5,8 +5,9 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.utils;
+package com.rebuild.utils.md;
 
+import com.rebuild.utils.CommonsUtils;
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.html.AttributeProvider;
 import com.vladsch.flexmark.html.AttributeProviderFactory;

@@ -22,6 +22,11 @@ import java.util.Date;
 public class I18nUtils {
 
     /**
+     * 多语言前缀
+     */
+    public static final String LANG_PREFIX = "$L";
+
+    /**
      * 客户端所需的日期时间格式（带时区偏移）
      *
      * @param date
@@ -47,7 +52,7 @@ public class I18nUtils {
      * @return
      */
     public static String LP(String origin) {
-        if (StringUtils.length(origin) > 2 && origin.startsWith("$L")) {
+        if (StringUtils.length(origin) > 2 && origin.startsWith(LANG_PREFIX)) {
             origin = origin.substring(2).trim();
             return Language.L(origin);
         }
