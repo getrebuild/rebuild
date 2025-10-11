@@ -1640,7 +1640,7 @@ class ChartCNMap extends BaseChart {
       const option = {
         ...$clone(ECHART_BASE),
         bmap: {
-          zoom: 5,
+          zoom: 10,
           roam: true,
           mapOptions: {
             enableMapClick: false,
