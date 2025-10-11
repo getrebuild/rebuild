@@ -569,17 +569,28 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-position: -1372px -1464px;
 }
 
-.chart-list > div .chart-icon > i.DATALIST2 {
+.chart-list > div .chart-icon > i.DATALIST2,
+.chart-list > div .chart-icon > i.PARETO {
   background: none;
-  margin-top: 5px;
+  margin-top: 4px;
 }
 
-.chart-list > div .chart-icon > i.DATALIST2::before {
+.chart-list > div .chart-icon > i.DATALIST2::before,
+.chart-list > div .chart-icon > i.PARETO::before {
   font-family: 'Material Design Icons', serif;
   content: '\F148C';
   color: #4285f4;
-  font-size: 27px;
+  font-size: 28px;
   font-style: normal;
+}
+
+.chart-list > div .chart-icon > i.PARETO {
+  margin-top: 9px;
+}
+
+.chart-list > div .chart-icon > i.PARETO::before {
+  font-size: 21px;
+  content: '\F1213';
 }
 
 .sortable-box.h200 {
@@ -682,8 +693,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #f5f8fd !important;
 }
 
-.chart-box.CNMAP .chart-body {
-  margin-top: -5px;
+.chart-box.CNMAP .chart-body,
+.chart-box.EmbedFrame .chart-body {
+  margin-top: 0;
+  margin-left: -25px;
+  margin-right: -25px;
 }
 
 .grid-stack .grid-stack-item.HeadingText .grid-stack-item-content {
