@@ -2096,7 +2096,7 @@ class ChartSelect extends RbModalHandler {
                       </span>
                       {item.isManageable && !this.props.entity && (
                         <span className="float-right">
-                          <a className="delete danger-hover" onClick={() => this.deleteChart(item.id)}>
+                          <a className="delete danger-hover" onClick={() => this.deleteChart(item.id)} title={$L('删除')}>
                             <i className="zmdi zmdi-delete" />
                           </a>
                         </span>
