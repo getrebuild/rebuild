@@ -776,7 +776,7 @@ var $createUploader = function (input, next, complete, error) {
     var idname = $input.attr('id') || $input.attr('name') || $random('H5UP-')
     $input.html5Uploader({
       name: idname,
-      postUrl: rb.baseUrl + '/filex/upload?iw=' + (window.__LAB_IWTEXT42 || '') + '&temp=' + (upLocal === 'temp') + '&noname=' + noname + '&updir=' + updir + useToken,
+      postUrl: rb.baseUrl + '/filex/upload?iw=' + $encode(window.__LAB_IWTEXT42) + '&temp=' + (upLocal === 'temp') + '&noname=' + noname + '&updir=' + updir + useToken,
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
           RbHighbar.create(imageType ? $L('请上传图片') : $L('上传文件类型错误'))

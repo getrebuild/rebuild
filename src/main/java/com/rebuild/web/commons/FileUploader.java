@@ -7,7 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.commons;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -46,7 +48,8 @@ public class FileUploader extends BaseController {
 
     @PostMapping("upload")
     public void upload(HttpServletRequest request, HttpServletResponse response) {
-        RbAssert.isAllow(checkUser(request), "Unauthorized access");
+        final ID user = checkUser(request);
+        RbAssert.isAllow(user != null, "Unauthorized access");
 
         CommonsMultipartResolver resolver = new CommonsMultipartResolver(request.getServletContext());
 
@@ -88,6 +91,9 @@ public class FileUploader extends BaseController {
             // 添加 iw 参数支持水印
             String iw42 = getParameter(request, "iw");
             if (StringUtils.isNotBlank(iw42)) {
+                if (iw42.contains("{USER}")) iw42 = iw42.replace("{USER}", user.toLiteral().toLowerCase());
+                if (iw42.contains("{DATE}")) iw42 = iw42.replace("{DATE}", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
+
                 ImageMaker.makeWatermark(dest, iw42, dest);
             }
 

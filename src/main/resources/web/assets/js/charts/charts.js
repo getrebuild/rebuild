@@ -763,11 +763,6 @@ class ChartPareto extends ChartBar3 {
   constructor(props) {
     super(props)
   }
-
-  renderChart(data) {
-    // TODO Need?
-    super.renderChart(data)
-  }
 }
 
 // 饼图
