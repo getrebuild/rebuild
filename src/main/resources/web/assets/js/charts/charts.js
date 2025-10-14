@@ -763,11 +763,6 @@ class ChartPareto extends ChartBar3 {
   constructor(props) {
     super(props)
   }
-
-  renderChart(data) {
-    // TODO Need?
-    super.renderChart(data)
-  }
 }
 
 // 饼图
@@ -1640,7 +1635,7 @@ class ChartCNMap extends BaseChart {
       const option = {
         ...$clone(ECHART_BASE),
         bmap: {
-          zoom: 5,
+          zoom: 10,
           roam: true,
           mapOptions: {
             enableMapClick: false,
@@ -1711,7 +1706,7 @@ class ChartCNMap extends BaseChart {
 
     $(this._$box)
       .find('.chart-body')
-      .height(H - (window.render_preview_chart ? 0 : 40))
+      .height(H - (window.render_preview_chart ? 0 : 20))
     this.__lastHW = [H, W]
   }
 
@@ -2096,7 +2091,7 @@ class ChartSelect extends RbModalHandler {
                       </span>
                       {item.isManageable && !this.props.entity && (
                         <span className="float-right">
-                          <a className="delete danger-hover" onClick={() => this.deleteChart(item.id)}>
+                          <a className="delete danger-hover" onClick={() => this.deleteChart(item.id)} title={$L('删除')}>
                             <i className="zmdi zmdi-delete" />
                           </a>
                         </span>

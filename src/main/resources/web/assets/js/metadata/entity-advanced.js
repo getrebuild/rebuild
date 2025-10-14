@@ -284,7 +284,7 @@ class DlgMode2Option extends RbFormHandler {
                           )
                         })}
                     </select>
-                    <p className="text-muted m-0 mt-1">{$L('使用分组字段')}</p>
+                    <p className="text-muted m-0 mt-1">{$L('分组字段')}</p>
                   </div>
                   <div className="col-sm-6 pl-1">
                     <select className="form-control form-control-sm" ref={(c) => (this._$enableTreeParentField = c)} disabled>
@@ -297,7 +297,7 @@ class DlgMode2Option extends RbFormHandler {
                           )
                         })}
                     </select>
-                    <p className="text-muted m-0 mt-1">{$L('使用父级字段')}</p>
+                    <p className="text-muted m-0 mt-1">{$L('父级字段')}</p>
                   </div>
                 </div>
               </div>

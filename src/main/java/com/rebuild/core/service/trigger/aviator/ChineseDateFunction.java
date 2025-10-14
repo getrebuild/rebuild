@@ -29,6 +29,7 @@ import java.util.Map;
 public class ChineseDateFunction extends AbstractFunction {
     private static final long serialVersionUID = 8286269123896553078L;
 
+    @Override
     public AviatorObject call(Map<String, Object> env, AviatorObject arg1) {
         return call(env, arg1, AviatorBoolean.FALSE);
     }
