@@ -16,9 +16,19 @@ class BaseChart extends React.Component {
   }
 
   render() {
+    let showSource = !this.props.builtin
+    let showFilter = !this.props.builtin
+    if (this.props.id === '017-9000000000000007' || this.props.id === '017-9000000000000002') showSource = true
+    if (this.props.type === 'HeadingText' || this.props.type === 'EmbedFrame') showFilter = false
+
     const opActions = (
       <div className="chart-oper">
-        {!this.props.builtin && (
+        {showFilter && (
+          <a title={$L('过滤条件')} className="J_chart-filter" onClick={() => this.showChartFilter()}>
+            <i className="mdi mdi-filter" />
+          </a>
+        )}
+        {showSource && (
           <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`} target="_blank" className="J_source">
             <i className="zmdi zmdi-rss" />
           </a>
@@ -29,8 +39,7 @@ class BaseChart extends React.Component {
         <a className="d-none d-md-inline-block J_fullscreen" title={$L('全屏')} onClick={() => this.toggleFullscreen()}>
           <i className={`zmdi zmdi-${this.state.fullscreen ? 'fullscreen-exit' : 'fullscreen'}`} />
         </a>
-
-        <a className="d-none d-md-inline-block" data-toggle="dropdown">
+        <a className="d-none d-md-inline-block J_mores" data-toggle="dropdown">
           <i className="icon zmdi zmdi-more-vert" style={{ width: 16 }} />
         </a>
         <div className="dropdown-menu dropdown-menu-right dropdown-menu-sm">
@@ -52,7 +61,9 @@ class BaseChart extends React.Component {
     )
 
     return (
-      <div className={`chart-box ${this.props.type} ${this.props.type === 'DATALIST2' && 'DataList'}`} ref={(c) => (this._$box = c)}>
+      <div
+        className={`chart-box ${this.props.type} ${this.state.useBgcolor && `gradient-bg gradient-bg-${this.state.useBgcolor}`} ${this.props.type === 'DATALIST2' && 'DataList'}`}
+        ref={(c) => (this._$box = c)}>
         <div className="chart-head">
           <div className="chart-title text-truncate">{this.state.title}</div>
           {opActions}
@@ -72,13 +83,54 @@ class BaseChart extends React.Component {
     if (this._echarts) this._echarts.dispose()
   }
 
+  showChartFilter() {
+    if (this._ChartFilter) {
+      this._ChartFilter.show()
+    } else {
+      const that = this
+      const config = this.props.config || {}
+      renderRbcomp(
+        <AdvFilter
+          title={$L('图表过滤条件')}
+          entity={config.entity}
+          filter={config.filter}
+          onConfirm={(s) => {
+            that._ChartFilter__data = s
+            that.loadChartData()
+          }}
+          inModal
+          canNoFilters
+        />,
+        function () {
+          that._ChartFilter = this
+        }
+      )
+    }
+  }
+
   loadChartData(notClear) {
     if (notClear !== true) this.setState({ chartdata: null })
-    $.post(this.buildDataUrl(), JSON.stringify(this.state.config || {}), (res) => {
+
+    const conf = this.state.config || {}
+    conf.extconfig = {
+      ...conf.extconfig,
+      dash_filter_user: window.dash_filter_user || null,
+      dash_filter_date: window.dash_filter_date || null,
+      dash_filter_custom: window.dash_filter_custom || null,
+    }
+    // 优先级高
+    if (this._ChartFilter__data) conf.extconfig.chart_filter = this._ChartFilter__data
+
+    $.post(this.buildDataUrl(), JSON.stringify(conf), (res) => {
       if (this._echarts) this._echarts.dispose()
 
-      if (res.error_code === 0) this.renderChart(res.data)
-      else this.renderError(res.error_msg)
+      if (res.error_code === 0) {
+        this.renderChart(res.data)
+        // v4.2
+        res.data._renderOption && res.data._renderOption.useBgcolor && this.setState({ useBgcolor: res.data._renderOption.useBgcolor })
+      } else {
+        this.renderError(res.error_msg)
+      }
     })
   }
 
@@ -99,18 +151,20 @@ class BaseChart extends React.Component {
       const $stack = $('.chart-grid>.grid-stack')
       if (!$stack[0]) {
         // in DataList
-        // $(this._$box).parent().toggleClass('fullscreen')
+        const $wrap = $(this._$box).parent()
+        $wrap.toggleClass('fullscreen')
+        this.resize()
         return
       }
 
       const $boxParent = $(this._$box).parents('.grid-stack-item')
-
       if (this.state.fullscreen) {
         BaseChart.currentFullscreen = this
         if (!this.__chartStackHeight) this.__chartStackHeight = $stack.height()
 
         $boxParent.addClass('fullscreen')
         let height = $(window).height() - ($(document.body).hasClass('fullscreen') ? 75 : 135)
+        if (rb.shareKey) height += 95 // v4.2:in share
         height -= $('.announcement-wrapper').height() || 0
         $stack.css({ height: Math.max(height, 300), overflow: 'hidden' })
       } else {
@@ -178,7 +232,7 @@ class BaseChart extends React.Component {
       const wb = window.XLSX.utils.table_to_book(table, { raw: true, wrapText: true })
       window.XLSX.writeFile(wb, name)
       // restore
-      setTimeout(() => _rmLinks(table, 'href', '__href'), 500)
+      setTimeout(() => _rmLinks(table, 'href', '__href'), 499)
     }
 
     if (window.XLSX && window.XLSX.utils) _export()
@@ -517,8 +571,13 @@ const reOptionMutliYAxis = function (option) {
 }
 
 const renderEChart = function (option, $target) {
-  const c = echarts.init(document.getElementById($target), 'light', {
+  $target = document.getElementById($target)
+  const c = echarts.init($target, 'light', {
     renderer: navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i) ? 'svg' : 'canvas',
+  })
+  // v4.2 禁用右键
+  $target.addEventListener('contextmenu', function (e) {
+    e.preventDefault()
   })
   if (rb.env === 'dev') console.log(option)
   c.setOption(option)
@@ -587,7 +646,7 @@ class ChartLine extends BaseChart {
       option.tooltip.formatter = (a) => ECHART_TOOLTIP_FORMATTER(a, dataFlags)
       if (showLegend) {
         option.legend = ECHART_LEGEND_HOPT
-        option.grid.top = 40
+        option.grid.top = 50
       }
       if (showMarkLine) option.grid.right = 60
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
@@ -669,7 +728,7 @@ class ChartBar extends BaseChart {
       }
       if (showLegend) {
         option.legend = ECHART_LEGEND_HOPT
-        option.grid.top = 40
+        option.grid.top = 50
       }
       if (showMarkLine) option.grid.right = 60
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
@@ -696,6 +755,13 @@ class ChartBar3 extends ChartBar {
   constructor(props) {
     super(props)
     this._overLine = true
+  }
+}
+
+// 柏拉图/帕累托图
+class ChartPareto extends ChartBar3 {
+  constructor(props) {
+    super(props)
   }
 }
 
@@ -961,7 +1027,7 @@ class ApprovalList extends BaseChart {
           </table>
           {viewData.length >= 500 && (
             <div className="m-2 text-center text-warning">
-              <i className="mdi mdi-information-outline" /> {$L('最多显示最近 500 条记录')}
+              <i className="mdi mdi-information-outline" /> {$L('最多显示最近 500 条')}
             </div>
           )}
         </div>
@@ -975,10 +1041,11 @@ class ApprovalList extends BaseChart {
     )
     this.setState({ chartdata: chartdata }, () => {
       const $tb = $(this._$body)
-      $tb
-        .find('.ApprovalList')
-        .css('height', $tb.height() - 5)
-        .perfectScrollbar()
+      $tb &&
+        $tb
+          .find('.ApprovalList')
+          .css('height', $tb.height() - 5)
+          .perfectScrollbar()
     })
   }
 
@@ -986,7 +1053,7 @@ class ApprovalList extends BaseChart {
     $setTimeout(
       () => {
         const $tb = $(this._$body)
-        if ($tb) $tb.find('.ApprovalList').css('height', $tb.height() - 5)
+        $tb && $tb.find('.ApprovalList').css('height', $tb.height() - 5)
       },
       400,
       `resize-chart-${this.state.id}`
@@ -1153,7 +1220,7 @@ class ChartRadar extends BaseChart {
           splitNumber: 4,
           splitArea: {
             areaStyle: {
-              color: ['#fff', '#fff', '#fff', '#fff', '#fff'],
+              // color: ['#fff', '#fff', '#fff', '#fff', '#fff'],
             },
           },
           splitLine: {
@@ -1272,7 +1339,7 @@ class ChartScatter extends BaseChart {
       }
       if (showLegend) {
         option.legend = ECHART_LEGEND_HOPT
-        option.grid.top = 40
+        option.grid.top = 50
       }
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
@@ -1491,14 +1558,15 @@ class DataList extends BaseChart {
             {listData.map((row) => {
               const lastCell = row[lastIndex]
               const rkey = `tr-${lastCell.id}`
+              const viewUrl = `${rb.baseUrl}/app/redirect?id=${lastCell.id}&type=newtab`
               return (
-                <tr key={rkey} data-id={lastCell.id}>
+                <tr key={rkey} data-id={lastCell.id} onDoubleClick={() => window.open(viewUrl)}>
                   {row.map((c, idx) => {
                     if (idx === lastIndex) return null // Last is ID
                     return this.renderCell(c, listFields[idx])
                   })}
                   <td className="open-newtab">
-                    <a href={`${rb.baseUrl}/app/redirect?id=${lastCell.id}&type=newtab`} target="_blank" title={$L('打开')}>
+                    <a href={viewUrl} target="_blank" title={$L('打开')}>
                       <i className="zmdi zmdi-open-in-new icon" />
                     </a>
                   </td>
@@ -1518,15 +1586,9 @@ class DataList extends BaseChart {
         .css('height', this._$tb.height() - 20)
         .perfectScrollbar()
 
-      let $trActive
       const $trs = this._$tb.find('tbody tr').on('mousedown', function () {
-        if ($trActive === this) {
-          $(this).toggleClass('highlight')
-        } else {
-          $trActive = this
-          $trs.removeClass('highlight')
-          $(this).addClass('highlight')
-        }
+        $trs.removeClass('highlight')
+        $(this).addClass('highlight')
       })
     })
   }
@@ -1573,7 +1635,7 @@ class ChartCNMap extends BaseChart {
       const option = {
         ...$clone(ECHART_BASE),
         bmap: {
-          zoom: 5,
+          zoom: 10,
           roam: true,
           mapOptions: {
             enableMapClick: false,
@@ -1644,7 +1706,7 @@ class ChartCNMap extends BaseChart {
 
     $(this._$box)
       .find('.chart-body')
-      .height(H - (window.render_preview_chart ? 0 : 40))
+      .height(H - (window.render_preview_chart ? 0 : 20))
     this.__lastHW = [H, W]
   }
 
@@ -1792,51 +1854,180 @@ class EmbedFrame extends BaseChart {
   }
 }
 
+// ~~ 我的通知
+// @see notifications.js
+class MyNotification extends BaseChart {
+  renderChart(data, type = 1) {
+    const opComp = (
+      <div className="notification-op">
+        <div className="float-left">
+          <div className="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons">
+            <label className="btn btn-secondary active" onClick={() => this.renderChart(data, 1)}>
+              <input type="radio" name="__typeOfMyNotification" defaultChecked={type === 1} />
+              {$L('未读')} ({data.unread.length})
+            </label>
+            <label className="btn btn-secondary" onClick={() => this.renderChart(data, 2)}>
+              <input type="radio" name="__typeOfMyNotification" defaultChecked={type === 2} />
+              {$L('已读')} ({data.readed.length})
+            </label>
+          </div>
+        </div>
+        <div className="float-right">
+          <button
+            className="btn btn-sm btn-secondary"
+            type="button"
+            onClick={() => {
+              const that = this
+              RbAlert.create($L('确认已读全部通知？'), {
+                onConfirm: function () {
+                  this.hide()
+                  that.makeRead('ALL')
+                },
+              })
+            }}>
+            <i className="zmdi zmdi-check-all icon"></i> {$L('已读全部')}
+          </button>
+        </div>
+        <div className="clearfix"></div>
+      </div>
+    )
+
+    const dd = type === 1 ? data.unread : data.readed
+    const chartdata = (
+      <RF>
+        {opComp}
+        <div className="rb-notifications notification-list rb-scroller">
+          {dd.length === 0 ? (
+            <div className="chart-undata must-center" style={{ marginTop: -15 }}>
+              <i className="zmdi zmdi-notifications icon" /> {$L('暂无通知')}
+            </div>
+          ) : (
+            <ul className="list-unstyled m-0">{dd.map((item) => this.renderItem(item))}</ul>
+          )}
+          {dd.length >= 500 && (
+            <div className="m-2 text-center text-warning">
+              <i className="mdi mdi-information-outline" /> {$L('最多显示最近 500 条')}
+            </div>
+          )}
+        </div>
+      </RF>
+    )
+
+    this.setState({ chartdata: chartdata }, () => {
+      const $scroller = $(this._$box).find('.rb-scroller').perfectScrollbar('destroy')
+      $scroller.css('height', $(this._$body).height() - 34)
+      dd.length > 0 && $scroller.perfectScrollbar()
+    })
+  }
+
+  resize() {
+    $setTimeout(
+      () => {
+        const $scroller = $(this._$box).find('.rb-scroller').perfectScrollbar('destroy')
+        $scroller.css('height', $(this._$body).height() - 34)
+        $scroller.perfectScrollbar()
+      },
+      400,
+      `resize-chart-${this.state.id}`
+    )
+  }
+
+  renderItem(item) {
+    // const append = item[6] === 30
+    const append = item[5] && ~~item[5].substr(0, 3) !== 29 // 过滤审批步骤ID
+    let clazz = 'notification'
+    if (item[3]) clazz += ' notification-unread'
+    if (append) clazz += ' append'
+
+    return (
+      <li id={item[4]} className={clazz} key={item[4]} onClick={(e) => this.makeRead(item[4], e.currentTarget)}>
+        <span className="a">
+          <div className="image">
+            <img src={`${rb.baseUrl}/account/user-avatar/${item[0][0]}`} title={item[0][1]} alt="Avatar" />
+          </div>
+          <div className="notification-info">
+            <div className="text" dangerouslySetInnerHTML={{ __html: item[1] }} />
+            <div className="date">
+              <DateShow date={item[2]} />
+            </div>
+          </div>
+          {append && (
+            <a title={$L('查看记录')} className="badge link" href={`${rb.baseUrl}/app/redirect?id=${item[5]}&type=newtab`} target="_blank">
+              {$L('查看')}
+            </a>
+          )}
+          {item[3] && (
+            <a className="read-mark text-muted">
+              <i className="icon zmdi zmdi-check text-bold" /> {$L('设为已读')}
+            </a>
+          )}
+        </span>
+      </li>
+    )
+  }
+
+  makeRead(id, $el) {
+    $.post(`/notification/make-read?id=${id}`, () => {
+      if (id === 'ALL') {
+        RbHighbar.success($L('全部通知已设为已读'))
+        this.loadChartData()
+      } else {
+        $($el).removeClass('notification-unread')
+      }
+    })
+  }
+}
+
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
-const detectChart = function (cfg, id) {
+const detectChart = function (conf, id) {
   // isManageable = 图表可编辑
   // editable = 仪表盘可编辑
-  const props = { config: cfg, id: id, title: cfg.title, type: cfg.type, isManageable: cfg.isManageable, editable: cfg.editable }
+  const props = { config: conf, id: id, title: conf.title, type: conf.type, isManageable: conf.isManageable, editable: conf.editable }
+  console.log('conf', conf.extconfig)
 
-  if (cfg.type === 'INDEX') {
+  if (conf.type === 'INDEX') {
     return <ChartIndex {...props} />
-  } else if (cfg.type === 'TABLE') {
+  } else if (conf.type === 'TABLE') {
     return <ChartTable {...props} />
-  } else if (cfg.type === 'LINE') {
+  } else if (conf.type === 'LINE') {
     return <ChartLine {...props} />
-  } else if (cfg.type === 'BAR') {
+  } else if (conf.type === 'BAR') {
     return <ChartBar {...props} />
-  } else if (cfg.type === 'BAR2') {
+  } else if (conf.type === 'BAR2') {
     return <ChartBar2 {...props} />
-  } else if (cfg.type === 'BAR3') {
+  } else if (conf.type === 'BAR3') {
     return <ChartBar3 {...props} />
-  } else if (cfg.type === 'PIE') {
+  } else if (conf.type === 'PARETO') {
+    return <ChartPareto {...props} />
+  } else if (conf.type === 'PIE') {
     return <ChartPie {...props} />
-  } else if (cfg.type === 'FUNNEL') {
+  } else if (conf.type === 'FUNNEL') {
     return <ChartFunnel {...props} />
-  } else if (cfg.type === 'TREEMAP') {
+  } else if (conf.type === 'TREEMAP') {
     return <ChartTreemap {...props} />
-  } else if (cfg.type === 'ApprovalList') {
+  } else if (conf.type === 'ApprovalList') {
     return <ApprovalList {...props} builtin />
-  } else if (cfg.type === 'FeedsSchedule') {
+  } else if (conf.type === 'FeedsSchedule') {
     return <FeedsSchedule {...props} builtin />
-  } else if (cfg.type === 'RADAR') {
+  } else if (conf.type === 'RADAR') {
     return <ChartRadar {...props} />
-  } else if (cfg.type === 'SCATTER') {
+  } else if (conf.type === 'SCATTER') {
     return <ChartScatter {...props} />
-  } else if (cfg.type === 'ProjectTasks') {
+  } else if (conf.type === 'ProjectTasks') {
     return <ProjectTasks {...props} builtin />
-  } else if (cfg.type === 'DataList' || cfg.type === 'DATALIST2') {
+  } else if (conf.type === 'DataList' || conf.type === 'DATALIST2') {
     return <DataList {...props} builtin={false} />
-  } else if (cfg.type === 'CNMAP') {
+  } else if (conf.type === 'CNMAP') {
     return <ChartCNMap {...props} />
-  } else if (cfg.type === 'HeadingText') {
+  } else if (conf.type === 'HeadingText') {
     return <HeadingText {...props} builtin={false} />
-  } else if (cfg.type === 'EmbedFrame') {
+  } else if (conf.type === 'EmbedFrame') {
     return <EmbedFrame {...props} builtin={false} />
+  } else if (conf.type === 'MyNotification') {
+    return <MyNotification {...props} builtin />
   } else {
-    return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${cfg.type}]`}</h4>
+    return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${conf.type}]`}</h4>
   }
 }
 
@@ -1900,7 +2091,7 @@ class ChartSelect extends RbModalHandler {
                       </span>
                       {item.isManageable && !this.props.entity && (
                         <span className="float-right">
-                          <a className="delete danger-hover" onClick={() => this.deleteChart(item.id)}>
+                          <a className="delete danger-hover" onClick={() => this.deleteChart(item.id)} title={$L('删除')}>
                             <i className="zmdi zmdi-delete" />
                           </a>
                         </span>
@@ -1933,7 +2124,7 @@ class ChartSelect extends RbModalHandler {
 
   deleteChart(id) {
     const that = this
-    RbAlert.create($L('确认删除此图表？'), {
+    RbAlert.create(<b>{$L('确认删除此图表？')}</b>, {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {

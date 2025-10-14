@@ -32,6 +32,7 @@ import com.rebuild.core.service.dashboard.charts.ChartsFactory;
 import com.rebuild.core.service.dashboard.charts.builtin.DataList;
 import com.rebuild.core.service.dashboard.charts.builtin.EmbedFrame;
 import com.rebuild.core.service.dashboard.charts.builtin.HeadingText;
+import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
@@ -153,10 +154,10 @@ public class ChartDesignController extends EntityController {
                 type = "list";
             }
 
+            String L42 = (parent == null ? "" : (EasyMetaFactory.getLabel(parent) + ".")) + easyField.getLabel();
             dest.add(new String[]{
                     (parent == null ? "" : (parent.getName() + ".")) + easyField.getName(),
-                    (parent == null ? "" : (EasyMetaFactory.getLabel(parent) + ".")) + easyField.getLabel(),
-                    type});
+                    L42, type, QuickCodeReindexTask.generateQuickCode(L42)});
         }
     }
 

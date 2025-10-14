@@ -42,7 +42,7 @@ class DlgAssign extends RbModalHandler {
             <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('选择相关记录')}</label>
               <div className="col-sm-7">
-                <select className="form-control form-control-sm" ref={(c) => (this._$cascades = c)}>
+                <select className="form-control form-control-sm" ref={(c) => (this._$cascades = c)} multiple>
                   {(this.state.cascadesEntity || []).map((item) => {
                     if ($isSysMask(item[1])) return null
                     return (
@@ -90,8 +90,10 @@ class DlgAssign extends RbModalHandler {
 
         $(this._$cascades)
           .select2({
-            multiple: true,
             placeholder: $L('选择'),
+            language: {
+              noResults: () => $L('无'),
+            },
           })
           .val(defaultSelected)
           .trigger('change')
@@ -457,7 +459,7 @@ class DlgTransform extends RbModalHandler {
     }
   }
 
-  post(preview) {
+  post(preview, weakMode) {
     const props = this.props
     const _post = {
       transid: props.transid,
@@ -482,7 +484,10 @@ class DlgTransform extends RbModalHandler {
     }
 
     const $btn = $(this._$btn).find('.btn').button('loading')
-    $.post('/app/entity/extras/transform39', JSON.stringify(_post), (res) => {
+
+    let url = '/app/entity/extras/transform39'
+    if (weakMode) url += '?weakMode=' + weakMode
+    $.post(url, JSON.stringify(_post), (res) => {
       $btn.button('reset')
       if (res.error_code === 0) {
         this.reset()
@@ -522,6 +527,16 @@ class DlgTransform extends RbModalHandler {
             }
           }, 200)
         }
+      } else if (res.error_code === 497) {
+        // v4.2 弱校验
+        const that = this
+        const msg_id = res.error_msg.split('$$$$')
+        RbAlert.create(msg_id[0], {
+          onConfirm: function () {
+            this.hide()
+            that.post(preview, msg_id[1]) // 预览其实不会进入此逻辑
+          },
+        })
       } else {
         res.error_code === 400 ? RbHighbar.create(res.error_msg) : RbHighbar.error(res.error_msg)
       }

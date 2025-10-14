@@ -22,6 +22,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
@@ -184,7 +185,8 @@ public class FieldAggregation extends TriggerAction {
             Object evalValue = new AggregationEvaluator(item, sourceEntity, filterSql).eval();
             if (evalValue == null) continue;
 
-            DisplayType dt = EasyMetaFactory.getDisplayType(targetEntity.getField(targetField));
+            EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
+            DisplayType dt = targetFieldEasy.getDisplayType();
             if (dt == DisplayType.NUMBER) {
                 targetRecord.setLong(targetField, CommonsUtils.toLongHalfUp(evalValue));
 
@@ -228,7 +230,10 @@ public class FieldAggregation extends TriggerAction {
                 }
 
             } else {
-                log.warn("Unsupported file-type {} with {}", dt, targetRecordId);
+//                log.warn("Unsupported file-type {} with {}", dt, targetRecordId);
+                // v4.2
+                evalValue = FieldWriteback.checkoutFieldValue(evalValue, targetFieldEasy);
+                if (evalValue != null) targetRecord.setObjectValue(targetField, evalValue);
             }
         }
 

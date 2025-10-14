@@ -10,9 +10,11 @@ package com.rebuild.utils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
+import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.LanguageBundle;
@@ -21,6 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 封裝一些有用的工具方法
@@ -181,5 +185,50 @@ public class AppUtils {
     public static boolean isMobile(HttpServletRequest request) {
         String ua = request.getHeader("user-agent");
         return ua != null && (ua.contains("Mobile") || ua.contains("iPhone") || ua.contains("Android"));
+    }
+
+    /**
+     * 水印内容
+     *
+     * @param user
+     * @return
+     */
+    public static String getWatermarkText(ID user) {
+        String wt = RebuildConfiguration.get(ConfigurationItem.MarkWatermarkFormat);
+        if (StringUtils.isBlank(wt)) return null;
+
+        // 兼容中文变量
+        wt = wt.replace("{用户}", "{USER}");
+        wt = wt.replace("{姓名}", "{NAME}");
+        wt = wt.replace("{邮箱}", "{EMAIL}");
+        wt = wt.replace("{电话}", "{PHONE}");
+        wt = wt.replace("{系统}", "{SYS}");
+
+        List<String> t = new ArrayList<>();
+        User u = user == null ? null : Application.getUserStore().getUser(user);
+        for (String item : wt.split(" ")) {
+            // 用户ID
+            if (item.contains("{USER}")) {
+                item = item.replace("{USER}", u == null ? "" : ("***" + user.toLiteral().substring(7)));
+            }
+            // 姓名
+            if (item.contains("{NAME}")) {
+                item = item.replace("{NAME}", u == null ? "" : u.getFullName());
+            }
+            // 邮箱
+            if (item.contains("{EMAIL}")) {
+                item = item.replace("{EMAIL}", u == null ? "" : StringUtils.defaultIfBlank(u.getEmail(), ""));
+            }
+            // 电话
+            if (item.contains("{PHONE}")) {
+                item = item.replace("{PHONE}", u == null ? "" : StringUtils.defaultIfBlank(u.getWorkphone(), ""));
+            }
+            // 系统名称
+            if (item.contains("{SYS}")) {
+                item = item.replace("{SYS}", RebuildConfiguration.get(ConfigurationItem.AppName));
+            }
+            t.add(item);
+        }
+        return JSON.toJSONString(t);
     }
 }

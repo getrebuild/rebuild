@@ -42,10 +42,20 @@ public abstract class ObservableService extends SafeObservable implements Servic
      * @param aPMFactory
      */
     protected ObservableService(PersistManagerFactory aPMFactory) {
+        this(aPMFactory, true, true);
+    }
+
+    /**
+     * @param aPMFactory
+     * @param hasAttachmentAwareObserver
+     * @param hasRevisionHistoryObserver
+     */
+    protected ObservableService(PersistManagerFactory aPMFactory,
+                                boolean hasAttachmentAwareObserver, boolean hasRevisionHistoryObserver) {
         this.delegateService = new BaseService(aPMFactory){};
 
-        addObserver(new AttachmentAwareObserver());
-        addObserver(new RevisionHistoryObserver());
+        if (hasAttachmentAwareObserver) addObserver(new AttachmentAwareObserver());
+        if (hasRevisionHistoryObserver) addObserver(new RevisionHistoryObserver());
     }
 
     @Override

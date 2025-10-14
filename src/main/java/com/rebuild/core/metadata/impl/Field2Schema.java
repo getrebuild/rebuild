@@ -36,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.CharSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.text.MessageFormat;
 import java.util.Collection;
@@ -56,7 +57,7 @@ public class Field2Schema extends SetUser {
     protected static final int DDL_TIMEOUT = 60 * 15;
 
     // 小数位真实长度
-    private static final int DECIMAL_SCALE = 8;
+    protected static final int DECIMAL_SCALE = 8;
 
     final protected Set<ID> recordedMetaIds = new HashSet<>();
 
@@ -227,15 +228,22 @@ public class Field2Schema extends SetUser {
         }
         ddl.deleteCharAt(ddl.length() - 1);
 
+        String ddlSql = ddl.toString();
+        // 严格模式下不允许默认值为 0000-00-00 00:00:00
+        if (ddlSql.contains("'0000-00-00 00:00:00'")) {
+            ddlSql = ddlSql.replace("'0000-00-00 00:00:00'", "current_timestamp");
+            log.warn("Fix datetime default value :\n{}", ddlSql);
+        }
+
         try {
-            Application.getSqlExecutor().executeBatch(new String[]{ddl.toString()}, DDL_TIMEOUT);
+            Application.getSqlExecutor().executeBatch(new String[]{ddlSql}, DDL_TIMEOUT);
         } catch (Throwable ex) {
             // Duplicate column name: 'xxx'
             if (fields.length == 1
-                    && ThrowableUtils.getRootCause(ex).getLocalizedMessage().contains("Duplicate column")) {
+                    && ExceptionUtils.getRootCauseMessage(ex).contains("Duplicate column")) {
                 log.warn("Duplicate column exists? {}", ex.getLocalizedMessage());
             } else {
-                log.error("DDL ERROR : \n{}", ddl, ex);
+                log.error("DDL ERROR : \n{}", ddlSql, ex);
                 return false;
             }
         }

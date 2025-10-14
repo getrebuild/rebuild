@@ -8,14 +8,24 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 let dashid = null
 let dash_editable = false
+let on_resizestart = false
 
 let refresh_timeout = 0
 let refresh_timer = null
 
-let on_resizestart = false
 let rendered_charts = []
+const rendered_charts_reload = function () {
+  rendered_charts.forEach((c) => c.loadChartData())
+}
+
+window.dash_filter_user = null
+window.dash_filter_date = null
+window.dash_filter_custom = null
 
 $(document).ready(() => {
+  // v4.2 分享的
+  if (rb.shareKey) return
+
   const d = $urlp('d')
   if (d) $storage.set('DashDefault', d)
 
@@ -78,20 +88,18 @@ $(document).ready(() => {
     $('.J_chart-new').on('click', () => dlgShow('DlgAddChart'))
     $('.J_dash-select').on('click', () => dlgShow('DashSelect', { dashList: dash_list }))
 
-    $('.J_dash-refresh .dropdown-item').on('click', function () {
-      const $this = $(this)
-      $('.J_dash-refresh .btn span').text($this.text())
-      refresh_timeout = ~~$this.data('time')
+    const $refreshs = $('.J_dash-refresh .dropdown-item').on('click', function () {
+      $refreshs.removeClass('check')
+      const $a = $(this).addClass('check')
+      refresh_timeout = ~~$a.data('time')
+      $('.J_dash-refresh .btn span').text(refresh_timeout > 0 ? $a.text() : $L('自动刷新'))
 
       if (refresh_timer) {
         clearInterval(refresh_timer)
         refresh_timer = null
       }
-
       if (refresh_timeout > 0) {
-        refresh_timer = setInterval(() => {
-          rendered_charts.forEach((x) => x.loadChartData())
-        }, refresh_timeout * 1000)
+        refresh_timer = setInterval(rendered_charts_reload, refresh_timeout * 1000)
       }
     })
 
@@ -196,6 +204,53 @@ $(document).ready(() => {
       window.localStorage.setItem('LastRebuildVer', rb.ver)
     }
   }
+
+  const $filterUser = $('.J_dash-filter a[data-user]').on('click', function () {
+    $filterUser.removeClass('check')
+    let $a = $(this).addClass('check')
+    window.dash_filter_user = $a.data('user')
+    rendered_charts_reload()
+  })
+  const $filterDate = $('.J_dash-filter a[data-date]').on('click', function () {
+    $filterDate.removeClass('check')
+    let $a = $(this).addClass('check')
+    window.dash_filter_date = $a.data('date')
+    rendered_charts_reload()
+  })
+  let dash_Filter
+  const $filterCustom = $('.J_dash-filter a[data-custom]').on('click', function () {
+    if (dash_Filter) {
+      dash_Filter.show()
+    } else {
+      let hold = $storage.get('dash_filter_custom')
+      try {
+        if (hold) hold = JSON.parse(hold)
+      } catch (e) {
+        hold = null
+      }
+
+      renderRbcomp(
+        <AdvFilter
+          title={$L('仪表盘过滤条件')}
+          entity="SystemCommon"
+          filter={window.dash_filter_custom || hold || null}
+          onConfirm={(s) => {
+            if (s && s.items && s.items.length) $filterCustom.addClass('check')
+            else $filterCustom.removeClass('check')
+
+            window.dash_filter_custom = s
+            $storage.set('dash_filter_custom', JSON.stringify(s))
+            rendered_charts_reload()
+          }}
+          inModal
+          canNoFilters
+        />,
+        function () {
+          dash_Filter = this
+        }
+      )
+    }
+  })
 })
 
 // 全屏工具
@@ -299,14 +354,14 @@ const add_widget = function (item) {
   const chart_add = $('#chart-add')
   if (chart_add.length > 0) gridstack.removeWidget(chart_add.parent())
 
-  const hmm = item.type === 'HeadingText' ? [1, 24] : [2, 24] // 高度限制
+  const hwLimit = item.type === 'HeadingText' ? [1, 120] : [2, 120] // 宽高限制
   const gsi = `<div class="grid-stack-item ${item.bgcolor && 'bgcolor'}"><div id="${chid}" class="grid-stack-item-content" ${
     item.bgcolor ? `style="background-color:${item.bgcolor}` : ''
   }"></div></div>`
   if (item.size_x || item.size_y) {
-    gridstack.addWidget(gsi, (item.col || 1) - 1, (item.row || 1) - 1, item.size_x || 2, item.size_y || 2, true, 2, 12, hmm[0], hmm[1])
+    gridstack.addWidget(gsi, (item.col || 1) - 1, (item.row || 1) - 1, item.size_x || 2, item.size_y || 2, true, 2, 12, hwLimit[0], hwLimit[1])
   } else {
-    gridstack.addWidget(gsi, item.x, item.y, item.w, item.h, item.x === undefined, 2, 12, hmm[0], hmm[1])
+    gridstack.addWidget(gsi, item.x, item.y, item.w, item.h, item.x === undefined, 2, 12, hwLimit[0], hwLimit[1])
   }
 
   item.editable = dash_editable
@@ -355,7 +410,17 @@ class DlgAddChart extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('图表数据来源')}</label>
             <div className="col-sm-7">
-              <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)} />
+              <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)}>
+                {this.state._entities &&
+                  this.state._entities.map((item) => {
+                    if ($isSysMask(item.label)) return null
+                    return (
+                      <option key={item.name} value={item.name}>
+                        {item.label}
+                      </option>
+                    )
+                  })}
+              </select>
             </div>
           </div>
           <div className="form-group row footer">
@@ -375,16 +440,11 @@ class DlgAddChart extends RbFormHandler {
 
   componentDidMount() {
     $.get('/commons/metadata/entities?detail=true', (res) => {
-      const _data = res.data || []
-      _data.forEach((item) => {
-        if (!$isSysMask(item.label)) {
-          $(`<option value="${item.name}">${item.label}</option>`).appendTo(this._$entity)
-        }
-      })
-
-      this.__select2 = $(this._$entity).select2({
-        allowClear: false,
-        placeholder: $L('选择数据来源'),
+      this.setState({ _entities: res.data || [] }, () => {
+        this.__select2 = $(this._$entity).select2({
+          allowClear: false,
+          placeholder: $L('选择数据来源'),
+        })
       })
     })
   }
@@ -431,6 +491,18 @@ class DlgDashSettings extends RbFormHandler {
               <button className="btn btn-danger btn-outline ml-2" type="button" onClick={() => this.delete()}>
                 <i className="zmdi zmdi-delete icon" /> {$L('删除')}
               </button>
+              {rb.isAdminUser && (
+                <button
+                  className="btn btn-light w-auto bosskey-show ml-2"
+                  type="button"
+                  title={$L('分享') + ' (LAB)'}
+                  onClick={() => {
+                    // eslint-disable-next-line react/jsx-no-undef
+                    renderRbcomp(<FileShare file={this.props.dashid} />)
+                  }}>
+                  <i className="icon zmdi zmdi-share"></i>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -462,7 +534,7 @@ class DlgDashSettings extends RbFormHandler {
   }
 
   delete() {
-    RbAlert.create($L('确认删除此仪表盘？'), {
+    RbAlert.create(<b>{$L('确认删除此仪表盘？')}</b>, {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {

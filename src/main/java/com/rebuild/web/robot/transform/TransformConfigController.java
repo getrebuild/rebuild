@@ -137,7 +137,7 @@ public class TransformConfigController extends BaseController {
         List<String[]> allowedSourceFields = new ArrayList<>();
         for (Field field : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
             String type = "REFERENCE:" + field.getReferenceEntity().getName();
-            allowedSourceFields.add(new String[]{ field.getName(), EasyMetaFactory.getLabel(field), type });
+            allowedSourceFields.add(new String[]{field.getName(), EasyMetaFactory.getLabel(field), type});
         }
         if (sourceEntityMain != null) {
             Field dtmfField = MetadataHelper.getDetailToMainField(sourceEntity);
@@ -147,7 +147,7 @@ public class TransformConfigController extends BaseController {
             for (Field field : MetadataSorter.sortFields(sourceEntityMain, DisplayType.REFERENCE)) {
                 String type = "REFERENCE:" + field.getReferenceEntity().getName();
                 allowedSourceFields.add(new String[]{
-                        namePrefix + field.getName(), labelPrefix + EasyMetaFactory.getLabel(field), type });
+                        namePrefix + field.getName(), labelPrefix + EasyMetaFactory.getLabel(field), type});
             }
         }
 
@@ -162,20 +162,20 @@ public class TransformConfigController extends BaseController {
             if (MetadataHelper.isCommonsField(field)) continue;
 
             String type = "REFERENCE:" + field.getReferenceEntity().getName();
-            allowedTargetFields.add(new String[]{ namePrefix + field.getName(),
-                    labelPrefix + EasyMetaFactory.getLabel(field), type });
+            allowedTargetFields.add(new String[]{namePrefix + field.getName(),
+                    labelPrefix + EasyMetaFactory.getLabel(field), type});
         }
 
         JSON res = JSONUtils.toJSONObject(
-                new String[] { "sourceFields", "targetFields" },
-                new Object[] { allowedSourceFields, allowedTargetFields });
+                new String[]{"sourceFields", "targetFields"},
+                new Object[]{allowedSourceFields, allowedTargetFields});
         return RespBody.ok(res);
     }
 
     private JSONObject buildEntity(Entity entity, boolean sourceType) {
         JSONObject entityData = JSONUtils.toJSONObject(
-                new String[] { "entity", "label" },
-                new Object[] { entity.getName(), EasyMetaFactory.getLabel(entity) });
+                new String[]{"entity", "label"},
+                new Object[]{entity.getName(), EasyMetaFactory.getLabel(entity)});
 
         JSONArray fields;
         // 源
@@ -196,7 +196,8 @@ public class TransformConfigController extends BaseController {
         else {
             fields = MetaFormatter.buildFieldsWithRefs(entity, 1, true, field -> {
                 EasyField easyField = (EasyField) field;
-                return easyField.getDisplayType() == DisplayType.BARCODE
+                return !easyField.getRawMeta().isQueryable()
+                        || easyField.getDisplayType() == DisplayType.BARCODE
                         || easyField.getDisplayType() == DisplayType.SERIES
                         || MetadataHelper.isCommonsField(easyField.getRawMeta());
             });

@@ -38,6 +38,7 @@ import com.rebuild.core.service.trigger.DataValidateException;
 import com.rebuild.core.support.RbvFunction;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -85,11 +86,28 @@ public class ApprovalController extends BaseController {
         return res;
     }
 
+    @GetMapping("alist")
+    public RespBody getApprovalList(HttpServletRequest request, @EntityParam Entity entity) {
+        boolean valid = getBoolParameter(request, "valid");
+
+        FlowDefinition[] defs = RobotApprovalManager.instance.getFlowDefinitions(entity);
+        List<Object> res = new ArrayList<>();
+        for (FlowDefinition d : defs) {
+            if (d.isDisabled()) continue;
+            // 仅返回可用的
+            if (valid && !d.isWorkable()) continue;
+
+            res.add(JSONUtils.toJSONObject(new String[]{"id", "text"},
+                    new Object[]{d.getID("id"), d.getString("name")}));
+        }
+        return RespBody.ok(res);
+    }
+
     @GetMapping("state")
     public RespBody getApprovalState(HttpServletRequest request, @IdParam(name = "record") ID recordId) {
         final Entity approvalEntity = MetadataHelper.getEntity(recordId.getEntityCode());
         if (!MetadataHelper.hasApprovalField(approvalEntity)) {
-            return RespBody.error("NOT AN APPROVAL ENTITY");
+            return RespBody.error("NONE APPROVAL ENTITY");
         }
 
         final ID user = getRequestUser(request);
@@ -102,21 +120,27 @@ public class ApprovalController extends BaseController {
         data.put("state", stateVal);
 
         ID useApproval = status.getApprovalId();
+        ApprovalProcessor approvalProcessor = null;
         if (useApproval != null) {
             data.put("approvalId", useApproval);
             // 审批中
             if (stateVal < ApprovalState.APPROVED.getState()) {
-                JSONArray current = new ApprovalProcessor(recordId, useApproval).getCurrentStep(status);
+                approvalProcessor = new ApprovalProcessor(recordId, useApproval);
+                JSONArray current = approvalProcessor.getCurrentStep(status);
                 data.put("currentStep", current);
 
                 for (Object o : current) {
                     JSONObject step = (JSONObject) o;
                     if (user.toLiteral().equalsIgnoreCase(step.getString("approver"))) {
                         data.put("imApprover", true);
-                        data.put("imApproveSatate", step.getInteger("state"));
+                        data.put("imApproveState", step.getInteger("state"));
                         break;
                     }
                 }
+
+                // v4.2 超时时间
+                FlowNode currentFlowNode = approvalProcessor.getCurrentNode();
+                data.put("expiresTime", currentFlowNode.getExpiresTime(recordId, user));
             }
 
             // 审批中提交人可撤回/催审
@@ -139,7 +163,8 @@ public class ApprovalController extends BaseController {
                 }
 
                 // v3.8 自己审批的自己可以取消（退回）
-                Set<ID> us = new ApprovalProcessor(recordId, useApproval).getPrevApprovedUsers();
+                if (approvalProcessor == null) approvalProcessor = new ApprovalProcessor(recordId, useApproval);
+                Set<ID> us = approvalProcessor.getPrevApprovedUsers();
                 if (us.contains(user)) data.put("canCancel38", true);
             }
 
@@ -189,10 +214,14 @@ public class ApprovalController extends BaseController {
         if (reqType < 2) data.put("remarkReq", reqType);
         else data.put("remarkReq", expTime == null || expTime < 0 ? 0 : 1);
 
-        // 可修改字段
-        JSONArray editableFields = currentFlowNode.getEditableFields();
-        if (editableFields != null && !editableFields.isEmpty()) {
-            data.putAll(new EditableFields(editableFields).buildForms(recordId, user));
+        // 可修改记录
+        int editableMode = currentFlowNode.getEditableMode();
+        data.put("editableMode", editableMode);
+        if (editableMode == FlowNode.EDITABLE_MODE_FIELDS) {
+            JSONArray editableFields = currentFlowNode.getEditableFields();
+            if (!CollectionUtils.isEmpty(editableFields)) {
+                data.putAll(new EditableFields(editableFields).buildForms(recordId, user));
+            }
         }
 
         return data;
@@ -237,6 +266,7 @@ public class ApprovalController extends BaseController {
         JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
         JSONObject selectUsers = post.getJSONObject("selectUsers");
         String remark = post.getString("remark");
+        String remarkAttachments = post.getString("remarkAttachments");
         String useGroup = post.getString("useGroup");
 
         // 可编辑字段
@@ -272,7 +302,7 @@ public class ApprovalController extends BaseController {
 
         try {
             new ApprovalProcessor(recordId).approve(
-                    approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers, addedRecord, useGroup, rejectNode, false);
+                    approver, (ApprovalState) ApprovalState.valueOf(state), new Object[]{remark, remarkAttachments}, selectUsers, addedRecord, useGroup, rejectNode, false);
             return RespBody.ok();
 
         } catch (DataSpecificationNoRollbackException ex) {

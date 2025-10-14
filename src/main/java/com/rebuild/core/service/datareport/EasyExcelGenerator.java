@@ -40,7 +40,7 @@ import com.rebuild.core.support.general.BarCodeSupport;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
-import com.rebuild.utils.ImageView2;
+import com.rebuild.utils.img.ImageView2;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
@@ -441,7 +441,7 @@ public class EasyExcelGenerator extends SetUser {
             for (Object path : paths) {
                 File temp;
                 try {
-                    temp = QiniuCloud.getStorageFile((String) path);
+                    temp = QiniuCloud.downloadFile((String) path);
                 } catch (RebuildException ex) {
                     log.warn(ex.getMessage());
                     continue;
@@ -466,6 +466,7 @@ public class EasyExcelGenerator extends SetUser {
 
     private byte[] buildBarcodeData(Field barcodeField, ID recordId) {
         BufferedImage bi = BarCodeSupport.getBarCodeImage(barcodeField, recordId);
+        if (bi == null) return null;
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             ImageIO.write(bi, "png", baos);

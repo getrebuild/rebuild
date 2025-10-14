@@ -111,7 +111,6 @@ public class ClassificationService extends BaseConfigurationService implements A
         }
 
         String fullName = record.getString("name");
-        String quickCode = QuickCodeReindexTask.generateQuickCode(fullName);
         ID parent = record.getID("parent");
         if (parent == null && record.getPrimary() != null) {
             Object[] o = Application.createQueryNoFilter(
@@ -125,7 +124,7 @@ public class ClassificationService extends BaseConfigurationService implements A
             fullName = ClassificationManager.instance.getFullName(parent) + "." + fullName;
         }
         record.setString("fullName", fullName);
-        record.setString("quickCode", quickCode);
+        record.setString("quickCode", QuickCodeReindexTask.generateQuickCode(fullName));
         return true;
     }
 

@@ -86,22 +86,28 @@ const FolderTree = {
   },
 
   handleDelete: function (item) {
-    RbAlert.create($L('如果目录内有文件或子目录则不允许删除。确认删除吗？'), {
-      type: 'danger',
-      confirmText: $L('删除'),
-      confirm: function () {
-        this.disabled(true)
-        $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
-          if (res.error_code === 0) {
-            this.hide()
-            FolderTree.load()
-          } else {
-            RbHighbar.error(res.error_msg)
-            this.disabled()
-          }
-        })
-      },
-    })
+    RbAlert.create(
+      <RF>
+        <b>{$L('确认删除此目录？')} </b>
+        <div>{$L('如果目录内有文件或子目录则不允许删除')}</div>
+      </RF>,
+      {
+        type: 'danger',
+        confirmText: $L('删除'),
+        confirm: function () {
+          this.disabled(true)
+          $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
+            if (res.error_code === 0) {
+              this.hide()
+              FolderTree.load()
+            } else {
+              RbHighbar.error(res.error_msg)
+              this.disabled()
+            }
+          })
+        },
+      }
+    )
   },
 
   _findPaths: function (active, into) {
@@ -176,7 +182,7 @@ class FolderEditDlg extends RbFormHandler {
               <div className={`mt-1 mb-2 ${this.state.scope !== 'SPEC' && 'hide'}`}>
                 <UserSelector ref={(c) => (this._UserSelector = c)} defaultValue={this.state.specUsers} />
               </div>
-              <div className="form-text mb-1">{$L('目录可见范围将影响子目录以及目录内的文件')}</div>
+              <div className="form-text mt-0 mb-1">{$L('目录可见范围将影响子目录以及目录内的文件')}</div>
             </div>
           </div>
           <div className="form-group row pt-1">
@@ -197,6 +203,18 @@ class FolderEditDlg extends RbFormHandler {
               <a className="btn btn-link" onClick={this.hide}>
                 {$L('取消')}
               </a>
+              {this.props.id && rb.isAdminUser && (
+                <button
+                  className="btn btn-light w-auto bosskey-show"
+                  type="button"
+                  title={$L('分享') + ' (LAB)'}
+                  onClick={() => {
+                    // eslint-disable-next-line react/jsx-no-undef
+                    renderRbcomp(<FileShare file={this.props.id} />)
+                  }}>
+                  <i className="icon zmdi zmdi-share"></i>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -417,58 +435,6 @@ class FileMoveDlg extends RbFormHandler {
   }
 }
 
-// ~ 修改
-class FileEditDlg extends RbFormHandler {
-  state = { ...this.props }
-
-  render() {
-    const file = this.props.file
-    return (
-      <RbModal title={$L('修改文件')} ref={(c) => (this._dlg = c)} disposeOnHide>
-        <div className="form">
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('文件名称')}</label>
-            <div className="col-sm-7">
-              <input className="form-control form-control-sm" defaultValue={file.fileName} ref={(c) => (this._$fileName = c)} />
-              <p className="form-text bosskey-show">
-                <a href={`${rb.baseUrl}/commons/file-editor?src=${file.id}`} target="_blank">
-                  {$L('在线编辑')} (LAB)
-                </a>
-              </p>
-            </div>
-          </div>
-          <div className="form-group row footer">
-            <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
-              <button className="btn btn-primary" type="button" onClick={this._post}>
-                {$L('确定')}
-              </button>
-              <a className="btn btn-link" onClick={this.hide}>
-                {$L('取消')}
-              </a>
-            </div>
-          </div>
-        </div>
-      </RbModal>
-    )
-  }
-
-  _post = () => {
-    const newName = $val(this._$fileName)
-    if (!newName) return
-
-    this.disabled(true)
-    $.post(`/files/file-edit?newName=${$encode(newName)}&id=${this.props.file.id}`, (res) => {
-      if (res.error_code === 0) {
-        this.hide()
-        filesList && filesList.loadData()
-      } else {
-        RbHighbar.error(res.error_msg)
-        this.disabled()
-      }
-    })
-  }
-}
-
 // eslint-disable-next-line no-undef
 class FilesList4Docs extends FilesList {
   constructor(props) {
@@ -481,14 +447,14 @@ class FilesList4Docs extends FilesList {
       <div className="info position-relative">
         <span className="fop-action">
           <a title={$L('修改')} onClick={(e) => this._handleEdit(item, e)}>
-            <i className="icon zmdi zmdi-edit up-1" />
+            <i className="icon mdi mdi-square-edit-outline" />
           </a>
           <a title={$L('下载')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/files/download?id=${item.id}`} target="_blank">
-            <i className="icon zmdi zmdi-download fs-17" />
+            <i className="icon zmdi zmdi-download" />
           </a>
           {rb.fileSharable && (
             <a title={$L('分享')} onClick={(e) => this._handleShare(item, e)}>
-              <i className="icon zmdi zmdi-share up-1" />
+              <i className="icon zmdi zmdi-share fs-16 up-1" />
             </a>
           )}
         </span>
@@ -497,8 +463,26 @@ class FilesList4Docs extends FilesList {
   }
 
   _handleEdit(item, e) {
-    $stopEvent(e)
-    renderRbcomp(<FileEditDlg file={item} />)
+    $stopEvent(e, true)
+    renderRbcomp(
+      <FileRename
+        fileId={item.id}
+        fileKey={item.fileName}
+        onConfirm={(newName, dlg) => {
+          if (!newName || !dlg) return
+          dlg.disabled(true)
+          $.post(`/files/file-edit?newName=${$encode(newName)}&id=${item.id}`, (res) => {
+            if (res.error_code === 0) {
+              dlg.hide()
+              filesList && filesList.loadData()
+            } else {
+              RbHighbar.error(res.error_msg)
+              dlg.disabled()
+            }
+          })
+        }}
+      />
+    )
   }
 
   _handleShare(item, e) {
@@ -521,7 +505,7 @@ $(document).ready(() => {
   $('.J_delete').on('click', () => {
     const s = filesList.getSelected()
     if (!s) return
-    RbAlert.create($L('确认删除选中的文件？'), {
+    RbAlert.create(<b>{$L('确认删除选中的 %d 个文件？', s.length)}</b>, {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {

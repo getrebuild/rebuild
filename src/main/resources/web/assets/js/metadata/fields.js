@@ -53,6 +53,9 @@ const renderList = function () {
     } else if (!item.nullable) {
       $tr.addClass('danger')
     }
+    // 优先标记不可重复字段
+    if (!item.repeatable && item.displayTypeName !== 'SERIES') $tr.addClass('warning')
+
     $(`<td><div class="text-muted">${item.fieldName}</div></td>`).appendTo($tr)
     let type = item.displayType
     if (item.displayTypeRef) type += ` (${item.displayTypeRef[1]})`

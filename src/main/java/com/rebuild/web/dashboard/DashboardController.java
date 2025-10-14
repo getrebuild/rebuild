@@ -58,9 +58,9 @@ public class DashboardController extends BaseController {
     }
 
     @GetMapping("/dash-gets")
-    public JSON dashGets(HttpServletRequest request) {
-        final ID user = getRequestUser(request);
-        return DashboardManager.instance.getAvailable(user);
+    public RespBody dashGets(HttpServletRequest request) {
+        JSON res = DashboardManager.instance.getAvailable(getRequestUser(request));
+        return RespBody.ok(res);
     }
 
     @PostMapping("/dash-new")

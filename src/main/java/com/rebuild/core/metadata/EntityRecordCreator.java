@@ -22,10 +22,12 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.EasyText;
+import com.rebuild.core.metadata.easymeta.PatternValue;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.service.DataSpecificationException;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -74,8 +76,9 @@ public class EntityRecordCreator extends JsonRecordCreator {
     @Override
     public boolean setFieldValue(Field field, String value, Record record) {
         final Type fieldType = field.getType();
+
         // v4.0 处理 CURRENT 变量
-        if ("{@CURRENT}".equals(value) || "{CURRENT}".equals(value)) {
+        if (FieldValueHelper.CURRENT.equals(value) || "{@CURRENT}".equals(value)) {
             if (fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP || fieldType == FieldType.TIME) {
                 value = CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
             } else {
@@ -91,14 +94,37 @@ public class EntityRecordCreator extends JsonRecordCreator {
             }
         }
 
-        // v4.1 处理中文日期
-        if ((fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP) && value != null && value.contains("年")) {
-            if (value.contains("日")) {
-                value = value.replace("年", "-").replace("月", "-").replace("日", "");
-            } else if (value.contains("月")) {
-                value = value.replace("年", "-").replace("月", "");
-            } else {
-                value = value.replace("年", "");
+        // v4.1, v4.2 处理为标准日期格式
+        if ((fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP) && value != null) {
+            // eg. 2025年09月25日 (周四) 00:55:00
+            if (value.contains("(") && value.contains(")")) {
+                value = value.replaceAll("\\([^)]*\\)", "").replaceAll("\\s+", " ");
+            }
+
+            // eg. 2025年09月25日 00:55:00
+            if (value.contains("年")) {
+                if (value.contains("日")) {
+                    value = value.replace("年", "-").replace("月", "-").replace("日", "");
+                } else if (value.contains("月")) {
+                    value = value.replace("年", "-").replace("月", "");
+                } else {
+                    value = value.replace("年", "");
+                }
+            } else if (value.contains("/")) {
+                // eg. 2025/09/19
+                value = value.replace("/", "-");
+            }
+        }
+
+        // v4.2 验证格式
+        if (value != null) {
+            EasyField easyField = EasyMetaFactory.valueOf(field);
+            if (easyField instanceof PatternValue) {
+                boolean s = ((PatternValue) easyField).checkPattern(value);
+                if (!s) {
+                    log.warn("Value `{}` cannot be set : {}", value, field);
+                    value = null;
+                }
             }
         }
 

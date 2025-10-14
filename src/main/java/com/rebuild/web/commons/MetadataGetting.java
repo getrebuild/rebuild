@@ -10,10 +10,12 @@ package com.rebuild.web.commons;
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -22,6 +24,9 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesManager;
+import com.rebuild.core.service.general.QuickCodeReindexTask;
+import com.rebuild.core.service.trigger.TriggerAction;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.general.MetaFormatter;
@@ -58,7 +63,9 @@ public class MetadataGetting extends BaseController {
         for (Entity e : MetadataSorter.sortEntities(usesNopriv ? null : user, usesBizz, usesDetail)) {
             JSONObject item = (JSONObject) EasyMetaFactory.valueOf(e).toJSON();
             item.put("name", item.getString("entity"));
-            item.put("label", item.getString("entityLabel"));
+            String L42 = item.getString("entityLabel");
+            item.put("label", L42);
+            item.put("quickCode", QuickCodeReindexTask.generateQuickCode(L42));
             res.add(item);
         }
         return res;
@@ -66,16 +73,44 @@ public class MetadataGetting extends BaseController {
 
     @GetMapping("fields")
     public JSON fields(HttpServletRequest request) {
-        Entity entity = MetadataHelper.getEntity(getParameterNotNull(request, "entity"));
+        String entityName = getParameter(request, "entity");
+        // v4.2 公共字段
+        if ("SystemCommon".equalsIgnoreCase(entityName)) {
+            Entity dept = MetadataHelper.getEntity("Department");
+            JSONArray common = new JSONArray();
+            common.add(EasyMetaFactory.valueOf(dept.getField(EntityHelper.CreatedBy)).toJSON());
+            common.add(EasyMetaFactory.valueOf(dept.getField(EntityHelper.CreatedOn)).toJSON());
+            common.add(EasyMetaFactory.valueOf(dept.getField(EntityHelper.ModifiedBy)).toJSON());
+            common.add(EasyMetaFactory.valueOf(dept.getField(EntityHelper.ModifiedOn)).toJSON());
+
+            JSON owningUser = EasyMetaFactory.valueOf(dept.getField("principalId")).toJSON();
+            JSON owningDept = EasyMetaFactory.valueOf(dept.getField("parentDept")).toJSON();
+            ((JSONObject) owningUser).put("name", "owningUser");
+            ((JSONObject) owningUser).put("label", Language.L("所属用户"));
+            ((JSONObject) owningDept).put("name", "owningDept");
+            ((JSONObject) owningDept).put("label", Language.L("所属部门"));
+            common.add(owningUser);
+            common.add(owningDept);
+
+            for (Object o : common) {
+                JSONObject item = (JSONObject) o;
+                item.put("quickCode", QuickCodeReindexTask.generateQuickCode(item.getString("label")));
+            }
+            return common;
+        }
+
+        final Entity entity = MetadataHelper.getEntity(entityName);
         // 返回引用实体的字段层级
         int appendRefFields = getIntParameter(request, "deep");
+        // 丰富字段信息
+        boolean riching = getBoolParameter(request, "riching", true);
 
         // 根据不同的 referer 返回不同的字段列表
         // 返回 ID 主键字段
         String referer = getParameter(request, "referer");
         int forceWith = "withid".equals(referer) ? 1 : 0;
 
-        return MetaFormatter.buildFieldsWithRefs(entity, appendRefFields, true, forceWith, field -> {
+        return MetaFormatter.buildFieldsWithRefs(entity, appendRefFields, riching, forceWith, field -> {
             if (!field.isQueryable()) return true;
 
             if (field instanceof Field) {
@@ -160,5 +195,48 @@ public class MetadataGetting extends BaseController {
             }
         }
         return res;
+    }
+
+    // 关联项（包括相关项和引用项）
+    @GetMapping("relateds")
+    public RespBody getEntityRelateds(@EntityParam Entity entity) {
+        // 相关项
+        List<Object[]> relateds = new ArrayList<>();
+        for (Field to : entity.getReferenceToFields(Boolean.FALSE, Boolean.TRUE)) {
+            Entity oe = to.getOwnEntity();
+            // 排除系统实体
+            if (!MetadataHelper.isBusinessEntity(oe)) continue;
+            // 排除明细
+            if (oe.getMainEntity() != null && oe.getMainEntity().equals(entity)) continue;
+
+            String entityLabel = String.format("%s (%s)",
+                    EasyMetaFactory.getLabel(oe), EasyMetaFactory.getLabel(to));
+            relateds.add(new Object[]{to.getName() + "." + oe.getName(), entityLabel, oe.getMainEntity() != null});
+        }
+
+        // 引用项
+        List<Object[]> refs = new ArrayList<>();
+        for (Field from : MetadataSorter.sortFields(entity,
+                DisplayType.REFERENCE, DisplayType.N2NREFERENCE, DisplayType.ANYREFERENCE)) {
+            Entity re = from.getReferenceEntity();
+            boolean isAny = from.getType() == FieldType.ANY_REFERENCE;
+            // 排除系统实体和任意引用
+            if (!(MetadataHelper.isBusinessEntity(re) || isAny)) continue;
+
+            String entityLabel = String.format("%s (%s)",
+                    isAny ? "" : EasyMetaFactory.getLabel(re), EasyMetaFactory.getLabel(from));
+            refs.add(new Object[]{from.getName(), entityLabel, re.getMainEntity() != null});
+        }
+
+        MetadataSorter.sortEntities(refs, null);
+        MetadataSorter.sortEntities(relateds, null);
+
+        JSONObject res = new JSONObject();
+        res.put("relateds", relateds);
+        res.put("refs", refs);
+        res.put("self", new Object[]{
+                TriggerAction.SOURCE_SELF, EasyMetaFactory.getLabel(entity), entity.getMainEntity() != null});
+
+        return RespBody.ok(res);
     }
 }

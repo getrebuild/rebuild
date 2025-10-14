@@ -10,7 +10,7 @@ package com.rebuild.core.service.notification;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.utils.MarkdownUtils;
+import com.rebuild.utils.md.MarkdownUtils;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
@@ -57,7 +57,7 @@ public class Message {
      * @param type
      * @param relatedRecord
      */
-    public Message(ID fromUser, ID toUser, String message, int type, ID relatedRecord) {
+    protected Message(ID fromUser, ID toUser, String message, int type, ID relatedRecord) {
         this.fromUser = fromUser == null ? UserService.SYSTEM_USER : fromUser;
         this.toUser = toUser;
         this.message = message;

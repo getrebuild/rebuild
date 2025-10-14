@@ -20,9 +20,9 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
-import com.rebuild.utils.ImageView2;
 import com.rebuild.utils.OkHttpUtils;
 import com.rebuild.utils.RbAssert;
+import com.rebuild.utils.img.ImageView2;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -55,7 +55,7 @@ public class FileDownloader extends BaseController {
 
     @GetMapping("img/**")
     public void viewImg(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        RbAssert.isAllow(checkUser(request), "Unauthorized access");
+        RbAssert.isAllow(checkUser(request) != null, "Unauthorized access");
 
         String filepath = request.getRequestURI();
         filepath = filepath.split("/filex/img/")[1];
@@ -147,7 +147,7 @@ public class FileDownloader extends BaseController {
 
             filepath = filepath.split("/filex/access/")[1];
         } else {
-            RbAssert.isAllow(checkUser(request), "Unauthorized access");
+            RbAssert.isAllow(checkUser(request) != null, "Unauthorized access");
             filepath = filepath.split("/filex/download/")[1];
         }
 
@@ -206,7 +206,7 @@ public class FileDownloader extends BaseController {
             return;
         }
 
-        RbAssert.isAllow(checkUser(request), "Unauthorized access");
+        RbAssert.isAllow(checkUser(request) != null, "Unauthorized access");
 
         String text;
         if (QiniuCloud.instance().available()) {
@@ -243,7 +243,7 @@ public class FileDownloader extends BaseController {
      * @param request
      * @return
      */
-    protected static boolean checkUser(HttpServletRequest request) {
+    protected static ID checkUser(HttpServletRequest request) {
         // 1.session
         ID user = AppUtils.getRequestUser(request);
 
@@ -272,7 +272,7 @@ public class FileDownloader extends BaseController {
             user = NumberUtils.isNumber(unsafe) ? UserService.SYSTEM_USER : null;
         }
 
-        return user != null;
+        return user;
     }
 
     // @see FileShareController#makePublicUrl

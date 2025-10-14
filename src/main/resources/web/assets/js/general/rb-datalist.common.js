@@ -43,8 +43,7 @@ const AdvFilters = {
       ) {
         return
       }
-
-      if (this.__customAdv) {
+      if (this.__customAdv && !this.__$customAdvWrap.hasClass('hide')) {
         this.__$customAdvWrap.addClass('hide')
       }
     })
@@ -92,7 +91,7 @@ const AdvFilters = {
           })
 
           $action.find('a:eq(1)').on('click', function () {
-            RbAlert.create($L('确认删除此高级查询？'), {
+            RbAlert.create(<b>{$L('确认删除此高级查询？')}</b>, {
               type: 'danger',
               confirmText: $L('删除'),
               confirm: function () {
@@ -307,6 +306,7 @@ class BatchOperator extends RbFormHandler {
           return
         }
 
+        this.disabled(true)
         $.post(`/commons/task/cancel?taskid=${that._taskid}`, (res) => {
           if (res.error_code !== 0) {
             RbHighbar.error(res.error_msg)
@@ -389,6 +389,11 @@ class DataExport extends BatchOperator {
 
 // ~ 批量修改
 
+let BatchUpdate__taskid
+window.onbeforeunload = function () {
+  if (BatchUpdate__taskid) return 'SHOW-CLOSE-CONFIRM'
+}
+
 // eslint-disable-next-line no-unused-vars
 class BatchUpdate extends BatchOperator {
   constructor(props) {
@@ -419,7 +424,7 @@ class BatchUpdate extends BatchOperator {
                       <span className="badge badge-warning">{field.label}</span>
                     </div>
                     <div className="col-2 pl-0 pr-0">
-                      <span className="badge badge-warning">{BUE_OPTYPES[item.op]}</span>
+                      <span className="badge badge-warning">{BU_OPS[item.op]}</span>
                     </div>
                     <div className="col-6">
                       {item.op !== 'NULL' && <span className="badge badge-warning text-break text-left">{FieldValueSet.formatFieldText(item.value, field)}</span>}
@@ -433,7 +438,7 @@ class BatchUpdate extends BatchOperator {
             })}
           </div>
           <div className="batch-editor">
-            {this.state.fields && <BatchUpdateEditor ref={(c) => (this._editor = c)} fields={this.state.fields} entity={this.props.entity} />}
+            {this.state.fields && <BatchUpdateEntry ref={(c) => (this._buEntry = c)} fields={this.state.fields} entity={this.props.entity} />}
             <div className="mt-1">
               <button className="btn btn-primary btn-sm btn-outline" onClick={() => this.addItem()} type="button">
                 + {$L('添加')}
@@ -446,7 +451,7 @@ class BatchUpdate extends BatchOperator {
   }
 
   addItem() {
-    const item = this._editor.buildItem()
+    const item = this._buEntry.buildItem()
     if (!item) return
 
     const contents = this.state.updateContents || []
@@ -506,6 +511,7 @@ class BatchUpdate extends BatchOperator {
   }
 
   _checkState(taskid, mp) {
+    BatchUpdate__taskid = taskid
     $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.hasError) {
@@ -516,6 +522,7 @@ class BatchUpdate extends BatchOperator {
 
         const cp = res.data.progress
         if (res.data.isCompleted) {
+          BatchUpdate__taskid = null
           mp && mp.end()
           $(this._btns)
             .find('.btn-primary')
@@ -527,7 +534,7 @@ class BatchUpdate extends BatchOperator {
           setTimeout(() => {
             this.disabled(false)
             this.hide()
-          }, 2000)
+          }, 3000)
         } else {
           mp && mp.set(cp)
           setTimeout(() => this._checkState(taskid, mp), 1500)
@@ -537,19 +544,22 @@ class BatchUpdate extends BatchOperator {
   }
 }
 
-// ~ 批量修改编辑器
-
-const BUE_OPTYPES = {
+const BU_OPS = {
   SET: $L('修改为'),
   NULL: $L('置空'),
   // TODO 支持更多修改模式
+  // 250813 也可以触发器修改
   // PREFIX: $L('前添加'),
   // SUFFIX: $L('后添加'),
+  // REPLACE: $L('替换'),
   // PLUS: $L('加上'),
   // MINUS: $L('减去'),
+  // MULTIPLY: $L('乘以'),
+  // DIVIDE: $L('除以'),
 }
 
-class BatchUpdateEditor extends React.Component {
+// 批量修改编辑器
+class BatchUpdateEntry extends React.Component {
   state = { ...this.props, selectOp: 'SET' }
 
   componentDidMount() {
@@ -598,8 +608,8 @@ class BatchUpdateEditor extends React.Component {
         </div>
         <div className="col-2 pl-0 pr-0">
           <select className="form-control form-control-sm" ref={(c) => (this._$op = c)}>
-            <option value="SET">{BUE_OPTYPES['SET']}</option>
-            <option value="NULL">{BUE_OPTYPES['NULL']}</option>
+            <option value="SET">{BU_OPS['SET']}</option>
+            <option value="NULL">{BU_OPS['NULL']}</option>
           </select>
           <span className="text-muted">{$L('修改方式')}</span>
         </div>
@@ -636,7 +646,10 @@ class BatchUpdateEditor extends React.Component {
     }
 
     data.value = this._FieldValue.val()
-    if (!data.value) {
+    if (data.value === false) {
+      // 格式不正确
+      return null
+    } else if (!data.value) {
       RbHighbar.create($L('请填写新值'))
       return null
     } else {
@@ -661,10 +674,11 @@ class BatchApprove extends BatchOperator {
   }
 
   renderOperator() {
+    const approveState = ~~this.state.approveState
     return (
       <div>
         <div className="form-group">
-          <label className="text-bold">{$L('审批结果')}</label>
+          <label className="text-bold">{$L('审批方式')}</label>
           <div>
             <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
               <input className="custom-control-input" type="radio" name="approveState" value="10" onClick={this.handleChange} />
@@ -674,15 +688,40 @@ class BatchApprove extends BatchOperator {
               <input className="custom-control-input" type="radio" name="approveState" value="11" onClick={this.handleChange} />
               <span className="custom-control-label">{$L('驳回')}</span>
             </label>
+            <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+              <input className="custom-control-input" type="radio" name="approveState" value="1" onClick={this.handleChange} />
+              <span className="custom-control-label">{$L('提交')}</span>
+            </label>
           </div>
         </div>
-        <div className="form-group">
+
+        <div className={`form-group ${approveState >= 10 ? '' : 'hide'}`}>
           <label className="text-bold">{$L('批注')}</label>
-          <textarea className="form-control form-control-sm row2x" name="approveRemark" placeholder={$L('输入批注 (可选)')} maxLength="600" onChange={this.handleChange} />
+          <textarea className="form-control form-control-sm row2x" name="approveRemark" placeholder={$L('输入批注')} maxLength="600" onChange={this.handleChange} />
         </div>
-        <RbAlertBox message={$L('仅处于待你审批，且允许批量审批的记录才能审批成功')} type="info" className="mb-0" />
+        <div className={`form-group ${approveState === 1 ? '' : 'hide'}`}>
+          <label className="text-bold">{$L('审批流程')}</label>
+          <select className="form-control form-control-sm" ref={(c) => (this._$useApproval = c)} />
+        </div>
+
+        <RbAlertBox message={$L('仅允许你审批或提交的记录，才能审批成功')} type="info" className="mb-0" />
       </div>
     )
+  }
+
+  componentDidMount() {
+    // super.componentDidMount()
+
+    $.get(`/app/entity/approval/alist?entity=${wpc.entity[0]}&valid=true`, (res) => {
+      $(this._$useApproval).select2({
+        placeholder: $L('无'),
+        allowClear: false,
+        language: {
+          noResults: () => $L('无适用流程'),
+        },
+        data: res.data || [],
+      })
+    })
   }
 
   handleConfirm() {
@@ -691,19 +730,31 @@ class BatchApprove extends BatchOperator {
       return
     }
 
-    if (!this.state.approveState) return RbHighbar.create($L('请选择审批结果'))
+    if (!this.state.approveState) return RbHighbar.create($L('请选择审批方式'))
 
     const _data = {
       queryData: this.getQueryData(),
       approveContent: {
         state: this.state.approveState,
-        remark: this.state.approveRemark,
+        remark: this.state.approveRemark || null,
+        approvalId: $val(this._$useApproval) || null,
       },
+    }
+    if (~~this.state.approveState === 1) {
+      if (!_data.approveContent.approvalId) {
+        RbHighbar.create($L('请选择审批流程'))
+        return
+      }
+    } else {
+      if ($empty(this.state.approveRemark)) {
+        RbHighbar.create($L('请输入批注'))
+        return
+      }
     }
     if (rb.env === 'dev') console.log(JSON.stringify(_data))
 
     const that = this
-    RbAlert.create(<b>{$L('请再次确认审批数据范围和审批结果。开始审批吗？')}</b>, {
+    RbAlert.create(<b>{$L('请再次确认审批数据范围和审批方式。开始审批吗？')}</b>, {
       onConfirm: function () {
         this.hide()
         that.disabled(true, true)
@@ -722,6 +773,7 @@ class BatchApprove extends BatchOperator {
           }
         })
       },
+      countdown: 5,
     })
   }
 
@@ -822,11 +874,11 @@ const RbListCommon = {
 
         def40 = def40.split(':') // FILTER:LAYOUT
         if (def40[0]) {
-          if (def40[0].startsWith('014-')) wpc.protocolFilter = `via:${def40[0]}`
+          if (def40[0].startsWith('014-')) wpc.protocolFilterAnd = `via:${def40[0]}`
           else console.log('Use listConfig :', def40[0])
         }
         if (def40[1]) {
-          if (def40[1].startsWith('014-')) wpc.protocolFilter = `via:${def40[1]}`
+          if (def40[1].startsWith('014-')) wpc.protocolFilterAnd = `via:${def40[1]}`
           else console.log('Use listConfig :', def40[1])
         }
       }
@@ -838,16 +890,16 @@ const RbListCommon = {
     RbListPage.init(wpc.listConfig, entity, wpc.privileges)
     if (wpc.advFilter !== false) AdvFilters.init('.adv-search', entity[0])
 
-    const newProps = { title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }
+    const newProps = { title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2], showExtraButton: true }
     const $new = $('.J_new')
       .attr('disabled', false)
       .on('click', () => RbFormModal.create(newProps))
     if (wpc.formsAttr) {
       $new.next().removeClass('hide')
-      const $nn = $new.next().next()
+      const $next = $new.next().next()
       wpc.formsAttr.map((n) => {
         $(`<a class="dropdown-item" data-id="${n.id}">${n.name || $L('默认布局')}</a>`)
-          .appendTo($nn)
+          .appendTo($next)
           .on('click', () => RbFormModal.create({ ...newProps, specLayout: n.id }, true))
       })
     } else {
@@ -953,7 +1005,7 @@ class RbList extends React.Component {
         <div className="row rb-datatable-body">
           <div className="col-sm-12">
             <div className="rb-scroller" ref={(c) => (this._$scroller = c)}>
-              <table className="table table-hover table-striped">
+              <table className={`table table-hover table-striped ${window.__LAB_DATALIST_BORDERED42 && 'table-bordered42'}`}>
                 <thead>
                   <tr>
                     {this.props.uncheckbox !== true && (
@@ -1157,6 +1209,7 @@ class RbList extends React.Component {
       filter: this.lastFilter,
       advFilter: this.advFilterId,
       protocolFilter: this.props.protocolFilter || wpc.protocolFilter,
+      protocolFilterAnd: this.props.protocolFilterAnd || wpc.protocolFilterAnd,
       sort: sort,
       reload: reload,
       statsField: wpc.statsField === true && rb.commercial > 0,
@@ -1211,7 +1264,6 @@ class RbList extends React.Component {
       type = '$NAME$'
     }
 
-    // @see rb-datalist.common.js
     const c = CellRenders.render(cellVal, type, width, `${cellKey}.${field.field}`)
     // v4.1 快捷编辑
     const cProps = {}
@@ -1287,11 +1339,8 @@ class RbList extends React.Component {
 
     // 操作按钮状态
     const $oper = $('.dataTables_oper')
-    $oper.find('.J_delete, .J_view, .J_edit, .J_assign, .J_share, .J_unshare').attr('disabled', true)
-    if (chkSelected > 0) {
-      $oper.find('.J_delete, .J_assign, .J_share, .J_unshare').attr('disabled', false)
-      if (chkSelected === 1) $oper.find('.J_view, .J_edit').attr('disabled', false)
-    }
+    $oper.find('.J_delete,.J_view,.J_edit,.J_assign,.J_share,.J_unshare').attr('disabled', true)
+    if (chkSelected > 0) $oper.find('.J_delete,.J_view,.J_edit,.J_assign,.J_share,.J_unshare').attr('disabled', false)
 
     // 分页组件
     if (this._Pagination) {
@@ -1346,24 +1395,6 @@ class RbList extends React.Component {
     return false
   }
 
-  _keyEvent(e) {
-    if (!$(e.target).is('body')) return
-    if (!(e.keyCode === 40 || e.keyCode === 38 || e.keyCode === 13)) return
-
-    const $chk = $(this._$tbody).find('>tr .custom-control-input:checked').last()
-    if ($chk.length === 0) return
-
-    const $tr = $chk.eq(0).parents('tr')
-    if (e.keyCode === 40) this._tryActive($tr.next())
-    else if (e.keyCode === 38) this._tryActive($tr.prev())
-    else this._openView($tr)
-  }
-
-  _tryActive($el) {
-    if ($el.length !== 1) return
-    this._clickRow({ target: $el.find('td:eq(1)') })
-  }
-
   _openView($tr) {
     if (!wpc.type) return
     const id = $($tr).data('id')
@@ -1371,6 +1402,53 @@ class RbList extends React.Component {
       location.hash = `!/View/${this._entity}/${id}`
     }
     CellRenders.clickView({ id: id, entity: this._entity })
+  }
+
+  _keyEvent(e) {
+    if (!$(e.target).is('body')) return
+    if (!(e.keyCode === 40 || e.keyCode === 38 || e.keyCode === 13)) return
+
+    let $chk = $(this._$tbody).find('>tr .custom-control-input:checked').first()
+    if (e.keyCode === 13) {
+      let $go = $chk.eq(0).parents('tr')
+      if ($go[0]) {
+        this._clickRow({ target: $go.find('td:eq(1)') })
+        this._openView($go)
+      }
+      return
+    }
+
+    let $go = $chk.eq(0).parents('tr')
+    if ($go[0]) {
+      $go = e.keyCode === 40 ? $go.next() : $go.prev()
+    } else {
+      // No selected
+    }
+    if (!$go[0]) {
+      $chk = $(this._$tbody).find('>tr .custom-control-input')
+      $chk = e.keyCode === 40 ? $chk.first() : $chk.last()
+      $go = $chk.eq(0).parents('tr')
+    }
+    $go[0] && this._clickRow({ target: $go.find('td:eq(1)') })
+  }
+  // Next or Prev
+  jumpView(go) {
+    let $chk = $(this._$tbody).find('>tr .custom-control-input:checked').first()
+    let $go = $chk.eq(0).parents('tr')
+    if ($go[0]) {
+      $go = go === 1 ? $go.next() : $go.prev()
+    } else {
+      // No selected
+    }
+    if (!$go[0]) {
+      $chk = $(this._$tbody).find('>tr .custom-control-input')
+      $chk = go === 1 ? $chk.first() : $chk.last()
+      $go = $chk.eq(0).parents('tr')
+    }
+    if ($go[0]) {
+      this._clickRow({ target: $go.find('td:eq(1)') })
+      this._openView($go)
+    }
   }
 
   // -- 外部接口
@@ -1633,18 +1711,35 @@ const CellRenders = {
   // 单元格渲染
   render(value, type, width, key) {
     const style2 = { width: width || _DL_COLUMN_MIN_WIDTH }
+    let fieldKey = null
     if (window.FrontJS && wpc.entity) {
-      let fieldKey = key.split('.').slice(1)
+      fieldKey = key.split('.').slice(1)
       fieldKey = `${wpc.entity[0]}.${fieldKey.join('.')}`
-      const fn = window.FrontJS.DataList.__cellRenders[fieldKey]
-      if (typeof fn === 'function') {
-        const fnRet = fn(value, style2, key)
+
+      const _FN = window.FrontJS.DataList.__cellRenders[fieldKey]
+      if (typeof _FN === 'function') {
+        const fnRet = _FN(value, style2, key)
         if (fnRet !== false) return fnRet
       }
     }
 
     if (!value) return this.renderSimple(value, style2, key)
-    else return (this.__RENDERS[type] || this.renderSimple)(value, style2, key)
+
+    const cellComp = (this.__RENDERS[type] || this.renderSimple)(value, style2, key)
+    if (fieldKey && window.FrontJS && wpc.entity) {
+      const enable42 = window.FrontJS.DataList.__cellCopys.includes(fieldKey)
+      if (enable42) {
+        return React.cloneElement(cellComp, {
+          'data-copy': true,
+          title: $L('点击复制'),
+          onClick: (e) => {
+            $stopEvent(e, true)
+            $clipboard2($(e.currentTarget).text(), true)
+          },
+        })
+      }
+    }
+    return cellComp
   },
 
   /**
@@ -1948,6 +2043,31 @@ CellRenders.addRender('TAG', (v, s, k) => {
     </td>
   )
 })
+CellRenders.addRender('BARCODE', (v, s, k) => {
+  const codeUrl = `${rb.baseUrl}/commons/barcode/render-auto?t=${$encode(v)}`
+  const isbar = v.startsWith('BC:')
+  v = v.substr(3)
+  return (
+    <td key={k} className="td-sm">
+      <div className="column-imgs" style={s}>
+        <a
+          onClick={() => {
+            RbAlert.create(
+              <div className="mb-3 text-center">
+                <img src={`${codeUrl}&w=${isbar ? 64 * 2 : 80 * 3}`} alt={v} style={{ maxWidth: '100%' }} />
+                {!isbar && <div className="text-muted mt-2 mb-1 text-break text-bold">{v}</div>}
+              </div>,
+              {
+                type: 'clear',
+              }
+            )
+          }}>
+          <img src={`${codeUrl}&w=${isbar ? 64 : 120}`} alt={v} />
+        </a>
+      </div>
+    </td>
+  )
+})
 
 // ~~ 记录合并
 
@@ -2242,6 +2362,7 @@ const CategoryWidget = {
           onItemClick={(query) => {
             if (!query || query[0] === CategoryWidget.__ALL) wpc.protocolFilter = null
             else wpc.protocolFilter = `category:${wpc.entity[0]}:${query.join('$$$$')}`
+            _RbList().pageNo = 1
             RbListPage.reload()
           }}
         />,

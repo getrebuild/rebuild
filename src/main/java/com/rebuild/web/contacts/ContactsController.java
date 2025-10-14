@@ -20,6 +20,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
@@ -29,6 +30,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -93,9 +95,18 @@ public class ContactsController extends BaseController {
         String q = getParameter(request, "q");
         if (q != null) q = q.toUpperCase().trim();
 
+        String sort42 = getParameter(request, "sort");
+        boolean sortNewer = "newer".equals(sort42);
+
         User[] users = Application.getUserStore().getAllUsers();
         Member[] usersMembers = UserFilters.filterMembers32(users, user);
-        usersMembers = UserHelper.sortMembers(usersMembers);
+        if ("name".equals(sort42)) {
+            Arrays.sort(usersMembers, Comparator.comparing(Member::getName));
+        } else if (sortNewer) {
+            // 新建
+        } else {
+            usersMembers = UserHelper.sortMembers(usersMembers);
+        }
 
         Set<ID> deptAndChild = null;
         if (dept != null) {
@@ -114,7 +125,7 @@ public class ContactsController extends BaseController {
         for (Member m : usersMembers) {
             User u = (User) m;
             if (UserService.SYSTEM_USER.equals(u.getId())) continue;
-            if (!u.isActive()) continue;
+//            if (!u.isActive()) continue;
 
             Department d = u.getOwningDept();
             if (deptAndChild != null) {
@@ -150,8 +161,20 @@ public class ContactsController extends BaseController {
             JSONObject item = JSONUtils.toJSONObject(
                     new String[]{"id", "fullName", "email", "workphone", "deptName", "avtive"},
                     new Object[]{u.getId(), u.getFullName(), u.getEmail(), u.getWorkphone(), d == null ? "-" : d.getName(), u.isActive()});
+            if (sortNewer) {
+                item.put("_created", QueryHelper.queryFieldValue(u.getId(), "createdOn"));
+            }
             array.add(item);
         }
+
+        if (sortNewer) {
+            array.sort((o1, o2) -> {
+                JSONObject o11 = (JSONObject) o1;
+                JSONObject o22 = (JSONObject) o2;
+                return o11.getDate("_created").compareTo(o22.getDate("_created"));
+            });
+        }
+
         return RespBody.ok(array);
     }
 }

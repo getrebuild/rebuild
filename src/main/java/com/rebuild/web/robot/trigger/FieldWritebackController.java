@@ -21,6 +21,7 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.trigger.aviator.AssertFailedException;
+import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.core.service.trigger.impl.AggregationEvaluator;
 import com.rebuild.core.service.trigger.impl.FieldWriteback;
 import com.rebuild.utils.JSONUtils;
@@ -30,6 +31,7 @@ import com.rebuild.web.general.MetaFormatter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,9 +53,9 @@ import java.util.Set;
 public class FieldWritebackController extends BaseController {
 
     @RequestMapping("field-writeback-entities")
-    public List<String[]> getTargetEntities(
+    public RespBody getTargetEntities(
             @EntityParam(name = "source") Entity sourceEntity, HttpServletRequest request) {
-        List<String[]> temp = new ArrayList<>();
+        List<Object[]> temp = new ArrayList<>();
         Set<String> unique = new HashSet<>();
 
         // 1.我引用了谁 v2.7.1
@@ -69,8 +71,8 @@ public class FieldWritebackController extends BaseController {
             unique.add(refEntity.getName() + "." + refFrom.getName());
         }
 
-        FieldAggregationController.sortEntities(temp, null);
-        List<String[]> entities = new ArrayList<>(temp);
+        MetadataSorter.sortEntities(temp, null);
+        List<Object[]> entities = new ArrayList<>(temp);
         temp.clear();
 
         // 2.谁引用了我 (N)
@@ -87,12 +89,12 @@ public class FieldWritebackController extends BaseController {
             }
         }
 
-        FieldAggregationController.sortEntities(temp, null);
+        MetadataSorter.sortEntities(temp, null);
         entities.addAll(temp);
         temp.clear();
 
         // 3. 自己
-        FieldAggregationController.sortEntities(temp, sourceEntity);
+        MetadataSorter.sortEntities(temp, sourceEntity);
         entities.addAll(temp);
         temp.clear();
 
@@ -102,12 +104,12 @@ public class FieldWritebackController extends BaseController {
                 temp.add(new String[]{entity.getName(), EasyMetaFactory.getLabel(entity), "$"});
             }
 
-            FieldAggregationController.sortEntities(temp, null);
+            MetadataSorter.sortEntities(temp, null);
             entities.addAll(temp);
             temp.clear();
         }
 
-        return entities;
+        return RespBody.ok(entities);
     }
 
     @RequestMapping("field-writeback-fields")
@@ -148,7 +150,7 @@ public class FieldWritebackController extends BaseController {
 
         // 审批流程启用
         boolean hadApproval = targetEntity != null && RobotApprovalManager.instance.hadApproval(
-                ObjectUtils.defaultIfNull(targetEntity.getMainEntity(), targetEntity), null) != null;
+                ObjectUtils.getIfNull(targetEntity.getMainEntity(), targetEntity), null) != null;
 
         return JSONUtils.toJSONObject(
                 new String[]{"source", "target", "hadApproval", "target4Group"},
@@ -182,5 +184,10 @@ public class FieldWritebackController extends BaseController {
             log.warn("Verify formula error : {} >> {} >> {}", sourceEntity, formula, errMsg);
             return RespBody.error(errMsg);
         }
+    }
+
+    @GetMapping("field-writeback-custom-funcs")
+    public RespBody customFunctions() {
+        return RespBody.ok(AviatorUtils.getCustomFunctionNames());
     }
 }

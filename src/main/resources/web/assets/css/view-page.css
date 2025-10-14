@@ -69,7 +69,6 @@ body {
   line-height: 1.428571;
   display: inline-block;
   margin: 0;
-  font-weight: 300;
   font-size: 1.538rem;
   max-width: 80%;
 }
@@ -97,6 +96,11 @@ body {
   opacity: 0.8;
 }
 
+.view-header > span > .close.sm.J_record-prev .mdi,
+.view-header > span > .close.sm.J_record-next .mdi {
+  font-size: 21px;
+}
+
 .rbview-form > .row .form-group {
   padding-top: 4px;
   padding-bottom: 4px;
@@ -104,6 +108,12 @@ body {
 
 .rbview-form .form-control-plaintext {
   min-height: 37px;
+}
+
+.rbview-form .form-control-plaintext[data-copy]:hover,
+.rbview-form .form-control-plaintext[data-copy]:hover .badge {
+  cursor: pointer;
+  font-weight: bold !important;
 }
 
 .rbview-form .type-NTEXT .form-control-plaintext {
@@ -341,6 +351,7 @@ body {
 .view-user .col-lg-4 {
   padding-right: 0;
   color: #222;
+  color: #404040;
 }
 
 .view-user .col-lg-8 {
@@ -382,6 +393,7 @@ body {
 
 .view-user .user-show {
   line-height: 1;
+  cursor: pointer !important;
 }
 
 .shares-list {
@@ -488,20 +500,20 @@ body {
   background-color: transparent;
 }
 
-.rbview-form.inside {
+.rbview-form-inside {
   display: none;
   padding: 10px 15px;
 }
 
-.rbview-form.inside > .rb-loading {
+.rbview-form-inside > .rb-loading {
   height: 60px;
 }
 
-.rbview-form.inside > .alert {
+.rbview-form-inside > .alert {
   margin: 10px auto !important;
 }
 
-.card.active .rbview-form.inside {
+.card.active .rbview-form-inside {
   display: block;
 }
 
@@ -869,6 +881,7 @@ body {
 .timeline.approved-steps .timeline-header > .blockquote {
   margin-top: 5px;
   padding: 2px 10px;
+  padding-right: 0;
 }
 
 .timeline.approved-steps .timeline-header > .blockquote.cc {

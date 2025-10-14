@@ -47,8 +47,8 @@ class RbModal extends React.Component {
               <h3 className="modal-title">{props.title || ''}</h3>
 
               {props.url && props.urlOpenInNew && (
-                <a className="close s fs-18" href={props.url} target="_blank" title={$L('在新页面打开')}>
-                  <span className="zmdi zmdi-open-in-new" />
+                <a className="close s fs-17" href={props.url} target="_blank" title={$L('在新页面打开')}>
+                  <span className="zmdi zmdi-open-in-new down-2" />
                 </a>
               )}
               {this.props.maximize && (
@@ -298,10 +298,10 @@ class RbAlert extends React.Component {
         </div>
 
         <div className="mt-4 mb-3">
-          <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={_onCancel}>
+          <button disabled={this.state.disabled} className="btn btn-space btn-secondary" type="button" onClick={_onCancel} ref={(c) => (this._$cancel = c)}>
             {this.props.cancelText || $L('取消')}
           </button>
-          <button disabled={this.state.disable} className={`btn btn-space btn-${type}`} type="button" onClick={_onConfirm} ref={(c) => (this._$btn = c)}>
+          <button disabled={this.state.disabled} className={`btn btn-space btn-${type}`} type="button" onClick={_onConfirm} ref={(c) => (this._$btn = c)}>
             {this.props.confirmText || $L('确定')}
           </button>
         </div>
@@ -344,7 +344,7 @@ class RbAlert extends React.Component {
   disabled(d, preventHide) {
     d = d === true
     // 带有 tabIndex=-1 导致 select2 组件搜索框无法搜索???
-    this.setState({ disable: d }, () => _preventHide(d, preventHide, this._dlg))
+    this.setState({ disabled: d }, () => _preventHide(d, preventHide, this._dlg))
   }
 
   // -- Usage
@@ -842,6 +842,39 @@ class DateShow extends React.Component {
   }
 }
 
+// ~~ 附件显示
+class FileShow extends React.Component {
+  render() {
+    const file = this.props.file
+    const fileName = $fileCutName(file)
+    const isImage = $isImage(fileName)
+    let imageUrl
+    if (isImage) {
+      if (file.startsWith('http://') || file.startsWith('https://')) imageUrl = file
+      else imageUrl = `${rb.baseUrl}/filex/img/${file}?imageView2/2/w/100/interlace/1/q/100`
+    }
+
+    return (
+      <div data-key={file} className="img-thumbnail" title={fileName} onClick={() => (parent || window).RbPreview.create(file)}>
+        <i className={`file-icon ${isImage && 'image'}`} data-type={$fileExtName(fileName)}>
+          {isImage && <img src={imageUrl} />}
+        </i>
+        <span>{fileName}</span>
+        {this.props.removeHandle && (
+          <b
+            title={$L('移除')}
+            onClick={(e) => {
+              $stopEvent(e, true)
+              this.props.removeHandle(e, file)
+            }}>
+            <span className="zmdi zmdi-close" />
+          </b>
+        )}
+      </div>
+    )
+  }
+}
+
 // ~~ 记录选择器
 // @see rb-page.js#$initReferenceSelect2
 class RecordSelector extends React.Component {
@@ -956,7 +989,6 @@ class RecordSelector extends React.Component {
 // ~~ 任意记录选择器
 class AnyRecordSelector extends RecordSelector {
   render() {
-    const ae = this.props.allowEntities || []
     return (
       <div className="row">
         <div className="col-4 pr-0">
@@ -1323,7 +1355,7 @@ class CodeViewport extends React.Component {
   }
 
   componentDidMount() {
-    this._$code.innerHTML = $formattedCode(this.props.code || '')
+    this._$code.innerHTML = $formattedCode(this.props.code || '', this.props.type)
 
     if (this._$copy) {
       const that = this
@@ -1338,7 +1370,10 @@ class CodeViewport extends React.Component {
   }
 
   UNSAFE_componentWillReceiveProps(newProps) {
-    if (newProps.code) this._$code.innerHTML = $formattedCode(newProps.code)
+    // eslint-disable-next-line eqeqeq
+    if (newProps.code && newProps.code != this.props.code) {
+      this._$code.innerHTML = $formattedCode(newProps.code, this.props.type)
+    }
   }
 }
 
@@ -1445,6 +1480,63 @@ class AsideTree extends React.Component {
     const s = []
     _find(item, s)
     return s
+  }
+}
+
+// ~~ 文件重命名
+class FileRename extends RbAlert {
+  constructor(props) {
+    super(props)
+    this.__fileName = $fileCutName(this.props.fileKey)
+  }
+
+  renderContent() {
+    const isOffice = this.props.fileId && ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes($fileExtName(this.__fileName))
+    return (
+      <form className="rbalert-form-sm">
+        <div className="form-group">
+          <label className="text-dark text-bold">{$L('重命名')}</label>
+          <input type="text" className="form-control form-control-sm" defaultValue={this.__fileName} placeholder={this.__fileName} ref={(c) => (this._$fileName = c)} maxLength="100" />
+        </div>
+        <div className="form-group mb-1">
+          <button disabled={this.state.disabled} type="button" className="btn btn-primary" onClick={(e) => this.handleConfirm(e)}>
+            {$L('确定')}
+          </button>
+          {isOffice && (
+            <a className="btn btn-link ml-1" href={`${rb.baseUrl}/commons/file-editor?src=${this.props.fileId}`} target="_blank">
+              <i className="mdi mdi-microsoft-office icon" />
+              &nbsp;
+              {$L('在线编辑')} (LAB)
+            </a>
+          )}
+        </div>
+      </form>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    // 选择
+  }
+
+  handleConfirm(e) {
+    const newName = $val(this._$fileName)
+    if (newName && this.__fileName !== newName) {
+      typeof this.props.onConfirm === 'function' && this.props.onConfirm(newName, this)
+    } else {
+      typeof this.props.onConfirm === 'function' && this.props.onConfirm(null) // Nochangs
+      this.hide()
+    }
+  }
+
+  // -- Usage
+
+  /**
+   * @param {*} fileKey
+   * @param {*} onConfirm
+   */
+  static create(fileKey, onConfirm) {
+    renderRbcomp(<FileRename fileKey={fileKey} onConfirm={onConfirm} />)
   }
 }
 

@@ -12,7 +12,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.utils.MarkdownUtils;
+import com.rebuild.utils.md.MarkdownUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -54,6 +54,18 @@ public class MessageBuilder {
      */
     public static Message createMessage(ID toUser, String message, int type, ID relatedRecord) {
         return new Message(null, toUser, message, type, relatedRecord);
+    }
+
+    /**
+     * @param toUser
+     * @param message
+     * @param type
+     * @param relatedRecord
+     * @param fromUser
+     * @return
+     */
+    public static Message createMessage(ID toUser, String message, int type, ID relatedRecord, ID fromUser) {
+        return new Message(fromUser, toUser, message, type, relatedRecord);
     }
 
     /**

@@ -31,7 +31,7 @@ import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.integration.SMSender;
-import com.rebuild.utils.MarkdownUtils;
+import com.rebuild.utils.md.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
@@ -264,7 +264,7 @@ public class SendNotification extends TriggerAction {
             JSONArray paths = JSON.parseArray((String) item);
             for (Object path : paths) {
                 try {
-                    files.add(QiniuCloud.getStorageFile((String) path));
+                    files.add(QiniuCloud.downloadFile((String) path));
                 } catch (IOException ex) {
                     log.warn("Cannot get storage file : {}", path, ex);
                 }

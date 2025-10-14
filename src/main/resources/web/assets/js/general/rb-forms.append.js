@@ -225,7 +225,7 @@ class DeleteConfirm extends RbAlert {
                       <span className="custom-control-label"> {$L('同时删除相关记录')}</span>
                     </label>
                     <div className={this.state.enableCascade ? '' : 'hide'}>
-                      <select className="form-control form-control-sm" ref={(c) => (this._cascades = c)} multiple>
+                      <select className="form-control form-control-sm" ref={(c) => (this._$cascades = c)} multiple>
                         {(this.state.cascadesEntity || []).map((item) => {
                           if ($isSysMask(item[1])) return null
                           return (
@@ -259,10 +259,13 @@ class DeleteConfirm extends RbAlert {
     if (!this.state.cascadesEntity) {
       $.get(`/commons/metadata/references?entity=${this.props.entity}&permission=D`, (res) => {
         this.setState({ cascadesEntity: res.data }, () => {
-          this.__select2 = $(this._cascades)
+          this.__select2 = $(this._$cascades)
             .select2({
               placeholder: $L('选择'),
               width: '88%',
+              language: {
+                noResults: () => $L('无'),
+              },
             })
             .val(null)
             .trigger('change')
@@ -278,7 +281,7 @@ class DeleteConfirm extends RbAlert {
     const cascades = this.__select2 ? this.__select2.val().join(',') : ''
 
     let _timer1 = setTimeout(() => $(this._$dbtn).text($L('请稍后')), 6000)
-    let _timer2 = setTimeout(() => $(this._$dbtn).text($L('仍在继续')), 15000)
+    let _timer2 = setTimeout(() => $(this._$dbtn).text($L('仍在处理')), 15000)
 
     this.disabled(true, true)
     $.post(`/app/entity/record-delete?id=${ids}&cascades=${cascades}`, (res) => {
@@ -1077,4 +1080,283 @@ const EasyFilterEval = {
     }
     return {}
   },
+}
+
+// ~~ Excel 粘贴数据
+class ExcelClipboardData extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div className="must-center text-danger">{this.state.hasError}</div>
+    }
+
+    if (!this.state.data) {
+      let tips = $L('复制 Excel 单元格 Ctrl + V 粘贴')
+      if ($.browser.mac) tips = tips.replace('Ctrl', 'Command')
+      return (
+        <div className="must-center text-muted">
+          <div className="mb-2">
+            <i className="mdi mdi-microsoft-excel" style={{ fontSize: 48 }} />
+          </div>
+          {tips}
+        </div>
+      )
+    }
+
+    return (
+      <div className="rsheetb-table" ref={(c) => (this._$table = c)}>
+        <div className="head-action">
+          <span className="float-left">
+            <h5 className="text-bold fs-14 m-0" style={{ paddingTop: 11 }}>
+              {$L('请选择列字段')}
+            </h5>
+          </span>
+          <span className="float-right">
+            <button className="btn btn-primary" onClick={() => this._handleConfirm()} ref={(c) => (this._$btn = c)}>
+              {this.props.confirmText || $L('确定')}
+            </button>
+          </span>
+          <div className="clearfix" />
+        </div>
+        {WrapHtml(this.state.data)}
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    const that = this
+    function _FN() {
+      $(document).on('paste.csv-data', (e) => {
+        let data
+        try {
+          // https://docs.sheetjs.com/docs/demos/local/clipboard/
+          // https://docs.sheetjs.com/docs/api/utilities/html
+          const c = e.originalEvent.clipboardData.getData('text/html')
+          if (!c) return
+
+          $stopEvent(e, true)
+          const wb = window.XLSX.read(c, { type: 'string' })
+          const ws = wb.Sheets[wb.SheetNames[0]]
+          data = window.XLSX.utils.sheet_to_html(ws, { id: 'rsheetb', header: '', footer: '', editable: true })
+
+          // No content
+          if (data && !$(data).text()) data = null
+        } catch (err) {
+          console.log('Cannot read csv-data from clipboardData', err)
+        }
+
+        if (data) {
+          if (rb.env === 'dev') console.log(data)
+          $(that._$table).find('table thead').remove()
+          that.setState({ data: data, hasError: null }, () => that._tableAfter())
+        } else {
+          RbHighbar.createl('未识别到有效数据')
+        }
+      })
+    }
+
+    if (window.XLSX) _FN()
+    else $getScript('/assets/lib/charts/xlsx.full.min.js', setTimeout(_FN, 200))
+  }
+
+  _tableAfter() {
+    const $table = $(this._$table).find('table').addClass('table table-sm table-bordered')
+    const fields = this.props.fields
+    if (fields) {
+      const len = $table.find('tbody>tr:eq(0)').find('td').length
+      const $tr = $('<thead><tr></tr></thead>').appendTo($table).find('tr')
+      for (let i = 0; i < len; i++) {
+        const $th = $('<th><select></select></th>').appendTo($tr)
+        fields.forEach((item) => {
+          $(`<option value="${item.field}">${item.label}</option>`).appendTo($th.find('select'))
+        })
+        $th
+          .find('select')
+          .select2({
+            placeholder: $L('无'),
+          })
+          .val(fields[i] ? fields[i].field : null)
+          .trigger('change')
+      }
+    }
+  }
+
+  _handleConfirm() {
+    const fields = []
+    $(this._$table)
+      .find('thead select')
+      .each(function () {
+        let fm = $(this).val() || null
+        if (fm && fields.includes(fm)) fm = null
+        fields.push(fm)
+      })
+
+    let noAnyFields = true
+    for (let i = 0; i < fields.length; i++) {
+      if (fields[i]) {
+        noAnyFields = false
+        break
+      }
+    }
+    if (noAnyFields) return RbHighbar.createl('请至少选择一个列字段')
+
+    const that = this
+    const dataWithFields = []
+    $(this._$table)
+      .find('tbody tr')
+      .each(function () {
+        const L = {}
+        $(this)
+          .find('td')
+          .each(function (idx) {
+            const name = fields[idx]
+            if (name) {
+              let val = $(this).text()
+              if ((that.props.fields[idx] || {}).type === 'NTEXT') {
+                val = $(this).find('>span').html()
+                if (val) val = val.replace(/<br>/gi, '\n')
+              }
+              L[name] = val || null
+            }
+          })
+        dataWithFields.push(L)
+      })
+
+    const $btn = $(this._$btn).button('loading')
+    const url = `/app/entity/extras/csvdata-rebuild?entity=${this.props.entity}&mainid=${this.props.mainid || ''}&layoutId=${this.props.layoutId || ''}`
+    $.post(url, JSON.stringify(dataWithFields), (res) => {
+      if (res.error_code === 0) {
+        this.props.onConfirm && this.props.onConfirm(res.data)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+      $btn.button('reset')
+    })
+  }
+
+  componentWillUnmount() {
+    $(document).off('paste.csv-data')
+  }
+}
+
+class ExcelClipboardDataModal extends RbModalHandler {
+  render() {
+    return (
+      <RbModal title={this.props.title || $L('从 Excel 添加')} width="1000" className="modal-rsheetb" disposeOnHide maximize ref={(c) => (this._dlg = c)}>
+        <ExcelClipboardData
+          {...this.props}
+          onConfirm={(data) => {
+            if (typeof this.props.onConfirm === 'function') {
+              let res = this.props.onConfirm(data)
+              if (res === false);
+              else this.hide()
+            } else {
+              this.hide()
+            }
+          }}
+          ref={(c) => (this._ExcelClipboardData = c)}
+        />
+      </RbModal>
+    )
+  }
+}
+
+// LAB 从 Excel 添加数据
+class ExcelClipboardDataModalWithForm extends React.Component {
+  state = {}
+  render() {
+    return this.state.formProps ? <ExcelClipboardDataModal {...this.state.formProps} confirmText={$L('保存')} ref={(c) => (this._ExcelClipboardDataModal = c)} /> : null
+  }
+
+  componentDidMount() {
+    $.post(`/app/${this.props.entity}/form-model?layout=${this.props.specLayout || ''}`, (res) => {
+      // 包含错误
+      if (res.error_code > 0 || !!res.data.error) {
+        const error = (res.data || {}).error || res.error_msg
+        RbHighbar.error(error)
+        return
+      }
+
+      const formProps = {
+        ...this.props,
+        entity: res.data.entity,
+        layoutId: res.data.layoutId,
+        fields: [],
+        onConfirm: (data) => this.handleConfirm(data),
+      }
+
+      if (this.props.fields && this.props.fields.length) {
+        formProps.fields = this.props.fields
+      } else {
+        res.data.elements.forEach((item) => {
+          if (item.readonly || !item.type) return
+          formProps.fields.push({
+            field: item.field,
+            label: item.label,
+            type: item.type,
+          })
+        })
+      }
+
+      this.setState({ formProps })
+    })
+  }
+
+  handleConfirm(data) {
+    const that = this
+    function _FN() {
+      const formsData = []
+      data.forEach((item) => {
+        const formData = {
+          metadata: { entity: that.props.entity },
+        }
+        item.elements.forEach((d) => {
+          if (d.value) {
+            if (typeof d.value === 'object') formData[d.field] = d.value.id
+            else formData[d.field] = d.value
+          }
+        })
+        formsData.push(formData)
+      })
+
+      const $btn = $(that._ExcelClipboardDataModal._ExcelClipboardData._$btn).button('loading')
+      let len = formsData.length
+      let success = 0
+      let lastError
+      formsData.forEach((formData) => {
+        $.post('/app/entity/record-save', JSON.stringify(formData), (res) => {
+          len--
+          if (res.error_code === 0) success++
+          else lastError = res.error_msg
+          if (len <= 0) {
+            if (success > 0) {
+              RbHighbar.success($L('成功保存 %d 条记录', success))
+              const rlp = window.RbListPage || parent.RbListPage
+              if (rlp) rlp.reload(data.id)
+
+              setTimeout(() => {
+                that._ExcelClipboardDataModal.hide()
+                $btn.button('reset')
+              }, 3000)
+            } else {
+              RbHighbar.error($L('未保存任何记录。可能的原因: %s', lastError || 'UNKNOWN ERROR'))
+              $btn.button('reset')
+            }
+          }
+        })
+      })
+    }
+
+    RbAlert.create($L('是否确认保存？'), {
+      onConfirm: function () {
+        this.hide()
+        _FN()
+      },
+    })
+    return false
+  }
 }

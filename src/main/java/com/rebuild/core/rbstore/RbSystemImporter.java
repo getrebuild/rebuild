@@ -73,6 +73,8 @@ public class RbSystemImporter extends HeavyTask<Integer> {
         this.forceEmptyDb();
         // #3.1 初始化数据库
         this.importDb();
+        // #3.2 还原和清理数据
+        // TODO
 
         // #4 清空缓存
         Installer.clearAllCache();
@@ -131,8 +133,8 @@ public class RbSystemImporter extends HeavyTask<Integer> {
         File rbspkg = OkHttpUtils.readBinary(RBStore.DATA_REPO + fileUrl);
         if (rbspkg == null) throw new RebuildException("Cannot fetch respkg : " + RBStore.DATA_REPO + fileUrl);
 
-        ZipUtil.unzip(rbspkg, rbspkgDir);
-        this.rbspkgDir = rbspkgDir;
+        this.rbspkgDir = ZipUtil.unzip(rbspkg, rbspkgDir);
+        FileUtils.forceDelete(rbspkg);
     }
 
     private void forceEmptyDb() {

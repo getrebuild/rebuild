@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.Set;
 
 /**
@@ -33,7 +34,7 @@ public class RbvFunction {
         return Application.getBean(RbvFunction.class);
     }
 
-    // -- 触发器相关
+    // -- TRIGGER
 
     public void setWeakMode(ID id) {
         log.warn("No RbvFunction : setWeakMode");
@@ -63,5 +64,16 @@ public class RbvFunction {
 
     public void onApproveManual(Record approvalRecord) {
         log.debug("No RbvFunction : onApproveManual");
+    }
+
+    // -- CONF
+
+    public File dumpRebuildConf() {
+        log.debug("No RbvFunction : dumpRebuildConf");
+        return null;
+    }
+
+    public void checkSchemas() {
+        log.debug("No RbvFunction : checkSchemas");
     }
 }

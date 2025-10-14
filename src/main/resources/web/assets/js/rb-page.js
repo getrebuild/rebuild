@@ -28,6 +28,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 $(function () {
   // navless
   if (rb.commercial > 1 && (~~$urlp('navless') === 1 || ~~$urlp('frame') === 1)) $(document.body).addClass('rb-navless40')
+  if (rb.commercial > 1 && (rb.env === 'dev' || window.__LAB === true)) $('.bosskey-show').removeClass('bosskey-show')
 
   // scroller
   var $t = $('.rb-scroller')
@@ -421,8 +422,12 @@ var _checkMessage = function () {
     if (res.error_code > 0) return
 
     $('.J_top-notifications .badge').text(res.data.unread)
-    if (res.data.unread > 0) $('.J_top-notifications .indicator').removeClass('hide')
-    else $('.J_top-notifications .indicator').addClass('hide')
+    if (res.data.unread > 0) {
+      $('.J_top-notifications .indicator').removeClass('hide')
+      if (window.__LAB_SHOW_INDICATORNUM42) $('.J_top-notifications .indicator').text(res.data.unread > 9999 ? '9999+' : res.data.unread)
+    } else {
+      $('.J_top-notifications .indicator').addClass('hide').text('')
+    }
 
     if (_checkMessage__state !== res.data.unread) {
       _checkMessage__state = res.data.unread
@@ -430,6 +435,8 @@ var _checkMessage = function () {
         if (!window.__title) window.__title = document.title
         document.title = '(' + _checkMessage__state + ') ' + window.__title
         _showNotification(_checkMessage__state)
+      } else if (window.__title) {
+        document.title = window.__title
       }
       _loadMessages__state = false
     }
@@ -472,7 +479,7 @@ var _showNotification = function (state) {
   var _Notification = window.Notification || window.mozNotification || window.webkitNotification
   if (_Notification) {
     if (_Notification.permission === 'granted') {
-      var n = new _Notification($L('你有 %d 条未读消息', state), {
+      var n = new _Notification($L('你有 %d 条未读通知', state), {
         body: window.rb.appName,
         icon: rb.baseUrl + '/assets/img/icon-192x192.png',
         tag: 'rbNotification',
@@ -610,7 +617,7 @@ var _initGlobalCreate = function () {
         var $item = $('<a class="dropdown-item"><i class="icon zmdi zmdi-' + this.icon + '"></i>' + this.entityLabel + '</a>').appendTo($gc)
         var _this = this
         $item.on('click', function () {
-          RbFormModal.create({ title: $L('新建%s', _this.entityLabel), entity: _this.entity, icon: _this.icon, _nextOpenView: true })
+          RbFormModal.create({ title: $L('新建%s', _this.entityLabel), entity: _this.entity, icon: _this.icon, showExtraButton: true })
         })
       })
     }
@@ -769,7 +776,7 @@ var $createUploader = function (input, next, complete, error) {
     var idname = $input.attr('id') || $input.attr('name') || $random('H5UP-')
     $input.html5Uploader({
       name: idname,
-      postUrl: rb.baseUrl + '/filex/upload?temp=' + (upLocal === 'temp') + '&noname=' + noname + '&updir=' + updir + useToken,
+      postUrl: rb.baseUrl + '/filex/upload?iw=' + $encode(window.__LAB_IWTEXT42) + '&temp=' + (upLocal === 'temp') + '&noname=' + noname + '&updir=' + updir + useToken,
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
           RbHighbar.create(imageType ? $L('请上传图片') : $L('上传文件类型错误'))
@@ -935,6 +942,53 @@ var $initReferenceSelect2 = function (el, option) {
     templateResult: option.templateResult || $select2OpenTemplateResult,
   }
   return $(el).select2(select2Option)
+}
+
+// 搜索 text/id
+// https://select2.org/searching#customizing-how-results-are-matched
+var $select2MatcherAll = function (params, data) {
+  if (!window.__pinyinLoaded) {
+    window.__pinyinLoaded = 1
+    $getScript('/assets/lib/pinyin-pro.min.js?v=3.27.0', () => {
+      console.log('pinyin-pro.min.js loaded')
+    })
+  }
+
+  if ($trim(params.term) === '') {
+    return data
+  }
+  if (typeof data.text === 'undefined') {
+    return null
+  }
+
+  // 匹配
+  function _FN(item, s) {
+    s = s.toLowerCase()
+    if ((item.text || '').toLowerCase().indexOf(s) > -1 || (item.id || '').toLowerCase().indexOf(s) > -1) return true
+    // v4.2
+    if (window.pinyinPro) {
+      var pinyin = window.pinyinPro.pinyin(item.text, { toneType: 'none' }).replace(/\s+/g, '')
+      return pinyin && pinyin.toLowerCase().indexOf(s) > -1
+    }
+    return false
+  }
+
+  if (data.children) {
+    var ch = data.children.filter(function (item) {
+      return _FN(item, params.term)
+    })
+    if (ch.length === 0) return null
+
+    var data2 = $.extend({}, data, true)
+    data2.children = ch
+    return data2
+  } else {
+    if (_FN(data, params.term, data.element)) {
+      return data
+    }
+  }
+
+  return null
 }
 
 /**
@@ -1229,39 +1283,6 @@ var $getScript = function (url, callback) {
   })
 }
 
-// 搜索 text/id
-// https://select2.org/searching#customizing-how-results-are-matched
-var $select2MatcherAll = function (params, data) {
-  if ($trim(params.term) === '') {
-    return data
-  }
-  if (typeof data.text === 'undefined') {
-    return null
-  }
-
-  function _matcher(item, s) {
-    s = s.toLowerCase()
-    return (item.text || '').toLowerCase().indexOf(s) > -1 || (item.id || '').toLowerCase().indexOf(s) > -1
-  }
-
-  if (data.children) {
-    var ch = data.children.filter(function (item) {
-      return _matcher(item, params.term)
-    })
-    if (ch.length === 0) return null
-
-    var data2 = $.extend({}, data, true)
-    data2.children = ch
-    return data2
-  } else {
-    if (_matcher(data, params.term)) {
-      return data
-    }
-  }
-
-  return null
-}
-
 // 绝对 URL
 var $isFullUrl = function (url) {
   return url && (url.startsWith('http://') || url.startsWith('https://'))
@@ -1307,21 +1328,30 @@ var $pages = function (tp, cp) {
 
 // 格式化代码
 var $formattedCode = function (c, type) {
-  if (typeof c === 'object') c = JSON.stringify(c)
-  if (!window.prettier) return c
-
-  try {
-    // eslint-disable-next-line no-undef
-    return prettier.format(c, {
-      parser: type || 'json',
-      // eslint-disable-next-line no-undef
-      plugins: prettierPlugins,
-      printWidth: 10,
-    })
-  } catch (err) {
-    console.log('Cannot format code :', err)
-    return c
+  // v4.2
+  if (type === 'json') {
+    try {
+      return JSON.stringify(typeof c === 'object' ? c : JSON.parse(c), null, 2)
+    } catch (err) {
+      if (rb.env === 'dev') console.log('Cannot format code : ' + err)
+      // ignored
+    }
   }
+
+  if (typeof c === 'object') c = JSON.stringify(c)
+  if (window.prettier) {
+    try {
+      return window.prettier.format(c, {
+        parser: type || 'json',
+        plugins: window.prettierPlugins,
+        printWidth: 10,
+      })
+    } catch (err) {
+      console.log('Cannot format code : ' + err)
+      return c
+    }
+  }
+  return c
 }
 
 // 复制
@@ -1347,6 +1377,28 @@ var $clipboard = function ($el, text) {
       $b.tooltip('show')
     }, 20)
   })
+}
+
+// 复制
+var $clipboard2 = function (text, tips) {
+  if (navigator.clipboard) {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        tips && RbHighbar.success($L('已复制'))
+      })
+      .catch((err) => {
+        console.log('Cannot copy text :', err)
+      })
+  } else {
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textarea)
+    tips && RbHighbar.success($L('已复制'))
+  }
 }
 
 // 格式化秒显示
@@ -1447,7 +1499,8 @@ function $dropdownMenuSearch($dd) {
             var $item = $(this)
             var name = ($item.data('name') || $item.data('value') || $item.data('id') || '').toLowerCase()
             var text = $item.text().toLowerCase()
-            if (!q || name.contains(q) || text.contains(q)) {
+            var pinyin = ($item.data('pinyin') || '').toLowerCase()
+            if (!q || name.contains(q) || text.contains(q) || pinyin.contains(q)) {
               $item.removeClass('hide')
             } else {
               $item.addClass('hide')
@@ -1478,4 +1531,27 @@ function $focus2End(el, delay) {
     var len = (el.value || '').length
     el.setSelectionRange(len, len)
   }, delay || 100)
+}
+
+// 获取实体元数据
+function $fetchMetaInfo(name, cb) {
+  $.get('/commons/metadata/meta-info?name=' + $encode(name), function (res) {
+    if (res.error_code === 0) {
+      typeof cb === 'function' && cb(res.data || {})
+    } else {
+      RbHighbar.error(res.error_msg)
+    }
+  })
+}
+
+// 同步获取数据
+function $syncGet(url) {
+  var _data
+  $.ajax({
+    type: 'GET',
+    async: false,
+    url: url,
+    success: (res) => (_data = res),
+  })
+  return _data || {}
 }

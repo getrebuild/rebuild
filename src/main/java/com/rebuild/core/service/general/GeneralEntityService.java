@@ -610,10 +610,13 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 }
 
                 ApprovalState state = ApprovalHelper.getApprovalState(dtmFieldValue);
-                if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
-                    throw new DataSpecificationException(state == ApprovalState.APPROVED
-                            ? Language.L("主记录已审批完成，不能添加明细")
-                            : Language.L("主记录正在审批中，不能添加明细"));
+                if (state == ApprovalState.APPROVED) {
+                    throw new DataSpecificationException(Language.L("主记录已审批完成，不能添加明细"));
+                } else if (state == ApprovalState.PROCESSING) {
+                    boolean allow42 = ApprovalHelper.isAllowEditableRecord(dtmFieldValue, getCurrentUser());
+                    if (!allow42) {
+                        throw new DataSpecificationException(Language.L("主记录正在审批中，不能添加明细"));
+                    }
                 }
             }
 
@@ -645,6 +648,13 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 boolean unallow = false;
                 if (action == BizzPermission.DELETE) {
                     unallow = currentState == ApprovalState.APPROVED || currentState == ApprovalState.PROCESSING;
+
+                    // v4.2 允许修改记录
+                    if (unallow && currentState == ApprovalState.PROCESSING) {
+                        boolean allow42 = ApprovalHelper.isAllowEditableRecord(checkRecordId, getCurrentUser());
+                        if (allow42) unallow = false;
+                    }
+
                 } else if (action == BizzPermission.UPDATE) {
                     unallow = currentState == ApprovalState.APPROVED || currentState == ApprovalState.PROCESSING;
 
@@ -658,6 +668,15 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     if (unallow) {
                         boolean forceUpdate = GeneralEntityServiceContextHolder.isAllowForceUpdate(false);
                         if (forceUpdate) unallow = false;
+                    }
+
+                    // v4.2 允许修改记录
+                    if (unallow) {
+                        boolean is = ApprovalHelper.isAllowEditableRecord(checkRecordId, getCurrentUser());
+                        if (is) {
+                            unallow = false;
+                            GeneralEntityServiceContextHolder.setAllowForceUpdate(checkRecordId);
+                        }
                     }
                 }
 

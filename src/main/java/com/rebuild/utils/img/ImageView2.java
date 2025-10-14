@@ -5,10 +5,11 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.utils;
+package com.rebuild.utils.img;
 
 import cn.devezhao.commons.ObjectUtils;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 

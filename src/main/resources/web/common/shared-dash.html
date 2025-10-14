@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="viewport" content="minimal-ui,width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <meta http-equiv="refresh" content="3600" />
+    <meta name="og:image" content="https://getrebuild.com/img/logo256.png" />
+    <title>[[${dashName}]]</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/charts/gridstack.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/charts.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/dashboard.css}" />
+    <meta name="rb.shareKey" th:content="${shareKey}" />
+    <style>
+      .chart-grid {
+        margin: 0;
+        padding: 20px 15px;
+      }
+      .J_chart-filter,
+      .J_source,
+      .J_mores {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chart-grid">
+      <div class="grid-stack"></div>
+    </div>
+    <div th:if="${pageFooter != null}" class="page-footer">
+      [(${pageFooter})]
+      <style>
+        body {
+          padding-bottom: 35px;
+        }
+      </style>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/lib/charts/lodash.min.js}"></script>
+    <script th:src="@{/assets/lib/charts/gridstack.all.js}"></script>
+    <script th:src="@{/assets/lib/charts/echarts.min.js?v=5.5.0}"></script>
+    <script th:src="@{/assets/lib/charts/tablecellsselection.js}"></script>
+    <script th:src="@{/assets/js/charts/charts.mapstyle.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/charts/charts.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/charts/chart-settings.js}" type="text/babel"></script>
+    <th:block th:replace="~{/_include/forms}" />
+    <script th:src="@{/assets/js/charts/dashboard.js}" type="text/babel"></script>
+    <script>
+      window.__PageConfig = {
+        dashId: '[[${dashId}]]',
+        dashConfig: [(${dashConfig})],
+      }
+    </script>
+    <script type="text/babel">
+      const wpc = window.__PageConfig
+      dashid = wpc.dashId
+      dash_editable = false
+      $(document).ready(() => {
+        render_dashboard(wpc.dashConfig)
+      })
+    </script>
+  </body>
+</html>

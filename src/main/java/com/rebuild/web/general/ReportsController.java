@@ -185,6 +185,7 @@ public class ReportsController extends BaseController {
 
             String previewUrl = OnlyOffice.getBestPreviewUrl();
             previewUrl += CodecUtils.urlEncode(fileUrl);
+            if (previewUrl.contains(OnlyOffice.OO_PREVIEW_URL)) previewUrl += "&view=desktop";
             response.sendRedirect(previewUrl);
 
         } else {

@@ -57,7 +57,7 @@ public class SysbaseSupport {
         vmLog.append(System.getProperties());
         log.warn(vmLog.append("----------").toString());
 
-        File logFile = SysbaseHeartbeat.getLogbackFile();
+        File logFile = SysbaseHeartbeat.getLastLogbackFile(false);
 
         JSONObject resJson;
         try {

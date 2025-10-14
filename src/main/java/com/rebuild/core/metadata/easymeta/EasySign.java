@@ -10,13 +10,15 @@ package com.rebuild.core.metadata.easymeta;
 import cn.devezhao.persist4j.Field;
 import org.springframework.util.Assert;
 
+import java.util.regex.Pattern;
+
 /**
  * 签名。png,base64 格式
  *
  * @author devezhao
  * @since 2021/12/30
  */
-public class EasySign extends EasyField {
+public class EasySign extends EasyField implements PatternValue {
     private static final long serialVersionUID = -1748773030681695060L;
 
     protected EasySign(Field field, DisplayType displayType) {
@@ -30,4 +32,14 @@ public class EasySign extends EasyField {
         return value;
     }
 
+    @Override
+    public Pattern getPattern() {
+        return null;
+    }
+
+    @Override
+    public boolean checkPattern(String value) {
+        if (value == null) return true;
+        return value.startsWith("data:image/png;base64,");
+    }
 }

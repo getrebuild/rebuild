@@ -95,7 +95,7 @@ public class ProjectCommentService extends BaseTaskService {
             if (sent != null) continue;
 
             Application.getNotifications().send(
-                    MessageBuilder.createMessage(to, msgContent, Message.TYPE_PROJECT, related));
+                    MessageBuilder.createMessage(to, msgContent, Message.TYPE_PROJECT, related, record.getEditor()));
             send++;
         }
         return send;

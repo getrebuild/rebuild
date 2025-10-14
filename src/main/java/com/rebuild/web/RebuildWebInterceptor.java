@@ -107,6 +107,11 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             theme = THEMES_COLORS.get(theme);
             if (theme != null) request.setAttribute(WebConstants.THEME_COLOR, theme);
         }
+        // v4.2 watermark
+        if (RebuildConfiguration.getBool(ConfigurationItem.MarkWatermark)) {
+            String wt = AppUtils.getWatermarkText(requestEntry.getRequestUser());
+            if (wt != null) request.setAttribute("markWatermarkText", wt);
+        }
 
         final String requestUri = requestEntry.getRequestUri();
 
@@ -303,7 +308,8 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 || requestUri.startsWith("/apiman/")
                 || requestUri.startsWith("/commons/frontjs/use-frontjs")
                 || requestUri.startsWith("/commons/file-preview")
-                || requestUri.startsWith("/commons/file-editor");
+                || requestUri.startsWith("/commons/file-editor")
+                || requestUri.endsWith("/dashboard/chart-data");
     }
 
     private boolean isHtmlRequest(String requestUri, HttpServletRequest request) {

@@ -16,11 +16,12 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.ServiceSpec;
+import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.files.BatchDownload;
 import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.service.project.ProjectHelper;
-import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.task.TaskExecutors;
@@ -28,10 +29,9 @@ import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.commons.FileDownloader;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -89,7 +89,14 @@ public class FileManagerController extends BaseController {
             willDeleteIds.add(fileId);
         }
 
-        Application.getCommonsService().delete(willDeleteIds.toArray(new ID[0]));
+        TransactionStatus tx = TransactionManual.newTransaction();
+        ServiceSpec ss = Application.getService(EntityHelper.Attachment);
+        try {
+            for (ID fileId : willDeleteIds) ss.delete(fileId);
+            TransactionManual.commit(tx);
+        } catch (Exception ex) {
+            TransactionManual.rollback(tx);
+        }
         return RespBody.ok();
     }
 
@@ -124,9 +131,25 @@ public class FileManagerController extends BaseController {
         return filePath == null ? RespBody.error() : RespBody.ok(filePath);
     }
 
-    // 是否可读取文件
+    /**
+     * 是否可读取文件
+     *
+     * @param fileId
+     * @param user
+     * @return
+     */
     static String checkFileReadable(ID fileId, ID user) {
-        Object[] file = Application.getQueryFactory().uniqueNoFilter(fileId, "filePath,relatedRecord,belongEntity");
+        // v4.2 目录
+        if (fileId.getEntityCode() == EntityHelper.AttachmentFolder) {
+            return FilesHelper.getAccessableFolders(user).contains(fileId) ? fileId.toLiteral() : null;
+        }
+        // FIXME v4.2 仪表盘临时借用
+        if (fileId.getEntityCode() == EntityHelper.DashboardConfig) {
+            return UserHelper.isSelf(user, fileId) ? fileId.toLiteral() : null;
+        }
+
+        Object[] file = Application.getQueryFactory().uniqueNoFilter(
+                fileId, "filePath,relatedRecord,belongEntity");
         if (file == null) return null;
         if (UserHelper.isAdmin(user)) return (String) file[0];
 
@@ -192,34 +215,17 @@ public class FileManagerController extends BaseController {
             return RespBody.errorl("无权修改他人文件");
         }
 
-        final String newName = getParameterNotNull(req, "newName");
+        String newName = getParameterNotNull(req, "newName");
 
         Object[] o = Application.getQueryFactory().uniqueNoFilter(fileId, "filePath");
         String filePath = (String) o[0];
         if (CommonsUtils.isExternalUrl(filePath)) return RespBody.errorl("无法修改外部文件");
 
         String oldName = QiniuCloud.parseFileName(filePath);
-        if (StringUtils.equals(newName, oldName)) return RespBody.ok();
+        if (StringUtils.equals(newName, oldName)) return RespBody.ok(filePath);
 
         String newFilePath = filePath.substring(0, filePath.lastIndexOf(oldName)) + newName;
-
-        if (QiniuCloud.instance().available()) {
-            QiniuCloud.instance().move(newFilePath, filePath);
-        } else {
-            File src = RebuildConfiguration.getFileOfData(filePath);
-            // 移动两次，解决字母大小写问题
-            File destTmp = RebuildConfiguration.getFileOfData(newFilePath + ".tmp");
-            File dest = RebuildConfiguration.getFileOfData(newFilePath);
-            FileUtils.moveFile(src, destTmp);
-            FileUtils.moveFile(destTmp, dest);
-        }
-
-        Record r = EntityHelper.forUpdate(fileId, user);
-        r.setString("filePath", newFilePath);
-        r.setString("fileName", newName);
-        String ext = FilenameUtils.getExtension(newName);
-        r.setString("fileType", CommonsUtils.maxstr(ext, 10));
-        Application.getCommonsService().update(r, false);
-        return RespBody.ok();
+        FilesHelper.moveFile(filePath, newFilePath, fileId);
+        return RespBody.ok(newFilePath);
     }
 }

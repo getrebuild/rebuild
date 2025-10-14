@@ -34,6 +34,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.NoRecordFoundException;
+import com.rebuild.core.service.approval.ApprovalHelper;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.general.GeneralEntityService;
@@ -41,6 +42,7 @@ import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.general.DataListWrapper;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import com.rebuild.utils.JSONUtils;
@@ -142,6 +144,7 @@ public class FormsBuilder extends FormsManager {
         ApprovalState approvalState;
         // 提示
         String readonlyMessage = null;
+        String readonlywMessage = null;  // 可强制编辑
 
         // 判断表单权限
 
@@ -152,10 +155,15 @@ public class FormsBuilder extends FormsManager {
                 Assert.notNull(mainid, "CALL `FormBuilderContextHolder#setMainIdOfDetail` FIRST!");
 
                 approvalState = EntityHelper.isUnsavedId(mainid) ? null : getHadApproval(hasMainEntity, mainid);
-                if ((approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED)) {
-                    readonlyMessage = approvalState == ApprovalState.APPROVED
-                            ? Language.L("主记录已审批完成，不能添加明细")
-                            : Language.L("主记录正在审批中，不能添加明细");
+                if (approvalState == ApprovalState.APPROVED) {
+                    readonlyMessage = Language.L("主记录已审批完成，不能添加明细");
+                } else if (approvalState == ApprovalState.PROCESSING) {
+                    boolean allow42 = ApprovalHelper.isAllowEditableRecord(mainid, user);
+                    if (allow42) {
+                        readonlywMessage = Language.L("主记录正在审批中，审批人允许编辑");
+                    } else {
+                        readonlyMessage = Language.L("主记录正在审批中，不能添加明细");
+                    }
                 }
                 // 明细无需审批
                 approvalState = null;
@@ -192,7 +200,13 @@ public class FormsBuilder extends FormsManager {
                 if (approvalState == ApprovalState.APPROVED) {
                     readonlyMessage = Language.L("%s已审批完成，不能编辑", recordType);
                 } else if (approvalState == ApprovalState.PROCESSING) {
-                    readonlyMessage = Language.L("%s正在审批中，不能编辑", recordType);
+                    // v4.2
+                    boolean allow42 = ApprovalHelper.isAllowEditableRecord(recordId, user);
+                    if (allow42) {
+                        readonlywMessage = Language.L("%s正在审批中，审批人允许编辑", recordType);
+                    } else {
+                        readonlyMessage = Language.L("%s正在审批中，不能编辑", recordType);
+                    }
                 }
             }
         }
@@ -249,7 +263,8 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        buildModelElements(elements, entityMeta, recordData, user, viewMode, true);
+        buildModelElements(elements, entityMeta, recordData, user, viewMode,
+                viewMode && cn.devezhao.commons.ObjectUtils.toBool(model.getBoolean("hideEmptyFields")), true);
 
         if (elements.isEmpty()) {
             return formatModelError(Language.L("此表单布局尚未配置，请配置后使用"));
@@ -310,7 +325,8 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        if (readonlyMessage != null) model.set("readonlyMessage", readonlyMessage);
+        if (readonlywMessage != null) model.set("readonlywMessage", readonlywMessage);
+        else if (readonlyMessage != null) model.set("readonlyMessage", readonlyMessage);
 
         // v3.4
         String disabledViewEditable = EasyMetaFactory.valueOf(entityMeta)
@@ -329,6 +345,7 @@ public class FormsBuilder extends FormsManager {
             if (StringUtils.isBlank(recordName)) recordName = EasyMetaFactory.getLabel(recordData.getEntity());
             model.set("recordName", recordName);
         }
+
         return model.toJSON();
     }
 
@@ -381,9 +398,10 @@ public class FormsBuilder extends FormsManager {
      * @param recordData
      * @param user
      * @param viewModel 是否视图
+     * @param hideEmpty 隐藏空值字段
      * @param useAdvControl 是否使用表单高级控制
      */
-    protected void buildModelElements(JSONArray elements, Entity entity, Record recordData, ID user, boolean viewModel, boolean useAdvControl) {
+    protected void buildModelElements(JSONArray elements, Entity entity, Record recordData, ID user, boolean viewModel, boolean hideEmpty, boolean useAdvControl) {
         final User formUser = Application.getUserStore().getUser(user);
         final Date now = CalendarUtils.now();
 
@@ -397,7 +415,10 @@ public class FormsBuilder extends FormsManager {
         for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
             JSONObject field = (JSONObject) iter.next();
             String fieldName = field.getString("field");
-            if (DIVIDER_LINE.equalsIgnoreCase(fieldName)) continue;
+            if (DIVIDER_LINE.equalsIgnoreCase(fieldName)) {
+                I18nUtils.replaceLP(field, "label");
+                continue;
+            }
             if (REFFORM_LINE.equalsIgnoreCase(fieldName)) {
                 // v3.6
                 if (viewModel && recordData != null) {
@@ -625,6 +646,12 @@ public class FormsBuilder extends FormsManager {
                     field.put("value", value);
                 }
 
+                // v4.2 隐藏空值字段
+                if (hideEmpty && value == null) {
+                    iter.remove();
+                    continue;
+                }
+
                 // 父级级联
                 if ((dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) && recordData.getPrimary() != null) {
                     ID parentValue = getCascadingFieldParentValue(easyField, recordData.getPrimary(), false);
@@ -657,6 +684,9 @@ public class FormsBuilder extends FormsManager {
                 }
                 else if (!fp.isUpdatable(fieldMeta, user)) field.put("readonly", true);
             }
+
+            // v4.2
+            I18nUtils.replaceLP(field, "tip");
         }
     }
 
@@ -707,7 +737,7 @@ public class FormsBuilder extends FormsManager {
      * @param user4Desensitized 不传则不脱敏
      * @return
      * @see FieldValueHelper#wrapFieldValue(Object, EasyField)
-     * @see DataListWrapper#wrapFieldValue(Object, Field)
+     * @see DataListWrapper#wrapFieldValue(Object, EasyField)
      */
     public Object wrapFieldValue(Record data, EasyField field, ID user4Desensitized) {
         final DisplayType dt = field.getDisplayType();
