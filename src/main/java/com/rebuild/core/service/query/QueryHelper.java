@@ -16,6 +16,8 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
@@ -152,6 +154,17 @@ public class QueryHelper {
                 detailEntity.getPrimaryField().getName(),
                 detailEntity.getName(),
                 MetadataHelper.getDetailToMainField(detailEntity).getName());
+
+        // v4.2 默认排序 TODO 应该可手动拖动更佳???
+        String sort = EasyMetaFactory.valueOf(detailEntity).getExtraAttr(EasyEntityConfigProps.DETAILS_SORT42);
+        if (StringUtils.isNotBlank(sort)) {
+            String[] ss = sort.split(":");
+            if (MetadataHelper.getLastJoinField(detailEntity, ss[0]) != null) {
+                sql = sql.substring(0, sql.length() - 10) + ss[0];
+                if (ss.length > 1 && "desc".equalsIgnoreCase(ss[1])) sql += " desc";
+                else sql += " asc";
+            }
+        }
 
         Query query = Application.createQueryNoFilter(sql).setParameter(1, mainId);
         Object[][] array = query.array();

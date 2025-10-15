@@ -51,6 +51,8 @@ $(document).ready(() => {
       // v4.0
       extConfig.detailsSeq = $val('#detailsSeq')
       extConfig.detailsHide = $val('#detailsHide')
+      // v4.2
+      extConfig.detailsSort = $val('#detailsSort')
     }
     extConfig.repeatFieldsCheckMode = $val('#repeatFieldsCheckMode') ? 'and' : 'or'
     extConfig.enabledListEditable = $val('#enabledListEditable')
@@ -66,6 +68,7 @@ $(document).ready(() => {
         'detailsCopiable',
         'detailsSeq',
         'detailsHide',
+        'detailsSort',
         'repeatFieldsCheckMode',
         'enabledListEditable',
         'disabledViewEditable',
@@ -208,5 +211,9 @@ $(document).ready(() => {
   // v4.1
   if (wpc.extConfig.enabledListEditable) {
     $('#enabledListEditable').parents('.bosskey-show').removeClass('bosskey-show')
+  }
+  // v4.2
+  if (wpc.extConfig.detailsSort) {
+    $('#detailsSort').val(wpc.extConfig.detailsSort).parents('.bosskey-show').removeClass('bosskey-show')
   }
 })
