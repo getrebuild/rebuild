@@ -155,10 +155,10 @@ public class QueryHelper {
                 detailEntity.getName(),
                 MetadataHelper.getDetailToMainField(detailEntity).getName());
 
-        // v4.2 默认排序 TODO 应该可手动拖动更佳???
-        String sort = EasyMetaFactory.valueOf(detailEntity).getExtraAttr(EasyEntityConfigProps.DETAILS_SORT42);
-        if (StringUtils.isNotBlank(sort)) {
-            String[] ss = sort.split(":");
+        // v4.2 明細默认排序 TODO 应该可手动拖动更佳???
+        String sort42 = EasyMetaFactory.valueOf(detailEntity).getExtraAttr(EasyEntityConfigProps.DETAILS_SORT42);
+        if (StringUtils.isNotBlank(sort42)) {
+            String[] ss = sort42.split(":");
             if (MetadataHelper.getLastJoinField(detailEntity, ss[0]) != null) {
                 sql = sql.substring(0, sql.length() - 10) + ss[0];
                 if (ss.length > 1 && "desc".equalsIgnoreCase(ss[1])) sql += " desc";

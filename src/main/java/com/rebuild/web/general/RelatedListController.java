@@ -18,6 +18,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.privileges.FieldPrivileges;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.feeds.FeedsType;
@@ -66,12 +68,22 @@ public class RelatedListController extends BaseController {
 
         Entity relatedEntity = MetadataHelper.getEntity(related.split("\\.")[0]);
 
-        String sort = getParameter(request, "sort", "modifiedOn:desc");
+        String sortExpr = getParameter(request, "sort", "modifiedOn:desc");
         // 名称字段排序
-        if ("NAME".equalsIgnoreCase(sort)) {
-            sort = relatedEntity.getNameField().getName() + ":asc";
+        if ("NAME".equalsIgnoreCase(sortExpr)) {
+            sortExpr = relatedEntity.getNameField().getName() + ":asc";
         }
-        sql += " order by " + sort.replace(":", " ");
+        // v4.2 明細默认排序
+        else if ("autoId:asc".equals(sortExpr)) {
+            String sort42 = EasyMetaFactory.valueOf(relatedEntity).getExtraAttr(EasyEntityConfigProps.DETAILS_SORT42);
+            if (StringUtils.isNotBlank(sort42)) {
+                String[] ss = sort42.split(":");
+                if (MetadataHelper.getLastJoinField(relatedEntity, ss[0]) != null) {
+                    sortExpr = ss[0] + ":" + (ss.length > 1 && "desc".equalsIgnoreCase(ss[1]) ? "desc" : "asc");
+                }
+            }
+        }
+        sql += " order by " + sortExpr.replace(":", " ");
 
         int pn = NumberUtils.toInt(getParameter(request, "pageNo"), 1);
         int ps = NumberUtils.toInt(getParameter(request, "pageSize"), 200);
