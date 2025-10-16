@@ -1765,13 +1765,18 @@ class HeadingText extends BaseChart {
 
     // class
     $(this._$box).parent().parent().addClass('HeadingText')
+    // v42 radius
+    const config2 = this.state.config.extconfig || {}
+    if ((config2.style || {}).bgradius) {
+      $(this._$box).parents('.chart-box').css('border-radius', ~~config2.style.bgradius)
+      $(this._$box).parents('.grid-stack-item-content').css('border-radius', ~~config2.style.bgradius)
+    }
     // action
     const $op = $(this._$box).find('.chart-oper')
     $op.find('.J_fullscreen, .J_source').remove()
     $op.find('.J_chart-edit').on('click', (e) => {
       $stopEvent(e, true)
 
-      const config2 = this.state.config.extconfig || {}
       renderRbcomp(
         // eslint-disable-next-line react/jsx-no-undef
         <HeadingTextSettings
