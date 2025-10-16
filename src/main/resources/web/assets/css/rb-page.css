@@ -6104,3 +6104,11 @@ div.formula-code {
   font-size: 10px;
   border-radius: 10rem;
 }
+
+.file-field .ui-sortable-placeholder,
+.img-field .ui-sortable-placeholder {
+  visibility: visible !important;
+  background-color: #eee !important;
+  border-radius: 2px;
+  opacity: 0.5;
+}
