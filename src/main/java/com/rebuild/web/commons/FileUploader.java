@@ -90,7 +90,7 @@ public class FileUploader extends BaseController {
 
             // 添加 iw 参数支持水印
             String iw42 = getParameter(request, "iw");
-            if (StringUtils.isNotBlank(iw42)) {
+            if (StringUtils.isNotBlank(iw42) && ImageMaker.isImage(dest)) {
                 if (iw42.contains("{USER}")) iw42 = iw42.replace("{USER}", user.toLiteral().toLowerCase());
                 if (iw42.contains("{DATE}")) iw42 = iw42.replace("{DATE}", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
 
@@ -107,6 +107,10 @@ public class FileUploader extends BaseController {
         } else {
             writeFailure(response, Language.L("上传失败，请稍后重试"));
         }
+    }
+
+    private void iw42(File file, String iw42) {
+
     }
 
     /**
