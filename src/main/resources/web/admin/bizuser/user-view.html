@@ -9,8 +9,13 @@
         cursor: pointer;
         opacity: 0.8;
       }
-      .J_roleAppends a.badge:hover {
-        color: #fff;
+      .J_roleAppends a.badge,
+      .J_joinTeams a.badge {
+        color: #fff !important;
+      }
+      .J_roleAppends a.badge:hover,
+      .J_joinTeams a.badge:hover {
+        opacity: 0.8;
       }
     </style>
   </head>
@@ -78,11 +83,15 @@
               <dd class="col-12 col-lg-8 J_loginOn"><span>[[${bundle.L('无')}]]</span></dd>
             </dl>
             <div class="form-line admin-show">
-              <fieldset><legend></legend></fieldset>
+              <fieldset class="mt-2"><legend></legend></fieldset>
             </div>
             <dl class="row admin-show">
               <dt class="col-12 col-lg-4">[[${bundle.L('附加角色')}]]</dt>
-              <dd class="col-12 col-lg-8 J_roleAppends"><span>[[${bundle.L('无')}]]</span></dd>
+              <dd class="col-12 col-lg-8 J_roleAppends"><span class="text-muted">[[${bundle.L('无')}]]</span></dd>
+            </dl>
+            <dl class="row admin-show">
+              <dt class="col-12 col-lg-4">[[${bundle.L('加入团队')}]]</dt>
+              <dd class="col-12 col-lg-8 J_joinTeams"><span class="text-muted">[[${bundle.L('无')}]]</span></dd>
             </dl>
           </div>
         </div>
