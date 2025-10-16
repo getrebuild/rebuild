@@ -642,6 +642,7 @@ class ProTableTree extends ProTable {
     const inlineForms = this.state.inlineForms || []
     // v4.0-b3
     const stcParentField = (this._extConf40.showTreeConfig || {}).parentField
+    const stcMaxNodeLevel = (this._extConf40.showTreeConfig || {}).maxNodeLevel || 99
     const colActionClazz = `col-action ${stcParentField && 'has-copy-btn'} ${!fixedWidth && 'column-fixed'}`
 
     return (
@@ -710,7 +711,7 @@ class ProTableTree extends ProTable {
                   </th>
                   {FORM}
                   <td className={`col-action ${!fixedWidth && 'column-fixed'}`}>
-                    {stcParentField && (
+                    {stcParentField && FORM.props.rawModel._treeNodeLevel + 1 < stcMaxNodeLevel && (
                       <button className="btn btn-light" title={$L('添加子级')} onClick={() => this.insertLine(key, idx + 1)} disabled={readonly}>
                         <i className="icon zmdi zmdi-plus fs-16" />
                       </button>
@@ -761,8 +762,10 @@ class ProTableTree extends ProTable {
     // 父级ID
     const stc = this.props.showTreeConfig
     if (stc && stc.parentField) {
-      const parentId = PF.props.rawModel.id.replace('000-', stc.parentFieldRefEntityCode + '-')
-      this._setValueInModel(model, stc.parentField, parentId)
+      // v4.2 默认本实体
+      if (!stc.parentFieldRefEntityCode) stc.parentFieldRefEntityCode = this._initModel.entityMeta.entityCode
+      const parentVId = PF.props.rawModel.id.replace('000-', stc.parentFieldRefEntityCode + '-')
+      this._setValueInModel(model, stc.parentField, { id: parentVId, text: $L('父级') }, true)
     }
     this._addLine(model, index)
   }
@@ -781,7 +784,7 @@ class ProTableTree extends ProTable {
     if (stc && stc.parentField) {
       let root = []
       models.forEach((model) => {
-        let p = this._getValueInModel(model, stc.parentField)
+        const p = this._getValueInModel(model, stc.parentField, true)
         if (!p) {
           if (!model.id) model.id = $random('000-', true, 20) // newVID
           model._treeNodeLevel = 0
@@ -804,7 +807,7 @@ class ProTableTree extends ProTable {
   _findNodes(parent, models) {
     const stc = this.props.showTreeConfig
     models.forEach((model) => {
-      let p = this._getValueInModel(model, stc.parentField)
+      let p = this._getValueInModel(model, stc.parentField, true)
       if (p && (p === parent.id || p.substr(3) === (parent.id || '').substr(3))) {
         model._treeNodeLevel = parent._treeNodeLevel + 1
         // recursion
@@ -822,13 +825,19 @@ class ProTableTree extends ProTable {
       })
     }
   }
-  _getValueInModel(model, fieldName) {
+  _getValueInModel(model, fieldName, checkDeleted) {
     let found = model.elements.find((x) => x.field === fieldName)
-    return found && found.value ? found.value.id : null
+    if (!found || !found.value) return null
+    if (checkDeleted && found.value.text === '[DELETED]') return null
+    return found.value.id || null
   }
-  _setValueInModel(model, fieldName, value) {
+  _setValueInModel(model, fieldName, value, readonly) {
     let found = model.elements.find((x) => x.field === fieldName)
-    if (found) found.value = { id: value, text: value }
+    if (found) {
+      if (readonly === true) found.readonly = true
+      if (typeof value === 'object') found.value = value
+      else found.value = { id: value, text: value }
+    }
   }
 
   /**
