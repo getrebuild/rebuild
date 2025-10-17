@@ -577,7 +577,7 @@ const _handleReference = function (isN2N) {
   _initRefsDefaultValue([referenceEntity], isN2N)
 
   // BIZZ 特殊处理
-  if (['User', 'Department', 'Team'].includes(referenceEntity)) {
+  if (['User', 'Department', 'Team', 'Role'].includes(referenceEntity)) {
     const $dv = $('.J_defaultValue')
     const $dvClear = $('.J_defaultValue-clear')
 

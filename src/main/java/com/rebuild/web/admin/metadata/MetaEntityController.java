@@ -189,6 +189,7 @@ public class MetaEntityController extends EntityController {
             Map<String, Object> map = new HashMap<>();
             map.put("entityName", easyMeta.getName());
             map.put("entityLabel", easyMeta.getLabel());
+            map.put("quickCode", QuickCodeReindexTask.generateQuickCode(easyMeta.getLabel()));
             map.put("comments", easyMeta.getComments());
             map.put("icon", easyMeta.getIcon());
             map.put("builtin", easyMeta.isBuiltin());
