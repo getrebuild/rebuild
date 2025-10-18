@@ -22,6 +22,7 @@ import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -89,6 +90,9 @@ public abstract class AutoHoldTriggerAction extends TriggerAction {
         JSONArray fields = actionContent.getJSONArray("fields");
         if (fields == null) fields = actionContent.getJSONArray("fields42");
         if (fields == null) fields = actionContent.getJSONArray("revokeFields");
+
+        // fix:4.2-b1
+        if (CollectionUtils.isEmpty(fields)) return new HashSet<>();
 
         List<String> fieldsRefs = new ArrayList<>();
         List<Field> fieldsRelateds = new ArrayList<>();
