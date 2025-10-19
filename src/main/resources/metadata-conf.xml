@@ -14,7 +14,7 @@
         <field name="userId" type="primary"/>
         <field name="loginName" type="string" max-length="100" nullable="false" updatable="false" repeatable="false" description="用户名"/>
         <field name="password" type="string" max-length="100" nullable="false" updatable="false" queryable="false" description="登录密码"/>
-        <field name="email" type="string" max-length="100" description="邮箱" repeatable="false" extra-attrs="{displayType:'EMAIL'}"/>
+        <field name="email" type="string" max-length="100" repeatable="false" description="邮箱" extra-attrs="{displayType:'EMAIL'}"/>
         <field name="fullName" type="string" max-length="100" description="姓名"/>
         <field name="avatarUrl" type="string" max-length="200" description="头像" extra-attrs="{displayType:'AVATAR'}"/>
         <field name="jobTitle" type="string" max-length="100" description="职务"/>
@@ -25,9 +25,11 @@
         <field name="quickCode" type="string" max-length="50" queryable="false"/>
         <field name="seq" type="int" default-value="0" description="显示顺序"/>
         <field name="externalId" type="string" max-length="100" queryable="false" creatable="false" updatable="false" description="外部用户ID"/>
+        <field name="userNo" type="string" max-length="100" repeatable="false" description="工号"/>
         <index type="unique" field-list="loginName"/>
         <index type="unique" field-list="email"/>
         <index type="unique" field-list="externalId"/>
+        <index type="unique" field-list="userNo"/>
         <index field-list="quickCode,fullName,email"/>
     </entity>
 

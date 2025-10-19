@@ -112,7 +112,7 @@ public class FileManagerController extends BaseController {
 
             ID fileId = ID.valueOf(file);
             if (!FilesHelper.isFileManageable(user, fileId)) {
-                return RespBody.errorl("无权修改他人文件");
+                return RespBody.errorl("无权修改此文件");
             }
 
             Record r = EntityHelper.forUpdate(fileId, user);
@@ -212,7 +212,7 @@ public class FileManagerController extends BaseController {
         final ID user = getRequestUser(req);
         final ID fileId = getIdParameter(req, "id");
         if (!FilesHelper.isFileManageable(user, fileId)) {
-            return RespBody.errorl("无权修改他人文件");
+            return RespBody.errorl("无权修改此文件");
         }
 
         String newName = getParameterNotNull(req, "newName");
