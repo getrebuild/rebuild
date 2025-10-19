@@ -474,8 +474,8 @@ class RbForm extends React.Component {
       <div className="detail-form-table" data-entity={detailMeta.entity}>
         <div className="row">
           <div className="col-4 detail-form-header">
-            <h5 className="mt-2 mb-1 text-bold fs-14">
-              <i className={`icon zmdi zmdi-${detailMeta.icon} fs-15 mr-2`} />
+            <h5 className="mt-2 mb-1 text-bold fs-13">
+              <i className={`icon zmdi zmdi-${detailMeta.icon} fs-15 mr-1`} />
               {detailMeta.entityLabel}
               {rb.isAdminUser && (
                 <a href={`${rb.baseUrl}/admin/entity/${detailMeta.entity}/form-design`} target="_blank" title={$L('表单设计')}>

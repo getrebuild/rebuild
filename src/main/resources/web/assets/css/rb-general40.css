@@ -67,10 +67,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .detail-form-header h5 > a {
   opacity: 0.6;
-  padding: 0 8px;
+  padding: 0 6px;
   font-size: 15px;
   color: #616161;
-  transform: translateY(1px);
+  transform: translateY(1.5px);
   display: none;
 }
 
@@ -356,6 +356,10 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
 
 .protable .table tbody tr.active {
   background-color: #eceff1;
+}
+
+.protable td .select2.select2-container {
+  max-width: 500px;
 }
 
 /* DataList */
