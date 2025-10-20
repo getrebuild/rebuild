@@ -25,6 +25,7 @@ import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SysbaseHeartbeat;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.admin.ConfigurationController;
 import com.wf.captcha.SpecCaptcha;
 import com.wf.captcha.utils.CaptchaUtil;
@@ -59,7 +60,7 @@ public class LoginController extends LoginAction {
     public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String homeUrl = "../dashboard/home";
         String nexturl = getParameter(request, "nexturl", homeUrl);
-        if (nexturl.startsWith("http")) nexturl = homeUrl;
+        if (CommonsUtils.isExternalUrl(nexturl)) nexturl = homeUrl;
 
         // 直接登录
         if (AppUtils.getRequestUser(request) != null) {

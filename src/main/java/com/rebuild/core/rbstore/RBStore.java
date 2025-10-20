@@ -11,6 +11,7 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +70,7 @@ public class RBStore {
      * @throws RebuildException
      */
     protected static String fetchRemoteFile(String fileUrl) throws RebuildException {
-        if (!fileUrl.startsWith("http")) {
+        if (!CommonsUtils.isExternalUrl(fileUrl)) {
             fileUrl = DATA_REPO + (fileUrl.startsWith("/") ? fileUrl.substring(1) : fileUrl);
         }
 
