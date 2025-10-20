@@ -110,7 +110,7 @@ class TransformEditor extends ConfigFormDlg {
                       </option>
                     )
                   })}
-                  {entities.length && (
+                  {window.__BOSSKEY && entities.length && (
                     <RF>
                       <option value="User">{$L('用户')}</option>
                       <option value="Department">{$L('部门')}</option>
