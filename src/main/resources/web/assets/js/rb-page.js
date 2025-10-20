@@ -810,7 +810,6 @@ var $createUploader = function (input, next, complete, error) {
     })
   }
 }
-var $initUploader = $createUploader
 
 // 多文件上传
 // FIXME 有并发上传问题

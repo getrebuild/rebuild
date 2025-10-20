@@ -15,6 +15,7 @@ import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.utils.img.ImageMaker;
 import com.rebuild.web.BaseController;
@@ -90,7 +91,7 @@ public class FileUploader extends BaseController {
 
             // 添加 iw 参数支持水印
             String iw42 = getParameter(request, "iw");
-            if (StringUtils.isNotBlank(iw42) && ImageMaker.isImage(dest)) {
+            if (StringUtils.isNotBlank(iw42) && CommonsUtils.isImageFile(dest)) {
                 if (iw42.contains("{USER}")) iw42 = iw42.replace("{USER}", user.toLiteral().toLowerCase());
                 if (iw42.contains("{DATE}")) iw42 = iw42.replace("{DATE}", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
 

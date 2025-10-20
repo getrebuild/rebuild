@@ -152,7 +152,7 @@ let _$imgCurrent
 const _toggleImage = function (el, init) {
   const $file = $('.file_4image')
   if (init) {
-    $initUploader($file, null, (res) => {
+    $createUploader($file, null, (res) => {
       _$imgCurrent.find('>i').css('background-image', `url(${rb.baseUrl}/filex/img/${res.key}?local=true)`)
       changeValue({ target: { name: _$imgCurrent.data('id'), value: res.key } })
     })
@@ -326,7 +326,7 @@ $(document).ready(() => {
   }
 
   const $input = $('input.J_MobileAppPath')
-  $initUploader(
+  $createUploader(
     $input,
     (res) => {
       $('button.J_MobileAppPath span').text(` (${res.percent.toFixed(1)}%)`)

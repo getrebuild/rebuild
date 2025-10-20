@@ -101,7 +101,7 @@ class MediaCapturer extends RbModal {
       })
 
     if (this.props.forceFile) {
-      $initUploader(
+      $createUploader(
         this._$fileinput,
         () => {
           if (!$mp.isStarted()) {

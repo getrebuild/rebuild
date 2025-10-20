@@ -507,4 +507,35 @@ public class CommonsUtils {
         }
         return msg == null ? "" : msg;
     }
+
+    /**
+     * 是否图片
+     *
+     * @param file
+     * @return
+     */
+    public static boolean isImageFile(File file) {
+        String filename = file.getName().toLowerCase();
+        return  filename.endsWith(".gif")
+                || filename.endsWith(".png")
+                || filename.endsWith(".jpg")
+                || filename.endsWith(".jpeg")
+                || filename.endsWith(".bmp");
+    }
+
+    /**
+     * 是否 Office
+     *
+     * @param file
+     * @return
+     */
+    public static boolean isOfficeFile(File file) {
+        String filename = file.getName().toLowerCase();
+        return  filename.endsWith(".doc")
+                || filename.endsWith(".docx")
+                || filename.endsWith(".xls")
+                || filename.endsWith(".xlsx")
+                || filename.endsWith(".ppt")
+                || filename.endsWith(".pptx");
+    }
 }

@@ -1,10 +1,8 @@
 package com.rebuild.utils.img;
 
-import cn.hutool.core.io.FileUtil;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.CommonsUtils;
-import jodd.io.FileNameUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;
@@ -192,20 +190,5 @@ public class ImageMaker {
 
         g.dispose();
         return image;
-    }
-
-    /**
-     * 是否图片
-     *
-     * @param file
-     * @return
-     */
-    public static boolean isImage(File file) {
-        String filename = file.getName().toLowerCase();
-        return  filename.endsWith(".gif")
-                || filename.endsWith(".png")
-                || filename.endsWith(".jpg")
-                || filename.endsWith(".jpeg")
-                || filename.endsWith(".bmp");
     }
 }
