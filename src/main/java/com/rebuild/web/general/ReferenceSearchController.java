@@ -87,14 +87,14 @@ public class ReferenceSearchController extends EntityController {
         ProtocolFilterParser fp = new ProtocolFilterParser();
         if (StringUtils.isNotBlank(varRecord)) {
             if (JSONUtils.wellFormat(varRecord)) {
-                fp.setVarRecord(JSON.parseObject(varRecord));
+                fp.setVarRecord(JSONUtils.parseObjectSafe(varRecord));
             } else {
                 // 兼容处理
                 try {
                     varRecord = CodecUtils.urlDecode(varRecord);
                 } catch (Exception ignored) {}
                 if (JSONUtils.wellFormat(varRecord)) {
-                    fp.setVarRecord(JSON.parseObject(varRecord));
+                    fp.setVarRecord(JSONUtils.parseObjectSafe(varRecord));
                 }
             }
         }

@@ -10,11 +10,16 @@ package com.rebuild.utils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * JSON format
@@ -111,5 +116,14 @@ public class JSONUtils {
         if (StringUtils.isBlank(text)) return false;
         text = text.trim();
         return (text.startsWith("{") && text.endsWith("}")) || (text.startsWith("[") && text.endsWith("]"));
+    }
+
+    /**
+     * @param text
+     * @return
+     * @see JSON#parseObject(String)
+     */
+    public static JSONObject parseObjectSafe(String text) {
+        return JSON.parseObject(text, Feature.SafeMode);
     }
 }
