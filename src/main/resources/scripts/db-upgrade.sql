@@ -3,7 +3,7 @@
 
 -- #67 (v4.2)
 alter table `user`
-  add column `USER_NO` varchar(100) comment '工号';
+  add column `JOB_NUMBER` varchar(100) comment '工号';
 
 -- #66 (v4.2)
 alter table `robot_approval_step`

@@ -155,8 +155,8 @@ public class UserService extends BaseService {
         if (record.hasValue("loginName")) {
             checkLoginName(record.getString("loginName"));
         }
-        if (record.hasValue("userNo")) {
-            checkUserNo(record.getString("userNo"));
+        if (record.hasValue("jobNumber")) {
+            checkJobNumber(record.getString("jobNumber"));
         }
 
         if (record.hasValue("password")) {
@@ -197,19 +197,20 @@ public class UserService extends BaseService {
     }
 
     /**
-     * @param userNo
+     * @param jobNumber
      * @throws DataSpecificationException
      */
-    private void checkUserNo(String userNo) throws DataSpecificationException {
-        if (StringUtils.isBlank(userNo)) return;
+    private void checkJobNumber(String jobNumber) throws DataSpecificationException {
+        if (StringUtils.isBlank(jobNumber)) return;
 
         // TODO 工号为保留字段，后续增加更多特性
         Object[] e = Application.createQueryNoFilter(
-                "select userId from User where userNo = ?")
-                .setParameter(1, userNo)
+                "select userId from User where jobNumber = ?")
+                .setParameter(1, jobNumber)
                 .unique();
         if (e != null) {
-            throw new DataSpecificationException(Language.L("工号已存在"));
+            log.warn("工号已存在:{}", jobNumber);
+//            throw new DataSpecificationException(Language.L("工号已存在"));
         }
     }
 

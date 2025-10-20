@@ -27,6 +27,7 @@ create table if not exists `user` (
   `FULL_NAME`          varchar(100) comment '姓名',
   `AVATAR_URL`         varchar(200) comment '头像',
   `JOB_TITLE`          varchar(100) comment '职务',
+  `JOB_NUMBER`         varchar(100) comment '工号',
   `WORKPHONE`          varchar(100) comment '工作电话',
   `DEPT_ID`            char(20) comment '部门',
   `ROLE_ID`            char(20) comment '角色',
@@ -34,7 +35,6 @@ create table if not exists `user` (
   `QUICK_CODE`         varchar(50),
   `SEQ`                int(11) default '0' comment '显示顺序',
   `EXTERNAL_ID`        varchar(100) comment '外部用户ID',
-  `USER_NO`            varchar(100) comment '工号',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -43,8 +43,7 @@ create table if not exists `user` (
   unique index UIX0_user (`LOGIN_NAME`),
   unique index UIX1_user (`EMAIL`),
   unique index UIX2_user (`EXTERNAL_ID`),
-  unique index UIX3_user (`USER_NO`),
-  index IX4_user (`QUICK_CODE`, `FULL_NAME`, `EMAIL`)
+  index IX3_user (`QUICK_CODE`, `FULL_NAME`, `EMAIL`)
 )Engine=InnoDB;
 
 -- ************ Entity [Department] DDL ************

@@ -18,6 +18,7 @@
         <field name="fullName" type="string" max-length="100" description="姓名"/>
         <field name="avatarUrl" type="string" max-length="200" description="头像" extra-attrs="{displayType:'AVATAR'}"/>
         <field name="jobTitle" type="string" max-length="100" description="职务"/>
+        <field name="jobNumber" type="string" max-length="100" description="工号"/>
         <field name="workphone" type="string" max-length="100" description="工作电话" extra-attrs="{displayType:'PHONE'}"/>
         <field name="deptId" type="reference" ref-entity="Department" updatable="false" description="部门"/>
         <field name="roleId" type="reference" ref-entity="Role" updatable="false" description="角色"/>
@@ -25,11 +26,9 @@
         <field name="quickCode" type="string" max-length="50" queryable="false"/>
         <field name="seq" type="int" default-value="0" description="显示顺序"/>
         <field name="externalId" type="string" max-length="100" queryable="false" creatable="false" updatable="false" description="外部用户ID"/>
-        <field name="userNo" type="string" max-length="100" repeatable="false" description="工号"/>
         <index type="unique" field-list="loginName"/>
         <index type="unique" field-list="email"/>
         <index type="unique" field-list="externalId"/>
-        <index type="unique" field-list="userNo"/>
         <index field-list="quickCode,fullName,email"/>
     </entity>
 
