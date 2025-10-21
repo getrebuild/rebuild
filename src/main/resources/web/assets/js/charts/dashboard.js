@@ -194,7 +194,7 @@ $(document).ready(() => {
             {
               timeout: 30 * 1000,
               type: 'success',
-              icon: 'mdi-shimmer',
+              icon: 'mdi-cog-counterclockwise animated rotateIn',
             }
           )
           window.localStorage.setItem('LastRebuildVer', rb.ver)
