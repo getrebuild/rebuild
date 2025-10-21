@@ -326,6 +326,23 @@ $(document).ready(function () {
 
   // v3.7
   $('.page-help>a').attr('href', $('.page-help>a').attr('href') + `field-${wpc.fieldType.toLowerCase()}`)
+
+  // v4.2 Value detect
+  $.get(`/admin/entity/field-value-detect?entity=${wpc.entityName}&field=${wpc.fieldName}`, (res) => {
+    if (res.data && res.data.length) {
+      $('.J_tas')
+        .removeClass('hide')
+        .find('a')
+        .on('click', (e) => {
+          $stopEvent(e, true)
+          if (rb.commercial < 1) {
+            RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+          } else {
+            renderRbcomp(<FieldValueDetectViewer data={res.data} />)
+          }
+        })
+    }
+  })
 })
 
 // Check incorrect?
@@ -912,5 +929,36 @@ class FieldTypeCast extends RbFormHandler {
         RbHighbar.error(res.error_msg)
       }
     })
+  }
+}
+
+class FieldValueDetectViewer extends RbAlert {
+  renderContent() {
+    const TS = {
+      'RobotTriggerConfig': '触发器',
+      'AutoFillinConfig': '表单回填',
+    }
+
+    return (
+      <table className="table m-0">
+        <tbody>
+          {this.props.data.map((item, idx) => {
+            let cHtml = marked.parseInline(item[1])
+            cHtml = cHtml.replace(/\/admin\//g, `${rb.baseUrl}/admin/`)
+            cHtml = cHtml.replace(/<a /g, '<a target="_blank" ')
+            console.log(cHtml)
+
+            return (
+              <tr key={idx}>
+                <td>{WrapHtml(cHtml)}</td>
+                <td align="right">
+                  <span className="badge badge-info">{TS[item[0]] || item[0]}</span>
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    )
   }
 }

@@ -20,6 +20,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.FieldValueSourceDetector;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -285,5 +286,17 @@ public class MetaFieldController extends BaseController {
             }
         }
         return co;
+    }
+
+    @RequestMapping("field-value-detect")
+    public RespBody fieldValueDetect(@EntityParam Entity entity, HttpServletRequest request) {
+        Field field = entity.getField(getParameterNotNull(request, "field"));
+        try {
+            List<Object> res = new FieldValueSourceDetector().detect(field);
+            return RespBody.ok(res);
+        } catch (Exception ex) {
+            log.error("field-value-detect", ex);
+        }
+        return RespBody.ok();
     }
 }
