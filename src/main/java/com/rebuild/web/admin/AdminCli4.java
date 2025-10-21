@@ -20,8 +20,10 @@ import com.rebuild.core.support.setup.Installer;
 import com.rebuild.core.support.setup.SimpleEntity;
 import com.rebuild.utils.AES;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -81,7 +83,7 @@ public class AdminCli4 {
                         " \ncache [clean|get] [KEY]" +
                         " \nsyscfg NAME [VALUE]" +
                         " \nsyscfg clean-qiniu|clean-sms|clean-email|clean-wxwork|clean-dingtalk|clean-feishu|clean-aibot" +
-                        " \nbackup [database|datafile|conf]" +
+                        " \nbackup [database|datafile|conf[a,b]]" +
                         " \naes [decrypt] VALUE" +
                         " \nclean-approval ENTITY" +
                         " \nadd-testentity" +
@@ -222,7 +224,9 @@ public class AdminCli4 {
         List<String> result = new ArrayList<>();
         try {
             if ("conf".equals(type)) {
-                File backup = RbvFunction.call().dumpRebuildConf();
+                int a = commands.length > 2 ? NumberUtils.toInt(commands[2]) : 0;
+                boolean b = commands.length > 3 && BooleanUtils.toBoolean(commands[3]);
+                File backup = RbvFunction.call().dumpRebuildConf(a, b);
                 result.add("Backup conf : " + backup);
             }
             else {

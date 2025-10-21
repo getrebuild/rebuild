@@ -68,7 +68,7 @@ public class RbvFunction {
 
     // -- CONF
 
-    public File dumpRebuildConf() {
+    public File dumpRebuildConf(int a, boolean b) {
         log.debug("No RbvFunction : dumpRebuildConf");
         return null;
     }
