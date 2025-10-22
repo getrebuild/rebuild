@@ -1006,7 +1006,7 @@ class ApprovalList extends BaseChart {
                       </span>
                     </td>
                     <td className="cell-detail">
-                      <a href={`${rb.baseUrl}/app/redirect?id=${item[3]}&type=newtab`} target="_blank">
+                      <a href={`${rb.baseUrl}/app/redirect?id=${item[3]}&type=newtab`} target="_blank" title={$L('查看记录')} onClick={(e) => this._listenerStateChanged42(e)}>
                         {item[4]}
                       </a>
                       <span className="cell-detail-description">{item[6]}</span>
@@ -1083,6 +1083,21 @@ class ApprovalList extends BaseChart {
       )
     }
   }
+
+  // 打开记录后操作审批，这里自动刷新
+  _listenerStateChanged42() {
+    $(document)
+      .off('visibilitychange._listenerStateChanged42')
+      .on('visibilitychange._listenerStateChanged42', () => {
+        if (document.visibilityState === 'visible') {
+          if ($storage.get('_listenerStateChanged42')) {
+            $storage.remove('_listenerStateChanged42')
+            $(document).off('visibilitychange._listenerStateChanged42')
+            this.loadChartData()
+          }
+        }
+      })
+  }
 }
 
 // ~ 我的日程
@@ -1123,7 +1138,7 @@ class FeedsSchedule extends BaseChart {
                       <a href={`${rb.baseUrl}/app/redirect?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
                       {item.relatedRecord && (
                         <span className="cell-detail-description fs-12">
-                          {$L('关联记录')} :&nbsp;
+                          {item.relatedRecord.entityLabel || $L('关联记录')} :&nbsp;
                           <a href={`${rb.baseUrl}/app/redirect?id=${item.relatedRecord.id}&type=newtab`} target="_blank" title={$L('查看记录')}>
                             {item.relatedRecord.text}
                           </a>
@@ -1566,7 +1581,7 @@ class DataList extends BaseChart {
                     return this.renderCell(c, listFields[idx])
                   })}
                   <td className="open-newtab">
-                    <a href={viewUrl} target="_blank" title={$L('打开')}>
+                    <a href={viewUrl} target="_blank" title={$L('查看记录')}>
                       <i className="zmdi zmdi-open-in-new icon" />
                     </a>
                   </td>

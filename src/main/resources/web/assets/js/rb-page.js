@@ -198,7 +198,6 @@ $(function () {
           $.cookie('AppHome.Dash', active[1] || '', { expires: 30 })
         }
       }
-      console.log('Switch on visibilityState ...', $.cookie('AppHome.Nav'), $.cookie('AppHome.Dash'))
     }
   }
 
