@@ -69,7 +69,7 @@ class ProTable extends React.Component {
                   </th>
                 )
               })}
-              <td className={colActionClazz} />
+              {!readonly && <td className={colActionClazz} />}
             </tr>
           </thead>
           <tbody ref={(c) => (this._$tbody = c)}>
@@ -92,16 +92,18 @@ class ProTable extends React.Component {
                     )}
                   </th>
                   {FORM}
-                  <td className={`col-action ${!fixedWidth && 'column-fixed'}`}>
-                    {this._initModel.detailsCopiable && (
-                      <button className="btn btn-light" title={$L('复制')} onClick={() => this.copyLine(key)} disabled={readonly}>
-                        <i className="icon zmdi zmdi-copy fs-13" />
+                  {!readonly && (
+                    <td className={`col-action ${!fixedWidth && 'column-fixed'}`}>
+                      {this._initModel.detailsCopiable && (
+                        <button className="btn btn-light" title={$L('复制')} onClick={() => this.copyLine(key)} disabled={readonly}>
+                          <i className="icon zmdi zmdi-copy fs-13" />
+                        </button>
+                      )}
+                      <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={readonly}>
+                        <i className="icon zmdi zmdi-close fs-16" />
                       </button>
-                    )}
-                    <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={readonly}>
-                      <i className="icon zmdi zmdi-close fs-16" />
-                    </button>
-                  </td>
+                    </td>
+                  )}
                 </tr>
               )
             })}
@@ -122,7 +124,7 @@ class ProTable extends React.Component {
                     </th>
                   )
                 })}
-                <td className={colActionClazz} />
+                {!readonly && <td className={colActionClazz} />}
               </tr>
             </tfoot>
           )}

@@ -109,6 +109,15 @@ class RbFormModal extends React.Component {
     this._showAfter({}, true)
   }
 
+  // fix:v4.2 保持当前实例
+  componentWillUnmount() {
+    const that = RbFormModal
+    if (that.__CURRENT42 && that.__CURRENT42.length) {
+      that.__CURRENT42.pop() // remove
+      that.__CURRENT35 = that.__CURRENT42.at(-1) || null // last
+    }
+  }
+
   // 渲染表单
   getFormModel() {
     const entity = this.state.entity
@@ -261,10 +270,13 @@ class RbFormModal extends React.Component {
     }
 
     // `__CURRENT35`, `__HOLDER` 可能已 unmount
-    const that = this
+    const that = RbFormModal
+    that.__CURRENT42 = that.__CURRENT42 || []
+
     if (forceNew === true) {
       renderRbcomp(<RbFormModal {...props} disposeOnHide />, function () {
         that.__CURRENT35 = this
+        that.__CURRENT42.push(this)
       })
       return
     }
@@ -275,6 +287,7 @@ class RbFormModal extends React.Component {
       renderRbcomp(<RbFormModal {...props} />, function () {
         that.__HOLDER = this
         that.__CURRENT35 = this
+        that.__CURRENT42.push(this)
       })
     }
   }
@@ -1453,18 +1466,18 @@ class RbFormNText extends RbFormElement {
     const _readonly37 = this.state.readonly
     const props = this.props
 
+    let clazz2 = `form-control ${!this._heightAuto && 'row3x'} ${props.useCode && 'formula-code'} ${props.useMdedit && _readonly37 ? 'cm-readonly' : ''} ${this.state.hasError && 'is-invalid'}`
+    let style2 = this._height > 0 ? { height: this._height } : this._heightAuto ? { height: 37 } : null
     return (
       <RF>
         <textarea
           ref={(c) => {
             this._fieldValue = c
-            if (this._heightAuto) {
-              c && autosize(c)
-            } else {
-              this._height > 0 && c && $(c).attr('style', `height:${this._height}px`)
-            }
+            console.log('autosize:', c.scrollHeight)
+            this._heightAuto && autosize(c)
           }}
-          className={`form-control ${!this._heightAuto && 'row3x'} ${props.useCode && 'formula-code'} ${this.state.hasError && 'is-invalid'} ${props.useMdedit && _readonly37 ? 'cm-readonly' : ''}`}
+          className={clazz2}
+          style={style2}
           title={this.state.hasError}
           value={this.state.value || ''}
           onChange={(e) => this.handleChange(e, !_readonly37)}
@@ -1530,6 +1543,11 @@ class RbFormNText extends RbFormElement {
     }
   }
 
+  componentWillUnmount() {
+    super.componentWillUnmount()
+    this._fieldValue && this._heightAuto && autosize.destroy(this._fieldValue)
+  }
+
   componentDidMount() {
     super.componentDidMount()
     // fix:4.1
@@ -1546,6 +1564,9 @@ class RbFormNText extends RbFormElement {
       } else {
         $(this._textarea).perfectScrollbar('destroy')
       }
+    }
+    if (this._fieldValue && this._heightAuto && destroy) {
+      autosize.destroy(this._fieldValue)
     }
 
     if (!destroy) {
