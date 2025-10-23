@@ -1373,6 +1373,12 @@ a.link.link-icon::after {
   padding: 8px;
 }
 
+.rbform .type-NTEXT textarea.form-control {
+  min-height: 37px;
+  font-size: 1rem;
+  padding: 4px 10px;
+}
+
 /* v35 */
 .form-layout.refform {
   display: block;

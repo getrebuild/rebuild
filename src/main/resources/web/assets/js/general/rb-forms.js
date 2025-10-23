@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global EasyMDE, RepeatedViewer, ProTable, Md2Html, ClassificationSelector */
+/* global EasyMDE, RepeatedViewer, ProTable, Md2Html, ClassificationSelector, autosize */
 
 /**
  * Callback API:
@@ -1436,10 +1436,16 @@ class RbFormNText extends RbFormElement {
     super(props)
     this._textCommonMenuId = props.readonly || !props.textCommon ? null : $random('tcddm-')
 
-    this._height = this.props.useMdedit ? 0 : ~~this.props.height
-    if (this._height && this._height > 0) {
-      if (this._height === 1) this._height = 37
-      else this._height = this._height * 20 + 12
+    this._height = 0
+    if (!this.props.useMdedit) {
+      this._height = ~~this.props.height
+      // v4.2 自动高度
+      if (this.props.height === '0') {
+        this._heightAuto = true
+      } else if (this._height > 0) {
+        if (this._height === 1) this._height = 37
+        else this._height = this._height * 20 + 12
+      }
     }
   }
 
@@ -1452,9 +1458,13 @@ class RbFormNText extends RbFormElement {
         <textarea
           ref={(c) => {
             this._fieldValue = c
-            this._height > 0 && c && $(c).attr('style', `height:${this._height}px !important`)
+            if (this._heightAuto) {
+              c && autosize(c)
+            } else {
+              this._height > 0 && c && $(c).attr('style', `height:${this._height}px`)
+            }
           }}
-          className={`form-control form-control-sm row3x ${props.useCode && 'formula-code'} ${this.state.hasError && 'is-invalid'} ${props.useMdedit && _readonly37 ? 'cm-readonly' : ''}`}
+          className={`form-control ${!this._heightAuto && 'row3x'} ${props.useCode && 'formula-code'} ${this.state.hasError && 'is-invalid'} ${props.useMdedit && _readonly37 ? 'cm-readonly' : ''}`}
           title={this.state.hasError}
           value={this.state.value || ''}
           onChange={(e) => this.handleChange(e, !_readonly37)}
