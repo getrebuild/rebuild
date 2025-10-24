@@ -9,7 +9,6 @@ package com.rebuild.core.metadata;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -79,7 +78,7 @@ public class FieldValueSourceDetector {
                         sourceField = "[计算公式]";
                     } else if (MetadataHelper.getLastJoinField(entity, sourceField) != null) {
                         Field lastJoinField = MetadataHelper.getLastJoinField(entity, sourceField);
-                        sourceField = getJoinLabel(entity, sourceField);
+                        sourceField = Language.L(entity, sourceField);
                         sourceField = String.format("[%s](/admin/entity/%s/field/%s)",
                                 sourceField, lastJoinField.getOwnEntity().getName(), lastJoinField.getName());
                     } else {
@@ -118,31 +117,9 @@ public class FieldValueSourceDetector {
             String desc = String.format(
                     "选择 [%s](/admin/entity/%s/field/%s/auto-fillin) 时从 [%s](/admin/entity/%s/field/%s)",
                     Language.L(sourceRefField), entity.getName(), sourceRefField.getName(),
-                    getJoinLabel(sourceRefEntity, (String) o[1]), sourceRefEntity.getName(), sourceValueField.getName());
+                    Language.L(sourceRefEntity, (String) o[1]), sourceRefEntity.getName(), sourceValueField.getName());
             res.add(new String[]{"AutoFillinConfig", desc});
         }
         return res;
-    }
-
-    private String getJoinLabel(Entity entity, String fieldPath) {
-        List<String> joinLabel = new ArrayList<>();
-        joinLabel.add(Language.L(entity));
-
-        Field lastField;
-        Entity father = entity;
-        for (String field : fieldPath.split("\\.")) {
-            if (father != null && father.containsField(field)) {
-                lastField = father.getField(field);
-                joinLabel.add(Language.L(lastField));
-                if (lastField.getType() == FieldType.REFERENCE || lastField.getType() == FieldType.REFERENCE_LIST) {
-                    father = lastField.getReferenceEntity();
-                }  else {
-                    father = null;
-                }
-            } else {
-                return "[" + fieldPath.toUpperCase() + "]";
-            }
-        }
-        return StringUtils.join(joinLabel, ".");
     }
 }

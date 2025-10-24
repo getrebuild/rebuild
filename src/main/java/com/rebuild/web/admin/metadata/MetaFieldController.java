@@ -95,12 +95,12 @@ public class MetaFieldController extends BaseController {
                     if (ID.isId(classid)) {
                         Object[] name = Application.getQueryFactory().unique(ID.valueOf(classid), "name");
                         if (name != null) {
-                            map.put("displayTypeRef", new Object[] { classid, name[0] });
+                            map.put("displayTypeRef", new Object[]{classid, name[0]});
                         }
                     }
                 } else if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
                     Entity ref = field.getReferenceEntity();
-                    map.put("displayTypeRef", new Object[] { ref.getName(), EasyMetaFactory.getLabel(ref) });
+                    map.put("displayTypeRef", new Object[]{ref.getName(), EasyMetaFactory.getLabel(ref)});
                 }
             }
 
@@ -247,13 +247,13 @@ public class MetaFieldController extends BaseController {
         Field refField = currentEntity.getField(getParameterNotNull(request, "field"));
         Entity referenceEntity = refField.getReferenceEntity();
 
-        List<JSONObject> list = getCoReferenceFields(currentEntity, referenceEntity, false);
+        List<JSONObject> res = getCoReferenceFields(currentEntity, referenceEntity, false);
         // 明细实体关联主实体父级级联
         if (currentEntity.getMainEntity() != null) {
-            list.addAll(getCoReferenceFields(currentEntity.getMainEntity(), referenceEntity, true));
+            res.addAll(getCoReferenceFields(currentEntity.getMainEntity(), referenceEntity, true));
         }
 
-        return RespBody.ok(list);
+        return RespBody.ok(res);
     }
 
     // 获取共同引用字段
@@ -280,8 +280,7 @@ public class MetaFieldController extends BaseController {
                         name = entity.getName() + "." + name;
                     }
 
-                    co.add(JSONUtils.toJSONObject(
-                            new String[] { "name", "label" }, new String[] { name, label } ));
+                    co.add(JSONUtils.toJSONObject(new String[]{"name", "label"}, new String[]{name, label}));
                 }
             }
         }

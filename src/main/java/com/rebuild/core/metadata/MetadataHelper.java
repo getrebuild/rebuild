@@ -205,7 +205,7 @@ public class MetadataHelper {
     }
 
     /**
-     * 仅供系统使用的字段，用户不可见/不可用
+     * 仅供系统使用的字段（用户不可见/不可用）
      *
      * @param fieldName
      * @return
@@ -214,7 +214,8 @@ public class MetadataHelper {
         return EntityHelper.AutoId.equalsIgnoreCase(fieldName)
                 || EntityHelper.QuickCode.equalsIgnoreCase(fieldName)
                 || EntityHelper.IsDeleted.equalsIgnoreCase(fieldName)
-                || EntityHelper.ApprovalStepNode.equalsIgnoreCase(fieldName);
+                || EntityHelper.ApprovalStepNode.equalsIgnoreCase(fieldName)
+                || EntityHelper.Seq.equalsIgnoreCase(fieldName);
     }
 
     /**
