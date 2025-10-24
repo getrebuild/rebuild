@@ -500,8 +500,8 @@ class RbForm extends React.Component {
 
           <div className="col-8 text-right detail-form-action">
             <div className="fjs-dock"></div>
-            {_detailImports.length > 0 && !this.props.readonly && (
-              <div className="btn-group mr-2">
+            {_detailImports.length > 0 && (
+              <div className={`btn-group J_import-detail ${this.props.readonly && 'hide'}`}>
                 <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
                   <i className="icon mdi mdi-transfer-down"></i> {$L('导入明细')}
                 </button>
@@ -523,7 +523,7 @@ class RbForm extends React.Component {
               </div>
             )}
 
-            <div className={`btn-group J_add-detail ${this.props.readonly && 'hide'}`}>
+            <div className={`btn-group J_add-detail ml-2 ${this.props.readonly && 'hide'}`}>
               <button className="btn btn-secondary" type="button" onClick={() => _addNew()}>
                 <i className="icon x14 mdi mdi-playlist-plus mr-1" />
                 {$L('添加明细')}

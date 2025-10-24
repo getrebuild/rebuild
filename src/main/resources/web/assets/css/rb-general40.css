@@ -104,6 +104,10 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   margin-right: 5px;
 }
 
+.rbform .detail-form-table .detail-form-action {
+  min-height: 36.39px;
+}
+
 .rbform .dialog-footer .fjs-dock,
 .rbform .detail-form-table .detail-form-action .fjs-dock,
 .dataTables_wrapper .dataTables_oper .fjs-dock,
@@ -283,6 +287,12 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
 
 .protable .table .col-action .btn:hover {
   background-color: #e6e6e6;
+}
+
+.detail-form-table.col-action-hide .col-action,
+.detail-form-table.col-action-hide-remove .col-action .J_remove-detail,
+.detail-form-table.col-action-hide-copy .col-action .J_copy-detail {
+  display: none;
 }
 
 .protable .table thead th,
