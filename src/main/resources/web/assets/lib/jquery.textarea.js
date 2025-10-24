@@ -60,7 +60,8 @@
       if (testForHeightReduction) {
         // ensure the scrollTop values of parent elements are not modified as a consequence of shrinking the textarea height
         restoreScrollTops = cacheScrollTops(ta)
-        ta.style.height = ''
+        var fixHeight42 = ta.getAttribute('data-fix-autosize-height') || ''
+        ta.style.height = fixHeight42
       }
 
       var newHeight
@@ -81,7 +82,7 @@
         ta.style.overflow = 'hidden'
       }
 
-      ta.style.height = newHeight + 'px'
+      ta.style.height = ~~newHeight + 'px'
 
       if (restoreTextAlign) {
         ta.style.textAlign = restoreTextAlign

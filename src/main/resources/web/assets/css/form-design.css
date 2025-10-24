@@ -364,7 +364,6 @@ form.field-attr label > span {
   width: 20px;
   position: absolute;
   left: 13px;
-  margin-top: -1px;
 }
 
 .form-preview .dd-handle::before,

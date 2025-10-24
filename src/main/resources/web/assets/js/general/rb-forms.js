@@ -1452,7 +1452,7 @@ class RbFormNText extends RbFormElement {
     this._height = 0
     if (!this.props.useMdedit) {
       this._height = ~~this.props.height
-      // v4.2 自动高度
+      // v4.2 填0自动高度
       if (this.props.height === '0') {
         this._heightAuto = true
       } else if (this._height > 0) {
@@ -1466,15 +1466,15 @@ class RbFormNText extends RbFormElement {
     const _readonly37 = this.state.readonly
     const props = this.props
 
-    let clazz2 = `form-control ${!this._heightAuto && 'row3x'} ${props.useCode && 'formula-code'} ${props.useMdedit && _readonly37 ? 'cm-readonly' : ''} ${this.state.hasError && 'is-invalid'}`
+    let clazz2 = `form-control ${props.useCode && 'formula-code'} ${props.useMdedit && _readonly37 ? 'cm-readonly' : ''} ${this.state.hasError && 'is-invalid'}`
+    if (!(this._heightAuto || this._height > 0)) clazz2 += ' row3x'
     let style2 = this._height > 0 ? { height: this._height } : this._heightAuto ? { height: 37 } : null
     return (
       <RF>
         <textarea
           ref={(c) => {
             this._fieldValue = c
-            console.log('autosize:', c.scrollHeight)
-            this._heightAuto && autosize(c)
+            this._heightAuto && c && autosize(c)
           }}
           className={clazz2}
           style={style2}
@@ -1484,6 +1484,7 @@ class RbFormNText extends RbFormElement {
           readOnly={_readonly37}
           placeholder={this._placeholderw}
           maxLength="6000"
+          data-fix-autosize-height="37px"
         />
         {props.useMdedit && !_readonly37 && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
         {this._textCommonMenuId && (
