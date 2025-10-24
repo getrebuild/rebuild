@@ -15,9 +15,8 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
@@ -155,15 +154,9 @@ public class QueryHelper {
                 detailEntity.getName(),
                 MetadataHelper.getDetailToMainField(detailEntity).getName());
 
-        // v4.2 明細默认排序 TODO 应该可手动拖动更佳???
-        String sort42 = EasyMetaFactory.valueOf(detailEntity).getExtraAttr(EasyEntityConfigProps.DETAILS_SORT42);
-        if (StringUtils.isNotBlank(sort42)) {
-            String[] ss = sort42.split(":");
-            if (MetadataHelper.getLastJoinField(detailEntity, ss[0]) != null) {
-                sql = sql.substring(0, sql.length() - 10) + ss[0];
-                if (ss.length > 1 && "desc".equalsIgnoreCase(ss[1])) sql += " desc";
-                else sql += " asc";
-            }
+        // v4.2 明細排序
+        if (detailEntity.containsField(EntityHelper.Seq)) {
+            sql = sql.substring(0, sql.length() - 10) + " seq asc";
         }
 
         Query query = Application.createQueryNoFilter(sql).setParameter(1, mainId);

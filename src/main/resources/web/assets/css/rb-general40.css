@@ -295,6 +295,17 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   display: none;
 }
 
+.detail-form-sort-helper,
+.detail-form-sort-placeholder {
+  width: 100%;
+  height: 51.57px;
+  background-color: #eceff1;
+}
+
+.detail-form-sort-helper {
+  opacity: 0.6;
+}
+
 .protable .table thead th,
 .protable .table tfoot th {
   position: relative;

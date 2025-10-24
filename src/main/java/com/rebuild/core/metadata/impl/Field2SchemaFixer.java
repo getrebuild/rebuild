@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.impl;
 
 import cn.devezhao.commons.ThrowableUtils;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.Dialect;
@@ -170,6 +171,20 @@ public class Field2SchemaFixer extends Field2Schema {
         Application.getCommonsService().update(r, false);
 
         MetadataHelper.getMetadataFactory().refresh();
+        return true;
+    }
+
+    /**
+     * @param entity
+     * @return
+     */
+    public boolean addSeqField(Entity entity) {
+        if (entity.getMainEntity() == null) return false;
+        if (entity.containsField(EntityHelper.Seq)) return false;
+
+        Field seqField = createUnsafeField(entity, EntityHelper.Seq, "SEQ", DisplayType.NUMBER,
+                true, false, false, true, false, null, null, null, null, null);
+        schema2Database(entity, new Field[]{seqField});
         return true;
     }
 

@@ -279,6 +279,8 @@ public class FormsBuilder extends FormsManager {
             model.set("detailsNotEmpty", entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_NOTEMPTY));
             // v3.6
             model.set("detailsCopiable", entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_COPIABLE));
+            // v4.2
+            model.set("detailsHasSeq", entityMeta.containsField(EntityHelper.Seq));
         } else if (entityMeta.getDetailEntity() != null) {
             model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
             // compatible v3.3

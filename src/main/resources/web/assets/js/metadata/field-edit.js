@@ -887,17 +887,6 @@ class FieldTypeCast extends RbFormHandler {
               <button className="btn btn-link" type="button" onClick={() => this.hide()}>
                 {$L('取消')}
               </button>
-              <button className="btn btn-light w-auto dropdown-toggle bosskey-show" type="button" data-toggle="dropdown">
-                {$L('更多')} (LAB) <i className="icon zmdi zmdi-more-vert"></i>
-              </button>
-              <div className="dropdown-menu">
-                <a className="dropdown-item" onClick={() => this.post('DATETIME40')}>
-                  修订日期时间类型
-                </a>
-                <a className="dropdown-item" onClick={() => this.post('UPLOADNUMBER41')}>
-                  放大允许上传数量
-                </a>
-              </div>
             </div>
           </div>
         </div>

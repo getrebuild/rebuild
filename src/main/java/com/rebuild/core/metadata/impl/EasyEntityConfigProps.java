@@ -45,10 +45,6 @@ public class EasyEntityConfigProps {
      * 显示/隐藏方式
      */
     public static final String DETAILS_HIDE = "detailsHide";
-    /**
-     * 默认排序（共同编辑）
-     */
-    public static final String DETAILS_SORT42 = "detailsSort";
 
     /**
      * 隐藏常用查询面板
