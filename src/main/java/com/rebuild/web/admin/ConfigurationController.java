@@ -542,6 +542,14 @@ public class ConfigurationController extends BaseController {
         Date endTime;
         String note;
         boolean notLogin;
+
+        /**
+         * 不允许登录?
+         * @return
+         */
+        public boolean unallowLogin() {
+            return isNotLogin() && getStartTime().compareTo(CalendarUtils.now()) <= 0;
+        }
     }
 
     @GetMapping("systems/maintenance-mode")

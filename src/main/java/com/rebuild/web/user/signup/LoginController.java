@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.user.signup;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
@@ -171,7 +170,7 @@ public class LoginController extends LoginAction {
         // v34 维护计划
         if (!UserHelper.isAdmin(loginUser.getId())) {
             ConfigurationController.MaintenanceMode mm = ConfigurationController.getCurrentMm();
-            if (mm != null && mm.isNotLogin() && mm.getStartTime().compareTo(CalendarUtils.now()) <= 0) {
+            if (mm != null && mm.unallowLogin()) {
                 return RespBody.errorl("系统正在维护，暂时禁止登录");
             }
         }
