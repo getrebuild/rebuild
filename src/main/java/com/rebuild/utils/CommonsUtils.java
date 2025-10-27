@@ -367,9 +367,22 @@ public class CommonsUtils {
      * @return
      */
     public static Date parseDate(String source) {
-        if (source.length() == 4 || source.contains("-") || source.contains("年")) {
-            source = source.replaceAll("[年月日\\-\\s:.]", "");
-            String format = "yyyyMMddHHmmssSSS".substring(0, source.length());
+        if (source.length() == 4) {
+            Date d = CalendarUtils.parse(source, "yyyy");
+            if (d != null) return d;
+        }
+
+        if (source.contains("-") || source.contains("年") || source.contains("/")) {
+            String[] ss = source.split("[年月日\\-\\s:./]");
+            for (int i = 0; i < ss.length; i++) {
+                String s = ss[i];
+                if (s.length() == 1) ss[i] = "0" + s;
+            }
+            source = StringUtils.join(ss, "-");
+            source = source.replace("--", "-");
+            if (source.endsWith("-")) source = source.substring(0, source.length() - 1);
+
+            String format = "yyyy-MM-dd-HH-mm-ss-SSS".substring(0, source.length());
             Date d = CalendarUtils.parse(source, format);
             if (d != null) return d;
         }
@@ -379,16 +392,6 @@ public class CommonsUtils {
             if (dt != null) return dt.toJdkDate();
         } catch (DateException ignored) {
         }
-
-        // 2017/11/19 11:07
-        if (source.contains("/")) {
-            String[] fs = new String[]{"yyyy/M/d H:m:s", "yyyy/M/d H:m", "yyyy/M/d"};
-            for (String format : fs) {
-                Date d = CalendarUtils.parse(source, format);
-                if (d != null) return d;
-            }
-        }
-
         return null;
     }
 
