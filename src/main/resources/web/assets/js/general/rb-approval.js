@@ -806,7 +806,7 @@ class ApproveFormExtAction extends RbAlert {
         </div>
         <div className="form-group mb-1">
           <button
-            disabled={this.state.disable}
+            disabled={this.state.disabled}
             type="button"
             className="btn btn-space btn-primary"
             onClick={() => {

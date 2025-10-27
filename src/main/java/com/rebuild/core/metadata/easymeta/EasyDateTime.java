@@ -11,6 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
@@ -54,10 +55,11 @@ public class EasyDateTime extends EasyField {
         }
 
         String dateValue = (String) wrapValue(value);
-        // padding
-        dateValue += "1970-01-01 00:00:00".substring(dateValue.length());
-
-        return CalendarUtils.parse(dateValue);
+        // 周X
+        if (dateValue.contains("(")) {
+            dateValue = dateValue.replaceAll("\\s*\\(.*?\\)\\s*", " ");
+        }
+        return CommonsUtils.parseDate(dateValue);
     }
 
     @Override

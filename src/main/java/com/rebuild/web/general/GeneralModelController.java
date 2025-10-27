@@ -141,15 +141,7 @@ public class GeneralModelController extends EntityController {
         ID followMainLayout = getIdParameter(request, "mainLayoutId");
         if (followMainLayout != null) {
             FormsBuilderContextHolder.setFromProTable();
-            // 明细绑定主实体布局
-            if (specLayout == null) {
-                ConfigBean cb = FormsBuilder.instance.getFormLayout(modelEntity.getMainEntity().getName(), followMainLayout, 0);
-                JSONObject detailsFromsAttr = (JSONObject) cb.getJSON("detailsFromsAttr");
-                Object specLayout41 = detailsFromsAttr == null ? null : detailsFromsAttr.get(entity);
-                if (ID.isId(specLayout41)) {
-                    specLayout = ID.valueOf((String) specLayout41);
-                }
-            }
+            if (specLayout == null) specLayout = getDetailEntityLayout(modelEntity, followMainLayout);
         }
 
         try {
@@ -173,6 +165,14 @@ public class GeneralModelController extends EntityController {
             FormsBuilderContextHolder.isFromProTable(true);
             FormsBuilderContextHolder.getSpecLayout(true);
         }
+    }
+
+    // 明细绑定主实体布局
+    private ID getDetailEntityLayout(Entity detailEntity, ID mainLayoutId) {
+        ConfigBean cb = FormsBuilder.instance.getFormLayout(detailEntity.getMainEntity().getName(), mainLayoutId, 0);
+        JSONObject detailsFromsAttr = (JSONObject) cb.getJSON("detailsFromsAttr");
+        Object specLayout41 = detailsFromsAttr == null ? null : detailsFromsAttr.get(detailEntity.getName());
+        return ID.isId(specLayout41) ? ID.valueOf((String) specLayout41) : null;
     }
 
     @GetMapping("view-model")
@@ -259,23 +259,35 @@ public class GeneralModelController extends EntityController {
         List<ID> ids = QueryHelper.detailIdsNoFilter(mainid, detailEntityMeta);
         if (ids.isEmpty()) return JSONUtils.EMPTY_ARRAY;
 
-        JSONArray details = new JSONArray();
+        ID specLayout = null;
+        // v4.1 ProTable 携带主实体布局
+        ID followMainLayout = getIdParameter(request, "mainLayoutId");
+        if (followMainLayout != null) {
+            FormsBuilderContextHolder.setFromProTable();
+            specLayout = getDetailEntityLayout(detailEntityMeta, followMainLayout);
+        }
 
         // v3.7 使用指定记录布局
-        ConfigBean forceLayout = FormsManager.instance
-                .getFormLayout(detailEntityMeta.getName(), ids.get(0), FormsManager.APPLY_EDIT);
-        FormsBuilderContextHolder.setSpecLayout(forceLayout.getID("id"));
+        if (specLayout == null) {
+            ConfigBean forceLayout = FormsManager.instance
+                    .getFormLayout(detailEntityMeta.getName(), ids.get(0), FormsManager.APPLY_EDIT);
+            specLayout = forceLayout.getID("id");
+        }
 
+        FormsBuilderContextHolder.setSpecLayout(specLayout);
+
+        JSONArray details = new JSONArray();
         try {
             for (ID did : ids) {
                 JSON model = FormsBuilder.instance.buildForm(entity, user, did);
                 ((JSONObject) model).put("id", did);
                 details.add(model);
             }
+
         } finally {
+            FormsBuilderContextHolder.isFromProTable(true);
             FormsBuilderContextHolder.getSpecLayout(true);
         }
-
         return details;
     }
 }

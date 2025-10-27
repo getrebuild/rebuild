@@ -239,10 +239,10 @@ class DeleteConfirm extends RbAlert {
                   </div>
                 )}
                 <div className="mt-4 mb-3" ref={(c) => (this._btns = c)}>
-                  <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={() => this.hide()}>
+                  <button disabled={this.state.disabled} className="btn btn-space btn-secondary" type="button" onClick={() => this.hide()}>
                     {$L('取消')}
                   </button>
-                  <button disabled={this.state.disable} className="btn btn-space btn-danger" type="button" onClick={() => this.handleDelete()} ref={(c) => (this._$dbtn = c)}>
+                  <button disabled={this.state.disabled} className="btn btn-space btn-danger" type="button" onClick={() => this.handleDelete()} ref={(c) => (this._$dbtn = c)}>
                     {$L('删除')}
                   </button>
                 </div>

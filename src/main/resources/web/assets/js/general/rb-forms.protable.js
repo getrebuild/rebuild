@@ -166,7 +166,7 @@ class ProTable extends React.Component {
       }
       // 常规编辑
       else if (this.props.mainid) {
-        $.get(`/app/${entity.entity}/detail-models?mainid=${this.props.mainid}`, (res) => {
+        $.get(`/app/${entity.entity}/detail-models?mainLayoutId=${this.props.mainLayoutId}&mainid=${this.props.mainid}`, (res) => {
           if (res.error_code === 0) {
             this.setLines(res.data || [])
           } else {
