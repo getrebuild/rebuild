@@ -31,6 +31,7 @@ import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.metadata.impl.MetaFieldService;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.utils.JSONUtils;
@@ -77,8 +78,9 @@ public class MetaFieldController extends BaseController {
             Map<String, Object> map = new HashMap<>();
             if (easyMeta.getMetaId() != null) map.put("fieldId", easyMeta.getMetaId());
 
+            String fieldLabel = easyMeta.getLabel();
             map.put("fieldName", easyMeta.getName());
-            map.put("fieldLabel", easyMeta.getLabel());
+            map.put("fieldLabel", fieldLabel);
             map.put("comments", easyMeta.getComments());
             map.put("nullable", field.isNullable());
             map.put("builtin", easyMeta.isBuiltin());
@@ -88,6 +90,7 @@ public class MetaFieldController extends BaseController {
             DisplayType dt = easyMeta.getDisplayType();
             map.put("displayType", Language.L(dt));
             map.put("displayTypeName", easyMeta.getDisplayType().name());
+            map.put("quickCode", QuickCodeReindexTask.generateQuickCode(fieldLabel));
 
             if (getBoolParameter(req, "refname")) {
                 if (dt == DisplayType.CLASSIFICATION) {

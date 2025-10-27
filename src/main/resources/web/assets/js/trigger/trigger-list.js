@@ -120,7 +120,7 @@ class TriggerList extends ConfigList {
           return (
             <tr key={item[0]}>
               <td className="name">
-                <a href={`trigger/${item[0]}`}>{taggedTitle(item[3]) || item[2] + ' · ' + item[7]}</a>
+                <a href={`trigger/${item[0]}`}>{taggedTitle(item[3]) || item[2] + ' - ' + item[7]}</a>
               </td>
               <td>
                 <a href={`${rb.baseUrl}/admin/entity/${item[1]}/base`} className="light-link" target={`_${item[1]}`}>

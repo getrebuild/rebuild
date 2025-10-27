@@ -41,7 +41,10 @@ const renderList = function () {
   const q = ($val('.input-search .form-control') || '').toLowerCase()
 
   fields_data.forEach((item) => {
-    if (q && !(item.fieldName.toLowerCase().contains(q) || item.fieldLabel.toLowerCase().contains(q))) return
+    if (q) {
+      if (item.fieldName.toLowerCase().contains(q) || item.fieldLabel.toLowerCase().contains(q) || item.quickCode.toLowerCase().contains(q));
+      else return
+    }
 
     const $tr = $(`<tr data-id="${item.fieldId || ''}"></tr>`).appendTo($tbody)
     const $name = $(`<td><a href="field/${item.fieldName}" class="column-main">${item.fieldLabel}</a></td>`).appendTo($tr)
