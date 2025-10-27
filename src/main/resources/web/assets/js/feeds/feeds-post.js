@@ -470,7 +470,7 @@ class SelectGroup extends React.Component {
   }
 
   componentDidMount() {
-    $.get('/feeds/group/group-list?self=yes', (res) => this.setState({ groups: res.data }))
+    $.get(`/feeds/group/group-list?self=${!rb.isAdminUser}`, (res) => this.setState({ groups: res.data }))
     $(this._dlg).modal({ show: true, keyboard: true })
   }
 
