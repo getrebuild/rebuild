@@ -2004,7 +2004,6 @@ const detectChart = function (conf, id) {
   // isManageable = 图表可编辑
   // editable = 仪表盘可编辑
   const props = { config: conf, id: id, title: conf.title, type: conf.type, isManageable: conf.isManageable, editable: conf.editable }
-  console.log('conf', conf.extconfig)
 
   if (conf.type === 'INDEX') {
     return <ChartIndex {...props} />

@@ -85,7 +85,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             final String key = "REQ_REENTER:" + requestEntry.getRequestUriWithQuery() + rr;
             Object e = Application.getCommonsCache().getx(key);
             if (e != null) {
-                log.warn("Detected Re-Entry {}:{}", e, requestEntry);
+                log.warn("Re-entry detected {}:{}", e, requestEntry);
                 return false;
             } else {
                 Application.getCommonsCache().putx(key, System.currentTimeMillis(), 301);

@@ -370,7 +370,7 @@ public class FieldValueHelper {
      */
     public static String getText(Object value, EasyField field) {
         if (value == null) return null;
-        if (value instanceof ID) return getLabel((ID) value);
+        if (value instanceof ID) return getLabelNotry((ID) value);
 
         EasyField textTarget = EasyMetaFactory
                 .valueOf(MetadataHelper.getField("User", "fullName"));
