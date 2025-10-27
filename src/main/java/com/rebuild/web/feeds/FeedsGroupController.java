@@ -51,6 +51,15 @@ public class FeedsGroupController extends BaseController {
         final ID user = getRequestUser(request);
         final String query = StringUtils.trim(getParameter(request, "q"));
 
+        // 只返回自己所在的
+        Set<Serializable> self42 = null;
+        if (getBoolParameter(request, "self")) {
+            self42 = new HashSet<>();
+            for (Team t : Application.getUserStore().getUser(user).getOwningTeams()) {
+                self42.add(t.getIdentity());
+            }
+        }
+
         JSONArray res = new JSONArray();
 
         Set<Member> stars = getStars(user, EntityHelper.Team);
@@ -58,8 +67,10 @@ public class FeedsGroupController extends BaseController {
 
         Set<Serializable> starsId = new HashSet<>();
         for (Member t : UserHelper.sortMembers(stars.toArray(new Member[0]))) {
-            if (StringUtils.isEmpty(query)
-                    || StringUtils.containsIgnoreCase(t.getName(), query)) {
+            if (self42 != null) {
+                if (!self42.contains(t.getIdentity())) continue;
+            }
+            if (StringUtils.isEmpty(query) || StringUtils.containsIgnoreCase(t.getName(), query)) {
                 res.add(JSONUtils.toJSONObject(
                         new String[]{"id", "name", "star"},
                         new Object[]{t.getIdentity(), t.getName(), true}));
@@ -69,8 +80,10 @@ public class FeedsGroupController extends BaseController {
 
         Team[] teams = Application.getUserStore().getAllTeams();
         for (Member t : UserHelper.sortMembers((Member[]) filterMembers32(teams, user))) {
-            if (StringUtils.isEmpty(query)
-                    || StringUtils.containsIgnoreCase(t.getName(), query)) {
+            if (self42 != null) {
+                if (!self42.contains(t.getIdentity())) continue;
+            }
+            if (StringUtils.isEmpty(query) || StringUtils.containsIgnoreCase(t.getName(), query)) {
                 if (starsId.contains(t.getIdentity())) continue;
 
                 res.add(JSONUtils.toJSONObject(
@@ -155,13 +168,12 @@ public class FeedsGroupController extends BaseController {
             feedStars += "," + starUser;
         }
 
-        Set<String> clearStars = new HashSet<>();
+        Set<String> clearedStars = new HashSet<>();
         for (String id : feedStars.split(",")) {
-            if (!ID.isId(id)) continue;
-            if (Application.getUserStore().existsUser(ID.valueOf(id))) clearStars.add(id);
+            if (ID.isId(id)) clearedStars.add(id);
         }
 
-        KVStorage.setCustomValue(key, StringUtils.join(clearStars, ","));
+        KVStorage.setCustomValue(key, StringUtils.join(clearedStars, ","));
 
         return RespBody.ok();
     }
