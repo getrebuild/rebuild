@@ -110,10 +110,6 @@ public class FileUploader extends BaseController {
         }
     }
 
-    private void iw42(File file, String iw42) {
-
-    }
-
     /**
      * @see FilesHelper#storeFileSize(String, long)
      */
