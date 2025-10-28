@@ -310,12 +310,15 @@ class RbAlert extends React.Component {
   }
 
   componentDidMount() {
+    const that = this
     const $root = $(this._dlg)
       .modal({ show: true, keyboard: true })
       .on('hidden.bs.modal', function () {
         $keepModalOpen()
         $root.modal('dispose')
         $unmount($root.parent())
+        // v4.2
+        typeof that.props.onHide === 'function' && that.props.onHide()
       })
 
     // z-index
