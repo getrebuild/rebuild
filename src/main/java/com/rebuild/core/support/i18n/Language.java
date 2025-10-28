@@ -7,7 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.i18n;
 
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -26,7 +28,9 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -201,6 +205,28 @@ public class Language implements Initialization {
 
         if (L42 == null) L42 = getCurrentBundle().getLang(meta.getDescription());
         return L42 == null ? meta.getDescription() : L42;
+    }
+
+    public static String L(Entity entity, String fieldsPath) {
+        List<String> join = new ArrayList<>();
+        join.add(Language.L(entity));
+
+        Field lastField;
+        Entity father = entity;
+        for (String field : fieldsPath.split("\\.")) {
+            if (father != null && father.containsField(field)) {
+                lastField = father.getField(field);
+                join.add(Language.L(lastField));
+                if (lastField.getType() == FieldType.REFERENCE || lastField.getType() == FieldType.REFERENCE_LIST) {
+                    father = lastField.getReferenceEntity();
+                }  else {
+                    father = null;
+                }
+            } else {
+                return "[" + fieldsPath.toUpperCase() + "]";
+            }
+        }
+        return StringUtils.join(join, ".");
     }
 
     public static String L(DisplayType type) {

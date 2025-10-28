@@ -110,7 +110,7 @@
     <script type="text/babel">
       $(document).ready(() => {
         const $input = $('input.J_authFile')
-        $initUploader($input, null, (res) => {
+        $createUploader($input, null, (res) => {
           const fileKey = res.key
           $.post(location.href, JSON.stringify({ WxworkAuthFile: fileKey }), (res) => {
             if (res.error_code === 0) {

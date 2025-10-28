@@ -69,7 +69,7 @@ class ProTable extends React.Component {
                   </th>
                 )
               })}
-              <td className={colActionClazz} />
+              {!readonly && <td className={colActionClazz} />}
             </tr>
           </thead>
           <tbody ref={(c) => (this._$tbody = c)}>
@@ -92,16 +92,18 @@ class ProTable extends React.Component {
                     )}
                   </th>
                   {FORM}
-                  <td className={`col-action ${!fixedWidth && 'column-fixed'}`}>
-                    {this._initModel.detailsCopiable && (
-                      <button className="btn btn-light" title={$L('复制')} onClick={() => this.copyLine(key)} disabled={readonly}>
-                        <i className="icon zmdi zmdi-copy fs-13" />
+                  {!readonly && (
+                    <td className={`col-action ${!fixedWidth && 'column-fixed'}`}>
+                      {this._initModel.detailsCopiable && (
+                        <button className="btn btn-light J_copy-detail" title={$L('复制')} onClick={() => this.copyLine(key)} disabled={readonly}>
+                          <i className="icon zmdi zmdi-copy fs-13" />
+                        </button>
+                      )}
+                      <button className="btn btn-light J_remove-detail" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={readonly}>
+                        <i className="icon zmdi zmdi-close fs-16" />
                       </button>
-                    )}
-                    <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={readonly}>
-                      <i className="icon zmdi zmdi-close fs-16" />
-                    </button>
-                  </td>
+                    </td>
+                  )}
                 </tr>
               )
             })}
@@ -122,7 +124,7 @@ class ProTable extends React.Component {
                     </th>
                   )
                 })}
-                <td className={colActionClazz} />
+                {!readonly && <td className={colActionClazz} />}
               </tr>
             </tfoot>
           )}
@@ -153,6 +155,8 @@ class ProTable extends React.Component {
           suppressScrollY: true,
         })
         $(this._$scroller).find('thead .tipping').tooltip()
+        // v4.2
+        if (!this.props.$$$main.props.readonly && this._initModel.detailsHasSeq) this._initSeq42()
       })
 
       // v3.9 记录转换
@@ -162,7 +166,7 @@ class ProTable extends React.Component {
       }
       // 常规编辑
       else if (this.props.mainid) {
-        $.get(`/app/${entity.entity}/detail-models?mainid=${this.props.mainid}`, (res) => {
+        $.get(`/app/${entity.entity}/detail-models?mainLayoutId=${this.props.mainLayoutId}&mainid=${this.props.mainid}`, (res) => {
           if (res.error_code === 0) {
             this.setLines(res.data || [])
           } else {
@@ -171,7 +175,7 @@ class ProTable extends React.Component {
         })
       }
 
-      this._initDividing37()
+      // this._initDividing37()
     })
   }
 
@@ -208,30 +212,64 @@ class ProTable extends React.Component {
     }, 400)
   }
 
-  _initDividing37() {
-    const $scroller = $(this._$scroller)
-    const that = this
-    $scroller.find('th .dividing').draggable({
-      containment: $scroller,
-      axis: 'x',
-      helper: 'clone',
-      stop: function (e, ui) {
-        const field = $(e.target).parents('th').data('field')
-        let left = ui.position.left - -10
-        if (left < _PT_COLUMN_MIN_WIDTH) left = _PT_COLUMN_MIN_WIDTH
-        else if (left > _PT_COLUMN_MAX_WIDTH) left = _PT_COLUMN_MAX_WIDTH
+  // _initDividing37() {
+  //   const $scroller = $(this._$scroller)
+  //   const that = this
+  //   $scroller.find('th .dividing').draggable({
+  //     containment: $scroller,
+  //     axis: 'x',
+  //     helper: 'clone',
+  //     stop: function (e, ui) {
+  //       const field = $(e.target).parents('th').data('field')
+  //       let left = ui.position.left - -10
+  //       if (left < _PT_COLUMN_MIN_WIDTH) left = _PT_COLUMN_MIN_WIDTH
+  //       else if (left > _PT_COLUMN_MAX_WIDTH) left = _PT_COLUMN_MAX_WIDTH
 
-        const fields = that.state.formFields
-        for (let i = 0; i < fields.length; i++) {
-          if (fields[i].field === field) {
-            fields[i].width = left
-            break
-          }
-        }
+  //       const fields = that.state.formFields
+  //       for (let i = 0; i < fields.length; i++) {
+  //         if (fields[i].field === field) {
+  //           fields[i].width = left
+  //           break
+  //         }
+  //       }
 
-        that.setState({ formFields: fields }, () => $scroller.perfectScrollbar('update'))
-      },
-    })
+  //       that.setState({ formFields: fields }, () => $scroller.perfectScrollbar('update'))
+  //     },
+  //   })
+  // }
+
+  _initSeq42() {
+    $(this._$scroller)
+      .find('tbody')
+      .sortable({
+        placeholder: 'detail-form-sort-placeholder',
+        handle: '.col-index',
+        axis: 'y',
+        cursor: 'move',
+        delay: 200,
+        distance: 5,
+        helper: function () {
+          return $('<div class="detail-form-sort-helper"></div>')
+        },
+        stop: () => {
+          const sortKeys = []
+          $(this._$scroller)
+            .find('tbody>tr')
+            .each(function () {
+              sortKeys.push($(this).attr('data-key'))
+            })
+
+          const inlineForms = this.state.inlineForms || []
+          const inlineFormsSeq = []
+          sortKeys.forEach((key, i) => {
+            let found = inlineForms.find((F) => F.key === key)
+            if (found) inlineFormsSeq.push(found)
+          })
+          this.setState({ inlineForms: inlineFormsSeq }, () => {
+            this._detailsSeqChanged = true
+          })
+        },
+      })
   }
 
   _expandLineForm(lineKey) {
@@ -301,7 +339,16 @@ class ProTable extends React.Component {
     const lineKey = `${entityName}-${model.id ? model.id : $random()}`
     const ref = React.createRef()
     const FORM = (
-      <InlineForm entity={entityName} id={model.id} rawModel={model} $$$parent={this} $$$main={this.props.$$$main} key={lineKey} ref={ref} _componentDidUpdate={() => this._componentDidUpdate()}>
+      <InlineForm
+        entity={entityName}
+        id={model.id}
+        rawModel={model}
+        $$$parent={this}
+        $$$main={this.props.$$$main}
+        key={lineKey}
+        _lineKey={lineKey}
+        ref={ref}
+        _componentDidUpdate={() => this._componentDidUpdate()}>
         {model.elements.map((item) => {
           return detectElement({ ...item, colspan: 4, _disableAutoFillin: _disableAutoFillin === true })
         })}
@@ -414,17 +461,24 @@ class ProTable extends React.Component {
 
   /**
    * 构建数据
-   * @param {boolean} retAll 是否返回所有数据
+   * @param {boolean} returnsAll 是否返回所有数据
    * @returns
    */
-  buildFormData(retAll) {
+  buildFormData(returnsAll) {
     const datas = []
     let error = null
-
     this._inlineFormsRefs &&
       this._inlineFormsRefs.forEach((item) => {
         if (!item.current) return
-        const d = item.current.buildFormData(retAll)
+
+        let seq42 = null
+        if (this._detailsSeqChanged) {
+          this.state.inlineForms.forEach((F, idx) => {
+            if (F.key === item.current.props._lineKey) seq42 = idx + 1
+          })
+        }
+
+        const d = item.current.buildFormData(returnsAll, seq42)
 
         if (!d || typeof d === 'string') {
           if (!error) error = d
@@ -568,8 +622,8 @@ class InlineForm extends RbForm {
     return data
   }
 
-  buildFormData(retAll) {
-    const data = retAll ? this._baseFormData() : {}
+  buildFormData(returnsAll, seq42) {
+    const data = returnsAll ? this._baseFormData() : {}
 
     const $idx = $(this._$ref).parent().find('th.col-index').removeAttr('title')
     let error = null
@@ -583,9 +637,9 @@ class InlineForm extends RbForm {
         data[k] = this.__FormData[k].value
       }
     }
-
     if (error) return error
 
+    if (seq42) data.seq = seq42
     // 是否修改
     if (Object.keys(data).length > 0) {
       data.metadata = {
@@ -642,6 +696,7 @@ class ProTableTree extends ProTable {
     const inlineForms = this.state.inlineForms || []
     // v4.0-b3
     const stcParentField = (this._extConf40.showTreeConfig || {}).parentField
+    const stcMaxNodeLevel = (this._extConf40.showTreeConfig || {}).maxNodeLevel || 99
     const colActionClazz = `col-action ${stcParentField && 'has-copy-btn'} ${!fixedWidth && 'column-fixed'}`
 
     return (
@@ -710,7 +765,7 @@ class ProTableTree extends ProTable {
                   </th>
                   {FORM}
                   <td className={`col-action ${!fixedWidth && 'column-fixed'}`}>
-                    {stcParentField && (
+                    {stcParentField && FORM.props.rawModel._treeNodeLevel + 1 < stcMaxNodeLevel && (
                       <button className="btn btn-light" title={$L('添加子级')} onClick={() => this.insertLine(key, idx + 1)} disabled={readonly}>
                         <i className="icon zmdi zmdi-plus fs-16" />
                       </button>
@@ -761,8 +816,10 @@ class ProTableTree extends ProTable {
     // 父级ID
     const stc = this.props.showTreeConfig
     if (stc && stc.parentField) {
-      const parentId = PF.props.rawModel.id.replace('000-', stc.parentFieldRefEntityCode + '-')
-      this._setValueInModel(model, stc.parentField, parentId)
+      // v4.2 默认本实体
+      if (!stc.parentFieldRefEntityCode) stc.parentFieldRefEntityCode = this._initModel.entityMeta.entityCode
+      const parentVId = PF.props.rawModel.id.replace('000-', stc.parentFieldRefEntityCode + '-')
+      this._setValueInModel(model, stc.parentField, { id: parentVId, text: $L('父级') }, true)
     }
     this._addLine(model, index)
   }
@@ -781,7 +838,7 @@ class ProTableTree extends ProTable {
     if (stc && stc.parentField) {
       let root = []
       models.forEach((model) => {
-        let p = this._getValueInModel(model, stc.parentField)
+        const p = this._getValueInModel(model, stc.parentField, true)
         if (!p) {
           if (!model.id) model.id = $random('000-', true, 20) // newVID
           model._treeNodeLevel = 0
@@ -804,7 +861,7 @@ class ProTableTree extends ProTable {
   _findNodes(parent, models) {
     const stc = this.props.showTreeConfig
     models.forEach((model) => {
-      let p = this._getValueInModel(model, stc.parentField)
+      let p = this._getValueInModel(model, stc.parentField, true)
       if (p && (p === parent.id || p.substr(3) === (parent.id || '').substr(3))) {
         model._treeNodeLevel = parent._treeNodeLevel + 1
         // recursion
@@ -822,13 +879,19 @@ class ProTableTree extends ProTable {
       })
     }
   }
-  _getValueInModel(model, fieldName) {
+  _getValueInModel(model, fieldName, checkDeleted) {
     let found = model.elements.find((x) => x.field === fieldName)
-    return found && found.value ? found.value.id : null
+    if (!found || !found.value) return null
+    if (checkDeleted && found.value.text === '[DELETED]') return null
+    return found.value.id || null
   }
-  _setValueInModel(model, fieldName, value) {
+  _setValueInModel(model, fieldName, value, readonly) {
     let found = model.elements.find((x) => x.field === fieldName)
-    if (found) found.value = { id: value, text: value }
+    if (found) {
+      if (readonly === true) found.readonly = true
+      if (typeof value === 'object') found.value = value
+      else found.value = { id: value, text: value }
+    }
   }
 
   /**

@@ -310,12 +310,15 @@ class RbAlert extends React.Component {
   }
 
   componentDidMount() {
+    const that = this
     const $root = $(this._dlg)
       .modal({ show: true, keyboard: true })
       .on('hidden.bs.modal', function () {
         $keepModalOpen()
         $root.modal('dispose')
         $unmount($root.parent())
+        // v4.2
+        typeof that.props.onHide === 'function' && that.props.onHide()
       })
 
     // z-index
@@ -936,7 +939,7 @@ class RecordSelector extends React.Component {
       this._ReferenceSearcher.show()
     } else {
       const props = this.state // use state
-      const searchUrl = `${rb.baseUrl}/app/entity/reference-search?field=${props.entity}Id.${props.entity}`
+      const searchUrl = `${rb.baseUrl}/app/entity/reference-search?field=${props.entity}` // be:v4.2 只传实体
       renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('选择%s', props.entityLabel || '')} useWhite />, function () {
         that._ReferenceSearcher = this
       })

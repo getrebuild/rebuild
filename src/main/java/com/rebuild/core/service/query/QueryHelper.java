@@ -15,6 +15,7 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.utils.CommonsUtils;
@@ -152,6 +153,11 @@ public class QueryHelper {
                 detailEntity.getPrimaryField().getName(),
                 detailEntity.getName(),
                 MetadataHelper.getDetailToMainField(detailEntity).getName());
+
+        // v4.2 明細排序
+        if (detailEntity.containsField(EntityHelper.Seq)) {
+            sql = sql.substring(0, sql.length() - 10) + " seq asc";
+        }
 
         Query query = Application.createQueryNoFilter(sql).setParameter(1, mainId);
         Object[][] array = query.array();

@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global EasyMDE, RepeatedViewer, ProTable, Md2Html, ClassificationSelector */
+/* global EasyMDE, RepeatedViewer, ProTable, Md2Html, ClassificationSelector, autosize */
 
 /**
  * Callback API:
@@ -107,6 +107,15 @@ class RbFormModal extends React.Component {
         }
       })
     this._showAfter({}, true)
+  }
+
+  // fix:v4.2 保持当前实例
+  componentWillUnmount() {
+    const that = RbFormModal
+    if (that.__CURRENT42 && that.__CURRENT42.length) {
+      that.__CURRENT42.pop() // remove
+      that.__CURRENT35 = that.__CURRENT42.at(-1) || null // last
+    }
   }
 
   // 渲染表单
@@ -261,10 +270,13 @@ class RbFormModal extends React.Component {
     }
 
     // `__CURRENT35`, `__HOLDER` 可能已 unmount
-    const that = this
+    const that = RbFormModal
+    that.__CURRENT42 = that.__CURRENT42 || []
+
     if (forceNew === true) {
       renderRbcomp(<RbFormModal {...props} disposeOnHide />, function () {
         that.__CURRENT35 = this
+        that.__CURRENT42.push(this)
       })
       return
     }
@@ -275,6 +287,7 @@ class RbFormModal extends React.Component {
       renderRbcomp(<RbFormModal {...props} />, function () {
         that.__HOLDER = this
         that.__CURRENT35 = this
+        that.__CURRENT42.push(this)
       })
     }
   }
@@ -474,8 +487,8 @@ class RbForm extends React.Component {
       <div className="detail-form-table" data-entity={detailMeta.entity}>
         <div className="row">
           <div className="col-4 detail-form-header">
-            <h5 className="mt-2 mb-1 text-bold fs-14">
-              <i className={`icon zmdi zmdi-${detailMeta.icon} fs-15 mr-2`} />
+            <h5 className="mt-2 mb-1 text-bold fs-13">
+              <i className={`icon zmdi zmdi-${detailMeta.icon} fs-15 mr-1`} />
               {detailMeta.entityLabel}
               {rb.isAdminUser && (
                 <a href={`${rb.baseUrl}/admin/entity/${detailMeta.entity}/form-design`} target="_blank" title={$L('表单设计')}>
@@ -487,8 +500,8 @@ class RbForm extends React.Component {
 
           <div className="col-8 text-right detail-form-action">
             <div className="fjs-dock"></div>
-            {_detailImports.length > 0 && !this.props.readonly && (
-              <div className="btn-group mr-2">
+            {_detailImports.length > 0 && (
+              <div className={`btn-group J_import-detail ${this.props.readonly && 'hide'}`}>
                 <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
                   <i className="icon mdi mdi-transfer-down"></i> {$L('导入明细')}
                 </button>
@@ -510,7 +523,7 @@ class RbForm extends React.Component {
               </div>
             )}
 
-            <div className={`btn-group J_add-detail ${this.props.readonly && 'hide'}`}>
+            <div className={`btn-group J_add-detail ml-2 ${this.props.readonly && 'hide'}`}>
               <button className="btn btn-secondary" type="button" onClick={() => _addNew()}>
                 <i className="icon x14 mdi mdi-playlist-plus mr-1" />
                 {$L('添加明细')}
@@ -1436,10 +1449,16 @@ class RbFormNText extends RbFormElement {
     super(props)
     this._textCommonMenuId = props.readonly || !props.textCommon ? null : $random('tcddm-')
 
-    this._height = this.props.useMdedit ? 0 : ~~this.props.height
-    if (this._height && this._height > 0) {
-      if (this._height === 1) this._height = 37
-      else this._height = this._height * 20 + 12
+    this._height = 0
+    if (!this.props.useMdedit) {
+      this._height = ~~this.props.height
+      // v4.2 填0自动高度
+      if (this.props.height === '0') {
+        this._heightAuto = true
+      } else if (this._height > 0) {
+        if (this._height === 1) this._height = 37
+        else this._height = this._height * 20 + 12
+      }
     }
   }
 
@@ -1447,20 +1466,25 @@ class RbFormNText extends RbFormElement {
     const _readonly37 = this.state.readonly
     const props = this.props
 
+    let clazz2 = `form-control ${props.useCode && 'formula-code'} ${props.useMdedit && _readonly37 ? 'cm-readonly' : ''} ${this.state.hasError && 'is-invalid'}`
+    if (!(this._heightAuto || this._height > 0)) clazz2 += ' row3x'
+    let style2 = this._height > 0 ? { height: this._height } : this._heightAuto ? { height: 37 } : null
     return (
       <RF>
         <textarea
           ref={(c) => {
             this._fieldValue = c
-            this._height > 0 && c && $(c).attr('style', `height:${this._height}px !important`)
+            this._heightAuto && c && autosize(c)
           }}
-          className={`form-control form-control-sm row3x ${props.useCode && 'formula-code'} ${this.state.hasError && 'is-invalid'} ${props.useMdedit && _readonly37 ? 'cm-readonly' : ''}`}
+          className={clazz2}
+          style={style2}
           title={this.state.hasError}
           value={this.state.value || ''}
           onChange={(e) => this.handleChange(e, !_readonly37)}
           readOnly={_readonly37}
           placeholder={this._placeholderw}
           maxLength="6000"
+          data-fix-autosize-height="37px"
         />
         {props.useMdedit && !_readonly37 && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
         {this._textCommonMenuId && (
@@ -1520,6 +1544,11 @@ class RbFormNText extends RbFormElement {
     }
   }
 
+  componentWillUnmount() {
+    super.componentWillUnmount()
+    this._fieldValue && this._heightAuto && autosize.destroy(this._fieldValue)
+  }
+
   componentDidMount() {
     super.componentDidMount()
     // fix:4.1
@@ -1536,6 +1565,9 @@ class RbFormNText extends RbFormElement {
       } else {
         $(this._textarea).perfectScrollbar('destroy')
       }
+    }
+    if (this._fieldValue && this._heightAuto && destroy) {
+      autosize.destroy(this._fieldValue)
     }
 
     if (!destroy) {

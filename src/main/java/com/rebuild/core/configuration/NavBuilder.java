@@ -406,7 +406,7 @@ public class NavBuilder extends NavManager {
 
         String navEntity = null;
 
-        boolean isOutUrl = isUrlType && navUrl.startsWith("http");
+        boolean isOutUrl = isUrlType && CommonsUtils.isExternalUrl(navUrl);
         if (isUrlType) {
             navName = "nav_url-" + navName.hashCode();
 

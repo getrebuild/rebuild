@@ -81,7 +81,7 @@ class ContactList extends React.Component {
   componentDidMount = () => this.search()
 
   _fetch() {
-    const url = `/contacts/list-users?page=${this._page}&dept=${this._dept || 'ALL'}&q=${encodeURIComponent(this._q || '')}&sort=${this._sort || ''}`
+    const url = `/contacts/list-users?isall=false&page=${this._page}&dept=${this._dept || 'ALL'}&q=${encodeURIComponent(this._q || '')}&sort=${this._sort || ''}`
     $.get(url, (res) => {
       const current = res.data || []
       let data = this._page === 1 ? [] : this.state.data

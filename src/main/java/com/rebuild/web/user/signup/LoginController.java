@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.user.signup;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
@@ -25,6 +24,7 @@ import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SysbaseHeartbeat;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.admin.ConfigurationController;
 import com.wf.captcha.SpecCaptcha;
 import com.wf.captcha.utils.CaptchaUtil;
@@ -59,7 +59,7 @@ public class LoginController extends LoginAction {
     public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String homeUrl = "../dashboard/home";
         String nexturl = getParameter(request, "nexturl", homeUrl);
-        if (nexturl.startsWith("http")) nexturl = homeUrl;
+        if (CommonsUtils.isExternalUrl(nexturl)) nexturl = homeUrl;
 
         // 直接登录
         if (AppUtils.getRequestUser(request) != null) {
@@ -170,8 +170,8 @@ public class LoginController extends LoginAction {
         // v34 维护计划
         if (!UserHelper.isAdmin(loginUser.getId())) {
             ConfigurationController.MaintenanceMode mm = ConfigurationController.getCurrentMm();
-            if (mm != null && mm.isNotLogin() && mm.getStartTime().compareTo(CalendarUtils.now()) <= 0) {
-                return RespBody.errorl("系统即将开始维护，暂时禁止登录");
+            if (mm != null && mm.unallowLogin()) {
+                return RespBody.errorl("系统正在维护，暂时禁止登录");
             }
         }
 

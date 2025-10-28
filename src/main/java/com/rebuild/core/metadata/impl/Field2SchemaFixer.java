@@ -8,16 +8,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.impl;
 
 import cn.devezhao.commons.ThrowableUtils;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.Dialect;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.metadata.impl.FieldImpl;
 import cn.devezhao.persist4j.util.support.Table;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -27,10 +26,8 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.ReflectionUtils;
 
 import java.sql.DataTruncation;
-import java.util.Objects;
 
 import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.DATETIME_FORMAT;
 import static com.rebuild.core.metadata.impl.EasyFieldConfigProps.DATE_FORMAT;
@@ -164,13 +161,6 @@ public class Field2SchemaFixer extends Field2Schema {
         if (em.getMetaId() == null) return false;
         if (!(em.getDisplayType() == DisplayType.FILE || em.getDisplayType() == DisplayType.IMAGE)) return false;
 
-        try {
-            java.lang.reflect.Field maxLength = ReflectionUtils.findField(FieldImpl.class, "maxLength");
-            ReflectionUtils.makeAccessible(Objects.requireNonNull(maxLength));
-            ReflectionUtils.setField(maxLength, field, 700 * 5);
-        } catch (Exception e) {
-            throw new RebuildException(e);
-        }
         changeColumn(field);
 
         JSONObject attrs = em.getExtraAttrs();
@@ -181,6 +171,20 @@ public class Field2SchemaFixer extends Field2Schema {
         Application.getCommonsService().update(r, false);
 
         MetadataHelper.getMetadataFactory().refresh();
+        return true;
+    }
+
+    /**
+     * @param entity
+     * @return
+     */
+    public boolean addSeqField(Entity entity) {
+        if (entity.getMainEntity() == null) return false;
+        if (entity.containsField(EntityHelper.Seq)) return false;
+
+        Field seqField = createUnsafeField(entity, EntityHelper.Seq, "SEQ", DisplayType.NUMBER,
+                true, false, false, true, false, null, null, null, null, null);
+        schema2Database(entity, new Field[]{seqField});
         return true;
     }
 
@@ -198,6 +202,8 @@ public class Field2SchemaFixer extends Field2Schema {
         String dmlSql = String.format("alter table `%s` change column `%s` ",
                 field.getOwnEntity().getPhysicalName(), field.getPhysicalName());
         dmlSql += ddl.toString().trim().replaceAll("\\s+", " ");
+        // v4.2
+        dmlSql = dmlSql.replace(" varchar(700) ", " text ");
 
         Application.getSqlExecutor().executeBatch(new String[]{dmlSql}, DDL_TIMEOUT);
         log.info("Fixed column of field : {}", dmlSql);

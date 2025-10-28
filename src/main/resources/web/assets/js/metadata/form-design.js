@@ -842,10 +842,10 @@ class DlgNForm extends RbModalHandler {
                 </label>
               </div>
             </div>
-            <div className="form-group row pt-0">
+            <div className="form-group row pt-0 bosskey-show">
               <label className="col-sm-3 col-form-label text-sm-right"></label>
               <div className="col-sm-7">
-                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 bosskey-show">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" defaultChecked={this.state.hideEmptyFields} ref={(c) => (this._$hideEmptyFields = c)} />
                   <span className="custom-control-label">{$L('隐藏空值字段 (详情页)')} (LAB)</span>
                 </label>
@@ -874,7 +874,7 @@ class DlgNForm extends RbModalHandler {
                   {this.state.detailsFromsAttr.map((de) => {
                     return (
                       <div className="row mb-2" key={de[0]}>
-                        <div className="col-8">
+                        <div className="col-7">
                           <select className="form-control form-control-sm" name={de[0]}>
                             <option value="0">{$L('自动')}</option>
                             {de[2].map((item) => {
@@ -886,7 +886,7 @@ class DlgNForm extends RbModalHandler {
                             })}
                           </select>
                         </div>
-                        <div className="col-4 pl-0 pr-0 text-bold" style={{ paddingTop: 8 }}>
+                        <div className="col-5 pl-0 pr-0 text-bold" style={{ paddingTop: 8 }}>
                           {de[1]}
                         </div>
                       </div>

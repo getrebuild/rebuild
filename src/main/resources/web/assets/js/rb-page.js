@@ -28,7 +28,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 $(function () {
   // navless
   if (rb.commercial > 1 && (~~$urlp('navless') === 1 || ~~$urlp('frame') === 1)) $(document.body).addClass('rb-navless40')
-  if (rb.commercial > 1 && (rb.env === 'dev' || window.__LAB === true)) $('.bosskey-show').removeClass('bosskey-show')
+  if (rb.commercial > 1 && window.__BOSSKEY === true) $('.bosskey-show').removeClass('bosskey-show')
 
   // scroller
   var $t = $('.rb-scroller')
@@ -147,7 +147,7 @@ $(function () {
       bosskey = 0
     }
   })
-  window.__BOSSKEY = location.href.includes('bosskey=show')
+  window.__BOSSKEY = window.__BOSSKEY || location.href.includes('bosskey=show')
 
   // on window.onresize
   $(window).on('resize', function () {
@@ -198,7 +198,6 @@ $(function () {
           $.cookie('AppHome.Dash', active[1] || '', { expires: 30 })
         }
       }
-      console.log('Switch on visibilityState ...', $.cookie('AppHome.Nav'), $.cookie('AppHome.Dash'))
     }
   }
 
@@ -810,7 +809,6 @@ var $createUploader = function (input, next, complete, error) {
     })
   }
 }
-var $initUploader = $createUploader
 
 // 多文件上传
 // FIXME 有并发上传问题

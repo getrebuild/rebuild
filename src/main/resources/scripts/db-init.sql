@@ -27,6 +27,7 @@ create table if not exists `user` (
   `FULL_NAME`          varchar(100) comment '姓名',
   `AVATAR_URL`         varchar(200) comment '头像',
   `JOB_TITLE`          varchar(100) comment '职务',
+  `JOB_NUMBER`         varchar(100) comment '工号',
   `WORKPHONE`          varchar(100) comment '工作电话',
   `DEPT_ID`            char(20) comment '部门',
   `ROLE_ID`            char(20) comment '角色',
@@ -966,4 +967,4 @@ insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NU
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 66);
+  values ('021-9000000000000001', 'DBVer', 67);

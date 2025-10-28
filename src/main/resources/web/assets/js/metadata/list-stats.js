@@ -142,7 +142,7 @@ const _refreshConfigStar = function () {
 class ShowStyles2 extends ShowStyles {
   renderExtras() {
     return (
-      <div className="form-group row">
+      <div className="form-group row pt-1 pb-0">
         <label className="col-sm-3 col-form-label text-sm-right">{$L('颜色')}</label>
         <div className="col-sm-7">
           <div className="rbcolors mt-1">

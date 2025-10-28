@@ -67,10 +67,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .detail-form-header h5 > a {
   opacity: 0.6;
-  padding: 0 8px;
+  padding: 0 6px;
   font-size: 15px;
   color: #616161;
-  transform: translateY(1px);
+  transform: translateY(1.5px);
   display: none;
 }
 
@@ -102,6 +102,10 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn {
 
 div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   margin-right: 5px;
+}
+
+.rbform .detail-form-table .detail-form-action {
+  min-height: 36.39px;
 }
 
 .rbform .dialog-footer .fjs-dock,
@@ -285,6 +289,23 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   background-color: #e6e6e6;
 }
 
+.detail-form-table.col-action-hide .col-action,
+.detail-form-table.col-action-hide-remove .col-action .J_remove-detail,
+.detail-form-table.col-action-hide-copy .col-action .J_copy-detail {
+  display: none;
+}
+
+.detail-form-sort-helper,
+.detail-form-sort-placeholder {
+  width: 100%;
+  height: 51.57px;
+  background-color: #eceff1;
+}
+
+.detail-form-sort-helper {
+  opacity: 0.6;
+}
+
 .protable .table thead th,
 .protable .table tfoot th {
   position: relative;
@@ -356,6 +377,10 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
 
 .protable .table tbody tr.active {
   background-color: #eceff1;
+}
+
+.protable td .select2.select2-container {
+  max-width: 500px;
 }
 
 /* DataList */

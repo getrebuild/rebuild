@@ -18,7 +18,9 @@ $(document).ready(() => {
 
   function renderItem(item) {
     const $item = $(
-      `<a class="dropdown-item" href="${href.replace(`/${entity}/`, `/${item.entityName}/`)}" data-name="${item.entityName}"><i class="icon zmdi zmdi-${item.icon}"></i> ${item.entityLabel}</a>`
+      `<a class="dropdown-item" href="${href.replace(`/${entity}/`, `/${item.entityName}/`)}" data-name="${item.entityName}" data-pinyin="${item.quickCode || ''}"><i class="icon zmdi zmdi-${
+        item.icon
+      }"></i> ${item.entityLabel}</a>`
     )
     if (entity === item.entityName) $item.addClass('current')
     $item.appendTo($menu)

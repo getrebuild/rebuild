@@ -743,6 +743,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         _alert && _alert.hide(true)
         _reloadAndTips(this, state === 10 ? $L('审批已同意') : rejectNode ? $L('审批已退回') : $L('审批已驳回'))
         typeof this.props.call === 'function' && this.props.call()
+        $storage.set('_listenerStateChanged42', this.props.id)
       }
     })
   }
@@ -805,7 +806,7 @@ class ApproveFormExtAction extends RbAlert {
         </div>
         <div className="form-group mb-1">
           <button
-            disabled={this.state.disable}
+            disabled={this.state.disabled}
             type="button"
             className="btn btn-space btn-primary"
             onClick={() => {

@@ -26,14 +26,7 @@
     <div class="chart-grid">
       <div class="grid-stack"></div>
     </div>
-    <div th:if="${pageFooter != null}" class="page-footer">
-      [(${pageFooter})]
-      <style>
-        body {
-          padding-bottom: 35px;
-        }
-      </style>
-    </div>
+    <div th:if="${pageFooter != null}" class="page-footer">[(${pageFooter})]</div>
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/lib/charts/lodash.min.js}"></script>
     <script th:src="@{/assets/lib/charts/gridstack.all.js}"></script>

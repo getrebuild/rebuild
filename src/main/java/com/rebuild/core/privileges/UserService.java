@@ -155,6 +155,9 @@ public class UserService extends BaseService {
         if (record.hasValue("loginName")) {
             checkLoginName(record.getString("loginName"));
         }
+        if (record.hasValue("jobNumber")) {
+            checkJobNumber(record.getString("jobNumber"));
+        }
 
         if (record.hasValue("password")) {
             String password = CommonsUtils.maxstr(record.getString("password"), 32);
@@ -190,6 +193,24 @@ public class UserService extends BaseService {
 
         if (!CommonsUtils.isPlainText(loginName) || BlockList.isBlock(loginName)) {
             throw new DataSpecificationException(Language.L("用户名无效"));
+        }
+    }
+
+    /**
+     * @param jobNumber
+     * @throws DataSpecificationException
+     */
+    private void checkJobNumber(String jobNumber) throws DataSpecificationException {
+        if (StringUtils.isBlank(jobNumber)) return;
+
+        // TODO 工号为保留字段，后续增加更多特性
+        Object[] e = Application.createQueryNoFilter(
+                "select userId from User where jobNumber = ?")
+                .setParameter(1, jobNumber)
+                .unique();
+        if (e != null) {
+            log.warn("工号已存在:{}", jobNumber);
+//            throw new DataSpecificationException(Language.L("工号已存在"));
         }
     }
 

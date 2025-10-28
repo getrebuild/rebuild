@@ -13,6 +13,7 @@ import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.DynamicMetadataContextHolder;
 import com.rebuild.core.support.task.HeavyTask;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
@@ -54,7 +55,7 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
         for (String fileUrl : modelFiles) {
             JSONObject data = null;
             try {
-                data = fileUrl.startsWith("http")
+                data = CommonsUtils.isExternalUrl(fileUrl)
                         ? (JSONObject) RBStore.fetchRemoteJson(fileUrl)
                         : (JSONObject) RBStore.fetchMetaschema(fileUrl);
 

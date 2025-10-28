@@ -68,7 +68,10 @@ public class FilePreviewer extends BaseController {
     @GetMapping("/commons/file-editor")
     public ModelAndView ooEditor(HttpServletRequest request, HttpServletResponse response) throws IOException {
         getRequestUser(request);  // check
-        return ooPreviewOrEditor(request, response, true);
+        if (OnlyOffice.isUseOoPreview()) {
+            return ooPreviewOrEditor(request, response, true);
+        }
+        return ErrorPageView.createErrorPage(Language.L("请配置 ONLYOFFICE 后使用"));
     }
 
     // 预览或编辑
@@ -264,13 +267,13 @@ public class FilePreviewer extends BaseController {
         Object[] e = null;
         // 报表
         if (id.getEntityCode() == EntityHelper.DataReportConfig) {
-            RbAssert.is(UserHelper.isAdmin(user), "NOT ALLOWED");
+            RbAssert.is(UserHelper.isAdmin(user), Language.L("无权修改此文件"));
             e = Application.getQueryFactory().uniqueNoFilter(id, "templateFile");
             if (e != null && e[0] != null) e[0] = "/data/" + e[0];
         }
         // 文件
         if (id.getEntityCode() == EntityHelper.Attachment) {
-            RbAssert.is(FilesHelper.isFileManageable(user, id), "NOT ALLOWED");
+            RbAssert.is(FilesHelper.isFileManageable(user, id), Language.L("无权修改此文件"));
             e = Application.getQueryFactory().uniqueNoFilter(id, "filePath");
         }
 

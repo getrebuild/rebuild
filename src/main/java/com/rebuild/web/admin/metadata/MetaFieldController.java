@@ -20,6 +20,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.FieldValueSourceDetector;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -30,6 +31,7 @@ import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.metadata.impl.MetaFieldService;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.utils.JSONUtils;
@@ -76,8 +78,9 @@ public class MetaFieldController extends BaseController {
             Map<String, Object> map = new HashMap<>();
             if (easyMeta.getMetaId() != null) map.put("fieldId", easyMeta.getMetaId());
 
+            String fieldLabel = easyMeta.getLabel();
             map.put("fieldName", easyMeta.getName());
-            map.put("fieldLabel", easyMeta.getLabel());
+            map.put("fieldLabel", fieldLabel);
             map.put("comments", easyMeta.getComments());
             map.put("nullable", field.isNullable());
             map.put("builtin", easyMeta.isBuiltin());
@@ -87,6 +90,7 @@ public class MetaFieldController extends BaseController {
             DisplayType dt = easyMeta.getDisplayType();
             map.put("displayType", Language.L(dt));
             map.put("displayTypeName", easyMeta.getDisplayType().name());
+            map.put("quickCode", QuickCodeReindexTask.generateQuickCode(fieldLabel));
 
             if (getBoolParameter(req, "refname")) {
                 if (dt == DisplayType.CLASSIFICATION) {
@@ -94,12 +98,12 @@ public class MetaFieldController extends BaseController {
                     if (ID.isId(classid)) {
                         Object[] name = Application.getQueryFactory().unique(ID.valueOf(classid), "name");
                         if (name != null) {
-                            map.put("displayTypeRef", new Object[] { classid, name[0] });
+                            map.put("displayTypeRef", new Object[]{classid, name[0]});
                         }
                     }
                 } else if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
                     Entity ref = field.getReferenceEntity();
-                    map.put("displayTypeRef", new Object[] { ref.getName(), EasyMetaFactory.getLabel(ref) });
+                    map.put("displayTypeRef", new Object[]{ref.getName(), EasyMetaFactory.getLabel(ref)});
                 }
             }
 
@@ -246,13 +250,13 @@ public class MetaFieldController extends BaseController {
         Field refField = currentEntity.getField(getParameterNotNull(request, "field"));
         Entity referenceEntity = refField.getReferenceEntity();
 
-        List<JSONObject> list = getCoReferenceFields(currentEntity, referenceEntity, false);
+        List<JSONObject> res = getCoReferenceFields(currentEntity, referenceEntity, false);
         // 明细实体关联主实体父级级联
         if (currentEntity.getMainEntity() != null) {
-            list.addAll(getCoReferenceFields(currentEntity.getMainEntity(), referenceEntity, true));
+            res.addAll(getCoReferenceFields(currentEntity.getMainEntity(), referenceEntity, true));
         }
 
-        return RespBody.ok(list);
+        return RespBody.ok(res);
     }
 
     // 获取共同引用字段
@@ -279,11 +283,22 @@ public class MetaFieldController extends BaseController {
                         name = entity.getName() + "." + name;
                     }
 
-                    co.add(JSONUtils.toJSONObject(
-                            new String[] { "name", "label" }, new String[] { name, label } ));
+                    co.add(JSONUtils.toJSONObject(new String[]{"name", "label"}, new String[]{name, label}));
                 }
             }
         }
         return co;
+    }
+
+    @RequestMapping("field-value-detect")
+    public RespBody fieldValueDetect(@EntityParam Entity entity, HttpServletRequest request) {
+        Field field = entity.getField(getParameterNotNull(request, "field"));
+        try {
+            List<Object> res = new FieldValueSourceDetector().detect(field);
+            return RespBody.ok(res);
+        } catch (Exception ex) {
+            log.error("field-value-detect", ex);
+        }
+        return RespBody.ok();
     }
 }

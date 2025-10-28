@@ -87,14 +87,14 @@ public class ReferenceSearchController extends EntityController {
         ProtocolFilterParser fp = new ProtocolFilterParser();
         if (StringUtils.isNotBlank(varRecord)) {
             if (JSONUtils.wellFormat(varRecord)) {
-                fp.setVarRecord(JSON.parseObject(varRecord));
+                fp.setVarRecord(JSONUtils.parseObjectSafe(varRecord));
             } else {
                 // 兼容处理
                 try {
                     varRecord = CodecUtils.urlDecode(varRecord);
                 } catch (Exception ignored) {}
                 if (JSONUtils.wellFormat(varRecord)) {
-                    fp.setVarRecord(JSON.parseObject(varRecord));
+                    fp.setVarRecord(JSONUtils.parseObjectSafe(varRecord));
                 }
             }
         }
@@ -322,6 +322,14 @@ public class ReferenceSearchController extends EntityController {
     @GetMapping("reference-search")
     public ModelAndView referenceSearchPage(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String[] fieldAndEntity = getParameterNotNull(request, "field").split("\\.");
+        // be:v4.2 只传实体
+        if (fieldAndEntity.length == 1 && MetadataHelper.containsEntity(fieldAndEntity[0])) {
+            fieldAndEntity = new String[]{
+                MetadataHelper.getEntity(fieldAndEntity[0]).getPrimaryField().getName(),
+                fieldAndEntity[0]
+            };
+        }
+
         if (!MetadataHelper.checkAndWarnField(fieldAndEntity[1], fieldAndEntity[0])) {
             response.sendError(404);
             return null;
