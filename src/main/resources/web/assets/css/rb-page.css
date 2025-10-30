@@ -1021,6 +1021,20 @@ a.link.link-icon::after {
   margin-right: -15px;
 }
 
+.modal-dialog-scrollable .modal-body {
+  padding-bottom: 0 !important;
+}
+
+.modal-dialog-scrollable .rbform > .dialog-footer {
+  position: sticky;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #fff;
+  z-index: 2;
+  padding-bottom: 18px;
+}
+
 .rbform > form > .alert {
   margin: 20px 20px 0;
 }
@@ -5569,6 +5583,11 @@ pre.unstyle {
 
 .protable .table .col-index.action:hover > a {
   display: inline-block;
+}
+
+/* v42 */
+.protable .table tbody tr:last-child .column-fixed::before {
+  border-bottom-width: 0;
 }
 
 .modal-dialog.modal-rsheetb .modal-body {
