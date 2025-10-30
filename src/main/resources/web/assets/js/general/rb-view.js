@@ -516,7 +516,14 @@ class EntityRelatedList extends RelatedList {
 
   _handleEdit(e, id) {
     $stopEvent(e, true)
-    RbFormModal.create({ id: id, entity: this.__entity, title: $L('编辑%s', this.props.entity2[0]), icon: this.props.entity2[1] }, true)
+    const editProps = {
+      id: id,
+      entity: this.__entity,
+      title: $L('编辑%s', this.props.entity2[0]),
+      icon: this.props.entity2[1],
+    }
+    if (this.props.isDetail) editProps.mainLayoutId = RbViewPage.getLayoutId42()
+    RbFormModal.create(editProps, true)
   }
 
   _handleView(e) {
@@ -533,9 +540,7 @@ class EntityRelatedList extends RelatedList {
     const viewComponents = this.state.viewComponents
     if (!viewComponents[id]) {
       let url42 = `/app/${this.__entity}/view-model?id=${id}`
-      if (this.props.isDetail && (RbViewPage._RbViewForm || {})._rawModel && RbViewPage._RbViewForm._rawModel.layoutId) {
-        url42 += '&mainLayoutId=' + RbViewPage._RbViewForm._rawModel.layoutId
-      }
+      if (this.props.isDetail) url42 += '&mainLayoutId=' + (RbViewPage.getLayoutId42() || '')
       $.get(url42, (res) => {
         if (res.error_code > 0 || !!res.data.error) {
           viewComponents[id] = _renderError(res.data.error || res.error_msg)
@@ -682,6 +687,7 @@ const RbViewPage = {
         title: $L('编辑%s', entity[1]),
         entity: entity[0],
         icon: entity[2],
+        specLayout: this.getLayoutId42(),
       }
       RbFormModal.create(editProps, true)
     })
@@ -697,10 +703,7 @@ const RbViewPage = {
         icon: $this.data('icon'),
         initialValue: iv,
         nextAddDetail: true,
-      }
-      // v4.2
-      if ((RbViewPage._RbViewForm || {})._rawModel && RbViewPage._RbViewForm._rawModel.layoutId) {
-        newProps.mainLayoutId = RbViewPage._RbViewForm._rawModel.layoutId
+        mainLayoutId: this.getLayoutId42(), // v4.2
       }
       RbFormModal.create(newProps)
     })
@@ -730,6 +733,12 @@ const RbViewPage = {
       if (window.parent && window.parent.tourStarted) return
       typeof window.startTour === 'function' && window.startTour()
     }, 1200)
+  },
+
+  getLayoutId42() {
+    if (!RbViewPage._RbViewForm) return null
+    if (!RbViewPage._RbViewForm._rawModel) return null
+    return RbViewPage._RbViewForm._rawModel.layoutId || null
   },
 
   // 元数据
