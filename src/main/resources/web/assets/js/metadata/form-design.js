@@ -836,10 +836,12 @@ class DlgNForm extends RbModalHandler {
                   <input className="custom-control-input" type="checkbox" defaultChecked={this.state.fallback} ref={(c) => (this._$fallback = c)} />
                   <span className="custom-control-label">{$L('默认布局')}</span>
                 </label>
-                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                  <input className="custom-control-input" type="checkbox" defaultChecked={this.state.fornew} ref={(c) => (this._$fornew = c)} />
-                  <span className="custom-control-label">{$L('可用于新建')}</span>
-                </label>
+                {wpc.isDetailEntity ? null : (
+                  <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                    <input className="custom-control-input" type="checkbox" defaultChecked={this.state.fornew} ref={(c) => (this._$fornew = c)} />
+                    <span className="custom-control-label">{$L('可用于新建')}</span>
+                  </label>
+                )}
               </div>
             </div>
             <div className="form-group row pt-0 bosskey-show">
@@ -867,7 +869,7 @@ class DlgNForm extends RbModalHandler {
               </div>
             </div>
 
-            {this.state.detailsFromsAttr && (
+            {wpc.isMainEntity && this.state.detailsFromsAttr && (
               <div className="form-group row">
                 <label className="col-sm-3 col-form-label text-sm-right">{$L('指定明细布局')}</label>
                 <div className="col-sm-8" ref={(c) => (this._$detailsFromsAttr = c)}>
@@ -886,8 +888,10 @@ class DlgNForm extends RbModalHandler {
                             })}
                           </select>
                         </div>
-                        <div className="col-5 pl-0 pr-0 text-bold" style={{ paddingTop: 8 }}>
-                          {de[1]}
+                        <div className="col-5 pl-0 pr-0" style={{ paddingTop: 9 }}>
+                          <a className="light-link" href={`../${de[0]}/form-design`} target="_blank">
+                            {de[1]}
+                          </a>
                         </div>
                       </div>
                     )

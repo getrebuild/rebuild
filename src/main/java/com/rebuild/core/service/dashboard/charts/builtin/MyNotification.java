@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.dashboard.charts.builtin;
 
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
@@ -53,25 +52,27 @@ public class MyNotification extends ChartData implements BuiltinChart {
 
     @Override
     public JSON build() {
+        List<Object[]> resReaded = queryMessages(false);
+        List<Object[]> resUnread = queryMessages(true);
+        return JSONUtils.toJSONObject(new String[]{"readed", "unread"}, new Object[]{resReaded, resUnread});
+    }
+
+    private List<Object[]> queryMessages(boolean unread) {
         String sql = "select fromUser,message,createdOn,unread,messageId,relatedRecord,type,unread from Notification" +
                 " where toUser = ? and (1=1) order by createdOn desc";
+        sql = sql.replace("(1=1)", unread ? "unread = 'T'" : "unread <> 'T'");
         Object[][] array = Application.createQueryNoFilter(sql)
                 .setParameter(1, UserContextHolder.getUser())
                 .setLimit(500)
                 .array();
 
-        List<Object[]> resReaded = new ArrayList<>();
-        List<Object[]> resUnread = new ArrayList<>();
-
+        List<Object[]> res = new ArrayList<>();
         for (Object[] o : array) {
             o[0] = new Object[]{o[0], UserHelper.getName((ID) o[0])};
             o[1] = MessageBuilder.formatMessage((String) o[1]);
             o[2] = I18nUtils.formatDate((Date) o[2]);
-
-            if (ObjectUtils.toBool(o[7])) resUnread.add(o);
-            else resReaded.add(o);
+            res.add(o);
         }
-
-        return JSONUtils.toJSONObject(new String[]{"readed", "unread"}, new Object[]{resReaded, resUnread});
+        return res;
     }
 }

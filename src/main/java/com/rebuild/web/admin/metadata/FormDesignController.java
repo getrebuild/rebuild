@@ -59,8 +59,9 @@ public class FormDesignController extends BaseController {
         List<ConfigBean> attrs = FormsManager.instance.getAllFormsAttr(entity);
         request.setAttribute("FormsAttr", JSON.toJSONString(attrs));
 
-        // v4.1
+        // v4.1, 4.2
         mv.getModel().put("isMainEntity", easyEntity.getRawMeta().getDetailEntity() != null);
+        mv.getModel().put("isDetailEntity", easyEntity.getRawMeta().getMainEntity() != null);
 
         return mv;
     }

@@ -91,7 +91,7 @@ public class FormsManager extends BaseLayoutManager {
             }
 
             // 默认优先级
-            if (recordOrLayoutId == null) {
+            if (use == null && recordOrLayoutId == null) {
                 use = findDefault(allConfs);
             }
         }

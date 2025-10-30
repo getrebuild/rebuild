@@ -21,7 +21,7 @@ class RbViewForm extends React.Component {
     if (this.onViewEditable) this.onViewEditable = wpc.onViewEditable !== false
     if (window.__LAB_VIEWEDITABLE === false) this.onViewEditable = false
 
-    // temp for `saveSingleFieldValue`
+    // for `saveSingleFieldValue`
     this.__FormData = {}
     this._verticalLayout42 = window.__LAB_VERTICALLAYOUT
   }
@@ -39,6 +39,8 @@ class RbViewForm extends React.Component {
 
   componentDidMount() {
     $.get(`/app/${this.props.entity}/view-model?id=${this.props.id}`, (res) => {
+      this._rawModel = res.data // v4.2
+
       // 有错误
       if (res.error_code > 0 || !!res.data.error) {
         const err = res.data.error || res.error_msg
@@ -530,7 +532,11 @@ class EntityRelatedList extends RelatedList {
     // 加载视图
     const viewComponents = this.state.viewComponents
     if (!viewComponents[id]) {
-      $.get(`/app/${this.__entity}/view-model?id=${id}`, (res) => {
+      let url42 = `/app/${this.__entity}/view-model?id=${id}`
+      if (this.props.isDetail && (RbViewPage._RbViewForm || {})._rawModel && RbViewPage._RbViewForm._rawModel.layoutId) {
+        url42 += '&mainLayoutId=' + RbViewPage._RbViewForm._rawModel.layoutId
+      }
+      $.get(url42, (res) => {
         if (res.error_code > 0 || !!res.data.error) {
           viewComponents[id] = _renderError(res.data.error || res.error_msg)
         } else {
@@ -671,7 +677,13 @@ const RbViewPage = {
     })
 
     $('.J_edit').on('click', () => {
-      RbFormModal.create({ id: id, title: $L('编辑%s', entity[1]), entity: entity[0], icon: entity[2] }, true)
+      const editProps = {
+        id: id,
+        title: $L('编辑%s', entity[1]),
+        entity: entity[0],
+        icon: entity[2],
+      }
+      RbFormModal.create(editProps, true)
     })
     $('.J_assign').on('click', () => DlgAssign.create({ entity: entity[0], ids: [id] }))
     $('.J_share').on('click', () => DlgShare.create({ entity: entity[0], ids: [id] }))
@@ -679,7 +691,18 @@ const RbViewPage = {
     $('.J_add-detail-menu>a').on('click', function () {
       const iv = { $MAINID$: id }
       const $this = $(this)
-      RbFormModal.create({ title: $L('添加%s', $this.data('label')), entity: $this.data('entity'), icon: $this.data('icon'), initialValue: iv, nextAddDetail: true })
+      const newProps = {
+        title: $L('添加%s', $this.data('label')),
+        entity: $this.data('entity'),
+        icon: $this.data('icon'),
+        initialValue: iv,
+        nextAddDetail: true,
+      }
+      // v4.2
+      if ((RbViewPage._RbViewForm || {})._rawModel && RbViewPage._RbViewForm._rawModel.layoutId) {
+        newProps.mainLayoutId = RbViewPage._RbViewForm._rawModel.layoutId
+      }
+      RbFormModal.create(newProps)
     })
 
     if (wpc.transformTos && wpc.transformTos.length > 0) {

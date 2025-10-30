@@ -126,6 +126,7 @@ class RbFormModal extends React.Component {
 
     let url = `/app/${entity}/form-model?id=${id}`
     if (this.state.specLayout) url += `&layout=${this.state.specLayout}`
+    if (this.props.mainLayoutId) url += `&mainLayoutId=${this.props.mainLayoutId}`
 
     const that = this
     function _FN2(formModel, forceInitFieldValue) {

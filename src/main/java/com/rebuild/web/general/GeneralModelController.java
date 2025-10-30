@@ -137,15 +137,15 @@ public class GeneralModelController extends EntityController {
 
         // 指定布局
         ID specLayout = getIdParameter(request, "layout");
-        // v4.1 ProTable 携带主实体布局
+        // v4.1 ProTable 明细跟随主记录布局
         ID followMainLayout = getIdParameter(request, "mainLayoutId");
         if (followMainLayout != null) {
             FormsBuilderContextHolder.setFromProTable();
             if (specLayout == null) specLayout = getDetailEntityLayout(modelEntity, followMainLayout);
         }
+        if (specLayout != null) FormsBuilderContextHolder.setSpecLayout(specLayout);
 
         try {
-            if (specLayout != null) FormsBuilderContextHolder.setSpecLayout(specLayout);
             JSON model = FormsBuilder.instance.buildForm(entity, user, id);
 
             // 填充前端设定的初始值
@@ -179,15 +179,22 @@ public class GeneralModelController extends EntityController {
     public JSON entityView(@PathVariable String entity, @IdParam ID id,
                            HttpServletRequest request) {
         final ID user = getRequestUser(request);
+        final Entity modelEntity = MetadataHelper.getEntity(entity);
+
         // 指定布局
-        final ID forceLayout = getIdParameter(request, "layout");
-        if (forceLayout != null) FormsBuilderContextHolder.setSpecLayout(forceLayout);
+        ID specLayout = getIdParameter(request, "layout");
+        // v4.2 明细跟随主记录布局
+        ID followMainLayout = getIdParameter(request, "mainLayoutId");
+        if (followMainLayout != null) {
+            if (specLayout == null) specLayout = getDetailEntityLayout(modelEntity, followMainLayout);
+        }
+        if (specLayout != null) FormsBuilderContextHolder.setSpecLayout(specLayout);
 
         JSONObject model;
         try {
             model = (JSONObject) FormsBuilder.instance.buildView(entity, user, id);
         } finally {
-            if (forceLayout != null) FormsBuilderContextHolder.getSpecLayout(true);
+            if (specLayout != null) FormsBuilderContextHolder.getSpecLayout(true);
         }
 
         // 返回扩展
@@ -260,7 +267,7 @@ public class GeneralModelController extends EntityController {
         if (ids.isEmpty()) return JSONUtils.EMPTY_ARRAY;
 
         ID specLayout = null;
-        // v4.1 ProTable 携带主实体布局
+        // v4.1 ProTable 明细跟随主记录布局
         ID followMainLayout = getIdParameter(request, "mainLayoutId");
         if (followMainLayout != null) {
             FormsBuilderContextHolder.setFromProTable();
