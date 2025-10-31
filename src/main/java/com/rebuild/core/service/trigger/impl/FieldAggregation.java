@@ -123,13 +123,14 @@ public class FieldAggregation extends TriggerAction {
             tschain = new ArrayList<>();
             if (CommonsUtils.DEVLOG) System.out.println("[dev] New trigger-chain : " + this);
         } else {
-            String w = String.format("Occured trigger-chain : %s > %s (current)", StringUtils.join(tschain, "\n > "), chainName);
+            String w = String.format("Occured trigger-chain : %s > %s (current)", StringUtils.join(tschain, " > "), chainName);
 
             // 在整个触发链上只触发1次，避免循环调用
-            // FIXME 20220804 某些场景是否允许2次，而非1次???
+            // FIXME 220804 某些场景是否允许N次，而非1次
+            // FIXME 251031 之前已有改进，例如明细共同编辑会使用延迟触发方案 RobotTriggerObserver#setLazyTriggers
             if (tschain.contains(chainName)) {
                 log.warn("{}!!! TRIGGER ONCE ONLY", w);
-//                return null;
+                return null;
             } else {
                 log.info(w);
             }
