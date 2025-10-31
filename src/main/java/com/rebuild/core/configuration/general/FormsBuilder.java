@@ -214,10 +214,10 @@ public class FormsBuilder extends FormsManager {
         // v3.7 指定布局
         ID recordOrLayoutId = recordId;
 
-        // 优先使用
+        // 强制使用
         ID forceLayout = FormsBuilderContextHolder.getSpecLayout(false);
         if (forceLayout != null) recordOrLayoutId = forceLayout;
-        // 明细共同编辑
+        // 明细共同编辑时使用第一个明细记录的布局
         if (forceLayout == null && entityMeta.getMainEntity() != null && recordId == null) {
             if (FormsBuilderContextHolder.isFromProTable(true)) {
                 ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);

@@ -1021,6 +1021,20 @@ a.link.link-icon::after {
   margin-right: -15px;
 }
 
+.modal-dialog-scrollable .modal-body {
+  padding-bottom: 0 !important;
+}
+
+.modal-dialog-scrollable .rbform > .dialog-footer {
+  position: sticky;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #fff;
+  z-index: 2;
+  padding-bottom: 18px;
+}
+
 .rbform > form > .alert {
   margin: 20px 20px 0;
 }
@@ -3483,6 +3497,26 @@ a.user-show:not([href]) {
   color: rgba(0, 0, 0, 0.2);
 }
 
+.rb-top-header .search-input-gs + kbd {
+  position: absolute;
+  display: inline-block;
+  right: 10px;
+  top: 10px;
+  width: 18px;
+  height: 18px;
+  border-radius: 0.1875rem;
+  color: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background-color: transparent;
+  text-align: center;
+  line-height: 1;
+  padding-top: 3px;
+  overflow: hidden;
+  font-weight: bold;
+  cursor: help;
+  font-size: 12px;
+}
+
 .global-search > .dropdown-menu {
   min-width: 320px;
   max-width: 500px;
@@ -3497,7 +3531,7 @@ a.user-show:not([href]) {
   border-width: 0;
   font-size: 12px;
   font-weight: normal;
-  padding: 4px 10px;
+  padding: 3px 10px;
   margin-bottom: 5px;
   margin-right: 2px;
 }
@@ -5569,6 +5603,11 @@ pre.unstyle {
 
 .protable .table .col-index.action:hover > a {
   display: inline-block;
+}
+
+/* v42 */
+.protable .table tbody tr:last-child .column-fixed::before {
+  border-bottom-width: 0;
 }
 
 .modal-dialog.modal-rsheetb .modal-body {

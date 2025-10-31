@@ -347,7 +347,8 @@ public class UserService extends BaseService {
         // 改变记录的所属部门
         // 并发修改可能导致数据紊乱
         if (deptOld != null) {
-            TaskExecutors.submit(new ChangeOwningDeptTask(user, deptNew), UserContextHolder.getUser());
+            TaskExecutors.submit(
+                    new ChangeOwningDeptTask(user, deptNew), UserContextHolder.getUser());
         }
 
         // 是否需要发送激活通知

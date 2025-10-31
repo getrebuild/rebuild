@@ -78,7 +78,7 @@ public class RobotTriggerObserver extends OperatingObserver {
         if (isLazyTriggers(false)) {
             List<Object> ctx = LAZY_TRIGGERS_CTX.get();
             if (ctx == null) ctx = new ArrayList<>();
-            ctx.add(context);
+            ctx.add(0, context);  // v4.2 添加到头以便先执行
             LAZY_TRIGGERS_CTX.set(ctx);
             if (CommonsUtils.DEVLOG) System.out.println("[dev] Lazy triggers : " + ctx);
         } else {

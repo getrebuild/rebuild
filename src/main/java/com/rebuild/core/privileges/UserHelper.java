@@ -338,6 +338,7 @@ public class UserHelper {
 
     /**
      * 通过用户全称找用户（注意同名问题）
+     * 4.2: 重名的优先使用非禁用用户、最近创建用户
      *
      * @param fullName
      * @return
@@ -345,10 +346,16 @@ public class UserHelper {
     public static ID findUserByFullName(String fullName) {
         for (User u : Application.getUserStore().getAllUsers()) {
             if (fullName.equalsIgnoreCase(u.getFullName())) {
-                return u.getId();
+                if (u.isActive()) return u.getId();
             }
         }
-        return null;
+
+        // 最近创建
+        Object[] r = Application.createQueryNoFilter(
+                "select userId from User where fullName = ? order by createdOn desc")
+                .setParameter(1, fullName)
+                .unique();
+        return r == null ? null : (ID) r[0];
     }
 
     /**

@@ -16,7 +16,6 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.AdvFilterManager;
 import com.rebuild.core.configuration.general.DataListCategory38;
@@ -307,7 +306,7 @@ public class ProtocolFilterParser {
     protected String parseCategory(String entity, String value) {
         String[] filterValues = value.split(CommonsUtils.COMM_SPLITER_RE);
         String where = DataListCategory38.instance.buildParentFilters(MetadataHelper.getEntity(entity), filterValues);
-        if (Application.devMode()) log.info("[dev] Parse category : {} >> {}", value, where);
+        if (CommonsUtils.DEVLOG) System.out.println("[dev] Parse category : " + value + " >> " + where);
         return where;
     }
 

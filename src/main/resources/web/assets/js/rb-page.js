@@ -546,22 +546,22 @@ var _showStateST = function (st) {
 }
 // 全局搜索
 var _initGlobalSearch = function () {
+  // $unhideDropdown('.global-search')
+  var $gs = $('.global-search .dropdown-menu')
+
   $('.global-search2>a').on('click', function () {
-    _showGlobalSearch($storage.get('GlobalSearch-gs'))
+    _showGlobalSearch($storage.get('GlobalSearch-gs'), $gs)
     $('.search-container input')[0].focus()
     setTimeout(function () {
       $('.search-container .dropdown-toggle').dropdown('toggle')
     }, 100)
   })
 
-  // $unhideDropdown('.global-search')
-  var $gs = $('.global-search .dropdown-menu')
-
   $('.sidebar-elements li').each(function (idx, item) {
     var $item = $(item)
     var $a = $item.find('>a')
     if (!$item.hasClass('parent') && ($item.attr('class') || '').contains('nav_entity-')) {
-      $('<a class="badge" data-url="' + $a.attr('href') + '">' + $escapeHtml($a.text()) + '</a>').appendTo($gs)
+      $('<a class="badge" data-url="' + $a.attr('href') + '" data-entity="' + ($a.parent().data('entity') || '') + '">' + $escapeHtml($a.text()) + '</a>').appendTo($gs)
     } else if ($item.hasClass('nav_entity--PROJECT') && $item.hasClass('parent')) {
       $('<a class="badge QUERY" data-url="' + rb.baseUrl + '/project/search">' + $escapeHtml($a.text()) + '</a>').appendTo($gs)
     }
@@ -575,7 +575,7 @@ var _initGlobalSearch = function () {
   if ($es.length === 0) return
 
   var _tryActive = function ($active, $el) {
-    if ($el.length === 1) {
+    if ($el.length) {
       $active.removeClass('active')
       $el.addClass('active')
     }
@@ -585,19 +585,39 @@ var _initGlobalSearch = function () {
   $('.global-search input').on('keydown', function (e) {
     var $active = $('.global-search a.active')
     if (e.keyCode === 37 || e.keyCode === 38) {
-      _tryActive($active, $active.prev())
+      var $prev = $active.prev()
+      if (!$prev[0]) $prev = $es.last()
+      _tryActive($active, $prev)
     } else if (e.keyCode === 39 || e.keyCode === 40) {
-      _tryActive($active, $active.next())
+      var $next = $active.next()
+      if (!$next[0]) $next = $es.first()
+      _tryActive($active, $next)
     } else if (e.keyCode === 13) {
       var s = $('.search-input-gs').val()
+      $storage.set('GlobalSearch-gs', s || '')
       location.href = $active.data('url') + ($active.hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
     }
   })
+
+  // v4.2: hotkey `/`
+  $(document).on('keydown', null, '/', function (e) {
+    if (e.target && e.target.tagName === 'INPUT') return
+    $stopEvent(e, true)
+    $('.global-search2>a').trigger('click')
+  })
 }
-var _showGlobalSearch = function (gs) {
+var _showGlobalSearch = function (gs, $gs) {
   $('.global-search2>a').hide()
   $('.search-container').removeClass('hide')
   gs && $('.search-container input').val($decode(gs))
+
+  if (window.__PageConfig && window.__PageConfig.entity && window.__PageConfig.entity[0] && $gs) {
+    var $a = $gs.find('a[data-entity="' + window.__PageConfig.entity[0] + '"]')
+    if ($a[0]) {
+      $gs.find('a.active').removeClass('active')
+      $a.addClass('active')
+    }
+  }
 }
 // 全局新建
 var _initGlobalCreate = function () {
