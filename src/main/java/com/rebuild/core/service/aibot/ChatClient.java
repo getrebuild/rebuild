@@ -9,7 +9,6 @@ package com.rebuild.core.service.aibot;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.Application;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OkHttpUtils;
@@ -58,7 +57,7 @@ public class ChatClient {
         try {
             String res = OkHttpUtils.post(dsUrl, completions.toCompletions(false), headers);
             resJson = JSON.parseObject(res);
-            if (Application.devMode()) System.out.println("[dev] \n" + JSONUtils.prettyPrint(resJson));
+            if (CommonsUtils.DEVLOG) System.out.println("[dev] \n" + JSONUtils.prettyPrint(resJson));
         } catch (IOException ex) {
             throw new AiBotException(null, ex);
         }

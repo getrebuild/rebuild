@@ -262,7 +262,7 @@ public class ReferenceSearchController extends EntityController {
             }
         }
 
-        if (Application.devMode()) log.info("[DEV] Reference search : {}", sql);
+        if (CommonsUtils.DEVLOG) System.out.println("[dev] Reference search : " + sql);
         Object[][] array = QueryHelper.createQuery(sql, entity).setLimit(maxResults).array();
 
         List<Object> res = new ArrayList<>();

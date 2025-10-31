@@ -156,7 +156,7 @@ public class FilePreviewer extends BaseController {
             ooConfig.put("type", view);
             mv.getModel().put("title", fileName + " - " + Language.L("文档预览"));
         }
-        if (Application.devMode()) System.out.println("[dev] " + JSONUtils.prettyPrint(ooConfig));
+        if (CommonsUtils.DEVLOG) System.out.println("[dev] " + JSONUtils.prettyPrint(ooConfig));
         mv.getModel().put("_DocEditorConfig", ooConfig);
         return mv;
     }
@@ -165,9 +165,7 @@ public class FilePreviewer extends BaseController {
     @PostMapping("/commons/file-editor-forcesave")
     public void ooEditorForcesave(HttpServletRequest request, HttpServletResponse response) {
         final JSONObject status = (JSONObject) ServletUtils.getRequestJson(request);
-        if (Application.devMode()) {
-            System.out.println("[dev] oo-callback : " + request.getQueryString() + "\n" + JSONUtils.prettyPrint(status));
-        }
+        if (CommonsUtils.DEVLOG) System.out.println("[dev] oo-callback : " + request.getQueryString() + "\n" + JSONUtils.prettyPrint(status));
 
         // saving
         int statusVal = status.getIntValue("status");
