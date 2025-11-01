@@ -224,7 +224,7 @@ class ChatInput extends React.Component {
         this.setState({ attach })
       })
     } else {
-      RbHighbar.createl('当前页面暂无可使用数据')
+      RbHighbar.createl('当前页没有可使用数据')
     }
   }
 }
