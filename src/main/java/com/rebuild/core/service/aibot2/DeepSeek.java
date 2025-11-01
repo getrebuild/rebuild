@@ -12,6 +12,7 @@ import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -52,9 +53,10 @@ public class DeepSeek {
      * @return
      */
     public static ChatCompletionCreateParams.Builder createBuilder(String system, String model) {
-        return ChatCompletionCreateParams.builder()
-                .model(model)
-                .addSystemMessage(system);
+        ChatCompletionCreateParams.Builder b = ChatCompletionCreateParams.builder()
+                .model(StringUtils.defaultIfBlank(model, MODEL_CHAT));
+        if (StringUtils.isNotBlank(system)) b.addSystemMessage(system);
+        return b;
     }
 
     /**
@@ -64,6 +66,8 @@ public class DeepSeek {
     public static String getServerUrl(String path) {
         String url = RebuildConfiguration.get(ConfigurationItem.AibotDSUrl);
         if (!url.endsWith("/")) url += "/";
+        if (path == null) return url;
+
         if (path.startsWith("/")) path = path.substring(1);
         return url + path;
     }

@@ -8,57 +8,75 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.aibot2;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.openai.core.http.StreamResponse;
 import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionChunk;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.openai.models.chat.completions.ChatCompletionMessage;
-import com.rebuild.core.Application;
+import com.openai.services.blocking.chat.ChatCompletionService;
 import com.rebuild.core.service.aibot.AiBotException;
-import com.rebuild.core.service.aibot.ChatRequest;
 import com.rebuild.core.service.aibot.Config;
 import com.rebuild.core.service.aibot.StreamEcho;
+import com.rebuild.core.service.query.QueryHelper;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
-
-import static com.rebuild.core.service.aibot2.DeepSeek.getClient;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Zixin
- * @since 2025/6/23
+ * @since 2025/11/1
  */
 @Slf4j
-public class Chat {
+public class Chat implements Serializable {
+    private static final long serialVersionUID = 471922851634230399L;
 
-    /**
-     * @param request
-     * @return
-     */
-    public static String post(ChatRequest request) {
-        ChatCompletionCreateParams.Builder builder = getBuilder(request.getChatid());
-        builder.addUserMessage(request.getUserContent());
-        ChatCompletionCreateParams params = builder.build();
+    @Getter
+    private ID chatid;
+    @Getter
+    private String model;
+    @Getter
+    private String prompt;
 
-        ChatCompletion resp = getClient().chat().completions().create(params);
-        ChatCompletionMessage ai = resp.choices().get(0).message();
-        builder.addMessage(ai);
-        return ai.content().orElse("");
+    @Getter
+    private List<Message> messages = new ArrayList<>();
+
+    public Chat(ID chatid) {
+        this(chatid, Config.getBasePrompt(), null);
+    }
+
+    public Chat(ID chatid, String prompt, String model) {
+        this.chatid = chatid;
+        this.model = model;
+        this.prompt = prompt;
+        this.restoreIfNeed();
     }
 
     /**
-     * @param request
-     * @param httpResp
+     * @param chatRequest
      * @return
      */
-    public static void stream(ChatRequest request, HttpServletResponse httpResp) {
-        ChatCompletionCreateParams.Builder builder = getBuilder(request.getChatid());
-        builder.addUserMessage(request.getUserContent());
-        ChatCompletionCreateParams params = builder.build();
+    public Message post(ChatRequest chatRequest) {
+        ChatCompletionCreateParams params = buildRequestParams(chatRequest.getUserContent(), chatRequest);
+        ChatCompletion resp = completions().create(params);
+        ChatCompletionMessage ai = resp.choices().get(0).message();
 
+        String content = ai.content().orElse("");
+        return completionAfter(content, chatRequest);
+    }
+
+    /**
+     * @param chatRequest
+     * @param httpResp
+     */
+    public void stream(ChatRequest chatRequest, HttpServletResponse httpResp) {
         PrintWriter writer;
         try {
             writer = httpResp.getWriter();
@@ -66,26 +84,86 @@ public class Chat {
             throw new AiBotException("ERROR IN GETWRITER", e);
         }
 
-        try (StreamResponse<ChatCompletionChunk> resp = getClient().chat().completions().createStreaming(params)) {
-            resp.stream().forEach(chunk -> {
-                chunk.choices().forEach(choice -> {
-                    String ai = choice.delta().content().orElse("");
-                    StreamEcho.text(ai, writer);
-                });
-            });
-            StreamEcho.text("[DONE]", writer);
+        httpResp.setContentType(org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE);
+        httpResp.setCharacterEncoding("UTF-8");
+        httpResp.setHeader("Cache-Control", "no-cache");
+        httpResp.setHeader("Connection", "keep-alive");
+
+        ChatCompletionCreateParams params = buildRequestParams(chatRequest.getUserContent(), chatRequest);
+        StringBuilder fullContent = new StringBuilder();
+        try (StreamResponse<ChatCompletionChunk> resp = completions().createStreaming(params)) {
+            resp.stream().forEach(chunk -> chunk.choices().forEach(choice -> {
+                String content = choice.delta().content().orElse("");
+                StreamEcho.text(content, writer);
+                fullContent.append(content);
+            }));
+
+            StreamEcho.echo(getChatid().toLiteral(), writer, "_chatid");
+            completionAfter(fullContent.toString(), chatRequest);
         }
     }
 
     /**
-     * @param chatid
+     * 直接返回内容
+     *
+     * @param userMessage
      * @return
      */
-    public static ChatCompletionCreateParams.Builder getBuilder(ID chatid) {
-        final String key = "chat-" + chatid;
+    public String chat(String userMessage) {
+        ChatCompletionCreateParams params = buildRequestParams(userMessage, null);
+        ChatCompletion resp = completions().create(params);
+        ChatCompletionMessage ai = resp.choices().get(0).message();
+        return ai.content().orElse("");
+    }
 
-        Serializable b = Application.getCommonsCache().getx(key);
+    private ChatCompletionService completions() {
+        return DeepSeek.getClient().chat().completions();
+    }
 
-        return DeepSeek.createBuilder(Config.getBasePrompt(), DeepSeek.MODEL_CHAT);
+    private ChatCompletionCreateParams buildRequestParams(String userMessage, ChatRequest chatRequest) {
+        Message message = new Message(Message.ROLE_USER, userMessage, null, null, chatRequest);
+        messages.add(message);
+
+        ChatCompletionCreateParams.Builder builder = DeepSeek.createBuilder(prompt, model);
+        for (Message m : messages) {
+            if (Message.ROLE_USER.equals(m.getRole())) builder.addUserMessage(m.getContent());
+            else if (Message.ROLE_AI.equals(m.getRole())) builder.addAssistantMessage(m.getContent());
+        }
+        return builder.build();
+    }
+
+    private Message completionAfter(String aiMessage, ChatRequest chatRequest) {
+        Message message = new Message(Message.ROLE_AI, aiMessage, null, null, chatRequest);
+        messages.add(message);
+
+        this.store();
+        return message;
+    }
+
+    /**
+     * 持久化
+     */
+    public void store() {
+        ChatManager.storeChat(this);
+    }
+
+    /**
+     * 恢复会话内容
+     */
+    protected void restoreIfNeed() {
+        Object o = QueryHelper.queryFieldValue(getChatid(), "contents");
+        JSONArray msgs = JSONArray.parseArray((String) o);
+        if (msgs == null) return;
+
+        for (Object msg : msgs) {
+            JSONObject msgJson = (JSONObject) msg;
+            String role = msgJson.getString("role");
+            String content = msgJson.getString("content");
+            if (Message.ROLE_USER.equals(role)) {
+                messages.add(new Message(role, content, null, null, getChatid(), msgJson));
+            } else if (Message.ROLE_AI.equals(role)) {
+                messages.add(new Message(role, content, null, null, getChatid(), msgJson));
+            }
+        }
     }
 }

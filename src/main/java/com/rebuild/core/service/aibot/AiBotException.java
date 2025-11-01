@@ -14,6 +14,7 @@ import com.rebuild.core.RebuildException;
  * @since 2025/4/12
  */
 public class AiBotException extends RebuildException {
+    private static final long serialVersionUID = -7857788803842596826L;
 
     public AiBotException() {
         super();
