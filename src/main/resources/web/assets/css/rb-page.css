@@ -731,10 +731,6 @@ div.dataTables_filter .filter-badge:hover .close {
   color: #fff;
 }
 
-.modal.rbmodal .modal-dialog {
-  transition: max-width 0.2s;
-}
-
 .rbmodal.show,
 .rbview.show {
   display: block !important;
@@ -754,11 +750,6 @@ div.dataTables_filter .filter-badge:hover .close {
 
 .rbview.modal.top60 {
   top: 61px;
-}
-
-.rbmodal.show,
-.rbview.show .modal-content {
-  transition: margin 0.2s;
 }
 
 .rbview.show .modal-content {
@@ -1033,6 +1024,18 @@ a.link.link-icon::after {
   background-color: #fff;
   z-index: 2;
   padding-bottom: 18px;
+}
+
+.modal-dialog.modal-dialog-maximize {
+  margin: 20px;
+}
+
+.modal-dialog.modal-dialog-maximize .modal-header .mdi.mdi-window-maximize::before {
+  content: '\F05B2';
+}
+
+.modal-dialog.modal-dialog-maximize .modal-content {
+  margin: 0 auto;
 }
 
 .rbform > form > .alert {

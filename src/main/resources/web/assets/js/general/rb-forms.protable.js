@@ -277,7 +277,7 @@ class ProTable extends React.Component {
     if (!F) return
 
     const that = this
-    const props = {
+    const editProps = {
       title: $L('编辑'),
       confirmText: $L('确定'),
       icon: this.props.entity.icon,
@@ -302,8 +302,8 @@ class ProTable extends React.Component {
     }
 
     this._formdataRebuild(F.getFormData(), (res) => {
-      props.initialFormModel = res.data
-      RbFormModal.create(props, true)
+      editProps.initialFormModel = res.data
+      RbFormModal.create(editProps, true)
     })
   }
 

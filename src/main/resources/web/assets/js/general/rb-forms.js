@@ -31,15 +31,12 @@ class RbFormModal extends React.Component {
 
   render() {
     const style2 = { maxWidth: this.props.width || MODAL_MAXWIDTH }
-    if (this.state._maximize) {
-      style2.maxWidth = $(window).width() - 60
-      if (style2.maxWidth < MODAL_MAXWIDTH) style2.maxWidth = MODAL_MAXWIDTH
-    }
+    if (this.state._maximize) style2.maxWidth = '100%'
 
     return (
       <div className="modal-wrapper">
         <div className="modal rbmodal colored-header colored-header-primary" aria-modal="true" tabIndex="-1" ref={(c) => (this._rbmodal = c)}>
-          <div className={`modal-dialog ${window.__LAB_FORM_SCROLLABLE42 && 'modal-dialog-scrollable'}`} style={style2}>
+          <div className={`modal-dialog ${window.__LAB_FORM_SCROLLABLE42 && 'modal-dialog-scrollable'} ${this.state._maximize && 'modal-dialog-maximize'}`} style={style2}>
             <div className="modal-content" style={style2}>
               <div
                 className="modal-header modal-header-colored"
@@ -55,7 +52,7 @@ class RbFormModal extends React.Component {
                   </a>
                 )}
                 <button className="close md-close J_maximize" type="button" title={this.state._maximize ? $L('向下还原') : $L('最大化')} onClick={() => this._handleMaximize()}>
-                  <span className={`mdi ${this.state._maximize ? 'mdi mdi-window-restore' : 'mdi mdi-window-maximize'}`} />
+                  <span className="mdi mdi-window-maximize" />
                 </button>
                 <button className="close md-close" type="button" title={`${$L('关闭')} (Esc)`} onClick={() => this.hide()}>
                   <span className="zmdi zmdi-close" />
