@@ -96,6 +96,8 @@ public class Chat implements Serializable {
                 String content = choice.delta().content().orElse("");
                 StreamEcho.text(content, writer);
                 fullContent.append(content);
+
+                // TODO 不支持推理内容
             }));
 
             StreamEcho.echo(getChatid().toLiteral(), writer, "_chatid");
@@ -152,13 +154,15 @@ public class Chat implements Serializable {
      */
     protected void restoreIfNeed() {
         Object o = QueryHelper.queryFieldValue(getChatid(), "contents");
-        JSONArray msgs = JSONArray.parseArray((String) o);
-        if (msgs == null) return;
+        if (o == null) return;
+        JSONArray data = JSONArray.parseArray((String) o);
+        if (data == null) return;
 
-        for (Object msg : msgs) {
+        for (Object msg : data) {
             JSONObject msgJson = (JSONObject) msg;
             String role = msgJson.getString("role");
             String content = msgJson.getString("content");
+
             if (Message.ROLE_USER.equals(role)) {
                 messages.add(new Message(role, content, null, null, getChatid(), msgJson));
             } else if (Message.ROLE_AI.equals(role)) {

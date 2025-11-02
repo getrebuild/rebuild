@@ -43,7 +43,9 @@ public class Message implements Serializable {
      * @param chatRequest
      */
     protected Message(String role, String content, String reasoning, String error, ChatRequest chatRequest) {
-        this(role, content, reasoning, error, chatRequest.getChatid(), chatRequest.getReqJson());
+        this(role, content, reasoning, error,
+                chatRequest == null ? null : chatRequest.getChatid(),
+                chatRequest == null ? null : chatRequest.getReqJson());
     }
 
     /**

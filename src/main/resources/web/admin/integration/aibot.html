@@ -24,12 +24,16 @@
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">DeepSeek URL</td>
+                        <td width="40%">API 地址</td>
                         <td data-id="AibotDSUrl" th:data-value="${AibotDSUrl ?:''}">[[${AibotDSUrl ?:bundle.L('默认')}]]</td>
                       </tr>
                       <tr>
-                        <td>DeepSeek API key</td>
+                        <td>秘钥 (API Key)</td>
                         <td data-id="AibotDSSecret" th:data-value="${AibotDSSecret ?:''}">[[${AibotDSSecret ?:bundle.L('未设置')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>使用模型</td>
+                        <td data-id="AibotBaseDefModel" th:data-value="${AibotBaseDefModel ?:''}" data-optional="true">[[${AibotBaseDefModel ?:bundle.L('默认')}]]</td>
                       </tr>
                     </tbody>
                   </table>

@@ -21,8 +21,10 @@ import org.springframework.util.Assert;
  */
 public class DeepSeek {
 
-    public static final String MODEL_CHAT = "deepseek-chat";
-    public static final String MODEL_REASONER = "deepseek-reasoner";
+    public static final String MODEL_DS_CHAT = "deepseek-chat";
+    public static final String MODEL_DS_REASONER = "deepseek-reasoner";
+    public static final String MODEL_GPT_5 = "gpt-5";
+    public static final String MODEL_GPT_5M = "gpt-5-mini";
 
     private static OpenAIClient CLIENT;
 
@@ -53,8 +55,9 @@ public class DeepSeek {
      * @return
      */
     public static ChatCompletionCreateParams.Builder createBuilder(String system, String model) {
+        if (StringUtils.isBlank(model)) model = getDefModel();
         ChatCompletionCreateParams.Builder b = ChatCompletionCreateParams.builder()
-                .model(StringUtils.defaultIfBlank(model, MODEL_CHAT));
+                .model(model);
         if (StringUtils.isNotBlank(system)) b.addSystemMessage(system);
         return b;
     }
@@ -79,5 +82,13 @@ public class DeepSeek {
         String sk = RebuildConfiguration.get(ConfigurationItem.AibotDSSecret);
         Assert.notNull(sk, "[AibotDSSecret] is not set");
         return sk;
+    }
+
+    /**
+     * @return
+     */
+    public static String getDefModel() {
+        String model = RebuildConfiguration.get(ConfigurationItem.AibotBaseDefModel);
+        return StringUtils.defaultIfBlank(model, MODEL_DS_CHAT);
     }
 }

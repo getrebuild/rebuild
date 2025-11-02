@@ -151,7 +151,7 @@ class AppEdit extends ConfigFormDlg {
           <label className="col-sm-3 col-form-label text-sm-right">{$L('绑定用户 (权限)')}</label>
           <div className="col-sm-7">
             <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (this._UserSelector = c)} defaultValue={this.props.bindUser} />
-            <p className="form-text">{$L('强烈建议为 OpenAPI 密钥绑定一个用户，此密钥将拥有和其一样的权限。如不绑定则拥有全部权限')}</p>
+            <p className="form-text">{$L('建议为 OpenAPI 密钥绑定一个用户，此密钥将拥有和其一样的权限。如不绑定则拥有全部权限')}</p>
           </div>
         </div>
         <div className="form-group row">
