@@ -5240,6 +5240,10 @@ pre.unstyle {
   font-size: 13px;
 }
 
+.rb-left-sidebar .sidebar-elements .divider + .divider {
+  display: none;
+}
+
 .aside-tree .config-title {
   margin-top: 10px;
   margin-bottom: 14px;

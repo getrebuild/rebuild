@@ -150,8 +150,11 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             if (requestUri.contains("/admin/")) {
                 if (AppUtils.isAdminVerified(request)) {
                     if (isHtmlRequest(requestUri, request) && !ProtectedAdmin.allow(requestUri, requestUser)) {
-                        response.sendError(HttpStatus.FORBIDDEN.value());
-                        return false;
+                        // v4.2 特殊处理[通用配置]
+                        if (!requestUri.contains("/admin/systems")) {
+                            response.sendError(HttpStatus.FORBIDDEN.value());
+                            return false;
+                        }
                     }
                 } else {
                     if (isHtmlRequest(requestUri, request)) {
