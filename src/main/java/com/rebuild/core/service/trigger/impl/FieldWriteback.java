@@ -17,12 +17,12 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
-import cn.devezhao.persist4j.record.RecordVisitor;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyDateTime;
@@ -428,7 +428,8 @@ public class FieldWriteback extends FieldAggregation {
 
             // 固定值
             else if ("VFIXED".equalsIgnoreCase(updateMode)) {
-                RecordVisitor.setValueByLiteral(targetField, sourceAny, targetRecord);
+                EntityRecordCreator.setValueByLiteral(
+                        targetFieldEasy.getRawMeta(), sourceAny, targetRecord, false);
             }
 
             // 字段

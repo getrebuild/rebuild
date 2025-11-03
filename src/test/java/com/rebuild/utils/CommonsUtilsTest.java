@@ -23,7 +23,9 @@ class CommonsUtilsTest {
 
     @Test
     void parseDate() {
-        parseDateWithPrint("2025-2-2");
+        parseDateWithPrint("2025年09月25日 (周四) 00:55:00");
+        parseDateWithPrint("2025年09月25日 (周四)");
+
         parseDateWithPrint("2025-2-21");
         parseDateWithPrint("2025年2月2日");
         parseDateWithPrint("2025年2月21日");
