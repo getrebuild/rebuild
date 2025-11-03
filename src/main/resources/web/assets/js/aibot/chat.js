@@ -163,6 +163,8 @@ class ChatInput extends React.Component {
             <button
               type="button"
               className="btn btn-sm ml-1"
+              title={$L('发送')}
+              disabled={this.state.postState === 1 || $empty(this.state.content)}
               onClick={() => {
                 if (this.state.postState === 0) this.hanldeSend()
                 else this.handleCancel()

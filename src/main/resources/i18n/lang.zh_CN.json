@@ -3611,7 +3611,7 @@
   "查看角色": "查看角色",
   "工号已存在": "工号已存在",
   "秘钥 (API Key)": "秘钥 (API Key)",
-  "请正确填写，例如 `deepseek-chat` `gtp-5` `gemini-2.5-pro` 等": "请正确填写，例如 `deepseek-chat` `gtp-5` `gemini-2.5-pro` 等",
+  "请正确填写，例如 `deepseek-chat` `gpt-5` `gemini-2.5-pro` 等": "请正确填写，例如 `deepseek-chat` `gpt-5` `gemini-2.5-pro` 等",
   "API 地址": "API 地址",
   "使用模型": "使用模型",
   "当前页没有可使用数据": "当前页没有可使用数据",
