@@ -4,6 +4,12 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/integration-aibot" />
     <title>[[${bundle.L('AI 助手')}]]</title>
+    <style>
+      p.mt-2.text-dark code:hover {
+        font-weight: bold;
+        cursor: pointer;
+      }
+    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -24,19 +30,32 @@
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">API 地址</td>
+                        <td width="40%">[[${bundle.L('API 地址')}]]</td>
                         <td data-id="AibotDSUrl" th:data-value="${AibotDSUrl ?:''}">[[${AibotDSUrl ?:bundle.L('默认')}]]</td>
                       </tr>
                       <tr>
-                        <td>秘钥 (API Key)</td>
+                        <td>[[${bundle.L('秘钥 (API Key)')}]]</td>
                         <td data-id="AibotDSSecret" th:data-value="${AibotDSSecret ?:''}">[[${AibotDSSecret ?:bundle.L('未设置')}]]</td>
                       </tr>
                       <tr>
-                        <td>使用模型</td>
-                        <td data-id="AibotBaseDefModel" th:data-value="${AibotBaseDefModel ?:''}" data-optional="true">[[${AibotBaseDefModel ?:bundle.L('默认')}]]</td>
+                        <td>[[${bundle.L('使用模型')}]]</td>
+                        <td
+                          data-id="AibotBaseDefModel"
+                          th:data-value="${AibotBaseDefModel ?:''}"
+                          data-optional="true"
+                          th:data-form-text="${bundle.L('请正确填写，例如 `deepseek-chat` `gtp-5` `gemini-2.5-pro` 等')}"
+                        >
+                          [[${AibotBaseDefModel ?:bundle.L('默认')}]]
+                        </td>
                       </tr>
                     </tbody>
                   </table>
+                  <span id="AibotBaseDefModel_defs">
+                    <div class="dropdown-menu common-texts">
+                      <h5>{$L('常用')}</h5>
+                      <a class="badge text-ellipsis">gpt-5</a>
+                    </div>
+                  </span>
                   <h5>[[${bundle.L('提示词')}]]</h5>
                   <table class="table">
                     <tbody>
@@ -69,7 +88,18 @@
     <script type="text/babel">
       useEditComp = function (name) {
         if ('AibotBasePrompt' === name) {
-          return <textarea name={name} className="form-control form-control-sm row2x" maxLength="1024" />
+          return <textarea className="form-control form-control-sm row2x" maxLength="1024" />
+        } else if ('AibotBaseDefModel' === name) {
+          setTimeout(() => {
+            $('input[name="AibotBaseDefModel"]')
+              .next()
+              .find('code')
+              .on('click', function () {
+                $('input[name="AibotBaseDefModel"]').val($(this).text())
+                // @see `syscfg.js`
+                if (window.__data) window.__data['AibotBaseDefModel'] = $(this).text()
+              })
+          }, 500)
         }
       }
     </script>
