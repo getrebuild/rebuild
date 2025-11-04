@@ -15,16 +15,22 @@ import com.rebuild.core.service.aibot.vector.ListData;
 import com.rebuild.core.service.aibot.vector.RecordData;
 import com.rebuild.core.service.aibot.vector.VectorData;
 import com.rebuild.core.service.aibot.vector.VectorDataChunk;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.JSONUtils;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Zixin
  * @since 2025/11/1
  */
+@Slf4j
 public class ChatRequest {
 
     @Getter
@@ -94,5 +100,22 @@ public class ChatRequest {
             }
         }
         return vdc;
+    }
+
+    /**
+     * TODO 支持文件
+     *
+     * @return
+     */
+    public File[] getFile() {
+        JSONArray filepath = (JSONArray) reqJson.get("file");
+        if (CollectionUtils.isEmpty(filepath)) return null;
+
+        List<File> files = new ArrayList<>();
+        for (Object path : filepath) {
+            File file = RebuildConfiguration.getFileOfTemp(path.toString());
+            files.add(file);
+        }
+        return files.toArray(new File[0]);
     }
 }

@@ -87,6 +87,11 @@ $(document).ready(() => {
     $('.J_dash-edit').on('click', () => dlgShow('DlgDashSettings', { title: use[4], shareTo: use[1] }))
     $('.J_chart-new').on('click', () => dlgShow('DlgAddChart'))
     $('.J_dash-select').on('click', () => dlgShow('DashSelect', { dashList: dash_list }))
+    $('.J_dash-share').on('click', () => {
+      // eslint-disable-next-line react/jsx-no-undef
+      renderRbcomp(<FileShare file={dashid} title={$L('分享仪表盘')} />)
+    })
+    if (!rb.isAdminUser) $('.J_dash-share').remove()
 
     const $refreshs = $('.J_dash-refresh .dropdown-item').on('click', function () {
       $refreshs.removeClass('check')
@@ -491,18 +496,6 @@ class DlgDashSettings extends RbFormHandler {
               <button className="btn btn-danger btn-outline ml-2" type="button" onClick={() => this.delete()}>
                 <i className="zmdi zmdi-delete icon" /> {$L('删除')}
               </button>
-              {rb.isAdminUser && (
-                <button
-                  className="btn btn-light w-auto bosskey-show ml-2"
-                  type="button"
-                  title={$L('分享') + ' (LAB)'}
-                  onClick={() => {
-                    // eslint-disable-next-line react/jsx-no-undef
-                    renderRbcomp(<FileShare file={this.props.dashid} />)
-                  }}>
-                  <i className="icon zmdi zmdi-share"></i>
-                </button>
-              )}
             </div>
           </div>
         </div>

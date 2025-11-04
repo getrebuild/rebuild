@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 记录列表
+ *
  * @author Zixin
  * @since 2025/4/29
  */
@@ -48,7 +50,7 @@ public class ListData implements VectorData {
      */
     protected String toVector(ID[] records, Entity entity) {
         List<Field> fields = new ArrayList<>();
-        MarkdownTable mt = new MarkdownTable();
+        MdTable mt = new MdTable();
         for (Field field : entity.getFields()) {
             if (MetadataHelper.isSystemField(field)) continue;
 

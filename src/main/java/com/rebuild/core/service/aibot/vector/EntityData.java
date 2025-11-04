@@ -15,6 +15,8 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 
 /**
+ * 实体元数据
+ *
  * @author Zixin
  * @since 2025/5/10
  */
@@ -48,7 +50,7 @@ public class EntityData implements VectorData {
     }
 
     private String buildEntity(Entity entity) {
-        MarkdownTable mt = new MarkdownTable(EasyMetaFactory.getLabel(entity));
+        MdTable mt = new MdTable(EasyMetaFactory.getLabel(entity));
         mt.addHead("字段");
         mt.addHead("标识");
         mt.addHead("类型");
