@@ -5257,6 +5257,7 @@ pre.unstyle {
 .aside-header .title {
   margin-top: 4px;
   margin-bottom: 0;
+  font-weight: normal;
 }
 
 .dialog-footer {

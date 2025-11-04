@@ -76,6 +76,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
   opacity: 0.8;
 }
 
+.tools-bar h4::after {
+  content: '\f2f9';
+  font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
+  font-size: 1.308rem;
+  margin-left: 5px;
+  font-weight: bold;
+}
+
 .chart-grid {
   padding: 0 15px 20px 15px;
   margin-top: 8px;
