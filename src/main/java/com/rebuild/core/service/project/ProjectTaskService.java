@@ -19,6 +19,7 @@ import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.i18n.Language;
 import org.springframework.stereotype.Service;
 
@@ -211,6 +212,7 @@ public class ProjectTaskService extends BaseTaskService {
     }
 
     private void sendNotification(ID taskId) {
+        if (CommandArgs.getBoolean(CommandArgs._DisNotificationTasks)) return;
         Object[] task = Application.getQueryFactory().uniqueNoFilter(taskId, "executor", "taskName");
         if (task[0] == null) return;
 
