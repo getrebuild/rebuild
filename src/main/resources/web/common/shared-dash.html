@@ -23,6 +23,9 @@
     </style>
   </head>
   <body>
+    <div class="rb-loading rb-loading-active must-center J_load-page">
+      <th:block th:replace="~{/_include/spinner}" />
+    </div>
     <div class="chart-grid">
       <div class="grid-stack"></div>
     </div>
@@ -49,6 +52,7 @@
       dash_editable = false
       $(document).ready(() => {
         render_dashboard(wpc.dashConfig)
+        $('.J_load-page').remove()
       })
     </script>
   </body>

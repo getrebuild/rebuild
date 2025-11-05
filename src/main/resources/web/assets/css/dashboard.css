@@ -146,9 +146,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-left: 6px;
   text-align: left;
   width: 80px;
+  display: none;
 }
 
-.dash-head:hover .dash-action {
+.tools-bar:hover .dash-head .dash-action {
   display: block;
 }
 

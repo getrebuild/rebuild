@@ -14,7 +14,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .bosskey-show,
 .admin-show {
-  display: none !important;
+  display: none;
 }
 
 html.commercial .rbv {
@@ -22,15 +22,15 @@ html.commercial .rbv {
 }
 
 html.admin .admin-show {
-  display: block !important;
+  display: block;
 }
 
 html.admin .admin-show.inline {
-  display: inline-block !important;
+  display: inline-block;
 }
 
 html.admin .admin-show.row {
-  display: flex !important;
+  display: flex;
 }
 
 html,
@@ -5768,7 +5768,8 @@ div.formula-code {
 }
 
 .form-layout.vertical38.rbview-form > .row .form-group > .col-form-label {
-  margin-bottom: 5px;
+  margin-bottom: 0;
+  font-weight: bold;
 }
 
 /* fjs style */
