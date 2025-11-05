@@ -70,10 +70,10 @@
 
     <aop:config>
         <aop:pointcut id="servicesPoint"
-                      expression="execution(* com.rebuild..*Service.*(..))
-                       and !execution(* com.rebuild..*Service.get*(..))"/>
-        <aop:advisor pointcut-ref="servicesPoint" advice-ref="privilegesGuard"/>
-        <aop:advisor pointcut-ref="servicesPoint" advice-ref="txAdvice"/>
+                      expression="execution(* com.rebuild..*Service*.*(..))
+                       and !execution(* com.rebuild..*Service*.get*(..))"/>
+        <aop:advisor pointcut-ref="servicesPoint" advice-ref="privilegesGuard" order="1"/>
+        <aop:advisor pointcut-ref="servicesPoint" advice-ref="txAdvice" order="2"/>
     </aop:config>
 
 </beans>
