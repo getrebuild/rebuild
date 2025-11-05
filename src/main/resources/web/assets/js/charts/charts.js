@@ -1507,7 +1507,7 @@ class DataList extends BaseChart {
       super.renderError(
         <RF>
           <span>{$L('当前图表无数据')}</span>
-          {this.props.isManageable && <div>{WrapHtml($L('请先 [编辑图表](###)'))}</div>}
+          {this.props.isManageable && rb.currentUser && <div>{WrapHtml($L('请先 [编辑图表](###)'))}</div>}
         </RF>,
         () => {
           $(this._$body)
@@ -1821,7 +1821,7 @@ class EmbedFrame extends BaseChart {
       super.renderError(
         <RF>
           <span>{$L('当前图表无数据')}</span>
-          {this.props.isManageable && <div>{WrapHtml($L('请先 [编辑图表](###)'))}</div>}
+          {this.props.isManageable && rb.currentUser && <div>{WrapHtml($L('请先 [编辑图表](###)'))}</div>}
         </RF>,
         () => {
           $(this._$box)
