@@ -130,7 +130,11 @@ class ProTable extends React.Component {
           )}
         </table>
 
-        {inlineForms.length === 0 && <div className="text-center text-muted mt-6">{$L('请添加明细')}</div>}
+        {inlineForms.length === 0 && (
+          <div className="text-center text-muted" style={{ marginTop: 33 }}>
+            {$L('请添加明细')}
+          </div>
+        )}
       </div>
     )
   }

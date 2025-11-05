@@ -483,92 +483,94 @@ class RbForm extends React.Component {
 
     return (
       <div className="detail-form-table" data-entity={detailMeta.entity}>
-        <div className="row">
-          <div className="col-4 detail-form-header">
-            <h5 className="mt-2 mb-1 text-bold fs-13">
-              <i className={`icon zmdi zmdi-${detailMeta.icon} fs-15 mr-1`} />
-              {detailMeta.entityLabel}
-              {rb.isAdminUser && (
-                <a href={`${rb.baseUrl}/admin/entity/${detailMeta.entity}/form-design`} target="_blank" title={$L('表单设计')}>
-                  <span className="zmdi zmdi-settings up-1" />
-                </a>
-              )}
-            </h5>
-          </div>
+        <div className="detail-form-table-header">
+          <div className="row">
+            <div className="col-4 detail-form-header">
+              <h5 className="mt-2 mb-1 text-bold fs-13">
+                <i className={`icon zmdi zmdi-${detailMeta.icon} fs-15 mr-1`} />
+                {detailMeta.entityLabel}
+                {rb.isAdminUser && (
+                  <a href={`${rb.baseUrl}/admin/entity/${detailMeta.entity}/form-design`} target="_blank" title={$L('表单设计')}>
+                    <span className="zmdi zmdi-settings up-1" />
+                  </a>
+                )}
+              </h5>
+            </div>
 
-          <div className="col-8 text-right detail-form-action">
-            <div className="fjs-dock"></div>
-            {_detailImports.length > 0 && (
-              <div className={`btn-group J_import-detail ${this.props.readonly && 'hide'}`}>
-                <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
-                  <i className="icon mdi mdi-transfer-down"></i> {$L('导入明细')}
+            <div className="col-8 text-right detail-form-action">
+              <div className="fjs-dock"></div>
+              {_detailImports.length > 0 && (
+                <div className={`btn-group J_import-detail ${this.props.readonly && 'hide'}`}>
+                  <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
+                    <i className="icon mdi mdi-transfer-down"></i> {$L('导入明细')}
+                  </button>
+                  <div className="dropdown-menu dropdown-menu-right">
+                    {_detailImports.map((def, idx) => {
+                      return (
+                        <a
+                          key={`imports-${idx}`}
+                          className="dropdown-item"
+                          onClick={() => {
+                            def.fetch(this, (details) => _setLines(details))
+                          }}>
+                          {def.icon && <i className={`icon zmdi zmdi-${def.icon}`} />}
+                          {def.label}
+                        </a>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div className={`btn-group J_add-detail ml-2 ${this.props.readonly && 'hide'}`}>
+                <button className="btn btn-secondary" type="button" onClick={() => _addNew()}>
+                  <i className="icon x14 mdi mdi-playlist-plus mr-1" />
+                  {$L('添加明细')}
+                </button>
+                <button className="btn btn-secondary dropdown-toggle w-auto" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
+                  <i className="icon zmdi zmdi-chevron-down" />
                 </button>
                 <div className="dropdown-menu dropdown-menu-right">
-                  {_detailImports.map((def, idx) => {
+                  {[5, 10, 20].map((n) => {
                     return (
-                      <a
-                        key={`imports-${idx}`}
-                        className="dropdown-item"
-                        onClick={() => {
-                          def.fetch(this, (details) => _setLines(details))
-                        }}>
-                        {def.icon && <i className={`icon zmdi zmdi-${def.icon}`} />}
-                        {def.label}
+                      <a className="dropdown-item" onClick={() => _addNew(n)} key={`n-${n}`}>
+                        {$L('添加 %d 条', n)}
                       </a>
                     )
                   })}
-                </div>
-              </div>
-            )}
-
-            <div className={`btn-group J_add-detail ml-2 ${this.props.readonly && 'hide'}`}>
-              <button className="btn btn-secondary" type="button" onClick={() => _addNew()}>
-                <i className="icon x14 mdi mdi-playlist-plus mr-1" />
-                {$L('添加明细')}
-              </button>
-              <button className="btn btn-secondary dropdown-toggle w-auto" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
-                <i className="icon zmdi zmdi-chevron-down" />
-              </button>
-              <div className="dropdown-menu dropdown-menu-right">
-                {[5, 10, 20].map((n) => {
-                  return (
-                    <a className="dropdown-item" onClick={() => _addNew(n)} key={`n-${n}`}>
-                      {$L('添加 %d 条', n)}
-                    </a>
-                  )
-                })}
-                <a
-                  className="dropdown-item"
-                  onClick={() => {
-                    if (rb.commercial < 10) {
-                      return RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-                    }
-
-                    const fields = []
-                    _ProTable.state.formFields.forEach((item) => {
-                      if (item.readonly === false && !['IMAGE', 'FILE', 'AVATAR', 'SIGN'].includes(item.type)) {
-                        fields.push({ field: item.field, label: item.label, type: item.type })
+                  <a
+                    className="dropdown-item"
+                    onClick={() => {
+                      if (rb.commercial < 10) {
+                        return RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
                       }
-                    })
 
-                    const mainid = this.state.id || '000-0000000000000000'
-                    renderRbcomp(
-                      // eslint-disable-next-line react/jsx-no-undef
-                      <ExcelClipboardDataModal entity={detailMeta.entity} fields={fields} mainid={mainid} layoutId={_ProTable.getLayoutId()} onConfirm={(data) => _setLines(data)} />
-                    )
-                  }}>
-                  {$L('从 Excel 添加')} <sup className="rbv" />
-                </a>
-                <div className="dropdown-divider" />
-                <a className="dropdown-item" onClick={() => _ProTable.clear()}>
-                  {$L('清空')}
-                </a>
+                      const fields = []
+                      _ProTable.state.formFields.forEach((item) => {
+                        if (item.readonly === false && !['IMAGE', 'FILE', 'AVATAR', 'SIGN'].includes(item.type)) {
+                          fields.push({ field: item.field, label: item.label, type: item.type })
+                        }
+                      })
+
+                      const mainid = this.state.id || '000-0000000000000000'
+                      renderRbcomp(
+                        // eslint-disable-next-line react/jsx-no-undef
+                        <ExcelClipboardDataModal entity={detailMeta.entity} fields={fields} mainid={mainid} layoutId={_ProTable.getLayoutId()} onConfirm={(data) => _setLines(data)} />
+                      )
+                    }}>
+                    {$L('从 Excel 添加')} <sup className="rbv" />
+                  </a>
+                  <div className="dropdown-divider" />
+                  <a className="dropdown-item" onClick={() => _ProTable.clear()}>
+                    {$L('清空')}
+                  </a>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-2">{_ProTable}</div>
+        <div className="detail-form-table-body">{_ProTable}</div>
       </div>
     )
   }

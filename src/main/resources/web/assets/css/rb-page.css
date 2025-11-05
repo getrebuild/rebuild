@@ -1022,12 +1022,13 @@ a.link.link-icon::after {
   right: 0;
   bottom: 1px;
   background-color: #fff;
-  z-index: 2;
+  z-index: 3;
   padding-bottom: 18px;
 }
 
 .modal-dialog.modal-dialog-maximize {
-  margin: 20px;
+  margin: 0;
+  padding: 20px;
 }
 
 .modal-dialog.modal-dialog-maximize .modal-header .mdi.mdi-window-maximize::before {

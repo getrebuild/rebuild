@@ -402,3 +402,20 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   top: 7px;
   cursor: pointer;
 }
+
+.detail-form-table {
+  margin-top: 0;
+}
+
+.detail-form-table .detail-form-table-header {
+  padding: 10px 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  background-color: #fff;
+  position: sticky;
+  z-index: 3;
+  top: 0;
+}
+
+.modal-dialog-scrollable .detail-form-table .detail-form-table-header {
+  top: -15px;
+}
