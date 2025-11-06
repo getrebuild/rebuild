@@ -736,6 +736,8 @@ class RbForm extends React.Component {
 
     if (window.FrontJS) {
       const fieldKey = `${this.props.entity}.${field}`
+      // fix:v4.2-b3 统一使用ID
+      if (value && value.id) value = value.id
       window.FrontJS.Form._trigger('fieldValueChange', [fieldKey, value, this.props.id || null])
       // v4.0
       if (window.EasyFilterEval) window.EasyFilterEval.evalAndEffect(this)
