@@ -11,7 +11,7 @@ class ShowStyles extends React.Component {
   render() {
     return (
       <div className="modal rbalert" ref={(c) => (this._$dlg = c)} tabIndex="-1">
-        <div className="modal-dialog">
+        <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
               <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>

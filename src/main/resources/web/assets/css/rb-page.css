@@ -5155,8 +5155,17 @@ pre.unstyle {
 
 .rbalert-form-sm {
   width: 500px;
-  max-width: 420px;
+  max-width: 440px;
   margin: 0 auto;
+}
+
+.rbalert-form-sm label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.rbalert-form-sm label > span {
+  font-weight: normal;
 }
 
 /* TOP-MENU */

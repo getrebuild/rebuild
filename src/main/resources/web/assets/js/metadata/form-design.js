@@ -476,7 +476,7 @@ class DlgEditField extends RbAlert {
 
   renderContent() {
     return (
-      <form className="field-attr">
+      <form className="rbalert-form-sm">
         <div className="form-group">
           <label>{$L('填写提示')}</label>
           <input type="text" className="form-control form-control-sm" name="fieldTips" value={this.state.fieldTips || ''} onChange={this.handleChange} placeholder={$L('无')} maxLength="200" />
@@ -538,7 +538,7 @@ class DlgEditDivider extends DlgEditField {
 
   renderContent() {
     return (
-      <form className="field-attr">
+      <form className="rbalert-form-sm">
         <div className="form-group">
           <label>{$L('分栏名称')}</label>
           <input type="text" className="form-control form-control-sm" name="dividerName" value={this.state.dividerName || ''} onChange={this.handleChange} placeholder={$L('输入分栏名称')} />
@@ -574,7 +574,7 @@ class DlgEditRefform extends DlgEditField {
 
   renderContent() {
     return (
-      <form className="field-attr">
+      <form className="rbalert-form-sm">
         <div className="form-group">
           <label>{$L('引用字段')}</label>
           <select
