@@ -25,8 +25,6 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.EasyText;
 import com.rebuild.core.metadata.easymeta.PatternValue;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
-import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
@@ -38,7 +36,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -283,20 +280,14 @@ public class EntityRecordCreator extends JsonRecordCreator {
     protected static String setValueByLiteralBefore(Field field, String value, Record record, boolean checkPattern) {
         Type fieldType = field.getType();
 
-        // v4.0 处理 {CURRENT} 变量
+        // v4.0, 4.2 处理 {CURRENT} 变量
         if (FieldValueHelper.CURRENT.equals(value) || "{@CURRENT}".equals(value)) {
-            if (fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP || fieldType == FieldType.TIME) {
-                value = CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
-            } else {
-                Entity entityOfRef = field.getReferenceEntity();
-                if (entityOfRef != null) {
-                    if (entityOfRef.getEntityCode() == EntityHelper.User) {
-                        value = record.getEditor().toString();
-                    } else if (entityOfRef.getEntityCode() == EntityHelper.Department) {
-                        Department d = UserHelper.getDepartment(record.getEditor());
-                        value = Objects.requireNonNull(d).getIdentity().toString();
-                    }
-                }
+            Object v = FieldValueHelper.getCurrentVarValue(field, record.getEditor());
+            if (v instanceof Date) {
+                value = CalendarUtils.getUTCDateTimeFormat().format(v);
+            } else if (v != null) {
+                if (v instanceof ID[]) v = ((ID[]) v)[0];
+                value = v.toString();
             }
         }
 
