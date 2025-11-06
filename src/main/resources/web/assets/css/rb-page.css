@@ -14,7 +14,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .bosskey-show,
 .admin-show {
-  display: none !important;
+  display: none;
 }
 
 html.commercial .rbv {
@@ -22,15 +22,15 @@ html.commercial .rbv {
 }
 
 html.admin .admin-show {
-  display: block !important;
+  display: block;
 }
 
 html.admin .admin-show.inline {
-  display: inline-block !important;
+  display: inline-block;
 }
 
 html.admin .admin-show.row {
-  display: flex !important;
+  display: flex;
 }
 
 html,
@@ -731,10 +731,6 @@ div.dataTables_filter .filter-badge:hover .close {
   color: #fff;
 }
 
-.modal.rbmodal .modal-dialog {
-  transition: max-width 0.2s;
-}
-
 .rbmodal.show,
 .rbview.show {
   display: block !important;
@@ -754,11 +750,6 @@ div.dataTables_filter .filter-badge:hover .close {
 
 .rbview.modal.top60 {
   top: 61px;
-}
-
-.rbmodal.show,
-.rbview.show .modal-content {
-  transition: margin 0.2s;
 }
 
 .rbview.show .modal-content {
@@ -1029,10 +1020,23 @@ a.link.link-icon::after {
   position: sticky;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: 1px;
   background-color: #fff;
-  z-index: 2;
+  z-index: 3;
   padding-bottom: 18px;
+}
+
+.modal-dialog.modal-dialog-maximize {
+  margin: 0;
+  padding: 20px;
+}
+
+.modal-dialog.modal-dialog-maximize .modal-header .mdi.mdi-window-maximize::before {
+  content: '\F05B2';
+}
+
+.modal-dialog.modal-dialog-maximize .modal-content {
+  margin: 0 auto;
 }
 
 .rbform > form > .alert {
@@ -5151,8 +5155,17 @@ pre.unstyle {
 
 .rbalert-form-sm {
   width: 500px;
-  max-width: 420px;
+  max-width: 440px;
   margin: 0 auto;
+}
+
+.rbalert-form-sm label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.rbalert-form-sm label > span {
+  font-weight: normal;
 }
 
 /* TOP-MENU */
@@ -5237,6 +5250,10 @@ pre.unstyle {
   font-size: 13px;
 }
 
+.rb-left-sidebar .sidebar-elements .divider + .divider {
+  display: none;
+}
+
 .aside-tree .config-title {
   margin-top: 10px;
   margin-bottom: 14px;
@@ -5250,6 +5267,7 @@ pre.unstyle {
 .aside-header .title {
   margin-top: 4px;
   margin-bottom: 0;
+  font-weight: normal;
 }
 
 .dialog-footer {
@@ -5759,7 +5777,8 @@ div.formula-code {
 }
 
 .form-layout.vertical38.rbview-form > .row .form-group > .col-form-label {
-  margin-bottom: 5px;
+  margin-bottom: 0;
+  font-weight: bold;
 }
 
 /* fjs style */

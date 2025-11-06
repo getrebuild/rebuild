@@ -136,13 +136,17 @@ public class FileShareController extends BaseController {
                 map.put("folderName", folderName);
 
                 Object[][] array = Application.createQueryNoFilter(
-                        "select attachmentId,fileName,fileSize from Attachment where inFolder = ? and isDeleted <> 'T' order by fileName")
+                        "select attachmentId,fileName,fileSize,fileType from Attachment where inFolder = ? and isDeleted <> 'T' order by fileName")
                         .setParameter(1, folderOrDash42)
                         .array();
                 List<String[]> files = new ArrayList<>();
                 for (Object[] o : array) {
-                    files.add(new String[]{shareKey + "?file=" + o[0], (String) o[1],
-                            FileUtils.byteCountToDisplaySize(ObjectUtils.toLong(o[2]))});
+                    files.add(new String[]{
+                            shareKey + "?file=" + o[0],
+                            (String) o[1],
+                            FileUtils.byteCountToDisplaySize(ObjectUtils.toLong(o[2])),
+                            (String) o[3]
+                    });
                 }
                 map.put("folderFiles", files);
 

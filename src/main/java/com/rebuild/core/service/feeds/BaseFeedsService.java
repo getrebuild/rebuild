@@ -20,6 +20,7 @@ import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.general.ObservableService;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 
@@ -97,6 +98,7 @@ public abstract class BaseFeedsService extends ObservableService {
             }
         }
 
+        if (CommandArgs.getBoolean(CommandArgs._DisNotificationFeeds)) return;
         for (ID to : atUsers) {
             if (existsAtUsers.contains(to)) continue;
             Application.getNotifications().send(

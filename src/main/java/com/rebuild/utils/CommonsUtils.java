@@ -367,12 +367,19 @@ public class CommonsUtils {
      * @return
      */
     public static Date parseDate(String source) {
+        // #1
         if (source.length() == 4) {
             Date d = CalendarUtils.parse(source, "yyyy");
             if (d != null) return d;
         }
 
+        // #2
         if (source.contains("-") || source.contains("年") || source.contains("/")) {
+            // eg. 2025年09月25日 (周四) 00:55:00
+            if (source.contains("(") || source.contains(")")) {
+                source = source.replaceAll("\\([^)]*\\)", "").replaceAll("\\s+", " ");
+            }
+
             String[] ss = source.split("[年月日\\-\\s:./]");
             for (int i = 0; i < ss.length; i++) {
                 String s = ss[i];
@@ -387,11 +394,20 @@ public class CommonsUtils {
             if (d != null) return d;
         }
 
+        // #3
+        try {
+            Date d = CalendarUtils.parse(source);
+            if (d != null) return d;
+        } catch (DateException ignored) {
+        }
+
+        // #4
         try {
             DateTime dt = DateUtil.parse(source);
             if (dt != null) return dt.toJdkDate();
         } catch (DateException ignored) {
         }
+
         return null;
     }
 

@@ -23297,10 +23297,13 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^='col-']:las
 }
 
 @media (min-width: 576px) {
+  .modal-dialog-scrollable.modal-dialog {
+    margin: 0 auto;
+  }
   .modal-dialog-scrollable {
-    max-height: calc(100% - 3.5rem);
+    max-height: calc(100% - 0rem);
   }
   .modal-dialog-scrollable .modal-content {
-    max-height: calc(100vh - 3.5rem);
+    max-height: calc(100vh - 0rem);
   }
 }

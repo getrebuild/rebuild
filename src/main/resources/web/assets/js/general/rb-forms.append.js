@@ -728,8 +728,8 @@ class LiteForm extends RbForm {
     // TODO init...
   }
 
-  buildFormData(retAll) {
-    const s = retAll ? this.getFormData() : {}
+  buildFormData(returnsAll) {
+    const s = returnsAll ? this.getFormData() : {}
     const data = this.__FormData || {}
     for (let k in data) {
       const error = data[k].error
@@ -739,6 +739,14 @@ class LiteForm extends RbForm {
       }
       s[k] = data[k].value
     }
+
+    // v4.2-b3 固定值
+    this.props.children.forEach((fieldComp) => {
+      if (fieldComp.props.fixValue) {
+        s[fieldComp.props.field] = fieldComp.props.fixValue
+      }
+    })
+
     s.metadata = { id: this.props.id || '' }
     return s
   }

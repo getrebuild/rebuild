@@ -58,7 +58,7 @@ class Chat extends React.Component {
     this._ChatMessages.setMessages([])
     this._ChatInput.reset(true)
 
-    $.get(`/aibot/post/chat-init?chatid=${chatid || ''}`, (res) => {
+    $.get(`/aibot2/post/chat-init?chatid=${chatid || ''}`, (res) => {
       if (res.error_code === 0) {
         const d = res.data || {}
         if (d._chatid) {
@@ -83,7 +83,7 @@ class Chat extends React.Component {
       this._ChatMessages.appendMessage({
         role: 'assistant',
         sendResp: (cb) => {
-          $.post(`/aibot/post/chat?chatid=${this.state.chatid || ''}&noload`, JSON.stringify(data), (res) => {
+          $.post(`/aibot2/post/chat?chatid=${this.state.chatid || ''}&model=&noload`, JSON.stringify(data), (res) => {
             if (res._chatid) this.setState({ chatid: res._chatid })
             typeof cb === 'function' && cb({ ...res })
           })
@@ -99,7 +99,7 @@ class Chat extends React.Component {
       this._ChatMessages.appendMessage({
         role: 'assistant',
         sendResp: (onChunk) => {
-          fetchStream(`${rb.baseUrl}/aibot/post/chat-stream?chatid=${this.state.chatid || ''}&model=&noload`, data, onChunk, onDone)
+          fetchStream(`${rb.baseUrl}/aibot2/post/chat-stream?chatid=${this.state.chatid || ''}&model=&noload`, data, onChunk, onDone)
         },
       })
     }, 20)
@@ -163,6 +163,8 @@ class ChatInput extends React.Component {
             <button
               type="button"
               className="btn btn-sm ml-1"
+              title={$L('发送')}
+              disabled={this.state.postState === 1 || $empty(this.state.content)}
               onClick={() => {
                 if (this.state.postState === 0) this.hanldeSend()
                 else this.handleCancel()
@@ -224,7 +226,7 @@ class ChatInput extends React.Component {
         this.setState({ attach })
       })
     } else {
-      RbHighbar.createl('当前页面暂无可使用数据')
+      RbHighbar.createl('当前页没有可使用数据')
     }
   }
 }

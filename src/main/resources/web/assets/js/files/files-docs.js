@@ -47,6 +47,16 @@ const FolderTree = {
           extrasAction={(item) => {
             return item.self ? (
               <RF>
+                {rb.isAdminUser && (
+                  <span
+                    className="action bosskey-show"
+                    onClick={() => {
+                      // eslint-disable-next-line react/jsx-no-undef
+                      renderRbcomp(<FileShare file={item.id} title={$L('分享目录')} />)
+                    }}>
+                    <i className="zmdi zmdi-share" />
+                  </span>
+                )}
                 <span className="action" onClick={() => FolderTree.handleEdit(item)}>
                   <i className="zmdi zmdi-edit" />
                 </span>
@@ -203,18 +213,6 @@ class FolderEditDlg extends RbFormHandler {
               <a className="btn btn-link" onClick={this.hide}>
                 {$L('取消')}
               </a>
-              {this.props.id && rb.isAdminUser && (
-                <button
-                  className="btn btn-light w-auto bosskey-show"
-                  type="button"
-                  title={$L('分享') + ' (LAB)'}
-                  onClick={() => {
-                    // eslint-disable-next-line react/jsx-no-undef
-                    renderRbcomp(<FileShare file={this.props.id} />)
-                  }}>
-                  <i className="icon zmdi zmdi-share"></i>
-                </button>
-              )}
             </div>
           </div>
         </div>

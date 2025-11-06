@@ -18,17 +18,17 @@ import static com.rebuild.core.service.aibot.vector.VectorData.NN;
  * @author Zixin
  * @since 2025/4/29
  */
-public class MarkdownTable {
+public class MdTable {
 
     private String heading;
     private List<String> headList = new ArrayList<>();
     private List<String[]> rowDatas = new ArrayList<>();
 
-    public MarkdownTable() {
+    protected MdTable() {
         this(null);
     }
 
-    public MarkdownTable(String heading) {
+    protected MdTable(String heading) {
         this.heading = heading;
     }
 
@@ -36,7 +36,7 @@ public class MarkdownTable {
      * @param headName
      * @return
      */
-    public MarkdownTable addHead(String headName) {
+    public MdTable addHead(String headName) {
         headList.add(headName);
         return this;
     }
@@ -45,7 +45,7 @@ public class MarkdownTable {
      * @param data
      * @return
      */
-    public MarkdownTable addRowData(List<String> data) {
+    public MdTable addRowData(List<String> data) {
         return addRowData(data.toArray(new String[0]));
     }
 
@@ -53,7 +53,7 @@ public class MarkdownTable {
      * @param data
      * @return
      */
-    public MarkdownTable addRowData(String[] data) {
+    public MdTable addRowData(String[] data) {
         rowDatas.add(data);
         return this;
     }

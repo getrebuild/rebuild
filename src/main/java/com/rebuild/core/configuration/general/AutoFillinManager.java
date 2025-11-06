@@ -14,7 +14,6 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
 import cn.devezhao.persist4j.engine.StandardRecord;
-import cn.devezhao.persist4j.record.RecordVisitor;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -36,7 +35,15 @@ import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 表单自动回填。
@@ -392,7 +399,7 @@ public class AutoFillinManager implements ConfigManager {
 
         Record temp4Value = new StandardRecord(target.getOwnEntity());
         try {
-            RecordVisitor.setValueByLiteral(target.getName(), value.toString(), temp4Value);
+            EntityRecordCreator.setValueByLiteral(target, value.toString(), temp4Value, false);
             return temp4Value.getObjectValue(target.getName());
         } catch (Exception ex) {
             log.error("Cannot conversion value of record : {} = {}", target.getName(), value);

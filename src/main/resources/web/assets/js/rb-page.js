@@ -207,7 +207,7 @@ $(function () {
       window.AiBot && window.AiBot.init({ chatid: $storage.get('__LastChatId') }, true)
     }
     $ai.on('click', _FN)
-    $(document).on('keydown.aibot', null, 'alt+a', function (e) {
+    $(document).on('keydown.aibot', null, 'shift+/', function (e) {
       $stopEvent(e, true)
       _FN()
     })
@@ -607,9 +607,11 @@ var _initGlobalSearch = function () {
   })
 }
 var _showGlobalSearch = function (gs, $gs) {
+  if (gs && $('.search-container').hasClass('hide')) {
+    $('.search-container input').val($decode(gs))
+  }
   $('.global-search2>a').hide()
   $('.search-container').removeClass('hide')
-  gs && $('.search-container input').val($decode(gs))
 
   if (window.__PageConfig && window.__PageConfig.entity && window.__PageConfig.entity[0] && $gs) {
     var $a = $gs.find('a[data-entity="' + window.__PageConfig.entity[0] + '"]')

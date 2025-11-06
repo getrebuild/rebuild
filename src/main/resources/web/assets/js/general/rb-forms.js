@@ -31,15 +31,12 @@ class RbFormModal extends React.Component {
 
   render() {
     const style2 = { maxWidth: this.props.width || MODAL_MAXWIDTH }
-    if (this.state._maximize) {
-      style2.maxWidth = $(window).width() - 60
-      if (style2.maxWidth < MODAL_MAXWIDTH) style2.maxWidth = MODAL_MAXWIDTH
-    }
+    if (this.state._maximize) style2.maxWidth = '100%'
 
     return (
       <div className="modal-wrapper">
         <div className="modal rbmodal colored-header colored-header-primary" aria-modal="true" tabIndex="-1" ref={(c) => (this._rbmodal = c)}>
-          <div className={`modal-dialog ${window.__LAB_FORM_SCROLLABLE42 && 'modal-dialog-scrollable'}`} style={style2}>
+          <div className={`modal-dialog ${window.__LAB_FORM_SCROLLABLE42 && 'modal-dialog-scrollable'} ${this.state._maximize && 'modal-dialog-maximize'}`} style={style2}>
             <div className="modal-content" style={style2}>
               <div
                 className="modal-header modal-header-colored"
@@ -55,7 +52,7 @@ class RbFormModal extends React.Component {
                   </a>
                 )}
                 <button className="close md-close J_maximize" type="button" title={this.state._maximize ? $L('向下还原') : $L('最大化')} onClick={() => this._handleMaximize()}>
-                  <span className={`mdi ${this.state._maximize ? 'mdi mdi-window-restore' : 'mdi mdi-window-maximize'}`} />
+                  <span className="mdi mdi-window-maximize" />
                 </button>
                 <button className="close md-close" type="button" title={`${$L('关闭')} (Esc)`} onClick={() => this.hide()}>
                   <span className="zmdi zmdi-close" />
@@ -486,92 +483,94 @@ class RbForm extends React.Component {
 
     return (
       <div className="detail-form-table" data-entity={detailMeta.entity}>
-        <div className="row">
-          <div className="col-4 detail-form-header">
-            <h5 className="mt-2 mb-1 text-bold fs-13">
-              <i className={`icon zmdi zmdi-${detailMeta.icon} fs-15 mr-1`} />
-              {detailMeta.entityLabel}
-              {rb.isAdminUser && (
-                <a href={`${rb.baseUrl}/admin/entity/${detailMeta.entity}/form-design`} target="_blank" title={$L('表单设计')}>
-                  <span className="zmdi zmdi-settings up-1" />
-                </a>
-              )}
-            </h5>
-          </div>
+        <div className="detail-form-table-header">
+          <div className="row">
+            <div className="col-4 detail-form-header">
+              <h5 className="mt-2 mb-1 text-bold fs-13">
+                <i className={`icon zmdi zmdi-${detailMeta.icon} fs-15 mr-1`} />
+                {detailMeta.entityLabel}
+                {rb.isAdminUser && (
+                  <a href={`${rb.baseUrl}/admin/entity/${detailMeta.entity}/form-design`} target="_blank" title={$L('表单设计')}>
+                    <span className="zmdi zmdi-settings up-1" />
+                  </a>
+                )}
+              </h5>
+            </div>
 
-          <div className="col-8 text-right detail-form-action">
-            <div className="fjs-dock"></div>
-            {_detailImports.length > 0 && (
-              <div className={`btn-group J_import-detail ${this.props.readonly && 'hide'}`}>
-                <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
-                  <i className="icon mdi mdi-transfer-down"></i> {$L('导入明细')}
+            <div className="col-8 text-right detail-form-action">
+              <div className="fjs-dock"></div>
+              {_detailImports.length > 0 && (
+                <div className={`btn-group J_import-detail ${this.props.readonly && 'hide'}`}>
+                  <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
+                    <i className="icon mdi mdi-transfer-down"></i> {$L('导入明细')}
+                  </button>
+                  <div className="dropdown-menu dropdown-menu-right">
+                    {_detailImports.map((def, idx) => {
+                      return (
+                        <a
+                          key={`imports-${idx}`}
+                          className="dropdown-item"
+                          onClick={() => {
+                            def.fetch(this, (details) => _setLines(details))
+                          }}>
+                          {def.icon && <i className={`icon zmdi zmdi-${def.icon}`} />}
+                          {def.label}
+                        </a>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div className={`btn-group J_add-detail ml-2 ${this.props.readonly && 'hide'}`}>
+                <button className="btn btn-secondary" type="button" onClick={() => _addNew()}>
+                  <i className="icon x14 mdi mdi-playlist-plus mr-1" />
+                  {$L('添加明细')}
+                </button>
+                <button className="btn btn-secondary dropdown-toggle w-auto" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
+                  <i className="icon zmdi zmdi-chevron-down" />
                 </button>
                 <div className="dropdown-menu dropdown-menu-right">
-                  {_detailImports.map((def, idx) => {
+                  {[5, 10, 20].map((n) => {
                     return (
-                      <a
-                        key={`imports-${idx}`}
-                        className="dropdown-item"
-                        onClick={() => {
-                          def.fetch(this, (details) => _setLines(details))
-                        }}>
-                        {def.icon && <i className={`icon zmdi zmdi-${def.icon}`} />}
-                        {def.label}
+                      <a className="dropdown-item" onClick={() => _addNew(n)} key={`n-${n}`}>
+                        {$L('添加 %d 条', n)}
                       </a>
                     )
                   })}
-                </div>
-              </div>
-            )}
-
-            <div className={`btn-group J_add-detail ml-2 ${this.props.readonly && 'hide'}`}>
-              <button className="btn btn-secondary" type="button" onClick={() => _addNew()}>
-                <i className="icon x14 mdi mdi-playlist-plus mr-1" />
-                {$L('添加明细')}
-              </button>
-              <button className="btn btn-secondary dropdown-toggle w-auto" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
-                <i className="icon zmdi zmdi-chevron-down" />
-              </button>
-              <div className="dropdown-menu dropdown-menu-right">
-                {[5, 10, 20].map((n) => {
-                  return (
-                    <a className="dropdown-item" onClick={() => _addNew(n)} key={`n-${n}`}>
-                      {$L('添加 %d 条', n)}
-                    </a>
-                  )
-                })}
-                <a
-                  className="dropdown-item"
-                  onClick={() => {
-                    if (rb.commercial < 10) {
-                      return RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-                    }
-
-                    const fields = []
-                    _ProTable.state.formFields.forEach((item) => {
-                      if (item.readonly === false && !['IMAGE', 'FILE', 'AVATAR', 'SIGN'].includes(item.type)) {
-                        fields.push({ field: item.field, label: item.label, type: item.type })
+                  <a
+                    className="dropdown-item"
+                    onClick={() => {
+                      if (rb.commercial < 10) {
+                        return RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
                       }
-                    })
 
-                    const mainid = this.state.id || '000-0000000000000000'
-                    renderRbcomp(
-                      // eslint-disable-next-line react/jsx-no-undef
-                      <ExcelClipboardDataModal entity={detailMeta.entity} fields={fields} mainid={mainid} layoutId={_ProTable.getLayoutId()} onConfirm={(data) => _setLines(data)} />
-                    )
-                  }}>
-                  {$L('从 Excel 添加')} <sup className="rbv" />
-                </a>
-                <div className="dropdown-divider" />
-                <a className="dropdown-item" onClick={() => _ProTable.clear()}>
-                  {$L('清空')}
-                </a>
+                      const fields = []
+                      _ProTable.state.formFields.forEach((item) => {
+                        if (item.readonly === false && !['IMAGE', 'FILE', 'AVATAR', 'SIGN'].includes(item.type)) {
+                          fields.push({ field: item.field, label: item.label, type: item.type })
+                        }
+                      })
+
+                      const mainid = this.state.id || '000-0000000000000000'
+                      renderRbcomp(
+                        // eslint-disable-next-line react/jsx-no-undef
+                        <ExcelClipboardDataModal entity={detailMeta.entity} fields={fields} mainid={mainid} layoutId={_ProTable.getLayoutId()} onConfirm={(data) => _setLines(data)} />
+                      )
+                    }}>
+                    {$L('从 Excel 添加')} <sup className="rbv" />
+                  </a>
+                  <div className="dropdown-divider" />
+                  <a className="dropdown-item" onClick={() => _ProTable.clear()}>
+                    {$L('清空')}
+                  </a>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-2">{_ProTable}</div>
+        <div className="detail-form-table-body">{_ProTable}</div>
       </div>
     )
   }
@@ -737,6 +736,8 @@ class RbForm extends React.Component {
 
     if (window.FrontJS) {
       const fieldKey = `${this.props.entity}.${field}`
+      // fix:v4.2-b3 统一使用ID
+      if (value && value.id) value = value.id
       window.FrontJS.Form._trigger('fieldValueChange', [fieldKey, value, this.props.id || null])
       // v4.0
       if (window.EasyFilterEval) window.EasyFilterEval.evalAndEffect(this)

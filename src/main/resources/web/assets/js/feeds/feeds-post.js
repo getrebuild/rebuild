@@ -165,7 +165,7 @@ class FeedsScope extends React.Component {
 
   _renderGroupScope = (item) => {
     if (!item) return
-    $(this._$btn).html(`<i class="icon up-1 zmdi zmdi-accounts"></i>${item.name}`)
+    $(this._$btn).html(`<i class="icon up-1 mdi mdi-briefcase-account"></i>${item.name}`)
     this.__group = item
   }
 

@@ -17,6 +17,7 @@ import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
 import cn.devezhao.persist4j.record.JsonRecordCreator;
+import cn.devezhao.persist4j.record.RecordVisitor;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
@@ -24,8 +25,6 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.EasyText;
 import com.rebuild.core.metadata.easymeta.PatternValue;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
-import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
@@ -35,8 +34,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -75,58 +74,8 @@ public class EntityRecordCreator extends JsonRecordCreator {
 
     @Override
     public boolean setFieldValue(Field field, String value, Record record) {
-        final Type fieldType = field.getType();
-
-        // v4.0 处理 CURRENT 变量
-        if (FieldValueHelper.CURRENT.equals(value) || "{@CURRENT}".equals(value)) {
-            if (fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP || fieldType == FieldType.TIME) {
-                value = CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
-            } else {
-                Entity entityOfRef = field.getReferenceEntity();
-                if (entityOfRef != null) {
-                    if (entityOfRef.getEntityCode() == EntityHelper.User) {
-                        value = this.editor.toString();
-                    } else if (entityOfRef.getEntityCode() == EntityHelper.Department) {
-                        Department d = UserHelper.getDepartment(this.editor);
-                        value = Objects.requireNonNull(d).getIdentity().toString();
-                    }
-                }
-            }
-        }
-
-        // v4.1, v4.2 处理为标准日期格式
-        if ((fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP) && value != null) {
-            // eg. 2025年09月25日 (周四) 00:55:00
-            if (value.contains("(") && value.contains(")")) {
-                value = value.replaceAll("\\([^)]*\\)", "").replaceAll("\\s+", " ");
-            }
-
-            // eg. 2025年09月25日 00:55:00
-            if (value.contains("年")) {
-                if (value.contains("日")) {
-                    value = value.replace("年", "-").replace("月", "-").replace("日", "");
-                } else if (value.contains("月")) {
-                    value = value.replace("年", "-").replace("月", "");
-                } else {
-                    value = value.replace("年", "");
-                }
-            } else if (value.contains("/")) {
-                // eg. 2025/09/19
-                value = value.replace("/", "-");
-            }
-        }
-
-        // v4.2 验证格式
-        if (value != null) {
-            EasyField easyField = EasyMetaFactory.valueOf(field);
-            if (easyField instanceof PatternValue) {
-                boolean s = ((PatternValue) easyField).checkPattern(value);
-                if (!s) {
-                    log.warn("Value `{}` cannot be set : {}", value, field);
-                    value = null;
-                }
-            }
-        }
+        value = setValueByLiteralBefore(field, value, record, true);
+        if (value == null) return false;
 
         return super.setFieldValue(field, value, record);
     }
@@ -317,5 +266,71 @@ public class EntityRecordCreator extends JsonRecordCreator {
             return dt == DisplayType.IMAGE || dt == DisplayType.FILE;
         }
         return false;
+    }
+
+    // --
+
+    /**
+     * @param field
+     * @param value
+     * @param record
+     * @param checkPattern
+     * @return
+     */
+    protected static String setValueByLiteralBefore(Field field, String value, Record record, boolean checkPattern) {
+        Type fieldType = field.getType();
+
+        // v4.0, 4.2 处理 {CURRENT} 变量
+        if (FieldValueHelper.CURRENT.equals(value) || "{@CURRENT}".equals(value)) {
+            Object v = FieldValueHelper.getCurrentVarValue(field, record.getEditor());
+            if (v instanceof Date) {
+                value = CalendarUtils.getUTCDateTimeFormat().format(v);
+            } else if (v != null) {
+                if (v instanceof ID[]) v = ((ID[]) v)[0];
+                value = v.toString();
+            }
+        }
+
+        // v4.1, v4.2 处理为标准日期格式
+        if ((fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP) && value != null) {
+            Date d = CommonsUtils.parseDate(value);
+            if (d == null) {
+                log.warn("Cannot parse date from : {}", value);
+                value = null;
+            } else {
+                value = CalendarUtils.getUTCDateTimeFormat().format(d);
+            }
+        }
+
+        // v4.2 验证格式
+        if (value != null && checkPattern) {
+            EasyField easyField = EasyMetaFactory.valueOf(field);
+            if (easyField instanceof PatternValue) {
+                boolean s = ((PatternValue) easyField).checkPattern(value);
+                if (!s) {
+                    log.warn("Value `{}` cannot be set : {}", value, field);
+                    value = null;
+                }
+            }
+        }
+
+        return value;
+    }
+
+    /**
+     * 更健壮的字段值设置方法
+     *
+     * @param field
+     * @param value
+     * @param record
+     * @param checkPattern
+     * @see #setValueByLiteralBefore(Field, String, Record, boolean)
+     * @see cn.devezhao.persist4j.record.RecordVisitor#setValueByLiteral(Field, String, Record)
+     */
+    public static void setValueByLiteral(Field field, String value, Record record, boolean checkPattern) {
+        value = setValueByLiteralBefore(field, value, record, checkPattern);
+        if (value == null) return;
+
+        RecordVisitor.setValueByLiteral(field, value, record);
     }
 }

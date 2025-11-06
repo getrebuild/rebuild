@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.aibot.vector;
 
 /**
- * 向模型推送的业务数据
+ * 向模型推送的数据
  *
  * @author Zixin
  * @since 2025/4/18

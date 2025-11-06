@@ -185,6 +185,8 @@ public class Field2SchemaFixer extends Field2Schema {
         Field seqField = createUnsafeField(entity, EntityHelper.Seq, "SEQ", DisplayType.NUMBER,
                 true, false, false, true, false, null, null, null, null, null);
         schema2Database(entity, new Field[]{seqField});
+
+        MetadataHelper.getMetadataFactory().refresh();
         return true;
     }
 

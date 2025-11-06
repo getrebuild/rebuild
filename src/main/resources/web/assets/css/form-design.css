@@ -269,20 +269,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   right: 32px;
 }
 
-form.field-attr {
-  width: 500px;
-  max-width: 440px;
-  margin: 0 auto;
-}
-
-form.field-attr label {
-  font-weight: bold;
-}
-
-form.field-attr label > span {
-  font-weight: normal;
-}
-
 .dd-list .dd-item .dd-handle span > i {
   font-size: 15px;
   margin-left: 5px;

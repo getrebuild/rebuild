@@ -15,15 +15,17 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.OperatingObserver;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.i18n.Language;
 
 import java.text.MessageFormat;
 
 /**
- * 发送内部通知
+ * 发送内部通知（分配和共享）
  *
  * @author devezhao
  * @since 11/01/2018
+ * @see MessageBuilder
  */
 public class NotificationObserver extends OperatingObserver {
 
@@ -34,6 +36,7 @@ public class NotificationObserver extends OperatingObserver {
 
     @Override
     public void onAssign(OperatingContext context) {
+        if (CommandArgs.getBoolean(CommandArgs._DisNotificationAssign)) return;
         final ID relatedId = context.getAfterRecord().getPrimary();
         if (NotificationOnce.didBegin()) {
             NotificationOnce.getMergeSet().add(relatedId);
@@ -53,6 +56,7 @@ public class NotificationObserver extends OperatingObserver {
 
     @Override
     public void onShare(OperatingContext context) {
+        if (CommandArgs.getBoolean(CommandArgs._DisNotificationShare)) return;
         final ID relatedId = context.getAfterRecord().getID("recordId");
         if (NotificationOnce.didBegin()) {
             NotificationOnce.getMergeSet().add(relatedId);
