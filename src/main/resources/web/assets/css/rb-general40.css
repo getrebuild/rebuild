@@ -65,6 +65,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-left: -1.2px;
 }
 
+.detail-form-header h5 {
+  margin-top: 8px;
+}
+
+.detail-form-header h5 > .icon {
+  line-height: 17px;
+  font-size: 19px;
+  transform: translateY(2px);
+}
+
 .detail-form-header h5 > a {
   opacity: 0.6;
   padding: 0 6px;
@@ -104,6 +114,7 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   margin-right: 5px;
 }
 
+.rbform .detail-form-table .detail-form-header,
 .rbform .detail-form-table .detail-form-action {
   min-height: 36.39px;
 }
@@ -412,8 +423,19 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   background-color: rgba(255, 255, 255, 0.8);
   background-color: #fff;
   position: sticky;
-  z-index: 3;
+  z-index: 6;
   top: 0;
+  overflow: visible;
+}
+
+.detail-form-table + .detail-form-table .detail-form-table-header {
+  z-index: 5;
+}
+.detail-form-table + .detail-form-table + .detail-form-table .detail-form-table-header {
+  z-index: 4;
+}
+.detail-form-table + .detail-form-table + .detail-form-table + .detail-form-table .detail-form-table-header {
+  z-index: 3;
 }
 
 .modal-dialog-scrollable .detail-form-table .detail-form-table-header {

@@ -10,7 +10,7 @@
         top: 0;
         left: 0;
         width: 100%;
-        background-color: #f5f5f5;
+        background-color: #eee;
         z-index: 10;
       }
       #react-list {
@@ -34,60 +34,101 @@
         min-width: 36px !important;
         border-radius: 2px !important;
       }
+      .rb-content {
+        margin: 0;
+      }
+      .rb-content .page-aside {
+        width: 230px;
+        left: 0;
+        z-index: 3;
+        display: none;
+        margin: 0;
+        padding-bottom: 0;
+      }
+      .rb-content .main-content {
+        margin-left: 0;
+      }
+      .page-aside.widgets .tab-container {
+        min-width: auto;
+      }
+      .rb-content.rb-content-aside {
+        margin-left: 230px;
+      }
+      .rb-content.rb-content-aside .page-aside {
+        display: block;
+      }
+      .rb-content.rb-content-aside .main-content .dataTables_wrapper .rb-datatable-header {
+        left: 230px;
+      }
     </style>
   </head>
   <body class="dialog">
-    <div class="main-content container-fluid p-0">
-      <div class="card card-table">
-        <div class="card-body">
-          <div class="dataTables_wrapper container-fluid">
-            <div class="row rb-datatable-header">
-              <div class="col-7">
-                <div class="dataTables_filter">
-                  <div class="adv-search float-left">
-                    <div class="btn-group btn-space">
-                      <button th:title="${bundle.L('常用查询')}" class="btn btn-secondary dropdown-toggle J_filterlist" type="button" data-toggle="dropdown">
-                        <span class="text-truncate J_name">[[${bundle.L('全部数据')}]]</span><i class="icon zmdi zmdi-caret-down"></i>
-                      </button>
-                      <div class="dropdown-menu rb-scroller nott">
-                        <div class="dropdown-item" data-id="$ALL$"><a>[[${bundle.L('全部数据')}]]</a></div>
-                      </div>
-                      <div class="input-group-append">
-                        <button th:title="${bundle.L('高级查询')}" class="btn btn-secondary w-auto J_filterbtn" type="button"><i class="icon mdi mdi-filter"></i></button>
+    <div class="rb-content">
+      <aside class="page-aside widgets">
+        <div class="tab-container">
+          <ul class="nav nav-tabs hide" id="asideShows">
+            <!-- ASIDE -->
+          </ul>
+          <div class="tab-content rb-scroller">
+            <div class="tab-pane" id="asideCategory"></div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="main-content container-fluid p-0">
+        <div class="card card-table">
+          <div class="card-body">
+            <div class="dataTables_wrapper container-fluid">
+              <div class="row rb-datatable-header">
+                <div class="col-7">
+                  <div class="dataTables_filter">
+                    <div class="adv-search float-left">
+                      <div class="btn-group btn-space">
+                        <button th:title="${bundle.L('常用查询')}" class="btn btn-secondary dropdown-toggle J_filterlist" type="button" data-toggle="dropdown">
+                          <span class="text-truncate J_name">[[${bundle.L('全部数据')}]]</span><i class="icon zmdi zmdi-caret-down"></i>
+                        </button>
+                        <div class="dropdown-menu rb-scroller nott">
+                          <div class="dropdown-item" data-id="$ALL$"><a>[[${bundle.L('全部数据')}]]</a></div>
+                        </div>
+                        <div class="input-group-append">
+                          <button th:title="${bundle.L('高级查询')}" class="btn btn-secondary w-auto J_filterbtn" type="button"><i class="icon mdi mdi-filter"></i></button>
+                        </div>
                       </div>
                     </div>
+                    <div class="input-group input-search" style="width: 227px">
+                      <input class="form-control" type="text" th:placeholder="${quickFieldsLabel ?:bundle.L('快速查询')}" th:title="${quickFieldsLabel}" />
+                      <span class="input-group-btn">
+                        <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
+                      </span>
+                    </div>
+                    <span id="dropdown-menu-advfilter"></span>
                   </div>
-                  <div class="input-group input-search" style="width: 227px">
-                    <input class="form-control" type="text" th:placeholder="${quickFieldsLabel ?:bundle.L('快速查询')}" th:title="${quickFieldsLabel}" />
-                    <span class="input-group-btn">
-                      <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
-                    </span>
+                </div>
+                <div class="col-5">
+                  <div class="dataTables_oper">
+                    <button class="btn btn-space btn-primary btn-outline J_select" type="button"><i class="icon zmdi zmdi-check"></i> [[${bundle.L('选择')}]]</button>
+                    <a th:if="${canCreate}" target="_blank" class="btn btn-space btn-primary" th:href="|${baseUrl}/app/entity/form?e=${entityName}&after=close|">
+                      <i class="icon zmdi zmdi-plus"></i> [[${bundle.L('新建')}]]
+                    </a>
                   </div>
-                  <span id="dropdown-menu-advfilter"></span>
                 </div>
               </div>
-              <div class="col-5">
-                <div class="dataTables_oper">
-                  <button class="btn btn-space btn-primary btn-outline J_select" type="button"><i class="icon zmdi zmdi-check"></i> [[${bundle.L('选择')}]]</button>
-                  <a th:if="${canCreate}" target="_blank" class="btn btn-space btn-primary" th:href="|${baseUrl}/app/entity/form?e=${entityName}&after=close|">
-                    <i class="icon zmdi zmdi-plus"></i> [[${bundle.L('新建')}]]
-                  </a>
-                </div>
+              <div id="react-list" class="rb-loading rb-loading-active data-list">
+                <th:block th:replace="~{/_include/spinner}" />
               </div>
-            </div>
-            <div id="react-list" class="rb-loading rb-loading-active data-list">
-              <th:block th:replace="~{/_include/spinner}" />
             </div>
           </div>
         </div>
       </div>
     </div>
+
     <th:block th:replace="~{/_include/footer}" />
     <script>
       window.__PageConfig = {
         type: 'RecordSearchList',
         entity: ['[[${entityName}]]', '[[${entityLabel}]]', '[[${entityIcon}]]'],
         listConfig: [(${DataListConfig})],
+        advListAsideShows: [(${advListAsideShows})],
         advFilter: false,
         protocolFilter: '[[${referenceFilter}]]',
         forceOpenNewtab: true,

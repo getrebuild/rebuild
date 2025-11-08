@@ -48,11 +48,20 @@ $(document).ready(() => {
     }
   })
 
+  // 选择
   $('.J_select').on('click', () => {
     const ids = RbListPage._RbList.getSelectedIds()
-    if (ids.length > 0 && parent && parent.referenceSearch__call) parent.referenceSearch__call(ids)
+    if (ids.length && parent && parent.referenceSearch__call) parent.referenceSearch__call(ids)
   })
 
   // v4.1, 4.2 高级查询
-  AdvFilters.init('.adv-search', window.__PageConfig.entity[0])
+  AdvFilters.init('.adv-search', wpc.entity[0])
+
+  // v4.2 显示分组
+  if (window.__LAB_REFSEARCH_ASIDE42 && wpc.advListAsideShows && wpc.advListAsideShows.length) {
+    $('.rb-content').addClass('rb-content-aside')
+    // eslint-disable-next-line no-undef
+    CategoryWidget.init()
+    $('#asideShows a:eq(0)').trigger('click')
+  }
 })

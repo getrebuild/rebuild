@@ -9,8 +9,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // ~~ 表格型表单
 
-const _PT_COLUMN_MIN_WIDTH = 30
-const _PT_COLUMN_MAX_WIDTH = 500
 const _PT_COLUMN_DEF_WIDTH = 200
 const _PT_COLUMN_WIDTH_PLUS = ['REFERENCE', 'N2NREFERENCE', 'ANYREFERENCE', 'CLASSIFICATION']
 
@@ -48,7 +46,7 @@ class ProTable extends React.Component {
 
                 let colStyle2 = { minWidth: _PT_COLUMN_DEF_WIDTH }
                 if (!fixedWidth) {
-                  // v35,v38,v42
+                  // v35, v38, v42
                   let _colspan = ~~(item.colspan || 2)
                   if (_colspan === 9) _colspan = 1.5
                   if (_colspan === 8) _colspan = 2.5
@@ -178,8 +176,6 @@ class ProTable extends React.Component {
           }
         })
       }
-
-      // this._initDividing37()
     })
   }
 
@@ -215,32 +211,6 @@ class ProTable extends React.Component {
       })
     }, 400)
   }
-
-  // _initDividing37() {
-  //   const $scroller = $(this._$scroller)
-  //   const that = this
-  //   $scroller.find('th .dividing').draggable({
-  //     containment: $scroller,
-  //     axis: 'x',
-  //     helper: 'clone',
-  //     stop: function (e, ui) {
-  //       const field = $(e.target).parents('th').data('field')
-  //       let left = ui.position.left - -10
-  //       if (left < _PT_COLUMN_MIN_WIDTH) left = _PT_COLUMN_MIN_WIDTH
-  //       else if (left > _PT_COLUMN_MAX_WIDTH) left = _PT_COLUMN_MAX_WIDTH
-
-  //       const fields = that.state.formFields
-  //       for (let i = 0; i < fields.length; i++) {
-  //         if (fields[i].field === field) {
-  //           fields[i].width = left
-  //           break
-  //         }
-  //       }
-
-  //       that.setState({ formFields: fields }, () => $scroller.perfectScrollbar('update'))
-  //     },
-  //   })
-  // }
 
   _initSeq42() {
     $(this._$scroller)

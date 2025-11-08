@@ -486,8 +486,8 @@ class RbForm extends React.Component {
         <div className="detail-form-table-header">
           <div className="row">
             <div className="col-4 detail-form-header">
-              <h5 className="mt-2 mb-1 text-bold fs-13">
-                <i className={`icon zmdi zmdi-${detailMeta.icon} fs-15 mr-1`} />
+              <h5 className="text-bold">
+                <i className={`icon zmdi zmdi-${detailMeta.icon} mr-1`} />
                 {detailMeta.entityLabel}
                 {rb.isAdminUser && (
                   <a href={`${rb.baseUrl}/admin/entity/${detailMeta.entity}/form-design`} target="_blank" title={$L('表单设计')}>
@@ -531,7 +531,7 @@ class RbForm extends React.Component {
                   <i className="icon zmdi zmdi-chevron-down" />
                 </button>
                 <div className="dropdown-menu dropdown-menu-right">
-                  {[5, 10, 20].map((n) => {
+                  {[10, 20].map((n) => {
                     return (
                       <a className="dropdown-item" onClick={() => _addNew(n)} key={`n-${n}`}>
                         {$L('添加 %d 条', n)}
@@ -660,7 +660,7 @@ class RbForm extends React.Component {
               // eg. 标签
               iv = iv.join('$$$$')
             } else if (child.props.type === 'LOCATION') {
-              // eg.位置
+              // eg. 位置
             } else if (Array.isArray(iv)) {
               // eg. 文件/图片
             } else {
@@ -1797,6 +1797,7 @@ class RbFormTime extends RbFormDateTime {
           pickerPosition: this._getAutoPosition(),
           minuteStep: window.__LAB_MINUTESTEP || 5,
           title: $L('选择时间'),
+          todayBtn: false,
         })
         .on('changeDate', function () {
           const val = $(this).val()

@@ -12,7 +12,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   --rb-btn-active-color: #2572f2;
 }
 
-.bosskey-show,
+.bosskey-show {
+  display: none !important;
+}
+
 .admin-show {
   display: none;
 }
@@ -1021,8 +1024,9 @@ a.link.link-icon::after {
   left: 0;
   right: 0;
   bottom: 1px;
+  bottom: 0;
   background-color: #fff;
-  z-index: 3;
+  z-index: 6;
   padding-bottom: 18px;
 }
 
@@ -2225,6 +2229,7 @@ th.column-fixed {
   float: right;
   position: relative;
   height: 100%;
+  transition: margin 0.2s ease-in-out;
 }
 
 .modal.rbview .modal-dialog .modal-content .modal-header {
@@ -4961,6 +4966,7 @@ pre.unstyle {
 
 .nav-tabs > li.nav-item a.nav-link .icon {
   margin-left: 0;
+  font-size: 19px;
 }
 
 .tablesort thead th:not(.no-sort):hover,
