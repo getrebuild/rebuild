@@ -50,6 +50,7 @@ const FolderTree = {
                 {rb.isAdminUser && (
                   <span
                     className="action bosskey-show"
+                    title={$L('分享')}
                     onClick={() => {
                       // eslint-disable-next-line react/jsx-no-undef
                       renderRbcomp(<FileShare file={item.id} title={$L('分享目录')} />)
@@ -57,10 +58,10 @@ const FolderTree = {
                     <i className="zmdi zmdi-share" />
                   </span>
                 )}
-                <span className="action" onClick={() => FolderTree.handleEdit(item)}>
+                <span className="action" onClick={() => FolderTree.handleEdit(item)} title={$L('修改')}>
                   <i className="zmdi zmdi-edit" />
                 </span>
-                <span className="action" onClick={() => FolderTree.handleDelete(item)}>
+                <span className="action" onClick={() => FolderTree.handleDelete(item)} title={$L('删除')}>
                   <i className="zmdi zmdi-delete" />
                 </span>
               </RF>
