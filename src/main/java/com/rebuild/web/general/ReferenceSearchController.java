@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
@@ -48,6 +49,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -334,7 +336,7 @@ public class ReferenceSearchController extends EntityController {
     @GetMapping("reference-search")
     public ModelAndView referenceSearchPage(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String[] fieldAndEntity = getParameterNotNull(request, "field").split("\\.");
-        // be:v4.2 只传实体
+        // be:v4.2 支持只传实体
         if (fieldAndEntity.length == 1 && MetadataHelper.containsEntity(fieldAndEntity[0])) {
             fieldAndEntity = new String[]{
                     MetadataHelper.getEntity(fieldAndEntity[0]).getPrimaryField().getName(),
@@ -378,6 +380,14 @@ public class ReferenceSearchController extends EntityController {
 
         // 快速查询
         mv.getModel().put("quickFieldsLabel", GeneralListController.getQuickFieldsLabel(searchEntity));
+
+        // 4.2 显示分组
+        JSONArray asideShows = DataListManager.instance.getAdvListAsideShows(EasyMetaFactory.valueOf(searchEntity), 1);
+        for (Iterator<Object> iter = asideShows.iterator(); iter.hasNext(); ) {
+            JSONArray o = (JSONArray) iter.next();
+            if (!"asideCategory".equals(o.getString(2))) iter.remove();
+        }
+        mv.getModel().put("advListAsideShows", asideShows);
 
         return mv;
     }

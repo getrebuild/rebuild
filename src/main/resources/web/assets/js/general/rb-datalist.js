@@ -300,7 +300,10 @@ $(document).ready(() => {
 
     const $content = $('.page-aside .tab-content')
     $addResizeHandler(() => {
-      $content.height($(window).height() - 135)
+      let left = 135
+      if (wpc.type === 'RecordSearchList') left = 29 // v4.2
+
+      $content.height($(window).height() - left)
       $content.perfectScrollbar('update')
     })()
   }

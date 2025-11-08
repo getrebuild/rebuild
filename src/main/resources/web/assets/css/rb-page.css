@@ -2225,6 +2225,7 @@ th.column-fixed {
   float: right;
   position: relative;
   height: 100%;
+  transition: margin 0.2s ease-in-out;
 }
 
 .modal.rbview .modal-dialog .modal-content .modal-header {
