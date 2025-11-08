@@ -1021,8 +1021,9 @@ a.link.link-icon::after {
   left: 0;
   right: 0;
   bottom: 1px;
+  bottom: 0;
   background-color: #fff;
-  z-index: 3;
+  z-index: 6;
   padding-bottom: 18px;
 }
 
@@ -4962,6 +4963,7 @@ pre.unstyle {
 
 .nav-tabs > li.nav-item a.nav-link .icon {
   margin-left: 0;
+  font-size: 19px;
 }
 
 .tablesort thead th:not(.no-sort):hover,
