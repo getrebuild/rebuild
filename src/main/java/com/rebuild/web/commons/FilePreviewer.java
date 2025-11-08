@@ -29,6 +29,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.ExcelUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OkHttpUtils;
 import com.rebuild.utils.RbAssert;
@@ -131,6 +132,8 @@ public class FilePreviewer extends BaseController {
             editorConfig.put("toolbar", true);
             editorConfig.put("menu", true);
             customization.put("forcesave", true);
+            // v4.2 自动保存
+            customization.put("autosave", "1".equals(getParameter(request, "autosave")));
         }
         editorConfig.put("customization", customization);
 
@@ -202,6 +205,12 @@ public class FilePreviewer extends BaseController {
             try {
                 OkHttpUtils.readBinary(changedUrl, dest, null);
 
+                // v4.2 修正格式
+                String destName = dest.getName().toLowerCase();
+                if (destName.endsWith(".xlsx") || destName.endsWith(".xls")) {
+                    ExcelUtils.reSaveAndCalcFormula(dest.toPath(), false);
+                }
+
                 if (QiniuCloud.instance().available() && !data41) {
                     QiniuCloud.instance().upload(dest, fileKey);
                     FileUtils.deleteQuietly(dest);
@@ -229,7 +238,7 @@ public class FilePreviewer extends BaseController {
         if (!ID.isId(id)) return;
 
         ID user = UserService.SYSTEM_USER;
-        if (!CollectionUtils.isEmpty(users)) {
+        if (CollectionUtils.isNotEmpty(users)) {
             if (ID.isId(users.getString(0))) {
                 user = ID.valueOf(users.getString(0));
             }

@@ -21,10 +21,18 @@ import org.apache.commons.io.FileUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -155,9 +163,21 @@ public class ExcelUtils {
      * @param path
      */
     public static boolean reSaveAndCalcFormula(Path path) {
+        return reSaveAndCalcFormula(path, true);
+    }
+
+    /**
+     * 打开并保存以便公式生效
+     *
+     * @param path
+     * @param calcFormula
+     */
+    public static boolean reSaveAndCalcFormula(Path path, boolean calcFormula) {
         try (Workbook wb = WorkbookFactory.create(Files.newInputStream(path))) {
-            wb.setForceFormulaRecalculation(true);
-            wb.getCreationHelper().createFormulaEvaluator().evaluateAll();
+            if (calcFormula) {
+                wb.setForceFormulaRecalculation(true);
+                wb.getCreationHelper().createFormulaEvaluator().evaluateAll();
+            }
 
             FileUtils.deleteQuietly(path.toFile());
             try (FileOutputStream fos = new FileOutputStream(path.toFile())) {
