@@ -1797,6 +1797,7 @@ class RbFormTime extends RbFormDateTime {
           pickerPosition: this._getAutoPosition(),
           minuteStep: window.__LAB_MINUTESTEP || 5,
           title: $L('选择时间'),
+          todayBtn: false,
         })
         .on('changeDate', function () {
           const val = $(this).val()
