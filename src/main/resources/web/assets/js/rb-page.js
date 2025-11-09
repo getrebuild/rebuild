@@ -967,19 +967,15 @@ var $initReferenceSelect2 = function (el, option) {
 // 搜索 text/id
 // https://select2.org/searching#customizing-how-results-are-matched
 var $select2MatcherAll = function (params, data) {
-  if (!window.__pinyinLoaded) {
+  if (!window.__pinyinLoaded && !window.pinyinPro) {
     window.__pinyinLoaded = 1
     $getScript('/assets/lib/pinyin-pro.min.js?v=3.27.0', () => {
       console.log('pinyin-pro.min.js loaded')
     })
   }
 
-  if ($trim(params.term) === '') {
-    return data
-  }
-  if (typeof data.text === 'undefined') {
-    return null
-  }
+  if ($trim(params.term) === '') return data
+  if (typeof data.text === 'undefined') return null
 
   // 匹配
   function _FN(item, s) {
