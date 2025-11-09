@@ -206,7 +206,10 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
         } else if (!isIgnoreAuth(requestUri)) {
             // 独立验证逻辑
-            if (requestUri.contains("/filex/")) return true;
+            if (requestUri.contains("/filex/")) {
+                // v4.2-b4
+                if (!requestUri.contains("/filex/editor")) return true;
+            }
 
             log.warn("Unauthorized access {}", RebuildWebConfigurer.getRequestUrls(request));
 
@@ -298,9 +301,6 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 || requestUri.startsWith("/gw/")
                 || requestUri.startsWith("/setup/")
                 || requestUri.startsWith("/language/")
-                || requestUri.startsWith("/filex/access/")
-                || requestUri.startsWith("/filex/download/")
-                || requestUri.startsWith("/filex/img/")
                 || requestUri.startsWith("/commons/announcements")
                 || requestUri.startsWith("/commons/url-safe")
                 || requestUri.startsWith("/commons/barcode/render")
@@ -311,7 +311,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 || requestUri.startsWith("/apiman/")
                 || requestUri.startsWith("/commons/frontjs/use-frontjs")
                 || requestUri.startsWith("/commons/file-preview")
-                || requestUri.startsWith("/commons/file-editor")
+                || requestUri.endsWith("/commons/file-editor-save")
                 || requestUri.endsWith("/dashboard/chart-data");
     }
 

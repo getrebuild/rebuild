@@ -66,7 +66,7 @@ public class FilePreviewer extends BaseController {
         return ooPreviewOrEditor(request, response, false);
     }
 
-    @GetMapping("/commons/file-editor")
+    @GetMapping({"/commons/file-editor", "/filex/editor"})
     public ModelAndView ooEditor(HttpServletRequest request, HttpServletResponse response) throws IOException {
         getRequestUser(request);  // check
         if (OnlyOffice.isUseOoPreview()) {
@@ -121,7 +121,7 @@ public class FilePreviewer extends BaseController {
 
         // 编辑模式
         if (editor) {
-            String callbackUrl = RebuildConfiguration.getHomeUrl("/commons/file-editor-forcesave");
+            String callbackUrl = RebuildConfiguration.getHomeUrl("/commons/file-editor-save");
             String fileKey = src.split("\\?")[0];
             callbackUrl += "?fileKey=" + CodecUtils.urlEncode(fileKey);
             callbackUrl += "&_csrfToken=" + AuthTokenManager.generateCsrfToken(CommonsCache.TS_HOUR * 12);
@@ -165,8 +165,8 @@ public class FilePreviewer extends BaseController {
     }
 
     // https://api.onlyoffice.com/docs/docs-api/usage-api/callback-handler/
-    @PostMapping("/commons/file-editor-forcesave")
-    public void ooEditorForcesave(HttpServletRequest request, HttpServletResponse response) {
+    @PostMapping("/commons/file-editor-save")
+    public void ooEditorSaveCallback(HttpServletRequest request, HttpServletResponse response) {
         final JSONObject status = (JSONObject) ServletUtils.getRequestJson(request);
         if (CommonsUtils.DEVLOG) System.out.println("[dev] oo-callback : " + request.getQueryString() + "\n" + JSONUtils.prettyPrint(status));
 
