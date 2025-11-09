@@ -17,6 +17,7 @@ import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyDecimal;
 import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.md.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,8 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static cn.devezhao.commons.DateFormatUtils.CN_DATETIME_FORMAT;
 
 /**
  * @author devezhao
@@ -130,11 +133,17 @@ public class ValueConvertFunc {
                     Date d = CommonsUtils.parseDate(value.toString());
                     if (d == null) return value;
 
-                    int len = field.wrapValue(CalendarUtils.now()).toString().length();
-                    if (len <= 10) len += 1;  // yyyy-MM-dd
-                    else len += 2;
+                    String fieldFormat = field.getExtraAttr(EasyFieldConfigProps.DATETIME_FORMAT);
+                    if (fieldFormat == null) fieldFormat = field.getExtraAttr(EasyFieldConfigProps.DATE_FORMAT);
+                    if (fieldFormat == null) fieldFormat = field.getDisplayType().getDefaultFormat();
+                    int len = 5;  // 年
+                    if (fieldFormat.contains("ss")) len = CN_DATETIME_FORMAT.length();            // 秒
+                    else if (fieldFormat.contains("mm")) len = CN_DATETIME_FORMAT.length() - 3;   // 分
+                    else if (fieldFormat.contains("HH")) len = CN_DATETIME_FORMAT.length() - 6;   // 时
+                    else if (fieldFormat.contains("dd")) len = CN_DATETIME_FORMAT.length() - 10;  // 日
+                    else if (fieldFormat.contains("MM")) len = CN_DATETIME_FORMAT.length() - 13;  // 月
 
-                    String format = CalendarUtils.CN_DATETIME_FORMAT.substring(0, len);
+                    String format = CN_DATETIME_FORMAT.substring(0, len);
                     return CalendarUtils.getDateFormat(format).format(d);
                 }
             } else if (thatFunc.startsWith(PICKAT_4CLASS_DATE) && type != DisplayType.TIME) {
