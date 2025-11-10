@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.api.RespBody;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -50,9 +51,11 @@ public class FieldAggregationController extends BaseController {
             if (MetadataHelper.isApprovalField(refFrom.getName())) continue;
 
             Entity refEntity = refFrom.getReferenceEntity();
+            if (isFilterTargetEntity(refEntity)) continue;
+
             String entityLabel = String.format("%s (%s)",
                     EasyMetaFactory.getLabel(refEntity), EasyMetaFactory.getLabel(refFrom));
-            entities.add(new String[] { refEntity.getName(), entityLabel, refFrom.getName() });
+            entities.add(new String[]{refEntity.getName(), entityLabel, refFrom.getName()});
         }
 
         // v35 字段匹配
@@ -109,7 +112,13 @@ public class FieldAggregationController extends BaseController {
                 ObjectUtils.getIfNull(targetEntity.getMainEntity(), targetEntity), null) != null;
 
         return JSONUtils.toJSONObject(
-                new String[] { "source", "target", "hadApproval", "target4Group" },
-                new Object[] { sourceFields, targetFields, hadApproval, targetFields });
+                new String[]{"source", "target", "hadApproval", "target4Group"},
+                new Object[]{sourceFields, targetFields, hadApproval, targetFields});
+    }
+
+    // v4.2.1 过滤目标实体
+    protected static boolean isFilterTargetEntity(Entity entity) {
+        return entity.getEntityCode() == EntityHelper.Team
+                || entity.getEntityCode() == EntityHelper.Role;
     }
 }
