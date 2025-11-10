@@ -55,9 +55,9 @@ public class EasyDateTime extends EasyField {
         }
 
         String dateValue = (String) wrapValue(value);
-        // 周X
+        // Remove (周N)
         if (dateValue.contains("(")) {
-            dateValue = dateValue.replaceAll("\\s*\\(.*?\\)\\s*", " ");
+            dateValue = dateValue.replaceAll("\\(.*?\\)", "").replaceAll("\\s+", " ");
         }
         return CommonsUtils.parseDate(dateValue);
     }

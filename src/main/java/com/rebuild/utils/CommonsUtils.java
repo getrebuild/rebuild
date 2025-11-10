@@ -367,17 +367,16 @@ public class CommonsUtils {
      * @return
      */
     public static Date parseDate(String source) {
-        // #1
-        if (source.length() == 4) {
-            Date d = CalendarUtils.parse(source, "yyyy");
-            if (d != null) return d;
+        if (source.length() < 4) return null;
+
+        if (source.length() <= 5) {
+            return CalendarUtils.parse(source.substring(0, 4), "yyyy");
         }
 
-        // #2
         if (source.contains("-") || source.contains("年") || source.contains("/")) {
-            // eg. 2025年09月25日 (周四) 00:55:00
+            // 去除括弧 eg. 2025年09月25日 (周四) 00:55:00
             if (source.contains("(") || source.contains(")")) {
-                source = source.replaceAll("\\([^)]*\\)", "").replaceAll("\\s+", " ");
+                source = source.replaceAll("\\(.*?\\)", "").replaceAll("\\s+", " ");
             }
 
             String[] ss = source.split("[年月日\\-\\s:./]");
@@ -385,6 +384,7 @@ public class CommonsUtils {
                 String s = ss[i];
                 if (s.length() == 1) ss[i] = "0" + s;
             }
+
             source = StringUtils.join(ss, "-");
             source = source.replace("--", "-");
             if (source.endsWith("-")) source = source.substring(0, source.length() - 1);
@@ -394,14 +394,12 @@ public class CommonsUtils {
             if (d != null) return d;
         }
 
-        // #3
         try {
             Date d = CalendarUtils.parse(source);
             if (d != null) return d;
         } catch (DateException ignored) {
         }
 
-        // #4
         try {
             DateTime dt = DateUtil.parse(source);
             if (dt != null) return dt.toJdkDate();

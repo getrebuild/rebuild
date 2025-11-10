@@ -215,6 +215,10 @@ function ShowEnable(enable, cfgid) {
 }
 
 $(document).ready(() => {
+  $getScript('/assets/lib/pinyin-pro.min.js?v=3.27.0', () => {
+    console.log('pinyin-pro.min.js loaded')
+  })
+
   // v4.0 搜索
   const $title = $('.page-aside .config-title')
   $(`<a class="search-btn" title="${$L('搜索')}"><i class="zmdi zmdi-search"></i></a>`)
@@ -226,10 +230,13 @@ $(document).ready(() => {
         $setTimeout(
           () => {
             $('.page-aside ul>li').each(function () {
-              var $item = $(this)
-              var name = ($item.data('entity') || '').toLowerCase()
-              var text = $item.text().toLowerCase()
-              if (!q || name.contains(q) || text.contains(q)) {
+              const $item = $(this)
+              const name = ($item.data('entity') || '').toLowerCase()
+              const text = $item.text().toLowerCase()
+              let pinyin42
+              if (window.pinyinPro) pinyin42 = window.pinyinPro.pinyin(text, { toneType: 'none' }).replace(/\s+/g, '')
+
+              if (!q || name.contains(q) || text.contains(q) || (pinyin42 && pinyin42.contains(q))) {
                 $item.removeClass('hide')
               } else {
                 $item.addClass('hide')

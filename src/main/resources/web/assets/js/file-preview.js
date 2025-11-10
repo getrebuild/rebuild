@@ -58,7 +58,7 @@ class RbPreview extends React.Component {
             </div>
             <div className="float-right">
               {this.props.id && this._isDoc(fileName) && (
-                <a href={`${rb.baseUrl}/commons/file-editor?src=${this.props.id}`} target="_blank" title={$L('在线编辑')}>
+                <a href={`${rb.baseUrl}/filex/editor?src=${this.props.id}`} target="_blank" title={$L('在线编辑')}>
                   <i className="mdi mdi-microsoft-office fs-17" />
                 </a>
               )}
