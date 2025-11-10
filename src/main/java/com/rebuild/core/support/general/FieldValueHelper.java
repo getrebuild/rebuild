@@ -7,10 +7,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.general;
 
+import cn.devezhao.bizz.security.member.Role;
+import cn.devezhao.bizz.security.member.Team;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MetadataException;
 import com.alibaba.fastjson.JSON;
@@ -18,6 +22,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
@@ -25,10 +30,11 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.EasyReference;
 import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.bizz.Department;
+import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
@@ -45,8 +51,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -73,8 +81,10 @@ public class FieldValueHelper {
     public static final String NO_READ_PRIVILEGES = "$NOPRIVILEGES$";
     /**
      * 当前（BIZZ、DATE）
+     * @see #getCurrentVarValue(Field, ID)
      */
-    public static final String CURRENT = EasyReference.VAR_CURRENT;
+    public static final String CURRENT = "{CURRENT}";
+    public static final String CURRENT2 = "{@CURRENT}";
 
     /**
      * @param value
@@ -149,7 +159,7 @@ public class FieldValueHelper {
         }
 
         JSONObject mixValue = JSONUtils.toJSONObject(
-                new String[] { "id", "text" }, new Object[] { id, text });
+                new String[]{"id", "text"}, new Object[]{id, text});
         if (id != null) {
             if (!EntityHelper.isUnsavedId(id)) {
                 if (MetadataHelper.containsEntity(id.getEntityCode())) {
@@ -233,6 +243,7 @@ public class FieldValueHelper {
 
     // 日期公式 {NOW+1D}
     private static final Pattern PATT_DATE = Pattern.compile("\\{NOW([-+])([0-9]{1,9})([YMDHI])}");
+
     /**
      * 解析日期表达式
      *
@@ -370,10 +381,53 @@ public class FieldValueHelper {
      */
     public static String getText(Object value, EasyField field) {
         if (value == null) return null;
-        if (value instanceof ID) return getLabel((ID) value);
+        if (value instanceof ID) return getLabelNotry((ID) value);
 
         EasyField textTarget = EasyMetaFactory
                 .valueOf(MetadataHelper.getField("User", "fullName"));
         return (String) field.convertCompatibleValue(value, textTarget);
+    }
+
+    /**
+     * 获取 `{CURRENT}` 变量值
+     *
+     * @param field
+     * @param user
+     * @return Returns `Date` or `ID` or `ID[]` or `null`
+     */
+    public static Object getCurrentVarValue(Field field, ID user) {
+        if (user == null) user = UserContextHolder.getUser();
+
+        Type fieldType = field.getType();
+        if (fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP || fieldType == FieldType.TIME) {
+            return CalendarUtils.now();
+
+        } else {
+            Entity entityOfRef = field.getReferenceEntity();
+            if (entityOfRef != null) {
+                if (entityOfRef.getEntityCode() == EntityHelper.User) {
+                    return user;
+                }
+
+                User u = Application.getUserStore().getUser(user);
+                if (entityOfRef.getEntityCode() == EntityHelper.Department) {
+                    Department d = u.getOwningDept();
+                    return d == null ? null : d.getIdentity();
+                } else if (entityOfRef.getEntityCode() == EntityHelper.Role) {
+                    Role r = u.getOwningRole();
+                    return r == null ? null : r.getIdentity();
+                } else if (entityOfRef.getEntityCode() == EntityHelper.Team) {
+                    // Returns ID[]
+                    List<ID> tt = new ArrayList<>();
+                    for (Team t : u.getOwningTeams()) {
+                        tt.add((ID) t.getIdentity());
+                    }
+                    return tt.isEmpty() ? null : tt.toArray(new ID[0]);
+                }
+            }
+        }
+
+        log.warn("Cannot get current var : {}", field);
+        return null;
     }
 }

@@ -70,17 +70,18 @@ public class Message {
      * @return
      */
     public String getTitle4Type() {
-        if (StringUtils.isNotBlank(this.specTitle)) return this.specTitle;
-        if (this.type == TYPE_ASSIGN) return Language.L("记录分配通知");
-        else if (this.type == TYPE_SAHRE) return Language.L("记录共享通知");
-        else if (this.type == TYPE_APPROVAL) return Language.L("记录审批通知");
-        else if (this.type == TYPE_FEEDS) return Language.L("动态通知");
-        else if (this.type == TYPE_PROJECT) return Language.L("项目任务通知");
+        if (StringUtils.isNotBlank(specTitle)) return specTitle;
+        if (type == TYPE_ASSIGN) return Language.L("记录分配通知");
+        else if (type == TYPE_SAHRE) return Language.L("记录共享通知");
+        else if (type == TYPE_APPROVAL) return Language.L("记录审批通知");
+        else if (type == TYPE_FEEDS) return Language.L("动态通知");
+        else if (type == TYPE_PROJECT) return Language.L("项目任务通知");
         else return Language.L("你有一条新通知");
     }
 
     /**
      * 无格式内容
+     *
      * @return
      */
     public String getPlainMessage() {

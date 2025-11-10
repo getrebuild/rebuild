@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #67 (v4.2)
+alter table `user`
+  add column `JOB_NUMBER` varchar(100) comment '工号';
+
 -- #66 (v4.2)
 alter table `robot_approval_step`
   add column `REMARK_ATTACHMENTS` varchar(700) comment '批注附件';

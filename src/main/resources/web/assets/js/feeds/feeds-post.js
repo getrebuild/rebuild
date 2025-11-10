@@ -165,7 +165,7 @@ class FeedsScope extends React.Component {
 
   _renderGroupScope = (item) => {
     if (!item) return
-    $(this._$btn).html(`<i class="icon up-1 zmdi zmdi-accounts"></i>${item.name}`)
+    $(this._$btn).html(`<i class="icon up-1 mdi mdi-briefcase-account"></i>${item.name}`)
     this.__group = item
   }
 
@@ -447,7 +447,7 @@ class SelectGroup extends React.Component {
             </div>
             <div className="modal-body">
               <h5 className="mt-0 text-bold">{$L('选择团队')}</h5>
-              {this.state.groups && this.state.groups.length === 0 && <p className="text-muted">{$L('你未加入任何团队')}</p>}
+              {this.state.groups && this.state.groups.length === 0 && <p className="text-muted">{$L('未加入任何团队')}</p>}
               <div>
                 <ul className="list-unstyled">
                   {(this.state.groups || []).map((item) => {
@@ -470,7 +470,7 @@ class SelectGroup extends React.Component {
   }
 
   componentDidMount() {
-    $.get('/feeds/group/group-list', (res) => this.setState({ groups: res.data }))
+    $.get(`/feeds/group/group-list?self=${!rb.isAdminUser}`, (res) => this.setState({ groups: res.data }))
     $(this._dlg).modal({ show: true, keyboard: true })
   }
 

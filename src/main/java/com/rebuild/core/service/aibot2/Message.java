@@ -5,8 +5,10 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.service.aibot;
+package com.rebuild.core.service.aibot2;
 
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
 import lombok.Getter;
@@ -15,8 +17,9 @@ import java.io.Serializable;
 
 /**
  * @author devezhao
- * @since 2025/4/12
+ * @since 2025/11/1
  */
+@Getter
 public class Message implements Serializable {
     private static final long serialVersionUID = 5985250499303228749L;
 
@@ -24,49 +27,48 @@ public class Message implements Serializable {
     public static final String ROLE_USER = "user";
     public static final String ROLE_AI = "assistant";
 
-    @Getter
-    private MessageCompletions messageCompletions;
-
-    @Getter
     private final String role;
-    @Getter
     private final String content;
-    @Getter
-    private final String reasoning;
-    @Getter
+    private final String reasoning;  // 思考
     private final String error;
 
-    private final JSONObject originRequest;
+    private ID userReqChatid;
+    private JSON userReqJson;
 
     /**
      * @param role
      * @param content
      * @param reasoning
      * @param error
-     * @param originRequest
-     * @param messageCompletions
+     * @param chatRequest
      */
-    protected Message(String role, String content, String reasoning, String error,
-                      JSONObject originRequest, MessageCompletions messageCompletions) {
+    protected Message(String role, String content, String reasoning, String error, ChatRequest chatRequest) {
+        this(role, content, reasoning, error,
+                chatRequest == null ? null : chatRequest.getChatid(),
+                chatRequest == null ? null : chatRequest.getReqJson());
+    }
+
+    /**
+     * @param role
+     * @param content
+     * @param reasoning
+     * @param error
+     * @param userReqChatid
+     * @param userReqJson
+     */
+    protected Message(String role, String content, String reasoning, String error, ID userReqChatid, JSON userReqJson) {
         this.role = role;
         this.content = content;
         this.reasoning = reasoning;
         this.error = error;
-        this.messageCompletions = messageCompletions;
-        this.originRequest = originRequest;
+        this.userReqChatid = userReqChatid;
+        this.userReqJson = userReqJson;
     }
 
     /**
      * @return
      */
-    public boolean isSystem() {
-        return ROLE_SYSTEM.equals(role);
-    }
-
-    /**
-     * @return
-     */
-    public JSONObject toAiJSON() {
+    public JSONObject toSimpleJSON() {
         JSONObject o = JSONUtils.toJSONObject(
                 new String[]{"role", "content"}, new Object[]{role, content});
         if (error != null) o.put("error", error);
@@ -76,15 +78,16 @@ public class Message implements Serializable {
     /**
      * @return
      */
-    public JSONObject toClientJSON() {
+    public JSONObject toJSON() {
         JSONObject d;
         if (Message.ROLE_USER.equals(role)) {
-            d = (JSONObject) JSONUtils.clone(originRequest);
+            d = (JSONObject) JSONUtils.clone(userReqJson);
         } else {
-            d = toAiJSON();
+            d = toSimpleJSON();
             if (reasoning != null) d.put("reasoning", reasoning);
         }
-        d.put("_chatid", messageCompletions.getChatid());
+
+        d.put("_chatid", userReqChatid);
         return d;
     }
 }

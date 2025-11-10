@@ -17,6 +17,7 @@ import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
@@ -80,6 +81,7 @@ public class ProjectCommentService extends BaseTaskService {
      * @return
      */
     private int checkAtUserAndNotification(Record record, String content, ID[] atUsers) {
+        if (CommandArgs.getBoolean(CommandArgs._DisNotificationTasks)) return 0;
         String msgContent = Language.L("@%s 在任务中提到了你", record.getEditor()) + " \n> " + content;
         ID related = record.getID("taskId");
         if (related == null) related = (ID) QueryHelper.queryFieldValue(record.getPrimary(), "taskId");

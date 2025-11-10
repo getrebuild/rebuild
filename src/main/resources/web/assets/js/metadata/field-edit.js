@@ -326,6 +326,23 @@ $(document).ready(function () {
 
   // v3.7
   $('.page-help>a').attr('href', $('.page-help>a').attr('href') + `field-${wpc.fieldType.toLowerCase()}`)
+
+  // v4.2 Value detect
+  $.get(`/admin/entity/field-value-detect?entity=${wpc.entityName}&field=${wpc.fieldName}`, (res) => {
+    if (res.data && res.data.length) {
+      $('.J_tas')
+        .removeClass('hide')
+        .find('a')
+        .on('click', (e) => {
+          $stopEvent(e, true)
+          if (rb.commercial < 1) {
+            RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+          } else {
+            renderRbcomp(<FieldValueDetectViewer data={res.data} />)
+          }
+        })
+    }
+  })
 })
 
 // Check incorrect?
@@ -577,7 +594,7 @@ const _handleReference = function (isN2N) {
   _initRefsDefaultValue([referenceEntity], isN2N)
 
   // BIZZ 特殊处理
-  if (['User', 'Department', 'Team'].includes(referenceEntity)) {
+  if (['User', 'Department', 'Team', 'Role'].includes(referenceEntity)) {
     const $dv = $('.J_defaultValue')
     const $dvClear = $('.J_defaultValue-clear')
 
@@ -870,17 +887,6 @@ class FieldTypeCast extends RbFormHandler {
               <button className="btn btn-link" type="button" onClick={() => this.hide()}>
                 {$L('取消')}
               </button>
-              <button className="btn btn-light w-auto dropdown-toggle bosskey-show" type="button" data-toggle="dropdown">
-                {$L('更多')} (LAB) <i className="icon zmdi zmdi-more-vert"></i>
-              </button>
-              <div className="dropdown-menu">
-                <a className="dropdown-item" onClick={() => this.post('DATETIME40')}>
-                  修订日期时间类型
-                </a>
-                <a className="dropdown-item" onClick={() => this.post('UPLOADNUMBER41')}>
-                  放大允许上传数量
-                </a>
-              </div>
             </div>
           </div>
         </div>
@@ -912,5 +918,36 @@ class FieldTypeCast extends RbFormHandler {
         RbHighbar.error(res.error_msg)
       }
     })
+  }
+}
+
+class FieldValueDetectViewer extends RbAlert {
+  renderContent() {
+    const TS = {
+      'RobotTriggerConfig': '触发器',
+      'AutoFillinConfig': '表单回填',
+    }
+
+    return (
+      <table className="table m-0">
+        <tbody>
+          {this.props.data.map((item, idx) => {
+            let cHtml = marked.parseInline(item[1])
+            cHtml = cHtml.replace(/\/admin\//g, `${rb.baseUrl}/admin/`)
+            cHtml = cHtml.replace(/<a /g, '<a target="_blank" ')
+            console.log(cHtml)
+
+            return (
+              <tr key={idx}>
+                <td>{WrapHtml(cHtml)}</td>
+                <td align="right">
+                  <span className="badge badge-info">{TS[item[0]] || item[0]}</span>
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    )
   }
 }

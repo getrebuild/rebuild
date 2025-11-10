@@ -106,13 +106,13 @@
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-4 col-form-label">[[${bundle.L('所在部门')}]]</label>
+                            <label class="col-4 col-form-label">[[${bundle.L('所属部门')}]]</label>
                             <div class="col-8">
                               <div class="form-control-plaintext" th:text="${user.getOwningBizUnit().getName()}"></div>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-4 col-form-label">[[${bundle.L('所在团队')}]]</label>
+                            <label class="col-4 col-form-label">[[${bundle.L('加入团队')}]]</label>
                             <div class="col-8">
                               <div class="form-control-plaintext">
                                 <th:block th:each="team : ${user.getOwningTeams()}">
@@ -121,7 +121,7 @@
                                     <th:block th:text="${team.getName()}" />
                                   </span>
                                 </th:block>
-                                <em class="text-muted" th:if="${user.getOwningTeams().isEmpty()}">[[${bundle.L('你未加入任何团队')}]]</em>
+                                <em class="text-muted" th:if="${user.getOwningTeams().isEmpty()}">[[${bundle.L('未加入任何团队')}]]</em>
                               </div>
                             </div>
                           </div>

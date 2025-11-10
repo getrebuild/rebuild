@@ -367,26 +367,43 @@ public class CommonsUtils {
      * @return
      */
     public static Date parseDate(String source) {
-        if (source.length() == 4 || source.contains("-") || source.contains("年")) {
-            source = source.replaceAll("[年月日\\-\\s:.]", "");
-            String format = "yyyyMMddHHmmssSSS".substring(0, source.length());
+        if (source.length() < 4) return null;
+
+        if (source.length() <= 5) {
+            return CalendarUtils.parse(source.substring(0, 4), "yyyy");
+        }
+
+        if (source.contains("-") || source.contains("年") || source.contains("/")) {
+            // 去除括弧 eg. 2025年09月25日 (周四) 00:55:00
+            if (source.contains("(") || source.contains(")")) {
+                source = source.replaceAll("\\(.*?\\)", "").replaceAll("\\s+", " ");
+            }
+
+            String[] ss = source.split("[年月日\\-\\s:./]");
+            for (int i = 0; i < ss.length; i++) {
+                String s = ss[i];
+                if (s.length() == 1) ss[i] = "0" + s;
+            }
+
+            source = StringUtils.join(ss, "-");
+            source = source.replace("--", "-");
+            if (source.endsWith("-")) source = source.substring(0, source.length() - 1);
+
+            String format = "yyyy-MM-dd-HH-mm-ss-SSS".substring(0, source.length());
             Date d = CalendarUtils.parse(source, format);
             if (d != null) return d;
+        }
+
+        try {
+            Date d = CalendarUtils.parse(source);
+            if (d != null) return d;
+        } catch (DateException ignored) {
         }
 
         try {
             DateTime dt = DateUtil.parse(source);
             if (dt != null) return dt.toJdkDate();
         } catch (DateException ignored) {
-        }
-
-        // 2017/11/19 11:07
-        if (source.contains("/")) {
-            String[] fs = new String[]{"yyyy/M/d H:m:s", "yyyy/M/d H:m", "yyyy/M/d"};
-            for (String format : fs) {
-                Date d = CalendarUtils.parse(source, format);
-                if (d != null) return d;
-            }
         }
 
         return null;
@@ -506,5 +523,36 @@ public class CommonsUtils {
             if (StringUtils.isBlank(msg)) msg = ClassUtils.getShortClassName(th, "");
         }
         return msg == null ? "" : msg;
+    }
+
+    /**
+     * 是否图片
+     *
+     * @param file
+     * @return
+     */
+    public static boolean isImageFile(File file) {
+        String filename = file.getName().toLowerCase();
+        return  filename.endsWith(".gif")
+                || filename.endsWith(".png")
+                || filename.endsWith(".jpg")
+                || filename.endsWith(".jpeg")
+                || filename.endsWith(".bmp");
+    }
+
+    /**
+     * 是否 Office
+     *
+     * @param file
+     * @return
+     */
+    public static boolean isOfficeFile(File file) {
+        String filename = file.getName().toLowerCase();
+        return  filename.endsWith(".doc")
+                || filename.endsWith(".docx")
+                || filename.endsWith(".xls")
+                || filename.endsWith(".xlsx")
+                || filename.endsWith(".ppt")
+                || filename.endsWith(".pptx");
     }
 }

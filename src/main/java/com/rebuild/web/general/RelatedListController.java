@@ -66,12 +66,16 @@ public class RelatedListController extends BaseController {
 
         Entity relatedEntity = MetadataHelper.getEntity(related.split("\\.")[0]);
 
-        String sort = getParameter(request, "sort", "modifiedOn:desc");
+        String sortExpr = getParameter(request, "sort", "modifiedOn:desc");
         // 名称字段排序
-        if ("NAME".equalsIgnoreCase(sort)) {
-            sort = relatedEntity.getNameField().getName() + ":asc";
+        if ("NAME".equalsIgnoreCase(sortExpr)) {
+            sortExpr = relatedEntity.getNameField().getName() + ":asc";
         }
-        sql += " order by " + sort.replace(":", " ");
+        // v4.2 明細排序
+        else if ("autoId:asc".equals(sortExpr)) {
+            if (relatedEntity.containsField(EntityHelper.Seq)) sortExpr = "seq:asc";
+        }
+        sql += " order by " + sortExpr.replace(":", " ");
 
         int pn = NumberUtils.toInt(getParameter(request, "pageNo"), 1);
         int ps = NumberUtils.toInt(getParameter(request, "pageSize"), 200);

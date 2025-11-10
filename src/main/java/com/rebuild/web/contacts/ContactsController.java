@@ -29,9 +29,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.Collator;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -95,13 +96,17 @@ public class ContactsController extends BaseController {
         String q = getParameter(request, "q");
         if (q != null) q = q.toUpperCase().trim();
 
+        final boolean isall42 = getBoolParameter(request, "isall");
+
         String sort42 = getParameter(request, "sort");
         boolean sortNewer = "newer".equals(sort42);
 
         User[] users = Application.getUserStore().getAllUsers();
         Member[] usersMembers = UserFilters.filterMembers32(users, user);
         if ("name".equals(sort42)) {
-            Arrays.sort(usersMembers, Comparator.comparing(Member::getName));
+            Collator collator = Collator.getInstance(Locale.CHINESE);
+            Arrays.sort(usersMembers, (o1, o2)
+                    -> collator.compare(((User) o1).getFullName(), ((User) o2).getFullName()));
         } else if (sortNewer) {
             // 新建
         } else {
@@ -125,7 +130,9 @@ public class ContactsController extends BaseController {
         for (Member m : usersMembers) {
             User u = (User) m;
             if (UserService.SYSTEM_USER.equals(u.getId())) continue;
-//            if (!u.isActive()) continue;
+            if (!isall42) {
+                if (!u.isActive()) continue;
+            }
 
             Department d = u.getOwningDept();
             if (deptAndChild != null) {

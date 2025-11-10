@@ -75,14 +75,16 @@ public class ApisManagerController extends BaseController {
     public RespBody requestTimes(HttpServletRequest request) {
         final String appids = getParameterNotNull(request, "appid");
 
-        Map<String, Long> times = new HashMap<>();
+        Map<String, Object[]> times = new HashMap<>();
         for (String appid : appids.split("[,;]")) {
             Object[] count = Application.createQueryNoFilter(
-                    "select count(requestId) from RebuildApiRequest where appId = ? and requestTime > ?")
+                    "select count(requestId),max(requestTime) from RebuildApiRequest where appId = ? and requestTime > ?")
                     .setParameter(1, appid)
                     .setParameter(2, CalendarUtils.addDay(-SHOW_DAYS))
                     .unique();
-            times.put(appid, (Long) count[0]);
+            // v4.2
+            if (count[1] != null) I18nUtils.formatDate((Date) count[1]);
+            times.put(appid, count);
         }
         return RespBody.ok(times);
     }

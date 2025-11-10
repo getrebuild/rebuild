@@ -72,7 +72,8 @@ public class SchemaGenerator {
         Table table = new Table40(
                 entity,
                 dialect,
-                root.selectSingleNode("//entity[@name='" + entity.getName() + "']").selectNodes("index"));
+                root.selectSingleNode("//entity[@name='" + entity.getName() + "']").selectNodes("index"),
+                true);
 
         String[] ddls = table.generateDDL(false, false, false);
 

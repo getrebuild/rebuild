@@ -125,6 +125,7 @@ public enum ConfigurationItem {
     AibotDSUrl("https://api.deepseek.com/"),
     AibotDSSecret,
     AibotBasePrompt,
+    AibotBaseDefModel,
 
     // PORTALs
     PortalBaiduMapAk,

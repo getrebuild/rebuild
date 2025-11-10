@@ -34,7 +34,7 @@ public class ChangeOwningDeptTask extends HeavyTask<Integer> {
      * @param user
      * @param deptNew
      */
-    protected ChangeOwningDeptTask(ID user, ID deptNew) {
+    public ChangeOwningDeptTask(ID user, ID deptNew) {
         this.user = user;
         this.deptNew = deptNew;
     }

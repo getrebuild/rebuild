@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.dashboard.charts.ChartData;
@@ -76,6 +77,12 @@ public class FeedsSchedule extends ChartData implements BuiltinChart {
 
             Object relatedRecord = o[4] == null
                     ? null : FieldValueHelper.wrapFieldValue(o[4], relatedRecordMeta);
+            if (relatedRecord instanceof JSONObject) {
+                JSONObject rr = (JSONObject) relatedRecord;
+                EasyEntity easyEntity = EasyMetaFactory.valueOf(rr.getString("entity"));
+                rr.put("entityLabel", easyEntity.getLabel());
+                rr.put("entityIcon", easyEntity.getIcon());
+            }
 
             JSONObject item = JSONUtils.toJSONObject(
                     new String[]{"id", "scheduleTime", "content", "relatedRecord"},

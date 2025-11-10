@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title></title>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin}" />
+      <div class="rb-content">
+        <div class="main-content container-fluid">
+          <!-- For Jump Only -->
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      $(function () {
+        $('.sidebar-elements a[href]')[0].click()
+      })
+    </script>
+  </body>
+</html>

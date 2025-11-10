@@ -51,7 +51,8 @@ public class ChartDataController extends BaseController {
         if (requestUser == null) {
             // sk:xxx
             String shareKeyToken = request.getHeader(AppUtils.HF_CSRFTOKEN);
-            String fileUrl = ShortUrls.retrieveUrl(shareKeyToken.substring(3));
+            String fileUrl = StringUtils.isBlank(shareKeyToken)
+                    ? null : ShortUrls.retrieveUrl(shareKeyToken.substring(3));
             if (ID.isId(fileUrl) && ID.valueOf(fileUrl).getEntityCode() == EntityHelper.DashboardConfig) {
                 requestUser = UserService.SYSTEM_USER;
                 UserContextHolder.setUser(requestUser);

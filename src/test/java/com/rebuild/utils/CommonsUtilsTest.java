@@ -7,11 +7,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import cn.devezhao.commons.CalendarUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
+import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -21,16 +23,30 @@ class CommonsUtilsTest {
 
     @Test
     void parseDate() {
-        assertNotNull(CommonsUtils.parseDate("2020-01-01"));
-        assertNotNull(CommonsUtils.parseDate("2020-01"));
-        assertNotNull(CommonsUtils.parseDate("2020"));
-        assertNotNull(CommonsUtils.parseDate("2020年01月01日"));
-        assertNotNull(CommonsUtils.parseDate("2020年01月"));
-        assertNotNull(CommonsUtils.parseDate("2020年"));
-        assertNotNull(CommonsUtils.parseDate("2020年01月01日 23:23:23.888"));
-        assertNotNull(CommonsUtils.parseDate("2020年01月01日 23:23:23"));
-        assertNotNull(CommonsUtils.parseDate("2020年01月01日 23:23"));
-        assertNotNull(CommonsUtils.parseDate("2020年01月01日 23"));
+        parseDateWithPrint("2025年09月25日 (周四) 00:55:00");
+        parseDateWithPrint("2025年09月25日 (周四)");
+
+        parseDateWithPrint("2025-2-21");
+        parseDateWithPrint("2025年2月2日");
+        parseDateWithPrint("2025年2月21日");
+        parseDateWithPrint("2025/2/2");
+        parseDateWithPrint("2025/2/21");
+
+        parseDateWithPrint("2020-01");
+        parseDateWithPrint("2020");
+        parseDateWithPrint("2020年01月01日");
+        parseDateWithPrint("2020年01月");
+        parseDateWithPrint("2020年");
+        parseDateWithPrint("2020年01月01日 23:23:23.888");
+        parseDateWithPrint("2020年01月01日 23:23:23");
+        parseDateWithPrint("2020年01月01日 23:23");
+        parseDateWithPrint("2020年01月01日 23");
+    }
+
+    void parseDateWithPrint(String source) {
+        Date d = CommonsUtils.parseDate(source);
+        System.out.println(source + " > " + (d == null ? "null" : CalendarUtils.getUTCDateTimeFormat().format(d)));
+        assertNotNull(d);
     }
 
     @Test

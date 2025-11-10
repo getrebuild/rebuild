@@ -146,14 +146,26 @@ $(document).ready(() => {
       }
 
       if (res.data.roleAppends && res.data.roleAppends.length > 0) {
-        $.get(`/commons/search/read-labels?ids=${res.data.roleAppends.join(',')}`, (res) => {
+        $.get(`/commons/search/read-labels?ids=${res.data.roleAppends.join(',')}`, (res2) => {
           const $p = $('.J_roleAppends').empty()
-          for (let k in res.data) {
-            $(
-              `<a class="badge badge-info fs-12 up-2" href="${rb.baseUrl}/admin/bizuser/role/${k}" target="_blank" title="${$L('查看角色权限')}"><i class="icon mdi mdi-account-lock"></i> ${
-                res.data[k]
-              }</a>`
-            ).appendTo($p)
+          for (let k in res2.data) {
+            $(`<a class="badge badge-info fs-12 up-2" title="${$L('查看角色')}"><i class="icon mdi mdi-account-lock"></i> ${res2.data[k]}</a>`)
+              .appendTo($p)
+              .on('click', function () {
+                RbViewPage.clickView(`#!/View/Role/${k}`)
+              })
+          }
+        })
+      }
+      if (res.data.joinTeams && res.data.joinTeams.length > 0) {
+        $.get(`/commons/search/read-labels?ids=${res.data.joinTeams.join(',')}`, (res2) => {
+          const $p = $('.J_joinTeams').empty()
+          for (let k in res2.data) {
+            $(`<a class="badge badge-info fs-12 up-2" title="${$L('查看团队')}"><i class="icon mdi mdi-briefcase-account"></i> ${res2.data[k]}</a>`)
+              .appendTo($p)
+              .on('click', function () {
+                RbViewPage.clickView(`#!/View/Team/${k}`)
+              })
           }
         })
       }

@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.service.aibot;
+package com.rebuild.core.service.aibot2;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
@@ -15,22 +15,26 @@ import com.rebuild.core.service.aibot.vector.ListData;
 import com.rebuild.core.service.aibot.vector.RecordData;
 import com.rebuild.core.service.aibot.vector.VectorData;
 import com.rebuild.core.service.aibot.vector.VectorDataChunk;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.JSONUtils;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * @author devezhao
- * @since 2025/4/12
+ * @author Zixin
+ * @since 2025/11/1
  */
+@Slf4j
 public class ChatRequest {
 
     @Getter
     private final ID chatid;
-    @Getter
-    private final String model;
     @Getter
     private final JSONObject reqJson;
 
@@ -39,10 +43,8 @@ public class ChatRequest {
     /**
      * @param request
      */
-    public ChatRequest(HttpServletRequest request) {
-        String id = request.getParameter("chatid");
-        this.chatid = ID.isId(id) ? ID.valueOf(id) : null;
-        this.model = request.getParameter("model");
+    public ChatRequest(HttpServletRequest request, ID chatid) {
+        this.chatid = chatid;
         this.reqJson = (JSONObject) ServletUtils.getRequestJson(request);
     }
 
@@ -98,5 +100,22 @@ public class ChatRequest {
             }
         }
         return vdc;
+    }
+
+    /**
+     * TODO 支持文件
+     *
+     * @return
+     */
+    public File[] getFile() {
+        JSONArray filepath = (JSONArray) reqJson.get("file");
+        if (CollectionUtils.isEmpty(filepath)) return null;
+
+        List<File> files = new ArrayList<>();
+        for (Object path : filepath) {
+            File file = RebuildConfiguration.getFileOfTemp(path.toString());
+            files.add(file);
+        }
+        return files.toArray(new File[0]);
     }
 }

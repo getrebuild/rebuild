@@ -25,10 +25,9 @@ class FuncList extends React.Component {
         <RbAlertBox message={WrapHtml($L('选择**非超级管理员**所能使用的管理中心功能'))} type="info" />
         {this.state.funclist &&
           this.state.funclist.map((item) => {
-            const isSYS = item[0] === 'SYS'
             return (
               <label key={item[0]} className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                <input className="custom-control-input" type="checkbox" value={item[0]} defaultChecked={item[2] || isSYS} disabled={isSYS} />
+                <input className="custom-control-input" type="checkbox" value={item[0]} defaultChecked={item[2]} />
                 <span className="custom-control-label">
                   {item[1]}
                   {_FUNCTIPS[item[0]] && <i className="zmdi zmdi-help zicon" title={_FUNCTIPS[item[0]]} />}
@@ -55,6 +54,8 @@ class FuncList extends React.Component {
         .each(function () {
           navs.push(this.value)
         })
+      // v4.2
+      if (navs.length === 0) return RbHighbar.createl('请至少选择 1 个功能')
 
       $btn.button('loading')
       $.post(`/admin/settings/navs?conf=${navs.join(',')}`, () => {

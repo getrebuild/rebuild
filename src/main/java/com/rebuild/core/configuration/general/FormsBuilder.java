@@ -214,10 +214,10 @@ public class FormsBuilder extends FormsManager {
         // v3.7 指定布局
         ID recordOrLayoutId = recordId;
 
-        // 优先使用
+        // 强制使用
         ID forceLayout = FormsBuilderContextHolder.getSpecLayout(false);
         if (forceLayout != null) recordOrLayoutId = forceLayout;
-        // 明细共同编辑
+        // 明细共同编辑时使用第一个明细记录的布局
         if (forceLayout == null && entityMeta.getMainEntity() != null && recordId == null) {
             if (FormsBuilderContextHolder.isFromProTable(true)) {
                 ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
@@ -279,6 +279,8 @@ public class FormsBuilder extends FormsManager {
             model.set("detailsNotEmpty", entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_NOTEMPTY));
             // v3.6
             model.set("detailsCopiable", entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_COPIABLE));
+            // v4.2
+            model.set("detailsHasSeq", entityMeta.containsField(EntityHelper.Seq));
         } else if (entityMeta.getDetailEntity() != null) {
             model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
             // compatible v3.3
@@ -687,6 +689,26 @@ public class FormsBuilder extends FormsManager {
 
             // v4.2
             I18nUtils.replaceLP(field, "tip");
+        }
+
+        // v4.2 隐藏空值
+        if (hideEmpty) {
+            int elementsLen = elements.size();
+            for (int i = 0; i < elementsLen; i++) {
+                JSONObject el = (JSONObject) elements.get(i);
+                String name = el.getString("field");
+                if (DIVIDER_LINE.equalsIgnoreCase(name)) {
+                    String nextName = i + 1 >= elementsLen ? null : ((JSONObject) elements.get(i + 1)).getString("field");
+                    if (nextName == null || nextName.equalsIgnoreCase(DIVIDER_LINE)) {
+                        el.put("remove42", true);
+                    }
+                }
+            }
+
+            for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
+                JSONObject el = (JSONObject) iter.next();
+                if (el.getBooleanValue("remove42")) iter.remove();
+            }
         }
     }
 

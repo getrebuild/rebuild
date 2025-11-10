@@ -550,7 +550,7 @@ class FilterItem extends React.Component {
   isNumberValue() {
     if (this.state.type === 'NUMBER' || this.state.type === 'DECIMAL') {
       return true
-    } else if ((this.state.type === 'DATE' || this.state.type === 'DATETIME') && OP_DATE_NOPICKER.includes(this.state.op)) {
+    } else if ((this.state.type === 'DATE' || this.state.type === 'DATETIME' || this.state.type === 'TIME') && OP_DATE_NOPICKER.includes(this.state.op)) {
       return true
     }
     return false

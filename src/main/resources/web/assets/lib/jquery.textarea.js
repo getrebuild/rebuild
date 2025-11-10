@@ -1,8 +1,297 @@
-// ~ https://github.com/Kasheftin/jquery-textarea-caret
-jQuery.fn.extend({insertAtCursor:function(myValue){return this.each(function(i){if(document.selection){this.focus();sel=document.selection.createRange();sel.text=myValue;this.focus()}else{if(this.selectionStart||this.selectionStart=="0"){var startPos=this.selectionStart;var endPos=this.selectionEnd;var scrollTop=this.scrollTop;this.value=this.value.substring(0,startPos)+myValue+this.value.substring(endPos,this.value.length);this.focus();this.selectionStart=startPos+myValue.length;this.selectionEnd=startPos+myValue.length;this.scrollTop=scrollTop}else{this.value+=myValue;this.focus()}}})},insertAroundCursor:function(myValueBefore,myValueAfter){return this.each(function(i){if(document.selection){this.focus();sel=document.selection.createRange();sel.text=myValueBefore+sel.text+myValueAfter;this.focus()}else{if(this.selectionStart||this.selectionStart=="0"){var startPos=this.selectionStart;var endPos=this.selectionEnd;var scrollTop=this.scrollTop;this.value=this.value.substring(0,startPos)+myValueBefore+this.value.substring(startPos,endPos)+myValueAfter+this.value.substring(endPos,this.value.length);this.focus();this.selectionStart=startPos+myValueBefore.length;this.selectionEnd=endPos+myValueBefore.length;this.scrollTop=scrollTop}else{this.value+=myValueBefore+myValueAfter;this.focus()}}})},selectRange:function(start,end){return this.each(function(i){if(this.setSelectionRange){this.focus();this.setSelectionRange(start,end)}else{if(this.createTextRange){var range=this.createTextRange();range.collapse(true);range.moveEnd("character",end);range.moveStart("character",start);range.select()}}})}});
-/*!
-autosize 4.0.2
-license: MIT
-http://www.jacklmoore.com/autosize
-*/
-!function(e,t){if("function"==typeof define&&define.amd)define(["module","exports"],t);else if("undefined"!=typeof exports)t(module,exports);else{var n={exports:{}};t(n,n.exports),e.autosize=n.exports}}(this,function(e,t){"use strict";var n,o,p="function"==typeof Map?new Map:(n=[],o=[],{has:function(e){return-1<n.indexOf(e)},get:function(e){return o[n.indexOf(e)]},set:function(e,t){-1===n.indexOf(e)&&(n.push(e),o.push(t))},delete:function(e){var t=n.indexOf(e);-1<t&&(n.splice(t,1),o.splice(t,1))}}),c=function(e){return new Event(e,{bubbles:!0})};try{new Event("test")}catch(e){c=function(e){var t=document.createEvent("Event");return t.initEvent(e,!0,!1),t}}function r(r){if(r&&r.nodeName&&"TEXTAREA"===r.nodeName&&!p.has(r)){var e,n=null,o=null,i=null,d=function(){r.clientWidth!==o&&a()},l=function(t){window.removeEventListener("resize",d,!1),r.removeEventListener("input",a,!1),r.removeEventListener("keyup",a,!1),r.removeEventListener("autosize:destroy",l,!1),r.removeEventListener("autosize:update",a,!1),Object.keys(t).forEach(function(e){r.style[e]=t[e]}),p.delete(r)}.bind(r,{height:r.style.height,resize:r.style.resize,overflowY:r.style.overflowY,overflowX:r.style.overflowX,wordWrap:r.style.wordWrap});r.addEventListener("autosize:destroy",l,!1),"onpropertychange"in r&&"oninput"in r&&r.addEventListener("keyup",a,!1),window.addEventListener("resize",d,!1),r.addEventListener("input",a,!1),r.addEventListener("autosize:update",a,!1),r.style.overflowX="hidden",r.style.wordWrap="break-word",p.set(r,{destroy:l,update:a}),"vertical"===(e=window.getComputedStyle(r,null)).resize?r.style.resize="none":"both"===e.resize&&(r.style.resize="horizontal"),n="content-box"===e.boxSizing?-(parseFloat(e.paddingTop)+parseFloat(e.paddingBottom)):parseFloat(e.borderTopWidth)+parseFloat(e.borderBottomWidth),isNaN(n)&&(n=0),a()}function s(e){var t=r.style.width;r.style.width="0px",r.offsetWidth,r.style.width=t,r.style.overflowY=e}function u(){if(0!==r.scrollHeight){var e=function(e){for(var t=[];e&&e.parentNode&&e.parentNode instanceof Element;)e.parentNode.scrollTop&&t.push({node:e.parentNode,scrollTop:e.parentNode.scrollTop}),e=e.parentNode;return t}(r),t=document.documentElement&&document.documentElement.scrollTop;r.style.height="",r.style.height=r.scrollHeight+n+"px",o=r.clientWidth,e.forEach(function(e){e.node.scrollTop=e.scrollTop}),t&&(document.documentElement.scrollTop=t)}}function a(){u();var e=Math.round(parseFloat(r.style.height)),t=window.getComputedStyle(r,null),n="content-box"===t.boxSizing?Math.round(parseFloat(t.height)):r.offsetHeight;if(n<e?"hidden"===t.overflowY&&(s("scroll"),u(),n="content-box"===t.boxSizing?Math.round(parseFloat(window.getComputedStyle(r,null).height)):r.offsetHeight):"hidden"!==t.overflowY&&(s("hidden"),u(),n="content-box"===t.boxSizing?Math.round(parseFloat(window.getComputedStyle(r,null).height)):r.offsetHeight),i!==n){i=n;var o=c("autosize:resized");try{r.dispatchEvent(o)}catch(e){}}}}function i(e){var t=p.get(e);t&&t.destroy()}function d(e){var t=p.get(e);t&&t.update()}var l=null;"undefined"==typeof window||"function"!=typeof window.getComputedStyle?((l=function(e){return e}).destroy=function(e){return e},l.update=function(e){return e}):((l=function(e,t){return e&&Array.prototype.forEach.call(e.length?e:[e],function(e){return r(e)}),e}).destroy=function(e){return e&&Array.prototype.forEach.call(e.length?e:[e],i),e},l.update=function(e){return e&&Array.prototype.forEach.call(e.length?e:[e],d),e}),t.default=l,e.exports=t.default});
+// https://github.com/jackmoore/autosize/
+;(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined'
+    ? (module.exports = factory())
+    : typeof define === 'function' && define.amd
+    ? define(factory)
+    : ((global = global || self), (global.autosize = factory()))
+})(this, function () {
+  var assignedElements = new Map()
+
+  function assign(ta) {
+    if (!ta || !ta.nodeName || ta.nodeName !== 'TEXTAREA' || assignedElements.has(ta)) return
+    var previousHeight = null
+
+    function cacheScrollTops(el) {
+      var arr = []
+
+      while (el && el.parentNode && el.parentNode instanceof Element) {
+        if (el.parentNode.scrollTop) {
+          arr.push([el.parentNode, el.parentNode.scrollTop])
+        }
+
+        el = el.parentNode
+      }
+
+      return function () {
+        return arr.forEach(function (_ref) {
+          var node = _ref[0],
+            scrollTop = _ref[1]
+          node.style.scrollBehavior = 'auto'
+          node.scrollTop = scrollTop
+          node.style.scrollBehavior = null
+        })
+      }
+    }
+
+    var computed = window.getComputedStyle(ta)
+
+    function setHeight(_ref2) {
+      var _ref2$restoreTextAlig = _ref2.restoreTextAlign,
+        restoreTextAlign = _ref2$restoreTextAlig === void 0 ? null : _ref2$restoreTextAlig,
+        _ref2$testForHeightRe = _ref2.testForHeightReduction,
+        testForHeightReduction = _ref2$testForHeightRe === void 0 ? true : _ref2$testForHeightRe
+      var initialOverflowY = computed.overflowY
+
+      if (ta.scrollHeight === 0) {
+        // If the scrollHeight is 0, then the element probably has display:none or is detached from the DOM.
+        return
+      } // disallow vertical resizing
+
+      if (computed.resize === 'vertical') {
+        ta.style.resize = 'none'
+      } else if (computed.resize === 'both') {
+        ta.style.resize = 'horizontal'
+      }
+
+      var restoreScrollTops // remove inline height style to accurately measure situations where the textarea should shrink
+      // however, skip this step if the new value appends to the previous value, as textarea height should only have grown
+
+      if (testForHeightReduction) {
+        // ensure the scrollTop values of parent elements are not modified as a consequence of shrinking the textarea height
+        restoreScrollTops = cacheScrollTops(ta)
+        var fixHeight42 = ta.getAttribute('data-fix-autosize-height') || ''
+        ta.style.height = fixHeight42
+      }
+
+      var newHeight
+
+      if (computed.boxSizing === 'content-box') {
+        newHeight = ta.scrollHeight - (parseFloat(computed.paddingTop) + parseFloat(computed.paddingBottom))
+      } else {
+        newHeight = ta.scrollHeight + parseFloat(computed.borderTopWidth) + parseFloat(computed.borderBottomWidth)
+      }
+
+      if (computed.maxHeight !== 'none' && newHeight > parseFloat(computed.maxHeight)) {
+        if (computed.overflowY === 'hidden') {
+          ta.style.overflow = 'scroll'
+        }
+
+        newHeight = parseFloat(computed.maxHeight)
+      } else if (computed.overflowY !== 'hidden') {
+        ta.style.overflow = 'hidden'
+      }
+
+      ta.style.height = ~~newHeight + 'px'
+
+      if (restoreTextAlign) {
+        ta.style.textAlign = restoreTextAlign
+      }
+
+      if (restoreScrollTops) {
+        restoreScrollTops()
+      }
+
+      if (previousHeight !== newHeight) {
+        ta.dispatchEvent(
+          new Event('autosize:resized', {
+            bubbles: true,
+          })
+        )
+        previousHeight = newHeight
+      }
+
+      if (initialOverflowY !== computed.overflow && !restoreTextAlign) {
+        var textAlign = computed.textAlign
+
+        if (computed.overflow === 'hidden') {
+          // Webkit fails to reflow text after overflow is hidden,
+          // even if hiding overflow would allow text to fit more compactly.
+          // The following is intended to force the necessary text reflow.
+          ta.style.textAlign = textAlign === 'start' ? 'end' : 'start'
+        }
+
+        setHeight({
+          restoreTextAlign: textAlign,
+          testForHeightReduction: true,
+        })
+      }
+    }
+
+    function fullSetHeight() {
+      setHeight({
+        testForHeightReduction: true,
+        restoreTextAlign: null,
+      })
+    }
+
+    var handleInput = (function () {
+      var previousValue = ta.value
+      return function () {
+        setHeight({
+          // if previousValue is '', check for height shrinkage because the placeholder may be taking up space instead
+          // if new value is merely appending to previous value, skip checking for height deduction
+          testForHeightReduction: previousValue === '' || !ta.value.startsWith(previousValue),
+          restoreTextAlign: null,
+        })
+        previousValue = ta.value
+      }
+    })()
+
+    var destroy = function (style) {
+      ta.removeEventListener('autosize:destroy', destroy)
+      ta.removeEventListener('autosize:update', fullSetHeight)
+      ta.removeEventListener('input', handleInput)
+      window.removeEventListener('resize', fullSetHeight) // future todo: consider replacing with ResizeObserver
+
+      Object.keys(style).forEach(function (key) {
+        return (ta.style[key] = style[key])
+      })
+      assignedElements['delete'](ta)
+    }.bind(ta, {
+      height: ta.style.height,
+      resize: ta.style.resize,
+      textAlign: ta.style.textAlign,
+      overflowY: ta.style.overflowY,
+      overflowX: ta.style.overflowX,
+      wordWrap: ta.style.wordWrap,
+    })
+
+    ta.addEventListener('autosize:destroy', destroy)
+    ta.addEventListener('autosize:update', fullSetHeight)
+    ta.addEventListener('input', handleInput)
+    window.addEventListener('resize', fullSetHeight) // future todo: consider replacing with ResizeObserver
+
+    ta.style.overflowX = 'hidden'
+    ta.style.wordWrap = 'break-word'
+    assignedElements.set(ta, {
+      destroy: destroy,
+      update: fullSetHeight,
+    })
+    fullSetHeight()
+  }
+
+  function destroy(ta) {
+    var methods = assignedElements.get(ta)
+
+    if (methods) {
+      methods.destroy()
+    }
+  }
+
+  function update(ta) {
+    var methods = assignedElements.get(ta)
+
+    if (methods) {
+      methods.update()
+    }
+  }
+
+  var autosize = null // Do nothing in Node.js environment
+
+  if (typeof window === 'undefined') {
+    autosize = function autosize(el) {
+      return el
+    }
+
+    autosize.destroy = function (el) {
+      return el
+    }
+
+    autosize.update = function (el) {
+      return el
+    }
+  } else {
+    autosize = function autosize(el, options) {
+      if (el) {
+        Array.prototype.forEach.call(el.length ? el : [el], function (x) {
+          return assign(x)
+        })
+      }
+
+      return el
+    }
+
+    autosize.destroy = function (el) {
+      if (el) {
+        Array.prototype.forEach.call(el.length ? el : [el], destroy)
+      }
+
+      return el
+    }
+
+    autosize.update = function (el) {
+      if (el) {
+        Array.prototype.forEach.call(el.length ? el : [el], update)
+      }
+
+      return el
+    }
+  }
+
+  var autosize$1 = autosize
+
+  return autosize$1
+})
+
+// https://github.com/Kasheftin/jquery-textarea-caret/
+jQuery.fn.extend({
+  insertAtCursor: function (myValue) {
+    return this.each(function (i) {
+      if (document.selection) {
+        this.focus()
+        var sel = document.selection.createRange()
+        sel.text = myValue
+        this.focus()
+      } else if (this.selectionStart || this.selectionStart == '0') {
+        var startPos = this.selectionStart
+        var endPos = this.selectionEnd
+        var scrollTop = this.scrollTop
+        this.value = this.value.substring(0, startPos) + myValue + this.value.substring(endPos, this.value.length)
+        this.focus()
+        this.selectionStart = startPos + myValue.length
+        this.selectionEnd = startPos + myValue.length
+        this.scrollTop = scrollTop
+      } else {
+        this.value += myValue
+        this.focus()
+      }
+    })
+  },
+  insertAroundCursor: function (myValueBefore, myValueAfter) {
+    return this.each(function (i) {
+      if (document.selection) {
+        this.focus()
+        var sel = document.selection.createRange()
+        sel.text = myValueBefore + sel.text + myValueAfter
+        this.focus()
+      } else if (this.selectionStart || this.selectionStart == '0') {
+        var startPos = this.selectionStart
+        var endPos = this.selectionEnd
+        var scrollTop = this.scrollTop
+        this.value = this.value.substring(0, startPos) + myValueBefore + this.value.substring(startPos, endPos) + myValueAfter + this.value.substring(endPos, this.value.length)
+        this.focus()
+        this.selectionStart = startPos + myValueBefore.length
+        this.selectionEnd = endPos + myValueBefore.length
+        this.scrollTop = scrollTop
+      } else {
+        this.value += myValueBefore + myValueAfter
+        this.focus()
+      }
+    })
+  },
+  selectRange: function (start, end) {
+    return this.each(function (i) {
+      if (this.setSelectionRange) {
+        this.focus()
+        this.setSelectionRange(start, end)
+      } else if (this.createTextRange) {
+        var range = this.createTextRange()
+        range.collapse(true)
+        range.moveEnd('character', end)
+        range.moveStart('character', start)
+        range.select()
+      }
+    })
+  },
+})

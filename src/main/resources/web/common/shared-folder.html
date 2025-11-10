@@ -45,7 +45,7 @@
         margin-top: 0;
       }
       .file-list td {
-        padding: 12px 20px;
+        padding: 8px 20px;
       }
       .file-list td a {
         color: #444;
@@ -53,6 +53,9 @@
       }
       .file-list td:hover a {
         color: var(--rb-theme-color);
+      }
+      .file-icon::before {
+        border-color: #fff #fff rgba(255, 255, 255, 0.35) rgba(255, 255, 255, 0.35);
       }
     </style>
   </head>
@@ -72,7 +75,10 @@
               <table class="table table-hover">
                 <tbody>
                   <tr th:each="file : ${folderFiles}">
-                    <td class="pr-0">
+                    <td class="pr-0 fs-0" width="55">
+                      <i class="file-icon" th:data-type="${file[3]}"></i>
+                    </td>
+                    <td class="pr-0 pl-0">
                       <a th:href="'./' + ${file[0]}" th:text="${file[1]}" target="_blank"></a>
                     </td>
                     <td class="text-right">

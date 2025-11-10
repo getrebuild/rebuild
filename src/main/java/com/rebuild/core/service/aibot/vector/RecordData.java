@@ -23,6 +23,8 @@ import java.util.List;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 /**
+ * 记录
+ *
  * @author Zixin
  * @since 2025/4/18
  */

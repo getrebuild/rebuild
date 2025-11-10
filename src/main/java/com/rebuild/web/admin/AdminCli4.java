@@ -7,8 +7,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin;
 
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.impl.Field2SchemaFixer;
 import com.rebuild.core.service.approval.ApprovalFields2Schema;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
@@ -20,8 +23,10 @@ import com.rebuild.core.support.setup.Installer;
 import com.rebuild.core.support.setup.SimpleEntity;
 import com.rebuild.utils.AES;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -46,6 +51,7 @@ public class AdminCli4 {
     private static final String C_CLEAN_APPROVAL = "clean-approval";
     private static final String C_ADD_TESTENTITY = "add-testentity";
     private static final String C_CHK_SCHEMAS = "chk-schemas";
+    private static final String C_FIX_ENTITY = "fix-entity";
 
     private static final String SUCCESS = "OK";
 
@@ -81,11 +87,12 @@ public class AdminCli4 {
                         " \ncache [clean|get] [KEY]" +
                         " \nsyscfg NAME [VALUE]" +
                         " \nsyscfg clean-qiniu|clean-sms|clean-email|clean-wxwork|clean-dingtalk|clean-feishu|clean-aibot" +
-                        " \nbackup [database|datafile|conf]" +
+                        " \nbackup [database|datafile|conf[a,b]]" +
                         " \naes [decrypt] VALUE" +
                         " \nclean-approval ENTITY" +
                         " \nadd-testentity" +
-                        " \nchk-schemas";
+                        " \nchk-schemas" +
+                        " \nfix-entity ENTITY[.FIELD] [DATETIME40|UPLOADNUMBER41|ADDSEQ42]";
                 break;
             }
             case C_CACHE: {
@@ -114,6 +121,10 @@ public class AdminCli4 {
             }
             case C_CHK_SCHEMAS: {
                 result = this.execChkSchemas();
+                break;
+            }
+            case C_FIX_ENTITY: {
+                result = this.execFixEntity();
                 break;
             }
             default: {
@@ -222,7 +233,9 @@ public class AdminCli4 {
         List<String> result = new ArrayList<>();
         try {
             if ("conf".equals(type)) {
-                File backup = RbvFunction.call().dumpRebuildConf();
+                int a = commands.length > 2 ? NumberUtils.toInt(commands[2]) : 0;
+                boolean b = commands.length > 3 && BooleanUtils.toBoolean(commands[3]);
+                File backup = RbvFunction.call().dumpRebuildConf(a, b);
                 result.add("Backup conf : " + backup);
             }
             else {
@@ -291,6 +304,33 @@ public class AdminCli4 {
      */
     private String execChkSchemas() {
         RbvFunction.call().checkSchemas();
+        return "OK";
+    }
+
+    /**
+     *
+     * @return
+     */
+    private String execFixEntity() {
+        if (commands.length < 3) return "WRAN: Bad arguments";
+
+        // ENTITY.FIELD
+        String[] ef = commands[1].split("\\.");
+        Entity entity = MetadataHelper.getEntity(ef[0]);
+        Field field = ef.length > 1 ? entity.getField(ef[1]) : null;
+
+        if ("DATETIME40".equalsIgnoreCase(commands[2])) {
+            boolean s = field != null && new Field2SchemaFixer().fixDatetime40(field);
+            return s ? "OK" : "WRAN: Cannot";
+        }
+        if ("UPLOADNUMBER41".equalsIgnoreCase(commands[2])) {
+            boolean s = field != null && new Field2SchemaFixer().fixUploadNumber41(field);
+            return s ? "OK" : "WRAN: Cannot";
+        }
+        if ("ADDSEQ42".equalsIgnoreCase(commands[2])) {
+            boolean s = new Field2SchemaFixer().addSeqField(entity);
+            return s ? "OK" : "WRAN: Cannot";
+        }
         return "OK";
     }
 }

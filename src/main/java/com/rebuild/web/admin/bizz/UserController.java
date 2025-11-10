@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.bizz;
 
+import cn.devezhao.bizz.security.member.Team;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -80,6 +81,13 @@ public class UserController extends EntityController {
             // 附加角色
             ret.put("roleAppends", UserHelper.getRoleAppends(uid));
         }
+
+        Set<Object> teams = new HashSet<>();
+        for (Team team : checkedUser.getOwningTeams()) {
+            teams.add(team.getIdentity());
+        }
+        // v4.2 加入团队
+        ret.put("joinTeams", teams);
 
         if (checkedUser.getOwningDept() != null) {
             ret.put("dept", checkedUser.getOwningDept().getIdentity());

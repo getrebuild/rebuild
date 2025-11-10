@@ -148,15 +148,18 @@ public class TargetWithMatchFields {
             // fix: 3.7.1
             boolean isDateField = sourceFieldEasy.getDisplayType() == DisplayType.DATE
                     || sourceFieldEasy.getDisplayType() == DisplayType.DATETIME;
-            int targetFieldLength = 0;
-            String dateFormat = null;
+            int targetFieldDateFormatLen = 0;
+            String dateFormat4Sql = null;
             if (isDateField) {
-                targetFieldLength = StringUtils.defaultIfBlank(
-                        targetFieldEasy.getExtraAttr(EasyFieldConfigProps.DATE_FORMAT), targetFieldEasy.getDisplayType().getDefaultFormat()).length();
+                dateFormat4Sql = StringUtils.defaultIfBlank(
+                        targetFieldEasy.getExtraAttr(EasyFieldConfigProps.DATE_FORMAT),
+                        targetFieldEasy.getDisplayType().getDefaultFormat());
+                targetFieldDateFormatLen = dateFormat4Sql.length();
 
-                if (targetFieldLength == 4) dateFormat = "%Y";
-                else if (targetFieldLength == 7) dateFormat = "%Y-%m";
-                else dateFormat = "%Y-%m-%d";
+                // fix: v4.2 中文日期
+                if (targetFieldDateFormatLen == 4 || targetFieldDateFormatLen == 5) dateFormat4Sql = "%Y";
+                else if (targetFieldDateFormatLen == 7 || targetFieldDateFormatLen == 8) dateFormat4Sql = "%Y-%m";
+                else dateFormat4Sql = "%Y-%m-%d";
             }
 
             Object val = sourceRecord.getObjectValue(sourceField);
@@ -166,29 +169,21 @@ public class TargetWithMatchFields {
 
                 // for Refresh
                 if (isDateField) {
-                    sourceField = String.format("DATE_FORMAT(%s,'%s')", sourceField, dateFormat);
-                    targetField = String.format("DATE_FORMAT(%s,'%s')", targetField, dateFormat);
+                    sourceField = String.format("DATE_FORMAT(%s,'%s')", sourceField, dateFormat4Sql);
+                    targetField = String.format("DATE_FORMAT(%s,'%s')", targetField, dateFormat4Sql);
                 }
 
             } else {
 
                 // 日期分组
                 if (isDateField) {
-                    String formatKey = sourceFieldEasy.getDisplayType() == DisplayType.DATE
-                            ? EasyFieldConfigProps.DATE_FORMAT
-                            : EasyFieldConfigProps.DATETIME_FORMAT;
-                    int sourceFieldLength = StringUtils.defaultIfBlank(
-                            sourceFieldEasy.getExtraAttr(formatKey), sourceFieldEasy.getDisplayType().getDefaultFormat()).length();
+                    sourceField = String.format("DATE_FORMAT(%s,'%s')", sourceField, dateFormat4Sql);
+                    targetField = String.format("DATE_FORMAT(%s,'%s')", targetField, dateFormat4Sql);
 
-                    // 目标格式（长度）必须小于等于源格式
-                    Assert.isTrue(targetFieldLength <= sourceFieldLength,
-                            Language.L("日期字段格式不兼容") + String.format(" (%d,%d)", targetFieldLength, sourceFieldLength));
-
-                    sourceField = String.format("DATE_FORMAT(%s,'%s')", sourceField, dateFormat);
-                    targetField = String.format("DATE_FORMAT(%s,'%s')", targetField, dateFormat);
-                    if (targetFieldLength == 4) {  // 'Y'
+                    // fix: v4.2 中文日期
+                    if (targetFieldDateFormatLen == 4 || targetFieldDateFormatLen == 5) {  // 'Y'
                         val = CalendarUtils.format("yyyy", (Date) val);
-                    } else if (targetFieldLength == 7) {  // 'M'
+                    } else if (targetFieldDateFormatLen == 7 || targetFieldDateFormatLen == 8) {  // 'M'
                         val = CalendarUtils.format("yyyy-MM", (Date) val);
                     } else {  // 'D' is default
                         val = CalendarUtils.format("yyyy-MM-dd", (Date) val);
@@ -225,7 +220,7 @@ public class TargetWithMatchFields {
                 allNull = false;
             }
 
-            qFieldsRefresh.add(new String[] { targetField, sourceField, val == null ? null : val.toString() });
+            qFieldsRefresh.add(new String[]{targetField, sourceField, val == null ? null : val.toString()});
         }
 
         if (allNull) {

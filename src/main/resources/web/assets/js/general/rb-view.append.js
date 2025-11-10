@@ -388,7 +388,7 @@ class LightAttachmentList extends RelatedList {
         </div>
         <div className="info position-relative">
           <span className="fop-action">
-            {window.__LAB_FILE_RENAME42 && (
+            {window.__LAB_FILE_RENAME42 && (wpc.privileges || {}).U && (
               <a
                 title={$L('重命名')}
                 onClick={(e) => {

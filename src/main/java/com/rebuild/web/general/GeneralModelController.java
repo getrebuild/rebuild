@@ -137,23 +137,15 @@ public class GeneralModelController extends EntityController {
 
         // 指定布局
         ID specLayout = getIdParameter(request, "layout");
-        // v4.1 ProTable 携带主实体布局
+        // v4.1 ProTable 明细跟随主记录布局
         ID followMainLayout = getIdParameter(request, "mainLayoutId");
         if (followMainLayout != null) {
             FormsBuilderContextHolder.setFromProTable();
-            // 明细绑定主实体布局
-            if (specLayout == null) {
-                ConfigBean cb = FormsBuilder.instance.getFormLayout(modelEntity.getMainEntity().getName(), followMainLayout, 0);
-                JSONObject detailsFromsAttr = (JSONObject) cb.getJSON("detailsFromsAttr");
-                Object specLayout41 = detailsFromsAttr == null ? null : detailsFromsAttr.get(entity);
-                if (ID.isId(specLayout41)) {
-                    specLayout = ID.valueOf((String) specLayout41);
-                }
-            }
+            if (specLayout == null) specLayout = getDetailEntityLayout(modelEntity, followMainLayout);
         }
+        if (specLayout != null) FormsBuilderContextHolder.setSpecLayout(specLayout);
 
         try {
-            if (specLayout != null) FormsBuilderContextHolder.setSpecLayout(specLayout);
             JSON model = FormsBuilder.instance.buildForm(entity, user, id);
 
             // 填充前端设定的初始值
@@ -175,19 +167,34 @@ public class GeneralModelController extends EntityController {
         }
     }
 
+    // 明细绑定主实体布局
+    private ID getDetailEntityLayout(Entity detailEntity, ID mainLayoutId) {
+        ConfigBean cb = FormsBuilder.instance.getFormLayout(detailEntity.getMainEntity().getName(), mainLayoutId, 0);
+        JSONObject detailsFromsAttr = (JSONObject) cb.getJSON("detailsFromsAttr");
+        Object specLayout41 = detailsFromsAttr == null ? null : detailsFromsAttr.get(detailEntity.getName());
+        return ID.isId(specLayout41) ? ID.valueOf((String) specLayout41) : null;
+    }
+
     @GetMapping("view-model")
     public JSON entityView(@PathVariable String entity, @IdParam ID id,
                            HttpServletRequest request) {
         final ID user = getRequestUser(request);
+        final Entity modelEntity = MetadataHelper.getEntity(entity);
+
         // 指定布局
-        final ID forceLayout = getIdParameter(request, "layout");
-        if (forceLayout != null) FormsBuilderContextHolder.setSpecLayout(forceLayout);
+        ID specLayout = getIdParameter(request, "layout");
+        // v4.2 明细跟随主记录布局
+        ID followMainLayout = getIdParameter(request, "mainLayoutId");
+        if (followMainLayout != null) {
+            if (specLayout == null) specLayout = getDetailEntityLayout(modelEntity, followMainLayout);
+        }
+        if (specLayout != null) FormsBuilderContextHolder.setSpecLayout(specLayout);
 
         JSONObject model;
         try {
             model = (JSONObject) FormsBuilder.instance.buildView(entity, user, id);
         } finally {
-            if (forceLayout != null) FormsBuilderContextHolder.getSpecLayout(true);
+            if (specLayout != null) FormsBuilderContextHolder.getSpecLayout(true);
         }
 
         // 返回扩展
@@ -259,23 +266,35 @@ public class GeneralModelController extends EntityController {
         List<ID> ids = QueryHelper.detailIdsNoFilter(mainid, detailEntityMeta);
         if (ids.isEmpty()) return JSONUtils.EMPTY_ARRAY;
 
-        JSONArray details = new JSONArray();
+        ID specLayout = null;
+        // v4.1 ProTable 明细跟随主记录布局
+        ID followMainLayout = getIdParameter(request, "mainLayoutId");
+        if (followMainLayout != null) {
+            FormsBuilderContextHolder.setFromProTable();
+            specLayout = getDetailEntityLayout(detailEntityMeta, followMainLayout);
+        }
 
         // v3.7 使用指定记录布局
-        ConfigBean forceLayout = FormsManager.instance
-                .getFormLayout(detailEntityMeta.getName(), ids.get(0), FormsManager.APPLY_EDIT);
-        FormsBuilderContextHolder.setSpecLayout(forceLayout.getID("id"));
+        if (specLayout == null) {
+            ConfigBean forceLayout = FormsManager.instance
+                    .getFormLayout(detailEntityMeta.getName(), ids.get(0), FormsManager.APPLY_EDIT);
+            specLayout = forceLayout.getID("id");
+        }
 
+        FormsBuilderContextHolder.setSpecLayout(specLayout);
+
+        JSONArray details = new JSONArray();
         try {
             for (ID did : ids) {
                 JSON model = FormsBuilder.instance.buildForm(entity, user, did);
                 ((JSONObject) model).put("id", did);
                 details.add(model);
             }
+
         } finally {
+            FormsBuilderContextHolder.isFromProTable(true);
             FormsBuilderContextHolder.getSpecLayout(true);
         }
-
         return details;
     }
 }

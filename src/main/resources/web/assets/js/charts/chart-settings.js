@@ -290,20 +290,32 @@ class HeadingTextSettings extends RbModalHandler {
             </label>
             <div className="col-sm-7 HeadingText-style">
               <div className="float-left">
-                <select className="form-control form-control-sm" title={$L('文字大小')} defaultValue={style.fontSize || ''} ref={(c) => (this._$fontSize = c)}>
-                  <option value="">{$L('默认')}</option>
-                  <option value="48">48</option>
-                  <option value="32">32</option>
-                  <option value="24">24</option>
-                  <option value="18">18</option>
-                  <option value="14">14</option>
-                </select>
+                <input
+                  className="form-control form-control-sm text-center"
+                  type="text"
+                  title={$L('文字大小')}
+                  defaultValue={style.fontSize || ''}
+                  ref={(c) => (this._$fontSize = c)}
+                  placeholder={$L('默认')}
+                  maxLength="3"
+                />
               </div>
               <div className="float-left ml-2">
                 <input type="color" title={$L('文字颜色')} defaultValue={style.color || ''} ref={(c) => (this._$color = c)} />
               </div>
               <div className="float-left ml-2">
                 <input type="color" title={$L('背景颜色')} defaultValue={style.bgcolor || ''} ref={(c) => (this._$bgcolor = c)} />
+              </div>
+              <div className="float-left ml-2">
+                <input
+                  className="form-control form-control-sm text-center"
+                  type="text"
+                  title={$L('圆角')}
+                  defaultValue={style.bgradius || ''}
+                  ref={(c) => (this._$bgradius = c)}
+                  placeholder={$L('默认')}
+                  maxLength="3"
+                />
               </div>
               <div className="clearfix" />
             </div>
@@ -339,7 +351,7 @@ class HeadingTextSettings extends RbModalHandler {
   }
 
   componentDidMount() {
-    $([this._$fontSize, this._$color, this._$bgcolor]).tooltip({})
+    $([this._$fontSize, this._$color, this._$bgcolor, this._$bgradius]).tooltip({})
     // init
     if ((this.props.option || {}).shareChart) $(this._$shareChart).attr('checked', true)
   }
@@ -353,6 +365,7 @@ class HeadingTextSettings extends RbModalHandler {
         fontSize: $val(this._$fontSize) || null,
         color: $val(this._$color) || null,
         bgcolor: $val(this._$bgcolor) || null,
+        bgradius: $val(this._$bgradius) || null,
       },
       option: {
         shareChart: $val(this._$shareChart) && rb.isAdminUser,

@@ -7,23 +7,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata.easymeta;
 
-import cn.devezhao.bizz.security.member.Role;
-import cn.devezhao.bizz.security.member.Team;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
-import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.privileges.bizz.Department;
-import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.general.FieldValueHelper;
 import org.apache.commons.lang.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author devezhao
@@ -35,7 +26,7 @@ public class EasyReference extends EasyField implements MixValue {
     /**
      * 此变量表示当前用户/部门/角色/团队
      */
-    public static final String VAR_CURRENT = "{CURRENT}";
+    public static final String VAR_CURRENT = FieldValueHelper.CURRENT;
 
     protected EasyReference(Field field, DisplayType displayType) {
         super(field, displayType);
@@ -78,32 +69,10 @@ public class EasyReference extends EasyField implements MixValue {
      * @return returns ID or ID[]
      */
     protected Object exprCurrent() {
-        final ID currentUser = UserContextHolder.getUser(true);
+        ID currentUser = UserContextHolder.getUser(true);
         if (currentUser == null) return null;
-
-        int refCode = getRawMeta().getReferenceEntity().getEntityCode();
-        if (refCode == EntityHelper.User) return currentUser;
-
-        User user = Application.getUserStore().getUser(currentUser);
-        if (refCode == EntityHelper.Department) {
-            Department dept = user.getOwningDept();
-            return dept == null ? null : dept.getIdentity();
-        }
-        if (refCode == EntityHelper.Role) {
-            Role role = user.getOwningRole();
-            return role == null ? null : role.getIdentity();
-        }
-
-        // Returns ID[]
-        if (refCode == EntityHelper.Team) {
-            List<ID> ts = new ArrayList<>();
-            for (Team t : user.getOwningTeams()) {
-                ts.add((ID) t.getIdentity());
-            }
-            return ts.isEmpty() ? null : ts.toArray(new ID[0]);
-        }
-
-        return null;
+        // v4.2-b3
+        return FieldValueHelper.getCurrentVarValue(getRawMeta(), currentUser);
     }
 
     @Override

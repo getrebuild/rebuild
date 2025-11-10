@@ -4,6 +4,8 @@ USER root
 
 RUN apk add ttf-dejavu
 RUN apk add wget
+# for `mysqldump`
+# RUN apk add mysql-client
 
 RUN mkdir -p /app/rebuild/.rebuild/
 ADD ./rebuild.jar /app/rebuild/rebuild-boot.jar

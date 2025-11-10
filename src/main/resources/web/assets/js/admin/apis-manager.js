@@ -16,7 +16,7 @@ class AppList extends ConfigList {
     super(props)
     this.requestUrl = '/admin/apis-manager/app-list'
     this.state.secretShows = []
-    this.state.callTimes = {}
+    this.state.requestTimes = {}
   }
 
   render() {
@@ -32,14 +32,18 @@ class AppList extends ConfigList {
           if (this.state.secretShows.includes(item[2])) secret = item[2]
 
           // 调用量异步加载
-          let times = this.state.callTimes[item[1]]
-          if (typeof times === 'undefined') {
-            times = '...'
+          let tt = this.state.requestTimes[item[1]]
+          if (typeof tt === 'undefined') {
+            tt = '...'
           } else {
-            times =
-              times > 0 ? (
-                <a title={$L('OpenAPI 调用日志')} className="light-link" onClick={() => renderRbcomp(<AppLogsViewer title={$L('OpenAPI 调用日志')} appid={item[1]} maximize disposeOnHide useWhite />)}>
-                  {times}
+            tt =
+              tt[0] > 0 ? (
+                <a
+                  data-last={tt[1]}
+                  title={$L('OpenAPI 调用日志')}
+                  className="light-link"
+                  onClick={() => renderRbcomp(<AppLogsViewer title={$L('OpenAPI 调用日志')} appid={item[1]} maximize disposeOnHide useWhite />)}>
+                  {tt[0]}
                 </a>
               ) : (
                 <span className="text-muted">0</span>
@@ -52,7 +56,7 @@ class AppList extends ConfigList {
               <td>{secret}</td>
               <td>{item[4] || $L('无 (全部权限)')}</td>
               <td>{this._formatIps(item[6]) || $L('无 (不限)')}</td>
-              <td>{times}</td>
+              <td>{tt}</td>
               <td>
                 <DateShow date={item[5]} />
               </td>
@@ -90,9 +94,9 @@ class AppList extends ConfigList {
       this.state.data.forEach((a) => {
         $.get(`/admin/apis-manager/request-times?appid=${a[1]}`, (res) => {
           if (res.error_code === 0) {
-            const callTimes = this.state.callTimes
-            callTimes[a[1]] = res.data[a[1]] || 0
-            this.setState({ callTimes: callTimes })
+            const requestTimes = this.state.requestTimes
+            requestTimes[a[1]] = res.data[a[1]] || [0, null]
+            this.setState({ requestTimes: requestTimes })
           }
         })
       })
@@ -151,7 +155,7 @@ class AppEdit extends ConfigFormDlg {
           <label className="col-sm-3 col-form-label text-sm-right">{$L('绑定用户 (权限)')}</label>
           <div className="col-sm-7">
             <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (this._UserSelector = c)} defaultValue={this.props.bindUser} />
-            <p className="form-text">{$L('强烈建议为 OpenAPI 密钥绑定一个用户，此密钥将拥有和其一样的权限。如不绑定则拥有全部权限')}</p>
+            <p className="form-text">{$L('建议为 OpenAPI 密钥绑定一个用户，此密钥将拥有和其一样的权限。如不绑定则拥有全部权限')}</p>
           </div>
         </div>
         <div className="form-group row">

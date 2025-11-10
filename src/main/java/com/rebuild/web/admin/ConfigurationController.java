@@ -73,7 +73,12 @@ public class ConfigurationController extends BaseController {
     public static final String ETAG_DIMGBGIMGTIME = "dimgBgimgTime";
 
     @GetMapping("systems")
-    public ModelAndView pageSystems() {
+    public ModelAndView pageSystems(HttpServletRequest request) {
+        // v4.2 特殊处理[通用配置]
+        if (!ProtectedAdmin.allow("/admin/systems", getRequestUser(request))) {
+            return createModelAndView("/admin/admin-jump");
+        }
+
         ModelAndView mv = createModelAndView("/admin/system-cfg");
         for (ConfigurationItem item : ConfigurationItem.values()) {
             String value = RebuildConfiguration.get(item);
@@ -542,6 +547,14 @@ public class ConfigurationController extends BaseController {
         Date endTime;
         String note;
         boolean notLogin;
+
+        /**
+         * 不允许登录?
+         * @return
+         */
+        public boolean unallowLogin() {
+            return isNotLogin() && getStartTime().compareTo(CalendarUtils.now()) <= 0;
+        }
     }
 
     @GetMapping("systems/maintenance-mode")

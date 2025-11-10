@@ -141,7 +141,7 @@ public class SMSender {
         }
 
         if (Application.devMode()) {
-            log.info("[dev] FAKE SEND EMAIL. T:{}, S:{}, M:{}, F:{}", to, subject, content, attach);
+            log.warn("[dev] FAKE SEND EMAIL. T:{}, S:{}, M:{}, F:{}", to, subject, content, attach);
             return null;
         }
 

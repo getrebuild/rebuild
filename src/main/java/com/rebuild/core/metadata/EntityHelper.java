@@ -319,6 +319,7 @@ public class EntityHelper {
     public static final String AutoId = "autoId";
     public static final String QuickCode = "quickCode";
     public static final String IsDeleted = "isDeleted";
+    public static final String Seq = "seq";  // v4.2
 
     public static final String ApprovalId = "approvalId";
     public static final String ApprovalState = "approvalState";

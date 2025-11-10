@@ -10,7 +10,6 @@ package com.rebuild.web.commons;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.service.dashboard.ChartManager;
@@ -53,7 +52,7 @@ public class MermaidController extends BaseController {
         ConfigBean c = ChartManager.instance.getChart(chartid);
 
         String filter = getParameter(request, "filter");
-        JSONObject filterJson = JSONUtils.wellFormat(filter) ? JSON.parseObject(filter) : null;
+        JSONObject filterJson = JSONUtils.wellFormat(filter) ? JSONUtils.parseObjectSafe(filter) : null;
         if (filterJson != null) {
             filterJson.put("entity", ((JSONObject) c.getJSON("config")).getString("entity"));
             filterJson.put("filter_type", "list");

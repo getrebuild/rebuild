@@ -17,6 +17,7 @@
       <div class="search-container hide">
         <div class="global-search dropdown">
           <input class="form-control form-control-sm search-input-gs dropdown-toggle" type="search" name="search" autocomplete="off" data-toggle="dropdown" th:placeholder="${bundle.L('搜索')}" />
+          <kbd>/</kbd>
           <div class="dropdown-menu dropdown-menu-right" th:_title="${bundle.L('无可搜索项')}"></div>
         </div>
       </div>
@@ -47,7 +48,7 @@
                   <li><a th:title="${bundle.L('随机')}" class="theme-random" data-theme="_"></a></li>
                 </ul>
               </div>
-              <div class="bosskey-show use-language">
+              <div class="dev-show use-language">
                 <a href="?locale=zh_CN">中文</a>
                 <a href="?locale=zh_TW">繁体</a>
                 <a href="?locale=en">English</a>
@@ -57,7 +58,7 @@
         </ul>
         <div class="page-title hide"><span>REBUILD</span></div>
         <ul class="nav navbar-nav float-right rb-icons-nav">
-          <li class="nav-item dropdown aibot-show" th:title="${bundle.L('AI 助手') + ' (Alt+A)'}" th:if="${_AiBot}">
+          <li class="nav-item dropdown aibot-show" th:title="${bundle.L('AI 助手') + ' (Shift+/)'}" th:if="${_AiBot}">
             <a class="nav-link"><i class="icon mdi mdi-shimmer"></i></a>
           </li>
           <li class="nav-item dropdown global-search2" th:title="${bundle.L('搜索')}">

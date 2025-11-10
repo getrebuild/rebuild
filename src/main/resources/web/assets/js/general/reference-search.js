@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global AdvFilters */
 
 const wpc = window.__PageConfig
 
@@ -47,62 +48,20 @@ $(document).ready(() => {
     }
   })
 
+  // 选择
   $('.J_select').on('click', () => {
     const ids = RbListPage._RbList.getSelectedIds()
-    if (ids.length > 0 && parent && parent.referenceSearch__call) parent.referenceSearch__call(ids)
+    if (ids.length && parent && parent.referenceSearch__call) parent.referenceSearch__call(ids)
   })
 
-  // v4.1 高级查询
-  const $customAdvWrap = $('#dropdown-menu-advfilter')
-  $(document.body).on('click', (e) => {
-    if (!e.target) return
-    const $target = $(e.target)
-    if (
-      $target.hasClass('J_filterbtn') ||
-      $target.parent().hasClass('J_filterbtn') ||
-      $target.hasClass('dropdown-menu-advfilter') ||
-      $target.parents('.dropdown-menu-advfilter')[0] ||
-      $target.hasClass('modal') ||
-      $target.parents('.modal')[0] ||
-      $target.parents('.select2-container')[0] ||
-      $target.hasClass('select2-selection__choice__remove')
-    ) {
-      return
-    }
-    if (!$customAdvWrap.hasClass('hide')) $customAdvWrap.addClass('hide')
-  })
+  // v4.1, 4.2 高级查询
+  AdvFilters.init('.adv-search', wpc.entity[0])
 
-  let _AdvFilter
-  $('.J_filterbtn').on('click', () => {
-    if (_AdvFilter) {
-      $customAdvWrap.toggleClass('hide')
-    } else {
-      const props = {
-        entity: wpc.entity[0],
-        noSave: true,
-        onConfirm: function () {
-          setTimeout(() => $customAdvWrap.addClass('hide'), 200)
-        },
-      }
-      // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ListAdvFilter {...props} />, $customAdvWrap, function () {
-        _AdvFilter = this
-      })
-    }
-  })
-
-  // v4.2 已有常用查询
-  $.get(`/app/${wpc.entity[0]}/advfilter/list`, function (res) {
-    const $menu = $('.adv-search .dropdown-menu')
-    res.data.forEach((item) => {
-      const $item = $(`<div class="dropdown-item J_custom" data-id="${item.id}"><a class="text-truncate"></a></div>`).appendTo($menu)
-      $item.find('>a').text(item.name)
-    })
-
-    $menu.find('.dropdown-item').on('click', function () {
-      const $item = $(this)
-      $('.adv-search .J_name').text($item.text())
-      RbListPage._RbList.setAdvFilter($item.data('id'))
-    })
-  })
+  // v4.2 显示分组
+  if (window.__LAB_REFSEARCH_ASIDE42 && wpc.advListAsideShows && wpc.advListAsideShows.length) {
+    $('.rb-content').addClass('rb-content-aside')
+    // eslint-disable-next-line no-undef
+    CategoryWidget.init()
+    $('#asideShows a:eq(0)').trigger('click')
+  }
 })

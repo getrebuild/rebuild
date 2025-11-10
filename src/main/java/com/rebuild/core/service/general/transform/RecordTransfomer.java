@@ -11,7 +11,6 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.record.RecordVisitor;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -294,7 +293,8 @@ public class RecordTransfomer extends SetUser {
 
             if (sourceAny instanceof JSONArray) {
                 Object sourceValue = ((JSONArray) sourceAny).get(0);
-                RecordVisitor.setValueByLiteral(targetField, sourceValue.toString(), targetRecord);
+                EntityRecordCreator.setValueByLiteral(
+                        targetFieldEasy.getRawMeta(), sourceValue.toString(), targetRecord, false);
 
             } else {
                 String sourceField = (String) sourceAny;

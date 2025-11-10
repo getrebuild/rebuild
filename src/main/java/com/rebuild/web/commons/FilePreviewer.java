@@ -29,6 +29,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.ExcelUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OkHttpUtils;
 import com.rebuild.utils.RbAssert;
@@ -65,10 +66,13 @@ public class FilePreviewer extends BaseController {
         return ooPreviewOrEditor(request, response, false);
     }
 
-    @GetMapping("/commons/file-editor")
+    @GetMapping({"/commons/file-editor", "/filex/editor"})
     public ModelAndView ooEditor(HttpServletRequest request, HttpServletResponse response) throws IOException {
         getRequestUser(request);  // check
-        return ooPreviewOrEditor(request, response, true);
+        if (OnlyOffice.isUseOoPreview()) {
+            return ooPreviewOrEditor(request, response, true);
+        }
+        return ErrorPageView.createErrorPage(Language.L("请配置 ONLYOFFICE 后使用"));
     }
 
     // 预览或编辑
@@ -117,7 +121,7 @@ public class FilePreviewer extends BaseController {
 
         // 编辑模式
         if (editor) {
-            String callbackUrl = RebuildConfiguration.getHomeUrl("/commons/file-editor-forcesave");
+            String callbackUrl = RebuildConfiguration.getHomeUrl("/commons/file-editor-save");
             String fileKey = src.split("\\?")[0];
             callbackUrl += "?fileKey=" + CodecUtils.urlEncode(fileKey);
             callbackUrl += "&_csrfToken=" + AuthTokenManager.generateCsrfToken(CommonsCache.TS_HOUR * 12);
@@ -128,6 +132,8 @@ public class FilePreviewer extends BaseController {
             editorConfig.put("toolbar", true);
             editorConfig.put("menu", true);
             customization.put("forcesave", true);
+            // v4.2 自动保存
+            customization.put("autosave", "1".equals(getParameter(request, "autosave")));
         }
         editorConfig.put("customization", customization);
 
@@ -153,18 +159,16 @@ public class FilePreviewer extends BaseController {
             ooConfig.put("type", view);
             mv.getModel().put("title", fileName + " - " + Language.L("文档预览"));
         }
-        if (Application.devMode()) System.out.println("[dev] " + JSONUtils.prettyPrint(ooConfig));
+        if (CommonsUtils.DEVLOG) System.out.println("[dev] " + JSONUtils.prettyPrint(ooConfig));
         mv.getModel().put("_DocEditorConfig", ooConfig);
         return mv;
     }
 
     // https://api.onlyoffice.com/docs/docs-api/usage-api/callback-handler/
-    @PostMapping("/commons/file-editor-forcesave")
-    public void ooEditorForcesave(HttpServletRequest request, HttpServletResponse response) {
+    @PostMapping("/commons/file-editor-save")
+    public void ooEditorSaveCallback(HttpServletRequest request, HttpServletResponse response) {
         final JSONObject status = (JSONObject) ServletUtils.getRequestJson(request);
-        if (Application.devMode()) {
-            System.out.println("[dev] oo-callback : " + request.getQueryString() + "\n" + JSONUtils.prettyPrint(status));
-        }
+        if (CommonsUtils.DEVLOG) System.out.println("[dev] oo-callback : " + request.getQueryString() + "\n" + JSONUtils.prettyPrint(status));
 
         // saving
         int statusVal = status.getIntValue("status");
@@ -201,6 +205,12 @@ public class FilePreviewer extends BaseController {
             try {
                 OkHttpUtils.readBinary(changedUrl, dest, null);
 
+                // v4.2 修正格式
+                String destName = dest.getName().toLowerCase();
+                if (destName.endsWith(".xlsx") || destName.endsWith(".xls")) {
+                    ExcelUtils.reSaveAndCalcFormula(dest.toPath(), false);
+                }
+
                 if (QiniuCloud.instance().available() && !data41) {
                     QiniuCloud.instance().upload(dest, fileKey);
                     FileUtils.deleteQuietly(dest);
@@ -228,7 +238,7 @@ public class FilePreviewer extends BaseController {
         if (!ID.isId(id)) return;
 
         ID user = UserService.SYSTEM_USER;
-        if (!CollectionUtils.isEmpty(users)) {
+        if (CollectionUtils.isNotEmpty(users)) {
             if (ID.isId(users.getString(0))) {
                 user = ID.valueOf(users.getString(0));
             }
@@ -264,13 +274,13 @@ public class FilePreviewer extends BaseController {
         Object[] e = null;
         // 报表
         if (id.getEntityCode() == EntityHelper.DataReportConfig) {
-            RbAssert.is(UserHelper.isAdmin(user), "NOT ALLOWED");
+            RbAssert.is(UserHelper.isAdmin(user), Language.L("无权修改此文件"));
             e = Application.getQueryFactory().uniqueNoFilter(id, "templateFile");
             if (e != null && e[0] != null) e[0] = "/data/" + e[0];
         }
         // 文件
         if (id.getEntityCode() == EntityHelper.Attachment) {
-            RbAssert.is(FilesHelper.isFileManageable(user, id), "NOT ALLOWED");
+            RbAssert.is(FilesHelper.isFileManageable(user, id), Language.L("无权修改此文件"));
             e = Application.getQueryFactory().uniqueNoFilter(id, "filePath");
         }
 

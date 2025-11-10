@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
@@ -48,9 +49,12 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.rebuild.core.support.general.FieldValueHelper.CURRENT;
 
 /**
  * 引用字段搜索
@@ -61,10 +65,10 @@ import java.util.Set;
  */
 @Slf4j
 @RestController
-@RequestMapping({"/commons/search/","/app/entity/"})
+@RequestMapping({"/commons/search/", "/app/entity/"})
 public class ReferenceSearchController extends EntityController {
 
-    private static final String _SELF = "{@CURRENT}";
+    private static final String _SELF = FieldValueHelper.CURRENT2;
 
     // 引用字段-快速搜索
     @RequestMapping({"reference", "quick"})
@@ -87,14 +91,15 @@ public class ReferenceSearchController extends EntityController {
         ProtocolFilterParser fp = new ProtocolFilterParser();
         if (StringUtils.isNotBlank(varRecord)) {
             if (JSONUtils.wellFormat(varRecord)) {
-                fp.setVarRecord(JSON.parseObject(varRecord));
+                fp.setVarRecord(JSONUtils.parseObjectSafe(varRecord));
             } else {
                 // 兼容处理
                 try {
                     varRecord = CodecUtils.urlDecode(varRecord);
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
                 if (JSONUtils.wellFormat(varRecord)) {
-                    fp.setVarRecord(JSON.parseObject(varRecord));
+                    fp.setVarRecord(JSONUtils.parseObjectSafe(varRecord));
                 }
             }
         }
@@ -144,7 +149,7 @@ public class ReferenceSearchController extends EntityController {
             ID[] recently = RecentlyUsedHelper.gets(user, searchEntity.getName(), type);
 
             if (recently.length == 0) {
-                if (forceResults);  // NOOP
+                if (forceResults) ;  // NOOP
                 else return JSONUtils.EMPTY_ARRAY;
             } else {
                 return RecentlyUsedSearchController.formatSelect2(recently, Language.L("最近使用"));
@@ -191,8 +196,13 @@ public class ReferenceSearchController extends EntityController {
         if ("self".equals(q)) {
             if (sEntityCode == EntityHelper.User || sEntityCode == EntityHelper.Department) {
                 result.add(JSONUtils.toJSONObject(
-                        new String[]{ "id", "text" }, new Object[] { _SELF, Language.L("本人/本部门") }));
+                        new String[]{"id", "text"}, new Object[]{_SELF, Language.L("本人/本部门")}));
             }
+        }
+        // v4.2-b3 当前
+        else if (CURRENT.equals(q)) {
+            result.add(JSONUtils.toJSONObject(
+                    new String[]{"id", "text"}, new Object[]{CURRENT, CURRENT}));
         }
 
         return (JSON) JSON.toJSON(result);
@@ -200,6 +210,7 @@ public class ReferenceSearchController extends EntityController {
 
     /**
      * 搜索分类字段
+     *
      * @see PickListDataController#fetchClassification(HttpServletRequest)
      */
     @GetMapping("classification")
@@ -262,7 +273,7 @@ public class ReferenceSearchController extends EntityController {
             }
         }
 
-        if (Application.devMode()) log.info("[DEV] Reference search : {}", sql);
+        if (CommonsUtils.DEVLOG) System.out.println("[dev] Reference search : " + sql);
         Object[][] array = QueryHelper.createQuery(sql, entity).setLimit(maxResults).array();
 
         List<Object> res = new ArrayList<>();
@@ -297,6 +308,7 @@ public class ReferenceSearchController extends EntityController {
         for (String id : ids.split("[|,]")) {
             if (!ID.isId(id)) {
                 if (_SELF.equals(id)) labels.put(_SELF, Language.L("本人/本部门"));
+                if (CURRENT.equals(id)) labels.put(CURRENT, CURRENT);
                 continue;
             }
 
@@ -306,7 +318,8 @@ public class ReferenceSearchController extends EntityController {
             if (ignoreMiss) {
                 try {
                     labels.put(id, FieldValueHelper.getLabel(recordId));
-                } catch (NoRecordFoundException ignored) {}
+                } catch (NoRecordFoundException ignored) {
+                }
             } else {
                 labels.put(id, FieldValueHelper.getLabelNotry(recordId));
             }
@@ -317,11 +330,20 @@ public class ReferenceSearchController extends EntityController {
 
     /**
      * 引用字段搜索页面
+     *
      * @see GeneralListController#pageList(String, HttpServletRequest, HttpServletResponse)
      */
     @GetMapping("reference-search")
     public ModelAndView referenceSearchPage(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String[] fieldAndEntity = getParameterNotNull(request, "field").split("\\.");
+        // be:v4.2 支持只传实体
+        if (fieldAndEntity.length == 1 && MetadataHelper.containsEntity(fieldAndEntity[0])) {
+            fieldAndEntity = new String[]{
+                    MetadataHelper.getEntity(fieldAndEntity[0]).getPrimaryField().getName(),
+                    fieldAndEntity[0]
+            };
+        }
+
         if (!MetadataHelper.checkAndWarnField(fieldAndEntity[1], fieldAndEntity[0])) {
             response.sendError(404);
             return null;
@@ -359,6 +381,14 @@ public class ReferenceSearchController extends EntityController {
         // 快速查询
         mv.getModel().put("quickFieldsLabel", GeneralListController.getQuickFieldsLabel(searchEntity));
 
+        // 4.2 显示分组
+        JSONArray asideShows = DataListManager.instance.getAdvListAsideShows(EasyMetaFactory.valueOf(searchEntity), 1);
+        for (Iterator<Object> iter = asideShows.iterator(); iter.hasNext(); ) {
+            JSONArray o = (JSONArray) iter.next();
+            if (!"asideCategory".equals(o.getString(2))) iter.remove();
+        }
+        mv.getModel().put("advListAsideShows", asideShows);
+
         return mv;
     }
 
@@ -379,8 +409,7 @@ public class ReferenceSearchController extends EntityController {
 
             return buildResultSearch(
                     field.getReferenceEntity(), quickFields, q, null, pageSize, user);
-        }
-        else if (dtOfField == DisplayType.CLASSIFICATION) {
+        } else if (dtOfField == DisplayType.CLASSIFICATION) {
             ID useClassification = ClassificationManager.instance.getUseClassification(field, false);
             if (useClassification == null) return JSONUtils.EMPTY_ARRAY;
             int openLevel = ClassificationManager.instance.getOpenLevel(field);
@@ -393,8 +422,7 @@ public class ReferenceSearchController extends EntityController {
             Object result = resultSearch(
                     sqlWhere, MetadataHelper.getEntity(EntityHelper.ClassificationData), pageSize);
             return (JSON) JSON.toJSON(result);
-        }
-        else if (dtOfField == DisplayType.TEXT) {
+        } else if (dtOfField == DisplayType.TEXT) {
             String quickFields = field.getOwnEntity().getNameField().getName();
             if (field.getOwnEntity().containsField(EntityHelper.QuickCode)) quickFields += ",quickCode";
 

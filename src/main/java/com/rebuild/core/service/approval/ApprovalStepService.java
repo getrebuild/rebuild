@@ -38,6 +38,7 @@ import com.rebuild.core.service.trigger.RobotTriggerManual;
 import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerWhen;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
@@ -722,7 +723,8 @@ public class ApprovalStepService extends BaseService {
     private void sendCcMsgs(ID recordId, String ccMsg, Set<ID> ccUsers, Set<String> ccAccounts) {
         if (CommonsUtils.hasLength(ccUsers)) {
             for (ID cc : ccUsers) {
-                sendNotification(cc, ccMsg, recordId);
+//                sendNotification(cc, ccMsg, recordId);
+                Application.getNotifications().send(MessageBuilder.createApproval(cc, ccMsg, recordId));
             }
         }
 
@@ -739,8 +741,9 @@ public class ApprovalStepService extends BaseService {
         }
     }
 
-    // 发送通知
+    // 发送系统通知
     private void sendNotification(ID to, String message, ID recordId) {
+        if (CommandArgs.getBoolean(CommandArgs._DisNotificationApproval)) return;
         Application.getNotifications().send(MessageBuilder.createApproval(to, message, recordId));
     }
 

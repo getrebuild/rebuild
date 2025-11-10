@@ -35,14 +35,17 @@ public class DatabaseBackup {
 
     final private String[] ignoreTables;
     final private String[] forceTables;
+    // 1 --insert-ignore 2 --replace
+    final private int dumpMode;
 
     public DatabaseBackup() {
-        this(null, null);
+        this(null, null, 0);
     }
 
-    public DatabaseBackup(String[] ignoreTables, String[] forceTables) {
+    public DatabaseBackup(String[] ignoreTables, String[] forceTables, int dumpMode) {
         this.ignoreTables = ignoreTables;
         this.forceTables = forceTables;
+        this.dumpMode = dumpMode;
     }
 
     /**
@@ -79,12 +82,18 @@ public class DatabaseBackup {
         // https://blog.csdn.net/liaowenxiong/article/details/120587358
         // --master-data --flush-logs
         String cmd = String.format(
-                "%s -u%s -p\"%s\" -h%s -P%s --default-character-set=utf8 --opt --extended-insert=true --triggers --hex-blob --single-transaction -R %s>\"%s\"",
+                "%s -u%s -p\"%s\" -h%s -P%s --default-character-set=utf8 --opt --extended-insert=true --triggers --hex-blob --single-transaction -R %s > \"%s\"",
                 mysqldump, user, passwd, host, port, dbname, dest.getAbsolutePath());
+
+        if (dumpMode == 1) {
+            cmd = cmd.replaceFirst(" --opt ", " --insert-ignore --no-create-info --opt ");
+        } else if (dumpMode == 2) {
+            cmd = cmd.replaceFirst(" --opt ", " --replace --no-create-info --opt ");
+        }
 
         if (!ArrayUtils.isEmpty(forceTables)) {
             String foTables = StringUtils.join(forceTables, " ");
-            cmd = cmd.replaceFirst("> ", " " + foTables + " >");
+            cmd = cmd.replaceFirst(" > ", " " + foTables + " > ");
         } else if (!ArrayUtils.isEmpty(ignoreTables)) {
             String igPrefix = " --ignore-table=" + dbname + ".";
             String ig = igPrefix + StringUtils.join(ignoreTables, igPrefix);

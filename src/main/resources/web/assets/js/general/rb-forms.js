@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global EasyMDE, RepeatedViewer, ProTable, Md2Html, ClassificationSelector */
+/* global EasyMDE, RepeatedViewer, ProTable, Md2Html, ClassificationSelector, autosize */
 
 /**
  * Callback API:
@@ -31,15 +31,12 @@ class RbFormModal extends React.Component {
 
   render() {
     const style2 = { maxWidth: this.props.width || MODAL_MAXWIDTH }
-    if (this.state._maximize) {
-      style2.maxWidth = $(window).width() - 60
-      if (style2.maxWidth < MODAL_MAXWIDTH) style2.maxWidth = MODAL_MAXWIDTH
-    }
+    if (this.state._maximize) style2.maxWidth = '100%'
 
     return (
       <div className="modal-wrapper">
         <div className="modal rbmodal colored-header colored-header-primary" aria-modal="true" tabIndex="-1" ref={(c) => (this._rbmodal = c)}>
-          <div className="modal-dialog" style={style2}>
+          <div className={`modal-dialog ${window.__LAB_FORM_SCROLLABLE42 && 'modal-dialog-scrollable'} ${this.state._maximize && 'modal-dialog-maximize'}`} style={style2}>
             <div className="modal-content" style={style2}>
               <div
                 className="modal-header modal-header-colored"
@@ -55,7 +52,7 @@ class RbFormModal extends React.Component {
                   </a>
                 )}
                 <button className="close md-close J_maximize" type="button" title={this.state._maximize ? $L('向下还原') : $L('最大化')} onClick={() => this._handleMaximize()}>
-                  <span className={`mdi ${this.state._maximize ? 'mdi mdi-window-restore' : 'mdi mdi-window-maximize'}`} />
+                  <span className="mdi mdi-window-maximize" />
                 </button>
                 <button className="close md-close" type="button" title={`${$L('关闭')} (Esc)`} onClick={() => this.hide()}>
                   <span className="zmdi zmdi-close" />
@@ -109,6 +106,15 @@ class RbFormModal extends React.Component {
     this._showAfter({}, true)
   }
 
+  // fix:v4.2 保持当前实例
+  componentWillUnmount() {
+    const that = RbFormModal
+    if (that.__CURRENT42 && that.__CURRENT42.length) {
+      that.__CURRENT42.pop() // remove
+      that.__CURRENT35 = that.__CURRENT42.at(-1) || null // last
+    }
+  }
+
   // 渲染表单
   getFormModel() {
     const entity = this.state.entity
@@ -117,6 +123,7 @@ class RbFormModal extends React.Component {
 
     let url = `/app/${entity}/form-model?id=${id}`
     if (this.state.specLayout) url += `&layout=${this.state.specLayout}`
+    if (this.props.mainLayoutId) url += `&mainLayoutId=${this.props.mainLayoutId}`
 
     const that = this
     function _FN2(formModel, forceInitFieldValue) {
@@ -261,10 +268,13 @@ class RbFormModal extends React.Component {
     }
 
     // `__CURRENT35`, `__HOLDER` 可能已 unmount
-    const that = this
+    const that = RbFormModal
+    that.__CURRENT42 = that.__CURRENT42 || []
+
     if (forceNew === true) {
       renderRbcomp(<RbFormModal {...props} disposeOnHide />, function () {
         that.__CURRENT35 = this
+        that.__CURRENT42.push(this)
       })
       return
     }
@@ -275,6 +285,7 @@ class RbFormModal extends React.Component {
       renderRbcomp(<RbFormModal {...props} />, function () {
         that.__HOLDER = this
         that.__CURRENT35 = this
+        that.__CURRENT42.push(this)
       })
     }
   }
@@ -472,92 +483,94 @@ class RbForm extends React.Component {
 
     return (
       <div className="detail-form-table" data-entity={detailMeta.entity}>
-        <div className="row">
-          <div className="col-4 detail-form-header">
-            <h5 className="mt-2 mb-1 text-bold fs-14">
-              <i className={`icon zmdi zmdi-${detailMeta.icon} fs-15 mr-2`} />
-              {detailMeta.entityLabel}
-              {rb.isAdminUser && (
-                <a href={`${rb.baseUrl}/admin/entity/${detailMeta.entity}/form-design`} target="_blank" title={$L('表单设计')}>
-                  <span className="zmdi zmdi-settings up-1" />
-                </a>
-              )}
-            </h5>
-          </div>
+        <div className="detail-form-table-header">
+          <div className="row">
+            <div className="col-4 detail-form-header">
+              <h5 className="text-bold">
+                <i className={`icon zmdi zmdi-${detailMeta.icon} mr-1`} />
+                {detailMeta.entityLabel}
+                {rb.isAdminUser && (
+                  <a href={`${rb.baseUrl}/admin/entity/${detailMeta.entity}/form-design`} target="_blank" title={$L('表单设计')}>
+                    <span className="zmdi zmdi-settings up-1" />
+                  </a>
+                )}
+              </h5>
+            </div>
 
-          <div className="col-8 text-right detail-form-action">
-            <div className="fjs-dock"></div>
-            {_detailImports.length > 0 && !this.props.readonly && (
-              <div className="btn-group mr-2">
-                <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
-                  <i className="icon mdi mdi-transfer-down"></i> {$L('导入明细')}
+            <div className="col-8 text-right detail-form-action">
+              <div className="fjs-dock"></div>
+              {_detailImports.length > 0 && (
+                <div className={`btn-group J_import-detail ${this.props.readonly && 'hide'}`}>
+                  <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
+                    <i className="icon mdi mdi-transfer-down"></i> {$L('导入明细')}
+                  </button>
+                  <div className="dropdown-menu dropdown-menu-right">
+                    {_detailImports.map((def, idx) => {
+                      return (
+                        <a
+                          key={`imports-${idx}`}
+                          className="dropdown-item"
+                          onClick={() => {
+                            def.fetch(this, (details) => _setLines(details))
+                          }}>
+                          {def.icon && <i className={`icon zmdi zmdi-${def.icon}`} />}
+                          {def.label}
+                        </a>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div className={`btn-group J_add-detail ml-2 ${this.props.readonly && 'hide'}`}>
+                <button className="btn btn-secondary" type="button" onClick={() => _addNew()}>
+                  <i className="icon x14 mdi mdi-playlist-plus mr-1" />
+                  {$L('添加明细')}
+                </button>
+                <button className="btn btn-secondary dropdown-toggle w-auto" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
+                  <i className="icon zmdi zmdi-chevron-down" />
                 </button>
                 <div className="dropdown-menu dropdown-menu-right">
-                  {_detailImports.map((def, idx) => {
+                  {[10, 20].map((n) => {
                     return (
-                      <a
-                        key={`imports-${idx}`}
-                        className="dropdown-item"
-                        onClick={() => {
-                          def.fetch(this, (details) => _setLines(details))
-                        }}>
-                        {def.icon && <i className={`icon zmdi zmdi-${def.icon}`} />}
-                        {def.label}
+                      <a className="dropdown-item" onClick={() => _addNew(n)} key={`n-${n}`}>
+                        {$L('添加 %d 条', n)}
                       </a>
                     )
                   })}
-                </div>
-              </div>
-            )}
-
-            <div className={`btn-group J_add-detail ${this.props.readonly && 'hide'}`}>
-              <button className="btn btn-secondary" type="button" onClick={() => _addNew()}>
-                <i className="icon x14 mdi mdi-playlist-plus mr-1" />
-                {$L('添加明细')}
-              </button>
-              <button className="btn btn-secondary dropdown-toggle w-auto" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
-                <i className="icon zmdi zmdi-chevron-down" />
-              </button>
-              <div className="dropdown-menu dropdown-menu-right">
-                {[5, 10, 20].map((n) => {
-                  return (
-                    <a className="dropdown-item" onClick={() => _addNew(n)} key={`n-${n}`}>
-                      {$L('添加 %d 条', n)}
-                    </a>
-                  )
-                })}
-                <a
-                  className="dropdown-item"
-                  onClick={() => {
-                    if (rb.commercial < 10) {
-                      return RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-                    }
-
-                    const fields = []
-                    _ProTable.state.formFields.forEach((item) => {
-                      if (item.readonly === false && !['IMAGE', 'FILE', 'AVATAR', 'SIGN'].includes(item.type)) {
-                        fields.push({ field: item.field, label: item.label, type: item.type })
+                  <a
+                    className="dropdown-item"
+                    onClick={() => {
+                      if (rb.commercial < 10) {
+                        return RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
                       }
-                    })
 
-                    const mainid = this.state.id || '000-0000000000000000'
-                    renderRbcomp(
-                      // eslint-disable-next-line react/jsx-no-undef
-                      <ExcelClipboardDataModal entity={detailMeta.entity} fields={fields} mainid={mainid} layoutId={_ProTable.getLayoutId()} onConfirm={(data) => _setLines(data)} />
-                    )
-                  }}>
-                  {$L('从 Excel 添加')} <sup className="rbv" />
-                </a>
-                <div className="dropdown-divider" />
-                <a className="dropdown-item" onClick={() => _ProTable.clear()}>
-                  {$L('清空')}
-                </a>
+                      const fields = []
+                      _ProTable.state.formFields.forEach((item) => {
+                        if (item.readonly === false && !['IMAGE', 'FILE', 'AVATAR', 'SIGN'].includes(item.type)) {
+                          fields.push({ field: item.field, label: item.label, type: item.type })
+                        }
+                      })
+
+                      const mainid = this.state.id || '000-0000000000000000'
+                      renderRbcomp(
+                        // eslint-disable-next-line react/jsx-no-undef
+                        <ExcelClipboardDataModal entity={detailMeta.entity} fields={fields} mainid={mainid} layoutId={_ProTable.getLayoutId()} onConfirm={(data) => _setLines(data)} />
+                      )
+                    }}>
+                    {$L('从 Excel 添加')} <sup className="rbv" />
+                  </a>
+                  <div className="dropdown-divider" />
+                  <a className="dropdown-item" onClick={() => _ProTable.clear()}>
+                    {$L('清空')}
+                  </a>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-2">{_ProTable}</div>
+        <div className="detail-form-table-body">{_ProTable}</div>
       </div>
     )
   }
@@ -647,7 +660,7 @@ class RbForm extends React.Component {
               // eg. 标签
               iv = iv.join('$$$$')
             } else if (child.props.type === 'LOCATION') {
-              // eg.位置
+              // eg. 位置
             } else if (Array.isArray(iv)) {
               // eg. 文件/图片
             } else {
@@ -723,6 +736,8 @@ class RbForm extends React.Component {
 
     if (window.FrontJS) {
       const fieldKey = `${this.props.entity}.${field}`
+      // fix:v4.2-b3 统一使用ID
+      if (value && value.id) value = value.id
       window.FrontJS.Form._trigger('fieldValueChange', [fieldKey, value, this.props.id || null])
       // v4.0
       if (window.EasyFilterEval) window.EasyFilterEval.evalAndEffect(this)
@@ -1436,10 +1451,16 @@ class RbFormNText extends RbFormElement {
     super(props)
     this._textCommonMenuId = props.readonly || !props.textCommon ? null : $random('tcddm-')
 
-    this._height = this.props.useMdedit ? 0 : ~~this.props.height
-    if (this._height && this._height > 0) {
-      if (this._height === 1) this._height = 37
-      else this._height = this._height * 20 + 12
+    this._height = 0
+    if (!this.props.useMdedit) {
+      this._height = ~~this.props.height
+      // v4.2 填0自动高度
+      if (this.props.height === '0') {
+        this._heightAuto = true
+      } else if (this._height > 0) {
+        if (this._height === 1) this._height = 37
+        else this._height = this._height * 20 + 12
+      }
     }
   }
 
@@ -1447,20 +1468,25 @@ class RbFormNText extends RbFormElement {
     const _readonly37 = this.state.readonly
     const props = this.props
 
+    let clazz2 = `form-control ${props.useCode && 'formula-code'} ${props.useMdedit && _readonly37 ? 'cm-readonly' : ''} ${this.state.hasError && 'is-invalid'}`
+    if (!(this._heightAuto || this._height > 0)) clazz2 += ' row3x'
+    let style2 = this._height > 0 ? { height: this._height } : this._heightAuto ? { height: 37 } : null
     return (
       <RF>
         <textarea
           ref={(c) => {
             this._fieldValue = c
-            this._height > 0 && c && $(c).attr('style', `height:${this._height}px !important`)
+            this._heightAuto && c && autosize(c)
           }}
-          className={`form-control form-control-sm row3x ${props.useCode && 'formula-code'} ${this.state.hasError && 'is-invalid'} ${props.useMdedit && _readonly37 ? 'cm-readonly' : ''}`}
+          className={clazz2}
+          style={style2}
           title={this.state.hasError}
           value={this.state.value || ''}
           onChange={(e) => this.handleChange(e, !_readonly37)}
           readOnly={_readonly37}
           placeholder={this._placeholderw}
           maxLength="6000"
+          data-fix-autosize-height="37px"
         />
         {props.useMdedit && !_readonly37 && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
         {this._textCommonMenuId && (
@@ -1520,6 +1546,11 @@ class RbFormNText extends RbFormElement {
     }
   }
 
+  componentWillUnmount() {
+    super.componentWillUnmount()
+    this._fieldValue && this._heightAuto && autosize.destroy(this._fieldValue)
+  }
+
   componentDidMount() {
     super.componentDidMount()
     // fix:4.1
@@ -1536,6 +1567,9 @@ class RbFormNText extends RbFormElement {
       } else {
         $(this._textarea).perfectScrollbar('destroy')
       }
+    }
+    if (this._fieldValue && this._heightAuto && destroy) {
+      autosize.destroy(this._fieldValue)
     }
 
     if (!destroy) {
@@ -1763,6 +1797,7 @@ class RbFormTime extends RbFormDateTime {
           pickerPosition: this._getAutoPosition(),
           minuteStep: window.__LAB_MINUTESTEP || 5,
           title: $L('选择时间'),
+          todayBtn: false,
         })
         .on('changeDate', function () {
           const val = $(this).val()

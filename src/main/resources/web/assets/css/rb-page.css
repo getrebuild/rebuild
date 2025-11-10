@@ -12,9 +12,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   --rb-btn-active-color: #2572f2;
 }
 
-.bosskey-show,
-.admin-show {
+.bosskey-show {
   display: none !important;
+}
+
+.admin-show {
+  display: none;
 }
 
 html.commercial .rbv {
@@ -22,15 +25,15 @@ html.commercial .rbv {
 }
 
 html.admin .admin-show {
-  display: block !important;
+  display: block;
 }
 
 html.admin .admin-show.inline {
-  display: inline-block !important;
+  display: inline-block;
 }
 
 html.admin .admin-show.row {
-  display: flex !important;
+  display: flex;
 }
 
 html,
@@ -731,10 +734,6 @@ div.dataTables_filter .filter-badge:hover .close {
   color: #fff;
 }
 
-.modal.rbmodal .modal-dialog {
-  transition: max-width 0.2s;
-}
-
 .rbmodal.show,
 .rbview.show {
   display: block !important;
@@ -754,11 +753,6 @@ div.dataTables_filter .filter-badge:hover .close {
 
 .rbview.modal.top60 {
   top: 61px;
-}
-
-.rbmodal.show,
-.rbview.show .modal-content {
-  transition: margin 0.2s;
 }
 
 .rbview.show .modal-content {
@@ -1021,6 +1015,34 @@ a.link.link-icon::after {
   margin-right: -15px;
 }
 
+.modal-dialog-scrollable .modal-body {
+  padding-bottom: 0 !important;
+}
+
+.modal-dialog-scrollable .rbform > .dialog-footer {
+  position: sticky;
+  left: 0;
+  right: 0;
+  bottom: 1px;
+  bottom: 0;
+  background-color: #fff;
+  z-index: 6;
+  padding-bottom: 18px;
+}
+
+.modal-dialog.modal-dialog-maximize {
+  margin: 0;
+  padding: 20px;
+}
+
+.modal-dialog.modal-dialog-maximize .modal-header .mdi.mdi-window-maximize::before {
+  content: '\F05B2';
+}
+
+.modal-dialog.modal-dialog-maximize .modal-content {
+  margin: 0 auto;
+}
+
 .rbform > form > .alert {
   margin: 20px 20px 0;
 }
@@ -1135,6 +1157,14 @@ a.link.link-icon::after {
   font-style: normal;
   color: #878787;
   pointer-events: none;
+}
+
+.type-NTEXT textarea.form-control {
+  min-height: 37px;
+  max-height: 412px;
+  font-size: 1rem;
+  padding: 7px 10px;
+  resize: none;
 }
 
 .img-field {
@@ -2199,6 +2229,7 @@ th.column-fixed {
   float: right;
   position: relative;
   height: 100%;
+  transition: margin 0.2s ease-in-out;
 }
 
 .modal.rbview .modal-dialog .modal-content .modal-header {
@@ -3475,6 +3506,26 @@ a.user-show:not([href]) {
   color: rgba(0, 0, 0, 0.2);
 }
 
+.rb-top-header .search-input-gs + kbd {
+  position: absolute;
+  display: inline-block;
+  right: 10px;
+  top: 10px;
+  width: 18px;
+  height: 18px;
+  border-radius: 0.1875rem;
+  color: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background-color: transparent;
+  text-align: center;
+  line-height: 1;
+  padding-top: 3px;
+  overflow: hidden;
+  font-weight: bold;
+  cursor: help;
+  font-size: 12px;
+}
+
 .global-search > .dropdown-menu {
   min-width: 320px;
   max-width: 500px;
@@ -3489,7 +3540,7 @@ a.user-show:not([href]) {
   border-width: 0;
   font-size: 12px;
   font-weight: normal;
-  padding: 4px 10px;
+  padding: 3px 10px;
   margin-bottom: 5px;
   margin-right: 2px;
 }
@@ -4915,6 +4966,7 @@ pre.unstyle {
 
 .nav-tabs > li.nav-item a.nav-link .icon {
   margin-left: 0;
+  font-size: 19px;
 }
 
 .tablesort thead th:not(.no-sort):hover,
@@ -5109,8 +5161,17 @@ pre.unstyle {
 
 .rbalert-form-sm {
   width: 500px;
-  max-width: 420px;
+  max-width: 440px;
   margin: 0 auto;
+}
+
+.rbalert-form-sm label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.rbalert-form-sm label > span {
+  font-weight: normal;
 }
 
 /* TOP-MENU */
@@ -5195,6 +5256,10 @@ pre.unstyle {
   font-size: 13px;
 }
 
+.rb-left-sidebar .sidebar-elements .divider + .divider {
+  display: none;
+}
+
 .aside-tree .config-title {
   margin-top: 10px;
   margin-bottom: 14px;
@@ -5208,6 +5273,7 @@ pre.unstyle {
 .aside-header .title {
   margin-top: 4px;
   margin-bottom: 0;
+  font-weight: normal;
 }
 
 .dialog-footer {
@@ -5563,6 +5629,11 @@ pre.unstyle {
   display: inline-block;
 }
 
+/* v42 */
+.protable .table tbody tr:last-child .column-fixed::before {
+  border-bottom-width: 0;
+}
+
 .modal-dialog.modal-rsheetb .modal-body {
   padding: 0 !important;
 }
@@ -5712,7 +5783,8 @@ div.formula-code {
 }
 
 .form-layout.vertical38.rbview-form > .row .form-group > .col-form-label {
-  margin-bottom: 5px;
+  margin-bottom: 0;
+  font-weight: bold;
 }
 
 /* fjs style */
@@ -6103,4 +6175,12 @@ div.formula-code {
   left: 24px;
   font-size: 10px;
   border-radius: 10rem;
+}
+
+.file-field .ui-sortable-placeholder,
+.img-field .ui-sortable-placeholder {
+  visibility: visible !important;
+  background-color: #eee !important;
+  border-radius: 2px;
+  opacity: 0.5;
 }

@@ -28,12 +28,19 @@ import java.util.List;
  */
 public class Table40 extends Table {
 
+    private boolean keepFieldKeyAttrs;
+
     public Table40(Entity entity, Dialect dialect) {
         this(entity, dialect, null);
     }
 
     public Table40(Entity entity, Dialect dialect, List<?> indexFields) {
+        this(entity, dialect, buildIndexList(indexFields), false);
+    }
+
+    public Table40(Entity entity, Dialect dialect, List<?> indexFields, boolean keepFieldKeyAttrs) {
         super(entity, dialect, buildIndexList(indexFields));
+        this.keepFieldKeyAttrs = keepFieldKeyAttrs;
     }
 
     @SuppressWarnings("unchecked")
@@ -54,11 +61,14 @@ public class Table40 extends Table {
     public void generateFieldDDL(Field field, StringBuilder into, boolean allowZeroDate) {
         StringBuilder s = new StringBuilder();
 
+        boolean nullable42 = keepFieldKeyAttrs ? field.isNullable() : true;
+        Object defaultValue42 = keepFieldKeyAttrs ? field.getDefaultValue() : null;
+
         Field unsafeField = new FieldImpl(
                 field.getName(), field.getPhysicalName(), field.getDescription(), null,
                 true, true, true,
                 field.getOwnEntity(), field.getType(), field.getMaxLength(), CascadeModel.Ignore,
-                true, true, field.isAutoValue(), Field2Schema.DECIMAL_SCALE, null);
+                nullable42, true, field.isAutoValue(), Field2Schema.DECIMAL_SCALE, defaultValue42);
         super.generateFieldDDL(unsafeField, s, allowZeroDate);
 
         String fix = s.toString()

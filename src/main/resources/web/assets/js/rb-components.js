@@ -18,7 +18,7 @@ class RbModal extends React.Component {
     const props = this.props
     const style2 = { maxWidth: ~~(props.width || 680) }
     if (props.useWhite || props.maximize) {
-      style2.maxWidth = this.state._maximize ? $(window).width() - 60 : null
+      style2.maxWidth = this.state._maximize ? '100%' : null
       if (!style2.maxWidth && props.width) style2.maxWidth = ~~props.width
     }
 
@@ -33,7 +33,7 @@ class RbModal extends React.Component {
           this._rbmodal = c
           this._element = c
         }}>
-        <div className={`modal-dialog ${props.useWhite && 'modal-xl'} ${props.className || ''}`} style={style2}>
+        <div className={`modal-dialog ${props.useWhite && 'modal-xl'} ${props.className || ''} ${this.state._maximize && 'modal-dialog-maximize'}`} style={style2}>
           <div className="modal-content" style={style2}>
             <div
               className={`modal-header ${props.useWhite ? '' : 'modal-header-colored'}`}
@@ -58,7 +58,7 @@ class RbModal extends React.Component {
                   title={this.state._maximize ? $L('向下还原') : $L('最大化')}
                   onClick={() => this.setState({ _maximize: !this.state._maximize })}
                   style={{ marginTop: -9 }}>
-                  <span className={`mdi ${this.state._maximize ? 'mdi mdi-window-restore' : 'mdi mdi-window-maximize'}`} />
+                  <span className="mdi mdi-window-maximize" />
                 </button>
               )}
               <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
@@ -310,12 +310,15 @@ class RbAlert extends React.Component {
   }
 
   componentDidMount() {
+    const that = this
     const $root = $(this._dlg)
       .modal({ show: true, keyboard: true })
       .on('hidden.bs.modal', function () {
         $keepModalOpen()
         $root.modal('dispose')
         $unmount($root.parent())
+        // v4.2
+        typeof that.props.onHide === 'function' && that.props.onHide()
       })
 
     // z-index
@@ -936,7 +939,7 @@ class RecordSelector extends React.Component {
       this._ReferenceSearcher.show()
     } else {
       const props = this.state // use state
-      const searchUrl = `${rb.baseUrl}/app/entity/reference-search?field=${props.entity}Id.${props.entity}`
+      const searchUrl = `${rb.baseUrl}/app/entity/reference-search?field=${props.entity}` // be:v4.2 只传实体
       renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('选择%s', props.entityLabel || '')} useWhite />, function () {
         that._ReferenceSearcher = this
       })
@@ -1503,7 +1506,7 @@ class FileRename extends RbAlert {
             {$L('确定')}
           </button>
           {isOffice && (
-            <a className="btn btn-link ml-1" href={`${rb.baseUrl}/commons/file-editor?src=${this.props.fileId}`} target="_blank">
+            <a className="btn btn-link ml-1" href={`${rb.baseUrl}/filex/editor?src=${this.props.fileId}`} target="_blank">
               <i className="mdi mdi-microsoft-office icon" />
               &nbsp;
               {$L('在线编辑')} (LAB)

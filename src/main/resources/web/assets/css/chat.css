@@ -203,6 +203,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-radius: 10px;
 }
 
+.chat-message .msg-content .md-content,
+.chat-message .msg-content .md-content p,
+.chat-message .msg-content .md-content code,
+.chat-message .msg-content .md-content pre {
+  font-size: 14px;
+}
+
 .chat-message .msg-content .md-content pre {
   background-color: #282c34;
   border-radius: 8px;

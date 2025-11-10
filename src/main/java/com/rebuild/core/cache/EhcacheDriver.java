@@ -64,7 +64,12 @@ public class EhcacheDriver<V extends Serializable> implements CacheTemplate<V> {
             return w == null ? null : (V) w.get();
         } catch (CacheException ex) {
             log.warn("Evict on #getx error : {}", ex.getLocalizedMessage());
-            this.evict(key);
+
+            try {
+                this.evict(key);
+            } catch (CacheException ex2) {
+                log.warn("Try auto #evict error : {}", ex2.getLocalizedMessage());
+            }
         }
         return null;
     }

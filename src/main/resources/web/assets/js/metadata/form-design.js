@@ -476,7 +476,7 @@ class DlgEditField extends RbAlert {
 
   renderContent() {
     return (
-      <form className="field-attr">
+      <form className="rbalert-form-sm">
         <div className="form-group">
           <label>{$L('填写提示')}</label>
           <input type="text" className="form-control form-control-sm" name="fieldTips" value={this.state.fieldTips || ''} onChange={this.handleChange} placeholder={$L('无')} maxLength="200" />
@@ -538,7 +538,7 @@ class DlgEditDivider extends DlgEditField {
 
   renderContent() {
     return (
-      <form className="field-attr">
+      <form className="rbalert-form-sm">
         <div className="form-group">
           <label>{$L('分栏名称')}</label>
           <input type="text" className="form-control form-control-sm" name="dividerName" value={this.state.dividerName || ''} onChange={this.handleChange} placeholder={$L('输入分栏名称')} />
@@ -574,7 +574,7 @@ class DlgEditRefform extends DlgEditField {
 
   renderContent() {
     return (
-      <form className="field-attr">
+      <form className="rbalert-form-sm">
         <div className="form-group">
           <label>{$L('引用字段')}</label>
           <select
@@ -836,16 +836,18 @@ class DlgNForm extends RbModalHandler {
                   <input className="custom-control-input" type="checkbox" defaultChecked={this.state.fallback} ref={(c) => (this._$fallback = c)} />
                   <span className="custom-control-label">{$L('默认布局')}</span>
                 </label>
-                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                  <input className="custom-control-input" type="checkbox" defaultChecked={this.state.fornew} ref={(c) => (this._$fornew = c)} />
-                  <span className="custom-control-label">{$L('可用于新建')}</span>
-                </label>
+                {wpc.isDetailEntity ? null : (
+                  <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                    <input className="custom-control-input" type="checkbox" defaultChecked={this.state.fornew} ref={(c) => (this._$fornew = c)} />
+                    <span className="custom-control-label">{$L('可用于新建')}</span>
+                  </label>
+                )}
               </div>
             </div>
-            <div className="form-group row pt-0">
+            <div className="form-group row pt-0 bosskey-show">
               <label className="col-sm-3 col-form-label text-sm-right"></label>
               <div className="col-sm-7">
-                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 bosskey-show">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" defaultChecked={this.state.hideEmptyFields} ref={(c) => (this._$hideEmptyFields = c)} />
                   <span className="custom-control-label">{$L('隐藏空值字段 (详情页)')} (LAB)</span>
                 </label>
@@ -867,14 +869,14 @@ class DlgNForm extends RbModalHandler {
               </div>
             </div>
 
-            {this.state.detailsFromsAttr && (
+            {wpc.isMainEntity && this.state.detailsFromsAttr && (
               <div className="form-group row">
                 <label className="col-sm-3 col-form-label text-sm-right">{$L('指定明细布局')}</label>
                 <div className="col-sm-8" ref={(c) => (this._$detailsFromsAttr = c)}>
                   {this.state.detailsFromsAttr.map((de) => {
                     return (
                       <div className="row mb-2" key={de[0]}>
-                        <div className="col-8">
+                        <div className="col-7">
                           <select className="form-control form-control-sm" name={de[0]}>
                             <option value="0">{$L('自动')}</option>
                             {de[2].map((item) => {
@@ -886,8 +888,10 @@ class DlgNForm extends RbModalHandler {
                             })}
                           </select>
                         </div>
-                        <div className="col-4 pl-0 pr-0 text-bold" style={{ paddingTop: 8 }}>
-                          {de[1]}
+                        <div className="col-5 pl-0 pr-0" style={{ paddingTop: 9 }}>
+                          <a className="light-link" href={`../${de[0]}/form-design`} target="_blank">
+                            {de[1]}
+                          </a>
                         </div>
                       </div>
                     )

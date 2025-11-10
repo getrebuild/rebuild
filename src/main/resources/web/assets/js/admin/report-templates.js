@@ -160,12 +160,19 @@ class ReportEditor extends ConfigFormDlg {
                   <i className="zmdi zmdi-upload" />
                   <span>{this.props.id ? $L('重新上传') : $L('选择文件')}</span>
                 </label>
+                {this.props.id && (
+                  <RF>
+                    <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                      <span className="icon zmdi zmdi-chevron-down" />
+                    </button>
+                    <div className="dropdown-menu">
+                      <a className="dropdown-item" target="_blank" href={`${rb.baseUrl}/filex/editor?src=${this.props.id}`}>
+                        {$L('在线编辑')} (LAB)
+                      </a>
+                    </div>
+                  </RF>
+                )}
               </div>
-            </div>
-            <div className="float-left bosskey-show ml-2" style={{ paddingTop: 8 }}>
-              <a className="btn-secondary" target="_blank" href={`${rb.baseUrl}/commons/file-editor?src=${this.props.id}`}>
-                {$L('在线编辑')} (LAB)
-              </a>
             </div>
             <div className="float-left ml-2" style={{ paddingTop: 8 }}>
               {templateFile && (
