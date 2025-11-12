@@ -12,7 +12,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   --rb-btn-active-color: #2572f2;
 }
 
-.bosskey-show {
+.bosskey-show,
+.dev-show {
   display: none !important;
 }
 
