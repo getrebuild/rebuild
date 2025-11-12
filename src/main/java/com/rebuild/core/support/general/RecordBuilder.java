@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.utils.JSONable;
@@ -93,6 +94,8 @@ public class RecordBuilder implements JSONable {
      * @see EntityRecordCreator
      */
     public Record build(ID editor) {
-        return new EntityRecordCreator(this.entity, this.data, editor).create();
+        Record record = new EntityRecordCreator(this.entity, this.data, editor).create();
+        AutoFillinManager.instance.fillinRecord(record);
+        return record;
     }
 }
