@@ -742,8 +742,20 @@ class LiteForm extends RbForm {
 
     // v4.2-b3 固定值
     this.props.children.forEach((fieldComp) => {
-      if (fieldComp.props.fixValue) {
-        s[fieldComp.props.field] = fieldComp.props.fixValue
+      let _fixValue = fieldComp.props.fixValue
+      if (_fixValue) {
+        if (Array.isArray(_fixValue)) {
+          // 数组型
+          let _fixValue2 = []
+          _fixValue.forEach((item) => {
+            _fixValue2.push(item.id ? item.id : item)
+          })
+          _fixValue = _fixValue2.join(',')
+        } else if (typeof _fixValue === 'object') {
+          // 引用型
+          _fixValue = _fixValue.id
+        }
+        s[fieldComp.props.field] = _fixValue
       }
     })
 
