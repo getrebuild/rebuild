@@ -1503,7 +1503,7 @@ class RbFormNText extends RbFormElement {
 
     let style2 = {}
     if (this._height > 0) style2.maxHeight = this._height
-    else if (this._heightAuto) style2.maxHeight = 412
+    else if (this._heightAuto) style2.maxHeight = 481
 
     if (this.props.useMdedit) {
       return (
