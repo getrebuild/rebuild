@@ -1501,12 +1501,13 @@ class RbFormNText extends RbFormElement {
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
 
-    const style = {}
-    if (this._height > 0) style.maxHeight = this._height
+    let style2 = {}
+    if (this._height > 0) style2.maxHeight = this._height
+    else if (this._heightAuto) style2.maxHeight = 412
 
     if (this.props.useMdedit) {
       return (
-        <div className="form-control-plaintext md-content" ref={(c) => (this._textarea = c)} style={style}>
+        <div className="form-control-plaintext md-content" ref={(c) => (this._textarea = c)} style={style2}>
           <Md2Html markdown={this.state.value} />
         </div>
       )
@@ -1519,7 +1520,7 @@ class RbFormNText extends RbFormElement {
 
       return (
         <RF>
-          <div className={`form-control-plaintext ${this.props.useCode && 'formula-code'}`} ref={(c) => (this._textarea = c)} style={style}>
+          <div className={`form-control-plaintext ${this.props.useCode && 'formula-code'}`} ref={(c) => (this._textarea = c)} style={style2}>
             {WrapHtml(text2)}
           </div>
 
