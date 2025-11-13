@@ -201,6 +201,11 @@ public class MetadataHelper {
      * @see #getDetailToMainField(Entity) DMT 字段也属于系统字段，但此方法未做处理
      */
     public static boolean isSystemField(Field field) {
+        // fix: 4.2.1 `seq` 对用户/部门不是系统字段
+        if (EntityHelper.Seq.equalsIgnoreCase(field.getName())) {
+            int ifBizz = field.getOwnEntity().getEntityCode();
+            if (ifBizz == EntityHelper.User || ifBizz == EntityHelper.Department) return false;
+        }
         return isSystemField(field.getName()) || field.getType() == FieldType.PRIMARY;
     }
 
@@ -227,6 +232,11 @@ public class MetadataHelper {
      * @see EntityHelper
      */
     public static boolean isCommonsField(Field field) {
+        // fix: 4.2.1 `seq` 对用户/部门不是系统字段
+        if (EntityHelper.Seq.equalsIgnoreCase(field.getName())) {
+            int ifBizz = field.getOwnEntity().getEntityCode();
+            if (ifBizz == EntityHelper.User || ifBizz == EntityHelper.Department) return false;
+        }
         return isSystemField(field) || isCommonsField(field.getName());
     }
 
