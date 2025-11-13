@@ -12,7 +12,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   --rb-btn-active-color: #2572f2;
 }
 
-.bosskey-show {
+.bosskey-show,
+.dev-show {
   display: none !important;
 }
 
@@ -1161,7 +1162,7 @@ a.link.link-icon::after {
 
 .type-NTEXT textarea.form-control {
   min-height: 37px;
-  max-height: 412px;
+  max-height: 481px;
   font-size: 1rem;
   padding: 7px 10px;
   resize: none;

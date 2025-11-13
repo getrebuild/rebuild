@@ -27,7 +27,6 @@ import com.rebuild.core.service.datareport.TemplateExtractor33;
 import com.rebuild.core.service.datareport.TemplateFile;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.PdfConverter;
@@ -232,23 +231,6 @@ public class ReportTemplateController extends BaseController {
 
         FileDownloader.downloadTempFile(response, output, attname, forceInline);
         return null;
-    }
-
-    @GetMapping("/report-templates/download")
-    public void download(@IdParam(required = false) ID reportId, HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-        File template;
-        if (reportId != null) {
-            template = DataReportManager.instance.buildTemplateFile(reportId).templateFile;
-        } else {
-            String path = getParameterNotNull(request, "file");
-            template = RebuildConfiguration.getFileOfData(path);
-        }
-
-        String attname = QiniuCloud.parseFileName(template.getName());
-
-        FileDownloader.setDownloadHeaders(response, attname, false);
-        FileDownloader.writeLocalFile(template, response);
     }
 
     // --

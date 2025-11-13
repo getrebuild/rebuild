@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -42,6 +43,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.rebuild.web.robot.trigger.FieldAggregationController.isFilterTargetEntity;
+
 /**
  * @author devezhao
  * @see FieldAggregationController
@@ -64,10 +67,12 @@ public class FieldWritebackController extends BaseController {
             if (MetadataHelper.isCommonsField(refFrom)) continue;
 
             Entity refEntity = refFrom.getReferenceEntity();
+            if (isFilterTargetEntity(refEntity)) continue;
+
             String entityLabel = String.format("%s (%s)",
                     EasyMetaFactory.getLabel(refEntity), EasyMetaFactory.getLabel(refFrom));
-            temp.add(new String[] {
-                    refEntity.getName(), entityLabel, refFrom.getName(), FieldWriteback.ONE2ONE_MODE });
+            temp.add(new String[]{
+                    refEntity.getName(), entityLabel, refFrom.getName(), FieldWriteback.ONE2ONE_MODE});
             unique.add(refEntity.getName() + "." + refFrom.getName());
         }
 
@@ -82,10 +87,13 @@ public class FieldWritebackController extends BaseController {
             if (unique.contains(key)) {
                 log.warn("None unique-key in {}, ignored", sourceEntity);
             } else {
+                Entity refToEntity = refTo.getOwnEntity();
+                if (isFilterTargetEntity(refToEntity)) continue;
+
                 String entityLabel = String.format("%s (%s) (N)",
-                        EasyMetaFactory.getLabel(refTo.getOwnEntity()), EasyMetaFactory.getLabel(refTo));
-                temp.add(new String[] {
-                        refTo.getOwnEntity().getName(), entityLabel, refTo.getName() });
+                        EasyMetaFactory.getLabel(refToEntity), EasyMetaFactory.getLabel(refTo));
+                temp.add(new String[]{
+                        refToEntity.getName(), entityLabel, refTo.getName()});
             }
         }
 
@@ -166,8 +174,8 @@ public class FieldWritebackController extends BaseController {
         String sourceEntity = getParameter(request, "entity");
 
         JSONObject item = JSONUtils.toJSONObject(
-                new String[] { "calcMode", "sourceFormula" },
-                new String[] { "FORMULA", formula });
+                new String[]{"calcMode", "sourceFormula"},
+                new String[]{"FORMULA", formula});
 
         try {
             Object evalValue = new AggregationEvaluator(

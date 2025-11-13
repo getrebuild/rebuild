@@ -176,7 +176,7 @@ class ReportEditor extends ConfigFormDlg {
             </div>
             <div className="float-left ml-2" style={{ paddingTop: 8 }}>
               {templateFile && (
-                <a href={`${rb.baseUrl}/admin/data/report-templates/download?file=${$encode(templateFile)}`} target="_blank" title={$L('下载模版')} className="text-bold text-dark text-underline">
+                <a href={`${rb.baseUrl}/filex/download/${templateFile}?data=yes`} target="_blank" title={$L('下载模版')} className="text-bold text-dark text-underline">
                   {$fileCutName(templateFile)}
                 </a>
               )}
