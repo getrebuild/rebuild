@@ -171,6 +171,9 @@ public class TemplateExtractor33 extends TemplateExtractor {
      * @return
      */
     protected String getSortField(String refName) {
+        if (sortFields.containsKey(refName)) return sortFields.get(refName);
+        // fix:4.2.1 兼容 $ 符号
+        refName = refName.replace("$", ".");
         return sortFields.get(refName);
     }
 
