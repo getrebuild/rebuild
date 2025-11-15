@@ -146,6 +146,7 @@ public class CombinedRole extends Role {
         String d = p.getIdentity().toString();
         if (p instanceof CustomEntityPrivileges) {
             d += "; FP:" + ObjectUtils.defaultIfNull(((CustomEntityPrivileges) p).getFpDefinition(), "N");
+            d += "; CP:" + ObjectUtils.defaultIfNull(((CustomEntityPrivileges) p).getCustomFilters(), "N");
         }
         return d;
     }
@@ -190,13 +191,19 @@ public class CombinedRole extends Role {
             JSONObject bCustom = ((CustomEntityPrivileges) b).getCustomFilter(action);
             if (aCustom == null && bCustom == null) continue;
 
+            // A>B?
             int gt = isGreaterThan(action.getMask(), aDefMap, bDefMap);
             if (gt == 1) {
                 if (aCustom != null) useCustomFilters.put(action.getName(), aCustom);
             } else if (gt == 2) {
                 if (bCustom != null) useCustomFilters.put(action.getName(), bCustom);
+            } else {
+                if (aCustom == null || bCustom == null) {
+                    // fix:4.2.2 相等权限时任意一个为空，都不适用自定义权限
+                } else {
+                    useCustomFilters.put(action.getName(), aCustom);
+                }
             }
-            // gt == 0 无自定义权限
         }
 
         // 字段权限
