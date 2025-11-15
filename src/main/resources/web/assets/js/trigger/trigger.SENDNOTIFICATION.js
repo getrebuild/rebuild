@@ -138,7 +138,7 @@ class ContentSendNotification extends ActionContentSpec {
 
           <div>
             {(state.type === 2 || state.type === 1) && (
-              <div className="form-group row pb-1">
+              <div className={`form-group row pb-1 ${state.type === 1 && 'hide'}`}>
                 <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('标题')}</label>
                 <div className="col-12 col-lg-8">
                   <input type="text" className="form-control form-control-sm" ref={(c) => (this._$title = c)} maxLength="60" placeholder={$L('你有一条新通知')} style={{ maxWidth: '100%' }} />
