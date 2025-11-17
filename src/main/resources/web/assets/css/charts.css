@@ -429,6 +429,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   opacity: 0.5;
 }
 
+.chart-select-wrap .nav-pills {
+  position: sticky;
+  top: 5px;
+}
+
 .chart-select-wrap .nav-pills .nav-link {
   padding: 0.7rem 1rem;
 }

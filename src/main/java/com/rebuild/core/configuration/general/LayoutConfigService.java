@@ -11,7 +11,6 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.privileges.AdminGuard;
 import org.springframework.stereotype.Service;
 
 /**
@@ -21,7 +20,7 @@ import org.springframework.stereotype.Service;
  * @since 2019/04/30
  */
 @Service
-public class LayoutConfigService extends BaseConfigurationService implements AdminGuard {
+public class LayoutConfigService extends BaseConfigurationService {
 
     protected LayoutConfigService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);

@@ -292,7 +292,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
         }
 
         // v4.1, v4.2 处理为标准日期格式
-        if ((fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP) && value != null) {
+        if (StringUtils.isNotBlank(value) && (fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP)) {
             Date d = CommonsUtils.parseDate(value);
             if (d == null) {
                 log.warn("Cannot parse date from : {}", value);
@@ -303,7 +303,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
         }
 
         // v4.2 验证格式
-        if (value != null && checkPattern) {
+        if (StringUtils.isNotBlank(value) && checkPattern) {
             EasyField easyField = EasyMetaFactory.valueOf(field);
             if (easyField instanceof PatternValue) {
                 boolean s = ((PatternValue) easyField).checkPattern(value);

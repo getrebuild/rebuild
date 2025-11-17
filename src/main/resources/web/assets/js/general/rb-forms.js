@@ -1078,7 +1078,11 @@ class RbFormElement extends React.Component {
     if (value && $empty(value)) value = null
 
     return (
-      <div className="form-control-plaintext" ref={(c) => (this._fieldValue = c)}>
+      <div
+        className="form-control-plaintext"
+        ref={(c) => {
+          if (value) this._fieldValue = c // fix:4.2.2
+        }}>
         {value || <span className="text-muted">{$L('无')}</span>}
       </div>
     )
@@ -1301,7 +1305,7 @@ class RbFormUrl extends RbFormText {
 
     const clickUrl = `${rb.baseUrl}/commons/url-safe?url=${encodeURIComponent(this.state.value)}`
     return (
-      <div className="form-control-plaintext">
+      <div className="form-control-plaintext" ref={(c) => (this._fieldValue = c)}>
         <a href={clickUrl} className="link" target="_blank" rel="noopener noreferrer">
           {this.state.value}
         </a>
@@ -1321,7 +1325,7 @@ class RbFormEMail extends RbFormText {
     if (!this.state.value) return super.renderViewElement()
 
     return (
-      <div className="form-control-plaintext">
+      <div className="form-control-plaintext" ref={(c) => (this._fieldValue = c)}>
         {$env.isDingTalk() ? (
           <a>{this.state.value}</a>
         ) : (
@@ -1345,7 +1349,7 @@ class RbFormPhone extends RbFormText {
     if (!this.state.value) return super.renderViewElement()
 
     return (
-      <div className="form-control-plaintext">
+      <div className="form-control-plaintext" ref={(c) => (this._fieldValue = c)}>
         {$env.isDingTalk() || $env.isWxWork() ? (
           <a>{this.state.value}</a>
         ) : (
@@ -1507,7 +1511,7 @@ class RbFormNText extends RbFormElement {
 
     if (this.props.useMdedit) {
       return (
-        <div className="form-control-plaintext md-content" ref={(c) => (this._textarea = c)} style={style2}>
+        <div className="form-control-plaintext md-content" ref={(c) => (this._fieldValue = c)} style={style2}>
           <Md2Html markdown={this.state.value} />
         </div>
       )
@@ -1520,12 +1524,12 @@ class RbFormNText extends RbFormElement {
 
       return (
         <RF>
-          <div className={`form-control-plaintext ${this.props.useCode && 'formula-code'}`} ref={(c) => (this._textarea = c)} style={style2}>
+          <div className={`form-control-plaintext ${this.props.useCode && 'formula-code'}`} ref={(c) => (this._fieldValue = c)} style={style2}>
             {WrapHtml(text2)}
           </div>
 
           <div className={`ntext-action ${window.__LAB_SHOWNTEXTACTION || this.props.useCode ? '' : 'hide'}`}>
-            <a title={$L('展开/收起')} onClick={() => $(this._textarea).toggleClass('ntext-expand')}>
+            <a title={$L('展开/收起')} onClick={() => $(this._fieldValue).toggleClass('ntext-expand')}>
               <i className="mdi mdi-arrow-expand" />
             </a>
             <a ref={(c) => (this._$actionCopy = c)}>
@@ -1556,17 +1560,17 @@ class RbFormNText extends RbFormElement {
     super.componentDidMount()
     // fix:4.1
     if (this.props.onView) {
-      $(this._textarea).perfectScrollbar()
+      $(this._fieldValue).perfectScrollbar()
       this._initActionCopy()
     }
   }
 
   onEditModeChanged(destroy) {
-    if (this._textarea) {
+    if (this.props.onView && this._fieldValue) {
       if (destroy) {
-        $(this._textarea).perfectScrollbar()
+        $(this._fieldValue).perfectScrollbar()
       } else {
-        $(this._textarea).perfectScrollbar('destroy')
+        $(this._fieldValue).perfectScrollbar('destroy')
       }
     }
     if (this._fieldValue && this._heightAuto && destroy) {
@@ -1618,6 +1622,15 @@ class RbFormNText extends RbFormElement {
   setValue(val) {
     super.setValue(val)
     if (this.props.useMdedit) this._EasyMDE.value(val || '')
+  }
+
+  handleChange(e, checkValue) {
+    super.handleChange(e, checkValue)
+
+    // fix:4.2.2
+    if (this._heightAuto) {
+      setTimeout(() => autosize.update(this._fieldValue), 20)
+    }
   }
 
   _initActionCopy() {
@@ -2289,11 +2302,16 @@ class RbFormReference extends RbFormElement {
     const value = this.state.value
     if ($empty(value)) return super.renderViewElement()
 
-    if (typeof value === 'string') return <div className="form-control-plaintext">{value}</div>
-    if (!value.id) return <div className="form-control-plaintext">{value.text}</div>
+    if (typeof value === 'string' || !value.id) {
+      return (
+        <div className="form-control-plaintext" ref={(c) => (this._fieldValue = c)}>
+          {typeof value === 'string' ? value : value.text}
+        </div>
+      )
+    }
 
     return (
-      <div className="form-control-plaintext">
+      <div className="form-control-plaintext" ref={(c) => (this._fieldValue = c)}>
         <a href={`#!/View/${value.entity}/${value.id}`} onClick={this._clickView}>
           {value.text}
         </a>
@@ -2643,10 +2661,17 @@ class RbFormN2NReference extends RbFormReference {
   renderViewElement() {
     const value = this.state.value
     if ($empty(value)) return super._renderViewElement()
-    if (typeof value === 'string') return <div className="form-control-plaintext">{value}</div>
+
+    if (typeof value === 'string') {
+      return (
+        <div className="form-control-plaintext" ref={(c) => (this._fieldValue = c)}>
+          {value}
+        </div>
+      )
+    }
 
     return (
-      <div className="form-control-plaintext multi-values">
+      <div className="form-control-plaintext multi-values" ref={(c) => (this._fieldValue = c)}>
         {value.map((item) => {
           return (
             <a key={item.id} href={`#!/View/${item.entity}/${item.id}`} onClick={this._clickView}>
@@ -3048,7 +3073,11 @@ class RbFormMultiSelect extends RbFormElement {
     if (!this.state.value) return super.renderViewElement()
 
     const maskValue = this._getMaskValue()
-    return <div className="form-control-plaintext multi-values">{__findMultiTexts(this.props.options, maskValue, true)}</div>
+    return (
+      <div className="form-control-plaintext multi-values" ref={(c) => (this._fieldValue = c)}>
+        {__findMultiTexts(this.props.options, maskValue, true)}
+      </div>
+    )
   }
 
   onEditModeChanged(destroy, fromReadonly41) {
@@ -3324,13 +3353,15 @@ class RbFormLocation extends RbFormElement {
     const lnglat = this._parseLnglat(this.state.value)
     return this.props.locationMapOnView ? (
       <div>
-        <div className="form-control-plaintext">{lnglat.text}</div>
+        <div className="form-control-plaintext" ref={(c) => (this._fieldValue = c)}>
+          {lnglat.text}
+        </div>
         <div className="map-show">
           <BaiduMap lnglat={lnglat} ref={(c) => (this._BaiduMap = c)} disableScrollWheelZoom />
         </div>
       </div>
     ) : (
-      <div className="form-control-plaintext">
+      <div className="form-control-plaintext" ref={(c) => (this._fieldValue = c)}>
         <a
           href={`#!/Map:${lnglat.lng || ''}:${lnglat.lat || ''}`}
           onClick={(e) => {
@@ -3492,7 +3523,11 @@ class RbFormTag extends RbFormElement {
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
 
-    return <div className="form-control-plaintext multi-values">{__findTagTexts(this.props.options, this.state.value)}</div>
+    return (
+      <div className="form-control-plaintext multi-values" ref={(c) => (this._fieldValue = c)}>
+        {__findTagTexts(this.props.options, this.state.value)}
+      </div>
+    )
   }
 
   _initOptions() {
@@ -3546,9 +3581,6 @@ class RbFormTag extends RbFormElement {
         const mVal = $(e.currentTarget).val()
         that.handleChange({ target: { value: mVal.join('$$$$') } }, true)
       })
-
-      // const _readonly37 = this.state.readonly
-      // if (_readonly37) $(this._fieldValue).attr('disabled', true)
     }
   }
 

@@ -56,6 +56,7 @@ public class SendNotification extends TriggerAction {
     private static final int MTYPE_SMS = 3;             // 短信
     private static final int MTYPE_WXWORK = 4;          // 企微群
     private static final int MTYPE_DINGTALK = 5;        // 钉钉群
+    private static final int MTYPE_FEISHU = 6;          // 飞书群
     private static final int UTYPE_USER = 1;            // 内部用户
     private static final int UTYPE_ACCOUNT = 2;         // 外部人员
     private static final int UTYPE_ACCOUNT20 = 20;      // 外部人员-输入
@@ -86,6 +87,8 @@ public class SendNotification extends TriggerAction {
             return TriggerResult.wran("wxwork-service unavailable");
         } else if (msgType == MTYPE_DINGTALK && RebuildConfiguration.get(ConfigurationItem.DingtalkRobotCode) == null) {
             return TriggerResult.wran("dingtalk-service unavailable");
+        } else if (msgType == MTYPE_FEISHU && RebuildConfiguration.get(ConfigurationItem.FeishuAppId) == null) {
+            return TriggerResult.wran("feishu-service unavailable");
         } else if (msgType == MTYPE_NOTIFICATION) {
             // default
         }
@@ -117,13 +120,13 @@ public class SendNotification extends TriggerAction {
                 content.getJSONArray("sendTo"), actionContext.getSourceRecord(), Boolean.TRUE);
         if (toUsers.isEmpty()) return null;
 
-        String[] message = formatMessageContent(actionContext, operatingContext);
+        String[] messageAndTitle = formatMessageContent(actionContext, operatingContext);
         Set<Object> send = new HashSet<>();
 
         String emailContent = null;
         File[] emailAttach = null;
         if (msgType == MTYPE_MAIL) {
-            emailContent = MarkdownUtils.render(message[0], false, true);
+            emailContent = MarkdownUtils.render(messageAndTitle[0], false, true);
             emailAttach = getMailAttach(content);
         }
 
@@ -135,7 +138,7 @@ public class SendNotification extends TriggerAction {
             }
 
             if (!send.isEmpty()) {
-                SMSender.sendMailAsync(StringUtils.join(send, ","), message[1], emailContent, emailAttach);
+                SMSender.sendMailAsync(StringUtils.join(send, ","), messageAndTitle[1], emailContent, emailAttach);
             }
             return send;
         }
@@ -146,7 +149,7 @@ public class SendNotification extends TriggerAction {
             if (msgType == MTYPE_MAIL) {
                 String emailAddr = Application.getUserStore().getUser(user).getEmail();
                 if (RegexUtils.isEMail(emailAddr)) {
-                    SMSender.sendMailAsync(emailAddr, message[1], emailContent, emailAttach);
+                    SMSender.sendMailAsync(emailAddr, messageAndTitle[1], emailContent, emailAttach);
                     send.add(emailAddr);
                 }
             }
@@ -154,13 +157,14 @@ public class SendNotification extends TriggerAction {
             if (msgType == MTYPE_SMS) {
                 String mobileAddr = Application.getUserStore().getUser(user).getWorkphone();
                 if (RegexUtils.isCNMobile(mobileAddr)) {
-                    SMSender.sendSMSAsync(mobileAddr, message[0]);
+                    SMSender.sendSMSAsync(mobileAddr, messageAndTitle[0]);
                     send.add(mobileAddr);
                 }
             }
 
             if (msgType == MTYPE_NOTIFICATION) {
-                Message m = MessageBuilder.createMessage(user, message[0], Message.TYPE_DEFAULT, actionContext.getSourceRecord());
+                Message m = MessageBuilder.createMessage(user, messageAndTitle[0], Message.TYPE_DEFAULT, actionContext.getSourceRecord());
+                m.setSpecTitle(messageAndTitle[1]);
                 Application.getNotifications().send(m);
                 send.add(user);
             }
@@ -298,17 +302,17 @@ public class SendNotification extends TriggerAction {
         final JSONObject content = (JSONObject) actionContext.getActionContent();
 
         String message = content.getString("content");
-        String emailSubject = content.getString("title");
-        if (StringUtils.isBlank(emailSubject)) emailSubject = Language.L("你有一条新通知");
+        String subject = content.getString("title");
+        if (StringUtils.isBlank(subject)) subject = Language.L("你有一条新通知");
 
         if (operatingContext.getAction() == BizzPermission.DELETE) {
             message = ContentWithFieldVars.replaceWithRecord(message, operatingContext.getBeforeRecord());
-            emailSubject = ContentWithFieldVars.replaceWithRecord(emailSubject, operatingContext.getBeforeRecord());
+            subject = ContentWithFieldVars.replaceWithRecord(subject, operatingContext.getBeforeRecord());
         } else {
             message = ContentWithFieldVars.replaceWithRecord(message, actionContext.getSourceRecord());
-            emailSubject = ContentWithFieldVars.replaceWithRecord(emailSubject, actionContext.getSourceRecord());
+            subject = ContentWithFieldVars.replaceWithRecord(subject, actionContext.getSourceRecord());
         }
 
-        return new String[] { message, emailSubject };
+        return new String[] { message, subject };
     }
 }
