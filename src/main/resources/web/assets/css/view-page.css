@@ -751,6 +751,7 @@ body {
 .type-CLASSIFICATION .form-control-plaintext .badge.text-dark {
   padding-left: 0;
   color: #404040;
+  color: #222 !important;
 }
 
 .type-PICKLIST .form-control-plaintext,

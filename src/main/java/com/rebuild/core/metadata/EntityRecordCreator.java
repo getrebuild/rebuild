@@ -176,8 +176,10 @@ public class EntityRecordCreator extends JsonRecordCreator {
                     }
                 } else {
                     if (field.isUpdatable()) {
-                        if (((PatternValue) easyField).checkPattern(hasVal.toString())); // be:4.2.3
-                        else notWells.add(easyField.getLabel());
+                        if (easyField instanceof PatternValue) {
+                            if (((PatternValue) easyField).checkPattern(hasVal.toString())); // be:4.2.3
+                            else notWells.add(easyField.getLabel());
+                        }
                     } else {
                         log.warn("Remove non-updatable field : {}", field);
                         record.removeValue(fieldName);
