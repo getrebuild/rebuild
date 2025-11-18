@@ -241,6 +241,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-width: 1px;
   font-weight: normal;
   font-weight: bold;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
 }
 
 .chart.ctable .table.line-number thead th:first-child,
