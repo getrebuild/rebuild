@@ -737,8 +737,12 @@ class ChartBar extends BaseChart {
       // 排他
       else if (showMutliYAxis && option.series.length > 1 && !this._stack) reOptionMutliYAxis(option)
 
-      this._echarts = renderEChart(option, elid)
+      this._echarts = renderEChart(this.renderChartBefore(option, data), elid)
     })
+  }
+
+  renderChartBefore(option) {
+    return option
   }
 }
 
@@ -762,6 +766,26 @@ class ChartBar3 extends ChartBar {
 class ChartPareto extends ChartBar3 {
   constructor(props) {
     super(props)
+    // this._showItemPercent = true // v4.2.3
+  }
+
+  renderChartBefore(option, data) {
+    if (!this._showItemPercent) return option
+
+    const dataFlags = data._renderOption.dataFlags || []
+
+    let sums = 0
+    data.yyyAxis[0].data.forEach((v) => {
+      sums += parseFloat(v)
+    })
+
+    option.tooltip.formatter = (a) => {
+      let aa = [a[0], { ...a[0], seriesName: '本项百分比', seriesIndex: 1, value: ((a[0].value * 100) / sums).toFixed(2) }, { ...a[1], seriesIndex: 2 }]
+      let dataFlags2 = [dataFlags[0], dataFlags[1], dataFlags[1]]
+      return ECHART_TOOLTIP_FORMATTER(aa, dataFlags2)
+    }
+
+    return option
   }
 }
 
