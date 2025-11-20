@@ -6185,3 +6185,12 @@ div.formula-code {
   border-radius: 2px;
   opacity: 0.5;
 }
+
+.rb-top-header .navbar-nav > li.dropdown .dropdown-menu > a {
+  color: #222;
+}
+
+.rb-top-header .rb-user-nav > li.dropdown .dropdown-menu a:hover {
+  background-color: #eee;
+  color: #222;
+}
