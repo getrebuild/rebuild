@@ -1550,8 +1550,10 @@ class DataList extends BaseChart {
     const listData = data.data
     const lastIndex = listFields.length
 
-    const table = (
-      <RF>
+    const table =
+      listData.length === 0 ? (
+        <div className="chart-undata must-center">{$L('暂无数据')}</div>
+      ) : (
         <table className="table table-hover table-bordered table-striped table-sortable">
           <thead>
             <tr ref={(c) => (this._$head = c)}>
@@ -1614,9 +1616,7 @@ class DataList extends BaseChart {
             })}
           </tbody>
         </table>
-        {listData.length === 0 && <div className="chart-undata must-center">{$L('暂无数据')}</div>}
-      </RF>
-    )
+      )
 
     this.setState({ chartdata: <div className="chart ctable">{table}</div> }, () => {
       this._$tb = $(this._$body)
@@ -1644,6 +1644,15 @@ class DataList extends BaseChart {
       400,
       `resize-chart-${this.state.id}`
     )
+  }
+
+  export() {
+    const table = $(this._$body).find('table.table')[0]
+    if (table) {
+      this._exportTable(table)
+    } else {
+      RbHighbar.createl('暂无数据')
+    }
   }
 }
 
