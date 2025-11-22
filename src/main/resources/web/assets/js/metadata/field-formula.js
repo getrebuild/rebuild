@@ -502,7 +502,7 @@ class EditorWithFieldVars extends React.Component {
           <a title={$L('插入字段变量')} data-toggle="dropdown">
             <i className="mdi mdi-code-braces" />
           </a>
-          <div className="dropdown-menu auto-scroller dropdown-menu-right" ref={(c) => (this._$fieldVars = c)}>
+          <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ maxHeight: 388 }} ref={(c) => (this._$fieldVars = c)}>
             {(this.state.fieldVars || []).map((item) => {
               let typeMark = 'T'
               if (['DATE', 'DATETIME', 'TIME'].includes(item.type)) typeMark = 'D'
@@ -577,7 +577,7 @@ class EditorWithFieldVars extends React.Component {
       this._$content.dispatchEvent(evt)
       // search
       $dropdownMenuSearch(this._$fieldVars)
-    }, 20)
+    }, 200)
   }
 
   val() {

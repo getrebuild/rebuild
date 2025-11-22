@@ -607,7 +607,7 @@ class UserSelector extends React.Component {
           ) : (
             <div className="select2-selection select2-selection--multiple">
               <div className="select2-selection__rendered" ref={(c) => (this._$dropdownParent = c)}>
-                {this.state.selected.length > 0 && (
+                {this.props.allowClear !== false && this.state.selected.length > 0 && (
                   <span className="select2-selection__clear" onClick={() => this.clearSelection()}>
                     &times;
                   </span>
