@@ -97,20 +97,22 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         // Lang
         request.setAttribute(WebConstants.LOCALE, requestEntry.getLocale());
         request.setAttribute(WebConstants.$BUNDLE, Application.getLanguage().getBundle(requestEntry.getLocale()));
-        // v4.1 theme
-        String theme = (String) ServletUtils.getSessionAttribute(request, LoginController.SK_USER_THEME);
-        if (theme != null) {
-            if (requestEntry.getRequestUri().contains("/admin/")
-                    || requestEntry.getRequestUri().contains("/admin-")) {
-                theme = "default";
+
+        if (requestEntry.isHtmlRequest()) {
+            // v4.1 theme
+            String theme = (String) ServletUtils.getSessionAttribute(request, LoginController.SK_USER_THEME);
+            if (theme != null) {
+                if (requestEntry.getRequestUri().contains("/admin/") || requestEntry.getRequestUri().contains("/admin-")) {
+                    theme = "default";
+                }
+                theme = THEMES_COLORS.get(theme);
+                if (theme != null) request.setAttribute(WebConstants.THEME_COLOR, theme);
             }
-            theme = THEMES_COLORS.get(theme);
-            if (theme != null) request.setAttribute(WebConstants.THEME_COLOR, theme);
-        }
-        // v4.2 watermark
-        if (RebuildConfiguration.getBool(ConfigurationItem.MarkWatermark)) {
-            String wt = AppUtils.getWatermarkText(requestEntry.getRequestUser());
-            if (wt != null) request.setAttribute("markWatermarkText", wt);
+            // v4.2 watermark
+            if (RebuildConfiguration.getBool(ConfigurationItem.MarkWatermark)) {
+                String wt = AppUtils.getWatermarkText(requestEntry.getRequestUser());
+                if (wt != null) request.setAttribute("markWatermarkText", wt);
+            }
         }
 
         final String requestUri = requestEntry.getRequestUri();
@@ -149,7 +151,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             // 管理中心二次验证
             if (requestUri.contains("/admin/")) {
                 if (AppUtils.isAdminVerified(request)) {
-                    if (isHtmlRequest(requestUri, request) && !ProtectedAdmin.allow(requestUri, requestUser)) {
+                    if (requestEntry.isHtmlRequest() && !ProtectedAdmin.allow(requestUri, requestUser)) {
                         // v4.2 特殊处理[通用配置]
                         if (!requestUri.contains("/admin/systems")) {
                             response.sendError(HttpStatus.FORBIDDEN.value());
@@ -157,7 +159,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                         }
                     }
                 } else {
-                    if (isHtmlRequest(requestUri, request)) {
+                    if (requestEntry.isHtmlRequest()) {
                         sendRedirect(response, "/user/admin-verify", requestEntry.getRequestUriWithQuery());
                     } else {
                         response.sendError(HttpStatus.FORBIDDEN.value());
@@ -176,7 +178,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
             boolean isSecurityEnhanced = RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced);
 
-            if (isHtmlRequest(requestUri, request)) {
+            if (requestEntry.isHtmlRequest()) {
                 // Last active
                 Application.getSessionStore().storeLastActive(requestUser, request, null);
 
@@ -213,7 +215,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
             log.warn("Unauthorized access {}", RebuildWebConfigurer.getRequestUrls(request));
 
-            if (isHtmlRequest(requestUri, request)) {
+            if (requestEntry.isHtmlRequest()) {
                 sendRedirect(response, "/user/login", requestEntry.getRequestUriWithQuery());
             } else {
                 response.sendError(HttpStatus.UNAUTHORIZED.value());
@@ -315,28 +317,6 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 || requestUri.endsWith("/dashboard/chart-data");
     }
 
-    private boolean isHtmlRequest(String requestUri, HttpServletRequest request) {
-        if (ServletUtils.isAjaxRequest(request)
-                || requestUri.contains("/assets/")
-                || requestUri.contains("/commons/frontjs/")
-                || requestUri.contains("/commons/theme/")
-                || requestUri.contains("/filex/download/")
-                || requestUri.startsWith("/filex/img/")) {
-            return false;
-        }
-
-        try {
-            String accept = StringUtils.defaultIfBlank(
-                    request.getHeader("Accept"), MimeTypeUtils.TEXT_HTML_VALUE).split("[,;]")[0];
-            if (MimeTypeUtils.ALL_VALUE.equals(accept) || MimeTypeUtils.TEXT_HTML_VALUE.equals(accept)) return true;
-
-            MimeType mimeType = MimeTypeUtils.parseMimeType(accept);
-            return MimeTypeUtils.TEXT_HTML.equals(mimeType);
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
     private void sendRedirect(HttpServletResponse response, String url, String nexturl) throws IOException {
         String redirectUrl = AppUtils.getContextPath(url);
         if (nexturl != null) redirectUrl += "?nexturl=" + CodecUtils.urlEncode(nexturl);
@@ -372,6 +352,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         final ID requestUser;
         final String locale;
         final String ipAddr;
+        transient HttpServletRequest request;
 
         RequestEntry(HttpServletRequest request, String locale, String ipAddr) {
             this.requestTime = System.currentTimeMillis();
@@ -380,6 +361,32 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             this.requestUser = AppUtils.getRequestUser(request, true);
             this.locale = locale;
             this.ipAddr = ipAddr;
+            this.request = request;
+        }
+
+        /**
+         * 是否网页
+         */
+        boolean isHtmlRequest() {
+            if (ServletUtils.isAjaxRequest(request)
+                    || requestUri.contains("/assets/")
+                    || requestUri.contains("/commons/frontjs/")
+                    || requestUri.contains("/commons/theme/")
+                    || requestUri.contains("/filex/download/")
+                    || requestUri.startsWith("/filex/img/")) {
+                return false;
+            }
+
+            try {
+                String accept = StringUtils.defaultIfBlank(
+                        request.getHeader("Accept"), MimeTypeUtils.TEXT_HTML_VALUE).split("[,;]")[0];
+                if (MimeTypeUtils.ALL_VALUE.equals(accept) || MimeTypeUtils.TEXT_HTML_VALUE.equals(accept)) return true;
+
+                MimeType mimeType = MimeTypeUtils.parseMimeType(accept);
+                return MimeTypeUtils.TEXT_HTML.equals(mimeType);
+            } catch (Exception ignored) {
+                return false;
+            }
         }
 
         @Override
