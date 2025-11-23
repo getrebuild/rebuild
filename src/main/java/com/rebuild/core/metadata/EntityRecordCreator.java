@@ -22,7 +22,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.EasyText;
 import com.rebuild.core.metadata.easymeta.PatternValue;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.service.DataSpecificationException;
@@ -37,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * 从 JSON 解析 Record
@@ -50,7 +48,7 @@ import java.util.regex.Pattern;
 public class EntityRecordCreator extends JsonRecordCreator {
 
     // 安全URL（即附件/图片不允许外链）
-    private boolean safetyUrl;
+    private final boolean safetyUrl;
 
     /**
      * @param entity
@@ -149,8 +147,9 @@ public class EntityRecordCreator extends JsonRecordCreator {
                     }
                 } else {
                     if (field.isCreatable()) {
-                        if (!patternMatches(easyField, hasVal)) {
-                            notWells.add(easyField.getLabel());
+                        if (easyField instanceof PatternValue) {
+                            if (((PatternValue) easyField).checkPattern(hasVal.toString())); // be:4.2.3
+                            else notWells.add(easyField.getLabel());
                         }
                     } else {
                         if (!isForceCreateable(field)) {
@@ -177,8 +176,9 @@ public class EntityRecordCreator extends JsonRecordCreator {
                     }
                 } else {
                     if (field.isUpdatable()) {
-                        if (!patternMatches(easyField, hasVal)) {
-                            notWells.add(easyField.getLabel());
+                        if (easyField instanceof PatternValue) {
+                            if (((PatternValue) easyField).checkPattern(hasVal.toString())); // be:4.2.3
+                            else notWells.add(easyField.getLabel());
                         }
                     } else {
                         log.warn("Remove non-updatable field : {}", field);
@@ -214,14 +214,6 @@ public class EntityRecordCreator extends JsonRecordCreator {
         }
 
         return false;
-    }
-
-    // 格式验证:正则匹配
-    private boolean patternMatches(EasyField easyField, Object val) {
-        if (!(easyField instanceof EasyText)) return true;
-
-        Pattern patt = ((EasyText) easyField).getPattern();
-        return patt == null || patt.matcher((CharSequence) val).matches();
     }
 
     // 是否需要去除外链
@@ -302,18 +294,6 @@ public class EntityRecordCreator extends JsonRecordCreator {
             }
         }
 
-        // v4.2 验证格式
-        if (StringUtils.isNotBlank(value) && checkPattern) {
-            EasyField easyField = EasyMetaFactory.valueOf(field);
-            if (easyField instanceof PatternValue) {
-                boolean s = ((PatternValue) easyField).checkPattern(value);
-                if (!s) {
-                    log.warn("Value `{}` cannot be set : {}", value, field);
-                    value = null;
-                }
-            }
-        }
-
         return value;
     }
 
@@ -325,7 +305,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
      * @param record
      * @param checkPattern
      * @see #setValueByLiteralBefore(Field, String, Record, boolean)
-     * @see cn.devezhao.persist4j.record.RecordVisitor#setValueByLiteral(Field, String, Record)
+     * @see RecordVisitor#setValueByLiteral(Field, String, Record)
      */
     public static void setValueByLiteral(Field field, String value, Record record, boolean checkPattern) {
         value = setValueByLiteralBefore(field, value, record, checkPattern);

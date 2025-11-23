@@ -7,6 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata.easymeta;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.regex.Pattern;
 
 /**
@@ -31,7 +33,7 @@ public interface PatternValue {
      * @return
      */
     default boolean checkPattern(String value) {
-        if (value == null) return true;
+        if (StringUtils.isBlank(value)) return true;
 
         Pattern p = getPattern();
         if (p == null) return true;

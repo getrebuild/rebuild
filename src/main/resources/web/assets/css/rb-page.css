@@ -6185,3 +6185,44 @@ div.formula-code {
   border-radius: 2px;
   opacity: 0.5;
 }
+
+.rb-top-header .navbar-nav > li.dropdown .dropdown-menu > a {
+  color: #222;
+}
+
+.rb-top-header .rb-user-nav > li.dropdown .dropdown-menu a:hover {
+  background-color: #eee;
+  color: #222;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__rendered .select2-selection__clear {
+  margin-top: -1px;
+}
+
+.modal-dialog-maximize .editor-toolbar.fullscreen,
+.modal-dialog-maximize .CodeMirror-fullscreen {
+  left: 20px;
+  right: 20px;
+  top: 89px !important;
+  width: auto;
+}
+
+.modal-dialog-maximize .CodeMirror-fullscreen {
+  top: 127.6px !important;
+}
+
+.modal-dialog-scrollable .editor-toolbar.fullscreen {
+  top: 98px !important;
+}
+
+.modal-dialog-scrollable .CodeMirror-fullscreen {
+  top: 136.6px !important;
+}
+
+.modal-dialog-maximize.modal-dialog-scrollable .editor-toolbar.fullscreen {
+  top: 89px !important;
+}
+
+.modal-dialog-maximize.modal-dialog-scrollable .CodeMirror-fullscreen {
+  top: 127.6px !important;
+}

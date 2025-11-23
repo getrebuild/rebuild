@@ -1030,6 +1030,7 @@ class RbFormElement extends React.Component {
             'title': $L('点击复制'),
           })
           .on('click', (e) => {
+            if (e.target.tagName === 'A' || $(e.target).closest('a').length) return // fix:4.2.3 链接不复制
             $stopEvent(e, true)
             $clipboard2($text.text(), true)
           })

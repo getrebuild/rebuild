@@ -737,8 +737,12 @@ class ChartBar extends BaseChart {
       // 排他
       else if (showMutliYAxis && option.series.length > 1 && !this._stack) reOptionMutliYAxis(option)
 
-      this._echarts = renderEChart(option, elid)
+      this._echarts = renderEChart(this.renderChartBefore(option, data), elid)
     })
+  }
+
+  renderChartBefore(option) {
+    return option
   }
 }
 
@@ -762,6 +766,21 @@ class ChartBar3 extends ChartBar {
 class ChartPareto extends ChartBar3 {
   constructor(props) {
     super(props)
+  }
+
+  renderChartBefore(option, data) {
+    const dataFlags = data._renderOption.dataFlags || []
+    let sums = 0
+    data.yyyAxis[0].data.forEach((v) => {
+      sums += parseFloat(v)
+    })
+
+    option.tooltip.formatter = (a) => {
+      let aa = [a[0], { ...a[0], seriesName: '本项占比', seriesIndex: 1, value: ((a[0].value * 100) / sums).toFixed(2) }, { ...a[1], seriesIndex: 2 }]
+      let dataFlags2 = [dataFlags[0], dataFlags[1], dataFlags[1]]
+      return ECHART_TOOLTIP_FORMATTER(aa, dataFlags2)
+    }
+    return option
   }
 }
 
@@ -1526,8 +1545,10 @@ class DataList extends BaseChart {
     const listData = data.data
     const lastIndex = listFields.length
 
-    const table = (
-      <RF>
+    const table =
+      listData.length === 0 ? (
+        <div className="chart-undata must-center">{$L('暂无数据')}</div>
+      ) : (
         <table className="table table-hover table-bordered table-striped table-sortable">
           <thead>
             <tr ref={(c) => (this._$head = c)}>
@@ -1590,9 +1611,7 @@ class DataList extends BaseChart {
             })}
           </tbody>
         </table>
-        {listData.length === 0 && <div className="chart-undata must-center">{$L('暂无数据')}</div>}
-      </RF>
-    )
+      )
 
     this.setState({ chartdata: <div className="chart ctable">{table}</div> }, () => {
       this._$tb = $(this._$body)
@@ -1620,6 +1639,15 @@ class DataList extends BaseChart {
       400,
       `resize-chart-${this.state.id}`
     )
+  }
+
+  export() {
+    const table = $(this._$body).find('table.table')[0]
+    if (table) {
+      this._exportTable(table)
+    } else {
+      RbHighbar.createl('暂无数据')
+    }
   }
 }
 
