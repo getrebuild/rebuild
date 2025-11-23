@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.dashboard.charts;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.general.DataListManager;
@@ -63,6 +64,9 @@ public class DataList2Chart extends ChartData {
         if (pageSize <= 0) pageSize = 40;
         if (pageSize >= 2000) pageSize = 2000;
 
+        // fix:4.2.3 优先使用
+        String filterSql = getFilterSql();
+
         JSONObject listConfig = new JSONObject();
         listConfig.put("pageNo", 1);
         listConfig.put("pageSize", pageSize);
@@ -70,12 +74,30 @@ public class DataList2Chart extends ChartData {
         listConfig.put("statsField", false);
         listConfig.put("entity", entity.getName());
         listConfig.put("fields", fields);
-        listConfig.put("filter", config.getJSONObject("filter"));
         if (sort != null) listConfig.put("sort", sort);
+        if (filterSql == null) listConfig.put("filter", config.getJSONObject("filter"));
 
-        DataListBuilder builder = new DataListBuilderImpl(listConfig, getUser());
+        DataListBuilder builder = new DataListBuilderImpl423(listConfig, getUser(), filterSql);
         JSONObject data = (JSONObject) builder.getJSONResult();
         data.put("fields", fieldsRich);
         return data;
+    }
+
+    // ~
+    static class DataListBuilderImpl423 extends DataListBuilderImpl {
+        private final String filterSql;
+        DataListBuilderImpl423(JSONObject query, ID user, String filterSql) {
+            super(query, user);
+            this.filterSql = filterSql;
+        }
+
+        @Override
+        public String getDefaultFilter() {
+            String defaultFilter = super.getDefaultFilter();
+            if (filterSql == null) return defaultFilter;
+
+            if (defaultFilter == null) return filterSql;
+            return filterSql + " and " + defaultFilter;
+        }
     }
 }

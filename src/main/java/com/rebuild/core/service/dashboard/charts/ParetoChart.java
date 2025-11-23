@@ -53,7 +53,8 @@ public class ParetoChart extends Bar3Chart {
             if (Double.compare(dd, 0.0) == 0) {
                 precentAxisDataNew.add(0);
             } else {
-                precentAxisDataNew.add(ObjectUtils.round(dd / total * 100, 2));
+                double p = dd / total * 100;
+                precentAxisDataNew.add(wrapAxisValue(getNumericals()[1], p));
             }
         }
         precentAxis.put("data", precentAxisDataNew);
@@ -75,9 +76,9 @@ public class ParetoChart extends Bar3Chart {
         // 固定排序
         Numerical n1 = new Numerical(ns0.getField(), FormatSort.DESC, ns0.getFormatCalc(),
                 ns0.getLabel(), ns0.getScale(), ns0.getUnit(), ns0.getFilter(), ns0.getParentField());
-        // 累计增长
+        // 累计占比
         Numerical n2 = new Numerical(ns0.getField(), FormatSort.DESC, ns0.getFormatCalc(),
-                Language.L("累计百分比"), ns0.getScale(), 0, ns0.getFilter(), ns0.getParentField());
+                Language.L("累计占比"), 2, 0, ns0.getFilter(), ns0.getParentField());
         return new Numerical[]{n1, n2};
     }
 }

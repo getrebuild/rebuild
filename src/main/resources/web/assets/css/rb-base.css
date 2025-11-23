@@ -23263,6 +23263,7 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^='col-']:las
   display: -ms-flexbox;
   display: flex;
   max-height: calc(100% - 1rem);
+  max-height: calc(100% - 0rem); /* fix:4.2.2 */
 }
 
 .modal-dialog-scrollable .modal-content {

@@ -22,7 +22,10 @@ class RbModal extends React.Component {
       if (!style2.maxWidth && props.width) style2.maxWidth = ~~props.width
     }
 
-    const modalClazz = props.useWhite ? 'modal rbmodal use-white' : `modal rbmodal colored-header colored-header-${props.colored || 'primary'}`
+    let modalClazz = props.useWhite ? 'modal rbmodal use-white' : `modal rbmodal colored-header colored-header-${props.colored || 'primary'}`
+    let modalDialogClazz42 = `modal-dialog ${props.useWhite && 'modal-xl'} ${props.className || ''} ${this.state._maximize && 'modal-dialog-maximize'}`
+    if (props.useScrollable) modalDialogClazz42 += ' modal-dialog-scrollable'
+
     return (
       <div
         className={modalClazz}
@@ -33,7 +36,7 @@ class RbModal extends React.Component {
           this._rbmodal = c
           this._element = c
         }}>
-        <div className={`modal-dialog ${props.useWhite && 'modal-xl'} ${props.className || ''} ${this.state._maximize && 'modal-dialog-maximize'}`} style={style2}>
+        <div className={modalDialogClazz42} style={style2}>
           <div className="modal-content" style={style2}>
             <div
               className={`modal-header ${props.useWhite ? '' : 'modal-header-colored'}`}
@@ -604,7 +607,7 @@ class UserSelector extends React.Component {
           ) : (
             <div className="select2-selection select2-selection--multiple">
               <div className="select2-selection__rendered" ref={(c) => (this._$dropdownParent = c)}>
-                {this.state.selected.length > 0 && (
+                {this.props.allowClear !== false && this.state.selected.length > 0 && (
                   <span className="select2-selection__clear" onClick={() => this.clearSelection()}>
                     &times;
                   </span>

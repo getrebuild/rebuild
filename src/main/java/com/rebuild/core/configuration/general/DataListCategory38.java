@@ -24,9 +24,9 @@ import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
-import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.Collator;
@@ -62,7 +62,7 @@ public class DataListCategory38 {
      */
     public JSON datas(Entity entity, Object[] parentValues) {
         final JSONArray categoryFields = getSettings(entity);
-        if (categoryFields == null || categoryFields.isEmpty()) return null;
+        if (CollectionUtils.isEmpty(categoryFields)) return null;
 
         // 查第几个字段
         int fieldIndex = parentValues == null ? 0 : parentValues.length;
@@ -122,6 +122,7 @@ public class DataListCategory38 {
             hasChild = true;
             sortMode = 1;
             if (ff.getIntValue("sort") > 0) sortMode = ff.getIntValue("sort");
+            if (ff.getIntValue("sort") == -1) sortMode = 0;  // 无需排序
         }
         else {
             sortMode = 1;
@@ -233,6 +234,11 @@ public class DataListCategory38 {
             }
         }
 
+        // be:4.2.3 用户部门树
+        if ("deptId".equals(field.getName()) && "parentDept".equals(parentField)) {
+            sql += " order by seq asc, name asc";
+        }
+
         Object[][] array = Application.createQuery(sql).array();
 
         Collection<Item> dataList = new LinkedHashSet<>();
@@ -342,6 +348,11 @@ public class DataListCategory38 {
     }
 
     private JSONArray getSettings(Entity entity) {
+        // be:4.2.3 用户部门树
+        if ("User".equals(entity.getName())) {
+            return JSON.parseArray("[{field:'deptId', format:'parentDept', sort:-1}]");
+        }
+
         int listMode = ObjectUtils.toInt(EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE), 1);
         String categoryField;
         if (listMode == 3) {
@@ -351,9 +362,8 @@ public class DataListCategory38 {
         }
         if (StringUtils.isBlank(categoryField)) return null;
 
-        if (JSONUtils.wellFormat(categoryField)) {
-            return JSON.parseArray(categoryField);
-        }
+        if (JSONUtils.wellFormat(categoryField)) return JSON.parseArray(categoryField);
+
         // comp:v3.9
         JSONArray items = new JSONArray();
         for (String ff : categoryField.split(";")) {

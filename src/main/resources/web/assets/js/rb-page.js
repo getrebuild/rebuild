@@ -1472,7 +1472,7 @@ function $openWindow(url) {
 // 字段颜色
 function $tagStyle2(color) {
   if (!color) return null
-  return { backgroundColor: color, borderColor: color, color: $isLight(color) ? '#444' : '#fff' }
+  return { backgroundColor: color, borderColor: color, color: $isLight(color) ? '#222' : '#fff' }
 }
 
 // select2

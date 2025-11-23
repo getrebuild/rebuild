@@ -703,7 +703,7 @@ const RbViewPage = {
         icon: $this.data('icon'),
         initialValue: iv,
         nextAddDetail: true,
-        mainLayoutId: this.getLayoutId42(), // v4.2
+        mainLayoutId: that.getLayoutId42(), // v4.2
       }
       RbFormModal.create(newProps)
     })

@@ -241,6 +241,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-width: 1px;
   font-weight: normal;
   font-weight: bold;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
 }
 
 .chart.ctable .table.line-number thead th:first-child,
@@ -427,6 +429,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart.ProjectTasks tr.status-1 label {
   color: #8c8c8c;
   opacity: 0.5;
+}
+
+.chart-select-wrap .nav-pills {
+  position: sticky;
+  top: 5px;
 }
 
 .chart-select-wrap .nav-pills .nav-link {

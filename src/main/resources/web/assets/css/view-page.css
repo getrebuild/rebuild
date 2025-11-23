@@ -751,6 +751,7 @@ body {
 .type-CLASSIFICATION .form-control-plaintext .badge.text-dark {
   padding-left: 0;
   color: #404040;
+  color: #222 !important;
 }
 
 .type-PICKLIST .form-control-plaintext,
@@ -1106,18 +1107,18 @@ body {
   height: 0;
   line-height: 0;
   font-size: 0;
-  border-bottom: 2px solid #ccc;
+  border-bottom: 3px solid #ccc;
   top: 12px;
   left: 0;
   width: 100%;
 }
 
 .sop-steps li.state-1::before {
-  border-bottom: 2px dotted #f7b904;
+  border-bottom: 3px dotted #f7b904;
 }
 
 .sop-steps li.state-2::before {
-  border-bottom: 2px solid #33a451;
+  border-bottom: 3px solid #33a451;
 }
 
 .sop-steps li > div {
@@ -1126,9 +1127,9 @@ body {
 }
 
 .sop-steps li > div > span {
-  width: 26px;
-  height: 26px;
-  line-height: 23px;
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
   display: inline-block;
   background-color: #ddd;
   border-radius: 50%;
@@ -1178,18 +1179,18 @@ body {
 .sop-steps li.state-2 > div > span > i.mdi {
   color: #fff;
   position: absolute;
-  font-size: 15px;
+  font-size: 16px;
   top: 4px;
-  left: 3px;
+  left: 4px;
 }
 
 .sop-steps li.state-1 > div > span > i.mdi {
-  width: 18px;
-  height: 18px;
+  width: 19px;
+  height: 19px;
   border: 3px solid #fff;
   position: absolute;
-  top: 2px;
-  left: 2px;
+  top: 3px;
+  left: 3px;
   border-radius: 50%;
 }
 
