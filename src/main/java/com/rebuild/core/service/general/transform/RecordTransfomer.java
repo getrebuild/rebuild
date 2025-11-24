@@ -24,6 +24,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.EasyTag;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
@@ -308,6 +309,11 @@ public class RecordTransfomer extends SetUser {
 
             if (sourceAny instanceof JSONArray) {
                 Object sourceValue = ((JSONArray) sourceAny).get(0);
+                // fix:4.3
+                if (targetFieldEasy.getDisplayType() == DisplayType.TAG) {
+                    sourceValue = sourceValue.toString().replace(", ", EasyTag.VALUE_SPLIT);
+                }
+
                 EntityRecordCreator.setValueByLiteral(
                         targetFieldEasy.getRawMeta(), sourceValue.toString(), targetRecord, false);
 
