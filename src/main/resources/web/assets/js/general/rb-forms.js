@@ -2718,6 +2718,7 @@ class RbFormN2NReference extends RbFormReference {
           }
         } else {
           this.__select2.val(null).trigger('change')
+          $(this._fieldValue).empty()
           currentIds = ''
         }
 
@@ -2734,6 +2735,7 @@ class RbFormN2NReference extends RbFormReference {
       }
     } else {
       this.__select2.val(null).trigger('change')
+      $(this._fieldValue).empty()
     }
   }
 
