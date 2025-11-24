@@ -2711,7 +2711,12 @@ class RbFormN2NReference extends RbFormReference {
       // fix:4.1.7
       if (Array.isArray(val)) {
         let currentIds = this.state.value || '' // init is Object
-        if (!append) {
+        // fix:4.2.4
+        if (append) {
+          if (Array.isArray(currentIds) && currentIds[0] && currentIds[0].id) {
+            currentIds = currentIds.map((x) => x.id)
+          }
+        } else {
           this.__select2.val(null).trigger('change')
           currentIds = ''
         }
