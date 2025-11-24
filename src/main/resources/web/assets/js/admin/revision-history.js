@@ -235,7 +235,7 @@ function ContentsGroup({ contents }) {
     else if (v === false) return $L('否')
     else if (v === 0) return 0
     else if ($regex.isId(v)) return _LabelOfIdGet(v)
-    else if (v) return typeof v === 'object' ? v.join(', ') : v
+    else if (!$empty(v)) return typeof v === 'object' ? v.join(', ') : v
     return <span className="text-muted">{$L('空')}</span>
   }
 
