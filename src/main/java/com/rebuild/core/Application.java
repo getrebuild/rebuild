@@ -25,6 +25,7 @@ import com.rebuild.core.metadata.impl.DynamicMetadataFactory;
 import com.rebuild.core.privileges.PrivilegesManager;
 import com.rebuild.core.privileges.RecordOwningCache;
 import com.rebuild.core.privileges.UserStore;
+import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.CommonsService;
 import com.rebuild.core.service.ServiceSpec;
 import com.rebuild.core.service.SqlExecutor;
@@ -351,7 +352,9 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
     /**
      * 非业务实体使用
-     * @see #getCommonsService()
+     *
+     * @param entityCode
+     * @return
      */
     public static ServiceSpec getService(int entityCode) {
         if (_ESS != null && _ESS.containsKey(entityCode)) {
@@ -369,7 +372,9 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
     /**
      * 业务实体使用
-     * @see #getGeneralEntityService()
+     *
+     * @param entityCode
+     * @return
      */
     public static EntityService getEntityService(int entityCode) {
         ServiceSpec es = null;
@@ -388,12 +393,31 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         throw new RebuildException("Non EntityService implements : " + entityCode);
     }
 
+    /**
+     * 业务实体使用
+     *
+     * @return
+     */
     public static GeneralEntityService getGeneralEntityService() {
         return (GeneralEntityService) getContext().getBean("rbGeneralEntityService");
     }
 
+    /**
+     * 纯增删改操作 *无*业务规则 *无*字段值处理
+     *
+     * @return
+     * @see #getBaseService()
+     */
     public static CommonsService getCommonsService() {
         return (CommonsService) getContext().getBean("rbCommonsService");
+    }
+
+    /**
+     * 纯增删改操作 *无*业务规则 *有*字段值处理
+     * @return
+     */
+    public static BaseService getBaseService() {
+        return getCommonsService().getBaseService();
     }
 
     /**

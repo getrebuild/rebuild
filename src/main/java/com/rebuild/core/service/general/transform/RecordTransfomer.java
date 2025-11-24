@@ -21,6 +21,7 @@ import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
@@ -56,10 +57,10 @@ public class RecordTransfomer extends SetUser {
     private static final ThreadLocal<ID> FILLBACK2_ONCE414 = new NamedThreadLocal<>("FallbackMode=2 Trigger Once");
 
     final protected Entity targetEntity;
-    final protected JSONObject transConfig;
     final protected boolean skipGuard;
 
-    final private ID transid;
+    final protected JSONObject transConfig;
+    final protected ID transid;
 
     /**
      * @param transid
@@ -213,28 +214,42 @@ public class RecordTransfomer extends SetUser {
      * @return
      */
     protected boolean fillback(ID sourceRecordId, ID newId) {
+        return fillback(sourceRecordId, new ID[]{newId});
+    }
+
+    /**
+     * @param sourceRecordId
+     * @param newIds
+     * @return
+     */
+    protected boolean fillback(ID sourceRecordId, ID[] newIds) {
         final Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
         String fillbackField = transConfig.getString("fillbackField");
         if (fillbackField == null || !MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
             return false;
         }
 
-        Record updateSource = EntityHelper.forUpdate(sourceRecordId, UserService.SYSTEM_USER, false);
-        updateSource.setID(fillbackField, newId);
+        // 更新源纪录
+        Record s = EntityHelper.forUpdate(sourceRecordId, UserService.SYSTEM_USER, false);
+        if (EasyMetaFactory.getDisplayType(s.getEntity().getField(fillbackField)) == DisplayType.N2NREFERENCE) {
+            s.setIDArray(fillbackField, newIds);
+        } else {
+            s.setID(fillbackField, newIds[0]);
+        }
 
         // 4.1.4 (LAB) 配置开放
         int fillbackMode = transConfig.getIntValue("fillbackMode");
-        if (fillbackMode == 2 && !EntityHelper.isUnsavedId(newId) && FILLBACK2_ONCE414.get() == null) {
-            GeneralEntityServiceContextHolder.setAllowForceUpdate(updateSource.getPrimary());
-            FILLBACK2_ONCE414.set(newId);
+        if (fillbackMode == 2 && !EntityHelper.isUnsavedId(newIds) && FILLBACK2_ONCE414.get() == null) {
+            GeneralEntityServiceContextHolder.setAllowForceUpdate(s.getPrimary());
+            FILLBACK2_ONCE414.set(newIds[0]);
             try {
-                Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
+                Application.getEntityService(sourceEntity.getEntityCode()).update(s);
             } finally {
                 GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
             }
         } else {
             // 无传播更新
-            Application.getCommonsService().update(updateSource, false);
+            Application.getBaseService().update(s);
         }
         return true;
     }

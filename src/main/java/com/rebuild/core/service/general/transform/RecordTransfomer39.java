@@ -43,7 +43,6 @@ import java.util.Set;
 @Slf4j
 public class RecordTransfomer39 extends RecordTransfomer37 {
 
-    private ID transid;
     // 转换到已存在记录
     private ID targetExistsRecordId;
     // 预览时生成的 Record
@@ -51,17 +50,16 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
 
     public RecordTransfomer39(ID transid) {
         super(transid);
-        this.transid = transid;
     }
 
     @Override
     public ID transform(ID sourceRecordId) {
-        return this.transform(sourceRecordId, null, null);
+        return transform(sourceRecordId, null, null);
     }
 
     @Override
     public ID transform(ID sourceRecordId, ID specMainId) {
-        return this.transform(sourceRecordId, specMainId, null);
+        return transform(sourceRecordId, specMainId, null);
     }
 
     /**
