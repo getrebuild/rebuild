@@ -8,10 +8,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.aibot;
 
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.api.RespBody;
+import com.rebuild.core.Application;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.aibot.StreamEcho;
 import com.rebuild.core.service.aibot2.Chat;
 import com.rebuild.core.service.aibot2.ChatManager;
@@ -94,6 +97,29 @@ public class AiBot2Controller extends BaseController {
     @PostMapping("post/chat-delete")
     public RespBody chatDelete(HttpServletRequest req) {
         ChatManager.deleteChat(getIdParameterNotNull(req, "chatid"));
+        return RespBody.ok();
+    }
+
+    @GetMapping("post/chat-list")
+    public RespBody chatList(HttpServletRequest req) {
+        Object[][] chats = Application.createQueryNoFilter(
+                "select chatId,subject,createdOn from AibotChat where createdBy = ? order by modifiedOn desc")
+                .setParameter(1, getRequestUser(req))
+                .array();
+
+        return RespBody.ok(JSONUtils.toJSONObjectArray(
+                new String[]{"chatid", "subject", "createdOn"}, chats));
+    }
+
+    @PostMapping("post/chat-rename")
+    public RespBody chatRename(HttpServletRequest req) {
+        ID chatid = getIdParameterNotNull(req, "chatid");
+        String subject = getParameterNotNull(req, "s");
+
+        Record r = EntityHelper.forUpdate(chatid, getRequestUser(req));
+        r.setString("subject", subject);
+        Application.getCommonsService().update(r);
+
         return RespBody.ok();
     }
 }
