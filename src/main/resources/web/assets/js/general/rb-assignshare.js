@@ -502,12 +502,13 @@ class DlgTransform extends RbModalHandler {
             initialFormModel: res.data,
             previewid: `${props.transid}.${props.sourceRecord}`,
             _disableAutoFillin: true,
+            postAfter: (recordId) => this._openView43(recordId),
           }
           if (_post.existsRecord) {
             modalProps.title = $L('编辑%s', props.entityLabel)
             modalProps.id = _post.existsRecord
           }
-          // Form
+
           RbFormModal.create(modalProps, true)
         } else {
           if (this._isMuilt) {
@@ -515,17 +516,7 @@ class DlgTransform extends RbModalHandler {
             return
           }
 
-          // View
-          setTimeout(() => {
-            if (window.RbViewModal) {
-              window.RbViewModal.create({ id: res.data, entity: this.props.entity })
-              window.RbListPage && window.RbListPage.reload()
-            } else if (window.RbViewPage) {
-              window.RbViewPage.clickView(`#!/View/${this.props.entity}/${res.data}`)
-            } else {
-              window.open(`${rb.baseUrl}/app/${this.props.entity}/view/${res.data}`)
-            }
-          }, 200)
+          this._openView43(res.data)
         }
       } else if (res.error_code === 497) {
         // v4.2 弱校验
@@ -547,5 +538,18 @@ class DlgTransform extends RbModalHandler {
     this.setState({ transType: 0 })
     this._existsRecord && this._existsRecord.reset()
     this._mainRecord && this._mainRecord.reset()
+  }
+
+  _openView43(id) {
+    setTimeout(() => {
+      if (window.RbViewModal) {
+        window.RbViewModal.create({ id: id, entity: this.props.entity })
+        window.RbListPage && window.RbListPage.reload()
+      } else if (window.RbViewPage) {
+        window.RbViewPage.clickView(`#!/View/${this.props.entity}/${id}`)
+      } else {
+        window.open(`${rb.baseUrl}/app/${this.props.entity}/view/${id}`)
+      }
+    }, 200)
   }
 }
