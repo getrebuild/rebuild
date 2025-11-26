@@ -106,7 +106,7 @@ $(document).ready(() => {
   const fillbackFields = []
   wpc.sourceEntity.fields.forEach((item) => {
     if (item.name.includes('.')) return
-    if ((item.type === 'REFERENCE' && item.ref[0] === wpc.targetEntity.entity) || item.type === 'ANYREFERENCE') {
+    if ((item.type === 'REFERENCE' && item.ref[0] === wpc.targetEntity.entity) || (item.type === 'N2NREFERENCE' && item.ref[0] === wpc.targetEntity.entity) || item.type === 'ANYREFERENCE') {
       fillbackFields.push({ id: item.name, text: item.label })
     }
   })
@@ -131,18 +131,37 @@ $(document).ready(() => {
   let _ImportsFilterMapping
   $('#importsMode').on('click', function () {
     if ($val(this)) {
-      $('#filterFields').parents('.form-group').removeClass('hide')
+      $('.J_importsMode-set').removeClass('hide')
       if (!_ImportsFilterMapping) {
-        renderRbcomp(<ImportsFilterMapping defaultValue={config.importsFilter} />, $('#filterFields>span'), function () {
+        renderRbcomp(<ImportsFilterMapping defaultValue={config.importsFilter} />, $('.J_importsMode-fields>span'), function () {
           _ImportsFilterMapping = this
         })
       }
     } else {
-      $('#filterFields').parents('.form-group').addClass('hide')
+      $('.J_importsMode-set').addClass('hide')
+    }
+  })
+
+  // 4.3
+  $('#one2nMode').on('click', function () {
+    if ($val(this)) {
+      $('.J_one2nMode-set').removeClass('hide')
+    } else {
+      $('.J_one2nMode-set').addClass('hide')
+    }
+  })
+  wpc.sourceEntity.fields.forEach((field) => {
+    if (!field.name.includes('.') && ['NUMBER', 'N2NREFERENCE', 'MULTISELECT', 'TAG'].includes(field.type)) {
+      $(`<option value="${field.name}">${field.label}</option>`).appendTo('.J_one2nMode-fields select')
     }
   })
 
   const $btn = $('.J_save').on('click', function () {
+    const one2nMode = $('#one2nMode').prop('checked')
+    if (one2nMode && rb.commercial < 10) {
+      RbHighbar.error(WrapHtml($L('免费版不支持启用多记录转换 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
     const importsMode = $('#importsMode').prop('checked')
     if (importsMode && rb.commercial < 10) {
       RbHighbar.error(WrapHtml($L('免费版不支持启用明细记录导入 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
@@ -208,6 +227,8 @@ $(document).ready(() => {
       importsMode: $val('#importsMode'),
       importsFilter: importsFilter || null,
       importsMode2Auto: ($val('#importsMode2Auto1') ? 1 : 0) + ($val('#importsMode2Auto2') ? 2 : 0),
+      one2nMode: $val('#one2nMode'),
+      one2nModeField: $val('.J_one2nMode-fields select'),
     }
 
     const _data = {
@@ -249,6 +270,8 @@ $(document).ready(() => {
     if (config.importsMode) $('#importsMode').trigger('click')
     if (config.importsMode2Auto === 1 || config.importsMode2Auto === 3) $('#importsMode2Auto1').prop('checked', true)
     if (config.importsMode2Auto === 2 || config.importsMode2Auto === 3) $('#importsMode2Auto2').prop('checked', true)
+    if (config.one2nMode) $('#one2nMode').trigger('click')
+    if (config.one2nModeField) $('.J_one2nMode-fields select').val(config.one2nModeField)
   }, 100)
 })
 

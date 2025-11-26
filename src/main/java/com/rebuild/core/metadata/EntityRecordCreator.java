@@ -73,8 +73,6 @@ public class EntityRecordCreator extends JsonRecordCreator {
     @Override
     public boolean setFieldValue(Field field, String value, Record record) {
         value = setValueByLiteralBefore(field, value, record, true);
-        if (value == null) return false;
-
         return super.setFieldValue(field, value, record);
     }
 
@@ -308,9 +306,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
      * @see RecordVisitor#setValueByLiteral(Field, String, Record)
      */
     public static void setValueByLiteral(Field field, String value, Record record, boolean checkPattern) {
-        value = setValueByLiteralBefore(field, value, record, checkPattern);
-        if (value == null) return;
-
+        value = value == null ? null : setValueByLiteralBefore(field, value, record, checkPattern);
         RecordVisitor.setValueByLiteral(field, value, record);
     }
 }

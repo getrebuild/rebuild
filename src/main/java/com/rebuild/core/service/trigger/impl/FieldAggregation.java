@@ -301,7 +301,7 @@ public class FieldAggregation extends TriggerAction {
                 } else {
                     r.setID(fillbackField, targetRecordId);
                 }
-                Application.getCommonsService().getBaseService().update(r);
+                Application.getBaseService().update(r);
             }
         }
 

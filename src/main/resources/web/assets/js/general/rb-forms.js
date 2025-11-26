@@ -2744,9 +2744,10 @@ class RbFormN2NReference extends RbFormReference {
     __addRecentlyUse(ids)
 
     // v3.1 回填父级
-    if (selected[0] && this.props._cascadingFieldParent) {
-      this.triggerAutoFillin(selected[0])
-    }
+    // v4.3 多引用子级不回填了
+    // if (selected[0] && this.props._cascadingFieldParent) {
+    //   this.triggerAutoFillin(selected[0])
+    // }
   }
 }
 

@@ -21,16 +21,21 @@ import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.EasyTag;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.query.FilterRecordChecker;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.core.NamedThreadLocal;
 
 import java.util.ArrayList;
@@ -56,10 +61,13 @@ public class RecordTransfomer extends SetUser {
     private static final ThreadLocal<ID> FILLBACK2_ONCE414 = new NamedThreadLocal<>("FallbackMode=2 Trigger Once");
 
     final protected Entity targetEntity;
-    final protected JSONObject transConfig;
     final protected boolean skipGuard;
 
-    final private ID transid;
+    final protected JSONObject transConfig;
+    final protected ID transid;
+
+    // v4.3
+    private boolean checkSame = false;
 
     /**
      * @param transid
@@ -82,6 +90,15 @@ public class RecordTransfomer extends SetUser {
         this.transConfig = transConfig;
         this.skipGuard = skipGuard;
         this.transid = null;
+    }
+
+    /**
+     * 更新时忽略同值
+     *
+     * @param checkSame
+     */
+    protected void setCheckSame(boolean checkSame) {
+        this.checkSame = checkSame;
     }
 
     /**
@@ -119,14 +136,14 @@ public class RecordTransfomer extends SetUser {
 
         // 主
         JSONObject fieldsMapping = transConfig.getJSONObject("fieldsMapping");
-        if (fieldsMapping == null || fieldsMapping.isEmpty()) {
+        if (MapUtils.isEmpty(fieldsMapping)) {
             throw new ConfigurationException("Invalid config of transform : " + transConfig);
         }
 
         // 明细
         JSONObject fieldsMappingDetail = transConfig.getJSONObject("fieldsMappingDetail");
         Object[][] sourceDetails = null;
-        if (fieldsMappingDetail != null && !fieldsMappingDetail.isEmpty()) {
+        if (MapUtils.isNotEmpty(fieldsMappingDetail)) {
             sourceDetailEntity = sourceEntity.getDetailEntity();
             Field sourceRefField;
 
@@ -168,8 +185,9 @@ public class RecordTransfomer extends SetUser {
             Entity targetDetailEntity = targetEntity.getDetailEntity();
             List<Record> detailsList = new ArrayList<>();
             for (Object[] d : sourceDetails) {
-                detailsList.add(
-                        transformRecord(sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) d[0], null, false, false, checkNullable));
+                Record dRecord = transformRecord(
+                        sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) d[0], null, false, false, checkNullable);
+                detailsList.add(dRecord);
             }
 
             theNewId = saveRecord(mainRecord, detailsList);
@@ -191,11 +209,16 @@ public class RecordTransfomer extends SetUser {
     protected ID saveRecord(Record record, List<Record> detailsList) {
         if (this.skipGuard) GeneralEntityServiceContextHolder.setSkipGuard(EntityHelper.UNSAVED_ID);
 
-        if (detailsList != null && !detailsList.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(detailsList)) {
             record.setObjectValue(GeneralEntityService.HAS_DETAILS, detailsList);
             GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS);
         } else {
             GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_ALL);
+        }
+
+        if (checkSame && record.getPrimary() != null) {
+            record = RbvFunction.call().restRecord(record);
+            if (record.isEmpty()) return record.getPrimary();
         }
 
         try {
@@ -213,28 +236,42 @@ public class RecordTransfomer extends SetUser {
      * @return
      */
     protected boolean fillback(ID sourceRecordId, ID newId) {
+        return fillback(sourceRecordId, new ID[]{newId});
+    }
+
+    /**
+     * @param sourceRecordId
+     * @param newIds
+     * @return
+     */
+    protected boolean fillback(ID sourceRecordId, ID[] newIds) {
         final Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
         String fillbackField = transConfig.getString("fillbackField");
         if (fillbackField == null || !MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
             return false;
         }
 
-        Record updateSource = EntityHelper.forUpdate(sourceRecordId, UserService.SYSTEM_USER, false);
-        updateSource.setID(fillbackField, newId);
+        // 更新源纪录
+        Record s = EntityHelper.forUpdate(sourceRecordId, UserService.SYSTEM_USER, false);
+        if (EasyMetaFactory.getDisplayType(s.getEntity().getField(fillbackField)) == DisplayType.N2NREFERENCE) {
+            s.setIDArray(fillbackField, newIds);
+        } else {
+            s.setID(fillbackField, newIds[0]);
+        }
 
         // 4.1.4 (LAB) 配置开放
         int fillbackMode = transConfig.getIntValue("fillbackMode");
-        if (fillbackMode == 2 && !EntityHelper.isUnsavedId(newId) && FILLBACK2_ONCE414.get() == null) {
-            GeneralEntityServiceContextHolder.setAllowForceUpdate(updateSource.getPrimary());
-            FILLBACK2_ONCE414.set(newId);
+        if (fillbackMode == 2 && !EntityHelper.isUnsavedId(newIds) && FILLBACK2_ONCE414.get() == null) {
+            GeneralEntityServiceContextHolder.setAllowForceUpdate(s.getPrimary());
+            FILLBACK2_ONCE414.set(newIds[0]);
             try {
-                Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
+                Application.getEntityService(sourceEntity.getEntityCode()).update(s);
             } finally {
                 GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
             }
         } else {
             // 无传播更新
-            Application.getCommonsService().update(updateSource, false);
+            Application.getBaseService().update(s);
         }
         return true;
     }
@@ -293,6 +330,11 @@ public class RecordTransfomer extends SetUser {
 
             if (sourceAny instanceof JSONArray) {
                 Object sourceValue = ((JSONArray) sourceAny).get(0);
+                // fix:4.3
+                if (targetFieldEasy.getDisplayType() == DisplayType.TAG) {
+                    sourceValue = sourceValue.toString().replace(", ", EasyTag.VALUE_SPLIT);
+                }
+
                 EntityRecordCreator.setValueByLiteral(
                         targetFieldEasy.getRawMeta(), sourceValue.toString(), targetRecord, false);
 

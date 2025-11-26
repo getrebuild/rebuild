@@ -28,6 +28,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyDateTime;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.EasyTag;
 import com.rebuild.core.metadata.easymeta.MultiValue;
 import com.rebuild.core.metadata.easymeta.PatternValue;
 import com.rebuild.core.privileges.UserService;
@@ -428,6 +429,11 @@ public class FieldWriteback extends FieldAggregation {
 
             // 固定值
             else if ("VFIXED".equalsIgnoreCase(updateMode)) {
+                // fix:4.3
+                if (targetFieldEasy.getDisplayType() == DisplayType.TAG) {
+                    sourceAny = sourceAny.replace(", ", EasyTag.VALUE_SPLIT);
+                }
+
                 EntityRecordCreator.setValueByLiteral(
                         targetFieldEasy.getRawMeta(), sourceAny, targetRecord, false);
             }
