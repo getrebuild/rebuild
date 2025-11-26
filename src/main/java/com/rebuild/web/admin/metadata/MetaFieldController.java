@@ -261,8 +261,8 @@ public class MetaFieldController extends BaseController {
 
     // 获取共同引用字段
     private List<JSONObject> getCoReferenceFields(Entity entity, Entity referenceEntity, boolean fromDetail) {
-        Field[] entityFields = MetadataSorter.sortFields(entity, DisplayType.REFERENCE);
-        Field[] referenceEntityFields = MetadataSorter.sortFields(referenceEntity, DisplayType.REFERENCE);
+        Field[] entityFields = MetadataSorter.sortFields(entity, DisplayType.REFERENCE, DisplayType.N2NREFERENCE);
+        Field[] referenceEntityFields = MetadataSorter.sortFields(referenceEntity, DisplayType.REFERENCE, DisplayType.N2NREFERENCE);
 
         List<JSONObject> co = new ArrayList<>();
         for (Field foo : entityFields) {

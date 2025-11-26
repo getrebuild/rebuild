@@ -2538,6 +2538,7 @@ class RbFormReference extends RbFormElement {
       }
     }
 
+    debugger
     const url = `/app/entity/extras/fillin-value?entity=${this.props.entity}&field=${this.props.field}&source=${id}`
     $.post(url, JSON.stringify(formData), (res) => {
       if (res.error_code === 0 && res.data.length > 0) {
@@ -2744,9 +2745,10 @@ class RbFormN2NReference extends RbFormReference {
     __addRecentlyUse(ids)
 
     // v3.1 回填父级
-    if (selected[0] && this.props._cascadingFieldParent) {
-      this.triggerAutoFillin(selected[0])
-    }
+    // v4.3 多引用子级不回填了
+    // if (selected[0] && this.props._cascadingFieldParent) {
+    //   this.triggerAutoFillin(selected[0])
+    // }
   }
 }
 
