@@ -2538,7 +2538,6 @@ class RbFormReference extends RbFormElement {
       }
     }
 
-    debugger
     const url = `/app/entity/extras/fillin-value?entity=${this.props.entity}&field=${this.props.field}&source=${id}`
     $.post(url, JSON.stringify(formData), (res) => {
       if (res.error_code === 0 && res.data.length > 0) {

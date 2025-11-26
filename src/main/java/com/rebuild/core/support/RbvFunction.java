@@ -76,4 +76,11 @@ public class RbvFunction {
     public void checkSchemas() {
         log.debug("No RbvFunction : checkSchemas");
     }
+
+    // -- TRANS
+
+    public Record restRecord(Record record) {
+        log.debug("No RbvFunction : restRecord");
+        return record;
+    }
 }

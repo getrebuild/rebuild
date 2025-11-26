@@ -29,10 +29,13 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.query.FilterRecordChecker;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.core.NamedThreadLocal;
 
 import java.util.ArrayList;
@@ -63,6 +66,9 @@ public class RecordTransfomer extends SetUser {
     final protected JSONObject transConfig;
     final protected ID transid;
 
+    // v4.3
+    private boolean checkSame = false;
+
     /**
      * @param transid
      */
@@ -84,6 +90,15 @@ public class RecordTransfomer extends SetUser {
         this.transConfig = transConfig;
         this.skipGuard = skipGuard;
         this.transid = null;
+    }
+
+    /**
+     * 更新时忽略同值
+     *
+     * @param checkSame
+     */
+    protected void setCheckSame(boolean checkSame) {
+        this.checkSame = checkSame;
     }
 
     /**
@@ -121,14 +136,14 @@ public class RecordTransfomer extends SetUser {
 
         // 主
         JSONObject fieldsMapping = transConfig.getJSONObject("fieldsMapping");
-        if (fieldsMapping == null || fieldsMapping.isEmpty()) {
+        if (MapUtils.isEmpty(fieldsMapping)) {
             throw new ConfigurationException("Invalid config of transform : " + transConfig);
         }
 
         // 明细
         JSONObject fieldsMappingDetail = transConfig.getJSONObject("fieldsMappingDetail");
         Object[][] sourceDetails = null;
-        if (fieldsMappingDetail != null && !fieldsMappingDetail.isEmpty()) {
+        if (MapUtils.isNotEmpty(fieldsMappingDetail)) {
             sourceDetailEntity = sourceEntity.getDetailEntity();
             Field sourceRefField;
 
@@ -170,8 +185,9 @@ public class RecordTransfomer extends SetUser {
             Entity targetDetailEntity = targetEntity.getDetailEntity();
             List<Record> detailsList = new ArrayList<>();
             for (Object[] d : sourceDetails) {
-                detailsList.add(
-                        transformRecord(sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) d[0], null, false, false, checkNullable));
+                Record dRecord = transformRecord(
+                        sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) d[0], null, false, false, checkNullable);
+                detailsList.add(dRecord);
             }
 
             theNewId = saveRecord(mainRecord, detailsList);
@@ -193,11 +209,16 @@ public class RecordTransfomer extends SetUser {
     protected ID saveRecord(Record record, List<Record> detailsList) {
         if (this.skipGuard) GeneralEntityServiceContextHolder.setSkipGuard(EntityHelper.UNSAVED_ID);
 
-        if (detailsList != null && !detailsList.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(detailsList)) {
             record.setObjectValue(GeneralEntityService.HAS_DETAILS, detailsList);
             GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS);
         } else {
             GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_ALL);
+        }
+
+        if (checkSame && record.getPrimary() != null) {
+            record = RbvFunction.call().restRecord(record);
+            if (record.isEmpty()) return record.getPrimary();
         }
 
         try {
