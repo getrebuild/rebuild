@@ -394,7 +394,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     }
 
     /**
-     * 业务实体使用
+     * 业务实体使用，具备完整业务逻辑规则
      *
      * @return
      */
@@ -403,7 +403,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     }
 
     /**
-     * 纯增删改操作 *无*业务规则 *无*字段值处理
+     * 纯增删改操作，非业务实体用
      *
      * @return
      * @see #getBaseService()
@@ -413,8 +413,10 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     }
 
     /**
-     * 纯增删改操作 *无*业务规则 *有*字段值处理
+     * 纯增删改操作，业务实体尽量使用此
+     *
      * @return
+     * @see #getCommonsService()
      */
     public static BaseService getBaseService() {
         return getCommonsService().getBaseService();
