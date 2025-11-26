@@ -98,7 +98,7 @@
                           <div class="dropdown-divider"></div>
                           <a th:if="${AllowDataExport}" class="dropdown-item J_export"><i class="icon mdi mdi-microsoft-excel"></i> [[${bundle.L('数据导出')}]]</a>
                           <a th:if="${AllowDataImport}" class="dropdown-item" th:href="|${baseUrl}/app/entity/data-imports?entity=${entityName}|">
-                            <i class="icon mdi mdi-database-import-outline"></i> [[${bundle.L('数据导入')}]]
+                            <i class="icon mdi mdi-table-arrow-right"></i> [[${bundle.L('数据导入')}]]
                           </a>
                           <a th:if="${AllowBatchUpdate}" class="dropdown-item J_batch-update"><i class="icon mdi mdi-playlist-edit"></i> [[${bundle.L('批量修改')}]]</a>
                           <a th:if="${AllowCustomDataList}" class="dropdown-item J_columns"><i class="icon mdi mdi-view-column-outline"></i> [[${bundle.L('列显示')}]]</a>

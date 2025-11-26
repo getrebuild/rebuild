@@ -6195,6 +6195,10 @@ div.formula-code {
   color: #222;
 }
 
+.dropdown-menu > .dropdown-item .icon {
+  color: #444;
+}
+
 .select2-container--default .select2-selection--multiple .select2-selection__rendered .select2-selection__clear {
   margin-top: -1px;
 }
