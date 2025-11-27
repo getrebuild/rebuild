@@ -208,7 +208,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
         } else if (!isIgnoreAuth(requestUri)) {
             // 独立验证逻辑
-            if (requestUri.contains("/filex/")) {
+            if (requestUri.contains("/filex/") && !requestUri.contains("..")) {
                 // v4.2-b4
                 if (!requestUri.contains("/filex/editor")) return true;
             }
