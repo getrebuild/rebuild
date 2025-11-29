@@ -10,6 +10,7 @@ package com.rebuild.utils;
 import cn.devezhao.commons.identifier.ComputerIdentifier;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
+import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.RebuildConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.FormBody;
@@ -114,6 +115,11 @@ public class OkHttpUtils {
 
         long ms = System.currentTimeMillis();
         try (Response response = client.newCall(request).execute()) {
+            // fix:4.2.4
+            if (!response.isSuccessful()) {
+                throw new RebuildException("Unexpected code : " + response);
+            }
+
             byte[] b = Objects.requireNonNull(response.body()).bytes();
             return new String(b, StringUtils.defaultIfBlank(charset, AppUtils.UTF8));
         } finally {
@@ -172,6 +178,11 @@ public class OkHttpUtils {
 
         long ms = System.currentTimeMillis();
         try (Response response = client.newCall(request).execute()) {
+            // fix:4.2.4
+            if (!response.isSuccessful()) {
+                throw new RebuildException("Unexpected code : " + response);
+            }
+
             byte[] b = Objects.requireNonNull(response.body()).bytes();
             return new String(b, StandardCharsets.UTF_8);
         } finally {
@@ -188,9 +199,9 @@ public class OkHttpUtils {
      * @throws IOException
      */
     public static File readBinary(String url) throws IOException {
-        File tmp = RebuildConfiguration.getFileOfTemp("download." + CommonsUtils.randomHex(true));
-        boolean success = readBinary(url, tmp, null);
-        return success && tmp.exists() ? tmp : null;
+        File d = RebuildConfiguration.getFileOfTemp("download." + CommonsUtils.randomHex(true));
+        boolean s = readBinary(url, d, null);
+        return s && d.exists() ? d : null;
     }
 
     /**
@@ -208,6 +219,12 @@ public class OkHttpUtils {
         Request request = useHeaders(builder, headers).build();
 
         try (Response response = client.newCall(request).execute()) {
+            // fix:4.2.4
+            if (!response.isSuccessful()) {
+                log.error("Unexpected code : {}", response);
+                return false;
+            }
+
             try (InputStream is = Objects.requireNonNull(response.body()).byteStream()) {
                 try (BufferedInputStream bis = new BufferedInputStream(is)) {
                     try (OutputStream os = Files.newOutputStream(dest.toPath())) {

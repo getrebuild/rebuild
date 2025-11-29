@@ -109,7 +109,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
   let deferredPrompt = e
 
   $('.h5-mobile.pwa')
-    .removeClass('hide')
+    // .removeClass('hide')  // disabled on 4.2.4
     .find('>a')
     .on('click', () => {
       if (deferredPrompt) {

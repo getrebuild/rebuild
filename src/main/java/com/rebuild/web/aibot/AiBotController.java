@@ -7,17 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.aibot;
 
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.api.RespBody;
-import com.rebuild.core.Application;
-import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
@@ -34,29 +27,6 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/aibot")
 public class AiBotController extends BaseController {
-
-    @GetMapping("post/chat-list")
-    public RespBody chatList(HttpServletRequest req) {
-        Object[][] chats = Application.createQueryNoFilter(
-                "select chatId,subject,createdOn from AibotChat where createdBy = ? order by modifiedOn desc")
-                .setParameter(1, getRequestUser(req))
-                .array();
-
-        return RespBody.ok(JSONUtils.toJSONObjectArray(
-                new String[]{"chatid", "subject", "createdOn"}, chats));
-    }
-
-    @PostMapping("post/chat-rename")
-    public RespBody chatRename(HttpServletRequest req) {
-        ID chatid = getIdParameterNotNull(req, "chatid");
-        String subject = getParameterNotNull(req, "s");
-
-        Record r = EntityHelper.forUpdate(chatid, getRequestUser(req));
-        r.setString("subject", subject);
-        Application.getCommonsService().update(r);
-
-        return RespBody.ok();
-    }
 
     @GetMapping("chat")
     public ModelAndView chatIndex() {

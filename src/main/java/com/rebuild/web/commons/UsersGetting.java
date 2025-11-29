@@ -21,6 +21,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
+import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -90,8 +91,12 @@ public class UsersGetting extends BaseController {
                 name = ifUser.getFullName();
             }
 
+            // be:4.3
+            String nameOfPinyin = QuickCodeReindexTask.generateQuickCode(name);
+
             if (StringUtils.isBlank(query)
                     || StringUtils.containsIgnoreCase(name, query)
+                    || StringUtils.containsIgnoreCase(nameOfPinyin, query)
                     || (ifUser != null && StringUtils.containsIgnoreCase(ifUser.getName(), query))
                     || (ifUser != null && ifUser.getEmail() != null && StringUtils.containsIgnoreCase(ifUser.getEmail(), query))) {
 
@@ -108,10 +113,11 @@ public class UsersGetting extends BaseController {
 
     /**
      * 获取符合 UserSelector 组件的数据
+     *
      * @param request
      * @param useEntity
-     * @see UserHelper#parseUsers(JSONArray, ID)
      * @return
+     * @see UserHelper#parseUsers(JSONArray, ID)
      */
     @PostMapping("user-selector")
     public JSON parseUserSelectorRaw(HttpServletRequest request, @EntityParam(required = false) Entity useEntity) {
@@ -123,16 +129,16 @@ public class UsersGetting extends BaseController {
             if (ID.isId(idOrField)) {
                 String name = UserHelper.getName(ID.valueOf(idOrField));
                 if (name != null) {
-                    shows.add(new String[] { idOrField, name });
+                    shows.add(new String[]{idOrField, name});
                 }
 
             } else if (useEntity != null && MetadataHelper.getLastJoinField(useEntity, idOrField) != null) {
                 String fieldLabel = EasyMetaFactory.getLabel(useEntity, idOrField);
-                shows.add(new String[] { idOrField, fieldLabel });
+                shows.add(new String[]{idOrField, fieldLabel});
             }
         }
 
         return JSONUtils.toJSONObjectArray(
-                new String[] {  "id", "text" }, shows.toArray(new String[0][]));
+                new String[]{"id", "text"}, shows.toArray(new String[0][]));
     }
 }
