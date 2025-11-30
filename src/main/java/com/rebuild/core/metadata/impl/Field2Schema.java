@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.impl;
 
 import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
@@ -152,7 +151,7 @@ public class Field2Schema extends SetUser {
             Application.getSqlExecutor().execute(ddl, DDL_TIMEOUT);
         } catch (Throwable ex) {
             // ?
-            if (ThrowableUtils.getRootCause(ex).getLocalizedMessage().contains("exists")) {
+            if (CommonsUtils.getRootMessage(ex).contains("exists")) {
                 log.warn("Column not exists? {}", ex.getLocalizedMessage());
             } else {
                 log.error("DDL ERROR : \n{}", ddl, ex);

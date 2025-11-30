@@ -9,7 +9,6 @@ package com.rebuild.web.admin;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.RegexUtils;
-import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -239,7 +238,7 @@ public class ConfigurationController extends BaseController {
         } catch (QiniuException ex) {
             return RespBody.error(Language.L("无效配置参数 : %s", ex.response.error));
         } catch (Exception ex) {
-            return RespBody.error(ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+            return RespBody.error(CommonsUtils.getRootMessage(ex));
         }
     }
 

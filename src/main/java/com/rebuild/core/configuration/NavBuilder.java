@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.configuration;
 
 import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -378,7 +377,7 @@ public class NavBuilder extends NavManager {
             return renderNav2(request, activeNav);
         } catch (Exception ex) {
             log.error("Error on `renderNav`", ex);
-            return "<!-- ERROR : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage() + " -->";
+            return "<!-- ERROR : " + CommonsUtils.getRootMessage(ex) + " -->";
         }
     }
 
@@ -542,7 +541,7 @@ public class NavBuilder extends NavManager {
             return renderTopNav2(request);
         } catch (Exception ex) {
             log.error("Error on `renderTopNav`", ex);
-            return "<!-- ERROR : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage() + " -->";
+            return "<!-- ERROR : " + CommonsUtils.getRootMessage(ex) + " -->";
         }
     }
 
