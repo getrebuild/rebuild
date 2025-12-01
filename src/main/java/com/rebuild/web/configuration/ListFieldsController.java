@@ -188,6 +188,7 @@ public class ListFieldsController extends BaseController implements ShareTo {
     public void getsList(@PathVariable String entity,
                          HttpServletRequest request, HttpServletResponse response) {
         final ID user = getRequestUser(request);
+        MetadataHelper.getEntity(entity);  // fix:entity check
 
         String sql = "select configId,configName,shareTo,createdBy from LayoutConfig where ";
         if (UserHelper.isAdmin(user)) {

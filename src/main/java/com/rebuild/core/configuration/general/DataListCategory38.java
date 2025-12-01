@@ -53,7 +53,8 @@ public class DataListCategory38 {
 
     public static final DataListCategory38 instance = new DataListCategory38();
 
-    private DataListCategory38() {}
+    private DataListCategory38() {
+    }
 
     /**
      * @param entity
@@ -123,8 +124,7 @@ public class DataListCategory38 {
             sortMode = 1;
             if (ff.getIntValue("sort") > 0) sortMode = ff.getIntValue("sort");
             if (ff.getIntValue("sort") == -1) sortMode = 0;  // 无需排序
-        }
-        else {
+        } else {
             sortMode = 1;
             String sql;
             if (dt == DisplayType.N2NREFERENCE) {
@@ -203,8 +203,8 @@ public class DataListCategory38 {
         }
 
         return JSONUtils.toJSONObject(
-                new String[]{ "hasChild", "data" },
-                new Object[]{ hasChild, res });
+                new String[]{"hasChild", "data"},
+                new Object[]{hasChild, res});
     }
 
     /**
@@ -235,7 +235,8 @@ public class DataListCategory38 {
         }
 
         // be:4.2.3 用户部门树
-        if ("deptId".equals(field.getName()) && "parentDept".equals(parentField)) {
+        if (("deptId".equals(field.getName()) || "parentDept".equals(field.getName()))
+                && "parentDept".equals(parentField)) {
             sql += " order by seq asc, name asc";
         }
 
@@ -285,7 +286,12 @@ public class DataListCategory38 {
                     parent = parentNew;
                 }
 
-                return String.format("%s in ('%s')", fieldName, StringUtils.join(thisAndChild, "','"));
+                String filterSql = String.format("%s in ('%s')", fieldName, StringUtils.join(thisAndChild, "','"));
+                // be:4.2.4 用户部门树（包含自己）
+                if ("Department".equals(entity.getName()) && "parentDept".equals(fieldName)) {
+                    filterSql = String.format("(deptId = '%s' or %s)", fieldValue, filterSql);
+                }
+                return filterSql;
             }
             // 一级树:分类
             if (categoryFields.size() == 1 && dt == DisplayType.CLASSIFICATION) {
@@ -342,8 +348,8 @@ public class DataListCategory38 {
      * @return
      */
     public String buildParentFilters(Entity entity, Object[] parentValues) {
-        final JSONArray categoryFields = getSettings(entity);
-        if (categoryFields == null || categoryFields.isEmpty()) return null;
+        JSONArray categoryFields = getSettings(entity);
+        if (CollectionUtils.isEmpty(categoryFields)) return null;
         return buildParentFilters(entity, categoryFields, parentValues);
     }
 
@@ -351,6 +357,8 @@ public class DataListCategory38 {
         // be:4.2.3 用户部门树
         if ("User".equals(entity.getName())) {
             return JSON.parseArray("[{field:'deptId', format:'parentDept', sort:-1}]");
+        } else if ("Department".equals(entity.getName())) {
+            return JSON.parseArray("[{field:'parentDept', format:'parentDept', sort:-1}]");
         }
 
         int listMode = ObjectUtils.toInt(EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE), 1);

@@ -746,6 +746,7 @@ div.dataTables_filter .filter-badge:hover .close {
 
 .rbmodal.use-white .modal-body.iframe iframe {
   min-height: 497px;
+  min-height: 500px;
 }
 
 .rbview.modal {

@@ -485,7 +485,7 @@ public class DataListManager extends BaseLayoutManager {
 
         List<Object[]> items = new ArrayList<>(itemsMap.values());
         // be:4.2.3 用户部门树
-        if ("User".equals(easyEntity.getName())) {
+        if ("User".equals(easyEntity.getName()) || "Department".equals(easyEntity.getName())) {
             items.add(new Object[]{"部门", 2, "asideCategory"});
         }
         items.sort(Comparator.comparingInt(o -> (int) o[1]));
