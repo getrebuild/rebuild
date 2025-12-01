@@ -2090,13 +2090,33 @@ class ChartSelect extends RbModalHandler {
   }
 
   render() {
-    const chartList = this.state.chartList || []
+    let chartList = this.state.chartList || []
+    if (this.state.q) {
+      const q = this.state.q.toLowerCase()
+      chartList = chartList.filter((item) => {
+        let pinyin42
+        if (window.pinyinPro) pinyin42 = window.pinyinPro.pinyin(item.title, { toneType: 'none' }).replace(/\s+/g, '')
+        return item.title.toLowerCase().contains(q) || (pinyin42 && pinyin42.contains(q))
+      })
+    }
 
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L('添加已有图表')} useScrollable>
         <div className="m-1 mb-4">
           <div className="row chart-select-wrap">
             <div className="col-3">
+              <div className="search-input425">
+                <input
+                  type="text"
+                  placeholder={$L('搜索')}
+                  className="pt-0"
+                  onChange={(e) => {
+                    const q = e.target.value
+                    $setTimeout(() => this.setState({ q: q }), 400, '_search-charts')
+                  }}
+                />
+                <i className="zmdi zmdi-search" />
+              </div>
               <div className="nav flex-column nav-pills">
                 <a href="#all" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#all' ? 'active' : ''}`}>
                   {$L('全部')}
