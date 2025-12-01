@@ -373,8 +373,6 @@ public class EntityHelper {
     public static final int FrontjsCode = 38;
     public static final int NreferenceItem = 39;
     public static final int TagItem = 80;
-    public static final int RobotSopConfig = 70;
-    public static final int RobotSopStep = 71;
 
     // 动态
 
@@ -397,6 +395,15 @@ public class EntityHelper {
     // 外部表单
 
     public static final int ExtformConfig = 60;
+
+    // SOP
+
+    public static final int RobotSopConfig = 70;
+    public static final int RobotSopStep = 71;
+
+    // 数据同步
+
+    public static final int DataSyncerConfig = 62;
 
     // 锁/日志/短链
 
