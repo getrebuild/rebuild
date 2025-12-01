@@ -19,6 +19,7 @@ import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.md.MarkdownUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.admin.ConfigurationController;
 import org.apache.commons.lang3.StringUtils;
@@ -49,6 +50,7 @@ public class NotificationController extends BaseController {
 
     @GetMapping("/notifications/todo")
     public ModelAndView pageTodo() {
+        // TODO 通知优化???
         return createModelAndView("/notification/todo");
     }
 
@@ -121,7 +123,12 @@ public class NotificationController extends BaseController {
         for (int i = 0; i < array.length; i++) {
             Object[] m = array[i];
             m[0] = new Object[]{m[0], UserHelper.getName((ID) m[0])};
-            m[1] = MessageBuilder.formatMessage((String) m[1], !preview);
+            if (preview) {
+                String md = MessageBuilder.formatMessage((String) m[1], false);
+                m[1] = MarkdownUtils.cleanMarks(md);
+            } else {
+                m[1] = MessageBuilder.formatMessage((String) m[1], true);
+            }
             m[2] = I18nUtils.formatDate((Date) m[2]);
             array[i] = m;
         }
