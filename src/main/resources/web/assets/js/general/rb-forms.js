@@ -1574,7 +1574,7 @@ class RbFormNText extends RbFormElement {
         $(this._fieldValue).perfectScrollbar('destroy')
       }
     }
-    if (this._fieldValue && this._heightAuto && destroy) {
+    if (this._fieldValue && this._heightAuto && destroy && this.props.onView) {
       autosize.destroy(this._fieldValue)
     }
 
