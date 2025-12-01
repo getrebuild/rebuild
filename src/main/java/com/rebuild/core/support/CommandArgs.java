@@ -50,6 +50,9 @@ public class CommandArgs {
     public static final String _DisNotificationApproval = "_DisNotificationApproval";
     public static final String _DisNotificationFeeds = "_DisNotificationFeeds";
     public static final String _DisNotificationTasks = "_DisNotificationTasks";
+    // v4.2.5
+    public static final String _SubmailProxyUrl = "_SubmailProxyUrl";
+    public static final String _WxworkMessageDistributorMd = "_WxworkMessageDistributorMd";
 
     /**
      * 内部消息同步发送短信

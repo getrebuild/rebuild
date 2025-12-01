@@ -19,6 +19,7 @@ import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.Callback2;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.HeavyStopWatcher;
 import com.rebuild.core.support.License;
@@ -60,6 +61,9 @@ public class SMSender {
 
     private static final int TYPE_SMS = 1;
     private static final int TYPE_EMAIL = 2;
+
+    private static final String SUBMAIL_URL = CommandArgs.getString(
+            CommandArgs._SubmailProxyUrl, "https://api-v4.mysubmail.com");
 
     // -- 邮件
 
@@ -230,7 +234,7 @@ public class SMSender {
 
         JSONObject rJson;
         try {
-            String r = OkHttpUtils.post("https://api-v4.mysubmail.com/mail/send.json", params);
+            String r = OkHttpUtils.post(SUBMAIL_URL + "/mail/send.json", params);
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
             log.error("Submail send error : {}, {}, {}", to, subject, content, ex);
@@ -397,7 +401,7 @@ public class SMSender {
         HeavyStopWatcher.createWatcher("Subsms Send", to);
         JSONObject rJson;
         try {
-            String r = OkHttpUtils.post("https://api-v4.mysubmail.com/sms/send.json", params);
+            String r = OkHttpUtils.post(SUBMAIL_URL + "/sms/send.json", params);
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
             log.error("Subsms send error : {}, {}", to, content, ex);
