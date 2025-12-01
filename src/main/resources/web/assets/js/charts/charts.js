@@ -1500,23 +1500,6 @@ class DataList extends BaseChart {
       $op.find('.J_chart-edit').on('click', (e) => {
         $stopEvent(e, true)
         RbHighbar.create('[DEPRECATED] 该功能将在下一版本禁用')
-
-        // const config2 = this.state.config
-        // renderRbcomp(
-        //   // eslint-disable-next-line react/jsx-no-undef
-        //   <DataListSettings
-        //     chart={config2.chart}
-        //     {...config2.extconfig}
-        //     onConfirm={(s) => {
-        //       if (typeof window.save_dashboard === 'function') {
-        //         config2.extconfig = s
-        //         this.setState({ config: config2 }, () => this.loadChartData())
-        //       } else {
-        //         console.log('No `save_dashboard` found :', s)
-        //       }
-        //     }}
-        //   />
-        // )
       })
     }
   }
@@ -1599,7 +1582,12 @@ class DataList extends BaseChart {
                 <tr key={rkey} data-id={lastCell.id} onDoubleClick={() => window.open(viewUrl)}>
                   {row.map((c, idx) => {
                     if (idx === lastIndex) return null // Last is ID
-                    return this.renderCell(c, listFields[idx])
+
+                    if (data.nameField && data.nameField === listFields[idx].field) {
+                      return this.renderCell(row[lastIndex], listFields[idx], '$NAME$')
+                    } else {
+                      return this.renderCell(c, listFields[idx])
+                    }
                   })}
                   <td className="open-newtab">
                     <a href={viewUrl} target="_blank" title={$L('查看记录')}>
@@ -1627,8 +1615,8 @@ class DataList extends BaseChart {
     })
   }
 
-  renderCell(cellVal, field) {
-    return CellRenders.render(cellVal, field.type, 'auto', `cell-${field.field}`)
+  renderCell(cellVal, field, renderType) {
+    return CellRenders.render(cellVal, renderType || field.type, 'auto', `cell-${field.field}`)
   }
 
   resize() {
