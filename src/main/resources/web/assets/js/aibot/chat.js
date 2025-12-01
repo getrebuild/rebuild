@@ -472,7 +472,7 @@ class ChatSidebar extends React.Component {
   }
 
   _loadChatList() {
-    $.get('/aibot/post/chat-list', (res) => {
+    $.get('/aibot2/post/chat-list', (res) => {
       const data = res.data || []
       this.setState({ list: data })
 
@@ -542,7 +542,7 @@ class ChatSidebar extends React.Component {
   }
 
   handleDelete(item) {
-    $.post('/aibot/post/chat-delete?chatid=' + item.chatid, () => this._loadChatList())
+    $.post('/aibot2/post/chat-delete?chatid=' + item.chatid, () => this._loadChatList())
   }
 
   handleRename(item) {
@@ -551,7 +551,7 @@ class ChatSidebar extends React.Component {
         name={item.subject}
         onConfirm={(s) => {
           if (!$empty(s)) {
-            $.post(`/aibot/post/chat-rename?chatid=${item.chatid}&s=${$encode(s)}`, () => this._loadChatList())
+            $.post(`/aibot2/post/chat-rename?chatid=${item.chatid}&s=${$encode(s)}`, () => this._loadChatList())
           }
         }}
       />

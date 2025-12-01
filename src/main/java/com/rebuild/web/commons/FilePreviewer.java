@@ -203,7 +203,12 @@ public class FilePreviewer extends BaseController {
 
             String changedUrl = status.getString("url");
             try {
-                OkHttpUtils.readBinary(changedUrl, dest, null);
+                boolean s = OkHttpUtils.readBinary(changedUrl, dest, null);
+                if (!s) {
+                    log.error("Reading file error : {}", fileKey);
+                    ServletUtils.writeJson(response, "{\"error\":\"READING FILE ERROR\"}");
+                    return;
+                }
 
                 // v4.2 修正格式
                 String destName = dest.getName().toLowerCase();

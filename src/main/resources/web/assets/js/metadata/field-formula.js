@@ -528,7 +528,7 @@ class EditorWithFieldVars extends React.Component {
             <a title={$L('插入函数')} data-toggle="dropdown">
               <i className="mdi mdi-function-variant" />
             </a>
-            <div className="dropdown-menu auto-scroller dropdown-menu-right" ref={(c) => (this._$funcs = c)}>
+            <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ maxHeight: 388 }} ref={(c) => (this._$funcs = c)}>
               {this.state.funcs.map((item) => {
                 return (
                   <a
