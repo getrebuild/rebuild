@@ -58,7 +58,7 @@ public class RevisionHistoryObserver extends OperatingObserver {
 
     @Override
     public void onCreate(OperatingContext context) {
-        Record revision = newRevision(context, false);
+        Record revision = newRevision(context, true);
         Application.getCommonsService().create(revision);
     }
 
@@ -101,7 +101,14 @@ public class RevisionHistoryObserver extends OperatingObserver {
         Application.getCommonsService().create(revision);
     }
 
-    private Record newRevision(OperatingContext context, boolean mergeChange) {
+    /**
+     * New `RevisionHistory`
+     *
+     * @param context
+     * @param mergeChange
+     * @return
+     */
+    public static Record newRevision(OperatingContext context, boolean mergeChange) {
         ID recordId = context.getAnyRecord().getPrimary();
         Record record = EntityHelper.forNew(EntityHelper.RevisionHistory, UserService.SYSTEM_USER);
         record.setString("belongEntity", MetadataHelper.getEntityName(recordId));
@@ -126,7 +133,10 @@ public class RevisionHistoryObserver extends OperatingObserver {
                 }
             }
 
-            JSON revisionContent = new RecordDifference(before).diffMerge(after);
+            if (before == null && after != null) {
+                before = EntityHelper.forNew(after.getEntity().getEntityCode(), after.getEditor(), false);
+            }
+            JSON revisionContent = new RecordDifference(before).diffMerge(after);;
             record.setString("revisionContent", revisionContent.toJSONString());
         } else {
             record.setString("revisionContent", JSONUtils.EMPTY_ARRAY_STR);

@@ -228,6 +228,7 @@ public class ModelExtrasController extends BaseController {
             else if (revType == 64) o[0] = Language.L("取消共享");
             else if (revType == 991) o[0] = Language.L("审批通过");
             else if (revType == 992) o[0] = Language.L("审批撤销");
+            else if (revType == 993) o[0] = Language.L("恢复");
             else o[0] = Language.L("其他") + String.format(" (%d)", revType);
 
             o[1] = I18nUtils.formatDate((Date) o[1]);
