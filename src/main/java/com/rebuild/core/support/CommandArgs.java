@@ -50,7 +50,6 @@ public class CommandArgs {
     public static final String _DisNotificationApproval = "_DisNotificationApproval";
     public static final String _DisNotificationFeeds = "_DisNotificationFeeds";
     public static final String _DisNotificationTasks = "_DisNotificationTasks";
-    public static final String _DisMessageDistributor = "_DisMessageDistributor";
 
     /**
      * 内部消息同步发送短信

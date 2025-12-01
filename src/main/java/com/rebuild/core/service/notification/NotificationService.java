@@ -16,7 +16,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.InternalPersistService;
-import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.integration.SMSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -100,11 +99,6 @@ public class NotificationService extends InternalPersistService {
         }
 
         record = this.create(record);
-
-        if (CommandArgs.getBoolean(CommandArgs._DisMessageDistributor)) {
-            log.debug("`MessageDistributor` disabled");
-            return;
-        }
 
         // 异步分发消息
         final ID messageId = record.getPrimary();
