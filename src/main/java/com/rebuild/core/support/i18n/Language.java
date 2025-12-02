@@ -23,10 +23,13 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.state.StateSpec;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,6 +56,20 @@ public class Language implements Initialization {
 
         Resource[] resources = new PathMatchingResourcePatternResolver().getResources(
                 "classpath:i18n/lang.*.json");
+        // v4.2.5 从数据目录
+        File i18n = RebuildConfiguration.getFileOfData("_i18n");
+        if (i18n.exists() && i18n.isDirectory()) {
+            File[] files = i18n.listFiles(pathname -> {
+                String s = pathname.getName();
+                return s.startsWith("lang.") && s.endsWith(".json");
+            });
+            if (files != null) {
+                for (File f : files) {
+                    resources = ArrayUtils.addAll(resources, new FileSystemResource(f));
+                }
+            }
+        }
+
         for (Resource res : resources) {
             log.info("Loading language bundle : {}", res);
             String locale = Objects.requireNonNull(res.getFilename()).split("\\.")[1];

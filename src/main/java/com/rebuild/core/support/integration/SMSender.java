@@ -313,7 +313,7 @@ public class SMSender {
 
         String content = null;
         // v3.9.3 从数据目录
-        File file = RebuildConfiguration.getFileOfData("email.zh_CN.html");
+        File file = RebuildConfiguration.getFileOfData("_i18n/email.zh_CN.html");
         if (file.exists()) {
             try {
                 content = FileUtils.readFileToString(file, AppUtils.UTF8);
