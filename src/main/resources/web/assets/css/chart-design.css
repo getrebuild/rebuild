@@ -204,7 +204,7 @@ a.ui-draggable.ui-draggable-dragging {
 
 .data-info ul li a:hover,
 a.ui-draggable.ui-draggable-dragging {
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.9);
   cursor: move;
 }
 
@@ -560,26 +560,4 @@ a.ui-draggable.ui-draggable-dragging {
 
 .gradient-bg-list > a:hover {
   opacity: 0.8;
-}
-
-h5 > .search-input {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  position: relative;
-}
-
-h5 > .search-input > input {
-  border: 0 none;
-  width: 100%;
-  padding: 3px 0;
-  appearance: none;
-  outline: 0 none;
-  background-color: transparent;
-}
-
-h5 > .search-input > .zmdi {
-  position: absolute;
-  right: 1px;
-  top: 4px;
-  color: #999;
-  font-size: 15px;
 }

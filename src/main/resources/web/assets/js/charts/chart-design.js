@@ -97,7 +97,7 @@ $(document).ready(() => {
   }, 1000)
 
   // v4.2 搜索
-  $('.search-input input').on('input', (e) => {
+  $('.search-input425 input').on('input', (e) => {
     $setTimeout(
       () => {
         const q = $trim(e.target.value).toLowerCase()
@@ -112,8 +112,8 @@ $(document).ready(() => {
         })
         $('.data-aside>.rb-scroller').perfectScrollbar('update')
       },
-      200,
-      'sortable-box'
+      400,
+      '_search-fields'
     )
   })
 

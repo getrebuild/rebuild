@@ -40,6 +40,7 @@ public class DataList2Chart extends ChartData {
         List<Object> fieldsRich = new ArrayList<>();
         List<String> fields = new ArrayList<>();
         String sort = null;
+        String nameField = null;
         for (Dimension listField : dims) {
             Map<String, Object> m = DataListManager.instance.formatField(listField.getField(), listField.getParentField());
             if (listField.getLabel() != null) m.put("label", listField.getLabel());
@@ -47,6 +48,9 @@ public class DataList2Chart extends ChartData {
 
             String fieldPath = (String) m.get("field");
             fields.add(fieldPath);
+
+            // v4.2.5
+            if (listField.getField().equals(entity.getNameField())) nameField = entity.getNameField().getName();
 
             // 排序
             FormatSort formatSort = listField.getFormatSort();
@@ -80,6 +84,7 @@ public class DataList2Chart extends ChartData {
         DataListBuilder builder = new DataListBuilderImpl423(listConfig, getUser(), filterSql);
         JSONObject data = (JSONObject) builder.getJSONResult();
         data.put("fields", fieldsRich);
+        data.put("nameField", nameField);
         return data;
     }
 

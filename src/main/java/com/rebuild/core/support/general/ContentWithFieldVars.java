@@ -44,6 +44,11 @@ public class ContentWithFieldVars {
      */
     public static final Pattern PATT_VAR = Pattern.compile("\\{(\\^?[0-9a-zA-Z._$]{3,})}");
 
+    // 主键名称
+    public static final String VAR_ID = "{ID}";
+    // 当前日期时间
+    public static final String VAR_NOW = "{NOW}";
+
     /**
      * 替换文本中的字段变量
      *
@@ -54,12 +59,10 @@ public class ContentWithFieldVars {
     public static String replaceWithRecord(String content, ID recordId) {
         if (StringUtils.isBlank(content) || recordId == null) return content;
 
-        final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
-        final String pkName = entity.getPrimaryField().getName();
+        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+        String pkName = entity.getPrimaryField().getName();
 
-        // 固定占位符
-        content = content.replace("{ID}", String.format("{%s}", pkName));
-        content = content.replace("{NOW}", CalendarUtils.getUTCDateFormat().format(CalendarUtils.now()));
+        content = replaceCommonVars(content, pkName);
 
         Set<String> fieldVars = new HashSet<>();
         for (String field : matchsVars(content)) {
@@ -87,11 +90,9 @@ public class ContentWithFieldVars {
     public static String replaceWithRecord(String content, Record record) {
         if (StringUtils.isBlank(content) || record == null) return content;
 
-        final Entity entity = record.getEntity();
+        Entity entity = record.getEntity();
 
-        // 固定占位符
-        content = content.replace("{ID}", String.format("{%s}", entity.getPrimaryField().getName()));
-        content = content.replace("{NOW}", CalendarUtils.getUTCDateFormat().format(CalendarUtils.now()));
+        content = replaceCommonVars(content, entity.getPrimaryField().getName());
 
         Map<String, String> fieldVars = new HashMap<>();
         for (String field : matchsVars(content)) {
@@ -143,6 +144,23 @@ public class ContentWithFieldVars {
             }
 
             content = content.replace("{" + field + "}", StringUtils.defaultIfBlank(value, StringUtils.EMPTY));
+        }
+        return content;
+    }
+
+    /**
+     * 固定占位符
+     *
+     * @param content
+     * @param pkName
+     * @return
+     */
+    static String replaceCommonVars(String content, String pkName) {
+        if (content.contains(VAR_ID)) {
+            content = content.replace(VAR_ID, String.format("{%s}", pkName));
+        }
+        if (content.contains(VAR_NOW)) {
+            content = content.replace(VAR_NOW, CalendarUtils.getUTCDateFormat().format(CalendarUtils.now()));
         }
         return content;
     }
