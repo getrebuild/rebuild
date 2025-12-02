@@ -49,6 +49,13 @@ public class ErrorPageView extends BaseController {
                 Language.L("不支持 IE10 及以下的浏览器 [] 推荐使用 Edge、Chrome、Firefox 或 IE11"));
     }
 
+    @GetMapping("/error/error")
+    public ModelAndView pageError(HttpServletRequest request) {
+        String msgMsg = request.getParameter("msg");
+        if (StringUtils.isBlank(msgMsg)) msgMsg = Language.L("系统繁忙，请稍后重试");
+        return createErrorPage(msgMsg);
+    }
+
     /**
      * @param msg
      * @return

@@ -6231,3 +6231,25 @@ div.formula-code {
 .modal-dialog-maximize.modal-dialog-scrollable .CodeMirror-fullscreen {
   top: 127.6px !important;
 }
+
+.search-input425 {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.search-input425 > input {
+  border: 0 none;
+  width: 100%;
+  padding: 3px 0;
+  appearance: none;
+  outline: 0 none;
+  background-color: transparent;
+}
+
+.search-input425 > .zmdi {
+  position: absolute;
+  right: 1px;
+  bottom: 5px;
+  color: #999;
+  font-size: 15px;
+}
