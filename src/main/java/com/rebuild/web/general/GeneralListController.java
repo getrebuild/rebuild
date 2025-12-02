@@ -216,7 +216,7 @@ public class GeneralListController extends EntityController {
             String known = KnownExceptionConverter.convert2ErrorMsg(ex);
             if (known != null) return RespBody.error(known);
 
-            log.error(null, ex);
+            log.error("data-list", ex);
             return RespBody.error(ex.getLocalizedMessage());
         }
     }

@@ -493,7 +493,7 @@ a.btn {
 
 .input-search button .icon,
 .adv-search button .icon {
-  font-size: 1.55rem !important;
+  font-size: 17px !important;
   color: #737373;
 }
 
@@ -684,7 +684,7 @@ div.dataTables_filter .filter-badge:hover .close {
 }
 
 .adv-search .J_filterbtn .icon {
-  font-size: 16px !important;
+  font-size: 15px !important;
 }
 
 .adv-search .dropdown-menu.rb-scroller {

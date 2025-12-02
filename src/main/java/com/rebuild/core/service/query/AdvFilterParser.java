@@ -410,7 +410,8 @@ public class AdvFilterParser extends SetUser {
                     || ParseHelper.YTA.equalsIgnoreCase(op)
                     || ParseHelper.TTA.equalsIgnoreCase(op)
                     || ParseHelper.DDD.equalsIgnoreCase(op) || isHHH
-                    || ParseHelper.EVW.equalsIgnoreCase(op) || ParseHelper.EVM.equalsIgnoreCase(op)) {
+                    || ParseHelper.EVW.equalsIgnoreCase(op) || ParseHelper.EVM.equalsIgnoreCase(op)
+                    || ParseHelper.EVW2.equalsIgnoreCase(op) || ParseHelper.EVM2.equalsIgnoreCase(op)) {
 
                 if (ParseHelper.DDD.equalsIgnoreCase(op)) {
                     int x = NumberUtils.toInt(value);
@@ -448,6 +449,16 @@ public class AdvFilterParser extends SetUser {
                         today.set(Calendar.DAY_OF_MONTH, x);
                     }
                     value = formatDate(today.getTime(), 0);
+                } else if (ParseHelper.EVW2.equalsIgnoreCase(op) || ParseHelper.EVM2.equalsIgnoreCase(op)) {
+                    int x = NumberUtils.toInt(value);
+                    if (ParseHelper.EVW2.equalsIgnoreCase(op)) {
+                        field = String.format("DAYOFWEEK(%s)", field);
+                        if (x == 7) x = 1;
+                        else x = x + 1;
+                    } else {
+                        field = String.format("DAY(%s)", field);
+                    }
+                    value = x + "";
                 }
                 else if (ParseHelper.YTA.equalsIgnoreCase(op)) {
                     value = formatDate(addDay(-1), 0);
@@ -690,8 +701,13 @@ public class AdvFilterParser extends SetUser {
                 || op.equalsIgnoreCase(ParseHelper.SFD) || op.equalsIgnoreCase(ParseHelper.SFT)
                 || op.equalsIgnoreCase(ParseHelper.REP)) {
             sb.append(value);
-        } else {
-            // LIKE
+        }
+        // NUMBER
+        else if (op.equalsIgnoreCase(ParseHelper.EVW2) || op.equalsIgnoreCase(ParseHelper.EVM2)) {
+            sb.append(value);
+        }
+        // LIKE
+        else {
             if (op.equalsIgnoreCase(ParseHelper.LK) || op.equalsIgnoreCase(ParseHelper.NLK)) {
                 value = '%' + value.replace("%", "\\%") + '%';
             } else if (op.equalsIgnoreCase(ParseHelper.LK1)) {
@@ -754,18 +770,6 @@ public class AdvFilterParser extends SetUser {
                     value += (fullTime ? ParseHelper.FULL_TIME : ParseHelper.ZERO_TIME);  // 含当日
                 }
             }
-            // v3.8 不修正了，否则因为格式问题（如日期带日、不带日）就带来不同的查询结果，这很怪异
-//            // 修正月、日
-//            else if (field.getType() == FieldType.DATE && valueLen == 10) {
-//                String dateFormat = StringUtils.defaultIfBlank(
-//                        EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.DATE_FORMAT),
-//                        DisplayType.DATE.getDefaultFormat());
-//                if (dateFormat.length() == 4) {
-//                    value = value.substring(0, 4) + "-01-01";
-//                } else if (dateFormat.length() == 7) {
-//                    value = value.substring(0, 7) + "-01";
-//                }
-//            }
 
             // 多个值的情况下，兼容 | 号分割
             if (op.equalsIgnoreCase(ParseHelper.IN) || op.equalsIgnoreCase(ParseHelper.NIN)

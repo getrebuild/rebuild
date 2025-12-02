@@ -102,8 +102,10 @@ public class ParseHelper {
     public static final String MMM = "MMM";  // 指定月+-
     public static final String DDD = "DDD";  // 指定天+-
     public static final String HHH = "HHH";  // 指定时+-
-    public static final String EVW = "EVW";  // 每周几
-    public static final String EVM = "EVM";  // 每月几
+    @Deprecated public static final String EVW = "EVW";  // 本周几
+    @Deprecated public static final String EVM = "EVM";  // 本月几
+    public static final String EVW2 = "EVW2";  // 每周几
+    public static final String EVM2 = "EVM2";  // 每月几
 
     public static final String REP = "REP";  // 重复的
 
@@ -194,7 +196,8 @@ public class ParseHelper {
                 YYY.equalsIgnoreCase(token) || MMM.equalsIgnoreCase(token)) {
             return "between";
         } else if (DDD.equalsIgnoreCase(token) || HHH.equalsIgnoreCase(token)
-                || EVW.equalsIgnoreCase(token) || EVM.equalsIgnoreCase(token)) {
+                || EVW.equalsIgnoreCase(token) || EVM.equalsIgnoreCase(token)
+                || EVW2.equalsIgnoreCase(token) || EVM2.equalsIgnoreCase(token)) {
             return "=";
         }
 
