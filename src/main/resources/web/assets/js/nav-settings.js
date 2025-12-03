@@ -41,12 +41,10 @@ $(document).ready(() => {
         },
       })
       .on('change', () => {
-        if (item_current_isNew === true) {
-          const d = _entities[$ref.val()]
-          if (d) {
-            $('.J_menuIcon>i').attr('class', use_icon(d.icon))
-            $('.J_menuName').val(d.label)
-          }
+        const d = _entities[$ref.val()]
+        if (d) {
+          $('.J_menuIcon>i').attr('class', use_icon(d.icon))
+          $('.J_menuName').val(d.label)
         }
 
         if ($ref.val() === TYPE_PARENT) $('.J_parentOption').show()
@@ -223,7 +221,6 @@ const build_item = function (item) {
 }
 
 let item_currentid
-let item_current_isNew
 
 const render_item = function (data, isNew, append2) {
   data.id = data.id || $random()
@@ -317,7 +314,6 @@ const render_item = function (data, isNew, append2) {
     $('.J_menuName').focus()
   }
 
-  item_current_isNew = isNew
   return $item
 }
 
