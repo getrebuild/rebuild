@@ -206,6 +206,7 @@ class TriggerEdit extends ConfigFormDlg {
                     return (
                       <option key={item[0]} value={item[0]}>
                         {item[1]}
+                        {item[0] === 'GROUPAGGREGATION' && ' (废弃)'}
                       </option>
                     )
                   })}
