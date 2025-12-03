@@ -588,6 +588,8 @@ class MyBookmarkSettings extends RbModalHandler {
   componentDidMount() {
     // super.componentDidMount()
     $(this._$name).find('input[type=color]').tooltip({})
+    let rndColor = RBCOLORS[Math.floor(Math.random() * (RBCOLORS.length + 1))]
+    if (rndColor) $(this._$name).find('input[type=color]').val(rndColor)
 
     $.get('/commons/metadata/entities?detail=true&filterSys=true', (res) => {
       this.setState({ _entities: res.data || [] }, () => {
@@ -600,7 +602,7 @@ class MyBookmarkSettings extends RbModalHandler {
           .on('change', (e) => {
             let entity = e.currentTarget.value
             entity = this.state._entities.find((item) => item.name === entity)
-            $(this._$name).find('input').val(entity.entityLabel)
+            $(this._$name).find('input[type=text]').val(entity.entityLabel)
             $(this._$name)
               .find('i')
               .attr({ 'class': `zmdi zmdi-${entity.icon}`, 'data-icon': entity.icon })

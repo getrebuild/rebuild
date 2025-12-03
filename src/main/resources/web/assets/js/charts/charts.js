@@ -2032,15 +2032,12 @@ class MyBookmark extends BaseChart {
               else if (item.actionType === 3) title = $L('外部地址')
 
               return (
-                <a key={idx} onClick={() => this._action(item)} style={{ backgroundColor: item.color }} className={clazz} title={title}>
+                <a key={idx} onClick={() => this._action(item)} style={{ backgroundColor: item.color }} className={clazz} title={title} data-id={item._id}>
                   <span className="icon">
                     <i className={`zmdi zmdi-${item.icon || 'texture'}`} />
                   </span>
-                  <div className="name">
-                    {item.name}
-                    <span>{item.desc || null}</span>
-                  </div>
-                  <em className="del" title={$L('移除')} onClick={() => this._del(item)}>
+                  <div className="name text-break">{item.name}</div>
+                  <em className="del" title={$L('移除')} onClick={(e) => this._del(item, e)}>
                     <i className="zmdi zmdi-close" />
                   </em>
                 </a>
@@ -2066,7 +2063,8 @@ class MyBookmark extends BaseChart {
     this._dataLast = data
   }
 
-  _del(item) {
+  _del(item, e) {
+    $stopEvent(e, true)
     let dataNew = this._dataLast.filter((x) => x._id !== item._id)
     $.post(`/dashboard/builtin-chart-save?id=${this.props.id}`, JSON.stringify(dataNew), () => {
       this.loadChartData()
