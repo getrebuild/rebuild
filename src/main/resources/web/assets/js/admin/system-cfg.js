@@ -398,13 +398,15 @@ class DlgBackup extends RbAlert {
               </table>
             </div>
           ) : (
-            <div className="text-warning mb-1" ref={(c) => (this._$tips = c)}>
+            <div className="text-warning" ref={(c) => (this._$tips = c)}>
               <i className="mdi-alert-outline mdi" /> {$L('请勿在业务高峰时段执行备份')}
             </div>
           )}
-          <button type="button" className="btn btn-space btn-primary" onClick={this.confirm} ref={(c) => (this._$btn = c)} data-spinner>
-            {$L('开始备份')}
-          </button>
+          <div className="mt-2">
+            <button type="button" className="btn btn-space btn-primary" onClick={this.confirm} ref={(c) => (this._$btn = c)} data-spinner>
+              {$L('开始备份')}
+            </button>
+          </div>
         </div>
       </form>
     )
