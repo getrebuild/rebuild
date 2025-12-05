@@ -208,9 +208,14 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
         } else if (!isIgnoreAuth(requestUri)) {
             // 独立验证逻辑
-            if (requestUri.contains("/filex/") && !requestUri.contains("..")) {
-                // v4.2-b4
-                if (!requestUri.contains("/filex/editor")) return true;
+            if (requestUri.contains("/filex/")) {
+                if (requestUri.contains("../") || requestUri.contains("/..")) {
+                    // @see CommonsUtils#checkSafeFilePath
+                } else if (requestUri.contains("/filex/editor")) {
+                    // 独立验证逻辑
+                } else {
+                    return true;
+                }
             }
 
             log.warn("Unauthorized access {}", RebuildWebConfigurer.getRequestUrls(request));
@@ -290,7 +295,8 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
     }
 
     private boolean isIgnoreAuth(String requestUri) {
-        if (requestUri.contains("..")) return false;
+        requestUri = CodecUtils.urlDecode(requestUri);
+        if (requestUri.contains("../") || requestUri.contains("/..")) return false;
         if (requestUri.contains("/user/") && !requestUri.contains("/user/admin")) return true;
 
         requestUri = requestUri.replaceFirst(AppUtils.getContextPath(), "");
