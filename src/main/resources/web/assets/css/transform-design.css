@@ -152,9 +152,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .row.title2 a.filter {
   color: #999;
   margin-left: 10px;
-  margin-top: -2px;
+  margin-top: -1px;
   position: absolute;
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .row.title2 a.filter:hover,

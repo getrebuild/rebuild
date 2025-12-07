@@ -144,17 +144,19 @@ $(document).ready(() => {
 
   // 4.3
   $('#one2nMode').on('click', function () {
-    if ($val(this)) {
-      $('.J_one2nMode-set').removeClass('hide')
-    } else {
-      $('.J_one2nMode-set').addClass('hide')
-    }
+    if ($val(this)) $('.J_one2nMode-set').removeClass('hide')
+    else $('.J_one2nMode-set').addClass('hide')
   })
   wpc.sourceEntity.fields.forEach((field) => {
-    if (!field.name.includes('.') && ['NUMBER', 'N2NREFERENCE', 'MULTISELECT', 'TAG'].includes(field.type)) {
+    if (field.name.includes('approvalStepUsers') || field.name.includes('.seq')) return
+    // if (field.name.includes('.')) return
+    if (['NUMBER', 'N2NREFERENCE', 'MULTISELECT', 'TAG'].includes(field.type)) {
       $(`<option value="${field.name}">${field.label}</option>`).appendTo('.J_one2nMode-fields select')
     }
   })
+  if ($('.J_one2nMode-fields select option').length === 0) {
+    $(`<option value="">${$L('无')}</option>`).appendTo('.J_one2nMode-fields select')
+  }
 
   const $btn = $('.J_save').on('click', function () {
     const one2nMode = $('#one2nMode').prop('checked')
@@ -227,8 +229,13 @@ $(document).ready(() => {
       importsMode: $val('#importsMode'),
       importsFilter: importsFilter || null,
       importsMode2Auto: ($val('#importsMode2Auto1') ? 1 : 0) + ($val('#importsMode2Auto2') ? 2 : 0),
-      one2nMode: $val('#one2nMode'),
+      one2nMode: one2nMode,
       one2nModeField: $val('.J_one2nMode-fields select'),
+    }
+
+    if (one2nMode && !config.one2nModeField) {
+      RbHighbar.createl('请选择转换依据字段')
+      return
     }
 
     const _data = {
@@ -376,7 +383,7 @@ class FieldsMapping extends React.Component {
             {se.label}
             {this.props.isDetail && (
               <a className={`filter ${this.state.filterData && 'active'}`} title={$L('明细转换条件')} onClick={() => this._saveFilter()}>
-                <i className="icon mdi mdi-filter" />
+                <i className="icon mdi mdi-filter-check-outline" />
               </a>
             )}
           </div>

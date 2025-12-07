@@ -561,7 +561,7 @@ class MyBookmarkSettings extends RbModalHandler {
                         <i className="zmdi zmdi-texture" />
                       </span>
                     </span>
-                    <input type="text" className="form-control form-control-sm" maxLength="100" />
+                    <input type="text" className="form-control form-control-sm" maxLength="100" placeholder={$L('名称')} />
                   </div>
                 </div>
                 <div className="col-2">
@@ -609,6 +609,19 @@ class MyBookmarkSettings extends RbModalHandler {
           })
       })
     })
+
+    const $icon = $(this._$name)
+      .find('.input-group-text')
+      .on('click', () => {
+        window.clickIcon = function (s) {
+          $icon.find('i').attr({
+            'class': `zmdi zmdi-${s}`,
+            'data-icon': s,
+          })
+          RbModal.hide()
+        }
+        RbModal.create('/p/common/search-icon', $L('选择图标'))
+      })
   }
 
   handleConfirm() {
@@ -636,9 +649,7 @@ class MyBookmarkSettings extends RbModalHandler {
         return RbHighbar.create($L('请输入外部地址'))
       }
     }
-    if (!append.name) {
-      return RbHighbar.create($L('请输入名称'))
-    }
+    // # color
     if (append.color === '#000000') append.color = null
 
     const $btn = $(this._$btn).find('.btn').button('loading')

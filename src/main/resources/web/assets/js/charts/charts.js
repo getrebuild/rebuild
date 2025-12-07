@@ -2024,9 +2024,9 @@ class MyBookmark extends BaseChart {
         <div className="bookmarks">
           {data &&
             data.map((item, idx) => {
-              let clazz = '',
+              let clazz = 'item ',
                 title = ''
-              if (item.color) clazz = $isLight(item.color) ? '' : 'dark'
+              if (item.color) clazz += $isLight(item.color) ? '' : 'dark'
               if (item.actionType === 1) title = $L('新建')
               else if (item.actionType === 2) title = $L('列表')
               else if (item.actionType === 3) title = $L('外部地址')
@@ -2036,7 +2036,7 @@ class MyBookmark extends BaseChart {
                   <span className="icon">
                     <i className={`zmdi zmdi-${item.icon || 'texture'}`} />
                   </span>
-                  <div className="name text-break">{item.name}</div>
+                  {item.name && <div className="name text-break">{item.name}</div>}
                   <em className="del" title={$L('移除')} onClick={(e) => this._del(item, e)}>
                     <i className="zmdi zmdi-close" />
                   </em>
@@ -2059,17 +2059,47 @@ class MyBookmark extends BaseChart {
       </RF>
     )
 
-    this.setState({ chartdata: chartdata }, () => {})
+    const that = this
+    this.setState({ chartdata: chartdata }, () => {
+      const $bs = $(this._$box)
+        .find('.bookmarks')
+        .sortable({
+          items: '>.item',
+          axis: 'x',
+          containment: 'parent',
+          cursor: 'move',
+          forcePlaceholderSize: true,
+          forceHelperSize: true,
+          delay: 400,
+          stop: function () {
+            let dataNew = []
+            $bs.find('.item').each(function () {
+              let _id = $(this).data('id')
+              // eslint-disable-next-line eqeqeq
+              let item = that._dataLast.find((x) => x._id == _id)
+              item && dataNew.push(item)
+            })
+            // Re-Save
+            $.post(`/dashboard/builtin-chart-save?id=${that.props.id}`, JSON.stringify(dataNew), () => {
+              that.loadChartData()
+            })
+          },
+        })
+        .disableSelection()
+    })
     this._dataLast = data
   }
 
   _del(item, e) {
     $stopEvent(e, true)
     let dataNew = this._dataLast.filter((x) => x._id !== item._id)
+    // Re-Save
     $.post(`/dashboard/builtin-chart-save?id=${this.props.id}`, JSON.stringify(dataNew), () => {
       this.loadChartData()
     })
   }
+
+  _move() {}
 
   _action(item) {
     if (item.actionType === 1) {
