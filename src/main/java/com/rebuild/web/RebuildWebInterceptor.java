@@ -212,7 +212,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 if (requestUri.contains("../") || requestUri.contains("/..")) {
                     // @see CommonsUtils#checkSafeFilePath
                 } else if (requestUri.contains("/filex/editor")) {
-                    // 独立验证逻辑
+                    // 这个需要登录
                 } else {
                     return true;
                 }
