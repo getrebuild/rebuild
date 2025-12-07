@@ -36,8 +36,8 @@ public class FilterRecordChecker {
 
         Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 
-        String sqlWhere = new AdvFilterParser(filterExpr, entity)
-                .toSqlWhere();
+        // be:4.2.5 支持字段变量
+        String sqlWhere = new AdvFilterParser(filterExpr, recordId).toSqlWhere();
         sqlWhere += String.format(" and (%s = '%s')", entity.getPrimaryField().getName(), recordId);
 
         String checkSql = String.format("select %s from %s where %s",

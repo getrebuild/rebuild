@@ -16,7 +16,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.service.query.AdvFilterParser;
+import com.rebuild.core.service.query.FilterRecordChecker;
 import com.rebuild.core.service.query.ParseHelper;
 import lombok.extern.slf4j.Slf4j;
 
@@ -81,14 +81,19 @@ public class RecordTransfomer37 extends RecordTransfomer {
             Entity dSourceEntity = fmdEntity[1];
 
             String querySourceSql = buildDetailsSourceSql(dSourceEntity, sourceRecordId);
-            String filter = appendFilter(fmd);
-            if (filter != null) querySourceSql = querySourceSql.replace("(1=1)", filter);
-
             Object[][] dArray = Application.createQueryNoFilter(querySourceSql).array();
+            // be:4.2.5 支持字段变量
+            JSONObject transFilter = getTransFilter(fmd);
+            FilterRecordChecker transChecker = transFilter != null ? new FilterRecordChecker(transFilter) : null;
+
             Map<String, Object> dvMap4Details = Collections.singletonMap(
                     MetadataHelper.getDetailToMainField(dTargetEntity).getName(), EntityHelper.UNSAVED_ID);
 
             for (Object[] d : dArray) {
+                if (transChecker != null) {
+                    if (!transChecker.check((ID) d[0])) continue;
+                }
+
                 Record dRecord = transformRecord(
                         dSourceEntity, dTargetEntity, fmd, (ID) d[0], dvMap4Details, false, false, checkNullable);
                 detailsList.add(dRecord);
@@ -147,21 +152,22 @@ public class RecordTransfomer37 extends RecordTransfomer {
     }
 
     /**
+     * 获取转换过滤
+     *
      * @param fmd
      * @return
      */
-    protected static String appendFilter(JSONObject fmd) {
+    protected static JSONObject getTransFilter(JSONObject fmd) {
         JSONObject fmdMeta = fmd.getJSONObject("_");
-        if (fmdMeta == null) throw new ConfigurationException("INCOMPATIBLE(39) TRANSFORM CONFIG");
+        if (fmdMeta == null) return null;
 
         JSONObject hasFilter = fmdMeta.getJSONObject("filter");
-        if (ParseHelper.validAdvFilter(hasFilter)) {
-            return new AdvFilterParser(hasFilter).toSqlWhere();
-        }
-        return null;
+        return ParseHelper.validAdvFilter(hasFilter) ? hasFilter : null;
     }
 
     /**
+     * 构建明细查询语句
+     *
      * @param sourceEntity
      * @param sourceId
      * @return

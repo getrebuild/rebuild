@@ -1205,7 +1205,7 @@ class Md2Html extends React.Component {
 
   componentDidMount() {
     let md = this.props.markdown
-    if (this.props.keepHtml !== true) {
+    if (this.props.keepHtml === false) {
       md = md.replace(/>/g, '&gt;').replace(/</g, '&lt;')
       md = md.replace(/&gt; /g, '> ')
     }
