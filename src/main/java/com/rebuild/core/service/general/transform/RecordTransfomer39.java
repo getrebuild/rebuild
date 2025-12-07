@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.general.GeneralEntityService;
+import com.rebuild.core.service.query.FilterRecordChecker;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.CommonsLog;
 import lombok.extern.slf4j.Slf4j;
@@ -168,15 +169,20 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
             Entity dSourceEntity = fmdEntity[1];
 
             String querySourceSql = buildDetailsSourceSql(dSourceEntity, sourceRecordId);
-            String filter = appendFilter(fmd);
-            if (filter != null) querySourceSql = querySourceSql.replace("(1=1)", filter);
-
             Object[][] dArray = Application.createQueryNoFilter(querySourceSql).array();
+            // be:4.2.5 支持字段变量
+            JSONObject transFilter = getTransFilter(fmd);
+            FilterRecordChecker transChecker = transFilter != null ? new FilterRecordChecker(transFilter) : null;
 
             JSONArray formModelDetails = new JSONArray();
             FormsBuilderContextHolder.setMainIdOfDetail(fakeMainId);
+
             try {
                 for (Object[] d : dArray) {
+                    if (transChecker != null) {
+                        if (!transChecker.check((ID) d[0])) continue;
+                    }
+
                     Record dRecord = transformRecord(
                             dSourceEntity, dTargetEntity, fmd, (ID) d[0], null, true, false, false);
 
@@ -259,15 +265,17 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
     // --
 
     /**
+     * 构造明细导入配置
+     *
      * @param mainEntity
      * @return
      */
     public static List<Object> buildDetailImports39(Entity mainEntity) {
-        List<Object> alist = new ArrayList<>();
+        List<Object> importsConfs = new ArrayList<>();
         for (Entity de : mainEntity.getDetialEntities()) {
-            List<ConfigBean> confImports = TransformManager.instance.getDetailImports(de.getName());
-            if (!confImports.isEmpty()) {
-                for (ConfigBean c : confImports) {
+            List<ConfigBean> cb = TransformManager.instance.getDetailImports(de.getName());
+            if (!cb.isEmpty()) {
+                for (ConfigBean c : cb) {
                     JSONObject trans = (JSONObject) EasyMetaFactory.valueOf(c.getString("source")).toJSON();
                     trans.put("transid", c.getID("id"));
                     trans.put("transName", c.getString("name"));
@@ -288,11 +296,11 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
                     }
 
                     trans.put("detailName", de.getName());
-                    alist.add(trans);
+                    importsConfs.add(trans);
                 }
 
             }
         }
-        return alist;
+        return importsConfs;
     }
 }

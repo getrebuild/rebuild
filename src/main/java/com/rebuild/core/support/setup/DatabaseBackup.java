@@ -53,10 +53,8 @@ public class DatabaseBackup {
      * @throws IOException
      */
     public File backup() throws IOException {
-        File backupd = RebuildConfiguration.getFileOfData("_backups");
-        if (!backupd.exists()) FileUtils.forceMkdir(backupd);
-
-        return backup(backupd);
+        File backups = RebuildConfiguration.getFileOfData("_backups");
+        return backup(backups);
     }
 
     /**
@@ -65,6 +63,8 @@ public class DatabaseBackup {
      * @throws IOException
      */
     public File backup(File backups) throws IOException {
+        if (!backups.exists()) FileUtils.forceMkdir(backups);
+
         String url = BootEnvironmentPostProcessor.getProperty("db.url");
         String user = BootEnvironmentPostProcessor.getProperty("db.user");
         String passwd = BootEnvironmentPostProcessor.getProperty("db.passwd");
