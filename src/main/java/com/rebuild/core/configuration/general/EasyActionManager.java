@@ -140,7 +140,7 @@ public class EasyActionManager extends BaseLayoutManager {
 
         if (es5Changed) {
             Record r = RecordBuilder.builder(layoutId)
-                    .add("extConfig", configJson.toJSONString())
+                    .add("config", configJson.toJSONString())
                     .build(UserService.SYSTEM_USER);
             Application.getCommonsService().update(r, false);
 
