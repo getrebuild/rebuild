@@ -21,6 +21,7 @@ import com.rebuild.core.support.SysbaseHeartbeat;
 import com.rebuild.core.support.distributed.DistributedJobLock;
 import com.rebuild.core.support.setup.DatabaseBackup;
 import com.rebuild.core.support.setup.DatafileBackup;
+import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.FileFilterByLastModified;
 import com.rebuild.utils.OshiUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -72,7 +73,7 @@ public class PerHourJob extends DistributedJobLock {
         // 未开启备份
         if (!RebuildConfiguration.getBool((ConfigurationItem.DBBackupsEnable))) {
             SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, null);
-            SysbaseHeartbeat.setItem(SysbaseHeartbeat.DataFileBackupFail, null);
+            SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatafileBackupFail, null);
             return;
         }
 
@@ -86,20 +87,26 @@ public class PerHourJob extends DistributedJobLock {
             }
         }
 
-        try {
-            new DatabaseBackup().backup(backups);
-            SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, null);
-        } catch (Exception e) {
-            log.error("Executing [DatabaseBackup] fails", e);
-            SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, e.getLocalizedMessage());
+        // DB
+        if (Installer.isUseH2()) {
+            log.warn("H2DB Unsupportted backup");
+        } else {
+            try {
+                new DatabaseBackup().backup(backups);
+                SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, null);
+            } catch (Exception e) {
+                log.error("Executing [DatabaseBackup] fails", e);
+                SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, e.getLocalizedMessage());
+            }
         }
 
+        // FILES
         try {
             new DatafileBackup().backup(backups);
-            SysbaseHeartbeat.setItem(SysbaseHeartbeat.DataFileBackupFail, null);
+            SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatafileBackupFail, null);
         } catch (Exception e) {
-            log.error("Executing [DataFileBackup] fails", e);
-            SysbaseHeartbeat.setItem(SysbaseHeartbeat.DataFileBackupFail, e.getLocalizedMessage());
+            log.error("Executing [DatafileBackup] fails", e);
+            SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatafileBackupFail, e.getLocalizedMessage());
         }
 
         int keepDays = RebuildConfiguration.getInt(ConfigurationItem.DBBackupsKeepingDays);

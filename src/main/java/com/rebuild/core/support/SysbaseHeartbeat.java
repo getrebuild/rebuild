@@ -42,7 +42,7 @@ public class SysbaseHeartbeat {
     private static final String DateNotSync = "DateNotSync";
 
     public static final String DatabaseBackupFail = "DatabaseBackupFail";
-    public static final String DataFileBackupFail = "DataFileBackupFail";
+    public static final String DatafileBackupFail = "DatafileBackupFail";
 
     /**
      * Check server
@@ -139,10 +139,10 @@ public class SysbaseHeartbeat {
                         Language.L("数据备份失败") + String.format("<blockquote class=\"code\">%s</blockquote>", hasDatabaseBackupFail));
             }
 
-            String hasDataFileBackupFail = dangers.get(DataFileBackupFail);
-            if (hasDataFileBackupFail != null) {
-                dangers.put(DataFileBackupFail,
-                        Language.L("数据备份失败") + String.format("<blockquote class=\"code\">%s</blockquote>", hasDataFileBackupFail));
+            String hasDatafileBackupFail = dangers.get(DatafileBackupFail);
+            if (hasDatafileBackupFail != null) {
+                dangers.put(DatafileBackupFail,
+                        Language.L("数据备份失败") + String.format("<blockquote class=\"code\">%s</blockquote>", hasDatafileBackupFail));
             }
         }
 

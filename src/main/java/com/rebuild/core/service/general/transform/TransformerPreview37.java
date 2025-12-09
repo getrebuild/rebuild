@@ -21,6 +21,7 @@ import com.rebuild.core.configuration.general.FormsBuilderContextHolder;
 import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.service.query.FilterRecordChecker;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -76,15 +77,20 @@ public class TransformerPreview37 extends TransformerPreview {
             if (!detailName.equalsIgnoreCase(dTargetEntity.getName())) continue;
 
             String querySourceSql = RecordTransfomer37.buildDetailsSourceSql(dSourceEntity, sourceId);
-            String filter = RecordTransfomer37.appendFilter(fmd);
-            if (filter != null) querySourceSql = querySourceSql.replace("(1=1)", filter);
-
             Object[][] dArray = Application.createQueryNoFilter(querySourceSql).array();
+            // be:4.2.5 支持字段变量
+            JSONObject transFilter = RecordTransfomer37.getTransFilter(fmd);
+            FilterRecordChecker transChecker = transFilter != null ? new FilterRecordChecker(transFilter) : null;
 
             ID fakeMainid = EntityHelper.newUnsavedId(sourceEntity.getEntityCode());
             FormsBuilderContextHolder.setMainIdOfDetail(fakeMainid);
+
             try {
                 for (Object[] d : dArray) {
+                    if (transChecker != null) {
+                        if (!transChecker.check((ID) d[0])) continue;
+                    }
+
                     Record targetRecord = transfomer.transformRecord(
                             dSourceEntity, dTargetEntity, fmd, (ID) d[0], null, true, false, false);
 

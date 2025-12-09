@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -389,6 +390,9 @@ public class FieldAggregation extends TriggerAction {
                 newTargetRecord.setObjectValue(targetField, val);
             }
         }
+
+        // fix:4.2.5
+        AutoFillinManager.instance.fillinRecord(newTargetRecord);
 
         // 不必担心必填字段，必填只是前端约束
         // 还可以通过设置字段默认值来完成必填字段的自动填写
