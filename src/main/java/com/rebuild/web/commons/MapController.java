@@ -37,7 +37,7 @@ public class MapController extends BaseController {
 
         // https://lbsyun.baidu.com/index.php?title=webapi/place-suggestion-api
         String ak = StringUtils.defaultIfBlank(
-                RebuildConfiguration.get(ConfigurationItem.PortalBaiduMapAk), "YQKHNmIcOgYccKepCkxetRDy8oTC28nD");
+                RebuildConfiguration.get(ConfigurationItem.PortalBaiduMapAk), "byrCFRGA3PVDu0pYYVVZO6ueoGM37IlH");
         String qUrl = String.format(
                 "https://api.map.baidu.com/place/v2/suggestion?q=%s&region=%s&city_limit=%s&output=json&ak=%s",
                 CodecUtils.urlEncode(q), CodecUtils.urlEncode(city), "false", ak);
