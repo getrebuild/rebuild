@@ -512,6 +512,7 @@ class MyBookmarkSettings extends RbModalHandler {
                         <optgroup label={$L('业务实体')}>
                           {this.state._entities &&
                             this.state._entities.map((item) => {
+                              if (item.mainEntity) return null
                               return (
                                 <option key={item.name} value={item.name}>
                                   {item.entityLabel}
@@ -543,7 +544,7 @@ class MyBookmarkSettings extends RbModalHandler {
                   <div className="tab-pane" id="MBA3">
                     <div>
                       <label>{$L('支持绝对地址或相对地址')}</label>
-                      <input type="text" className="form-control form-control-sm" />
+                      <input type="text" className="form-control form-control-sm" placeholder={$L('输入外部地址')} />
                     </div>
                   </div>
                 </div>
