@@ -4418,8 +4418,8 @@ h3.modal-title > .rbv {
   background-color: #16a88f !important;
 }
 
-.use-theme ul li a.theme-random {
-  background-image: linear-gradient(135deg, #16a88f 0%, #16a88f 50%, #9b52de 51%, #9b52de 100%) !important;
+.use-theme ul li a.theme-purple2 {
+  background-color: #6a70b8 !important;
 }
 
 .btn.btn-theme {
