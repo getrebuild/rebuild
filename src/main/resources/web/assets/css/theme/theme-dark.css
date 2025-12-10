@@ -91,7 +91,3 @@ html[data-theme='dark'] .chart .table {
 .navbar-collapse .navbar-nav > li > a.nav-link:focus {
   color: #fff;
 }
-
-.navbar-collapse .nav-item.active .nav-link::after {
-  background-color: rgba(255, 255, 255, 0.4);
-}

@@ -19,3 +19,7 @@ Copyright (c) Ruifang Tech <http://ruifang-tech.com/> and/or its owners. All rig
 .navbar-more41 .dropdown-menu a {
   color: inherit;
 }
+
+.navbar-collapse .nav-item.active .nav-link::after {
+  background-color: var(--rb-theme-color);
+}
