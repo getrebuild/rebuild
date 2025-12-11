@@ -57,7 +57,7 @@ $(document).ready(() => {
       $('.J_menuIcon>i').attr('class', use_icon(s))
       parent.RbModal.hide()
     }
-    parent.RbModal.create('/p/common/search-icon', $L('选择图标'))
+    parent.RbModal.create('/p/common/search-icon', $L('选择图标'), { zIndex: 1051 })
   })
 
   $('.J_menuConfirm').on('click', () => {

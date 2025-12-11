@@ -487,7 +487,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
           {(this.state.aform || this.state.aform_details) && this.renderLiteForm()}
           {this.state.editableMode === 1 && this.renderEditable()}
 
-          <div className="form-group mb-3">
+          <div className={`form-group mb-3 ${this.state.remarkHide && 'hide'}`}>
             <label>
               {$L('批注')}
               {this.state.expiresTime > 0 && <span className="text-danger ml-1">({$L('已超时 %s', $sec2Time(this.state.expiresTime))})</span>}

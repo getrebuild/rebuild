@@ -88,7 +88,7 @@ class DataListSettings extends RbModalHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
               <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
-                {$L('保存')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
                 {$L('取消')}
@@ -336,7 +336,7 @@ class HeadingTextSettings extends RbModalHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
               <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
-                {$L('保存')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
                 {$L('取消')}
@@ -424,7 +424,7 @@ class EmbedFrameSettings extends RbModalHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
               <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
-                {$L('保存')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
                 {$L('取消')}
@@ -574,7 +574,7 @@ class MyBookmarkSettings extends RbModalHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
               <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
-                {$L('保存')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
                 {$L('取消')}
@@ -621,7 +621,7 @@ class MyBookmarkSettings extends RbModalHandler {
           })
           RbModal.hide()
         }
-        RbModal.create('/p/common/search-icon', $L('选择图标'))
+        RbModal.create('/p/common/search-icon', $L('选择图标'), { zIndex: 1051 })
       })
   }
 
