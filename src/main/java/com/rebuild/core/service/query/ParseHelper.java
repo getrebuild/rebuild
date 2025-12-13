@@ -102,8 +102,8 @@ public class ParseHelper {
     public static final String MMM = "MMM";  // 指定月+-
     public static final String DDD = "DDD";  // 指定天+-
     public static final String HHH = "HHH";  // 指定时+-
-    @Deprecated public static final String EVW = "EVW";  // 本周几
-    @Deprecated public static final String EVM = "EVM";  // 本月几
+    public static final String EVW = "EVW";  // 本周几
+    public static final String EVM = "EVM";  // 本月几
     public static final String EVW2 = "EVW2";  // 每周几
     public static final String EVM2 = "EVM2";  // 每月几
 
