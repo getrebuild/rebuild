@@ -1154,7 +1154,9 @@ const _reloadAndTips = function (dlg, msg) {
   const keepViewId = dlg && parent && parent.RbViewModal && parent.RbViewModal.mode === 2 ? dlg.props.id : null
 
   setTimeout(() => {
+    // View
     if (window.RbViewPage) window.RbViewPage.reload()
+    // List
     if (window.RbListPage) window.RbListPage.reload()
     else if (parent.RbListPage) parent.RbListPage.reload(keepViewId)
   }, 1000)

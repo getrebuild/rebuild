@@ -672,8 +672,13 @@ const RbViewPage = {
           entity={needEntity}
           deleteAfter={(deleted) => {
             if (deleted > 0) {
-              // 刷新主视图
-              parent && parent.RbViewModal && parent.RbViewModal.currentHolder(true)
+              if (parent) {
+                // 刷新主视图
+                parent.RbViewModal && parent.RbViewModal.currentHolder(true)
+                // RbListMode2 删除
+                if (parent.RbListMode2) parent.RbListMode2._forceViewId = '[DELETED]' // fix:4.2.6
+              }
+
               that.hide(true)
             }
           }}
@@ -1034,7 +1039,7 @@ const RbViewPage = {
   // 隐藏
   hide(reload) {
     if (parent && parent !== window) {
-      parent && parent.RbViewModal && parent.RbViewModal.holder(this.__id, 'HIDE')
+      parent.RbViewModal && parent.RbViewModal.holder(this.__id, 'HIDE')
       if (reload === true) {
         if (parent.RbListPage) parent.RbListPage.reload()
         else setTimeout(() => parent.location.reload(), 200)

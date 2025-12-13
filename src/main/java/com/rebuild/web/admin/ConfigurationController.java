@@ -82,8 +82,10 @@ public class ConfigurationController extends BaseController {
         ModelAndView mv = createModelAndView("/admin/system-cfg");
         for (ConfigurationItem item : ConfigurationItem.values()) {
             String value = RebuildConfiguration.get(item);
-            if (value != null && item == ConfigurationItem.OnlyofficeJwt) {
-                value = DataDesensitized.any(value);
+            if (value != null) {
+                if (item == ConfigurationItem.OnlyofficeJwt || item == ConfigurationItem.PortalBaiduMapAk) {
+                    value = DataDesensitized.any(value);
+                }
             }
             mv.getModel().put(item.name(), value);
         }
