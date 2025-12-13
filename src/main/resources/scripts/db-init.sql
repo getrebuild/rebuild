@@ -909,6 +909,20 @@ create table if not exists `aibot_chat_attach` (
   index IX0_aibot_chat_attach (`CHAT_ID`, `CREATED_ON`, `CREATED_BY`)
 )Engine=InnoDB;
 
+-- ************ Entity [DataSyncerConfig] DDL ************
+create table if not exists `data_syncer_config` (
+  `CONFIG_ID`          char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '所属实体',
+  `NAME`               varchar(100) not null comment '名称',
+  `CONFIG`             text(65535) comment '同步配置',
+  `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  primary key  (`CONFIG_ID`)
+)Engine=InnoDB;
+
 -- #3 datas
 
 -- User
