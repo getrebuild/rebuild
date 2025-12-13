@@ -88,7 +88,7 @@ class DataListSettings extends RbModalHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
               <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
-                {$L('保存')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
                 {$L('取消')}
@@ -285,9 +285,7 @@ class HeadingTextSettings extends RbModalHandler {
             </div>
           </div>
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right" style={{ paddingTop: 9 }}>
-              {$L('样式')}
-            </label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('样式')}</label>
             <div className="col-sm-7 HeadingText-style">
               <div className="float-left">
                 <input
@@ -338,7 +336,7 @@ class HeadingTextSettings extends RbModalHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
               <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
-                {$L('保存')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
                 {$L('取消')}
@@ -426,7 +424,7 @@ class EmbedFrameSettings extends RbModalHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
               <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
-                {$L('保存')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
                 {$L('取消')}
@@ -464,6 +462,202 @@ class EmbedFrameSettings extends RbModalHandler {
       $btn.button('reset')
       if (res.error_code === 0) {
         typeof this.props.onConfirm === 'function' && this.props.onConfirm(post)
+        this.hide()
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+}
+
+// ~~ 我的常用配置
+// eslint-disable-next-line no-unused-vars
+class MyBookmarkSettings extends RbModalHandler {
+  constructor(props) {
+    super(props)
+    this._actionType = 1
+  }
+
+  render() {
+    return (
+      <RbModal title={$L('添加常用')} disposeOnHide ref={(c) => (this._dlg = c)}>
+        <div className="form MyBookmark-settings">
+          <div className="form-group row pt-1">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('选择操作')}</label>
+            <div className="col-sm-7">
+              <div className="tab-container" ref={(c) => (this._$content = c)}>
+                <ul className="nav nav-tabs">
+                  <li className="nav-item">
+                    <a className="nav-link active" style={{ paddingTop: 7 }} href="#MBA1" data-toggle="tab" onClick={() => (this._actionType = 1)}>
+                      {$L('新建')}
+                    </a>
+                  </li>
+                  <li className="nav-item">
+                    <a className="nav-link" style={{ paddingTop: 7 }} href="#MBA2" data-toggle="tab" onClick={() => (this._actionType = 2)}>
+                      {$L('列表')}
+                    </a>
+                  </li>
+                  <li className="nav-item">
+                    <a className="nav-link" style={{ paddingTop: 7 }} href="#MBA3" data-toggle="tab" onClick={() => (this._actionType = 3)}>
+                      {$L('外部地址')}
+                    </a>
+                  </li>
+                </ul>
+                <div className="tab-content m-0 p-0 pt-3">
+                  <div className="tab-pane active" id="MBA1">
+                    <div>
+                      <label>{$L('新建记录')}</label>
+                      <select className="form-control form-control-sm">
+                        <option value="" />
+                        <optgroup label={$L('业务实体')}>
+                          {this.state._entities &&
+                            this.state._entities.map((item) => {
+                              if (item.mainEntity) return null
+                              return (
+                                <option key={item.name} value={item.name}>
+                                  {item.entityLabel}
+                                </option>
+                              )
+                            })}
+                        </optgroup>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="tab-pane" id="MBA2">
+                    <div>
+                      <label>{$L('进入列表')}</label>
+                      <select className="form-control form-control-sm">
+                        <option value="" />
+                        <optgroup label={$L('业务实体')}>
+                          {this.state._entities &&
+                            this.state._entities.map((item) => {
+                              return (
+                                <option key={item.name} value={item.name}>
+                                  {item.entityLabel}
+                                </option>
+                              )
+                            })}
+                        </optgroup>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="tab-pane" id="MBA3">
+                    <div>
+                      <label>{$L('支持绝对地址或相对地址')}</label>
+                      <input type="text" className="form-control form-control-sm" placeholder={$L('输入外部地址')} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
+            <div className="col-sm-7">
+              <div className="row" ref={(c) => (this._$name = c)}>
+                <div className="col-10 pr-0">
+                  <div className="input-group">
+                    <span className="input-group-prepend">
+                      <span className="input-group-text" title={$L('选择图标')}>
+                        <i className="zmdi zmdi-texture" />
+                      </span>
+                    </span>
+                    <input type="text" className="form-control form-control-sm" maxLength="100" placeholder={$L('名称')} />
+                  </div>
+                </div>
+                <div className="col-2">
+                  <input type="color" title={$L('配色')} />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="form-group row footer">
+            <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
+              <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
+                {$L('确定')}
+              </button>
+              <a className="btn btn-link" onClick={this.hide}>
+                {$L('取消')}
+              </a>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    // super.componentDidMount()
+    $(this._$name).find('input[type=color]').tooltip({})
+    let rndColor = RBCOLORS[Math.floor(Math.random() * (RBCOLORS.length + 1))]
+    if (rndColor) $(this._$name).find('input[type=color]').val(rndColor)
+
+    $.get('/commons/metadata/entities?detail=true&filterSys=true', (res) => {
+      this.setState({ _entities: res.data || [] }, () => {
+        $(this._$content)
+          .find('select')
+          .select2({
+            allowClear: false,
+            placeholder: $L('选择'),
+          })
+          .on('change', (e) => {
+            let entity = e.currentTarget.value
+            entity = this.state._entities.find((item) => item.name === entity)
+            $(this._$name).find('input[type=text]').val(entity.entityLabel)
+            $(this._$name)
+              .find('i')
+              .attr({ 'class': `zmdi zmdi-${entity.icon}`, 'data-icon': entity.icon })
+          })
+      })
+    })
+
+    const $icon = $(this._$name)
+      .find('.input-group-text')
+      .on('click', () => {
+        window.clickIcon = function (s) {
+          $icon.find('i').attr({
+            'class': `zmdi zmdi-${s}`,
+            'data-icon': s,
+          })
+          RbModal.hide()
+        }
+        RbModal.create('/p/common/search-icon', $L('选择图标'), { zIndex: 1051 })
+      })
+  }
+
+  handleConfirm() {
+    const append = {
+      icon: $(this._$name).find('i').attr('data-icon'),
+      name: $(this._$name).find('input').val(),
+      color: $(this._$name).find('input[type=color]').val(),
+      actionType: this._actionType,
+      actionParams: [],
+      _id: $random(),
+    }
+    if (this._actionType === 1) {
+      append.actionParams.push($('#MBA1 select').val())
+      if (!append.actionParams[0]) {
+        return RbHighbar.create($L('请选择新建记录'))
+      }
+    } else if (this._actionType === 2) {
+      append.actionParams.push($('#MBA2 select').val())
+      if (!append.actionParams[0]) {
+        return RbHighbar.create($L('请选择进入列表'))
+      }
+    } else if (this._actionType === 3) {
+      append.actionParams.push($('#MBA3 input').val())
+      if (!append.actionParams[0]) {
+        return RbHighbar.create($L('请输入外部地址'))
+      }
+    }
+    // # color
+    if (append.color === '#000000') append.color = null
+
+    const $btn = $(this._$btn).find('.btn').button('loading')
+    $.post(`/dashboard/builtin-chart-save?id=${this.props.chart}&append=true`, JSON.stringify(append), (res) => {
+      $btn.button('reset')
+      if (res.error_code === 0) {
+        typeof this.props.onConfirm === 'function' && this.props.onConfirm(append)
         this.hide()
       } else {
         RbHighbar.error(res.error_msg)

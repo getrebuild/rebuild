@@ -9,12 +9,12 @@ package com.rebuild.core;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.sql.SqlBuilder;
 import cn.devezhao.persist4j.util.SqlHelper;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.Installer;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -120,7 +120,7 @@ public final class ServerStatus {
             }
 
         } catch (Exception ex) {
-            return Status.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+            return Status.error(name, CommonsUtils.getRootMessage(ex));
         } finally {
             SqlHelper.close(rs);
             SqlHelper.close(stmt);
@@ -147,7 +147,7 @@ public final class ServerStatus {
             }
 
         } catch (Exception ex) {
-            return Status.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+            return Status.error(name, CommonsUtils.getRootMessage(ex));
         } finally {
             if (raf != null) IOUtils.closeQuietly(raf);
             if (test != null) FileUtils.deleteQuietly(test);
@@ -179,7 +179,7 @@ public final class ServerStatus {
             cache.putx("ServerStatus.test", 1, 60);
             cache.getx("ServerStatus.test");
         } catch (Exception ex) {
-            return Status.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+            return Status.error(name, CommonsUtils.getRootMessage(ex));
         }
         return Status.success(name);
     }

@@ -1,5 +1,8 @@
 /*!
-Copyright (c) Ruifang Tech <http://ruifang-tech.com/> and/or its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 :root {
@@ -90,8 +93,4 @@ html[data-theme='dark'] .chart .table {
 .navbar-collapse .navbar-nav > li > a.nav-link:hover,
 .navbar-collapse .navbar-nav > li > a.nav-link:focus {
   color: #fff;
-}
-
-.navbar-collapse .nav-item.active .nav-link::after {
-  background-color: rgba(255, 255, 255, 0.4);
 }

@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.metadata;
 
+import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -20,16 +21,13 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigBean;
-import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.EasyActionManager;
-import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityOverview;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
-import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.CopyEntity;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
@@ -42,9 +40,9 @@ import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
+import com.rebuild.rbv.frontjs.service.CodeBabel;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.EntityController;
@@ -69,7 +67,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -175,6 +172,10 @@ public class MetaEntityController extends EntityController {
 
         boolean isBizz = MetadataHelper.isBizzEntity(easyEntity.getRawMeta());
         mv.getModel().put("isBizz", isBizz);
+
+        // v4.3 加快引擎初始化
+        ThreadPool.exec(CodeBabel::hasScriptEngineProvided);
+
         return mv;
     }
 
@@ -372,60 +373,6 @@ public class MetaEntityController extends EntityController {
             }
         }
         return RespBody.ok(set);
-    }
-
-    @GetMapping("entities/sheet")
-    public ModelAndView pageSheet(HttpServletRequest request) {
-        ModelAndView mv = createModelAndView("/admin/metadata/entities-sheet");
-
-        String spec = getParameter(request, "s");
-        Set<String> specList = null;
-        if (StringUtils.isNotBlank(spec)) {
-            specList = new HashSet<>();
-            for (String s : spec.split(",")) specList.add(s.trim().toUpperCase());
-        }
-
-        List<Object[]> entities = new ArrayList<>();
-        for (Entity e : MetadataHelper.getEntities()) {
-            if (specList != null && !specList.contains(e.getName().toUpperCase())) continue;
-
-            final EasyEntity ee = EasyMetaFactory.valueOf(e);
-            if (ee.isBuiltin() && !MetadataHelper.isBizzEntity(e)) continue;
-
-            List<Object[]> fields = new ArrayList<>();
-            fields.add(new Object[]
-                    { "ID", e.getName() + "Id", DisplayType.ID.getDisplayName(), "-", "-", "N/N/N/N" });
-
-            for (Field f : MetadataSorter.sortFields(e)) {
-                final EasyField ef = EasyMetaFactory.valueOf(f);
-                final DisplayType dt = ef.getDisplayType();
-
-                String ref = "-";
-                if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
-                    ref = "e:" + f.getReferenceEntity().getName();
-                } else if (dt == DisplayType.CLASSIFICATION) {
-                    ID cid = ClassificationManager.instance.getUseClassification(f, Boolean.FALSE);
-                    ref = "c:" + FieldValueHelper.getLabelNotry(cid);
-                }
-
-                String opt = "-";
-                if (dt == DisplayType.PICKLIST) {
-                    ConfigBean[] cbs = PickListManager.instance.getPickListRaw(f, Boolean.TRUE);
-                    List<String> texts = new ArrayList<>();
-                    for (ConfigBean cb : cbs) texts.add(cb.getID("id") + ":" + cb.getString("text"));
-                    opt = StringUtils.join(texts, "//");
-                }
-
-                fields.add(new Object[] {
-                        ef.getLabel(), f.getName(), ef.getDisplayType().getDisplayName(), ref, opt,
-                        (ef.isCreatable() ? "Y" : "N") + (ef.isUpdatable() ? "/Y" : "/N") + (ef.isNullable() ? "/Y" : "/N") + (ef.isRepeatable() ? "/Y" : "/N") });
-            }
-
-            entities.add(new Object[] { e.getName(), e.getEntityCode(), ee.getLabel(), fields });
-        }
-
-        mv.getModel().put("entities", entities);
-        return mv;
     }
 
     @PostMapping("entity/entity-excel")

@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.general.recyclebin;
 
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -17,6 +18,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.RebuildException;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -26,6 +28,8 @@ import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.approval.ApprovalHelper;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.feeds.FeedsService;
+import com.rebuild.core.service.general.OperatingContext;
+import com.rebuild.core.service.general.RevisionHistoryObserver;
 import com.rebuild.core.service.project.ProjectManager;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.i18n.Language;
@@ -127,6 +131,13 @@ public class RecycleRestore {
                     if (entityCode == EntityHelper.Feeds) restoreFeedsMention(r);
                 }
                 restored++;
+
+                // v4.3 恢复记录
+                Record restore = RevisionHistoryObserver.newRevision(
+                        OperatingContext.create(UserContextHolder.getUser(), BizzPermission.CREATE, null, r),
+                        false);
+                restore.setInt("revisionType", 993);
+                PM.save(restore);
             }
 
             // 从回收站删除

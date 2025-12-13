@@ -280,8 +280,8 @@ class DeleteConfirm extends RbAlert {
     if (typeof ids === 'object') ids = ids.join(',')
     const cascades = this.__select2 ? this.__select2.val().join(',') : ''
 
-    let _timer1 = setTimeout(() => $(this._$dbtn).text($L('请稍后')), 6000)
-    let _timer2 = setTimeout(() => $(this._$dbtn).text($L('仍在处理')), 15000)
+    let _timer1 = setTimeout(() => $(this._$dbtn).text($L('请稍后')), 15000)
+    let _timer2 = setTimeout(() => $(this._$dbtn).text($L('仍在处理')), 30000)
 
     this.disabled(true, true)
     $.post(`/app/entity/record-delete?id=${ids}&cascades=${cascades}`, (res) => {

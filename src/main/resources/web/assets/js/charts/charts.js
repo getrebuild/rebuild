@@ -2016,6 +2016,119 @@ class MyNotification extends BaseChart {
   }
 }
 
+// ~~ 我的常用
+class MyBookmark extends BaseChart {
+  renderChart(data) {
+    const chartdata = (
+      <RF>
+        <div className="bookmarks">
+          {data &&
+            data.map((item, idx) => {
+              let clazz = 'item ',
+                title = ''
+              if (item.color) clazz += $isLight(item.color) ? '' : 'dark'
+              if (item.actionType === 1) title = $L('新建')
+              else if (item.actionType === 2) title = $L('列表')
+              else if (item.actionType === 3) title = $L('外部地址')
+
+              return (
+                <a key={idx} onClick={() => this._action(item)} style={{ backgroundColor: item.color }} className={clazz} title={title} data-id={item._id}>
+                  <span className="icon">
+                    <i className={`zmdi zmdi-${item.icon || 'texture'}`} />
+                  </span>
+                  {item.name && <div className="name text-break">{item.name}</div>}
+                  <em className="del" title={$L('移除')} onClick={(e) => this._del(item, e)}>
+                    <i className="zmdi zmdi-close" />
+                  </em>
+                </a>
+              )
+            })}
+          <a
+            onClick={() =>
+              renderRbcomp(
+                // eslint-disable-next-line react/jsx-no-undef
+                <MyBookmarkSettings chart={this.props.id} onConfirm={() => this.loadChartData()} />
+              )
+            }>
+            <span className="icon">
+              <i className="mdi mdi-plus" />
+            </span>
+            <div className="name">{$L('添加常用')}</div>
+          </a>
+        </div>
+      </RF>
+    )
+
+    const that = this
+    this.setState({ chartdata: chartdata }, () => {
+      const $bs = $(this._$box)
+        .find('.bookmarks')
+        .sortable({
+          items: '>.item',
+          axis: 'x',
+          containment: 'parent',
+          cursor: 'move',
+          forcePlaceholderSize: true,
+          forceHelperSize: true,
+          delay: 400,
+          stop: function () {
+            let dataNew = []
+            $bs.find('.item').each(function () {
+              let _id = $(this).data('id')
+              // eslint-disable-next-line eqeqeq
+              let item = that._dataLast.find((x) => x._id == _id)
+              item && dataNew.push(item)
+            })
+            // Re-Save
+            $.post(`/dashboard/builtin-chart-save?id=${that.props.id}`, JSON.stringify(dataNew), () => {
+              that.loadChartData()
+            })
+          },
+        })
+        .disableSelection()
+    })
+    this._dataLast = data
+  }
+
+  _del(item, e) {
+    $stopEvent(e, true)
+    let dataNew = this._dataLast.filter((x) => x._id !== item._id)
+    // Re-Save
+    $.post(`/dashboard/builtin-chart-save?id=${this.props.id}`, JSON.stringify(dataNew), () => {
+      this.loadChartData()
+    })
+  }
+
+  _move() {}
+
+  _action(item) {
+    if (item.actionType === 1) {
+      // eslint-disable-next-line no-inner-declarations
+      function _FN(_this) {
+        RbFormModal.create({ title: $L('新建%s', _this.entityLabel), entity: _this.entity, icon: _this.icon, showExtraButton: true })
+      }
+
+      if (this._creates && this._creates[item.actionParams[0]]) {
+        _FN(this._creates[item.actionParams[0]])
+      } else {
+        $.get(`/app/entity/extras/check-creates?entity=${item.actionParams[0]}`, function (res) {
+          if (res.data && res.data.length) {
+            _FN(res.data[0])
+            this._creates = this._creates || {}
+            this._creates[item.actionParams[0]] = res.data[0]
+          } else {
+            RbHighbar.createl('无权新建')
+          }
+        })
+      }
+    } else if (item.actionType === 2) {
+      window.open(`${rb.baseUrl}/app/${item.actionParams[0]}/list`, '_blank')
+    } else if (item.actionType === 3) {
+      window.open(item.actionParams[0], '_blank')
+    }
+  }
+}
+
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
 const detectChart = function (conf, id) {
@@ -2063,6 +2176,8 @@ const detectChart = function (conf, id) {
     return <EmbedFrame {...props} builtin={false} />
   } else if (conf.type === 'MyNotification') {
     return <MyNotification {...props} builtin />
+  } else if (conf.type === 'MyBookmark') {
+    return <MyBookmark {...props} builtin />
   } else {
     return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${conf.type}]`}</h4>
   }

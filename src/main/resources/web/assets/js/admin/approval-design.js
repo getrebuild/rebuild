@@ -143,9 +143,9 @@ class NodeGroupSpec extends React.Component {
 
   renderNodes() {
     return (this.state.nodes || []).map((item) => {
-      const props = { ...item, key: `kn-${item.nodeId}`, $$$parent: this }
-      if (item.type === 'condition') return <ConditionNode {...props} />
-      else return <SimpleNode {...props} />
+      const props = { ...item, $$$parent: this }
+      if (item.type === 'condition') return <ConditionNode {...props} key={`CN-${item.nodeId}`} />
+      else return <SimpleNode {...props} key={`SN-${item.nodeId}`} />
     })
   }
 
@@ -804,6 +804,7 @@ class ApproverNodeConfig extends StartNodeConfig {
                   <option value="0">{$L('可选填写')}</option>
                   <option value="1">{$L('必须填写')}</option>
                   <option value="2">{$L('超时必填 (限时审批启用后有效)')} </option>
+                  <option value="10">{$L('隐藏')} </option>
                 </select>
               </div>
               <div className="col pl-0" />

@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.dataimport;
 
-import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -26,6 +25,7 @@ import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.trigger.impl.FieldAggregation;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.HeavyTask;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.KnownExceptionConverter;
 import lombok.extern.slf4j.Slf4j;
@@ -122,7 +122,7 @@ public class DataImporter extends HeavyTask<Integer> {
                 }
 
             } catch (Exception ex) {
-                String error = ThrowableUtils.getRootCause(ex).getLocalizedMessage();
+                String error = CommonsUtils.getRootMessage(ex);
                 log.error("ROW#{} > {}", firstCell.getRowNo(), error, ex);
 
                 if (ex instanceof JdbcException) {

@@ -493,7 +493,7 @@ a.btn {
 
 .input-search button .icon,
 .adv-search button .icon {
-  font-size: 1.55rem !important;
+  font-size: 17px !important;
   color: #737373;
 }
 
@@ -684,7 +684,7 @@ div.dataTables_filter .filter-badge:hover .close {
 }
 
 .adv-search .J_filterbtn .icon {
-  font-size: 16px !important;
+  font-size: 15px !important;
 }
 
 .adv-search .dropdown-menu.rb-scroller {
@@ -4418,8 +4418,8 @@ h3.modal-title > .rbv {
   background-color: #16a88f !important;
 }
 
-.use-theme ul li a.theme-random {
-  background-image: linear-gradient(135deg, #16a88f 0%, #16a88f 50%, #9b52de 51%, #9b52de 100%) !important;
+.use-theme ul li a.theme-purple2 {
+  background-color: #6a70b8 !important;
 }
 
 .btn.btn-theme {
@@ -5056,7 +5056,7 @@ pre.unstyle {
   position: absolute;
   cursor: help;
   font-size: 15px;
-  margin-top: -1px;
+  margin-top: 1px;
   margin-left: 8px;
 }
 
@@ -5197,11 +5197,12 @@ pre.unstyle {
   content: '';
   height: 4px;
   background-color: rgba(0, 0, 0, 0.2);
+  background-color: #fff;
   position: absolute;
   bottom: 0;
   border-radius: 99px;
-  width: 32px;
-  margin-left: -16px;
+  width: 36px;
+  margin-left: -18px;
   left: 50%;
 }
 
@@ -6194,6 +6195,10 @@ div.formula-code {
 .rb-top-header .rb-user-nav > li.dropdown .dropdown-menu a:hover {
   background-color: #eee;
   color: #222;
+}
+
+.dropdown-menu > .dropdown-item .icon {
+  color: #444;
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__rendered .select2-selection__clear {

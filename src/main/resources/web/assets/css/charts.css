@@ -62,7 +62,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: rgba(0, 0, 0, 0.4);
   display: inline-block;
   height: 20px;
-  margin-left: 5px;
+  margin-left: 2px;
 }
 
 .chart-box .chart-head .chart-oper > a:hover {
@@ -714,11 +714,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .HeadingText-style input,
 .HeadingText-style select {
   width: 64px;
-  height: 32px !important;
+  height: 36px !important;
 }
 
-.HeadingText-style input[type='color'] {
-  width: 32px;
+.HeadingText-style input[type='color'],
+.MyBookmark-settings input[type='color'] {
+  width: 36px;
+  height: 36px;
 }
 
 .chart-box.EmbedFrame .iframe,
@@ -799,8 +801,96 @@ See LICENSE and COMMERCIAL in the project root for license information.
   right: 25px;
 }
 
-.chart-box.TABLE.gradient-bg .chart.ctable .table th {
-  background-color: rgba(255, 255, 255, 0.2);
+.chart-box.MyBookmark .chart-body {
+  overflow: hidden;
+}
+
+.chart-box.MyBookmark .bookmarks {
+  padding-top: 15px;
+  position: relative;
+}
+
+.chart-box.MyBookmark .bookmarks > a {
+  display: inline-block;
+  margin-right: 15px;
+  margin-bottom: 10px;
+  background-color: rgba(0, 0, 0, 0.08);
+  color: #606060;
+  height: 55px;
+  border-radius: 12px;
+  min-width: 55px;
+  max-width: 200px;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.chart-box.MyBookmark .bookmarks > a:hover {
+  opacity: 0.9;
+}
+
+.chart-box.MyBookmark .bookmarks > a:active {
+  box-shadow: inset 3px 3px 3px rgba(0, 0, 0, 0.06);
+}
+
+.chart-box.MyBookmark .bookmarks > a span.icon {
+  width: 55px;
+  height: 55px;
+  line-height: 55px;
+  font-size: 2.2rem;
+  float: left;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.chart-box.MyBookmark .bookmarks > a div.name {
+  height: 55px;
+  margin-left: 55px;
+  display: table-cell;
+  vertical-align: middle;
+  color: #222;
+  padding-right: 17px;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.chart-box.MyBookmark .bookmarks > a em.del {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  font-size: 15px;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  text-align: center;
+  cursor: default;
+  display: none;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.chart-box.MyBookmark .bookmarks > a:hover em.del {
+  display: inline-block;
+}
+
+.chart-box.MyBookmark .bookmarks > a.dark,
+.chart-box.MyBookmark .bookmarks > a.dark div.name,
+.chart-box.MyBookmark .bookmarks > a.dark span.icon {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.MyBookmark-settings .input-group-text {
+  background-color: #fff;
+  font-size: 1.3rem;
+  cursor: pointer;
+  height: 37px;
+  overflow: hidden;
+}
+
+.MyBookmark-settings .input-group-text:hover {
+  background-color: #f5f5f5;
+}
+
+.chart-box.TABLE.gradient-bg .chart.ctable .table td {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* gradient-backgrounds.css */

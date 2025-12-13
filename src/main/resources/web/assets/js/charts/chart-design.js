@@ -85,6 +85,7 @@ $(document).ready(() => {
         cursor: 'move',
         forcePlaceholderSize: true,
         forceHelperSize: true,
+        delay: 400,
         start: function () {
           dargOnSort = true
         },
