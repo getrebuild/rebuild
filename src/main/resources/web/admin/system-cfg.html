@@ -303,9 +303,9 @@
                         <td>[[${bundle.L('文件上传大小限制')}]]</td>
                         <td data-id="PortalUploadMaxSize" th:data-value="${PortalUploadMaxSize}" data-optional="true">[[${PortalUploadMaxSize}]] MB</td>
                       </tr>
-                      <tr class="bosskey-show">
-                        <td>[[${bundle.L('百度地图 AK')}]] (LAB) <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 1 ? 'PortalBaiduMapAk' : ''}" th:data-value="${PortalBaiduMapAk}" data-optional="true">[[${PortalBaiduMapAk ?:bundle.L('默认')}]]</td>
+                      <tr>
+                        <td>[[${bundle.L('百度地图 AK')}]]</td>
+                        <td th:data-id="PortalBaiduMapAk" th:data-value="${PortalBaiduMapAk}" data-optional="true">[[${PortalBaiduMapAk ?:bundle.L('默认')}]]</td>
                       </tr>
                       <tr class="bosskey-show">
                         <td>[[${bundle.L('悼念模式')}]] (LAB) <sup class="rbv"></sup></td>
