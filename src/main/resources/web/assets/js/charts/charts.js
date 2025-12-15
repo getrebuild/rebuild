@@ -655,6 +655,7 @@ class ChartLine extends BaseChart {
       // v4.3
       if (labelRotate) {
         option.xAxis.axisLabel.rotate = 45
+        option.xAxis.axisLabel.interval = 0
         option.grid.bottom = 60
       }
 
@@ -746,6 +747,7 @@ class ChartBar extends BaseChart {
       // v4.3
       if (labelRotate) {
         option.xAxis.axisLabel.rotate = 45
+        option.xAxis.axisLabel.interval = 0
         option.grid.bottom = 60
       }
 
