@@ -602,6 +602,7 @@ class ChartLine extends BaseChart {
       const dataFlags = data._renderOption.dataFlags || []
       const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
       const showMarkLine = data._renderOption ? data._renderOption.showMarkLine : null
+      const labelRotate = data._renderOption ? data._renderOption.labelRotate : null
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
@@ -624,7 +625,7 @@ class ChartLine extends BaseChart {
         xAxis: {
           type: 'category',
           data: data.xAxis,
-          axisLabel: ECHART_AXIS_LABEL,
+          axisLabel: { ...ECHART_AXIS_LABEL },
           axisLine: {
             lineStyle: { color: COLOR_AXIS },
           },
@@ -651,6 +652,11 @@ class ChartLine extends BaseChart {
       if (showMarkLine) option.grid.right = 60
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
       if (showMutliYAxis && option.series.length > 1) reOptionMutliYAxis(option)
+      // v4.3
+      if (labelRotate) {
+        option.xAxis.axisLabel.rotate = 45
+        option.grid.bottom = 60
+      }
 
       this._echarts = renderEChart(option, elid)
     })
@@ -675,6 +681,7 @@ class ChartBar extends BaseChart {
       const dataFlags = data._renderOption.dataFlags || [] // 小数符号
       const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
       const showMarkLine = data._renderOption ? data._renderOption.showMarkLine : null
+      const labelRotate = data._renderOption ? data._renderOption.labelRotate : null
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
@@ -698,7 +705,7 @@ class ChartBar extends BaseChart {
         xAxis: {
           type: showHorizontal ? 'value' : 'category',
           data: showHorizontal ? null : data.xAxis,
-          axisLabel: ECHART_AXIS_LABEL,
+          axisLabel: { ...ECHART_AXIS_LABEL },
           axisLine: {
             lineStyle: { color: COLOR_AXIS },
           },
@@ -736,6 +743,11 @@ class ChartBar extends BaseChart {
       if (showHorizontal) option.grid.left = 100
       // 排他
       else if (showMutliYAxis && option.series.length > 1 && !this._stack) reOptionMutliYAxis(option)
+      // v4.3
+      if (labelRotate) {
+        option.xAxis.axisLabel.rotate = 45
+        option.grid.bottom = 60
+      }
 
       this._echarts = renderEChart(this.renderChartBefore(option, data), elid)
     })

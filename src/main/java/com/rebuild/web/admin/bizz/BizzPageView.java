@@ -18,6 +18,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.CombinedRole;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.integration.SMSender;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
@@ -29,6 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.security.Principal;
 
 /**
@@ -52,8 +55,8 @@ public class BizzPageView extends EntityController {
     }
 
     @GetMapping("User/list")
-    public String userList() {
-        return "redirect:/admin/bizuser/users";
+    public void userList(HttpServletResponse response) throws IOException {
+        response.sendRedirect(AppUtils.getContextPath("/admin/bizuser/users"));
     }
 
     @GetMapping("Department/view/{id}")
@@ -65,8 +68,8 @@ public class BizzPageView extends EntityController {
     }
 
     @GetMapping("Department/list")
-    public String deptList() {
-        return "redirect:/admin/bizuser/departments";
+    public void deptList(HttpServletResponse response) throws IOException {
+        response.sendRedirect(AppUtils.getContextPath("/admin/bizuser/departments"));
     }
 
     @GetMapping("Role/view/{id}")
@@ -78,8 +81,8 @@ public class BizzPageView extends EntityController {
     }
 
     @GetMapping("Role/list")
-    public String roleList() {
-        return "redirect:/admin/bizuser/role-privileges";
+    public void roleList(HttpServletResponse response) throws IOException {
+        response.sendRedirect(AppUtils.getContextPath("/admin/bizuser/role-privileges"));
     }
 
     @GetMapping("Team/view/{id}")
@@ -91,8 +94,8 @@ public class BizzPageView extends EntityController {
     }
 
     @GetMapping("Team/list")
-    public String teamList() {
-        return "redirect:/admin/bizuser/teams";
+    public void teamList(HttpServletResponse response) throws IOException {
+        response.sendRedirect(AppUtils.getContextPath("/admin/bizuser/teams"));
     }
 
     // -- GROUP
@@ -108,7 +111,7 @@ public class BizzPageView extends EntityController {
                 if (role == null) continue;
 
                 if (role.getIdentity().equals(groupId)) {
-                    res.add(new Object[] {
+                    res.add(new Object[]{
                             user.getId(),
                             user.getFullName(),
                             user.getOwningDept() != null ? user.getOwningDept().getName() : null,
@@ -116,7 +119,7 @@ public class BizzPageView extends EntityController {
                     });
                 } else if (role instanceof CombinedRole) {
                     if (((CombinedRole) role).getRoleAppends().contains(groupId)) {
-                        res.add(new Object[] {
+                        res.add(new Object[]{
                                 user.getId(),
                                 user.getFullName(),
                                 user.getOwningDept() != null ? user.getOwningDept().getName() : null,
@@ -143,7 +146,7 @@ public class BizzPageView extends EntityController {
             User user = (User) p;
             if (user.getId().equals(UserService.SYSTEM_USER)) continue;
 
-            res.add(new Object[] {
+            res.add(new Object[]{
                     user.getId(),
                     user.getFullName(),
                     user.getOwningDept() != null ? user.getOwningDept().getName() : null,

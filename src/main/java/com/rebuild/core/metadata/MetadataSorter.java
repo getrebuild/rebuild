@@ -62,8 +62,8 @@ public class MetadataSorter {
             if (!e.isQueryable()) continue;
             if (!includesDetail && e.getMainEntity() != null) continue;
 
-            EasyEntity easyEntity = EasyMetaFactory.valueOf(e);
-            if (easyEntity.isBuiltin() && !easyEntity.isPlainEntity()) continue;
+            EasyEntity ee = EasyMetaFactory.valueOf(e);
+            if (ee.isBuiltin() && !ee.isPlainEntity()) continue;
 
             Entity checkEntity = e;
             if (includesDetail && e.getMainEntity() != null) checkEntity = e.getMainEntity();
