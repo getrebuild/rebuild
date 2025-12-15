@@ -772,6 +772,7 @@ const AdvControl = {
             }
           }}
           hasTip={$L('选择的条件字段需布局在表单中')}
+          showCurrentUser
         />,
         function () {
           AdvControl._EasyFilters[key] = this
@@ -959,6 +960,7 @@ class DlgNForm extends RbModalHandler {
           confirm={(s) => {
             this.setState({ useFilter: s })
           }}
+          showCurrentUser
         />,
         function () {
           that._UseFilter = this
