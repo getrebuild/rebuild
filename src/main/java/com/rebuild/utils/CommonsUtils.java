@@ -9,7 +9,6 @@ package com.rebuild.utils;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.persist4j.engine.NullValue;
 import cn.hutool.core.date.DateException;
 import cn.hutool.core.date.DateTime;
@@ -35,7 +34,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.MalformedURLException;
@@ -259,34 +257,6 @@ public class CommonsUtils {
             if (StringUtils.containsIgnoreCase(s, search)) return true;
         }
         return false;
-    }
-
-    /**
-     * @param desc
-     * @param args
-     * @return
-     */
-    public static Object invokeMethod(String desc, Object... args) {
-        String[] classAndMethod = desc.split("#");
-        try {
-            Class<?> clazz = ReflectUtils.classForName(classAndMethod[0]);
-
-            Class<?>[] paramTypes = new Class<?>[args.length];
-            for (int i = 0; i < args.length; i++) {
-                if (args[i] == null) {
-                    log.warn("{} argument [{}] is null", desc, i);
-                    args[i] = new Object();
-                }
-                paramTypes[i] = args[i].getClass();
-            }
-
-            Method method = clazz.getMethod(classAndMethod[1], paramTypes);
-            return method.invoke(null, args);
-
-        } catch (ReflectiveOperationException ex) {
-            log.error("Invalid method invoke : {}", desc);
-            throw new RebuildException(ex);
-        }
     }
 
     /**
