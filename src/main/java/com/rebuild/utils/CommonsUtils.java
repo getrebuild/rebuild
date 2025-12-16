@@ -38,7 +38,9 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -554,5 +556,17 @@ public class CommonsUtils {
                 || filename.endsWith(".xlsx")
                 || filename.endsWith(".ppt")
                 || filename.endsWith(".pptx");
+    }
+
+    /**
+     * @param url
+     * @return
+     */
+    public static String getHost(String url) {
+        try {
+            return new URL(url).getHost();
+        } catch (MalformedURLException e) {
+            return null;
+        }
     }
 }
