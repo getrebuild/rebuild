@@ -1132,7 +1132,7 @@ class ExcelClipboardData extends React.Component {
         <div className="head-action">
           <span className="float-left">
             <h5 className="text-bold fs-14 m-0" style={{ paddingTop: 11 }}>
-              {$L('请选择列字段')}
+              {$L('请确认列字段')}
             </h5>
           </span>
           <span className="float-right">
@@ -1203,6 +1203,13 @@ class ExcelClipboardData extends React.Component {
           .trigger('change')
       }
     }
+
+    $table.find('tbody tr').each(function () {
+      const $tr = $(this)
+      $(`<a class="btn btn-light w-auto" title="${$L('移除')}"><i class="icon zmdi zmdi-close"></i></a>`)
+        .appendTo($tr)
+        .on('click', () => $tr.remove())
+    })
   }
 
   _handleConfirm() {
