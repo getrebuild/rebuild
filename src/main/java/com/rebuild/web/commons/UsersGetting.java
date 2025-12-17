@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -100,8 +101,13 @@ public class UsersGetting extends BaseController {
                     || (ifUser != null && StringUtils.containsIgnoreCase(ifUser.getName(), query))
                     || (ifUser != null && ifUser.getEmail() != null && StringUtils.containsIgnoreCase(ifUser.getEmail(), query))) {
 
-                found.add(JSONUtils.toJSONObject(
-                        new String[]{"id", "text"}, new Object[]{m.getIdentity(), name}));
+                JSONObject item = JSONUtils.toJSONObject(
+                        new String[]{"id", "text"}, new Object[]{m.getIdentity(), name});
+                if (ifUser != null && ifUser.getOwningDept() != null) {
+                    item.put("subtext", ifUser.getOwningDept().getName());
+                }
+
+                found.add(item);
 
                 // 最多显示40个
                 if (found.size() >= 40) break;

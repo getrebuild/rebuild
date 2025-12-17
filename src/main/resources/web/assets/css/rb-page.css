@@ -3133,8 +3133,8 @@ form {
 
 .user-selector .select2-results__option img.avatar {
   float: left;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
 }
 
@@ -3145,6 +3145,27 @@ form {
 
 .user-selector .select2-results__option img.avatar + span.text {
   margin-left: 6px;
+}
+
+.user-selector .select2-results__option.subtext {
+  line-height: 1;
+}
+
+.user-selector .select2-results__option.subtext span.text {
+  padding: 0;
+  padding-top: 2px;
+}
+
+.user-selector .select2-results__option.subtext span.text > em {
+  display: block;
+  font-size: 0.8462rem;
+  color: #999;
+  font-style: normal;
+  margin-top: 1px;
+}
+
+.user-selector .select2-results__option.subtext:hover span.text > em {
+  color: #fff;
 }
 
 .user-show {
