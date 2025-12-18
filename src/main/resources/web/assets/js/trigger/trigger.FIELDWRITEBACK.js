@@ -228,12 +228,6 @@ class ContentFieldWriteback extends ActionContentSpec {
               </div>
               <div className="mt-2 bosskey-show">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$asyncMode = c)} />
-                  <span className="custom-control-label">{$L('启用延迟执行')} (LAB)</span>
-                </label>
-              </div>
-              <div className="mt-2 bosskey-show">
-                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._$lockMode = c)} />
                   <span className="custom-control-label">{$L('启用加锁模式')} (LAB)</span>
                 </label>
@@ -281,9 +275,6 @@ class ContentFieldWriteback extends ActionContentSpec {
       $(this._$clearFields).attr('checked', content.clearFields === true)
       $(this._$stopPropagation).attr('checked', content.stopPropagation === true)
       $(this._$autoCreate).attr('checked', content.autoCreate === true)
-      if (content.asyncMode === true) {
-        $(this._$asyncMode).attr('checked', true).parents('.mt-2').removeClass('bosskey-show')
-      }
       if (content.lockMode === true) {
         $(this._$lockMode).attr('checked', true).parents('.mt-2').removeClass('bosskey-show')
       }
@@ -451,7 +442,6 @@ class ContentFieldWriteback extends ActionContentSpec {
       clearFields: $(this._$clearFields).prop('checked'),
       stopPropagation: $(this._$stopPropagation).prop('checked'),
       autoCreate: $(this._$autoCreate).prop('checked'),
-      asyncMode: $(this._$asyncMode).prop('checked'),
       lockMode: $(this._$lockMode).prop('checked'),
     }
     if (!content.targetEntity) {

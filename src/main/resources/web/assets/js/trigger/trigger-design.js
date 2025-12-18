@@ -147,6 +147,8 @@ $(document).ready(() => {
   useExecManual()
 
   renderContentComp({ sourceEntity: wpc.sourceEntity, content: wpc.actionContent })
+  // v4.3 延迟模式通用化
+  if (wpc.actionContent && wpc.actionContent.asyncMode) $('#asyncMode').prop('checked', true)
 
   const $btn = $('.J_save').on('click', () => {
     if (!contentComp) return
@@ -170,12 +172,16 @@ $(document).ready(() => {
       when: when + whenUpdateBefore41,
       whenTimer: _buildWhenTimer(),
       whenFilter: wpc.whenFilter || null,
-      actionContent: content,
+      actionContent: {
+        ...content,
+        asyncMode: $val('#asyncMode'), // v4.3
+      },
       metadata: {
         entity: 'RobotTriggerConfig',
         id: wpc.configId,
       },
     }
+
     const priority = $val('#priority')
     if (priority && !isNaN(priority)) data.priority = ~~priority
 

@@ -220,8 +220,8 @@ public class RobotTriggerObserver extends OperatingObserver {
                 int t = triggerSource.incrTriggerTimes();
                 String w = String.format("Trigger.%s.%d [ %s ] executing on record (%s) : %s", sourceId, t, action, when, primaryId);
 
-                // v4.1 延迟执行（原始触发源才需异步）
-                if (originTriggerSource && action.isAsyncMode()) {
+                // v4.1 延迟执行
+                if (action.isAsyncMode(originTriggerSource)) {
                     if (!_TriggerLessLog) log.info("[ASYNC_MODE] {}", w);
 
                     final ID currentUserHold = UserContextHolder.getUser();
