@@ -4,10 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global FieldValueSet*/
-/* 转换模式
- * 1. 普通 to 普通
- */
+/* global FieldValueSet, FormulaCalcWithCode, FormulaCode */
 
 const wpc = window.__PageConfig
 const _sourceEntities41 = wpc.sourceDetailEntities || null
@@ -142,7 +139,7 @@ $(document).ready(() => {
     }
   })
 
-  // 4.3
+  // v4.3
   $('#one2nMode').on('click', function () {
     if ($val(this)) $('.J_one2nMode-set').removeClass('hide')
     else $('.J_one2nMode-set').addClass('hide')
@@ -282,13 +279,15 @@ $(document).ready(() => {
   }, 100)
 })
 
+const _FIELD = 'FIELD'
 const _VFIXED = 'VFIXED'
+const _VFORMULA = 'VFORMULA'
 const _AdvFilters = {}
 
 class FieldsMapping extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props, useVfixed: {} }
+    this.state = { ...props, useVfixed: {}, formulaValues: {} }
     this._FieldValueSet = {}
   }
 
@@ -297,6 +296,7 @@ class FieldsMapping extends React.Component {
     const that = this
 
     let useVfixed = {}
+    let formulaValues = {}
     $(this._$fieldsMapping)
       .find('select.J_mapping')
       .each(function () {
@@ -327,13 +327,14 @@ class FieldsMapping extends React.Component {
           })
 
         if (Array.isArray(data[fieldName])) {
-          useVfixed[fieldName] = true
+          useVfixed[fieldName] = data[fieldName][1]
+          if (data[fieldName][1] === _VFORMULA) formulaValues[fieldName] = data[fieldName][0]
         } else {
           $s2.val(data[fieldName] || null).trigger('change')
         }
       })
 
-    this.setState({ useVfixed })
+    this.setState({ useVfixed, formulaValues })
 
     for (let fieldName in data) {
       if (Array.isArray(data[fieldName])) {
@@ -341,7 +342,7 @@ class FieldsMapping extends React.Component {
         this._FieldValueSet[fieldName].setValue(data[fieldName][0])
 
         const $this = $(this._$fieldsMapping).find(`.J_vfixed-${fieldName}`)
-        $this.val(_VFIXED)
+        $this.val(data[fieldName][1])
         $this.parents('.row').addClass('active')
       }
     }
@@ -355,7 +356,8 @@ class FieldsMapping extends React.Component {
         const $this = $(this)
         let useVfixed = that.state.useVfixed
         let fieldName = $this.data('field')
-        useVfixed[fieldName] = $this.val() === _VFIXED
+        useVfixed[fieldName] = $this.val()
+        if (useVfixed[fieldName] === _FIELD) delete useVfixed[fieldName]
         that.setState({ useVfixed })
 
         if (useVfixed[fieldName]) $this.parents('.row').addClass('active')
@@ -400,20 +402,58 @@ class FieldsMapping extends React.Component {
                 <select className={`form-control form-control-sm J_vfixed J_vfixed-${item.name}`} data-field={item.name} defaultValue="FIELD">
                   <option value="FIELD">{$L('字段值')}</option>
                   <option value={_VFIXED}>{$L('固定值')}</option>
+                  <option value={_VFORMULA}>{$L('计算公式')}</option>
                 </select>
               </div>
               <div className="col-5">
                 <div className={this.state.useVfixed[item.name] ? 'hide' : ''}>
                   <select className="form-control form-control-sm J_mapping" data-field={item.name} data-req={!item.nullable && !isCommon} />
                 </div>
-                <div className={this.state.useVfixed[item.name] ? '' : 'hide'}>
+                <div className={this.state.useVfixed[item.name] === _VFIXED ? '' : 'hide'}>
                   <FieldValueSet entity={te.entity} field={item} placeholder={$L('固定值')} defaultValue={null} ref={(c) => (this._FieldValueSet[item.name] = c)} />
+                </div>
+                <div className={this.state.useVfixed[item.name] === _VFORMULA ? '' : 'hide'}>
+                  <div className="form-control-plaintext formula" _title={$L('计算公式')} title={$L('编辑计算公式')} onClick={() => this._showFormula(item)}>
+                    {FormulaCalcWithCode.formatText(this.state.formulaValues[item.name], se.fields)}
+                  </div>
                 </div>
               </div>
             </div>
           )
         })}
       </div>
+    )
+  }
+
+  _showFormula(item) {
+    const se = this.props.source
+    const fieldVars = []
+    se.fields.forEach((item) => {
+      if (['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(item.type)) {
+        fieldVars.push(item)
+      }
+    })
+
+    // 数字、日期支持计算器模式
+    const forceCode = !['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(item.type)
+    let initCode = this.state.formulaValues[item.name] || null
+    if (FormulaCalcWithCode.isCode(initCode)) initCode = initCode.substr(4, initCode.length - 8)
+    else initCode = null
+
+    const that = this
+    renderRbcomp(
+      <FormulaCalcWithCode
+        entity={se.entity}
+        fields={fieldVars}
+        forceCode={forceCode}
+        initCode={initCode}
+        onConfirm={(expr) => {
+          let formulaValues = that.state.formulaValues
+          formulaValues[item.name] = expr
+          that.setState({ formulaValues })
+        }}
+        verifyFormula
+      />
     )
   }
 
@@ -430,7 +470,7 @@ class FieldsMapping extends React.Component {
         const $this = $(this)
         const target = $this.data('field') // Target field
         let val = $this.val()
-        if (that.state.useVfixed[target]) {
+        if (that.state.useVfixed[target] === _VFIXED) {
           val = that._FieldValueSet[target].val()
 
           if (val === false) {
@@ -444,6 +484,15 @@ class FieldsMapping extends React.Component {
           }
 
           val = [val, _VFIXED] // array
+        } else if (that.state.useVfixed[target] === _VFORMULA) {
+          val = that.state.formulaValues[target]
+          if (!val) {
+            RbHighbar.create($L('请填写计算公式'))
+            mapping = false
+            return false
+          }
+
+          val = [val, _VFORMULA] // array
         }
 
         // req tips

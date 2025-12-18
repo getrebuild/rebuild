@@ -4,6 +4,7 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/transforms" />
     <title>[[${bundle.L('记录转换')}]]</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/triggers.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/transform-design.css}" />
   </head>
   <body>
@@ -144,6 +145,7 @@
       }
     </script>
     <script th:src="@{/assets/js/metadata/field-valueset.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/field-formula.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/general/rb-advfilter.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-compatible.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/admin/transform-design.js}" type="text/babel"></script>
