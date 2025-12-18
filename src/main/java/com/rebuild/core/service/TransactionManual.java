@@ -28,15 +28,31 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 public class TransactionManual {
 
     /**
-     * 开启一个事物
+     * 开启一个事物（如若当前已在事物中，则使用当前事物）
      *
      * @return
      * @see #commit(TransactionStatus)
      * @see #rollback(TransactionStatus)
+     * @see #newTransaction(boolean)
      */
     public static TransactionStatus newTransaction() {
+        return newTransaction(false);
+    }
+
+    /**
+     * 开启一个事物
+     *
+     * @param independent 是否独立事物 DefaultTransactionAttribute#PROPAGATION_NESTED
+     * @return
+     * @see #commit(TransactionStatus)
+     * @see #rollback(TransactionStatus)
+     */
+    public static TransactionStatus newTransaction(boolean independent) {
         DefaultTransactionAttribute attr = new DefaultTransactionAttribute();
-        attr.setName("rb-txm-" + RandomStringUtils.randomNumeric(12));
+        attr.setName("rbTransaction-" + RandomStringUtils.randomNumeric(12));
+        if (independent) {
+            attr.setPropagationBehavior(DefaultTransactionAttribute.PROPAGATION_NESTED);
+        }
         return getTxManager().getTransaction(attr);
     }
 
