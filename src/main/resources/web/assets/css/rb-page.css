@@ -4054,6 +4054,10 @@ a.icon-link > .zmdi {
   left: 0;
 }
 
+.syscfg .card-header.pb-1 {
+  color: #6b6b6b;
+}
+
 .syscfg h5 {
   background-color: #eee;
   margin: 0;
