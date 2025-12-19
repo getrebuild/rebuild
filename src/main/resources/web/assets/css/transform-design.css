@@ -47,9 +47,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   right: 0;
   color: #aaa;
   transform: rotate(180deg);
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: bold;
-  margin-top: -3px;
 }
 
 .entities-mapping > li.nav-item a.nav-link > span {

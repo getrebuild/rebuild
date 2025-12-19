@@ -622,7 +622,7 @@ public class FieldWriteback extends FieldAggregation {
      * @see DisplayType
      * @see com.rebuild.core.metadata.EntityRecordCreator
      */
-    protected static Object checkoutFieldValue(Object value, EasyField field) {
+    public static Object checkoutFieldValue(Object value, EasyField field) {
         DisplayType dt = field.getDisplayType();
         Object newValue = null;
 

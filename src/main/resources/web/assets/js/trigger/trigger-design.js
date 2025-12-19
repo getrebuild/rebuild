@@ -190,11 +190,11 @@ $(document).ready(() => {
       if (res.error_code === 0) {
         let warns = []
         if (when <= 0) warns.push($L('无任何触发动作'))
-        if ($('.J_trigger-isDisabled')[0]) warns.push($L('未启用'))
+        if ($('.J_confDisabled')[0]) warns.push($L('未启用'))
         const msg = (
           <RF>
             <strong>{$L('保存成功')}</strong>
-            {warns.length > 0 && <p className="text-warning m-0 mt-1">{$L('由于%s，此触发器不会执行', warns.join('/'))}</p>}
+            {warns.length > 0 && <p className="text-warning m-0 mt-1">{$L('由于%s，此触发器不会自动执行', warns.join('/'))}</p>}
           </RF>
         )
         RbAlert.create(msg, {
