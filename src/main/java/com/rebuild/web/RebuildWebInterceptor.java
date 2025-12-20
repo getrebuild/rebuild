@@ -22,11 +22,11 @@ import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.admin.ProtectedAdmin;
 import com.rebuild.web.user.signup.LoginController;
 import lombok.Getter;
@@ -337,15 +337,12 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             return;
         }
 
-        Object allowIp = CommonsUtils.invokeMethod(
-                "com.rebuild.rbv.commons.SafeUses#checkIp", ipAddr);
-        if (!(Boolean) allowIp) {
+        boolean allowIp = RbvFunction.call().checkIp(ipAddr);
+        if (!allowIp) {
             throw new DefinedException(CODE_UNSAFE_USE, Language.L("你的 IP 地址不在允许范围内"));
         }
-
-        Object allowTime = CommonsUtils.invokeMethod(
-                "com.rebuild.rbv.commons.SafeUses#checkTime", CalendarUtils.now());
-        if (!(Boolean) allowTime) {
+        boolean allowTime = RbvFunction.call().checkTime(CalendarUtils.now());
+        if (!allowTime) {
             throw new DefinedException(CODE_UNSAFE_USE, Language.L("当前时间不允许使用"));
         }
     }

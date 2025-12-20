@@ -25,7 +25,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // extends jQuery
 !(function ($) {
-  if ($.browser.msie && $.browser.version < 11) {
+  if ($.browser.msie) {
     location.replace(rb.baseUrl + '/error/unsupported-browser')
     return
   }

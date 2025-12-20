@@ -33,11 +33,11 @@ import com.rebuild.core.service.datareport.TemplateFile;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.OnlyOffice;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.PdfConverter;
 import com.rebuild.utils.RbAssert;
@@ -104,12 +104,10 @@ public class ReportsController extends BaseController {
         try {
             EasyExcelGenerator reportGenerator;
             if (tt.type == DataReportManager.TYPE_WORD) {
-                reportGenerator = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
-                        "com.rebuild.rbv.data.WordReportGenerator#create", reportId, recordIds);
+                reportGenerator = RbvFunction.call().createWord(reportId, recordIds);
             } else if (tt.type == DataReportManager.TYPE_HTML5) {
-                boolean noPagebreak = getBoolParameter(request, "noPagebreak");
-                reportGenerator = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
-                        "com.rebuild.rbv.data.Html5ReportGenerator#create", reportId, recordIds, noPagebreak);
+                reportGenerator = RbvFunction.call().createHtml5(reportId, recordIds,
+                        getBoolParameter(request, "noPagebreak"));
             } else {
                 reportGenerator = EasyExcelGenerator.create(reportId, Arrays.asList(recordIds));
             }

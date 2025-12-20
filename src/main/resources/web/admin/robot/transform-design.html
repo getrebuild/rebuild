@@ -4,6 +4,7 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/transforms" />
     <title>[[${bundle.L('记录转换')}]]</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/triggers.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/transform-design.css}" />
   </head>
   <body>
@@ -15,7 +16,7 @@
           <div class="page-head-title">
             [[${bundle.L('记录转换')}]]
             <span class="sub-title">[[${name ?: bundle.L('未命名')}]]</span>
-            <span th:if="${isDisabled}" class="badge badge-grey badge-pill up-1 ml-1">[[${bundle.L('未启用')}]]</span>
+            <span th:if="${isDisabled}" class="badge badge-grey badge-pill up-1 ml-1 J_confDisabled">[[${bundle.L('未启用')}]]</span>
           </div>
           <div class="clearfix"></div>
         </div>
@@ -144,6 +145,7 @@
       }
     </script>
     <script th:src="@{/assets/js/metadata/field-valueset.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/field-formula.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/general/rb-advfilter.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-compatible.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/admin/transform-design.js}" type="text/babel"></script>

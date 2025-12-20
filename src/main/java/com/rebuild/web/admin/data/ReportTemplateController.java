@@ -25,6 +25,7 @@ import com.rebuild.core.service.datareport.EasyExcelListGenerator;
 import com.rebuild.core.service.datareport.TemplateExtractor;
 import com.rebuild.core.service.datareport.TemplateExtractor33;
 import com.rebuild.core.service.datareport.TemplateFile;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
@@ -108,14 +109,10 @@ public class ReportTemplateController extends BaseController {
             } else if (type == DataReportManager.TYPE_LIST) {
                 vars = new TemplateExtractor(template, Boolean.TRUE).transformVars(entity);
             } else if (type == DataReportManager.TYPE_WORD) {
-                //noinspection unchecked
-                vars = (Map<String, String>) CommonsUtils.invokeMethod(
-                        "com.rebuild.rbv.data.WordTemplateExtractor#transformVars", template, entity.getName());
+                vars = RbvFunction.call().transformVarsWord(template, entity.getName());
             } else if (type == DataReportManager.TYPE_HTML5) {
                 String templateContent = ServletUtils.getRequestString(request);
-                //noinspection unchecked
-                vars = (Map<String, String>) CommonsUtils.invokeMethod(
-                        "com.rebuild.rbv.data.Html5TemplateExtractor#transformVars", templateContent, entity.getName());
+                vars = RbvFunction.call().transformVarsHtml5(templateContent, entity.getName());
             }
 
         } catch (Exception ex) {
@@ -189,8 +186,7 @@ public class ReportTemplateController extends BaseController {
             }
             // WORD
             else if (tt.type == DataReportManager.TYPE_WORD) {
-                EasyExcelGenerator33 word = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
-                        "com.rebuild.rbv.data.WordReportGenerator#create", tt.templateFile, random[0]);
+                EasyExcelGenerator33 word = RbvFunction.call().createWord(tt.templateFile, (ID) random[0]);
                 output = word.generate();
             }
             // HTML5
@@ -198,8 +194,7 @@ public class ReportTemplateController extends BaseController {
                 // 实时内容
                 String templateContent = request.getParameter("templateContent");
                 if (templateContent == null) templateContent = tt.templateContent;
-                EasyExcelGenerator33 html5 = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
-                        "com.rebuild.rbv.data.Html5ReportGenerator#create", templateContent, random[0]);
+                EasyExcelGenerator33 html5 = RbvFunction.call().createHtml5(templateContent, (ID) random[0]);
                 output = html5.generate();
             }
             // EXCEL

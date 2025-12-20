@@ -3133,8 +3133,8 @@ form {
 
 .user-selector .select2-results__option img.avatar {
   float: left;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
 }
 
@@ -3145,6 +3145,27 @@ form {
 
 .user-selector .select2-results__option img.avatar + span.text {
   margin-left: 6px;
+}
+
+.user-selector .select2-results__option.subtext {
+  line-height: 1;
+}
+
+.user-selector .select2-results__option.subtext span.text {
+  padding: 0;
+  padding-top: 2px;
+}
+
+.user-selector .select2-results__option.subtext span.text > em {
+  display: block;
+  font-size: 0.8462rem;
+  color: #999;
+  font-style: normal;
+  margin-top: 1px;
+}
+
+.user-selector .select2-results__option.subtext:hover span.text > em {
+  color: #fff;
 }
 
 .user-show {
@@ -4031,6 +4052,10 @@ a.icon-link > .zmdi {
   font-size: 1.231rem;
   margin-top: 2px;
   left: 0;
+}
+
+.syscfg .card-header.pb-1 {
+  color: #6b6b6b;
 }
 
 .syscfg h5 {
@@ -5646,16 +5671,17 @@ pre.unstyle {
 }
 
 .rsheetb-table .head-action {
-  margin: 10px 0;
+  margin: 13px 0;
 }
 
 .rsheetb-table .head-action > span {
-  padding: 0 15px;
+  padding: 0 18px;
 }
 
 .rsheetb-table > span {
   overflow: auto;
   display: block;
+  margin-bottom: 1px;
 }
 
 .rsheetb-table th {
@@ -5671,13 +5697,13 @@ pre.unstyle {
 .rsheetb-table table td:first-child,
 .table-bordered th:first-child {
   border-left: 0 none;
-  padding-left: 15px !important;
+  padding-left: 18px !important;
 }
 
 .rsheetb-table table td:last-child,
 .table-bordered th:last-child {
   border-right: 0 none;
-  padding-right: 15px !important;
+  padding-right: 18px !important;
 }
 
 .rsheetb-table td > span {
@@ -5688,9 +5714,32 @@ pre.unstyle {
   line-height: 1;
 }
 
+.rsheetb-table td > span:hover {
+  background-color: #f5f8fd;
+  border-radius: 2px;
+}
+
 .rsheetb-table td > span:focus {
   outline-width: 1px;
   outline-color: var(--rb-color);
+}
+
+.rsheetb-table tbody > tr {
+  position: relative;
+}
+
+.rsheetb-table tbody > tr > a.btn {
+  position: absolute;
+  right: 6px;
+  top: 5px;
+  line-height: 26px;
+  min-height: 26px;
+  min-width: 26px !important;
+  display: none;
+}
+
+.rsheetb-table tbody > tr:hover > a.btn {
+  display: block;
 }
 
 /*.input-search .input-group-btn,*/

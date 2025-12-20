@@ -49,7 +49,7 @@ const FolderTree = {
               <RF>
                 {rb.isAdminUser && (
                   <span
-                    className="action bosskey-show"
+                    className="action"
                     title={$L('分享')}
                     onClick={() => {
                       // eslint-disable-next-line react/jsx-no-undef
@@ -181,10 +181,12 @@ class FolderEditDlg extends RbFormHandler {
                 <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'ALL'} value="ALL" onChange={this.handleChange} />
                 <span className="custom-control-label">{$L('公开')}</span>
               </label>
-              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'SPEC'} value="SPEC" onChange={this.handleChange} />
-                <span className="custom-control-label">{$L('指定用户')}</span>
-              </label>
+              {rb.isAdminUser && (
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
+                  <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'SPEC'} value="SPEC" onChange={this.handleChange} />
+                  <span className="custom-control-label">{$L('指定用户')}</span>
+                </label>
+              )}
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
                 <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'SELF'} value="SELF" onChange={this.handleChange} />
                 <span className="custom-control-label">{$L('私有 (仅自己可见)')}</span>

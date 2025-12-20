@@ -12,11 +12,15 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
+import com.rebuild.rbv.data.Html5ReportGenerator;
+import com.rebuild.rbv.data.WordReportGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -77,10 +81,58 @@ public class RbvFunction {
         log.debug("No RbvFunction : checkSchemas");
     }
 
+    public boolean checkIp(String ip) {
+        log.debug("No RbvFunction : checkIp");
+        return true;
+    }
+    public boolean checkTime(Date date) {
+        log.debug("No RbvFunction : checkTime");
+        return true;
+    }
+
     // -- TRANS
 
     public Record restRecord(Record record) {
         log.debug("No RbvFunction : restRecord");
         return record;
+    }
+
+    // -- USER
+
+    public boolean unbindExternalUser(ID userId, String appId) {
+        log.debug("No RbvFunction : unbindExternalUser");
+        return false;
+    }
+
+    // -- REPORTS
+
+    public Map<String, String> transformVarsHtml5(String templateContent, String entityName) {
+        log.debug("No RbvFunction : transformVarsHtml5");
+        return null;
+    }
+
+    public Map<String, String> transformVarsWord(File template, String entityName) {
+        log.debug("No RbvFunction : transformVarsWord");
+        return null;
+    }
+
+    public Html5ReportGenerator createHtml5(String templateContent, ID recordId) {
+        log.debug("No RbvFunction : createHtml5");
+        return null;
+    }
+
+    public Html5ReportGenerator createHtml5(ID reportId, ID[] recordIds, Boolean noPagebreak) {
+        log.debug("No RbvFunction : createHtml5#2");
+        return null;
+    }
+
+    public WordReportGenerator createWord(File templateFile, ID recordId) {
+        log.debug("No RbvFunction : createWord");
+        return null;
+    }
+
+    public WordReportGenerator createWord(ID reportId, ID[] recordIds) {
+        log.debug("No RbvFunction : createWord#2");
+        return null;
     }
 }

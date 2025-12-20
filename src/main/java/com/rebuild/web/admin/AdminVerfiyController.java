@@ -125,7 +125,7 @@ public class AdminVerfiyController extends BaseController {
             return;
         }
 
-        final String type = getParameter(request, "type", "log");
+        String type = getParameter(request, "type", "error");
 
         // 日志
         if ("log".equalsIgnoreCase(type) || "error".equalsIgnoreCase(type)) {

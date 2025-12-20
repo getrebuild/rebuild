@@ -10,7 +10,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const BIZZ_ENTITIES = ['User', 'Department', 'Role', 'Team']
 const NT_SPLIT = '----'
 const NAME_FLAG = '&'
-const VF_ACU = '$APPROVALCURRENTUSER$'
+// const VF_ACU = '$APPROVALCURRENTUSER$'
+const VF_CU43 = '$CURRENTUSER$'
 
 // eslint-disable-next-line no-unused-vars
 class AdvFilter extends React.Component {
@@ -143,6 +144,7 @@ class AdvFilter extends React.Component {
     $.get(`/commons/metadata/fields?deep=${deep}&entity=${this.props.entity}&referer=${referer}`, (res) => {
       const validFs = []
       const fields = []
+      let fieldItem43
 
       res.data.forEach((item) => {
         validFs.push(item.name)
@@ -164,11 +166,18 @@ class AdvFilter extends React.Component {
         if (!(item.type === 'BARCODE' || $isSysMask(item.label))) {
           fields.push(item)
 
-          if (item.type === 'REFERENCE' && item.name === 'approvalLastUser') {
-            const item2 = { ...item, name: VF_ACU, label: $L('当前审批人') + ' (废弃)' }
-            validFs.push(item2.name)
-            REFENTITY_CACHE[item2.name] = item2.ref
-            fields.push(item2)
+          // if (item.type === 'REFERENCE' && item.name === 'approvalLastUser') {
+          //   const item2 = { ...item, name: VF_ACU, label: $L('当前审批人') + ' (废弃)' }
+          //   validFs.push(item2.name)
+          //   REFENTITY_CACHE[item2.name] = item2.ref
+          //   fields.push(item2)
+          // }
+          if (item.name === 'owningUser' && this.props.showCurrentUser) {
+            fieldItem43 = { ...item, name: VF_CU43, label: $L('当前用户') }
+          } else if (item.name === 'owningDept' && fieldItem43) {
+            validFs.push(fieldItem43.name)
+            REFENTITY_CACHE[fieldItem43.name] = fieldItem43.ref
+            fields.push(fieldItem43)
           }
         }
       })
@@ -469,7 +478,8 @@ class FilterItem extends React.Component {
     }
 
     if (this.isApprovalState()) op = ['IN', 'NIN']
-    else if (this.state.field === VF_ACU) op = ['IN', 'SFU', 'SFB', 'SFT'] // v3.7 准备废弃
+    // else if (this.state.field === VF_ACU) op = ['IN', 'SFU', 'SFB', 'SFT'] // v3.7 准备废弃
+    else if (this.state.field === VF_CU43) op = ['IN', 'NIN']
     else if (this.isN2NUsers()) op = ['IN', 'NIN', 'SFU', 'SFB', 'NL', 'NT']
     else op.push('NL', 'NT')
 

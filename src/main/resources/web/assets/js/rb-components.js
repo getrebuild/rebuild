@@ -539,6 +539,7 @@ class UserSelector extends React.Component {
   }
 
   render() {
+    let isUserType = this.state.tabType === 'User'
     let inResult
     if (!this.state.items) {
       inResult = <li className="select2-results__option un-hover text-muted">{$L('搜索中')}</li>
@@ -547,10 +548,13 @@ class UserSelector extends React.Component {
     } else {
       inResult = this.state.items.map((item) => {
         return (
-          <li key={item.id} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}>
+          <li key={item.id} className={`select2-results__option ${item.subtext && 'subtext'}`} data-id={item.id} onClick={(e) => this.clickItem(e)}>
             <i className={`zmdi ${!this.props.hideSelection && this.containsItem(item.id) ? ' zmdi-check' : ''}`} />
-            {this.state.tabType === 'User' && <img src={`${rb.baseUrl}/account/user-avatar/${item.id}`} className="avatar" alt="Avatar" />}
-            <span className="text">{item.text}</span>
+            {isUserType && <img src={`${rb.baseUrl}/account/user-avatar/${item.id}`} className="avatar" alt="Avatar" />}
+            <span className="text">
+              {item.text}
+              {item.subtext && <em>{item.subtext}</em>}
+            </span>
           </li>
         )
       })

@@ -82,6 +82,8 @@ public class AdvFilterParser extends SetUser {
     // 虚拟字段:当前审批人
     @Deprecated
     public static final String VF_ACU = "$APPROVALCURRENTUSER$";
+    // 虚拟字段:当前用户
+    public static final String VF_CU43 = "$CURRENTUSER$";
 
     // 快速查询
     private static final String MODE_QUICK = "QUICK";
@@ -266,9 +268,10 @@ public class AdvFilterParser extends SetUser {
         boolean hasNameFlag = field.startsWith(NAME_FIELD_PREFIX);
         if (hasNameFlag) field = field.substring(1);
 
-        Field lastFieldMeta = VF_ACU.equals(field)
-                ? specRootEntity.getField(EntityHelper.ApprovalLastUser)
-                : MetadataHelper.getLastJoinField(specRootEntity, field);
+        Field lastFieldMeta;
+        if (VF_ACU.equals(field)) lastFieldMeta = specRootEntity.getField(EntityHelper.ApprovalLastUser);
+        else if (VF_CU43.equals(field)) lastFieldMeta = specRootEntity.getField(EntityHelper.OwningUser);
+        else lastFieldMeta = MetadataHelper.getLastJoinField(specRootEntity, field);
         if (lastFieldMeta == null) {
             log.warn("Invalid field : {} in {}", field, specRootEntity.getName());
             return null;
@@ -318,6 +321,15 @@ public class AdvFilterParser extends SetUser {
         if (checkValue instanceof VarFieldNoValue37) return "(1=2)";
         String value = (String) checkValue;
         String valueEnd = null;
+
+        // v4.3 当前用户
+        if (VF_CU43.equals(field)) {
+            String valueInData = UserContextHolder.getUser().toLiteral();
+            boolean pass = StringUtils.containsIgnoreCase(value, valueInData);
+
+            if (ParseHelper.NIN.equals(op)) return pass ? "(1=2)" : "(1=1)";
+            return pass ? "(1=1)" : "(1=2)";
+        }
 
         // v3.8
         if (useFulltextOp(field) && "LK".equals(op)) op = "FT";

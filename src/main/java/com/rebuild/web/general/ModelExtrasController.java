@@ -21,7 +21,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
@@ -241,19 +240,25 @@ public class ModelExtrasController extends BaseController {
 
     @GetMapping("check-creates")
     public JSON checkCreates(HttpServletRequest request) {
-        final ID user = getRequestUser(request);
+        ID user = getRequestUser(request);
+        boolean isAdmin = UserHelper.isAdmin(user);
         String entity = getParameter(request, "entity", "");
 
         JSONArray allowed = new JSONArray();
         for (String e : entity.split(",")) {
             if (!MetadataHelper.containsEntity(e)) continue;
 
-            EasyEntity easyEntity = EasyMetaFactory.valueOf(e);
-            if (!MetadataHelper.hasPrivilegesField(easyEntity.getRawMeta())) continue;
+            Entity ee = MetadataHelper.getEntity(e);
+            if (!MetadataHelper.hasPrivilegesField(ee)) {
+                if (isAdmin && MetadataHelper.isBizzEntity(ee)) {
+                    // 管理员允许 BIZZ
+                } else {
+                    continue;
+                }
+            }
 
-            if (Application.getPrivilegesManager()
-                    .allow(user, easyEntity.getRawMeta().getEntityCode(), BizzPermission.CREATE)) {
-                allowed.add(easyEntity.toJSON());
+            if (Application.getPrivilegesManager().allow(user, ee.getEntityCode(), BizzPermission.CREATE)) {
+                allowed.add(EasyMetaFactory.toJSON(ee));
             }
         }
         return allowed;

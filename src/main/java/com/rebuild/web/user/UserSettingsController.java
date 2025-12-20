@@ -22,6 +22,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.i18n.I18nUtils;
@@ -205,15 +206,7 @@ public class UserSettingsController extends BaseController {
                 : RebuildConfiguration.get(ConfigurationItem.WxworkCorpid);
         if (appType == 3) appId = RebuildConfiguration.get(ConfigurationItem.FeishuAppId);
 
-        Object[] externalUser = Application.createQueryNoFilter(
-                "select userId from ExternalUser where bindUser = ? and appId = ?")
-                .setParameter(1, getRequestUser(request))
-                .setParameter(2, appId)
-                .unique();
-        if (externalUser != null) {
-            Application.getCommonsService().delete((ID) externalUser[0]);
-        }
-
+        RbvFunction.call().unbindExternalUser(getRequestUser(request), appId);
         return RespBody.ok();
     }
 

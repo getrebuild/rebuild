@@ -15,7 +15,7 @@
           <div class="page-head-title">
             [[${bundle.L('触发器')}]]
             <span class="sub-title">[[${name ?: bundle.L('未命名')}]]</span>
-            <span th:if="${isDisabled}" class="badge badge-grey badge-pill up-1 ml-1 J_trigger-isDisabled">[[${bundle.L('未启用')}]]</span>
+            <span th:if="${isDisabled}" class="badge badge-grey badge-pill up-1 ml-1 J_confDisabled">[[${bundle.L('未启用')}]]</span>
           </div>
           <div class="clearfix"></div>
         </div>
@@ -153,6 +153,15 @@
                         <div class="col-12 col-lg-9">
                           <input type="number" class="form-control form-control-sm" id="priority" th:value="${priority}" th:data-o="${priority}" style="max-width: 200px" />
                           <p class="form-text mb-0">[[${bundle.L('优先级高 (数字大) 的会被先执行')}]]</p>
+                        </div>
+                      </div>
+                      <div class="form-group row J_asyncMode bosskey-show">
+                        <label class="col-12 col-lg-3 col-form-label text-lg-right pt-1">[[${bundle.L('延迟执行')}]] (LAB)</label>
+                        <div class="col-12 col-lg-9">
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                            <input class="custom-control-input" type="checkbox" id="asyncMode" />
+                            <span class="custom-control-label">[[${bundle.L('启用')}]]</span>
+                          </label>
                         </div>
                       </div>
                       <div class="form-group row J_last-logs hide">

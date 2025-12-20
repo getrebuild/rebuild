@@ -512,9 +512,9 @@ class MyBookmarkSettings extends RbModalHandler {
                         <optgroup label={$L('业务实体')}>
                           {this.state._entities &&
                             this.state._entities.map((item) => {
-                              if (item.mainEntity) return null
+                              if (!item.create) return null
                               return (
-                                <option key={item.name} value={item.name}>
+                                <option key={item.entity} value={item.entity}>
                                   {item.entityLabel}
                                 </option>
                               )
@@ -531,8 +531,9 @@ class MyBookmarkSettings extends RbModalHandler {
                         <optgroup label={$L('业务实体')}>
                           {this.state._entities &&
                             this.state._entities.map((item) => {
+                              if (!item.read) return null
                               return (
-                                <option key={item.name} value={item.name}>
+                                <option key={item.entity} value={item.entity}>
                                   {item.entityLabel}
                                 </option>
                               )
@@ -592,7 +593,7 @@ class MyBookmarkSettings extends RbModalHandler {
     let rndColor = RBCOLORS[Math.floor(Math.random() * (RBCOLORS.length + 1))]
     if (rndColor) $(this._$name).find('input[type=color]').val(rndColor)
 
-    $.get('/commons/metadata/entities?detail=true&filterSys=true', (res) => {
+    $.get('/dashboard/entities-creates-reads', (res) => {
       this.setState({ _entities: res.data || [] }, () => {
         $(this._$content)
           .find('select')
@@ -602,7 +603,7 @@ class MyBookmarkSettings extends RbModalHandler {
           })
           .on('change', (e) => {
             let entity = e.currentTarget.value
-            entity = this.state._entities.find((item) => item.name === entity)
+            entity = this.state._entities.find((item) => item.entity === entity)
             $(this._$name).find('input[type=text]').val(entity.entityLabel)
             $(this._$name)
               .find('i')

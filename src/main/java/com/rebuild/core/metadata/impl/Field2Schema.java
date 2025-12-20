@@ -111,8 +111,10 @@ public class Field2Schema extends SetUser {
 
         Collection<String> uniqueKeyFields = null;
         if (type == DisplayType.SERIES) uniqueKeyFields = Collections.singletonList(field.getName());
+        Collection<String> indexKeyFields = null;
+        if (type == DisplayType.REFERENCE) indexKeyFields = Collections.singletonList(field.getName());
 
-        boolean schemaReady = schema2Database(entity, new Field[]{field}, uniqueKeyFields);
+        boolean schemaReady = schema2Database(entity, new Field[]{field}, uniqueKeyFields, indexKeyFields);
         if (!schemaReady) {
             Application.getCommonsService().delete(recordedMetaIds.toArray(new ID[0]));
             throw new MetadataModificationException(Language.L("无法同步元数据到数据库"));
@@ -178,19 +180,20 @@ public class Field2Schema extends SetUser {
      * @param entity
      * @param fields
      * @return
-     * @see #schema2Database(Entity, Field[], Collection)
+     * @see #schema2Database(Entity, Field[], Collection, Collection)
      */
     public boolean schema2Database(Entity entity, Field[] fields) {
-        return schema2Database(entity, fields, null);
+        return schema2Database(entity, fields, null, null);
     }
 
     /**
      * @param entity
      * @param fields
      * @param uniqueKeyFields
+     * @param indexKeyFields
      * @return
      */
-    public boolean schema2Database(Entity entity, Field[] fields, Collection<String> uniqueKeyFields) {
+    public boolean schema2Database(Entity entity, Field[] fields, Collection<String> uniqueKeyFields, Collection<String> indexKeyFields) {
         Dialect dialect = Application.getPersistManagerFactory().getDialect();
         final Table table = new Table40(entity, dialect);
         final String alterSql = "alter table `" + entity.getPhysicalName() + "`";
@@ -223,6 +226,10 @@ public class Field2Schema extends SetUser {
                 // 删除时无需处理索引，因为 MySQL 会自动删除
                 // https://dev.mysql.com/doc/refman/5.6/en/alter-table.html
                 ddl.append(MessageFormat.format("\n  add unique index UIX999_{0} ({0}),", field.getPhysicalName()));
+            }
+            // v4.3 引用字段索引
+            if (indexKeyFields != null && indexKeyFields.contains(field.getName())) {
+                ddl.append(MessageFormat.format("\n  add index IX43_{0} ({0}),", field.getPhysicalName()));
             }
         }
         ddl.deleteCharAt(ddl.length() - 1);

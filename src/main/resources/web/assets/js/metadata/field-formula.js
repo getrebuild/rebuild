@@ -594,3 +594,178 @@ class EditorWithFieldVars extends React.Component {
     setTimeout(() => this._$content.focus(), 20)
   }
 }
+
+// ~ 公式编辑器
+// eslint-disable-next-line no-unused-vars
+class FormulaCalcWithCode extends FormulaCalc {
+  renderContent() {
+    if (this.props.forceCode || !$empty(this.props.initCode) || this.state.useCode) {
+      return (
+        <FormulaCode
+          initCode={this.props.initCode}
+          onConfirm={(code) => {
+            this.props.onConfirm(!$trim(code) ? null : `{{{{${code}}}}}`)
+            this.hide()
+          }}
+          verifyFormula
+          entity={this.props.entity}
+        />
+      )
+    } else {
+      return super.renderContent()
+    }
+  }
+
+  renderExtraKeys() {
+    return (
+      <RF>
+        <li className="list-inline-item">
+          <a data-toggle="dropdown">{$L('函数')}</a>
+          <div className="dropdown-menu">
+            <a className="dropdown-item" onClick={() => this.handleInput('DATEDIFF')} title="DATEDIFF($DATE1, $DATE2, [H|D|M|Y])">
+              DATEDIFF
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('DATEADD')} title="DATEADD($DATE, $NUMBER[H|D|M|Y])">
+              DATEADD
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('DATESUB')} title="DATESUB($DATE, $NUMBER[H|D|M|Y])">
+              DATESUB
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('DATEPICKAT')} title="DATEPICKAT($DATE, [Y|Q|M|D|H|I])">
+              DATEPICKAT
+            </a>
+            <div className="dropdown-divider" />
+            <a className="dropdown-item pointer" target="_blank" href="https://getrebuild.com/docs/admin/trigger/fieldwriteback#%E4%BD%BF%E7%94%A8%E6%97%A5%E6%9C%9F%E5%87%BD%E6%95%B0">
+              <i className="zmdi zmdi-help icon" />
+              {$L('如何使用函数')}
+            </a>
+          </div>
+        </li>
+        <li className="list-inline-item">
+          <a data-toggle="dropdown">{$L('单位')}</a>
+          <div className="dropdown-menu">
+            <a className="dropdown-item" onClick={() => this.handleInput('H')}>
+              H ({$L('小时')})
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('D')}>
+              D ({$L('日')})
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('M')}>
+              M ({$L('月')})
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('Y')}>
+              Y ({$L('年')})
+            </a>
+          </div>
+        </li>
+        <li className="list-inline-item">
+          <a onClick={() => this.handleInput('"')}>&#34;</a>
+        </li>
+        <li className="list-inline-item">
+          <a onClick={() => this.handleInput(',')}>,</a>
+        </li>
+      </RF>
+    )
+  }
+
+  componentDidMount() {
+    if (this._$fields) {
+      $(this._$fields).css('max-height', 221)
+
+      const $btn = $(`<a class="switch-code-btn" title="${$L('使用高级计算公式')}"><i class="icon mdi mdi-code-tags"></i></a>`)
+      $(this._$formula).addClass('switch-code').after($btn)
+      $btn.on('click', () => this.setState({ useCode: true }))
+    }
+
+    super.componentDidMount()
+  }
+
+  handleInput(v) {
+    if (['DATEDIFF', 'DATEADD', 'DATESUB', ',', '"'].includes(v)) {
+      $(`<i class="v oper">${v}</em>`).appendTo(this._$formula).attr('data-v', v)
+
+      if (['DATEDIFF', 'DATEADD', 'DATESUB'].includes(v)) {
+        setTimeout(() => this.handleInput('('), 200)
+      }
+    } else {
+      super.handleInput(v)
+    }
+  }
+}
+
+// 公式代码编辑器
+class FormulaCode extends React.Component {
+  render() {
+    return (
+      <div>
+        <EditorWithFieldVars entity={this.props.entity} showFuncs ref={(c) => (this._formulaCode = c)} placeholder="## Support AviatorScript" isCode />
+        <div className="row mt-1">
+          <div className="col pt-2">
+            <span className="d-inline-block">
+              <a href="https://getrebuild.com/docs/admin/trigger/fieldwriteback#%E9%AB%98%E7%BA%A7%E8%AE%A1%E7%AE%97%E5%85%AC%E5%BC%8F" target="_blank" className="link">
+                {$L('如何使用高级计算公式')}
+              </a>
+              <i className="zmdi zmdi-help zicon" />
+            </span>
+          </div>
+          <div className="col text-right">
+            <button type="button" className="btn btn-primary" onClick={() => this.handleConfirm()}>
+              {$L('确定')}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    this._formulaCode.val(this.props.initCode || '')
+  }
+
+  handleConfirm() {
+    const formula = this._formulaCode.val()
+    const that = this
+    function _onConfirm() {
+      typeof that.props.onConfirm === 'function' && that.props.onConfirm(formula)
+    }
+
+    if (formula && this.props.verifyFormula) {
+      // in field-formula.js
+      // eslint-disable-next-line no-undef
+      verifyFormula(formula, this.props.entity, _onConfirm)
+    } else {
+      _onConfirm()
+    }
+  }
+
+  // 格式化显示
+  static textCode(code) {
+    if (!code) return null
+    code = code.substr(4, code.length - 8) // Remove {{{{ xxx }}}}
+    code = code.replace(/( )/gi, '&nbsp;').replace(/</gi, '&lt;').replace(/\n/gi, '<br/>')
+    return <code style={{ lineHeight: 1.2 }} dangerouslySetInnerHTML={{ __html: code }} />
+  }
+}
+
+FormulaCalcWithCode.isCode = function (formula) {
+  return formula && formula.startsWith('{{{{')
+}
+
+FormulaCalcWithCode.formatText = function (formula, fields) {
+  if (!formula) return null
+
+  // CODE
+  if (FormulaCalcWithCode.isCode(formula)) {
+    return FormulaCode.textCode(formula)
+  }
+  // compatible: DATE
+  if (formula.includes('#')) {
+    const fs = formula.split('#')
+    const field = fields.find((x) => x.name === fs[0])
+    return `{${field ? field.label : `[${fs[0].toUpperCase()}]`}}` + (fs[1] || '')
+  }
+  // NUM,DATE
+  else {
+    return FormulaCalcWithCode.textFormula(formula, fields)
+  }
+}
