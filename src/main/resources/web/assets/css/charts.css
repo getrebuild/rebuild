@@ -707,6 +707,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-right: -25px;
 }
 
+.CNMAP-tip {
+  line-height: 1.4;
+  font-size: 13px;
+  margin-bottom: 10px;
+  color: #222;
+  margin-top: -2px;
+}
+
+.CNMAP-tip b {
+  color: #777;
+  display: block;
+}
+
 .grid-stack .grid-stack-item.HeadingText .grid-stack-item-content {
   background-color: transparent;
 }

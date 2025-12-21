@@ -58,13 +58,15 @@ public class CNMapChart extends ChartData {
             datas.add(new Object[]{mapSplit[0], mapSplit[1], n});
         }
 
+        String[] name = new String[]{
+                dim1.getLabel(),
+                nums.length > 0 ? nums[0].getLabel() : null
+        };
         JSONObject renderOption = config.getJSONObject("option");
-
-        String numLabel = nums.length > 0 ? nums[0].getLabel() : null;
 
         return JSONUtils.toJSONObject(
                 new String[]{"data", "name", "_renderOption"},
-                new Object[]{datas, numLabel, renderOption});
+                new Object[]{datas, name, renderOption});
     }
 
     private String buildSql() {
