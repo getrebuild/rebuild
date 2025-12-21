@@ -1682,11 +1682,14 @@ class ChartCNMap extends BaseChart {
         bmap: {
           zoom: 10,
           roam: true,
-          mapOptions: {
-            enableMapClick: false,
-          },
           mapStyle: {
             styleJson: mapStyle || [],
+          },
+          mapStyleV2: {
+            styleJson: mapStyle || [],
+          },
+          mapOptions: {
+            enableMapClick: false,
           },
         },
         series: [
@@ -1719,12 +1722,18 @@ class ChartCNMap extends BaseChart {
         }
       }
 
+      // #1 Map
       $useMap(() => {
-        // https://github.com/apache/echarts/tree/master/extension-src/bmap
-        $getScript('/assets/lib/charts/bmap.min.js', () => {
-          this._resizeBody()
-          this._echarts = renderEChart(option, elid)
-        })
+        setTimeout(() => {
+          // #2 BMap
+          $getScript('/assets/lib/charts/bmap.min.js', () => {
+            this._resizeBody()
+            this._echarts = renderEChart(option, elid)
+            // 地图类型
+            let bmap = this._echarts.getModel().getComponent('bmap').getBMap()
+            bmap.addControl(new window.BMap.MapTypeControl())
+          })
+        }, 500)
       }, true)
     })
   }
