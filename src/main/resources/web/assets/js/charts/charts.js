@@ -1668,37 +1668,39 @@ class ChartCNMap extends BaseChart {
       const themeStyle = data._renderOption.themeStyle
       const defaultZoom = _renderOption.defaultZoom || 10
 
-      // if (mapTheme === 'dark') mapStyle = window.MAP_STYLE_DARK
-      // else if (mapTheme === 'light') mapStyle = window.MAP_STYLE_LIGHT
-
       // #1 Map
       $useMap(() => {
-        if (this._map) {
-          this._map.clearOverlays()
-          $('#' + elid).empty()
-        }
+        this._componentWillUnmount()
 
         const _BMapGL = window.BMapGL
-        const map = new _BMapGL.Map(elid, {})
+        this._map = new _BMapGL.Map(elid, {})
         if (themeStyle) {
-          map.setMapStyleV2({
-            styleJson: themeStyle === 'dark' ? window.MAP_STYLE_DARK : themeStyle === 'light' ? window.MAP_STYLE_LIGHT : {},
+          // dark light
+          this._map.setMapStyleV2({
+            styleJson: themeStyle === 'dark' ? window.MAP_STYLE_DARK : window.MAP_STYLE_LIGHT,
           })
         }
-
+        // 中心点
         let point = new _BMapGL.Point(116.414, 39.915)
         if (data.data[0] && data.data[0][1]) {
           const first = data.data[0][1].split(',')
           point = new _BMapGL.Point(first[0], first[1])
         }
-        map.centerAndZoom(point, defaultZoom)
-        map.enableScrollWheelZoom(true)
-        this._map = map
+        this._map.centerAndZoom(point, defaultZoom)
+        this._map.enableScrollWheelZoom(true)
+        // 刻度
+        const scaleCtrl = new _BMapGL.ScaleControl()
+        this._map.addControl(scaleCtrl)
+        // 类型
+        // const typeCtrl = new _BMapGL.MapTypeControl()
+        // this._map.addControl(typeCtrl)
+        // 定位
+        const locCtrl = new _BMapGL.LocationControl()
+        this._map.addControl(locCtrl)
 
         // #2 Cluster
         // https://lbs.baidu.com/index.php?title=jspopularGL/guide/cluster#service-page-anchor1
-        $getScript('/assets/lib/charts/bmap-cluster.js?v=0.0.10', () => this._renderCluster(data, map))
-        // https://lbsyun.baidu.com/solutions/mapvdata
+        $getScript('/assets/lib/charts/bmap-cluster.js?v=0.0.10', () => this._renderCluster(data, this._map))
       }, false)
     })
   }
@@ -1716,7 +1718,6 @@ class ChartCNMap extends BaseChart {
       }
     })
 
-    this._cluster && this._cluster.destroy()
     this._cluster = new _Cluster.View(map)
     this._cluster.on(_Cluster.ClusterEvent.CLICK, (e) => {
       console.log('CLICK', e)
@@ -1731,7 +1732,7 @@ class ChartCNMap extends BaseChart {
         const iw = new _BMapGL.InfoWindow(content, {
           width: 249,
           title: false,
-          enableAutoPan: false,
+          // enableAutoPan: false,
         })
         map.openInfoWindow(iw, new _BMapGL.Point(e.latLng[0], e.latLng[1]))
       }
@@ -1741,6 +1742,18 @@ class ChartCNMap extends BaseChart {
       map.closeInfoWindow()
     })
     this._cluster.setData(points)
+  }
+
+  _componentWillUnmount() {
+    if (this._map) {
+      this._map.clearOverlays()
+      this._map = null
+    }
+    this._cluster && this._cluster.destroy()
+  }
+
+  componentWillUnmount() {
+    this._componentWillUnmount()
   }
 
   export() {
