@@ -1254,7 +1254,7 @@ var $useMap = function (cb, v3) {
       $useMap__Loaded = 2
     }
 
-    var apiUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'byrCFRGA3PVDu0pYYVVZO6ueoGM37IlH') + '&callback=$useMap__callback'
+    var apiUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'Z8YJOqCIysCGK0MsNJChsxPCWeWbqYXS') + '&callback=$useMap__callback'
     if (v3) apiUrl = apiUrl.replace('v=1.0&type=webgl&', 'v=3.0&')
     $getScript(apiUrl)
   }
