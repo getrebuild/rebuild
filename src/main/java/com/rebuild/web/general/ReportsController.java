@@ -24,6 +24,7 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
+import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.core.service.dataimport.DataExporter;
 import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
@@ -193,6 +194,22 @@ public class ReportsController extends BaseController {
             FileDownloader.downloadTempFile(response, output, fileName, forcePreview);
         }
         return null;
+    }
+
+    @RequestMapping("report/template5-view-chart")
+    public ModelAndView template5ViewChart(@PathVariable String entity, HttpServletRequest request) {
+        ModelAndView mv = createModelAndView("/admin/data/template5-view-chart");
+        String id = request.getParameter("id");
+        try {
+            ID chartId = ID.valueOf(id);
+            ConfigBean cb = ChartManager.instance.getChart(chartId);
+            mv.getModelMap().put("chartTitle", cb.getString("title"));
+            mv.getModelMap().put("chartType", cb.getString("type"));
+            mv.getModelMap().put("chartId", chartId);
+        } catch (Exception ex) {
+            log.error("Bad chart : {}", id, ex);
+        }
+        return mv;
     }
 
     // 列表数据导出
