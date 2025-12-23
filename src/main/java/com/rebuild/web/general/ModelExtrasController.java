@@ -25,7 +25,6 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.general.RepeatedRecordsException;
-import com.rebuild.core.service.general.transform.RecordTransfomer39;
 import com.rebuild.core.service.general.transform.RecordTransfomer43;
 import com.rebuild.core.service.trigger.DataValidateException;
 import com.rebuild.core.support.RbvFunction;
@@ -92,8 +91,8 @@ public class ModelExtrasController extends BaseController {
         // 单个
         ID sourceRecord = ID.valueOf(sourceRecordAny.toString());
 
-        RecordTransfomer39 transfomer39 = RecordTransfomer43.create(transid);
-        if (!transfomer39.checkFilter(sourceRecord)) {
+        RecordTransfomer43 transfomer = RecordTransfomer43.create(transid);
+        if (!transfomer.checkFilter(sourceRecord)) {
             return RespBody.error(Language.L("当前记录不符合转换条件"), 400);
         }
 
@@ -107,9 +106,9 @@ public class ModelExtrasController extends BaseController {
         try {
             Object res;
             if (post.getBooleanValue("preview")) {
-                res = transfomer39.preview(sourceRecord, mainRecord, existsRecord);
+                res = transfomer.preview(sourceRecord, mainRecord, existsRecord);
             } else {
-                res = transfomer39.transform(sourceRecord, mainRecord, existsRecord);
+                res = transfomer.transform(sourceRecord, mainRecord, existsRecord);
             }
             return RespBody.ok(res);
 
@@ -137,12 +136,12 @@ public class ModelExtrasController extends BaseController {
     private RespBody transform39Muilt(ID transid, JSONArray sourceRecords) {
         List<ID> newIds = new ArrayList<>();
         for (Object o : sourceRecords) {
-            RecordTransfomer39 transfomer39 = RecordTransfomer43.create(transid);
+            RecordTransfomer43 transfomer = RecordTransfomer43.create(transid);
             ID sourceRecord = ID.valueOf((String) o);
-            if (!transfomer39.checkFilter(sourceRecord)) continue;
+            if (!transfomer.checkFilter(sourceRecord)) continue;
 
             try {
-                ID newId = transfomer39.transform(sourceRecord, null, null);
+                ID newId = transfomer.transform(sourceRecord, null, null);
                 newIds.add(newId);
             } catch (Exception ex) {
                 log.warn(">>>>> {} : {}", sourceRecord, ex.getLocalizedMessage());

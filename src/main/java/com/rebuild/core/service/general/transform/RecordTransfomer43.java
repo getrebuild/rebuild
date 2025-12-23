@@ -153,13 +153,22 @@ public class RecordTransfomer43 extends RecordTransfomer39 {
         return super.fillback(sourceRecordId, fillbackReadyIds);
     }
 
+    /**
+     * 获取转换后的多条记录
+     *
+     * @return
+     */
+    public ID[] getTheNewIds() {
+        return fillbackReadyIds;
+    }
+
     // --
 
     /**
      * @param transid
      * @return
      */
-    public static RecordTransfomer39 create(ID transid) {
+    public static RecordTransfomer43 create(ID transid) {
         return new RecordTransfomer43(transid);
     }
 }
