@@ -547,12 +547,29 @@ class FieldsPrivilegesPane extends React.Component {
     this.state = {}
   }
 
+  _selectAll(select, e) {
+    e && $stopEvent(e, true)
+
+    const vvv = $(select)
+      .find('option')
+      .map(function () {
+        return $(this).val()
+      })
+      .get()
+    $(select).val(vvv).trigger('change')
+  }
+
   render() {
     const _fields = this.state.fields || []
     return (
       <div className="mb-5">
         <div className="form-group">
-          <label>{$L('不可新建字段')}</label>
+          <div>
+            <label>{$L('不可新建字段')}</label>
+            <a href="###" className="float-right" onClick={(e) => this._selectAll(this._$create, e)}>
+              {$L('全选')}
+            </a>
+          </div>
           <select className="form-control form-control-sm" multiple ref={(c) => (this._$create = c)}>
             {_fields.map((item) => {
               if (item.creatable === false) return null
@@ -565,7 +582,12 @@ class FieldsPrivilegesPane extends React.Component {
           </select>
         </div>
         <div className="form-group">
-          <label>{$L('不可读取字段')}</label>
+          <div>
+            <label>{$L('不可读取字段')}</label>
+            <a href="###" className="float-right" onClick={(e) => this._selectAll(this._$read, e)}>
+              {$L('全选')}
+            </a>
+          </div>
           <select className="form-control form-control-sm" multiple ref={(c) => (this._$read = c)}>
             {_fields.map((item) => {
               return (
@@ -577,7 +599,12 @@ class FieldsPrivilegesPane extends React.Component {
           </select>
         </div>
         <div className="form-group hide">
-          <label>{$L('脱敏读取字段')} TODO</label>
+          <div>
+            <label>{$L('脱敏读取字段')} TODO</label>
+            <a href="###" className="float-right" onClick={(e) => this._selectAll(this._$mask, e)}>
+              {$L('全选')}
+            </a>
+          </div>
           <select className="form-control form-control-sm" multiple ref={(c) => (this._$mask = c)}>
             {_fields.map((item) => {
               return (
@@ -589,7 +616,12 @@ class FieldsPrivilegesPane extends React.Component {
           </select>
         </div>
         <div className="form-group">
-          <label>{$L('不可编辑字段')}</label>
+          <div>
+            <label>{$L('不可编辑字段')}</label>
+            <a href="###" className="float-right" onClick={(e) => this._selectAll(this._$update, e)}>
+              {$L('全选')}
+            </a>
+          </div>
           <select className="form-control form-control-sm" multiple ref={(c) => (this._$update = c)}>
             {_fields.map((item) => {
               if (item.updatable === false) return null
