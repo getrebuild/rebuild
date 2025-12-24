@@ -147,6 +147,17 @@
         background-color: transparent;
         line-height: 15px;
       }
+      .nav.nav-tabs.nav-tabs-classic {
+        background-color: #eee;
+        position: sticky;
+        top: 60px;
+        z-index: 1;
+        padding-top: 6px;
+      }
+      .nav.nav-tabs.nav-tabs-classic .operating {
+        position: absolute;
+        right: 0;
+      }
     </style>
   </head>
   <body>
@@ -171,7 +182,7 @@
             </div>
           </div>
         </aside>
-        <div class="main-content container-fluid">
+        <div class="main-content container-fluid" style="padding-top: 14px">
           <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible alert-sm hide J_tips">
             <div class="icon"><span class="zmdi zmdi-info-outline"></span></div>
             <div class="message">
@@ -179,21 +190,22 @@
               <p>ALERT</p>
             </div>
           </div>
-          <div class="float-right">
-            <button class="btn btn-secondary btn-space J_new-role mr-0" type="button"><i class="icon mdi mdi-lock-plus"></i> [[${bundle.L('新建角色')}]]</button>
-            <div class="btn-group btn-space ml-1 mr-0" th:if="${id != null}">
-              <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
-              <button class="btn btn-primary dropdown-toggle w-auto" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-chevron-down"></i></button>
-              <div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
-                <a class="dropdown-item J_copy-role"><i class="icon zmdi zmdi-copy"></i> [[${bundle.L('复制角色')}]]</a>
-              </div>
-            </div>
-          </div>
           <div class="tab-container">
             <ul class="nav nav-tabs nav-tabs-classic">
               <li class="nav-item"><a data-toggle="tab" href="#priv-entity" class="nav-link active">[[${bundle.L('实体权限')}]]</a></li>
               <li class="nav-item"><a data-toggle="tab" href="#priv-zero" class="nav-link">[[${bundle.L('扩展权限')}]]</a></li>
               <li class="nav-item hide"><a data-toggle="tab" href="#tab-members" class="nav-link">[[${bundle.L('使用用户')}]]</a></li>
+
+              <span class="operating">
+                <button class="btn btn-secondary btn-space J_new-role mr-0" type="button"><i class="icon mdi mdi-lock-plus"></i> [[${bundle.L('新建角色')}]]</button>
+                <div class="btn-group btn-space ml-1 mr-0" th:if="${id != null}">
+                  <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+                  <button class="btn btn-primary dropdown-toggle w-auto" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-chevron-down"></i></button>
+                  <div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
+                    <a class="dropdown-item J_copy-role"><i class="icon zmdi zmdi-copy"></i> [[${bundle.L('复制角色')}]]</a>
+                  </div>
+                </div>
+              </span>
             </ul>
             <div class="tab-content mb-0">
               <div class="tab-pane active" id="priv-entity">

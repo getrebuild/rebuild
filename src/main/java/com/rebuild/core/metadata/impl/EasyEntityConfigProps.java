@@ -79,6 +79,10 @@ public class EasyEntityConfigProps {
      */
     public static final String DISABLED_VIEW_EDITABLE = "disabledViewEditable";
     /**
+     * 隐藏详情页侧栏
+     */
+    public static final String HIDE_VIEW_ASIDE = "hideViewAside";
+    /**
      * 启用列表单字段编辑
      */
     public static final String ENABLED_LIST_EDITABLE41 = "enabledListEditable";

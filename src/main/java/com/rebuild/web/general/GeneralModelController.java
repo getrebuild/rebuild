@@ -25,6 +25,7 @@ import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.transform.RecordTransfomer39;
 import com.rebuild.core.service.query.QueryHelper;
@@ -35,6 +36,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.BooleanUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -81,7 +83,7 @@ public class GeneralModelController extends EntityController {
             mv = createModelAndView("/general/record-view", id, user);
         }
         // 视图扩展
-        mv.getModel().putAll(getViewExtras(user, entity, isDetail));
+        mv.getModel().putAll(getViewExtras(user, viewEntity));
         // 显示历史
         mv.getModel().put("ShowViewHistory", RebuildConfiguration.getBool(ConfigurationItem.ShowViewHistory));
         // EasyAction
@@ -91,22 +93,26 @@ public class GeneralModelController extends EntityController {
         return mv;
     }
 
-    private Map<String, Object> getViewExtras(ID user, String entity, boolean isDetail) {
+    private Map<String, Object> getViewExtras(ID user, Entity entity) {
         Map<String, Object> extras = new HashMap<>();
-        if (!isDetail) {
+        if (entity.getMainEntity() == null) {
             // 视图相关项
-            JSONObject vtab = ViewAddonsManager.instance.getViewTab(entity, user);
+            JSONObject vtab = ViewAddonsManager.instance.getViewTab(entity.getName(), user);
             extras.put("ViewTabs", vtab.getJSONArray("items"));
             extras.put("ViewTabsAutoExpand", vtab.getBooleanValue("autoExpand"));
             extras.put("ViewTabsAutoHide", vtab.getBooleanValue("autoHide"));
             extras.put("ViewTabsDefaultList", vtab.getBooleanValue("defaultList"));
-            JSONObject vadd = ViewAddonsManager.instance.getViewAdd(entity, user);
+            JSONObject vadd = ViewAddonsManager.instance.getViewAdd(entity.getName(), user);
             extras.put("ViewAdds", vadd.getJSONArray("items"));
         }
 
         // 记录转换
-        JSON trans = TransformManager.instance.getTransforms(entity, user);
+        JSON trans = TransformManager.instance.getTransforms(entity.getName(), user);
         extras.put("TransformTos", trans);
+
+        // v4.3 隐藏侧栏
+        String hideViewAside = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.HIDE_VIEW_ASIDE);
+        extras.put("hideViewAside", BooleanUtils.toBoolean(hideViewAside));
 
         return extras;
     }
@@ -199,11 +205,10 @@ public class GeneralModelController extends EntityController {
 
         // 返回扩展
         if (getBoolParameter(request, "extras") && !model.containsKey("error")) {
-            Entity e = MetadataHelper.getEntity(entity);
-            model.putAll(getViewExtras(user, entity, e.getMainEntity() != null));
+            model.putAll(getViewExtras(user, modelEntity));
             model.put("entityPrivileges", buildEntityPrivileges(id, user));
-            model.put("entityLabel", Language.L(e));
-            model.put("isDetail", e.getMainEntity() != null);
+            model.put("entityLabel", Language.L(modelEntity));
+            model.put("isDetail", modelEntity.getMainEntity() != null);
         }
         return model;
     }
