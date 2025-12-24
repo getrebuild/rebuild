@@ -24,6 +24,17 @@ body {
   display: none;
 }
 
+.view-body.hide-aside .main-content > .row > .view-operating {
+  display: none;
+}
+
+.view-body.hide-aside .main-content > .row > .col-md-9,
+.view-body.hide-aside .main-content > .row > .col-md-10 {
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: 0 0 100% !important;
+}
+
 @keyframes spinAnimation {
   from {
     transform: rotate(0deg);
