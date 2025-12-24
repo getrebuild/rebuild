@@ -64,12 +64,15 @@ public class ListAndViewRedirection extends BaseController {
                 url = "newtab".equalsIgnoreCase(type)
                         ? String.format("User/view/%s", anyId)
                         : String.format("../admin/bizuser/users#!/View/User/%s", anyId);
+
             } else if (entity.getEntityCode() == EntityHelper.Department) {
                 url = "newtab".equalsIgnoreCase(type)
                         ? String.format("Department/view/%s", anyId)
                         : String.format("../admin/bizuser/departments#!/View/Department/%s", anyId);
+
             } else if (entity.getEntityCode() == EntityHelper.Team) {
                 url = String.format("../admin/bizuser/teams#!/View/Team/%s", anyId);
+
             } else if (entity.getEntityCode() == EntityHelper.Role) {
                 url = String.format("../admin/bizuser/role/%s", anyId);
 
@@ -84,11 +87,8 @@ public class ListAndViewRedirection extends BaseController {
             }
         }
 
-        if (url != null) {
-            response.sendRedirect(url);
-        } else {
-            response.sendError(HttpStatus.NOT_FOUND.value());
-        }
+        if (url != null) response.sendRedirect(url);
+        else response.sendError(HttpStatus.NOT_FOUND.value());
     }
 
     private Object[] findProjectAndTaskId(ID taskOrComment) {
