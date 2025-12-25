@@ -617,12 +617,21 @@ class EditorWithFieldVars extends React.Component {
 // eslint-disable-next-line no-unused-vars
 class FormulaCalcWithCode extends FormulaCalc {
   renderContent() {
-    if (this.props.forceCode || !$empty(this.props.initCode) || this.state.useCode) {
+    let forceCode = this.props.forceCode || this.state.useCode
+    let initCode = this.props.initFormula
+    if (!forceCode && initCode && initCode.startsWith('{{{{')) {
+      forceCode = true
+    }
+    if (FormulaCalcWithCode.isCode(initCode) && initCode.startsWith('{{{{')) {
+      initCode = initCode.substring(4, initCode.length - 4)
+    }
+
+    if (forceCode) {
       return (
         <FormulaCode
-          initCode={this.props.initCode}
-          onConfirm={(code) => {
-            this.props.onConfirm(!$trim(code) ? null : `{{{{${code}}}}}`)
+          initCode={initCode}
+          onConfirm={(s) => {
+            this.props.onConfirm(!$trim(s) ? null : `{{{{${s}}}}}`)
             this.hide()
           }}
           verifyFormula

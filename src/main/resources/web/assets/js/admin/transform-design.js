@@ -413,7 +413,7 @@ class FieldsMapping extends React.Component {
                   <FieldValueSet entity={te.entity} field={item} placeholder={$L('固定值')} defaultValue={null} ref={(c) => (this._FieldValueSet[item.name] = c)} />
                 </div>
                 <div className={this.state.useVfixed[item.name] === _VFORMULA ? '' : 'hide'}>
-                  <div className="form-control-plaintext formula" _title={$L('计算公式')} title={$L('编辑计算公式')} onClick={() => this._showFormula(item)}>
+                  <div className="form-control-plaintext formula" _title={$L('计算公式')} title={$L('编辑计算公式')} onClick={() => this._showFormula43(item)}>
                     {FormulaCalcWithCode.formatText(this.state.formulaValues[item.name], se.fields)}
                   </div>
                 </div>
@@ -425,7 +425,7 @@ class FieldsMapping extends React.Component {
     )
   }
 
-  _showFormula(item) {
+  _showFormula43(item) {
     const se = this.props.source
     const fieldVars = []
     se.fields.forEach((item) => {
@@ -436,9 +436,6 @@ class FieldsMapping extends React.Component {
 
     // 数字、日期支持计算器模式
     const forceCode = !['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(item.type)
-    let initCode = this.state.formulaValues[item.name] || null
-    if (FormulaCalcWithCode.isCode(initCode)) initCode = initCode.substr(4, initCode.length - 8)
-    else initCode = null
 
     const that = this
     renderRbcomp(
@@ -446,7 +443,7 @@ class FieldsMapping extends React.Component {
         entity={se.entity}
         fields={fieldVars}
         forceCode={forceCode}
-        initCode={initCode}
+        initFormula={this.state.formulaValues[item.name]}
         onConfirm={(expr) => {
           let formulaValues = that.state.formulaValues
           formulaValues[item.name] = expr

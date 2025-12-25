@@ -369,13 +369,12 @@ class ContentFieldWriteback extends ActionContentSpec {
   }
 
   _editCode(item, idx) {
-    const initCode = item.sourceField.substr(4, item.sourceField.length - 8)
     renderRbcomp(
       <FormulaCalcWithCode
         entity={this.props.sourceEntity}
         fields={this.__sourceFieldsCache}
         forceCode
-        initCode={initCode}
+        initFormula={item.sourceField}
         verifyFormula
         onConfirm={(expr) => {
           if (!expr) return
@@ -506,9 +505,7 @@ class FieldFormula extends React.Component {
 
     // 数字、日期支持计算器模式
     const forceCode = !['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(type)
-    const initCode = this._value && this._value.startsWith('{{{{') ? this._value.substr(4, this._value.length - 8) : null
-
-    renderRbcomp(<FormulaCalcWithCode entity={this.state.entity} fields={fieldVars} forceCode={forceCode} initCode={initCode} onConfirm={(expr) => this.onConfirm(expr)} verifyFormula />)
+    renderRbcomp(<FormulaCalcWithCode entity={this.state.entity} fields={fieldVars} forceCode={forceCode} initFormula={this._value} onConfirm={(expr) => this.onConfirm(expr)} verifyFormula />)
   }
 
   onConfirm(expr) {
