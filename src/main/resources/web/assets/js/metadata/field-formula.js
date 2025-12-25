@@ -86,6 +86,24 @@ class FormulaCalc extends RbAlert {
   componentDidMount() {
     super.componentDidMount()
     $(this._$fields).perfectScrollbar()
+
+    if (this.props.initFormula) {
+      const split = this.props.initFormula.match(/({[^}]+})|(.)/g)
+      split.forEach((v) => {
+        if (v.startsWith('{') && v.endsWith('}')) {
+          let field = v.substring(1, v.length - 1)
+          let label = `[${field.toUpperCase()}]`
+          this.props.fields.forEach((f) => {
+            if (f.name === field) {
+              label = f.label
+            }
+          })
+          this.handleInput({ name: field, label: label })
+        } else {
+          this.handleInput(v)
+        }
+      })
+    }
   }
 
   renderExtraKeys() {

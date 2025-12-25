@@ -18,6 +18,7 @@ public enum FormatCalc {
     // 数字字段
     SUM("求和"), AVG("平均值"), MAX("最大数"), MIN("最小数"),
     COUNT("计数"), COUNT2("去重计数"),
+    FORMULA("计算公式"),
 
     // 日期时间字段
     Y("年"), Q("季"), M("月"), W("周"), D("日"), H("时"),

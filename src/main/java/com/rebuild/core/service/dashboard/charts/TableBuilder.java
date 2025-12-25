@@ -26,7 +26,7 @@ public class TableBuilder {
     /**
      * 行号
      */
-    protected static final Axis LN_REF = new Axis(null, null, null, "#", null);
+    protected static final Axis LN_REF = new Axis(null, null, null, null, "#", null);
 
     final private TableChart chart;
     final private Object[][] rows;
