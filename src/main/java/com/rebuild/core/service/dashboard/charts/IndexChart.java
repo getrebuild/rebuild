@@ -10,6 +10,7 @@ package com.rebuild.core.service.dashboard.charts;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * 指标卡
@@ -29,6 +30,8 @@ public class IndexChart extends ChartData {
 
         Numerical num = nums[0];
         Object[] dataRaw = createQuery(buildSql(num, true)).unique();
+        dataRaw = applyCalcFormula(dataRaw, num);
+
         JSONObject index = JSONUtils.toJSONObject(
                 new String[]{"data", "label", "dataFlag"},
                 new Object[]{wrapAxisValue(num, dataRaw[0]), num.getLabel(), getNumericalFlag(num)});
@@ -37,6 +40,8 @@ public class IndexChart extends ChartData {
         if (nums.length > 1) {
             num = nums[1];
             dataRaw = createQuery(buildSql(num, true)).unique();
+            dataRaw = applyCalcFormula(dataRaw, num);
+
             index.put("data2", wrapAxisValue(num, dataRaw[0]));
             index.put("label2", num.getLabel());
             index.put("dataFlag2", getNumericalFlag(num));
@@ -49,4 +54,16 @@ public class IndexChart extends ChartData {
                 new String[]{"index", "_renderOption"},
                 new Object[]{index, renderOption});
     }
+
+    // 应用计算字段
+    private Object[] applyCalcFormula(Object[] dataRaw, Numerical num) {
+        if (StringUtils.isBlank(num.getFormatFormula())) return dataRaw;
+
+        Object[][] dataRawArray = new Object[][]{dataRaw};
+        Numerical[] nums = new Numerical[]{num};
+
+        this.calcFormula43(dataRawArray, nums);
+        return dataRawArray[0];
+    }
+
 }

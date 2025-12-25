@@ -681,7 +681,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
         int dimSize = data[0].length - nums.length;
         for (int i = 0; i < nums.length; i++) {
             Numerical num = nums[i];
-            String formula = num.getFormula();
+            String formula = num.getFormatFormula();
             if (StringUtils.isBlank(formula)) continue;
 
             // 找到变量位置

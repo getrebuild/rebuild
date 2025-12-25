@@ -30,7 +30,7 @@ public class Numerical extends Axis {
     @Getter
     private int unit = 0;
     @Getter
-    private String formula;
+    private String formatFormula;
 
     /**
      * @param fkey
@@ -50,7 +50,7 @@ public class Numerical extends Axis {
         if (scale != null) this.scale = scale;
         if (unit != null) this.unit = unit;
         if (ParseHelper.validAdvFilter(filter)) this.filter = filter;
-        if (calc == FormatCalc.FORMULA) this.formula = formula;
+        if (calc == FormatCalc.FORMULA) this.formatFormula = formula;
     }
 
     @Override

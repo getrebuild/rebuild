@@ -70,7 +70,7 @@ public class TableChart extends ChartData {
         }
 
         // 计算字段
-        calcFormula43(dataRaw, nums);
+        this.calcFormula43(dataRaw, nums);
 
         // v3.9
         if (pageSize > 0 && dataRaw.length > pageSize) {
