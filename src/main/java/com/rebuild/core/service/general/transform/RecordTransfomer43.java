@@ -58,15 +58,18 @@ public class RecordTransfomer43 extends RecordTransfomer39 {
     @Override
     protected ID saveRecord(Record record, List<Record> detailsList) {
         if (StringUtils.isBlank(one2nModeField)) {
-            return super.saveRecord(record, detailsList);
+            ID theNewId = super.saveRecord(record, detailsList);
+            fillbackReadyIds = new ID[]{theNewId};
+            return theNewId;
         }
 
         // 需要保存为多条
         // 如果多条主记录，明细（如有）都会带着
-
         Object multiValue = QueryHelper.queryFieldValue(sourceRecordId, one2nModeField);
         if (multiValue == null) {
-            return super.saveRecord(record, detailsList);
+            ID theNewId = super.saveRecord(record, detailsList);
+            fillbackReadyIds = new ID[]{theNewId};
+            return theNewId;
         }
 
         List<Object> multiValueSplit = new ArrayList<>();
@@ -90,10 +93,10 @@ public class RecordTransfomer43 extends RecordTransfomer39 {
         }
 
         if (multiValueSplit.size() <= 1) {
-            return super.saveRecord(record, detailsList);
+            ID theNewId = super.saveRecord(record, detailsList);
+            fillbackReadyIds = new ID[]{theNewId};
+            return theNewId;
         }
-
-
 
         // `转换依据字段` 未映射则不保存此字段值
         JSONObject fieldsMapping = transConfig.getJSONObject("fieldsMapping");
@@ -107,7 +110,7 @@ public class RecordTransfomer43 extends RecordTransfomer39 {
             }
         }
 
-        List<ID> theNewId = new ArrayList<>();
+        List<ID> theNewIds = new ArrayList<>();
         TransactionStatus tx = TransactionManual.newTransaction();
         try {
             for (Object value : multiValueSplit) {
@@ -128,7 +131,7 @@ public class RecordTransfomer43 extends RecordTransfomer39 {
                     }
                 }
 
-                theNewId.add(super.saveRecord(clone, detailsListClone));
+                theNewIds.add(super.saveRecord(clone, detailsListClone));
             }
 
             TransactionManual.commit(tx);
@@ -141,7 +144,7 @@ public class RecordTransfomer43 extends RecordTransfomer39 {
         }
 
         // 回填
-        fillbackReadyIds = theNewId.toArray(new ID[0]);
+        fillbackReadyIds = theNewIds.toArray(new ID[0]);
 
         // 返回最先那条
         return fillbackReadyIds[0];
@@ -159,7 +162,7 @@ public class RecordTransfomer43 extends RecordTransfomer39 {
      * @return
      */
     public ID[] getTheNewIds() {
-        return fillbackReadyIds;
+        return fillbackReadyIds == null ? null : fillbackReadyIds;
     }
 
     // --
