@@ -518,20 +518,22 @@ public abstract class ChartData extends SetUser implements ChartSpec {
      *
      * @param dims
      * @param num
+     * @param withFilter
      * @return
      */
-    protected String buildSql(Dimension[] dims, Numerical num) {
+    protected String buildSql(Dimension[] dims, Numerical num, boolean withFilter) {
         List<String> dimSqlItems = new ArrayList<>();
         for (Dimension dim : dims) {
             dimSqlItems.add(dim.getSqlName());
         }
 
         String sql = "select {0},{1} from {2} where {3} group by {0}";
+        String where = getFilterSql(withFilter ? num : null);
         sql = MessageFormat.format(sql,
                 StringUtils.join(dimSqlItems, ", "),
                 num.getSqlName(),
                 getSourceEntity().getName(),
-                getFilterSql());
+                where);
         return appendSqlSort(sql);
     }
 

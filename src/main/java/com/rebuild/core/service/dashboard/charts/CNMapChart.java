@@ -75,7 +75,7 @@ public class CNMapChart extends ChartData {
         Numerical[] nums = getNumericals();
 
         if (nums.length > 0) {
-            return buildSql(dims[0], nums, false);
+            return buildSql(dims[0], nums, true);
         }
 
         String sql = "select {0} from {1} where {2}";

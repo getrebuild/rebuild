@@ -240,16 +240,16 @@
               <div class="axis-head">
                 <span>[[${bundle.L('维度')}]]</span>
               </div>
-              <div class="axis-target J_axis-dim"></div>
+              <div class="axis-target J_axis-dim" th:title="${bundle.L('拖动字段到此处')}"></div>
             </div>
             <div class="axis J_numerical">
               <div class="axis-head">
                 <span>[[${bundle.L('数值')}]]</span>
               </div>
-              <div class="axis-target J_axis-num"></div>
+              <div class="axis-target J_axis-num" th:title="${bundle.L('拖动字段到此处')}"></div>
             </div>
           </div>
-          <div id="chart-preview" th:_title="${bundle.L('预览')}"></div>
+          <div id="chart-preview" th:title="${bundle.L('预览')}"></div>
         </div>
       </div>
     </div>

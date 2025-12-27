@@ -30,7 +30,7 @@ public class TreemapChart extends ChartData {
         Numerical[] nums = getNumericals();
 
         Numerical num1 = nums[0];
-        Object[][] dataRaw = createQuery(buildSql(dims, num1)).array();
+        Object[][] dataRaw = createQuery(buildSql(dims, num1, true)).array();
         this.calcFormula43(dataRaw, nums);
 
         int lastIndex = dataRaw.length > 0 ? dataRaw[0].length - 1 : 0;

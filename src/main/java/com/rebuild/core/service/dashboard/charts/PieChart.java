@@ -34,7 +34,7 @@ public class PieChart extends ChartData {
 
         Dimension dim1 = dims[0];
         Numerical num1 = nums[0];
-        Object[][] dataRaw = createQuery(buildSql(dim1, num1, false)).array();
+        Object[][] dataRaw = createQuery(buildSql(dim1, num1, true)).array();
         this.calcFormula43(dataRaw, nums);
 
         JSONArray data = new JSONArray();

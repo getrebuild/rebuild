@@ -518,10 +518,11 @@ function render_option() {
     else $sort.addClass('disabled')
   }
   // v3.7 Filter
-  const $filter = $('.axis-editor .J_filter').addClass('disabled')
-  if (['INDEX', 'FUNNEL', 'TABLE', 'LINE', 'BAR', 'BAR2', 'BAR3'].includes(ct)) {
-    $filter.removeClass('disabled')
-  }
+  // v4.3 全面支持
+  // const $filter = $('.axis-editor .J_filter').addClass('disabled')
+  // if (['INDEX', 'FUNNEL', 'TABLE', 'LINE', 'BAR', 'BAR2', 'BAR3'].includes(ct)) {
+  //   $filter.removeClass('disabled')
+  // }
 
   render_preview()
 }

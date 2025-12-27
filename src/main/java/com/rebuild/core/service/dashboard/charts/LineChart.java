@@ -64,7 +64,7 @@ public class LineChart extends ChartData {
         // FIXME 多余AXIS会舍弃
         if (dims.length > 1) {
             Numerical num1 = nums[0];
-            Object[][] dataRaw = createQuery(buildSql(dims, num1)).array();
+            Object[][] dataRaw = createQuery(buildSql(dims, num1, true)).array();
             // 连续日期
             if (dateContinuous && dataRaw.length > 0) {
                 dataRaw = putContinuousDate2Data(dataRaw, dim1, 2);
