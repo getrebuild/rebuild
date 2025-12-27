@@ -35,6 +35,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.math.BigDecimal;
@@ -673,10 +674,27 @@ public abstract class ChartData extends SetUser implements ChartSpec {
      * 计算字段
      *
      * @param data
+     * @param num
+     */
+    protected Object[] calcFormula43(Object[] data, Numerical num) {
+        if (ArrayUtils.isEmpty(data) || num == null) return data;
+        if (StringUtils.isBlank(num.getFormatFormula())) return data;
+
+        Object[][] dataArray = new Object[][]{data};
+        Numerical[] nums = new Numerical[]{num};
+
+        this.calcFormula43(dataArray, nums);
+        return dataArray[0];
+    }
+
+    /**
+     * 计算字段
+     *
+     * @param data
      * @param nums
      */
     protected void calcFormula43(Object[][] data, Numerical[] nums) {
-        if (data == null || data.length == 0) return;
+        if (ArrayUtils.isEmpty(data) || ArrayUtils.isEmpty(nums)) return;
 
         int dimSize = data[0].length - nums.length;
         for (int i = 0; i < nums.length; i++) {

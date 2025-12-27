@@ -69,7 +69,7 @@ public class LineChart extends ChartData {
             if (dateContinuous && dataRaw.length > 0) {
                 dataRaw = putContinuousDate2Data(dataRaw, dim1, 2);
             }
-            // 计算字段
+
             this.calcFormula43(dataRaw, new Numerical[]{num1});
 
             List<Object> dim1Set = new ArrayList<>();
@@ -150,7 +150,6 @@ public class LineChart extends ChartData {
                 }
             }
 
-            // 计算字段
             this.calcFormula43(dataRaw, nums);
 
             Object[] numsAxis = new Object[nums.length];

@@ -45,6 +45,7 @@ public class CNMapChart extends ChartData {
 
         String sql = buildSql();
         Object[][] array = createQuery(sql).setMaxResults(5000).array();
+        if (nums.length > 0) this.calcFormula43(array, nums);
 
         List<Object[]> datas = new ArrayList<>();
         for (Object[] o : array) {

@@ -69,7 +69,6 @@ public class TableChart extends ChartData {
             dataRaw = createQuery(buildSql(dims, nums)).array();
         }
 
-        // 计算字段
         this.calcFormula43(dataRaw, nums);
 
         // v3.9
