@@ -29,7 +29,7 @@ class ProTable extends React.Component {
     if (!this.state.formFields) return null
 
     const formFields = this.state.formFields
-    const readonly = this.props.$$$main.props.readonly
+    const readonly = this.state.readonly || this.props.$$$main.props.readonly
     // const fixedWidth = formFields.length <= 5
     const fixedWidth = false // v42
     const inlineForms = this.state.inlineForms || []
@@ -389,6 +389,10 @@ class ProTable extends React.Component {
   _onLineUpdated(lineKey) {
     if (this.props.$$$main && this.props.$$$main._onProTableLineUpdated) {
       this.props.$$$main._onProTableLineUpdated(lineKey, this)
+    }
+    // v4.3
+    if (window.FrontJS) {
+      window.FrontJS.Form._trigger('detailLineUpdated', [this.getInlineForm(lineKey)])
     }
   }
 
