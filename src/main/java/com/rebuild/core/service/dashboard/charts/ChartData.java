@@ -680,7 +680,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
      */
     protected Object[] calcFormula43(Object[] data, Numerical num) {
         if (ArrayUtils.isEmpty(data) || num == null) return data;
-        if (StringUtils.isBlank(num.getFormatFormula())) return data;
+        if (num.getFormatFormula() == null) return data;
 
         Object[][] dataArray = new Object[][]{data};
         Numerical[] nums = new Numerical[]{num};

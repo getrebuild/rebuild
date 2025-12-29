@@ -110,10 +110,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .axis .axis-target:empty:after {
-  content: attr(title);
+  content: attr(_title);
   color: #bbb;
   padding-top: 4px;
   display: inline-block;
+}
+
+.axis .axis-target > span[data-formula]:not([data-formula='']) li[data-calc='_FORMULA'] {
+  color: #4285f4;
 }
 
 .axis-target .item {

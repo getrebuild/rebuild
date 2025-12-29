@@ -301,7 +301,7 @@ const CTs = {
   MIN: $L('最小值'),
   COUNT: $L('计数'),
   COUNT2: $L('去重计数'),
-  FORMULA: $L('计算公式'),
+  _FORMULA: $L('计算公式'),
   Y: $L('按年'),
   Q: $L('按季'),
   M: $L('按月'),
@@ -380,17 +380,19 @@ function add_axis($target, axis) {
 
     const calc = $this.data('calc')
     const sort = $this.data('sort')
-    const isFormula = calc === 'FORMULA'
+    const isFormula = calc === '_FORMULA'
     if (calc) {
-      $dd.find('span').text(`${fieldLabel} (${$this.text()})`)
-      $dd.attr('data-calc', calc)
-      aopts.each(function () {
-        if ($(this).data('calc')) $(this).removeClass('check')
-      })
-      $this.addClass('check')
-
-      if (isFormula) _showFormula43($dd)
-      else render_preview()
+      if (isFormula) {
+        _showFormula43($dd)
+      } else {
+        $dd.find('span').text(`${fieldLabel} (${$this.text()})`)
+        $dd.attr('data-calc', calc)
+        aopts.each(function () {
+          if ($(this).data('calc')) $(this).removeClass('check')
+        })
+        $this.addClass('check')
+        render_preview()
+      }
     } else if (sort) {
       $dd.attr('data-sort', sort)
       aopts.each(function () {

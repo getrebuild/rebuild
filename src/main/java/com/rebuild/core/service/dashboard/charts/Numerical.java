@@ -50,7 +50,8 @@ public class Numerical extends Axis {
         if (scale != null) this.scale = scale;
         if (unit != null) this.unit = unit;
         if (ParseHelper.validAdvFilter(filter)) this.filter = filter;
-        if (calc == FormatCalc.FORMULA) this.formatFormula = formula;
+        // 有公式则使用计算公式
+        this.formatFormula = StringUtils.defaultIfBlank(formula, null);
     }
 
     @Override
@@ -69,11 +70,7 @@ public class Numerical extends Axis {
 
         DisplayType dt = EasyMetaFactory.getDisplayType(getField());
         if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
-            if (getFormatCalc() == FormatCalc.FORMULA) {
-                return String.format("SUM(%s)", super.getSqlName());
-            } else {
-                return String.format("%s(%s)", getFormatCalc().name(), super.getSqlName());
-            }
+            return String.format("%s(%s)", getFormatCalc().name(), super.getSqlName());
         } else if (getFormatCalc() == FormatCalc.COUNT2) {
             return String.format("%s(DISTINCT %s)", FormatCalc.COUNT, super.getSqlName());
         } else {
