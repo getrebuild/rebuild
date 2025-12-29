@@ -742,7 +742,7 @@ const CompCategory = (_this, name = 'advListShowCategory') => {
               onClick={(e) => {
                 $stopEvent(e, true)
                 const categoryFields = _this.state.categoryFields || []
-                if (categoryFields.length >= 9) {
+                if (categoryFields.length >= 99) {
                   RbHighbar.create($L('最多可添加 9 个'))
                   return false
                 }

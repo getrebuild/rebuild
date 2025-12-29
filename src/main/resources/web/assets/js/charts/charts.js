@@ -470,23 +470,25 @@ const ECHART_TOOLTIP_FORMATTER = function (i, dataFlags = []) {
   return tooltip.join('<br>')
 }
 
-// 横排
-const ECHART_LEGEND_HOPT = {
-  type: 'plain',
-  orient: 'horizontal',
-  top: 10,
-  right: 0,
-  padding: 0,
-  textStyle: { fontSize: 12 },
-}
-// 竖排
-const ECHART_LEGEND_VOPT = {
-  type: 'scroll',
-  orient: 'vertical',
-  top: 10,
-  right: 0,
-  padding: 0,
-  textStyle: { fontSize: 12 },
+// 图例
+// vertical = 是否竖排
+const ECHART_LEGEND = function (vertical) {
+  let style = {
+    type: 'plain',
+    orient: 'horizontal',
+    top: 10,
+    right: 0,
+    padding: 0,
+    textStyle: { fontSize: 12 },
+  }
+  if (vertical) {
+    style = {
+      ...style,
+      type: 'scroll',
+      orient: 'vertical',
+    }
+  }
+  return style
 }
 
 // K=千 M=百万 B=亿
@@ -579,6 +581,13 @@ const renderEChart = function (option, $target) {
   $target.addEventListener('contextmenu', function (e) {
     e.preventDefault()
   })
+  // v4.3 包装数据
+  if (window.FrontJS && window.FrontJS.__cbCharts) {
+    const FN1 = window.FrontJS.__cbCharts['*']
+    if (typeof FN1 === 'function') option = FN1(option)
+    const FN2 = window.FrontJS.__cbCharts[option.__id || '-']
+    if (typeof FN2 === 'function') option = FN2(option)
+  }
   if (rb.env === 'dev') console.log(option)
   c.setOption(option)
   return c
@@ -646,7 +655,7 @@ class ChartLine extends BaseChart {
       option.tooltip.trigger = 'axis'
       option.tooltip.formatter = (a) => ECHART_TOOLTIP_FORMATTER(a, dataFlags)
       if (showLegend) {
-        option.legend = ECHART_LEGEND_HOPT
+        option.legend = ECHART_LEGEND()
         option.grid.top = 50
       }
       if (showMarkLine) option.grid.right = 60
@@ -659,6 +668,7 @@ class ChartLine extends BaseChart {
         option.grid.bottom = 60
       }
 
+      option.__id = this.props.id
       this._echarts = renderEChart(option, elid)
     })
   }
@@ -735,7 +745,7 @@ class ChartBar extends BaseChart {
         return ECHART_TOOLTIP_FORMATTER(a, dataFlags)
       }
       if (showLegend) {
-        option.legend = ECHART_LEGEND_HOPT
+        option.legend = ECHART_LEGEND()
         option.grid.top = 50
       }
       if (showMarkLine) option.grid.right = 60
@@ -751,6 +761,7 @@ class ChartBar extends BaseChart {
         option.grid.bottom = 60
       }
 
+      option.__id = this.props.id
       this._echarts = renderEChart(this.renderChartBefore(option, data), elid)
     })
   }
@@ -829,9 +840,10 @@ class ChartPie extends BaseChart {
       option.tooltip.formatter = function (a) {
         return `<b>${a.data.name}</b> <br/> ${a.marker} ${a.seriesName} : ${formatThousands(a.data.value, dataFlags[0])} (${a.percent}%)`
       }
-      if (showLegend) option.legend = ECHART_LEGEND_VOPT
+      if (showLegend) option.legend = ECHART_LEGEND(true)
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
+      option.__id = this.props.id
       this._echarts = renderEChart(option, elid)
     })
   }
@@ -883,9 +895,10 @@ class ChartFunnel extends BaseChart {
         if (data.xLabel) return `<b>${a.name}</b> <br/> ${a.marker} ${data.xLabel} : ${formatThousands(a.value, dataFlags[a.dataIndex])}`
         else return `<b>${a.name}</b> <br/> ${a.marker} ${formatThousands(a.value, dataFlags[a.dataIndex])}`
       }
-      if (showLegend) option.legend = ECHART_LEGEND_VOPT
+      if (showLegend) option.legend = ECHART_LEGEND(true)
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
+      option.__id = this.props.id
       this._echarts = renderEChart(option, elid)
     })
   }
@@ -950,6 +963,7 @@ class ChartTreemap extends BaseChart {
       }
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
+      option.__id = this.props.id
       this._echarts = renderEChart(option, elid)
     })
   }
@@ -1311,9 +1325,10 @@ class ChartRadar extends BaseChart {
         })
         return tooltip.join('<br/>')
       }
-      if (showLegend) option.legend = ECHART_LEGEND_VOPT
+      if (showLegend) option.legend = ECHART_LEGEND(true)
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
+      option.__id = this.props.id
       this._echarts = renderEChart(option, elid)
     })
   }
@@ -1386,11 +1401,12 @@ class ChartScatter extends BaseChart {
         return tooltip.join('<br>')
       }
       if (showLegend) {
-        option.legend = ECHART_LEGEND_HOPT
+        option.legend = ECHART_LEGEND()
         option.grid.top = 50
       }
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
+      option.__id = this.props.id
       this._echarts = renderEChart(option, elid)
     })
   }
