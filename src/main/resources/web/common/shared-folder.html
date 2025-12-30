@@ -23,6 +23,10 @@
           margin-left: 12px !important;
           margin-right: 12px !important;
         }
+        .container {
+          padding-left: 12px;
+          padding-right: 12px;
+        }
       }
       .preview-modal .preview-body {
         overflow: auto;
@@ -81,7 +85,7 @@
                     <td class="pr-0 pl-0">
                       <a th:href="'./' + ${file[0]}" th:text="${file[1]}" target="_blank"></a>
                     </td>
-                    <td class="text-right">
+                    <td class="text-right pl-2" width="90">
                       <span class="fs-12 text-muted" th:text="${file[2]}"></span>
                     </td>
                   </tr>

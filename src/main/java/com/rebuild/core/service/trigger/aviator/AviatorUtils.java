@@ -95,6 +95,7 @@ public class AviatorUtils {
         addCustomFunction(new ChineseDateFunction());
         addCustomFunction(new ToDateFunction());
         addCustomFunction(new ToStrFunction());
+        addCustomFunction(new IfNullFunction());
     }
 
     /**

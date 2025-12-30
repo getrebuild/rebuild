@@ -11,6 +11,7 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.NullValue;
 import com.googlecode.aviator.runtime.function.AbstractFunction;
 import com.googlecode.aviator.runtime.type.AviatorBoolean;
+import com.googlecode.aviator.runtime.type.AviatorNil;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -31,21 +32,32 @@ public class IsNullFunction extends AbstractFunction {
 
     @Override
     public AviatorObject call(Map<String, Object> env, AviatorObject arg1) {
-        final Object $any = arg1.getValue(env);
+        boolean is = isNull(arg1.getValue(env));
+        return AviatorBoolean.valueOf(is);
+    }
 
-        if (NullValue.isNull($any)) return AviatorBoolean.TRUE;
-
-        if ($any instanceof Number) {
-            if (ObjectUtils.toDouble($any) == 0d) return AviatorBoolean.TRUE;
+    /**
+     * 是否空 https://getrebuild.com/docs/topic/write-formula#ISNULL
+     * 
+     * @param $any
+     * @return
+     */
+    protected static boolean isNull(Object $any) {
+        if (NullValue.isNull($any) || $any == AviatorNil.NIL) {
+            return true;
+        } else if ($any instanceof Number) {
+            if (ObjectUtils.toDouble($any) == 0d) return true;
         } else if ($any instanceof Object[]) {
-            return ((Object[]) $any).length == 0 ? AviatorBoolean.TRUE : AviatorBoolean.FALSE;
+            return ((Object[]) $any).length == 0;
         } else if ($any instanceof Collection) {
-            return ((Collection<?>) $any).isEmpty() ? AviatorBoolean.TRUE : AviatorBoolean.FALSE;
+            return ((Collection<?>) $any).isEmpty();
+        } else if ($any instanceof Map) {
+            return ((Map<?, ?>) $any).isEmpty();
         } else if ($any instanceof Iterable) {
-            return ((Iterable<?>) $any).iterator().hasNext() ? AviatorBoolean.FALSE : AviatorBoolean.TRUE;
+            return !((Iterable<?>) $any).iterator().hasNext();
         }
 
-        return StringUtils.isEmpty($any.toString()) ? AviatorBoolean.TRUE : AviatorBoolean.FALSE;
+        return StringUtils.isEmpty($any.toString());
     }
 
     @Override

@@ -86,6 +86,24 @@ class FormulaCalc extends RbAlert {
   componentDidMount() {
     super.componentDidMount()
     $(this._$fields).perfectScrollbar()
+
+    if (this.props.initFormula) {
+      const split = this.props.initFormula.match(/({[^}]+})|(.)/g)
+      split.forEach((v) => {
+        if (v.startsWith('{') && v.endsWith('}')) {
+          let field = v.substring(1, v.length - 1)
+          let label = `[${field.toUpperCase()}]`
+          this.props.fields.forEach((f) => {
+            if (f.name === field) {
+              label = f.label
+            }
+          })
+          this.handleInput({ name: field, label: label })
+        } else {
+          this.handleInput(v)
+        }
+      })
+    }
   }
 
   renderExtraKeys() {
@@ -599,12 +617,21 @@ class EditorWithFieldVars extends React.Component {
 // eslint-disable-next-line no-unused-vars
 class FormulaCalcWithCode extends FormulaCalc {
   renderContent() {
-    if (this.props.forceCode || !$empty(this.props.initCode) || this.state.useCode) {
+    let forceCode = this.props.forceCode || this.state.useCode
+    let initCode = this.props.initFormula
+    if (!forceCode && initCode && initCode.startsWith('{{{{')) {
+      forceCode = true
+    }
+    if (FormulaCalcWithCode.isCode(initCode) && initCode.startsWith('{{{{')) {
+      initCode = initCode.substring(4, initCode.length - 4)
+    }
+
+    if (forceCode) {
       return (
         <FormulaCode
-          initCode={this.props.initCode}
-          onConfirm={(code) => {
-            this.props.onConfirm(!$trim(code) ? null : `{{{{${code}}}}}`)
+          initCode={initCode}
+          onConfirm={(s) => {
+            this.props.onConfirm(!$trim(s) ? null : `{{{{${s}}}}}`)
             this.hide()
           }}
           verifyFormula

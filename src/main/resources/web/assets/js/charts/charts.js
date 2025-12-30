@@ -470,23 +470,25 @@ const ECHART_TOOLTIP_FORMATTER = function (i, dataFlags = []) {
   return tooltip.join('<br>')
 }
 
-// 横排
-const ECHART_LEGEND_HOPT = {
-  type: 'plain',
-  orient: 'horizontal',
-  top: 10,
-  right: 0,
-  padding: 0,
-  textStyle: { fontSize: 12 },
-}
-// 竖排
-const ECHART_LEGEND_VOPT = {
-  type: 'scroll',
-  orient: 'vertical',
-  top: 10,
-  right: 0,
-  padding: 0,
-  textStyle: { fontSize: 12 },
+// 图例
+// vertical = 是否竖排
+const ECHART_LEGEND = function (vertical) {
+  let style = {
+    type: 'plain',
+    orient: 'horizontal',
+    top: 10,
+    right: 0,
+    padding: 0,
+    textStyle: { fontSize: 12 },
+  }
+  if (vertical) {
+    style = {
+      ...style,
+      type: 'scroll',
+      orient: 'vertical',
+    }
+  }
+  return style
 }
 
 // K=千 M=百万 B=亿
@@ -579,6 +581,13 @@ const renderEChart = function (option, $target) {
   $target.addEventListener('contextmenu', function (e) {
     e.preventDefault()
   })
+  // v4.3 包装数据
+  if (window.FrontJS && window.FrontJS.__cbCharts) {
+    const FN1 = window.FrontJS.__cbCharts['*']
+    if (typeof FN1 === 'function') option = FN1(option)
+    const FN2 = window.FrontJS.__cbCharts[option.__id || '-']
+    if (typeof FN2 === 'function') option = FN2(option)
+  }
   if (rb.env === 'dev') console.log(option)
   c.setOption(option)
   return c
@@ -646,7 +655,7 @@ class ChartLine extends BaseChart {
       option.tooltip.trigger = 'axis'
       option.tooltip.formatter = (a) => ECHART_TOOLTIP_FORMATTER(a, dataFlags)
       if (showLegend) {
-        option.legend = ECHART_LEGEND_HOPT
+        option.legend = ECHART_LEGEND()
         option.grid.top = 50
       }
       if (showMarkLine) option.grid.right = 60
@@ -659,6 +668,7 @@ class ChartLine extends BaseChart {
         option.grid.bottom = 60
       }
 
+      option.__id = this.props.id
       this._echarts = renderEChart(option, elid)
     })
   }
@@ -735,7 +745,7 @@ class ChartBar extends BaseChart {
         return ECHART_TOOLTIP_FORMATTER(a, dataFlags)
       }
       if (showLegend) {
-        option.legend = ECHART_LEGEND_HOPT
+        option.legend = ECHART_LEGEND()
         option.grid.top = 50
       }
       if (showMarkLine) option.grid.right = 60
@@ -751,6 +761,7 @@ class ChartBar extends BaseChart {
         option.grid.bottom = 60
       }
 
+      option.__id = this.props.id
       this._echarts = renderEChart(this.renderChartBefore(option, data), elid)
     })
   }
@@ -829,9 +840,10 @@ class ChartPie extends BaseChart {
       option.tooltip.formatter = function (a) {
         return `<b>${a.data.name}</b> <br/> ${a.marker} ${a.seriesName} : ${formatThousands(a.data.value, dataFlags[0])} (${a.percent}%)`
       }
-      if (showLegend) option.legend = ECHART_LEGEND_VOPT
+      if (showLegend) option.legend = ECHART_LEGEND(true)
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
+      option.__id = this.props.id
       this._echarts = renderEChart(option, elid)
     })
   }
@@ -883,9 +895,10 @@ class ChartFunnel extends BaseChart {
         if (data.xLabel) return `<b>${a.name}</b> <br/> ${a.marker} ${data.xLabel} : ${formatThousands(a.value, dataFlags[a.dataIndex])}`
         else return `<b>${a.name}</b> <br/> ${a.marker} ${formatThousands(a.value, dataFlags[a.dataIndex])}`
       }
-      if (showLegend) option.legend = ECHART_LEGEND_VOPT
+      if (showLegend) option.legend = ECHART_LEGEND(true)
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
+      option.__id = this.props.id
       this._echarts = renderEChart(option, elid)
     })
   }
@@ -950,6 +963,7 @@ class ChartTreemap extends BaseChart {
       }
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
+      option.__id = this.props.id
       this._echarts = renderEChart(option, elid)
     })
   }
@@ -1311,9 +1325,10 @@ class ChartRadar extends BaseChart {
         })
         return tooltip.join('<br/>')
       }
-      if (showLegend) option.legend = ECHART_LEGEND_VOPT
+      if (showLegend) option.legend = ECHART_LEGEND(true)
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
+      option.__id = this.props.id
       this._echarts = renderEChart(option, elid)
     })
   }
@@ -1386,11 +1401,12 @@ class ChartScatter extends BaseChart {
         return tooltip.join('<br>')
       }
       if (showLegend) {
-        option.legend = ECHART_LEGEND_HOPT
+        option.legend = ECHART_LEGEND()
         option.grid.top = 50
       }
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
+      option.__id = this.props.id
       this._echarts = renderEChart(option, elid)
     })
   }
@@ -1664,95 +1680,96 @@ class ChartCNMap extends BaseChart {
 
     const elid = `echarts-cnmap-${this.state.id || 'id'}`
     this.setState({ chartdata: <div className="chart cnmap" id={elid} /> }, () => {
-      const data4map = []
-      data.data.forEach((item) => {
-        let lnglat = item[1].split(',')
-        data4map.push([lnglat[0], lnglat[1], item[2] || null, item[0]])
-      })
+      const _renderOption = data._renderOption || {}
+      const themeStyle = data._renderOption.themeStyle
+      const defaultZoom = _renderOption.defaultZoom || 10
 
-      const hasNumAxis = data.name ? true : false
-      const mapTheme = data._renderOption && data._renderOption.themeStyle
-      let mapStyle = []
-      if (mapTheme === 'dark') mapStyle = window.MAP_STYLE_DARK
-      else if (mapTheme === 'light') mapStyle = window.MAP_STYLE_LIGHT
-
-      // https://github.com/apache/echarts/tree/master/extension-src/bmap
-      const option = {
-        ...$clone(ECHART_BASE),
-        bmap: {
-          zoom: 10,
-          roam: true,
-          mapOptions: {
-            enableMapClick: false,
-          },
-          mapStyle: {
-            styleJson: mapStyle || [],
-          },
-        },
-        series: [
-          {
-            type: hasNumAxis ? 'effectScatter' : 'scatter',
-            coordinateSystem: 'bmap',
-            symbol: data.name ? 'circle' : 'pin',
-            symbolSize: function () {
-              return hasNumAxis ? 14 : 20
-            },
-            data: data4map,
-            encode: {
-              value: 2,
-            },
-            showEffectOn: 'emphasis',
-            rippleEffect: {
-              brushType: 'stroke',
-            },
-          },
-        ],
-      }
-
-      option.color = ['#ea4335', '#4285f4']
-      option.tooltip.trigger = 'item'
-      option.tooltip.formatter = function (a) {
-        if (data.name) {
-          return `<b>${a.data[3]}</b> <br/> ${a.marker} ${data.name} : ${formatThousands(a.data[2])}`
-        } else {
-          return `<b>${a.data[3]}</b>`
-        }
-      }
-
+      // #1 Map
       $useMap(() => {
-        // https://github.com/apache/echarts/tree/master/extension-src/bmap
-        $getScript('/assets/lib/charts/bmap.min.js', () => {
-          this._resizeBody()
-          this._echarts = renderEChart(option, elid)
-        })
-      }, true)
+        this._componentWillUnmount()
+
+        const _BMapGL = window.BMapGL
+        this._map = new _BMapGL.Map(elid, {})
+        if (themeStyle) {
+          // dark light
+          this._map.setMapStyleV2({
+            styleJson: themeStyle === 'dark' ? window.MAP_STYLE_DARK : window.MAP_STYLE_LIGHT,
+          })
+        }
+        // 中心点
+        let point = new _BMapGL.Point(116.414, 39.915)
+        if (data.data[0] && data.data[0][1]) {
+          const first = data.data[0][1].split(',')
+          point = new _BMapGL.Point(first[0], first[1])
+        }
+        this._map.centerAndZoom(point, defaultZoom)
+        this._map.enableScrollWheelZoom(true)
+        // 刻度
+        const scaleCtrl = new _BMapGL.ScaleControl()
+        this._map.addControl(scaleCtrl)
+        // 类型
+        // const typeCtrl = new _BMapGL.MapTypeControl()
+        // this._map.addControl(typeCtrl)
+        // 定位
+        const locCtrl = new _BMapGL.LocationControl()
+        this._map.addControl(locCtrl)
+
+        // #2 Cluster
+        // https://lbs.baidu.com/index.php?title=jspopularGL/guide/cluster#service-page-anchor1
+        $getScript('/assets/lib/charts/bmap-cluster.js?v=0.0.10', () => this._renderCluster(data, this._map))
+      }, false)
     })
   }
 
-  resize() {
-    $setTimeout(
-      () => {
-        const resize = this._resizeBody()
-        // resize
-        if (resize !== false && this._echarts) {
-          this._echarts.dispose()
-          this.renderChart(this.__dataLast)
-        }
-      },
-      400,
-      `resize-chart-${this.state.id}`
-    )
+  _renderCluster(data, map) {
+    const _BMapGL = window.BMapGL
+    const _Cluster = window.Cluster
+    const points = _Cluster.pointTransformer(data.data, function (data) {
+      return {
+        point: (data[1] || '0,0').split(','),
+        properties: {
+          name: data[0] || '-',
+          number: data[2] || null,
+        },
+      }
+    })
+
+    this._cluster = new _Cluster.View(map)
+    this._cluster.on(_Cluster.ClusterEvent.CLICK, (e) => {
+      console.log('CLICK', e)
+    })
+    this._cluster.on(_Cluster.ClusterEvent.MOUSE_OVER, (e) => {
+      console.log('MOUSE_OVER', e)
+      if (e && e.properties) {
+        let content = `<div class="CNMAP-tip"><b>${data.name[0]}</b><div>${e.properties.name}</div>`
+        if (data.name[1]) content += `<b class="mt-1">${data.name[1]}</b><div>${e.properties.number}</div>`
+        content += '</div>'
+
+        const iw = new _BMapGL.InfoWindow(content, {
+          width: 249,
+          title: false,
+          // enableAutoPan: false,
+        })
+        map.openInfoWindow(iw, new _BMapGL.Point(e.latLng[0], e.latLng[1]))
+      }
+    })
+    this._cluster.on(_Cluster.ClusterEvent.MOUSE_OUT, (e) => {
+      console.log('MOUSE_OUT', e)
+      map.closeInfoWindow()
+    })
+    this._cluster.setData(points)
   }
 
-  _resizeBody() {
-    const H = $(this._$box).height()
-    const W = $(this._$box).width()
-    if (this.__lastHW && this.__lastHW[0] === H && this.__lastHW[1] === W) return false
+  _componentWillUnmount() {
+    if (this._map) {
+      this._map.clearOverlays()
+      this._map = null
+    }
+    this._cluster && this._cluster.destroy()
+  }
 
-    $(this._$box)
-      .find('.chart-body')
-      .height(H - (window.render_preview_chart ? 0 : 20))
-    this.__lastHW = [H, W]
+  componentWillUnmount() {
+    this._componentWillUnmount()
   }
 
   export() {

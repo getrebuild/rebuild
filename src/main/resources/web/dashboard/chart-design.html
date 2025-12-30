@@ -240,16 +240,16 @@
               <div class="axis-head">
                 <span>[[${bundle.L('维度')}]]</span>
               </div>
-              <div class="axis-target J_axis-dim"></div>
+              <div class="axis-target J_axis-dim" th:_title="${bundle.L('拖动字段到此处')}"></div>
             </div>
             <div class="axis J_numerical">
               <div class="axis-head">
                 <span>[[${bundle.L('数值')}]]</span>
               </div>
-              <div class="axis-target J_axis-num"></div>
+              <div class="axis-target J_axis-num" th:_title="${bundle.L('拖动字段到此处')}"></div>
             </div>
           </div>
-          <div id="chart-preview" th:_title="${bundle.L('预览')}"></div>
+          <div id="chart-preview" th:title="${bundle.L('预览')}"></div>
         </div>
       </div>
     </div>
@@ -267,6 +267,7 @@
             <li class="dropdown-item J_num" data-calc="MIN">[[${bundle.L('最小值')}]]</li>
             <li class="dropdown-item J_text" data-calc="COUNT">[[${bundle.L('计数')}]]</li>
             <li class="dropdown-item J_text" data-calc="COUNT2">[[${bundle.L('去重计数')}]]</li>
+            <li class="dropdown-item J_num" data-calc="_FORMULA">[[${bundle.L('计算公式')}]]</li>
             <li class="dropdown-item J_date" data-calc="Y">[[${bundle.L('按年')}]]</li>
             <li class="dropdown-item J_date" data-calc="Q">[[${bundle.L('按季度')}]]</li>
             <li class="dropdown-item J_date" data-calc="M">[[${bundle.L('按月')}]]</li>
@@ -274,7 +275,7 @@
             <li class="dropdown-item J_date" data-calc="D">[[${bundle.L('按日')}]]</li>
             <li class="dropdown-item J_date" data-calc="H">[[${bundle.L('按时')}]]</li>
             <li class="dropdown-item J_time" data-calc="H">[[${bundle.L('按时')}]]</li>
-            <li class="dropdown-item J_time" data-calc="I">[[${bundle.L('按时分')}]]</li>
+            <li class="dropdown-item J_time" data-calc="I">[[${bundle.L('按分')}]]</li>
             <li class="dropdown-item J_clazz" data-calc="L1">[[${bundle.L('1级')}]]</li>
             <li class="dropdown-item J_clazz" data-calc="L2">[[${bundle.L('2级')}]]</li>
             <li class="dropdown-item J_clazz" data-calc="L3">[[${bundle.L('3级')}]]</li>
@@ -308,6 +309,7 @@
     <script th:src="@{/assets/js/charts/charts.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/general/rb-advfilter.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/general/rb-datalist.common.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/field-formula.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/charts/chart-design.js}" type="text/babel"></script>
   </body>
 </html>

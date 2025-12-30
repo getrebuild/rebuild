@@ -301,6 +301,7 @@ const CTs = {
   MIN: $L('最小值'),
   COUNT: $L('计数'),
   COUNT2: $L('去重计数'),
+  _FORMULA: $L('计算公式'),
   Y: $L('按年'),
   Q: $L('按季'),
   M: $L('按月'),
@@ -328,7 +329,7 @@ function add_axis($target, axis) {
   let fkey = null
 
   const isNumAxis = $($target).hasClass('J_axis-num')
-  // exists
+  // Exists
   if (axis.field) {
     const copyField = $(`.fields [data-field="${axis.field}"]`)
     fieldName = axis.field
@@ -338,7 +339,7 @@ function add_axis($target, axis) {
     sort = axis.sort
     fkey = axis.fkey
     if (axis.filter) _axisAdvFilters__data[axis.fkey] = axis.filter
-    $dd.attr({ 'data-label': axis.label, 'data-scale': axis.scale, 'data-unit': axis.unit })
+    $dd.attr({ 'data-label': axis.label, 'data-scale': axis.scale, 'data-unit': axis.unit, 'data-formula': axis.formula })
   }
   // New
   else {
@@ -379,20 +380,25 @@ function add_axis($target, axis) {
 
     const calc = $this.data('calc')
     const sort = $this.data('sort')
+    const isFormula = calc === '_FORMULA'
     if (calc) {
-      $dd.find('span').text(`${fieldLabel} (${$this.text()})`)
-      $dd.attr('data-calc', calc)
-      aopts.each(function () {
-        if ($(this).data('calc')) $(this).removeClass('text-primary')
-      })
-      $this.addClass('text-primary')
-      render_preview()
+      if (isFormula) {
+        _showFormula43($dd)
+      } else {
+        $dd.find('span').text(`${fieldLabel} (${$this.text()})`)
+        $dd.attr('data-calc', calc)
+        aopts.each(function () {
+          if ($(this).data('calc')) $(this).removeClass('check')
+        })
+        $this.addClass('check')
+        render_preview()
+      }
     } else if (sort) {
       $dd.attr('data-sort', sort)
       aopts.each(function () {
-        if ($(this).data('sort')) $(this).removeClass('text-primary')
+        if ($(this).data('sort')) $(this).removeClass('check')
       })
-      $this.addClass('text-primary')
+      $this.addClass('check')
       render_preview()
     } else if ($this.hasClass('J_filter')) {
       // v3.7
@@ -438,16 +444,39 @@ function add_axis($target, axis) {
     }
   })
 
-  if (calc) $dd.find(`.dropdown-menu li[data-calc="${calc}"]`).addClass('text-primary')
-  if (sort) $dd.find(`.dropdown-menu li[data-sort="${sort}"]`).addClass('text-primary')
+  if (calc) $dd.find(`.dropdown-menu li[data-calc="${calc}"]`).addClass('check')
+  if (sort) $dd.find(`.dropdown-menu li[data-sort="${sort}"]`).addClass('check')
 
   $dd.attr({ 'data-type': fieldType, 'data-field': fieldName })
-  $dd.find('span').html(fieldLabel + (calc ? `<em>(${CTs[calc]})</em>` : ''))
+  $dd.find('span').html(fieldLabel + (calc ? ` (${CTs[calc]})` : ''))
   $dd.find('a.del').on('click', () => {
     $dd.remove()
     render_option()
   })
   render_option()
+}
+
+const _showFormula43 = function ($dd) {
+  let fields = []
+  $('.J_axis-num>span').each((idx, item) => {
+    item = $(item)
+    fields.push({
+      name: item.attr('data-fkey'),
+      label: item.find('.item>span').text(),
+    })
+  })
+
+  renderRbcomp(
+    // eslint-disable-next-line react/jsx-no-undef
+    <FormulaCalc
+      onConfirm={(s) => {
+        $dd.attr('data-formula', s || '')
+        render_preview()
+      }}
+      fields={fields}
+      initFormula={$dd.attr('data-formula')}
+    />
+  )
 }
 
 // 图表选项
@@ -491,10 +520,11 @@ function render_option() {
     else $sort.addClass('disabled')
   }
   // v3.7 Filter
-  const $filter = $('.axis-editor .J_filter').addClass('disabled')
-  if (['INDEX', 'FUNNEL', 'TABLE', 'LINE', 'BAR', 'BAR2', 'BAR3'].includes(ct)) {
-    $filter.removeClass('disabled')
-  }
+  // v4.3 全面支持
+  // const $filter = $('.axis-editor .J_filter').addClass('disabled')
+  // if (['INDEX', 'FUNNEL', 'TABLE', 'LINE', 'BAR', 'BAR2', 'BAR3'].includes(ct)) {
+  //   $filter.removeClass('disabled')
+  // }
 
   render_preview()
 }
@@ -602,6 +632,7 @@ function _buildAxisItem(item, isNum) {
     x.scale = item.attr('data-scale')
     x.unit = item.attr('data-unit')
     x.filter = _axisAdvFilters__data[x.fkey] || null
+    x.formula = item.attr('data-formula') || '' // v4.3
   } else if (['date', 'time', 'clazz'].includes(item.data('type'))) {
     x.calc = item.attr('data-calc')
   }
