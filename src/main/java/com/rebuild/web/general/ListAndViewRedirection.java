@@ -7,8 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.general;
 
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.api.user.PageTokenVerify;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -39,12 +41,22 @@ public class ListAndViewRedirection extends BaseController {
 
     // compatible: v3.1 "/app/list-and-view"
     @GetMapping({"/app/list-and-view", "/app/redirect"})
-    public void redirect(@IdParam ID anyId, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String url = null;
+    public void redirect(@IdParam(required = false) ID anyId, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String url = request.getParameter("url");
 
-        if (MetadataHelper.containsEntity(anyId.getEntityCode())) {
-            final String type = getParameter(request, "type");
-            final Entity entity = MetadataHelper.getEntity(anyId.getEntityCode());
+        // v4.3 任意跳转
+        if (StringUtils.isNotBlank(url)) {
+            url = CodecUtils.urlDecode(url);
+            // 兼容 RBTOKEN
+            if (url.contains("RBTOKEN")) {
+                url = PageTokenVerify.replacePageToken(url, getRequestUser(request));
+            }
+            anyId = null;
+        }
+
+        if (anyId != null && MetadataHelper.containsEntity(anyId.getEntityCode())) {
+            String type = getParameter(request, "type");
+            Entity entity = MetadataHelper.getEntity(anyId.getEntityCode());
 
             if (entity.getEntityCode() == EntityHelper.Feeds) {
                 url = "../feeds/home#s=" + anyId;
@@ -143,5 +155,10 @@ public class ListAndViewRedirection extends BaseController {
                 ? Language.L("新建%s", easyMeta.getLabel())
                 : Language.L("编辑%s", easyMeta.getLabel()));
         return mv;
+    }
+
+    @GetMapping("/app/redirect2")
+    public void redirect2(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String url = null;
     }
 }
