@@ -156,9 +156,4 @@ public class ListAndViewRedirection extends BaseController {
                 : Language.L("编辑%s", easyMeta.getLabel()));
         return mv;
     }
-
-    @GetMapping("/app/redirect2")
-    public void redirect2(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String url = null;
-    }
 }
