@@ -120,6 +120,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #4285f4;
 }
 
+.axis .axis-target > span[data-formula]:not([data-formula='']) li[data-calc='_FORMULA']::after {
+  font-family: 'Material Design Icons', serif;
+  content: '\F09DE';
+  float: right;
+  font-size: 1.1rem;
+  margin-right: -2px;
+}
+
 .axis-target .item {
   background-color: #4285f4;
   padding: 4px 4px 3px;

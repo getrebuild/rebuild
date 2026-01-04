@@ -103,6 +103,7 @@ public class TableChart extends ChartData {
                 }
             }
 
+            boolean hasFormulaAndAvg = false;
             for (int i = numericalIndexStart, j = 0; i < colLength; i++, j++) {
                 final Numerical N = getNumericals()[j];
                 final FormatCalc FC = N.getFormatCalc();
@@ -132,6 +133,16 @@ public class TableChart extends ChartData {
                     }
                 }
                 sumsRow[i] = sums.doubleValue();
+
+                if (FC == FormatCalc.AVG && N.getFormatFormula() != null) {
+                    hasFormulaAndAvg = true;
+                }
+            }
+
+            // 均值特殊处理计算公式
+            if (hasFormulaAndAvg) {
+                Object[][] sumsRowFix = new Object[][]{sumsRow};
+                this.calcFormula43(sumsRowFix, nums);
             }
 
             dataRawNew[dataRaw.length] = sumsRow;
