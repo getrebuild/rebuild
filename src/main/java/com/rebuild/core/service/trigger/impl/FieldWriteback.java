@@ -249,7 +249,7 @@ public class FieldWriteback extends FieldAggregation {
             TargetWithMatchFields targetWithMatchFields = new TargetWithMatchFields();
             ID[] ids = targetWithMatchFields.matchMultiple(actionContext);
             if (ids.length == 0 && actionContent.getBooleanValue("autoCreate")) {
-                ID n = this.aotuCreateTargetRecord39(targetWithMatchFields);
+                ID n = this.autoCreateTargetRecord39(targetWithMatchFields);
                 targetRecordIds.add(n);
             }
             CollectionUtils.addAll(targetRecordIds, ids);

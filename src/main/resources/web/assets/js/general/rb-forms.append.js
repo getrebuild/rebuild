@@ -1151,6 +1151,9 @@ class ExcelClipboardData extends React.Component {
     const that = this
     function _FN() {
       $(document).on('paste.csv-data', (e) => {
+        // 输入框粘贴
+        if (e.target && (e.target.tagName === 'SPAN' || e.target.tagName === 'INPUT')) return true
+
         let data
         try {
           // https://docs.sheetjs.com/docs/demos/local/clipboard/
@@ -1197,7 +1200,7 @@ class ExcelClipboardData extends React.Component {
         $th
           .find('select')
           .select2({
-            placeholder: $L('无'),
+            placeholder: $L('忽略'),
           })
           .val(fields[i] ? fields[i].field : null)
           .trigger('change')
@@ -1207,7 +1210,7 @@ class ExcelClipboardData extends React.Component {
     $table.find('tbody tr').each(function () {
       const $tr = $(this)
       $(`<a class="btn btn-light w-auto" title="${$L('移除')}"><i class="icon zmdi zmdi-close"></i></a>`)
-        .appendTo($tr)
+        .insertAfter($tr)
         .on('click', () => $tr.remove())
     })
   }

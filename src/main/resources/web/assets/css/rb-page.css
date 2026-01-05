@@ -5711,11 +5711,11 @@ pre.unstyle {
 }
 
 .rsheetb-table td > span {
-  padding: 5px 0;
+  padding: 3px 1px;
   width: 100%;
   min-width: 120px;
   display: block;
-  line-height: 1;
+  line-height: 1.4;
 }
 
 .rsheetb-table td > span:hover {
@@ -5732,18 +5732,19 @@ pre.unstyle {
   position: relative;
 }
 
-.rsheetb-table tbody > tr > a.btn {
+.rsheetb-table tbody > tr ~ a.btn {
   position: absolute;
-  right: 6px;
-  top: 5px;
-  line-height: 26px;
-  min-height: 26px;
-  min-width: 26px !important;
-  display: none;
+  right: 10px;
+  margin-top: -34px;
+  line-height: 27px;
+  min-height: 27px;
+  min-width: 23px !important;
+  visibility: hidden;
 }
 
-.rsheetb-table tbody > tr:hover > a.btn {
-  display: block;
+.rsheetb-table tbody > tr:hover ~ a.btn,
+.rsheetb-table tbody > tr ~ a.btn:hover {
+  visibility: visible;
 }
 
 /*.input-search .input-group-btn,*/
@@ -6439,4 +6440,8 @@ div.formula-code {
 
 .form-control-plaintext.formula > .v.num {
   color: #df5000;
+}
+
+.modal-dialog > .modal-content {
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
