@@ -728,7 +728,7 @@ class ApproverNodeConfig extends StartNodeConfig {
               <div className="col pl-0">
                 <div className={`expires-by-time ${~~this.state.expiresAuto === 1 ? '' : 'hide'}`}>
                   <div className="input-group">
-                    <input type="text" className="form-control form-control-sm mr-1" placeholder="1" name="expiresAuto1Value" />
+                    <input type="number" step="1" min="1" className="form-control form-control-sm mr-1" placeholder="1" name="expiresAuto1Value" />
                     <select className="form-control form-control-sm" name="expiresAuto1ValueType">
                       <option value="D">{$L('天后')}</option>
                       <option value="H">{$L('小时后')}</option>
@@ -780,13 +780,13 @@ class ApproverNodeConfig extends StartNodeConfig {
                       <label className="mb-1">
                         {$L('提前通知')} ({$L('提前几小时')})
                       </label>
-                      <input className="form-control form-control-sm" placeholder={$L('不提前')} name="expiresAutoUrgeEarly" />
+                      <input type="number" step="1" min="1" className="form-control form-control-sm" placeholder={$L('不提前')} name="expiresAutoUrgeEarly" />
                     </div>
                     <div className="col pl-2">
                       <label className="mb-1">
                         {$L('重复通知')} ({$L('间隔几小时')})
                       </label>
-                      <input className="form-control form-control-sm" placeholder={$L('不重复')} name="expiresAutoUrgeRepeat" />
+                      <input type="number" step="1" min="1" className="form-control form-control-sm" placeholder={$L('不重复')} name="expiresAutoUrgeRepeat" />
                     </div>
                   </div>
                 </div>
