@@ -17,7 +17,11 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.easymeta.*;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyDateTime;
+import com.rebuild.core.metadata.easymeta.EasyDecimal;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.utils.CommonsUtils;
@@ -42,7 +46,7 @@ import java.util.Set;
 public class CalcFormulaSupport {
 
     /**
-     * 表单计算公式，后端计算。
+     * 表单计算公式，后端计算
      * FIXME 字段计算存在路径依赖：例如字段 B=A+1, 但 A 也是计算字段
      *
      * @param record
@@ -54,8 +58,9 @@ public class CalcFormulaSupport {
             recordInDb = Application.getQueryFactory().recordNoFilter(record.getPrimary());
         }
 
-        for (Field field
-                : MetadataSorter.sortFields(record.getEntity(), DisplayType.DECIMAL, DisplayType.NUMBER, DisplayType.DATE, DisplayType.DATETIME)) {
+        Field[] calcFields = MetadataSorter.sortFields(record.getEntity(),
+                DisplayType.DECIMAL, DisplayType.NUMBER, DisplayType.DATE, DisplayType.DATETIME);
+        for (Field field : calcFields) {
             final EasyField targetField = EasyMetaFactory.valueOf(field);
             String formula = targetField.getExtraAttr(EasyFieldConfigProps.NUMBER_CALCFORMULA);
             String backend = targetField.getExtraAttr(EasyFieldConfigProps.NUMBER_CALCFORMULABACKEND);
@@ -171,7 +176,7 @@ public class CalcFormulaSupport {
      * @param wrapValue
      * @return
      */
-    private static Object evalValue(String formula, Map<String, Object> varsInFormula, EasyField targetField, boolean wrapValue) {
+    protected static Object evalValue(String formula, Map<String, Object> varsInFormula, EasyField targetField, boolean wrapValue) {
         String clearFormula = formula
                 .replace("{", "").replace("}", "")
                 .replace("×", "*").replace("÷", "/");

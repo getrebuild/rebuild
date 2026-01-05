@@ -20,9 +20,10 @@ const loadRules = () => {
     $(res.data).each(function () {
       const $tr = $('<tr></tr>').appendTo($tbody)
       $(`<td><div>${this.targetFieldLabel}</div></td>`).appendTo($tr)
-      const $sf = $(`<td>${this.sourceFieldLabel}</div></td>`).appendTo($tr)
+      const $sf = $(`<td><div>${this.sourceFieldLabel}</div></td>`).appendTo($tr)
       if (this.extConfig.sourceFieldFormula) {
-        $(`<span class="badge badge-dark badge-pill ml-1">${$L('计算公式')}</span>`).appendTo($sf)
+        // $sf.find('div').text($L('高级表达式'))
+        $(`<div><span class="badge badge-warning badge-pill">${$L('高级表达式')}</div></span>`).appendTo($sf.empty())
       }
 
       if (!this.extConfig.whenCreate && !this.extConfig.whenUpdate) {
@@ -69,29 +70,63 @@ const loadRules = () => {
   })
 }
 
+// ~ 规则编辑
 class DlgRuleEdit extends RbFormHandler {
   constructor(props) {
     super(props)
-    if (!props.id) this.state = { ...this.state, whenCreate: true, whenUpdate: true, fillinForce: true }
+    if (!props.id) {
+      this.state = { ...this.state, whenCreate: true, whenUpdate: true, fillinForce: true }
+    } else {
+      if (this.props.sourceFieldFormula) this.state.sourceFieldType = 2
+    }
   }
 
   render() {
+    const sourceFieldType = this.state.sourceFieldType || 1
     return (
       <RbModal title={$L('回填规则')} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form" ref={(c) => (this._$form = c)}>
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('源字段')}</label>
             <div className="col-sm-7">
-              <select className="form-control form-control-sm" ref={(c) => (this._sourceField = c)}>
-                {(this.state.sourceFields || []).map((item) => {
-                  return (
-                    <option key={item.name} value={item.name}>
-                      {item.label}
-                    </option>
-                  )
-                })}
-              </select>
-              <div className={`mt-2 ${this.props.sourceFieldFormula ? '' : 'bosskey-show'}`}>
+              <div className="mt-1 bosskey-show">
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
+                  <input
+                    className="custom-control-input"
+                    name="sourceFieldType"
+                    type="radio"
+                    onChange={() => {
+                      this.setState({ sourceFieldType: 1 }, () => this._renderTargetFields())
+                    }}
+                    checked={sourceFieldType === 1}
+                  />
+                  <span className="custom-control-label">{$L('源字段')}</span>
+                </label>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
+                  <input
+                    className="custom-control-input"
+                    name="sourceFieldType"
+                    type="radio"
+                    onChange={() => {
+                      this.setState({ sourceFieldType: 2 }, () => this._renderTargetFields())
+                    }}
+                    checked={sourceFieldType === 2}
+                  />
+                  <span className="custom-control-label">{$L('高级表达式')} (LAB)</span>
+                </label>
+              </div>
+              <div className={sourceFieldType === 1 ? '' : 'hide'}>
+                <select className="form-control form-control-sm" ref={(c) => (this._sourceField = c)}>
+                  {(this.state.sourceFields || []).map((item) => {
+                    return (
+                      <option key={item.name} value={item.name}>
+                        {item.label}
+                      </option>
+                    )
+                  })}
+                </select>
+              </div>
+              <div className={sourceFieldType === 2 ? 'fs-0' : 'hide'}>
                 <textarea
                   className="formula-code row3x"
                   ref={(c) => (this._$sourceFieldFormula = c)}
@@ -100,9 +135,11 @@ class DlgRuleEdit extends RbFormHandler {
                   placeholder="## Support AviatorScript"
                   spellCheck="false"
                 />
+                <p className="form-text fs-13">1.后端回填无效；2.可使用变量（除主实体外不支持点连接）</p>
               </div>
             </div>
           </div>
+
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('目标字段')}</label>
             <div className="col-sm-7">
@@ -130,7 +167,7 @@ class DlgRuleEdit extends RbFormHandler {
               </label>
             </div>
           </div>
-          <div className="form-group row pt-1">
+          <div className="form-group row pt-2">
             <label className="col-sm-3 col-form-label text-sm-right pt-1">{$L('当目标字段非空时')}</label>
             <div className="col-sm-7">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
@@ -216,15 +253,18 @@ class DlgRuleEdit extends RbFormHandler {
     })
 
     $(this._$form).find('[data-toggle="tooltip"]').tooltip()
+    // v4.3
+    if (this.state.sourceFieldType) $(this._$form).find('.bosskey-show').removeClass('bosskey-show')
   }
 
   _renderTargetFields(s) {
-    const source = this.__sourceFieldsCache.find((x) => s === x.name)
+    let source = this.__sourceFieldsCache.find((x) => s === x.name)
+    if (this.state.sourceFieldType === 2) source = null
 
     // 显示兼容的目标字段
     const targetFields = []
     $(this.__targetFieldsCache).each(function () {
-      if (this.creatable && this.name !== wpc.fieldName && this.type !== 'SERIES' && $fieldIsCompatible(source, this)) {
+      if (this.creatable && this.name !== wpc.fieldName && this.type !== 'SERIES' && (!source || $fieldIsCompatible(source, this))) {
         targetFields.push(this)
       }
     })
@@ -249,7 +289,7 @@ class DlgRuleEdit extends RbFormHandler {
       fillinForce: this.state.fillinForce,
       readonlyTargetField: this.state.readonlyTargetField,
       fillinBackend: this.state.fillinBackend,
-      sourceFieldFormula: $(this._$sourceFieldFormula).val(),
+      sourceFieldFormula: this.state.sourceFieldType === 2 ? $(this._$sourceFieldFormula).val() || null : null,
     }
     if (this.props.id) _data.id = this.props.id
 
