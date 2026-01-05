@@ -12,6 +12,7 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import com.googlecode.aviator.runtime.type.AviatorNil;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -176,7 +177,7 @@ public class CalcFormulaSupport {
                 .replace("×", "*").replace("÷", "/");
 
         Object evalVal = AviatorUtils.eval(clearFormula, varsInFormula, true);
-        if (evalVal == null) return null;
+        if (evalVal == null || evalVal == AviatorNil.NIL) return null;
         if (!wrapValue) return evalVal;
 
         DisplayType dt = targetField.getDisplayType();

@@ -86,8 +86,11 @@ public class FieldWriteback extends FieldAggregation {
      */
     public static final String ONE2ONE_MODE = "one2one";
 
+    // 兼容老公式
     private static final String DATE_EXPR = "#";
+    // 高级公式使用 {{{{}}}} 包裹
     private static final String CODE_PREFIX = "{{{{";  // ends with }}}}
+    // 使用目标记录的字段变量（前缀）
     private static final String SOURCE_FIELD_VAR_PREFIX = "^";
 
     protected Set<ID> targetRecordIds;
@@ -241,7 +244,7 @@ public class FieldWriteback extends FieldAggregation {
 
         targetRecordIds = new HashSet<>();
 
-        // v35
+        // v3.5
         if (TARGET_ANY.equals(targetFieldEntity[0])) {
             TargetWithMatchFields targetWithMatchFields = new TargetWithMatchFields();
             ID[] ids = targetWithMatchFields.matchMultiple(actionContext);
@@ -406,8 +409,7 @@ public class FieldWriteback extends FieldAggregation {
                             targetEntity.getPrimaryField().getName(),
                             targetEntity.getName());
                     sql = sql.replace(SOURCE_FIELD_VAR_PREFIX, "");  // Remove `^`
-                    useTargetData = Application.createQueryNoFilter(sql)
-                            .setParameter(1, targetRecordId404).record();
+                    useTargetData = Application.createQueryNoFilter(sql).setParameter(1, targetRecordId404).record();
                 }
             }
         }
@@ -580,7 +582,16 @@ public class FieldWriteback extends FieldAggregation {
                         envMap.put(fieldName, useValue);
                     }
 
-                    clearFormula = clearFormula.replace(SOURCE_FIELD_VAR_PREFIX, "_");
+                    // 保护 /^
+                    if (clearFormula.contains(SOURCE_FIELD_VAR_PREFIX)) {
+                        String R430 = "____";
+                        clearFormula = clearFormula.replace("\\" + SOURCE_FIELD_VAR_PREFIX, R430);
+                        clearFormula = clearFormula.replace(SOURCE_FIELD_VAR_PREFIX, "_");
+                        if (clearFormula.contains(R430)) {
+                            clearFormula = clearFormula.replace(R430, SOURCE_FIELD_VAR_PREFIX);
+                        }
+                    }
+
                     Object newValue = AviatorUtils.eval(clearFormula, envMap, false);
 
                     if (newValue != null) {
