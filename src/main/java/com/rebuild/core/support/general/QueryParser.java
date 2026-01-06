@@ -206,7 +206,9 @@ public class QueryParser {
         if (StringUtils.isNotBlank(sortNode)) sortClause = parseSort(sortNode);
         // 默认排序
         if (sortClause == null) {
-            if (entity.containsField(EntityHelper.ModifiedOn)) {
+            if (entity.containsField(EntityHelper.Seq)) {
+                sortClause = EntityHelper.Seq + " asc";
+            } else if (entity.containsField(EntityHelper.ModifiedOn)) {
                 sortClause = EntityHelper.ModifiedOn + (":asc".equals(sortNode) ? " asc" : " desc");
             } else if (entity.containsField(EntityHelper.CreatedOn)) {
                 sortClause = EntityHelper.CreatedOn + (":asc".equals(sortNode) ? " asc" : " desc");
