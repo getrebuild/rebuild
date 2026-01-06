@@ -58,8 +58,9 @@ public class TableBuilder {
         TBODY thead = new TBODY("thead");
         TR ths = new TR();
         thead.addChild(ths);
+        int index = 0;
         for (Axis axis : axes) {
-            TD th = new TD(axis.getLabel(), "th", null);
+            TD th = new TD(axis.getLabel(), index++, null, "th");
             ths.addChild(th);
         }
 
@@ -75,7 +76,7 @@ public class TableBuilder {
                 Axis axis = axes.get(i);
                 TD td;
                 if (axis == LN_REF) {
-                    td = new TD(String.valueOf(row[i]), "th", null);
+                    td = new TD(String.valueOf(row[i]), i, null, "th");
                 } else {
                     String text;
                     if (isLast == 0) {
@@ -85,7 +86,7 @@ public class TableBuilder {
                     } else {
                         text = chart.wrapAxisValue((Dimension) axis, row[i], true);
                     }
-                    td = new TD(text, prev);
+                    td = new TD(text, i, prev, null);
                     prev = td;
                 }
                 tds.addChild(td);
@@ -166,7 +167,7 @@ public class TableBuilder {
 
         private List<TD> children = new ArrayList<>();
 
-        private TR addChild(TD c) {
+        TR addChild(TD c) {
             children.add(c);
             return this;
         }
@@ -184,20 +185,18 @@ public class TableBuilder {
     // <td> or <th>
     private static class TD {
 
-        private String tag;
         private String content;
+        private int colIndex;
+        private String tag;
         private int rowspan = 1;
-
         protected TD prev;  // 前一个 <td>
         protected TD next;  // 后一个 <td>
 
-        private TD(String content, TD prev) {
-            this(content, null, prev);
-        }
-
-        private TD(String content, String tag, TD prev) {
+        TD(String content, int index, TD prev, String tag) {
             this.content = StringUtils.defaultIfBlank(content, "");
+            this.colIndex = index;
             this.tag = StringUtils.defaultIfBlank(tag, "td");
+
             this.prev = prev;
             if (prev != null) prev.next = this;
         }
@@ -207,9 +206,9 @@ public class TableBuilder {
             if (rowspan == 0) {
                 return StringUtils.EMPTY;
             } else if (rowspan > 1) {
-                return String.format("<%s rowspan=\"%d\">%s</%s>", tag, rowspan, content, tag);
+                return String.format("<%s data-col=\"%d\" rowspan=\"%d\">%s</%s>", tag, colIndex, rowspan, content, tag);
             } else {
-                return String.format("<%s>%s</%s>", tag, content, tag);
+                return String.format("<%s data-col=\"%d\">%s</%s>", tag, colIndex, content, tag);
             }
         }
     }
