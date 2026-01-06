@@ -99,7 +99,7 @@ public class TableBuilder {
                 if (chart.isShowLineNumber() && i == 0) continue;
 
                 TD last = null;
-                int sumMinus = 0;  // 合并的单元格
+                int sumFix = 0;  // 合并的单元格
                 int childrenLen = tbody.children.size();
                 for (TR tr : tbody.children) {
                     TD current = tr.children.get(i);
@@ -111,14 +111,16 @@ public class TableBuilder {
                     if (last.content.equals(current.content) && Objects.equals(last.prev, current.prev)) {
                         last.rowspan++;
                         current.rowspan = 0;
-                        sumMinus++;
+                        // fix:4.2.8 修改上一个
+                        if (current.next != null) current.next.prev = last;
+                        sumFix++;
                     } else {
                         last = current;
                     }
                 }
 
-                if (chart.isShowSums() && sumMinus > 0 && StringUtils.isNotBlank(last.content)) {
-                    int num = ObjectUtils.toInt(last.content) - sumMinus;
+                if (chart.isShowSums() && sumFix > 0 && StringUtils.isNotBlank(last.content)) {
+                    int num = ObjectUtils.toInt(last.content) - sumFix;
                     last.content = String.valueOf(num);
                 }
             }
@@ -185,7 +187,9 @@ public class TableBuilder {
         private String tag;
         private String content;
         private int rowspan = 1;
-        final protected TD prev;
+
+        protected TD prev;  // 前一个 <td>
+        protected TD next;  // 后一个 <td>
 
         private TD(String content, TD prev) {
             this(content, null, prev);
@@ -195,6 +199,7 @@ public class TableBuilder {
             this.content = StringUtils.defaultIfBlank(content, "");
             this.tag = StringUtils.defaultIfBlank(tag, "td");
             this.prev = prev;
+            if (prev != null) prev.next = this;
         }
 
         @Override
