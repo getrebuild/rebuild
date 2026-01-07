@@ -1094,7 +1094,7 @@ class ListAdvFilter extends AdvFilter {
                   </button>
                   <div className="dropdown-menu dropdown-menu-right">
                     <a className="dropdown-item" onClick={() => this.handleNew()}>
-                      {$L('保存到常用查询')}
+                      {$L('保存')}
                     </a>
                   </div>
                 </RF>
@@ -1164,7 +1164,7 @@ class ListAdvFilter extends AdvFilter {
 class ListAdvFilterSave extends RbFormHandler {
   render() {
     return (
-      <RbModal title={$L('保存高级查询')} ref={(c) => (this._dlg = c)}>
+      <RbModal title={$L('保存到常用查询')} ref={(c) => (this._dlg = c)}>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>

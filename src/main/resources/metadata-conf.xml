@@ -133,10 +133,10 @@
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false"/>
         <field name="belongField" type="string" max-length="100" nullable="false" updatable="false"/>
         <field name="text" type="string" max-length="100" nullable="false" />
-        <field name="seq" type="int" default-value="0" description="排序 (小到大)"/>
+        <field name="seq" type="int" default-value="0" description="显示顺序"/>
         <field name="isDefault" type="bool" default-value="F"/>
         <field name="isHide" type="bool" default-value="F"/>
-        <field name="maskValue" type="long" default-value="0" description="(MultiSelect专用)"/>
+        <field name="maskValue" type="long" default-value="0" description="(MultiSelect 专用)"/>
         <field name="color" type="string" max-length="10"/>
         <index field-list="belongEntity,belongField,seq"/>
     </entity>
@@ -395,7 +395,7 @@
         <field name="sendId" type="primary"/>
         <field name="to" type="string" max-length="700" nullable="false" updatable="false" description="接收人"/>
         <field name="content" type="text" nullable="false" updatable="false" description="发送内容"/>
-        <field name="type" type="small-int" default-value="0" description="(1=短信; 2=邮件)"/>
+        <field name="type" type="small-int" default-value="0" description="类型 (1=短信; 2=邮件)"/>
         <field name="sendTime" type="timestamp" nullable="false" updatable="false" description="发送时间"/>
         <field name="sendResult" type="string" max-length="191" description="发送结果 (xxx|ERR:xxx)"/>
         <index field-list="type,sendTime,sendResult"/>
@@ -432,7 +432,7 @@
         <field name="belongField" type="string" max-length="100" nullable="false" updatable="false" description="哪个字段"/>
         <field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="记录 ID"/>
         <field name="referenceId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="引用 ID"/>
-        <field name="seq" type="long" auto-value="true" description="前后顺序"/>
+        <field name="seq" type="long" auto-value="true" description="排序 (小到大)"/>
         <index field-list="belongEntity"/>
         <index field-list="belongField,recordId,referenceId" type="unique"/>
     </entity>
@@ -443,7 +443,7 @@
         <field name="belongField" type="string" max-length="100" nullable="false" updatable="false" description="哪个字段"/>
         <field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="记录 ID"/>
         <field name="tagName" type="string" max-length="100" nullable="false" updatable="false" description="标签名称"/>
-        <field name="seq" type="long" auto-value="true" description="前后顺序"/>
+        <field name="seq" type="long" auto-value="true" description="排序 (小到大)"/>
         <index field-list="belongEntity"/>
         <index field-list="belongField,recordId,tagName" type="unique"/>
     </entity>
@@ -518,7 +518,7 @@
         <field name="projectId" type="reference" ref-entity="ProjectConfig" nullable="false" updatable="false" description="相关项目" cascade="delete"/>
         <field name="planName" type="string" max-length="100" nullable="false" description="面板名称"/>
         <field name="comments" type="string" max-length="300" description="备注"/>
-        <field name="seq" type="int" default-value="0" description="排序 (小到大)"/>
+        <field name="seq" type="int" default-value="0" description="显示顺序"/>
         <field name="flowStatus" type="small-int" default-value="1" description="工作流状态"/>
         <field name="flowNexts" type="string" max-length="420" description="可流转到哪个面板"/>
         <index field-list="projectId,seq"/>
@@ -541,7 +541,7 @@
         <field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}"/>
         <field name="parentTaskId" type="reference" ref-entity="ProjectTask" description="父级任务" queryable="false"/>
         <field name="relatedRecord" type="any-reference" cascade="ignore" description="相关记录"/>
-        <field name="seq" type="int" default-value="0" description="排序 (小到大)" queryable="false"/>
+        <field name="seq" type="int" default-value="0" description="显示顺序" queryable="false"/>
         <index field-list="projectId,projectPlanId,seq"/>
         <index field-list="projectId,taskNumber,taskName,status"/>
         <index field-list="relatedRecord,projectId"/>

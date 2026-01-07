@@ -186,10 +186,10 @@ create table if not exists `pick_list` (
   `BELONG_ENTITY`      varchar(100) not null,
   `BELONG_FIELD`       varchar(100) not null,
   `TEXT`               varchar(100) not null,
-  `SEQ`                int(11) default '0' comment '排序 (小到大)',
+  `SEQ`                int(11) default '0' comment '显示顺序',
   `IS_DEFAULT`         char(1) default 'F',
   `IS_HIDE`            char(1) default 'F',
-  `MASK_VALUE`         bigint(20) default '0' comment '(MultiSelect专用)',
+  `MASK_VALUE`         bigint(20) default '0' comment '(MultiSelect 专用)',
   `COLOR`              varchar(10),
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -539,9 +539,9 @@ create table if not exists `revision_history` (
 -- ************ Entity [SmsendLog] DDL ************
 create table if not exists `smsend_log` (
   `SEND_ID`            char(20) not null,
-  `TO`                 varchar(100) not null comment '接收人',
+  `TO`                 varchar(700) not null comment '接收人',
   `CONTENT`            text(65535) not null comment '发送内容',
-  `TYPE`               smallint(6) default '0' comment '(1=短信; 2=邮件)',
+  `TYPE`               smallint(6) default '0' comment '类型 (1=短信; 2=邮件)',
   `SEND_TIME`          datetime not null default current_timestamp comment '发送时间',
   `SEND_RESULT`        varchar(191) comment '发送结果 (xxx|ERR:xxx)',
   primary key  (`SEND_ID`),
@@ -594,7 +594,7 @@ create table if not exists `nreference_item` (
   `BELONG_FIELD`       varchar(100) not null comment '哪个字段',
   `RECORD_ID`          char(20) not null comment '记录 ID',
   `REFERENCE_ID`       char(20) not null comment '引用 ID',
-  `SEQ`                bigint(20) not null auto_increment comment '前后顺序',
+  `SEQ`                bigint(20) not null auto_increment comment '排序 (小到大)',
   primary key  (`ITEM_ID`),
   unique index AIX0_nreference_item (`SEQ`),
   index IX1_nreference_item (`BELONG_ENTITY`),
@@ -696,7 +696,7 @@ create table if not exists `project_plan_config` (
   `PROJECT_ID`         char(20) not null comment '相关项目',
   `PLAN_NAME`          varchar(100) not null comment '面板名称',
   `COMMENTS`           varchar(300) comment '备注',
-  `SEQ`                int(11) default '0' comment '排序 (小到大)',
+  `SEQ`                int(11) default '0' comment '显示顺序',
   `FLOW_STATUS`        smallint(6) default '1' comment '工作流状态',
   `FLOW_NEXTS`         varchar(420) comment '可流转到哪个面板',
   primary key  (`CONFIG_ID`),
@@ -721,7 +721,7 @@ create table if not exists `project_task` (
   `ATTACHMENTS`        varchar(700) comment '附件',
   `PARENT_TASK_ID`     char(20) comment '父级任务',
   `RELATED_RECORD`     char(20) comment '相关记录',
-  `SEQ`                int(11) default '0' comment '排序 (小到大)',
+  `SEQ`                int(11) default '0' comment '显示顺序',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -800,6 +800,20 @@ create table if not exists `extform_config` (
   primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
+-- ************ Entity [DataSyncerConfig] DDL ************
+create table if not exists `data_syncer_config` (
+  `CONFIG_ID`          char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '所属实体',
+  `NAME`               varchar(100) not null comment '名称',
+  `CONFIG`             text(65535) comment '同步配置',
+  `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  primary key  (`CONFIG_ID`)
+)Engine=InnoDB;
+
 -- ************ Entity [RobotSopConfig] DDL ************
 create table if not exists `robot_sop_config` (
   `CONFIG_ID`          char(20) not null,
@@ -839,11 +853,36 @@ create table if not exists `tag_item` (
   `BELONG_FIELD`       varchar(100) not null comment '哪个字段',
   `RECORD_ID`          char(20) not null comment '记录 ID',
   `TAG_NAME`           varchar(100) not null comment '标签名称',
-  `SEQ`                bigint(20) not null auto_increment comment '前后顺序',
+  `SEQ`                bigint(20) not null auto_increment comment '排序 (小到大)',
   primary key  (`ITEM_ID`),
   unique index AIX0_tag_item (`SEQ`),
   index IX1_tag_item (`BELONG_ENTITY`),
   unique index UIX2_tag_item (`BELONG_FIELD`, `RECORD_ID`, `TAG_NAME`)
+)Engine=InnoDB;
+
+-- ************ Entity [AibotChatAttach] DDL ************
+create table if not exists `aibot_chat_attach` (
+  `ATTACH_ID`          char(20) not null,
+  `CHAT_ID`            char(20) not null,
+  `CONTENT`            varchar(600) comment '附件内容',
+  `VECTOR_DATA`        longtext comment '向量数据',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  primary key  (`ATTACH_ID`),
+  index IX0_aibot_chat_attach (`CHAT_ID`, `CREATED_ON`, `CREATED_BY`)
+)Engine=InnoDB;
+
+-- ************ Entity [AibotChat] DDL ************
+create table if not exists `aibot_chat` (
+  `CHAT_ID`            char(20) not null,
+  `SUBJECT`            varchar(100) comment '主题',
+  `CONTENTS`           longtext comment '会话内容',
+  `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  primary key  (`CHAT_ID`),
+  index IX0_aibot_chat (`CREATED_BY`, `MODIFIED_ON`, `CREATED_ON`)
 )Engine=InnoDB;
 
 -- ************ Entity [ShortUrl] DDL ************
@@ -882,45 +921,6 @@ create table if not exists `commons_log` (
   `STATUS`             smallint(6) default '1',
   primary key  (`LOG_ID`),
   index IX0_commons_log (`TYPE`, `LOG_TIME`, `SOURCE`)
-)Engine=InnoDB;
-
--- ************ Entity [AibotChat] DDL ************
-create table if not exists `aibot_chat` (
-  `CHAT_ID`            char(20) not null,
-  `SUBJECT`            varchar(100) comment '主题',
-  `CONTENTS`           longtext comment '会话内容',
-  `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
-  `MODIFIED_BY`        char(20) not null comment '修改人',
-  `CREATED_BY`         char(20) not null comment '创建人',
-  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
-  primary key  (`CHAT_ID`),
-  index IX0_aibot_chat (`CREATED_BY`, `MODIFIED_ON`, `CREATED_ON`)
-)Engine=InnoDB;
-
--- ************ Entity [AibotChatAttach] DDL ************
-create table if not exists `aibot_chat_attach` (
-  `ATTACH_ID`          char(20) not null,
-  `CHAT_ID`            char(20) not null,
-  `CONTENT`            varchar(600) comment '附件内容',
-  `VECTOR_DATA`        longtext comment '向量数据',
-  `CREATED_BY`         char(20) not null comment '创建人',
-  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
-  primary key  (`ATTACH_ID`),
-  index IX0_aibot_chat_attach (`CHAT_ID`, `CREATED_ON`, `CREATED_BY`)
-)Engine=InnoDB;
-
--- ************ Entity [DataSyncerConfig] DDL ************
-create table if not exists `data_syncer_config` (
-  `CONFIG_ID`          char(20) not null,
-  `BELONG_ENTITY`      varchar(100) not null comment '所属实体',
-  `NAME`               varchar(100) not null comment '名称',
-  `CONFIG`             text(65535) comment '同步配置',
-  `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
-  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
-  `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
-  `MODIFIED_BY`        char(20) not null comment '修改人',
-  `CREATED_BY`         char(20) not null comment '创建人',
-  primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
 -- #3 datas
