@@ -508,7 +508,7 @@ public class UserService extends BaseService {
      */
     public static Integer getPasswdExpiredDayLeft(ID user) {
         int peDays = RebuildConfiguration.getInt(ConfigurationItem.PasswordExpiredDays);
-        if (peDays > 0) {
+        if (peDays > 0 && hasLogin(user)) {
             String key = ConfigurationItem.PasswordExpiredDays.name() + user;
             String lastChanged = StringUtils.defaultIfBlank(RebuildConfiguration.getCustomValue(key), "2021-06-30");
             int peLeft = -CalendarUtils.getDayLeft(CalendarUtils.parse(lastChanged));
@@ -525,8 +525,16 @@ public class UserService extends BaseService {
      */
     public static boolean checkHasUsed(ID user) {
         // FIXME 仅检查是否登录过。严谨些还应该检查是否有其他业务数据
+        return hasLogin(user);
+    }
 
-        // 登录
+    /**
+     * 是否登陆过
+     *
+     * @param user
+     * @return
+     */
+    public static boolean hasLogin(ID user) {
         Object[] hasLogin = Application.createQueryNoFilter(
                 "select user from LoginLog where user = ?")
                 .setParameter(1, user)
