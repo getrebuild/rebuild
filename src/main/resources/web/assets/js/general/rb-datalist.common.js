@@ -1020,7 +1020,7 @@ class RbList extends React.Component {
                     )}
                     {this._showLineNo && (
                       <th className="column-lineno column-fixed">
-                        <div style={{ width: 28 }} />
+                        <span>#</span>
                       </th>
                     )}
                     {this.state.fields.map((item, idx) => {

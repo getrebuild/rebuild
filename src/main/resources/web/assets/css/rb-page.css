@@ -1810,6 +1810,12 @@ i.dividing.ui-draggable-dragging {
   text-align: center;
 }
 
+.column-lineno > span {
+  width: 28px;
+  display: inline-block;
+  font-size: 13px;
+}
+
 .column-main {
   border-bottom: 1px solid;
 }
