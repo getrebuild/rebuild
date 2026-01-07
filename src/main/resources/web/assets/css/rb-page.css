@@ -1803,6 +1803,13 @@ i.dividing.ui-draggable-dragging {
   transform: translateX(-1.4px);
 }
 
+.column-lineno {
+  padding-left: 8px !important;
+  color: #878787;
+  font-size: 12px;
+  text-align: center;
+}
+
 .column-main {
   border-bottom: 1px solid;
 }
@@ -1841,13 +1848,21 @@ i.dividing.ui-draggable-dragging {
 
 .column-fixed {
   position: sticky !important;
-  left: 0;
   background-color: #fff;
   overflow: unset !important;
+  left: 0;
 }
 
-.column-fixed-2nd {
+th.column-fixed {
+  z-index: 1;
+}
+
+.column-fixed + .column-fixed {
   left: 46px;
+}
+
+.column-fixed + .column-fixed + .column-fixed {
+  left: 92px;
 }
 
 .column-fixed::before,
@@ -1866,11 +1881,7 @@ th.column-fixed::before,
   border-bottom: 2px solid #dee2e6;
 }
 
-th.column-fixed {
-  z-index: 1;
-}
-
-.rb-scroller.column-fixed-pin .column-fixed::after,
+.rb-scroller.column-fixed-pin .column-fixed-last::after,
 .column-fixed.col-action::after {
   position: absolute;
   top: 0;
@@ -1885,7 +1896,7 @@ th.column-fixed {
   width: 24px;
 }
 
-.rb-scroller.column-fixed-pin .column-fixed-2nd .dividing {
+.rb-scroller.column-fixed-pin .column-fixed-last .dividing {
   border-color: transparent;
 }
 

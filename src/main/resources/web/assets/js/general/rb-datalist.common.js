@@ -934,9 +934,6 @@ const _DL_COLUMN_MIN_WIDTH = 30
 const _DL_COLUMN_MAX_WIDTH = 500
 const _DL_COLUMN_DEF_WIDTH = 130
 
-// IE/Edge 不支持首/列固定
-const supportFixedColumns = !($.browser.msie || $.browser.msedge)
-
 // eslint-disable-next-line no-unused-vars
 class RbList extends React.Component {
   constructor(props) {
@@ -990,9 +987,12 @@ class RbList extends React.Component {
     this.pageNo = 1
     this.pageSize = $storage.get('ListPageSize') || 20
     this.advFilterId = wpc.advFilter !== true ? null : $storage.get(this.__defaultFilterKey) // 无高级查询
-    this.fixedColumns = supportFixedColumns && props.uncheckbox !== true
     // v4.1 可编辑
-    this.enabledListEditable = ['RecordList', 'DetailList'].includes(wpc.type) && (window.__LAB_DATALIST_EDITABLE41 === true || wpc.enabledListEditable)
+    this._enabledListEditable = ['RecordList', 'DetailList'].includes(wpc.type) && (window.__LAB_DATALIST_EDITABLE41 === true || wpc.enabledListEditable)
+    // 复选框
+    this._hideCheckbox = !!this.props.hideCheckbox
+    // v4.3 行号
+    this._showLineNo = !!this.props.showLineNo || (['RecordList', 'DetailList'].includes(wpc.type) && (window.__LAB_DATALIST_SHOWLINENO43 === true || wpc.showLineNo))
   }
 
   render() {
@@ -1008,8 +1008,8 @@ class RbList extends React.Component {
               <table className={`table table-hover table-striped ${window.__LAB_DATALIST_BORDERED42 && 'table-bordered42'}`}>
                 <thead>
                   <tr>
-                    {this.props.uncheckbox !== true && (
-                      <th className={`column-checkbox ${supportFixedColumns ? 'column-fixed' : ''}`}>
+                    {!this._hideCheckbox && (
+                      <th className="column-checkbox column-fixed">
                         <div>
                           <label className="custom-control custom-control-sm custom-checkbox">
                             <input className="custom-control-input" type="checkbox" onChange={(e) => this._toggleRows(e)} ref={(c) => (this._checkAll = c)} />
@@ -1018,10 +1018,15 @@ class RbList extends React.Component {
                         </div>
                       </th>
                     )}
+                    {this._showLineNo && (
+                      <th className="column-lineno column-fixed">
+                        <div style={{ width: 28 }} />
+                      </th>
+                    )}
                     {this.state.fields.map((item, idx) => {
                       const cWidth = item.width || this.__defaultColumnWidth
                       const style2 = { width: cWidth }
-                      const clazz = `unselect sortable ${idx === 0 && this.fixedColumns ? 'column-fixed column-fixed-2nd' : ''}`
+                      const clazz = `unselect sortable ${idx === 0 && 'column-fixed column-fixed-last'}`
                       return (
                         <th key={`column-${item.field}`} style={style2} className={clazz} data-field={item.field} onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
                           <div style={style2}>
@@ -1037,7 +1042,7 @@ class RbList extends React.Component {
                   </tr>
                 </thead>
                 <tbody ref={(c) => (this._$tbody = c)}>
-                  {this.state.rowsData.map((item) => {
+                  {this.state.rowsData.map((item, idx) => {
                     const primaryKey = item[lastIndex]
                     const rowKey = `row-${primaryKey.id}`
                     return (
@@ -1046,12 +1051,12 @@ class RbList extends React.Component {
                         data-id={primaryKey.id}
                         onClick={(e) => this._clickRow(e)}
                         onDoubleClick={(e) => {
-                          if (this.enabledListEditable) return // v4.1
+                          if (this._enabledListEditable) return // v4.1
                           $stopEvent(e, true)
                           this._openView(e.currentTarget)
                         }}>
-                        {this.props.uncheckbox !== true && (
-                          <td key={`${rowKey}-checkbox`} className={`column-checkbox ${supportFixedColumns ? 'column-fixed' : ''}`}>
+                        {!this._hideCheckbox && (
+                          <td key={`${rowKey}-checkbox`} className="column-checkbox column-fixed">
                             <div>
                               <label className="custom-control custom-control-sm custom-checkbox">
                                 <input className="custom-control-input" type="checkbox" />
@@ -1060,9 +1065,12 @@ class RbList extends React.Component {
                             </div>
                           </td>
                         )}
+                        {this._showLineNo && <td className="column-lineno column-fixed">{idx + 1}</td>}
+
                         {item.map((cell, index) => {
                           return this.renderCell(cell, index, primaryKey)
                         })}
+
                         <td className="column-empty" />
                         {rowActions.length > 0 && (
                           <td className="col-action column-fixed">
@@ -1121,7 +1129,7 @@ class RbList extends React.Component {
 
     if (this.props.unpin !== true) {
       $('.main-content').addClass('pb-0')
-      if (supportFixedColumns) $scroller.find('.table').addClass('table-header-fixed')
+      $scroller.find('.table').addClass('table-header-fixed')
 
       $addResizeHandler(() => {
         let mh = $(window).height() - (61 + 20 + 61 + 60 + 3) /* Nav, MarginTop20, TableHeader, TableFooter */
@@ -1136,16 +1144,14 @@ class RbList extends React.Component {
       $('.main-content .rb-datatable-header').addClass('header-fixed')
     }
 
-    if (supportFixedColumns) {
-      let slLast = 0
-      $scroller.on('ps-scroll-x', () => {
-        const sl = $scroller[0].scrollLeft
-        if (sl === slLast) return
-        slLast = sl
-        if (sl > 0) $scroller.addClass('column-fixed-pin')
-        else $scroller.removeClass('column-fixed-pin')
-      })
-    }
+    let slLast = 0
+    $scroller.on('ps-scroll-x', () => {
+      const sl = $scroller[0].scrollLeft
+      if (sl === slLast) return
+      slLast = sl
+      if (sl > 0) $scroller.addClass('column-fixed-pin')
+      else $scroller.removeClass('column-fixed-pin')
+    })
 
     const that = this
     $scroller.find('th .dividing').draggable({
@@ -1178,7 +1184,7 @@ class RbList extends React.Component {
     // 按键操作
     if (['RecordList', 'DetailList'].includes(wpc.type)) $(document).on('keydown', (e) => this._keyEvent(e))
     // v4.1 取消选中
-    if (this.enabledListEditable) {
+    if (this._enabledListEditable) {
       $(document).on('click.unselect', (e) => {
         const $target = $(e.target)
         if ($target.closest('.data-list').length === 0 && $target.closest('.rb-wrapper').length > 0) {
@@ -1267,7 +1273,7 @@ class RbList extends React.Component {
     const c = CellRenders.render(cellVal, type, width, `${cellKey}.${field.field}`)
     // v4.1 快捷编辑
     const cProps = {}
-    if (this.enabledListEditable) {
+    if (this._enabledListEditable) {
       cProps.onClick = (e) => {
         const $el = $(e.currentTarget)
         if ($el.hasClass('editable')) {
@@ -1279,8 +1285,8 @@ class RbList extends React.Component {
       }
     }
     // 首行固定
-    if (index === 0 && this.fixedColumns) {
-      cProps.className = `${c.props.className || ''} column-fixed column-fixed-2nd`
+    if (index === 0) {
+      cProps.className = `${c.props.className || ''} column-fixed column-fixed-last`
     }
     return React.cloneElement(c, { ...cProps })
   }
@@ -2507,6 +2513,7 @@ class TreeNode extends React.Component {
           </a>
         </li>
         {this.state.children && (
+          // eslint-disable-next-line react/no-unknown-property
           <ul className={`list-unstyled m-0 ${!this.state._expand && 'hide'}`} _title2={$L('无')}>
             {this.state.children.map((item) => {
               let hasChild = this.state._allowChild
