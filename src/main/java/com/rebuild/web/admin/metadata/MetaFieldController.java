@@ -248,28 +248,29 @@ public class MetaFieldController extends BaseController {
     @RequestMapping("field-cascading-fields")
     public RespBody fieldCascadingFields(@EntityParam Entity currentEntity, HttpServletRequest request) {
         Field refField = currentEntity.getField(getParameterNotNull(request, "field"));
-        Entity referenceEntity = refField.getReferenceEntity();
 
-        List<JSONObject> res = getCoReferenceFields(currentEntity, referenceEntity, false);
+        List<JSONObject> res = getCoReferenceFields(currentEntity, refField, false);
         // 明细实体关联主实体父级级联
         if (currentEntity.getMainEntity() != null) {
-            res.addAll(getCoReferenceFields(currentEntity.getMainEntity(), referenceEntity, true));
+            res.addAll(getCoReferenceFields(currentEntity.getMainEntity(), refField, true));
         }
 
         return RespBody.ok(res);
     }
 
     // 获取共同引用字段
-    private List<JSONObject> getCoReferenceFields(Entity entity, Entity referenceEntity, boolean fromDetail) {
+    private List<JSONObject> getCoReferenceFields(Entity entity, Field refField, boolean fromDetail) {
+        Entity refEntity = refField.getReferenceEntity();
         Field[] entityFields = MetadataSorter.sortFields(entity, DisplayType.REFERENCE);
-        Field[] referenceEntityFields = MetadataSorter.sortFields(referenceEntity, DisplayType.REFERENCE);
+        Field[] refEntityFields = MetadataSorter.sortFields(refEntity, DisplayType.REFERENCE);
 
         List<JSONObject> co = new ArrayList<>();
         for (Field foo : entityFields) {
             if (MetadataHelper.isCommonsField(foo)) continue;
+            if (refField.equals(foo)) continue;
 
             Entity fooEntity = foo.getReferenceEntity();
-            for (Field bar : referenceEntityFields) {
+            for (Field bar : refEntityFields) {
                 if (MetadataHelper.isCommonsField(bar)) continue;
 
                 if (fooEntity.equals(bar.getReferenceEntity())) {
