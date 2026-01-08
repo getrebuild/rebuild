@@ -208,7 +208,7 @@ class ContentFieldAggregation extends ActionContentSpec {
             <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('聚合后回填')}</label>
             <div className="col-md-12 col-lg-9">
               <div className="row">
-                <div className="col-5">
+                <div className="col-7 pr-0">
                   <select className="form-control form-control-sm" style={{ maxWidth: 300 }} ref={(c) => (this._$fillbackField = c)}>
                     {(this.state.fillbackFields || []).map((item) => {
                       return (

@@ -135,7 +135,6 @@ class DlgRuleEdit extends RbFormHandler {
                   placeholder="## Support AviatorScript"
                   spellCheck="false"
                 />
-                <p className="form-text fs-13">1.后端回填无效；2.可使用变量（除主实体外不支持点连接）</p>
               </div>
             </div>
           </div>
