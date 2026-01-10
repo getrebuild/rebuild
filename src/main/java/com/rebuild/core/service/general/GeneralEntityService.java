@@ -19,7 +19,6 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
-import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.DeleteRecord;
@@ -277,20 +276,18 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 // 暂不全量启用
                 boolean execOnMainUpdate = false;
                 for (TriggerAction action : deHasTriggersFG) {
-                    boolean s = action.getActionContext() != null
-                            && ((JSONObject) action.getActionContext().getActionContent()).getBooleanValue("execOnMainUpdate");
-                    if (s) {
+                    if (action.isExecOnMainUpdate43()) {
                         execOnMainUpdate = true;
                         break;
                     }
                 }
 
                 if (execOnMainUpdate) {
+                    // FIXME 是否执行指定的触发器???
                     RobotTriggerManual TM43 = new RobotTriggerManual();
                     for (ID did : QueryHelper.detailIdsNoFilter(record.getPrimary(), de)) {
-                        Record dUpdate = EntityHelper.forUpdate(did, SYSTEM_USER, false);
-                        TM43.onUpdate(
-                                OperatingContext.create(SYSTEM_USER, BizzPermission.UPDATE, dUpdate, dUpdate));
+                        Record d = EntityHelper.forUpdate(did, SYSTEM_USER, false);
+                        TM43.onUpdate(OperatingContext.create(SYSTEM_USER, BizzPermission.UPDATE, d, d));
                         break;
                     }
                 }
@@ -303,23 +300,21 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             // 暂不全量启用
             boolean execOnMainUpdate = false;
             for (TriggerAction action : deHasTriggersFW) {
-                boolean s = action.getActionContext() != null
-                        && ((JSONObject) action.getActionContext().getActionContent()).getBooleanValue("execOnMainUpdate");
-                if (s) {
+                if (action.isExecOnMainUpdate43()) {
                     execOnMainUpdate = true;
                     break;
                 }
             }
 
             if (execOnMainUpdate) {
+                // FIXME 是否执行指定的触发器???
                 RobotTriggerManual TM43 = new RobotTriggerManual();
                 for (ID did : QueryHelper.detailIdsNoFilter(record.getPrimary(), de)) {
-                    // 已在更新则无需更新
+                    // 已在更新则无需触发
                     if (details4Update != null && details4Update.contains(did)) continue;
 
-                    Record dUpdate = EntityHelper.forUpdate(did, SYSTEM_USER, false);
-                    TM43.onUpdate(
-                            OperatingContext.create(SYSTEM_USER, BizzPermission.UPDATE, dUpdate, dUpdate));
+                    Record d = EntityHelper.forUpdate(did, SYSTEM_USER, false);
+                    TM43.onUpdate(OperatingContext.create(SYSTEM_USER, BizzPermission.UPDATE, d, d));
                 }
             }
         }

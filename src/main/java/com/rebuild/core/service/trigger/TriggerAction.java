@@ -55,6 +55,16 @@ public abstract class TriggerAction {
     }
 
     /**
+     * v4.3 主记录更新时同步执行
+     *
+     * @return
+     */
+    public boolean isExecOnMainUpdate43() {
+        return actionContext != null
+                && ((JSONObject) actionContext.getActionContent()).getBooleanValue("execOnMainUpdate");
+    }
+
+    /**
      * 如果是删除动作，会先调用此方法。可在此方法中保持一些数据状态，以便删除后还可继续使用
      *
      * @param operatingContext

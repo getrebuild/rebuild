@@ -152,11 +152,6 @@ $(document).ready(() => {
     $('#asyncMode').prop('checked', true)
     $('#asyncMode').parents('.bosskey-show').removeClass('bosskey-show')
   }
-  // v4.3 同步执行
-  if (wpc.actionContent && wpc.actionContent.execOnMainUpdate) {
-    $('#execOnMainUpdate').prop('checked', true)
-    $('#execOnMainUpdate').parents('.bosskey-show').removeClass('bosskey-show')
-  }
 
   const $btn = $('.J_save').on('click', () => {
     if (!contentComp) return
@@ -183,7 +178,6 @@ $(document).ready(() => {
       actionContent: {
         ...content,
         asyncMode: $val('#asyncMode'), // v4.3
-        execOnMainUpdate: $val('#execOnMainUpdate'), // v4.3
       },
       metadata: {
         entity: 'RobotTriggerConfig',

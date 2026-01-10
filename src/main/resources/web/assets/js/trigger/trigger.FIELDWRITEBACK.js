@@ -230,6 +230,15 @@ class ContentFieldWriteback extends ActionContentSpec {
                   <span className="custom-control-label">{$L('启用加锁模式')} (LAB)</span>
                 </label>
               </div>
+              <div className="mt-2 bosskey-show">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$execOnMainUpdate = c)} />
+                  <span className="custom-control-label">
+                    {$L('主记录更新时同步执行')} (LAB)
+                    <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('仅源实体/目标实体为同一明细实体时有效')} />
+                  </span>
+                </label>
+              </div>
             </div>
           </div>
         </form>
@@ -275,6 +284,9 @@ class ContentFieldWriteback extends ActionContentSpec {
       $(this._$autoCreate).attr('checked', content.autoCreate === true)
       if (content.lockMode === true) {
         $(this._$lockMode).attr('checked', true).parents('.mt-2').removeClass('bosskey-show')
+      }
+      if (content.execOnMainUpdate === true) {
+        $(this._$execOnMainUpdate).attr('checked', true).parents('.mt-2').removeClass('bosskey-show')
       }
     }
   }
@@ -440,6 +452,7 @@ class ContentFieldWriteback extends ActionContentSpec {
       stopPropagation: $(this._$stopPropagation).prop('checked'),
       autoCreate: $(this._$autoCreate).prop('checked'),
       lockMode: $(this._$lockMode).prop('checked'),
+      execOnMainUpdate: $(this._$execOnMainUpdate).prop('checked'),
     }
     if (!content.targetEntity) {
       RbHighbar.create($L('请选择目标实体'))

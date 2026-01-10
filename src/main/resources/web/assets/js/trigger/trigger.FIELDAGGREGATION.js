@@ -202,6 +202,15 @@ class ContentFieldAggregation extends ActionContentSpec {
                   <span className="custom-control-label">{$L('禁用级联执行')}</span>
                 </label>
               </div>
+              <div className="mt-2 bosskey-show">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$execOnMainUpdate = c)} />
+                  <span className="custom-control-label">
+                    {$L('主记录更新时同步执行')} (LAB)
+                    <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('仅源实体/目标实体为同一明细实体时有效')} />
+                  </span>
+                </label>
+              </div>
             </div>
           </div>
           <div className="form-group row">
@@ -250,12 +259,16 @@ class ContentFieldAggregation extends ActionContentSpec {
     })
 
     if (content) {
-      $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
-      $(this._$forceUpdate).attr('checked', content.forceUpdate === true)
-      $(this._$stopPropagation).attr('checked', content.stopPropagation === true)
-      $(this._$autoCreate).attr('checked', content.autoCreate === true)
       this.saveAdvFilter(content.dataFilter)
       $(this._$matchFields).val(content.targetEntityMatchFields || null)
+
+      $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
+      $(this._$forceUpdate).attr('checked', content.forceUpdate === true)
+      $(this._$autoCreate).attr('checked', content.autoCreate === true)
+      $(this._$stopPropagation).attr('checked', content.stopPropagation === true)
+      if (content.execOnMainUpdate === true) {
+        $(this._$execOnMainUpdate).attr('checked', true).parents('.mt-2').removeClass('bosskey-show')
+      }
     }
   }
 
@@ -448,12 +461,13 @@ class ContentFieldAggregation extends ActionContentSpec {
       targetEntity: $(this._$targetEntity).val(),
       targetEntityMatchFields: null,
       items: this.state.items || [],
+      dataFilter: this._advFilter__data,
       readonlyFields: $(this._$readonlyFields).prop('checked'),
       forceUpdate: $(this._$forceUpdate).prop('checked'),
-      stopPropagation: $(this._$stopPropagation).prop('checked'),
       autoCreate: $(this._$autoCreate).prop('checked'),
+      stopPropagation: $(this._$stopPropagation).prop('checked'),
+      execOnMainUpdate: $(this._$execOnMainUpdate).prop('checked'),
       fillbackField: $(this._$fillbackField).val() || null,
-      dataFilter: this._advFilter__data,
     }
 
     if (!content.targetEntity) {
