@@ -543,4 +543,14 @@ renderContentComp = function (props) {
     contentComp = this
     $('#react-content [data-toggle="tooltip"]').tooltip()
   })
+
+  // v4.3 废弃
+  const $span = $('<span></span>').appendTo('.J_actionType')
+  renderRbcomp(
+    <RbAlertBox
+      type="danger"
+      message={WrapHtml('该触发器已废弃，并将在后续版本中移除，请使用 <a href="https://getrebuild.com/docs/admin/trigger/fieldaggregation" target="_blank">字段聚合</a> 触发器替代')}
+    />,
+    $span
+  )
 }

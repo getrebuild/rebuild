@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.metadata;
 
-import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -42,7 +41,6 @@ import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
-import com.rebuild.rbv.frontjs.service.CodeBabel;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.EntityController;
@@ -170,12 +168,7 @@ public class MetaEntityController extends EntityController {
             mv.getModelMap().put("config", cb.getJSON("config"));
         }
 
-        boolean isBizz = MetadataHelper.isBizzEntity(easyEntity.getRawMeta());
-        mv.getModel().put("isBizz", isBizz);
-
-        // v4.3 加快引擎初始化
-        ThreadPool.exec(CodeBabel::hasScriptEngineProvided);
-
+        mv.getModel().put("isBizz", MetadataHelper.isBizzEntity(easyEntity.getRawMeta()));
         return mv;
     }
 

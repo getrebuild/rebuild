@@ -203,15 +203,12 @@ class BaseChart extends React.Component {
       $a.click()
     } else {
       const table = $(this._$body).find('table.table')[0]
-      if (table) {
-        this._exportTable(table)
-      } else {
-        RbHighbar.createl('该图表暂不支持导出')
-      }
+      if (table) this.exportTable(table)
+      else RbHighbar.createl('该图表暂不支持导出')
     }
   }
 
-  _exportTable(table) {
+  exportTable(table) {
     const _rmLinks = function (table, a, b) {
       $(table)
         .find('a')
@@ -224,27 +221,30 @@ class BaseChart extends React.Component {
 
     const name = `${this.state.title}.xls`
     const _export = function () {
-      // remove
+      // RM
       _rmLinks(table, '__href', 'href')
       // export
       // https://docs.sheetjs.com/docs/api/utilities/html#html-table-input
       // https://docs.sheetjs.com/docs/api/write-options
       const wb = window.XLSX.utils.table_to_book(table, { raw: true, wrapText: true })
-      window.XLSX.writeFile(wb, name)
-      // restore
-      setTimeout(() => _rmLinks(table, 'href', '__href'), 499)
+      window.XLSX.writeFile(wb, name, {
+        cellStyles: true, // Pro 支持?
+      })
+      // RE
+      setTimeout(() => _rmLinks(table, 'href', '__href'), 201)
     }
 
-    if (window.XLSX && window.XLSX.utils) _export()
-    else {
+    if (window.XLSX && window.XLSX.utils) {
+      _export()
+    } else {
       $getScript('/assets/lib/charts/xlsx.full.min.js', () => {
         setTimeout(_export, 1000)
       })
     }
   }
 
-  renderError(msg, cb) {
-    this.setState({ chartdata: <div className="chart-undata must-center">{msg || $L('加载失败')}</div> }, cb)
+  renderError(error, cb) {
+    this.setState({ chartdata: <div className="chart-undata must-center">{error || $L('加载失败')}</div> }, cb)
   }
 
   renderChart(data) {
@@ -1662,7 +1662,7 @@ class DataList extends BaseChart {
   export() {
     const table = $(this._$body).find('table.table')[0]
     if (table) {
-      this._exportTable(table)
+      this.exportTable(table)
     } else {
       RbHighbar.createl('暂无数据')
     }

@@ -148,7 +148,10 @@ $(document).ready(() => {
 
   renderContentComp({ sourceEntity: wpc.sourceEntity, content: wpc.actionContent })
   // v4.3 延迟模式通用化
-  if (wpc.actionContent && wpc.actionContent.asyncMode) $('#asyncMode').prop('checked', true)
+  if (wpc.actionContent && wpc.actionContent.asyncMode) {
+    $('#asyncMode').prop('checked', true)
+    $('#asyncMode').parents('.bosskey-show').removeClass('bosskey-show')
+  }
 
   const $btn = $('.J_save').on('click', () => {
     if (!contentComp) return
