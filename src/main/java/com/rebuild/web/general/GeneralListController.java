@@ -51,7 +51,6 @@ import java.util.Set;
 
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_ASIDE_SHOWS;
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_FILTERPANE;
-import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_FILTERTABS;
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_HIDE_CHARTS;
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_HIDE_FILTERS;
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_MODE;
@@ -150,10 +149,6 @@ public class GeneralListController extends EntityController {
 
                 if (!paneFields.isEmpty()) mv.getModel().put("paneFields", paneFields);
             }
-
-            // v3.3 查询页签
-            String advListFilterTabs = easyEntity.getExtraAttr(ADVLIST_FILTERTABS);
-            mv.getModel().put(ADVLIST_FILTERTABS, advListFilterTabs);
 
             // v3.6 记录合并
             String enableRecordMerger = easyEntity.getExtraAttr(ENABLE_RECORD_MERGER);
