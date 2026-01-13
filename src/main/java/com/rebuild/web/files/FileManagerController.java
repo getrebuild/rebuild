@@ -42,8 +42,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -71,6 +73,23 @@ public class FileManagerController extends BaseController {
         Application.getCommonsService().createOrUpdate(fileRecords.toArray(new Record[0]), false);
 
         return RespBody.ok();
+    }
+
+    @RequestMapping("check-files")
+    public RespBody checkFiles(HttpServletRequest request) {
+        ID inFolder = getIdParameter(request, "folder");
+        JSONArray files = (JSONArray) ServletUtils.getRequestJson(request);
+
+        String checkSql = "select attachmentId from Attachment where belongEntity = 0 and isDeleted = 'F' and fileName = ?";
+        if (inFolder == null) checkSql += " and inFolder is null";
+        else checkSql += String.format(" and inFolder = '%s'", inFolder);
+
+        Map<String, String> error = new HashMap<>();
+        for (Object o : files) {
+            Object[] e = Application.createQueryNoFilter(checkSql).setParameter(1, o).unique();
+            if (e != null) error.put((String) o, e[0].toString());
+        }
+        return RespBody.ok(error);
     }
 
     @RequestMapping("delete-files")
