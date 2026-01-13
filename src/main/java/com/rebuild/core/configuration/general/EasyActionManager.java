@@ -12,6 +12,7 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 /**
  * 自定义操作按钮
@@ -90,6 +91,44 @@ public class EasyActionManager extends BaseLayoutManager {
      */
     public ConfigBean getEasyActionRaw(String entity) {
         return getLayout(UserService.SYSTEM_USER, entity, TYPE_EASYACTION, null);
+    }
+
+    /**
+     * @param entity
+     * @param eeid
+     * @return
+     */
+    public JSONObject findActionByEeid(String entity, String eeid) {
+        ConfigBean cb = getLayout(UserService.SYSTEM_USER, entity, TYPE_EASYACTION, null);
+        if (cb == null || eeid == null) return null;
+
+        JSONObject conf = (JSONObject) cb.getJSON("config");
+        JSONObject action = findActionByEeid(conf.getJSONArray("datalist"), eeid);
+        if (action == null) action = findActionByEeid(conf.getJSONArray("datarow"), eeid);
+        if (action == null) action = findActionByEeid(conf.getJSONArray("view"), eeid);
+        return action;
+    }
+
+    private JSONObject findActionByEeid(JSONArray typeItems, String eeid) {
+        if (typeItems == null) return null;
+        for (Object o : typeItems) {
+            JSONObject item = (JSONObject) o;
+            if (eeid.equals(item.getString("id"))) {
+                return item;
+            }
+
+            // fix:4.1.5 二级菜单
+            JSONArray itemsL2 = item.getJSONArray("items");
+            if (CollectionUtils.isNotEmpty(itemsL2)) {
+                for (Object o2 : itemsL2) {
+                    JSONObject itemL2 = (JSONObject) o2;
+                    if (eeid.equals(itemL2.getString("id"))) {
+                        return itemL2;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     @Override

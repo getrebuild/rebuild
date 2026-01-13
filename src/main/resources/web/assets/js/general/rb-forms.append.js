@@ -833,7 +833,8 @@ class LiteFormModal extends RbModalHandler {
 
     this.disabled(true)
     let url = `/app/entity/liteform/record-save?weakMode=${weakMode || 0}`
-    if (this._ids.length > 1) url += '&ids=' + this.props.ids.join(',')
+    if (props.eeid) url += `&eeid=${props.eeid}`
+    if (this._ids.length > 1) url += `&ids=${this.props.ids.join(',')}`
     $.post(url, JSON.stringify(data2), (res) => {
       this.disabled()
       if (res.error_code === 0) {
@@ -875,8 +876,9 @@ class LiteFormModal extends RbModalHandler {
    * @param {*} fields
    * @param {*} title
    * @param {*} onHandleSave
+   * @param {*} _eeid
    */
-  static create(entityOrId, fields, title, onHandleSave) {
+  static create(entityOrId, fields, title, onHandleSave, _eeid) {
     // 无实体表单模式
     if (entityOrId === false) {
       const fakeModel = {
@@ -913,6 +915,7 @@ class LiteFormModal extends RbModalHandler {
           }}
           confirmText={$L('确定')}
           {...fakeModel}
+          eeid={_eeid || null}
         />
       )
       return
@@ -922,7 +925,7 @@ class LiteFormModal extends RbModalHandler {
     if (Array.isArray(fields) && fields.length === 1 && typeof fields[0] === 'string' && fields[0].includes('.')) {
       $.get(`/commons/frontjs/reffield-editable?id=${entityOrId}&reffield=${fields[0]}`, (res) => {
         if (res.error_code === 0) {
-          LiteFormModal.create(res.data.id, [res.data.field], title, onHandleSave)
+          LiteFormModal.create(res.data.id, [res.data.field], title, onHandleSave, _eeid)
         } else {
           RbHighbar.create(res.error_msg)
         }
@@ -938,7 +941,7 @@ class LiteFormModal extends RbModalHandler {
 
     $.post('/app/entity/liteform/form-model', JSON.stringify(post), (res) => {
       if (res.error_code === 0) {
-        renderRbcomp(<LiteFormModal title={title} onHandleSave={onHandleSave} {...res.data} ids={isMultiId ? entityOrId : null} />)
+        renderRbcomp(<LiteFormModal title={title} onHandleSave={onHandleSave} {...res.data} ids={isMultiId ? entityOrId : null} eeid={_eeid} />)
       } else {
         RbHighbar.error(res.error_msg)
       }
