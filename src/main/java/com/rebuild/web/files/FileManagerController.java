@@ -29,6 +29,8 @@ import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.commons.FileDownloader;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.TransactionStatus;
@@ -52,6 +54,7 @@ import java.util.Set;
  * @author devezhao
  * @since 2019/11/12
  */
+@Slf4j
 @RestController
 @RequestMapping("/files/")
 public class FileManagerController extends BaseController {
@@ -65,31 +68,13 @@ public class FileManagerController extends BaseController {
         List<Record> fileRecords = new ArrayList<>();
         for (Object o : files) {
             Record r = FilesHelper.createAttachment((String) o, user);
-            if (inFolder != null) {
-                r.setID("inFolder", inFolder);
-            }
+            if (inFolder != null) r.setID("inFolder", inFolder);
             fileRecords.add(r);
         }
-        Application.getCommonsService().createOrUpdate(fileRecords.toArray(new Record[0]), false);
 
+        ID[] deletes = getIdArrayParameter(request, "deletes");
+        createOrUpdateAndDelete43(fileRecords.toArray(new Record[0]), deletes, user);
         return RespBody.ok();
-    }
-
-    @RequestMapping("check-files")
-    public RespBody checkFiles(HttpServletRequest request) {
-        ID inFolder = getIdParameter(request, "folder");
-        JSONArray files = (JSONArray) ServletUtils.getRequestJson(request);
-
-        String checkSql = "select attachmentId from Attachment where belongEntity = 0 and isDeleted = 'F' and fileName = ?";
-        if (inFolder == null) checkSql += " and inFolder is null";
-        else checkSql += String.format(" and inFolder = '%s'", inFolder);
-
-        Map<String, String> error = new HashMap<>();
-        for (Object o : files) {
-            Object[] e = Application.createQueryNoFilter(checkSql).setParameter(1, o).unique();
-            if (e != null) error.put((String) o, e[0].toString());
-        }
-        return RespBody.ok(error);
     }
 
     @RequestMapping("delete-files")
@@ -112,8 +97,10 @@ public class FileManagerController extends BaseController {
         ServiceSpec ss = Application.getService(EntityHelper.Attachment);
         try {
             for (ID fileId : willDeleteIds) ss.delete(fileId);
+
             TransactionManual.commit(tx);
         } catch (Exception ex) {
+            log.error("[delete-files]", ex);
             TransactionManual.rollback(tx);
         }
         return RespBody.ok();
@@ -130,18 +117,69 @@ public class FileManagerController extends BaseController {
             if (!ID.isId(file)) continue;
 
             ID fileId = ID.valueOf(file);
-            if (!FilesHelper.isFileManageable(user, fileId)) {
-                return RespBody.errorl("无权修改此文件");
-            }
-
             Record r = EntityHelper.forUpdate(fileId, user);
             if (inFolder == null) r.setNull("inFolder");
             else r.setID("inFolder", inFolder);
             fileRecords.add(r);
         }
 
-        Application.getCommonsService().createOrUpdate(fileRecords.toArray(new Record[0]), false);
+        ID[] deletes = getIdArrayParameter(request, "deletes");
+        createOrUpdateAndDelete43(fileRecords.toArray(new Record[0]), deletes, user);
         return RespBody.ok();
+    }
+
+    // 更新并删除文件（记录）
+    private void createOrUpdateAndDelete43(Record[] createOrUpdate, ID[] deletes, ID user) {
+        if (ArrayUtils.isNotEmpty(deletes)) {
+            TransactionStatus tx = TransactionManual.newTransaction();
+            ServiceSpec ss = Application.getService(EntityHelper.Attachment);
+            try {
+                // 覆盖/删除
+                for (ID fileid : deletes) {
+                    if (FilesHelper.isFileManageable(user, fileid)) {
+                        ss.delete(fileid);
+                    } else {
+                        log.warn("No privileges to overwrite/delete file : {}", fileid);
+                    }
+                }
+                // 新增
+                Application.getCommonsService().createOrUpdate(createOrUpdate, false);
+
+                TransactionManual.commit(tx);
+            } catch (Exception ex) {
+                log.error("[createOrUpdateAndDelete]", ex);
+                TransactionManual.rollback(tx);
+            }
+
+        } else {
+            Application.getCommonsService().createOrUpdate(createOrUpdate, false);
+        }
+    }
+
+    @RequestMapping("check-files")
+    public RespBody checkFiles(HttpServletRequest request) {
+        ID inFolder = getIdParameter(request, "folder");
+        JSONArray files = (JSONArray) ServletUtils.getRequestJson(request);
+
+        String checkSql = "select attachmentId from Attachment where belongEntity = 0 and isDeleted = 'F' and fileName = ?";
+        if (inFolder == null) checkSql += " and inFolder is null";
+        else checkSql += String.format(" and inFolder = '%s'", inFolder);
+
+        Map<String, Object> error = new HashMap<>();
+        for (Object o : files) {
+            // 支持文件名和 ID
+            String name = (String) o;
+            if (ID.isId(name)) {
+                Object[] e = Application.getQueryFactory().uniqueNoFilter(ID.valueOf(name), "fileName");
+                if (e != null && e[0] != null) name = e[0].toString();
+            } else {
+                name = QiniuCloud.cleanFileName(name);
+            }
+
+            Object[] e = Application.createQueryNoFilter(checkSql).setParameter(1, name).unique();
+            if (e != null) error.put(name, e[0]);
+        }
+        return RespBody.ok(error);
     }
 
     @RequestMapping("check-readable")
@@ -150,14 +188,8 @@ public class FileManagerController extends BaseController {
         return filePath == null ? RespBody.error() : RespBody.ok(filePath);
     }
 
-    /**
-     * 是否可读取文件
-     *
-     * @param fileId
-     * @param user
-     * @return
-     */
-    static String checkFileReadable(ID fileId, ID user) {
+    // 是否可读取文件
+    private String checkFileReadable(ID fileId, ID user) {
         // v4.2 目录
         if (fileId.getEntityCode() == EntityHelper.AttachmentFolder) {
             return FilesHelper.getAccessableFolders(user).contains(fileId) ? fileId.toLiteral() : null;

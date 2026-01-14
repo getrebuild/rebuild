@@ -367,17 +367,7 @@ public class QiniuCloud {
      */
     public static String formatFileKey(String fileName, boolean keepName, String updir) {
         if (keepName) {
-            while (fileName.contains("__")) {
-                fileName = fileName.replace("__", "_");
-            }
-            // 去除特殊符号
-            fileName = fileName.replace("  ", " ").replace(" ", "-");
-            fileName = fileName.replaceAll("[?&#+%/\\s]", "");
-
-            // 文件名长度控制
-            if (fileName.length() > 51) {
-                fileName = fileName.substring(0, 25) + ".." + fileName.substring(fileName.length() - 25);
-            }
+            fileName = cleanFileName(fileName);
 
         } else {
             String fileExt = FileUtil.getSuffix(fileName);
@@ -392,6 +382,26 @@ public class QiniuCloud {
         if (StringUtils.isNotBlank(updir)) subdir = updir.replaceAll("[%./\\\\\\s]", "");
 
         return String.format("rb/%s/%s__%s", subdir, filePrefix, fileName);
+    }
+
+    /**
+     * @param fileName
+     * @return
+     */
+    public static String cleanFileName(String fileName) {
+        // 去除多余 __
+        while (fileName.contains("__")) {
+            fileName = fileName.replace("__", "_");
+        }
+        // 去除空格以 - 代替
+        fileName = fileName.replace("  ", " ").replace(" ", "-");
+        // 去除特殊符号
+        fileName = fileName.replaceAll("[?&#+%/\\s]", "");
+        // 文件名长度控制
+        if (fileName.length() > 51) {
+            fileName = fileName.substring(0, 25) + ".." + fileName.substring(fileName.length() - 25);
+        }
+        return fileName;
     }
 
     /**

@@ -210,7 +210,7 @@ class FolderEditDlg extends RbFormHandler {
           </div>
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3">
-              <button className="btn btn-primary" type="button" onClick={this._post}>
+              <button className="btn btn-primary" type="button" onClick={() => this._post()}>
                 {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
@@ -223,7 +223,7 @@ class FolderEditDlg extends RbFormHandler {
     )
   }
 
-  _post = () => {
+  _post() {
     const _data = {
       name: this.state.name,
       parent: this.state.parent,
@@ -333,7 +333,7 @@ class FileUploadDlg extends RbFormHandler {
         fixConcurrency = 1
         that.setState({ files: files }, () => {
           fixConcurrency = 0
-          that._postIfCompleted()
+          that._postIfUploaded()
         })
       }
     }
@@ -378,7 +378,7 @@ class FileUploadDlg extends RbFormHandler {
     e && $stopEvent(e, true)
     const files = this.state.files || {}
     delete files[fileName]
-    this.setState({ files: files }, () => this._postIfCompleted())
+    this.setState({ files: files }, () => this._postIfUploaded())
   }
 
   _post(notip) {
@@ -405,71 +405,41 @@ class FileUploadDlg extends RbFormHandler {
       that.setState({ uploadState: 1 })
     }
 
-    _FN()
-
-    // v4.3 覆盖应高考虑权限，还有一栋文件也要考虑
-    // $.post(`/files/check-files?folder=${this.state.inFolder || ''}`, JSON.stringify(fileNames), (res) => {
-    //   if (res.error_code === 0) {
-    //     this.__lastExistsFiles = res.data || {}
-    //     if (Object.keys(this.__lastExistsFiles).length) {
-    //       this._showExists(
-    //         this.__lastExistsFiles,
-    //         () => _FN(),
-    //         () => {
-    //           const filesNew = that.state.files || {}
-    //           Object.keys(that.__lastExistsFiles).forEach((fileName) => {
-    //             delete filesNew[fileName]
-    //           })
-    //           that.setState({ files: filesNew }, () => {
-    //             that._post(true)
-    //             if ($empty(filesNew)) that._reset()
-    //           })
-    //         }
-    //       )
-    //     } else {
-    //       _FN()
-    //     }
-    //   } else {
-    //     RbHighbar.error(res.error_msg)
-    //     this.disabled()
-    //   }
-    // })
-  }
-
-  _showExists(existsFiles, onConfirm, onCancel) {
-    const checkMsg = (
-      <div>
-        <h5 className="text-bold">{$L('存在同名文件，是否覆盖？')}</h5>
-        <table className="table table-sm table-bordered" style={{ margin: '0 auto', width: 'auto', 'min-width': '60%' }}>
-          <tbody>
-            {Object.keys(existsFiles).map((item, idx) => {
-              return (
-                <tr key={idx}>
-                  <td className="text-break">{item}</td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
-    )
-
-    RbAlert.create(checkMsg, {
-      type: 'warning',
-      confirmText: $L('覆盖'),
-      onConfirm: function () {
-        onConfirm && onConfirm()
-        this.hide()
-      },
-      cancelText: $L('跳过'),
-      onCancel: function () {
-        onCancel && onCancel()
-        this.hide()
-      },
+    this.__lastExistsFiles = null
+    $.post(`/files/check-files?folder=${this.state.inFolder || ''}`, JSON.stringify(fileNames), (res) => {
+      if (res.error_code === 0) {
+        const existsFiles = res.data || {}
+        if (Object.keys(existsFiles).length) {
+          _showExists43(
+            existsFiles,
+            () => {
+              // 覆盖
+              this.__lastExistsFiles = existsFiles
+              _FN()
+            },
+            () => {
+              // 跳过
+              const filesNew = this.state.files || {}
+              Object.keys(existsFiles).forEach((fileName) => {
+                delete filesNew[fileName]
+              })
+              this.setState({ files: filesNew }, () => {
+                this._post(true)
+                if ($empty(filesNew)) this._reset()
+              })
+            }
+          )
+        } else {
+          _FN()
+        }
+      } else {
+        RbHighbar.error(res.error_msg)
+        this.disabled()
+      }
     })
   }
 
-  _postIfCompleted() {
+  _postIfUploaded() {
     let fileKeys = []
     for (let k in this.state.files) {
       let file = this.state.files[k]
@@ -489,7 +459,9 @@ class FileUploadDlg extends RbFormHandler {
       return
     }
 
-    $.post(`/files/post-files?folder=${this.state.inFolder || ''}`, JSON.stringify(fileKeys), (res) => {
+    let url = `/files/post-files?folder=${this.state.inFolder || ''}`
+    if (this.__lastExistsFiles) url += '&deletes=' + Object.values(this.__lastExistsFiles).join(',')
+    $.post(url, JSON.stringify(fileKeys), (res) => {
       this.disabled()
       this.setState({ uploadState: 2 })
       if (res.error_code === 0) {
@@ -501,13 +473,46 @@ class FileUploadDlg extends RbFormHandler {
   }
 }
 
+function _showExists43(existsFiles, onConfirm, onCancel) {
+  const checkMsg = (
+    <div>
+      <h5 className="text-bold">{$L('存在同名文件，是否覆盖？')}</h5>
+      <table className="table table-sm table-bordered" style={{ margin: '0 auto', width: 'auto', minWidth: '60%' }}>
+        <tbody>
+          {Object.keys(existsFiles).map((item, idx) => {
+            return (
+              <tr key={idx}>
+                <td className="text-break">{item}</td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+
+  RbAlert.create(checkMsg, {
+    type: 'warning',
+    confirmText: $L('覆盖'),
+    onConfirm: function () {
+      onConfirm && onConfirm()
+      this.hide()
+    },
+    cancelText: $L('跳过'),
+    onCancel: function () {
+      onCancel && onCancel()
+      this.hide()
+    },
+  })
+}
+
 // ~ 移动目录
 class FileMoveDlg extends RbFormHandler {
   state = { ...this.props }
 
   render() {
     return (
-      <RbModal title={$L('移动文件')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={$L('移动文件')} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('更改至新目录')}</label>
@@ -521,7 +526,7 @@ class FileMoveDlg extends RbFormHandler {
           </div>
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
-              <button className="btn btn-primary" type="button" onClick={this._post}>
+              <button className="btn btn-primary" type="button" onClick={() => this._post()}>
                 {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
@@ -534,12 +539,53 @@ class FileMoveDlg extends RbFormHandler {
     )
   }
 
-  _post = () => {
+  _post() {
+    const that = this
+    function _FN(files, deletes) {
+      if ($empty(files)) {
+        that.hide()
+        return
+      }
+
+      let url = `/files/move-files?folder=${that.state.inFolder || ''}&ids=${files.join(',')}`
+      if (deletes) url += '&deletes=' + deletes.join(',')
+      $.post(url, (res) => {
+        if (res.error_code === 0) {
+          that.hide()
+          that.props.call && that.props.call()
+        } else {
+          RbHighbar.error(res.error_msg)
+          that.disabled()
+        }
+      })
+    }
+
     this.disabled(true)
-    $.post(`/files/move-files?folder=${this.state.inFolder || ''}&ids=${this.props.files.join(',')}`, (res) => {
+    $.post(`/files/check-files?folder=${this.state.inFolder || ''}`, JSON.stringify(this.props.files), (res) => {
       if (res.error_code === 0) {
-        this.hide()
-        this.props.call && this.props.call()
+        const existsFiles = res.data || {}
+        if (Object.keys(existsFiles).length) {
+          const existsFilesId = Object.values(existsFiles)
+          _showExists43(
+            existsFiles,
+            () => {
+              // 覆盖
+              _FN(this.props.files, existsFilesId)
+            },
+            () => {
+              // 跳过
+              const filesNew = []
+              for (let k in this.props.filesName) {
+                const name = this.props.filesName[k]
+                if (!existsFiles[name]) filesNew.push(k)
+              }
+
+              _FN(filesNew, null)
+            }
+          )
+        } else {
+          _FN(this.props.files)
+        }
       } else {
         RbHighbar.error(res.error_msg)
         this.disabled()
@@ -639,7 +685,12 @@ $(document).ready(() => {
   $('.J_move').on('click', () => {
     const s = filesList.getSelected()
     if (!s) return
-    renderRbcomp(<FileMoveDlg files={s} call={() => filesList && filesList.loadData()} />)
+
+    const filesName43 = {}
+    filesList.state.files.forEach((item) => {
+      if (s.includes(item.id)) filesName43[item.id] = item.fileName
+    })
+    renderRbcomp(<FileMoveDlg files={s} filesName={filesName43} call={() => filesList.loadData()} />)
   })
 
   $('a.J_dl').on('click', () => {

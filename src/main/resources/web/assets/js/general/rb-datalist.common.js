@@ -1322,7 +1322,8 @@ class RbList extends React.Component {
       else $tr.removeClass('active')
     } else {
       this._toggleRows({ target: { checked: false } }, true)
-      $tr.addClass('active').find('.custom-control-input')[0].checked = true
+      let chk = $tr.addClass('active').find('.custom-control-input')[0]
+      chk && (chk.checked = true)
     }
 
     this._checkSelected()
