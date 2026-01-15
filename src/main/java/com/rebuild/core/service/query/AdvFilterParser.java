@@ -121,7 +121,7 @@ public class AdvFilterParser extends SetUser {
         String entityName = filterExpr.getString("entity");
         if (entityName != null) {
             Assert.isTrue(entityName.equalsIgnoreCase(rootEntity.getName()),
-                    "Filter uses different entitiy : " + entityName + ", " + rootEntity.getName());
+                    "Filter uses different entity : " + entityName + ", " + rootEntity.getName());
         }
     }
 
@@ -151,7 +151,7 @@ public class AdvFilterParser extends SetUser {
 
         if (entityName != null) {
             Assert.isTrue(entityName.equalsIgnoreCase(rootEntity.getName()),
-                    "Filter uses different entitiy : " + entityName + ", " + rootEntity.getName());
+                    "Filter uses different entity : " + entityName + ", " + rootEntity.getName());
         }
     }
 

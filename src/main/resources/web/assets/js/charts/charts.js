@@ -244,7 +244,7 @@ class BaseChart extends React.Component {
   }
 
   renderError(error, cb) {
-    this.setState({ chartdata: <div className="chart-undata must-center">{error || $L('加载失败')}</div> }, cb)
+    this.setState({ chartdata: <div className="chart-undata must-center text-uppercase">{error || $L('加载失败')}</div> }, cb)
   }
 
   renderChart(data) {
