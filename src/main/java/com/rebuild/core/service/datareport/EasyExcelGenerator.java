@@ -505,6 +505,14 @@ public class EasyExcelGenerator extends SetUser {
             return phName.length() > PH__KEEP.length()
                     ? phName.substring(PH__KEEP.length() + 1) : "";
         }
+        // v4.3 __CURRENTDATE:yyyy年MM月dd日
+        else if (phName.startsWith(PH__CURRENTDATE) || phName.startsWith(PH__CURRENTDATETIME)) {
+            String[] nameAndFormat = phName.split(":");
+            if (nameAndFormat.length >= 2) {
+                nameAndFormat[1] = phName.substring(nameAndFormat[0].length() + 1);
+                return CalendarUtils.format(nameAndFormat[1], CalendarUtils.now());
+            }
+        }
 
         switch (phName) {
             case PH__NUMBER:
