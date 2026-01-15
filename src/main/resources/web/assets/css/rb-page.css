@@ -225,6 +225,7 @@ code {
   color: #555;
   font-size: 12px !important;
   text-transform: uppercase;
+  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', Menlo, Monaco, Consolas, monospace;
 }
 
 a.badge.text-id {
