@@ -112,15 +112,17 @@ public class CombinedRole extends Role {
     }
 
     /**
-     * 合并主角色与附加角色权限（向上合并）
+     * 合并主角色与附加角色权限。规则：
+     * 1.高权限优先
+     * 2.对于同权限（如读取本部门）且都设置了自定义权限的，由于无法区分哪个权限高，会采用主权限的 v4.3
      */
     protected void mergePrivileges() {
         for (Privileges p : roleMain.getAllPrivileges()) {
             addPrivileges(p);
         }
 
-        for (Role role : roleAppends) {
-            for (Privileges p : role.getAllPrivileges()) {
+        for (Role ra : roleAppends) {
+            for (Privileges p : ra.getAllPrivileges()) {
                 Privileges mp = mergePrivileges(p, getPrivileges(p.getIdentity()));
                 addPrivileges(mp);
             }
@@ -151,35 +153,37 @@ public class CombinedRole extends Role {
         return d;
     }
 
-    private Privileges mergePrivileges(Privileges a, Privileges b) {
-        if (b == null || b == Privileges.NONE) return a;
-        if (b == Privileges.ROOT) return b;
+    private Privileges mergePrivileges(Privileges a, Privileges bHigher) {
+        if (a == null || a == Privileges.NONE) return bHigher;
+        if (a == Privileges.ROOT) return a;
+        if (bHigher == null || bHigher == Privileges.NONE) return a;
+        if (bHigher == Privileges.ROOT) return bHigher;
 
         // 扩展权限
 
         if (a instanceof ZeroPrivileges) {
             JSONObject aDefMap = JSON.parseObject(getDefinition(a));
-            // 部分权限取反
+            // 部分权限要取反
             if (a.getIdentity().equals(ZeroEntry.EnableBizzPart)) {
-                return aDefMap.getIntValue(ZeroPrivileges.ZERO_FLAG) == ZeroPrivileges.ZERO_MASK ? b : a;
-            } else {
-                return aDefMap.getIntValue(ZeroPrivileges.ZERO_FLAG) == ZeroPrivileges.ZERO_MASK ? a : b;
+                return aDefMap.getIntValue(ZeroPrivileges.ZERO_FLAG) == ZeroPrivileges.ZERO_MASK ? bHigher : a;
             }
+
+            return aDefMap.getIntValue(ZeroPrivileges.ZERO_FLAG) == ZeroPrivileges.ZERO_MASK ? a : bHigher;
         }
 
         // 实体权限
 
         Map<String, Integer> aDefMap = parseDefinitionMasks(getDefinition(a));
-        Map<String, Integer> bDefMap = parseDefinitionMasks(getDefinition(b));
+        Map<String, Integer> bHigherDefMap = parseDefinitionMasks(getDefinition(bHigher));
 
         Map<String, Integer> mergedDefMap = new LinkedHashMap<>();
         for (String depth : PERMISSION_DEPTHS) {
-            mergedDefMap.put(depth, mergeMaskValue(aDefMap.get(depth), bDefMap.get(depth)));
+            mergedDefMap.put(depth, mergeMaskValue(aDefMap.get(depth), bHigherDefMap.get(depth)));
         }
 
-        List<String> defs = new ArrayList<>();
+        List<String> mergedDefs = new ArrayList<>();
         for (Map.Entry<String, Integer> e : mergedDefMap.entrySet()) {
-            defs.add(e.getKey() + ":" + e.getValue());
+            mergedDefs.add(e.getKey() + ":" + e.getValue());
         }
 
         // 实体自定义权限
@@ -188,20 +192,24 @@ public class CombinedRole extends Role {
 
         for (Permission action : CustomEntityPrivileges.PERMISSION_DEFS) {
             JSONObject aCustom = ((CustomEntityPrivileges) a).getCustomFilter(action);
-            JSONObject bCustom = ((CustomEntityPrivileges) b).getCustomFilter(action);
-            if (aCustom == null && bCustom == null) continue;
+            JSONObject bHigherCustom = ((CustomEntityPrivileges) bHigher).getCustomFilter(action);
+            if (aCustom == null && bHigherCustom == null) continue;
 
-            // A>B?
-            int gt = isGreaterThan(action.getMask(), aDefMap, bDefMap);
+            int gt = isGreaterThan(action.getMask(), aDefMap, bHigherDefMap);
+            // a > bHigher
             if (gt == 1) {
                 if (aCustom != null) useCustomFilters.put(action.getName(), aCustom);
-            } else if (gt == 2) {
-                if (bCustom != null) useCustomFilters.put(action.getName(), bCustom);
-            } else {
-                if (aCustom == null || bCustom == null) {
-                    // fix:4.2.2 相等权限时任意一个为空，都不适用自定义权限
+            }
+            // a < bHigher
+            else if (gt == 2) {
+                if (bHigherCustom != null) useCustomFilters.put(action.getName(), bHigherCustom);
+            }
+            // a == bHigher
+            else {
+                if (aCustom == null || bHigherCustom == null) {
+                    // fix:4.2.2 相等权限时任意一个为空，则无自定义权限
                 } else {
-                    useCustomFilters.put(action.getName(), aCustom);
+                    useCustomFilters.put(action.getName(), bHigherCustom);
                 }
             }
         }
@@ -209,13 +217,13 @@ public class CombinedRole extends Role {
         // 字段权限
 
         Map<String, Object> aFpDefinition = ((CustomEntityPrivileges) a).getFpDefinition();
-        Map<String, Object> bFpDefinition = ((CustomEntityPrivileges) b).getFpDefinition();
+        Map<String, Object> bHigherFpDefinition = ((CustomEntityPrivileges) bHigher).getFpDefinition();
         // be:4.1.5 无法比较字段权限高低，因此随便选一个非空的更合理
         Map<String, Object> useFpDefinition = null;
-        if (MapUtils.isEmpty(aFpDefinition)) useFpDefinition = bFpDefinition;
-        else if (MapUtils.isEmpty(bFpDefinition)) useFpDefinition = aFpDefinition;
+        if (MapUtils.isEmpty(aFpDefinition)) useFpDefinition = bHigherFpDefinition;
+        else if (MapUtils.isEmpty(bHigherFpDefinition)) useFpDefinition = aFpDefinition;
 
-        String definition = StringUtils.join(defs.iterator(), ",");
+        String definition = StringUtils.join(mergedDefs.iterator(), ",");
         return new CustomEntityPrivileges(((EntityPrivileges) a).getEntity(), definition, useCustomFilters, useFpDefinition);
     }
 
