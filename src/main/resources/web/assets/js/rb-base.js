@@ -13,15 +13,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /*! https://github.com/gabceb/jquery-browser-plugin */
 // prettier-ignore
 !(function(a){'function'===typeof define&&define.amd?define(['jquery'],function(b){return a(b)}):'object'===typeof module&&'object'===typeof module.exports?(module.exports=a(require('jquery'))):a(window.jQuery)})(function(a){function b(a){void 0===a&&(a=window.navigator.userAgent),(a=a.toLowerCase());var b=/(edge)\/([\w.]+)/.exec(a)||/(opr)[\/]([\w.]+)/.exec(a)||/(chrome)[ \/]([\w.]+)/.exec(a)||/(iemobile)[\/]([\w.]+)/.exec(a)||/(version)(applewebkit)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(a)||/(webkit)[ \/]([\w.]+).*(version)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(a)||/(webkit)[ \/]([\w.]+)/.exec(a)||/(opera)(?:.*version|)[ \/]([\w.]+)/.exec(a)||/(msie) ([\w.]+)/.exec(a)||(a.indexOf('trident')>=0&&/(rv)(?::| )([\w.]+)/.exec(a))||(a.indexOf('compatible')<0&&/(mozilla)(?:.*? rv:([\w.]+)|)/.exec(a))||[],c=/(ipad)/.exec(a)||/(ipod)/.exec(a)||/(windows phone)/.exec(a)||/(iphone)/.exec(a)||/(kindle)/.exec(a)||/(silk)/.exec(a)||/(android)/.exec(a)||/(win)/.exec(a)||/(mac)/.exec(a)||/(linux)/.exec(a)||/(cros)/.exec(a)||/(playbook)/.exec(a)||/(bb)/.exec(a)||/(blackberry)/.exec(a)||[],d={},e={browser:b[5]||b[3]||b[1]||'',version:b[2]||b[4]||'0',versionNumber:b[4]||b[2]||'0',platform:c[0]||'',};if((e.browser&&((d[e.browser]=!0),(d.version=e.version),(d.versionNumber=parseInt(e.versionNumber,10))),e.platform&&(d[e.platform]=!0),(d.android||d.bb||d.blackberry||d.ipad||d.iphone||d.ipod||d.kindle||d.playbook||d.silk||d['windows phone'])&&(d.mobile=!0),(d.cros||d.mac||d.linux||d.win)&&(d.desktop=!0),(d.chrome||d.opr||d.safari)&&(d.webkit=!0),d.rv||d.iemobile)){var f='msie';(e.browser=f),(d[f]=!0)}if(d.edge){delete d.edge;var g='msedge';(e.browser=g),(d[g]=!0)}if(d.safari&&d.blackberry){var h='blackberry';(e.browser=h),(d[h]=!0)}if(d.safari&&d.playbook){var i='playbook';(e.browser=i),(d[i]=!0)}if(d.bb){var j='blackberry';(e.browser=j),(d[j]=!0)}if(d.opr){var k='opera';(e.browser=k),(d[k]=!0)}if(d.safari&&d.android){var l='android';(e.browser=l),(d[l]=!0)}if(d.safari&&d.kindle){var m='kindle';(e.browser=m),(d[m]=!0)}if(d.safari&&d.silk){var n='silk';(e.browser=n),(d[n]=!0)}return(d.name=e.browser),(d.platform=e.platform),d}return((window.jQBrowser=b(window.navigator.userAgent)),(window.jQBrowser.uaMatch=b),a&&(a.browser=window.jQBrowser),window.jQBrowser)})
-// https://github.com/jeresig/jquery.hotkeys
-// prettier-ignore
-!function(e){function t(t){if('string'===typeof t.data){var s=t.handler,a=t.data.toLowerCase().split(' ');t.handler=function(t){if(this===t.target||!/textarea|select/i.test(t.target.nodeName)&&'text'!==t.target.type){var r='keypress'!==t.type&&e.hotkeys.specialKeys[t.which],f=String.fromCharCode(t.which).toLowerCase(),i='',h={};t.altKey&&'alt'!==r&&(i+='alt+'),t.ctrlKey&&'ctrl'!==r&&(i+='ctrl+'),t.metaKey&&!t.ctrlKey&&'meta'!==r&&(i+='meta+'),t.shiftKey&&'shift'!==r&&(i+='shift+'),r?h[i+r]=!0:(h[i+f]=!0,h[i+e.hotkeys.shiftNums[f]]=!0,'shift+'===i&&(h[e.hotkeys.shiftNums[f]]=!0));for(var o=0,c=a.length;o<c;o++)if(h[a[o]])return s.apply(this,arguments)}}}}e.hotkeys={version:'0.8',specialKeys:{8:'backspace',9:'tab',13:'return',16:'shift',17:'ctrl',18:'alt',19:'pause',20:'capslock',27:'esc',32:'space',33:'pageup',34:'pagedown',35:'end',36:'home',37:'left',38:'up',39:'right',40:'down',45:'insert',46:'del',96:'0',97:'1',98:'2',99:'3',100:'4',101:'5',102:'6',103:'7',104:'8',105:'9',106:'*',107:'+',109:'-',110:'.',111:'/',112:'f1',113:'f2',114:'f3',115:'f4',116:'f5',117:'f6',118:'f7',119:'f8',120:'f9',121:'f10',122:'f11',123:'f12',144:'numlock',145:'scroll',191:'/',224:'meta'},shiftNums:{'`':'~',1:'!',2:'@',3:'#',4:'$',5:'%',6:'^',7:'&',8:'*',9:'(',0:')','-':'_','=':'+',';':': ','\'':'"',',':'<','.':'>','/':'?','\\':'|'}},e.each(['keydown','keyup','keypress'],function(){e.event.special[this]={add:t}})}(jQuery)
-// select2.zh-CN
-// prettier-ignore
-!(function(){if(jQuery&&jQuery.fn&&jQuery.fn.select2&&jQuery.fn.select2.amd){var e=jQuery.fn.select2.amd}return(e.define('select2/i18n/zh_CN',[],function(){return{errorLoading:function(){return'无法加载结果'},inputTooLong:function(e){var t=e.input.length-e.maximum,n='请删除'+t+'个字符';return n},inputTooShort:function(e){var t=e.minimum-e.input.length,n='请再输入至少'+t+'个字符';n='输入关键词搜索';return n},loadingMore:function(){return'加载更多结果'},maximumSelected:function(e){var t='最多只能选择'+e.maximum+'项';return t},noResults:function(){return'未找到结果'},searching:function(){return'搜索中...'},removeAllItems:function(){return'清除'}}}),{define:e.define,require:e.require})})()
-// select2.zh-TW
-// prettier-ignore
-!(function(){if(jQuery&&jQuery.fn&&jQuery.fn.select2&&jQuery.fn.select2.amd){var e=jQuery.fn.select2.amd}return(e.define('select2/i18n/zh_TW',[],function(){return{errorLoading:function(){return'無法載入結果'},inputTooLong:function(e){var t=e.input.length-e.maximum,n='請刪除'+t+'個字符';return n},inputTooShort:function(e){var t=e.minimum-e.input.length,n='请再输入至少'+t+'个字符';n='輸入關鍵詞搜索';return n},loadingMore:function(){return'載入更多結果'},maximumSelected:function(e){var t='最多只能選擇'+e.maximum+'項';return t},noResults:function(){return'未找到結果'},searching:function(){return'搜索中...'},removeAllItems:function(){return'清除'}}}),{define:e.define,require:e.require})})()
 
 // extends jQuery
 !(function ($) {
@@ -154,60 +145,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   }
 
   rb.locale = rb.locale || 'zh_CN'
-
-  // for `moment`
-  if (window.moment) window.moment.locale(rb.locale)
-
-  // for `datetimepicker`
-  $.fn.datetimepicker.defaults = {
-    language: rb.locale.split('_')[0],
-    fontAwesome: true,
-    format: 'yyyy-mm-dd hh:ii',
-    weekStart: 1,
-    todayHighlight: true,
-    showMeridian: false,
-    keyboardNavigation: false,
-    autoclose: true,
-    minuteStep: 5,
-  }
-
-  // for `select2`
-  $.fn.select2.defaults.set('width', '100%')
-  $.fn.select2.defaults.set('language', rb.locale)
-  $.fn.select2.defaults.set('allowClear', true)
-  $.fn.select2.defaults.set('placeholder', '')
-  $.fn.select2.defaults.set('templateResult', function (res) {
-    return $('<span></span>').attr('title', res.text).text(res.text)
-  })
-  $.fn.select2.defaults.set('matcher', function (params, data) {
-    return $select2MatcherAll(params, data)
-  })
-  // fix:backspace https://github.com/select2/select2/issues/3335
-  var AllowClear = $.fn.select2.amd.require('select2/selection/allowClear')
-  var _handleKeyboardClearOriginal = AllowClear.prototype._handleKeyboardClear
-  AllowClear.prototype._handleKeyboardClear = function (_, e, container) {
-    if (this.$element.prop('multiple')) return
-    _handleKeyboardClearOriginal.call(this, _, e, container)
-  }
-  // fix:width https://github.com/select2/select2/issues/291#issuecomment-299824673
-  var Search = $.fn.select2.amd.require('select2/selection/search')
-  Search.prototype.resizeSearch = function () {
-    var width = ''
-    var widthParent = ''
-    if (this.$search.attr('placeholder') !== '') {
-      width = '100%'
-      widthParent = '100%'
-    } else {
-      var minimumWidth = this.$search.val().length + 1
-      width = minimumWidth * 0.75 + 'em'
-      widthParent = 'auto'
-    }
-    this.$search.css('width', width)
-    this.$search.closest('.select2-search--inline').css('width', widthParent)
-  }
 })(jQuery)
-// fix:select2:https://stackoverflow.com/questions/18487056/select2-doesnt-work-when-embedded-in-a-bootstrap-modal
-$.fn.modal.Constructor.prototype._enforceFocus = function () {}
 
 // extends Array
 Array.prototype.remove = function (item) {
@@ -632,5 +570,122 @@ var $clearSelection = function () {
     window.getSelection().removeAllRanges()
   } else if (document.selection) {
     document.selection.empty()
+  }
+}
+
+// $.getScript use cache
+var $getScript = function (url, callback) {
+  $.ajax({
+    type: 'GET',
+    url: url,
+    success: callback,
+    dataType: 'script',
+    cache: true,
+    complete: function (xhr) {
+      if (!(xhr.status === 200 || xhr.status === 0)) {
+        console.error('Failed to load script:', url, xhr)
+      }
+    },
+  })
+}
+
+// 绝对 URL
+var $isFullUrl = function (url) {
+  return url && (url.startsWith('http://') || url.startsWith('https://'))
+}
+
+// 环境 @see LoginChannel.java
+var $env = {
+  // 钉钉
+  isDingTalk: function () {
+    return navigator.userAgent.match(/(DINGTALK)/i)
+  },
+  // 企微
+  isWxWork: function () {
+    return navigator.userAgent.match(/(WXWORK)/i)
+  },
+}
+
+// 移除 HTML
+function $removeHtml(content) {
+  return $('<span></span>').html(content).text()
+}
+
+// 打开新窗口下载 `window.open`
+function $openWindow(url) {
+  var handle = window.open(url)
+  if (!handle) {
+    // 不允许/被阻止
+    RbAlert.create(null, {
+      onRendered: function () {
+        $(this._element)
+          .find('.modal-dialog')
+          .css('max-width', 400)
+          .find('.text-center')
+          .html(
+            '<div class="mb-2"><h4 class="m-0 mb-2">' +
+              $L('文件已准备就绪') +
+              '</h4><a class="link" href="' +
+              url +
+              '" target="_blank"><i class="zmdi zmdi-download icon mr-1"></i>' +
+              $L('点击下载') +
+              '</a></div>'
+          )
+      },
+    })
+  }
+}
+
+// 字段颜色
+function $tagStyle2(color) {
+  if (!color) return null
+  return { backgroundColor: color, borderColor: color, color: $isLight(color) ? '#222' : '#fff' }
+}
+
+// 格式化秒显示
+function $sec2Time(s) {
+  if (!s || ~~s <= 0) return '00:00'
+
+  var days
+  var hh = Math.floor(s / 3600)
+  var mm = Math.floor(s / 60) % 60
+  var ss = ~~(s % 60)
+  if (~~hh >= 24) {
+    days = ~~(hh / 24)
+    hh = hh % 24
+  }
+  if (hh < 10) hh = '0' + hh
+  if (mm < 10) mm = '0' + mm
+  if (ss < 10) ss = '0' + ss
+
+  var time = [hh, mm, ss].join(':')
+  if (days) return $L('%d天', days) + ' ' + time
+  else if (hh === '00') return time.substr(3)
+  return time
+}
+
+// 定位
+function $focus2End(el, delay) {
+  if (!el) return
+  setTimeout(function () {
+    el.focus()
+    var len = (el.value || '').length
+    el.setSelectionRange(len, len)
+  }, delay || 100)
+}
+
+var $addResizeHandler__cbs = []
+/**
+ * 窗口 RESIZE 回调
+ */
+var $addResizeHandler = function (callback) {
+  typeof callback === 'function' && $addResizeHandler__cbs && $addResizeHandler__cbs.push(callback)
+  return function () {
+    if (!$addResizeHandler__cbs || $addResizeHandler__cbs.length === 0) return
+    // eslint-disable-next-line no-console
+    if (rb.env === 'dev') console.log('Callbacks ' + $addResizeHandler__cbs.length + ' handlers of resize ...')
+    $addResizeHandler__cbs.forEach(function (cb) {
+      cb()
+    })
   }
 }
