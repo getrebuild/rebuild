@@ -34,6 +34,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OkHttpUtils;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.InvalidParameterException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -87,7 +88,7 @@ public class FilePreviewer extends BaseController {
         // v4.0 兼容
         if (!OnlyOffice.isUseOoPreview()) {
             String previewUrl = OnlyOffice.getBestPreviewUrl();
-            previewUrl += CodecUtils.urlEncode(getFileFullUrl(src));
+            previewUrl += CodecUtils.urlEncode(getFileFullUrl(src, AppUtils.getRequestUser(request)));
             response.sendRedirect(previewUrl);
             return null;
         }
@@ -286,7 +287,7 @@ public class FilePreviewer extends BaseController {
     @GetMapping("/commons/pdf-preview")
     public ModelAndView pdfPreview(HttpServletRequest request) {
         String fileUrl = getParameterNotNull(request, "src");
-        fileUrl = getFileFullUrl(fileUrl);
+        fileUrl = getFileFullUrl(fileUrl, AppUtils.getRequestUser(request));
 
         ModelAndView mv = createModelAndView("/common/pdf-preview");
         mv.getModel().put("fileUrl", fileUrl);
@@ -299,8 +300,9 @@ public class FilePreviewer extends BaseController {
      * @param src
      * @return
      */
-    protected String getFileFullUrl(final String src) {
+    protected String getFileFullUrl(final String src, ID user) {
         if (CommonsUtils.isExternalUrl(src)) return src;
+        if (user == null) throw new InvalidParameterException(Language.L("无效请求用户"));
 
         String fileUrl = src;
         boolean temp = fileUrl.startsWith("/temp/");

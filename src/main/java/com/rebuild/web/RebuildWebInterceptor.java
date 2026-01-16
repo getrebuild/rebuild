@@ -319,6 +319,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 || requestUri.startsWith("/apiman/")
                 || requestUri.startsWith("/commons/frontjs/use-frontjs")
                 || requestUri.startsWith("/commons/file-preview")
+                || requestUri.startsWith("/commons/pdf-preview")
                 || requestUri.endsWith("/commons/file-editor-save")
                 || requestUri.endsWith("/dashboard/chart-data");
     }
