@@ -86,19 +86,8 @@ public class FilePreviewer extends BaseController {
 
         // v4.0 兼容
         if (!OnlyOffice.isUseOoPreview()) {
-            String fileUrl = src;
-            if (!CommonsUtils.isExternalUrl(fileUrl)) {
-                boolean temp = fileUrl.startsWith("/temp/");
-                boolean data = fileUrl.startsWith("/data/");
-                if (temp || data) fileUrl = fileUrl.substring(6);
-
-                fileUrl = String.format("/filex/download/%s?temp=%s&data=%s&_onceToken=%s",
-                        fileUrl, temp, data, AuthTokenManager.generateOnceToken(null));
-                fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
-            }
-
             String previewUrl = OnlyOffice.getBestPreviewUrl();
-            previewUrl += CodecUtils.urlEncode(fileUrl);
+            previewUrl += CodecUtils.urlEncode(getFileFullUrl(src));
             response.sendRedirect(previewUrl);
             return null;
         }
@@ -168,7 +157,8 @@ public class FilePreviewer extends BaseController {
     @PostMapping("/commons/file-editor-save")
     public void ooEditorSaveCallback(HttpServletRequest request, HttpServletResponse response) {
         final JSONObject status = (JSONObject) ServletUtils.getRequestJson(request);
-        if (CommonsUtils.DEVLOG) System.out.println("[dev] oo-callback : " + request.getQueryString() + "\n" + JSONUtils.prettyPrint(status));
+        if (CommonsUtils.DEVLOG)
+            System.out.println("[dev] oo-callback : " + request.getQueryString() + "\n" + JSONUtils.prettyPrint(status));
 
         // saving
         int statusVal = status.getIntValue("status");
@@ -239,7 +229,7 @@ public class FilePreviewer extends BaseController {
      * @param id
      * @param users
      */
-    static void saveFileById(String fileKey, String id, JSONArray users) {
+    private void saveFileById(String fileKey, String id, JSONArray users) {
         if (!ID.isId(id)) return;
 
         ID user = UserService.SYSTEM_USER;
@@ -275,7 +265,7 @@ public class FilePreviewer extends BaseController {
      * @param user
      * @return
      */
-    static String getFileById(ID id, ID user) {
+    private String getFileById(ID id, ID user) {
         Object[] e = null;
         // 报表
         if (id.getEntityCode() == EntityHelper.DataReportConfig) {
@@ -291,5 +281,35 @@ public class FilePreviewer extends BaseController {
 
         RbAssert.is(e != null && e[0] != null, "FILE NOT FOUND:" + id);
         return (String) e[0];
+    }
+
+    @GetMapping("/commons/pdf-preview")
+    public ModelAndView pdfPreview(HttpServletRequest request) {
+        String fileUrl = getParameterNotNull(request, "src");
+        fileUrl = getFileFullUrl(fileUrl);
+
+        ModelAndView mv = createModelAndView("/common/pdf-preview");
+        mv.getModel().put("fileUrl", fileUrl);
+        mv.getModel().put("_embedpdfUrl", AppUtils.getContextPath("/assets/lib/embedpdf/embedpdf.js?v=2.2.0"));
+        mv.getModel().put("_locale", AppUtils.getReuqestLocale(request).replace("_", "-"));
+        return mv;
+    }
+
+    /**
+     * @param src
+     * @return
+     */
+    protected String getFileFullUrl(final String src) {
+        if (CommonsUtils.isExternalUrl(src)) return src;
+
+        String fileUrl = src;
+        boolean temp = fileUrl.startsWith("/temp/");
+        boolean data = fileUrl.startsWith("/data/");
+        if (temp || data) fileUrl = fileUrl.substring(6);
+
+        fileUrl = String.format("/filex/download/%s?temp=%s&data=%s&_csrfToken=%s",
+                fileUrl, temp, data, AuthTokenManager.generateCsrfToken(60 * 5));
+        fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
+        return fileUrl;
     }
 }

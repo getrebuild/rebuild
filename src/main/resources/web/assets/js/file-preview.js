@@ -224,16 +224,7 @@ class RbPreview extends React.Component {
         previewUrl += $encode(url)
 
         if (isPdfType && !previewUrl.includes('/commons/file-preview?src=')) {
-          if ($.browser.mobile) {
-            previewUrl = `${rb.baseUrl}/assets/lib/pdfjs/web/viewer.html?src=${$encode(url)}`
-          } else {
-            if (fullUrl) {
-              previewUrl = url
-            } else {
-              // 本地加载PDF
-              previewUrl = `${rb.baseUrl}/filex/` + url.split('/filex/')[1]
-            }
-          }
+          previewUrl = `${rb.baseUrl}/commons/pdf-preview?src=${$encode(url)}`
         }
         that.setState({ previewUrl: previewUrl, errorMsg: null })
       }
