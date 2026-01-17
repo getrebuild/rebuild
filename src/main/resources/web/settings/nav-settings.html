@@ -79,6 +79,13 @@
       .J_edit-menu.hide + .J_edit-tips {
         display: block;
       }
+      .J_bind-filter > span {
+        display: none;
+        margin-left: 4px;
+      }
+      .J_bind-filter[data-filter]:not([data-filter='']) > span {
+        display: inline-block;
+      }
     </style>
   </head>
   <body class="dialog">
@@ -115,6 +122,9 @@
                       <option value="$PARENT$" data-icon="menu">[[${bundle.L('父级菜单')}]]</option>
                     </optgroup>
                   </select>
+                  <div class="form-text">
+                    <a class="btn btn-link btn-sm J_bind-filter pl-0"><i class="icon mdi mdi-filter"></i> [[${bundle.L('绑定常用查询')}]]<span> ([[${bundle.L('已绑定')}]])</span></a>
+                  </div>
                 </div>
                 <div class="tab-pane" id="URL">
                   <input type="text" class="form-control form-control-sm J_menuUrl" th:placeholder="${bundle.L('输入外部地址')}" maxlength="600" />

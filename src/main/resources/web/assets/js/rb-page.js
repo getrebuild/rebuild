@@ -476,6 +476,22 @@ var _initNav = function () {
       if (!$(this).next().find('>a')[0]) $(this).remove()
     })
   }
+
+  // v4.3 Filter badge
+  $('.sidebar-elements span[data-filter]').each(function () {
+    var $this = $(this)
+    var filterId = $this.data('filter')
+    $.get('/app/entity/filter-badge?filter=' + filterId, function (res) {
+      if (res.data > 0) {
+        $this.text(res.data)
+
+        // Click to storage
+        $this.parents('a').on('click', function () {
+          $storage.set('AdvFilter-' + $(this).parent().data('entity'), filterId)
+        })
+      }
+    })
+  })
 }
 var _checkMessage__state = 0
 // 检查新消息

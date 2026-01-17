@@ -4930,6 +4930,7 @@ pre.unstyle {
   position: absolute;
   content: '\F0339';
   right: 12px;
+  right: 21px;
   margin-top: 12px;
   font: normal normal normal 14px/1 'Material Design Icons';
   color: #aaa;
@@ -6462,4 +6463,21 @@ div.formula-code {
 
 .modal-dialog > .modal-content {
   border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.rb-left-sidebar .sidebar-elements a > span.badge,
+.rb-left-sidebar .sidebar-elements > li ul li > a > span.badge {
+  float: right;
+  font-size: 0.8462rem;
+  margin: 0;
+  margin-top: 11px;
+  color: #fff !important;
+  background-color: var(--rb-theme-color);
+  line-height: 1.3;
+  padding: 0.07692rem 0.6154rem;
+  border-radius: 10rem;
+}
+
+.rb-left-sidebar .sidebar-elements > li ul li > a > span.badge {
+  margin-top: 2px;
 }
