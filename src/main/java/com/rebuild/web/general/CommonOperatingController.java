@@ -217,13 +217,7 @@ public class CommonOperatingController extends BaseController {
 
     @GetMapping("filter-badge")
     public RespBody filterBadge(HttpServletRequest request) {
-        ID user = getRequestUser(request);
         ID filterId = getIdParameterNotNull(request, "filter");
-        // 不可访问的不返回???
-        if (!AdvFilterManager.instance.isAccessible(filterId, user)) {
-            return RespBody.error("Unaccessible");
-        }
-
         ConfigBean cb;
         try {
             cb = AdvFilterManager.instance.getAdvFilter(filterId);

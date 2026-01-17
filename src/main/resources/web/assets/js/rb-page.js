@@ -481,16 +481,16 @@ var _initNav = function () {
   $('.sidebar-elements span[data-filter]').each(function () {
     var $this = $(this)
     var filterId = $this.data('filter')
-    $.get('/app/entity/filter-badge?filter=' + filterId, function (res) {
-      if (res.data > 0) {
-        $this.text(res.data)
-
-        // Click to storage
-        $this.parents('a').on('click', function () {
-          $storage.set('AdvFilter-' + $(this).parent().data('entity'), filterId)
-        })
-      }
+    // Click to storage
+    $this.parents('a').on('click', function () {
+      $storage.set('AdvFilter-' + $(this).parent().data('entity'), filterId)
     })
+
+    if (!$this.hasClass('hide')) {
+      $.get('/app/entity/filter-badge?filter=' + filterId, function (res) {
+        if (res.data > 0) $this.text(res.data)
+      })
+    }
   })
 }
 var _checkMessage__state = 0
