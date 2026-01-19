@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Map;
@@ -22,10 +23,10 @@ import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -58,7 +59,13 @@ public class TaskExecutors extends DistributedJobLock {
             new LinkedBlockingQueue<>());
 
     // 延迟执行
-    private static final ScheduledExecutorService SCHEDULED41 = Executors.newScheduledThreadPool(MAX_TASKS_NUMBER);
+    private static final ScheduledThreadPoolExecutor SCHEDULED41;
+    private final static ConcurrentHashMap<String, ScheduledFuture<?>> SCHEDULED41_FUTURES43;
+    static {
+        SCHEDULED41 = new ScheduledThreadPoolExecutor(TaskExecutors.MAX_TASKS_NUMBER);
+        SCHEDULED41.setRemoveOnCancelPolicy(true);
+        SCHEDULED41_FUTURES43 = new ConcurrentHashMap<>();
+    }
 
     /**
      * 异步执行（提交给任务调度）
@@ -157,6 +164,30 @@ public class TaskExecutors extends DistributedJobLock {
      */
     public static void schedule(Runnable command, int delay) {
         SCHEDULED41.schedule(command, delay, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * 延迟执行
+     *
+     * @param command
+     * @param delay in ms
+     * @param cancelName
+     * @see com.rebuild.core.service.TransactionManual#registerAfterCommit(Runnable)
+     */
+    public static void schedule(Runnable command, int delay, String cancelName) {
+        Assert.notNull(cancelName, "[cancelName] must not be null");
+
+        SCHEDULED41_FUTURES43.compute(cancelName, (key, oldFuture) -> {
+            if (oldFuture != null) oldFuture.cancel(false);
+            Runnable wrapped = () -> {
+                try {
+                    command.run();
+                } finally {
+                    SCHEDULED41_FUTURES43.remove(key);
+                }
+            };
+            return SCHEDULED41.schedule(wrapped, delay, TimeUnit.MILLISECONDS);
+        });
     }
 
     /**
