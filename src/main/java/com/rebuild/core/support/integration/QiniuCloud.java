@@ -37,6 +37,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Calendar;
@@ -517,6 +518,7 @@ public class QiniuCloud {
      */
     public static String uploadFile(File file, String fileName) throws IOException {
         if (fileName == null) fileName = file.getName();
+        if (!file.exists()) throw new FileNotFoundException(file.getAbsolutePath());
 
         String fileKey;
         if (QiniuCloud.instance().available()) {
