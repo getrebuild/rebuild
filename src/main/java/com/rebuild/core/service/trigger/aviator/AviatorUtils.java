@@ -32,6 +32,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.state.StateHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
@@ -214,6 +215,7 @@ public class AviatorUtils {
      * @return
      */
     public static ID toIdValue(Object o) {
+        if (isNull(o)) return null;
         if (o instanceof ID) return (ID) o;
 
         String o2str = o.toString().trim();
@@ -229,8 +231,26 @@ public class AviatorUtils {
      * @return
      */
     public static String toStringValue(Object o) {
-        if (o == null) return null;
+        if (isNull(o)) return null;
         return o.toString();
+    }
+
+    /**
+     * @param o
+     * @return
+     */
+    public static boolean toBooleanValue(Object o) {
+        if (isNull(o)) return false;
+        if (o instanceof Boolean) return (Boolean) o;
+        return BooleanUtils.toBoolean(o.toString());
+    }
+
+    /**
+     * @param o
+     * @return
+     */
+    public static boolean isNull(Object o) {
+        return o == null || o == AviatorNil.NIL || o instanceof AviatorNil;
     }
 
     /**
@@ -296,4 +316,6 @@ public class AviatorUtils {
 
         return value;
     }
+
+
 }
