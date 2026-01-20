@@ -218,23 +218,24 @@ class RbPreview extends React.Component {
     const fileName = $fileCutName(currentUrl)
     if (this._isDoc(fileName)) {
       const isPdfType = fileName.toLowerCase().endsWith('.pdf')
-      const setPreviewUrl = function (url, fullUrl) {
+      const setPreviewUrl = function (url) {
         let previewUrl = rb._officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src='
-        if (previewUrl.includes('/commons/file-preview?src=')) previewUrl = rb.baseUrl + previewUrl
-        previewUrl += $encode(url)
-
-        if (isPdfType && !previewUrl.includes('/commons/file-preview?src=')) {
+        // v4.3 PDF专用
+        if (isPdfType) {
           previewUrl = `${rb.baseUrl}/commons/pdf-preview?src=${$encode(url)}`
+        } else {
+          if (previewUrl.includes('/commons/file-preview?src=')) previewUrl = rb.baseUrl + previewUrl
+          previewUrl += $encode(url)
         }
         that.setState({ previewUrl: previewUrl, errorMsg: null })
       }
 
       if ($isFullUrl(currentUrl)) {
-        setPreviewUrl(currentUrl, true)
+        setPreviewUrl(currentUrl)
       } else {
         $.get(`/filex/make-url?url=${currentUrl}`, (res) => {
           if (res.error_code > 0) this.setState({ errorMsg: res.error_msg })
-          else setPreviewUrl(res.data.publicUrl, $isFullUrl(res.data.publicUrl))
+          else setPreviewUrl(res.data.publicUrl)
         })
       }
     } else if (this._isText(fileName)) {
