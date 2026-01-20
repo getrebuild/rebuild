@@ -25,6 +25,7 @@ import com.googlecode.aviator.runtime.type.AviatorFunction;
 import com.googlecode.aviator.runtime.type.AviatorNil;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 import com.googlecode.aviator.runtime.type.Sequence;
+import com.googlecode.aviator.utils.Env;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
@@ -37,11 +38,13 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -122,7 +125,7 @@ public class AviatorUtils {
      *
      * @param expression
      * @param env
-     * @param quietly true 表示不抛出异常
+     * @param quietly    true 表示不抛出异常
      * @return
      */
     public static Object eval(String expression, Map<String, Object> env, boolean quietly) {
@@ -218,8 +221,7 @@ public class AviatorUtils {
         if (isNull(o)) return null;
         if (o instanceof ID) return (ID) o;
 
-        String o2str = o.toString().trim();
-        if (o2str.isEmpty()) return null;
+        String o2str = toStringValue(o);
         if (ID.isId(o2str)) return ID.valueOf(o2str);
 
         log.warn("Bad id string : {}", o);
@@ -230,8 +232,42 @@ public class AviatorUtils {
      * @param o
      * @return
      */
+    public static ID[] toIdArray(Object o) {
+        if (o == null) return new ID[0];
+        if (o instanceof ID) return new ID[]{(ID) o};
+        if (o instanceof ID[]) return (ID[]) o;
+
+        List<ID> list = new ArrayList<>();
+
+        if (o instanceof Collection || o instanceof Iterator) {
+            for (Iterator<?> iter = toIterator(o); iter.hasNext(); ) {
+                ID idValue = toIdValue(iter.next());
+                if (idValue != null) list.add(idValue);
+            }
+            return list.toArray(new ID[0]);
+        }
+
+        // string?
+        if (!(o instanceof Object[])) o = o.toString().split(",");
+
+        Object[] idArray = (Object[]) o;
+        for (Object item : idArray) {
+            ID idValue = toIdValue(item);
+            if (idValue != null) list.add(idValue);
+        }
+        return list.toArray(new ID[0]);
+    }
+
+    /**
+     * @param o
+     * @return
+     */
     public static String toStringValue(Object o) {
         if (isNull(o)) return null;
+        if (o instanceof AviatorObject) {
+            o = ((AviatorObject) o).getValue(Env.EMPTY_ENV);
+            if (isNull(o)) return null;
+        }
         return o.toString();
     }
 
