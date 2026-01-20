@@ -65,10 +65,10 @@ public class RecycleRestore {
     /**
      * 恢复数据
      *
-     * @param cascade 恢复关联删除的数据
+     * @param cascadeRestore 恢复关联删除的数据
      * @return
      */
-    public int restore(boolean cascade) {
+    public int restore(boolean cascadeRestore) {
         Object[] main = Application.createQueryNoFilter(
                 "select recordContent,recordId,recycleId from RecycleBin where recycleId = ?")
                 .setParameter(1, this.recycleId)
@@ -89,7 +89,7 @@ public class RecycleRestore {
         }
         recycleIds.add((ID) main[2]);
 
-        if (cascade) {
+        if (cascadeRestore) {
             Object[][] array = Application.createQueryNoFilter(
                     "select recordContent,recordId,recycleId from RecycleBin where channelWith = ?")
                     .setParameter(1, main[1])
@@ -119,10 +119,12 @@ public class RecycleRestore {
                     Record d = EntityHelper.forUpdate(primaryId, UserService.SYSTEM_USER, false);
                     d.setBoolean(EntityHelper.IsDeleted, false);
                     PM.update(d);
+                    r = d;
 
                 } else {
+                    // 恢复记录
                     PM.saveInternal(r, primaryId);
-
+                    // 恢复记录的附件
                     restoreAttachment(PM, primaryId);
                     if (entityCode == EntityHelper.Feeds) restoreFeedsMention(r);
                 }

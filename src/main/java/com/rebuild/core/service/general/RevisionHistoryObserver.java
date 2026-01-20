@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
@@ -23,6 +24,7 @@ import com.rebuild.core.service.trigger.TriggerSource;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * 记录变更历史
@@ -103,7 +105,8 @@ public class RevisionHistoryObserver extends OperatingObserver {
 
     private Record newRevision(OperatingContext context, boolean mergeChange) {
         ID recordId = context.getAnyRecord().getPrimary();
-        Record record = EntityHelper.forNew(EntityHelper.RevisionHistory, UserService.SYSTEM_USER);
+        Record record = EntityHelper.forNew(EntityHelper.RevisionHistory,
+                ObjectUtils.getIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER));
         record.setString("belongEntity", MetadataHelper.getEntityName(recordId));
         record.setID("recordId", recordId);
         record.setInt("revisionType", context.getAction().getMask());
