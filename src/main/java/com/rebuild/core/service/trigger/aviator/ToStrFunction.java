@@ -11,6 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import com.alibaba.fastjson.JSON;
 import com.googlecode.aviator.runtime.function.AbstractFunction;
 import com.googlecode.aviator.runtime.type.AviatorObject;
+import com.googlecode.aviator.utils.Env;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
@@ -54,6 +55,10 @@ public class ToStrFunction extends AbstractFunction {
                 s.add(toStringValue(item));
             }
             return JSON.toJSONString(s);
+        } else if (o instanceof AviatorObject) {
+            o = ((AviatorObject) o).getValue(Env.EMPTY_ENV);
+            if (o == null) return null;
+            return toStringValue(o);
         }
         return AviatorUtils.toStringValue(o);
     }
