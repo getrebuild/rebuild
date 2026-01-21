@@ -39,18 +39,18 @@ public class AttachmentFolderService extends InternalPersistService {
     @Override
     public int delete(ID recordId) {
         Object inFolder = Application.createQueryNoFilter(
-                "select inFolder from Attachment where inFolder = ?")
+                "select inFolder from Attachment where inFolder = ? and isDeleted = 'F'")
                 .setParameter(1, recordId)
                 .unique();
         if (inFolder != null) {
             throw new DataSpecificationException(Language.L("目录内有文件不能删除"));
         }
 
-        Object parent = Application.createQueryNoFilter(
+        Object isParent = Application.createQueryNoFilter(
                 "select parent from AttachmentFolder where parent = ?")
                 .setParameter(1, recordId)
                 .unique();
-        if (parent != null) {
+        if (isParent != null) {
             throw new DataSpecificationException(Language.L("目录下有子目录不能删除"));
         }
 
@@ -60,7 +60,7 @@ public class AttachmentFolderService extends InternalPersistService {
                     "select createdBy from AttachmentFolder where folderId = ?")
                     .setParameter(1, recordId)
                     .unique();
-            if (!user.equals(createdBy[0])) {
+            if (createdBy != null && !user.equals(createdBy[0])) {
                 throw new DataSpecificationException(Language.L("无权删除他人目录"));
             }
         }

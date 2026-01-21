@@ -284,13 +284,20 @@ public class FileDownloader extends BaseController {
         return "rb".equalsIgnoreCase(check);
     }
 
+    /**
+     * 安全路径检查
+     *
+     * @param filepath
+     * @return
+     */
     private static String checkSafeFilePath(String filepath) {
         filepath = CodecUtils.urlDecode(filepath);
         filepath = filepath.replace("\\", "/");
 
         CommonsUtils.checkSafeFilePath(filepath);
         if (filepath.startsWith("_log/") || filepath.contains("/_log/")
-                || filepath.startsWith("_backups/") || filepath.contains("/_backups/")) {
+                || filepath.startsWith("_backups/") || filepath.contains("/_backups/")
+                || filepath.startsWith(".")) {
             throw new SecurityException("Attack path detected : " + CommonsUtils.escapeHtml(filepath));
         }
         return filepath;
