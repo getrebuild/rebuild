@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 /**
  * 自定义操作按钮
@@ -112,6 +113,46 @@ public class EasyActionManager extends BaseLayoutManager {
         Object config = QueryHelper.queryFieldValue(layoutId, "config");
         JSONObject configJson = JSON.parseObject((String) config);
         if (MapUtils.isEmpty(configJson)) return;
+     * @param entity
+     * @param eeid
+     * @return
+     */
+    public JSONObject findActionByEeid(String entity, String eeid) {
+        ConfigBean cb = getLayout(UserService.SYSTEM_USER, entity, TYPE_EASYACTION, null);
+        if (cb == null || eeid == null) return null;
+
+        JSONObject conf = (JSONObject) cb.getJSON("config");
+        JSONObject action = findActionByEeid(conf.getJSONArray("datalist"), eeid);
+        if (action == null) action = findActionByEeid(conf.getJSONArray("datarow"), eeid);
+        if (action == null) action = findActionByEeid(conf.getJSONArray("view"), eeid);
+        return action;
+    }
+
+    private JSONObject findActionByEeid(JSONArray typeItems, String eeid) {
+        if (typeItems == null) return null;
+        for (Object o : typeItems) {
+            JSONObject item = (JSONObject) o;
+            if (eeid.equals(item.getString("id"))) {
+                return item;
+            }
+
+            // fix:4.1.5 二级菜单
+            JSONArray itemsL2 = item.getJSONArray("items");
+            if (CollectionUtils.isNotEmpty(itemsL2)) {
+                for (Object o2 : itemsL2) {
+                    JSONObject itemL2 = (JSONObject) o2;
+                    if (eeid.equals(itemL2.getString("id"))) {
+                        return itemL2;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void clean(Object layoutId) {
+        super.clean(layoutId);
 
         boolean es5Changed = false;
         for (String type : configJson.keySet()) {

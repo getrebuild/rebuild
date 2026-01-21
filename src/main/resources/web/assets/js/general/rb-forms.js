@@ -555,7 +555,7 @@ class RbForm extends React.Component {
                       const mainid = this.state.id || '000-0000000000000000'
                       renderRbcomp(
                         // eslint-disable-next-line react/jsx-no-undef
-                        <ExcelClipboardDataModal entity={detailMeta.entity} fields={fields} mainid={mainid} layoutId={_ProTable.getLayoutId()} onConfirm={(data) => _setLines(data)} />
+                        <ExcelClipboardDataModal entity={detailMeta.entity} fields={fields} mainid={mainid} layoutId={_ProTable.getLayoutId()} onConfirm={(data) => _setLines(data)} />,
                       )
                     }}>
                     {$L('从 Excel 添加')} <sup className="rbv" />
@@ -585,7 +585,7 @@ class RbForm extends React.Component {
         moreActions.push(
           <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_NEWDETAIL)}>
             {$L('保存并添加')}
-          </a>
+          </a>,
         )
       }
     } else {
@@ -595,18 +595,18 @@ class RbForm extends React.Component {
           moreActions.push(
             <a key="Action103" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_SUBMIT37)}>
               {$L('保存并提交')}
-            </a>
+            </a>,
           )
         }
         moreActions.push(
           <a key="Action105" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADD36)}>
             {$L('保存并新建')}
-          </a>
+          </a>,
         )
         moreActions.push(
           <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_VIEW)}>
             {$L('保存并打开')}
-          </a>
+          </a>,
         )
       }
     }
@@ -1285,7 +1285,7 @@ class RbFormText extends RbFormElement {
               )
             })}
           </div>
-        </div>
+        </div>,
       )
 
       // fix:4.1-b5 禁用时不触发
@@ -1612,7 +1612,7 @@ class RbFormNText extends RbFormElement {
                 )
               })}
             </div>
-          </div>
+          </div>,
         )
       }
     }
@@ -1680,7 +1680,7 @@ class RbFormNText extends RbFormElement {
             this.setState({ value: mde.value() }, () => this.checkValue())
           },
           200,
-          'mde-update-event'
+          'mde-update-event',
         )
       })
       mde.codemirror.on('paste', (_mde, e) => {
@@ -1749,10 +1749,14 @@ class RbFormDateTime extends RbFormElement {
       const format = (this.props.datetimeFormat || this.props.dateFormat).replace(' (E)', '').replace('mm', 'ii').toLowerCase()
       let minView = 0
       let startView = 'month'
-      if (format.length === 4 || format.length === 5) minView = startView = 'decade' // 年
-      else if (format.length === 7 || format.length === 8) minView = startView = 'year' // 年-月
-      else if (format.length === 10 || format.length === 11) minView = 'month' // 年-月-日
-      else if (format.length === 13 || format.length === 14) minView = 'day' // 年-月-日 时
+      // 年
+      if (format.length === 4 || format.length === 5) minView = startView = 'decade'
+      // 年-月
+      else if (format.length === 7 || format.length === 8) minView = startView = 'year'
+      // 年-月-日
+      else if (format.length === 10 || format.length === 11) minView = 'month'
+      // 年-月-日 时
+      else if (format.length === 13 || format.length === 14) minView = 'day'
 
       const that = this
       this.__datetimepicker = $(this._fieldValue)
@@ -1959,7 +1963,7 @@ class RbFormImage extends RbFormElement {
               this.handleChange({ target: { value: paths } }, true)
             }
           }}
-        />
+        />,
       )
     }
     // else: this._captureType=1
@@ -3000,7 +3004,7 @@ class RbFormClassification extends RbFormElement {
         <ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} onSelect={(s) => this._setClassificationValue(s)} keepModalOpen />,
         function () {
           that.__selector = this
-        }
+        },
       )
     }
   }
@@ -3225,7 +3229,7 @@ class RbFormBarcode extends RbFormElement {
               </div>,
               {
                 type: 'clear',
-              }
+              },
             )
           }}>
           <img src={codeUrl} alt={this.state.value} />
@@ -3303,7 +3307,7 @@ class RbFormAvatar extends RbFormElement {
           mp_end()
           this.handleChange({ target: { value: res.key } }, true)
         },
-        () => mp_end()
+        () => mp_end(),
       )
     }
   }
@@ -3415,7 +3419,7 @@ class RbFormLocation extends RbFormElement {
         null,
         function () {
           that._BaiduMapModal = this
-        }
+        },
       )
     }
   }
