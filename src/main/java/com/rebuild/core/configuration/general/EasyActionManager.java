@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.collections4.CollectionUtils;
 
 /**
  * 自定义操作按钮
@@ -38,7 +37,8 @@ public class EasyActionManager extends BaseLayoutManager {
     private static final String TYPE_DATAROW = "datarow";
     private static final String TYPE_VIEW = "view";
 
-    private EasyActionManager() {}
+    private EasyActionManager() {
+    }
 
     /**
      * @param entity
@@ -104,15 +104,6 @@ public class EasyActionManager extends BaseLayoutManager {
     }
 
     /**
-     * JS 支持 ES6 > ES5
-     *
-     * @param layoutId
-     * @throws Exception
-     */
-    public void es5(ID layoutId) throws Exception {
-        Object config = QueryHelper.queryFieldValue(layoutId, "config");
-        JSONObject configJson = JSON.parseObject((String) config);
-        if (MapUtils.isEmpty(configJson)) return;
      * @param entity
      * @param eeid
      * @return
@@ -122,25 +113,24 @@ public class EasyActionManager extends BaseLayoutManager {
         if (cb == null || eeid == null) return null;
 
         JSONObject conf = (JSONObject) cb.getJSON("config");
-        JSONObject action = findActionByEeid(conf.getJSONArray("datalist"), eeid);
-        if (action == null) action = findActionByEeid(conf.getJSONArray("datarow"), eeid);
-        if (action == null) action = findActionByEeid(conf.getJSONArray("view"), eeid);
+        JSONObject action = findActionByEeid(conf.getJSONArray(TYPE_DATALIST), eeid);
+        if (action == null) action = findActionByEeid(conf.getJSONArray(TYPE_DATAROW), eeid);
+        if (action == null) action = findActionByEeid(conf.getJSONArray(TYPE_VIEW), eeid);
         return action;
     }
 
     private JSONObject findActionByEeid(JSONArray typeItems, String eeid) {
         if (typeItems == null) return null;
+
         for (Object o : typeItems) {
             JSONObject item = (JSONObject) o;
-            if (eeid.equals(item.getString("id"))) {
-                return item;
-            }
+            if (eeid.equals(item.getString("id"))) return item;
 
             // fix:4.1.5 二级菜单
             JSONArray itemsL2 = item.getJSONArray("items");
             if (CollectionUtils.isNotEmpty(itemsL2)) {
-                for (Object o2 : itemsL2) {
-                    JSONObject itemL2 = (JSONObject) o2;
+                for (Object oL2 : itemsL2) {
+                    JSONObject itemL2 = (JSONObject) oL2;
                     if (eeid.equals(itemL2.getString("id"))) {
                         return itemL2;
                     }
@@ -150,9 +140,16 @@ public class EasyActionManager extends BaseLayoutManager {
         return null;
     }
 
-    @Override
-    public void clean(Object layoutId) {
-        super.clean(layoutId);
+    /**
+     * JS 支持 ES6 > ES5
+     *
+     * @param layoutId
+     * @throws Exception
+     */
+    public void es5(ID layoutId) throws Exception {
+        Object config = QueryHelper.queryFieldValue(layoutId, "config");
+        JSONObject configJson = JSON.parseObject((String) config);
+        if (MapUtils.isEmpty(configJson)) return;
 
         boolean es5Changed = false;
         for (String type : configJson.keySet()) {
@@ -188,5 +185,10 @@ public class EasyActionManager extends BaseLayoutManager {
             super.clean(layoutId);
             log.info("EasyActionManager es5 finished : {}", layoutId);
         }
+    }
+
+    @Override
+    public void clean(Object layoutId) {
+        super.clean(layoutId);
     }
 }
