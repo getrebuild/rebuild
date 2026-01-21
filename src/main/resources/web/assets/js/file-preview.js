@@ -217,14 +217,14 @@ class RbPreview extends React.Component {
     const currentUrl = this.props.urls[this.state.currentIndex]
     const fileName = $fileCutName(currentUrl)
     if (this._isDoc(fileName)) {
-      const isPdfType = fileName.toLowerCase().endsWith('.pdf')
       const setPreviewUrl = function (url) {
         let previewUrl = rb._officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src='
+        let isOoPreview = previewUrl.includes('/commons/file-preview?src=')
         // v4.3 PDF专用
-        if (isPdfType) {
+        if (fileName.toLowerCase().endsWith('.pdf') && !isOoPreview) {
           previewUrl = `${rb.baseUrl}/commons/pdf-preview?src=${$encode(url)}`
         } else {
-          if (previewUrl.includes('/commons/file-preview?src=')) previewUrl = rb.baseUrl + previewUrl
+          if (isOoPreview) previewUrl = rb.baseUrl + previewUrl
           previewUrl += $encode(url)
         }
         that.setState({ previewUrl: previewUrl, errorMsg: null })
