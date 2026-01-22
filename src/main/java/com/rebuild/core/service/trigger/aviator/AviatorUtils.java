@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
+import com.alibaba.fastjson.JSON;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Options;
@@ -21,10 +22,14 @@ import com.googlecode.aviator.exception.StandardError;
 import com.googlecode.aviator.lexer.token.OperatorType;
 import com.googlecode.aviator.runtime.function.FunctionUtils;
 import com.googlecode.aviator.runtime.function.system.AssertFunction;
+import com.googlecode.aviator.runtime.type.AviatorBigInt;
 import com.googlecode.aviator.runtime.type.AviatorFunction;
 import com.googlecode.aviator.runtime.type.AviatorNil;
 import com.googlecode.aviator.runtime.type.AviatorObject;
+import com.googlecode.aviator.runtime.type.AviatorRuntimeJavaType;
+import com.googlecode.aviator.runtime.type.AviatorString;
 import com.googlecode.aviator.runtime.type.Sequence;
+import com.googlecode.aviator.runtime.type.seq.ArraySequence;
 import com.googlecode.aviator.utils.Env;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -197,6 +202,7 @@ public class AviatorUtils {
     public static Iterator<Object> toIterator(Object value) {
         if (value instanceof Collection) return ((Collection<Object>) value).iterator();
         if (value instanceof Sequence) return ((Sequence<Object>) value).iterator();
+        if (value instanceof Iterator) return (Iterator<Object>) value;
         throw new UnsupportedOperationException("Unsupport type : " + value);
     }
 
@@ -207,9 +213,21 @@ public class AviatorUtils {
      */
     public static AviatorObject wrapReturn(final Object ret) {
         if (ret == null) return AviatorNil.NIL;
+        if (ret instanceof AviatorObject) return (AviatorObject) ret;
         if (ret instanceof Date) return new AviatorDate((Date) ret);
         if (ret instanceof LocalTime) return new AviatorTime((LocalTime) ret);
         if (ret instanceof ID) return new AviatorId((ID) ret);
+        if (ret instanceof Number) return AviatorBigInt.valueOf(ret);
+        if (ret instanceof String) return new AviatorString(ret.toString());
+
+        if (ret instanceof Object[]) {
+            Sequence<?> seq = new ArraySequence(ret);
+            return AviatorRuntimeJavaType.valueOf(seq);
+        }
+        if (ret instanceof JSON) {
+            return AviatorRuntimeJavaType.valueOf(ret);
+        }
+
         return FunctionUtils.wrapReturn(ret);
     }
 
@@ -239,7 +257,7 @@ public class AviatorUtils {
 
         List<ID> list = new ArrayList<>();
 
-        if (o instanceof Collection || o instanceof Iterator) {
+        if (o instanceof Iterable) {
             for (Iterator<?> iter = toIterator(o); iter.hasNext(); ) {
                 ID idValue = toIdValue(iter.next());
                 if (idValue != null) list.add(idValue);
