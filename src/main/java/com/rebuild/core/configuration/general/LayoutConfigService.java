@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.support.task.TaskExecutors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +45,7 @@ public class LayoutConfigService extends BaseConfigurationService {
             // NOTE 异步执行
             ThreadPool.exec(() -> {
                 try {
-                    EasyActionManager.instance.es5(cfgid);
+                    EasyActionManager.instance.es5IfNeed(cfgid);
                 } catch (Exception e) {
                     log.error("EasyActionManager ES5 error : {}", cfgid, e);
                 }

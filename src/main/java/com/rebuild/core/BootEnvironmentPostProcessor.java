@@ -134,8 +134,6 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
         ENV_HOLD = env;
 
         log.info("Use REBUILD data directory : {}", RebuildConfiguration.getFileOfData("/"));
-        // v4.3
-        System.setProperty("java.io.tmpdir", RebuildConfiguration.getFileOfTemp("/").getAbsolutePath());
     }
 
     /**

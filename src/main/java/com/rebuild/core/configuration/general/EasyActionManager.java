@@ -146,7 +146,7 @@ public class EasyActionManager extends BaseLayoutManager {
      * @param layoutId
      * @throws Exception
      */
-    public void es5(ID layoutId) throws Exception {
+    public void es5IfNeed(ID layoutId) throws Exception {
         Object config = QueryHelper.queryFieldValue(layoutId, "config");
         JSONObject configJson = JSON.parseObject((String) config);
         if (MapUtils.isEmpty(configJson)) return;
