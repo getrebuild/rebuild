@@ -70,7 +70,7 @@ $(document).ready(() => {
         onConfirm={(v) => {
           $filter.attr({ 'data-filter': v.filter || '', 'data-filterBadge': v.filterBadge })
         }}
-      />
+      />,
     )
   })
 
@@ -463,7 +463,7 @@ class TopNavSettings extends Share2Switch {
                 axis: 'y',
               })
               .disableSelection()
-          }
+          },
         )
       })
     })
@@ -502,7 +502,7 @@ class BindFilterDlg extends Share2Switch {
     return (
       <div className="form">
         <div className="form-group mb-3">
-          <label className="text-bold">{$L('绑定常用查询')}</label>
+          <label className="text-bold">{$L('默认常用查询')}</label>
           <select className="form-control form-control-sm" name="filter" defaultValue={this.state.filter || undefined} ref={(c) => (this._$filter = c)}>
             {this.state.filterList &&
               this.state.filterList.map((item) => {

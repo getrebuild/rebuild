@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -122,8 +122,8 @@
                       <option value="$PARENT$" data-icon="menu">[[${bundle.L('父级菜单')}]]</option>
                     </optgroup>
                   </select>
-                  <div class="form-text">
-                    <a class="btn btn-link btn-sm J_bind-filter pl-0"><i class="icon mdi mdi-filter"></i> [[${bundle.L('绑定常用查询')}]]<span> ([[${bundle.L('已绑定')}]])</span></a>
+                  <div class="form-text bosskey-show--">
+                    <a class="btn btn-link btn-sm J_bind-filter pl-0"><i class="icon mdi mdi-filter"></i> [[${bundle.L('默认常用查询')}]]<span> ([[${bundle.L('已设置')}]])</span></a>
                   </div>
                 </div>
                 <div class="tab-pane" id="URL">
