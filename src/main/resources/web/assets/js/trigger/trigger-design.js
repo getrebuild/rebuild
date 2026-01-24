@@ -189,7 +189,8 @@ $(document).ready(() => {
     if (priority && !isNaN(priority)) data.priority = ~~priority
 
     $btn.button('loading')
-    $.post('/app/entity/common-save?b64=true', $base64Encode(data), (res) => {
+    const b64 = $base64Encode($base64Encode(data))
+    $.post('/app/entity/common-save?b64=2', b64, (res) => {
       if (res.error_code === 0) {
         let warns = []
         if (when <= 0) warns.push($L('无任何触发动作'))

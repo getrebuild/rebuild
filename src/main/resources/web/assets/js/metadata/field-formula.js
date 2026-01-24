@@ -7,7 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // 验证公式有效性
 function verifyFormula(formula, entity, onConfirm) {
-  $.post(`/admin/robot/trigger/verify-formula?b64=true&entity=${entity}`, $base64Encode(formula), (res) => {
+  const b64 = $base64Encode($base64Encode(formula))
+  $.post(`/admin/robot/trigger/verify-formula?b64=2&entity=${entity}`, b64, (res) => {
     if (res.error_code === 0) {
       onConfirm()
     } else {

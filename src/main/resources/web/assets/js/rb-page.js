@@ -219,7 +219,7 @@ $(function () {
         $addResizeHandler()()
       },
       120,
-      'resize-window'
+      'resize-window',
     )
   })
 
@@ -724,9 +724,7 @@ var _initGlobalCreate = function () {
   })
 }
 
-/**
- * 清理 dropdown 菜单
- */
+// 清理 dropdown 菜单
 var $cleanMenu = function (mbg) {
   var $mbg = $(mbg)
   var $mbgMenu = $mbg.find('.dropdown-menu')
@@ -746,9 +744,7 @@ var $cleanMenu = function (mbg) {
 }
 var $cleanDropdown = $cleanMenu
 
-/**
- * 点击 Dropdown-Menu 不隐藏
- */
+// 点击 dropdown-menu 不隐藏
 var $unhideDropdown = function (dp) {
   return $(dp).on({
     'hide.bs.dropdown': function (e) {
@@ -761,9 +757,7 @@ var $unhideDropdown = function (dp) {
   })
 }
 
-/**
- * 获取附件文件名
- */
+// 获取附件文件名
 var $fileCutName = function (fileName, clearExt) {
   fileName = fileName.split('?')[0]
   fileName = fileName.split('/')
@@ -774,9 +768,7 @@ var $fileCutName = function (fileName, clearExt) {
   return fileName
 }
 
-/**
- * 获取附件文件扩展名
- */
+// 获取附件文件扩展名
 var $fileExtName = function (fileName) {
   fileName = (fileName || '').toLowerCase()
   fileName = fileName.split('?')[0]
@@ -784,9 +776,7 @@ var $fileExtName = function (fileName) {
   return fileName.length < 2 ? '?' : fileName[fileName.length - 1]
 }
 
-/**
- * Uploader 组件（自动判断使用七牛或本地）
- */
+// Uploader 组件（自动判断使用七牛或本地）
 var $createUploader = function (input, next, complete, error) {
   var $file = $(input).off('change')
   var onlyImage = $file.attr('accept') === 'image/*' // 仅图片
@@ -921,7 +911,7 @@ var $multipleUploader = function (input, complete) {
       mp_end(res.file.name)
       complete(res)
     },
-    () => mp_end(0)
+    () => mp_end(0),
   )
 }
 
@@ -964,9 +954,7 @@ var $dropUpload = function (dropArea, pasteAreaOrCb, cb) {
   }
 }
 
-/**
- * 卸载 React 组件（顶级组件才能卸载）
- */
+// 卸载 React 组件（顶级组件才能卸载）
 var $unmount = function (container, delay, keepContainer, root18) {
   if (!container) return
   var $c = $(container)
@@ -978,9 +966,7 @@ var $unmount = function (container, delay, keepContainer, root18) {
   }, delay || 1000)
 }
 
-/**
- * 初始化引用字段（搜索）
- */
+// 初始化引用字段（搜索）
 var $initReferenceSelect2 = function (el, option) {
   var search_input = null
   var select2Option = {
@@ -1070,9 +1056,7 @@ var $select2MatcherAll = function (params, data) {
   return null
 }
 
-/**
- * 保持模态窗口（如果需要）
- */
+// 保持模态窗口（如果需要）
 var $keepModalOpen = function () {
   if ($('.rbmodal.show, .rbview.show').length > 0) {
     var $body = $(document.body)
@@ -1082,9 +1066,7 @@ var $keepModalOpen = function () {
   return false
 }
 
-/**
- * 禁用按钮 N 秒（用在一些危险操作上）
- */
+// 禁用按钮 N 秒（用在一些危险操作上）
 var $countdownButton = function (btn, seconds) {
   seconds = seconds || 5
   var text = btn.attr('disabled', true).text()
@@ -1099,9 +1081,7 @@ var $countdownButton = function (btn, seconds) {
   }, 1000)
 }
 
-/**
- * 加载状态条（单线程）
- */
+// 加载状态条（单线程）
 var $mp = {
   _timer: null,
   _mp: null,
@@ -1206,9 +1186,7 @@ var RBEMOJIS = {
   '干杯': 'rb_ganbei.png',
   '钱': 'rb_qian.png',
 }
-/**
- * 转换文字 emoji 为 img 标签
- */
+// 转换文字 emoji 为 img 标签
 var $converEmoji = function (text) {
   var es = text.match(/\[(.+?)\]/g)
   if (!es) return text
@@ -1222,9 +1200,7 @@ var $converEmoji = function (text) {
   return text
 }
 
-/**
- * Use momentjs
- */
+// Use momentjs
 var $moment = function (d) {
   if (!d || !window.moment) return null
 
@@ -1240,32 +1216,27 @@ var $moment = function (d) {
   }
   return moment(d)
 }
-/**
- * 是否过期
- */
+
+// 是否过期
 var $expired = function (date, offset) {
   var m = $moment(date)
   if (offset) m.add(offset, 's')
   return m.isBefore(moment())
 }
-/**
- * 友好时间显示
- */
+
+// 友好时间显示
 var $fromNow = function (date) {
   var m = $moment(date)
   return Math.abs(moment().diff(m)) < 6000 ? $L('刚刚') : m.fromNow()
 }
-/**
- * 友好时间显示
- */
+
+// 友好时间显示
 var $toNow = function (date) {
   var m = $moment(date)
   return Math.abs(moment().diff(m)) < 6000 ? $L('刚刚') : m.toNow()
 }
 
-/**
- * 获取语言（PH_KEY）
- */
+//  获取语言（PH_KEY）
 var $L = function () {
   var args = arguments
   var lang = _getLang(args[0])
@@ -1283,10 +1254,8 @@ var _getLang = function (key) {
   return lang
 }
 
-/**
- * 加载地图脚本
- * https://lbsyun.baidu.com/index.php?title=jspopularGL/guide/helloworld
- */
+// 加载地图脚本
+// https://lbsyun.baidu.com/index.php?title=jspopularGL/guide/helloworld
 var $useMap__Loaded
 var $useMap__Callbacks = []
 var $useMap = function (cb, v3) {
@@ -1496,7 +1465,7 @@ function $dropdownMenuSearch($dd) {
           })
         },
         200,
-        '$dropdownMenuSearch'
+        '$dropdownMenuSearch',
       )
     })
   // foucs

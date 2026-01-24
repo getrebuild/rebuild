@@ -54,23 +54,34 @@ public abstract class BaseController extends Controller {
 
     /**
      * @param request
+     * @param reqJson
      * @return
      */
-    protected Object getRequestBody(HttpServletRequest request, boolean retJson) {
+    protected Object getRequestBody(HttpServletRequest request, boolean reqJson) {
         String d = ServletUtils.getRequestString(request);
         if (StringUtils.isBlank(d)) return null;
 
-        if (getBoolParameter(request, "b64")) {
+        int b64 = getIntParameter(request, "b64");
+        if (b64 > 0) {
             byte[] bs = Base64.decodeBase64(d);
             d = new String(bs);
-        }
 
-        if (!retJson) return d;
+            // 2次编码
+            if (b64 > 1) {
+                bs = Base64.decodeBase64(d);
+                d = new String(bs);
+                // 3次编码
+                if (b64 > 2) {
+                    bs = Base64.decodeBase64(d);
+                    d = new String(bs);
+                }
+            }
+        }
+        if (!reqJson) return d;
 
         if (JSONUtils.wellFormat(d)) {
             return JSON.parse(d);
         }
-
         log.warn("Bad JSON format : {}", d);
         return null;
     }

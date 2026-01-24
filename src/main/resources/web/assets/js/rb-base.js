@@ -54,7 +54,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
     },
   })
 
-  // RB metas
+  // Metas for RB
   window.rb = window.rb || {}
   $('meta[name^="rb."]').each(function (idx, item) {
     var k = $(item).attr('name').substring(3) // remove `rb.`
@@ -193,9 +193,7 @@ window.datetimepicker_clearDate41 = function (i) {
 }
 
 var $setTimeout__timers = {}
-/**
- * 不会重复执行的 setTimeout
- */
+// 不会重复执行的 `setTimeout`
 var $setTimeout = function (e, t, id) {
   if (id && $setTimeout__timers[id]) {
     if (rb.env === 'dev') console.debug('Clear prev setTimeout : ' + id)
@@ -207,9 +205,7 @@ var $setTimeout = function (e, t, id) {
   return timer
 }
 
-/**
- * 获取 URL 参数
- */
+// 获取 URL 参数
 var $urlp = function (key, qstr) {
   qstr = qstr || window.location.search
   if (!qstr) return !key || key === '*' ? {} : null
@@ -224,9 +220,7 @@ var $urlp = function (key, qstr) {
   return !key || key === '*' ? map : map[key]
 }
 
-/**
- * 获取元素值。兼容旧值比较（根据 data-o 属性），如与旧值一致则返回 null
- */
+// 获取元素值。兼容旧值比较（根据 data-o 属性），如与旧值一致则返回 null
 var $val = function (el) {
   var $el = $(el)
   if ($el.length === 0) return null
@@ -257,9 +251,7 @@ var $val = function (el) {
   else return $trim(nVal) || null
 }
 
-/**
- * 清理 Map 中的无效值（null、undefined）
- */
+// 清理 Map 中的无效值（null、undefined）
 var $cleanMap = function (map) {
   var newMap = {}
   for (var k in map) {
@@ -269,25 +261,21 @@ var $cleanMap = function (map) {
   return newMap
 }
 
-/**
- * 清理数组
- */
-var $cleanArray = function (array, isunique) {
+// 清理数组
+var $cleanArray = function (array, needUnique) {
   if (!array) return []
   var newArray = []
   $(array).each(function (i, item) {
     var n = $trim(item)
     if (n) {
-      if (isunique) newArray.remove(n)
+      if (needUnique) newArray.remove(n)
       newArray.push(n)
     }
   })
   return newArray
 }
 
-/**
- * 清理数字中的符号
- */
+// 清理数字中的符号
 function $cleanNumber(n, forceNumber) {
   if (typeof n === 'number') return n
   var m = (n + '').match(/-?\d+(,\d+)*(.\d+)?/g)
@@ -298,18 +286,14 @@ function $cleanNumber(n, forceNumber) {
   return NaN
 }
 
-/**
- * 格式化数字
- */
+// 格式化数字
 function $formatNumber(n, scale) {
   let [i, d] = n.toFixed(scale).split('.')
   i = i.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
   return d ? `${i}.${d}` : i
 }
 
-/**
- * 常用正则
- */
+// 常用正则
 var $regex = {
   _Date: /^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}$/, // eg. 2010-01-01, 2010-1-9
   _Time: /^[0-9]{1,2}:[0-9]{1,2}(:[0-9]{1,2})?$/, // eg. 16:01:10, 10:1:9
@@ -351,24 +335,38 @@ var $regex = {
   },
 }
 
-/**
- * URL 编码
- */
+// URL 编码
 var $encode = function (s) {
   if (!s) return ''
   return encodeURIComponent(s)
 }
-/**
- * URL 解码
- */
+// URL 解码
 var $decode = function (s) {
   if (!s) return ''
   return decodeURIComponent(s)
 }
 
-/**
- * localStorage
- */
+// BASE64 解码
+var $base64Encode = function (s) {
+  if (typeof s !== 'string') s = JSON.stringify(s)
+  var bytes = new TextEncoder().encode(s)
+  var bin = ''
+  bytes.forEach(function (b) {
+    bin += String.fromCharCode(b)
+  })
+  return btoa(bin)
+}
+
+// BASE64 解码
+var $base64Decode = function (b64) {
+  var bin = atob(b64)
+  var bytes = Uint8Array.from(bin, function (c) {
+    return c.charCodeAt(0)
+  })
+  return new TextDecoder().decode(bytes)
+}
+
+// localStorage
 var $storage = {
   get: function (key) {
     if (window.localStorage) return localStorage.getItem(key)
@@ -384,9 +382,7 @@ var $storage = {
   },
 }
 
-/**
- * 随机数
- */
+// 随机数
 var $random = function (prefix, alphabetic, maxLength) {
   if (alphabetic) {
     maxLength = maxLength || 24
@@ -403,9 +399,7 @@ var $random = function (prefix, alphabetic, maxLength) {
   }
 }
 
-/**
- * 是否相同。兼容对象或数组
- */
+// 是否相同（兼容对象或数组）
 var $same = function (a, b) {
   if (Object.is(a, b)) return true
   if (a && b) {
@@ -426,9 +420,7 @@ var $same = function (a, b) {
 }
 var $is = $same
 
-/**
- * 值是否为空（兼容对象和数组）
- */
+// 值是否为空（兼容对象和数组）
 var $empty = function (a) {
   if (a === null || a === '' || typeof a === 'undefined') return true
   var aType = $type(a)
@@ -438,9 +430,7 @@ var $empty = function (a) {
   return $trim(a) === ''
 }
 
-/**
- * 停止事件传播
- */
+// 停止事件传播
 var $stopEvent = function (e, preventDefault) {
   if (e && e.stopPropagation) e.stopPropagation()
   if (e && e.nativeEvent) e.nativeEvent.stopImmediatePropagation()
@@ -448,16 +438,12 @@ var $stopEvent = function (e, preventDefault) {
   return false
 }
 
-/**
- * 是否为 true
- */
+// 是否为 `true`
 var $isTrue = function (a) {
   return a === true || a === 'true' || a === 'T'
 }
 
-/**
- * 定位到指定元素
- */
+// 定位到指定元素
 var $gotoSection = function (top, target) {
   $(target || 'html').animate({ scrollTop: top || 0 }, 600)
 }
@@ -488,9 +474,7 @@ var $throttle = function (fn, delay) {
   }
 }
 
-/**
- * 分时函数
- */
+// 分时函数
 var $timechunk = function (array, fn, count) {
   var start = function () {
     for (var i = 0; i < Math.min(count || 1, array.length); i++) {
@@ -507,9 +491,7 @@ var $timechunk = function (array, fn, count) {
   }
 }
 
-/**
- * 对象深拷贝
- */
+// 对象深拷贝
 var $clone = function (o) {
   if (!o) return o
   return $.extend(true, {}, o)
@@ -675,9 +657,7 @@ function $focus2End(el, delay) {
 }
 
 var $addResizeHandler__cbs = []
-/**
- * 窗口 RESIZE 回调
- */
+// 窗口 RESIZE 回调
 var $addResizeHandler = function (callback) {
   typeof callback === 'function' && $addResizeHandler__cbs && $addResizeHandler__cbs.push(callback)
   return function () {
@@ -688,23 +668,4 @@ var $addResizeHandler = function (callback) {
       cb()
     })
   }
-}
-
-// BASE64 解码
-var $base64Encode = function (str) {
-  if (typeof str !== 'string') str = JSON.stringify(str)
-  var bytes = new TextEncoder().encode(str)
-  var bin = ''
-  bytes.forEach(function (b) {
-    bin += String.fromCharCode(b)
-  })
-  return btoa(bin)
-}
-// BASE64 解码
-var $base64Decode = function (b64) {
-  var bin = atob(b64)
-  var bytes = Uint8Array.from(bin, function (c) {
-    return c.charCodeAt(0)
-  })
-  return new TextDecoder().decode(bytes)
 }
