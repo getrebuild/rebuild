@@ -66,8 +66,7 @@ public class CommonOperatingController extends BaseController {
 
     @PostMapping("common-save")
     public JSONAware save(HttpServletRequest request) {
-        final JSON formJson = ServletUtils.getRequestJson(request);
-
+        JSON formJson = (JSON) getRequestBody(request, true);
         Record record;
         try {
             record = EntityHelper.parse((JSONObject) formJson, getRequestUser(request));

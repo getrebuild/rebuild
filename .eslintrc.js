@@ -163,5 +163,6 @@ module.exports = {
     $fetchMetaInfo: true,
     FileRename: true,
     $syncGet: true,
+    $base64Encode: true,
   },
 }

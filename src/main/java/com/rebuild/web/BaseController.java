@@ -13,7 +13,9 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.api.Controller;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.servlet.ModelAndView;
@@ -48,6 +50,29 @@ public abstract class BaseController extends Controller {
             throw new InvalidParameterException(Language.L("无效请求用户"));
         }
         return user;
+    }
+
+    /**
+     * @param request
+     * @return
+     */
+    protected Object getRequestBody(HttpServletRequest request, boolean retJson) {
+        String d = ServletUtils.getRequestString(request);
+        if (StringUtils.isBlank(d)) return null;
+
+        if (getBoolParameter(request, "b64")) {
+            byte[] bs = Base64.decodeBase64(d);
+            d = new String(bs);
+        }
+
+        if (!retJson) return d;
+
+        if (JSONUtils.wellFormat(d)) {
+            return JSON.parse(d);
+        }
+
+        log.warn("Bad JSON format : {}", d);
+        return null;
     }
 
     /**

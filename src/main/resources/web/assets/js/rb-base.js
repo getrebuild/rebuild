@@ -629,7 +629,7 @@ function $openWindow(url) {
               url +
               '" target="_blank"><i class="zmdi zmdi-download icon mr-1"></i>' +
               $L('点击下载') +
-              '</a></div>'
+              '</a></div>',
           )
       },
     })
@@ -688,4 +688,23 @@ var $addResizeHandler = function (callback) {
       cb()
     })
   }
+}
+
+// BASE64 解码
+var $base64Encode = function (str) {
+  if (typeof str !== 'string') str = JSON.stringify(str)
+  var bytes = new TextEncoder().encode(str)
+  var bin = ''
+  bytes.forEach(function (b) {
+    bin += String.fromCharCode(b)
+  })
+  return btoa(bin)
+}
+// BASE64 解码
+var $base64Decode = function (b64) {
+  var bin = atob(b64)
+  var bytes = Uint8Array.from(bin, function (c) {
+    return c.charCodeAt(0)
+  })
+  return new TextDecoder().decode(bytes)
 }

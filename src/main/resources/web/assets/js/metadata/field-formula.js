@@ -7,8 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // 验证公式有效性
 function verifyFormula(formula, entity, onConfirm) {
-  formula = formula.replace(/\n/gi, '\\n')
-  $.post(`/admin/robot/trigger/verify-formula?entity=${entity}`, formula, (res) => {
+  $.post(`/admin/robot/trigger/verify-formula?b64=true&entity=${entity}`, $base64Encode(formula), (res) => {
     if (res.error_code === 0) {
       onConfirm()
     } else {
@@ -26,7 +25,7 @@ function verifyFormula(formula, entity, onConfirm) {
           onCancel: function () {
             this.hide()
           },
-        }
+        },
       )
     }
   })
