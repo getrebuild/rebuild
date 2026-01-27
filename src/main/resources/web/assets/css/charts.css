@@ -188,6 +188,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: green !important;
 }
 
+.chart.index .icon43 {
+  float: left;
+  width: 80px;
+  font-size: 3.5rem;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 1.1;
+}
+
+.chart.index .icon43 + div {
+  margin-left: 80px;
+  padding-right: 80px;
+}
+
 .grid-stack-item.fullscreen .chart.index > .data-item p {
   font-size: 3rem;
 }
@@ -203,6 +217,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .grid-stack-item.fullscreen .chart.index > .data-item span {
   zoom: 2;
+}
+
+.grid-stack-item.fullscreen .chart.index .icon43 {
+  font-size: 6.4rem;
+  width: 120px;
+}
+
+.grid-stack-item.fullscreen .chart.index .icon43 + div {
+  margin-left: 120px;
+  padding-right: 120px;
 }
 
 .chart.ctable {

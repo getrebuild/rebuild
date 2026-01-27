@@ -5,9 +5,6 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-// in `chart-design`
-const __PREVIEW = !!(window.__PageConfig || {}).chartConfig
-
 // 图表基类
 class BaseChart extends React.Component {
   constructor(props) {
@@ -103,7 +100,7 @@ class BaseChart extends React.Component {
         />,
         function () {
           that._ChartFilter = this
-        }
+        },
       )
     }
   }
@@ -265,7 +262,8 @@ class ChartIndex extends BaseChart {
 
   renderChart(data) {
     const showGrowthRate = data._renderOption && data._renderOption.showGrowthRate
-    const color = __PREVIEW ? this.props.config.option.useColor : this.props.config.color
+    const color = data._renderOption ? data._renderOption.useColor : null
+    const icon = data._renderOption ? data._renderOption.useIcon : null
     const style2 = { color: color || null }
     const _index = data.index
 
@@ -286,29 +284,32 @@ class ChartIndex extends BaseChart {
     const chartdata = (
       <div className="chart index" ref={(c) => (this._$chart = c)}>
         <div className="data-item must-center text-truncate w-auto">
-          <p style={style2}>{_index.label || this.label}</p>
-          <strong style={style2}>
-            <a
-              title={$L('查看来源数据')}
-              href={window.render_preview_chart ? null : `${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}&axis=N1`}
-              target={window.render_preview_chart ? null : '_blank'}>
-              {formatThousands(_index.data, _index.dataFlag)}
-            </a>
-            {showGrowthRate && clazz2 && <span className={clazz2}>{rate2}</span>}
-          </strong>
-          {_index.label2 && (
-            <div className="with">
-              <p>{_index.label2}</p>
-              <strong>
-                <a
-                  title={$L('查看来源数据')}
-                  href={window.render_preview_chart ? null : `${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}&axis=N2`}
-                  target={window.render_preview_chart ? null : '_blank'}>
-                  {formatThousands(_index.data2, _index.dataFlag2)}
-                </a>
-              </strong>
-            </div>
-          )}
+          {icon && <i className={`icon43 mdi ${icon}`} style={style2} />}
+          <div>
+            <p style={style2}>{_index.label || this.label}</p>
+            <strong style={style2}>
+              <a
+                title={$L('查看来源数据')}
+                href={window.render_preview_chart ? null : `${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}&axis=N1`}
+                target={window.render_preview_chart ? null : '_blank'}>
+                {formatThousands(_index.data, _index.dataFlag)}
+              </a>
+              {showGrowthRate && clazz2 && <span className={clazz2}>{rate2}</span>}
+            </strong>
+            {_index.label2 && (
+              <div className="with">
+                <p>{_index.label2}</p>
+                <strong>
+                  <a
+                    title={$L('查看来源数据')}
+                    href={window.render_preview_chart ? null : `${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}&axis=N2`}
+                    target={window.render_preview_chart ? null : '_blank'}>
+                    {formatThousands(_index.data2, _index.dataFlag2)}
+                  </a>
+                </strong>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     )
@@ -321,9 +322,10 @@ class ChartIndex extends BaseChart {
         const ch = $(this._$chart).height()
         const zoom = ch > 100 ? (ch > 330 ? 2 : 1.3) : 1
         $(this._$chart).find('strong').css('zoom', zoom)
+        $(this._$chart).find('.icon43').css('zoom', zoom)
       },
       delay || 200,
-      `resize-chart-${this.props.id}`
+      `resize-chart-${this.props.id}`,
     )
   }
 }
@@ -371,7 +373,7 @@ class ChartTable extends BaseChart {
         if (this._$tb) this._$tb.find('.ctable').css('height', this._$tb.height() - 20)
       },
       400,
-      `resize-chart-${this.state.id}`
+      `resize-chart-${this.state.id}`,
     )
   }
 }
@@ -1103,7 +1105,7 @@ class ApprovalList extends BaseChart {
         $tb && $tb.find('.ApprovalList').css('height', $tb.height() - 5)
       },
       400,
-      `resize-chart-${this.state.id}`
+      `resize-chart-${this.state.id}`,
     )
   }
 
@@ -1126,7 +1128,7 @@ class ApprovalList extends BaseChart {
         />,
         function () {
           that.__approvalForms[record] = this
-        }
+        },
       )
     }
   }
@@ -1230,7 +1232,7 @@ class FeedsSchedule extends BaseChart {
         if (this._$tb) this._$tb.find('.FeedsSchedule').css('height', this._$tb.height() - 13)
       },
       400,
-      `resize-chart-${this.state.id}`
+      `resize-chart-${this.state.id}`,
     )
   }
 
@@ -1502,7 +1504,7 @@ class ProjectTasks extends BaseChart {
         if (this._$tb) this._$tb.find('.ProjectTasks').css('height', this._$tb.height() - 13)
       },
       400,
-      `resize-chart-${this.state.id}`
+      `resize-chart-${this.state.id}`,
     )
   }
 
@@ -1548,7 +1550,7 @@ class DataList extends BaseChart {
               $stopEvent(e, true)
               $(this._$box).find('.chart-oper .J_chart-edit').trigger('click')
             })
-        }
+        },
       )
       return
     }
@@ -1655,7 +1657,7 @@ class DataList extends BaseChart {
         if (this._$tb) this._$tb.find('.ctable').css('height', this._$tb.height() - 20)
       },
       400,
-      `resize-chart-${this.state.id}`
+      `resize-chart-${this.state.id}`,
     )
   }
 
@@ -1855,7 +1857,7 @@ class HeadingText extends BaseChart {
               console.log('No `save_dashboard` found :', s)
             }
           }}
-        />
+        />,
       )
     })
   }
@@ -1877,7 +1879,7 @@ class EmbedFrame extends BaseChart {
               $stopEvent(e, true)
               $(this._$box).find('.chart-oper .J_chart-edit').trigger('click')
             })
-        }
+        },
       )
       return
     }
@@ -1917,7 +1919,7 @@ class EmbedFrame extends BaseChart {
               console.log('No `save_dashboard` found :', s)
             }
           }}
-        />
+        />,
       )
     })
   }
@@ -1997,7 +1999,7 @@ class MyNotification extends BaseChart {
         $scroller.perfectScrollbar()
       },
       400,
-      `resize-chart-${this.state.id}`
+      `resize-chart-${this.state.id}`,
     )
   }
 
@@ -2078,7 +2080,7 @@ class MyBookmark extends BaseChart {
             onClick={() =>
               renderRbcomp(
                 // eslint-disable-next-line react/jsx-no-undef
-                <MyBookmarkSettings chart={this.props.id} onConfirm={() => this.loadChartData()} />
+                <MyBookmarkSettings chart={this.props.id} onConfirm={() => this.loadChartData()} />,
               )
             }>
             <span className="icon">
