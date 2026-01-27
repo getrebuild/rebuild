@@ -45,11 +45,28 @@ $(document).ready(() => {
         if (d) {
           $('.J_menuIcon>i').attr('class', use_icon(d.icon))
           $('.J_menuName').val(d.label)
+          $('.J_bindFilter>a').removeAttr('data-filter')
         }
 
-        if ($ref.val() === TYPE_PARENT) $('.J_parentOption').show()
-        else $('.J_parentOption').hide()
+        if ($ref.val() === TYPE_PARENT) {
+          $('.J_parentOption').show()
+          $('.J_bindFilter').hide()
+        } else {
+          $('.J_parentOption').hide()
+          if (d.entity) $('.J_bindFilter').show()
+          else $('.J_bindFilter').hide()
+        }
       })
+  })
+
+  $('.J_menuType').on('click', function () {
+    if ($(this).attr('href') === '#ENTITY') {
+      $('.J_parentOption').removeClass('hide')
+      $('.J_bindFilter').removeClass('hide')
+    } else {
+      $('.J_parentOption').addClass('hide')
+      $('.J_bindFilter').addClass('hide')
+    }
   })
 
   $('.J_menuIcon').on('click', () => {
@@ -60,7 +77,7 @@ $(document).ready(() => {
     parent.RbModal.create('/p/common/search-icon', $L('选择图标'), { zIndex: 1051 })
   })
 
-  const $filter = $('.J_bind-filter').on('click', (e) => {
+  const $filter = $('.J_bindFilter>a').on('click', (e) => {
     $stopEvent(e, true)
     renderRbcomp(
       <BindFilterDlg
@@ -330,7 +347,7 @@ const render_item = function (data, isNew, append2) {
         $('.J_parentOption').hide()
       }
 
-      $('.J_bind-filter').attr({ 'data-filter': data.filter, 'data-filterBadge': data.filterBadge })
+      $('.J_bindFilter>a').attr({ 'data-filter': data.filter, 'data-filterBadge': data.filterBadge })
 
       // 实体已经不存在
       // if (_entity_data[data.value]) $me.removeClass('is-invalid')
