@@ -732,13 +732,12 @@ public class ApprovalStepService extends BaseService {
     private void sendCcMsgs(ID recordId, String ccMsg, Set<ID> ccUsers, Set<String> ccAccounts) {
         if (CommonsUtils.hasLength(ccUsers)) {
             for (ID cc : ccUsers) {
-//                sendNotification(cc, ccMsg, recordId);
-                Application.getNotifications().send(MessageBuilder.createApproval(cc, ccMsg, recordId));
+                sendNotification(cc, ccMsg, recordId);
             }
         }
 
         // v3.2 外部人员
-        if (!CommonsUtils.hasLength(ccAccounts)) {
+        if (CommonsUtils.hasLength(ccAccounts)) {
             String mobileMsg = MessageBuilder.formatMessage(ccMsg, Boolean.FALSE);
             String emailSubject = Language.L("审批通知");
             String emailMsg = MessageBuilder.formatMessage(ccMsg, Boolean.TRUE);

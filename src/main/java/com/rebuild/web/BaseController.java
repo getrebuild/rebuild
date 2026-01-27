@@ -61,7 +61,7 @@ public abstract class BaseController extends Controller {
         String d = ServletUtils.getRequestString(request);
         if (StringUtils.isBlank(d)) return null;
 
-        int b64 = getIntParameter(request, "b64");
+        int b64 = getIntParameter(request, "b64", 0);
         if (b64 > 0) {
             byte[] bs = Base64.decodeBase64(d);
             d = new String(bs);
@@ -70,7 +70,7 @@ public abstract class BaseController extends Controller {
             if (b64 > 1) {
                 bs = Base64.decodeBase64(d);
                 d = new String(bs);
-                // 3次编码
+                // 最多支持3次编码
                 if (b64 > 2) {
                     bs = Base64.decodeBase64(d);
                     d = new String(bs);

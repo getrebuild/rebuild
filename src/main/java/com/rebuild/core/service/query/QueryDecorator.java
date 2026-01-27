@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.query.AjqlQuery;
 import cn.devezhao.persist4j.query.Result;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 
 /**
@@ -32,10 +33,11 @@ public class QueryDecorator extends AjqlQuery {
     public Result result() {
         if (be == null) {
             Entity e = getRootEntity();
-            be = MetadataHelper.isBusinessEntity(e) || MetadataHelper.isBizzEntity(e);
+            be = MetadataHelper.isBusinessEntity(e) || MetadataHelper.isBizzEntity(e)
+                    || e.getEntityCode() == EntityHelper.RobotApprovalStep;
         }
 
-        // 仅业务实体或BIZZ
+        // 指定实体需要包装
         if (be) {
             if (result == null) result = new ResultDecorator(this);
             return result;
