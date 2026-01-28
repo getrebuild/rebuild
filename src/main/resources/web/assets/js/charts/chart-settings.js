@@ -151,7 +151,7 @@ class DataListSettings extends RbModalHandler {
               if (!x) return
 
               const $item = $(
-                `<li class="dd-item dd3-item" data-key="${x.field}"><div class="dd-handle dd3-handle"></div><div class="dd3-content">${x.label}</div><div class="dd3-action"></div></li>`
+                `<li class="dd-item dd3-item" data-key="${x.field}"><div class="dd-handle dd3-handle"></div><div class="dd3-content">${x.label}</div><div class="dd3-action"></div></li>`,
               ).appendTo($showfields)
 
               if (!window.UNSORT_FIELDTYPES.includes(x.type)) {
@@ -222,7 +222,7 @@ class DataListSettings extends RbModalHandler {
         onConfirm={(s) => {
           this.setState({ filterData: s })
         }}
-      />
+      />,
     )
   }
 
@@ -544,8 +544,8 @@ class MyBookmarkSettings extends RbModalHandler {
                   </div>
                   <div className="tab-pane" id="MBA3">
                     <div>
-                      <label>{$L('支持绝对地址或相对地址')}</label>
-                      <input type="text" className="form-control form-control-sm" placeholder={$L('输入外部地址')} />
+                      <label>{$L('打开外部地址')}</label>
+                      <input type="text" className="form-control form-control-sm" placeholder={$L('输入')} />
                     </div>
                   </div>
                 </div>

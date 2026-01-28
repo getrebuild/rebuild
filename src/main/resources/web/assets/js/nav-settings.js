@@ -59,16 +59,6 @@ $(document).ready(() => {
       })
   })
 
-  $('.J_menuType').on('click', function () {
-    if ($(this).attr('href') === '#ENTITY') {
-      $('.J_parentOption').removeClass('hide')
-      $('.J_bindFilter').removeClass('hide')
-    } else {
-      $('.J_parentOption').addClass('hide')
-      $('.J_bindFilter').addClass('hide')
-    }
-  })
-
   $('.J_menuIcon').on('click', () => {
     parent.clickIcon = function (s) {
       $('.J_menuIcon>i').attr('class', use_icon(s))
@@ -519,7 +509,7 @@ class BindFilterDlg extends Share2Switch {
     return (
       <div className="form">
         <div className="form-group mb-3">
-          <label className="text-bold">{$L('默认常用查询')}</label>
+          <label className="text-bold">{$L('选择默认查询')}</label>
           <select className="form-control form-control-sm" name="filter" defaultValue={this.state.filter || undefined} ref={(c) => (this._$filter = c)}>
             {this.state.filterList &&
               this.state.filterList.map((item) => {
