@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // 列表公共操作
 
 const _RbList = function () {
-  return RbListPage._RbList || {}
+  return window.RbListPage ? window.RbListPage._RbList || {} : {}
 }
 
 // ~ 高级查询操作
@@ -19,15 +19,19 @@ const AdvFilters = {
    * @param {String} entity 实体
    */
   init(el, entity) {
-    this.__el = $(el)
+    this.__$el = $(el)
     this.__entity = entity
 
-    this.__el.find('.J_filterbtn').on('click', () => {
+    this.__$el.find('.J_filterbtn').on('click', () => {
       this.current = null
       this.showAdvFilter()
     })
 
-    this.__$customAdvWrap = $('#dropdown-menu-advfilter')
+    this.__$customAdvWrap = $('.dropdown-menu-advfilter__' + this.__entity) // v4.3 for View
+    if (!this.__$customAdvWrap[0]) {
+      this.__$customAdvWrap = $('#dropdown-menu-advfilter')
+    }
+
     $(document.body).on('click', (e) => {
       if (!e.target) return
       const $target = $(e.target)
@@ -48,7 +52,7 @@ const AdvFilters = {
       }
     })
 
-    const $alld = $('.adv-search .dropdown-item:eq(0)')
+    const $alld = this.__$el.find('.dropdown-item:eq(0)')
     $alld.on('click', () => this._effectFilter($alld, 'aside'))
 
     this.loadFilters()
@@ -63,11 +67,11 @@ const AdvFilters = {
     let $defaultFilter
 
     $.get(`/app/${this.__entity}/advfilter/list`, function (res) {
-      $('.adv-search .J_custom').each(function () {
+      that.__$el.find('.J_custom').each(function () {
         $(this).remove()
       })
 
-      const $menu = $('.adv-search .dropdown-menu')
+      const $menu = that.__$el.find('.dropdown-menu')
       $(res.data).each(function () {
         const item = this
         const $item = $(`<div class="dropdown-item J_custom" data-id="${item.id}"><a class="text-truncate"></a></div>`).appendTo($menu)
@@ -81,12 +85,12 @@ const AdvFilters = {
         // 可修改
         if (item.editable) {
           const $action = $(
-            `<div class="action"><a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('删除')}" class="danger-hover"><i class="zmdi zmdi-delete"></i></a></div>`
+            `<div class="action"><a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('删除')}" class="danger-hover"><i class="zmdi zmdi-delete"></i></a></div>`,
           ).appendTo($item)
 
           $action.find('a:eq(0)').on('click', function () {
             that.showAdvFilter(item.id)
-            $('.adv-search .btn.dropdown-toggle').dropdown('toggle')
+            that.__$el.find('.btn.dropdown-toggle').dropdown('toggle')
             return false
           })
 
@@ -102,7 +106,7 @@ const AdvFilters = {
                     that.loadFilters()
                     if (lastFilter === item.id) {
                       _RbList().setAdvFilter(null)
-                      $('.adv-search .J_name').text($L('全部数据'))
+                      that.__$el.find('.J_name').text($L('全部数据'))
                     }
                   } else {
                     RbHighbar.error(res.error_msg)
@@ -133,14 +137,16 @@ const AdvFilters = {
         $ghost.clone(true).appendTo($('.quick-filter-tabs').empty())
       }
 
-      if (!$defaultFilter) $defaultFilter = $('.adv-search .dropdown-item:eq(0)')
+      if (!$defaultFilter) $defaultFilter = that.__$el.find('.dropdown-item:eq(0)')
       $defaultFilter.trigger('click')
     })
   },
 
   _effectFilter(item, rel) {
     this.current = item.data('id')
-    $('.adv-search .J_name').text(item.find('>a').text())
+    this.__$el.find('.J_name').text(item.find('>a').text())
+
+    // ASIDE
     if (rel === 'aside') {
       const current = this.current
       $('#asideFilters .dropdown-item')
@@ -213,8 +219,8 @@ const AdvFilters = {
     }
   },
 
-  _getFilter(id, call) {
-    $.get(`/app/entity/advfilter/get?id=${id}`, (res) => call(res.data))
+  _getFilter(id, cb) {
+    $.get(`/app/entity/advfilter/get?id=${id}`, (res) => cb(res.data))
   },
 }
 
@@ -856,7 +862,7 @@ const RbListCommon = {
     if (via) {
       wpc.protocolFilter = `via:${via}`
       const $cleanVia = $(`<div class="badge badge-warning filter-badge J_via-filter">${$L('当前数据已过滤')}<a class="close" title="${$L('查看全部数据')}">&times;</a></div>`).appendTo(
-        '.dataTables_filter'
+        '.dataTables_filter',
       )
       $cleanVia.find('a').on('click', () => {
         wpc.protocolFilter = null
@@ -1648,7 +1654,7 @@ class RbListPagination extends React.Component {
                 <RF>
                   {$L('配置统计列')}
                   <sup className="rbv" />
-                </RF>
+                </RF>,
               )
             }}>
             <i className="icon zmdi zmdi-settings" title={$L('配置统计列')} />
@@ -2067,7 +2073,7 @@ CellRenders.addRender('BARCODE', (v, s, k) => {
               </div>,
               {
                 type: 'clear',
-              }
+              },
             )
           }}>
           <img src={`${codeUrl}&w=${isbar ? 64 : 120}`} alt={v} />
@@ -2147,7 +2153,7 @@ class RecordMerger extends RbModalHandler {
                     data4field.push(
                       <td key={`${idx}-${i}`} data-index={i} className={activeClazz} onClick={(e) => !IS_COMMONS && this._selectValue(e)}>
                         <div>{v}</div>
-                      </td>
+                      </td>,
                     )
                   }
 
@@ -2228,7 +2234,7 @@ class RecordMerger extends RbModalHandler {
           this.hide()
           that._post2(del)
         },
-      }
+      },
     )
   }
 
@@ -2374,7 +2380,7 @@ const CategoryWidget = {
             RbListPage.reload()
           }}
         />,
-        'asideCategory'
+        'asideCategory',
       )
       _init = true
     })
