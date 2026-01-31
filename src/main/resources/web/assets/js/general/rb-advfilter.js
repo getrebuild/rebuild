@@ -52,7 +52,7 @@ class AdvFilter extends React.Component {
         <div className="adv-filter">
           <div
             className="filter-items"
-            onKeyPress={(e) => {
+            onKeyDown={(e) => {
               if (e.which === 13 && typeof this.searchNow === 'function') {
                 const $input = $(e.target)
                 if ($input.prop('tagName') === 'INPUT') $input[0].blur()
@@ -139,9 +139,13 @@ class AdvFilter extends React.Component {
   }
 
   componentDidMount() {
-    const deep = this.props.fsDeep ? this.props.fsDeep : location.href.includes('/admin/') || window.__LAB_ADVFILTER_FSDEEP3 ? 3 : 2
-    const referer = this.props.referer || ''
-    $.get(`/commons/metadata/fields?deep=${deep}&entity=${this.props.entity}&referer=${referer}`, (res) => {
+    this._componentDidMount(this.props)
+  }
+
+  _componentDidMount(props) {
+    const deep = props.fsDeep ? props.fsDeep : location.href.includes('/admin/') || window.__LAB_ADVFILTER_FSDEEP3 ? 3 : 2
+    const referer = props.referer || ''
+    $.get(`/commons/metadata/fields?deep=${deep}&entity=${props.entity}&referer=${referer}`, (res) => {
       const validFs = []
       const fields = []
       let fieldItem43
@@ -196,6 +200,17 @@ class AdvFilter extends React.Component {
           }
         })
       }
+    })
+  }
+
+  reset43(props) {
+    this.setState({ entity: props.entity || undefined, items: [], hasErrorTip: null }, () => {
+      this._itemsRef = []
+      this.renderEquation()
+
+      this.__initItems = []
+      props = { ...this.props, ...props }
+      this._componentDidMount(props)
     })
   }
 
@@ -278,19 +293,19 @@ class AdvFilter extends React.Component {
     if (hasError) return RbHighbar.create($L('部分条件设置有误，请检查'))
     if (filters.length === 0 && canNoFilters !== true) return RbHighbar.create($L('请至少添加 1 个条件'))
 
-    const adv = {
-      entity: this.props.entity,
+    const filterBody = {
+      entity: this.state.entity,
       items: filters,
     }
     if (this.state.useEquation === 'AND') {
-      adv.equation = 'AND'
+      filterBody.equation = 'AND'
     } else if (this.state.useEquation === '9999') {
       if (this.state.equationError === true) return RbHighbar.create($L('无效高级表达式'))
-      adv.equation = this.state.equation
+      filterBody.equation = this.state.equation
     }
 
-    if (rb.env === 'dev') console.log(JSON.stringify(adv))
-    return adv
+    if (rb.env === 'dev') console.log(JSON.stringify(filterBody))
+    return filterBody
   }
 
   confirm() {
@@ -1155,7 +1170,7 @@ class ListAdvFilter extends AdvFilter {
             this.post(d.name, d.shareTo)
           }}
           ref={(c) => (this._ListAdvFilterSave = c)}
-        />
+        />,
       )
     }
   }

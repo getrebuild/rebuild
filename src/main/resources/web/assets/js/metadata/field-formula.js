@@ -576,7 +576,7 @@ class EditorWithFieldVars extends React.Component {
 
     // v4.2
     if (this.props.showFuncs) {
-      const IGNORED_NAMES = ['CACHE', 'LOG', 'RAWSQLQUERY', 'RAWSQLUPDATE', 'USERUPDATE', 'DEPTUPDATE', 'PDFMERGE', 'HANLPSIM', 'HANLPSEG', 'HANLPPINY', '$L']
+      const IGNORED_NAMES = ['CACHE', 'LOG', 'RAWSQLQUERY', 'RAWSQLUPDATE', 'USERUPDATE', 'DEPTUPDATE', 'PDFMERGE', 'HANLPSIM', 'HANLPSEG', 'HANLPPINY', '$L', 'ZIP']
       $.get('/admin/robot/trigger/field-writeback-custom-funcs', (res) => {
         let funcs = []
         res.data.forEach((name) => {

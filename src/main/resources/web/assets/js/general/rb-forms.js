@@ -2186,7 +2186,7 @@ class RbFormPickList extends RbFormElement {
 
     if (this._isShowRadio39) {
       return (
-        <div ref={(c) => (this._fieldValue = c)} className="mt-1">
+        <div ref={(c) => (this._fieldValue = c)} className="mt-1 style10">
           {this._options.map((item) => {
             return (
               <label key={item.id} className="custom-control custom-radio custom-control-inline mb-1">
@@ -3064,7 +3064,7 @@ class RbFormMultiSelect extends RbFormElement {
       <div className="mt-1" ref={(c) => (this._fieldValue__wrap = c)}>
         {this._options.map((item) => {
           return (
-            <label key={item.mask} className="custom-control custom-checkbox custom-control-inline">
+            <label key={item.mask} className="custom-control custom-checkbox custom-control-inline mb-1">
               <input
                 className="custom-control-input"
                 name={this._htmlid}
