@@ -2764,11 +2764,6 @@ class RbFormN2NReference extends RbFormReference {
 
 // v4.1 任意引用
 class RbFormAnyReference extends RbFormReference {
-  constructor(props) {
-    super(props)
-    this._disableAutoFillin = true
-  }
-
   renderElement() {
     const _readonly41 = this.state.readonly
 
@@ -2907,6 +2902,10 @@ class RbFormAnyReference extends RbFormReference {
   // @Override
   _buildSearcherUrl() {
     return `${rb.baseUrl}/app/entity/reference-search?field=${this._anyrefEntity}Id.${this._anyrefEntity}`
+  }
+
+  _disableAutoFillin() {
+    return true
   }
 }
 
