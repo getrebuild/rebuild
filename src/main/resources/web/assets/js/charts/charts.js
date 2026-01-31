@@ -2073,6 +2073,7 @@ class MyBookmark extends BaseChart {
                   <em className="del" title={$L('移除')} onClick={(e) => this._del(item, e)}>
                     <i className="zmdi zmdi-close" />
                   </em>
+                  {item.actionParams[2] && <em className="badge" data-filter={item.actionParams[1]} />}
                 </a>
               )
             })}
@@ -2119,6 +2120,13 @@ class MyBookmark extends BaseChart {
           },
         })
         .disableSelection()
+
+      $bs.find('em[data-filter]').each(function () {
+        let $this = $(this)
+        $.get(`/app/entity/filter-badge?filter=${$this.data('filter')}`, function (res) {
+          if (res.data > 0) $this.text(res.data)
+        })
+      })
     })
     this._dataLast = data
   }
@@ -2131,8 +2139,6 @@ class MyBookmark extends BaseChart {
       this.loadChartData()
     })
   }
-
-  _move() {}
 
   _action(item) {
     if (item.actionType === 1) {
@@ -2155,6 +2161,10 @@ class MyBookmark extends BaseChart {
         })
       }
     } else if (item.actionType === 2) {
+      // Click to storage
+      if (item.actionParams[1]) {
+        $storage.set(`AdvFilter-${item.actionParams[0]}`, item.actionParams[1])
+      }
       window.open(`${rb.baseUrl}/app/${item.actionParams[0]}/list`, '_blank')
     } else if (item.actionType === 3) {
       window.open(item.actionParams[0], '_blank')

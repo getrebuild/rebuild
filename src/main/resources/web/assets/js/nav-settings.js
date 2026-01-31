@@ -53,7 +53,7 @@ $(document).ready(() => {
           $('.J_bindFilter').hide()
         } else {
           $('.J_parentOption').hide()
-          if (d.entity) $('.J_bindFilter').show()
+          if (d && d.entity) $('.J_bindFilter').show()
           else $('.J_bindFilter').hide()
         }
       })
@@ -524,7 +524,7 @@ class BindFilterDlg extends Share2Switch {
         <div className="form-group mb-1">
           <label className="custom-control custom-checkbox custom-control-inline custom-control-sm">
             <input className="custom-control-input" type="checkbox" name="filterBadge" onChange={this.handleChange} checked={!!this.state.filterBadge} />
-            <span className="custom-control-label">{$L('在菜单显示数量')}</span>
+            <span className="custom-control-label">{$L('显示数量徽标')}</span>
           </label>
         </div>
         <div className="form-group mb-1">

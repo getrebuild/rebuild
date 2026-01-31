@@ -906,7 +906,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   line-height: 1.3;
 }
 
-.chart-box.MyBookmark .bookmarks > a em.del {
+.chart-box.MyBookmark .bookmarks > a em.del,
+.chart-box.MyBookmark .bookmarks > a em.badge {
   position: absolute;
   right: 1px;
   top: 1px;
@@ -922,6 +923,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chart-box.MyBookmark .bookmarks > a:hover em.del {
   display: inline-block;
+}
+
+.chart-box.MyBookmark .bookmarks > a em.badge {
+  display: inline-block;
+  background-color: #fff;
+  border-radius: 10rem;
+  font-size: 0.8462rem;
+  line-height: 1.3;
+  color: #000;
+  top: -8px;
+  right: -8px;
+  padding: 0.07692rem 0.5em;
+  width: auto;
+  height: auto;
 }
 
 .chart-box.MyBookmark .bookmarks > a.dark,
