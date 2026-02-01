@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Map;
@@ -23,10 +22,11 @@ import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -59,13 +59,9 @@ public class TaskExecutors extends DistributedJobLock {
             new LinkedBlockingQueue<>());
 
     // 延迟执行
-    private static final ScheduledThreadPoolExecutor SCHEDULED41;
-    private final static ConcurrentHashMap<String, ScheduledFuture<?>> SCHEDULED41_FUTURES43;
-    static {
-        SCHEDULED41 = new ScheduledThreadPoolExecutor(TaskExecutors.MAX_TASKS_NUMBER);
-        SCHEDULED41.setRemoveOnCancelPolicy(true);
-        SCHEDULED41_FUTURES43 = new ConcurrentHashMap<>();
-    }
+    private static final ScheduledExecutorService SCHEDULED41 = Executors.newScheduledThreadPool(MAX_TASKS_NUMBER);
+    // 延迟执行/可覆盖
+    private static final ConcurrentHashMap<String, ScheduledFuture<?>> SCHEDULED_CANCELS43 = new ConcurrentHashMap<>();
 
     /**
      * 异步执行（提交给任务调度）
@@ -141,8 +137,8 @@ public class TaskExecutors extends DistributedJobLock {
      *
      * @param task
      * @param timeout in ms
-     * @return
      * @param <T>
+     * @return
      */
     public static <T> T invoke(Callable<T> task, int timeout) {
         Future<T> future = EXEC.submit(task);
@@ -159,7 +155,7 @@ public class TaskExecutors extends DistributedJobLock {
      * 延迟执行
      *
      * @param command
-     * @param delay in ms
+     * @param delay   in ms
      * @see com.rebuild.core.service.TransactionManual#registerAfterCommit(Runnable)
      */
     public static void schedule(Runnable command, int delay) {
@@ -170,24 +166,24 @@ public class TaskExecutors extends DistributedJobLock {
      * 延迟执行
      *
      * @param command
-     * @param delay in ms
-     * @param cancelName
+     * @param delayInMs
+     * @param keyCancel
      * @see com.rebuild.core.service.TransactionManual#registerAfterCommit(Runnable)
      */
-    public static void schedule(Runnable command, int delay, String cancelName) {
-        Assert.notNull(cancelName, "[cancelName] must not be null");
+    public static void schedule(Runnable command, int delayInMs, String keyCancel) {
+        ScheduledFuture<?> newFuture = SCHEDULED41.schedule(() -> {
+            try {
+                command.run();
+            } finally {
+                SCHEDULED_CANCELS43.remove(keyCancel);
+            }
+        }, delayInMs, TimeUnit.MILLISECONDS);
 
-        SCHEDULED41_FUTURES43.compute(cancelName, (key, oldFuture) -> {
-            if (oldFuture != null) oldFuture.cancel(false);
-            Runnable wrapped = () -> {
-                try {
-                    command.run();
-                } finally {
-                    SCHEDULED41_FUTURES43.remove(key);
-                }
-            };
-            return SCHEDULED41.schedule(wrapped, delay, TimeUnit.MILLISECONDS);
-        });
+        ScheduledFuture<?> old = SCHEDULED_CANCELS43.put(keyCancel, newFuture);
+        if (old != null) {
+            boolean cancelled = old.cancel(false);
+            log.info("Cancel unexecuted task : {} ({})", keyCancel, cancelled);
+        }
     }
 
     /**
@@ -233,7 +229,7 @@ public class TaskExecutors extends DistributedJobLock {
             }
             log.info("{} task(s) in the queue. {} are completed (will clean-up later)", ASYNC_TASKS.size(), completed);
         }
-        
+
         Queue<Runnable> queue = ((ThreadPoolExecutor) SINGLE_QUEUE).getQueue();
         if (!queue.isEmpty()) {
             log.info("{} command(s) in the single-queue", queue.size());
