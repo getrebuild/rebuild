@@ -2807,13 +2807,15 @@ class RbFormAnyReference extends RbFormReference {
       $([this._$entity, this._fieldValue]).attr('disabled', false)
     } else {
       const iv = this.state.value
-      $.get('/commons/metadata/entities?detail=true', (res) => {
+      const ae = this.props.anyreferenceEntities ? this.props.anyreferenceEntities.split(',') : []
+      $.get(`/commons/metadata/entities?detail=true&bizz=${ae.length > 0 || rb.isAdminUser}`, (res) => {
         let entities = res.data || []
-        if (this.props.anyreferenceEntities) {
-          const ae = this.props.anyreferenceEntities.split(',')
-          if (ae.length > 0) {
-            entities = entities.filter((item) => ae.includes(item.name))
-          }
+        if (ae.length) {
+          entities = entities.filter((item) => ae.includes(item.name))
+        }
+        // v4.3 非管理员过滤
+        if (!rb.isAdminUser) {
+          entities = entities.filter((item) => !['Role', 'Team'].includes(item.name))
         }
 
         // #1 E
