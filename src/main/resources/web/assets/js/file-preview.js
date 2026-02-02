@@ -218,16 +218,7 @@ class RbPreview extends React.Component {
     const fileName = $fileCutName(currentUrl)
     if (this._isDoc(fileName)) {
       const setPreviewUrl = function (url) {
-        let previewUrl = rb._officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src='
-        let isOoPreview = previewUrl.includes('/commons/file-preview?src=')
-        // v4.3 PDF专用
-        if (fileName.toLowerCase().endsWith('.pdf') && !isOoPreview) {
-          previewUrl = `${rb.baseUrl}/commons/pdf-preview?src=${$encode(url)}`
-        } else {
-          if (isOoPreview) previewUrl = rb.baseUrl + previewUrl
-          previewUrl += $encode(url)
-        }
-        that.setState({ previewUrl: previewUrl, errorMsg: null })
+        that.setState({ previewUrl: $buildPreviewUrl(url), errorMsg: null })
       }
 
       if ($isFullUrl(currentUrl)) {
@@ -492,4 +483,20 @@ class FileShare extends RbModalHandler {
 // eslint-disable-next-line no-unused-vars
 function $isImage(name) {
   return TYPE_IMGS.includes('.' + $fileExtName(name.toLowerCase()))
+}
+
+// 预览地址
+function $buildPreviewUrl(url) {
+  let previewUrl = rb._officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src='
+  let isOoPreview = previewUrl.includes('/commons/file-preview?src=')
+
+  // v4.3 PDF专用
+  if ($fileCutName(url).toLowerCase().endsWith('.pdf') && !isOoPreview) {
+    previewUrl = `${rb.baseUrl}/commons/pdf-preview?src=${$encode(url)}`
+  } else {
+    if (isOoPreview) previewUrl = rb.baseUrl + previewUrl
+    previewUrl += $encode(url)
+  }
+
+  return previewUrl
 }

@@ -16,7 +16,7 @@ import org.springframework.util.Assert;
  * @author devezhao
  * @since 2020/11/17
  */
-public class EasyFile extends EasyField {
+public class EasyFile extends EasyField implements MediaValue {
     private static final long serialVersionUID = -440245863103271478L;
 
     protected EasyFile(Field field, DisplayType displayType) {

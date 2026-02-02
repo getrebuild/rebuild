@@ -334,42 +334,93 @@ class DataExport extends BatchOperator {
     super(props)
     this._title = $L('数据导出')
     this._confirmText = $L('导出')
+
+    this.state._selectType = 'xls'
+    this.state._selectType1Value = 1
+    this.state._selectType2Value = ''
   }
 
   renderOperator() {
     const reports = this.state.reports || []
+    const isXls = ['xls', 'csv'].includes(this.state._selectType)
     return (
       <div className="form-group">
         <label className="text-bold">{$L('选择导出格式')}</label>
-        <div style={{ width: 325 }}>
+        <div className="w-75">
           <select className="form-control form-control-sm" ref={(c) => (this._$report = c)} defaultValue="xls">
             <option value="csv">CSV</option>
             <option value="xls">Excel</option>
             <optgroup label={$L('使用报表模板')}>
               {reports.map((item) => {
-                const outputType = item.outputType || 'excel'
                 return (
-                  <RF key={item.id}>
-                    {outputType.includes('excel') && <option value={`${item.id}`}>{item.name}</option>}
-                    {outputType.includes('pdf') && <option value={`${item.id}&output=pdf`}>{item.name} (PDF)</option>}
-                  </RF>
+                  <option value={`${item.id}`} key={item.id}>
+                    {item.name}
+                  </option>
                 )
               })}
               {reports.length === 0 && <option disabled>{$L('无')}</option>}
             </optgroup>
           </select>
+
+          <div className="mt-3">
+            {isXls && (
+              <RF>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                  <input className="custom-control-input" name="_selectType1Value" type="radio" checked={~~this.state._selectType1Value === 1} value="1" onChange={this.handleChange} />
+                  <span className="custom-control-label">{$L('导出当前显示列')}</span>
+                </label>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                  <input className="custom-control-input" name="_selectType1Value" type="radio" checked={~~this.state._selectType1Value === 2} value="2" onChange={this.handleChange} />
+                  <span className="custom-control-label">{$L('全部列')}</span>
+                </label>
+              </RF>
+            )}
+            {!isXls && (
+              <RF>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                  <input className="custom-control-input" name="_selectType2Value" type="radio" checked={!this.state._selectType2Value} value="" onChange={this.handleChange} />
+                  <span className="custom-control-label">{$L('默认格式')}</span>
+                </label>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                  <input className="custom-control-input" name="_selectType2Value" type="radio" checked={this.state._selectType2Value === 'pdf'} value="pdf" onChange={this.handleChange} />
+                  <span className="custom-control-label">{$L('PDF')}</span>
+                </label>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                  <input className="custom-control-input" name="_selectType2Value" type="radio" checked={this.state._selectType2Value === 'preview'} value="preview" onChange={this.handleChange} />
+                  <span className="custom-control-label">{$L('在线预览')}</span>
+                </label>
+              </RF>
+            )}
+          </div>
         </div>
       </div>
     )
   }
 
   handleConfirm() {
-    const useReport = $(this._$report).val() || 'csv'
+    let reportParams = $(this._$report).val() || 'xls'
+    let reportQuery = this.getQueryData()
+    let isXls = ['xls', 'csv'].includes(reportParams)
+    if (isXls) {
+      if (~~this.state._selectType1Value === 2) reportQuery.fields = []
+    } else {
+      reportParams += `&output=${this.state._selectType2Value}`
+    }
+
     this.disabled(true)
-    $.post(`/app/${this.props.entity}/export/submit?dr=${this.state.dataRange}&report=${useReport}`, JSON.stringify(this.getQueryData()), (res) => {
+    $.post(`/app/${this.props.entity}/export/submit?dr=${this.state.dataRange}&report=${reportParams}`, JSON.stringify(reportQuery), (res) => {
       if (res.error_code === 0) {
         this.hide()
-        $openWindow(`${rb.baseUrl}/filex/download/${res.data.fileKey}?temp=yes&attname=${$encode(res.data.fileName)}`)
+
+        // 预览
+        if (!isXls && this.state._selectType2Value === 'preview') {
+          debugger
+          // eslint-disable-next-line no-undef
+          let previewUrl = $buildPreviewUrl(`/temp/${res.data.fileKey}`)
+          $openWindow(previewUrl)
+        } else {
+          $openWindow(`${rb.baseUrl}/filex/download/${res.data.fileKey}?temp=yes&attname=${$encode(res.data.fileName)}`)
+        }
       } else {
         RbHighbar.error(res.error_msg)
         this.disabled(false)
@@ -380,14 +431,18 @@ class DataExport extends BatchOperator {
   componentDidMount() {
     $.get(`/app/${this.props.entity}/report/available?type=2`, (res) => {
       this.setState({ reports: res.data }, () => {
-        this.__select2 = $(this._$report).select2({
-          templateResult: function (res) {
-            const text = res.text.split(' (PDF)')
-            const $span = $('<span></span>').text(text[0])
-            if (text.length > 1) $('<span class="badge badge-default badge-pill">PDF</span>').appendTo($span)
-            return $span
-          },
-        })
+        this.__select2 = $(this._$report)
+          .select2({
+            templateResult: function (res) {
+              const text = res.text.split(' (PDF)')
+              const $span = $('<span></span>').text(text[0])
+              if (text.length > 1) $('<span class="badge badge-default badge-pill">PDF</span>').appendTo($span)
+              return $span
+            },
+          })
+          .on('change', (e) => {
+            this.setState({ _selectType: e.target.value })
+          })
       })
     })
   }
@@ -2406,6 +2461,8 @@ const EasyAction4List = {
         item.items &&
           item.items.forEach((itemL2) => {
             itemL2.onClick = () => _EasyAction.handleOp(itemL2)
+
+            if (itemL2.text === '----') itemL2.onClick = undefined
           })
         _List.addButton(item)
       })
@@ -2419,7 +2476,7 @@ const EasyAction4List = {
         if (!item) return
 
         item.onClick = (id) => _EasyAction.handleOp(item, id)
-        item._eaid = item.id
+        item._eaid = item.id // for check
         _List.regRowButton(item)
       })
 
