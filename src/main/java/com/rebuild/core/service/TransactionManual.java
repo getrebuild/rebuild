@@ -141,7 +141,6 @@ public class TransactionManual {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCommit() {
-                    System.out.println(">>>>>>>>>>>>>>>>>>>> afterCommit" + keyCancel);
                     TaskExecutors.schedule(c, delayInMs, keyCancel);
                 }
             });

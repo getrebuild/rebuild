@@ -136,14 +136,14 @@ public class TaskExecutors extends DistributedJobLock {
      * 超时功能的执行
      *
      * @param task
-     * @param timeout in ms
+     * @param timeoutInMs
      * @param <T>
      * @return
      */
-    public static <T> T invoke(Callable<T> task, int timeout) {
+    public static <T> T invoke(Callable<T> task, int timeoutInMs) {
         Future<T> future = EXEC.submit(task);
         try {
-            return future.get(timeout, TimeUnit.MILLISECONDS);
+            return future.get(timeoutInMs, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             log.error("Invoke method timeout : {}",
                     StringUtils.defaultIfBlank(e.getMessage(), e.getClass().getSimpleName()));
@@ -155,11 +155,11 @@ public class TaskExecutors extends DistributedJobLock {
      * 延迟执行
      *
      * @param command
-     * @param delay   in ms
+     * @param delayInMs
      * @see com.rebuild.core.service.TransactionManual#registerAfterCommit(Runnable)
      */
-    public static void schedule(Runnable command, int delay) {
-        SCHEDULED41.schedule(command, delay, TimeUnit.MILLISECONDS);
+    public static void schedule(Runnable command, int delayInMs) {
+        SCHEDULED41.schedule(command, delayInMs, TimeUnit.MILLISECONDS);
     }
 
     /**

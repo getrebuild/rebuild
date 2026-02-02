@@ -63,6 +63,9 @@ import java.util.TreeSet;
 @Slf4j
 public class AviatorUtils {
 
+    // 高级公式使用 {{{{}}}} 包裹
+    public static final String CODE_PREFIX = "{{{{";  // ends with }}}}
+
     private static final AviatorEvaluatorInstance AVIATOR = AviatorEvaluator.newInstance();
 
     private static final Set<String> CUSTOM_FUNCTIONS = new TreeSet<>();

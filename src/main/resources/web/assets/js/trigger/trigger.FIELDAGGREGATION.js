@@ -79,7 +79,8 @@ class ContentFieldAggregation extends ActionContentSpec {
             <div className="col-md-12 col-lg-9">
               <div className="items">
                 {(this.state.items || []).length > 0 &&
-                  this.state.items.map((item) => {
+                  this.state.items.map((item, idx) => {
+                    const isFORMULACode = item.calcMode === 'FORMULA' && FormulaAggregation.isCode(item.sourceFormula)
                     return (
                       <div key={item.targetField}>
                         <div className="row">
@@ -91,14 +92,21 @@ class ContentFieldAggregation extends ActionContentSpec {
                             <span className="badge badge-warning">{CALC_MODES_FULL[item.calcMode]}</span>
                           </div>
                           <div className="col-5 del-wrap">
-                            <span className="badge badge-warning">
+                            <span className={`badge badge-warning ${isFORMULACode && 'w-100'}`}>
                               {item.calcMode === 'FORMULA'
                                 ? FormulaAggregation.textFormula(item.sourceFormula, this.__sourceFieldsCache)
                                 : FormulaAggregation.getLabel(item.sourceField, this.__sourceFieldsCache)}
                             </span>
-                            <a className="del" title={$L('移除')} onClick={() => this.delItem(item.targetField)}>
-                              <i className="zmdi zmdi-close" />
-                            </a>
+                            <RF>
+                              {isFORMULACode && (
+                                <a className="edit-code" title={$L('编辑计算公式')} onClick={() => this._editCode(item, idx)}>
+                                  <i className="zmdi zmdi-edit" />
+                                </a>
+                              )}
+                              <a className="del" title={$L('移除')} onClick={() => this.delItem(item.targetField)}>
+                                <i className="zmdi zmdi-close" />
+                              </a>
+                            </RF>
                           </div>
                         </div>
                       </div>
@@ -133,7 +141,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                 </div>
                 <div className="col-5">
                   <div className={this.state.calcMode === 'FORMULA' ? '' : 'hide'}>
-                    <div className="form-control-plaintext formula" _title={$L('计算公式')} ref={(c) => (this._$sourceFormula = c)} onClick={() => this.showFormula()} />
+                    <FieldFormula entity={this.props.sourceEntity} fields={this.__sourceFieldsCache} ref={(c) => (this._$sourceFormula = c)} />
                     <p>{$L('计算公式')}</p>
                   </div>
                   <div className={this.state.calcMode === 'FORMULA' ? 'hide' : ''}>
@@ -393,19 +401,6 @@ class ContentFieldAggregation extends ActionContentSpec {
     })
   }
 
-  showFormula() {
-    const sfAllow = this.__sourceFieldsCache.filter((x) => x.type === 'NUMBER' || x.type === 'DECIMAL')
-    renderRbcomp(
-      <FormulaAggregation
-        fields={sfAllow}
-        onConfirm={(v) => {
-          $(this._$sourceFormula).attr('data-v', v).text(FormulaAggregation.textFormula(v, this.__sourceFieldsCache))
-        }}
-        entity={this.props.sourceEntity}
-      />
-    )
-  }
-
   dataAdvFilter() {
     if (this._advFilter) {
       this._advFilter.show()
@@ -416,7 +411,7 @@ class ContentFieldAggregation extends ActionContentSpec {
         null,
         function () {
           that._advFilter = this
-        }
+        },
       )
     }
   }
@@ -426,11 +421,30 @@ class ContentFieldAggregation extends ActionContentSpec {
     this.setState({ dataFilterItems: filter && filter.items ? filter.items.length : 0 })
   }
 
+  _editCode(item, idx) {
+    const sfAllow = this.__sourceFieldsCache.filter((x) => x.type === 'NUMBER' || x.type === 'DECIMAL')
+    renderRbcomp(
+      <FormulaAggregation
+        entity={this.props.sourceEntity}
+        fields={sfAllow}
+        initFormula={item.sourceFormula}
+        verifyFormula
+        onConfirm={(expr) => {
+          if (!expr) return
+          const itemsNew = this.state.items
+          item.sourceFormula = expr
+          itemsNew[idx] = item
+          this.setState({ items: itemsNew })
+        }}
+      />,
+    )
+  }
+
   addItem() {
     const tf = $(this._$targetField).val()
     const calc = $(this._$calcMode).val()
     const sf = calc === 'FORMULA' ? null : $(this._$sourceField).val()
-    const formula = calc === 'FORMULA' ? $(this._$sourceFormula).attr('data-v') : null
+    const formula = calc === 'FORMULA' ? this._$sourceFormula.val() : null
 
     if (!tf) return RbHighbar.create($L('请选择目标字段'))
     if (calc === 'FORMULA') {
@@ -448,7 +462,7 @@ class ContentFieldAggregation extends ActionContentSpec {
     if (exists) return RbHighbar.create($L('目标字段已添加'))
 
     items.push({ targetField: tf, calcMode: calc, sourceField: sf, sourceFormula: formula })
-    this.setState({ items: items }, () => $(this._$sourceFormula).empty())
+    this.setState({ items: items }, () => this._$sourceFormula.clear())
   }
 
   delItem(targetField) {
@@ -490,6 +504,48 @@ class ContentFieldAggregation extends ActionContentSpec {
     }
 
     return content
+  }
+}
+
+// 公式
+class FieldFormula extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+
+  render() {
+    return (
+      // eslint-disable-next-line react/no-unknown-property
+      <div className="form-control-plaintext formula" _title={$L('计算公式')} title={$L('编辑计算公式')} onClick={() => this.show()}>
+        {this.state.valueText}
+      </div>
+    )
+  }
+
+  show() {
+    const sfAllow = this.props.fields.filter((x) => x.type === 'NUMBER' || x.type === 'DECIMAL')
+    renderRbcomp(
+      <FormulaAggregation
+        entity={this.props.entity}
+        fields={sfAllow}
+        initFormula={this._value}
+        verifyFormula
+        onConfirm={(expr) => {
+          this._value = expr
+          this.setState({ valueText: FormulaAggregation.textFormula(expr, this.props.fields) })
+        }}
+      />,
+    )
+  }
+
+  val() {
+    return this._value
+  }
+
+  clear() {
+    this._value = null
+    this.setState({ valueText: null })
   }
 }
 

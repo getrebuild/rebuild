@@ -6387,8 +6387,7 @@ div.formula-code {
 }
 
 .formula-calc .fields {
-  max-height: 186px;
-  margin-top: 1px;
+  max-height: 185px;
 }
 
 .formula-calc .fields ul li {

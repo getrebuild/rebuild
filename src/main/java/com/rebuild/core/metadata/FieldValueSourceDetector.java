@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -73,8 +74,10 @@ public class FieldValueSourceDetector {
             for (Object item : sourceAndTargetItems) {
                 JSONObject itemJson = (JSONObject) item;
                 if (itemJson.getString("targetField").equals(field.getName())) {
-                    String sourceField = itemJson.getString("sourceField");
-                    if (sourceField.startsWith("{{{{")) {
+                    String sourceField = StringUtils.defaultIfEmpty(
+                            itemJson.getString("sourceField"), itemJson.getString("sourceFormula"));
+
+                    if (sourceField.startsWith(AviatorUtils.CODE_PREFIX)) {
                         sourceField = "[计算公式]";
                     } else if (MetadataHelper.getLastJoinField(entity, sourceField) != null) {
                         Field lastJoinField = MetadataHelper.getLastJoinField(entity, sourceField);
