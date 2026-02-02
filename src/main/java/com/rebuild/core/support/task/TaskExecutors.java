@@ -172,8 +172,11 @@ public class TaskExecutors extends DistributedJobLock {
      */
     public static void schedule(Runnable command, int delayInMs, String keyCancel) {
         ScheduledFuture<?> newFuture = SCHEDULED41.schedule(() -> {
+            // 必须包住，否则异常会被吞掉
             try {
                 command.run();
+            } catch (Throwable ex) {
+                log.error("Command run fails : {}", keyCancel, ex);
             } finally {
                 SCHEDULED_CANCELS43.remove(keyCancel);
             }
