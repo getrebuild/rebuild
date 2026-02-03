@@ -313,7 +313,8 @@ class ChartIndex extends BaseChart {
         </div>
       </div>
     )
-    this.setState({ chartdata: chartdata }, () => this.resize(1))
+
+    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => this.resize(1))
   }
 
   resize(delay) {
@@ -344,7 +345,7 @@ class ChartTable extends BaseChart {
       </div>
     )
 
-    this.setState({ chartdata: chartdata }, () => {
+    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
       const $tb = $(this._$body)
       $tb
         .find('.ctable')
@@ -671,7 +672,7 @@ class ChartLine extends BaseChart {
       }
 
       option.__id = this.props.id
-      this._echarts = renderEChart(option, elid)
+      this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
     })
   }
 }
@@ -764,7 +765,7 @@ class ChartBar extends BaseChart {
       }
 
       option.__id = this.props.id
-      this._echarts = renderEChart(this.renderChartBefore(option, data), elid)
+      this._echarts = renderEChart(_ChartWrapper43(this.renderChartBefore(option, data), this), elid)
     })
   }
 
@@ -846,7 +847,7 @@ class ChartPie extends BaseChart {
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       option.__id = this.props.id
-      this._echarts = renderEChart(option, elid)
+      this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
     })
   }
 }
@@ -901,7 +902,7 @@ class ChartFunnel extends BaseChart {
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       option.__id = this.props.id
-      this._echarts = renderEChart(option, elid)
+      this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
     })
   }
 }
@@ -966,7 +967,7 @@ class ChartTreemap extends BaseChart {
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       option.__id = this.props.id
-      this._echarts = renderEChart(option, elid)
+      this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
     })
   }
 }
@@ -1088,7 +1089,7 @@ class ApprovalList extends BaseChart {
         {tableComp}
       </div>
     )
-    this.setState({ chartdata: chartdata }, () => {
+    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
       const $tb = $(this._$body)
       $tb &&
         $tb
@@ -1212,7 +1213,7 @@ class FeedsSchedule extends BaseChart {
       )
 
     const chartdata = <div className="chart FeedsSchedule">{table}</div>
-    this.setState({ chartdata: chartdata }, () => {
+    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
       const $tb = $(this._$body)
       $tb
         .find('.FeedsSchedule')
@@ -1331,7 +1332,7 @@ class ChartRadar extends BaseChart {
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       option.__id = this.props.id
-      this._echarts = renderEChart(option, elid)
+      this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
     })
   }
 }
@@ -1409,7 +1410,7 @@ class ChartScatter extends BaseChart {
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       option.__id = this.props.id
-      this._echarts = renderEChart(option, elid)
+      this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
     })
   }
 }
@@ -1487,7 +1488,7 @@ class ProjectTasks extends BaseChart {
       )
 
     const chartdata = <div className="chart ProjectTasks">{table}</div>
-    this.setState({ chartdata: chartdata }, () => {
+    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
       const $tb = $(this._$body)
       $tb
         .find('.ProjectTasks')
@@ -1633,7 +1634,8 @@ class DataList extends BaseChart {
         </table>
       )
 
-    this.setState({ chartdata: <div className="chart ctable">{table}</div> }, () => {
+    const chartdata = <div className="chart ctable">{table}</div>
+    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
       this._$tb = $(this._$body)
       this._$tb
         .find('.ctable')
@@ -1984,7 +1986,7 @@ class MyNotification extends BaseChart {
       </RF>
     )
 
-    this.setState({ chartdata: chartdata }, () => {
+    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
       const $scroller = $(this._$box).find('.rb-scroller').perfectScrollbar('destroy')
       $scroller.css('height', $(this._$body).height() - 34)
       dd.length > 0 && $scroller.perfectScrollbar()
@@ -2362,4 +2364,11 @@ class ChartSelect extends RbModalHandler {
     const h = $(e.target).attr('href')
     this.setState({ tabActive: h }, () => this._loadCharts())
   }
+}
+
+// 对图表数据包装
+function _ChartWrapper43(chartData, chartComp) {
+  if (typeof window.__LAB_CHARTWRAPPER43 !== 'function') return chartData
+  const w = window.__LAB_CHARTWRAPPER43(chartData, chartComp)
+  return w ? w : chartData
 }
