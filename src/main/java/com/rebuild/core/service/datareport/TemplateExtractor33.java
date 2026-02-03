@@ -68,7 +68,7 @@ public class TemplateExtractor33 extends TemplateExtractor {
 
         Map<String, String> map = new HashMap<>();
         for (final String varName : vars) {
-            String thatName = ValueConvertFunc.splitName(varName);
+            String thatName = ValueFnConvert.splitName(varName);
             String thatNameNoAt = thatName.replace(IMG_PREFIX, "");
 
             // 列表型字段

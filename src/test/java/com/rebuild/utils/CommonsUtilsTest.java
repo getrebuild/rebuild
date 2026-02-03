@@ -41,6 +41,7 @@ class CommonsUtilsTest {
         parseDateWithPrint("2020年01月01日 23:23:23");
         parseDateWithPrint("2020年01月01日 23:23");
         parseDateWithPrint("2020年01月01日 23");
+        parseDateWithPrint("2020-01-01 23");
     }
 
     void parseDateWithPrint(String source) {
