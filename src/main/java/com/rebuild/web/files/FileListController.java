@@ -175,7 +175,9 @@ public class FileListController extends BaseController {
             sql += " order by fileSize desc";
         } else if ("older".equals(sort)) {
             sql += " order by createdOn asc";
-        } else {
+        } else if (sort != null && sort.startsWith("name:")) {
+            sql += " order by fileName " + (sort.endsWith(":desc") ? "desc" : "asc");
+        }  else {
             sql += " order by modifiedOn desc";
         }
 
