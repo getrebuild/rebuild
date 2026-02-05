@@ -1619,6 +1619,7 @@ function __destroySelect2(__select2) {
 // -- 扩展组件
 
 // 文件上传/处理
+// props = { operTypes=操作类型, multiple=多文件, taskMode=任务模式, onSuccess=成功回调, title=标题, confirmText=确认按钮文字 }
 class FilesHandlerComponent extends RbModalHandler {
   render() {
     return (
@@ -1736,20 +1737,38 @@ class FilesHandlerComponent extends RbModalHandler {
     let $btn = $(this._$btns).find('.btn').button('loading')
     $.post('/customized/files-handler', JSON.stringify(_post), (res) => {
       if (res.error_code === 0) {
-        let _onSuccess = this.props.onSuccess
-        if (typeof _onSuccess !== 'function') {
-          _onSuccess = function (_this) {
-            RbHighbar.error('操作成功')
-            _this.hide()
-          }
+        if (this.props.taskMode) {
+          this._checkTaskState(res.data) // taskid
+        } else {
+          this._onSuccess(this)
         }
-        _onSuccess(this)
       } else {
         RbAlert.create(res.error_msg || $L('系统繁忙，请稍后重试'), {
           type: 'danger',
         })
       }
       setTimeout(() => $btn.button('reset'), 500)
+    })
+  }
+
+  _onSuccess(_this, taskData) {
+    let FN = _this.props.onSuccess
+    if (typeof FN !== 'function') {
+      FN = function () {
+        RbHighbar.error('操作成功')
+        _this.hide()
+      }
+    }
+    FN(_this, taskData)
+  }
+
+  _checkTaskState(taskid) {
+    $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
+      if (res.data && res.data.isCompleted) {
+        this._onSuccess(this, res.data)
+      } else {
+        setTimeout(() => this._checkTaskState(taskid), 1000)
+      }
     })
   }
 }
