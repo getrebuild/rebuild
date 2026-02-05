@@ -1621,9 +1621,21 @@ function __destroySelect2(__select2) {
 // 文件上传/处理
 // props = { operTypes=操作类型, multiple=多文件, taskMode=任务模式, onSuccess=成功回调, title=标题, confirmText=确认按钮文字 }
 class FilesHandlerComponent extends RbModalHandler {
+  constructor(props) {
+    super(props)
+
+    let tips = props.tips
+    this.props.operTypes &&
+      this.props.operTypes.forEach((item, idx) => {
+        if (idx === 0 && item.tips) tips = item.tips
+      })
+    this.state.tips = tips || null
+  }
+
   render() {
-    return (
+    let tips = this.return(
       <RbModal title={this.props.title || $L('上传文件')} ref={(c) => (this._dlg = c)} disposeOnHide>
+        {this.state.tips && <RbAlertBox message={this.state.tips} type="warning" />}
         <div className="form">
           {this.props.operTypes && (
             <div className="form-group row">
@@ -1633,7 +1645,16 @@ class FilesHandlerComponent extends RbModalHandler {
                   let key = item.name || item.key
                   return (
                     <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2" key={key}>
-                      <input className="custom-control-input" name="dataRange" type="radio" value={key} defaultChecked={idx === 0} />
+                      <input
+                        className="custom-control-input"
+                        name="dataRange"
+                        type="radio"
+                        value={key}
+                        defaultChecked={idx === 0}
+                        onClick={() => {
+                          if (item.tips) this.setState({ tips: item.tips })
+                        }}
+                      />
                       <span className="custom-control-label">{item.text || item.label}</span>
                     </label>
                   )
@@ -1699,7 +1720,7 @@ class FilesHandlerComponent extends RbModalHandler {
             </table>
           </div>
         </div>
-      </RbModal>
+      </RbModal>,
     )
   }
 
