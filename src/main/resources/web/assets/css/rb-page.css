@@ -6485,3 +6485,10 @@ div.formula-code {
 .rb-left-sidebar .sidebar-elements > li ul li > a > span.badge {
   margin-top: 2px;
 }
+
+.FilesHandlerComponent__results {
+  border-radius: 2px;
+  margin-top: 20px;
+  margin-left: 15px;
+  margin-right: 15px;
+}
