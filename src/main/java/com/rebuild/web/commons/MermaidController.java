@@ -10,6 +10,7 @@ package com.rebuild.web.commons;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.service.dashboard.ChartManager;
@@ -51,17 +52,23 @@ public class MermaidController extends BaseController {
         ID chartid = getIdParameter(request, "id");
         ConfigBean c = ChartManager.instance.getChart(chartid);
 
-        String filter = getParameter(request, "filter");
-        JSONObject filterJson = JSONUtils.wellFormat(filter) ? JSONUtils.parseObjectSafe(filter) : null;
-        if (filterJson != null) {
-            filterJson.put("entity", ((JSONObject) c.getJSON("config")).getString("entity"));
-            filterJson.put("filter_type", "list");
+        String listFilter = getParameter(request, "filter");
+        JSONObject listFilterJson = JSONUtils.wellFormat(listFilter) ? JSONUtils.parseObjectSafe(listFilter) : null;
+        if (listFilterJson != null) {
+            // 支持传 Filter 数据体
+            Object hasFilterItems = listFilterJson.get("items");
+            if (hasFilterItems instanceof JSONArray) {
+                listFilterJson = JSONUtils.toJSONObject("filter", listFilterJson);
+            }
+
+            listFilterJson.put("entity", ((JSONObject) c.getJSON("config")).getString("entity"));
+            listFilterJson.put("filter_type", "list");
         }
 
         ModelAndView mv = createModelAndView("/common/chart");
         mv.getModel().put("chartId", chartid);
         mv.getModel().put("chartConfig", c.toJSONString());
-        mv.getModel().put("chartFilter", filterJson == null ? null : filterJson.toJSONString());
+        mv.getModel().put("chartFilter", listFilterJson == null ? null : listFilterJson.toJSONString());
         return mv;
     }
 }

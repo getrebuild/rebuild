@@ -151,7 +151,7 @@ class DataListSettings extends RbModalHandler {
               if (!x) return
 
               const $item = $(
-                `<li class="dd-item dd3-item" data-key="${x.field}"><div class="dd-handle dd3-handle"></div><div class="dd3-content">${x.label}</div><div class="dd3-action"></div></li>`
+                `<li class="dd-item dd3-item" data-key="${x.field}"><div class="dd-handle dd3-handle"></div><div class="dd3-content">${x.label}</div><div class="dd3-action"></div></li>`,
               ).appendTo($showfields)
 
               if (!window.UNSORT_FIELDTYPES.includes(x.type)) {
@@ -222,7 +222,7 @@ class DataListSettings extends RbModalHandler {
         onConfirm={(s) => {
           this.setState({ filterData: s })
         }}
-      />
+      />,
     )
   }
 
@@ -526,7 +526,7 @@ class MyBookmarkSettings extends RbModalHandler {
                   <div className="tab-pane" id="MBA2">
                     <div>
                       <label>{$L('进入列表')}</label>
-                      <select className="form-control form-control-sm">
+                      <select className="form-control form-control-sm" ref={(c) => (this._$listEntity = c)}>
                         <option value="" />
                         <optgroup label={$L('业务实体')}>
                           {this.state._entities &&
@@ -541,11 +541,31 @@ class MyBookmarkSettings extends RbModalHandler {
                         </optgroup>
                       </select>
                     </div>
+                    <div className="mt-1" style={{ marginBottom: -10 }}>
+                      <a
+                        className="btn btn-link btn-sm pl-0"
+                        onClick={(e) => {
+                          $stopEvent(e, true)
+                          renderRbcomp(
+                            <BindFilterDlg
+                              entity={$(this._$listEntity).val()}
+                              filter={this.state.filter}
+                              filterBadge={this.state.filterBadge}
+                              onConfirm={(v) => {
+                                this.setState({ filter: v.filter, filterBadge: v.filterBadge })
+                              }}
+                            />,
+                          )
+                        }}>
+                        <i className="icon mdi mdi-filter" /> {$L('默认查询')}
+                        {this.state.filter && <span> ({$L('已设置')})</span>}
+                      </a>
+                    </div>
                   </div>
                   <div className="tab-pane" id="MBA3">
                     <div>
-                      <label>{$L('支持绝对地址或相对地址')}</label>
-                      <input type="text" className="form-control form-control-sm" placeholder={$L('输入外部地址')} />
+                      <label>{$L('打开外部地址')}</label>
+                      <input type="text" className="form-control form-control-sm" placeholder={$L('输入')} />
                     </div>
                   </div>
                 </div>
@@ -627,7 +647,7 @@ class MyBookmarkSettings extends RbModalHandler {
   }
 
   handleConfirm() {
-    const append = {
+    const a = {
       icon: $(this._$name).find('i').attr('data-icon'),
       name: $(this._$name).find('input').val(),
       color: $(this._$name).find('input[type=color]').val(),
@@ -636,33 +656,106 @@ class MyBookmarkSettings extends RbModalHandler {
       _id: $random(),
     }
     if (this._actionType === 1) {
-      append.actionParams.push($('#MBA1 select').val())
-      if (!append.actionParams[0]) {
+      a.actionParams.push($('#MBA1 select').val())
+      if (!a.actionParams[0]) {
         return RbHighbar.create($L('请选择新建记录'))
       }
     } else if (this._actionType === 2) {
-      append.actionParams.push($('#MBA2 select').val())
-      if (!append.actionParams[0]) {
+      a.actionParams.push($('#MBA2 select').val())
+      if (!a.actionParams[0]) {
         return RbHighbar.create($L('请选择进入列表'))
       }
+      if (this.state.filter) {
+        a.actionParams.push(this.state.filter)
+        a.actionParams.push(this.state.filterBadge)
+      }
     } else if (this._actionType === 3) {
-      append.actionParams.push($('#MBA3 input').val())
-      if (!append.actionParams[0]) {
+      a.actionParams.push($('#MBA3 input').val())
+      if (!a.actionParams[0]) {
         return RbHighbar.create($L('请输入外部地址'))
       }
     }
     // # color
-    if (append.color === '#000000') append.color = null
+    if (a.color === '#000000') a.color = null
 
     const $btn = $(this._$btn).find('.btn').button('loading')
-    $.post(`/dashboard/builtin-chart-save?id=${this.props.chart}&append=true`, JSON.stringify(append), (res) => {
+    $.post(`/dashboard/builtin-chart-save?id=${this.props.chart}&append=true`, JSON.stringify(a), (res) => {
       $btn.button('reset')
       if (res.error_code === 0) {
-        typeof this.props.onConfirm === 'function' && this.props.onConfirm(append)
+        typeof this.props.onConfirm === 'function' && this.props.onConfirm(a)
         this.hide()
       } else {
         RbHighbar.error(res.error_msg)
       }
     })
+  }
+}
+
+// ~~ from: nav-settings.js
+// eslint-disable-next-line no-undef
+class BindFilterDlg extends Share2Switch {
+  renderContent() {
+    return (
+      <div className="form">
+        <div className="form-group mb-3">
+          <label className="text-bold">{$L('选择默认查询')}</label>
+          <select className="form-control form-control-sm" name="filter" defaultValue={this.state.filter || undefined} ref={(c) => (this._$filter = c)}>
+            {this.state.filterList &&
+              this.state.filterList.map((item) => {
+                return (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                )
+              })}
+          </select>
+        </div>
+        <div className="form-group mb-1">
+          <label className="custom-control custom-checkbox custom-control-inline custom-control-sm">
+            <input className="custom-control-input" type="checkbox" name="filterBadge" onChange={this.handleChange} checked={!!this.state.filterBadge} />
+            <span className="custom-control-label">{$L('显示数量徽标')}</span>
+          </label>
+        </div>
+        <div className="form-group mb-1">
+          <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
+            {$L('确定')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    function _FN(data) {
+      this.setState({ filterList: data || [] }, () => {
+        $(this._$filter)
+          .select2({
+            placeholder: $L('无'),
+          })
+          .on('change', (e) => this.setState({ filter: e.target.value }))
+          .val(this.props.filter || null)
+          .trigger('change')
+      })
+    }
+
+    if (this.props.entity) {
+      $.get(`/app/${this.props.entity}/advfilter/list`, (res) => _FN.call(this, res.data))
+    } else {
+      _FN.call(this, null)
+    }
+  }
+
+  getData() {
+    return {
+      filter: this.state.filter,
+      filterBadge: !!this.state.filterBadge,
+    }
+  }
+
+  handleConfirm() {
+    this.hide()
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(this.getData())
   }
 }

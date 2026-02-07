@@ -114,7 +114,7 @@ $(document).ready(() => {
         $('.data-aside>.rb-scroller').perfectScrollbar('update')
       },
       400,
-      '_search-fields'
+      '_search-fields',
     )
   })
 
@@ -138,7 +138,7 @@ $(document).ready(() => {
         />,
         function () {
           _AdvFilter = this
-        }
+        },
       )
     }
   })
@@ -220,24 +220,43 @@ $(document).ready(() => {
   const $bs = $('#useBgcolor')
   $bs.find('>a:eq(0)').on('click', function () {
     _removeClass($('#chart-preview >.chart-box'))
-    $bs.find('>a:eq(0)').attr('data-bgcolor', '')
+    $(this).attr('data-bgcolor', '')
     // check
     $bs.find('>a>i').remove()
-    $('<i class="zmdi zmdi-check"></i>').appendTo($bs.find('a:eq(0)'))
+    $('<i class="zmdi zmdi-check"></i>').appendTo(this)
   })
   $bs.find('>a:eq(1)').on('click', function () {
     renderRbcomp(
       <DlgBgcolor
         onConfirm={(colorIndex) => {
           _removeClass($('#chart-preview >.chart-box')).addClass(`gradient-bg gradient-bg-${colorIndex}`)
-          _removeClass($bs.find('>a:eq(1)')).addClass(`gradient-bg-${colorIndex}`)
-          $bs.find('>a:eq(0)').attr('data-bgcolor', colorIndex)
+          _removeClass($(this)).addClass(`gradient-bg-${colorIndex}`)
+          $(this).attr('data-bgcolor', colorIndex)
           // check
           $bs.find('>a>i').remove()
-          $('<i class="zmdi zmdi-check"></i>').appendTo($bs.find('a:eq(1)'))
+          $('<i class="zmdi zmdi-check"></i>').appendTo(this)
         }}
-      />
+      />,
     )
+  })
+
+  // 图标
+  const $ic = $('#useIcon')
+  $ic.find('>a:eq(0)').on('click', function () {
+    $ic.find('>a>i').remove()
+    $('<i class="zmdi zmdi-check"></i>').appendTo(this)
+    $(this).attr('data-icon', '')
+    render_preview()
+  })
+  $ic.find('>a:eq(1)').on('click', function () {
+    window.clickIcon = (icon) => {
+      $ic.find('>a:eq(0)').attr('data-icon', icon)
+      $(this).find('>i').remove()
+      $(`<i class="mdi ${icon}"></i>`).appendTo(this)
+      render_preview()
+      RbModal.hide()
+    }
+    RbModal.create('/p/common/search-icon', $L('选择图标'))
   })
 
   // init
@@ -273,6 +292,10 @@ $(document).ready(() => {
         $bs.find('a:eq(0)').attr('data-bgcolor', option[k])
         $bs.find('a:eq(1)').removeClass('gradient-bg-100').addClass(`gradient-bg-${option[k]}`)
         $('<i class="zmdi zmdi-check"></i>').appendTo($bs.find('a:eq(1)'))
+      }
+      if (k === 'useIcon' && option[k]) {
+        $ic.find('a:eq(0)').attr('data-icon', option[k])
+        $(`<i class="mdi ${option[k]}"></i>`).appendTo($ic.find('a:eq(1)'))
       }
     }
   }
@@ -419,7 +442,7 @@ function add_axis($target, axis) {
           />,
           function () {
             _axisAdvFilters[fkey] = this
-          }
+          },
         )
       }
     } else {
@@ -475,7 +498,7 @@ const _showFormula43 = function ($dd) {
       }}
       fields={fields}
       initFormula={$dd.attr('data-formula')}
-    />
+    />,
   )
 }
 
@@ -575,7 +598,7 @@ function render_preview() {
       }
     },
     400,
-    'chart-preview'
+    'chart-preview',
   )
 }
 function render_preview_error(err) {
@@ -611,6 +634,10 @@ function build_config() {
   let bgcolor = $('#useBgcolor >a:eq(0)')
   if (bgcolor[0]) option.useBgcolor = bgcolor.attr('data-bgcolor')
   else option.useBgcolor = null
+  // v4.3
+  let useIcon = $('#useIcon >a:eq(0)')
+  if (useIcon[0]) option.useIcon = useIcon.attr('data-icon')
+  else option.useIcon = null
 
   // 排他
   $('input[data-name="showMutliYAxis"]').attr('disabled', option.showHorizontal === true)

@@ -385,6 +385,12 @@ public class MetadataHelper {
     public static Field getLastJoinField(Entity entity, String fieldPath, boolean compatibleN2N) {
         final String[] ps = fieldPath.split("\\.");
 
+        // v4.3 兼容本实体字段
+        if (ps.length == 1) {
+            if (entity.containsField(fieldPath)) return entity.getField(fieldPath);
+            return null;
+        }
+
         if (fieldPath.charAt(0) == QueryCompiler.NAME_FIELD_PREFIX) {
             ps[0] = ps[0].substring(1);
             if (!entity.containsField(ps[0])) return null;

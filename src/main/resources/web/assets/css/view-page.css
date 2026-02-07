@@ -220,12 +220,15 @@ body {
 
 .nav-tabs .badge {
   position: absolute;
-  top: -1px;
+  top: 1px;
   right: -4px;
   font-size: 0.8462rem;
   font-weight: normal;
   line-height: 1.3;
   background-color: var(--rb-theme-color);
+  padding-right: 0.5em;
+  padding-left: 0.5em;
+  min-width: 18px;
 }
 
 .related-list {
@@ -490,21 +493,22 @@ body {
 .type-FILE .edit-oper,
 .type-MULTISELECT .edit-oper,
 .type-IMAGE .edit-oper,
-.type-SIGN .edit-oper {
+.type-SIGN .edit-oper,
+.type-PICKLIST .style10 + .edit-oper {
   border-top: 1px solid #dbdbdb;
+}
+
+.type-IMAGE .edit-oper {
+  margin-top: -3px;
 }
 
 .type-AVATAR .edit-oper,
 .type-SIGN .edit-oper {
-  margin-top: 6px;
+  margin-top: 7px;
 }
 
-.type-IMAGE .edit-oper {
-  margin-top: -2px;
-}
-
-.type-MULTISELECT .edit-oper {
-  margin-top: -1px;
+.type-MULTISELECT select + span + .edit-oper {
+  border-top: 0 none;
 }
 
 .rbview-form .img-field .img-upload.img-thumbnail.zoom-in {

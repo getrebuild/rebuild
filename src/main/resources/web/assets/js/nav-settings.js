@@ -45,10 +45,17 @@ $(document).ready(() => {
         if (d) {
           $('.J_menuIcon>i').attr('class', use_icon(d.icon))
           $('.J_menuName').val(d.label)
+          $('.J_bindFilter>a').removeAttr('data-filter')
         }
 
-        if ($ref.val() === TYPE_PARENT) $('.J_parentOption').show()
-        else $('.J_parentOption').hide()
+        if ($ref.val() === TYPE_PARENT) {
+          $('.J_parentOption').show()
+          $('.J_bindFilter').hide()
+        } else {
+          $('.J_parentOption').hide()
+          if (d && d.entity) $('.J_bindFilter').show()
+          else $('.J_bindFilter').hide()
+        }
       })
   })
 
@@ -60,15 +67,35 @@ $(document).ready(() => {
     parent.RbModal.create('/p/common/search-icon', $L('选择图标'), { zIndex: 1051 })
   })
 
+  const $filter = $('.J_bindFilter>a').on('click', (e) => {
+    $stopEvent(e, true)
+    renderRbcomp(
+      <BindFilterDlg
+        entity={$('.J_menuEntity').val()}
+        filter={$filter.attr('data-filter') || ''}
+        filterBadge={$filter.attr('data-filterBadge') === 'true'}
+        onConfirm={(v) => {
+          $filter.attr({ 'data-filter': v.filter || '', 'data-filterBadge': v.filterBadge })
+        }}
+      />,
+    )
+  })
+
   $('.J_menuConfirm').on('click', () => {
     const name = $val('.J_menuName')
     if (!name) return RbHighbar.create($L('请输入菜单名称'))
 
     const type = $('.J_menuType.active').attr('href').substr(1)
     let value
+    let rest43
     if (type === 'ENTITY') {
       value = $('.J_menuEntity').val()
       if (!value) return RbHighbar.create($L('请选择关联项'))
+      rest43 = {
+        filter: $filter.attr('data-filter') || null,
+        filterBadge: $filter.attr('data-filterBadge') || false,
+      }
+      $filter.removeAttr('data-filter').removeAttr('data-filterBadge')
     } else {
       value = $val('.J_menuUrl')
       if (!value) {
@@ -87,6 +114,7 @@ $(document).ready(() => {
       value: value,
       icon: icon,
       open: $val($('#defaultOpen')),
+      ...rest43,
     })
 
     item_currentid = null
@@ -202,6 +230,8 @@ const build_item = function (item) {
     type: item.attr('attr-type'),
     value: item.attr('attr-value'),
     icon: item.attr('attr-icon'),
+    filter: item.attr('attr-filter') || null,
+    filterBadge: item.attr('attr-filterBadge') === 'true',
   }
   if (!data.value) return null
 
@@ -271,6 +301,8 @@ const render_item = function (data, isNew, append2) {
     'attr-value': data.value || '',
     'attr-icon': data.icon,
     'attr-open': data.open || '',
+    'attr-filter': data.filter || '',
+    'attr-filterBadge': data.filterBadge || false,
   })
 
   // event
@@ -288,8 +320,12 @@ const render_item = function (data, isNew, append2) {
       $('.J_menuType:eq(1)')[0].click()
       $('.J_menuUrl').val(data.value)
     } else {
+      // force renew
+      data.value = $item.attr('attr-value')
+      data.filter = $item.attr('attr-filter')
+      data.filterBadge = $item.attr('attr-filterBadge')
+
       $('.J_menuType:eq(0)')[0].click()
-      data.value = $item.attr('attr-value') // force renew
       const $me = $('.J_menuEntity').val(data.value).trigger('change')
 
       if (data.value === TYPE_PARENT) {
@@ -300,6 +336,8 @@ const render_item = function (data, isNew, append2) {
         $me.attr('disabled', false)
         $('.J_parentOption').hide()
       }
+
+      $('.J_bindFilter>a').attr({ 'data-filter': data.filter, 'data-filterBadge': data.filterBadge })
 
       // 实体已经不存在
       // if (_entity_data[data.value]) $me.removeClass('is-invalid')
@@ -432,7 +470,7 @@ class TopNavSettings extends Share2Switch {
                 axis: 'y',
               })
               .disableSelection()
-          }
+          },
         )
       })
     })
@@ -461,5 +499,68 @@ class TopNavSettings extends Share2Switch {
         if (newNameChanged) location.reload()
       }, 200)
     })
+  }
+}
+
+// ~~ 绑定查询
+// eslint-disable-next-line no-undef
+class BindFilterDlg extends Share2Switch {
+  renderContent() {
+    return (
+      <div className="form">
+        <div className="form-group mb-3">
+          <label className="text-bold">{$L('选择默认查询')}</label>
+          <select className="form-control form-control-sm" name="filter" defaultValue={this.state.filter || undefined} ref={(c) => (this._$filter = c)}>
+            {this.state.filterList &&
+              this.state.filterList.map((item) => {
+                return (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                )
+              })}
+          </select>
+        </div>
+        <div className="form-group mb-1">
+          <label className="custom-control custom-checkbox custom-control-inline custom-control-sm">
+            <input className="custom-control-input" type="checkbox" name="filterBadge" onChange={this.handleChange} checked={!!this.state.filterBadge} />
+            <span className="custom-control-label">{$L('显示数量徽标')}</span>
+          </label>
+        </div>
+        <div className="form-group mb-1">
+          <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
+            {$L('确定')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    $.get(`/app/${this.props.entity}/advfilter/list`, (res) => {
+      this.setState({ filterList: res.data || [] }, () => {
+        $(this._$filter)
+          .select2({
+            placeholder: $L('无'),
+          })
+          .on('change', (e) => this.setState({ filter: e.target.value }))
+          .val(this.props.filter || null)
+          .trigger('change')
+      })
+    })
+  }
+
+  getData() {
+    return {
+      filter: this.state.filter,
+      filterBadge: !!this.state.filterBadge,
+    }
+  }
+
+  handleConfirm() {
+    this.hide()
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(this.getData())
   }
 }

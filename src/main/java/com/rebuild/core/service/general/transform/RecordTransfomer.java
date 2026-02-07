@@ -469,7 +469,7 @@ public class RecordTransfomer extends SetUser {
             }
         }
 
-        String clearFormula = formula.startsWith("{{{{")
+        String clearFormula = formula.startsWith(AviatorUtils.CODE_PREFIX)
                 ? formula.substring(4, formula.length() - 4)
                 : formula.replace("×", "*").replace("÷", "/");
 

@@ -544,6 +544,7 @@ create table if not exists `smsend_log` (
   `TYPE`               smallint(6) default '0' comment '类型 (1=短信; 2=邮件)',
   `SEND_TIME`          datetime not null default current_timestamp comment '发送时间',
   `SEND_RESULT`        varchar(701) comment '发送结果 (xxx|ERR:xxx)',
+  `FROM_SOURCE`        char(20) comment '触发源 ID',
   primary key  (`SEND_ID`),
   index IX0_smsend_log (`TYPE`, `SEND_TIME`, `SEND_RESULT`)
 )Engine=InnoDB;
@@ -981,4 +982,4 @@ insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NU
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 68);
+  values ('021-9000000000000001', 'DBVer', 69);

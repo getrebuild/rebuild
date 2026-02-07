@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -190,17 +190,17 @@
                   </label>
                 </div>
                 <div class="hide J_opt-INDEX">
-                  <label style="color: #444; margin-bottom: 8px">[[${bundle.L('颜色')}]]</label>
+                  <label class="line-style">[[${bundle.L('颜色')}]]</label>
                   <div id="useColor" class="rbcolors">
                     <a class="default" th:title="${bundle.L('默认')}"></a>
                   </div>
                 </div>
                 <div class="hide J_opt-DATALIST2 J_opt-TABLE">
-                  <label style="color: #444">[[${bundle.L('最大显示条数')}]]</label>
+                  <label class="line-style">[[${bundle.L('最大显示条数')}]]</label>
                   <input type="text" data-name="pageSize" th:placeholder="${bundle.L('默认')}" maxlength="4" />
                 </div>
                 <div class="hide J_opt-CNMAP">
-                  <label style="color: #444">[[${bundle.L('样式')}]]</label>
+                  <label class="line-style">[[${bundle.L('样式')}]]</label>
                   <select data-name="themeStyle">
                     <option value="">[[${bundle.L('默认')}]]</option>
                     <option value="dark">[[${bundle.L('深色')}]]</option>
@@ -208,7 +208,7 @@
                   </select>
                 </div>
                 <div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PARETO J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP J_opt-RADAR J_opt-SCATTER">
-                  <label style="color: #444">[[${bundle.L('样式')}]]</label>
+                  <label class="line-style">[[${bundle.L('样式')}]]</label>
                   <select data-name="themeStyle" class="themeStyle">
                     <option value="">[[${bundle.L('默认')}]]</option>
                     <option value="shine">SHINE</option>
@@ -224,10 +224,17 @@
                   </select>
                 </div>
                 <div class="hide J_opt-TABLE J_opt-INDEX J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PARETO J_opt-PIE J_opt-FUNNEL J_opt-RADAR J_opt-SCATTER">
-                  <label style="color: #444; margin-bottom: 8px">[[${bundle.L('背景色')}]]</label>
+                  <label class="line-style">[[${bundle.L('背景色')}]]</label>
                   <div id="useBgcolor" class="rbcolors">
                     <a class="default" th:title="${bundle.L('默认')}"></a>
                     <a class="custom gradient-bg-100" th:title="${bundle.L('点击选择')}"></a>
+                  </div>
+                </div>
+                <div class="hide J_opt-INDEX">
+                  <label class="line-style">[[${bundle.L('图标')}]]</label>
+                  <div id="useIcon" class="rbcolors">
+                    <a class="default" th:title="${bundle.L('默认')}"></a>
+                    <a class="custom" th:title="${bundle.L('点击选择')}"></a>
                   </div>
                 </div>
               </div>

@@ -64,6 +64,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static com.rebuild.core.service.trigger.aviator.AviatorUtils.CODE_PREFIX;
+
 /**
  * 字段更新，场景 1>1 1>N
  *
@@ -88,8 +90,6 @@ public class FieldWriteback extends FieldAggregation {
 
     // 兼容老公式
     private static final String DATE_EXPR = "#";
-    // 高级公式使用 {{{{}}}} 包裹
-    private static final String CODE_PREFIX = "{{{{";  // ends with }}}}
     // 使用目标记录的字段变量（前缀）
     private static final String SOURCE_FIELD_VAR_PREFIX = "^";
 

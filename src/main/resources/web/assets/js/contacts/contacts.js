@@ -16,55 +16,57 @@ class ContactList extends React.Component {
       <div className="contact-list">
         {(this.state.data || []).map((item) => {
           return (
-            <div className="card" key={item.id}>
-              <div className="card-body">
-                <div className="img float-left">
-                  <a className="user-show">
-                    <div className="avatar">
-                      <img src={`${rb.baseUrl}/account/user-avatar/${item.id}`} />
-                    </div>
-                  </a>
-                </div>
-                <div className="info">
-                  <table>
-                    <tbody>
-                      <tr>
-                        <td colSpan="2">
-                          <strong>{item.fullName}</strong>
-                          <p className="m-0 text-muted" style={{ marginTop: -2 }}>
-                            {item.deptName}
-                          </p>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>{$L('邮箱')}</td>
-                        <td>
-                          {item.email ? (
-                            <a href={`mailto:${item.email}`} className="link">
-                              {item.email}
-                            </a>
-                          ) : (
-                            <span className="text-muted">{$L('无')}</span>
-                          )}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>{$L('电话')}</td>
-                        <td>
-                          {item.workphone ? (
-                            <a href={`tel:${item.workphone}`} className="link">
-                              {item.workphone}
-                            </a>
-                          ) : (
-                            <span className="text-muted">{$L('无')}</span>
-                          )}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+            <span key={item.id}>
+              <div className="card">
+                <div className="card-body">
+                  <div className="img float-left">
+                    <a className="user-show">
+                      <div className="avatar">
+                        <img src={`${rb.baseUrl}/account/user-avatar/${item.id}`} />
+                      </div>
+                    </a>
+                  </div>
+                  <div className="info">
+                    <table>
+                      <tbody>
+                        <tr>
+                          <td colSpan="2">
+                            <strong>{item.fullName}</strong>
+                            <p className="m-0 text-muted" style={{ marginTop: -2 }}>
+                              {item.deptName}
+                            </p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>{$L('邮箱')}</td>
+                          <td>
+                            {item.email ? (
+                              <a href={`mailto:${item.email}`} className="link" title={item.email}>
+                                {item.email}
+                              </a>
+                            ) : (
+                              <span className="text-muted">{$L('无')}</span>
+                            )}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>{$L('电话')}</td>
+                          <td>
+                            {item.workphone ? (
+                              <a href={`tel:${item.workphone}`} className="link" title={item.workphone}>
+                                {item.workphone}
+                              </a>
+                            ) : (
+                              <span className="text-muted">{$L('无')}</span>
+                            )}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
-            </div>
+            </span>
           )
         })}
 

@@ -130,7 +130,7 @@ const FolderTree = {
 }
 
 // 渲染目录
-const _renderFolderOption = function (item, idx, disabledItem) {
+const _renderFolder = function (item, idx, disabledItem) {
   idx = idx || 0
   if (item.id === __DEFAULT_ALL) item = { text: $L('无') }
 
@@ -145,7 +145,7 @@ const _renderFolderOption = function (item, idx, disabledItem) {
 
   if (item.children) {
     item.children.forEach((item) => {
-      options = options.concat(_renderFolderOption(item, idx + 1, disabledItem))
+      options = options.concat(_renderFolder(item, idx + 1, disabledItem))
     })
   }
 
@@ -203,14 +203,14 @@ class FolderEditDlg extends RbFormHandler {
             <div className="col-sm-7">
               <select className="form-control form-control-sm" name="parent" defaultValue={this.props.parent || null} onChange={this.handleChange}>
                 {__FolderData.map((item) => {
-                  return _renderFolderOption(item)
+                  return _renderFolder(item)
                 })}
               </select>
             </div>
           </div>
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3">
-              <button className="btn btn-primary" type="button" onClick={this._post}>
+              <button className="btn btn-primary" type="button" onClick={() => this._post()}>
                 {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
@@ -223,7 +223,7 @@ class FolderEditDlg extends RbFormHandler {
     )
   }
 
-  _post = () => {
+  _post() {
     const _data = {
       name: this.state.name,
       parent: this.state.parent,
@@ -251,7 +251,7 @@ class FolderEditDlg extends RbFormHandler {
 
 // ~ 上传
 class FileUploadDlg extends RbFormHandler {
-  state = { ...this.props }
+  state = { ...this.props, uploadState: 0 }
 
   render() {
     const files = this.state.files || {}
@@ -264,7 +264,7 @@ class FileUploadDlg extends RbFormHandler {
             <div className="col-sm-7">
               <select className="form-control form-control-sm" name="inFolder" defaultValue={this.props.inFolder} onChange={this.handleChange}>
                 {__FolderData.map((item) => {
-                  return _renderFolderOption(item)
+                  return _renderFolder(item)
                 })}
               </select>
             </div>
@@ -281,7 +281,7 @@ class FileUploadDlg extends RbFormHandler {
                       className="img-thumbnail"
                       title={file}
                       onClick={() => {
-                        if (state.key) RbPreview.create(state.key)
+                        state.key && RbPreview.create(state.key)
                       }}>
                       <i className="file-icon" data-type={$fileExtName(file)} />
                       <span>{file}</span>
@@ -289,25 +289,27 @@ class FileUploadDlg extends RbFormHandler {
                         {state.key && <i className="zmdi zmdi-check text-success" />}
                         {state.error && <i className="zmdi zmdi-close-circle-o text-danger" />}
                       </span>
-                      {(state.key || state.error) && (
-                        <b title={$L('移除')} onClick={(e) => this._removeFile(file, e)}>
-                          <span className="zmdi zmdi-close" />
-                        </b>
-                      )}
+                      <b title={$L('移除')} onClick={(e) => this._removeFile(file, e)}>
+                        <span className="zmdi zmdi-close" />
+                      </b>
                     </div>
                   )
                 })}
               </div>
-              <label className="upload-box">
+              <label className={`upload-box ${this.state.uploadState === 0 ? '' : 'hide'}`}>
                 {$L('粘贴、拖动或点击选择文件')}
                 <input type="file" ref={(c) => (this._$upload = c)} className="hide" multiple />
               </label>
+              <input type="file" ref={(c) => (this._$uploadForUploader43 = c)} className="hide" multiple />
             </div>
           </div>
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
-              <button className="btn btn-primary" type="button" onClick={this._post}>
-                {$L('上传')}
+              <button className={`btn btn-primary ${this.state.uploadState <= 1 ? '' : 'hide'}`} type="button" onClick={() => this._post()}>
+                {$L('开始上传')}
+              </button>
+              <button className={`btn btn-primary ${this.state.uploadState === 2 ? '' : 'hide'}`} type="button" onClick={() => this._reset()}>
+                {$L('继续上传')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
                 {$L('取消')}
@@ -325,26 +327,40 @@ class FileUploadDlg extends RbFormHandler {
     let fixConcurrency = 0
     function _FN(file, s) {
       if (fixConcurrency === 1) return
-
       const files = that.state.files || {}
-      files[file.name] = s
-      fixConcurrency = 1
-      that.setState({ files: files }, () => (fixConcurrency = 0))
+      if (files[file.name]) {
+        files[file.name] = { ...files[file.name], ...s }
+        fixConcurrency = 1
+        that.setState({ files: files }, () => {
+          fixConcurrency = 0
+          that._postIfUploaded()
+        })
+      }
     }
 
     $createUploader(
-      this._$upload,
+      this._$uploadForUploader43,
       (res) => _FN(res.file, { percent: res.percent }),
       (res) => _FN(res.file, { key: res.key }),
       (res) => _FN(res.file, { error: res.error })
     )
 
-    function _dropOrPasteUpload(files) {
-      if (!files || files.length === 0) return false
-      that._$upload.files = files
-      $(that._$upload).trigger('change')
-    }
-    $dropUpload(this._$dropArea, document, _dropOrPasteUpload)
+    $(this._$upload).on('change', (e) => {
+      let files = {}
+      for (let i = 0; i < (e.target.files || []).length; i++) {
+        let file = e.target.files[i]
+        files[file.name] = { file: file, key: null, error: null, percent: 0 } // All keys
+      }
+      this.setState({ files })
+    })
+
+    // 粘贴/拖动
+    $dropUpload(this._$dropArea, document, (files) => {
+      if (files && files.length) {
+        that._$upload.files = files
+        $(that._$upload).trigger('change')
+      }
+    })
   }
 
   componentWillUnmount() {
@@ -352,41 +368,142 @@ class FileUploadDlg extends RbFormHandler {
     $(document).off('paste.file')
   }
 
-  _removeFile(file, e) {
-    e && $stopEvent(e, true)
-    const files = this.state.files || {}
-    delete files[file]
-    this.setState({ files: files })
+  _reset() {
+    this.setState({ files: {}, uploadState: 0 })
+    this._$upload.value = null
+    this._$uploadForUploader43.value = null
   }
 
-  _post = () => {
-    let hasUploading
-    let files = []
-    if (this.state.files) {
-      for (let k in this.state.files) {
-        const file = this.state.files[k]
-        if (file) {
-          if (file.key) files.push(file.key)
-          else if (file.error);
-          else hasUploading = true
-        }
+  _removeFile(fileName, e) {
+    e && $stopEvent(e, true)
+    const files = this.state.files || {}
+    delete files[fileName]
+    this.setState({ files: files }, () => this._postIfUploaded())
+  }
+
+  _post(notip) {
+    if ($empty(this.state.files)) {
+      if (!notip) RbHighbar.create($L('请选择文件'))
+      return
+    }
+
+    let fileNames = []
+    let dt = new DataTransfer()
+    for (let name in this.state.files) {
+      const file = this.state.files[name]
+      if (file) {
+        dt.items.add(file.file)
+        fileNames.push(file.file.name)
       }
     }
 
-    if (hasUploading) return RbHighbar.create($L('请等待文件上传完成'))
-    if (files.length === 0) return RbHighbar.create($L('请选择文件'))
+    const that = this
+    function _FN() {
+      that._$uploadForUploader43.files = dt.files
+      $(that._$uploadForUploader43).trigger('change')
+      that.disabled(true)
+      that.setState({ uploadState: 1 })
+    }
 
-    this.disabled(true)
-    $.post(`/files/post-files?folder=${this.state.inFolder || ''}`, JSON.stringify(files), (res) => {
+    this.__lastExistsFiles = null
+    $.post(`/files/check-files?folder=${this.state.inFolder || ''}`, JSON.stringify(fileNames), (res) => {
       if (res.error_code === 0) {
-        this.hide()
-        this.props.call && this.props.call()
+        const existsFiles = res.data || {}
+        if (Object.keys(existsFiles).length) {
+          _showExists43(
+            existsFiles,
+            () => {
+              // 覆盖
+              this.__lastExistsFiles = existsFiles
+              _FN()
+            },
+            () => {
+              // 跳过
+              const filesNew = this.state.files || {}
+              Object.keys(existsFiles).forEach((fileName) => {
+                delete filesNew[fileName]
+              })
+              this.setState({ files: filesNew }, () => {
+                this._post(true)
+                if ($empty(filesNew)) this._reset()
+              })
+            }
+          )
+        } else {
+          _FN()
+        }
       } else {
         RbHighbar.error(res.error_msg)
         this.disabled()
       }
     })
   }
+
+  _postIfUploaded() {
+    let fileKeys = []
+    for (let k in this.state.files) {
+      let file = this.state.files[k]
+      if (file && file.key) {
+        fileKeys.push(file.key)
+      } else {
+        fileKeys = null
+        break
+      }
+    }
+    if (!fileKeys) return
+
+    if (fileKeys.length === 0) {
+      this.disabled()
+      this.setState({ uploadState: 0 })
+      RbHighbar.create($L('请选择文件'))
+      return
+    }
+
+    let url = `/files/post-files?folder=${this.state.inFolder || ''}`
+    if (this.__lastExistsFiles) url += '&deletes=' + Object.values(this.__lastExistsFiles).join(',')
+    $.post(url, JSON.stringify(fileKeys), (res) => {
+      this.disabled()
+      this.setState({ uploadState: 2 })
+      if (res.error_code === 0) {
+        typeof this.props.call === 'function' && this.props.call()
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+}
+
+function _showExists43(existsFiles, onConfirm, onCancel) {
+  const checkMsg = (
+    <div>
+      <h5 className="text-bold">{$L('存在同名文件，是否覆盖？')}</h5>
+      <table className="table table-sm table-bordered" style={{ margin: '0 auto', width: 'auto', minWidth: '60%' }}>
+        <tbody>
+          {Object.keys(existsFiles).map((item, idx) => {
+            return (
+              <tr key={idx}>
+                <td className="text-break">{item}</td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+
+  RbAlert.create(checkMsg, {
+    type: 'warning',
+    confirmText: $L('覆盖'),
+    onConfirm: function () {
+      onConfirm && onConfirm()
+      this.hide()
+    },
+    cancelText: $L('跳过'),
+    onCancel: function () {
+      onCancel && onCancel()
+      this.hide()
+    },
+  })
 }
 
 // ~ 移动目录
@@ -395,21 +512,21 @@ class FileMoveDlg extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L('移动文件')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={$L('移动文件')} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('更改至新目录')}</label>
             <div className="col-sm-7">
               <select className="form-control form-control-sm" name="inFolder" onChange={this.handleChange}>
                 {__FolderData.map((item) => {
-                  return _renderFolderOption(item)
+                  return _renderFolder(item)
                 })}
               </select>
             </div>
           </div>
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
-              <button className="btn btn-primary" type="button" onClick={this._post}>
+              <button className="btn btn-primary" type="button" onClick={() => this._post()}>
                 {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
@@ -422,12 +539,53 @@ class FileMoveDlg extends RbFormHandler {
     )
   }
 
-  _post = () => {
+  _post() {
+    const that = this
+    function _FN(files, deletes) {
+      if ($empty(files)) {
+        that.hide()
+        return
+      }
+
+      let url = `/files/move-files?folder=${that.state.inFolder || ''}&ids=${files.join(',')}`
+      if (deletes) url += '&deletes=' + deletes.join(',')
+      $.post(url, (res) => {
+        if (res.error_code === 0) {
+          that.hide()
+          that.props.call && that.props.call()
+        } else {
+          RbHighbar.error(res.error_msg)
+          that.disabled()
+        }
+      })
+    }
+
     this.disabled(true)
-    $.post(`/files/move-files?folder=${this.state.inFolder || ''}&ids=${this.props.files.join(',')}`, (res) => {
+    $.post(`/files/check-files?folder=${this.state.inFolder || ''}`, JSON.stringify(this.props.files), (res) => {
       if (res.error_code === 0) {
-        this.hide()
-        this.props.call && this.props.call()
+        const existsFiles = res.data || {}
+        if (Object.keys(existsFiles).length) {
+          const existsFilesId = Object.values(existsFiles)
+          _showExists43(
+            existsFiles,
+            () => {
+              // 覆盖
+              _FN(this.props.files, existsFilesId)
+            },
+            () => {
+              // 跳过
+              const filesNew = []
+              for (let k in this.props.filesName) {
+                const name = this.props.filesName[k]
+                if (!existsFiles[name]) filesNew.push(k)
+              }
+
+              _FN(filesNew, null)
+            }
+          )
+        } else {
+          _FN(this.props.files)
+        }
       } else {
         RbHighbar.error(res.error_msg)
         this.disabled()
@@ -527,7 +685,12 @@ $(document).ready(() => {
   $('.J_move').on('click', () => {
     const s = filesList.getSelected()
     if (!s) return
-    renderRbcomp(<FileMoveDlg files={s} call={() => filesList && filesList.loadData()} />)
+
+    const filesName43 = {}
+    filesList.state.files.forEach((item) => {
+      if (s.includes(item.id)) filesName43[item.id] = item.fileName
+    })
+    renderRbcomp(<FileMoveDlg files={s} filesName={filesName43} call={() => filesList.loadData()} />)
   })
 
   $('a.J_dl').on('click', () => {

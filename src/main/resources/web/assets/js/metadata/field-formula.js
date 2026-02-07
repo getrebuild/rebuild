@@ -7,8 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // 验证公式有效性
 function verifyFormula(formula, entity, onConfirm) {
-  formula = formula.replace(/\n/gi, '\\n')
-  $.post(`/admin/robot/trigger/verify-formula?entity=${entity}`, formula, (res) => {
+  const b64 = $base64Encode($base64Encode(formula))
+  $.post(`/admin/robot/trigger/verify-formula?b64=2&entity=${entity}`, b64, (res) => {
     if (res.error_code === 0) {
       onConfirm()
     } else {
@@ -26,7 +26,7 @@ function verifyFormula(formula, entity, onConfirm) {
           onCancel: function () {
             this.hide()
           },
-        }
+        },
       )
     }
   })
@@ -92,9 +92,10 @@ class FormulaCalc extends RbAlert {
       split.forEach((v) => {
         if (v.startsWith('{') && v.endsWith('}')) {
           let field = v.substring(1, v.length - 1)
+          let fieldName43 = field.split('$$$$')[0]
           let label = `[${field.toUpperCase()}]`
           this.props.fields.forEach((f) => {
-            if (f.name === field) {
+            if (f.name === fieldName43) {
               label = f.label
             }
           })
@@ -157,108 +158,6 @@ class FormulaCalc extends RbAlert {
     formula = formula.replace(new RegExp('\\{____', 'g'), '{') // fix: Label 与 Name 名称冲突
 
     return formula //.toUpperCase()
-  }
-}
-
-// ~ 聚合公式编辑器
-// eslint-disable-next-line no-unused-vars
-class FormulaAggregation extends FormulaCalc {
-  handleInput(v) {
-    if (typeof v === 'object') {
-      const that = this
-      const $field = $(`<span class="v field hover"><i data-toggle="dropdown" data-v="{${v.name}}" data-name="${v.label}">{${v.label}}<i></span>`)
-      const $aggrMenu = $('<div class="dropdown-menu dropdown-menu-sm"></div>').appendTo($field)
-      $(['', 'SUM', 'COUNT', 'COUNT2', 'AVG', 'MAX', 'MIN']).each(function () {
-        const $a = $(`<a class="dropdown-item" data-mode="${this}">${FormulaAggregation.CALC_MODES[this] || $L('无')}</a>`).appendTo($aggrMenu)
-        $a.on('click', function () {
-          that._changeCalcMode(this)
-        })
-      })
-      $field.appendTo(this._$formula)
-      $aggrMenu.find('a:eq(1)').trigger('click') // default:SUM
-    } else {
-      super.handleInput(v)
-    }
-  }
-
-  _changeCalcMode(el) {
-    el = $(el)
-    const $field = el.parent().prev()
-    const mode = el.data('mode')
-    const modeText = mode ? ` (${FormulaAggregation.CALC_MODES[mode]})` : ''
-    $field.attr('data-mode', mode || '').text(`{${$field.data('name')}${modeText}}`)
-  }
-
-  confirm() {
-    const expr = []
-    $(this._$formula)
-      .find('i')
-      .each(function () {
-        const $this = $(this)
-        const v = $this.data('v')
-        if ($this.attr('data-mode')) expr.push(`${v.substr(0, v.length - 1)}$$$$${$this.attr('data-mode')}}`)
-        else expr.push(v)
-      })
-
-    let formula
-    if ($(this._$formulaInput).val()) formula = $(this._$formulaInput).val()
-    else formula = expr.join('')
-
-    const that = this
-    function _onConfirm() {
-      typeof that.props.onConfirm === 'function' && that.props.onConfirm(formula)
-      that.hide()
-    }
-
-    if (formula && this.props.verifyFormula) {
-      verifyFormula(formula, this.props.entity, _onConfirm)
-    } else {
-      _onConfirm()
-    }
-  }
-
-  static CALC_MODES = {
-    SUM: $L('求和'),
-    COUNT: $L('计数'),
-    COUNT2: $L('去重计数'),
-    AVG: $L('平均值'),
-    MAX: $L('最大值'),
-    MIN: $L('最小值'),
-    FORMULA: $L('计算公式'),
-  }
-
-  /**
-   * 公式文本化
-   *
-   * @param {*} formula
-   * @param {*} fields
-   * @returns
-   */
-  static textFormula(formula, fields) {
-    if (!formula) return ''
-
-    for (let i = 0; i < fields.length; i++) {
-      const field = fields[i]
-      formula = formula.replace(new RegExp(`\\{${field.name}\\}`, 'ig'), `{${field.label}}`)
-      formula = formula.replace(new RegExp(`\\{${field.name}\\$`, 'ig'), `{${field.label}$`)
-    }
-
-    const keys = Object.keys(FormulaAggregation.CALC_MODES)
-    keys.reverse()
-    keys.forEach((k) => {
-      formula = formula.replace(new RegExp(`\\$\\$\\$\\$${k}`, 'g'), ` (${FormulaAggregation.CALC_MODES[k]})`)
-    })
-    return formula //.toUpperCase()
-  }
-
-  /**
-   * @param {*} name
-   * @param {*} fields
-   * @returns
-   */
-  static getLabel(name, fields) {
-    const x = fields.find((x) => x.name === name)
-    return x ? x.label : `[${name.toUpperCase()}]`
   }
 }
 
@@ -576,7 +475,7 @@ class EditorWithFieldVars extends React.Component {
 
     // v4.2
     if (this.props.showFuncs) {
-      const IGNORED_NAMES = ['CACHE', 'LOG', 'RAWSQLQUERY', 'RAWSQLUPDATE', 'USERUPDATE', 'DEPTUPDATE', 'PDFMERGE', 'HANLPSIM', 'HANLPSEG', 'HANLPPINY', '$L']
+      const IGNORED_NAMES = ['CACHE', 'LOG', 'RAWSQLQUERY', 'RAWSQLUPDATE', 'USERUPDATE', 'DEPTUPDATE', 'PDFMERGE', 'HANLPSIM', 'HANLPSEG', 'HANLPPINY', '$L', 'ZIP']
       $.get('/admin/robot/trigger/field-writeback-custom-funcs', (res) => {
         let funcs = []
         res.data.forEach((name) => {
@@ -616,6 +515,10 @@ class EditorWithFieldVars extends React.Component {
 // ~ 公式编辑器
 // eslint-disable-next-line no-unused-vars
 class FormulaCalcWithCode extends FormulaCalc {
+  constructor(props) {
+    super(props)
+  }
+
   renderContent() {
     let forceCode = this.props.forceCode || this.state.useCode
     let initCode = this.props.initFormula
@@ -697,7 +600,7 @@ class FormulaCalcWithCode extends FormulaCalc {
 
   componentDidMount() {
     if (this._$fields) {
-      $(this._$fields).css('max-height', 221)
+      $(this._$fields).css('max-height', 220)
 
       const $btn = $(`<a class="switch-code-btn" title="${$L('使用高级计算公式')}"><i class="icon mdi mdi-code-tags"></i></a>`)
       $(this._$formula).addClass('switch-code').after($btn)
@@ -750,16 +653,14 @@ class FormulaCode extends React.Component {
   }
 
   handleConfirm() {
-    const formula = this._formulaCode.val()
+    const code = this._formulaCode.val()
     const that = this
     function _onConfirm() {
-      typeof that.props.onConfirm === 'function' && that.props.onConfirm(formula)
+      typeof that.props.onConfirm === 'function' && that.props.onConfirm(code)
     }
 
-    if (formula && this.props.verifyFormula) {
-      // in field-formula.js
-      // eslint-disable-next-line no-undef
-      verifyFormula(formula, this.props.entity, _onConfirm)
+    if (code && this.props.verifyFormula) {
+      verifyFormula(code, this.props.entity, _onConfirm)
     } else {
       _onConfirm()
     }
@@ -768,6 +669,7 @@ class FormulaCode extends React.Component {
   // 格式化显示
   static textCode(code) {
     if (!code) return null
+
     code = code.substr(4, code.length - 8) // Remove {{{{ xxx }}}}
     code = code.replace(/( )/gi, '&nbsp;').replace(/</gi, '&lt;').replace(/\n/gi, '<br/>')
     return <code style={{ lineHeight: 1.2 }} dangerouslySetInnerHTML={{ __html: code }} />
@@ -794,5 +696,130 @@ FormulaCalcWithCode.formatText = function (formula, fields) {
   // NUM,DATE
   else {
     return FormulaCalcWithCode.textFormula(formula, fields)
+  }
+}
+
+// v4.3
+// ~ 聚合公式编辑器
+// eslint-disable-next-line no-unused-vars
+class FormulaAggregation extends FormulaCalcWithCode {
+  renderExtraKeys() {
+    return null
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    // restore
+    $(this._$fields).css('max-height', 185)
+  }
+
+  handleInput(v) {
+    if (typeof v === 'object') {
+      const that = this
+      const nameAndMode = v.name.split('$$$$')
+      const $field = $(`<span class="v field hover"><i data-toggle="dropdown" data-v="{${nameAndMode[0]}}" data-mode="{${nameAndMode[1] || ''}}" data-name="${v.label}">{${v.label}}<i></span>`)
+      const $aggrMenu = $('<div class="dropdown-menu dropdown-menu-sm"></div>').appendTo($field)
+      $(['', 'SUM', 'AVG', 'MAX', 'MIN']).each(function () {
+        const $a = $(`<a class="dropdown-item" data-mode="${this}">${FormulaAggregation.CALC_MODES[this] || $L('无')}</a>`).appendTo($aggrMenu)
+        $a.on('click', function () {
+          that._changeCalcMode(this)
+        })
+      })
+      $field.appendTo(this._$formula)
+
+      // 回显
+      if (nameAndMode[1] || Object.keys(v).length === 2) {
+        $aggrMenu.find(`a[data-mode="${nameAndMode[1] || ''}"]`).trigger('click')
+      } else {
+        $aggrMenu.find('a:eq(1)').trigger('click') // default:SUM
+      }
+    } else {
+      super.handleInput(v)
+    }
+  }
+
+  _changeCalcMode(el) {
+    el = $(el)
+    const $field = el.parent().prev()
+    const mode = el.data('mode')
+    const modeText = mode ? ` (${FormulaAggregation.CALC_MODES[mode]})` : ''
+    $field.attr('data-mode', mode || '').text(`{${$field.data('name')}${modeText}}`)
+  }
+
+  confirm() {
+    const expr = []
+    $(this._$formula)
+      .find('i')
+      .each(function () {
+        const $this = $(this)
+        const v = $this.data('v')
+        if ($this.attr('data-mode')) expr.push(`${v.substr(0, v.length - 1)}$$$$${$this.attr('data-mode')}}`)
+        else expr.push(v)
+      })
+
+    let formula
+    if ($(this._$formulaInput).val()) formula = $(this._$formulaInput).val()
+    else formula = expr.join('')
+
+    const that = this
+    function _onConfirm() {
+      typeof that.props.onConfirm === 'function' && that.props.onConfirm(formula)
+      that.hide()
+    }
+
+    if (formula && this.props.verifyFormula) {
+      verifyFormula(formula, this.props.entity, _onConfirm)
+    } else {
+      _onConfirm()
+    }
+  }
+
+  static CALC_MODES = {
+    SUM: $L('求和'),
+    COUNT: $L('计数'),
+    COUNT2: $L('去重计数'),
+    AVG: $L('平均值'),
+    MAX: $L('最大值'),
+    MIN: $L('最小值'),
+    FORMULA: $L('计算公式'),
+  }
+
+  /**
+   * 公式文本化
+   *
+   * @param {*} formula
+   * @param {*} fields
+   * @returns
+   */
+  static textFormula(formula, fields) {
+    if (!formula) return ''
+
+    // v4.3 CODE
+    if (FormulaCalcWithCode.isCode(formula)) {
+      return FormulaCode.textCode(formula)
+    }
+
+    for (let i = 0; i < fields.length; i++) {
+      const field = fields[i]
+      formula = formula.replace(new RegExp(`\\{${field.name}\\}`, 'ig'), `{${field.label}}`)
+      formula = formula.replace(new RegExp(`\\{${field.name}\\$`, 'ig'), `{${field.label}$`)
+    }
+
+    const keys = Object.keys(FormulaAggregation.CALC_MODES)
+    keys.reverse()
+    keys.forEach((k) => {
+      formula = formula.replace(new RegExp(`\\$\\$\\$\\$${k}`, 'g'), ` (${FormulaAggregation.CALC_MODES[k]})`)
+    })
+    return formula
+  }
+
+  /**
+   * @param {*} name
+   * @param {*} fields
+   * @returns
+   */
+  static getLabel(name, fields) {
+    const x = fields.find((x) => x.name === name)
+    return x ? x.label : `[${name.toUpperCase()}]`
   }
 }

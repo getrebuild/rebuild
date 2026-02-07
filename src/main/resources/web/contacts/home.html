@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -56,15 +56,15 @@
                   <div class="clearfix"></div>
                 </div>
                 <div class="col-2 text-right">
-                  <div class="btn-group btn-space mb-0 J_sort">
+                  <div class="btn-group mb-0 J_sort">
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                       <span>[[${bundle.L('默认排序')}]]</span>
                       <i class="icon zmdi zmdi-chevron-down up-1"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-right">
                       <a class="dropdown-item" data-sort="0">[[${bundle.L('默认排序')}]]</a>
-                      <a class="dropdown-item" data-sort="name">[[${bundle.L('姓名')}]] (A-Z)</a>
                       <a class="dropdown-item" data-sort="newer">[[${bundle.L('最近创建')}]]</a>
+                      <a class="dropdown-item" data-sort="name">[[${bundle.L('姓名')}]] (A-Z)</a>
                     </div>
                   </div>
                 </div>

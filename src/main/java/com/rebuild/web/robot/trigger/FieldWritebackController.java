@@ -7,14 +7,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.robot.trigger;
 
-import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
-import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -169,8 +167,7 @@ public class FieldWritebackController extends BaseController {
 
     @PostMapping("verify-formula")
     public RespBody verifyFormula(HttpServletRequest request) {
-        String formula = ServletUtils.getRequestString(request);
-        formula = formula.replace("\\n", "\n");
+        String formula = (String) getRequestBody(request, false);
         String sourceEntity = getParameter(request, "entity");
 
         JSONObject item = JSONUtils.toJSONObject(

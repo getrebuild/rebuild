@@ -282,8 +282,16 @@ public abstract class ChartData extends SetUser implements ChartSpec {
         if (params != null && params.get("dash_filter_custom") != null) {
             JSONObject custom = params.getJSONObject("dash_filter_custom");
             if (ParseHelper.validAdvFilter(custom)) {
-                custom.put("entity", getSourceEntity().getName());
-                String s = new AdvFilterParser(custom).toSqlWhere();
+                String customName = custom.getString("entity");
+                if ("SystemCommon".equals(customName)) {
+                    custom.put("entity", getSourceEntity().getName());
+                } else if (getSourceEntity().getName().equals(customName)) {
+                    // 相等才能使用
+                } else {
+                    custom = null;
+                }
+
+                String s = custom == null ? null : new AdvFilterParser(custom).toSqlWhere();
                 if (s != null) filtersAnd.add(s);
             }
         }

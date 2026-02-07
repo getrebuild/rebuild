@@ -43,7 +43,7 @@ public abstract class TriggerAction {
     abstract public Object execute(OperatingContext operatingContext) throws TriggerException;
 
     /**
-     * v4.1 延迟执行
+     * v4.3,4.1 延迟执行
      *
      * @param originTriggerSource v4.3 原始触发源（才能异步）
      * @return

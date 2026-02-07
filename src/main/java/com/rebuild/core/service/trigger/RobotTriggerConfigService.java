@@ -10,7 +10,6 @@ package com.rebuild.core.service.trigger;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.core.Application;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -42,11 +41,10 @@ public class RobotTriggerConfigService extends BaseConfigurationService implemen
 
     @Override
     protected void cleanCache(ID cfgid) {
-        Object[] cfg = Application.createQueryNoFilter(
-                "select belongEntity from RobotTriggerConfig where configId = ?")
-                .setParameter(1, cfgid)
-                .unique();
-        Entity entity = MetadataHelper.getEntity((String) cfg[0]);
-        RobotTriggerManager.instance.clean(entity);
+        String be = RobotTriggerManager.instance.getBelongEntity(cfgid, false);
+        if (be != null) {
+            Entity entity = MetadataHelper.getEntity(be);
+            RobotTriggerManager.instance.clean(entity);
+        }
     }
 }

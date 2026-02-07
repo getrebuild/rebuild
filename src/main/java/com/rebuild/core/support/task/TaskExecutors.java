@@ -26,6 +26,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -59,6 +60,8 @@ public class TaskExecutors extends DistributedJobLock {
 
     // 延迟执行
     private static final ScheduledExecutorService SCHEDULED41 = Executors.newScheduledThreadPool(MAX_TASKS_NUMBER);
+    // 延迟执行/可覆盖
+    private static final ConcurrentHashMap<String, ScheduledFuture<?>> SCHEDULED_CANCELS43 = new ConcurrentHashMap<>();
 
     /**
      * 异步执行（提交给任务调度）
@@ -133,14 +136,14 @@ public class TaskExecutors extends DistributedJobLock {
      * 超时功能的执行
      *
      * @param task
-     * @param timeout in ms
-     * @return
+     * @param timeoutInMs
      * @param <T>
+     * @return
      */
-    public static <T> T invoke(Callable<T> task, int timeout) {
+    public static <T> T invoke(Callable<T> task, int timeoutInMs) {
         Future<T> future = EXEC.submit(task);
         try {
-            return future.get(timeout, TimeUnit.MILLISECONDS);
+            return future.get(timeoutInMs, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             log.error("Invoke method timeout : {}",
                     StringUtils.defaultIfBlank(e.getMessage(), e.getClass().getSimpleName()));
@@ -152,11 +155,38 @@ public class TaskExecutors extends DistributedJobLock {
      * 延迟执行
      *
      * @param command
-     * @param delay in ms
+     * @param delayInMs
      * @see com.rebuild.core.service.TransactionManual#registerAfterCommit(Runnable)
      */
-    public static void schedule(Runnable command, int delay) {
-        SCHEDULED41.schedule(command, delay, TimeUnit.MILLISECONDS);
+    public static void schedule(Runnable command, int delayInMs) {
+        SCHEDULED41.schedule(command, delayInMs, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * 延迟执行
+     *
+     * @param command
+     * @param delayInMs
+     * @param keyCancel
+     * @see com.rebuild.core.service.TransactionManual#registerAfterCommit(Runnable)
+     */
+    public static void schedule(Runnable command, int delayInMs, String keyCancel) {
+        ScheduledFuture<?> newFuture = SCHEDULED41.schedule(() -> {
+            // 必须包住，否则异常会被吞掉
+            try {
+                command.run();
+            } catch (Throwable ex) {
+                log.error("Command run fails : {}", keyCancel, ex);
+            } finally {
+                SCHEDULED_CANCELS43.remove(keyCancel);
+            }
+        }, delayInMs, TimeUnit.MILLISECONDS);
+
+        ScheduledFuture<?> old = SCHEDULED_CANCELS43.put(keyCancel, newFuture);
+        if (old != null) {
+            boolean cancelled = old.cancel(false);
+            log.info("Cancel unexecuted task : {} ({})", keyCancel, cancelled);
+        }
     }
 
     /**
@@ -202,7 +232,7 @@ public class TaskExecutors extends DistributedJobLock {
             }
             log.info("{} task(s) in the queue. {} are completed (will clean-up later)", ASYNC_TASKS.size(), completed);
         }
-        
+
         Queue<Runnable> queue = ((ThreadPoolExecutor) SINGLE_QUEUE).getQueue();
         if (!queue.isEmpty()) {
             log.info("{} command(s) in the single-queue", queue.size());

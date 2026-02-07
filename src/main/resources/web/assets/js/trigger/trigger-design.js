@@ -86,7 +86,7 @@ $(document).ready(() => {
             </div>
           }
         />,
-        $('.eval-exec-times')[0]
+        $('.eval-exec-times')[0],
       )
     })
   }
@@ -120,7 +120,7 @@ $(document).ready(() => {
           else $s.text($s.text().split(' (')[0])
         }}
       />,
-      'DlgSpecFields'
+      'DlgSpecFields',
     )
   })
   DlgSpecFields.render(wpc.actionContent)
@@ -138,7 +138,7 @@ $(document).ready(() => {
           else $s.text($s.text().split(' (')[0])
         }}
       />,
-      'DlgSpecApproveNodes'
+      'DlgSpecApproveNodes',
     )
   })
   DlgSpecApproveNodes.render(wpc.actionContent)
@@ -189,7 +189,8 @@ $(document).ready(() => {
     if (priority && !isNaN(priority)) data.priority = ~~priority
 
     $btn.button('loading')
-    $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
+    const b64 = $base64Encode($base64Encode(data))
+    $.post('/app/entity/common-save?b64=2', b64, (res) => {
       if (res.error_code === 0) {
         let warns = []
         if (when <= 0) warns.push($L('无任何触发动作'))
@@ -483,7 +484,7 @@ function useExecManual() {
           })
         },
         countdown: 5,
-      }
+      },
     )
   })
 }

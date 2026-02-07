@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -142,7 +142,7 @@
                     </div>
                     <div class="col-4">
                       <strong class="fs-18">0</strong>
-                      <p class="text-muted m-0">[[${bundle.L('短信')}]]</p>
+                      <p class="text-muted m-0" ondblclick="location.href = '../audit/smsend-logs'">[[${bundle.L('短信')}]]</p>
                     </div>
                   </div>
                   <div class="row stats J_stats-email mt-4">
@@ -151,7 +151,7 @@
                     </div>
                     <div class="col-4">
                       <strong class="fs-18">0</strong>
-                      <p class="text-muted m-0">[[${bundle.L('邮件')}]]</p>
+                      <p class="text-muted m-0" ondblclick="location.href = '../audit/smsend-logs'">[[${bundle.L('邮件')}]]</p>
                     </div>
                   </div>
                 </div>

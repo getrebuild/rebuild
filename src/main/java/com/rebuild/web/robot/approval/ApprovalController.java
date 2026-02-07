@@ -411,15 +411,12 @@ public class ApprovalController extends BaseController {
             return RespBody.ok();
         }
 
-        Object[] belongEntity = Application.createQueryNoFilter(
-                "select belongEntity from RobotApprovalConfig where configId = ?")
-                .setParameter(1, approvalId)
-                .unique();
-        if (belongEntity == null) {
+        String be = RobotApprovalManager.instance.getBelongEntity(approvalId, false);
+        if (be == null) {
             return RespBody.errorl("无效审批流程，可能已被删除");
         }
 
-        Entity applyEntity = MetadataHelper.getEntity((String) belongEntity[0]);
+        Entity applyEntity = MetadataHelper.getEntity(be);
         FlowDefinition def = RobotApprovalManager.instance.getFlowDefinition(applyEntity, approvalId);
         JSONObject data = JSONUtils.toJSONObject(
                 new String[]{"applyEntity", "flowDefinition"},

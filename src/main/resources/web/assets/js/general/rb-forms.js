@@ -2186,7 +2186,7 @@ class RbFormPickList extends RbFormElement {
 
     if (this._isShowRadio39) {
       return (
-        <div ref={(c) => (this._fieldValue = c)} className="mt-1">
+        <div ref={(c) => (this._fieldValue = c)} className="mt-1 style10">
           {this._options.map((item) => {
             return (
               <label key={item.id} className="custom-control custom-radio custom-control-inline mb-1">
@@ -2764,11 +2764,6 @@ class RbFormN2NReference extends RbFormReference {
 
 // v4.1 任意引用
 class RbFormAnyReference extends RbFormReference {
-  constructor(props) {
-    super(props)
-    this._disableAutoFillin = true
-  }
-
   renderElement() {
     const _readonly41 = this.state.readonly
 
@@ -2812,13 +2807,15 @@ class RbFormAnyReference extends RbFormReference {
       $([this._$entity, this._fieldValue]).attr('disabled', false)
     } else {
       const iv = this.state.value
-      $.get('/commons/metadata/entities?detail=true', (res) => {
+      const ae = this.props.anyreferenceEntities ? this.props.anyreferenceEntities.split(',') : []
+      $.get(`/commons/metadata/entities?detail=true&bizz=${ae.length > 0 || rb.isAdminUser}`, (res) => {
         let entities = res.data || []
-        if (this.props.anyreferenceEntities) {
-          const ae = this.props.anyreferenceEntities.split(',')
-          if (ae.length > 0) {
-            entities = entities.filter((item) => ae.includes(item.name))
-          }
+        if (ae.length) {
+          entities = entities.filter((item) => ae.includes(item.name))
+        }
+        // v4.3 非管理员过滤
+        if (!rb.isAdminUser) {
+          entities = entities.filter((item) => !['Role', 'Team'].includes(item.name))
         }
 
         // #1 E
@@ -2907,6 +2904,10 @@ class RbFormAnyReference extends RbFormReference {
   // @Override
   _buildSearcherUrl() {
     return `${rb.baseUrl}/app/entity/reference-search?field=${this._anyrefEntity}Id.${this._anyrefEntity}`
+  }
+
+  _disableAutoFillin() {
+    return true
   }
 }
 
@@ -3064,7 +3065,7 @@ class RbFormMultiSelect extends RbFormElement {
       <div className="mt-1" ref={(c) => (this._fieldValue__wrap = c)}>
         {this._options.map((item) => {
           return (
-            <label key={item.mask} className="custom-control custom-checkbox custom-control-inline">
+            <label key={item.mask} className="custom-control custom-checkbox custom-control-inline mb-1">
               <input
                 className="custom-control-input"
                 name={this._htmlid}
