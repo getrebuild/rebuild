@@ -529,7 +529,7 @@ public class ApprovalProcessor extends SetUser {
         final ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.recordId);
         this.approvalId = status.getApprovalId();
 
-        String sql = "select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode,nodeBatch,ccUsers,ccAccounts,attrMore,approvalId,isBacked,remarkAttachments from RobotApprovalStep" +
+        String sql = "select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode,nodeBatch,ccUsers,ccAccounts,attrMore,approvalId,isBacked,remarkAttachments,stepId from RobotApprovalStep" +
                 " where recordId = ? and isWaiting = 'F' and isCanceled = 'F' order by createdOn, state";
         if (allHis) sql = sql.replace("and isCanceled = 'F' ", "");
         Object[][] array = Application.createQueryNoFilter(sql)
