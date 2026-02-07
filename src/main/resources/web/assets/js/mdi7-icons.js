@@ -12696,7 +12696,6 @@ const MDI7_ICONS_CHINESE = {
   'timer': '计时器',
   'timer-10': '计时器 10',
   'timer-3': '计时器 3',
-  'timer-alert': '计时器 提醒',
   'timer-alert': '定时器 警报',
   'timer-alert-outline': '定时器 警报',
   'timer-cancel': '定时器 取消',
