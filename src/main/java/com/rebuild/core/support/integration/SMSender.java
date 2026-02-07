@@ -97,7 +97,7 @@ public class SMSender {
     public static void sendMailAsync(String to, String subject, String content, File[] attach, Callback2 cb) {
         ID fs = SMSenderContextHolder.getFromSourceOnce();
         ThreadPool.exec(() -> {
-            SMSenderContextHolder.setFromSource(fs);
+            if (fs != null) SMSenderContextHolder.setFromSource(fs);
 
             try {
                 String sendid = sendMail(to, subject, content, attach);
@@ -353,7 +353,7 @@ public class SMSender {
     public static void sendSMSAsync(String to, String content, Callback2 cb) {
         ID fs = SMSenderContextHolder.getFromSourceOnce();
         ThreadPool.exec(() -> {
-            SMSenderContextHolder.setFromSource(fs);
+            if (fs != null) SMSenderContextHolder.setFromSource(fs);
 
             try {
                 String sendid = sendSMS(to, content);
