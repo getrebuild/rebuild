@@ -131,7 +131,7 @@ public class EasyExcelGenerator extends SetUser {
             WriteSheet writeSheet = EasyExcel.writerSheet(writeSheetAt)
                     .registerWriteHandler(new FixsMergeStrategy())
                     .registerWriteHandler(new FormulaCellWriteHandler())
-                    .registerWriteHandler(new FixImageToMergedRegionHandler())
+                    .registerWriteHandler(new FixImageToMergedRegionHandler43())
                     .build();
 
             int datasLen = datas.size();

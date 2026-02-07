@@ -37,7 +37,7 @@ import java.util.List;
  * @since 2026/1/13
  */
 @Slf4j
-public class FixImageToMergedRegionHandler implements WorkbookWriteHandler {
+public class FixImageToMergedRegionHandler43 implements WorkbookWriteHandler {
 
     @Override
     public void afterWorkbookDispose(WriteWorkbookHolder writeWorkbookHolder) {

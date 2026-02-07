@@ -2062,9 +2062,9 @@ class MyBookmark extends BaseChart {
               let clazz = 'item ',
                 title = ''
               if (item.color) clazz += $isLight(item.color) ? '' : 'dark'
-              if (item.actionType === 1) title = $L('新建')
-              else if (item.actionType === 2) title = $L('列表')
-              else if (item.actionType === 3) title = $L('外部地址')
+              if (item.actionType === 1) title = $L('新建记录')
+              else if (item.actionType === 2) title = $L('进入列表')
+              else if (item.actionType === 3) title = $L('打开外部地址')
 
               return (
                 <a key={idx} onClick={() => this._action(item)} style={{ backgroundColor: item.color }} className={clazz} title={title} data-id={item._id}>
