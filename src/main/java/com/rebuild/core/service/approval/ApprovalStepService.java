@@ -732,6 +732,7 @@ public class ApprovalStepService extends BaseService {
     private void sendCcMsgs(ID recordId, String ccMsg, Set<ID> ccUsers, Set<String> ccAccounts) {
         if (CommonsUtils.hasLength(ccUsers)) {
             for (ID cc : ccUsers) {
+                // 可能禁用通知???
                 sendNotification(cc, ccMsg, recordId);
             }
         }

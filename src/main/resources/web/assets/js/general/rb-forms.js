@@ -2906,6 +2906,7 @@ class RbFormAnyReference extends RbFormReference {
     return `${rb.baseUrl}/app/entity/reference-search?field=${this._anyrefEntity}Id.${this._anyrefEntity}`
   }
 
+  // fix:4.2.10
   _disableAutoFillin() {
     return true
   }
