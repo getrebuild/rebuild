@@ -33,7 +33,6 @@ class DataList extends React.Component {
 
 let _pageIps = []
 const CellRenders_renderSimple = CellRenders.renderSimple
-
 // eslint-disable-next-line react/display-name
 CellRenders.renderSimple = function (v, s, k) {
   let comp = CellRenders_renderSimple(v, s, k)

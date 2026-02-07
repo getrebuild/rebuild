@@ -414,7 +414,6 @@ class DataExport extends BatchOperator {
 
         // 预览
         if (!isXls && this.state._selectType2Value === 'preview') {
-          debugger
           // eslint-disable-next-line no-undef
           let previewUrl = $buildPreviewUrl(`/temp/${res.data.fileKey}`)
           $openWindow(previewUrl)

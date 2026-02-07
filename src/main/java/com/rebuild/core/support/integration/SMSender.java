@@ -11,6 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -33,7 +34,6 @@ import com.rebuild.utils.md.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.mail.EmailConstants;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.jsoup.Jsoup;
@@ -43,6 +43,7 @@ import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -94,7 +95,10 @@ public class SMSender {
      * @param cb
      */
     public static void sendMailAsync(String to, String subject, String content, File[] attach, Callback2 cb) {
+        ID fs = SMSenderContextHolder.getFromSourceOnce();
         ThreadPool.exec(() -> {
+            SMSenderContextHolder.setFromSource(fs);
+
             try {
                 String sendid = sendMail(to, subject, content, attach);
                 if (cb != null) cb.onComplete(sendid);
@@ -298,8 +302,8 @@ public class SMSender {
 
         email.addHeader("X-User-Agent", OkHttpUtils.RB_UA);
         email.setCharset(AppUtils.UTF8);
-        email.setSocketTimeout(EmailConstants.SOCKET_TIMEOUT_MS * 2);
-        email.setSocketConnectionTimeout(EmailConstants.SOCKET_TIMEOUT_MS * 2);
+        email.setSocketTimeout(Duration.ofMinutes(2));
+        email.setSocketConnectionTimeout(Duration.ofMinutes(2));
         return email.send();
     }
 
@@ -347,7 +351,10 @@ public class SMSender {
      * @param cb
      */
     public static void sendSMSAsync(String to, String content, Callback2 cb) {
+        ID fs = SMSenderContextHolder.getFromSourceOnce();
         ThreadPool.exec(() -> {
+            SMSenderContextHolder.setFromSource(fs);
+
             try {
                 String sendid = sendSMS(to, content);
                 if (cb != null) cb.onComplete(sendid);
@@ -444,6 +451,10 @@ public class SMSender {
             else errorMsg = CommonsUtils.maxstr(errorMsg, 200);
             slog.setString("sendResult", "ERR:" + errorMsg);
         }
+
+        // v4.3
+        ID fromSource = SMSenderContextHolder.getFromSourceOnce();
+        if (fromSource != null) slog.setID("fromSource", fromSource);
 
         Application.getCommonsService().create(slog);
     }
