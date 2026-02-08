@@ -63,10 +63,22 @@ public class FieldValueSourceDetector {
 
             JSONObject configJson = JSON.parseObject(config);
             String targetEntity = configJson.getString("targetEntity");
-            if (StringUtils.isBlank(targetEntity)) continue;
+            if (StringUtils.isBlank(targetEntity)) {
+                // {file:xx, entity:xx}
+                JSONObject forAutoGenReport = configJson.getJSONObject("genAfterDest");
+                if (forAutoGenReport != null && forAutoGenReport.containsKey("file")) {
+                    Object file = detectTriggersAutoGenReport(field, configJson, (ID) o[0]);
+                    if (file != null) res.add(file);
+                }
+
+                if (StringUtils.isBlank(targetEntity)) continue;
+            }
+
             // FIELD.ENTITY
             if (targetEntity.contains(".")) targetEntity = targetEntity.split("\\.")[1];
             if (!targetEntity.equalsIgnoreCase(entity.getName())) continue;
+
+            // TODO 聚合后回填
 
             JSONArray sourceAndTargetItems = configJson.getJSONArray("items");
             if (CollectionUtils.isEmpty(sourceAndTargetItems)) continue;
@@ -95,6 +107,26 @@ public class FieldValueSourceDetector {
             }
         }
         return res;
+    }
+
+    // for 自动报表
+    private Object detectTriggersAutoGenReport(Field field, JSONObject forAutoGenReport, ID triggerId) {
+        JSONObject genAfterDest = forAutoGenReport.getJSONObject("genAfterDest");
+        String fileField = genAfterDest.getString("file");
+        String fileEntity = genAfterDest.getString("entity");
+        if (fileField == null) return null;
+
+        boolean s = fileEntity == null && fileField.equals(field.getName());
+        if (!s && fileEntity != null) s = MetadataHelper.getField(fileEntity, fileField).equals(field);
+
+        if (s) {
+            String reportId = forAutoGenReport.getString("useTemplate");
+            ID reportId2 = ID.valueOf(reportId);
+            String desc = String.format("触发 [%s](/admin/robot/trigger/%s) 时从 [%s](/admin/data/report-templates?gs=%s)",
+                    FieldValueHelper.getLabelNotry(triggerId), triggerId, "[报表] " + FieldValueHelper.getLabelNotry(reportId2), reportId2);
+            return new String[]{"RobotTriggerConfig", desc};
+        }
+        return null;
     }
 
     /**
