@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata.impl;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -26,6 +27,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.Installer;
@@ -38,9 +40,11 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -158,6 +162,28 @@ public class Field2Schema extends SetUser {
             } else {
                 log.error("DDL ERROR : \n{}", ddl, ex);
                 return false;
+            }
+        }
+
+        // v4.3 标记删除，后续由 RecycleBinCleanerJob 彻底删除
+        DisplayType dt = EasyMetaFactory.getDisplayType(field);
+        if (dt == DisplayType.IMAGE || dt == DisplayType.FILE) {
+            Object[][] array = Application.createQueryNoFilter(
+                    "select attachmentId from Attachment where belongEntity = ? and belongField = ?")
+                    .setParameter(1, field.getOwnEntity().getEntityCode())
+                    .setParameter(2, field.getName())
+                    .array();
+
+            List<Record> drops = new ArrayList<>();
+            for (Object[] o : array) {
+                Record d = EntityHelper.forUpdate((ID) o[0], UserService.SYSTEM_USER, false);
+                d.setBoolean(EntityHelper.IsDeleted, true);
+                d.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
+                drops.add(d);
+            }
+
+            if (!drops.isEmpty()) {
+                Application.getCommonsService().createOrUpdate(drops.toArray(new Record[0]), false);
             }
         }
 
