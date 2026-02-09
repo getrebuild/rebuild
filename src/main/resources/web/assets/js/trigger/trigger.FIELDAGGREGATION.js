@@ -301,7 +301,10 @@ class ContentFieldAggregation extends ActionContentSpec {
       })
 
       if (this.state.sourceFields) {
-        this.setState({ sourceFields: res.data.source, fillbackFields: fbs }, () => $(this._$sourceField).trigger('change'))
+        this.setState({ sourceFields: res.data.source, fillbackFields: fbs }, () => {
+          $(this._$sourceField).trigger('change')
+          $(this._$fillbackField).val(null).trigger('change') // fix:4.3
+        })
       } else {
         // init
         this.setState({ sourceFields: res.data.source, fillbackFields: fbs }, () => {
