@@ -210,13 +210,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #fff;
 }
 
-textarea.formula-code + .fields-vars > a,
-textarea.formula-code + .fields-vars + .fields-vars > a {
+.textarea-wrap .fields-vars > a {
   bottom: 12px;
 }
 
-.textarea-wrap .fields-vars.funcs > a {
+.textarea-wrap > .fields-vars + .fields-vars > a {
   right: 33px;
+}
+
+.textarea-wrap > .fields-vars + .fields-vars + .fields-vars > a {
+  right: 60px;
 }
 
 .auto-assign .select2-selection__rendered,
@@ -489,4 +492,9 @@ textarea.formula-code + .fields-vars + .fields-vars > a {
 .timeline-item:first-child::before {
   background-color: #4285f4;
   border: 1px solid #fff;
+}
+
+.CodeEditorWithFieldVars__wrap {
+  min-height: 300px;
+  background-color: #212121;
 }

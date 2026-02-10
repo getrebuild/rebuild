@@ -610,7 +610,7 @@ class EntityRelatedList4ListMode extends React.Component {
       <div className="card-table">
         <div className="dataTables_wrapper container-fluid">
           <div className="rb-loading rb-loading-active data-list" ref={(c) => (this._$wrapper2 = c)}>
-            {this.state.listConfig && <RbList config={this.state.listConfig} protocolFilter={related} $wrapper={this._$wrapper2} unpin ref={(c) => (this._RbList = c)} />}
+            {this.state.listConfig && <RbList config={this.state.listConfig} protocolFilter={related} $wrapper={this._$wrapper2} unpin ref={(c) => (this._RbList = c)} hideCheckbox showLineNo />}
           </div>
         </div>
       </div>

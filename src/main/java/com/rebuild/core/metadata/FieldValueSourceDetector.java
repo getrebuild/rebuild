@@ -63,9 +63,38 @@ public class FieldValueSourceDetector {
 
             JSONObject configJson = JSON.parseObject(config);
             String targetEntity = configJson.getString("targetEntity");
+            if (StringUtils.isBlank(targetEntity)) {
+                // {file:xx, entity:xx}
+                JSONObject forAutoGenReport = configJson.getJSONObject("genAfterDest");
+                if (forAutoGenReport != null && forAutoGenReport.containsKey("file")) {
+                    Object file = detectTriggersAutoGenReport(field, configJson, (ID) o[0]);
+                    if (file != null) res.add(file);
+                }
+            }
             if (StringUtils.isBlank(targetEntity)) continue;
             // FIELD.ENTITY
             if (targetEntity.contains(".")) targetEntity = targetEntity.split("\\.")[1];
+
+            // 源实体
+            String sourceEntity = o[3].toString();
+            Entity sourceEntityMeta = MetadataHelper.getEntity(sourceEntity);
+
+            // 聚合后回填
+            String fillbackField = configJson.getString("fillbackField");
+            Field lastJoinField;
+            if (fillbackField != null && (lastJoinField = MetadataHelper.getLastJoinField(sourceEntityMeta, fillbackField)) != null) {
+                if (lastJoinField.equals(field)) {
+                    Field idField = MetadataHelper.getField(targetEntity, targetEntity + "Id");
+                    fillbackField = String.format("[%s.%s](/admin/entity/%s/field/%s)",
+                            Language.L(idField.getOwnEntity()), Language.L(idField), targetEntity, idField.getName());
+
+                    String desc = String.format("触发 [%s](/admin/robot/trigger/%s) 时从 %s",
+                            FieldValueHelper.getLabelNotry((ID) o[0]), o[0], fillbackField);
+                    res.add(new String[]{"RobotTriggerConfig", desc});
+                }
+            }
+
+            // 目标不一致
             if (!targetEntity.equalsIgnoreCase(entity.getName())) continue;
 
             JSONArray sourceAndTargetItems = configJson.getJSONArray("items");
@@ -79,8 +108,7 @@ public class FieldValueSourceDetector {
 
                     if (sourceField.startsWith(AviatorUtils.CODE_PREFIX)) {
                         sourceField = "[计算公式]";
-                    } else if (MetadataHelper.getLastJoinField(entity, sourceField) != null) {
-                        Field lastJoinField = MetadataHelper.getLastJoinField(entity, sourceField);
+                    } else if ((lastJoinField = MetadataHelper.getLastJoinField(entity, sourceField)) != null) {
                         sourceField = Language.L(entity, sourceField);
                         sourceField = String.format("[%s](/admin/entity/%s/field/%s)",
                                 sourceField, lastJoinField.getOwnEntity().getName(), lastJoinField.getName());
@@ -95,6 +123,27 @@ public class FieldValueSourceDetector {
             }
         }
         return res;
+    }
+
+    // for 自动报表
+    private Object detectTriggersAutoGenReport(Field field, JSONObject forAutoGenReport, ID triggerId) {
+        JSONObject genAfterDest = forAutoGenReport.getJSONObject("genAfterDest");
+        String fileField = genAfterDest.getString("file");
+        String fileEntity = genAfterDest.getString("entity");
+        if (fileField == null) return null;
+
+        boolean s = fileEntity == null && fileField.equals(field.getName());
+        if (!s && fileEntity != null) s = MetadataHelper.getField(fileEntity, fileField).equals(field);
+
+        if (s) {
+            String reportId = forAutoGenReport.getString("useTemplate");
+            ID reportId2 = ID.valueOf(reportId);
+            String desc = String.format("触发 [%s](/admin/robot/trigger/%s) 时从 [%s](/admin/data/report-templates?gs=%s)",
+                    FieldValueHelper.getLabelNotry(triggerId), triggerId,
+                    "[" + Language.L("报表") + "] " + FieldValueHelper.getLabelNotry(reportId2), reportId2);
+            return new String[]{"RobotTriggerConfig", desc};
+        }
+        return null;
     }
 
     /**

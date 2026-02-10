@@ -530,6 +530,7 @@ create table if not exists `revision_history` (
   `CHANNEL_WITH`       char(20) comment '变更渠道 (空为直接, 否则为关联)',
   `IP_ADDR`            varchar(100) comment 'IP 地址',
   `AUTO_ID`            bigint(20) not null auto_increment comment '执行顺序',
+  `FROM_SOURCE`        char(20) comment '触发源 ID',
   primary key  (`REVISION_ID`),
   unique index AIX0_revision_history (`AUTO_ID`),
   index IX1_revision_history (`BELONG_ENTITY`, `REVISION_TYPE`, `REVISION_BY`, `REVISION_ON`),
@@ -982,4 +983,4 @@ insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NU
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 69);
+  values ('021-9000000000000001', 'DBVer', 70);

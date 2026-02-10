@@ -352,7 +352,7 @@
         <index field-list="responseBody" type="fulltext"/>
     </entity>
 
-    <entity name="DataReportConfig" type-code="032" description="报表模板" queryable="false">
+    <entity name="DataReportConfig" type-code="032" name-field="name" description="报表模板" queryable="false">
         <field name="configId" type="primary"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="应用实体"/>
         <field name="name" type="string" max-length="100" nullable="false" description="报表名称"/>
@@ -385,13 +385,14 @@
         <field name="revisionBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="操作人" cascade="ignore"/>
         <field name="revisionOn" type="timestamp" nullable="false" updatable="false" description="操作时间"/>
         <field name="channelWith" type="any-reference" updatable="false" cascade="ignore" description="变更渠道 (空为直接, 否则为关联)"/>
+        <field name="fromSource" type="any-reference" updatable="false" cascade="ignore" description="触发源 ID"/>
         <field name="ipAddr" type="string" max-length="100" description="IP 地址"/>
         <field name="autoId" type="long" auto-value="true" description="执行顺序" />
         <index field-list="belongEntity,revisionType,revisionBy,revisionOn"/>
         <index field-list="recordId,channelWith"/>
     </entity>
 
-    <entity name="SmsendLog" type-code="035" description="SM 发送日志" queryable="false" parent="false">
+    <entity name="SmsendLog" type-code="035" name-field="to" description="SM 发送日志" queryable="false" parent="false">
         <field name="sendId" type="primary"/>
         <field name="to" type="string" max-length="701" nullable="false" updatable="false" description="接收人"/>
         <field name="content" type="text" nullable="false" updatable="false" description="发送内容"/>
@@ -410,7 +411,7 @@
         <index field-list="locale"/>
     </entity>
 
-    <entity name="TransformConfig" type-code="037" description="记录转换" queryable="false">
+    <entity name="TransformConfig" type-code="037" name-field="name" description="记录转换" queryable="false">
         <field name="configId" type="primary"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="源实体"/>
         <field name="targetEntity" type="string" max-length="100" nullable="false" updatable="false" description="目标实体"/>
@@ -419,7 +420,7 @@
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
     </entity>
 
-    <entity name="FrontjsCode" type-code="038" description="FrontJS 代码" queryable="false">
+    <entity name="FrontjsCode" type-code="038" name-field="name" description="FrontJS 代码" queryable="false">
         <field name="codeId" type="primary"/>
         <field name="name" type="string" max-length="100" nullable="false" description="名称"/>
         <field name="applyPath" type="string" max-length="701" description="匹配路径"/>
@@ -500,7 +501,7 @@
         <index field-list="feedsId,createdBy,createdOn"/>
     </entity>
 
-    <entity name="ProjectConfig" type-code="050" description="项目" queryable="false">
+    <entity name="ProjectConfig" type-code="050" name-field="projectName" description="项目" queryable="false">
         <field name="configId" type="primary"/>
         <field name="projectName" type="string" max-length="100" nullable="false" description="项目名称"/>
         <field name="projectCode" type="string" max-length="10" nullable="false" updatable="false" description="项目 ID"/>
@@ -514,7 +515,7 @@
         <index field-list="projectCode" type="unique"/>
     </entity>
 
-    <entity name="ProjectPlanConfig" type-code="051" description="任务面板" queryable="false" parent="false">
+    <entity name="ProjectPlanConfig" type-code="051" name-field="planName" description="任务面板" queryable="false" parent="false">
         <field name="configId" type="primary"/>
         <field name="projectId" type="reference" ref-entity="ProjectConfig" nullable="false" updatable="false" description="相关项目" cascade="delete"/>
         <field name="planName" type="string" max-length="100" nullable="false" description="面板名称"/>
@@ -584,7 +585,7 @@
         <index field-list="createdOn"/>
     </entity>
 
-    <entity name="ExtformConfig" type-code="060" description="外部表单" queryable="false">
+    <entity name="ExtformConfig" type-code="060" name-field="name" description="外部表单" queryable="false">
         <field name="configId" type="primary"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="所属实体"/>
         <field name="name" type="string" max-length="100" nullable="false" description="名称"/>
@@ -598,7 +599,7 @@
         <field name="accessKey" type="string" max-length="100" description="访问密码"/>
     </entity>
 
-    <entity name="DataSyncerConfig" type-code="062" description="数据同步" queryable="false">
+    <entity name="DataSyncerConfig" type-code="062" name-field="name" description="数据同步" queryable="false">
         <field name="configId" type="primary"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="所属实体"/>
         <field name="name" type="string" max-length="100" nullable="false" description="名称"/>
@@ -606,7 +607,7 @@
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
     </entity>
 
-    <entity name="ShortUrl" type-code="097" description="短链共享" queryable="false" parent="false">
+    <entity name="ShortUrl" type-code="097" name-field="shortKey" description="短链共享" queryable="false" parent="false">
         <field name="shortId" type="primary"/>
         <field name="shortKey" type="string" max-length="40" nullable="false" updatable="false" description="短链ID"/>
         <field name="longUrl" type="string" max-length="701" nullable="false" updatable="false" description="对应长链/文件"/>
@@ -638,7 +639,7 @@
         <index field-list="type,logTime,source"/>
     </entity>
 
-    <entity name="AibotChat" type-code="096" description="AI 助手会话记录" queryable="false">
+    <entity name="AibotChat" type-code="096" name-field="subject" description="AI 助手会话记录" queryable="false">
         <field name="chatId" type="primary"/>
         <field name="subject" type="string" max-length="100" description="主题"/>
         <field name="contents" type="ntext" description="会话内容"/>

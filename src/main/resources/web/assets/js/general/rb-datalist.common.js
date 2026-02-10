@@ -1251,6 +1251,13 @@ class RbList extends React.Component {
           $(this._$tbody).find('td.editable').removeClass('editable')
         }
       })
+
+      // // v4.3 FIXME 不准
+      // $(document).on('click', (e) => {
+      //   if (!$(e.target).parents('.rb-scroller')[0]) {
+      //     $(this._$tbody).find('td.editable').removeClass('editable')
+      //   }
+      // })
     }
   }
 

@@ -147,9 +147,11 @@ public class RevisionHistoryObserver extends OperatingObserver {
 
         TriggerSource triggerSource = RobotTriggerObserver.getTriggerSource();
         if (triggerSource != null) {
-            record.setID("channelWith", triggerSource.getOriginRecord());
-            // v35 系统用户
+            record.setID("channelWith", triggerSource.getOriginRecordId());
+            // v3.5 统一为系统用户
             record.setID("revisionBy", UserService.SYSTEM_USER);
+            // v4.3 触发器
+            record.setID("fromSource", triggerSource.getCurrentTriggerId());
         }
 
         if (context.getOperationIp() != null) {
