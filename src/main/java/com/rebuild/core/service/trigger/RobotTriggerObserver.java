@@ -55,9 +55,11 @@ public class RobotTriggerObserver extends OperatingObserver {
 
     private static final ThreadLocal<TriggerSource> TRIGGER_SOURCE = new NamedThreadLocal<>("Trigger source");
 
+    // 延迟执行
     private static final ThreadLocal<Boolean> LAZY_TRIGGERS = new NamedThreadLocal<>("Lazy triggers");
     private static final ThreadLocal<List<Object>> LAZY_TRIGGERS_CTX = new NamedThreadLocal<>("Lazy triggers ctx");
 
+    // 审批节点执行
     private static final ThreadLocal<String> ALLOW_TRIGGERS_ON_NODEAPPROVED = new NamedThreadLocal<>("Allow triggers on node-approve");
 
     // 少量触发器日志
@@ -181,7 +183,7 @@ public class RobotTriggerObserver extends OperatingObserver {
             triggerSource.addNext(context, when);
         }
 
-        final String sourceId = triggerSource.getSourceId();
+        final String sourceId = triggerSource.getSourceNo();
         try {
             for (TriggerAction action : beExecuted) {
                 // v3.7 审批节点触发
@@ -253,6 +255,9 @@ public class RobotTriggerObserver extends OperatingObserver {
     }
 
     private void execActionInternal(OperatingContext context, TriggerAction action, boolean a, boolean o, String w) {
+        TriggerSource ts43 = getTriggerSource();
+        if (ts43 != null) ts43.setCurrentTrigger(action.actionContext.getConfigId());
+
         try {
             Object res = action.execute(context);
 

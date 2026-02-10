@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #70 (v4.3)
+alter table `revision_history`
+  add column `FROM_SOURCE` char(20) comment '触发源 ID';
+
 -- #69 (v4.3)
 alter table `smsend_log`
   add column `FROM_SOURCE` char(20) comment '触发源 ID';
