@@ -1919,6 +1919,14 @@ class RbFormImage extends RbFormElement {
               <span key={item}>
                 <a title={$fileCutName(item)} onClick={() => this._filePreview(value, idx)} className="img-thumbnail img-upload zoom-in">
                   <img src={this._formatUrl(item)} alt="IMG" />
+                  <b
+                    title={$L('下载')}
+                    onClick={(e) => {
+                      e && $stopEvent(e)
+                      this._fileDownload(item)
+                    }}>
+                    <span className="zmdi zmdi-download" />
+                  </b>
                 </a>
               </span>
             )
@@ -1936,6 +1944,11 @@ class RbFormImage extends RbFormElement {
   _filePreview(urlKey, idx) {
     const p = parent || window
     p.RbPreview.create(urlKey, idx)
+  }
+
+  _fileDownload(url) {
+    url = $isFullUrl(url) ? url : `${rb.baseUrl}/filex/download/${url}`
+    $openWindow(url)
   }
 
   _fileClick(e, forceType) {
@@ -2129,6 +2142,14 @@ class RbFormFile extends RbFormImage {
           return (
             <a key={item} title={fileName} onClick={() => this._filePreview(item)} className="img-thumbnail">
               {this._renderFileIcon(fileName, item)}
+              <b
+                title={$L('下载')}
+                onClick={(e) => {
+                  e && $stopEvent(e)
+                  this._fileDownload(item)
+                }}>
+                <span className="zmdi zmdi-download" />
+              </b>
             </a>
           )
         })}

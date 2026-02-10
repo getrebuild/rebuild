@@ -97,8 +97,6 @@ public class FieldValueSourceDetector {
             // 目标不一致
             if (!targetEntity.equalsIgnoreCase(entity.getName())) continue;
 
-            // TODO 聚合后回填
-
             JSONArray sourceAndTargetItems = configJson.getJSONArray("items");
             if (CollectionUtils.isEmpty(sourceAndTargetItems)) continue;
 

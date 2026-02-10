@@ -425,14 +425,7 @@ class EditorWithFieldVars extends React.Component {
               if (['DATE', 'DATETIME', 'TIME'].includes(item.type)) typeMark = 'D'
               else if (['NUMBER', 'DECIMAL'].includes(item.type)) typeMark = 'N'
               return (
-                <a
-                  key={item.name}
-                  className="dropdown-item"
-                  data-name={item.name}
-                  data-pinyin={item.quickCode}
-                  onClick={() => {
-                    $(this._$content).insertAtCursor(`{${item.name}}`)
-                  }}>
+                <a key={item.name} className="dropdown-item" data-name={item.name} data-pinyin={item.quickCode} onClick={() => this.insertAtCursor(`{${item.name}}`)}>
                   <em>{typeMark}</em>
                   {item.label}
                 </a>
@@ -448,13 +441,7 @@ class EditorWithFieldVars extends React.Component {
             <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ maxHeight: 388 }} ref={(c) => (this._$funcs = c)}>
               {this.state.funcs.map((item) => {
                 return (
-                  <a
-                    key={item.name}
-                    className="dropdown-item"
-                    data-name={item.name}
-                    onClick={() => {
-                      $(this._$content).insertAtCursor(`${item.name}()`)
-                    }}>
+                  <a key={item.name} className="dropdown-item" data-name={item.name} onClick={() => this.insertAtCursor(`${item.name}()`)}>
                     {item.label}
                   </a>
                 )
@@ -462,9 +449,22 @@ class EditorWithFieldVars extends React.Component {
             </div>
           </div>
         )}
+        {this.props.canFullscreen && (
+          <div className="fields-vars">
+            <a title={$L('全屏')} onClick={() => this.resize()}>
+              <i className="mdi mdi-fullscreen" />
+            </a>
+          </div>
+        )}
       </div>
     )
   }
+
+  insertAtCursor(text) {
+    $(this._$content).insertAtCursor(text)
+  }
+
+  resize() {}
 
   componentDidMount() {
     $.get(`/commons/metadata/fields?entity=${this.props.entity}&deep=3`, (res) => {
@@ -628,7 +628,12 @@ class FormulaCode extends React.Component {
   render() {
     return (
       <div>
-        <EditorWithFieldVars entity={this.props.entity} showFuncs ref={(c) => (this._formulaCode = c)} placeholder="## Support AviatorScript" isCode />
+        {window.CodeMirror ? (
+          <CodeEditorWithFieldVars entity={this.props.entity} showFuncs ref={(c) => (this._formulaCode = c)} placeholder="## Support AviatorScript" isCode canFullscreen={false} />
+        ) : (
+          <EditorWithFieldVars entity={this.props.entity} showFuncs ref={(c) => (this._formulaCode = c)} placeholder="## Support AviatorScript" isCode />
+        )}
+
         <div className="row mt-1">
           <div className="col pt-2">
             <span className="d-inline-block">
@@ -821,5 +826,50 @@ class FormulaAggregation extends FormulaCalcWithCode {
   static getLabel(name, fields) {
     const x = fields.find((x) => x.name === name)
     return x ? x.label : `[${name.toUpperCase()}]`
+  }
+}
+
+// v4.3 CM
+class CodeEditorWithFieldVars extends EditorWithFieldVars {
+  render() {
+    return <div className="CodeEditorWithFieldVars__wrap">{super.render()}</div>
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    setTimeout(() => {
+      this._CodeMirror = window.CodeMirror.fromTextArea(this._$content, {
+        mode: 'javascript',
+        theme: 'material-darker',
+        lineNumbers: true,
+        dragDrop: false,
+        smartIndent: true,
+        styleActiveLine: true,
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        ...this.props.cmProps,
+      })
+      this.focus()
+    }, 20)
+  }
+
+  insertAtCursor(text) {
+    this._CodeMirror.replaceSelection(text)
+    this.focus()
+  }
+
+  val() {
+    if (arguments.length) {
+      setTimeout(() => {
+        this._CodeMirror && this._CodeMirror.setValue(arguments[0])
+      }, 22)
+    } else {
+      return this._CodeMirror ? this._CodeMirror.getValue() : null
+    }
+  }
+
+  focus() {
+    this._CodeMirror && this._CodeMirror.focus()
   }
 }

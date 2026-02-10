@@ -1234,9 +1234,9 @@ a.link.link-icon::after {
   background-color: rgba(0, 0, 0, 0.4);
   text-align: center;
   display: none;
-  width: 16px;
-  height: 16px;
-  line-height: 16px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
 }
 
 .img-field a.img-upload b + b,
