@@ -779,9 +779,9 @@ class LiteFormModal extends RbModalHandler {
     }
 
     return (
-      <RbModal title={title} ref={(c) => (this._dlg = c)} disposeOnHide>
+      <RbModal title={title} icon={entity.icon} ref={(c) => (this._dlg = c)} disposeOnHide>
         {this.props.topAlert && (
-          <div className="m-1">
+          <div className="mt-1 mb-1 ml-3 mr-3">
             <RbAlertBox message={WrapHtml(this.props.topAlert.replaceAll('\n', '<br/>'))} className="mt-0 mb-1" />
           </div>
         )}
@@ -795,7 +795,7 @@ class LiteFormModal extends RbModalHandler {
           </LiteForm>
 
           <div className="footer" ref={(c) => (this._$formAction = c)}>
-            {this._ids.length > 1 && <RbAlertBox message={WrapHtml($L('本次保存将修改 **%d** 条记录', this.props.ids.length))} type="info" className="mt-0 mb-2" />}
+            {this._ids.length > 1 && <RbAlertBox message={WrapHtml($L('本次保存将修改选中的 **%d** 条记录', this.props.ids.length))} type="info" className="mt-0 mb-2" />}
 
             <button className="btn btn-primary" type="button" disabled={this.state.readonly === true} onClick={() => this._handleSave()}>
               {props.confirmText || $L('保存')}

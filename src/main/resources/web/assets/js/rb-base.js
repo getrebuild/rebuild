@@ -502,7 +502,7 @@ var $clone = function (o) {
  */
 var $escapeHtml = function (s) {
   if (!s) return ''
-  return s.replace(/</gi, '&lt;').replace(/>/gi, '&gt;')
+  return s.replace(/</gi, '&lt;').replace(/>/gi, '&gt;').replace(/"/gi, '&quot;').replace(/'/gi, '&apos;')
 }
 
 // 是否浅色（仅支持 Hex 颜色）

@@ -25,6 +25,7 @@ import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,10 +55,10 @@ public class FormDesignController extends BaseController {
 
         ID formConfigId37 = getIdParameter(request, "id");
         ConfigBean config = FormsManager.instance.getFormLayout(formConfigId37, entity);
-        request.setAttribute("FormConfig", config.toJSON());
+        request.setAttribute("FormConfig", CommonsUtils.sanitizeHtml(config.toJSON()));
 
         List<ConfigBean> attrs = FormsManager.instance.getAllFormsAttr(entity);
-        request.setAttribute("FormsAttr", JSON.toJSONString(attrs));
+        request.setAttribute("FormsAttr", CommonsUtils.sanitizeHtml(JSON.toJSON(attrs)));
 
         // v4.1, 4.2
         mv.getModel().put("isMainEntity", easyEntity.getRawMeta().getDetailEntity() != null);

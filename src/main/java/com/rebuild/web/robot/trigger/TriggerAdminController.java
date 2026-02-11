@@ -25,6 +25,7 @@ import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.admin.ConfigCommons;
@@ -85,7 +86,7 @@ public class TriggerAdminController extends BaseController {
         mv.getModel().put("when", config[2]);
         mv.getModel().put("whenTimer", config[7] == null ? StringUtils.EMPTY : config[7]);
         mv.getModel().put("whenFilter", config[3]);
-        mv.getModel().put("actionContent", config[4]);
+        mv.getModel().put("actionContent", CommonsUtils.sanitizeHtml(config[4]));
         mv.getModel().put("priority", config[5]);
         mv.getModel().put("name", config[6]);
         mv.getModel().put("isDisabled", config[8] == null ? false : config[8]);
