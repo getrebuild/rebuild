@@ -7,8 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.distributed;
 
-import cn.devezhao.commons.ThrowableUtils;
 import com.rebuild.core.BootConfiguration;
+import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ public interface UseRedis {
             return true;
         } catch (Exception ex) {
             _log.warn("Acquisition J/Redis failed : {}  !!! falling back to EhCache ({})",
-                    ThrowableUtils.getRootCause(ex).getLocalizedMessage(), getClass().getSimpleName());
+                    CommonsUtils.getRootMessage(ex), getClass().getSimpleName());
             return false;
         } finally {
             IOUtils.closeQuietly(jedis);

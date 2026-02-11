@@ -263,11 +263,16 @@ public class ProtocolFilterParser {
                 }
 
                 if (refEntity.getEntityCode().equals(cascadingValueIds[0].getEntityCode())) {
-                    parentAndChind.add(String.format("%s = '%s'", fs[1], cascadingValueIds[0]));
+                    // v4.3 支持N2N字段
+                    if (cascadingValueIds.length > 1) {
+                        parentAndChind.add(String.format("%s in ( '%s' )", fs[1], StringUtils.join(cascadingValueIds, "', '")));
+                    } else {
+                        parentAndChind.add(String.format("%s = '%s'", fs[1], cascadingValueIds[0]));
+                    }
                 }
             }
 
-            // 选父级时（会有多个ID）
+            // 选父级时（可能会有多个ID，如明细）
             if (StringUtils.isNotBlank(cascadingFieldChild)) {
                 String[] fs = cascadingFieldChild.split(MetadataHelper.SPLITER_RE);
                 Entity refEntity;

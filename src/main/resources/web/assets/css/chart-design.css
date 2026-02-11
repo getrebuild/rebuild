@@ -20,7 +20,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 #chart-preview {
   background-color: #fff;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1), 0 16px 24px 0 rgba(81, 129, 228, 0.1);
+  box-shadow:
+    0 2px 4px 0 rgba(0, 0, 0, 0.1),
+    0 16px 24px 0 rgba(81, 129, 228, 0.1);
   padding: 0;
   position: relative;
   min-height: 200px;
@@ -28,7 +30,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 #chart-preview::after {
-  content: attr(_title);
+  content: attr(title);
   position: absolute;
   top: 14px;
   right: -25px;
@@ -107,6 +109,25 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-top: -6px;
   margin-bottom: -6px;
   padding: 2px 0 0;
+}
+
+.axis .axis-target:empty:after {
+  content: attr(_title);
+  color: #bbb;
+  padding-top: 4px;
+  display: inline-block;
+}
+
+.axis .axis-target > span[data-formula]:not([data-formula='']) li[data-calc='_FORMULA'] {
+  color: #4285f4;
+}
+
+.axis .axis-target > span[data-formula]:not([data-formula='']) li[data-calc='_FORMULA']::after {
+  font-family: 'Material Design Icons', serif;
+  content: '\F09DE';
+  float: right;
+  font-size: 1.1rem;
+  margin-right: -2px;
 }
 
 .axis-target .item {
@@ -330,7 +351,9 @@ a.ui-draggable.ui-draggable-dragging {
 }
 
 .chart-type > a.select {
-  box-shadow: 0 0 0 2px rgba(81, 130, 227, 0.06), inset 0 0 0 2px rgba(81, 129, 228, 0.6);
+  box-shadow:
+    0 0 0 2px rgba(81, 130, 227, 0.06),
+    inset 0 0 0 2px rgba(81, 129, 228, 0.6);
   background-color: #fff !important;
 }
 
@@ -504,10 +527,6 @@ a.ui-draggable.ui-draggable-dragging {
   margin-left: 5px;
 }
 
-.rbcolors {
-  margin-bottom: 12px;
-}
-
 .J_opt-DATALIST2 input,
 .J_opt-CNMAP select,
 .themeStyle {
@@ -560,4 +579,22 @@ a.ui-draggable.ui-draggable-dragging {
 
 .gradient-bg-list > a:hover {
   opacity: 0.8;
+}
+
+.rbcolors#useIcon a {
+  border-radius: 2px;
+}
+
+.rbcolors#useIcon a .mdi {
+  color: #4285f4 !important;
+}
+
+.rbcolors {
+  margin-bottom: 10px;
+}
+
+.line-style {
+  color: #404040;
+  margin-top: 8px;
+  margin-bottom: 8px !important;
 }

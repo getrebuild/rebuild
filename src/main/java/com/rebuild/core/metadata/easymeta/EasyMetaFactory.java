@@ -106,7 +106,8 @@ public class EasyMetaFactory {
         if (ft == FieldType.PRIMARY) {
             return ID;
         } else if (ft == FieldType.REFERENCE) {
-            int typeCode = field.getReferenceEntity().getEntityCode();
+            Entity refEntity = field.getReferenceEntity();
+            int typeCode = refEntity == null ? 0 : refEntity.getEntityCode();
             if (typeCode == EntityHelper.PickList) {
                 return PICKLIST;
             } else if (typeCode == EntityHelper.Classification) {

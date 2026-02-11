@@ -1,13 +1,36 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #70 (v4.3)
+alter table `revision_history`
+  add column `FROM_SOURCE` char(20) comment '触发源 ID';
+
+-- #69 (v4.3)
+alter table `smsend_log`
+  add column `FROM_SOURCE` char(20) comment '触发源 ID';
+
+-- #68 (v4.3)
+-- ************ Entity [DataSyncerConfig] DDL ************
+create table if not exists `data_syncer_config` (
+  `CONFIG_ID`          char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '所属实体',
+  `NAME`               varchar(100) not null comment '名称',
+  `CONFIG`             text(65535) comment '同步配置',
+  `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  primary key  (`CONFIG_ID`)
+)Engine=InnoDB;
+
 -- #67 (v4.2)
 alter table `user`
   add column `JOB_NUMBER` varchar(100) comment '工号';
 
 -- #66 (v4.2)
 alter table `robot_approval_step`
-  add column `REMARK_ATTACHMENTS` varchar(700) comment '批注附件';
+  add column `REMARK_ATTACHMENTS` varchar(701) comment '批注附件';
 
 -- #65 (v4.1)
 alter table `robot_sop_step`
@@ -16,7 +39,7 @@ alter table `robot_sop_step`
 
 -- #64 (v4.1)
 alter table `smsend_log`
-  change column `TO` `TO` varchar(700) not null comment '接收人';
+  change column `TO` `TO` varchar(701) not null comment '接收人';
 
 -- #63 (v4.1)
 alter table `extform_config`
@@ -39,7 +62,7 @@ create table if not exists `aibot_chat` (
 create table if not exists `aibot_chat_attach` (
   `ATTACH_ID`          char(20) not null,
   `CHAT_ID`            char(20) not null,
-  `CONTENT`            varchar(600) comment '附件内容',
+  `CONTENT`            varchar(701) comment '附件内容',
   `VECTOR_DATA`        longtext comment '向量数据',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
@@ -49,13 +72,13 @@ create table if not exists `aibot_chat_attach` (
 
 -- #61 (v4.0)
 alter table `meta_entity`
-  change column `EXT_CONFIG` `EXT_CONFIG` varchar(2000) comment '扩展配置 (JSON Map)';
+  change column `EXT_CONFIG` `EXT_CONFIG` varchar(4001) comment '扩展配置 (JSON Map)';
 alter table `meta_field`
-  change column `EXT_CONFIG` `EXT_CONFIG` varchar(2000) comment '扩展配置 (JSON Map)';
+  change column `EXT_CONFIG` `EXT_CONFIG` varchar(4001) comment '扩展配置 (JSON Map)';
 alter table `system_config`
-  change column `VALUE` `VALUE` varchar(2000) not null;
+  change column `VALUE` `VALUE` varchar(4001) not null;
 alter table `auto_fillin_config`
-  change column `EXT_CONFIG` `EXT_CONFIG` varchar(2000) comment '扩展配置 (JSON Map)';
+  change column `EXT_CONFIG` `EXT_CONFIG` varchar(4001) comment '扩展配置 (JSON Map)';
 
 -- #60 (v3.9)
 alter table `user`
@@ -132,7 +155,7 @@ alter table `revision_history`
 create table if not exists `short_url` (
   `SHORT_ID`           char(20) not null,
   `SHORT_KEY`          varchar(40) not null comment '短链ID',
-  `LONG_URL`           varchar(600) not null comment '对应长链/文件',
+  `LONG_URL`           varchar(701) not null comment '对应长链/文件',
   `EXPIRE_TIME`        datetime null default null comment '到期时间',
   `CHECK_PASSWD`       datetime null default null comment '密码',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -144,7 +167,7 @@ create table if not exists `short_url` (
 
 -- #51 (v3.3)
 alter table `attachment_folder`
-  change column `SCOPE` `SCOPE` varchar(420) default 'ALL' comment '哪些人可见 (可选值: ALL/SELF/$MemberID)';
+  change column `SCOPE` `SCOPE` varchar(701) default 'ALL' comment '哪些人可见 (可选值: ALL/SELF/$MemberID)';
 
 -- #50 (v3.3)
 alter table `data_report_config`
@@ -152,8 +175,8 @@ alter table `data_report_config`
 
 -- #49 (v3.2)
 alter table `robot_approval_step`
-  add column `CC_ACCOUNTS` varchar(500) comment '抄送外部人员',
-  add column `ATTR_MORE` varchar(700) comment '扩展属性 (JSON Map)';
+  add column `CC_ACCOUNTS` varchar(701) comment '抄送外部人员',
+  add column `ATTR_MORE` varchar(701) comment '扩展属性 (JSON Map)';
 
 -- #48 (v3.2)
 -- ************ Entity [TagItem] DDL ************
@@ -172,7 +195,7 @@ create table if not exists `tag_item` (
 
 -- #47 (v3.1)
 alter table `robot_approval_step`
-  add column `CC_USERS` varchar(420) comment '抄送人';
+  add column `CC_USERS` varchar(701) comment '抄送人';
 
 -- #46 (v2.10)
 alter table `robot_approval_step`
@@ -234,7 +257,7 @@ create table if not exists `nreference_item` (
 
 -- #40 (v2.7)
 alter table `role_privileges`
-  change column `DEFINITION` `DEFINITION` VARCHAR(2000) NULL DEFAULT NULL COMMENT '权限定义';
+  change column `DEFINITION` `DEFINITION` VARCHAR(4001) NULL DEFAULT NULL COMMENT '权限定义';
 
 -- #39 (v2.6)
 alter table `project_config`
@@ -289,8 +312,8 @@ create table if not exists `extform_config` (
   `START_TIME`         datetime null default null comment '开始时间',
   `END_TIME`           datetime null default null comment '结束时间',
   `BIND_USER`          char(20) comment '数据绑定用户',
-  `HOOK_URL`           varchar(300) comment '回调地址',
-  `HOOK_SECRET`        varchar(300) comment '回调安全码',
+  `HOOK_URL`           varchar(701) comment '回调地址',
+  `HOOK_SECRET`        varchar(701) comment '回调安全码',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
@@ -328,7 +351,7 @@ create table if not exists `language` (
   `LANG_ID`            char(20) not null,
   `LOCALE`             varchar(10) not null comment 'Locale',
   `NAME`               varchar(100) not null comment '语言名',
-  `VALUE`              varchar(300) not null comment '语言值',
+  `VALUE`              varchar(701) not null comment '语言值',
   primary key  (`LANG_ID`),
   index IX0_language (`LOCALE`, `NAME`)
 )Engine=InnoDB;
@@ -344,7 +367,7 @@ alter table `project_config`
 alter table `meta_field`
   add column `QUERYABLE` char(1) default 'T';
 alter table `meta_entity`
-  add column `EXT_CONFIG` varchar(700) comment '更多扩展配置 (JSON Map)';
+  add column `EXT_CONFIG` varchar(701) comment '更多扩展配置 (JSON Map)';
 
 -- #28
 alter table `project_config`
@@ -357,8 +380,8 @@ create table if not exists `project_config` (
   `PROJECT_NAME`       varchar(100) not null comment '项目名称',
   `PROJECT_CODE`       varchar(10) not null comment '项目代号',
   `ICON_NAME`          varchar(30) comment '图标ICON',
-  `COMMENTS`           varchar(300) comment '备注',
-  `MEMBERS`            varchar(420) comment '项目成员($MemberID)',
+  `COMMENTS`           varchar(701) comment '备注',
+  `MEMBERS`            varchar(701) comment '项目成员($MemberID)',
   `SCOPE`              smallint(6) default '1' comment '可见范围(1=公开 2=成员)',
   `EXTRA_DEFINITION`   text(65535) comment '扩展配置(JSON Map)',
   primary key  (`CONFIG_ID`),
@@ -369,10 +392,10 @@ create table if not exists `project_plan_config` (
   `CONFIG_ID`          char(20) not null,
   `PROJECT_ID`         char(20) not null comment '所属项目',
   `PLAN_NAME`          varchar(100) not null comment '面板名称',
-  `COMMENTS`           varchar(300) comment '备注',
+  `COMMENTS`           varchar(701) comment '备注',
   `SEQ`                int(11) default '0' comment '排序(小到大)',
   `FLOW_STATUS`        smallint(6) default '1' comment '工作流状态',
-  `FLOW_NEXTS`         varchar(420) comment '可转换到哪个面板',
+  `FLOW_NEXTS`         varchar(701) comment '可转换到哪个面板',
   primary key  (`CONFIG_ID`),
   index IX0_project_plan_config (`PROJECT_ID`, `SEQ`)
 )Engine=InnoDB;
@@ -382,16 +405,16 @@ create table if not exists `project_task` (
   `PROJECT_ID`         char(20) not null comment '所属项目',
   `PROJECT_PLAN_ID`    char(20) not null comment '所属面板',
   `TASK_NUMBER`        bigint(20) not null comment '任务编号',
-  `TASK_NAME`          varchar(191) not null comment '任务名称',
+  `TASK_NAME`          varchar(701) not null comment '任务名称',
   `EXECUTOR`           char(20) comment '执行人',
-  `PARTNERS`           varchar(420) default 'ALL' comment '参与者(可选值: $UserID)',
+  `PARTNERS`           varchar(701) default 'ALL' comment '参与者(可选值: $UserID)',
   `PRIORITY`           smallint(6) default '1' comment '优先级(0=较低 1=普通 2=紧急 3=非常紧急)',
   `STATUS`             smallint(6) default '0' comment '状态(0=未完成/未开始)',
   `DEADLINE`           datetime null default null comment '截至时间',
   `START_TIME`         datetime null default null comment '开始时间',
   `END_TIME`           datetime null default null comment '完成时间',
   `DESCRIPTION`        text(65535) comment '详情',
-  `ATTACHMENTS`        varchar(700) comment '附件',
+  `ATTACHMENTS`        varchar(701) comment '附件',
   `PARENT_TASK_ID`     char(20) comment '父级任务',
   `SEQ`                int(11) default '0' comment '排序(小到大)',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
@@ -416,7 +439,7 @@ create table if not exists `project_task_comment` (
   `COMMENT_ID`         char(20) not null,
   `TASK_ID`            char(20) not null comment '哪个任务',
   `CONTENT`            text(65535) not null comment '内容',
-  `ATTACHMENTS`        varchar(700) comment '附件',
+  `ATTACHMENTS`        varchar(701) comment '附件',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -457,7 +480,7 @@ create table if not exists `smsend_log` (
   `TO`                 varchar(100) not null comment '收件人',
   `CONTENT`            text(65535) not null comment '发送内容',
   `SEND_TIME`          datetime not null default current_timestamp comment '发送时间',
-  `SEND_RESULT`        varchar(191) comment '发送结果(OK:xxx|ERR:xxx)',
+  `SEND_RESULT`        varchar(701) comment '发送结果(OK:xxx|ERR:xxx)',
   primary key  (`SEND_ID`),
   index IX0_smsend_log (`SEND_TIME`, `SEND_RESULT`)
 )Engine=InnoDB;
@@ -528,8 +551,8 @@ create table if not exists `feeds` (
   `FEEDS_ID`           char(20) not null,
   `TYPE`               smallint(6) not null default '1' comment '类型',
   `CONTENT`            text(65535) not null comment '内容',
-  `IMAGES`             varchar(700) comment '图片',
-  `ATTACHMENTS`        varchar(700) comment '附件',
+  `IMAGES`             varchar(701) comment '图片',
+  `ATTACHMENTS`        varchar(701) comment '附件',
   `RELATED_RECORD`     char(20) comment '相关业务记录',
   `SCOPE`              varchar(20) default 'ALL' comment '哪些人可见, 可选值: ALL/SELF/$TeamID',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
@@ -546,8 +569,8 @@ create table if not exists `feeds_comment` (
   `COMMENT_ID`         char(20) not null,
   `FEEDS_ID`           char(20) not null comment '哪个动态',
   `CONTENT`            text(65535) not null comment '内容',
-  `IMAGES`             varchar(700) comment '图片',
-  `ATTACHMENTS`        varchar(700) comment '附件',
+  `IMAGES`             varchar(701) comment '图片',
+  `ATTACHMENTS`        varchar(701) comment '附件',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
@@ -596,7 +619,7 @@ create table if not exists `recycle_bin` (
   `RECYCLE_ID`         char(20) not null,
   `BELONG_ENTITY`      varchar(100) not null comment '所属实体',
   `RECORD_ID`          char(20) not null comment 'ID字段值',
-  `RECORD_NAME`        varchar(191) not null comment '名称字段值',
+  `RECORD_NAME`        varchar(701) not null comment '名称字段值',
   `RECORD_CONTENT`     longtext not null comment '数据',
   `DELETED_BY`         char(20) not null comment '删除人',
   `DELETED_ON`         datetime not null default current_timestamp comment '删除时间',
@@ -648,7 +671,7 @@ create table if not exists `rebuild_api` (
   `APP_ID`             varchar(20) not null comment 'APPID',
   `APP_SECRET`         varchar(60) not null comment 'APPSECRET',
   `BIND_USER`          char(20) comment '绑定用户(权限)',
-  `BIND_IPS`           varchar(300) comment 'IP白名单',
+  `BIND_IPS`           varchar(701) comment 'IP白名单',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -661,7 +684,7 @@ create table if not exists `rebuild_api_request` (
   `REQUEST_ID`         char(20) not null,
   `APP_ID`             varchar(20) not null comment 'APPID',
   `REMOTE_IP`          varchar(100) not null comment '来源IP',
-  `REQUEST_URL`        varchar(300) not null comment '请求URL',
+  `REQUEST_URL`        varchar(701) not null comment '请求URL',
   `REQUEST_BODY`       text(65535) comment '请求数据',
   `RESPONSE_BODY`      text(65535) not null comment '响应数据',
   `REQUEST_TIME`       datetime not null default current_timestamp comment '请求时间',
@@ -697,7 +720,7 @@ create table if not exists `robot_approval_step` (
   `NODE`               varchar(100) not null comment '审批节点',
   `APPROVER`           char(20) not null comment '审批人',
   `STATE`              smallint(6) default '1' comment '审批结果',
-  `REMARK`             varchar(600) comment '批注',
+  `REMARK`             varchar(701) comment '批注',
   `APPROVED_TIME`      datetime null default null comment '审批时间',
   `PREV_NODE`          varchar(100) not null comment '上一审批节点',
   `IS_CANCELED`        char(1) default 'F' comment '是否取消',
@@ -723,7 +746,7 @@ create table if not exists `auto_fillin_config` (
   `BELONG_FIELD`       varchar(100) not null,
   `SOURCE_FIELD`       varchar(100) not null comment '引用实体的字段',
   `TARGET_FIELD`       varchar(100) not null comment '当前实体的字段',
-  `EXT_CONFIG`         varchar(700) comment '更多扩展配置, JSON格式KV',
+  `EXT_CONFIG`         varchar(701) comment '更多扩展配置, JSON格式KV',
   `CREATED_BY`         char(20) not null comment '创建人',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
@@ -761,7 +784,7 @@ insert into `role` (`ROLE_ID`, `NAME`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`
 create table if not exists `classification` (
   `DATA_ID`            char(20) not null,
   `NAME`               varchar(100) not null,
-  `DESCRIPTION`        varchar(600),
+  `DESCRIPTION`        varchar(701),
   `IS_DISABLED`        char(1) default 'F',
   `OPEN_LEVEL`         smallint(6) default '0',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
@@ -775,7 +798,7 @@ create table if not exists `classification_data` (
   `ITEM_ID`            char(20) not null,
   `DATA_ID`            char(20) not null,
   `NAME`               varchar(100) not null,
-  `FULL_NAME`          varchar(191) not null comment '包括父级名称, 用点号分割',
+  `FULL_NAME`          varchar(701) not null comment '包括父级名称, 用点号分割',
   `PARENT`             char(20),
   `CODE`               varchar(50),
   `LEVEL`              smallint(6) default '0',

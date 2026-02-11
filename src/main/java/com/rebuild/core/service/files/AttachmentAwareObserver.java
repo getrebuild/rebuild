@@ -104,6 +104,7 @@ public class AttachmentAwareObserver extends OperatingObserver {
                             .setParameter(3, o)
                             .unique();
                     if (delete != null) {
+                        // 标记删除，后续由 RecycleBinCleanerJob 彻底删除
                         Record d = EntityHelper.forUpdate((ID) delete[0], UserService.SYSTEM_USER, false);
                         d.setBoolean(EntityHelper.IsDeleted, true);
                         d.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());

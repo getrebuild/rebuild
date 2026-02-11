@@ -17,7 +17,7 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOGS_HOME}/rebuild.%d{yyyy-MM-dd}-%i.log</fileNamePattern>
             <maxFileSize>100MB</maxFileSize>
-            <maxHistory>180</maxHistory>
+            <maxHistory>90</maxHistory>
         </rollingPolicy>
     </appender>
 
@@ -44,7 +44,7 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOGS_HOME}/rebuild.ERROR.%d{yyyy-MM-dd}-%i.log</fileNamePattern>
             <maxFileSize>100MB</maxFileSize>
-            <maxHistory>180</maxHistory>
+            <maxHistory>90</maxHistory>
         </rollingPolicy>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>ERROR</level>

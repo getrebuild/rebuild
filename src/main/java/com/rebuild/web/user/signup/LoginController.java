@@ -18,6 +18,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.cache.CacheTemplate;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
@@ -196,12 +197,21 @@ public class LoginController extends LoginAction {
             return RespBody.ok(resMap);
         }
 
+        // v4.3
+        boolean hasLogin = UserService.hasLogin(loginUser.getId());
+
         if (isRbMobile) {
             resMap = loginSuccessedH5(request, response, loginUser.getId());
         } else {
             Integer ed = loginSuccessed(
                     request, response, loginUser.getId(), getBoolParameter(request, "autoLogin", false));
-            if (ed != null) resMap.put("passwdExpiredDays", ed);
+            if (ed != null) {
+                resMap.put("passwdExpiredDays", ed);
+            } else {
+                if (!UserService.ADMIN_USER.equals(loginUser.getId()) && !hasLogin) {
+                    resMap.put("passwdSafeType", 2);
+                }
+            }
         }
         return RespBody.ok(resMap);
     }

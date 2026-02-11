@@ -216,20 +216,21 @@ public class MetaschemaImporter extends HeavyTask<String> {
         try {
             List<Field> fieldsList = new ArrayList<>();
             Set<String> uniqueKeyFields = new HashSet<>();
+            Set<String> indexKeyFields = new HashSet<>();
             for (Object field : fields) {
                 Field unsafe = performField((JSONObject) field, newEntity);
                 if (unsafe != null) {
                     fieldsList.add(unsafe);
 
-                    if (DisplayType.SERIES.name().equals(((JSONObject) field).getString("displayType"))) {
-                        uniqueKeyFields.add(unsafe.getName());
-                    }
+                    String dtName = ((JSONObject) field).getString("displayType");
+                    if (DisplayType.SERIES.name().equals(dtName)) uniqueKeyFields.add(unsafe.getName());
+                    if (DisplayType.REFERENCE.name().equals(dtName)) indexKeyFields.add(unsafe.getName());
                 }
             }
 
             // 同步字段到数据库
             new Field2Schema(UserService.ADMIN_USER).schema2Database(
-                    newEntity, fieldsList.toArray(new Field[0]), uniqueKeyFields);
+                    newEntity, fieldsList.toArray(new Field[0]), uniqueKeyFields, indexKeyFields);
 
         } catch (Exception ex) {
             entity2Schema.dropEntity(newEntity, true);

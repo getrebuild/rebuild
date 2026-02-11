@@ -41,6 +41,8 @@ public class FunnelChart extends ChartData {
         if (nums.length > 1) {
             for (Numerical num : nums) {
                 Object[] dataRaw = createQuery(buildSql(num, true)).unique();
+                dataRaw = this.calcFormula43(dataRaw, num);
+
                 JSONObject d = JSONUtils.toJSONObject(
                         new String[]{"name", "value"},
                         new Object[]{num.getLabel(), wrapAxisValue(num, dataRaw[0])});
@@ -53,6 +55,8 @@ public class FunnelChart extends ChartData {
             Dimension dim1 = dims[0];  // 多余的不要
             Numerical num1 = nums[0];
             Object[][] dataRaw = createQuery(buildSql(dim1, num1, true)).array();
+            this.calcFormula43(dataRaw, nums);
+
             final String valueFlag = getNumericalFlag(num1);
             for (Object[] o : dataRaw) {
                 JSONObject d = JSONUtils.toJSONObject(

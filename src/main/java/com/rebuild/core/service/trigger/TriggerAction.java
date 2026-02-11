@@ -43,14 +43,25 @@ public abstract class TriggerAction {
     abstract public Object execute(OperatingContext operatingContext) throws TriggerException;
 
     /**
-     * v4.1 延迟执行
+     * v4.3,4.1 延迟执行
      *
+     * @param originTriggerSource v4.3 原始触发源（才能异步）
      * @return
-     * @throws TriggerException
      */
-    protected boolean isAsyncMode() throws TriggerException {
+    protected boolean isAsyncMode(boolean originTriggerSource) {
+        if (!originTriggerSource) return false;
         return actionContext != null
                 && ((JSONObject) actionContext.getActionContent()).getBooleanValue("asyncMode");
+    }
+
+    /**
+     * v4.3 主记录更新时同步执行
+     *
+     * @return
+     */
+    public boolean isExecOnMainUpdate43() {
+        return actionContext != null
+                && ((JSONObject) actionContext.getActionContent()).getBooleanValue("execOnMainUpdate");
     }
 
     /**

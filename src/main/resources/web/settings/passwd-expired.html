@@ -18,8 +18,8 @@
           <div class="splash-container">
             <div class="card card-border-color card-border-color-danger">
               <div class="card-header">
-                <h4>[(${bundle.L('你的密码将在 **%d** 天后过期')})]</h4>
-                <p class="fs-13 text-muted">[[${bundle.L('过期后系统将强制修改密码，新密码会发送至你的邮箱 (若有)')}]]</p>
+                <h4 th:utext="${Tip1}"></h4>
+                <p class="fs-13 text-muted" th:text="${Tip2}"></p>
               </div>
               <div class="card-body">
                 <form>

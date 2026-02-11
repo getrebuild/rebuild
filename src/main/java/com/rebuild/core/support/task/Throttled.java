@@ -18,6 +18,7 @@ import java.util.TimerTask;
  * @author Zixin
  * @since 2022/10/13
  */
+@Deprecated
 @Slf4j
 public class Throttled {
 

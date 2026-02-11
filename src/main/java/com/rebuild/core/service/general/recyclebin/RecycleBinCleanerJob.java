@@ -115,22 +115,22 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
             log.warn("RevisionHistory cleaned : {}", del);
         }
 
-        // CommonLog 保留 180d
+        // CommonLog 保留 90d
 
         Entity entity = MetadataHelper.getEntity(EntityHelper.CommonsLog);
         String delSql = String.format(
                 "delete from `%s` where `%s` < '%s 00:00:00'",
                 entity.getPhysicalName(),
                 entity.getField("logTime").getPhysicalName(),
-                CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(-180)));
+                CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(-90)));
         Application.getSqlExecutor().execute(delSql, 60 * 3);
 
-        // 4.2 已删除附件*最少*保留 180d
+        // 4.2 已删除附件*最少*保留 90d
 
         List<ID> deletesAuto42 = new ArrayList<>();
         Object[][] array = Application.createQueryNoFilter(
                 "select attachmentId,filePath from Attachment where isDeleted = 'T' and modifiedOn < ?")
-                .setParameter(1, CalendarUtils.addDay(-Math.max(rbDays, 180)))
+                .setParameter(1, CalendarUtils.addDay(-Math.max(rbDays, 90)))
                 .array();
         for (Object[] o : array) {
             deletesAuto42.add((ID) o[0]);

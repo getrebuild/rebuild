@@ -53,8 +53,8 @@ public class TableChart extends ChartData {
         Numerical[] nums = getNumericals();
 
         Object[][] dataRaw;
+        // 需要分别查询
         if (nums.length > 1 && hasNumericalFilter(nums)) {
-            // 分别查询
             List<AxisEntry> axisValues = new ArrayList<>();
             int indexAndSize = 0;
             for (Numerical num : nums) {
@@ -68,6 +68,8 @@ public class TableChart extends ChartData {
         } else {
             dataRaw = createQuery(buildSql(dims, nums)).array();
         }
+
+        this.calcFormula43(dataRaw, nums);
 
         // v3.9
         if (pageSize > 0 && dataRaw.length > pageSize) {
@@ -101,6 +103,7 @@ public class TableChart extends ChartData {
                 }
             }
 
+            boolean hasFormulaAndAvg = false;
             for (int i = numericalIndexStart, j = 0; i < colLength; i++, j++) {
                 final Numerical N = getNumericals()[j];
                 final FormatCalc FC = N.getFormatCalc();
@@ -130,6 +133,16 @@ public class TableChart extends ChartData {
                     }
                 }
                 sumsRow[i] = sums.doubleValue();
+
+                if (FC == FormatCalc.AVG && N.getFormatFormula() != null) {
+                    hasFormulaAndAvg = true;
+                }
+            }
+
+            // 均值特殊处理计算公式
+            if (hasFormulaAndAvg) {
+                Object[][] sumsRowFix = new Object[][]{sumsRow};
+                this.calcFormula43(sumsRowFix, nums);
             }
 
             dataRawNew[dataRaw.length] = sumsRow;

@@ -60,7 +60,12 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
 
     @Override
     public String get(String key) {
-        return delegate.get(unityKey(key));
+        try {
+            return delegate.get(unityKey(key));
+        } catch (Exception ex) {
+            log.error("Cache error on #get : {}", key, ex);
+        }
+        return null;
     }
 
     @Override
@@ -74,12 +79,22 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
             log.warn("Cannot set `{}` to null", key);
             return;
         }
-        delegate.put(unityKey(key), value, seconds);
+
+        try {
+            delegate.put(unityKey(key), value, seconds);
+        } catch (Exception ex) {
+            log.error("Cache error on #put : {}={}", key, value, ex);
+        }
     }
 
     @Override
     public V getx(String key) {
-        return delegate.getx(unityKey(key));
+        try {
+            return delegate.getx(unityKey(key));
+        } catch (Exception ex) {
+            log.error("Cache error on #getx : {}", key, ex);
+        }
+        return null;
     }
 
     @Override
@@ -93,12 +108,21 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
             log.warn("Cannot set `{}` to null", key);
             return;
         }
-        delegate.putx(unityKey(key), value, seconds);
+
+        try {
+            delegate.putx(unityKey(key), value, seconds);
+        } catch (Exception ex) {
+            log.error("Cache error on #putx : {}={}", key, value, ex);
+        }
     }
 
     @Override
     public void evict(String key) {
-        delegate.evict(unityKey(key));
+        try {
+            delegate.evict(unityKey(key));
+        } catch (Exception ex) {
+            log.error("Cache error on #evict : {}", key, ex);
+        }
     }
 
     /**

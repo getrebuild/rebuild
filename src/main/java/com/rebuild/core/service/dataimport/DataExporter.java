@@ -26,6 +26,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.EasyMultiSelect;
 import com.rebuild.core.metadata.easymeta.EasyN2NReference;
 import com.rebuild.core.metadata.easymeta.EasyTag;
+import com.rebuild.core.metadata.easymeta.MediaValue;
 import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.service.datareport.EasyExcelListGenerator;
@@ -235,7 +236,7 @@ public class DataExporter extends SetUser {
 
                 if (cellVal.toString().equals(FieldValueHelper.NO_READ_PRIVILEGES)) {
                     cellVal = labelNop;
-                } else if (!dt.isExportable() || (dt == DisplayType.SIGN || dt == DisplayType.BARCODE)) {
+                } else if (!dt.isExportable() || easyField instanceof MediaValue) {
                     cellVal = labelUns;
                 } else if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {
                     cellVal = cellVal.toString().replaceAll("[^0-9|^.-]", "");  // 仅保留数字

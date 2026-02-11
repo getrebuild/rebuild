@@ -60,7 +60,7 @@ public class RevisionHistoryObserver extends OperatingObserver {
 
     @Override
     public void onCreate(OperatingContext context) {
-        Record revision = newRevision(context, false);
+        Record revision = newRevision(context, true);
         Application.getCommonsService().create(revision);
     }
 
@@ -103,7 +103,14 @@ public class RevisionHistoryObserver extends OperatingObserver {
         Application.getCommonsService().create(revision);
     }
 
-    private Record newRevision(OperatingContext context, boolean mergeChange) {
+    /**
+     * New `RevisionHistory`
+     *
+     * @param context
+     * @param mergeChange
+     * @return
+     */
+    public static Record newRevision(OperatingContext context, boolean mergeChange) {
         ID recordId = context.getAnyRecord().getPrimary();
         Record record = EntityHelper.forNew(EntityHelper.RevisionHistory,
                 ObjectUtils.getIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER));
@@ -129,7 +136,10 @@ public class RevisionHistoryObserver extends OperatingObserver {
                 }
             }
 
-            JSON revisionContent = new RecordDifference(before).diffMerge(after);
+            if (before == null && after != null) {
+                before = EntityHelper.forNew(after.getEntity().getEntityCode(), after.getEditor(), false);
+            }
+            JSON revisionContent = new RecordDifference(before).diffMerge(after);;
             record.setString("revisionContent", revisionContent.toJSONString());
         } else {
             record.setString("revisionContent", JSONUtils.EMPTY_ARRAY_STR);
@@ -137,9 +147,11 @@ public class RevisionHistoryObserver extends OperatingObserver {
 
         TriggerSource triggerSource = RobotTriggerObserver.getTriggerSource();
         if (triggerSource != null) {
-            record.setID("channelWith", triggerSource.getOriginRecord());
-            // v35 系统用户
+            record.setID("channelWith", triggerSource.getOriginRecordId());
+            // v3.5 统一为系统用户
             record.setID("revisionBy", UserService.SYSTEM_USER);
+            // v4.3 触发器
+            record.setID("fromSource", triggerSource.getCurrentTriggerId());
         }
 
         if (context.getOperationIp() != null) {

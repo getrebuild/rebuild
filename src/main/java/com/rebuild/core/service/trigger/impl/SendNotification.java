@@ -31,6 +31,7 @@ import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.integration.SMSender;
+import com.rebuild.core.support.integration.SMSenderContextHolder;
 import com.rebuild.utils.md.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -138,6 +139,7 @@ public class SendNotification extends TriggerAction {
             }
 
             if (!send.isEmpty()) {
+                SMSenderContextHolder.setFromSource(operatingContext.getFixedRecordId());
                 SMSender.sendMailAsync(StringUtils.join(send, ","), messageAndTitle[1], emailContent, emailAttach);
             }
             return send;
@@ -149,6 +151,7 @@ public class SendNotification extends TriggerAction {
             if (msgType == MTYPE_MAIL) {
                 String emailAddr = Application.getUserStore().getUser(user).getEmail();
                 if (RegexUtils.isEMail(emailAddr)) {
+                    SMSenderContextHolder.setFromSource(operatingContext.getFixedRecordId());
                     SMSender.sendMailAsync(emailAddr, messageAndTitle[1], emailContent, emailAttach);
                     send.add(emailAddr);
                 }
@@ -157,6 +160,7 @@ public class SendNotification extends TriggerAction {
             if (msgType == MTYPE_SMS) {
                 String mobileAddr = Application.getUserStore().getUser(user).getWorkphone();
                 if (RegexUtils.isCNMobile(mobileAddr)) {
+                    SMSenderContextHolder.setFromSource(operatingContext.getFixedRecordId());
                     SMSender.sendSMSAsync(mobileAddr, messageAndTitle[0]);
                     send.add(mobileAddr);
                 }
@@ -218,6 +222,7 @@ public class SendNotification extends TriggerAction {
             }
 
             if (!send.isEmpty()) {
+                SMSenderContextHolder.setFromSource(operatingContext.getFixedRecordId());
                 SMSender.sendMailAsync(StringUtils.join(send, ","), message[1], emailContent, emailAttach);
             }
             return send;
@@ -230,11 +235,13 @@ public class SendNotification extends TriggerAction {
             if (send.contains(mobileOrEmail)) continue;
 
             if (msgType == MTYPE_SMS && RegexUtils.isCNMobile(mobileOrEmail)) {
+                SMSenderContextHolder.setFromSource(operatingContext.getFixedRecordId());
                 SMSender.sendSMSAsync(mobileOrEmail, message[0]);
                 send.add(mobileOrEmail);
             }
 
             if (msgType == MTYPE_MAIL && RegexUtils.isEMail(mobileOrEmail)) {
+                SMSenderContextHolder.setFromSource(operatingContext.getFixedRecordId());
                 SMSender.sendMailAsync(mobileOrEmail, message[1], emailContent, emailAttach);
                 send.add(mobileOrEmail);
             }

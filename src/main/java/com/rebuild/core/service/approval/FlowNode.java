@@ -348,18 +348,29 @@ public class FlowNode {
     }
 
     /**
+     * 批注填写模式
+     *
      * @param recordId
      * @param approver
      * @return
      * @see #getExpiresTime(ID, ID)
      */
     public long getRemarkReq(ID recordId, ID approver) {
-        // 0=选填, 1=必填, 2=超时必填
+        // 0=选填, 1=必填, 2=超时必填, 10=隐藏
         int reqType = getDataMap().getIntValue("remarkReq");
         if (reqType < 2) return reqType;
 
         Long expTime = getExpiresTime(recordId, approver);
         return expTime == null || expTime < 0 ? 0 : 1;
+    }
+
+    /**
+     * 批注隐藏（无需填写）
+     *
+     * @return
+     */
+    public boolean isRemarkHide() {
+        return getDataMap().getIntValue("remarkReq") == 10;
     }
 
     /**

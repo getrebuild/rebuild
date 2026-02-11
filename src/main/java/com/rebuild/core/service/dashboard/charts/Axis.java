@@ -20,59 +20,41 @@ import java.util.Objects;
  * @author devezhao
  * @since 12/14/2018
  */
+@Getter
 public class Axis {
 
-    @Getter
     private Field field;
-    private FormatSort sort;
-    private FormatCalc calc;
+    private FormatSort formatSort;
+    private FormatCalc formatCalc;
     protected String label;
-    @Getter
     private Field parentField;
+    private String fkey;  // 唯一ID
 
     /**
+     * @param fkey
      * @param field
      * @param sort
      * @param calc
      * @param label
      * @param parentField
      */
-    protected Axis(Field field, FormatSort sort, FormatCalc calc, String label, Field parentField) {
+    protected Axis(String fkey, Field field, FormatSort sort, FormatCalc calc, String label, Field parentField) {
+        this.fkey = fkey;
         this.field = field;
-        this.calc = calc;
-        this.sort = sort;
+        this.formatSort = sort;
+        this.formatCalc = calc;
         this.label = label;
         this.parentField = parentField;
     }
 
-    /**
-     * @return
-     */
-    public FormatSort getFormatSort() {
-        return sort;
-    }
-
-    /**
-     * @return
-     */
-    public FormatCalc getFormatCalc() {
-        return calc;
-    }
-
-    /**
-     * @return
-     */
+    // LABEL
     public String getLabel() {
-        if (StringUtils.isNotBlank(label)) {
-            return label;
-        }
+        if (StringUtils.isNotBlank(label)) return label;
         return (parentField == null ? "" : (EasyMetaFactory.getLabel(parentField) + "."))
                 + EasyMetaFactory.getLabel(field);
     }
 
-    /**
-     * @return
-     */
+    // SQLNAME
     public String getSqlName() {
         return (parentField == null ? "" : (parentField.getName() + ".")) + field.getName();
     }
@@ -86,6 +68,6 @@ public class Axis {
 
     @Override
     public int hashCode() {
-        return Objects.hash(field, calc, parentField);
+        return Objects.hash(field, formatCalc, parentField);
     }
 }

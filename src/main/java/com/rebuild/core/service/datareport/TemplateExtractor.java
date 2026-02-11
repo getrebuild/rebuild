@@ -97,7 +97,7 @@ public class TemplateExtractor {
         Map<String, String> map = new HashMap<>();
         for (final String varName : vars) {
             // v3.8
-            String thatName = ValueConvertFunc.splitName(varName);
+            String thatName = ValueFnConvert.splitName(varName);
 
             // 列表型字段
             if (thatName.startsWith(NROW_PREFIX)) {

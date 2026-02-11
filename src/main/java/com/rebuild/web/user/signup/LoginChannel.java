@@ -12,6 +12,7 @@ import eu.bitwalker.useragentutils.OperatingSystem;
 import eu.bitwalker.useragentutils.UserAgent;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * 登录渠道/类型
@@ -59,6 +60,8 @@ public enum LoginChannel {
      * @return
      */
     public static LoginChannel parse(String userAgent, boolean forceH5) {
+        if (StringUtils.isBlank(userAgent)) return PC_WEB;
+
         userAgent = userAgent.toUpperCase();
         UserAgent UA = UserAgent.parseUserAgentString(userAgent);
         OperatingSystem OS = UA.getOperatingSystem();

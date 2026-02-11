@@ -283,7 +283,7 @@ public class ApprovalHelper {
         final int expiresAuto = eaConf == null ? 0 : eaConf.getIntValue("expiresAuto");
 
         if (expiresAuto == 1) {
-            int auto1Value = Math.max(eaConf.getIntValue("expiresAuto1Value"), 1);
+            int auto1Value = Math.max((int) eaConf.getDoubleValue("expiresAuto1Value"), 1);
             String auto1Type = eaConf.getString("expiresAuto1ValueType");
             // I,H,D
             return CalendarUtils.add(createdOn, auto1Value,

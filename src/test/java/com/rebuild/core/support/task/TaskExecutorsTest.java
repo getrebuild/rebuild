@@ -57,4 +57,17 @@ class TaskExecutorsTest {
 
         ThreadPool.waitFor(1000);
     }
+
+    @Test
+    void schedule() {
+        // 只会打印最后一个，因为前面的取消了
+        String key = "key1";
+        for (int i = 0; i < 10; i++) {
+            int finalI = i;
+            TaskExecutors.schedule(() -> {
+                System.out.println("Last:" + finalI);
+            }, 100, key);
+        }
+        ThreadPool.waitFor(2000);
+    }
 }

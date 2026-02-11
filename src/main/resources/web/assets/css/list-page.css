@@ -222,7 +222,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .quick-filter-tabs + .quick-filter-pane,
 .quick-filter-tabs + .card-table,
-.quick-filter-tabs + .nav-tabs {
+.quick-filter-tabs + .nav-tabs,
+.quick-filter-tabs + .rblist-fjsalert {
   margin-top: 44px;
 }
 

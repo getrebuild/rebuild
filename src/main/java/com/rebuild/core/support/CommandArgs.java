@@ -45,13 +45,12 @@ public class CommandArgs {
     public static final String _WxWorkProxyUrl = "_WxWorkProxyUrl";
     public static final String _DingTalkProxyUrl = "_DingTalkProxyUrl";
     public static final String _FeishuProxyUrl = "_FeishuProxyUrl";
+    public static final String _SubmailProxyUrl = "_SubmailProxyUrl";
     public static final String _DisNotificationShare = "_DisNotificationShare";
     public static final String _DisNotificationAssign = "_DisNotificationAssign";
     public static final String _DisNotificationApproval = "_DisNotificationApproval";
     public static final String _DisNotificationFeeds = "_DisNotificationFeeds";
     public static final String _DisNotificationTasks = "_DisNotificationTasks";
-    // v4.2.5
-    public static final String _SubmailProxyUrl = "_SubmailProxyUrl";
     public static final String _WxworkMessageDistributorMd = "_WxworkMessageDistributorMd";
 
     /**

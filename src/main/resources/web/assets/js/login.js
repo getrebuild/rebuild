@@ -70,6 +70,9 @@ $(document).ready(() => {
         } else if (res.data && res.data.passwdExpiredDays) {
           to = `${rb.baseUrl}/settings/passwd-expired?d=${res.data.passwdExpiredDays}`
           if (nexturl) to += `&nexturl=${$encode(nexturl)}`
+        } else if (res.data && res.data.passwdSafeType) {
+          to = `${rb.baseUrl}/settings/passwd-safe?type=${res.data.passwdSafeType}`
+          if (nexturl) to += `&nexturl=${$encode(nexturl)}`
         } else if (!to) {
           to = `${rb.baseUrl}/dashboard/home`
         }

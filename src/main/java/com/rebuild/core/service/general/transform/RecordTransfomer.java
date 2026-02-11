@@ -7,10 +7,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.general.transform;
 
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.engine.StandardRecord;
+import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -21,24 +26,42 @@ import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.EasyTag;
+import com.rebuild.core.metadata.easymeta.MultiValue;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
+import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.query.FilterRecordChecker;
+import com.rebuild.core.service.trigger.aviator.AviatorUtils;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.SetUser;
+import com.rebuild.core.support.general.N2NReferenceSupport;
+import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.core.NamedThreadLocal;
 
+import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Set;
+
+import static com.rebuild.core.service.trigger.impl.FieldWriteback.checkoutFieldValue;
 
 /**
  * 转换记录
@@ -56,10 +79,13 @@ public class RecordTransfomer extends SetUser {
     private static final ThreadLocal<ID> FILLBACK2_ONCE414 = new NamedThreadLocal<>("FallbackMode=2 Trigger Once");
 
     final protected Entity targetEntity;
-    final protected JSONObject transConfig;
     final protected boolean skipGuard;
 
-    final private ID transid;
+    final protected JSONObject transConfig;
+    final protected ID transid;
+
+    // v4.3
+    private boolean checkSame = false;
 
     /**
      * @param transid
@@ -82,6 +108,15 @@ public class RecordTransfomer extends SetUser {
         this.transConfig = transConfig;
         this.skipGuard = skipGuard;
         this.transid = null;
+    }
+
+    /**
+     * 更新时忽略同值
+     *
+     * @param checkSame
+     */
+    protected void setCheckSame(boolean checkSame) {
+        this.checkSame = checkSame;
     }
 
     /**
@@ -119,14 +154,14 @@ public class RecordTransfomer extends SetUser {
 
         // 主
         JSONObject fieldsMapping = transConfig.getJSONObject("fieldsMapping");
-        if (fieldsMapping == null || fieldsMapping.isEmpty()) {
+        if (MapUtils.isEmpty(fieldsMapping)) {
             throw new ConfigurationException("Invalid config of transform : " + transConfig);
         }
 
         // 明细
         JSONObject fieldsMappingDetail = transConfig.getJSONObject("fieldsMappingDetail");
         Object[][] sourceDetails = null;
-        if (fieldsMappingDetail != null && !fieldsMappingDetail.isEmpty()) {
+        if (MapUtils.isNotEmpty(fieldsMappingDetail)) {
             sourceDetailEntity = sourceEntity.getDetailEntity();
             Field sourceRefField;
 
@@ -168,8 +203,9 @@ public class RecordTransfomer extends SetUser {
             Entity targetDetailEntity = targetEntity.getDetailEntity();
             List<Record> detailsList = new ArrayList<>();
             for (Object[] d : sourceDetails) {
-                detailsList.add(
-                        transformRecord(sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) d[0], null, false, false, checkNullable));
+                Record dRecord = transformRecord(
+                        sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) d[0], null, false, false, checkNullable);
+                detailsList.add(dRecord);
             }
 
             theNewId = saveRecord(mainRecord, detailsList);
@@ -191,11 +227,16 @@ public class RecordTransfomer extends SetUser {
     protected ID saveRecord(Record record, List<Record> detailsList) {
         if (this.skipGuard) GeneralEntityServiceContextHolder.setSkipGuard(EntityHelper.UNSAVED_ID);
 
-        if (detailsList != null && !detailsList.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(detailsList)) {
             record.setObjectValue(GeneralEntityService.HAS_DETAILS, detailsList);
             GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS);
         } else {
             GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_ALL);
+        }
+
+        if (checkSame && record.getPrimary() != null) {
+            record = RbvFunction.call().restRecord(record);
+            if (record.isEmpty()) return record.getPrimary();
         }
 
         try {
@@ -213,28 +254,42 @@ public class RecordTransfomer extends SetUser {
      * @return
      */
     protected boolean fillback(ID sourceRecordId, ID newId) {
+        return fillback(sourceRecordId, new ID[]{newId});
+    }
+
+    /**
+     * @param sourceRecordId
+     * @param newIds
+     * @return
+     */
+    protected boolean fillback(ID sourceRecordId, ID[] newIds) {
         final Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
         String fillbackField = transConfig.getString("fillbackField");
         if (fillbackField == null || !MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
             return false;
         }
 
-        Record updateSource = EntityHelper.forUpdate(sourceRecordId, UserService.SYSTEM_USER, false);
-        updateSource.setID(fillbackField, newId);
+        // 更新源纪录
+        Record s = EntityHelper.forUpdate(sourceRecordId, UserService.SYSTEM_USER, false);
+        if (EasyMetaFactory.getDisplayType(s.getEntity().getField(fillbackField)) == DisplayType.N2NREFERENCE) {
+            s.setIDArray(fillbackField, newIds);
+        } else {
+            s.setID(fillbackField, newIds[0]);
+        }
 
         // 4.1.4 (LAB) 配置开放
         int fillbackMode = transConfig.getIntValue("fillbackMode");
-        if (fillbackMode == 2 && !EntityHelper.isUnsavedId(newId) && FILLBACK2_ONCE414.get() == null) {
-            GeneralEntityServiceContextHolder.setAllowForceUpdate(updateSource.getPrimary());
-            FILLBACK2_ONCE414.set(newId);
+        if (fillbackMode == 2 && !EntityHelper.isUnsavedId(newIds) && FILLBACK2_ONCE414.get() == null) {
+            GeneralEntityServiceContextHolder.setAllowForceUpdate(s.getPrimary());
+            FILLBACK2_ONCE414.set(newIds[0]);
             try {
-                Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
+                Application.getEntityService(sourceEntity.getEntityCode()).update(s);
             } finally {
                 GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
             }
         } else {
             // 无传播更新
-            Application.getCommonsService().update(updateSource, false);
+            Application.getBaseService().update(s);
         }
         return true;
     }
@@ -273,7 +328,8 @@ public class RecordTransfomer extends SetUser {
         }
 
         validFields.add(sourceEntity.getPrimaryField().getName());
-        Record sourceRecord = Application.getQueryFactory().recordNoFilter(sourceRecordId, validFields.toArray(new String[0]));
+        Record sourceRecord = Application.getQueryFactory()
+                .recordNoFilter(sourceRecordId, validFields.toArray(new String[0]));
 
         // 所属用户
         ID specOwningUser = null;
@@ -291,18 +347,53 @@ public class RecordTransfomer extends SetUser {
 
             Object sourceAny = e.getValue();
 
+            // 固定值/计算公式
             if (sourceAny instanceof JSONArray) {
+                String sourceType = ((JSONArray) sourceAny).getString(1);
                 Object sourceValue = ((JSONArray) sourceAny).get(0);
-                EntityRecordCreator.setValueByLiteral(
-                        targetFieldEasy.getRawMeta(), sourceValue.toString(), targetRecord, false);
+
+                if ("VFIXED".equals(sourceType)) {
+                    // fix:4.3 标签支持多值
+                    if (targetFieldEasy.getDisplayType() == DisplayType.TAG) {
+                        sourceValue = sourceValue.toString().replace(", ", EasyTag.VALUE_SPLIT);
+                    }
+
+                    EntityRecordCreator.setValueByLiteral(
+                            targetFieldEasy.getRawMeta(), sourceValue.toString(), targetRecord, false);
+
+                } else if ("VFORMULA".equals(sourceType)) {
+                    // v4.3
+                    Object evalValue = evalFormula43(sourceValue.toString(), sourceRecordId, targetFieldEasy);
+                    if (evalValue != null) {
+                        DisplayType targetType = targetFieldEasy.getDisplayType();
+                        if (targetType == DisplayType.NUMBER) {
+                            targetRecord.setLong(targetField, CommonsUtils.toLongHalfUp(evalValue));
+                        } else if (targetType == DisplayType.DECIMAL) {
+                            targetRecord.setDouble(targetField, ObjectUtils.toDouble(evalValue));
+                        } else if (targetType == DisplayType.DATE || targetType == DisplayType.DATETIME) {
+                            if (evalValue instanceof Date) {
+                                targetRecord.setDate(targetField, (Date) evalValue);
+                            } else {
+                                Date newValueCast = CalendarUtils.parse(evalValue.toString());
+                                if (newValueCast == null) log.warn("Cannot cast string to date : {}", evalValue);
+                                else targetRecord.setDate(targetField, newValueCast);
+                            }
+                        } else {
+                            evalValue = checkoutFieldValue(evalValue, targetFieldEasy);
+                            if (evalValue != null) {
+                                targetRecord.setObjectValue(targetField, evalValue);
+                            }
+                        }
+                    }
+                }
 
             } else {
                 String sourceField = (String) sourceAny;
                 Object sourceValue = sourceRecord.getObjectValue(sourceField);
 
                 if (sourceValue != null) {
-                    EasyField sourceFieldEasy = EasyMetaFactory.valueOf(
-                            Objects.requireNonNull(MetadataHelper.getLastJoinField(sourceEntity, sourceField)));
+                    EasyField sourceFieldEasy = EasyMetaFactory
+                            .valueOf(MetadataHelper.getLastJoinField(sourceEntity, sourceField));
 
                     Object targetValue = sourceFieldEasy.convertCompatibleValue(sourceValue, targetFieldEasy);
                     targetRecord.setObjectValue(targetField, targetValue);
@@ -334,6 +425,127 @@ public class RecordTransfomer extends SetUser {
         }
 
         return targetRecord;
+    }
+
+    /**
+     * @param formula
+     * @param sourceRecordId
+     * @param targetField
+     * @return
+     * @see com.rebuild.core.service.trigger.impl.FieldWriteback#buildTargetRecordData(OperatingContext, ID, boolean)
+     */
+    private Object evalFormula43(String formula, ID sourceRecordId, EasyField targetField) {
+        final Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
+        final Set<String> fieldVars = new HashSet<>();
+        final Set<String> fieldVarsN2NPath = new HashSet<>();
+
+        Set<String> matchsVars = AviatorUtils.matchsFieldVars(formula, null);
+        for (String field : matchsVars) {
+            if (N2NReferenceSupport.isN2NMixPath(field, sourceEntity)) {
+                fieldVarsN2NPath.add(field);
+            } else {
+                if (MetadataHelper.getLastJoinField(sourceEntity, field) == null) {
+                    throw new MissingMetaExcetion(field, sourceEntity.getName());
+                }
+                fieldVars.add(field);
+            }
+        }
+
+        Record useSourceData = null;
+        if (!fieldVars.isEmpty()) {
+            String sql = MessageFormat.format("select {0},{1} from {2} where {1} = ?",
+                    StringUtils.join(fieldVars, ","),
+                    sourceEntity.getPrimaryField().getName(),
+                    sourceEntity.getName());
+            useSourceData = Application.createQueryNoFilter(sql).setParameter(1, sourceRecordId).record();
+        }
+        if (!fieldVarsN2NPath.isEmpty()) {
+            if (useSourceData == null) useSourceData = new StandardRecord(sourceEntity, null);
+            fieldVars.addAll(fieldVarsN2NPath);
+
+            for (String field : fieldVarsN2NPath) {
+                Object[] n2nVal = N2NReferenceSupport.getN2NValueByMixPath(field, sourceRecordId);
+                useSourceData.setObjectValue(field, n2nVal);
+            }
+        }
+
+        String clearFormula = formula.startsWith(AviatorUtils.CODE_PREFIX)
+                ? formula.substring(4, formula.length() - 4)
+                : formula.replace("×", "*").replace("÷", "/");
+
+        Map<String, Object> envMap = new HashMap<>();
+        for (String fieldName : fieldVars) {
+            String replace = "{" + fieldName + "}";
+            String replaceWhitQuote = "\"" + replace + "\"";
+            String replaceWhitQuoteSingle = "'" + replace + "'";
+            boolean forceUseQuote = false;
+
+            if (clearFormula.contains(replaceWhitQuote)) {
+                clearFormula = clearFormula.replace(replaceWhitQuote, fieldName);
+                forceUseQuote = true;
+            } else if (clearFormula.contains(replaceWhitQuoteSingle)) {
+                clearFormula = clearFormula.replace(replaceWhitQuoteSingle, fieldName);
+                forceUseQuote = true;
+            } else if (clearFormula.contains(replace)) {
+                clearFormula = clearFormula.replace(replace, fieldName);
+            } else {
+                continue;
+            }
+
+            Field useVarField = MetadataHelper.getLastJoinField(sourceEntity, fieldName);
+            Object useValue = useSourceData == null ? null : useSourceData.getObjectValue(fieldName);;
+
+            // @see AviatorUtils#convertValueOfFieldVar(Object, Field)
+            EasyField easyVarField = null;
+            boolean isMultiField = false;
+            boolean isStateField = false;
+            boolean isNumberField = false;
+            if (useVarField != null) {
+                easyVarField = EasyMetaFactory.valueOf(useVarField);
+                isMultiField = easyVarField.getDisplayType() == DisplayType.MULTISELECT
+                        || easyVarField.getDisplayType() == DisplayType.TAG
+                        || easyVarField.getDisplayType() == DisplayType.N2NREFERENCE;
+                isStateField = easyVarField.getDisplayType() == DisplayType.STATE;
+                isNumberField = useVarField.getType() == FieldType.LONG || useVarField.getType() == FieldType.DECIMAL;
+            }
+
+            if (isStateField) {
+                useValue = useValue == null ? "" : StateHelper.getLabel(useVarField, (Integer) useValue);
+            } else if (useValue instanceof Date) {
+                useValue = CalendarUtils.getUTCDateTimeFormat().format(useValue);
+            } else if (useValue == null) {
+                // N2N 保持 `NULL`
+                // 数字字段置 `0`
+                if (isNumberField) {
+                    useValue = 0L;
+                } else if (fieldVarsN2NPath.contains(fieldName)
+                        || (useVarField != null && useVarField.getType() == FieldType.REFERENCE_LIST)) {
+                    log.debug("Keep NULL for N2N");
+                } else {
+                    useValue = StringUtils.EMPTY;
+                }
+            } else if (isMultiField) {
+                // v3.5.5: 目标值为多引用时保持 `ID[]`
+                if (easyVarField.getDisplayType() == DisplayType.N2NREFERENCE
+                        && targetField.getDisplayType() == DisplayType.N2NREFERENCE) {
+                    useValue = StringUtils.join((ID[]) useValue, MultiValue.MV_SPLIT);
+                } else {
+                    // force `TEXT`
+                    EasyField fakeTextField = EasyMetaFactory
+                            .valueOf(MetadataHelper.getField("User", "fullName"));
+                    useValue = easyVarField.convertCompatibleValue(useValue, fakeTextField);
+                }
+            } else if (useValue instanceof ID || forceUseQuote) {
+                useValue = useValue.toString();
+            }
+
+            // v3.6.3 整数/小数强制使用 BigDecimal 高精度
+            if (useValue instanceof Long) useValue = BigDecimal.valueOf((Long) useValue);
+
+            envMap.put(fieldName, useValue);
+        }
+
+        return AviatorUtils.eval(clearFormula, envMap, false);
     }
 
     private List<String> checkAndWarnFields(Entity entity, Collection<?> fields) {

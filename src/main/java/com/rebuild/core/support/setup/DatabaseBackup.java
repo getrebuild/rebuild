@@ -104,14 +104,16 @@ public class DatabaseBackup {
         boolean isGotError = echo.contains("Got error");
         if (isGotError) throw new RuntimeException(echo);
 
-        File zip = new File(backups, destName + ".zip");
+        File dest2Zip = new File(backups, destName + ".zip");
         try {
-            CompressUtils.forceZip(zip, dest, null);
+            CompressUtils.forceZip(dest2Zip, dest, null);
 
-            FileUtils.deleteQuietly(dest);
-            dest = zip;
+            if (dest2Zip.exists()) {
+                FileUtils.deleteQuietly(dest);
+                dest = dest2Zip;
+            }
         } catch (Exception e) {
-            log.warn("Cannot zip backup : {}", zip);
+            log.warn("Cannot zip backup : {}", dest2Zip);
         }
 
         log.info("Backup database succeeded : {} ({})", dest, FileUtils.byteCountToDisplaySize(dest.length()));

@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.configuration;
 
 import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -62,7 +61,7 @@ public class NavBuilder extends NavManager {
 
     private NavBuilder() {}
 
-    // 导航项属性
+    // 导航菜单属性
     private static final String[] NAV_ITEM_PROPS = new String[]{"icon", "text", "type", "value"};
     // 默认导航
     private static final JSONArray NAVS_DEFAULT = JSONUtils.toJSONObjectArray(
@@ -378,7 +377,7 @@ public class NavBuilder extends NavManager {
             return renderNav2(request, activeNav);
         } catch (Exception ex) {
             log.error("Error on `renderNav`", ex);
-            return "<!-- ERROR : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage() + " -->";
+            return "<!-- ERROR : " + CommonsUtils.getRootMessage(ex) + " -->";
         }
     }
 
@@ -474,24 +473,26 @@ public class NavBuilder extends NavManager {
             if (item.getBooleanValue("open")) parentClass += " open";
 
             // v3.9 No icon
-            if ("zmdi zmdi---".equals(iconClazz)) {
-                navItemHtml = String.format(
-                        "<li class=\"%s\" data-entity=\"%s\"><a href=\"%s\" target=\"%s\"><span>%s</span></a>",
-                        navName + (subNavs == null ? StringUtils.EMPTY : parentClass),
-                        navEntity == null ? StringUtils.EMPTY : navEntity,
-                        subNavs == null ? navUrl : "###",
-                        isOutUrl ? "_blank" : "_self",
-                        navText);
-            } else {
-                navItemHtml = String.format(
-                        "<li class=\"%s\" data-entity=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon %s\"></i><span>%s</span></a>",
-                        navName + (subNavs == null ? StringUtils.EMPTY : parentClass),
-                        navEntity == null ? StringUtils.EMPTY : navEntity,
-                        subNavs == null ? navUrl : "###",
-                        isOutUrl ? "_blank" : "_self",
-                        iconClazz,
-                        navText);
+            String iconHtml = String.format("<i class=\"icon %s\"></i>", iconClazz);
+            if ("zmdi zmdi---".equals(iconClazz)) iconHtml = "";
+
+            // v4.3 Badge of Filter
+            String filterHtml = StringUtils.defaultIfBlank(item.getString("filter"), "");
+            if (ID.isId(filterHtml)) {
+                if (item.getBooleanValue("filterBadge")) {
+                    filterHtml = String.format("<span class=\"badge badge-primary\" data-filter=\"%s\"></span>", filterHtml);
+                } else {
+                    filterHtml = String.format("<span class=\"hide\" data-filter=\"%s\"></span>", filterHtml);
+                }
             }
+
+            navItemHtml = String.format(
+                    "<li class=\"%s\" data-entity=\"%s\"><a href=\"%s\" target=\"%s\">%s<span>%s</span>%s</a>",
+                    navName + (subNavs == null ? StringUtils.EMPTY : parentClass),
+                    navEntity == null ? StringUtils.EMPTY : navEntity,
+                    subNavs == null ? navUrl : "###",
+                    isOutUrl ? "_blank" : "_self",
+                    iconHtml, navText, filterHtml);
         }
 
         StringBuilder navHtml = new StringBuilder(navItemHtml);
@@ -542,7 +543,7 @@ public class NavBuilder extends NavManager {
             return renderTopNav2(request);
         } catch (Exception ex) {
             log.error("Error on `renderTopNav`", ex);
-            return "<!-- ERROR : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage() + " -->";
+            return "<!-- ERROR : " + CommonsUtils.getRootMessage(ex) + " -->";
         }
     }
 

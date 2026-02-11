@@ -39,7 +39,7 @@
   <body class="dialog">
     <div class="main-content">
       <div id="search-box">
-        <input class="w-100" th:placeholder="${bundle.L('搜索 (EN)')}" />
+        <input class="w-100" th:placeholder="${bundle.L('搜索')}" />
       </div>
       <div id="icons" class="text-center"></div>
     </div>
@@ -74,12 +74,13 @@
             clearTimeout(lastTimer)
             lastTimer = null
           }
-          const lastKey2 = lastKey.toUpperCase()
+
+          const key = lastKey.toUpperCase()
           lastTimer = setTimeout(() => {
             $('#icons > a').each(function () {
               const $this = $(this)
               const title = $this.attr('title')
-              if (!lastKey2 || title.includes(lastKey2)) $this.removeClass('hide')
+              if (!key || title.includes(key)) $this.removeClass('hide')
               else $this.addClass('hide')
             })
             parent && parent.RbModal && parent.RbModal.resize()
@@ -100,9 +101,14 @@
       }
       // V2-4.0
       function renderMdi7() {
-        MDI7_ICONS.forEach((icon) => {
-          if (MDI7_ICONS_IGNORE.includes(icon)) return
-          const $a = $(`<a data-icon="${icon}" title="${icon.substr(4).toUpperCase()}"><i class="mdi ${icon}"></a>`).appendTo('#icons')
+        MDI7_ICONS.forEach((icon, idx) => {
+          let name = icon.substr(4)
+          if (MDI7_ICONS_IGNORE.includes(name)) return
+
+          if (MDI7_ICONS_CHINESE[name]) name = MDI7_ICONS_CHINESE[name] + '\n' + name.toUpperCase()
+          else name = name.toUpperCase()
+
+          const $a = $(`<a data-icon="${icon}" title="${name}"><i class="mdi ${icon}"></a>`).appendTo('#icons')
           $a.on('click', function () {
             cb($(this).data('icon'))
           })

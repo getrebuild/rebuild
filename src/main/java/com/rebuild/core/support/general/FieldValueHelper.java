@@ -16,6 +16,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.engine.NullValue;
 import cn.devezhao.persist4j.metadata.MetadataException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -28,6 +29,7 @@ import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyDecimal;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.MixValue;
@@ -51,6 +53,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -429,5 +432,32 @@ public class FieldValueHelper {
 
         log.warn("Cannot get current var : {}", field);
         return null;
+    }
+
+    /**
+     * 指定字段值是否一样
+     *
+     * @param field
+     * @param newValue
+     * @param oldValue
+     * @return
+     */
+    public static boolean isValueSame(Field field, Object newValue, Object oldValue) {
+        if (NullValue.isNull(newValue) && NullValue.isNull(oldValue)) return true;
+        if (CommonsUtils.isSame(newValue, oldValue)) return true;
+
+        // DATE 去除时间比较
+        if (newValue instanceof Date && field.getType() == FieldType.DATE) {
+            Date dateValue = CalendarUtils.clearTime((Date) newValue);
+            return CommonsUtils.isSame(dateValue, oldValue);
+        }
+
+        // DECIMAL 去除精度比较
+        if (field.getType() == FieldType.DECIMAL) {
+            BigDecimal decimalValue = EasyDecimal.fixedDecimalScale(newValue, field);
+            return CommonsUtils.isSame(decimalValue, oldValue);
+        }
+
+        return false;
     }
 }

@@ -4,6 +4,7 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/transforms" />
     <title>[[${bundle.L('记录转换')}]]</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/triggers.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/transform-design.css}" />
   </head>
   <body>
@@ -15,7 +16,7 @@
           <div class="page-head-title">
             [[${bundle.L('记录转换')}]]
             <span class="sub-title">[[${name ?: bundle.L('未命名')}]]</span>
-            <span th:if="${isDisabled}" class="badge badge-grey badge-pill up-1 ml-1">[[${bundle.L('未启用')}]]</span>
+            <span th:if="${isDisabled}" class="badge badge-grey badge-pill up-1 ml-1 J_confDisabled">[[${bundle.L('未启用')}]]</span>
           </div>
           <div class="clearfix"></div>
         </div>
@@ -37,7 +38,7 @@
                       <li class="nav-item"><a class="nav-link active" href="#EMAIN" data-toggle="tab">[[${bundle.L('主实体')}]]</a></li>
                       <li class="nav-item"><a class="nav-link" href="#EDETAIL" data-toggle="tab">[[${bundle.L('明细实体')}]]</a></li>
                       <li class="nav-item" th:if="${allCustomAdd}">
-                        <a class="nav-link w-auto J_add-dts" th:title="${bundle.L('添加明细转换')}"><i class="icon mdi mdi-plus fs-19 up-2 m-0"></i></a>
+                        <a class="nav-link w-auto J_add-dts" th:title="${bundle.L('添加明细转换')}"><i class="icon mdi mdi-plus fs-19 up-1 m-0"></i></a>
                       </li>
                     </ul>
                     <div class="tab-content m-0 p-0 fields-mapping">
@@ -63,6 +64,31 @@
                     </div>
                   </div>
                 </div>
+                <div class="form-group row">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right"></label>
+                  <div class="col-md-12 col-xl-9 col-lg-8">
+                    <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                      <input class="custom-control-input" type="checkbox" id="one2nMode" value="true" />
+                      <span class="custom-control-label">[[${bundle.L('启用多记录转换')}]] <sup class="rbv"></sup></span>
+                    </label>
+                    <p class="form-text">[[${bundle.L('通过数量或多值字段转换为多条记录')}]]</p>
+                  </div>
+                </div>
+                <div class="form-group row hide J_one2nMode-set pt-1">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right"></label>
+                  <div class="col-md-12 col-xl-9 col-lg-8">
+                    <div class="fields-map-show J_one2nMode-fields">
+                      <h5 class="mt-2 text-bold">[[${bundle.L('转换依据字段')}]]</h5>
+                      <span>
+                        <div class="row">
+                          <div class="col-5">
+                            <select class="form-control form-control-sm"></select>
+                          </div>
+                        </div>
+                      </span>
+                    </div>
+                  </div>
+                </div>
                 <th:block th:if="${targetIsDetail}">
                   <div class="form-group row">
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right"></label>
@@ -74,10 +100,10 @@
                       <p class="form-text">[[${bundle.L('通过此记录转换规则进行明细记录批量导入/添加')}]]</p>
                     </div>
                   </div>
-                  <div class="form-group row hide">
+                  <div class="form-group row hide J_importsMode-set pt-1">
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right"></label>
                     <div class="col-md-12 col-xl-9 col-lg-8">
-                      <div id="filterFields">
+                      <div class="fields-map-show J_importsMode-fields">
                         <h5 class="mt-2 text-bold">[[${bundle.L('明细记录导入规则')}]]</h5>
                         <span></span>
                         <h5 class="mt-3 text-bold">[[${bundle.L('符合规则时自动导入')}]]</h5>
@@ -119,6 +145,7 @@
       }
     </script>
     <script th:src="@{/assets/js/metadata/field-valueset.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/field-formula.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/general/rb-advfilter.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-compatible.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/admin/transform-design.js}" type="text/babel"></script>

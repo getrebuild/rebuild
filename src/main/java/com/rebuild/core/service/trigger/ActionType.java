@@ -28,7 +28,7 @@ public enum ActionType {
 
     FIELDWRITEBACK("字段更新", FieldWriteback.class),
     FIELDAGGREGATION("字段聚合", FieldAggregation.class),
-    GROUPAGGREGATION("分组聚合", GroupAggregation.class),
+    @Deprecated GROUPAGGREGATION("分组聚合", GroupAggregation.class),
     DATAVALIDATE("数据校验", "com.rebuild.rbv.trigger.DataValidate"),
     SENDNOTIFICATION("发送通知", SendNotification.class),
     AUTOAPPROVAL("自动审批", "com.rebuild.rbv.trigger.AutoApproval"),

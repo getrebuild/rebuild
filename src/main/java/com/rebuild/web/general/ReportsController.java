@@ -24,6 +24,7 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
+import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.core.service.dataimport.DataExporter;
 import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
@@ -33,11 +34,11 @@ import com.rebuild.core.service.datareport.TemplateFile;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.OnlyOffice;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.PdfConverter;
 import com.rebuild.utils.RbAssert;
@@ -104,12 +105,10 @@ public class ReportsController extends BaseController {
         try {
             EasyExcelGenerator reportGenerator;
             if (tt.type == DataReportManager.TYPE_WORD) {
-                reportGenerator = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
-                        "com.rebuild.rbv.data.WordReportGenerator#create", reportId, recordIds);
+                reportGenerator = RbvFunction.call().createWord(reportId, recordIds);
             } else if (tt.type == DataReportManager.TYPE_HTML5) {
-                boolean noPagebreak = getBoolParameter(request, "noPagebreak");
-                reportGenerator = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
-                        "com.rebuild.rbv.data.Html5ReportGenerator#create", reportId, recordIds, noPagebreak);
+                reportGenerator = RbvFunction.call().createHtml5(reportId, recordIds,
+                        getBoolParameter(request, "noPagebreak"));
             } else {
                 reportGenerator = EasyExcelGenerator.create(reportId, Arrays.asList(recordIds));
             }
@@ -195,6 +194,22 @@ public class ReportsController extends BaseController {
             FileDownloader.downloadTempFile(response, output, fileName, forcePreview);
         }
         return null;
+    }
+
+    @RequestMapping("report/template5-view-chart")
+    public ModelAndView template5ViewChart(@PathVariable String entity, HttpServletRequest request) {
+        ModelAndView mv = createModelAndView("/admin/data/template5-view-chart");
+        String id = request.getParameter("id");
+        try {
+            ID chartId = ID.valueOf(id);
+            ConfigBean cb = ChartManager.instance.getChart(chartId);
+            mv.getModelMap().put("chartTitle", cb.getString("title"));
+            mv.getModelMap().put("chartType", cb.getString("type"));
+            mv.getModelMap().put("chartId", chartId);
+        } catch (Exception ex) {
+            log.error("Bad chart : {}", id, ex);
+        }
+        return mv;
     }
 
     // 列表数据导出

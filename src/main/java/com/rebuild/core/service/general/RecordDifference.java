@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.general;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
@@ -19,12 +18,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.EasyDecimal;
-import com.rebuild.utils.CommonsUtils;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -60,6 +57,7 @@ public class RecordDifference {
      * @param after
      * @param diffCommons
      * @return
+     * @see com.rebuild.core.support.general.FieldValueHelper#isValueSame(Field, Object, Object)
      */
     protected JSON diffMerge(Record after, boolean diffCommons) {
         if (record == null && after == null) {
@@ -83,7 +81,6 @@ public class RecordDifference {
                 Object beforeVal = e.getValue();
                 if (NullValue.is(beforeVal)) beforeVal = null;
 
-                beforeVal = fixValuePrecision416(entity.getField(fieldName), beforeVal);
                 merged.put(fieldName, new Object[]{beforeVal, null});
             }
         }
@@ -98,7 +95,6 @@ public class RecordDifference {
                 Object afterVal = e.getValue();
                 if (NullValue.is(afterVal)) continue;
 
-                afterVal = fixValuePrecision416(entity.getField(fieldName), afterVal);
                 Object[] mergedValue = merged.computeIfAbsent(fieldName, k -> new Object[]{null, null});
                 mergedValue[1] = afterVal;
             }
@@ -107,30 +103,15 @@ public class RecordDifference {
         JSONArray result = new JSONArray();
 
         for (Map.Entry<String, Object[]> e : merged.entrySet()) {
-            Object[] val2 = e.getValue();
-            if (val2[0] == null && val2[1] == null) continue;
-            if (CommonsUtils.isSame(val2[0], val2[1])) continue;
+            Object[] vs = e.getValue();
+            if (FieldValueHelper.isValueSame(entity.getField(e.getKey()), vs[0], vs[1])) continue;
 
             JSON item = JSONUtils.toJSONObject(
                     new String[]{"field", "before", "after"},
-                    new Object[]{e.getKey(), val2[0], val2[1]});
+                    new Object[]{e.getKey(), vs[0], vs[1]});
             result.add(item);
         }
         return result;
-    }
-
-    private Object fixValuePrecision416(Field field, Object value) {
-        if (value == null || NullValue.is(value)) return null;
-
-        // fix:3.5.3
-        if (value instanceof Date && field.getType() == FieldType.DATE) {
-            return CalendarUtils.clearTime((Date) value);
-        }
-        // fix:4.1.6 修订小数精度
-        if (field.getType() == FieldType.DECIMAL) {
-            return EasyDecimal.fixedDecimalScale(value, field);
-        }
-        return value;
     }
 
     /**

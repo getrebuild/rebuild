@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // 列表公共操作
 
 const _RbList = function () {
-  return RbListPage._RbList || {}
+  return window.RbListPage ? window.RbListPage._RbList || {} : {}
 }
 
 // ~ 高级查询操作
@@ -19,15 +19,19 @@ const AdvFilters = {
    * @param {String} entity 实体
    */
   init(el, entity) {
-    this.__el = $(el)
+    this.__$el = $(el)
     this.__entity = entity
 
-    this.__el.find('.J_filterbtn').on('click', () => {
+    this.__$el.find('.J_filterbtn').on('click', () => {
       this.current = null
       this.showAdvFilter()
     })
 
-    this.__$customAdvWrap = $('#dropdown-menu-advfilter')
+    this.__$customAdvWrap = $('.dropdown-menu-advfilter__' + this.__entity) // v4.3 for View
+    if (!this.__$customAdvWrap[0]) {
+      this.__$customAdvWrap = $('#dropdown-menu-advfilter')
+    }
+
     $(document.body).on('click', (e) => {
       if (!e.target) return
       const $target = $(e.target)
@@ -48,7 +52,7 @@ const AdvFilters = {
       }
     })
 
-    const $alld = $('.adv-search .dropdown-item:eq(0)')
+    const $alld = this.__$el.find('.dropdown-item:eq(0)')
     $alld.on('click', () => this._effectFilter($alld, 'aside'))
 
     this.loadFilters()
@@ -63,11 +67,11 @@ const AdvFilters = {
     let $defaultFilter
 
     $.get(`/app/${this.__entity}/advfilter/list`, function (res) {
-      $('.adv-search .J_custom').each(function () {
+      that.__$el.find('.J_custom').each(function () {
         $(this).remove()
       })
 
-      const $menu = $('.adv-search .dropdown-menu')
+      const $menu = that.__$el.find('.dropdown-menu')
       $(res.data).each(function () {
         const item = this
         const $item = $(`<div class="dropdown-item J_custom" data-id="${item.id}"><a class="text-truncate"></a></div>`).appendTo($menu)
@@ -81,12 +85,12 @@ const AdvFilters = {
         // 可修改
         if (item.editable) {
           const $action = $(
-            `<div class="action"><a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('删除')}" class="danger-hover"><i class="zmdi zmdi-delete"></i></a></div>`
+            `<div class="action"><a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('删除')}" class="danger-hover"><i class="zmdi zmdi-delete"></i></a></div>`,
           ).appendTo($item)
 
           $action.find('a:eq(0)').on('click', function () {
             that.showAdvFilter(item.id)
-            $('.adv-search .btn.dropdown-toggle').dropdown('toggle')
+            that.__$el.find('.btn.dropdown-toggle').dropdown('toggle')
             return false
           })
 
@@ -102,7 +106,7 @@ const AdvFilters = {
                     that.loadFilters()
                     if (lastFilter === item.id) {
                       _RbList().setAdvFilter(null)
-                      $('.adv-search .J_name').text($L('全部数据'))
+                      that.__$el.find('.J_name').text($L('全部数据'))
                     }
                   } else {
                     RbHighbar.error(res.error_msg)
@@ -133,14 +137,16 @@ const AdvFilters = {
         $ghost.clone(true).appendTo($('.quick-filter-tabs').empty())
       }
 
-      if (!$defaultFilter) $defaultFilter = $('.adv-search .dropdown-item:eq(0)')
+      if (!$defaultFilter) $defaultFilter = that.__$el.find('.dropdown-item:eq(0)')
       $defaultFilter.trigger('click')
     })
   },
 
   _effectFilter(item, rel) {
     this.current = item.data('id')
-    $('.adv-search .J_name').text(item.find('>a').text())
+    this.__$el.find('.J_name').text(item.find('>a').text())
+
+    // ASIDE
     if (rel === 'aside') {
       const current = this.current
       $('#asideFilters .dropdown-item')
@@ -213,8 +219,8 @@ const AdvFilters = {
     }
   },
 
-  _getFilter(id, call) {
-    $.get(`/app/entity/advfilter/get?id=${id}`, (res) => call(res.data))
+  _getFilter(id, cb) {
+    $.get(`/app/entity/advfilter/get?id=${id}`, (res) => cb(res.data))
   },
 }
 
@@ -328,42 +334,92 @@ class DataExport extends BatchOperator {
     super(props)
     this._title = $L('数据导出')
     this._confirmText = $L('导出')
+
+    this.state._selectType = 'xls'
+    this.state._selectType1Value = 1
+    this.state._selectType2Value = ''
   }
 
   renderOperator() {
     const reports = this.state.reports || []
+    const isXls = ['xls', 'csv'].includes(this.state._selectType)
     return (
       <div className="form-group">
         <label className="text-bold">{$L('选择导出格式')}</label>
-        <div style={{ width: 325 }}>
+        <div className="w-75">
           <select className="form-control form-control-sm" ref={(c) => (this._$report = c)} defaultValue="xls">
             <option value="csv">CSV</option>
             <option value="xls">Excel</option>
             <optgroup label={$L('使用报表模板')}>
               {reports.map((item) => {
-                const outputType = item.outputType || 'excel'
                 return (
-                  <RF key={item.id}>
-                    {outputType.includes('excel') && <option value={`${item.id}`}>{item.name}</option>}
-                    {outputType.includes('pdf') && <option value={`${item.id}&output=pdf`}>{item.name} (PDF)</option>}
-                  </RF>
+                  <option value={`${item.id}`} key={item.id}>
+                    {item.name}
+                  </option>
                 )
               })}
               {reports.length === 0 && <option disabled>{$L('无')}</option>}
             </optgroup>
           </select>
+
+          <div className="mt-3">
+            {isXls && (
+              <RF>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                  <input className="custom-control-input" name="_selectType1Value" type="radio" checked={~~this.state._selectType1Value === 1} value="1" onChange={this.handleChange} />
+                  <span className="custom-control-label">{$L('导出当前显示列')}</span>
+                </label>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                  <input className="custom-control-input" name="_selectType1Value" type="radio" checked={~~this.state._selectType1Value === 2} value="2" onChange={this.handleChange} />
+                  <span className="custom-control-label">{$L('全部列')}</span>
+                </label>
+              </RF>
+            )}
+            {!isXls && (
+              <RF>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                  <input className="custom-control-input" name="_selectType2Value" type="radio" checked={!this.state._selectType2Value} value="" onChange={this.handleChange} />
+                  <span className="custom-control-label">{$L('默认格式')}</span>
+                </label>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                  <input className="custom-control-input" name="_selectType2Value" type="radio" checked={this.state._selectType2Value === 'pdf'} value="pdf" onChange={this.handleChange} />
+                  <span className="custom-control-label">{$L('PDF')}</span>
+                </label>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                  <input className="custom-control-input" name="_selectType2Value" type="radio" checked={this.state._selectType2Value === 'preview'} value="preview" onChange={this.handleChange} />
+                  <span className="custom-control-label">{$L('在线预览')}</span>
+                </label>
+              </RF>
+            )}
+          </div>
         </div>
       </div>
     )
   }
 
   handleConfirm() {
-    const useReport = $(this._$report).val() || 'csv'
+    let reportParams = $(this._$report).val() || 'xls'
+    let reportQuery = this.getQueryData()
+    let isXls = ['xls', 'csv'].includes(reportParams)
+    if (isXls) {
+      if (~~this.state._selectType1Value === 2) reportQuery.fields = []
+    } else {
+      reportParams += `&output=${this.state._selectType2Value}`
+    }
+
     this.disabled(true)
-    $.post(`/app/${this.props.entity}/export/submit?dr=${this.state.dataRange}&report=${useReport}`, JSON.stringify(this.getQueryData()), (res) => {
+    $.post(`/app/${this.props.entity}/export/submit?dr=${this.state.dataRange}&report=${reportParams}`, JSON.stringify(reportQuery), (res) => {
       if (res.error_code === 0) {
         this.hide()
-        $openWindow(`${rb.baseUrl}/filex/download/${res.data.fileKey}?temp=yes&attname=${$encode(res.data.fileName)}`)
+
+        // 预览
+        if (!isXls && this.state._selectType2Value === 'preview') {
+          // eslint-disable-next-line no-undef
+          let previewUrl = $buildPreviewUrl(`/temp/${res.data.fileKey}`)
+          $openWindow(previewUrl)
+        } else {
+          $openWindow(`${rb.baseUrl}/filex/download/${res.data.fileKey}?temp=yes&attname=${$encode(res.data.fileName)}`)
+        }
       } else {
         RbHighbar.error(res.error_msg)
         this.disabled(false)
@@ -374,14 +430,18 @@ class DataExport extends BatchOperator {
   componentDidMount() {
     $.get(`/app/${this.props.entity}/report/available?type=2`, (res) => {
       this.setState({ reports: res.data }, () => {
-        this.__select2 = $(this._$report).select2({
-          templateResult: function (res) {
-            const text = res.text.split(' (PDF)')
-            const $span = $('<span></span>').text(text[0])
-            if (text.length > 1) $('<span class="badge badge-default badge-pill">PDF</span>').appendTo($span)
-            return $span
-          },
-        })
+        this.__select2 = $(this._$report)
+          .select2({
+            templateResult: function (res) {
+              const text = res.text.split(' (PDF)')
+              const $span = $('<span></span>').text(text[0])
+              if (text.length > 1) $('<span class="badge badge-default badge-pill">PDF</span>').appendTo($span)
+              return $span
+            },
+          })
+          .on('change', (e) => {
+            this.setState({ _selectType: e.target.value })
+          })
       })
     })
   }
@@ -856,7 +916,7 @@ const RbListCommon = {
     if (via) {
       wpc.protocolFilter = `via:${via}`
       const $cleanVia = $(`<div class="badge badge-warning filter-badge J_via-filter">${$L('当前数据已过滤')}<a class="close" title="${$L('查看全部数据')}">&times;</a></div>`).appendTo(
-        '.dataTables_filter'
+        '.dataTables_filter',
       )
       $cleanVia.find('a').on('click', () => {
         wpc.protocolFilter = null
@@ -934,9 +994,6 @@ const _DL_COLUMN_MIN_WIDTH = 30
 const _DL_COLUMN_MAX_WIDTH = 500
 const _DL_COLUMN_DEF_WIDTH = 130
 
-// IE/Edge 不支持首/列固定
-const supportFixedColumns = !($.browser.msie || $.browser.msedge)
-
 // eslint-disable-next-line no-unused-vars
 class RbList extends React.Component {
   constructor(props) {
@@ -990,9 +1047,12 @@ class RbList extends React.Component {
     this.pageNo = 1
     this.pageSize = $storage.get('ListPageSize') || 20
     this.advFilterId = wpc.advFilter !== true ? null : $storage.get(this.__defaultFilterKey) // 无高级查询
-    this.fixedColumns = supportFixedColumns && props.uncheckbox !== true
     // v4.1 可编辑
-    this.enabledListEditable = ['RecordList', 'DetailList'].includes(wpc.type) && (window.__LAB_DATALIST_EDITABLE41 === true || wpc.enabledListEditable)
+    this._enabledListEditable = ['RecordList', 'DetailList'].includes(wpc.type) && (window.__LAB_DATALIST_EDITABLE41 === true || wpc.enabledListEditable)
+    // 复选框
+    this._hideCheckbox = !!this.props.hideCheckbox
+    // v4.3 行号
+    this._showLineNo = !!this.props.showLineNo || (['RecordList', 'DetailList'].includes(wpc.type) && (window.__LAB_DATALIST_SHOWLINENO43 === true || wpc.showLineNo))
   }
 
   render() {
@@ -1008,8 +1068,8 @@ class RbList extends React.Component {
               <table className={`table table-hover table-striped ${window.__LAB_DATALIST_BORDERED42 && 'table-bordered42'}`}>
                 <thead>
                   <tr>
-                    {this.props.uncheckbox !== true && (
-                      <th className={`column-checkbox ${supportFixedColumns ? 'column-fixed' : ''}`}>
+                    {!this._hideCheckbox && (
+                      <th className="column-checkbox column-fixed">
                         <div>
                           <label className="custom-control custom-control-sm custom-checkbox">
                             <input className="custom-control-input" type="checkbox" onChange={(e) => this._toggleRows(e)} ref={(c) => (this._checkAll = c)} />
@@ -1018,10 +1078,15 @@ class RbList extends React.Component {
                         </div>
                       </th>
                     )}
+                    {this._showLineNo && (
+                      <th className="column-lineno column-fixed">
+                        <span>#</span>
+                      </th>
+                    )}
                     {this.state.fields.map((item, idx) => {
                       const cWidth = item.width || this.__defaultColumnWidth
                       const style2 = { width: cWidth }
-                      const clazz = `unselect sortable ${idx === 0 && this.fixedColumns ? 'column-fixed column-fixed-2nd' : ''}`
+                      const clazz = `unselect sortable ${idx === 0 && 'column-fixed column-fixed-last'}`
                       return (
                         <th key={`column-${item.field}`} style={style2} className={clazz} data-field={item.field} onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
                           <div style={style2}>
@@ -1037,7 +1102,7 @@ class RbList extends React.Component {
                   </tr>
                 </thead>
                 <tbody ref={(c) => (this._$tbody = c)}>
-                  {this.state.rowsData.map((item) => {
+                  {this.state.rowsData.map((item, idx) => {
                     const primaryKey = item[lastIndex]
                     const rowKey = `row-${primaryKey.id}`
                     return (
@@ -1046,12 +1111,12 @@ class RbList extends React.Component {
                         data-id={primaryKey.id}
                         onClick={(e) => this._clickRow(e)}
                         onDoubleClick={(e) => {
-                          if (this.enabledListEditable) return // v4.1
+                          if (this._enabledListEditable) return // v4.1
                           $stopEvent(e, true)
                           this._openView(e.currentTarget)
                         }}>
-                        {this.props.uncheckbox !== true && (
-                          <td key={`${rowKey}-checkbox`} className={`column-checkbox ${supportFixedColumns ? 'column-fixed' : ''}`}>
+                        {!this._hideCheckbox && (
+                          <td key={`${rowKey}-checkbox`} className="column-checkbox column-fixed">
                             <div>
                               <label className="custom-control custom-control-sm custom-checkbox">
                                 <input className="custom-control-input" type="checkbox" />
@@ -1060,9 +1125,12 @@ class RbList extends React.Component {
                             </div>
                           </td>
                         )}
+                        {this._showLineNo && <td className="column-lineno column-fixed">{idx + 1}</td>}
+
                         {item.map((cell, index) => {
                           return this.renderCell(cell, index, primaryKey)
                         })}
+
                         <td className="column-empty" />
                         {rowActions.length > 0 && (
                           <td className="col-action column-fixed">
@@ -1121,7 +1189,7 @@ class RbList extends React.Component {
 
     if (this.props.unpin !== true) {
       $('.main-content').addClass('pb-0')
-      if (supportFixedColumns) $scroller.find('.table').addClass('table-header-fixed')
+      $scroller.find('.table').addClass('table-header-fixed')
 
       $addResizeHandler(() => {
         let mh = $(window).height() - (61 + 20 + 61 + 60 + 3) /* Nav, MarginTop20, TableHeader, TableFooter */
@@ -1136,16 +1204,14 @@ class RbList extends React.Component {
       $('.main-content .rb-datatable-header').addClass('header-fixed')
     }
 
-    if (supportFixedColumns) {
-      let slLast = 0
-      $scroller.on('ps-scroll-x', () => {
-        const sl = $scroller[0].scrollLeft
-        if (sl === slLast) return
-        slLast = sl
-        if (sl > 0) $scroller.addClass('column-fixed-pin')
-        else $scroller.removeClass('column-fixed-pin')
-      })
-    }
+    let slLast = 0
+    $scroller.on('ps-scroll-x', () => {
+      const sl = $scroller[0].scrollLeft
+      if (sl === slLast) return
+      slLast = sl
+      if (sl > 0) $scroller.addClass('column-fixed-pin')
+      else $scroller.removeClass('column-fixed-pin')
+    })
 
     const that = this
     $scroller.find('th .dividing').draggable({
@@ -1178,13 +1244,20 @@ class RbList extends React.Component {
     // 按键操作
     if (['RecordList', 'DetailList'].includes(wpc.type)) $(document).on('keydown', (e) => this._keyEvent(e))
     // v4.1 取消选中
-    if (this.enabledListEditable) {
+    if (this._enabledListEditable) {
       $(document).on('click.unselect', (e) => {
         const $target = $(e.target)
         if ($target.closest('.data-list').length === 0 && $target.closest('.rb-wrapper').length > 0) {
           $(this._$tbody).find('td.editable').removeClass('editable')
         }
       })
+
+      // // v4.3 FIXME 不准
+      // $(document).on('click', (e) => {
+      //   if (!$(e.target).parents('.rb-scroller')[0]) {
+      //     $(this._$tbody).find('td.editable').removeClass('editable')
+      //   }
+      // })
     }
   }
 
@@ -1267,7 +1340,7 @@ class RbList extends React.Component {
     const c = CellRenders.render(cellVal, type, width, `${cellKey}.${field.field}`)
     // v4.1 快捷编辑
     const cProps = {}
-    if (this.enabledListEditable) {
+    if (this._enabledListEditable) {
       cProps.onClick = (e) => {
         const $el = $(e.currentTarget)
         if ($el.hasClass('editable')) {
@@ -1279,8 +1352,8 @@ class RbList extends React.Component {
       }
     }
     // 首行固定
-    if (index === 0 && this.fixedColumns) {
-      cProps.className = `${c.props.className || ''} column-fixed column-fixed-2nd`
+    if (index === 0) {
+      cProps.className = `${c.props.className || ''} column-fixed column-fixed-last`
     }
     return React.cloneElement(c, { ...cProps })
   }
@@ -1316,7 +1389,8 @@ class RbList extends React.Component {
       else $tr.removeClass('active')
     } else {
       this._toggleRows({ target: { checked: false } }, true)
-      $tr.addClass('active').find('.custom-control-input')[0].checked = true
+      let chk = $tr.addClass('active').find('.custom-control-input')[0]
+      chk && (chk.checked = true)
     }
 
     this._checkSelected()
@@ -1641,7 +1715,7 @@ class RbListPagination extends React.Component {
                 <RF>
                   {$L('配置统计列')}
                   <sup className="rbv" />
-                </RF>
+                </RF>,
               )
             }}>
             <i className="icon zmdi zmdi-settings" title={$L('配置统计列')} />
@@ -2060,7 +2134,7 @@ CellRenders.addRender('BARCODE', (v, s, k) => {
               </div>,
               {
                 type: 'clear',
-              }
+              },
             )
           }}>
           <img src={`${codeUrl}&w=${isbar ? 64 : 120}`} alt={v} />
@@ -2140,7 +2214,7 @@ class RecordMerger extends RbModalHandler {
                     data4field.push(
                       <td key={`${idx}-${i}`} data-index={i} className={activeClazz} onClick={(e) => !IS_COMMONS && this._selectValue(e)}>
                         <div>{v}</div>
-                      </td>
+                      </td>,
                     )
                   }
 
@@ -2221,7 +2295,7 @@ class RecordMerger extends RbModalHandler {
           this.hide()
           that._post2(del)
         },
-      }
+      },
     )
   }
 
@@ -2367,7 +2441,7 @@ const CategoryWidget = {
             RbListPage.reload()
           }}
         />,
-        'asideCategory'
+        'asideCategory',
       )
       _init = true
     })
@@ -2393,6 +2467,8 @@ const EasyAction4List = {
         item.items &&
           item.items.forEach((itemL2) => {
             itemL2.onClick = () => _EasyAction.handleOp(itemL2)
+
+            if (itemL2.text === '----') itemL2.onClick = undefined
           })
         _List.addButton(item)
       })
@@ -2406,7 +2482,7 @@ const EasyAction4List = {
         if (!item) return
 
         item.onClick = (id) => _EasyAction.handleOp(item, id)
-        item._eaid = item.id
+        item._eaid = item.id // for check
         _List.regRowButton(item)
       })
 
@@ -2507,6 +2583,7 @@ class TreeNode extends React.Component {
           </a>
         </li>
         {this.state.children && (
+          // eslint-disable-next-line react/no-unknown-property
           <ul className={`list-unstyled m-0 ${!this.state._expand && 'hide'}`} _title2={$L('无')}>
             {this.state.children.map((item) => {
               let hasChild = this.state._allowChild

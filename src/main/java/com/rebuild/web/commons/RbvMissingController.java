@@ -63,6 +63,11 @@ public class RbvMissingController extends BaseController {
         return errorUnsupport("免费版不支持多语言功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)");
     }
 
+    @GetMapping("/admin/data/data-syncer")
+    public ModelAndView dataSyncerList() {
+        return errorUnsupport("免费版不支持数据同步功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)");
+    }
+
     private ModelAndView errorUnsupport(String msg) {
         ModelAndView mv = ErrorPageView.createErrorPage(msg);
         mv.getModelMap().put(WebConstants.$BUNDLE, Language.getCurrentBundle());

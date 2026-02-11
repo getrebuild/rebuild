@@ -166,13 +166,14 @@ public class AutoFillinManager implements ConfigManager {
                 targetFieldMeta = targetEntity.getField(targetField);
             }
 
-            // v4.0 使用公式回填
+            // v4.3, v4.0 使用公式回填
             String sourceFieldFormula40 = e.getString("sourceFieldFormula");
             if (StringUtils.isNotBlank(sourceFieldFormula40)) {
                 Map<String, Object> varsInFormula = new HashMap<>();
                 if (formData != null) {
                     formData.remove(EntityRecordCreator.META_FIELD);
                     JSONObject formDataMain = (JSONObject) formData.remove("$$$main");
+                    // 明细可携带主记录
                     if (formDataMain != null) {
                         formDataMain.remove(EntityRecordCreator.META_FIELD);
                         String dtfName = MetadataHelper.getDetailToMainField(field.getOwnEntity()).getName() + ".";
@@ -181,9 +182,9 @@ public class AutoFillinManager implements ConfigManager {
                     varsInFormula.putAll(formData);
                 }
 
-                Object value = CalcFormulaSupport.evalCalcFormula(targetFieldMeta, varsInFormula, sourceFieldFormula40);
-                if (value == null) sourceRecord.setNull(sourceField);
-                else sourceRecord.setObjectValue(sourceField, value);
+                Object evalVal = CalcFormulaSupport.evalCalcFormula(targetFieldMeta, varsInFormula, sourceFieldFormula40);
+                if (NullValue.isNull(evalVal)) sourceRecord.setNull(sourceField);
+                else sourceRecord.setObjectValue(sourceField, evalVal);
             }
 
             Object value = null;
@@ -232,6 +233,7 @@ public class AutoFillinManager implements ConfigManager {
 
             ConfigBean clone = e.clone().set("value", value);
             clone.remove("source");
+            clone.remove("sourceFieldFormula");
             fillin.add(clone.toJSON());
         }
         return fillin;
@@ -263,12 +265,13 @@ public class AutoFillinManager implements ConfigManager {
             if (!entity.containsField(fieldName)) continue;
 
             EasyField easyField = EasyMetaFactory.valueOf(entity.getField(fieldName));
-            if (easyField.getDisplayType() != DisplayType.REFERENCE) continue;
-
-            fillin += fillinRecordItem(easyField.getRawMeta(), record.getObjectValue(fieldName), isNew, fillinForce, record);
+            if (easyField.getDisplayType() == DisplayType.REFERENCE) {
+                fillin += fillinRecordItem(
+                        easyField.getRawMeta(), record.getObjectValue(fieldName), isNew, fillinForce, record);
+            }
         }
 
-        // v3.8 借用贵宝地
+        // v3.8 表单计算公式后端计算
         CalcFormulaSupport.calcFormulaBackend(record);
 
         return fillin;

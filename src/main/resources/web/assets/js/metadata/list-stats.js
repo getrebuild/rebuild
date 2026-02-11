@@ -77,7 +77,7 @@ const ShowStyles_Comps = {}
 
 const render_set = function (item) {
   const len = $('.set-items>span').length
-  if (len >= 9) return RbHighbar.create($L('最多可添加 9 个'))
+  if (len >= 99) return RbHighbar.create($L('最多可添加 9 个'))
 
   // 唯一
   if (!item.key2) item.key2 = $random('stat-')

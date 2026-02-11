@@ -60,16 +60,16 @@ public enum ConfigurationItem {
     PasswordPolicy(1),
 
     // 变更历史数据保留天数（0为禁用）
-    RevisionHistoryKeepingDays(180),
+    RevisionHistoryKeepingDays(90),
 
     // 回收站数据保留天数（0为禁用）
-    RecycleBinKeepingDays(180),
+    RecycleBinKeepingDays(90),
 
     // 启用数据库备份
     DBBackupsEnable(true),
 
     // 数据备份保留时间（0为禁用）
-    DBBackupsKeepingDays(180),
+    DBBackupsKeepingDays(90),
 
     // 允许同一用户多个会话
     MultipleSessions(true),

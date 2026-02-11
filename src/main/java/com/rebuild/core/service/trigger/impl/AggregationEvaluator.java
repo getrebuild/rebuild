@@ -23,10 +23,12 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.core.support.state.StateHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -36,6 +38,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.rebuild.core.service.trigger.aviator.AviatorUtils.CODE_PREFIX;
 
 /**
  * 聚合计算
@@ -108,6 +112,12 @@ public class AggregationEvaluator {
      */
     public Object evalFormula() {
         String formula = item.getString("sourceFormula");
+        // 高级公式代码
+        boolean useCode43 = formula.startsWith(CODE_PREFIX);
+        if (useCode43) {
+            formula = formula.substring(4, formula.length() - 4);
+        }
+
         Set<String> matchsVars = AviatorUtils.matchsFieldVars(formula, null);
 
         List<String[]> fields = new ArrayList<>();
@@ -166,9 +176,8 @@ public class AggregationEvaluator {
             return null;
         }
 
-        String clearFormula = formula
-                .replace("×", "*")
-                .replace("÷", "/");
+        String clearFormula = useCode43 ? formula
+                : formula.replace("×", "*").replace("÷", "/");
         Map<String, Object> envMap = new HashMap<>();
 
         for (String[] fieldAndFunc : fields) {
@@ -188,11 +197,55 @@ public class AggregationEvaluator {
                 continue;
             }
 
-            Object value = useSourceData.getObjectValue(fieldAndFunc[0]);
+            String fieldName = fieldAndFunc[0];
+            Object value = useSourceData.getObjectValue(fieldName);
 
-            if (n2nFields.contains(fieldKey)) value = new Object[0];
-            else if (value == null) value = numFields.contains(fieldKey) ? 0 : StringUtils.EMPTY;
-            else if (value instanceof Date) value = CalendarUtils.getUTCDateTimeFormat().format(value);
+            if (useCode43) {
+                Field useVarField = MetadataHelper.getLastJoinField(sourceEntity, fieldName);
+
+                // @see AviatorUtils#convertValueOfFieldVar(Object, Field)
+                EasyField easyVarField = null;
+                boolean isMultiField = false;
+                boolean isStateField = false;
+                boolean isNumberField = false;
+                if (useVarField != null) {
+                    easyVarField = EasyMetaFactory.valueOf(useVarField);
+                    isMultiField = easyVarField.getDisplayType() == DisplayType.MULTISELECT
+                            || easyVarField.getDisplayType() == DisplayType.TAG
+                            || easyVarField.getDisplayType() == DisplayType.N2NREFERENCE;
+                    isStateField = easyVarField.getDisplayType() == DisplayType.STATE;
+                    isNumberField = useVarField.getType() == FieldType.LONG || useVarField.getType() == FieldType.DECIMAL;
+                }
+
+                if (isStateField) {
+                    value = value == null ? "" : StateHelper.getLabel(useVarField, (Integer) value);
+                } else if (value instanceof Date) {
+                    value = CalendarUtils.getUTCDateTimeFormat().format(value);
+                } else if (value == null) {
+                    // 数字字段置 `0`
+                    if (isNumberField) {
+                        value = 0L;
+                    } else {
+                        value = StringUtils.EMPTY;
+                    }
+                } else if (isMultiField) {
+                    // force `TEXT`
+                    EasyField fakeTextField = EasyMetaFactory
+                            .valueOf(MetadataHelper.getField("User", "fullName"));
+                    value = easyVarField.convertCompatibleValue(value, fakeTextField);
+                } else if (value instanceof ID) {
+                    value = value.toString();
+                }
+
+                // v3.6.3 整数/小数强制使用 BigDecimal 高精度
+                if (value instanceof Long) value = BigDecimal.valueOf((Long) value);
+
+            } else {
+
+                if (n2nFields.contains(fieldKey)) value = new Object[0];
+                else if (value == null) value = numFields.contains(fieldKey) ? 0 : StringUtils.EMPTY;
+                else if (value instanceof Date) value = CalendarUtils.getUTCDateTimeFormat().format(value);
+            }
 
             envMap.put(fieldKey, value);
         }

@@ -30,6 +30,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.apache.commons.lang3.ObjectUtils.getIfNull;
+
 /**
  * 记录转换
  *
@@ -98,7 +100,7 @@ public class TransformManager implements ConfigManager {
      * @throws ConfigurationException
      */
     public ConfigBean getTransformConfig(ID configId, String sourceEntity) throws ConfigurationException {
-        if (sourceEntity == null) sourceEntity = getBelongEntity(configId);
+        if (sourceEntity == null) sourceEntity = getBelongEntity(configId, true);
 
         for (ConfigBean c : getRawTransforms(sourceEntity)) {
             if (configId.equals(c.getID("id"))) {
@@ -141,22 +143,6 @@ public class TransformManager implements ConfigManager {
         sortByName(entries);
         Application.getCommonsCache().putx(cKey, entries);
         return entries;
-    }
-
-    // 获取源实体/所属实体
-    private String getBelongEntity(ID configId) {
-        if (WEAK_CACHED.containsKey(configId)) {
-            return (String) WEAK_CACHED.get(configId);
-        }
-
-        Object[] o = Application.createQueryNoFilter(
-                "select belongEntity from TransformConfig where configId = ?")
-                .setParameter(1, configId)
-                .unique();
-        if (o == null) throw new ConfigurationException("No `TransformConfig` found : " + configId);
-
-        WEAK_CACHED.put(configId, o[0]);
-        return (String) o[0];
     }
 
     /**
@@ -205,14 +191,14 @@ public class TransformManager implements ConfigManager {
 
         Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);
         list.sort((o1, o2) -> comparator.compare(
-                org.apache.commons.lang3.ObjectUtils.defaultIfNull(o1.getString("name"), ""),
-                org.apache.commons.lang3.ObjectUtils.defaultIfNull(o2.getString("name"), "")));
+                getIfNull(o1.getString("name"), ""),
+                getIfNull(o2.getString("name"), "")));
     }
 
     @Override
     public void clean(Object cfgid) {
-        final String cKey = "TransformManager31-" + getBelongEntity((ID) cfgid);
-        Application.getCommonsCache().evict(cKey);
+        String ckey = "TransformManager31-" + getBelongEntity((ID) cfgid, false);
+        Application.getCommonsCache().evict(ckey);
         WEAK_CACHED.clear();
     }
 }

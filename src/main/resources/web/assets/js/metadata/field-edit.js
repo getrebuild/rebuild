@@ -679,9 +679,10 @@ const _initRefsLabel = function ($dv, $dvClear) {
 let FIELDS_CACHE
 const _handleCalcFormula = function (formula) {
   const $el = $('#calcFormula2')
-  function _call(s) {
+  function _FN(s) {
     $('#calcFormula').val(s || '')
     $el.text(FormulaCalc.textFormula(s, FIELDS_CACHE))
+    formula = s
   }
 
   if (!FIELDS_CACHE) {
@@ -695,11 +696,11 @@ const _handleCalcFormula = function (formula) {
       fs.push({ name: '{NOW}', label: $L('当前日期'), type: 'NOW' })
 
       FIELDS_CACHE = fs
-      if (formula) _call(formula)
+      if (formula) _FN(formula)
     })
   }
 
-  $el.on('click', () => renderRbcomp(<FormulaCalc onConfirm={_call} fields={FIELDS_CACHE} />))
+  $el.on('click', () => renderRbcomp(<FormulaCalc onConfirm={_FN} fields={FIELDS_CACHE} initFormula={formula} />))
 }
 
 const _handleTag = function (tagList, tagMaxSelect) {
@@ -857,7 +858,7 @@ class FieldTypeCast extends RbFormHandler {
     return (
       <RbModal title={$L('转换字段类型')} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form">
-          <div className="form-group row">
+          <div className="form-group row pb-0">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('当前字段类型')}</label>
             <div className="col-sm-7">
               <div className="form-control-plaintext text-bold">{FIELD_TYPES[this.props.fromType][0]}</div>

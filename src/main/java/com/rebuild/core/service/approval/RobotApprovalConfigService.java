@@ -13,7 +13,6 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.exception.jdbc.SqlSyntaxException;
-import com.rebuild.core.Application;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -81,12 +80,9 @@ public class RobotApprovalConfigService extends BaseConfigurationService impleme
 
     @Override
     protected void cleanCache(ID cfgid) {
-        Object[] cfg = Application.createQueryNoFilter(
-                "select belongEntity from RobotApprovalConfig where configId = ?")
-                .setParameter(1, cfgid)
-                .unique();
-        if (cfg != null) {
-            Entity entity = MetadataHelper.getEntity((String) cfg[0]);
+        String be = RobotApprovalManager.instance.getBelongEntity(cfgid, false);
+        if (be != null) {
+            Entity entity = MetadataHelper.getEntity(be);
             RobotApprovalManager.instance.clean(entity);
         }
     }

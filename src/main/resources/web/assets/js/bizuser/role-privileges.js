@@ -26,7 +26,7 @@ $(document).ready(() => {
         if (roleId) location.href = `${rb.baseUrl}/admin/bizuser/role/${id}`
         else updatePrivileges(id) // 新的
       },
-    })
+    }),
   )
 
   if (roleId) {
@@ -87,7 +87,7 @@ $(document).ready(() => {
         />,
         function () {
           fieldpModals[entity] = this
-        }
+        },
       )
     }
   })
@@ -151,7 +151,7 @@ $(document).ready(() => {
         />,
         function () {
           advFilters[filterKey] = this
-        }
+        },
       )
     }
   })
@@ -183,7 +183,7 @@ $(document).ready(() => {
             })
           },
           200,
-          '$dropdownMenuSearch'
+          '$dropdownMenuSearch',
         )
       })
       setTimeout(() => $input[0].focus(), 20)

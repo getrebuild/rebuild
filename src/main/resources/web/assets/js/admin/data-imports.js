@@ -44,7 +44,7 @@ $(document).ready(() => {
       .on('change', function () {
         _Config.entity = $(this).val()
         _renderRepeatFields()
-        _checkUserPrivileges()
+        if ($('#toUser').length) _checkUserPrivileges()
       })
 
     if (entity) $toe.val(entity)
@@ -78,7 +78,7 @@ $(document).ready(() => {
     _Config.only_update = $val(e.target)
   })
 
-  if ($('#toUser')[0]) {
+  if ($('#toUser').length) {
     const _onSelectUser = function (s, isRemove) {
       if (isRemove || !s) _Config.owning_user = null
       else _Config.owning_user = s.id

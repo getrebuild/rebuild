@@ -155,7 +155,7 @@ $(document).ready(() => {
         function () {
           dlgChartSelect = this
           this.setState({ appended: appended })
-        }
+        },
       )
     })
   })
@@ -200,7 +200,7 @@ $(document).ready(() => {
               timeout: 30 * 1000,
               type: 'success',
               icon: 'mdi-cog-counterclockwise animated rotateIn',
-            }
+            },
           )
           window.localStorage.setItem('LastRebuildVer', rb.ver)
         }, 1500)
@@ -227,18 +227,22 @@ $(document).ready(() => {
     if (dash_Filter) {
       dash_Filter.show()
     } else {
-      let hold = $storage.get('dash_filter_custom')
+      let keepFilter = $storage.get('dash_filter_custom')
       try {
-        if (hold) hold = JSON.parse(hold)
+        if (keepFilter) keepFilter = JSON.parse(keepFilter)
       } catch (e) {
-        hold = null
+        keepFilter = null
       }
 
+      keepFilter = window.dash_filter_custom || keepFilter || null
+      let keepEntity = 'SystemCommon'
+      if (keepFilter) keepEntity = keepFilter.entity
+
       renderRbcomp(
-        <AdvFilter
+        <AdvFilterWithEntity
           title={$L('仪表盘过滤条件')}
-          entity="SystemCommon"
-          filter={window.dash_filter_custom || hold || null}
+          entity={keepEntity}
+          filter={keepFilter}
           onConfirm={(s) => {
             if (s && s.items && s.items.length) $filterCustom.addClass('check')
             else $filterCustom.removeClass('check')
@@ -252,7 +256,7 @@ $(document).ready(() => {
         />,
         function () {
           dash_Filter = this
-        }
+        },
       )
     }
   })
@@ -402,7 +406,7 @@ const save_dashboard = function () {
       })
     },
     500,
-    'save-dashboard'
+    'save-dashboard',
   )
 }
 
@@ -647,4 +651,49 @@ class DashSelect extends React.Component {
   componentDidMount = () => $(this._dlg).modal({ show: true, keyboard: true })
   hide = () => $(this._dlg).modal('hide')
   show = () => $(this._dlg).modal('show')
+}
+
+class AdvFilterWithEntity extends AdvFilter {
+  renderAction() {
+    let c = super.renderAction()
+    c = React.cloneElement(c, { className: 'item float-left' })
+    return (
+      <RF>
+        {c}
+        <div className="float-right bosskey-show--" style={{ width: 200 }}>
+          <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)}>
+            <option value="SystemCommon">{$L('通用字段')}</option>
+            <optgroup label={$L('业务实体')}>
+              {this.state.entities &&
+                this.state.entities.map((item) => {
+                  return (
+                    <option key={item.name} value={item.name}>
+                      {item.label}
+                    </option>
+                  )
+                })}
+            </optgroup>
+          </select>
+        </div>
+        <div className="clearfix" />
+      </RF>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount && super.componentDidMount()
+
+    $.get('/commons/metadata/entities?detail=yes', (res) => {
+      this.setState({ entities: res.data }, () => {
+        let $s = $(this._$entity).select2({
+          allowClear: false,
+        })
+
+        this.props.entity && $s.val(this.props.entity).trigger('change')
+        $s.on('change', (e) => {
+          this.reset43({ entity: e.target.value || 'SystemCommon' })
+        })
+      })
+    })
+  }
 }

@@ -11,7 +11,6 @@ import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -147,7 +146,7 @@ public class ApiGateway extends Controller implements Initialization {
 
             String knownError = KnownExceptionConverter.convert2ErrorMsg(ex);
             if (knownError == null) {
-                errorMsg = ThrowableUtils.getRootCause(ex).getLocalizedMessage();
+                errorMsg = CommonsUtils.getRootMessage(ex);
                 log.error("ReqId: {}\nReqParams: {}\nRespError: {}", requestId, request.getQueryString(), errorMsg, ex);
             } else {
                 errorMsg = knownError;

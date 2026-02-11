@@ -4,10 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global FieldValueSet*/
-/* 转换模式
- * 1. 普通 to 普通
- */
+/* global FieldValueSet, FormulaCalcWithCode, FormulaCode */
 
 const wpc = window.__PageConfig
 const _sourceEntities41 = wpc.sourceDetailEntities || null
@@ -106,7 +103,7 @@ $(document).ready(() => {
   const fillbackFields = []
   wpc.sourceEntity.fields.forEach((item) => {
     if (item.name.includes('.')) return
-    if ((item.type === 'REFERENCE' && item.ref[0] === wpc.targetEntity.entity) || item.type === 'ANYREFERENCE') {
+    if ((item.type === 'REFERENCE' && item.ref[0] === wpc.targetEntity.entity) || (item.type === 'N2NREFERENCE' && item.ref[0] === wpc.targetEntity.entity) || item.type === 'ANYREFERENCE') {
       fillbackFields.push({ id: item.name, text: item.label })
     }
   })
@@ -131,18 +128,39 @@ $(document).ready(() => {
   let _ImportsFilterMapping
   $('#importsMode').on('click', function () {
     if ($val(this)) {
-      $('#filterFields').parents('.form-group').removeClass('hide')
+      $('.J_importsMode-set').removeClass('hide')
       if (!_ImportsFilterMapping) {
-        renderRbcomp(<ImportsFilterMapping defaultValue={config.importsFilter} />, $('#filterFields>span'), function () {
+        renderRbcomp(<ImportsFilterMapping defaultValue={config.importsFilter} />, $('.J_importsMode-fields>span'), function () {
           _ImportsFilterMapping = this
         })
       }
     } else {
-      $('#filterFields').parents('.form-group').addClass('hide')
+      $('.J_importsMode-set').addClass('hide')
     }
   })
 
+  // v4.3
+  $('#one2nMode').on('click', function () {
+    if ($val(this)) $('.J_one2nMode-set').removeClass('hide')
+    else $('.J_one2nMode-set').addClass('hide')
+  })
+  wpc.sourceEntity.fields.forEach((field) => {
+    if (field.name.includes('approvalStepUsers') || field.name.includes('.seq')) return
+    // if (field.name.includes('.')) return
+    if (['NUMBER', 'N2NREFERENCE', 'MULTISELECT', 'TAG'].includes(field.type)) {
+      $(`<option value="${field.name}">${field.label}</option>`).appendTo('.J_one2nMode-fields select')
+    }
+  })
+  if ($('.J_one2nMode-fields select option').length === 0) {
+    $(`<option value="">${$L('无')}</option>`).appendTo('.J_one2nMode-fields select')
+  }
+
   const $btn = $('.J_save').on('click', function () {
+    const one2nMode = $('#one2nMode').prop('checked')
+    if (one2nMode && rb.commercial < 10) {
+      RbHighbar.error(WrapHtml($L('免费版不支持启用多记录转换 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
     const importsMode = $('#importsMode').prop('checked')
     if (importsMode && rb.commercial < 10) {
       RbHighbar.error(WrapHtml($L('免费版不支持启用明细记录导入 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
@@ -208,6 +226,13 @@ $(document).ready(() => {
       importsMode: $val('#importsMode'),
       importsFilter: importsFilter || null,
       importsMode2Auto: ($val('#importsMode2Auto1') ? 1 : 0) + ($val('#importsMode2Auto2') ? 2 : 0),
+      one2nMode: one2nMode,
+      one2nModeField: $val('.J_one2nMode-fields select'),
+    }
+
+    if (one2nMode && !config.one2nModeField) {
+      RbHighbar.createl('请选择转换依据字段')
+      return
     }
 
     const _data = {
@@ -249,16 +274,20 @@ $(document).ready(() => {
     if (config.importsMode) $('#importsMode').trigger('click')
     if (config.importsMode2Auto === 1 || config.importsMode2Auto === 3) $('#importsMode2Auto1').prop('checked', true)
     if (config.importsMode2Auto === 2 || config.importsMode2Auto === 3) $('#importsMode2Auto2').prop('checked', true)
+    if (config.one2nMode) $('#one2nMode').trigger('click')
+    if (config.one2nModeField) $('.J_one2nMode-fields select').val(config.one2nModeField)
   }, 100)
 })
 
+const _FIELD = 'FIELD'
 const _VFIXED = 'VFIXED'
+const _VFORMULA = 'VFORMULA'
 const _AdvFilters = {}
 
 class FieldsMapping extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props, useVfixed: {} }
+    this.state = { ...props, useVfixed: {}, formulaValues: {} }
     this._FieldValueSet = {}
   }
 
@@ -267,6 +296,7 @@ class FieldsMapping extends React.Component {
     const that = this
 
     let useVfixed = {}
+    let formulaValues = {}
     $(this._$fieldsMapping)
       .find('select.J_mapping')
       .each(function () {
@@ -297,13 +327,14 @@ class FieldsMapping extends React.Component {
           })
 
         if (Array.isArray(data[fieldName])) {
-          useVfixed[fieldName] = true
+          useVfixed[fieldName] = data[fieldName][1]
+          if (data[fieldName][1] === _VFORMULA) formulaValues[fieldName] = data[fieldName][0]
         } else {
           $s2.val(data[fieldName] || null).trigger('change')
         }
       })
 
-    this.setState({ useVfixed })
+    this.setState({ useVfixed, formulaValues })
 
     for (let fieldName in data) {
       if (Array.isArray(data[fieldName])) {
@@ -311,7 +342,7 @@ class FieldsMapping extends React.Component {
         this._FieldValueSet[fieldName].setValue(data[fieldName][0])
 
         const $this = $(this._$fieldsMapping).find(`.J_vfixed-${fieldName}`)
-        $this.val(_VFIXED)
+        $this.val(data[fieldName][1])
         $this.parents('.row').addClass('active')
       }
     }
@@ -325,7 +356,8 @@ class FieldsMapping extends React.Component {
         const $this = $(this)
         let useVfixed = that.state.useVfixed
         let fieldName = $this.data('field')
-        useVfixed[fieldName] = $this.val() === _VFIXED
+        useVfixed[fieldName] = $this.val()
+        if (useVfixed[fieldName] === _FIELD) delete useVfixed[fieldName]
         that.setState({ useVfixed })
 
         if (useVfixed[fieldName]) $this.parents('.row').addClass('active')
@@ -353,7 +385,7 @@ class FieldsMapping extends React.Component {
             {se.label}
             {this.props.isDetail && (
               <a className={`filter ${this.state.filterData && 'active'}`} title={$L('明细转换条件')} onClick={() => this._saveFilter()}>
-                <i className="icon mdi mdi-filter" />
+                <i className="icon mdi mdi-filter-check-outline" />
               </a>
             )}
           </div>
@@ -370,20 +402,55 @@ class FieldsMapping extends React.Component {
                 <select className={`form-control form-control-sm J_vfixed J_vfixed-${item.name}`} data-field={item.name} defaultValue="FIELD">
                   <option value="FIELD">{$L('字段值')}</option>
                   <option value={_VFIXED}>{$L('固定值')}</option>
+                  <option value={_VFORMULA}>{$L('计算公式')}</option>
                 </select>
               </div>
               <div className="col-5">
                 <div className={this.state.useVfixed[item.name] ? 'hide' : ''}>
                   <select className="form-control form-control-sm J_mapping" data-field={item.name} data-req={!item.nullable && !isCommon} />
                 </div>
-                <div className={this.state.useVfixed[item.name] ? '' : 'hide'}>
+                <div className={this.state.useVfixed[item.name] === _VFIXED ? '' : 'hide'}>
                   <FieldValueSet entity={te.entity} field={item} placeholder={$L('固定值')} defaultValue={null} ref={(c) => (this._FieldValueSet[item.name] = c)} />
+                </div>
+                <div className={this.state.useVfixed[item.name] === _VFORMULA ? '' : 'hide'}>
+                  <div className="form-control-plaintext formula" _title={$L('计算公式')} title={$L('编辑计算公式')} onClick={() => this._showFormula43(item)}>
+                    {FormulaCalcWithCode.formatText(this.state.formulaValues[item.name], se.fields)}
+                  </div>
                 </div>
               </div>
             </div>
           )
         })}
       </div>
+    )
+  }
+
+  _showFormula43(item) {
+    const se = this.props.source
+    const fieldVars = []
+    se.fields.forEach((item) => {
+      if (['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(item.type)) {
+        fieldVars.push(item)
+      }
+    })
+
+    // 数字、日期支持计算器模式
+    const forceCode = !['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(item.type)
+
+    const that = this
+    renderRbcomp(
+      <FormulaCalcWithCode
+        entity={se.entity}
+        fields={fieldVars}
+        forceCode={forceCode}
+        initFormula={this.state.formulaValues[item.name]}
+        onConfirm={(expr) => {
+          let formulaValues = that.state.formulaValues
+          formulaValues[item.name] = expr
+          that.setState({ formulaValues })
+        }}
+        verifyFormula
+      />
     )
   }
 
@@ -400,7 +467,7 @@ class FieldsMapping extends React.Component {
         const $this = $(this)
         const target = $this.data('field') // Target field
         let val = $this.val()
-        if (that.state.useVfixed[target]) {
+        if (that.state.useVfixed[target] === _VFIXED) {
           val = that._FieldValueSet[target].val()
 
           if (val === false) {
@@ -414,6 +481,15 @@ class FieldsMapping extends React.Component {
           }
 
           val = [val, _VFIXED] // array
+        } else if (that.state.useVfixed[target] === _VFORMULA) {
+          val = that.state.formulaValues[target]
+          if (!val) {
+            RbHighbar.create($L('请填写计算公式'))
+            mapping = false
+            return false
+          }
+
+          val = [val, _VFORMULA] // array
         }
 
         // req tips

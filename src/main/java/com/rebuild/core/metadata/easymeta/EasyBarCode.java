@@ -19,7 +19,7 @@ import org.apache.commons.lang.StringUtils;
  * @see BarCodeSupport
  */
 @Slf4j
-public class EasyBarCode extends EasyField {
+public class EasyBarCode extends EasyField implements MediaValue {
     private static final long serialVersionUID = 5175455130040618922L;
 
     protected EasyBarCode(Field field, DisplayType displayType) {

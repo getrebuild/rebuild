@@ -29,6 +29,8 @@ public class IndexChart extends ChartData {
 
         Numerical num = nums[0];
         Object[] dataRaw = createQuery(buildSql(num, true)).unique();
+        dataRaw = this.calcFormula43(dataRaw, num);
+
         JSONObject index = JSONUtils.toJSONObject(
                 new String[]{"data", "label", "dataFlag"},
                 new Object[]{wrapAxisValue(num, dataRaw[0]), num.getLabel(), getNumericalFlag(num)});
@@ -37,6 +39,8 @@ public class IndexChart extends ChartData {
         if (nums.length > 1) {
             num = nums[1];
             dataRaw = createQuery(buildSql(num, true)).unique();
+            dataRaw = this.calcFormula43(dataRaw, num);
+
             index.put("data2", wrapAxisValue(num, dataRaw[0]));
             index.put("label2", num.getLabel());
             index.put("dataFlag2", getNumericalFlag(num));

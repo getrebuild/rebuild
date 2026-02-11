@@ -19,6 +19,9 @@ import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.ConfigurationException;
+import com.rebuild.core.configuration.general.AdvFilterManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
@@ -36,11 +39,13 @@ import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -61,8 +66,7 @@ public class CommonOperatingController extends BaseController {
 
     @PostMapping("common-save")
     public JSONAware save(HttpServletRequest request) {
-        final JSON formJson = ServletUtils.getRequestJson(request);
-
+        JSON formJson = (JSON) getRequestBody(request, true);
         Record record;
         try {
             record = EntityHelper.parse((JSONObject) formJson, getRequestUser(request));
@@ -208,5 +212,24 @@ public class CommonOperatingController extends BaseController {
     static JSON deleteRecord(ID recordId) {
         int del = Application.getService(recordId.getEntityCode()).delete(recordId);
         return JSONUtils.toJSONObject(new String[]{"deleted", "requests"}, new Object[]{del, del});
+    }
+
+    @GetMapping("filter-badge")
+    public RespBody filterBadge(HttpServletRequest request) {
+        ID filterId = getIdParameterNotNull(request, "filter");
+        ConfigBean cb;
+        try {
+            cb = AdvFilterManager.instance.getAdvFilter(filterId);
+        } catch (ConfigurationException miss) {
+            log.warn("No [filter] found : {}", filterId);
+            return RespBody.error(miss.getMessage());
+        }
+
+        String sqlWhere = new AdvFilterParser((JSONObject) cb.getJSON("filter")).toSqlWhere();
+        String countSql = MessageFormat.format(
+                "select count({0}Id) from {0} where {1}", cb.getString("entity"), sqlWhere);
+
+        Object[] c = Application.getQueryFactory().uniqueNoFilter(countSql);
+        return RespBody.ok(c == null ? 0 : c[0]);
     }
 }

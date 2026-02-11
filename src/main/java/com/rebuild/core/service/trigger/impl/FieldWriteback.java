@@ -28,6 +28,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyDateTime;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.EasyTag;
 import com.rebuild.core.metadata.easymeta.MultiValue;
 import com.rebuild.core.metadata.easymeta.PatternValue;
 import com.rebuild.core.privileges.UserService;
@@ -63,6 +64,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static com.rebuild.core.service.trigger.aviator.AviatorUtils.CODE_PREFIX;
+
 /**
  * 字段更新，场景 1>1 1>N
  *
@@ -85,8 +88,9 @@ public class FieldWriteback extends FieldAggregation {
      */
     public static final String ONE2ONE_MODE = "one2one";
 
+    // 兼容老公式
     private static final String DATE_EXPR = "#";
-    private static final String CODE_PREFIX = "{{{{";  // ends with }}}}
+    // 使用目标记录的字段变量（前缀）
     private static final String SOURCE_FIELD_VAR_PREFIX = "^";
 
     protected Set<ID> targetRecordIds;
@@ -240,12 +244,12 @@ public class FieldWriteback extends FieldAggregation {
 
         targetRecordIds = new HashSet<>();
 
-        // v35
+        // v3.5
         if (TARGET_ANY.equals(targetFieldEntity[0])) {
             TargetWithMatchFields targetWithMatchFields = new TargetWithMatchFields();
             ID[] ids = targetWithMatchFields.matchMultiple(actionContext);
             if (ids.length == 0 && actionContent.getBooleanValue("autoCreate")) {
-                ID n = this.aotuCreateTargetRecord39(targetWithMatchFields);
+                ID n = this.autoCreateTargetRecord39(targetWithMatchFields);
                 targetRecordIds.add(n);
             }
             CollectionUtils.addAll(targetRecordIds, ids);
@@ -405,8 +409,7 @@ public class FieldWriteback extends FieldAggregation {
                             targetEntity.getPrimaryField().getName(),
                             targetEntity.getName());
                     sql = sql.replace(SOURCE_FIELD_VAR_PREFIX, "");  // Remove `^`
-                    useTargetData = Application.createQueryNoFilter(sql)
-                            .setParameter(1, targetRecordId404).record();
+                    useTargetData = Application.createQueryNoFilter(sql).setParameter(1, targetRecordId404).record();
                 }
             }
         }
@@ -428,6 +431,11 @@ public class FieldWriteback extends FieldAggregation {
 
             // 固定值
             else if ("VFIXED".equalsIgnoreCase(updateMode)) {
+                // fix:4.3
+                if (targetFieldEasy.getDisplayType() == DisplayType.TAG) {
+                    sourceAny = sourceAny.replace(", ", EasyTag.VALUE_SPLIT);
+                }
+
                 EntityRecordCreator.setValueByLiteral(
                         targetFieldEasy.getRawMeta(), sourceAny, targetRecord, false);
             }
@@ -574,7 +582,16 @@ public class FieldWriteback extends FieldAggregation {
                         envMap.put(fieldName, useValue);
                     }
 
-                    clearFormula = clearFormula.replace(SOURCE_FIELD_VAR_PREFIX, "_");
+                    // 保护 /^
+                    if (clearFormula.contains(SOURCE_FIELD_VAR_PREFIX)) {
+                        String R430 = "____";
+                        clearFormula = clearFormula.replace("\\" + SOURCE_FIELD_VAR_PREFIX, R430);
+                        clearFormula = clearFormula.replace(SOURCE_FIELD_VAR_PREFIX, "_");
+                        if (clearFormula.contains(R430)) {
+                            clearFormula = clearFormula.replace(R430, SOURCE_FIELD_VAR_PREFIX);
+                        }
+                    }
+
                     Object newValue = AviatorUtils.eval(clearFormula, envMap, false);
 
                     if (newValue != null) {
@@ -616,7 +633,7 @@ public class FieldWriteback extends FieldAggregation {
      * @see DisplayType
      * @see com.rebuild.core.metadata.EntityRecordCreator
      */
-    protected static Object checkoutFieldValue(Object value, EasyField field) {
+    public static Object checkoutFieldValue(Object value, EasyField field) {
         DisplayType dt = field.getDisplayType();
         Object newValue = null;
 

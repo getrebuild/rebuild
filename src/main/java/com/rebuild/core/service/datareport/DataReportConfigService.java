@@ -10,7 +10,6 @@ package com.rebuild.core.service.datareport;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.core.Application;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -37,11 +36,10 @@ public class DataReportConfigService extends BaseConfigurationService implements
 
     @Override
     protected void cleanCache(ID cfgid) {
-        Object[] c = Application.createQueryNoFilter(
-                "select belongEntity from DataReportConfig where configId = ?")
-                .setParameter(1, cfgid)
-                .unique();
-        Entity entity = MetadataHelper.getEntity((String) c[0]);
-        DataReportManager.instance.clean(entity);
+        String be = DataReportManager.instance.getBelongEntity(cfgid, false);
+        if (be != null) {
+            Entity entity = MetadataHelper.getEntity(be);
+            DataReportManager.instance.clean(entity);
+        }
     }
 }

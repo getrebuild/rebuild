@@ -14,6 +14,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.support.general.DataListBuilder;
 import com.rebuild.core.support.general.DataListBuilderImpl;
+import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.RbAssert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +36,8 @@ public class DataList2Chart extends ChartData {
 
     @Override
     public JSON build() {
+        RbAssert.isCommercial(Language.L("免费版不支持此图表"));
+
         Entity entity = getSourceEntity();
         Dimension[] dims = getDimensions();
 

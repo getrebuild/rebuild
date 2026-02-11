@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -38,11 +38,6 @@
           </div>
         </aside>
         <div class="main-content container-fluid position-relative">
-          <div class="quick-filter-tabs" th:if="${advListFilterTabs == 'true'}">
-            <div>
-              <div class="dropdown-item"><a>[[${bundle.L('默认视图')}]]</a></div>
-            </div>
-          </div>
           <div class="quick-filter-pane" th:if="${advListFilterPane == 'true'}">
             <div class="ph-item rb"></div>
             <div class="ph-item rb"></div>
@@ -106,7 +101,7 @@
                           <div class="dropdown-divider"></div>
                           <a th:if="${AllowDataExport}" class="dropdown-item J_export"><i class="icon mdi mdi-microsoft-excel"></i> [[${bundle.L('数据导出')}]]</a>
                           <a th:if="${AllowDataImport}" class="dropdown-item" th:href="|${baseUrl}/app/entity/data-imports?entity=${entityName}|">
-                            <i class="icon mdi mdi-database-import-outline"></i> [[${bundle.L('数据导入')}]]
+                            <i class="icon mdi mdi-table-arrow-right"></i> [[${bundle.L('数据导入')}]]
                           </a>
                           <a th:if="${AllowBatchUpdate}" class="dropdown-item J_batch-update"><i class="icon mdi mdi-playlist-edit"></i> [[${bundle.L('批量修改')}]]</a>
                           <a th:if="${_HadApproval}" class="dropdown-item J_batch-approve"><i class="icon mdi mdi-progress-check"></i> [[${bundle.L('批量审批')}]] <sup class="rbv"></sup></a>

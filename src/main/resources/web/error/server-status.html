@@ -25,6 +25,19 @@
         color: #fff;
         text-decoration: underline;
       }
+      .percentage,
+      .percentage > span {
+        display: inline-block;
+        width: 120px;
+        height: 12px;
+        line-height: 12px;
+        font-size: 11px;
+        color: #fff;
+        background-color: #34a853;
+      }
+      .percentage > span {
+        background-color: #ea4335;
+      }
     </style>
   </head>
   <body>
@@ -54,11 +67,15 @@
           </tr>
           <tr>
             <th>Memory Usage (JVM)</th>
-            <td>[[${MemoryUsageJvm[1]}]]% ([[${MemoryUsageJvm[0]}]]MB)</td>
+            <td>
+              <span class="percentage"><span th:style="'width:'+${MemoryUsageJvm[1]}+'%'">[[${MemoryUsageJvm[1]}]]%</span></span> ([[${MemoryUsageJvm[0]}]]MB)
+            </td>
           </tr>
           <tr>
             <th>Memory Usage</th>
-            <td>[[${MemoryUsage[1]}]]% ([[${MemoryUsage[0]}]]MB)</td>
+            <td>
+              <span class="percentage"><span th:style="'width:'+${MemoryUsage[1]}+'%'">[[${MemoryUsage[1]}]]%</span></span> ([[${MemoryUsage[0]}]]MB)
+            </td>
           </tr>
           <tr>
             <th>System Load</th>

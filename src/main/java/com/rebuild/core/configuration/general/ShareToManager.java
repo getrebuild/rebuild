@@ -195,10 +195,9 @@ public abstract class ShareToManager implements ConfigManager {
      * @return
      */
     protected boolean isShareTo(String shareTo, ID user) {
-        if (SHARE_ALL.equals(shareTo)) {
-            return true;
+        if (SHARE_ALL.equals(shareTo)) return true;
 
-        } else if (shareTo != null && shareTo.length() >= 20) {
+        if (shareTo != null && shareTo.length() >= 20) {
             Set<String> userDefs = new HashSet<>();
             CollectionUtils.addAll(userDefs, shareTo.split(","));
             Set<ID> sharedUsers = UserHelper.parseUsers(userDefs, null);
@@ -214,7 +213,7 @@ public abstract class ShareToManager implements ConfigManager {
      * @param applyType
      * @return
      */
-    final protected String formatCacheKey(String belongEntity, String applyType) {
+    protected String formatCacheKey(String belongEntity, String applyType) {
         return String.format("%s-%s-%s39", getConfigEntity(),
                 StringUtils.defaultIfBlank(belongEntity, "N"),
                 StringUtils.defaultIfBlank(applyType, "N")).toUpperCase();

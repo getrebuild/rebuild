@@ -20,7 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 列表模板公式
+ * 修订列表模板公式
  *
  * @author Zixin
  * @since 2022/12/14

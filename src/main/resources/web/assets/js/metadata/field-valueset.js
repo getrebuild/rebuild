@@ -21,10 +21,15 @@ class FieldValueSet extends React.Component {
       field.type === 'MULTISELECT' ||
       field.type === 'REFERENCE' ||
       field.type === 'N2NREFERENCE' ||
-      field.type === 'CLASSIFICATION'
+      field.type === 'CLASSIFICATION' ||
+      field.type === 'TAG'
     ) {
       return (
-        <select className="form-control form-control-sm" multiple={field.type === 'MULTISELECT' || field.type === 'N2NREFERENCE'} ref={(c) => (this._$value = c)} key={field.name}>
+        <select
+          className="form-control form-control-sm"
+          multiple={field.type === 'MULTISELECT' || field.type === 'N2NREFERENCE' || field.type === 'TAG'}
+          ref={(c) => (this._$value = c)}
+          key={field.name}>
           {(field.options || []).map((item) => {
             let value = item.id || item.mask
             // for BOOL
@@ -60,6 +65,17 @@ class FieldValueSet extends React.Component {
           label: field.label,
           searchType: field.type === 'CLASSIFICATION' ? 'classification' : null,
           placeholder: this.props.placeholder || ' ',
+        })
+      } else if (field.type === 'TAG') {
+        this.__$select2 = $(this._$value).select2({
+          placeholder: this.props.placeholder || '',
+          tags: true,
+          language: {
+            noResults: function () {
+              return $L('输入后回车')
+            },
+          },
+          theme: 'default select2-tag',
         })
       } else {
         this.__$select2 = $(this._$value).select2({
@@ -104,6 +120,10 @@ class FieldValueSet extends React.Component {
   }
 
   val() {
+    return this.getValue()
+  }
+
+  getValue() {
     if (!this._$value) return null
 
     const field = this.props.field
@@ -148,6 +168,7 @@ class FieldValueSet extends React.Component {
       }
     }
 
+    if (field.type === 'TAG') return value.join(', ')
     return typeof value === 'object' ? value.join(',') : value
   }
 
@@ -163,6 +184,11 @@ class FieldValueSet extends React.Component {
           const o = new Option(item.text, item.mask, true, true)
           this.__$select2.append(o)
         }
+      })
+    } else if (field.type === 'TAG') {
+      val.split(', ').forEach((item) => {
+        const o = new Option(item, item, true, true)
+        this.__$select2.append(o)
       })
     } else if (field.type === 'REFERENCE' || field.type === 'N2NREFERENCE' || field.type === 'CLASSIFICATION') {
       $.get(`/commons/search/read-labels?ids=${$encode(val)}`, (res) => {

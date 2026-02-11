@@ -1,0 +1,45 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/auditing#%E5%8F%98%E6%9B%B4%E5%8E%86%E5%8F%B2" />
+    <title>[[${bundle.L('发送统计')}]]</title>
+    <style></style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='smsend-logs')}" />
+      <div class="rb-content">
+        <div class="main-content container-fluid">
+          <div class="card card-table card-topcolor">
+            <div class="card-body">
+              <div class="dataTables_wrapper container-fluid">
+                <div class="row rb-datatable-header">
+                  <div class="col-12 col-md-6">
+                    <div class="dataTables_filter">
+                      <div class="input-group input-search">
+                        <input class="form-control" type="text" th:placeholder="${bundle.L('快速查询')}" data-quickFields="to" />
+                        <span class="input-group-btn">
+                          <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6"></div>
+                </div>
+                <div id="react-list" class="rb-loading rb-loading-active data-list">
+                  <th:block th:replace="~{/_include/spinner}" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/general/rb-datalist.common.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/general/rb-datalist.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/admin/smsend-logs.js}" type="text/babel"></script>
+  </body>
+</html>

@@ -41,8 +41,7 @@ class ReportList extends ConfigList {
                 {item[6] === 2 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 excel">{$L('EXCEL 列表')}</span>}
                 {isHtml5 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 html5">{$L('网页模板')}</span>}
                 {item[6] === 4 && <span className="badge badge-info badge-arrow3 badge-pill ml-1 word">WORD</span>}
-
-                {outputType.includes('pdf') && <span className="badge badge-secondary badge-pill ml-1">PDF</span>}
+                {outputType.includes('pdf') && <span className="badge badge-secondary badge-pill ml-1 bosskey-show">PDF</span>}
               </td>
               <td>
                 <a href={`${rb.baseUrl}/admin/entity/${item[1]}/base`} className="light-link" target={`_${item[1]}`}>
@@ -196,7 +195,7 @@ class ReportEditor extends ConfigFormDlg {
             )}
           </div>
         </div>
-        <div className="form-group row">
+        <div className="form-group row bosskey-show">
           <label className="col-sm-3 col-form-label text-sm-right">{$L('导出格式')}</label>
           <div className="col-sm-7 pt-1" ref={(c) => (this._$outputType = c)}>
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-1">
@@ -288,7 +287,7 @@ class ReportEditor extends ConfigFormDlg {
             // v3.8
             that.checkTemplate()
           }
-        }
+        },
       )
     }
 
@@ -354,7 +353,7 @@ class ReportEditor extends ConfigFormDlg {
             },
             () => {
               // ...
-            }
+            },
           )
         } else {
           this._clearParams()
@@ -388,7 +387,7 @@ class ReportEditor extends ConfigFormDlg {
         />,
         function () {
           that._UseFilter = this
-        }
+        },
       )
     }
   }

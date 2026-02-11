@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
+import com.alibaba.fastjson.JSON;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Options;
@@ -21,10 +22,15 @@ import com.googlecode.aviator.exception.StandardError;
 import com.googlecode.aviator.lexer.token.OperatorType;
 import com.googlecode.aviator.runtime.function.FunctionUtils;
 import com.googlecode.aviator.runtime.function.system.AssertFunction;
+import com.googlecode.aviator.runtime.type.AviatorBigInt;
 import com.googlecode.aviator.runtime.type.AviatorFunction;
 import com.googlecode.aviator.runtime.type.AviatorNil;
 import com.googlecode.aviator.runtime.type.AviatorObject;
+import com.googlecode.aviator.runtime.type.AviatorRuntimeJavaType;
+import com.googlecode.aviator.runtime.type.AviatorString;
 import com.googlecode.aviator.runtime.type.Sequence;
+import com.googlecode.aviator.runtime.type.seq.ArraySequence;
+import com.googlecode.aviator.utils.Env;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
@@ -32,15 +38,18 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.state.StateHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -53,6 +62,9 @@ import java.util.TreeSet;
  */
 @Slf4j
 public class AviatorUtils {
+
+    // 高级公式使用 {{{{}}}} 包裹
+    public static final String CODE_PREFIX = "{{{{";  // ends with }}}}
 
     private static final AviatorEvaluatorInstance AVIATOR = AviatorEvaluator.newInstance();
 
@@ -95,6 +107,7 @@ public class AviatorUtils {
         addCustomFunction(new ChineseDateFunction());
         addCustomFunction(new ToDateFunction());
         addCustomFunction(new ToStrFunction());
+        addCustomFunction(new IfNullFunction());
     }
 
     /**
@@ -120,7 +133,7 @@ public class AviatorUtils {
      *
      * @param expression
      * @param env
-     * @param quietly true 表示不抛出异常
+     * @param quietly    true 表示不抛出异常
      * @return
      */
     public static Object eval(String expression, Map<String, Object> env, boolean quietly) {
@@ -192,6 +205,7 @@ public class AviatorUtils {
     public static Iterator<Object> toIterator(Object value) {
         if (value instanceof Collection) return ((Collection<Object>) value).iterator();
         if (value instanceof Sequence) return ((Sequence<Object>) value).iterator();
+        if (value instanceof Iterator) return (Iterator<Object>) value;
         throw new UnsupportedOperationException("Unsupport type : " + value);
     }
 
@@ -202,9 +216,21 @@ public class AviatorUtils {
      */
     public static AviatorObject wrapReturn(final Object ret) {
         if (ret == null) return AviatorNil.NIL;
+        if (ret instanceof AviatorObject) return (AviatorObject) ret;
         if (ret instanceof Date) return new AviatorDate((Date) ret);
         if (ret instanceof LocalTime) return new AviatorTime((LocalTime) ret);
         if (ret instanceof ID) return new AviatorId((ID) ret);
+        if (ret instanceof Number) return AviatorBigInt.valueOf(ret);
+        if (ret instanceof String) return new AviatorString(ret.toString());
+
+        if (ret instanceof Object[]) {
+            Sequence<?> seq = new ArraySequence(ret);
+            return AviatorRuntimeJavaType.valueOf(seq);
+        }
+        if (ret instanceof JSON) {
+            return AviatorRuntimeJavaType.valueOf(ret);
+        }
+
         return FunctionUtils.wrapReturn(ret);
     }
 
@@ -213,10 +239,10 @@ public class AviatorUtils {
      * @return
      */
     public static ID toIdValue(Object o) {
+        if (isNull(o)) return null;
         if (o instanceof ID) return (ID) o;
 
-        String o2str = o.toString().trim();
-        if (o2str.isEmpty()) return null;
+        String o2str = toStringValue(o);
         if (ID.isId(o2str)) return ID.valueOf(o2str);
 
         log.warn("Bad id string : {}", o);
@@ -227,9 +253,61 @@ public class AviatorUtils {
      * @param o
      * @return
      */
+    public static ID[] toIdArray(Object o) {
+        if (o == null) return new ID[0];
+        if (o instanceof ID) return new ID[]{(ID) o};
+        if (o instanceof ID[]) return (ID[]) o;
+
+        List<ID> list = new ArrayList<>();
+
+        if (o instanceof Iterable) {
+            for (Iterator<?> iter = toIterator(o); iter.hasNext(); ) {
+                ID idValue = toIdValue(iter.next());
+                if (idValue != null) list.add(idValue);
+            }
+            return list.toArray(new ID[0]);
+        }
+
+        // string?
+        if (!(o instanceof Object[])) o = o.toString().split(",");
+
+        Object[] idArray = (Object[]) o;
+        for (Object item : idArray) {
+            ID idValue = toIdValue(item);
+            if (idValue != null) list.add(idValue);
+        }
+        return list.toArray(new ID[0]);
+    }
+
+    /**
+     * @param o
+     * @return
+     */
     public static String toStringValue(Object o) {
-        if (o == null) return null;
+        if (isNull(o)) return null;
+        if (o instanceof AviatorObject) {
+            o = ((AviatorObject) o).getValue(Env.EMPTY_ENV);
+            if (isNull(o)) return null;
+        }
         return o.toString();
+    }
+
+    /**
+     * @param o
+     * @return
+     */
+    public static boolean toBooleanValue(Object o) {
+        if (isNull(o)) return false;
+        if (o instanceof Boolean) return (Boolean) o;
+        return BooleanUtils.toBoolean(o.toString());
+    }
+
+    /**
+     * @param o
+     * @return
+     */
+    public static boolean isNull(Object o) {
+        return o == null || o == AviatorNil.NIL || o instanceof AviatorNil;
     }
 
     /**

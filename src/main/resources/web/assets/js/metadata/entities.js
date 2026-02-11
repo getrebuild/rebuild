@@ -49,7 +49,7 @@ $(document).ready(() => {
               ref={function (o) {
                 _EntityNew2 = o
               }}
-            />
+            />,
           )
         }
       })
@@ -76,8 +76,7 @@ const render_entity = function (item) {
   })
   $t.find('.icon:eq(0)').addClass(`zmdi-${item.icon}`)
   $t.find('span').text(item.entityLabel)
-  if (item.comments) $t.find('p').text(item.comments)
-  else $t.find('p').html('&nbsp;')
+  $t.find('p').text(item.comments || $L('无'))
 
   if (item.builtin) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('内置')}</i>`).appendTo($t.find('a.card .badge-wrap'))
   if (item.hadApproval) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('审批')}</i>`).appendTo($t.find('a.card .badge-wrap'))
@@ -143,7 +142,7 @@ class EntitySearcher extends RbAlert {
         })
       },
       400,
-      '__searchMeta'
+      '__searchMeta',
     )
   }
 }

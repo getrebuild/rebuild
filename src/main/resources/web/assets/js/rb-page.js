@@ -7,8 +7,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* eslint-disable no-unused-vars */
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
-// GA
-;(function () {
+// https://github.com/jeresig/jquery.hotkeys
+// prettier-ignore
+!function(e){function t(t){if('string'===typeof t.data){var s=t.handler,a=t.data.toLowerCase().split(' ');t.handler=function(t){if(this===t.target||!/textarea|select/i.test(t.target.nodeName)&&'text'!==t.target.type){var r='keypress'!==t.type&&e.hotkeys.specialKeys[t.which],f=String.fromCharCode(t.which).toLowerCase(),i='',h={};t.altKey&&'alt'!==r&&(i+='alt+'),t.ctrlKey&&'ctrl'!==r&&(i+='ctrl+'),t.metaKey&&!t.ctrlKey&&'meta'!==r&&(i+='meta+'),t.shiftKey&&'shift'!==r&&(i+='shift+'),r?h[i+r]=!0:(h[i+f]=!0,h[i+e.hotkeys.shiftNums[f]]=!0,'shift+'===i&&(h[e.hotkeys.shiftNums[f]]=!0));for(var o=0,c=a.length;o<c;o++)if(h[a[o]])return s.apply(this,arguments)}}}}e.hotkeys={version:'0.8',specialKeys:{8:'backspace',9:'tab',13:'return',16:'shift',17:'ctrl',18:'alt',19:'pause',20:'capslock',27:'esc',32:'space',33:'pageup',34:'pagedown',35:'end',36:'home',37:'left',38:'up',39:'right',40:'down',45:'insert',46:'del',96:'0',97:'1',98:'2',99:'3',100:'4',101:'5',102:'6',103:'7',104:'8',105:'9',106:'*',107:'+',109:'-',110:'.',111:'/',112:'f1',113:'f2',114:'f3',115:'f4',116:'f5',117:'f6',118:'f7',119:'f8',120:'f9',121:'f10',122:'f11',123:'f12',144:'numlock',145:'scroll',191:'/',224:'meta'},shiftNums:{'`':'~',1:'!',2:'@',3:'#',4:'$',5:'%',6:'^',7:'&',8:'*',9:'(',0:')','-':'_','=':'+',';':': ','\'':'"',',':'<','.':'>','/':'?','\\':'|'}},e.each(['keydown','keyup','keypress'],function(){e.event.special[this]={add:t}})}(jQuery)
+// select2.zh-CN
+// prettier-ignore
+!(function(){if(jQuery&&jQuery.fn&&jQuery.fn.select2&&jQuery.fn.select2.amd){var e=jQuery.fn.select2.amd}return(e.define('select2/i18n/zh_CN',[],function(){return{errorLoading:function(){return'无法加载结果'},inputTooLong:function(e){var t=e.input.length-e.maximum,n='请删除'+t+'个字符';return n},inputTooShort:function(e){var t=e.minimum-e.input.length,n='请再输入至少'+t+'个字符';n='输入关键词搜索';return n},loadingMore:function(){return'加载更多结果'},maximumSelected:function(e){var t='最多只能选择'+e.maximum+'项';return t},noResults:function(){return'未找到结果'},searching:function(){return'搜索中...'},removeAllItems:function(){return'清除'}}}),{define:e.define,require:e.require})})()
+// select2.zh-TW
+// prettier-ignore
+!(function(){if(jQuery&&jQuery.fn&&jQuery.fn.select2&&jQuery.fn.select2.amd){var e=jQuery.fn.select2.amd}return(e.define('select2/i18n/zh_TW',[],function(){return{errorLoading:function(){return'無法載入結果'},inputTooLong:function(e){var t=e.input.length-e.maximum,n='請刪除'+t+'個字符';return n},inputTooShort:function(e){var t=e.minimum-e.input.length,n='请再输入至少'+t+'个字符';n='輸入關鍵詞搜索';return n},loadingMore:function(){return'載入更多結果'},maximumSelected:function(e){var t='最多只能選擇'+e.maximum+'項';return t},noResults:function(){return'未找到結果'},searching:function(){return'搜索中...'},removeAllItems:function(){return'清除'}}}),{define:e.define,require:e.require})})()
+
+function _GA() {
   var gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -22,11 +31,65 @@ See LICENSE and COMMERCIAL in the project root for license information.
   }
   var s = document.getElementsByTagName('script')[0]
   s.parentNode.insertBefore(gaScript, s)
-})()
+}
+_GA()
 
 // PAGE INITIAL
 $(function () {
-  // navless
+  // for `moment`
+  if (window.moment) window.moment.locale(rb.locale)
+
+  // for `datetimepicker`
+  $.fn.datetimepicker.defaults = {
+    language: rb.locale.split('_')[0],
+    fontAwesome: true,
+    format: 'yyyy-mm-dd hh:ii',
+    weekStart: 1,
+    todayHighlight: true,
+    showMeridian: false,
+    keyboardNavigation: false,
+    autoclose: true,
+    minuteStep: 5,
+  }
+
+  // for `select2`
+  $.fn.select2.defaults.set('width', '100%')
+  $.fn.select2.defaults.set('language', rb.locale)
+  $.fn.select2.defaults.set('allowClear', true)
+  $.fn.select2.defaults.set('placeholder', '')
+  $.fn.select2.defaults.set('templateResult', function (res) {
+    return $('<span></span>').attr('title', res.text).text(res.text)
+  })
+  $.fn.select2.defaults.set('matcher', function (params, data) {
+    return $select2MatcherAll(params, data)
+  })
+  // fix:backspace https://github.com/select2/select2/issues/3335
+  var AllowClear = $.fn.select2.amd.require('select2/selection/allowClear')
+  var _handleKeyboardClearOriginal = AllowClear.prototype._handleKeyboardClear
+  AllowClear.prototype._handleKeyboardClear = function (_, e, container) {
+    if (this.$element.prop('multiple')) return
+    _handleKeyboardClearOriginal.call(this, _, e, container)
+  }
+  // fix:width https://github.com/select2/select2/issues/291#issuecomment-299824673
+  var Search = $.fn.select2.amd.require('select2/selection/search')
+  Search.prototype.resizeSearch = function () {
+    var width = ''
+    var widthParent = ''
+    if (this.$search.attr('placeholder') !== '') {
+      width = '100%'
+      widthParent = '100%'
+    } else {
+      var minimumWidth = this.$search.val().length + 1
+      width = minimumWidth * 0.75 + 'em'
+      widthParent = 'auto'
+    }
+    this.$search.css('width', width)
+    this.$search.closest('.select2-search--inline').css('width', widthParent)
+  }
+  // fix:select2:https://stackoverflow.com/questions/18487056/select2-doesnt-work-when-embedded-in-a-bootstrap-modal
+  $.fn.modal.Constructor.prototype._enforceFocus = function () {}
+
+  // navless/frame
   if (rb.commercial > 1 && (~~$urlp('navless') === 1 || ~~$urlp('frame') === 1)) $(document.body).addClass('rb-navless40')
   if (rb.commercial > 1 && window.__BOSSKEY === true) $('.bosskey-show').removeClass('bosskey-show')
 
@@ -156,7 +219,7 @@ $(function () {
         $addResizeHandler()()
       },
       120,
-      'resize-window'
+      'resize-window',
     )
   })
 
@@ -413,6 +476,22 @@ var _initNav = function () {
       if (!$(this).next().find('>a')[0]) $(this).remove()
     })
   }
+
+  // v4.3 Filter badge
+  $('.sidebar-elements span[data-filter]').each(function () {
+    var $this = $(this)
+    var filterId = $this.data('filter')
+    // Click to storage
+    $this.parents('a').on('click', function () {
+      $storage.set('AdvFilter-' + $(this).parent().data('entity'), filterId)
+    })
+
+    if (!$this.hasClass('hide')) {
+      $.get('/app/entity/filter-badge?filter=' + filterId, function (res) {
+        if (res.data > 0) $this.text(res.data)
+      })
+    }
+  })
 }
 var _checkMessage__state = 0
 // 检查新消息
@@ -645,25 +724,7 @@ var _initGlobalCreate = function () {
   })
 }
 
-var $addResizeHandler__cbs = []
-/**
- * 窗口 RESIZE 回调
- */
-var $addResizeHandler = function (callback) {
-  typeof callback === 'function' && $addResizeHandler__cbs && $addResizeHandler__cbs.push(callback)
-  return function () {
-    if (!$addResizeHandler__cbs || $addResizeHandler__cbs.length === 0) return
-    // eslint-disable-next-line no-console
-    if (rb.env === 'dev') console.log('Callbacks ' + $addResizeHandler__cbs.length + ' handlers of resize ...')
-    $addResizeHandler__cbs.forEach(function (cb) {
-      cb()
-    })
-  }
-}
-
-/**
- * 清理 dropdown 菜单
- */
+// 清理 dropdown 菜单
 var $cleanMenu = function (mbg) {
   var $mbg = $(mbg)
   var $mbgMenu = $mbg.find('.dropdown-menu')
@@ -683,9 +744,7 @@ var $cleanMenu = function (mbg) {
 }
 var $cleanDropdown = $cleanMenu
 
-/**
- * 点击 Dropdown-Menu 不隐藏
- */
+// 点击 dropdown-menu 不隐藏
 var $unhideDropdown = function (dp) {
   return $(dp).on({
     'hide.bs.dropdown': function (e) {
@@ -698,9 +757,7 @@ var $unhideDropdown = function (dp) {
   })
 }
 
-/**
- * 获取附件文件名
- */
+// 获取附件文件名
 var $fileCutName = function (fileName, clearExt) {
   fileName = fileName.split('?')[0]
   fileName = fileName.split('/')
@@ -711,9 +768,7 @@ var $fileCutName = function (fileName, clearExt) {
   return fileName
 }
 
-/**
- * 获取附件文件扩展名
- */
+// 获取附件文件扩展名
 var $fileExtName = function (fileName) {
   fileName = (fileName || '').toLowerCase()
   fileName = fileName.split('?')[0]
@@ -721,31 +776,29 @@ var $fileExtName = function (fileName) {
   return fileName.length < 2 ? '?' : fileName[fileName.length - 1]
 }
 
-/**
- * 创建 Upload 组件（自动判断使用七牛或本地）
- */
+// Uploader 组件（自动判断使用七牛或本地）
 var $createUploader = function (input, next, complete, error) {
-  var $input = $(input).off('change')
-  var imageType = $input.attr('accept') === 'image/*' // 仅图片
-  var upLocal = $input.data('local') // 上传本地
-  var noname = $input.data('noname') || false // 不保持名称
-  var updir = $encode($input.data('updir')) // 指定目录
-  if (!$input.attr('data-maxsize')) $input.attr('data-maxsize', 1048576 * (rb._uploadMaxSize || 200)) // default 200MB
+  var $file = $(input).off('change')
+  var onlyImage = $file.attr('accept') === 'image/*' // 仅图片
+  var up2Local = $file.data('local') // 强制上传本地
+  var noname = $file.data('noname') || false // 使用随机文件名
+  var updir = $encode($file.data('updir')) // 指定目录
+  if (!$file.attr('data-maxsize')) $file.attr('data-maxsize', 1048576 * (rb._uploadMaxSize || 200)) // default 200MB
 
   var useToken = rb.csrfToken ? '&_csrfToken=' + rb.csrfToken : ''
-  var putExtra = imageType ? { mimeType: ['image/*'] } : null
+  var putExtra = onlyImage ? { mimeType: ['image/*'] } : null
 
+  // https://developer.qiniu.com/kodo/1283/javascript
   function _qiniuUpload(file) {
-    var over200M = file.size / 1048576 >= 200
-    $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + '&noname=' + noname + '&updir' + updir + useToken, function (res) {
-      var o = qiniu.upload(file, res.data.key, res.data.token, putExtra, { forceDirect: !over200M })
+    $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + '&noname=' + noname + '&updir=' + updir + useToken, function (res) {
+      var o = qiniu.upload(file, res.data.key, res.data.token, putExtra, { forceDirect: true, useCdnDomain: true })
       o.subscribe({
         next: function (res) {
           typeof next === 'function' && next({ percent: res.total.percent, file: file })
         },
         error: function (err) {
           var msg = (err.message || err.error || 'UnknowError').toUpperCase()
-          if (imageType && msg.contains('FILE TYPE')) {
+          if (onlyImage && msg.contains('FILE TYPE')) {
             RbHighbar.create($L('请上传图片'))
           } else if (msg.contains('EXCEED FSIZELIMIT')) {
             RbHighbar.create($L('超出文件大小限制'))
@@ -757,7 +810,7 @@ var $createUploader = function (input, next, complete, error) {
           return false
         },
         complete: function (res) {
-          if (file.size > 0 && upLocal !== 'temp') {
+          if (file.size > 0 && up2Local !== 'temp') {
             $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(res.key) + useToken)
           }
           typeof complete === 'function' && complete({ key: res.key, file: file })
@@ -774,33 +827,33 @@ var $createUploader = function (input, next, complete, error) {
       RbHighbar.error($L('上传失败，请稍后重试'))
     }
     typeof error === 'function' && error({ error: err, file: file })
-    $input.val(null) // reset
+    $file.val(null) // reset
   }
 
   // Qiniu-Cloud
-  if (window.qiniu && rb.storageUrl && !upLocal) {
-    var acceptType = $input.attr('accept')
-    $input.on('change', function () {
+  if (window.qiniu && rb.storageUrl && !up2Local) {
+    var acceptType = $file.attr('accept')
+    $file.on('change', function () {
       for (var i = 0; i < this.files.length; i++) {
         // @see jquery.html5uploader.js
         // eslint-disable-next-line no-undef
         if (html5Uploader_checkAccept(this.files[i], acceptType)) {
           _qiniuUpload(this.files[i])
         } else {
-          RbHighbar.create(imageType ? $L('请上传图片') : $L('上传文件类型错误'))
+          RbHighbar.create(onlyImage ? $L('请上传图片') : $L('上传文件类型错误'))
         }
       }
     })
   }
   // Local-Disk
   else {
-    var idname = $input.attr('id') || $input.attr('name') || $random('H5UP-')
-    $input.html5Uploader({
+    var idname = $file.attr('id') || $file.attr('name') || $random('H5UP-')
+    $file.html5Uploader({
       name: idname,
-      postUrl: rb.baseUrl + '/filex/upload?iw=' + $encode(window.__LAB_IWTEXT42) + '&temp=' + (upLocal === 'temp') + '&noname=' + noname + '&updir=' + updir + useToken,
+      postUrl: rb.baseUrl + '/filex/upload?iw=' + $encode(window.__LAB_IWTEXT42) + '&temp=' + (up2Local === 'temp') + '&noname=' + noname + '&updir=' + updir + useToken,
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
-          RbHighbar.create(imageType ? $L('请上传图片') : $L('上传文件类型错误'))
+          RbHighbar.create(onlyImage ? $L('请上传图片') : $L('上传文件类型错误'))
           return false
         } else if (err === 'ErrorMaxSize') {
           RbHighbar.create($L('超出文件大小限制'))
@@ -813,7 +866,7 @@ var $createUploader = function (input, next, complete, error) {
       onSuccess: function (e, file) {
         e = $.parseJSON(e.currentTarget.response)
         if (e.error_code === 0) {
-          if (file.size > 0 && upLocal !== 'temp') {
+          if (file.size > 0 && up2Local !== 'temp') {
             $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data) + useToken)
           }
           complete({ key: e.data, file: file })
@@ -822,7 +875,7 @@ var $createUploader = function (input, next, complete, error) {
           typeof error === 'function' && error({ error: e.error_msg, file: file })
         }
 
-        $input.val(null) // reset
+        $file.val(null) // reset
       },
       onClientError: _onH5UploadError,
       onClientAbort: _onH5UploadError,
@@ -858,7 +911,7 @@ var $multipleUploader = function (input, complete) {
       mp_end(res.file.name)
       complete(res)
     },
-    () => mp_end(0)
+    () => mp_end(0),
   )
 }
 
@@ -901,9 +954,7 @@ var $dropUpload = function (dropArea, pasteAreaOrCb, cb) {
   }
 }
 
-/**
- * 卸载 React 组件（顶级组件才能卸载）
- */
+// 卸载 React 组件（顶级组件才能卸载）
 var $unmount = function (container, delay, keepContainer, root18) {
   if (!container) return
   var $c = $(container)
@@ -915,9 +966,7 @@ var $unmount = function (container, delay, keepContainer, root18) {
   }, delay || 1000)
 }
 
-/**
- * 初始化引用字段（搜索）
- */
+// 初始化引用字段（搜索）
 var $initReferenceSelect2 = function (el, option) {
   var search_input = null
   var select2Option = {
@@ -1007,9 +1056,7 @@ var $select2MatcherAll = function (params, data) {
   return null
 }
 
-/**
- * 保持模态窗口（如果需要）
- */
+// 保持模态窗口（如果需要）
 var $keepModalOpen = function () {
   if ($('.rbmodal.show, .rbview.show').length > 0) {
     var $body = $(document.body)
@@ -1019,9 +1066,7 @@ var $keepModalOpen = function () {
   return false
 }
 
-/**
- * 禁用按钮 N 秒（用在一些危险操作上）
- */
+// 禁用按钮 N 秒（用在一些危险操作上）
 var $countdownButton = function (btn, seconds) {
   seconds = seconds || 5
   var text = btn.attr('disabled', true).text()
@@ -1036,9 +1081,7 @@ var $countdownButton = function (btn, seconds) {
   }, 1000)
 }
 
-/**
- * 加载状态条（单线程）
- */
+// 加载状态条（单线程）
 var $mp = {
   _timer: null,
   _mp: null,
@@ -1143,9 +1186,7 @@ var RBEMOJIS = {
   '干杯': 'rb_ganbei.png',
   '钱': 'rb_qian.png',
 }
-/**
- * 转换文字 emoji 为 img 标签
- */
+// 转换文字 emoji 为 img 标签
 var $converEmoji = function (text) {
   var es = text.match(/\[(.+?)\]/g)
   if (!es) return text
@@ -1159,9 +1200,7 @@ var $converEmoji = function (text) {
   return text
 }
 
-/**
- * Use momentjs
- */
+// Use momentjs
 var $moment = function (d) {
   if (!d || !window.moment) return null
 
@@ -1177,32 +1216,27 @@ var $moment = function (d) {
   }
   return moment(d)
 }
-/**
- * 是否过期
- */
+
+// 是否过期
 var $expired = function (date, offset) {
   var m = $moment(date)
   if (offset) m.add(offset, 's')
   return m.isBefore(moment())
 }
-/**
- * 友好时间显示
- */
+
+// 友好时间显示
 var $fromNow = function (date) {
   var m = $moment(date)
   return Math.abs(moment().diff(m)) < 6000 ? $L('刚刚') : m.fromNow()
 }
-/**
- * 友好时间显示
- */
+
+// 友好时间显示
 var $toNow = function (date) {
   var m = $moment(date)
   return Math.abs(moment().diff(m)) < 6000 ? $L('刚刚') : m.toNow()
 }
 
-/**
- * 获取语言（PH_KEY）
- */
+//  获取语言（PH_KEY）
 var $L = function () {
   var args = arguments
   var lang = _getLang(args[0])
@@ -1220,10 +1254,8 @@ var _getLang = function (key) {
   return lang
 }
 
-/**
- * 加载地图脚本
- * https://lbsyun.baidu.com/index.php?title=jspopularGL/guide/helloworld
- */
+// 加载地图脚本
+// https://lbsyun.baidu.com/index.php?title=jspopularGL/guide/helloworld
 var $useMap__Loaded
 var $useMap__Callbacks = []
 var $useMap = function (cb, v3) {
@@ -1254,7 +1286,12 @@ var $useMap = function (cb, v3) {
       $useMap__Loaded = 2
     }
 
+    // JSAPI WebGL v1.0
     var apiUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'Z8YJOqCIysCGK0MsNJChsxPCWeWbqYXS') + '&callback=$useMap__callback'
+    if (window._BMapSecurityConfig && window._BMapSecurityConfig.serviceHost) {
+      apiUrl = window._BMapSecurityConfig.serviceHost + 'api?v=1.0&type=webgl&callback=$useMap__callback'
+    }
+    // JSAPI v3.0
     if (v3) apiUrl = apiUrl.replace('v=1.0&type=webgl&', 'v=3.0&')
     $getScript(apiUrl)
   }
@@ -1283,36 +1320,10 @@ var $autoLocation = function (callback) {
   })
 }
 
-// $.getScript use cache
-var $getScript = function (url, callback) {
-  $.ajax({
-    type: 'GET',
-    url: url,
-    success: callback,
-    dataType: 'script',
-    cache: true,
-    complete: function (xhr) {
-      if (!(xhr.status === 200 || xhr.status === 0)) {
-        console.error('Failed to load script:', url, xhr)
-      }
-    },
-  })
-}
-
-// 绝对 URL
-var $isFullUrl = function (url) {
-  return url && (url.startsWith('http://') || url.startsWith('https://'))
-}
-
 // Mask prefix `SYS `
 var $isSysMask = function (label) {
   return label && (label.startsWith('SYS ') || label.contains('.SYS ') || label.contains('#SYS')) && location.href.indexOf('/admin/') === -1
 }
-
-// 颜色
-var RBCOLORS = ['#4285f4', '#34a853', '#6a70b8', '#009c95', '#fbbc05', '#ea4335', '#7500ea', '#eb2f96']
-// 不支持排序的字段
-var UNSORT_FIELDTYPES = ['N2NREFERENCE', 'ANYREFERENCE', 'MULTISELECT', 'TAG', 'FILE', 'IMAGE', 'AVATAR', 'SIGN']
 
 // 分页计算
 var $pages = function (tp, cp) {
@@ -1417,64 +1428,6 @@ var $clipboard2 = function (text, tips) {
   }
 }
 
-// 格式化秒显示
-function $sec2Time(s) {
-  if (!s || ~~s <= 0) return '00:00'
-
-  var days
-  var hh = Math.floor(s / 3600)
-  var mm = Math.floor(s / 60) % 60
-  var ss = ~~(s % 60)
-  if (~~hh >= 24) {
-    days = ~~(hh / 24)
-    hh = hh % 24
-  }
-  if (hh < 10) hh = '0' + hh
-  if (mm < 10) mm = '0' + mm
-  if (ss < 10) ss = '0' + ss
-
-  var time = [hh, mm, ss].join(':')
-  if (days) return $L('%d天', days) + ' ' + time
-  else if (hh === '00') return time.substr(3)
-  return time
-}
-
-// 移除 HTML
-function $removeHtml(content) {
-  return $('<span></span>').html(content).text()
-}
-
-// 打开新窗口下载 `window.open`
-function $openWindow(url) {
-  var handle = window.open(url)
-  if (!handle) {
-    // 不允许/被阻止
-    RbAlert.create(null, {
-      onRendered: function () {
-        $(this._element)
-          .find('.modal-dialog')
-          .css('max-width', 400)
-          .find('.text-center')
-          .html(
-            '<div class="mb-2"><h4 class="m-0 mb-2">' +
-              $L('文件已准备就绪') +
-              '</h4><a class="link" href="' +
-              url +
-              '" target="_blank"><i class="zmdi zmdi-download icon mr-1"></i>' +
-              $L('点击下载') +
-              '</a></div>'
-          )
-      },
-    })
-  }
-}
-
-// 字段颜色
-function $tagStyle2(color) {
-  if (!color) return null
-  return { backgroundColor: color, borderColor: color, color: $isLight(color) ? '#222' : '#fff' }
-}
-
 // select2
 function $select2OpenTemplateResult(res) {
   var $span = $('<span class="code-append"></span>').attr('title', res.text).text(res.text)
@@ -1487,18 +1440,6 @@ function $select2OpenTemplateResult(res) {
       })
   }
   return $span
-}
-
-// 环境 @see LoginChannel.java
-var $env = {
-  // 钉钉
-  isDingTalk: function () {
-    return navigator.userAgent.match(/(DINGTALK)/i)
-  },
-  // 企微
-  isWxWork: function () {
-    return navigator.userAgent.match(/(WXWORK)/i)
-  },
 }
 
 // 菜单加搜索
@@ -1524,7 +1465,7 @@ function $dropdownMenuSearch($dd) {
           })
         },
         200,
-        '$dropdownMenuSearch'
+        '$dropdownMenuSearch',
       )
     })
   // foucs
@@ -1537,16 +1478,6 @@ function $dropdownMenuSearch($dd) {
 
 function $logRBAPI(id, type) {
   id && rb.isAdminUser && console.log('RBAPI ASSISTANT *' + (type || 'N') + '* :\n%c' + id, 'color:#e83e8c;font-size:16px;font-weight:bold;font-style:italic;')
-}
-
-// 定位
-function $focus2End(el, delay) {
-  if (!el) return
-  setTimeout(function () {
-    el.focus()
-    var len = (el.value || '').length
-    el.setSelectionRange(len, len)
-  }, delay || 100)
 }
 
 // 获取实体元数据
@@ -1571,3 +1502,8 @@ function $syncGet(url) {
   })
   return _data || {}
 }
+
+// 颜色
+var RBCOLORS = ['#4285f4', '#34a853', '#6a70b8', '#009c95', '#ff6b35', '#ea4335', '#7500ea', '#eb2f96']
+// 不支持排序的字段
+var UNSORT_FIELDTYPES = ['N2NREFERENCE', 'ANYREFERENCE', 'MULTISELECT', 'TAG', 'FILE', 'IMAGE', 'AVATAR', 'SIGN']

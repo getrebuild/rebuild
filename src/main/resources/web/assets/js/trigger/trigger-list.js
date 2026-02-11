@@ -203,10 +203,10 @@ class TriggerEdit extends ConfigFormDlg {
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._$actionType = c)}>
                   {(this.state.actions || []).map((item) => {
+                    if (item[0] === 'GROUPAGGREGATION') return null // v4.3 废弃
                     return (
                       <option key={item[0]} value={item[0]}>
                         {item[1]}
-                        {item[0] === 'GROUPAGGREGATION' && ' (废弃)'}
                       </option>
                     )
                   })}

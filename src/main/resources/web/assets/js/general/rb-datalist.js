@@ -19,7 +19,7 @@ const RbListPage = {
    * @param {JSON} ep Privileges of the entity
    */
   init: function (config, entity, ep) {
-    renderRbcomp(<RbList config={config} uncheckbox={config.uncheckbox} />, 'react-list', function () {
+    renderRbcomp(<RbList config={config} hideCheckbox={config.hideCheckbox} />, 'react-list', function () {
       RbListPage._RbList = this
 
       if (window.FrontJS) {

@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  * @author devezhao
  * @since 2021/12/30
  */
-public class EasySign extends EasyField implements PatternValue {
+public class EasySign extends EasyField implements PatternValue, MediaValue {
     private static final long serialVersionUID = -1748773030681695060L;
 
     protected EasySign(Field field, DisplayType displayType) {

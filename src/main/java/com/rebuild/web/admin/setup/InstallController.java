@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.admin.setup;
 
 import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
@@ -19,6 +18,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
@@ -136,7 +136,7 @@ public class InstallController extends BaseController implements InstallState {
             return RespBody.ok(Language.L("连接成功 : %s", info));
 
         } catch (Exception ex) {
-            return RespBody.errorl("连接错误 : %s", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+            return RespBody.errorl("连接错误 : %s", CommonsUtils.getRootMessage(ex));
         } finally {
             IOUtils.closeQuietly(pool);
         }
@@ -152,7 +152,7 @@ public class InstallController extends BaseController implements InstallState {
             return RespBody.ok();
         } catch (Exception ex) {
             log.error("An error occurred during install", ex);
-            return RespBody.errorl("安装失败 : %s", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+            return RespBody.errorl("安装失败 : %s", CommonsUtils.getRootMessage(ex));
         }
     }
 

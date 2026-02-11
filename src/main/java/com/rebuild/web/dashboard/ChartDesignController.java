@@ -32,7 +32,9 @@ import com.rebuild.core.service.dashboard.charts.ChartsFactory;
 import com.rebuild.core.service.dashboard.charts.builtin.DataList;
 import com.rebuild.core.service.dashboard.charts.builtin.EmbedFrame;
 import com.rebuild.core.service.dashboard.charts.builtin.HeadingText;
+import com.rebuild.core.service.dashboard.charts.builtin.MyBookmark;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
@@ -210,25 +212,43 @@ public class ChartDesignController extends EntityController {
     @RequestMapping("builtin-chart-save")
     public RespBody builtinChartSave(@IdParam(required = false) ID chartId, HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        final JSONObject config = (JSONObject) ServletUtils.getRequestJson(request);
+        final JSON config = ServletUtils.getRequestJson(request);
 
         Record record;
         if (chartId != null) {
             record = EntityHelper.forUpdate(chartId, user);
+
+            // 特殊处理
+            if (MyBookmark.MYID.equals(chartId)) {
+                String ckey = "MyBookmark:" + user;
+                String s = RebuildConfiguration.getCustomValue(ckey);
+                JSONArray sArray;
+                if (getBoolParameter(request, "append")) {
+                    sArray = s == null ? new JSONArray() : JSON.parseArray(s);
+                    sArray.add(config);
+                } else {
+                    sArray = (JSONArray) config;
+                }
+
+                RebuildConfiguration.setCustomValue(ckey, sArray.toJSONString());
+                return RespBody.ok();
+            }
+
         } else {
             ID sourceChart = getIdParameter(request, "source");
             Assert.isTrue(DataList.MYID.equals(sourceChart)
                             || HeadingText.MYID.equals(sourceChart)
-                            || EmbedFrame.MYID.equals(sourceChart),
+                            || EmbedFrame.MYID.equals(sourceChart)
+                            || MyBookmark.MYID.equals(sourceChart),
                     "Not allowed : " + sourceChart);
 
             record = EntityHelper.forNew(EntityHelper.ChartConfig, user);
-            record.setString("chartType", config.getString("type"));
+            record.setString("chartType", ((JSONObject) config).getString("type"));
         }
 
         record.setString("config", config.toJSONString());
-        record.setString("title", config.getString("title"));
-        record.setString("belongEntity", config.getString("entity"));
+        record.setString("title", ((JSONObject) config).getString("title"));
+        record.setString("belongEntity", ((JSONObject) config).getString("entity"));
         record = Application.getBean(ChartConfigService.class).createOrUpdate(record);
 
         return RespBody.ok(record.getPrimary());

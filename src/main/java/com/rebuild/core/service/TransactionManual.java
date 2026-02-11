@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service;
 
 import com.rebuild.core.Application;
+import com.rebuild.core.support.task.TaskExecutors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -124,5 +125,30 @@ public class TransactionManual {
         // 非事物中
         log.debug("Transaction synchronization is not active, start directly : {}", c);
         new Thread(c).start();
+    }
+
+    /**
+     * 当前事务完成后回调。支持延迟/覆盖
+     *
+     * @param c
+     * @param delayInMs
+     * @param keyCancel
+     * @see #registerAfterCommit(Runnable)
+     * @see com.rebuild.core.support.task.TaskExecutors#schedule(Runnable, int, String)
+     */
+    public static void registerAfterCommit(Runnable c, int delayInMs, String keyCancel) {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    TaskExecutors.schedule(c, delayInMs, keyCancel);
+                }
+            });
+            return;
+        }
+
+        // 非事物中
+        log.debug("Transaction synchronization is not active, start directly : {}", c);
+        TaskExecutors.schedule(c, delayInMs, keyCancel);
     }
 }

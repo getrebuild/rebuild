@@ -15,7 +15,6 @@ import com.googlecode.aviator.runtime.type.AviatorJavaType;
 import com.googlecode.aviator.runtime.type.AviatorNil;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 import com.googlecode.aviator.runtime.type.AviatorString;
-import com.googlecode.aviator.runtime.type.Sequence;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.MultiValue;
@@ -25,7 +24,6 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +79,7 @@ public class TextFunction extends AbstractFunction {
         // 多引用 ID[]
 
         Object idArray = $id;
-        if (idArray instanceof Collection || idArray instanceof Sequence) {
+        if (idArray instanceof Iterable) {
             Iterator<?> iter = AviatorUtils.toIterator(idArray);
             List<ID> list = new ArrayList<>();
             while (iter.hasNext()) {

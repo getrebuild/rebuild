@@ -219,9 +219,11 @@ public class CombinedRole extends Role {
         Map<String, Object> aFpDefinition = ((CustomEntityPrivileges) a).getFpDefinition();
         Map<String, Object> bHigherFpDefinition = ((CustomEntityPrivileges) bHigher).getFpDefinition();
         // be:4.1.5 无法比较字段权限高低，因此随便选一个非空的更合理
+        // be:4.3 主角色优先
         Map<String, Object> useFpDefinition = null;
         if (MapUtils.isEmpty(aFpDefinition)) useFpDefinition = bHigherFpDefinition;
         else if (MapUtils.isEmpty(bHigherFpDefinition)) useFpDefinition = aFpDefinition;
+        else if (MapUtils.isNotEmpty(bHigherFpDefinition)) useFpDefinition = bHigherFpDefinition;
 
         String definition = StringUtils.join(mergedDefs.iterator(), ",");
         return new CustomEntityPrivileges(((EntityPrivileges) a).getEntity(), definition, useCustomFilters, useFpDefinition);

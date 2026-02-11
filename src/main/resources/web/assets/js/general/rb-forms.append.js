@@ -280,8 +280,8 @@ class DeleteConfirm extends RbAlert {
     if (typeof ids === 'object') ids = ids.join(',')
     const cascades = this.__select2 ? this.__select2.val().join(',') : ''
 
-    let _timer1 = setTimeout(() => $(this._$dbtn).text($L('请稍后')), 6000)
-    let _timer2 = setTimeout(() => $(this._$dbtn).text($L('仍在处理')), 15000)
+    let _timer1 = setTimeout(() => $(this._$dbtn).text($L('请稍后')), 15000)
+    let _timer2 = setTimeout(() => $(this._$dbtn).text($L('仍在处理')), 30000)
 
     this.disabled(true, true)
     $.post(`/app/entity/record-delete?id=${ids}&cascades=${cascades}`, (res) => {
@@ -410,7 +410,7 @@ class BaiduMap extends React.Component {
     map.addOverlay(
       new _BMapGL.Marker(point, {
         title: lnglat.text || lnglat.address || '',
-      })
+      }),
     )
   }
 
@@ -780,6 +780,12 @@ class LiteFormModal extends RbModalHandler {
 
     return (
       <RbModal title={title} ref={(c) => (this._dlg = c)} disposeOnHide>
+        {this.props.topAlert && (
+          <div className="m-1">
+            <RbAlertBox message={WrapHtml(this.props.topAlert.replaceAll('\n', '<br/>'))} className="mt-0 mb-1" />
+          </div>
+        )}
+
         <div className="liteform-wrap">
           <LiteForm entity={entity.entity} id={props.id} rawModel={{}} $$$parent={fake} ref={(c) => (this._LiteForm = c)}>
             {props.elements.map((item) => {
@@ -876,9 +882,9 @@ class LiteFormModal extends RbModalHandler {
    * @param {*} fields
    * @param {*} title
    * @param {*} onHandleSave
-   * @param {*} _eeid
+   * @param {*} option
    */
-  static create(entityOrId, fields, title, onHandleSave, _eeid) {
+  static create(entityOrId, fields, title, onHandleSave, option = { eeid: null, topAlert: null }) {
     // 无实体表单模式
     if (entityOrId === false) {
       const fakeModel = {
@@ -908,24 +914,23 @@ class LiteFormModal extends RbModalHandler {
               // 默认关闭
               if (s !== false) formObj.hide()
             } else {
-              console.log(data)
               formObj.hide()
             }
             return false
           }}
           confirmText={$L('确定')}
           {...fakeModel}
-          eeid={_eeid || null}
-        />
+          {...option}
+        />,
       )
       return
     }
 
-    // v4.1 这里支持修改引用字段（仅单个字段时）
+    // v4.1 这里支持修改引用字段的字段（仅单个字段时）
     if (Array.isArray(fields) && fields.length === 1 && typeof fields[0] === 'string' && fields[0].includes('.')) {
       $.get(`/commons/frontjs/reffield-editable?id=${entityOrId}&reffield=${fields[0]}`, (res) => {
         if (res.error_code === 0) {
-          LiteFormModal.create(res.data.id, [res.data.field], title, onHandleSave, _eeid)
+          LiteFormModal.create(res.data.id, [res.data.field], title, onHandleSave, { ...option })
         } else {
           RbHighbar.create(res.error_msg)
         }
@@ -941,7 +946,7 @@ class LiteFormModal extends RbModalHandler {
 
     $.post('/app/entity/liteform/form-model', JSON.stringify(post), (res) => {
       if (res.error_code === 0) {
-        renderRbcomp(<LiteFormModal title={title} onHandleSave={onHandleSave} {...res.data} ids={isMultiId ? entityOrId : null} eeid={_eeid} />)
+        renderRbcomp(<LiteFormModal title={title} onHandleSave={onHandleSave} {...res.data} ids={isMultiId ? entityOrId : null} {...option} />)
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -1135,7 +1140,7 @@ class ExcelClipboardData extends React.Component {
         <div className="head-action">
           <span className="float-left">
             <h5 className="text-bold fs-14 m-0" style={{ paddingTop: 11 }}>
-              {$L('请选择列字段')}
+              {$L('请确认列字段')}
             </h5>
           </span>
           <span className="float-right">
@@ -1154,6 +1159,9 @@ class ExcelClipboardData extends React.Component {
     const that = this
     function _FN() {
       $(document).on('paste.csv-data', (e) => {
+        // 输入框粘贴
+        if (e.target && (e.target.tagName === 'SPAN' || e.target.tagName === 'INPUT')) return true
+
         let data
         try {
           // https://docs.sheetjs.com/docs/demos/local/clipboard/
@@ -1200,12 +1208,19 @@ class ExcelClipboardData extends React.Component {
         $th
           .find('select')
           .select2({
-            placeholder: $L('无'),
+            placeholder: $L('忽略'),
           })
           .val(fields[i] ? fields[i].field : null)
           .trigger('change')
       }
     }
+
+    $table.find('tbody tr').each(function () {
+      const $tr = $(this)
+      $(`<a class="btn btn-light w-auto" title="${$L('移除')}"><i class="icon zmdi zmdi-close"></i></a>`)
+        .insertAfter($tr)
+        .on('click', () => $tr.remove())
+    })
   }
 
   _handleConfirm() {

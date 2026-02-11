@@ -269,18 +269,44 @@ class RelatedList extends React.Component {
 
   render() {
     const optionName = $random('vm-')
-    const isListView = this.props.showViewMode && this.state.viewMode === 'LIST'
+    const isListMode = this.props.showViewMode && this.state.viewMode === 'LIST'
     const entityName = this.props.entity.split('.')[0] // ENTITY.PKNAME
+    let showAdvFilter43 = this instanceof EntityRelatedList && (window.__LAB_RELATEDADVFILTER43 || true)
+    showAdvFilter43 = false
 
     return (
-      <div className={`related-list ${this.state.dataList || isListView ? '' : 'rb-loading rb-loading-active'}`} data-entity={entityName}>
-        {!(this.state.dataList || isListView) && <RbSpinner />}
+      <div className={`related-list ${this.state.dataList || isListMode ? '' : 'rb-loading rb-loading-active'}`} data-entity={entityName}>
+        {!(this.state.dataList || isListMode) && <RbSpinner />}
 
         <div className="related-toolbar">
           <div className="row">
-            <div className="col-5">
+            <div className="col-6 pr-0">
+              {showAdvFilter43 && (
+                <RF>
+                  <div className="adv-search float-left" ref={(c) => (this._$advfilter = c)}>
+                    <div className="btn-group btn-space">
+                      <button title={$L('常用查询')} className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                        <span className="text-truncate J_name">{$L('全部数据')}</span>
+                        <i className="icon zmdi zmdi-caret-down"></i>
+                      </button>
+                      <div className="dropdown-menu rb-scroller nott">
+                        <div className="dropdown-item" data-id="$ALL$">
+                          <a>{$L('全部数据')}</a>
+                        </div>
+                      </div>
+                      <div className="input-group-append">
+                        <button title={$L('高级查询')} className="btn btn-secondary w-auto J_filterbtn" type="button">
+                          <i className="icon mdi mdi-filter" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <span className={`dropdown-menu-advfilter__${entityName}`}></span>
+                </RF>
+              )}
+
               <div className="input-group input-search float-left">
-                <input className="form-control" type="text" placeholder={$L('快速查询')} maxLength="40" ref={(c) => (this._$quickSearch = c)} onKeyDown={(e) => e.keyCode === 13 && this.search()} />
+                <input className="form-control" type="text" placeholder={$L('快速查询')} ref={(c) => (this._$quickSearch = c)} onKeyDown={(e) => e.keyCode === 13 && this.search()} />
                 <span className="input-group-btn">
                   <button className="btn btn-secondary" type="button" onClick={() => this.search()}>
                     <i className="icon zmdi zmdi-search" />
@@ -289,10 +315,10 @@ class RelatedList extends React.Component {
               </div>
               {this.__listExtraLink}
             </div>
-            <div className="col-7 text-right">
+            <div className="col-6 text-right">
               <div className="fjs-dock"></div>
               <div className="btn-group w-auto">
-                <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown" disabled={isListView}>
+                <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown" disabled={isListMode}>
                   {this.state.sortDisplayText || $L('默认排序')} <i className="icon zmdi zmdi-chevron-down up-1" />
                 </button>
                 {this.renderSorts()}
@@ -365,6 +391,12 @@ class RelatedList extends React.Component {
 
   componentDidMount() {
     this.fetchData()
+
+    // v4.3 还不能用!!
+    if (this._$advfilter) {
+      // eslint-disable-next-line no-undef
+      AdvFilters.init(this._$advfilter, this.__entity)
+    }
   }
 
   fetchData(append) {
@@ -421,7 +453,7 @@ class EntityRelatedList extends RelatedList {
 
     const openListUrl = `${rb.baseUrl}/app/${this.__entity}/list?via=${this.props.mainid}:${this.props.entity}`
     this.__listExtraLink = (
-      <a className="btn btn-light w-auto" href={openListUrl} target="_blank" title={$L('在新页面打开')}>
+      <a className="btn btn-light w-auto ml-1" href={openListUrl} target="_blank" title={$L('在新页面打开')}>
         <i className="icon zmdi zmdi-open-in-new" />
       </a>
     )
@@ -469,16 +501,16 @@ class EntityRelatedList extends RelatedList {
   renderData() {
     if (this.state.viewMode === 'LIST') {
       // if (!this.state.dataList) this.setState({ dataList: [] }) // Hide loading
-      return <EntityRelatedList2 $$$parent={this} ref={(c) => (this._EntityRelatedList2 = c)} />
+      return <EntityRelatedList4ListMode $$$parent={this} ref={(c) => (this._EntityRelatedList4ListMode = c)} />
     } else {
       return super.renderData()
     }
   }
 
   search(e) {
-    if (this._EntityRelatedList2) {
+    if (this._EntityRelatedList4ListMode) {
       this.__searchKey = $(this._$quickSearch).val() || ''
-      this._EntityRelatedList2.search(this.__searchKey)
+      this._EntityRelatedList4ListMode.search(this.__searchKey)
     } else {
       super.search(e)
     }
@@ -493,7 +525,7 @@ class EntityRelatedList extends RelatedList {
 
     const pageSize = 20
     const url = `/app/entity/related-list?mainid=${this.props.mainid}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&q=${$encode(
-      this.__searchKey
+      this.__searchKey,
     )}`
 
     $.get(url, (res) => {
@@ -564,7 +596,7 @@ class EntityRelatedList extends RelatedList {
 }
 
 // 列表模式
-class EntityRelatedList2 extends React.Component {
+class EntityRelatedList4ListMode extends React.Component {
   constructor(props) {
     super(props)
     this.state = {}
@@ -578,7 +610,7 @@ class EntityRelatedList2 extends React.Component {
       <div className="card-table">
         <div className="dataTables_wrapper container-fluid">
           <div className="rb-loading rb-loading-active data-list" ref={(c) => (this._$wrapper2 = c)}>
-            {this.state.listConfig && <RbList config={this.state.listConfig} protocolFilter={related} $wrapper={this._$wrapper2} unpin ref={(c) => (this._RbList = c)} />}
+            {this.state.listConfig && <RbList config={this.state.listConfig} protocolFilter={related} $wrapper={this._$wrapper2} unpin ref={(c) => (this._RbList = c)} hideCheckbox showLineNo />}
           </div>
         </div>
       </div>
@@ -682,7 +714,7 @@ const RbViewPage = {
               that.hide(true)
             }
           }}
-        />
+        />,
       )
     })
 
@@ -783,7 +815,7 @@ const RbViewPage = {
                     $('.J_share').trigger('click')
                   }}
                 />,
-                $op
+                $op,
               )
             } else {
               renderRbcomp(<UserShow name={$L('管理共享用户')} icon="zmdi zmdi-more" onClick={() => DlgShareManager.create(this.__id)} />, $op)
@@ -887,7 +919,7 @@ const RbViewPage = {
       }
 
       const $tabNav = $(
-        `<li class="nav-item ${$isTrue(wpc.viewTabsAutoHide) && 'hide'}"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`
+        `<li class="nav-item ${$isTrue(wpc.viewTabsAutoHide) && 'hide'}"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`,
       ).appendTo('.nav-tabs')
       const $tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
       $tabNav.find('a').on('click', function () {
@@ -952,7 +984,7 @@ const RbViewPage = {
                 RbHighbar.success($L('保存成功'))
                 setTimeout(() => that.reload(), 100)
               }}
-            />
+            />,
           )
         } else if (item.entity === 'ProjectTask.relatedRecord') {
           renderRbcomp(
@@ -962,7 +994,7 @@ const RbViewPage = {
                 RbHighbar.success($L('保存成功'))
                 setTimeout(() => that.reload(), 100)
               }}
-            />
+            />,
           )
         } else {
           const iv = {}
@@ -1032,7 +1064,7 @@ const RbViewPage = {
         $('.view-action.invisible2').removeClass('invisible2')
       },
       20,
-      '_cleanViewActionButton'
+      '_cleanViewActionButton',
     )
   },
 

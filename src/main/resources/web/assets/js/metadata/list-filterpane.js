@@ -62,7 +62,7 @@ $(document).ready(() => {
 
 const render_set = function (item) {
   const len = $('.set-items > span').length
-  if (len >= (window.__LAB_ADVFILTER_LIMIT || 9)) {
+  if (len >= 99) {
     RbHighbar.create($L('最多可添加 9 个'))
     return false
   }

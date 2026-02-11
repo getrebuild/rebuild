@@ -11,7 +11,6 @@ import cn.devezhao.bizz.BizzException;
 import cn.devezhao.bizz.privileges.DepthEntry;
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.Privileges;
-import cn.devezhao.bizz.privileges.PrivilegesException;
 import cn.devezhao.bizz.privileges.impl.BizzDepthEntry;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.member.Role;
@@ -241,11 +240,12 @@ public class PrivilegesManager {
             action = BizzPermission.SHARE;
         }
 
+        // 明细
         if (MetadataHelper.getEntity(entity).getMainEntity() != null) {
             // 明细实体不能使用此方法检查创建权限
             // 明细实体创建 = 主实体更新，因此应该检查主实体记录是否有更新权限
             if (action == BizzPermission.CREATE) {
-                log.warn("Unsupported checks detail-entity : {}", entity);
+                log.warn("Unsupported check detail-entity : {}", entity);
                 return false;  // be:4.1.5
             }
             // 明细无分配/共享

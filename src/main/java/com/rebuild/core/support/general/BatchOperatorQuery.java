@@ -9,17 +9,25 @@ package com.rebuild.core.support.general;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.MediaValue;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.SetUser;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -92,6 +100,18 @@ public class BatchOperatorQuery extends SetUser {
 
         if (clearFields) {
             queryData.put("fields", new String[]{getEntity().getPrimaryField().getName()});
+        } else {
+            // v4.3 空则全部
+            if (CollectionUtils.isEmpty(queryData.getJSONArray("fields"))) {
+                List<String> allFields = new ArrayList<>();
+                for (Field field : MetadataSorter.sortFields(getEntity())) {
+                    EasyField easyField = EasyMetaFactory.valueOf(field);
+                    if (!easyField.getDisplayType().isExportable() || easyField instanceof MediaValue) continue;
+
+                    allFields.add(field.getName());
+                }
+                queryData.put("fields", allFields.toArray(new String[0]));
+            }
         }
 
         queryData.put("reload", Boolean.FALSE);

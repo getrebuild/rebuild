@@ -193,10 +193,10 @@ public class ReferenceSearchController extends EntityController {
 
         List<Object> result = resultSearch(searchWhere, searchEntity, maxResults);
         // v35 本人/本部门
-        if ("self".equals(q)) {
+        if ("self".equals(q) || "当前用户".equals(q)) {
             if (sEntityCode == EntityHelper.User || sEntityCode == EntityHelper.Department) {
                 result.add(JSONUtils.toJSONObject(
-                        new String[]{"id", "text"}, new Object[]{_SELF, Language.L("本人/本部门")}));
+                        new String[]{"id", "text"}, new Object[]{_SELF, Language.L("当前用户/部门")}));
             }
         }
         // v4.2-b3 当前
@@ -307,7 +307,7 @@ public class ReferenceSearchController extends EntityController {
         Map<String, String> labels = new HashMap<>();
         for (String id : ids.split("[|,]")) {
             if (!ID.isId(id)) {
-                if (_SELF.equals(id)) labels.put(_SELF, Language.L("本人/本部门"));
+                if (_SELF.equals(id)) labels.put(_SELF, Language.L("当前用户/部门"));
                 if (CURRENT.equals(id)) labels.put(CURRENT, CURRENT);
                 continue;
             }

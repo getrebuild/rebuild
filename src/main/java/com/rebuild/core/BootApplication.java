@@ -110,6 +110,8 @@ public class BootApplication extends SpringBootServletInitializer {
         log.info("REBUILD starting ...");
         BOOTING_TIME415 = System.currentTimeMillis();
         if (devMode()) System.setProperty("spring.profiles.active", "dev");
+        // v4.3
+        System.setProperty("java.io.tmpdir", RebuildConfiguration.getFileOfTemp("/").getAbsolutePath());
 
         // kill -15 `cat ~/.rebuild/rebuild.pid`
         File pidFile = RebuildConfiguration.getFileOfData("rebuild.pid");

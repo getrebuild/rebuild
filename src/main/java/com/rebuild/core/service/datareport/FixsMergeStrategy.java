@@ -9,7 +9,6 @@ package com.rebuild.core.service.datareport;
 
 import com.alibaba.excel.metadata.Head;
 import com.alibaba.excel.write.merge.AbstractMergeStrategy;
-import com.esotericsoftware.minlog.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -19,7 +18,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import java.util.List;
 
 /**
- * THANKS https://blog.csdn.net/weixin_44682948/article/details/112897500
+ * 修订单元格合并
  *
  * @author devezhao
  * @since 2021/4/3
@@ -29,41 +28,12 @@ public class FixsMergeStrategy extends AbstractMergeStrategy {
 
     @Override
     protected void merge(Sheet sheet, Cell cell, Head head, Integer relativeRowIndex) {
-        if (relativeRowIndex == null || relativeRowIndex == 0) {
-            return;
-        }
-
-//        int rowIndex = cell.getRowIndex();
-//        int colIndex = cell.getColumnIndex();
-//        sheet = cell.getSheet();
-//        Row prevRow = sheet.getRow(rowIndex - 1);
-//        if (prevRow == null) return;
-//        Cell prevCell = prevRow.getCell(colIndex);
-//        List<CellRangeAddress> craList = sheet.getMergedRegions();
-//        CellStyle cs = cell.getCellStyle();
-//        cell.setCellStyle(cs);
-//
-//        for (CellRangeAddress cellRangeAddress : craList) {
-//            if (cellRangeAddress.containsRow(prevCell.getRowIndex()) && cellRangeAddress.containsColumn(prevCell.getColumnIndex())) {
-//                int lastColIndex = cellRangeAddress.getLastColumn();
-//                int firstColIndex = cellRangeAddress.getFirstColumn();
-//                CellRangeAddress cra = new CellRangeAddress(cell.getRowIndex(), cell.getRowIndex(), firstColIndex, lastColIndex);
-//                sheet.addMergedRegion(cra);
-//
-//                // 复制线框样式
-//                RegionUtil.setBorderBottom(cs.getBorderBottom(), cra, sheet);
-//                RegionUtil.setBorderLeft(cs.getBorderLeft(), cra, sheet);
-//                RegionUtil.setBorderRight(cs.getBorderRight(), cra, sheet);
-//                RegionUtil.setBorderTop(cs.getBorderTop(), cra, sheet);
-//
-//                break;
-//            }
-//        }
+        if (relativeRowIndex == null || relativeRowIndex == 0) return;
 
         try {
             merge37(sheet, cell, head, relativeRowIndex);
         } catch (Exception ex) {
-            log.warn("Cannot merge cell", ex);
+            log.warn("Error on [merge37]", ex);
         }
     }
 

@@ -46,7 +46,7 @@ public class ErrorPageView extends BaseController {
     @GetMapping("/error/unsupported-browser")
     public ModelAndView pageUnsupportedBrowser() {
         return createErrorPage(
-                Language.L("不支持 IE10 及以下的浏览器 [] 推荐使用 Edge、Chrome、Firefox 或 IE11"));
+                Language.L("不支持 IE 浏览器 [] 推荐使用 Edge、Chrome 或 Firefox"));
     }
 
     @GetMapping("/error/error")
@@ -62,9 +62,19 @@ public class ErrorPageView extends BaseController {
      */
     public static ModelAndView createErrorPage(String msg) {
         ModelAndView mv = new ModelAndView("/error/error");
-        mv.getModelMap().put("error_code", 400);
+        mv.getModelMap().put("error_code", BaseController.CODE_ERROR);
         mv.getModelMap().put("error_msg", msg);
         return mv;
+    }
+
+    /**
+     * @param response
+     * @param msg
+     * @throws IOException
+     */
+    public static void redirectErrorPage(HttpServletResponse response, String msg) throws IOException {
+        String error = AppUtils.getContextPath("error/error?msg=" + CodecUtils.urlEncode(msg));
+        response.sendRedirect(error);
     }
 
     @GetMapping("/error/server-status")

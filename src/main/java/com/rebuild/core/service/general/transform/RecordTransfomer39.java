@@ -27,6 +27,8 @@ import com.rebuild.core.service.query.FilterRecordChecker;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.CommonsLog;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,25 +46,25 @@ import java.util.Set;
 @Slf4j
 public class RecordTransfomer39 extends RecordTransfomer37 {
 
-    private ID transid;
     // 转换到已存在记录
     private ID targetExistsRecordId;
+
     // 预览时生成的 Record
-    volatile private List<Record> previewRecords;
+    private List<Record> previewRecords;
 
     public RecordTransfomer39(ID transid) {
         super(transid);
-        this.transid = transid;
+        setCheckSame(true);
     }
 
     @Override
     public ID transform(ID sourceRecordId) {
-        return this.transform(sourceRecordId, null, null);
+        return transform(sourceRecordId, null, null);
     }
 
     @Override
     public ID transform(ID sourceRecordId, ID specMainId) {
-        return this.transform(sourceRecordId, specMainId, null);
+        return transform(sourceRecordId, specMainId, null);
     }
 
     /**
@@ -97,9 +99,10 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
         // 其下明细记录直接清空新建，因为没法一一对应去更新
         // 注意这会导致触发器触发动作不准
         JSONArray hasDetailsConf = transConfig.getJSONArray("fieldsMappingDetails");
-        if (hasDetailsConf != null && !hasDetailsConf.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(hasDetailsConf)) {
             List<ID> detailIds = QueryHelper.detailIdsNoFilter(targetExistsRecordId);
             if (!detailIds.isEmpty()) {
+                log.info("Clear details for transform : {} < {}", targetExistsRecordId, detailIds);
                 Application.getCommonsService().delete(detailIds.toArray(new ID[0]), false);
             }
         }
@@ -129,7 +132,7 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
 
         JSONObject fieldsMapping = transConfig.getJSONObject("fieldsMapping");
         JSONArray fieldsMappingDetails = transConfig.getJSONArray("fieldsMappingDetails");
-        if (fieldsMapping == null || fieldsMapping.isEmpty()) {
+        if (MapUtils.isEmpty(fieldsMapping)) {
             throw new ConfigurationException("INVALID TRANSFORM CONFIG");
         }
 
@@ -152,7 +155,7 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
             ((JSONObject) formModel).put("detailImports", buildDetailImports39(targetEntity));
         }
 
-        if (fieldsMappingDetails == null || fieldsMappingDetails.isEmpty()) return formModel;
+        if (CollectionUtils.isEmpty(fieldsMappingDetails)) return formModel;
 
         // 有明细
         ID fakeMainId = EntityHelper.newUnsavedId(sourceEntity.getEntityCode());
@@ -240,6 +243,23 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
      */
     public List<Record> getPreviewRecords() {
         return previewRecords;
+    }
+
+    /**
+     * 目标记录是否有明细（明细会被清空后重建）
+     *
+     * @param targetExistsRecordId
+     * @return
+     */
+    public int checkHasDetails(ID targetExistsRecordId) {
+        Entity e = MetadataHelper.getEntity(targetExistsRecordId.getEntityCode());
+        if (e.getDetailEntity() == null) return 0;
+
+        JSONArray hasDetailsConf = transConfig.getJSONArray("fieldsMappingDetails");
+        if (CollectionUtils.isEmpty(hasDetailsConf)) {
+            return QueryHelper.detailIdsNoFilter(targetExistsRecordId).size();
+        }
+        return 0;
     }
 
     // --

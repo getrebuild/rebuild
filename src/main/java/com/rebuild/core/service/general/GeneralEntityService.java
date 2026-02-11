@@ -28,7 +28,6 @@ import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
-import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.BaseService;
@@ -49,6 +48,7 @@ import com.rebuild.core.service.trigger.TriggerWhen;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
@@ -64,6 +64,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import static com.rebuild.core.privileges.UserService.SYSTEM_USER;
 import static com.rebuild.core.service.approval.ApprovalHelper.getSpecTriggers;
 
 /**
@@ -126,9 +127,19 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         try {
             if (hasDetails) {
                 RobotTriggerObserver.setLazyTriggers();
-                record = record.getPrimary() == null ? create(record) : update(record, true);
+
+                List<ID> details4Update = new ArrayList<>();
+                if (record.getPrimary() != null) {
+                    for (Record d : details) {
+                        if (d instanceof DeleteRecord) continue;
+                        if (d.getPrimary() == null) continue;
+                        details4Update.add(d.getPrimary());
+                    }
+                }
+
+                record = record.getPrimary() == null ? create(record) : update(record, details4Update);
             } else {
-                record = record.getPrimary() == null ? create(record) : update(record);
+                record = record.getPrimary() == null ? create(record) : update(record, null);
                 return record;
             }
 
@@ -223,37 +234,87 @@ public class GeneralEntityService extends ObservableService implements EntitySer
      */
     @Override
     public Record update(Record record) {
-        return update(record, false);
+        return update(record, null);
     }
 
     /**
      * @param record
-     * @param ignoreTriggers
+     * @param details4Update
      * @return
      */
-    private Record update(Record record, boolean ignoreTriggers) {
+    private Record update(Record record, List<ID> details4Update) {
         if (!checkModifications(record, BizzPermission.UPDATE)) {
             return record;
         }
 
         record = super.update(record);
-        if (ignoreTriggers) return record;
 
-        // ND 主记录修改时传导给明细（若有），以便触发聚合触发器
+        // 无明细无需后续处理
+        if (record.getEntity().getDetailEntity() == null) return record;
+
+        // 主记录修改时传导给明细，以便触发明细触发器
         // v3.7 只触发一个明细就够了
+        if (CollectionUtils.isEmpty(details4Update)) {
+//            for (Entity de : record.getEntity().getDetialEntities()) {
+//                TriggerAction[] deHasTriggersGG = getSpecTriggers(de, ActionType.GROUPAGGREGATION, TriggerWhen.UPDATE);
+//                TriggerAction[] deHasTriggersFG = getSpecTriggers(de, ActionType.FIELDAGGREGATION, TriggerWhen.UPDATE);
+//                if (deHasTriggersGG.length > 0 || deHasTriggersFG.length > 0) {
+//                    RobotTriggerManual triggerManual = new RobotTriggerManual();
+//                    ID opUser = UserService.SYSTEM_USER;
+//
+//                    for (ID did : QueryHelper.detailIdsNoFilter(record.getPrimary(), de)) {
+//                        Record dUpdate = EntityHelper.forUpdate(did, opUser, false);
+//                        triggerManual.onUpdate(
+//                                OperatingContext.create(opUser, BizzPermission.UPDATE, dUpdate, dUpdate));
+//                        break;
+//                    }
+//                }
+//            }
 
+            for (Entity de : record.getEntity().getDetialEntities()) {
+                TriggerAction[] deHasTriggersFG = getSpecTriggers(de, ActionType.FIELDAGGREGATION, TriggerWhen.UPDATE);
+                // 暂不全量启用
+                boolean execOnMainUpdate = false;
+                for (TriggerAction action : deHasTriggersFG) {
+                    if (action.isExecOnMainUpdate43()) {
+                        execOnMainUpdate = true;
+                        break;
+                    }
+                }
+
+                if (execOnMainUpdate) {
+                    // FIXME 是否执行指定的触发器???
+                    RobotTriggerManual TM43 = new RobotTriggerManual();
+                    for (ID did : QueryHelper.detailIdsNoFilter(record.getPrimary(), de)) {
+                        Record d = EntityHelper.forUpdate(did, SYSTEM_USER, false);
+                        TM43.onUpdate(OperatingContext.create(SYSTEM_USER, BizzPermission.UPDATE, d, d));
+                        break;
+                    }
+                }
+            }
+        }
+
+        // v4.3 触发 FIELDWRITEBACK
         for (Entity de : record.getEntity().getDetialEntities()) {
-            TriggerAction[] deHasTriggersGG = getSpecTriggers(de, ActionType.GROUPAGGREGATION, TriggerWhen.UPDATE);
-            TriggerAction[] deHasTriggersFG = getSpecTriggers(de, ActionType.FIELDAGGREGATION, TriggerWhen.UPDATE);
-            if (deHasTriggersGG.length > 0 || deHasTriggersFG.length > 0) {
-                RobotTriggerManual triggerManual = new RobotTriggerManual();
-                ID opUser = UserService.SYSTEM_USER;
-
-                for (ID did : QueryHelper.detailIdsNoFilter(record.getPrimary(), de)) {
-                    Record dUpdate = EntityHelper.forUpdate(did, opUser, false);
-                    triggerManual.onUpdate(
-                            OperatingContext.create(opUser, BizzPermission.UPDATE, dUpdate, dUpdate));
+            TriggerAction[] deHasTriggersFW = getSpecTriggers(de, ActionType.FIELDWRITEBACK, TriggerWhen.UPDATE);
+            // 暂不全量启用
+            boolean execOnMainUpdate = false;
+            for (TriggerAction action : deHasTriggersFW) {
+                if (action.isExecOnMainUpdate43()) {
+                    execOnMainUpdate = true;
                     break;
+                }
+            }
+
+            if (execOnMainUpdate) {
+                // FIXME 是否执行指定的触发器???
+                RobotTriggerManual TM43 = new RobotTriggerManual();
+                for (ID did : QueryHelper.detailIdsNoFilter(record.getPrimary(), de)) {
+                    // 已在更新则无需触发
+                    if (details4Update != null && details4Update.contains(did)) continue;
+
+                    Record d = EntityHelper.forUpdate(did, SYSTEM_USER, false);
+                    TM43.onUpdate(OperatingContext.create(SYSTEM_USER, BizzPermission.UPDATE, d, d));
                 }
             }
         }
@@ -761,7 +822,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 // 从数据库补充完整的字段值
                 if (existingRecord == null) {
                     if (checkRecord.getPrimary() == null) {
-                        existingRecord = EntityHelper.forNew(entity.getEntityCode(), UserService.SYSTEM_USER, false);
+                        existingRecord = EntityHelper.forNew(entity.getEntityCode(), SYSTEM_USER, false);
                     } else {
                         existingRecord = Application.getQueryFactory().recordNoFilter(checkRecord.getPrimary());
                     }
@@ -844,7 +905,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 "Only REVOKED or APPROVED allowed");
 
         if (approvalUser == null) {
-            approvalUser = UserService.SYSTEM_USER;
+            approvalUser = SYSTEM_USER;
             log.warn("Use '{}' do approve : {}", approvalUser, recordId);
         }
 
