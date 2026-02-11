@@ -67,7 +67,7 @@ class RbFormModal extends React.Component {
                 )}
                 {this.state.formAlertMessage && (
                   <div className="rbform-fjsalert">
-                    <RbAlertBox message={WrapHtml(this.state.formAlertMessage.replaceAll('\n', '<br/>'))} />
+                    <RbAlertBox message={WrapHtml(this.state.formAlertMessage, true)} />
                   </div>
                 )}
                 {this.state.fjsAlertMessage}
