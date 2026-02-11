@@ -45,7 +45,7 @@ $(document).ready(() => {
         render_item({ fieldName: this.field, fieldLabel: this.label || '', colspan: 4, reffield: this.reffield, speclayout: this.speclayout })
       } else if (!field) {
         const $item = $(`<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[${this.field.toUpperCase()}] ${$L('字段已删除')}</span></div></div>`).appendTo(
-          '.form-preview'
+          '.form-preview',
         )
         const $action = $('<div class="dd-action"><a><i class="zmdi zmdi-close"></i></a></div>').appendTo($item.find('.dd-handle'))
         $action.find('a').on('click', function () {
@@ -252,7 +252,7 @@ $(document).ready(() => {
           })
           this.hide()
         },
-      }
+      },
     )
   })
 
@@ -305,7 +305,7 @@ const render_item = function (data) {
   const _title2 = isDivider ? $L('断行') : ''
 
   const $handle = $(
-    `<div class="dd-handle J_field" data-field="${data.fieldName}" data-label="${data.fieldLabel}"><span _title="${_title1}" _title2="${_title2}">${data.fieldLabel}</span></div>`
+    `<div class="dd-handle J_field" data-field="${data.fieldName}" data-label="${data.fieldLabel}"><span _title="${_title1}" _title2="${_title2}">${data.fieldLabel}</span></div>`,
   ).appendTo($item)
 
   const $action = $('<div class="dd-action"></div>').appendTo($handle)
@@ -776,7 +776,7 @@ const AdvControl = {
         />,
         function () {
           AdvControl._EasyFilters[key] = this
-        }
+        },
       )
     }
   },
@@ -798,6 +798,7 @@ class DlgNForm extends RbModalHandler {
       this.state.hideEmptyFields = props.attrs.hideEmptyFields
       this.state.useFilter = props.attrs.filter || null
       this.state.verticalLayout = props.attrs.verticalLayout || null
+      this.state.topAlert43 = props.attrs.topAlert43 || null
     }
   }
 
@@ -867,6 +868,12 @@ class DlgNForm extends RbModalHandler {
                     {$L('垂直')} ({$L('仅手机')})
                   </option>
                 </select>
+              </div>
+            </div>
+            <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('填写提示')}</label>
+              <div className="col-sm-7">
+                <textarea className="form-control form-control-sm row2x" defaultValue={this.state.topAlert43} ref={(c) => (this._$topAlert43 = c)} placeholder={$L('无')} />
               </div>
             </div>
 
@@ -964,7 +971,7 @@ class DlgNForm extends RbModalHandler {
         />,
         function () {
           that._UseFilter = this
-        }
+        },
       )
     }
   }
@@ -987,6 +994,7 @@ class DlgNForm extends RbModalHandler {
       hideEmptyFields: $val(this._$hideEmptyFields),
       detailsFromsAttr: Object.keys(detailsFromsAttr).length === 0 ? null : detailsFromsAttr,
       verticalLayout: ~~$val(this._$verticalLayout),
+      topAlert43: $val(this._$topAlert43),
     }
     if (!ps.name) {
       return RbHighbar.createl('请输入名称')

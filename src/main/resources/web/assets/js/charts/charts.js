@@ -284,32 +284,41 @@ class ChartIndex extends BaseChart {
     const chartdata = (
       <div className="chart index" ref={(c) => (this._$chart = c)}>
         <div className="data-item must-center text-truncate w-auto">
-          {icon && <i className={`icon43 mdi ${icon}`} style={style2} />}
-          <div>
-            <p style={style2}>{_index.label || this.label}</p>
-            <strong style={style2}>
-              <a
-                title={$L('查看来源数据')}
-                href={window.render_preview_chart ? null : `${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}&axis=N1`}
-                target={window.render_preview_chart ? null : '_blank'}>
-                {formatThousands(_index.data, _index.dataFlag)}
-              </a>
-              {showGrowthRate && clazz2 && <span className={clazz2}>{rate2}</span>}
-            </strong>
-            {_index.label2 && (
-              <div className="with">
-                <p>{_index.label2}</p>
-                <strong>
+          <table>
+            <tr>
+              {icon && (
+                <td className="icon43">
+                  <i className={` mdi ${icon}`} style={style2} />
+                </td>
+              )}
+              <td className="index43">
+                <p style={style2}>{_index.label || this.label}</p>
+                <strong style={style2}>
                   <a
                     title={$L('查看来源数据')}
-                    href={window.render_preview_chart ? null : `${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}&axis=N2`}
+                    href={window.render_preview_chart ? null : `${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}&axis=N1`}
                     target={window.render_preview_chart ? null : '_blank'}>
-                    {formatThousands(_index.data2, _index.dataFlag2)}
+                    {formatThousands(_index.data, _index.dataFlag)}
                   </a>
                 </strong>
-              </div>
-            )}
-          </div>
+                {showGrowthRate && clazz2 && <span className={clazz2}>{rate2}</span>}
+
+                {_index.label2 && (
+                  <div className="index43-with">
+                    <p>{_index.label2}</p>
+                    <strong>
+                      <a
+                        title={$L('查看来源数据')}
+                        href={window.render_preview_chart ? null : `${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}&axis=N2`}
+                        target={window.render_preview_chart ? null : '_blank'}>
+                        {formatThousands(_index.data2, _index.dataFlag2)}
+                      </a>
+                    </strong>
+                  </div>
+                )}
+              </td>
+            </tr>
+          </table>
         </div>
       </div>
     )

@@ -1194,7 +1194,10 @@ const DEFAULT_MDE_TOOLBAR = (c) => {
 }
 
 // ~~ HTML 内容
-const WrapHtml = (htmlContent) => <span dangerouslySetInnerHTML={{ __html: htmlContent }} />
+const WrapHtml = (htmlContent, br) => {
+  if (br) htmlContent = htmlContent.replaceAll('\n', '<br/>')
+  return <span dangerouslySetInnerHTML={{ __html: htmlContent }} />
+}
 
 // ~~ MD > HTML
 class Md2Html extends React.Component {

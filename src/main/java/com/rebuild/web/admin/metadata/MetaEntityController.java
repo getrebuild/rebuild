@@ -41,6 +41,7 @@ import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.EntityController;
@@ -165,7 +166,7 @@ public class MetaEntityController extends EntityController {
         ConfigBean cb = EasyActionManager.instance.getEasyActionRaw(entity);
         if (cb != null) {
             mv.getModelMap().put("configId", cb.getID("id"));
-            mv.getModelMap().put("config", cb.getJSON("config"));
+            mv.getModelMap().put("config", CommonsUtils.sanitizeHtml(cb.getJSON("config")));
         }
 
         mv.getModel().put("isBizz", MetadataHelper.isBizzEntity(easyEntity.getRawMeta()));

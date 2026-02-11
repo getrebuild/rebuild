@@ -27,6 +27,7 @@ import com.rebuild.core.service.approval.ApprovalHelper;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalConfigService;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
@@ -80,7 +81,7 @@ public class ApprovalAdminController extends BaseController {
         mv.getModel().put("configId", configId);
         mv.getModel().put("name", config[1]);
         mv.getModel().put("applyEntity", applyEntity.getName());
-        mv.getModel().put("flowDefinition", config[2]);
+        mv.getModel().put("flowDefinition", CommonsUtils.sanitizeHtml(config[2]));
         mv.getModel().put("isDisabled", config[3]);
         return mv;
     }

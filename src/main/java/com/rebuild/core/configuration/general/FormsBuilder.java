@@ -347,6 +347,11 @@ public class FormsBuilder extends FormsManager {
             if (StringUtils.isBlank(recordName)) recordName = EasyMetaFactory.getLabel(recordData.getEntity());
             model.set("recordName", recordName);
         }
+        // v4.3
+        if (!viewMode) {
+            String m = model.getString("topAlert43");
+            if (StringUtils.isNotBlank(m)) model.set("topAlert43", m);
+        }
 
         return model.toJSON();
     }

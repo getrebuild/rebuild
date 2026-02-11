@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
@@ -73,7 +74,7 @@ public class TransformConfigController extends BaseController {
 
         ModelAndView mv = createModelAndView("/admin/robot/transform-design");
         mv.getModelMap().put("configId", configId);
-        mv.getModelMap().put("config", config.getJSON("config"));
+        mv.getModelMap().put("config", CommonsUtils.sanitizeHtml(config.getJSON("config")));
 
         Entity sourceEntity = MetadataHelper.getEntity(config.getString("source"));
         Entity targetEntity = MetadataHelper.getEntity(config.getString("target"));

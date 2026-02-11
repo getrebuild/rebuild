@@ -18,7 +18,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-bottom: 0;
 }
 
-.chart-box.INDEX .chart-body .with {
+.chart-box.INDEX .chart-body .index43-with {
   margin-top: -5px;
 }
 
@@ -133,100 +133,87 @@ See LICENSE and COMMERCIAL in the project root for license information.
   max-width: 100%;
 }
 
-.chart.index > .data-item p {
+.chart.index .index43 {
+  white-space: nowrap;
+}
+
+.chart.index .index43 p {
   font-size: 1.1rem;
   margin-bottom: 1px;
   opacity: 0.9;
   line-height: 1;
 }
 
-.chart.index > .data-item strong {
+.chart.index .index43 strong {
   font-size: 2.5rem;
   font-weight: 400;
 }
 
-.chart.index > .data-item strong > a {
+.chart.index .index43 strong a {
   color: unset;
 }
 
-.chart.index > .data-item strong > a:hover {
-  opacity: 0.8;
-}
-
-.chart.index > .data-item .with p,
-.chart.index > .data-item .with strong {
+.chart.index .index43 .index43-with p,
+.chart.index .index43 .index43-with strong {
   display: inline-block;
   font-size: 1.1rem;
 }
 
-.chart.index > .data-item .with strong {
+.chart.index .index43 .index43-with strong {
   margin-left: 5px;
   margin-top: 3px;
   font-size: 1.55rem;
 }
 
-.chart.index > .data-item span {
-  font-size: 1.15rem;
+.chart.index .index43 span {
+  font-size: 1.2rem;
   margin-left: 2px;
   color: red;
 }
 
-.chart.index > .data-item span.ge::before,
-.chart.index > .data-item span.le::before {
+.chart.index .index43 span.ge::before,
+.chart.index .index43 span.le::before {
   font-family: 'Material Design Icons', serif;
   content: '\F0737';
   font-size: 1.25rem;
   color: red;
 }
 
-.chart.index > .data-item span.le {
+.chart.index .index43 span.le {
   color: green !important;
 }
 
-.chart.index > .data-item span.le::before {
+.chart.index .index43 span.le::before {
   content: '\F072E';
   color: green !important;
 }
 
 .chart.index .icon43 {
-  float: left;
-  width: 80px;
-  font-size: 3.5rem;
-  text-align: center;
-  vertical-align: middle;
-  line-height: 1.1;
+  font-size: 3.6rem;
+  vertical-align: top;
+  padding-right: 8px;
 }
 
-.chart.index .icon43 + div {
-  margin-left: 80px;
-  padding-right: 80px;
-}
-
-.grid-stack-item.fullscreen .chart.index > .data-item p {
+.grid-stack-item.fullscreen .chart.index .index43 p {
   font-size: 3rem;
 }
 
-.grid-stack-item.fullscreen .chart.index > .data-item strong {
+.grid-stack-item.fullscreen .chart.index .index43 strong {
   font-size: 8.8rem;
   zoom: 1 !important;
 }
 
-.grid-stack-item.fullscreen .chart.index > .data-item .with strong {
+.grid-stack-item.fullscreen .chart.index .index43 .index43-with strong {
   font-size: 4.4rem;
 }
 
-.grid-stack-item.fullscreen .chart.index > .data-item span {
+.grid-stack-item.fullscreen .chart.index .index43 span {
   zoom: 2;
 }
 
 .grid-stack-item.fullscreen .chart.index .icon43 {
   font-size: 6.4rem;
   width: 120px;
-}
-
-.grid-stack-item.fullscreen .chart.index .icon43 + div {
-  margin-left: 120px;
-  padding-right: 120px;
 }
 
 .chart.ctable {

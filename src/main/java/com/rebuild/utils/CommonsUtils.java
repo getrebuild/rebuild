@@ -137,15 +137,26 @@ public class CommonsUtils {
             return StringUtils.EMPTY;
         }
 
-
-        // TODO 更好的 sanitizeHtml
         return text.toString()
-                .replaceAll("(?i)<script", "")
-                .replaceAll("(?i)</script>", "")
-                .replaceAll("(?i)<style", "")
-                .replaceAll("(?i)</style>", "")
-                .replaceAll("(?i)<iframe", "")
-                .replaceAll("(?i)<img", "");
+                .replaceAll("(?i)</script>", "script")
+                .replaceAll("(?i)<script>", "script")
+                .replaceAll("(?i)<script ", "script")
+                .replaceAll("(?i)</style>", "style")
+                .replaceAll("(?i)<style>", "style")
+                .replaceAll("(?i)<style ", "style")
+                .replaceAll("(?i)</iframe>", "iframe")
+                .replaceAll("(?i)<iframe>", "iframe")
+                .replaceAll("(?i)<iframe ", "iframe")
+                .replaceAll("(?i)<img ", "img");
+
+//        // TODO 更好的 sanitizeHtml
+//        return text.toString()
+//                .replaceAll("(?i)<script", "")
+//                .replaceAll("(?i)</script>", "")
+//                .replaceAll("(?i)<style", "")
+//                .replaceAll("(?i)</style>", "")
+//                .replaceAll("(?i)<iframe", "")
+//                .replaceAll("(?i)<img", "");
     }
 
     /**
