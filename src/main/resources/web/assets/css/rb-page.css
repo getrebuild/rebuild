@@ -1482,14 +1482,9 @@ a.link.link-icon::after {
   text-decoration: underline;
 }
 
-.rbform .type-IMAGE .form-text,
-.rbform .type-FILE .form-text {
+.rbform .type-IMAGE .form-text {
   margin-top: -2px;
   margin-bottom: 4px;
-}
-
-.rbform .type-FILE .form-text {
-  margin-bottom: 0;
 }
 
 .rbform .form-text.form-text-force {
