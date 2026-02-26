@@ -157,11 +157,10 @@ public class SMSender {
         if (useTemplate) {
             Element mailbody = getMailTemplate();
 
-            Objects.requireNonNull(mailbody.selectFirst(".rb-title")).text(subject);
-            Objects.requireNonNull(mailbody.selectFirst(".rb-content")).html(content);
-
             // 处理变量
             String htmlContent = mailbody.html();
+            htmlContent = htmlContent.replace("%TITLE%", subject);
+            htmlContent = htmlContent.replace("%CONTENT%", content);
             htmlContent = htmlContent.replace("%TO%", to);
             htmlContent = htmlContent.replace("%TIME%", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
             htmlContent = htmlContent.replace("%APPURL%", RebuildConfiguration.getHomeUrl());
