@@ -848,6 +848,8 @@ class CodeEditorWithFieldVars extends EditorWithFieldVars {
         styleActiveLine: true,
         autoCloseBrackets: true,
         matchBrackets: true,
+        lineWrapping: true,
+        viewportMargin: Infinity,
         ...this.props.cmProps,
       })
       this.focus()

@@ -495,6 +495,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .CodeEditorWithFieldVars__wrap {
-  min-height: 300px;
   background-color: #212121;
+  margin-bottom: 10px;
+}
+
+.CodeEditorWithFieldVars__wrap,
+.CodeEditorWithFieldVars__wrap .CodeMirror,
+.CodeEditorWithFieldVars__wrap .CodeMirror .CodeMirror-scroll {
+  min-height: 300px !important;
+  height: auto;
 }
