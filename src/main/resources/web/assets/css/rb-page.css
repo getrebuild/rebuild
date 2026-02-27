@@ -732,6 +732,7 @@ div.dataTables_filter .filter-badge:hover .close {
 .modal.rbmodal .modal-dialog .modal-body {
   min-height: 162px;
   padding-top: 20px;
+  min-height: 148px; /*v4.3*/
 }
 
 .modal.rbmodal .modal-header > .icon {
@@ -4519,6 +4520,7 @@ h3.modal-title > .rbv {
 .CodeMirror .CodeMirror-code,
 .CodeMirror-line {
   line-height: 1.6;
+  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', Menlo, Monaco, Consolas, monospace !important;
 }
 
 .CodeMirror-wrap pre.CodeMirror-line,
@@ -5746,23 +5748,23 @@ pre.unstyle {
   outline-color: var(--rb-color);
 }
 
-.rsheetb-table tbody > tr {
+.rsheetb-table tbody td {
   position: relative;
 }
 
-.rsheetb-table tbody > tr ~ a.btn {
+.rsheetb-table tbody td > a.btn {
   position: absolute;
-  right: 10px;
-  margin-top: -34px;
-  line-height: 27px;
-  min-height: 27px;
-  min-width: 23px !important;
-  visibility: hidden;
+  right: 17px;
+  top: 6px;
+  height: 26px;
+  min-height: 26px;
+  line-height: 26px;
+  display: none;
 }
 
-.rsheetb-table tbody > tr:hover ~ a.btn,
-.rsheetb-table tbody > tr ~ a.btn:hover {
-  visibility: visible;
+.rsheetb-table tbody > tr:hover > td > a.btn,
+.rsheetb-table tbody > tr > td > a.btn:hover {
+  display: block;
 }
 
 /*.input-search .input-group-btn,*/
