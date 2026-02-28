@@ -63,7 +63,7 @@ public class FixRefsIndex43 {
             DisplayType dt = EasyMetaFactory.getDisplayType(field);
             if (dt == DisplayType.REFERENCE) {
                 if (!checkHasIndex(field)) {
-                    ddl.append(String.format("\n add index FIX_%d (%s),", index++, field.getPhysicalName()));
+                    ddl.append(String.format("\n add index FIX43_%d (%s),", index++, field.getPhysicalName()));
                 }
             }
         }

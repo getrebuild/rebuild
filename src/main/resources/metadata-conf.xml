@@ -245,7 +245,7 @@
         <field name="name" type="string" max-length="100" nullable="false" description="目录名称"/>
         <field name="parent" type="reference" ref-entity="AttachmentFolder" description="父级"/>
         <field name="scope" type="string" max-length="4001" default-value="ALL" description="哪些人可见 (可选值: ALL/SELF/$MemberID)"/>
-        <index field-list="scope,createdBy"/>
+        <index field-list="name,parent"/>
     </entity>
 
     <entity name="LoginLog" type-code="025" description="登录日志" parent="false">

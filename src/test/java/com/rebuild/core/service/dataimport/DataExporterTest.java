@@ -10,6 +10,7 @@ package com.rebuild.core.service.dataimport;
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.TestSupport;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,12 @@ public class DataExporterTest extends TestSupport {
         }
         query.put("fields", fields);
 
-        File file = ((DataExporter) new DataExporter(query).setUser(UserService.ADMIN_USER)).export("cvs");
-        System.out.println(file);
+        UserContextHolder.setUser(UserService.ADMIN_USER);
+        try {
+            File file = new DataExporter(query).export("cvs");
+            System.out.println(file);
+        } finally {
+            UserContextHolder.clear();
+        }
     }
 }

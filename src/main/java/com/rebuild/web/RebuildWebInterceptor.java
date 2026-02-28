@@ -133,7 +133,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 }
             }
             // 未安装
-            else if (!(requestUri.contains("/setup/") || requestUri.contains("/commons/theme/") || isError)) {
+            else if (!(requestUri.contains("/setup/") || requestUri.contains("/commons/theme/") || requestUri.contains("/commons/frontjs/") || isError)) {
                 sendRedirect(response, "/setup/install", null);
                 return false;
             } else {

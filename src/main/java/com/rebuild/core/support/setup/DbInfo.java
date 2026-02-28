@@ -61,8 +61,8 @@ public class DbInfo {
         }
 
         if (isMySQL56()) {
-            // FIXME 针对实体，注意后续添加
-            return L.startsWith("index IX0_attachment_folder");
+            // FIXME MySQL5.6 索引长度不能超 768
+            return (L.startsWith("index IX") && L.contains("`(250)"));
         }
 
         return false;

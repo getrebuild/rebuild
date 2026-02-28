@@ -287,7 +287,7 @@ create table if not exists `classification_data` (
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
   primary key  (`ITEM_ID`),
   index IX0_classification_data (`DATA_ID`, `PARENT`, `CODE`),
-  index IX1_classification_data (`DATA_ID`, `FULL_NAME`, `QUICK_CODE`, `CODE`)
+  index IX1_classification_data (`DATA_ID`, `FULL_NAME`(250), `QUICK_CODE`, `CODE`)
 )Engine=InnoDB;
 
 -- ************ Entity [ShareAccess] DDL ************
@@ -365,7 +365,7 @@ create table if not exists `attachment_folder` (
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   primary key  (`FOLDER_ID`),
-  index IX0_attachment_folder (`SCOPE`, `CREATED_BY`)
+  index IX0_attachment_folder (`NAME`, `PARENT`)
 )Engine=InnoDB;
 
 -- ************ Entity [LoginLog] DDL ************
@@ -514,7 +514,7 @@ create table if not exists `recycle_bin` (
   `DELETED_ON`         datetime not null default current_timestamp comment '删除时间',
   `CHANNEL_WITH`       char(20) comment '删除渠道 (空为直接删除, 否则为关联删除)',
   primary key  (`RECYCLE_ID`),
-  index IX0_recycle_bin (`BELONG_ENTITY`, `RECORD_NAME`, `DELETED_BY`, `DELETED_ON`),
+  index IX0_recycle_bin (`BELONG_ENTITY`, `RECORD_NAME`(250), `DELETED_BY`, `DELETED_ON`),
   index IX1_recycle_bin (`RECORD_ID`, `CHANNEL_WITH`)
 )Engine=InnoDB;
 
@@ -547,7 +547,7 @@ create table if not exists `smsend_log` (
   `SEND_RESULT`        varchar(701) comment '发送结果 (xxx|ERR:xxx)',
   `FROM_SOURCE`        char(20) comment '触发源 ID',
   primary key  (`SEND_ID`),
-  index IX0_smsend_log (`TYPE`, `SEND_TIME`, `SEND_RESULT`)
+  index IX0_smsend_log (`TYPE`, `SEND_TIME`, `SEND_RESULT`(250))
 )Engine=InnoDB;
 
 -- ************ Entity [Language] DDL ************
