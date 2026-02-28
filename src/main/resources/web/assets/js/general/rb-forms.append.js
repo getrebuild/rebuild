@@ -784,7 +784,7 @@ class LiteFormModal extends RbModalHandler {
       <RbModal title={title} icon={entity.icon} ref={(c) => (this._dlg = c)} disposeOnHide>
         {tips43 && (
           <div className="mt-1 mb-1 ml-3 mr-3">
-            <RbAlertBox message={WrapHtml(tips43.replaceAll('\n', '<br/>'))} className="mt-0 mb-1" />
+            <RbAlertBox message={WrapHtml(tips43, true)} className="mt-0 mb-1" />
           </div>
         )}
 
