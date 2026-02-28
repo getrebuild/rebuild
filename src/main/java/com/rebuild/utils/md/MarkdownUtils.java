@@ -84,14 +84,14 @@ public class MarkdownUtils {
     }
 
     /**
-     * 清理 MD 格式
+     * 清理 MD（包括 HTML） 格式
      *
      * @param md
      * @return
      */
     public static String cleanMarks(String md) {
         md = md.replaceAll("!\\[.*?]\\((.*?)\\)", "[$1]"); // 替换图片
-        String html = render(md);
+        String html = render(md, false, true);
         return Jsoup.parse(html).body().text();
     }
 }

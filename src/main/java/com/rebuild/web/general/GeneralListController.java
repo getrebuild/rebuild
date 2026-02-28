@@ -30,6 +30,7 @@ import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.general.DataListBuilder;
 import com.rebuild.core.support.general.DataListBuilderImpl;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.KnownExceptionConverter;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +52,6 @@ import java.util.Set;
 
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_ASIDE_SHOWS;
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_FILTERPANE;
-import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_FILTERTABS;
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_HIDE_CHARTS;
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_HIDE_FILTERS;
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_MODE;
@@ -151,10 +151,6 @@ public class GeneralListController extends EntityController {
                 if (!paneFields.isEmpty()) mv.getModel().put("paneFields", paneFields);
             }
 
-            // v3.3 查询页签
-            String advListFilterTabs = easyEntity.getExtraAttr(ADVLIST_FILTERTABS);
-            mv.getModel().put(ADVLIST_FILTERTABS, advListFilterTabs);
-
             // v3.6 记录合并
             String enableRecordMerger = easyEntity.getExtraAttr(ENABLE_RECORD_MERGER);
             if (BooleanUtils.toBoolean(enableRecordMerger)) {
@@ -192,11 +188,12 @@ public class GeneralListController extends EntityController {
         }
 
         // 列表配置
-        mv.getModel().put("DataListConfig", JSON.toJSONString(listConfig));
+        mv.getModel().put("DataListConfig", CommonsUtils.sanitizeHtml(listConfig));
         // 快速查询
         mv.getModel().put("quickFieldsLabel", getQuickFieldsLabel(listEntity));
         // EasyAction
-        mv.getModel().put("easyAction", EasyActionManager.instance.getEasyAction(listEntity.getName(), user));
+        mv.getModel().put("easyAction",
+                CommonsUtils.sanitizeHtml(EasyActionManager.instance.getEasyAction(listEntity.getName(), user)));
         // 多表单-新建
         List<ConfigBean> formsAttr = FormsManager.instance.getAllFormsAttr(entity, true);
         if (formsAttr.size() > 1) mv.getModel().put("formsAttr", JSON.toJSONString(formsAttr));
@@ -216,7 +213,7 @@ public class GeneralListController extends EntityController {
             String known = KnownExceptionConverter.convert2ErrorMsg(ex);
             if (known != null) return RespBody.error(known);
 
-            log.error(null, ex);
+            log.error("data-list", ex);
             return RespBody.error(ex.getLocalizedMessage());
         }
     }

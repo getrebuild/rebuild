@@ -36,6 +36,7 @@ import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.BlockList;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.md.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
@@ -271,10 +272,6 @@ public class UserService extends BaseService {
     }
 
     private boolean notifyNewUser(Record newUser, String passwd) {
-        if (RebuildConfiguration.getMailAccount() == null || !newUser.hasValue("email")) {
-            return false;
-        }
-
         String appName = RebuildConfiguration.get(ConfigurationItem.AppName);
         String homeUrl = RebuildConfiguration.getHomeUrl();
 
@@ -283,7 +280,15 @@ public class UserService extends BaseService {
                 "系统管理员已经为你开通了 %s 账号！以下为你的登录信息，请妥善保管。 [] 登录账号 : **%s** [] 登录密码 : **%s** [] 登录地址 : [%s](%s) [][] 首次登录，建议你立即修改登录密码。修改方式 : 登录后点击右上角头像 - 个人设置 - 安全设置 - 更改密码",
                 appName, newUser.getString("loginName"), passwd, homeUrl, homeUrl);
 
-        SMSender.sendMailAsync(newUser.getString("email"), Language.L("你的账号已就绪"), content);
+        // 邮件
+        if (SMSender.availableMail() && newUser.hasValue("email")) {
+            SMSender.sendMailAsync(newUser.getString("email"), Language.L("你的账号已就绪"), content);
+        }
+
+        // v4.3 内部消息
+        content = MarkdownUtils.cleanMarks(content);
+        Application.getNotifications().send(MessageBuilder.createMessage(newUser.getPrimary(), content));
+
         return true;
     }
 
@@ -503,7 +508,7 @@ public class UserService extends BaseService {
      */
     public static Integer getPasswdExpiredDayLeft(ID user) {
         int peDays = RebuildConfiguration.getInt(ConfigurationItem.PasswordExpiredDays);
-        if (peDays > 0) {
+        if (peDays > 0 && hasLogin(user)) {
             String key = ConfigurationItem.PasswordExpiredDays.name() + user;
             String lastChanged = StringUtils.defaultIfBlank(RebuildConfiguration.getCustomValue(key), "2021-06-30");
             int peLeft = -CalendarUtils.getDayLeft(CalendarUtils.parse(lastChanged));
@@ -520,8 +525,16 @@ public class UserService extends BaseService {
      */
     public static boolean checkHasUsed(ID user) {
         // FIXME 仅检查是否登录过。严谨些还应该检查是否有其他业务数据
+        return hasLogin(user);
+    }
 
-        // 登录
+    /**
+     * 是否登陆过
+     *
+     * @param user
+     * @return
+     */
+    public static boolean hasLogin(ID user) {
         Object[] hasLogin = Application.createQueryNoFilter(
                 "select user from LoginLog where user = ?")
                 .setParameter(1, user)

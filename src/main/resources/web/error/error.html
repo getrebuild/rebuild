@@ -68,12 +68,12 @@
         if (parent && parent.RbViewModal) {
           try {
             // Check#1
-            parent.RbViewModal.currentHolder().hideLoading()
+            var stack = parent.RbViewModal.__HOLDERsStack
+            stack[stack.length - 1].hideLoading()
           } catch (ignore) {
             try {
               // Check#2
-              var stack = parent.RbViewModal.__HOLDERsStack
-              stack[stack.length - 1].hideLoading()
+              parent.RbViewModal.currentHolder().hideLoading()
             } catch (ignore2) {}
           }
         }

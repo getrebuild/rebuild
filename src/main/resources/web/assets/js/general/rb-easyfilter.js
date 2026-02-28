@@ -26,6 +26,7 @@ class EasyFilter extends AdvFilter {
 // eslint-disable-next-line no-undef
 class EasyFilterItem extends FilterItem {
   selectOp() {
+    const fieldName = this.state.field
     const fieldType = this.state.type
 
     // default
@@ -46,7 +47,8 @@ class EasyFilterItem extends FilterItem {
       op = ['IN', 'NIN']
     }
 
-    fieldType !== 'STATE' && op.push('NL', 'NT')
+    // eslint-disable-next-line no-undef
+    if (fieldType !== 'STATE' && fieldName !== VF_CU43) op.push('NL', 'NT')
     this.__op = op
     return op
   }

@@ -126,7 +126,7 @@ class RbModal extends React.Component {
         this.setState({ frameLoad: false })
       },
       20,
-      'RbModal-resize'
+      'RbModal-resize',
     )
   }
 
@@ -539,6 +539,7 @@ class UserSelector extends React.Component {
   }
 
   render() {
+    let isUserType = this.state.tabType === 'User'
     let inResult
     if (!this.state.items) {
       inResult = <li className="select2-results__option un-hover text-muted">{$L('搜索中')}</li>
@@ -547,10 +548,13 @@ class UserSelector extends React.Component {
     } else {
       inResult = this.state.items.map((item) => {
         return (
-          <li key={item.id} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}>
+          <li key={item.id} className={`select2-results__option ${item.subtext && 'subtext'}`} data-id={item.id} onClick={(e) => this.clickItem(e)}>
             <i className={`zmdi ${!this.props.hideSelection && this.containsItem(item.id) ? ' zmdi-check' : ''}`} />
-            {this.state.tabType === 'User' && <img src={`${rb.baseUrl}/account/user-avatar/${item.id}`} className="avatar" alt="Avatar" />}
-            <span className="text">{item.text}</span>
+            {isUserType && <img src={`${rb.baseUrl}/account/user-avatar/${item.id}`} className="avatar" alt="Avatar" />}
+            <span className="text">
+              {item.text}
+              {item.subtext && <em>{item.subtext}</em>}
+            </span>
           </li>
         )
       })
@@ -1042,7 +1046,7 @@ class AnyRecordSelector extends RecordSelector {
                   entity: e.target.value,
                   entityLabel: this.__select2Entity.select2('data')[0].text,
                 },
-                () => this._initSelect2(true)
+                () => this._initSelect2(true),
               )
             }
           })
@@ -1190,7 +1194,10 @@ const DEFAULT_MDE_TOOLBAR = (c) => {
 }
 
 // ~~ HTML 内容
-const WrapHtml = (htmlContent) => <span dangerouslySetInnerHTML={{ __html: htmlContent }} />
+const WrapHtml = (htmlContent, br) => {
+  if (br) htmlContent = htmlContent.replaceAll('\n', '<br/>')
+  return <span dangerouslySetInnerHTML={{ __html: htmlContent }} />
+}
 
 // ~~ MD > HTML
 class Md2Html extends React.Component {
@@ -1609,5 +1616,183 @@ function __destroySelect2(__select2) {
     } else {
       __select2.select2('destroy')
     }
+  }
+}
+
+// -- 扩展组件
+
+// 文件上传/处理
+// props = { operTypes=操作类型, multiple=多文件, taskMode=任务模式, onSuccess=成功回调, title=标题, confirmText=确认按钮文字 }
+class FilesHandlerComponent extends RbModalHandler {
+  constructor(props) {
+    super(props)
+
+    let tips = props.tips
+    this.props.operTypes &&
+      this.props.operTypes.forEach((item, idx) => {
+        if (idx === 0 && item.tips) tips = item.tips
+      })
+    this.state.tips = tips || null
+  }
+
+  render() {
+    return (
+      <RbModal title={this.props.title || $L('上传文件')} ref={(c) => (this._dlg = c)} disposeOnHide>
+        {this.state.tips && <RbAlertBox message={this.state.tips} type="warning" />}
+        <div className="form">
+          {this.props.operTypes && (
+            <div className="form-group row pn-1">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('操作类型')}</label>
+              <div className="col-sm-7 pt-1" ref={(c) => (this._$operTypes = c)}>
+                {this.props.operTypes.map((item, idx) => {
+                  let key = item.name || item.key
+                  return (
+                    <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2" key={key}>
+                      <input
+                        className="custom-control-input"
+                        name="dataRange"
+                        type="radio"
+                        value={key}
+                        defaultChecked={idx === 0}
+                        onClick={() => {
+                          if (item.tips) this.setState({ tips: item.tips })
+                        }}
+                      />
+                      <span className="custom-control-label">{item.text || item.label}</span>
+                    </label>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('上传文件')}</label>
+            <div className="col-sm-7">
+              <div className="file-select" style={{ marginTop: 1 }}>
+                <input type="file" className="inputfile" id="FilesHandlerComponent__file" data-local="temp" multiple={this.props.multiple} ref={(c) => (this._$file = c)} />
+                <label htmlFor="FilesHandlerComponent__file" className="btn-secondary">
+                  <span className="zmdi zmdi-upload" />
+                  <span className="ml-1">{$L('上传文件')}</span>
+                </label>
+              </div>
+              <div className="file-field files">
+                {this.state.files &&
+                  this.state.files.map((file) => {
+                    return (
+                      <div
+                        key={file}
+                        className="img-thumbnail"
+                        onClick={() => {
+                          // RbPreview.create(file)
+                        }}>
+                        <i className="file-icon" data-type={$fileExtName(file)} />
+                        <span>{$fileCutName(file)}</span>
+                        <b title={$L('移除')} onClick={(e) => this._removeFile(file, e)}>
+                          <span className="zmdi zmdi-close" />
+                        </b>
+                      </div>
+                    )
+                  })}
+              </div>
+            </div>
+          </div>
+          <div className="form-group row footer">
+            <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btns = c)}>
+              <button className="btn btn-primary" type="button" onClick={(e) => this._handleConfirm(e)}>
+                {this.props.confirmText || $L('确定')}
+              </button>
+              <a className="btn btn-link" onClick={this.hide}>
+                {$L('取消')}
+              </a>
+            </div>
+          </div>
+          <div className="FilesHandlerComponent__results hide" ref={(c) => (this._$result = c)}>
+            <table className="table table-sm">
+              <thead>
+                <tr>
+                  <th>NAME</th>
+                  <th>RES</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>2</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount && super.componentDidMount()
+
+    $multipleUploader(this._$file, (res) => {
+      let files = this.state.files || []
+      // 多文件支持
+      if (!this.props.multiple) files = []
+
+      let hasByName = $fileCutName(res.key)
+      hasByName = files.find((x) => $fileCutName(x) === hasByName)
+      if (!hasByName) {
+        files.push(res.key)
+        this.setState({ files: files })
+      }
+    })
+  }
+
+  _removeFile(file) {
+    let files = this.state.files || []
+    files.remove(file)
+    this.setState({ files: files })
+  }
+  _handleConfirm(e) {
+    let _post = {
+      opType: $(this._$operTypes).find('input:checked').val(),
+      files: this.state.files,
+    }
+    if ((_post.files || []).length === 0) {
+      return RbHighbar.createl('请选择文件')
+    }
+
+    let $btn = $(this._$btns).find('.btn').button('loading')
+    $.post('/customized/files-handler', JSON.stringify(_post), (res) => {
+      if (res.error_code === 0) {
+        if (this.props.taskMode) {
+          this._checkTaskState(res.data) // taskid
+        } else {
+          this._onSuccess(this)
+        }
+      } else {
+        RbAlert.create(res.error_msg || $L('系统繁忙，请稍后重试'), {
+          type: 'danger',
+        })
+      }
+      setTimeout(() => $btn.button('reset'), 500)
+    })
+  }
+
+  _onSuccess(_this, taskData) {
+    let FN = _this.props.onSuccess
+    if (typeof FN !== 'function') {
+      FN = function () {
+        RbHighbar.error('操作成功')
+        _this.hide()
+      }
+    }
+    FN(_this, taskData)
+  }
+
+  _checkTaskState(taskid) {
+    $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
+      if (res.data && res.data.isCompleted) {
+        this._onSuccess(this, res.data)
+      } else {
+        setTimeout(() => this._checkTaskState(taskid), 1000)
+      }
+    })
   }
 }

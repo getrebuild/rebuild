@@ -62,8 +62,8 @@ public class MetadataSorter {
             if (!e.isQueryable()) continue;
             if (!includesDetail && e.getMainEntity() != null) continue;
 
-            EasyEntity easyEntity = EasyMetaFactory.valueOf(e);
-            if (easyEntity.isBuiltin() && !easyEntity.isPlainEntity()) continue;
+            EasyEntity ee = EasyMetaFactory.valueOf(e);
+            if (ee.isBuiltin() && !ee.isPlainEntity()) continue;
 
             Entity checkEntity = e;
             if (includesDetail && e.getMainEntity() != null) checkEntity = e.getMainEntity();
@@ -187,7 +187,7 @@ public class MetadataSorter {
         // v3.7 特殊排序
         final String[] specSortsApproval = new String[] {
                 EntityHelper.ApprovalId, EntityHelper.ApprovalState,
-                EntityHelper.ApprovalStepNodeName, EntityHelper.ApprovalStepUsers,
+                EntityHelper.ApprovalStepNodeName, EntityHelper.ApprovalStepUsers, EntityHelper.ApprovalSubmitUser,
                 EntityHelper.ApprovalLastUser, EntityHelper.ApprovalLastTime, EntityHelper.ApprovalLastRemark
         };
         List<BaseMeta> approvalFields = new ArrayList<>();

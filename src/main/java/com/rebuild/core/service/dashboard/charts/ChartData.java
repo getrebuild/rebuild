@@ -27,6 +27,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
+import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.general.QueryParser;
@@ -34,13 +35,16 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -129,6 +133,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
             JSONObject item = (JSONObject) o;
             Field[] validFields = getValidFields(item);
             Dimension dim = new Dimension(
+                    item.getString("fkey"),
                     validFields[0], getFormatSort(item), getFormatCalc(item),
                     item.getString("label"),
                     validFields[1]);
@@ -153,10 +158,12 @@ public abstract class ChartData extends SetUser implements ChartSpec {
             JSONObject item = (JSONObject) o;
             Field[] validFields = getValidFields(item);
             Numerical num = new Numerical(
+                    item.getString("fkey"),
                     validFields[0], getFormatSort(item), getFormatCalc(item),
                     item.getString("label"),
                     item.getInteger("scale"),
                     item.getInteger("unit"),
+                    item.getString("formula"),
                     item.getJSONObject("filter"),
                     validFields[1]);
             list.add(num);
@@ -275,8 +282,16 @@ public abstract class ChartData extends SetUser implements ChartSpec {
         if (params != null && params.get("dash_filter_custom") != null) {
             JSONObject custom = params.getJSONObject("dash_filter_custom");
             if (ParseHelper.validAdvFilter(custom)) {
-                custom.put("entity", getSourceEntity().getName());
-                String s = new AdvFilterParser(custom).toSqlWhere();
+                String customName = custom.getString("entity");
+                if ("SystemCommon".equals(customName)) {
+                    custom.put("entity", getSourceEntity().getName());
+                } else if (getSourceEntity().getName().equals(customName)) {
+                    // 相等才能使用
+                } else {
+                    custom = null;
+                }
+
+                String s = custom == null ? null : new AdvFilterParser(custom).toSqlWhere();
                 if (s != null) filtersAnd.add(s);
             }
         }
@@ -511,20 +526,22 @@ public abstract class ChartData extends SetUser implements ChartSpec {
      *
      * @param dims
      * @param num
+     * @param withFilter
      * @return
      */
-    protected String buildSql(Dimension[] dims, Numerical num) {
+    protected String buildSql(Dimension[] dims, Numerical num, boolean withFilter) {
         List<String> dimSqlItems = new ArrayList<>();
         for (Dimension dim : dims) {
             dimSqlItems.add(dim.getSqlName());
         }
 
         String sql = "select {0},{1} from {2} where {3} group by {0}";
+        String where = getFilterSql(withFilter ? num : null);
         sql = MessageFormat.format(sql,
                 StringUtils.join(dimSqlItems, ", "),
                 num.getSqlName(),
                 getSourceEntity().getName(),
-                getFilterSql());
+                where);
         return appendSqlSort(sql);
     }
 
@@ -661,5 +678,73 @@ public abstract class ChartData extends SetUser implements ChartSpec {
         }
 
         return dataRawList.toArray(new Object[0][]);
+    }
+
+    /**
+     * 计算字段
+     *
+     * @param data
+     * @param num
+     */
+    protected Object[] calcFormula43(Object[] data, Numerical num) {
+        if (ArrayUtils.isEmpty(data) || num == null) return data;
+        if (num.getFormatFormula() == null) return data;
+
+        Object[][] dataArray = new Object[][]{data};
+        Numerical[] nums = new Numerical[]{num};
+
+        this.calcFormula43(dataArray, nums);
+        return dataArray[0];
+    }
+
+    /**
+     * 计算字段
+     *
+     * @param data
+     * @param nums
+     */
+    protected void calcFormula43(Object[][] data, Numerical[] nums) {
+        if (ArrayUtils.isEmpty(data) || ArrayUtils.isEmpty(nums)) return;
+
+        int dimSize = data[0].length - nums.length;
+        for (int i = 0; i < nums.length; i++) {
+            Numerical num = nums[i];
+            String formula = num.getFormatFormula();
+            if (StringUtils.isBlank(formula)) continue;
+
+            // 找到变量位置
+            Set<String> fieldVars = AviatorUtils.matchsFieldVars(formula, null);
+            Map<String, Integer> fieldVarsIndex = new HashMap<>();
+            for (String fieldVar : fieldVars) {
+                for (int j = 0; j < nums.length; j++) {
+                    if (fieldVar.equals(nums[j].getFkey())) {
+                        fieldVarsIndex.put(fieldVar, j + dimSize);  // 列索引
+                        break;
+                    }
+                }
+            }
+
+            // Clear
+            formula = formula
+                    .replace("×", "*").replace("÷", "/")
+                    .replaceAll("[{}]", "");
+
+            // 处理公式并替换新值
+            for (Object[] dataItem : data) {
+                Map<String, Object> env = new HashMap<>();
+                for (Map.Entry<String, Integer> e : fieldVarsIndex.entrySet()) {
+                    Object value = dataItem[e.getValue()];
+                    env.put(e.getKey(), BigDecimal.valueOf(ObjectUtils.toDouble(value)));
+                }
+
+                try {
+                    Object newValue = AviatorUtils.eval(formula, env);
+                    dataItem[i + dimSize] = ObjectUtils.toDouble(newValue);
+                } catch (Exception ex) {
+                    log.warn("Invalid formula of axis : {} << {}", formula, env);
+                    dataItem[i + dimSize] = 0d;
+                }
+            }
+        }
     }
 }

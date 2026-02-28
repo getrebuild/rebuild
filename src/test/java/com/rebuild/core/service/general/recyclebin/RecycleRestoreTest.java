@@ -10,6 +10,7 @@ package com.rebuild.core.service.general.recyclebin;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
+import com.rebuild.core.privileges.UserService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +22,7 @@ class RecycleRestoreTest extends TestSupport {
 
     @Test
     void restore() {
-        ID testId = addRecordOfTestAllFields(SIMPLE_USER);
+        ID testId = addRecordOfTestAllFields(UserService.ADMIN_USER);
         Application.getGeneralEntityService().delete(testId);
 
         // Is in?

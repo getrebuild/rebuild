@@ -10,7 +10,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const BIZZ_ENTITIES = ['User', 'Department', 'Role', 'Team']
 const NT_SPLIT = '----'
 const NAME_FLAG = '&'
-const VF_ACU = '$APPROVALCURRENTUSER$'
+// const VF_ACU = '$APPROVALCURRENTUSER$'
+const VF_CU43 = '$CURRENTUSER$'
 
 // eslint-disable-next-line no-unused-vars
 class AdvFilter extends React.Component {
@@ -51,7 +52,7 @@ class AdvFilter extends React.Component {
         <div className="adv-filter">
           <div
             className="filter-items"
-            onKeyPress={(e) => {
+            onKeyDown={(e) => {
               if (e.which === 13 && typeof this.searchNow === 'function') {
                 const $input = $(e.target)
                 if ($input.prop('tagName') === 'INPUT') $input[0].blur()
@@ -138,11 +139,16 @@ class AdvFilter extends React.Component {
   }
 
   componentDidMount() {
-    const deep = this.props.fsDeep ? this.props.fsDeep : location.href.includes('/admin/') || window.__LAB_ADVFILTER_FSDEEP3 ? 3 : 2
-    const referer = this.props.referer || ''
-    $.get(`/commons/metadata/fields?deep=${deep}&entity=${this.props.entity}&referer=${referer}`, (res) => {
+    this._componentDidMount(this.props)
+  }
+
+  _componentDidMount(props) {
+    const deep = props.fsDeep ? props.fsDeep : location.href.includes('/admin/') || window.__LAB_ADVFILTER_FSDEEP3 ? 3 : 2
+    const referer = props.referer || ''
+    $.get(`/commons/metadata/fields?deep=${deep}&entity=${props.entity}&referer=${referer}`, (res) => {
       const validFs = []
       const fields = []
+      let fieldItem43
 
       res.data.forEach((item) => {
         validFs.push(item.name)
@@ -164,11 +170,18 @@ class AdvFilter extends React.Component {
         if (!(item.type === 'BARCODE' || $isSysMask(item.label))) {
           fields.push(item)
 
-          if (item.type === 'REFERENCE' && item.name === 'approvalLastUser') {
-            const item2 = { ...item, name: VF_ACU, label: $L('当前审批人') + ' (废弃)' }
-            validFs.push(item2.name)
-            REFENTITY_CACHE[item2.name] = item2.ref
-            fields.push(item2)
+          // if (item.type === 'REFERENCE' && item.name === 'approvalLastUser') {
+          //   const item2 = { ...item, name: VF_ACU, label: $L('当前审批人') + ' (废弃)' }
+          //   validFs.push(item2.name)
+          //   REFENTITY_CACHE[item2.name] = item2.ref
+          //   fields.push(item2)
+          // }
+          if (item.name === 'owningUser' && this.props.showCurrentUser) {
+            fieldItem43 = { ...item, name: VF_CU43, label: $L('当前用户') }
+          } else if (item.name === 'owningDept' && fieldItem43) {
+            validFs.push(fieldItem43.name)
+            REFENTITY_CACHE[fieldItem43.name] = fieldItem43.ref
+            fields.push(fieldItem43)
           }
         }
       })
@@ -187,6 +200,17 @@ class AdvFilter extends React.Component {
           }
         })
       }
+    })
+  }
+
+  reset43(props) {
+    this.setState({ entity: props.entity || undefined, items: [], hasErrorTip: null }, () => {
+      this._itemsRef = []
+      this.renderEquation()
+
+      this.__initItems = []
+      props = { ...this.props, ...props }
+      this._componentDidMount(props)
     })
   }
 
@@ -269,19 +293,19 @@ class AdvFilter extends React.Component {
     if (hasError) return RbHighbar.create($L('部分条件设置有误，请检查'))
     if (filters.length === 0 && canNoFilters !== true) return RbHighbar.create($L('请至少添加 1 个条件'))
 
-    const adv = {
-      entity: this.props.entity,
+    const filterBody = {
+      entity: this.state.entity,
       items: filters,
     }
     if (this.state.useEquation === 'AND') {
-      adv.equation = 'AND'
+      filterBody.equation = 'AND'
     } else if (this.state.useEquation === '9999') {
       if (this.state.equationError === true) return RbHighbar.create($L('无效高级表达式'))
-      adv.equation = this.state.equation
+      filterBody.equation = this.state.equation
     }
 
-    if (rb.env === 'dev') console.log(JSON.stringify(adv))
-    return adv
+    if (rb.env === 'dev') console.log(JSON.stringify(filterBody))
+    return filterBody
   }
 
   confirm() {
@@ -359,6 +383,8 @@ const OP_TYPE = {
   NUY: $L('明年'),
   EVW: $L('本周..'),
   EVM: $L('本月..'),
+  EVW2: $L('每周..'),
+  EVM2: $L('每月..'),
   YYY: $L('指定..年'),
   MMM: $L('指定..月'),
   DDD: $L('指定..天'),
@@ -368,7 +394,7 @@ const OP_TYPE = {
 // prettier-ignore
 const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY']
 // prettier-ignore
-const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY', 'EVW', 'EVM', 'YYY', 'MMM', 'DDD', 'HHH', 'REP']
+const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY', 'EVW', 'EVM', 'EVW2', 'EVM2', 'YYY', 'MMM', 'DDD', 'HHH', 'REP']
 const REFENTITY_CACHE = {}
 const PICKLIST_CACHE = {}
 
@@ -425,7 +451,7 @@ class FilterItem extends React.Component {
       op = ['GT', 'LT', 'EQ', 'BW', 'GE', 'LE']
     } else if (fieldType === 'DATE' || fieldType === 'DATETIME') {
       // prettier-ignore
-      op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY', 'EVW', 'EVM', 'YYY', 'MMM', 'DDD']
+      op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY', 'EVW', 'EVM', 'EVW2', 'EVM2', 'YYY', 'MMM', 'DDD']
       if (fieldType === 'DATETIME') op.push('HHH')
     } else if (fieldType === 'TIME') {
       op = ['GT', 'LT', 'EQ', 'BW']
@@ -467,7 +493,8 @@ class FilterItem extends React.Component {
     }
 
     if (this.isApprovalState()) op = ['IN', 'NIN']
-    else if (this.state.field === VF_ACU) op = ['IN', 'SFU', 'SFB', 'SFT'] // v3.7 准备废弃
+    // else if (this.state.field === VF_ACU) op = ['IN', 'SFU', 'SFB', 'SFT'] // v3.7 准备废弃
+    else if (this.state.field === VF_CU43) op = ['IN', 'NIN']
     else if (this.isN2NUsers()) op = ['IN', 'NIN', 'SFU', 'SFB', 'NL', 'NT']
     else op.push('NL', 'NT')
 
@@ -1082,7 +1109,7 @@ class ListAdvFilter extends AdvFilter {
                   </button>
                   <div className="dropdown-menu dropdown-menu-right">
                     <a className="dropdown-item" onClick={() => this.handleNew()}>
-                      {$L('保存到常用查询')}
+                      {$L('保存')}
                     </a>
                   </div>
                 </RF>
@@ -1143,7 +1170,7 @@ class ListAdvFilter extends AdvFilter {
             this.post(d.name, d.shareTo)
           }}
           ref={(c) => (this._ListAdvFilterSave = c)}
-        />
+        />,
       )
     }
   }
@@ -1152,7 +1179,7 @@ class ListAdvFilter extends AdvFilter {
 class ListAdvFilterSave extends RbFormHandler {
   render() {
     return (
-      <RbModal title={$L('保存高级查询')} ref={(c) => (this._dlg = c)}>
+      <RbModal title={$L('保存到常用查询')} ref={(c) => (this._dlg = c)}>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>

@@ -206,7 +206,9 @@ public class QueryParser {
         if (StringUtils.isNotBlank(sortNode)) sortClause = parseSort(sortNode);
         // 默认排序
         if (sortClause == null) {
-            if (entity.containsField(EntityHelper.ModifiedOn)) {
+            if (entity.containsField(EntityHelper.Seq)) {
+                sortClause = EntityHelper.Seq + " asc";
+            } else if (entity.containsField(EntityHelper.ModifiedOn)) {
                 sortClause = EntityHelper.ModifiedOn + (":asc".equals(sortNode) ? " asc" : " desc");
             } else if (entity.containsField(EntityHelper.CreatedOn)) {
                 sortClause = EntityHelper.CreatedOn + (":asc".equals(sortNode) ? " asc" : " desc");
@@ -298,18 +300,23 @@ public class QueryParser {
         StringBuilder sb = new StringBuilder();
         String[] sorts = sort.split("[,;]");  // 支持多个: xx:asc;xxx:desc
         for (String s : sorts) {
-            String[] split = s.split(":");
-            if (StringUtils.isBlank(split[0])) return null;
-            Field sortField = MetadataHelper.getLastJoinField(entity, split[0]);
+            String[] ns = s.split(":");
+            if (StringUtils.isBlank(ns[0])) return null;
+            Field sortField = MetadataHelper.getLastJoinField(entity, ns[0]);
+            // v4.3
+            if (sortField == null && "name".equals(ns[0])) {
+                sortField = entity.getNameField();
+                ns[0] = sortField.getName();
+            }
             if (sortField == null) return null;
 
             DisplayType dt = EasyMetaFactory.getDisplayType(sortField);
             if (dt == DisplayType.REFERENCE || dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION) {
                 sb.append('&');
             }
-            sb.append(split[0]);
+            sb.append(ns[0]);
 
-            if (split.length > 1) sb.append("desc".equalsIgnoreCase(split[1]) ? " desc" : " asc");
+            if (ns.length > 1) sb.append("desc".equalsIgnoreCase(ns[1]) ? " desc" : " asc");
             sb.append(", ");
         }
 

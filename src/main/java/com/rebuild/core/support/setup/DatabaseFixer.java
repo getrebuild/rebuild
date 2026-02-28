@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support.setup;
 
 import cn.devezhao.commons.ThreadPool;
-import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
@@ -25,6 +24,7 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 
@@ -56,7 +56,7 @@ public class DatabaseFixer {
                     KVStorage.setCustomValue(KEY_41, "true");
                     log.info("Database fixed `#41` all succeeded");
                 } catch (Exception ex) {
-                    log.error("Database fixing `#41` failed : {}", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+                    log.error("Database fixing `#41` failed : {}", CommonsUtils.getRootMessage(ex));
                 }
             });
         }
@@ -69,7 +69,7 @@ public class DatabaseFixer {
                     KVStorage.setCustomValue(KEY_346, "true");
                     log.info("Database fixed `V346` all succeeded");
                 } catch (Exception ex) {
-                    log.error("Database fixing `V346` failed : {}", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+                    log.error("Database fixing `V346` failed : {}", CommonsUtils.getRootMessage(ex));
                 }
             });
         }
@@ -82,7 +82,7 @@ public class DatabaseFixer {
                     KVStorage.setCustomValue(KEY_370, "true");
                     log.info("Database fixed `V370` all succeeded");
                 } catch (Exception ex) {
-                    log.error("Database fixing `V370` failed : {}", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+                    log.error("Database fixing `V370` failed : {}", CommonsUtils.getRootMessage(ex));
                 }
             });
         }

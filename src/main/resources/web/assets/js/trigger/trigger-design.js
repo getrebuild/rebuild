@@ -86,7 +86,7 @@ $(document).ready(() => {
             </div>
           }
         />,
-        $('.eval-exec-times')[0]
+        $('.eval-exec-times')[0],
       )
     })
   }
@@ -120,7 +120,7 @@ $(document).ready(() => {
           else $s.text($s.text().split(' (')[0])
         }}
       />,
-      'DlgSpecFields'
+      'DlgSpecFields',
     )
   })
   DlgSpecFields.render(wpc.actionContent)
@@ -138,7 +138,7 @@ $(document).ready(() => {
           else $s.text($s.text().split(' (')[0])
         }}
       />,
-      'DlgSpecApproveNodes'
+      'DlgSpecApproveNodes',
     )
   })
   DlgSpecApproveNodes.render(wpc.actionContent)
@@ -147,6 +147,11 @@ $(document).ready(() => {
   useExecManual()
 
   renderContentComp({ sourceEntity: wpc.sourceEntity, content: wpc.actionContent })
+  // v4.3 延迟模式通用化
+  if (wpc.actionContent && wpc.actionContent.asyncMode) {
+    $('#asyncMode').prop('checked', true)
+    $('#asyncMode').parents('.bosskey-show').removeClass('bosskey-show')
+  }
 
   const $btn = $('.J_save').on('click', () => {
     if (!contentComp) return
@@ -170,25 +175,30 @@ $(document).ready(() => {
       when: when + whenUpdateBefore41,
       whenTimer: _buildWhenTimer(),
       whenFilter: wpc.whenFilter || null,
-      actionContent: content,
+      actionContent: {
+        ...content,
+        asyncMode: $val('#asyncMode'), // v4.3
+      },
       metadata: {
         entity: 'RobotTriggerConfig',
         id: wpc.configId,
       },
     }
+
     const priority = $val('#priority')
     if (priority && !isNaN(priority)) data.priority = ~~priority
 
     $btn.button('loading')
-    $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
+    const b64 = $base64Encode($base64Encode(data))
+    $.post('/app/entity/common-save?b64=2', b64, (res) => {
       if (res.error_code === 0) {
         let warns = []
         if (when <= 0) warns.push($L('无任何触发动作'))
-        if ($('.J_trigger-isDisabled')[0]) warns.push($L('未启用'))
+        if ($('.J_confDisabled')[0]) warns.push($L('未启用'))
         const msg = (
           <RF>
             <strong>{$L('保存成功')}</strong>
-            {warns.length > 0 && <p className="text-warning m-0 mt-1">{$L('由于%s，此触发器不会执行', warns.join('/'))}</p>}
+            {warns.length > 0 && <p className="text-warning m-0 mt-1">{$L('由于%s，此触发器不会自动执行', warns.join('/'))}</p>}
           </RF>
         )
         RbAlert.create(msg, {
@@ -474,7 +484,7 @@ function useExecManual() {
           })
         },
         countdown: 5,
-      }
+      },
     )
   })
 }

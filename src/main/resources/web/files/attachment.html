@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -59,7 +59,9 @@
                     <div class="dropdown-menu dropdown-menu-right">
                       <a class="dropdown-item" data-sort="newer">[[${bundle.L('最近上传')}]]</a>
                       <a class="dropdown-item" data-sort="older">[[${bundle.L('最早上传')}]]</a>
-                      <a class="dropdown-item" data-sort="size">[[${bundle.L('文件大小')}]]</a>
+                      <a class="dropdown-item" data-sort="size">[[${bundle.L('较大文件')}]]</a>
+                      <a class="dropdown-item" data-sort="name:asc">[[${bundle.L('文件名称')}]] (A-Z)</a>
+                      <a class="dropdown-item" data-sort="name:desc">[[${bundle.L('文件名称')}]] (Z-A)</a>
                     </div>
                   </div>
                   <button class="btn btn-secondary btn-space mb-0 mr-0 J_view-share"><i class="icon mdi mdi-share-variant-outline"></i> [[${bundle.L('分享列表')}]]</button>

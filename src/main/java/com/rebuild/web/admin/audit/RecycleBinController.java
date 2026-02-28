@@ -34,21 +34,19 @@ import javax.servlet.http.HttpServletRequest;
 public class RecycleBinController extends BaseController {
 
     @GetMapping("recycle-bin")
-    public ModelAndView page() {
+    public ModelAndView recycleBin() {
         return createModelAndView("/admin/audit/recycle-bin");
     }
 
     @RequestMapping("recycle-bin/restore")
-    public RespBody dataList(HttpServletRequest request) {
+    public RespBody recycleBinRestore(HttpServletRequest request) {
         boolean cascade = getBoolParameter(request, "cascade");
         String ids = getParameterNotNull(request, "ids");
 
         String lastError = null;
         int restored = 0;
         for (String id : ids.split(",")) {
-            if (!ID.isId(id)) {
-                continue;
-            }
+            if (!ID.isId(id)) continue;
 
             try {
                 int a = new RecycleRestore(ID.valueOf(id)).restore(cascade);
@@ -68,8 +66,13 @@ public class RecycleBinController extends BaseController {
     }
 
     @GetMapping("recycle-bin/details")
-    public RespBody details(@IdParam ID id) {
+    public RespBody recycleBinDetails(@IdParam ID id) {
         Object[] o = Application.getQueryFactory().uniqueNoFilter(id, "recordContent");
         return RespBody.ok(o[0]);
+    }
+
+    @GetMapping("smsend-logs")
+    public ModelAndView smsendLogs() {
+        return createModelAndView("/admin/audit/smsend-logs");
     }
 }

@@ -21,12 +21,11 @@ import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.general.RepeatedRecordsException;
-import com.rebuild.core.service.general.transform.RecordTransfomer39;
+import com.rebuild.core.service.general.transform.RecordTransfomer43;
 import com.rebuild.core.service.trigger.DataValidateException;
 import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.general.CalcFormulaSupport;
@@ -92,8 +91,8 @@ public class ModelExtrasController extends BaseController {
         // 单个
         ID sourceRecord = ID.valueOf(sourceRecordAny.toString());
 
-        RecordTransfomer39 transfomer39 = new RecordTransfomer39(transid);
-        if (!transfomer39.checkFilter(sourceRecord)) {
+        RecordTransfomer43 transfomer = RecordTransfomer43.create(transid);
+        if (!transfomer.checkFilter(sourceRecord)) {
             return RespBody.error(Language.L("当前记录不符合转换条件"), 400);
         }
 
@@ -107,9 +106,9 @@ public class ModelExtrasController extends BaseController {
         try {
             Object res;
             if (post.getBooleanValue("preview")) {
-                res = transfomer39.preview(sourceRecord, mainRecord, existsRecord);
+                res = transfomer.preview(sourceRecord, mainRecord, existsRecord);
             } else {
-                res = transfomer39.transform(sourceRecord, mainRecord, existsRecord);
+                res = transfomer.transform(sourceRecord, mainRecord, existsRecord);
             }
             return RespBody.ok(res);
 
@@ -137,12 +136,12 @@ public class ModelExtrasController extends BaseController {
     private RespBody transform39Muilt(ID transid, JSONArray sourceRecords) {
         List<ID> newIds = new ArrayList<>();
         for (Object o : sourceRecords) {
-            RecordTransfomer39 transfomer39 = new RecordTransfomer39(transid);
+            RecordTransfomer43 transfomer = RecordTransfomer43.create(transid);
             ID sourceRecord = ID.valueOf((String) o);
-            if (!transfomer39.checkFilter(sourceRecord)) continue;
+            if (!transfomer.checkFilter(sourceRecord)) continue;
 
             try {
-                ID newId = transfomer39.transform(sourceRecord, null, null);
+                ID newId = transfomer.transform(sourceRecord, null, null);
                 newIds.add(newId);
             } catch (Exception ex) {
                 log.warn(">>>>> {} : {}", sourceRecord, ex.getLocalizedMessage());
@@ -227,6 +226,7 @@ public class ModelExtrasController extends BaseController {
             else if (revType == 64) o[0] = Language.L("取消共享");
             else if (revType == 991) o[0] = Language.L("审批通过");
             else if (revType == 992) o[0] = Language.L("审批撤销");
+            else if (revType == 993) o[0] = Language.L("恢复");
             else o[0] = Language.L("其他") + String.format(" (%d)", revType);
 
             o[1] = I18nUtils.formatDate((Date) o[1]);
@@ -239,19 +239,25 @@ public class ModelExtrasController extends BaseController {
 
     @GetMapping("check-creates")
     public JSON checkCreates(HttpServletRequest request) {
-        final ID user = getRequestUser(request);
+        ID user = getRequestUser(request);
+        boolean isAdmin = UserHelper.isAdmin(user);
         String entity = getParameter(request, "entity", "");
 
         JSONArray allowed = new JSONArray();
         for (String e : entity.split(",")) {
             if (!MetadataHelper.containsEntity(e)) continue;
 
-            EasyEntity easyEntity = EasyMetaFactory.valueOf(e);
-            if (!MetadataHelper.hasPrivilegesField(easyEntity.getRawMeta())) continue;
+            Entity ee = MetadataHelper.getEntity(e);
+            if (!MetadataHelper.hasPrivilegesField(ee)) {
+                if (isAdmin && MetadataHelper.isBizzEntity(ee)) {
+                    // 管理员允许 BIZZ
+                } else {
+                    continue;
+                }
+            }
 
-            if (Application.getPrivilegesManager()
-                    .allow(user, easyEntity.getRawMeta().getEntityCode(), BizzPermission.CREATE)) {
-                allowed.add(easyEntity.toJSON());
+            if (Application.getPrivilegesManager().allow(user, ee.getEntityCode(), BizzPermission.CREATE)) {
+                allowed.add(EasyMetaFactory.toJSON(ee));
             }
         }
         return allowed;

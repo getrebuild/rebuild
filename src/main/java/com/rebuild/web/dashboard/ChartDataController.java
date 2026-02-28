@@ -8,19 +8,25 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.dashboard;
 
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.core.service.dashboard.charts.ChartsFactory;
 import com.rebuild.core.service.dashboard.charts.builtin.FeedsSchedule;
 import com.rebuild.core.service.dashboard.charts.builtin.MyNotification;
 import com.rebuild.core.support.ShortUrls;
-import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
@@ -85,11 +91,6 @@ public class ChartDataController extends BaseController {
         }
     }
 
-    /**
-     * @param response
-     * @throws IOException
-     * @see DataListBuilderImpl
-     */
     @RequestMapping("view-chart-source")
     public void viewChartSource(@IdParam ID chartId,
                                 HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -111,5 +112,33 @@ public class ChartDataController extends BaseController {
         String axis = getParameter(request, "axis");
         if (StringUtils.isNotBlank(axis)) url += ":" + axis;
         response.sendRedirect(url);
+    }
+
+    @RequestMapping("entities-creates-reads")
+    public JSON getCreatesAndReads(HttpServletRequest request) {
+        ID user = getRequestUser(request);
+        boolean isAdmin = UserHelper.isAdmin(user);
+
+        JSONArray res = new JSONArray();
+        for (Entity e : MetadataSorter.sortEntities()) {
+            int eCode = e.getEntityCode();
+            if (!MetadataHelper.isBusinessEntity(e)) {
+                if (isAdmin && MetadataHelper.isBizzEntity(e)) {
+                    // 管理员允许 BIZZ
+                } else {
+                    continue;
+                }
+            }
+
+            boolean R = Application.getPrivilegesManager().allowRead(user, eCode);
+            boolean C = Application.getPrivilegesManager().allowCreate(user, eCode);
+            if (!R && !C) continue;
+
+            JSONObject item = EasyMetaFactory.toJSON(e);
+            item.put("read", R);
+            item.put("create", e.getMainEntity() == null && C);
+            res.add(item);
+        }
+        return res;
     }
 }

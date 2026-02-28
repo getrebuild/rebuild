@@ -22,6 +22,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.i18n.I18nUtils;
@@ -167,9 +168,25 @@ public class UserSettingsController extends BaseController {
         return logs;
     }
 
-    @GetMapping("/passwd-expired")
-    public ModelAndView pagePasswdExpired() {
-        return createModelAndView("/settings/passwd-expired");
+    @GetMapping({"/passwd-expired", "/passwd-safe"})
+    public ModelAndView pagePasswdExpired(HttpServletRequest request) {
+        ModelAndView mv = createModelAndView("/settings/passwd-expired");
+        // v4.3
+        if (request.getRequestURI().contains("passwd-safe")) {
+            if (getIntParameter(request, "type") == 1) {
+                mv.getModelMap().put("Tip1", Language.L("修改默认密码"));
+                mv.getModelMap().put("Tip2", Language.L("为保障系统安全，请修改管理员默认密码"));
+            } else {
+                mv.getModelMap().put("Tip1", Language.L("修改初始密码"));
+                mv.getModelMap().put("Tip2", Language.L("为保护你的账户安全，请修改初始密码"));
+            }
+        }
+        else {
+            int ed = getIntParameter(request, "ed", 1);
+            mv.getModelMap().put("Tip1", Language.L("你的密码将在 **%d** 天后过期", ed));
+            mv.getModelMap().put("Tip2", Language.L("过期后系统将强制修改密码，新密码会发送至你的邮箱"));
+        }
+        return mv;
     }
 
     @PostMapping("/passwd-expired-save")
@@ -205,15 +222,7 @@ public class UserSettingsController extends BaseController {
                 : RebuildConfiguration.get(ConfigurationItem.WxworkCorpid);
         if (appType == 3) appId = RebuildConfiguration.get(ConfigurationItem.FeishuAppId);
 
-        Object[] externalUser = Application.createQueryNoFilter(
-                "select userId from ExternalUser where bindUser = ? and appId = ?")
-                .setParameter(1, getRequestUser(request))
-                .setParameter(2, appId)
-                .unique();
-        if (externalUser != null) {
-            Application.getCommonsService().delete((ID) externalUser[0]);
-        }
-
+        RbvFunction.call().unbindExternalUser(getRequestUser(request), appId);
         return RespBody.ok();
     }
 

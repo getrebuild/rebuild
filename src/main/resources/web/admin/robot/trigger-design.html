@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -15,7 +15,7 @@
           <div class="page-head-title">
             [[${bundle.L('触发器')}]]
             <span class="sub-title">[[${name ?: bundle.L('未命名')}]]</span>
-            <span th:if="${isDisabled}" class="badge badge-grey badge-pill up-1 ml-1 J_trigger-isDisabled">[[${bundle.L('未启用')}]]</span>
+            <span th:if="${isDisabled}" class="badge badge-grey badge-pill up-1 ml-1 J_confDisabled">[[${bundle.L('未启用')}]]</span>
           </div>
           <div class="clearfix"></div>
         </div>
@@ -138,7 +138,7 @@
                     <form class="simple">
                       <div class="form-group row">
                         <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('执行操作')}]]</label>
-                        <div class="col-12 col-lg-9">
+                        <div class="col-12 col-lg-9 J_actionType">
                           <div class="form-control-plaintext text-bold">[[${actionTypeLabel}]]</div>
                         </div>
                       </div>
@@ -153,6 +153,17 @@
                         <div class="col-12 col-lg-9">
                           <input type="number" class="form-control form-control-sm" id="priority" th:value="${priority}" th:data-o="${priority}" style="max-width: 200px" />
                           <p class="form-text mb-0">[[${bundle.L('优先级高 (数字大) 的会被先执行')}]]</p>
+                        </div>
+                      </div>
+                      <div class="form-group row bosskey-show">
+                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('执行策略')}]]</label>
+                        <div class="col-12 col-lg-9">
+                          <div class="pt-1">
+                            <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                              <input class="custom-control-input" type="checkbox" id="asyncMode" />
+                              <span class="custom-control-label">[[${bundle.L('延迟执行')}]] (LAB)</span>
+                            </label>
+                          </div>
                         </div>
                       </div>
                       <div class="form-group row J_last-logs hide">
@@ -212,5 +223,14 @@
     <script th:src="@{/assets/js/metadata/field-formula.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/trigger/trigger-design.js}" type="text/babel"></script>
     <script th:src="|${baseUrl}/assets/js/trigger/trigger.${actionType}.js?v=${AppBuild}|" type="text/babel"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/codemirror/lib/codemirror.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/codemirror/theme/material-darker.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/codemirror/addon/hint/show-hint.css}" />
+    <script th:src="@{/assets/lib/codemirror/lib/codemirror.js}"></script>
+    <script th:src="@{/assets/lib/codemirror/mode/javascript/javascript.js}"></script>
+    <script th:src="@{/assets/lib/codemirror/addon/edit/closebrackets.js}"></script>
+    <script th:src="@{/assets/lib/codemirror/addon/edit/matchbrackets.js}"></script>
+    <script th:src="@{/assets/lib/codemirror/addon/hint/show-hint.js}"></script>
+    <script th:src="@{/assets/lib/codemirror/addon/hint/javascript-hint.js}"></script>
   </body>
 </html>

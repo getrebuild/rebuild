@@ -7,8 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // 验证公式有效性
 function verifyFormula(formula, entity, onConfirm) {
-  formula = formula.replace(/\n/gi, '\\n')
-  $.post(`/admin/robot/trigger/verify-formula?entity=${entity}`, formula, (res) => {
+  const b64 = $base64Encode($base64Encode(formula))
+  $.post(`/admin/robot/trigger/verify-formula?b64=2&entity=${entity}`, b64, (res) => {
     if (res.error_code === 0) {
       onConfirm()
     } else {
@@ -26,7 +26,7 @@ function verifyFormula(formula, entity, onConfirm) {
           onCancel: function () {
             this.hide()
           },
-        }
+        },
       )
     }
   })
@@ -86,6 +86,25 @@ class FormulaCalc extends RbAlert {
   componentDidMount() {
     super.componentDidMount()
     $(this._$fields).perfectScrollbar()
+
+    if (this.props.initFormula) {
+      const split = this.props.initFormula.match(/({[^}]+})|(.)/g)
+      split.forEach((v) => {
+        if (v.startsWith('{') && v.endsWith('}')) {
+          let field = v.substring(1, v.length - 1)
+          let fieldName43 = field.split('$$$$')[0]
+          let label = `[${field.toUpperCase()}]`
+          this.props.fields.forEach((f) => {
+            if (f.name === fieldName43) {
+              label = f.label
+            }
+          })
+          this.handleInput({ name: field, label: label })
+        } else {
+          this.handleInput(v)
+        }
+      })
+    }
   }
 
   renderExtraKeys() {
@@ -139,108 +158,6 @@ class FormulaCalc extends RbAlert {
     formula = formula.replace(new RegExp('\\{____', 'g'), '{') // fix: Label 与 Name 名称冲突
 
     return formula //.toUpperCase()
-  }
-}
-
-// ~ 聚合公式编辑器
-// eslint-disable-next-line no-unused-vars
-class FormulaAggregation extends FormulaCalc {
-  handleInput(v) {
-    if (typeof v === 'object') {
-      const that = this
-      const $field = $(`<span class="v field hover"><i data-toggle="dropdown" data-v="{${v.name}}" data-name="${v.label}">{${v.label}}<i></span>`)
-      const $aggrMenu = $('<div class="dropdown-menu dropdown-menu-sm"></div>').appendTo($field)
-      $(['', 'SUM', 'COUNT', 'COUNT2', 'AVG', 'MAX', 'MIN']).each(function () {
-        const $a = $(`<a class="dropdown-item" data-mode="${this}">${FormulaAggregation.CALC_MODES[this] || $L('无')}</a>`).appendTo($aggrMenu)
-        $a.on('click', function () {
-          that._changeCalcMode(this)
-        })
-      })
-      $field.appendTo(this._$formula)
-      $aggrMenu.find('a:eq(1)').trigger('click') // default:SUM
-    } else {
-      super.handleInput(v)
-    }
-  }
-
-  _changeCalcMode(el) {
-    el = $(el)
-    const $field = el.parent().prev()
-    const mode = el.data('mode')
-    const modeText = mode ? ` (${FormulaAggregation.CALC_MODES[mode]})` : ''
-    $field.attr('data-mode', mode || '').text(`{${$field.data('name')}${modeText}}`)
-  }
-
-  confirm() {
-    const expr = []
-    $(this._$formula)
-      .find('i')
-      .each(function () {
-        const $this = $(this)
-        const v = $this.data('v')
-        if ($this.attr('data-mode')) expr.push(`${v.substr(0, v.length - 1)}$$$$${$this.attr('data-mode')}}`)
-        else expr.push(v)
-      })
-
-    let formula
-    if ($(this._$formulaInput).val()) formula = $(this._$formulaInput).val()
-    else formula = expr.join('')
-
-    const that = this
-    function _onConfirm() {
-      typeof that.props.onConfirm === 'function' && that.props.onConfirm(formula)
-      that.hide()
-    }
-
-    if (formula && this.props.verifyFormula) {
-      verifyFormula(formula, this.props.entity, _onConfirm)
-    } else {
-      _onConfirm()
-    }
-  }
-
-  static CALC_MODES = {
-    SUM: $L('求和'),
-    COUNT: $L('计数'),
-    COUNT2: $L('去重计数'),
-    AVG: $L('平均值'),
-    MAX: $L('最大值'),
-    MIN: $L('最小值'),
-    FORMULA: $L('计算公式'),
-  }
-
-  /**
-   * 公式文本化
-   *
-   * @param {*} formula
-   * @param {*} fields
-   * @returns
-   */
-  static textFormula(formula, fields) {
-    if (!formula) return ''
-
-    for (let i = 0; i < fields.length; i++) {
-      const field = fields[i]
-      formula = formula.replace(new RegExp(`\\{${field.name}\\}`, 'ig'), `{${field.label}}`)
-      formula = formula.replace(new RegExp(`\\{${field.name}\\$`, 'ig'), `{${field.label}$`)
-    }
-
-    const keys = Object.keys(FormulaAggregation.CALC_MODES)
-    keys.reverse()
-    keys.forEach((k) => {
-      formula = formula.replace(new RegExp(`\\$\\$\\$\\$${k}`, 'g'), ` (${FormulaAggregation.CALC_MODES[k]})`)
-    })
-    return formula //.toUpperCase()
-  }
-
-  /**
-   * @param {*} name
-   * @param {*} fields
-   * @returns
-   */
-  static getLabel(name, fields) {
-    const x = fields.find((x) => x.name === name)
-    return x ? x.label : `[${name.toUpperCase()}]`
   }
 }
 
@@ -508,14 +425,7 @@ class EditorWithFieldVars extends React.Component {
               if (['DATE', 'DATETIME', 'TIME'].includes(item.type)) typeMark = 'D'
               else if (['NUMBER', 'DECIMAL'].includes(item.type)) typeMark = 'N'
               return (
-                <a
-                  key={item.name}
-                  className="dropdown-item"
-                  data-name={item.name}
-                  data-pinyin={item.quickCode}
-                  onClick={() => {
-                    $(this._$content).insertAtCursor(`{${item.name}}`)
-                  }}>
+                <a key={item.name} className="dropdown-item" data-name={item.name} data-pinyin={item.quickCode} onClick={() => this.insertAtCursor(`{${item.name}}`)}>
                   <em>{typeMark}</em>
                   {item.label}
                 </a>
@@ -531,13 +441,7 @@ class EditorWithFieldVars extends React.Component {
             <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ maxHeight: 388 }} ref={(c) => (this._$funcs = c)}>
               {this.state.funcs.map((item) => {
                 return (
-                  <a
-                    key={item.name}
-                    className="dropdown-item"
-                    data-name={item.name}
-                    onClick={() => {
-                      $(this._$content).insertAtCursor(`${item.name}()`)
-                    }}>
+                  <a key={item.name} className="dropdown-item" data-name={item.name} onClick={() => this.insertAtCursor(`${item.name}()`)}>
                     {item.label}
                   </a>
                 )
@@ -545,9 +449,22 @@ class EditorWithFieldVars extends React.Component {
             </div>
           </div>
         )}
+        {this.props.canFullscreen && (
+          <div className="fields-vars">
+            <a title={$L('全屏')} onClick={() => this.resize()}>
+              <i className="mdi mdi-fullscreen" />
+            </a>
+          </div>
+        )}
       </div>
     )
   }
+
+  insertAtCursor(text) {
+    $(this._$content).insertAtCursor(text)
+  }
+
+  resize() {}
 
   componentDidMount() {
     $.get(`/commons/metadata/fields?entity=${this.props.entity}&deep=3`, (res) => {
@@ -558,7 +475,7 @@ class EditorWithFieldVars extends React.Component {
 
     // v4.2
     if (this.props.showFuncs) {
-      const IGNORED_NAMES = ['CACHE', 'LOG', 'RAWSQLQUERY', 'RAWSQLUPDATE', 'USERUPDATE', 'DEPTUPDATE', 'PDFMERGE', 'HANLPSIM', 'HANLPSEG', 'HANLPPINY', '$L']
+      const IGNORED_NAMES = ['CACHE', 'LOG', 'RAWSQLQUERY', 'RAWSQLUPDATE', 'USERUPDATE', 'DEPTUPDATE', 'PDFMERGE', 'HANLPSIM', 'HANLPSEG', 'HANLPPINY', '$L', 'ZIP']
       $.get('/admin/robot/trigger/field-writeback-custom-funcs', (res) => {
         let funcs = []
         res.data.forEach((name) => {
@@ -592,5 +509,369 @@ class EditorWithFieldVars extends React.Component {
 
   focus() {
     setTimeout(() => this._$content.focus(), 20)
+  }
+}
+
+// ~ 公式编辑器
+// eslint-disable-next-line no-unused-vars
+class FormulaCalcWithCode extends FormulaCalc {
+  constructor(props) {
+    super(props)
+  }
+
+  renderContent() {
+    let forceCode = this.props.forceCode || this.state.useCode
+    let initCode = this.props.initFormula
+    if (!forceCode && initCode && initCode.startsWith('{{{{')) {
+      forceCode = true
+    }
+    if (FormulaCalcWithCode.isCode(initCode) && initCode.startsWith('{{{{')) {
+      initCode = initCode.substring(4, initCode.length - 4)
+    }
+
+    if (forceCode) {
+      return (
+        <FormulaCode
+          initCode={initCode}
+          onConfirm={(s) => {
+            this.props.onConfirm(!$trim(s) ? null : `{{{{${s}}}}}`)
+            this.hide()
+          }}
+          verifyFormula
+          entity={this.props.entity}
+        />
+      )
+    } else {
+      return super.renderContent()
+    }
+  }
+
+  renderExtraKeys() {
+    return (
+      <RF>
+        <li className="list-inline-item">
+          <a data-toggle="dropdown">{$L('函数')}</a>
+          <div className="dropdown-menu">
+            <a className="dropdown-item" onClick={() => this.handleInput('DATEDIFF')} title="DATEDIFF($DATE1, $DATE2, [H|D|M|Y])">
+              DATEDIFF
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('DATEADD')} title="DATEADD($DATE, $NUMBER[H|D|M|Y])">
+              DATEADD
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('DATESUB')} title="DATESUB($DATE, $NUMBER[H|D|M|Y])">
+              DATESUB
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('DATEPICKAT')} title="DATEPICKAT($DATE, [Y|Q|M|D|H|I])">
+              DATEPICKAT
+            </a>
+            <div className="dropdown-divider" />
+            <a className="dropdown-item pointer" target="_blank" href="https://getrebuild.com/docs/admin/trigger/fieldwriteback#%E4%BD%BF%E7%94%A8%E6%97%A5%E6%9C%9F%E5%87%BD%E6%95%B0">
+              <i className="zmdi zmdi-help icon" />
+              {$L('如何使用函数')}
+            </a>
+          </div>
+        </li>
+        <li className="list-inline-item">
+          <a data-toggle="dropdown">{$L('单位')}</a>
+          <div className="dropdown-menu">
+            <a className="dropdown-item" onClick={() => this.handleInput('H')}>
+              H ({$L('小时')})
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('D')}>
+              D ({$L('日')})
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('M')}>
+              M ({$L('月')})
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('Y')}>
+              Y ({$L('年')})
+            </a>
+          </div>
+        </li>
+        <li className="list-inline-item">
+          <a onClick={() => this.handleInput('"')}>&#34;</a>
+        </li>
+        <li className="list-inline-item">
+          <a onClick={() => this.handleInput(',')}>,</a>
+        </li>
+      </RF>
+    )
+  }
+
+  componentDidMount() {
+    if (this._$fields) {
+      $(this._$fields).css('max-height', 220)
+
+      const $btn = $(`<a class="switch-code-btn" title="${$L('使用高级计算公式')}"><i class="icon mdi mdi-code-tags"></i></a>`)
+      $(this._$formula).addClass('switch-code').after($btn)
+      $btn.on('click', () => this.setState({ useCode: true }))
+    }
+
+    super.componentDidMount()
+  }
+
+  handleInput(v) {
+    if (['DATEDIFF', 'DATEADD', 'DATESUB', ',', '"'].includes(v)) {
+      $(`<i class="v oper">${v}</em>`).appendTo(this._$formula).attr('data-v', v)
+
+      if (['DATEDIFF', 'DATEADD', 'DATESUB'].includes(v)) {
+        setTimeout(() => this.handleInput('('), 200)
+      }
+    } else {
+      super.handleInput(v)
+    }
+  }
+}
+
+// 公式代码编辑器
+class FormulaCode extends React.Component {
+  render() {
+    return (
+      <div>
+        {window.CodeMirror ? (
+          <CodeEditorWithFieldVars entity={this.props.entity} showFuncs ref={(c) => (this._formulaCode = c)} placeholder="## Support AviatorScript" isCode canFullscreen={false} />
+        ) : (
+          <EditorWithFieldVars entity={this.props.entity} showFuncs ref={(c) => (this._formulaCode = c)} placeholder="## Support AviatorScript" isCode />
+        )}
+
+        <div className="row mt-1">
+          <div className="col pt-2">
+            <span className="d-inline-block">
+              <a href="https://getrebuild.com/docs/admin/trigger/fieldwriteback#%E9%AB%98%E7%BA%A7%E8%AE%A1%E7%AE%97%E5%85%AC%E5%BC%8F" target="_blank" className="link">
+                {$L('如何使用高级计算公式')}
+              </a>
+              <i className="zmdi zmdi-help zicon" />
+            </span>
+          </div>
+          <div className="col text-right">
+            <button type="button" className="btn btn-primary" onClick={() => this.handleConfirm()}>
+              {$L('确定')}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    this._formulaCode.val(this.props.initCode || '')
+  }
+
+  handleConfirm() {
+    const code = this._formulaCode.val()
+    const that = this
+    function _onConfirm() {
+      typeof that.props.onConfirm === 'function' && that.props.onConfirm(code)
+    }
+
+    if (code && this.props.verifyFormula) {
+      verifyFormula(code, this.props.entity, _onConfirm)
+    } else {
+      _onConfirm()
+    }
+  }
+
+  // 格式化显示
+  static textCode(code) {
+    if (!code) return null
+
+    code = code.substr(4, code.length - 8) // Remove {{{{ xxx }}}}
+    code = code.replace(/( )/gi, '&nbsp;').replace(/</gi, '&lt;').replace(/\n/gi, '<br/>')
+    return <code style={{ lineHeight: 1.2 }} dangerouslySetInnerHTML={{ __html: code }} />
+  }
+}
+
+FormulaCalcWithCode.isCode = function (formula) {
+  return formula && formula.startsWith('{{{{')
+}
+
+FormulaCalcWithCode.formatText = function (formula, fields) {
+  if (!formula) return null
+
+  // CODE
+  if (FormulaCalcWithCode.isCode(formula)) {
+    return FormulaCode.textCode(formula)
+  }
+  // compatible: DATE
+  if (formula.includes('#')) {
+    const fs = formula.split('#')
+    const field = fields.find((x) => x.name === fs[0])
+    return `{${field ? field.label : `[${fs[0].toUpperCase()}]`}}` + (fs[1] || '')
+  }
+  // NUM,DATE
+  else {
+    return FormulaCalcWithCode.textFormula(formula, fields)
+  }
+}
+
+// v4.3
+// ~ 聚合公式编辑器
+// eslint-disable-next-line no-unused-vars
+class FormulaAggregation extends FormulaCalcWithCode {
+  renderExtraKeys() {
+    return null
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    // restore
+    $(this._$fields).css('max-height', 185)
+  }
+
+  handleInput(v) {
+    if (typeof v === 'object') {
+      const that = this
+      const nameAndMode = v.name.split('$$$$')
+      const $field = $(`<span class="v field hover"><i data-toggle="dropdown" data-v="{${nameAndMode[0]}}" data-mode="{${nameAndMode[1] || ''}}" data-name="${v.label}">{${v.label}}<i></span>`)
+      const $aggrMenu = $('<div class="dropdown-menu dropdown-menu-sm"></div>').appendTo($field)
+      $(['', 'SUM', 'AVG', 'MAX', 'MIN']).each(function () {
+        const $a = $(`<a class="dropdown-item" data-mode="${this}">${FormulaAggregation.CALC_MODES[this] || $L('无')}</a>`).appendTo($aggrMenu)
+        $a.on('click', function () {
+          that._changeCalcMode(this)
+        })
+      })
+      $field.appendTo(this._$formula)
+
+      // 回显
+      if (nameAndMode[1] || Object.keys(v).length === 2) {
+        $aggrMenu.find(`a[data-mode="${nameAndMode[1] || ''}"]`).trigger('click')
+      } else {
+        $aggrMenu.find('a:eq(1)').trigger('click') // default:SUM
+      }
+    } else {
+      super.handleInput(v)
+    }
+  }
+
+  _changeCalcMode(el) {
+    el = $(el)
+    const $field = el.parent().prev()
+    const mode = el.data('mode')
+    const modeText = mode ? ` (${FormulaAggregation.CALC_MODES[mode]})` : ''
+    $field.attr('data-mode', mode || '').text(`{${$field.data('name')}${modeText}}`)
+  }
+
+  confirm() {
+    const expr = []
+    $(this._$formula)
+      .find('i')
+      .each(function () {
+        const $this = $(this)
+        const v = $this.data('v')
+        if ($this.attr('data-mode')) expr.push(`${v.substr(0, v.length - 1)}$$$$${$this.attr('data-mode')}}`)
+        else expr.push(v)
+      })
+
+    let formula
+    if ($(this._$formulaInput).val()) formula = $(this._$formulaInput).val()
+    else formula = expr.join('')
+
+    const that = this
+    function _onConfirm() {
+      typeof that.props.onConfirm === 'function' && that.props.onConfirm(formula)
+      that.hide()
+    }
+
+    if (formula && this.props.verifyFormula) {
+      verifyFormula(formula, this.props.entity, _onConfirm)
+    } else {
+      _onConfirm()
+    }
+  }
+
+  static CALC_MODES = {
+    SUM: $L('求和'),
+    COUNT: $L('计数'),
+    COUNT2: $L('去重计数'),
+    AVG: $L('平均值'),
+    MAX: $L('最大值'),
+    MIN: $L('最小值'),
+    FORMULA: $L('计算公式'),
+  }
+
+  /**
+   * 公式文本化
+   *
+   * @param {*} formula
+   * @param {*} fields
+   * @returns
+   */
+  static textFormula(formula, fields) {
+    if (!formula) return ''
+
+    // v4.3 CODE
+    if (FormulaCalcWithCode.isCode(formula)) {
+      return FormulaCode.textCode(formula)
+    }
+
+    for (let i = 0; i < fields.length; i++) {
+      const field = fields[i]
+      formula = formula.replace(new RegExp(`\\{${field.name}\\}`, 'ig'), `{${field.label}}`)
+      formula = formula.replace(new RegExp(`\\{${field.name}\\$`, 'ig'), `{${field.label}$`)
+    }
+
+    const keys = Object.keys(FormulaAggregation.CALC_MODES)
+    keys.reverse()
+    keys.forEach((k) => {
+      formula = formula.replace(new RegExp(`\\$\\$\\$\\$${k}`, 'g'), ` (${FormulaAggregation.CALC_MODES[k]})`)
+    })
+    return formula
+  }
+
+  /**
+   * @param {*} name
+   * @param {*} fields
+   * @returns
+   */
+  static getLabel(name, fields) {
+    const x = fields.find((x) => x.name === name)
+    return x ? x.label : `[${name.toUpperCase()}]`
+  }
+}
+
+// v4.3 CM
+class CodeEditorWithFieldVars extends EditorWithFieldVars {
+  render() {
+    return <div className="CodeEditorWithFieldVars__wrap">{super.render()}</div>
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    setTimeout(() => {
+      this._CodeMirror = window.CodeMirror.fromTextArea(this._$content, {
+        mode: 'javascript',
+        theme: 'material-darker',
+        lineNumbers: true,
+        dragDrop: false,
+        smartIndent: true,
+        styleActiveLine: true,
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        lineWrapping: true,
+        viewportMargin: Infinity,
+        ...this.props.cmProps,
+      })
+      this.focus()
+    }, 20)
+  }
+
+  insertAtCursor(text) {
+    this._CodeMirror.replaceSelection(text)
+    this.focus()
+  }
+
+  val() {
+    if (arguments.length) {
+      setTimeout(() => {
+        this._CodeMirror && this._CodeMirror.setValue(arguments[0])
+      }, 22)
+    } else {
+      return this._CodeMirror ? this._CodeMirror.getValue() : null
+    }
+  }
+
+  focus() {
+    this._CodeMirror && this._CodeMirror.focus()
   }
 }

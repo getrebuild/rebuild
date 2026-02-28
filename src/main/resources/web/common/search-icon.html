@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -39,7 +39,7 @@
   <body class="dialog">
     <div class="main-content">
       <div id="search-box">
-        <input class="w-100" th:placeholder="${bundle.L('搜索 (EN)')}" />
+        <input class="w-100" th:placeholder="${bundle.L('搜索')}" />
       </div>
       <div id="icons" class="text-center"></div>
     </div>
@@ -52,7 +52,6 @@
       }
       $(document).ready(() => {
         renderMdi7()
-        parent && parent.RbModal && parent.RbModal.resize()
 
         window.bosskeyTrigger = function () {
           $('#icons').empty()
@@ -60,7 +59,6 @@
           setTimeout(() => {
             $('#icons').empty()
             renderZmdi()
-            parent && parent.RbModal && parent.RbModal.resize()
           }, 666)
         }
 
@@ -74,12 +72,13 @@
             clearTimeout(lastTimer)
             lastTimer = null
           }
-          const lastKey2 = lastKey.toUpperCase()
+
+          const key = lastKey.toUpperCase()
           lastTimer = setTimeout(() => {
             $('#icons > a').each(function () {
               const $this = $(this)
               const title = $this.attr('title')
-              if (!lastKey2 || title.includes(lastKey2)) $this.removeClass('hide')
+              if (!key || title.includes(key)) $this.removeClass('hide')
               else $this.addClass('hide')
             })
             parent && parent.RbModal && parent.RbModal.resize()
@@ -87,26 +86,41 @@
         })
       })
 
+      function _RN(icon, name) {
+        $(`<a data-icon="${icon}" title="${name}"><i class="mdi ${icon}"></a>`)
+          .appendTo('#icons')
+          .on('click', function () {
+            cb($(this).data('icon'))
+          })
+      }
+
       // V1
       function renderZmdi() {
         $(ZMDI_ICONS).each(function () {
           if (!ZMDI_ICONS_IGNORE.contains(this + '')) {
-            const $a = $(`<a data-icon="${this}" title="${this.toUpperCase()}"><i class="zmdi zmdi-${this}"></a>`).appendTo('#icons')
-            $a.on('click', function () {
-              cb($(this).data('icon'))
-            })
+            _RN(this, this.toUpperCase())
           }
         })
+        parent && parent.RbModal && parent.RbModal.resize()
       }
       // V2-4.0
       function renderMdi7() {
-        MDI7_ICONS.forEach((icon) => {
-          if (MDI7_ICONS_IGNORE.includes(icon)) return
-          const $a = $(`<a data-icon="${icon}" title="${icon.substr(4).toUpperCase()}"><i class="mdi ${icon}"></a>`).appendTo('#icons')
-          $a.on('click', function () {
-            cb($(this).data('icon'))
-          })
+        // 6000+
+        _renderMdi7(MDI7_ICONS.slice(0, 2000))
+        setTimeout(() => _renderMdi7(MDI7_ICONS.slice(2000, 4000)), 2000)
+        setTimeout(() => _renderMdi7(MDI7_ICONS.slice(4000)), 4000)
+      }
+      function _renderMdi7(icons) {
+        icons.forEach((icon) => {
+          let name = icon.substr(4)
+          if (MDI7_ICONS_IGNORE.includes(name)) return
+
+          if (MDI7_ICONS_CHINESE[name]) name = MDI7_ICONS_CHINESE[name] + '\n' + name.toUpperCase()
+          else name = name.toUpperCase()
+
+          _RN(icon, name)
         })
+        parent && parent.RbModal && parent.RbModal.resize()
       }
     </script>
   </body>

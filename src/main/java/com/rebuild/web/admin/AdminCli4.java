@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Field;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.Field2SchemaFixer;
+import com.rebuild.core.metadata.impl.FixRefsIndex43;
 import com.rebuild.core.service.approval.ApprovalFields2Schema;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
@@ -52,6 +53,7 @@ public class AdminCli4 {
     private static final String C_ADD_TESTENTITY = "add-testentity";
     private static final String C_CHK_SCHEMAS = "chk-schemas";
     private static final String C_FIX_ENTITY = "fix-entity";
+    private static final String C_FIX_INDEX = "fix-index";
 
     private static final String SUCCESS = "OK";
 
@@ -125,6 +127,10 @@ public class AdminCli4 {
             }
             case C_FIX_ENTITY: {
                 result = this.execFixEntity();
+                break;
+            }
+            case C_FIX_INDEX: {
+                result = this.execFixIndex();
                 break;
             }
             default: {
@@ -332,5 +338,24 @@ public class AdminCli4 {
             return s ? "OK" : "WRAN: Cannot";
         }
         return "OK";
+    }
+
+    /**
+     * @return
+     */
+    private String execFixIndex() {
+        String fixEntity = commands.length > 1 ? commands[1] : null;
+
+        try {
+            if (fixEntity != null) {
+                new FixRefsIndex43(new Entity[]{MetadataHelper.getEntity(fixEntity)}).fix();
+            } else {
+                new FixRefsIndex43().fix();
+            }
+
+            return "OK";
+        } catch (Exception ex) {
+            return "WRAN: Exec failed `" + ex.getLocalizedMessage() + "`";
+        }
     }
 }

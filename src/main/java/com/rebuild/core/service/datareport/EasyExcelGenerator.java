@@ -131,6 +131,7 @@ public class EasyExcelGenerator extends SetUser {
             WriteSheet writeSheet = EasyExcel.writerSheet(writeSheetAt)
                     .registerWriteHandler(new FixsMergeStrategy())
                     .registerWriteHandler(new FormulaCellWriteHandler())
+                    .registerWriteHandler(new FixImageToMergedRegionHandler43())
                     .build();
 
             int datasLen = datas.size();
@@ -370,7 +371,7 @@ public class EasyExcelGenerator extends SetUser {
                 data.put(varName, buildBarcodeData(easyField.getRawMeta(), record.getPrimary()));
             } else if (fieldValue == null) {
                 // v3.8
-                Object funcValue = ValueConvertFunc.convert(easyField, null, varName, this.getClass());
+                Object funcValue = ValueFnConvert.convert(easyField, null, varName, this.getClass());
                 data.put(varName, funcValue == null ? StringUtils.EMPTY : funcValue);
             } else {
 
@@ -423,7 +424,7 @@ public class EasyExcelGenerator extends SetUser {
                     }
 
                     // v3.7.0
-                    fieldValue = ValueConvertFunc.convert(easyField, fieldValue, varName, this.getClass());
+                    fieldValue = ValueFnConvert.convert(easyField, fieldValue, varName, this.getClass());
                 }
 
                 data.put(varName, fieldValue);
@@ -503,6 +504,14 @@ public class EasyExcelGenerator extends SetUser {
         if (phName.startsWith(PH__KEEP)) {
             return phName.length() > PH__KEEP.length()
                     ? phName.substring(PH__KEEP.length() + 1) : "";
+        }
+        // v4.3 __CURRENTDATE:yyyy年MM月dd日
+        else if (phName.startsWith(PH__CURRENTDATE) || phName.startsWith(PH__CURRENTDATETIME)) {
+            String[] nameAndFormat = phName.split(":");
+            if (nameAndFormat.length >= 2) {
+                nameAndFormat[1] = phName.substring(nameAndFormat[0].length() + 1);
+                return CalendarUtils.format(nameAndFormat[1], CalendarUtils.now());
+            }
         }
 
         switch (phName) {

@@ -61,14 +61,17 @@
               <li th:class="${active == 'robot-trigger'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('TRI', #request)}">
                 <a th:href="@{/admin/robot/triggers}"><i class="icon mdi mdi-cogs"></i><span>[[${bundle.L('触发器')}]]</span></a>
               </li>
-              <li th:class="${active == 'robot-sop'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('SOP', #request)}" th:classappend="bosskey-show">
+              <li th:class="${active == 'robot-sop'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('SOP', #request)}">
                 <a th:href="@{/admin/robot/sops}"><i class="icon mdi mdi-timelapse"></i><span>[[${bundle.L('业务进度')}]]</span> (LAB) <sup class="rbv"></sup></a>
               </li>
               <li th:class="${active == 'report-templates'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('REP', #request)}">
                 <a th:href="@{/admin/data/report-templates}"><i class="icon mdi mdi-microsoft-excel"></i><span>[[${bundle.L('报表模板')}]]</span></a>
               </li>
               <li th:class="${active == 'data-imports'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('IMP', #request)}">
-                <a th:href="@{/admin/data/data-imports}"><i class="icon mdi mdi-database-import"></i><span>[[${bundle.L('数据导入')}]]</span></a>
+                <a th:href="@{/admin/data/data-imports}"><i class="icon mdi mdi-table-arrow-right"></i><span>[[${bundle.L('数据导入')}]]</span></a>
+              </li>
+              <li th:class="${active == 'data-syncer'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('SYN', #request)}">
+                <a th:href="@{/admin/data/data-syncer}"><i class="icon mdi mdi-database-import"></i><span>[[${bundle.L('数据同步')}]]</span> <sup class="rbv"></sup></a>
               </li>
               <li th:class="${active == 'extforms'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('EXF', #request)}">
                 <a th:href="@{/admin/extforms}"><i class="icon mdi mdi-format-list-group-plus"></i><span>[[${bundle.L('外部表单')}]]</span> <sup class="rbv"></sup></a>

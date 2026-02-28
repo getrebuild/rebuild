@@ -342,7 +342,7 @@ class LightAttachmentList extends RelatedList {
     this.__listExtraLink = (
       <form method="post" action={`${rb.baseUrl}/files/batch-download`} ref={(c) => (this._$downloadForm = c)} target="_blank">
         <input type="hidden" name="files" />
-        <button type="submit" className="btn btn-light w-auto" title={$L('批量下载')} disabled>
+        <button type="submit" className="btn btn-light w-auto ml-1" title={$L('批量下载')} disabled>
           <i className="icon zmdi zmdi-download" />
         </button>
       </form>
@@ -496,16 +496,16 @@ class SelectReport extends React.Component {
                 <ul className="list-unstyled">
                   {(this.state.reports || []).map((item) => {
                     const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}`
-                    const showPdf = (item.outputType || '').includes('pdf')
+                    const hidePdf = item.outputType && item.outputType.includes('html5')
                     return (
-                      <li key={item.id} className={`${rb._officePreviewUrl && 'has-preview'} ${showPdf && 'has-pdf'}`}>
+                      <li key={item.id} className={`${rb._officePreviewUrl && 'has-preview'} ${hidePdf ? '' : 'has-pdf'}`}>
                         <a target="_blank" href={reportUrl} className="text-truncate" title={$L('下载')}>
                           {item.name}
                           <i className="mdi mdi-download" />
                         </a>
                         <span>
-                          {showPdf && (
-                            <a target="_blank" className="preview" href={`${reportUrl}&output=pdf`} title={$L('查看 PDF')}>
+                          {!hidePdf && (
+                            <a target="_blank" className="preview" href={`${reportUrl}&output=pdf`} title="PDF">
                               <i className="mdi mdi-file-pdf-box fs-18" />
                             </a>
                           )}
@@ -577,6 +577,11 @@ const EasyAction4View = {
             _EasyAction.handleOp(itemL2, id)
           }
           itemL2._eaid = itemL2.id
+
+          if (itemL2.text === '----') {
+            itemL2.onClick = undefined
+            itemL2._eaid = undefined
+          }
         })
       _View.addButton(item)
     })

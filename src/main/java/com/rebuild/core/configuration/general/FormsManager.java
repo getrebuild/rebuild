@@ -116,6 +116,7 @@ public class FormsManager extends BaseLayoutManager {
                 if ((o = shareTo4Attr.get("verticalLayout")) != null) use.set("verticalLayout", o);
                 if ((o = shareTo4Attr.get("detailsFromsAttr")) != null) use.set("detailsFromsAttr", o);
                 if ((o = shareTo4Attr.get("hideEmptyFields")) != null) use.set("hideEmptyFields", o);
+                if ((o = shareTo4Attr.get("topAlert43")) != null) use.set("topAlert43", o);
             }
 
             use.set("entity", entity)

@@ -107,9 +107,13 @@ public class BootApplication extends SpringBootServletInitializer {
     // ---------------------------------------- USE BOOT
 
     public static void main(String[] args) {
+        setDefaultUncaughtExceptionHandler43();
         log.info("REBUILD starting ...");
+
         BOOTING_TIME415 = System.currentTimeMillis();
         if (devMode()) System.setProperty("spring.profiles.active", "dev");
+        // v4.3
+        System.setProperty("java.io.tmpdir", RebuildConfiguration.getFileOfTemp("/").getAbsolutePath());
 
         // kill -15 `cat ~/.rebuild/rebuild.pid`
         File pidFile = RebuildConfiguration.getFileOfData("rebuild.pid");
@@ -124,7 +128,9 @@ public class BootApplication extends SpringBootServletInitializer {
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        setDefaultUncaughtExceptionHandler43();
         log.info("REBUILD starting ...");
+
         BOOTING_TIME415 = System.currentTimeMillis();
         if (SystemUtils.IS_OS_WINDOWS) AnsiConsole.systemInstall();
         if (devMode()) System.setProperty("spring.profiles.active", "dev");
@@ -152,6 +158,7 @@ public class BootApplication extends SpringBootServletInitializer {
         super.onStartup(servletContext);
     }
 
+    // Tomcat 端口号
     private static void detectTomcatPort() throws Exception {
         List<MBeanServer> mbeans = MBeanServerFactory.findMBeanServer(null);
         if (mbeans.isEmpty()) return;
@@ -166,5 +173,10 @@ public class BootApplication extends SpringBootServletInitializer {
             ObjectName name = iter.next();
             TOMCAT_PORT = tomcat.getAttribute(name, "port").toString();
         }
+    }
+
+    // 强制将未捕获的异常记录到 Logback
+    private static void setDefaultUncaughtExceptionHandler43() {
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> log.error("UNCAUGHTEXCEPTIONHANDLER", e));
     }
 }

@@ -17,7 +17,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 曲线图
@@ -57,11 +64,13 @@ public class LineChart extends ChartData {
         // FIXME 多余AXIS会舍弃
         if (dims.length > 1) {
             Numerical num1 = nums[0];
-            Object[][] dataRaw = createQuery(buildSql(dims, num1)).array();
+            Object[][] dataRaw = createQuery(buildSql(dims, num1, true)).array();
             // 连续日期
             if (dateContinuous && dataRaw.length > 0) {
                 dataRaw = putContinuousDate2Data(dataRaw, dim1, 2);
             }
+
+            this.calcFormula43(dataRaw, new Numerical[]{num1});
 
             List<Object> dim1Set = new ArrayList<>();
             Map<Object, List<Object[]>> dim2Group = new LinkedHashMap<>();
@@ -140,6 +149,8 @@ public class LineChart extends ChartData {
                     dataRaw = putContinuousDate2Data(dataRaw, dim1, 1);
                 }
             }
+
+            this.calcFormula43(dataRaw, nums);
 
             Object[] numsAxis = new Object[nums.length];
             for (Object[] o : dataRaw) {

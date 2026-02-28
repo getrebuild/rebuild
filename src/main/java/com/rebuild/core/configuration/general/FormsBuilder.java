@@ -347,6 +347,11 @@ public class FormsBuilder extends FormsManager {
             if (StringUtils.isBlank(recordName)) recordName = EasyMetaFactory.getLabel(recordData.getEntity());
             model.set("recordName", recordName);
         }
+        // v4.3
+        if (!viewMode) {
+            String m = model.getString("topAlert43");
+            if (StringUtils.isNotBlank(m)) model.set("topAlert43", m);
+        }
 
         return model.toJSON();
     }
@@ -591,10 +596,7 @@ public class FormsBuilder extends FormsManager {
 
                 // 默认值
                 if (field.get("value") == null) {
-                    if (dt == DisplayType.SERIES
-                            || EntityHelper.ApprovalLastTime.equals(fieldName) || EntityHelper.ApprovalLastRemark.equals(fieldName)
-                            || EntityHelper.ApprovalLastUser.equals(fieldName) || EntityHelper.ApprovalStepUsers.equals(fieldName)
-                            || EntityHelper.ApprovalStepNodeName.equals(fieldName)) {
+                    if (dt == DisplayType.SERIES || MetadataHelper.isApprovalField(fieldName)) {
                         field.put("readonlyw", READONLYW_RO);
                     } else {
                         Object defaultValue = easyField.exprDefaultValue();

@@ -29,23 +29,29 @@ public class Numerical extends Axis {
     private int scale = 2;
     @Getter
     private int unit = 0;
+    @Getter
+    private String formatFormula;
 
     /**
+     * @param fkey
      * @param field
      * @param sort
      * @param calc
      * @param label
      * @param scale
      * @param unit
+     * @param formula
      * @param filter
      * @param parentField
      */
-    protected Numerical(Field field, FormatSort sort, FormatCalc calc, String label, Integer scale, Integer unit,
-                        JSONObject filter, Field parentField) {
-        super(field, sort, calc, label, parentField);
+    protected Numerical(String fkey, Field field, FormatSort sort, FormatCalc calc, String label, Integer scale, Integer unit,
+                        String formula, JSONObject filter, Field parentField) {
+        super(fkey, field, sort, calc, label, parentField);
         if (scale != null) this.scale = scale;
         if (unit != null) this.unit = unit;
         if (ParseHelper.validAdvFilter(filter)) this.filter = filter;
+        // 有公式则使用计算公式
+        this.formatFormula = StringUtils.defaultIfBlank(formula, null);
     }
 
     @Override

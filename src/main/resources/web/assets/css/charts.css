@@ -18,7 +18,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-bottom: 0;
 }
 
-.chart-box.INDEX .chart-body .with {
+.chart-box.INDEX .chart-body .index43-with {
   margin-top: -5px;
 }
 
@@ -133,76 +133,87 @@ See LICENSE and COMMERCIAL in the project root for license information.
   max-width: 100%;
 }
 
-.chart.index > .data-item p {
+.chart.index .index43 {
+  white-space: nowrap;
+}
+
+.chart.index .index43 p {
   font-size: 1.1rem;
   margin-bottom: 1px;
   opacity: 0.9;
   line-height: 1;
 }
 
-.chart.index > .data-item strong {
+.chart.index .index43 strong {
   font-size: 2.5rem;
   font-weight: 400;
 }
 
-.chart.index > .data-item strong > a {
+.chart.index .index43 strong a {
   color: unset;
 }
 
-.chart.index > .data-item strong > a:hover {
-  opacity: 0.8;
-}
-
-.chart.index > .data-item .with p,
-.chart.index > .data-item .with strong {
+.chart.index .index43 .index43-with p,
+.chart.index .index43 .index43-with strong {
   display: inline-block;
   font-size: 1.1rem;
 }
 
-.chart.index > .data-item .with strong {
+.chart.index .index43 .index43-with strong {
   margin-left: 5px;
   margin-top: 3px;
   font-size: 1.55rem;
 }
 
-.chart.index > .data-item span {
-  font-size: 1.15rem;
+.chart.index .index43 span {
+  font-size: 1.2rem;
   margin-left: 2px;
   color: red;
 }
 
-.chart.index > .data-item span.ge::before,
-.chart.index > .data-item span.le::before {
+.chart.index .index43 span.ge::before,
+.chart.index .index43 span.le::before {
   font-family: 'Material Design Icons', serif;
   content: '\F0737';
   font-size: 1.25rem;
   color: red;
 }
 
-.chart.index > .data-item span.le {
+.chart.index .index43 span.le {
   color: green !important;
 }
 
-.chart.index > .data-item span.le::before {
+.chart.index .index43 span.le::before {
   content: '\F072E';
   color: green !important;
 }
 
-.grid-stack-item.fullscreen .chart.index > .data-item p {
+.chart.index .icon43 {
+  font-size: 3.6rem;
+  vertical-align: top;
+  padding-right: 8px;
+}
+
+.grid-stack-item.fullscreen .chart.index .index43 p {
   font-size: 3rem;
 }
 
-.grid-stack-item.fullscreen .chart.index > .data-item strong {
+.grid-stack-item.fullscreen .chart.index .index43 strong {
   font-size: 8.8rem;
   zoom: 1 !important;
 }
 
-.grid-stack-item.fullscreen .chart.index > .data-item .with strong {
+.grid-stack-item.fullscreen .chart.index .index43 .index43-with strong {
   font-size: 4.4rem;
 }
 
-.grid-stack-item.fullscreen .chart.index > .data-item span {
+.grid-stack-item.fullscreen .chart.index .index43 span {
   zoom: 2;
+}
+
+.grid-stack-item.fullscreen .chart.index .icon43 {
+  font-size: 6.4rem;
+  width: 120px;
 }
 
 .chart.ctable {
@@ -707,6 +718,29 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-right: -25px;
 }
 
+#chart-preview .chart-box.CNMAP {
+  padding: 0 !important;
+}
+
+#chart-preview .chart-box.CNMAP .chart-body,
+#chart-preview .chart-box.EmbedFrame .chart-body {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.CNMAP-tip {
+  line-height: 1.4;
+  font-size: 13px;
+  margin-bottom: 10px;
+  color: #222;
+  margin-top: -2px;
+}
+
+.CNMAP-tip b {
+  color: #777;
+  display: block;
+}
+
 .grid-stack .grid-stack-item.HeadingText .grid-stack-item-content {
   background-color: transparent;
 }
@@ -714,11 +748,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .HeadingText-style input,
 .HeadingText-style select {
   width: 64px;
-  height: 32px !important;
+  height: 36px !important;
 }
 
-.HeadingText-style input[type='color'] {
-  width: 32px;
+.HeadingText-style input[type='color'],
+.MyBookmark-settings input[type='color'] {
+  width: 36px;
+  height: 36px;
 }
 
 .chart-box.EmbedFrame .iframe,
@@ -799,8 +835,117 @@ See LICENSE and COMMERCIAL in the project root for license information.
   right: 25px;
 }
 
-.chart-box.TABLE.gradient-bg .chart.ctable .table th {
-  background-color: rgba(255, 255, 255, 0.2);
+.chart-box.MyBookmark .chart-body {
+  overflow: hidden;
+}
+
+.chart-box.MyBookmark .bookmarks {
+  padding-top: 15px;
+  position: relative;
+}
+
+.chart-box.MyBookmark .bookmarks > a {
+  display: inline-block;
+  margin-right: 15px;
+  margin-bottom: 10px;
+  background-color: rgba(0, 0, 0, 0.08);
+  color: #606060;
+  height: 55px;
+  border-radius: 12px;
+  min-width: 55px;
+  max-width: 200px;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.grid-stack-item[data-gs-width='2'] .chart-box.MyBookmark .bookmarks > a {
+  width: 100%;
+  max-width: 100%;
+  margin-right: 0;
+}
+
+.chart-box.MyBookmark .bookmarks > a:hover {
+  opacity: 0.9;
+}
+
+.chart-box.MyBookmark .bookmarks > a:active {
+  box-shadow: inset 3px 3px 3px rgba(0, 0, 0, 0.06);
+}
+
+.chart-box.MyBookmark .bookmarks > a span.icon {
+  width: 55px;
+  height: 55px;
+  line-height: 55px;
+  font-size: 2.2rem;
+  float: left;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.chart-box.MyBookmark .bookmarks > a div.name {
+  height: 55px;
+  margin-left: 55px;
+  display: table-cell;
+  vertical-align: middle;
+  color: #222;
+  padding-right: 17px;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.chart-box.MyBookmark .bookmarks > a em.del,
+.chart-box.MyBookmark .bookmarks > a em.badge {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  font-size: 15px;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  text-align: center;
+  cursor: default;
+  display: none;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.chart-box.MyBookmark .bookmarks > a:hover em.del {
+  display: inline-block;
+}
+
+.chart-box.MyBookmark .bookmarks > a em.badge {
+  display: inline-block;
+  background-color: #fff;
+  border-radius: 10rem;
+  font-size: 0.8462rem;
+  line-height: 1.3;
+  color: #000;
+  top: -8px;
+  right: -8px;
+  padding: 0.07692rem 0.5em;
+  width: auto;
+  height: auto;
+}
+
+.chart-box.MyBookmark .bookmarks > a.dark,
+.chart-box.MyBookmark .bookmarks > a.dark div.name,
+.chart-box.MyBookmark .bookmarks > a.dark span.icon {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.MyBookmark-settings .input-group-text {
+  background-color: #fff;
+  font-size: 1.3rem;
+  cursor: pointer;
+  height: 37px;
+  overflow: hidden;
+}
+
+.MyBookmark-settings .input-group-text:hover {
+  background-color: #f5f5f5;
+}
+
+.chart-box.TABLE.gradient-bg .chart.ctable .table td {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* gradient-backgrounds.css */

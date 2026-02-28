@@ -47,9 +47,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   right: 0;
   color: #aaa;
   transform: rotate(180deg);
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: bold;
-  margin-top: -3px;
 }
 
 .entities-mapping > li.nav-item a.nav-link > span {
@@ -115,7 +114,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-bottom: 1px solid #dee2e6;
 }
 
-#filterFields {
+.fields-map-show {
   background-color: #f7f7f7;
   border-radius: 3px;
   padding: 20px 25px;
@@ -123,14 +122,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
   max-width: 1000px;
 }
 
-#filterFields .badge {
+.fields-map-show .badge {
   border-radius: 0;
   padding: 3px 10px;
   position: relative;
   font-size: 1rem;
 }
 
-#filterFields .badge::after {
+.fields-map-show .badge::after {
   position: absolute;
   width: 0;
   height: 0;
@@ -141,7 +140,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   right: -4px;
 }
 
-#filterFields .mdi {
+.fields-map-show .mdi {
   position: absolute;
   right: -2px;
   font-size: 1.25rem;
@@ -152,9 +151,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .row.title2 a.filter {
   color: #999;
   margin-left: 10px;
-  margin-top: -2px;
+  margin-top: -1px;
   position: absolute;
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .row.title2 a.filter:hover,

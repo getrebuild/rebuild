@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger;
 
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -31,6 +32,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.KnownExceptionConverter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.NamedThreadLocal;
@@ -53,9 +55,11 @@ public class RobotTriggerObserver extends OperatingObserver {
 
     private static final ThreadLocal<TriggerSource> TRIGGER_SOURCE = new NamedThreadLocal<>("Trigger source");
 
+    // 延迟执行
     private static final ThreadLocal<Boolean> LAZY_TRIGGERS = new NamedThreadLocal<>("Lazy triggers");
     private static final ThreadLocal<List<Object>> LAZY_TRIGGERS_CTX = new NamedThreadLocal<>("Lazy triggers ctx");
 
+    // 审批节点执行
     private static final ThreadLocal<String> ALLOW_TRIGGERS_ON_NODEAPPROVED = new NamedThreadLocal<>("Allow triggers on node-approve");
 
     // 少量触发器日志
@@ -179,25 +183,38 @@ public class RobotTriggerObserver extends OperatingObserver {
             triggerSource.addNext(context, when);
         }
 
-        final String sourceId = triggerSource.getSourceId();
+        final String sourceId = triggerSource.getSourceNo();
         try {
             for (TriggerAction action : beExecuted) {
                 // v3.7 审批节点触发
                 if (when == TriggerWhen.APPROVED) {
                     if (!allowWhenApproved(action, context)) continue;
                 }
-                // v3.7 指定字段通用化
+                // v3.7 指定字段执行通用化
                 if (when == TriggerWhen.UPDATE) {
                     JSONArray whenUpdateFields = ((JSONObject) action.getActionContext().getActionContent())
                             .getJSONArray("whenUpdateFields");
-                    if (whenUpdateFields != null && !whenUpdateFields.isEmpty()) {
+                    if (CollectionUtils.isNotEmpty(whenUpdateFields)) {
                         boolean hasUpdated = false;
                         for (String field : context.getAfterRecord().getAvailableFields()) {
+                            // 这里只是检查是否包含了字段
                             if (whenUpdateFields.contains(field)) {
-                                hasUpdated = true;
-                                break;
+                                // v4.3 严格一点对比前值判断是否更新了
+                                Record before = context.getBeforeRecord();
+                                if (before == null) {
+                                    hasUpdated = true;
+                                } else {
+                                    boolean same = FieldValueHelper.isValueSame(
+                                            action.getActionContext().getSourceEntity().getField(field),
+                                            context.getAfterRecord().getObjectValue(field), before.getObjectValue(field));
+                                    hasUpdated = !same;
+                                }
+
+                                if (hasUpdated) break;
                             }
                         }
+
+                        // 无更新则忽略
                         if (!hasUpdated) continue;
                     }
                 }
@@ -205,8 +222,8 @@ public class RobotTriggerObserver extends OperatingObserver {
                 int t = triggerSource.incrTriggerTimes();
                 String w = String.format("Trigger.%s.%d [ %s ] executing on record (%s) : %s", sourceId, t, action, when, primaryId);
 
-                // v4.1 延迟执行（原始触发源才需异步）
-                if (originTriggerSource && action.isAsyncMode()) {
+                // v4.1 延迟执行
+                if (action.isAsyncMode(originTriggerSource)) {
                     if (!_TriggerLessLog) log.info("[ASYNC_MODE] {}", w);
 
                     final ID currentUserHold = UserContextHolder.getUser();
@@ -238,6 +255,9 @@ public class RobotTriggerObserver extends OperatingObserver {
     }
 
     private void execActionInternal(OperatingContext context, TriggerAction action, boolean a, boolean o, String w) {
+        TriggerSource ts43 = getTriggerSource();
+        if (ts43 != null) ts43.setCurrentTrigger(action.actionContext.getConfigId());
+
         try {
             Object res = action.execute(context);
 

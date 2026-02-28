@@ -41,6 +41,7 @@ class CommonsUtilsTest {
         parseDateWithPrint("2020年01月01日 23:23:23");
         parseDateWithPrint("2020年01月01日 23:23");
         parseDateWithPrint("2020年01月01日 23");
+        parseDateWithPrint("2020-01-01 23");
     }
 
     void parseDateWithPrint(String source) {
@@ -60,6 +61,6 @@ class CommonsUtilsTest {
 
     @Test
     void sanitizeHtml() {
-        System.out.println(CommonsUtils.sanitizeHtml("<scriPT>alert(1)</script>"));
+        System.out.println(CommonsUtils.sanitizeHtml("<scriPT>alert(1)</script> <scriPT>alert(1)</script> <scriPT type=>alert(1)</script>"));
     }
 }

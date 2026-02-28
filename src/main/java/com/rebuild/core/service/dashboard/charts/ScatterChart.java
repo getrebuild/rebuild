@@ -40,6 +40,8 @@ public class ScatterChart extends ChartData {
         // 模式1: 0-DMI + N-NUM
         if (dims.length == 0) {
             Object[][] dataRaw = createQuery(buildSql(nums)).array();
+            this.calcFormula43(dataRaw, nums);
+
             for (Object[] item : dataRaw) {
                 for (int i = 0; i < item.length; i++) {
                     item[i] = wrapAxisValue(nums[i], item[i]);
@@ -54,7 +56,9 @@ public class ScatterChart extends ChartData {
         // 模式2: N-DMI + N-NUM
         else {
             for (Dimension dim : dims) {
-                Object[][] dataRaw = createQuery(buildSql(dim, nums, false)).array();
+                Object[][] dataRaw = createQuery(buildSql(dim, nums, true)).array();
+                this.calcFormula43(dataRaw, nums);
+
                 for (Object[] item : dataRaw) {
                     String label = wrapAxisValue(dim, item[0]);
                     for (int i = 1; i < item.length; i++) {

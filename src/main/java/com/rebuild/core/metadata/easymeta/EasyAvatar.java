@@ -14,7 +14,7 @@ import org.springframework.util.Assert;
  * @author devezhao
  * @since 2020/11/17
  */
-public class EasyAvatar extends EasyField {
+public class EasyAvatar extends EasyField implements MediaValue {
     private static final long serialVersionUID = 1215127698901482136L;
 
     protected EasyAvatar(Field field, DisplayType displayType) {

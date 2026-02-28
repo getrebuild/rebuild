@@ -41,43 +41,64 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 20px;
 }
 
-.contact-list > div.card {
+.contact-list {
+  margin-left: -8px;
+  margin-right: -8px;
+}
+
+.contact-list > span {
   display: inline-block;
-  width: 300px;
-  margin-right: 15px;
-  margin-bottom: 11px;
+  padding: 0 8px;
+  margin: 0;
+  margin-bottom: 17px;
+  width: 25%;
+  min-width: 260px;
+  max-width: 380px;
 }
 
-.contact-list > div.card .card-body {
-  padding: 15px;
+.contact-list div.card {
+  width: 100%;
+  margin: 0;
+  border-radius: 6px;
+  border: 1px solid #fff;
 }
 
-.contact-list > div.card .img {
+.contact-list div.card:hover {
+  border: 1px solid #e5e7eb;
+  background-color: #fafafb;
+}
+
+.contact-list div.card .card-body {
+  padding: 12px 15px;
+}
+
+.contact-list div.card .img {
   width: 60px;
+  margin-top: 3px;
 }
 
-.contact-list > div.card .img .user-show {
+.contact-list div.card .img .user-show {
   cursor: default !important;
   opacity: 1 !important;
 }
 
-.contact-list > div.card .img .avatar {
+.contact-list div.card .img .avatar {
   width: 60px;
   height: 60px;
 }
 
-.contact-list > div.card .info {
+.contact-list div.card .info {
   margin-left: 71px;
   overflow: hidden;
   white-space: nowrap;
 }
 
-.contact-list > div.card .info td {
+.contact-list div.card .info td {
   padding: 1px 4px;
 }
 
-.contact-list > div.card .info td strong,
-.contact-list > div.card .info td p {
+.contact-list div.card .info td strong,
+.contact-list div.card .info td p {
   line-height: 1.2;
 }
 

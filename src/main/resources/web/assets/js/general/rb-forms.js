@@ -65,6 +65,11 @@ class RbFormModal extends React.Component {
                     {this.state.alertMessage}
                   </div>
                 )}
+                {this.state.formAlertMessage && (
+                  <div className="rbform-fjsalert">
+                    <RbAlertBox message={WrapHtml(this.state.formAlertMessage, true)} />
+                  </div>
+                )}
                 {this.state.fjsAlertMessage}
 
                 {this.state.formComponent}
@@ -141,7 +146,7 @@ class RbFormModal extends React.Component {
         </RbForm>
       )
 
-      that.setState({ formComponent: FORM, alertMessage: formModel.readonlywMessage || formModel.readonlyMessage || null }, () => {
+      that.setState({ formComponent: FORM, alertMessage: formModel.readonlywMessage || formModel.readonlyMessage || null, formAlertMessage: formModel.topAlert43 }, () => {
         that.setState({ inLoad: false })
         if (window.FrontJS) {
           window.FrontJS.Form._trigger('open', [formModel])
@@ -1919,6 +1924,14 @@ class RbFormImage extends RbFormElement {
               <span key={item}>
                 <a title={$fileCutName(item)} onClick={() => this._filePreview(value, idx)} className="img-thumbnail img-upload zoom-in">
                   <img src={this._formatUrl(item)} alt="IMG" />
+                  <b
+                    title={$L('下载')}
+                    onClick={(e) => {
+                      e && $stopEvent(e)
+                      this._fileDownload(item)
+                    }}>
+                    <span className="zmdi zmdi-download" />
+                  </b>
                 </a>
               </span>
             )
@@ -1936,6 +1949,11 @@ class RbFormImage extends RbFormElement {
   _filePreview(urlKey, idx) {
     const p = parent || window
     p.RbPreview.create(urlKey, idx)
+  }
+
+  _fileDownload(url) {
+    url = $isFullUrl(url) ? url : `${rb.baseUrl}/filex/download/${url}`
+    $openWindow(url)
   }
 
   _fileClick(e, forceType) {
@@ -2129,6 +2147,14 @@ class RbFormFile extends RbFormImage {
           return (
             <a key={item} title={fileName} onClick={() => this._filePreview(item)} className="img-thumbnail">
               {this._renderFileIcon(fileName, item)}
+              <b
+                title={$L('下载')}
+                onClick={(e) => {
+                  e && $stopEvent(e)
+                  this._fileDownload(item)
+                }}>
+                <span className="zmdi zmdi-download" />
+              </b>
             </a>
           )
         })}
@@ -2186,7 +2212,7 @@ class RbFormPickList extends RbFormElement {
 
     if (this._isShowRadio39) {
       return (
-        <div ref={(c) => (this._fieldValue = c)} className="mt-1">
+        <div ref={(c) => (this._fieldValue = c)} className="mt-1 style10">
           {this._options.map((item) => {
             return (
               <label key={item.id} className="custom-control custom-radio custom-control-inline mb-1">
@@ -2755,9 +2781,10 @@ class RbFormN2NReference extends RbFormReference {
     __addRecentlyUse(ids)
 
     // v3.1 回填父级
-    if (selected[0] && this.props._cascadingFieldParent) {
-      this.triggerAutoFillin(selected[0])
-    }
+    // v4.3 多引用子级不回填了
+    // if (selected[0] && this.props._cascadingFieldParent) {
+    //   this.triggerAutoFillin(selected[0])
+    // }
   }
 }
 
@@ -2806,13 +2833,15 @@ class RbFormAnyReference extends RbFormReference {
       $([this._$entity, this._fieldValue]).attr('disabled', false)
     } else {
       const iv = this.state.value
-      $.get('/commons/metadata/entities?detail=true', (res) => {
+      const ae = this.props.anyreferenceEntities ? this.props.anyreferenceEntities.split(',') : []
+      $.get(`/commons/metadata/entities?detail=true&bizz=${ae.length > 0 || rb.isAdminUser}`, (res) => {
         let entities = res.data || []
-        if (this.props.anyreferenceEntities) {
-          const ae = this.props.anyreferenceEntities.split(',')
-          if (ae.length > 0) {
-            entities = entities.filter((item) => ae.includes(item.name))
-          }
+        if (ae.length) {
+          entities = entities.filter((item) => ae.includes(item.name))
+        }
+        // v4.3 非管理员过滤
+        if (!rb.isAdminUser) {
+          entities = entities.filter((item) => !['Role', 'Team'].includes(item.name))
         }
 
         // #1 E
@@ -3063,7 +3092,7 @@ class RbFormMultiSelect extends RbFormElement {
       <div className="mt-1" ref={(c) => (this._fieldValue__wrap = c)}>
         {this._options.map((item) => {
           return (
-            <label key={item.mask} className="custom-control custom-checkbox custom-control-inline">
+            <label key={item.mask} className="custom-control custom-checkbox custom-control-inline mb-1">
               <input
                 className="custom-control-input"
                 name={this._htmlid}

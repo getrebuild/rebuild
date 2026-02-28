@@ -217,33 +217,16 @@ class RbPreview extends React.Component {
     const currentUrl = this.props.urls[this.state.currentIndex]
     const fileName = $fileCutName(currentUrl)
     if (this._isDoc(fileName)) {
-      const isPdfType = fileName.toLowerCase().endsWith('.pdf')
-      const setPreviewUrl = function (url, fullUrl) {
-        let previewUrl = rb._officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src='
-        if (previewUrl.includes('/commons/file-preview?src=')) previewUrl = rb.baseUrl + previewUrl
-        previewUrl += $encode(url)
-
-        if (isPdfType && !previewUrl.includes('/commons/file-preview?src=')) {
-          if ($.browser.mobile) {
-            previewUrl = `${rb.baseUrl}/assets/lib/pdfjs/web/viewer.html?src=${$encode(url)}`
-          } else {
-            if (fullUrl) {
-              previewUrl = url
-            } else {
-              // 本地加载PDF
-              previewUrl = `${rb.baseUrl}/filex/` + url.split('/filex/')[1]
-            }
-          }
-        }
-        that.setState({ previewUrl: previewUrl, errorMsg: null })
+      const setPreviewUrl = function (url) {
+        that.setState({ previewUrl: $buildPreviewUrl(url), errorMsg: null })
       }
 
       if ($isFullUrl(currentUrl)) {
-        setPreviewUrl(currentUrl, true)
+        setPreviewUrl(currentUrl)
       } else {
         $.get(`/filex/make-url?url=${currentUrl}`, (res) => {
           if (res.error_code > 0) this.setState({ errorMsg: res.error_msg })
-          else setPreviewUrl(res.data.publicUrl, $isFullUrl(res.data.publicUrl))
+          else setPreviewUrl(res.data.publicUrl)
         })
       }
     } else if (this._isText(fileName)) {
@@ -500,4 +483,20 @@ class FileShare extends RbModalHandler {
 // eslint-disable-next-line no-unused-vars
 function $isImage(name) {
   return TYPE_IMGS.includes('.' + $fileExtName(name.toLowerCase()))
+}
+
+// 预览地址
+function $buildPreviewUrl(url) {
+  let previewUrl = rb._officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src='
+  let isOoPreview = previewUrl.includes('/commons/file-preview?src=')
+
+  // v4.3 PDF专用
+  if ($fileCutName(url).toLowerCase().endsWith('.pdf') && !isOoPreview) {
+    previewUrl = `${rb.baseUrl}/commons/pdf-preview?src=${$encode(url)}`
+  } else {
+    if (isOoPreview) previewUrl = rb.baseUrl + previewUrl
+    previewUrl += $encode(url)
+  }
+
+  return previewUrl
 }

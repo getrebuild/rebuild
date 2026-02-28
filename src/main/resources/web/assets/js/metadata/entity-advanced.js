@@ -173,15 +173,6 @@ class DlgMode1Option extends RbFormHandler {
                 </div>
                 <span>{$L('查询面板')}</span>
               </div>
-              <div className={`topside-item ${wpc.extConfig && wpc.extConfig.advListFilterTabs ? '' : ' bosskey-show'}`}>
-                <div className="switch-button switch-button-xs">
-                  <input type="checkbox" id="advListFilterTabs" defaultChecked={wpc.extConfig && wpc.extConfig.advListFilterTabs} />
-                  <span>
-                    <label htmlFor="advListFilterTabs" />
-                  </span>
-                </div>
-                <span>{$L('列表视图')} (LAB)</span>
-              </div>
             </div>
           </div>
 
@@ -215,7 +206,6 @@ class DlgMode1Option extends RbFormHandler {
       advListHideFilters: !$val('#advListHideFilters'),
       advListHideCharts: !$val('#advListHideCharts'),
       advListFilterPane: $val('#advListFilterPane'),
-      advListFilterTabs: $val('#advListFilterTabs'),
       advListAsideShows: _advListAsideShows,
     }
     if (this.state.advListShowCategory) {
@@ -566,34 +556,36 @@ class DlgMode4Option extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('日历字段')}</label>
             <div className="col-sm-9">
-              <div className="row">
-                <div className="col">
-                  <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfStart = c)}>
-                    {this.state.fields &&
-                      this.state.fields.map((item) => {
-                        if (!['DATE', 'DATETIME'].includes(item.type)) return null
-                        return (
-                          <option key={item.name} value={item.name}>
-                            {item.label}
-                          </option>
-                        )
-                      })}
-                  </select>
-                  <label className="form-text">{$L('开始时间')}</label>
-                </div>
-                <div className="col">
-                  <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfEnd = c)}>
-                    {this.state.fields &&
-                      this.state.fields.map((item) => {
-                        if (!['DATE', 'DATETIME'].includes(item.type)) return null
-                        return (
-                          <option key={item.name} value={item.name}>
-                            {item.label}
-                          </option>
-                        )
-                      })}
-                  </select>
-                  <label className="form-text">{$L('结束时间')}</label>
+              <div style={{ width: '96%' }}>
+                <div className="row">
+                  <div className="col pr-0">
+                    <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfStart = c)}>
+                      {this.state.fields &&
+                        this.state.fields.map((item) => {
+                          if (!['DATE', 'DATETIME'].includes(item.type)) return null
+                          return (
+                            <option key={item.name} value={item.name}>
+                              {item.label}
+                            </option>
+                          )
+                        })}
+                    </select>
+                    <label className="form-text">{$L('开始时间')}</label>
+                  </div>
+                  <div className="col">
+                    <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfEnd = c)}>
+                      {this.state.fields &&
+                        this.state.fields.map((item) => {
+                          if (!['DATE', 'DATETIME'].includes(item.type)) return null
+                          return (
+                            <option key={item.name} value={item.name}>
+                              {item.label}
+                            </option>
+                          )
+                        })}
+                    </select>
+                    <label className="form-text">{$L('结束时间')}</label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -601,34 +593,36 @@ class DlgMode4Option extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('显示字段')}</label>
             <div className="col-sm-9">
-              <div className="row">
-                <div className="col">
-                  <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfTitle = c)}>
-                    {this.state.fields &&
-                      this.state.fields.map((item) => {
-                        if (!CAN_NAME.includes(item.type)) return null
-                        return (
-                          <option key={item.name} value={item.name}>
-                            {item.label}
-                          </option>
-                        )
-                      })}
-                  </select>
-                  <label className="form-text">{$L('标题')}</label>
-                </div>
-                <div className="col">
-                  <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfColor = c)}>
-                    {this.state.fields &&
-                      this.state.fields.map((item) => {
-                        if (!['PICKLIST', 'CLASSIFICATION'].includes(item.type)) return null
-                        return (
-                          <option key={item.name} value={item.name}>
-                            {item.label}
-                          </option>
-                        )
-                      })}
-                  </select>
-                  <label className="form-text">{$L('颜色')}</label>
+              <div style={{ width: '96%' }}>
+                <div className="row">
+                  <div className="col pr-0">
+                    <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfTitle = c)}>
+                      {this.state.fields &&
+                        this.state.fields.map((item) => {
+                          if (!CAN_NAME.includes(item.type)) return null
+                          return (
+                            <option key={item.name} value={item.name}>
+                              {item.label}
+                            </option>
+                          )
+                        })}
+                    </select>
+                    <label className="form-text">{$L('标题')}</label>
+                  </div>
+                  <div className="col">
+                    <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfColor = c)}>
+                      {this.state.fields &&
+                        this.state.fields.map((item) => {
+                          if (!['PICKLIST', 'CLASSIFICATION'].includes(item.type)) return null
+                          return (
+                            <option key={item.name} value={item.name}>
+                              {item.label}
+                            </option>
+                          )
+                        })}
+                    </select>
+                    <label className="form-text">{$L('颜色')}</label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -742,7 +736,7 @@ const CompCategory = (_this, name = 'advListShowCategory') => {
               onClick={(e) => {
                 $stopEvent(e, true)
                 const categoryFields = _this.state.categoryFields || []
-                if (categoryFields.length >= 9) {
+                if (categoryFields.length >= 99) {
                   RbHighbar.create($L('最多可添加 9 个'))
                   return false
                 }

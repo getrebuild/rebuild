@@ -206,13 +206,19 @@ public class ApprovalController extends BaseController {
         data.put("currentNode", currentFlowNode.getNodeId());
         data.put("allowReferral", currentFlowNode.allowReferral());
         data.put("allowCountersign", currentFlowNode.allowCountersign());
-        // v4.0
-        Long expTime = currentFlowNode.getExpiresTime(recordId, user);
-        data.put("expiresTime", expTime);
-        // 0=选填, 1=必填, 2=超时必填
+
+        // 0=选填, 1=必填, 2=超时必填, 10=隐藏
         int reqType = currentFlowNode.getDataMap().getIntValue("remarkReq");
-        if (reqType < 2) data.put("remarkReq", reqType);
-        else data.put("remarkReq", expTime == null || expTime < 0 ? 0 : 1);
+        if (reqType == 10) {
+            data.put("remarkHide", true);
+            data.put("remarkReq", 0);
+        } else if (reqType < 2) {
+            data.put("remarkReq", reqType);
+        } else {
+            Long expTime = currentFlowNode.getExpiresTime(recordId, user);
+            data.put("expiresTime", expTime);
+            data.put("remarkReq", expTime == null || expTime < 0 ? 0 : 1);
+        }
 
         // 可修改记录
         int editableMode = currentFlowNode.getEditableMode();
@@ -405,15 +411,12 @@ public class ApprovalController extends BaseController {
             return RespBody.ok();
         }
 
-        Object[] belongEntity = Application.createQueryNoFilter(
-                "select belongEntity from RobotApprovalConfig where configId = ?")
-                .setParameter(1, approvalId)
-                .unique();
-        if (belongEntity == null) {
+        String be = RobotApprovalManager.instance.getBelongEntity(approvalId, false);
+        if (be == null) {
             return RespBody.errorl("无效审批流程，可能已被删除");
         }
 
-        Entity applyEntity = MetadataHelper.getEntity((String) belongEntity[0]);
+        Entity applyEntity = MetadataHelper.getEntity(be);
         FlowDefinition def = RobotApprovalManager.instance.getFlowDefinition(applyEntity, approvalId);
         JSONObject data = JSONUtils.toJSONObject(
                 new String[]{"applyEntity", "flowDefinition"},

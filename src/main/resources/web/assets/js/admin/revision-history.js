@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const _ENTITIES = {
   'Feeds': $L('动态'),
   'ProjectTask': $L('任务'),
+  'Attachment': $L('文件'),
 }
 
 $(document).ready(() => {
@@ -47,6 +48,7 @@ const RevTypes = {
   64: $L('取消共享'),
   991: $L('审批通过'),
   992: $L('审批撤销'),
+  993: $L('恢复'),
 }
 
 class DataList extends React.Component {
@@ -210,7 +212,14 @@ class HistoryViewport extends React.Component {
               <RF key={idx}>
                 <tr className="group-title">
                   <td colSpan="3">
-                    <h5>{WrapHtml($L('**%s** 由 %s %s', item[2].split(' UTC')[0], item[3], RevTypes[item[1]]))}</h5>
+                    <h5>
+                      {WrapHtml($L('**%s** 由 %s %s', item[2].split(' UTC')[0], item[3], RevTypes[item[1]]))}
+                      {item[4] && (
+                        <a href={`../robot/trigger/${item[4]}`} target="_blank" className="ml-1" title={$L('触发器')}>
+                          (T)
+                        </a>
+                      )}
+                    </h5>
                   </td>
                 </tr>
                 <ContentsGroup contents={item[0]} />

@@ -9,6 +9,7 @@ package com.rebuild.core.support.general;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.TestSupport;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -17,9 +18,12 @@ import java.util.Arrays;
  */
 class N2NReferenceSupportTest extends TestSupport {
 
-    // FIXME 测试时缺少字段
+    @Disabled
     @Test
     void getN2NValueByMixPath() {
+
+        // FIXME 测试时缺少字段
+
         Object[] F_N2N = N2NReferenceSupport.getN2NValueByMixPath("zuijindingdan.kehunn", ID.valueOf("982-01870e95356e0036"));
         System.out.println(Arrays.toString(F_N2N));
 

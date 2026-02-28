@@ -9,7 +9,6 @@ package com.rebuild.utils;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.persist4j.engine.NullValue;
 import cn.hutool.core.date.DateException;
 import cn.hutool.core.date.DateTime;
@@ -35,10 +34,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -137,15 +137,26 @@ public class CommonsUtils {
             return StringUtils.EMPTY;
         }
 
-
-        // TODO 更好的 sanitizeHtml
         return text.toString()
-                .replaceAll("(?i)<script", "")
-                .replaceAll("(?i)</script>", "")
-                .replaceAll("(?i)<style", "")
-                .replaceAll("(?i)</style>", "")
-                .replaceAll("(?i)<iframe", "")
-                .replaceAll("(?i)<img", "");
+                .replaceAll("(?i)</script>", "script")
+                .replaceAll("(?i)<script>", "script")
+                .replaceAll("(?i)<script ", "script")
+                .replaceAll("(?i)</style>", "style")
+                .replaceAll("(?i)<style>", "style")
+                .replaceAll("(?i)<style ", "style")
+                .replaceAll("(?i)</iframe>", "iframe")
+                .replaceAll("(?i)<iframe>", "iframe")
+                .replaceAll("(?i)<iframe ", "iframe")
+                .replaceAll("(?i)<img ", "img");
+
+//        // TODO 更好的 sanitizeHtml
+//        return text.toString()
+//                .replaceAll("(?i)<script", "")
+//                .replaceAll("(?i)</script>", "")
+//                .replaceAll("(?i)<style", "")
+//                .replaceAll("(?i)</style>", "")
+//                .replaceAll("(?i)<iframe", "")
+//                .replaceAll("(?i)<img", "");
     }
 
     /**
@@ -257,34 +268,6 @@ public class CommonsUtils {
             if (StringUtils.containsIgnoreCase(s, search)) return true;
         }
         return false;
-    }
-
-    /**
-     * @param desc
-     * @param args
-     * @return
-     */
-    public static Object invokeMethod(String desc, Object... args) {
-        String[] classAndMethod = desc.split("#");
-        try {
-            Class<?> clazz = ReflectUtils.classForName(classAndMethod[0]);
-
-            Class<?>[] paramTypes = new Class<?>[args.length];
-            for (int i = 0; i < args.length; i++) {
-                if (args[i] == null) {
-                    log.warn("{} argument [{}] is null", desc, i);
-                    args[i] = new Object();
-                }
-                paramTypes[i] = args[i].getClass();
-            }
-
-            Method method = clazz.getMethod(classAndMethod[1], paramTypes);
-            return method.invoke(null, args);
-
-        } catch (ReflectiveOperationException ex) {
-            log.error("Invalid method invoke : {}", desc);
-            throw new RebuildException(ex);
-        }
     }
 
     /**
@@ -554,5 +537,17 @@ public class CommonsUtils {
                 || filename.endsWith(".xlsx")
                 || filename.endsWith(".ppt")
                 || filename.endsWith(".pptx");
+    }
+
+    /**
+     * @param url
+     * @return
+     */
+    public static String getHost(String url) {
+        try {
+            return new URL(url).getHost();
+        } catch (MalformedURLException e) {
+            return null;
+        }
     }
 }

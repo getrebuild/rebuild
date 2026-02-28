@@ -27,13 +27,12 @@ const ListConfig = {
 
 class DataList extends React.Component {
   render() {
-    return <RbList ref={(c) => (this._List = c)} config={ListConfig} />
+    return <RbList ref={(c) => (this._List = c)} config={ListConfig} hideCheckbox showLineNo />
   }
 }
 
 let _pageIps = []
 const CellRenders_renderSimple = CellRenders.renderSimple
-
 // eslint-disable-next-line react/display-name
 CellRenders.renderSimple = function (v, s, k) {
   let comp = CellRenders_renderSimple(v, s, k)

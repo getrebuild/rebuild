@@ -23,14 +23,15 @@ import java.text.MessageFormat;
 public class Dimension extends Axis {
 
     /**
+     * @param fkey
      * @param field
      * @param sort
      * @param calc
      * @param label
      * @param parentField
      */
-    protected Dimension(Field field, FormatSort sort, FormatCalc calc, String label, Field parentField) {
-        super(field, sort, calc, label, parentField);
+    protected Dimension(String fkey, Field field, FormatSort sort, FormatCalc calc, String label, Field parentField) {
+        super(fkey, field, sort, calc, label, parentField);
     }
 
     @Override
