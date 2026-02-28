@@ -150,6 +150,21 @@ public class RecordCheckout {
         String text = cell.asString();
         if (text != null) text = text.trim();
 
+        // v4.3
+        if (text != null) {
+            if (dt == DisplayType.ANYREFERENCE) {
+                if (ID.isId(text)) return ID.valueOf(text);
+
+                log.warn("Value `{}` cannot be checkout : {}", text, field);
+                return null;
+            } else if (dt == DisplayType.AVATAR) {
+                if (EasyUrl.isUrl(text) || text.startsWith("rb/")) return text;
+
+                log.warn("Value `{}` cannot be checkout : {}", text, field);
+                return null;
+            }
+        }
+
         // v4.2 格式验证
         if (verifyFormat && text != null && easyField instanceof PatternValue) {
             boolean s = ((PatternValue) easyField).checkPattern(text);
