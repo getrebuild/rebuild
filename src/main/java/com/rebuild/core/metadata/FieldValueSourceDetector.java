@@ -76,13 +76,13 @@ public class FieldValueSourceDetector {
             if (targetEntity.contains(".")) targetEntity = targetEntity.split("\\.")[1];
 
             // 源实体
-            String sourceEntity = o[3].toString();
-            Entity sourceEntityMeta = MetadataHelper.getEntity(sourceEntity);
+            Entity sourceEntity = MetadataHelper.getEntity(o[3].toString());
 
             // 聚合后回填
             String fillbackField = configJson.getString("fillbackField");
             Field lastJoinField;
-            if (fillbackField != null && (lastJoinField = MetadataHelper.getLastJoinField(sourceEntityMeta, fillbackField)) != null) {
+            if (fillbackField != null
+                    && (lastJoinField = MetadataHelper.getLastJoinField(sourceEntity, fillbackField)) != null) {
                 if (lastJoinField.equals(field)) {
                     Field idField = MetadataHelper.getField(targetEntity, targetEntity + "Id");
                     fillbackField = String.format("[%s.%s](/admin/entity/%s/field/%s)",
@@ -108,8 +108,8 @@ public class FieldValueSourceDetector {
 
                     if (sourceField.startsWith(AviatorUtils.CODE_PREFIX)) {
                         sourceField = "[计算公式]";
-                    } else if ((lastJoinField = MetadataHelper.getLastJoinField(entity, sourceField)) != null) {
-                        sourceField = Language.L(entity, sourceField);
+                    } else if ((lastJoinField = MetadataHelper.getLastJoinField(sourceEntity, sourceField)) != null) {
+                        sourceField = Language.L(sourceEntity, sourceField);
                         sourceField = String.format("[%s](/admin/entity/%s/field/%s)",
                                 sourceField, lastJoinField.getOwnEntity().getName(), lastJoinField.getName());
                     } else {

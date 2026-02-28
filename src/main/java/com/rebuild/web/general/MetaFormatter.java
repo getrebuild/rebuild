@@ -57,11 +57,11 @@ public class MetaFormatter {
         } else if (dt == DisplayType.BOOL) {
             JSONArray options = new JSONArray();
             options.add(JSONUtils.toJSONObject(
-                    new String[] { "id", "text" },
-                    new Object[] { true, Language.L("是") }));
+                    new String[]{"id", "text"},
+                    new Object[]{true, Language.L("是")}));
             options.add(JSONUtils.toJSONObject(
-                    new String[] { "id", "text" },
-                    new Object[] { false, Language.L("否") }));
+                    new String[]{"id", "text"},
+                    new Object[]{false, Language.L("否")}));
             res.put("options", options);
 
         } else if (dt == DisplayType.NUMBER) {
@@ -108,7 +108,7 @@ public class MetaFormatter {
      * @param deep
      * @param riching
      * @param forceWith 1=ID, 2=approvalStepNode
-     * @param filter 过滤
+     * @param filter 过滤器
      * @return
      */
     public static JSONArray buildFieldsWithRefs(Entity entity, int deep, boolean riching, int forceWith, Predicate<BaseMeta> filter) {
@@ -137,7 +137,7 @@ public class MetaFormatter {
             if (entity2.getEntityCode() == EntityHelper.RobotApprovalConfig) continue;
 
             EasyField easyField2 = EasyMetaFactory.valueOf(field2);
-            String[] parents = new String[] {
+            String[] parents = new String[]{
                     easyField2.getName(), easyField2.getLabel()
             };
 
@@ -148,7 +148,7 @@ public class MetaFormatter {
                 res.add(buildField(easyField, parents, riching));
 
                 if (deep >= 3 && easyField.getDisplayType() == DisplayType.REFERENCE) {
-                    deep3Refs.add(new Object[] { parents[0], parents[1], easyField });
+                    deep3Refs.add(new Object[]{parents[0], parents[1], easyField});
                 }
             }
         }
@@ -162,7 +162,7 @@ public class MetaFormatter {
             Entity entity3 = easyField3.getRawMeta().getReferenceEntity();
             if (entity3.getEntityCode() == EntityHelper.RobotApprovalConfig) continue;
 
-            String[] parents = new String[] {
+            String[] parents = new String[]{
                     d[0] + "." + easyField3.getName(), d[1] + "." + easyField3.getLabel()
             };
 
@@ -218,12 +218,13 @@ public class MetaFormatter {
         return item;
     }
 
-    /**部分特殊实体的字段不要显示
+    /**
+     * 部分特殊实体的字段不要显示
      *
      * @param field
      * @return
      */
-    public static boolean isSystemField4Hide(Field field) {
+    public static boolean isSystemFieldToHide(Field field) {
         if (field.getOwnEntity().getEntityCode() == EntityHelper.User) {
             return field.getName().equals("password") || field.getName().equals("externalId");
         }

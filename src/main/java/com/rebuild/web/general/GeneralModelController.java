@@ -32,6 +32,7 @@ import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
@@ -87,7 +88,8 @@ public class GeneralModelController extends EntityController {
         // 显示历史
         mv.getModel().put("ShowViewHistory", RebuildConfiguration.getBool(ConfigurationItem.ShowViewHistory));
         // EasyAction
-        mv.getModel().put("easyAction", EasyActionManager.instance.getEasyAction(entity, user));
+        mv.getModel().put("easyAction",
+                CommonsUtils.sanitizeHtml(EasyActionManager.instance.getEasyAction(entity, user)));
 
         mv.getModel().put("id", id);
         return mv;

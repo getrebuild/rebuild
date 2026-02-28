@@ -128,7 +128,7 @@ public class FieldWritebackController extends BaseController {
             if (field instanceof EasyField) {
                 EasyField easyField = (EasyField) field;
                 return easyField.getDisplayType() == DisplayType.BARCODE
-                        || MetaFormatter.isSystemField4Hide(easyField.getRawMeta());
+                        || MetaFormatter.isSystemFieldToHide(easyField.getRawMeta());
             }
             return false;
         });
@@ -148,7 +148,7 @@ public class FieldWritebackController extends BaseController {
                 if (field instanceof EasyField) {
                     EasyField easyField = (EasyField) field;
                     return easyField.getDisplayType() == DisplayType.BARCODE
-                            || MetaFormatter.isSystemField4Hide(easyField.getRawMeta());
+                            || MetaFormatter.isSystemFieldToHide(easyField.getRawMeta());
                 }
                 return false;
             });

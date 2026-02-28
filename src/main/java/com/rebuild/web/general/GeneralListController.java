@@ -30,6 +30,7 @@ import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.general.DataListBuilder;
 import com.rebuild.core.support.general.DataListBuilderImpl;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.KnownExceptionConverter;
 import lombok.extern.slf4j.Slf4j;
@@ -187,11 +188,12 @@ public class GeneralListController extends EntityController {
         }
 
         // 列表配置
-        mv.getModel().put("DataListConfig", JSON.toJSONString(listConfig));
+        mv.getModel().put("DataListConfig", CommonsUtils.sanitizeHtml(listConfig));
         // 快速查询
         mv.getModel().put("quickFieldsLabel", getQuickFieldsLabel(listEntity));
         // EasyAction
-        mv.getModel().put("easyAction", EasyActionManager.instance.getEasyAction(listEntity.getName(), user));
+        mv.getModel().put("easyAction",
+                CommonsUtils.sanitizeHtml(EasyActionManager.instance.getEasyAction(listEntity.getName(), user)));
         // 多表单-新建
         List<ConfigBean> formsAttr = FormsManager.instance.getAllFormsAttr(entity, true);
         if (formsAttr.size() > 1) mv.getModel().put("formsAttr", JSON.toJSONString(formsAttr));

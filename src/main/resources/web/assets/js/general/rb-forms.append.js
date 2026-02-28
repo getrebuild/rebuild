@@ -778,11 +778,13 @@ class LiteFormModal extends RbModalHandler {
       state: { id: props.id },
     }
 
+    const tips43 = this.state.tips || this.state.topAlert
+
     return (
-      <RbModal title={title} ref={(c) => (this._dlg = c)} disposeOnHide>
-        {this.props.topAlert && (
-          <div className="m-1">
-            <RbAlertBox message={WrapHtml(this.props.topAlert.replaceAll('\n', '<br/>'))} className="mt-0 mb-1" />
+      <RbModal title={title} icon={entity.icon} ref={(c) => (this._dlg = c)} disposeOnHide>
+        {tips43 && (
+          <div className="mt-1 mb-1 ml-3 mr-3">
+            <RbAlertBox message={WrapHtml(tips43, true)} className="mt-0 mb-1" />
           </div>
         )}
 
@@ -795,7 +797,7 @@ class LiteFormModal extends RbModalHandler {
           </LiteForm>
 
           <div className="footer" ref={(c) => (this._$formAction = c)}>
-            {this._ids.length > 1 && <RbAlertBox message={WrapHtml($L('本次保存将修改 **%d** 条记录', this.props.ids.length))} type="info" className="mt-0 mb-2" />}
+            {this._ids.length > 1 && <RbAlertBox message={WrapHtml($L('本次保存将修改选中的 **%d** 条记录', this.props.ids.length))} type="info" className="mt-0 mb-2" />}
 
             <button className="btn btn-primary" type="button" disabled={this.state.readonly === true} onClick={() => this._handleSave()}>
               {props.confirmText || $L('保存')}
@@ -1114,23 +1116,26 @@ const EasyFilterEval = {
 class ExcelClipboardData extends React.Component {
   constructor(props) {
     super(props)
-    this.state = {}
+    this.state = { tips: props.tips || null }
   }
 
   render() {
     if (this.state.hasError) {
-      return <div className="must-center text-danger">{this.state.hasError}</div>
+      return <div className="text-muted text-danger mt-8 mb-8">{this.state.hasError}</div>
     }
 
     if (!this.state.data) {
       let tips = $L('复制 Excel 单元格 Ctrl + V 粘贴')
       if ($.browser.mac) tips = tips.replace('Ctrl', 'Command')
       return (
-        <div className="must-center text-muted">
-          <div className="mb-2">
-            <i className="mdi mdi-microsoft-excel" style={{ fontSize: 48 }} />
-          </div>
-          {tips}
+        <div className="text-muted text-center mt-8 mb-8">
+          <span ref={(c) => (this._$canUpload = c)}>
+            <div className="mb-2">
+              <i className="mdi mdi-microsoft-excel" style={{ fontSize: 48 }} />
+            </div>
+            {tips}
+            {this.state.tips && <div className="mt-2">{this.state.tips}</div>}
+          </span>
         </div>
       )
     }
@@ -1156,42 +1161,67 @@ class ExcelClipboardData extends React.Component {
   }
 
   componentDidMount() {
+    if (window.XLSX) this._componentDidMount()
+    else {
+      $getScript(
+        '/assets/lib/charts/xlsx.full.min.js',
+        setTimeout(() => this._componentDidMount(), 200),
+      )
+    }
+  }
+
+  _componentDidMount() {
     const that = this
-    function _FN() {
-      $(document).on('paste.csv-data', (e) => {
+
+    const _FN = function (res) {
+      let data
+      try {
+        const wb = window.XLSX.read(res, { type: 'string' })
+        const ws = wb.Sheets[wb.SheetNames[0]]
+        data = window.XLSX.utils.sheet_to_html(ws, { id: 'rsheetb', header: '', footer: '', editable: true })
+
+        // No content
+        if (data && !$(data).text()) data = null
+      } catch (err) {
+        console.log('Cannot read csv-data from clipboardData', err)
+      }
+
+      if (data) {
+        if (rb.env === 'dev') console.log(data)
+        $(that._$table).find('table thead').remove()
+        that.setState({ data: data, hasError: null }, () => that._tableAfter())
+      } else {
+        RbHighbar.createl('未识别到有效数据')
+      }
+    }
+
+    $(document)
+      .off('paste.csv-data')
+      .on('paste.csv-data', (e) => {
         // 输入框粘贴
         if (e.target && (e.target.tagName === 'SPAN' || e.target.tagName === 'INPUT')) return true
 
-        let data
-        try {
-          // https://docs.sheetjs.com/docs/demos/local/clipboard/
-          // https://docs.sheetjs.com/docs/api/utilities/html
-          const c = e.originalEvent.clipboardData.getData('text/html')
-          if (!c) return
-
-          $stopEvent(e, true)
-          const wb = window.XLSX.read(c, { type: 'string' })
-          const ws = wb.Sheets[wb.SheetNames[0]]
-          data = window.XLSX.utils.sheet_to_html(ws, { id: 'rsheetb', header: '', footer: '', editable: true })
-
-          // No content
-          if (data && !$(data).text()) data = null
-        } catch (err) {
-          console.log('Cannot read csv-data from clipboardData', err)
-        }
-
-        if (data) {
-          if (rb.env === 'dev') console.log(data)
-          $(that._$table).find('table thead').remove()
-          that.setState({ data: data, hasError: null }, () => that._tableAfter())
+        $stopEvent(e, true)
+        // https://docs.sheetjs.com/docs/demos/local/clipboard/
+        // https://docs.sheetjs.com/docs/api/utilities/html
+        let c = e.originalEvent.clipboardData.getData('text/html')
+        if (c) {
+          _FN(c)
         } else {
-          RbHighbar.createl('未识别到有效数据')
+          // 尝试从文件
+          for (let item of e.originalEvent.clipboardData.items) {
+            const file = item.getAsFile()
+            if (file) {
+              const reader = new FileReader()
+              reader.onload = (event) => {
+                _FN(event.target.result)
+              }
+              reader.readAsArrayBuffer(file)
+              break
+            }
+          }
         }
       })
-    }
-
-    if (window.XLSX) _FN()
-    else $getScript('/assets/lib/charts/xlsx.full.min.js', setTimeout(_FN, 200))
   }
 
   _tableAfter() {
@@ -1215,10 +1245,10 @@ class ExcelClipboardData extends React.Component {
       }
     }
 
-    $table.find('tbody tr').each(function () {
+    $table.find('tbody>tr').each(function () {
       const $tr = $(this)
       $(`<a class="btn btn-light w-auto" title="${$L('移除')}"><i class="icon zmdi zmdi-close"></i></a>`)
-        .insertAfter($tr)
+        .appendTo($tr.find('td:last'))
         .on('click', () => $tr.remove())
     })
   }

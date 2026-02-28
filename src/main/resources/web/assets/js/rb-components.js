@@ -1194,7 +1194,10 @@ const DEFAULT_MDE_TOOLBAR = (c) => {
 }
 
 // ~~ HTML 内容
-const WrapHtml = (htmlContent) => <span dangerouslySetInnerHTML={{ __html: htmlContent }} />
+const WrapHtml = (htmlContent, br) => {
+  if (br) htmlContent = htmlContent.replaceAll('\n', '<br/>')
+  return <span dangerouslySetInnerHTML={{ __html: htmlContent }} />
+}
 
 // ~~ MD > HTML
 class Md2Html extends React.Component {
@@ -1633,12 +1636,12 @@ class FilesHandlerComponent extends RbModalHandler {
   }
 
   render() {
-    let tips = this.return(
+    return (
       <RbModal title={this.props.title || $L('上传文件')} ref={(c) => (this._dlg = c)} disposeOnHide>
         {this.state.tips && <RbAlertBox message={this.state.tips} type="warning" />}
         <div className="form">
           {this.props.operTypes && (
-            <div className="form-group row">
+            <div className="form-group row pn-1">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('操作类型')}</label>
               <div className="col-sm-7 pt-1" ref={(c) => (this._$operTypes = c)}>
                 {this.props.operTypes.map((item, idx) => {
@@ -1720,7 +1723,7 @@ class FilesHandlerComponent extends RbModalHandler {
             </table>
           </div>
         </div>
-      </RbModal>,
+      </RbModal>
     )
   }
 

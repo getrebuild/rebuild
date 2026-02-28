@@ -34,11 +34,14 @@ import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.core.support.integration.SMSenderContextHolder;
 import com.rebuild.utils.md.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -183,6 +186,24 @@ public class SendNotification extends TriggerAction {
         Object[] to = null;
         if (userType == UTYPE_ACCOUNT20) {
             to = content.getString("sendTo").split("[，,;；]");
+
+            // v4.3 手动输入支持字段变量
+            List<String> toList = new ArrayList<>();
+            for (Object o : to) {
+                String me =  o.toString().trim();
+                if (me.startsWith("{") && me.endsWith("}")) {
+                    me = me.substring(1, me.length() - 1);
+                    Object[] found = Application.getQueryFactory().uniqueNoFilter(operatingContext.getFixedRecordId(), me);
+                    if (found != null && found[0] != null) {
+                        String[] foundMe =  found[0].toString().split("[，,;；]");
+                        Collections.addAll(toList, foundMe);
+                    }
+                } else {
+                    toList.add(me);
+                }
+            }
+            to = toList.toArray(new String[0]);
+
         } else {
             String[] validFields = getValidDefsFields(content.getJSONArray("sendTo"));
             if (validFields == null) return null;
@@ -202,7 +223,7 @@ public class SendNotification extends TriggerAction {
                 to = Application.getQueryFactory().uniqueNoFilter(actionContext.getSourceRecord(), validFields);
             }
         }
-        if (to == null) return null;
+        if (ArrayUtils.isEmpty(to)) return null;
 
         String[] message = formatMessageContent(actionContext, operatingContext);
         Set<Object> send = new HashSet<>();

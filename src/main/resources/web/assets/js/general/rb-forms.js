@@ -65,6 +65,11 @@ class RbFormModal extends React.Component {
                     {this.state.alertMessage}
                   </div>
                 )}
+                {this.state.formAlertMessage && (
+                  <div className="rbform-fjsalert">
+                    <RbAlertBox message={WrapHtml(this.state.formAlertMessage, true)} />
+                  </div>
+                )}
                 {this.state.fjsAlertMessage}
 
                 {this.state.formComponent}
@@ -141,7 +146,7 @@ class RbFormModal extends React.Component {
         </RbForm>
       )
 
-      that.setState({ formComponent: FORM, alertMessage: formModel.readonlywMessage || formModel.readonlyMessage || null }, () => {
+      that.setState({ formComponent: FORM, alertMessage: formModel.readonlywMessage || formModel.readonlyMessage || null, formAlertMessage: formModel.topAlert43 }, () => {
         that.setState({ inLoad: false })
         if (window.FrontJS) {
           window.FrontJS.Form._trigger('open', [formModel])
