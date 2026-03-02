@@ -344,6 +344,11 @@ public class ReferenceSearchController extends EntityController {
             };
         }
 
+        // fix: v4.3 部门特殊处理
+        if ("Department".equals(fieldAndEntity[1]) && "DepartmentId".equals(fieldAndEntity[0])) {
+            fieldAndEntity[0] = "deptId";
+        }
+
         if (!MetadataHelper.checkAndWarnField(fieldAndEntity[1], fieldAndEntity[0])) {
             response.sendError(404);
             return null;

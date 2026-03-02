@@ -47,7 +47,7 @@ class FieldValueSet extends React.Component {
     }
 
     if (field.type === 'NTEXT') {
-      return <textarea className="form-control form-control-sm row1x" ref={(c) => (this._$value = c)} key={field.name}></textarea>
+      return <textarea className="form-control form-control-sm row1x" ref={(c) => (this._$value = c)} key={field.name} placeholder={this.props.placeholder} />
     }
 
     return <input className="form-control form-control-sm" placeholder={this.props.placeholder} ref={(c) => (this._$value = c)} key={field.name} maxLength="255" />

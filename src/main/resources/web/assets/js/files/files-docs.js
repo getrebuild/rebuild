@@ -74,7 +74,7 @@ const FolderTree = {
           // be:v4.0
           const e = (location.hash || '').split('Folder/')[1]
           if (e) this.triggerClick(e)
-        }
+        },
       )
     })
   },
@@ -92,7 +92,7 @@ const FolderTree = {
         name={item.text}
         scope={scope}
         parent={item.parent}
-      />
+      />,
     )
   },
 
@@ -117,7 +117,7 @@ const FolderTree = {
             }
           })
         },
-      }
+      },
     )
   },
 
@@ -342,7 +342,7 @@ class FileUploadDlg extends RbFormHandler {
       this._$uploadForUploader43,
       (res) => _FN(res.file, { percent: res.percent }),
       (res) => _FN(res.file, { key: res.key }),
-      (res) => _FN(res.file, { error: res.error })
+      (res) => _FN(res.file, { error: res.error }),
     )
 
     $(this._$upload).on('change', (e) => {
@@ -427,7 +427,7 @@ class FileUploadDlg extends RbFormHandler {
                 this._post(true)
                 if ($empty(filesNew)) this._reset()
               })
-            }
+            },
           )
         } else {
           _FN()
@@ -541,15 +541,13 @@ class FileMoveDlg extends RbFormHandler {
 
   _post() {
     const that = this
-    function _FN(files, deletes) {
+    function _FN(files) {
       if ($empty(files)) {
         that.hide()
         return
       }
 
-      let url = `/files/move-files?folder=${that.state.inFolder || ''}&ids=${files.join(',')}`
-      if (deletes) url += '&deletes=' + deletes.join(',')
-      $.post(url, (res) => {
+      $.post(`/files/move-files?folder=${that.state.inFolder || ''}&ids=${files.join(',')}`, (res) => {
         if (res.error_code === 0) {
           that.hide()
           that.props.call && that.props.call()
@@ -565,12 +563,11 @@ class FileMoveDlg extends RbFormHandler {
       if (res.error_code === 0) {
         const existsFiles = res.data || {}
         if (Object.keys(existsFiles).length) {
-          const existsFilesId = Object.values(existsFiles)
           _showExists43(
             existsFiles,
             () => {
               // 覆盖
-              _FN(this.props.files, existsFilesId)
+              _FN(this.props.files)
             },
             () => {
               // 跳过
@@ -580,8 +577,8 @@ class FileMoveDlg extends RbFormHandler {
                 if (!existsFiles[name]) filesNew.push(k)
               }
 
-              _FN(filesNew, null)
-            }
+              _FN(filesNew)
+            },
           )
         } else {
           _FN(this.props.files)
@@ -640,7 +637,7 @@ class FilesList4Docs extends FilesList {
             }
           })
         }}
-      />
+      />,
     )
   }
 

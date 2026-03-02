@@ -372,7 +372,7 @@ public class CommonsUtils {
             source = source.replace("--", "-");
             if (source.endsWith("-")) source = source.substring(0, source.length() - 1);
 
-            String format = "yyyy-MM-dd-HH-mm-ss-SSS".substring(0, source.length());
+            String format = "yyyy-MM-dd-HH-mm-ss-SSS".substring(0, Math.min(source.length(), 23));
             Date d = CalendarUtils.parse(source, format);
             if (d != null) return d;
         }

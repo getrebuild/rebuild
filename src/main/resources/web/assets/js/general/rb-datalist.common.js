@@ -383,7 +383,7 @@ class DataExport extends BatchOperator {
                 </label>
                 <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
                   <input className="custom-control-input" name="_selectType2Value" type="radio" checked={this.state._selectType2Value === 'pdf'} value="pdf" onChange={this.handleChange} />
-                  <span className="custom-control-label">{$L('PDF')}</span>
+                  <span className="custom-control-label">PDF</span>
                 </label>
                 <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
                   <input className="custom-control-input" name="_selectType2Value" type="radio" checked={this.state._selectType2Value === 'preview'} value="preview" onChange={this.handleChange} />

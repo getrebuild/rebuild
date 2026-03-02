@@ -123,8 +123,7 @@ public class FileManagerController extends BaseController {
             fileRecords.add(r);
         }
 
-        ID[] deletes = getIdArrayParameter(request, "deletes");
-        createOrUpdateAndDelete43(fileRecords.toArray(new Record[0]), deletes, user);
+        createOrUpdateAndDelete43(fileRecords.toArray(new Record[0]), null, user);
         return RespBody.ok();
     }
 
@@ -172,11 +171,10 @@ public class FileManagerController extends BaseController {
             if (ID.isId(name)) {
                 Object[] e = Application.getQueryFactory().uniqueNoFilter(ID.valueOf(name), "fileName");
                 if (e != null && e[0] != null) name = e[0].toString();
-            } else {
-                name = QiniuCloud.cleanFileName(name);
             }
 
-            Object[] e = Application.createQueryNoFilter(checkSql).setParameter(1, name).unique();
+            String cleanName = QiniuCloud.cleanFileName(name);
+            Object[] e = Application.createQueryNoFilter(checkSql).setParameter(1, cleanName).unique();
             if (e != null) error.put(name, e[0]);
         }
         return RespBody.ok(error);

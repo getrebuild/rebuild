@@ -28,6 +28,7 @@ import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -281,14 +282,24 @@ public class EntityRecordCreator extends JsonRecordCreator {
             }
         }
 
-        // v4.1, v4.2 处理为标准日期格式
-        if (StringUtils.isNotBlank(value) && (fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP)) {
-            Date d = CommonsUtils.parseDate(value);
-            if (d == null) {
-                log.warn("Cannot parse date from : {}", value);
-                value = null;
-            } else {
-                value = CalendarUtils.getUTCDateTimeFormat().format(d);
+        if (StringUtils.isNotBlank(value)) {
+            // v4.1, v4.2 处理为标准日期格式
+            if (fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP) {
+                Date d = CommonsUtils.parseDate(value);
+                if (d == null) {
+                    log.warn("Cannot parse date from : {}", value);
+                    value = null;
+                } else {
+                    value = CalendarUtils.getUTCDateTimeFormat().format(d);
+                }
+            }
+            // v4.3 处理位置字段
+            else if (fieldType == FieldType.STRING && EasyMetaFactory.getDisplayType(field) == DisplayType.LOCATION) {
+                if (JSONUtils.wellFormat(value)) {
+                    JSONObject fix43 = JSONUtils.parseObjectSafe(value);
+                    value = String.format("%s%s%s,%s", fix43.getString("text"), MetadataHelper.SPLITER,
+                            fix43.getString("lng"), fix43.getString("lat"));
+                }
             }
         }
 

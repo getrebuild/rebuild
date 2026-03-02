@@ -8,8 +8,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.general.transform;
 
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -63,8 +66,16 @@ public class RecordTransfomer43 extends RecordTransfomer39 {
             return theNewId;
         }
 
-        // 需要保存为多条
-        // 如果多条主记录，明细（如有）都会带着
+        // 保存为多条
+        // FIXME 如果多条主记录，明细（如有）都会带着
+
+        Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
+        Field fieldCheck = MetadataHelper.getLastJoinField(sourceEntity, one2nModeField);
+        if (fieldCheck == null) {
+            throw new MissingMetaExcetion(one2nModeField, sourceEntity.getName());
+        }
+        EasyField one2nModeFieldEasy = EasyMetaFactory.valueOf(fieldCheck);
+
         Object multiValue = QueryHelper.queryFieldValue(sourceRecordId, one2nModeField);
         if (multiValue == null) {
             ID theNewId = super.saveRecord(record, detailsList);
@@ -73,13 +84,11 @@ public class RecordTransfomer43 extends RecordTransfomer39 {
         }
 
         List<Object> multiValueSplit = new ArrayList<>();
-        // TAG, N2NREF
+        // TAG or N2NREF
         if (multiValue instanceof Object[]) {
             Collections.addAll(multiValueSplit, (Object[]) multiValue);
         } else if (multiValue instanceof Number) {
             // MULTISELECT
-            EasyField one2nModeFieldEasy = EasyMetaFactory.valueOf(
-                    MetadataHelper.getEntity(sourceRecordId.getEntityCode()).getField(one2nModeField));
             if (one2nModeFieldEasy.getDisplayType() == DisplayType.MULTISELECT) {
                 multiValue = MultiSelectManager.instance.getLabels((Long) multiValue, one2nModeFieldEasy.getRawMeta());
                 Collections.addAll(multiValueSplit, (Object[]) multiValue);

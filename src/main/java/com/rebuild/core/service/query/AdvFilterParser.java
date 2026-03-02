@@ -465,9 +465,13 @@ public class AdvFilterParser extends SetUser {
                     int x = NumberUtils.toInt(value);
                     if (ParseHelper.EVW2.equalsIgnoreCase(op)) {
                         field = String.format("DAYOFWEEK(%s)", field);
+                        if (x < 1) x = 1;
+                        if (x > 7) x = 7;
                         if (x == 7) x = 1;
                         else x = x + 1;
                     } else {
+                        if (x < 1) x = 1;
+                        if (x > 31) x = 31;
                         field = String.format("DAY(%s)", field);
                     }
                     value = x + "";
