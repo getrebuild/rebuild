@@ -53,7 +53,18 @@ public class CNMapChart extends ChartData {
             if (StringUtils.isBlank(map)) continue;
 
             String[] mapSplit = map.split(CommonsUtils.COMM_SPLITER_RE);
-            if (mapSplit.length != 2 || StringUtils.isBlank(mapSplit[1])) continue;
+            if (mapSplit.length != 2 || StringUtils.isBlank(mapSplit[1])) {
+                // fix: 数据格式不对?
+                if (JSONUtils.wellFormat(map)) {
+                    JSONObject fix43 = JSON.parseObject(map);
+                    mapSplit = new String[]{
+                            fix43.getString("text"),
+                            fix43.getString("lng") + "," + fix43.getString("lat"),
+                    };
+                } else {
+                    continue;
+                }
+            }
 
             Object n = nums.length > 0 ? wrapAxisValue(nums[0], o[1]) : 0;
             datas.add(new Object[]{mapSplit[0], mapSplit[1], n});
