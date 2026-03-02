@@ -231,7 +231,7 @@ $(document).ready(() => {
         onConfirm={(colorIndex) => {
           _removeClass($('#chart-preview >.chart-box')).addClass(`gradient-bg gradient-bg-${colorIndex}`)
           _removeClass($(this)).addClass(`gradient-bg-${colorIndex}`)
-          $(this).attr('data-bgcolor', colorIndex)
+          $bs.find('>a:eq(0)').attr('data-bgcolor', colorIndex)
           // check
           $bs.find('>a>i').remove()
           $('<i class="zmdi zmdi-check"></i>').appendTo(this)
