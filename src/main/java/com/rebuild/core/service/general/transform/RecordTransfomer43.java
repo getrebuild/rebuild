@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.general.transform;
 
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -68,9 +69,10 @@ public class RecordTransfomer43 extends RecordTransfomer39 {
         // 保存为多条
         // FIXME 如果多条主记录，明细（如有）都会带着
 
-        Field fieldCheck = MetadataHelper.getLastJoinField(MetadataHelper.getEntity(sourceRecordId.getEntityCode()), one2nModeField);
+        Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
+        Field fieldCheck = MetadataHelper.getLastJoinField(sourceEntity, one2nModeField);
         if (fieldCheck == null) {
-            throw new MissingMetaExcetion("字段 [%s] 已经不存在，请检查配置", one2nModeField);
+            throw new MissingMetaExcetion(one2nModeField, sourceEntity.getName());
         }
         EasyField one2nModeFieldEasy = EasyMetaFactory.valueOf(fieldCheck);
 

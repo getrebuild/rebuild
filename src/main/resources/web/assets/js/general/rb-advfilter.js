@@ -148,7 +148,6 @@ class AdvFilter extends React.Component {
     $.get(`/commons/metadata/fields?deep=${deep}&entity=${props.entity}&referer=${referer}`, (res) => {
       const validFs = []
       const fields = []
-      let fieldItem43
 
       res.data.forEach((item) => {
         validFs.push(item.name)
@@ -168,21 +167,13 @@ class AdvFilter extends React.Component {
 
         // No BARCODE field
         if (!(item.type === 'BARCODE' || $isSysMask(item.label))) {
-          fields.push(item)
-
-          // if (item.type === 'REFERENCE' && item.name === 'approvalLastUser') {
-          //   const item2 = { ...item, name: VF_ACU, label: $L('当前审批人') + ' (废弃)' }
-          //   validFs.push(item2.name)
-          //   REFENTITY_CACHE[item2.name] = item2.ref
-          //   fields.push(item2)
-          // }
-          if (item.name === 'owningUser' && this.props.showCurrentUser) {
-            fieldItem43 = { ...item, name: VF_CU43, label: $L('当前用户') }
-          } else if (item.name === 'owningDept' && fieldItem43) {
+          if (item.name === 'createdBy' && this.props.showCurrentUser) {
+            let fieldItem43 = { ...item, name: VF_CU43, label: $L('当前用户') }
             validFs.push(fieldItem43.name)
             REFENTITY_CACHE[fieldItem43.name] = fieldItem43.ref
             fields.push(fieldItem43)
           }
+          fields.push(item)
         }
       })
       this._fields = fields

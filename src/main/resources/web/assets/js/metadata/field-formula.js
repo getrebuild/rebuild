@@ -464,7 +464,9 @@ class EditorWithFieldVars extends React.Component {
     $(this._$content).insertAtCursor(text)
   }
 
-  resize() {}
+  resize() {
+    // TODO
+  }
 
   componentDidMount() {
     $.get(`/commons/metadata/fields?entity=${this.props.entity}&deep=3`, (res) => {

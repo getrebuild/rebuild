@@ -770,7 +770,8 @@ class ChartBar extends BaseChart {
       if (labelRotate) {
         option.xAxis.axisLabel.rotate = 45
         option.xAxis.axisLabel.interval = 0
-        option.grid.bottom = 60
+        option.grid.containLabel = true // 保证标签完整显示
+        option.grid.bottom = 0
       }
 
       option.__id = this.props.id
