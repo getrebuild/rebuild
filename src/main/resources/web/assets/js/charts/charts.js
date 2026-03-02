@@ -2286,15 +2286,20 @@ class ChartSelect extends RbModalHandler {
                 <a href="#myself" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#myself' ? 'active' : ''}`}>
                   {$L('我自己的')}
                 </a>
-                <a href="#builtin" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#builtin' ? 'active' : ''}`}>
-                  {$L('内置图表')}
-                </a>
+                {!this.props.entity && (
+                  <a href="#builtin" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#builtin' ? 'active' : ''}`}>
+                    {$L('内置图表')}
+                  </a>
+                )}
               </div>
             </div>
             <div className="col-9 pl-0">
               <div className="chart-list">
                 {chartList.length === 0 && <p className="text-muted">{$L('无可用图表')}</p>}
                 {chartList.map((item) => {
+                  // v4.3 过滤内置
+                  if (this.props.entity && item.id.includes('017-90000000000000')) return null
+
                   return (
                     <div key={item.id}>
                       <span className="float-left chart-icon">
