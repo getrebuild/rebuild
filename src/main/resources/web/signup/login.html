@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -103,6 +103,11 @@
         background-color: #eee;
       }
     </style>
+    <script>
+      if (navigator.userAgent.indexOf('MSIE') > -1 || navigator.userAgent.indexOf('Trident') > -1) {
+        location.href = '../error/unsupported-browser'
+      }
+    </script>
   </head>
   <body class="rb-splash-screen">
     <img src="https://getrebuild.com/img/logo256.png" alt="Logo for Thumb" style="display: none" />
