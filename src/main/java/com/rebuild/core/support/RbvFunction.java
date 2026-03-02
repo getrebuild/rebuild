@@ -10,14 +10,14 @@ package com.rebuild.core.support;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.service.datareport.EasyExcelGenerator33;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
-import com.rebuild.rbv.data.Html5ReportGenerator;
-import com.rebuild.rbv.data.WordReportGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.stereotype.Component;
 
+import javax.script.ScriptException;
 import java.io.File;
 import java.util.Date;
 import java.util.Map;
@@ -116,23 +116,34 @@ public class RbvFunction {
         return null;
     }
 
-    public Html5ReportGenerator createHtml5(String templateContent, ID recordId) {
+    // Html5ReportGenerator
+    public EasyExcelGenerator33 createHtml5(String templateContent, ID recordId) {
         log.debug("No RbvFunction : createHtml5");
         return null;
     }
 
-    public Html5ReportGenerator createHtml5(ID reportId, ID[] recordIds, Boolean noPagebreak) {
+    // Html5ReportGenerator
+    public EasyExcelGenerator33 createHtml5(ID reportId, ID[] recordIds, Boolean noPagebreak) {
         log.debug("No RbvFunction : createHtml5#2");
         return null;
     }
 
-    public WordReportGenerator createWord(File templateFile, ID recordId) {
+    // WordReportGenerator
+    public EasyExcelGenerator33 createWord(File templateFile, ID recordId) {
         log.debug("No RbvFunction : createWord");
         return null;
     }
 
-    public WordReportGenerator createWord(ID reportId, ID[] recordIds) {
+    // WordReportGenerator
+    public EasyExcelGenerator33 createWord(ID reportId, ID[] recordIds) {
         log.debug("No RbvFunction : createWord#2");
+        return null;
+    }
+
+    // -- FJS
+
+    public String es5(String es6) throws ScriptException {
+        log.debug("No RbvFunction : es5");
         return null;
     }
 }

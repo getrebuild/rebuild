@@ -14,8 +14,8 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.general.RecordBuilder;
-import com.rebuild.rbv.frontjs.service.CodeBabel;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -158,7 +158,7 @@ public class EasyActionManager extends BaseLayoutManager {
                 JSONObject itemObj = (JSONObject) item;
                 String es6 = itemObj.getString("op10Value");
                 if (StringUtils.isNotBlank(es6)) {
-                    itemObj.put("op10Value__es5", CodeBabel.es5(es6));
+                    itemObj.put("op10Value__es5", RbvFunction.call().es5(es6));
                     es5Changed = true;
                 }
 
@@ -168,7 +168,7 @@ public class EasyActionManager extends BaseLayoutManager {
                         JSONObject itemL2Obj = (JSONObject) itemL2;
                         es6 = itemL2Obj.getString("op10Value");
                         if (StringUtils.isNotBlank(es6)) {
-                            itemL2Obj.put("op10Value__es5", CodeBabel.es5(es6));
+                            itemL2Obj.put("op10Value__es5", RbvFunction.call().es5(es6));
                             es5Changed = true;
                         }
                     }
