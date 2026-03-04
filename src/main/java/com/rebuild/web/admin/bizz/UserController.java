@@ -191,6 +191,9 @@ public class UserController extends EntityController {
         Record record = EntityHelper.forUpdate(userId, userId);
         record.setString("password", newp);
         Application.getBean(UserService.class).update(record);
+        // v4.3
+        final String mcpKey = "MustChangePwd:" + userId;
+        Application.getCommonsCache().put(mcpKey, "1");
 
         if (getBoolParameter(request, "email")) {
             User ub = Application.getUserStore().getUser(userId);

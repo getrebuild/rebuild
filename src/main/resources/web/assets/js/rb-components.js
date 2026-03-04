@@ -1553,6 +1553,120 @@ class FileRename extends RbAlert {
   }
 }
 
+// ~~ 百度地图
+// https://mapopen-pub-jsapi.bj.bcebos.com/jsapi/reference/jsapi_webgl_1_0.html#a1b0
+class BaiduMap extends React.Component {
+  constructor(props) {
+    super(props)
+    this._mapid = `map-${$random()}`
+  }
+
+  render() {
+    return <div className="map-container" id={this._mapid} />
+  }
+
+  componentDidMount() {
+    const that = this
+    $useMap(() => {
+      const _BMapGL = window.BMapGL
+      const map = new _BMapGL.Map(that._mapid)
+      map.addControl(new _BMapGL.ZoomControl())
+      map.addControl(new _BMapGL.ScaleControl())
+      // 滚动缩放
+      if (that.props.disableScrollWheelZoom !== true) {
+        map.addControl(new _BMapGL.LocationControl())
+        map.enableScrollWheelZoom()
+      }
+
+      that._map = map
+
+      // 初始位置
+      const _lnglat = that.props.lnglat
+      if (_lnglat) {
+        if (_lnglat.lng && _lnglat.lat) {
+          that.center(_lnglat)
+        } else if (_lnglat.text) {
+          const geoc = new _BMapGL.Geocoder()
+          geoc.getPoint(_lnglat.text, function (point) {
+            that.center(point)
+          })
+        }
+      } else {
+        const geol = new _BMapGL.Geolocation()
+        geol.enableSDKLocation()
+        geol.getCurrentPosition(function (e) {
+          if (this.getStatus() === window.BMAP_STATUS_SUCCESS) {
+            map.centerAndZoom(e.point, 14)
+          } else {
+            map.centerAndZoom('北京市', 14)
+            console.log('Geolocation failed :', this.getStatus())
+          }
+        })
+      }
+
+      if (that.props.canPin) {
+        const geoc = new _BMapGL.Geocoder()
+        let lastMarker = null
+
+        // 点选
+        map.addEventListener('click', function (e) {
+          if (lastMarker) map.removeOverlay(lastMarker)
+
+          const latlng = e.latlng
+          lastMarker = new _BMapGL.Marker(new _BMapGL.Point(latlng.lng, latlng.lat))
+          map.addOverlay(lastMarker)
+
+          geoc.getLocation(latlng, (r) => {
+            const v = {
+              lng: latlng.lng,
+              lat: latlng.lat,
+              text: r.address,
+            }
+            typeof that.props.onPin === 'function' && that.props.onPin(v)
+          })
+        })
+
+        // 搜索
+        that._mapLocalSearch = new _BMapGL.LocalSearch(map, {
+          renderOptions: { map: map },
+          onSearchComplete: function () {},
+        })
+      }
+    })
+  }
+
+  componentWillUnmount() {
+    this._map && this._map.destroy()
+    this._map = null
+  }
+
+  center(lnglat) {
+    if (!lnglat.lng || !lnglat.lat) return
+
+    const _BMapGL = window.BMapGL
+    const map = this._map
+
+    const point = new _BMapGL.Point(lnglat.lng, lnglat.lat)
+    if (map.isLoaded()) {
+      map.clearOverlays()
+      // map.panTo(point)
+      map.flyTo(point, 14)
+    } else {
+      setTimeout(() => map.centerAndZoom(point, 14), 200)
+    }
+
+    map.addOverlay(
+      new _BMapGL.Marker(point, {
+        title: lnglat.text || lnglat.address || '',
+      }),
+    )
+  }
+
+  search(s) {
+    this._mapLocalSearch.search(s)
+  }
+}
+
 /**
  * JSX 组件渲染
  *
