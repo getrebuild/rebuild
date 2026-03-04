@@ -70,7 +70,7 @@
               <li th:class="${active == 'data-imports'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('IMP', #request)}">
                 <a th:href="@{/admin/data/data-imports}"><i class="icon mdi mdi-table-arrow-right"></i><span>[[${bundle.L('数据导入')}]]</span></a>
               </li>
-              <li th:class="${active == 'data-syncer'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('SYN', #request)}">
+              <li th:class="${active == 'data-syncer'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('SYN', #request)}" th:classappend="bosskey-show">
                 <a th:href="@{/admin/data/data-syncer}"><i class="icon mdi mdi-database-import"></i><span>[[${bundle.L('数据同步')}]]</span> <sup class="rbv"></sup></a>
               </li>
               <li th:class="${active == 'extforms'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('EXF', #request)}">

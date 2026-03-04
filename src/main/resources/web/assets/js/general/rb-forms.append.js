@@ -436,6 +436,7 @@ class BaiduMapModal extends RbModal {
                       placeholder={$L('查找位置')}
                       defaultValue={this.props.lnglat ? this.props.lnglat.text || '' : ''}
                       autoComplete="off"
+                      onKeyDown={(e) => e.keyCode === 13 && this._search()}
                     />
                     <div className="input-group-append">
                       <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
