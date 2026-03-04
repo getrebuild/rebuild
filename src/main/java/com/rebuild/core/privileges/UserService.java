@@ -293,15 +293,27 @@ public class UserService extends BaseService {
     }
 
     /**
+     * @param user
+     * @param deptNew
+     * @param roleNew
+     * @param roleAppends
+     * @param enableNew
+     */
+    public void updateEnableUser(ID user, ID deptNew, ID roleNew, ID[] roleAppends, Boolean enableNew) {
+        updateEnableUser(user, deptNew, roleNew, roleAppends, enableNew, null);
+    }
+
+    /**
      * xxxNew 值为 null 表示不做修改
      *
      * @param user
-     * @param deptNew     新部门
-     * @param roleNew     新角色
+     * @param deptNew 新部门
+     * @param roleNew 新角色
      * @param roleAppends 附加角色
-     * @param enableNew   激活状态
+     * @param enableNew 激活状态
+     * @param passwdNew 新密码
      */
-    public void updateEnableUser(ID user, ID deptNew, ID roleNew, ID[] roleAppends, Boolean enableNew) {
+    public void updateEnableUser(ID user, ID deptNew, ID roleNew, ID[] roleAppends, Boolean enableNew, String passwdNew) {
         User enUser = Application.getUserStore().getUser(user);
         // 当前是从未激活状态
         final boolean beforeUnEnabled = enUser.isDisabled()
@@ -334,6 +346,11 @@ public class UserService extends BaseService {
         }
         if (enableNew != null) {
             record.setBoolean("isDisabled", !enableNew);
+            changed = true;
+        }
+        if (passwdNew != null) {
+            checkPassword(passwdNew);
+            record.setString("password", passwdNew);
             changed = true;
         }
 

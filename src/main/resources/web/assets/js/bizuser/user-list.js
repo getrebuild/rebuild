@@ -339,6 +339,12 @@ class DlgBatchUser extends RbModalHandler {
               <UserSelector hideUser={true} hideDepartment={true} hideTeam={true} defaultValue={this.props.roleAppends} ref={(c) => (this._roleAppends = c)} />
             </div>
           </div>
+          <div className="form-group row bosskey-show">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('登录密码')}</label>
+            <div className="col-sm-7">
+              <input type="text" className="form-control form-control-sm" placeholder={$L('新密码')} ref={(c) => (this._password = c)} />
+            </div>
+          </div>
 
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
@@ -363,8 +369,9 @@ class DlgBatchUser extends RbModalHandler {
       dept: this._deptNew.val()[0] || null,
       role: this._roleNew.val()[0] || null,
       roleAppend: this._roleAppends.val(),
+      password: $val(this._password) || null,
     }
-    if (!data.dept && !data.role && data.roleAppend.length === 0) {
+    if (!data.dept && !data.role && data.roleAppend.length === 0 && !data.password) {
       return RbHighbar.createl('请至少选择一个修改值')
     }
 
