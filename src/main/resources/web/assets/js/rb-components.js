@@ -1820,25 +1820,31 @@ class FilesHandlerComponent extends RbModalHandler {
               </a>
             </div>
           </div>
-          <div className="FilesHandlerComponent__results hide" ref={(c) => (this._$result = c)}>
-            <table className="table table-sm">
-              <thead>
-                <tr>
-                  <th>NAME</th>
-                  <th>RES</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>2</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          {this.renderResults()}
         </div>
       </RbModal>
     )
+  }
+
+  // 渲染结果
+  renderResults() {
+    return this.state.results ? (
+      <div className="FilesHandlerComponent__results">
+        <table className="table table-sm">
+          <tbody>
+            {this.state.results.map((row, idx) => {
+              return (
+                <tr key={idx}>
+                  {row.map((c, idx2) => {
+                    return <td key={idx2}>{c}</td>
+                  })}
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+    ) : null
   }
 
   componentDidMount() {
