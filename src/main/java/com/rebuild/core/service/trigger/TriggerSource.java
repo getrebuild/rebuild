@@ -10,6 +10,8 @@ package com.rebuild.core.service.trigger;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.utils.CommonsUtils;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -31,7 +33,10 @@ public class TriggerSource {
     private String id;
     // [OperatingContext, TriggerWhen]
     private final List<Object[]> sources = new ArrayList<>();
-    // TriggerID
+
+    // 当前触发器
+    @Getter
+    @Setter
     private ID currentTriggerId;
 
     // 触发次数
@@ -39,6 +44,7 @@ public class TriggerSource {
 
     protected TriggerSource(OperatingContext origin, TriggerWhen originAction) {
         this.id = TSNO.incrementAndGet() + "-";
+
         addNext(origin, originAction);
         if (CommonsUtils.DEVLOG) System.out.println("[dev] New trigger-source : " + this);
 
@@ -47,6 +53,17 @@ public class TriggerSource {
     }
 
     /**
+     * 可识别 ID
+     *
+     * @return
+     */
+    protected String getSourceNo() {
+        return this.id + sources.size();
+    }
+
+    /**
+     * 添加执行动作（涉及动作下所有触发器）
+     *
      * @param next
      * @param nextAction
      */
@@ -55,13 +72,8 @@ public class TriggerSource {
     }
 
     /**
-     * @param triggerId
-     */
-    protected void setCurrentTrigger(ID triggerId) {
-        currentTriggerId = triggerId;
-    }
-
-    /**
+     * 增涨触发次数
+     *
      * @return
      */
     protected int incrTriggerTimes() {
@@ -69,20 +81,8 @@ public class TriggerSource {
     }
 
     /**
-     * @return
-     */
-    public ID getCurrentTriggerId() {
-        return currentTriggerId;
-    }
-
-    /**
-     * @return
-     */
-    public String getSourceNo() {
-        return this.id + sources.size();
-    }
-
-    /**
+     * 获取原始触发
+     *
      * @return
      */
     public OperatingContext getOrigin() {
@@ -90,17 +90,12 @@ public class TriggerSource {
     }
 
     /**
+     * 获取最后触发
+     *
      * @return
      */
     public OperatingContext getLast() {
         return (OperatingContext) sources.get(sources.size() - 1)[0];
-    }
-
-    /**
-     * @return
-     */
-    public ID getOriginRecordId() {
-        return getOrigin().getFixedRecordId();
     }
 
     @Override
