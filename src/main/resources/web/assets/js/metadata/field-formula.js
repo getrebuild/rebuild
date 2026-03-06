@@ -841,8 +841,10 @@ class CodeEditorWithFieldVars extends EditorWithFieldVars {
     super.componentDidMount()
 
     setTimeout(() => {
+      __defineCodeMirror()
       this._CodeMirror = window.CodeMirror.fromTextArea(this._$content, {
-        mode: 'javascript',
+        // mode: 'javascript',
+        mode: 'text/x-custom-js',
         theme: 'material-darker',
         lineNumbers: true,
         dragDrop: false,
@@ -876,4 +878,34 @@ class CodeEditorWithFieldVars extends EditorWithFieldVars {
   focus() {
     this._CodeMirror && this._CodeMirror.focus()
   }
+}
+
+// 自定义高亮
+let __defineCodeMirror = function () {
+  // eslint-disable-next-line no-unused-vars
+  window.CodeMirror.defineMode('custom-js', function (config, parserConfig) {
+    var javascriptMode = window.CodeMirror.getMode(config, 'javascript')
+    return {
+      startState: function () {
+        return javascriptMode.startState ? javascriptMode.startState() : {}
+      },
+      copyState: function (state) {
+        return javascriptMode.copyState ? javascriptMode.copyState(state) : state
+      },
+      token: function (stream, state) {
+        if (stream.match(/^##.*/)) {
+          stream.skipToEnd()
+          return 'comment'
+        }
+        return javascriptMode.token(stream, state)
+      },
+      indent: function (state, textAfter, line) {
+        return javascriptMode.indent ? javascriptMode.indent(state, textAfter, line) : 0
+      },
+      lineComment: '##', // 这会影响自动注释功能
+    }
+  })
+
+  // 注册 MIME 类型
+  window.CodeMirror.defineMIME('text/x-custom-js', 'custom-js')
 }

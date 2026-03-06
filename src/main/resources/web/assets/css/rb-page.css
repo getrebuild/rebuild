@@ -4517,25 +4517,19 @@ h3.modal-title > .rbv {
   display: inline !important;
 }
 
-.CodeMirror .CodeMirror-code,
-.CodeMirror-line {
-  line-height: 1.6;
-  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', Menlo, Monaco, Consolas, monospace !important;
-}
-
 .CodeMirror-wrap pre.CodeMirror-line,
 .CodeMirror-wrap pre.CodeMirror-line-like {
   word-wrap: break-word;
   word-break: break-all;
 }
 
+.CodeMirror-wrap pre {
+  word-break: break-all;
+}
+
 .cm-readonly ~ .EasyMDEContainer > .CodeMirror {
   background-color: #eee;
   cursor: default;
-}
-
-.CodeMirror-wrap pre {
-  word-break: break-all;
 }
 
 .popover {

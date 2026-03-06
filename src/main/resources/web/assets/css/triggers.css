@@ -505,3 +505,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
   min-height: 300px !important;
   height: auto;
 }
+
+.CodeMirror .CodeMirror-code,
+.CodeMirror .CodeMirror-line {
+  line-height: 1.6;
+  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', Menlo, Monaco, Consolas, monospace !important;
+}
