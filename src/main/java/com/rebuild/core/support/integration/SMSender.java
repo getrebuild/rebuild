@@ -228,7 +228,7 @@ public class SMSender {
                 }
 
                 Map<String, String> map = new HashMap<>(2);
-                map.put("name", QiniuCloud.cleanFileName(a.getName()));
+                map.put("name", QiniuCloud.parseFileName(a.getName()));
                 map.put("data", base64);
                 atta.add(map);
             }
@@ -299,7 +299,7 @@ public class SMSender {
             for (File a : attach) {
                 EmailAttachment attachment = new EmailAttachment();
                 attachment.setPath(a.getAbsolutePath());
-                attachment.setName(QiniuCloud.cleanFileName(a.getName()));
+                attachment.setName(QiniuCloud.parseFileName(a.getName()));
                 email.attach(attachment);
             }
         }
