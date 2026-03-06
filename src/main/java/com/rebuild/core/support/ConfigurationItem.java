@@ -122,6 +122,7 @@ public enum ConfigurationItem {
     PortalOfficePreviewUrl,
 
     // Aibot
+    AibotName("REBUILD AI 助手"),
     AibotDSUrl("https://api.deepseek.com/"),
     AibotDSSecret,
     AibotBasePrompt,

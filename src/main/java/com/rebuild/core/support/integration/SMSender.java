@@ -34,6 +34,7 @@ import com.rebuild.utils.md.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.mail.EmailAttachment;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.jsoup.Jsoup;
@@ -47,7 +48,6 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * SUBMAIL SMS/MAIL 发送
@@ -228,7 +228,7 @@ public class SMSender {
                 }
 
                 Map<String, String> map = new HashMap<>(2);
-                map.put("name", a.getName());
+                map.put("name", QiniuCloud.cleanFileName(a.getName()));
                 map.put("data", base64);
                 atta.add(map);
             }
@@ -296,7 +296,12 @@ public class SMSender {
         }
 
         if (attach != null) {
-            for (File a : attach) email.attach(a);
+            for (File a : attach) {
+                EmailAttachment attachment = new EmailAttachment();
+                attachment.setPath(a.getAbsolutePath());
+                attachment.setName(QiniuCloud.cleanFileName(a.getName()));
+                email.attach(attachment);
+            }
         }
 
         email.addHeader("X-User-Agent", OkHttpUtils.RB_UA);
