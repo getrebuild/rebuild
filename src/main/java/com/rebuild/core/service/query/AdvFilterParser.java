@@ -269,9 +269,14 @@ public class AdvFilterParser extends SetUser {
         if (hasNameFlag) field = field.substring(1);
 
         Field lastFieldMeta;
-        if (VF_ACU.equals(field)) lastFieldMeta = specRootEntity.getField(EntityHelper.ApprovalLastUser);
-        else if (VF_CU43.equals(field)) lastFieldMeta = specRootEntity.getField(EntityHelper.OwningUser);
-        else lastFieldMeta = MetadataHelper.getLastJoinField(specRootEntity, field);
+        if (VF_ACU.equals(field)) {
+            lastFieldMeta = specRootEntity.containsField(EntityHelper.ApprovalLastUser)
+                    ? specRootEntity.getField(EntityHelper.ApprovalLastUser) : null;
+        } else if (VF_CU43.equals(field)) {
+            lastFieldMeta = specRootEntity.getField(EntityHelper.CreatedBy);
+        } else {
+            lastFieldMeta = MetadataHelper.getLastJoinField(specRootEntity, field);
+        }
         if (lastFieldMeta == null) {
             log.warn("Invalid field : {} in {}", field, specRootEntity.getName());
             return null;
