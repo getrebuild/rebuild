@@ -351,6 +351,18 @@ class BaiduMapModal extends RbModal {
                 $(this._$searchValue).val(latlng.text)
               }
             }}
+            onSearch={(results) => {
+              if (results && results[0]) {
+                let s = results[0]
+                this._latlngValue = {
+                  lat: s.point.lat,
+                  lng: s.point.lng,
+                  text: s.address,
+                }
+              } else {
+                this._latlngValue = null
+              }
+            }}
           />
         </div>
       </RF>

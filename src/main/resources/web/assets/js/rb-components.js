@@ -1629,7 +1629,15 @@ class BaiduMap extends React.Component {
         // 搜索
         that._mapLocalSearch = new _BMapGL.LocalSearch(map, {
           renderOptions: { map: map },
-          onSearchComplete: function () {},
+          onSearchComplete: function (results) {
+            that.__lastSearchResults43 = []
+            if (results && results.getCurrentNumPois && results.getCurrentNumPois() > 0) {
+              for (let i = 0; i < results.getCurrentNumPois(); i++) {
+                that.__lastSearchResults43.push(results.getPoi(i))
+              }
+            }
+            typeof that.props.onSearch === 'function' && that.props.onSearch(that.__lastSearchResults43)
+          },
         })
       }
     })
