@@ -256,7 +256,7 @@ public class RobotTriggerObserver extends OperatingObserver {
 
     private void execActionInternal(OperatingContext context, TriggerAction action, boolean a, boolean o, String w) {
         TriggerSource ts43 = getTriggerSource();
-        if (ts43 != null) ts43.setCurrentTrigger(action.actionContext.getConfigId());
+        if (ts43 != null) ts43.setCurrentTriggerId(action.actionContext.getConfigId());
 
         try {
             Object res = action.execute(context);

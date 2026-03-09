@@ -359,10 +359,14 @@ public class EasyExcelGenerator extends SetUser {
             EasyField easyField = EasyMetaFactory.valueOf(MetadataHelper.getLastJoinField(entity, fieldName));
             DisplayType dt = easyField.getDisplayType();
 
-            // FIXME v3.2 图片仅支持导出第一张
-            if (!dt.isExportable() && dt != DisplayType.IMAGE) {
-                data.put(varName, unsupportFieldTip);
-                continue;
+            if (!dt.isExportable()) {
+                if (dt == DisplayType.IMAGE || dt == DisplayType.FILE) {
+                    // v4.3 文件可导出名称
+                    // FIXME v3.2 图片仅支持导出第一张
+                } else {
+                    data.put(varName, unsupportFieldTip);
+                    continue;
+                }
             }
 
             Object fieldValue = record.getObjectValue(fieldName);
@@ -377,9 +381,17 @@ public class EasyExcelGenerator extends SetUser {
 
                 if (dt == DisplayType.SIGN) {
                     fieldValue = buildSignData((String) fieldValue);
+
                 } else if (dt == DisplayType.IMAGE) {
                     fieldValue = buildImageData((String) fieldValue);
-                    // TODO Excel 指定图片大小（可通过 Excel 单元格大小控制?）
+
+                } else if (dt == DisplayType.FILE) {
+                    JSONArray paths = JSON.parseArray((String) fieldValue);
+                    List<String> fileNames = new ArrayList<>();
+                    for (Object path : paths) {
+                        fileNames.add(QiniuCloud.parseFileName(path.toString()));
+                    }
+                    fieldValue = fileNames.isEmpty() ? StringUtils.EMPTY : StringUtils.join(fileNames, "; ");
 
                 } else {
 
@@ -423,7 +435,7 @@ public class EasyExcelGenerator extends SetUser {
                         }
                     }
 
-                    // v3.7.0
+                    // v3.7
                     fieldValue = ValueFnConvert.convert(easyField, fieldValue, varName, this.getClass());
                 }
 

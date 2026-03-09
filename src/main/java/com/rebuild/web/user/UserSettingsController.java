@@ -207,6 +207,11 @@ public class UserSettingsController extends BaseController {
         record.setString("password", password);
         try {
             Application.getBean(UserService.class).update(record);
+
+            // v4.3
+            final String mcpKey = "MustChangePwd:" + user;
+            Application.getCommonsCache().evict(mcpKey);
+
         } catch (DataSpecificationException ex) {
             return RespBody.error(ex.getMessage());
         }

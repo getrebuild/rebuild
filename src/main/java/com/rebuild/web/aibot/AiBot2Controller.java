@@ -84,9 +84,12 @@ public class AiBot2Controller extends BaseController {
             Chat chat = ChatManager.getChat(chatid);
             chat.getMessages().forEach(m -> messages.add(m.toJSON()));
         } else {
+            String aibotName = RebuildConfiguration.get(ConfigurationItem.AibotName);
+            aibotName = String.format("欢迎使用 %s！有什么问题都可以向我提问哦", aibotName);
+
             JSON welcome = JSONUtils.toJSONObject(
                     new String[]{"role", "content"},
-                    new Object[]{"ai", "欢迎使用 REBUILD AI 助手！有什么问题都可以向我提问哦"});
+                    new Object[]{"ai", aibotName});
             messages.add(welcome);
         }
 

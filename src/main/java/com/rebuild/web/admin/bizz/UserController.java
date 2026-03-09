@@ -29,6 +29,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -191,6 +192,9 @@ public class UserController extends EntityController {
         Record record = EntityHelper.forUpdate(userId, userId);
         record.setString("password", newp);
         Application.getBean(UserService.class).update(record);
+        // v4.3
+        final String mcpKey = "MustChangePwd:" + userId;
+        Application.getCommonsCache().put(mcpKey, "1");
 
         if (getBoolParameter(request, "email")) {
             User ub = Application.getUserStore().getUser(userId);
@@ -245,6 +249,8 @@ public class UserController extends EntityController {
         String deptNew = post.getString("dept");
         String roleNew = post.getString("role");
         JSONArray roleAppendNew = post.getJSONArray("roleAppend");
+        String password = post.getString("password");
+        if (StringUtils.isBlank(password)) password = null;
 
         ID deptNew2 = ID.isId(deptNew) ? ID.valueOf(deptNew) : null;
         ID roleNew2 = ID.isId(roleNew) ? ID.valueOf(roleNew) : null;
@@ -259,7 +265,7 @@ public class UserController extends EntityController {
             if (UserService.ADMIN_USER.equals(user)) continue;
 
             Application.getBean(UserService.class).updateEnableUser(
-                    user, deptNew2, roleNew2, roleAppendNew2.isEmpty() ? null : roleAppendNew2.toArray(new ID[0]), null);
+                    user, deptNew2, roleNew2, roleAppendNew2.isEmpty() ? null : roleAppendNew2.toArray(new ID[0]), null, password);
             op++;
         }
         return RespBody.ok(op);

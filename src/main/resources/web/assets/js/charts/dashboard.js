@@ -660,7 +660,7 @@ class AdvFilterWithEntity extends AdvFilter {
     return (
       <RF>
         {c}
-        <div className="float-right bosskey-show--" style={{ width: 200 }}>
+        <div className="float-right" style={{ width: 200 }}>
           <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)}>
             <option value="SystemCommon">{$L('通用字段')}</option>
             <optgroup label={$L('业务实体')}>

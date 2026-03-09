@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.user.signup;
 
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
@@ -197,9 +198,6 @@ public class LoginController extends LoginAction {
             return RespBody.ok(resMap);
         }
 
-        // v4.3
-        boolean hasLogin = UserService.hasLogin(loginUser.getId());
-
         if (isRbMobile) {
             resMap = loginSuccessedH5(request, response, loginUser.getId());
         } else {
@@ -208,9 +206,10 @@ public class LoginController extends LoginAction {
             if (ed != null) {
                 resMap.put("passwdExpiredDays", ed);
             } else {
-                if (!UserService.ADMIN_USER.equals(loginUser.getId()) && !hasLogin) {
-                    resMap.put("passwdSafeType", 2);
-                }
+                // v4.3 TODO 仅在 PC 正常登录时有效
+                final String mcpKey = "MustChangePwd:" + user;
+                String mcpType = Application.getCommonsCache().get(mcpKey);
+                if (mcpType != null) resMap.put("passwdSafeType", mcpType);
             }
         }
         return RespBody.ok(resMap);

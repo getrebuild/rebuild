@@ -803,8 +803,12 @@ class RbForm extends React.Component {
     let data = {}
     for (let k in this.__FormData) {
       const err = this.__FormData[k].error
-      if (err) return RbHighbar.create(err)
-      else data[k] = this.__FormData[k].value
+      if (err) {
+        let c = this.getFieldComp(k)
+        c && c.focus && c.focus()
+        return RbHighbar.create(err)
+      }
+      data[k] = this.__FormData[k].value
     }
 
     if (this._ProTables) {
@@ -1203,6 +1207,17 @@ class RbFormElement extends React.Component {
   handleEditConfirm() {
     const $$$parent = this.props.$$$parent
     $$$parent && $$$parent.saveSingleFieldValue && $$$parent.saveSingleFieldValue(this)
+  }
+
+  /**
+   * 焦点
+   */
+  focus() {
+    try {
+      this._fieldValue && this._fieldValue.focus()
+    } catch (ignored) {
+      // NOOP
+    }
   }
 
   // Setter
