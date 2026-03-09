@@ -1505,6 +1505,7 @@ class FileRename extends RbAlert {
 
   renderContent() {
     const isOffice = this.props.fileId && ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes($fileExtName(this.__fileName))
+    const isMd = this.props.fileId && ['mdTODO'].includes($fileExtName(this.__fileName))
     return (
       <form className="rbalert-form-sm">
         <div className="form-group">
@@ -1515,7 +1516,7 @@ class FileRename extends RbAlert {
           <button disabled={this.state.disabled} type="button" className="btn btn-primary" onClick={(e) => this.handleConfirm(e)}>
             {$L('确定')}
           </button>
-          {isOffice && (
+          {(isOffice || isMd) && (
             <a className="btn btn-link ml-1" href={`${rb.baseUrl}/filex/editor?src=${this.props.fileId}`} target="_blank">
               <i className="mdi mdi-microsoft-office icon" />
               &nbsp;

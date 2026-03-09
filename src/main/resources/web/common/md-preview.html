@@ -1,0 +1,27 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${title ?:'REBUILD'}]]</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        background-color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="viewer" style="width: 100%; height: 100%" th:data-fileid="${fileid}">
+      <textarea id="editor">[[${content}]]</textarea>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      const easymde = new EasyMDE({
+        element: document.getElementById('editor'),
+      })
+    </script>
+  </body>
+</html>

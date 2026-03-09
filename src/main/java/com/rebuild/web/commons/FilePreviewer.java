@@ -70,13 +70,41 @@ public class FilePreviewer extends BaseController {
     @GetMapping({"/commons/file-editor", "/filex/editor"})
     public ModelAndView ooEditor(HttpServletRequest request, HttpServletResponse response) throws IOException {
         getRequestUser(request);  // check
+
+        String src = getParameterNotNull(request, "src");
+        if (ID.isId(src)) {
+            ID id = ID.valueOf(src);
+            src = getFileById(id, getRequestUser(request));
+        }
+
+        if (src.endsWith(".md")) {
+            return mdEditor(request);
+        }
         if (OnlyOffice.isUseOoPreview()) {
             return ooPreviewOrEditor(request, response, true);
         }
         return ErrorPageView.createErrorPage(Language.L("请配置 ONLYOFFICE 后使用"));
     }
 
-    // 预览或编辑
+    // TODO 编辑 MD 文件
+    private ModelAndView mdEditor(HttpServletRequest request) throws IOException {
+        String src = getParameterNotNull(request, "src");
+        ID id = null;
+        if (ID.isId(src)) {
+            id = ID.valueOf(src);
+            src = getFileById(id, getRequestUser(request));
+        }
+
+        File file = QiniuCloud.downloadFile(src);
+        String content = FileUtils.readFileToString(file, "UTF-8");
+
+        ModelAndView mv = createModelAndView("/common/md-preview");
+        mv.getModelMap().put("content", content);
+        mv.getModelMap().put("fileid", id);
+        return mv;
+    }
+
+    // 预览或编辑 Office 文件
     private ModelAndView ooPreviewOrEditor(HttpServletRequest request, HttpServletResponse response, boolean editor) throws IOException {
         String src = getParameterNotNull(request, "src");
         ID id = null;
@@ -158,8 +186,7 @@ public class FilePreviewer extends BaseController {
     @PostMapping("/commons/file-editor-save")
     public void ooEditorSaveCallback(HttpServletRequest request, HttpServletResponse response) {
         final JSONObject status = (JSONObject) ServletUtils.getRequestJson(request);
-        if (CommonsUtils.DEVLOG)
-            System.out.println("[dev] oo-callback : " + request.getQueryString() + "\n" + JSONUtils.prettyPrint(status));
+        if (CommonsUtils.DEVLOG) System.out.println("[dev] oo-callback : " + request.getQueryString() + "\n" + JSONUtils.prettyPrint(status));
 
         // saving
         int statusVal = status.getIntValue("status");
@@ -207,12 +234,15 @@ public class FilePreviewer extends BaseController {
                     ExcelUtils.reSaveAndCalcFormula(dest.toPath(), false);
                 }
 
+                // v4.3 文件大小
+                long fileSize = FileUtils.sizeOf(dest);
+
                 if (QiniuCloud.instance().available() && !data41) {
                     QiniuCloud.instance().upload(dest, fileKey);
                     FileUtils.deleteQuietly(dest);
                 }
 
-                saveFileById(fileKey, hasId, status.getJSONArray("users"));
+                saveFileById(fileKey, fileSize, hasId, status.getJSONArray("users"));
 
             } catch (Exception e) {
                 log.error("Saving file error : {}", fileKey, e);
@@ -227,10 +257,11 @@ public class FilePreviewer extends BaseController {
 
     /**
      * @param fileKey
+     * @param fileSize
      * @param id
      * @param users
      */
-    private void saveFileById(String fileKey, String id, JSONArray users) {
+    private void saveFileById(String fileKey, long fileSize, String id, JSONArray users) {
         if (!ID.isId(id)) return;
 
         ID user = UserService.SYSTEM_USER;
@@ -249,6 +280,7 @@ public class FilePreviewer extends BaseController {
         } else if (fid.getEntityCode() == EntityHelper.Attachment) {
             record = RecordBuilder.builder(fid)
                     .add("filePath", fileKey)
+                    .add("fileSize", fileSize)
                     .build(user);
         }
         if (record == null) return;
