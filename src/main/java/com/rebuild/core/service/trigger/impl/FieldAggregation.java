@@ -106,7 +106,7 @@ public class FieldAggregation extends TriggerAction {
         super.clean();
 
         if (fieldAggregationRefresh != null) {
-            log.info("Clear after refresh : {}", fieldAggregationRefresh);
+            log.info("Refresh datas of related : {}", fieldAggregationRefresh);
             fieldAggregationRefresh.refresh();
             fieldAggregationRefresh = null;
         }

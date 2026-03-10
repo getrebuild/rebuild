@@ -59,7 +59,7 @@ public class FieldAggregationRefresh {
         String followSourceField = targetFieldEntity[0];
 
         if (TriggerAction.TARGET_ANY.equals(followSourceField)) {
-            refreshWithGroup();
+            refreshUseMatchFields();
             return;
         }
 
@@ -90,7 +90,8 @@ public class FieldAggregationRefresh {
         }
     }
 
-    private void refreshWithGroup() {
+    // 字段匹配刷新
+    private void refreshUseMatchFields() {
         final List<String[]> qFieldsRefresh = targetWithMatchFields.getQFieldsRefresh();
 
         List<String> targetFields = new ArrayList<>();
@@ -106,7 +107,7 @@ public class FieldAggregationRefresh {
         if (targetWhere.size() <= 1) {
             targetWhere.clear();
             targetWhere.add("(1=1)");
-            log.warn("Force refresh all aggregation target(s)");
+            log.warn("FORCE REFRESH ALL AGGREGATION TARGET(S) : {}", parent.getActionContext().getConfigId());
         }
 
         // 1.获取待刷新的目标
@@ -117,7 +118,7 @@ public class FieldAggregationRefresh {
                 targetEntity.getName(),
                 StringUtils.join(targetWhere, " or "));
         Object[][] targetRecords4Refresh = Application.createQueryNoFilter(sql).array();
-        log.info("Maybe refresh target record(s) : {}", targetRecords4Refresh.length);
+        log.info("Will refresh target record(s) : {} ({})", targetRecords4Refresh.length, parent.getActionContext().getConfigId());
 
         final ID triggerUser = UserService.SYSTEM_USER;
         final ActionContext parentAc = parent.getActionContext();
@@ -152,7 +153,7 @@ public class FieldAggregationRefresh {
             fa.targetRecordId = targetRecordId;
             fa.followSourceWhere = StringUtils.join(qFieldsFollow, " and ");
 
-            // FIXME v35 可能导致数据聚合条件中的字段变量不准
+            // FIXME 3.5 可能导致数据聚合条件中的字段变量不准
             Record fakeSourceRecord = EntityHelper.forUpdate(operatingContext.getFixedRecordId(), triggerUser, false);
             OperatingContext oCtx = OperatingContext.create(triggerUser, BizzPermission.NONE, fakeSourceRecord, fakeSourceRecord);
 
