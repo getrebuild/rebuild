@@ -87,7 +87,8 @@ public class BootApplication extends SpringBootServletInitializer {
             TOMCAT_PORT = BootEnvironmentPostProcessor.getProperty("server.port", "18080");
         }
 
-        String url = String.format("http://localhost:%s%s", TOMCAT_PORT, StringUtils.defaultString(getContextPath(), "/"));
+        String url = String.format("http://localhost:%s%s",
+                TOMCAT_PORT, StringUtils.defaultString(getContextPath(), "/"));
         if (!url.endsWith("/")) url += "/";
 
         if (path != null) {
