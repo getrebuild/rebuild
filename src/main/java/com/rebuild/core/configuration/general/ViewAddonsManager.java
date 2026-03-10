@@ -167,7 +167,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
                     if (e.getMainEntity() != null) continue;
                 }
 
-                Entity eCheck = ObjectUtils.defaultIfNull(e.getMainEntity(), e);
+                Entity eCheck = ObjectUtils.getIfNull(e.getMainEntity(), e);
                 if (Application.getPrivilegesManager().allow(user, eCheck.getEntityCode(), useAction)) {
                     useRefs.add(formatEntityShow(field, mfRefs, applyType));
                 }

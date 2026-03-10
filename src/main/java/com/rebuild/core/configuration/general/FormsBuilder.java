@@ -47,9 +47,9 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -535,7 +535,7 @@ public class FormsBuilder extends FormsManager {
                 JSONArray options = MultiSelectManager.instance.getSelectList(fieldMeta, true);
                 field.put("options", options);
             } else if (dt == DisplayType.TAG) {
-                field.put("options", ObjectUtils.defaultIfNull(field.remove("tagList"), JSONUtils.EMPTY_ARRAY));
+                field.put("options", ObjectUtils.getIfNull(field.remove("tagList"), JSONUtils.EMPTY_ARRAY));
             } else if (dt == DisplayType.DATETIME) {
                 String format = StringUtils.defaultIfBlank(
                         easyField.getExtraAttr(EasyFieldConfigProps.DATETIME_FORMAT), dt.getDefaultFormat());

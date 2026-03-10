@@ -31,7 +31,7 @@ import com.rebuild.web.IdParam;
 import com.rebuild.web.commons.FileDownloader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -271,7 +271,7 @@ public class FileManagerController extends BaseController {
         if (CommonsUtils.isExternalUrl(filePath)) return RespBody.errorl("无法修改外部文件");
 
         String oldName = QiniuCloud.parseFileName(filePath);
-        if (StringUtils.equals(newName, oldName)) return RespBody.ok(filePath);
+        if (Strings.CS.equals(newName, oldName)) return RespBody.ok(filePath);
 
         String newFilePath = filePath.substring(0, filePath.lastIndexOf(oldName)) + newName;
         FilesHelper.moveFile(filePath, newFilePath, fileId);

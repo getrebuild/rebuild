@@ -18,8 +18,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.security.Principal;
@@ -147,8 +147,8 @@ public class CombinedRole extends Role {
     private String descPrivileges(Privileges p) {
         String d = p.getIdentity().toString();
         if (p instanceof CustomEntityPrivileges) {
-            d += "; FP:" + ObjectUtils.defaultIfNull(((CustomEntityPrivileges) p).getFpDefinition(), "N");
-            d += "; CP:" + ObjectUtils.defaultIfNull(((CustomEntityPrivileges) p).getCustomFilters(), "N");
+            d += "; FP:" + ObjectUtils.getIfNull(((CustomEntityPrivileges) p).getFpDefinition(), "N");
+            d += "; CP:" + ObjectUtils.getIfNull(((CustomEntityPrivileges) p).getCustomFilters(), "N");
         }
         return d;
     }

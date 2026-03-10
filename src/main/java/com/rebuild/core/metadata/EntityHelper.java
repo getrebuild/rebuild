@@ -20,8 +20,8 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.privileges.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
 import java.util.Date;
@@ -45,7 +45,7 @@ public class EntityHelper {
      * @see #parse(JSONObject, ID, boolean, boolean)
      */
     public static Record parse(JSONObject data) {
-        ID user = (ID) ObjectUtils.defaultIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
+        ID user = ObjectUtils.getIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
         log.info("Use '{}' do parse", user);
         return parse(data, user, true, false);
     }
@@ -120,7 +120,7 @@ public class EntityHelper {
      * @see #forUpdate(ID, ID, boolean)
      */
     public static Record forUpdate(ID recordId) {
-        ID user = (ID) ObjectUtils.defaultIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
+        ID user = (ID) ObjectUtils.getIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
         log.info("Use '{}' do forUpdate", user);
         return forUpdate(recordId, user, true);
     }
@@ -162,7 +162,7 @@ public class EntityHelper {
      * @see #forNew(int, ID, boolean)
      */
     public static Record forNew(int entityCode) {
-        ID user = (ID) ObjectUtils.defaultIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
+        ID user = (ID) ObjectUtils.getIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
         log.info("Use '{}' do forNew", user);
         return forNew41(entityCode, user, true);
     }
@@ -195,7 +195,7 @@ public class EntityHelper {
      * @see #forNew(String, ID, boolean)
      */
     public static Record forNew(String entityName) {
-        ID user = (ID) ObjectUtils.defaultIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
+        ID user = (ID) ObjectUtils.getIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
         log.info("Use '{}' do forNew", user);
         return forNew41(entityName, user, true);
     }

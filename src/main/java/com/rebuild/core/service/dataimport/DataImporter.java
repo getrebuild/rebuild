@@ -62,7 +62,7 @@ public class DataImporter extends HeavyTask<Integer> {
         final List<Cell[]> rows = new DataFileParser(rule.getSourceFile()).parse();
         this.setTotal(rows.size() - 1);
 
-        final ID defaultOwning = ObjectUtils.defaultIfNull(rule.getDefaultOwningUser(), getUser());
+        final ID defaultOwning = ObjectUtils.getIfNull(rule.getDefaultOwningUser(), getUser());
 
         final boolean isViaAdmin = UserHelper.isAdmin(getUser());
         final boolean isAllowCreate;

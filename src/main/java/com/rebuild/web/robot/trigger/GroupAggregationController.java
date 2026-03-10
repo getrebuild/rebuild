@@ -87,7 +87,7 @@ public class GroupAggregationController extends BaseController {
 
         // 审批流程启用
         boolean hadApproval = RobotApprovalManager.instance.hadApproval(
-                ObjectUtils.defaultIfNull(targetEntity.getMainEntity(), targetEntity), null) != null;
+                ObjectUtils.getIfNull(targetEntity.getMainEntity(), targetEntity), null) != null;
 
         return JSONUtils.toJSONObject(
                 new String[] { "targetGroupFields", "targetFields", "hadApproval" },

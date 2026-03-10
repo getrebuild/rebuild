@@ -107,7 +107,7 @@ public abstract class BaseConfigurationService extends InternalPersistService {
      * @param cfgRecord
      */
     protected Record putCreateBy4ShareTo(Record cfgRecord) {
-        final ID user = ObjectUtils.defaultIfNull(cfgRecord.getEditor(), UserContextHolder.getUser());
+        final ID user = ObjectUtils.getIfNull(cfgRecord.getEditor(), UserContextHolder.getUser());
         if (UserService.ADMIN_USER.equals(user)) return cfgRecord;
         if (!cfgRecord.hasValue("shareTo")) return cfgRecord;
 

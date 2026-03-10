@@ -77,7 +77,7 @@ public class CommonsLog {
         Record commLog = EntityHelper.forNew(EntityHelper.CommonsLog, user);
         commLog.setString("type", type);
         commLog.setID("user", user);
-        commLog.setID("source", ObjectUtils.defaultIfNull(source, user));
+        commLog.setID("source", ObjectUtils.getIfNull(source, user));
         commLog.setInt("status", status);
         commLog.setDate("logTime", CalendarUtils.now());
         if (content != null) commLog.setString("logContent", CommonsUtils.maxstr(content, 32767));

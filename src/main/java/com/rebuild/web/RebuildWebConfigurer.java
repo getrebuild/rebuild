@@ -26,8 +26,8 @@ import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.md.MarkdownUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver;
 import org.springframework.http.HttpStatus;
@@ -188,7 +188,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         if (errorMsg == null) errorMsg = getErrorMessage(request, ex);
 
         String errorLog = "\n++ EXECUTE REQUEST ERROR(s) TRACE +++++++++++++++++++++++++++++++++++++++++++++" +
-                "\nUser    : " + ObjectUtils.defaultIfNull(AppUtils.getRequestUser(request), "-") +
+                "\nUser    : " + ObjectUtils.getIfNull(AppUtils.getRequestUser(request), "-") +
                 "\nIP      : " + ServletUtils.getRemoteAddr(request) +
                 "\nUA      : " + StringUtils.defaultIfEmpty(request.getHeader("user-agent"), "-") +
                 "\nURL(s)  : " + getRequestUrls(request) +

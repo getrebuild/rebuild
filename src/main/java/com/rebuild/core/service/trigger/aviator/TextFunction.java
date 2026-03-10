@@ -61,7 +61,7 @@ public class TextFunction extends AbstractFunction {
     public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2, AviatorObject arg3, AviatorObject arg4) {
         final Object $id = arg1.getValue(env);
         final Object $defaultValue = arg2.getValue(env);
-        final String sep = ObjectUtils.defaultIfNull(arg3.getValue(env), ", ").toString();
+        final String sep = ObjectUtils.getIfNull(arg3.getValue(env), ", ").toString();
         final String fieldName = arg4.getValue(env) == null ? null : arg4.getValue(env).toString();
 
         // No value

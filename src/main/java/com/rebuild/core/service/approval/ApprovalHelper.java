@@ -28,6 +28,7 @@ import com.rebuild.core.service.trigger.TriggerWhen;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -265,7 +266,7 @@ public class ApprovalHelper {
         JSONArray current = new ApprovalProcessor(recordId, s.getApprovalId()).getCurrentStep(s);
         for (Object o : current) {
             JSONObject step = (JSONObject) o;
-            if (StringUtils.equalsIgnoreCase(user.toLiteral(), step.getString("approver"))) return true;
+            if (Strings.CI.equals(user.toLiteral(), step.getString("approver"))) return true;
         }
         return false;
     }

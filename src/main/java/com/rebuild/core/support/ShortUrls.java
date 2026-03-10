@@ -46,7 +46,7 @@ public class ShortUrls {
      */
     public static String make(String longUrl, int seconds, ID user) {
         Record record = EntityHelper.forNew(EntityHelper.ShortUrl,
-                ObjectUtils.defaultIfNull(user, UserService.SYSTEM_USER));
+                ObjectUtils.getIfNull(user, UserService.SYSTEM_USER));
         record.setString("longUrl", longUrl);
         if (seconds > 0) record.setDate("expireTime", CalendarUtils.add(seconds, Calendar.SECOND));
 

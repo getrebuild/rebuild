@@ -31,8 +31,8 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.JSONUtils;
 import lombok.Setter;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -166,7 +166,7 @@ public class DataListWrapper {
                         nameValue = FieldValueHelper.NO_READ_PRIVILEGES;
                     }
 
-                    ((ID) value).setLabel(ObjectUtils.defaultIfNull(nameValue, StringUtils.EMPTY));
+                    ((ID) value).setLabel(ObjectUtils.getIfNull(nameValue, StringUtils.EMPTY));
                 }
 
                 row[colIndex] = wrapFieldValue(value, fieldEasy);

@@ -13,7 +13,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -56,8 +56,8 @@ public class AuthTokenManager {
     protected static String generateToken(ID user, int seconds, String type) {
         // Type,User,Time,Version
         String desc = String.format("%s,%s,%d,v2",
-                ObjectUtils.defaultIfNull(type, TYPE_ACCESS_TOKEN),
-                ObjectUtils.defaultIfNull(user, UserService.SYSTEM_USER),
+                ObjectUtils.getIfNull(type, TYPE_ACCESS_TOKEN),
+                ObjectUtils.getIfNull(user, UserService.SYSTEM_USER),
                 System.nanoTime());
         String token = EncryptUtils.toSHA1Hex(desc);
 

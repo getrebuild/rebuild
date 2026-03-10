@@ -33,7 +33,7 @@ public class ReportsFile extends File {
     private List<File> files = new ArrayList<>();
 
     public ReportsFile(File parent, String fileName) {
-        super(ObjectUtils.defaultIfNull(parent, RebuildConfiguration.getFileOfTemp("/")),
+        super(ObjectUtils.getIfNull(parent, RebuildConfiguration.getFileOfTemp("/")),
                 StringUtils.defaultIfBlank(fileName, "RBREPORT-" + System.currentTimeMillis()));
     }
 
