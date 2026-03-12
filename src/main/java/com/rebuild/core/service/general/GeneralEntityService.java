@@ -124,9 +124,12 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         // 保证执行顺序
         Map<Integer, ID> detaileds = new TreeMap<>();
 
+        // 初始进入
+        boolean originEnter43 = false;
+
         try {
             if (hasDetails) {
-                RobotTriggerObserver.setLazyTriggers();
+                originEnter43 = RobotTriggerObserver.setLazyTriggers();
 
                 List<ID> details4Update = new ArrayList<>();
                 if (record.getPrimary() != null) {
@@ -193,7 +196,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return record;
 
         } finally {
-            RobotTriggerObserver.executeLazyTriggers(this);
+            if (originEnter43) RobotTriggerObserver.executeLazyTriggers(this);
         }
     }
 
