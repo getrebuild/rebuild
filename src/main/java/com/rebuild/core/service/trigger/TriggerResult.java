@@ -166,4 +166,13 @@ public class TriggerResult implements JSONAware {
     public static TriggerResult badConfig() {
         return wran("Bad config");
     }
+
+    /**
+     * 合并执行了
+     *
+     * @return
+     */
+    public static TriggerResult triggerMerged() {
+        return wran("Trigger merged");
+    }
 }

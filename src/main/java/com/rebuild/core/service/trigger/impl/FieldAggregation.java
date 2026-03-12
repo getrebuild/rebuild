@@ -47,6 +47,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -87,6 +88,9 @@ public class FieldAggregation extends TriggerAction {
 
     transient private TargetWithMatchFields targetWithMatchFields;
 
+    // 已执行的触发器（本线程）
+    private static final ThreadLocal<Set<ID>> EXEC_TRIGGERS43 = new ThreadLocal<>();
+
     public FieldAggregation(ActionContext context) {
         this(context, Boolean.TRUE);
     }
@@ -106,7 +110,7 @@ public class FieldAggregation extends TriggerAction {
         super.clean();
 
         if (fieldAggregationRefresh != null) {
-            log.info("Clear after refresh : {}", fieldAggregationRefresh);
+            log.info("Refresh datas of related : {}", fieldAggregationRefresh);
             fieldAggregationRefresh.refresh();
             fieldAggregationRefresh = null;
         }
@@ -151,20 +155,30 @@ public class FieldAggregation extends TriggerAction {
         final List<String> tschain = checkTriggerChain(chainName);
         if (tschain == null) return TriggerResult.triggerOnce();
 
+        // v4.3-b3 合并执行，已执行则跳过
+        final boolean useMergeExec = actionContext.getConfigAsBool("useMergeExec");
+        if (useMergeExec) {
+            Set<ID> set = EXEC_TRIGGERS43.get();
+            if (set != null && set.contains(actionContext.getConfigId())) {
+                log.info("Use merge execution : {}", actionContext.getConfigId());
+                return TriggerResult.triggerMerged();
+            }
+        }
+
         this.prepare(operatingContext);
 
         if (targetRecordId == null) {
-            log.info("No target record found");
+            log.info("No target record found : {}", actionContext.getConfigId());
             return TriggerResult.noMatching();
         }
 
         if (!QueryHelper.exists(targetRecordId)) {
-            log.warn("Target record dose not exists: {} (On {})", targetRecordId, actionContext.getConfigId());
+            log.warn("Target record dose not exists : {} ({})", targetRecordId, actionContext.getConfigId());
             return TriggerResult.targetNotExists();
         }
 
         // 聚合数据过滤
-        JSONObject dataFilter = ((JSONObject) actionContext.getActionContent()).getJSONObject("dataFilter");
+        JSONObject dataFilter = (JSONObject) actionContext.getConfigAsJson("dataFilter");
         String dataFilterSql = null;
         if (ParseHelper.validAdvFilter(dataFilter)) {
             dataFilterSql = new AdvFilterParser(dataFilter, operatingContext.getFixedRecordId()).toSqlWhere();
@@ -178,7 +192,7 @@ public class FieldAggregation extends TriggerAction {
         // 构建目标记录数据
         Record targetRecord = EntityHelper.forUpdate(targetRecordId, UserService.SYSTEM_USER, false);
 
-        JSONArray items = ((JSONObject) actionContext.getActionContent()).getJSONArray("items");
+        JSONArray items = (JSONArray) actionContext.getConfigAsJson("items");
         for (Object o : items) {
             JSONObject item = (JSONObject) o;
             String targetField = item.getString("targetField");
@@ -251,8 +265,8 @@ public class FieldAggregation extends TriggerAction {
             return TriggerResult.targetSame();
         }
 
-        final boolean forceUpdate = ((JSONObject) actionContext.getActionContent()).getBooleanValue("forceUpdate");
-        final boolean stopPropagation = ((JSONObject) actionContext.getActionContent()).getBooleanValue("stopPropagation");
+        final boolean forceUpdate = actionContext.getConfigAsBool("forceUpdate");
+        final boolean stopPropagation = actionContext.getConfigAsBool("stopPropagation");
 
         // 跳过权限
         GeneralEntityServiceContextHolder.setSkipGuard(targetRecordId);
@@ -286,7 +300,7 @@ public class FieldAggregation extends TriggerAction {
         }
 
         // 聚合后回填 (v3.1, 3.9)
-        String fillbackField = ((JSONObject) actionContext.getActionContent()).getString("fillbackField");
+        String fillbackField = actionContext.getConfigAsStr("fillbackField");
         if (fillbackField != null && MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
             String sql = String.format("select %s,%s from %s where %s",
                     sourceEntity.getPrimaryField().getName(), fillbackField, sourceEntity.getName(), filterSql);
@@ -306,6 +320,13 @@ public class FieldAggregation extends TriggerAction {
             }
         }
 
+        if (useMergeExec) {
+            Set<ID> set = EXEC_TRIGGERS43.get();
+            if (set == null) set = new HashSet<>();
+            set.add(actionContext.getConfigId());
+            EXEC_TRIGGERS43.set(set);
+        }
+
         return TriggerResult.success(Collections.singletonList(targetRecord.getPrimary()));
     }
 
@@ -313,10 +334,8 @@ public class FieldAggregation extends TriggerAction {
     public void prepare(OperatingContext operatingContext) throws TriggerException {
         if (sourceEntity != null) return;  // 已经初始化
 
-        final JSONObject actionContent = (JSONObject) actionContext.getActionContent();
-
         // FIELD.ENTITY
-        String[] targetFieldEntity = ((JSONObject) actionContext.getActionContent()).getString("targetEntity").split("\\.");
+        String[] targetFieldEntity = actionContext.getConfigAsStr("targetEntity").split("\\.");
         sourceEntity = actionContext.getSourceEntity();
         targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
 
@@ -324,7 +343,7 @@ public class FieldAggregation extends TriggerAction {
         if (TARGET_ANY.equals(followSourceField)) {
             targetWithMatchFields = new TargetWithMatchFields();
             targetRecordId = targetWithMatchFields.match(actionContext);
-            if (targetRecordId == null && actionContent.getBooleanValue("autoCreate")) {
+            if (targetRecordId == null && actionContext.getConfigAsBool("autoCreate")) {
                 targetRecordId = this.autoCreateTargetRecord39(targetWithMatchFields);
             }
             followSourceWhere = StringUtils.join(targetWithMatchFields.getQFieldsFollow(), " and ");

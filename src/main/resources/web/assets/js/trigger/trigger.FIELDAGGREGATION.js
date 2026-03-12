@@ -219,6 +219,12 @@ class ContentFieldAggregation extends ActionContentSpec {
                   </span>
                 </label>
               </div>
+              <div className="mt-2 bosskey-show">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$useMergeExec = c)} />
+                  <span className="custom-control-label">{$L('尝试合并执行')} (LAB)</span>
+                </label>
+              </div>
             </div>
           </div>
           <div className="form-group row">
@@ -276,6 +282,9 @@ class ContentFieldAggregation extends ActionContentSpec {
       $(this._$stopPropagation).attr('checked', content.stopPropagation === true)
       if (content.execOnMainUpdate === true) {
         $(this._$execOnMainUpdate).attr('checked', true).parents('.mt-2').removeClass('bosskey-show')
+      }
+      if (content.useMergeExec === true) {
+        $(this._$useMergeExec).attr('checked', true).parents('.mt-2').removeClass('bosskey-show')
       }
     }
   }
@@ -484,6 +493,7 @@ class ContentFieldAggregation extends ActionContentSpec {
       autoCreate: $(this._$autoCreate).prop('checked'),
       stopPropagation: $(this._$stopPropagation).prop('checked'),
       execOnMainUpdate: $(this._$execOnMainUpdate).prop('checked'),
+      useMergeExec: $(this._$useMergeExec).prop('checked'),
       fillbackField: $(this._$fillbackField).val() || null,
     }
 

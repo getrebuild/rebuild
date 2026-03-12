@@ -10,6 +10,7 @@ package com.rebuild.core.service.trigger;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.general.OperatingContext;
 
@@ -74,6 +75,31 @@ public class ActionContext {
      */
     public ID getConfigId() {
         return configId;
+    }
+
+    /**
+     * @param configName
+     * @return
+     */
+    public String getConfigAsStr(String configName) {
+        return ((JSONObject) getActionContent()).getString(configName);
+    }
+
+    /**
+     * @param configName
+     * @return
+     */
+    public boolean getConfigAsBool(String configName) {
+        return ((JSONObject) getActionContent()).getBooleanValue(configName);
+    }
+
+    /**
+     * @param configName
+     * @return
+     */
+    public JSON getConfigAsJson(String configName) {
+        Object o = ((JSONObject) getActionContent()).get(configName);
+        return o instanceof JSON ? (JSON) o : null;
     }
 
     @Override

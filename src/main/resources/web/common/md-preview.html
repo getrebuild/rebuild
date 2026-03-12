@@ -1,0 +1,76 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${title ?:'REBUILD'}]]</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        background-color: #fff;
+      }
+      .EasyMDEContainer .CodeMirror-fullscreen {
+        top: 38px;
+      }
+      .EasyMDEContainer .CodeMirror {
+        border-bottom: 0 none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="viewer" style="width: 100%; height: 100%" th:data-fileid="${fileid}">
+      <textarea id="editor" class="hide">[[${content}]]</textarea>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script type="text/babel">
+      let _lastContent = null
+      let _EasyMDE
+      let toolbar = DEFAULT_MDE_TOOLBAR({})
+      toolbar = toolbar.filter((i) => {
+        return !(i.name === 'preview' || i.name === 'fullscreen')
+      })
+      toolbar.push({
+        name: 'side-by-side',
+        action: EasyMDE.toggleSideBySide,
+        className: 'mdi mdi-view-agenda-outline mdi-rotate-90 no-disable',
+        title: $L('分屏预览'),
+      })
+      toolbar.push({
+        name: 'save',
+        action: () => {
+          let data = {
+            id: $('#viewer').data('fileid'),
+            content: _EasyMDE.value(),
+          }
+
+          $.post('/commons/md-editor-save', JSON.stringify(data), (res) => {
+            if (res.error_code === 0) {
+              _lastContent = data.content
+              // RbHighbar.success($L('保存成功'))
+            } else {
+              RbHighbar.error(res.error_msg)
+            }
+          })
+        },
+        className: 'zmdi zmdi-save no-disable',
+        title: $L('保存'),
+      })
+
+      _EasyMDE = new EasyMDE({
+        element: document.getElementById('editor'),
+        status: false,
+        autoDownloadFontAwesome: false,
+        spellChecker: false,
+        toolbar: toolbar,
+      })
+      _lastContent = _EasyMDE.value()
+
+      window.onbeforeunload = function () {
+        if (_EasyMDE.value() === _lastContent) return undefined
+        return 'SHOW-UNSAVED-CHANGES'
+      }
+    </script>
+  </body>
+</html>

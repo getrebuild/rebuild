@@ -766,7 +766,7 @@ class ChartBar extends BaseChart {
       if (showHorizontal) option.grid.left = 100
       // 排他
       else if (showMutliYAxis && option.series.length > 1 && !this._stack) reOptionMutliYAxis(option)
-      // v4.3
+      // v4.3 倾斜
       if (labelRotate) {
         option.xAxis.axisLabel.rotate = 45
         option.xAxis.axisLabel.interval = 0

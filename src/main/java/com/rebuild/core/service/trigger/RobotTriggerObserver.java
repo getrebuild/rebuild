@@ -362,9 +362,15 @@ public class RobotTriggerObserver extends OperatingObserver {
 
     /**
      * 延迟触发器的执行
+     *
+     * @return
      */
-    public static void setLazyTriggers() {
+    public static boolean setLazyTriggers() {
+        Boolean s = LAZY_TRIGGERS.get();
+        if (s != null && s) return false;
+
         LAZY_TRIGGERS.set(true);
+        return true;
     }
 
     /**
