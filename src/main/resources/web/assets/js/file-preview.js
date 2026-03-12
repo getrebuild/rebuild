@@ -51,7 +51,7 @@ class RbPreview extends React.Component {
 
     return (
       <RF>
-        <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''}`} ref={(c) => (this._dlg = c)} tabIndex="-1">
+        <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''} file-${$fileExtName(fileName)}`} ref={(c) => (this._dlg = c)} tabIndex="-1">
           <div className="preview-header">
             <div className="float-left">
               <h5 className="text-bold">{fileName}</h5>
@@ -160,7 +160,7 @@ class RbPreview extends React.Component {
     } else if (this.state.previewText) {
       content = showMd ? (
         <div className="md-content p-4">
-          <Md2Html markdown={this.state.previewText} />
+          <Md2Html markdown={this.state.previewText} _br43={false} />
         </div>
       ) : (
         <pre className="mb-0">{this.state.previewText}</pre>

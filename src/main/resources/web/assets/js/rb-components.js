@@ -1212,13 +1212,18 @@ class Md2Html extends React.Component {
 
   componentDidMount() {
     let md = this.props.markdown
+    // 保持 HTML
     if (this.props.keepHtml === false) {
       md = md.replace(/>/g, '&gt;').replace(/</g, '&lt;')
       md = md.replace(/&gt; /g, '> ')
     }
 
     // 替换换行并保持表格换行
-    let cHtml = marked.parse(md.replace(/(?<!\|)\n(?!\|)/g, '\n\n'))
+    if (this.props._br43 !== false) {
+      md = md.replace(/(?<!\|)\n(?!\|)/g, '\n\n')
+    }
+
+    let cHtml = marked.parse(md)
     cHtml = cHtml.replace(/<img src="([^"]+)"/g, function (s, src) {
       let srcNew = src + (src.includes('?') ? '&' : '?') + 'imageView2/2/w/1000/interlace/1/q/100'
       return s.replace(src, srcNew)
@@ -1504,8 +1509,9 @@ class FileRename extends RbAlert {
   }
 
   renderContent() {
-    const isOffice = this.props.fileId && ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes($fileExtName(this.__fileName))
-    const isMd = this.props.fileId && ['mdTODO'].includes($fileExtName(this.__fileName))
+    let fileExt = $fileExtName(this.__fileName)
+    const isOffice = this.props.fileId && ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(fileExt)
+    const isMd = this.props.fileId && ['md'].includes(fileExt)
     return (
       <form className="rbalert-form-sm">
         <div className="form-group">
@@ -1517,7 +1523,7 @@ class FileRename extends RbAlert {
             {$L('确定')}
           </button>
           {(isOffice || isMd) && (
-            <a className="btn btn-link ml-1" href={`${rb.baseUrl}/filex/editor?src=${this.props.fileId}`} target="_blank">
+            <a className={`btn btn-link ml-1 ${isMd && 'bosskey-show'}`} href={`${rb.baseUrl}/filex/editor?src=${this.props.fileId}`} target="_blank">
               <i className="mdi mdi-microsoft-office icon" />
               &nbsp;
               {$L('在线编辑')} (LAB)

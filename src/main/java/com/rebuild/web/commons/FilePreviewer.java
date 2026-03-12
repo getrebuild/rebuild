@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
@@ -39,15 +40,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static com.rebuild.core.support.ConfigurationItem.OnlyofficeServer;
 
@@ -59,7 +61,7 @@ import static com.rebuild.core.support.ConfigurationItem.OnlyofficeServer;
  * @since 04/07/2025
  */
 @Slf4j
-@Controller
+@RestController
 public class FilePreviewer extends BaseController {
 
     @GetMapping("/commons/file-preview")
@@ -86,7 +88,14 @@ public class FilePreviewer extends BaseController {
         return ErrorPageView.createErrorPage(Language.L("请配置 ONLYOFFICE 后使用"));
     }
 
-    // TODO 编辑 MD 文件
+    /**
+     * 编辑 MD 文件
+     *
+     * @param request
+     * @return
+     * @throws IOException
+     * @see #mdEditorSaveCallback(HttpServletRequest)
+     */
     private ModelAndView mdEditor(HttpServletRequest request) throws IOException {
         String src = getParameterNotNull(request, "src");
         ID id = null;
@@ -94,13 +103,16 @@ public class FilePreviewer extends BaseController {
             id = ID.valueOf(src);
             src = getFileById(id, getRequestUser(request));
         }
+        RbAssert.is(id == null || FilesHelper.isFileManageable(getRequestUser(request), id),
+                Language.L("无权修改此文件"));
 
         File file = QiniuCloud.downloadFile(src);
-        String content = FileUtils.readFileToString(file, "UTF-8");
+        String content = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
 
         ModelAndView mv = createModelAndView("/common/md-preview");
-        mv.getModelMap().put("content", content);
-        mv.getModelMap().put("fileid", id);
+        mv.getModel().put("content", content);
+        mv.getModel().put("fileid", id);
+        mv.getModel().put("title", QiniuCloud.parseFileName(file.getName()) + " - " + Language.L("文档编辑"));
         return mv;
     }
 
@@ -255,13 +267,41 @@ public class FilePreviewer extends BaseController {
         ServletUtils.writeJson(response, "{\"error\":0}");
     }
 
+    @PostMapping("/commons/md-editor-save")
+    public RespBody mdEditorSaveCallback(HttpServletRequest request) throws IOException {
+        final ID user = getRequestUser(request);
+        JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
+
+        ID fileid = ID.valueOf(data.getString("id"));
+        String content = data.getString("content");
+
+        File tmp = RebuildConfiguration.getFileOfTemp("md-tmpfile-" + CommonsUtils.randomHex());
+        FileUtils.writeStringToFile(tmp, content, StandardCharsets.UTF_8);
+
+        Object[] o = Application.getQueryFactory().unique(fileid, "filePath");
+        String fileKey = o[0].toString();
+        long fileSize = FileUtils.sizeOf(tmp);
+
+        if (QiniuCloud.instance().available()) {
+            QiniuCloud.instance().upload(tmp, fileKey);
+            FileUtils.deleteQuietly(tmp);
+        } else {
+            File dest = RebuildConfiguration.getFileOfData(fileKey);
+            FileUtils.deleteQuietly(dest);
+            FileUtils.moveFile(tmp, dest);
+        }
+
+        saveFileById(fileKey, fileSize, fileid, (JSONArray) JSONArray.toJSON(new String[]{user.toString()}));
+        return RespBody.ok();
+    }
+
     /**
      * @param fileKey
      * @param fileSize
      * @param id
      * @param users
      */
-    private void saveFileById(String fileKey, long fileSize, String id, JSONArray users) {
+    private void saveFileById(String fileKey, long fileSize, Object id, JSONArray users) {
         if (!ID.isId(id)) return;
 
         ID user = UserService.SYSTEM_USER;
@@ -271,14 +311,14 @@ public class FilePreviewer extends BaseController {
             }
         }
 
-        ID fid = ID.valueOf(id);
+        ID fileid = ID.valueOf(id.toString());
         Record record = null;
-        if (fid.getEntityCode() == EntityHelper.DataReportConfig) {
-            record = RecordBuilder.builder(fid)
+        if (fileid.getEntityCode() == EntityHelper.DataReportConfig) {
+            record = RecordBuilder.builder(fileid)
                     .add("templateFile", fileKey)
                     .build(user);
-        } else if (fid.getEntityCode() == EntityHelper.Attachment) {
-            record = RecordBuilder.builder(fid)
+        } else if (fileid.getEntityCode() == EntityHelper.Attachment) {
+            record = RecordBuilder.builder(fileid)
                     .add("filePath", fileKey)
                     .add("fileSize", fileSize)
                     .build(user);
@@ -287,7 +327,7 @@ public class FilePreviewer extends BaseController {
 
         ID o = UserContextHolder.setUser(user);
         try {
-            Application.getService(fid.getEntityCode()).update(record);
+            Application.getService(fileid.getEntityCode()).update(record);
         } finally {
             UserContextHolder.clearUser(o);
         }
