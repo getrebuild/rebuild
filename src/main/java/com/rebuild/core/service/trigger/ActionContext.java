@@ -81,8 +81,25 @@ public class ActionContext {
      * @param configName
      * @return
      */
+    public String getConfigAsStr(String configName) {
+        return ((JSONObject) getActionContent()).getString(configName);
+    }
+
+    /**
+     * @param configName
+     * @return
+     */
     public boolean getConfigAsBool(String configName) {
         return ((JSONObject) getActionContent()).getBooleanValue(configName);
+    }
+
+    /**
+     * @param configName
+     * @return
+     */
+    public JSON getConfigAsJson(String configName) {
+        Object o = ((JSONObject) getActionContent()).get(configName);
+        return o instanceof JSON ? (JSON) o : null;
     }
 
     @Override
