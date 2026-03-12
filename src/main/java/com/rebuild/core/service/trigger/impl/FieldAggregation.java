@@ -47,6 +47,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -86,6 +87,9 @@ public class FieldAggregation extends TriggerAction {
     protected String followSourceWhere;
 
     transient private TargetWithMatchFields targetWithMatchFields;
+
+    // 已执行的触发器（本线程）
+    private static final ThreadLocal<Set<ID>> EXEC_TRIGGERS43 = new ThreadLocal<>();
 
     public FieldAggregation(ActionContext context) {
         this(context, Boolean.TRUE);
@@ -151,15 +155,25 @@ public class FieldAggregation extends TriggerAction {
         final List<String> tschain = checkTriggerChain(chainName);
         if (tschain == null) return TriggerResult.triggerOnce();
 
+        // v4.3 合并执行，已执行择跳过
+        final boolean useMergeExec = actionContext.getConfigAsBool("useMergeExec");
+        if (useMergeExec) {
+            Set<ID> set = EXEC_TRIGGERS43.get();
+            if (set != null && set.contains(actionContext.getConfigId())) {
+                log.info("Use merge execution : {}", actionContext.getConfigId());
+                return TriggerResult.triggerMerged();
+            }
+        }
+
         this.prepare(operatingContext);
 
         if (targetRecordId == null) {
-            log.info("No target record found");
+            log.info("No target record found : {}", actionContext.getConfigId());
             return TriggerResult.noMatching();
         }
 
         if (!QueryHelper.exists(targetRecordId)) {
-            log.warn("Target record dose not exists: {} (On {})", targetRecordId, actionContext.getConfigId());
+            log.warn("Target record dose not exists : {} ({})", targetRecordId, actionContext.getConfigId());
             return TriggerResult.targetNotExists();
         }
 
@@ -304,6 +318,13 @@ public class FieldAggregation extends TriggerAction {
                 }
                 Application.getBaseService().update(r);
             }
+        }
+
+        if (useMergeExec) {
+            Set<ID> set = EXEC_TRIGGERS43.get();
+            if (set == null) set = new HashSet<>();
+            set.add(actionContext.getConfigId());
+            EXEC_TRIGGERS43.set(set);
         }
 
         return TriggerResult.success(Collections.singletonList(targetRecord.getPrimary()));
