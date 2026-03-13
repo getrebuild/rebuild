@@ -1777,16 +1777,26 @@ function __destroySelect2(__select2) {
 // -- 扩展组件
 
 // 文件上传/处理
-// props = { operTypes=操作类型, multiple=多文件, taskMode=任务模式, onSuccess=成功回调, title=标题, confirmText=确认按钮文字 }
+// props = { operTypes=操作类型, multiple=是否多文件, accept=允许的文件类型, tips=提示信息, taskMode=是否任务模式, onSuccess=成功回调, title=标题, confirmText=确认按钮文字 }
+// props.operTypes = [{ name=选项名称, text=选项文本, multiple=是否多文件, accept=允许的文件类型, tips=提示信息 }]
+// resules = [[ 'Col1', 'Col2' ], [ 'Col1', { text:'Col2', url:'xxx' } ]]
 class FilesHandlerComponent extends RbModalHandler {
   constructor(props) {
     super(props)
 
+    let multiple = props.multiple
+    let accept = props.accept
     let tips = props.tips
     this.props.operTypes &&
       this.props.operTypes.forEach((item, idx) => {
-        if (idx === 0 && item.tips) tips = item.tips
+        if (idx === 0) {
+          multiple = item.multiple
+          accept = item.accept
+          tips = item.tips
+        }
       })
+    this.state.multiple = multiple !== false
+    this.state.accept = accept || null
     this.state.tips = tips || null
   }
 
@@ -1794,6 +1804,7 @@ class FilesHandlerComponent extends RbModalHandler {
     return (
       <RbModal title={this.props.title || $L('上传文件')} ref={(c) => (this._dlg = c)} disposeOnHide>
         {this.state.tips && <RbAlertBox message={this.state.tips} type="warning" />}
+
         <div className="form">
           {this.props.operTypes && (
             <div className="form-group row pn-1">
@@ -1812,6 +1823,8 @@ class FilesHandlerComponent extends RbModalHandler {
                         onClick={() => {
                           if (item.tips) this.setState({ tips: item.tips })
                         }}
+                        multiple={this.state.multiple}
+                        accept={this.state.accept}
                       />
                       <span className="custom-control-label">{item.text || item.label}</span>
                     </label>
@@ -1869,14 +1882,41 @@ class FilesHandlerComponent extends RbModalHandler {
 
   // 渲染结果
   renderResults() {
+    // 结果集中包括标题（第一行）
+    const resultsHead = this.state.resultsHead
+
     return this.state.results ? (
       <div className="FilesHandlerComponent__results">
         <table className="table table-sm">
+          {resultsHead && (
+            <thead>
+              <tr>
+                <th width="50" />
+                {this.state.results[0].map((c, idx) => {
+                  return <th key={idx}>{c}</th>
+                })}
+              </tr>
+            </thead>
+          )}
           <tbody>
             {this.state.results.map((row, idx) => {
+              if (resultsHead && idx === 0) return null
+
               return (
                 <tr key={idx}>
+                  <td className="text-muted" width="50">
+                    {idx + 1}
+                  </td>
                   {row.map((c, idx2) => {
+                    let cell = c
+                    // 支持 { text, url } 格式的链接
+                    if (typeof c === 'object') {
+                      cell = (
+                        <a target="_blank" href={c.url}>
+                          {c.text}
+                        </a>
+                      )
+                    }
                     return <td key={idx2}>{c}</td>
                   })}
                 </tr>
