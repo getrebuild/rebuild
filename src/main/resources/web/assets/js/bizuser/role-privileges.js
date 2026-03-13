@@ -118,7 +118,7 @@ $(document).ready(() => {
 
   $('#priv-entity tbody td>a.cp').on('click', function () {
     if (rb.commercial < 1) {
-      RbHighbar.error(WrapHtml($L('免费版不支持自定义权限功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbAlertFree43.create($L('免费版不支持自定义权限功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return
     }
 
@@ -218,7 +218,7 @@ const _clickPriv = function (elements, action) {
   if (action === 'Z' && elements.hasClass('R0')) {
     const isRbv = elements.parent().prev().find('.rbv')[0]
     if (isRbv && rb.commercial < 1) {
-      return RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
     }
   }
 
@@ -519,7 +519,7 @@ class FieldsPrivileges extends RbModalHandler {
 
   handleConfirm() {
     if (rb.commercial < 1) {
-      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return
     }
 

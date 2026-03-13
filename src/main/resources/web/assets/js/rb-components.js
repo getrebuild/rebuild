@@ -371,6 +371,32 @@ class RbAlert extends React.Component {
   }
 }
 
+// Free Tips
+class RbAlertFree43 extends RbAlert {
+  renderContent() {
+    return (
+      <div className="text-center">
+        <div>
+          <h4 className="m-0 mb-2 text-bold" style={{ fontSize: '1.538rem', marginTop: -5 }}>
+            {$L('升级后使用')}
+          </h4>
+          <div>{this.props.message}</div>
+        </div>
+        <div className="mt-3">
+          <a className="btn btn-dark btn-pill btn-lg w-100" target="_blank" href="https://getrebuild.com/market/go/buy-26a">
+            {$L('立即升级')}
+          </a>
+        </div>
+      </div>
+    )
+  }
+
+  static create(message) {
+    if (typeof message === 'string') message = WrapHtml(message)
+    renderRbcomp(<RbAlertFree43 message={message} width="480" />)
+  }
+}
+
 function _preventHide(d, preventHide, dlg) {
   if (d && preventHide) {
     $(dlg).find('.close').attr('disabled', true)

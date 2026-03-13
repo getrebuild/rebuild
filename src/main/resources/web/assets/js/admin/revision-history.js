@@ -82,7 +82,7 @@ class DataList extends React.Component {
       $('.J_details')
         .off('click')
         .on('click', () => {
-          RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+          RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
         })
     }
   }

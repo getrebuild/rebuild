@@ -55,8 +55,8 @@ $(document).ready(() => {
 
     const $tab = $(
       `<li class="nav-item"><a class="nav-link text-ellipsis" href="#${key}" data-toggle="tab">${targetEntity.label}<span>${sourceEntity.label}</span><em title="${$L(
-        '移除'
-      )}" class="icon mdi mdi-close"></em></a></li>`
+        '移除',
+      )}" class="icon mdi mdi-close"></em></a></li>`,
     )
     $tab.insertBefore($('.J_add-dts').parent())
     const $pane = $(`<div class="tab-pane" id="${key}"></div>`).appendTo('.fields-mapping')
@@ -158,12 +158,12 @@ $(document).ready(() => {
   const $btn = $('.J_save').on('click', function () {
     const one2nMode = $('#one2nMode').prop('checked')
     if (one2nMode && rb.commercial < 10) {
-      RbHighbar.error(WrapHtml($L('免费版不支持启用多记录转换 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbAlertFree43.create($L('免费版不支持启用多记录转换 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return
     }
     const importsMode = $('#importsMode').prop('checked')
     if (importsMode && rb.commercial < 10) {
-      RbHighbar.error(WrapHtml($L('免费版不支持启用明细记录导入 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbAlertFree43.create($L('免费版不支持启用明细记录导入 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return
     }
 
@@ -450,7 +450,7 @@ class FieldsMapping extends React.Component {
           that.setState({ formulaValues })
         }}
         verifyFormula
-      />
+      />,
     )
   }
 
@@ -527,7 +527,7 @@ class FieldsMapping extends React.Component {
         />,
         function () {
           _AdvFilters[key] = this
-        }
+        },
       )
     }
   }

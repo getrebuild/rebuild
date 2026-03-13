@@ -547,7 +547,7 @@ class RbForm extends React.Component {
                     className="dropdown-item"
                     onClick={() => {
                       if (rb.commercial < 10) {
-                        return RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+                        return RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
                       }
 
                       const fields = []
@@ -1975,7 +1975,7 @@ class RbFormImage extends RbFormElement {
     if (this._captureType === 2 || forceType === 2) {
       e && $stopEvent(e, true)
       if (rb.commercial < 1) {
-        RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+        RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
         return
       }
 

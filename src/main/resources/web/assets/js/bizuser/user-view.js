@@ -125,7 +125,9 @@ $(document).ready(() => {
           $('.J_enable')
             .off('click')
             .on('click', () =>
-              renderRbcomp(<DlgEnableUser user={userId} enable={true} roleSet={!res.data.role} role={res.data.role} roleAppends={res.data.roleAppends} deptSet={!res.data.dept} dept={res.data.dept} />)
+              renderRbcomp(
+                <DlgEnableUser user={userId} enable={true} roleSet={!res.data.role} role={res.data.role} roleAppends={res.data.roleAppends} deptSet={!res.data.dept} dept={res.data.dept} />,
+              ),
             )
         }
       } else {
@@ -298,7 +300,7 @@ class DlgEnableUser extends RbModalHandler {
     if (this._roleAppends) {
       data.roleAppends = this._roleAppends.val().join(',')
       if (data.roleAppends && rb.commercial < 1) {
-        RbHighbar.error(WrapHtml($L('免费版不支持附加角色功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+        RbAlertFree43.create($L('免费版不支持附加角色功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
         return
       }
     }

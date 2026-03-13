@@ -387,7 +387,7 @@ var _initNav = function () {
   })
   $('.nav-settings-admin').on('click', function () {
     if (rb.commercial < 10) {
-      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
     } else {
       RbModal.create('/p/settings/nav-settings-admin', $L('配置管理中心功能'))
     }
