@@ -1917,7 +1917,7 @@ class FilesHandlerComponent extends RbModalHandler {
                         </a>
                       )
                     }
-                    return <td key={idx2}>{c}</td>
+                    return <td key={idx2}>{cell}</td>
                   })}
                 </tr>
               )

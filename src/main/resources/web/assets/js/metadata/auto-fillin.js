@@ -128,10 +128,10 @@ class DlgRuleEdit extends RbFormHandler {
               </div>
               <div className={sourceFieldType === 2 ? 'fs-0' : 'hide'}>
                 <textarea
-                  className="formula-code row3x"
+                  className="formula-code"
                   ref={(c) => (this._$sourceFieldFormula = c)}
                   defaultValue={this.props.sourceFieldFormula || null}
-                  maxLength="1000"
+                  maxLength="2000"
                   placeholder="## Support AviatorScript"
                   spellCheck="false"
                 />
@@ -243,10 +243,10 @@ class DlgRuleEdit extends RbFormHandler {
             $s2source.trigger('change')
           }
 
-          if (this.props.id && rb.env !== 'dev') {
-            $s2target.prop('disabled', true)
-            $s2source.prop('disabled', true)
-          }
+          // if (this.props.id && rb.env !== 'dev') {
+          //   $s2target.prop('disabled', true)
+          //   $s2source.prop('disabled', true)
+          // }
         })
       })
     })

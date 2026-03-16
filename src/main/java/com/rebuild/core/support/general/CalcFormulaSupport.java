@@ -12,6 +12,7 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.googlecode.aviator.runtime.type.AviatorNil;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
@@ -120,6 +121,7 @@ public class CalcFormulaSupport {
         final EasyField easyField = EasyMetaFactory.valueOf(targetField);
         String formula = specFormula;
         if (formula == null) formula = easyField.getExtraAttr(EasyFieldConfigProps.NUMBER_CALCFORMULA);
+        // 兼容
         formula = formula.replace("{{NOW}}", EasyDateTime.VAR_NOW);
 
         boolean calcReady = true;
@@ -139,8 +141,22 @@ public class CalcFormulaSupport {
 
             Object fieldValue = varsInFormula.get(fieldName);
             if (fieldValue == null) {
-                calcReady = false;
-                break;
+                // v4.3 点连接支持
+                if (fieldName.contains(".")) {
+                    String fieldNameRef = fieldName.substring(0, fieldName.indexOf("."));
+                    String fieldNameSub = fieldName.substring(fieldName.indexOf(".") + 1);
+                    fieldValue = varsInFormula.get(fieldNameRef);
+                    if (ID.isId(fieldValue)) {
+                        Object[] o = Application.getQueryFactory()
+                                .uniqueNoFilter(ID.valueOf(fieldValue.toString()), fieldNameSub);
+                        fieldValue = o == null ? null : o[0];
+                    }
+                }
+
+                if (fieldValue == null) {
+                    calcReady = false;
+                    break;
+                }
             }
 
             String val2str = fieldValue.toString();
@@ -161,6 +177,7 @@ public class CalcFormulaSupport {
                 calcReady = false;
                 break;
             }
+
             varsInFormula.put(fieldName, fieldValue);
         }
 
@@ -178,8 +195,13 @@ public class CalcFormulaSupport {
      */
     protected static Object evalValue(String formula, Map<String, Object> varsInFormula, EasyField targetField, boolean wrapValue) {
         String clearFormula = formula
-                .replace("{", "").replace("}", "")
                 .replace("×", "*").replace("÷", "/");
+        for (String name : varsInFormula.keySet()) {
+            String replace = "{" + name + "}";
+            if (clearFormula.contains(replace)) {
+                clearFormula = clearFormula.replace(replace, name);
+            }
+        }
 
         Object evalVal = AviatorUtils.eval(clearFormula, varsInFormula, true);
         if (evalVal == null || evalVal == AviatorNil.NIL) return null;

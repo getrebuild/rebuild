@@ -1127,17 +1127,25 @@ class ExcelClipboardData extends React.Component {
     const $table = $(this._$table).find('table').addClass('table table-sm table-bordered')
     const fields = this.props.fields
     if (fields) {
+      const requiredText = ` (${$L('必填')})`
+
       const len = $table.find('tbody>tr:eq(0)').find('td').length
       const $tr = $('<thead><tr></tr></thead>').appendTo($table).find('tr')
       for (let i = 0; i < len; i++) {
         const $th = $('<th><select></select></th>').appendTo($tr)
         fields.forEach((item) => {
-          $(`<option value="${item.field}">${item.label}</option>`).appendTo($th.find('select'))
+          $(`<option value="${item.field}">${item.label}${item.nullable === false ? requiredText : ''}</option>`).appendTo($th.find('select'))
         })
         $th
           .find('select')
           .select2({
             placeholder: $L('忽略'),
+            templateResult: function (res) {
+              const text = res.text.split(requiredText)
+              const $span = $('<span></span>').text(text[0])
+              if (text.length > 1) $(`<span class="badge badge-danger badge-pill">${$L('必填')}</span>`).appendTo($span)
+              return $span
+            },
           })
           .val(fields[i] ? fields[i].field : null)
           .trigger('change')
@@ -1232,7 +1240,7 @@ class ExcelClipboardDataModal extends RbModalHandler {
   }
 }
 
-// LAB 从 Excel 添加数据
+// ~~ 从 Excel 添加数据
 class ExcelClipboardDataModalWithForm extends React.Component {
   state = {}
   render() {
@@ -1265,6 +1273,7 @@ class ExcelClipboardDataModalWithForm extends React.Component {
             field: item.field,
             label: item.label,
             type: item.type,
+            nullable: item.nullable,
           })
         })
       }

@@ -553,7 +553,12 @@ class RbForm extends React.Component {
                       const fields = []
                       _ProTable.state.formFields.forEach((item) => {
                         if (item.readonly === false && !['IMAGE', 'FILE', 'AVATAR', 'SIGN'].includes(item.type)) {
-                          fields.push({ field: item.field, label: item.label, type: item.type })
+                          fields.push({
+                            field: item.field,
+                            label: item.label,
+                            type: item.type,
+                            nullable: item.nullable,
+                          })
                         }
                       })
 
