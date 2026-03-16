@@ -21,6 +21,9 @@ class RbModal extends React.Component {
       style2.maxWidth = this.state._maximize ? '100%' : null
       if (!style2.maxWidth && props.width) style2.maxWidth = ~~props.width
     }
+    if (props.height) {
+      style2.height = ~~props.height
+    }
 
     let modalClazz = props.useWhite ? 'modal rbmodal use-white' : `modal rbmodal colored-header colored-header-${props.colored || 'primary'}`
     let modalDialogClazz42 = `modal-dialog ${props.useWhite && 'modal-xl'} ${props.className || ''} ${this.state._maximize && 'modal-dialog-maximize'}`
@@ -150,10 +153,13 @@ class RbModal extends React.Component {
       that.__HOLDER.show()
       that.__HOLDER.resize()
     } else {
-      renderRbcomp(<RbModal url={url} urlOpenInNew={option.urlOpenInNew} title={title} width={option.width} disposeOnHide={option.disposeOnHide} zIndex={option.zIndex} />, function () {
-        that.__HOLDER = this
-        if (option.disposeOnHide === false) that.__HOLDERs[url] = this
-      })
+      renderRbcomp(
+        <RbModal url={url} urlOpenInNew={option.urlOpenInNew} title={title} width={option.width} height={option.height} disposeOnHide={option.disposeOnHide} zIndex={option.zIndex} />,
+        function () {
+          that.__HOLDER = this
+          if (option.disposeOnHide === false) that.__HOLDERs[url] = this
+        },
+      )
     }
   }
 
@@ -1960,6 +1966,7 @@ class FilesHandlerComponent extends RbModalHandler {
     }
 
     let $btn = $(this._$btns).find('.btn').button('loading')
+    $mp.start()
     $.post('/customized/files-handler', JSON.stringify(_post), (res) => {
       if (res.error_code === 0) {
         if (this.props.taskMode) {
@@ -1971,8 +1978,12 @@ class FilesHandlerComponent extends RbModalHandler {
         RbAlert.create(res.error_msg || $L('系统繁忙，请稍后重试'), {
           type: 'danger',
         })
+
+        setTimeout(() => {
+          $mp.end()
+          $btn.button('reset')
+        }, 500)
       }
-      setTimeout(() => $btn.button('reset'), 500)
     })
   }
 
@@ -1980,11 +1991,12 @@ class FilesHandlerComponent extends RbModalHandler {
     let FN = _this.props.onSuccess
     if (typeof FN !== 'function') {
       FN = function () {
-        RbHighbar.error('操作成功')
+        RbHighbar.success($L('操作成功'))
         _this.hide()
       }
     }
     FN(_this, taskData)
+    $mp.end()
   }
 
   _checkTaskState(taskid) {
@@ -1995,5 +2007,10 @@ class FilesHandlerComponent extends RbModalHandler {
         setTimeout(() => this._checkTaskState(taskid), 1000)
       }
     })
+  }
+
+  reset() {
+    this.setState({ files: null, results: null, resultsHead: null })
+    $(this._$btns).find('.btn').button('reset')
   }
 }
