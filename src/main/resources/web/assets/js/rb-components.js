@@ -1911,7 +1911,7 @@ class FilesHandlerComponent extends RbModalHandler {
               return (
                 <tr key={idx}>
                   <td className="text-muted" width="50">
-                    {idx + 1}
+                    {resultsHead ? idx : idx + 1}
                   </td>
                   {row.map((c, idx2) => {
                     let cell = c

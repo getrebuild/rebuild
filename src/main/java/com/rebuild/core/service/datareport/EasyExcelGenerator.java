@@ -532,7 +532,7 @@ public class EasyExcelGenerator extends SetUser {
             case PH__CURRENTUSER:
                 return UserHelper.getName(getUser());
             case PH__CURRENTBIZUNIT:
-                return Objects.requireNonNull(UserHelper.getDepartment(getUser())).getName();
+                return UserHelper.getName(getDeptOfUser());
             case PH__CURRENTDATE:
                 return CalendarUtils.getUTCDateFormat().format(CalendarUtils.now());
             case PH__CURRENTDATETIME:
@@ -545,14 +545,29 @@ public class EasyExcelGenerator extends SetUser {
             }
         }
 
-        // v3.7
-        if (phName.startsWith(PH__CURRENTUSER)) {
-            String useField = phName.substring(PH__CURRENTUSER.length() + 1);
-            Object useValue = QueryHelper.queryFieldValue(getUser(), useField);
+        // v3.7, v4.3 支持点连接
+        phName = phName.replace("$", ".");
+        if (phName.startsWith(PH__CURRENTUSER + ".")) {
+            String dotsField = phName.substring(PH__CURRENTUSER.length() + 1);
+            Object useValue = QueryHelper.queryFieldValue(getUser(), dotsField);
+            return useValue == null ? "" : useValue.toString();
+        }
+        else if (phName.startsWith(PH__CURRENTBIZUNIT + ".")) {
+            String dotsField = phName.substring(PH__CURRENTBIZUNIT.length() + 1);
+            Object useValue = QueryHelper.queryFieldValue(getDeptOfUser(), dotsField);
             return useValue == null ? "" : useValue.toString();
         }
 
         return null;
+    }
+
+    /**
+     * 获取当前用户部门
+     *
+     * @return
+     */
+    protected ID getDeptOfUser() {
+        return (ID) Objects.requireNonNull(UserHelper.getDepartment(getUser())).getIdentity();
     }
 
     // --
