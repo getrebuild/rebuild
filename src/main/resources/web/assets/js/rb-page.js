@@ -481,6 +481,9 @@ var _initNav = function () {
   $('.sidebar-elements span[data-filter]').each(function () {
     var $this = $(this)
     var filterId = $this.data('filter')
+    var c = $storage.get('NavFilterBadge-' + filterId)
+    if (c) $this.text(c)
+
     // Click to storage
     $this.parents('a').on('click', function () {
       $storage.set('AdvFilter-' + $(this).parent().data('entity'), filterId)
@@ -488,7 +491,8 @@ var _initNav = function () {
 
     if (!$this.hasClass('hide')) {
       $.get('/app/entity/filter-badge?filter=' + filterId, function (res) {
-        if (res.data > 0) $this.text(res.data)
+        $this.text(res.data || '')
+        $storage.set('NavFilterBadge-' + filterId, res.data || '')
       })
     }
   })
