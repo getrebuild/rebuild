@@ -11,6 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -80,9 +81,9 @@ public class DataListCategory38 {
         if (fieldIndex + 1 > categoryFields.size()) return null;
 
         // 使用配置
-        final JSONObject ff = (JSONObject) categoryFields.get(fieldIndex);
-        final String useField = ff.getString("field");
-        String useFormat = ff.getString("format");
+        final JSONObject ffConf = (JSONObject) categoryFields.get(fieldIndex);
+        final String useField = ffConf.getString("field");
+        String useFormat = ffConf.getString("format");
         final Field useFieldMeta = entity.getField(useField);
         final DisplayType dt = EasyMetaFactory.getDisplayType(useFieldMeta);
 
@@ -119,11 +120,19 @@ public class DataListCategory38 {
         // 单字段适用:引用字段父级
         else if (dt == DisplayType.REFERENCE && useFormat != null) {
             dataList = datasReference(useFieldMeta, useFormat,
-                    parentValues == null ? null : parentValues[parentValues.length - 1], ff.getJSONObject("filter"));
+                    parentValues == null ? null : parentValues[parentValues.length - 1], ffConf.getJSONObject("filter"));
             hasChild = true;
             sortMode = 1;
-            if (ff.getIntValue("sort") > 0) sortMode = ff.getIntValue("sort");
-            if (ff.getIntValue("sort") == -1) sortMode = 0;  // 无需排序
+            if (ffConf.getIntValue("sort") > 0) sortMode = ffConf.getIntValue("sort");
+            if (ffConf.getIntValue("sort") == -1) sortMode = 0;  // 无需排序
+            // v4.3 默认则保持 seq 排序
+            if (ffConf.getIntValue("sort") == 0) {
+                String ifRefUserOrDept = useFieldMeta.getType() == FieldType.REFERENCE ? useFieldMeta.getReferenceEntity().getName() : null;
+                if ("User".equals(ifRefUserOrDept) || "Department".equals(ifRefUserOrDept)) {
+                    sortMode = 0;
+                }
+            }
+
         } else {
             sortMode = 1;
             String sql;
@@ -161,8 +170,8 @@ public class DataListCategory38 {
                 if (parentValues != null) {
                     sql += " and " + buildParentFilters(entity, categoryFields, parentValues);
                 }
-                if (ParseHelper.validAdvFilter(ff.getJSONObject("filter"))) {
-                    String where = new AdvFilterParser(ff.getJSONObject("filter")).toSqlWhere();
+                if (ParseHelper.validAdvFilter(ffConf.getJSONObject("filter"))) {
+                    String where = new AdvFilterParser(ffConf.getJSONObject("filter")).toSqlWhere();
                     if (where != null) sql += " and " + where;
                 }
             }
@@ -186,7 +195,7 @@ public class DataListCategory38 {
             }
 
             hasChild = categoryFields.size() > fieldIndex + 1;
-            if (ff.getIntValue("sort") > 0) sortMode = ff.getIntValue("sort");
+            if (ffConf.getIntValue("sort") > 0) sortMode = ffConf.getIntValue("sort");
         }
 
         JSONArray res = new JSONArray();
@@ -234,9 +243,12 @@ public class DataListCategory38 {
             }
         }
 
-        // be:4.2.3 用户部门树
-        if (("deptId".equals(field.getName()) || "parentDept".equals(field.getName()))
-                && "parentDept".equals(parentField)) {
+        // be:4.2.3 用户的部门树
+        // v4.3 用户/部门排序
+        String ifRefUserOrDept = field.getType() == FieldType.REFERENCE ? field.getReferenceEntity().getName() : null;
+        if ("User".equals(ifRefUserOrDept)) {
+            sql += " order by seq asc, fullName asc";
+        } else if ("Department".equals(ifRefUserOrDept)) {
             sql += " order by seq asc, name asc";
         }
 
