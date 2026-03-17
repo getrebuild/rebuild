@@ -163,7 +163,7 @@ public class ReportsController extends BaseController {
         // v3.6
         if (tt.type == DataReportManager.TYPE_HTML5) {
             // TODO H5>PDF
-            return ReportTemplateController.buildHtml5ModelAndView(output, fileName);
+            return ReportTemplateController.buildHtml5ModelAndView(output, fileName, tt.pageClass);
         }
 
         if (isPdf || isOnlyPdf(entity, reportId)) {
