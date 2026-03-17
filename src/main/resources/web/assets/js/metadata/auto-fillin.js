@@ -99,6 +99,7 @@ class DlgRuleEdit extends RbFormHandler {
                       this.setState({ sourceFieldType: 1 }, () => this._renderTargetFields())
                     }}
                     checked={sourceFieldType === 1}
+                    ref={(c) => (this._$sourceType1 = c)}
                   />
                   <span className="custom-control-label">{$L('源字段')}</span>
                 </label>
@@ -111,6 +112,7 @@ class DlgRuleEdit extends RbFormHandler {
                       this.setState({ sourceFieldType: 2 }, () => this._renderTargetFields())
                     }}
                     checked={sourceFieldType === 2}
+                    ref={(c) => (this._$sourceType2 = c)}
                   />
                   <span className="custom-control-label">{$L('高级表达式')} (LAB)</span>
                 </label>
@@ -243,10 +245,11 @@ class DlgRuleEdit extends RbFormHandler {
             $s2source.trigger('change')
           }
 
-          // if (this.props.id && rb.env !== 'dev') {
-          //   $s2target.prop('disabled', true)
-          //   $s2source.prop('disabled', true)
-          // }
+          if (this.props.id) {
+            $s2target.prop('disabled', true)
+            $s2source.prop('disabled', true)
+            $([this._$sourceType2, this._$sourceType1]).prop('disabled', true)
+          }
         })
       })
     })
