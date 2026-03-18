@@ -282,28 +282,37 @@ public class ApprovalController extends BaseController {
         final ID weakMode = getIdParameter(request, "weakMode");
         if (CollectionUtils.isNotEmpty(aformData)) {
             List<Record> details = new ArrayList<>();
+            boolean changed = false;
             try {
                 for (Object o : aformData) {
-                    Record a = EntityHelper.parse((JSONObject) o, approver);
-                    if (a.getEntity().getEntityCode().equals(recordId.getEntityCode())) addedRecord = a;
-                    else details.add(a);
+                    JSONObject aform = (JSONObject) o;
+                    if (aform.size() > 1) {
+                        Record a = EntityHelper.parse((JSONObject) o, approver);
+                        if (a.getEntity().getEntityCode().equals(recordId.getEntityCode())) addedRecord = a;
+                        else details.add(a);
+                        changed = true;
+                    }
                 }
 
-                if (addedRecord == null) addedRecord = EntityHelper.forUpdate(recordId, approver);
-                if (!details.isEmpty()) addedRecord.setObjectValue(GeneralEntityService.HAS_DETAILS, details);
+                if (changed) {
+                    if (addedRecord == null) addedRecord = EntityHelper.forUpdate(recordId, approver);
+                    if (!details.isEmpty()) addedRecord.setObjectValue(GeneralEntityService.HAS_DETAILS, details);
+                }
 
             } catch (DataSpecificationException known) {
                 log.warn(">>>>> {}", known.getLocalizedMessage());
                 return RespBody.error(known.getLocalizedMessage());
             }
 
-            // fix:4.1.8 主+明细
-            boolean checkRepeated = checkRepeated418(addedRecord);
-            if (checkRepeated) return RespBody.errorl("存在重复记录");
-            checkRepeated = checkRepeated418(details.toArray(new Record[0]));
-            if (checkRepeated) return RespBody.errorl("存在重复记录");
+            if (addedRecord != null) {
+                // fix:4.1.8 主+明细
+                boolean checkRepeated = checkRepeated418(addedRecord);
+                if (checkRepeated) return RespBody.errorl("存在重复记录");
+                checkRepeated = checkRepeated418(details.toArray(new Record[0]));
+                if (checkRepeated) return RespBody.errorl("存在重复记录");
 
-            if (weakMode != null) RbvFunction.call().setWeakMode(weakMode);
+                if (weakMode != null) RbvFunction.call().setWeakMode(weakMode);
+            }
         }
 
         try {
