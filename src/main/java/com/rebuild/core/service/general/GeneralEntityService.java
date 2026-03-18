@@ -661,6 +661,15 @@ public class GeneralEntityService extends ObservableService implements EntitySer
      * @throws DataSpecificationException
      */
     protected boolean checkModifications(Record record, Permission action) throws DataSpecificationException {
+        // v4.3 LAB
+        if (!GeneralEntityServiceContextHolder.isSkipLock(false)) {
+            if (!GeneralEntityServiceContextHolder.isAllowForceUpdate(false)) {
+                if (CommonsLock.isLocked43(record)) {
+                    throw new DataSpecificationException("记录已锁定，禁止操作");
+                }
+            }
+        }
+
         final Entity entity = record.getEntity();
         final Entity mainEntity = entity.getMainEntity();
 
@@ -759,13 +768,6 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         if (action == BizzPermission.CREATE || action == BizzPermission.UPDATE) {
             // TODO 父级级联字段强校验，兼容问题???
-        }
-
-        // v4.3
-        if (!GeneralEntityServiceContextHolder.isSkipLock(false)) {
-            if (CommonsLock.isLocked43(record)) {
-                throw new DataSpecificationException("记录已锁定，禁止操作");
-            }
         }
 
         return true;
