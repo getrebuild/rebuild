@@ -45,6 +45,7 @@ import com.rebuild.core.service.trigger.RobotTriggerManual;
 import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerWhen;
+import com.rebuild.core.support.CommonsLock;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import lombok.extern.slf4j.Slf4j;
@@ -660,6 +661,15 @@ public class GeneralEntityService extends ObservableService implements EntitySer
      * @throws DataSpecificationException
      */
     protected boolean checkModifications(Record record, Permission action) throws DataSpecificationException {
+        // v4.3 LAB
+        if (!GeneralEntityServiceContextHolder.isSkipLock(false)) {
+            if (!GeneralEntityServiceContextHolder.isAllowForceUpdate(false)) {
+                if (CommonsLock.isLocked43(record)) {
+                    throw new DataSpecificationException("记录已锁定，禁止操作");
+                }
+            }
+        }
+
         final Entity entity = record.getEntity();
         final Entity mainEntity = entity.getMainEntity();
 

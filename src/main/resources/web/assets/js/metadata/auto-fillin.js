@@ -99,6 +99,7 @@ class DlgRuleEdit extends RbFormHandler {
                       this.setState({ sourceFieldType: 1 }, () => this._renderTargetFields())
                     }}
                     checked={sourceFieldType === 1}
+                    ref={(c) => (this._$sourceType1 = c)}
                   />
                   <span className="custom-control-label">{$L('源字段')}</span>
                 </label>
@@ -111,6 +112,7 @@ class DlgRuleEdit extends RbFormHandler {
                       this.setState({ sourceFieldType: 2 }, () => this._renderTargetFields())
                     }}
                     checked={sourceFieldType === 2}
+                    ref={(c) => (this._$sourceType2 = c)}
                   />
                   <span className="custom-control-label">{$L('高级表达式')} (LAB)</span>
                 </label>
@@ -128,10 +130,10 @@ class DlgRuleEdit extends RbFormHandler {
               </div>
               <div className={sourceFieldType === 2 ? 'fs-0' : 'hide'}>
                 <textarea
-                  className="formula-code row3x"
+                  className="formula-code"
                   ref={(c) => (this._$sourceFieldFormula = c)}
                   defaultValue={this.props.sourceFieldFormula || null}
-                  maxLength="1000"
+                  maxLength="2000"
                   placeholder="## Support AviatorScript"
                   spellCheck="false"
                 />
@@ -243,9 +245,10 @@ class DlgRuleEdit extends RbFormHandler {
             $s2source.trigger('change')
           }
 
-          if (this.props.id && rb.env !== 'dev') {
+          if (this.props.id) {
             $s2target.prop('disabled', true)
             $s2source.prop('disabled', true)
+            $([this._$sourceType2, this._$sourceType1]).prop('disabled', true)
           }
         })
       })
@@ -293,7 +296,7 @@ class DlgRuleEdit extends RbFormHandler {
     if (this.props.id) _data.id = this.props.id
 
     if (rb.commercial < 1 && this.state.fillinBackend) {
-      return RbHighbar.error(WrapHtml($L('免费版不支持使用后端回填 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return RbAlertFree43.create($L('免费版不支持使用后端回填 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
     }
 
     this.disabled(true)

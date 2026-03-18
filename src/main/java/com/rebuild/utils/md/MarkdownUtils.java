@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils.md;
 
+import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.CommonsUtils;
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
@@ -19,6 +20,8 @@ import com.vladsch.flexmark.util.data.MutableDataSet;
 import org.jsoup.Jsoup;
 
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * MD 转换工具
@@ -90,7 +93,17 @@ public class MarkdownUtils {
      * @return
      */
     public static String cleanMarks(String md) {
+        // 保留图片名称
+        Pattern p = Pattern.compile("!\\[.*?]\\(([^)]+)\\)");
+        Matcher m = p.matcher(md);
+        while (m.find()) {
+            String url =  m.group(1);
+            md = md.replace("[" + url + "]", "[" + QiniuCloud.parseFileName(url) + "]");
+        }
+
+        // 保留为 [xxx]
         md = md.replaceAll("!\\[.*?]\\((.*?)\\)", "[$1]"); // 替换图片
+
         String html = render(md, false, true);
         return Jsoup.parse(html).body().text();
     }

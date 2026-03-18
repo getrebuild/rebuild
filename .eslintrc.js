@@ -164,5 +164,6 @@ module.exports = {
     FileRename: true,
     $syncGet: true,
     $base64Encode: true,
+    RbAlertFree43: true,
   },
 }

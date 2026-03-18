@@ -181,7 +181,7 @@ class TriggerList extends ConfigList {
 
   handleShowChain(id) {
     if (rb.commercial < 10) {
-      return RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
     }
     RbModal.create(`trigger/trigger-chain?id=${id}`, $L('触发过程'), { urlOpenInNew: true })
   }
@@ -321,7 +321,7 @@ class TriggerEdit extends ConfigFormDlg {
     }
 
     if (rb.commercial < 10 && Object.keys(RBV_TRIGGERS).includes(data.actionType)) {
-      RbHighbar.error(WrapHtml($L('免费版不支持%s功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)', RBV_TRIGGERS[data.actionType])))
+      RbAlertFree43.create($L('免费版不支持%s功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)', RBV_TRIGGERS[data.actionType]))
       return
     }
 

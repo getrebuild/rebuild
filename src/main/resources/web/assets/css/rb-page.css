@@ -908,8 +908,11 @@ body.view-body {
 }
 
 .select2-container--default .select2-results__option .badge {
-  line-height: 1.3;
+  line-height: 1.2;
   margin: 0 0 0 5px;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  transform: translateY(-1px);
 }
 
 textarea.row1x {
@@ -6486,4 +6489,8 @@ div.formula-code {
   margin-top: 20px;
   margin-left: 15px;
   margin-right: 15px;
+}
+
+.btn.btn-pill {
+  border-radius: 99px;
 }

@@ -24,6 +24,8 @@ public class TemplateFile {
     final public int type;
     final public boolean isV33;
     final public ID configId;
+    // v4.3
+    public String pageClass;
 
     public TemplateFile(File templateFile, Entity entity, int type, boolean isV33, ID configId) {
         this.templateFile = templateFile;
@@ -34,13 +36,14 @@ public class TemplateFile {
         this.configId = configId;
     }
 
-    // HTML5
-    public TemplateFile(String templateContent, Entity entity, ID configId) {
+    // for HTML5
+    public TemplateFile(String templateContent, Entity entity, ID configId, String pageClass) {
         this.templateContent = templateContent;
         this.entity = entity;
         this.type = DataReportManager.TYPE_HTML5;
         this.isV33 = true;
         this.templateFile = null;
         this.configId = configId;
+        this.pageClass = pageClass;
     }
 }

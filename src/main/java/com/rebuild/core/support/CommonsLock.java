@@ -10,10 +10,16 @@ package com.rebuild.core.support;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.utils.JSONUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -36,16 +42,6 @@ public class CommonsLock {
                 .setParameter(1, source)
                 .unique();
         return o == null || o[0] == null ? null : (ID) o[0];
-    }
-
-    /**
-     * @param source
-     * @return
-     */
-    public static Object[] getLockedUserFormat(ID source) {
-        ID u = getLockedUser(source);
-        if (u == null) return null;
-        return new Object[] { u, UserHelper.getName(u) };
     }
 
     /**
@@ -88,5 +84,35 @@ public class CommonsLock {
         }
 
         return false;
+    }
+
+    /**
+     * v4.3 记录是否已锁定
+     *
+     * @param source
+     * @return
+     */
+    public static boolean isLocked43(ID source) {
+        Assert.notNull(source, "[source] cannot null");
+
+        EasyEntity ee = EasyMetaFactory.valueOf(MetadataHelper.getEntity(source.getEntityCode()));
+        String lockFilter = ee.getExtraAttr("lockFilter");
+        if (!JSONUtils.wellFormat(lockFilter)) return false;
+
+        JSONObject lockFilter2 = JSON.parseObject(lockFilter);
+        return QueryHelper.isMatchAdvFilter(source, lockFilter2);
+    }
+
+    /**
+     * v4.3 记录是否已锁定
+     *
+     * @param source
+     * @return
+     */
+    public static boolean isLocked43(Record source) {
+        Assert.notNull(source, "[source] cannot null");
+
+        if (source.getPrimary() == null) return false;
+        return isLocked43(source.getPrimary());
     }
 }

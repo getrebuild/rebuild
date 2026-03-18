@@ -41,7 +41,7 @@ $(document).ready(() => {
 
   const $btn = $('.J_save').on('click', () => {
     if (rb.commercial < 1) {
-      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return
     }
 
@@ -86,7 +86,7 @@ const render_set = function (item) {
   const calc = item.calc || 'SUM'
   const $item = $(`<span data-field="${item.name}" data-calc="${calc}" data-label="${item.label2 || ''}" data-color="${item.color || ''}"></span>`).appendTo($dest)
   const $a = $(
-    `<div class="item" data-toggle="dropdown"><a><i class="zmdi zmdi-chevron-down"></i></a><span>${item.label} (${CALC_TYPES[calc]})</span><a class="del"><i class="zmdi zmdi-close-circle"></i></a></div>`
+    `<div class="item" data-toggle="dropdown"><a><i class="zmdi zmdi-chevron-down"></i></a><span>${item.label} (${CALC_TYPES[calc]})</span><a class="del"><i class="zmdi zmdi-close-circle"></i></a></div>`,
   ).appendTo($item)
   $a.find('a.del').on('click', () => {
     $item.remove()
@@ -120,7 +120,7 @@ const render_set = function (item) {
           />,
           function () {
             ShowStyles_Comps[item.key2] = this
-          }
+          },
         )
       }
     } else {

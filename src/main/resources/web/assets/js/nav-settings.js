@@ -70,7 +70,7 @@ $(document).ready(() => {
   const $filter = $('.J_bindFilter>a').on('click', (e) => {
     $stopEvent(e, true)
     if (rb.commercial < 10) {
-      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return false
     }
     renderRbcomp(
@@ -197,7 +197,7 @@ $(document).ready(() => {
             .prependTo($menu)
             .on('click', () => {
               if (rb.commercial < 1) {
-                RbHighbar.error(WrapHtml($L('免费版不支持顶部菜单功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+                RbAlertFree43.create($L('免费版不支持顶部菜单功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
               } else {
                 renderRbcomp(<TopNavSettings list={alist} />)
               }

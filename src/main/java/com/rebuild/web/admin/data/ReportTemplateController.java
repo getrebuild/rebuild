@@ -38,6 +38,7 @@ import com.rebuild.web.IdParam;
 import com.rebuild.web.admin.ConfigCommons;
 import com.rebuild.web.commons.FileDownloader;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -161,7 +162,8 @@ public class ReportTemplateController extends BaseController {
             String entity = getParameter(request, "entity");
             String template = getParameter(request, "file");
             int type = getIntParameter(request, "type", DataReportManager.TYPE_RECORD);
-            tt = new TemplateFile(RebuildConfiguration.getFileOfData(template), MetadataHelper.getEntity(entity), type, true, null);
+            tt = new TemplateFile(RebuildConfiguration.getFileOfData(template),
+                    MetadataHelper.getEntity(entity), type, true, null);
         } else {
             // 使用配置
             tt = DataReportManager.instance.buildTemplateFile(reportId);
@@ -194,6 +196,9 @@ public class ReportTemplateController extends BaseController {
                 // 实时内容
                 String templateContent = request.getParameter("templateContent");
                 if (templateContent == null) templateContent = tt.templateContent;
+                String pageClass = request.getParameter("pageClass");
+                if (StringUtils.isNotBlank(pageClass)) tt.pageClass = pageClass;
+
                 EasyExcelGenerator33 html5 = RbvFunction.call().createHtml5(templateContent, (ID) random[0]);
                 output = html5.generate();
             }
@@ -213,7 +218,7 @@ public class ReportTemplateController extends BaseController {
 
         // v3.6
         if (tt.type == DataReportManager.TYPE_HTML5) {
-            return buildHtml5ModelAndView(output, attname);
+            return buildHtml5ModelAndView(output, attname, tt.pageClass);
         }
 
         attname += "." + FileNameUtil.getSuffix(output);
@@ -234,19 +239,23 @@ public class ReportTemplateController extends BaseController {
     /**
      * @param html5
      * @param title
+     * @param pageClass
      * @return
      * @throws IOException
      */
-    public static ModelAndView buildHtml5ModelAndView(File html5, String title) throws IOException {
+    public static ModelAndView buildHtml5ModelAndView(File html5, String title, String pageClass) throws IOException {
         String content = FileUtils.readFileToString(html5, StandardCharsets.UTF_8);
+
         ModelAndView mv = new ModelAndView("/admin/data/template5-view");
         mv.getModelMap().put("reportName", title);
         mv.getModelMap().put("reportContent", content);
+
         if (HTML5_INLINE_STYLE == null || Application.devMode()) {
             HTML5_INLINE_STYLE = CommonsUtils.getStringOfRes("/web/assets/css/template5-design-content.css");
             HTML5_INLINE_STYLE = "<style>" + HTML5_INLINE_STYLE + "</style>";
         }
         mv.getModelMap().put("inlineStyle", HTML5_INLINE_STYLE);
+        mv.getModelMap().put("pageClass", StringUtils.defaultIfBlank(pageClass, null));
         return mv;
     }
 }

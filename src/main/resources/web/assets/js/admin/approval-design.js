@@ -603,7 +603,7 @@ class StartNodeConfig extends RbFormHandler {
         null,
         function () {
           that._AdvFilter = this
-        }
+        },
       )
     }
   }
@@ -978,11 +978,11 @@ class ApproverNodeConfig extends StartNodeConfig {
 
     if (rb.commercial < 1) {
       if (d.allowReferral || d.allowCountersign || d.allowBatch) {
-        RbHighbar.error(WrapHtml($L('免费版不支持转审/加签/批量审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+        RbAlertFree43.create($L('免费版不支持转审/加签/批量审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
         return
       }
       if (~~expiresAuto.expiresAuto > 0) {
-        RbHighbar.error(WrapHtml($L('免费版不支持限时审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+        RbAlertFree43.create($L('免费版不支持限时审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
         return
       }
     }
@@ -1083,7 +1083,7 @@ class CCNodeConfig extends StartNodeConfig {
     }
 
     if (d.accounts.length > 1 && rb.commercial < 1) {
-      RbHighbar.error(WrapHtml($L('免费版不支持抄送给外部人员功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbAlertFree43.create($L('免费版不支持抄送给外部人员功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return
     }
 

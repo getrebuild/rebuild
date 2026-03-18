@@ -21,6 +21,9 @@ class RbModal extends React.Component {
       style2.maxWidth = this.state._maximize ? '100%' : null
       if (!style2.maxWidth && props.width) style2.maxWidth = ~~props.width
     }
+    if (props.height) {
+      style2.height = ~~props.height
+    }
 
     let modalClazz = props.useWhite ? 'modal rbmodal use-white' : `modal rbmodal colored-header colored-header-${props.colored || 'primary'}`
     let modalDialogClazz42 = `modal-dialog ${props.useWhite && 'modal-xl'} ${props.className || ''} ${this.state._maximize && 'modal-dialog-maximize'}`
@@ -150,10 +153,13 @@ class RbModal extends React.Component {
       that.__HOLDER.show()
       that.__HOLDER.resize()
     } else {
-      renderRbcomp(<RbModal url={url} urlOpenInNew={option.urlOpenInNew} title={title} width={option.width} disposeOnHide={option.disposeOnHide} zIndex={option.zIndex} />, function () {
-        that.__HOLDER = this
-        if (option.disposeOnHide === false) that.__HOLDERs[url] = this
-      })
+      renderRbcomp(
+        <RbModal url={url} urlOpenInNew={option.urlOpenInNew} title={title} width={option.width} height={option.height} disposeOnHide={option.disposeOnHide} zIndex={option.zIndex} />,
+        function () {
+          that.__HOLDER = this
+          if (option.disposeOnHide === false) that.__HOLDERs[url] = this
+        },
+      )
     }
   }
 
@@ -368,6 +374,32 @@ class RbAlert extends React.Component {
     option = option || {}
     const props = { ...option, title: titleOrOption, message: message }
     renderRbcomp(<RbAlert {...props} />, null, option.onRendered || option.call)
+  }
+}
+
+// Free Tips
+class RbAlertFree43 extends RbAlert {
+  renderContent() {
+    return (
+      <div className="text-center">
+        <div>
+          <h4 className="m-0 mb-2 text-bold" style={{ fontSize: '1.538rem', marginTop: -5 }}>
+            {$L('升级后使用')}
+          </h4>
+          <div>{this.props.message}</div>
+        </div>
+        <div className="mt-3">
+          <a className="btn btn-dark btn-pill btn-lg w-100" target="_blank" href="https://getrebuild.com/market/go/buy-26a">
+            {$L('立即升级')}
+          </a>
+        </div>
+      </div>
+    )
+  }
+
+  static create(message) {
+    if (typeof message === 'string') message = WrapHtml(message)
+    renderRbcomp(<RbAlertFree43 message={message} width="480" />)
   }
 }
 
@@ -1751,16 +1783,26 @@ function __destroySelect2(__select2) {
 // -- 扩展组件
 
 // 文件上传/处理
-// props = { operTypes=操作类型, multiple=多文件, taskMode=任务模式, onSuccess=成功回调, title=标题, confirmText=确认按钮文字 }
+// props = { operTypes=操作类型, multiple=是否多文件, accept=允许的文件类型, tips=提示信息, taskMode=是否任务模式, onSuccess=成功回调, title=标题, confirmText=确认按钮文字 }
+// props.operTypes = [{ name=选项名称, text=选项文本, multiple=是否多文件, accept=允许的文件类型, tips=提示信息 }]
+// resules = [[ 'Col1', 'Col2' ], [ 'Col1', { text:'Col2', url:'xxx' } ]]
 class FilesHandlerComponent extends RbModalHandler {
   constructor(props) {
     super(props)
 
+    let multiple = props.multiple
+    let accept = props.accept
     let tips = props.tips
     this.props.operTypes &&
       this.props.operTypes.forEach((item, idx) => {
-        if (idx === 0 && item.tips) tips = item.tips
+        if (idx === 0) {
+          multiple = item.multiple
+          accept = item.accept
+          tips = item.tips
+        }
       })
+    this.state.multiple = multiple !== false
+    this.state.accept = accept || null
     this.state.tips = tips || null
   }
 
@@ -1768,6 +1810,7 @@ class FilesHandlerComponent extends RbModalHandler {
     return (
       <RbModal title={this.props.title || $L('上传文件')} ref={(c) => (this._dlg = c)} disposeOnHide>
         {this.state.tips && <RbAlertBox message={this.state.tips} type="warning" />}
+
         <div className="form">
           {this.props.operTypes && (
             <div className="form-group row pn-1">
@@ -1786,6 +1829,8 @@ class FilesHandlerComponent extends RbModalHandler {
                         onClick={() => {
                           if (item.tips) this.setState({ tips: item.tips })
                         }}
+                        multiple={this.state.multiple}
+                        accept={this.state.accept}
                       />
                       <span className="custom-control-label">{item.text || item.label}</span>
                     </label>
@@ -1843,15 +1888,42 @@ class FilesHandlerComponent extends RbModalHandler {
 
   // 渲染结果
   renderResults() {
+    // 结果集中包括标题（第一行）
+    const resultsHead = this.state.resultsHead
+
     return this.state.results ? (
       <div className="FilesHandlerComponent__results">
         <table className="table table-sm">
+          {resultsHead && (
+            <thead>
+              <tr>
+                <th width="50" />
+                {this.state.results[0].map((c, idx) => {
+                  return <th key={idx}>{c}</th>
+                })}
+              </tr>
+            </thead>
+          )}
           <tbody>
             {this.state.results.map((row, idx) => {
+              if (resultsHead && idx === 0) return null
+
               return (
                 <tr key={idx}>
+                  <td className="text-muted" width="50">
+                    {resultsHead ? idx : idx + 1}
+                  </td>
                   {row.map((c, idx2) => {
-                    return <td key={idx2}>{c}</td>
+                    let cell = c
+                    // 支持 { text, url } 格式的链接
+                    if (typeof c === 'object') {
+                      cell = (
+                        <a target="_blank" href={c.url}>
+                          {c.text}
+                        </a>
+                      )
+                    }
+                    return <td key={idx2}>{cell}</td>
                   })}
                 </tr>
               )
@@ -1894,6 +1966,7 @@ class FilesHandlerComponent extends RbModalHandler {
     }
 
     let $btn = $(this._$btns).find('.btn').button('loading')
+    $mp.start()
     $.post('/customized/files-handler', JSON.stringify(_post), (res) => {
       if (res.error_code === 0) {
         if (this.props.taskMode) {
@@ -1905,8 +1978,12 @@ class FilesHandlerComponent extends RbModalHandler {
         RbAlert.create(res.error_msg || $L('系统繁忙，请稍后重试'), {
           type: 'danger',
         })
+
+        setTimeout(() => {
+          $mp.end()
+          $btn.button('reset')
+        }, 500)
       }
-      setTimeout(() => $btn.button('reset'), 500)
     })
   }
 
@@ -1914,11 +1991,12 @@ class FilesHandlerComponent extends RbModalHandler {
     let FN = _this.props.onSuccess
     if (typeof FN !== 'function') {
       FN = function () {
-        RbHighbar.error('操作成功')
+        RbHighbar.success($L('操作成功'))
         _this.hide()
       }
     }
     FN(_this, taskData)
+    $mp.end()
   }
 
   _checkTaskState(taskid) {
@@ -1929,5 +2007,10 @@ class FilesHandlerComponent extends RbModalHandler {
         setTimeout(() => this._checkTaskState(taskid), 1000)
       }
     })
+  }
+
+  reset() {
+    this.setState({ files: null, results: null, resultsHead: null })
+    $(this._$btns).find('.btn').button('reset')
   }
 }

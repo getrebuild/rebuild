@@ -118,7 +118,8 @@ public class DataReportManager implements ConfigManager {
                     .set("templateVersion", templateVersion)
                     .set("useFilter", useFilter)
                     .set("templateContent", o[6])
-                    .set("entity", entity.getName());
+                    .set("entity", entity.getName())
+                    .set("pageClass", extra.getString("pageClass"));
             alist.add(cb);
         }
 
@@ -179,7 +180,7 @@ public class DataReportManager implements ConfigManager {
 
         // v35 HTML5
         if (templateContent != null) {
-            return new TemplateFile(templateContent, entity, reportId);
+            return new TemplateFile(templateContent, entity, reportId, conf.getString("pageClass"));
         }
 
         if (templateFile == null) {

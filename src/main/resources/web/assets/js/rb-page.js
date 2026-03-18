@@ -387,7 +387,7 @@ var _initNav = function () {
   })
   $('.nav-settings-admin').on('click', function () {
     if (rb.commercial < 10) {
-      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
     } else {
       RbModal.create('/p/settings/nav-settings-admin', $L('配置管理中心功能'))
     }
@@ -481,6 +481,9 @@ var _initNav = function () {
   $('.sidebar-elements span[data-filter]').each(function () {
     var $this = $(this)
     var filterId = $this.data('filter')
+    var c = $storage.get('NavFilterBadge-' + filterId)
+    if (c) $this.text(c)
+
     // Click to storage
     $this.parents('a').on('click', function () {
       $storage.set('AdvFilter-' + $(this).parent().data('entity'), filterId)
@@ -488,7 +491,8 @@ var _initNav = function () {
 
     if (!$this.hasClass('hide')) {
       $.get('/app/entity/filter-badge?filter=' + filterId, function (res) {
-        if (res.data > 0) $this.text(res.data)
+        $this.text(res.data || '')
+        $storage.set('NavFilterBadge-' + filterId, res.data || '')
       })
     }
   })

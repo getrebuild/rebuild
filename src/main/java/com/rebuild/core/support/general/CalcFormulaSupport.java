@@ -12,7 +12,7 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
-import com.googlecode.aviator.runtime.type.AviatorNil;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -46,7 +46,7 @@ import java.util.Set;
 public class CalcFormulaSupport {
 
     /**
-     * 表单计算公式，后端计算
+     * 表单计算公式（启用后端计算）
      * FIXME 字段计算存在路径依赖：例如字段 B=A+1, 但 A 也是计算字段
      *
      * @param record
@@ -83,7 +83,7 @@ public class CalcFormulaSupport {
             }
             if (varsInFormula == null) continue;
 
-            Object evalVal = evalValue(formula, varsInFormula, targetField, false);
+            Object evalVal = evalValue(formula, varsInFormula, targetField, false, false);
             // 无值忽略
             if (evalVal == null) continue;
             // 同值忽略
@@ -97,29 +97,27 @@ public class CalcFormulaSupport {
     }
 
     /**
-     * 计算
-     *
      * @param targetField
      * @param varsInFormula
      * @return
      */
     public static Object evalCalcFormula(Field targetField, Map<String, Object> varsInFormula) {
-        return evalCalcFormula(targetField, varsInFormula, null);
+        return evalCalcFormula(targetField, varsInFormula, null, false);
     }
 
     /**
-     * 计算
-     *
      * @param targetField
      * @param varsInFormula
      * @param specFormula
+     * @param forceEval v4.3 （公式）强制计算结果
      * @return
      */
-    public static Object evalCalcFormula(Field targetField, Map<String, Object> varsInFormula, String specFormula) {
+    public static Object evalCalcFormula(Field targetField, Map<String, Object> varsInFormula, String specFormula, boolean forceEval) {
         final Entity entity = targetField.getOwnEntity();
         final EasyField easyField = EasyMetaFactory.valueOf(targetField);
         String formula = specFormula;
         if (formula == null) formula = easyField.getExtraAttr(EasyFieldConfigProps.NUMBER_CALCFORMULA);
+        // 兼容
         formula = formula.replace("{{NOW}}", EasyDateTime.VAR_NOW);
 
         boolean calcReady = true;
@@ -134,13 +132,30 @@ public class CalcFormulaSupport {
             Field field = MetadataHelper.getLastJoinField(entity, fieldName);
             if (field == null) {
                 calcReady = false;
+                log.warn("No field found for formula : {}", formula);
                 break;
             }
 
             Object fieldValue = varsInFormula.get(fieldName);
             if (fieldValue == null) {
+                // v4.3 点连接支持
+                if (fieldName.contains(".")) {
+                    String fieldNameRef = fieldName.substring(0, fieldName.indexOf("."));
+                    String fieldNameSub = fieldName.substring(fieldName.indexOf(".") + 1);
+                    fieldValue = varsInFormula.get(fieldNameRef);
+                    if (ID.isId(fieldValue)) {
+                        Object[] o = Application.getQueryFactory()
+                                .uniqueNoFilter(ID.valueOf(fieldValue.toString()), fieldNameSub);
+                        fieldValue = o == null ? null : o[0];
+                    }
+                }
+            }
+            if (fieldValue == null) {
                 calcReady = false;
-                break;
+                varsInFormula.put(fieldName, null);
+
+                if (forceEval) continue;
+                else break;
             }
 
             String val2str = fieldValue.toString();
@@ -156,33 +171,44 @@ public class CalcFormulaSupport {
                     fieldValue = null;
                 }
             }
-
             if (fieldValue == null) {
                 calcReady = false;
-                break;
+                varsInFormula.put(fieldName, null);
+
+                if (forceEval) continue;
+                else break;
             }
+
             varsInFormula.put(fieldName, fieldValue);
         }
 
-        return calcReady ? evalValue(formula, varsInFormula, easyField, true) : null;
+        return calcReady || forceEval
+                ? evalValue(formula, varsInFormula, easyField, true, forceEval) : null;
     }
 
     /**
-     * 执行计算
+     * 计算公式
      *
      * @param formula
      * @param varsInFormula
      * @param targetField
      * @param wrapValue
+     * @param forceEval
      * @return
      */
-    protected static Object evalValue(String formula, Map<String, Object> varsInFormula, EasyField targetField, boolean wrapValue) {
+    protected static Object evalValue(String formula, Map<String, Object> varsInFormula, EasyField targetField, boolean wrapValue, boolean forceEval) {
         String clearFormula = formula
-                .replace("{", "").replace("}", "")
                 .replace("×", "*").replace("÷", "/");
+        for (String name : varsInFormula.keySet()) {
+            String replace = "{" + name + "}";
+            if (clearFormula.contains(replace)) {
+                clearFormula = clearFormula.replace(replace, name);
+            }
+        }
 
         Object evalVal = AviatorUtils.eval(clearFormula, varsInFormula, true);
-        if (evalVal == null || evalVal == AviatorNil.NIL) return null;
+
+        if (AviatorUtils.isNull(evalVal)) return null;
         if (!wrapValue) return evalVal;
 
         DisplayType dt = targetField.getDisplayType();
@@ -198,6 +224,6 @@ public class CalcFormulaSupport {
             }
         }
 
-        return null;
+        return forceEval ? evalVal : null;
     }
 }

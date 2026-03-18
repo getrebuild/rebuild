@@ -167,7 +167,7 @@ $(document).ready(function () {
     if (SHOW_SCANCODE.includes(dt)) extConfigNew['textScanCode'] = $val('#textScanCode')
 
     if ((extConfigNew['advDesensitized'] || extConfigNew['advPattern'] || extConfigNew['textScanCode']) && rb.commercial < 1) {
-      RbHighbar.error(WrapHtml($L('免费版不支持高级选项 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbAlertFree43.create($L('免费版不支持高级选项 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return
     }
 
@@ -318,7 +318,7 @@ $(document).ready(function () {
 
   $('.J_cast-type').on('click', () => {
     if (rb.commercial < 10) {
-      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return
     }
     renderRbcomp(<FieldTypeCast entity={wpc.entityName} field={wpc.fieldName} fromType={wpc.fieldType} />)
@@ -336,7 +336,7 @@ $(document).ready(function () {
         .on('click', (e) => {
           $stopEvent(e, true)
           if (rb.commercial < 1) {
-            RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+            RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
           } else {
             renderRbcomp(<FieldValueDetectViewer data={res.data} />)
           }
@@ -498,7 +498,7 @@ const _handleFile = function (uploadNumber, config) {
           $('#fieldNullable').attr('checked', v[0] <= 0)
         },
         200,
-        'bslider-change'
+        'bslider-change',
       )
     })
   $('#fieldNullable').attr('disabled', true)
@@ -533,7 +533,7 @@ const _handleClassification = function (useClassification) {
           $dv.attr('data-value-id', s.id).val(s.text)
           $dvClear.removeClass('hide')
         }}
-      />
+      />,
     )
   }
 
@@ -708,7 +708,7 @@ const _handleTag = function (tagList, tagMaxSelect) {
   function _add(item) {
     $items.find('.no-item').addClass('hide')
     const $item = $(`<li class="dd-item" data-color="${item.color || ''}"><div class="dd-handle" style="color:${item.color || 'inherit'} !important"><span>${item.name}</span></div></li>`).appendTo(
-      $items
+      $items,
     )
     if ($isTrue(item['default'])) $item.addClass('default')
 
@@ -744,7 +744,7 @@ const _handleTag = function (tagList, tagMaxSelect) {
           _add(d)
           return true
         }}
-      />
+      />,
     )
   })
 

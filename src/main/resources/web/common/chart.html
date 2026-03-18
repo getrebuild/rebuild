@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -55,7 +55,7 @@
     </script>
     <script type="text/babel">
       const wpc = window.__PageConfig
-      if (window.frameElement) $(window.frameElement).parents('.modal-content').find('.modal-title').text(wpc.chartConfig.title)
+      // if (window.frameElement) $(window.frameElement).parents('.modal-content').find('.modal-title').text(wpc.chartConfig.title)
       $(document).ready(() => {
         const conf = $clone(wpc.chartConfig)
         conf.extconfig = { chart_filter: wpc.chartFilter }

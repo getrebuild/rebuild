@@ -59,7 +59,7 @@ public class TemplateExtractor {
 
     // 变量匹配 v2:{xxx} v1:${xxx}
     // v4.3 允许出现空格
-    protected static final Pattern PATT_V2 = Pattern.compile("\\{([^\\n}]{3,101})}");
+    protected static final Pattern PATT_V2 = Pattern.compile("\\{([^\\n}]{3,201})}");
 
     final protected File templateFile;
     final private boolean isListType;

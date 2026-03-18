@@ -161,7 +161,7 @@ $(document).ready(() => {
       when += ~~$(this).val()
     })
     if (rb.commercial < 10 && ((when & 512) !== 0 || (when & 1024) !== 0 || (when & 2048) !== 0)) {
-      RbHighbar.error(WrapHtml($L('免费版不支持审批提交时/审批驳回时/定时执行功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbAlertFree43.create($L('免费版不支持审批提交时/审批驳回时/定时执行功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return
     }
 
@@ -416,7 +416,7 @@ function useExecManual() {
 
   $('.J_exec-manual').on('click', () => {
     if (rb.commercial < 10) {
-      RbHighbar.error(WrapHtml($L('免费版不支持立即执行功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbAlertFree43.create($L('免费版不支持立即执行功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return
     }
 
@@ -554,7 +554,7 @@ class DlgSpecFields extends RbModalHandler {
 
   handleConfirm() {
     if (rb.commercial < 1) {
-      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return
     }
 
@@ -657,7 +657,7 @@ class DlgSpecApproveNodes extends RbModalHandler {
 
   handleConfirm() {
     if (rb.commercial < 1) {
-      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return
     }
 

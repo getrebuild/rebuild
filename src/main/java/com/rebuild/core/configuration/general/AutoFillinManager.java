@@ -182,18 +182,20 @@ public class AutoFillinManager implements ConfigManager {
                     varsInFormula.putAll(formData);
                 }
 
-                Object evalVal = CalcFormulaSupport.evalCalcFormula(targetFieldMeta, varsInFormula, sourceFieldFormula40);
+                Object evalVal = CalcFormulaSupport.evalCalcFormula(targetFieldMeta, varsInFormula, sourceFieldFormula40, true);
                 if (NullValue.isNull(evalVal)) sourceRecord.setNull(sourceField);
                 else sourceRecord.setObjectValue(sourceField, evalVal);
             }
 
             Object value = null;
             if (sourceRecord.hasValue(sourceField, false)) {
+                Field sourceFieldMeta = MetadataHelper.getLastJoinField(sourceEntity, sourceField);
+                if (StringUtils.isNotBlank(sourceFieldFormula40)) {
+                    sourceFieldMeta = targetFieldMeta;
+                }
+
                 value = sourceRecord.getObjectValue(sourceField);
-                value = conversionCompatibleValue(
-                        MetadataHelper.getLastJoinField(sourceEntity, sourceField),
-                        targetFieldMeta,
-                        value);
+                value = conversionCompatibleValue(sourceFieldMeta, targetFieldMeta, value);
             }
 
             final EasyField tfEasy = EasyMetaFactory.valueOf(targetFieldMeta);
@@ -234,6 +236,7 @@ public class AutoFillinManager implements ConfigManager {
             ConfigBean clone = e.clone().set("value", value);
             clone.remove("source");
             clone.remove("sourceFieldFormula");
+            clone.remove("fillinBackend");
             fillin.add(clone.toJSON());
         }
         return fillin;

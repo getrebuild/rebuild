@@ -29,7 +29,9 @@ public class GeneralEntityServiceContextHolder {
 
     private static final ThreadLocal<Boolean> QUICK_MODE = new NamedThreadLocal<>("Quick mode");
 
-    private static final ThreadLocal<ID> SKIP_GUARD = new NamedThreadLocal<>("Skip some check once");
+    private static final ThreadLocal<ID> SKIP_GUARD = new NamedThreadLocal<>("Skip check once");
+
+    private static final ThreadLocal<Boolean> SKIP_LOCK = new NamedThreadLocal<>("Skip check lock");
 
     /**
      * 新建记录时允许跳过自动编号字段
@@ -164,5 +166,24 @@ public class GeneralEntityServiceContextHolder {
         ID s = SKIP_GUARD.get();
         if (s != null) SKIP_GUARD.remove();
         return s;
+    }
+
+    /**
+     * 跳过锁检查
+     *
+     * @see com.rebuild.core.support.CommonsLock#isLocked43(ID)
+     */
+    public static void setSkipLock() {
+        SKIP_LOCK.set(true);
+    }
+
+    /**
+     * @param once
+     * @return
+     */
+    public static boolean isSkipLock(boolean once) {
+        Boolean s = SKIP_LOCK.get();
+        if (s != null && once) SKIP_LOCK.remove();
+        return s != null && s;
     }
 }

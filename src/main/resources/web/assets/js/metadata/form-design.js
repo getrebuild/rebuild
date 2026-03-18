@@ -76,7 +76,7 @@ $(document).ready(() => {
 
   $('.J_add-refform').on('click', () => {
     if (rb.commercial < 1) {
-      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return false
     }
     $('.nav-tabs-classic a[href="#form-design"]').tab('show')
@@ -94,7 +94,7 @@ $(document).ready(() => {
   // v3.7, v3.8
   $('.J_add-nform').on('click', () => {
     if (rb.commercial < 1) {
-      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return false
     }
     renderRbcomp(<DlgNForm entity={wpc.entityName} />)
@@ -204,7 +204,7 @@ $(document).ready(() => {
   $('.nav-tabs-classic a[href="#adv-control"]').on('click', (e) => {
     if (rb.commercial < 10) {
       e.preventDefault()
-      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return false
     }
 
@@ -258,7 +258,7 @@ $(document).ready(() => {
 
   $('.J_copy-layout').on('click', () => {
     if (rb.commercial < 10) {
-      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return false
     }
     renderRbcomp(<CopyLayoutTo layoutId={wpc.formConfig.id} formsAttr={wpc.formsAttr || []} />)
