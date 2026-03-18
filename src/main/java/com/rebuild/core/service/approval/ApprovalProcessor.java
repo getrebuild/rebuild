@@ -135,9 +135,10 @@ public class ApprovalProcessor extends SetUser {
      * @param checkUseGroup
      * @param rejectNode
      * @param batchMode
+     * @param forceFinish 同意后完成，如果是会签，需要全部同意才行
      * @throws ApprovalException
      */
-    public void approve(ID approver, ApprovalState state, Object[] remarks, JSONObject selectNextUsers, Record addedData, String checkUseGroup, String rejectNode, boolean batchMode) throws ApprovalException {
+    public void approve(ID approver, ApprovalState state, Object[] remarks, JSONObject selectNextUsers, Record addedData, String checkUseGroup, String rejectNode, boolean batchMode, boolean forceFinish) throws ApprovalException {
         final ApprovalStatus status = checkApprovalState(ApprovalState.PROCESSING);
 
         final Object[] stepApprover = Application.createQueryNoFilter(
@@ -151,6 +152,8 @@ public class ApprovalProcessor extends SetUser {
                     ? Language.L("当前流程已经被其他人审批")
                     : Language.L("你已经审批过当前流程")));
         }
+
+        this.approvalId = (ID) stepApprover[3];
 
         Record approvedStep = EntityHelper.forUpdate((ID) stepApprover[0], approver);
         approvedStep.setInt("state", state.getState());
@@ -175,9 +178,10 @@ public class ApprovalProcessor extends SetUser {
             approvedStep.setString("attrMore", attrMore.toJSONString());
         }
 
-        this.approvalId = (ID) stepApprover[3];
-        FlowNodeGroup nextNodes = getNextNodes((String) stepApprover[2]);
+        FlowNode currentNode = getFlowNode((String) stepApprover[2]);
+        Assert.notNull(currentNode, "FlowNode is null");
 
+        FlowNodeGroup nextNodes = getNextNodes((String) stepApprover[2]);
         Set<ID> nextApprovers = null;
         String nextNode = null;
 
@@ -190,19 +194,23 @@ public class ApprovalProcessor extends SetUser {
             // 自选审批人
             nextApprovers.addAll(getSelfSelectedApprovers(nextNodes));
 
-            if (nextApprovers.isEmpty()) {
-                throw new ApprovalException(Language.L("下一流程无审批人可用，请联系管理员配置"));
-            }
-
             FlowNode nextApprovalNode = nextNodes.getApprovalNode();
             nextNode = nextApprovalNode != null ? nextApprovalNode.getNodeId() : null;
+
+            // v4.3 同意并完成
+            if (forceFinish && currentNode.allowFinish()) {
+                nextApprovers = null;
+                nextNode = null;
+            } else {
+                if (nextApprovers.isEmpty()) {
+                    throw new ApprovalException(Language.L("下一流程无审批人可用，请联系管理员配置"));
+                }
+            }
         }
 
         Set<ID> ccUsers = nextNodes.getCcUsers(this.getUser(), this.recordId, selectNextUsers);
         Set<String> ccAccounts = nextNodes.getCcAccounts(this.recordId);
 
-        FlowNode currentNode = getFlowNode((String) stepApprover[2]);
-        Assert.notNull(currentNode, "FlowNode is null");
         Application.getBean(ApprovalStepService.class)
                 .txApprove(approvedStep, currentNode.getSignMode(), ccUsers, ccAccounts, nextApprovers, nextNode, addedData, checkUseGroup);
 
@@ -262,7 +270,7 @@ public class ApprovalProcessor extends SetUser {
 
         // BACKED
         String key = KEY_CANCEL38 + ":" + approver;
-        approve(proxyApprover, ApprovalState.REJECTED, new Object[]{key}, null, null, null, prevNode, false);
+        approve(proxyApprover, ApprovalState.REJECTED, new Object[]{key}, null, null, null, prevNode, false, false);
     }
 
     /**

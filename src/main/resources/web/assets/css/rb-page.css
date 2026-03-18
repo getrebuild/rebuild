@@ -3180,7 +3180,7 @@ form {
   font-size: 0.8462rem;
   color: #999;
   font-style: normal;
-  margin-top: 1px;
+  margin-top: 2px;
 }
 
 .user-selector .select2-results__option.subtext:hover span.text > em {
