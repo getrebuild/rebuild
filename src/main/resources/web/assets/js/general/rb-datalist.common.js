@@ -221,7 +221,7 @@ const AdvFilters = {
     const $wrap = $('.main-content').prepend('<div class="quick-filter-tabs"><div></div></div>').find('.quick-filter-tabs>div')
     const that = this
     window.__LAB_DATALIST_QUICKFILTERTAB43[that.__entity].forEach((item) => {
-      $(`<a>${item.text}</a>`)
+      const $tab = $(`<a>${item.text}</a>`)
         .appendTo($wrap)
         .on('click', function () {
           $wrap.find('a').removeClass('active')
@@ -245,8 +245,9 @@ const AdvFilters = {
             _RbList().reload()
           }
 
+          const $buttons = $('.dataTables_oper>.btn, .dataTables_oper>.btn-group, .dataTables_oper>.fjs-dock>.btn, .dataTables_oper>.fjs-dock>.btn-group')
           if (item.hideButtons) {
-            $('.dataTables_oper>.btn, .dataTables_oper>.btn-group').each(function () {
+            $buttons.each(function () {
               let text = $(this).text()
               if ($(this).prop('tagName') === 'DIV') text = $(this).find('.btn').text()
 
@@ -257,7 +258,7 @@ const AdvFilters = {
               }
             })
           } else if (item.showButtons) {
-            $('.dataTables_oper>.btn, .dataTables_oper>.btn-group').each(function () {
+            $buttons.each(function () {
               let text = $(this).text()
               if ($(this).prop('tagName') === 'DIV') text = $(this).find('.btn').text()
 
@@ -269,6 +270,10 @@ const AdvFilters = {
             })
           }
         })
+
+      if (item.default) {
+        $setTimeout(() => $tab.trigger('click'), 200, '__LAB_DATALIST_QUICKFILTERTAB43')
+      }
     })
   },
 }
