@@ -244,6 +244,30 @@ const AdvFilters = {
           } else {
             _RbList().reload()
           }
+
+          if (item.hideButtons) {
+            $('.dataTables_oper>.btn, .dataTables_oper>.btn-group').each(function () {
+              let text = $(this).text()
+              if ($(this).prop('tagName') === 'DIV') text = $(this).find('.btn').text()
+
+              if (item.hideButtons.includes($trim(text)) || item.hideButtons.includes('*')) {
+                $(this).addClass('hide')
+              } else {
+                $(this).removeClass('hide')
+              }
+            })
+          } else if (item.showButtons) {
+            $('.dataTables_oper>.btn, .dataTables_oper>.btn-group').each(function () {
+              let text = $(this).text()
+              if ($(this).prop('tagName') === 'DIV') text = $(this).find('.btn').text()
+
+              if (item.showButtons.includes($trim(text)) || item.showButtons.includes('*')) {
+                $(this).removeClass('hide')
+              } else {
+                $(this).addClass('hide')
+              }
+            })
+          }
         })
     })
   },
