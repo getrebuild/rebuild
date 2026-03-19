@@ -54,7 +54,7 @@ const RbListPage = {
           deleteAfter={() => {
             that._RbList.reload()
           }}
-        />
+        />,
       )
     })
     $('.J_assign').on('click', () => {
@@ -322,6 +322,6 @@ window.attachAibotPageData = function (cb) {
         qe._dataRange = s
         typeof cb === 'function' && cb({ listFilter: qe, name })
       }}
-    />
+    />,
   )
 }
