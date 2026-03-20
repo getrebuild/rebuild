@@ -2013,4 +2013,29 @@ class FilesHandlerComponent extends RbModalHandler {
     this.setState({ files: null, results: null, resultsHead: null })
     $(this._$btns).find('.btn').button('reset')
   }
+
+  // -- 工具方法
+
+  /**
+   * 上传文件
+   *
+   * @param {} onSuccess
+   * @param {} props
+   */
+  static upload(onSuccess, props = { multiple: false, accept: null }) {
+    let $file = $('#__FilesHandlerComponent-upload')
+    if ($file.length === 0) {
+      $file = $('<div id="__FilesHandlerComponent-upload" class="hide"><input type="file" data-local="temp" /></div>').appendTo(document.body)
+    }
+
+    $file = $file.find('input')
+    $file.attr('multiple', props.multiple === true)
+    $file.attr('accept', props.accept || '*/*')
+
+    $multipleUploader($file, (res) => {
+      console.log('Uploaded :', res)
+      typeof onSuccess === 'function' && onSuccess(res)
+    })
+    setTimeout(() => $file.click(), 20)
+  }
 }

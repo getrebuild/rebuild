@@ -53,9 +53,10 @@ const AdvFilters = {
     })
 
     const $alld = this.__$el.find('.dropdown-item:eq(0)')
-    $alld.on('click', () => this._effectFilter($alld, 'aside'))
+    $alld.on('click', () => this._clickFilter($alld, 'aside'))
 
     this.loadFilters()
+    this.__LAB_DATALIST_QUICKFILTERTAB43()
 
     this.__savedCached = []
   },
@@ -76,7 +77,7 @@ const AdvFilters = {
         const item = this
         const $item = $(`<div class="dropdown-item J_custom" data-id="${item.id}"><a class="text-truncate"></a></div>`).appendTo($menu)
         $item
-          .on('click', () => that._effectFilter($item, 'aside'))
+          .on('click', () => that._clickFilter($item, 'aside'))
           .find('>a')
           .text(item.name)
 
@@ -121,7 +122,7 @@ const AdvFilters = {
       })
 
       // ASIDE
-      if ($('#asideFilters, .quick-filter-tabs').length > 0) {
+      if ($('#asideFilters').length) {
         const $ghost = $('.adv-search .dropdown-menu').clone()
         $ghost.removeAttr('class')
         $ghost.removeAttr('style')
@@ -130,11 +131,9 @@ const AdvFilters = {
         $ghost.find('.dropdown-item').on('click', function () {
           $ghost.find('.dropdown-item').removeClass('active')
           $(this).addClass('active')
-          that._effectFilter($(this), 'aside')
+          that._clickFilter($(this), 'aside')
         })
-
         $ghost.clone(true).appendTo($('#asideFilters').empty())
-        $ghost.clone(true).appendTo($('.quick-filter-tabs').empty())
       }
 
       if (!$defaultFilter) $defaultFilter = that.__$el.find('.dropdown-item:eq(0)')
@@ -142,25 +141,17 @@ const AdvFilters = {
     })
   },
 
-  _effectFilter(item, rel) {
+  _clickFilter(item, rel) {
     this.current = item.data('id')
     this.__$el.find('.J_name').text(item.find('>a').text())
 
     // ASIDE
     if (rel === 'aside') {
-      const current = this.current
+      const c = this.current
       $('#asideFilters .dropdown-item')
         .removeClass('active')
         .each(function () {
-          if ($(this).data('id') === current) {
-            $(this).addClass('active')
-            return false
-          }
-        })
-      $('.quick-filter-tabs .dropdown-item')
-        .removeClass('active')
-        .each(function () {
-          if ($(this).data('id') === current) {
+          if ($(this).data('id') === c) {
             $(this).addClass('active')
             return false
           }
@@ -190,7 +181,7 @@ const AdvFilters = {
       } else {
         // `useCopyId` 2.9.4 取消 useCopyId，可能引起误解
         if (useCopyId) {
-          this._getFilter(useCopyId, (res) => {
+          this.__get(useCopyId, (res) => {
             renderRbcomp(<ListAdvFilter {...props} filter={res.filter} />, this.__$customAdvWrap, function () {
               that.__customAdv = this
             })
@@ -211,7 +202,7 @@ const AdvFilters = {
         const res = this.__savedCached[id]
         renderRbcomp(<ListAdvFilter {...props} title={$L('修改高级查询')} filter={res.filter} filterName={res.name} shareTo={res.shareTo} inModal />)
       } else {
-        this._getFilter(id, (res) => {
+        this.__get(id, (res) => {
           this.__savedCached[id] = res
           renderRbcomp(<ListAdvFilter {...props} title={$L('修改高级查询')} filter={res.filter} filterName={res.name} shareTo={res.shareTo} inModal />)
         })
@@ -219,8 +210,84 @@ const AdvFilters = {
     }
   },
 
-  _getFilter(id, cb) {
+  __get(id, cb) {
     $.get(`/app/entity/advfilter/get?id=${id}`, (res) => cb(res.data))
+  },
+
+  // 列表顶部 TAB
+  __LAB_DATALIST_QUICKFILTERTAB43() {
+    if (!(window.__LAB_DATALIST_QUICKFILTERTAB43 && window.__LAB_DATALIST_QUICKFILTERTAB43[this.__entity])) return
+
+    const $wrap = $('.main-content').prepend('<div class="quick-filter-tabs"><div></div></div>').find('.quick-filter-tabs>div')
+    const that = this
+    window.__LAB_DATALIST_QUICKFILTERTAB43[that.__entity].forEach((item) => {
+      const $tab = $(`<a>${item.text}</a>`)
+        .appendTo($wrap)
+        .on('click', function () {
+          $wrap.find('a').removeClass('active')
+          $(this).addClass('active')
+
+          // 过滤条件
+          wpc.protocolFilterAnd = item.filterId ? `via:${item.filterId}` : null
+          if (item.filter) wpc.protocolFilterAnd = item.filter
+
+          // 列显示
+          if (item.listFieldsId && that.__listFieldsId !== item.listFieldsId) {
+            $.get(`/rbmob/entity-config/list?entity=${that.__entity}&flag=${item.listFieldsId}`, (res) => {
+              that.__listFieldsId = item.listFieldsId
+
+              $unmount('#react-list', 1, true)
+              setTimeout(() => {
+                renderRbcomp(<RbList config={res.data.dataListConfig} />, 'react-list', function () {
+                  RbListPage._RbList = this
+                  _RbList().reload()
+                })
+              }, 100)
+            })
+          } else if (item.listFields && that.__listFieldsId !== item.listFields) {
+            that.__listFieldsId = item.listFields
+
+            $unmount('#react-list', 1, true)
+            setTimeout(() => {
+              renderRbcomp(<RbList config={{ ...item.listFields }} />, 'react-list', function () {
+                RbListPage._RbList = this
+                _RbList().reload()
+              })
+            }, 100)
+          } else {
+            _RbList().reload()
+          }
+
+          const $buttons = $('.dataTables_oper>.btn, .dataTables_oper>.btn-group, .dataTables_oper>.fjs-dock>.btn, .dataTables_oper>.fjs-dock>.btn-group')
+          if (item.hideButtons) {
+            $buttons.each(function () {
+              let text = $(this).text()
+              if ($(this).prop('tagName') === 'DIV') text = $(this).find('.btn').text()
+
+              if (item.hideButtons.includes($trim(text)) || item.hideButtons.includes('*')) {
+                $(this).addClass('hide')
+              } else {
+                $(this).removeClass('hide')
+              }
+            })
+          } else if (item.showButtons) {
+            $buttons.each(function () {
+              let text = $(this).text()
+              if ($(this).prop('tagName') === 'DIV') text = $(this).find('.btn').text()
+
+              if (item.showButtons.includes($trim(text)) || item.showButtons.includes('*')) {
+                $(this).removeClass('hide')
+              } else {
+                $(this).addClass('hide')
+              }
+            })
+          }
+        })
+
+      if (item.default) {
+        $setTimeout(() => $tab.trigger('click'), 200, '__LAB_DATALIST_QUICKFILTERTAB43')
+      }
+    })
   },
 }
 

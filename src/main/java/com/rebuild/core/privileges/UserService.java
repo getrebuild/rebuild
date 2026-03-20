@@ -350,7 +350,7 @@ public class UserService extends BaseService {
         }
         if (passwdNew != null) {
             checkPassword(passwdNew);
-            record.setString("password", passwdNew);
+            record.setString("password", EncryptUtils.toSHA256Hex(passwdNew));
             changed = true;
         }
 

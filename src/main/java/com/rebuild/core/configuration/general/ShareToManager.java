@@ -84,17 +84,17 @@ public abstract class ShareToManager implements ConfigManager {
      * @param belongEntity
      * @param applyType
      * @param firstUseSelf
-     * @param useSysFlag
+     * @param specPriority
      * @return
      */
-    protected ID detectUseConfig(ID user, String belongEntity, String applyType, boolean firstUseSelf, String useSysFlag) {
+    protected ID detectUseConfig(ID user, String belongEntity, String applyType, boolean firstUseSelf, String specPriority) {
         final Object[][] alls = getAllConfig(belongEntity, applyType);
         if (alls.length == 0) return null;
 
-        // 0. v3.9 指定配置
-        if (ID.isId(useSysFlag)) {
+        // 0.v3.9 使用指定配置
+        if (ID.isId(specPriority)) {
             for (Object[] d : alls) {
-                if (d[0].toString().equals(useSysFlag)) return (ID) d[0];
+                if (d[0].toString().equals(specPriority)) return (ID) d[0];
             }
         }
 
@@ -103,8 +103,8 @@ public abstract class ShareToManager implements ConfigManager {
             for (Object[] d : alls) {
                 ID createdBy = (ID) d[2];
                 if (UserHelper.isSelf(user, createdBy)) {
-                    if (useSysFlag != null) {
-                        if (useSysFlag.equals(d[4])) return (ID) d[0];
+                    if (specPriority != null) {
+                        if (specPriority.equals(d[4])) return (ID) d[0];
                     } else {
                         return (ID) d[0];
                     }
@@ -115,8 +115,8 @@ public abstract class ShareToManager implements ConfigManager {
         // 2.其次使用共享的
         for (Object[] d : alls) {
             if (isShareTo((String) d[1], user)) {
-                if (useSysFlag != null) {
-                    if (useSysFlag.equals(d[4])) return (ID) d[0];
+                if (specPriority != null) {
+                    if (specPriority.equals(d[4])) return (ID) d[0];
                 } else {
                     return (ID) d[0];
                 }
