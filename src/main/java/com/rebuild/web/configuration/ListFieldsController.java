@@ -170,14 +170,18 @@ public class ListFieldsController extends BaseController implements ShareTo {
 
         JSONObject config = (JSONObject) DataListManager.instance.formatListFields(entity, user, Boolean.FALSE, raw);
 
-        Map<String, Object> ret = new HashMap<>();
-        ret.put("fieldList", fieldList);
-        ret.put("configList", config.getJSONArray("fields"));
+        Map<String, Object> res = new HashMap<>();
+        res.put("fieldList", fieldList);
+        res.put("configList", config.getJSONArray("fields"));
         if (raw != null) {
-            ret.put("configId", raw.getID("id"));
-            ret.put("shareTo", raw.getString("shareTo"));
+            res.put("configId", raw.getID("id"));
+            res.put("shareTo", raw.getString("shareTo"));
         }
-        writeSuccess(response, ret);
+        // v4.3
+        res.put("entity", entity);
+        res.put("nameField", entityMeta.getNameField().getName());
+
+        writeSuccess(response, res);
     }
 
     private boolean canListField(Field field) {

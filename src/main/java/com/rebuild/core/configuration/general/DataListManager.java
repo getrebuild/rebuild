@@ -78,23 +78,23 @@ public class DataListManager extends BaseLayoutManager {
     /**
      * @param entity
      * @param user
-     * @param useSysFlag 优先使用系统指定的 `SYS XXX` or ID
+     * @param specPriority 优先使用系统指定的 `SYS XXX` or ID
      * @return
      */
-    public JSON getListFields(String entity, ID user, String useSysFlag) {
-        return getListFields(entity, user, Boolean.TRUE, useSysFlag);
+    public JSON getListFields(String entity, ID user, String specPriority) {
+        return getListFields(entity, user, Boolean.TRUE, specPriority);
     }
 
     /**
      * @param entity
      * @param user
      * @param filterNoPriviFields 过滤无读取权限的字段
-     * @param useSysFlag
+     * @param specPriority
      * @return
      * @see #formatListFields(String, ID, boolean, ConfigBean)
      */
-    protected JSON getListFields(String entity, ID user, boolean filterNoPriviFields, String useSysFlag) {
-        ConfigBean cb = getLayoutOfDatalist(user, entity, useSysFlag);
+    protected JSON getListFields(String entity, ID user, boolean filterNoPriviFields, String specPriority) {
+        ConfigBean cb = getLayoutOfDatalist(user, entity, specPriority);
         JSONObject config = (JSONObject) formatListFields(entity, user, filterNoPriviFields, cb);
         JSONArray fields = config.getJSONArray("fields");
 

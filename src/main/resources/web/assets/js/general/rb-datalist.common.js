@@ -227,13 +227,16 @@ const AdvFilters = {
           $wrap.find('a').removeClass('active')
           $(this).addClass('active')
 
+          // 过滤条件
           wpc.protocolFilterAnd = item.filterId ? `via:${item.filterId}` : null
+          if (item.filter) wpc.protocolFilterAnd = item.filter
+
+          // 列显示
           if (item.listFieldsId && that.__listFieldsId !== item.listFieldsId) {
             $.get(`/rbmob/entity-config/list?entity=${that.__entity}&flag=${item.listFieldsId}`, (res) => {
               that.__listFieldsId = item.listFieldsId
 
               $unmount('#react-list', 1, true)
-              // 重新初始化
               setTimeout(() => {
                 renderRbcomp(<RbList config={res.data.dataListConfig} />, 'react-list', function () {
                   RbListPage._RbList = this
@@ -241,6 +244,16 @@ const AdvFilters = {
                 })
               }, 100)
             })
+          } else if (item.listFields && that.__listFieldsId !== item.listFields) {
+            that.__listFieldsId = item.listFields
+
+            $unmount('#react-list', 1, true)
+            setTimeout(() => {
+              renderRbcomp(<RbList config={{ ...item.listFields }} />, 'react-list', function () {
+                RbListPage._RbList = this
+                _RbList().reload()
+              })
+            }, 100)
           } else {
             _RbList().reload()
           }
