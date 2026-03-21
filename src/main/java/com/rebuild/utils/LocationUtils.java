@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.cache.CommonsCache;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.regex.Pattern;
 
@@ -47,7 +48,7 @@ public class LocationUtils {
     public static JSON getLocation(String ip, boolean useCache) {
         ip = ip.split(",")[0];
 
-        if (PRIVATE_IP.matcher(ip).find()) {
+        if (isPrivate(ip)) {
             return JSONUtils.toJSONObject(new String[] { "ip", "country"}, new String[] { ip, "R" });
         }
 
@@ -110,5 +111,18 @@ public class LocationUtils {
             log.debug("Error occured : " + url + " >> " + e);
         }
         return null;
+    }
+
+    /**
+     * 是否局域网
+     *
+     * @param ip
+     * @return
+     */
+    public static boolean isPrivate(String ip) {
+        if (StringUtils.isBlank(ip)) return false;
+
+        ip = ip.split(",")[0];
+        return PRIVATE_IP.matcher(ip).find();
     }
 }

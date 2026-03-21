@@ -544,6 +544,8 @@ public class CommonsUtils {
      * @return
      */
     public static String getHost(String url) {
+        if (StringUtils.isBlank(url)) return null;
+
         try {
             return new URL(url).getHost();
         } catch (MalformedURLException e) {
