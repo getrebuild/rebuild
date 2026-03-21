@@ -697,3 +697,17 @@ class AdvFilterWithEntity extends AdvFilter {
     })
   }
 }
+
+// v4.3.1 保持全屏（有技术限制）
+window.addEventListener('beforeunload', function () {
+  if ($fullscreen.is() && $(document.body).hasClass('fullscreen')) {
+    window.sessionStorage && window.sessionStorage.setItem('fullscreen-requested', true)
+  } else {
+    window.sessionStorage && window.sessionStorage.removeItem('fullscreen-requested')
+  }
+})
+$(document).ready(function () {
+  if (window.sessionStorage && window.sessionStorage.getItem('fullscreen-requested')) {
+    $('.J_dash-fullscreen').trigger('click')
+  }
+})
