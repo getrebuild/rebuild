@@ -10,6 +10,7 @@ package com.rebuild.web.admin;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.Field2SchemaFixer;
 import com.rebuild.core.metadata.impl.FixRefsIndex43;
@@ -54,6 +55,7 @@ public class AdminCli4 {
     private static final String C_CHK_SCHEMAS = "chk-schemas";
     private static final String C_FIX_ENTITY = "fix-entity";
     private static final String C_FIX_INDEX = "fix-index";
+    private static final String _C_FIX_CREATEDDEPT = "fix-createddept";
 
     private static final String SUCCESS = "OK";
 
@@ -84,6 +86,7 @@ public class AdminCli4 {
         String result = null;
         switch (commands[0]) {
             case C_HELP:
+            case "？":
             case "?" : {
                 result = " Usage : " +
                         " \ncache [clean|get] [KEY]" +
@@ -94,7 +97,8 @@ public class AdminCli4 {
                         " \nclean-approval ENTITY" +
                         " \nadd-testentity" +
                         " \nchk-schemas" +
-                        " \nfix-entity ENTITY[.FIELD] [DATETIME40|UPLOADNUMBER41|ADDSEQ42]";
+                        " \nfix-entity ENTITY[.FIELD] [DATETIME40|UPLOADNUMBER41|ADDSEQ42]" +
+                        " \nfix-index [ENTITY]";
                 break;
             }
             case C_CACHE: {
@@ -131,6 +135,10 @@ public class AdminCli4 {
             }
             case C_FIX_INDEX: {
                 result = this.execFixIndex();
+                break;
+            }
+            case _C_FIX_CREATEDDEPT: {
+                result = this.execFixCreatedDept();
                 break;
             }
             default: {
@@ -352,6 +360,25 @@ public class AdminCli4 {
             } else {
                 new FixRefsIndex43().fix();
             }
+
+            return "OK";
+        } catch (Exception ex) {
+            return "WRAN: Exec failed `" + ex.getLocalizedMessage() + "`";
+        }
+    }
+
+    /**
+     * @return
+     */
+    private String execFixCreatedDept() {
+        try {
+            for (Entity e : MetadataHelper.getEntities()) {
+                if (!MetadataHelper.isBusinessEntity(e)) continue;
+                if (e.containsField(EntityHelper._CreatedDept)) continue;
+
+                new Field2SchemaFixer().addCreatedDeptField(e, false);
+            }
+            MetadataHelper.getMetadataFactory().refresh();
 
             return "OK";
         } catch (Exception ex) {

@@ -219,6 +219,7 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
 
         transTargetRecord.setObjectValue(targetEntity.getPrimaryField().getName(), targetExistsRecordId);
         transTargetRecord.removeValue(EntityHelper.CreatedBy);
+        transTargetRecord.removeValue(EntityHelper._CreatedDept);
         transTargetRecord.removeValue(EntityHelper.CreatedOn);
         if (!fieldsMapping.containsKey(EntityHelper.OwningUser)) {
             transTargetRecord.removeValue(EntityHelper.OwningUser);
