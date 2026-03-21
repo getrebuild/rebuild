@@ -6494,3 +6494,21 @@ div.formula-code {
 .btn.btn-pill {
   border-radius: 99px;
 }
+
+.dataTables_wrapper .rb-datatable-header.v42 {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.dataTables_wrapper .rb-datatable-header.v42 > div {
+  flex: none;
+  white-space: nowrap;
+  width: unset;
+  max-width: unset;
+}
+
+.dataTables_wrapper .rb-datatable-header.v42 > div.right {
+  text-align: right;
+}
