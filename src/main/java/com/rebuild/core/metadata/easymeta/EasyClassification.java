@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata.easymeta;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -31,7 +32,19 @@ public class EasyClassification extends EasyReference {
         if (map != null) {
             map.remove("entity");
             ClassificationManager.Item item = ClassificationManager.instance.getItem((ID) value);
-            if (item != null && item.getColor() != null) map.put("color", item.getColor());
+            if (item != null) {
+                if (item.getColor() != null) {
+                    map.put("color", item.getColor());
+                }
+                // v4.3.1
+                if (ObjectUtils.toBool(getExtraAttr(EasyFieldConfigProps.CLASSIFICATION_SHORTNAME))) {
+                    map.put("full_text", map.getString("text"));
+                    map.put("text", item.getName());
+                }
+                if (item.getCode() != null) {
+                    map.put("code", item.getCode());
+                }
+            }
         }
         return map;
     }
