@@ -498,7 +498,14 @@ class FilterItem extends React.Component {
     if (this.state.op === 'BW') {
       valComp = (
         <div className="val-range">
-          <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={(e) => this.valueHandle(e)} onBlur={(e) => this.valueCheck(e)} value={this.state.value || ''} />
+          <input
+            className="form-control form-control-sm"
+            ref={(c) => (this._filterVal = c)}
+            onChange={(e) => this.valueHandle(e)}
+            onBlur={(e) => this.valueCheck(e)}
+            value={this.state.value || ''}
+            placeholder={this.props.placeholder || null}
+          />
           <input
             className="form-control form-control-sm"
             ref={(c) => (this._filterVal2 = c)}
@@ -506,6 +513,7 @@ class FilterItem extends React.Component {
             onBlur={(e) => this.valueCheck(e)}
             value={this.state.value2 || ''}
             data-at="2"
+            placeholder={this.props.placeholderEnd || null}
           />
           <span>{$L('起')}</span>
           <span className="end">{$L('止')}</span>
@@ -513,7 +521,7 @@ class FilterItem extends React.Component {
       )
     } else if (this.state.type === 'PICKLIST' || this.state.type === 'STATE' || this.state.type === 'MULTISELECT') {
       valComp = (
-        <select className="form-control form-control-sm" multiple ref={(c) => (this._filterVal = c)}>
+        <select className="form-control form-control-sm" multiple ref={(c) => (this._filterVal = c)} placeholder={this.props.placeholder || null}>
           {(this.state.options || []).map((item) => {
             let id = item.id || item.mask
             return (
@@ -525,7 +533,7 @@ class FilterItem extends React.Component {
         </select>
       )
     } else if (this.isBizzField()) {
-      valComp = <select className="form-control form-control-sm" multiple ref={(c) => (this._filterVal = c)} />
+      valComp = <select className="form-control form-control-sm" multiple ref={(c) => (this._filterVal = c)} placeholder={this.props.placeholder || null} />
     } else if (this.state.type === 'BOOL') {
       valComp = (
         <select className="form-control form-control-sm" ref={(c) => (this._filterVal = c)}>
@@ -535,7 +543,14 @@ class FilterItem extends React.Component {
       )
     } else {
       valComp = (
-        <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={(e) => this.valueHandle(e)} onBlur={(e) => this.valueCheck(e)} value={this.state.value || ''} />
+        <input
+          className="form-control form-control-sm"
+          ref={(c) => (this._filterVal = c)}
+          onChange={(e) => this.valueHandle(e)}
+          onBlur={(e) => this.valueCheck(e)}
+          value={this.state.value || ''}
+          placeholder={this.props.placeholder || null}
+        />
       )
     }
 
@@ -599,7 +614,10 @@ class FilterItem extends React.Component {
     let op4init = this.props.op
     const that = this
     $s2field = $(this._filterField)
-      .select2({ allowClear: false, theme: 'default select2-option-advfilter' })
+      .select2({
+        allowClear: false,
+        theme: 'default select2-option-advfilter',
+      })
       .on('change', function (e) {
         const fieldAndType = e.target.value.split(NT_SPLIT)
         that.setState({ field: fieldAndType[0], type: fieldAndType[1] }, () => {
@@ -747,7 +765,7 @@ class FilterItem extends React.Component {
     const $s2val = $(this._filterVal)
       .select2({
         width: this.props.select2Width,
-        placeholder: this.props.select2Placeholder,
+        placeholder: this.props.select2Placeholder || this.props.placeholder || null,
         theme: 'default select2-option-advfilter',
       })
       .on('change.select2', function () {
@@ -782,7 +800,7 @@ class FilterItem extends React.Component {
     const $s2val = $(this._filterVal)
       .select2({
         width: this.props.select2Width,
-        placeholder: this.props.select2Placeholder,
+        placeholder: this.props.select2Placeholder || this.props.placeholder || null,
         minimumInputLength: 1,
         ajax: {
           url: '/commons/search/search',
@@ -890,7 +908,7 @@ class FilterItem extends React.Component {
     const $s2val = $(this._filterVal)
       .select2({
         width: this.props.select2Width,
-        placeholder: this.props.select2Placeholder,
+        placeholder: this.props.select2Placeholder || this.props.placeholder || null,
         allowClear: this.props.allowClear === true,
         theme: 'default select2-option-advfilter',
       })
