@@ -294,8 +294,6 @@ class AdvFilter extends React.Component {
       if (this.state.equationError === true) return RbHighbar.create($L('无效高级表达式'))
       filterBody.equation = this.state.equation
     }
-
-    if (rb.env === 'dev') console.log(JSON.stringify(filterBody))
     return filterBody
   }
 

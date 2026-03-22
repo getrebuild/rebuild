@@ -43,11 +43,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -549,5 +552,20 @@ public class CommonsUtils {
         } catch (MalformedURLException e) {
             return null;
         }
+    }
+
+    /**
+     * 中文排序（A-Z）
+     *
+     * @param list
+     * @param byValue
+     */
+    public static void sortChinese(List<?> list, ByValue byValue) {
+        Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);
+        list.sort((foo, bar) -> {
+            String fooLetter = byValue.value(foo);
+            String barLetter = byValue.value(bar);
+            return comparator.compare(fooLetter, barLetter);
+        });
     }
 }
