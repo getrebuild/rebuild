@@ -59,6 +59,14 @@ public class FlowNodeGroup {
     }
 
     /**
+     * @return
+     */
+    public boolean allowFinish() {
+        FlowNode node = getApprovalNode();
+        return node != null && node.allowFinish();
+    }
+
+    /**
      * @param operator
      * @param recordId
      * @param selectUsers

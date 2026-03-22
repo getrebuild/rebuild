@@ -222,6 +222,7 @@ class SimpleNode extends NodeSpec {
       if (data.allowReferral) descs.push($L('允许转审'))
       if (data.allowCountersign) descs.push($L('允许加签'))
       // if (data.allowBatch) descs.push($L('允许批量'))
+      if (data.allowFinish) descs.push($L('允许结束'))
       descs.push(data.signMode === 'AND' ? $L('会签') : data.signMode === 'ALL' ? $L('依次审批') : $L('或签'))
       if (data.expiresAuto && ~~data.expiresAuto.expiresAuto > 0) descs.push($L('限时审批'))
       if (~~data.editableMode > 0 || (data.editableFields || []).length > 0) descs.push($L('记录可修改'))
@@ -676,7 +677,7 @@ class ApproverNodeConfig extends StartNodeConfig {
             <label className="custom-control custom-control-sm custom-checkbox mb-2">
               <input className="custom-control-input" type="checkbox" name="allowReferral" checked={this.state.allowReferral === true} onChange={this.handleChange} />
               <span className="custom-control-label">
-                {$L('允许审批人转审')} <sup className="rbv" />
+                {$L('允许转审')} <sup className="rbv" />
               </span>
             </label>
           </div>
@@ -684,7 +685,15 @@ class ApproverNodeConfig extends StartNodeConfig {
             <label className="custom-control custom-control-sm custom-checkbox mb-2">
               <input className="custom-control-input" type="checkbox" name="allowCountersign" checked={this.state.allowCountersign === true} onChange={this.handleChange} />
               <span className="custom-control-label">
-                {$L('允许审批人加签')} <sup className="rbv" />
+                {$L('允许加签')} <sup className="rbv" />
+              </span>
+            </label>
+          </div>
+          <div className="form-group mb-0">
+            <label className="custom-control custom-control-sm custom-checkbox mb-2">
+              <input className="custom-control-input" type="checkbox" name="allowFinish" checked={this.state.allowFinish === true} onChange={this.handleChange} />
+              <span className="custom-control-label">
+                {$L('允许提前结束整个流程')} <sup className="rbv" />
               </span>
             </label>
           </div>
@@ -966,6 +975,7 @@ class ApproverNodeConfig extends StartNodeConfig {
       editableFields: editableFields,
       allowReferral: this.state.allowReferral,
       allowCountersign: this.state.allowCountersign,
+      allowFinish: this.state.allowFinish,
       allowBatch: this.state.allowBatch,
       expiresAuto: expiresAuto,
       remarkReq: this.state.remarkReq || 0,
@@ -977,7 +987,7 @@ class ApproverNodeConfig extends StartNodeConfig {
     }
 
     if (rb.commercial < 1) {
-      if (d.allowReferral || d.allowCountersign || d.allowBatch) {
+      if (d.allowReferral || d.allowCountersign || d.allowFinish || d.allowBatch) {
         RbAlertFree43.create($L('免费版不支持转审/加签/批量审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
         return
       }

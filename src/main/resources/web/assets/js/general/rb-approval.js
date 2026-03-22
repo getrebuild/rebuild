@@ -543,7 +543,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             </div>
           )}
 
-          {(this.state.allowReferral || this.state.allowCountersign) && (
+          {(this.state.allowReferral || this.state.allowCountersign || this.state.allowFinish) && (
             <div className="btn-group btn-space mr-2">
               <button className="btn btn-secondary dropdown-toggle w-auto" data-toggle="dropdown" title={$L('更多操作')}>
                 <i className="icon zmdi zmdi-more-vert" />
@@ -557,6 +557,11 @@ class ApprovalApproveForm extends ApprovalUsersForm {
                 {this.state.allowCountersign && (
                   <a className="dropdown-item" onClick={() => this._handleCountersign()}>
                     <i className="icon mdi mdi-account-multiple-plus-outline" /> {$L('加签')}
+                  </a>
+                )}
+                {this.state.allowFinish && (
+                  <a className="dropdown-item" onClick={() => this.post(110)}>
+                    <i className="icon zmdi zmdi-check" /> {$L('同意并完成')}
                   </a>
                 )}
               </div>
@@ -680,8 +685,14 @@ class ApprovalApproveForm extends ApprovalUsersForm {
                 allowClear: false,
               })
             },
-          }
+          },
         )
+      })
+    } else if (state === 110) {
+      RbAlert.create($L('同意后直接完成，后续步骤将不再处理'), {
+        onConfirm: function () {
+          that._post(state, null, this)
+        },
       })
     } else {
       this._post(state, null)
@@ -690,7 +701,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
 
   _post(state, rejectNode, _alert, weakMode) {
     let aformData = []
-    if ((this.state.aform || this.state.aform_details) && state === 10) {
+    if ((this.state.aform || this.state.aform_details) && (state === 10 || state === 110)) {
       // aformData = this._LiteForm.buildFormData()
       aformData = this._EditableFieldForms.buildFormsData()
       if (aformData === false) return false
@@ -741,7 +752,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         RbHighbar.error(res.error_msg)
       } else {
         _alert && _alert.hide(true)
-        _reloadAndTips(this, state === 10 ? $L('审批已同意') : rejectNode ? $L('审批已退回') : $L('审批已驳回'))
+        _reloadAndTips(this, state === 10 || state === 110 ? $L('审批已同意') : rejectNode ? $L('审批已退回') : $L('审批已驳回'))
         typeof this.props.call === 'function' && this.props.call()
         $storage.set('_listenerStateChanged42', this.props.id)
       }
@@ -767,7 +778,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             }
           })
         }}
-      />
+      />,
     )
   }
 
@@ -791,7 +802,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             }
           })
         }}
-      />
+      />,
     )
   }
 }
@@ -1014,7 +1025,7 @@ class ApprovalStepViewer extends React.Component {
               )}
             </div>
           </div>
-        </li>
+        </li>,
       )
     })
 

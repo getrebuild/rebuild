@@ -29,7 +29,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .quick-filter-pane .col-item {
   margin-top: 10px;
-  margin-right: 10px;
+  margin-right: 15px;
   display: inline-block;
   min-width: 227px;
   position: relative;
@@ -56,9 +56,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .quick-filter-pane .col-item > div .filter-items .col-sm-5.val > label {
   display: block;
-  margin: 0;
-  margin-bottom: 5px;
+  margin: 0 0 5px;
   line-height: 1;
+  color: #222;
 }
 
 .quick-filter-pane .col-item.operating {
@@ -159,8 +159,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .quick-filter-pane .datetime-filter .btn-group .btn + .btn {
-  margin-left: -1px !important;
-  width: 20%;
+  margin-left: 0 !important;
 }
 
 .quick-filter-pane .datetime-filter .val-range,

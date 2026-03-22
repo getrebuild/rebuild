@@ -206,6 +206,7 @@ public class ApprovalController extends BaseController {
         data.put("currentNode", currentFlowNode.getNodeId());
         data.put("allowReferral", currentFlowNode.allowReferral());
         data.put("allowCountersign", currentFlowNode.allowCountersign());
+        data.put("allowFinish", currentFlowNode.allowFinish());
 
         // 0=选填, 1=必填, 2=超时必填, 10=隐藏
         int reqType = currentFlowNode.getDataMap().getIntValue("remarkReq");
@@ -266,8 +267,11 @@ public class ApprovalController extends BaseController {
     @PostMapping("approve")
     public RespBody doApprove(HttpServletRequest request, @IdParam(name = "record") ID recordId) {
         final ID approver = getRequestUser(request);
-        final int state = getIntParameter(request, "state", ApprovalState.REJECTED.getState());
         final String rejectNode = getParameter(request, "rejectNode", null);
+
+        int state = getIntParameter(request, "state", ApprovalState.REJECTED.getState());
+        boolean finish43 = state == 110;
+        if (finish43) state = 10;
 
         JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
         JSONObject selectUsers = post.getJSONObject("selectUsers");
@@ -317,7 +321,8 @@ public class ApprovalController extends BaseController {
 
         try {
             new ApprovalProcessor(recordId).approve(
-                    approver, (ApprovalState) ApprovalState.valueOf(state), new Object[]{remark, remarkAttachments}, selectUsers, addedRecord, useGroup, rejectNode, false);
+                    approver, (ApprovalState) ApprovalState.valueOf(state),
+                    new Object[]{remark, remarkAttachments}, selectUsers, addedRecord, useGroup, rejectNode, false, finish43);
             return RespBody.ok();
 
         } catch (DataSpecificationNoRollbackException ex) {
