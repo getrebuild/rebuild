@@ -90,11 +90,13 @@
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1"></label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">
+                    <span class="adv-options hide">[[${bundle.L('高级选项')}]] <sup class="rbv"></sup></span>
+                  </label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <a href="javascript:;" class="adv-options-btn">[[${bundle.L('展开高级选项')}]] <i class="mdi mdi-chevron-double-down"></i> <sup class="rbv"></sup></a>
                     <div class="adv-options hide">
-                      <div class="mb-2">
+                      <div>
                         <label class="custom-control custom-control-sm custom-checkbox custom-control-inline bosskey-show">
                           <input class="custom-control-input" type="checkbox" id="enabledListEditable" />
                           <span class="custom-control-label">[[${bundle.L('启用列表页单字段编辑')}]] (LAB) <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
@@ -106,21 +108,19 @@
                           <span class="custom-control-label">[[${bundle.L('隐藏详情页侧栏')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
                         </label>
                       </div>
-                      <div class="mt-2">
+                      <div>
                         <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                           <input class="custom-control-input" type="checkbox" id="disabledViewEditable" />
                           <span class="custom-control-label">[[${bundle.L('禁用详情页单字段编辑')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
                         </label>
                       </div>
-                      <th:block th:if="${currentEntity == mainEntity || detailEntity == null}">
-                        <div class="mt-2">
-                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                            <input class="custom-control-input" type="checkbox" id="enableRecordMerger" />
-                            <span class="custom-control-label">[[${bundle.L('启用记录合并功能')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
-                          </label>
-                        </div>
-                      </th:block>
-                      <div class="mt-2">
+                      <div th:if="${currentEntity == mainEntity || detailEntity == null}">
+                        <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                          <input class="custom-control-input" type="checkbox" id="enableRecordMerger" />
+                          <span class="custom-control-label">[[${bundle.L('启用记录合并功能')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
+                        </label>
+                      </div>
+                      <div>
                         <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                           <input class="custom-control-input" type="checkbox" id="repeatFieldsCheckMode" />
                           <span class="custom-control-label">
@@ -136,7 +136,7 @@
                         </label>
                       </div>
                       <th:block th:if="${currentEntity == detailEntity}">
-                        <div class="mt-2">
+                        <div>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" id="detailsGlobalRepeat" />
                             <span class="custom-control-label">
@@ -151,25 +151,25 @@
                             </span>
                           </label>
                         </div>
-                        <div class="mt-2">
+                        <div>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" id="detailsNotEmpty" />
                             <span class="custom-control-label">[[${bundle.L('明细不允许为空')}]]</span>
                           </label>
                         </div>
-                        <div class="mt-2">
+                        <div>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" id="detailsShowAt2" />
                             <span class="custom-control-label">[[${bundle.L('明细显示在详情页下方')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
                           </label>
                         </div>
-                        <div class="mt-2">
+                        <div>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" id="detailsCopiable" />
                             <span class="custom-control-label">[[${bundle.L('明细启用复制功能')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
                           </label>
                         </div>
-                        <div class="mt-3">
+                        <div>
                           <div class="row">
                             <div class="col-5 pr-2">
                               <label class="mb-1">[[${bundle.L('显示位置')}]]</label>

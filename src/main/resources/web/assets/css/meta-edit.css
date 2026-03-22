@@ -214,8 +214,8 @@ input.underline-sm:focus {
   color: #222;
 }
 
-.adv-options .custom-control:last-child {
-  margin-bottom: 0;
+.adv-options .custom-control {
+  margin-bottom: 0.8rem;
 }
 
 div.series-starts {
