@@ -19,6 +19,7 @@ class ProTable extends React.Component {
     super(props)
     this.state = { _counts: {}, _treeState: {} }
     this._extConf40 = _EXTCONFIG[this.props.entity.entity] || {}
+    if (Object.keys(this._extConf40).length) console.log('[ProTable] ExtConfig:', this._extConf40)
   }
 
   render() {
@@ -237,6 +238,7 @@ class ProTable extends React.Component {
       this._countsStateUpdate = true
       this.setState({ _counts }, () => {
         this._countsStateUpdate = false
+        typeof this._extConf40.showCountsCallback === 'function' && this._extConf40.showCountsCallback(_counts)
       })
     }, 400)
   }
