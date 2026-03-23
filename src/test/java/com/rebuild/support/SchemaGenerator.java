@@ -36,20 +36,21 @@ public class SchemaGenerator {
         dialect = new MySQL5Dialect();
         metadataFactory = new ConfigurationMetadataFactory("metadata-conf.xml", dialect);
 
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Please enter the entity code (enter 0 for all) :");
-        if (scanner.hasNext()) {
-            String input = scanner.next();
-            if ("0".equals(input)) {
-                generate();
-            } else if (NumberUtils.isNumber(input)) {
-                generate(NumberUtils.toInt(input));
-            } else {
-                IOUtils.closeQuietly(scanner);
-            }
-        }
+        try (Scanner scanner = new Scanner(System.in)) {
+                    System.out.println("Please enter the entity code (enter 0 for all) :");
+                    if (scanner.hasNext()) {
+                        String input = scanner.next();
+                        if ("0".equals(input)) {
+                            generate();
+                        } else if (NumberUtils.isNumber(input)) {
+                            generate(NumberUtils.toInt(input));
+                        } else {
+                            IOUtils.closeQuietly(scanner);
+                        }
+                    }
 
-        System.exit(0);
+                    System.exit(0);
+        }
     }
 
     /**
