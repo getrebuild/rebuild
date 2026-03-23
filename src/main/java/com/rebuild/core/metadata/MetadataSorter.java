@@ -199,7 +199,8 @@ public class MetadataSorter {
 
         // v3.5 特殊排序
         final String[] specSortsCommon = new String[] {
-                EntityHelper.CreatedBy, EntityHelper.CreatedOn, EntityHelper.ModifiedBy, EntityHelper.ModifiedOn,
+                EntityHelper.CreatedBy, EntityHelper._CreatedDept,
+                EntityHelper.CreatedOn, EntityHelper.ModifiedBy, EntityHelper.ModifiedOn,
                 EntityHelper.OwningUser, EntityHelper.OwningDept
         };
         List<BaseMeta> commonsFields = new ArrayList<>();

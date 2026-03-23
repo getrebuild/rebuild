@@ -19,6 +19,7 @@ class ProTable extends React.Component {
     super(props)
     this.state = { _counts: {}, _treeState: {} }
     this._extConf40 = _EXTCONFIG[this.props.entity.entity] || {}
+    if (Object.keys(this._extConf40).length) console.log('[ProTable] ExtConfig:', this._extConf40)
   }
 
   render() {
@@ -112,10 +113,18 @@ class ProTable extends React.Component {
                 <th className="col-idx" />
                 {formFields.map((item) => {
                   if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
+                  // 未配置不显示
+                  if (typeof this._extConf40.showCounts === 'object') {
+                    if (!this._extConf40.showCounts[item.field]) return <th key={item.field} />
+                  }
 
                   let v = this.state._counts[item.field]
-                  if (item.type === 'DECIMAL') v = $formatNumber(v || 0, 2)
-                  else if (item.type === 'NUMBER') v = $formatNumber(v || 0, 0)
+                  if (item.type === 'DECIMAL') {
+                    let scale = ((item.decimalFormat || '0.00').split('.')[1] || '').length
+                    v = $formatNumber(v || 0, scale)
+                  } else if (item.type === 'NUMBER') {
+                    v = $formatNumber(v || 0, 0)
+                  }
                   return (
                     <th key={item.field} className="text-bold">
                       {v}
@@ -184,13 +193,15 @@ class ProTable extends React.Component {
   _componentDidUpdate() {
     if (!this._extConf40.showCounts || this._countsStateUpdate) return
 
+    const showCounts44 = this._extConf40.showCounts
     // 计算合计
     if (this._countsTimer) clearTimeout(this._countsTimer)
     this._countsTimer = setTimeout(() => {
       const _counts = {}
+      const _avgs = {}
       const inlineForms = this.getInlineForms()
       inlineForms &&
-        inlineForms.forEach((FORM) => {
+        inlineForms.forEach((FORM, idx) => {
           this.state.formFields.forEach((item) => {
             if (item.type === 'NUMBER' || item.type === 'DECIMAL') {
               const c = FORM.getFieldComp(item.field)
@@ -198,16 +209,36 @@ class ProTable extends React.Component {
                 let v = c.getValue()
                 if (!$empty(v)) {
                   v = $cleanNumber(v, true)
-                  _counts[item.field] = (_counts[item.field] || 0) + v
+                  // v4.4
+                  if (typeof showCounts44 === 'object') {
+                    if (showCounts44[item.field] === 'max') {
+                      _counts[item.field] = _counts[item.field] === undefined ? v : Math.max(_counts[item.field], v)
+                    } else if (showCounts44[item.field] === 'min') {
+                      _counts[item.field] = _counts[item.field] === undefined ? v : Math.min(_counts[item.field], v)
+                    } else {
+                      _counts[item.field] = (_counts[item.field] || 0) + v
+
+                      if (showCounts44[item.field] === 'avg') {
+                        _avgs[item.field] = (_avgs[item.field] || 0) + 1
+                      }
+                    }
+                  } else if (showCounts44 === true) {
+                    _counts[item.field] = (_counts[item.field] || 0) + v
+                  }
                 }
               }
             }
           })
         })
 
+      for (let k in _avgs) {
+        _counts[k] = _counts[k] / _avgs[k]
+      }
+
       this._countsStateUpdate = true
       this.setState({ _counts }, () => {
         this._countsStateUpdate = false
+        typeof this._extConf40.showCountsCallback === 'function' && this._extConf40.showCountsCallback(_counts)
       })
     }, 400)
   }
@@ -514,27 +545,6 @@ class ProTable extends React.Component {
     }
     return <ProTable {...rest} />
   }
-
-  // Remove from v4.2
-  // /**
-  //  * 记录转换-明细导入
-  //  * @param {*} transid
-  //  * @param {*} formObject
-  //  * @param {*} cb
-  //  * @returns
-  //  */
-  // static detailImports(transid, formObject, cb) {
-  //   const formData = formObject.getFormData()
-  //   const mainid = formObject.props.id || null
-  //   $.post(`/app/entity/extras/detail-imports?transid=${transid}&mainid=${mainid}`, JSON.stringify(formData), (res) => {
-  //     if (res.error_code === 0) {
-  //       if ((res.data || []).length === 0) RbHighbar.create($L('没有可导入的明细记录'))
-  //       else typeof cb === 'function' && cb(res.data)
-  //     } else {
-  //       RbHighbar.error(res.error_msg)
-  //     }
-  //   })
-  // }
 }
 
 class InlineForm extends RbForm {

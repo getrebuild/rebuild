@@ -52,7 +52,7 @@ public class ApprovalProcessorTest extends TestSupport {
         processor.submit(null);
 
         // 审批
-        processor.approve(UserService.ADMIN_USER, ApprovalState.APPROVED, null, null, null, null, null, false);
+        processor.approve(UserService.ADMIN_USER, ApprovalState.APPROVED, null, null, null, null, null, false, false);
 
         // 当前节点
         System.out.println("CurrentStep : " + processor.getCurrentStep(null));

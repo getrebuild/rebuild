@@ -24,6 +24,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserFilters;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.general.RecentlyUsedHelper;
 import com.rebuild.core.service.query.ParseHelper;
@@ -55,6 +56,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.rebuild.core.support.general.FieldValueHelper.CURRENT;
+import static com.rebuild.core.support.general.FieldValueHelper.CURRENT2;
 
 /**
  * 引用字段搜索
@@ -67,8 +69,6 @@ import static com.rebuild.core.support.general.FieldValueHelper.CURRENT;
 @RestController
 @RequestMapping({"/commons/search/", "/app/entity/"})
 public class ReferenceSearchController extends EntityController {
-
-    private static final String _SELF = FieldValueHelper.CURRENT2;
 
     // 引用字段-快速搜索
     @RequestMapping({"reference", "quick"})
@@ -192,17 +192,18 @@ public class ReferenceSearchController extends EntityController {
         }
 
         List<Object> result = resultSearch(searchWhere, searchEntity, maxResults);
-        // v35 本人/本部门
-        if ("self".equals(q) || "当前用户".equals(q)) {
-            if (sEntityCode == EntityHelper.User || sEntityCode == EntityHelper.Department) {
-                result.add(JSONUtils.toJSONObject(
-                        new String[]{"id", "text"}, new Object[]{_SELF, Language.L("当前用户/部门")}));
-            }
-        }
-        // v4.2-b3 当前
-        else if (CURRENT.equals(q)) {
+
+        // be:4.3.1
+        if (CURRENT.equals(q) || CURRENT2.equals(q)) {
             result.add(JSONUtils.toJSONObject(
                     new String[]{"id", "text"}, new Object[]{CURRENT, CURRENT}));
+        } else if (("self".equals(q) || "当前用户".equals(q) || "当前部门".equals(q))
+                && (sEntityCode == EntityHelper.User || sEntityCode == EntityHelper.Department)) {
+            result.add(JSONUtils.toJSONObject(
+                    new String[]{"id", "text"}, new Object[]{CURRENT2, Language.L("当前用户/部门")}));
+        } else if (("system".equals(q) || "系统用户".equals(q)) && sEntityCode == EntityHelper.User) {
+            result.add(JSONUtils.toJSONObject(
+                    new String[]{"id", "text"}, new Object[]{UserService.SYSTEM_USER, Language.L("系统用户")}));
         }
 
         return (JSON) JSON.toJSON(result);
@@ -307,8 +308,8 @@ public class ReferenceSearchController extends EntityController {
         Map<String, String> labels = new HashMap<>();
         for (String id : ids.split("[|,]")) {
             if (!ID.isId(id)) {
-                if (_SELF.equals(id)) labels.put(_SELF, Language.L("当前用户/部门"));
-                if (CURRENT.equals(id)) labels.put(CURRENT, CURRENT);
+                if (CURRENT2.equals(id)) labels.put(CURRENT2, Language.L("当前用户/部门"));
+                else if (CURRENT.equals(id)) labels.put(CURRENT, CURRENT);
                 continue;
             }
 

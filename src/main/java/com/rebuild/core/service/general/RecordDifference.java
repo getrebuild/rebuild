@@ -139,6 +139,7 @@ public class RecordDifference {
                 || EntityHelper.ModifiedBy.equalsIgnoreCase(fieldName)
                 || EntityHelper.CreatedOn.equalsIgnoreCase(fieldName)
                 || EntityHelper.CreatedBy.equalsIgnoreCase(fieldName)
+                || EntityHelper._CreatedDept.equalsIgnoreCase(fieldName)
                 || EntityHelper.QuickCode.equalsIgnoreCase((fieldName))
                 || field.getType() == FieldType.PRIMARY
                 || MetadataHelper.isApprovalField(fieldName);

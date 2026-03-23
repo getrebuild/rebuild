@@ -144,6 +144,11 @@ public class EasyFieldConfigProps {
     public static final String CLASSIFICATION_LEVEL = "classificationLevel";
 
     /**
+     * 分类使用短名称
+     */
+    public static final String CLASSIFICATION_SHORTNAME = "classificationShortName";
+
+    /**
      * 使用哪个状态类
      */
     public static final String STATE_CLASS = "stateClass";

@@ -15,10 +15,11 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.record.FieldValueException;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.general.AutoFillinManager;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.privileges.bizz.Department;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -254,13 +255,14 @@ public class EntityHelper {
      */
     public static void bindCommonsFieldsValue(Record r, boolean isNew) {
         final Date now = CalendarUtils.now();
+        final ID user = r.getEditor();
         final Entity entity = r.getEntity();
 
         if (entity.containsField(EntityHelper.ModifiedOn)) {
             r.setDate(EntityHelper.ModifiedOn, now);
         }
         if (entity.containsField(EntityHelper.ModifiedBy)) {
-            r.setID(EntityHelper.ModifiedBy, r.getEditor());
+            r.setID(EntityHelper.ModifiedBy, user);
         }
 
         if (isNew) {
@@ -268,18 +270,20 @@ public class EntityHelper {
                 r.setDate(EntityHelper.CreatedOn, now);
             }
             if (entity.containsField(EntityHelper.CreatedBy)) {
-                r.setID(EntityHelper.CreatedBy, r.getEditor());
+                r.setID(EntityHelper.CreatedBy, user);
+            }
+            if (entity.containsField(EntityHelper._CreatedDept)) {
+                Department d = UserHelper.getDepartment(user);
+                if (d == null) throw new PrivilegesException("No dept found by user : " + user);
+                r.setID(EntityHelper._CreatedDept, (ID) d.getIdentity());
             }
             if (entity.containsField(EntityHelper.OwningUser)) {
-                r.setID(EntityHelper.OwningUser, r.getEditor());
+                r.setID(EntityHelper.OwningUser, user);
             }
             if (entity.containsField(EntityHelper.OwningDept)) {
-                com.rebuild.core.privileges.bizz.User user = r.getEditor() == null
-                        ? null : Application.getUserStore().getUser(r.getEditor());
-                if (user == null || user.getOwningDept() == null) {
-                    throw new PrivilegesException("Bad member! No dept found in user : " + r.getEditor());
-                }
-                r.setID(EntityHelper.OwningDept, (ID) user.getOwningDept().getIdentity());
+                Department d = UserHelper.getDepartment(user);
+                if (d == null) throw new PrivilegesException("No dept found by user : " + user);
+                r.setID(EntityHelper.OwningDept, (ID) d.getIdentity());
             }
         }
     }
@@ -311,6 +315,7 @@ public class EntityHelper {
 
     public static final String CreatedOn = "createdOn";
     public static final String CreatedBy = "createdBy";
+    public static final String _CreatedDept = "createdDept";
     public static final String ModifiedOn = "modifiedOn";
     public static final String ModifiedBy = "modifiedBy";
     public static final String OwningUser = "owningUser";

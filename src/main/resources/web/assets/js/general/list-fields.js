@@ -29,6 +29,11 @@ $(document).ready(() => {
     _fieldCached = [..._data.fieldList, ..._data.configList]
 
     $logRBAPI(cfgid, 'ListFields')
+    let listFieldsBody = {
+      fields: [],
+      entity: _data.entity,
+      nameField: _data.nameField,
+    }
 
     $(_data.fieldList).each(function () {
       // eslint-disable-next-line no-undef
@@ -41,7 +46,10 @@ $(document).ready(() => {
       _configLabels[fkey] = this.label2
       _configWidths[fkey] = this.width
       _configSorts[fkey] = this.sort
+
+      listFieldsBody.fields.push(this)
     })
+    $logRBAPI(JSON.stringify(listFieldsBody), 'ListFieldsBody')
 
     _refreshConfigStar()
 
@@ -129,7 +137,7 @@ $(document).ready(() => {
           $('.sortable-box').perfectScrollbar('update')
         },
         200,
-        'sortable-box'
+        'sortable-box',
       )
     })
 
@@ -178,7 +186,7 @@ render_item_after = function ($item) {
         />,
         function () {
           ShowStyles_Comps[fkey] = this
-        }
+        },
       )
     }
   })
@@ -246,7 +254,7 @@ class ShowStyles2 extends ShowStyles {
             that._width = v
           },
           200,
-          'bslider-change'
+          'bslider-change',
         )
       })
 

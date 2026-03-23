@@ -20,13 +20,16 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.ShortUrls;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.LocationUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import org.apache.commons.io.FileUtils;
@@ -60,7 +63,8 @@ public class FileShareController extends BaseController {
     @GetMapping("/filex/make-url")
     public JSON makeUrl(HttpServletRequest request) {
         String fileUrl = getParameterNotNull(request, "url");
-        return JSONUtils.toJSONObject("publicUrl", makePublicUrl(fileUrl));
+        String fromHost = CommonsUtils.getHost(request.getHeader("referer"));
+        return JSONUtils.toJSONObject("publicUrl", makePublicUrl(fileUrl, fromHost));
     }
 
     // URL for share
@@ -163,7 +167,7 @@ public class FileShareController extends BaseController {
             return null;
         }
 
-        String publicUrl = makePublicUrl(fileUrl);
+        String publicUrl = makePublicUrl(fileUrl, null);
         return createModelAndView("/common/shared-file", Collections.singletonMap("publicUrl", publicUrl));
     }
 
@@ -215,9 +219,12 @@ public class FileShareController extends BaseController {
     }
 
     /**
+     * @param fileUrl
+     * @param checkIfLocal
+     * @return
      * @see FileDownloader#download(HttpServletRequest, HttpServletResponse)
      */
-    private String makePublicUrl(String fileUrl) {
+    String makePublicUrl(String fileUrl, String checkIfLocal) {
         String publicUrl;
         if (QiniuCloud.instance().available()) {
             publicUrl = QiniuCloud.instance().makeUrl(fileUrl, 15 * 60);
@@ -227,6 +234,13 @@ public class FileShareController extends BaseController {
 
             publicUrl = "filex/access/" + fileUrl + "?e=" + e;
             publicUrl = RebuildConfiguration.getHomeUrl(publicUrl);
+
+            if (checkIfLocal != null && LocationUtils.isPrivate(checkIfLocal)) {
+                String localUrl = CommandArgs.getString(CommandArgs._HomeURLLocal);
+                if (localUrl != null) {
+                    publicUrl = publicUrl.replace(RebuildConfiguration.getHomeUrl(), localUrl);
+                }
+            }
         }
         return publicUrl;
     }

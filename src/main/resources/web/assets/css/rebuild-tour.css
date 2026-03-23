@@ -251,3 +251,7 @@ body.rebuild-guide-body .rebuild-guide-progress {
 .rebuild-guide a.open-new:hover {
   text-decoration: underline;
 }
+
+.introjs-arrow {
+    border-width: 6px;
+}
