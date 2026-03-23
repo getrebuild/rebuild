@@ -25,6 +25,7 @@ import com.rebuild.core.service.dashboard.charts.builtin.DataList;
 import com.rebuild.core.service.dashboard.charts.builtin.EmbedFrame;
 import com.rebuild.core.service.dashboard.charts.builtin.HeadingText;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -129,6 +130,10 @@ public class ChartManager implements ConfigManager {
             charts.add(JSONUtils.toJSONObject(
                     new String[]{"id", "title", "type", "entityLabel", "isManageable"}, c));
         }
+
+        // v4.4
+        CommonsUtils.sortChinese(charts, o -> ((JSONObject) o).getString("title"));
+
         return charts;
     }
 

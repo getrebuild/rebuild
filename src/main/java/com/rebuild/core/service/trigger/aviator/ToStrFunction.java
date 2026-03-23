@@ -59,7 +59,14 @@ public class ToStrFunction extends AbstractFunction {
             o = ((AviatorObject) o).getValue(Env.EMPTY_ENV);
             if (o == null) return null;
             return toStringValue(o);
+        } else if (o instanceof Object[]) {
+            List<String> s = new ArrayList<>();
+            for (Object item : (Object[]) o) {
+                s.add(toStringValue(item));
+            }
+            return JSON.toJSONString(s);
         }
+
         return AviatorUtils.toStringValue(o);
     }
 

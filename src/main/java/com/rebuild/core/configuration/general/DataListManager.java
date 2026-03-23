@@ -79,23 +79,23 @@ public class DataListManager extends BaseLayoutManager {
     /**
      * @param entity
      * @param user
-     * @param useSysFlag 优先使用系统指定的 `SYS XXX` or ID
+     * @param specPriority 优先使用系统指定的 `SYS XXX` or ID
      * @return
      */
-    public JSON getListFields(String entity, ID user, String useSysFlag) {
-        return getListFields(entity, user, Boolean.TRUE, useSysFlag);
+    public JSON getListFields(String entity, ID user, String specPriority) {
+        return getListFields(entity, user, Boolean.TRUE, specPriority);
     }
 
     /**
      * @param entity
      * @param user
      * @param filterNoPriviFields 过滤无读取权限的字段
-     * @param useSysFlag
+     * @param specPriority
      * @return
      * @see #formatListFields(String, ID, boolean, ConfigBean)
      */
-    protected JSON getListFields(String entity, ID user, boolean filterNoPriviFields, String useSysFlag) {
-        ConfigBean cb = getLayoutOfDatalist(user, entity, useSysFlag);
+    protected JSON getListFields(String entity, ID user, boolean filterNoPriviFields, String specPriority) {
+        ConfigBean cb = getLayoutOfDatalist(user, entity, specPriority);
         JSONObject config = (JSONObject) formatListFields(entity, user, filterNoPriviFields, cb);
         JSONArray fields = config.getJSONArray("fields");
 
@@ -382,12 +382,16 @@ public class DataListManager extends BaseLayoutManager {
         }
 
         // v4.0-b3
-        String tgf = entityEasy.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE2_ENABLETREEGROUPFIELD);
-        if (StringUtils.isNotBlank(tgf)) {
+        String treeGroupField = entityEasy.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE2_ENABLETREEGROUPFIELD);
+        if (StringUtils.isNotBlank(treeGroupField)) {
             showFieldsConf = new JSONArray();
-            showFieldsConf.add(tgf);
+            showFieldsConf.add(treeGroupField);
             JSONObject res = (JSONObject) formatShowFields(entity, showFieldsConf);
-            res.put("treeGroupField", tgf);
+
+            res.put("treeGroupField", treeGroupField);
+            // TODO 父级字段
+            res.put("treeGroupFieldParent",
+                    entityEasy.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE2_ENABLETREEPARENTFIELD));
             return res;
         }
 

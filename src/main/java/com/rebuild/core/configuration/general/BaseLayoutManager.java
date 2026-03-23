@@ -71,8 +71,8 @@ public class BaseLayoutManager extends ShareToManager {
      * @param entity
      * @return
      */
-    public ConfigBean getLayoutOfDatalist(ID user, String entity, String useSysFlag) {
-        return getLayout(user, entity, TYPE_DATALIST, useSysFlag);
+    public ConfigBean getLayoutOfDatalist(ID user, String entity, String specPriority) {
+        return getLayout(user, entity, TYPE_DATALIST, specPriority);
     }
 
     /**
@@ -87,10 +87,10 @@ public class BaseLayoutManager extends ShareToManager {
      * @param user
      * @param belongEntity
      * @param applyType
-     * @param useSysFlag
+     * @param specPriority
      * @return
      */
-    protected ConfigBean getLayout(ID user, String belongEntity, String applyType, String useSysFlag) {
+    protected ConfigBean getLayout(ID user, String belongEntity, String applyType, String specPriority) {
         // 221125 无权限不允许使用自有配置
         boolean firstUseSelf = true;
         if (TYPE_NAV.equals(applyType)) {
@@ -99,9 +99,9 @@ public class BaseLayoutManager extends ShareToManager {
             firstUseSelf = Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomDataList);
         }
 
-        ID detected = detectUseConfig(user, belongEntity, applyType, firstUseSelf, useSysFlag);
+        ID detected = detectUseConfig(user, belongEntity, applyType, firstUseSelf, specPriority);
         // 无指定则使用默认
-        if (detected == null && useSysFlag != null) {
+        if (detected == null && specPriority != null) {
             detected = detectUseConfig(user, belongEntity, applyType, firstUseSelf, null);
         }
         if (detected == null) return null;

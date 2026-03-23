@@ -96,7 +96,8 @@ public class EntityRecordCreator extends JsonRecordCreator {
 
         String n = field.getName();
         return !(EntityHelper.OwningUser.equalsIgnoreCase(n) || EntityHelper.OwningDept.equalsIgnoreCase(n)
-                || EntityHelper.CreatedBy.equalsIgnoreCase(n) || EntityHelper.CreatedOn.equalsIgnoreCase(n));
+                || EntityHelper.CreatedBy.equalsIgnoreCase(n) || EntityHelper.CreatedOn.equalsIgnoreCase(n)
+                || EntityHelper._CreatedDept.equalsIgnoreCase(n));
     }
 
     @Override

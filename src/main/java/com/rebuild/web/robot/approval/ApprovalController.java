@@ -206,6 +206,7 @@ public class ApprovalController extends BaseController {
         data.put("currentNode", currentFlowNode.getNodeId());
         data.put("allowReferral", currentFlowNode.allowReferral());
         data.put("allowCountersign", currentFlowNode.allowCountersign());
+        data.put("allowFinish", currentFlowNode.allowFinish());
 
         // 0=选填, 1=必填, 2=超时必填, 10=隐藏
         int reqType = currentFlowNode.getDataMap().getIntValue("remarkReq");
@@ -266,8 +267,11 @@ public class ApprovalController extends BaseController {
     @PostMapping("approve")
     public RespBody doApprove(HttpServletRequest request, @IdParam(name = "record") ID recordId) {
         final ID approver = getRequestUser(request);
-        final int state = getIntParameter(request, "state", ApprovalState.REJECTED.getState());
         final String rejectNode = getParameter(request, "rejectNode", null);
+
+        int state = getIntParameter(request, "state", ApprovalState.REJECTED.getState());
+        boolean finish43 = state == 110;
+        if (finish43) state = 10;
 
         JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
         JSONObject selectUsers = post.getJSONObject("selectUsers");
@@ -282,33 +286,43 @@ public class ApprovalController extends BaseController {
         final ID weakMode = getIdParameter(request, "weakMode");
         if (CollectionUtils.isNotEmpty(aformData)) {
             List<Record> details = new ArrayList<>();
+            boolean changed = false;
             try {
                 for (Object o : aformData) {
-                    Record a = EntityHelper.parse((JSONObject) o, approver);
-                    if (a.getEntity().getEntityCode().equals(recordId.getEntityCode())) addedRecord = a;
-                    else details.add(a);
+                    JSONObject aform = (JSONObject) o;
+                    if (aform.size() > 1) {
+                        Record a = EntityHelper.parse((JSONObject) o, approver);
+                        if (a.getEntity().getEntityCode().equals(recordId.getEntityCode())) addedRecord = a;
+                        else details.add(a);
+                        changed = true;
+                    }
                 }
 
-                if (addedRecord == null) addedRecord = EntityHelper.forUpdate(recordId, approver);
-                if (!details.isEmpty()) addedRecord.setObjectValue(GeneralEntityService.HAS_DETAILS, details);
+                if (changed) {
+                    if (addedRecord == null) addedRecord = EntityHelper.forUpdate(recordId, approver);
+                    if (!details.isEmpty()) addedRecord.setObjectValue(GeneralEntityService.HAS_DETAILS, details);
+                }
 
             } catch (DataSpecificationException known) {
                 log.warn(">>>>> {}", known.getLocalizedMessage());
                 return RespBody.error(known.getLocalizedMessage());
             }
 
-            // fix:4.1.8 主+明细
-            boolean checkRepeated = checkRepeated418(addedRecord);
-            if (checkRepeated) return RespBody.errorl("存在重复记录");
-            checkRepeated = checkRepeated418(details.toArray(new Record[0]));
-            if (checkRepeated) return RespBody.errorl("存在重复记录");
+            if (addedRecord != null) {
+                // fix:4.1.8 主+明细
+                boolean checkRepeated = checkRepeated418(addedRecord);
+                if (checkRepeated) return RespBody.errorl("存在重复记录");
+                checkRepeated = checkRepeated418(details.toArray(new Record[0]));
+                if (checkRepeated) return RespBody.errorl("存在重复记录");
 
-            if (weakMode != null) RbvFunction.call().setWeakMode(weakMode);
+                if (weakMode != null) RbvFunction.call().setWeakMode(weakMode);
+            }
         }
 
         try {
             new ApprovalProcessor(recordId).approve(
-                    approver, (ApprovalState) ApprovalState.valueOf(state), new Object[]{remark, remarkAttachments}, selectUsers, addedRecord, useGroup, rejectNode, false);
+                    approver, (ApprovalState) ApprovalState.valueOf(state),
+                    new Object[]{remark, remarkAttachments}, selectUsers, addedRecord, useGroup, rejectNode, false, finish43);
             return RespBody.ok();
 
         } catch (DataSpecificationNoRollbackException ex) {
