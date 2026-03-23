@@ -53,6 +53,10 @@ public class CommandArgs {
     public static final String _DisNotificationTasks = "_DisNotificationTasks";
     public static final String _WxworkMessageDistributorMd = "_WxworkMessageDistributorMd";
 
+    // v4.3.1
+    public static final String _HomeURLLocal = "_HomeURLLocal";
+    public static final String _CreatedDept = "_CreatedDept";
+
     /**
      * 内部消息同步发送短信
      */

@@ -579,6 +579,7 @@ public class FormsBuilder extends FormsManager {
                             field.put("value", FieldValueHelper.wrapMixValue(formUser.getId(), formUser.getFullName()));
                             break;
                         case EntityHelper.OwningDept:
+                        case EntityHelper._CreatedDept:
                             Department dept = formUser.getOwningDept();
                             Assert.notNull(dept, "Department of user is unset : " + formUser.getId());
                             field.put("value", FieldValueHelper.wrapMixValue((ID) dept.getIdentity(), dept.getName()));

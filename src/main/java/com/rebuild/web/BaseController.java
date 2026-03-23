@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -22,6 +23,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -63,17 +65,18 @@ public abstract class BaseController extends Controller {
 
         int b64 = getIntParameter(request, "b64", 0);
         if (b64 > 0) {
-            byte[] bs = Base64.decodeBase64(d);
-            d = new String(bs);
+            byte[] bs = Base64.decodeBase64(d.getBytes(StandardCharsets.UTF_8));
+            d = new String(bs, StandardCharsets.UTF_8);
 
             // 2次编码
             if (b64 > 1) {
-                bs = Base64.decodeBase64(d);
-                d = new String(bs);
+                bs = Base64.decodeBase64(d.getBytes(StandardCharsets.UTF_8));
+                d = new String(bs, StandardCharsets.UTF_8);
+
                 // 最多支持3次编码
                 if (b64 > 2) {
-                    bs = Base64.decodeBase64(d);
-                    d = new String(bs);
+                    bs = Base64.decodeBase64(d.getBytes(StandardCharsets.UTF_8));
+                    d = new String(bs, StandardCharsets.UTF_8);
                 }
             }
         }

@@ -191,6 +191,24 @@ public class Field2SchemaFixer extends Field2Schema {
     }
 
     /**
+     * @param entity
+     * @param refreshMeta
+     * @return
+     */
+    public boolean addCreatedDeptField(Entity entity, boolean refreshMeta) {
+        if (entity.containsField(EntityHelper._CreatedDept)) return false;
+
+        Field cdField = createUnsafeField(entity, EntityHelper._CreatedDept, "创建部门", DisplayType.REFERENCE,
+                false, false, false, true, true, null, "Department", null, null, null);
+        schema2Database(entity, new Field[]{cdField});
+
+        if (refreshMeta) {
+            MetadataHelper.getMetadataFactory().refresh();
+        }
+        return true;
+    }
+
+    /**
      * 修改数据库行
      *
      * @param field

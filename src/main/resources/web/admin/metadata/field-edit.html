@@ -285,6 +285,15 @@
                       </select>
                     </div>
                   </div>
+                  <div class="form-group row J_for-CLASSIFICATION">
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('显示短名称')}]]</label>
+                    <div class="col-md-12 col-xl-6 col-lg-8" style="padding-top: 6px">
+                      <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                        <input class="custom-control-input" type="checkbox" id="classificationShortName" />
+                        <span class="custom-control-label">[[${bundle.L('是')}]]</span>
+                      </label>
+                    </div>
+                  </div>
                 </th:block>
                 <div th:if="${fieldType == 'DECIMAL' or fieldType == 'NUMBER'}" class="form-group row J_for-DECIMAL J_for-NUMBER">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('是否允许负数')}]]</label>

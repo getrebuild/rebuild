@@ -77,11 +77,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "4.3.0";
+    public static final String VER = "4.3.1";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 4030005;
+    public static final int BUILD = 4030106;
 
     static {
         // Driver for DB
@@ -146,7 +146,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                     public void run() {
                         log.warn(RebuildBanner.formatBanner(
                                 "REBUILD IS WAITING FOR INSTALL ...",
-                                "访问以下地址开始安装 REBUILD",
+                                "访问以下地址开始安装 REBUILD :",
                                 BootApplication.getLocalUrl("/setup/install")));
                     }
                 }, 999);

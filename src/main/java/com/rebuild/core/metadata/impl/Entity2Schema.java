@@ -142,6 +142,10 @@ public class Entity2Schema extends Field2Schema {
             createBuiltinField(tempEntity, EntityHelper.CreatedOn, Language.L("创建时间"), DisplayType.DATETIME, null, null, null);
             createBuiltinField(tempEntity, EntityHelper.ModifiedBy, Language.L("修改人"), DisplayType.REFERENCE, null, "User", null);
             createBuiltinField(tempEntity, EntityHelper.ModifiedOn, Language.L("修改时间"), DisplayType.DATETIME, null, null, null);
+            // v4.3
+            if (CommandArgs.getBoolean(CommandArgs._CreatedDept)) {
+                createBuiltinField(tempEntity, EntityHelper._CreatedDept, Language.L("创建部门"), DisplayType.REFERENCE, null, "Department", null);
+            }
 
             // 明细实体关联字段
             // 明细实体无所属用户或部门，使用主实体的

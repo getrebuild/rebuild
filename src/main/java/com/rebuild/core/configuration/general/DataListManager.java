@@ -381,12 +381,16 @@ public class DataListManager extends BaseLayoutManager {
         }
 
         // v4.0-b3
-        String tgf = entityEasy.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE2_ENABLETREEGROUPFIELD);
-        if (StringUtils.isNotBlank(tgf)) {
+        String treeGroupField = entityEasy.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE2_ENABLETREEGROUPFIELD);
+        if (StringUtils.isNotBlank(treeGroupField)) {
             showFieldsConf = new JSONArray();
-            showFieldsConf.add(tgf);
+            showFieldsConf.add(treeGroupField);
             JSONObject res = (JSONObject) formatShowFields(entity, showFieldsConf);
-            res.put("treeGroupField", tgf);
+
+            res.put("treeGroupField", treeGroupField);
+            // TODO 父级字段
+            res.put("treeGroupFieldParent",
+                    entityEasy.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE2_ENABLETREEPARENTFIELD));
             return res;
         }
 
