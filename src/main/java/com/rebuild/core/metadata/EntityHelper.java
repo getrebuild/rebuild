@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.util.Date;
+import java.util.Set;
 
 /**
  * @author Zhao Fangfang
@@ -109,7 +110,7 @@ public class EntityHelper {
 
         // v3.4 表单后端回填
         if (MetadataHelper.isBusinessEntity(record.getEntity())) {
-            AutoFillinManager.instance.fillinRecord(record, forceFillin);
+            AutoFillinManager.instance.fillinRecord(record, forceFillin, null);
         }
 
         return record;
@@ -309,6 +310,20 @@ public class EntityHelper {
         boolean s = ID.isId(id) && (UNSAVED_ID.equals(id) || id.toString().endsWith(UNSAVED_ID_SUFFIX));
         if (!s) return false;
         return !UserService.SYSTEM_USER.equals(id);
+    }
+
+    /**
+     * 是否未修改
+     *
+     * @param record
+     * @return
+     */
+    public static boolean isUnmodified(Record record) {
+        Set<String> modified = record.getAvailableFields();
+        if (modified.size() > 3) return true;
+
+        // 还有一个是主键字段
+        return !(modified.contains(EntityHelper.ModifiedOn) && modified.contains(EntityHelper.ModifiedBy));
     }
     
     // 公共字段/保留字段

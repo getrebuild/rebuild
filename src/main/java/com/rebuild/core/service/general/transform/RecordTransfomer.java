@@ -333,9 +333,12 @@ public class RecordTransfomer extends SetUser {
 
         // 所属用户
         ID specOwningUser = null;
+        // 目标字段
+        List<String> targetFields = new  ArrayList<>();
 
         for (Map.Entry<String, Object> e : fieldsMapping.entrySet()) {
             final String targetField = e.getKey();
+            targetFields.add(targetField);
 
             if (e.getValue() == null) {
                 if (forceNullValue) targetRecord.setNull(targetField);
@@ -413,9 +416,11 @@ public class RecordTransfomer extends SetUser {
                     (ID) Application.getUserStore().getUser(specOwningUser).getOwningDept().getIdentity());
         }
 
-        if (checkNullable) {
-            AutoFillinManager.instance.fillinRecord(targetRecord);
+        // fix:4.3.2 都执行
+        // 配置了转换的字段会忽略，同时后端启用的才有效
+        AutoFillinManager.instance.fillinRecord(targetRecord, true, targetFields);
 
+        if (checkNullable) {
             // v4.2 用户密码特殊处理
             if (targetEntity.getEntityCode() == EntityHelper.User && !targetRecord.hasValue("password")) {
                 targetRecord.setString("password", CommonsUtils.randomHex().substring(0, 6) + "rB!8");

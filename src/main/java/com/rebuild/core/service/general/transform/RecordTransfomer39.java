@@ -16,7 +16,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigurationException;
-import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.configuration.general.FormsBuilderContextHolder;
 import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.EntityHelper;
@@ -142,8 +141,6 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
 
         if (targetExistsRecordId != null) {
             this.mergeExistsAndTarget(tansTargetRecord);
-            // 此处强制回填，因为编辑时前端不会回填
-            AutoFillinManager.instance.fillinRecord(tansTargetRecord, true);
         }
 
         this.previewRecords.add(tansTargetRecord);
