@@ -69,7 +69,7 @@ public class AutoFillinManagerTest extends TestSupport {
                     .add("TestAllFieldsName", "TestAllFieldsName")
                     .add(setField, recordId)
                     .build(UserService.SYSTEM_USER);
-            AutoFillinManager.instance.fillinRecord(test2, true);
+            AutoFillinManager.instance.fillinRecord(test2, true, null);
             System.out.println(test2);
 
         } finally {

@@ -798,7 +798,7 @@ class LiteFormModal extends RbModalHandler {
       // 修订
       fields.forEach((item) => {
         let field = { nullable: true, type: 'TEXT', colspan: 4 }
-        if (typeof F === 'string') {
+        if (typeof item === 'string') {
           field = { ...field, field: item, label: item }
         } else {
           field = { ...field, ...item }

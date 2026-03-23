@@ -31,6 +31,7 @@ import com.rebuild.core.support.general.CalcFormulaSupport;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -73,10 +74,10 @@ public class AutoFillinManager implements ConfigManager {
      *
      * @param field
      * @param sourceId
-     * @param formData
+     * @param formdataOrRecord 前端传来的表单数据或后端的 Record
      * @return
      */
-    public JSONArray getFillinValue(Field field, ID sourceId, JSONObject formData) {
+    public JSONArray getFillinValue(Field field, ID sourceId, Object formdataOrRecord) {
         final EasyField easyField = EasyMetaFactory.valueOf(field);
 
         // 内置字段无配置
@@ -170,16 +171,23 @@ public class AutoFillinManager implements ConfigManager {
             String sourceFieldFormula40 = e.getString("sourceFieldFormula");
             if (StringUtils.isNotBlank(sourceFieldFormula40)) {
                 Map<String, Object> varsInFormula = new HashMap<>();
-                if (formData != null) {
-                    formData.remove(EntityRecordCreator.META_FIELD);
-                    JSONObject formDataMain = (JSONObject) formData.remove("$$$main");
-                    // 明细可携带主记录
-                    if (formDataMain != null) {
-                        formDataMain.remove(EntityRecordCreator.META_FIELD);
-                        String dtfName = MetadataHelper.getDetailToMainField(field.getOwnEntity()).getName() + ".";
-                        formDataMain.forEach((k, v) -> varsInFormula.put(dtfName + k, v));
+                if (formdataOrRecord != null) {
+                    JSONObject formdata;
+                    if (formdataOrRecord instanceof Record) {
+                        formdata = (JSONObject) ((Record) formdataOrRecord).serialize();
+                    } else {
+                        formdata = (JSONObject) formdataOrRecord;
                     }
-                    varsInFormula.putAll(formData);
+
+                    formdata.remove(EntityRecordCreator.META_FIELD);
+                    JSONObject formdataMain = (JSONObject) formdata.remove("$$$main");
+                    // 明细可携带主记录
+                    if (formdataMain != null) {
+                        formdataMain.remove(EntityRecordCreator.META_FIELD);
+                        String dtfName = MetadataHelper.getDetailToMainField(field.getOwnEntity()).getName() + ".";
+                        formdataMain.forEach((k, v) -> varsInFormula.put(dtfName + k, v));
+                    }
+                    varsInFormula.putAll(formdata);
                 }
 
                 Object evalVal = CalcFormulaSupport.evalCalcFormula(targetFieldMeta, varsInFormula, sourceFieldFormula40, true);
@@ -236,7 +244,7 @@ public class AutoFillinManager implements ConfigManager {
             ConfigBean clone = e.clone().set("value", value);
             clone.remove("source");
             clone.remove("sourceFieldFormula");
-            clone.remove("fillinBackend");
+            clone.remove("fillinBackend--");  // v4.3.2 不能移除，后台有使用
             fillin.add(clone.toJSON());
         }
         return fillin;
@@ -249,7 +257,7 @@ public class AutoFillinManager implements ConfigManager {
      * @return
      */
     public int fillinRecord(Record record) {
-        return fillinRecord(record, false);
+        return fillinRecord(record, false, null);
     }
 
     /**
@@ -257,9 +265,10 @@ public class AutoFillinManager implements ConfigManager {
      *
      * @param record
      * @param fillinForce 是否强制（无视配置），请谨慎使用!!!
+     * @param ignoreFields v4.3.2 忽略回填的字段
      * @return
      */
-    public int fillinRecord(Record record, boolean fillinForce) {
+    public int fillinRecord(Record record, boolean fillinForce, List<String> ignoreFields) {
         final Entity entity = record.getEntity();
         final boolean isNew = record.getPrimary() == null;
 
@@ -270,7 +279,7 @@ public class AutoFillinManager implements ConfigManager {
             EasyField easyField = EasyMetaFactory.valueOf(entity.getField(fieldName));
             if (easyField.getDisplayType() == DisplayType.REFERENCE) {
                 fillin += fillinRecordItem(
-                        easyField.getRawMeta(), record.getObjectValue(fieldName), isNew, fillinForce, record);
+                        easyField.getRawMeta(), record.getObjectValue(fieldName), isNew, fillinForce, ignoreFields, record);
             }
         }
 
@@ -280,15 +289,29 @@ public class AutoFillinManager implements ConfigManager {
         return fillin;
     }
 
-    private int fillinRecordItem(Field field, Object sourceId, boolean isNew, boolean fillinForce, Record into) {
+    /**
+     * @param field
+     * @param sourceId
+     * @param isNew
+     * @param fillinForce
+     * @param ignoreFields432
+     * @param into
+     * @return
+     */
+    private int fillinRecordItem(Field field, Object sourceId, boolean isNew, boolean fillinForce, List<String> ignoreFields432, Record into) {
         if (NullValue.isNull(sourceId)) return 0;
 
-        JSONArray fillinValue = getFillinValue(field, (ID) sourceId);
+        JSONArray fillinValue = getFillinValue(field, (ID) sourceId, into);
         if (fillinValue.isEmpty()) return 0;
 
         int fillin = 0;
         for (Object o : fillinValue) {
             JSONObject item = (JSONObject) o;
+            String targetFieldName = item.getString("target");
+            if (ignoreFields432 != null && ignoreFields432.contains(targetFieldName)) {
+                continue;
+            }
+
             boolean fillinBackend2 = fillinForce || item.getBooleanValue("fillinBackend");
             if (!fillinBackend2) continue;
 
@@ -300,7 +323,6 @@ public class AutoFillinManager implements ConfigManager {
                 }
             }
 
-            String targetFieldName = item.getString("target");
             boolean fillinForce2 = fillinForce || item.getBooleanValue("fillinForce");
             Object value = conversion2RecordValue(into.getEntity().getField(targetFieldName), item.get("value"));
 
@@ -325,7 +347,7 @@ public class AutoFillinManager implements ConfigManager {
             // 继续回填
             EasyField nextField = EasyMetaFactory.valueOf(field.getOwnEntity().getField(targetFieldName));
             if (nextField.getDisplayType() == DisplayType.REFERENCE) {
-                fillin += fillinRecordItem(nextField.getRawMeta(), value, isNew, fillinForce, into);
+                fillin += fillinRecordItem(nextField.getRawMeta(), value, isNew, fillinForce, ignoreFields432, into);
             }
         }
 
