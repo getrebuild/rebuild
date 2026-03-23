@@ -689,7 +689,7 @@ class ApproverNodeConfig extends StartNodeConfig {
               </span>
             </label>
           </div>
-          <div className="form-group mb-0">
+          <div className="form-group mb-0 bosskey-show">
             <label className="custom-control custom-control-sm custom-checkbox mb-2">
               <input className="custom-control-input" type="checkbox" name="allowFinish" checked={this.state.allowFinish === true} onChange={this.handleChange} />
               <span className="custom-control-label">
