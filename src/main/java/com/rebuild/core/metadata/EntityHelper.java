@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.util.Date;
+import java.util.Set;
 
 /**
  * @author Zhao Fangfang
@@ -309,6 +310,19 @@ public class EntityHelper {
         boolean s = ID.isId(id) && (UNSAVED_ID.equals(id) || id.toString().endsWith(UNSAVED_ID_SUFFIX));
         if (!s) return false;
         return !UserService.SYSTEM_USER.equals(id);
+    }
+
+    /**
+     * 是否未修改
+     *
+     * @param record
+     * @return
+     */
+    public static boolean isUnmodified(Record record) {
+        Set<String> modified = record.getAvailableFields();
+        modified.remove(EntityHelper.ModifiedOn);
+        modified.remove(EntityHelper.ModifiedBy);
+        return modified.isEmpty();
     }
     
     // 公共字段/保留字段
