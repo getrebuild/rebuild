@@ -109,7 +109,7 @@ public class EntityHelper {
 
         // v3.4 表单后端回填
         if (MetadataHelper.isBusinessEntity(record.getEntity())) {
-            AutoFillinManager.instance.fillinRecord(record, forceFillin);
+            AutoFillinManager.instance.fillinRecord(record, forceFillin, null);
         }
 
         return record;
