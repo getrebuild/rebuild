@@ -144,7 +144,7 @@ public class EasyFieldConfigProps {
     public static final String CLASSIFICATION_LEVEL = "classificationLevel";
 
     /**
-     * 分类数据等级
+     * 分类使用短名称
      */
     public static final String CLASSIFICATION_SHORTNAME = "classificationShortName";
 
