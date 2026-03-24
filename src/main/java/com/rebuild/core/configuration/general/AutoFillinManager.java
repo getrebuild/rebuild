@@ -31,7 +31,6 @@ import com.rebuild.core.support.general.CalcFormulaSupport;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -153,6 +152,7 @@ public class AutoFillinManager implements ConfigManager {
         if (sourceRecord == null) return JSONUtils.EMPTY_ARRAY;
 
         JSONArray fillin = new JSONArray();
+        Map<String, Object> varsInFormula = null;  // Keep
         for (ConfigBean e : config) {
             String sourceField = e.getString("source");
             String targetField = e.getString("target");
@@ -169,9 +169,11 @@ public class AutoFillinManager implements ConfigManager {
 
             // v4.3, v4.0 使用公式回填
             String sourceFieldFormula40 = e.getString("sourceFieldFormula");
+            Object formulaEvalValue = null;
             if (StringUtils.isNotBlank(sourceFieldFormula40)) {
-                Map<String, Object> varsInFormula = new HashMap<>();
-                if (formdataOrRecord != null) {
+                if (formdataOrRecord != null && varsInFormula == null) {
+                    varsInFormula = new HashMap<>();
+
                     JSONObject formdata;
                     if (formdataOrRecord instanceof Record) {
                         formdata = (JSONObject) ((Record) formdataOrRecord).serialize();
@@ -185,24 +187,28 @@ public class AutoFillinManager implements ConfigManager {
                     if (formdataMain != null) {
                         formdataMain.remove(EntityRecordCreator.META_FIELD);
                         String dtfName = MetadataHelper.getDetailToMainField(field.getOwnEntity()).getName() + ".";
-                        formdataMain.forEach((k, v) -> varsInFormula.put(dtfName + k, v));
+                        for (Map.Entry<String, Object> item : formdataMain.entrySet()) {
+                            varsInFormula.put(dtfName + item.getKey(), item.getValue());
+                        }
                     }
+
                     varsInFormula.putAll(formdata);
                 }
 
-                Object evalVal = CalcFormulaSupport.evalCalcFormula(targetFieldMeta, varsInFormula, sourceFieldFormula40, true);
-                if (NullValue.isNull(evalVal)) sourceRecord.setNull(sourceField);
-                else sourceRecord.setObjectValue(sourceField, evalVal);
+                formulaEvalValue = CalcFormulaSupport.evalCalcFormula(
+                        targetFieldMeta, varsInFormula, sourceFieldFormula40, true);
             }
 
             Object value = null;
-            if (sourceRecord.hasValue(sourceField, false)) {
+            if (sourceRecord.hasValue(sourceField, false) || formulaEvalValue != null) {
                 Field sourceFieldMeta = MetadataHelper.getLastJoinField(sourceEntity, sourceField);
                 if (StringUtils.isNotBlank(sourceFieldFormula40)) {
                     sourceFieldMeta = targetFieldMeta;
+                    value = formulaEvalValue;
+                } else {
+                    value = sourceRecord.getObjectValue(sourceField);
                 }
 
-                value = sourceRecord.getObjectValue(sourceField);
                 value = conversionCompatibleValue(sourceFieldMeta, targetFieldMeta, value);
             }
 
