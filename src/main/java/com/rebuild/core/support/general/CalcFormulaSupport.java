@@ -15,6 +15,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -143,7 +144,7 @@ public class CalcFormulaSupport {
                     String fieldNameRef = fieldName.substring(0, fieldName.indexOf("."));
                     String fieldNameSub = fieldName.substring(fieldName.indexOf(".") + 1);
                     fieldValue = varsInFormula.get(fieldNameRef);
-                    if (ID.isId(fieldValue)) {
+                    if (ID.isId(fieldValue) && !EntityHelper.isUnsavedId(fieldValue)) {
                         Object[] o = Application.getQueryFactory()
                                 .uniqueNoFilter(ID.valueOf(fieldValue.toString()), fieldNameSub);
                         fieldValue = o == null ? null : o[0];
