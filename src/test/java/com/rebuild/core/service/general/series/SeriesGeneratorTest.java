@@ -40,9 +40,14 @@ class SeriesGeneratorTest extends TestSupport {
     @Test
     void testIncrementVar() {
         IncreasingVar var = new IncreasingVar("0000", getSeriesField(), null);
-        System.out.println(var.generate());
-        System.out.println(var.generate());
-        System.out.println(var.generate());
+        for (int i = 0; i < 100; i++) {
+            System.out.println(var.generate());
+        }
+
+        IncreasingVar hexVar = new IncreasingVar("AAAA", getSeriesField(), null);
+        for (int i = 0; i < 100; i++) {
+            System.out.println(hexVar.generate());
+        }
     }
 
     @Test
