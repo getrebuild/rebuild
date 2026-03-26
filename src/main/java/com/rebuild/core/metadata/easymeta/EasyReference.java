@@ -72,7 +72,7 @@ public class EasyReference extends EasyField implements MixValue {
         ID currentUser = UserContextHolder.getUser(true);
         if (currentUser == null) return null;
         // v4.2-b3
-        return FieldValueHelper.getCurrentVarValue(getRawMeta(), currentUser);
+        return FieldValueHelper.getValueOfCurrent(getRawMeta(), currentUser);
     }
 
     @Override

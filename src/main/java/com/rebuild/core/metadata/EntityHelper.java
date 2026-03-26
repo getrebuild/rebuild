@@ -320,10 +320,10 @@ public class EntityHelper {
      */
     public static boolean isUnmodified(Record record) {
         Set<String> modified = record.getAvailableFields();
-        if (modified.size() > 3) return true;
+        if (modified.size() > 3) return false;
 
-        // 还有一个是主键字段
-        return !(modified.contains(EntityHelper.ModifiedOn) && modified.contains(EntityHelper.ModifiedBy));
+        // 只包含修改人/时间/主键字段则说明未修改
+        return modified.contains(EntityHelper.ModifiedOn) && modified.contains(EntityHelper.ModifiedBy);
     }
     
     // 公共字段/保留字段
