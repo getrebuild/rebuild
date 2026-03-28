@@ -1219,7 +1219,7 @@ const DEFAULT_MDE_TOOLBAR = (rest) => {
     {
       name: 'guide',
       action: () => window.open('https://getrebuild.com/docs/markdown-guide'),
-      className: 'mdi mdi-help-circle-outline',
+      className: 'mdi mdi-help',
       title: $L('编辑器帮助'),
     },
   ]
