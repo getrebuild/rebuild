@@ -11,11 +11,8 @@
         margin: 0;
         background-color: #fff;
       }
-      .EasyMDEContainer .CodeMirror-fullscreen {
-        top: 38px;
-      }
-      .EasyMDEContainer .CodeMirror {
-        border-bottom: 0 none;
+      .md-content {
+        padding: 10px 15px;
       }
     </style>
   </head>
@@ -23,49 +20,72 @@
     <div id="viewer" style="width: 100%; height: 100%" th:data-fileid="${fileid}">
       <textarea id="editor" class="hide">[[${content}]]</textarea>
     </div>
+    <input type="file" id="_fieldValue__upload" accept="image/*" class="hide" />
+
     <th:block th:replace="~{/_include/footer}" />
     <script type="text/babel">
       let _lastContent = null
       let _EasyMDE
-      let toolbar = DEFAULT_MDE_TOOLBAR({})
-      toolbar = toolbar.filter((i) => {
-        return !(i.name === 'preview' || i.name === 'fullscreen')
-      })
-      toolbar.push({
-        name: 'side-by-side',
-        action: EasyMDE.toggleSideBySide,
-        className: 'mdi mdi-view-agenda-outline mdi-rotate-90 no-disable',
-        title: $L('分屏预览'),
-      })
-      toolbar.push({
-        name: 'save',
-        action: () => {
-          let data = {
-            id: $('#viewer').data('fileid'),
-            content: _EasyMDE.value(),
-          }
 
-          $.post('/commons/md-editor-save', JSON.stringify(data), (res) => {
-            if (res.error_code === 0) {
-              _lastContent = data.content
-              // RbHighbar.success($L('保存成功'))
-            } else {
-              RbHighbar.error(res.error_msg)
+      $(document).ready(() => {
+        $createUploader(document.getElementById('_fieldValue__upload'), null, (res) => {
+          let text = `![](${rb.baseUrl}/filex/img/${res.key})`
+          const pos = _EasyMDE.codemirror.getCursor()
+          _EasyMDE.codemirror.setSelection(pos, pos)
+          _EasyMDE.codemirror.replaceSelection(text)
+        })
+
+        let toolbar = DEFAULT_MDE_TOOLBAR({
+          _fieldValue__upload: document.getElementById('_fieldValue__upload'),
+        })
+        toolbar = toolbar.filter((i) => {
+          return !(i.name === 'preview' || i.name === 'fullscreen')
+        })
+        toolbar.push({
+          name: 'side-by-side',
+          action: EasyMDE.toggleSideBySide,
+          className: 'mdi mdi-view-agenda-outline mdi-rotate-90',
+          title: $L('分屏预览'),
+        })
+        toolbar.push({
+          name: 'save',
+          action: (e) => {
+            const data = {
+              id: $('#viewer').data('fileid'),
+              content: _EasyMDE.value(),
             }
-          })
-        },
-        className: 'zmdi zmdi-save no-disable',
-        title: $L('保存'),
-      })
 
-      _EasyMDE = new EasyMDE({
-        element: document.getElementById('editor'),
-        status: false,
-        autoDownloadFontAwesome: false,
-        spellChecker: false,
-        toolbar: toolbar,
+            const $save = $('.editor-toolbar button.save').attr('disabled', true)
+            if (_lastContent == data.content) {
+              setTimeout(() => $save.attr('disabled', false), 1000)
+              return
+            }
+
+            $.post('/commons/md-editor-save', JSON.stringify(data), (res) => {
+              setTimeout(() => $save.attr('disabled', false), 1000)
+              if (res.error_code === 0) {
+                _lastContent = data.content
+                // RbHighbar.success($L('保存成功'))
+              } else {
+                RbHighbar.error(res.error_msg)
+              }
+            })
+          },
+          className: 'mdi mdi-content-save',
+          title: $L('保存'),
+        })
+
+        _EasyMDE = new EasyMDE({
+          element: document.getElementById('editor'),
+          status: false,
+          spellChecker: false,
+          toolbar: toolbar,
+          previewClass: 'md-content',
+          autoDownloadFontAwesome: false,
+        })
+        _EasyMDE.toggleFullScreen()
+        _lastContent = _EasyMDE.value()
       })
-      _lastContent = _EasyMDE.value()
 
       window.onbeforeunload = function () {
         if (_EasyMDE.value() === _lastContent) return undefined

@@ -393,7 +393,7 @@ function scrollToBottom() {
       el && el.scrollTo(0, el.scrollHeight)
     },
     40,
-    'scrollToBottom'
+    'scrollToBottom',
   )
 }
 
@@ -554,7 +554,7 @@ class ChatSidebar extends React.Component {
             $.post(`/aibot2/post/chat-rename?chatid=${item.chatid}&s=${$encode(s)}`, () => this._loadChatList())
           }
         }}
-      />
+      />,
     )
   }
 

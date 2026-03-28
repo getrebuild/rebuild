@@ -159,8 +159,8 @@ class RbPreview extends React.Component {
       content = <i className="text-muted">{$L('无')}</i>
     } else if (this.state.previewText) {
       content = showMd ? (
-        <div className="md-content p-4">
-          <Md2Html markdown={this.state.previewText} _br43={false} />
+        <div className="p-4 md-content">
+          <Md2Html markdown={this.state.previewText} />
         </div>
       ) : (
         <pre className="mb-0">{this.state.previewText}</pre>

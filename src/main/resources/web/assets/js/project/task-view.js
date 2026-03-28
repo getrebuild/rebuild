@@ -1105,7 +1105,7 @@ class RichTextEditor extends React.Component {
       this.__es.push(
         <a key={`em-${item}`} title={k} onClick={() => this._selectEmoji(k)}>
           <img src={`${rb.baseUrl}/assets/img/emoji/${item}`} alt={k} />
-        </a>
+        </a>,
       )
     }
   }

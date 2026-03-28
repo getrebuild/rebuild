@@ -1147,79 +1147,79 @@ class RecordSelectorModal extends RbAlert {
 }
 
 // ~~ 默认 EasyMDE 工具栏
-const DEFAULT_MDE_TOOLBAR = (c) => {
+const DEFAULT_MDE_TOOLBAR = (rest) => {
   return [
     {
       name: 'bold',
       action: EasyMDE.toggleBold,
-      className: 'zmdi zmdi-format-bold',
+      className: 'mdi mdi-format-bold',
       title: $L('粗体'),
     },
     {
       name: 'italic',
       action: EasyMDE.toggleItalic,
-      className: 'zmdi zmdi-format-italic',
+      className: 'mdi mdi-format-italic',
       title: $L('斜体'),
     },
     {
       name: 'strikethrough',
       action: EasyMDE.toggleStrikethrough,
-      className: 'zmdi zmdi-format-strikethrough',
+      className: 'mdi mdi-format-strikethrough',
       title: $L('删除线'),
     },
     {
       name: 'heading',
       action: EasyMDE.toggleHeadingSmaller,
-      className: 'zmdi zmdi-format-size',
+      className: 'mdi mdi-format-size',
       title: $L('标题'),
     },
     {
       name: 'unordered-list',
       action: EasyMDE.toggleUnorderedList,
-      className: 'zmdi zmdi-format-list-bulleted',
+      className: 'mdi mdi-format-list-bulleted',
       title: $L('列表'),
     },
     {
       name: 'ordered-list',
       action: EasyMDE.toggleOrderedList,
-      className: 'zmdi zmdi-format-list-numbered',
+      className: 'mdi mdi-format-list-numbered',
       title: $L('数字列表'),
     },
     {
       name: 'link',
       action: EasyMDE.drawLink,
-      className: 'zmdi zmdi-link',
+      className: 'mdi mdi-link',
       title: $L('链接'),
     },
     {
       name: 'image',
-      action: () => c && c._fieldValue__upload && c._fieldValue__upload.click(),
-      className: 'zmdi zmdi-image-o',
+      action: () => rest && rest._fieldValue__upload && rest._fieldValue__upload.click(),
+      className: 'mdi mdi-image',
       title: $L('图片'),
     },
     {
       name: 'table',
       action: EasyMDE.drawTable,
-      className: 'zmdi zmdi-border-all',
+      className: 'mdi mdi-border-all',
       title: $L('表格'),
     },
-    '|',
     {
       name: 'preview',
       action: EasyMDE.togglePreview,
-      className: 'zmdi zmdi-eye no-disable',
+      className: 'mdi mdi-eye no-disable',
       title: $L('预览'),
     },
     {
       name: 'fullscreen',
       action: EasyMDE.toggleFullScreen,
-      className: 'zmdi zmdi-fullscreen no-disable',
+      className: 'mdi mdi-fullscreen no-disable',
       title: $L('全屏'),
     },
+    '|',
     {
       name: 'guide',
       action: () => window.open('https://getrebuild.com/docs/markdown-guide'),
-      className: 'zmdi zmdi-help-outline no-disable',
+      className: 'mdi mdi-help-circle-outline',
       title: $L('编辑器帮助'),
     },
   ]
@@ -1248,11 +1248,6 @@ class Md2Html extends React.Component {
     if (this.props.keepHtml === false) {
       md = md.replace(/>/g, '&gt;').replace(/</g, '&lt;')
       md = md.replace(/&gt; /g, '> ')
-    }
-
-    // 替换换行并保持表格换行
-    if (this.props._br43 !== false) {
-      md = md.replace(/(?<!\|)\n(?!\|)/g, '\n\n')
     }
 
     let cHtml = marked.parse(md)
