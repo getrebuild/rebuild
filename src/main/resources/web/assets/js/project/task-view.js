@@ -49,7 +49,7 @@ class TaskForm extends React.Component {
           </div>
           {this.props.editable && this.state.isManageable && (
             <div className="col-2 text-right">
-              <button className="btn btn-secondary" style={{ minWidth: 80, marginTop: 2 }} data-toggle="dropdown">
+              <button className="btn btn-secondary" style={{ minWidth: 80, marginTop: 1 }} data-toggle="dropdown">
                 {$L('操作')} <i className="icon zmdi zmdi-more-vert" />
               </button>
               <div className="dropdown-menu dropdown-menu-right">
