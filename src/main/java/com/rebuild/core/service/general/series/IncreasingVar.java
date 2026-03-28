@@ -34,7 +34,7 @@ public class IncreasingVar extends SeriesVar {
     private static final Map<String, AtomicLong> INCREASINGS = new ConcurrentHashMap<>();
 
     private Field field;
-    private String zeroFlag;
+    private String zeroFlag;  // {0} or {A}
 
     /**
      * @param symbols
@@ -81,7 +81,11 @@ public class IncreasingVar extends SeriesVar {
             long nextValue = incr.incrementAndGet();
             RebuildConfiguration.setCustomValue(nameKey, nextValue, Boolean.TRUE);
 
-            return StringUtils.leftPad(nextValue + "", getSymbols().length(), '0');
+            String nextValueHex = nextValue + "";
+            // v4.3.2 16进制
+            if (getSymbols().contains("A")) nextValueHex = Long.toHexString(nextValue).toUpperCase();
+
+            return StringUtils.leftPad(nextValueHex, getSymbols().length(), '0');
         }
     }
 
@@ -112,8 +116,8 @@ public class IncreasingVar extends SeriesVar {
 
     /**
      * NOTE
-     * 例如有100条记录，序号也为100。
-     * 但是删除了10条后，调用此方法所生产的序号只有 90（直接采用 count 记录数）
+     * 例如有 100 条记录，序号也为 100。
+     * 但是删除了 10 条后，调用此方法所生产的序号只有 90（直接采用 count 记录数）
      *
      * @return
      */

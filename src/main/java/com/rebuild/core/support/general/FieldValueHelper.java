@@ -29,6 +29,7 @@ import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyDate;
 import com.rebuild.core.metadata.easymeta.EasyDecimal;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -84,7 +85,7 @@ public class FieldValueHelper {
     public static final String NO_READ_PRIVILEGES = "$NOPRIVILEGES$";
     /**
      * 当前（BIZZ、DATE）
-     * @see #getCurrentVarValue(Field, ID)
+     * @see #getValueOfCurrent(Field, ID)
      */
     public static final String CURRENT = "{CURRENT}";
     public static final String CURRENT2 = "{@CURRENT}";
@@ -392,45 +393,93 @@ public class FieldValueHelper {
     }
 
     /**
+     * 是否 `{CURRENT}` 变量
+     *
+     * @param name
+     * @return
+     */
+    public static boolean isCurrentVar(String name) {
+        if (StringUtils.isBlank(name)) return false;
+
+        return EasyDate.VAR_NOW.equals(name)
+                || CURRENT.equals(name) || CURRENT2.equals(name)
+                || name.startsWith("{CURRENT.") || name.startsWith("{@CURRENT.");
+    }
+
+    /**
+     * @param field
+     * @param user
+     * @return
+     */
+    public static Object getValueOfCurrent(Field field, ID user) {
+        return getValueOfCurrent(field, user, null);
+    }
+
+    /**
      * 获取 `{CURRENT}` 变量值
      *
      * @param field
      * @param user
-     * @return Returns `Date` or `ID` or `ID[]` or `null`
+     * @return
+     * @see #isCurrentVar(String)
      */
-    public static Object getCurrentVarValue(Field field, ID user) {
-        if (user == null) user = UserContextHolder.getUser();
-
+    public static Object getValueOfCurrent(Field field, ID user, String varName) {
         Type fieldType = field.getType();
         if (fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP || fieldType == FieldType.TIME) {
             return CalendarUtils.now();
-
-        } else {
-            Entity entityOfRef = field.getReferenceEntity();
-            if (entityOfRef != null) {
-                if (entityOfRef.getEntityCode() == EntityHelper.User) {
-                    return user;
-                }
-
-                User u = Application.getUserStore().getUser(user);
-                if (entityOfRef.getEntityCode() == EntityHelper.Department) {
-                    Department d = u.getOwningDept();
-                    return d == null ? null : d.getIdentity();
-                } else if (entityOfRef.getEntityCode() == EntityHelper.Role) {
-                    Role r = u.getOwningRole();
-                    return r == null ? null : r.getIdentity();
-                } else if (entityOfRef.getEntityCode() == EntityHelper.Team) {
-                    // Returns ID[]
-                    List<ID> tt = new ArrayList<>();
-                    for (Team t : u.getOwningTeams()) {
-                        tt.add((ID) t.getIdentity());
-                    }
-                    return tt.isEmpty() ? null : tt.toArray(new ID[0]);
-                }
-            }
         }
 
-        log.warn("Cannot get current var : {}", field);
+        Entity bizzEntity = field.getReferenceEntity();
+        if (bizzEntity == null) bizzEntity = MetadataHelper.getEntity(EntityHelper.User);
+        if (user == null) user = UserContextHolder.getUser();
+
+        // 支持点连接 {CURRENT.xxx}
+        String hasJoinField = null;
+        if (varName != null && varName.contains(".")) {
+            hasJoinField = varName.substring(varName.indexOf("."));
+            hasJoinField = hasJoinField.substring(1, hasJoinField.length() - 1);
+        }
+
+        if (bizzEntity.getEntityCode() == EntityHelper.User) {
+            if (hasJoinField != null) {
+                return QueryHelper.queryFieldValue(user, hasJoinField);
+            }
+            return user;
+        }
+
+        User u = Application.getUserStore().getUser(user);
+        if (bizzEntity.getEntityCode() == EntityHelper.Department) {
+            Department d = u.getOwningDept();
+            if (d == null) return null;
+
+            if (hasJoinField != null) {
+                return QueryHelper.queryFieldValue((ID) d.getIdentity(), hasJoinField);
+            }
+            return d.getIdentity();
+
+        } else if (bizzEntity.getEntityCode() == EntityHelper.Role) {
+            Role r = u.getOwningRole();
+            if (r == null) return null;
+
+            if (hasJoinField != null) {
+                return QueryHelper.queryFieldValue((ID) r.getIdentity(), hasJoinField);
+            }
+            return r.getIdentity();
+
+        } else if (bizzEntity.getEntityCode() == EntityHelper.Team) {
+            // Returns Object[]
+            List<Object> tt = new ArrayList<>();
+            for (Team t : u.getOwningTeams()) {
+                if (hasJoinField != null) {
+                    tt.add(QueryHelper.queryFieldValue((ID) t.getIdentity(), hasJoinField));
+                } else {
+                    tt.add(t.getIdentity());
+                }
+            }
+            return tt.isEmpty() ? null : tt.toArray(new Object[0]);
+        }
+
+        log.warn("Cannot get value of current : {}={}", varName, field);
         return null;
     }
 

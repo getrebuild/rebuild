@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.general.series;
 
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
@@ -37,32 +38,44 @@ public class FieldVar extends SeriesVar {
 
     @Override
     public String generate() {
+        String field = getSymbols();
+        field = field.substring(1);  // Remove `@`
+        // v4.3.2
+        String defaultValue = null;
+        if (field.contains(":")) {
+            String[] fs = field.split(":");
+            field = fs[0];
+            defaultValue = fs.length > 1 ? fs[1] : null;
+        }
+
         if (this.record == null) {
             log.warn("No record spectify ignored");
-            return wrapValue(null);
+            return wrapValue(defaultValue);
         }
 
-        String fieldPath = getSymbols();
-        fieldPath = fieldPath.substring(1);  // Remove `@`
-
-        if (MetadataHelper.getLastJoinField(record.getEntity(), fieldPath) == null) {
-            log.warn("Invalid field : {} in {}", fieldPath, record.getEntity().getName());
-            return wrapValue(null);
+        if (MetadataHelper.getLastJoinField(record.getEntity(), field) == null) {
+            log.warn("Invalid field : {} in {}", field, record.getEntity().getName());
+            return wrapValue(defaultValue);
         }
 
-        String[] fields = fieldPath.split("\\.");
+        String[] fieldPath = field.split("\\.");
 
-        Object val = record.getObjectValue(fields[0]);
-        if (NullValue.isNull(val)) return wrapValue(null);
+        Object val = record.getObjectValue(fieldPath[0]);
+        if (NullValue.isNull(val)) return wrapValue(defaultValue);
 
-        if (fields.length == 1) {
-            val = FieldValueHelper.wrapFieldValue(val, record.getEntity().getField(fields[0]), true);
+        if (fieldPath.length == 1) {
+            val = FieldValueHelper.wrapFieldValue(val, record.getEntity().getField(fieldPath[0]), true);
             return wrapValue(val);
         }
 
         Object[] o = Application.getQueryFactory()
-                .uniqueNoFilter((ID) val, fieldPath.substring(fieldPath.indexOf(".") + 1));
-        return wrapValue(o == null ? null : o[0]);
+                .uniqueNoFilter((ID) val, field.substring(field.indexOf(".") + 1));
+        if (o == null || o[0] == null) return wrapValue(defaultValue);
+
+        // fix:4.3.2
+        Field lastField = MetadataHelper.getLastJoinField(record.getEntity(), field);
+        val = FieldValueHelper.wrapFieldValue(val, lastField, true);
+        return wrapValue(val == null ? defaultValue : val);
     }
 
     private String wrapValue(Object val) {

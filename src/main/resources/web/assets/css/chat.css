@@ -203,49 +203,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-radius: 10px;
 }
 
-.chat-message .msg-content .md-content,
-.chat-message .msg-content .md-content p,
-.chat-message .msg-content .md-content code,
-.chat-message .msg-content .md-content pre {
-  font-size: 14px;
-}
-
-.chat-message .msg-content .md-content pre {
-  background-color: #282c34;
-  border-radius: 8px;
-  padding: 16px;
-  overflow-x: auto;
-  color: #abb2bf;
-  white-space: pre;
-  tab-size: 2;
-  font-size: 90%;
-  max-width: 100%;
-}
-
-.chat-message .msg-content .md-content pre,
-.chat-message .msg-content .md-content code {
-  font-family: 'Courier New', 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
-}
-
-.chat-message .msg-content .md-content h1 {
-  font-size: 21px;
-}
-.chat-message .msg-content .md-content h2 {
-  font-size: 19px;
-}
-.chat-message .msg-content .md-content h3 {
-  font-size: 17px;
-}
-.chat-message .msg-content .md-content h4 {
-  font-size: 15px;
-}
-.chat-message .msg-content .md-content h5 {
-  font-size: 13px;
-}
-.chat-message .msg-content .md-content h6 {
-  font-size: 13px;
-}
-
 /* ChatSidebar */
 
 .chat-sidebar {
@@ -393,4 +350,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-clip: text;
   color: transparent;
   transition: all 0.4s;
+}
+
+/* v4.4 MD */
+
+.chat-message .md-content,
+.chat-message .md-content blockquote {
+  font-size: 14px;
+}
+
+.chat-message .md-content *:last-child {
+  margin-bottom: 0;
+}
+
+.chat-message .msg-user .md-content {
+  color: #fff;
 }

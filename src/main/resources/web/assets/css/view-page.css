@@ -146,7 +146,7 @@ body {
   max-height: 134px;
 }
 
-.rbview-form .type-NTEXT .form-control-plaintext.md-content {
+.rbview-form .type-NTEXT .md-content.form-control-plaintext {
   max-height: 1001px;
 }
 
@@ -581,14 +581,6 @@ body {
 
 .view-history .view-history-items > li b:first-child {
   font-weight: normal;
-}
-
-.CodeMirror-fullscreen {
-  top: 110px;
-}
-
-.editor-toolbar.fullscreen {
-  top: 60px;
 }
 
 /* over Feeds */

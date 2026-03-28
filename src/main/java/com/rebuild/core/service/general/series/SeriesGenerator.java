@@ -85,7 +85,7 @@ public class SeriesGenerator {
         }
     }
 
-    private static final Pattern VAR_PATTERN = Pattern.compile("\\{(@?[\\w.]+)}");
+    private static final Pattern VAR_PATTERN = Pattern.compile("\\{(@?[\\w.:]+)}");
 
     /**
      * @param format
@@ -99,7 +99,7 @@ public class SeriesGenerator {
         while (varMatcher.find()) {
             String s = varMatcher.group(1);
             if ("X".equals(s)) continue;
-            if ("0".equals(s.substring(0, 1))) {
+            if ("0".equals(s.substring(0, 1)) || "A".equals(s.substring(0, 1))) {
                 vars.add(new IncreasingVar(s, field, config.getString("seriesZero")));
             } else if (s.startsWith(FieldVar.PREFIX)) {
                 // {@FIELD}

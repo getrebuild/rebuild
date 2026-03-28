@@ -24,6 +24,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.JSONUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
@@ -382,6 +383,17 @@ public class QueryParser {
      * @return
      */
     private String parseProtocolFilter(String protocolFilter) {
+        // fix:4.3.2
+        if (JSONUtils.wellFormat(protocolFilter)) {
+            JSONObject filterBody432 = JSONUtils.parseObjectSafe(protocolFilter);
+            if (ParseHelper.validAdvFilter(filterBody432)) {
+                return new AdvFilterParser(filterBody432, entity).toSqlWhere();
+            } else {
+                log.warn("Invalid protocol filter (JSON): {}", filterBody432.toString());
+                return null;
+            }
+        }
+
         ProtocolFilterParser fp = new ProtocolFilterParser(protocolFilter);
         if (queryExpr.containsKey("protocolFilter__varRecord")) {
             fp.setVarRecord(queryExpr.getJSONObject("protocolFilter__varRecord"));
