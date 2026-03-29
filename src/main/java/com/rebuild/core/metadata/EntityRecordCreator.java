@@ -273,8 +273,8 @@ public class EntityRecordCreator extends JsonRecordCreator {
         Type fieldType = field.getType();
 
         // v4.0, 4.2 处理 {CURRENT} 变量
-        if (FieldValueHelper.CURRENT.equals(value) || "{@CURRENT}".equals(value)) {
-            Object v = FieldValueHelper.getCurrentVarValue(field, record.getEditor());
+        if (FieldValueHelper.isCurrentVar(value)) {
+            Object v = FieldValueHelper.getValueOfCurrent(field, record.getEditor(), value);
             if (v instanceof Date) {
                 value = CalendarUtils.getUTCDateTimeFormat().format(v);
             } else if (v != null) {

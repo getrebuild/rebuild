@@ -205,7 +205,8 @@ public class MetaFieldController extends BaseController {
         }
 
         try {
-            String fieldName = new Field2Schema().createField(entity, label, name, dt, comments, refEntity, extConfig);
+            String fieldName = new Field2Schema(getRequestUser(request), getBoolParameter(request, "noRefresh"))
+                    .createField(entity, label, name, dt, comments, refEntity, extConfig);
             return RespBody.ok(fieldName);
 
         } catch (Exception ex) {

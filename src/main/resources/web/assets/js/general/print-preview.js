@@ -116,7 +116,7 @@ class PreviewTable extends React.Component {
       cells.push(
         <th colSpan="12" className="divider">
           {c1.label}
-        </th>
+        </th>,
       )
       return cells
     }
