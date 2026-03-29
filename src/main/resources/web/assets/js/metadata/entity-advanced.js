@@ -638,7 +638,7 @@ class DlgMode4Option extends RbFormHandler {
                     <label htmlFor="mode4DragCreate" />
                   </span>
                 </div>
-                <span>{$L('拖动新建')}</span>
+                <span>{$L('允许拖动新建')}</span>
               </div>
               <div className="aside-item">
                 <div className="switch-button switch-button-xs">
@@ -647,7 +647,7 @@ class DlgMode4Option extends RbFormHandler {
                     <label htmlFor="mode4DragUpdate" />
                   </span>
                 </div>
-                <span>{$L('拖动编辑')}</span>
+                <span>{$L('允许拖动编辑')}</span>
               </div>
             </div>
           </div>
