@@ -28,25 +28,11 @@ const AdvFilters = {
     })
 
     this.__$customAdvWrap = $('.dropdown-menu-advfilter__' + this.__entity) // v4.3 for View
-    if (!this.__$customAdvWrap[0]) {
-      this.__$customAdvWrap = $('#dropdown-menu-advfilter')
-    }
+    if (!this.__$customAdvWrap[0]) this.__$customAdvWrap = $('#dropdown-menu-advfilter')
 
     $(document.body).on('click', (e) => {
-      if (!e.target) return
-      const $target = $(e.target)
-      if (
-        $target.hasClass('J_filterbtn') ||
-        $target.parent().hasClass('J_filterbtn') ||
-        $target.hasClass('dropdown-menu-advfilter') ||
-        $target.parents('.dropdown-menu-advfilter')[0] ||
-        $target.hasClass('modal') ||
-        $target.parents('.modal')[0] ||
-        $target.parents('.select2-container')[0] ||
-        $target.hasClass('select2-selection__choice__remove')
-      ) {
-        return
-      }
+      // eslint-disable-next-line no-undef
+      if ($isClickAdvFilter(e)) return
       if (this.__customAdv && !this.__$customAdvWrap.hasClass('hide')) {
         this.__$customAdvWrap.addClass('hide')
       }

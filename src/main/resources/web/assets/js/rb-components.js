@@ -1550,7 +1550,7 @@ class FileRename extends RbAlert {
             {$L('确定')}
           </button>
           {(isOffice || isMd) && (
-            <a className={`btn btn-link ml-1 ${isMd && 'bosskey-show'}`} href={`${rb.baseUrl}/filex/editor?src=${this.props.fileId}`} target="_blank">
+            <a className="btn btn-link ml-1" href={`${rb.baseUrl}/filex/editor?src=${this.props.fileId}`} target="_blank">
               <i className="mdi mdi-microsoft-office icon" />
               &nbsp;
               {$L('在线编辑')} (LAB)

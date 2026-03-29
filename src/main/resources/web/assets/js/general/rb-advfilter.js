@@ -1230,3 +1230,20 @@ class ListAdvFilterSave extends RbFormHandler {
     this.hide()
   }
 }
+
+// eslint-disable-next-line no-unused-vars
+function $isClickAdvFilter(e) {
+  if (!e.target) return true
+
+  const $target = $(e.target)
+  return (
+    $target.hasClass('J_filterbtn') ||
+    $target.parent().hasClass('J_filterbtn') ||
+    $target.hasClass('dropdown-menu-advfilter') ||
+    $target.parents('.dropdown-menu-advfilter')[0] ||
+    $target.hasClass('modal') ||
+    $target.parents('.modal')[0] ||
+    $target.parents('.select2-container')[0] ||
+    $target.hasClass('select2-selection__choice__remove')
+  )
+}

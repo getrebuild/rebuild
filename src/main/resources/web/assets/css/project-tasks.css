@@ -438,3 +438,9 @@ tr.status-1 .custom-control-input ~ .custom-control-label::before {
   border-color: #ccc;
   background-color: #fff !important;
 }
+
+#dropdown-menu-advfilter .dropdown-menu-advfilter {
+  text-align: left;
+  left: auto;
+  right: 0;
+}

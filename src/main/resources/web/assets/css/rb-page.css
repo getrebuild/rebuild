@@ -3720,6 +3720,12 @@ a.user-show:not([href]) {
   font-size: 14px;
 }
 
+.preview-modal .preview-body .iframe.text > pre {
+  font-size: 14px;
+  font-family: 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+  background-color: transparent;
+}
+
 @media (max-width: 768px) {
   .preview-modal .preview-header {
     padding: 0 12px;
