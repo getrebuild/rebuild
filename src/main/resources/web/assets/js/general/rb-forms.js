@@ -1733,6 +1733,11 @@ class RbFormNText extends RbFormElement {
       this._EasyMDE.codemirror.setCursor(this._EasyMDE.codemirror.lineCount(), 0) // cursor at end
     }, 100)
   }
+
+  focus() {
+    if (this._EasyMDE) this._mdeFocus()
+    else super.focus()
+  }
 }
 
 class RbFormDateTime extends RbFormElement {
@@ -3978,6 +3983,8 @@ const __calcFormula = function (fieldComp) {
     }
   }, 600) // delay for init
 }
+
+// 值相等
 function __isSameValue38(a, b) {
   if ($same(a, b)) return true
   // fix: 3.9.4
