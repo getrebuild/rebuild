@@ -564,8 +564,13 @@ public class EasyExcelGenerator extends SetUser {
             String sql = phName.substring(PH__SQLQUERY44.length() + 1);
             if (!sql.toLowerCase().startsWith("select ")) sql = "select " + sql;
 
-            Object[] o = Application.createQuery(sql).setParameter(1, this.recordId).unique();
-            if (o == null || o[0] == null) return StringUtils.EMPTY;
+            recordId = recordId == null ? this.recordId : recordId;
+            Object[] o;
+            if (recordId == null) {
+                o = Application.createQuery(sql).unique();
+            } else {
+                o = Application.createQuery(sql).setParameter(1, recordId).unique();
+            }
             return o[0];
         }
 
