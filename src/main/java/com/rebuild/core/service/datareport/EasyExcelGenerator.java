@@ -73,6 +73,7 @@ import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTU
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__EXPORTTIMES;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__KEEP;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__NUMBER;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PH__SQLQUERY44;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PLACEHOLDER;
 import static com.rebuild.core.service.datareport.TemplateExtractor33.NROW_PREFIX2;
 
@@ -556,6 +557,16 @@ public class EasyExcelGenerator extends SetUser {
             String dotsField = phName.substring(PH__CURRENTBIZUNIT.length() + 1);
             Object useValue = QueryHelper.queryFieldValue(getDeptOfUser(), dotsField);
             return useValue == null ? "" : useValue.toString();
+        }
+        // v4.4 支持SQL查询
+        else if (phName.startsWith(PH__SQLQUERY44 + ":")) {
+            // eg. __SQLQUERY:field from entity where a=xxx and refField=?;
+            String sql = phName.substring(PH__SQLQUERY44.length() + 1);
+            if (!sql.toLowerCase().startsWith("select ")) sql = "select " + sql;
+
+            Object[] o = Application.createQuery(sql).setParameter(1, this.recordId).unique();
+            if (o == null || o[0] == null) return StringUtils.EMPTY;
+            return o[0];
         }
 
         return null;
