@@ -56,10 +56,12 @@ public class TemplateExtractor {
     protected static final String PH__CURRENTDATETIME = PLACEHOLDER + "CURRENTDATETIME";
     // 导出/打印次数
     protected static final String PH__EXPORTTIMES = PLACEHOLDER + "EXPORTTIMES";
+    // v4.4 查询单个值
+    protected static final String PH__SQLQUERY44 = PLACEHOLDER + "SQLQUERY";
 
     // 变量匹配 v2:{xxx} v1:${xxx}
     // v4.3 允许出现空格
-    protected static final Pattern PATT_V2 = Pattern.compile("\\{([^\\n}]{3,201})}");
+    protected static final Pattern PATT_V2 = Pattern.compile("\\{([^\\n}]{3,401})}");
 
     final protected File templateFile;
     final private boolean isListType;

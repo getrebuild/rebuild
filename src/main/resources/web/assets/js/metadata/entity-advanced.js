@@ -627,6 +627,31 @@ class DlgMode4Option extends RbFormHandler {
               </div>
             </div>
           </div>
+
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right"></label>
+            <div className="col-sm-9 aside-show" ref={(c) => (this._$asideShow = c)}>
+              <div className="aside-item">
+                <div className="switch-button switch-button-xs">
+                  <input type="checkbox" id="mode4DragCreate" defaultChecked={wpc.extConfig && wpc.extConfig.mode4DragCreate} />
+                  <span>
+                    <label htmlFor="mode4DragCreate" />
+                  </span>
+                </div>
+                <span>{$L('允许拖动新建')}</span>
+              </div>
+              <div className="aside-item">
+                <div className="switch-button switch-button-xs">
+                  <input type="checkbox" id="mode4DragUpdate" defaultChecked={wpc.extConfig && wpc.extConfig.mode4DragUpdate} />
+                  <span>
+                    <label htmlFor="mode4DragUpdate" />
+                  </span>
+                </div>
+                <span>{$L('允许拖动编辑')}</span>
+              </div>
+            </div>
+          </div>
+
           <div className="form-group row footer">
             <div className="col-sm-9 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this.save}>
@@ -674,6 +699,8 @@ class DlgMode4Option extends RbFormHandler {
     o.mode4FieldOfEnd = $val(this._$fieldOfEnd)
     o.mode4FieldOfTitle = $val(this._$fieldOfTitle)
     o.mode4FieldOfColor = $val(this._$fieldOfColor)
+    o.mode4DragCreate = $val('#mode4DragCreate')
+    o.mode4DragUpdate = $val('#mode4DragUpdate')
 
     this.disabled(true)
     modeSave(o, () => {

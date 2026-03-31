@@ -77,27 +77,37 @@ $(document).ready(() => {
 
   // 高级查询
 
+  const $advWrap = $('#dropdown-menu-advfilter')
+  // 点击隐藏
+  $(document.body).on('click', (e) => {
+    // eslint-disable-next-line no-undef
+    if ($isClickAdvFilter(e)) return
+    if (_AdvFilter && !$advWrap.hasClass('hide')) {
+      $advWrap.addClass('hide')
+    }
+  })
+  // 显示
   $('.J_filterbtn').on('click', () => {
     if (_AdvFilter) {
-      _AdvFilter.show()
+      $advWrap.toggleClass('hide')
     } else {
-      renderRbcomp(
-        <TasksAdvFilter
-          title={$L('高级查询')}
-          entity="ProjectTask"
-          inModal
-          canNoFilters
-          onConfirm={(s) => {
-            _PlanBoxes.setState({ filter: s })
-            if (s && (s.items || []).length > 0) $('.J_search .indicator-primary').removeClass('hide')
-            else $('.J_search .indicator-primary').addClass('hide')
-          }}
-        />,
-        null,
-        function () {
-          _AdvFilter = this
-        }
-      )
+      let props = {
+        entity: 'ProjectTask',
+        inModal: false,
+        canNoFilters: true,
+        onConfirm: (s) => {
+          _PlanBoxes.setState({ filter: s })
+          if (s && (s.items || []).length > 0) $('.J_search .indicator-primary').removeClass('hide')
+          else $('.J_search .indicator-primary').addClass('hide')
+        },
+      }
+      renderRbcomp(<TasksAdvFilter {...props} />, $advWrap, function () {
+        _AdvFilter = this
+
+        // 计算位置
+        let r = $('.J_sorts').width() + $('.J_view').width() + 15
+        $('#dropdown-menu-advfilter .dropdown-menu-advfilter').css({ right: r })
+      })
     }
   })
 })
@@ -846,7 +856,8 @@ class TaskViewModal extends React.Component {
   }
 }
 
-class TasksAdvFilter extends AdvFilter {
+// eslint-disable-next-line no-undef
+class TasksAdvFilter extends ListAdvFilter {
   renderAction() {
     return (
       <div className="item">

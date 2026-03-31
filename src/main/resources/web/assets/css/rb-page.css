@@ -763,6 +763,7 @@ div.dataTables_filter .filter-badge:hover .close {
 
 .rbview.show .modal-content {
   overflow: hidden;
+  border: 0 none;
 }
 
 .modal.rbalert .modal-dialog {
@@ -3718,6 +3719,12 @@ a.user-show:not([href]) {
 .preview-modal .preview-body .iframe.text .md-content,
 .preview-modal .preview-body .iframe.text .md-content blockquote {
   font-size: 14px;
+}
+
+.preview-modal .preview-body .iframe.text > pre {
+  font-size: 14px;
+  font-family: 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+  background-color: transparent;
 }
 
 @media (max-width: 768px) {

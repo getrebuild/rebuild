@@ -151,4 +151,22 @@ public class TransactionManual {
         log.debug("Transaction synchronization is not active, start directly : {}", c);
         TaskExecutors.schedule(c, delayInMs, keyCancel);
     }
+
+    /**
+     * 是否在事物中
+     *
+     * @return
+     */
+    public static boolean isInTransaction() {
+        return TransactionSynchronizationManager.isActualTransactionActive();
+    }
+
+    /**
+     * @return
+     */
+    public static String getTransactionInfo() {
+        return "是否在事务中:" + TransactionSynchronizationManager.isActualTransactionActive() +
+                "; 同步是否活跃:" + TransactionSynchronizationManager.isSynchronizationActive() +
+                "; 当前事务名称:" + TransactionSynchronizationManager.getCurrentTransactionName();
+    }
 }

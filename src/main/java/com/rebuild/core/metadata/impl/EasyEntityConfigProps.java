@@ -141,4 +141,10 @@ public class EasyEntityConfigProps {
      * 日历显示颜色
      */
     public static final String ADVLIST_MODE4_FIELDOFCOLOR = "mode4FieldOfColor";
+    /**
+     */
+    public static final String ADVLIST_MODE4_DRAGCREATE = "mode4DragCreate";
+    /**
+     */
+    public static final String ADVLIST_MODE4_DRAGUPDATE = "mode4DragUpdate";
 }
