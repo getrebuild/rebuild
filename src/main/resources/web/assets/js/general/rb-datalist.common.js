@@ -2490,8 +2490,8 @@ const CategoryWidget = {
         <AsideTree4Category
           entity={wpc.entity[0]}
           onItemClick={(query) => {
-            if (!query || query[0] === CategoryWidget.__ALL) wpc.protocolFilter = null
-            else wpc.protocolFilter = `category:${wpc.entity[0]}:${query.join('$$$$')}`
+            if (!query || query[0] === CategoryWidget.__ALL) wpc.protocolFilterAnd = null
+            else wpc.protocolFilterAnd = `category:${wpc.entity[0]}:${query.join('$$$$')}`
             _RbList().pageNo = 1
             RbListPage.reload()
           }}
