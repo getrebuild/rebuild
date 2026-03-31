@@ -73,6 +73,7 @@ import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTU
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__EXPORTTIMES;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__KEEP;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__NUMBER;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PH__SQLQUERY44;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PLACEHOLDER;
 import static com.rebuild.core.service.datareport.TemplateExtractor33.NROW_PREFIX2;
 
@@ -131,7 +132,7 @@ public class EasyExcelGenerator extends SetUser {
             WriteSheet writeSheet = EasyExcel.writerSheet(writeSheetAt)
                     .registerWriteHandler(new FixsMergeStrategy())
                     .registerWriteHandler(new FormulaCellWriteHandler())
-                    .registerWriteHandler(new FixImageToMergedRegionHandler43())
+                    .registerWriteHandler(new FixImageToMergedRegionHandler43(templateFile))
                     .build();
 
             int datasLen = datas.size();
@@ -556,6 +557,21 @@ public class EasyExcelGenerator extends SetUser {
             String dotsField = phName.substring(PH__CURRENTBIZUNIT.length() + 1);
             Object useValue = QueryHelper.queryFieldValue(getDeptOfUser(), dotsField);
             return useValue == null ? "" : useValue.toString();
+        }
+        // v4.4 支持SQL查询
+        else if (phName.startsWith(PH__SQLQUERY44 + ":")) {
+            // eg. __SQLQUERY:field from entity where a=xxx and refField=?;
+            String sql = phName.substring(PH__SQLQUERY44.length() + 1);
+            if (!sql.toLowerCase().startsWith("select ")) sql = "select " + sql;
+
+            recordId = recordId == null ? this.recordId : recordId;
+            Object[] o;
+            if (recordId == null) {
+                o = Application.createQuery(sql).unique();
+            } else {
+                o = Application.createQuery(sql).setParameter(1, recordId).unique();
+            }
+            return o[0];
         }
 
         return null;
