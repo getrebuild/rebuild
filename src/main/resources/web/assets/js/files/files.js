@@ -133,7 +133,7 @@ class SharedFiles extends RbModalHandler {
       <RbModal ref={(c) => (this._dlg = c)} title={$L('分享列表')} disposeOnHide>
         <div className="sharing-list ml-1 mr-1">
           {this.state.data && this.state.data.length === 0 ? (
-            <div className="list-nodata pt-5">
+            <div className="list-nodata pt-4">
               <i className="zmdi mdi mdi-share-variant-outline" />
               <p>{$L('没有分享文件')}</p>
             </div>
