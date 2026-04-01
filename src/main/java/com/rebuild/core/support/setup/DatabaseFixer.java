@@ -40,6 +40,7 @@ public class DatabaseFixer {
     private static final String KEY_41 = "DataMigratorV41";
     private static final String KEY_346 = "DatabaseFixerV346";
     private static final String KEY_370 = "DatabaseFixerV370";
+    private static final String KEY_433 = "DatabaseFixerV433";
 
     /**
      * 辅助数据库升级
@@ -49,46 +50,59 @@ public class DatabaseFixer {
         final int dbVer = RebuildConfiguration.getInt(ConfigurationItem.DBVer);
 
         if (dbVer <= 41 && !BooleanUtils.toBoolean(KVStorage.getCustomValue(KEY_41))) {
-            log.info("Database fixing `#41` ...");
+            log.info("Database fixing `{}` ...", KEY_41);
             ThreadPool.exec(() -> {
                 try {
                     fixV41();
                     KVStorage.setCustomValue(KEY_41, "true");
-                    log.info("Database fixed `#41` all succeeded");
+                    log.info("Database fixed `{}` all succeeded", KEY_41);
                 } catch (Exception ex) {
-                    log.error("Database fixing `#41` failed : {}", CommonsUtils.getRootMessage(ex));
+                    log.error("Database fixing `{}` failed : {}", KEY_41, CommonsUtils.getRootMessage(ex));
                 }
             });
         }
 
         if (dbVer <= 52 && !BooleanUtils.toBoolean(KVStorage.getCustomValue(KEY_346))) {
-            log.info("Database fixing `V346` ...");
+            log.info("Database fixing `{}` ...", KEY_346);
             ThreadPool.exec(() -> {
                 try {
                     fixV346();
                     KVStorage.setCustomValue(KEY_346, "true");
-                    log.info("Database fixed `V346` all succeeded");
+                    log.info("Database fixed `{}` all succeeded", KEY_346);
                 } catch (Exception ex) {
-                    log.error("Database fixing `V346` failed : {}", CommonsUtils.getRootMessage(ex));
+                    log.error("Database fixing `{}` failed : {}", KEY_346, CommonsUtils.getRootMessage(ex));
                 }
             });
         }
 
         if (dbVer <= 57 && !BooleanUtils.toBoolean(KVStorage.getCustomValue(KEY_370))) {
-            log.info("Database fixing `V370` ...");
+            log.info("Database fixing `{}` ...", KEY_370);
             ThreadPool.exec(() -> {
                 try {
                     fixV370();
                     KVStorage.setCustomValue(KEY_370, "true");
-                    log.info("Database fixed `V370` all succeeded");
+                    log.info("Database fixed `{}` all succeeded", KEY_370);
                 } catch (Exception ex) {
-                    log.error("Database fixing `V370` failed : {}", CommonsUtils.getRootMessage(ex));
+                    log.error("Database fixing `{}` failed : {}", KEY_370, CommonsUtils.getRootMessage(ex));
+                }
+            });
+        }
+
+        if (dbVer <= 70 && !BooleanUtils.toBoolean(KVStorage.getCustomValue(KEY_433))) {
+            log.info("Database fixing `{}` ...", KEY_433);
+            ThreadPool.exec(() -> {
+                try {
+                    fixV433();
+                    KVStorage.setCustomValue(KEY_433, "true");
+                    log.info("Database fixed `{}` all succeeded", KEY_433);
+                } catch (Exception ex) {
+                    log.error("Database fixing `{}` failed : {}", KEY_433, CommonsUtils.getRootMessage(ex));
                 }
             });
         }
     }
 
-    // #41:多引用字段改为三方表
+    // 多引用字段改为三方表
     private static void fixV41() {
         for (Entity entity : MetadataHelper.getEntities()) {
             if (EasyMetaFactory.valueOf(entity).isBuiltin()) continue;
@@ -126,7 +140,7 @@ public class DatabaseFixer {
         }
     }
 
-    // V346:标签无效值问题
+    // 标签无效值问题
     private static void fixV346() {
         for (Entity entity : MetadataHelper.getEntities()) {
             if (EasyMetaFactory.valueOf(entity).isBuiltin()) continue;
@@ -148,7 +162,7 @@ public class DatabaseFixer {
         }
     }
 
-    // V370:补充附件文件名称
+    // 补充附件文件名称
     private static void fixV370() {
         Object[][] attachs = QueryHelper.readArray(
                 Application.createQueryNoFilter("select attachmentId,filePath from Attachment where fileName is null"));
@@ -157,6 +171,24 @@ public class DatabaseFixer {
             Record record = EntityHelper.forUpdate((ID) o[0], UserService.SYSTEM_USER, false);
             record.setString("fileName", fileName);
             Application.getCommonsService().update(record, false);
+        }
+    }
+
+    // 审批状态默认值问题
+    private static void fixV433() {
+        for (Entity e : MetadataHelper.getEntities()) {
+            if (!MetadataHelper.hasApprovalField(e)) continue;
+
+            // 默认值
+            String ddl = String.format(
+                    "alter table `%s` change column `APPROVAL_STATE` `APPROVAL_STATE` smallint(6) null default '1' comment '审批状态'",
+                    e.getPhysicalName());
+            Application.getSqlExecutor().execute(ddl, 120);
+
+            // 已有记录
+            String sql = String.format(
+                    "update `%s` set `APPROVAL_STATE` = 1 where `APPROVAL_STATE` is null", e.getPhysicalName());
+            Application.getSqlExecutor().execute(sql, 120);
         }
     }
 }
