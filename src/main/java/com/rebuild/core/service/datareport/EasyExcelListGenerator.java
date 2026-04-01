@@ -96,9 +96,11 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
 
         phNumber = 1;
         for (Record c : list) {
+            this.recordId = c.getPrimary();
             datas.add(buildData(c, varsMap));
             phNumber++;
         }
+        this.recordId = null;
 
         if (varsMap.containsKey(PH__CURRENTUSER)) phValues.put(PH__CURRENTUSER, getPhValue(PH__CURRENTUSER));
         if (varsMap.containsKey(PH__CURRENTBIZUNIT)) phValues.put(PH__CURRENTBIZUNIT, getPhValue(PH__CURRENTBIZUNIT));

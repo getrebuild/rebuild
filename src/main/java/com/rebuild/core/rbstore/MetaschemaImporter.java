@@ -230,7 +230,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 
             // 同步字段到数据库
             new Field2Schema(UserService.ADMIN_USER).schema2Database(
-                    newEntity, fieldsList.toArray(new Field[0]), uniqueKeyFields, indexKeyFields);
+                    newEntity, fieldsList.toArray(new Field[0]), uniqueKeyFields, indexKeyFields, false);
 
         } catch (Exception ex) {
             entity2Schema.dropEntity(newEntity, true);
