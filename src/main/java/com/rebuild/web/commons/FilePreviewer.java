@@ -356,18 +356,6 @@ public class FilePreviewer extends BaseController {
         return (String) e[0];
     }
 
-    @GetMapping("/commons/pdf-preview")
-    public ModelAndView pdfPreview(HttpServletRequest request) {
-        String fileUrl = getParameterNotNull(request, "src");
-        fileUrl = getFileFullUrl(fileUrl, AppUtils.getRequestUser(request));
-
-        ModelAndView mv = createModelAndView("/common/pdf-preview");
-        mv.getModel().put("fileUrl", fileUrl);
-        mv.getModel().put("_embedpdfUrl", AppUtils.getContextPath("/assets/lib/embedpdf/embedpdf.js?v=2.2.0"));
-        mv.getModel().put("_locale", AppUtils.getReuqestLocale(request).replace("_", "-"));
-        return mv;
-    }
-
     /**
      * @param src
      * @return
