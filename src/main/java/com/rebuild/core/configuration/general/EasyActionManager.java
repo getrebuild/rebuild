@@ -33,9 +33,9 @@ public class EasyActionManager extends BaseLayoutManager {
 
     public static final EasyActionManager instance = new EasyActionManager();
 
-    private static final String TYPE_DATALIST = "datalist";
-    private static final String TYPE_DATAROW = "datarow";
-    private static final String TYPE_VIEW = "view";
+    public static final String TYPE_DATALIST = "datalist";
+    public static final String TYPE_DATAROW = "datarow";
+    public static final String TYPE_VIEW = "view";
 
     private EasyActionManager() {
     }
@@ -46,6 +46,16 @@ public class EasyActionManager extends BaseLayoutManager {
      * @return
      */
     public JSON getEasyAction(String entity, ID user) {
+        return getEasyAction(entity, user, null);
+    }
+
+    /**
+     * @param entity
+     * @param user
+     * @param specType
+     * @return
+     */
+    public JSON getEasyAction(String entity, ID user, String specType) {
         ConfigBean cb = getLayout(UserService.SYSTEM_USER, entity, TYPE_EASYACTION, null);
         if (cb == null) return null;
 
@@ -58,6 +68,7 @@ public class EasyActionManager extends BaseLayoutManager {
 
         JSONObject action4User = new JSONObject();
         for (String type : configJson.keySet()) {
+            if (specType != null && !specType.equals(type)) continue;
             final JSONArray items = (JSONArray) configJson.get(type);
 
             JSONArray items4User = new JSONArray();

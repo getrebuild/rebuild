@@ -52,6 +52,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.rebuild.core.configuration.general.EasyActionManager.*;
+
 /**
  * 表单/视图
  *
@@ -89,7 +91,7 @@ public class GeneralModelController extends EntityController {
         mv.getModel().put("ShowViewHistory", RebuildConfiguration.getBool(ConfigurationItem.ShowViewHistory));
         // EasyAction
         mv.getModel().put("easyAction",
-                CommonsUtils.sanitizeHtml(EasyActionManager.instance.getEasyAction(entity, user)));
+                CommonsUtils.sanitizeHtml(instance.getEasyAction(entity, user)));
 
         mv.getModel().put("id", id);
         return mv;
@@ -211,6 +213,12 @@ public class GeneralModelController extends EntityController {
             model.put("entityPrivileges", buildEntityPrivileges(id, user));
             model.put("entityLabel", Language.L(modelEntity));
             model.put("isDetail", modelEntity.getMainEntity() != null);
+            // EasyAction
+            String easyAction = CommonsUtils.sanitizeHtml(
+                    instance.getEasyAction(modelEntity.getName(), user, TYPE_VIEW));
+            if (JSONUtils.wellFormat(easyAction)) {
+                model.put("easyAction", JSON.parse(easyAction));
+            }
         }
         return model;
     }
