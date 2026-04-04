@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -158,6 +158,24 @@
         position: absolute;
         right: 0;
       }
+      .table-priv thead {
+        background-color: #fff;
+        position: sticky;
+        top: 107px;
+        z-index: 1;
+      }
+      .table-priv thead th {
+        border-bottom: 0 none;
+        padding-top: 25px !important;
+      }
+       .table-priv thead::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background-color: #dee2e6;
     </style>
   </head>
   <body>
@@ -207,7 +225,7 @@
                 </div>
               </span>
             </ul>
-            <div class="tab-content mb-0">
+            <div class="tab-content mb-0 pt-0">
               <div class="tab-pane active" id="priv-entity">
                 <table class="table table-hover table-priv">
                   <thead>
@@ -364,7 +382,7 @@
                   </div>
                 </div>
               </div>
-              <div class="tab-pane" id="tab-members"></div>
+              <div class="tab-pane pt-6" id="tab-members"></div>
             </div>
           </div>
         </div>

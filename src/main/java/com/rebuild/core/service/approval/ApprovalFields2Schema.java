@@ -133,7 +133,7 @@ public class ApprovalFields2Schema extends Field2Schema {
     }
 
     private void schema2DatabaseInternal(Entity entity, Field... fields) {
-        boolean schemaReady = schema2Database(entity, fields);
+        boolean schemaReady = schema2Database(entity, fields, null, null, true);
 
         if (!schemaReady) {
             Application.getCommonsService().delete(recordedMetaIds.toArray(new ID[0]));
