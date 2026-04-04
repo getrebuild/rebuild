@@ -108,6 +108,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
   window.onerror = function () {
     $.post('/error/jslog', JSON.stringify(arguments))
+
+    // be:v4.3.3
+    if (arguments[0] && arguments[1] && (arguments[1] + '').indexOf('/frontjs/use-frontjs') > -1 && (window.rb || {}).isAdminUser) {
+      RbHighbar.error('FrontJSError: ' + JSON.stringify(arguments))
+    }
   }
 
   rb.commercial = ~~rb.commercial

@@ -42,10 +42,12 @@ $(document).ready(() => {
       })
       .on('change', () => {
         const d = _entities[$ref.val()]
-        if (d) {
-          $('.J_menuIcon>i').attr('class', use_icon(d.icon))
-          $('.J_menuName').val(d.label)
-          $('.J_bindFilter>a').removeAttr('data-filter')
+        if (item_currentNew === true) {
+          if (d) {
+            $('.J_menuIcon>i').attr('class', use_icon(d.icon))
+            $('.J_menuName').val(d.label)
+            $('.J_bindFilter>a').removeAttr('data-filter')
+          }
         }
 
         if ($ref.val() === TYPE_PARENT) {
@@ -112,7 +114,7 @@ $(document).ready(() => {
     let icon = $('.J_menuIcon>i').attr('class').replace('zmdi zmdi-', '')
     icon = icon.replace('mdi zmdi ', '') // V2
     render_item({
-      id: item_currentid,
+      id: item_currentId,
       text: name,
       type: type,
       value: value,
@@ -121,7 +123,7 @@ $(document).ready(() => {
       ...rest43,
     })
 
-    item_currentid = null
+    item_currentId = null
     $('.J_config li').removeClass('active')
     $('.J_edit-menu').addClass('hide')
     $('#defaultOpen').attr('checked', false)
@@ -254,9 +256,11 @@ const build_item = function (item) {
   return data
 }
 
-let item_currentid
+let item_currentId
+let item_currentNew
 
 const render_item = function (data, isNew, append2) {
+  item_currentNew = isNew
   data.id = data.id || $random()
   data.text = data.text || $L('未命名')
   data.icon = data.icon || UNICON_NAME
@@ -348,7 +352,7 @@ const render_item = function (data, isNew, append2) {
       // else $me.addClass('is-invalid')
     }
 
-    item_currentid = data.id
+    item_currentId = data.id
   })
 
   if (isNew === true) {

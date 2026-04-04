@@ -129,7 +129,7 @@ public class Field2Schema extends SetUser {
         Collection<String> indexKeyFields = null;
         if (type == DisplayType.REFERENCE) indexKeyFields = Collections.singletonList(field.getName());
 
-        boolean schemaReady = schema2Database(entity, new Field[]{field}, uniqueKeyFields, indexKeyFields);
+        boolean schemaReady = schema2Database(entity, new Field[]{field}, uniqueKeyFields, indexKeyFields, false);
         if (!schemaReady) {
             Application.getCommonsService().delete(recordedMetaIds.toArray(new ID[0]));
             throw new MetadataModificationException(Language.L("无法同步元数据到数据库"));
@@ -221,22 +221,22 @@ public class Field2Schema extends SetUser {
      * @param entity
      * @param fields
      * @return
-     * @see #schema2Database(Entity, Field[], Collection, Collection)
      */
     public boolean schema2Database(Entity entity, Field[] fields) {
-        return schema2Database(entity, fields, null, null);
+        return schema2Database(entity, fields, null, null, false);
     }
 
     /**
      * @param entity
      * @param fields
-     * @param uniqueKeyFields
-     * @param indexKeyFields
+     * @param uniqueKeyFields DB 唯一索引
+     * @param indexKeyFields DB 索引
+     * @param keepFieldKeyAttrs
      * @return
      */
-    public boolean schema2Database(Entity entity, Field[] fields, Collection<String> uniqueKeyFields, Collection<String> indexKeyFields) {
+    public boolean schema2Database(Entity entity, Field[] fields, Collection<String> uniqueKeyFields, Collection<String> indexKeyFields, boolean keepFieldKeyAttrs) {
         Dialect dialect = Application.getPersistManagerFactory().getDialect();
-        final Table table = new Table40(entity, dialect);
+        final Table table = new Table40(entity, dialect, null, keepFieldKeyAttrs);
         final String alterSql = "alter table `" + entity.getPhysicalName() + "`";
 
         // H2 只能一个个字段的加
