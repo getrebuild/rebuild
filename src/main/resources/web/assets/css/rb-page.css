@@ -1618,6 +1618,10 @@ a.link.link-icon::after {
   padding-top: 10px;
   padding-bottom: 8px;
   background-color: #fff;
+  font-weight: bold;
+  color: #404040;
+  padding-top: 9px;
+  padding-bottom: 9px;
 }
 
 .data-list .table.table-bordered42 td,
@@ -1655,6 +1659,7 @@ a.link.link-icon::after {
   height: 18px;
   top: -1px;
   right: -10px;
+  top: 0;
 }
 
 .data-list .table thead th > div > i.dividing {
@@ -1873,6 +1878,7 @@ th.column-fixed {
   width: 100%;
   bottom: -1px;
   border-bottom: 1px solid #dee2e6;
+  border-bottom: 0 none;
 }
 
 th.column-fixed::before,

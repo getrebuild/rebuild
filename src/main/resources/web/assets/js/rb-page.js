@@ -516,7 +516,18 @@ var _checkMessage = function () {
       if (_checkMessage__state > 0) {
         if (!window.__title) window.__title = document.title
         document.title = '(' + _checkMessage__state + ') ' + window.__title
-        _showNotification(_checkMessage__state)
+
+        if (location.href.indexOf('/admin/') > -1 || location.href.indexOf('/notifications') > -1) {
+          // 不显示通知
+        } else {
+          if (~~($.cookie('rb.NotificationShow') || 0) !== _checkMessage__state) {
+            $showNotification(
+              $L('你有 %d 条未读通知', _checkMessage__state),
+              () => (location.href = rb.baseUrl + '/notifications'),
+              () => $.cookie('rb.NotificationShow', _checkMessage__state, { expires: null }), // session
+            )
+          }
+        }
       } else if (window.__title) {
         document.title = window.__title
       }
@@ -554,34 +565,7 @@ var _loadMessages = function () {
     if (res.data.length === 0) $('<li class="text-center mt-4 mb-4 text-muted">' + $L('暂无通知') + '</li>').appendTo($ul)
   })
 }
-var _showNotification = function (state) {
-  if (location.href.indexOf('/admin/') > -1 || location.href.indexOf('/notifications') > -1) return
-  if (~~($.cookie('rb.NotificationShow') || 0) === state) return
 
-  var _Notification = window.Notification || window.mozNotification || window.webkitNotification
-  if (_Notification) {
-    if (_Notification.permission === 'granted') {
-      var n = new _Notification($L('你有 %d 条未读通知', state), {
-        body: window.rb.appName,
-        icon: rb.baseUrl + '/assets/img/icon-192x192.png',
-        tag: 'rbNotification',
-        renotify: true,
-        silent: false,
-        requireInteraction: true,
-      })
-      n.onshow = function () {
-        $.cookie('rb.NotificationShow', state, { expires: null }) // session
-      }
-      n.onclick = function () {
-        location.href = rb.baseUrl + '/notifications'
-      }
-      n.onclose = function () {}
-      n.onerror = function () {}
-    } else {
-      _Notification.requestPermission()
-    }
-  }
-}
 var _showStateMM = function (mm) {
   if ($.cookie('mm_gritter_cancel')) return
   if (mm) {
@@ -1505,6 +1489,33 @@ function $syncGet(url) {
     success: (res) => (_data = res),
   })
   return _data || {}
+}
+
+// 通知
+function $showNotification(title, _onClick, _onShow) {
+  var _Notification = window.Notification || window.mozNotification || window.webkitNotification
+  if (_Notification) {
+    if (_Notification.permission === 'granted') {
+      var n = new _Notification(title, {
+        body: window.rb.appName,
+        icon: rb.baseUrl + '/assets/img/icon-192x192.png',
+        tag: 'rbNotification44',
+        renotify: true,
+        silent: false,
+        requireInteraction: true,
+      })
+      n.onshow = function () {
+        typeof _onShow === 'function' && _onShow()
+      }
+      n.onclick = function () {
+        typeof _onClick === 'function' && _onClick()
+      }
+      n.onclose = function () {}
+      n.onerror = function () {}
+    } else {
+      _Notification.requestPermission()
+    }
+  }
 }
 
 // 颜色

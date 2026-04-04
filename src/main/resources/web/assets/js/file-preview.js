@@ -282,6 +282,15 @@ class RbPreview extends React.Component {
     $(document).off('keyup.esc-hide mousewheel.image-zoom')
   }
 
+  hide = () => {
+    if (!this.props.unclose) $unmount($(this._dlg).parent(), 1)
+  }
+
+  share = () => {
+    const currentUrl = this.props.urls[this.state.currentIndex]
+    renderRbcomp(<FileShare file={currentUrl} />)
+  }
+
   _buildAbsoluteUrl(url, params) {
     if (!url) url = this.props.urls[this.state.currentIndex]
     url = $isFullUrl(url) ? url : `${rb.baseUrl}/filex/${(params || '').includes('imageView2') ? 'img' : 'download'}/${url}`
@@ -321,7 +330,7 @@ class RbPreview extends React.Component {
     return false
   }
 
-  // IMAGE
+  // for IMAGE
 
   _prevImage = () => {
     let ci = this.state.currentIndex
@@ -364,14 +373,7 @@ class RbPreview extends React.Component {
     this._rotateImageValue = 0
   }
 
-  hide = () => {
-    if (!this.props.unclose) $unmount($(this._dlg).parent(), 1)
-  }
-
-  share = () => {
-    const currentUrl = this.props.urls[this.state.currentIndex]
-    renderRbcomp(<FileShare file={currentUrl} />)
-  }
+  // -- Usage
 
   /**
    * @param {*} urls string or array of URL
