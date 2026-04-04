@@ -26,6 +26,7 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.ShortUrls;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.CommonsUtils;
@@ -44,7 +45,10 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -140,16 +144,18 @@ public class FileShareController extends BaseController {
                 map.put("folderName", folderName);
 
                 Object[][] array = Application.createQueryNoFilter(
-                        "select attachmentId,fileName,fileSize,fileType from Attachment where inFolder = ? and isDeleted <> 'T' order by fileName")
+                        "select attachmentId,fileName,fileSize,fileType,modifiedOn from Attachment where inFolder = ? and isDeleted <> 'T' order by fileName")
                         .setParameter(1, folderOrDash42)
                         .array();
                 List<String[]> files = new ArrayList<>();
+                DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm");
                 for (Object[] o : array) {
                     files.add(new String[]{
                             shareKey + "?file=" + o[0],
                             (String) o[1],
                             FileUtils.byteCountToDisplaySize(ObjectUtils.toLong(o[2])),
-                            (String) o[3]
+                            (String) o[3],
+                            df.format((Date) o[4]),
                     });
                 }
                 map.put("folderFiles", files);
