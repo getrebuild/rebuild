@@ -39,12 +39,11 @@
     <script>
       window.__PageConfig = {
         publicUrl: '[[${publicUrl}]]'.replace('&amp;', '&'),
-        shareKey: '[[${shareKey}]]',
       }
     </script>
     <script type="text/babel">
       $(document).ready(() => {
-        renderRbcomp(<RbPreview urls={[window.__PageConfig.publicUrl]} shareKey={window.__PageConfig.shareKey} unclose fullwidth />)
+        renderRbcomp(<RbPreview urls={[window.__PageConfig.publicUrl]} csrfToken={rb.csrfToken} unclose fullwidth />)
       })
     </script>
   </body>

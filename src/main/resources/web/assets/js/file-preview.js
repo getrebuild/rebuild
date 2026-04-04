@@ -161,7 +161,7 @@ class RbPreview extends React.Component {
     } else if (this.state.previewText) {
       content = showMd ? (
         <div className="p-4 md-content">
-          <Md2Html markdown={this.state.previewText} shareKey={this.props.shareKey} />
+          <Md2Html markdown={this.state.previewText} csrfToken={this.props.csrfToken} />
         </div>
       ) : (
         <pre className="mb-0">{this.state.previewText}</pre>

@@ -1255,7 +1255,7 @@ class Md2Html extends React.Component {
     cHtml = cHtml.replace(/<img src="([^"]+)"/g, function (s, src) {
       let srcNew = src + (src.includes('?') ? '&' : '?') + 'imageView2/2/w/1000/interlace/1/q/100'
       // fix:v4.4 分享查看
-      if (that.props.shareKey && srcNew.includes('/filex/img/')) srcNew += `&e=${that.props.shareKey}`
+      if (that.props.csrfToken && srcNew.includes('/filex/img/')) srcNew += `&_csrfToken=${that.props.csrfToken}`
       return s.replace(src, srcNew)
     })
 
@@ -1283,7 +1283,7 @@ class Md2Html extends React.Component {
           if (srcNew) {
             if (srcNew.includes('/filex/img/')) {
               srcNew = srcNew.split('/filex/img/')[1].split(/[?&]imageView2/)[0]
-              if (that.props.shareKey) srcNew += (srcNew.includes('?') ? '&' : '?') + `e=${that.props.shareKey}`
+              if (that.props.csrfToken) srcNew += (srcNew.includes('?') ? '&' : '?') + `&_csrfToken=${that.props.csrfToken}`
             }
             imgs.push(srcNew)
             $img.on('click', (e) => {
