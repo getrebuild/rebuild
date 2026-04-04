@@ -488,17 +488,14 @@ function $isImage(name) {
 // 预览地址
 function $buildPreviewUrl(url) {
   let previewUrl = rb._officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src='
+  let isOoPreview = previewUrl.includes('/commons/file-preview?src=')
 
   // v4.3.3 pdfjs
-  if ($fileCutName(url).toLowerCase().endsWith('.pdf')) {
-    previewUrl = `${rb.baseUrl}/commons/pdf-preview?src=${$encode(url)}`
+  if (!isOoPreview && $fileCutName(url).toLowerCase().endsWith('.pdf')) {
     previewUrl = `${rb.baseUrl}/assets/lib/pdfjs/web/viewer.html?file=${$encode(url)}&theme=dark`
   } else {
-    if (previewUrl.includes('/commons/file-preview?src=')) {
-      previewUrl = rb.baseUrl + previewUrl
-    }
+    if (isOoPreview) previewUrl = rb.baseUrl + previewUrl
     previewUrl += $encode(url)
   }
-
   return previewUrl
 }
