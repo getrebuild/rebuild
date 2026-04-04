@@ -349,7 +349,7 @@ class ChartTable extends BaseChart {
     }
 
     const chartdata = (
-      <div className="chart ctable">
+      <div className="chart ctable table-header-fixed2">
         <div dangerouslySetInnerHTML={{ __html: data.html }} />
       </div>
     )
@@ -1644,7 +1644,7 @@ class DataList extends BaseChart {
         </table>
       )
 
-    const chartdata = <div className="chart ctable">{table}</div>
+    const chartdata = <div className="chart ctable table-header-fixed2">{table}</div>
     this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
       this._$tb = $(this._$body)
       this._$tb

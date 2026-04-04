@@ -1260,6 +1260,7 @@ class Md2Html extends React.Component {
     })
 
     this.setState({ md2html: cHtml }, () => {
+      // 链接安全
       $(this._$md2html)
         .find('a')
         .each(function () {

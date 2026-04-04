@@ -60,12 +60,12 @@
 
             const $save = $('.editor-toolbar button.save').attr('disabled', true)
             if (_lastContent == data.content) {
-              setTimeout(() => $save.attr('disabled', false), 1000)
+              setTimeout(() => $save.attr('disabled', false), 500)
               return
             }
 
             $.post('/commons/md-editor-save', JSON.stringify(data), (res) => {
-              setTimeout(() => $save.attr('disabled', false), 1000)
+              setTimeout(() => $save.attr('disabled', false), 500)
               if (res.error_code === 0) {
                 _lastContent = data.content
                 // RbHighbar.success($L('保存成功'))

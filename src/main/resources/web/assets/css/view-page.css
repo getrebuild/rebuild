@@ -1037,6 +1037,7 @@ body {
   font-weight: bold;
   margin: 0 0 14px !important;
   background-color: #eceff1;
+  background-color: rgba(230, 230, 230, 0.8);
   padding: 12px 15px;
   border-radius: 2px;
 }
