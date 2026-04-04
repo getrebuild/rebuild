@@ -21,7 +21,7 @@ const HIDE_ONCLICK = false
 class RbPreview extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { currentIndex: props.currentIndex || 0, inLoad: true }
+    this.state = { currentIndex: props.currentIndex || 0, inLoad: true, fullwidth: props.fullwidth }
   }
 
   render() {
@@ -49,6 +49,10 @@ class RbPreview extends React.Component {
       )
     }
 
+    const xdoc433 = this._isDoc(fileName) || this._isText(fileName)
+    const md433 = fileName.toLowerCase().endsWith('.md')
+    const pdf433 = fileName.toLowerCase().endsWith('.pdf')
+
     return (
       <RF>
         <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''} file-${$fileExtName(fileName)}`} ref={(c) => (this._dlg = c)} tabIndex="-1">
@@ -57,12 +61,17 @@ class RbPreview extends React.Component {
               <h5 className="text-bold">{fileName}</h5>
             </div>
             <div className="float-right">
-              {this.props.id && this._isDoc(fileName) && (
+              {(xdoc433 || md433 || pdf433) && (
+                <a title={$L('适应屏幕')} onClick={() => this.setState({ fullwidth: !this.state.fullwidth })}>
+                  <i className="mdi mdi-fit-to-screen-outline fs-19" />
+                </a>
+              )}
+              {this.props.id && (this._isDoc(fileName) || md433) && (
                 <a href={`${rb.baseUrl}/filex/editor?src=${this.props.id}`} target="_blank" title={$L('在线编辑')}>
                   <i className="mdi mdi-microsoft-office fs-17" />
                 </a>
               )}
-              {rb.fileSharable && (
+              {rb.fileSharable && rb.currentUser && (
                 <a onClick={this.share} title={$L('分享')}>
                   <i className="zmdi zmdi-share fs-17" />
                 </a>
@@ -138,7 +147,7 @@ class RbPreview extends React.Component {
 
   renderDoc() {
     return (
-      <div className={`container fp-content ${this.props.fullwidth && 'fullwidth'}`}>
+      <div className={`container fp-content ${this.state.fullwidth && 'fullwidth'}`}>
         <div className="iframe">
           {!this.state.docRendered && (
             <div className="must-center">
@@ -160,7 +169,7 @@ class RbPreview extends React.Component {
     } else if (this.state.previewText) {
       content = showMd ? (
         <div className="p-4 md-content">
-          <Md2Html markdown={this.state.previewText} />
+          <Md2Html markdown={this.state.previewText} csrfToken={this.props.csrfToken} />
         </div>
       ) : (
         <pre className="mb-0">{this.state.previewText}</pre>
@@ -168,7 +177,7 @@ class RbPreview extends React.Component {
     }
 
     return (
-      <div className={`container fp-content ${this.props.fullwidth && 'fullwidth'}`}>
+      <div className={`container fp-content ${this.state.fullwidth && 'fullwidth'}`}>
         <div className="iframe text">
           {this.state.previewText || this.state.previewText === '' ? (
             content
