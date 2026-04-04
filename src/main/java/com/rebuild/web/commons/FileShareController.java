@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.api.RespBody;
+import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
@@ -44,7 +45,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -167,8 +167,10 @@ public class FileShareController extends BaseController {
             return null;
         }
 
-        String publicUrl = makePublicUrl(fileUrl, null);
-        return createModelAndView("/common/shared-file", Collections.singletonMap("publicUrl", publicUrl));
+        Map<String, Object> map = new HashMap<>();
+        map.put("publicUrl", makePublicUrl(fileUrl, null));
+        map.put("csrfToken", AuthTokenManager.generateCsrfToken(180));
+        return createModelAndView("/common/shared-file", map);
     }
 
     @GetMapping("/filex/all-make-share")

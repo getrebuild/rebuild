@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -7,9 +7,6 @@
     <meta name="og:image" content="https://getrebuild.com/img/logo256.png" />
     <title>[[${bundle.L('分享文件')}]]</title>
     <style>
-      .preview-modal .preview-header .float-right a:first-child {
-        display: none;
-      }
       .preview-modal {
         background-color: transparent;
         z-index: 10;
@@ -43,7 +40,7 @@
     </script>
     <script type="text/babel">
       $(document).ready(() => {
-        renderRbcomp(<RbPreview urls={[window.__PageConfig.publicUrl]} unclose fullwidth />)
+        renderRbcomp(<RbPreview urls={[window.__PageConfig.publicUrl]} unclose fullwidth csrfToken={rb.csrfToken} />)
       })
     </script>
   </body>

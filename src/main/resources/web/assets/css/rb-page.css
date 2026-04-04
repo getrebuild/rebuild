@@ -6561,7 +6561,9 @@ div.formula-code {
   overflow: visible;
 }
 
-.md-content img {
+.md-content img,
+.md-content video,
+.md-content audio {
   max-width: 100%;
   height: auto;
   box-sizing: content-box;
