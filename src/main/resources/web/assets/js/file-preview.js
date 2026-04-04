@@ -154,13 +154,14 @@ class RbPreview extends React.Component {
   renderText(fileName) {
     let showMd = fileName && fileName.toLowerCase().endsWith('.md')
     if (showMd && this.state._showMd === false) showMd = false
+
     let content = null
     if (this.state.previewText === '') {
       content = <i className="text-muted">{$L('无')}</i>
     } else if (this.state.previewText) {
       content = showMd ? (
         <div className="p-4 md-content">
-          <Md2Html markdown={this.state.previewText} />
+          <Md2Html markdown={this.state.previewText} shareKey={this.props.shareKey} />
         </div>
       ) : (
         <pre className="mb-0">{this.state.previewText}</pre>
@@ -231,7 +232,7 @@ class RbPreview extends React.Component {
       }
     } else if (this._isText(fileName)) {
       $.ajax({
-        url: `/filex/read-raw?url=${$encode(currentUrl)}&cut=10`,
+        url: `/filex/read-raw?url=${$encode(currentUrl)}&cut=20`,
         type: 'GET',
         dataType: 'text',
         success: function (raw) {

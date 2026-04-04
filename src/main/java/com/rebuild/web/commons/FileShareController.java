@@ -121,10 +121,10 @@ public class FileShareController extends BaseController {
             map.put("shareKey", shareKey);
             map.put("csrfToken", "sk:" + shareKey);
             return createModelAndView("/common/shared-dash", map);
-
         }
+
         // 分享目录
-        else if (folderOrDash42 != null && folderOrDash42.getEntityCode() == EntityHelper.AttachmentFolder) {
+        if (folderOrDash42 != null && folderOrDash42.getEntityCode() == EntityHelper.AttachmentFolder) {
             String viewFile = getParameter(request, "file");
             // 查看目录内文件
             if (ID.isId(viewFile)) {
@@ -167,8 +167,10 @@ public class FileShareController extends BaseController {
             return null;
         }
 
-        String publicUrl = makePublicUrl(fileUrl, null);
-        return createModelAndView("/common/shared-file", Collections.singletonMap("publicUrl", publicUrl));
+        Map<String, Object> map = new HashMap<>();
+        map.put("publicUrl", makePublicUrl(fileUrl, null));
+        map.put("shareKey", shareKey);
+        return createModelAndView("/common/shared-file", map);
     }
 
     @GetMapping("/filex/all-make-share")

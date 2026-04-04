@@ -16,7 +16,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
-import com.rebuild.core.configuration.general.EasyActionManager;
 import com.rebuild.core.configuration.general.FormsBuilder;
 import com.rebuild.core.configuration.general.FormsBuilderContextHolder;
 import com.rebuild.core.configuration.general.FormsManager;
@@ -32,6 +31,7 @@ import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
@@ -52,7 +52,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.rebuild.core.configuration.general.EasyActionManager.*;
+import static com.rebuild.core.configuration.general.EasyActionManager.PLAT_MOB;
+import static com.rebuild.core.configuration.general.EasyActionManager.PLAT_PC;
+import static com.rebuild.core.configuration.general.EasyActionManager.TYPE_VIEW;
+import static com.rebuild.core.configuration.general.EasyActionManager.instance;
 
 /**
  * 表单/视图
@@ -91,7 +94,7 @@ public class GeneralModelController extends EntityController {
         mv.getModel().put("ShowViewHistory", RebuildConfiguration.getBool(ConfigurationItem.ShowViewHistory));
         // EasyAction
         mv.getModel().put("easyAction",
-                CommonsUtils.sanitizeHtml(instance.getEasyAction(entity, user)));
+                CommonsUtils.sanitizeHtml(instance.getEasyAction(entity, user, TYPE_VIEW, PLAT_PC)));
 
         mv.getModel().put("id", id);
         return mv;
@@ -215,7 +218,7 @@ public class GeneralModelController extends EntityController {
             model.put("isDetail", modelEntity.getMainEntity() != null);
             // EasyAction
             String easyAction = CommonsUtils.sanitizeHtml(
-                    instance.getEasyAction(modelEntity.getName(), user, TYPE_VIEW));
+                    instance.getEasyAction(modelEntity.getName(), user, TYPE_VIEW, AppUtils.isRbMobile(request) ? PLAT_MOB : PLAT_PC));
             if (JSONUtils.wellFormat(easyAction)) {
                 model.put("easyAction", JSON.parse(easyAction));
             }

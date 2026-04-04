@@ -1250,13 +1250,17 @@ class Md2Html extends React.Component {
       md = md.replace(/&gt; /g, '> ')
     }
 
+    const that = this
     let cHtml = marked.parse(md)
     cHtml = cHtml.replace(/<img src="([^"]+)"/g, function (s, src) {
       let srcNew = src + (src.includes('?') ? '&' : '?') + 'imageView2/2/w/1000/interlace/1/q/100'
+      // fix:v4.4 分享查看
+      if (that.props.shareKey && srcNew.includes('/filex/img/')) srcNew += `&e=${that.props.shareKey}`
       return s.replace(src, srcNew)
     })
 
     this.setState({ md2html: cHtml }, () => {
+      // 链接安全
       $(this._$md2html)
         .find('a')
         .each(function () {
@@ -1275,16 +1279,17 @@ class Md2Html extends React.Component {
         .find('img[src]')
         .each(function () {
           const $img = $(this)
-          let isrc = $img.attr('src')
-          if (isrc) {
-            if (isrc.includes('/filex/img/')) {
-              isrc = isrc.split('/filex/img/')[1].split(/[?&]imageView2/)[0]
+          let srcNew = $img.attr('src')
+          if (srcNew) {
+            if (srcNew.includes('/filex/img/')) {
+              srcNew = srcNew.split('/filex/img/')[1].split(/[?&]imageView2/)[0]
+              if (that.props.shareKey) srcNew += (srcNew.includes('?') ? '&' : '?') + `e=${that.props.shareKey}`
             }
-            imgs.push(isrc)
+            imgs.push(srcNew)
             $img.on('click', (e) => {
               $stopEvent(e, true)
               const p = parent || window
-              p.RbPreview.create(imgs, imgs.indexOf(isrc) || 0)
+              p.RbPreview.create(imgs, imgs.indexOf(srcNew) || 0)
             })
           }
         })

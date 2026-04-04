@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -39,11 +39,12 @@
     <script>
       window.__PageConfig = {
         publicUrl: '[[${publicUrl}]]'.replace('&amp;', '&'),
+        shareKey: '[[${shareKey}]]',
       }
     </script>
     <script type="text/babel">
       $(document).ready(() => {
-        renderRbcomp(<RbPreview urls={[window.__PageConfig.publicUrl]} unclose fullwidth />)
+        renderRbcomp(<RbPreview urls={[window.__PageConfig.publicUrl]} shareKey={window.__PageConfig.shareKey} unclose fullwidth />)
       })
     </script>
   </body>

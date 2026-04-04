@@ -37,8 +37,11 @@ public class EasyActionManager extends BaseLayoutManager {
     public static final String TYPE_DATAROW = "datarow";
     public static final String TYPE_VIEW = "view";
 
-    private EasyActionManager() {
-    }
+    public static final int PLAT_ALL = 3;
+    public static final int PLAT_PC = 1;
+    public static final int PLAT_MOB = 2;
+
+    private EasyActionManager() {}
 
     /**
      * @param entity
@@ -46,16 +49,17 @@ public class EasyActionManager extends BaseLayoutManager {
      * @return
      */
     public JSON getEasyAction(String entity, ID user) {
-        return getEasyAction(entity, user, null);
+        return getEasyAction(entity, user, null, PLAT_ALL);
     }
 
     /**
      * @param entity
      * @param user
      * @param specType
+     * @param specPlat
      * @return
      */
-    public JSON getEasyAction(String entity, ID user, String specType) {
+    public JSON getEasyAction(String entity, ID user, String specType, int specPlat) {
         ConfigBean cb = getLayout(UserService.SYSTEM_USER, entity, TYPE_EASYACTION, null);
         if (cb == null) return null;
 
@@ -83,7 +87,9 @@ public class EasyActionManager extends BaseLayoutManager {
                         JSONObject itemL2Obj = (JSONObject) itemL2;
                         String shareTo = itemL2Obj.getString("shareTo");
                         if (UserHelper.isAdmin(user) || isShareTo(shareTo, user)) {
-                            items4UserL2.add(itemL2Obj);
+                            if (isPlat(itemL2Obj, specPlat)) {
+                                items4UserL2.add(itemL2Obj);
+                            }
                         }
                     }
 
@@ -96,7 +102,9 @@ public class EasyActionManager extends BaseLayoutManager {
                 } else {
                     String shareTo = itemObj.getString("shareTo");
                     if (UserHelper.isAdmin(user) || isShareTo(shareTo, user)) {
-                        items4User.add(itemObj);
+                        if (isPlat(itemObj, specPlat)) {
+                            items4User.add(itemObj);
+                        }
                     }
                 }
             }
@@ -130,6 +138,7 @@ public class EasyActionManager extends BaseLayoutManager {
         return action;
     }
 
+    // 根据ID找Action
     private JSONObject findActionByEeid(JSONArray typeItems, String eeid) {
         if (typeItems == null) return null;
 
@@ -149,6 +158,14 @@ public class EasyActionManager extends BaseLayoutManager {
             }
         }
         return null;
+    }
+
+    // 指定端可用
+    private boolean isPlat(JSONObject action, int specPlat) {
+        if (specPlat == PLAT_ALL) return true;
+        Integer plat = action.getInteger("specPlat");
+        if (plat == null || plat == 3) return true;
+        return plat == specPlat;
     }
 
     /**
