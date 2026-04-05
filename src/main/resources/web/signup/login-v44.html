@@ -1,0 +1,252 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="og:image" content="https://getrebuild.com/img/logo256.png" />
+    <title>[[${bundle.L('用户登录')}]]</title>
+    <style>
+      .vcode-row {
+        height: 41px;
+        max-width: 100%;
+      }
+      .vcode-row img {
+        cursor: pointer;
+      }
+      .rb-bgimg {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 1;
+        background: url(../assets/img/bg.jpg) no-repeat 0 0;
+        background-image: url(../commons/theme/use-bgimg);
+        background-size: cover;
+        opacity: 1;
+      }
+      .rb-bgimg::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        background: rgba(0, 0, 0, 0.1);
+      }
+      .h5-mobile .icon {
+        background-color: #fc9a00;
+        color: #fff;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        line-height: 25px;
+        font-size: 1.2rem;
+        text-align: center;
+        overflow: hidden;
+      }
+      .h5-mobile.pwa .icon {
+        line-height: 26px;
+      }
+      .h5-mobile span {
+        float: right;
+        color: rgb(64, 64, 64);
+        margin-left: 6px;
+        margin-top: 6px;
+        font-size: 13px;
+      }
+      .h5-mobile.dropup .dropdown-menu {
+        min-width: 0;
+        width: 160px;
+        padding: 6px;
+      }
+      .h5-mobile.dropup:hover .dropdown-menu {
+        display: block;
+        margin-top: 0; /* remove the gap so it doesn't close */
+      }
+      .login-with {
+        text-align: center;
+        border-top: 1px solid #ebebeb;
+        position: relative;
+        padding-top: 25px;
+        margin: 25px 0 20px;
+      }
+      .login-with > span {
+        position: absolute;
+        font-size: 13px;
+        color: #777;
+        background-color: #fff;
+        top: -9px;
+        width: 88px;
+        left: 50%;
+        margin-left: -44px;
+      }
+      .login-with > a {
+        display: inline-block;
+        margin: 0 8px;
+      }
+      .login-with > a > img {
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        background-color: #eee;
+      }
+
+      .splash-container {
+        width: 860px;
+        max-width: 100%;
+        background-color: #fff;
+        margin: 0 auto;
+      }
+      @media (max-width: 767.98px) {
+        .splash-container {
+          width: 430px;
+        }
+      }
+
+      .bulletin-board {
+        background-color: #4285f4;
+        background-color: var(--rb-theme-color);
+      }
+      .login-form {
+        padding: 40px;
+        padding-bottom: 30px;
+      }
+      .login-form .logo-img {
+        margin: 3rem auto;
+        margin-top: 1rem;
+      }
+      .main-content {
+        padding: 70px 0;
+      }
+      .bulletin-board > div {
+        padding: 25px;
+        color: rgba(255, 255, 255, 0.9);
+        text-align: left;
+        overflow: hidden;
+        position: relative;
+      }
+      .bulletin-board > div h1,
+      .bulletin-board > div h2,
+      .bulletin-board > div h3,
+      .bulletin-board > div h4 {
+        line-height: 1.4;
+      }
+    </style>
+    <script>
+      if (navigator.userAgent.indexOf('MSIE') > -1 || navigator.userAgent.indexOf('Trident') > -1) {
+        location.href = '../error/unsupported-browser'
+      }
+    </script>
+  </head>
+  <body class="rb-splash-screen">
+    <img src="https://getrebuild.com/img/logo256.png" alt="Logo for Thumb" style="display: none" />
+    <div class="rb-wrapper rb-login">
+      <div class="rb-bgimg"></div>
+      <div class="rb-content" style="z-index: 2">
+        <div class="announcement-wrapper">
+          <div class="bg-danger" th:if="${UsersMsg != null}">
+            <i class="icon zmdi zmdi-alert-octagon"></i>
+            <p th:utext="${UsersMsg}"></p>
+          </div>
+        </div>
+        <div class="main-content container-fluid">
+          <div class="splash-container row">
+            <div class="col-12 col-md-6 d-none d-md-block bulletin-board">
+              <div class="must-center text-break" th:utext="${_LoginBulletinBoard}"></div>
+            </div>
+            <div class="col-12 col-md-6 login-form">
+              <div><a class="logo-img"></a></div>
+              <form id="login-form">
+                <div class="form-group">
+                  <input class="form-control" id="user" type="text" th:placeholder="${bundle.L('用户名 (或邮箱)')}" />
+                </div>
+                <div class="form-group">
+                  <input class="form-control" id="passwd" type="password" th:placeholder="${bundle.L('密码')}" />
+                </div>
+                <div class="form-group row pt-0 mb-3 vcode-row" th:if="${session.needLoginVCode}">
+                  <div class="col-6 pr-0">
+                    <input class="form-control" type="text" th:placeholder="${bundle.L('验证码')}" />
+                  </div>
+                  <div class="col-6 text-right pl-0 pr-0">
+                    <img class="mw-100" style="margin-right: -15px" src="captcha" th:title="${bundle.L('点击刷新')}" alt="CAPTCHA" />
+                  </div>
+                </div>
+                <div class="form-group row login-tools">
+                  <div class="col-6 login-remember">
+                    <label class="custom-control custom-checkbox custom-control-inline mb-0">
+                      <input class="custom-control-input" type="checkbox" id="autoLogin" />
+                      <span class="custom-control-label">[[${bundle.L('记住登录')}]]</span>
+                    </label>
+                  </div>
+                  <div class="col-6 login-forgot-password">
+                    <a href="forgot-passwd">[[${bundle.L('找回密码')}]]</a>
+                  </div>
+                </div>
+                <div class="form-group login-submit mb-2">
+                  <button class="btn btn-primary btn-xl" type="submit" data-spinner>[[${bundle.L('登录')}]]</button>
+                  <div class="mt-4 text-center" th:utext="${bundle.L('还没有账号? [立即注册](signup)')}"></div>
+                </div>
+                <div class="login-with d-none d-md-block" th:if="${ssoDingtalk != null || ssoWxwork != null || ssoFeishu != null || ssoIdpaas != null}">
+                  <span>[[${bundle.L('第三方登录')}]]</span>
+                  <a href="login/sso?protocol=dingtalk" th:if="${ssoDingtalk != null}" data-toggle="tooltip" th:title="${bundle.L('钉钉')}">
+                    <img th:src="@{/assets/img/dingtalk256.png}" alt="DingTalk" />
+                  </a>
+                  <a href="login/sso?protocol=wxwork" th:if="${ssoWxwork != null}" data-toggle="tooltip" th:title="${bundle.L('企业微信')}">
+                    <img th:src="@{/assets/img/wxwork512.png}" alt="WeCom" />
+                  </a>
+                  <a href="login/sso?protocol=feishu" th:if="${ssoFeishu != null}" data-toggle="tooltip" th:title="${bundle.L('飞书')}">
+                    <img th:src="@{/assets/img/feishu512.png}" alt="Feishu" />
+                  </a>
+                  <a href="login/sso?protocol=idpaas" th:if="${ssoIdpaas != null}" data-toggle="tooltip" th:title="${bundle.L('SSO 登录')}">
+                    <img th:src="@{/assets/img/icon-sso.png}" alt="SSO" />
+                  </a>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-8">
+                    <div class="btn-group dropup h5-mobile fs-0">
+                      <a class="dropdown-toggle" data-toggle="dropdown" th:href="${mobileUrl}">
+                        <i class="icon zmdi zmdi-smartphone-iphone"></i>
+                        <span class="up-1">[[${bundle.L('手机版')}]]</span>
+                      </a>
+                      <div class="dropdown-menu shadow-lg">
+                        <div>
+                          <img class="w-100" alt="Mobile QR" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="btn-group dropup h5-mobile pwa fs-0 ml-2">
+                      <a>
+                        <i class="icon mdi mdi-monitor-arrow-down fs-14"></i>
+                        <span class="up-1">[[${bundle.L('放在桌面')}]]</span>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="col-4 text-right pl-0">
+                    <div class="btn-group">
+                      <a class="select-lang dropdown-toggle" data-toggle="dropdown">
+                        <i class="icon zmdi zmdi-globe-alt"></i>
+                        <span>[[${currentLang}]]</span>
+                      </a>
+                      <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item" th:each="L : ${availableLangs}" th:href="${'?locale=' + L[0]}">[[${L[1]}]]</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+              <div class="splash-footer mt-4">
+                <div class="copyright link">
+                  &copy;
+                  <th:block th:utext="${commercial >= 100 ? appName : bundle.L('[REBUILD](https://getrebuild.com/) 技术支持')}" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div th:if="${pageFooter != null}" class="page-footer">[(${pageFooter})]</div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/feeds/announcement.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/login.js}" type="text/babel"></script>
+  </body>
+</html>
