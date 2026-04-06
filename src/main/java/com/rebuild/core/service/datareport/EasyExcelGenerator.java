@@ -571,7 +571,7 @@ public class EasyExcelGenerator extends SetUser {
             } else {
                 o = Application.createQuery(sql).setParameter(1, recordId).unique();
             }
-            return o == null || o[0] == null ? StringUtils.EMPTY : o[0];
+            return o == null || o[0] == null ? StringUtils.EMPTY : o[0].toString();
         }
 
         return null;
