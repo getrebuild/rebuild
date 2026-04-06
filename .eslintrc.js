@@ -165,5 +165,6 @@ module.exports = {
     $syncGet: true,
     $base64Encode: true,
     RbAlertFree43: true,
+    RbViewModal: true,
   },
 }

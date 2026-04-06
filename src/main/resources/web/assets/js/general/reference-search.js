@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const wpc = window.__PageConfig
 
+// 查询包装
 const _RbList_renderAfter = RbList.renderAfter
 RbList.renderAfter = function () {
   typeof _RbList_renderAfter === 'function' && _RbList_renderAfter()
@@ -37,6 +38,13 @@ RbList.queryBefore = function (query) {
     }
   }
   return query
+}
+
+// 新窗口打开
+CellRenders.clickView = function (v, e) {
+  e && $stopEvent(e, true)
+  RbViewModal.openView({ id: v.id, entity: v.entity }, null, true)
+  return false
 }
 
 $(document).ready(() => {
