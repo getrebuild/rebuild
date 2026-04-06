@@ -41,6 +41,7 @@ import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.img.ImageView2;
+import lombok.Data;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
@@ -59,6 +60,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -571,7 +573,10 @@ public class EasyExcelGenerator extends SetUser {
             } else {
                 o = Application.createQuery(sql).setParameter(1, recordId).unique();
             }
-            return o == null || o[0] == null ? StringUtils.EMPTY : o[0].toString();
+
+            if (o == null || o[0] == null) return StringUtils.EMPTY;
+            if (o[0] instanceof Date) return CalendarUtils.getUTCDateTimeFormat().format((Date) o[0]);
+            return o[0].toString();
         }
 
         return null;
