@@ -46,13 +46,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class UserStore implements Initialization {
 
-    final private Map<ID, User> USERS = new ConcurrentHashMap<>();
-    final private Map<ID, Role> ROLES = new ConcurrentHashMap<>();
-    final private Map<ID, Department> DEPTS = new ConcurrentHashMap<>();
-    final private Map<ID, Team> TEAMS = new ConcurrentHashMap<>();
-
-    final private Map<String, ID> USERS_NAME2ID = new ConcurrentHashMap<>();
-    final private Map<String, ID> USERS_MAIL2ID = new ConcurrentHashMap<>();
+    final private Map<ID, User> USERS = new MapWarpper<>("UserStore#USERS", new ConcurrentHashMap<>());
+    final private Map<ID, Role> ROLES = new MapWarpper<>("UserStore#ROLES", new ConcurrentHashMap<>());
+    final private Map<ID, Department> DEPTS = new MapWarpper<>("UserStore#DEPTS", new ConcurrentHashMap<>());
+    final private Map<ID, Team> TEAMS = new MapWarpper<>("UserStore#TEAMS", new ConcurrentHashMap<>());
+    final private Map<String, ID> USERS_NAME2ID = new MapWarpper<>("UserStore#USERS_NAME2ID", new ConcurrentHashMap<>());
+    final private Map<String, ID> USERS_MAIL2ID = new MapWarpper<>("UserStore#USERS_MAIL2ID", new ConcurrentHashMap<>());
 
     final private PersistManagerFactory aPMFactory;
 
@@ -611,6 +610,13 @@ public class UserStore implements Initialization {
             this.refreshTeam((ID) o[0]);
         }
         log.info("Loaded [ {} ] teams.", TEAMS.size());
+
+        MapWarpper.enableAutoSync(USERS);
+        MapWarpper.enableAutoSync(DEPTS);
+        MapWarpper.enableAutoSync(TEAMS);
+        MapWarpper.enableAutoSync(ROLES);
+        MapWarpper.enableAutoSync(USERS_MAIL2ID);
+        MapWarpper.enableAutoSync(USERS_NAME2ID);
 
         isLoaded = true;
     }

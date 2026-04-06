@@ -7,6 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.distributed;
 
+import com.rebuild.core.Application;
+import com.rebuild.core.support.CommandArgs;
+
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
@@ -18,6 +21,8 @@ import java.util.concurrent.ConcurrentMap;
  * @since 2020/9/27
  */
 public interface DistributedSupport {
+
+    String KEY_PREFIX = "DISTR44:";
 
     /**
      * @param namespace
@@ -40,4 +45,27 @@ public interface DistributedSupport {
      * @return
      */
     <T> Set<T> getSet(String namespace);
+
+    /**
+     * @return
+     */
+    boolean isDistributedEnv();
+
+    // -- TOOLS
+
+    /**
+     * 节点名称
+     *
+     * @return
+     */
+    static String getNodeName() {
+        return CommandArgs.getString("_DistributedNodeName", "0");
+    }
+
+    /**
+     * @return
+     */
+    static DistributedSupport instance() {
+        return (DistributedSupport) Application.getContext().getBean("rbv.DistributedSupport");
+    }
 }

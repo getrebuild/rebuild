@@ -79,7 +79,7 @@ public class BootConfiguration implements InstallState {
         return manager;
     }
 
-    @Bean("DistributedSupport")
+    @Bean("rbv.DistributedSupport")
     DistributedSupport createDistributedSupport() {
         Class<?> clazz = null;
         JedisPool redis = null;
