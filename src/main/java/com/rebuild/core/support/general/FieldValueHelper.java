@@ -430,7 +430,8 @@ public class FieldValueHelper {
         }
 
         Entity bizzEntity = field.getReferenceEntity();
-        if (bizzEntity == null) bizzEntity = MetadataHelper.getEntity(EntityHelper.User);
+        if (bizzEntity == null) return null;  // fix:4.3.3
+
         if (user == null) user = UserContextHolder.getUser();
 
         // 支持点连接 {CURRENT.xxx}
