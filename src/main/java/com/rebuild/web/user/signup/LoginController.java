@@ -105,6 +105,7 @@ public class LoginController extends LoginAction {
         if (RebuildConfiguration.getInt(ConfigurationItem.LoginPageStyle) == 44) {
             mv = createModelAndView("/signup/login-v44");
             String m = RebuildConfiguration.get(ConfigurationItem.LoginBulletinBoard);
+            if (StringUtils.isBlank(m)) m = "## _REBUILD_\n## _零代码、开源免费的企业管理系统_";
             m = MarkdownUtils.render(m, true, true);
             mv.getModel().put("_LoginBulletinBoard", m);
         } else {

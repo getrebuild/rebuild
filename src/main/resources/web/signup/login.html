@@ -5,26 +5,6 @@
     <meta name="og:image" content="https://getrebuild.com/img/logo256.png" />
     <title>[[${bundle.L('用户登录')}]]</title>
     <style>
-      #login-form > .row {
-        margin-left: -15px !important;
-        margin-right: -15px !important;
-      }
-      .vcode-row {
-        height: 41px;
-        max-width: 100%;
-      }
-      .vcode-row img {
-        cursor: pointer;
-      }
-      .splash-footer *,
-      .copyright,
-      .copyright * {
-        color: rgba(255, 255, 255, 0.9) !important;
-        text-shadow: 0 1px 1px #555;
-        max-width: 680px;
-        margin: 0 auto;
-        text-align: center;
-      }
       .rb-bgimg {
         position: fixed;
         width: 100%;
@@ -43,6 +23,22 @@
         height: 100%;
         z-index: 1;
         background: rgba(0, 0, 0, 0.1);
+      }
+      .splash-footer *,
+      .copyright,
+      .copyright * {
+        color: rgba(255, 255, 255, 0.9) !important;
+        text-shadow: 0 1px 1px #555;
+        max-width: 680px;
+        margin: 0 auto;
+        text-align: center;
+      }
+      .vcode-row {
+        height: 41px;
+        max-width: 100%;
+      }
+      .vcode-row img {
+        cursor: pointer;
       }
       .h5-mobile .icon {
         background-color: #fc9a00;
@@ -101,6 +97,11 @@
         height: 32px;
         border-radius: 6px;
         background-color: #eee;
+      }
+
+      #login-form > .row {
+        margin-left: -15px !important;
+        margin-right: -15px !important;
       }
     </style>
     <script>
