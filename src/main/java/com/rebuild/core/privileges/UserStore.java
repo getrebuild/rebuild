@@ -23,6 +23,8 @@ import com.rebuild.core.privileges.bizz.CustomEntityPrivileges;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.privileges.bizz.ZeroPrivileges;
+import com.rebuild.core.support.distributed.DistributedSupport;
+import com.rebuild.core.support.distributed.UseDistributed;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
@@ -44,14 +46,15 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @Component
-public class UserStore implements Initialization {
+public class UserStore implements Initialization, UseDistributed {
 
-    final private Map<ID, User> USERS = new MapWarpper<>("UserStore#USERS", new ConcurrentHashMap<>());
-    final private Map<ID, Role> ROLES = new MapWarpper<>("UserStore#ROLES", new ConcurrentHashMap<>());
-    final private Map<ID, Department> DEPTS = new MapWarpper<>("UserStore#DEPTS", new ConcurrentHashMap<>());
-    final private Map<ID, Team> TEAMS = new MapWarpper<>("UserStore#TEAMS", new ConcurrentHashMap<>());
-    final private Map<String, ID> USERS_NAME2ID = new MapWarpper<>("UserStore#USERS_NAME2ID", new ConcurrentHashMap<>());
-    final private Map<String, ID> USERS_MAIL2ID = new MapWarpper<>("UserStore#USERS_MAIL2ID", new ConcurrentHashMap<>());
+    // #init
+    final private Map<ID, User> USERS = new ConcurrentHashMap<>();
+    final private Map<ID, Role> ROLES = new ConcurrentHashMap<>();
+    final private Map<ID, Department> DEPTS = new ConcurrentHashMap<>();
+    final private Map<ID, Team> TEAMS = new ConcurrentHashMap<>();
+    final private Map<String, ID> USERS_NAME2ID = new ConcurrentHashMap<>();
+    final private Map<String, ID> USERS_MAIL2ID = new ConcurrentHashMap<>();
 
     final private PersistManagerFactory aPMFactory;
 
@@ -552,6 +555,7 @@ public class UserStore implements Initialization {
 
     @Override
     public void init() {
+
         // 用户
 
         Object[][] array = aPMFactory.createQuery("select " + USER_FS + " from User").array();
@@ -611,13 +615,6 @@ public class UserStore implements Initialization {
         }
         log.info("Loaded [ {} ] teams.", TEAMS.size());
 
-        MapWarpper.enableAutoSync(USERS);
-        MapWarpper.enableAutoSync(DEPTS);
-        MapWarpper.enableAutoSync(TEAMS);
-        MapWarpper.enableAutoSync(ROLES);
-        MapWarpper.enableAutoSync(USERS_MAIL2ID);
-        MapWarpper.enableAutoSync(USERS_NAME2ID);
-
         isLoaded = true;
     }
 
@@ -661,5 +658,18 @@ public class UserStore implements Initialization {
             }
             role.addPrivileges(p);
         }
+    }
+
+    @Override
+    public String refresh() {
+        USERS.clear();
+        DEPTS.clear();
+        ROLES.clear();
+        TEAMS.clear();
+        USERS_NAME2ID.clear();
+        USERS_MAIL2ID.clear();
+
+        init();
+        return "UserStore#OK";
     }
 }

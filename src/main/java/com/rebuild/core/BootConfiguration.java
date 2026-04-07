@@ -9,6 +9,7 @@ package com.rebuild.core;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.xml.XMLHelper;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.DistributedSupport;
@@ -33,6 +34,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
+
+import static com.rebuild.core.support.CommandArgs._UseDistributed;
 
 /**
  * NOTE JRebel reloading error
@@ -81,20 +84,22 @@ public class BootConfiguration implements InstallState {
 
     @Bean("rbv.DistributedSupport")
     DistributedSupport createDistributedSupport() {
-        Class<?> clazz = null;
-        JedisPool redis = null;
-        try {
-            clazz = Class.forName("com.rebuild.rbv.core.support.DistributedSupportImpl");
-            redis = createJedisPool();
-        } catch (ClassNotFoundException ignored) {
-        }
-
-        if (clazz != null && redis != null && redis != USE_EHCACHE) {
+        if (CommandArgs.getBoolean(_UseDistributed)) {
+            Class<?> clazz = null;
+            JedisPool redis = null;
             try {
-                Constructor<?> c = clazz.getConstructor(JedisPool.class);
-                return (DistributedSupport) c.newInstance(redis);
-            } catch (ReflectiveOperationException e) {
-                log.error("Cannot instance `DistributedSupportImpl`!", e);
+                clazz = Class.forName("com.rebuild.rbv.core.support.DistributedSupportImpl");
+                redis = createJedisPool();
+            } catch (ClassNotFoundException ignored) {
+            }
+
+            if (clazz != null && redis != null && redis != USE_EHCACHE) {
+                try {
+                    Constructor<?> c = clazz.getConstructor(JedisPool.class);
+                    return (DistributedSupport) c.newInstance(redis);
+                } catch (ReflectiveOperationException e) {
+                    log.error("Cannot instance `DistributedSupportImpl`!", e);
+                }
             }
         }
 
