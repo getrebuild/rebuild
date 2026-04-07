@@ -41,7 +41,6 @@ import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.img.ImageView2;
-import lombok.Data;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
@@ -575,8 +574,7 @@ public class EasyExcelGenerator extends SetUser {
             }
 
             if (o == null || o[0] == null) return StringUtils.EMPTY;
-            if (o[0] instanceof Date) return CalendarUtils.getUTCDateTimeFormat().format((Date) o[0]);
-            return o[0].toString();
+            return (o[0] instanceof Date || o[0] instanceof Number) ? o[0] : o[0].toString();
         }
 
         return null;
