@@ -59,7 +59,7 @@ public class CommandArgs {
 
     // v4.4
     public static final String _CleanCacheOnStartup = "_CleanCacheOnStartup";
-    public static final String _UseDistributed = "_UseDistributed";
+    public static final String _UseDistributedNode = "_UseDistributedNode";
 
     /**
      * 内部消息同步发送短信

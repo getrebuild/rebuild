@@ -59,7 +59,7 @@ public interface DistributedSupport {
      * @return
      */
     static String getNodeName() {
-        return CommandArgs.getString("_DistributedNodeName", "0");
+        return CommandArgs.getString(CommandArgs._UseDistributedNode, null);
     }
 
     /**

@@ -9,7 +9,6 @@ package com.rebuild.core;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.xml.XMLHelper;
-import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.DistributedSupport;
@@ -34,8 +33,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
-
-import static com.rebuild.core.support.CommandArgs._UseDistributed;
 
 /**
  * NOTE JRebel reloading error
@@ -84,7 +81,8 @@ public class BootConfiguration implements InstallState {
 
     @Bean("rbv.DistributedSupport")
     DistributedSupport createDistributedSupport() {
-        if (CommandArgs.getBoolean(_UseDistributed)) {
+        if (DistributedSupport.getNodeName() != null) {
+            log.warn("Enable _UseDistributedNode : {}", DistributedSupport.getNodeName());
             Class<?> clazz = null;
             JedisPool redis = null;
             try {
