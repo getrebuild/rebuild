@@ -59,6 +59,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -571,7 +572,9 @@ public class EasyExcelGenerator extends SetUser {
             } else {
                 o = Application.createQuery(sql).setParameter(1, recordId).unique();
             }
-            return o[0];
+
+            if (o == null || o[0] == null) return StringUtils.EMPTY;
+            return (o[0] instanceof Date || o[0] instanceof Number) ? o[0] : o[0].toString();
         }
 
         return null;
