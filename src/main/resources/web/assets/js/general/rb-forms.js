@@ -886,12 +886,11 @@ class RbForm extends React.Component {
             // ~
           } else if (next === RbForm.NEXT_VIEW) {
             if (window.RbViewModal) {
-              window.RbViewModal.create({ id: recordId, entity: this.state.entity })
-              if (window.RbListPage) location.hash = `!/View/${this.state.entity}/${recordId}`
+              window.RbViewModal.openView({ id: recordId, entity: this.state.entity })
             } else if (parent && parent.RbViewModal) {
-              parent.RbViewModal.create({ id: recordId, entity: this.state.entity }, true)
+              parent.RbViewModal.openView({ id: recordId, entity: this.state.entity }, true)
             } else {
-              window.open(`${rb.baseUrl}/app/redirect?id=${recordId}&type=dock`)
+              window.open(`${rb.baseUrl}/app/redirect?id=${recordId}&type=newtab`)
             }
             // ~
           } else if (next === RbForm.NEXT_ADD36) {
