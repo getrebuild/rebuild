@@ -15,7 +15,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -50,8 +49,8 @@ public class FieldValueSourceDetector {
      * @param field
      * @return
      */
-    protected List<Object> detectTriggers(Field field) {
-        Entity entity = field.getOwnEntity();
+    protected List<Object> detectTriggers(final Field field) {
+        final Entity fieldOfEntity = field.getOwnEntity();
         Object[][] array = Application.createQueryNoFilter(
                 "select configId,actionType,actionContent,belongEntity from RobotTriggerConfig where when > 0 and actionContent is not null and isDisabled <> 'T'")
                 .array();
@@ -60,6 +59,9 @@ public class FieldValueSourceDetector {
         for (Object[] o : array) {
             String config = (String) o[2];
             if (!JSONUtils.wellFormat(config)) continue;
+            // 不包含字段
+            if (!config.contains(field.getName())) continue;
+            System.out.println(config);
 
             JSONObject configJson = JSON.parseObject(config);
             String targetEntity = configJson.getString("targetEntity");
@@ -72,8 +74,12 @@ public class FieldValueSourceDetector {
                 }
             }
             if (StringUtils.isBlank(targetEntity)) continue;
-            // FIELD.ENTITY
-            if (targetEntity.contains(".")) targetEntity = targetEntity.split("\\.")[1];
+
+            // FIELD.ENTITY, $PRIMARY$.FIELD
+            if (targetEntity.contains(".")) {
+                if (targetEntity.startsWith("$PRIMARY$.")) targetEntity = fieldOfEntity.getName();
+                else targetEntity = targetEntity.split("\\.")[1];
+            }
 
             // 源实体
             Entity sourceEntity = MetadataHelper.getEntity(o[3].toString());
@@ -81,8 +87,7 @@ public class FieldValueSourceDetector {
             // 聚合后回填
             String fillbackField = configJson.getString("fillbackField");
             Field lastJoinField;
-            if (fillbackField != null
-                    && (lastJoinField = MetadataHelper.getLastJoinField(sourceEntity, fillbackField)) != null) {
+            if (fillbackField != null && (lastJoinField = MetadataHelper.getLastJoinField(sourceEntity, fillbackField)) != null) {
                 if (lastJoinField.equals(field)) {
                     Field idField = MetadataHelper.getField(targetEntity, targetEntity + "Id");
                     fillbackField = String.format("[%s.%s](/admin/entity/%s/field/%s)",
@@ -95,7 +100,7 @@ public class FieldValueSourceDetector {
             }
 
             // 目标不一致
-            if (!targetEntity.equalsIgnoreCase(entity.getName())) continue;
+            if (!targetEntity.equalsIgnoreCase(fieldOfEntity.getName())) continue;
 
             JSONArray sourceAndTargetItems = configJson.getJSONArray("items");
             if (CollectionUtils.isEmpty(sourceAndTargetItems)) continue;
@@ -106,13 +111,21 @@ public class FieldValueSourceDetector {
                     String sourceField = StringUtils.defaultIfEmpty(
                             itemJson.getString("sourceField"), itemJson.getString("sourceFormula"));
 
-                    if (sourceField.startsWith(AviatorUtils.CODE_PREFIX)) {
+                    if (sourceField == null) {
+                        String updateMode = itemJson.getString("updateMode");
+                        if ("VNULL".equals(updateMode)) updateMode = "置空";
+                        else if (updateMode == null) updateMode = "?";
+                        sourceField = String.format("[%s]", updateMode);
+                    }
+                    else if (sourceField.startsWith("{{{{")) {
                         sourceField = "[计算公式]";
-                    } else if ((lastJoinField = MetadataHelper.getLastJoinField(sourceEntity, sourceField)) != null) {
+                    }
+                    else if ((lastJoinField = MetadataHelper.getLastJoinField(sourceEntity, sourceField)) != null) {
                         sourceField = Language.L(sourceEntity, sourceField);
                         sourceField = String.format("[%s](/admin/entity/%s/field/%s)",
                                 sourceField, lastJoinField.getOwnEntity().getName(), lastJoinField.getName());
-                    } else {
+                    }
+                    else {
                         sourceField = "[" + sourceField.toUpperCase() + "]";
                     }
 
