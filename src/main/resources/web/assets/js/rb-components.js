@@ -2039,3 +2039,191 @@ class FilesHandlerComponent extends RbModalHandler {
     setTimeout(() => $file.click(), 20)
   }
 }
+
+// ~~ 视图
+
+class RbViewModal extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props, inLoad: true, isHide: true, destroy: false }
+
+    this._forceWidth = props.subView === true ? 1344 : 1404
+    if ($(window).width() < 1464) this._forceWidth -= 184
+  }
+
+  render() {
+    return this.state.destroy ? null : (
+      <div className="modal-wrapper">
+        <div className="modal rbview" ref={(c) => (this._$rbview = c)}>
+          <div className="modal-dialog">
+            <div className="modal-content" style={{ width: this._forceWidth }}>
+              <div className={`modal-body iframe rb-loading ${this.state.inLoad === true && 'rb-loading-active'}`}>
+                <iframe
+                  data-subview={this.props.subView || false}
+                  ref={(c) => (this._$iframe = c)}
+                  className={this.state.isHide ? 'invisible' : ''}
+                  src={this.state.showAfterUrl || 'about:blank'}
+                  frameBorder="0"
+                  scrolling="no"
+                />
+                <RbSpinner />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    const $root = $(this._$rbview)
+    const $rootp = $root.parent().parent()
+    const $mc = $root.find('.modal-content')
+    const that = this
+    $root
+      .on('hidden.bs.modal', function () {
+        $mc.css({ 'margin-right': -1500 })
+        that.setState({ inLoad: true, isHide: true })
+        if (!$keepModalOpen()) location.hash = '!/View/'
+
+        // SubView 子视图不保持
+        if (that.state.disposeOnHide === true) {
+          $root.modal('dispose')
+          that.setState({ destroy: true }, () => {
+            RbViewModal.holder(that.state.id, 'DISPOSE')
+            $unmount($rootp)
+          })
+        }
+      })
+      .on('shown.bs.modal', function () {
+        $mc.css('margin-right', 0)
+        const $mcbd = $('body>.modal-backdrop.show')
+        if ($mcbd[0]) {
+          $mcbd.addClass('o')
+          $mcbd.eq(0).removeClass('o')
+        }
+      })
+    this.show()
+  }
+
+  hideLoading() {
+    this.setState({ inLoad: false, isHide: false })
+  }
+
+  showLoading() {
+    this.setState({ inLoad: true, isHide: true })
+  }
+
+  show(url, option) {
+    let urlChanged = true
+    if (url && url === this.state.url) urlChanged = false
+    option = option || {}
+    url = url || this.state.url
+
+    this.setState({ ...option, url: url, inLoad: urlChanged, isHide: urlChanged }, () => {
+      $(this._$rbview).modal({ show: true, backdrop: true, keyboard: false })
+      setTimeout(() => {
+        this.setState({ showAfterUrl: this.state.url })
+      }, 210) // 0.2s
+
+      // v4.4
+      typeof this.props.onUrlChanged === 'function' && this.props.onUrlChanged(url)
+    })
+  }
+
+  hide() {
+    $(this._$rbview).modal('hide')
+  }
+
+  // -- Usage
+
+  /**
+   * @param {object} props
+   * @param {boolean} subView
+   */
+  static create(props, subView) {
+    if (props.id) props.id = props.id.toLowerCase()
+
+    this.__HOLDERs = this.__HOLDERs || {}
+    this.__HOLDERsStack = this.__HOLDERsStack || []
+    const that = this
+    let viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
+    if (!props.entity) viewUrl = `${rb.baseUrl}/app/redirect?id=${props.id}`
+
+    if (subView) {
+      renderRbcomp(<RbViewModal url={viewUrl} id={props.id} disposeOnHide subView />, function () {
+        that.__HOLDERs[props.id] = this
+        that.__HOLDERsStack.push(this)
+      })
+    } else {
+      if (this.__HOLDER) {
+        this.__HOLDER.show(viewUrl)
+        this.__HOLDERs[props.id] = this.__HOLDER
+      } else {
+        renderRbcomp(<RbViewModal url={viewUrl} id={props.id} />, function () {
+          that.__HOLDERs[props.id] = this
+          that.__HOLDERsStack.push(this)
+          that.__HOLDER = this
+        })
+      }
+
+      // 刷新可打开
+      if (RbViewModal.mode === 1 || RbViewModal.mode === 3 || RbViewModal.mode === 4) {
+        if (props.entity) location.hash = `!/View/${props.entity}/${props.id}`
+      }
+    }
+  }
+
+  /**
+   * 获取视图
+   * @param {string} id
+   * @param {string} action [DISPOSE|HIDE|LOADING]
+   */
+  static holder(id, action) {
+    if (action === 'DISPOSE') {
+      delete this.__HOLDERs[id]
+      this.__HOLDERsStack.pop() // 销毁后替换
+      this.__HOLDERsStack.forEach((x) => {
+        if (x.props.id === id) this.__HOLDERs[id] = x
+      })
+    } else if (action === 'HIDE') {
+      this.__HOLDERs[id] && this.__HOLDERs[id].hide()
+    } else if (action === 'LOADING') {
+      this.__HOLDERs[id] && this.__HOLDERs[id].showLoading()
+    } else {
+      return this.__HOLDERs[id]
+    }
+  }
+
+  /**
+   * 当前主视图
+   */
+  static currentHolder(reload) {
+    if (reload && this.__HOLDER) {
+      this.__HOLDER.showLoading()
+      this.__HOLDER._iframe.contentWindow.location.reload()
+    }
+    return this.__HOLDER
+  }
+
+  /**
+   * v4.4 打开视图
+   * @param {object} props
+   * @param {boolean} subView
+   * @param {boolean} forceOpenNewTab
+   */
+  static openView(props, subView, forceOpenNewTab) {
+    // 新窗口
+    if (rb.__LAB_FORCEOPENNEWTAB44 || forceOpenNewTab) {
+      if (props.url) window.open(props.url)
+      else if (props.id) window.open(`${rb.baseUrl}/app/redirect?id=${props.id}&type=newtab`)
+      else console.error('RbViewModal.openView: props.url or props.id is required')
+
+      // ~
+    } else {
+      // 优先父级
+      const _RbViewModal = parent && parent.RbViewModal ? parent.RbViewModal : window.RbViewModal
+      _RbViewModal.create(props, subView)
+    }
+  }
+}

@@ -134,6 +134,9 @@ public enum ConfigurationItem {
     MobileNavStyle(34),
     PageMourningMode(false),
 
+    LoginPageStyle(44),
+    LoginBulletinBoard(),
+
     /**
      * @see com.rebuild.web.admin.ProtectedAdmin
      */

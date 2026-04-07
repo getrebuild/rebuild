@@ -356,10 +356,13 @@ class DlgMode2Option extends RbFormHandler {
         }
       })
       this.setState({ treeGroupFields, treeParentFields })
-      $([this._$enableTreeGroupField, this._$enableTreeParentField])
-        .select2({ placeholder: $L('不启用') })
-        .val(null)
-        .trigger('change')
+
+      if (this._$enableTreeGroupField) {
+        $([this._$enableTreeGroupField, this._$enableTreeParentField])
+          .select2({ placeholder: $L('不启用') })
+          .val(null)
+          .trigger('change')
+      }
 
       // init
       if (wpc.extConfig) {

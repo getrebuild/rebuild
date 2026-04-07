@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.user.signup;
 
 import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
@@ -19,7 +18,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.cache.CacheTemplate;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
@@ -27,6 +25,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SysbaseHeartbeat;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.md.MarkdownUtils;
 import com.rebuild.web.admin.ConfigurationController;
 import com.wf.captcha.SpecCaptcha;
 import com.wf.captcha.utils.CaptchaUtil;
@@ -101,7 +100,17 @@ public class LoginController extends LoginAction {
         }
 
         // 登录页
-        ModelAndView mv = createModelAndView("/signup/login");
+
+        ModelAndView mv;
+        if (RebuildConfiguration.getInt(ConfigurationItem.LoginPageStyle) == 44) {
+            mv = createModelAndView("/signup/login-v44");
+            String m = RebuildConfiguration.get(ConfigurationItem.LoginBulletinBoard);
+            if (StringUtils.isBlank(m)) m = "## _REBUILD_\n## _零代码、开源免费的企业管理系统_";
+            m = MarkdownUtils.render(m, true, true);
+            mv.getModel().put("_LoginBulletinBoard", m);
+        } else {
+            mv = createModelAndView("/signup/login");
+        }
 
         // 切换语言
         putLocales(mv, AppUtils.getReuqestLocale(request));

@@ -116,7 +116,7 @@ useEditComp = function (name) {
       options.push(
         <option value={k} key={k}>
           {wpc._LANGS[k]}
-        </option>
+        </option>,
       )
     }
     return <select className="form-control form-control-sm">{options}</select>
@@ -127,7 +127,7 @@ useEditComp = function (name) {
         <option value="2">{$L('总是显示')}</option>
       </select>
     )
-  } else if (['PageFooter', 'AllowUsesTime', 'AllowUsesIp'].includes(name)) {
+  } else if (['PageFooter', 'AllowUsesTime', 'AllowUsesIp', 'LoginBulletinBoard'].includes(name)) {
     return <textarea name={name} className="form-control form-control-sm row2x" maxLength="2000" />
   } else if ('Login2FAMode' === name) {
     return (
@@ -143,6 +143,13 @@ useEditComp = function (name) {
       <select className="form-control form-control-sm">
         <option value="34">{$L('默认')}</option>
         <option value="35">{$L('宫格')}</option>
+      </select>
+    )
+  } else if ('LoginPageStyle' === name) {
+    return (
+      <select className="form-control form-control-sm">
+        <option value="44">{$L('默认')}</option>
+        <option value="43">{$L('经典')}</option>
       </select>
     )
   }
@@ -342,7 +349,7 @@ $(document).ready(() => {
         }
         $('button.J_MobileAppPath span').text('')
       })
-    }
+    },
   )
   $('button.J_MobileAppPath').on('click', () => $input[0].click())
 

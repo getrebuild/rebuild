@@ -5076,7 +5076,6 @@ pre.unstyle {
   position: absolute;
   cursor: help;
   font-size: 15px;
-  margin-top: -1px;
   margin-left: 8px;
 }
 
@@ -6592,4 +6591,10 @@ div.formula-code {
   color: #6a737d;
   background-color: #eaecef;
   border-radius: 0 6px 0 6px;
+}
+
+.rb-scroll-top.show {
+  display: block;
+  right: 20px;
+  bottom: 20px;
 }

@@ -24,7 +24,8 @@ class DistributedSupportTest extends TestSupport {
 
     @Test
     void testMap() {
-        DistributedSupport distributedSupport = (DistributedSupport) Application.getContext().getBean("DistributedSupport");
+        DistributedSupport distributedSupport = (DistributedSupport)
+                Application.getContext().getBean("rbv.DistributedSupport");
 
         ConcurrentMap<String, User> users = distributedSupport.getMap("RB_USER");
         users.put("User1", Application.getUserStore().getUser(UserService.SYSTEM_USER));

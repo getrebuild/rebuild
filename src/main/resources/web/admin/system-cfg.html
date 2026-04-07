@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -159,6 +159,30 @@
                             <b th:title="${bundle.L('还原')}"><span class="zmdi zmdi-replay"></span></b>
                           </a>
                           <p class="mt-2 text-muted hide">[[${bundle.L('建议尺寸 1920 × 1080')}]]</p>
+                        </td>
+                      </tr>
+                      <tr class="bosskey-show">
+                        <td>
+                          [[${bundle.L('登录页样式')}]]
+                          <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i>
+                        </td>
+                        <td th:data-id="LoginPageStyle" th:data-value="${LoginPageStyle}" data-optional="true" id="_LoginPageStyle">
+                          <th:block th:if="${LoginPageStyle != '44'}">[[${bundle.L('经典')}]]</th:block>
+                          <th:block th:if="${LoginPageStyle == '44'}">[[${bundle.L('新版')}]]</th:block>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          [[${bundle.L('登录页布告栏')}]] <sup class="rbv"></sup>
+                          <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i>
+                        </td>
+                        <td
+                          th:data-id="${commercial > 0 ? 'LoginBulletinBoard' : ''}"
+                          th:data-value="${LoginBulletinBoard}"
+                          data-optional="true"
+                          th:data-form-text="${bundle.L('支持 [MD 语法](https://getrebuild.com/docs/markdown-guide#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95)')}"
+                        >
+                          <pre class="unstyle text-break">[[${LoginBulletinBoard ?:bundle.L('默认')}]]</pre>
                         </td>
                       </tr>
                     </tbody>

@@ -1036,6 +1036,14 @@ const RbListCommon = {
     if (location.hash === '#!/New') {
       setTimeout(() => $('.J_new').trigger('click'), 200)
     }
+
+    // 刷新可打开
+    if (RbViewModal.mode === 1 || RbViewModal.mode === 3 || RbViewModal.mode === 4) {
+      const viewHash = (location.hash || '').split('/')
+      if (viewHash.length === 4 && viewHash[1] === 'View' && $regex.isId(viewHash[3])) {
+        setTimeout(() => RbViewModal.create({ entity: wpc.entity[0], id: viewHash[3] }), 500)
+      }
+    }
   },
 }
 
@@ -1525,11 +1533,7 @@ class RbList extends React.Component {
   }
 
   _openView($tr) {
-    if (!wpc.type) return
     const id = $($tr).data('id')
-    if (!wpc.forceSubView) {
-      location.hash = `!/View/${this._entity}/${id}`
-    }
     CellRenders.clickView({ id: id, entity: this._entity })
   }
 
@@ -1815,13 +1819,8 @@ class RbListPagination extends React.Component {
 const CellRenders = {
   // 打开记录
   clickView(v, e) {
-    const _RbViewModal = window.RbViewModal ? window.RbViewModal : parent && parent.RbViewModal ? parent.RbViewModal : null
-    if (_RbViewModal && wpc.forceOpenNewtab !== true) {
-      _RbViewModal.create({ id: v.id, entity: v.entity }, wpc.forceSubView)
-    } else {
-      window.open(`${rb.baseUrl}/app/redirect?id=${v.id}&type=newtab`)
-    }
     e && $stopEvent(e, true)
+    RbViewModal.openView({ id: v.id, entity: v.entity }, wpc.forceSubView)
     return false
   },
 

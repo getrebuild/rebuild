@@ -1743,7 +1743,7 @@ class ChartCNMap extends BaseChart {
         point: (data[1] || '0,0').split(','),
         properties: {
           name: data[0] || '-',
-          number: data[2] || null,
+          data: data,
         },
       }
     })
@@ -1755,8 +1755,12 @@ class ChartCNMap extends BaseChart {
     this._cluster.on(_Cluster.ClusterEvent.MOUSE_OVER, (e) => {
       console.log('MOUSE_OVER', e)
       if (e && e.properties) {
-        let content = `<div class="CNMAP-tip"><b>${data.name[0]}</b><div>${e.properties.name}</div>`
-        if (data.name[1]) content += `<b class="mt-1">${data.name[1]}</b><div>${e.properties.number}</div>`
+        let content = `<div class="CNMAP-tip"><strong>${e.properties.name}</strong>`
+        data.name.forEach((item, idx) => {
+          if (idx > 0) {
+            content += `<div>${item} : ${e.properties.data[idx + 1]}</div>`
+          }
+        })
         content += '</div>'
 
         const iw = new _BMapGL.InfoWindow(content, {

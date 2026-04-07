@@ -7,7 +7,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.distributed;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -38,5 +42,10 @@ public class DistributedSupportLocal implements DistributedSupport {
     @Override
     public <T> Set<T> getSet(String namespace) {
         return (Set<T>) LOCAL_SET.computeIfAbsent(namespace, k -> new HashSet<T>());
+    }
+
+    @Override
+    public boolean isDistributedEnv() {
+        return false;
     }
 }

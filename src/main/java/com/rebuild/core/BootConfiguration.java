@@ -79,22 +79,25 @@ public class BootConfiguration implements InstallState {
         return manager;
     }
 
-    @Bean("DistributedSupport")
+    @Bean("rbv.DistributedSupport")
     DistributedSupport createDistributedSupport() {
-        Class<?> clazz = null;
-        JedisPool redis = null;
-        try {
-            clazz = Class.forName("com.rebuild.rbv.core.support.DistributedSupportImpl");
-            redis = createJedisPool();
-        } catch (ClassNotFoundException ignored) {
-        }
-
-        if (clazz != null && redis != null && redis != USE_EHCACHE) {
+        if (DistributedSupport.getNodeName() != null) {
+            log.warn("Enable _UseDistributedNode : {}", DistributedSupport.getNodeName());
+            Class<?> clazz = null;
+            JedisPool redis = null;
             try {
-                Constructor<?> c = clazz.getConstructor(JedisPool.class);
-                return (DistributedSupport) c.newInstance(redis);
-            } catch (ReflectiveOperationException e) {
-                log.error("Cannot instance `DistributedSupportImpl`!", e);
+                clazz = Class.forName("com.rebuild.rbv.core.support.DistributedSupportImpl");
+                redis = createJedisPool();
+            } catch (ClassNotFoundException ignored) {
+            }
+
+            if (clazz != null && redis != null && redis != USE_EHCACHE) {
+                try {
+                    Constructor<?> c = clazz.getConstructor(JedisPool.class);
+                    return (DistributedSupport) c.newInstance(redis);
+                } catch (ReflectiveOperationException e) {
+                    log.error("Cannot instance `DistributedSupportImpl`!", e);
+                }
             }
         }
 
