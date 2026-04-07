@@ -23,7 +23,6 @@ import com.rebuild.core.privileges.bizz.CustomEntityPrivileges;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.privileges.bizz.ZeroPrivileges;
-import com.rebuild.core.support.distributed.DistributedSupport;
 import com.rebuild.core.support.distributed.UseDistributed;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
