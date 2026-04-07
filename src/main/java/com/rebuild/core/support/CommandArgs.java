@@ -57,6 +57,9 @@ public class CommandArgs {
     public static final String _HomeURLLocal = "_HomeURLLocal";
     public static final String _CreatedDept = "_CreatedDept";
 
+    // v4.4
+    public static final String _CleanCacheOnStartup = "_CleanCacheOnStartup";
+
     /**
      * 内部消息同步发送短信
      */
