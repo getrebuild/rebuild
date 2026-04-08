@@ -1,6 +1,21 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #71 (v4.4)
+-- ************ Entity [RobotApprovalHub] DDL ************
+create table if not exists `robot_approval_hub` (
+  `HUB_ID`             char(20) not null,
+  `APPROVAL_SETP_ID`   char(20) not null comment '审批步骤',
+  `USER_SUBMIT`        char(20) comment '提交用户',
+  `USER_APPROVE`       char(20) comment '审批用户',
+  `USER_CC`            char(20) comment '抄送用户',
+  `STATE`              smallint(6) default '1' comment '审批结果',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  primary key  (`HUB_ID`),
+  index IX0_robot_approval_hub (`APPROVAL_SETP_ID`, `STATE`, `USER_SUBMIT`, `USER_APPROVE`, `USER_CC`)
+)Engine=InnoDB;
+
 -- #70 (v4.3)
 alter table `revision_history`
   add column `FROM_SOURCE` char(20) comment '触发源 ID';

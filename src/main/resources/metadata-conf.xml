@@ -294,7 +294,7 @@
         <field name="approvalId" type="reference" ref-entity="RobotApprovalConfig" nullable="false" updatable="false" description="审批流程"/>
         <field name="node" type="string" max-length="100" nullable="false" updatable="false" description="审批节点"/>
         <field name="approver" type="reference" ref-entity="User" nullable="false" updatable="false" description="审批人"/>
-        <field name="state" type="small-int" default-value="1" description="审批结果" extra-attrs="{displayType:'STATE',stateClass:'com.rebuild.core.service.approval.ApprovalState'}"/>
+        <field name="state" type="small-int" default-value="1" description="审批结果"/>
         <field name="remark" type="string" max-length="701" description="批注"/>
         <field name="remarkAttachments" type="string" max-length="701" description="批注附件" extra-attrs="{displayType:'FILE'}"/>
         <field name="approvedTime" type="timestamp" description="审批时间"/>
@@ -309,11 +309,16 @@
         <index field-list="recordId,approvalId,node,isCanceled,isWaiting,isBacked,nodeBatch"/>
     </entity>
 
-    <entity name="RobotApprovalHub" type-code="049" description="审批中心">
+    <entity name="RobotApprovalHub" type-code="049" description="审批中心" parent="false" queryable="false">
         <field name="hubId" type="primary"/>
         <field name="approvalSetpId" type="reference" ref-entity="RobotApprovalStep" nullable="false" updatable="false" description="审批步骤"/>
-        <field name="status" type="small-int" default-value="1" description="阶段 (1=待审批,2=通过,3=拒绝,0=删除)"/>
-        <index field-list="approvalSetpId,status"/>
+        <field name="userSubmit" type="reference" ref-entity="User" description="提交用户"/>
+        <field name="userApprove" type="reference" ref-entity="User" description="审批用户"/>
+        <field name="userCc" type="reference" ref-entity="User" description="抄送用户"/>
+        <field name="state" type="small-int" default-value="1" extra-attrs="{displayType:'STATE',stateClass:'com.rebuild.core.service.approval.ApprovalState'}" description="审批结果"/>
+        <field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人"/>
+        <field name="createdOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="创建时间"/>
+        <index field-list="approvalSetpId,state,userSubmit,userApprove,userCc"/>
     </entity>
 
     <entity name="RobotSopConfig" type-code="070" name-field="name" description="业务进度" queryable="false">

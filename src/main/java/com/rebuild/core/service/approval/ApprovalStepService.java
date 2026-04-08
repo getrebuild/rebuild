@@ -113,13 +113,17 @@ public class ApprovalStepService extends BaseService {
         step.setString("node", recordOfMain.getString(EntityHelper.ApprovalStepNode));
         step.setString("prevNode", FlowNode.NODE_ROOT);
         step.setString("nodeBatch", getBatchNo(recordId, approvalId, FlowNode.NODE_ROOT));
+        List<ID> steps = new ArrayList<>();
         for (ID approver : nextApprovers) {
             Record c = step.clone();
             c.setID("approver", approver);
             super.create(c);
+            steps.add(c.getPrimary());
 
             sendNotification(approver, approveMsg, recordId);
         }
+
+        ApprovalHub.instance.awareSubmit(submitter, steps, ccUsers);
 
         // 抄送
         String ccMsg = Language.L("@%s 提交了一条 %s 审批，请知悉",
@@ -209,7 +213,7 @@ public class ApprovalStepService extends BaseService {
         // 拒绝了直接返回
         if (state == ApprovalState.REJECTED || state == ApprovalState.BACKED) {
             // 拒绝了，同一节点的其他审批人全部作废
-            cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, true);
+            Set<ID> cancelledSteps = cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, true);
 
             // 退回
             if (state == ApprovalState.BACKED) {
@@ -232,17 +236,20 @@ public class ApprovalStepService extends BaseService {
 
                 execTriggersWhenSR(recordOfMain, TriggerWhen.REJECTED);
             }
+
+            ApprovalHub.instance.awareApprove(stepRecordId, null, cancelledSteps, ccUsers);
             return;
         }
 
         // 或签/会签
         boolean goNextNode = true;
+        Set<ID> cancelledSteps = null;
 
         final String approveMsg = ApprovalHelper.buildApproveMsg(entityMeta);
 
         // 或签:一人通过其他作废
         if (FlowNode.SIGN_OR.equals(signMode)) {
-            cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, true);
+            cancelledSteps = cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, true);
         }
         // 会签:检查是否都签了
         else {
@@ -289,6 +296,8 @@ public class ApprovalStepService extends BaseService {
 
             Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED, approver);
             execSopSteps38(recordOfMain);
+
+            ApprovalHub.instance.awareApprove(stepRecordId, null, cancelledSteps, ccUsers);
             return;
         }
 
@@ -303,11 +312,13 @@ public class ApprovalStepService extends BaseService {
         }
 
         // 下一步审批人
+        Set<ID> nextSteps = new HashSet<>();
         if (nextApprovers != null) {
             String nodeBatch = getBatchNo(recordId, approvalId, nextNode);
             for (ID to : nextApprovers) {
                 ID created = createStepIfNeed(
                         recordId, approvalId, nextNode, to, !goNextNode, currentNode, (Date) stepObject[4], nodeBatch);
+                if (created != null) nextSteps.add(created);
 
                 // 非会签通知审批
                 if (goNextNode && created != null) {
@@ -315,6 +326,8 @@ public class ApprovalStepService extends BaseService {
                 }
             }
         }
+
+        ApprovalHub.instance.awareApprove(stepRecordId, nextSteps, cancelledSteps, ccUsers);
 
         execSopSteps38(recordOfMain);
     }
@@ -395,14 +408,14 @@ public class ApprovalStepService extends BaseService {
     }
 
     // 作废流程步骤
-    private void cancelAliveSteps(ID recordId, ID approvalId, String node, ID excludeStep, boolean darftOnly) {
+    private Set<ID> cancelAliveSteps(ID recordId, ID approvalId, String node, ID excludeStep, boolean darftOnly) {
         String sql = "select stepId from RobotApprovalStep where recordId = ? and isCanceled = 'F'";
         if (approvalId != null) sql += " and approvalId = '" + approvalId + "'";
         if (node != null) sql += " and node = '" + node + "'";
         if (darftOnly) sql += " and state = " + ApprovalState.DRAFT.getState();
 
         Object[][] canceled = Application.createQueryNoFilter(sql).setParameter(1, recordId).array();
-
+        Set<ID> ids = new HashSet<>();
         for (Object[] o : canceled) {
             if (excludeStep != null && excludeStep.equals(o[0])) {
                 continue;
@@ -411,7 +424,9 @@ public class ApprovalStepService extends BaseService {
             Record step = EntityHelper.forUpdate((ID) o[0], UserContextHolder.getUser());
             step.setBoolean("isCanceled", true);
             super.update(step);
+            ids.add((ID) o[0]);
         }
+        return ids;
     }
 
     /**
