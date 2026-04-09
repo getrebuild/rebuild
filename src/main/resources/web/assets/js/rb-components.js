@@ -2152,7 +2152,7 @@ class RbViewModal extends React.Component {
     this.__HOLDERsStack = this.__HOLDERsStack || []
     const that = this
     let viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
-    if (!props.entity) viewUrl = `${rb.baseUrl}/app/redirect?id=${props.id}`
+    if (!props.entity) viewUrl = `${rb.baseUrl}/app/redirect?id=${props.id}&type=newtab`
 
     if (subView) {
       renderRbcomp(<RbViewModal url={viewUrl} id={props.id} disposeOnHide subView />, function () {
@@ -2184,6 +2184,9 @@ class RbViewModal extends React.Component {
    * @param {string} action [DISPOSE|HIDE|LOADING]
    */
   static holder(id, action) {
+    this.__HOLDERs = this.__HOLDERs || {}
+    this.__HOLDERsStack = this.__HOLDERsStack || []
+
     if (action === 'DISPOSE') {
       delete this.__HOLDERs[id]
       this.__HOLDERsStack.pop() // 销毁后替换
