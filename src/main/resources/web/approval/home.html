@@ -1,0 +1,78 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/manual/files" />
+    <title>[[${bundle.L('审批中心')}]]</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/files.css}" />
+    <style>
+      .approval-viewport .file-list-item > div.info {
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left(active='nav_entity--APPROVAL')}" />
+      <div class="rb-content rb-no-padding">
+        <aside class="page-aside widgets">
+          <div class="aside-content">
+            <div class="content">
+              <div class="aside-header">
+                <span class="title">审批中心</span>
+                <p class="description"></p>
+              </div>
+            </div>
+            <div class="aside-nav collapse">
+              <ul class="nav">
+                <li><a href="#type=1" data-type="1">待处理</a></li>
+                <li><a href="#type=2" data-type="2">已处理</a></li>
+                <li><a href="#type=3" data-type="3">我提交的</a></li>
+                <li><a href="#type=4" data-type="4">抄送我的</a></li>
+              </ul>
+            </div>
+          </div>
+        </aside>
+        <div class="main-content container-fluid">
+          <div class="file-header approval-header">
+            <div class="file-operator">
+              <div class="row">
+                <div class="col-5">
+                  <div class="input-group input-search">
+                    <input class="form-control" type="text" th:placeholder="${bundle.L('搜索')}" />
+                    <button class="btn btn-input-clear" type="button"></button>
+                    <span class="input-group-btn">
+                      <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
+                    </span>
+                  </div>
+                </div>
+                <div class="col-7 text-right">
+                  <button class="btn btn-primary J_op-10" type="button"><i class="icon mdi mdi-check-circle-outline"></i> [[${bundle.L('通过')}]]</button>
+                  <button class="btn ml-1 btn-danger J_op-11" type="button"><i class="icon mdi mdi-close-circle-outline"></i> [[${bundle.L('驳回')}]]</button>
+                  <div class="btn-group ml-1 mb-0 J_sort">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                      <span>[[${bundle.L('默认排序')}]]</span>
+                      <i class="icon zmdi zmdi-chevron-down up-1"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                      <a class="dropdown-item" data-sort="newer">[[${bundle.L('最近创建')}]]</a>
+                      <a class="dropdown-item" data-sort="older">[[${bundle.L('最早创建')}]]</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="file-viewport approval-viewport">
+            <div class="list-nodata">
+              <th:block th:replace="~{/_include/spinner}" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <th:block th:replace="~{/_include/forms}" />
+    <script th:src="@{/assets/js/approval/approval-home.js}" type="text/babel"></script>
+  </body>
+</html>

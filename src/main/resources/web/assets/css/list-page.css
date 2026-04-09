@@ -325,10 +325,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   height: 34px;
 }
 
-#asideFilters .dropdown-item:hover {
-  background-color: #eee;
-}
-
 #asideFilters .dropdown-item:active {
   color: #404040;
 }

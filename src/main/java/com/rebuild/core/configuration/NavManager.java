@@ -34,6 +34,8 @@ public class NavManager extends BaseLayoutManager {
     public static final String NAV_CONTACT = "$CONTACT$";
     // 仪表盘
     public static final String NAV_DASHBOARD = "$DASHBOARD$";
+    // 审批中心
+    public static final String NAV_APPROVAL = "$APPROVAL$";
 
     // 分栏
     public static final String NAV_DIVIDER = "$DIVIDER$";

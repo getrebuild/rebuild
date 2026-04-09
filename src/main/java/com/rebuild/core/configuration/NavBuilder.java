@@ -70,6 +70,7 @@ public class NavBuilder extends NavManager {
                     new Object[]{"chart-donut", "动态", "BUILTIN", NAV_FEEDS},
                     new Object[]{"folder", "文件", "BUILTIN", NAV_FILEMRG},
                     new Object[]{"account-box-phone", "通讯录", "BUILTIN", NAV_CONTACT},
+                    new Object[]{"progress-check", "审批中心", "BUILTIN", NAV_APPROVAL},
                     new Object[]{"shape", "项目", "BUILTIN", NAV_PROJECT},
             });
     // 新建项目
@@ -189,7 +190,7 @@ public class NavBuilder extends NavManager {
         if ("ENTITY".equalsIgnoreCase(type)) {
             if (NAV_PARENT.equals(value)) {
                 return true;
-            } else if (NAV_FEEDS.equals(value) || NAV_FILEMRG.equals(value)
+            } else if (NAV_FEEDS.equals(value) || NAV_FILEMRG.equals(value) || NAV_APPROVAL.equals(value)
                     || NAV_PROJECT.equals(value) || NAV_CONTACT.equals(value) || NAV_DASHBOARD.equals(value)) {
                 return false;
             } else if (!MetadataHelper.containsEntity(value)) {
@@ -446,6 +447,10 @@ public class NavBuilder extends NavManager {
         } else if (NAV_DASHBOARD.equals(navName)) {
             navName = "nav_dashboard-DASHBOARD";
             navUrl = String.format("%s/dashboard/home", AppUtils.getContextPath());
+
+        } else if (NAV_APPROVAL.equals(navName)) {
+            navName = "nav_entity--APPROVAL";
+            navUrl = String.format("%s/approval/home", AppUtils.getContextPath());
 
         } else {
             navEntity = navName;

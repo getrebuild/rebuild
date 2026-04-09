@@ -440,7 +440,7 @@ public class ApprovalController extends BaseController {
 
     @GetMapping("view/{id}")
     public ModelAndView pageView(@PathVariable String id) {
-        ModelAndView mv = createModelAndView("/entity/approval/approval-view");
+        ModelAndView mv = createModelAndView("/approval/approval-view");
         mv.getModel().put("approvalId", id);
         return mv;
     }

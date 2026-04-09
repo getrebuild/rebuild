@@ -2501,9 +2501,9 @@ th.column-fixed::before,
 }
 
 .aside-2tree ul li.active {
-  color: #fff;
-  background-color: #4285f4;
-  background-color: var(--rb-theme-color);
+  color: #fff !important;
+  background-color: #4285f4 !important;
+  background-color: var(--rb-theme-color) !important;
 }
 
 .aside-2tree ul li.active > .text-disabled {
@@ -4972,8 +4972,11 @@ pre.unstyle {
 }
 
 .rb-left-sidebar .sidebar-elements > li > a:hover,
-.rb-left-sidebar .sidebar-elements > li ul li > a:hover {
-  background-color: rgba(0, 0, 0, 0.03);
+.rb-left-sidebar .sidebar-elements > li ul li > a:hover,
+.aside-content .nav li a:hover,
+#asideFilters .dropdown-item:hover,
+.aside-2tree ul li:hover {
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
 .rb-left-sidebar .sidebar-elements > li ul li > a.text-muted {
