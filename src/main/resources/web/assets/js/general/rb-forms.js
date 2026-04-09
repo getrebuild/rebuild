@@ -2448,7 +2448,6 @@ class RbFormReference extends RbFormElement {
           if (val && typeof val === 'object') val = val.id
           if (val) query._top = val
 
-          console.log('Reference query:', query)
           return query
         },
         placeholder: this._placeholderw,

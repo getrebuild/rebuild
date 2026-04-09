@@ -928,7 +928,7 @@ class RecordSelector extends React.Component {
   render() {
     return (
       <div className="input-group has-append">
-        <select className="form-control form-control-sm" ref={(c) => (this._$select = c)} />
+        <select className="form-control form-control-sm" ref={(c) => (this._$select = c)} multiple={this.props.allowMultiple} />
         <div className="input-group-append">
           <button className="btn btn-secondary" onClick={() => this._showSearcher()} ref={(c) => (this._$btn = c)}>
             <i className="icon zmdi zmdi-search" />
@@ -965,12 +965,8 @@ class RecordSelector extends React.Component {
   _showSearcher() {
     const that = this
     window.referenceSearch__call = function (selected) {
-      const id = selected[0]
-      if ($(that._$select).find(`option[value="${id}"]`).length > 0) {
-        that.__select2.val(id).trigger('change')
-      } else {
-        that._setValue(id)
-      }
+      if (that.props.allowMultiple !== true) selected = selected[0]
+      that._setValue(selected)
       that._ReferenceSearcher.hide()
     }
 
@@ -985,11 +981,19 @@ class RecordSelector extends React.Component {
     }
   }
 
-  _setValue(id) {
-    $.get(`/commons/search/read-labels?ids=${id}`, (res) => {
+  _setValue(ids) {
+    ids = typeof ids === 'string' ? [ids] : ids
+    $.get(`/commons/search/read-labels?ids=${ids.join(',')}`, (res) => {
       const _data = res.data || {}
-      const o = new Option(_data[id], id, true, true)
-      this.__select2.append(o).trigger('change')
+      for (let id in _data) {
+        if ($(this._$select).find(`option[value="${id}"]`).length) {
+          // 已有
+        } else {
+          const o = new Option(_data[id], id, true, true)
+          this.__select2.append(o)
+        }
+      }
+      this.__select2.trigger('change')
     })
   }
 
@@ -1119,7 +1123,7 @@ class RecordSelectorModal extends RbAlert {
       <div className="form ml-3 mr-3">
         <div className="form-group">
           <label className="text-bold">{this.props.title || $L('选择记录')}</label>
-          <AnyRecordSelector ref={(c) => (this._AnyRecordSelector = c)} allowEntities={this.props.allowEntities} allowBizz={this.props.allowBizz} />
+          <AnyRecordSelector ref={(c) => (this._AnyRecordSelector = c)} allowEntities={this.props.allowEntities} allowBizz={this.props.allowBizz} allowMultiple={this.props.allowMultiple} />
         </div>
         <div className="form-group mb-2">
           <button
