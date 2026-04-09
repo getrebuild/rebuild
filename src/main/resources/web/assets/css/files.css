@@ -102,12 +102,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   width: auto;
 }
 
-.file-list-item > div.detail > .extras {
+.file-list-item > div.detail .extras {
   margin-top: 0;
   overflow: hidden;
 }
 
-.file-list-item > div.detail > .extras > span {
+.file-list-item > div.detail .extras > span {
   display: inline-block;
   font-size: 12px;
   line-height: 1;

@@ -6601,3 +6601,10 @@ div.formula-code {
   right: 20px;
   bottom: 20px;
 }
+
+.user-avatar img {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+}

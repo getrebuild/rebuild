@@ -753,7 +753,9 @@ class ApprovalApproveForm extends ApprovalUsersForm {
       } else {
         _alert && _alert.hide(true)
         _reloadAndTips(this, state === 10 || state === 110 ? $L('审批已同意') : rejectNode ? $L('审批已退回') : $L('审批已驳回'))
-        typeof this.props.call === 'function' && this.props.call()
+
+        const _onConfirm = this.props.onConfirm || this.props.call
+        typeof _onConfirm === 'function' && _onConfirm(state)
         $storage.set('_listenerStateChanged42', this.props.id)
       }
     })

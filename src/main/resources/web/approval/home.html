@@ -6,7 +6,20 @@
     <title>[[${bundle.L('审批中心')}]]</title>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/files.css}" />
     <style>
+      .approval-viewport .badge {
+        font-weight: normal;
+        font-size: 12px;
+        padding: 3px 6px;
+        min-width: 21px;
+        line-height: 1;
+        border-radius: 99px;
+      }
+      .approval-viewport .detail.user-info {
+        width: 20%;
+        min-width: 151px;
+      }
       .approval-viewport .file-list-item > div.info {
+        width: 101px;
       }
     </style>
   </head>
@@ -25,7 +38,7 @@
             </div>
             <div class="aside-nav collapse">
               <ul class="nav">
-                <li><a href="#type=1" data-type="1">待处理</a></li>
+                <li class="active"><a href="#type=1" data-type="1">待处理</a></li>
                 <li><a href="#type=2" data-type="2">已处理</a></li>
                 <li><a href="#type=3" data-type="3">我提交的</a></li>
                 <li><a href="#type=4" data-type="4">抄送我的</a></li>
@@ -47,8 +60,7 @@
                   </div>
                 </div>
                 <div class="col-7 text-right">
-                  <button class="btn btn-primary J_op-10" type="button"><i class="icon mdi mdi-check-circle-outline"></i> [[${bundle.L('通过')}]]</button>
-                  <button class="btn ml-1 btn-danger J_op-11" type="button"><i class="icon mdi mdi-close-circle-outline"></i> [[${bundle.L('驳回')}]]</button>
+                  <button class="btn btn-primary J_approve" type="button"><i class="icon mdi mdi-check-all"></i> [[${bundle.L('审批')}]]</button>
                   <div class="btn-group ml-1 mb-0 J_sort">
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                       <span>[[${bundle.L('默认排序')}]]</span>

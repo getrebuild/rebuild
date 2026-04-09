@@ -9,18 +9,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const PAGE_SIZE = 40
 
 const _STATES = {
-  '1': '待处理',
-  '10': '审批通过',
-  '11': '审批驳回',
+  '1': ['待处理', 'warning'],
+  '10': ['审批通过', 'success'],
+  '11': ['审批驳回', 'danger'],
 }
+
 // ~ 审批列表
 class ApprovalList extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
 
-    this._lastType = props.type || 1
     this._pageNo = 1
+    this._approvalForms = {}
   }
 
   render() {
@@ -30,6 +31,8 @@ class ApprovalList extends React.Component {
       <div className="file-list file-list-striped">
         {(this.state.datas || []).map((item) => {
           const checked = currentActive.includes(item.id)
+          const state = _STATES[item.state] || [item.state, undefined]
+
           return (
             <div
               key={item.id}
@@ -46,28 +49,36 @@ class ApprovalList extends React.Component {
                   <label className="custom-control-label" />
                 </div>
               </div>
-              <div className="detail">
-                <a onClick={(e) => RbViewModal.openView({ id: item.recordId })} title={$L('查看记录')}>
-                  {item.recordName}
-                </a>
-                <div className="extras">
-                  <span>{item.recordMeta[1]}</span>
+              <div className="detail user-info">
+                <div className="user-avatar float-left">
+                  <img src={`${rb.baseUrl}/account/user-avatar/${item.createdBy[0]}`} alt="Avatar" />
+                </div>
+                <div className="float-left">
+                  <div>{item.createdBy[1]}</div>
+                  <div className="extras">
+                    <DateShow date={item.createdOn} />
+                  </div>
                 </div>
               </div>
-              <div className="info position-relative">
-                <span className="fop-action">
-                  <a title={$L('通过')} onClick={(e) => this._handleApprve(item, 10, e)}>
-                    <i className="icon mdi mdi-check-circle-outline" />
-                  </a>
-                  <a title={$L('驳回')} onClick={(e) => this._handleApprve(item, 11, e)}>
-                    <i className="icon mdi mdi-close-circle-outline" />
-                  </a>
-                </span>
+              <div className="detail record-info">
+                <a href="#/View" onClick={(e) => RbViewModal.openView({ id: item.recordMeta[0] })} title={$L('查看记录')}>
+                  {item.recordMeta[1]}
+                </a>
+                <div className="extras">
+                  <span>{item.recordMeta[3]}</span>
+                </div>
               </div>
+
               <div className="info">
-                <DateShow date={item.createdOn} />
+                <span className={state[1] ? `badge badge-${state[1]}` : ''}>{state[0]}</span>
               </div>
-              <div className="info">{item.createdBy[1]}</div>
+              {item.state === 1 && item.imApprover && (
+                <div className="info">
+                  <button className="btn btn-secondary btn-sm ml-2" onClick={(e) => this._handleApprve(item, e)}>
+                    {$L('审批')}
+                  </button>
+                </div>
+              )}
             </div>
           )
         })}
@@ -104,14 +115,14 @@ class ApprovalList extends React.Component {
   componentDidMount = () => this.loadData()
 
   loadData(type, pageNo) {
-    this._lastType = type || this._lastType
+    type = type || this.state.type
     this._pageNo = pageNo || 1
-    const url = `/approval/data-list?type=${this._lastType}&sort=&q=&pageNo=${this._pageNo}&pageSize=${PAGE_SIZE}`
+    const url = `/approval/data-list?type=${type}&sort=&q=&pageNo=${this._pageNo}&pageSize=${PAGE_SIZE}`
     $.get(url, (res) => {
       const current = res.data || []
       let datas = this._pageNo === 1 ? [] : this.state.datas
       datas = [].concat(datas, current)
-      this.setState({ datas: datas, currentSize: current.length, currentActive: [] })
+      this.setState({ datas: datas, type: type, currentSize: current.length, currentActive: [] })
     })
   }
 
@@ -125,8 +136,30 @@ class ApprovalList extends React.Component {
     else return s
   }
 
-  _handleApprve(item, state, e) {
-    $stopEvent(e, true)
+  _handleApprve(item, e) {
+    e && $stopEvent(e)
+
+    const recordId = item.recordMeta[0]
+    if (this._approvalForms[recordId]) {
+      this._approvalForms[recordId].show()
+    } else {
+      const that = this
+      renderRbcomp(
+        // eslint-disable-next-line react/jsx-no-undef
+        <ApprovalApproveForm
+          id={recordId}
+          approval={item.approvalId}
+          entity={item.recordMeta[2]}
+          onConfirm={() => {
+            if (that._approvalForms[recordId]) that._approvalForms[recordId].hide(true)
+            that.reload()
+          }}
+        />,
+        function () {
+          that._approvalForms[recordId] = this
+        },
+      )
+    }
   }
 }
 
@@ -142,6 +175,10 @@ $(document).ready(() => {
     $(this).parent().addClass('active')
 
     _ApprovalList.reload($(this).attr('data-type'))
+  })
+
+  $('.J_approve').on('click', () => {
+    alert(_ApprovalList.getSelected())
   })
 
   renderRbcomp(<ApprovalList type={type} />, $('.approval-viewport'), function () {
