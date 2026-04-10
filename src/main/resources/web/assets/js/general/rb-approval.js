@@ -989,7 +989,7 @@ class ApprovalStepViewer extends React.Component {
                 )}
               </p>
               {(item.druation || item.druation === 0) && (
-                <span className="float-right badge badge-light badge-pill cursor-help" title={$L('审批时长')}>
+                <span className="float-right badge badge-light badge-pill cursor-help fs-12" title={$L('审批时长')}>
                   {$sec2Time(item.druation)}
                 </span>
               )}

@@ -475,28 +475,11 @@ var _initNav = function () {
     $('.sidebar-elements .divider').each(function () {
       if (!$(this).next().find('>a')[0]) $(this).remove()
     })
+  } else {
+    _refreshFilterBadge()
   }
-
-  // v4.3 Filter badge
-  $('.sidebar-elements span[data-filter]').each(function () {
-    var $this = $(this)
-    var filterId = $this.data('filter')
-    var c = $storage.get('NavFilterBadge-' + filterId)
-    if (c) $this.text(c)
-
-    // Click to storage
-    $this.parents('a').on('click', function () {
-      $storage.set('AdvFilter-' + $(this).parent().data('entity'), filterId)
-    })
-
-    if (!$this.hasClass('hide')) {
-      $.get('/app/entity/filter-badge?filter=' + filterId, function (res) {
-        $this.text(res.data || '')
-        $storage.set('NavFilterBadge-' + filterId, res.data || '')
-      })
-    }
-  })
 }
+
 var _checkMessage__state = 0
 // 检查新消息
 var _checkMessage = function () {
@@ -611,6 +594,29 @@ var _showStateST = function (st) {
     RbGritter.remove('st_gritter')
   }
 }
+
+// v4.3,4.4 导航条徽标
+var _refreshFilterBadge = function () {
+  $('.sidebar-elements span[data-filter]').each(function () {
+    var $this = $(this)
+    var filterId = $this.data('filter')
+    var c = $storage.get('NavFilterBadge-' + filterId)
+    if (c) $this.text(c)
+
+    // Click to storage
+    $this.parents('a').on('click', function () {
+      $storage.set('AdvFilter-' + $(this).parent().data('entity'), filterId)
+    })
+
+    if (!$this.hasClass('hide')) {
+      $.get('/app/entity/filter-badge?filter=' + filterId, function (res) {
+        $this.text(res.data || '')
+        $storage.set('NavFilterBadge-' + filterId, res.data || '')
+      })
+    }
+  })
+}
+
 // 全局搜索
 var _initGlobalSearch = function () {
   // $unhideDropdown('.global-search')
@@ -688,6 +694,7 @@ var _showGlobalSearch = function (gs, $gs) {
     }
   }
 }
+
 // 全局新建
 var _initGlobalCreate = function () {
   var entities = []

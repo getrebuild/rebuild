@@ -311,18 +311,18 @@
 
     <entity name="RobotApprovalHub" type-code="049" description="审批中心" parent="false" queryable="false">
         <field name="hubId" type="primary"/>
+        <field name="hubBatch" type="string" max-length="100" updatable="false" description="提交批次"/>
         <field name="approvalStepId" type="reference" ref-entity="RobotApprovalStep" nullable="false" updatable="false" description="审批步骤"/>
         <field name="userSubmit" type="reference" ref-entity="User" description="提交用户"/>
         <field name="userApprove" type="reference" ref-entity="User" description="审批用户"/>
         <field name="userCc" type="reference" ref-entity="User" description="抄送用户"/>
         <field name="state" type="small-int" default-value="1" description="审批结果"/>
-        <field name="relatedHubId" type="reference" ref-entity="RobotApprovalHub" updatable="false" description="相关审批Hub"/>
         <field name="approvedOn" type="timestamp" description="审批时间"/>
         <field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人"/>
         <field name="createdOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="创建时间"/>
         <index field-list="state,userSubmit,userApprove,userCc"/>
         <index field-list="approvalStepId"/>
-        <index field-list="relatedHubId"/>
+        <index field-list="hubBatch"/>
     </entity>
 
     <entity name="RobotSopConfig" type-code="070" name-field="name" description="业务进度" queryable="false">

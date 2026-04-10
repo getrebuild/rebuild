@@ -29,14 +29,19 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
+import static com.rebuild.core.service.approval.ApprovalState.DRAFT;
+
 /**
- * @author devezhao
- * @since 2019/07/05
+ * @author Zixin
+ * @since 2026/04/05
  */
 @Slf4j
 @RestController
 @RequestMapping("/approval/")
 public class ApprovalHubController extends BaseController {
+
+    // `userApprove = '%s' and state = 1 and approvalStepId.isWaiting = 'F'`
+    public static final ID FILTER_BADGE = ID.valueOf("014-0490000000000000");
 
     @GetMapping({"home", "hub"})
     public ModelAndView pageIndex() {
@@ -48,11 +53,11 @@ public class ApprovalHubController extends BaseController {
         ID user = getRequestUser(request);
         int type = getIntParameter(request, "type", 1);
 
-        String sql = "select hubId,createdOn,createdBy,state,approvalStepId," +
-                "approvalStepId.recordId,approvalStepId.approvalId,approvalStepId.approver,approvalStepId.state,approvalStepId.nodeBatch" +
+        String sql = "select hubId,createdOn,createdBy,state,approvalStepId" +
+                ",approvalStepId.recordId,approvalStepId.approvalId,hubBatch" +
                 " from RobotApprovalHub where ";
         if (type == 1) {
-            sql += String.format("userApprove = '%s' and state in (1)", user);
+            sql += String.format("userApprove = '%s' and state = 1 and approvalStepId.isWaiting = 'F'", user);
         } else if (type == 2) {
             sql += String.format("userApprove = '%s' and state in (10,11)", user);
         } else if (type == 3) {
@@ -80,13 +85,14 @@ public class ApprovalHubController extends BaseController {
     }
 
     private JSONObject buildItem(Object[] o, ID user) {
+        int state = (Integer) o[3];
         ID recordId = (ID) o[5];
         ID approvalId = (ID) o[6];
-        ID approver = (ID) o[7];
+        String hubBatch = (String) o[7];
 
         JSONObject item = JSONUtils.toJSONObject(
                 new String[]{"id", "createdOn", "createdBy", "state", "approvalId"},
-                new Object[]{o[0], I18nUtils.formatDate((Date) o[1]), o[2], o[3], approvalId});
+                new Object[]{o[0], I18nUtils.formatDate((Date) o[1]), o[2], state, approvalId});
         // 创建人
         item.put("createdBy", new Object[]{o[2], UserHelper.getName((ID) o[2])});
 
@@ -97,21 +103,14 @@ public class ApprovalHubController extends BaseController {
                 recordMeta.getName(), recordMeta.getLabel()
         });
 
-        // 关联状态
-        Object[][] steps = Application.createQueryNoFilter(
-                "select state,approver from RobotApprovalStep where recordId = ? and approvalId = ? and nodeBatch = ? and isCanceled = 'F'")
-                .setParameter(1, recordId)
-                .setParameter(2, approvalId)
-                .setParameter(3, o[9])
-                .array();
-        if (steps.length > 0) {
-            item.put("state", steps[0][0]);
-
-            for (Object[] step : steps) {
-                if (step[1].equals(user)) {
-                    item.put("imApprover", true);
-                    break;
-                }
+        if (state == DRAFT.getState()) {
+            Object[] a = Application.createQueryNoFilter(
+                    "select state from RobotApprovalHub where hubBatch = ? and userApprove = ?")
+                    .setParameter(1, hubBatch)
+                    .setParameter(2, user)
+                    .unique();
+            if (a != null && (Integer) a[0] == DRAFT.getState()) {
+                item.put("imApprover", true);
             }
         }
 

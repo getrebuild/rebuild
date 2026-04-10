@@ -237,19 +237,18 @@ public class ApprovalStepService extends BaseService {
                 execTriggersWhenSR(recordOfMain, TriggerWhen.REJECTED);
             }
 
-            ApprovalHub.instance.awareApprove(stepRecordId, null, cancelledSteps, ccUsers);
+            ApprovalHub.instance.awareApprove(stepRecordId, null, ccUsers);
             return;
         }
 
         // 或签/会签
         boolean goNextNode = true;
-        Set<ID> cancelledSteps = null;
 
         final String approveMsg = ApprovalHelper.buildApproveMsg(entityMeta);
 
         // 或签:一人通过其他作废
         if (FlowNode.SIGN_OR.equals(signMode)) {
-            cancelledSteps = cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, true);
+            cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, true);
         }
         // 会签:检查是否都签了
         else {
@@ -297,7 +296,7 @@ public class ApprovalStepService extends BaseService {
             Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED, approver);
             execSopSteps38(recordOfMain);
 
-            ApprovalHub.instance.awareApprove(stepRecordId, null, cancelledSteps, ccUsers);
+            ApprovalHub.instance.awareApprove(stepRecordId, null, ccUsers);
             return;
         }
 
@@ -327,7 +326,7 @@ public class ApprovalStepService extends BaseService {
             }
         }
 
-        ApprovalHub.instance.awareApprove(stepRecordId, nextSteps, cancelledSteps, ccUsers);
+        ApprovalHub.instance.awareApprove(stepRecordId, nextSteps, ccUsers);
 
         execSopSteps38(recordOfMain);
     }

@@ -10,8 +10,10 @@ const PAGE_SIZE = 40
 
 const _STATES = {
   '1': ['待处理', 'warning'],
-  '10': ['审批通过', 'success'],
-  '11': ['审批驳回', 'danger'],
+  '10': ['通过', 'success'],
+  '11': ['驳回', 'danger'],
+  '12': ['撤回', 'danger'],
+  '0': ['无效'],
 }
 
 // ~ 审批列表
@@ -21,7 +23,6 @@ class ApprovalList extends React.Component {
     this.state = { ...props }
 
     this._pageNo = 1
-    this._approvalForms = {}
   }
 
   render() {
@@ -69,16 +70,17 @@ class ApprovalList extends React.Component {
                 </div>
               </div>
 
-              <div className="info">
+              <div className="info w-auto">
                 <span className={state[1] ? `badge badge-${state[1]}` : ''}>{state[0]}</span>
-              </div>
-              {item.state === 1 && item.imApprover && (
-                <div className="info">
+                <button className="btn btn-link btn-sm ml-2 pr-0" onClick={(e) => this._handleDetail(item, e)}>
+                  {$L('详情')}
+                </button>
+                {item.state === 1 && item.imApprover && (
                   <button className="btn btn-secondary btn-sm ml-2" onClick={(e) => this._handleApprve(item, e)}>
                     {$L('审批')}
                   </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           )
         })}
@@ -114,10 +116,11 @@ class ApprovalList extends React.Component {
 
   componentDidMount = () => this.loadData()
 
-  loadData(type, pageNo) {
+  loadData(type, sort, pageNo) {
     type = type || this.state.type
+    this._sort = sort || this._sort || ''
     this._pageNo = pageNo || 1
-    const url = `/approval/data-list?type=${type}&sort=&q=&pageNo=${this._pageNo}&pageSize=${PAGE_SIZE}`
+    const url = `/approval/data-list?type=${type}&sort=${this._sort}&q=&pageNo=${this._pageNo}&pageSize=${PAGE_SIZE}`
     $.get(url, (res) => {
       const current = res.data || []
       let datas = this._pageNo === 1 ? [] : this.state.datas
@@ -126,8 +129,8 @@ class ApprovalList extends React.Component {
     })
   }
 
-  reload(type) {
-    this.loadData(type, 1)
+  reload(type, sort) {
+    this.loadData(type, sort, 1)
   }
 
   getSelected() {
@@ -138,28 +141,23 @@ class ApprovalList extends React.Component {
 
   _handleApprve(item, e) {
     e && $stopEvent(e)
+    renderRbcomp(
+      // eslint-disable-next-line react/jsx-no-undef
+      <ApprovalApproveForm
+        id={item.recordMeta[0]}
+        approval={item.approvalId}
+        entity={item.recordMeta[2]}
+        onConfirm={() => {
+          this.reload()
+        }}
+      />,
+    )
+  }
 
-    const recordId = item.recordMeta[0]
-    if (this._approvalForms[recordId]) {
-      this._approvalForms[recordId].show()
-    } else {
-      const that = this
-      renderRbcomp(
-        // eslint-disable-next-line react/jsx-no-undef
-        <ApprovalApproveForm
-          id={recordId}
-          approval={item.approvalId}
-          entity={item.recordMeta[2]}
-          onConfirm={() => {
-            if (that._approvalForms[recordId]) that._approvalForms[recordId].hide(true)
-            that.reload()
-          }}
-        />,
-        function () {
-          that._approvalForms[recordId] = this
-        },
-      )
-    }
+  _handleDetail(item, e) {
+    e && $stopEvent(e)
+    // eslint-disable-next-line react/jsx-no-undef
+    renderRbcomp(<ApprovalStepViewer id={item.recordMeta[0]} approval={item.approvalId} $$$parent={this} />)
   }
 }
 
@@ -179,6 +177,11 @@ $(document).ready(() => {
 
   $('.J_approve').on('click', () => {
     alert(_ApprovalList.getSelected())
+  })
+
+  $('.J_sort a').on('click', function () {
+    _ApprovalList.reload(null, $(this).data('sort'))
+    $('.J_sort>button').text($(this).text())
   })
 
   renderRbcomp(<ApprovalList type={type} />, $('.approval-viewport'), function () {
