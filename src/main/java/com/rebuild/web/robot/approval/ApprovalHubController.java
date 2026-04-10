@@ -16,8 +16,10 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +29,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Date;
 
 import static com.rebuild.core.service.approval.ApprovalState.DRAFT;
@@ -44,8 +48,14 @@ public class ApprovalHubController extends BaseController {
     public static final ID FILTER_BADGE = ID.valueOf("014-0490000000000000");
 
     @GetMapping({"home", "hub"})
-    public ModelAndView pageIndex() {
-        return createModelAndView("/approval/home");
+    public ModelAndView pageIndex(HttpServletResponse response) throws IOException {
+        if (License.isCommercial()) {
+            return createModelAndView("/approval/home");
+        }
+
+        response.sendError(404,
+                Language.L("免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+        return null;
     }
 
     @RequestMapping("data-list")
@@ -53,19 +63,9 @@ public class ApprovalHubController extends BaseController {
         ID user = getRequestUser(request);
         int type = getIntParameter(request, "type", 1);
 
-        String sql = "select hubId,createdOn,createdBy,state,approvalStepId" +
-                ",approvalStepId.recordId,approvalStepId.approvalId,hubBatch" +
+        String sql = "select hubId,createdOn,createdBy,state,approvalStepId,approvalStepId.recordId,approvalStepId.approvalId,hubBatch" +
                 " from RobotApprovalHub where ";
-        if (type == 1) {
-            sql += String.format("userApprove = '%s' and state = 1 and approvalStepId.isWaiting = 'F'", user);
-        } else if (type == 2) {
-            sql += String.format("userApprove = '%s' and state in (10,11)", user);
-        } else if (type == 3) {
-            sql += String.format("userSubmit = '%s'", user);
-        } else if (type == 4) {
-            sql += String.format("userCc = '%s'", user);
-        }
-
+        sql += buildFilterSql(type, user);
         // 排序
         if ("older".equals(getParameter(request, "sort"))) sql += " order by createdOn asc";
         else sql += " order by createdOn desc";
@@ -115,5 +115,23 @@ public class ApprovalHubController extends BaseController {
         }
 
         return item;
+    }
+
+    /**
+     * @param type
+     * @param user
+     * @return
+     */
+    public static String buildFilterSql(int type, ID user) {
+        if (type == 1) {
+            return String.format("userApprove = '%s' and state = 1 and approvalStepId.isWaiting = 'F'", user);
+        } else if (type == 2) {
+            return String.format("userApprove = '%s' and state in (10,11)", user);
+        } else if (type == 3) {
+            return String.format("userSubmit = '%s'", user);
+        } else if (type == 4) {
+            return String.format("userCc = '%s'", user);
+        }
+        return "(1=2)";
     }
 }

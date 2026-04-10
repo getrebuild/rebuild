@@ -16,6 +16,8 @@ const _STATES = {
   '0': ['无效'],
 }
 
+let currentSearch
+
 // ~ 审批列表
 class ApprovalList extends React.Component {
   constructor(props) {
@@ -23,6 +25,8 @@ class ApprovalList extends React.Component {
     this.state = { ...props }
 
     this._pageNo = 1
+    this._formsApprove = {}
+    this._formsDetail = {}
   }
 
   render() {
@@ -76,7 +80,7 @@ class ApprovalList extends React.Component {
                   {$L('详情')}
                 </button>
                 {item.state === 1 && item.imApprover && (
-                  <button className="btn btn-secondary btn-sm ml-2" onClick={(e) => this._handleApprve(item, e)}>
+                  <button className="btn btn-secondary btn-sm ml-2" onClick={(e) => this._handleApprove(item, e)}>
                     {$L('审批')}
                   </button>
                 )}
@@ -120,7 +124,7 @@ class ApprovalList extends React.Component {
     type = type || this.state.type
     this._sort = sort || this._sort || ''
     this._pageNo = pageNo || 1
-    const url = `/approval/data-list?type=${type}&sort=${this._sort}&q=&pageNo=${this._pageNo}&pageSize=${PAGE_SIZE}`
+    const url = `/approval/data-list?type=${type}&sort=${this._sort}&q=${currentSearch || ''}&pageNo=${this._pageNo}&pageSize=${PAGE_SIZE}`
     $.get(url, (res) => {
       const current = res.data || []
       let datas = this._pageNo === 1 ? [] : this.state.datas
@@ -139,25 +143,57 @@ class ApprovalList extends React.Component {
     else return s
   }
 
-  _handleApprve(item, e) {
+  // 适配
+  approve(rest) {
+    this._handleApprove({
+      recordMeta: [rest.id, null, rest.entity],
+      approvalId: rest.approval,
+    })
+  }
+
+  _handleApprove(item, e) {
     e && $stopEvent(e)
-    renderRbcomp(
-      // eslint-disable-next-line react/jsx-no-undef
-      <ApprovalApproveForm
-        id={item.recordMeta[0]}
-        approval={item.approvalId}
-        entity={item.recordMeta[2]}
-        onConfirm={() => {
-          this.reload()
-        }}
-      />,
-    )
+
+    const that = this
+    if (this._formsApprove[item.id || '0']) {
+      this._formsApprove[item.id].show()
+    } else {
+      renderRbcomp(
+        // eslint-disable-next-line react/jsx-no-undef
+        <ApprovalApproveForm
+          id={item.recordMeta[0]}
+          entity={item.recordMeta[2]}
+          approval={item.approvalId}
+          onConfirm={() => {
+            if (item.id) {
+              // delete that._formsApprove[item.id]  // 审批后户自动 reload
+              delete that._formsApprove[item.id] // 其实还在
+            }
+            this.reload()
+          }}
+        />,
+        function () {
+          if (item.id) that._formsApprove[item.id] = this
+        },
+      )
+    }
   }
 
   _handleDetail(item, e) {
     e && $stopEvent(e)
-    // eslint-disable-next-line react/jsx-no-undef
-    renderRbcomp(<ApprovalStepViewer id={item.recordMeta[0]} approval={item.approvalId} $$$parent={this} />)
+
+    const that = this
+    if (this._formsDetail[item.id || '0']) {
+      this._formsDetail[item.id].show()
+    } else {
+      renderRbcomp(
+        // eslint-disable-next-line react/jsx-no-undef
+        <ApprovalStepViewer id={item.recordMeta[0]} approval={item.approvalId} $$$parent={this} />,
+        function () {
+          if (item.id) that._formsDetail[item.id] = this
+        },
+      )
+    }
   }
 }
 
@@ -175,13 +211,24 @@ $(document).ready(() => {
     _ApprovalList.reload($(this).attr('data-type'))
   })
 
-  $('.J_approve').on('click', () => {
-    alert(_ApprovalList.getSelected())
+  // 搜索
+  $initQuickSearch(null, (q) => {
+    currentSearch = q
+    _ApprovalList.reload()
   })
 
-  $('.J_sort a').on('click', function () {
-    _ApprovalList.reload(null, $(this).data('sort'))
-    $('.J_sort>button').text($(this).text())
+  // 批量
+  $('.J_approve').on('click', () => {
+    if (_ApprovalList.state.type === 1) {
+      alert('TODO:' + _ApprovalList.getSelected())
+    }
+  })
+
+  // 排序
+  $('.J_sort .dropdown-item').on('click', function () {
+    const $this = $(this)
+    _ApprovalList.reload(null, $this.data('sort'))
+    $('.J_sort>button>span').text($this.text())
   })
 
   renderRbcomp(<ApprovalList type={type} />, $('.approval-viewport'), function () {

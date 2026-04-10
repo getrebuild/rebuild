@@ -1525,6 +1525,30 @@ function $showNotification(title, _onClick, _onShow) {
   }
 }
 
+// 搜索组件
+var $initQuickSearch = function ($el, onSearch) {
+  $el = $el || $('.input-search')
+
+  var $btn = $el.find('.input-group-btn .btn').on('click', function () {
+    typeof onSearch === 'function' && onSearch($('.input-search input').val())
+  })
+  var $input = $el.find('input').on('keydown', function (e) {
+    if (e.which === 13) $btn.trigger('click')
+  })
+  $el.find('.btn-input-clear').on('click', function () {
+    $input.val('')
+    $btn.trigger('click')
+    $input[0].focus()
+  })
+
+  var gs = $urlp('gs', location.hash)
+  if (gs) {
+    gs = $decode(gs)
+    $input.val(gs)
+  }
+  return gs || null
+}
+
 // 颜色
 var RBCOLORS = ['#4285f4', '#34a853', '#6a70b8', '#009c95', '#ff6b35', '#ea4335', '#7500ea', '#eb2f96']
 // 不支持排序的字段

@@ -224,9 +224,9 @@ public class CommonOperatingController extends BaseController {
         String countSql;
         try {
             if (filterId.equals(ApprovalHubController.FILTER_BADGE)) {
-                countSql = String.format(
-                        "select count(hubId) from RobotApprovalHub where userApprove = '%s' and state = 1 and approvalStepId.isWaiting = 'F'",
-                        getRequestUser(request));
+                countSql = "select count(hubId) from RobotApprovalHub where ";
+                countSql += ApprovalHubController.buildFilterSql(1, getRequestUser(request));
+
             } else {
                 ConfigBean cb = AdvFilterManager.instance.getAdvFilter(filterId);
                 String sqlWhere = new AdvFilterParser((JSONObject) cb.getJSON("filter")).toSqlWhere();

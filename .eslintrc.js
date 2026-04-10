@@ -166,5 +166,6 @@ module.exports = {
     $base64Encode: true,
     RbAlertFree43: true,
     RbViewModal: true,
+    $initQuickSearch: true,
   },
 }

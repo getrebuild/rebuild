@@ -855,7 +855,7 @@ class ApprovalStepViewer extends React.Component {
     let stateLast = 0
 
     return (
-      <div className="modal" ref={(c) => (this._dlg = c)} style={{ zIndex: 1051 }}>
+      <div className="modal" ref={(c) => (this._dlg = c)} style={{ zIndex: 1051 }} tabIndex="-1" aria-modal="true">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
@@ -951,7 +951,7 @@ class ApprovalStepViewer extends React.Component {
               onClick={(e) => {
                 $stopEvent(e, true)
                 if (this.props.$$$parent) {
-                  this.props.$$$parent.approve()
+                  this.props.$$$parent.approve(this.props)
                   this.hide()
                 }
               }}>
