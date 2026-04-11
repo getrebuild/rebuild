@@ -111,6 +111,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-radius: 30px;
   display: inline-block;
   font-size: 13px;
+  max-width: 501px;
 }
 
 .chat-input .chat-input-attach ul > li > span a.close {

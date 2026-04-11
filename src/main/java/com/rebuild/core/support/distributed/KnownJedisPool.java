@@ -20,6 +20,7 @@ public class KnownJedisPool extends JedisPool {
     public static final int TIMEOUT = 5000;
 
     /**
+     * Default config
      */
     public static final JedisPoolConfig DEFAULT_CONFIG = new JedisPoolConfig() {
         @Override

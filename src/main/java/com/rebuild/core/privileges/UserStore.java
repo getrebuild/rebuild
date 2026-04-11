@@ -660,7 +660,7 @@ public class UserStore implements Initialization, UseDistributed {
     }
 
     @Override
-    public String refresh() {
+    public Object refresh() {
         USERS.clear();
         DEPTS.clear();
         ROLES.clear();
@@ -669,6 +669,6 @@ public class UserStore implements Initialization, UseDistributed {
         USERS_MAIL2ID.clear();
 
         init();
-        return "UserStore#OK";
+        return USERS.size();
     }
 }

@@ -211,9 +211,17 @@ class ChatInput extends React.Component {
   attachRecord() {
     RecordSelectorModal.create({
       onConfirm: (v) => {
-        const attach = [...this.state.attach, { record: v, id: $random('attach-', true) }]
+        let attach = [...this.state.attach]
+        if (typeof v === 'object') {
+          v.forEach((id) => {
+            attach.push({ record: id, id: $random('attach-', true) })
+          })
+        } else {
+          attach.push({ record: v, id: $random('attach-', true) })
+        }
         this.setState({ attach })
       },
+      allowMultiple: true,
     })
   }
   attachFile() {
@@ -576,7 +584,7 @@ class Attach extends React.Component {
     if (!this.state) return null
     if (this.props._ChatInput) {
       return (
-        <span>
+        <span className="text-ellipsis">
           {this.state.name}
           <a className="close" onClick={() => this.props._ChatInput.removeAttach(this.props.id)}>
             &times;

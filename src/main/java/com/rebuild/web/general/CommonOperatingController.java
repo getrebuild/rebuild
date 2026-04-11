@@ -36,6 +36,7 @@ import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
+import com.rebuild.web.robot.approval.ApprovalHubController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -214,20 +215,29 @@ public class CommonOperatingController extends BaseController {
         return JSONUtils.toJSONObject(new String[]{"deleted", "requests"}, new Object[]{del, del});
     }
 
+    /**
+     * @see com.rebuild.web.configuration.NavSettings
+     */
     @GetMapping("filter-badge")
     public RespBody filterBadge(HttpServletRequest request) {
         ID filterId = getIdParameterNotNull(request, "filter");
-        ConfigBean cb;
+        String countSql;
         try {
-            cb = AdvFilterManager.instance.getAdvFilter(filterId);
+            if (filterId.equals(ApprovalHubController.FILTER_BADGE)) {
+                countSql = "select count(hubId) from RobotApprovalHub where ";
+                countSql += ApprovalHubController.buildFilterSql(1, getRequestUser(request));
+
+            } else {
+                ConfigBean cb = AdvFilterManager.instance.getAdvFilter(filterId);
+                String sqlWhere = new AdvFilterParser((JSONObject) cb.getJSON("filter")).toSqlWhere();
+                countSql = MessageFormat.format(
+                        "select count({0}Id) from {0} where {1}", cb.getString("entity"), sqlWhere);
+            }
+
         } catch (ConfigurationException miss) {
             log.warn("No [filter] found : {}", filterId);
             return RespBody.error(miss.getMessage());
         }
-
-        String sqlWhere = new AdvFilterParser((JSONObject) cb.getJSON("filter")).toSqlWhere();
-        String countSql = MessageFormat.format(
-                "select count({0}Id) from {0} where {1}", cb.getString("entity"), sqlWhere);
 
         Object[] c = Application.getQueryFactory().uniqueNoFilter(countSql);
         return RespBody.ok(c == null ? 0 : c[0]);

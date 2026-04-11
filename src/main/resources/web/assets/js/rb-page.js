@@ -475,28 +475,11 @@ var _initNav = function () {
     $('.sidebar-elements .divider').each(function () {
       if (!$(this).next().find('>a')[0]) $(this).remove()
     })
+  } else {
+    _refreshFilterBadge()
   }
-
-  // v4.3 Filter badge
-  $('.sidebar-elements span[data-filter]').each(function () {
-    var $this = $(this)
-    var filterId = $this.data('filter')
-    var c = $storage.get('NavFilterBadge-' + filterId)
-    if (c) $this.text(c)
-
-    // Click to storage
-    $this.parents('a').on('click', function () {
-      $storage.set('AdvFilter-' + $(this).parent().data('entity'), filterId)
-    })
-
-    if (!$this.hasClass('hide')) {
-      $.get('/app/entity/filter-badge?filter=' + filterId, function (res) {
-        $this.text(res.data || '')
-        $storage.set('NavFilterBadge-' + filterId, res.data || '')
-      })
-    }
-  })
 }
+
 var _checkMessage__state = 0
 // 检查新消息
 var _checkMessage = function () {
@@ -611,6 +594,29 @@ var _showStateST = function (st) {
     RbGritter.remove('st_gritter')
   }
 }
+
+// v4.3,4.4 导航条徽标
+var _refreshFilterBadge = function () {
+  $('.sidebar-elements span[data-filter]').each(function () {
+    var $this = $(this)
+    var filterId = $this.data('filter')
+    var c = $storage.get('NavFilterBadge-' + filterId)
+    if (c) $this.text(c)
+
+    // Click to storage
+    $this.parents('a').on('click', function () {
+      $storage.set('AdvFilter-' + $(this).parent().data('entity'), filterId)
+    })
+
+    if (!$this.hasClass('hide')) {
+      $.get('/app/entity/filter-badge?filter=' + filterId, function (res) {
+        $this.text(res.data || '')
+        $storage.set('NavFilterBadge-' + filterId, res.data || '')
+      })
+    }
+  })
+}
+
 // 全局搜索
 var _initGlobalSearch = function () {
   // $unhideDropdown('.global-search')
@@ -688,6 +694,7 @@ var _showGlobalSearch = function (gs, $gs) {
     }
   }
 }
+
 // 全局新建
 var _initGlobalCreate = function () {
   var entities = []
@@ -1516,6 +1523,30 @@ function $showNotification(title, _onClick, _onShow) {
       _Notification.requestPermission()
     }
   }
+}
+
+// 搜索组件
+var $initQuickSearch = function ($el, onSearch) {
+  $el = $el || $('.input-search')
+
+  var $btn = $el.find('.input-group-btn .btn').on('click', function () {
+    typeof onSearch === 'function' && onSearch($('.input-search input').val())
+  })
+  var $input = $el.find('input').on('keydown', function (e) {
+    if (e.which === 13) $btn.trigger('click')
+  })
+  $el.find('.btn-input-clear').on('click', function () {
+    $input.val('')
+    $btn.trigger('click')
+    $input[0].focus()
+  })
+
+  var gs = $urlp('gs', location.hash)
+  if (gs) {
+    gs = $decode(gs)
+    $input.val(gs)
+  }
+  return gs || null
 }
 
 // 颜色

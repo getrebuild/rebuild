@@ -20,6 +20,6 @@ public interface UseDistributed {
      *
      * @return
      */
-    String refresh();
+    Object refresh();
 
 }

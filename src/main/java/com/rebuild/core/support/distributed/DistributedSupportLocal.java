@@ -43,9 +43,4 @@ public class DistributedSupportLocal implements DistributedSupport {
     public <T> Set<T> getSet(String namespace) {
         return (Set<T>) LOCAL_SET.computeIfAbsent(namespace, k -> new HashSet<T>());
     }
-
-    @Override
-    public boolean isDistributedEnv() {
-        return false;
-    }
 }

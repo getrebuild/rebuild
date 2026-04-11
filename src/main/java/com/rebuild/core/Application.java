@@ -33,7 +33,6 @@ import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.notification.NotificationService;
 import com.rebuild.core.service.query.QueryFactory;
-import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -247,12 +246,6 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         }
         if (log.isDebugEnabled() || Application.devMode()) {
             log.info("Use RebuildConfiguration :\n----------\n{}----------", logConf);
-        }
-
-        // v4.4
-        if (CommandArgs.getBoolean(CommandArgs._CleanCacheOnStartup)) {
-            Installer.clearAllCache();
-            log.warn("Cache cleaned on startup!");
         }
 
         // 加载自定义实体

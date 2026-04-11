@@ -236,30 +236,18 @@ $(document).ready(() => {
     $content.perfectScrollbar('update')
   })()
 
-  const gs = $urlp('gs', location.hash)
-  if (gs) {
-    // eslint-disable-next-line no-undef
-    // _showGlobalSearch(gs)
-    currentSearch = $decode(gs)
-    $('.input-search input').val(currentSearch)
-  }
+  // 搜索
+  $initQuickSearch(null, (q) => {
+    currentSearch = q
+    filesList && filesList.loadData()
+  })
 
+  // 排序
   $('.J_sort .dropdown-item').on('click', function () {
     const $this = $(this)
     currentSort = $this.data('sort')
     $('.J_sort > .btn').find('span').text($this.text())
     filesList && filesList.loadData()
-  })
-
-  // 搜索
-  const $btn = $('.input-search .input-group-btn .btn').on('click', () => {
-    currentSearch = $('.input-search input').val()
-    filesList && filesList.loadData()
-  })
-  const $input = $('.input-search input').on('keydown', (e) => (e.which === 13 ? $btn.trigger('click') : true))
-  $('.input-search .btn-input-clear').on('click', () => {
-    $input.val('')
-    $btn.trigger('click')
   })
 
   $('.J_view-share').on('click', () => renderRbcomp(<SharedFiles />))

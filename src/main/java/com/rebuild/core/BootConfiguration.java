@@ -15,6 +15,7 @@ import com.rebuild.core.support.distributed.DistributedSupport;
 import com.rebuild.core.support.distributed.DistributedSupportLocal;
 import com.rebuild.core.support.distributed.KnownJedisPool;
 import com.rebuild.core.support.setup.InstallState;
+import com.rebuild.core.support.setup.RebuildBootException;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -35,8 +36,6 @@ import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
 
 /**
- * NOTE JRebel reloading error
- *
  * @author devezhao
  * @since 2020/9/23
  */
@@ -45,7 +44,7 @@ import java.nio.charset.StandardCharsets;
 public class BootConfiguration implements InstallState {
 
     /**
-     * ghost instance
+     * Ghost instance
      */
     public static final JedisPool USE_EHCACHE = new JedisPool(
             KnownJedisPool.DEFAULT_CONFIG, "127.0.0.1", 6379);
@@ -81,12 +80,13 @@ public class BootConfiguration implements InstallState {
 
     @Bean("rbv.DistributedSupport")
     DistributedSupport createDistributedSupport() {
-        if (DistributedSupport.getNodeName() != null) {
-            log.warn("Enable _UseDistributedNode : {}", DistributedSupport.getNodeName());
+        String nodeName;
+        if ((nodeName = DistributedSupport.getNodeName()) != null) {
+            log.info("Enable _UseDistributedNode : {}", nodeName);
             Class<?> clazz = null;
             JedisPool redis = null;
             try {
-                clazz = Class.forName("com.rebuild.rbv.core.support.DistributedSupportImpl");
+                clazz = Class.forName("com.rebuild.rbv.core.support.distributed.DistributedSupportImpl");
                 redis = createJedisPool();
             } catch (ClassNotFoundException ignored) {
             }
@@ -95,8 +95,9 @@ public class BootConfiguration implements InstallState {
                 try {
                     Constructor<?> c = clazz.getConstructor(JedisPool.class);
                     return (DistributedSupport) c.newInstance(redis);
-                } catch (ReflectiveOperationException e) {
-                    log.error("Cannot instance `DistributedSupportImpl`!", e);
+                } catch (Exception e) {
+                    if (e instanceof RebuildBootException) throw (RebuildBootException) e;
+                    throw new RebuildBootException("Cannot instance `DistributedSupportImpl`", e);
                 }
             }
         }

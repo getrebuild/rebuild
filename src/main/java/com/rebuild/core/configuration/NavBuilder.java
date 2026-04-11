@@ -34,6 +34,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.web.robot.approval.ApprovalHubController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -70,6 +71,7 @@ public class NavBuilder extends NavManager {
                     new Object[]{"chart-donut", "动态", "BUILTIN", NAV_FEEDS},
                     new Object[]{"folder", "文件", "BUILTIN", NAV_FILEMRG},
                     new Object[]{"account-box-phone", "通讯录", "BUILTIN", NAV_CONTACT},
+                    new Object[]{"progress-check", "审批中心", "BUILTIN", NAV_APPROVAL},
                     new Object[]{"shape", "项目", "BUILTIN", NAV_PROJECT},
             });
     // 新建项目
@@ -134,8 +136,9 @@ public class NavBuilder extends NavManager {
             }
         }
 
-        if (config == null) config = getLayoutOfNav(user);
-
+        if (config == null) {
+            config = getLayoutOfNav(user);
+        }
         if (config == null) {
             JSONArray useDefault = (JSONArray) JSONUtils.clone(NAVS_DEFAULT);
             ((JSONObject) useDefault.get(3)).put("sub", buildAvailableProjects(user));
@@ -189,8 +192,13 @@ public class NavBuilder extends NavManager {
         if ("ENTITY".equalsIgnoreCase(type)) {
             if (NAV_PARENT.equals(value)) {
                 return true;
-            } else if (NAV_FEEDS.equals(value) || NAV_FILEMRG.equals(value)
-                    || NAV_PROJECT.equals(value) || NAV_CONTACT.equals(value) || NAV_DASHBOARD.equals(value)) {
+            } else if (NAV_FEEDS.equals(value) || NAV_FILEMRG.equals(value) || NAV_PROJECT.equals(value)
+                    || NAV_CONTACT.equals(value) || NAV_DASHBOARD.equals(value)) {
+                return false;
+            } else if (NAV_APPROVAL.equals(value)) {
+                // v4.4: 修订 `filterBadge`
+                item.put("filter", ApprovalHubController.FILTER_BADGE);
+                item.put("filterBadge", true);
                 return false;
             } else if (!MetadataHelper.containsEntity(value)) {
                 log.warn("Unknown entity in nav : {}", value);
@@ -201,12 +209,13 @@ public class NavBuilder extends NavManager {
                     user, MetadataHelper.getEntity(value).getEntityCode());
             if (filter) return true;
 
-            // be:v4.1, 4.0 使用实体图标
+            // v4.0: 修订使用实体图标
             String icon = StringUtils.defaultIfBlank(item.getString("icon"), "texture");
             if ("texture".equals(icon)) {
                 icon = EasyMetaFactory.valueOf(value).getIcon();
                 if (!(StringUtils.isBlank(icon) || "texture".equals(icon))) item.put("icon", icon);
             }
+
             return false;
 
         } else if ("URL".equals(type)) {
@@ -447,6 +456,10 @@ public class NavBuilder extends NavManager {
             navName = "nav_dashboard-DASHBOARD";
             navUrl = String.format("%s/dashboard/home", AppUtils.getContextPath());
 
+        } else if (NAV_APPROVAL.equals(navName)) {
+            navName = "nav_entity--APPROVAL";
+            navUrl = String.format("%s/approval/home", AppUtils.getContextPath());
+
         } else {
             navEntity = navName;
             navName = "nav_entity-" + navName;
@@ -476,7 +489,7 @@ public class NavBuilder extends NavManager {
             String iconHtml = String.format("<i class=\"icon %s\"></i>", iconClazz);
             if ("zmdi zmdi---".equals(iconClazz)) iconHtml = "";
 
-            // v4.3 Badge of Filter
+            // v4.3 Filter badge
             String filterHtml = StringUtils.defaultIfBlank(item.getString("filter"), "");
             if (ID.isId(filterHtml)) {
                 if (item.getBooleanValue("filterBadge")) {
