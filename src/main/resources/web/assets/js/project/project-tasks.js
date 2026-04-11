@@ -73,6 +73,7 @@ $(document).ready(() => {
   $('.J_search .btn-input-clear').on('click', () => {
     $input2.val('')
     $btn2.trigger('click')
+    $input2[0].focus()
   })
 
   // 高级查询

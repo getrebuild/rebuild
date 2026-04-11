@@ -967,6 +967,7 @@ const RbListCommon = {
     $('.input-search .btn-input-clear').on('click', () => {
       $input.val('')
       $btn.trigger('click')
+      $input[0].focus()
     })
 
     // via 默认过滤
