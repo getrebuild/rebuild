@@ -58,8 +58,9 @@ public class CommandArgs {
     public static final String _CreatedDept = "_CreatedDept";
 
     // v4.4
-    public static final String _CleanCacheOnStartup = "_CleanCacheOnStartup";
-    public static final String _UseDistributedNode = "_UseDistributedNode";
+    public static final String _DistributedAk = "_DistributedAk";
+    public static final String _DistributedNode = "_DistributedNode";
+    public static final String _DistributedAllowJobs = "_DistributedAllowJobs";
 
     /**
      * 内部消息同步发送短信

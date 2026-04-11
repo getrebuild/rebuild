@@ -17,6 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.support.distributed.UseDistributed;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -34,19 +35,22 @@ import static com.rebuild.core.metadata.MetadataHelper.SPLITER_RE;
  * @since 08/04/2018
  */
 @Slf4j
-public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
+public class DynamicMetadataFactory extends ConfigurationMetadataFactory implements UseDistributed {
     private static final long serialVersionUID = -5709281079615412347L;
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public DynamicMetadataFactory(String configLocation, Dialect dialect) {
         super(configLocation, dialect);
     }
 
-    public void refresh() {
+    @Override
+    public Object refresh() {
         refresh(false);
+        return getEntities().length;
     }
 
     @Override
-    public synchronized void refresh(boolean initState) {
+    synchronized public void refresh(boolean initState) {
         super.refresh(initState);
 
         if (!initState && !DynamicMetadataContextHolder.isSkipLanguageRefresh(false)) {

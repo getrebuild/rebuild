@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * 分布式支持
+ * 分布式支持工具类
  *
  * @author devezhao
  * @since 2020/9/27
@@ -26,9 +26,9 @@ public interface DistributedSupport {
 
     /**
      * @param namespace
+     * @return
      * @param <K>
      * @param <V>
-     * @return
      */
     <K, V> ConcurrentMap<K, V> getMap(String namespace);
 
@@ -47,9 +47,13 @@ public interface DistributedSupport {
     <T> Set<T> getSet(String namespace);
 
     /**
+     * 是否分布式环境
+     *
      * @return
      */
-    boolean isDistributedEnv();
+    default boolean isDistributedEnv() {
+        return false;
+    }
 
     // -- TOOLS
 
@@ -59,7 +63,7 @@ public interface DistributedSupport {
      * @return
      */
     static String getNodeName() {
-        return CommandArgs.getString(CommandArgs._UseDistributedNode, null);
+        return CommandArgs.getString(CommandArgs._DistributedNode, null);
     }
 
     /**

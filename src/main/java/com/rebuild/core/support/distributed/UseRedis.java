@@ -16,6 +16,8 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 /**
+ * 使用 Redis
+ *
  * @author devezhao
  * @since 2020/9/27
  */

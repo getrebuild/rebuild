@@ -145,7 +145,7 @@ public class Installer implements InstallState {
             }
 
         } catch (IOException e) {
-            throw new SetupException(e);
+            throw new RebuildSetupException(e);
         }
 
         try {
@@ -304,7 +304,7 @@ public class Installer implements InstallState {
                 // NOOP
             } catch (SQLException e) {
                 if (!e.getMessage().contains("Unknown database")) {
-                    throw new SetupException(e);
+                    throw new RebuildSetupException(e);
                 }
 
                 // 创建
@@ -317,7 +317,7 @@ public class Installer implements InstallState {
                     }
 
                 } catch (SQLException sqlex) {
-                    throw new SetupException(sqlex);
+                    throw new RebuildSetupException(sqlex);
                 }
             }
         }
@@ -334,7 +334,7 @@ public class Installer implements InstallState {
             log.info("Database schemes init : {}", affetced);
 
         } catch (SQLException | IOException e) {
-            throw new SetupException(e);
+            throw new RebuildSetupException(e);
         }
 
         return true;

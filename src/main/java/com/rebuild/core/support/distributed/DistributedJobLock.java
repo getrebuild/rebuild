@@ -8,8 +8,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support.distributed;
 
 import com.rebuild.core.Application;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.setup.Installer;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import redis.clients.jedis.Jedis;
@@ -38,25 +40,34 @@ public abstract class DistributedJobLock {
      * @return
      */
     protected boolean tryLock() {
+        final String jobName = getClass().getName();
         if (!Application.isReady() || Application.isWaitLoad()) {
-            log.info("Job [ {} ] ignored while REBUILD starting up.", getClass().getSimpleName());
+            log.info("Job [ {} ] ignored while REBUILD starting up.", jobName);
             return false;
         }
 
         if (Installer.isUseRedis()) {
-            JedisPool pool = Application.getCommonsCache().getJedisPool();
-            String jobKey = getClass().getName() + LOCK_KEY;
+            // v4.4
+            if (DistributedSupport.instance().isDistributedEnv()) {
+                String allowJobs = CommandArgs.getString(CommandArgs._DistributedAllowJobs);
+                if (StringUtils.isNotBlank(allowJobs) && !allowJobs.contains(jobName)) {
+                    log.warn("The job [ {} ] is not allowed to execute on this node : {}",
+                            jobName, DistributedSupport.getNodeName());
+                    return false;
+                }
+            }
 
+            JedisPool pool = Application.getCommonsCache().getJedisPool();
             try (Jedis jedis = pool.getResource()) {
-                String tryLock = jedis.set(jobKey, LOCK_KEY, SetParams.setParams().nx().ex(LOCK_TIME));
+                String tryLock = jedis.set(jobName + LOCK_KEY, LOCK_KEY, SetParams.setParams().nx().ex(LOCK_TIME));
                 if (tryLock == null) {
-                    log.warn("The job [ {} ] has been executed by another instance", getClass().getSimpleName());
+                    log.warn("The job [ {} ] has been executed by another instance", jobName);
                     return false;
                 }
             }
         }
 
-        log.info("The job [ {} ] will be executed safely ...", getClass().getSimpleName());
+        log.info("The job [ {} ] will be executed safely ...", jobName);
         return true;
     }
 
