@@ -867,7 +867,8 @@ class BatchApprove extends BatchOperator {
     if (rb.env === 'dev') console.log(JSON.stringify(_data))
 
     const that = this
-    RbAlert.create(<b>{$L('请再次确认审批数据范围和审批方式。开始审批吗？')}</b>, {
+    const _confirmTip = this._confirmTip || $L('请再次确认审批数据范围和审批方式。开始审批吗？')
+    RbAlert.create(<b>{_confirmTip}</b>, {
       onConfirm: function () {
         this.hide()
         that.disabled(true, true)
@@ -906,12 +907,16 @@ class BatchApprove extends BatchOperator {
             .find('.btn-primary')
             .text(res.data.isInterrupted ? $L('已终止') : $L('已完成'))
           if (res.data.succeeded > 0) {
-            RbHighbar.success($L('批量审批完成。成功 %d 条，失败 %d 条', res.data.succeeded, res.data.total - res.data.succeeded))
+            let tips = $L('审批完成')
+            if (res.data.total !== res.data.succeeded) {
+              tips += ' (' + $L('成功 %d 条，失败 %d 条', res.data.succeeded, res.data.total - res.data.succeeded) + ')'
+            }
+            RbHighbar.success(tips)
           } else {
-            RbHighbar.create($L('没有任何符合批量审批条件的记录'))
+            RbHighbar.create($L('没有任何符合审批条件的记录'))
           }
 
-          RbListPage.reload()
+          this.props.listRef.reload()
           setTimeout(() => {
             this.disabled(false)
             this.hide()

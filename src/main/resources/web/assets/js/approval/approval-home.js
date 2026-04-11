@@ -30,12 +30,11 @@ class ApprovalList extends React.Component {
   }
 
   render() {
-    const currentActive = this.state.currentActive || []
-
+    const _active = this.state._active || []
     return (
       <div className="file-list file-list-striped">
         {(this.state.datas || []).map((item) => {
-          const checked = currentActive.includes(item.id)
+          const checked = _active.includes(item.id)
           const state = _STATES[item.state] || [item.state, undefined]
 
           return (
@@ -44,9 +43,9 @@ class ApprovalList extends React.Component {
               className={`file-list-item ${checked ? 'active' : ''}`}
               onClick={(e) => {
                 $stopEvent(e, true)
-                let currentActiveNew = this.state.currentActive || []
-                currentActiveNew.toggle(item.id)
-                this.setState({ currentActive: currentActiveNew })
+                let _activeNew = this.state._active || []
+                _activeNew.toggle(item.id)
+                this.setState({ _active: _activeNew })
               }}>
               <div className="check">
                 <div className="custom-control custom-checkbox m-0">
@@ -61,7 +60,7 @@ class ApprovalList extends React.Component {
                 <div className="float-left">
                   <div>{item.createdBy[1]}</div>
                   <div className="extras">
-                    <DateShow date={item.createdOn} />
+                    <DateShow date={item.createdOn} showOrigin />
                   </div>
                 </div>
               </div>
@@ -75,12 +74,18 @@ class ApprovalList extends React.Component {
               </div>
 
               <div className="info w-auto">
+                {item.approvedOn && (
+                  <span className="mr-2">
+                    <DateShow date={item.approvedOn} showOrigin />
+                  </span>
+                )}
                 <span className={state[1] ? `badge badge-${state[1]}` : ''}>{state[0]}</span>
-                <button className="btn btn-link btn-sm ml-2 pr-0" onClick={(e) => this._handleDetail(item, e)}>
+
+                <button className="btn btn-link btn-sm ml-2" onClick={(e) => this._handleDetail(item, e)}>
                   {$L('详情')}
                 </button>
                 {item.state === 1 && item.imApprover && (
-                  <button className="btn btn-secondary btn-sm ml-2" onClick={(e) => this._handleApprove(item, e)}>
+                  <button className="btn btn-secondary btn-sm" onClick={(e) => this._handleApprove(item, e)}>
                     {$L('审批')}
                   </button>
                 )}
@@ -95,7 +100,7 @@ class ApprovalList extends React.Component {
               className="show-more-pill"
               onClick={(e) => {
                 $stopEvent(e, true)
-                this.loadData(null, this._pageNo + 1)
+                this.loadData(null, null, this._pageNo + 1)
               }}>
               {$L('显示更多')}
             </a>
@@ -129,18 +134,8 @@ class ApprovalList extends React.Component {
       const current = res.data || []
       let datas = this._pageNo === 1 ? [] : this.state.datas
       datas = [].concat(datas, current)
-      this.setState({ datas: datas, type: type, currentSize: current.length, currentActive: [] })
+      this.setState({ datas: datas, type: type, currentSize: current.length, _active: [] })
     })
-  }
-
-  reload(type, sort) {
-    this.loadData(type, sort, 1)
-  }
-
-  getSelected() {
-    const s = this.state.currentActive
-    if ((s || []).length === 0) RbHighbar.create($L('未选中任何审批'))
-    else return s
   }
 
   // 适配
@@ -195,20 +190,108 @@ class ApprovalList extends React.Component {
       )
     }
   }
+
+  // -- APIs
+
+  reload(type, sort) {
+    this.loadData(type, sort, 1)
+  }
+
+  getSelected(hideWarning) {
+    return this.getSelectedIds(hideWarning)
+  }
+
+  getSelectedIds(hideWarning) {
+    const s = this.state._active || []
+    if (s.length === 0 && hideWarning !== true) RbHighbar.create($L('未选中任何审批'))
+
+    // 这里返回记录的ID
+    let ids = []
+    this.state.datas.forEach((d) => {
+      if (s.includes(d.id)) ids.push(d.recordMeta[0])
+    })
+    return ids
+  }
+}
+
+// eslint-disable-next-line no-undef
+class BatchApprove2 extends BatchApprove {
+  constructor(props) {
+    super(props)
+    this.state.dataRange = 1
+    this._confirmTip = $L('请再次确认审批方式。开始审批吗？')
+  }
+
+  render() {
+    return (
+      <RbModal title={$L('批量审批')} ref={(c) => (this._dlg = c)} disposeOnHide>
+        <div className="form batch-form">{this.renderOperator()}</div>
+
+        <div className="dialog-footer" ref={(c) => (this._btns = c)}>
+          <button className="btn btn-secondary btn-spacem mr-2" type="button" onClick={() => this.handleCancel()}>
+            {$L('取消')}
+          </button>
+          <button className="btn btn-primary btn-space mr-1" type="button" onClick={() => this.handleConfirm()}>
+            {$L('审批')}
+          </button>
+        </div>
+      </RbModal>
+    )
+  }
+
+  renderOperator() {
+    return (
+      <div>
+        <div className="form-group">
+          <label className="text-bold">{$L('审批方式')}</label>
+          <div>
+            <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+              <input className="custom-control-input" type="radio" name="approveState" value="10" onClick={this.handleChange} />
+              <span className="custom-control-label">{$L('通过')}</span>
+            </label>
+            <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+              <input className="custom-control-input" type="radio" name="approveState" value="11" onClick={this.handleChange} />
+              <span className="custom-control-label">{$L('驳回')}</span>
+            </label>
+          </div>
+        </div>
+        <div className="form-group">
+          <label className="text-bold">{$L('批注')}</label>
+          <textarea className="form-control form-control-sm row2x" name="approveRemark" placeholder={$L('输入批注')} maxLength="600" onChange={this.handleChange} />
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    // super.componentDidMount()
+    // Nothings
+  }
+
+  getQueryData() {
+    return {
+      _selected: this.props.listRef.getSelectedIds(true).join('|'),
+    }
+  }
 }
 
 let _ApprovalList
 
 $(document).ready(() => {
+  // NAV
+  function _FN(t) {
+    $('.aside-nav li').removeClass('active')
+    $(`.aside-nav a[data-type="${t}"]`).parent().addClass('active')
+
+    _ApprovalList && _ApprovalList.reload(t)
+    $('.J_approve').attr('disabled', ~~t !== 1)
+  }
+
   const type = $urlp('type', location.hash) || 1
-  $('.aside-nav li').removeClass('active')
-  $(`.aside-nav a[data-type="${type}"]`).parent().addClass('active')
+  _FN(type)
 
   $('.aside-nav a').on('click', function () {
-    $('.aside-nav li').removeClass('active')
-    $(this).parent().addClass('active')
-
-    _ApprovalList.reload($(this).attr('data-type'))
+    _FN($(this).attr('data-type'))
   })
 
   // 搜索
@@ -219,9 +302,8 @@ $(document).ready(() => {
 
   // 批量
   $('.J_approve').on('click', () => {
-    if (_ApprovalList.state.type === 1) {
-      alert('TODO:' + _ApprovalList.getSelected())
-    }
+    if (_ApprovalList.getSelectedIds().length === 0) return
+    renderRbcomp(<BatchApprove2 listRef={_ApprovalList} entity="User" />)
   })
 
   // 排序

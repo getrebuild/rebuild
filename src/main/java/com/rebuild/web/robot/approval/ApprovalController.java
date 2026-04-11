@@ -379,7 +379,7 @@ public class ApprovalController extends BaseController {
         int s = new ApprovalProcessor(recordId).urge();
 
         if (s == -1) {
-            return RespBody.errorl("催审通知发送过于频繁，请稍后重试");
+            return RespBody.errorl("已向审批人发送催审通知");
         } else {
             return s > 0 ? RespBody.ok() : RespBody.errorl("无法发送催审通知");
         }

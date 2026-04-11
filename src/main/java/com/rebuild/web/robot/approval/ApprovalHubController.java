@@ -63,12 +63,16 @@ public class ApprovalHubController extends BaseController {
         ID user = getRequestUser(request);
         int type = getIntParameter(request, "type", 1);
 
-        String sql = "select hubId,createdOn,createdBy,state,approvalStepId,approvalStepId.recordId,approvalStepId.approvalId,hubBatch" +
+        String sql = "select hubId,createdOn,createdBy,state,approvalStepId,approvalStepId.recordId,approvalStepId.approvalId,hubBatch,approvedOn" +
                 " from RobotApprovalHub where ";
         sql += buildFilterSql(type, user);
         // 排序
-        if ("older".equals(getParameter(request, "sort"))) sql += " order by createdOn asc";
-        else sql += " order by createdOn desc";
+        if ("older".equals(getParameter(request, "sort"))) {
+            sql += " order by createdOn asc";
+        } else {
+            if (type == 2) sql += " order by approvedOn desc";
+            else sql += " order by createdOn desc";
+        }
 
         int pageNo = getIntParameter(request, "pageNo", 1);
         int pageSize = getIntParameter(request, "pageSize", 100);
@@ -95,6 +99,10 @@ public class ApprovalHubController extends BaseController {
                 new Object[]{o[0], I18nUtils.formatDate((Date) o[1]), o[2], state, approvalId});
         // 创建人
         item.put("createdBy", new Object[]{o[2], UserHelper.getName((ID) o[2])});
+        // 处理时间
+        if (o[8] != null) {
+            item.put("approvedOn", I18nUtils.formatDate((Date) o[8]));
+        }
 
         // 记录信息
         EasyEntity recordMeta = EasyMetaFactory.valueOf(MetadataHelper.getEntity(recordId.getEntityCode()));

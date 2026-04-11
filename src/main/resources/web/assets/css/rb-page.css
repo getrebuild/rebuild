@@ -6789,3 +6789,13 @@ div.formula-code {
   position: absolute;
   right: 15px;
 }
+
+.aside-nav .nav li a {
+  padding: 12px 22px;
+}
+
+.aside-nav .nav li.active a,
+.aside-nav .nav li.active a .icon {
+  color: #4285f4;
+  color: var(--rb-theme-color);
+}
