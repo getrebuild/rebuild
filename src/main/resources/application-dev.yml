@@ -4,8 +4,8 @@ db.user: rebuild
 db.passwd: rebuild
 # Use built-in ehcache if redis not defined or unavailable
 db.CacheHost: 127.0.0.1
-db.CachePort: 16379
-db.CachePassword: crk2019rb
+db.CachePort:
+db.CachePassword:
 
 # REBUILD
 rebuild:
