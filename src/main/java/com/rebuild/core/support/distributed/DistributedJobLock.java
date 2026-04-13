@@ -11,7 +11,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.setup.Installer;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import redis.clients.jedis.Jedis;
@@ -50,7 +49,7 @@ public abstract class DistributedJobLock {
             // v4.4
             if (DistributedSupport.instance().isDistributedEnv()) {
                 String allowJobs = CommandArgs.getString(CommandArgs._DistributedAllowJobs);
-                if (StringUtils.isNotBlank(allowJobs) && !allowJobs.contains(jobName)) {
+                if (allowJobs != null && !allowJobs.contains(jobName)) {
                     log.warn("The job [ {} ] is not allowed to execute on this node : {}",
                             jobName, DistributedSupport.getNodeName());
                     return false;
