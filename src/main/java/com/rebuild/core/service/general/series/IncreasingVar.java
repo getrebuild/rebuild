@@ -13,7 +13,6 @@ import cn.devezhao.persist4j.Field;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.distributed.DistributedSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
@@ -21,7 +20,6 @@ import org.springframework.util.Assert;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.Lock;
 
 /**
  * 数字自增系列
@@ -32,10 +30,11 @@ import java.util.concurrent.locks.Lock;
 @Slf4j
 public class IncreasingVar extends SeriesVar {
 
+    private static final Object INCREASINGS_LOCK = new Object();
     private static final Map<String, AtomicLong> INCREASINGS = new ConcurrentHashMap<>();
 
-    private Field field;
-    private String zeroFlag;  // {0} or {A}
+    protected Field field;
+    protected String zeroFlag;  // {0} or {A}
 
     /**
      * @param symbols
@@ -56,11 +55,6 @@ public class IncreasingVar extends SeriesVar {
         this.field = field;
     }
 
-    private String getNameKey() {
-        Assert.notNull(this.field, "[this.field] cannot be null");
-        return String.format("Series-%s.%s", field.getOwnEntity().getName(), field.getName());
-    }
-
     @Override
     public String generate() {
         // Preview mode
@@ -68,11 +62,8 @@ public class IncreasingVar extends SeriesVar {
             return StringUtils.leftPad("1", getSymbols().length(), '0');
         }
 
-        Lock lock44 = DistributedSupport.instance().getLock("IncreasingVar");
-        lock44.lock();
-
         final String nameKey = getNameKey();
-        try {
+        synchronized (INCREASINGS_LOCK) {
             AtomicLong incr = INCREASINGS.get(nameKey);
             if (incr == null) {
                 String val = KVStorage.getCustomValue(nameKey);
@@ -90,9 +81,6 @@ public class IncreasingVar extends SeriesVar {
             if (getSymbols().contains("A")) nextValueHex = Long.toHexString(nextValue).toUpperCase();
 
             return StringUtils.leftPad(nextValueHex, getSymbols().length(), '0');
-
-        } finally {
-            DistributedSupport.instance().unLock(lock44, "IncreasingVar");
         }
     }
 
@@ -102,15 +90,10 @@ public class IncreasingVar extends SeriesVar {
      * @param reset
      */
     protected void clean(long reset) {
-        Lock lock44 = DistributedSupport.instance().getLock("IncreasingVar");
-        lock44.lock();
-
         final String nameKey = getNameKey();
-        try {
+        synchronized (INCREASINGS_LOCK) {
             INCREASINGS.remove(nameKey);
-            RebuildConfiguration.setCustomValue(nameKey, Math.max(reset, 0), Boolean.TRUE);
-        } finally {
-            DistributedSupport.instance().unLock(lock44, "IncreasingVar");
+            RebuildConfiguration.setCustomValue(nameKey, Math.max(reset, 0L), Boolean.TRUE);
         }
     }
 
@@ -118,16 +101,19 @@ public class IncreasingVar extends SeriesVar {
      * @return
      */
     public long getCurrentValue() {
-        Lock lock44 = DistributedSupport.instance().getLock("IncreasingVar");
-        lock44.lock();
-
         final String nameKey = getNameKey();
-        try {
+        synchronized (INCREASINGS_LOCK) {
             String val = KVStorage.getCustomValue(nameKey);
             return val == null ? 0L : ObjectUtils.toLong(val);
-        } finally {
-            DistributedSupport.instance().unLock(lock44, "IncreasingVar");
         }
+    }
+
+    /**
+     * @return
+     */
+    protected String getNameKey() {
+        Assert.notNull(this.field, "[this.field] cannot be null");
+        return String.format("Series-%s.%s", field.getOwnEntity().getName(), field.getName());
     }
 
     /**
@@ -137,7 +123,7 @@ public class IncreasingVar extends SeriesVar {
      *
      * @return
      */
-    private long countFromDb() {
+    protected long countFromDb() {
         String dateLimit = null;
         if ("Y".equals(zeroFlag)) {
             dateLimit = CalendarUtils.format("yyyy", CalendarUtils.now()) + "-01-01";
