@@ -50,7 +50,7 @@ public abstract class DistributedJobLock {
             if (DistributedSupport.instance().isDistributedEnv()) {
                 String allowJobs = CommandArgs.getString(CommandArgs._DistributedAllowJobs);
                 if (allowJobs != null && !allowJobs.contains(jobName)) {
-                    log.warn("The job [ {} ] is not allowed to execute on this node : {}",
+                    log.info("The job [ {} ] is not allowed to execute on this node : {}",
                             jobName, DistributedSupport.getNodeName());
                     return false;
                 }
