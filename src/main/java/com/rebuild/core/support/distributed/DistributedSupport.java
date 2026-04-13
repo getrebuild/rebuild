@@ -22,8 +22,6 @@ import java.util.concurrent.ConcurrentMap;
  */
 public interface DistributedSupport {
 
-    String KEY_PREFIX = "DISTR44:";
-
     /**
      * @param namespace
      * @return
@@ -46,24 +44,22 @@ public interface DistributedSupport {
      */
     <T> Set<T> getSet(String namespace);
 
-    /**
-     * 是否分布式环境
-     *
-     * @return
-     */
-    default boolean isDistributedEnv() {
-        return false;
-    }
-
     // -- TOOLS
 
     /**
-     * 节点名称
-     *
+     * 节点名称（有节点表示分布式环境）
      * @return
      */
     static String getNodeName() {
         return CommandArgs.getString(CommandArgs._DistributedNode, null);
+    }
+
+    /**
+     * 是否分布式环境
+     * @return
+     */
+    static boolean isDistributedEnv() {
+        return getNodeName() != null;
     }
 
     /**

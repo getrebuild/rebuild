@@ -84,33 +84,26 @@ public class BootConfiguration implements InstallState {
 
     @Bean("rbv.DistributedSupport")
     DistributedSupport createDistributedSupport() {
-        String nodeName;
-        if ((nodeName = DistributedSupport.getNodeName()) != null) {
+        if (DistributedSupport.isDistributedEnv()) {
             String banner = RebuildBanner.formatSimple(true,
                     "USE DISTRIBUTED ENV.",
-                    "     _DistributedNode : " + nodeName,
+                    "     _DistributedNode : " + DistributedSupport.getNodeName(),
                     "  _DistributedNodeUrl : " + getString(CommandArgs._DistributedNodeUrl),
                     "_DistributedMasterUrl : " + getString(CommandArgs._DistributedMasterUrl),
                     "_DistributedAllowJobs : " + getString(CommandArgs._DistributedAllowJobs),
                     "       _DistributedAk : " + getString(CommandArgs._DistributedAk));
             log.info(banner);
 
-            Class<?> clazz = null;
-            JedisPool redis = null;
             try {
-                clazz = Class.forName("com.rebuild.rbv.core.support.distributed.DistributedSupportImpl");
-                redis = createJedisPool();
-            } catch (ClassNotFoundException ignored) {
-            }
+                Class<?> clazz = Class.forName("com.rebuild.rbv.core.support.distributed.DistributedSupportImpl");
+                JedisPool redis = createJedisPool();
 
-            if (clazz != null && redis != null && redis != USE_EHCACHE) {
-                try {
-                    Constructor<?> c = clazz.getConstructor(JedisPool.class);
-                    return (DistributedSupport) c.newInstance(redis);
-                } catch (Exception e) {
-                    if (e instanceof RebuildBootException) throw (RebuildBootException) e;
-                    throw new RebuildBootException("Cannot instance `DistributedSupportImpl`", e);
-                }
+                Constructor<?> c = clazz.getConstructor(JedisPool.class);
+                return (DistributedSupport) c.newInstance(redis);
+
+            } catch (Exception ex) {
+                if (ex instanceof RebuildBootException) throw (RebuildBootException) ex;
+                throw new RebuildBootException("Cannot instance `DistributedSupportImpl`", ex);
             }
         }
 

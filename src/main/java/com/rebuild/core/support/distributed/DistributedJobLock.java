@@ -45,17 +45,17 @@ public abstract class DistributedJobLock {
             return false;
         }
 
-        if (Installer.isUseRedis()) {
-            // v4.4
-            if (DistributedSupport.instance().isDistributedEnv()) {
-                String allowJobs = CommandArgs.getString(CommandArgs._DistributedAllowJobs);
-                if (allowJobs != null && !allowJobs.contains(jobName)) {
-                    log.info("The job [ {} ] is not allowed to execute on this node : {}",
-                            jobName, DistributedSupport.getNodeName());
-                    return false;
-                }
+        // v4.4
+        if (DistributedSupport.isDistributedEnv()) {
+            String allowJobs = CommandArgs.getString(CommandArgs._DistributedAllowJobs);
+            if (allowJobs != null && !allowJobs.contains(jobName)) {
+                log.info("The job [ {} ] is not allowed to execute on this node : {}",
+                        jobName, DistributedSupport.getNodeName());
+                return false;
             }
+        }
 
+        if (Installer.isUseRedis()) {
             JedisPool pool = Application.getCommonsCache().getJedisPool();
             try (Jedis jedis = pool.getResource()) {
                 String tryLock = jedis.set(jobName + LOCK_KEY, LOCK_KEY, SetParams.setParams().nx().ex(LOCK_TIME));
