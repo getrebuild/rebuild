@@ -63,7 +63,7 @@ class SeriesGeneratorTest extends TestSupport {
             }).start();
         }
         ThreadPool.waitFor(1200);
-        Assertions.assertEquals(set.size(), N);
+        Assertions.assertEquals(N, set.size());
     }
 
     @Test

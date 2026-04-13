@@ -13,6 +13,7 @@ import com.rebuild.core.support.CommandArgs;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.Lock;
 
 /**
  * 分布式支持工具类
@@ -43,6 +44,22 @@ public interface DistributedSupport {
      * @return
      */
     <T> Set<T> getSet(String namespace);
+
+    /**
+     * 获取资源锁
+     *
+     * @param namespace
+     * @return
+     * @see #unLock(Lock, String)
+     */
+    Lock getLock(String namespace);
+
+    /**
+     * 释放资源锁
+     *
+     * @param namespace
+     */
+    void unLock(Lock lock, String namespace);
 
     // -- TOOLS
 
