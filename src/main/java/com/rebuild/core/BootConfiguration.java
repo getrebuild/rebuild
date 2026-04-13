@@ -9,6 +9,7 @@ package com.rebuild.core;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.xml.XMLHelper;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.DistributedSupport;
@@ -17,6 +18,7 @@ import com.rebuild.core.support.distributed.KnownJedisPool;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.core.support.setup.RebuildBootException;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.RebuildBanner;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -34,6 +36,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
+
+import static com.rebuild.core.support.CommandArgs.getString;
 
 /**
  * @author devezhao
@@ -82,7 +86,15 @@ public class BootConfiguration implements InstallState {
     DistributedSupport createDistributedSupport() {
         String nodeName;
         if ((nodeName = DistributedSupport.getNodeName()) != null) {
-            log.info("Enable _UseDistributedNode : {}", nodeName);
+            String banner = RebuildBanner.formatSimple(true,
+                    "USE DISTRIBUTED ENV.",
+                    "     _DistributedNode : " + nodeName,
+                    "  _DistributedNodeUrl : " + getString(CommandArgs._DistributedNodeUrl),
+                    "_DistributedMasterUrl : " + getString(CommandArgs._DistributedMasterUrl),
+                    "_DistributedAllowJobs : " + getString(CommandArgs._DistributedAllowJobs),
+                    "       _DistributedAk : " + getString(CommandArgs._DistributedAk));
+            log.info(banner);
+
             Class<?> clazz = null;
             JedisPool redis = null;
             try {

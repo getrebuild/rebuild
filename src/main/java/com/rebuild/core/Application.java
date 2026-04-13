@@ -185,7 +185,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
             @Override
             public void run() {
                 String localUrl = BootApplication.getLocalUrl(null);
-                String banner = RebuildBanner.formatSimple(
+                String banner = RebuildBanner.formatSimple(false,
                         "REBUILD (" + VER + ") started successfully in " + timeCost + " ms.",
                         "    License : " + License.queryAuthority().values(),
                         "Access URLs : ",
@@ -195,12 +195,10 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                 log.info(banner);
 
                 if (!License.isCommercial()) {
-                    String thanks = RebuildBanner.formatSimple(
-                            "\n  **********",
+                    String thanks = RebuildBanner.formatSimple(true,
                             "感谢使用 REBUILD！",
                             "您当前使用的是免费版本，如果 REBUILD 对贵公司业务有帮助，请考虑购买商业授权版本，帮助我们可持续发展！",
-                            "查看详情 https://getrebuild.com/#pricing-plans",
-                            "**********");
+                            "查看详情 https://getrebuild.com/#pricing-plans");
                     log.info(thanks);
                 }
             }
@@ -238,14 +236,15 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
             }
         }
 
-        StringBuilder logConf = new StringBuilder();
+        List<String> logConf = new ArrayList<>();
+        logConf.add("[dev] RebuildConfiguration :");
         // 刷新系统缓存
         for (ConfigurationItem item : ConfigurationItem.values()) {
             String v = RebuildConfiguration.get(item, true);
-            logConf.append(StringUtils.rightPad(item.name(), 31)).append(" : ").append(v == null ? "" : v).append("\n");
+            logConf.add(StringUtils.leftPad(item.name(), 26) + " : " + (v == null ? "" : v));
         }
         if (log.isDebugEnabled() || Application.devMode()) {
-            log.info("Use RebuildConfiguration :\n----------\n{}----------", logConf);
+            log.info(RebuildBanner.formatSimple(true, logConf.toArray(new String[0])));
         }
 
         // 加载自定义实体

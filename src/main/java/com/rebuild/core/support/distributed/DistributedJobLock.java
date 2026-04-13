@@ -40,7 +40,7 @@ public abstract class DistributedJobLock {
      * @return
      */
     protected boolean tryLock() {
-        final String jobName = getClass().getName();
+        final String jobName = getClass().getSimpleName();
         if (!Application.isReady() || Application.isWaitLoad()) {
             log.info("Job [ {} ] ignored while REBUILD starting up.", jobName);
             return false;
@@ -70,6 +70,8 @@ public abstract class DistributedJobLock {
         log.info("The job [ {} ] will be executed safely ...", jobName);
         return true;
     }
+
+    // --
 
     /**
      * 获取当前执行 JOB 线程数量

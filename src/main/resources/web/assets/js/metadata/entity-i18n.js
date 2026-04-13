@@ -29,8 +29,12 @@ $(document).ready(() => {
 
   // SAVE
   const $btn = $('.J_save').on('click', () => {
+    let post = buildI18nList()
+    post = {
+      d: post,
+    }
+
     $btn.button('loading')
-    const post = buildI18nList()
     $.post('/admin/i18n/translation-post', JSON.stringify(post), (res) => {
       if (res.error_code === 0) location.reload()
       else RbHighbar.error(res.error_msg)
