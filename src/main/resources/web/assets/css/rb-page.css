@@ -1404,6 +1404,10 @@ a.link.link-icon::after {
   padding: 8px;
 }
 
+.rbform .type-NTEXT .form-control.is-invalid + .EasyMDEContainer .CodeMirror {
+  border-color: #ea4335;
+}
+
 /* v35 */
 .form-layout.refform {
   display: block;

@@ -1481,10 +1481,15 @@ class RbFormNText extends RbFormElement {
     this._textCommonMenuId = props.readonly || !props.textCommon ? null : $random('tcddm-')
 
     this._height = 0
-    if (!this.props.useMdedit) {
+    if (props.useMdedit) {
+      // Nothings
+    } else if (props.useCode) {
+      // Nothings
+    } else {
       this._height = ~~this.props.height
-      // v4.2 填0自动高度
+
       if (this.props.height === '0') {
+        // v4.2 填 0 自动高度
         this._heightAuto = true
       } else if (this._height > 0) {
         if (this._height === 1) this._height = 37
@@ -1497,9 +1502,18 @@ class RbFormNText extends RbFormElement {
     const _readonly37 = this.state.readonly
     const props = this.props
 
-    let clazz2 = `form-control ${props.useCode && 'formula-code'} ${props.useMdedit && _readonly37 ? 'cm-readonly' : ''} ${this.state.hasError && 'is-invalid'}`
-    if (!(this._heightAuto || this._height > 0)) clazz2 += ' row3x'
-    let style2 = this._height > 0 ? { height: this._height } : this._heightAuto ? { height: 37 } : null
+    let clazz2 = `form-control ${this.state.hasError && 'is-invalid'}`
+    let style2 = null
+    if (props.useMdedit) {
+      if (_readonly37) clazz2 += ' cm-readonly'
+    } else if (props.useCode) {
+      clazz2 += ' formula-code'
+      // TODO
+    } else {
+      if (!(this._heightAuto || this._height > 0)) clazz2 += ' row3x'
+      style2 = this._height > 0 ? { height: this._height } : this._heightAuto ? { height: 37 } : null
+    }
+
     return (
       <RF>
         <textarea
@@ -1517,12 +1531,13 @@ class RbFormNText extends RbFormElement {
           maxLength="6000"
           data-fix-autosize-height="37px"
         />
-        {props.useMdedit && !_readonly37 && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
         {this._textCommonMenuId && (
           <a className={`badge text-common ${_readonly37 && 'hide'}`} data-toggle="dropdown" data-target={`#${this._textCommonMenuId}`}>
             {$L('常用值')}
           </a>
         )}
+
+        {props.useMdedit && !_readonly37 && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
       </RF>
     )
   }
@@ -1540,20 +1555,23 @@ class RbFormNText extends RbFormElement {
           <Md2Html markdown={this.state.value} />
         </div>
       )
+    } else if (this.props.useCode) {
+      let code = $formattedCode(this.state.value, 'json')
+      // code = code.replace(/\n/g, '<br/>') //.replace(/\s/g, '&nbsp;')
+      return (
+        <div className="form-control-plaintext formula-code" ref={(c) => (this._fieldValue = c)} style={style2}>
+          {code}
+        </div>
+      )
     } else {
       let text2 = this.state.value.replace(/</g, '&lt;').replace(/\n/g, '<br/>')
-      if (this.props.useCode) {
-        text2 = $formattedCode(text2, 'json')
-        text2 = text2.replace(/\n/g, '<br/>') //.replace(/\s/g, '&nbsp;')
-      }
-
       return (
         <RF>
-          <div className={`form-control-plaintext ${this.props.useCode && 'formula-code'}`} ref={(c) => (this._fieldValue = c)} style={style2}>
+          <div className="form-control-plaintext" ref={(c) => (this._fieldValue = c)} style={style2}>
             {WrapHtml(text2)}
           </div>
 
-          <div className={`ntext-action ${window.__LAB_SHOWNTEXTACTION || this.props.useCode ? '' : 'hide'}`}>
+          <div className={`ntext-action ${window.__LAB_SHOWNTEXTACTION ? '' : 'hide'}`}>
             <a title={$L('展开/收起')} onClick={() => $(this._fieldValue).toggleClass('ntext-expand')}>
               <i className="mdi mdi-arrow-expand" />
             </a>
@@ -1605,6 +1623,7 @@ class RbFormNText extends RbFormElement {
     if (!destroy) {
       // MDE
       if (this.props.useMdedit) this._initMde()
+
       // v4.1 常用值
       if (this._textCommonMenuId && !$(`#${this._textCommonMenuId}`)[0]) {
         if (rb.dev === 'env') console.log('[dev] init dropdown-menu with text-common', this._textCommonMenuId)
