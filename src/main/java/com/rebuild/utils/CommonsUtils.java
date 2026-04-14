@@ -19,6 +19,7 @@ import com.hankcs.hanlp.utility.TextUtility;
 import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
 import com.rebuild.core.RebuildException;
+import com.rebuild.customized.Executor2;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
@@ -53,6 +54,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
 /**
@@ -569,5 +573,33 @@ public class CommonsUtils {
             String barLetter = byValue.value(bar);
             return comparator.compare(fooLetter, barLetter);
         });
+    }
+
+    /**
+     * 线程安全测试
+     *
+     * @param executor
+     */
+    public static void threadSafeTest(Executor2<?> executor) {
+        ExecutorService es = Executors.newFixedThreadPool(50);
+        CountDownLatch start = new CountDownLatch(1);
+        CountDownLatch done = new CountDownLatch(50);
+        for (int i = 0; i < 50; i++) {
+            es.submit(() -> {
+                start.await();
+                for (int j = 0; j < 2000; j++) {
+                    executor.exec();
+                }
+                done.countDown();
+                return null;
+            });
+        }
+
+        start.countDown();
+        try {
+            done.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
