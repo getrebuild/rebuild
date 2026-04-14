@@ -158,6 +158,14 @@
         <field name="filterName" type="string" max-length="100" nullable="false" description="名称"/>
     </entity>
 
+    <entity name="CommonsConfig" type-code="015" name-field="name" description="通用配置" queryable="false">
+        <field name="configId" type="primary"/>
+        <field name="belongEntity" type="string" max-length="100" nullable="false" description="所属实体"/>
+        <field name="type" type="string" max-length="100" nullable="false" description="类型"/>
+        <field name="name" type="string" max-length="100" description="名称"/>
+        <field name="config" type="text" description="规则"/>
+    </entity>
+
     <entity name="DashboardConfig" type-code="016" name-field="title" description="仪表盘" queryable="false">
         <field name="configId" type="primary"/>
         <field name="config" type="text" nullable="false"/>

@@ -118,6 +118,12 @@ public class TransactionManual {
                 public void afterCommit() {
                     new Thread(c).start();
                 }
+                @Override
+                public void afterCompletion(int status) {
+                    if (status != TransactionSynchronization.STATUS_COMMITTED) {
+                        log.debug("Transaction not committed ({}) : {}", status, c);
+                    }
+                }
             });
             return;
         }
@@ -142,6 +148,12 @@ public class TransactionManual {
                 @Override
                 public void afterCommit() {
                     TaskExecutors.schedule(c, delayInMs, keyCancel);
+                }
+                @Override
+                public void afterCompletion(int status) {
+                    if (status != TransactionSynchronization.STATUS_COMMITTED) {
+                        log.debug("Transaction not committed ({}) : {}", status, c);
+                    }
                 }
             });
             return;

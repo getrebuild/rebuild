@@ -807,7 +807,9 @@ class UserSelector extends React.Component {
       })
     }
 
-    const selected = { id: id, text: $target.text() }
+    let text = $target.text()
+    text = text.replace($target.find('em').text(), '').trim() // fix:4.3.4
+    const selected = { id: id, text: text }
 
     if (!exists) ns.push(selected)
     if (ns.length >= 20) {

@@ -68,6 +68,11 @@ public enum ZeroEntry {
      */
     AllowRecordMerge(false),
 
+    /**
+     * 允许使用 AI 助手
+     */
+    AllowUseAiBot(true),
+
     ;
 
     private final boolean defaultVal;

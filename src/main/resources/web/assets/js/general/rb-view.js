@@ -62,6 +62,17 @@ class RbViewForm extends React.Component {
         hadApproval = null
       }
 
+      // v4.3.4
+      if (res.data.readonlyMessage) {
+        if (window.RbViewPage) window.RbViewPage.setReadonly()
+        hadAlert = (
+          <RF>
+            <RbAlertBox message={res.data.readonlyMessage} />
+            {hadAlert && hadAlert}
+          </RF>
+        )
+      }
+
       this.__ViewData = {}
       this.__lastModified = res.data.lastModified || 0
       if (res.data.onViewEditable === false) this.onViewEditable = false
