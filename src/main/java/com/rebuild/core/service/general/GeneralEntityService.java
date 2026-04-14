@@ -664,9 +664,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         // v4.3 LAB
         if (!GeneralEntityServiceContextHolder.isSkipLock(false)) {
             if (!GeneralEntityServiceContextHolder.isAllowForceUpdate(false)) {
-                if (CommonsLock.isLocked43(record)) {
-                    throw new DataSpecificationException("记录已锁定，禁止操作");
-                }
+                String lockedTips = CommonsLock.isLocked43(record);
+                if (lockedTips != null) throw new DataSpecificationException(lockedTips);
             }
         }
 

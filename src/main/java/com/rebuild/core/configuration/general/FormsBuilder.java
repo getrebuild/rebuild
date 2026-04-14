@@ -39,6 +39,7 @@ import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.support.CommonsLock;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.general.DataListWrapper;
 import com.rebuild.core.support.general.FieldValueHelper;
@@ -125,7 +126,7 @@ public class FormsBuilder extends FormsManager {
      * @param viewMode 视图模式
      * @return
      */
-    private JSON buildModel(final String entity, final ID user, final ID recordId, final boolean viewMode) {
+    protected JSON buildModel(final String entity, final ID user, final ID recordId, final boolean viewMode) {
         Assert.notNull(entity, "[entity] cannot be null");
         Assert.notNull(user, "[user] cannot be null");
 
@@ -324,6 +325,15 @@ public class FormsBuilder extends FormsManager {
             if (approvalState.getState() >= ApprovalState.REJECTED.getState()) {
                 boolean notHadApproval = !RobotApprovalManager.instance.hadApproval(hasMainEntity == null ? entityMeta : hasMainEntity);
                 if (notHadApproval) model.set("hadApproval", null);
+            }
+        }
+
+        // v4.3.4 记录锁定
+        if (recordId != null) {
+            String lockedTips = CommonsLock.isLocked43(recordId);
+            if (lockedTips != null) {
+                readonlywMessage = null;
+                readonlyMessage = lockedTips;
             }
         }
 
