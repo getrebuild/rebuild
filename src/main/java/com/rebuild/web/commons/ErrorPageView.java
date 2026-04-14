@@ -77,7 +77,7 @@ public class ErrorPageView extends BaseController {
         response.sendRedirect(error);
     }
 
-    @GetMapping("/error/server-status")
+    @GetMapping({"/error/server-status", "/gw/server-status"})
     public ModelAndView pageServerStatus(HttpServletRequest request) {
         boolean realtime = "1".equals(request.getParameter("check"));
 
@@ -104,7 +104,7 @@ public class ErrorPageView extends BaseController {
         return mv;
     }
 
-    @GetMapping("/error/server-status.json")
+    @GetMapping({"/error/server-status.json", "/gw/server-status.json"})
     public void apiServerStatus(HttpServletRequest request, HttpServletResponse response) {
         boolean realtime = "1".equals(request.getParameter("check"));
 
@@ -134,15 +134,6 @@ public class ErrorPageView extends BaseController {
         }
 
         ServletUtils.writeJson(response, s.toJSONString());
-    }
-
-    @GetMapping({"/gw/server-status", "/gw/server-status.json"})
-    public String v1Fix(HttpServletRequest request) {
-        if (request.getRequestURI().contains("server-status.json")) {
-            return "redirect:/error/server-status.json";
-        } else {
-            return "redirect:/error/server-status";
-        }
     }
 
     @GetMapping("/error/request-support")

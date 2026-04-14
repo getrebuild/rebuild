@@ -13,6 +13,7 @@ import com.rebuild.core.support.CommandArgs;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.Lock;
 
 /**
  * 分布式支持工具类
@@ -21,8 +22,6 @@ import java.util.concurrent.ConcurrentMap;
  * @since 2020/9/27
  */
 public interface DistributedSupport {
-
-    String KEY_PREFIX = "DISTR44:";
 
     /**
      * @param namespace
@@ -47,23 +46,37 @@ public interface DistributedSupport {
     <T> Set<T> getSet(String namespace);
 
     /**
-     * 是否分布式环境
+     * 获取资源锁
      *
+     * @param namespace
      * @return
+     * @see #unLock(Lock, String)
      */
-    default boolean isDistributedEnv() {
-        return false;
-    }
+    Lock getLock(String namespace);
+
+    /**
+     * 释放资源锁
+     *
+     * @param namespace
+     */
+    void unLock(Lock lock, String namespace);
 
     // -- TOOLS
 
     /**
-     * 节点名称
-     *
+     * 节点名称（有节点表示分布式环境）
      * @return
      */
     static String getNodeName() {
         return CommandArgs.getString(CommandArgs._DistributedNode, null);
+    }
+
+    /**
+     * 是否分布式环境
+     * @return
+     */
+    static boolean isDistributedEnv() {
+        return getNodeName() != null;
     }
 
     /**

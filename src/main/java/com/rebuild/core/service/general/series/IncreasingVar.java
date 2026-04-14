@@ -33,8 +33,8 @@ public class IncreasingVar extends SeriesVar {
     private static final Object INCREASINGS_LOCK = new Object();
     private static final Map<String, AtomicLong> INCREASINGS = new ConcurrentHashMap<>();
 
-    private Field field;
-    private String zeroFlag;  // {0} or {A}
+    protected Field field;
+    protected String zeroFlag;  // {0} or {A}
 
     /**
      * @param symbols
@@ -53,11 +53,6 @@ public class IncreasingVar extends SeriesVar {
     protected IncreasingVar(Field field) {
         super(null);
         this.field = field;
-    }
-
-    private String getNameKey() {
-        Assert.notNull(this.field, "[this.field] cannot be null");
-        return String.format("Series-%s.%s", field.getOwnEntity().getName(), field.getName());
     }
 
     @Override
@@ -95,11 +90,10 @@ public class IncreasingVar extends SeriesVar {
      * @param reset
      */
     protected void clean(long reset) {
-        Assert.isTrue(reset >= 0, "[reset] must be greater than 0");
         final String nameKey = getNameKey();
         synchronized (INCREASINGS_LOCK) {
             INCREASINGS.remove(nameKey);
-            RebuildConfiguration.setCustomValue(nameKey, reset, Boolean.TRUE);
+            RebuildConfiguration.setCustomValue(nameKey, Math.max(reset, 0L), Boolean.TRUE);
         }
     }
 
@@ -115,13 +109,21 @@ public class IncreasingVar extends SeriesVar {
     }
 
     /**
+     * @return
+     */
+    protected String getNameKey() {
+        Assert.notNull(this.field, "[this.field] cannot be null");
+        return String.format("Series-%s.%s", field.getOwnEntity().getName(), field.getName());
+    }
+
+    /**
      * NOTE
      * 例如有 100 条记录，序号也为 100。
      * 但是删除了 10 条后，调用此方法所生产的序号只有 90（直接采用 count 记录数）
      *
      * @return
      */
-    private long countFromDb() {
+    protected long countFromDb() {
         String dateLimit = null;
         if ("Y".equals(zeroFlag)) {
             dateLimit = CalendarUtils.format("yyyy", CalendarUtils.now()) + "-01-01";

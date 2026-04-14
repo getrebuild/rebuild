@@ -7,6 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.distributed;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -14,11 +16,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author devezhao
  * @since 2022/1/6
  */
+@Slf4j
 @SuppressWarnings("unchecked")
 public class DistributedSupportLocal implements DistributedSupport {
 
@@ -26,7 +31,25 @@ public class DistributedSupportLocal implements DistributedSupport {
     private final Map<String, List<?>> LOCAL_LIST = new ConcurrentHashMap<>();
     private final Map<String, Set<?>> LOCAL_SET = new ConcurrentHashMap<>();
 
-    public DistributedSupportLocal() {
+    private final Map<String, Lock> LOCAL_LOCKS = new ConcurrentHashMap<>();
+
+    @Override
+    public Lock getLock(String namespace) {
+        synchronized (LOCAL_LOCKS) {
+            return LOCAL_LOCKS.computeIfAbsent(namespace, k -> new ReentrantLock());
+        }
+    }
+
+    @Override
+    public void unLock(Lock lock, String namespace) {
+        ReentrantLock rlock = (ReentrantLock) lock;
+        if (rlock.isLocked()) {
+            if (rlock.isHeldByCurrentThread()) {
+                rlock.unlock();
+            } else {
+                log.warn("Cannot unlock lock by other thread : {}", namespace);
+            }
+        }
     }
 
     @Override
