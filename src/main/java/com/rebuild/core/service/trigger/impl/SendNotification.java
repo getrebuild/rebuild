@@ -17,6 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
@@ -34,7 +35,6 @@ import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.core.support.integration.SMSenderContextHolder;
 import com.rebuild.utils.md.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -111,7 +111,7 @@ public class SendNotification extends TriggerAction {
         }
 
         if (s == null || s.isEmpty()) return TriggerResult.wran("No users");
-        log.info("Sent notification to : {} with {}", s, actionContext.getConfigId());
+        log.info("Will sent notification to : {} with {}", s, actionContext.getConfigId());
 
         return TriggerResult.success(StringUtils.join(s, ","));
     }
@@ -124,26 +124,30 @@ public class SendNotification extends TriggerAction {
                 content.getJSONArray("sendTo"), actionContext.getSourceRecord(), Boolean.TRUE);
         if (toUsers.isEmpty()) return null;
 
-        String[] messageAndTitle = formatMessageContent(actionContext, operatingContext);
-        Set<Object> send = new HashSet<>();
-
+        String[] contentAndTitle = formatMessageContent(actionContext, operatingContext);
         String emailContent = null;
         File[] emailAttach = null;
         if (msgType == MTYPE_MAIL) {
-            emailContent = MarkdownUtils.render(messageAndTitle[0], false, true);
+            emailContent = MarkdownUtils.render(contentAndTitle[0], false, true);
             emailAttach = getMailAttach(content);
         }
+        final String emailContent2 = emailContent;
+        final File[] emailAttach2 = emailAttach;
 
-        // v4.1 合并发送。需要邮件服务器支持，否则还是会单个发送
+        final Set<Object> send = new HashSet<>();
+
+        // v4.1 邮件合并发送。需要邮件服务器支持，否则还是会单个发送
         if (msgType == MTYPE_MAIL && content.getBooleanValue("mergeSend")) {
             for (ID user : toUsers) {
-                String emailAddr = Application.getUserStore().getUser(user).getEmail();
-                if (RegexUtils.isEMail(emailAddr)) send.add(emailAddr);
+                String email = Application.getUserStore().getUser(user).getEmail();
+                if (RegexUtils.isEMail(email)) send.add(email);
             }
 
             if (!send.isEmpty()) {
-                SMSenderContextHolder.setFromSource(operatingContext.getFixedRecordId());
-                SMSender.sendMailAsync(StringUtils.join(send, ","), messageAndTitle[1], emailContent, emailAttach);
+                TransactionManual.registerAfterCommit(() -> {
+                    SMSenderContextHolder.setFromSource(operatingContext.getFixedRecordId());
+                    SMSender.sendMail(StringUtils.join(send, ","), contentAndTitle[1], emailContent2, emailAttach2);
+                });
             }
             return send;
         }
@@ -152,29 +156,27 @@ public class SendNotification extends TriggerAction {
             if (send.contains(user)) continue;
 
             if (msgType == MTYPE_MAIL) {
-                String emailAddr = Application.getUserStore().getUser(user).getEmail();
-                if (RegexUtils.isEMail(emailAddr)) {
-                    SMSenderContextHolder.setFromSource(operatingContext.getFixedRecordId());
-                    SMSender.sendMailAsync(emailAddr, messageAndTitle[1], emailContent, emailAttach);
-                    send.add(emailAddr);
-                }
-            }
-
-            if (msgType == MTYPE_SMS) {
-                String mobileAddr = Application.getUserStore().getUser(user).getWorkphone();
-                if (RegexUtils.isCNMobile(mobileAddr)) {
-                    SMSenderContextHolder.setFromSource(operatingContext.getFixedRecordId());
-                    SMSender.sendSMSAsync(mobileAddr, messageAndTitle[0]);
-                    send.add(mobileAddr);
-                }
-            }
-
-            if (msgType == MTYPE_NOTIFICATION) {
-                Message m = MessageBuilder.createMessage(user, messageAndTitle[0], Message.TYPE_DEFAULT, actionContext.getSourceRecord());
-                m.setSpecTitle(messageAndTitle[1]);
+                String email = Application.getUserStore().getUser(user).getEmail();
+                if (RegexUtils.isEMail(email)) send.add(email);
+            } else if (msgType == MTYPE_SMS) {
+                String mobile = Application.getUserStore().getUser(user).getWorkphone();
+                if (RegexUtils.isCNMobile(mobile)) send.add(mobile);
+            } else if (msgType == MTYPE_NOTIFICATION) {
+                Message m = MessageBuilder.createMessage(user, contentAndTitle[0], Message.TYPE_DEFAULT, actionContext.getSourceRecord());
+                m.setSpecTitle(contentAndTitle[1]);
                 Application.getNotifications().send(m);
                 send.add(user);
             }
+        }
+
+        if ((msgType == MTYPE_MAIL || msgType == MTYPE_SMS) && !send.isEmpty()) {
+            TransactionManual.registerAfterCommit(() -> {
+                SMSenderContextHolder.setFromSource(operatingContext.getFixedRecordId());
+                for (Object a : send) {
+                    if (msgType == MTYPE_SMS) SMSender.sendSMS((String) a, contentAndTitle[0]);
+                    else SMSender.sendMailAsync((String) a, contentAndTitle[1], emailContent2, emailAttach2);
+                }
+            });
         }
         return send;
     }
@@ -190,12 +192,12 @@ public class SendNotification extends TriggerAction {
             // v4.3 手动输入支持字段变量
             List<String> toList = new ArrayList<>();
             for (Object o : to) {
-                String me =  o.toString().trim();
+                String me = o.toString().trim();
                 if (me.startsWith("{") && me.endsWith("}")) {
                     me = me.substring(1, me.length() - 1);
                     Object[] found = Application.getQueryFactory().uniqueNoFilter(operatingContext.getFixedRecordId(), me);
                     if (found != null && found[0] != null) {
-                        String[] foundMe =  found[0].toString().split("[，,;；]");
+                        String[] foundMe = found[0].toString().split("[，,;；]");
                         Collections.addAll(toList, foundMe);
                     }
                 } else {
@@ -225,26 +227,30 @@ public class SendNotification extends TriggerAction {
         }
         if (ArrayUtils.isEmpty(to)) return null;
 
-        String[] message = formatMessageContent(actionContext, operatingContext);
-        Set<Object> send = new HashSet<>();
-
+        String[] contentAndTitle = formatMessageContent(actionContext, operatingContext);
         String emailContent = null;
         File[] emailAttach = null;
         if (msgType == MTYPE_MAIL) {
-            emailContent = MarkdownUtils.render(message[0], false, true);
+            emailContent = MarkdownUtils.render(contentAndTitle[0], false, true);
             emailAttach = getMailAttach(content);
         }
+        final String emailContent2 = emailContent;
+        final File[] emailAttach2 = emailAttach;
+
+        Set<Object> send = new HashSet<>();
 
         // v4.1 合并发送
         if (msgType == MTYPE_MAIL && content.getBooleanValue("mergeSend")) {
             for (Object me : to) {
-                String emailAddr = me == null ? null : me.toString().trim();
-                if (RegexUtils.isEMail(emailAddr)) send.add(emailAddr);
+                String email = me == null ? null : me.toString().trim();
+                if (RegexUtils.isEMail(email)) send.add(email);
             }
 
             if (!send.isEmpty()) {
-                SMSenderContextHolder.setFromSource(operatingContext.getFixedRecordId());
-                SMSender.sendMailAsync(StringUtils.join(send, ","), message[1], emailContent, emailAttach);
+                TransactionManual.registerAfterCommit(() -> {
+                    SMSenderContextHolder.setFromSource(operatingContext.getFixedRecordId());
+                    SMSender.sendMail(StringUtils.join(send, ","), contentAndTitle[1], emailContent2, emailAttach2);
+                });
             }
             return send;
         }
@@ -256,16 +262,20 @@ public class SendNotification extends TriggerAction {
             if (send.contains(mobileOrEmail)) continue;
 
             if (msgType == MTYPE_SMS && RegexUtils.isCNMobile(mobileOrEmail)) {
-                SMSenderContextHolder.setFromSource(operatingContext.getFixedRecordId());
-                SMSender.sendSMSAsync(mobileOrEmail, message[0]);
+                send.add(mobileOrEmail);
+            } else if (msgType == MTYPE_MAIL && RegexUtils.isEMail(mobileOrEmail)) {
                 send.add(mobileOrEmail);
             }
+        }
 
-            if (msgType == MTYPE_MAIL && RegexUtils.isEMail(mobileOrEmail)) {
+        if ((msgType == MTYPE_MAIL || msgType == MTYPE_SMS) && !send.isEmpty()) {
+            TransactionManual.registerAfterCommit(() -> {
                 SMSenderContextHolder.setFromSource(operatingContext.getFixedRecordId());
-                SMSender.sendMailAsync(mobileOrEmail, message[1], emailContent, emailAttach);
-                send.add(mobileOrEmail);
-            }
+                for (Object a : send) {
+                    if (msgType == MTYPE_SMS) SMSender.sendSMS((String) a, contentAndTitle[0]);
+                    else SMSender.sendMailAsync((String) a, contentAndTitle[1], emailContent2, emailAttach2);
+                }
+            });
         }
         return send;
     }
@@ -341,6 +351,6 @@ public class SendNotification extends TriggerAction {
             subject = ContentWithFieldVars.replaceWithRecord(subject, actionContext.getSourceRecord());
         }
 
-        return new String[] { message, subject };
+        return new String[]{message, subject};
     }
 }

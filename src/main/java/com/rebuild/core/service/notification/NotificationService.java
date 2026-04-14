@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.notification;
 
 import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -16,7 +15,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.InternalPersistService;
-import com.rebuild.core.support.integration.SMSender;
+import com.rebuild.core.service.TransactionManual;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -83,10 +82,10 @@ public class NotificationService extends InternalPersistService {
      * 发送消息
      *
      * @param message
-     * @param distSms 同时发短信
-     * @param distEmail 同时发邮件
+     * @param forceSms 同时发短信
+     * @param forceEmail 同时发邮件
      */
-    public void send(Message message, boolean distSms, boolean distEmail) {
+    public void send(Message message, boolean forceSms, boolean forceEmail) {
         Record record = EntityHelper.forNew(EntityHelper.Notification, message.getFromUser());
         record.setID("fromUser", message.getFromUser());
         record.setID("toUser", message.getToUser());
@@ -101,19 +100,18 @@ public class NotificationService extends InternalPersistService {
         record = this.create(record);
 
         // 异步分发消息
+        // fix:4.3.4 事物成功后发送
         final ID messageId = record.getPrimary();
-        ThreadPool.exec(() -> {
+        TransactionManual.registerAfterCommit(() -> {
             String[] distNames = Application.getContext().getBeanNamesForType(MessageDistributor.class);
             for (String name : distNames) {
                 MessageDistributor md = (MessageDistributor) Application.getContext().getBean(name);
+                String mdName = md.getClass().getSimpleName();
                 if (!md.isEnable()) {
-                    String distType = md.getClass().getSimpleName();
-                    if ("SmsDistributor".equals(distType)) {
-                        if (!SMSender.availableSMS()) continue;
-                        if (!distSms) continue;
-                    } else if ("EmailDistributor".equals(distType)) {
-                        if (!SMSender.availableMail()) continue;
-                        if (!distEmail) continue;
+                    //noinspection StatementWithEmptyBody
+                    if ((forceSms && mdName.contains("SmsDistributor"))
+                            || (forceEmail && mdName.contains("EmailDistributor"))) {
+                        // 未激活也尝试发送
                     } else {
                         continue;
                     }
@@ -121,9 +119,9 @@ public class NotificationService extends InternalPersistService {
 
                 try {
                     boolean sent = md.send(message, messageId);
-                    log.info("Distribute message ({}) with {} : {}", sent ? "success" : "fails", md.getClass().getSimpleName(), message);
+                    log.info("Distribute message ({}) with {} : {}", sent ? "success" : "fails", mdName, message);
                 } catch (Exception ex) {
-                    log.error("Distribute message error : {}", message, ex);
+                    log.error("Distribute message (error) with {} : {}", mdName, message, ex);
                 }
             }
         });

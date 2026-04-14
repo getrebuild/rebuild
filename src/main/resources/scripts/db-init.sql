@@ -941,6 +941,19 @@ create table if not exists `robot_approval_hub` (
   index IX0_robot_approval_hub (`STATE`, `USER_SUBMIT`, `USER_APPROVE`, `USER_CC`),
   index IX1_robot_approval_hub (`APPROVAL_STEP_ID`),
   index IX2_robot_approval_hub (`HUB_BATCH`)
+
+-- ************ Entity [CommonsConfig] DDL ************
+create table if not exists `commons_config` (
+  `CONFIG_ID`          char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '所属实体',
+  `TYPE`               varchar(100) not null comment '类型',
+  `NAME`               varchar(100) comment '名称',
+  `CONFIG`             text(65535) comment '规则',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
+  primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
 -- #3 datas
@@ -1001,4 +1014,4 @@ insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NU
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 71);
+  values ('021-9000000000000001', 'DBVer', 72);

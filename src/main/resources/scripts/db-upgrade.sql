@@ -1,7 +1,7 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
--- #71 (v4.4)
+-- #72 (v4.4)
 -- ************ Entity [RobotApprovalHub] DDL ************
 create table if not exists `robot_approval_hub` (
   `HUB_ID`             char(20) not null,
@@ -18,6 +18,21 @@ create table if not exists `robot_approval_hub` (
   index IX0_robot_approval_hub (`STATE`, `USER_SUBMIT`, `USER_APPROVE`, `USER_CC`),
   index IX1_robot_approval_hub (`APPROVAL_STEP_ID`),
   index IX2_robot_approval_hub (`HUB_BATCH`)
+)Engine=InnoDB;
+
+-- #71 (v4.3)
+-- ************ Entity [CommonsConfig] DDL ************
+create table if not exists `commons_config` (
+  `CONFIG_ID`          char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '所属实体',
+  `TYPE`               varchar(100) not null comment '类型',
+  `NAME`               varchar(100) comment '名称',
+  `CONFIG`             text(65535) comment '规则',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
+  primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
 -- #70 (v4.3)

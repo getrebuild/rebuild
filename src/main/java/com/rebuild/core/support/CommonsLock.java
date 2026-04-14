@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support;
 
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -15,11 +16,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.EasyEntity;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -86,33 +87,51 @@ public class CommonsLock {
         return false;
     }
 
+    // -- V4.4
+
     /**
-     * v4.3 记录是否已锁定
+     * 记录是否已锁定
      *
-     * @param source
+     * @param recordId
      * @return
      */
-    public static boolean isLocked43(ID source) {
-        Assert.notNull(source, "[source] cannot null");
+    public static String isLocked43(ID recordId) {
+        Assert.notNull(recordId, "[recordId] cannot null");
+        if (EntityHelper.isUnsavedId(recordId)) return null;
 
-        EasyEntity ee = EasyMetaFactory.valueOf(MetadataHelper.getEntity(source.getEntityCode()));
-        String lockFilter = ee.getExtraAttr("lockFilter");
-        if (!JSONUtils.wellFormat(lockFilter)) return false;
+        Entity e = MetadataHelper.getEntity(recordId.getEntityCode());
+        Object[][] array = Application.createQueryNoFilter(
+                "select config from CommonsConfig where belongEntity = ? and type = 'RECORD_ALERTS'")
+                .setParameter(1, e.getName())
+                .array();
 
-        JSONObject lockFilter2 = JSON.parseObject(lockFilter);
-        return QueryHelper.isMatchAdvFilter(source, lockFilter2);
+        for (Object[] o : array) {
+            String conf = (String) o[0];
+            if (!JSONUtils.wellFormat(conf)) continue;
+
+            JSONObject confJson = JSON.parseObject(conf);
+            if (QueryHelper.isMatchAdvFilter(recordId, confJson.getJSONObject("filter"))) {
+                String tips = confJson.getString("tips");
+                if (StringUtils.isBlank(tips)) tips = Language.L("记录已锁定，禁止操作");
+                return tips;
+            }
+        }
+        return null;
+
+        // TODO
+        // - 主记录/明细联动
+        // - 可以返回多条（前端支持）
     }
 
     /**
-     * v4.3 记录是否已锁定
-     *
-     * @param source
+     * @param record
      * @return
+     * @see #isLocked43(ID)
      */
-    public static boolean isLocked43(Record source) {
-        Assert.notNull(source, "[source] cannot null");
+    public static String isLocked43(Record record) {
+        Assert.notNull(record, "[record] cannot null");
 
-        if (source.getPrimary() == null) return false;
-        return isLocked43(source.getPrimary());
+        if (record.getPrimary() == null) return null;
+        return isLocked43(record.getPrimary());
     }
 }
