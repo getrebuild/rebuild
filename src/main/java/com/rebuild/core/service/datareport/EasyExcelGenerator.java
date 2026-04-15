@@ -11,8 +11,13 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.query.compiler.SelectItem;
+import cn.devezhao.persist4j.query.compiler.SelectItemType;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
@@ -59,12 +64,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.rebuild.core.metadata.MetadataHelper.getEntity;
 import static com.rebuild.core.service.datareport.TemplateExtractor.APPROVAL_PREFIX;
 import static com.rebuild.core.service.datareport.TemplateExtractor.NROW_PREFIX;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTBIZUNIT;
@@ -206,7 +211,7 @@ public class EasyExcelGenerator extends SetUser {
      * @return 第一个为主记录（若有）
      */
     protected Map<String, List<Map<String, Object>>> buildData() {
-        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+        Entity entity = getEntity(recordId.getEntityCode());
 
         TemplateExtractor templateExtractor = new TemplateExtractor(templateFile);
         Map<String, String> varsMap = templateExtractor.transformVars(entity);
@@ -372,79 +377,83 @@ public class EasyExcelGenerator extends SetUser {
             }
 
             Object fieldValue = record.getObjectValue(fieldName);
+            fieldValue = buildFieldValue(easyField, fieldValue, varName, isApproval && "state".equalsIgnoreCase(fieldName), record.getPrimary());
+            data.put(varName, fieldValue);
+        }
 
-            if (dt == DisplayType.BARCODE) {
-                data.put(varName, buildBarcodeData(easyField.getRawMeta(), record.getPrimary()));
-            } else if (fieldValue == null) {
-                // v3.8
-                Object funcValue = ValueFnConvert.convert(easyField, null, varName, this.getClass());
-                data.put(varName, funcValue == null ? StringUtils.EMPTY : funcValue);
-            } else {
+        return data;
+    }
 
-                if (dt == DisplayType.SIGN) {
-                    fieldValue = buildSignData((String) fieldValue);
+    private Object buildFieldValue(EasyField easyField, Object fieldValue, String varName, boolean isApprovalState, ID recordId) {
+        DisplayType dt = easyField.getDisplayType();
 
-                } else if (dt == DisplayType.IMAGE) {
-                    fieldValue = buildImageData((String) fieldValue);
+        if (dt == DisplayType.BARCODE) {
+            return buildBarcodeData(easyField.getRawMeta(), recordId);
+        }
 
-                } else if (dt == DisplayType.FILE) {
-                    JSONArray paths = JSON.parseArray((String) fieldValue);
-                    List<String> fileNames = new ArrayList<>();
-                    for (Object path : paths) {
-                        fileNames.add(QiniuCloud.parseFileName(path.toString()));
+        // v3.8
+        if (fieldValue == null) {
+            Object funcValue = ValueFnConvert.convert(easyField, null, varName, this.getClass());
+            return funcValue == null ? StringUtils.EMPTY : funcValue;
+        }
+
+        if (dt == DisplayType.SIGN) {
+            return buildSignData((String) fieldValue);
+        }
+
+        if (dt == DisplayType.IMAGE) {
+            return buildImageData((String) fieldValue);
+        }
+
+        if (dt == DisplayType.FILE) {
+            JSONArray paths = JSON.parseArray((String) fieldValue);
+            List<String> fileNames = new ArrayList<>();
+            for (Object path : paths) {
+                fileNames.add(QiniuCloud.parseFileName(path.toString()));
+            }
+            return fileNames.isEmpty() ? StringUtils.EMPTY : StringUtils.join(fileNames, "; ");
+        }
+
+        if (dt == DisplayType.NUMBER) {
+            // Keep Type
+        } else if (dt == DisplayType.DECIMAL) {
+            String format = easyField.getExtraAttr(EasyFieldConfigProps.DECIMAL_FORMAT);
+            int scale = StringUtils.isBlank(format) ? 2 :
+                    format.split("\\.").length == 1 ? 0 : format.split("\\.")[1].length();
+            // Keep Type
+            fieldValue = ((BigDecimal) fieldValue).setScale(scale, RoundingMode.HALF_UP);
+        } else {
+            fieldValue = FieldValueHelper.wrapFieldValue(fieldValue, easyField, Boolean.TRUE);
+        }
+
+        if (isApprovalState) {
+            int state = ObjectUtils.toInt(fieldValue);
+            if (state < 1) fieldValue = Language.L("提交");
+            else if (state == ApprovalState.DRAFT.getState()) fieldValue = Language.L("待审批");
+            else fieldValue = Language.L(ApprovalState.valueOf(state));
+
+        } else if (FieldValueHelper.isUseDesensitized(easyField, this.getUser())) {
+            fieldValue = FieldValueHelper.desensitized(easyField, fieldValue);
+
+        } else if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
+            // v3.1.4
+            Field refNameField = easyField.getRawMeta().getReferenceEntity().getNameField();
+            EasyField easyNameField = EasyMetaFactory.valueOf(refNameField);
+
+            if (FieldValueHelper.isUseDesensitized(easyNameField, this.getUser())) {
+                if (dt == DisplayType.N2NREFERENCE) {
+                    List<String> fieldValueList = new ArrayList<>();
+                    for (String s : fieldValue.toString().split(MultiValue.MV_SPLIT)) {
+                        fieldValueList.add((String) FieldValueHelper.desensitized(easyNameField, s));
                     }
-                    fieldValue = fileNames.isEmpty() ? StringUtils.EMPTY : StringUtils.join(fileNames, "; ");
-
+                    fieldValue = StringUtils.join(fieldValueList, MultiValue.MV_SPLIT);
                 } else {
-
-                    if (dt == DisplayType.NUMBER) {
-                        // Keep Type
-                    } else if (dt == DisplayType.DECIMAL) {
-                        String format = easyField.getExtraAttr(EasyFieldConfigProps.DECIMAL_FORMAT);
-                        int scale = StringUtils.isBlank(format) ? 2 :
-                                format.split("\\.").length == 1 ? 0 : format.split("\\.")[1].length();
-                        // Keep Type
-                        fieldValue = ((BigDecimal) fieldValue).setScale(scale, RoundingMode.HALF_UP);
-                    } else {
-                        fieldValue = FieldValueHelper.wrapFieldValue(fieldValue, easyField, Boolean.TRUE);
-                    }
-
-                    if (isApproval && "state".equalsIgnoreCase(fieldName)) {
-                        int state = ObjectUtils.toInt(fieldValue);
-                        if (state < 1) fieldValue = Language.L("提交");
-                        else if (state == ApprovalState.DRAFT.getState()) fieldValue = Language.L("待审批");
-                        else fieldValue = Language.L(ApprovalState.valueOf(state));
-
-                    } else if (FieldValueHelper.isUseDesensitized(easyField, this.getUser())) {
-                        fieldValue = FieldValueHelper.desensitized(easyField, fieldValue);
-                    }
-                    // v3.1.4
-                    else if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
-
-                        Field refNameField = easyField.getRawMeta().getReferenceEntity().getNameField();
-                        EasyField easyNameField = EasyMetaFactory.valueOf(refNameField);
-
-                        if (FieldValueHelper.isUseDesensitized(easyNameField, this.getUser())) {
-                            if (dt == DisplayType.N2NREFERENCE) {
-                                List<String> fieldValueList = new ArrayList<>();
-                                for (String s : fieldValue.toString().split(MultiValue.MV_SPLIT)) {
-                                    fieldValueList.add((String) FieldValueHelper.desensitized(easyNameField, s));
-                                }
-                                fieldValue = StringUtils.join(fieldValueList, MultiValue.MV_SPLIT);
-                            } else {
-                                fieldValue = FieldValueHelper.desensitized(easyNameField, fieldValue);
-                            }
-                        }
-                    }
-
-                    // v3.7
-                    fieldValue = ValueFnConvert.convert(easyField, fieldValue, varName, this.getClass());
+                    fieldValue = FieldValueHelper.desensitized(easyNameField, fieldValue);
                 }
-
-                data.put(varName, fieldValue);
             }
         }
-        return data;
+
+        return ValueFnConvert.convert(easyField, fieldValue, varName, this.getClass());
     }
 
     private byte[] buildImageData(String fieldValue) {
@@ -547,37 +556,52 @@ public class EasyExcelGenerator extends SetUser {
             }
         }
 
+        Field field = null;
+        Object fieldValue = null;
+
         // v3.7, v4.3 支持点连接
-        phName = phName.replace("$", ".");
         if (phName.startsWith(PH__CURRENTUSER + ".")) {
             String dotsField = phName.substring(PH__CURRENTUSER.length() + 1);
-            Object useValue = QueryHelper.queryFieldValue(getUser(), dotsField);
-            return useValue == null ? "" : useValue.toString();
+            dotsField = dotsField.replace("$", ".");
+
+            field = MetadataHelper.getLastJoinField(getEntity(EntityHelper.User), dotsField);
+            fieldValue = QueryHelper.queryFieldValue(getUser(), dotsField);
         }
-        else if (phName.startsWith(PH__CURRENTBIZUNIT + ".")) {
+        if (phName.startsWith(PH__CURRENTBIZUNIT + ".")) {
             String dotsField = phName.substring(PH__CURRENTBIZUNIT.length() + 1);
-            Object useValue = QueryHelper.queryFieldValue(getDeptOfUser(), dotsField);
-            return useValue == null ? "" : useValue.toString();
+            dotsField = dotsField.replace("$", ".");
+
+            field = MetadataHelper.getLastJoinField(getEntity(EntityHelper.Department), dotsField);
+            fieldValue = QueryHelper.queryFieldValue(getDeptOfUser(), dotsField);
         }
-        // v4.4 支持SQL查询
-        else if (phName.startsWith(PH__SQLQUERY44 + ":")) {
-            // eg. __SQLQUERY:field from entity where a=xxx and refField=?;
+
+        // v4.4 支持 SQL 查询
+        if (phName.startsWith(PH__SQLQUERY44 + ":")) {
+            // e.g. __SQLQUERY:field from entity where a=xxx and refField=?;
             String sql = phName.substring(PH__SQLQUERY44.length() + 1);
             if (!sql.toLowerCase().startsWith("select ")) sql = "select " + sql;
 
             recordId = recordId == null ? this.recordId : recordId;
-            Object[] o;
-            if (recordId == null) {
-                o = Application.createQuery(sql).unique();
-            } else {
-                o = Application.createQuery(sql).setParameter(1, recordId).unique();
-            }
+            Query query = Application.createQueryNoFilter(sql);
+            if (recordId != null) query.setParameter(1, recordId);
 
-            if (o == null || o[0] == null) return StringUtils.EMPTY;
-            return (o[0] instanceof Date || o[0] instanceof Number) ? o[0] : o[0].toString();
+            Object[] o = query.unique();
+            fieldValue = o == null ? null : o[0];
+            field = query.getSelectItems()[0].getField();
+
+            // 针对聚合返回的是字符串，无法转换值
+            if (fieldValue != null) {
+                if (field.getType() == FieldType.DATE || field.getType() == FieldType.DATETIME
+                        || field.getType() == FieldType.TIMESTAMP || field.getType() == FieldType.TIME) {
+                    if (fieldValue instanceof String) field = null;
+                }
+            }
         }
 
-        return null;
+        if (fieldValue == null) return StringUtils.EMPTY;
+        if (field == null) return fieldValue;
+
+        return buildFieldValue(EasyMetaFactory.valueOf(field), fieldValue, phName, false, recordId);
     }
 
     /**
@@ -602,7 +626,7 @@ public class EasyExcelGenerator extends SetUser {
             return create(reportId, recordId);
         } else {
             TemplateFile tt = DataReportManager.instance
-                    .buildTemplateFile(reportId, MetadataHelper.getEntity(recordId.getEntityCode()));
+                    .buildTemplateFile(reportId, getEntity(recordId.getEntityCode()));
             return new EasyExcelGenerator33(tt.templateFile, recordIds);
         }
     }
@@ -614,7 +638,7 @@ public class EasyExcelGenerator extends SetUser {
      */
     public static EasyExcelGenerator create(ID reportId, ID recordId) {
         TemplateFile tt = DataReportManager.instance
-                .buildTemplateFile(reportId, MetadataHelper.getEntity(recordId.getEntityCode()));
+                .buildTemplateFile(reportId, getEntity(recordId.getEntityCode()));
         return create(tt.templateFile, recordId, tt.isV33);
     }
 
