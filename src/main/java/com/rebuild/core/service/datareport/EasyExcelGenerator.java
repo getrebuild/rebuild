@@ -14,10 +14,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
-import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.query.compiler.SelectItem;
-import cn.devezhao.persist4j.query.compiler.SelectItemType;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
@@ -580,6 +577,11 @@ public class EasyExcelGenerator extends SetUser {
             // e.g. __SQLQUERY:field from entity where a=xxx and refField=?;
             String sql = phName.substring(PH__SQLQUERY44.length() + 1);
             if (!sql.toLowerCase().startsWith("select ")) sql = "select " + sql;
+            // 针对网页报表转义
+            if (this.getClass().getSimpleName().contains("Html5ReportGenerator")) {
+                if (sql.contains("&amp;")) sql = sql.replace("&amp;", "&");
+                if (sql.contains("&nbsp;")) sql = sql.replace("&nbsp;", " ");
+            }
 
             recordId = recordId == null ? this.recordId : recordId;
             Query query = Application.createQueryNoFilter(sql);
