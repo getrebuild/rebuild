@@ -555,19 +555,17 @@ public class EasyExcelGenerator extends SetUser {
 
         Field field = null;
         Object fieldValue = null;
+        // 引用字段转移
+        if (phName.contains("$")) phName = phName.replace("$", ".");
 
         // v3.7, v4.3 支持点连接
         if (phName.startsWith(PH__CURRENTUSER + ".")) {
             String dotsField = phName.substring(PH__CURRENTUSER.length() + 1);
-            dotsField = dotsField.replace("$", ".");
-
             field = MetadataHelper.getLastJoinField(getEntity(EntityHelper.User), dotsField);
             fieldValue = QueryHelper.queryFieldValue(getUser(), dotsField);
         }
         if (phName.startsWith(PH__CURRENTBIZUNIT + ".")) {
             String dotsField = phName.substring(PH__CURRENTBIZUNIT.length() + 1);
-            dotsField = dotsField.replace("$", ".");
-
             field = MetadataHelper.getLastJoinField(getEntity(EntityHelper.Department), dotsField);
             fieldValue = QueryHelper.queryFieldValue(getDeptOfUser(), dotsField);
         }
