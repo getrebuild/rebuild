@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -29,7 +29,10 @@
             </div>
           </div>
         </aside>
-        <div class="main-content container-fluid">
+        <div class="page-head">
+          <div class="page-head-title">[[${bundle.L('字段管理')}]]</div>
+        </div>
+        <div class="main-content container-fluid pt-1">
           <div class="card card-table">
             <div class="card-body">
               <div class="dataTables_wrapper container-fluid">

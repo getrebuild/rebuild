@@ -219,7 +219,7 @@ class RbFormHandler extends RbModalHandler {
     this.state = { ...props }
   }
 
-  handleChange = (e, call) => {
+  handleChange = (e, cb) => {
     const target = e.target
     const name = target.dataset.id || target.name
     if (!name) return
@@ -227,7 +227,7 @@ class RbFormHandler extends RbModalHandler {
     const val = target.type === 'checkbox' ? target.checked : target.value
     const s = {}
     s[name] = val
-    this.setState(s, call)
+    this.setState(s, cb)
     this.handleChangeAfter(name, val)
   }
 
