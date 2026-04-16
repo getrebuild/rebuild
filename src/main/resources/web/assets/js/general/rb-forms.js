@@ -134,6 +134,7 @@ class RbFormModal extends React.Component {
 
     const that = this
     function _FN2(formModel, forceInitFieldValue) {
+      let readonly = !!formModel.readonlyMessage || (formModel.alertsMessage && formModel.alertsMessage.locked)
       const FORM = (
         <RbForm
           entity={entity}
@@ -141,7 +142,7 @@ class RbFormModal extends React.Component {
           rawModel={formModel}
           forceInitFieldValue={forceInitFieldValue}
           $$$parent={that}
-          readonly={!!formModel.readonlyMessage}
+          readonly={readonly}
           ref={(c) => (that._formComponentRef = c)}
           _disableAutoFillin={that.props._disableAutoFillin}>
           {formModel.elements.map((item) => detectElement(item))}
