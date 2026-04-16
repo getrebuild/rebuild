@@ -17,6 +17,7 @@ import com.rebuild.core.configuration.general.CommonsConfigManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang3.StringUtils;
@@ -99,7 +100,6 @@ public class CommonsLock {
      */
     public static RecordAlertsBean isLocked43(ID recordId, boolean isView) {
         Assert.notNull(recordId, "[recordId] cannot null");
-        if (EntityHelper.isUnsavedId(recordId)) return null;
         if (!License.isRbvAttached()) return null;
 
         Entity e = MetadataHelper.getEntity(recordId.getEntityCode());
@@ -108,9 +108,19 @@ public class CommonsLock {
         RecordAlertsBean bean = new RecordAlertsBean();
 
         for (JSONObject conf : alerts) {
-            if (QueryHelper.isMatchAdvFilter(recordId, conf.getJSONObject("filter"))) {
-                String tips = conf.getString("tips");
-                if (StringUtils.isBlank(tips)) tips = Language.L("记录已锁定，禁止操作");
+            String tips = conf.getString("tips");
+            if (StringUtils.isBlank(tips)) tips = Language.L("记录已锁定，禁止操作");
+            JSONObject filter = conf.getJSONObject("filter");
+
+            // 新记录:无条件且适用于表单
+            if (EntityHelper.isUnsavedId(recordId)) {
+                if (!ParseHelper.validAdvFilter(filter) && conf.getBooleanValue("applyToForm")) {
+                    bean.addTips(tips, conf.getString("tipsColor"));
+                }
+                continue;
+            }
+
+            if (QueryHelper.isMatchAdvFilter(recordId, filter)) {
                 Boolean noLock = conf.getBoolean("isNoLock");
                 if (conf.getBooleanValue("isLock")) noLock = false;
                 bean.setLocked(noLock == null || !noLock, tips);
@@ -121,7 +131,7 @@ public class CommonsLock {
                 boolean apply = applyToView && applyToForm;
                 if (!apply) apply = isView && applyToView;
                 if (!apply) apply = !isView && applyToForm;
-                if (apply) bean.addTips(tips);
+                if (apply) bean.addTips(tips, conf.getString("tipsColor"));
             }
         }
 

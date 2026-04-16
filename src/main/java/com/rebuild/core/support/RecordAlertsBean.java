@@ -24,17 +24,18 @@ public class RecordAlertsBean implements JSONable {
 
     @Getter
     private boolean locked = false;
+    // 给后端提示用
     @Getter
     private String lockedTips = null;
 
-    private List<String> tips = new ArrayList<>();
+    private List<String[]> tips = new ArrayList<>();
 
     protected RecordAlertsBean() {
         super();
     }
 
-    protected void addTips(String tips) {
-        this.tips.add(tips);
+    protected void addTips(String tips, String tipsColor) {
+        this.tips.add(new String[]{tips, tipsColor});
     }
 
     protected void merge(RecordAlertsBean another) {

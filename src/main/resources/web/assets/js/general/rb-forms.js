@@ -65,12 +65,14 @@ class RbFormModal extends React.Component {
                     {this.state.alertMessage}
                   </div>
                 )}
-                {this.state.formAlertMessage && (
+                {this.state.fjsAlertMessage}
+                {this.state.alertsMessage && this.state.alertsMessage.tips && this.state.alertsMessage.tips.length > 0 && (
                   <div className="rbform-fjsalert">
-                    <RbAlertBox message={WrapHtml(this.state.formAlertMessage, true)} />
+                    {this.state.alertsMessage.tips.map((tips, idx) => (
+                      <RbAlertBox message={tips[0]} type={tips[1]} key={idx} />
+                    ))}
                   </div>
                 )}
-                {this.state.fjsAlertMessage}
 
                 {this.state.formComponent}
                 {this.state.inLoad && <RbSpinner />}
@@ -146,7 +148,7 @@ class RbFormModal extends React.Component {
         </RbForm>
       )
 
-      that.setState({ formComponent: FORM, alertMessage: formModel.readonlywMessage || formModel.readonlyMessage || null, formAlertMessage: formModel.topAlert43 }, () => {
+      that.setState({ formComponent: FORM, alertMessage: formModel.readonlywMessage || formModel.readonlyMessage || null, alertsMessage: formModel.alertsMessage }, () => {
         that.setState({ inLoad: false })
         if (window.FrontJS) {
           window.FrontJS.Form._trigger('open', [formModel])

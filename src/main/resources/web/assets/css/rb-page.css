@@ -5850,16 +5850,9 @@ div.formula-code {
   margin-bottom: 0;
 }
 
-.rbform-fjsalert:empty {
+.rbform-fjsalert:empty,
+.rbview-fjsalert:empty {
   display: none;
-}
-
-.rbform-fjsalert .alert {
-  margin-bottom: 10px;
-}
-
-.rbview-fjsalert {
-  /* NOOP */
 }
 
 .rbform-fjsalert:empty .rbview-fjsalert:empty {

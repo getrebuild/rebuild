@@ -333,6 +333,9 @@ public class FormsBuilder extends FormsManager {
         if (recordId != null) {
             RecordAlertsBean alerts = CommonsLock.isLocked43(recordId, viewMode);
             if (alerts != null) model.set("alertsMessage", alerts.toJSON());
+        } else if (!viewMode) {
+            RecordAlertsBean alerts = CommonsLock.isLocked43(EntityHelper.newUnsavedId(entityMeta.getEntityCode()), false);
+            if (alerts != null) model.set("alertsMessage", alerts.toJSON());
         }
 
         if (readonlywMessage != null) model.set("readonlywMessage", readonlywMessage);
@@ -354,11 +357,6 @@ public class FormsBuilder extends FormsManager {
             String recordName = FieldValueHelper.getLabel(recordId, "");
             if (StringUtils.isBlank(recordName)) recordName = EasyMetaFactory.getLabel(recordData.getEntity());
             model.set("recordName", recordName);
-        }
-        // v4.3
-        if (!viewMode) {
-            String m = model.getString("topAlert43");
-            if (StringUtils.isNotBlank(m)) model.set("topAlert43", m);
         }
 
         return model.toJSON();
