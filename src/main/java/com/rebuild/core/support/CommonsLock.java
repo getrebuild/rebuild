@@ -123,7 +123,9 @@ public class CommonsLock {
             if (QueryHelper.isMatchAdvFilter(recordId, filter)) {
                 Boolean noLock = conf.getBoolean("isNoLock");
                 if (conf.getBooleanValue("isLock")) noLock = false;
-                bean.setLocked(noLock == null || !noLock, tips);
+                if (noLock == null || !noLock) {
+                    bean.setLocked(true, tips);
+                }
 
                 // 是否显示
                 boolean applyToView = conf.getBooleanValue("applyToView");
@@ -136,7 +138,7 @@ public class CommonsLock {
         }
 
         // 明细
-        if (e.getMainEntity() != null) {
+        if (e.getMainEntity() != null && !EntityHelper.isUnsavedId(recordId)) {
             String dtfName = MetadataHelper.getDetailToMainField(e).getName();
             ID mainid = (ID) QueryHelper.queryFieldValue(recordId, dtfName);
             RecordAlertsBean m = isLocked43(mainid, isView);
