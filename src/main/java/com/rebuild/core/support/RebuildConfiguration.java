@@ -263,7 +263,7 @@ public class RebuildConfiguration extends KVStorage {
     public static void set(ConfigurationItem name, Object value) {
         if (ConfigurationItem.inJvmArgs(name.name())) {
             if (name == ConfigurationItem.SN) {
-                if (Application.isReady()) return;
+                if (Application.isStateReady()) return;
             } else {
                 throw new SecurityException("Attack configuration detected : " + name + "=" + value);
             }

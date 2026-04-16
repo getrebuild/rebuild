@@ -70,7 +70,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             throws Exception {
         response.addHeader("X-RB-Server", ServerStatus.STARTUP_ONCE + "/" + Application.BUILD);
 
-        if (Application.isWaitLoad()) {
+        if (!Application.isStateLoaded()) {
             throw new DefinedException(CODE_STARTING, "Please wait while REBUILD starting up ...");
         }
 
@@ -123,7 +123,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         final String requestUri = requestEntry.getRequestUri();
 
         // 服务暂不可用
-        if (!Application.isReady()) {
+        if (!Application.isStateReady()) {
             final boolean isError = requestUri.endsWith("/error") || requestUri.contains("/error/");
 
             // 已安装

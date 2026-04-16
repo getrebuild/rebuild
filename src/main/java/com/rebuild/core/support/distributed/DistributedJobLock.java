@@ -40,7 +40,7 @@ public abstract class DistributedJobLock {
      */
     protected boolean tryLock() {
         final String jobName = getClass().getSimpleName();
-        if (!Application.isReady() || Application.isWaitLoad()) {
+        if (!Application.isStateReady() || !Application.isStateLoaded()) {
             log.info("Job [ {} ] ignored while REBUILD starting up.", jobName);
             return false;
         }

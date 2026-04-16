@@ -53,7 +53,7 @@ public class InstallController extends BaseController implements InstallState {
 
     @Override
     public boolean checkInstalled() {
-        if (InstallState.super.checkInstalled() && Application.isReady()) {
+        if (InstallState.super.checkInstalled() && Application.isStateReady()) {
             throw new DefinedException("NOT ALLOWED");
         }
         return false;

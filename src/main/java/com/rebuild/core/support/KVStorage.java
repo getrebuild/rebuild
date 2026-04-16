@@ -133,7 +133,7 @@ public class KVStorage {
             return CommandArgs.getStringWithBootEnvironmentPostProcessor(key);
         }
 
-        if (Application.isReady()) {
+        if (Application.isStateReady()) {
             // 0. 从缓存
             if (!noCache) {
                 value = Application.getCommonsCache().get(key);
@@ -160,7 +160,7 @@ public class KVStorage {
             value = defaultValue.toString();
         }
 
-        if (Application.isReady()) {
+        if (Application.isStateReady()) {
             if (value == null) {
                 Application.getCommonsCache().evict(key);
             } else {
