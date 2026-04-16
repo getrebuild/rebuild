@@ -116,11 +116,15 @@ public class CommonsLock {
                 return tips;
             }
         }
-        return null;
 
-        // TODO
-        // - 主记录/明细联动
-        // - 可以返回多条（前端支持）
+        // 明细
+        if (e.getMainEntity() != null) {
+            String dtfName = MetadataHelper.getDetailToMainField(e).getName();
+            ID mainid = (ID) QueryHelper.queryFieldValue(recordId, dtfName);
+            return isLocked43(mainid);
+        }
+
+        return null;
     }
 
     /**
