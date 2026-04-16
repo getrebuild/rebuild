@@ -61,7 +61,7 @@ public class CommonsConfigManager implements ConfigManager {
         if (cache != null) return cache;
 
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,config from CommonsConfig where entity = ? and type = ?")
+                "select configId,config from CommonsConfig where belongEntity = ? and type = ?")
                 .setParameter(1, entity)
                 .setParameter(2, type)
                 .array();

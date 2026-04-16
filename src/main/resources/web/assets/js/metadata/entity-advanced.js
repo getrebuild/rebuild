@@ -318,7 +318,7 @@ class DlgMode2Option extends RbFormHandler {
       const fieldsLables = {}
       _data.forEach((item) => {
         fieldsLables[item.fieldName] = item.fieldLabel
-        if (['BARCODE', 'FILE', 'SIGN'].includes(item.displayTypeName)) return null
+        if (['BARCODE', 'SIGN'].includes(item.displayTypeName)) return null
 
         const item2 = item
         $(`<a class="dropdown-item" data-name="${item.fieldName}" data-type="${item.displayTypeName}"></a>`)
@@ -398,6 +398,7 @@ class DlgMode2Option extends RbFormHandler {
     } else {
       $menu.find('a[data-type="IMAGE"]').addClass('hide')
       $menu.find('a[data-type="AVATAR"]').addClass('hide')
+      $menu.find('a[data-type="FILE"]').addClass('hide')
     }
   }
 
@@ -527,8 +528,10 @@ class DlgMode3Option extends DlgMode2Option {
       $menu.find('a').addClass('hide')
       $menu.find('a[data-type="N"]').removeClass('hide')
       $menu.find('a[data-type="IMAGE"]').removeClass('hide')
+      $menu.find('a[data-type="FILE"]').removeClass('hide')
     } else {
       $menu.find('a[data-type="IMAGE"]').addClass('hide')
+      $menu.find('a[data-type="FILE"]').addClass('hide')
     }
   }
 
@@ -549,9 +552,10 @@ class DlgMode3Option extends DlgMode2Option {
   }
 }
 
-// @see `entity-edit.js`
-const CAN_NAME = ['TEXT', 'EMAIL', 'URL', 'PHONE', 'SERIES', 'LOCATION', 'PICKLIST', 'CLASSIFICATION', 'DATE', 'DATETIME', 'TIME', 'REFERENCE']
 class DlgMode4Option extends RbFormHandler {
+  // @see `entity-edit.js`
+  static _CAN_NAME = ['TEXT', 'EMAIL', 'URL', 'PHONE', 'SERIES', 'LOCATION', 'PICKLIST', 'CLASSIFICATION', 'DATE', 'DATETIME', 'TIME', 'REFERENCE']
+
   render() {
     return (
       <RbModal title={$L('日历模式选项')} ref={(c) => (this._dlg = c)}>
@@ -602,7 +606,7 @@ class DlgMode4Option extends RbFormHandler {
                     <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfTitle = c)}>
                       {this.state.fields &&
                         this.state.fields.map((item) => {
-                          if (!CAN_NAME.includes(item.type)) return null
+                          if (!DlgMode4Option._CAN_NAME.includes(item.type)) return null
                           return (
                             <option key={item.name} value={item.name}>
                               {item.label}

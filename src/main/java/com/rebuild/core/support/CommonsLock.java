@@ -111,7 +111,8 @@ public class CommonsLock {
             if (QueryHelper.isMatchAdvFilter(recordId, conf.getJSONObject("filter"))) {
                 String tips = conf.getString("tips");
                 if (StringUtils.isBlank(tips)) tips = Language.L("记录已锁定，禁止操作");
-                Boolean noLock = conf.getBoolean("noLock");
+                Boolean noLock = conf.getBoolean("isNoLock");
+                if (conf.getBooleanValue("isLock")) noLock = false;
                 bean.setLocked(noLock == null || !noLock, tips);
 
                 // 是否显示

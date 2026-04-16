@@ -497,6 +497,12 @@ function $isImage(name) {
   return TYPE_IMGS.includes('.' + $fileExtName(name.toLowerCase()))
 }
 
+// 是否视频
+// eslint-disable-next-line no-unused-vars
+function $isVideo(name) {
+  return TYPE_VIDEOS.includes('.' + $fileExtName(name.toLowerCase()))
+}
+
 // 预览地址
 function $buildPreviewUrl(url) {
   let previewUrl = rb._officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src='

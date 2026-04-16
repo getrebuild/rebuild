@@ -147,6 +147,7 @@ module.exports = {
     $cleanNumber: true,
     $hex2rgb: true,
     $isImage: true,
+    $isVideo: true,
     $dropUpload: true,
     $tagStyle2: true,
     $clearSelection: true,
