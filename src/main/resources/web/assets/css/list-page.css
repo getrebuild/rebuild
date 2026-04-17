@@ -10,10 +10,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .quick-filter-pane {
   background-color: #fff;
   padding: 3px 18px 12px;
+  padding-top: 5px;
+  padding-bottom: 14px;
   margin-bottom: 12px;
   border-radius: 2px;
-  min-height: 63px;
-  min-height: 80px;
+  min-height: 86px;
 }
 
 .quick-filter-pane .ph-item {
@@ -56,9 +57,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .quick-filter-pane .col-item > div .filter-items .col-sm-5.val > label {
   display: block;
-  margin: 0 0 5px;
+  margin: 0 0 6px;
   line-height: 1;
-  color: #222;
+  color: #504e4e;
 }
 
 .quick-filter-pane .col-item.operating {

@@ -5577,6 +5577,12 @@ pre.unstyle {
   text-transform: none;
 }
 
+.dropdown-menu,
+.dropdown-menu .dropdown-item,
+.dropdown-menu .dropdown-item > a {
+  color: #222;
+}
+
 .loadmore-line {
   border-top: 1px solid #ccc;
   width: 200px;
