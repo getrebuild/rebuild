@@ -30,10 +30,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+
+import static java.util.Locale.getDefault;
 
 /**
  * okhttp3 调用封装
@@ -51,8 +52,7 @@ public class OkHttpUtils {
     public static final String RB_UA = String.format("RB/%s (%s/%s)",
             Application.BUILD, SystemUtils.OS_NAME, SystemUtils.JAVA_SPECIFICATION_VERSION);
 
-    private static final Locale l = Locale.getDefault();
-    public static final String RB_LANG = l.getLanguage() + "_" + l.getCountry();
+    public static final String RB_LANG = getDefault().getLanguage() + "_" + getDefault().getCountry();
 
     private static String RB_CI;
 
