@@ -77,7 +77,7 @@ class RbViewForm extends React.Component {
         hadAlert = (
           <RF>
             {hadAlert && hadAlert}
-            {res.data.alertsMessage.tips && res.data.alertsMessage.tips.map((tips, idx) => <RbAlertBox message={tips[0]} type={tips[1]} key={idx} />)}
+            {res.data.alertsMessage.tips && res.data.alertsMessage.tips.map((tips, idx) => <RbAlertBox message={WrapHtml(tips[0], true)} type={tips[1]} key={idx} />)}
           </RF>
         )
       }

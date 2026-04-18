@@ -168,5 +168,6 @@ module.exports = {
     RbAlertFree43: true,
     RbViewModal: true,
     $initQuickSearch: true,
+    NoValue: true,
   },
 }

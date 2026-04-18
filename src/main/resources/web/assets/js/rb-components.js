@@ -506,11 +506,19 @@ class RbHighbar extends React.Component {
 
 // ~~ 提示条
 class RbAlertBox extends React.Component {
+  static __typeIcons = {
+    'success': 'check',
+    'danger': 'close-circle-o',
+    'warning': 'alert-circle-o',
+    'primary': 'info-outline',
+    'info': 'help-outline',
+  }
+
   render() {
     const props = this.props
     const type = (props || {}).type || 'warning'
     let icon = props.icon
-    if (!icon) icon = type === 'success' ? 'check' : type === 'danger' ? 'close-circle-o' : 'info-outline'
+    if (!icon) icon = RbAlertBox.__typeIcons[type] || 'info-outline'
 
     return (
       <div className={`alert alert-icon alert-icon-border alert-sm alert-${type} ${props.unclose ? '' : 'alert-dismissible'} ${props.className || ''}`} ref={(c) => (this._element = c)}>
@@ -536,7 +544,7 @@ class RbAlertBox extends React.Component {
 }
 
 // ~~ 加载动画 @see spinner.html
-function RbSpinner(props) {
+function RbSpinner({ fully }) {
   const spinner = (
     <div className="rb-spinner">
       {$.browser.msie ? (
@@ -549,8 +557,13 @@ function RbSpinner(props) {
     </div>
   )
 
-  if (props && props.fully === true) return <div className="rb-loading rb-loading-active">{spinner}</div>
+  if (fully === true) return <div className="rb-loading rb-loading-active">{spinner}</div>
   return spinner
+}
+
+// ~~ 无值
+function NoValue({ text }) {
+  return <span className="text-muted">{text || $L('无')}</span>
 }
 
 // ~~ 用户选择器

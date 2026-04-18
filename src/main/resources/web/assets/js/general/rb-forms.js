@@ -69,7 +69,7 @@ class RbFormModal extends React.Component {
                 {this.state.alertsMessage && this.state.alertsMessage.tips && this.state.alertsMessage.tips.length > 0 && (
                   <div className="rbform-fjsalert">
                     {this.state.alertsMessage.tips.map((tips, idx) => (
-                      <RbAlertBox message={tips[0]} type={tips[1]} key={idx} />
+                      <RbAlertBox message={WrapHtml(tips[0], true)} type={tips[1]} key={idx} html />
                     ))}
                   </div>
                 )}
