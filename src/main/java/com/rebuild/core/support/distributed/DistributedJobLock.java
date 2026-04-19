@@ -11,17 +11,13 @@ import com.rebuild.core.Application;
 import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.setup.Installer;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeansException;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.params.SetParams;
 
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-
 /**
- * 分布式环境下（多 RB 实例），避免一个 Job 多个实例都运行。
- * 利用 redis 加锁，因此仅启用 redis 的情况下有效。
+ * - 分布式环境下（多 RB 实例），避免一个 Job 多个实例都运行
+ * - 利用 Redis 加锁，因此仅启用 Redis 的情况下有效
  *
  * @author ZHAO
  * @since 2020/4/5
@@ -46,9 +42,8 @@ public abstract class DistributedJobLock {
         }
 
         // v4.4
-        if (DistributedSupport.isDistributedEnv()) {
-            String allowJobs = CommandArgs.getString(CommandArgs._DistributedAllowJobs);
-            if (allowJobs != null && !allowJobs.contains(jobName)) {
+        if (DistributedSupport.isDistributedEnv() && !isAllowJob(jobName)) {
+            if (!isAllowJob(jobName)) {
                 log.info("The job [ {} ] is not allowed to execute on this node : {}",
                         jobName, DistributedSupport.getNodeName());
                 return false;
@@ -70,21 +65,15 @@ public abstract class DistributedJobLock {
         return true;
     }
 
-    // --
-
     /**
-     * 获取当前执行 JOB 线程数量
-     *
+     * @param jobName
      * @return
      */
-    public static int getActiveCount() {
-        try {
-            ThreadPoolTaskScheduler taskScheduler = (ThreadPoolTaskScheduler) Application.getContext().getBean("taskScheduler");
-            ScheduledThreadPoolExecutor poolExecutor = taskScheduler.getScheduledThreadPoolExecutor();
-            return poolExecutor.getActiveCount();
-        } catch (BeansException ex) {
-            log.error(null, ex);
-            return -1;
-        }
+    public static boolean isAllowJob(String jobName) {
+        String disallowJobs = CommandArgs.getString(CommandArgs._DistributedDisallowJobs);
+        if (disallowJobs != null && disallowJobs.contains(jobName)) return false;
+
+        String allowJobs = CommandArgs.getString(CommandArgs._DistributedAllowJobs);
+        return allowJobs == null || allowJobs.contains(jobName);
     }
 }

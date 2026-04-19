@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 
 /**
- * 分布式支持工具类
+ * 分布式支持
  *
  * @author devezhao
  * @since 2020/9/27

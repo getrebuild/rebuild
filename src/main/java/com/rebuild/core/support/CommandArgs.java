@@ -62,6 +62,7 @@ public class CommandArgs {
     public static final String _DistributedNodeUrl = "_DistributedNodeUrl";
     public static final String _DistributedMasterUrl = "_DistributedMasterUrl";
     public static final String _DistributedAllowJobs = "_DistributedAllowJobs";
+    public static final String _DistributedDisallowJobs = "_DistributedDisallowJobs";
     public static final String _DistributedAk = "_DistributedAk";
 
     /**
