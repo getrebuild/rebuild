@@ -22,7 +22,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.UseDistributed;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
-import com.rebuild.rbv.core.support.distributed.NodeClient;
+import com.rebuild.rbv.core.support.distributed.MasterNodeClient;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.md.MarkdownUtils;
@@ -113,7 +113,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         // 清理缓存
         thymeleafViewResolver.clearCache();
 
-        NodeClient.refreshAllNodes();
+        MasterNodeClient.refreshAllNodes();
     }
 
     private void setStaticVariable(ConfigurationItem item) {

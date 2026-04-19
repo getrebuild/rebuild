@@ -18,7 +18,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.support.distributed.UseDistributed;
-import com.rebuild.rbv.core.support.distributed.NodeClient;
+import com.rebuild.rbv.core.support.distributed.MasterNodeClient;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -47,7 +47,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory impleme
     @Override
     public Object refresh() {
         refresh(false);
-        NodeClient.refreshAllNodes();
+        MasterNodeClient.refreshAllNodes();
         return getEntities().length;
     }
 
