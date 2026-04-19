@@ -34,12 +34,12 @@ import static com.rebuild.core.support.ConfigurationItem.RedisDatabase;
 @Slf4j
 public class KVStorage {
 
+    // 设为空值
     public static final Object SETNULL = new Object();
-
+    // Key 前缀
     private static final String CUSTOM_PREFIX = "custom.";
 
     /**
-     * 取
      * @param key 会自动加 `custom.` 前缀
      * @return
      */
@@ -48,7 +48,6 @@ public class KVStorage {
     }
 
     /**
-     * 存
      * @param key
      * @param value
      */
@@ -57,23 +56,18 @@ public class KVStorage {
     }
 
     /**
-     * 存（异步）
+     * 异步存。注意`非关键值`再使用此方法（因为此方案存在值丢失隐患）
+     *
      * @param key
      * @param value
-     * @param throttled 是否节流
      */
-    public static void setCustomValue(String key, Object value, boolean throttled) {
-        if (throttled) {
-            synchronized (THROTTLED_QUEUE_LOCK) {
-                THROTTLED_QUEUE.put(key, value);
-            }
-        } else {
-            setCustomValue(key, value);
+    public static void setCustomValueAsync(String key, Object value) {
+        synchronized (THROTTLED_QUEUE_LOCK) {
+            THROTTLED_QUEUE.put(CUSTOM_PREFIX + key, value);
         }
     }
 
     /**
-     * 删
      * @param key
      */
     public static void removeCustomValue(String key) {
@@ -88,30 +82,30 @@ public class KVStorage {
      */
     synchronized
     protected static void setValue(final String key, Object value) {
-        Object[] exists = Application.createQueryNoFilter(
+        final Object[] e = Application.createQueryNoFilter(
                 "select configId from SystemConfig where item = ?")
                 .setParameter(1, key)
                 .unique();
 
         // 删除
         if (value == SETNULL) {
-            if (exists != null) {
-                Application.getCommonsService().delete((ID) exists[0]);
+            if (e != null) {
+                Application.getCommonsService().delete((ID) e[0]);
                 Application.getCommonsCache().evict(key);
             }
             return;
         }
 
-        Record record;
-        if (exists == null) {
-            record = EntityHelper.forNew(EntityHelper.SystemConfig, UserService.SYSTEM_USER, false);
-            record.setString("item", key);
+        Record kv;
+        if (e == null) {
+            kv = EntityHelper.forNew(EntityHelper.SystemConfig, UserService.SYSTEM_USER, false);
+            kv.setString("item", key);
         } else {
-            record = EntityHelper.forUpdate((ID) exists[0], UserService.SYSTEM_USER, false);
+            kv = EntityHelper.forUpdate((ID) e[0], UserService.SYSTEM_USER, false);
         }
-        record.setString("value", String.valueOf(value));
+        kv.setString("value", String.valueOf(value));
 
-        Application.getCommonsService().createOrUpdate(record);
+        Application.getCommonsService().createOrUpdate(kv);
         Application.getCommonsCache().evict(key);
     }
 
@@ -123,7 +117,8 @@ public class KVStorage {
      */
     protected static String getValue(final String key, boolean noCache, Object defaultValue) {
         String value = null;
-        // be:3.8
+
+        // 0.1. 从命令行
         if (ConfigurationItem.SN.name().equals(key)) {
             value = BootEnvironmentPostProcessor.getProperty(key);
         } else if (ConfigurationItem.inJvmArgs(key)) {
@@ -134,7 +129,7 @@ public class KVStorage {
         }
 
         if (Application.isStateReady()) {
-            // 0. 从缓存
+            // 1.0. 从缓存
             if (!noCache) {
                 value = Application.getCommonsCache().get(key);
                 if (value != null) {
@@ -142,12 +137,17 @@ public class KVStorage {
                 }
             }
 
-            // 1. 从数据库
+            // 1.1. 从数据库
             Object[] fromDb = Application.createQueryNoFilter(
                     "select value from SystemConfig where item = ?")
                     .setParameter(1, key)
                     .unique();
             value = fromDb == null ? null : StringUtils.defaultIfBlank((String) fromDb[0], null);
+
+            // 1.2. 从异步池
+            if (value == null && THROTTLED_QUEUE.containsKey(key)) {
+                value = String.valueOf(THROTTLED_QUEUE.get(key));
+            }
         }
 
         // 2. 从配置文件/命令行加载
@@ -160,18 +160,15 @@ public class KVStorage {
             value = defaultValue.toString();
         }
 
-        if (Application.isStateReady()) {
-            if (value == null) {
-                Application.getCommonsCache().evict(key);
-            } else {
-                Application.getCommonsCache().put(key, value);
-            }
+        // 10. 存如缓存
+        if (Application.isStateReady() && value != null) {
+            Application.getCommonsCache().put(key, value);
         }
 
         return value;
     }
 
-    // -- ASYNC 同步K/V值到数据库。注意如果系统异常停止可能导致同步数据丢失
+    // -- ASYNC 同步K/V值到数据库。注意如果系统异常停止可能导致同步数据丢失!!!
     
     private static final Object THROTTLED_QUEUE_LOCK = new Object();
     private static final Map<String, Object> THROTTLED_QUEUE = new ConcurrentHashMap<>();
