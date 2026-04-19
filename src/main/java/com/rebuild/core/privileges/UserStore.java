@@ -24,6 +24,7 @@ import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.privileges.bizz.ZeroPrivileges;
 import com.rebuild.core.support.distributed.UseDistributed;
+import com.rebuild.rbv.core.support.distributed.NodeClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
@@ -293,6 +294,7 @@ public class UserStore implements Initialization, UseDistributed {
         }
 
         store(newUser);
+        NodeClient.refreshAllNodes();
     }
 
     /**
@@ -328,6 +330,7 @@ public class UserStore implements Initialization, UseDistributed {
             }
         }
         USERS.remove(userId);
+        NodeClient.refreshAllNodes();
     }
 
     /**
@@ -360,6 +363,7 @@ public class UserStore implements Initialization, UseDistributed {
 
         ROLES.put(roleId, newRole);
         refreshRoleAppends(roleId);
+        NodeClient.refreshAllNodes();
     }
 
     /**
@@ -384,6 +388,7 @@ public class UserStore implements Initialization, UseDistributed {
 
         ROLES.remove(roleId);
         refreshRoleAppends(roleId);
+        NodeClient.refreshAllNodes();
     }
 
     /**
@@ -438,6 +443,7 @@ public class UserStore implements Initialization, UseDistributed {
         }
 
         DEPTS.put(deptId, newDept);
+        NodeClient.refreshAllNodes();
     }
 
     /**
@@ -463,6 +469,7 @@ public class UserStore implements Initialization, UseDistributed {
             dept.removeMember(u);
         }
         DEPTS.remove(deptId);
+        NodeClient.refreshAllNodes();
     }
 
     /**
@@ -492,6 +499,7 @@ public class UserStore implements Initialization, UseDistributed {
         }
 
         TEAMS.put(teamId, newTeam);
+        NodeClient.refreshAllNodes();
     }
 
     /**
@@ -505,6 +513,7 @@ public class UserStore implements Initialization, UseDistributed {
             team.removeMember(u);
         }
         TEAMS.remove(teamId);
+        NodeClient.refreshAllNodes();
     }
 
     /**
@@ -633,7 +642,7 @@ public class UserStore implements Initialization, UseDistributed {
         return StringUtils.defaultIfEmpty(ident, "").toLowerCase();
     }
 
-    // Fix: ConcurrentModificationException
+    // fix: ConcurrentModificationException
     private Principal[] toMemberArray(MemberGroup group) {
         return group.getMembers().toArray(new Principal[0]);
     }
