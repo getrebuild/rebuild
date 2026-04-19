@@ -87,11 +87,12 @@ public class BootConfiguration implements InstallState {
         if (DistributedSupport.isDistributedEnv()) {
             String banner = RebuildBanner.formatSimple(true,
                     "USE DISTRIBUTED ENV.",
-                    "     _DistributedNode : " + DistributedSupport.getNodeName(),
-                    "  _DistributedNodeUrl : " + getString(CommandArgs._DistributedNodeUrl),
-                    "_DistributedMasterUrl : " + getString(CommandArgs._DistributedMasterUrl),
-                    "_DistributedAllowJobs : " + getString(CommandArgs._DistributedAllowJobs),
-                    "       _DistributedAk : " + getString(CommandArgs._DistributedAk));
+                    "        _DistributedNode : " + DistributedSupport.getNodeName(),
+                    "     _DistributedNodeUrl : " + getString(CommandArgs._DistributedNodeUrl),
+                    "   _DistributedAllowJobs : " + getString(CommandArgs._DistributedAllowJobs),
+                    "_DistributedDisallowJobs : " + getString(CommandArgs._DistributedDisallowJobs),
+                    "   _DistributedMasterUrl : " + getString(CommandArgs._DistributedMasterUrl),
+                    "          _DistributedAk : " + getString(CommandArgs._DistributedAk));
             log.info(banner);
 
             try {

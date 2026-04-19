@@ -123,7 +123,7 @@ public class OshiUtils {
      * @return
      */
     public static Date getNetworkDate() {
-        final String[] FROMURLS = new String[] {
+        final String[] FROMURLS = new String[]{
                 "https://www.baidu.com/",
                 "https://www.microsoft.com/",
                 "https://getrebuild.com/",
@@ -192,7 +192,7 @@ public class OshiUtils {
                     double total = (double) root.getTotalSpace() / FileUtils.ONE_GB;
                     double used = total - ((double) root.getFreeSpace() / FileUtils.ONE_GB);
                     double usedPercentage = used * 100d / total;
-                    disks.add(new Object[] { ObjectUtils.round(total, 1), ObjectUtils.round(usedPercentage, 1), name });
+                    disks.add(new Object[]{ObjectUtils.round(total, 1), ObjectUtils.round(usedPercentage, 1), name});
                 }
             } else {
                 for (OSFileStore store : getSI().getOperatingSystem().getFileSystem().getFileStores()) {
@@ -200,9 +200,10 @@ public class OshiUtils {
                     double total = store.getTotalSpace() * 1d / FileUtils.ONE_GB;
                     double used = total - store.getUsableSpace() * 1d / FileUtils.ONE_GB;
                     double usedPercentage = used * 100d / total;
-                    disks.add(new Object[] { ObjectUtils.round(total, 1), ObjectUtils.round(usedPercentage, 1), name });
+                    disks.add(new Object[]{ObjectUtils.round(total, 1), ObjectUtils.round(usedPercentage, 1), name});
                 }
             }
+
         } catch (Exception ex) {
             log.warn("Cannot stats disks", ex);
         }
