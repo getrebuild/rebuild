@@ -61,6 +61,7 @@ public class DataListManager extends BaseLayoutManager {
     // for 引用字段搜索
     public static final String SYS_REFERENCE = "SYS REFERENCE";
     // for 相关项
+    @Deprecated
     public static final String SYS_RELATED = "SYS RELATED";
 
     public static final DataListManager instance = new DataListManager();
