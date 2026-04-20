@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -61,7 +62,6 @@ public class FieldValueSourceDetector {
             if (!JSONUtils.wellFormat(config)) continue;
             // 不包含字段
             if (!config.contains(field.getName())) continue;
-            System.out.println(config);
 
             JSONObject configJson = JSON.parseObject(config);
             String targetEntity = configJson.getString("targetEntity");
@@ -75,10 +75,18 @@ public class FieldValueSourceDetector {
             }
             if (StringUtils.isBlank(targetEntity)) continue;
 
-            // FIELD.ENTITY, $PRIMARY$.FIELD
+            // FIELD.ENTITY, $PRIMARY$.ENTITY_SELF
             if (targetEntity.contains(".")) {
-                if (targetEntity.startsWith("$PRIMARY$.")) targetEntity = fieldOfEntity.getName();
-                else targetEntity = targetEntity.split("\\.")[1];
+                // 自己
+                if (targetEntity.startsWith(TriggerAction.SOURCE_SELF)) {
+                    if (targetEntity.endsWith(fieldOfEntity.getName())) {
+                        targetEntity = fieldOfEntity.getName();
+                    } else {
+                        continue;
+                    }
+                } else {
+                    targetEntity = targetEntity.split("\\.")[1];
+                }
             }
 
             // 源实体
