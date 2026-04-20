@@ -1406,7 +1406,7 @@ class RbList extends React.Component {
       type = '$NAME$'
     }
 
-    const c = CellRenders.render(cellVal, type, width, `${cellKey}.${field.field}`)
+    const c = CellRenders.render(cellVal, type, width, `${cellKey}.${field.field}`, primaryKey)
     // v4.1 快捷编辑
     const cProps = {}
     if (this._enabledListEditable) {
@@ -1852,7 +1852,7 @@ const CellRenders = {
   },
 
   // 单元格渲染
-  render(value, type, width, key) {
+  render(value, type, width, key, primaryKey) {
     const style2 = { width: width || _DL_COLUMN_MIN_WIDTH }
     let fieldKey = null
     if (window.FrontJS && wpc.entity) {
@@ -1861,14 +1861,18 @@ const CellRenders = {
 
       const _FN = window.FrontJS.DataList.__cellRenders[fieldKey]
       if (typeof _FN === 'function') {
-        const fnRet = _FN(value, style2, key)
-        if (fnRet !== false) return fnRet
+        const fnRet = _FN(value, style2, key, primaryKey)
+        if (fnRet === undefined || fnRet === false) {
+          // 使用默认渲染
+        } else {
+          return fnRet
+        }
       }
     }
 
-    if (!value) return this.renderSimple(value, style2, key)
+    if (!value) return this.renderSimple(value, style2, key, primaryKey)
 
-    const cellComp = (this.__RENDERS[type] || this.renderSimple)(value, style2, key)
+    const cellComp = (this.__RENDERS[type] || this.renderSimple)(value, style2, key, primaryKey)
     if (fieldKey && window.FrontJS && wpc.entity) {
       const enable42 = window.FrontJS.DataList.__cellCopys.includes(fieldKey)
       if (enable42) {
