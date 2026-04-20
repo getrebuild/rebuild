@@ -36,7 +36,7 @@ public class CommonsConfigManager implements ConfigManager {
      * @return
      */
     public List<JSONObject> getRecordAlerts(String entity) {
-        ConfigBean[] cbs = getConfig(TYPE_RECORD_ALERTS, entity);
+        ConfigBean[] cbs = getConfig(entity, TYPE_RECORD_ALERTS);
 
         List<JSONObject> alerts = new ArrayList<>();
         for (ConfigBean cb : cbs) {
@@ -50,11 +50,11 @@ public class CommonsConfigManager implements ConfigManager {
     /**
      * 获取配置
      *
-     * @param type
      * @param entity
+     * @param type
      * @return
      */
-    public ConfigBean[] getConfig(String type, String entity) {
+    protected ConfigBean[] getConfig(String entity, String type) {
         if (entity == null) entity = "N";
         String cKey = "CommonsConfigManager-" + type + "#" + entity;
         ConfigBean[] cache = (ConfigBean[]) Application.getCommonsCache().getx(cKey);

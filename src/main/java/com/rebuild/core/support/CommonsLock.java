@@ -17,7 +17,6 @@ import com.rebuild.core.configuration.general.CommonsConfigManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
-import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang3.StringUtils;
@@ -102,6 +101,7 @@ public class CommonsLock {
         Assert.notNull(recordId, "[recordId] cannot null");
         if (!License.isRbvAttached()) return null;
 
+        boolean isNew = EntityHelper.isUnsavedId(recordId);
         Entity e = MetadataHelper.getEntity(recordId.getEntityCode());
         List<JSONObject> alerts = CommonsConfigManager.instance.getRecordAlerts(e.getName());
 
@@ -110,16 +110,16 @@ public class CommonsLock {
         for (JSONObject conf : alerts) {
             String tips = conf.getString("tips");
             if (StringUtils.isBlank(tips)) tips = Language.L("记录已锁定，禁止操作");
-            JSONObject filter = conf.getJSONObject("filter");
 
-            // 新记录:无条件且适用于表单
-            if (EntityHelper.isUnsavedId(recordId)) {
-                if (!ParseHelper.validAdvFilter(filter) && conf.getBooleanValue("applyToForm")) {
+            // 新记录
+            if (isNew) {
+                if (conf.getBooleanValue("applyToFormNew")) {
                     bean.addTips(tips, conf.getString("tipsColor"));
                 }
                 continue;
             }
 
+            JSONObject filter = conf.getJSONObject("filter");
             if (QueryHelper.isMatchAdvFilter(recordId, filter)) {
                 Boolean noLock = conf.getBoolean("isNoLock");
                 if (conf.getBooleanValue("isLock")) noLock = false;
