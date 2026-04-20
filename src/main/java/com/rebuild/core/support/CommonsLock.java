@@ -144,9 +144,13 @@ public class CommonsLock {
             RecordAlertsBean m = isLocked43(mainid, isView);
             if (m != null) bean.merge(m);
         }
+        if (e.getMainEntity() != null) {
+            String dtfName = MetadataHelper.getDetailToMainField(e).getName();
+            ID mainid = (ID) QueryHelper.queryFieldValue(recordId, dtfName);
+            return isLocked43(mainid);
+        }
 
         // TODO 关联实体的???
-
         return bean.isValid() ? bean : null;
     }
 }

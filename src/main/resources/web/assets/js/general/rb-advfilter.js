@@ -771,7 +771,7 @@ class FilterItem extends React.Component {
     const $s2val = $(this._filterVal)
       .select2({
         width: this.props.select2Width,
-        placeholder: this.props.select2Placeholder || this.props.placeholder || null,
+        placeholder: this.props.select2Placeholder || this.props.placeholder || undefined,
         theme: 'default select2-option-advfilter',
       })
       .on('change.select2', function () {
@@ -806,7 +806,7 @@ class FilterItem extends React.Component {
     const $s2val = $(this._filterVal)
       .select2({
         width: this.props.select2Width,
-        placeholder: this.props.select2Placeholder || this.props.placeholder || null,
+        placeholder: this.props.select2Placeholder || this.props.placeholder || undefined,
         minimumInputLength: 1,
         ajax: {
           url: '/commons/search/search',
@@ -914,7 +914,7 @@ class FilterItem extends React.Component {
     const $s2val = $(this._filterVal)
       .select2({
         width: this.props.select2Width,
-        placeholder: this.props.select2Placeholder || this.props.placeholder || null,
+        placeholder: this.props.select2Placeholder || this.props.placeholder || undefined,
         allowClear: this.props.allowClear === true,
         theme: 'default select2-option-advfilter',
       })
