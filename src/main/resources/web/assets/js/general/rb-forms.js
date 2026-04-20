@@ -65,12 +65,14 @@ class RbFormModal extends React.Component {
                     {this.state.alertMessage}
                   </div>
                 )}
-                {this.state.formAlertMessage && (
+                {this.state.fjsAlertMessage}
+                {this.state.alertsMessage && this.state.alertsMessage.tips && this.state.alertsMessage.tips.length > 0 && (
                   <div className="rbform-fjsalert">
-                    <RbAlertBox message={WrapHtml(this.state.formAlertMessage, true)} />
+                    {this.state.alertsMessage.tips.map((tips, idx) => (
+                      <RbAlertBox message={WrapHtml(tips[0], true)} type={tips[1]} key={idx} html />
+                    ))}
                   </div>
                 )}
-                {this.state.fjsAlertMessage}
 
                 {this.state.formComponent}
                 {this.state.inLoad && <RbSpinner />}
@@ -132,6 +134,7 @@ class RbFormModal extends React.Component {
 
     const that = this
     function _FN2(formModel, forceInitFieldValue) {
+      let readonly = !!formModel.readonlyMessage || (formModel.alertsMessage && formModel.alertsMessage.locked)
       const FORM = (
         <RbForm
           entity={entity}
@@ -139,14 +142,14 @@ class RbFormModal extends React.Component {
           rawModel={formModel}
           forceInitFieldValue={forceInitFieldValue}
           $$$parent={that}
-          readonly={!!formModel.readonlyMessage}
+          readonly={readonly}
           ref={(c) => (that._formComponentRef = c)}
           _disableAutoFillin={that.props._disableAutoFillin}>
           {formModel.elements.map((item) => detectElement(item))}
         </RbForm>
       )
 
-      that.setState({ formComponent: FORM, alertMessage: formModel.readonlywMessage || formModel.readonlyMessage || null, formAlertMessage: formModel.topAlert43 }, () => {
+      that.setState({ formComponent: FORM, alertMessage: formModel.readonlywMessage || formModel.readonlyMessage || null, alertsMessage: formModel.alertsMessage }, () => {
         that.setState({ inLoad: false })
         if (window.FrontJS) {
           window.FrontJS.Form._trigger('open', [formModel])

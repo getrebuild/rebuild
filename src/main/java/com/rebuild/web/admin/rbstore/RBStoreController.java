@@ -49,7 +49,7 @@ public class RBStoreController extends BaseController {
         for (Object o : schemas) {
             JSONObject item = (JSONObject) o;
             String key = item.getString("key");
-            if (Application.isReady() && MetadataHelper.containsEntity(key)) {
+            if (Application.isStateReady() && MetadataHelper.containsEntity(key)) {
                 item.put("exists", true);
             }
         }

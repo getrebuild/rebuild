@@ -437,7 +437,7 @@ public class SMSender {
 
     // @see com.rebuild.core.support.CommonsLog
     private static void createLog(String to, String content, int type, String sentid, Object error) {
-        if (!Application.isReady()) return;
+        if (!Application.isStateReady()) return;
 
         Record slog = EntityHelper.forNew(EntityHelper.SmsendLog, UserService.SYSTEM_USER);
         slog.setString("to", CommonsUtils.maxstr(to, 700));

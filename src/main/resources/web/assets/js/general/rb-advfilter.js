@@ -323,6 +323,14 @@ class AdvFilter extends React.Component {
     if (!adv) return
     window.open(`${rb.baseUrl}/app/${this.props.entity}/list?via=${$encode(JSON.stringify(adv))}`)
   }
+
+  // --
+
+  // 显示
+  static renderFilterText(filter) {
+    if (!filter || !filter.items || filter.items.length === 0) return null
+    return $L('已设置条件') + ` (${filter.items.length})`
+  }
 }
 
 const OP_TYPE = {

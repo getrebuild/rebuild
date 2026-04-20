@@ -67,8 +67,17 @@ class RbViewForm extends React.Component {
         if (window.RbViewPage) window.RbViewPage.setReadonly()
         hadAlert = (
           <RF>
-            <RbAlertBox message={res.data.readonlyMessage} />
             {hadAlert && hadAlert}
+            <RbAlertBox message={res.data.readonlyMessage} />
+          </RF>
+        )
+      }
+      if (res.data.alertsMessage) {
+        if (window.RbViewPage && res.data.alertsMessage.locked) window.RbViewPage.setReadonly()
+        hadAlert = (
+          <RF>
+            {hadAlert && hadAlert}
+            {res.data.alertsMessage.tips && res.data.alertsMessage.tips.map((tips, idx) => <RbAlertBox message={WrapHtml(tips[0], true)} type={tips[1]} key={idx} />)}
           </RF>
         )
       }

@@ -7,8 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.distributed;
 
+import com.rebuild.rbv.core.support.distributed.MasterNodeClient;
+
 /**
- * 标记接口
+ * 标记接口. 支持分布式
  *
  * @author devezhao
  * @since 2026/4/7
@@ -22,4 +24,10 @@ public interface UseDistributed {
      */
     Object refresh();
 
+    /**
+     * 数据改变
+     */
+    default void datasChanged() {
+        MasterNodeClient.refreshAllNodes();
+    }
 }

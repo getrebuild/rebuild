@@ -46,11 +46,13 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory impleme
     @Override
     public Object refresh() {
         refresh(false);
+        this.datasChanged();
         return getEntities().length;
     }
 
     @Override
-    synchronized public void refresh(boolean initState) {
+    synchronized
+    public void refresh(boolean initState) {
         super.refresh(initState);
 
         if (!initState && !DynamicMetadataContextHolder.isSkipLanguageRefresh(false)) {

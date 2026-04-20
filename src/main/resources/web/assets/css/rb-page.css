@@ -431,11 +431,32 @@ a.btn {
 }
 
 .alert-sm .close {
-  padding: 0.95rem 0;
+  padding: 0.85rem 0;
 }
 
 .alert-danger.alert-sm .icon {
   border-top: 1px solid #ea4335;
+  border-bottom: 1px solid #ea4335;
+}
+
+.alert-warning.alert-sm .icon {
+  border-top: 1px solid #fbbc05;
+  border-bottom: 1px solid #fbbc05;
+}
+
+.alert-primary.alert-sm .icon {
+  border-top: 1px solid #4285f4;
+  border-bottom: 1px solid #4285f4;
+}
+
+.alert-info.alert-sm .icon {
+  border-top: 1px solid #6ba4ff;
+  border-bottom: 1px solid #6ba4ff;
+}
+
+.alert-dark.alert-sm .icon {
+  border-top: 1px solid #a1a1a1;
+  border-bottom: 1px solid #a1a1a1;
 }
 
 .input-search,
@@ -537,17 +558,6 @@ a.btn {
   padding-left: 1.9377rem !important;
 }
 
-/*
-.custom-radio.custom-control-sm .custom-control-input:checked~.custom-control-label::after {
-    font-size: 13px;
-    padding-top: 0.15rem;
-}
-
-.custom-radio .custom-control-input:checked~.custom-control-label::after {
-    content: "\f26b";
-}
-*/
-
 .custom-radio.custom-control-sm .custom-control-input:checked ~ .custom-control-label::after {
   font-size: 12px;
   margin-left: 0;
@@ -612,10 +622,6 @@ div.dataTables_wrapper div.dataTables_filter {
 
 .datetimepicker.dropdown-menu .fa.fa-arrow-right::before {
   content: '\f2fb';
-}
-
-.datetimepicker th.clear {
-  font-weight: normal;
 }
 
 div.dataTables_filter .filter-badge {
@@ -5577,6 +5583,12 @@ pre.unstyle {
   text-transform: none;
 }
 
+.dropdown-menu,
+.dropdown-menu .dropdown-item,
+.dropdown-menu .dropdown-item > a {
+  color: #404040;
+}
+
 .loadmore-line {
   border-top: 1px solid #ccc;
   width: 200px;
@@ -5850,16 +5862,9 @@ div.formula-code {
   margin-bottom: 0;
 }
 
-.rbform-fjsalert:empty {
+.rbform-fjsalert:empty,
+.rbview-fjsalert:empty {
   display: none;
-}
-
-.rbform-fjsalert .alert {
-  margin-bottom: 10px;
-}
-
-.rbview-fjsalert {
-  /* NOOP */
 }
 
 .rbform-fjsalert:empty .rbview-fjsalert:empty {

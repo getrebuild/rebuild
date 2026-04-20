@@ -323,6 +323,6 @@ public class ParseHelper {
         if (advFilter == null || advFilter.isEmpty()) return false;
 
         JSONArray items = advFilter.getJSONArray("items");
-        return !CollectionUtils.isEmpty(items);
+        return CollectionUtils.isNotEmpty(items);
     }
 }

@@ -74,7 +74,7 @@ public class IncreasingVar extends SeriesVar {
             }
 
             long nextValue = incr.incrementAndGet();
-            RebuildConfiguration.setCustomValue(nameKey, nextValue, Boolean.TRUE);
+            RebuildConfiguration.setCustomValueAsync(nameKey, nextValue);
 
             String nextValueHex = nextValue + "";
             // v4.3.2 16进制
@@ -93,7 +93,7 @@ public class IncreasingVar extends SeriesVar {
         final String nameKey = getNameKey();
         synchronized (INCREASINGS_LOCK) {
             INCREASINGS.remove(nameKey);
-            RebuildConfiguration.setCustomValue(nameKey, Math.max(reset, 0L), Boolean.TRUE);
+            RebuildConfiguration.setCustomValueAsync(nameKey, Math.max(reset, 0L));
         }
     }
 

@@ -11,17 +11,18 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.general.CommonsConfigManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
+
+import java.util.List;
 
 /**
  * 通用锁（用于锁定配置或记录）
@@ -93,45 +94,59 @@ public class CommonsLock {
      * 记录是否已锁定
      *
      * @param recordId
+     * @param isView 视图/表单
      * @return
      */
-    public static String isLocked43(ID recordId) {
+    public static RecordAlertsBean isLocked43(ID recordId, boolean isView) {
         Assert.notNull(recordId, "[recordId] cannot null");
-        if (EntityHelper.isUnsavedId(recordId)) return null;
+        if (!License.isRbvAttached()) return null;
 
+        boolean isNew = EntityHelper.isUnsavedId(recordId);
         Entity e = MetadataHelper.getEntity(recordId.getEntityCode());
-        Object[][] array = Application.createQueryNoFilter(
-                "select config from CommonsConfig where belongEntity = ? and type = 'RECORD_ALERTS'")
-                .setParameter(1, e.getName())
-                .array();
+        List<JSONObject> alerts = CommonsConfigManager.instance.getRecordAlerts(e.getName());
 
-        for (Object[] o : array) {
-            String conf = (String) o[0];
-            if (!JSONUtils.wellFormat(conf)) continue;
+        RecordAlertsBean bean = new RecordAlertsBean();
 
-            JSONObject confJson = JSON.parseObject(conf);
-            if (QueryHelper.isMatchAdvFilter(recordId, confJson.getJSONObject("filter"))) {
-                String tips = confJson.getString("tips");
-                if (StringUtils.isBlank(tips)) tips = Language.L("记录已锁定，禁止操作");
-                return tips;
+        for (JSONObject conf : alerts) {
+            String tips = conf.getString("tips");
+            if (StringUtils.isBlank(tips)) tips = Language.L("记录已锁定，禁止操作");
+
+            // 新记录
+            if (isNew) {
+                if (conf.getBooleanValue("applyToFormNew")) {
+                    bean.addTips(tips, conf.getString("tipsColor"));
+                }
+                continue;
+            }
+
+            JSONObject filter = conf.getJSONObject("filter");
+            if (QueryHelper.isMatchAdvFilter(recordId, filter)) {
+                Boolean noLock = conf.getBoolean("isNoLock");
+                if (conf.getBooleanValue("isLock")) noLock = false;
+                if (noLock == null || !noLock) {
+                    bean.setLocked(true, tips);
+                }
+
+                // 是否显示
+                boolean applyToView = conf.getBooleanValue("applyToView");
+                boolean applyToForm = conf.getBooleanValue("applyToForm");
+                boolean apply = applyToView && applyToForm;
+                if (!apply) apply = isView && applyToView;
+                if (!apply) apply = !isView && applyToForm;
+                if (apply) bean.addTips(tips, conf.getString("tipsColor"));
             }
         }
-        return null;
 
-        // TODO
-        // - 主记录/明细联动
-        // - 可以返回多条（前端支持）
-    }
+        // 明细
+        if (e.getMainEntity() != null && !EntityHelper.isUnsavedId(recordId)) {
+            String dtfName = MetadataHelper.getDetailToMainField(e).getName();
+            ID mainid = (ID) QueryHelper.queryFieldValue(recordId, dtfName);
+            RecordAlertsBean m = isLocked43(mainid, isView);
+            if (m != null) bean.merge(m);
+        }
 
-    /**
-     * @param record
-     * @return
-     * @see #isLocked43(ID)
-     */
-    public static String isLocked43(Record record) {
-        Assert.notNull(record, "[record] cannot null");
+        // TODO 关联实体的???
 
-        if (record.getPrimary() == null) return null;
-        return isLocked43(record.getPrimary());
+        return bean.isValid() ? bean : null;
     }
 }

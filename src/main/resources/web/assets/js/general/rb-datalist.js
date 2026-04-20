@@ -98,6 +98,9 @@ const RbListPage = {
   },
 }
 
+// ~~ 视图复写
+RbViewModal.mode = 1
+
 $(document).ready(() => {
   window.RbListCommon && window.RbListCommon.init(wpc)
 

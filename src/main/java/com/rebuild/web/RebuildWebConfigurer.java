@@ -111,6 +111,8 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
 
         // 清理缓存
         thymeleafViewResolver.clearCache();
+
+        this.datasChanged();
     }
 
     private void setStaticVariable(ConfigurationItem item) {

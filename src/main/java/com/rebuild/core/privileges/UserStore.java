@@ -293,6 +293,7 @@ public class UserStore implements Initialization, UseDistributed {
         }
 
         store(newUser);
+        this.datasChanged();
     }
 
     /**
@@ -328,6 +329,7 @@ public class UserStore implements Initialization, UseDistributed {
             }
         }
         USERS.remove(userId);
+        this.datasChanged();
     }
 
     /**
@@ -360,6 +362,7 @@ public class UserStore implements Initialization, UseDistributed {
 
         ROLES.put(roleId, newRole);
         refreshRoleAppends(roleId);
+        this.datasChanged();
     }
 
     /**
@@ -384,6 +387,7 @@ public class UserStore implements Initialization, UseDistributed {
 
         ROLES.remove(roleId);
         refreshRoleAppends(roleId);
+        this.datasChanged();
     }
 
     /**
@@ -438,6 +442,7 @@ public class UserStore implements Initialization, UseDistributed {
         }
 
         DEPTS.put(deptId, newDept);
+        this.datasChanged();
     }
 
     /**
@@ -463,6 +468,7 @@ public class UserStore implements Initialization, UseDistributed {
             dept.removeMember(u);
         }
         DEPTS.remove(deptId);
+        this.datasChanged();
     }
 
     /**
@@ -492,6 +498,7 @@ public class UserStore implements Initialization, UseDistributed {
         }
 
         TEAMS.put(teamId, newTeam);
+        this.datasChanged();
     }
 
     /**
@@ -505,6 +512,7 @@ public class UserStore implements Initialization, UseDistributed {
             team.removeMember(u);
         }
         TEAMS.remove(teamId);
+        this.datasChanged();
     }
 
     /**
@@ -633,7 +641,7 @@ public class UserStore implements Initialization, UseDistributed {
         return StringUtils.defaultIfEmpty(ident, "").toLowerCase();
     }
 
-    // Fix: ConcurrentModificationException
+    // fix: ConcurrentModificationException
     private Principal[] toMemberArray(MemberGroup group) {
         return group.getMembers().toArray(new Principal[0]);
     }
@@ -668,7 +676,14 @@ public class UserStore implements Initialization, UseDistributed {
         USERS_NAME2ID.clear();
         USERS_MAIL2ID.clear();
 
+        isLoaded = false;
         init();
         return USERS.size();
+    }
+
+    @Override
+    public void datasChanged() {
+        if (!isLoaded) return;
+        UseDistributed.super.datasChanged();
     }
 }

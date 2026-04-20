@@ -941,6 +941,7 @@ create table if not exists `robot_approval_hub` (
   index IX0_robot_approval_hub (`STATE`, `USER_SUBMIT`, `USER_APPROVE`, `USER_CC`),
   index IX1_robot_approval_hub (`APPROVAL_STEP_ID`),
   index IX2_robot_approval_hub (`HUB_BATCH`)
+)Engine=InnoDB;
 
 -- ************ Entity [CommonsConfig] DDL ************
 create table if not exists `commons_config` (

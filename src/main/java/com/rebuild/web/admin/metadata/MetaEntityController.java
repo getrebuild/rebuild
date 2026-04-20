@@ -409,6 +409,7 @@ public class MetaEntityController extends EntityController {
         return res;
     }
 
+    // -- 多语言
     // @see com.rebuild.rbv.admin.LanguageAdminController
 
     @GetMapping("entity/{entity}/i18n")
@@ -447,5 +448,17 @@ public class MetaEntityController extends EntityController {
             i18n.put(L, Application.getLanguage().getBundle(L).getLang(key));
         }
         return i18n;
+    }
+
+    // -- 记录锁定
+
+    @GetMapping("entity/{entity}/record-alerts")
+    public ModelAndView pageRecordAlerts(@PathVariable String entity) {
+        RbAssert.isCommercial(
+                Language.L("免费版不支持记录锁定功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+
+        ModelAndView mv = createModelAndView("/admin/metadata/record-alerts");
+        setEntityBase(mv, entity);
+        return mv;
     }
 }

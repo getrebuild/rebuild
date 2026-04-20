@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.setup;
 
+import cn.devezhao.commons.ObjectUtils;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -36,9 +37,9 @@ public final class UpgradeDatabase {
             return;
         }
 
-        final Map<Integer, String[]> scripts = new UpgradeScriptReader().read();
-        final int currentVer = RebuildConfiguration.getInt(ConfigurationItem.DBVer);
-
+        Map<Integer, String[]> scripts = new UpgradeScriptReader().read();
+        String v = RebuildConfiguration.get(ConfigurationItem.DBVer, true);
+        int currentVer = ObjectUtils.toInt(v, 0);
         int upgradeVer = currentVer;
 
         try {
@@ -55,7 +56,7 @@ public final class UpgradeDatabase {
             }
 
         } finally {
-            if (currentVer != upgradeVer) {
+            if (upgradeVer > currentVer) {
                 RebuildConfiguration.set(ConfigurationItem.DBVer, upgradeVer);
                 log.info("Upgraded database version : {}", upgradeVer);
             }

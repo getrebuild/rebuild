@@ -110,10 +110,10 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         System.setProperty(CacheManager.ENABLE_SHUTDOWN_HOOK_PROPERTY, "true");
     }
 
-    // 系统状态
-    volatile private static boolean _READY = false;
+    // 上下文已初始化
+    private static boolean _STATE_READY = false;
     // 业务组件已装载
-    volatile private static boolean _WAITLOAD = true;
+    private static boolean _STATE_LOADED = false;
 
     // SPRING
     private static ApplicationContext _CONTEXT;
@@ -161,7 +161,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
             }
 
         } catch (Exception ex) {
-            _READY = false;
+            _STATE_READY = false;
             log.error(RebuildBanner.formatBanner("REBUILD INITIALIZATION FILAED !!!"), ex);
 
         } finally {
@@ -175,7 +175,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                 }
             }
 
-            _WAITLOAD = false;
+            _STATE_LOADED = true;
         }
     }
 
@@ -211,10 +211,10 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
      * @throws Exception
      */
     public static boolean init() throws Exception {
-        if (_READY) throw new IllegalStateException("REBUILD ALREADY STARTED");
+        if (_STATE_READY) throw new IllegalStateException("REBUILD ALREADY STARTED");
         log.info("Initializing REBUILD context [ {} ] ...", _CONTEXT.getClass().getSimpleName());
 
-        if (!(_READY = ServerStatus.checkAll())) {
+        if (!(_STATE_READY = ServerStatus.checkAll())) {
             log.error(RebuildBanner.formatBanner(
                     "REBUILD STARTUP FILAED DURING THE STATUS CHECK.", "PLEASE VIEW LOGS FOR MORE DETAILS."));
             return false;
@@ -281,12 +281,12 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         return BootApplication.devMode();
     }
 
-    public static boolean isReady() {
-        return _READY && _CONTEXT != null;
+    public static boolean isStateReady() {
+        return _STATE_READY && _CONTEXT != null;
     }
 
-    public static boolean isWaitLoad() {
-        return _WAITLOAD && _CONTEXT != null;
+    public static boolean isStateLoaded() {
+        return _STATE_LOADED && _CONTEXT != null;
     }
 
     public static ApplicationContext getContext() {

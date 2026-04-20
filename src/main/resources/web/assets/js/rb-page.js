@@ -1549,6 +1549,21 @@ var $initQuickSearch = function ($el, onSearch) {
   return gs || null
 }
 
+// 顶部滚动
+var $enableScrollTop = function () {
+  const $top = $('.rb-scroll-top').on('click', () => $('html,body').animate({ scrollTop: 0 }, 400))
+  $(window).on('scroll', () => {
+    $setTimeout(
+      () => {
+        if ($(window).scrollTop() >= 61) $top.addClass('show')
+        else $top.removeClass('show')
+      },
+      200,
+      'rb-scroll-top-show',
+    )
+  })
+}
+
 // 颜色
 var RBCOLORS = ['#4285f4', '#34a853', '#6a70b8', '#009c95', '#ff6b35', '#ea4335', '#7500ea', '#eb2f96']
 // 不支持排序的字段

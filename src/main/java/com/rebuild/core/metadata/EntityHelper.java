@@ -395,6 +395,7 @@ public class EntityHelper {
     public static final int FrontjsCode = 38;
     public static final int NreferenceItem = 39;
     public static final int TagItem = 80;
+    public static final int CommonsConfig = 15;
 
     // 动态
 

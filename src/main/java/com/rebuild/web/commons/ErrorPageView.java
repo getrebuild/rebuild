@@ -82,7 +82,7 @@ public class ErrorPageView extends BaseController {
         boolean realtime = "1".equals(request.getParameter("check"));
 
         ModelAndView mv = createModelAndView("/error/server-status");
-        mv.getModel().put("ok", ServerStatus.isStatusOK() && Application.isReady());
+        mv.getModel().put("ok", ServerStatus.isStatusOK() && Application.isStateReady());
         mv.getModel().put("status", ServerStatus.getLastStatus(realtime));
         mv.getModel().put("MemoryUsage", OshiUtils.getOsMemoryUsed());
         mv.getModel().put("MemoryUsageJvm", OshiUtils.getJvmMemoryUsed());
@@ -109,7 +109,7 @@ public class ErrorPageView extends BaseController {
         boolean realtime = "1".equals(request.getParameter("check"));
 
         JSONObject s = new JSONObject();
-        s.put("ok", ServerStatus.isStatusOK() && Application.isReady());
+        s.put("ok", ServerStatus.isStatusOK() && Application.isStateReady());
         s.put("uptime", System.currentTimeMillis() - ServerStatus.STARTUP_TIME.getTime());
 
         JSONObject status = new JSONObject();

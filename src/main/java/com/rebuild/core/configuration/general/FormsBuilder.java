@@ -41,6 +41,7 @@ import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.CommonsLock;
 import com.rebuild.core.support.License;
+import com.rebuild.core.support.RecordAlertsBean;
 import com.rebuild.core.support.general.DataListWrapper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
@@ -328,13 +329,13 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        // v4.3.4 记录锁定
+        // v4.3/4.4 记录锁定
         if (recordId != null) {
-            String lockedTips = CommonsLock.isLocked43(recordId);
-            if (lockedTips != null) {
-                readonlywMessage = null;
-                readonlyMessage = lockedTips;
-            }
+            RecordAlertsBean alerts = CommonsLock.isLocked43(recordId, viewMode);
+            if (alerts != null) model.set("alertsMessage", alerts.toJSON());
+        } else if (!viewMode) {
+            RecordAlertsBean alerts = CommonsLock.isLocked43(EntityHelper.newUnsavedId(entityMeta.getEntityCode()), false);
+            if (alerts != null) model.set("alertsMessage", alerts.toJSON());
         }
 
         if (readonlywMessage != null) model.set("readonlywMessage", readonlywMessage);
@@ -356,11 +357,6 @@ public class FormsBuilder extends FormsManager {
             String recordName = FieldValueHelper.getLabel(recordId, "");
             if (StringUtils.isBlank(recordName)) recordName = EasyMetaFactory.getLabel(recordData.getEntity());
             model.set("recordName", recordName);
-        }
-        // v4.3
-        if (!viewMode) {
-            String m = model.getString("topAlert43");
-            if (StringUtils.isNotBlank(m)) model.set("topAlert43", m);
         }
 
         return model.toJSON();

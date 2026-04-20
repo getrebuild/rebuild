@@ -109,7 +109,7 @@ public class Language implements Initialization {
      * @see java.util.Locale
      */
     public LanguageBundle getBundle(String locale) {
-        if (Application.isWaitLoad()) return LanguageBundle.SYS_BUNDLE;
+        if (!Application.isStateLoaded()) return LanguageBundle.SYS_BUNDLE;
 
         if (locale != null) {
             if (bundleMap.containsKey(locale)) {
