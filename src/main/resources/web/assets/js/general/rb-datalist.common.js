@@ -219,7 +219,7 @@ const AdvFilters = {
 
           // 列显示
           if (item.listFieldsId && that.__listFieldsId !== item.listFieldsId) {
-            $.get(`/rbmob/entity-config/list?entity=${that.__entity}&flag=${item.listFieldsId}`, (res) => {
+            $.get(`/rbmob/entity-config/list?entity=${that.__entity}&specLayout=${item.listFieldsId || ''}`, (res) => {
               that.__listFieldsId = item.listFieldsId
 
               $unmount('#react-list', 1, true)
