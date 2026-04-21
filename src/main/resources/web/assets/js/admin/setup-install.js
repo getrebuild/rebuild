@@ -158,7 +158,7 @@ class RbWelcome extends React.Component {
                 RbHighbar.error(res.error_msg)
               }
             },
-            s < 1000 ? 500 + Math.random() * 1000 : Math.random() * 500
+            s < 1000 ? 500 + Math.random() * 1000 : Math.random() * 500,
           )
         })
       },
@@ -445,7 +445,7 @@ class AdminConf extends DatabaseConf {
           <div className="form-group row">
             <div className="col-sm-3 col-form-label text-sm-right">{$L('管理员邮箱')}</div>
             <div className="col-sm-7">
-              <input type="text" className="form-control form-control-sm" name="adminMail" value={this.state.adminMail || ''} onChange={this.handleValue} placeholder={$L('(选填)')} />
+              <input type="text" className="form-control form-control-sm" name="adminMail" value={this.state.adminMail || ''} onChange={this.handleValue} placeholder={$L('选填')} />
               <div className="form-text">{$L('用于找回密码等重要操作，也可在安装完成后填写')}</div>
             </div>
           </div>

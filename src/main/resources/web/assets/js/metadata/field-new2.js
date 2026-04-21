@@ -80,7 +80,7 @@ class FieldNew2 extends RbModalHandler {
             <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('备注')}</label>
               <div className="col-sm-7">
-                <textarea className="form-control form-control-sm row2x" maxLength="100" placeholder={$L('(选填)')} ref={(c) => (this._$comments = c)} />
+                <textarea className="form-control form-control-sm row2x" maxLength="100" placeholder={$L('选填')} ref={(c) => (this._$comments = c)} />
               </div>
             </div>
             <div className="form-group row pb-1">

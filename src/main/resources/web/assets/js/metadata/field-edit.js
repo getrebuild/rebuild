@@ -763,7 +763,7 @@ const _handleTextCommon = function (common) {
     return { id: item, text: item, selected: true }
   })
   $('#textCommon').select2({
-    placeholder: $L('(选填)'),
+    placeholder: $L('选填'),
     data: s2data,
     multiple: true,
     maximumSelectionLength: 99,

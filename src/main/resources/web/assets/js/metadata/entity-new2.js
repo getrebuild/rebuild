@@ -52,7 +52,7 @@ class EntityNew2 extends RbModalHandler {
                 <div className="form-group row">
                   <label className="col-sm-3 col-form-label text-sm-right">{$L('备注')}</label>
                   <div className="col-sm-7">
-                    <textarea className="form-control form-control-sm row2x" maxLength="100" placeholder={$L('(选填)')} ref={(c) => (this._$comments = c)} />
+                    <textarea className="form-control form-control-sm row2x" maxLength="100" placeholder={$L('选填')} ref={(c) => (this._$comments = c)} />
                   </div>
                 </div>
                 <div className="form-group row pt-2">
@@ -139,7 +139,7 @@ class EntityNew2 extends RbModalHandler {
                 <div className={`form-group row ${this.state.copyHasDetail ? '' : 'hide'}`}>
                   <label className="col-sm-3 col-form-label text-sm-right">{$L('明细实体名称')}</label>
                   <div className="col-sm-7">
-                    <input className="form-control form-control-sm" type="text" maxLength="40" placeholder={$L('(选填)')} ref={(c) => (this._$copyDetailLabel = c)} />
+                    <input className="form-control form-control-sm" type="text" maxLength="40" placeholder={$L('选填')} ref={(c) => (this._$copyDetailLabel = c)} />
                     <p className="form-text">{$L('不填写则不复制明细实体')}</p>
                   </div>
                 </div>
@@ -243,7 +243,7 @@ class EntityNew2 extends RbModalHandler {
         this.setState({ excelfile: res.key })
         $(this._$uploadbtn).text($L('上传文件'))
         $(this._$excelEntityLabel).val($fileCutName(res.key, true))
-      }
+      },
     )
     $(this._$uploadbtn).on('click', () => this._$uploadfile.click())
 
