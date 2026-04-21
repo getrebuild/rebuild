@@ -127,7 +127,6 @@ public enum ConfigurationItem {
     AibotDSSecret,
     AibotBasePrompt,
     AibotBaseDefModel,
-    AibotSelectEntities,
 
     // PORTALs
     PortalBaiduMapAk,
