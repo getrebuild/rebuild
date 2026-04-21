@@ -34,7 +34,7 @@
                         <td data-id="AibotName" th:data-value="${AibotName ?:''}" data-optional="true">[[${AibotName ?:bundle.L('默认')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('API 地址')}]]</td>
+                        <td width="40%">[[${bundle.L('API 地址')}]]</td>
                         <td data-id="AibotDSUrl" th:data-value="${AibotDSUrl ?:''}">[[${AibotDSUrl ?:bundle.L('默认')}]]</td>
                       </tr>
                       <tr>
@@ -67,6 +67,10 @@
                         <td width="40%">[[${bundle.L('默认提示词')}]]</td>
                         <td data-id="AibotBasePrompt" th:data-value="${AibotBasePrompt ?:''}" data-optional="true">[[${AibotBasePrompt ?:bundle.L('无')}]]</td>
                       </tr>
+                      <tr class="bosskey-show">
+                        <td>[[${bundle.L('可使用实体')}]]</td>
+                        <td data-id="AibotSelectEntities" th:data-value="${AibotSelectEntities ?:''}" data-optional="true">[[${AibotSelectEntities ?:bundle.L('默认')}]]</td>
+                      </tr>
                     </tbody>
                   </table>
                   <div class="edit-footer">
@@ -91,8 +95,8 @@
     <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
     <script type="text/babel">
       useEditComp = function (name) {
-        if ('AibotBasePrompt' === name) {
-          return <textarea className="form-control form-control-sm row2x" maxLength="1024" />
+        if ('AibotBasePrompt' === name || 'AibotSelectEntities' === name) {
+          return <textarea className="form-control form-control-sm row2x" maxLength="2048" />
         } else if ('AibotBaseDefModel' === name) {
           setTimeout(() => {
             $('input[name="AibotBaseDefModel"]')

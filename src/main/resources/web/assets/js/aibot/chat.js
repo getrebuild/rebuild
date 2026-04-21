@@ -209,11 +209,16 @@ class ChatInput extends React.Component {
   }
 
   attachRecord() {
+    let ae435 = window.rb._aibotSelectEntities || null
+    if (ae435) ae435 = ae435.split(',').map((s) => s.trim())
+
     RecordSelectorModal.create({
       onConfirm: (v) => {
         const attach = [...this.state.attach, { record: v, id: $random('attach-', true) }]
         this.setState({ attach })
       },
+      allowEntities: ae435,
+      allowBizz: false,
     })
   }
   attachFile() {

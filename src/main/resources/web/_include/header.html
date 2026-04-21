@@ -49,6 +49,7 @@
   <meta name="rb._rbTempAuth" content="true" th:if="${session.rbTempAuth != null}" />
   <meta name="rb._markWatermarkText" th:content="${markWatermarkText}" th:if="${markWatermarkText != null}" />
   <meta name="rb._aibotName" th:content="${_AiBot}" th:if="${_AiBot != null}" />
+  <meta name="rb._aibotSelectEntities" th:content="${_AiBotSelectEntities}" th:if="${_AiBot != null}" />
   <!--[if IE]><script>location.href = '[[${baseUrl}]]/error/unsupported-browser'</script><![endif]-->
   <script th:if="${markWatermark == 'true' || session.rbTempAuth != null}" th:src="@{/assets/lib/watermark.js?v=310}"></script>
   <style th:if="${PageMourningMode}">html{-webkit-filter:grayscale(100%);-moz-filter:grayscale(100%);-ms-filter:gray(100%);-o-filter:grayscale(100%);filter:grayscale(100%);filter:gray;filter:progid:DXImageTransform.Microsoft.BasicImage(grayscale=1)}</style>
