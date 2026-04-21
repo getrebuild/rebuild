@@ -24,6 +24,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.core.service.dashboard.charts.ChartsFactory;
+import com.rebuild.core.service.dashboard.charts.builtin.ApprovalList;
 import com.rebuild.core.service.dashboard.charts.builtin.FeedsSchedule;
 import com.rebuild.core.service.dashboard.charts.builtin.MyNotification;
 import com.rebuild.core.support.ShortUrls;
@@ -100,6 +101,10 @@ public class ChartDataController extends BaseController {
         }
         if (FeedsSchedule.MYID.equals(chartId)) {
             response.sendRedirect("../feeds/home");
+            return;
+        }
+        if (ApprovalList.MYID.equals(chartId)) {
+            response.sendRedirect("../approval/home");
             return;
         }
 

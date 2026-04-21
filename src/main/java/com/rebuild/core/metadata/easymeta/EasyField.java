@@ -34,7 +34,8 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
 
     @Override
     public String getLabel() {
-        return getRawMeta().getType() == FieldType.PRIMARY ? "ID" : super.getLabel();
+        if (getRawMeta().getType() == FieldType.PRIMARY) return "ID";
+        return StringUtils.defaultIfBlank(super.getLabel(), getName().toUpperCase());
     }
 
     @Override
