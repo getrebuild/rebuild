@@ -13,8 +13,10 @@ import com.rebuild.core.Application;
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.TransactionManual;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.transaction.TransactionStatus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -83,7 +85,7 @@ public class KVStorage {
     synchronized
     protected static void setValue(final String key, Object value) {
         final Object[] e = Application.createQueryNoFilter(
-                "select configId from SystemConfig where item = ?")
+                "select configId,value from SystemConfig where item = ?")
                 .setParameter(1, key)
                 .unique();
 
@@ -96,6 +98,8 @@ public class KVStorage {
             return;
         }
 
+        final Object previousValue = e == null || e[0] == null ? SETNULL : e[1];
+
         Record kv;
         if (e == null) {
             kv = EntityHelper.forNew(EntityHelper.SystemConfig, UserService.SYSTEM_USER, false);
@@ -105,13 +109,27 @@ public class KVStorage {
         }
         kv.setString("value", String.valueOf(value));
 
-        Application.getCommonsService().createOrUpdate(kv);
-        Application.getCommonsCache().evict(key);
+        // v4.4 使用单独事务，避免锁死影响其他
+        TransactionStatus tx = TransactionManual.newTransaction(false);
+        try {
+            Application.getCommonsService().createOrUpdate(kv);
+            TransactionManual.commit(tx);
+        } catch (Throwable ex) {
+            TransactionManual.rollback(tx);
+            throw ex;
+        }
+        Application.getCommonsCache().put(key, String.valueOf(value));
+
+        // v4.4 若失败了则还原
+        TransactionManual.registerAfterRollback(() -> {
+            log.error("Rollback KV : {} -> {}", key, previousValue);
+            setValue(key, previousValue);
+        });
     }
 
     /**
      * @param key
-     * @param noCache
+     * @param noCache 慎用!!!
      * @param defaultValue
      * @return
      */
@@ -130,12 +148,9 @@ public class KVStorage {
 
         if (Application.isStateReady()) {
             // 1.0. 从缓存
-            if (!noCache) {
-                value = Application.getCommonsCache().get(key);
-                if (value != null) {
-                    return value;
-                }
-            }
+            value = Application.getCommonsCache().get(key);
+            if (noCache) value = null;
+            if (value != null) return value;
 
             // 1.1. 从数据库
             Object[] fromDb = Application.createQueryNoFilter(
@@ -169,7 +184,7 @@ public class KVStorage {
     }
 
     // -- ASYNC 同步K/V值到数据库。注意如果系统异常停止可能导致同步数据丢失!!!
-    
+
     private static final Object THROTTLED_QUEUE_LOCK = new Object();
     private static final Map<String, Object> THROTTLED_QUEUE = new ConcurrentHashMap<>();
     private static final Timer THROTTLED_TIMER = new Timer("KVStorage-Syncer");
@@ -187,7 +202,7 @@ public class KVStorage {
                     log.info("Synchronize KV pairs ... {}", queue);
                     for (Map.Entry<String, Object> e : queue.entrySet()) {
                         try {
-                            RebuildConfiguration.setCustomValue(e.getKey(), e.getValue());
+                            setCustomValue(e.getKey(), e.getValue());
                         } catch (Throwable ex) {
                             log.error("Synchronize KV error : {}", e, ex);
 

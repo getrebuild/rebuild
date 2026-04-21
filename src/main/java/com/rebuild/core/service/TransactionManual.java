@@ -29,7 +29,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 public class TransactionManual {
 
     /**
-     * 开启一个事物（如若当前已在事物中，则使用当前事物）
+     * 开启一个事物（如若当前已在事物中，则使用嵌套事物）
      *
      * @return
      * @see #commit(TransactionStatus)
@@ -37,22 +37,24 @@ public class TransactionManual {
      * @see #newTransaction(boolean)
      */
     public static TransactionStatus newTransaction() {
-        return newTransaction(false);
+        return newTransaction(true);
     }
 
     /**
-     * 开启一个事物
+     * 开启一个新事物
      *
-     * @param independent 是否独立事物 DefaultTransactionAttribute#PROPAGATION_NESTED
+     * @param useNested PROPAGATION_NESTED or PROPAGATION_REQUIRES_NEW
      * @return
      * @see #commit(TransactionStatus)
      * @see #rollback(TransactionStatus)
      */
-    public static TransactionStatus newTransaction(boolean independent) {
+    public static TransactionStatus newTransaction(boolean useNested) {
         DefaultTransactionAttribute attr = new DefaultTransactionAttribute();
         attr.setName("rbTransaction-" + RandomStringUtils.randomNumeric(12));
-        if (independent) {
+        if (useNested) {
             attr.setPropagationBehavior(DefaultTransactionAttribute.PROPAGATION_NESTED);
+        } else {
+            attr.setPropagationBehavior(DefaultTransactionAttribute.PROPAGATION_REQUIRES_NEW);
         }
         return getTxManager().getTransaction(attr);
     }
@@ -111,6 +113,13 @@ public class TransactionManual {
      * @see TransactionSynchronizationManager#isSynchronizationActive()
      * @see TransactionSynchronizationManager#registerSynchronization(TransactionSynchronization)
      */
+
+    /**
+     * 当前事务完成后回调
+     *
+     * @param c
+     * @return
+     */
     public static void registerAfterCommit(Runnable c) {
         if (TransactionSynchronizationManager.isSynchronizationActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
@@ -134,13 +143,35 @@ public class TransactionManual {
     }
 
     /**
+     * 当前事务回滚后回调
+     *
+     * @param c
+     * @return
+     */
+    public static boolean registerAfterRollback(Runnable c) {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCompletion(int status) {
+                    if (status != TransactionSynchronization.STATUS_COMMITTED) {
+                        new Thread(c).start();
+                    }
+                }
+            });
+            return true;
+        }
+
+        // 非事物中
+        log.debug("Transaction synchronization is not active, start directly : {}", c);
+        return false;
+    }
+
+    /**
      * 当前事务完成后回调。支持延迟/覆盖
      *
      * @param c
      * @param delayInMs
      * @param keyCancel
-     * @see #registerAfterCommit(Runnable)
-     * @see com.rebuild.core.support.task.TaskExecutors#schedule(Runnable, int, String)
      */
     public static void registerAfterCommit(Runnable c, int delayInMs, String keyCancel) {
         if (TransactionSynchronizationManager.isSynchronizationActive()) {
