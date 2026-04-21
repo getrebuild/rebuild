@@ -110,14 +110,6 @@ public class TransactionManual {
      * 当前事务完成后回调
      *
      * @param c
-     * @see TransactionSynchronizationManager#isSynchronizationActive()
-     * @see TransactionSynchronizationManager#registerSynchronization(TransactionSynchronization)
-     */
-
-    /**
-     * 当前事务完成后回调
-     *
-     * @param c
      * @return
      */
     public static void registerAfterCommit(Runnable c) {
