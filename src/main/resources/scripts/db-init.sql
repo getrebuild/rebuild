@@ -929,6 +929,7 @@ create table if not exists `commons_log` (
 create table if not exists `robot_approval_hub` (
   `HUB_ID`             char(20) not null,
   `HUB_BATCH`          varchar(100) comment '提交批次',
+  `RECORD_ID`          char(20) not null comment '审批记录',
   `APPROVAL_STEP_ID`   char(20) not null comment '审批步骤',
   `USER_SUBMIT`        char(20) comment '提交用户',
   `USER_APPROVE`       char(20) comment '审批用户',

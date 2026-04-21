@@ -6325,7 +6325,8 @@ div.formula-code {
 }
 
 .rb-left-sidebar .sidebar-elements a > span.badge,
-.rb-left-sidebar .sidebar-elements > li ul li > a > span.badge {
+.rb-left-sidebar .sidebar-elements > li ul li > a > span.badge,
+.aside-nav .nav li .badge {
   font-size: 0.8462rem;
   margin: 0;
   margin-top: 10px;
@@ -6341,6 +6342,11 @@ div.formula-code {
 
 .rb-left-sidebar .sidebar-elements > li ul li > a > span.badge {
   margin-top: 2px;
+}
+
+.aside-nav .nav li .badge {
+  margin-top: 2px;
+  right: 22px;
 }
 
 .FilesHandlerComponent__results {

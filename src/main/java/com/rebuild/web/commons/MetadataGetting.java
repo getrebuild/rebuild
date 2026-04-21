@@ -58,6 +58,8 @@ public class MetadataGetting extends BaseController {
         boolean usesDetail = getBoolParameter(request, "detail", false);
         // v3.8 返回全部，否则只返回有权限的
         boolean usesNopriv = getBoolParameter(request, "nopriv", false);
+        // v4.4 返回审批的
+        boolean usesApproval = getBoolParameter(request, "approval", false);
 
         JSONArray res = new JSONArray();
         for (Entity e : MetadataSorter.sortEntities(usesNopriv ? null : user, usesBizz, usesDetail)) {
@@ -66,7 +68,12 @@ public class MetadataGetting extends BaseController {
             String L42 = item.getString("entityLabel");
             item.put("label", L42);
             item.put("quickCode", QuickCodeReindexTask.generateQuickCode(L42));
-            res.add(item);
+
+            if (usesApproval) {
+                if (MetadataHelper.hasApprovalField(e)) res.add(item);
+            } else {
+                res.add(item);
+            }
         }
         return res;
     }

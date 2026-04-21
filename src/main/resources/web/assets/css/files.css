@@ -77,6 +77,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 12px;
 }
 
+.file-operator div.check,
 .file-list-item > div.check,
 .file-list-item > div.type {
   width: 40px;

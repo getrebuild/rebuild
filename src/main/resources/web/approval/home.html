@@ -35,7 +35,9 @@
             </div>
             <div class="aside-nav collapse">
               <ul class="nav">
-                <li class="active"><a href="#type=1" data-type="1">待处理</a></li>
+                <li class="active">
+                  <a href="#type=1" data-type="1">待处理 <span class="badge badge-primary"></span></a>
+                </li>
                 <li><a href="#type=2" data-type="2">已处理</a></li>
                 <li><a href="#type=3" data-type="3">我提交的</a></li>
                 <li><a href="#type=4" data-type="4">抄送我的</a></li>
@@ -48,12 +50,20 @@
             <div class="file-operator">
               <div class="row">
                 <div class="col-5">
-                  <div class="input-group input-search">
-                    <input class="form-control" type="text" th:placeholder="${bundle.L('搜索')}" />
-                    <button class="btn btn-input-clear" type="button"></button>
-                    <span class="input-group-btn">
-                      <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
-                    </span>
+                  <div class="float-left">
+                    <div class="check" style="margin-top: 8px">
+                      <label class="custom-control custom-checkbox m-0">
+                        <input class="custom-control-input J_select-all" type="checkbox" />
+                        <span class="custom-control-label"></span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="float-left mr-2 select2-sm">
+                    <div style="width: 212px">
+                      <select class="form-control form-control-sm J_search-entity">
+                        <option value="" selected>[[${bundle.L('业务实体')}]]</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
                 <div class="col-7 text-right">
