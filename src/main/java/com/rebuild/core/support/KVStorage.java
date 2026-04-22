@@ -13,10 +13,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
-import com.rebuild.core.service.TransactionManual;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.transaction.TransactionStatus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +40,7 @@ public class KVStorage {
     private static final String CUSTOM_PREFIX = "custom.";
 
     /**
-     * @param key 会自动加 `custom.` 前缀
+     * @param key
      * @return
      */
     public static String getCustomValue(String key) {
@@ -58,7 +56,7 @@ public class KVStorage {
     }
 
     /**
-     * 异步存。注意`非关键值`再使用此方法（因为此方案存在值丢失隐患）
+     * 异步存（注意此方法因为周期性存储到数据库，因此存在值丢失隐患）
      *
      * @param key
      * @param value
@@ -98,8 +96,6 @@ public class KVStorage {
             return;
         }
 
-        final Object previousValue = e == null || e[0] == null ? SETNULL : e[1];
-
         Record kv;
         if (e == null) {
             kv = EntityHelper.forNew(EntityHelper.SystemConfig, UserService.SYSTEM_USER, false);
@@ -107,29 +103,15 @@ public class KVStorage {
         } else {
             kv = EntityHelper.forUpdate((ID) e[0], UserService.SYSTEM_USER, false);
         }
+
         kv.setString("value", String.valueOf(value));
-
-        // v4.4 使用单独事务，避免锁死影响其他
-        TransactionStatus tx = TransactionManual.newTransaction(false);
-        try {
-            Application.getCommonsService().createOrUpdate(kv);
-            TransactionManual.commit(tx);
-        } catch (Throwable ex) {
-            TransactionManual.rollback(tx);
-            throw ex;
-        }
+        Application.getCommonsService().createOrUpdate(kv);
         Application.getCommonsCache().put(key, String.valueOf(value));
-
-        // v4.4 若失败了则还原
-        TransactionManual.registerAfterRollback(() -> {
-            log.error("Rollback KV : {} -> {}", key, previousValue);
-            setValue(key, previousValue);
-        });
     }
 
     /**
      * @param key
-     * @param noCache 慎用!!!
+     * @param noCache
      * @param defaultValue
      * @return
      */
@@ -214,7 +196,7 @@ public class KVStorage {
             }
         };
 
-        THROTTLED_TIMER.scheduleAtFixedRate(localTimerTask, 2000, 2000);
+        THROTTLED_TIMER.scheduleAtFixedRate(localTimerTask, 3000, 1000);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("The KVStorage shutdown hook is enabled");
