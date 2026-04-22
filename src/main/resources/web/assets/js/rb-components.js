@@ -504,21 +504,20 @@ class RbHighbar extends React.Component {
   }
 }
 
+const __TypeIcons = {
+  'success': 'check',
+  'danger': 'close-circle-o',
+  'warning': 'alert-circle-o',
+  'primary': 'info-outline',
+  'info': 'help-outline',
+}
 // ~~ 提示条
 class RbAlertBox extends React.Component {
-  static __typeIcons = {
-    'success': 'check',
-    'danger': 'close-circle-o',
-    'warning': 'alert-circle-o',
-    'primary': 'info-outline',
-    'info': 'help-outline',
-  }
-
   render() {
     const props = this.props
     const type = (props || {}).type || 'warning'
     let icon = props.icon
-    if (!icon) icon = RbAlertBox.__typeIcons[type] || 'info-outline'
+    if (!icon) icon = __TypeIcons[type] || 'info-outline'
 
     return (
       <div className={`alert alert-icon alert-icon-border alert-sm alert-${type} ${props.unclose ? '' : 'alert-dismissible'} ${props.className || ''}`} ref={(c) => (this._element = c)}>
