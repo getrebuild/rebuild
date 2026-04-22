@@ -48,10 +48,10 @@ class ApprovalList extends React.Component {
                 this.setState({ _active: _activeNew })
               }}>
               <div className="check">
-                <div className="custom-control custom-checkbox m-0">
+                <label className="custom-control custom-checkbox m-0">
                   <input className="custom-control-input" type="checkbox" checked={checked === true} readOnly />
-                  <label className="custom-control-label" />
-                </div>
+                  <span className="custom-control-label" />
+                </label>
               </div>
               <div className="detail user-info">
                 <div className="user-avatar float-left">

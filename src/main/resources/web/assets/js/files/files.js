@@ -27,10 +27,10 @@ class FilesList extends React.Component {
           return (
             <div key={item.id} className={`file-list-item ${checked ? 'active' : ''}`} onClick={(e) => this._handleClick(e, item.id)}>
               <div className="check">
-                <div className="custom-control custom-checkbox m-0">
+                <label className="custom-control custom-checkbox m-0">
                   <input className="custom-control-input" type="checkbox" checked={checked === true} readOnly />
-                  <label className="custom-control-label" />
-                </div>
+                  <span className="custom-control-label" />
+                </label>
               </div>
               <div className="type">
                 <i className="file-icon" data-type={item.fileType || '?'} />
@@ -235,6 +235,17 @@ $(document).ready(() => {
     $content.height($(window).height() - 135)
     $content.perfectScrollbar('update')
   })()
+
+  // 全选
+  $('.J_select-all').on('change', function () {
+    if ($(this).prop('checked')) {
+      const currentActiveNew = []
+      filesList.state.files && filesList.state.files.forEach((item) => currentActiveNew.push(item.id))
+      filesList.setState({ currentActive: currentActiveNew })
+    } else {
+      filesList.setState({ currentActive: [] })
+    }
+  })
 
   // 搜索
   $initQuickSearch(null, (q) => {

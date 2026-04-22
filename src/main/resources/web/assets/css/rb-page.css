@@ -1709,10 +1709,6 @@ i.dividing.ui-draggable-dragging {
   border-bottom: 1px solid #dee2e6;
 }
 
-.data-list .table .custom-checkbox .custom-control-label::before {
-  border-radius: 2px;
-}
-
 .data-list .table tbody tr.active {
   background-color: #dee2e6;
 }
@@ -4272,6 +4268,10 @@ a.icon-link > .zmdi {
 .custom-checkbox.custom-control-sm.indeterminate .custom-control-label::after {
   width: 8px;
   height: 8px;
+}
+
+.custom-checkbox .custom-control-label::before {
+  border-radius: 2px;
 }
 
 .custom-radio .custom-control-input:checked ~ .custom-control-label::after {
