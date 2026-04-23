@@ -53,18 +53,20 @@ public class ApprovalHub {
         String hubBatch = CommonsUtils.randomHex(true);
         // 随便用一个即可
         ID aStepId = nextApprovalStepIds.iterator().next();
+        ID recordId = (ID) QueryHelper.queryFieldValue(aStepId, "recordId");
 
         // 提交人
         Record r = EntityHelper.forNew(EntityHelper.RobotApprovalHub, opUser);
         r.setID("approvalStepId", aStepId);
+        r.setID("recordId", recordId);
         r.setID("userSubmit", submitor);
         r.setString("hubBatch", hubBatch);
         records.add(r);
 
         // 审批节点
-        records.addAll(buildApproves(nextApprovalStepIds, opUser, hubBatch));
+        records.addAll(buildApproves(nextApprovalStepIds, recordId, opUser, hubBatch));
         // 抄送
-        records.addAll(buildCcs(aStepId, ccUsers, opUser, hubBatch, DRAFT.getState()));
+        records.addAll(buildCcs(aStepId, recordId, ccUsers, opUser, hubBatch, DRAFT.getState()));
 
         Application.getCommonsService().createOrUpdate(records.toArray(new Record[0]));
     }
@@ -137,12 +139,13 @@ public class ApprovalHub {
         // 新批次
         String hubBatchNext = CommonsUtils.randomHex(true);
         ID aNextStepId = CollectionUtils.isNotEmpty(nextApprovalStepIds) ? nextApprovalStepIds.iterator().next() : null;
+        ID recordId = aNextStepId == null ? null : (ID) QueryHelper.queryFieldValue(aNextStepId, "recordId");
 
         // 审批节点-如果没有后续审批，就使用最后一次的批次
         if (aNextStepId == null) {
             hubBatchNext = hubBatch;
         } else {
-            records.addAll(buildApproves(nextApprovalStepIds, opUser, hubBatchNext));
+            records.addAll(buildApproves(nextApprovalStepIds, recordId, opUser, hubBatchNext));
         }
 
         // 抄送-如果没有后续审批，则抄送状态直接是完成
@@ -151,7 +154,7 @@ public class ApprovalHub {
         // 会签的没完成
         if (!isAllStepsEnd) ccState = DRAFT.getState();
 
-        records.addAll(buildCcs(ccStep, ccUsers, opUser, hubBatchNext, ccState));
+        records.addAll(buildCcs(ccStep, recordId, ccUsers, opUser, hubBatchNext, ccState));
 
         if (!records.isEmpty()) {
             Application.getCommonsService().createOrUpdate(records.toArray(new Record[0]));
@@ -159,13 +162,14 @@ public class ApprovalHub {
     }
 
     // 审批
-    List<Record> buildApproves(Collection<ID> nextApprovalStepIds, ID opUser, String hubBatch) {
+    List<Record> buildApproves(Collection<ID> nextApprovalStepIds, ID recordId, ID opUser, String hubBatch) {
         if (CollectionUtils.isEmpty(nextApprovalStepIds)) return Collections.emptyList();
 
         List<Record> records = new ArrayList<>();
         for (ID step : nextApprovalStepIds) {
             Record r = EntityHelper.forNew(EntityHelper.RobotApprovalHub, opUser);
             r.setID("approvalStepId", step);
+            r.setID("recordId", recordId);
             r.setID("userApprove", (ID) QueryHelper.queryFieldValue(step, "approver"));
             r.setString("hubBatch", hubBatch);
             records.add(r);
@@ -174,13 +178,14 @@ public class ApprovalHub {
     }
 
     // 抄送
-    List<Record> buildCcs(ID approvalStepId, Collection<ID> ccUsers, ID opUser, String hubBatch, int state) {
+    List<Record> buildCcs(ID approvalStepId, ID recordId, Collection<ID> ccUsers, ID opUser, String hubBatch, int state) {
         if (CollectionUtils.isEmpty(ccUsers)) return Collections.emptyList();
 
         List<Record> records = new ArrayList<>();
         for (ID ccUser : ccUsers) {
             Record r = EntityHelper.forNew(EntityHelper.RobotApprovalHub, opUser);
             r.setID("approvalStepId", approvalStepId);
+            r.setID("recordId", recordId);
             r.setID("userCc", ccUser);
             r.setString("hubBatch", hubBatch);
             r.setInt("state", state);

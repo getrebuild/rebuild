@@ -276,7 +276,7 @@ $(function () {
     })
   }
 })
-$(window).on('load', () => {
+$(window).on('load', function () {
   if (window.__LAB_COMMERCIAL11_NORB) {
     $('a[target="_blank"]').each(function () {
       if (($(this).attr('href') || '').indexOf('getrebuild.com') > -1) $(this).removeAttr('href')
@@ -506,8 +506,12 @@ var _checkMessage = function () {
           if (~~($.cookie('rb.NotificationShow') || 0) !== _checkMessage__state) {
             $showNotification(
               $L('你有 %d 条未读通知', _checkMessage__state),
-              () => (location.href = rb.baseUrl + '/notifications'),
-              () => $.cookie('rb.NotificationShow', _checkMessage__state, { expires: null }), // session
+              function () {
+                location.href = rb.baseUrl + '/notifications'
+              },
+              function () {
+                $.cookie('rb.NotificationShow', _checkMessage__state, { expires: null })
+              },
             )
           }
         }
@@ -889,7 +893,7 @@ var $multipleUploader = function (input, complete) {
     if (mp_inpro === 0) mp_inpro = []
     else mp_inpro.remove(name)
     if (mp_inpro.length > 0) return
-    setTimeout(() => {
+    setTimeout(function () {
       if (mp) mp.end()
       mp = null
     }, 510)
@@ -897,16 +901,18 @@ var $multipleUploader = function (input, complete) {
 
   $createUploader(
     input,
-    (res) => {
+    function (res) {
       if (!mp_inpro.includes(res.file.name)) mp_inpro.push(res.file.name)
       if (!mp) mp = new Mprogress({ template: 2, start: true })
       mp.set(res.percent / 100) // 0.x
     },
-    (res) => {
+    function (res) {
       mp_end(res.file.name)
       complete(res)
     },
-    () => mp_end(0),
+    function () {
+      mp_end(0)
+    },
   )
 }
 
@@ -918,15 +924,15 @@ var $dropUpload = function (dropArea, pasteAreaOrCb, cb) {
   }
 
   var $da = $(dropArea)
-    .on('dragenter', (e) => {
+    .on('dragenter', function (e) {
       $stopEvent(e, true)
     })
-    .on('dragover', (e) => {
+    .on('dragover', function (e) {
       $stopEvent(e, true)
       if (e.originalEvent.dataTransfer) e.originalEvent.dataTransfer.dropEffect = 'copy'
       $da.addClass('drop')
     })
-    .on('dragleave', (e) => {
+    .on('dragleave', function (e) {
       $stopEvent(e, true)
       $da.removeClass('drop')
     })
@@ -939,7 +945,7 @@ var $dropUpload = function (dropArea, pasteAreaOrCb, cb) {
 
   // Ctrl+V
   if (pasteAreaOrCb) {
-    $(pasteAreaOrCb).on('paste.file', (e) => {
+    $(pasteAreaOrCb).on('paste.file', function (e) {
       var data = e.clipboardData || e.originalEvent.clipboardData || window.clipboardData
       if (data && data.items && data.files && data.files.length > 0) {
         $stopEvent(e, true)
@@ -1013,7 +1019,7 @@ var $initReferenceSelect2 = function (el, option) {
 var $select2MatcherAll = function (params, data) {
   if (!window.__pinyinLoaded && !window.pinyinPro) {
     window.__pinyinLoaded = 1
-    $getScript('/assets/lib/pinyin-pro.min.js?v=3.27.0', () => {
+    $getScript('/assets/lib/pinyin-pro.min.js?v=3.27.0', function () {
       console.log('pinyin-pro.min.js loaded')
     })
   }
@@ -1350,6 +1356,19 @@ var $pages = function (tp, cp) {
 
 // 格式化代码
 var $formattedCode = function (c, type) {
+  if (window.prettier) {
+    if (typeof c === 'object') c = JSON.stringify(c)
+    try {
+      return window.prettier.format(c, {
+        parser: type || 'babel',
+        plugins: window.prettierPlugins,
+      })
+    } catch (err) {
+      console.log('Cannot format code (prettier) : ' + err)
+      return c
+    }
+  }
+
   // v4.2
   if (type === 'json') {
     try {
@@ -1357,20 +1376,6 @@ var $formattedCode = function (c, type) {
     } catch (err) {
       if (rb.env === 'dev') console.log('Cannot format code : ' + err)
       // ignored
-    }
-  }
-
-  if (typeof c === 'object') c = JSON.stringify(c)
-  if (window.prettier) {
-    try {
-      return window.prettier.format(c, {
-        parser: type || 'json',
-        plugins: window.prettierPlugins,
-        printWidth: 10,
-      })
-    } catch (err) {
-      console.log('Cannot format code : ' + err)
-      return c
     }
   }
   return c
@@ -1406,14 +1411,14 @@ var $clipboard2 = function (text, tips) {
   if (navigator.clipboard) {
     navigator.clipboard
       .writeText(text)
-      .then(() => {
+      .then(function () {
         tips && RbHighbar.success($L('已复制'))
       })
-      .catch((err) => {
+      .catch(function (err) {
         console.log('Cannot copy text :', err)
       })
   } else {
-    const textarea = document.createElement('textarea')
+    var textarea = document.createElement('textarea')
     textarea.value = text
     document.body.appendChild(textarea)
     textarea.select()
@@ -1429,7 +1434,7 @@ function $select2OpenTemplateResult(res) {
   if (res.id) {
     $(`<a title="${$L('在新页面打开')}"><i class="zmdi zmdi-open-in-new"></i></a>`)
       .appendTo($span)
-      .on('mousedown', (e) => {
+      .on('mousedown', function (e) {
         $stopEvent(e, true)
         window.open(`${rb.baseUrl}/app/redirect?id=${res.id}&type=newtab`)
       })
@@ -1493,7 +1498,9 @@ function $syncGet(url) {
     type: 'GET',
     async: false,
     url: url,
-    success: (res) => (_data = res),
+    success: function (res) {
+      _data = res
+    },
   })
   return _data || {}
 }
@@ -1551,10 +1558,12 @@ var $initQuickSearch = function ($el, onSearch) {
 
 // 顶部滚动
 var $enableScrollTop = function () {
-  const $top = $('.rb-scroll-top').on('click', () => $('html,body').animate({ scrollTop: 0 }, 400))
-  $(window).on('scroll', () => {
+  var $top = $('.rb-scroll-top').on('click', function () {
+    $('html,body').animate({ scrollTop: 0 }, 400)
+  })
+  $(window).on('scroll', function () {
     $setTimeout(
-      () => {
+      function () {
         if ($(window).scrollTop() >= 61) $top.addClass('show')
         else $top.removeClass('show')
       },

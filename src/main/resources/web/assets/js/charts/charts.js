@@ -15,7 +15,7 @@ class BaseChart extends React.Component {
   render() {
     let showSource = !this.props.builtin
     let showFilter = !this.props.builtin
-    if (this.props.id === '017-9000000000000007' || this.props.id === '017-9000000000000002') showSource = true
+    if (this.props.id === '017-9000000000000007' || this.props.id === '017-9000000000000002' || this.props.id === '017-9000000000000001') showSource = true
     if (this.props.type === 'HeadingText' || this.props.type === 'EmbedFrame') showFilter = false
 
     const opActions = (

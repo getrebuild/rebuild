@@ -1035,6 +1035,10 @@ a.link.link-icon::after {
   padding-bottom: 0 !important;
 }
 
+.modal.rbalert .modal-dialog.modal-dialog-scrollable .modal-body {
+  padding-bottom: 20px !important;
+}
+
 .modal-dialog-scrollable .rbform > .dialog-footer {
   position: sticky;
   left: 0;
@@ -1707,10 +1711,6 @@ i.dividing.ui-draggable-dragging {
 
 .data-list .table tr:last-child td {
   border-bottom: 1px solid #dee2e6;
-}
-
-.data-list .table .custom-checkbox .custom-control-label::before {
-  border-radius: 2px;
 }
 
 .data-list .table tbody tr.active {
@@ -4274,6 +4274,10 @@ a.icon-link > .zmdi {
   height: 8px;
 }
 
+.custom-checkbox .custom-control-label::before {
+  border-radius: 2px;
+}
+
 .custom-radio .custom-control-input:checked ~ .custom-control-label::after {
   font-size: 0 !important;
   width: 11px;
@@ -6325,7 +6329,8 @@ div.formula-code {
 }
 
 .rb-left-sidebar .sidebar-elements a > span.badge,
-.rb-left-sidebar .sidebar-elements > li ul li > a > span.badge {
+.rb-left-sidebar .sidebar-elements > li ul li > a > span.badge,
+.aside-nav .nav li .badge {
   font-size: 0.8462rem;
   margin: 0;
   margin-top: 10px;
@@ -6341,6 +6346,11 @@ div.formula-code {
 
 .rb-left-sidebar .sidebar-elements > li ul li > a > span.badge {
   margin-top: 2px;
+}
+
+.aside-nav .nav li .badge {
+  margin-top: 2px;
+  right: 22px;
 }
 
 .FilesHandlerComponent__results {

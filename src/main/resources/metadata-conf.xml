@@ -130,14 +130,14 @@
 
     <entity name="PickList" type-code="012" name-field="text" description="下拉列表" queryable="false">
         <field name="itemId" type="primary"/>
-        <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false"/>
-        <field name="belongField" type="string" max-length="100" nullable="false" updatable="false"/>
-        <field name="text" type="string" max-length="100" nullable="false" />
+        <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="所属实体"/>
+        <field name="belongField" type="string" max-length="100" nullable="false" updatable="false" description="所属字段"/>
+        <field name="text" type="string" max-length="100" nullable="false" description="名称"/>
         <field name="seq" type="int" default-value="0" description="显示顺序"/>
-        <field name="isDefault" type="bool" default-value="F"/>
-        <field name="isHide" type="bool" default-value="F"/>
-        <field name="maskValue" type="long" default-value="0" description="(MultiSelect 专用)"/>
-        <field name="color" type="string" max-length="10"/>
+        <field name="isDefault" type="bool" default-value="F" description="是否默认"/>
+        <field name="isHide" type="bool" default-value="F" description="是否隐藏"/>
+        <field name="maskValue" type="long" default-value="0" description="MASK (MultiSelect 专用)"/>
+        <field name="color" type="string" max-length="10" description="颜色"/>
         <index field-list="belongEntity,belongField,seq"/>
     </entity>
 
@@ -184,22 +184,22 @@
     <entity name="Classification" type-code="018" name-field="name" description="分类数据" queryable="false">
         <field name="dataId" type="primary"/>
         <field name="name" type="string" max-length="100" nullable="false" description="名称"/>
-        <field name="description" type="string" max-length="701"/>
-        <field name="isDisabled" type="bool" default-value="F"/>
-        <field name="openLevel" type="small-int" default-value="0"/>
+        <field name="description" type="string" max-length="701" description="描述"/>
+        <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
+        <field name="openLevel" type="small-int" default-value="0" description="使用等级"/>
     </entity>
 
     <entity name="ClassificationData" type-code="019" name-field="fullName" description="分类数据明细" queryable="false">
         <field name="itemId" type="primary"/>
-        <field name="dataId" type="reference" ref-entity="Classification" nullable="false" cascade="delete"/>
-        <field name="name" type="string" max-length="100" nullable="false"/>
-        <field name="fullName" type="string" max-length="701" nullable="false" description="(包括父级名称, 用点号分割)"/>
-        <field name="parent" type="reference" ref-entity="ClassificationData" cascade="delete"/>
-        <field name="code" type="string" max-length="50" default-value="0"/>
-        <field name="level" type="small-int" default-value="0" updatable="false"/>
-        <field name="isHide" type="bool" default-value="F"/>
+        <field name="dataId" type="reference" ref-entity="Classification" nullable="false" cascade="delete" description="分类ID"/>
+        <field name="name" type="string" max-length="100" nullable="false" description="名称"/>
+        <field name="fullName" type="string" max-length="701" nullable="false" description="全称 (包括父级名称, 用点号分割)"/>
+        <field name="parent" type="reference" ref-entity="ClassificationData" cascade="delete" description="父级"/>
+        <field name="code" type="string" max-length="50" default-value="0" description="编码"/>
+        <field name="level" type="small-int" default-value="0" updatable="false" description="等级"/>
+        <field name="isHide" type="bool" default-value="F" description="是否隐藏"/>
         <field name="quickCode" type="string" max-length="50" queryable="false"/>
-        <field name="color" type="string" max-length="10"/>
+        <field name="color" type="string" max-length="10" description="颜色"/>
         <index field-list="dataId,parent,code"/>
         <index field-list="dataId,fullName,quickCode,code"/>
     </entity>
@@ -320,6 +320,7 @@
     <entity name="RobotApprovalHub" type-code="049" description="审批中心" parent="false" queryable="false">
         <field name="hubId" type="primary"/>
         <field name="hubBatch" type="string" max-length="100" updatable="false" description="提交批次"/>
+        <field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="审批记录"/>
         <field name="approvalStepId" type="reference" ref-entity="RobotApprovalStep" nullable="false" updatable="false" description="审批步骤"/>
         <field name="userSubmit" type="reference" ref-entity="User" description="提交用户"/>
         <field name="userApprove" type="reference" ref-entity="User" description="审批用户"/>
@@ -331,6 +332,7 @@
         <index field-list="state,userSubmit,userApprove,userCc"/>
         <index field-list="approvalStepId"/>
         <index field-list="hubBatch"/>
+        <index field-list="recordId"/>
     </entity>
 
     <entity name="RobotSopConfig" type-code="070" name-field="name" description="业务进度" queryable="false">

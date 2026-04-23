@@ -40,7 +40,7 @@ public class KVStorage {
     private static final String CUSTOM_PREFIX = "custom.";
 
     /**
-     * @param key 会自动加 `custom.` 前缀
+     * @param key
      * @return
      */
     public static String getCustomValue(String key) {
@@ -56,7 +56,7 @@ public class KVStorage {
     }
 
     /**
-     * 异步存。注意`非关键值`再使用此方法（因为此方案存在值丢失隐患）
+     * 异步存（注意此方法因为周期性存储到数据库，因此存在值丢失隐患）
      *
      * @param key
      * @param value
@@ -83,7 +83,7 @@ public class KVStorage {
     synchronized
     protected static void setValue(final String key, Object value) {
         final Object[] e = Application.createQueryNoFilter(
-                "select configId from SystemConfig where item = ?")
+                "select configId,value from SystemConfig where item = ?")
                 .setParameter(1, key)
                 .unique();
 
@@ -103,10 +103,10 @@ public class KVStorage {
         } else {
             kv = EntityHelper.forUpdate((ID) e[0], UserService.SYSTEM_USER, false);
         }
-        kv.setString("value", String.valueOf(value));
 
+        kv.setString("value", String.valueOf(value));
         Application.getCommonsService().createOrUpdate(kv);
-        Application.getCommonsCache().evict(key);
+        Application.getCommonsCache().put(key, String.valueOf(value));
     }
 
     /**
@@ -130,12 +130,9 @@ public class KVStorage {
 
         if (Application.isStateReady()) {
             // 1.0. 从缓存
-            if (!noCache) {
-                value = Application.getCommonsCache().get(key);
-                if (value != null) {
-                    return value;
-                }
-            }
+            value = Application.getCommonsCache().get(key);
+            if (noCache) value = null;
+            if (value != null) return value;
 
             // 1.1. 从数据库
             Object[] fromDb = Application.createQueryNoFilter(
@@ -169,7 +166,7 @@ public class KVStorage {
     }
 
     // -- ASYNC 同步K/V值到数据库。注意如果系统异常停止可能导致同步数据丢失!!!
-    
+
     private static final Object THROTTLED_QUEUE_LOCK = new Object();
     private static final Map<String, Object> THROTTLED_QUEUE = new ConcurrentHashMap<>();
     private static final Timer THROTTLED_TIMER = new Timer("KVStorage-Syncer");
@@ -187,7 +184,7 @@ public class KVStorage {
                     log.info("Synchronize KV pairs ... {}", queue);
                     for (Map.Entry<String, Object> e : queue.entrySet()) {
                         try {
-                            RebuildConfiguration.setCustomValue(e.getKey(), e.getValue());
+                            setCustomValue(e.getKey(), e.getValue());
                         } catch (Throwable ex) {
                             log.error("Synchronize KV error : {}", e, ex);
 
@@ -199,7 +196,7 @@ public class KVStorage {
             }
         };
 
-        THROTTLED_TIMER.scheduleAtFixedRate(localTimerTask, 2000, 2000);
+        THROTTLED_TIMER.scheduleAtFixedRate(localTimerTask, 3000, 1000);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("The KVStorage shutdown hook is enabled");

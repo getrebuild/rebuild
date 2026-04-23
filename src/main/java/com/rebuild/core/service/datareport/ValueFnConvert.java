@@ -46,8 +46,9 @@ import static cn.devezhao.commons.DateFormatUtils.CN_DATETIME_FORMAT;
 public class ValueFnConvert {
 
     // # 函数分隔符
-    private static final String FN_SPLITER = "#";
+    public static final String FN_SPLITER = "#";
     private static final String FNVAL_SPLITER = ":";
+
     // 支持的函数
     private static final String CHINESE_4DATE_NUM = "CHINESE";
     private static final String CHINESEYUAN_4NUM = "CHINESEYUAN";

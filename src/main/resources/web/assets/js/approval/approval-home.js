@@ -48,10 +48,10 @@ class ApprovalList extends React.Component {
                 this.setState({ _active: _activeNew })
               }}>
               <div className="check">
-                <div className="custom-control custom-checkbox m-0">
+                <label className="custom-control custom-checkbox m-0">
                   <input className="custom-control-input" type="checkbox" checked={checked === true} readOnly />
-                  <label className="custom-control-label" />
-                </div>
+                  <span className="custom-control-label" />
+                </label>
               </div>
               <div className="detail user-info">
                 <div className="user-avatar float-left">
@@ -129,7 +129,7 @@ class ApprovalList extends React.Component {
     type = type || this.state.type
     this._sort = sort || this._sort || ''
     this._pageNo = pageNo || 1
-    const url = `/approval/data-list?type=${type}&sort=${this._sort}&q=${currentSearch || ''}&pageNo=${this._pageNo}&pageSize=${PAGE_SIZE}`
+    const url = `/approval/data-list?type=${type}&sort=${this._sort}&entity=${currentSearch || ''}&pageNo=${this._pageNo}&pageSize=${PAGE_SIZE}`
     $.get(url, (res) => {
       const current = res.data || []
       let datas = this._pageNo === 1 ? [] : this.state.datas
@@ -265,7 +265,6 @@ class BatchApprove2 extends BatchApprove {
 
   componentDidMount() {
     // super.componentDidMount()
-    // Nothings
   }
 
   getQueryData() {
@@ -294,10 +293,35 @@ $(document).ready(() => {
     _FN($(this).attr('data-type'))
   })
 
+  // 全选
+  $('.J_select-all').on('change', (e) => {
+    let ids = []
+    if (e.target.checked) {
+      _ApprovalList.state.datas.forEach((d) => ids.push(d.id))
+    }
+    _ApprovalList.setState({ _active: ids })
+  })
+
   // 搜索
-  $initQuickSearch(null, (q) => {
-    currentSearch = q
-    _ApprovalList.reload()
+  // $initQuickSearch(null, (q) => {
+  //   currentSearch = q
+  //   _ApprovalList.reload()
+  // })
+  $.get('/commons/metadata/entities?approval=true', (res) => {
+    res.data &&
+      res.data.forEach((d) => {
+        $(`<option value="${d.entity}">${d.label}</option>`).appendTo('.J_search-entity')
+      })
+
+    $('.J_search-entity')
+      .select2({
+        placeholder: $L('业务实体'),
+        allowClear: true,
+      })
+      .on('change', function () {
+        currentSearch = $(this).val()
+        _ApprovalList.reload()
+      })
   })
 
   // 批量

@@ -339,7 +339,7 @@ class DlgBatchUser extends RbModalHandler {
               <UserSelector hideUser={true} hideDepartment={true} hideTeam={true} defaultValue={this.props.roleAppends} ref={(c) => (this._roleAppends = c)} />
             </div>
           </div>
-          <div className="form-group row bosskey-show">
+          <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('登录密码')}</label>
             <div className="col-sm-7">
               <input type="text" className="form-control form-control-sm" placeholder={$L('新密码')} ref={(c) => (this._password = c)} />
@@ -348,7 +348,7 @@ class DlgBatchUser extends RbModalHandler {
 
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
-              <RbAlertBox message={$L('选择要修改的值，无需修改的无需选择')} />
+              <RbAlertBox message={$L('填写要修改的值，无需修改的无需填写')} />
 
               <button className="btn btn-primary" type="button" onClick={() => this.post()}>
                 {$L('确定')}

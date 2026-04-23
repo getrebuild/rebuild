@@ -638,7 +638,8 @@ class EntityRelatedList4ListMode extends React.Component {
   }
 
   componentDidMount() {
-    $.get(`/app/entity/related-list-config?entity=${this.props.$$$parent.__entity}`, (res) => {
+    const p = this.props.$$$parent
+    $.get(`/app/entity/related-list-config?entity=${p.__entity}&specLayout=${p.props.specLayout || ''}`, (res) => {
       if (res.error_code === 0) {
         this.setState({ listConfig: { ...res.data } })
       }
@@ -926,6 +927,7 @@ const RbViewPage = {
         autoExpand: $isTrue(wpc.viewTabsAutoExpand),
         defaultList: $isTrue(wpc.viewTabsDefaultList),
         isDetail: !!this.showAt2,
+        specLayout: configThat.layout,
       }
 
       // v3.4 明细显示在下方
@@ -1027,6 +1029,7 @@ const RbViewPage = {
             entity: entity[0],
             icon: item.icon,
             initialValue: iv,
+            specLayout: item.layout || null,
           }
           RbFormModal.create(newProps)
         }

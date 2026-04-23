@@ -216,7 +216,7 @@ public class RebuildConfiguration extends KVStorage {
 
     /**
      * @param name
-     * @param noCache
+     * @param noCache 慎用!!!
      * @return
      */
     public static String get(ConfigurationItem name, boolean noCache) {
@@ -230,7 +230,7 @@ public class RebuildConfiguration extends KVStorage {
     public static int getInt(ConfigurationItem name) {
         String s = get(name);
         return s == null
-                ? ObjectUtils.defaultIfNull((Integer) name.getDefaultValue(), 0)
+                ? ObjectUtils.getIfNull((Integer) name.getDefaultValue(), 0)
                 : NumberUtils.toInt(s);
     }
 
@@ -241,7 +241,7 @@ public class RebuildConfiguration extends KVStorage {
     public static long getLong(ConfigurationItem name) {
         String s = get(name);
         return s == null
-                ? ObjectUtils.defaultIfNull((Long) name.getDefaultValue(), 0L)
+                ? ObjectUtils.getIfNull((Long) name.getDefaultValue(), 0L)
                 : NumberUtils.toLong(s);
     }
 
@@ -252,7 +252,7 @@ public class RebuildConfiguration extends KVStorage {
     public static boolean getBool(ConfigurationItem name) {
         String s = get(name);
         return s == null
-                ? ObjectUtils.defaultIfNull((Boolean) name.getDefaultValue(), false)
+                ? ObjectUtils.getIfNull((Boolean) name.getDefaultValue(), false)
                 : BooleanUtils.toBoolean(s);
     }
 

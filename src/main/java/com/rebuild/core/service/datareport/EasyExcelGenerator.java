@@ -580,6 +580,8 @@ public class EasyExcelGenerator extends SetUser {
                 if (sql.contains("&amp;")) sql = sql.replace("&amp;", "&");
                 if (sql.contains("&nbsp;")) sql = sql.replace("&nbsp;", " ");
             }
+            // #函数
+            if (sql.contains(ValueFnConvert.FN_SPLITER)) sql = ValueFnConvert.splitName(sql);
 
             recordId = recordId == null ? this.recordId : recordId;
             Query query = Application.createQueryNoFilter(sql);

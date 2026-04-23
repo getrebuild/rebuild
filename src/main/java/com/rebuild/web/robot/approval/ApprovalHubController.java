@@ -16,13 +16,16 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.customized.RecordAccessor;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -62,10 +65,18 @@ public class ApprovalHubController extends BaseController {
     public RespBody dataList(HttpServletRequest request) {
         ID user = getRequestUser(request);
         int type = getIntParameter(request, "type", 1);
+        String entity = getParameter(request, "entity");
 
-        String sql = "select hubId,createdOn,createdBy,state,approvalStepId,approvalStepId.recordId,approvalStepId.approvalId,hubBatch,approvedOn" +
+        String sql = "select hubId,createdOn,createdBy,state,approvalStepId,recordId,approvalStepId.approvalId,hubBatch,approvedOn" +
                 " from RobotApprovalHub where ";
         sql += buildFilterSql(type, user);
+        // 指定实体
+        if (entity != null && MetadataHelper.containsEntity(entity)) {
+            int code = MetadataHelper.getEntity(entity).getEntityCode();
+            String codePrefix = StringUtils.leftPad(code + "", 3, '0');
+            sql += String.format(" and recordId like '%s-%%'", codePrefix);
+        }
+
         // 排序
         if ("older".equals(getParameter(request, "sort"))) {
             sql += " order by createdOn asc";
