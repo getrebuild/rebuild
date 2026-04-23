@@ -26,6 +26,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.approval.ApprovalProcessor;
 import com.rebuild.core.service.general.transform.RecordTransfomer39;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.ConfigurationItem;
@@ -37,6 +38,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -238,10 +240,10 @@ public class GeneralModelController extends EntityController {
         mv.getModel().put("contentBody", model);
 
         // v4.1 明细记录
-        Entity entity2 = MetadataHelper.getEntity(entity);
-        if (entity2.getDetailEntity() != null) {
+        Entity entityMeta = MetadataHelper.getEntity(entity);
+        if (entityMeta.getDetailEntity() != null) {
             JSONArray details = new JSONArray();
-            for (Entity de : entity2.getDetialEntities()) {
+            for (Entity de : entityMeta.getDetialEntities()) {
                 List<ID> ids = QueryHelper.detailIdsNoFilter(recordId, de);
                 if (ids.isEmpty()) {
                     details.add(JSONUtils.toJSONObject("name", EasyMetaFactory.getLabel(de)));
@@ -267,6 +269,14 @@ public class GeneralModelController extends EntityController {
                 }
             }
             mv.getModel().put("detailsContentBody", details);
+        }
+
+        // v4.4
+        if (MetadataHelper.hasApprovalField(entityMeta)) {
+            JSONArray steps = new ApprovalProcessor(recordId).getWorkedSteps(false);
+            if (CollectionUtils.isNotEmpty(steps)) {
+                mv.getModel().put("approvalContentBody", steps);
+            }
         }
 
         mv.getModel().put("printTime", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));

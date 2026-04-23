@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -10,7 +10,7 @@
         color: #000;
       }
       .preview-tools {
-        padding: 10px 15px 5px;
+        padding: 10px 0 5px;
         text-align: right;
       }
       .preview-tools select.form-control-sm {
@@ -36,6 +36,11 @@
         word-break: break-all;
         word-wrap: break-word;
         border: 1px solid #000 !important;
+      }
+      .table th,
+      .table td,
+      .table-bordered th:first-child {
+        padding: 7px !important;
       }
       .table th.divider:empty {
         padding: 0;
@@ -64,8 +69,10 @@
       .preview-content[data-bold='3'] td {
         font-weight: bold;
       }
-      .preview-content.hide-details #details-table,
-      .preview-content.hide-details h3 {
+      .preview-content.hide-details #details-table {
+        display: none;
+      }
+      .preview-content.hide-approval #approval-table {
         display: none;
       }
       .preview-content h3 {
@@ -99,48 +106,59 @@
   </head>
   <body>
     <div class="preview-tools d-print-none">
-      <select class="form-control form-control-sm" id="showDetails">
-        <option value="1">[[${bundle.L('显示明细')}]]</option>
-        <option value="0">[[${bundle.L('隐藏明细')}]]</option>
-      </select>
-      <select class="form-control form-control-sm hide" id="fontBold">
-        <option value="1">[[${bundle.L('默认粗体')}]]</option>
-        <option value="3">[[${bundle.L('全部粗体')}]]</option>
-        <option value="2">[[${bundle.L('内容粗体')}]]</option>
-      </select>
-      <select class="form-control form-control-sm" id="fontFamily">
-        <option value="-">[[${bundle.L('默认字体')}]]</option>
-        <option value="黑体">黑体</option>
-        <option value="仿宋">仿宋</option>
-        <option value="楷体">楷体</option>
-        <option value="宋体">宋体</option>
-        <option value="微软雅黑">微软雅黑</option>
-        <option value="Arial">Arial</option>
-        <option value="Tahoma">Tahoma</option>
-        <option value="Verdana">Verdana</option>
-        <option value="Times New Roman">Times New Roman</option>
-        <option value="Courier New">Courier New</option>
-      </select>
-      <select class="form-control form-control-sm" id="fontSize">
-        <option value="10">[[${bundle.L('默认大小')}]]</option>
-        <option value="10">100%</option>
-        <option value="11">110%</option>
-        <option value="12">120%</option>
-        <option value="13">130%</option>
-        <option value="14">140%</option>
-        <option value="15">150%</option>
-        <option value="16">160%</option>
-        <option value="17">170%</option>
-        <option value="18">180%</option>
-        <option value="19">190%</option>
-        <option value="20">200%</option>
-      </select>
-      <button class="btn btn-space btn-primary" onclick="window.print()"><i class="icon zmdi zmdi-print"></i> [[${bundle.L('打印')}]]</button>
-      <button class="btn btn-space btn-secondary mr-0" onclick="window.close()">[[${bundle.L('关闭')}]]</button>
+      <div class="float-left">
+        <select class="form-control form-control-sm hide" id="fontBold">
+          <option value="1">[[${bundle.L('默认粗体')}]]</option>
+          <option value="3">[[${bundle.L('全部粗体')}]]</option>
+          <option value="2">[[${bundle.L('内容粗体')}]]</option>
+        </select>
+        <select class="form-control form-control-sm" id="fontFamily">
+          <option value="-">[[${bundle.L('默认字体')}]]</option>
+          <option value="黑体">黑体</option>
+          <option value="仿宋">仿宋</option>
+          <option value="楷体">楷体</option>
+          <option value="宋体">宋体</option>
+          <option value="微软雅黑">微软雅黑</option>
+          <option value="Arial">Arial</option>
+          <option value="Tahoma">Tahoma</option>
+          <option value="Verdana">Verdana</option>
+          <option value="Times New Roman">Times New Roman</option>
+          <option value="Courier New">Courier New</option>
+        </select>
+        <select class="form-control form-control-sm" id="fontSize">
+          <option value="10">[[${bundle.L('默认大小')}]]</option>
+          <option value="10">100%</option>
+          <option value="11">110%</option>
+          <option value="12">120%</option>
+          <option value="13">130%</option>
+          <option value="14">140%</option>
+          <option value="15">150%</option>
+          <option value="16">160%</option>
+          <option value="17">170%</option>
+          <option value="18">180%</option>
+          <option value="19">190%</option>
+          <option value="20">200%</option>
+        </select>
+
+        <label class="custom-control custom-checkbox custom-control-inline mb-0 ml-2 mr-0">
+          <input class="custom-control-input" type="checkbox" id="showDetails" checked />
+          <span class="custom-control-label">[[${bundle.L('显示明细')}]]</span>
+        </label>
+        <label class="custom-control custom-checkbox custom-control-inline mb-0 ml-3 mr-0">
+          <input class="custom-control-input" type="checkbox" id="showApproval" checked />
+          <span class="custom-control-label">[[${bundle.L('显示审批')}]]</span>
+        </label>
+      </div>
+      <div class="float-right">
+        <button class="btn btn-space btn-primary" onclick="window.print()"><i class="icon zmdi zmdi-print"></i> [[${bundle.L('打印')}]]</button>
+        <button class="btn btn-space btn-secondary mr-0" onclick="window.close()">[[${bundle.L('关闭')}]]</button>
+      </div>
+      <div class="clearfix"></div>
     </div>
     <div class="preview-content hide">
       <div id="preview-table"></div>
       <div id="details-table"></div>
+      <div id="approval-table"></div>
       <div class="mt-4">
         <span>[[${bundle.L('打印时间')}]] : [[${printTime}]]</span>
         &nbsp;<b>·</b>&nbsp;
@@ -153,6 +171,7 @@
         record: '[[${recordId}]]',
         content: [(${contentBody})],
         detailsContent: [(${detailsContentBody?:'null'})],
+        approvalContent: [(${approvalContentBody?:'null'})],
       }
     </script>
     <script th:src="@{/assets/js/general/rb-forms.js}" type="text/babel"></script>
