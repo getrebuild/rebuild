@@ -18,17 +18,23 @@ $(document).ready(() => {
       renderRbcomp(<DetailsTable data={d} />, $d)
     })
   }
+  // v4.4 审批
+  if (wpc.approvalContent) {
+    renderRbcomp(<ApprovalTable data={wpc.approvalContent} />, document.getElementById('approval-table'))
+  }
 
   setDefaultStyle('fontSize')
   setDefaultStyle('fontFamily')
   setDefaultStyle('fontBold')
   setDefaultStyle('showDetails')
+  setDefaultStyle('showApproval')
 })
 
 function setDefaultStyle(id) {
   const $el = $(`#${id}`).on('change', function () {
-    const v = $(this).val()
+    const v = $val(this)
     $storage.set(id, v)
+    console.log(`${id} = ${v}`)
 
     if (id === 'fontSize') {
       $('.preview-content').css('font-size', (14 * ~~v) / 10)
@@ -40,13 +46,20 @@ function setDefaultStyle(id) {
       $('.preview-content').attr('data-bold', v)
     }
     if (id === 'showDetails') {
-      if (v === '1') $('.preview-content').removeClass('hide-details')
-      else $('.preview-content').addClass('hide-details')
+      if (v === 'false' || v === false) $('.preview-content').addClass('hide-details')
+      else $('.preview-content').removeClass('hide-details')
+    }
+    if (id === 'showApproval') {
+      if (v === 'false' || v === false) $('.preview-content').addClass('hide-approval')
+      else $('.preview-content').removeClass('hide-approval')
     }
   })
 
   const d = $storage.get(id)
-  if (d) $el.val(d).trigger('change')
+  if (d) {
+    if (['showDetails', 'showApproval'].includes(id)) $el.attr('checked', !(d === 'false' || d === false)).trigger('change')
+    else $el.val(d).trigger('change')
+  }
 }
 
 class PreviewTable extends React.Component {
@@ -165,7 +178,7 @@ class PreviewTable extends React.Component {
 
     if (item.type === 'FILE') {
       return (
-        <ul className="m-0 p-0 pl-4">
+        <ul className="m-0 p-0 pl-3">
           {item.value.map((x) => {
             return <li key={x}>{$fileCutName(x)}</li>
           })}
@@ -208,7 +221,7 @@ class PreviewTable extends React.Component {
       return item.value === 'T' || item.value === true ? $L('是') : $L('否')
     } else if (item.type === 'MULTISELECT') {
       return (
-        <ul className="m-0 p-0 pl-4">
+        <ul className="m-0 p-0 pl-3">
           {(item.value.text || []).map((x) => {
             return <li key={x}>{x}</li>
           })}
@@ -227,7 +240,7 @@ class PreviewTable extends React.Component {
       )
     } else if (item.type === 'N2NREFERENCE') {
       return (
-        <ul className="m-0 p-0 pl-4">
+        <ul className="m-0 p-0 pl-3">
           {item.value.map((x) => {
             return <li key={x.id}>{this._findMixValue(x)}</li>
           })}
@@ -243,7 +256,7 @@ class PreviewTable extends React.Component {
       )
     } else if (item.type === 'TAG') {
       return (
-        <ul className="m-0 p-0 pl-4">
+        <ul className="m-0 p-0 pl-3">
           {(item.value || []).map((x) => {
             return <li key={x}>{x}</li>
           })}
@@ -295,6 +308,61 @@ class DetailsTable extends PreviewTable {
             {$L('无数据')}
           </div>
         )}
+      </RF>
+    )
+  }
+}
+
+class ApprovalTable extends PreviewTable {
+  render() {
+    const d = []
+    this.props.data.forEach((x) => {
+      if (Array.isArray(x)) {
+        x.forEach((y) => d.push(y))
+      } else {
+        d.push(x)
+      }
+    })
+
+    const _state = {
+      '1': $L('待审批'),
+      '10': $L('通过'),
+      '11': $L('驳回'),
+      '12': $L('撤回'),
+      '13': $L('撤销'),
+      '21': $L('退回'),
+    }
+
+    console.log(d)
+    return (
+      <RF>
+        <h3>{$L('审批流程')}</h3>
+        <table className="table table-bordered table-sm table-fixed">
+          <thead>
+            <tr>
+              <th>{$L('审批时间')}</th>
+              <th>{$L('审批人')}</th>
+              <th>{$L('审批结果')}</th>
+              <th>{$L('批注')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {d.map((x, idx) => {
+              console.log(x)
+              return (
+                <tr key={idx}>
+                  <td>{this.formatValue({ type: 'DATETIME', value: x.approvedTime || x.createdOn })}</td>
+                  <td>{this.formatValue({ type: 'TEXT', value: x.approverName || x.submitterName })}</td>
+                  <td>{this.formatValue({ type: 'TEXT', value: x.submitter ? $L('提交') : _state[x.state] })}</td>
+                  <td>
+                    {this.formatValue({ type: 'TEXT', value: x.remark })}
+                    {x.remarkAttachments && <div>{this.formatValue({ type: 'FILE', value: x.remarkAttachments })}</div>}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
       </RF>
     )
   }
