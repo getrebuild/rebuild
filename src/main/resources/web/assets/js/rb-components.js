@@ -273,7 +273,7 @@ class RbAlert extends React.Component {
           this._dlg = c
           this._element = c
         }}>
-        <div className="modal-dialog modal-dialog-centered" style={style2}>
+        <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" style={style2}>
           <div className="modal-content">
             <div className="modal-header pb-0">
               <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>

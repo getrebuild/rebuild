@@ -1035,6 +1035,10 @@ a.link.link-icon::after {
   padding-bottom: 0 !important;
 }
 
+.modal.rbalert .modal-dialog.modal-dialog-scrollable .modal-body {
+  padding-bottom: 20px !important;
+}
+
 .modal-dialog-scrollable .rbform > .dialog-footer {
   position: sticky;
   left: 0;
