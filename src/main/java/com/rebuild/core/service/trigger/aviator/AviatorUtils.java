@@ -108,6 +108,7 @@ public class AviatorUtils {
         addCustomFunction(new ToDateFunction());
         addCustomFunction(new ToStrFunction());
         addCustomFunction(new IfNullFunction());
+        addCustomFunction(new IsEqualsFunction());
     }
 
     /**

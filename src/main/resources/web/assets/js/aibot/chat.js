@@ -222,6 +222,8 @@ class ChatInput extends React.Component {
         this.setState({ attach })
       },
       allowMultiple: true,
+      allowEntities: window.__LAB_AIALLOWENTITIES435 || null,
+      allowBizz: false,
     })
   }
   attachFile() {

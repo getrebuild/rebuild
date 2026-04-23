@@ -1367,14 +1367,19 @@ class UserSelectorWithField extends UserSelector {
   }
 
   switchTab(type) {
+    const q = this.state.query
+
     if (this.props.userType === 2) {
-      this.setState({ tabType: 'FIELDS', items: this._fields || [] })
+      let items = this._fields || []
+      if (q) {
+        items = items.filter((item) => item.text.contains(q))
+      }
+      this.setState({ tabType: 'FIELDS', items: items })
       return
     }
 
     type = type || this.state.tabType
     if (type === 'FIELDS') {
-      const q = this.state.query
       const ckey = type + '-' + q
       this.setState({ tabType: type, items: this._cached[ckey] }, () => {
         if (!this._cached[ckey]) {

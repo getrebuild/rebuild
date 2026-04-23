@@ -315,8 +315,9 @@ public class CommonsUtils {
 
         // 数字
         if (a instanceof Number && b instanceof Number) {
-            // FIXME 有精度问题
-            return ObjectUtils.toDouble(a) == ObjectUtils.toDouble(b);
+            BigDecimal d1 = BigDecimal.valueOf(ObjectUtils.toDouble(a)).setScale(8, RoundingMode.HALF_UP);
+            BigDecimal d2 = BigDecimal.valueOf(ObjectUtils.toDouble(b)).setScale(8, RoundingMode.HALF_UP);
+            return d1.equals(d2);
         }
 
         // 集合/数组

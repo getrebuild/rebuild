@@ -169,28 +169,6 @@ class ClassificationSelector extends React.Component {
   }
 }
 
-// ~~ 引用字段搜索
-
-window.referenceSearch__call = function (selected) {}
-window.referenceSearch__dlg
-window.referenceSearch__form // fix:4.1.2 哪个表单打开的
-// see `reference-search.html`
-class ReferenceSearcher extends RbModal {
-  renderContent() {
-    return this.state.destroy === true ? null : super.renderContent()
-  }
-
-  componentDidMount() {
-    super.componentDidMount()
-    window.referenceSearch__dlg = this
-  }
-
-  destroy() {
-    this.setState({ destroy: true })
-    window.referenceSearch__dlg = null
-  }
-}
-
 // ~~ 删除确认
 
 class DeleteConfirm extends RbAlert {

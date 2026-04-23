@@ -869,7 +869,6 @@ class DlgNForm extends RbModalHandler {
                 </select>
               </div>
             </div>
-
             {wpc.isMainEntity && this.state.detailsFromsAttr && (
               <div className="form-group row">
                 <label className="col-sm-3 col-form-label text-sm-right">{$L('指定明细布局')}</label>
