@@ -870,7 +870,7 @@ class DlgNForm extends RbModalHandler {
                 </select>
               </div>
             </div>
-            <div className="form-group row">
+            <div className="form-group row bosskey-show">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('填写提示')}</label>
               <div className="col-sm-7">
                 <textarea className="form-control form-control-sm row2x" defaultValue={this.state.topAlert43} ref={(c) => (this._$topAlert43 = c)} placeholder={$L('无')} />

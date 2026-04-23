@@ -214,6 +214,8 @@ class ChatInput extends React.Component {
         const attach = [...this.state.attach, { record: v, id: $random('attach-', true) }]
         this.setState({ attach })
       },
+      allowEntities: window.__LAB_AIALLOWENTITIES435 || null,
+      allowBizz: false,
     })
   }
   attachFile() {
