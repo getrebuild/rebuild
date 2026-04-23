@@ -1559,10 +1559,10 @@ class RbFormNText extends RbFormElement {
         </div>
       )
     } else if (this.props.useCode) {
-      let code = $formattedCode(this.state.value, 'json')
+      let code2 = $formattedCode(this.state.value, 'json')
       return (
         <div className="form-control-plaintext formula-code" ref={(c) => (this._fieldValue = c)} style={style2}>
-          {code}
+          {code2}
         </div>
       )
     } else {
