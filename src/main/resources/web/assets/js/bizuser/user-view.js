@@ -101,53 +101,7 @@ $(document).ready(() => {
         })
       }
 
-      if (res.data.system === true) {
-        // v35
-        if (userId === '001-0000000000000000') {
-          $('.view-action').remove()
-        } else {
-          $('.J_mores .dropdown-menu>*').each(function () {
-            if (!$(this).hasClass('J_resetpwd')) $(this).remove()
-          })
-        }
-
-        $('.J_tips').removeClass('hide').find('.message p').text($L('系统内置超级管理员。此用户拥有最高级系统权限，请谨慎使用'))
-        return
-      }
-
-      $('.J_changeRole').on('click', () => renderRbcomp(<DlgEnableUser user={userId} roleSet={true} role={res.data.role} roleAppends={res.data.roleAppends} />))
-      $('.J_changeDept').on('click', () => renderRbcomp(<DlgEnableUser user={userId} deptSet={true} dept={res.data.dept} />))
-
-      if (res.data.disabled === true) {
-        $('.J_disable').remove()
-
-        if (!res.data.role || !res.data.dept) {
-          $('.J_enable')
-            .off('click')
-            .on('click', () =>
-              renderRbcomp(
-                <DlgEnableUser user={userId} enable={true} roleSet={!res.data.role} role={res.data.role} roleAppends={res.data.roleAppends} deptSet={!res.data.dept} dept={res.data.dept} />,
-              ),
-            )
-        }
-      } else {
-        $('.J_enable').remove()
-      }
-
-      if (!res.data.active) {
-        const reasons = []
-        if (!res.data.role) reasons.push($L('未指定角色'))
-        else if (res.data.roleDisabled) reasons.push($L('所属角色已禁用'))
-        if (!res.data.dept) reasons.push($L('未指定部门'))
-        else if (res.data.deptDisabled) reasons.push($L('所属部门已禁用'))
-        if (res.data.disabled === true) reasons.push($L('已禁用'))
-        $('.J_tips')
-          .removeClass('hide')
-          .find('.message p')
-          .text($L('当前用户处于未激活状态，因为其 %s', reasons.join(' / ')))
-      }
-
-      if (res.data.roleAppends && res.data.roleAppends.length > 0) {
+      if (res.data.roleAppends && res.data.roleAppends.length) {
         $.get(`/commons/search/read-labels?ids=${res.data.roleAppends.join(',')}`, (res2) => {
           const $p = $('.J_roleAppends').empty()
           for (let k in res2.data) {
@@ -159,7 +113,7 @@ $(document).ready(() => {
           }
         })
       }
-      if (res.data.joinTeams && res.data.joinTeams.length > 0) {
+      if (res.data.joinTeams && res.data.joinTeams.length) {
         $.get(`/commons/search/read-labels?ids=${res.data.joinTeams.join(',')}`, (res2) => {
           const $p = $('.J_joinTeams').empty()
           for (let k in res2.data) {
@@ -170,6 +124,51 @@ $(document).ready(() => {
               })
           }
         })
+      }
+
+      if (res.data.system === true) {
+        // v35
+        if (userId === '001-0000000000000000') {
+          $('.view-action').remove()
+        } else {
+          $('.J_mores .dropdown-menu>*').each(function () {
+            if (!$(this).hasClass('J_resetpwd')) $(this).remove()
+          })
+        }
+
+        $('.J_tips').removeClass('hide').find('.message p').text($L('系统内置超级管理员。此用户拥有最高级系统权限，请谨慎使用'))
+      } else {
+        $('.J_changeRole').on('click', () => renderRbcomp(<DlgEnableUser user={userId} roleSet={true} role={res.data.role} roleAppends={res.data.roleAppends} />))
+        $('.J_changeDept').on('click', () => renderRbcomp(<DlgEnableUser user={userId} deptSet={true} dept={res.data.dept} />))
+
+        if (res.data.disabled === true) {
+          $('.J_disable').remove()
+
+          if (!res.data.role || !res.data.dept) {
+            $('.J_enable')
+              .off('click')
+              .on('click', () =>
+                renderRbcomp(
+                  <DlgEnableUser user={userId} enable={true} roleSet={!res.data.role} role={res.data.role} roleAppends={res.data.roleAppends} deptSet={!res.data.dept} dept={res.data.dept} />,
+                ),
+              )
+          }
+        } else {
+          $('.J_enable').remove()
+        }
+
+        if (!res.data.active) {
+          const reasons = []
+          if (!res.data.role) reasons.push($L('未指定角色'))
+          else if (res.data.roleDisabled) reasons.push($L('所属角色已禁用'))
+          if (!res.data.dept) reasons.push($L('未指定部门'))
+          else if (res.data.deptDisabled) reasons.push($L('所属部门已禁用'))
+          if (res.data.disabled === true) reasons.push($L('已禁用'))
+          $('.J_tips')
+            .removeClass('hide')
+            .find('.message p')
+            .text($L('当前用户处于未激活状态，因为其 %s', reasons.join(' / ')))
+        }
       }
     })
   }
