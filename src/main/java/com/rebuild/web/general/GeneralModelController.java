@@ -38,6 +38,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -272,8 +273,10 @@ public class GeneralModelController extends EntityController {
 
         // v4.4
         if (MetadataHelper.hasApprovalField(entityMeta)) {
-            JSON steps = new ApprovalProcessor(recordId).getWorkedSteps(false);
-            mv.getModel().put("approvalContentBody", steps);
+            JSONArray steps = new ApprovalProcessor(recordId).getWorkedSteps(false);
+            if (CollectionUtils.isNotEmpty(steps)) {
+                mv.getModel().put("approvalContentBody", steps);
+            }
         }
 
         mv.getModel().put("printTime", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
