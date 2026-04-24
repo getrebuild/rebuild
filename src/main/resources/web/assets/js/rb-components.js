@@ -1466,6 +1466,85 @@ class CodeViewport extends React.Component {
   }
 }
 
+// ~~ 代码编辑器
+class CodeEditor extends React.Component {
+  render() {
+    return (
+      <div className="code-editor">
+        <textarea className="form-control formula-code" defaultValue={this.props.value || ''} ref={(c) => (this._$code = c)} />
+        {this.renderActions()}
+      </div>
+    )
+  }
+
+  renderActions() {
+    if (!this.props.extraActions) return null
+
+    return (
+      <div className="code-editor-actions">
+        {this.props.extraActions.map((a, idx) => {
+          return (
+            <a onClick={() => a.onClick(this)} title={a.name} key={idx}>
+              <i className={`icon mdi mdi-${a.icon}`} />
+            </a>
+          )
+        })}
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    if (!window.CodeMirror) return
+
+    const cm5 = window.CodeMirror.fromTextArea(this._$code, {
+      mode: 'text/jsx',
+      theme: 'material-darker',
+      lineNumbers: true,
+      dragDrop: false,
+      smartIndent: true,
+      styleActiveLine: true,
+      autoCloseBrackets: true,
+      matchBrackets: true,
+      lint: {
+        esversion: 6,
+      },
+      hintOptions: {
+        completeSingle: false,
+        useGlobalScope: false,
+      },
+      readOnly: this.props.readonly === true,
+      ...this.props.cmOptions,
+    }).on('change', (instance) => {
+      let cc = instance.getValue()
+      typeof this.props.onChange === 'function' && this.props.onChange(cc)
+    })
+    this._CodeMirror = cm5
+  }
+
+  componentWillUnmount() {
+    this._CodeMirror && this._CodeMirror.toTextArea()
+  }
+
+  val() {
+    if (arguments.length) {
+      if (this._CodeMirror) this._CodeMirror.setValue(arguments[0])
+      else this._$code.value = arguments[0]
+    } else {
+      if (this._CodeMirror) return this._CodeMirror.getValue()
+      else return this._$code.value
+    }
+  }
+
+  focus() {
+    this._CodeMirror && this._CodeMirror.focus()
+  }
+
+  insertAtCursor(text) {
+    this._CodeMirror && this._CodeMirror.replaceSelection(text)
+    this.focus()
+  }
+}
+
 // ~~ 树组件 v2.5 v3.7
 // TODO 子级延迟渲染
 class AsideTree extends React.Component {

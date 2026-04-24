@@ -1760,6 +1760,45 @@ class RbFormNText extends RbFormElement {
   }
 }
 
+// CodeEditor
+class RbFormNTextUseCode extends RbFormNText {
+  renderElement() {
+    let cmOptions = {}
+    return (
+      // eslint-disable-next-line react/jsx-no-undef
+      <CodeEditor
+        value={this.props.value}
+        onChange={(v) => {
+          this.handleChange({ target: { value: v } }, true)
+        }}
+        readonly={this.state.readonly}
+        cmOptions={cmOptions}
+        extraActions={[]}
+        ref={(c) => (this._CodeEditor = c)}
+      />
+    )
+  }
+
+  renderViewElement() {
+    // eslint-disable-next-line no-undef
+    let code2 = code_formatter(this.state.value)
+    return (
+      <div className="form-control-plaintext formula-code" ref={(c) => (this._fieldValue = c)}>
+        {code2}
+      </div>
+    )
+  }
+
+  setValue(val) {
+    super.setValue(val)
+    this._CodeEditor.setValue(val)
+  }
+
+  focus() {
+    this._CodeEditor.focus()
+  }
+}
+
 class RbFormDateTime extends RbFormElement {
   renderElement() {
     const _readonly37 = this.state.readonly
@@ -3828,6 +3867,9 @@ var detectElement = function (item, entity) {
   } else if (item.type === 'TEXT' || item.type === 'SERIES') {
     return <RbFormText {...item} />
   } else if (item.type === 'NTEXT') {
+    if (item.useCode && window.CodeMirror && window.prettier) {
+      return <RbFormNTextUseCode {...item} />
+    }
     return <RbFormNText {...item} />
   } else if (item.type === 'URL') {
     return <RbFormUrl {...item} />

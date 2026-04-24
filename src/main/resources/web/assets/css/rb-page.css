@@ -5414,6 +5414,43 @@ pre.unstyle {
   display: inline-block;
 }
 
+.code-editor {
+  position: relative;
+}
+
+.code-editor .CodeMirror {
+  padding: 0 !important;
+}
+
+.code-editor .CodeMirror .CodeMirror-code,
+.code-editor .CodeMirror .CodeMirror-line {
+  line-height: 1.6;
+  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', Menlo, Monaco, Consolas, monospace !important;
+}
+
+.code-editor .code-editor-actions {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  background-color: rgba(255, 255, 255, 0.2);
+  z-index: 101;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.code-editor .code-editor-actions > a {
+  display: inline-block;
+  font-size: 1.3rem;
+  padding: 8px;
+  color: #fff;
+  line-height: 1;
+  transition: all 0.4s;
+}
+
+.code-editor .code-editor-actions > a:hover {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
 .select2-results span.icon-append {
   padding-left: 20px;
   position: relative;
