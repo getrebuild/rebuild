@@ -5312,7 +5312,7 @@ pre.unstyle {
 }
 
 .aside-header .title {
-  margin-top: 4px;
+  margin-top: 2px;
   margin-bottom: 0;
   font-weight: normal;
 }
@@ -5412,6 +5412,56 @@ pre.unstyle {
 
 .code-viewport:hover > a.copy {
   display: inline-block;
+}
+
+.code-editor {
+  position: relative;
+}
+
+.code-editor .CodeMirror {
+  padding: 0 !important;
+}
+
+.code-editor .CodeMirror .CodeMirror-code,
+.code-editor .CodeMirror .CodeMirror-line {
+  line-height: 1.6;
+  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', Menlo, Monaco, Consolas, monospace !important;
+}
+
+.code-editor .code-editor-actions {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+
+  z-index: 101;
+}
+
+.code-editor .code-editor-actions > a,
+.code-editor .code-editor-actions > span > a {
+  display: inline-block;
+  font-size: 1.3rem;
+  padding: 5px;
+  line-height: 1;
+  transition: all 0.4s;
+  opacity: 0.8;
+  border-radius: 2px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.code-editor .code-editor-actions > a:hover,
+.code-editor .code-editor-actions > span > a:hover {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.code-editor .code-editor-actions.btm {
+  top: auto;
+  bottom: 10px;
+}
+
+.code-editor .code-editor-actions.light > a,
+.code-editor .code-editor-actions.light > span > a {
+  background-color: #212121;
 }
 
 .select2-results span.icon-append {

@@ -273,7 +273,7 @@ class RbAlert extends React.Component {
           this._dlg = c
           this._element = c
         }}>
-        <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" style={style2}>
+        <div className={`modal-dialog modal-dialog-centered ${this.props.useScrollable && 'modal-dialog-scrollable'}`} style={style2}>
           <div className="modal-content">
             <div className="modal-header pb-0">
               <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
@@ -1444,7 +1444,7 @@ class CodeViewport extends React.Component {
   }
 
   componentDidMount() {
-    this._$code.innerHTML = $formattedCode(this.props.code || '', this.props.type)
+    this._$code.innerHTML = $formatCode(this.props.code || '', this.props.type)
 
     if (this._$copy) {
       const that = this
@@ -1461,8 +1461,121 @@ class CodeViewport extends React.Component {
   UNSAFE_componentWillReceiveProps(newProps) {
     // eslint-disable-next-line eqeqeq
     if (newProps.code && newProps.code != this.props.code) {
-      this._$code.innerHTML = $formattedCode(newProps.code, this.props.type)
+      this._$code.innerHTML = $formatCode(newProps.code, this.props.type)
     }
+  }
+}
+
+// ~~ 代码编辑器
+class CodeEditor extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+
+  render() {
+    return (
+      <div className={`code-editor ${this.props.readonly && 'cm-readonly'}`}>
+        <textarea className="form-control formula-code" spellCheck="false" defaultValue={this.props.value || ''} ref={(c) => (this._$content = c)} />
+        {this.renderActions()}
+      </div>
+    )
+  }
+
+  renderActions() {
+    return (
+      <div className="code-editor-actions">
+        {!this.props.readonly && (
+          <a title={$L('格式化')} onClick={() => this.formatCode()}>
+            <i className="icon mdi mdi-wrap" />
+          </a>
+        )}
+        {this.props.extraActions &&
+          this.props.extraActions.map((a, idx) => {
+            return (
+              <a onClick={() => a.onClick(this)} title={a.name} key={idx}>
+                <i className={`icon mdi mdi-${a.icon}`} />
+              </a>
+            )
+          })}
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    if (window.CodeMirror) {
+      this.props.isCode !== false && setTimeout(() => this.initCodeMirror(), 40)
+    }
+    this.props.autoFocus !== false && setTimeout(() => this.focus(), 80)
+  }
+
+  initCodeMirror() {
+    this.destroy()
+
+    let options = {
+      mode: 'text/jsx',
+      theme: 'material-darker',
+      lineNumbers: true,
+      dragDrop: false,
+      smartIndent: true,
+      styleActiveLine: true,
+      autoCloseBrackets: true,
+      matchBrackets: true,
+      lint: {
+        esversion: 6,
+      },
+      hintOptions: {
+        completeSingle: false,
+        useGlobalScope: false,
+      },
+      readOnly: this.props.readonly === true ? 'nocursor' : false,
+      ...this.props.cmOptions,
+    }
+
+    const cm5 = window.CodeMirror.fromTextArea(this._$content, options)
+    cm5.on('change', (instance) => {
+      let cc = instance.getValue()
+      typeof this.props.onChange === 'function' && this.props.onChange(cc)
+    })
+
+    this._CodeMirror = cm5
+  }
+
+  componentWillUnmount() {
+    this.destroy()
+  }
+
+  destroy() {
+    if (this._CodeMirror) {
+      this._CodeMirror.toTextArea()
+      this._CodeMirror = null
+    }
+  }
+
+  val() {
+    if (arguments.length) {
+      if (this._CodeMirror) this._CodeMirror.setValue(arguments[0])
+      else this._$content.value = arguments[0]
+    } else {
+      if (this._CodeMirror) return this._CodeMirror.getValue()
+      else return this._$content.value
+    }
+  }
+
+  focus() {
+    if (this._CodeMirror) this._CodeMirror.focus()
+    else if (this._$content) this._$content.focus()
+  }
+
+  insertAtCursor(text) {
+    if (this._CodeMirror) this._CodeMirror.replaceSelection(text)
+    else if (this._$content) $(this._$content).insertAtCursor(text)
+  }
+
+  formatCode() {
+    let cc = this.val()
+    cc = $formatCode(cc)
+    this.val(cc)
   }
 }
 
