@@ -1475,7 +1475,7 @@ class CodeEditor extends React.Component {
 
   render() {
     return (
-      <div className="code-editor">
+      <div className={`code-editor ${this.props.readonly && 'cm-readonly'}`}>
         <textarea className="form-control formula-code" spellCheck="false" defaultValue={this.props.value || ''} ref={(c) => (this._$content = c)} />
         {this.renderActions()}
       </div>
@@ -1485,9 +1485,11 @@ class CodeEditor extends React.Component {
   renderActions() {
     return (
       <div className="code-editor-actions">
-        <a title={$L('格式化')} onClick={() => this.formatCode()}>
-          <i className="icon mdi mdi-wrap" />
-        </a>
+        {!this.props.readonly && (
+          <a title={$L('格式化')} onClick={() => this.formatCode()}>
+            <i className="icon mdi mdi-wrap" />
+          </a>
+        )}
         {this.props.extraActions &&
           this.props.extraActions.map((a, idx) => {
             return (
@@ -1502,20 +1504,13 @@ class CodeEditor extends React.Component {
 
   componentDidMount() {
     if (window.CodeMirror) {
-      setTimeout(() => {
-        this.props.isCode !== false && this.initCodeMirror()
-        this.props.autoFocus !== false && this.focus()
-      }, 20)
-    } else {
-      this.props.autoFocus !== false && setTimeout(() => this.focus(), 20)
+      this.props.isCode !== false && setTimeout(() => this.initCodeMirror(), 20)
     }
+    this.props.autoFocus !== false && setTimeout(() => this.focus(), 40)
   }
 
   initCodeMirror() {
-    if (this._CodeMirror) {
-      this._CodeMirror.toTextArea()
-      this._CodeMirror = null
-    }
+    this.destroy()
 
     let options = {
       mode: 'text/jsx',
@@ -1533,7 +1528,7 @@ class CodeEditor extends React.Component {
         completeSingle: false,
         useGlobalScope: false,
       },
-      readOnly: this.props.readonly === true,
+      readOnly: this.props.readonly === true ? 'nocursor' : false,
       ...this.props.cmOptions,
     }
 
@@ -1547,7 +1542,14 @@ class CodeEditor extends React.Component {
   }
 
   componentWillUnmount() {
-    this._CodeMirror && this._CodeMirror.toTextArea()
+    this.destroy()
+  }
+
+  destroy() {
+    if (this._CodeMirror) {
+      this._CodeMirror.toTextArea()
+      this._CodeMirror = null
+    }
   }
 
   val() {
@@ -1562,12 +1564,12 @@ class CodeEditor extends React.Component {
 
   focus() {
     if (this._CodeMirror) this._CodeMirror.focus()
-    else this._$content.focus()
+    else if (this._$content) this._$content.focus()
   }
 
   insertAtCursor(text) {
     if (this._CodeMirror) this._CodeMirror.replaceSelection(text)
-    else $(this._$content).insertAtCursor(text)
+    else if (this._$content) $(this._$content).insertAtCursor(text)
   }
 
   formatCode() {

@@ -183,12 +183,18 @@ body {
   opacity: 1;
 }
 
-.rbview-form .type-NTEXT .ps-container.ntext-expand {
+.rbview-form .type-NTEXT .col-form-control.ntext-expand .ps-container {
   max-height: 1000px !important;
   height: auto;
 }
 
-.rbview-form .type-NTEXT .ps-container.ntext-expand + .ntext-action .mdi-arrow-expand::before {
+.rbview-form .type-NTEXT .col-form-control.ntext-expand .code-editor .CodeMirror,
+.rbview-form .type-NTEXT .col-form-control.ntext-expand .code-editor .CodeMirror .CodeMirror-scroll {
+  max-height: 2000px !important;
+  height: auto;
+}
+
+.rbview-form .type-NTEXT .col-form-control.ntext-expand .ntext-action .mdi-arrow-expand::before {
   content: '\F0615';
 }
 

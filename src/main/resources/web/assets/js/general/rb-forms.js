@@ -1572,18 +1572,23 @@ class RbFormNText extends RbFormElement {
           <div className="form-control-plaintext" ref={(c) => (this._fieldValue = c)} style={style2}>
             {WrapHtml(text2)}
           </div>
-
-          <div className={`ntext-action ${window.__LAB_SHOWNTEXTACTION ? '' : 'hide'}`}>
-            <a title={$L('展开/收起')} onClick={() => $(this._fieldValue).toggleClass('ntext-expand')}>
-              <i className="mdi mdi-arrow-expand" />
-            </a>
-            <a ref={(c) => (this._$actionCopy = c)}>
-              <i className="mdi mdi-content-copy" />
-            </a>
-          </div>
+          {window.__LAB_SHOWNTEXTACTION && this.renderViewElementExtAction()}
         </RF>
       )
     }
+  }
+
+  renderViewElementExtAction() {
+    return (
+      <div className="ntext-action">
+        <a title={$L('展开/收起')} onClick={() => $(this._fieldText).toggleClass('ntext-expand')}>
+          <i className="mdi mdi-arrow-expand" />
+        </a>
+        <a title={$L('复制')} onClick={() => $clipboard2(this.state.value)}>
+          <i className="mdi mdi-content-copy" />
+        </a>
+      </div>
+    )
   }
 
   UNSAFE_componentWillUpdate(nextProps, nextState) {
@@ -1606,7 +1611,6 @@ class RbFormNText extends RbFormElement {
     // fix:4.1
     if (this.props.onView) {
       $(this._fieldValue).perfectScrollbar()
-      this._initActionCopy()
     }
   }
 
@@ -1661,8 +1665,6 @@ class RbFormNText extends RbFormElement {
         )
       }
     }
-
-    this._initActionCopy()
   }
 
   setValue(val) {
@@ -1676,20 +1678,6 @@ class RbFormNText extends RbFormElement {
     // fix:4.2.2
     if (this._heightAuto) {
       setTimeout(() => autosize.update(this._fieldValue), 20)
-    }
-  }
-
-  _initActionCopy() {
-    if (!this._$actionCopy) return
-
-    const that = this
-    const initCopy = function () {
-      $clipboard($(that._$actionCopy), that.state.value)
-    }
-    if (window.ClipboardJS) {
-      initCopy()
-    } else {
-      $getScript('/assets/lib/clipboard.min.js', initCopy)
     }
   }
 
@@ -1774,6 +1762,7 @@ class RbFormNTextUseCode extends RbFormNText {
         cmOptions={[]}
         extraActions={[]}
         ref={(c) => (this._CodeEditor = c)}
+        key="CodeEditor-write"
       />
     )
   }
@@ -1781,9 +1770,10 @@ class RbFormNTextUseCode extends RbFormNText {
   renderViewElement() {
     let code2 = $formatCode(this.state.value)
     return (
-      <div className="form-control-plaintext formula-code" ref={(c) => (this._fieldValue = c)}>
-        {code2}
-      </div>
+      <RF>
+        <CodeEditor value={code2} readonly={true} cmOptions={[]} extraActions={[]} ref={(c) => (this._CodeEditor = c)} key="CodeEditor-read" />
+        {this.renderViewElementExtAction()}
+      </RF>
     )
   }
 
