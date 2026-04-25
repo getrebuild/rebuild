@@ -150,6 +150,10 @@ body {
   max-height: 1001px;
 }
 
+.rbview-form .type-NTEXT .formula-code.form-control-plaintext {
+  max-height: 300px;
+}
+
 .rbview-form .type-NTEXT .ntext-action {
   position: absolute;
   top: 5px;

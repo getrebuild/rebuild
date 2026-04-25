@@ -1559,7 +1559,7 @@ class RbFormNText extends RbFormElement {
         </div>
       )
     } else if (this.props.useCode) {
-      let code2 = $formattedCode(this.state.value, 'json')
+      let code2 = $formatCode(this.state.value, 'json')
       return (
         <div className="form-control-plaintext formula-code" ref={(c) => (this._fieldValue = c)} style={style2}>
           {code2}
@@ -1763,7 +1763,6 @@ class RbFormNText extends RbFormElement {
 // CodeEditor
 class RbFormNTextUseCode extends RbFormNText {
   renderElement() {
-    let cmOptions = {}
     return (
       // eslint-disable-next-line react/jsx-no-undef
       <CodeEditor
@@ -1772,7 +1771,7 @@ class RbFormNTextUseCode extends RbFormNText {
           this.handleChange({ target: { value: v } }, true)
         }}
         readonly={this.state.readonly}
-        cmOptions={cmOptions}
+        cmOptions={[]}
         extraActions={[]}
         ref={(c) => (this._CodeEditor = c)}
       />
@@ -1780,8 +1779,7 @@ class RbFormNTextUseCode extends RbFormNText {
   }
 
   renderViewElement() {
-    // eslint-disable-next-line no-undef
-    let code2 = code_formatter(this.state.value)
+    let code2 = $formatCode(this.state.value)
     return (
       <div className="form-control-plaintext formula-code" ref={(c) => (this._fieldValue = c)}>
         {code2}

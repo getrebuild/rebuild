@@ -5441,7 +5441,7 @@ pre.unstyle {
 .code-editor .code-editor-actions > a {
   display: inline-block;
   font-size: 1.3rem;
-  padding: 8px;
+  padding: 6px;
   color: #fff;
   line-height: 1;
   transition: all 0.4s;

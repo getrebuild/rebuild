@@ -132,7 +132,7 @@ module.exports = {
     $escapeHtml: true,
     $isLight: true,
     RbGritter: true,
-    $formattedCode: true,
+    $formatCode: true,
     CodeViewport: true,
     $clipboard: true,
     $clipboard2: true,

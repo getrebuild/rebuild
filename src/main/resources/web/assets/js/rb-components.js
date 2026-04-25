@@ -1444,7 +1444,7 @@ class CodeViewport extends React.Component {
   }
 
   componentDidMount() {
-    this._$code.innerHTML = $formattedCode(this.props.code || '', this.props.type)
+    this._$code.innerHTML = $formatCode(this.props.code || '', this.props.type)
 
     if (this._$copy) {
       const that = this
@@ -1461,7 +1461,7 @@ class CodeViewport extends React.Component {
   UNSAFE_componentWillReceiveProps(newProps) {
     // eslint-disable-next-line eqeqeq
     if (newProps.code && newProps.code != this.props.code) {
-      this._$code.innerHTML = $formattedCode(newProps.code, this.props.type)
+      this._$code.innerHTML = $formatCode(newProps.code, this.props.type)
     }
   }
 }
@@ -1478,17 +1478,19 @@ class CodeEditor extends React.Component {
   }
 
   renderActions() {
-    if (!this.props.extraActions) return null
-
     return (
       <div className="code-editor-actions">
-        {this.props.extraActions.map((a, idx) => {
-          return (
-            <a onClick={() => a.onClick(this)} title={a.name} key={idx}>
-              <i className={`icon mdi mdi-${a.icon}`} />
-            </a>
-          )
-        })}
+        <a title={$L('格式化')} onClick={() => this.formatCode()}>
+          <i className="icon mdi mdi-wrap" />
+        </a>
+        {this.props.extraActions &&
+          this.props.extraActions.map((a, idx) => {
+            return (
+              <a onClick={() => a.onClick(this)} title={a.name} key={idx}>
+                <i className={`icon mdi mdi-${a.icon}`} />
+              </a>
+            )
+          })}
       </div>
     )
   }
@@ -1514,7 +1516,8 @@ class CodeEditor extends React.Component {
       },
       readOnly: this.props.readonly === true,
       ...this.props.cmOptions,
-    }).on('change', (instance) => {
+    })
+    cm5.on('change', (instance) => {
       let cc = instance.getValue()
       typeof this.props.onChange === 'function' && this.props.onChange(cc)
     })
@@ -1542,6 +1545,12 @@ class CodeEditor extends React.Component {
   insertAtCursor(text) {
     this._CodeMirror && this._CodeMirror.replaceSelection(text)
     this.focus()
+  }
+
+  formatCode() {
+    let cc = this.val()
+    cc = $formatCode(cc)
+    this.val(cc)
   }
 }
 

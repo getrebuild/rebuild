@@ -1355,7 +1355,7 @@ var $pages = function (tp, cp) {
 }
 
 // 格式化代码
-var $formattedCode = function (c, type) {
+var $formatCode = function (c, type) {
   if (window.prettier) {
     if (typeof c === 'object') c = JSON.stringify(c)
     if (window.code_formatter) return window.code_formatter(c, { type: type })
