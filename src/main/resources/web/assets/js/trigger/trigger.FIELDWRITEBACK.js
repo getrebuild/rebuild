@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global FieldValueSet, MatchFields, FormulaCalcWithCode */
+/* global FieldValueSet, MatchFields, FormulaEditor, FormulaCalcWithCode */
 
 const UPDATE_MODES = {
   FIELD: $L('字段值'),
@@ -89,7 +89,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                     if (!item.updateMode) item.updateMode = item.sourceField.includes('#') ? 'FORMULA' : 'FIELD'
 
                     const field = item.updateMode === 'VFIXED' ? this.state.targetFields.find((x) => x.name === item.targetField) : null
-                    const isFORMULACode = item.updateMode === 'FORMULA' && FormulaCalcWithCode.isCode(item.sourceField)
+                    const isFORMULACode = item.updateMode === 'FORMULA' && FormulaEditor.isCode(item.sourceField)
                     return (
                       <div key={item.targetField}>
                         <div className="row">
@@ -104,7 +104,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                             {item.updateMode === 'FIELD' && <span className="badge badge-warning">{_getFieldLabel(this.__sourceFieldsCache, item.sourceField)}</span>}
                             {item.updateMode === 'VFIXED' && <span className="badge badge-light text-break">{FieldValueSet.formatFieldText(item.sourceField, field)}</span>}
                             {item.updateMode === 'FORMULA' && (
-                              <span className={`badge badge-warning ${isFORMULACode && 'w-100'}`}>{FormulaCalcWithCode.formatText(item.sourceField, this.__sourceFieldsCache)}</span>
+                              <span className={`badge badge-warning ${isFORMULACode && 'w-100'}`}>{FormulaEditor.formatText(item.sourceField, this.__sourceFieldsCache)}</span>
                             )}
                             <RF>
                               {isFORMULACode && (
@@ -395,7 +395,7 @@ class ContentFieldWriteback extends ActionContentSpec {
           itemsNew[idx] = item
           this.setState({ items: itemsNew })
         }}
-      />
+      />,
     )
   }
 
@@ -523,7 +523,7 @@ class FieldFormula extends React.Component {
 
   onConfirm(expr) {
     this._value = expr
-    this.setState({ valueText: FormulaCalcWithCode.formatText(expr, this.props.fields) })
+    this.setState({ valueText: FormulaEditor.formatText(expr, this.props.fields) })
   }
 
   val() {

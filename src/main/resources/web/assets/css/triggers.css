@@ -210,18 +210,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #fff;
 }
 
-.textarea-wrap .fields-vars > a {
-  bottom: 12px;
-}
-
-.textarea-wrap > .fields-vars + .fields-vars > a {
-  right: 33px;
-}
-
-.textarea-wrap > .fields-vars + .fields-vars + .fields-vars > a {
-  right: 60px;
-}
-
 .auto-assign .select2-selection__rendered,
 .auto-share .select2-selection__rendered {
   display: block !important;
@@ -376,43 +364,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   }
 }
 
-.textarea-wrap {
-  position: relative;
-}
-
-.textarea-wrap > .fields-vars > a {
-  position: absolute;
-  right: 6px;
-  bottom: 6px;
-  display: inline-block;
-  font-size: 1.3rem;
-  line-height: 1;
-  padding: 4px 3px 2px;
-  border-radius: 4px;
-  background-color: rgba(255, 255, 255, 0.1);
-  background-color: #212121;
-  opacity: 0.4;
-  transition: opacity 0.4s;
-}
-
-.textarea-wrap:hover > .fields-vars > a {
-  opacity: 1;
-}
-
-.textarea-wrap > .fields-vars > a > .mdi {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.textarea-wrap > .fields-vars:hover > a > .mdi {
-  color: rgba(255, 255, 255, 1);
-}
-
-.textarea-wrap textarea {
-  min-height: 72px;
-  font-size: 1rem;
-  padding: 4px 10px;
-}
-
 .eval-exec-times .alert {
   margin-top: 15px;
   margin-bottom: 0;
@@ -494,20 +445,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border: 1px solid #fff;
 }
 
-.CodeEditorWithFieldVars__wrap {
-  background-color: #212121;
-  margin-bottom: 10px;
+.code-editor > .formula-code,
+.code-editor .CodeMirror,
+.code-editor .CodeMirror .CodeMirror-scroll {
+  min-height: 223px !important;
 }
 
-.CodeEditorWithFieldVars__wrap,
-.CodeEditorWithFieldVars__wrap .CodeMirror,
-.CodeEditorWithFieldVars__wrap .CodeMirror .CodeMirror-scroll {
-  min-height: 300px !important;
+.code-editor .CodeMirror {
+  min-height: 223px;
   height: auto;
-}
-
-.CodeMirror .CodeMirror-code,
-.CodeMirror .CodeMirror-line {
-  line-height: 1.6;
-  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', Menlo, Monaco, Consolas, monospace !important;
 }

@@ -5432,23 +5432,36 @@ pre.unstyle {
   position: absolute;
   right: 10px;
   top: 10px;
-  background-color: rgba(255, 255, 255, 0.2);
+
   z-index: 101;
-  border-radius: 2px;
-  overflow: hidden;
 }
 
-.code-editor .code-editor-actions > a {
+.code-editor .code-editor-actions > a,
+.code-editor .code-editor-actions > span > a {
   display: inline-block;
   font-size: 1.3rem;
-  padding: 6px;
-  color: #fff;
+  padding: 5px;
   line-height: 1;
   transition: all 0.4s;
+  opacity: 0.8;
+  border-radius: 2px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
 }
 
-.code-editor .code-editor-actions > a:hover {
-  background-color: rgba(255, 255, 255, 0.6);
+.code-editor .code-editor-actions > a:hover,
+.code-editor .code-editor-actions > span > a:hover {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.code-editor .code-editor-actions.btm {
+  top: auto;
+  bottom: 10px;
+}
+
+.code-editor .code-editor-actions.light > a,
+.code-editor .code-editor-actions.light > span > a {
+  background-color: #212121;
 }
 
 .select2-results span.icon-append {

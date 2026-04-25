@@ -273,7 +273,7 @@ class RbAlert extends React.Component {
           this._dlg = c
           this._element = c
         }}>
-        <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" style={style2}>
+        <div className={`modal-dialog modal-dialog-centered ${this.props.useScrollable && 'modal-dialog-scrollable'}`} style={style2}>
           <div className="modal-content">
             <div className="modal-header pb-0">
               <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
@@ -1468,10 +1468,15 @@ class CodeViewport extends React.Component {
 
 // ~~ 代码编辑器
 class CodeEditor extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+
   render() {
     return (
       <div className="code-editor">
-        <textarea className="form-control formula-code" defaultValue={this.props.value || ''} ref={(c) => (this._$code = c)} />
+        <textarea className="form-control formula-code" spellCheck="false" defaultValue={this.props.value || ''} ref={(c) => (this._$content = c)} />
         {this.renderActions()}
       </div>
     )
@@ -1496,9 +1501,23 @@ class CodeEditor extends React.Component {
   }
 
   componentDidMount() {
-    if (!window.CodeMirror) return
+    if (window.CodeMirror) {
+      setTimeout(() => {
+        this.props.isCode !== false && this.initCodeMirror()
+        this.props.autoFocus !== false && this.focus()
+      }, 20)
+    } else {
+      this.props.autoFocus !== false && setTimeout(() => this.focus(), 20)
+    }
+  }
 
-    const cm5 = window.CodeMirror.fromTextArea(this._$code, {
+  initCodeMirror() {
+    if (this._CodeMirror) {
+      this._CodeMirror.toTextArea()
+      this._CodeMirror = null
+    }
+
+    let options = {
       mode: 'text/jsx',
       theme: 'material-darker',
       lineNumbers: true,
@@ -1516,11 +1535,14 @@ class CodeEditor extends React.Component {
       },
       readOnly: this.props.readonly === true,
       ...this.props.cmOptions,
-    })
+    }
+
+    const cm5 = window.CodeMirror.fromTextArea(this._$content, options)
     cm5.on('change', (instance) => {
       let cc = instance.getValue()
       typeof this.props.onChange === 'function' && this.props.onChange(cc)
     })
+
     this._CodeMirror = cm5
   }
 
@@ -1531,20 +1553,21 @@ class CodeEditor extends React.Component {
   val() {
     if (arguments.length) {
       if (this._CodeMirror) this._CodeMirror.setValue(arguments[0])
-      else this._$code.value = arguments[0]
+      else this._$content.value = arguments[0]
     } else {
       if (this._CodeMirror) return this._CodeMirror.getValue()
-      else return this._$code.value
+      else return this._$content.value
     }
   }
 
   focus() {
-    this._CodeMirror && this._CodeMirror.focus()
+    if (this._CodeMirror) this._CodeMirror.focus()
+    else this._$content.focus()
   }
 
   insertAtCursor(text) {
-    this._CodeMirror && this._CodeMirror.replaceSelection(text)
-    this.focus()
+    if (this._CodeMirror) this._CodeMirror.replaceSelection(text)
+    else $(this._$content).insertAtCursor(text)
   }
 
   formatCode() {

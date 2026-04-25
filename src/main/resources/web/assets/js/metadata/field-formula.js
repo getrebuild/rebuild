@@ -5,244 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-// 验证公式有效性
-function verifyFormula(formula, entity, onConfirm) {
-  const b64 = $base64Encode($base64Encode(formula))
-  $.post(`/admin/robot/trigger/verify-formula?b64=2&entity=${entity}`, b64, (res) => {
-    if (res.error_code === 0) {
-      onConfirm()
-    } else {
-      RbAlert.create(
-        <RF>
-          <p>{$L('计算公式可能存在错误，这会导致触发器执行失败。是否继续？')}</p>
-          {res.error_msg && <pre className="text-danger p-2">{res.error_msg}</pre>}
-        </RF>,
-        {
-          type: 'warning',
-          onConfirm: function () {
-            this.hide()
-            onConfirm()
-          },
-          onCancel: function () {
-            this.hide()
-          },
-        },
-      )
-    }
-  })
-}
-
-// ~ 公式编辑器
-const INPUT_KEYS = ['+', 1, 2, 3, '-', 4, 5, 6, '×', 7, 8, 9, '÷', '(', ')', 0, '.', $L('回退'), $L('清空')]
-// eslint-disable-next-line no-unused-vars
-class FormulaCalc extends RbAlert {
-  constructor(props) {
-    super(props)
-    this.state = { ...props }
-  }
-
-  renderContent() {
-    return (
-      <div className="formula-calc">
-        <div className="form-control-plaintext formula mb-2" _title={$L('计算公式')} ref={(c) => (this._$formula = c)} />
-        <div className="row unselect">
-          <div className="col-6">
-            <div className="fields rb-scroller" ref={(c) => (this._$fields = c)}>
-              <ul className="list-unstyled mb-0" _title={$L('无可用字段')}>
-                {this.props.fields.map((item) => {
-                  return (
-                    <li key={item.name} className={`flag-${item.type || 'N'}`}>
-                      <a onClick={() => this.handleInput(item)} title={item.label}>
-                        {item.label}
-                      </a>
-                    </li>
-                  )
-                })}
-              </ul>
-            </div>
-          </div>
-          <div className="col-6 pl-0">
-            <ul className="list-unstyled numbers mb-0">
-              {this.renderExtraKeys()}
-              {INPUT_KEYS.map((item) => {
-                return (
-                  <li className="list-inline-item" key={`N-${item}`}>
-                    <a onClick={() => this.handleInput(item)}>{item}</a>
-                  </li>
-                )
-              })}
-              <li className="list-inline-item">
-                <a onClick={() => this.confirm()} className="confirm">
-                  {$L('确定')}
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  componentDidMount() {
-    super.componentDidMount()
-    $(this._$fields).perfectScrollbar()
-
-    if (this.props.initFormula) {
-      const split = this.props.initFormula.match(/({[^}]+})|(.)/g)
-      split.forEach((v) => {
-        if (v.startsWith('{') && v.endsWith('}')) {
-          let field = v.substring(1, v.length - 1)
-          let fieldName43 = field.split('$$$$')[0]
-          let label = `[${field.toUpperCase()}]`
-          this.props.fields.forEach((f) => {
-            if (f.name === fieldName43) {
-              label = f.label
-            }
-          })
-          this.handleInput({ name: field, label: label })
-        } else {
-          this.handleInput(v)
-        }
-      })
-    }
-  }
-
-  renderExtraKeys() {
-    return null
-  }
-
-  handleInput(v) {
-    if (v === $L('回退')) {
-      $(this._$formula).find('.v:last').remove()
-    } else if (v === $L('清空')) {
-      $(this._$formula).empty()
-    } else if (typeof v === 'object') {
-      $(`<i class="v field" data-v="{${v.name}}">{${v.label}}</i>`).appendTo(this._$formula)
-    } else if (['+', '-', '×', '÷', '(', ')'].includes(v)) {
-      $(`<i class="v oper" data-v="${v}">${v}</em>`).appendTo(this._$formula)
-    } else {
-      $(`<i class="v num" data-v="${v}">${v}</i>`).appendTo(this._$formula)
-    }
-  }
-
-  confirm() {
-    const expr = []
-    $(this._$formula)
-      .find('i')
-      .each(function () {
-        expr.push($(this).data('v'))
-      })
-
-    const formula = expr.join('')
-    const that = this
-    function _onConfirm() {
-      typeof that.props.onConfirm === 'function' && that.props.onConfirm(formula)
-      that.hide()
-    }
-
-    if (formula && this.props.verifyFormula) {
-      verifyFormula(formula, this.props.entity, _onConfirm)
-    } else {
-      _onConfirm()
-    }
-  }
-
-  // 公式文本化
-  static textFormula(formula, fields) {
-    if (!formula) return ''
-
-    for (let i = 0; i < fields.length; i++) {
-      const field = fields[i]
-      formula = formula.replace(new RegExp(`\\{${field.name}\\}`, 'ig'), `{____${field.label}}`)
-    }
-    formula = formula.replace(new RegExp('\\{____', 'g'), '{') // fix: Label 与 Name 名称冲突
-
-    return formula //.toUpperCase()
-  }
-}
-
-// ~~ 日期公式编辑器
-// eslint-disable-next-line no-unused-vars
-class FormulaDate extends RbAlert {
-  constructor(props) {
-    super(props)
-    this.state = { calcNum: 1, calcUnit: props.type === 'TIME' ? 'H' : 'D' }
-  }
-
-  renderContent() {
-    const base = this.props.base ? this.props.base : [['NOW', $L('当前时间')]]
-    return (
-      <form className="ml-6 mr-6">
-        <div className="form-group">
-          <label className="text-bold">{$L('设置日期公式')}</label>
-          <div className="input-group">
-            <select className="form-control form-control-sm" ref={(c) => (this._$base = c)}>
-              {base.map((item) => {
-                return (
-                  <option key={item[0]} value={item[0]}>
-                    {item[1]}
-                  </option>
-                )
-              })}
-            </select>
-            <select className="form-control form-control-sm ml-1" onChange={(e) => this.setState({ calcOp: e.target.value })}>
-              <option value="">{$L('不计算')}</option>
-              <option value="+">{$L('加上')}</option>
-              <option value="-">{$L('减去')}</option>
-            </select>
-            <input
-              type="number"
-              min="1"
-              max="999999"
-              className="form-control form-control-sm ml-1"
-              defaultValue="1"
-              disabled={!this.state.calcOp}
-              onChange={(e) => this.setState({ calcNum: e.target.value })}
-            />
-            <select className="form-control form-control-sm ml-1" disabled={!this.state.calcOp} onChange={(e) => this.setState({ calcUnit: e.target.value })}>
-              {this.props.type !== 'TIME' && (
-                <RF>
-                  <option value="D">{$L('日')}</option>
-                  <option value="M">{$L('月')}</option>
-                  <option value="Y">{$L('年')}</option>
-                </RF>
-              )}
-              {(this.props.type === 'DATETIME' || this.props.type === 'TIME') && (
-                <RF>
-                  <option value="H">{$L('小时')}</option>
-                  <option value="I">{$L('分钟')}</option>
-                </RF>
-              )}
-            </select>
-          </div>
-        </div>
-        <div className="form-group mb-1">
-          <button type="button" className="btn btn-primary" onClick={() => this.confirm()}>
-            {$L('确定')}
-          </button>
-        </div>
-      </form>
-    )
-  }
-
-  confirm() {
-    let expr = $(this._$base).val()
-    if (!expr) return
-
-    if (this.state.calcOp) {
-      if (isNaN(this.state.calcNum) || this.state.calcNum < 1) {
-        return RbHighbar.create($L('请输入数字'))
-      }
-      expr += ` ${this.state.calcOp} ${this.state.calcNum}${this.state.calcUnit}`
-    }
-
-    typeof this.props.onConfirm === 'function' && this.props.onConfirm(`{${expr}}`)
-    this.hide()
-  }
-}
-
-// ~~ 匹配字段
-// eslint-disable-next-line no-unused-vars
+// ~~ 字段匹配配置组件
 class MatchFields extends React.Component {
   constructor(props) {
     super(props)
@@ -393,53 +156,282 @@ class MatchFields extends React.Component {
   }
 }
 
-// ~ 带字段的文本域
-// eslint-disable-next-line no-unused-vars
-class EditorWithFieldVars extends React.Component {
+// 验证公式有效性
+function verifyFormula(formula, entity, onConfirm) {
+  const b64 = $base64Encode($base64Encode(formula))
+  $.post(`/admin/robot/trigger/verify-formula?b64=2&entity=${entity}`, b64, (res) => {
+    if (res.error_code === 0) {
+      onConfirm()
+    } else {
+      RbAlert.create(
+        <RF>
+          <p>{$L('计算公式可能存在错误，这会导致触发器执行失败。是否继续？')}</p>
+          {res.error_msg && <pre className="text-danger p-2">{res.error_msg}</pre>}
+        </RF>,
+        {
+          type: 'warning',
+          onConfirm: function () {
+            this.hide()
+            onConfirm()
+          },
+          onCancel: function () {
+            this.hide()
+          },
+        },
+      )
+    }
+  })
+}
+
+// ~ 公式编辑器
+const INPUT_KEYS = ['+', 1, 2, 3, '-', 4, 5, 6, '×', 7, 8, 9, '÷', '(', ')', 0, '.', $L('回退'), $L('清空')]
+class FormulaCalc extends RbAlert {
   constructor(props) {
     super(props)
-    this.state = {}
+    this.state = { ...props }
   }
 
-  render() {
-    let attrs = {
-      className: 'form-control',
-      maxLength: 2000,
-      placeholder: this.props.placeholder || null,
+  renderContent() {
+    return (
+      <div className="formula-calc">
+        <div className="form-control-plaintext formula mb-2" _title={$L('计算公式')} ref={(c) => (this._$formula = c)} />
+        <div className="row unselect">
+          <div className="col-6">
+            <div className="fields rb-scroller" ref={(c) => (this._$fields = c)}>
+              <ul className="list-unstyled mb-0" _title={$L('无可用字段')}>
+                {this.props.fields.map((item) => {
+                  return (
+                    <li key={item.name} className={`flag-${item.type || 'N'}`}>
+                      <a onClick={() => this.handleInput(item)} title={item.label}>
+                        {item.label}
+                      </a>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          </div>
+          <div className="col-6 pl-0">
+            <ul className="list-unstyled numbers mb-0">
+              {this.renderExtraKeys()}
+              {INPUT_KEYS.map((item) => {
+                return (
+                  <li className="list-inline-item" key={`N-${item}`}>
+                    <a onClick={() => this.handleInput(item)}>{item}</a>
+                  </li>
+                )
+              })}
+              <li className="list-inline-item">
+                <a onClick={() => this.confirm()} className="confirm">
+                  {$L('确定')}
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    $(this._$fields).perfectScrollbar()
+
+    if (this.props.initFormula) {
+      const split = this.props.initFormula.match(/({[^}]+})|(.)/g)
+      split.forEach((v) => {
+        if (v.startsWith('{') && v.endsWith('}')) {
+          let field = v.substring(1, v.length - 1)
+          let fieldName43 = field.split('$$$$')[0]
+          let label = `[${field.toUpperCase()}]`
+          this.props.fields.forEach((f) => {
+            if (f.name === fieldName43) {
+              label = f.label
+            }
+          })
+          this.handleInput({ name: field, label: label })
+        } else {
+          this.handleInput(v)
+        }
+      })
+    }
+  }
+
+  renderExtraKeys() {
+    return null
+  }
+
+  handleInput(v) {
+    if (v === $L('回退')) {
+      $(this._$formula).find('.v:last').remove()
+    } else if (v === $L('清空')) {
+      $(this._$formula).empty()
+    } else if (typeof v === 'object') {
+      $(`<i class="v field" data-v="{${v.name}}">{${v.label}}</i>`).appendTo(this._$formula)
+    } else if (['+', '-', '×', '÷', '(', ')'].includes(v)) {
+      $(`<i class="v oper" data-v="${v}">${v}</em>`).appendTo(this._$formula)
+    } else {
+      $(`<i class="v num" data-v="${v}">${v}</i>`).appendTo(this._$formula)
+    }
+  }
+
+  confirm() {
+    const expr = []
+    $(this._$formula)
+      .find('i')
+      .each(function () {
+        expr.push($(this).data('v'))
+      })
+
+    const formula = expr.join('')
+    const that = this
+    function _onConfirm() {
+      typeof that.props.onConfirm === 'function' && that.props.onConfirm(formula)
+      that.hide()
     }
 
-    if (this.props.isCode) {
-      attrs = { ...attrs, className: 'formula-code', maxLength: 6000, autoFocus: true }
+    if (formula && this.props.verifyFormula) {
+      verifyFormula(formula, this.props.entity, _onConfirm)
+    } else {
+      _onConfirm()
     }
+  }
+
+  // 公式文本化
+  static textFormula(formula, fields) {
+    if (!formula) return ''
+
+    for (let i = 0; i < fields.length; i++) {
+      const field = fields[i]
+      formula = formula.replace(new RegExp(`\\{${field.name}\\}`, 'ig'), `{____${field.label}}`)
+    }
+    formula = formula.replace(new RegExp('\\{____', 'g'), '{') // fix: Label 与 Name 名称冲突
+
+    return formula //.toUpperCase()
+  }
+}
+
+// ~~ 日期公式编辑器
+class FormulaDate extends RbAlert {
+  constructor(props) {
+    super(props)
+    this.state = { calcNum: 1, calcUnit: props.type === 'TIME' ? 'H' : 'D' }
+  }
+
+  renderContent() {
+    const base = this.props.base ? this.props.base : [['NOW', $L('当前时间')]]
+    return (
+      <form className="ml-6 mr-6">
+        <div className="form-group">
+          <label className="text-bold">{$L('设置日期公式')}</label>
+          <div className="input-group">
+            <select className="form-control form-control-sm" ref={(c) => (this._$base = c)}>
+              {base.map((item) => {
+                return (
+                  <option key={item[0]} value={item[0]}>
+                    {item[1]}
+                  </option>
+                )
+              })}
+            </select>
+            <select className="form-control form-control-sm ml-1" onChange={(e) => this.setState({ calcOp: e.target.value })}>
+              <option value="">{$L('不计算')}</option>
+              <option value="+">{$L('加上')}</option>
+              <option value="-">{$L('减去')}</option>
+            </select>
+            <input
+              type="number"
+              min="1"
+              max="999999"
+              className="form-control form-control-sm ml-1"
+              defaultValue="1"
+              disabled={!this.state.calcOp}
+              onChange={(e) => this.setState({ calcNum: e.target.value })}
+            />
+            <select className="form-control form-control-sm ml-1" disabled={!this.state.calcOp} onChange={(e) => this.setState({ calcUnit: e.target.value })}>
+              {this.props.type !== 'TIME' && (
+                <RF>
+                  <option value="D">{$L('日')}</option>
+                  <option value="M">{$L('月')}</option>
+                  <option value="Y">{$L('年')}</option>
+                </RF>
+              )}
+              {(this.props.type === 'DATETIME' || this.props.type === 'TIME') && (
+                <RF>
+                  <option value="H">{$L('小时')}</option>
+                  <option value="I">{$L('分钟')}</option>
+                </RF>
+              )}
+            </select>
+          </div>
+        </div>
+        <div className="form-group mb-1">
+          <button type="button" className="btn btn-primary" onClick={() => this.confirm()}>
+            {$L('确定')}
+          </button>
+        </div>
+      </form>
+    )
+  }
+
+  confirm() {
+    let expr = $(this._$base).val()
+    if (!expr) return
+
+    if (this.state.calcOp) {
+      if (isNaN(this.state.calcNum) || this.state.calcNum < 1) {
+        return RbHighbar.create($L('请输入数字'))
+      }
+      expr += ` ${this.state.calcOp} ${this.state.calcNum}${this.state.calcUnit}`
+    }
+
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(`{${expr}}`)
+    this.hide()
+  }
+}
+
+// ~ 带字段的编辑器
+class EditorWithFieldVars extends CodeEditor {
+  render() {
+    if (this.props.isCode) return super.render()
 
     return (
-      <div className="textarea-wrap">
-        <textarea {...attrs} spellCheck="false" ref={(c) => (this._$content = c)} />
-        <div className="dropdown fields-vars">
+      <div className="code-editor">
+        <textarea className="form-control form-control-sm row3x" placeholder={this.props.placeholder} spellCheck="false" ref={(c) => (this._$content = c)} />
+        {this.renderActions()}
+      </div>
+    )
+  }
+
+  renderActions() {
+    return (
+      <div className="code-editor-actions light btm">
+        <span className="dropdown">
           <a title={$L('插入字段变量')} data-toggle="dropdown">
             <i className="mdi mdi-code-braces" />
           </a>
           <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ maxHeight: 388 }} ref={(c) => (this._$fieldVars = c)}>
-            {(this.state.fieldVars || []).map((item) => {
-              let typeMark = 'T'
-              if (['DATE', 'DATETIME', 'TIME'].includes(item.type)) typeMark = 'D'
-              else if (['NUMBER', 'DECIMAL'].includes(item.type)) typeMark = 'N'
-              return (
-                <a key={item.name} className="dropdown-item" data-name={item.name} data-pinyin={item.quickCode} onClick={() => this.insertAtCursor(`{${item.name}}`)}>
-                  <em>{typeMark}</em>
-                  {item.label}
-                </a>
-              )
-            })}
+            {this.state.fieldVars &&
+              this.state.fieldVars.map((item) => {
+                let typeMark = 'T'
+                if (['DATE', 'DATETIME', 'TIME'].includes(item.type)) typeMark = 'D'
+                else if (['NUMBER', 'DECIMAL'].includes(item.type)) typeMark = 'N'
+                return (
+                  <a key={item.name} className="dropdown-item" data-name={item.name} data-pinyin={item.quickCode} onClick={() => this.insertAtCursor(`{${item.name}}`)}>
+                    <em>{typeMark}</em>
+                    {item.label}
+                  </a>
+                )
+              })}
           </div>
-        </div>
-        {this.state.funcs && (
-          <div className="dropdown fields-vars funcs">
+        </span>
+        {this.state.funcVars && (
+          <span className="dropdown">
             <a title={$L('插入函数')} data-toggle="dropdown">
               <i className="mdi mdi-function-variant" />
             </a>
-            <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ maxHeight: 388 }} ref={(c) => (this._$funcs = c)}>
-              {this.state.funcs.map((item) => {
+            <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ maxHeight: 388 }} ref={(c) => (this._$funcVars = c)}>
+              {this.state.funcVars.map((item) => {
                 return (
                   <a key={item.name} className="dropdown-item" data-name={item.name} onClick={() => this.insertAtCursor(`${item.name}()`)}>
                     {item.label}
@@ -447,28 +439,20 @@ class EditorWithFieldVars extends React.Component {
                 )
               })}
             </div>
-          </div>
+          </span>
         )}
         {this.props.canFullscreen && (
-          <div className="fields-vars">
-            <a title={$L('全屏')} onClick={() => this.resize()}>
-              <i className="mdi mdi-fullscreen" />
-            </a>
-          </div>
+          <a title={$L('全屏')} onClick={() => this.resize()}>
+            <i className="mdi mdi-fullscreen" />
+          </a>
         )}
       </div>
     )
   }
 
-  insertAtCursor(text) {
-    $(this._$content).insertAtCursor(text)
-  }
-
-  resize() {
-    // TODO
-  }
-
   componentDidMount() {
+    super.componentDidMount()
+
     $.get(`/commons/metadata/fields?entity=${this.props.entity}&deep=3`, (res) => {
       this.setState({ fieldVars: res.data || [] }, () => {
         $(this._$fieldVars).perfectScrollbar()
@@ -479,61 +463,47 @@ class EditorWithFieldVars extends React.Component {
     if (this.props.showFuncs) {
       const IGNORED_NAMES = ['CACHE', 'LOG', 'RAWSQLQUERY', 'RAWSQLUPDATE', 'USERUPDATE', 'DEPTUPDATE', 'PDFMERGE', 'HANLPSIM', 'HANLPSEG', 'HANLPPINY', '$L', 'ZIP']
       $.get('/admin/robot/trigger/field-writeback-custom-funcs', (res) => {
-        let funcs = []
+        let funcVars = []
         res.data.forEach((name) => {
-          if (!IGNORED_NAMES.includes(name)) funcs.push({ name: name, label: name })
+          if (!IGNORED_NAMES.includes(name)) funcVars.push({ name: name, label: name })
         })
-        this.setState({ funcs }, () => {
-          $(this._$funcs).perfectScrollbar()
+        this.setState({ funcVars }, () => {
+          $(this._$funcVars).perfectScrollbar()
         })
       })
     }
 
-    // eslint-disable-next-line no-undef
-    autosize(this._$content)
-    setTimeout(() => {
-      const evt = new Event('input')
-      this._$content.dispatchEvent(evt)
-      // search
-      $dropdownMenuSearch(this._$fieldVars)
-    }, 200)
-  }
-
-  val() {
-    if (arguments.length > 0) {
-      $(this._$content).val(arguments[0])
+    if (!this._CodeMirror) {
       // eslint-disable-next-line no-undef
-      autosize.update(this._$content)
-    } else {
-      return $(this._$content).val()
+      autosize(this._$content)
+      setTimeout(() => {
+        const evt = new Event('input')
+        this._$content.dispatchEvent(evt)
+      }, 200)
     }
+    // search
+    setTimeout(() => $dropdownMenuSearch(this._$fieldVars), 200)
   }
 
-  focus() {
-    setTimeout(() => this._$content.focus(), 20)
-  }
+  resize() {}
 }
 
 // ~ 公式编辑器
 // eslint-disable-next-line no-unused-vars
 class FormulaCalcWithCode extends FormulaCalc {
-  constructor(props) {
-    super(props)
-  }
-
   renderContent() {
     let forceCode = this.props.forceCode || this.state.useCode
     let initCode = this.props.initFormula
     if (!forceCode && initCode && initCode.startsWith('{{{{')) {
       forceCode = true
     }
-    if (FormulaCalcWithCode.isCode(initCode) && initCode.startsWith('{{{{')) {
+    if (FormulaEditor.isCode(initCode) && initCode.startsWith('{{{{')) {
       initCode = initCode.substring(4, initCode.length - 4)
     }
 
     if (forceCode) {
       return (
-        <FormulaCode
+        <FormulaEditor
           initCode={initCode}
           onConfirm={(s) => {
             this.props.onConfirm(!$trim(s) ? null : `{{{{${s}}}}}`)
@@ -626,17 +596,23 @@ class FormulaCalcWithCode extends FormulaCalc {
 }
 
 // 公式代码编辑器
-class FormulaCode extends React.Component {
+class FormulaEditor extends React.Component {
   render() {
     return (
       <div>
-        {window.CodeMirror ? (
-          <CodeEditorWithFieldVars entity={this.props.entity} showFuncs ref={(c) => (this._formulaCode = c)} placeholder="## Support AviatorScript" isCode canFullscreen={false} />
-        ) : (
-          <EditorWithFieldVars entity={this.props.entity} showFuncs ref={(c) => (this._formulaCode = c)} placeholder="## Support AviatorScript" isCode />
-        )}
+        <EditorWithFieldVars
+          showFuncs
+          isCode
+          entity={this.props.entity}
+          placeholder="## Support AviatorScript"
+          cmOptions={{
+            mode: 'text/x-custom-js',
+          }}
+          value={this.props.initCode}
+          ref={(c) => (this._formulaCode = c)}
+        />
 
-        <div className="row mt-1">
+        <div className="row mt-2">
           <div className="col pt-2">
             <span className="d-inline-block">
               <a href="https://getrebuild.com/docs/admin/trigger/fieldwriteback#%E9%AB%98%E7%BA%A7%E8%AE%A1%E7%AE%97%E5%85%AC%E5%BC%8F" target="_blank" className="link">
@@ -655,10 +631,6 @@ class FormulaCode extends React.Component {
     )
   }
 
-  componentDidMount() {
-    this._formulaCode.val(this.props.initCode || '')
-  }
-
   handleConfirm() {
     const code = this._formulaCode.val()
     const that = this
@@ -673,6 +645,8 @@ class FormulaCode extends React.Component {
     }
   }
 
+  // --
+
   // 格式化显示
   static textCode(code) {
     if (!code) return null
@@ -681,28 +655,30 @@ class FormulaCode extends React.Component {
     code = code.replace(/( )/gi, '&nbsp;').replace(/</gi, '&lt;').replace(/\n/gi, '<br/>')
     return <code style={{ lineHeight: 1.2 }} dangerouslySetInnerHTML={{ __html: code }} />
   }
-}
 
-FormulaCalcWithCode.isCode = function (formula) {
-  return formula && formula.startsWith('{{{{')
-}
-
-FormulaCalcWithCode.formatText = function (formula, fields) {
-  if (!formula) return null
-
-  // CODE
-  if (FormulaCalcWithCode.isCode(formula)) {
-    return FormulaCode.textCode(formula)
+  // 是否公式代码
+  static isCode = function (formula) {
+    return formula && formula.startsWith('{{{{')
   }
-  // compatible: DATE
-  if (formula.includes('#')) {
-    const fs = formula.split('#')
-    const field = fields.find((x) => x.name === fs[0])
-    return `{${field ? field.label : `[${fs[0].toUpperCase()}]`}}` + (fs[1] || '')
-  }
-  // NUM,DATE
-  else {
-    return FormulaCalcWithCode.textFormula(formula, fields)
+
+  // 格式化
+  static formatText = function (formula, fields) {
+    if (!formula) return null
+
+    // CODE
+    if (FormulaEditor.isCode(formula)) {
+      return FormulaEditor.textCode(formula)
+    }
+    // compatible: DATE
+    if (formula.includes('#')) {
+      const fs = formula.split('#')
+      const field = fields.find((x) => x.name === fs[0])
+      return `{${field ? field.label : `[${fs[0].toUpperCase()}]`}}` + (fs[1] || '')
+    }
+    // NUM,DATE
+    else {
+      return FormulaEditor.textFormula(formula, fields)
+    }
   }
 }
 
@@ -802,8 +778,8 @@ class FormulaAggregation extends FormulaCalcWithCode {
     if (!formula) return ''
 
     // v4.3 CODE
-    if (FormulaCalcWithCode.isCode(formula)) {
-      return FormulaCode.textCode(formula)
+    if (FormulaEditor.isCode(formula)) {
+      return FormulaEditor.textCode(formula)
     }
 
     for (let i = 0; i < fields.length; i++) {
@@ -828,55 +804,6 @@ class FormulaAggregation extends FormulaCalcWithCode {
   static getLabel(name, fields) {
     const x = fields.find((x) => x.name === name)
     return x ? x.label : `[${name.toUpperCase()}]`
-  }
-}
-
-// v4.3 CM
-class CodeEditorWithFieldVars extends EditorWithFieldVars {
-  render() {
-    return <div className="CodeEditorWithFieldVars__wrap">{super.render()}</div>
-  }
-
-  componentDidMount() {
-    super.componentDidMount()
-
-    setTimeout(() => {
-      __defineCodeMirror()
-      this._CodeMirror = window.CodeMirror.fromTextArea(this._$content, {
-        // mode: 'javascript',
-        mode: 'text/x-custom-js',
-        theme: 'material-darker',
-        lineNumbers: true,
-        dragDrop: false,
-        smartIndent: true,
-        styleActiveLine: true,
-        autoCloseBrackets: true,
-        matchBrackets: true,
-        lineWrapping: true,
-        viewportMargin: Infinity,
-        ...this.props.cmProps,
-      })
-      this.focus()
-    }, 20)
-  }
-
-  insertAtCursor(text) {
-    this._CodeMirror.replaceSelection(text)
-    this.focus()
-  }
-
-  val() {
-    if (arguments.length) {
-      setTimeout(() => {
-        this._CodeMirror && this._CodeMirror.setValue(arguments[0])
-      }, 22)
-    } else {
-      return this._CodeMirror ? this._CodeMirror.getValue() : null
-    }
-  }
-
-  focus() {
-    this._CodeMirror && this._CodeMirror.focus()
   }
 }
 
@@ -909,3 +836,7 @@ let __defineCodeMirror = function () {
   // 注册 MIME 类型
   window.CodeMirror.defineMIME('text/x-custom-js', 'custom-js')
 }
+
+$(document).ready(() => {
+  window.CodeMirror && __defineCodeMirror()
+})
