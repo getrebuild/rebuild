@@ -1290,7 +1290,7 @@ class Md2Html extends React.Component {
     }
 
     const that = this
-    let cHtml = marked.parse(md)
+    let cHtml = marked.parse(md, { gfm: true, breaks: true })
     cHtml = cHtml.replace(/<img src="([^"]+)"/g, function (s, src) {
       let srcNew = src + (src.includes('?') ? '&' : '?') + 'imageView2/2/w/1000/interlace/1/q/100'
       // fix:v4.4 分享查看
