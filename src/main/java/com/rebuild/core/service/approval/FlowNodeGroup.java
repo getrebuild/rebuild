@@ -33,13 +33,14 @@ public class FlowNodeGroup {
     /**
      * @param node
      */
-    public void addNode(FlowNode node) {
+    protected void addNode(FlowNode node) {
         Assert.isNull(getApprovalNode(), "Cannot add multiple approved nodes");
         nodes.add(node);
     }
 
     /**
      * @return
+     * FlowNode#allowSelfSelecting()
      */
     public boolean allowSelfSelectingCc() {
         for (FlowNode node : nodes) {
@@ -52,6 +53,7 @@ public class FlowNodeGroup {
 
     /**
      * @return
+     * @see FlowNode#allowSelfSelecting()
      */
     public boolean allowSelfSelectingApprover() {
         FlowNode node = getApprovalNode();
@@ -60,10 +62,20 @@ public class FlowNodeGroup {
 
     /**
      * @return
+     * @see FlowNode#allowFinish()
      */
     public boolean allowFinish() {
         FlowNode node = getApprovalNode();
         return node != null && node.allowFinish();
+    }
+
+    /**
+     * @return
+     * @see FlowNode#freeApproval()
+     */
+    public boolean freeApproval() {
+        FlowNode node = getApprovalNode();
+        return node != null && node.freeApproval();
     }
 
     /**
@@ -154,7 +166,8 @@ public class FlowNodeGroup {
      * @return
      */
     public boolean isLastStep() {
-        // TODO 对审批最后一步加强判断
+        if (freeApproval()) return false;
+        // 无后续沈朴即为结束
         return getApprovalNode() == null;
     }
 

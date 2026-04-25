@@ -140,7 +140,7 @@ public class ApprovalController extends BaseController {
 
                 // v4.2 超时时间
                 FlowNode currentFlowNode = approvalProcessor.getCurrentNode();
-                data.put("expiresTime", currentFlowNode.getExpiresTime(recordId, user));
+                data.put("expiresTime", currentFlowNode == null ? null : currentFlowNode.getExpiresTime(recordId, user));
             }
 
             // 审批中提交人可撤回/催审
@@ -207,6 +207,13 @@ public class ApprovalController extends BaseController {
         data.put("allowReferral", currentFlowNode.allowReferral());
         data.put("allowCountersign", currentFlowNode.allowCountersign());
         data.put("allowFinish", currentFlowNode.allowFinish());
+        data.put("freeApproval", currentFlowNode.freeApproval());
+        // 自由审批无结束
+        if (currentFlowNode.freeApproval()) {
+            data.put("isLastStep", false);
+            data.put("approverSelfSelecting", true);
+            data.put("ccSelfSelecting", true);
+        }
 
         // 0=选填, 1=必填, 2=超时必填, 10=隐藏
         int reqType = currentFlowNode.getDataMap().getIntValue("remarkReq");

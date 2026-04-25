@@ -30,6 +30,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -189,9 +190,18 @@ public class ApprovalProcessor extends SetUser {
         if (state == ApprovalState.REJECTED && rejectNode != null) {
             nextNode = rejectNode;
             approvedStep.setInt("state", ApprovalState.BACKED.getState());
-        } else if (state == ApprovalState.APPROVED && !nextNodes.isLastStep()) {
+        }
+        // 自由审批
+        else if (state == ApprovalState.APPROVED && currentNode.freeApproval()) {
             nextApprovers = nextNodes.getApproveUsers(this.getUser(), this.recordId, selectNextUsers);
+            if (CollectionUtils.isNotEmpty(nextApprovers)) {
+                nextNode = currentNode.getNodeId() + "$FREE";
+            }
+        }
+        // 是否最终
+        else if (state == ApprovalState.APPROVED && !nextNodes.isLastStep()) {
             // 自选审批人
+            nextApprovers = nextNodes.getApproveUsers(this.getUser(), this.recordId, selectNextUsers);
             nextApprovers.addAll(getSelfSelectedApprovers(nextNodes));
 
             FlowNode nextApprovalNode = nextNodes.getApprovalNode();

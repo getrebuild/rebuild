@@ -300,6 +300,11 @@ public class ApprovalStepService extends BaseService {
             return;
         }
 
+        // 自由审批
+        boolean freeApproval = nextNode != null && nextNode.endsWith("$FREE");
+        String nextNodeFree = nextNode;
+        if (freeApproval) nextNode = nextNode.substring(0, nextNode.length() - 5);
+
         // 进入下一步
         if (goNextNode) {
             recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNode);
@@ -313,10 +318,10 @@ public class ApprovalStepService extends BaseService {
         // 下一步审批人
         Set<ID> nextSteps = new HashSet<>();
         if (nextApprovers != null) {
-            String nodeBatch = getBatchNo(recordId, approvalId, nextNode);
+            String nodeBatch = getBatchNo(recordId, approvalId, nextNodeFree);
             for (ID to : nextApprovers) {
                 ID created = createStepIfNeed(
-                        recordId, approvalId, nextNode, to, !goNextNode, currentNode, (Date) stepObject[4], nodeBatch);
+                        recordId, approvalId, nextNode, to, !goNextNode, currentNode, (Date) stepObject[4], nodeBatch, freeApproval);
                 if (created != null) nextSteps.add(created);
 
                 // 非会签通知审批
@@ -382,7 +387,7 @@ public class ApprovalStepService extends BaseService {
     }
 
     // 创建审批步骤
-    private ID createStepIfNeed(ID recordId, ID approvalId, String node, ID approver, boolean isWaiting, String prevNode, Date afterCreate, String nodeBatch) {
+    private ID createStepIfNeed(ID recordId, ID approvalId, String node, ID approver, boolean isWaiting, String prevNode, Date afterCreate, String nodeBatch, boolean freeApproval) {
         Object[] hasApprover = Application.createQueryNoFilter(
                 "select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and approver = ? and isCanceled = 'F' and createdOn >= ?")
                 .setParameter(1, recordId)
@@ -391,6 +396,7 @@ public class ApprovalStepService extends BaseService {
                 .setParameter(4, approver)
                 .setParameter(5, afterCreate)
                 .unique();
+        if (freeApproval) hasApprover = null;
         if (hasApprover != null) return null;
 
         Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, approver);
@@ -481,7 +487,7 @@ public class ApprovalStepService extends BaseService {
         cancelAliveSteps(recordId, null, null, null, false);
 
         ID stepId = createStepIfNeed(recordId, useApproval, FlowNode.NODE_AUTOAPPROVAL, useApprover,
-                Boolean.FALSE, FlowNode.NODE_ROOT, CalendarUtils.now(), getBatchNo(recordId, useApproval, FlowNode.NODE_ROOT));
+                Boolean.FALSE, FlowNode.NODE_ROOT, CalendarUtils.now(), getBatchNo(recordId, useApproval, FlowNode.NODE_ROOT), false);
 
         Record step = EntityHelper.forUpdate(stepId, useApprover, false);
         step.setInt("state", ApprovalState.APPROVED.getState());
@@ -592,7 +598,7 @@ public class ApprovalStepService extends BaseService {
         int c = 0;
         for (ID to : approvers) {
             if (to.equals(approver)) continue;
-            ID created = createStepIfNeed(recordId, approvalId, node, to, Boolean.FALSE, prevNode, fakeDate, nodeBatch);
+            ID created = createStepIfNeed(recordId, approvalId, node, to, Boolean.FALSE, prevNode, fakeDate, nodeBatch, false);
 
             if (created != null) {
                 // 标记加签
