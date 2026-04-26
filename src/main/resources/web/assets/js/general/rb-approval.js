@@ -364,8 +364,12 @@ class ApprovalUsersForm extends RbFormHandler {
 
     if (!this.state.isLastStep) {
       if ((this.state.nextApprovers || []).length === 0 && selectUsers.selectApprovers.length === 0) {
-        RbHighbar.create($L('请选择审批人'))
-        return false
+        if (this.state.freeApproval) {
+          // 自由审批可以不选，不选则流程结束
+        } else {
+          RbHighbar.create($L('请选择审批人'))
+          return false
+        }
       }
     }
     return selectUsers

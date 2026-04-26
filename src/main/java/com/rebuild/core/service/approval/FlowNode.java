@@ -128,6 +128,7 @@ public class FlowNode {
      * @return
      */
     public boolean allowSelfSelecting() {
+        if (freeApproval()) return true;
         Boolean b = getDataMap().getBoolean("selfSelecting");
         return b == null || b;
     }
@@ -167,10 +168,9 @@ public class FlowNode {
     /**
      * @return
      */
-    public boolean allowBatch() {
-//        Boolean b = getDataMap().getBoolean("allowBatch");
-//        return b != null && b;
-        return true;  // v4.2 全面允许
+    public boolean freeApproval() {
+        Boolean b = getDataMap().getBoolean("freeApproval");
+        return b != null && b;
     }
 
     /**
