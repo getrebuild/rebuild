@@ -21,6 +21,7 @@ import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
@@ -35,6 +36,7 @@ import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.core.support.integration.SMSenderContextHolder;
 import com.rebuild.utils.md.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -121,7 +123,7 @@ public class SendNotification extends TriggerAction {
         final int msgType = content.getIntValue("type");
 
         Set<ID> toUsers = UserHelper.parseUsers(
-                content.getJSONArray("sendTo"), actionContext.getSourceRecord(), Boolean.TRUE);
+                content.getJSONArray("sendTo"), operatingContext.getFixedRecordId(), Boolean.TRUE);
         if (toUsers.isEmpty()) return null;
 
         String[] contentAndTitle = formatMessageContent(actionContext, operatingContext);
@@ -129,7 +131,7 @@ public class SendNotification extends TriggerAction {
         File[] emailAttach = null;
         if (msgType == MTYPE_MAIL) {
             emailContent = MarkdownUtils.render(contentAndTitle[0], false, true);
-            emailAttach = getMailAttach(content);
+            emailAttach = getMailAttach(operatingContext, content);
         }
         final String emailContent2 = emailContent;
         final File[] emailAttach2 = emailAttach;
@@ -162,7 +164,8 @@ public class SendNotification extends TriggerAction {
                 String mobile = Application.getUserStore().getUser(user).getWorkphone();
                 if (RegexUtils.isCNMobile(mobile)) send.add(mobile);
             } else if (msgType == MTYPE_NOTIFICATION) {
-                Message m = MessageBuilder.createMessage(user, contentAndTitle[0], Message.TYPE_DEFAULT, actionContext.getSourceRecord());
+                Message m = MessageBuilder.createMessage(
+                        user, contentAndTitle[0], Message.TYPE_DEFAULT, operatingContext.getFixedRecordId());
                 m.setSpecTitle(contentAndTitle[1]);
                 Application.getNotifications().send(m);
                 send.add(user);
@@ -185,26 +188,29 @@ public class SendNotification extends TriggerAction {
         final JSONObject content = (JSONObject) actionContext.getActionContent();
         final int msgType = content.getIntValue("type");
 
-        Object[] to = null;
+        Object[] toAccounts = null;
         if (userType == UTYPE_ACCOUNT20) {
-            to = content.getString("sendTo").split("[，,;；]");
+            toAccounts = content.getString("sendTo").split("[，,;；]");
 
             // v4.3 手动输入支持字段变量
-            List<String> toList = new ArrayList<>();
-            for (Object o : to) {
-                String me = o.toString().trim();
+            List<String> to = new ArrayList<>();
+            for (Object account : toAccounts) {
+                String me = account.toString().trim();
                 if (me.startsWith("{") && me.endsWith("}")) {
                     me = me.substring(1, me.length() - 1);
-                    Object[] found = Application.getQueryFactory().uniqueNoFilter(operatingContext.getFixedRecordId(), me);
-                    if (found != null && found[0] != null) {
-                        String[] foundMe = found[0].toString().split("[，,;；]");
-                        Collections.addAll(toList, foundMe);
+
+                    Object[] found = queryFieldsValue(operatingContext.getFixedRecordId(), new String[]{me});
+                    for (Object item : found) {
+                        if (item != null) {
+                            String[] foundMe = item.toString().split("[，,;；]");
+                            Collections.addAll(to, foundMe);
+                        }
                     }
                 } else {
-                    toList.add(me);
+                    to.add(me);
                 }
             }
-            to = toList.toArray(new String[0]);
+            toAccounts = to.toArray(new String[0]);
 
         } else {
             String[] validFields = getValidDefsFields(content.getJSONArray("sendTo"));
@@ -219,20 +225,21 @@ public class SendNotification extends TriggerAction {
                         Object v;
                         if ((v = beforeRecord.getObjectValue(s)) != null) toList.add(v.toString());
                     }
-                    to = toList.toArray(new String[0]);
+                    toAccounts = toList.toArray(new String[0]);
                 }
+
             } else {
-                to = Application.getQueryFactory().uniqueNoFilter(actionContext.getSourceRecord(), validFields);
+                toAccounts = queryFieldsValue(operatingContext.getFixedRecordId(), validFields);
             }
         }
-        if (ArrayUtils.isEmpty(to)) return null;
+        if (ArrayUtils.isEmpty(toAccounts)) return null;
 
         String[] contentAndTitle = formatMessageContent(actionContext, operatingContext);
         String emailContent = null;
         File[] emailAttach = null;
         if (msgType == MTYPE_MAIL) {
             emailContent = MarkdownUtils.render(contentAndTitle[0], false, true);
-            emailAttach = getMailAttach(content);
+            emailAttach = getMailAttach(operatingContext, content);
         }
         final String emailContent2 = emailContent;
         final File[] emailAttach2 = emailAttach;
@@ -241,7 +248,7 @@ public class SendNotification extends TriggerAction {
 
         // v4.1 合并发送
         if (msgType == MTYPE_MAIL && content.getBooleanValue("mergeSend")) {
-            for (Object me : to) {
+            for (Object me : toAccounts) {
                 String email = me == null ? null : me.toString().trim();
                 if (RegexUtils.isEMail(email)) send.add(email);
             }
@@ -255,7 +262,7 @@ public class SendNotification extends TriggerAction {
             return send;
         }
 
-        for (Object me : to) {
+        for (Object me : toAccounts) {
             if (me == null) continue;
 
             String mobileOrEmail = me.toString().trim();
@@ -292,18 +299,17 @@ public class SendNotification extends TriggerAction {
         return RbvFunction.call().sendToFeishu(actionContext, operatingContext);
     }
 
-    private File[] getMailAttach(final JSONObject content) {
+    private File[] getMailAttach(OperatingContext operatingContext, JSONObject content) {
         String[] attachFields = getValidDefsFields(content.getJSONArray("attach"));
         if (attachFields == null) return null;
 
-        Object[] o = Application.getQueryFactory().unique(actionContext.getSourceRecord(), attachFields);
-        if (o == null || o.length == 0) return null;
+        Object[] fieldValue = queryFieldsValue(operatingContext.getFixedRecordId(), attachFields);
 
         List<File> files = new ArrayList<>();
-        for (Object item : o) {
-            if (item == null || item instanceof ID) continue;
+        for (Object o : fieldValue) {
+            if (o == null || o instanceof ID) continue;
 
-            JSONArray paths = JSON.parseArray((String) item);
+            JSONArray paths = JSON.parseArray((String) o);
             for (Object path : paths) {
                 try {
                     files.add(QiniuCloud.downloadFile((String) path));
@@ -320,11 +326,21 @@ public class SendNotification extends TriggerAction {
 
         List<String> validFields = new ArrayList<>();
         for (Object field : defs) {
-            if (MetadataHelper.getLastJoinField(actionContext.getSourceEntity(), field.toString()) != null) {
+            if (MetadataHelper.getLastJoinField(actionContext.getSourceEntity(), field.toString(), true) != null) {
                 validFields.add(field.toString());
             }
         }
         return validFields.isEmpty() ? null : validFields.toArray(new String[0]);
+    }
+
+    private Object[] queryFieldsValue(ID recordId, String[] fields) {
+        List<Object> res = new ArrayList<>();
+
+        for (String field : fields) {
+            Object[] fieldValue = QueryHelper.queryFieldValues(recordId, field);
+            CollectionUtils.addAll(res, fieldValue);
+        }
+        return res.toArray(new Object[0]);
     }
 
     // --
@@ -347,8 +363,8 @@ public class SendNotification extends TriggerAction {
             message = ContentWithFieldVars.replaceWithRecord(message, operatingContext.getBeforeRecord());
             subject = ContentWithFieldVars.replaceWithRecord(subject, operatingContext.getBeforeRecord());
         } else {
-            message = ContentWithFieldVars.replaceWithRecord(message, actionContext.getSourceRecord());
-            subject = ContentWithFieldVars.replaceWithRecord(subject, actionContext.getSourceRecord());
+            message = ContentWithFieldVars.replaceWithRecord(message, operatingContext.getFixedRecordId());
+            subject = ContentWithFieldVars.replaceWithRecord(subject, operatingContext.getFixedRecordId());
         }
 
         return new String[]{message, subject};

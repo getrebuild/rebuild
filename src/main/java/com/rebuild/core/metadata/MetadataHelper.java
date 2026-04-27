@@ -371,7 +371,7 @@ public class MetadataHelper {
      * @see #getLastJoinField(Entity, String, boolean)
      */
     public static Field getLastJoinField(Entity entity, String fieldPath) {
-        return getLastJoinField(entity, fieldPath, Boolean.FALSE);
+        return getLastJoinField(entity, fieldPath, false);
     }
 
     /**

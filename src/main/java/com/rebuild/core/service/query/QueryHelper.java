@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.utils.CommonsUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -224,6 +225,39 @@ public class QueryHelper {
     public static Object queryFieldValue(ID recordId, String fieldName) {
         Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, fieldName);
         return o == null || o[0] == null ? null : o[0];
+    }
+
+    /**
+     * @param recordId
+     * @param fieldName
+     * @return
+     */
+    public static Object[] queryFieldValues(ID recordId, String fieldName) {
+        Set<ID> prevRecordIds = new HashSet<>();
+        prevRecordIds.add(recordId);
+
+        String[] filePath = fieldName.split("\\.");
+        List<Object> res = new ArrayList<>();
+
+        for (int i = 0; i < filePath.length; i++) {
+            ID[] prevRecordIdsHold = prevRecordIds.toArray(new ID[0]);
+            prevRecordIds.clear();
+
+            for (ID id : prevRecordIdsHold) {
+                Object[] o = Application.getQueryFactory().uniqueNoFilter(id, filePath[i]);
+                Object oVal = o == null || o[0] == null ? null : o[0];
+                if (oVal == null) continue;
+
+                // Last
+                if (i + 1 == filePath.length) {
+                    res.add(oVal);
+                } else {
+                    if (oVal instanceof ID) prevRecordIds.add((ID) oVal);
+                    else if (oVal instanceof ID[]) CollectionUtils.addAll(prevRecordIds, (ID[]) oVal);
+                }
+            }
+        }
+        return res.toArray(new Object[0]);
     }
 
     /**

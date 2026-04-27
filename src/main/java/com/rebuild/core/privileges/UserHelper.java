@@ -13,7 +13,6 @@ import cn.devezhao.bizz.security.member.NoMemberFoundException;
 import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.bizz.security.member.Team;
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.Application;
@@ -24,6 +23,7 @@ import com.rebuild.core.privileges.bizz.CombinedRole;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.approval.FlowNode;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.img.ImageMaker;
@@ -262,7 +262,7 @@ public class UserHelper {
         for (String def : userDefs) {
             if (ID.isId(def)) {
                 bizzs.add(ID.valueOf(def));
-            } else if (entity != null && MetadataHelper.getLastJoinField(entity, def) != null) {
+            } else if (entity != null && MetadataHelper.getLastJoinField(entity, def, true) != null) {
                 useFields.add(def);
             } else {
                 if (FlowNode.USER_OWNS.equals(def));  // No warn
@@ -270,20 +270,14 @@ public class UserHelper {
             }
         }
 
-        if (!useFields.isEmpty()) {
-            useFields.add(entity.getPrimaryField().getName());
-            Record bizzValue = Application.getQueryFactory().recordNoFilter(recordId, useFields.toArray(new String[0]));
-
-            if (bizzValue != null) {
-                for (String field : bizzValue.getAvailableFields()) {
-                    Object value = bizzValue.getObjectValue(field);
-                    if (value == null) continue;
-
-                    if (value instanceof ID[]) {
-                        CollectionUtils.addAll(bizzs, (ID[]) value);
-                    } else {
-                        bizzs.add((ID) value);
-                    }
+        // 使用字段
+        for (String field : useFields) {
+            Object[] fieldValue = QueryHelper.queryFieldValues(recordId, field);
+            for (Object o : fieldValue) {
+                if (o instanceof ID[]) {
+                    CollectionUtils.addAll(bizzs, (ID[]) o);
+                } else if (o instanceof ID) {
+                    bizzs.add((ID) o);
                 }
             }
         }

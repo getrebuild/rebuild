@@ -1506,7 +1506,7 @@ class CodeEditor extends React.Component {
     if (window.CodeMirror) {
       this.props.isCode !== false && setTimeout(() => this.initCodeMirror(), 40)
     }
-    this.props.autoFocus !== false && setTimeout(() => this.focus(), 80)
+    this.props.autoFocus === true && setTimeout(() => this.focus(), 80)
   }
 
   initCodeMirror() {
