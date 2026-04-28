@@ -60,7 +60,6 @@ public class QueryHelper {
         String filterSql = useVarRecord
                 ? new AdvFilterParser(advFilter, recordId).toSqlWhere()
                 : new AdvFilterParser(advFilter).toSqlWhere();
-
         return isMatchFilter(recordId, filterSql);
     }
 
@@ -105,7 +104,6 @@ public class QueryHelper {
      */
     public static Record recordNoFilter(ID recordId) throws NoRecordFoundException {
         Record o = Application.getQueryFactory().recordNoFilter(recordId);
-
         if (o == null) throw new NoRecordFoundException(recordId);
         return o;
     }
@@ -127,7 +125,6 @@ public class QueryHelper {
         String sql = String.format("select %s from %s where %s = ?",
                 StringUtils.join(fields, ","), detailEntity.getName(),
                 MetadataHelper.getDetailToMainField(detailEntity).getName());
-
         return Application.createQueryNoFilter(sql).setParameter(1, mainId).list();
     }
 
@@ -304,5 +301,41 @@ public class QueryHelper {
 
         if (snap == null) throw new NoRecordFoundException(primaryId);
         return snap;
+    }
+
+    /**
+     * 查询相关项
+     *
+     * @param recordId
+     * @param relatedEntity
+     * @return
+     */
+    public static ID[] queryRelatedIds(ID recordId, Entity relatedEntity) {
+        Entity me = MetadataHelper.getEntity(recordId.getEntityCode());
+        Field[] reftoFields = MetadataHelper.getReferenceToFields(me, relatedEntity, true);
+        if (reftoFields.length == 0) return new ID[0];
+
+        List<String> or = new ArrayList<>();
+        for (Field field : reftoFields) {
+            if (field.getType() == FieldType.REFERENCE) {
+                or.add(String.format("%s = '%s'", field.getName(), recordId));
+            } else {
+                // N2N
+                String exists = String.format(
+                        "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId = '%s')",
+                        field.getOwnEntity().getPrimaryField().getName(), field.getName(), recordId);
+                or.add(exists);
+            }
+        }
+
+        String sql = String.format("select %s from %s where ( %s )",
+                relatedEntity.getPrimaryField().getName(), relatedEntity.getName(),
+                StringUtils.join(or.iterator(), " or "));
+        Object[][] array = Application.createQuery(sql).array();
+
+        Set<ID> ids = new HashSet<>();
+        for (Object[] o : array) ids.add((ID) o[0]);
+
+        return ids.toArray(new ID[0]);
     }
 }

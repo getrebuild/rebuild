@@ -15,7 +15,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
-import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 
@@ -120,7 +119,7 @@ public class PdfConverter {
         PDDocument origin = null;
         PDDocument cleand = null;
         try {
-            origin = Loader.loadPDF(file);
+            origin = PDDocument.load(file);
             cleand = new PDDocument();
             origin.getPages().forEach(cleand::addPage);
 

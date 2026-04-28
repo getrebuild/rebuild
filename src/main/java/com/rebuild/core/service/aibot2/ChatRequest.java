@@ -11,6 +11,8 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.Application;
+import com.rebuild.core.service.aibot.vector.FileData;
 import com.rebuild.core.service.aibot.vector.ListData;
 import com.rebuild.core.service.aibot.vector.RecordData;
 import com.rebuild.core.service.aibot.vector.VectorData;
@@ -61,7 +63,9 @@ public class ChatRequest {
      * @return
      */
     public String getUserContent() {
-        return getUserContent(true);
+        String c = getUserContent(true);
+        if (Application.devMode()) System.out.println("[dev] \n" + c);
+        return c;
     }
 
     /**
@@ -102,10 +106,13 @@ public class ChatRequest {
 
             String record = item.getString("record");
             String orListFilter = item.getString("listFilter");
+            String orFile = item.getString("file");
             if (ID.isId(record)) {
                 vdc.addVectorData(new RecordData(ID.valueOf(record)));
             } else if (JSONUtils.wellFormat(orListFilter)) {
                 vdc.addVectorData(new ListData(JSONObject.parseObject(orListFilter)));
+            } else if (StringUtils.isNotBlank(orFile)) {
+                vdc.addVectorData(new FileData(orFile));
             }
         }
         return vdc;

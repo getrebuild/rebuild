@@ -51,7 +51,7 @@ public class RecordData implements VectorData {
         final Record r = Application.getQueryFactory().recordNoFilter(recordId);
 
         StringBuilder v = new StringBuilder();
-        v.append("### ").append(EasyMetaFactory.getLabel(r.getEntity())).append(NN);
+        v.append("## ").append(EasyMetaFactory.getLabel(r.getEntity())).append(NN);
         for (String fieldName : r.getAvailableFields()) {
             Field field = r.getEntity().getField(fieldName);
             if (isFilterField(field)) continue;
@@ -62,7 +62,8 @@ public class RecordData implements VectorData {
         }
 
         // 明细
-        if (hasDetails) {
+        if (hasDetails && r.getEntity().getDetailEntity() != null) {
+            v.append("## 明细记录").append(NN);
             for (Entity de : r.getEntity().getDetialEntities()) {
                 v.append("\n### ").append(EasyMetaFactory.getLabel(de)).append(N);
                 List<ID> dids = QueryHelper.detailIdsNoFilter(recordId, de);
@@ -71,10 +72,20 @@ public class RecordData implements VectorData {
             }
         }
 
-        // 相关项
+        // v4.4 相关记录
         if (ArrayUtils.isNotEmpty(relateds)) {
-            for (String related : relateds) {
+            v.append("## 相关记录").append(NN);
 
+            for (String related : relateds) {
+                Entity re = MetadataHelper.getEntity(related);
+                ID[] ids = QueryHelper.queryRelatedIds(r.getPrimary(), re);
+
+                // TODO 无明细
+                if (ArrayUtils.isNotEmpty(ids)) {
+                    v.append("\n### ").append(EasyMetaFactory.getLabel(re)).append(N);
+                    String relatedTable = new ListData(null).toVector(ids, re);
+                    v.append(relatedTable).append(N);
+                }
             }
         }
 
@@ -105,9 +116,10 @@ public class RecordData implements VectorData {
     protected static boolean isFilterField(Field field) {
         if (MetadataHelper.isSystemField(field)) return true;
 
-        if (MetadataHelper.isApprovalField(field.getName())) {
-            return !(EntityHelper.ApprovalState.equals(field.getName())
-                    || EntityHelper.ApprovalId.equals(field.getName()));
+        String fieldName = field.getName();
+        if (EntityHelper.ApprovalState.equals(fieldName)
+                || EntityHelper.CreatedOn.equals(fieldName)) {
+            return false;
         }
 
         return MetadataHelper.isCommonsField(field);

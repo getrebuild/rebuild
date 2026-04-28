@@ -152,11 +152,11 @@ class ChatInput extends React.Component {
               <i className="mdi mdi-attachment-plus" />
             </button>
             <div className="dropdown-menu dropdown-menu-right">
-              <a className="dropdown-item" onClick={() => this.attachRecord()}>
-                {$L('选择记录')}
-              </a>
               <a className="dropdown-item" onClick={() => this.attachFile()}>
                 {$L('选择文件')}
+              </a>
+              <a className="dropdown-item" onClick={() => this.attachRecord()}>
+                {$L('选择记录')}
               </a>
               <a className="dropdown-item" onClick={() => this.attachPageData()}>
                 {$L('选择当前页数据')}
@@ -174,6 +174,7 @@ class ChatInput extends React.Component {
               <i className={this.state.postState === 0 ? 'mdi mdi-arrow-up' : 'mdi mdi-stop'} />
             </button>
           </div>
+          <input ref={(c) => (this._$file = c)} type="file" className="inputfile" data-local="temp" multiple />
         </div>
       </div>
     )
@@ -210,6 +211,17 @@ class ChatInput extends React.Component {
     this.setState({ attach })
   }
 
+  componentDidMount() {
+    $multipleUploader(this._$file, (res) => {
+      const attach = [...this.state.attach, { file: res.key, id: $random('attach-', true) }]
+      this.setState({ attach })
+    })
+  }
+
+  attachFile() {
+    this._$file.click()
+  }
+
   attachRecord() {
     const ps = {
       onConfirm: (v) => {
@@ -228,10 +240,6 @@ class ChatInput extends React.Component {
       allowBizz: false,
     }
     renderRbcomp(<RecordSelectorModal2 {...ps} zIndex="1050" />)
-  }
-
-  attachFile() {
-    RbHighbar.createl('暂不支持')
   }
 
   attachPageData() {
@@ -589,6 +597,7 @@ class ChatSidebar extends React.Component {
 class Attach extends React.Component {
   render() {
     if (!this.state) return null
+
     if (this.props._ChatInput) {
       return (
         <span className="text-ellipsis">
@@ -619,6 +628,8 @@ class Attach extends React.Component {
       })
     } else if (props.listFilter) {
       this.setState({ name: props.name || $L('列表数据') })
+    } else if (props.file) {
+      this.setState({ name: `[${$L('文件')}] ${$fileCutName(props.file)}` })
     }
   }
 
