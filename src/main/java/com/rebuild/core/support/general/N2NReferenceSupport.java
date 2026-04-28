@@ -11,16 +11,13 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.engine.NullValue;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.rebuild.core.Application;
-import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.service.query.QueryHelper;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -118,61 +115,19 @@ public class N2NReferenceSupport {
     }
 
     /**
+     * 获取 N2N 点连接字段值
+     *
      * @param fieldPath N2N, N2N.F, F.N2N, F.N2N.F
      * @param recordId
      * @return
+     * @see QueryHelper#queryFieldValue(ID, String, boolean)
      */
     public static Object[] getN2NValueByMixPath(String fieldPath, ID recordId) {
-        final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
-        final String primaryName = entity.getPrimaryField().getName();
-        final String[] fields = fieldPath.split("\\.");
-        final Field firstField = entity.getField(fields[0]);
-
-        // N2N
-        if (fields.length == 1) {
-            Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, firstField.getName(), primaryName);
-            return (Object[]) o[0];
-        }
-
-        // N2N.F
-        if (firstField.getType() == FieldType.REFERENCE_LIST) {
-            Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, firstField.getName(), primaryName);
-            ID[] n2nValue = (ID[]) o[0];
-            if (NullValue.isNull(n2nValue) || n2nValue.length == 0) return new Object[0];
-
-            List<Object> nvList = new ArrayList<>();
-            String path2 = fieldPath.substring(fieldPath.indexOf(".") + 1);
-            for (ID id2 : n2nValue) {
-                Object[] o2 = Application.getQueryFactory().uniqueNoFilter(id2, path2);
-                if (o2 != null) nvList.add(o2[0]);
-            }
-
-            return nvList.toArray(new Object[0]);
-        }
-
-        // F.N2N
-        if (firstField.getType() == FieldType.REFERENCE) {
-            Field secondField = firstField.getReferenceEntity().getField(fields[1]);
-            // F.N2N.F
-            if (fields.length > 2 && secondField.getType() == FieldType.REFERENCE_LIST) {
-                Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, firstField.getName());
-                ID firstValue = (ID) o[0];
-                if (firstValue == null) return new Object[0];
-
-                // use N2N.F
-                String path2 = fieldPath.substring(fieldPath.indexOf(".") + 1);
-                return getN2NValueByMixPath(path2, firstValue);
-            }
-            
-            Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, fieldPath, primaryName);
-            return (Object[]) o[0];
-        }
-
-        throw new RebuildException("Invalid N2N path : " + fieldPath);
+        return QueryHelper.queryFieldValue(recordId, fieldPath,  true);
     }
 
     /**
-     * v3.3
+     * 是否是 N2N 混合点连接，例如 `duokehu.AccountName`
      *
      * @param fieldPath
      * @param entity

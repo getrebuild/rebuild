@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -152,7 +153,7 @@ public class MetadataHelper {
      *
      * @param sourceEntity
      * @param referenceEntity
-     * @param includeN2N 包括多引用
+     * @param includeN2N      包括多引用
      * @return
      */
     public static Field[] getReferenceToFields(Entity sourceEntity, Entity referenceEntity, boolean includeN2N) {
@@ -371,7 +372,7 @@ public class MetadataHelper {
      * @see #getLastJoinField(Entity, String, boolean)
      */
     public static Field getLastJoinField(Entity entity, String fieldPath) {
-        return getLastJoinField(entity, fieldPath, Boolean.FALSE);
+        return getLastJoinField(entity, fieldPath, false);
     }
 
     /**
@@ -406,7 +407,7 @@ public class MetadataHelper {
                     father = lastField.getReferenceEntity();
                 } else if (compatibleN2N && lastField.getType() == FieldType.REFERENCE_LIST) {
                     father = lastField.getReferenceEntity();
-                }  else {
+                } else {
                     father = null;
                 }
             } else {
@@ -430,10 +431,10 @@ public class MetadataHelper {
      * @param entityName
      * @param fieldName
      * @return
-     * @see #checkAndWarnField(String, String, Object)
      */
     public static boolean checkAndWarnField(String entityName, String fieldName) {
-        return checkAndWarnField(entityName, fieldName, null);
+        if (containsEntity(entityName)) return false;
+        return checkAndWarnField(getEntity(entityName), fieldName, null);
     }
 
     /**
@@ -444,7 +445,7 @@ public class MetadataHelper {
      * @param checkSource
      * @return
      */
-    public static boolean checkAndWarnField(Entity entity, String fieldName, Object checkSource) {
+    protected static boolean checkAndWarnField(Entity entity, String fieldName, Object checkSource) {
         if (entity.containsField(fieldName)) return true;
 
         String warning = String.format("Unknown field `%s.%s`", entity.getName(), fieldName);
@@ -455,17 +456,25 @@ public class MetadataHelper {
     }
 
     /**
-     * 检查字段有效性（无效会 LOG）
-     *
-     * @param entityName
-     * @param fieldName
-     * @param checkSource
+     * @param entity
+     * @param fieldNames 数组/集合/String
      * @return
-     * @see #checkAndWarnField(Entity, String, Object)
      */
-    public static boolean checkAndWarnField(String entityName, String fieldName, Object checkSource) {
-        if (!containsEntity(entityName)) return false;
-        return checkAndWarnField(getEntity(entityName), fieldName, checkSource);
+    public static String[] cleanAndWarnFields(Entity entity, Object fieldNames) {
+        Object[] fieldNamesArr = new Object[0];
+        if (fieldNames instanceof Object[]) fieldNamesArr = (Object[]) fieldNames;
+        else if (fieldNames instanceof Collection) fieldNamesArr = ((Collection<?>) fieldNames).toArray(new Object[0]);
+        else if (fieldNames instanceof String) fieldNamesArr = new Object[]{fieldNames};
+
+        List<String> validFields = new ArrayList<>();
+        for (Object fieldName : fieldNamesArr) {
+            if (getLastJoinField(entity, (String) fieldName, true) == null) {
+                log.warn("Unknown field `{}.{}`", entity.getName(), fieldName);
+            } else {
+                validFields.add((String) fieldName);
+            }
+        }
+        return validFields.isEmpty() ? null : validFields.toArray(new String[0]);
     }
 
     /**

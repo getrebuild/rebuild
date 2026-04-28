@@ -534,7 +534,7 @@ class StartNodeConfig extends RbFormHandler {
             </label>
           </div>
           <div className={`form-group ${this.state.users === 'SPEC' ? '' : 'hide'}`}>
-            <UserSelector ref={(c) => (this._UserSelector = c)} />
+            <UserSelectorWithField ref={(c) => (this._UserSelector = c)} />
           </div>
 
           <div className="form-group mt-5 mb-0">
@@ -1061,7 +1061,7 @@ class CCNodeConfig extends StartNodeConfig {
             <label className="text-bold">
               {$L('抄送给外部人员')} <sup className="rbv" />
             </label>
-            <UserSelectorWithField ref={(c) => (this._UserSelector2 = c)} userType={2} hideUser hideDepartment hideRole hideTeam />
+            <UserSelectorWithField ref={(c) => (this._UserSelector2Acc = c)} userType={2} hideUser hideDepartment hideRole hideTeam />
             <p className="form-text">{$L('选择外部人员的电话 (手机) 或邮箱字段')}</p>
           </div>
         </div>
@@ -1077,7 +1077,7 @@ class CCNodeConfig extends StartNodeConfig {
     if ((this.props.accounts || []).length > 0) {
       $.post(`/commons/search/user-selector?entity=${this.props.entity || wpc.applyEntity}`, JSON.stringify(this.props.accounts), (res) => {
         if (res.error_code === 0 && res.data.length > 0) {
-          this._UserSelector2.setState({ selected: res.data })
+          this._UserSelector2Acc.setState({ selected: res.data })
         }
       })
     }
@@ -1089,7 +1089,7 @@ class CCNodeConfig extends StartNodeConfig {
       users: this._UserSelector.getSelected(),
       selfSelecting: this.state.selfSelecting,
       ccAutoShare: this.state.ccAutoShare,
-      accounts: this._UserSelector2.getSelected(),
+      accounts: this._UserSelector2Acc.getSelected(),
     }
 
     if (d.accounts.length > 1 && rb.commercial < 1) {
@@ -1350,7 +1350,7 @@ class UserSelectorWithField extends UserSelector {
 
     // 外部人员
     if (this.props.userType === 2) {
-      $.get(`/commons/metadata/fields?deep=3&entity=${this.props.entity || wpc.applyEntity}`, (res) => {
+      $.get(`/commons/metadata/fields?deep=3&entity=${this.props.entity || wpc.applyEntity}&referer=withN2N`, (res) => {
         res.data &&
           res.data.forEach((item) => {
             if (item.type === 'PHONE' || item.type === 'EMAIL') {

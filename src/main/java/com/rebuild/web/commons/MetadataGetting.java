@@ -110,14 +110,16 @@ public class MetadataGetting extends BaseController {
         // 返回引用实体的字段层级
         int appendRefFields = getIntParameter(request, "deep");
         // 丰富字段信息
-        boolean riching = getBoolParameter(request, "riching", true);
+        boolean richField = getBoolParameter(request, "riching", true);
 
         // 根据不同的 referer 返回不同的字段列表
-        // 返回 ID 主键字段
         String referer = getParameter(request, "referer");
-        int forceWith = "withid".equals(referer) ? 1 : 0;
+        // 返回 ID 主键字段
+        boolean includeId = referer != null && referer.contains("withID");
+        // v4.4 返回 N2N 引用
+        boolean includeN2N = referer != null && referer.contains("withN2N");
 
-        return MetaFormatter.buildFieldsWithRefs(entity, appendRefFields, riching, forceWith, field -> {
+        return MetaFormatter.buildFieldsWithRefs(entity, appendRefFields, richField, includeId, includeN2N, field -> {
             if (!field.isQueryable()) return true;
 
             if (field instanceof Field) {

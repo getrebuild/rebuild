@@ -138,7 +138,7 @@ public class UsersGetting extends BaseController {
                     shows.add(new String[]{idOrField, name});
                 }
 
-            } else if (useEntity != null && MetadataHelper.getLastJoinField(useEntity, idOrField) != null) {
+            } else if (useEntity != null && MetadataHelper.getLastJoinField(useEntity, idOrField, true) != null) {
                 String fieldLabel = EasyMetaFactory.getLabel(useEntity, idOrField);
                 shows.add(new String[]{idOrField, fieldLabel});
             }

@@ -83,22 +83,20 @@ public class MetaFormatter {
      * @param deep
      * @param filter
      * @return
-     * @see #buildFieldsWithRefs(Entity, int, boolean, int, Predicate)
      */
     public static JSONArray buildFieldsWithRefs(Entity entity, int deep, Predicate<BaseMeta> filter) {
-        return buildFieldsWithRefs(entity, deep, false, filter);
+        return buildFieldsWithRefs(entity, deep, false, false, false, filter);
     }
 
     /**
      * @param entity
      * @param deep
-     * @param riching
+     * @param richField
      * @param filter
      * @return
-     * @see #buildFieldsWithRefs(Entity, int, boolean, int, Predicate)
      */
-    public static JSONArray buildFieldsWithRefs(Entity entity, int deep, boolean riching, Predicate<BaseMeta> filter) {
-        return buildFieldsWithRefs(entity, deep, riching, 0, filter);
+    public static JSONArray buildFieldsWithRefs(Entity entity, int deep, boolean richField, Predicate<BaseMeta> filter) {
+        return buildFieldsWithRefs(entity, deep, richField, false, false, filter);
     }
 
     /**
@@ -106,22 +104,22 @@ public class MetaFormatter {
      *
      * @param entity
      * @param deep
-     * @param riching
-     * @param forceWith 1=ID, 2=approvalStepNode
+     * @param richField
+     * @param includeId
      * @param filter 过滤器
      * @return
      */
-    public static JSONArray buildFieldsWithRefs(Entity entity, int deep, boolean riching, int forceWith, Predicate<BaseMeta> filter) {
+    public static JSONArray buildFieldsWithRefs(Entity entity, int deep, boolean richField, boolean includeId, boolean includeN2N, Predicate<BaseMeta> filter) {
         JSONArray res = new JSONArray();
 
         // 一级
         for (Field field : MetadataSorter.sortFields(entity)) {
             EasyField easyField = EasyMetaFactory.valueOf(field);
             if (filter.test(easyField)) continue;
-            res.add(buildField(easyField, null, riching));
+            res.add(buildField(easyField, null, richField));
         }
-        // ID
-        if (forceWith == 1) {
+        // ID字段
+        if (includeId) {
             res.add(buildField(EasyMetaFactory.valueOf(entity.getPrimaryField()), null, false));
         }
 
@@ -130,7 +128,10 @@ public class MetaFormatter {
         List<Object[]> deep3Refs = new ArrayList<>();
 
         // 二级
-        for (Field field2 : MetadataSorter.sortFields(entity, DisplayType.REFERENCE)) {
+        Field[] refFieldsL2 = includeN2N
+                ? MetadataSorter.sortFields(entity, DisplayType.REFERENCE, DisplayType.N2NREFERENCE)
+                : MetadataSorter.sortFields(entity, DisplayType.REFERENCE);
+        for (Field field2 : refFieldsL2) {
             if (filter.test(field2)) continue;
 
             Entity entity2 = field2.getReferenceEntity();
@@ -145,10 +146,13 @@ public class MetaFormatter {
                 EasyField easyField = EasyMetaFactory.valueOf(field);
                 if (filter.test(easyField)) continue;
 
-                res.add(buildField(easyField, parents, riching));
+                res.add(buildField(easyField, parents, richField));
 
-                if (deep >= 3 && easyField.getDisplayType() == DisplayType.REFERENCE) {
-                    deep3Refs.add(new Object[]{parents[0], parents[1], easyField});
+                if (deep >= 3) {
+                    if (easyField.getDisplayType() == DisplayType.REFERENCE
+                            || (includeN2N && easyField.getDisplayType() == DisplayType.N2NREFERENCE)) {
+                        deep3Refs.add(new Object[]{parents[0], parents[1], easyField});
+                    }
                 }
             }
         }
@@ -170,7 +174,7 @@ public class MetaFormatter {
                 EasyField easyField = EasyMetaFactory.valueOf(field);
                 if (filter.test(easyField)) continue;
 
-                JSONObject item = buildField(easyField, parents, riching);
+                JSONObject item = buildField(easyField, parents, richField);
                 String name = item.getString("name");
 
                 // 特殊过滤（对业务没什么用）

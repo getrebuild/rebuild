@@ -148,7 +148,7 @@ class ContentSendNotification extends ActionContentSpec {
             <div className="form-group row">
               <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('内容')}</label>
               <div className="col-12 col-lg-8">
-                <EditorWithFieldVars entity={wpc.sourceEntity} ref={(c) => (this._content = c)} />
+                <EditorWithFieldVars isCode={false} entity={wpc.sourceEntity} ref={(c) => (this._content = c)} />
                 <p className="form-text" dangerouslySetInnerHTML={{ __html: $L('内容 (及标题) 支持字段变量，字段变量如 `{createdOn}` (其中 createdOn 为源实体的字段内部标识)') }} />
               </div>
             </div>
@@ -322,7 +322,7 @@ class SelectorWithField extends UserSelector {
 
     const fieldTypes = this.props.fieldTypes || ['PHONE', 'EMAIL']
     this._fields = []
-    $.get(`/commons/metadata/fields?deep=3&entity=${this.props.entity || wpc.sourceEntity}`, (res) => {
+    $.get(`/commons/metadata/fields?deep=3&entity=${this.props.entity || wpc.sourceEntity}&referer=withN2N`, (res) => {
       res.data &&
         res.data.forEach((item) => {
           if (fieldTypes.includes(item.type)) {

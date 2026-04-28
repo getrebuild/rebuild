@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.utils.CommonsUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -217,13 +218,72 @@ public class QueryHelper {
     }
 
     /**
+     * 查询字段值
+     *
      * @param recordId
      * @param fieldName
      * @return
+     * @see #queryFieldValue(ID, String, boolean)
      */
     public static Object queryFieldValue(ID recordId, String fieldName) {
         Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, fieldName);
         return o == null || o[0] == null ? null : o[0];
+    }
+
+    /**
+     * 查询字段值，可兼容 N2N 点连接字段
+     *
+     * @param recordId
+     * @param fieldName
+     * @param compatibleN2N
+     * @return
+     */
+    public static Object[] queryFieldValue(ID recordId, String fieldName, boolean compatibleN2N) {
+        if (!compatibleN2N) {
+            Object o = queryFieldValue(recordId, fieldName);
+            return o == null ? new Object[0] : new Object[]{o};
+        }
+
+        List<Object> res = new ArrayList<>();
+        String[] filePath = fieldName.split("\\.");
+
+        Set<ID> prevRecordIds = new HashSet<>();
+        prevRecordIds.add(recordId);
+
+        for (int i = 0; i < filePath.length; i++) {
+            ID[] prevRecordIdsHold = prevRecordIds.toArray(new ID[0]);
+            prevRecordIds.clear();
+
+            for (ID id : prevRecordIdsHold) {
+                Object[] o = Application.getQueryFactory().uniqueNoFilter(id, filePath[i]);
+                Object oVal = o == null || o[0] == null ? null : o[0];
+                if (oVal == null) continue;
+
+                // Last
+                if (i + 1 == filePath.length) {
+                    res.add(oVal);
+                } else {
+                    if (oVal instanceof ID) prevRecordIds.add((ID) oVal);
+                    else if (oVal instanceof ID[]) CollectionUtils.addAll(prevRecordIds, (ID[]) oVal);
+                }
+            }
+        }
+        return res.toArray(new Object[0]);
+    }
+
+    /**
+     * @param recordId
+     * @param fieldNames
+     * @param compatibleN2N
+     * @return
+     */
+    public static Object[] queryFieldValue(ID recordId, String[] fieldNames, boolean compatibleN2N) {
+        List<Object> res = new ArrayList<>();
+        for (String fieldName : fieldNames) {
+            Object[] o = queryFieldValue(recordId, fieldName, compatibleN2N);
+            if (o.length > 0) CollectionUtils.addAll(res, o);
+        }
+        return res.toArray(new Object[0]);
     }
 
     /**

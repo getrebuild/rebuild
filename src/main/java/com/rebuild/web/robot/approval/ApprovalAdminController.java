@@ -148,32 +148,32 @@ public class ApprovalAdminController extends BaseController {
         // 发起人
         for (Field field : userRefFields) {
             if (isRefUserOrDeptField(field, fieldsNames, true)) {
-                fields.add(new String[] {
+                fields.add(new String[]{
                         ApprovalHelper.APPROVAL_SUBMITOR + field.getName(),
-                        textSubmitor + EasyMetaFactory.getLabel(field)} );
+                        textSubmitor + EasyMetaFactory.getLabel(field)});
             }
         }
         for (Field field : deptRefFields) {
             if (isRefUserOrDeptField(field, fieldsNames, true)) {
-                fields.add(new String[] {
+                fields.add(new String[]{
                         ApprovalHelper.APPROVAL_SUBMITOR + "deptId." + field.getName(),
-                        textSubmitor + textDept + EasyMetaFactory.getLabel(field)} );
+                        textSubmitor + textDept + EasyMetaFactory.getLabel(field)});
             }
         }
 
         // （上一）审批人
         for (Field field : userRefFields) {
             if (isRefUserOrDeptField(field, fieldsNames, true)) {
-                fields.add(new String[] {
+                fields.add(new String[]{
                         ApprovalHelper.APPROVAL_APPROVER + field.getName(),
-                        textApprover + EasyMetaFactory.getLabel(field)} );
+                        textApprover + EasyMetaFactory.getLabel(field)});
             }
         }
         for (Field field : deptRefFields) {
             if (isRefUserOrDeptField(field, fieldsNames, true)) {
-                fields.add(new String[] {
+                fields.add(new String[]{
                         ApprovalHelper.APPROVAL_APPROVER + "deptId." + field.getName(),
-                        textApprover + textDept + EasyMetaFactory.getLabel(field)} );
+                        textApprover + textDept + EasyMetaFactory.getLabel(field)});
             }
         }
 
@@ -181,12 +181,12 @@ public class ApprovalAdminController extends BaseController {
         Field[] refFields = MetadataSorter.sortFields(entity, DisplayType.REFERENCE, DisplayType.N2NREFERENCE);
         for (Field field : refFields) {
             if (isRefUserOrDeptField(field, fieldsNames, false)) {
-                fields.add(new String[] { field.getName(), EasyMetaFactory.getLabel(field)} );
+                fields.add(new String[]{field.getName(), EasyMetaFactory.getLabel(field)});
             }
         }
         // 引用实体字段
         for (Field field : refFields) {
-            if (field.getType() != FieldType.REFERENCE) continue;
+            if (!(field.getType() == FieldType.REFERENCE || field.getType() == FieldType.REFERENCE_LIST)) continue;
             if (MetadataHelper.isCommonsField(field)) continue;
 
             String parentName = field.getName() + ".";
@@ -195,13 +195,13 @@ public class ApprovalAdminController extends BaseController {
             Field[] refFields2 = MetadataSorter.sortFields(field.getReferenceEntity(), DisplayType.REFERENCE, DisplayType.N2NREFERENCE);
             for (Field field2 : refFields2) {
                 if (isRefUserOrDeptField(field2, fieldsNames, false)) {
-                    fields.add(new String[] { parentName + field2.getName(), parentLabel + EasyMetaFactory.getLabel(field2)} );
+                    fields.add(new String[]{parentName + field2.getName(), parentLabel + EasyMetaFactory.getLabel(field2)});
                 }
             }
         }
 
         return JSONUtils.toJSONObjectArray(
-                new String[] {  "id", "text" }, fields.toArray(new String[0][]));
+                new String[]{"id", "text"}, fields.toArray(new String[0][]));
     }
 
     private boolean isRefUserOrDeptField(Field field, Set<String> filterNames, boolean excludeCommon) {
@@ -227,7 +227,7 @@ public class ApprovalAdminController extends BaseController {
             if (ID.isId(idOrField)) {
                 String name = UserHelper.getName(ID.valueOf(idOrField));
                 if (name != null) {
-                    shows.add(new String[] { idOrField, name });
+                    shows.add(new String[]{idOrField, name});
                 }
 
             } else if (idOrField.startsWith(ApprovalHelper.APPROVAL_SUBMITOR)
@@ -239,19 +239,19 @@ public class ApprovalAdminController extends BaseController {
                         fieldText = textDept + fieldText;
                     }
                     fieldText = (idOrField.startsWith(ApprovalHelper.APPROVAL_SUBMITOR)
-                            ? textSubmitor : textApprover)  + fieldText;
+                            ? textSubmitor : textApprover) + fieldText;
 
-                    shows.add(new String[] { idOrField, fieldText });
+                    shows.add(new String[]{idOrField, fieldText});
                 }
 
             } else if (MetadataHelper.getLastJoinField(entity, idOrField) != null) {
                 String fieldLabel = EasyMetaFactory.getLabel(entity, idOrField);
-                shows.add(new String[] { idOrField, fieldLabel });
+                shows.add(new String[]{idOrField, fieldLabel});
             }
         }
 
         return JSONUtils.toJSONObjectArray(
-                new String[] {  "id", "text" }, shows.toArray(new String[0][]));
+                new String[]{"id", "text"}, shows.toArray(new String[0][]));
     }
 
     @RequestMapping("approval/use-stats")
@@ -263,7 +263,7 @@ public class ApprovalAdminController extends BaseController {
             ID aid = ID.valueOf(id);
             int state2 = ApprovalHelper.checkUsed(aid, ApprovalState.PROCESSING);
             int state10 = ApprovalHelper.checkUsed(aid, ApprovalState.APPROVED);
-            res.put(id, new Object[] { state2, state10 });
+            res.put(id, new Object[]{state2, state10});
         }
         return RespBody.ok(res);
     }
@@ -279,11 +279,11 @@ public class ApprovalAdminController extends BaseController {
             }
         }
 
-        urgeUsers.add(new String[] { ApprovalHelper.APPROVAL_APPROVER, Language.L("审批人") });
-        urgeUsers.add(new String[] { ApprovalHelper.APPROVAL_SUBMITOR, Language.L("提交人") });
+        urgeUsers.add(new String[]{ApprovalHelper.APPROVAL_APPROVER, Language.L("审批人")});
+        urgeUsers.add(new String[]{ApprovalHelper.APPROVAL_SUBMITOR, Language.L("提交人")});
 
         Object res = JSONUtils.toJSONObject(
-                new String[] { "dateFields", "urgeUsers" }, new Object[] { dateFields, urgeUsers } );
+                new String[]{"dateFields", "urgeUsers"}, new Object[]{dateFields, urgeUsers});
         return RespBody.ok(res);
     }
 }
