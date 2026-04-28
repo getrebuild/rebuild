@@ -684,14 +684,21 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 }
 
                 ApprovalState state = ApprovalHelper.getApprovalState(dtmFieldValue);
+                String unallowMsg = null;
                 if (state == ApprovalState.APPROVED) {
-                    throw new DataSpecificationException(Language.L("主记录已审批完成，不能添加明细"));
+                    unallowMsg = Language.L("主记录已审批完成，不能添加明细");
                 } else if (state == ApprovalState.PROCESSING) {
                     boolean allow42 = ApprovalHelper.isAllowEditableRecord(dtmFieldValue, getCurrentUser());
-                    if (!allow42) {
-                        throw new DataSpecificationException(Language.L("主记录正在审批中，不能添加明细"));
-                    }
+                    if (!allow42) unallowMsg = Language.L("主记录正在审批中，不能添加明细");
                 }
+
+                // v4.4 明细允许强制新建
+                if (unallowMsg != null) {
+                    boolean forceUpdate = GeneralEntityServiceContextHolder.isAllowForceUpdate(false);
+                    if (forceUpdate) unallowMsg = null;
+                }
+
+                if (unallowMsg != null) throw new DataSpecificationException(unallowMsg);
             }
 
         } else {

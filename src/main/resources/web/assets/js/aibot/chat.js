@@ -118,15 +118,17 @@ class ChatInput extends React.Component {
         <div className={`chat-input ${this.state.active && 'active'}`}>
           <div className="chat-input-input">
             <div className="chat-input-attach">
-              <ul className="m-0 list-unstyled">
-                {this.state.attach.map((item, idx) => {
-                  return (
-                    <li key={idx}>
-                      <Attach {...item} _ChatInput={this} />
-                    </li>
-                  )
-                })}
-              </ul>
+              {this.state.attach && this.state.attach.length > 0 && (
+                <ul className="m-0 mb-1 list-unstyled">
+                  {this.state.attach.map((item, idx) => {
+                    return (
+                      <li key={idx}>
+                        <Attach {...item} _ChatInput={this} />
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
             </div>
             <textarea
               rows="2"
@@ -209,7 +211,7 @@ class ChatInput extends React.Component {
   }
 
   attachRecord() {
-    RecordSelectorModal.create({
+    const ps = {
       onConfirm: (v) => {
         let attach = [...this.state.attach]
         if (typeof v === 'object') {
@@ -224,11 +226,14 @@ class ChatInput extends React.Component {
       allowMultiple: true,
       allowEntities: window.__LAB_AIALLOWENTITIES435 || null,
       allowBizz: false,
-    })
+    }
+    renderRbcomp(<RecordSelectorModal2 {...ps} zIndex="1050" />)
   }
+
   attachFile() {
     RbHighbar.createl('暂不支持')
   }
+
   attachPageData() {
     if (typeof window.attachAibotPageData === 'function') {
       window.attachAibotPageData((data) => {
@@ -508,7 +513,7 @@ class ChatSidebar extends React.Component {
               this.toggleShow(false)
             }}>
             <i className="mdi mdi-chat-plus-outline mr-1 icon" />
-            {$L('新对话')}
+            {$L('新会话')}
           </a>
         </div>
         <div className="chat-list">
@@ -690,5 +695,31 @@ class DlgAttachRecordList extends RbAlert {
     const s = $(this._$select).find('input:checked').val()
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(s)
     this.hide()
+  }
+}
+
+// ~~ 选择记录
+class RecordSelectorModal2 extends RecordSelectorModal {
+  renderContent() {
+    return (
+      <div className="form ml-3 mr-3">
+        <div className="form-group">
+          <label className="text-bold">{this.props.title || $L('选择记录')}</label>
+          <AnyRecordSelector ref={(c) => (this._AnyRecordSelector = c)} allowEntities={this.props.allowEntities} allowBizz={this.props.allowBizz} allowMultiple={this.props.allowMultiple} />
+        </div>
+
+        <div className="form-group mb-2">
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => {
+              typeof this.props.onConfirm === 'function' && this.props.onConfirm(this._AnyRecordSelector.val())
+              this.hide()
+            }}>
+            {$L('确定')}
+          </button>
+        </div>
+      </div>
+    )
   }
 }

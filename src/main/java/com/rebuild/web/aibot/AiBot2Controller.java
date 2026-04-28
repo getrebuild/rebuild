@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
@@ -46,8 +47,10 @@ public class AiBot2Controller extends BaseController {
 
     @PostMapping("post/chat")
     public void chat(HttpServletRequest req, HttpServletResponse resp) {
-        Chat chat = initChat(req);
-        Message respMessage = chat.post(new ChatRequest(req, chat.getChatid()));
+        ChatRequest chatRequest = buildChatRequest(req);
+        Chat chat = ChatManager.getChat(chatRequest.getChatid());
+
+        Message respMessage = chat.post(chatRequest);
         ServletUtils.writeJson(resp, respMessage.toJSON().toJSONString());
     }
 
@@ -58,21 +61,26 @@ public class AiBot2Controller extends BaseController {
             return;
         }
 
-        Chat chat = initChat(req);
+        ChatRequest chatRequest = buildChatRequest(req);
+        Chat chat = ChatManager.getChat(chatRequest.getChatid());
+
         try {
-            chat.stream(new ChatRequest(req, chat.getChatid()), resp);
+            chat.stream(chatRequest, resp);
         } catch (Exception ex) {
             log.error("chat-stream", ex);
             StreamEcho.error("请求错误:" + CommonsUtils.getRootMessage(ex), resp.getWriter());
         }
     }
 
-    private Chat initChat(HttpServletRequest req) {
+    private ChatRequest buildChatRequest(HttpServletRequest req) {
+        JSONObject reqJson = (JSONObject) ServletUtils.getRequestJson(req);
         ID chatid = getIdParameter(req, "chatid");
         if (chatid == null) {
-            chatid = ChatManager.initChat(getRequestUser(req));
+            String s = reqJson.getString("content");
+            chatid = ChatManager.initChat(getRequestUser(req), s);
         }
-        return ChatManager.getChat(chatid);
+
+        return new ChatRequest(reqJson, chatid);
     }
 
     @GetMapping("post/chat-init")

@@ -20,6 +20,7 @@ import com.rebuild.utils.JSONUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -44,8 +45,16 @@ public class ChatRequest {
      * @param request
      */
     public ChatRequest(HttpServletRequest request, ID chatid) {
+        this((JSONObject) ServletUtils.getRequestJson(request), chatid);
+    }
+
+    /**
+     * @param requestJson
+     * @param chatid
+     */
+    public ChatRequest(JSONObject requestJson, ID chatid) {
         this.chatid = chatid;
-        this.reqJson = (JSONObject) ServletUtils.getRequestJson(request);
+        this.reqJson = requestJson;
     }
 
     /**
@@ -77,7 +86,7 @@ public class ChatRequest {
             if (vd == null) return null;
             vectorDataContent = vd.toVector();
         }
-        return vectorDataContent;
+        return StringUtils.trim(vectorDataContent);
     }
 
     /**
