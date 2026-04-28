@@ -2000,6 +2000,7 @@ th.column-fixed::before,
   font-weight: normal;
   padding: 3px 10px;
   cursor: default;
+  line-height: 1.55;
 }
 
 .form.batch-form .batch-contents > div a.del {
