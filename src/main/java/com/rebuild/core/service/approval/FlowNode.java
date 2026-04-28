@@ -18,10 +18,12 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -266,23 +268,15 @@ public class FlowNode {
         if (CollectionUtils.isEmpty(accountFields)) return Collections.emptySet();
 
         Entity useEntity = MetadataHelper.getEntity(record.getEntityCode());
-        List<String> useFields = new ArrayList<>();
+        String[] useFields = MetadataHelper.cleanAndWarnFields(useEntity, accountFields);
+        if (useFields == null || ArrayUtils.isEmpty(useFields)) return Collections.emptySet();
 
-        for (Object o : accountFields) {
-            if (MetadataHelper.getLastJoinField(useEntity, (String) o) != null) {
-                useFields.add((String) o);
-            }
-        }
-        if (useFields.isEmpty()) return Collections.emptySet();
-
-        Object[] o = Application.getQueryFactory().uniqueNoFilter(record, useFields.toArray(new String[0]));
-        if (o == null) return Collections.emptySet();
-
+        Object[] fieldValue = QueryHelper.queryFieldValue(record, useFields, true);
         Set<String> mobileOrEmail = new HashSet<>();
-        for (Object me : o) {
-            String me2 = me == null ? null : me.toString();
-            if (RegexUtils.isCNMobile(me2) || RegexUtils.isEMail(me2)) {
-                mobileOrEmail.add(me2);
+        for (Object o : fieldValue) {
+            String me = o == null ? null : o.toString().trim();
+            if (RegexUtils.isCNMobile(me) || RegexUtils.isEMail(me)) {
+                mobileOrEmail.add(me);
             }
         }
         return mobileOrEmail;

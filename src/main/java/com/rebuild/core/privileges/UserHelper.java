@@ -271,15 +271,10 @@ public class UserHelper {
         }
 
         // 使用字段
-        for (String field : useFields) {
-            Object[] fieldValue = QueryHelper.queryFieldValue(recordId, field, true);
-            for (Object o : fieldValue) {
-                if (o instanceof ID[]) {
-                    CollectionUtils.addAll(bizzs, (ID[]) o);
-                } else if (o instanceof ID) {
-                    bizzs.add((ID) o);
-                }
-            }
+        Object[] fieldValue = QueryHelper.queryFieldValue(recordId, useFields.toArray(new String[0]), true);
+        for (Object o : fieldValue) {
+            if (o instanceof ID) bizzs.add((ID) o);
+            else if (o instanceof ID[]) CollectionUtils.addAll(bizzs, (ID[]) o);
         }
 
         Set<ID> users = new HashSet<>();

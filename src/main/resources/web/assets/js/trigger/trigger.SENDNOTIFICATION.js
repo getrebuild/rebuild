@@ -98,7 +98,7 @@ class ContentSendNotification extends ActionContentSpec {
             <label className="col-12 col-lg-3 col-form-label text-lg-right" />
             <div className="col-12 col-lg-8">
               <div className={state.userType === 1 ? '' : 'hide'}>
-                <UserSelectorWithField withN2N ref={(c) => (this._sendTo1 = c)} />
+                <UserSelectorWithField ref={(c) => (this._sendTo1 = c)} />
                 <p className="form-text">{$L('选择内部接收用户')}</p>
               </div>
               <div className={state.userType === 2 ? '' : 'hide'}>

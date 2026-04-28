@@ -244,11 +244,11 @@ public class QueryHelper {
             return o == null ? new Object[0] : new Object[]{o};
         }
 
+        List<Object> res = new ArrayList<>();
+        String[] filePath = fieldName.split("\\.");
+
         Set<ID> prevRecordIds = new HashSet<>();
         prevRecordIds.add(recordId);
-
-        String[] filePath = fieldName.split("\\.");
-        List<Object> res = new ArrayList<>();
 
         for (int i = 0; i < filePath.length; i++) {
             ID[] prevRecordIdsHold = prevRecordIds.toArray(new ID[0]);
@@ -267,6 +267,21 @@ public class QueryHelper {
                     else if (oVal instanceof ID[]) CollectionUtils.addAll(prevRecordIds, (ID[]) oVal);
                 }
             }
+        }
+        return res.toArray(new Object[0]);
+    }
+
+    /**
+     * @param recordId
+     * @param fieldNames
+     * @param compatibleN2N
+     * @return
+     */
+    public static Object[] queryFieldValue(ID recordId, String[] fieldNames, boolean compatibleN2N) {
+        List<Object> res = new ArrayList<>();
+        for (String fieldName : fieldNames) {
+            Object[] o = queryFieldValue(recordId, fieldName, compatibleN2N);
+            if (o.length > 0) CollectionUtils.addAll(res, o);
         }
         return res.toArray(new Object[0]);
     }

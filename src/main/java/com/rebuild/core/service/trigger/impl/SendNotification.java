@@ -36,7 +36,6 @@ import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.core.support.integration.SMSenderContextHolder;
 import com.rebuild.utils.md.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -199,10 +198,10 @@ public class SendNotification extends TriggerAction {
                 if (me.startsWith("{") && me.endsWith("}")) {
                     me = me.substring(1, me.length() - 1);
 
-                    Object[] found = queryValueOfFields(operatingContext.getFixedRecordId(), new String[]{me});
-                    for (Object item : found) {
-                        if (item != null) {
-                            String[] foundMe = item.toString().split("[，,;；]");
+                    Object[] fieldValue = QueryHelper.queryFieldValue(operatingContext.getFixedRecordId(), me, true);
+                    for (Object o : fieldValue) {
+                        if (o != null) {
+                            String[] foundMe = o.toString().split("[，,;；]");
                             Collections.addAll(to, foundMe);
                         }
                     }
@@ -229,7 +228,7 @@ public class SendNotification extends TriggerAction {
                 }
 
             } else {
-                toAccounts = queryValueOfFields(operatingContext.getFixedRecordId(), validFields);
+                toAccounts = QueryHelper.queryFieldValue(operatingContext.getFixedRecordId(), validFields, true);
             }
         }
         if (ArrayUtils.isEmpty(toAccounts)) return null;
@@ -300,11 +299,10 @@ public class SendNotification extends TriggerAction {
     }
 
     private File[] getMailAttach(OperatingContext operatingContext, JSONObject content) {
-        String[] attachFields = getValidDefsFields(content.getJSONArray("attach"));
-        if (attachFields == null) return null;
+        String[] validFields = getValidDefsFields(content.getJSONArray("attach"));
+        if (validFields == null) return null;
 
-        Object[] fieldValue = queryValueOfFields(operatingContext.getFixedRecordId(), attachFields);
-
+        Object[] fieldValue = QueryHelper.queryFieldValue(operatingContext.getFixedRecordId(), validFields, true);
         List<File> files = new ArrayList<>();
         for (Object o : fieldValue) {
             if (o == null || o instanceof ID) continue;
@@ -323,24 +321,7 @@ public class SendNotification extends TriggerAction {
 
     private String[] getValidDefsFields(JSONArray defs) {
         if (defs == null || defs.isEmpty()) return null;
-
-        List<String> validFields = new ArrayList<>();
-        for (Object field : defs) {
-            if (MetadataHelper.getLastJoinField(actionContext.getSourceEntity(), field.toString(), true) != null) {
-                validFields.add(field.toString());
-            }
-        }
-        return validFields.isEmpty() ? null : validFields.toArray(new String[0]);
-    }
-
-    private Object[] queryValueOfFields(ID recordId, String[] fields) {
-        List<Object> res = new ArrayList<>();
-
-        for (String field : fields) {
-            Object[] fieldValue = QueryHelper.queryFieldValue(recordId, field, true);
-            CollectionUtils.addAll(res, fieldValue);
-        }
-        return res.toArray(new Object[0]);
+        return MetadataHelper.cleanAndWarnFields(actionContext.getSourceEntity(), defs);
     }
 
     // --
