@@ -223,6 +223,7 @@ public class QueryHelper {
      * @param recordId
      * @param fieldName
      * @return
+     * @see #queryFieldValue(ID, String, boolean)
      */
     public static Object queryFieldValue(ID recordId, String fieldName) {
         Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, fieldName);

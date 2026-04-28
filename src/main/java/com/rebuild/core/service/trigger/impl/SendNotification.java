@@ -199,7 +199,7 @@ public class SendNotification extends TriggerAction {
                 if (me.startsWith("{") && me.endsWith("}")) {
                     me = me.substring(1, me.length() - 1);
 
-                    Object[] found = queryFieldsValue(operatingContext.getFixedRecordId(), new String[]{me});
+                    Object[] found = queryValueOfFields(operatingContext.getFixedRecordId(), new String[]{me});
                     for (Object item : found) {
                         if (item != null) {
                             String[] foundMe = item.toString().split("[，,;；]");
@@ -229,7 +229,7 @@ public class SendNotification extends TriggerAction {
                 }
 
             } else {
-                toAccounts = queryFieldsValue(operatingContext.getFixedRecordId(), validFields);
+                toAccounts = queryValueOfFields(operatingContext.getFixedRecordId(), validFields);
             }
         }
         if (ArrayUtils.isEmpty(toAccounts)) return null;
@@ -303,7 +303,7 @@ public class SendNotification extends TriggerAction {
         String[] attachFields = getValidDefsFields(content.getJSONArray("attach"));
         if (attachFields == null) return null;
 
-        Object[] fieldValue = queryFieldsValue(operatingContext.getFixedRecordId(), attachFields);
+        Object[] fieldValue = queryValueOfFields(operatingContext.getFixedRecordId(), attachFields);
 
         List<File> files = new ArrayList<>();
         for (Object o : fieldValue) {
@@ -333,7 +333,7 @@ public class SendNotification extends TriggerAction {
         return validFields.isEmpty() ? null : validFields.toArray(new String[0]);
     }
 
-    private Object[] queryFieldsValue(ID recordId, String[] fields) {
+    private Object[] queryValueOfFields(ID recordId, String[] fields) {
         List<Object> res = new ArrayList<>();
 
         for (String field : fields) {
