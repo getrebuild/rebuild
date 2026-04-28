@@ -337,7 +337,7 @@ public class SendNotification extends TriggerAction {
         List<Object> res = new ArrayList<>();
 
         for (String field : fields) {
-            Object[] fieldValue = QueryHelper.queryFieldValues(recordId, field);
+            Object[] fieldValue = QueryHelper.queryFieldValue(recordId, field, true);
             CollectionUtils.addAll(res, fieldValue);
         }
         return res.toArray(new Object[0]);

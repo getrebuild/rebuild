@@ -272,7 +272,7 @@ public class UserHelper {
 
         // 使用字段
         for (String field : useFields) {
-            Object[] fieldValue = QueryHelper.queryFieldValues(recordId, field);
+            Object[] fieldValue = QueryHelper.queryFieldValue(recordId, field, true);
             for (Object o : fieldValue) {
                 if (o instanceof ID[]) {
                     CollectionUtils.addAll(bizzs, (ID[]) o);

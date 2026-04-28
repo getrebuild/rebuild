@@ -218,6 +218,8 @@ public class QueryHelper {
     }
 
     /**
+     * 查询字段值
+     *
      * @param recordId
      * @param fieldName
      * @return
@@ -228,11 +230,19 @@ public class QueryHelper {
     }
 
     /**
+     * 查询字段值，可兼容 N2N 点连接字段
+     *
      * @param recordId
      * @param fieldName
+     * @param compatibleN2N
      * @return
      */
-    public static Object[] queryFieldValues(ID recordId, String fieldName) {
+    public static Object[] queryFieldValue(ID recordId, String fieldName, boolean compatibleN2N) {
+        if (!compatibleN2N) {
+            Object o = queryFieldValue(recordId, fieldName);
+            return o == null ? new Object[0] : new Object[]{o};
+        }
+
         Set<ID> prevRecordIds = new HashSet<>();
         prevRecordIds.add(recordId);
 
