@@ -461,7 +461,6 @@ public class NavBuilder extends NavManager {
             navUrl = String.format("%s/approval/home", AppUtils.getContextPath());
 
         } else if (NAV_DIVIDER.equals(navName)) {
-            navName = "nav_sys--DIVIDER";
             navUrl = NAV_DIVIDER;
 
         } else {
