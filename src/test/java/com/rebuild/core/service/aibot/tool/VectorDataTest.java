@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.service.aibot.tools;
+package com.rebuild.core.service.aibot.tool;
 
 import com.rebuild.TestSupport;
 import com.rebuild.core.metadata.MetadataHelper;

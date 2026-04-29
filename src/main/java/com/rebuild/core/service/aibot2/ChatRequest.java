@@ -8,16 +8,18 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.aibot2;
 
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.aibot.vector.FileData;
 import com.rebuild.core.service.aibot.vector.ListData;
 import com.rebuild.core.service.aibot.vector.RecordData;
-import com.rebuild.core.service.aibot.vector.VectorData;
 import com.rebuild.core.service.aibot.vector.VectorDataChunk;
-import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.utils.JSONUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -25,11 +27,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
+ * 单次会话请求
+ *
  * @author Zixin
  * @since 2025/11/1
  */
@@ -63,20 +64,21 @@ public class ChatRequest {
      * @return
      */
     public String getUserContent() {
-        String c = getUserContent(true);
+        String c = getUserContent(true, true);
         if (Application.devMode()) System.out.println("[dev] \n" + c);
         return c;
     }
 
     /**
      * @param withVector
+     * @param needStore
      * @return
      */
-    public String getUserContent(boolean withVector) {
+    public String getUserContent(boolean withVector, boolean needStore) {
         String c = reqJson.getString("content");
         if (!withVector) return c;
 
-        String vdc = getVectorDataContent();
+        String vdc = getVectorDataContent(needStore);
         if (vdc == null) return c;
         return vdc + "\n\n" + c;
     }
@@ -84,19 +86,9 @@ public class ChatRequest {
     /**
      * @return
      */
-    protected String getVectorDataContent() {
-        if (vectorDataContent == null) {
-            VectorData vd = getVectorData();
-            if (vd == null) return null;
-            vectorDataContent = vd.toVector();
-        }
-        return StringUtils.trim(vectorDataContent);
-    }
+    protected String getVectorDataContent(boolean needStore) {
+        if (vectorDataContent != null) return vectorDataContent;
 
-    /**
-     * @return
-     */
-    public VectorData getVectorData() {
         JSONArray attach = (JSONArray) reqJson.get("attach");
         if (CollectionUtils.isEmpty(attach)) return null;
 
@@ -115,23 +107,20 @@ public class ChatRequest {
                 vdc.addVectorData(new FileData(orFile));
             }
         }
-        return vdc;
-    }
 
-    /**
-     * TODO 支持文件
-     *
-     * @return
-     */
-    public File[] getFile() {
-        JSONArray filepath = (JSONArray) reqJson.get("file");
-        if (CollectionUtils.isEmpty(filepath)) return null;
+        vectorDataContent = StringUtils.trim(vdc.toVector());
 
-        List<File> files = new ArrayList<>();
-        for (Object path : filepath) {
-            File file = RebuildConfiguration.getFileOfTemp(path.toString());
-            files.add(file);
+        // 保存起来
+        if (needStore) {
+            Record store = RecordBuilder.builder(EntityHelper.AibotChatAttach)
+                    .add("chatId", chatid)
+                    .add("content", attach)
+                    .add("vectorData", vectorDataContent)
+                    .build(UserService.SYSTEM_USER);
+            store.setString("vectorData", vectorDataContent);
+            Application.getCommonsService().create(store);
         }
-        return files.toArray(new File[0]);
+
+        return vectorDataContent;
     }
 }

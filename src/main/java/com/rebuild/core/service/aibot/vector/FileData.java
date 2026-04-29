@@ -45,7 +45,9 @@ public class FileData implements VectorData {
             throw new AiBotException("无法识别文件:" + e.getLocalizedMessage());
         }
 
-        String s = String.format("文件（%s）内容如下：", QiniuCloud.parseFileName(filepath));
-        return s + NN + "```" + N + content + N + "```" + N;
+        String name = QiniuCloud.parseFileName(filepath);
+        return String.format("文件（%s）内容如下：", name)
+                + NN + content + NN +
+                String.format("文件（%s）内容结束", name);
     }
 }

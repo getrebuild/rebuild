@@ -675,8 +675,8 @@
     <entity name="AibotChatAttach" type-code="095" description="AI 助手会话附加数据" queryable="false" parent="false">
         <field name="attachId" type="primary"/>
         <field name="chatId" type="reference" ref-entity="AibotChat" nullable="false" updatable="false" cascade="delete"/>
-        <field name="content" type="string" max-length="701" description="附件内容"/>
-        <field name="vectorData" type="ntext" description="向量数据"/>
+        <field name="content" type="string" max-length="701" description="附件"/>
+        <field name="vectorData" type="ntext" description="附件内容"/>
         <field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人"/>
         <field name="createdOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="创建时间"/>
         <index field-list="chatId,createdOn,createdBy"/>

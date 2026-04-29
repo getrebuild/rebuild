@@ -81,10 +81,13 @@ public abstract class ChatManager {
     }
 
     /**
+     * 直接提问/回答
+     *
      * @param askContent
      * @return
+     * @see Chat#ask(String)
      */
-    public static String chat(String askContent) {
-        return new Chat(EntityHelper.newUnsavedId(EntityHelper.AibotChat)).chat(askContent);
+    public static String ask(String askContent) {
+        return new Chat(EntityHelper.newUnsavedId(EntityHelper.AibotChat)).ask(askContent);
     }
 }

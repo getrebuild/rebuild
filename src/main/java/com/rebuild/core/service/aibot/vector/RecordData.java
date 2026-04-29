@@ -63,18 +63,22 @@ public class RecordData implements VectorData {
 
         // 明细
         if (hasDetails && r.getEntity().getDetailEntity() != null) {
-            v.append("## 明细记录").append(NN);
+            v.append(N).append("## 明细记录").append(NN);
+
             for (Entity de : r.getEntity().getDetialEntities()) {
-                v.append("\n### ").append(EasyMetaFactory.getLabel(de)).append(N);
+                v.append("### ").append(EasyMetaFactory.getLabel(de)).append(NN);
                 List<ID> dids = QueryHelper.detailIdsNoFilter(recordId, de);
-                String didsTable = new ListData(null).toVector(dids.toArray(new ID[0]), de);
-                v.append(didsTable).append(N);
+
+                if (!dids.isEmpty()) {
+                    String didsTable = new ListData(null).toVector(dids.toArray(new ID[0]), de);
+                    v.append(didsTable).append(N);
+                }
             }
         }
 
         // v4.4 相关记录
         if (ArrayUtils.isNotEmpty(relateds)) {
-            v.append("## 相关记录").append(NN);
+            v.append(N).append("## 相关记录").append(NN);
 
             for (String related : relateds) {
                 Entity re = MetadataHelper.getEntity(related);
@@ -82,7 +86,7 @@ public class RecordData implements VectorData {
 
                 // TODO 无明细
                 if (ArrayUtils.isNotEmpty(ids)) {
-                    v.append("\n### ").append(EasyMetaFactory.getLabel(re)).append(N);
+                    v.append("### ").append(EasyMetaFactory.getLabel(re)).append(NN);
                     String relatedTable = new ListData(null).toVector(ids, re);
                     v.append(relatedTable).append(N);
                 }

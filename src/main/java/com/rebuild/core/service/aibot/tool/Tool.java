@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.service.aibot.tools;
+package com.rebuild.core.service.aibot.tool;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -16,7 +16,7 @@ import com.alibaba.fastjson.JSONObject;
  * @author Zixin
  * @since 2025/4/19
  */
-public interface FunctionCalling {
+public interface Tool {
 
     /**
      * @return

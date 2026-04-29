@@ -83,6 +83,13 @@ public class AiBot2Controller extends BaseController {
         return new ChatRequest(reqJson, chatid);
     }
 
+    @PostMapping("post/chat-stream-stop")
+    public RespBody chatStreamStop(HttpServletRequest req) {
+        ID chatid = getIdParameterNotNull(req, "chatid");
+        StreamEcho.setInterrupt(chatid);
+        return RespBody.ok();
+    }
+
     @GetMapping("post/chat-init")
     public RespBody chatInit(HttpServletRequest req) {
         ID chatid = getIdParameter(req, "chatid");
