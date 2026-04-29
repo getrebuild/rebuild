@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const UNICON_NAME = 'texture'
 const TYPE_PARENT = '$PARENT$'
+const TYPE_DIVIDER = '$DIVIDER$'
 
 let _Share2
 let _entities = {}
@@ -53,6 +54,9 @@ $(document).ready(() => {
         if ($ref.val() === TYPE_PARENT) {
           $('.J_parentOption').show()
           $('.J_bindFilter').hide()
+        } else if ($ref.val() === TYPE_DIVIDER) {
+          $('.J_parentOption').hide()
+          $('.J_bindFilter').hide()
         } else {
           $('.J_parentOption').hide()
           if (d && d.entity) $('.J_bindFilter').show()
@@ -61,7 +65,9 @@ $(document).ready(() => {
       })
   })
 
-  $('.J_menuIcon').on('click', () => {
+  $('.J_menuIcon').on('click', function () {
+    if ($(this).attr('disabled') === 'disabled') return
+
     parent.clickIcon = function (s) {
       $('.J_menuIcon>i').attr('class', use_icon(s))
       parent.RbModal.hide()
@@ -340,11 +346,17 @@ const render_item = function (data, isNew, append2) {
         $me.attr('disabled', true)
         $('.J_parentOption').show()
         $('#defaultOpen')[0].checked = data.open === true
+      } else if (data.value === TYPE_DIVIDER) {
+        $('.J_menuIcon>i').attr('class', 'mdi zmdi mdi-format-list-group')
       } else {
         $me.attr('disabled', false)
         $('.J_parentOption').hide()
       }
 
+      // DIVIDER
+      $('.J_menuIcon').attr('disabled', data.value === TYPE_DIVIDER)
+
+      // ENTITY
       $('.J_bindFilter>a').attr({ 'data-filter': data.filter, 'data-filterBadge': data.filterBadge })
 
       // 实体已经不存在

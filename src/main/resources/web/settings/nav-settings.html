@@ -121,6 +121,7 @@
                       <option value="$PROJECT$" data-icon="shape">[[${bundle.L('项目')}]]</option>
                       <option value="$DASHBOARD$" data-icon="chart">[[${bundle.L('仪表盘')}]]</option>
                       <option value="$PARENT$" data-icon="menu">[[${bundle.L('父级菜单')}]]</option>
+                      <option value="$DIVIDER$" data-icon="mdi-format-list-group">[[${bundle.L('分栏')}]]</option>
                     </optgroup>
                   </select>
 
@@ -142,7 +143,7 @@
             </div>
             <div class="input-group mb-3">
               <span class="input-group-prepend">
-                <span class="input-group-text J_menuIcon" th:title="${bundle.L('选择图标')}"><i class="zmdi zmdi-texture"></i></span>
+                <a class="input-group-text J_menuIcon" th:title="${bundle.L('选择图标')}"><i class="zmdi zmdi-texture"></i></a>
               </span>
               <input type="text" class="form-control form-control-sm J_menuName" th:placeholder="${bundle.L('菜单名称')}" maxlength="100" />
             </div>
