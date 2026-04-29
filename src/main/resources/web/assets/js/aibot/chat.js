@@ -347,7 +347,16 @@ class ChatMessage extends React.Component {
     else if (this.props.role === 'system') c = this.renderSystem()
     else c = this.renderError()
 
-    return <div className="chat-message">{c}</div>
+    return (
+      <div className="chat-message">
+        {c}
+        <div className="msg-action">
+          <a title={$L('复制')} onClick={() => $clipboard2(this.state.content)}>
+            <i className="mdi mdi-content-copy icon" />
+          </a>
+        </div>
+      </div>
+    )
   }
 
   renderUser() {

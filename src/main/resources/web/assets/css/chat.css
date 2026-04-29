@@ -135,9 +135,29 @@ See LICENSE and COMMERCIAL in the project root for license information.
   display: none;
 }
 
-.chat-message .msg-user {
+.chat-message .msg-user,
+.chat-message .msg-action {
   text-align: right;
   margin-left: 42px;
+}
+
+.chat-message .msg-ai + .msg-action {
+  text-align: left;
+}
+
+.chat-message .msg-action {
+  margin-top: 2px;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.chat-message:hover .msg-action {
+  opacity: 1;
+}
+
+.chat-message .msg-action > a {
+  display: inline-block;
+  padding: 4px;
 }
 
 .chat-message .msg-user > .msg-content {
