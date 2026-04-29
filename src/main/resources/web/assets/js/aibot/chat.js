@@ -351,7 +351,7 @@ class ChatMessage extends React.Component {
       <div className="chat-message">
         {c}
         <div className="msg-action">
-          <a title={$L('复制')} onClick={() => $clipboard2(this.state.content)}>
+          <a title={$L('复制')} onClick={() => $clipboard2(this.state.content || '')}>
             <i className="mdi mdi-content-copy icon" />
           </a>
         </div>
