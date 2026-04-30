@@ -617,10 +617,11 @@ class Attach extends React.Component {
         </span>
       )
     }
+
     // View
     if (this.state.viewUrl) {
       return (
-        <a href={this.state.viewUrl} target={'_blank'}>
+        <a href={this.state.viewUrl} target="_blank" title={$L('查看')}>
           {this.state.name}
         </a>
       )
@@ -633,12 +634,21 @@ class Attach extends React.Component {
     if (props.record) {
       $.get(`/commons/search/read-labels?id=${props.record}`, (res) => {
         const d = res.data || {}
-        this.setState({ name: `[${$L('记录')}] ${d[props.record]}`, viewUrl: `${rb.baseUrl}/app/redirect?id=${props.record}&type=newtab` })
+        this.setState({
+          name: `[${$L('记录')}] ${d[props.record] || '[DELETED]'}`,
+          viewUrl: `${rb.baseUrl}/app/redirect?id=${props.record}&type=newtab`,
+        })
       })
     } else if (props.listFilter) {
-      this.setState({ name: props.name || $L('列表数据') })
+      this.setState({
+        name: props.name || $L('列表数据'),
+        viewUrl: `${rb.baseUrl}/app/${props.listFilter.entity}/list?via=`,
+      })
     } else if (props.file) {
-      this.setState({ name: `[${$L('文件')}] ${$fileCutName(props.file)}` })
+      this.setState({
+        name: `[${$L('文件')}] ${$fileCutName(props.file)}`,
+        viewUrl: `${rb.baseUrl}/commons/file-view?src=` + $encode(`/temp/${props.file}`),
+      })
     }
   }
 

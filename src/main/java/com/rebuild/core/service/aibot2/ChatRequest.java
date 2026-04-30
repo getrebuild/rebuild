@@ -64,21 +64,20 @@ public class ChatRequest {
      * @return
      */
     public String getUserContent() {
-        String c = getUserContent(true, true);
+        String c = getUserContent(true);
         if (Application.devMode()) System.out.println("[dev] \n" + c);
         return c;
     }
 
     /**
      * @param withVector
-     * @param needStore
      * @return
      */
-    public String getUserContent(boolean withVector, boolean needStore) {
+    public String getUserContent(boolean withVector) {
         String c = reqJson.getString("content");
         if (!withVector) return c;
 
-        String vdc = getVectorDataContent(needStore);
+        String vdc = getVectorDataContent();
         if (vdc == null) return c;
         return vdc + "\n\n" + c;
     }
@@ -86,11 +85,22 @@ public class ChatRequest {
     /**
      * @return
      */
-    protected String getVectorDataContent(boolean needStore) {
+    protected String getVectorDataContent() {
         if (vectorDataContent != null) return vectorDataContent;
 
         JSONArray attach = (JSONArray) reqJson.get("attach");
         if (CollectionUtils.isEmpty(attach)) return null;
+
+        String attachKey = attach.toJSONString();
+        Object[] e = Application.createQueryNoFilter(
+                "select vectorData from AibotChatAttach where chatId = ? and content = ?")
+                .setParameter(1, chatid)
+                .setParameter(2, attachKey)
+                .unique();
+        if (e != null) {
+            vectorDataContent = (String) e[0];
+            return vectorDataContent;
+        }
 
         VectorDataChunk vdc = new VectorDataChunk();
         for (int i = 0; i < attach.size(); i++) {
@@ -111,15 +121,13 @@ public class ChatRequest {
         vectorDataContent = StringUtils.trim(vdc.toVector());
 
         // 保存起来
-        if (needStore) {
-            Record store = RecordBuilder.builder(EntityHelper.AibotChatAttach)
-                    .add("chatId", chatid)
-                    .add("content", attach)
-                    .add("vectorData", vectorDataContent)
-                    .build(UserService.SYSTEM_USER);
-            store.setString("vectorData", vectorDataContent);
-            Application.getCommonsService().create(store);
-        }
+        Record store = RecordBuilder.builder(EntityHelper.AibotChatAttach)
+                .add("chatId", chatid)
+                .add("content", attachKey)
+                .add("vectorData", vectorDataContent)
+                .build(UserService.SYSTEM_USER);
+        store.setString("vectorData", vectorDataContent);
+        Application.getCommonsService().create(store);
 
         return vectorDataContent;
     }

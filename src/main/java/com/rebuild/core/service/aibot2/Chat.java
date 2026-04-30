@@ -183,7 +183,7 @@ public class Chat implements Serializable {
             if (ROLE_USER.equals(role)) {
                 // 附件
                 ChatRequest chatRequest = new ChatRequest(msgJson, getChatid());
-                content = chatRequest.getUserContent(true, false);
+                content = chatRequest.getUserContent(true);
 
                 messages.add(new Message(role, content, null, null, getChatid(), msgJson));
             } else if (ROLE_AI.equals(role)) {

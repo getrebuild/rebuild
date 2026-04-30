@@ -50,8 +50,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.rebuild.core.support.ConfigurationItem.OnlyofficeServer;
+import static com.rebuild.web.commons.FileShareController.makePublicUrl;
 
 /**
  * 文档预览
@@ -63,6 +66,16 @@ import static com.rebuild.core.support.ConfigurationItem.OnlyofficeServer;
 @Slf4j
 @RestController
 public class FilePreviewer extends BaseController {
+
+    @GetMapping("/commons/file-view")
+    public ModelAndView fileView44(HttpServletRequest request) {
+        String src = getParameterNotNull(request, "src");
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("publicUrl", makePublicUrl(src, null));
+        map.put("title", Language.L("查看文件"));
+        return createModelAndView("/common/shared-file", map);
+    }
 
     @GetMapping("/commons/file-preview")
     public ModelAndView ooPreview(HttpServletRequest request, HttpServletResponse response) throws IOException {
