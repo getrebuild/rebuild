@@ -16,6 +16,8 @@ import lombok.Getter;
 import java.io.Serializable;
 
 /**
+ * AI/用户消息
+ *
  * @author devezhao
  * @since 2025/11/1
  */

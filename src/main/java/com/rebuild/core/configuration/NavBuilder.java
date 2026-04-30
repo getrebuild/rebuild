@@ -193,7 +193,7 @@ public class NavBuilder extends NavManager {
             if (NAV_PARENT.equals(value)) {
                 return true;
             } else if (NAV_FEEDS.equals(value) || NAV_FILEMRG.equals(value) || NAV_PROJECT.equals(value)
-                    || NAV_CONTACT.equals(value) || NAV_DASHBOARD.equals(value)) {
+                    || NAV_CONTACT.equals(value) || NAV_DASHBOARD.equals(value) || NAV_DIVIDER.equals(value)) {
                 return false;
             } else if (NAV_APPROVAL.equals(value)) {
                 // v4.4: 修订 `filterBadge`
@@ -460,6 +460,9 @@ public class NavBuilder extends NavManager {
             navName = "nav_entity--APPROVAL";
             navUrl = String.format("%s/approval/home", AppUtils.getContextPath());
 
+        } else if (NAV_DIVIDER.equals(navName)) {
+            navUrl = NAV_DIVIDER;
+
         } else {
             navEntity = navName;
             navName = "nav_entity-" + navName;
@@ -479,7 +482,7 @@ public class NavBuilder extends NavManager {
         }
 
         String navItemHtml;
-        if (NAV_DIVIDER.equals(navType)) {
+        if (NAV_DIVIDER.equals(navType) || NAV_DIVIDER.equals(navUrl)) {
             navItemHtml = "<li class=\"divider\">" + navText;
         } else {
             String parentClass = " parent";

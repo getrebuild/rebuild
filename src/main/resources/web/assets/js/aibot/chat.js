@@ -118,15 +118,17 @@ class ChatInput extends React.Component {
         <div className={`chat-input ${this.state.active && 'active'}`}>
           <div className="chat-input-input">
             <div className="chat-input-attach">
-              <ul className="m-0 list-unstyled">
-                {this.state.attach.map((item, idx) => {
-                  return (
-                    <li key={idx}>
-                      <Attach {...item} _ChatInput={this} />
-                    </li>
-                  )
-                })}
-              </ul>
+              {this.state.attach && this.state.attach.length > 0 && (
+                <ul className="m-0 mb-1 list-unstyled">
+                  {this.state.attach.map((item, idx) => {
+                    return (
+                      <li key={idx}>
+                        <Attach {...item} _ChatInput={this} />
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
             </div>
             <textarea
               rows="2"
@@ -150,11 +152,11 @@ class ChatInput extends React.Component {
               <i className="mdi mdi-attachment-plus" />
             </button>
             <div className="dropdown-menu dropdown-menu-right">
-              <a className="dropdown-item" onClick={() => this.attachRecord()}>
-                {$L('选择记录')}
-              </a>
               <a className="dropdown-item" onClick={() => this.attachFile()}>
                 {$L('选择文件')}
+              </a>
+              <a className="dropdown-item" onClick={() => this.attachRecord()}>
+                {$L('选择记录')}
               </a>
               <a className="dropdown-item" onClick={() => this.attachPageData()}>
                 {$L('选择当前页数据')}
@@ -172,6 +174,7 @@ class ChatInput extends React.Component {
               <i className={this.state.postState === 0 ? 'mdi mdi-arrow-up' : 'mdi mdi-stop'} />
             </button>
           </div>
+          <input ref={(c) => (this._$file = c)} type="file" className="inputfile" data-local="temp" data-maxsize="20971520" multiple />
         </div>
       </div>
     )
@@ -208,8 +211,19 @@ class ChatInput extends React.Component {
     this.setState({ attach })
   }
 
+  componentDidMount() {
+    $multipleUploader(this._$file, (res) => {
+      const attach = [...this.state.attach, { file: res.key, id: $random('attach-', true) }]
+      this.setState({ attach })
+    })
+  }
+
+  attachFile() {
+    this._$file.click()
+  }
+
   attachRecord() {
-    RecordSelectorModal.create({
+    const ps = {
       onConfirm: (v) => {
         let attach = [...this.state.attach]
         if (typeof v === 'object') {
@@ -224,11 +238,10 @@ class ChatInput extends React.Component {
       allowMultiple: true,
       allowEntities: window.__LAB_AIALLOWENTITIES435 || null,
       allowBizz: false,
-    })
+    }
+    renderRbcomp(<RecordSelectorModal2 {...ps} zIndex="1050" />)
   }
-  attachFile() {
-    RbHighbar.createl('暂不支持')
-  }
+
   attachPageData() {
     if (typeof window.attachAibotPageData === 'function') {
       window.attachAibotPageData((data) => {
@@ -334,7 +347,16 @@ class ChatMessage extends React.Component {
     else if (this.props.role === 'system') c = this.renderSystem()
     else c = this.renderError()
 
-    return <div className="chat-message">{c}</div>
+    return (
+      <div className="chat-message">
+        {c}
+        <div className="msg-action">
+          <a title={$L('复制')} onClick={() => $clipboard2(this.state.content || '')}>
+            <i className="mdi mdi-content-copy icon" />
+          </a>
+        </div>
+      </div>
+    )
   }
 
   renderUser() {
@@ -508,7 +530,7 @@ class ChatSidebar extends React.Component {
               this.toggleShow(false)
             }}>
             <i className="mdi mdi-chat-plus-outline mr-1 icon" />
-            {$L('新对话')}
+            {$L('新会话')}
           </a>
         </div>
         <div className="chat-list">
@@ -584,6 +606,7 @@ class ChatSidebar extends React.Component {
 class Attach extends React.Component {
   render() {
     if (!this.state) return null
+
     if (this.props._ChatInput) {
       return (
         <span className="text-ellipsis">
@@ -594,10 +617,11 @@ class Attach extends React.Component {
         </span>
       )
     }
+
     // View
     if (this.state.viewUrl) {
       return (
-        <a href={this.state.viewUrl} target={'_blank'}>
+        <a href={this.state.viewUrl} target="_blank" title={$L('查看')}>
           {this.state.name}
         </a>
       )
@@ -610,10 +634,21 @@ class Attach extends React.Component {
     if (props.record) {
       $.get(`/commons/search/read-labels?id=${props.record}`, (res) => {
         const d = res.data || {}
-        this.setState({ name: `[${$L('记录')}] ${d[props.record]}`, viewUrl: `${rb.baseUrl}/app/redirect?id=${props.record}&type=newtab` })
+        this.setState({
+          name: `[${$L('记录')}] ${d[props.record] || '[DELETED]'}`,
+          viewUrl: `${rb.baseUrl}/app/redirect?id=${props.record}&type=newtab`,
+        })
       })
     } else if (props.listFilter) {
-      this.setState({ name: props.name || $L('列表数据') })
+      this.setState({
+        name: props.name || $L('列表数据'),
+        viewUrl: `${rb.baseUrl}/app/${props.listFilter.entity}/list?via=`,
+      })
+    } else if (props.file) {
+      this.setState({
+        name: `[${$L('文件')}] ${$fileCutName(props.file)}`,
+        viewUrl: `${rb.baseUrl}/commons/file-view?src=` + $encode(`/temp/${props.file}`),
+      })
     }
   }
 
@@ -690,5 +725,31 @@ class DlgAttachRecordList extends RbAlert {
     const s = $(this._$select).find('input:checked').val()
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(s)
     this.hide()
+  }
+}
+
+// ~~ 选择记录
+class RecordSelectorModal2 extends RecordSelectorModal {
+  renderContent() {
+    return (
+      <div className="form ml-3 mr-3">
+        <div className="form-group">
+          <label className="text-bold">{this.props.title || $L('选择记录')}</label>
+          <AnyRecordSelector ref={(c) => (this._AnyRecordSelector = c)} allowEntities={this.props.allowEntities} allowBizz={this.props.allowBizz} allowMultiple={this.props.allowMultiple} />
+        </div>
+
+        <div className="form-group mb-2">
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => {
+              typeof this.props.onConfirm === 'function' && this.props.onConfirm(this._AnyRecordSelector.val())
+              this.hide()
+            }}>
+            {$L('确定')}
+          </button>
+        </div>
+      </div>
+    )
   }
 }

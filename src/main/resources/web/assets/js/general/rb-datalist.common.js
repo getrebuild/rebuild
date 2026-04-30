@@ -540,7 +540,7 @@ class BatchUpdate extends BatchOperator {
                       <span className="badge badge-warning">{BU_OPS[item.op]}</span>
                     </div>
                     <div className="col-6">
-                      {item.op !== 'NULL' && <span className="badge badge-warning text-break text-left">{FieldValueSet.formatFieldText(item.value, field)}</span>}
+                      {item.op !== 'NULL' && <span className="badge badge-light text-break text-left">{FieldValueSet.formatFieldText(item.value, field)}</span>}
                       <a className="del" onClick={() => this.delItem(item.field)} title={$L('移除')}>
                         <i className="zmdi zmdi-close" />
                       </a>
@@ -576,6 +576,7 @@ class BatchUpdate extends BatchOperator {
 
     contents.push(item)
     this.setState({ updateContents: contents })
+    this._buEntry.reset()
   }
 
   delItem(fieldName) {
@@ -768,6 +769,10 @@ class BatchUpdateEntry extends React.Component {
     } else {
       return data
     }
+  }
+
+  reset() {
+    this._FieldValue && this._FieldValue.reset()
   }
 }
 

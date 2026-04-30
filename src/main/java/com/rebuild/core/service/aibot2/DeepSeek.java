@@ -21,11 +21,6 @@ import org.springframework.util.Assert;
  */
 public class DeepSeek {
 
-    public static final String MODEL_DS_CHAT = "deepseek-chat";
-    public static final String MODEL_DS_REASONER = "deepseek-reasoner";
-    public static final String MODEL_GPT_5 = "gpt-5";
-    public static final String MODEL_GPT_5M = "gpt-5-mini";
-
     private static OpenAIClient CLIENT;
 
     /**
@@ -88,7 +83,6 @@ public class DeepSeek {
      * @return
      */
     public static String getDefModel() {
-        String model = RebuildConfiguration.get(ConfigurationItem.AibotBaseDefModel);
-        return StringUtils.defaultIfBlank(model, MODEL_DS_CHAT);
+        return RebuildConfiguration.get(ConfigurationItem.AibotBaseDefModel);
     }
 }

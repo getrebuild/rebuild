@@ -275,8 +275,10 @@ public class AutoFillinManager implements ConfigManager {
      * @return
      */
     public int fillinRecord(Record record, boolean fillinForce, List<String> ignoreFields) {
-        final Entity entity = record.getEntity();
         final boolean isNew = record.getPrimary() == null;
+        final Entity entity = record.getEntity();
+        // 系统实体
+        if (!MetadataHelper.isBusinessEntity(entity)) return 0;
 
         int fillin = 0;
         for (String fieldName : record.getAvailableFields()) {

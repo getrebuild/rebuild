@@ -470,13 +470,13 @@ var _initNav = function () {
     })()
   }
 
-  // remove `/admin/` empty divider
-  if (location.href.includes('/admin/')) {
+  if ($('.sidebar-elements').length) {
+    _refreshFilterBadge()
+
+    // remove empty divider
     $('.sidebar-elements .divider').each(function () {
       if (!$(this).next().find('>a')[0]) $(this).remove()
     })
-  } else {
-    _refreshFilterBadge()
   }
 }
 

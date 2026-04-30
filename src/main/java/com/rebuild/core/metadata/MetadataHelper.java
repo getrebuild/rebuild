@@ -433,7 +433,7 @@ public class MetadataHelper {
      * @return
      */
     public static boolean checkAndWarnField(String entityName, String fieldName) {
-        if (containsEntity(entityName)) return false;
+        if (!containsEntity(entityName)) return false;
         return checkAndWarnField(getEntity(entityName), fieldName, null);
     }
 

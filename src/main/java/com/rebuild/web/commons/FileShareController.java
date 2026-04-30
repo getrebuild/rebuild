@@ -26,7 +26,6 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.ShortUrls;
 import com.rebuild.core.support.general.FieldValueHelper;
-import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.CommonsUtils;
@@ -230,9 +229,8 @@ public class FileShareController extends BaseController {
      * @param fileUrl
      * @param checkIfLocal
      * @return
-     * @see FileDownloader#download(HttpServletRequest, HttpServletResponse)
      */
-    String makePublicUrl(String fileUrl, String checkIfLocal) {
+    public static String makePublicUrl(String fileUrl, String checkIfLocal) {
         String publicUrl;
         if (QiniuCloud.instance().available()) {
             publicUrl = QiniuCloud.instance().makeUrl(fileUrl, 15 * 60);

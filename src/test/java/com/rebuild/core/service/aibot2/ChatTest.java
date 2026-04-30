@@ -7,6 +7,6 @@ class ChatTest extends ApplicationTest {
 
     @Test
     void chat() {
-        System.out.println(ChatManager.chat("你是谁"));
+        System.out.println(ChatManager.ask("你是谁"));
     }
 }

@@ -1633,6 +1633,7 @@ a.link.link-icon::after {
   padding-bottom: 8px;
   background-color: #fff;
   font-weight: bold;
+  font-weight: normal;
   color: #404040;
   padding-top: 9px;
   padding-bottom: 9px;
@@ -2000,6 +2001,7 @@ th.column-fixed::before,
   font-weight: normal;
   padding: 3px 10px;
   cursor: default;
+  line-height: 1.55;
 }
 
 .form.batch-form .batch-contents > div a.del {

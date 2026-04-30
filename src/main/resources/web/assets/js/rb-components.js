@@ -1021,7 +1021,8 @@ class RecordSelector extends React.Component {
     $.get(`/commons/search/read-labels?ids=${ids.join(',')}`, (res) => {
       const _data = res.data || {}
       for (let id in _data) {
-        if ($(this._$select).find(`option[value="${id}"]`).length) {
+        let currentVal = this.__select2.val()
+        if (currentVal && currentVal.includes(id)) {
           // 已有
         } else {
           const o = new Option(_data[id], id, true, true)

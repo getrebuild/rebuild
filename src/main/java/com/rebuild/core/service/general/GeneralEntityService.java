@@ -12,11 +12,9 @@ import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
 import com.rebuild.core.Application;
@@ -584,43 +582,20 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             }
 
             Entity casEntity = MetadataHelper.getEntity(cas);
-            Field[] reftoFields = MetadataHelper.getReferenceToFields(mainEntity, casEntity, true);
-            if (reftoFields.length == 0) {
-                log.warn("No any fields of refto found : {} << {}", cas, mainEntity.getName());
-                continue;
-            }
-
-            List<String> or = new ArrayList<>();
-            // 有多个字段引用会一并获取
-            for (Field field : reftoFields) {
-                if (field.getType() == FieldType.REFERENCE) {
-                    or.add(String.format("%s = '%s'", field.getName(), mainRecordId));
-                } else {
-                    // N2N
-                    String exists = String.format(
-                            "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId = '%s')",
-                            field.getOwnEntity().getPrimaryField().getName(), field.getName(), mainRecordId);
-                    or.add(exists);
+            ID[] ids = QueryHelper.queryRelatedIds(mainRecordId, casEntity);
+            Set<ID> idsAllow = new HashSet<>();
+            // 权限过滤
+            if (fromTriggerIgnorePrivileges) {
+                CollectionUtils.addAll(idsAllow, ids);
+            } else {
+                for (ID id : ids) {
+                    if (Application.getPrivilegesManager().allow(id, getCurrentUser(), action)) {
+                        idsAllow.add(id);
+                    }
                 }
             }
 
-            String sql = String.format("select %s from %s where ( %s )",
-                    casEntity.getPrimaryField().getName(), casEntity.getName(),
-                    StringUtils.join(or.iterator(), " or "));
-
-            Object[][] array;
-            if (fromTriggerIgnorePrivileges) {
-                array = Application.createQueryNoFilter(sql).array();
-            } else {
-                Filter filter = Application.getPrivilegesManager().createQueryFilter(getCurrentUser(), action);
-                array = Application.getQueryFactory().createQuery(sql, filter).array();
-            }
-
-            Set<ID> records = new HashSet<>();
-            for (Object[] o : array) {
-                records.add((ID) o[0]);
-            }
-            entityRecordsMap.put(cas, records);
+            entityRecordsMap.put(cas, idsAllow);
         }
         return entityRecordsMap;
     }
@@ -684,14 +659,21 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 }
 
                 ApprovalState state = ApprovalHelper.getApprovalState(dtmFieldValue);
+                String unallowMsg = null;
                 if (state == ApprovalState.APPROVED) {
-                    throw new DataSpecificationException(Language.L("主记录已审批完成，不能添加明细"));
+                    unallowMsg = Language.L("主记录已审批完成，不能添加明细");
                 } else if (state == ApprovalState.PROCESSING) {
                     boolean allow42 = ApprovalHelper.isAllowEditableRecord(dtmFieldValue, getCurrentUser());
-                    if (!allow42) {
-                        throw new DataSpecificationException(Language.L("主记录正在审批中，不能添加明细"));
-                    }
+                    if (!allow42) unallowMsg = Language.L("主记录正在审批中，不能添加明细");
                 }
+
+                // v4.4 明细允许强制新建
+                if (unallowMsg != null) {
+                    boolean forceUpdate = GeneralEntityServiceContextHolder.isAllowForceUpdate(false);
+                    if (forceUpdate) unallowMsg = null;
+                }
+
+                if (unallowMsg != null) throw new DataSpecificationException(unallowMsg);
             }
 
         } else {
