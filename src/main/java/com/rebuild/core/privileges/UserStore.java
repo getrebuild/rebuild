@@ -487,7 +487,11 @@ public class UserStore implements Initialization {
                 .setParameter(1, teamId)
                 .array();
         for (Object[] member : array) {
-            newTeam.addMember(getUser((ID) member[0]));
+            try {
+                newTeam.addMember(getUser((ID) member[0]));
+            } catch (NoMemberFoundException ex) {
+                log.warn(ex.getLocalizedMessage());
+            }
         }
 
         TEAMS.put(teamId, newTeam);
