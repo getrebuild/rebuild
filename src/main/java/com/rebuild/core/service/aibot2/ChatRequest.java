@@ -42,10 +42,19 @@ public class ChatRequest {
 
     /**
      * @param request
+     * @param chatid
      */
     public ChatRequest(HttpServletRequest request, ID chatid) {
+        this((JSONObject) ServletUtils.getRequestJson(request), chatid);
+    }
+
+    /**
+     * @param reqJson
+     * @param chatid
+     */
+    public ChatRequest(JSONObject reqJson, ID chatid) {
         this.chatid = chatid;
-        this.reqJson = (JSONObject) ServletUtils.getRequestJson(request);
+        this.reqJson = reqJson;
     }
 
     /**
