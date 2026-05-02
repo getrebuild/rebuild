@@ -12,15 +12,18 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
+import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.general.ObservableService;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.CommandArgs;
+import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 
@@ -97,6 +100,22 @@ public abstract class BaseFeedsService extends ObservableService {
                 if (u.isActive()) atUsers.add(u.getId());
             }
         }
+        if (atUsers.contains(UserService.AIBOT)
+                && !existsAtUsers.contains(UserService.AIBOT)) {
+            TransactionManual.registerAfterCommit(() -> {
+                Record aiReply = RecordBuilder.builder(EntityHelper.FeedsComment)
+                        .add("feedsId", record.getID("feedsId"))
+                        .add("content", "我还没有此功能")
+                        .build(UserService.SYSTEM_USER);
+
+                UserContextHolder.setUser(UserService.SYSTEM_USER);
+                try {
+                    Application.getBean(FeedsCommentService.class).createOrUpdate(aiReply);
+                } finally {
+                    UserContextHolder.clearUser();
+                }
+            });
+        }
 
         if (CommandArgs.getBoolean(CommandArgs._DisNotificationFeeds)) return;
         for (ID to : atUsers) {
@@ -124,6 +143,11 @@ public abstract class BaseFeedsService extends ObservableService {
         if (fakeContent.contains(atAllKey)
                 && Application.getPrivilegesManager().allow(getCurrentUser(), ZeroEntry.AllowAtAllUsers)) {
             fakeContent = fakeContent.replace(atAllKey, "@" + UserService.ALLUSERS);
+        }
+        String atAiKey = "@" + Language.L("AI 助手");
+        if (fakeContent.contains(atAiKey)
+                && Application.getPrivilegesManager().allow(getCurrentUser(), ZeroEntry.AllowUseAiBot)) {
+            fakeContent = fakeContent.replace(atAiKey, "@" + UserService.AIBOT);
         }
 
         Set<ID> atUsers = new HashSet<>();

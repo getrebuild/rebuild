@@ -28,7 +28,6 @@ import com.rebuild.core.service.trigger.TriggerWhen;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -54,9 +53,7 @@ public class ApprovalHelper {
      * @return
      */
     public static ID getSubmitter(ID recordId) {
-        Object[] approvalId = Application.getQueryFactory().uniqueNoFilter(recordId, EntityHelper.ApprovalId);
-        Assert.notNull(approvalId, "Cannot found approval of record : " + recordId);
-        return getSubmitter(recordId, (ID) approvalId[0]);
+        return Application.getBean(ApprovalStepService.class).getSubmitter(recordId, null);
     }
 
     /**

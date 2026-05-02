@@ -61,6 +61,8 @@ public class UserService extends BaseService {
 
     // 全部用户（注意这是一个虚拟用户 ID，并不真实存在）
     public static final ID ALLUSERS = ID.valueOf("001-9999999999999999");
+    // AI 助手用户（注意这是一个虚拟用户 ID，并不真实存在）
+    public static final ID AIBOT = ID.valueOf("001-9999999999999998");
 
     protected UserService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);

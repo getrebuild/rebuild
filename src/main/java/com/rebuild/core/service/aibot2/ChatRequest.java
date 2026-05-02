@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.aibot2;
 
 import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -121,13 +120,11 @@ public class ChatRequest {
         vectorDataContent = StringUtils.trim(vdc.toVector());
 
         // 保存起来
-        Record store = RecordBuilder.builder(EntityHelper.AibotChatAttach)
+        RecordBuilder.builder(EntityHelper.AibotChatAttach)
                 .add("chatId", chatid)
                 .add("content", attachKey)
                 .add("vectorData", vectorDataContent)
-                .build(UserService.SYSTEM_USER);
-        store.setString("vectorData", vectorDataContent);
-        Application.getCommonsService().create(store);
+                .save(UserService.SYSTEM_USER);
 
         return vectorDataContent;
     }

@@ -75,10 +75,15 @@ public class UsersGetting extends BaseController {
         // 全部用户
         if (getBoolParameter(request, "atall")
                 && "User".equals(type)
-                && StringUtils.isBlank(query)
-                && Application.getPrivilegesManager().allow(getRequestUser(request), ZeroEntry.AllowAtAllUsers)) {
-            found.add(JSONUtils.toJSONObject(
-                    new String[]{"id", "text"}, new Object[]{UserService.ALLUSERS, Language.L("所有人")}));
+                && StringUtils.isBlank(query)) {
+            if (Application.getPrivilegesManager().allow(getRequestUser(request), ZeroEntry.AllowAtAllUsers)) {
+                found.add(JSONUtils.toJSONObject(
+                        new String[]{"id", "text"}, new Object[]{UserService.ALLUSERS, Language.L("所有人")}));
+            }
+            if (Application.getPrivilegesManager().allow(getRequestUser(request), ZeroEntry.AllowUseAiBot)) {
+                found.add(JSONUtils.toJSONObject(
+                        new String[]{"id", "text"}, new Object[]{UserService.AIBOT, Language.L("AI 助手")}));
+            }
         }
 
         for (Member m : members) {
