@@ -94,7 +94,7 @@ public class ApiGateway extends Controller implements Initialization {
         String bestMatchingPattern = request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE).toString();
         final String apiName = new AntPathMatcher().extractPathWithinPattern(bestMatchingPattern, path);
 
-        final Date reuqestTime = CalendarUtils.now();
+        final Date requestTime = CalendarUtils.now();
         final String remoteIp = ServletUtils.getRemoteAddr(request);
         final String requestId = CommonsUtils.randomHex();
 
@@ -123,7 +123,7 @@ public class ApiGateway extends Controller implements Initialization {
             UserContextHolder.setUser(context.getBindUser());
 
             JSON result = api.execute(context);
-            logRequestAsync(reuqestTime, remoteIp, requestId, apiName, context, result);
+            logRequestAsync(requestTime, remoteIp, requestId, apiName, context, result);
 
             ServletUtils.writeJson(response, result.toJSONString());
             return;
@@ -161,7 +161,7 @@ public class ApiGateway extends Controller implements Initialization {
         if (errorData40 != null) ((JSONObject) error).put("error_data", errorData40);
 
         try {
-            logRequestAsync(reuqestTime, remoteIp, requestId, apiName, context, error);
+            logRequestAsync(requestTime, remoteIp, requestId, apiName, context, error);
         } catch (Exception ignored) {
         }
 
@@ -255,7 +255,7 @@ public class ApiGateway extends Controller implements Initialization {
      * @param apiName
      * @return
      */
-    private BaseApi createApi(String apiName) {
+    protected BaseApi createApi(String apiName) {
         if (!API_CLASSES.containsKey(apiName)) {
             throw new ApiInvokeException(ApiInvokeException.ERR_BADAPI, "Unknown API : " + apiName);
         }
@@ -266,7 +266,7 @@ public class ApiGateway extends Controller implements Initialization {
      * @param request
      * @return
      */
-    private ApiContext buildBaseApiContext(HttpServletRequest request) {
+    protected ApiContext buildBaseApiContext(HttpServletRequest request) {
         Map<String, String> sortedMap = new TreeMap<>();
         for (Map.Entry<String, String[]> e : request.getParameterMap().entrySet()) {
             String[] item = e.getValue();
