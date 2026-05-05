@@ -153,7 +153,7 @@ public class UserImporter extends HeavyTask<Integer> {
         String appName = RebuildConfiguration.get(ConfigurationItem.AppName);
         String homeUrl = RebuildConfiguration.getHomeUrl();
 
-        LanguageBundle bundle = Language.getSysDefaultBundle();
+        LanguageBundle bundle = Language.getDefaultBundle();
         String subject = bundle.L("你的账号已就绪");
         String content = bundle.L(
                 "系统管理员已经为你开通了 %s 账号！以下为你的登录信息，请妥善保管。 [] 登录账号 : **%s** [] 登录密码 : **%s** [] 登录地址 : [%s](%s) [][] 首次登录，建议你立即修改登录密码。修改方式 : 登录后点击右上角头像 - 个人设置 - 安全设置 - 更改密码",

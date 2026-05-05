@@ -269,7 +269,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
         String urlLocale = request.getParameter("locale");
         if (StringUtils.isNotBlank(urlLocale) && !urlLocale.equals(useLocale)) {
-            urlLocale = Application.getLanguage().available(urlLocale);
+            urlLocale = Application.getLanguage().isAvailable(urlLocale);
 
             if (urlLocale != null) {
                 useLocale = urlLocale;
@@ -291,7 +291,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         }
 
         // 3. Default
-        if ((useLocale = Application.getLanguage().available(useLocale)) == null) {
+        if ((useLocale = Application.getLanguage().isAvailable(useLocale)) == null) {
             useLocale = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
         }
 

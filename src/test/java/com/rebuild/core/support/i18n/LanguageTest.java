@@ -45,10 +45,10 @@ class LanguageTest extends TestSupport {
 
     @Test
     void available() {
-        System.out.println(Application.getLanguage().available(""));
-        System.out.println(Application.getLanguage().available("zh"));
-        System.out.println(Application.getLanguage().available("zh-cn"));
-        System.out.println(Application.getLanguage().available("zh-hk"));
-        System.out.println(Application.getLanguage().available("zh-tw"));
+        System.out.println(Application.getLanguage().isAvailable(""));
+        System.out.println(Application.getLanguage().isAvailable("zh"));
+        System.out.println(Application.getLanguage().isAvailable("zh-cn"));
+        System.out.println(Application.getLanguage().isAvailable("zh-hk"));
+        System.out.println(Application.getLanguage().isAvailable("zh-tw"));
     }
 }

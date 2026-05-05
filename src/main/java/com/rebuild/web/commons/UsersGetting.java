@@ -19,7 +19,6 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserFilters;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
@@ -37,6 +36,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.rebuild.core.service.feeds.BaseFeedsService.USER_AIBOT;
+import static com.rebuild.core.service.feeds.BaseFeedsService.USER_ALLS;
 
 /**
  * 用户/部门/角色/团队 获取
@@ -78,11 +80,11 @@ public class UsersGetting extends BaseController {
                 && StringUtils.isBlank(query)) {
             if (Application.getPrivilegesManager().allow(getRequestUser(request), ZeroEntry.AllowAtAllUsers)) {
                 found.add(JSONUtils.toJSONObject(
-                        new String[]{"id", "text"}, new Object[]{UserService.ALLUSERS, Language.L("所有人")}));
+                        new String[]{"id", "text"}, new Object[]{USER_ALLS, Language.L("所有人")}));
             }
             if (Application.getPrivilegesManager().allow(getRequestUser(request), ZeroEntry.AllowUseAiBot)) {
                 found.add(JSONUtils.toJSONObject(
-                        new String[]{"id", "text"}, new Object[]{UserService.AIBOT, Language.L("AI 助手")}));
+                        new String[]{"id", "text"}, new Object[]{USER_AIBOT, Language.L("AI 助手")}));
             }
         }
 
