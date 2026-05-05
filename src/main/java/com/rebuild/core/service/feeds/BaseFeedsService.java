@@ -95,8 +95,11 @@ public abstract class BaseFeedsService extends ObservableService {
         Set<ID> atUsers = this.awareMentionCreate(record);
         if (atUsers.isEmpty()) return;
 
+        // 发布人
+        ID publishUser = record.getEditor();
+
         // 发送通知
-        final String msgContent = Language.L("@%s 在动态中提到了你", record.getEditor()) + " \n> " + content;
+        final String msgContent = Language.L("@%s 在动态中提到了你", publishUser) + " \n> " + content;
         ID related = record.getPrimary();
         if (related.getEntityCode() == EntityHelper.FeedsComment) {
             related = record.getID("feedsId");
@@ -113,11 +116,14 @@ public abstract class BaseFeedsService extends ObservableService {
             TransactionManual.registerAfterCommit(() -> {
                 String aiReply;
                 try {
-                    aiReply = ChatManager.ask(content);
+                    aiReply = ChatManager.ask("请尽量简短回答以下问题：\n" + content);
                 } catch (Exception ex) {
                     log.error("AiBot error on ask", ex);
                     aiReply = "错误:" + CommonsUtils.getRootMessage(ex);
                 }
+
+                aiReply = StringUtils.trim(aiReply);
+                aiReply += "\n\n@" + publishUser;
 
                 Record r = RecordBuilder.builder(EntityHelper.FeedsComment)
                         .add("feedsId", record.getID("feedsId"))
@@ -136,6 +142,9 @@ public abstract class BaseFeedsService extends ObservableService {
         if (CommandArgs.getBoolean(CommandArgs._DisNotificationFeeds)) return;
         for (ID to : atUsers) {
             if (existsAtUsers.contains(to)) continue;
+            if (existsAtUsers.contains(USER_ALLS)) continue;
+            if (existsAtUsers.contains(USER_AIBOT)) continue;
+
             Application.getNotifications().send(
                     MessageBuilder.createMessage(to, msgContent, Message.TYPE_FEEDS, related, record.getEditor()));
         }
