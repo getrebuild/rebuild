@@ -75,14 +75,16 @@ public class UsersGetting extends BaseController {
         JSONArray found = new JSONArray();
 
         // 全部用户
-        if (getBoolParameter(request, "atall")
-                && "User".equals(type)
-                && StringUtils.isBlank(query)) {
+        if (getBoolParameter(request, "atall") && "User".equals(type) && StringUtils.isBlank(query)) {
+
             if (Application.getPrivilegesManager().allow(getRequestUser(request), ZeroEntry.AllowAtAllUsers)) {
                 found.add(JSONUtils.toJSONObject(
                         new String[]{"id", "text"}, new Object[]{USER_ALLS, Language.L("所有人")}));
             }
-            if (Application.getPrivilegesManager().allow(getRequestUser(request), ZeroEntry.AllowUseAiBot)) {
+
+            // TODO At AiBot
+            if (getBoolParameter(request, "aibot")
+                    && Application.getPrivilegesManager().allow(getRequestUser(request), ZeroEntry.AllowUseAiBot)) {
                 found.add(JSONUtils.toJSONObject(
                         new String[]{"id", "text"}, new Object[]{USER_AIBOT, Language.L("AI 助手")}));
             }
