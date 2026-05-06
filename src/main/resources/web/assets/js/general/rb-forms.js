@@ -1769,9 +1769,11 @@ class RbFormNTextUseCode extends RbFormNText {
 
   renderViewElement() {
     let code2 = $formatCode(this.state.value)
+    let cmOptions = {}
+
     return (
       <RF>
-        <CodeEditor value={code2} readonly={true} cmOptions={[]} extraActions={[]} ref={(c) => (this._CodeEditor = c)} key="CodeEditor-read" />
+        <CodeEditor value={code2} readonly={true} cmOptions={cmOptions} extraActions={[]} ref={(c) => (this._CodeEditor = c)} key="CodeEditor-read" />
         {this.renderViewElementExtAction()}
       </RF>
     )

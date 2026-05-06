@@ -142,12 +142,8 @@ body {
   height: 18.56px;
 }
 
-.rbview-form .type-NTEXT.col-sm-12 .form-control-plaintext {
-  max-height: 134px;
-}
-
 .rbview-form .type-NTEXT .md-content.form-control-plaintext {
-  max-height: 1001px;
+  max-height: 1000px;
 }
 
 .rbview-form .type-NTEXT .formula-code.form-control-plaintext {
@@ -183,14 +179,10 @@ body {
   opacity: 1;
 }
 
-.rbview-form .type-NTEXT .col-form-control.ntext-expand .ps-container {
-  max-height: 1000px !important;
-  height: auto;
-}
-
+.rbview-form .type-NTEXT .col-form-control.ntext-expand .ps-container,
 .rbview-form .type-NTEXT .col-form-control.ntext-expand .code-editor .CodeMirror,
 .rbview-form .type-NTEXT .col-form-control.ntext-expand .code-editor .CodeMirror .CodeMirror-scroll {
-  max-height: 2000px !important;
+  max-height: 1000px !important;
   height: auto;
 }
 

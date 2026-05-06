@@ -179,6 +179,17 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   bottom: 33px;
 }
 
+.form-layout .type-NTEXT .CodeMirror {
+  padding: 8px;
+  height: 223px;
+}
+
+.form-layout .type-NTEXT .code-editor .CodeMirror .CodeMirror-scroll {
+  min-height: 223px !important;
+  max-height: 2000px;
+  height: auto;
+}
+
 .form-layout .img-field > span {
   margin: 0;
 }
