@@ -62,12 +62,11 @@ public class ApiGateway extends Controller implements Initialization {
 
     // 基于 IP 限流
     private static final RequestRateLimiter RRL = RateLimiters.createRateLimiter(
-            new int[] { 10, 60 },
-            new int[] { 600, 3000 });
+            new int[]{10, 60},
+            new int[]{600, 3000});
 
     private static final Map<String, Class<? extends BaseApi>> API_CLASSES = new HashMap<>();
 
-    @SuppressWarnings("unchecked")
     @Override
     public void init() throws Exception {
         Set<Class<?>> apiClasses = cn.devezhao.commons.ReflectUtils.getAllSubclasses(
@@ -81,6 +80,7 @@ public class ApiGateway extends Controller implements Initialization {
             if (API_CLASSES.containsKey(apiName)) {
                 throw new RebuildException("Api `" + apiName + "` already exists");
             }
+            //noinspection unchecked
             API_CLASSES.put(apiName, (Class<? extends BaseApi>) c);
         }
 
@@ -308,7 +308,7 @@ public class ApiGateway extends Controller implements Initialization {
         record.setString("requestUrl", apiName);
         record.setString("remoteIp", remoteIp);
         record.setString("responseBody",
-                requestId + ":" + (result == null ? "{}" : CommonsUtils.maxstr(result.toJSONString(), 32767)));
+                requestId + ":" + (result == null ? "{}" : CommonsUtils.maxstr(result.toJSONString(), 65535)));
         record.setDate("requestTime", requestTime);
         record.setDate("responseTime", CalendarUtils.now());
 
@@ -316,7 +316,7 @@ public class ApiGateway extends Controller implements Initialization {
             record.setString("appId", context.getAppId());
             JSON post;
             if ((post = context.getPostData()) != null) {
-                record.setString("requestBody", CommonsUtils.maxstr(post.toJSONString(), 32767));
+                record.setString("requestBody", CommonsUtils.maxstr(post.toJSONString(), 65535));
             }
             if (!context.getParameterMap().isEmpty()) {
                 record.setString("requestUrl",
