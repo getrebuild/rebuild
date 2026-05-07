@@ -1752,6 +1752,10 @@ class RbFormNText extends RbFormElement {
 // CodeEditor
 class RbFormNTextUseCode extends RbFormNText {
   renderElement() {
+    let cmOptions = {
+      theme: 'material',
+    }
+
     return (
       // eslint-disable-next-line react/jsx-no-undef
       <CodeEditor
@@ -1760,7 +1764,7 @@ class RbFormNTextUseCode extends RbFormNText {
           this.handleChange({ target: { value: v } }, true)
         }}
         readonly={this.state.readonly}
-        cmOptions={[]}
+        cmOptions={cmOptions}
         extraActions={[]}
         ref={(c) => (this._CodeEditor = c)}
         key="CodeEditor-write"
@@ -1770,11 +1774,13 @@ class RbFormNTextUseCode extends RbFormNText {
 
   renderViewElement() {
     let code2 = $formatCode(this.state.value)
-    let cmOptions = {}
+    let cmOptions = {
+      theme: 'material',
+    }
 
     return (
       <RF>
-        <CodeEditor value={code2} readonly={true} cmOptions={cmOptions} extraActions={[]} ref={(c) => (this._CodeEditor = c)} key="CodeEditor-read" />
+        <CodeEditor value={code2} readonly cmOptions={cmOptions} ref={(c) => (this._CodeEditor = c)} key="CodeEditor-read" />
         {this.renderViewElementExtAction()}
       </RF>
     )
