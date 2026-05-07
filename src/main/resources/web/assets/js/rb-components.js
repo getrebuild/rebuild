@@ -1530,6 +1530,8 @@ class CodeEditor extends React.Component {
         useGlobalScope: false,
       },
       readOnly: this.props.readonly === true ? 'nocursor' : false,
+      viewportMargin: Infinity,
+      lineWrapping: true,
       ...this.props.cmOptions,
     }
 
@@ -1539,7 +1541,7 @@ class CodeEditor extends React.Component {
       typeof this.props.onChange === 'function' && this.props.onChange(cc)
     })
 
-    cm5.setSize('100%', 'auto')
+    cm5.setSize('100%', '100%')
     this._CodeMirror = cm5
   }
 

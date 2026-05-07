@@ -1415,6 +1415,7 @@ a.link.link-icon::after {
 }
 
 /* v35 */
+
 .form-layout.refform {
   display: block;
   background-color: rgba(230, 230, 230, 0.2);
@@ -4490,37 +4491,6 @@ h3.modal-title > .rbv {
   opacity: 0.88;
 }
 
-.CodeMirror {
-  border-bottom-left-radius: 2px;
-  border-bottom-right-radius: 2px;
-  border-color: #d5d8de;
-}
-
-.CodeMirror,
-.CodeMirror-scroll {
-  min-height: 130px !important;
-}
-
-.CodeMirror .cm-formatting {
-  display: none !important;
-}
-
-.CodeMirror .cm-formatting.cm-formatting-list,
-.CodeMirror .cm-formatting.cm-url,
-.CodeMirror .cm-formatting.cm-link {
-  display: inline !important;
-}
-
-.CodeMirror-wrap pre.CodeMirror-line,
-.CodeMirror-wrap pre.CodeMirror-line-like {
-  word-wrap: break-word;
-  word-break: break-all;
-}
-
-.CodeMirror-wrap pre {
-  word-break: break-all;
-}
-
 .popover {
   max-width: 300px;
 }
@@ -5357,17 +5327,9 @@ pre.unstyle {
   min-width: 248px;
 }
 
-/* .datetimepicker table tr td span.minute {
-  width: 20%;
-  margin-left: 0;
-  margin-right: 0;
-} */
-
 .datetimepicker table tbody tr td.day {
   min-width: 28px;
 }
-
-/* v34 radius 6px */
 
 .rbhighbar > .alert,
 .rb-left-sidebar.v2 .sidebar-elements li > a,
@@ -6851,4 +6813,32 @@ div.formula-code {
 .aside-nav .nav li.active a .icon {
   color: #4285f4;
   color: var(--rb-theme-color);
+}
+
+.CodeMirror,
+.CodeMirror-scroll {
+  height: 223px;
+  min-height: 223px; /* L10 */
+}
+
+.EasyMDEContainer .CodeMirror {
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  border-color: #d5d8de;
+}
+
+.EasyMDEContainer .editor-toolbar {
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  border-color: #d5d8de;
+}
+
+.EasyMDEContainer .CodeMirror .cm-formatting {
+  display: none !important;
+}
+
+.EasyMDEContainer .CodeMirror .cm-formatting.cm-formatting-list,
+.EasyMDEContainer .CodeMirror .cm-formatting.cm-url,
+.EasyMDEContainer .CodeMirror .cm-formatting.cm-link {
+  display: inline !important;
 }

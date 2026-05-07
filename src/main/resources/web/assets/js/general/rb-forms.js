@@ -1724,6 +1724,7 @@ class RbFormNText extends RbFormElement {
           $(this._fieldValue__upload).trigger('change')
         }
       })
+      mde.codemirror.setSize('100%', '100%')
     }
   }
 
