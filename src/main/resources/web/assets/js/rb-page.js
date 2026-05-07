@@ -275,7 +275,28 @@ $(function () {
       _FN()
     })
   }
+
+  // v4.4 多个 Modal 只关最后一个
+  document.addEventListener(
+    'keydown',
+    function (e) {
+      if (e.key === 'Escape' || e.keyCode === 27) {
+        var visibleModals = document.querySelectorAll('.modal.show')
+        if (visibleModals.length > 1) {
+          try {
+            $(visibleModals[visibleModals.length - 1]).modal('hide')
+            e.stopPropagation()
+            e.preventDefault()
+          } catch (err) {
+            console.log(err)
+          }
+        }
+      }
+    },
+    true,
+  )
 })
+
 $(window).on('load', function () {
   if (window.__LAB_COMMERCIAL11_NORB) {
     $('a[target="_blank"]').each(function () {

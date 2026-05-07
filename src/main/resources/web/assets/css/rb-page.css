@@ -1410,15 +1410,12 @@ a.link.link-icon::after {
   background-color: #eee;
 }
 
-.rbform .type-NTEXT .CodeMirror {
-  padding: 8px;
-}
-
 .rbform .type-NTEXT .form-control.is-invalid + .EasyMDEContainer .CodeMirror {
   border-color: #ea4335;
 }
 
 /* v35 */
+
 .form-layout.refform {
   display: block;
   background-color: rgba(230, 230, 230, 0.2);
@@ -4494,39 +4491,6 @@ h3.modal-title > .rbv {
   opacity: 0.88;
 }
 
-/* for MDE */
-
-.CodeMirror {
-  border-bottom-left-radius: 2px;
-  border-bottom-right-radius: 2px;
-  border-color: #d5d8de;
-}
-
-.CodeMirror,
-.CodeMirror-scroll {
-  min-height: 130px !important;
-}
-
-.CodeMirror .cm-formatting {
-  display: none !important;
-}
-
-.CodeMirror .cm-formatting.cm-formatting-list,
-.CodeMirror .cm-formatting.cm-url,
-.CodeMirror .cm-formatting.cm-link {
-  display: inline !important;
-}
-
-.CodeMirror-wrap pre.CodeMirror-line,
-.CodeMirror-wrap pre.CodeMirror-line-like {
-  word-wrap: break-word;
-  word-break: break-all;
-}
-
-.CodeMirror-wrap pre {
-  word-break: break-all;
-}
-
 .popover {
   max-width: 300px;
 }
@@ -5363,17 +5327,9 @@ pre.unstyle {
   min-width: 248px;
 }
 
-/* .datetimepicker table tr td span.minute {
-  width: 20%;
-  margin-left: 0;
-  margin-right: 0;
-} */
-
 .datetimepicker table tbody tr td.day {
   min-width: 28px;
 }
-
-/* v34 radius 6px */
 
 .rbhighbar > .alert,
 .rb-left-sidebar.v2 .sidebar-elements li > a,
@@ -6464,33 +6420,44 @@ div.formula-code {
 .md-content h4,
 .md-content h5,
 .md-content h6 {
-  margin-top: 24px;
-  margin-bottom: 16px;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
   font-weight: 600;
   line-height: 1.25;
 }
 
 .md-content h1 {
   font-size: 2em;
+  font-size: calc(1.375rem + 1.5vw);
   padding-bottom: 0.3em;
   border-bottom: 1px solid #eaecef;
 }
+
 .md-content h2 {
   font-size: 1.5em;
+  font-size: calc(1.325rem + 0.9vw);
   padding-bottom: 0.3em;
   border-bottom: 1px solid #eaecef;
 }
+
 .md-content h3 {
   font-size: 1.25em;
+  font-size: calc(1.3rem + 0.6vw);
 }
+
 .md-content h4 {
   font-size: 1em;
+  font-size: calc(1.275rem + 0.3vw);
 }
+
 .md-content h5 {
   font-size: 0.875em;
+  font-size: 1.25rem;
 }
+
 .md-content h6 {
   font-size: 0.85em;
+  font-size: 1rem;
   color: #6a737d;
 }
 
@@ -6846,4 +6813,32 @@ div.formula-code {
 .aside-nav .nav li.active a .icon {
   color: #4285f4;
   color: var(--rb-theme-color);
+}
+
+.CodeMirror,
+.CodeMirror-scroll {
+  height: 223px;
+  min-height: 223px; /* L10 */
+}
+
+.EasyMDEContainer .CodeMirror {
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  border-color: #d5d8de;
+}
+
+.EasyMDEContainer .editor-toolbar {
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  border-color: #d5d8de;
+}
+
+.EasyMDEContainer .CodeMirror .cm-formatting {
+  display: none !important;
+}
+
+.EasyMDEContainer .CodeMirror .cm-formatting.cm-formatting-list,
+.EasyMDEContainer .CodeMirror .cm-formatting.cm-url,
+.EasyMDEContainer .CodeMirror .cm-formatting.cm-link {
+  display: inline !important;
 }

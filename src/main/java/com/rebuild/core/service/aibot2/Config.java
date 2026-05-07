@@ -19,7 +19,7 @@ import org.springframework.util.Assert;
  * @author Zixin
  * @since 2025/6/8
  */
-public class DeepSeek {
+public class Config {
 
     private static OpenAIClient CLIENT;
 
@@ -57,6 +57,17 @@ public class DeepSeek {
         return b;
     }
 
+    // --
+
+    /**
+     * 是否可用
+     *
+     * @return
+     */
+    public static boolean availableAiBot() {
+        return RebuildConfiguration.get(ConfigurationItem.AibotDSSecret) != null;
+    }
+
     /**
      * @param path
      * @return
@@ -77,6 +88,13 @@ public class DeepSeek {
         String sk = RebuildConfiguration.get(ConfigurationItem.AibotDSSecret);
         Assert.notNull(sk, "[AibotDSSecret] is not set");
         return sk;
+    }
+
+    /**
+     * @return
+     */
+    public static String getBasePrompt() {
+        return RebuildConfiguration.get(ConfigurationItem.AibotBasePrompt);
     }
 
     /**

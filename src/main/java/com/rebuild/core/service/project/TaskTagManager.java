@@ -86,13 +86,10 @@ public class TaskTagManager implements ConfigManager {
             return null;
         }
 
-        RecordBuilder builder = RecordBuilder
-                .builder(EntityHelper.ProjectTaskTagRelation)
+        return RecordBuilder.builder(EntityHelper.ProjectTaskTagRelation)
                 .add("taskId", taskId)
-                .add("tagId", tagId);
-
-        return Application.getCommonsService()
-                .create(builder.build(UserContextHolder.getUser()))
+                .add("tagId", tagId)
+                .save(UserContextHolder.getUser())
                 .getPrimary();
     }
 

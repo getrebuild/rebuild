@@ -12,16 +12,22 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
+import com.rebuild.core.service.TransactionManual;
+import com.rebuild.core.service.aibot2.ChatManager;
 import com.rebuild.core.service.general.ObservableService;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.CommandArgs;
+import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Collections;
@@ -36,7 +42,13 @@ import java.util.regex.Matcher;
  * @author ZHAO
  * @since 2019/11/5
  */
+@Slf4j
 public abstract class BaseFeedsService extends ObservableService {
+
+    // 全部用户（注意这是一个虚拟用户 ID，并不真实存在）
+    public static final ID USER_ALLS = ID.valueOf("001-9999999999999999");
+    // v4.4 AI 助手用户（注意这是一个虚拟用户 ID，并不真实存在）
+    public static final ID USER_AIBOT = ID.valueOf("001-9999999999999998");
 
     protected BaseFeedsService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
@@ -83,24 +95,56 @@ public abstract class BaseFeedsService extends ObservableService {
         Set<ID> atUsers = this.awareMentionCreate(record);
         if (atUsers.isEmpty()) return;
 
+        // 发布人
+        ID publishUser = record.getEditor();
+
         // 发送通知
-        final String msgContent = Language.L("@%s 在动态中提到了你", record.getEditor()) + " \n> " + content;
+        final String msgContent = Language.L("@%s 在动态中提到了你", publishUser) + " \n> " + content;
         ID related = record.getPrimary();
         if (related.getEntityCode() == EntityHelper.FeedsComment) {
             related = record.getID("feedsId");
         }
 
-        if (atUsers.contains(UserService.ALLUSERS)
-                && !existsAtUsers.contains(UserService.ALLUSERS)) {
+        if (atUsers.contains(USER_ALLS) && !existsAtUsers.contains(USER_ALLS)) {
             atUsers.clear();
             for (User u : Application.getUserStore().getAllUsers()) {
                 if (u.isActive()) atUsers.add(u.getId());
             }
         }
 
+        if (atUsers.contains(USER_AIBOT) && !existsAtUsers.contains(USER_AIBOT)) {
+            TransactionManual.registerAfterCommit(() -> {
+                String aiReply;
+                try {
+                    aiReply = ChatManager.ask("请尽量简短回答以下问题：\n" + content);
+                } catch (Exception ex) {
+                    log.error("AiBot error on ask", ex);
+                    aiReply = "错误:" + CommonsUtils.getRootMessage(ex);
+                }
+
+                aiReply = StringUtils.trim(aiReply);
+                aiReply += "\n\n@" + publishUser;
+
+                Record r = RecordBuilder.builder(EntityHelper.FeedsComment)
+                        .add("feedsId", record.getID("feedsId"))
+                        .add("content", aiReply)
+                        .build(UserService.SYSTEM_USER);
+
+                UserContextHolder.setUser(UserService.SYSTEM_USER);
+                try {
+                    Application.getBean(FeedsCommentService.class).createOrUpdate(r);
+                } finally {
+                    UserContextHolder.clearUser();
+                }
+            });
+        }
+
         if (CommandArgs.getBoolean(CommandArgs._DisNotificationFeeds)) return;
         for (ID to : atUsers) {
             if (existsAtUsers.contains(to)) continue;
+            if (existsAtUsers.contains(USER_ALLS)) continue;
+            if (existsAtUsers.contains(USER_AIBOT)) continue;
+
             Application.getNotifications().send(
                     MessageBuilder.createMessage(to, msgContent, Message.TYPE_FEEDS, related, record.getEditor()));
         }
@@ -120,10 +164,22 @@ public abstract class BaseFeedsService extends ObservableService {
 
         String fakeContent = record.getString("content");
 
-        String atAllKey = "@" + Language.L("所有人");
-        if (fakeContent.contains(atAllKey)
-                && Application.getPrivilegesManager().allow(getCurrentUser(), ZeroEntry.AllowAtAllUsers)) {
-            fakeContent = fakeContent.replace(atAllKey, "@" + UserService.ALLUSERS);
+        Set<String> locales = Application.getLanguage().getAvailableLocales().keySet();
+        if (Application.getPrivilegesManager().allow(getCurrentUser(), ZeroEntry.AllowAtAllUsers)) {
+            for (String locale : locales) {
+                String keyText = "@" + Application.getLanguage().getBundle(locale).L("所有人");
+                if (fakeContent.contains(keyText)) {
+                    fakeContent = fakeContent.replace(keyText, "@" + USER_ALLS);
+                }
+            }
+        }
+        if (Application.getPrivilegesManager().allow(getCurrentUser(), ZeroEntry.AllowUseAiBot)) {
+            for (String locale : locales) {
+                String keyText = "@" + Application.getLanguage().getBundle(locale).L("AI 助手");
+                if (fakeContent.contains(keyText)) {
+                    fakeContent = fakeContent.replace(keyText, "@" + USER_AIBOT);
+                }
+            }
         }
 
         Set<ID> atUsers = new HashSet<>();

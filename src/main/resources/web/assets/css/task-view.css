@@ -309,8 +309,3 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .tags-list .dropdown-item:hover > a {
   display: inline-block;
 }
-
-.CodeMirror,
-.CodeMirror-scroll {
-  min-height: 70px;
-}

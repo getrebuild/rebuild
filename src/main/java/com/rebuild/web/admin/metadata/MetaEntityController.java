@@ -427,7 +427,7 @@ public class MetaEntityController extends EntityController {
     public RespBody listI18n(@PathVariable String entity) {
         Entity e = MetadataHelper.getEntity(entity);
         String key = "META." + e.getName();
-        Set<String> locales = Application.getLanguage().availableLocales().keySet();
+        Set<String> locales = Application.getLanguage().getAvailableLocales().keySet();
 
         List<Map<String, String>> i18nList = new ArrayList<>();
         i18nList.add(buildI18nItem(e, key, locales));

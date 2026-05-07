@@ -17,7 +17,6 @@ import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.openai.models.chat.completions.ChatCompletionMessage;
 import com.openai.services.blocking.chat.ChatCompletionService;
 import com.rebuild.core.service.aibot.AiBotException;
-import com.rebuild.core.service.aibot.Config;
 import com.rebuild.core.service.aibot.StreamEcho;
 import com.rebuild.core.service.query.QueryHelper;
 import lombok.Getter;
@@ -128,14 +127,14 @@ public class Chat implements Serializable {
     }
 
     private ChatCompletionService completions() {
-        return DeepSeek.getClient().chat().completions();
+        return Config.getClient().chat().completions();
     }
 
     private ChatCompletionCreateParams buildRequestParams(String userMessage, ChatRequest chatRequest) {
         Message message = new Message(ROLE_USER, userMessage, null, null, chatRequest);
         messages.add(message);
 
-        ChatCompletionCreateParams.Builder builder = DeepSeek.createBuilder(prompt, model);
+        ChatCompletionCreateParams.Builder builder = Config.createBuilder(prompt, model);
         for (Message m : messages) {
             String content = m.getContent();
             if (ROLE_USER.equals(m.getRole())) builder.addUserMessage(content);

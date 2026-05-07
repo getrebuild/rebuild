@@ -442,25 +442,30 @@ public class ApprovalStepService extends BaseService {
      * @return
      */
     public ID getSubmitter(ID recordId, ID approvalId) {
-        final String ckey = "ApprovalSubmitter" + recordId + approvalId;
-        ID submitter = (ID) Application.getCommonsCache().getx(ckey);
-        if (submitter != null) return submitter;
+        ID submitter = null;
 
         // v4.3
-        if (MetadataHelper.getEntity(recordId.getEntityCode()).containsField(EntityHelper.ApprovalSubmitUser)) {
-            Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, EntityHelper.ApprovalSubmitUser);
-            submitter = o == null ? null : (ID) o[0];
+        Entity e = MetadataHelper.getEntity(recordId.getEntityCode());
+        if (e.containsField(EntityHelper.ApprovalSubmitUser)) {
+            submitter = (ID) QueryHelper.queryFieldValue(recordId, EntityHelper.ApprovalSubmitUser);
+            if (submitter != null) return submitter;
         }
 
-        if (submitter == null) {
-            // 第一个创建步骤的人为提交人
-            Object[] firstStep = Application.createQueryNoFilter(
-                    "select createdBy from RobotApprovalStep where recordId = ? and approvalId = ? and isCanceled = 'F' order by createdOn asc")
-                    .setParameter(1, recordId)
-                    .setParameter(2, approvalId)
-                    .unique();
-            submitter = (ID) firstStep[0];
+        if (approvalId == null) {
+            approvalId = (ID) QueryHelper.queryFieldValue(recordId, EntityHelper.ApprovalId);
         }
+
+        String ckey = "ApprovalSubmitter" + recordId + approvalId;
+        submitter = (ID) Application.getCommonsCache().getx(ckey);
+        if (submitter != null) return submitter;
+
+        // 动态获取:第一个创建步骤的人为提交人
+        Object[] firstStep = Application.createQueryNoFilter(
+                "select createdBy from RobotApprovalStep where recordId = ? and approvalId = ? and isCanceled = 'F' order by createdOn asc")
+                .setParameter(1, recordId)
+                .setParameter(2, approvalId)
+                .unique();
+        submitter = (ID) firstStep[0];
 
         Application.getCommonsCache().putx(ckey, submitter);
         return submitter;

@@ -43,7 +43,7 @@
       .h5-mobile .icon {
         background-color: #fc9a00;
         color: #fff;
-        border-radius: 50%;
+        border-radius: 6px;
         width: 25px;
         height: 25px;
         line-height: 25px;
@@ -243,7 +243,7 @@
                     <div class="btn-group">
                       <a class="select-lang dropdown-toggle" data-toggle="dropdown">
                         <i class="icon zmdi zmdi-globe-alt"></i>
-                        <span>[[${currentLang}]]</span>
+                        <span class="down-1">[[${currentLang}]]</span>
                       </a>
                       <div class="dropdown-menu dropdown-menu-right">
                         <a class="dropdown-item" th:each="L : ${availableLangs}" th:href="${'?locale=' + L[0]}">[[${L[1]}]]</a>

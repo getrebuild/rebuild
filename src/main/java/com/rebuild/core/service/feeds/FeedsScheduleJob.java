@@ -24,7 +24,11 @@ import com.rebuild.utils.CommonsUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author devezhao
@@ -66,7 +70,7 @@ public class FeedsScheduleJob extends DistributedJobLock {
             list.add(o);
         }
 
-        final LanguageBundle bundle = Language.getSysDefaultBundle();
+        final LanguageBundle bundle = Language.getDefaultBundle();
         // 发送
         for (List<Object[]> list : map.values()) {
             List<Object[]> notifications = new ArrayList<>();

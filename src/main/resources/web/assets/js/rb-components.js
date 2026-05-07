@@ -1505,9 +1505,9 @@ class CodeEditor extends React.Component {
 
   componentDidMount() {
     if (window.CodeMirror) {
-      this.props.isCode !== false && setTimeout(() => this.initCodeMirror(), 40)
+      this.props.isCode !== false && setTimeout(() => this.initCodeMirror(), 200)
     }
-    this.props.autoFocus === true && setTimeout(() => this.focus(), 80)
+    this.props.autoFocus === true && setTimeout(() => this.focus(), 220)
   }
 
   initCodeMirror() {
@@ -1521,7 +1521,7 @@ class CodeEditor extends React.Component {
       smartIndent: true,
       styleActiveLine: true,
       autoCloseBrackets: true,
-      matchBrackets: true,
+      matchBrackets: this.props.readonly ? false : true,
       lint: {
         esversion: 6,
       },
@@ -1530,6 +1530,8 @@ class CodeEditor extends React.Component {
         useGlobalScope: false,
       },
       readOnly: this.props.readonly === true ? 'nocursor' : false,
+      viewportMargin: Infinity,
+      lineWrapping: true,
       ...this.props.cmOptions,
     }
 
@@ -1539,6 +1541,7 @@ class CodeEditor extends React.Component {
       typeof this.props.onChange === 'function' && this.props.onChange(cc)
     })
 
+    cm5.setSize('100%', '100%')
     this._CodeMirror = cm5
   }
 

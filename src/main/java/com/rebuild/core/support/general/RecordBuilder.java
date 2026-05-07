@@ -12,10 +12,16 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.JSONable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Record 构建器
@@ -53,8 +59,9 @@ public class RecordBuilder implements JSONable {
     // --
 
     final private Entity entity;
+    final private ID recordId;
 
-    final private JSONObject data = new JSONObject();
+    final private Map<String, Object> data = new HashMap<>();
 
     /**
      * @param entity
@@ -62,17 +69,11 @@ public class RecordBuilder implements JSONable {
      */
     private RecordBuilder(Entity entity, ID recordId) {
         this.entity = entity;
-
-        JSONObject metadata = new JSONObject();
-        metadata.put("entity", entity.getName());
-        if (recordId != null) {
-            metadata.put("id", recordId.toLiteral());
-        }
-        this.data.put(EntityRecordCreator.META_FIELD, metadata);
+        this.recordId = recordId;
     }
 
     /**
-     * 添加数据。注意此方法不做任何数据合适转换，需自行处理
+     * 添加数据（注意此方法不做任何数据格式转换，需自行处理）
      *
      * @param name
      * @param value
@@ -85,17 +86,43 @@ public class RecordBuilder implements JSONable {
 
     @Override
     public JSON toJSON() {
-        return data;
+        JSONObject md = JSONUtils.toJSONObject("entity", entity.getName());
+        if (recordId != null) md.put("id", recordId.toLiteral());
+
+        JSONObject be = (JSONObject) JSON.toJSON(data);
+        be.put(EntityRecordCreator.META_FIELD, md);
+        return be;
     }
 
     /**
+     * 构建
+     *
      * @param editor
      * @return
      * @see EntityRecordCreator
      */
     public Record build(ID editor) {
-        Record record = new EntityRecordCreator(this.entity, this.data, editor).create();
+        Record record = recordId == null
+                ? EntityHelper.forNew(entity.getEntityCode(), editor)
+                : EntityHelper.forUpdate(recordId, editor);
+        for (Map.Entry<String, Object> e : data.entrySet()) {
+            record.setObjectValue(e.getKey(), e.getValue());
+        }
+
         AutoFillinManager.instance.fillinRecord(record);
         return record;
+    }
+
+    /**
+     * 保存
+     *
+     * @param editor
+     * @return
+     * @see com.rebuild.core.service.CommonsService#createOrUpdate(Record)
+     */
+    public Record save(ID editor) {
+        Record r = build(editor);
+        Application.getCommonsService().createOrUpdate(r);
+        return r;
     }
 }
