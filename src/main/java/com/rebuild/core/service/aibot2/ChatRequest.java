@@ -45,6 +45,7 @@ public class ChatRequest {
 
     /**
      * @param request
+     * @param chatid
      */
     public ChatRequest(HttpServletRequest request, ID chatid) {
         this((JSONObject) ServletUtils.getRequestJson(request), chatid);
