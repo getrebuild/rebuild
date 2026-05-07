@@ -62,7 +62,8 @@ public class OkHttpUtils {
      *
      * @return
      */
-    synchronized public static OkHttpClient getHttpClient() {
+    synchronized
+    public static OkHttpClient getHttpClient() {
         if (okHttpClient == null) {
             okHttpClient = new OkHttpClient.Builder()
                     .connectTimeout(30, TimeUnit.SECONDS)
@@ -84,7 +85,7 @@ public class OkHttpUtils {
      * @throws IOException
      */
     public static String get(String url) throws IOException {
-        return get(url, null, null);
+        return get(url, null, null, 0);
     }
 
     /**
@@ -96,7 +97,7 @@ public class OkHttpUtils {
      * @throws IOException
      */
     public static String get(String url, Map<String, String> headers) throws IOException {
-        return get(url, headers, null);
+        return get(url, headers, null, 0);
     }
 
     /**
@@ -109,12 +110,35 @@ public class OkHttpUtils {
      * @throws IOException
      */
     public static String get(String url, Map<String, String> headers, String charset) throws IOException {
-        OkHttpClient client = getHttpClient();
+        return get(url, headers, charset, 0);
+    }
+
+    /**
+     * GET with headers and charset and timeout
+     *
+     * @param url
+     * @param headers
+     * @param charset
+     * @param timeout
+     * @return
+     * @throws IOException
+     */
+    public static String get(String url, Map<String, String> headers, String charset, int timeout) throws IOException {
         Request.Builder builder = new Request.Builder().url(url);
         Request request = useHeaders(builder, headers).build();
 
+        OkHttpClient httpClient = getHttpClient();
+        // 复用
+        if (timeout > 0) {
+            httpClient = httpClient.newBuilder()
+                    .connectTimeout(timeout, TimeUnit.SECONDS)
+                    .writeTimeout(timeout, TimeUnit.SECONDS)
+                    .readTimeout(timeout, TimeUnit.SECONDS)
+                    .build();
+        }
+
         long ms = System.currentTimeMillis();
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = httpClient.newCall(request).execute()) {
             // fix:4.2.4
             if (!response.isSuccessful()) {
                 throw new RebuildException("Unexpected code : " + response);
@@ -122,6 +146,7 @@ public class OkHttpUtils {
 
             byte[] b = Objects.requireNonNull(response.body()).bytes();
             return new String(b, StringUtils.defaultIfBlank(charset, AppUtils.UTF8));
+
         } finally {
             ms = System.currentTimeMillis() - ms;
             if (ms > 3000) log.warn("Http GET `{}` time {}ms", url, ms);
@@ -137,11 +162,11 @@ public class OkHttpUtils {
      * @throws IOException
      */
     public static String post(String url, Object reqData) throws IOException {
-        return post(url, reqData, null);
+        return post(url, reqData, null, 0);
     }
 
     /**
-     * POST with Headers
+     * POST with headers
      *
      * @param url
      * @param reqData JSON or Map or Others
@@ -150,6 +175,20 @@ public class OkHttpUtils {
      * @throws IOException
      */
     public static String post(String url, Object reqData, Map<String, String> headers) throws IOException {
+        return post(url, reqData, headers, 0);
+    }
+
+    /**
+     * POST with headers and timeout
+     *
+     * @param url
+     * @param reqData
+     * @param headers
+     * @param timeout
+     * @return
+     * @throws IOException
+     */
+    public static String post(String url, Object reqData, Map<String, String> headers, int timeout) throws IOException {
         RequestBody requestBody;
 
         // JSON
@@ -170,14 +209,23 @@ public class OkHttpUtils {
             requestBody = RequestBody.create(reqData == null ? "" : reqData.toString(), MediaType.parse("text/plain"));
         }
 
-        OkHttpClient client = getHttpClient();
         Request.Builder builder = new Request.Builder().url(url);
         Request request = useHeaders(builder, headers)
                 .post(requestBody)
                 .build();
 
+        OkHttpClient httpClient = getHttpClient();
+        // 复用
+        if (timeout > 0) {
+            httpClient = httpClient.newBuilder()
+                    .connectTimeout(timeout, TimeUnit.SECONDS)
+                    .writeTimeout(timeout, TimeUnit.SECONDS)
+                    .readTimeout(timeout, TimeUnit.SECONDS)
+                    .build();
+        }
+
         long ms = System.currentTimeMillis();
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = httpClient.newCall(request).execute()) {
             // fix:4.2.4
             if (!response.isSuccessful()) {
                 throw new RebuildException("Unexpected code : " + response);
@@ -185,6 +233,7 @@ public class OkHttpUtils {
 
             byte[] b = Objects.requireNonNull(response.body()).bytes();
             return new String(b, StandardCharsets.UTF_8);
+
         } finally {
             ms = System.currentTimeMillis() - ms;
             if (ms > 3000) log.warn("Http POST `{}` time {}ms", url, ms);
