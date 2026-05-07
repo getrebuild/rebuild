@@ -1541,7 +1541,9 @@ class CodeEditor extends React.Component {
       typeof this.props.onChange === 'function' && this.props.onChange(cc)
     })
 
+    // 自动高度
     cm5.setSize('100%', '100%')
+
     this._CodeMirror = cm5
   }
 

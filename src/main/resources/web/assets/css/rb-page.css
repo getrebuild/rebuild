@@ -6817,14 +6817,29 @@ div.formula-code {
 
 .CodeMirror,
 .CodeMirror-scroll {
+  max-height: 1000px;
   height: 223px;
-  min-height: 223px; /* L10 */
+  min-height: 223px;
 }
+
+.CodeMirror-wrap pre.CodeMirror-line,
+.CodeMirror-wrap pre.CodeMirror-line-like {
+  word-wrap: break-word !important;
+  word-break: break-all !important;
+}
+
+/* .EasyMDEContainer .CodeMirror,
+.EasyMDEContainer .CodeMirror-scroll {
+  max-height: 1000px;
+  height: 161px;
+  min-height: 161px !important;
+} */
 
 .EasyMDEContainer .CodeMirror {
   border-bottom-left-radius: 2px;
   border-bottom-right-radius: 2px;
   border-color: #d5d8de;
+  padding: 6px 8px;
 }
 
 .EasyMDEContainer .editor-toolbar {
