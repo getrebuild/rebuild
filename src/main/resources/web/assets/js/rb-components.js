@@ -1625,7 +1625,7 @@ class HtmlEditor extends React.Component {
           this.image_callback(`${rb.baseUrl}/filex/img/${res.key}`)
         })
         //
-        editor.on('change', () => {
+        editor.on('NodeChange', () => {
           let cc = editor.getContent()
           typeof this.props.onChange === 'function' && this.props.onChange(cc)
         })
