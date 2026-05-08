@@ -252,7 +252,6 @@ public class FieldAggregation extends TriggerAction {
                 }
 
             } else {
-//                log.warn("Unsupported file-type {} with {}", dt, targetRecordId);
                 // v4.2
                 evalValue = FieldWriteback.checkoutFieldValue(evalValue, targetFieldEasy);
                 if (evalValue != null) targetRecord.setObjectValue(targetField, evalValue);

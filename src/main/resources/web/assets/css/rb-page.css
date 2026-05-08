@@ -6828,13 +6828,6 @@ div.formula-code {
   word-break: break-all !important;
 }
 
-/* .EasyMDEContainer .CodeMirror,
-.EasyMDEContainer .CodeMirror-scroll {
-  max-height: 1000px;
-  height: 161px;
-  min-height: 161px !important;
-} */
-
 .EasyMDEContainer .CodeMirror {
   border-bottom-left-radius: 2px;
   border-bottom-right-radius: 2px;
