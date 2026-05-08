@@ -1585,6 +1585,102 @@ class CodeEditor extends React.Component {
   }
 }
 
+// ~~ HTML 编辑器
+class HtmlEditor extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+
+  render() {
+    return (
+      <div className="html-editor">
+        <textarea className="form-control" spellCheck="false" defaultValue={this.props.value || ''} ref={(c) => (this._$content = c)} />
+        <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._$content_image = c)} />
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    this.initTnyMCE()
+  }
+
+  initTnyMCE() {
+    this.destroy()
+
+    window.tinymce.init({
+      // selector: undefined,
+      target: this._$content,
+      license_key: 'gpl',
+      language: rb.locale,
+      plugins: 'table code image lists pagebreak autoresize fullscreen',
+      menubar: 'insert format table',
+      toolbar: 'styles fontsize fontfamily bold italic alignleft aligncenter alignright hr image code fullscreen',
+      highlight_on_focus: false,
+      setup: (editor) => {
+        this._TinyMCE = editor
+
+        // 上传图片
+        $createUploader(this._$content_image, null, (res) => {
+          this.image_callback(`${rb.baseUrl}/filex/img/${res.key}`)
+        })
+        //
+        editor.on('change', () => {
+          let cc = editor.getContent()
+          typeof this.props.onChange === 'function' && this.props.onChange(cc)
+        })
+      },
+      file_picker_callback: (callback, value, meta) => {
+        if (meta.filetype === 'image') {
+          this.image_callback = callback
+          this._$content_image.click()
+        }
+      },
+      resize: false,
+      font_family_formats: ['黑体', '仿宋', '楷体', '标楷体', '华文仿宋', '华文楷体', '宋体', '微软雅黑', 'Arial', 'Tahoma', 'Verdana', 'Times New Roman', 'Courier New'].join(';'),
+      protect: [/<style[^>]*>[\s\S]*?<\/style>/g],
+      height: 223,
+      width: '100%',
+      min_height: 223,
+      max_height: 2000,
+      autoresize_bottom_margin: 1,
+    })
+  }
+
+  componentWillUnmount() {
+    this.destroy()
+  }
+
+  destroy() {
+    if (this._TinyMCE) {
+      this._TinyMCE.remove()
+      this._TinyMCE = null
+    }
+  }
+
+  val() {
+    if (arguments.length) {
+      this._TinyMCE.setContent(arguments[0])
+    } else {
+      return this._TinyMCE.getContent()
+    }
+  }
+
+  focus() {
+    this._TinyMCE.focus()
+  }
+
+  insertAtCursor(text) {
+    this._TinyMCE.insertContent(text)
+  }
+
+  formatCode() {
+    let cc = this.val()
+    cc = $formatCode(cc, 'html')
+    this.val(cc)
+  }
+}
+
 // ~~ 树组件 v2.5 v3.7
 // TODO 子级延迟渲染
 class AsideTree extends React.Component {

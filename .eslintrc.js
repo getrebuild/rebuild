@@ -134,7 +134,6 @@ module.exports = {
     RbGritter: true,
     $formatCode: true,
     CodeViewport: true,
-    CodeEditor: true,
     $clipboard: true,
     $clipboard2: true,
     $getScript: true,

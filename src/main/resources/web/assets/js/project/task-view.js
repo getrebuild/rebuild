@@ -466,7 +466,9 @@ class ValueDescription extends ValueComp {
     if (this._EasyMDE) {
       try {
         this._EasyMDE.toTextArea()
-      } catch (ignored) {}
+      } catch (ignored) {
+        // Nothing to do.
+      }
       this._EasyMDE = null
       $('.CodeMirror-wrap').remove()
     }
@@ -485,6 +487,8 @@ class ValueDescription extends ValueComp {
           // eslint-disable-next-line no-undef
           toolbar: DEFAULT_MDE_TOOLBAR(this),
           previewClass: 'md-content',
+          minHeight: 158,
+          maxHeight: 2000,
         })
         this._EasyMDE = mde
 
