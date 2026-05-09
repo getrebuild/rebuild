@@ -79,7 +79,7 @@ public class ApprovalHub {
     public void awareApprove(ID approvalStepId, Collection<ID> nextApprovalStepIds, Collection<ID> ccUsers) {
         // 找到审批节点对应记录
         Object[] approveHub = Application.createQueryNoFilter(
-                "select hubId,approvalStepId.state,hubBatch from RobotApprovalHub where approvalStepId = ? and userApprove is not null")
+                "select hubId,approvalStepId.state,hubBatch,approvalStepId.recordId from RobotApprovalHub where approvalStepId = ? and userApprove is not null")
                 .setParameter(1, approvalStepId)
                 .unique();
         if (approveHub == null) return;
@@ -144,6 +144,7 @@ public class ApprovalHub {
         // 审批节点-如果没有后续审批，就使用最后一次的批次
         if (aNextStepId == null) {
             hubBatchNext = hubBatch;
+            recordId = (ID) approveHub[3];
         } else {
             records.addAll(buildApproves(nextApprovalStepIds, recordId, opUser, hubBatchNext));
         }
@@ -155,6 +156,39 @@ public class ApprovalHub {
         if (!isAllStepsEnd) ccState = DRAFT.getState();
 
         records.addAll(buildCcs(ccStep, recordId, ccUsers, opUser, hubBatchNext, ccState));
+
+        if (!records.isEmpty()) {
+            Application.getCommonsService().createOrUpdate(records.toArray(new Record[0]));
+        }
+    }
+
+    /**
+     * @param approvalStepId
+     */
+    public void awareCancel(ID approvalStepId) {
+        // 找到审批节点对应记录
+        Object[] approveStep = Application.createQueryNoFilter(
+                "select recordId,approvalId from RobotApprovalStep where stepId = ?")
+                .setParameter(1, approvalStepId)
+                .unique();
+        if (approveStep == null) return;
+
+        // 处理作废节点
+        Object[][] cancelHubs = Application.createQueryNoFilter(
+                "select hubId from RobotApprovalHub where state=1 and recordId=? and approvalStepId.approvalId=?")
+                .setParameter(1, approveStep[0])
+                .setParameter(2, approveStep[1])
+                .array();
+
+        ID opUser = UserContextHolder.getUser();
+        List<Record> records = new ArrayList<>();
+
+        for (Object[] hub : cancelHubs) {
+            Record r = EntityHelper.forUpdate((ID) hub[0], opUser);
+            r.setDate("approvedOn", CalendarUtils.now());
+            r.setInt("state", ApprovalState.CANCELED.getState());  // 0=作废
+            records.add(r);
+        }
 
         if (!records.isEmpty()) {
             Application.getCommonsService().createOrUpdate(records.toArray(new Record[0]));
