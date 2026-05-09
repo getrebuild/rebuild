@@ -32,9 +32,7 @@ class ContactList extends React.Component {
                         <tr>
                           <td colSpan="2">
                             <strong>{item.fullName}</strong>
-                            <p className="m-0 text-muted" style={{ marginTop: -2 }}>
-                              {item.deptName}
-                            </p>
+                            <p className="m-0 text-muted fs-12">{item.deptName}</p>
                           </td>
                         </tr>
                         <tr>
