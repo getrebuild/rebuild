@@ -680,7 +680,7 @@ public class AdvFilterParser extends SetUser {
             // `in`
             value = String.format(
                     "( select userId from TeamMember where teamId in ('%s') )",
-                    StringUtils.join(value.split("\\|"), "', '"));
+                    StringUtils.join(splitValue436(value), "', '"));
         } else if (ParseHelper.REP.equalsIgnoreCase(op)) {
             // `in`
             int count = NumberUtils.toInt(value, 1);
@@ -847,6 +847,18 @@ public class AdvFilterParser extends SetUser {
         if (paddingTimeType == 1) s += ParseHelper.FULL_TIME;
         else if (paddingTimeType == 2) s += ParseHelper.ZERO_TIME;
         return s;
+    }
+
+    /**
+     * @param value
+     * @return
+     */
+    private String[] splitValue436(String value) {
+        List<String> s = new ArrayList<>();
+        for (String val : value.split("\\|")) {
+            s.add(CommonsUtils.escapeSql(val));
+        }
+        return s.toArray(new String[0]);
     }
 
     /**
