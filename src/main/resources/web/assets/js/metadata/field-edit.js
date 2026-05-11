@@ -927,6 +927,7 @@ class FieldValueDetectViewer extends RbAlert {
     const TS = {
       'RobotTriggerConfig': '触发器',
       'AutoFillinConfig': '表单回填',
+      'TransformConfig': '记录转换',
     }
 
     return (
