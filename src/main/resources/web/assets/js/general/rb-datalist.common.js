@@ -872,7 +872,7 @@ class BatchApprove extends BatchOperator {
     if (rb.env === 'dev') console.log(JSON.stringify(_data))
 
     const that = this
-    const _confirmTip = this._confirmTip || $L('请再次确认审批数据范围和审批方式。开始审批吗？')
+    const _confirmTip = this._confirmTip || $L('请确认审批数据范围和审批方式。开始审批吗？')
     RbAlert.create(<b>{_confirmTip}</b>, {
       onConfirm: function () {
         this.hide()
@@ -892,7 +892,6 @@ class BatchApprove extends BatchOperator {
           }
         })
       },
-      countdown: 5,
     })
   }
 
