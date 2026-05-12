@@ -203,6 +203,7 @@ const AdvFilters = {
   // 列表顶部 TAB
   __LAB_DATALIST_QUICKFILTERTAB43() {
     if (!(window.__LAB_DATALIST_QUICKFILTERTAB43 && window.__LAB_DATALIST_QUICKFILTERTAB43[this.__entity])) return
+    if (RbViewModal.mode !== 1) return
 
     const $wrap = $('.main-content').prepend('<div class="quick-filter-tabs"><div></div></div>').find('.quick-filter-tabs>div')
     const that = this
