@@ -803,8 +803,9 @@ const RbViewPage = {
   initRecordMeta() {
     $.get(`/app/entity/extras/record-meta?id=${this.__id}`, (res) => {
       // 如果出错就清空操作区
+      // v4.4 不清空
       if (res.error_code !== 0) {
-        $('.view-operating').empty()
+        // $('.view-operating').empty()
         return
       }
 
