@@ -86,6 +86,9 @@
               <li th:class="${active == 'i18n-translation'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('I18', #request)}" th:classappend="bosskey-show">
                 <a th:href="@{/admin/i18n/translation}"><i class="icon mdi mdi-translate-variant"></i><span>[[${bundle.L('多语言')}]]</span> (LAB) <sup class="rbv"></sup></a>
               </li>
+              <li th:class="${active == 'portal-config'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('UCF', #request)}" th:classappend="bosskey-show">
+                <a th:href="@{/admin/users-config}"><i class="icon mdi mdi-account-cog-outline"></i><span>[[${bundle.L('用户配置')}]]</span> (LAB) <sup class="rbv"></sup></a>
+              </li>
               <li class="divider">[[${bundle.L('用户')}]]</li>
               <li th:class="${active == 'users'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('USR', #request)}">
                 <a th:href="@{/admin/bizuser/users}"><i class="icon mdi mdi-account-multiple"></i><span>[[${bundle.L('部门用户')}]]</span></a>
