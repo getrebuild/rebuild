@@ -1549,7 +1549,7 @@ class RbFormNText extends RbFormElement {
 
     if (this.props.useMdedit) {
       return (
-        <div className="form-control-plaintext md-content" ref={(c) => (this._fieldValue = c)} style={style2}>
+        <div className="form-control-plaintext markdown-body" ref={(c) => (this._fieldValue = c)} style={style2}>
           <Md2Html markdown={this.state.value} />
         </div>
       )
@@ -1682,7 +1682,7 @@ class RbFormNText extends RbFormElement {
       spellChecker: false,
       // eslint-disable-next-line no-undef
       toolbar: _readonly37 ? false : DEFAULT_MDE_TOOLBAR(this),
-      previewClass: 'md-content',
+      previewClass: 'markdown-body',
       onToggleFullScreen: (is) => {
         if (is) $('html').addClass('mde-fullscreen')
         else $('html').removeClass('mde-fullscreen')

@@ -128,7 +128,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chat-message {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .chat-message:empty {
@@ -146,7 +146,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chat-message .msg-action {
-  margin-top: 2px;
   opacity: 0;
   transition: opacity 0.2s ease-in-out;
 }
@@ -158,6 +157,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chat-message .msg-action > a {
   display: inline-block;
   padding: 4px;
+  color: #404040;
+  opacity: 0.8;
+}
+
+.chat-message .msg-action > a:hover {
+  opacity: 1;
 }
 
 .chat-message .msg-user > .msg-content {
@@ -374,17 +379,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   transition: all 0.4s;
 }
 
-/* v4.4 MD */
-
-.chat-message .md-content,
-.chat-message .md-content blockquote {
-  font-size: 14px;
-}
-
-.chat-message .md-content *:last-child {
-  margin-bottom: 0;
-}
-
-.chat-message .msg-user .md-content {
+.chat-message .msg-user .markdown-body {
   color: #fff;
 }

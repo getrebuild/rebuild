@@ -142,7 +142,7 @@ body {
   height: 18.56px;
 }
 
-.rbview-form .type-NTEXT .md-content.form-control-plaintext {
+.rbview-form .type-NTEXT .markdown-body.form-control-plaintext {
   max-height: 1000px;
 }
 
