@@ -78,7 +78,7 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
         this.targetExistsRecordId = targetExistsRecordId;
         // 直接转换做非空检查
         this.transConfig.put("checkNullable35", true);
-        // 指定目标是明细
+        // 如果目标是明细
         if (targetExistsRecordId != null) specMainId = forceGetSpecMainId(targetExistsRecordId);
 
         ID theNewId = super.transform(sourceRecordId, specMainId);
@@ -101,7 +101,7 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
         if (CollectionUtils.isNotEmpty(hasDetailsConf)) {
             List<ID> detailIds = QueryHelper.detailIdsNoFilter(targetExistsRecordId);
             if (!detailIds.isEmpty()) {
-                log.info("Clear details for transform : {} < {}", targetExistsRecordId, detailIds);
+                log.warn("Delete details for transform : {} < {}", targetExistsRecordId, detailIds);
                 Application.getCommonsService().delete(detailIds.toArray(new ID[0]), false);
             }
         }
