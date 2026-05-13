@@ -304,28 +304,28 @@ public class ApiGateway extends Controller implements Initialization {
      * @param result
      */
     protected void logRequestAsync(Date requestTime, String remoteIp, String requestId, String apiName, ApiContext context, JSON result) {
-        Record record = EntityHelper.forNew(EntityHelper.RebuildApiRequest, UserService.SYSTEM_USER);
-        record.setString("requestUrl", apiName);
-        record.setString("remoteIp", remoteIp);
-        record.setString("responseBody",
+        Record apiLog = EntityHelper.forNew(EntityHelper.RebuildApiRequest, UserService.SYSTEM_USER);
+        apiLog.setString("requestUrl", apiName);
+        apiLog.setString("remoteIp", remoteIp);
+        apiLog.setString("responseBody",
                 requestId + ":" + (result == null ? "{}" : CommonsUtils.maxstr(result.toJSONString(), 65535)));
-        record.setDate("requestTime", requestTime);
-        record.setDate("responseTime", CalendarUtils.now());
+        apiLog.setDate("requestTime", requestTime);
+        apiLog.setDate("responseTime", CalendarUtils.now());
 
         if (context != null) {
-            record.setString("appId", context.getAppId());
+            apiLog.setString("appId", context.getAppId());
             JSON post;
             if ((post = context.getPostData()) != null) {
-                record.setString("requestBody", CommonsUtils.maxstr(post.toJSONString(), 65535));
+                apiLog.setString("requestBody", CommonsUtils.maxstr(post.toJSONString(), 65535));
             }
             if (!context.getParameterMap().isEmpty()) {
-                record.setString("requestUrl",
+                apiLog.setString("requestUrl",
                         CommonsUtils.maxstr(apiName + "?" + context.getParameterMap(), 300));
             }
         } else {
-            record.setString("appId", "0");
+            apiLog.setString("appId", "0");
         }
 
-        TaskExecutors.queue(() -> Application.getCommonsService().create(record, false));
+        TaskExecutors.queue(() -> Application.getCommonsService().create(apiLog, false));
     }
 }

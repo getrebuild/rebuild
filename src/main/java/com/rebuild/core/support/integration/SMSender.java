@@ -26,6 +26,7 @@ import com.rebuild.core.support.HeavyStopWatcher;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
@@ -62,6 +63,10 @@ public class SMSender {
 
     private static final int TYPE_SMS = 1;
     private static final int TYPE_EMAIL = 2;
+    // v4.4
+    public static final int TYPE_G_WXWORK = 10;
+    public static final int TYPE_G_DINGTALK = 11;
+    public static final int TYPE_G_FEISHU = 12;
 
     private static final String SUBMAIL_URL = CommandArgs.getString(
             CommandArgs._SubmailProxyUrl, "https://api-v4.mysubmail.com");
@@ -435,32 +440,41 @@ public class SMSender {
 
     // -- SUPPORTS
 
-    // @see com.rebuild.core.support.CommonsLog
-    private static void createLog(String to, String content, int type, String sentid, Object error) {
+    /**
+     * 发送日志
+     *
+     * @param to
+     * @param content
+     * @param type
+     * @param sentid
+     * @param error
+     * @see com.rebuild.core.support.CommonsLog
+     */
+    public static void createLog(String to, String content, int type, String sentid, Object error) {
         if (!Application.isStateReady()) return;
 
-        Record slog = EntityHelper.forNew(EntityHelper.SmsendLog, UserService.SYSTEM_USER);
-        slog.setString("to", CommonsUtils.maxstr(to, 700));
-        slog.setString("content", CommonsUtils.maxstr(content, 10000));
-        slog.setDate("sendTime", CalendarUtils.now());
-        slog.setInt("type", type);
+        Record sLog = EntityHelper.forNew(EntityHelper.SmsendLog, UserService.SYSTEM_USER);
+        sLog.setString("to", CommonsUtils.maxstr(to, 700));
+        sLog.setString("content", CommonsUtils.maxstr(content, 10000));
+        sLog.setDate("sendTime", CalendarUtils.now());
+        sLog.setInt("type", type);
         if (sentid != null) {
-            slog.setString("sendResult", sentid);
+            sLog.setString("sendResult", sentid);
         } else {
             String errorMsg = null;
-            if (error instanceof Exception) {
-                errorMsg = ThrowableUtils.getRootCause((Exception) error).getLocalizedMessage();
+            if (error instanceof Throwable) {
+                errorMsg = ThrowableUtils.getRootCause((Throwable) error).getLocalizedMessage();
             }
             if (errorMsg == null) errorMsg = "Unknow";
             else errorMsg = CommonsUtils.maxstr(errorMsg, 200);
-            slog.setString("sendResult", "ERR:" + errorMsg);
+            sLog.setString("sendResult", "ERR:" + errorMsg);
         }
 
         // v4.3
         ID fromSource = SMSenderContextHolder.getFromSourceOnce();
-        if (fromSource != null) slog.setID("fromSource", fromSource);
+        if (fromSource != null) sLog.setID("fromSource", fromSource);
 
-        Application.getCommonsService().create(slog);
+        TaskExecutors.queue(() -> Application.getCommonsService().create(sLog));
     }
 
     /**

@@ -17,9 +17,9 @@ const ListConfig = {
   fields: [
     { field: 'to', label: $L('接收人') },
     { field: 'sendTime', label: $L('发送时间'), type: 'DATETIME' },
-    { field: 'sendResult', label: $L('发送结果') },
     { field: 'type', label: $L('发送类型') },
     { field: 'content', label: $L('发送内容'), width: 300 },
+    { field: 'sendResult', label: $L('发送结果') },
     { field: 'fromSource', label: $L('发送源'), type: 'ANYREFERENCE' },
   ],
   sort: 'sendTime:desc',
@@ -36,12 +36,20 @@ class RbList2 extends RbList {
   }
 }
 
+const _TYPES = {
+  '1': '短信',
+  '2': '邮件',
+  '10': '企业微信群',
+  '11': '钉钉群',
+  '12': '飞书群',
+}
+
 const CellRenders_renderSimple = CellRenders.renderSimple
 CellRenders.renderSimple = function (v, s, k) {
   if (k.endsWith('.type')) {
     return (
       <td key={k}>
-        <div style={s}>{~~v === 1 ? '短信' : '邮件'}</div>
+        <div style={s}>{_TYPES[v] || 'Unknow'}</div>
       </td>
     )
   }
