@@ -9,7 +9,6 @@ package com.rebuild.core.service.dataimport;
 
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Query;
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.write.metadata.style.WriteCellStyle;
@@ -37,7 +36,6 @@ import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.core.support.general.DataListWrapper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
@@ -100,18 +98,6 @@ public class DataExporter extends SetUser {
         return file;
 
 //        return new MuiltSheetExcelGenerator(useReport, queryData).generate();
-    }
-
-    /**
-     * 随机获取一个导出记录ID，仅使用模版时支持
-     *
-     * @return
-     */
-    public ID getRandomIdOfExportData413() {
-        if (useEasyExcelListGenerator == null) return null;
-
-        List<Record> qd = useEasyExcelListGenerator.getQueryedDataList();
-        return CollectionUtils.isEmpty(qd) ? null : qd.get(0).getPrimary();
     }
 
     /**

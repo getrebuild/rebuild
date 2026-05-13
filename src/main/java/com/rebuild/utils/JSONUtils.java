@@ -10,6 +10,7 @@ package com.rebuild.utils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import org.apache.commons.lang.StringUtils;
@@ -125,5 +126,16 @@ public class JSONUtils {
      */
     public static JSONObject parseObjectSafe(String text) {
         return JSON.parseObject(text, Feature.SafeMode);
+    }
+
+    /**
+     * @param data
+     * @param path
+     * @return
+     * @see JSONPath#eval(Object, String)
+     */
+    public static Object getValue(JSON data, String path) {
+        if (data == null || StringUtils.isBlank(path)) return null;
+        return JSONPath.eval(data, path);
     }
 }
