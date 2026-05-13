@@ -69,15 +69,15 @@ public class TemplateExtractor {
     private Set<String> listTypeSortFields = new LinkedHashSet<>();
 
     /**
-     * @param template
+     * @param templateFile
      */
-    public TemplateExtractor(File template) {
-        this(template, Boolean.FALSE);
+    public TemplateExtractor(File templateFile) {
+        this(templateFile, false);
     }
 
     /**
      * @param templateFile
-     * @param isList 列表模板
+     * @param isList 是否列表模板
      */
     public TemplateExtractor(File templateFile, boolean isList) {
         this.templateFile = templateFile;
@@ -91,7 +91,16 @@ public class TemplateExtractor {
      * @return
      */
     public Map<String, String> transformVars(Entity entity) {
-        final Set<String> vars = extractVars();
+        return transformVars(entity, null);
+    }
+
+    /**
+     * @param entity
+     * @param sheetNo
+     * @return
+     */
+    public Map<String, String> transformVars(Entity entity, Integer sheetNo) {
+        final Set<String> vars = extractVars(sheetNo);
 
         Entity detailEntity = this.isListType ? null : entity.getDetailEntity();
         Entity approvalEntity = MetadataHelper.hasApprovalField(entity)
@@ -153,10 +162,11 @@ public class TemplateExtractor {
     /**
      * 提取变量
      *
+     * @param sheetNo
      * @return
      */
-    protected Set<String> extractVars() {
-        List<Cell[]> rows = ExcelUtils.readExcel(templateFile);
+    protected Set<String> extractVars(Integer sheetNo) {
+        List<Cell[]> rows = ExcelUtils.readExcel(templateFile, sheetNo);
 
         Set<String> vars = new LinkedHashSet<>();
         for (Cell[] row : rows) {

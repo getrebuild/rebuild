@@ -98,6 +98,8 @@ public class DataExporter extends SetUser {
 
         count = useEasyExcelListGenerator.getExportCount();
         return file;
+
+//        return new MuiltSheetExcelGenerator(useReport, queryData).generate();
     }
 
     /**
@@ -107,13 +109,13 @@ public class DataExporter extends SetUser {
      */
     public ID getRandomIdOfExportData413() {
         if (useEasyExcelListGenerator == null) return null;
-        List<Record> qd = useEasyExcelListGenerator.getQueryDataList();
-        if (CollectionUtils.isEmpty(qd)) return null;
-        return qd.get(0).getPrimary();
+
+        List<Record> qd = useEasyExcelListGenerator.getQueryedDataList();
+        return CollectionUtils.isEmpty(qd) ? null : qd.get(0).getPrimary();
     }
 
     /**
-     * 导出CSV或Excel
+     * 导出 CSV 或 Excel
      *
      * @return
      */
