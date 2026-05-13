@@ -99,7 +99,6 @@ public class ProtectedAdmin {
         PRO("/project", "项目"),
         FJS("/frontjs-code", "FrontJS"),
         I18("/i18n/translation", "多语言"),
-        UCF("/users-config", "用户配置"),
         USR("/bizuser/users;/bizuser/departments", "部门用户"),
         ROL("/bizuser/role-privileges;/bizuser/role", "角色权限"),
         TEM("/bizuser/teams", "团队"),
@@ -107,6 +106,7 @@ public class ProtectedAdmin {
         REV("/audit/revision-history", "变更历史"),
         RCY("/audit/recycle-bin", "回收站"),
 
+        _SA("/users-config;/audit/smsend-logs;/distributed/", "用户配置"),
         ;
 
         final private String[] paths;

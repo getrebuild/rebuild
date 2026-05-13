@@ -27,7 +27,12 @@ const ListConfig = {
 
 class DataList extends React.Component {
   render() {
-    return <RbList ref={(c) => (this._List = c)} config={ListConfig} hideCheckbox showLineNo />
+    return <RbList2 ref={(c) => (this._List = c)} config={ListConfig} hideCheckbox showLineNo />
+  }
+}
+class RbList2 extends RbList {
+  _openView() {
+    return false
   }
 }
 
