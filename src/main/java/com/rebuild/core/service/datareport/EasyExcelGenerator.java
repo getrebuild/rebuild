@@ -15,6 +15,8 @@ import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.query.AjqlQuery;
+import cn.devezhao.persist4j.query.compiler.ParameterItem;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
@@ -34,6 +36,7 @@ import com.rebuild.core.metadata.easymeta.MultiValue;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.approval.ApprovalState;
+import com.rebuild.core.service.query.QueryDecorator;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -585,7 +588,19 @@ public class EasyExcelGenerator extends SetUser {
 
             recordId = recordId == null ? this.recordId : recordId;
             Query query = Application.createQueryNoFilter(sql);
-            if (recordId != null) query.setParameter(1, recordId);
+            if (recordId != null) {
+                query.setParameter(1, recordId);
+
+                // 多个占位参数
+                Map<String, ParameterItem> params = ((QueryDecorator) query).getQueryCompiler().getInParameters();
+                for (String fieldName : params.keySet()) {
+                    if (fieldName.startsWith(":")) {
+                        fieldName = fieldName.substring(1);
+                        Object v = QueryHelper.queryFieldValue(recordId, fieldName);
+                        query.setParameter(fieldName, org.apache.commons.lang3.ObjectUtils.getIfNull(v, ""));
+                    }
+                }
+            }
 
             Object[] o = query.unique();
             fieldValue = o == null ? null : o[0];

@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.query.AjqlQuery;
 import cn.devezhao.persist4j.query.Result;
+import cn.devezhao.persist4j.query.compiler.QueryCompiler;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 
@@ -44,5 +45,10 @@ public class QueryDecorator extends AjqlQuery {
         } else {
             return super.result();
         }
+    }
+
+    @Override
+    public QueryCompiler getQueryCompiler() {
+        return super.getQueryCompiler();
     }
 }
