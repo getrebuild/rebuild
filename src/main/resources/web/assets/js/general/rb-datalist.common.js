@@ -274,6 +274,24 @@ const AdvFilters = {
       if (item.default) {
         $setTimeout(() => $tab.trigger('click'), 200, '__LAB_DATALIST_QUICKFILTERTAB43')
       }
+
+      if (item.showBadge) {
+        let protocolFilterAnd = item.filterId ? `via:${item.filterId}` : null
+        if (item.filter) protocolFilterAnd = item.filter
+        let queryBody = {
+          protocolFilterAnd,
+          entity: that.__entity,
+          fields: [],
+        }
+
+        $.post('/app/entity/extras/record-count', JSON.stringify(queryBody), (res) => {
+          if (res.data && res.data > 0) {
+            let $em = $tab.find('em')
+            if (!$em[0]) $em = $('<em></em>').appendTo($tab)
+            $em.text(`(${res.data})`)
+          }
+        })
+      }
     })
   },
 }

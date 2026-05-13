@@ -212,6 +212,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #fff !important;
 }
 
+.quick-filter-tabs > div > a > em {
+  font-style: normal;
+  margin-left: 3px;
+}
+
 .page-aside.widgets .nav.nav-tabs {
   min-height: 44px;
 }
