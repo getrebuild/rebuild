@@ -59,10 +59,10 @@ import java.util.Map;
 @Slf4j
 public class SMSender {
 
-    private static final String STATUS_OK = "success";
+    public static final String STATUS_OK = "success";
 
-    private static final int TYPE_SMS = 1;
-    private static final int TYPE_EMAIL = 2;
+    public static final int TYPE_SMS = 1;
+    public static final int TYPE_EMAIL = 2;
     // v4.4
     public static final int TYPE_G_WXWORK = 10;
     public static final int TYPE_G_DINGTALK = 11;
