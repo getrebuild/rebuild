@@ -48,33 +48,7 @@ class AiBot extends React.Component {
     setTimeout(() => this.show(), 50)
 
     if (this.props.draggable) {
-      let pos = $storage.get('__LastChatModalPos')
-      if (pos) {
-        pos = pos.split(',').map((v) => parseInt(v))
-        $(this._$modal).css({
-          left: Math.max(0, pos[0]),
-          top: Math.max(0, pos[1]),
-          right: 'unset',
-          bottom: 'unset',
-        })
-      }
-
-      $(this._$modal).draggable({
-        handle: '.modal-header',
-        containment: document.body,
-        start: function () {
-          $(this).css({
-            right: 'unset',
-            bottom: 'unset',
-          })
-        },
-        stop: function (event, ui) {
-          const left = ui.position.left
-          const top = ui.position.top
-          $storage.set('__LastChatModalPos', left + ',' + top)
-        },
-      })
-
+      $modalDraggable(this._$modal, '__LastChatModalPos')
       $(document).on('keydown.aibot-hide', null, 'esc', () => this.hide())
     }
   }

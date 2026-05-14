@@ -169,5 +169,6 @@ module.exports = {
     RbViewModal: true,
     $initQuickSearch: true,
     NoValue: true,
+    $modalDraggable: true,
   },
 }

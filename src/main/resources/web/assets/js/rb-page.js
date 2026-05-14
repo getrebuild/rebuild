@@ -1600,3 +1600,39 @@ var $enableScrollTop = function () {
 var RBCOLORS = ['#4285f4', '#34a853', '#6a70b8', '#009c95', '#ff6b35', '#ea4335', '#7500ea', '#eb2f96']
 // 不支持排序的字段
 var UNSORT_FIELDTYPES = ['N2NREFERENCE', 'ANYREFERENCE', 'MULTISELECT', 'TAG', 'FILE', 'IMAGE', 'AVATAR', 'SIGN']
+
+/**
+ * Modal 可拖动
+ * @param {*} $modal
+ * @param {*} keepPositionKey 记住上次位置的 Key
+ */
+function $modalDraggable($modal, keepPositionKey) {
+  $($modal).draggable({
+    handle: '.modal-header',
+    // containment: document.body,
+    start: function () {
+      $(this).css({
+        right: 'unset',
+        bottom: 'unset',
+      })
+    },
+    stop: function (event, ui) {
+      const left = ui.position.left
+      const top = ui.position.top
+      if (keepPositionKey) $storage.set(keepPositionKey, left + ',' + top)
+    },
+  })
+
+  if (keepPositionKey) {
+    let last = $storage.get(keepPositionKey)
+    if (last) {
+      last = last.split(',').map((v) => parseInt(v))
+      $($modal).css({
+        left: Math.max(0, last[0]),
+        top: Math.max(0, last[1]),
+        right: 'unset',
+        bottom: 'unset',
+      })
+    }
+  }
+}

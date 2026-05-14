@@ -111,6 +111,9 @@ class RbFormModal extends React.Component {
         }
       })
     this._showAfter({}, true)
+
+    // 有问题
+    // setTimeout(() => $modalDraggable(this._rbmodal), 200)
   }
 
   // fix:v4.2 保持当前实例
