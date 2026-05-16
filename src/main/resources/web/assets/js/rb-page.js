@@ -267,7 +267,7 @@ $(function () {
   var $ai = $('.aibot-show a')
   if ($ai[0]) {
     var _FN = function () {
-      window.AiBot && window.AiBot.init({ chatid: $storage.get('__LastChatId') }, true)
+      window.AiBot && window.AiBot.init({ chatid: $storage.get('__LastChatId'), draggable: true }, true)
     }
     $ai.on('click', _FN)
     $(document).on('keydown.aibot', null, 'shift+/', function (e) {
@@ -1604,32 +1604,37 @@ var UNSORT_FIELDTYPES = ['N2NREFERENCE', 'ANYREFERENCE', 'MULTISELECT', 'TAG', '
 /**
  * Modal 可拖动
  * @param {*} $modal
- * @param {*} keepPositionKey 记住上次位置的 Key
+ * @param {*} option={keepPositionKey, containment} 记住上次位置的 Key 和 拖动范围
  */
-function $modalDraggable($modal, keepPositionKey) {
-  $($modal).draggable({
-    handle: '.modal-header',
-    // containment: document.body,
-    start: function () {
-      $(this).css({
-        right: 'unset',
-        bottom: 'unset',
-      })
-    },
-    stop: function (event, ui) {
-      const left = ui.position.left
-      const top = ui.position.top
-      if (keepPositionKey) $storage.set(keepPositionKey, left + ',' + top)
-    },
-  })
+function $modalDraggable($modal, option) {
+  option = option || {}
+  $($modal)
+    .addClass('draggable-modal')
+    .find('.modal-dialog')
+    .draggable({
+      handle: '.modal-header',
+      containment: option.containment === false ? false : 'window',
+      scroll: false,
+      start: function () {
+        $(this).css({
+          right: 'unset',
+          bottom: 'unset',
+        })
+      },
+      stop: function (event, ui) {
+        const left = ui.position.left
+        const top = ui.position.top
+        if (option.keepPositionKey) $storage.set(option.keepPositionKey, left + ',' + top)
+      },
+    })
 
-  if (keepPositionKey) {
-    let last = $storage.get(keepPositionKey)
+  if (option.keepPositionKey) {
+    let last = $storage.get(option.keepPositionKey)
     if (last) {
       last = last.split(',').map((v) => parseInt(v))
-      $($modal).css({
-        left: Math.max(0, last[0]),
-        top: Math.max(0, last[1]),
+      $($modal).find('.modal-dialog').css({
+        left: last[0],
+        top: last[1],
         right: 'unset',
         bottom: 'unset',
       })

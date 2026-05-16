@@ -97,6 +97,7 @@ class RbFormModal extends React.Component {
   }
 
   componentDidMount() {
+    let init44 = false
     const $root = $(this._rbmodal)
       .modal({
         show: false,
@@ -110,10 +111,19 @@ class RbFormModal extends React.Component {
           $unmount($root.parent().parent())
         }
       })
-    this._showAfter({}, true)
+      .on('shown.bs.modal', () => {
+        if (init44) return
+        init44 = true
 
-    // 有问题
-    // setTimeout(() => $modalDraggable(this._rbmodal), 200)
+        if (window.__LAB_FORMDRAGGABLE44) {
+          $modalDraggable(this._rbmodal, {
+            containment: false,
+            keepPositionKey: '__LastFormModalPos',
+          })
+        }
+      })
+
+    this._showAfter({}, true)
   }
 
   // fix:v4.2 保持当前实例

@@ -48,7 +48,10 @@ class AiBot extends React.Component {
     setTimeout(() => this.show(), 50)
 
     if (this.props.draggable) {
-      $modalDraggable(this._$modal, '__LastChatModalPos')
+      $modalDraggable(this._$modal, {
+        containment: false,
+        keepPositionKey: '__LastChatModalPos',
+      })
       $(document).on('keydown.aibot-hide', null, 'esc', () => this.hide())
     }
   }
@@ -76,7 +79,7 @@ class AiBot extends React.Component {
         window._AiBot.show()
       }
     } else {
-      renderRbcomp(<AiBot {...props} draggable />, function () {
+      renderRbcomp(<AiBot {...props} />, function () {
         window._AiBot = this
       })
     }

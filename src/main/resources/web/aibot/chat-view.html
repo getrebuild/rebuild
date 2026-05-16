@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -11,12 +11,10 @@
         margin: 0 auto;
         padding: 20px 0;
       }
-      .aibot.modal {
-        position: relative;
+      .aibot .modal-dialog {
+        width: 1000px;
         margin: 0 auto;
-        z-index: 1;
-        bottom: unset;
-        right: unset;
+        box-shadow: none !important;
       }
       .aibot.modal .modal-content {
         width: 100%;

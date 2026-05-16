@@ -313,33 +313,22 @@ See LICENSE and COMMERCIAL in the project root for license information.
   min-width: 140px;
 }
 
-/* AiBot */
-
-.aibot.modal {
-  top: unset;
-  left: unset;
-  bottom: 5px;
-  right: 5px;
-  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
 .aibot.modal.show {
   display: block;
 }
 
 .aibot .modal-dialog {
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+  border-radius: 6px;
+  width: 800px;
   max-width: 100%;
-  margin: 0;
+  overflow: hidden;
 }
 
 .aibot .modal-content {
   margin: 0 auto;
   box-shadow: none !important;
   max-width: 100%;
-  width: 768px;
-  height: 100%;
 }
 
 .aibot .modal-content .modal-header {

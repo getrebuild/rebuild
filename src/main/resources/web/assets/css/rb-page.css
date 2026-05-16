@@ -6672,3 +6672,7 @@ div.formula-code {
 .tox-statusbar__branding {
   display: none !important;
 }
+
+.draggable-modal.modal {
+  /* v4.4 */
+}
