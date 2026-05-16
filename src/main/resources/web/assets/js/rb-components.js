@@ -1874,17 +1874,17 @@ class BaiduMap extends React.Component {
       that._map = map
 
       // 初始位置
-      const _lnglat = that.props.lnglat
-      if (_lnglat) {
-        if (_lnglat.lng && _lnglat.lat) {
-          that.center(_lnglat)
-        } else if (_lnglat.text) {
+      const init = that.props.lnglat
+      if (init) {
+        if (init.lng && init.lat) {
+          that.center(init)
+        } else if (init.text) {
           const geoc = new _BMapGL.Geocoder()
-          geoc.getPoint(_lnglat.text, function (point) {
+          geoc.getPoint(init.text, function (point) {
             that.center(point)
           })
         }
-      } else {
+      } else if (this.props.autoPosition !== false) {
         const geol = new _BMapGL.Geolocation()
         geol.enableSDKLocation()
         geol.getCurrentPosition(function (e) {
@@ -1897,11 +1897,11 @@ class BaiduMap extends React.Component {
         })
       }
 
+      // 点选
       if (that.props.canPin) {
         const geoc = new _BMapGL.Geocoder()
         let lastMarker = null
 
-        // 点选
         map.addEventListener('click', function (e) {
           if (lastMarker) map.removeOverlay(lastMarker)
 
@@ -1965,6 +1965,10 @@ class BaiduMap extends React.Component {
 
   search(s) {
     this._mapLocalSearch.search(s)
+  }
+
+  getMap() {
+    return this._map
   }
 }
 
