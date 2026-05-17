@@ -203,6 +203,7 @@ const AdvFilters = {
   // 列表顶部 TAB
   __LAB_DATALIST_QUICKFILTERTAB43() {
     if (!(window.__LAB_DATALIST_QUICKFILTERTAB43 && window.__LAB_DATALIST_QUICKFILTERTAB43[this.__entity])) return
+    if (RbViewModal.mode !== 1) return
 
     const $wrap = $('.main-content').prepend('<div class="quick-filter-tabs"><div></div></div>').find('.quick-filter-tabs>div')
     const that = this
@@ -272,6 +273,24 @@ const AdvFilters = {
 
       if (item.default) {
         $setTimeout(() => $tab.trigger('click'), 200, '__LAB_DATALIST_QUICKFILTERTAB43')
+      }
+
+      if (item.showBadge) {
+        let protocolFilterAnd = item.filterId ? `via:${item.filterId}` : null
+        if (item.filter) protocolFilterAnd = item.filter
+        let queryBody = {
+          protocolFilterAnd,
+          entity: that.__entity,
+          fields: [],
+        }
+
+        $.post('/app/entity/extras/record-count', JSON.stringify(queryBody), (res) => {
+          if (res.data && res.data > 0) {
+            let $em = $tab.find('em')
+            if (!$em[0]) $em = $('<em></em>').appendTo($tab)
+            $em.text(`(${res.data})`)
+          }
+        })
       }
     })
   },
@@ -872,7 +891,7 @@ class BatchApprove extends BatchOperator {
     if (rb.env === 'dev') console.log(JSON.stringify(_data))
 
     const that = this
-    const _confirmTip = this._confirmTip || $L('请再次确认审批数据范围和审批方式。开始审批吗？')
+    const _confirmTip = this._confirmTip || $L('请确认审批数据范围和审批方式。开始审批吗？')
     RbAlert.create(<b>{_confirmTip}</b>, {
       onConfirm: function () {
         this.hide()
@@ -892,7 +911,6 @@ class BatchApprove extends BatchOperator {
           }
         })
       },
-      countdown: 5,
     })
   }
 

@@ -11,11 +11,11 @@
         margin: 0;
         background-color: #fff;
       }
-      .md-content {
-        padding: 10px 15px;
-      }
-      .CodeMirror .cm-formatting {
+      .EasyMDEContainer .CodeMirror .cm-formatting {
         display: inline !important;
+      }
+      .markdown-body {
+        padding: 10px 15px;
       }
     </style>
   </head>
@@ -83,7 +83,7 @@
           status: false,
           spellChecker: false,
           toolbar: toolbar,
-          previewClass: 'md-content',
+          previewClass: 'markdown-body',
           autoDownloadFontAwesome: false,
         })
         _EasyMDE.toggleFullScreen()

@@ -105,6 +105,7 @@ class FeedsScope extends React.Component {
   constructor(props) {
     super(props)
     this.state = { scope: 'ALL', ...props }
+    if (props.initValue) this.state.scope = props.initValue // fix:4.4
     this._$items = {}
   }
 
@@ -178,6 +179,8 @@ class FeedsScope extends React.Component {
       }
       scope = this.__group.id
     }
+
+    if (typeof scope === 'object') return scope.id || scope[0] // ID
     return scope
   }
 }
@@ -194,7 +197,7 @@ class FeedsEditor extends React.Component {
       this.__es.push(
         <a key={`em-${item}`} title={k} onClick={() => this._selectEmoji(k)}>
           <img src={`${rb.baseUrl}/assets/img/emoji/${item}`} alt={k} />
-        </a>
+        </a>,
       )
     }
   }
@@ -685,7 +688,7 @@ class FeedEditorDlg extends RbModalHandler {
   }
 
   render() {
-    const _data = {
+    const feedProps = {
       initValue: (this.props.content || '').replace(/<\/?.+?>/g, ''),
       images: this.props.images,
       files: this.props.attachments,
@@ -720,12 +723,13 @@ class FeedEditorDlg extends RbModalHandler {
           )}
 
           <div>
-            <FeedsEditor ref={(c) => (this._FeedsEditor = c)} {..._data} />
+            <FeedsEditor ref={(c) => (this._FeedsEditor = c)} {...feedProps} />
           </div>
         </div>
 
         <div className="mt-4 mr-1 text-right" ref={(c) => (this._$btn = c)}>
           <FeedsScope ref={(c) => (this.__FeedsScope = c)} initValue={scope} />
+
           <button className="btn btn-primary btn-space ml-4" type="button" onClick={this._post}>
             {this.props.id ? $L('保存') : $L('发布')}
           </button>

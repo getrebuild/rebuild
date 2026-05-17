@@ -49,7 +49,7 @@ public class LocationUtils {
         ip = ip.split(",")[0];
 
         if (isPrivate(ip)) {
-            return JSONUtils.toJSONObject(new String[] { "ip", "country"}, new String[] { ip, "R" });
+            return JSONUtils.toJSONObject(new String[]{"ip", "country"}, new String[]{ip, "R"});
         }
 
         final String ckey = "IPLocation31" + ip;
@@ -108,7 +108,7 @@ public class LocationUtils {
         try {
             return JSON.parseObject(OkHttpUtils.get(url));
         } catch (Exception e) {
-            log.debug("Error occured : " + url + " >> " + e);
+            log.debug("Error occured : {} >> {}", url, e);
         }
         return null;
     }

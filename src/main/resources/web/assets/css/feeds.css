@@ -10,6 +10,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #fff;
   min-height: 327px;
   width: 100%;
+  overflow: hidden;
 }
 
 .rich-editor {
@@ -22,6 +23,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .rich-editor.active {
   border-color: #ddd;
   border-color: #4285f4;
+  border-color: var(--rb-theme-color);
 }
 
 .rich-editor textarea {
@@ -100,6 +102,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .feeds-post > .list-unstyled a:hover {
   color: #4285f4;
+  color: var(--rb-theme-color);
 }
 
 .btn.btn-scope {
@@ -149,7 +152,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .feeds-list > div {
   padding: 12px 20px 6px;
-  margin: 5px 0;
+  margin: 6px 0;
   background-color: #fff;
 }
 
@@ -269,6 +272,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .feeds-list .actions li > a:hover,
 .feeds-list .actions li > a.active {
   color: #4285f4;
+  color: var(--rb-theme-color);
 }
 
 .feeds-list .actions li > a > .zmdi {
@@ -389,7 +393,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .side-wrapper {
   position: sticky;
   top: 60px;
-  background-color: #f5f5f5;
+  background-color: #fff;
   padding: 12px;
 }
 
@@ -457,6 +461,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .side-wrapper .aside-tree li.active > i.zmdi {
   background-color: #4285f4;
+  background-color: var(--rb-theme-color);
   color: #f5f5f5;
 }
 
@@ -572,6 +577,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   position: relative;
   background: #fff;
   border-top: 1px solid #4285f4;
+  border-top-color: var(--rb-theme-color);
   width: 32px;
   transition: margin-left linear 0.1s;
   margin-left: 8px;
@@ -599,6 +605,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .arrow_box::before {
   border-color: rgba(66, 133, 244, 0);
   border-bottom-color: #4285f4;
+  border-bottom-color: var(--rb-theme-color);
   border-width: 7px;
   margin-left: -7px;
 }
@@ -763,5 +770,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .side-wrapper + .announcement-wrapper > div p {
   white-space: unset !important;
-  max-height:125px;
+  max-height: 125px;
+}
+
+.container-smart .rb-loading,
+.side-wrapper,
+.feeds-post,
+.types-bar,
+.types-bar .nav-tabs,
+.feeds-list > div {
+  border-radius: 6px;
+}
+
+.feeds-post .text-primary,
+.side-wrapper .accordion .card-header button[aria-expanded='true'] {
+  color: var(--rb-theme-color) !important;
 }

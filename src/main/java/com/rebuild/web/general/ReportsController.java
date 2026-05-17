@@ -254,7 +254,7 @@ public class ReportsController extends BaseController {
                         CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()),
                         FileUtil.getSuffix(output));
             } else {
-                Object e = exporter.getRandomIdOfExportData413();
+                Object e = JSONUtils.getValue(queryData, "entity");
                 if (e == null) e = entity;
                 fileName = DataReportManager.getPrettyReportName(useReport, e, output.getName());
             }

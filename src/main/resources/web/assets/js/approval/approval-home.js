@@ -219,7 +219,7 @@ class BatchApprove2 extends BatchApprove {
   constructor(props) {
     super(props)
     this.state.dataRange = 1
-    this._confirmTip = $L('请再次确认审批方式。开始审批吗？')
+    this._confirmTip = $L('请确认审批方式。开始审批吗？')
   }
 
   render() {
@@ -286,7 +286,7 @@ $(document).ready(() => {
     $('.J_approve').attr('disabled', ~~t !== 1)
   }
 
-  const type = $urlp('type', location.hash) || 1
+  let type = (location.hash || '').split('Type/')[1] || '1'
   _FN(type)
 
   $('.aside-nav a').on('click', function () {

@@ -372,7 +372,7 @@ public class ApprovalStepService extends BaseService {
         step.setString("prevNode", currentNode);
         super.create(step);
 
-        // 撤销
+        // 已审批-撤销
         if (isRevoke) {
             Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.REVOKED, opUser);
         } else {
@@ -381,6 +381,8 @@ public class ApprovalStepService extends BaseService {
             recordOfMain.setNull(EntityHelper.ApprovalStepNode);
             setApprovalStepX37(recordOfMain, null);
             super.update(recordOfMain);
+
+            ApprovalHub.instance.awareCancel(step.getPrimary());
 
             execTriggersWhenSR(recordOfMain, TriggerWhen.REJECTED);
         }

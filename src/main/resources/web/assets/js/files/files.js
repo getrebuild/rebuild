@@ -185,9 +185,9 @@ class SharedFiles extends RbModalHandler {
                           </div>
                         </td>
                         <td title={item[2]} className="text-right">
-                          <div style={{ lineHeight: 1.2 }}>
+                          <div className="fs-12">
                             <span title={item[2]}>{item[2] ? $fromNow(item[2]) : <span className="text-warning">{$L('永久有效')}</span>}</span>
-                            <div className="text-muted fs-12" title={item[3]}>
+                            <div className="text-muted" title={item[3]}>
                               {rb.isAdminUser ? $L('由 %s 分享于 %s', item[4], $fromNow(item[3])) : $L('分享于 %s', $fromNow(item[3]))}
                             </div>
                           </div>

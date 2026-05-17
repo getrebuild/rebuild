@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global EasyMDE, RepeatedViewer, ProTable, Md2Html, ClassificationSelector, autosize */
+/* global EasyMDE, RepeatedViewer, ProTable, Md2Html, ClassificationSelector, autosize, CodeEditor, HtmlEditor */
 
 /**
  * Callback API:
@@ -97,6 +97,7 @@ class RbFormModal extends React.Component {
   }
 
   componentDidMount() {
+    let init44 = false
     const $root = $(this._rbmodal)
       .modal({
         show: false,
@@ -110,6 +111,18 @@ class RbFormModal extends React.Component {
           $unmount($root.parent().parent())
         }
       })
+      .on('shown.bs.modal', () => {
+        if (init44) return
+        init44 = true
+
+        if (window.__LAB_FORMDRAGGABLE44) {
+          $modalDraggable(this._rbmodal, {
+            containment: false,
+            keepPositionKey: '__LastFormModalPos',
+          })
+        }
+      })
+
     this._showAfter({}, true)
   }
 
@@ -1486,8 +1499,6 @@ class RbFormNText extends RbFormElement {
     this._height = 0
     if (props.useMdedit) {
       // Nothings
-    } else if (props.useCode) {
-      // Nothings
     } else {
       this._height = ~~this.props.height
 
@@ -1509,9 +1520,6 @@ class RbFormNText extends RbFormElement {
     let style2 = null
     if (props.useMdedit) {
       if (_readonly37) clazz2 += ' cm-readonly'
-    } else if (props.useCode) {
-      clazz2 += ' formula-code'
-      // TODO
     } else {
       if (!(this._heightAuto || this._height > 0)) clazz2 += ' row3x'
       style2 = this._height > 0 ? { height: this._height } : this._heightAuto ? { height: 37 } : null
@@ -1554,15 +1562,8 @@ class RbFormNText extends RbFormElement {
 
     if (this.props.useMdedit) {
       return (
-        <div className="form-control-plaintext md-content" ref={(c) => (this._fieldValue = c)} style={style2}>
+        <div className="form-control-plaintext markdown-body" ref={(c) => (this._fieldValue = c)} style={style2}>
           <Md2Html markdown={this.state.value} />
-        </div>
-      )
-    } else if (this.props.useCode) {
-      let code2 = $formatCode(this.state.value, 'json')
-      return (
-        <div className="form-control-plaintext formula-code" ref={(c) => (this._fieldValue = c)} style={style2}>
-          {code2}
         </div>
       )
     } else {
@@ -1628,7 +1629,7 @@ class RbFormNText extends RbFormElement {
 
     if (!destroy) {
       // MDE
-      if (this.props.useMdedit) this._initMde()
+      if (this.props.useMdedit) this._initEasyMDE()
 
       // v4.1 常用值
       if (this._textCommonMenuId && !$(`#${this._textCommonMenuId}`)[0]) {
@@ -1681,7 +1682,7 @@ class RbFormNText extends RbFormElement {
     }
   }
 
-  _initMde() {
+  _initEasyMDE() {
     const _readonly37 = this.state.readonly
 
     // fix:4.1-b5
@@ -1694,10 +1695,13 @@ class RbFormNText extends RbFormElement {
       spellChecker: false,
       // eslint-disable-next-line no-undef
       toolbar: _readonly37 ? false : DEFAULT_MDE_TOOLBAR(this),
-      previewClass: 'md-content',
+      previewClass: 'markdown-body',
       onToggleFullScreen: (is) => {
-        console.log('TODO:', is)
+        if (is) $('html').addClass('mde-fullscreen')
+        else $('html').removeClass('mde-fullscreen')
       },
+      minHeight: 158,
+      maxHeight: 2000,
     })
     this._EasyMDE = mde
 
@@ -1724,7 +1728,10 @@ class RbFormNText extends RbFormElement {
           $(this._fieldValue__upload).trigger('change')
         }
       })
+
+      // 自动高度
       mde.codemirror.setSize('100%', '100%')
+      // mde.codemirror.on('change', () => mde.codemirror.setSize('100%', null))
     }
   }
 
@@ -1752,15 +1759,18 @@ class RbFormNText extends RbFormElement {
 // CodeEditor
 class RbFormNTextUseCode extends RbFormNText {
   renderElement() {
+    let cmOptions = {
+      theme: 'material',
+    }
+
     return (
-      // eslint-disable-next-line react/jsx-no-undef
       <CodeEditor
         value={this.props.value}
         onChange={(v) => {
           this.handleChange({ target: { value: v } }, true)
         }}
         readonly={this.state.readonly}
-        cmOptions={[]}
+        cmOptions={cmOptions}
         extraActions={[]}
         ref={(c) => (this._CodeEditor = c)}
         key="CodeEditor-write"
@@ -1770,11 +1780,13 @@ class RbFormNTextUseCode extends RbFormNText {
 
   renderViewElement() {
     let code2 = $formatCode(this.state.value)
-    let cmOptions = {}
+    let cmOptions = {
+      theme: 'material',
+    }
 
     return (
       <RF>
-        <CodeEditor value={code2} readonly={true} cmOptions={cmOptions} extraActions={[]} ref={(c) => (this._CodeEditor = c)} key="CodeEditor-read" />
+        <CodeEditor value={code2} readonly cmOptions={cmOptions} ref={(c) => (this._CodeEditor = c)} key="CodeEditor-read" />
         {this.renderViewElementExtAction()}
       </RF>
     )
@@ -1787,6 +1799,44 @@ class RbFormNTextUseCode extends RbFormNText {
 
   focus() {
     this._CodeEditor.focus()
+  }
+}
+
+// TinyMCE
+class RbFormNTextUseHtml extends RbFormNText {
+  renderElement() {
+    return (
+      <HtmlEditor
+        value={this.props.value}
+        onChange={(v) => {
+          this.handleChange({ target: { value: v } }, true)
+        }}
+        readonly={this.state.readonly}
+        ref={(c) => (this._HtmlEditor = c)}
+        key="HtmlEditor-write"
+      />
+    )
+  }
+
+  renderViewElement() {
+    let html2 = this.state.value
+    return (
+      <RF>
+        <div className="html-editor">
+          <iframe srcDoc={html2} frameBorder="0" width="100%" height="100%" />
+        </div>
+        {this.renderViewElementExtAction()}
+      </RF>
+    )
+  }
+
+  setValue(val) {
+    super.setValue(val)
+    this._HtmlEditor && this._HtmlEditor.setValue(val)
+  }
+
+  focus() {
+    this._HtmlEditor && this._HtmlEditor.focus()
   }
 }
 
@@ -3858,8 +3908,13 @@ var detectElement = function (item, entity) {
   } else if (item.type === 'TEXT' || item.type === 'SERIES') {
     return <RbFormText {...item} />
   } else if (item.type === 'NTEXT') {
-    if (item.useCode && window.CodeMirror && window.prettier) {
-      return <RbFormNTextUseCode {...item} />
+    if (~~item.showStyle === 10) {
+      if (window.CodeMirror && window.prettier) return <RbFormNTextUseCode {...item} />
+      else console.warn('CodeMirror or prettier not found')
+    }
+    if (~~item.showStyle === 11) {
+      if (window.CodeMirror && window.prettier) return <RbFormNTextUseHtml {...item} />
+      else console.warn('tinymce not found')
     }
     return <RbFormNText {...item} />
   } else if (item.type === 'URL') {

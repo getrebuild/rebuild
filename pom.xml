@@ -292,7 +292,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>persist4j</artifactId>
-            <version>7cdfdbbda9</version>
+            <version>25fe4aa352</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.alibaba</groupId>

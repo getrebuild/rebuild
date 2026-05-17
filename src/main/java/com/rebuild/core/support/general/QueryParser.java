@@ -95,7 +95,7 @@ public class QueryParser {
     /**
      * @return
      */
-    protected String toCountSql() {
+    public String toCountSql() {
         doParseIfNeed();
         return countSql;
     }

@@ -180,8 +180,8 @@ public class ValueFnConvert {
         } else if (type == DisplayType.NTEXT) {
             if (theFn.equals(CLEAR_4NTEXT)) {
                 if (fromClazz != null && fromClazz.getSimpleName().equals("Html5ReportGenerator")) {
-                    String md2html = MarkdownUtils.render((String) value);
-                    return "<div class='md-content md2html'>" + md2html + "</div>";
+                    String md2html = MarkdownUtils.render((String) value, true, true);
+                    return "<div class='markdown-body md2html'>" + md2html + "</div>";
                 } else {
                     return MarkdownUtils.cleanMarks((String) value);
                 }

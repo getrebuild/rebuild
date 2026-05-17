@@ -62,12 +62,11 @@ public class ApiGateway extends Controller implements Initialization {
 
     // 基于 IP 限流
     private static final RequestRateLimiter RRL = RateLimiters.createRateLimiter(
-            new int[] { 10, 60 },
-            new int[] { 600, 3000 });
+            new int[]{10, 60},
+            new int[]{600, 3000});
 
     private static final Map<String, Class<? extends BaseApi>> API_CLASSES = new HashMap<>();
 
-    @SuppressWarnings("unchecked")
     @Override
     public void init() throws Exception {
         Set<Class<?>> apiClasses = cn.devezhao.commons.ReflectUtils.getAllSubclasses(
@@ -81,6 +80,7 @@ public class ApiGateway extends Controller implements Initialization {
             if (API_CLASSES.containsKey(apiName)) {
                 throw new RebuildException("Api `" + apiName + "` already exists");
             }
+            //noinspection unchecked
             API_CLASSES.put(apiName, (Class<? extends BaseApi>) c);
         }
 
@@ -304,28 +304,28 @@ public class ApiGateway extends Controller implements Initialization {
      * @param result
      */
     protected void logRequestAsync(Date requestTime, String remoteIp, String requestId, String apiName, ApiContext context, JSON result) {
-        Record record = EntityHelper.forNew(EntityHelper.RebuildApiRequest, UserService.SYSTEM_USER);
-        record.setString("requestUrl", apiName);
-        record.setString("remoteIp", remoteIp);
-        record.setString("responseBody",
-                requestId + ":" + (result == null ? "{}" : CommonsUtils.maxstr(result.toJSONString(), 32767)));
-        record.setDate("requestTime", requestTime);
-        record.setDate("responseTime", CalendarUtils.now());
+        Record apiLog = EntityHelper.forNew(EntityHelper.RebuildApiRequest, UserService.SYSTEM_USER);
+        apiLog.setString("requestUrl", apiName);
+        apiLog.setString("remoteIp", remoteIp);
+        apiLog.setString("responseBody",
+                requestId + ":" + (result == null ? "{}" : CommonsUtils.maxstr(result.toJSONString(), 65535)));
+        apiLog.setDate("requestTime", requestTime);
+        apiLog.setDate("responseTime", CalendarUtils.now());
 
         if (context != null) {
-            record.setString("appId", context.getAppId());
+            apiLog.setString("appId", context.getAppId());
             JSON post;
             if ((post = context.getPostData()) != null) {
-                record.setString("requestBody", CommonsUtils.maxstr(post.toJSONString(), 32767));
+                apiLog.setString("requestBody", CommonsUtils.maxstr(post.toJSONString(), 65535));
             }
             if (!context.getParameterMap().isEmpty()) {
-                record.setString("requestUrl",
+                apiLog.setString("requestUrl",
                         CommonsUtils.maxstr(apiName + "?" + context.getParameterMap(), 300));
             }
         } else {
-            record.setString("appId", "0");
+            apiLog.setString("appId", "0");
         }
 
-        TaskExecutors.queue(() -> Application.getCommonsService().create(record, false));
+        TaskExecutors.queue(() -> Application.getCommonsService().create(apiLog, false));
     }
 }

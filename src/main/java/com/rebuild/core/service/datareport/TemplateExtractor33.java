@@ -60,7 +60,12 @@ public class TemplateExtractor33 extends TemplateExtractor {
 
     @Override
     public Map<String, String> transformVars(Entity entity) {
-        final Set<String> vars = extractVars();
+        return transformVars(entity, null);
+    }
+
+    @Override
+    public Map<String, String> transformVars(Entity entity, Integer sheetNo) {
+        final Set<String> vars = extractVars(sheetNo);
 
         final Entity detailEntity = entity.getDetailEntity();
         final Entity approvalEntity = MetadataHelper.hasApprovalField(entity)
@@ -190,8 +195,8 @@ public class TemplateExtractor33 extends TemplateExtractor {
     }
 
     @Override
-    protected Set<String> extractVars() {
-        Set<String> vars = super.extractVars();
+    protected Set<String> extractVars(Integer sheetNo) {
+        Set<String> vars = super.extractVars(sheetNo);
 
         // v3.6 LAB 提取文本框
         if (templateFile.getName().endsWith(".xlsx")) {

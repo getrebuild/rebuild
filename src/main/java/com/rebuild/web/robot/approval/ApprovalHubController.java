@@ -145,7 +145,7 @@ public class ApprovalHubController extends BaseController {
         if (type == 1) {
             return String.format("userApprove = '%s' and state = 1 and approvalStepId.isWaiting = 'F'", user);
         } else if (type == 2) {
-            return String.format("userApprove = '%s' and state in (10,11)", user);
+            return String.format("userApprove = '%s' and state in (10,11,12)", user);
         } else if (type == 3) {
             return String.format("userSubmit = '%s'", user);
         } else if (type == 4) {

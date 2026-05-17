@@ -411,7 +411,7 @@ class ChatMessage extends React.Component {
     if (!md) return null
     return (
       <div className="msg-text">
-        <span className="md-content" dangerouslySetInnerHTML={{ __html: marked.parse(md) }}></span>
+        <span className="markdown-body" dangerouslySetInnerHTML={{ __html: marked.parse(md) }}></span>
       </div>
     )
   }

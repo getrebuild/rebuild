@@ -68,6 +68,11 @@ public class RbvMissingController extends BaseController {
         return errorUnsupport("免费版不支持数据同步功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)");
     }
 
+    @GetMapping("/admin/users-config")
+    public ModelAndView usersConfig() {
+        return errorUnsupport("免费版不支持用户配置功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)");
+    }
+
     private ModelAndView errorUnsupport(String msg) {
         ModelAndView mv = ErrorPageView.createErrorPage(msg);
         mv.getModelMap().put(WebConstants.$BUNDLE, Language.getCurrentBundle());
