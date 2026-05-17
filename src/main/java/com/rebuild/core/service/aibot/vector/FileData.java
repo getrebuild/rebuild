@@ -10,6 +10,7 @@ package com.rebuild.core.service.aibot.vector;
 import com.rebuild.core.service.aibot.AiBotException;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
+import org.apache.commons.lang.StringUtils;
 import org.apache.tika.Tika;
 
 import java.io.File;
@@ -22,9 +23,9 @@ import java.io.File;
  */
 public class FileData implements VectorData {
 
-    static Tika tika = new Tika();
+    static final Tika TIKA = new Tika();
     static {
-        tika.setMaxStringLength(1024 * 1024 * 50);  // 50M
+        TIKA.setMaxStringLength(1024 * 1024 * 50);  // 50M
     }
 
     private final String filepath;
@@ -39,8 +40,11 @@ public class FileData implements VectorData {
 
         String content;
         try {
-            content = tika.parseToString(file.toPath());
+            content = TIKA.parseToString(file.toPath());
             content = content.trim();
+
+            if (StringUtils.isBlank(content)) content = "无法识别文件";
+
         } catch (Throwable e) {
             throw new AiBotException("无法识别文件:" + e.getLocalizedMessage());
         }

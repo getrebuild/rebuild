@@ -306,7 +306,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
   line-height: 34px;
   text-align: center;
   margin-top: 3px;
-  display: block;
+  display: none;
+}
+
+.chat-sidebar .chat-list > ul > li:hover > span {
+  display: inline-block;
+}
+
+.chat-sidebar .chat-list > ul > li > span > a {
+  color: #404040;
+  opacity: 0.8;
+}
+
+.chat-sidebar .chat-list > ul > li > span > a:hover {
+  opacity: 1;
 }
 
 .chat-sidebar .chat-list .dropdown-menu {

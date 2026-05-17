@@ -18,7 +18,7 @@ $(document).ready(() => {
     () => {
       $addResizeHandler(() => {
         const wh = $(window).height()
-        $('#chat-wrapper .chat-messages').height(wh - 186)
+        $('#chat-wrapper .chat-messages').height(wh - 188)
       })()
     },
   )
