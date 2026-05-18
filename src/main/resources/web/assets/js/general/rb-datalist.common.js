@@ -1089,12 +1089,12 @@ class RbList extends React.Component {
   constructor(props) {
     super(props)
 
-    this._$wrapper = $(props.$wrapper || '#react-list')
-    this._entity = props.config.entity
-
     this.__defaultFilterKey = `AdvFilter-${this._entity}`
     this.__sortFieldKey = `SortField-${this._entity}`
     this.__columnWidthKey = `ColumnWidth-${this._entity}.`
+
+    this._$wrapper = $(props.$wrapper || '#react-list')
+    this._entity = props.config.entity
 
     const fields = props.config.fields || []
 
@@ -1630,6 +1630,7 @@ class RbList extends React.Component {
     this.advFilterId = id
     this.pageNo = 1
     this.fetchList(this._buildQuick())
+
     if (id) $storage.set(this.__defaultFilterKey, id)
     else $storage.remove(this.__defaultFilterKey)
   }
