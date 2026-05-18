@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -133,16 +134,32 @@ public class ListAndViewRedirection extends BaseController {
 
     @GetMapping("/app/entity/form")
     public ModelAndView dockForm(HttpServletRequest request) {
-        final String idOrEntity = StringUtils.defaultString(
+        String idOrEntity = StringUtils.defaultString(
                 getParameter(request, "id"), getParameter(request, "e"));
+        if (ID.isId(idOrEntity)) {
+            return dockForm(ID.valueOf(idOrEntity));
+        }
+        return dockForm(idOrEntity);
+    }
 
+    @GetMapping("/app/{entity}/form")
+    public ModelAndView dockForm437(@PathVariable String entity) {
+        return dockForm(entity);
+    }
+
+    @GetMapping("/app/{entity}/form/{id}")
+    public ModelAndView dockForm437(@PathVariable String entity, @PathVariable ID id) {
+        return dockForm(id);
+    }
+
+    private ModelAndView dockForm(Object idOrEntity) {
         Entity entity;
         ID id = null;
-        if (ID.isId(idOrEntity)) {
-            id = ID.valueOf(idOrEntity);
+        if (idOrEntity instanceof ID) {
+            id = (ID) idOrEntity;
             entity = MetadataHelper.getEntity(id.getEntityCode());
         } else {
-            entity = MetadataHelper.getEntity(idOrEntity);
+            entity = MetadataHelper.getEntity(idOrEntity.toString());
         }
 
         ModelAndView mv = createModelAndView("/general/dock-form");
