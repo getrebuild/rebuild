@@ -179,13 +179,6 @@ body {
   opacity: 1;
 }
 
-.rbview-form .type-NTEXT .col-form-control.ntext-expand .ps-container,
-.rbview-form .type-NTEXT .col-form-control.ntext-expand .code-editor .CodeMirror,
-.rbview-form .type-NTEXT .col-form-control.ntext-expand .code-editor .CodeMirror .CodeMirror-scroll {
-  max-height: 1000px !important;
-  height: auto;
-}
-
 .rbview-form .type-NTEXT .col-form-control.ntext-expand .ntext-action .mdi-arrow-expand::before {
   content: '\F0615';
 }

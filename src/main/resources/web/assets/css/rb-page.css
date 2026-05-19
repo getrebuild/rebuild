@@ -5778,7 +5778,7 @@ div.formula-code {
   background-color: #212121 !important;
   color: #f07178 !important;
   border: 0 none;
-  height: 223px;
+  height: 300px;
   width: 100%;
   resize: none;
   outline: none;
@@ -6390,11 +6390,6 @@ div.formula-code {
   width: 30px;
 }
 
-.EasyMDEContainer .editor-toolbar.fullscreen,
-.EasyMDEContainer .CodeMirror-fullscreen {
-  z-index: 1002;
-}
-
 .rb-scroll-top.show {
   display: block;
   right: 20px;
@@ -6599,15 +6594,8 @@ div.formula-code {
   color: var(--rb-theme-color);
 }
 
-.CodeMirror,
-.CodeMirror-scroll {
-  height: 223px;
-  min-height: 223px;
-  max-height: 2000px;
-}
-
-.CodeMirror-wrap pre.CodeMirror-line,
-.CodeMirror-wrap pre.CodeMirror-line-like {
+.CodeMirror pre.CodeMirror-line,
+.CodeMirror pre.CodeMirror-line-like {
   word-wrap: break-word !important;
   word-break: break-all !important;
 }
@@ -6618,12 +6606,13 @@ div.formula-code {
   border-color: #eee;
   border-width: 2px;
   padding: 6px 8px;
+  height: 300px;
+  height: 251px; /* toolbar */
 }
 
-.EasyMDEContainer .CodeMirror,
-.EasyMDEContainer .CodeMirror-scroll {
-  height: unset;
-  min-height: 158px;
+.EasyMDEContainer .editor-toolbar.fullscreen,
+.EasyMDEContainer .CodeMirror-fullscreen {
+  z-index: 1002;
 }
 
 .EasyMDEContainer .editor-toolbar {
@@ -6647,14 +6636,14 @@ div.formula-code {
 
 .html-editor {
   position: relative;
-  min-height: 223px;
+  min-height: 300px;
   max-height: 2000px;
 }
 
 .html-editor > iframe {
   width: 100%;
   height: 100%;
-  min-height: 223px;
+  min-height: 300px;
   display: block;
   border: 0 none;
 }
