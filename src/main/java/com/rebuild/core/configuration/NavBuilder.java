@@ -48,6 +48,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 导航渲染
@@ -79,6 +81,8 @@ public class NavBuilder extends NavManager {
             NAV_ITEM_PROPS,
             new String[]{"plus", "添加项目", "BUILTIN", NAV_PROJECT + "--add"}
     );
+
+    private static final Pattern PATT_LISTURL437 = Pattern.compile("/app/(\\w+)/(list|view|form)");
 
     /**
      * 获取指定用户的导航菜单
@@ -222,15 +226,27 @@ public class NavBuilder extends NavManager {
             value = PageTokenVerify.replacePageToken(value, user);
             item.put("value", value);
 
+            String bindUrl = value;
+            String bindEntity = null;
+
+            // v4.3.7 `/app/xxx/list` 自动绑定
+            String listUrl = value.split("[?]")[0];
+            Matcher m = PATT_LISTURL437.matcher(listUrl);
+            if (m.matches() && m.groupCount() > 0) {
+                bindEntity = m.group(1);
+            }
             // URL 绑定实体权限 https://juejin.cn/post/7045494433797652511
             // 如 https://www.baidu.com/::ENTITY_NAME
+            else if (value.contains("::")) {
+                String[] ss = value.split("::");
+                if (ss.length > 2) {
+                    bindUrl = ss[0];
+                    bindEntity = ss[1];
+                }
+            }
 
-            String[] ss = value.split("::");
-            if (ss.length != 2) return false;
-
-            String bindEntity = ss[1];
-            if (MetadataHelper.containsEntity(bindEntity)) {
-                item.put("value", ss[0]);
+            if (bindEntity != null && MetadataHelper.containsEntity(bindEntity)) {
+                item.put("value", bindUrl);
                 return !Application.getPrivilegesManager()
                         .allowRead(user, MetadataHelper.getEntity(bindEntity).getEntityCode());
             }
