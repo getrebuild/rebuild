@@ -1641,3 +1641,42 @@ function $modalDraggable($modal, option) {
     }
   }
 }
+
+// 输入提示
+function $autoComplete($el, fieldKey, option) {
+  option = option || {}
+  function _FN() {
+    var c = $($el)
+      .autoComplete({
+        bootstrapVersion: '4',
+        noResultsText: '',
+        minLength: 2,
+        preventEnter: false,
+        resolverSettings: {
+          url: '/commons/search/suggest?e=' + fieldKey,
+        },
+        events: {
+          searchPost: function (res) {
+            const results = []
+            res.data &&
+              res.data.forEach((item) => {
+                if (!results.includes(item.text)) results.push(item.text)
+              })
+            return results
+          },
+        },
+      })
+      .on('autocomplete.select', (e, item) => {
+        $stopEvent(e, true)
+        typeof option.onSelect === 'function' && option.onSelect(item)
+      })
+
+    typeof option.onRender === 'function' && option.onRender(c)
+  }
+
+  if (jQuery.prototype.autoComplete) {
+    _FN()
+  } else {
+    $getScript('/assets/lib/bootstrap-autocomplete.min.js?v=2.3.7', _FN)
+  }
+}
