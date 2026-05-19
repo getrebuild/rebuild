@@ -1537,14 +1537,19 @@ class CodeEditor extends React.Component {
 
     const cm5 = window.CodeMirror.fromTextArea(this._$content, options)
     cm5.on('change', (instance) => {
+      // let se = instance.getScrollerElement()
+      // instance.setSize(null, se.scrollHeight)
+
       let cc = instance.getValue()
       typeof this.props.onChange === 'function' && this.props.onChange(cc)
     })
 
-    // 自动高度
-    cm5.setSize('100%', '100%')
-
     this._CodeMirror = cm5
+
+    if (this.props.readonly) {
+      // 自动高度
+      cm5.setSize('100%', '100%')
+    }
   }
 
   componentWillUnmount() {
@@ -1614,8 +1619,8 @@ class HtmlEditor extends React.Component {
       license_key: 'gpl',
       language: rb.locale,
       plugins: 'table code image lists pagebreak autoresize fullscreen',
-      menubar: 'insert format table',
-      toolbar: 'styles fontsize fontfamily bold italic alignleft aligncenter alignright hr image code fullscreen',
+      menubar: 'edit view insert format table',
+      toolbar: 'undo redo styles bold italic alignleft aligncenter alignright alignjustify fullscreen',
       highlight_on_focus: false,
       setup: (editor) => {
         this._TinyMCE = editor
@@ -1639,9 +1644,9 @@ class HtmlEditor extends React.Component {
       resize: false,
       font_family_formats: ['黑体', '仿宋', '楷体', '标楷体', '华文仿宋', '华文楷体', '宋体', '微软雅黑', 'Arial', 'Tahoma', 'Verdana', 'Times New Roman', 'Courier New'].join(';'),
       protect: [/<style[^>]*>[\s\S]*?<\/style>/g],
-      height: 223,
+      height: 300,
       width: '100%',
-      min_height: 223,
+      min_height: 300,
       max_height: 2000,
       autoresize_bottom_margin: 1,
     })

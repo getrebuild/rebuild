@@ -170,5 +170,6 @@ module.exports = {
     $initQuickSearch: true,
     NoValue: true,
     $modalDraggable: true,
+    $autoComplete: true,
   },
 }

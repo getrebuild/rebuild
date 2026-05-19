@@ -940,38 +940,14 @@ class FilterItem extends React.Component {
     const found = this.props.fields.find((x) => x.name === field)
     if (!found) return
 
-    const that = this
-    function _autoComplete() {
-      that.__autoComplete = $(that._filterVal)
-        .autoComplete({
-          bootstrapVersion: '4',
-          noResultsText: '',
-          minLength: 2,
-          preventEnter: false,
-          resolverSettings: {
-            url: `/commons/search/suggest?e=${that.props.$$$parent.props.entity}.${field}`,
-          },
-          events: {
-            searchPost: function (res) {
-              const result = res.data || []
-              const _data = []
-              result.forEach((item) => {
-                if (!_data.includes(item.text)) _data.push(item.text)
-              })
-              return _data
-            },
-          },
-        })
-        .on('autocomplete.select', (e, item) => {
-          $stopEvent(e, true)
-          that.setState({ value: item })
-        })
-    }
-    if (jQuery.prototype.autoComplete) {
-      _autoComplete()
-    } else {
-      $getScript('/assets/lib/bootstrap-autocomplete.min.js?v=2.3.7', () => _autoComplete())
-    }
+    $autoComplete(this._filterVal, `${this.props.$$$parent.props.entity}.${field}`, {
+      onSelect: (item) => {
+        this.setState({ value: item })
+      },
+      onRender: (c) => {
+        this.__autoComplete = c
+      },
+    })
   }
 
   removeSuggest() {

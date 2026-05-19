@@ -1337,6 +1337,16 @@ class RbFormText extends RbFormElement {
         }
       })
     }
+
+    let fileKey = this.props.entity + '.' + this.props.field
+    if (window.__LAB_AUTOCOMPLETE44 && window.__LAB_AUTOCOMPLETE44[fileKey]) {
+      let e = window.__LAB_AUTOCOMPLETE44[fileKey]
+      $autoComplete(this._fieldValue, e.fieldKey || fileKey, {
+        onSelect: (v) => {
+          this.handleChange({ target: { value: v } }, true)
+        },
+      })
+    }
   }
 }
 
@@ -1730,7 +1740,7 @@ class RbFormNText extends RbFormElement {
       })
 
       // 自动高度
-      mde.codemirror.setSize('100%', '100%')
+      // mde.codemirror.setSize('100%', '100%')
       // mde.codemirror.on('change', () => mde.codemirror.setSize('100%', null))
     }
   }

@@ -402,7 +402,9 @@ public class ReferenceSearchController extends EntityController {
     public JSON commonSuggest(HttpServletRequest request) {
         ID user = getRequestUser(request);
         String entityAndField = getParameterNotNull(request, "e");
-        String[] ef = entityAndField.split("\\.");
+        String[] entityAndFields = entityAndField.split("[,|]");
+
+        String[] ef = entityAndFields[0].split("\\.");
         Field field = MetadataHelper.getField(ef[0], ef[1]);
         DisplayType dtOfField = EasyMetaFactory.getDisplayType(field);
 
@@ -431,6 +433,11 @@ public class ReferenceSearchController extends EntityController {
         } else if (dtOfField == DisplayType.TEXT) {
             String quickFields = field.getOwnEntity().getNameField().getName();
             if (field.getOwnEntity().containsField(EntityHelper.QuickCode)) quickFields += ",quickCode";
+
+            if (entityAndFields.length > 1) {
+                entityAndFields[0] = null;
+                quickFields += StringUtils.join(entityAndFields, ",");
+            }
 
             return buildResultSearch(
                     field.getOwnEntity(), quickFields, q, null, pageSize, user);
