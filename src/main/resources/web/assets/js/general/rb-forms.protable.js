@@ -154,7 +154,7 @@ class ProTable extends React.Component {
 
     $.post(`/app/${entity.entity}/form-model?mainLayoutId=${this.props.mainLayoutId}&id=`, JSON.stringify(initialValue), (res) => {
       // 包含错误
-      if (res.error_code > 0 || !!res.data.error) {
+      if (res.error_code > 0 || (res.data || {}).error) {
         const error = (res.data || {}).error || res.error_msg
         this.setState({ hasError: error })
         return

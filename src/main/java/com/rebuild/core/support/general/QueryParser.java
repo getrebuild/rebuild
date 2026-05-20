@@ -416,4 +416,24 @@ public class QueryParser {
         if (CommonsUtils.DEVLOG) System.out.println("[dev] Parse protocolFilter : " + protocolFilter + " >> " + where);
         return where;
     }
+
+    // --
+
+    /**
+     * 构建基础查询体
+     *
+     * @param entity
+     * @return
+     */
+    public static JSONObject buildBaseQueryData(String entity) {
+        JSONObject query = new JSONObject();
+        query.put("entity", entity);
+        query.put("fields", new String[]{entity + "Id"});
+
+        JSONObject filter = new JSONObject();
+        filter.put("items", new JSONArray());
+        query.put("filter", filter);
+
+        return query;
+    }
 }
