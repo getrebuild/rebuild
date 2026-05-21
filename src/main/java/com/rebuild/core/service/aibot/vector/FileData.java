@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.aibot.vector;
 
+import com.rebuild.core.Application;
 import com.rebuild.core.service.aibot.AiBotException;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
@@ -42,6 +43,10 @@ public class FileData implements VectorData {
 
     @Override
     public String toVector() {
+        final String fileKey = "FileData:" + filepath;
+        String cached = Application.getCommonsCache().get(fileKey);
+        if (cached != null) return cached;
+
         File file = null;
         if (CommonsUtils.isExternalUrl(filepath)) {
             try {
@@ -70,8 +75,10 @@ public class FileData implements VectorData {
         }
 
         String name = QiniuCloud.parseFileName(filepath);
-        return String.format("文件（%s）内容如下：", name)
+        String res = String.format("文件（%s）内容如下：", name)
                 + NN + content + NN +
                 String.format("文件（%s）内容结束", name);
+        Application.getCommonsCache().put(fileKey, res);
+        return res;
     }
 }
