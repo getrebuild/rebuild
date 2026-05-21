@@ -119,7 +119,7 @@ public class Chat implements Serializable {
      * @param userMessage
      * @return
      */
-    protected String ask(String userMessage) {
+    public String ask(String userMessage) {
         ChatCompletionCreateParams params = buildRequestParams(userMessage, null);
         ChatCompletion resp = completions().create(params);
         ChatCompletionMessage ai = resp.choices().get(0).message();

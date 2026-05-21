@@ -17,6 +17,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.aibot.vector.FileData;
 import com.rebuild.core.service.aibot.vector.ListData;
 import com.rebuild.core.service.aibot.vector.RecordData;
+import com.rebuild.core.service.aibot.vector.VectorData;
 import com.rebuild.core.service.aibot.vector.VectorDataChunk;
 import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.utils.JSONUtils;
@@ -79,7 +80,7 @@ public class ChatRequest {
 
         String vdc = getVectorDataContent();
         if (vdc == null) return c;
-        return vdc + "\n\n" + c;
+        return vdc + VectorData.NN + c;
     }
 
     /**
