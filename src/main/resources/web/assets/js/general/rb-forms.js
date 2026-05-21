@@ -1698,6 +1698,7 @@ class RbFormNText extends RbFormElement {
     // fix:4.1-b5
     this._EasyMDE && this._EasyMDE.toTextArea()
 
+    let _scrollTop = 0
     const mde = new EasyMDE({
       element: this._fieldValue,
       status: false,
@@ -1707,11 +1708,19 @@ class RbFormNText extends RbFormElement {
       toolbar: _readonly37 ? false : DEFAULT_MDE_TOOLBAR(this),
       previewClass: 'markdown-body',
       onToggleFullScreen: (is) => {
-        if (is) $('html').addClass('mde-fullscreen')
-        else $('html').removeClass('mde-fullscreen')
+        let $s = $('.modal-wrapper>.modal.show')
+        let $cm = $s.find('.CodeMirror-fullscreen')
+        if (is) {
+          _scrollTop = $s.scrollTop()
+          $s.scrollTop(0)
+          $('html').addClass('mde-fullscreen')
+          $cm.height($(window).height() - 60)
+        } else {
+          $s.scrollTop(_scrollTop)
+          $('html').removeClass('mde-fullscreen')
+          $cm.height(251)
+        }
       },
-      minHeight: 158,
-      maxHeight: 2000,
     })
     this._EasyMDE = mde
 
