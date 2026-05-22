@@ -1646,30 +1646,46 @@ function $modalDraggable($modal, option) {
 function $autoComplete($el, fieldKey, option) {
   option = option || {}
   function _FN() {
+    var props = {
+      bootstrapVersion: '4',
+      noResultsText: '',
+      minLength: 2,
+      preventEnter: false,
+      resolverSettings: {
+        url: '/commons/search/suggest?e=' + fieldKey,
+      },
+      events: {
+        searchPost: function (res) {
+          const results = []
+          res.data &&
+            res.data.forEach((item) => {
+              if (!results.includes(item.text)) results.push(item.text || item.name)
+            })
+          return results
+        },
+      },
+    }
+    if (option.options) {
+      props.resolver = 'custom'
+      props.events.search = function (q, cb) {
+        cb({ data: option.options })
+      }
+      props.minLength = 0
+    }
+
     var c = $($el)
-      .autoComplete({
-        bootstrapVersion: '4',
-        noResultsText: '',
-        minLength: 2,
-        preventEnter: false,
-        resolverSettings: {
-          url: '/commons/search/suggest?e=' + fieldKey,
-        },
-        events: {
-          searchPost: function (res) {
-            const results = []
-            res.data &&
-              res.data.forEach((item) => {
-                if (!results.includes(item.text)) results.push(item.text)
-              })
-            return results
-          },
-        },
-      })
+      .attr('autocomplete', 'off')
+      .autoComplete(props)
       .on('autocomplete.select', (e, item) => {
         $stopEvent(e, true)
         typeof option.onSelect === 'function' && option.onSelect(item)
       })
+
+    if (option.options) {
+      c.on('focus', function () {
+        c.autoComplete('show')
+      })
+    }
 
     typeof option.onRender === 'function' && option.onRender(c)
   }

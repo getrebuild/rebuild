@@ -44,6 +44,7 @@
                       <tr>
                         <td>[[${bundle.L('使用模型')}]]</td>
                         <td
+                          class="position-relative"
                           data-id="AibotBaseDefModel"
                           th:data-value="${AibotBaseDefModel ?:''}"
                           data-optional="true"
@@ -95,14 +96,22 @@
           return <textarea className="form-control form-control-sm row2x" maxLength="2048" />
         } else if ('AibotBaseDefModel' === name) {
           setTimeout(() => {
-            $('input[name="AibotBaseDefModel"]')
-              .next()
-              .find('code')
-              .on('click', function () {
-                $('input[name="AibotBaseDefModel"]').val($(this).text())
-                // @see `syscfg.js`
-                if (window.__data) window.__data['AibotBaseDefModel'] = $(this).text()
-              })
+            // $('input[name="AibotBaseDefModel"]')
+            //   .next()
+            //   .find('code')
+            //   .on('click', function () {
+            //     $('input[name="AibotBaseDefModel"]').val($(this).text())
+            //     // @see `syscfg.js`
+            //     if (window.__data) window.__data['AibotBaseDefModel'] = $(this).text()
+            //   })
+
+            let models = [
+              { id: 'deepseek-v4-flash', text: 'deepseek-v4-flash' },
+              { id: 'qwen3.6-flash', text: 'qwen3.6-flash' },
+              { id: 'gpt-5', text: 'gpt-5' },
+              { id: 'gemini-2.5-pro', text: 'gemini-2.5-pro' },
+            ]
+            $autoComplete($('input[name="AibotBaseDefModel"]'), null, { options: models })
           }, 500)
         }
       }
