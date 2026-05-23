@@ -48,7 +48,7 @@
                           data-id="AibotBaseDefModel"
                           th:data-value="${AibotBaseDefModel ?:''}"
                           data-optional="true"
-                          th:data-form-text="${bundle.L('请正确填写模型名称，例如 `deepseek-v4-flash` `qwen3.6-flash` `gpt-5` `gemini-2.5-pro`')}"
+                          th:data-form-text="${bundle.L('请正确填写模型名称，如 `deepseek-v4-flash` `qwen3.6-flash` `gpt-5` `gemini-2.5-pro` 等')}"
                         >
                           [[${AibotBaseDefModel ?:bundle.L('默认')}]]
                         </td>
@@ -96,21 +96,7 @@
           return <textarea className="form-control form-control-sm row2x" maxLength="2048" />
         } else if ('AibotBaseDefModel' === name) {
           setTimeout(() => {
-            // $('input[name="AibotBaseDefModel"]')
-            //   .next()
-            //   .find('code')
-            //   .on('click', function () {
-            //     $('input[name="AibotBaseDefModel"]').val($(this).text())
-            //     // @see `syscfg.js`
-            //     if (window.__data) window.__data['AibotBaseDefModel'] = $(this).text()
-            //   })
-
-            let models = [
-              { id: 'deepseek-v4-flash', text: 'deepseek-v4-flash' },
-              { id: 'qwen3.6-flash', text: 'qwen3.6-flash' },
-              { id: 'gpt-5', text: 'gpt-5' },
-              { id: 'gemini-2.5-pro', text: 'gemini-2.5-pro' },
-            ]
+            let models = ['deepseek-v4-flash', 'qwen3.6-flash', 'gpt-5', 'gemini-2.5-pro']
             $autoComplete($('input[name="AibotBaseDefModel"]'), null, { options: models })
           }, 500)
         }

@@ -1659,7 +1659,8 @@ function $autoComplete($el, fieldKey, option) {
           const results = []
           res.data &&
             res.data.forEach((item) => {
-              if (!results.includes(item.text)) results.push(item.text || item.name)
+              var text = typeof item === 'string' ? item : item.text || item.name
+              if (!results.includes(text)) results.push(text)
             })
           return results
         },
@@ -1668,7 +1669,12 @@ function $autoComplete($el, fieldKey, option) {
     if (option.options) {
       props.resolver = 'custom'
       props.events.search = function (q, cb) {
-        cb({ data: option.options })
+        var res = []
+        option.options.forEach(function (item) {
+          var text = typeof item === 'string' ? item : item.text || item.name
+          if (!q || text.toLowerCase().indexOf(q.toLowerCase()) > -1) res.push(item)
+        })
+        cb({ data: res })
       }
       props.minLength = 0
     }
