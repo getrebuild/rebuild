@@ -73,13 +73,13 @@ public class DataExporter extends SetUser {
 
     private int count = 0;
 
-    private EasyExcelListGenerator useEasyExcelListGenerator;
-
     /**
      * @param queryData
      */
     public DataExporter(JSONObject queryData) {
         this.queryData = queryData;
+        this.queryData.put("reload", false);
+        this.queryData.put("statsField", false);
     }
 
     /**
@@ -90,11 +90,10 @@ public class DataExporter extends SetUser {
      * @see com.rebuild.core.service.datareport.EasyExcelListGenerator
      */
     public File export(ID useReport) {
-        useEasyExcelListGenerator = EasyExcelListGenerator.create(useReport, this.queryData);
-        useEasyExcelListGenerator.setUser(getUser());
-        File file = useEasyExcelListGenerator.generate();
-
-        count = useEasyExcelListGenerator.getExportCount();
+        EasyExcelListGenerator g = EasyExcelListGenerator.create(useReport, this.queryData);
+        g.setUser(getUser());
+        File file = g.generate();
+        count = g.getExportCount();
         return file;
 
 //        return new MuiltSheetExcelGenerator(useReport, queryData).generate();
