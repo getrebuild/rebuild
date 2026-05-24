@@ -85,8 +85,14 @@ public class RbvFunction {
         log.debug("No RbvFunction : checkIp");
         return true;
     }
+
     public boolean checkTime(Date date) {
         log.debug("No RbvFunction : checkTime");
+        return true;
+    }
+
+    public boolean checkSignUpDomain(String email) {
+        log.debug("No RbvFunction : checkSignUpDomain");
         return true;
     }
 

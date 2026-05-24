@@ -213,6 +213,17 @@
                         </td>
                       </tr>
                       <tr>
+                        <td>[[${bundle.L('公开注册注册域')}]]</td>
+                        <td
+                          th:data-id="${commercial > 0 ? 'OpenSignUpAllowDomain' : ''}"
+                          th:data-value="${OpenSignUpAllowDomain}"
+                          th:data-form-text="${bundle.L('仅指定注册域的邮箱才能注册，每个域一行，例如 `getrebuild.com` `*.sina.com`')}"
+                          data-optional="true"
+                        >
+                          <pre class="unstyle">[[${OpenSignUpAllowDomain ?:bundle.L('不限')}]]</pre>
+                        </td>
+                      </tr>
+                      <tr>
                         <td>[[${bundle.L('登录验证码显示模式')}]]</td>
                         <td data-id="LoginCaptchaPolicy" th:data-value="${LoginCaptchaPolicy}">
                           <th:block th:if="${LoginCaptchaPolicy == '1'}">[[${bundle.L('自动')}]]</th:block>
