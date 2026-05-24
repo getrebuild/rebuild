@@ -425,10 +425,14 @@ public class QueryParser {
      * @param entity
      * @return
      */
-    public static JSONObject buildBaseQueryData(String entity) {
+    public static JSONObject buildBaseQueryData(String entity, String...fields) {
         JSONObject query = new JSONObject();
         query.put("entity", entity);
-        query.put("fields", new String[]{entity + "Id"});
+        if (fields.length > 0) {
+            query.put("fields", StringUtils.join(fields, ","));
+        } else {
+            query.put("fields", entity + "Id");
+        }
 
         JSONObject filter = new JSONObject();
         filter.put("items", new JSONArray());
