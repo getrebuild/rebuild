@@ -338,7 +338,7 @@ public class AdminCli4 {
         if ("DATETIME40".equalsIgnoreCase(commands[2])) {
             boolean s = false;
             if (field == null) {
-                for (Field F : MetadataSorter.sortFields(entity, DisplayType.IMAGE, DisplayType.FILE)) {
+                for (Field F : MetadataSorter.sortFields(entity, DisplayType.DATETIME)) {
                     s = new Field2SchemaFixer().fixDatetime40(F);
                 }
             } else {
