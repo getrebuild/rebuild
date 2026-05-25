@@ -5430,6 +5430,10 @@ pre.unstyle {
   bottom: 10px;
 }
 
+.code-editor .code-editor-actions.light {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
 .select2-results span.icon-append {
   padding-left: 20px;
   position: relative;

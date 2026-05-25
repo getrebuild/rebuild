@@ -69,7 +69,10 @@ public abstract class ChatManager {
 
         JSONArray contents = new JSONArray();
         chat.getMessages().forEach(m -> contents.add(m.toJSON()));
-        r.setString("contents", contents.toJSONString());
+
+        String contents2s = contents.toJSONString();
+        r.setString("contents", contents2s);
+        r.setInt("token", contents2s.length());
         Application.getCommonsService().createOrUpdate(r);
     }
 

@@ -406,7 +406,7 @@ class EditorWithFieldVars extends CodeEditor {
 
   renderActions() {
     return (
-      <div className="code-editor-actions btm">
+      <div className={`code-editor-actions btm ${this.props.isCode === false ? 'light' : ''}`}>
         <span className="dropdown">
           <a title={$L('插入字段变量')} data-toggle="dropdown">
             <i className="mdi mdi-code-braces down-1" />

@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #73 (v4.4)
+alter table `aibot_chat`
+  add column `TOKEN` bigint(20) comment '词元用量';
+
 -- #72 (v4.4)
 -- ************ Entity [RobotApprovalHub] DDL ************
 create table if not exists `robot_approval_hub` (

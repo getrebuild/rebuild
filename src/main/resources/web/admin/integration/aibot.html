@@ -5,6 +5,12 @@
     <meta name="page-help" content="https://getrebuild.com/docs/admin/integration-aibot" />
     <title>[[${bundle.L('AI 助手')}]]</title>
     <style>
+      .row.stats .col-8 span {
+        display: block;
+        height: 44px;
+        width: 100%;
+        margin-top: 1px;
+      }
       p.mt-2.text-dark code:hover {
         font-weight: bold;
         cursor: pointer;
@@ -83,24 +89,29 @@
                 </div>
               </div>
             </div>
-            <div class="col-lg-3 col-12"></div>
+            <div class="col-lg-3 col-12 col-right-compact">
+              <div class="card">
+                <div class="card-header card-header-divider">[[${bundle.L('用量统计')}]] <small class="fs-13">([[${bundle.L('90天')}]])</small></div>
+                <div class="card-body">
+                  <div class="row stats J_stats-aibot">
+                    <div class="col-8">
+                      <span></span>
+                    </div>
+                    <div class="col-4">
+                      <strong class="fs-18">0</strong>
+                      <p class="text-muted m-0">[[${bundle.L('万')}]]/Token</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
-    <script type="text/babel">
-      useEditComp = function (name) {
-        if ('AibotBasePrompt' === name) {
-          return <textarea className="form-control form-control-sm row2x" maxLength="2048" />
-        } else if ('AibotBaseDefModel' === name) {
-          setTimeout(() => {
-            let models = ['deepseek-v4-flash', 'qwen3.6-flash', 'gpt-5', 'gemini-2.5-pro']
-            $autoComplete($('input[name="AibotBaseDefModel"]'), null, { options: models })
-          }, 500)
-        }
-      }
-    </script>
+    <script th:src="@{/assets/lib/charts/echarts.min.js?v=5.5.0}"></script>
+    <script th:src="@{/assets/js/admin/aibot.js}" type="text/babel"></script>
   </body>
 </html>

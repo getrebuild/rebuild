@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.admin;
 
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
@@ -493,6 +494,29 @@ public class ConfigurationController extends BaseController {
             }
         }
         return mv;
+    }
+
+    @GetMapping("integration/aibot/stats")
+    public JSON statsAibot() {
+        final Date xday = CalendarUtils.clearTime(CalendarUtils.addDay(-90));
+        final String sql = "select date_format(createdOn,'%Y-%m-%d'),sum(token) from AibotChat" +
+                " where createdOn > ? group by date_format(createdOn,'%Y-%m-%d')";
+
+        Object[][] aibot = Application.createQueryNoFilter(sql)
+                .setParameter(1, xday)
+                .array();
+        Arrays.sort(aibot, Comparator.comparing(o -> o[0].toString()));
+
+        double aibotCount = 0;
+        for (Object[] o : aibot) {
+            o[1] = o[1] == null ? 0L : o[1];
+            o[1] = ObjectUtils.round((Long) o[1] / 10000d, 2);
+            aibotCount += (Double) o[1];
+        }
+
+        return JSONUtils.toJSONObject(
+                new String[]{"aibot", "aibotCount"},
+                new Object[]{aibot, ObjectUtils.round(aibotCount, 2)});
     }
 
     // --

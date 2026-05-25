@@ -1485,7 +1485,7 @@ class CodeEditor extends React.Component {
 
   renderActions() {
     return (
-      <div className="code-editor-actions">
+      <div className={`code-editor-actions ${this.props.isCode === false ? 'light' : ''}`}>
         {!this.props.readonly && (
           <a title={$L('格式化')} onClick={() => this.formatCode()}>
             <i className="icon mdi mdi-wrap" />
