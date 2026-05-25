@@ -45,6 +45,7 @@ import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -548,6 +549,19 @@ public class ApprovalStepService extends BaseService {
         sourceStepUpdate.setDate(EntityHelper.CreatedOn, CalendarUtils.now());  // 使用当前时间
         super.update(sourceStepUpdate);
 
+        // fix:4.3.8 转审更新当前审批人
+        if (MetadataHelper.getEntity(recordId.getEntityCode()).containsField(EntityHelper.ApprovalStepUsers)) {
+            Object cApprovers = QueryHelper.queryFieldValue(recordId, "approvalStepUsers");
+            Set<ID> set = new HashSet<>();
+            if (cApprovers != null) CollectionUtils.addAll(set, (ID[]) cApprovers);
+            set.remove(oldApprover);
+            set.add(approver);
+
+            Record recordOfMain = EntityHelper.forUpdate(recordId, approver);
+            recordOfMain.setIDArray(EntityHelper.ApprovalStepUsers, set.toArray(new ID[0]));
+            super.update(recordOfMain);
+        }
+
         String approveMsg = ApprovalHelper.buildApproveMsg(recordId);
         approveMsg += "\n > " + Language.L("由 %s 转审给你", UserHelper.getName(oldApprover));
         sendNotification(approver, approveMsg, recordId);
@@ -591,6 +605,21 @@ public class ApprovalStepService extends BaseService {
                 c++;
             }
         }
+
+        // fix:4.3.8 加签更新当前审批人
+        if (MetadataHelper.getEntity(recordId.getEntityCode()).containsField(EntityHelper.ApprovalStepUsers)) {
+            Object cApprovers = QueryHelper.queryFieldValue(recordId, "approvalStepUsers");
+            if (cApprovers != null) {
+                Set<ID> set = new HashSet<>();
+                CollectionUtils.addAll(set, (ID[]) cApprovers);
+                CollectionUtils.addAll(set, approvers);
+
+                Record recordOfMain = EntityHelper.forUpdate(recordId, approver);
+                recordOfMain.setIDArray(EntityHelper.ApprovalStepUsers, set.toArray(new ID[0]));
+                super.update(recordOfMain);
+            }
+        }
+
         return c;
     }
 
