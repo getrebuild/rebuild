@@ -1228,7 +1228,7 @@ class ExcelClipboardDataModalWithForm extends React.Component {
   componentDidMount() {
     $.post(`/app/${this.props.entity}/form-model?layout=${this.props.specLayout || ''}`, (res) => {
       // 包含错误
-      if (res.error_code > 0 || !!res.data.error) {
+      if (res.error_code > 0 || (res.data || {}).error) {
         const error = (res.data || {}).error || res.error_msg
         RbHighbar.error(error)
         return

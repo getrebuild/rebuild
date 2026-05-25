@@ -391,6 +391,7 @@ class FormulaDate extends RbAlert {
 }
 
 // ~ 带字段的编辑器
+// eslint-disable-next-line no-undef
 class EditorWithFieldVars extends CodeEditor {
   render() {
     if (this.props.isCode) return super.render()
@@ -405,10 +406,10 @@ class EditorWithFieldVars extends CodeEditor {
 
   renderActions() {
     return (
-      <div className="code-editor-actions light btm">
+      <div className={`code-editor-actions btm ${this.props.isCode === false ? 'light' : ''}`}>
         <span className="dropdown">
           <a title={$L('插入字段变量')} data-toggle="dropdown">
-            <i className="mdi mdi-code-braces" />
+            <i className="mdi mdi-code-braces down-1" />
           </a>
           <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ maxHeight: 388 }} ref={(c) => (this._$fieldVars = c)}>
             {this.state.fieldVars &&

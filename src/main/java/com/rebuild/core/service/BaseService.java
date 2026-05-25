@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.PersistManager;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
 import com.rebuild.core.metadata.EntityHelper;
@@ -110,18 +111,21 @@ public abstract class BaseService extends InternalPersistService {
         final Entity entity = record.getEntity();
         if (!MetadataHelper.isBusinessEntity(entity)) return;
 
-        for (String field : record.getAvailableFields()) {
-            if (!record.hasValue(field, false)) continue;
+        for (String fieldName : record.getAvailableFields()) {
+            if (!record.hasValue(fieldName, false)) continue;
 
-            EasyField decimalField = EasyMetaFactory.valueOf(entity.getField(field));
+            Field field = entity.getField(fieldName);
+            if (field.getType() != FieldType.DECIMAL) continue;
+
+            EasyField decimalField = EasyMetaFactory.valueOf(field);
             if (decimalField.getDisplayType() != DisplayType.DECIMAL) continue;
 
-            Object oldValue = record.getObjectValue(field);
+            Object oldValue = record.getObjectValue(fieldName);
             BigDecimal fixed = EasyDecimal.fixedDecimalScale(oldValue, decimalField);
             if (oldValue.equals(fixed)) continue;
 
-            log.debug("Force decimal scale : {}={} < {}", decimalField.getRawMeta(), field, oldValue);
-            record.setDecimal(field, fixed);
+            log.debug("Force decimal scale : {}={} < {}", decimalField.getRawMeta(), fieldName, oldValue);
+            record.setDecimal(fieldName, fixed);
         }
     }
 

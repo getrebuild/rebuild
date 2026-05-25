@@ -611,7 +611,7 @@ public class EasyExcelGenerator extends SetUser {
             field = query.getSelectItems()[0].getField();
 
             // 针对聚合返回的是字符串，无法转换值
-            if (fieldValue != null) {
+            if (fieldValue != null && field != null) {
                 if (field.getType() == FieldType.DATE || field.getType() == FieldType.DATETIME
                         || field.getType() == FieldType.TIMESTAMP || field.getType() == FieldType.TIME) {
                     if (fieldValue instanceof String) field = null;

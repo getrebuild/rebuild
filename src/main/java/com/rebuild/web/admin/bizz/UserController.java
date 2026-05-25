@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.bizz;
 
-import cn.devezhao.bizz.security.member.Team;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -22,7 +21,6 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.JSONUtils;
@@ -38,10 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -62,49 +57,6 @@ public class UserController extends EntityController {
         mv.getModel().put("DataListConfig", JSON.toJSONString(config));
         mv.getModel().put("serviceMail", SMSender.availableMail());
         return mv;
-    }
-
-    @RequestMapping("check-user-status")
-    public RespBody checkUserStatus(@IdParam ID uid) {
-        if (!Application.getUserStore().existsUser(uid)) return RespBody.error();
-
-        final User checkedUser = Application.getUserStore().getUser(uid);
-
-        Map<String, Object> ret = new HashMap<>();
-        ret.put("active", checkedUser.isActive());
-        ret.put("system", uid.equals(UserService.ADMIN_USER) || uid.equals(UserService.SYSTEM_USER));
-        ret.put("disabled", checkedUser.isDisabled());
-
-        if (checkedUser.getOwningRole() != null) {
-            ret.put("role", checkedUser.getOwningRole().getIdentity());
-            ret.put("roleDisabled", checkedUser.getOwningRole().isDisabled());
-
-            // 附加角色
-            ret.put("roleAppends", UserHelper.getRoleAppends(uid));
-        }
-
-        Set<Object> teams = new HashSet<>();
-        for (Team team : checkedUser.getOwningTeams()) {
-            teams.add(team.getIdentity());
-        }
-        // v4.2 加入团队
-        ret.put("joinTeams", teams);
-
-        if (checkedUser.getOwningDept() != null) {
-            ret.put("dept", checkedUser.getOwningDept().getIdentity());
-            ret.put("deptDisabled", checkedUser.getOwningDept().isDisabled());
-        }
-
-        Object[] lastLogin = Application.createQueryNoFilter(
-                "select loginTime,ipAddr from LoginLog where user = ? order by loginTime desc")
-                .setParameter(1, uid)
-                .unique();
-        if (lastLogin != null) {
-            ret.put("lastLogin",
-                    new Object[] { I18nUtils.formatDate((Date) lastLogin[0]), lastLogin[1] });
-        }
-
-        return RespBody.ok(ret);
     }
 
     @PostMapping("enable-user")

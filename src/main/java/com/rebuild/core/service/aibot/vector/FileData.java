@@ -7,13 +7,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.aibot.vector;
 
+import com.rebuild.core.Application;
 import com.rebuild.core.service.aibot.AiBotException;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
+import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.OkHttpUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.Tika;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * 文件
@@ -21,6 +27,7 @@ import java.io.File;
  * @author Zixin
  * @since 2026/4/28
  */
+@Slf4j
 public class FileData implements VectorData {
 
     static final Tika TIKA = new Tika();
@@ -36,7 +43,25 @@ public class FileData implements VectorData {
 
     @Override
     public String toVector() {
-        File file = RebuildConfiguration.getFileOfTemp(filepath);
+        final String fileKey = "FileData:" + filepath;
+        String cached = Application.getCommonsCache().get(fileKey);
+        if (cached != null) return cached;
+
+        File file = null;
+        if (CommonsUtils.isExternalUrl(filepath)) {
+            try {
+                file = OkHttpUtils.readBinary(filepath);
+            } catch (IOException e) {
+                log.error("Reading file error : {}", filepath, e);
+            }
+        } else {
+            file = RebuildConfiguration.getFileOfTemp(filepath);
+            if (!file.exists()) file = RebuildConfiguration.getFileOfData(filepath);
+        }
+
+        if (!FileUtils.isRegularFile(file)) {
+            throw new AiBotException("无法读取文件:" + filepath);
+        }
 
         String content;
         try {
@@ -50,8 +75,10 @@ public class FileData implements VectorData {
         }
 
         String name = QiniuCloud.parseFileName(filepath);
-        return String.format("文件（%s）内容如下：", name)
+        String res = String.format("文件（%s）内容如下：", name)
                 + NN + content + NN +
                 String.format("文件（%s）内容结束", name);
+        Application.getCommonsCache().put(fileKey, res);
+        return res;
     }
 }

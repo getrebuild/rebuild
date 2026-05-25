@@ -88,6 +88,19 @@
         })
         _EasyMDE.toggleFullScreen()
         _lastContent = _EasyMDE.value()
+
+        // 阻止F11
+        document.addEventListener(
+          'keydown',
+          function (e) {
+            if (e.key === 'F11' || e.keyCode === 122) {
+              e.preventDefault()
+              e.stopPropagation()
+              return false
+            }
+          },
+          true,
+        )
       })
 
       window.onbeforeunload = function () {

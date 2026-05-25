@@ -444,3 +444,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #4285f4;
   border: 1px solid #fff;
 }
+
+textarea.formula-code,
+.code-editor .CodeMirror,
+.code-editor .CodeMirror .CodeMirror-scroll {
+  min-height: 224px;
+  height: auto;
+}

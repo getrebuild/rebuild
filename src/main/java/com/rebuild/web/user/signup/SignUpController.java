@@ -21,6 +21,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.i18n.Language;
@@ -56,12 +57,12 @@ public class SignUpController extends BaseController {
 
     // 基于邮箱的限流
     private static final RequestRateLimiter RRL_4EMAIL = RateLimiters.createRateLimiter(
-            new int[] { 60, 600, 3600 },
-            new int[] { 2, 6, 12 });
+            new int[]{60, 600, 3600},
+            new int[]{2, 6, 12});
     // 基于IP的限流
     private static final RequestRateLimiter RRL_4IP = RateLimiters.createRateLimiter(
-            new int[] { 60, 600, 3600 },
-            new int[] { 20, 60, 120 });
+            new int[]{60, 600, 3600},
+            new int[]{20, 60, 120});
 
     // 注册
 
@@ -81,6 +82,9 @@ public class SignUpController extends BaseController {
         }
 
         String email = getParameterNotNull(request, "email");
+        if (!RbvFunction.call().checkSignUpDomain(email)) {
+            return RespBody.errorl("邮箱地址不允许注册");
+        }
 
         if (!RegexUtils.isEMail(email)) {
             return RespBody.errorl("无效邮箱");

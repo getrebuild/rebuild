@@ -1476,7 +1476,7 @@ class CodeEditor extends React.Component {
 
   render() {
     return (
-      <div className={`code-editor ${this.props.readonly && 'cm-readonly'}`}>
+      <div className={`code-editor ${this.props.readonly && 'cm-readonly'}`} ref={(c) => (this._$element = c)}>
         <textarea className="form-control formula-code" spellCheck="false" defaultValue={this.props.value || ''} ref={(c) => (this._$content = c)} />
         {this.renderActions()}
       </div>
@@ -1485,12 +1485,15 @@ class CodeEditor extends React.Component {
 
   renderActions() {
     return (
-      <div className="code-editor-actions">
+      <div className={`code-editor-actions ${this.props.isCode === false ? 'light' : ''}`}>
         {!this.props.readonly && (
           <a title={$L('格式化')} onClick={() => this.formatCode()}>
             <i className="icon mdi mdi-wrap" />
           </a>
         )}
+        <a title={$L('全屏')} onClick={() => this.fullscreen()}>
+          <i className="icon mdi mdi-fullscreen" />
+        </a>
         {this.props.extraActions &&
           this.props.extraActions.map((a, idx) => {
             return (
@@ -1515,7 +1518,7 @@ class CodeEditor extends React.Component {
 
     let options = {
       mode: 'text/jsx',
-      theme: 'material-darker',
+      theme: 'material',
       lineNumbers: true,
       dragDrop: false,
       smartIndent: true,
@@ -1588,6 +1591,30 @@ class CodeEditor extends React.Component {
     cc = $formatCode(cc)
     this.val(cc)
   }
+
+  fullscreen() {
+    let $s = $('.modal-wrapper>.modal.show')
+    let $e = $(this._$element)
+    let $cm = $e.find('.CodeMirror')
+    let is = this._fullscreen === 1
+
+    if (is) {
+      $s.scrollTop(this._fullscreen_scrollTop)
+      $('html').removeClass('mde-fullscreen')
+      $e.removeClass('code-editor-fullscreen')
+      $cm.height(300)
+
+      this._fullscreen = 0
+    } else {
+      this._fullscreen_scrollTop = $s.scrollTop()
+      $s.scrollTop(0)
+      $('html').addClass('mde-fullscreen')
+      $e.addClass('code-editor-fullscreen')
+      $cm.height($(window).height())
+
+      this._fullscreen = 1
+    }
+  }
 }
 
 // ~~ HTML 编辑器
@@ -1613,6 +1640,7 @@ class HtmlEditor extends React.Component {
   initTnyMCE() {
     this.destroy()
 
+    let _scrollTop = 0
     window.tinymce.init({
       // selector: undefined,
       target: this._$content,
@@ -1633,6 +1661,16 @@ class HtmlEditor extends React.Component {
         editor.on('NodeChange', () => {
           let cc = editor.getContent()
           typeof this.props.onChange === 'function' && this.props.onChange(cc)
+        })
+        //
+        editor.on('FullscreenStateChanged', (e) => {
+          let $s = $('.modal-wrapper>.modal.show')
+          if (e.state) {
+            _scrollTop = $s.scrollTop()
+            $s.scrollTop(0)
+          } else {
+            $s.scrollTop(_scrollTop)
+          }
         })
       },
       file_picker_callback: (callback, value, meta) => {

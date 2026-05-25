@@ -84,8 +84,8 @@ $(document).ready(() => {
     })
   })
 
-  if (rb.isAdminVerified) {
-    $.get(`/admin/bizuser/check-user-status?id=${userId}`, (res) => {
+  if (rb.isAdminUser) {
+    $.get(`/account/check-user-status?id=${userId}`, (res) => {
       const lastLogin = res.data.lastLogin
       if (lastLogin) {
         const $login = $('.J_loginOn')

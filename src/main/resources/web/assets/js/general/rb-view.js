@@ -42,7 +42,7 @@ class RbViewForm extends React.Component {
       this._rawModel = res.data // v4.2
 
       // 有错误
-      if (res.error_code > 0 || !!res.data.error) {
+      if (res.error_code > 0 || (res.data || {}).error) {
         const err = res.data.error || res.error_msg
         this.renderViewError(err)
         return
@@ -594,7 +594,7 @@ class EntityRelatedList extends RelatedList {
       let url42 = `/app/${this.__entity}/view-model?id=${id}`
       if (this.props.isDetail) url42 += '&mainLayoutId=' + (RbViewPage.getLayoutId42() || '')
       $.get(url42, (res) => {
-        if (res.error_code > 0 || !!res.data.error) {
+        if (res.error_code > 0 || (res.data || {}).error) {
           viewComponents[id] = _renderError(res.data.error || res.error_msg)
         } else {
           const _verticalLayout42 = window.__LAB_VERTICALLAYOUT || res.data.verticalLayout === 1 || res.data.verticalLayout === 3

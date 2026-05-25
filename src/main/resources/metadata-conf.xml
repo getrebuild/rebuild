@@ -369,8 +369,8 @@
         <field name="appId" type="string" max-length="20" nullable="false" updatable="false" description="APPID"/>
         <field name="remoteIp" type="string" max-length="100" nullable="false" updatable="false" description="来源 IP"/>
         <field name="requestUrl" type="string" max-length="701" nullable="false" updatable="false" description="请求 URL"/>
-        <field name="requestBody" type="text" updatable="false" description="请求数据"/>
-        <field name="responseBody" type="text" nullable="false" updatable="false" description="响应数据"/>
+        <field name="requestBody" type="ntext" updatable="false" description="请求数据"/>
+        <field name="responseBody" type="ntext" nullable="false" updatable="false" description="响应数据"/>
         <field name="requestTime" type="timestamp" nullable="false" updatable="false" description="请求时间"/>
         <field name="responseTime" type="timestamp" nullable="false" updatable="false" description="响应时间"/>
         <index field-list="appId,remoteIp,requestTime"/>
@@ -450,8 +450,8 @@
         <field name="codeId" type="primary"/>
         <field name="name" type="string" max-length="100" nullable="false" description="名称"/>
         <field name="applyPath" type="string" max-length="701" description="匹配路径"/>
-        <field name="code" type="text" description="代码"/>
-        <field name="es5Code" type="text" description="ES5 代码"/>
+        <field name="code" type="ntext" description="代码"/>
+        <field name="es5Code" type="ntext" description="ES5 代码"/>
     </entity>
 
     <entity name="NreferenceItem" type-code="039" description="N2NREFERENCE" parent="false" queryable="false">
@@ -669,6 +669,7 @@
         <field name="chatId" type="primary"/>
         <field name="subject" type="string" max-length="100" description="主题"/>
         <field name="contents" type="ntext" description="会话内容"/>
+        <field name="token" type="long" description="词元用量"/>
         <index field-list="createdBy,modifiedOn,createdOn"/>
     </entity>
 

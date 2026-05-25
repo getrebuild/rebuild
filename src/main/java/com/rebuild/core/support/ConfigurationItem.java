@@ -42,6 +42,7 @@ public enum ConfigurationItem {
 
     // 开放注册
     OpenSignUp(true),
+    OpenSignUpAllowDomain,
 
     // 动态登录背景图
     LiveWallpaper(true),
@@ -135,7 +136,7 @@ public enum ConfigurationItem {
     PageMourningMode(false),
 
     LoginPageStyle(44),
-    LoginBulletinBoard(),
+    LoginBulletinBoard,
 
     /**
      * @see com.rebuild.web.admin.ProtectedAdmin

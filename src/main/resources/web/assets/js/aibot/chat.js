@@ -219,6 +219,10 @@ class ChatInput extends React.Component {
   }
 
   attachFile() {
+    if (rb.commercial < 1) {
+      RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
+      return false
+    }
     this._$file.click()
   }
 
