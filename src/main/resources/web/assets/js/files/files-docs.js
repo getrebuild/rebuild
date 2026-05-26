@@ -610,7 +610,7 @@ class FilesList4Docs extends FilesList {
           </a>
           {rb.fileSharable && (
             <a title={$L('分享')} onClick={(e) => this._handleShare(item, e)}>
-              <i className="icon zmdi zmdi-share fs-16 up-1" />
+              <i className="icon zmdi zmdi-share fs-15 up-1" />
             </a>
           )}
         </span>
