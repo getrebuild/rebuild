@@ -81,6 +81,23 @@ public class AdvFilterController extends BaseController implements ShareTo {
         return RespBody.ok(JSONUtils.toJSONObject("id", record.getPrimary()));
     }
 
+    @PostMapping("advfilter/post-seqs")
+    public RespBody setsSeqs(@PathVariable String entity, HttpServletRequest request) {
+        ID user = getRequestUser(request);
+        JSONObject seqs = (JSONObject) ServletUtils.getRequestJson(request);
+
+        for (String k : seqs.keySet()) {
+            Record record = EntityHelper.forUpdate(ID.valueOf(k), user);
+            if (!UserHelper.isSelf(user, record.getPrimary())) {
+                return RespBody.error("无权操作");
+            }
+
+            record.setInt("seq", seqs.getIntValue(k));
+            Application.getBean(AdvFilterService.class).createOrUpdate(record);
+        }
+        return RespBody.ok();
+    }
+
     @GetMapping("advfilter/get")
     public RespBody gets(@PathVariable String entity, HttpServletRequest request) {
         ID filterId = getIdParameter(request, "id");

@@ -221,6 +221,7 @@ create table if not exists `filter_config` (
   `CONFIG`             text(65535) not null,
   `SHARE_TO`           varchar(4001) default 'SELF' comment '共享给谁 (可选值: ALL/SELF/$MemberID)',
   `FILTER_NAME`        varchar(100) not null comment '名称',
+  `SEQ`                int(11) default '0' comment '显示顺序',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -1018,4 +1019,4 @@ insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NU
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 73);
+  values ('021-9000000000000001', 'DBVer', 74);

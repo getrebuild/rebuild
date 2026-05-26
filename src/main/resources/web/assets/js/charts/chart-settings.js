@@ -525,7 +525,7 @@ class MyBookmarkSettings extends RbModalHandler {
                   </div>
                   <div className="tab-pane" id="MBA2">
                     <div>
-                      <label>{$L('进入列表')}</label>
+                      <label>{$L('打开列表')}</label>
                       <select className="form-control form-control-sm" ref={(c) => (this._$listEntity = c)}>
                         <option value="" />
                         <optgroup label={$L('业务实体')}>
@@ -667,7 +667,7 @@ class MyBookmarkSettings extends RbModalHandler {
     } else if (this._actionType === 2) {
       a.actionParams.push($('#MBA2 select').val())
       if (!a.actionParams[0]) {
-        return RbHighbar.create($L('请选择进入列表'))
+        return RbHighbar.create($L('请选择打开列表'))
       }
       if (this.state.filter) {
         a.actionParams.push(this.state.filter)

@@ -709,6 +709,17 @@ div.dataTables_filter .filter-badge:hover .close {
   width: 150px;
 }
 
+.adv-search .dropdown-item[data-seq]:hover::before {
+  font-family: 'Material Design Icons', serif;
+  content: '\F01DD';
+  color: #999;
+  position: absolute;
+  left: 3px;
+  top: 8px;
+  font-size: 17px;
+  cursor: move;
+}
+
 .rb-aside .page-head {
   margin-left: 280px;
 }

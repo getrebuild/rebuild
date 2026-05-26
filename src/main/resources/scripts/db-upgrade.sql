@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #74 (v4.4)
+alter table `filter_config`
+  add column `SEQ` int(11) default '0' comment '排序 (小到大)';
+
 -- #73 (v4.4)
 alter table `aibot_chat`
   add column `TOKEN` bigint(20) comment '词元用量';
