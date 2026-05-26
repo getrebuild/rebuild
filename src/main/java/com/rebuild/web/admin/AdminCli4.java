@@ -12,6 +12,8 @@ import cn.devezhao.persist4j.Field;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.impl.Field2SchemaFixer;
 import com.rebuild.core.metadata.impl.FixRefsIndex43;
 import com.rebuild.core.service.approval.ApprovalFields2Schema;
@@ -334,11 +336,25 @@ public class AdminCli4 {
         Field field = ef.length > 1 ? entity.getField(ef[1]) : null;
 
         if ("DATETIME40".equalsIgnoreCase(commands[2])) {
-            boolean s = field != null && new Field2SchemaFixer().fixDatetime40(field);
+            boolean s = false;
+            if (field == null) {
+                for (Field F : MetadataSorter.sortFields(entity, DisplayType.DATETIME)) {
+                    s = new Field2SchemaFixer().fixDatetime40(F);
+                }
+            } else {
+                s = new Field2SchemaFixer().fixDatetime40(field);
+            }
             return s ? "OK" : "WRAN: Cannot";
         }
         if ("UPLOADNUMBER41".equalsIgnoreCase(commands[2])) {
-            boolean s = field != null && new Field2SchemaFixer().fixUploadNumber41(field);
+            boolean s = false;
+            if (field == null) {
+                for (Field F : MetadataSorter.sortFields(entity, DisplayType.IMAGE, DisplayType.FILE)) {
+                    s = new Field2SchemaFixer().fixUploadNumber41(F);
+                }
+            } else {
+                s = new Field2SchemaFixer().fixUploadNumber41(field);
+            }
             return s ? "OK" : "WRAN: Cannot";
         }
         if ("ADDSEQ42".equalsIgnoreCase(commands[2])) {

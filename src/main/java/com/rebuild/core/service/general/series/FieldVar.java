@@ -72,7 +72,7 @@ public class FieldVar extends SeriesVar {
                 .uniqueNoFilter((ID) val, field.substring(field.indexOf(".") + 1));
         if (o == null || o[0] == null) return wrapValue(defaultValue);
 
-        // fix:4.4/4.3.2
+        // fix:4.3.8
         Field lastField = MetadataHelper.getLastJoinField(record.getEntity(), field);
         val = FieldValueHelper.wrapFieldValue(o[0], lastField, true);
         return wrapValue(val == null ? defaultValue : val);

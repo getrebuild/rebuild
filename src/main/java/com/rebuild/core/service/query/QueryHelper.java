@@ -147,15 +147,13 @@ public class QueryHelper {
      * @return
      */
     public static List<ID> detailIdsNoFilter(ID mainId, Entity detailEntity) {
-        String sql = String.format("select %s from %s where %s = ? order by autoId asc",
+        String orderBy = "autoId asc";
+        if (detailEntity.containsField(EntityHelper.Seq)) orderBy = " seq asc";
+
+        String sql = String.format("select %s from %s where %s = ? order by %s",
                 detailEntity.getPrimaryField().getName(),
                 detailEntity.getName(),
-                MetadataHelper.getDetailToMainField(detailEntity).getName());
-
-        // v4.2 明細排序
-        if (detailEntity.containsField(EntityHelper.Seq)) {
-            sql = sql.substring(0, sql.length() - 10) + " seq asc";
-        }
+                MetadataHelper.getDetailToMainField(detailEntity).getName(), orderBy);
 
         Query query = Application.createQueryNoFilter(sql).setParameter(1, mainId);
         Object[][] array = query.array();

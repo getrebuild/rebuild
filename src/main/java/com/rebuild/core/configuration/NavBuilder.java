@@ -9,6 +9,7 @@ package com.rebuild.core.configuration;
 
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -247,8 +248,10 @@ public class NavBuilder extends NavManager {
 
             if (bindEntity != null && MetadataHelper.containsEntity(bindEntity)) {
                 item.put("value", bindUrl);
-                return !Application.getPrivilegesManager()
-                        .allowRead(user, MetadataHelper.getEntity(bindEntity).getEntityCode());
+
+                Entity e = MetadataHelper.getEntity(bindEntity);
+                if (e.getMainEntity() != null) e = e.getMainEntity();
+                return !Application.getPrivilegesManager().allowRead(user, e.getEntityCode());
             }
         }
 
