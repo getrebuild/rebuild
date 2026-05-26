@@ -18,7 +18,7 @@ import com.rebuild.core.support.i18n.LanguageBundle;
 public enum ConfigurationItem {
 
     // 系统适用
-    SN, DBVer, AppBuild,
+    SN, DBVer, AppBuild, InstallBuild,
 
     // 缓存服务（安装/配置文件指定）
     CacheHost, CachePort, CacheUser, CachePassword,

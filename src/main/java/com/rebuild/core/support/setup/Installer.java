@@ -63,6 +63,7 @@ import java.util.TimeZone;
 import static com.rebuild.core.support.ConfigurationItem.CacheHost;
 import static com.rebuild.core.support.ConfigurationItem.CachePassword;
 import static com.rebuild.core.support.ConfigurationItem.CachePort;
+import static com.rebuild.core.support.ConfigurationItem.InstallBuild;
 
 /**
  * 系统安装
@@ -149,7 +150,7 @@ public class Installer implements InstallState {
         }
 
         try {
-            refresh();
+            initAfterRefresh();
         } catch (Exception ex) {
             FileUtils.deleteQuietly(dest);
             throw ex;
@@ -177,7 +178,7 @@ public class Installer implements InstallState {
     /**
      * 刷新配置
      */
-    protected void refresh() throws Exception {
+    protected void initAfterRefresh() throws Exception {
         // 重配置
         Application.getBean(BootEnvironmentPostProcessor.class).postProcessEnvironment(null, null);
 
@@ -208,6 +209,8 @@ public class Installer implements InstallState {
 
         // 初始化
         Application.init();
+        // 首次安装版本
+        RebuildConfiguration.set(InstallBuild, Application.BUILD);
 
         System.setProperty("SN", StringUtils.EMPTY);
         log.info("Installed SN : {}", License.SN());
