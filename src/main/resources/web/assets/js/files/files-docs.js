@@ -515,7 +515,7 @@ class FileMoveDlg extends RbFormHandler {
       <RbModal title={$L('移动文件')} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('更改至新目录')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('移至新目录')}</label>
             <div className="col-sm-7">
               <select className="form-control form-control-sm" name="inFolder" onChange={this.handleChange}>
                 {__FolderData.map((item) => {
