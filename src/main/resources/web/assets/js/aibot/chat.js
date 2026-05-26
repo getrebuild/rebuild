@@ -77,8 +77,9 @@ class Chat extends React.Component {
   }
 
   send(data) {
+    scrollToBottom(true)
     this._ChatMessages.appendMessage(data)
-    // FIXME 不延迟会覆盖?
+
     setTimeout(() => {
       this._ChatMessages.appendMessage({
         role: 'assistant',
@@ -89,12 +90,13 @@ class Chat extends React.Component {
           })
         },
       })
-    }, 20)
+    }, 40)
   }
 
   sendStream(data, onDone) {
+    scrollToBottom(true)
     this._ChatMessages.appendMessage(data)
-    // FIXME 不延迟会覆盖
+
     setTimeout(() => {
       this._ChatMessages.appendMessage({
         role: 'assistant',
@@ -282,7 +284,7 @@ class ChatMessages extends React.Component {
 
   setMessages(messages) {
     this.setState({ messages: messages }, () => {
-      setTimeout(scrollToBottom, 100)
+      setTimeout(scrollToBottom, 200)
     })
   }
 
@@ -290,7 +292,7 @@ class ChatMessages extends React.Component {
     let _lastScroll = 0
     const $ms = $(this._$messages).on('scroll', function () {
       let currentScroll = $(this).scrollTop()
-      if (_lastScroll - currentScroll > 30) {
+      if (_lastScroll - currentScroll > 60) {
         __evt_ScrollToBottomStop = true
       } else {
         if (__evt_ScrollToBottomStop) {
@@ -421,8 +423,10 @@ class ChatMessage extends React.Component {
   }
 }
 
-function scrollToBottom() {
+function scrollToBottom(force) {
+  if (force) __evt_ScrollToBottomStop = false
   if (__evt_ScrollToBottomStop) return
+
   $setTimeout(
     () => {
       const el = $('.chat-messages')[0]
