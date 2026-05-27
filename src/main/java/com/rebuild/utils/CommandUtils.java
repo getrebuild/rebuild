@@ -26,6 +26,17 @@ public class CommandUtils {
      * 执行命令行
      *
      * @param cmd
+     * @return
+     * @throws IOException
+     */
+    public static String execFor(String cmd) throws IOException {
+        return execFor(cmd, false);
+    }
+
+    /**
+     * 执行命令行
+     *
+     * @param cmd
      * @param secure
      * @return
      * @throws IOException

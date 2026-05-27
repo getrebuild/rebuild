@@ -54,6 +54,7 @@ public class PdfConverter {
             }
 
             return convert(path, type, true);
+
         } catch (IOException e) {
             throw new PdfConverterException(e);
         }
@@ -81,6 +82,11 @@ public class PdfConverter {
         type = StringUtils.defaultIfBlank(type, TYPE_PDF);
 
         final String filename = path.getFileName().toString();
+        // fix:CVE
+        if (!filename.equals(CommonsUtils.safeFilterForShell(filename))) {
+            throw new PdfConverterException("Attack filename detected : " + filename);
+        }
+
         final File outDir = RebuildConfiguration.getFileOfTemp(null);
         final String outName = filename.substring(0, filename.lastIndexOf(".") + 1) + type;
         final File dest = new File(outDir, outName);
@@ -100,7 +106,7 @@ public class PdfConverter {
         if (StringUtils.isBlank(soffice)) soffice = SystemUtils.IS_OS_WINDOWS ? "soffice.exe" : "libreoffice";
         String cmd = String.format("%s --headless --convert-to %s \"%s\" --outdir \"%s\"", soffice, type, path, outDir);
 
-        String echo = CommandUtils.execFor(cmd, false);
+        String echo = CommandUtils.execFor(cmd);
         if (!echo.isEmpty()) log.info(echo);
 
         if (dest.exists()) return dest.toPath();
