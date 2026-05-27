@@ -83,7 +83,7 @@ public class PdfConverter {
 
         final String filename = path.getFileName().toString();
         // fix:CVE
-        if (!filename.equals(CommonsUtils.safeFilterForShell(filename))) {
+        if (!filename.equalsIgnoreCase(CommonsUtils.safeFilterForShell(filename))) {
             throw new PdfConverterException("Attack filename detected : " + filename);
         }
 
