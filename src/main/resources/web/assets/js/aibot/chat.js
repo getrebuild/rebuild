@@ -121,15 +121,11 @@ class ChatInput extends React.Component {
           <div className="chat-input-input">
             <div className="chat-input-attach">
               {this.state.attach && this.state.attach.length > 0 && (
-                <ul className="m-0 mb-1 list-unstyled">
+                <RF>
                   {this.state.attach.map((item, idx) => {
-                    return (
-                      <li key={idx}>
-                        <Attach {...item} _ChatInput={this} />
-                      </li>
-                    )
+                    return <Attach {...item} _ChatInput={this} key={idx} />
                   })}
-                </ul>
+                </RF>
               )}
             </div>
             <textarea
