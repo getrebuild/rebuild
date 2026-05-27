@@ -149,7 +149,14 @@ class Share2Switch extends _ChangeHandler {
         <ul className="list-unstyled nav-list">
           {list.map((item) => {
             let st = item[2] === SHARE_ALL ? $L('全部用户') : item[2] === SHARE_SELF ? $L('私有') : `${$L('指定用户')}(${item[2].split(',').length})`
-            if (this.props.id === item[0]) st += ` [${$L('当前')}]`
+            if (this.props.id === item[0]) {
+              st = (
+                <RF>
+                  {st}
+                  <em className="badge badge-sm badge-info ml-1">{$L('当前')}</em>
+                </RF>
+              )
+            }
 
             return (
               <li key={'item-' + item[0]}>
@@ -264,9 +271,25 @@ const renderSwitchButton = (data, title, current) => {
         <div className="dropdown-menu">
           {data.map((x) => {
             let name = x[1] || $L('未命名')
-            if (x[3] === rb.currentUser) name = $L('我的%s', title)
-            else name += ` [${$L('共享的')}]`
-            if (current && current === x[0]) name += ` [${$L('当前')}]`
+            if (x[3] === rb.currentUser) {
+              name = $L('我的%s', title)
+            } else {
+              name = (
+                <RF>
+                  {name}
+                  <em className="badge badge-sm badge-ligh ml-1">{$L('共享的')}</em>
+                </RF>
+              )
+            }
+            if (current && current === x[0]) {
+              name = (
+                <RF>
+                  {name}
+                  <em className="badge badge-sm badge-info ml-1">{$L('当前')}</em>
+                </RF>
+              )
+            }
+
             return (
               <a key={`sw-${x[0]}`} className="dropdown-item" href={`?id=${x[0]}${x[4] ? `&entity=${x[4]}` : ''}`}>
                 {name}

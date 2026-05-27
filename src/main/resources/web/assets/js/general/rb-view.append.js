@@ -421,7 +421,7 @@ class LightAttachmentList extends RelatedList {
                   // eslint-disable-next-line react/jsx-no-undef
                   renderRbcomp(<FileShare file={item.id} />)
                 }}>
-                <i className="icon zmdi zmdi-share fs-16 up-1" />
+                <i className="icon zmdi zmdi-share fs-15 up-1" />
               </a>
             )}
           </span>

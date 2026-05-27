@@ -2079,7 +2079,7 @@ class MyBookmark extends BaseChart {
                 title = ''
               if (item.color) clazz += $isLight(item.color) ? '' : 'dark'
               if (item.actionType === 1) title = $L('新建记录')
-              else if (item.actionType === 2) title = $L('进入列表')
+              else if (item.actionType === 2) title = $L('打开列表')
               else if (item.actionType === 3) title = $L('打开外部地址')
 
               return (

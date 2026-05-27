@@ -89,8 +89,8 @@ class OnlineUserViewer extends RbAlert {
                   <span>
                     {item.fullName.replace('[CURRENT]', '')}
                     <div>
-                      {item.channel && <span className="badge badge-info">{$L(item.channel)}</span>}
-                      {item.fullName.includes('[CURRENT]') && <span className="badge badge-warning">{$L('当前')}</span>}
+                      {item.channel && <span className="badge badge-light">{$L(item.channel)}</span>}
+                      {item.fullName.includes('[CURRENT]') && <span className="badge badge-info">{$L('当前')}</span>}
                     </div>
                   </span>
                 </td>

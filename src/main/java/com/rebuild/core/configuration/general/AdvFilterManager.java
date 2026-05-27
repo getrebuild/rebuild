@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.configuration.general;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -15,7 +16,6 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.utils.JSONUtils;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -38,7 +38,7 @@ public class AdvFilterManager extends ShareToManager {
 
     @Override
     protected String getConfigFields() {
-        return super.getConfigFields() + ",filterName";
+        return super.getConfigFields() + ",filterName,seq";
     }
 
     /**
@@ -56,11 +56,19 @@ public class AdvFilterManager extends ShareToManager {
             ConfigBean e = new ConfigBean()
                     .set("id", c[0])
                     .set("editable", UserHelper.isSelf(user, (ID) c[2]))
-                    .set("name", c[4]);
+                    .set("name", c[4])
+                    .set("seq", ObjectUtils.toInt(c[5], 0));
             ces.add(e);
         }
 
-        ces.sort(Comparator.comparing(o -> o.getString("name")));
+        ces.sort((o1, o2) -> {
+            int seqCompare = o2.getInteger("seq").compareTo(o1.getInteger("seq"));
+            if (seqCompare != 0) {
+                return seqCompare;
+            }
+            return o1.getString("name").compareTo(o2.getString("name"));
+        });
+
         return JSONUtils.toJSONArray(ces.toArray(new ConfigBean[0]));
     }
 

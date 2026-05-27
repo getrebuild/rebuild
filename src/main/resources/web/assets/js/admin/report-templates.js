@@ -384,6 +384,7 @@ class ReportEditor extends ConfigFormDlg {
           confirm={(s) => {
             this.setState({ useFilter: s })
           }}
+          showCurrentUser
         />,
         function () {
           that._UseFilter = this

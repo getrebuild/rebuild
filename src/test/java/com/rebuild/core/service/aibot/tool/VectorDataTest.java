@@ -8,8 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.aibot.tool;
 
 import com.rebuild.TestSupport;
-import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.service.aibot.vector.EntityData;
+import com.rebuild.core.service.aibot.vector.EntitiesData;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -20,7 +19,7 @@ public class VectorDataTest extends TestSupport {
 
     @Test
     void testRecordUpsert() {
-        String c = new EntityData(MetadataHelper.getEntity(TestAllFields)).toVector();
+        String c = new EntitiesData().toVector();
         System.out.println(c);
     }
 }

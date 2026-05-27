@@ -59,6 +59,7 @@ const AdvFilters = {
       })
 
       const $menu = that.__$el.find('.dropdown-menu')
+      let editable = false
       $(res.data).each(function () {
         const item = this
         const $item = $(`<div class="dropdown-item J_custom" data-id="${item.id}"><a class="text-truncate"></a></div>`).appendTo($menu)
@@ -71,6 +72,9 @@ const AdvFilters = {
 
         // 可修改
         if (item.editable) {
+          editable = true
+          $item.attr('data-seq', item.seq || 0)
+
           const $action = $(
             `<div class="action"><a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('删除')}" class="danger-hover"><i class="zmdi zmdi-delete"></i></a></div>`,
           ).appendTo($item)
@@ -107,8 +111,8 @@ const AdvFilters = {
         }
       })
 
-      // ASIDE
-      if ($('#asideFilters').length) {
+      // 有侧栏
+      function setAsideFilters() {
         const $ghost = $('.adv-search .dropdown-menu').clone()
         $ghost.removeAttr('class')
         $ghost.removeAttr('style')
@@ -120,6 +124,54 @@ const AdvFilters = {
           that._clickFilter($(this), 'aside')
         })
         $ghost.clone(true).appendTo($('#asideFilters').empty())
+
+        // active
+        $(`#asideFilters .dropdown-item[data-id="${that.current || '$ALL$'}"]`).addClass('active')
+      }
+
+      const hasAside = $('#asideFilters').length > 0
+      if (hasAside) setAsideFilters()
+
+      // v4.4 排序
+      if (editable) {
+        $menu
+          .sortable({
+            items: '.dropdown-item[data-seq]',
+            axis: 'y',
+            stop: function (e, ui) {
+              let $item = $(ui.item)
+              let $itemPrev = $item.prev('.dropdown-item[data-seq]')
+              let $itemNext = $item.next('.dropdown-item[data-seq]')
+
+              let prevSeq = ~~($itemPrev.attr('data-seq') || -1)
+              let nextSeq = ~~($itemNext.attr('data-seq') || -1)
+              let step = 1000
+              let seq
+              if (prevSeq === -1 && nextSeq >= 0) {
+                seq = nextSeq + step
+              } else if (nextSeq === -1 && prevSeq >= 0) {
+                seq = prevSeq - step
+              } else if (prevSeq >= 0 && nextSeq >= 0) {
+                seq = Math.floor((prevSeq + nextSeq) / 2)
+              } else {
+                seq = step * 10000
+              }
+
+              $item.attr('data-seq', seq)
+
+              let seqs = {
+                [$item.data('id')]: seq,
+              }
+              $.post(`/app/${that.__entity}/advfilter/post-seqs`, JSON.stringify(seqs), (res) => {
+                if (res.error_code === 0) {
+                  setAsideFilters()
+                } else {
+                  RbHighbar.error(res.error_msg)
+                }
+              })
+            },
+          })
+          .disableSelection()
       }
 
       if (!$defaultFilter) $defaultFilter = that.__$el.find('.dropdown-item:eq(0)')

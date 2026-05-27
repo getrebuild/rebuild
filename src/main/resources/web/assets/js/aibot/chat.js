@@ -65,7 +65,7 @@ class Chat extends React.Component {
           this.setState({ chatid: d._chatid })
           this._ChatSidebar.setState({ current: d._chatid })
         }
-        this._ChatMessages.setMessages(d.messages || [])
+        this._ChatMessages.setMessages(d.messages || [], true)
       } else {
         this._ChatMessages.setMessages([{ error: res.error_msg }])
       }
@@ -77,8 +77,9 @@ class Chat extends React.Component {
   }
 
   send(data) {
+    scrollToBottom(true)
     this._ChatMessages.appendMessage(data)
-    // FIXME 不延迟会覆盖?
+
     setTimeout(() => {
       this._ChatMessages.appendMessage({
         role: 'assistant',
@@ -89,12 +90,13 @@ class Chat extends React.Component {
           })
         },
       })
-    }, 20)
+    }, 40)
   }
 
   sendStream(data, onDone) {
+    scrollToBottom(true)
     this._ChatMessages.appendMessage(data)
-    // FIXME 不延迟会覆盖
+
     setTimeout(() => {
       this._ChatMessages.appendMessage({
         role: 'assistant',
@@ -119,15 +121,11 @@ class ChatInput extends React.Component {
           <div className="chat-input-input">
             <div className="chat-input-attach">
               {this.state.attach && this.state.attach.length > 0 && (
-                <ul className="m-0 mb-1 list-unstyled">
+                <RF>
                   {this.state.attach.map((item, idx) => {
-                    return (
-                      <li key={idx}>
-                        <Attach {...item} _ChatInput={this} />
-                      </li>
-                    )
+                    return <Attach {...item} _ChatInput={this} key={idx} />
                   })}
-                </ul>
+                </RF>
               )}
             </div>
             <textarea
@@ -280,17 +278,18 @@ class ChatMessages extends React.Component {
     this.setMessages([...this.state.messages, data])
   }
 
-  setMessages(messages) {
+  setMessages(messages, forceScroll) {
     this.setState({ messages: messages }, () => {
-      setTimeout(scrollToBottom, 100)
+      scrollToBottom(forceScroll)
     })
   }
 
   componentDidMount() {
+    // scrollToBottom
     let _lastScroll = 0
     const $ms = $(this._$messages).on('scroll', function () {
       let currentScroll = $(this).scrollTop()
-      if (_lastScroll - currentScroll > 30) {
+      if (_lastScroll - currentScroll > 60) {
         __evt_ScrollToBottomStop = true
       } else {
         if (__evt_ScrollToBottomStop) {
@@ -421,8 +420,10 @@ class ChatMessage extends React.Component {
   }
 }
 
-function scrollToBottom() {
+function scrollToBottom(forceScroll) {
+  if (forceScroll) __evt_ScrollToBottomStop = false
   if (__evt_ScrollToBottomStop) return
+
   $setTimeout(
     () => {
       const el = $('.chat-messages')[0]

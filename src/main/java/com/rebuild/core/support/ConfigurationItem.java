@@ -18,7 +18,7 @@ import com.rebuild.core.support.i18n.LanguageBundle;
 public enum ConfigurationItem {
 
     // 系统适用
-    SN, DBVer, AppBuild,
+    SN, DBVer, AppBuild, InstallBuild,
 
     // 缓存服务（安装/配置文件指定）
     CacheHost, CachePort, CacheUser, CachePassword,
@@ -61,16 +61,16 @@ public enum ConfigurationItem {
     PasswordPolicy(1),
 
     // 变更历史数据保留天数（0为禁用）
-    RevisionHistoryKeepingDays(30),
+    RevisionHistoryKeepingDays(90),
 
     // 回收站数据保留天数（0为禁用）
-    RecycleBinKeepingDays(30),
+    RecycleBinKeepingDays(90),
 
     // 启用数据库备份
     DBBackupsEnable(true),
 
     // 数据备份保留时间（0为禁用）
-    DBBackupsKeepingDays(30),
+    DBBackupsKeepingDays(90),
 
     // 允许同一用户多个会话
     MultipleSessions(true),

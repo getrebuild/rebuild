@@ -134,7 +134,7 @@ class SharedFiles extends RbModalHandler {
         <div className="sharing-list ml-1 mr-1">
           {this.state.data && this.state.data.length === 0 ? (
             <div className="list-nodata pt-4">
-              <i className="zmdi mdi mdi-share-variant-outline" />
+              <i className="zmdi zmdi-share" />
               <p>{$L('没有分享文件')}</p>
             </div>
           ) : (
@@ -143,6 +143,7 @@ class SharedFiles extends RbModalHandler {
                 <tr>
                   <th colSpan="2">{$L('分享文件')}</th>
                   <th className="text-right">{$L('过期时间')}</th>
+                  <th />
                 </tr>
               </thead>
               <tbody ref={(c) => (this._$tbody = c)}>
@@ -157,12 +158,22 @@ class SharedFiles extends RbModalHandler {
                         <td width="36" className="pt-1 pb-0">
                           {icon}
                         </td>
-                        <td className="position-relative">
+                        <td>
                           <a href={item[0]} target="_blank" className="link">
                             {$fileCutName(item[1])}
                           </a>
-                          <div className="fop-action">
-                            <a className="link J_copy" data-clipboard-text={item[0]} title={$L('复制分享链接')}>
+                        </td>
+                        <td width="180" className="text-right pr-0">
+                          <div className="fs-12">
+                            <span title={item[2]}>{item[2] ? $fromNow(item[2]) : <span className="text-warning">{$L('永久有效')}</span>}</span>
+                            <div className="text-muted" title={item[3]}>
+                              {rb.isAdminUser ? $L('由 %s 分享于 %s', item[4], $fromNow(item[3])) : $L('分享于 %s', $fromNow(item[3]))}
+                            </div>
+                          </div>
+                        </td>
+                        <td width="70" className="text-right pr-0">
+                          <div className="fop-action" style={{ display: 'inline-block', position: 'static' }}>
+                            <a className="J_copy" data-clipboard-text={item[0]} title={$L('复制分享链接')}>
                               <i className="icon zmdi zmdi-copy fs-15" />
                             </a>
                             <a
@@ -182,14 +193,6 @@ class SharedFiles extends RbModalHandler {
                               }}>
                               <i className="icon zmdi zmdi-delete fs-17" />
                             </a>
-                          </div>
-                        </td>
-                        <td title={item[2]} className="text-right">
-                          <div className="fs-12">
-                            <span title={item[2]}>{item[2] ? $fromNow(item[2]) : <span className="text-warning">{$L('永久有效')}</span>}</span>
-                            <div className="text-muted" title={item[3]}>
-                              {rb.isAdminUser ? $L('由 %s 分享于 %s', item[4], $fromNow(item[3])) : $L('分享于 %s', $fromNow(item[3]))}
-                            </div>
                           </div>
                         </td>
                       </tr>

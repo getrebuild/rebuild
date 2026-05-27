@@ -93,36 +93,33 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #fff;
 }
 
-.chat-input .chat-input-attach ul {
-  margin: 0;
-}
-
-.chat-input .chat-input-attach ul > li {
-  margin-right: 5px;
-  margin-bottom: 0;
-  display: inline-block;
-}
-
-.chat-input .chat-input-attach ul > li > span,
+.chat-input .chat-input-attach > span,
 .chat-message .msg-user > .msg-attach > a {
   background-color: rgba(0, 0, 0, 0.1);
   color: #444;
   padding: 4px 10px;
   border-radius: 30px;
   display: inline-block;
-  font-size: 13px;
+  font-size: 12px;
   max-width: 501px;
-  margin-left: 5px;
+  margin-bottom: 4px;
+  line-height: 1.5;
 }
 
-.chat-input .chat-input-attach ul > li > span a.close {
-  font-weight: normal;
-  text-shadow: none;
+.chat-input .chat-input-attach > span + span,
+.chat-message .msg-user > .msg-attach > a + a {
   margin-left: 4px;
 }
 
+.chat-input .chat-input-attach > span > a.close {
+  font-weight: normal;
+  text-shadow: none;
+  margin-left: 4px;
+  max-height: 18px;
+}
+
 .chat-messages {
-  padding: 16px 16px 80px;
+  padding: 16px 16px 100px;
   height: 600px;
   overflow: auto;
 }

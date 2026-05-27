@@ -515,7 +515,7 @@ class FileMoveDlg extends RbFormHandler {
       <RbModal title={$L('移动文件')} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('更改至新目录')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('移至新目录')}</label>
             <div className="col-sm-7">
               <select className="form-control form-control-sm" name="inFolder" onChange={this.handleChange}>
                 {__FolderData.map((item) => {
@@ -610,7 +610,7 @@ class FilesList4Docs extends FilesList {
           </a>
           {rb.fileSharable && (
             <a title={$L('分享')} onClick={(e) => this._handleShare(item, e)}>
-              <i className="icon zmdi zmdi-share fs-16 up-1" />
+              <i className="icon zmdi zmdi-share fs-15 up-1" />
             </a>
           )}
         </span>
