@@ -65,7 +65,7 @@ class Chat extends React.Component {
           this.setState({ chatid: d._chatid })
           this._ChatSidebar.setState({ current: d._chatid })
         }
-        this._ChatMessages.setMessages(d.messages || [])
+        this._ChatMessages.setMessages(d.messages || [], true)
       } else {
         this._ChatMessages.setMessages([{ error: res.error_msg }])
       }
@@ -282,13 +282,14 @@ class ChatMessages extends React.Component {
     this.setMessages([...this.state.messages, data])
   }
 
-  setMessages(messages) {
+  setMessages(messages, forceScroll) {
     this.setState({ messages: messages }, () => {
-      setTimeout(scrollToBottom, 200)
+      scrollToBottom(forceScroll)
     })
   }
 
   componentDidMount() {
+    // scrollToBottom
     let _lastScroll = 0
     const $ms = $(this._$messages).on('scroll', function () {
       let currentScroll = $(this).scrollTop()
@@ -423,8 +424,8 @@ class ChatMessage extends React.Component {
   }
 }
 
-function scrollToBottom(force) {
-  if (force) __evt_ScrollToBottomStop = false
+function scrollToBottom(forceScroll) {
+  if (forceScroll) __evt_ScrollToBottomStop = false
   if (__evt_ScrollToBottomStop) return
 
   $setTimeout(
