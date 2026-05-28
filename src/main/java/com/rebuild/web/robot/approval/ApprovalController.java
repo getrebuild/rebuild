@@ -210,6 +210,7 @@ public class ApprovalController extends BaseController {
         data.put("freeApproval", currentFlowNode.freeApproval());
         // 自由审批无结束
         if (currentFlowNode.freeApproval()) {
+            data.put("signMode", currentFlowNode.getSignMode());
             data.put("isLastStep", false);
             data.put("approverSelfSelecting", true);
             data.put("ccSelfSelecting", true);

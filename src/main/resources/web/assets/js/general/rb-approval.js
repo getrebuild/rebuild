@@ -306,7 +306,8 @@ class ApprovalUsersForm extends RbFormHandler {
         {approverHas ? (
           <div className="form-group">
             <label>
-              <i className="zmdi zmdi-account zicon" /> {`${this._approverLabel || $L('下一审批人')} (${this.state.signMode === 'AND' ? $L('会签') : $L('或签')})`}
+              <i className="zmdi zmdi-account zicon" />
+              {`${this._approverLabel || $L('下一审批人')} (${this.state.signMode === 'AND' ? $L('会签') : $L('或签')})`}
             </label>
             <div>
               {(this.state.nextApprovers || []).map((item) => {
