@@ -492,8 +492,20 @@ class FilterItem extends React.Component {
   }
 
   renderValue() {
-    let valComp
-    if (this.state.op === 'BW') {
+    let valComp = (
+      <input
+        className="form-control form-control-sm"
+        ref={(c) => (this._filterVal = c)}
+        onChange={(e) => this.valueHandle(e)}
+        onBlur={(e) => this.valueCheck(e)}
+        value={this.state.value || ''}
+        placeholder={this.props.placeholder || null}
+      />
+    )
+
+    if (this.state.op === 'REP') {
+      return valComp
+    } else if (this.state.op === 'BW') {
       valComp = (
         <div className="val-range">
           <input
@@ -538,17 +550,6 @@ class FilterItem extends React.Component {
           <option value="T">{$L('是')}</option>
           <option value="F">{$L('否')}</option>
         </select>
-      )
-    } else {
-      valComp = (
-        <input
-          className="form-control form-control-sm"
-          ref={(c) => (this._filterVal = c)}
-          onChange={(e) => this.valueHandle(e)}
-          onBlur={(e) => this.valueCheck(e)}
-          value={this.state.value || ''}
-          placeholder={this.props.placeholder || null}
-        />
       )
     }
 
@@ -672,7 +673,7 @@ class FilterItem extends React.Component {
       this.removeDatepicker()
     }
 
-    if (this.isBizzField()) {
+    if (this.isBizzField() && state.op !== 'REP') {
       let ifRefField = REFENTITY_CACHE[state.field]
       ifRefField = state.op === 'SFT' ? 'Team' : ifRefField[0]
       this.renderBizzSearch(ifRefField)
