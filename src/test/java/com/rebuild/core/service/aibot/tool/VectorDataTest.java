@@ -9,7 +9,12 @@ package com.rebuild.core.service.aibot.tool;
 
 import com.rebuild.TestSupport;
 import com.rebuild.core.service.aibot.vector.EntitiesData;
+import com.rebuild.core.service.aibot.vector.FileData;
 import org.junit.jupiter.api.Test;
+import org.springframework.util.ResourceUtils;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  * @author Zixin
@@ -18,8 +23,15 @@ import org.junit.jupiter.api.Test;
 public class VectorDataTest extends TestSupport {
 
     @Test
-    void testRecordUpsert() {
+    void testEntitiesData() {
         String c = new EntitiesData().toVector();
+        System.out.println(c);
+    }
+
+    @Test
+    void testFileData() throws FileNotFoundException {
+        File file = ResourceUtils.getFile("classpath:classification-demo.xlsx");
+        String c = new FileData(file.getAbsolutePath()).toVector();
         System.out.println(c);
     }
 }

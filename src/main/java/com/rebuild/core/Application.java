@@ -15,7 +15,6 @@ import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.query.QueryedRecord;
-import cn.hutool.crypto.SecureUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -85,9 +84,6 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     public static final int BUILD = 4040000;
 
     static {
-        // v4.4 Close `Bouncy Castle` `has unsigned entries - log4j2.xml`
-        SecureUtil.disableBouncyCastle();
-
         // Driver for DB
         try {
             Class.forName(com.mysql.cj.jdbc.Driver.class.getName());
