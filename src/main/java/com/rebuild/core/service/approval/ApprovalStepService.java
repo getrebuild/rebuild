@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowRevokeApproval;
+import static com.rebuild.core.service.approval.ApprovalProcessor.KEY_FREE44;
 
 /**
  * 审批流程。此类所有方法不应直接调用，而是通过 ApprovalProcessor 封装类
@@ -245,6 +246,10 @@ public class ApprovalStepService extends BaseService {
         // 或签/会签
         boolean goNextNode = true;
 
+        // 自由审批
+        boolean freeApproval = nextNode != null && nextNode.endsWith(KEY_FREE44);
+        if (freeApproval) nextNode = nextNode.substring(0, nextNode.length() - KEY_FREE44.length());
+
         final String approveMsg = ApprovalHelper.buildApproveMsg(entityMeta);
 
         // 或签:一人通过其他作废
@@ -254,7 +259,7 @@ public class ApprovalStepService extends BaseService {
         // 会签:检查是否都签了
         else {
             Object[][] currentNodeApprovers = Application.createQueryNoFilter(
-                    "select state,isWaiting,stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F'")
+                    "select state,isWaiting,stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F' and isWaiting = 'F'")
                     .setParameter(1, recordId)
                     .setParameter(2, approvalId)
                     .setParameter(3, currentNode)
@@ -301,11 +306,6 @@ public class ApprovalStepService extends BaseService {
             return;
         }
 
-        // 自由审批
-        boolean freeApproval = nextNode != null && nextNode.endsWith("$FREE");
-        String nextNodeFree = nextNode;
-        if (freeApproval) nextNode = nextNode.substring(0, nextNode.length() - 5);
-
         // 进入下一步
         if (goNextNode) {
             recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNode);
@@ -319,10 +319,11 @@ public class ApprovalStepService extends BaseService {
         // 下一步审批人
         Set<ID> nextSteps = new HashSet<>();
         if (nextApprovers != null) {
-            String nodeBatch = getBatchNo(recordId, approvalId, nextNodeFree);
+            String nextNodeFree = nextNode + (freeApproval ? KEY_FREE44 : "");
+            String nextNodeBatch = getBatchNo(recordId, approvalId, nextNodeFree);
             for (ID to : nextApprovers) {
                 ID created = createStepIfNeed(
-                        recordId, approvalId, nextNode, to, !goNextNode, currentNode, (Date) stepObject[4], nodeBatch, freeApproval);
+                        recordId, approvalId, nextNode, to, !goNextNode, currentNode, (Date) stepObject[4], nextNodeBatch);
                 if (created != null) nextSteps.add(created);
 
                 // 非会签通知审批
@@ -390,16 +391,15 @@ public class ApprovalStepService extends BaseService {
     }
 
     // 创建审批步骤
-    private ID createStepIfNeed(ID recordId, ID approvalId, String node, ID approver, boolean isWaiting, String prevNode, Date afterCreate, String nodeBatch, boolean freeApproval) {
+    private ID createStepIfNeed(ID recordId, ID approvalId, String node, ID approver, boolean isWaiting, String prevNode, Date afterCreate, String nodeBatch) {
         Object[] hasApprover = Application.createQueryNoFilter(
-                "select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and approver = ? and isCanceled = 'F' and createdOn >= ?")
+                "select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and approver = ? and isCanceled = 'F' and state = 1 and createdOn >= ?")
                 .setParameter(1, recordId)
                 .setParameter(2, approvalId)
                 .setParameter(3, node)
                 .setParameter(4, approver)
                 .setParameter(5, afterCreate)
                 .unique();
-        if (freeApproval) hasApprover = null;
         if (hasApprover != null) return null;
 
         Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, approver);
@@ -494,8 +494,9 @@ public class ApprovalStepService extends BaseService {
         // 作废之前的
         cancelAliveSteps(recordId, null, null, null, false);
 
+        String batchNo = getBatchNo(recordId, useApproval, FlowNode.NODE_ROOT);
         ID stepId = createStepIfNeed(recordId, useApproval, FlowNode.NODE_AUTOAPPROVAL, useApprover,
-                Boolean.FALSE, FlowNode.NODE_ROOT, CalendarUtils.now(), getBatchNo(recordId, useApproval, FlowNode.NODE_ROOT), false);
+                false, FlowNode.NODE_ROOT, CalendarUtils.now(), batchNo);
 
         Record step = EntityHelper.forUpdate(stepId, useApprover, false);
         step.setInt("state", ApprovalState.APPROVED.getState());
@@ -619,7 +620,7 @@ public class ApprovalStepService extends BaseService {
         int c = 0;
         for (ID to : approvers) {
             if (to.equals(approver)) continue;
-            ID created = createStepIfNeed(recordId, approvalId, node, to, Boolean.FALSE, prevNode, fakeDate, nodeBatch, false);
+            ID created = createStepIfNeed(recordId, approvalId, node, to, Boolean.FALSE, prevNode, fakeDate, nodeBatch);
 
             if (created != null) {
                 // 标记加签
@@ -705,7 +706,7 @@ public class ApprovalStepService extends BaseService {
 
     private String getBatchNo(ID recordId, ID approvalId, String node) {
         Object[] lastNode = Application.getQueryFactory().createQueryNoFilter(
-                "select node,nodeBatch from RobotApprovalStep where recordId = ? and approvalId = ? order by createdOn desc")
+                "select node,nodeBatch,isCanceled,state from RobotApprovalStep where recordId = ? and approvalId = ? order by createdOn desc")
                 .setParameter(1, recordId)
                 .setParameter(2, approvalId)
                 .unique();
@@ -714,6 +715,13 @@ public class ApprovalStepService extends BaseService {
         }
 
         if (lastNode != null && lastNode[1] != null) {
+            // 自由审批
+            if (node.endsWith(KEY_FREE44)) {
+                if ((Boolean) lastNode[2] == false && (Integer) lastNode[3] == ApprovalState.DRAFT.getState()) {
+                    return (String) lastNode[1];
+                }
+            }
+
             String index = ((String) lastNode[1]).split("-")[1];
             return String.format("%s-%d", node, ObjectUtils.toInt(index) + 1);
         }
