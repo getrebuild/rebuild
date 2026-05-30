@@ -184,7 +184,7 @@ public class FlowNode {
      */
     public Set<ID> getSpecUsers(ID operator, ID record) {
         JSONArray userDefs = getDataMap().getJSONArray("users");
-        if (CollectionUtils.isEmpty(userDefs)) return Collections.emptySet();
+        if (CollectionUtils.isEmpty(userDefs)) return new HashSet<>();
 
         String userType = userDefs.getString(0);
         if (USER_SELF.equalsIgnoreCase(userType)) {

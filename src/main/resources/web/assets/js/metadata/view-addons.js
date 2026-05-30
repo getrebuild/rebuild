@@ -198,7 +198,7 @@ class ShowStyles2 extends ShowStyles {
       $.get(`/admin/entity/${this.props.entity}/get-forms-attr`, (res) => {
         res.data &&
           res.data.forEach((item) => {
-            $(`<option value="${item.id}">${item.name}</option>`).appendTo(this._$formLayout)
+            $(`<option value="${item.id}">${item.name || $L('默认布局')}</option>`).appendTo(this._$formLayout)
           })
         this.props.layout && $(this._$formLayout).val(this.props.layout)
       })

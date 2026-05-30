@@ -38,6 +38,13 @@ public class ApprovalHub {
 
     public static final ApprovalHub instance = new ApprovalHub();
 
+    public static final int TYPE_REFERRAL = 1; // 转审
+    public static final int TYPE_COUNTERSIGN = 2; // 加签
+
+    // @see ApprovalState
+    public static final int STATE_INVALID = 100;  // 作废了
+    public static final int STATE_REFERRAL = 101;  // 转审了
+
     private ApprovalHub() {
     }
 
@@ -74,30 +81,69 @@ public class ApprovalHub {
     /**
      * @param approvalStepId
      * @param nextApprovalStepIds
+     * @param type 1=转审, 2=加签
+     */
+    public void awareApprove(ID approvalStepId, Collection<ID> nextApprovalStepIds, int type) {
+        if (type == TYPE_REFERRAL) {
+            Object[] approveHub = getApproveHub(approvalStepId);
+            if (approveHub == null) return;
+
+            ID opUser = UserContextHolder.getUser();
+            Record r = EntityHelper.forUpdate((ID) approveHub[0], opUser);
+            r.setInt("state", STATE_REFERRAL);
+            r.setDate("approvedOn", CalendarUtils.now());
+            Application.getCommonsService().update(r);
+
+            List<Record> records = buildApproves(nextApprovalStepIds, (ID) approveHub[3], opUser, (String) approveHub[2]);
+            if (!records.isEmpty()) {
+                Application.getCommonsService().createOrUpdate(records.toArray(new Record[0]));
+            }
+            return;
+        }
+
+        if (type == TYPE_COUNTERSIGN) {
+            Object[] approveHub = getApproveHub(approvalStepId);
+            if (approveHub == null) return;
+
+            ID opUser = UserContextHolder.getUser();
+
+            List<Record> records = buildApproves(nextApprovalStepIds, (ID) approveHub[3], opUser, (String) approveHub[2]);
+            if (!records.isEmpty()) {
+                Application.getCommonsService().createOrUpdate(records.toArray(new Record[0]));
+            }
+            return;
+        }
+
+        awareApprove(approvalStepId, nextApprovalStepIds, null);
+    }
+
+    /**
+     * @param approvalStepId
+     * @param nextApprovalStepIds
      * @param ccUsers
      */
     public void awareApprove(ID approvalStepId, Collection<ID> nextApprovalStepIds, Collection<ID> ccUsers) {
-        // 找到审批节点对应记录
-        Object[] approveHub = Application.createQueryNoFilter(
-                "select hubId,approvalStepId.state,hubBatch,approvalStepId.recordId from RobotApprovalHub where approvalStepId = ? and userApprove is not null")
-                .setParameter(1, approvalStepId)
-                .unique();
+        Object[] approveHub = getApproveHub(approvalStepId);
         if (approveHub == null) return;
 
         ID opUser = UserContextHolder.getUser();
         int approvalState = (Integer) approveHub[1];
+        ID recordId = (ID) approveHub[3];
 
-        Record r = EntityHelper.forUpdate((ID) approveHub[0], opUser);
-        r.setInt("state", approvalState);
-        r.setDate("approvedOn", CalendarUtils.now());
-        Application.getCommonsService().update(r);  // 先保存
+        // 转审的
+        if ((Integer) approveHub[4] < 100) {
+            Record r = EntityHelper.forUpdate((ID) approveHub[0], opUser);
+            r.setInt("state", approvalState);
+            r.setDate("approvedOn", CalendarUtils.now());
+            Application.getCommonsService().update(r);
+        }
 
         List<Record> records = new ArrayList<>();
         String hubBatch = (String) approveHub[2];
 
         // 处理作废节点
         Object[][] batchHubs = Application.createQueryNoFilter(
-                "select hubId,state,userSubmit,userApprove,userCc,approvalStepId.isCanceled,approvalStepId.state from RobotApprovalHub where hubBatch = ?")
+                "select hubId,state,userSubmit,userApprove,userCc,approvalStepId.isCanceled,approvalStepId.state from RobotApprovalHub where hubBatch = ? and state < 100")
                 .setParameter(1, hubBatch)
                 .array();
         int hasUserApprove = 0;
@@ -120,13 +166,13 @@ public class ApprovalHub {
         if (isAllStepsEnd) {
             for (Object[] hub : batchHubs) {
                 if ((Integer) hub[1] == DRAFT.getState()) {
-                    r = EntityHelper.forUpdate((ID) hub[0], opUser);
+                    Record r = EntityHelper.forUpdate((ID) hub[0], opUser);
                     r.setDate("approvedOn", CalendarUtils.now());
 
                     ID userApprove = (ID) hub[3];
                     boolean isCanceled = (Boolean) hub[5];
                     if (userApprove != null && isCanceled) {
-                        r.setInt("state", 0);  // 作废
+                        r.setInt("state", STATE_INVALID);
                     } else {
                         r.setInt("state", approvalState);
                     }
@@ -139,12 +185,10 @@ public class ApprovalHub {
         // 新批次
         String hubBatchNext = CommonsUtils.randomHex(true);
         ID aNextStepId = CollectionUtils.isNotEmpty(nextApprovalStepIds) ? nextApprovalStepIds.iterator().next() : null;
-        ID recordId = aNextStepId == null ? null : (ID) QueryHelper.queryFieldValue(aNextStepId, "recordId");
 
         // 审批节点-如果没有后续审批，就使用最后一次的批次
         if (aNextStepId == null) {
             hubBatchNext = hubBatch;
-            recordId = (ID) approveHub[3];
         } else {
             records.addAll(buildApproves(nextApprovalStepIds, recordId, opUser, hubBatchNext));
         }
@@ -160,6 +204,16 @@ public class ApprovalHub {
         if (!records.isEmpty()) {
             Application.getCommonsService().createOrUpdate(records.toArray(new Record[0]));
         }
+    }
+
+    // 找到审批节点对应记录
+    private Object[] getApproveHub(ID approvalStepId) {
+        Object[] o = Application.createQueryNoFilter(
+                "select hubId,approvalStepId.state,hubBatch,approvalStepId.recordId,state from RobotApprovalHub where approvalStepId = ? and userApprove is not null")
+                .setParameter(1, approvalStepId)
+                .unique();
+        if (o == null) log.warn("No ApprovalHub for stepId: {}", approvalStepId);
+        return o;
     }
 
     /**
@@ -195,8 +249,8 @@ public class ApprovalHub {
         }
     }
 
-    // 审批
-    List<Record> buildApproves(Collection<ID> nextApprovalStepIds, ID recordId, ID opUser, String hubBatch) {
+    // 构造审批
+    private List<Record> buildApproves(Collection<ID> nextApprovalStepIds, ID recordId, ID opUser, String hubBatch) {
         if (CollectionUtils.isEmpty(nextApprovalStepIds)) return Collections.emptyList();
 
         List<Record> records = new ArrayList<>();
@@ -211,8 +265,8 @@ public class ApprovalHub {
         return records;
     }
 
-    // 抄送
-    List<Record> buildCcs(ID approvalStepId, ID recordId, Collection<ID> ccUsers, ID opUser, String hubBatch, int state) {
+    // 构造抄送
+    private List<Record> buildCcs(ID approvalStepId, ID recordId, Collection<ID> ccUsers, ID opUser, String hubBatch, int state) {
         if (CollectionUtils.isEmpty(ccUsers)) return Collections.emptyList();
 
         List<Record> records = new ArrayList<>();

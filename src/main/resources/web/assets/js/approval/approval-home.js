@@ -12,8 +12,10 @@ const _STATES = {
   '1': ['待处理', 'warning'],
   '10': ['通过', 'success'],
   '11': ['驳回', 'danger'],
+  '21': ['驳回', 'danger'],
   '12': ['撤回', 'danger'],
-  '0': ['无效'],
+  '100': ['已作废'],
+  '101': ['已转审'],
 }
 
 let currentSearch
@@ -65,7 +67,13 @@ class ApprovalList extends React.Component {
                 </div>
               </div>
               <div className="detail record-info">
-                <a href="#/View" onClick={(e) => RbViewModal.openView({ id: item.recordMeta[0] })} title={$L('查看记录')}>
+                <a
+                  href="#/View"
+                  onClick={(e) => {
+                    $stopEvent(e)
+                    RbViewModal.openView({ id: item.recordMeta[0] })
+                  }}
+                  title={$L('查看记录')}>
                   {item.recordMeta[1]}
                 </a>
                 <div className="extras">

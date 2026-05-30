@@ -113,8 +113,7 @@ public class ApprovalController extends BaseController {
         final ID user = getRequestUser(request);
         final ApprovalStatus status = ApprovalHelper.getApprovalStatus(recordId);
 
-        JSONObject data = new JSONObject();
-        data.put("entityName", approvalEntity.getName());
+        JSONObject data = JSONUtils.toJSONObject("entityName", approvalEntity.getName());
 
         int stateVal = status.getCurrentState().getState();
         data.put("state", stateVal);
@@ -189,7 +188,7 @@ public class ApprovalController extends BaseController {
         Set<ID> ccList = nextNodes.getCcUsers(user, recordId, null);
 
         // 自选审批人
-        approverList.addAll(approvalProcessor.getSelfSelectedApprovers(nextNodes));
+        approverList.addAll(approvalProcessor.getSelfSelectedApprovers(nextNodes.getApprovalNode()));
 
         JSONObject data = new JSONObject();
         data.put("nextApprovers", formatUsers(approverList));
@@ -210,9 +209,14 @@ public class ApprovalController extends BaseController {
         data.put("freeApproval", currentFlowNode.freeApproval());
         // 自由审批无结束
         if (currentFlowNode.freeApproval()) {
+            data.put("signMode", currentFlowNode.getSignMode());
             data.put("isLastStep", false);
             data.put("approverSelfSelecting", true);
             data.put("ccSelfSelecting", true);
+
+            approverList = currentFlowNode.getSpecUsers(user, recordId);
+            approverList.addAll(approvalProcessor.getSelfSelectedApprovers(currentFlowNode));
+            data.put("nextApprovers", formatUsers(approverList));
         }
 
         // 0=选填, 1=必填, 2=超时必填, 10=隐藏
