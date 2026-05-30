@@ -352,6 +352,15 @@ public class CommonsUtils {
     }
 
     /**
+     * @param input
+     * @return
+     */
+    public static String safeFilterForShell(String input) throws SecurityException {
+        if (StringUtils.isBlank(input)) return "";
+        return input.replaceAll("[;&$`|!?#\\\\]+", "");
+    }
+
+    /**
      * 日期转换
      *
      * @param source
