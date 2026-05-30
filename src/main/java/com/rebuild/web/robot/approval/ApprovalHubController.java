@@ -16,12 +16,10 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.customized.RecordAccessor;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
@@ -145,7 +143,7 @@ public class ApprovalHubController extends BaseController {
         if (type == 1) {
             return String.format("userApprove = '%s' and state = 1 and approvalStepId.isWaiting = 'F'", user);
         } else if (type == 2) {
-            return String.format("userApprove = '%s' and state in (10,11,12)", user);
+            return String.format("userApprove = '%s' and state in (10,11,12,21,101)", user);
         } else if (type == 3) {
             return String.format("userSubmit = '%s'", user);
         } else if (type == 4) {

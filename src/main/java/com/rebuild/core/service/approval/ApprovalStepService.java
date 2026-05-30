@@ -51,12 +51,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowRevokeApproval;
+import static com.rebuild.core.service.approval.ApprovalHub.TYPE_COUNTERSIGN;
+import static com.rebuild.core.service.approval.ApprovalHub.TYPE_REFERRAL;
 import static com.rebuild.core.service.approval.ApprovalProcessor.KEY_FREE44;
 
 /**
@@ -215,11 +218,18 @@ public class ApprovalStepService extends BaseService {
         // 拒绝了直接返回
         if (state == ApprovalState.REJECTED || state == ApprovalState.BACKED) {
             // 拒绝了，同一节点的其他审批人全部作废
-            Set<ID> cancelledSteps = cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, true);
+            cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, true);
+
+            Collection<ID> backedSteps = null;
 
             // 退回
             if (state == ApprovalState.BACKED) {
-                ID[] backedApprovers = createBackedNodes(currentNode, nextNode, recordId, approvalId, approver, remark);
+                backedSteps = createBackedNodes(currentNode, nextNode, recordId, approvalId, approver, remark);
+
+                Set<ID> backedApprovers = new HashSet<>();
+                for (ID id : backedSteps) {
+                    backedApprovers.add((ID) QueryHelper.queryFieldValue(id, "approver"));
+                }
 
                 recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNode);
                 setApprovalStepX37(recordOfMain, backedApprovers);
@@ -239,7 +249,7 @@ public class ApprovalStepService extends BaseService {
                 execTriggersWhenSR(recordOfMain, TriggerWhen.REJECTED);
             }
 
-            ApprovalHub.instance.awareApprove(stepRecordId, null, ccUsers);
+            ApprovalHub.instance.awareApprove(stepRecordId, backedSteps, ccUsers);
             return;
         }
 
@@ -300,8 +310,8 @@ public class ApprovalStepService extends BaseService {
             sendNotification(submitter, approvedMsg, recordId);
 
             Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED, approver);
-            execSopSteps38(recordOfMain);
 
+            execSopSteps38(recordOfMain);
             ApprovalHub.instance.awareApprove(stepRecordId, null, ccUsers);
             return;
         }
@@ -333,9 +343,8 @@ public class ApprovalStepService extends BaseService {
             }
         }
 
-        ApprovalHub.instance.awareApprove(stepRecordId, nextSteps, ccUsers);
-
         execSopSteps38(recordOfMain);
+        ApprovalHub.instance.awareApprove(stepRecordId, nextSteps, ccUsers);
     }
 
     /**
@@ -385,7 +394,6 @@ public class ApprovalStepService extends BaseService {
             super.update(recordOfMain);
 
             ApprovalHub.instance.awareCancel(step.getPrimary());
-
             execTriggersWhenSR(recordOfMain, TriggerWhen.REJECTED);
         }
     }
@@ -445,7 +453,7 @@ public class ApprovalStepService extends BaseService {
      * @return
      */
     public ID getSubmitter(ID recordId, ID approvalId) {
-        ID submitter = null;
+        ID submitter;
 
         // v4.3
         Entity e = MetadataHelper.getEntity(recordId.getEntityCode());
@@ -593,6 +601,8 @@ public class ApprovalStepService extends BaseService {
         String approveMsg = ApprovalHelper.buildApproveMsg(recordId);
         approveMsg += "\n > " + Language.L("由 %s 转审给你", UserHelper.getName(oldApprover));
         sendNotification(approver, approveMsg, recordId);
+
+        ApprovalHub.instance.awareApprove(sourceStepId, Collections.singleton(sourceStepId), TYPE_REFERRAL);
         return true;
     }
 
@@ -617,7 +627,7 @@ public class ApprovalStepService extends BaseService {
 
         final Date fakeDate = CalendarUtils.parse("2019-01-31");
 
-        int c = 0;
+        List<ID> c = new ArrayList<>();
         for (ID to : approvers) {
             if (to.equals(approver)) continue;
             ID created = createStepIfNeed(recordId, approvalId, node, to, Boolean.FALSE, prevNode, fakeDate, nodeBatch);
@@ -630,7 +640,7 @@ public class ApprovalStepService extends BaseService {
                 super.update(newStepUpdate);
 
                 sendNotification(to, approveMsg, recordId);
-                c++;
+                c.add(created);
             }
         }
 
@@ -648,11 +658,12 @@ public class ApprovalStepService extends BaseService {
             }
         }
 
-        return c;
+        ApprovalHub.instance.awareApprove(sourceStepId, c, TYPE_COUNTERSIGN);
+        return c.size();
     }
 
     // 创建回退节点
-    private ID[] createBackedNodes(String currentNode, String rejectNode, ID recordId, ID approvalId, ID approver, String remark) {
+    private List<ID> createBackedNodes(String currentNode, String rejectNode, ID recordId, ID approvalId, ID approver, String remark) {
         // 1.最近提交的
         Object[] lastRoot = Application.createQueryNoFilter(
                 "select createdOn from RobotApprovalStep where prevNode = 'ROOT' and recordId = ? and approvalId = ? order by createdOn desc")
@@ -673,6 +684,7 @@ public class ApprovalStepService extends BaseService {
         String nodeBatch = getBatchNo(recordId, approvalId, rejectNode);
 
         Set<ID> uniqueApprovers = new HashSet<>();
+        List<ID> stepIds = new ArrayList<>();
 
         // 3.复制退回到的节点
         for (Object[] o : prevNodes) {
@@ -688,6 +700,7 @@ public class ApprovalStepService extends BaseService {
             step.setID("approver", (ID) o[0]);
             step.setString("nodeBatch", nodeBatch);
             super.create(step);
+            stepIds.add(step.getPrimary());
 
             // 通知退回
             if (!(Boolean) o[1]) {
@@ -701,7 +714,7 @@ public class ApprovalStepService extends BaseService {
             backed.setBoolean("isBacked", true);
             super.update(backed);
         }
-        return uniqueApprovers.toArray(new ID[0]);
+        return stepIds;
     }
 
     private String getBatchNo(ID recordId, ID approvalId, String node) {
