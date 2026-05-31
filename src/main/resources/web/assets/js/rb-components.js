@@ -1124,7 +1124,7 @@ class AnyRecordSelector extends RecordSelector {
               this.setState(
                 {
                   entity: e.target.value,
-                  entityLabel: this.__select2Entity.select2('data')[0].text,
+                  entityLabel: this.props.entityLabel || this.__select2Entity.select2('data')[0].text,
                 },
                 () => {
                   if (this._stopEvent) return // for `setValue`

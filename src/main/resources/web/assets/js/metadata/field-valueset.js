@@ -20,7 +20,7 @@ class FieldValueSet extends React.Component {
     }
     // v4.4
     if (field.type === 'ANYREFERENCE') {
-      return <AnyRecordSelector initValue={this.props.defaultValue} allowEntities={[]} allowBizz={false} ref={(c) => (this._AnyRecordSelector = c)} />
+      return <AnyRecordSelector initValue={this.props.defaultValue} entityLabel={$L('新值')} ref={(c) => (this._AnyRecordSelector = c)} />
     }
 
     if (field.type === 'PICKLIST' || field.type === 'STATE' || field.type === 'BOOL' || field.type === 'MULTISELECT' || field.type === 'CLASSIFICATION' || field.type === 'TAG') {
