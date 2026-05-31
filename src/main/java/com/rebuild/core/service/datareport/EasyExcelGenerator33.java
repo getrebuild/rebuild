@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.datareport;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
@@ -244,7 +243,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 // 补充提交节点
                 Record submit = RecordBuilder.builder(EntityHelper.RobotApprovalStep)
                         .add("approver", ApprovalHelper.getSubmitter(firstNode.getID("recordId")))
-                        .add("approvedTime", CalendarUtils.getUTCDateTimeFormat().format(firstNode.getDate("createdOn")))
+                        .add("approvedTime", firstNode.getDate("createdOn"))
                         .add("state", 0)
                         .add("node", Language.L("提交"))
                         .build(UserService.SYSTEM_USER);

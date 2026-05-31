@@ -373,7 +373,6 @@ public class EasyExcelGenerator extends SetUser {
             if (!dt.isExportable()) {
                 if (dt == DisplayType.IMAGE || dt == DisplayType.FILE) {
                     // v4.3 文件可导出名称
-                    // FIXME v3.2 图片仅支持导出第一张
                 } else {
                     data.put(varName, unsupportFieldTip);
                     continue;
@@ -426,10 +425,14 @@ public class EasyExcelGenerator extends SetUser {
                     format.split("\\.").length == 1 ? 0 : format.split("\\.")[1].length();
             // Keep Type
             fieldValue = ((BigDecimal) fieldValue).setScale(scale, RoundingMode.HALF_UP);
+
+        } else if (isApprovalState) {
+            // Keep
         } else {
-            fieldValue = FieldValueHelper.wrapFieldValue(fieldValue, easyField, Boolean.TRUE);
+            fieldValue = FieldValueHelper.wrapFieldValue(fieldValue, easyField, true);
         }
 
+        // 二次处理
         if (isApprovalState) {
             int state = ObjectUtils.toInt(fieldValue);
             if (state < 1) fieldValue = Language.L("提交");
@@ -465,7 +468,7 @@ public class EasyExcelGenerator extends SetUser {
         if (paths == null || paths.isEmpty()) return null;
 
         try {
-            // FIXME 仅取第一个
+            // FIXME 图片仅取第一个
             for (Object path : paths) {
                 File temp;
                 try {
