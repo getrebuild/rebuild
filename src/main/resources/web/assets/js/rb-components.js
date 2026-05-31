@@ -974,10 +974,16 @@ class RecordSelector extends React.Component {
   }
 
   componentDidMount() {
-    this._initSelect2()
+    this._initSelect2(false, () => {
+      const iv = this.props.initValue || this.props.defaultValue
+      if (iv) {
+        if (typeof iv === 'object') this.setValue(iv.id, iv.text)
+        else this.setValue(iv)
+      }
+    })
   }
 
-  _initSelect2(reset) {
+  _initSelect2(reset, cb) {
     const props = this.state // use state
     if (!props.entity) return
 
@@ -995,6 +1001,8 @@ class RecordSelector extends React.Component {
     }).on('change', (e) => {
       typeof props.onSelect === 'function' && props.onSelect(e.target.value)
     })
+
+    cb && cb()
   }
 
   _showSearcher() {
@@ -1118,21 +1126,20 @@ class AnyRecordSelector extends RecordSelector {
                   entity: e.target.value,
                   entityLabel: this.__select2Entity.select2('data')[0].text,
                 },
-                () => this._initSelect2(true),
+                () => {
+                  if (this._stopEvent) return // for `setValue`
+                  this._initSelect2(true)
+                },
               )
             }
           })
         // init
         entities[0] && $(this._$entity).val(entities[0].name).trigger('change')
 
-        // 编辑时
-        const iv = this.props.initValue
+        const iv = this.props.initValue || this.props.defaultValue
         if (iv) {
-          $(this._$entity).val(iv.entity).trigger('change')
-          setTimeout(() => {
-            const o = new Option(iv.text, iv.id, true, true)
-            $(this._$select).append(o)
-          }, 200)
+          if (typeof iv === 'object') this.setValue(iv.id, iv.text)
+          else this.setValue(iv)
         }
       })
     })
@@ -1144,6 +1151,23 @@ class AnyRecordSelector extends RecordSelector {
       v = { ...v, entity: $(this._$entity).val() }
     }
     return v
+  }
+
+  setValue(id, text) {
+    super.setValue(id, text)
+
+    const that = this
+    function _FN() {
+      let idCode = id.substring(0, 3)
+      let e = that.state.entities ? that.state.entities.find((x) => x.entityCode + '' === idCode) : null
+      if (e) {
+        that._stopEvent = true
+        $(that._$entity).val(e.name).trigger('change')
+        that._stopEvent = false
+      }
+    }
+    if (this.__select2Entity) _FN()
+    else setTimeout(_FN, 200)
   }
 
   componentWillUnmount() {
