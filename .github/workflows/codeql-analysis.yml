@@ -5,6 +5,8 @@ on:
     branches: [ "master", "develop" ]
   pull_request:
     branches: [ "master", "develop" ]
+    paths-ignore:
+      - 'src/main/resources/web/assets/lib/**'
   schedule:
     - cron: '43 18 * * 6'
 
