@@ -13,6 +13,7 @@ import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.JSONable;
 import lombok.Getter;
+import org.apache.commons.lang.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +45,9 @@ public class RecordAlertsBean implements JSONable {
 
     protected void merge(RecordAlertsBean another) {
         tips.addAll(another.tips);
-        locked = locked || another.locked;
+        locked = another.locked || locked;
+        lockedTips = (String) ObjectUtils.defaultIfNull(another.lockedTips, lockedTips);
+        lockedRecordId = (ID) ObjectUtils.defaultIfNull(another.lockedRecordId, lockedRecordId);
     }
 
     protected void setLocked(String tips, ID recordId) {
@@ -68,10 +71,7 @@ public class RecordAlertsBean implements JSONable {
         String t = lockedTips;
         if (lockedTips == null) t = tips.get(0)[0];
 
-        if (recordId != null) {
-            t = ContentWithFieldVars.replaceWithRecord(t, recordId);
-        }
-        return t;
+        return formatTipps(t, recordId);
     }
 
     /**
@@ -85,15 +85,20 @@ public class RecordAlertsBean implements JSONable {
 
     @Override
     public JSON toJSON() {
-        List<String[]> tips2 = new ArrayList<>(this.tips);
+        List<String[]> tipsFix = new ArrayList<>(this.tips);
         if (lockedRecordId != null) {
-            for (String[] tip :  tips2) {
-                tip[0] = ContentWithFieldVars.replaceWithRecord(tip[0], lockedRecordId);
+            for (String[] tip : tipsFix) {
+                tip[0] = formatTipps(tip[0], lockedRecordId);
             }
         }
 
         return JSONUtils.toJSONObject(
                 new String[]{"tips", "locked"},
-                new Object[]{tips2, locked});
+                new Object[]{tipsFix, locked});
+    }
+
+    private String formatTipps(String tip, ID recordId) {
+        if (recordId == null) return tip;
+        return ContentWithFieldVars.replaceWithRecord(tip, recordId);
     }
 }

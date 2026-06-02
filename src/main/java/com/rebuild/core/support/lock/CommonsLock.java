@@ -140,8 +140,7 @@ public class CommonsLock {
 
         // 明细
         if (e.getMainEntity() != null && !EntityHelper.isUnsavedId(recordId)) {
-            String dtfName = MetadataHelper.getDetailToMainField(e).getName();
-            ID mainid = (ID) QueryHelper.queryFieldValue(recordId, dtfName);
+            ID mainid = QueryHelper.getMainIdByDetail(recordId);
             RecordAlertsBean m = isLocked43(mainid, isView);
             if (m != null) bean.merge(m);
         }
