@@ -1573,10 +1573,8 @@ class CodeEditor extends React.Component {
 
     this._CodeMirror = cm5
 
-    if (this.props.readonly) {
-      // 自动高度
-      cm5.setSize('100%', '100%')
-    }
+    // 自动高度
+    if (this.props.autoHeight) cm5.setSize('100%', '100%')
   }
 
   componentWillUnmount() {

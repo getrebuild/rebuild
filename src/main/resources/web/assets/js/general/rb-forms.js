@@ -1798,11 +1798,12 @@ class RbFormNTextUseCode extends RbFormNText {
   }
 
   renderViewElement() {
+    if (!this.state.value) return super.renderViewElement()
+
     let code2 = $formatCode(this.state.value)
     let cmOptions = {
       theme: 'material',
     }
-
     return (
       <RF>
         <CodeEditor value={code2} readonly cmOptions={cmOptions} ref={(c) => (this._CodeEditor = c)} key="CodeEditor-read" />
@@ -1838,6 +1839,8 @@ class RbFormNTextUseHtml extends RbFormNText {
   }
 
   renderViewElement() {
+    if (!this.state.value) return super.renderViewElement()
+
     let html2 = this.state.value
     return (
       <RF>
