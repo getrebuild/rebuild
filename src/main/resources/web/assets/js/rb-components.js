@@ -2529,7 +2529,7 @@ class RbViewModal extends React.Component {
   static currentHolder(reload) {
     if (reload && this.__HOLDER) {
       this.__HOLDER.showLoading()
-      this.__HOLDER._iframe.contentWindow.location.reload()
+      this.__HOLDER._$iframe.contentWindow.location.reload()
     }
     return this.__HOLDER
   }
