@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.support;
+package com.rebuild.core.support.lock;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
@@ -18,6 +18,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;

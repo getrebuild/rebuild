@@ -9,7 +9,7 @@ package com.rebuild.web.admin;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.RespBody;
-import com.rebuild.core.support.CommonsLock;
+import com.rebuild.core.support.lock.CommonsLock;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import org.springframework.web.bind.annotation.RequestMapping;

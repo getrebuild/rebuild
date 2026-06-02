@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.support;
+package com.rebuild.core.support.lock;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.utils.JSONUtils;
@@ -25,9 +25,9 @@ public class RecordAlertsBean implements JSONable {
     @Getter
     private boolean locked = false;
     // 给后端提示用
-    @Getter
     private String lockedTips = null;
 
+    // [Text, Color]
     private List<String[]> tips = new ArrayList<>();
 
     protected RecordAlertsBean() {
@@ -46,6 +46,14 @@ public class RecordAlertsBean implements JSONable {
     protected void setLocked(boolean locked, String tips) {
         this.locked = locked;
         if (locked) this.lockedTips = tips;
+    }
+
+    /**
+     * @return
+     */
+    public String getLockedTips() {
+        if (lockedTips != null) return lockedTips;
+        return tips.get(0)[0];
     }
 
     /**

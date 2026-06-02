@@ -19,6 +19,7 @@ import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.InternalPersistService;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.lock.CommonsLock;
 import org.apache.commons.lang3.ObjectUtils;
 
 /**
@@ -94,7 +95,7 @@ public abstract class BaseConfigurationService extends InternalPersistService {
      * 配置是否被锁定
      *
      * @return
-     * @see com.rebuild.core.support.CommonsLock
+     * @see CommonsLock
      */
     @Deprecated
     protected boolean hasLock() {
