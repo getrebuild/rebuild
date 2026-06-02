@@ -336,4 +336,16 @@ public class QueryHelper {
 
         return ids.toArray(new ID[0]);
     }
+
+    /**
+     * 获取明细的主记录 ID
+     *
+     * @param detailId
+     * @return
+     */
+    public static ID queryMainId(ID detailId) {
+        Entity e = MetadataHelper.getEntity(detailId.getEntityCode());
+        String dtfName = MetadataHelper.getDetailToMainField(e).getName();
+        return (ID) QueryHelper.queryFieldValue(detailId, dtfName);
+    }
 }

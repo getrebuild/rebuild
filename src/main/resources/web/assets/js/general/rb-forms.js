@@ -1798,11 +1798,12 @@ class RbFormNTextUseCode extends RbFormNText {
   }
 
   renderViewElement() {
+    if (!this.state.value) return super.renderViewElement()
+
     let code2 = $formatCode(this.state.value)
     let cmOptions = {
       theme: 'material',
     }
-
     return (
       <RF>
         <CodeEditor value={code2} readonly cmOptions={cmOptions} ref={(c) => (this._CodeEditor = c)} key="CodeEditor-read" />
@@ -1838,6 +1839,8 @@ class RbFormNTextUseHtml extends RbFormNText {
   }
 
   renderViewElement() {
+    if (!this.state.value) return super.renderViewElement()
+
     let html2 = this.state.value
     return (
       <RF>
@@ -3928,8 +3931,7 @@ var detectElement = function (item, entity) {
     return <RbFormText {...item} />
   } else if (item.type === 'NTEXT') {
     if (~~item.showStyle === 10) {
-      if (window.CodeMirror && window.prettier) return <RbFormNTextUseCode {...item} />
-      else console.warn('CodeMirror or prettier not found')
+      return <RbFormNTextUseCode {...item} />
     }
     if (~~item.showStyle === 11) {
       if (window.CodeMirror && window.prettier) return <RbFormNTextUseHtml {...item} />

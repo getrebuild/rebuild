@@ -136,7 +136,7 @@ public enum ConfigurationItem {
     PageMourningMode(false),
 
     LoginPageStyle(44),
-    LoginBulletinBoard,
+    LoginBulletinBoard("# _REBUILD_\n### 零代码、开源免费的企业管理系统"),
 
     /**
      * @see com.rebuild.web.admin.ProtectedAdmin
