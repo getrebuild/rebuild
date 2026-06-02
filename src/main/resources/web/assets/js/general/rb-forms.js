@@ -3931,8 +3931,7 @@ var detectElement = function (item, entity) {
     return <RbFormText {...item} />
   } else if (item.type === 'NTEXT') {
     if (~~item.showStyle === 10) {
-      if (window.CodeMirror && window.prettier) return <RbFormNTextUseCode {...item} />
-      else console.warn('CodeMirror or prettier not found')
+      return <RbFormNTextUseCode {...item} />
     }
     if (~~item.showStyle === 11) {
       if (window.CodeMirror && window.prettier) return <RbFormNTextUseHtml {...item} />

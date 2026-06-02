@@ -1501,7 +1501,20 @@ class CodeEditor extends React.Component {
   render() {
     return (
       <div className={`code-editor ${this.props.readonly && 'cm-readonly'}`} ref={(c) => (this._$element = c)}>
-        <textarea className="form-control formula-code" spellCheck="false" defaultValue={this.props.value || ''} ref={(c) => (this._$content = c)} />
+        <textarea
+          className="form-control formula-code"
+          spellCheck="false"
+          defaultValue={this.props.value || ''}
+          ref={(c) => (this._$content = c)}
+          onChange={(e) => {
+            if (!window.CodeMirror) {
+              let cc = e.target.value
+              console.log('Code change:', cc)
+              typeof this.props.onChange === 'function' && this.props.onChange(cc)
+            }
+          }}
+          readOnly={this.props.readonly === true}
+        />
         {this.renderActions()}
       </div>
     )
@@ -1532,7 +1545,7 @@ class CodeEditor extends React.Component {
 
   componentDidMount() {
     if (window.CodeMirror) {
-      this.props.isCode !== false && setTimeout(() => this.initCodeMirror(), 200)
+      setTimeout(() => this.initCodeMirror(), 200)
     }
     this.props.autoFocus === true && setTimeout(() => this.focus(), 220)
   }

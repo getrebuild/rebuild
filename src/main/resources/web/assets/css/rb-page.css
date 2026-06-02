@@ -5404,6 +5404,11 @@ pre.unstyle {
   z-index: 1002;
 }
 
+.code-editor.code-editor-fullscreen textarea.formula-code {
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
 .code-editor .CodeMirror .CodeMirror-code,
 .code-editor .CodeMirror .CodeMirror-line {
   line-height: 1.6;
