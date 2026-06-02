@@ -125,7 +125,7 @@ public class CommonsLock {
                 Boolean noLock = conf.getBoolean("isNoLock");
                 if (conf.getBooleanValue("isLock")) noLock = false;
                 if (noLock == null || !noLock) {
-                    bean.setLocked(true, tips);
+                    bean.setLocked(tips, recordId);
                 }
 
                 // 是否显示
