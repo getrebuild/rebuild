@@ -29,7 +29,7 @@ $(document).ready(() => {
     if (_AdvFilter) {
       _AdvFilter.show()
     } else {
-      renderRbcomp(<AdvFilter title={$L('转换条件')} inModal canNoFilters entity={wpc.sourceEntity.entity} filter={_AdvFilter_data} confirm={_saveFilter} />, function () {
+      renderRbcomp(<AdvFilter title={$L('转换条件')} inModal canNoFilters entity={wpc.sourceEntity.entity} filter={_AdvFilter_data} confirm={_saveFilter} showPreview />, function () {
         _AdvFilter = this
       })
     }
@@ -524,6 +524,7 @@ class FieldsMapping extends React.Component {
           confirm={(res) => {
             this.setState({ filterData: res && res.items.length > 0 ? res : null })
           }}
+          showPreview
         />,
         function () {
           _AdvFilters[key] = this

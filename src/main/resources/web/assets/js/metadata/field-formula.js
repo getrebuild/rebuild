@@ -312,6 +312,7 @@ class FormulaCalc extends RbAlert {
 }
 
 // ~~ 日期公式编辑器
+// eslint-disable-next-line no-unused-vars
 class FormulaDate extends RbAlert {
   constructor(props) {
     super(props)
@@ -678,7 +679,7 @@ class FormulaEditor extends React.Component {
     }
     // NUM,DATE
     else {
-      return FormulaEditor.textFormula(formula, fields)
+      return FormulaCalc.textFormula(formula, fields)
     }
   }
 }

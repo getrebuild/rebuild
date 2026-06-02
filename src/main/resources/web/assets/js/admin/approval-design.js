@@ -1174,6 +1174,24 @@ class RbFlowCanvas extends NodeGroupSpec {
       const s = this.serialize()
       if (!s) return
 
+      let freeApprovalLoop = false
+      for (let i = 0; i < s.nodes.length; i++) {
+        let node = s.nodes[i]
+        if (node.type === 'approver' && node.data.freeApproval === true) {
+          for (let j = i + 1; j < s.nodes.length; j++) {
+            let nodeNext = s.nodes[j]
+            if (nodeNext.type === 'approver' || nodeNext.type === 'condition') {
+              freeApprovalLoop = true
+              break
+            }
+          }
+        }
+      }
+      if (freeApprovalLoop) {
+        RbHighbar.createl('自由审批节点不能添加下级审批节点')
+        return
+      }
+
       let data = {
         flowDefinition: s,
         metadata: { id: wpc.configId },

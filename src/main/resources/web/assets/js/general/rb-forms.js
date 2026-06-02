@@ -3203,7 +3203,7 @@ class RbFormMultiSelect extends RbFormElement {
     this._isShowSelect41 = props.showStyle === '10'
     this._options = (props.options || []).filter((item) => {
       if (props.value && props.value.id) {
-        if ((props.value.id & item.mask) !== 0) return true
+        if ((props.value.id & item.mask) !== 0) return true // 已设置的值隐藏也显示
       }
       return item.hide !== true
     })
@@ -3242,7 +3242,7 @@ class RbFormMultiSelect extends RbFormElement {
                 type="checkbox"
                 checked={(maskValue & item.mask) !== 0}
                 value={item.mask}
-                onChange={this._changeValue}
+                onChange={() => this._changeValue()}
                 disabled={_readonly37 || $isSysMask(item.text) || item.hide}
               />
               <span className="custom-control-label">{item.text}</span>
@@ -3294,7 +3294,7 @@ class RbFormMultiSelect extends RbFormElement {
     }
   }
 
-  _changeValue = () => {
+  _changeValue() {
     let maskValue = 0
     if (this._isShowSelect41) {
       this.__select2.val().forEach((v) => (maskValue += ~~v))
