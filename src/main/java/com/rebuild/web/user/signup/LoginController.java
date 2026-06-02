@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.rebuild.core.support.ConfigurationItem.LoginBulletinBoard;
 import static com.rebuild.web.commons.LanguageController.putLocales;
 
 /**
@@ -104,8 +105,9 @@ public class LoginController extends LoginAction {
         ModelAndView mv;
         if (RebuildConfiguration.getInt(ConfigurationItem.LoginPageStyle) == 44) {
             mv = createModelAndView("/signup/login-v44");
-            String m = RebuildConfiguration.get(ConfigurationItem.LoginBulletinBoard);
-            if (StringUtils.isBlank(m)) m = "# _REBUILD_\n### 零代码、开源免费的企业管理系统";
+            String m = RebuildConfiguration.get(LoginBulletinBoard);
+            if (StringUtils.isBlank(m)) m = (String) LoginBulletinBoard.getDefaultValue();
+
             m = MarkdownUtils.render(m, true, true);
             mv.getModel().put("_LoginBulletinBoard", m);
         } else {
