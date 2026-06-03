@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -42,7 +42,7 @@
   </head>
   <body class="dialog">
     <div class="main-content">
-      <div class="p-2">
+      <div class="p-1" style="min-height: 250px">
         <h5 class="mt-0 text-bold">[[${bundle.L('已添加')}]]</h5>
         <div class="axis-target set-items" th:_title="${bundle.L('无')}"></div>
         <h5 class="text-bold">[[${bundle.L('可添加')}]]</h5>

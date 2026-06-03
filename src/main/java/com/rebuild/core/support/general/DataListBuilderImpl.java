@@ -11,7 +11,6 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Query;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -27,6 +26,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +38,8 @@ import java.util.Map;
  * @since 1.0, 2019-6-20
  */
 public class DataListBuilderImpl implements DataListBuilder {
+
+    private static final String[] STATS_COLS = new String[]{"label", "value"};
 
     final protected Entity entity;
     final protected QueryParser queryParser;
@@ -102,8 +104,7 @@ public class DataListBuilderImpl implements DataListBuilder {
             if (stats2.size() > 1) {
                 stats = new JSONArray();
                 for (int i = 1; i < stats2.size(); i++) {
-                    stats.add(JSONUtils.toJSONObject(
-                            new String[]{"label", "value", "color"}, stats2.get(i)));
+                    stats.add(JSONUtils.toJSONObject(STATS_COLS, stats2.get(i)));
                 }
             }
         }
@@ -128,8 +129,7 @@ public class DataListBuilderImpl implements DataListBuilder {
 
         JSONArray stats = new JSONArray();
         for (int i = 1; i < stats2.size(); i++) {
-            stats.add(JSONUtils.toJSONObject(
-                    new String[] {"label", "value", "color"}, stats2.get(i)));
+            stats.add(JSONUtils.toJSONObject(STATS_COLS, stats2.get(i)));
         }
         return stats;
     }
@@ -159,15 +159,30 @@ public class DataListBuilderImpl implements DataListBuilder {
                 label = String.format("%s (%s)", Language.L(field), FormatCalc.valueOf(calc).getLabel());
             }
 
+            int unit = ObjectUtils.toInt(c.get("unit"), -1);
+            int scale = ObjectUtils.toInt(c.get("scale"), -1);
+            String scaleFormat = "##,##0.00000000";
+            if (scale > 0) scaleFormat = scaleFormat.substring(0, 7 + scale);
+
             EasyField easyField = EasyMetaFactory.valueOf(field);
             Object value = count[i];
             if (ChartsHelper.isZero(value)) {
                 value = ChartsHelper.VALUE_ZERO;
-            } else if (field.getType() == FieldType.LONG) {
-                value = ObjectUtils.toLong(value);
             } else {
-                value = easyField.wrapValue(value);
+                double d = ObjectUtils.toDouble(value);
+                if (unit > 0) d = d / unit;
+                if (scale > 0) d = ObjectUtils.round(d, scale);
+
+                if (scale > 0) value = new DecimalFormat(scaleFormat).format(d);
+                else value = easyField.wrapValue(d);
             }
+
+            if (unit >= 100000000) value += Language.L("亿");
+            else if (unit >= 10000000) value += Language.L("千万");
+            else if (unit >= 1000000) value += Language.L("百万");
+            else if (unit >= 100000) value += Language.L("十万");
+            else if (unit >= 10000) value += Language.L("万");
+            else if (unit >= 1000) value += Language.L("千");
 
             // fix: 3.5.4
             if (FieldValueHelper.isUseDesensitized(easyField, user)) {

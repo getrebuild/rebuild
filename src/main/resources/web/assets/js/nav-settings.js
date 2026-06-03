@@ -138,12 +138,17 @@ $(document).ready(() => {
   let overwriteMode = false
   let cfgid = $urlp('id')
   if (!cfgid) cfgid = $.cookie('AppHome.Nav') // v4.0 优先当前
-  const _save = function (cfg) {
+
+  const saveFn = function (cfg) {
     const $btn = $('.J_save').button('loading')
     const std = _Share2 ? _Share2.getData() : { shareTo: 'SELF' }
     $.post(`/app/settings/nav-settings?id=${cfgid || ''}&configName=${$encode(std.configName || '')}&shareTo=${std.shareTo || ''}`, JSON.stringify(cfg), (res) => {
-      $btn.button('reset')
-      if (res.error_code === 0) parent.location.reload()
+      if (res.error_code === 0) {
+        parent.location.reload()
+      } else {
+        $btn.button('reset')
+        RbHighbar.error(res.error_msg)
+      }
     })
   }
 
@@ -159,11 +164,11 @@ $(document).ready(() => {
       RbAlert.create($L('保存将覆盖你现有的导航菜单。继续吗？'), {
         confirm: function () {
           this.hide()
-          _save(navItems)
+          saveFn(navItems)
         },
       })
     } else {
-      _save(navItems)
+      saveFn(navItems)
     }
   })
 
