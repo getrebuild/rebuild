@@ -1835,19 +1835,8 @@ class RbListPagination extends React.Component {
   }
 
   renderStats() {
-    // v4.4 多显示一点
-    $setTimeout(
-      () => {
-        if ($(this._$stats).height() > 50) {
-          $(this._$stats).css({ 'font-size': 11 })
-        }
-      },
-      200,
-      'resize-datalist-stats',
-    )
-
     return (
-      <div ref={(c) => (this._$stats = c)}>
+      <div>
         {this.state.rowsTotal > 0 && <span>{$L('共 %d 条记录', this.state.rowsTotal)}</span>}
         {this.state.selectedTotal > 1 && <span className="stat-item">{$L('已选中 %d 条', this.state.selectedTotal)}</span>}
         {(this.state.rowsStats || []).map((item, idx) => {
