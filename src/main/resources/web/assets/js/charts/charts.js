@@ -325,7 +325,7 @@ class ChartIndex extends BaseChart {
       </div>
     )
 
-    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => this.resize(1))
+    this.setState({ chartdata: _chartWrapper43(chartdata, this) }, () => this.resize(1))
   }
 
   resize(delay) {
@@ -356,7 +356,7 @@ class ChartTable extends BaseChart {
       </div>
     )
 
-    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
+    this.setState({ chartdata: _chartWrapper43(chartdata, this) }, () => {
       const $tb = $(this._$body)
       $tb
         .find('.ctable')
@@ -683,7 +683,7 @@ class ChartLine extends BaseChart {
       }
 
       option.__id = this.props.id
-      this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
+      this._echarts = renderEChart(_chartWrapper43(option, this), elid)
     })
   }
 }
@@ -777,7 +777,7 @@ class ChartBar extends BaseChart {
       }
 
       option.__id = this.props.id
-      this._echarts = renderEChart(_ChartWrapper43(this.renderChartBefore(option, data), this), elid)
+      this._echarts = renderEChart(_chartWrapper43(this.renderChartBefore(option, data), this), elid)
     })
   }
 
@@ -859,7 +859,7 @@ class ChartPie extends BaseChart {
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       option.__id = this.props.id
-      this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
+      this._echarts = renderEChart(_chartWrapper43(option, this), elid)
     })
   }
 }
@@ -914,7 +914,7 @@ class ChartFunnel extends BaseChart {
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       option.__id = this.props.id
-      this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
+      this._echarts = renderEChart(_chartWrapper43(option, this), elid)
     })
   }
 }
@@ -979,7 +979,7 @@ class ChartTreemap extends BaseChart {
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       option.__id = this.props.id
-      this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
+      this._echarts = renderEChart(_chartWrapper43(option, this), elid)
     })
   }
 }
@@ -1068,7 +1068,13 @@ class ApprovalList extends BaseChart {
                       </span>
                     </td>
                     <td className="cell-detail">
-                      <a href={`${rb.baseUrl}/app/redirect?id=${item[3]}&type=newtab`} target="_blank" title={$L('查看记录')} onClick={(e) => this._listenerStateChanged42(e)}>
+                      <a
+                        href="#!/View/"
+                        title={$L('查看记录')}
+                        onClick={(e) => {
+                          this._listenerStateChanged42(e)
+                          _openView44(item[3], e)
+                        }}>
                         {item[4]}
                       </a>
                       <span className="cell-detail-description">{item[6]}</span>
@@ -1101,7 +1107,7 @@ class ApprovalList extends BaseChart {
         {tableComp}
       </div>
     )
-    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
+    this.setState({ chartdata: _chartWrapper43(chartdata, this) }, () => {
       const $tb = $(this._$body)
       $tb &&
         $tb
@@ -1201,7 +1207,7 @@ class FeedsSchedule extends BaseChart {
                       {item.relatedRecord && (
                         <span className="cell-detail-description fs-12">
                           {item.relatedRecord.entityLabel || $L('关联记录')} :&nbsp;
-                          <a href={`${rb.baseUrl}/app/redirect?id=${item.relatedRecord.id}&type=newtab`} target="_blank" title={$L('查看记录')}>
+                          <a href="#!/View/" onClick={(e) => _openView44(item.relatedRecord.id, e)} title={$L('查看记录')}>
                             {item.relatedRecord.text}
                           </a>
                         </span>
@@ -1225,7 +1231,7 @@ class FeedsSchedule extends BaseChart {
       )
 
     const chartdata = <div className="chart FeedsSchedule">{table}</div>
-    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
+    this.setState({ chartdata: _chartWrapper43(chartdata, this) }, () => {
       const $tb = $(this._$body)
       $tb
         .find('.FeedsSchedule')
@@ -1344,7 +1350,7 @@ class ChartRadar extends BaseChart {
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       option.__id = this.props.id
-      this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
+      this._echarts = renderEChart(_chartWrapper43(option, this), elid)
     })
   }
 }
@@ -1422,7 +1428,7 @@ class ChartScatter extends BaseChart {
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       option.__id = this.props.id
-      this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
+      this._echarts = renderEChart(_chartWrapper43(option, this), elid)
     })
   }
 }
@@ -1500,7 +1506,7 @@ class ProjectTasks extends BaseChart {
       )
 
     const chartdata = <div className="chart ProjectTasks">{table}</div>
-    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
+    this.setState({ chartdata: _chartWrapper43(chartdata, this) }, () => {
       const $tb = $(this._$body)
       $tb
         .find('.ProjectTasks')
@@ -1621,10 +1627,8 @@ class DataList extends BaseChart {
           <tbody>
             {listData.map((row) => {
               const lastCell = row[lastIndex]
-              const rkey = `tr-${lastCell.id}`
-              const viewUrl = `${rb.baseUrl}/app/redirect?id=${lastCell.id}&type=newtab`
               return (
-                <tr key={rkey} data-id={lastCell.id} onDoubleClick={() => window.open(viewUrl)}>
+                <tr key={`tr-${lastCell.id}`} data-id={lastCell.id} onDoubleClick={() => _openView44(lastCell.id)}>
                   {row.map((c, idx) => {
                     if (idx === lastIndex) return null // Last is ID
 
@@ -1635,7 +1639,7 @@ class DataList extends BaseChart {
                     }
                   })}
                   <td className="open-newtab">
-                    <a href={viewUrl} target="_blank" title={$L('查看记录')}>
+                    <a href="#!/View/" onClick={(e) => _openView44(lastCell.id, e)} title={$L('查看记录')}>
                       <i className="zmdi zmdi-open-in-new icon" />
                     </a>
                   </td>
@@ -1647,7 +1651,7 @@ class DataList extends BaseChart {
       )
 
     const chartdata = <div className="chart ctable table-header-fixed2">{table}</div>
-    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
+    this.setState({ chartdata: _chartWrapper43(chartdata, this) }, () => {
       this._$tb = $(this._$body)
       this._$tb
         .find('.ctable')
@@ -2002,7 +2006,7 @@ class MyNotification extends BaseChart {
       </RF>
     )
 
-    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
+    this.setState({ chartdata: _chartWrapper43(chartdata, this) }, () => {
       const $scroller = $(this._$box).find('.rb-scroller').perfectScrollbar('destroy')
       $scroller.css('height', $(this._$body).height() - 34)
       dd.length > 0 && $scroller.perfectScrollbar()
@@ -2041,7 +2045,7 @@ class MyNotification extends BaseChart {
             </div>
           </div>
           {append && (
-            <a title={$L('查看记录')} className="badge link" href={`${rb.baseUrl}/app/redirect?id=${item[5]}&type=newtab`} target="_blank">
+            <a href="#!/View/" onClick={(e) => _openView44(item[5], e)} title={$L('查看记录')} className="badge link">
               {$L('查看')}
             </a>
           )}
@@ -2388,8 +2392,14 @@ class ChartSelect extends RbModalHandler {
 }
 
 // 对图表数据包装
-function _ChartWrapper43(chartData, chartComp) {
+function _chartWrapper43(chartData, chartComp) {
   if (typeof window.__LAB_CHARTWRAPPER43 !== 'function') return chartData
   const w = window.__LAB_CHARTWRAPPER43(chartData, chartComp)
   return w ? w : chartData
+}
+
+// 打开记录详情页
+function _openView44(id, e) {
+  e && $stopEvent(e, true)
+  RbViewModal.create({ id: id })
 }

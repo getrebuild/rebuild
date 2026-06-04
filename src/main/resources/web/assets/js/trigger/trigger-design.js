@@ -227,7 +227,7 @@ $(document).ready(() => {
             $stopEvent(e, true)
             renderRbcomp(<LastLogsViewer width="681" data={_data.logs} />)
           })
-        $(`<span class="text-muted ml-1">(${$L('近 30 天执行 %s 次', _data.count)})</span>`).appendTo($d)
+        if (_data.count) $(`<span class="text-muted ml-1">(${$L('近 30 天执行 %s 次', _data.count)})</span>`).appendTo($d)
       }
 
       $('.J_last-logs').removeClass('hide')

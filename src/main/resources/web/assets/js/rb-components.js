@@ -2484,7 +2484,10 @@ class RbViewModal extends React.Component {
     this.__HOLDERsStack = this.__HOLDERsStack || []
     const that = this
     let viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
-    if (!props.entity) viewUrl = `${rb.baseUrl}/app/redirect?id=${props.id}&type=newtab`
+    if (!props.entity) {
+      viewUrl = `${rb.baseUrl}/app/redirect?id=${props.id}&type=newtab`
+      subView = true
+    }
 
     if (subView) {
       renderRbcomp(<RbViewModal url={viewUrl} id={props.id} disposeOnHide subView />, function () {
