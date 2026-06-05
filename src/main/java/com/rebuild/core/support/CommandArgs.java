@@ -85,6 +85,12 @@ public class CommandArgs {
      * 更少的触发器日志输出
      */
     public static final String _TriggerLessLog = "_TriggerLessLog";
+    /**
+     * 新版本检测
+     */
+    public static final String _NotCheckBuild = "_NotCheckBuild";
+
+    // --
 
     /**
      * @param name

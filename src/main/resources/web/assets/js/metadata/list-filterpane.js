@@ -53,9 +53,12 @@ $(document).ready(() => {
 
     $btn.button('loading')
     $.post(settingsUrl, JSON.stringify(config), (res) => {
-      $btn.button('reset')
-      if (res.error_code === 0) parent.location.reload()
-      else RbHighbar.error(res.error_msg)
+      if (res.error_code === 0) {
+        parent.location.reload()
+      } else {
+        $btn.button('reset')
+        RbHighbar.error(res.error_msg)
+      }
     })
   })
 })

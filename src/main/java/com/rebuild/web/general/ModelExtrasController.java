@@ -107,7 +107,10 @@ public class ModelExtrasController extends BaseController {
         try {
             Object res;
             if (post.getBooleanValue("preview")) {
-                res = transfomer.preview(sourceRecord, mainRecord, existsRecord);
+                String s = post.getString("specLayout");
+                ID specLayout = ID.isId(s) ? ID.valueOf(s) : null;
+
+                res = transfomer.preview(sourceRecord, mainRecord, existsRecord, specLayout);
             } else {
                 res = transfomer.transform(sourceRecord, mainRecord, existsRecord);
             }

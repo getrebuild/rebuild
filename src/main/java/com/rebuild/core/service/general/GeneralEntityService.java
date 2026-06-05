@@ -639,8 +639,15 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     protected boolean checkModifications(Record record, Permission action) throws DataSpecificationException {
         // v4.3/4.4
         if (!GeneralEntityServiceContextHolder.isAllowForceUpdate(false)) {
-            if (record.getPrimary() != null) {
-                RecordAlertsBean L = CommonsLock.isLocked43(record.getPrimary(), true);
+            ID checkId = record.getPrimary();
+            // 明细新建
+            if (checkId == null && record.getEntity().getMainEntity() != null) {
+                String dtfName = MetadataHelper.getDetailToMainField(record.getEntity()).getName();
+                checkId = record.getID(dtfName);
+            }
+
+            if (checkId != null) {
+                RecordAlertsBean L = CommonsLock.isLocked44(checkId, true);
                 if (L != null && L.isLocked()) throw new DataSpecificationException(L.getLockedTips());
             }
         }
