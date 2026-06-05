@@ -98,7 +98,7 @@ public class CommonsLock {
      * @param isView 视图/表单
      * @return
      */
-    public static RecordAlertsBean isLocked43(ID recordId, boolean isView) {
+    public static RecordAlertsBean isLocked44(ID recordId, boolean isView) {
         Assert.notNull(recordId, "[recordId] cannot null");
         if (!License.isRbvAttached()) return null;
 
@@ -141,7 +141,7 @@ public class CommonsLock {
         // 明细
         if (e.getMainEntity() != null && !EntityHelper.isUnsavedId(recordId)) {
             ID mainid = QueryHelper.getMainIdByDetail(recordId);
-            RecordAlertsBean m = isLocked43(mainid, isView);
+            RecordAlertsBean m = isLocked44(mainid, isView);
             if (m != null) bean.merge(m);
         }
 

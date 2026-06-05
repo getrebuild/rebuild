@@ -331,10 +331,10 @@ public class FormsBuilder extends FormsManager {
 
         // v4.3/4.4 记录锁定
         if (recordId != null) {
-            RecordAlertsBean alerts = CommonsLock.isLocked43(recordId, viewMode);
+            RecordAlertsBean alerts = CommonsLock.isLocked44(recordId, viewMode);
             if (alerts != null) model.set("alertsMessage", alerts.toJSON());
         } else if (!viewMode) {
-            RecordAlertsBean alerts = CommonsLock.isLocked43(EntityHelper.newUnsavedId(entityMeta.getEntityCode()), false);
+            RecordAlertsBean alerts = CommonsLock.isLocked44(EntityHelper.newUnsavedId(entityMeta.getEntityCode()), false);
             if (alerts != null) model.set("alertsMessage", alerts.toJSON());
         }
 
