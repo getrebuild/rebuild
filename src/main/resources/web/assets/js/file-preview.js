@@ -205,16 +205,15 @@ class RbPreview extends React.Component {
   }
 
   renderVideo() {
-    const ww = $(window).width()
-    const wh = {
-      height: ww > 1120 ? 618 : 400,
-      width: ww > 1120 ? 1100 : null,
+    const whs = {
+      height: Math.max($(window).height() - 100, 100),
+      width: Math.min(Math.max($(window).width() - 100, 100), 1200),
     }
 
     return (
       <div className="container fp-content">
         <div className="video must-center">
-          <video src={this._buildAbsoluteUrl()} {...wh} controls controlsList="nodownload" className="bg-dark">
+          <video src={this._buildAbsoluteUrl()} {...whs} controls controlsList="nodownload" className="bg-dark">
             {$L('你的浏览器不支持此功能')}
           </video>
         </div>
