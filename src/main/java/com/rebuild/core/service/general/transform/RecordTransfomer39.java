@@ -115,9 +115,10 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
      * @param sourceRecordId
      * @param specMainId
      * @param targetExistsRecordId
+     * @param specLayoutId
      * @return
      */
-    public JSON preview(ID sourceRecordId, ID specMainId, ID targetExistsRecordId) {
+    public JSON preview(ID sourceRecordId, ID specMainId, ID targetExistsRecordId, ID specLayoutId) {
         this.previewRecords = new ArrayList<>();
         this.targetExistsRecordId = targetExistsRecordId;
         // 预览不做非空检查
@@ -146,7 +147,14 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
         this.previewRecords.add(tansTargetRecord);
         TransformerPreview37.fillLabelOfReference(tansTargetRecord);
 
-        JSON formModel = UseFormsBuilder.buildFormWithRecord(targetEntity, tansTargetRecord, specMainId, getUser(), false);
+        JSON formModel;
+        if (specLayoutId != null) FormsBuilderContextHolder.setSpecLayout(specLayoutId);
+        try {
+            formModel = UseFormsBuilder.buildFormWithRecord(targetEntity, tansTargetRecord, specMainId, getUser(), false);
+        } finally {
+            if (specLayoutId != null) FormsBuilderContextHolder.getSpecLayout(true);
+        }
+
         // fix:3.9.4 明细导入
         if (targetEntity.getDetailEntity() != null) {
             ((JSONObject) formModel).put("detailImports", buildDetailImports39(targetEntity));
@@ -237,7 +245,7 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
      * 获取预览后产生的 Record
      *
      * @return
-     * @see #preview(ID, ID, ID)
+     * @see #preview(ID, ID, ID, ID)
      */
     public List<Record> getPreviewRecords() {
         return previewRecords;
