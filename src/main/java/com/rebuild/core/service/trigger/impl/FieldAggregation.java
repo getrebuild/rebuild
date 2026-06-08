@@ -296,7 +296,7 @@ public class FieldAggregation extends TriggerAction {
 
         } finally {
             GeneralEntityServiceContextHolder.isSkipGuardOnce();
-            if (forceUpdate) GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+            if (forceUpdate) GeneralEntityServiceContextHolder.isAllowForceUpdate(true);
             if (stopPropagation) GeneralEntityServiceContextHolder.isQuickMode(true);
         }
 

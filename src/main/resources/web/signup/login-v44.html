@@ -75,7 +75,7 @@
         border-top: 1px solid #ebebeb;
         position: relative;
         padding-top: 25px;
-        margin: 25px 0 20px;
+        margin: 25px 0;
       }
       .login-with > span {
         position: absolute;
@@ -113,7 +113,7 @@
         margin-top: 30px;
       }
       .main-content {
-        padding: 70px 0;
+        padding: 50px 0;
       }
 
       .login-form {
@@ -136,6 +136,16 @@
         overflow: hidden;
         position: relative;
       }
+
+      @media (min-height: 800px) and (min-width: 1200px) {
+        .main-content.fixed {
+          padding: 0;
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
+      }
     </style>
     <script>
       if (navigator.userAgent.indexOf('MSIE') > -1 || navigator.userAgent.indexOf('Trident') > -1) {
@@ -154,7 +164,7 @@
             <p th:utext="${UsersMsg}"></p>
           </div>
         </div>
-        <div class="main-content container-fluid">
+        <div class="main-content fixed container-fluid">
           <div class="splash-container row">
             <div class="col-12 col-md-6 d-none d-md-block bulletin-board">
               <div class="must-center text-break markdown-body" th:utext="${_LoginBulletinBoard}"></div>
@@ -187,7 +197,7 @@
                     <a href="forgot-passwd">[[${bundle.L('找回密码')}]]</a>
                   </div>
                 </div>
-                <div class="form-group login-submit mb-2">
+                <div class="form-group login-submit">
                   <button class="btn btn-primary btn-xl" type="submit" data-spinner>[[${bundle.L('登录')}]]</button>
                   <div class="mt-4 text-center" th:utext="${bundle.L('还没有账号? [立即注册](signup)')}"></div>
                 </div>
@@ -206,7 +216,7 @@
                     <img th:src="@{/assets/img/icon-sso.png}" alt="SSO" />
                   </a>
                 </div>
-                <div class="row">
+                <div class="row mt-6">
                   <div class="col-8">
                     <div class="btn-group dropup h5-mobile fs-0">
                       <a class="dropdown-toggle" data-toggle="dropdown" th:href="${mobileUrl}">

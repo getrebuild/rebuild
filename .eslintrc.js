@@ -171,5 +171,6 @@ module.exports = {
     NoValue: true,
     $modalDraggable: true,
     $autoComplete: true,
+    $openView: true,
   },
 }

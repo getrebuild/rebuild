@@ -218,7 +218,7 @@ public class FieldWriteback extends FieldAggregation {
 
             } finally {
                 GeneralEntityServiceContextHolder.isSkipGuardOnce();
-                if (forceUpdate) GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+                if (forceUpdate) GeneralEntityServiceContextHolder.isAllowForceUpdate(true);
                 if (stopPropagation) GeneralEntityServiceContextHolder.isQuickMode(true);
                 GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
             }

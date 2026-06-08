@@ -119,7 +119,7 @@
         <field name="repeatable" type="bool" default-value="T"/>
         <field name="queryable" type="bool" default-value="T"/>
         <field name="defaultValue" type="string" max-length="701" description="(此值不影响数据库默认值)"/>
-        <field name="maxLength" type="small-int" default-value="701"/>
+        <field name="maxLength" type="int" default-value="701"/>
         <field name="refEntity" type="string" max-length="100"/>
         <field name="cascade" type="string" max-length="20"/>
         <field name="comments" type="string" max-length="701"/>

@@ -59,14 +59,6 @@ public class GeneralEntityServiceContextHolder {
     }
 
     /**
-     * @return
-     * @see #setAllowForceUpdate(ID)
-     */
-    public static boolean isAllowForceUpdateOnce() {
-        return isAllowForceUpdate(true);
-    }
-
-    /**
      * @param once
      * @return
      * @see #setAllowForceUpdate(ID)
