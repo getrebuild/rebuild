@@ -708,42 +708,43 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     return false;
                 }
 
-                boolean unallow = false;
+                boolean notAllowed = false;
                 if (action == BizzPermission.DELETE) {
-                    unallow = currentState == ApprovalState.APPROVED || currentState == ApprovalState.PROCESSING;
+                    notAllowed = currentState == ApprovalState.APPROVED || currentState == ApprovalState.PROCESSING;
 
                     // v4.2 允许修改记录
-                    if (unallow && currentState == ApprovalState.PROCESSING) {
+                    if (notAllowed && currentState == ApprovalState.PROCESSING) {
                         boolean allow42 = ApprovalHelper.isAllowEditableRecord(checkRecordId, getCurrentUser());
-                        if (allow42) unallow = false;
+                        if (allow42) notAllowed = false;
                     }
 
                 } else if (action == BizzPermission.UPDATE) {
-                    unallow = currentState == ApprovalState.APPROVED || currentState == ApprovalState.PROCESSING;
+                    notAllowed = currentState == ApprovalState.APPROVED || currentState == ApprovalState.PROCESSING;
 
                     // 管理员撤销
-                    if (unallow) {
+                    if (notAllowed) {
                         boolean adminCancel = currentState == ApprovalState.APPROVED && changeState == ApprovalState.CANCELED;
-                        if (adminCancel) unallow = false;
+                        if (adminCancel) notAllowed = false;
                     }
 
                     // 审批时/已通过强制修改
-                    if (unallow) {
+                    if (notAllowed) {
                         boolean forceUpdate = GeneralEntityServiceContextHolder.isAllowForceUpdate(false);
-                        if (forceUpdate) unallow = false;
+                        if (forceUpdate) notAllowed = false;
                     }
 
                     // v4.2 允许修改记录
-                    if (unallow) {
+                    if (notAllowed) {
                         boolean is = ApprovalHelper.isAllowEditableRecord(checkRecordId, getCurrentUser());
                         if (is) {
-                            unallow = false;
+                            notAllowed = false;
+                            // FIXME 没清理???
                             GeneralEntityServiceContextHolder.setAllowForceUpdate(checkRecordId);
                         }
                     }
                 }
 
-                if (unallow) {
+                if (notAllowed) {
                     if (RobotTriggerObserver.getTriggerSource() != null) {
                         recordType = Language.L("关联记录");
                     }
