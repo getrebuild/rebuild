@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.files;
 
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.task.HeavyTask;
@@ -21,6 +20,8 @@ import org.apache.commons.lang.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+
+import static com.rebuild.core.service.files.FilesHelper.checkObjectReadable;
 
 /**
  * @author ZHAO
@@ -48,11 +49,12 @@ public class BatchDownload extends HeavyTask<File> {
         for (String path : files) {
             if (StringUtils.isBlank(path)) continue;
 
-            // v4.1 也可以是附件ID
+            // v4.1 也可以是附件 ID
             if (ID.isId(path)) {
-                Object filePath = QueryHelper.queryFieldValue(ID.valueOf(path), "filePath");
+                ID fileId = ID.valueOf(path);
+                String filePath = checkObjectReadable(fileId, getUser());
                 if (filePath == null) continue;
-                path = filePath.toString();
+                path = filePath;
             }
 
             // FIXME 太大的文件不适用于下载

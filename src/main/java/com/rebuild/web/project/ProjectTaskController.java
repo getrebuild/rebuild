@@ -164,7 +164,7 @@ public class ProjectTaskController extends BaseController {
         String baseSql = "projectId = '" + projectId + "' and ";
 
         if (planKey.startsWith(ProjectController.GROUP_PRIORITY)) {
-            return baseSql + "priority = " + planValue;
+            return baseSql + "priority = " + CommonsUtils.escapeSql(planValue);
         }
 
         final DateFormat dtf = CalendarUtils.getUTCDateTimeFormat();
