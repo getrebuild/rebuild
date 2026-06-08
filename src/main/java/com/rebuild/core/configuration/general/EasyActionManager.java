@@ -125,9 +125,10 @@ public class EasyActionManager extends BaseLayoutManager {
     /**
      * @param entity
      * @param eeid
+     * @param checkUser
      * @return
      */
-    public JSONObject findActionByEeid(String entity, String eeid) {
+    public JSONObject findActionByEeid(String entity, String eeid, ID checkUser) {
         ConfigBean cb = getLayout(UserService.SYSTEM_USER, entity, TYPE_EASYACTION, null);
         if (cb == null || eeid == null) return null;
 
@@ -135,6 +136,19 @@ public class EasyActionManager extends BaseLayoutManager {
         JSONObject action = findActionByEeid(conf.getJSONArray(TYPE_DATALIST), eeid);
         if (action == null) action = findActionByEeid(conf.getJSONArray(TYPE_DATAROW), eeid);
         if (action == null) action = findActionByEeid(conf.getJSONArray(TYPE_VIEW), eeid);
+
+        // 检查是否允许
+        if (action != null && checkUser != null) {
+            String shareTo = action.getString("shareTo");
+            if (UserHelper.isAdmin(checkUser) || isShareTo(shareTo, checkUser)) {
+                // 允许使用
+                // FIXME 进一步检查 `showFilter` 条件
+            } else {
+                log.warn("EasyAction not allowed : {} for {}", eeid, checkUser);
+                action = null;
+            }
+        }
+
         return action;
     }
 

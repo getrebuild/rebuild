@@ -202,10 +202,10 @@ public abstract class ShareToManager implements ConfigManager {
             CollectionUtils.addAll(userDefs, shareTo.split(","));
             Set<ID> sharedUsers = UserHelper.parseUsers(userDefs, null);
             return sharedUsers.contains(user);
-
-        } else {  // SELF
-            return false;
         }
+
+        // SELF
+        return false;
     }
 
     /**
