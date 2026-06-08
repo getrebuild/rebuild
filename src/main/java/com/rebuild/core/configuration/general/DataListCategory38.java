@@ -25,6 +25,7 @@ import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -231,7 +232,7 @@ public class DataListCategory38 {
                 parentFieldMeta.getOwnEntity().getName(),
                 parentFieldMeta.getName());
         if (parentValue == null) sql += " is null";
-        else sql += " = '" + parentValue + "'";
+        else sql += " = '" + CommonsUtils.escapeSql(parentValue) + "'";
 
         // FIXME 应该使用父级字段的时候作为查询条件
         if (ParseHelper.validAdvFilter(appendFilter)) {
@@ -274,9 +275,11 @@ public class DataListCategory38 {
         for (int i = 0; i < parentValues.length; i++) {
             JSONObject ff = (JSONObject) categoryFields.get(i);
             String fieldName = ff.getString("field");
-            String fieldValue = parentValues[i].toString();
             Field fieldMeta = entity.getField(fieldName);
             DisplayType dt = EasyMetaFactory.getDisplayType(fieldMeta);
+
+            String fieldValue = parentValues[i].toString();
+            fieldValue = CommonsUtils.escapeHtml(fieldValue);
 
             // 一级树:引用
             if (categoryFields.size() == 1 && dt == DisplayType.REFERENCE) {
