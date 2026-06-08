@@ -616,6 +616,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
                       onConfirm: () => {
                         // 刷新视图
                         if (window.RbViewPage) window.RbViewPage.reload()
+                        else location.reload()
                       },
                     })
                   },
