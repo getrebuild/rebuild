@@ -8,7 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // ~~ 图片/文档预览
 
-const TYPE_TEXTS = ['.txt', '.xml', '.json', '.md', '.yml', '.css', '.js', '.htm', '.html', '.log', '.sql', '.conf', '.sh', '.bat', '.java', '.ini']
+const TYPE_TEXTS_CODE44 = ['.xml', '.json', '.md', '.yml', '.css', '.js', '.htm', '.html', '.sql', '.conf', '.sh', '.bat', '.java', '.ini']
+const TYPE_TEXTS = ['.txt', '.log', ...TYPE_TEXTS_CODE44]
 const TYPE_DOCS = ['.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf'] // .rtf, .csv
 const TYPE_IMGS = ['.jpg', '.jpeg', '.gif', '.png', '.bmp', '.jfif', '.webp']
 const TYPE_AUDIOS = ['.mp3', '.wma', '.m4a', '.flac', '.ogg', '.acc']
@@ -177,9 +178,11 @@ class RbPreview extends React.Component {
       )
     }
 
+    let isTextCode = this._isSpecType(fileName, TYPE_TEXTS_CODE44)
+    isTextCode = false // 先关闭
     return (
       <div className={`container fp-content ${this.state.fullwidth && 'fullwidth'}`}>
-        <div className="iframe text">
+        <div className={`iframe text ${isTextCode && 'text-code'}`}>
           {this.state.previewText || this.state.previewText === '' ? (
             content
           ) : (

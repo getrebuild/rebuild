@@ -3746,10 +3746,16 @@ a.user-show:not([href]) {
   overflow: auto;
 }
 
-.preview-modal .preview-body .iframe.text > pre {
+.preview-modal .preview-body .iframe.text > pre,
+.preview-modal .preview-body .iframe.text.text-code > pre {
   font-size: 14px;
   font-family: 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
   background-color: transparent;
+}
+
+.preview-modal .preview-body .iframe.text.text-code > pre {
+  font-size: 13px;
+  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', Menlo, Monaco, Consolas, monospace;
 }
 
 @media (max-width: 768px) {
