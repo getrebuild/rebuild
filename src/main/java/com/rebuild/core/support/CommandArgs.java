@@ -142,7 +142,7 @@ public class CommandArgs {
     protected static String getStringWithBootEnvironmentPostProcessor(String name) {
         String s = getProperty39(name);
         if (StringUtils.isEmpty(s)) s = BootEnvironmentPostProcessor.getProperty(name);
-        return s;
+        return StringUtils.isEmpty(s) ? null : s;
     }
 
     // --

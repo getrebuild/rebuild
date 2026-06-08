@@ -183,6 +183,9 @@ public class FileDownloader extends BaseController {
             // v3.4 PDF/HTML 可直接预览
             inline = (filepath.toLowerCase().endsWith(".pdf") || filepath.toLowerCase().endsWith(".html"))
                     && (request.getRequestURI().contains("/filex/access/") || inline);
+            // v4.4 关闭 inline 访问
+            if (RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced)) inline = false;
+            inline = false;
 
             setDownloadHeaders(response, attname, inline);
             writeLocalFile(filepath, temp, response);
