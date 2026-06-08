@@ -100,7 +100,7 @@ const render_set = function (item) {
     parent.RbModal.resize()
   })
 
-  const $ul = $('<ul class="dropdown-menu"></div>').appendTo($item)
+  const $ul = $('<ul class="dropdown-menu dropdown-menu-sm"></div>').appendTo($item)
   for (let k in CALC_TYPES) {
     $(`<li class="dropdown-item" data-calc=${k}>${CALC_TYPES[k]}</li>`).appendTo($ul)
   }
