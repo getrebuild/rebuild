@@ -136,6 +136,16 @@
         overflow: hidden;
         position: relative;
       }
+
+      @media (min-height: 800px) and (min-width: 1200px) {
+        .main-content.fixed {
+          padding: 0;
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
+      }
     </style>
     <script>
       if (navigator.userAgent.indexOf('MSIE') > -1 || navigator.userAgent.indexOf('Trident') > -1) {
@@ -154,7 +164,7 @@
             <p th:utext="${UsersMsg}"></p>
           </div>
         </div>
-        <div class="main-content container-fluid">
+        <div class="main-content fixed container-fluid">
           <div class="splash-container row">
             <div class="col-12 col-md-6 d-none d-md-block bulletin-board">
               <div class="must-center text-break markdown-body" th:utext="${_LoginBulletinBoard}"></div>
