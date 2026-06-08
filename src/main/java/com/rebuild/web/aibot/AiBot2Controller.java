@@ -24,6 +24,7 @@ import com.rebuild.core.service.aibot2.Config;
 import com.rebuild.core.service.aibot2.Message;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -58,7 +59,7 @@ public class AiBot2Controller extends BaseController {
     @PostMapping("post/chat-stream")
     public void chatStream(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (!Config.availableAiBot()) {
-            StreamEcho.error("请配置 AI 助手参数后继续", resp.getWriter());
+            StreamEcho.error(Language.L("请配置 AI 助手参数后使用"), resp.getWriter());
             return;
         }
 

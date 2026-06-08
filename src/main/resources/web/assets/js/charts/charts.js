@@ -1073,7 +1073,7 @@ class ApprovalList extends BaseChart {
                         title={$L('查看记录')}
                         onClick={(e) => {
                           this._listenerStateChanged42(e)
-                          _openView44(item[3], e)
+                          $openView(item[3], e)
                         }}>
                         {item[4]}
                       </a>
@@ -1207,7 +1207,7 @@ class FeedsSchedule extends BaseChart {
                       {item.relatedRecord && (
                         <span className="cell-detail-description fs-12">
                           {item.relatedRecord.entityLabel || $L('关联记录')} :&nbsp;
-                          <a href="#!/View/" onClick={(e) => _openView44(item.relatedRecord.id, e)} title={$L('查看记录')}>
+                          <a href="#!/View/" onClick={(e) => $openView(item.relatedRecord.id, e)} title={$L('查看记录')}>
                             {item.relatedRecord.text}
                           </a>
                         </span>
@@ -1628,7 +1628,7 @@ class DataList extends BaseChart {
             {listData.map((row) => {
               const lastCell = row[lastIndex]
               return (
-                <tr key={`tr-${lastCell.id}`} data-id={lastCell.id} onDoubleClick={() => _openView44(lastCell.id)}>
+                <tr key={`tr-${lastCell.id}`} data-id={lastCell.id} onDoubleClick={() => $openView(lastCell.id)}>
                   {row.map((c, idx) => {
                     if (idx === lastIndex) return null // Last is ID
 
@@ -1639,7 +1639,7 @@ class DataList extends BaseChart {
                     }
                   })}
                   <td className="open-newtab">
-                    <a href="#!/View/" onClick={(e) => _openView44(lastCell.id, e)} title={$L('查看记录')}>
+                    <a href="#!/View/" onClick={(e) => $openView(lastCell.id, e)} title={$L('查看记录')}>
                       <i className="zmdi zmdi-open-in-new icon" />
                     </a>
                   </td>
@@ -2045,7 +2045,7 @@ class MyNotification extends BaseChart {
             </div>
           </div>
           {append && (
-            <a href="#!/View/" onClick={(e) => _openView44(item[5], e)} title={$L('查看记录')} className="badge link">
+            <a href="#!/View/" onClick={(e) => $openView(item[5], e)} title={$L('查看记录')} className="badge link">
               {$L('查看')}
             </a>
           )}
@@ -2396,10 +2396,4 @@ function _chartWrapper43(chartData, chartComp) {
   if (typeof window.__LAB_CHARTWRAPPER43 !== 'function') return chartData
   const w = window.__LAB_CHARTWRAPPER43(chartData, chartComp)
   return w ? w : chartData
-}
-
-// 打开记录详情页
-function _openView44(id, e) {
-  e && $stopEvent(e, true)
-  RbViewModal.create({ id: id })
 }

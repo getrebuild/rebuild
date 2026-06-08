@@ -20,6 +20,7 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.aibot2.ChatManager;
+import com.rebuild.core.service.aibot2.Config;
 import com.rebuild.core.service.general.ObservableService;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
@@ -115,11 +116,15 @@ public abstract class BaseFeedsService extends ObservableService {
         if (atUsers.contains(USER_AIBOT) && !existsAtUsers.contains(USER_AIBOT)) {
             TransactionManual.registerAfterCommit(() -> {
                 String aiReply;
-                try {
-                    aiReply = ChatManager.ask("请尽量简短回答以下问题：\n" + content);
-                } catch (Exception ex) {
-                    log.error("AiBot error on ask", ex);
-                    aiReply = "错误:" + CommonsUtils.getRootMessage(ex);
+                if (Config.availableAiBot()) {
+                    try {
+                        aiReply = ChatManager.ask("请尽量简短回答以下问题（不要MD格式）：\n" + content);
+                    } catch (Exception ex) {
+                        log.error("AiBot error on ask", ex);
+                        aiReply = "错误:" + CommonsUtils.getRootMessage(ex);
+                    }
+                } else {
+                    aiReply = Language.L("请配置 AI 助手参数后使用");
                 }
 
                 aiReply = StringUtils.trim(aiReply);
@@ -174,8 +179,11 @@ public abstract class BaseFeedsService extends ObservableService {
             }
         }
         if (Application.getPrivilegesManager().allow(getCurrentUser(), ZeroEntry.AllowUseAiBot)) {
+            // 字符兼容
+            fakeContent = fakeContent.replace("@AI助手", "@AI 助手");
+
             for (String locale : locales) {
-                String keyText = "@" + Application.getLanguage().getBundle(locale).L("AI 助手");
+                String keyText = Application.getLanguage().getBundle(locale).L("AI 助手");
                 if (fakeContent.contains(keyText)) {
                     fakeContent = fakeContent.replace(keyText, "@" + USER_AIBOT);
                 }

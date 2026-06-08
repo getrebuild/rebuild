@@ -100,7 +100,7 @@ $(document).ready(() => {
       RbAlert.create($L('是否需要切换到手机版访问？'), {
         onConfirm: function () {
           this.hide()
-          location.href = $('.h5-mobile>a:eq(0)').attr('href').replace('/h5-download', '/h5app')
+          location.href = $('.h5-mobile>a:eq(0)').attr('href').replace('/h5app-download', '/h5app')
         },
       })
     }, 500)

@@ -1702,3 +1702,12 @@ function $autoComplete($el, fieldKey, option) {
     $getScript('/assets/lib/bootstrap-autocomplete.min.js?v=2.3.7', _FN)
   }
 }
+
+// 打开记录详情页
+function $openView(id, e) {
+  e && $stopEvent(e, true)
+  if (typeof id === 'string') id = { id: id }
+
+  if (window.RbViewModal) window.RbViewModal.create(id)
+  else window.open(rb.baseUrl + '/app/redirect?id=' + id.id + '&type=newtab')
+}

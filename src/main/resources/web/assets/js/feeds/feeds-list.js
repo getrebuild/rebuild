@@ -648,7 +648,7 @@ function _renderRichContent(e, _inView) {
             {_inView ? (
               <a>{e.relatedRecord.text}</a>
             ) : (
-              <a href={`${rb.baseUrl}/app/redirect?id=${e.relatedRecord.id}&type=newtab`} target="_blank" title={$L('查看记录')}>
+              <a href="#!/View/" onClick={(evt) => $openView(e.relatedRecord.id, evt)} title={$L('查看记录')}>
                 {e.relatedRecord.text}
               </a>
             )}
