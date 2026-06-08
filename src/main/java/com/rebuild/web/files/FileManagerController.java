@@ -15,13 +15,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.ServiceSpec;
 import com.rebuild.core.service.TransactionManual;
-import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.files.BatchDownload;
 import com.rebuild.core.service.files.FilesHelper;
-import com.rebuild.core.service.project.ProjectHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.task.TaskExecutors;
@@ -49,6 +46,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.rebuild.core.service.files.FilesHelper.checkObjectReadable;
 
 /**
  * @author devezhao
@@ -182,47 +181,11 @@ public class FileManagerController extends BaseController {
 
     @RequestMapping("check-readable")
     public RespBody checkReadable(@IdParam ID fileId, HttpServletRequest request) {
-        String filePath = checkFileReadable(fileId, getRequestUser(request));
+        String filePath = checkObjectReadable(fileId, getRequestUser(request));
         return filePath == null ? RespBody.error() : RespBody.ok(filePath);
     }
 
-    // 是否可读取文件
-    private String checkFileReadable(ID fileId, ID user) {
-        // v4.2 目录
-        if (fileId.getEntityCode() == EntityHelper.AttachmentFolder) {
-            return FilesHelper.getAccessableFolders(user).contains(fileId) ? fileId.toLiteral() : null;
-        }
-        // FIXME v4.2 仪表盘临时借用
-        if (fileId.getEntityCode() == EntityHelper.DashboardConfig) {
-            return UserHelper.isSelf(user, fileId) ? fileId.toLiteral() : null;
-        }
 
-        Object[] file = Application.getQueryFactory().uniqueNoFilter(
-                fileId, "filePath,relatedRecord,belongEntity");
-        if (file == null) return null;
-        if (UserHelper.isAdmin(user)) return (String) file[0];
-
-        // 文件
-        if ((int) file[2] <= 0) {
-            if (FilesHelper.isFileAccessable(user, fileId)) return (String) file[0];
-            else return null;
-        }
-
-        // 附件
-        final ID recordId = (ID) file[1];
-        if (recordId == null) return null;
-
-        int entityCode = recordId.getEntityCode();
-        boolean readable;
-        if (entityCode == EntityHelper.Feeds || entityCode == EntityHelper.FeedsComment) {
-            readable = FeedsHelper.checkReadable(recordId, user);
-        } else if (entityCode == EntityHelper.ProjectTask || entityCode == EntityHelper.ProjectTaskComment) {
-            readable = ProjectHelper.checkReadable(recordId, user);
-        } else {
-            readable = Application.getPrivilegesManager().allowRead(user, recordId);
-        }
-        return readable ? (String) file[0] : null;
-    }
 
     @PostMapping("batch-download")
     public void downloadBatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -244,7 +207,7 @@ public class FileManagerController extends BaseController {
 
     @RequestMapping("download")
     public void download(@IdParam ID fileId, HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String filePath = checkFileReadable(fileId, getRequestUser(req));
+        String filePath = checkObjectReadable(fileId, getRequestUser(req));
         if (filePath == null) {
             resp.sendError(HttpStatus.FORBIDDEN.value(), Language.L("你没有查看此文件的权限"));
         } else {
