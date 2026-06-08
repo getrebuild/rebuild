@@ -280,12 +280,13 @@ public class RecordTransfomer extends SetUser {
         // 4.1.4 (LAB) 配置开放
         int fillbackMode = transConfig.getIntValue("fillbackMode");
         if (fillbackMode == 2 && !EntityHelper.isUnsavedId(newIds) && FILLBACK2_ONCE414.get() == null) {
-            GeneralEntityServiceContextHolder.setAllowForceUpdate(s.getPrimary());
             FILLBACK2_ONCE414.set(newIds[0]);
+
+            GeneralEntityServiceContextHolder.setAllowForceUpdate(s.getPrimary());
             try {
                 Application.getEntityService(sourceEntity.getEntityCode()).update(s);
             } finally {
-                GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+                GeneralEntityServiceContextHolder.isAllowForceUpdate(true);
             }
         } else {
             // 无传播更新

@@ -161,7 +161,7 @@ public class ApprovalStepService extends BaseService {
             try {
                 Application.getEntityService(addedData.getEntity().getEntityCode()).createOrUpdate(addedData);
             } finally {
-                GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+                GeneralEntityServiceContextHolder.isAllowForceUpdate(true);
             }
 
             // 检查数据修改后的步骤对不对 GitHub#208
