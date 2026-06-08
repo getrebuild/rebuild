@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #75 (v4.4)
+alter table `meta_field`
+  change column `MAX_LENGTH` `MAX_LENGTH` int(11) default '701';
+
 -- #74 (v4.4)
 alter table `filter_config`
   add column `SEQ` int(11) default '0' comment '排序 (小到大)';

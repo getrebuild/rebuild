@@ -984,7 +984,8 @@ class RecordSelector extends React.Component {
   }
 
   _initSelect2(reset, cb) {
-    const props = this.state // use state
+    let props = this.state
+    if (!props.entity) props = { ...(this.props.initValue || this.props.defaultValue) }
     if (!props.entity) return
 
     if (reset) {

@@ -166,7 +166,7 @@ create table if not exists `meta_field` (
   `REPEATABLE`         char(1) default 'T',
   `QUERYABLE`          char(1) default 'T',
   `DEFAULT_VALUE`      varchar(701) comment '(此值不影响数据库默认值)',
-  `MAX_LENGTH`         smallint(6) default '701',
+  `MAX_LENGTH`         int(11) default '701',
   `REF_ENTITY`         varchar(100),
   `CASCADE`            varchar(20),
   `COMMENTS`           varchar(701),
@@ -1019,4 +1019,4 @@ insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NU
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 74);
+  values ('021-9000000000000001', 'DBVer', 75);
