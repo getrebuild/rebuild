@@ -132,14 +132,16 @@ public class KVStorage {
             // 1.0. 从缓存
             value = Application.getCommonsCache().get(key);
             if (noCache) value = null;
-            if (value != null) return value;
+            if (value != null) {
+                return StringUtils.isEmpty(value) ? null : value;
+            }
 
             // 1.1. 从数据库
             Object[] fromDb = Application.createQueryNoFilter(
                     "select value from SystemConfig where item = ?")
                     .setParameter(1, key)
                     .unique();
-            value = fromDb == null ? null : StringUtils.defaultIfBlank((String) fromDb[0], null);
+            value = fromDb == null ? null : StringUtils.defaultIfEmpty((String) fromDb[0], null);
 
             // 1.2. 从异步池
             if (value == null && THROTTLED_QUEUE.containsKey(key)) {
@@ -153,7 +155,7 @@ public class KVStorage {
         }
 
         // 3. 默认值
-        if (value == null && defaultValue != null) {
+        if (StringUtils.isEmpty(value) && defaultValue != null) {
             value = defaultValue.toString();
         }
 
@@ -162,7 +164,7 @@ public class KVStorage {
             Application.getCommonsCache().put(key, value);
         }
 
-        return value;
+        return StringUtils.isEmpty(value) ? null : value;
     }
 
     // -- ASYNC 同步K/V值到数据库。注意如果系统异常停止可能导致同步数据丢失!!!
