@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.openai.models.chat.completions.ChatCompletionTool;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
@@ -31,6 +32,15 @@ public class RecordUpsert implements Tool {
     }
 
     @Override
+    public ChatCompletionTool def() {
+        return null;
+    }
+
+    @Override
+    public Object execute(String arguments) {
+        return null;
+    }
+
     public JSONObject toAiJSON() {
         JSONObject c = DeepSeek.getDeepSeekFc("record_upsert", "新建或更新记录，用户需要提供必填的信息");
         JSONObject parameters = c.getJSONObject("function").getJSONObject("parameters");

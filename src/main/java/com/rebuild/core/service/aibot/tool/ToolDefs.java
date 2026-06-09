@@ -8,31 +8,22 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.aibot.tool;
 
 import com.openai.models.chat.completions.ChatCompletionTool;
-import com.rebuild.core.support.Lab;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * 探索中
- * https://api-docs.deepseek.com/zh-cn/guides/function_calling
- *
  * @author Zixin
- * @since 2025/4/19
+ * @since 2026/6/9
  */
-@Lab
-public interface Tool {
+public class ToolDefs {
 
     /**
-     * 定义 Tool
-     *
      * @return
      */
-    ChatCompletionTool def();
-
-    /**
-     * 执行
-     *
-     * @param arguments
-     * @return
-     */
-    Object execute(String arguments);
-
+    public static List<ChatCompletionTool> tools() {
+        List<ChatCompletionTool> tools = new ArrayList<>();
+        tools.add(new HowtoTool().def());
+        return tools;
+    }
 }
