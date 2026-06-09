@@ -19,11 +19,13 @@ class FilesList extends React.Component {
   }
 
   render() {
-    const currentActive = this.state.currentActive || []
+    const _active = this.state.currentActive || []
+    const showMore = this.state.currentSize >= PAGE_SIZE
+
     return (
       <div className="file-list file-list-striped">
         {(this.state.files || []).map((item) => {
-          const checked = currentActive.includes(item.id)
+          const checked = _active.includes(item.id)
           return (
             <div key={item.id} className={`file-list-item ${checked ? 'active' : ''}`} onClick={(e) => this._handleClick(e, item.id)}>
               <div className="check">
@@ -61,7 +63,7 @@ class FilesList extends React.Component {
           )
         })}
 
-        {this.state.currentSize >= PAGE_SIZE && (
+        {showMore && (
           <div className="text-center mt-4 pb-4">
             <a
               className="show-more-pill"
@@ -73,14 +75,14 @@ class FilesList extends React.Component {
             </a>
           </div>
         )}
-        {this._pageNo > 1 && this.state.currentSize > 0 && this.state.currentSize < PAGE_SIZE && (
-          <div className="mt-6" style={{ paddingBottom: 8 }}>
+        {!showMore && this.state.files && this.state.files.length > 0 && (
+          <div className="mt-6" style={{ paddingBottom: 7 }}>
             <div className="loadmore-line">
-              <span>{$L('已加载全部')}</span>
+              <span title={this.state.files.length}>{$L('已显示全部')}</span>
             </div>
           </div>
         )}
-        {this._pageNo === 1 && this.state.files && this.state.files.length === 0 && (
+        {this.state.files && this.state.files.length === 0 && (
           <div className="list-nodata">
             <i className="zmdi zmdi-folder-outline" />
             <p>{$L('暂无文件')}</p>

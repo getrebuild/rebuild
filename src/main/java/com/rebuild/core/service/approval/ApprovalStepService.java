@@ -809,7 +809,6 @@ public class ApprovalStepService extends BaseService {
     private void sendCcMsgs(ID recordId, String ccMsg, Set<ID> ccUsers, Set<String> ccAccounts) {
         if (CommonsUtils.hasLength(ccUsers)) {
             for (ID cc : ccUsers) {
-                // 可能禁用通知???
                 sendNotification(cc, ccMsg, recordId);
             }
         }
@@ -829,7 +828,10 @@ public class ApprovalStepService extends BaseService {
 
     // 发送系统通知
     private void sendNotification(ID to, String message, ID recordId) {
-        if (CommandArgs.getBoolean(CommandArgs._DisNotificationApproval)) return;
+        if (CommandArgs.getBoolean(CommandArgs._DisNotificationApproval)) {
+            log.warn("Use _DisNotificationApproval : {} < {}", message, to);
+            return;
+        }
         Application.getNotifications().send(MessageBuilder.createApproval(to, message, recordId));
     }
 

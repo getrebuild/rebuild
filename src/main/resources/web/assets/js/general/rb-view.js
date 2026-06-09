@@ -382,6 +382,8 @@ class RelatedList extends React.Component {
   }
 
   renderData() {
+    const showMore = this.state.showMore
+
     return (
       <RF>
         {this.state.dataList && this.state.dataList.length === 0 && this.__listNoData}
@@ -394,17 +396,19 @@ class RelatedList extends React.Component {
           </div>
         )}
 
-        {this.state.showMore && (
+        {showMore && (
           <div className="text-center mt-4 pb-2">
             <a className="show-more-pill" onClick={() => this.fetchData(1)}>
               {$L('显示更多')}
             </a>
           </div>
         )}
-        {!this.state.showMore && this.state.dataList && this.state.dataList.length > 0 && (
+        {!showMore && this.state.dataList && this.state.dataList.length > 0 && (
           <div className="mt-6">
             <div className="loadmore-line">
-              <span className="bg-white">{$L('已加载全部')}</span>
+              <span title={this.state.dataList.length} className="bg-white">
+                {$L('已显示全部')}
+              </span>
             </div>
           </div>
         )}

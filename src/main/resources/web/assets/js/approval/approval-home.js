@@ -33,6 +33,8 @@ class ApprovalList extends React.Component {
 
   render() {
     const _active = this.state._active || []
+    const showMore = this.state.currentSize >= PAGE_SIZE
+
     return (
       <div className="file-list file-list-striped">
         {(this.state.datas || []).map((item) => {
@@ -102,7 +104,7 @@ class ApprovalList extends React.Component {
           )
         })}
 
-        {this.state.currentSize >= PAGE_SIZE && (
+        {showMore && (
           <div className="text-center mt-4 pb-4">
             <a
               className="show-more-pill"
@@ -114,14 +116,14 @@ class ApprovalList extends React.Component {
             </a>
           </div>
         )}
-        {this._pageNo > 1 && this.state.currentSize > 0 && this.state.currentSize < PAGE_SIZE && (
-          <div className="mt-6" style={{ paddingBottom: 8 }}>
+        {!showMore && this.state.datas && this.state.datas.length > 0 && (
+          <div className="mt-6" style={{ paddingBottom: 7 }}>
             <div className="loadmore-line">
-              <span>{$L('已加载全部')}</span>
+              <span title={this.state.datas.length}>{$L('已显示全部')}</span>
             </div>
           </div>
         )}
-        {this._pageNo === 1 && this.state.datas && this.state.datas.length === 0 && (
+        {this.state.datas && this.state.datas.length === 0 && (
           <div className="list-nodata">
             <i className="mdi mdi-progress-check" />
             <p>{$L('暂无审批')}</p>
