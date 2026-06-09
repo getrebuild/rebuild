@@ -19,7 +19,7 @@ import com.hankcs.hanlp.utility.TextUtility;
 import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
 import com.rebuild.core.RebuildException;
-import com.rebuild.customized.Executor2;
+import com.rebuild.core.support.Executor2;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;

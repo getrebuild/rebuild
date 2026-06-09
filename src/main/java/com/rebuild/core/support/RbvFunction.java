@@ -152,4 +152,10 @@ public class RbvFunction {
         log.debug("No RbvFunction : es5");
         return null;
     }
+
+    // -- DISTR
+
+    public void refreshAllNodes() {
+        log.debug("No RbvFunction : refreshAllNodes");
+    }
 }
